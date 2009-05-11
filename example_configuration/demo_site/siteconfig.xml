@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<GenRoBag>
+<wsgi port="8081" reload="true" debug="true" mainpackage='mainpkg'/>
+<resources common='/Users/michele/hgrepos/genro/resources/common/' site='./' />
+<connection_timeout _T="NN"/>
+<connection_refresh _T="NN"/>
+<dojo _T="NN" version="11"/></GenRoBag>

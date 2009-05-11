@@ -1,0 +1,17 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<GenRoBag>
+	<db implementation="postgres" host="localhost" user="postgres" dbname="demo" />
+	<packages path='/hgrepos/genro/packages'>
+		<adm />
+		<glbl />
+		<gnr path='/hgrepos/genro/legacy_packages'/>
+		<admin path='/hgrepos/genro/legacy_packages'/>
+		<tools path='/hgrepos/genro/legacy_packages'/>
+	</packages>
+	<authentication pkg='adm'>
+		<xml_auth defaultTags="user">
+			<demo pwd="demo" tags="admin,amministrazione,manager,_DEV_,_TRD_"/>
+		</xml_auth>
+		<py_auth defaultTags='user' pkg='adm' method='authenticate' />
+	</authentication>
+</GenRoBag>
