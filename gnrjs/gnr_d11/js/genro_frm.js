@@ -161,13 +161,13 @@ dojo.declare("gnr.GnrFrmHandler",null,{
                     }
                     data.setItem(node.label,value, attr_dict);
                 }
-
             }
             if (((data.len()>0)&&(data.__isRealChange)) || (!result)){
                  var result = result || new gnr.GnrBag();
                  var recordNode = record.getParentNode();
                  var resultattr = objectExtract(recordNode.attr,'_pkey,_newrecord,lastTS,mode,one_one', true);
                  result.setItem(recordNode.label, data, resultattr);
+                 result.__isRealChange=data.__isRealChange
              }
              return result;
         }
