@@ -1,0 +1,9 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<GenRoBag>
+<db implementation='postgres' host='localhost' dbname='cdshop' user='postgres' password='postgnr' cacheTime='300::L'/>
+
+<packages path='/eclipse/GenroNew/examples/packages'>
+	<admin path='/eclipse/GenroNew/gnrpy/packages'/>
+	<cddb />
+</packages>
+</GenRoBag>

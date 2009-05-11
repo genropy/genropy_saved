@@ -1,0 +1,19 @@
+# Sphinx inventory version 1
+# Project: genropy
+# Version: 0.9
+gnr.core.gnrbag mod modules/core.html
+gnr.core.gnrbag.BagNode.getValue method modules/core.html
+gnr.core.gnrbag.BagNode.value attribute modules/core.html
+gnr.core.gnrbag.BagNode.delAttr method modules/core.html
+gnr.core.gnrbag.BagNode.getAttr method modules/core.html
+gnr.core.gnrbag.BagNode class modules/core.html
+gnr.core.gnrbag.BagNode.staticvalue attribute modules/core.html
+gnr.core.gnrbag.BagNode.setValue method modules/core.html
+gnr.core.gnrbag.BagNode.resolver attribute modules/core.html
+gnr.core.gnrbag.BagNode.setStaticValue method modules/core.html
+gnr.core.gnrbag.BagNode.getLabel method modules/core.html
+gnr.core.gnrbag.BagNode.getStaticValue method modules/core.html
+gnr.core.gnrbag.BagNode.setLabel method modules/core.html
+gnr.core.gnrbag.BagNode.hasAttr method modules/core.html
+gnr.core.gnrbag.BagNode.setAttr method modules/core.html
+gnr.core.gnrbag.BagNode.addValidator method modules/core.html

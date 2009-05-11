@@ -1,0 +1,7 @@
+.pkg_stp .query_pane .gnrfieldlabel{
+	font-size: .85em;
+	font-weight: bold;
+	color: #2c2c2c;
+	text-align: right;
+	padding-left: 8px;
+}

@@ -1,0 +1,271 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Package: gnr.core &mdash; genropy v0.9 documentation</title>
+    <link rel="stylesheet" href="../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '0.9',
+        COLLAPSE_MODINDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="top" title="genropy v0.9 documentation" href="../index.html" />
+    <link rel="prev" title="Welcome to genropy&#8217;s documentation!" href="../index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../modindex.html" title="Global Module Index"
+             accesskey="M">modules</a> |</li>
+        <li class="right" >
+          <a href="../index.html" title="Welcome to genropy&#8217;s documentation!"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../index.html">genropy v0.9 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  
+  <div class="section" id="module-gnr.core.gnrbag">
+<h1>Package: gnr.core<a class="headerlink" href="#module-gnr.core.gnrbag" title="Permalink to this headline">¶</a></h1>
+<p>The gnrbag module contains a single class intended to be used: Bag
+A Bag is a generic container object, similar to a dictionary,
+with some useful properties:</p>
+<ul class="simple">
+<li>ordered</li>
+<li>accessible by key</li>
+<li>iterable</li>
+<li>hierarchical</li>
+</ul>
+<p>A Bag can store any kind of python object with a label in an ordered list.
+It can also store attributes about any value stored: bag attributes are metadata,
+do not interfere with the stored object.</p>
+<p>A Bag can be loaded and saved in some ways:
+- saved to and loaded from pikle files or strings: 
+the object stored in the bag must be picklable of course.
+- saved to and loaded from xml files or strings with a specific syntax: 
+the object stored in the bag must be strings, numbers or dates.
+- loaded from a generic xml file preserving the whole hierarchical structure and 
+the attributes: all values will be of type string of course.
+- loaded from a generic html file: requires tidy.</p>
+<p>Another class you could have to deal with is BagNode: they are Bag elements, 
+basically a Bag is a list of BagNode-s.</p>
+<p>BagNode is not intended to be instanced directly, it is used internally by Bag.
+However in some cases is useful to interact with BagNode instances inside a Bag.</p>
+<dl class="class">
+<dt id="gnr.core.gnrbag.BagNode">
+<!--[gnr.core.gnrbag.BagNode]-->class <tt class="descclassname">gnr.core.gnrbag.</tt><tt class="descname">BagNode</tt><big>(</big><em>parentbag</em>, <em>label</em>, <em>value=None</em>, <em>attr=None</em>, <em>resolver=None</em>, <em>validators=None</em>, <em>_removeNullAttributes=True</em><big>)</big><a class="headerlink" href="#gnr.core.gnrbag.BagNode" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a title="(in Python v2.7)" class="reference external" href="http://docs.python.org/dev/library/functions.html#object"><tt class="xref docutils literal"><span class="pre">object</span></tt></a></p>
+<p>BagNode is the element type which a Bag is composed of. That&#8217;s why it&#8217;s
+possible to say that a Bag is a collection of BagNodes. A BagNode is an 
+object that gather within itself, three main things:</p>
+<blockquote>
+-label: can be only a string.
+-value: can be anything, but a BagNode. Often value is a Bag.
+-attributes: dictionary that contains node&#8217;s metadata</blockquote>
+<dl class="method">
+<dt id="gnr.core.gnrbag.BagNode.addValidator">
+<!--[gnr.core.gnrbag.BagNode.addValidator]--><tt class="descname">addValidator</tt><big>(</big><em>validator</em>, <em>parameterString</em><big>)</big><a class="headerlink" href="#gnr.core.gnrbag.BagNode.addValidator" title="Permalink to this definition">¶</a></dt>
+<dd>this method set a new validator into the BagValidationList of the node.
+If there are no validators into the node then addValidator instantiate
+a new BagValidationList and append the validator to it.
+* <cite>validator</cite>: the type of validation to set into the list of the node.
+* <cite>paremeterString</cite>: the parameters for a single validation type.</dd></dl>
+
+<dl class="method">
+<dt id="gnr.core.gnrbag.BagNode.delAttr">
+<!--[gnr.core.gnrbag.BagNode.delAttr]--><tt class="descname">delAttr</tt><big>(</big><em>*attrToDelete</em><big>)</big><a class="headerlink" href="#gnr.core.gnrbag.BagNode.delAttr" title="Permalink to this definition">¶</a></dt>
+<dd>this method receives one or more attributes&#8217; labels and removes them
+from the node&#8217;s attributes</dd></dl>
+
+<dl class="method">
+<dt id="gnr.core.gnrbag.BagNode.getAttr">
+<!--[gnr.core.gnrbag.BagNode.getAttr]--><tt class="descname">getAttr</tt><big>(</big><em>label=None</em>, <em>default=None</em><big>)</big><a class="headerlink" href="#gnr.core.gnrbag.BagNode.getAttr" title="Permalink to this definition">¶</a></dt>
+<dd>this method returns the value of an attribute given it&#8217;s label.
+If it doesn&#8217;t exists returns a default value.
+* <cite>label</cite>: the label of the attribute to get.</dd></dl>
+
+<dl class="method">
+<dt id="gnr.core.gnrbag.BagNode.getLabel">
+<!--[gnr.core.gnrbag.BagNode.getLabel]--><tt class="descname">getLabel</tt><big>(</big><big>)</big><a class="headerlink" href="#gnr.core.gnrbag.BagNode.getLabel" title="Permalink to this definition">¶</a></dt>
+<dd>Returns node&#8217;s label</dd></dl>
+
+<dl class="method">
+<dt id="gnr.core.gnrbag.BagNode.getStaticValue">
+<!--[gnr.core.gnrbag.BagNode.getStaticValue]--><tt class="descname">getStaticValue</tt><big>(</big><big>)</big><a class="headerlink" href="#gnr.core.gnrbag.BagNode.getStaticValue" title="Permalink to this definition">¶</a></dt>
+<dd>Get node&#8217;s value in static mode</dd></dl>
+
+<dl class="method">
+<dt id="gnr.core.gnrbag.BagNode.getValue">
+<!--[gnr.core.gnrbag.BagNode.getValue]--><tt class="descname">getValue</tt><big>(</big><em>mode=''</em><big>)</big><a class="headerlink" href="#gnr.core.gnrbag.BagNode.getValue" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the value of the BagNode.
+This method is called by the property .value</p>
+<ul>
+<li><dl class="first docutils">
+<dt><cite>mode</cite>: can be one or more of:</dt>
+<dd><ul class="first last">
+<li><dl class="first docutils">
+<dt>static: to get the resolver instance instead of the </dt>
+<dd><p class="first last">calculated value</p>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>weak: to get a weak ref stored in the node instead of </dt>
+<dd><p class="first last">the actual object</p>
+</dd>
+</dl>
+</li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+<p>Return: node&#8217;s value</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="gnr.core.gnrbag.BagNode.hasAttr">
+<!--[gnr.core.gnrbag.BagNode.hasAttr]--><tt class="descname">hasAttr</tt><big>(</big><em>label=None</em>, <em>value=None</em><big>)</big><a class="headerlink" href="#gnr.core.gnrbag.BagNode.hasAttr" title="Permalink to this definition">¶</a></dt>
+<dd>this method check if the node has the given pair label-value
+in its attributes</dd></dl>
+
+<dl class="attribute">
+<dt id="gnr.core.gnrbag.BagNode.resolver">
+<!--[gnr.core.gnrbag.BagNode.resolver]--><tt class="descname">resolver</tt><a class="headerlink" href="#gnr.core.gnrbag.BagNode.resolver" title="Permalink to this definition">¶</a></dt>
+<dd>Get node&#8217;s resolver</dd></dl>
+
+<dl class="method">
+<dt id="gnr.core.gnrbag.BagNode.setAttr">
+<!--[gnr.core.gnrbag.BagNode.setAttr]--><tt class="descname">setAttr</tt><big>(</big><em>attr=None</em>, <em>trigger=True</em>, <em>_updattr=True</em>, <em>_removeNullAttributes=True</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#gnr.core.gnrbag.BagNode.setAttr" title="Permalink to this definition">¶</a></dt>
+<dd><p>this method receives one or more key-value couple, passed as a dict or
+as named parameters, and sets them as attributes of the node</p>
+<ul class="simple">
+<li><cite>attr</cite>: the dict of attributes to set into the node.</li>
+</ul>
+</dd></dl>
+
+<dl class="method">
+<dt id="gnr.core.gnrbag.BagNode.setLabel">
+<!--[gnr.core.gnrbag.BagNode.setLabel]--><tt class="descname">setLabel</tt><big>(</big><em>label</em><big>)</big><a class="headerlink" href="#gnr.core.gnrbag.BagNode.setLabel" title="Permalink to this definition">¶</a></dt>
+<dd>set node&#8217;s label</dd></dl>
+
+<dl class="method">
+<dt id="gnr.core.gnrbag.BagNode.setStaticValue">
+<!--[gnr.core.gnrbag.BagNode.setStaticValue]--><tt class="descname">setStaticValue</tt><big>(</big><em>value</em><big>)</big><a class="headerlink" href="#gnr.core.gnrbag.BagNode.setStaticValue" title="Permalink to this definition">¶</a></dt>
+<dd>Set node&#8217;s value in static mode</dd></dl>
+
+<dl class="method">
+<dt id="gnr.core.gnrbag.BagNode.setValue">
+<!--[gnr.core.gnrbag.BagNode.setValue]--><tt class="descname">setValue</tt><big>(</big><em>value</em>, <em>trigger=True</em>, <em>_attributes=None</em>, <em>_updattr=None</em>, <em>_removeNullAttributes=True</em><big>)</big><a class="headerlink" href="#gnr.core.gnrbag.BagNode.setValue" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the node&#8217;s value, unless the node is locked.
+This method is called by the property .value</p>
+<ul>
+<li><dl class="first docutils">
+<dt><cite>value</cite>: the value to set the new bag inherits the trigger of the</dt>
+<dd><p class="first last">parentbag and calls it sending an update event</p>
+</dd>
+</dl>
+</li>
+</ul>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="gnr.core.gnrbag.BagNode.staticvalue">
+<!--[gnr.core.gnrbag.BagNode.staticvalue]--><tt class="descname">staticvalue</tt><a class="headerlink" href="#gnr.core.gnrbag.BagNode.staticvalue" title="Permalink to this definition">¶</a></dt>
+<dd>Get node&#8217;s value in static mode</dd></dl>
+
+<dl class="attribute">
+<dt id="gnr.core.gnrbag.BagNode.value">
+<!--[gnr.core.gnrbag.BagNode.value]--><tt class="descname">value</tt><a class="headerlink" href="#gnr.core.gnrbag.BagNode.value" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the value of the BagNode.
+This method is called by the property .value</p>
+<ul>
+<li><dl class="first docutils">
+<dt><cite>mode</cite>: can be one or more of:</dt>
+<dd><ul class="first last">
+<li><dl class="first docutils">
+<dt>static: to get the resolver instance instead of the </dt>
+<dd><p class="first last">calculated value</p>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>weak: to get a weak ref stored in the node instead of </dt>
+<dd><p class="first last">the actual object</p>
+</dd>
+</dl>
+</li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+<p>Return: node&#8217;s value</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+            <h4>Previous topic</h4>
+            <p class="topless"><a href="../index.html" title="previous chapter">Welcome to genropy&#8217;s documentation!</a></p>
+            <h3>This Page</h3>
+            <ul class="this-page-menu">
+              <li><a href="../_sources/modules/core.txt">Show Source</a></li>
+            </ul>
+          <h3>Quick search</h3>
+            <form class="search" action="../search.html" method="get">
+              <input type="text" name="q" size="18" /> <input type="submit" value="Go" />
+              <input type="hidden" name="check_keywords" value="yes" />
+              <input type="hidden" name="area" value="default" />
+            </form>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../modindex.html" title="Global Module Index"
+             accesskey="M">modules</a> |</li>
+        <li class="right" >
+          <a href="../index.html" title="Welcome to genropy&#8217;s documentation!"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../index.html">genropy v0.9 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+      &copy; Copyright 2009, Giovanni Porcari,Michele Bertoldi, Saverio Porcari, Francesco Porcari.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 0.5.1.
+    </div>
+  </body>
+</html>

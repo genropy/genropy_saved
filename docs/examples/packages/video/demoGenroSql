@@ -1,0 +1,41 @@
+from gnr.app.gnrapp import GnrApp
+app = GnrApp('/usr/local/genro/data/instances/myvideo')
+
+sel = app.db.query('video.movie', columns='title, @director.name').fetch()
+
+sel = app.db.query('video.movie', columns='title, @director.name:director_name', where='$director_name ILIKE :director' , director='Al%').fetch()
+sel(director='Wo%')
+
+
+
+sel = app.db.query('video.movie', columns='title, @director.name:director_name', where='$director_name ILIKE :director' , director='Al%')
+
+print sel(mode='count')
+
+print sel.fetch()
+
+print sel(mode='dictlist')
+
+print sel.cursor()
+
+print sel.cursor().fetchall()
+
+print sel(mode='bag')
+
+print sel().toXml(unresolved=True)
+
+rec = app.db.record('video.movie', 1).output('bag')                                                                                           
+
+print rec
+
+print rec['@director']
+ 
+print rec['@video_dvd_movieid']
+
+
+sel2 = app.db.query('video.director', columns='name, @video_movie_director.genre:genre, count(@video_movie_director.id)', group_by='name, $genre', order_by='name,$genre')
+
+sel2.fetch()
+
+sel2(mode='count')
+10

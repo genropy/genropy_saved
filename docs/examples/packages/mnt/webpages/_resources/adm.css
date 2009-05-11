@@ -1,0 +1,20 @@
+/* @group adm */
+
+.pkg_adm .pbl_formContainerClient{
+	background: url(images/overallbg.gif) repeat-x;
+	background-color: white;
+	border: 2px solid #e0e0e0;
+	color: #2c2c2c;
+	padding-top: 0.5em;
+
+}
+
+.pkg_adm .pbl_formContainer {
+	font-family: "Lucida Grande", Lucida, Verdana, sans-serif;
+	height: 230px !important;
+	width: 700px;
+	margin-left: 30px;
+	margin-top: 10em;
+}
+
+/* @end */

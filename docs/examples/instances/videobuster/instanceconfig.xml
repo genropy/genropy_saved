@@ -1,0 +1,11 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<GenRoBag>
+<db implementation='postgres' host='localhost' dbname='vbuster' user='postgres' password='postgres' cacheTime='300::L'/>
+
+<packages path='/usr/local/genro/packages'>
+	<admin/>
+	<utils alias="ut"/>
+	<video sqlshema='pippo' />
+</packages>
+</GenRoBag>
+

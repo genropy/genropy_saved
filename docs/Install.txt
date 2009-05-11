@@ -1,0 +1,85 @@
+[Python]
+Download from:
+www.python.org
+
+[PostgresSQL]
+To upgrade:
+in the old enviroment: pg_dumpall -U postgres -f all.sql
+Homepage: http://www.postgresqlformac.com/
+Download: http://www.postgresqlformac.com/lists/downloads/unified_installer_disk_imag/
+in the new enviroment: psql -U postgres < all.sql
+
+[easy_install]
+Download: curl -O http://peak.telecommunity.com/dist/ez_setup.py
+sudo python ez_setup.py
+
+[psycopg2]
+download from http://initd.org/pub/software/psycopg/psycopg2-2.0.10.tar.gz
+tar xvfz psycopg2-2.0.10.tar.gz
+cd psycopg2-2.0.10
+python setup.py build
+sudo python setup.py build
+
+[mercurial]
+sudo easy_install -U -Z mercurial
+
+[paver]
+sudo easy_install -U -Z paver
+
+[genro]
+hg clone http://hg.genropy.org/genro
+cd genro
+cd gnrpy
+sudo paver develop
+
+----------------------- Skip These --------------------
+#[python packages]
+#sudo easy_install -U -Z babel
+#sudo easy_install -U -Z pytz
+#sudo easy_install -U -Z vobject
+#sudo easy_install -U -Z paste
+#sudo easy_install -U -Z webob
+#sudo easy_install -U -Z weberror
+#sudo easy_install -U -Z mako
+#-----------
+#sudo easy_install -U -Z babel pytz vobject
+#sudo easy_install -U -Z paste webob weberror
+#sudo easy_install -U -Z mako
+-----------------------------------------------------
+[ReportLab]
+download from: http://www.reportlab.org/ftp/ReportLab_2_3.tar.gz
+tar xvfz ReportLab_2_3.tar.gz
+cd ReportLab_2_3
+python setup.py build
+sudo python setup.py install
+
+[LibXml2 & Libxslt]
+Download attached Packages:
+http://dl.getdropbox.com/u/428566/LibXml2.pkg
+
+[lxml]
+PATH=/usr/local/libxml2-2.7.3/bin/:/usr/local/libxslt-1.1.24/bin/:$PATH sudo easy_install -Z -U lxml
+
+[z3c.rml]
+sudo easy_install -Z -U z3c.rml
+
+[xlrd & xlwt]
+sudo easy_install -U -Z xlrd
+sudo easy_install -U -Z xlwt
+
+[Useful packages for developers]
+sudo easy_install -U -Z readline ipython
+sudo easy_install -U -Z pyflakes
+sudo easy_install -U -Z pylint
+sudo easy_install -U -Z virtualenv
+
+[mod_wsgi]
+Download: http://modwsgi.googlecode.com/files/mod_wsgi-2.4.tar.gz
+./configure
+make && sudo make install
+
+To run apache in 32bit mode:
+http://code.google.com/p/modwsgi/wiki/InstallationOnMacOSX
+and read the "Forcing 32 Bit Execution"
+of the document.
+

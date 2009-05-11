@@ -1,0 +1,45 @@
+.index_browserPane{
+    padding: 2px;
+}
+.index_back_client{
+	border: thin solid #38496e;
+	background-color: #d3e3ee;
+	height: 100%;
+	padding: 1px;
+}
+
+.index_header{
+	border: 1px solid #38496e;
+	color: white;
+	text-align: center;
+	font-size: 12px;
+	padding: 4px;
+	background-color: #38496e;
+	border-bottom-style: none;
+}
+.index_td{
+	border: 1px solid #4d4d4d;
+	color: #1c303d;
+	text-align: center;
+	font-size: 10pt;
+	cursor: pointer;
+	padding: 4px;
+}
+.index_back{
+	background-color: #4c73a6;
+	border: 1px solid #38496e;
+	border-bottom-style: none;
+
+}
+.index_folder{
+	background-color: #4c73a6;
+	}
+	
+.index_file{
+	background-color: silver;
+	-moz-border-radius : 6px;
+	}
+	
+.index_td:hover{
+	background-color: #faf77f;
+}

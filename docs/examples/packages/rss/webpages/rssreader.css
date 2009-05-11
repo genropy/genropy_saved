@@ -1,0 +1,47 @@
+.bottomline {
+	height: 2em;
+	background-color: #3c4b54;
+	padding: 2px;
+	border: inset 1px;
+    color: white;
+}
+
+.treepane{
+	background-color: #fffebf;
+	border-top-style: inset;
+	border-top-width: 1px;
+}
+
+.titlepane{
+    color: white;
+	background-color: #3c4b54;
+	text-align: center;
+	font-size: 14pt;
+	border: inset 1px;
+}
+
+.urlfield{
+	width: 40em;
+	border: inset 1px;
+}
+
+.field{
+	border: inset 1px;
+}
+
+.label{
+	text-align: right;
+	color: white;
+}
+
+.treecontainer{
+	border-left: 2px inset #878787 ;
+	border-bottom: 2px inset #878787;
+	background-color: #ffdaa0;
+    height: 100%;
+	border-right: 1px inset #ccc;
+	margin-left: 1.5em;
+}
+.iframeCont{
+	background-color: silver;
+}

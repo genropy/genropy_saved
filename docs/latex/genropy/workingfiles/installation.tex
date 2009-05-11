@@ -1,0 +1,228 @@
+\chapter{Installation} % (fold)
+\label{cha:installation}
+
+\section{Preamble} % (fold)
+\label{sec:Preamble}
+To install Genropy, you will be downloading and installing quite a number of different applications, and dependencies.  The `core' applications include Python, Apache2, Dojo and PostgreSQL.  Additional dependencies assist these applications to work effectively and enable the core to `talk' to each other.  Other applications are also recommended but not mandatory for performing tasks such as editing source code (TextMate), managing the database (Navicat), managing your collaborative programing environment(Subversion), and add menu items to the contextual menu to launch utilities for creating symbolic links (Symbolic Linker) and managing Subversion updates and commits(SCPlugin).
+
+After you have downloaded and installed all of these applications and utilities, you will then need to configure Apache, add to the Path environment variable, and become familiar with how Genropy works and where to put your files and sym links to thos files.  You will also need to be careful with permissions so that the relevant applications (mainly apache) has access to them, and so that logs can be written, etc.
+
+Suffice it to say that even though there is a lot to do for the installation process, and you may feel overwhelmed, it is not as bad as it sounds if you take a small chunk at a time.
+% section Preamble (end)
+
+
+
+
+\section{Installing Components} % (fold)
+\label{sec:Installing Components}
+
+\subsection{Components Listing} % (fold)
+\label{sub:Components_Listing}
+
+\begin{enumerate}
+	\item \textbf{Mandatory} 
+	\begin{enumerate}
+		\item \textbf{Python} - (language)
+		\item \textbf{Apache2} - (webserver)
+		\item \textbf{mod\_python} - (apache and python integration)
+		\item \textbf{Dojo} - (javascript toolkit)
+		\item \textbf{PostgreSQL} - (database)
+		\item \textbf{EasyInstall} - (useful for Python installation) \emph{EXTREMELY USEFUL}
+		\item \textbf{psycopg} - (a postgreSQL database adapter for python) \emph{Required by Genro Db}
+		\item \textbf{simplejason} - (python library for json format)
+		\item \textbf{mako} - (a python's template library)
+		\item \textbf{Babel} - (assists with internationalizing and localizing Python web applications)
+		\item \textbf{pytz} - (world time zone definitions)
+	\end{enumerate}
+	\item \textbf{Helpful Additions} 
+	\begin{enumerate}
+		\item \textbf{TextMate}
+		\item \textbf{Navicat}
+		\item \textbf{CSSEdit}
+		\item \textbf{SCPlugin}
+		\item \textbf{iTerm}
+		\item \textbf{SymbolicLinker}
+		\item \textbf{Firefox Web Browser}
+	\end{enumerate}	
+\end{enumerate}
+% subsection Components Listing (end)
+
+
+
+\subsection{Installing Python} % (fold)
+\label{sub:installing_python}
+You can download the latest version of Python from \url{http://www.python.org/download/}.
+For a MacOSX installation choose the:`{Python 2.5.2 for Macintosh OS X -- this is a universal installer that runs native on both PPC and Intel Macs}'.  You download a dmg file that contains an installer that will also edit the path environment variable in the `/etc/profile' file.
+% subsection installing_python (end)
+
+
+
+
+\subsection{Installing Apache2} % (fold)
+\label{sub:installing_apache2}
+
+Genropy requires Apache2, found at: \url{http://httpd.apache.org/}. Download the current release (version 2.2.8 at the time of writing) and unzip the files.
+You will need to use the \emph{Terminal} application to compile and install Apache2.  We will then configure it by editing the config file.
+\\
+\\
+\greybox{\ding{43} Probably the easiest way to change the current working directory with terminal is to simply use the command \emph{pwd} and then drag the directory onto the terminal window.  By doing this you will `paste' the path onto terminal.  Then simply hit the Enter Key.  Now you are ready to enter the terminal commands to compile apache.}
+
+
+
+%\begin{minipage,1}
+%Hello
+%This is a float box\\I hope that we understand what needs to go in here. 
+%It is imperitive that we have the answer
+%So please do not get this wrong}
+%\end{minipage}
+
+
+
+\begin{verbatim}
+	./configure
+	sudo make
+	sudo make install
+\end{verbatim}
+
+After you have installed apache, you will want to know how to start and stop the server from the terminal.  We have used a terminal application called `iTerm' that supports saving scripts.\\ \\
+
+To start Apache2 server
+\begin{verbatim}
+sudo /usr/local/apache2/bin/apachectl start
+\end{verbatim}
+
+to restart
+\begin{verbatim}
+sudo /usr/local/apache2/bin/apachectl restart
+\end{verbatim}
+
+and to stop
+\begin{verbatim}
+sudo /usr/local/apache2/bin/apachectl stop
+\end{verbatim}
+\^\\
+
+You will also want to have Apache2 automatically start when your computer starts up.  To do this:\\
+
+Create a directory /Libary/StartupItems/apache2\\
+Create a file named apache2.  The contents of this file is:
+
+\begin{verbatim}
+	#!/bin/sh
+	#
+	#==============================================================
+	#	MyStartupItem
+	#	Copyright (c) 2006 Genr.  All rights reserved.
+	#==============================================================
+
+	. /etc/rc.common
+
+	StartService ()
+	{
+		# Log a console message
+		ConsoleMessage "Starting Apache2"
+		/usr/local/apache2/bin/apachectl start
+		# Start something
+		#
+	}
+
+	StopService ()
+	{
+		# Log a console message
+		#
+		ConsoleMessage "Stopping Apache2"
+		/usr/local/apache2/bin/apachectl stop
+		# Stop something
+		#
+
+	}
+
+	RestartService () 
+	{ 
+		StopService
+		StartService
+	}
+
+	RunService "$1"
+\end{verbatim}
+
+and a second file named `StartupParameters.plist' that has contents:
+
+\begin{verbatim}
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>Description</key>
+	<string>Apache2</string>
+	<key>OrderPreference</key>
+	<string>Last</string>
+	<key>Provides</key>
+	<array>
+		<string>apache2</string>
+	</array>
+	<key>Requires</key>
+	<array/>
+	<key>Uses</key>
+	<array/>
+</dict>
+</plist>
+\endv{verbatim}
+
+\subsection{Installing mod\-python} % (fold)
+\label{sub:installing_mod-python}
+Mod\_python is an Apache module that embeds the Python interpreter within the server. With mod\_python you can write web-based applications in Python that will run many times faster than traditional CGI and will have access to advanced features such as ability to retain database connections and other data between hits and access to Apache internals.
+Download it from this url: \url{http://www.modpython.org/}. You will use a terminal application to compile and install mod\_python.  Open the README document and follow the instructions.  
+
+Note that you su to root.  Under OSX the root user is not enabled by default so you may need to do this.  
+To enable the root user for OSX version 10.5.x Open Directory Utility located in Application \ding{213} Utilities. You may have to unlock Directory Utility to make changes. Once it's unlocked, go to Edit \ding{213}   Enable Root User, and then type in a password for your root user. Voila, you can now use the root user, and the `Other Users' option now shows up on the login window.
+
+The terminal commands you need to compile and install are:
+\begin{verbatim}
+	$ ./configure --with-apxs=/usr/local/apache2/bin/apxs
+	$ make
+	$ su
+	# make install
+\end{verbatim}
+
+% subsection installing_mod-python (end)
+
+
+\subsection{Installing Dojo} % (fold)
+\label{sub:installing_dojo}
+Please download the Dojo Java Toolkit from here: \url{http://dojotoolkit.org/}
+\\
+\\
+\label{par:dojo Installation}
+\ding{43} We will later explain how to configure Dojo into the framework
+
+
+
+% subsection installing_dojo (end)
+
+
+% section Installing Components (end)
+
+
+
+
+%\can you convert
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+% chapter installation (end)

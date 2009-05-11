@@ -1,0 +1,42 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<GenRoBag>
+<packages tag="package_list">
+<public sqlprefix="" tag="package">
+<tables tag="table_list">
+<track pkey="id" tag="table">
+<columns tag="column_list">
+<id dtype="A" length="14" tag="column" notnull="True" position="1"/>
+<title dtype="T" tag="column" notnull="True" position="2"/>
+<number dtype="I" tag="column" notnull="True" position="3"/>
+<album_id o_name="" o_name_short="" dtype="A" m_name_short="" m_name_full="" length="10" tag="column" relation="public.album.id" o_name_full="" notnull="True" position="4" m_name=""/>
+</columns>
+</track>
+<genre pkey="code" tag="table">
+<columns tag="column_list">
+<code dtype="A" length="20" tag="column" notnull="True" position="1"/>
+<description dtype="A" length="60" tag="column" notnull="True" position="2"/>
+</columns>
+<indexes tag="index_list"><genre_code_key unique="True" tag="index" columns="1"/></indexes>
+</genre>
+<author pkey="id" tag="table">
+<columns tag="column_list">
+<id dtype="A" length="10" tag="column" notnull="True" position="1"/>
+<name dtype="A" length="100" tag="column" notnull="True" position="2"/>
+<country dtype="A" length="10" tag="column" notnull="False" position="3"/>
+<year dtype="I" tag="column" notnull="False" position="4"/>
+</columns>
+<indexes tag="index_list"><author_name_key unique="True" tag="index" columns="2"/></indexes>
+</author>
+<album pkey="id" tag="table">
+<columns tag="column_list">
+<id dtype="A" length="10" tag="column" notnull="True" position="1"/>
+<title dtype="T" tag="column" notnull="True" position="2"/>
+<year dtype="I" tag="column" notnull="False" position="3"/>
+<genre_code o_name="" o_name_short="" dtype="A" m_name_short="" m_name_full="" length="20" tag="column" relation="public.genre.code" o_name_full="" notnull="True" position="4" m_name=""/>
+<author_id o_name="" o_name_short="" dtype="A" m_name_short="" m_name_full="" length="10" tag="column" relation="public.author.id" o_name_full="" notnull="True" position="5" m_name=""/>
+</columns>
+</album>
+</tables>
+</public>
+</packages>
+</GenRoBag>

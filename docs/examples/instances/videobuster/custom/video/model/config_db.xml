@@ -1,0 +1,15 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<GenRoBag>
+<packages>
+	<video comment="Videobuster catalog" name_short="Video" level="120::L" name_full="Video Catalog" sys="y" tag="package" name_long="Video Catalog">
+				<tables tag="table_list">
+					<director name_short="Dir" pkey="id" tag="table" name_full="Director table" name_long="Director">
+						<columns tag="column_list">
+							<oscar name_full="Director's oscar prize" 
+								name_short="Osc" tag="column" name_long="Oscars" />
+						</columns>
+					</director>
+				</tables>
+			</video>
+		</packages>
+</GenRoBag>
