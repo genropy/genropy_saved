@@ -1,0 +1,14 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<GenRoBag>
+    <from_address>info@softwell.it</from_address>
+    <subject>Welcome $firstname $lastname</subject>
+    <body>Your subscription is done
+    
+    First name: $firstname 
+    Last name: $lastname
+    Username: $username
+	
+	Click here to complete the operation: $link
+	
+    </body>
+</GenRoBag>

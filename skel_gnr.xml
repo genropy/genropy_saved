@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<GenRoBag>
+	<siteconfig>
+		<default>
+			<connection_timeout/>
+			<connection_refresh/>
+			<wsgi port="8082" reload="true" debug="true"/>
+			<dojo version="11"/>
+			<resources path="/Users/michele/hgrepos/genro/resources/">
+				<common/>
+				<softwell/>
+			</resources>
+		</default>
+		<test>
+			<wsgi port="8084" reload="true" debug="true"/>
+
+		</test>
+	</siteconfig>
+	<sites>
+		<softwell path="/Users/michele/newsites/sw_sites" site_template='test'/>
+	</sites>
+</GenRoBag>

@@ -1,0 +1,14 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<GenRoBag>
+    <from_address>gestionale@pycon.it</from_address>
+    <subject>Richiesta cambio password</subject>
+    <body>$nome_cognome, 
+    
+    se desideri ricevere una nuova password per l'utente $username clicca qui: 
+    
+    $link
+    
+   
+        
+    </body>
+</GenRoBag>

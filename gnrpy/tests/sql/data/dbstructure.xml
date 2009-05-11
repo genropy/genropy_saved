@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<GenRoBag>
+  <packages tag="package_list">
+    <video comment="video package" name_short="video" tag="package" name_full="video" name_long="video">
+      <tables tag="table_list">
+        <director pkey="id" tag="table" rowcaption="name,year:%s (%s)" name_short="Dir" name_long="Director">
+          <columns tag="column_list">
+            <id dtype="L" tag="column"/>
+            <name name_short="N." tag="column" name_long="Name"/>
+            <year dtype="L" name_short="Yr" tag="column" name_long="Birth Year"/>
+            <nationality name_short="Ntl" tag="column" name_long="Nationality"/>
+          </columns>
+        </director>
+        <movie pkey="id" tag="table" rowcaption="title" name_short="Mv" name_long="Movie">
+          <columns tag="column_list">
+            <id dtype="L" tag="column"/>
+            <title validate_case="capitalize" validate_len="3,40" name_short="Ttl." tag="column" name_long="Title"/>
+            <genre validate_case="upper" validate_len="3,10" name_short="Gnr" tag="column" name_long="Genre"/>
+            <director m_name_full="" o_name_short="" o_name="" m_name_short="" name_short="Dir" tag="column" relation="video.director.id" o_name_full="" m_name="" name_long="Director"/>
+            <year dtype="L" name_short="Yr" tag="column" name_long="Year"/>
+            <nationality name_short="Ntl" tag="column" name_long="Nationality"/>
+            <description name_short="Dsc" tag="column" name_long="Movie description"/>
+          </columns>
+        </movie>
+        <dvd pkey="code" tag="table" name_short="Dvd" name_long="Dvd">
+          <columns tag="column_list">
+            <code dtype="L" tag="column"/>
+            <movieid m_name_full="" o_name_short="" o_name="" m_name_short="" name_short="Mid" tag="column" relation="video.movie.id" o_name_full="" m_name="" name_long="Movie id"/>
+            <purchasedate dtype="D" name_short="Pdt" tag="column" name_long="Purchase date"/>
+            <available name_short="Avl" tag="column" name_long="Available"/>
+          </columns>
+        </dvd>
+      </tables>
+    </video>
+  </packages>
+</GenRoBag>

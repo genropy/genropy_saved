@@ -1,0 +1,132 @@
+/* @group showcase index */
+body{
+	background-color: whitesmoke;
+}
+.demoTitlePane{
+	font-size: 1.1em;
+	text-align: center;
+	color: #e0e0e0;
+	height: 3ex;
+	padding-top:0.5ex;
+	vertical-align: middle;
+	background-color:gray;
+	-moz-border-radius-topleft:6px;
+	-moz-border-radius-topright:6px;
+    -webkit-border-top-left-radius:6px;
+	-webkit-border-top-right-radius:6px;
+}
+.bg{
+	background: white url(images/overallbg.gif) repeat-x;
+}
+
+.mainCont{
+    border-bottom:1px solid gray;
+}
+
+.demoTextarea{min-height:15em !important;
+              max-height:15em !important;
+              overflow-y:auto !important;
+              }
+
+.navcont {
+	border: 3px solid #e0e0e0;
+	margin-left: 1em;
+	margin-right: 1em;
+	background: white;
+	font-size: 9pt;
+	color: #2c2c2c;
+	-moz-border-radius : 8px;
+	-webkit-border-radius : 8px;
+}
+.stateButton{
+	font-size: small;
+	margin-top: 0.5em;
+	width: 8em;
+	position: relative;
+	text-align: right;
+	color: #e0e0e0;
+	background-color: #989898;
+	cursor: pointer;
+	padding: 0.5ex 1em;
+	-moz-border-radius-topleft:8px;
+	-moz-border-radius-bottomleft:8px;
+	-webkit-border-top-left-radius:8px;
+	-webkit-border-bottom-left-radius:8px;
+	float: right;
+}
+
+.stateButton:hover{
+	background-color: #7e7e7e;
+}
+
+.stateButton:active{
+	color: #e0e0e0;
+	background-color: #545454;
+}
+.fieldcontainer{
+	margin: 1em;
+	border: 1px solid #24233a;
+	-moz-border-radius:10px;
+	-webkit-border-radius:10px;
+
+}
+/* @end */
+
+/* @group Documentation */
+
+.docpane{
+	background-color: silver;
+	padding: 1em;
+}
+.doclabel{
+	margin-left: 20px;
+	margin-top:10px;
+	font-size: small;
+	font-weight: bold;
+}
+.demodoc{
+	background-color: #fffdc0;
+	margin-left: 20px;
+	margin-right: 20px;
+	margin-top: 5px;
+	padding: 10px;
+	-moz-border-radius:12px;
+	-webkit-border-radius:12px;
+	border-radius:12px;
+}
+.abstract{
+	min-height: 10ex;
+}
+.edit_dlg{
+	min-height: 20ex;
+	min-width: 40em;
+}
+.edit_dlg textarea{
+	height: 8ex;
+	width: 35em;
+}
+
+/* @end */
+
+/* @group Source Viewer */
+
+
+.linecode {
+	font-family: "Courier New", Courier, mono;
+	background-color: #e7edf7;
+	text-align: left;
+	border-bottom: thin solid #838383;
+	border: thin none #484848;
+	border-right:thin solid #838383;
+	white-space: pre;
+	width: 100%;
+}
+
+.linecode.r0{
+		background-color: #fff5fc;
+	}
+
+/* @end */
+
+
+

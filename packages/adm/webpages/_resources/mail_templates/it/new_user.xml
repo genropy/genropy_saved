@@ -1,0 +1,14 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<GenRoBag>
+    <from_address>info@softwell.it</from_address>
+    <subject>Benvenuto caro $firstname  $lastname</subject>
+    <body>Sei stato iscritto
+    
+    Nome: $firstname 
+    Cognome: $lastname
+    Utente: $username
+	
+	Per completare la registrazione clicca qui: $link
+	
+    </body>
+</GenRoBag>

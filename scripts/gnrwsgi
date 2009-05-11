@@ -1,0 +1,10 @@
+#!/bin/sh
+
+echo "Please enter the package to run:"
+read site
+temp1=/usr/local/genro/data/sites/
+temp1=$temp1$site
+temp2="/pages/indexwsgi.py --reload"
+indexwsgipath=$temp1$temp2
+echo $indexwsgipath
+python $indexwsgipath

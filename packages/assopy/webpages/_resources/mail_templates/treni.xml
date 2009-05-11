@@ -1,0 +1,15 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<GenRoBag>
+    <from_address>gestionale@pycon.it</from_address>
+    <subject>PyCon: sciopero dei treni</subject>
+    <body>Ciao,
+una breve comunicazione per informarti che purtroppo Venerdì 9 Maggio
+mattina (giornata di inizio del PyCon Due) è stato indetto uno sciopero generale dei treni e dei mezzi pubblici:
+Qui puoi trovare una informativa sullo sciopero e sui treni cancellati
+e confermati:
+http://www.fsnews.it/fsnews/v/index.jsp?vgnextoid=a0032f000dbb9110VgnVCM1000001c42fe0aRCRD
+http://www.fsnews.it/allegati/Sciopero%209%20Maggio.pdf
+Ci vediamo a Firenze!
+
+</body>
+</GenRoBag>

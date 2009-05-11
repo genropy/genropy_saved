@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<GenRoBag>
+	<user_root tags="user" basepath="/develop">
+		<page label="!!Project status" file="maintable/project.py"/>
+	</user_root>
+	<staff_root tags="staff" basepath="/develop">
+		<staff label="!!Staff area">
+			<maintables label="!!Management" cols="2" basepath="maintables">
+				<staff label="!!Staff" file="staff.py"/>
+				<project label="!!Project" file="project.py"/>
+				<client label="!!Client" file="client.py"/>
+				<user label="!!User management" file="/adm/manage_users.py"/>
+				<tags label="!!User Tags" file="/adm/manage_tags.py"/>
+			</maintables>
+			<auxtables label="!!Support" cols="2" basepath="auxtables">
+				<action label="!!Action" file="action.py"/>
+				<ticket label="!!Ticket" file="project.py"/>
+				<ticket_type label="!!Ticket tipe" file="client.py"/>
+			</auxtables>
+		</staff>
+	</staff_root>
+</GenRoBag>

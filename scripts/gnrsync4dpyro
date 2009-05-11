@@ -1,0 +1,14 @@
+#!/usr/bin/env python
+# encoding: utf-8
+
+import os
+
+import Pyro.core
+
+from gnr.xtnd.sync4Dpyro import Sync4DCommander
+
+Pyro.core.initServer()
+daemon = Pyro.core.Daemon()
+
+synccomm = Sync4DCommander(daemon, os.getcwd())
+synccomm.run()

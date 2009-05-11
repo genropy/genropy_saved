@@ -1,0 +1,13 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<GenRoBag>
+    <from_address>info@softwell.it</from_address>
+    <subject>Change password request</subject>
+    <body>$firstname $lastname, 
+    Click the link below to change password to user $username 
+    
+    $link
+    
+   
+	
+    </body>
+</GenRoBag>

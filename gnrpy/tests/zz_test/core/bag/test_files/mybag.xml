@@ -1,0 +1,21 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<GenRoBag>
+<relatives _T="BAG">
+<Karla _T="BAG" age="54::L">
+<birthday _T="D">1952-12-10</birthday>
+<pierciengs _T="L">0</pierciengs>
+<dogname/>
+</Karla>
+<Albert _T="BAG"/>
+</relatives>
+<friends _T="BAG">
+<Fred _T="BAG"/>
+<Henry _T="BAG"/>
+</friends>
+<office _T="BAG">
+<Frank _T="BAG" fromdate="3-5-1998" role="developer"/>
+<John _T="BAG" fromdate="2-1-1990" age="55::L" role="boss"/>
+<Alexandra _T="BAG"/>
+<Xavier _T="BAG" role="researcher" fromdate="9-15-2005"/>
+</office>
+</GenRoBag>

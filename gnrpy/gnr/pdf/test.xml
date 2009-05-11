@@ -1,0 +1,31 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<GenRoBag><page_0 y="2::L" x="2::L" tag="page" tagType="GS"><drawString_0 y="0::L" text="Hello World page 1_ 0" tagType="RD" tag="drawString" x="0::L"/>
+<drawString_1 y="10::L" text="Hello World page 1_ 1" tagType="RD" tag="drawString" x="10::L"/>
+<drawString_2 y="20::L" text="Hello World page 1_ 2" tagType="RD" tag="drawString" x="20::L"/>
+<drawString_3 y="30::L" text="Hello World page 1_ 3" tagType="RD" tag="drawString" x="30::L"/>
+<drawString_4 y="40::L" text="Hello World page 1_ 4" tagType="RD" tag="drawString" x="40::L"/>
+<drawString_5 y="50::L" text="Hello World page 1_ 5" tagType="RD" tag="drawString" x="50::L"/>
+<drawString_6 y="60::L" text="Hello World page 1_ 6" tagType="RD" tag="drawString" x="60::L"/>
+<drawString_7 y="70::L" text="Hello World page 1_ 7" tagType="RD" tag="drawString" x="70::L"/>
+<drawString_8 y="80::L" text="Hello World page 1_ 8" tagType="RD" tag="drawString" x="80::L"/>
+<drawString_9 y="90::L" text="Hello World page 1_ 9" tagType="RD" tag="drawString" x="90::L"/></page_0>
+<page_1 tag="page" tagType="GS"><drawString_0 y="0::L" text="Hello World page 2 _ 0" tagType="RD" tag="drawString" x="0::L"/>
+<drawString_1 y="20::L" text="Hello World page 2 _ 1" tagType="RD" tag="drawString" x="20::L"/>
+<drawString_2 y="40::L" text="Hello World page 2 _ 2" tagType="RD" tag="drawString" x="40::L"/>
+<drawString_3 y="60::L" text="Hello World page 2 _ 3" tagType="RD" tag="drawString" x="60::L"/>
+<drawString_4 y="80::L" text="Hello World page 2 _ 4" tagType="RD" tag="drawString" x="80::L"/>
+<drawString_5 y="100::L" text="Hello World page 2 _ 5" tagType="RD" tag="drawString" x="100::L"/>
+<drawString_6 y="120::L" text="Hello World page 2 _ 6" tagType="RD" tag="drawString" x="120::L"/>
+<drawString_7 y="140::L" text="Hello World page 2 _ 7" tagType="RD" tag="drawString" x="140::L"/>
+<drawString_8 y="160::L" text="Hello World page 2 _ 8" tagType="RD" tag="drawString" x="160::L"/>
+<drawString_9 y="180::L" text="Hello World page 2 _ 9" tagType="RD" tag="drawString" x="180::L"/></page_1>
+<page_2 tag="page" tagType="GS"><drawString_0 y="0::L" text="Hello World page 3 _ 0" tagType="RD" tag="drawString" x="0::L"/>
+<drawString_1 y="30::L" text="Hello World page 3 _ 1" tagType="RD" tag="drawString" x="30::L"/>
+<drawString_2 y="60::L" text="Hello World page 3 _ 2" tagType="RD" tag="drawString" x="60::L"/>
+<drawString_3 y="90::L" text="Hello World page 3 _ 3" tagType="RD" tag="drawString" x="90::L"/>
+<drawString_4 y="120::L" text="Hello World page 3 _ 4" tagType="RD" tag="drawString" x="120::L"/>
+<drawString_5 y="150::L" text="Hello World page 3 _ 5" tagType="RD" tag="drawString" x="150::L"/>
+<drawString_6 y="180::L" text="Hello World page 3 _ 6" tagType="RD" tag="drawString" x="180::L"/>
+<drawString_7 y="210::L" text="Hello World page 3 _ 7" tagType="RD" tag="drawString" x="210::L"/>
+<drawString_8 y="240::L" text="Hello World page 3 _ 8" tagType="RD" tag="drawString" x="240::L"/>
+<drawString_9 y="270::L" text="Hello World page 3 _ 9" tagType="RD" tag="drawString" x="270::L"/></page_2></GenRoBag>

@@ -1,0 +1,124 @@
+#!/usr/bin/env python
+# encoding: utf-8
+import sys, os
+import time
+from gnr.app.gnrapp import GnrApp
+from gnr.core.gnrbag import Bag
+import optparse
+
+S_GNRHOME=os.path.split(os.environ.get('GNRHOME','/usr/local/genro'))
+GNRHOME=os.path.join(*S_GNRHOME)
+S_GNRINSTANCES=(os.environ.get('GNRINSTANCES') and os.path.split(os.environ.get('GNRINSTANCES'))) or (S_GNRHOME+('data','instances'))
+GNRINSTANCES=os.path.join(*S_GNRINSTANCES)
+
+usage = """
+gnrdbsetup is used to create/update/check
+database models in Genro framework
+run either in instance directory or 
+specify instance name with the -i/--instance flag
+with -d/--directory you can specify the instance directory"""
+        
+parser = optparse.OptionParser(usage)
+
+parser.add_option('-c','--check',
+                  dest='check',
+                  action='store_true',
+                  help="Check only, don't apply changes")
+                  
+parser.add_option('-v','--verbose',
+                dest='verbose',
+                action='store_true',
+                help="Verbose mode")
+
+parser.add_option('-i','--instance',
+            dest='instance',
+            help="Use command on instance identified by supplied name")
+
+parser.add_option('-d','--directory',
+            dest='directory',
+            help="Use command on instance identified by supplied directory (overrides -i)")
+           
+parser.add_option('-s','--site',
+            dest='site',
+            help="Use command on instance identified by supplied site")
+
+parser.add_option('-I','--import',
+            dest='import_file',
+            help="Import specified XML file")
+            
+parser.add_option('--config',
+                  dest='config_path',
+                  default="~/.gnr.xml",
+                  help="gnrserve file path")
+
+(options,args)=parser.parse_args()
+
+def load_server_config():
+    config_path = os.path.expanduser(options.config_path)
+    if os.path.isfile(config_path):
+        server_config=Bag(config_path)
+    else:
+        server_config=Bag()
+    return server_config
+
+def name_to_path(server_config,site_name):
+    if 'sites' in server_config:
+        for path in server_config.digest('sites:#a.path'):
+            site_path=os.path.join(path,site_name)
+            if os.path.isdir(site_path):
+                return site_path
+    raise ServerException(
+        'Error: erroneous site provided (not %s)' % site_name)
+
+
+def get_app():
+    if options.directory:
+        instance_path=options.directory
+        if os.path.isdir(instance_path): 
+            return GnrApp(instance_path)
+        else:
+            print "No valid instance provided"
+    elif options.instance:
+        instance_path=os.path.join(GNRINSTANCES,options.instance)
+        if os.path.isdir(instance_path): 
+            return GnrApp(instance_path)
+        else:
+            print "No valid instance provided"
+    elif options.site:
+        server_config = load_server_config()
+        site_path = name_to_path(server_config, options.site)
+        if not site_path:
+            site_path = os.path.join(server_config['sites?path'] or '', options.site)
+        instance_path = os.path.join(site_path,'instance')
+        if os.path.isfile(os.path.join(instance_path,'instanceconfig.xml')):
+            return GnrApp(instance_path)
+        else:
+            print "No valid instance provided"
+    else:
+        return GnrApp(os.getcwd())
+
+
+def check_db():
+    app = get_app()
+    changes = app.checkDb()
+    if changes:
+        if options.verbose:
+            print '*CHANGES:\n%s'%'\n'.join(app.db.model.modelChanges)
+        else:
+            print 'CHANGES APPLIED TO DATABASE'
+    else:
+        print 'STRUCTURE OK'
+    return app
+    
+def import_db(filepath):
+    app = get_app()
+    app.db.importXmlData(filepath)
+    app.db.commit()
+
+if __name__ == '__main__':
+    if options.check:
+        check_db()
+    elif options.import_file:
+        import_db(options.import_file)
+    else: 
+        check_db().applyChangesToDb()

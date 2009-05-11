@@ -1,0 +1,114 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<GenRoBag>
+      <people pkg='video'>
+      	<r id='0::L' name='Woody Allen' year='1935' nationality='USA' />
+      	<r id='1::L' name='Steven Spielberg' year='1946::L' nationality='USA' />
+      	<r id='2::L' name='Stanley Kubrick' year='1928::L' nationality='USA' />
+      	<r id='3::L' name='Brian De Palma' year='1940::L' nationality='USA' />
+      	<r id='4::L' name='Alfred Hitchcock' year='1899::L' nationality='UK' />
+      	<r id='5::L' name='Martin Scorsese' year='1942::L' nationality='USA' />
+   
+      	<r id='6::L' name='Tom Hanks' year='1956' nationality='USA' />
+      	<r id='7::L' name='Matt Damon' year='1970::L' nationality='USA' />
+      	<r id='8::L' name='Leonardo DiCaprio' year='1974::L' nationality='USA' />
+      	<r id='9::L' name='Cate Blanchett' year='1969::L' nationality='AU' />
+      	<r id='10::L' name='Jonathan Rhys Meyers' year='1977::L' nationality='IR' />
+      	<r id='11::L' name='Scarlett Johansson' year='1984::L' nationality='USA' />
+   
+      	<r id='12::L' name='Hugh Jackman' year='1968' nationality='AU' />
+      	<r id='13::L' name='Kevin Costner' year='1955::L' nationality='USA' />
+      	<r id='14::L' name='Al Pacino' year='1940::L' nationality='USA' />
+      	<r id='15::L' name='Michelle Pfeiffer' year='1958::L' nationality='AU' />
+      	<r id='16::L' name='Anthony Perkins' year='1932::L' nationality='USA' />
+      	<r id='17::L' name='Janet Leigh' year='1927::L' nationality='USA' />
+   
+      	<r id='18::L' name='Ryan ONeal' year='1941' nationality='AU' />
+      	<r id='19::L' name='Marisa Berenson' year='1947::L' nationality='USA' />
+      	<r id='20::L' name='Tom Cruise' year='1962::L' nationality='USA' />
+      	<r id='21::L' name='Nicole Kidman' year='1967::L' nationality='AU' />
+      	<r id='22::L' name='Eric Bana' year='1968' nationality='AU' /> 
+      	<r id='23::L' name='Daniel Craig ' year='1968' nationality='UK' /> 
+      </people>
+   
+   
+      <cast pkg='video'>
+      	<r id='0::L' movie_id='0' person_id='0' role='director'  prizes='' />
+      	<r id='1::L' movie_id='0' person_id='10' role='actor'  prizes='' />
+      	<r id='2::L' movie_id='0' person_id='11' role='actor'  prizes='' />
+   
+      	<r id='3::L' movie_id='1' person_id='0' role='director'  prizes='' />
+      	<r id='4::L' movie_id='1' person_id='12' role='actor'  prizes='' />
+      	<r id='5::L' movie_id='1' person_id='11' role='actor'  prizes='' />
+   
+      	<r id='6::L' movie_id='2' person_id='1' role='director'  prizes='' />
+      	<r id='7::L' movie_id='2' person_id='16' role='actor'  prizes='' />
+      	<r id='8::L' movie_id='2' person_id='17' role='actor'  prizes='' />
+   
+      	<r id='9::L' movie_id='3' person_id='1' role='director'  prizes='Oscar: Best director' />
+      	<r id='10::L' movie_id='3' person_id='6' role='actor'  prizes='' />
+      	<r id='11::L' movie_id='3' person_id='7' role='actor'  prizes='' />
+   
+   
+      	<r id='12::L' movie_id='4' person_id='2' role='director'  prizes='' />
+      	<r id='13::L' movie_id='4' person_id='20' role='actor'  prizes='' />
+      	<r id='14::L' movie_id='4' person_id='21' role='actor'  prizes='' />
+   
+      	<r id='15::L' movie_id='5' person_id='2' role='director'  prizes='' />
+      	<r id='16::L' movie_id='5' person_id='18' role='actor'  prizes='' />
+      	<r id='17::L' movie_id='5' person_id='19' role='actor'  prizes='' />
+   
+      	<r id='18::L' movie_id='6' person_id='3' role='director'  prizes='' />
+      	<r id='19::L' movie_id='6' person_id='14' role='actor'  prizes='' />
+      	<r id='20::L' movie_id='6' person_id='15' role='actor'  prizes='' />
+   
+      	<r id='21::L' movie_id='7' person_id='3' role='director'  prizes='' />
+      	<r id='22::L' movie_id='7' person_id='13' role='actor'  prizes='' />
+   
+      	<r id='23::L' movie_id='8' person_id='4' role='director'  prizes='' />
+      	<r id='24::L' movie_id='8' person_id='16' role='actor'  prizes='' />
+      	<r id='25::L' movie_id='8' person_id='17' role='actor'  prizes='' />
+   
+      	<r id='23::L' movie_id='9' person_id='5' role='director'  prizes='' />
+      	<r id='24::L' movie_id='9' person_id='8' role='actor'  prizes='' />
+      	<r id='25::L' movie_id='9' person_id='9' role='actor'  prizes='' />
+   
+      	<r id='23::L' movie_id='9' person_id='5' role='director'  prizes='Oscar: Best director' />
+      	<r id='24::L' movie_id='9' person_id='8' role='actor'  prizes='' />
+      	<r id='25::L' movie_id='9' person_id='7' role='actor'  prizes='' />
+   
+      </cast>
+   
+      <movie pkg='video'>
+      	<r id='0::L' title='Match point' year='2005::L' nationality='USA,UK' genre='DRAMA'/>
+      	<r id='1::L' title='Scoop' year='2006::L' nationality='USA,UK' genre='COMEDY' />
+      	<r id='2::L' title='Munich' year='2005::L' nationality='USA' genre='DRAMA'/>
+      	<r id='3::L' title='Saving private Ryan' year='1998::L' nationality='USA' genre='WAR' />
+      	<r id='4::L' title='Eyes wide shut' year='1999::L' nationality='UK' genre='DRAMA' />
+      	<r id='5::L' title='Barry Lindon' year='1975::L' nationality='UK' genre='DRAMA' />
+      	<r id='6::L' title='Scarface' year='1983::L' nationality='USA' genre='CRIME' />
+      	<r id='7::L' title='The untouchables' year='1987::L' nationality='USA' genre='CRIME' />
+      	<r id='8::L' title='Psycho' year='1960::L' nationality='UK' genre='THRILLER' />
+      	<r id='9::L' title='The Aviator' year='2004::L' nationality='USA' genre='BIOGRAPHY'/>
+      	<r id='10::L' title='The Departed' year='2006::L' nationality='USA' genre='CRIME'/>
+      </movie>
+ 
+	<dvd pkg='video'>
+		<r code='0::L' movie_id='0::L' purchasedate='2006-04-11::D' available='yes' />
+		<r code='1::L' movie_id='1::L' purchasedate='2006-03-02::D' available='no' />
+		<r code='2::L' movie_id='1::L' purchasedate='2006-08-13::D' available='no' />
+		<r code='3::L' movie_id='2::L' purchasedate='2006-09-04::D' available='no' />
+		<r code='4::L' movie_id='2::L' purchasedate='2006-01-15::D' available='no' />
+		<r code='5::L' movie_id='0::L' purchasedate='2005-02-06::D' available='yes' />
+		<r code='6::L' movie_id='4::L' purchasedate='2006-03-17::D' available='yes' />
+		<r code='7::L' movie_id='5::L' purchasedate='2005-05-08::D' available='no' />
+		<r code='8::L' movie_id='6::L' purchasedate='2006-05-29::D' available='no' />
+		<r code='11::L' movie_id='7::L' purchasedate='2006-11-01::D' available='yes' />
+		<r code='12::L' movie_id='8::L' purchasedate='2005-07-12::D' available='yes' />
+		<r code='13::L' movie_id='0::L' purchasedate='2006-08-03::D' available='yes' />
+		<r code='14::L' movie_id='4::L' purchasedate='2005-09-14::D' available='yes' />
+		<r code='15::L' movie_id='5::L' purchasedate='2004-03-05::D' available='no' />
+		<r code='16::L' movie_id='10::L' purchasedate='2006-01-16::D' available='no' />
+		<r code='17::L' movie_id='8::L' purchasedate='2005-04-07::D' available='yes' />
+		<r code='18::L' movie_id='9::L' purchasedate='2006-04-18::D' available='yes' />
+	</dvd>
+</GenRoBag>

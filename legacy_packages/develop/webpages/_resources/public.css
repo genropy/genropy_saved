@@ -1,0 +1,7 @@
+.infoBox{
+    float:left; 
+    font-size:xx-small;
+    padding:2px;
+    margin:2px;
+    min-width:100px;
+}

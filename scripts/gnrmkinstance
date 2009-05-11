@@ -1,0 +1,46 @@
+#!/usr/bin/env python
+# encoding: utf-8
+
+"""
+create a new instance  
+usage: gnrmkinstance [--path=instancespath] instancename [[packagename]...] 
+"""
+import sys, os
+import getopt
+import optparse
+from gnr.core.gnrbag import Bag
+from gnr.core.gnrsys import mkdir
+from gnr.core.gnrenv import GNRHOME,GNRINSTANCES,GNRPACKAGES
+
+
+usage = """
+gnrmkinstance is used to create new
+application instances in Genro framework
+"""
+
+parser = optparse.OptionParser(usage)
+
+parser.add_option('-p','--path',
+            dest='path',
+            help="Put instance in specified path")
+
+(options,args)=parser.parse_args()
+
+def createInstance(name, *packages, **kwargs):
+    if options.path:
+        path=option.path
+    else:
+        path=GNRINSTANCES
+    instpath = os.path.join(path, name)
+    mkdir(instpath)
+    datapath = os.path.join(instpath,'data')
+    os.mkdir(datapath)
+    config = Bag()
+    config.setItem('db', Bag(), host="localhost", user="user", implementation="postgres", password="password", dbname=name)
+    config.setItem('packages', Bag())
+    for p in packages:
+        config['packages.%s' % p] = Bag()
+    config.toXml(os.path.join(instpath, 'instanceconfig.xml'))
+    
+if __name__ == '__main__':
+    createInstance(args[0], *args[1:])

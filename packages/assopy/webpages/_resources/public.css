@@ -1,0 +1,292 @@
+/* @override http://localhost:9090/gnrsites/assopy/pages/assopy/_skins/gnr_blue/folder.css */
+
+.disabled {
+	opacity: 0.70;
+}
+
+.topmsgcontainer {
+	position: absolute;
+	z-index: 999;
+	overflow: hidden;
+	width: 100%;
+	height: auto;
+}
+
+.topmsgpane {
+	width: 300px;
+	background-color: white;
+	border: 1px solid gray;
+	margin-left: auto;
+	margin-right: auto;
+}
+
+.dlglabel {
+	color: white;
+	text-align: right;
+	vertical-align: middle;
+}
+
+.dlgfield {
+	
+}
+
+.dlgfield:active {
+	border: 1px solid #ffe566;
+}
+
+.pbl_formContainer {
+	font-family: "Lucida Grande", Lucida, Verdana, sans-serif;
+	
+
+/*width:580px;
+	height:430px;*/
+	margin: 10px;
+}
+
+.dijitFileInputReal {
+	size: 3!important;
+}
+
+.pbl_formContainerTitle {
+	height: 24px;
+	background-color: #3272a6;
+	font-size: medium;
+	text-align: center;
+	color: white;
+}
+
+.pbl_formContainerClient {
+	border: 1px solid  #3272a6;
+	margin-top: 2px;
+}
+
+.pbl_formContainerBottom {
+	height: 3em;
+}
+
+.pbl_formMsgBox {
+	height: 1.4em;
+	border-top: 1px solid  #c3e9f6;
+	border-bottom: 1px solid  #c3e9f6;
+	border-left: 1px solid  #c3e9f6;
+	border-right: 1px solid  #c3e9f6;
+	text-align: center;
+}
+
+.gnrfield {
+	height: 18px;
+	width: auto;
+	vertical-align: middle;
+	white-space: nowrap;
+}
+
+.gnrfieldlabel {
+	color: #3272a6;
+	vertical-align: middle;
+	text-align: right;
+}
+
+/* @end */
+
+.pbl_button {
+	color: #3272a6;
+	height: 22px;
+	background-color: #ccc;
+	text-align: center;
+	margin: 2px;
+	width: 10em;
+	padding-top: 6px;
+	font-weight: bold;
+	cursor: pointer;
+}
+
+.pbl_button:hover {
+	color: #ccc;
+	background-color: #3272a6;
+}
+
+.pbl_button:active {
+	color: #ffe566;
+	font-weight: bold;
+	background-color: #24006c;
+}
+
+.pbl_paypal {
+	background: url(https://www.paypal.com/it_IT/IT/i/btn/btn_donateCC_LG.gif
+) no-repeat 10%;
+	width: 122px;
+	height: 47px;
+}
+
+.pbl_confirm {
+	background: #ccc url(images/button_ok.gif) no-repeat 10%;
+}
+
+.pbl_cancel {
+	background: #ccc url(images/button_cancel.gif) no-repeat 10%;
+}
+
+body .dijitFakeInput {
+	height: 1.2em !important;
+}
+
+body .dijitInputField {
+	vertical-align: top;
+}
+
+table.pbl_index {
+	margin: auto;
+	border-collapse: separate;
+	border-spacing: 10px;
+}
+
+.pbl_index caption {
+	color: #3272a6;
+	text-align: center;
+	font-size: medium;
+	margin-top: 2em;
+	margin-bottom: 2em;
+}
+
+.pbl_index td {
+	color: #3272a6;
+	width: 200px;
+	height: 30px;
+	background-color: #ccc;
+	text-align: center;
+	font-weight: bold;
+	vertical-align: middle;
+	cursor: pointer;
+}
+
+.pbl_index td:hover {
+	color: #ccc;
+	background-color: #3272a6;
+}
+
+.pbl_index td:active {
+	color: #ffe566;
+	font-weight: bold;
+	background-color: #24006c;
+}
+
+.pbl_largemessage {
+	color: #3272a6;
+	text-align: center;
+	font-size: large;
+}
+
+.dijitTooltipContainer {
+	font-size: 8pt !important;
+}
+
+.en_flag {
+	background: url(images/en_flag.gif) no-repeat center center;
+	height: 100%;
+	width: 18px;
+	display: block;
+	float: right;
+}
+
+.en_flag:hover {
+	background: url(images/en_flag.gif) no-repeat center center;
+}
+
+/* My Comment */
+
+.it_flag {
+	background: url(images/it_flag.gif) no-repeat center center;
+	height: 100%;
+	width: 18px;
+	display: block;
+	float: right;
+	margin-right: 8px;
+}
+
+.localizer_hidden {
+	display: none;
+}
+
+.localizer_ok {
+	background: url(images/flag_green.gif) no-repeat center center;
+	height: 18px;
+	width: 18px;
+}
+
+.localizer_missingLoc {
+	background: url(images/flag_red.gif) no-repeat center center;
+	height: 18px;
+	width: 18px;
+}
+
+.localizationTable {
+	border-collapse: collapse;
+	color: #3a3a3a;
+	font-size: .9em;
+}
+
+.localizationTable th {
+	padding: 2px;
+	border: thin solid #c8c8c8;
+	background-color: #a1a1a1;
+	font-weight: bold;
+	text-align: center;
+}
+
+.localizationTable td {
+	padding: 2px;
+	border: thin solid #c8c8c8;
+	background-color: #b6e2ff;
+}
+
+.localizationTable tr > td:first-child {
+	padding: 2px;
+	color: white;
+	border: thin solid #c8c8c8;
+	background-color: #4f4f4f;
+	text-align: right;
+}
+
+d {
+	background-color: #eee;
+}
+
+.goback {
+	background: url(images/up_16x16.gif) no-repeat center center;
+	height: 18px;
+	width: 18px;
+	float: right;
+	margin-right: 8px;
+	cursor: pointer;
+}
+
+.logout {
+	background: url(images/shutdown_20x20.gif) no-repeat center center;
+	height: 100%;
+	width: 20px;
+	display: block;
+	float: right;
+	margin-right: 4px;
+}
+
+.logout:hover {
+	background: url(images/logout_16x16.gif) no-repeat center center;
+}
+
+.it_flag:hover {
+	background: url(images/it_flag.gif) no-repeat center center;
+}
+
+.genrologo {
+	color: :white;
+	font-size: .7em;
+	text-align: left;
+	margin-left: 4px;
+	font-weight: bold;
+	background: url(images/genropy.gif) no-repeat left 40%;
+	height: 100%;
+	padding-left: 22px;
+	padding-top: 6px;
+	display: block;
+}
+

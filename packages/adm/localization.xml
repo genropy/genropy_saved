@@ -1,0 +1,46 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<GenRoBag>
+	<administration_tool _T="NN" en="Administration Tool" it="Amministrazione sistema" />
+	<administration _T="NN" _key="Administration" it="Amministrazione" />
+	<user _T="NN" _key="User" it="Utente" />
+	<isert_date _T="NN" _key="Isert date" it="Data Inserimento" />
+	<update_date _T="NN" _key="Update date" it="Data aggiornamento" />
+	<username _T="NN" _key="Username" it="Nome utente" />
+	<name_first _T="NN" _key="First name" it="Nome" />
+	<name_last _T="NN" _key="Last name" it="Cognome" />
+	<registration_date _T="NN" _key="Registration Date" it="Data di registrazione" />
+	<authorization_tags _T="NN" _key="Authorization Tags" it="Codici di autorizzazione" />
+	<waiting _T="NN" _key="Waiting" it="In attesa" />
+	<confirmed _T="NN" _key="Confirmed" it="Confermato" />
+	<status _T="NN" _key="Status" it="Stato" />
+	<adm _T="NN" _key="Adm" it="Amministrazione" />
+	<pages _T="NN" _key="Pages" it="Pagine" />
+	<change_password _T="NN" _key="Change password" it="Cambia Password" />
+	<login _T="NN" _key="Login" it="Entra" />
+	<cancel _T="NN" _key="Cancel" it="Annulla" />
+	<confirm _T="NN" _key="Confirm" it="Ok" />
+	<user_unknown_or_wrong_password _T="NN" _key="User unknown or wrong password" it="Utente o password errati" />
+	<password_lost_q _T="NN" _key="Password lost?" it="Password dimenticata?" />
+	<password_lost _T="NN" _key="Password lost" it="Password dimenticata" />
+	<new_user _T="NN" _key="New user" it="Registrazione nuovo utente" />
+	<registration_page _T="NN" _key="Register" it="Registrati" />
+	<registration_expired _T="NN" _key="Your registration expired, please register again." it="La tua registrazione è scaduta, per favore registrati nuovamente." />
+	<registration_complete _T="NN" _key="Your registration is complete, thank you!" it="Grazie per esserti registrato, ora puoi accedere al sito!" />
+	<registration_thanks _T="NN" _key="Thank you for registering ^.fullname" it="Grazie per la registrazione ^.fullname" />
+	<registration_mail_sent _T="NN" _key="An email was sent to you" it="Ti è stata spedita una mail di conferma" />
+	<registration_mail_sent_2 _T="NN" _key="Please check your email to complete the registration." it="Controlla nella posta (anche nello spam) e non appena avrai completato la registrazione potrai accedere al sito." />
+	<sending_password _T="NN" _key="We are sending you a new password..." it="Invio nuova password in corso..." />
+	<confirmation_email _T="NN" _key="A confirmation email was sent to:" it="Ti è stata spedita una mail di conferma all'indirizzo:" />
+	<confirmation_email_2 _T="NN" _key="Read instruction in the email to receive a new password" it="Segui le istruzioni nella mail per ricevere i tuoi dati di accesso" />
+
+	<modify_user _T="NN" _key="Modify user" it="Modifica utente" />
+	<saving _T="NN" _key="Saving..." it="Salvataggio in corso..." />
+	<user_profile_saved _T="NN" _key="User profile saved" it="Profilo utente salvato" />
+
+	<new_password _T="NN" _key="New password" it="Nuova password" />
+	<Confirm_password _T="NN" _key="Confirm password" it="Conferma password" />
+	<Confirm_password_error _T="NN" _key="The passwords doesn't match" it="La password di conferma digitata è differente dalla nuova." />
+
+
+
+</GenRoBag>

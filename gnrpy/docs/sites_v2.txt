@@ -1,0 +1,57 @@
+sites
+	_static    (developer/customer common static)			/_common_static
+	    lib (developer/customer library version independent)
+			dojo
+			gnrjs
+		lib_v_x (developer/customer library version x)
+			dojo
+			gnrjs
+		lib_v_y (developer/customer library version y)
+			dojo
+			gnrjs
+	_resources (developer/customer common resources version independent)
+			component_1.py
+			css_1.css
+			js_1.js
+    _resources_v_x (developer/customer common resources version x)
+			component_1.py
+			css_1.css
+			js_1.js
+			version_y
+	site_1
+		data
+		static
+		    data										/_static/data
+		custom
+		    pkg_1
+		        page_1
+		    pkg_1
+		pages										/
+			_resources								/_resources
+			_resources_v_x							/.........
+				component_1.py
+				css_1.css
+				js_1.js
+				page_x.js
+			page_x
+			~pkg_1
+				_res
+					component_1.py
+					css_1.css
+					js_1.js
+					page_1.js
+				_res_v_x
+				page_1
+				page_2
+				page_3
+				folder_1
+					_res
+					    page_11.css
+					_res_v_x
+					page_11
+					page_12
+	          .....
+         
+      
+	site_2
+	site_3

@@ -1,0 +1,2 @@
+Interfacce pubbliche
+Questa cartella contiene i moduli importabili ed utilizzabili dagli altri packages.

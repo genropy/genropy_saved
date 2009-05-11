@@ -1,0 +1,8 @@
+#!/usr/bin/env python
+# encoding: utf-8
+
+import os
+from gnr.xtnd.sync4Dapp import GnrAppSync4D
+
+app = GnrAppSync4D(os.getcwd())
+app.loop()

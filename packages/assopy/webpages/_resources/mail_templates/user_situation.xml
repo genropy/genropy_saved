@@ -1,0 +1,43 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<GenRoBag>
+    <from_address>gestionale@pycon.it</from_address>
+    <subject>PyCon: situazione partecipanti</subject>
+    <body>Ciao Pythonista,
+ti ricordo che se vuoi partecipare alla gustosa PyFiorentina 
+(http://www.pycon.it/pycon2/pyfiorentina) Venerdì sera, 
+devi prenotare la tua presenza qui:
+
+$link
+
+Entra usando il tuo username "$username".
+
+In quella stessa pagina, potrai anche aggiungere una "qualifica" da stampare 
+sul badge sotto il nome di ogni partecipante. 
+Ti consigliamo di indicare il nome della società e il ruolo svolto 
+(tipo "Programmatore, FooBar S.r.l.").
+Se vuoi sbizzarrirti con qualifiche divertenti e ironiche, fai pure!
+
+Ci vediamo al PyCon!
+
+
+
+
+-------------------------------------------------------------------------
+
+Ti riportiamo, per tua comodità, i dati che ci risultano inseriti:
+
+$ptext
+
+Hai $posti_ristorante riservati per la pyFiorentina !
+
+</body>
+    <onerow>
+    nome: $nome $cognome
+    qualifica: $qualifica_badge 
+    livello: $py_level 
+    presenza: $presenza
+    riferimento: $ordine_num - $numero_riga
+    
+    </onerow>
+
+</GenRoBag>

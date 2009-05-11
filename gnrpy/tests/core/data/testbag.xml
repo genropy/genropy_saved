@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<GenRoBag>
+	<name>John</name>
+	<surname>Doe</surname>
+	<birthday _T="D">1974-11-23</birthday>
+	<phone>
+		<office _T="L">555450210</office>
+		<home _T="L" private="True::B">555345670</home>
+		<mobile _T="L" sim="vadophone" fbplayer="gattuso">555230450</mobile>
+		<mobile _T="L" sim="tom">444230450</mobile>
+	</phone>
+</GenRoBag>

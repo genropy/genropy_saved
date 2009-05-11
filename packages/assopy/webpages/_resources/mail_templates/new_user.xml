@@ -1,0 +1,13 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<GenRoBag>
+    <from_address>gestionale@pycon.it</from_address>
+    <subject>Welcome $nome_cognome</subject>
+    <body>Your subscription is done
+    
+    Full name: $nome_cognome 
+    Username: $username
+	
+	Click here to complete the operation: $link
+	
+    </body>
+</GenRoBag>
