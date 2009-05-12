@@ -37,6 +37,12 @@ class Public(BaseComponent):
     def onMain_pbl(self):
         self.pageSource().data('gnr.appmenu',self.getUserMenu())
         
+    def getUserMenu(self):
+        result=self.userMenu()
+        while len(result)==1:
+            result=result['#0']
+        return result
+        
     def mainLeftContent(self,parentBC,**kwargs):
         leftPane = parentBC.contentPane(width='20%',_class='menupane',**kwargs)
         leftPane = leftPane.div()
@@ -55,44 +61,7 @@ class Public(BaseComponent):
         leftPane.dataController("genro.wdgById('_gnrRoot').showHideRegion('left', false);",fired='^gnr.onStart',
                                 appmenu="=gnr.appmenu",_if="appmenu.len()==0")
 
-    def getUserMenu(self):
-        def userMenu(userTags,menubag,level,basepath):
-            result = Bag()
-            if not userTags:
-                return result
-            for node in menubag.nodes:
-                allowed=True
-                if node.getAttr('tags'):
-                    allowed=self.application.checkResourcePermission(node.getAttr('tags'), userTags)
-                if allowed and node.getAttr('file'):
-                    allowed = self.checkPermission(node.getAttr('file'))
-                if allowed:
-                    value=node.getStaticValue()
-                    attributes={}
-                    attributes.update(node.getAttr())
-                    currbasepath=basepath
-                    if 'basepath' in attributes:
-                        newbasepath=node.getAttr('basepath')
-                        if newbasepath.startswith('/'):
-                            currbasepath=[newbasepath]
-                        else:
-                            currbasepath=basepath+[newbasepath]
-                    if isinstance(value,Bag):
-                        value = userMenu(userTags,value,level+1,currbasepath)
-                        labelClass = 'menu_level_%i' %level 
-                    else:
-                        value=None
-                        labelClass = 'menu_page'
-                    attributes['labelClass'] = 'menu_shape %s' %labelClass
-                    filepath=attributes.get('file')
-                    if filepath and not filepath.startswith('/'):
-                        attributes['file'] = os.path.join(*(currbasepath+[filepath]))
-                    result.setItem(node.label,value,attributes)
-            return result
-        result=userMenu(self.userTags,self.application.config['menu'],0,[])
-        while len(result)==1:
-            result=result['#0']
-        return result
+
         
     def pageMenues(self):
         pass

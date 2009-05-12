@@ -3021,6 +3021,7 @@ dojo.declare("gnr.widgets.Tree",gnr.widgets.baseDojo,{
                                                        }).connectOneNode(widget.domNode)    ;                                        
         };
         dojo.connect(widget,'onClick',widget,'_updateSelect');
+        //dojo.connect(widget,'onclick',widget,'gnr_onclickDispatcher');
         var storepath=widget.model.store.datapath;
         if ((storepath=='*D') || (storepath=='*S'))
          widget._datasubscriber=dojo.subscribe('_trigger_data',
@@ -3029,6 +3030,14 @@ dojo.declare("gnr.widgets.Tree",gnr.widgets.baseDojo,{
          else{
              sourceNode.registerDynAttr('storepath');
          }
+    },
+    patch__onClick:function(e){
+        var nodeWidget = dijit.getEnclosingWidget(e.target);
+        if(!nodeWidget || !nodeWidget.isTreeNode){
+            return;
+        }
+        nodeWidget.__eventmodifier = eventToString(e)
+        this._onClick_replaced(e);
     },
     mixin_getItemById: function(id){
         return this.model.store.rootData().findNodeById(id);
@@ -3076,6 +3085,11 @@ dojo.declare("gnr.widgets.Tree",gnr.widgets.baseDojo,{
         }
     },
     mixin__updateSelect: function(item,node){
+        var modifiers = objectPop(node,'__eventmodifier');
+        var attributes = {}
+        if (modifiers){
+            attributes._modifiers = modifiers;
+        }
         if(!item){
             return;
         }
@@ -3084,20 +3098,21 @@ dojo.declare("gnr.widgets.Tree",gnr.widgets.baseDojo,{
         }
         if (this.sourceNode.attr.selectedLabel){
             var path=this.sourceNode.attrDatapath('selectedLabel');
-            genro.setData(path,item.label);
+            genro.setData(path,item.label,attributes);
         }
         if (this.sourceNode.attr.selectedItem){
             var path=this.sourceNode.attrDatapath('selectedItem');
-            genro.setData(path,item);
+            genro.setData(path,item,attributes);
         }
         if (this.sourceNode.attr.selectedPath){
             var path=this.sourceNode.attrDatapath('selectedPath');
-            genro.setData(path,item.getFullpath());
+            genro.setData(path,item.getFullpath(),attributes);
         }
         var selattr=objectExtract(this.sourceNode.attr,'selected_*',true);
         for (var sel in selattr){
+            console.log(sel);
             var path=this.sourceNode.attrDatapath('selected_'+sel);
-            genro.setData(path,item.attr[sel]);
+            genro.setData(path,item.attr[sel],attributes);
         }
     }
 });

@@ -23,14 +23,13 @@ class GnrCustomWebPage(object):
         fb = client.formbuilder(cols=1,onEnter="FIRE loginbtn=true",border_spacing='8px',margin='auto',margin_top='1ex')  
         fb.textbox(lbl='!!User', value='^form.user', autofocus=True, width='16em', _autoselect=True)
         fb.textbox(lbl='!!Password', type='password', value='^form.password', width='16em', _autoselect=True)
-        fb.a('!!Password lost?', href='lost_password')
         newUserUrl = self.application.newUserUrl()
         if newUserUrl:
             newUserUrl = self.getDomainUrl(newUserUrl)  
-            bottom['left'].div('!!Register', connect_onclick="genro.gotoURL('%s')" % newUserUrl, _class='bottom_btn',float='left')
-            
-        bottom['right'].div('!!Login', connect_onclick='FIRE loginbtn', float='right',  _class='bottom_btn')
-        bottom['left'].div('!!Cancel', connect_onclick='genro.pageBack()', float='left', _class='bottom_btn')
+            fb.a('!!Register', href =newUserUrl)       
+        fb.a('!!Password lost?', href='lost_password')
+        bottom['right'].button('!!Login', fire='loginbtn', float='right',  baseClass='bottom_btn',margin='1px')
+        bottom['left'].button('!!Cancel', action='genro.pageBack()', float='left', baseClass='bottom_btn',margin='1px')
     
     def pbl_topBar(self,top,title=None,flagsLocale=False):
         """redefinition of the topbar for the login"""
