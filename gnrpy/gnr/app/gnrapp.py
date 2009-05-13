@@ -31,7 +31,7 @@ import hashlib
 import re
 import smtplib
 import time
-
+import glob
 from email.MIMEText import MIMEText
 from gnr.utils import ssmtplib
 
@@ -224,6 +224,7 @@ class GnrApp(object):
         self.packagesIdByPath = {}
         self.gnr_config=self.load_gnr_config()
         self.config = self.load_instance_config()
+        self.build_package_path()
         db_settings_path = os.path.join(self.instanceFolder, 'dbsettings.xml')
         if os.path.isfile(db_settings_path):
             db_credential = Bag(db_settings_path)
@@ -276,15 +277,17 @@ class GnrApp(object):
         if dbattrs.get('implementation') =='sqlite':
             dbattrs['dbname'] = self.realPath(dbattrs.pop('filename'))
         configlist = []
-        basepath = [self.config.getAttr('packages', 'path')]
-        basepath.extend(self.gnr_config['gnr.defaults_xml.packages'].digest('#a.path'))
-        basepath = map(expandpath,basepath)
+        #basepath = [self.config.getAttr('packages', 'path')]
+        #basepath.extend(self.gnr_config['gnr.defaults_xml.packages'].digest('#a.path'))
+        #print 
+        #basepath = map(expandpath,basepath)
         self.db = GnrSqlAppDb(**dbattrs)
         self.db.application = self
         pkgMenues = self.config['menu?package'] or []
         if pkgMenues:
             pkgMenues = pkgMenues.split(',')
         for pkgid, attrs in self.config['packages'].digest('#k,#a'):
+            print pkgid
             if not attrs.get('path'):
                 attrs['path']=self.name_to_path(pkgid)
             if not os.path.isabs(attrs['path']):
@@ -305,14 +308,29 @@ class GnrApp(object):
         
         self.onInited()
 
-    def name_to_path(self,pkgid):
+    def build_package_path(self):
+        self.package_path={}
+        path_list=[]
         if 'packages' in self.gnr_config['gnr.defaults_xml']:
-            for path in self.gnr_config['gnr.defaults_xml'].digest('packages:#a.path'):
-                pkg_path=expandpath(os.path.join(path,pkgid))
-                if os.path.isdir(pkg_path):
-                    return path
-        raise Exception(
-            'Error: package %s not found' % pkgid)
+            path_list.extend([expandpath(path) for path in self.gnr_config['gnr.defaults_xml'].digest('packages:#a.path') if os.path.isdir(expandpath(path))])
+        if 'projects' in self.gnr_config['gnr.defaults_xml']:
+            projects = [expandpath(path) for path in self.gnr_config['gnr.defaults_xml'].digest('projects:#a.path') if os.path.isdir(expandpath(path))]
+            for project_path in projects:
+                path_list.extend(glob.glob(os.path.join(project_path,'*/packages')))
+        for path in path_list:
+            for package in os.listdir(path):
+                if package not in self.package_path and os.path.isdir(os.path.join(path,package)):
+                    self.package_path[package]=path
+        print path_list
+
+    def name_to_path(self,pkgid):
+        path = self.package_path.get(pkgid)
+        if path:
+            return path
+        else:
+            raise Exception(
+                'Error: package %s not found' % pkgid)
+
     
     def onIniting(self):
         pass

@@ -222,14 +222,23 @@ class GnrWsgiSite(object):
     def build_gnrapp(self):
         """Builds the GnrApp associated with this site"""
         instance_path = os.path.join(self.site_path,'instance')
-        if not os.path.isdir(instance_path):
-            instance_path = self.config['instance?path'] or self.config['instances.#0?path']
-        self.config.setItem('instances.app',None,path=instance_path)
-        if not instance_path:
-            raise 'a'
-        gnrwebapp = GnrWsgiWebApp(instance_path)
-        return gnrwebapp
+        if os.path.isdir(instance_path):
+            self.config.setItem('instances.app',None,path=instance_path)
+            return GnrWsgiWebApp(instance_path)
+        instance_path = os.path.join(self.site_path,'..','..','instances',self.site_name)
+        if os.path.isdir(instance_path):
+            self.config.setItem('instances.app',None,path=instance_path)
+            return GnrWsgiWebApp(instance_path)
+        instance_path = self.config['instance?path'] or self.config['instances.#0?path']
+        if os.path.isdir(instance_path):
+            self.config.setItem('instances.app',None,path=instance_path)
+            return GnrWsgiWebApp(instance_path)
         
+    def find_instance(self,instance_name):
+        if 'instances' in self.gnr_config['gnr.defaults_xml']:
+            path_list.extend([expandpath(path) for path in self.gnr_config['gnr.defaults_xml'].digest('sites:#a.path') if os.path.isdir(expandpath(path))])
+        
+    
     def build_automap(self):
         def handleNode(node, pkg=None):
             attr = node.attr

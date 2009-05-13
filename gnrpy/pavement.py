@@ -126,12 +126,12 @@ def install():
     call_task('setuptools.command.install')
     
 @task
-@needs(['generate_setup', 'minilib','setuptools.command.develop'])
+@needs(['generate_setup', 'setuptools.command.develop'])
 def develop(options):
     pass
 
 @task
-@needs(['generate_setup', 'minilib', 'setuptools.command.sdist'])
+@needs(['generate_setup', 'setuptools.command.sdist'])
 def sdist():
     """Overrides sdist to make sure that our setup.py is generated."""
     pass    

@@ -6,6 +6,7 @@ import os
 import re
 import errno
 import time
+import glob
 try:
     import subprocess
 except ImportError:
@@ -183,7 +184,7 @@ class NewServer(object):
             if not self.gnr_config:
                 raise ServerException(
                     'Error: no ~/.gnr/ or /etc/gnr/ found')
-            self.site_path = self.name_to_path(self.options.site_name)
+            self.site_path = self.site_name_to_path(self.options.site_name)
             self.site_script=os.path.join(self.site_path,'root.py')
             if not os.path.isfile(self.site_script):
                 raise ServerException(
@@ -192,12 +193,19 @@ class NewServer(object):
             self.site_path = os.path.dirname(os.path.realpath(site_script))
         self.init_options()
         
-    def name_to_path(self,site_name):
+
+    def site_name_to_path(self,site_name):
+        path_list=[]
         if 'sites' in self.gnr_config['gnr.defaults_xml']:
-            for path in self.gnr_config['gnr.defaults_xml'].digest('sites:#a.path'):
-                site_path=expandpath(os.path.join(path,site_name))
-                if os.path.isdir(site_path):
-                    return site_path
+            path_list.extend([expandpath(path) for path in self.gnr_config['gnr.defaults_xml'].digest('sites:#a.path') if os.path.isdir(expandpath(path))])
+        if 'projects' in self.gnr_config['gnr.defaults_xml']:
+            projects = [expandpath(path) for path in self.gnr_config['gnr.defaults_xml'].digest('projects:#a.path') if os.path.isdir(expandpath(path))]
+            for project_path in projects:
+                path_list.extend(glob.glob(os.path.join(project_path,'*/sites')))
+        for path in path_list:
+            site_path = os.path.join(path,site_name)
+            if os.path.isdir(site_path):
+                return site_path
         raise ServerException(
             'Error: no site named %s found' % site_name) 
     
