@@ -34,5 +34,5 @@ def mkdir(path, privileges=0777):
         os.mkdir(path, privileges)
         
 def expandpath(path):
-    return os.path.expandvars(os.path.expanduser(path))
+    return os.path.expanduser(os.path.expandvars(path))
         

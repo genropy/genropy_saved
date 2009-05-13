@@ -60,9 +60,10 @@ class GnrWsgiSite(object):
         if 'resources' in self.gnr_config['gnr.environment_xml']:
             for path in self.gnr_config['gnr.environment_xml'].digest('resources:#a.path'):
                 res_path=expandpath(os.path.join(path,res_id))
+                print res_path
                 if os.path.isdir(res_path):
                     return res_path
-        raise ServerException(
+        raise Exception(
             'Error: resource %s not found' % res_id)
     
     def find_gnrjs_and_dojo(self):
