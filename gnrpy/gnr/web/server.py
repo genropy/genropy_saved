@@ -196,10 +196,10 @@ class NewServer(object):
 
     def site_name_to_path(self,site_name):
         path_list=[]
-        if 'sites' in self.gnr_config['gnr.defaults_xml']:
-            path_list.extend([expandpath(path) for path in self.gnr_config['gnr.defaults_xml'].digest('sites:#a.path') if os.path.isdir(expandpath(path))])
-        if 'projects' in self.gnr_config['gnr.defaults_xml']:
-            projects = [expandpath(path) for path in self.gnr_config['gnr.defaults_xml'].digest('projects:#a.path') if os.path.isdir(expandpath(path))]
+        if 'sites' in self.gnr_config['gnr.enviroment_xml']:
+            path_list.extend([expandpath(path) for path in self.gnr_config['gnr.enviroment_xml'].digest('sites:#a.path') if os.path.isdir(expandpath(path))])
+        if 'projects' in self.gnr_config['gnr.enviroment_xml']:
+            projects = [expandpath(path) for path in self.gnr_config['gnr.enviroment_xml'].digest('projects:#a.path') if os.path.isdir(expandpath(path))]
             for project_path in projects:
                 path_list.extend(glob.glob(os.path.join(project_path,'*/sites')))
         for path in path_list:
@@ -217,7 +217,7 @@ class NewServer(object):
             self.gnr_config=Bag()
     
     def set_enviroment(self):
-        for var,value in self.gnr_config['gnr.defaults_xml'].digest('enviroment:#k,#a.value'):
+        for var,value in self.gnr_config['gnr.enviroment_xml'].digest('enviroment:#k,#a.value'):
             var=var.upper()
             if not os.getenv(var):
                 os.environ[var]=str(value)
@@ -233,7 +233,7 @@ class NewServer(object):
     def get_config(self):
         site_config_path = os.path.join(self.site_path,'siteconfig.xml')
         site_config = self.gnr_config['gnr.siteconfig.default_xml']
-        for path, site_template in self.gnr_config['gnr.defaults_xml'].digest('sites:#a.path,#a.site_template'):
+        for path, site_template in self.gnr_config['gnr.enviroment_xml'].digest('sites:#a.path,#a.site_template'):
             if path == os.path.dirname(self.site_path):
                 if site_config:
                     site_config.update(self.gnr_config['gnr.siteconfig.%s_xml'%site_template] or Bag())

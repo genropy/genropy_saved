@@ -256,7 +256,7 @@ class GnrApp(object):
     def load_instance_config(self):
         site_config_path = os.path.join(self.instanceFolder,'instanceconfig.xml')
         instance_config = self.gnr_config['gnr.instanceconfig.default_xml']
-        for path, instance_template in self.gnr_config['gnr.defaults_xml'].digest('instances:#a.path,#a.instance_template'):
+        for path, instance_template in self.gnr_config['gnr.defaults'].digest('instances:#a.path,#a.instance_template'):
             if path == os.path.dirname(self.instanceFolder):
                 if instance_config:
                     instance_config.update(self.gnr_config['gnr.instanceconfig.%s_xml'%instance_template] or Bag())
@@ -306,10 +306,10 @@ class GnrApp(object):
     def build_package_path(self):
         self.package_path={}
         path_list=[]
-        if 'packages' in self.gnr_config['gnr.defaults_xml']:
-            path_list.extend([expandpath(path) for path in self.gnr_config['gnr.defaults_xml'].digest('packages:#a.path') if os.path.isdir(expandpath(path))])
-        if 'projects' in self.gnr_config['gnr.defaults_xml']:
-            projects = [expandpath(path) for path in self.gnr_config['gnr.defaults_xml'].digest('projects:#a.path') if os.path.isdir(expandpath(path))]
+        if 'packages' in self.gnr_config['gnr.enviroment_xml']:
+            path_list.extend([expandpath(path) for path in self.gnr_config['gnr.enviroment_xml'].digest('packages:#a.path') if os.path.isdir(expandpath(path))])
+        if 'projects' in self.gnr_config['gnr.enviroment_xml']:
+            projects = [expandpath(path) for path in self.gnr_config['gnr.enviroment_xml'].digest('projects:#a.path') if os.path.isdir(expandpath(path))]
             for project_path in projects:
                 path_list.extend(glob.glob(os.path.join(project_path,'*/packages')))
         for path in path_list:
