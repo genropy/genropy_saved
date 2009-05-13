@@ -256,7 +256,7 @@ class GnrApp(object):
     def load_instance_config(self):
         site_config_path = os.path.join(self.instanceFolder,'instanceconfig.xml')
         instance_config = self.gnr_config['gnr.instanceconfig.default_xml']
-        for path, instance_template in self.gnr_config['gnr.defaults'].digest('instances:#a.path,#a.instance_template'):
+        for path, instance_template in self.gnr_config['gnr.environment_xml'].digest('instances:#a.path,#a.instance_template'):
             if path == os.path.dirname(self.instanceFolder):
                 if instance_config:
                     instance_config.update(self.gnr_config['gnr.instanceconfig.%s_xml'%instance_template] or Bag())
