@@ -1,0 +1,30 @@
+<div class="dijitDialog" tabindex="-1" wairole="dialog" waistate="labelledby-${id}_title">
+	<div dojoAttachPoint="titleBar" class="dijitDialogTitleBar">
+		<span dojoAttachPoint="titleNode" class="dijitDialogTitle" id="${id}_title"></span>
+		<span dojoAttachPoint="closeButtonNode" class="dijitDialogCloseIcon" dojoAttachEvent="onclick: onCancel" title="${buttonCancel}">
+			<span dojoAttachPoint="closeText" class="closeText" title="${buttonCancel}">x</span>
+		</span>
+	</div>
+
+	<div dojoAttachPoint="containerNode" class="dijitDialogPaneContent">
+<table cellspacing="1" cellpadding="1" border="0" width="100%">
+	<tr>
+		<td>
+			<select dojoType="dijit.form.FilteringSelect" dojoAttachPoint="timezonesnode" style="width:100%;" dojoAttachEvent="onChange:ok">	
+			</select>
+		</td>
+			
+	</tr>
+	<tr>
+		<td>
+			<table>
+				<tr>
+					<td><button class='okButton' dojoAttachPoint="okButton" dojoType="dijit.form.Button" dojoAttachEvent="onClick:ok">${buttonOk}</button></td>
+					<td><button class='cancelButton' dojoAttachPoint="cancelButton" dojoType="dijit.form.Button" dojoAttachEvent="onClick:cancel">${buttonCancel}</button></td>
+				</tr>
+			</table>
+		</td>
+	</tr>
+</table>
+	</div>
+</div>
