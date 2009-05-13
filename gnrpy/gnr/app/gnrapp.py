@@ -277,17 +277,12 @@ class GnrApp(object):
         if dbattrs.get('implementation') =='sqlite':
             dbattrs['dbname'] = self.realPath(dbattrs.pop('filename'))
         configlist = []
-        #basepath = [self.config.getAttr('packages', 'path')]
-        #basepath.extend(self.gnr_config['gnr.defaults_xml.packages'].digest('#a.path'))
-        #print 
-        #basepath = map(expandpath,basepath)
         self.db = GnrSqlAppDb(**dbattrs)
         self.db.application = self
         pkgMenues = self.config['menu?package'] or []
         if pkgMenues:
             pkgMenues = pkgMenues.split(',')
         for pkgid, attrs in self.config['packages'].digest('#k,#a'):
-            print pkgid
             if not attrs.get('path'):
                 attrs['path']=self.name_to_path(pkgid)
             if not os.path.isabs(attrs['path']):
@@ -321,8 +316,7 @@ class GnrApp(object):
             for package in os.listdir(path):
                 if package not in self.package_path and os.path.isdir(os.path.join(path,package)):
                     self.package_path[package]=path
-        print path_list
-
+        
     def name_to_path(self,pkgid):
         path = self.package_path.get(pkgid)
         if path:

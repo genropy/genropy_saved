@@ -5,7 +5,8 @@ import time
 from gnr.app.gnrapp import GnrApp
 from gnr.core.gnrbag import Bag
 import optparse
-
+import glob
+from gnr.core.gnrsys import expandpath
 S_GNRHOME=os.path.split(os.environ.get('GNRHOME','/usr/local/genro'))
 GNRHOME=os.path.join(*S_GNRHOME)
 S_GNRINSTANCES=(os.environ.get('GNRINSTANCES') and os.path.split(os.environ.get('GNRINSTANCES'))) or (S_GNRHOME+('data','instances'))
@@ -48,18 +49,11 @@ parser.add_option('-I','--import',
             
 parser.add_option('--config',
                   dest='config_path',
-                  default="~/.gnr.xml",
+                  default="~/.gnr",
                   help="gnrserve file path")
 
 (options,args)=parser.parse_args()
 
-def load_server_config():
-    config_path = os.path.expanduser(options.config_path)
-    if os.path.isfile(config_path):
-        server_config=Bag(config_path)
-    else:
-        server_config=Bag()
-    return server_config
 
 def name_to_path(server_config,site_name):
     if 'sites' in server_config:
@@ -70,6 +64,49 @@ def name_to_path(server_config,site_name):
     raise ServerException(
         'Error: erroneous site provided (not %s)' % site_name)
 
+def site_name_to_path(gnr_config,site_name):
+    path_list=[]
+    if 'sites' in gnr_config['gnr.defaults_xml']:
+        path_list.extend([expandpath(path) for path in gnr_config['gnr.defaults_xml'].digest('sites:#a.path') if os.path.isdir(expandpath(path))])
+    if 'projects' in gnr_config['gnr.defaults_xml']:
+        projects = [expandpath(path) for path in gnr_config['gnr.defaults_xml'].digest('projects:#a.path') if os.path.isdir(expandpath(path))]
+        for project_path in projects:
+            path_list.extend(glob.glob(os.path.join(project_path,'*/sites')))
+        for path in path_list:
+            site_path = os.path.join(path,site_name)
+            if os.path.isdir(site_path):
+                return site_path
+        raise ServerException(
+            'Error: no site named %s found' % site_name) 
+
+def instance_name_to_path(gnr_config,instance_name):
+    path_list=[]
+    if 'instances' in gnr_config['gnr.defaults_xml']:
+        path_list.extend([expandpath(path) for path in gnr_config['gnr.defaults_xml'].digest('instances:#a.path') if os.path.isdir(expandpath(path))])
+    if 'projects' in gnr_config['gnr.defaults_xml']:
+        projects = [expandpath(path) for path in gnr_config['gnr.defaults_xml'].digest('projects:#a.path') if os.path.isdir(expandpath(path))]
+        for project_path in projects:
+            path_list.extend(glob.glob(os.path.join(project_path,'*/instances')))
+        for path in path_list:
+            instance_path = os.path.join(path,instance_name)
+            if os.path.isdir(instance_path):
+                return instance_path
+        raise ServerException(
+            'Error: no site named %s found' % site_name) 
+
+
+def load_gnr_config():
+    config_path = expandpath(options.config_path)
+    if os.path.isdir(config_path):
+        return Bag(config_path)
+    else:
+        return Bag()
+
+def set_enviroment(gnr_config):
+    for var,value in gnr_config['gnr.defaults_xml'].digest('enviroment:#k,#a.value'):
+        var=var.upper()
+        if not os.getenv(var):
+            os.environ[var]=str(value)
 
 def get_app():
     if options.directory:
@@ -77,25 +114,27 @@ def get_app():
         if os.path.isdir(instance_path): 
             return GnrApp(instance_path)
         else:
-            print "No valid instance provided"
-    elif options.instance:
-        instance_path=os.path.join(GNRINSTANCES,options.instance)
+            raise Exception("No valid instance provided")
+    gnr_config = load_gnr_config()
+    set_enviroment(gnr_config)
+    if options.instance:
+        gnr_config = load_gnr_config()
+        instance_path = instance_name_to_path(gnr_config, options.instance)
         if os.path.isdir(instance_path): 
             return GnrApp(instance_path)
         else:
-            print "No valid instance provided"
-    elif options.site:
-        server_config = load_server_config()
-        site_path = name_to_path(server_config, options.site)
+            raise Exception("No valid instance provided")
+    if options.site:
+        gnr_config = load_gnr_config()
+        site_path = site_name_to_path(gnr_config, options.site)
         if not site_path:
-            site_path = os.path.join(server_config['sites?path'] or '', options.site)
+            site_path = os.path.join(gnr_config['gnr.defaults_xml.sites?path'] or '', options.site)
         instance_path = os.path.join(site_path,'instance')
         if os.path.isfile(os.path.join(instance_path,'instanceconfig.xml')):
             return GnrApp(instance_path)
         else:
-            print "No valid instance provided"
-    else:
-        return GnrApp(os.getcwd())
+            raise "No valid instance provided"
+    return GnrApp(os.getcwd())
 
 
 def check_db():
