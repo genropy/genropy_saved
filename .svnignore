@@ -1,2 +1,5 @@
 *.pyc
 *.log
+.DS_Store
+*.egg-info
+paver-minilib.zip

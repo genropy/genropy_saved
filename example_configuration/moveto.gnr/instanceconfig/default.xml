@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<GenRoBag>
+    <db implementation="postgres" host="localhost" password="postgres" user="rotring"/>
+    <authentication>
+        <xml_auth defaultTags="users,xml">
+            <mbertoldi pwd="rotring" tags="_DEV_,admin,user,staff,_TRD_"/>
+        </xml_auth>
+        <py_auth defaultTags="user" pkg="adm" method="authenticate"/>
+    </authentication>
+    <mail smtp_host="smtp.gmail.com"/>
+</GenRoBag>

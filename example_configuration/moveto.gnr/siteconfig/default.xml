@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<GenRoBag>
+    <connection_timeout/>
+    <connection_refresh/>
+    <wsgi port="8083" reload="true" debug="false"/>
+    <jslib dojo_version="11" gnr_version='11' />
+    <resources >
+        <common/>
+    </resources>
+</GenRoBag>

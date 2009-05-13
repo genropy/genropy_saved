@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<GenRoBag>
+	<enviroment>
+		<gnrhome value='/Users/michele/genro/trunk' />
+	</enviroment>
+    <projects>
+        <softwell path="~/clienti_softwell"/>
+    </projects>
+    <packages>
+        <genro path="$GNRHOME/packages"/>
+        <legacy path="$GNRHOME/legacy_packages"/>
+        <goodsoftware path="~/goodsoftware/packages"/>
+    </packages>
+    <sites>
+        <softwell path="~/newsites/sw_sites"/>
+        <jeff_sites path="~/newsites/jeff_sites" template='jeff'/>
+    </sites>
+    <instances>
+        <softwell path="~/newsites/instances"/>
+    </instances>
+    <static>
+        <js>
+            <dojo_11 path="$GNRHOME/dojo_libs/dojo_11" cdn=""/>
+            <dojo_13 path="$GNRHOME/dojo_libs/dojo_13" cdn=""/>
+            <gnr_11 path="$GNRHOME/gnrjs/gnr_d11"/>
+            <gnr_13 path="$GNRHOME/gnrjs/gnr_d13"/>
+        </js>
+    </static>
+    <resources >
+        <genro path="$GNRHOME/resources/"/>
+    </resources>
+</GenRoBag>
