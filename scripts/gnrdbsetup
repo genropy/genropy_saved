@@ -66,10 +66,10 @@ def name_to_path(server_config,site_name):
 
 def site_name_to_path(gnr_config,site_name):
     path_list=[]
-    if 'sites' in gnr_config['gnr.enviroment_xml']:
-        path_list.extend([expandpath(path) for path in gnr_config['gnr.enviroment_xml'].digest('sites:#a.path') if os.path.isdir(expandpath(path))])
-    if 'projects' in gnr_config['gnr.enviroment_xml']:
-        projects = [expandpath(path) for path in gnr_config['gnr.enviroment_xml'].digest('projects:#a.path') if os.path.isdir(expandpath(path))]
+    if 'sites' in gnr_config['gnr.environment_xml']:
+        path_list.extend([expandpath(path) for path in gnr_config['gnr.environment_xml'].digest('sites:#a.path') if os.path.isdir(expandpath(path))])
+    if 'projects' in gnr_config['gnr.environment_xml']:
+        projects = [expandpath(path) for path in gnr_config['gnr.environment_xml'].digest('projects:#a.path') if os.path.isdir(expandpath(path))]
         for project_path in projects:
             path_list.extend(glob.glob(os.path.join(project_path,'*/sites')))
         for path in path_list:
@@ -81,10 +81,10 @@ def site_name_to_path(gnr_config,site_name):
 
 def instance_name_to_path(gnr_config,instance_name):
     path_list=[]
-    if 'instances' in gnr_config['gnr.enviroment_xml']:
-        path_list.extend([expandpath(path) for path in gnr_config['gnr.enviroment_xml'].digest('instances:#a.path') if os.path.isdir(expandpath(path))])
-    if 'projects' in gnr_config['gnr.enviroment_xml']:
-        projects = [expandpath(path) for path in gnr_config['gnr.enviroment_xml'].digest('projects:#a.path') if os.path.isdir(expandpath(path))]
+    if 'instances' in gnr_config['gnr.environment_xml']:
+        path_list.extend([expandpath(path) for path in gnr_config['gnr.environment_xml'].digest('instances:#a.path') if os.path.isdir(expandpath(path))])
+    if 'projects' in gnr_config['gnr.environment_xml']:
+        projects = [expandpath(path) for path in gnr_config['gnr.environment_xml'].digest('projects:#a.path') if os.path.isdir(expandpath(path))]
         for project_path in projects:
             path_list.extend(glob.glob(os.path.join(project_path,'*/instances')))
         for path in path_list:
@@ -102,8 +102,8 @@ def load_gnr_config():
     else:
         return Bag()
 
-def set_enviroment(gnr_config):
-    for var,value in gnr_config['gnr.enviroment_xml'].digest('enviroment:#k,#a.value'):
+def set_environment(gnr_config):
+    for var,value in gnr_config['gnr.environment_xml'].digest('environment:#k,#a.value'):
         var=var.upper()
         if not os.getenv(var):
             os.environ[var]=str(value)
@@ -116,7 +116,7 @@ def get_app():
         else:
             raise Exception("No valid instance provided")
     gnr_config = load_gnr_config()
-    set_enviroment(gnr_config)
+    set_environment(gnr_config)
     if options.instance:
         gnr_config = load_gnr_config()
         instance_path = instance_name_to_path(gnr_config, options.instance)
@@ -128,7 +128,7 @@ def get_app():
         gnr_config = load_gnr_config()
         site_path = site_name_to_path(gnr_config, options.site)
         if not site_path:
-            site_path = os.path.join(gnr_config['gnr.enviroment_xml.sites?path'] or '', options.site)
+            site_path = os.path.join(gnr_config['gnr.environment_xml.sites?path'] or '', options.site)
         instance_path = os.path.join(site_path,'instance')
         if os.path.isfile(os.path.join(instance_path,'instanceconfig.xml')):
             return GnrApp(instance_path)

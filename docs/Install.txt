@@ -4,10 +4,10 @@ www.python.org
 
 [PostgresSQL]
 To upgrade:
-in the old enviroment: pg_dumpall -U postgres -f all.sql
+in the old environment: pg_dumpall -U postgres -f all.sql
 Homepage: http://www.postgresqlformac.com/
 Download: http://www.postgresqlformac.com/lists/downloads/unified_installer_disk_imag/
-in the new enviroment: psql -U postgres < all.sql
+in the new environment: psql -U postgres < all.sql
 
 [easy_install]
 Download: curl -O http://peak.telecommunity.com/dist/ez_setup.py

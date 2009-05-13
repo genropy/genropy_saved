@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <GenRoBag>
-	<enviroment>
+	<environment>
 		<gnrhome value='/Users/michele/genro/trunk' />
-	</enviroment>
+	</environment>
     <projects>
         <softwell path="~/clienti_softwell"/>
     </projects>

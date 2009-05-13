@@ -57,8 +57,8 @@ class GnrWsgiSite(object):
         self.page_factory_lock=RLock()
         
     def name_to_path(self,res_id):
-        if 'resources' in self.gnr_config['gnr.enviroment_xml']:
-            for path in self.gnr_config['gnr.enviroment_xml'].digest('resources:#a.path'):
+        if 'resources' in self.gnr_config['gnr.environment_xml']:
+            for path in self.gnr_config['gnr.environment_xml'].digest('resources:#a.path'):
                 res_path=expandpath(os.path.join(path,res_id))
                 if os.path.isdir(res_path):
                     return res_path
@@ -68,7 +68,7 @@ class GnrWsgiSite(object):
     def find_gnrjs_and_dojo(self):
         self.dojo_path={}
         self.gnr_path={}
-        for lib, path, cdn in self.gnr_config['gnr.enviroment_xml.static'].digest('js:#k,#a.path,#a.cdn'):
+        for lib, path, cdn in self.gnr_config['gnr.environment_xml.static'].digest('js:#k,#a.path,#a.cdn'):
             if lib.startswith('dojo_'):
                 self.dojo_path[lib[5:]] = path
             elif lib.startswith('gnr_'):
@@ -101,7 +101,7 @@ class GnrWsgiSite(object):
     def load_site_config(self):
         site_config_path = os.path.join(self.site_path,'siteconfig.xml')
         site_config = self.server_config['gnr.siteconfig.default_xml']
-        for path, site_template in self.server_config['gnr.enviroment_xml'].digest('sites:#a.path,#a.site_template'):
+        for path, site_template in self.server_config['gnr.environment_xml'].digest('sites:#a.path,#a.site_template'):
             if path == os.path.dirname(self.site_path):
                 if site_config:
                     site_config.update(self.server_config['gnr.siteconfig.%s_xml'%site_template] or Bag())
@@ -235,8 +235,8 @@ class GnrWsgiSite(object):
             return GnrWsgiWebApp(instance_path)
         
     def find_instance(self,instance_name):
-        if 'instances' in self.gnr_config['gnr.enviroment_xml']:
-            path_list.extend([expandpath(path) for path in self.gnr_config['gnr.enviroment_xml'].digest('sites:#a.path') if os.path.isdir(expandpath(path))])
+        if 'instances' in self.gnr_config['gnr.environment_xml']:
+            path_list.extend([expandpath(path) for path in self.gnr_config['gnr.environment_xml'].digest('sites:#a.path') if os.path.isdir(expandpath(path))])
         
     
     def build_automap(self):

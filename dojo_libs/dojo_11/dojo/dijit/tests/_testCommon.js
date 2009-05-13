@@ -11,7 +11,7 @@
 	there are currently (2 themes * 4 tests) * (10 variations of supported browsers)
 	not including testing individual locale-strings
 
-	you should not be using this in a production enviroment. include
+	you should not be using this in a production environment. include
 	your css and set your classes manually. for test purposes only ...
 */
 
