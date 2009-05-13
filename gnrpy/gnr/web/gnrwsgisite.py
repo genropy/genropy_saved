@@ -13,7 +13,7 @@ import os
 from time import time
 from threading import RLock
 #import hashlib
-
+from gnr.core.gnrsys import expandpath
 class GnrWebServerError(Exception):
     pass
 
@@ -22,11 +22,18 @@ class GnrWsgiSite(object):
     def __call__(self, environ, start_response):
         return self.wsgiapp(environ, start_response)
     
-    def __init__(self,script_path,site_name=None,_config=None):
+    def __init__(self,script_path,site_name=None,_config=None,_gnrconfig=None):
         self.site_path = os.path.dirname(os.path.abspath(script_path))
         self.site_name = site_name or os.path.basename(self.site_path)
+        if _gnrconfig:
+            self.gnr_config = _gnrconfig
+        else:
+            self.gnr_config = self.load_gnr_config()
         if _config:
-            self._config = _config
+            self.config = _config
+        else:
+            self.config = self.load_site_config()
+        
         self.home_uri = self.config['wsgi?home_uri'] or '/'
         self.mainpackage = self.config['wsgi?mainpackage']
         self.homepage = self.config['wsgi?homepage'] or self.home_uri+'index'
@@ -45,52 +52,66 @@ class GnrWsgiSite(object):
         if self.site_static_dir and not os.path.isabs(self.site_static_dir):
             self.site_static_dir = os.path.normpath(os.path.join(self.site_path,self.site_static_dir))
         self.find_resources()
+        self.find_gnrjs_and_dojo()
         self.page_factories={}
         self.page_factory_lock=RLock()
         
+    def name_to_path(self,res_id):
+        if 'resources' in self.gnr_config['gnr.defaults_xml']:
+            for path in self.gnr_config['gnr.defaults_xml'].digest('resources:#a.path'):
+                res_path=expandpath(os.path.join(path,res_id))
+                if os.path.isdir(res_path):
+                    return res_path
+        raise ServerException(
+            'Error: resource %s not found' % res_id)
+    
+    def find_gnrjs_and_dojo(self):
+        self.dojo_path={}
+        self.gnr_path={}
+        for lib, path, cdn in self.gnr_config['gnr.defaults_xml.static'].digest('js:#k,#a.path,#a.cdn'):
+            if lib.startswith('dojo_'):
+                self.dojo_path[lib[5:]] = path
+            elif lib.startswith('gnr_'):
+                self.gnr_path[lib[4:]] = path
+    
+    
     def find_resources(self):
         self.resources=Bag()
-        resources_path = self.config['resources?path']
         for resource in self.config['resources']:
             rsrc_path = resource.attr.get('path')
             if rsrc_path:
                 self.resources[resource.label] = rsrc_path
             else:
-                rsrc_path = os.path.join(resources_path, resource.label)
-                if os.path.isdir(rsrc_path):
-                    self.resources[resource.label] = rsrc_path
+                rsrc_path = self.name_to_path(resource.label)
+                self.resources[resource.label] = rsrc_path
         self.resources_dirs = self.resources.values()
         self.resources_dirs.reverse()
+        print self.resources_dirs
             
+    def load_gnr_config(self):
+        config_path = expandpath('~/.gnr')
+        if os.path.isdir(config_path):
+            return Bag(config_path)
+        config_path = expandpath(os.path.join('/etc/gnr'))
+        if os.path.isdir(config_path):
+            return Bag(config_path)
+        return Bag()
+    
 
-    def _get_config(self):
-        if not hasattr(self,'_config'):
-            user_config_path = os.path.expanduser('~/.gnr.xml')
-            machine_config_path = os.path.join('etc','gnr.xml')
-            site_config_path = os.path.join(self.site_path,'siteconfig.xml')
-            if os.path.isfile(user_config_path):
-                generic_config_path = user_config_path
-            elif os.path.isfile(machine_config_path):
-                generic_config_path = machine_config_path
-            else:
-                generic_config_path = None
-            if generic_config_path:
-                generic_config = Bag(generic_config_path)
-                site_config = generic_config['siteconfig.default']
-                for path, site_template in generic_config.digest('sites:#a.path,#a.site_template'):
-                    if path == os.path.dirname(self.site_path):
-                        if site_config:
-                            site_config.update(generic_config['siteconfig.%s'%site_template] or Bag())
-                        else:
-                            site_config = generic_config['siteconfig.%s'%site_template]
-            if site_config:
-                site_config.update(Bag(site_config_path))
-            else:
-                site_config = Bag(site_config_path)
-            self._config = site_config
-            
-        return self._config
-    config = property(_get_config)
+    def load_site_config(self):
+        site_config_path = os.path.join(self.site_path,'siteconfig.xml')
+        site_config = self.server_config['gnr.siteconfig.default_xml']
+        for path, site_template in self.server_config['gnr.defaults_xml'].digest('sites:#a.path,#a.site_template'):
+            if path == os.path.dirname(self.site_path):
+                if site_config:
+                    site_config.update(self.server_config['gnr.siteconfig.%s_xml'%site_template] or Bag())
+                else:
+                    site_config = self.server_config['gnr.siteconfig.%s_xml'%site_template]
+        if site_config:
+            site_config.update(Bag(site_config_path))
+        else:
+            site_config = Bag(site_config_path)
+        return site_config
 
     def _get_sitemap(self):
         if not hasattr(self,'_sitemap'):
@@ -131,7 +152,7 @@ class GnrWsgiSite(object):
         page_attr = page_node.getInheritedAttributes()
         if not page_attr.get('path'):
             return self.not_found(environ,start_response)
-        if self.debug:
+        if not self.debug:
             page = self.page_create(**page_attr)
         else:
             try:
@@ -242,6 +263,7 @@ class GnrWsgiSite(object):
         page_class.__module__ = custom_class.__module__
         self.page_class_base_mixin(page_class, pkg=pkg)
         page_class.dojoversion = getattr(custom_class, 'dojoversion', None) or self.config['dojo?version'] or '11'
+        page_class.gnrjsversion = getattr(custom_class, 'gnrjsversion', None) or self.config['gnrjs?version'] or '11'
         page_class.maintable = getattr(custom_class, 'maintable', None)
         page_class.eagers = getattr(custom_class, 'eagers', {})
         page_class.css_requires = splitAndStrip(getattr(custom_class, 'css_requires', ''),',')
@@ -370,9 +392,9 @@ class GnrWsgiSite(object):
                 if os.path.isdir(fpath):
                     result.append(fpath)
         #result.extend(self.siteResources)
-        resources_list = [os.path.join(r,'_resources') for r in self.resources_dirs]
+        resources_list = self.resources_dirs
         result.extend(resources_list)
-        page_class.tpldirectories=result+[os.path.join(resource_dir,'_static','lib','gnrjs','gnr_d%s' % page_class.dojoversion,'tpl') for resource_dir in self.resources_dirs]
+        page_class.tpldirectories=result+[self.gnr_static_path(page_class.gnrjsversion,'tpl')]
         page_class._resourceDirs = result
         
     def _get_siteResources(self):
@@ -381,7 +403,7 @@ class GnrWsgiSite(object):
             fpath = os.path.join(self.site_static_dir, '_resources')
             if os.path.isdir(fpath):
                 self._siteResources.append(fpath) # we add a resource folder for common package
-            resources_path = [os.path.join(fpath, '_resources') for fpath in self.resources_dirs if os.path.isdir(fpath)]
+            resources_path = [fpath for fpath in self.resources_dirs if os.path.isdir(fpath)]
             #if os.path.isdir(fpath):
             self._siteResources.extend(resources_path) # we add a resource folder for common package
         return self._siteResources
@@ -401,19 +423,31 @@ class GnrWsgiSite(object):
 
     def pkg_static_url(self,pkg,*args):
         return '/_pkg/%s/%s'%(pkg,'/'.join(args))
-        
+    
     def rsrc_static_path(self,rsrc,*args):
         return os.path.join(self.resources[rsrc], *args)
-
+    
     def rsrc_static_url(self,rsrc,*args):
         return '/_rsrc/%s/%s'%(rsrc,'/'.join(args))
-
+    
     def pages_static_path(self,*args):
         return os.path.join(self.site_path,'pages', *args)
-
+    
     def pages_static_url(self,*args):
         return '/_pages/%s'%('/'.join(args))
+    
+    def dojo_static_path(self, version,*args):
+        return expandpath(os.path.join(self.dojo_path[version], *args))
+    
+    def dojo_static_url(self, version,*args):
+        return '/_dojo/%s/%s'%(version,'/'.join(args))
+    
+    def gnr_static_path(self, version,*args):
+        return expandpath(os.path.join(self.gnr_path[version], *args))
 
+    def gnr_static_url(self, version,*args):
+        return '/_gnr/%s/%s'%(version,'/'.join(args))
+        
     ########################### begin static file handling #################################
     
     def serve_staticfile(self,path_list,environ,start_response):
@@ -439,6 +473,12 @@ class GnrWsgiSite(object):
             file_responder.cache_control(max_age=self.cache_max_age)
         return file_responder(environ, start_response)
         
+    
+    def static_dojo(self,path_list):
+        return self.dojo_static_path(*path_list[1:])
+        
+    def static_gnr(self,path_list):
+        return self.gnr_static_path(*path_list[1:])
     
     def static_site(self,path_list):
         static_dir = self.config['resources?site'] or '.'

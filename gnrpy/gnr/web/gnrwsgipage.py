@@ -107,28 +107,18 @@ class GnrWsgiPage(GnrBaseWebPage):
             self.raiseUnauthorized()
         if striped:
             kwargs['striped']=itertools.cycle(striped.split(','))
-        tpldirectories=[os.path.dirname(path), self.parentdirpath]+self.resourceDirs+[self.site.rsrc_static_path(rsrc,'_static','lib','gnrjs','gnr_d%s' % self.dojoversion,'tpl') for rsrc in self.site.resources.keys()]
+        tpldirectories=[os.path.dirname(path), self.parentdirpath]+self.resourceDirs+self.site.gnr_static_path(self.gnrjsversion,'tpl')
         lookup=TemplateLookup(directories=tpldirectories,
                               output_encoding='utf-8', encoding_errors='replace')                      
         template = lookup.get_template(os.path.basename(path))
         self.response.content_type = 'text/html'
         css_dojo = getattr(self, '_css_dojo_d%s' % self.dojoversion)()
-        gnrlibpath = 'gnr_d%s' % self.dojoversion
         _resources = self.site.resources.keys()
         _resources.reverse()
-        dojolib = None
-        gnrModulePath = None
-        for rsrc in _resources:
-            if not dojolib:
-                dojolib = self.site.rsrc_static_url(rsrc,'_static','lib_%s'%self.dojoversion,'dojo','dojo','dojo.js')
-                dojorsrc = rsrc
-            if not gnrModulePath:
-                gnrModulePath = self.site.rsrc_static_url(rsrc,'_static','lib','gnrjs')
-                gnrrsrc = rsrc
-            if dojolib and gnrModulePath:
-                break
+        dojolib = self.site.dojo_static_url(self.dojoversion,'dojo','dojo','dojo.js')
+        gnrModulePath = self.site.gnr_static_url(self.gnrjsversion)
         return template.render(mainpage=self,
-                               css_genro = self.get_css_genro(gnrlibpath,gnrrsrc),
+                               css_genro = self.get_css_genro(),
                                css_requires = self.get_css_requires(),
                                css_dojo = [self.site.rsrc_static_url(dojorsrc,'_static','lib_%s'%self.dojoversion,'dojo',f) for f in css_dojo],
                                dojolib=dojolib,
@@ -138,18 +128,8 @@ class GnrWsgiPage(GnrBaseWebPage):
     def build_arg_dict(self,**kwargs):
         _resources = self.site.resources.keys()
         _resources.reverse()
-        dojolib = None
-        gnrModulePath = None
-        for rsrc in _resources:
-            if not dojolib:
-                dojolib = self.site.rsrc_static_url(rsrc,'_static','lib_%s'%self.dojoversion,'dojo','dojo','dojo.js')
-                dojorsrc = rsrc
-            if not gnrModulePath:
-                gnrModulePath = self.site.rsrc_static_url(rsrc,'_static','lib','gnrjs')
-                gnrrsrc = rsrc
-            if dojolib and gnrModulePath:
-                break
-        
+        dojolib = self.site.dojo_static_url(self.dojoversion,'dojo','dojo','dojo.js')
+        gnrModulePath = self.site.gnr_static_url(self.gnrjsversion)
         arg_dict={}
         arg_dict['customHeaders']=self._htmlHeaders
         arg_dict['charset'] = self.charset
@@ -158,30 +138,25 @@ class GnrWsgiPage(GnrBaseWebPage):
         arg_dict['startArgs'] = toJson(kwargs)
         arg_dict['page_id'] = self.page_id or getUuid()
         arg_dict['bodyclasses'] = self.get_bodyclasses()
-        #dojolib=self.site.common_static_url('_static','lib_%s'%self.dojoversion,'dojo','dojo','dojo.js')
         arg_dict['dojolib'] = dojolib
         arg_dict['djConfig'] = "parseOnLoad: false, isDebug: %s, locale: '%s'" % (self.isDeveloper() and 'true' or 'false',self.locale)
         arg_dict['gnrModulePath'] = gnrModulePath
         gnrimports = getattr(self, '_gnrjs_d%s' % self.dojoversion)()
-        gnrlibpath='gnr_d%s' % self.dojoversion
         if self.site.debug or self.isDeveloper():
-            arg_dict['genroJsImport'] = [self.site.rsrc_static_url(gnrrsrc,'_static','lib','gnrjs', gnrlibpath,'js', '%s.js' % f) for f in gnrimports]
+            arg_dict['genroJsImport'] = [self.site.gnr_static_url( self.gnrjsversion,'js', '%s.js' % f) for f in gnrimports]
         else:
-            jsfiles = [self.site.rsrc_static_path(gnrrsrc,'_static','lib','gnrjs', gnrlibpath,'js', '%s.js' % f) for f in gnrimports]
-            arg_dict['genroJsImport'] = [self._jscompress(jsfiles,gnrrsrc)]
-
+            jsfiles = [self.site.gnr_static_path(self.gnrjsversion,'js', '%s.js' % f) for f in gnrimports]
+            arg_dict['genroJsImport'] = [self._jscompress(jsfiles)]
         css_dojo = getattr(self, '_css_dojo_d%s' % self.dojoversion)()
-        arg_dict['css_dojo'] = [self.site.rsrc_static_url(dojorsrc,'_static','lib_%s'%self.dojoversion,'dojo',f) for f in css_dojo]
-        arg_dict['css_genro'] = self.get_css_genro(gnrlibpath,gnrrsrc)
-
-        js_requires = [x for x in [self.getResourceUri(r,'js') for r in self.js_requires ] if x]
+        arg_dict['css_dojo'] = [self.site.dojo_static_url(self.dojoversion,'dojo',f) for f in css_dojo]
+        arg_dict['css_genro'] = self.get_css_genro()
+        js_requires = [x for x in [self.getResourceUri(r,'js') for r in self.js_requires] if x]
         if os.path.isfile(self.resolvePath('%s.js' % self.pagename)):
             js_requires.append('%s.js' % self.pagename)
         arg_dict['js_requires'] = js_requires
         css_requires = self.get_css_requires()
         if os.path.isfile(self.resolvePath('%s.css' % self.pagename)):
             css_requires.append('%s.css' % self.pagename)
-        #css_requires.reverse()
         arg_dict['css_requires'] = css_requires
         return arg_dict
     
@@ -198,10 +173,10 @@ class GnrWsgiPage(GnrBaseWebPage):
     def get_bodyclasses(self):
         return '%s _common_d11 pkg_%s page_%s' % (self.theme, self.packageId, self.pagename)
     
-    def get_css_genro(self, gnrlibpath,gnrrsrc):
-        css_genro = getattr(self, '_css_genro_d%s' % self.dojoversion)()
+    def get_css_genro(self):
+        css_genro = getattr(self, '_css_genro_d%s' % self.gnrjsversion)()
         for media in css_genro.keys():
-           css_genro[media] = [self.site.rsrc_static_url(gnrrsrc,'_static','lib','gnrjs',gnrlibpath,'css', '%s.css' % f) for f in css_genro[media]]
+           css_genro[media] = [self.site.gnr_static_url(self.gnrjsversion,'css', '%s.css' % f) for f in css_genro[media]]
         return css_genro
     
     def _get_folders(self):
@@ -234,12 +209,12 @@ class GnrWsgiPage(GnrBaseWebPage):
     def checkPermission(self, pagepath, relative=True):
         return self.application.checkResourcePermission(self.auth_tags, self.userTags)
     
-    def _jscompress(self, jsfiles, gnrrsrc):
+    def _jscompress(self, jsfiles):
         ts = str(max([os.path.getmtime(fname) for fname in jsfiles]))
         key = '-'.join(jsfiles)
         cpfile = '%s.js' % hashlib.md5(key+ts).hexdigest()
-        cppath = self.site.rsrc_static_path(gnrrsrc,'_static','_jslib', cpfile)
-        jspath = self.site.rsrc_static_url(gnrrsrc,'_static','_jslib', cpfile)
+        cppath = self.site.site_static_path('_static','_jslib', cpfile)
+        jspath = self.site.site_static_url('_static','_jslib', cpfile)
         rebuild = True
         if os.path.isfile(cppath):
             cpf = file(cppath, 'r')
@@ -248,7 +223,7 @@ class GnrWsgiPage(GnrBaseWebPage):
             if ts in tsf:
                 rebuild = False
         if rebuild:
-            path = self.site.rsrc_static_path(gnrrsrc,'_static','_jslib')
+            path = self.site.site_static_path('_static','_jslib')
             if not os.path.exists(path):
                 os.makedirs(path)
             cpf = file(cppath, 'w')

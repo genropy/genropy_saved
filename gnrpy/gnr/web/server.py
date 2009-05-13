@@ -14,7 +14,7 @@ import optparse
 import threading
 import atexit
 import logging
-
+from gnr.core.gnrsys import expandpath
 MAXFD = 1024
 
 wsgi_options=dict(
@@ -119,8 +119,8 @@ class NewServer(object):
                       
     parser.add_option('-c','--config',
                       dest='config_path',
-                      default="~/.gnr.xml",
-                      help="gnrserve file path")
+                      default="~/.gnr",
+                      help="gnrserve directory path")
     
     parser.add_option('-p','--port',
                       dest='port',
@@ -177,11 +177,12 @@ class NewServer(object):
         self.server_description=server_description
         self.server_name=server_name
         (self.options,self.args)=self.parser.parse_args()
-        self.load_server_config()
+        self.load_gnr_config()
+        self.set_enviroment()
         if hasattr(self.options, 'site_name') and self.options.site_name:
-            if not self.server_config:
+            if not self.gnr_config:
                 raise ServerException(
-                    'Error: no ~/.gnr.xml or /etc/gnr.xml found')
+                    'Error: no ~/.gnr/ or /etc/gnr/ found')
             self.site_path = self.name_to_path(self.options.site_name)
             self.site_script=os.path.join(self.site_path,'root.py')
             if not os.path.isfile(self.site_script):
@@ -192,20 +193,26 @@ class NewServer(object):
         self.init_options()
         
     def name_to_path(self,site_name):
-        if 'sites' in self.server_config:
-            for path in self.server_config.digest('sites:#a.path'):
-                site_path=os.path.join(path,site_name)
+        if 'sites' in self.gnr_config['gnr.defaults_xml']:
+            for path in self.gnr_config['gnr.defaults_xml'].digest('sites:#a.path'):
+                site_path=expandpath(os.path.join(path,site_name))
                 if os.path.isdir(site_path):
                     return site_path
         raise ServerException(
-            'Error: erroneous site provided (not %s)' % site_name) 
+            'Error: no site named %s found' % site_name) 
     
-    def load_server_config(self):
-        config_path = os.path.expanduser(self.options.config_path)
-        if os.path.isfile(config_path):
-            self.server_config=Bag(config_path)
+    def load_gnr_config(self):
+        config_path = expandpath(self.options.config_path)
+        if os.path.isdir(config_path):
+            self.gnr_config=Bag(config_path)
         else:
-            self.server_config=Bag()
+            self.gnr_config=Bag()
+    
+    def set_enviroment(self):
+        for var,value in self.gnr_config['gnr.defaults_xml'].digest('enviroment:#k,#a.value'):
+            var=var.upper()
+            if not os.getenv(var):
+                os.environ[var]=str(value)
     
     def init_options(self): 
         self.siteconfig=self.get_config()
@@ -216,24 +223,14 @@ class NewServer(object):
                 self.options.__dict__[option] = site_option or wsgi_options.get(option)
 
     def get_config(self):
-        user_config_path = os.path.expanduser(self.options.config_path)
-        machine_config_path = os.path.join('etc','gnr.xml')
         site_config_path = os.path.join(self.site_path,'siteconfig.xml')
-        if os.path.isfile(user_config_path):
-            generic_config_path = user_config_path
-        elif os.path.isfile(machine_config_path):
-            generic_config_path = machine_config_path
-        else:
-            generic_config_path = None
-        if generic_config_path:
-            generic_config = Bag(generic_config_path)
-            site_config = generic_config['siteconfig.default']
-            for path, site_template in generic_config.digest('sites:#a.path,#a.site_template'):
-                if path == os.path.dirname(self.site_path):
-                    if site_config:
-                        site_config.update(generic_config['siteconfig.%s'%site_template] or Bag())
-                    else:
-                        site_config = generic_config['siteconfig.%s'%site_template]
+        site_config = self.gnr_config['gnr.siteconfig.default_xml']
+        for path, site_template in self.gnr_config['gnr.defaults_xml'].digest('sites:#a.path,#a.site_template'):
+            if path == os.path.dirname(self.site_path):
+                if site_config:
+                    site_config.update(self.gnr_config['gnr.siteconfig.%s_xml'%site_template] or Bag())
+                else:
+                    site_config = self.gnr_config['gnr.siteconfig.%s_xml'%site_template]
         if site_config:
             site_config.update(Bag(site_config_path))
         else:
@@ -366,7 +363,7 @@ class NewServer(object):
 
     def serve(self):
         try:
-            gnrServer=GnrWsgiSite(self.site_script, site_name = self.options.site_name, _config = self.siteconfig)
+            gnrServer=GnrWsgiSite(self.site_script, site_name = self.options.site_name, _config = self.siteconfig, _gnrconfig = self.gnr_config)
             httpserver.serve(gnrServer, host=self.options.host, port=self.options.port)
         except (SystemExit, KeyboardInterrupt), e:
             if self.options.verbose > 1:

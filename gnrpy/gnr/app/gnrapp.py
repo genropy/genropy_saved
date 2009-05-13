@@ -40,7 +40,7 @@ from gnr.core.gnrbag import Bag, DirectoryResolver
 
 from gnr.core.gnrlang import GnrObject, gnrImport, instanceMixin, GnrGenericException
 from gnr.core.gnrstring import makeSet, toText, splitAndStrip, like, boolean
-
+from gnr.core.gnrsys import expandpath
 from gnr.sql.gnrsql import GnrSqlDb
 from gnr.sql.gnrsqltable import SqlTablePlugin
 
@@ -222,7 +222,8 @@ class GnrApp(object):
         self.kwargs = kwargs
         self.packages = Bag()
         self.packagesIdByPath = {}
-        self.config = Bag(os.path.join(self.instanceFolder, 'instanceconfig.xml'))
+        self.gnr_config=self.load_gnr_config()
+        self.config = self.load_instance_config()
         db_settings_path = os.path.join(self.instanceFolder, 'dbsettings.xml')
         if os.path.isfile(db_settings_path):
             db_credential = Bag(db_settings_path)
@@ -241,6 +242,30 @@ class GnrApp(object):
             self.webPageCustom = getattr(self.main_module, 'WebPage', None)
         self.init()
         self.creationTime=time.time()
+    
+    def load_gnr_config(self):
+        config_path = expandpath('~/.gnr')
+        if os.path.isdir(config_path):
+            return Bag(config_path)
+        config_path = expandpath(os.path.join('/etc/gnr'))
+        if os.path.isdir(config_path):
+            return Bag(config_path)
+        return Bag()
+        
+    def load_instance_config(self):
+        site_config_path = os.path.join(self.instanceFolder,'instanceconfig.xml')
+        instance_config = self.gnr_config['gnr.instanceconfig.default_xml']
+        for path, instance_template in self.gnr_config['gnr.defaults_xml'].digest('instances:#a.path,#a.instance_template'):
+            if path == os.path.dirname(self.instanceFolder):
+                if instance_config:
+                    instance_config.update(self.gnr_config['gnr.instanceconfig.%s_xml'%instance_template] or Bag())
+                else:
+                    instance_config = self.gnr_config['gnr.instanceconfig.%s_xml'%instance_template]
+        if instance_config:
+            instance_config.update(Bag(site_config_path))
+        else:
+            instance_config = Bag(site_config_path)
+        return instance_config
         
     def init(self):
         self.onIniting()
@@ -251,14 +276,19 @@ class GnrApp(object):
         if dbattrs.get('implementation') =='sqlite':
             dbattrs['dbname'] = self.realPath(dbattrs.pop('filename'))
         configlist = []
-        basepath = self.config.getAttr('packages', 'path', '/usr/local/genro/packages') 
+        basepath = [self.config.getAttr('packages', 'path')]
+        basepath.extend(self.gnr_config['gnr.defaults_xml.packages'].digest('#a.path'))
+        basepath = map(expandpath,basepath)
         self.db = GnrSqlAppDb(**dbattrs)
         self.db.application = self
         pkgMenues = self.config['menu?package'] or []
         if pkgMenues:
             pkgMenues = pkgMenues.split(',')
         for pkgid, attrs in self.config['packages'].digest('#k,#a'):
-            attrs['path'] = self.realPath(attrs.get('path', basepath))
+            if not attrs.get('path'):
+                attrs['path']=self.name_to_path(pkgid)
+            if not os.path.isabs(attrs['path']):
+                attrs['path'] = self.realPath(attrs['path'])
             apppkg = GnrPackage(pkgid, self, **attrs)
             if apppkg.pkgMenu and (not pkgMenues or pkgid in pkgMenues):
                 self.config['menu.%s' %pkgid] = apppkg.pkgMenu
@@ -275,6 +305,14 @@ class GnrApp(object):
         
         self.onInited()
 
+    def name_to_path(self,pkgid):
+        if 'packages' in self.gnr_config['gnr.defaults_xml']:
+            for path in self.gnr_config['gnr.defaults_xml'].digest('packages:#a.path'):
+                pkg_path=expandpath(os.path.join(path,pkgid))
+                if os.path.isdir(pkg_path):
+                    return path
+        raise Exception(
+            'Error: package %s not found' % pkgid)
     
     def onIniting(self):
         pass
