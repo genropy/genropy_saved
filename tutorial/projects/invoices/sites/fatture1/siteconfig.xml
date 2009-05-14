@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<GenRoBag>
+    <wsgi homepage='invc/index' mainpackage='invc' port='8086' debug='true'/>
+</GenRoBag>
