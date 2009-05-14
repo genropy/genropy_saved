@@ -223,6 +223,7 @@ class GnrApp(object):
         self.packages = Bag()
         self.packagesIdByPath = {}
         self.gnr_config=self.load_gnr_config()
+        self.set_environment()
         self.config = self.load_instance_config()
         self.build_package_path()
         db_settings_path = os.path.join(self.instanceFolder, 'dbsettings.xml')
@@ -244,6 +245,12 @@ class GnrApp(object):
         self.init()
         self.creationTime=time.time()
     
+    def set_environment(self):
+        for var,value in self.gnr_config['gnr.environment_xml'].digest('environment:#k,#a.value'):
+            var=var.upper()
+            if not os.getenv(var):
+                os.environ[var]=str(value)
+    
     def load_gnr_config(self):
         config_path = expandpath('~/.gnr')
         if os.path.isdir(config_path):
@@ -254,18 +261,19 @@ class GnrApp(object):
         return Bag()
         
     def load_instance_config(self):
-        site_config_path = os.path.join(self.instanceFolder,'instanceconfig.xml')
+        instance_config_path = os.path.join(self.instanceFolder,'instanceconfig.xml')
         instance_config = self.gnr_config['gnr.instanceconfig.default_xml']
-        for path, instance_template in self.gnr_config['gnr.environment_xml'].digest('instances:#a.path,#a.instance_template'):
-            if path == os.path.dirname(self.instanceFolder):
-                if instance_config:
-                    instance_config.update(self.gnr_config['gnr.instanceconfig.%s_xml'%instance_template] or Bag())
-                else:
-                    instance_config = self.gnr_config['gnr.instanceconfig.%s_xml'%instance_template]
+        if 'instances' in self.gnr_config['gnr.environment_xml']:
+            for path, instance_template in self.gnr_config['gnr.environment_xml'].digest('instances:#a.path,#a.instance_template'):
+                if path == os.path.dirname(self.instanceFolder):
+                    if instance_config:
+                        instance_config.update(self.gnr_config['gnr.instanceconfig.%s_xml'%instance_template] or Bag())
+                    else:
+                        instance_config = self.gnr_config['gnr.instanceconfig.%s_xml'%instance_template]
         if instance_config:
-            instance_config.update(Bag(site_config_path))
+            instance_config.update(Bag(instance_config_path))
         else:
-            instance_config = Bag(site_config_path)
+            instance_config = Bag(instance_config_path)
         return instance_config
         
     def init(self):
