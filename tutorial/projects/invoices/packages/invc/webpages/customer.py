@@ -49,8 +49,9 @@ class GnrCustomWebPage(object):
     def formBase(self, parentBC,disabled=False, **kwargs):
         pane=parentBC.contentPane(padding='4em', **kwargs)
         fb=pane.formbuilder(cols=2, border_spacing='6px',disabled=disabled)
-        fb.field('code')
-        fb.field('name')
+        #fb.field('code',readOnly='^aux_code.readOnly')
+        fb.field('code',readOnly=not self.isDeveloper())
+        fb.field('name',autoFocus=True)
         fb.field('country', rowcaption='$name')
         fb.field('address')
         fb.field('zip')
@@ -59,6 +60,11 @@ class GnrCustomWebPage(object):
         
         fb.dataRpc('abu.oraRitornata','dammilora', nome='=form.record.name', _fired='^abu.ora')
         fb.div('^abu.oraRitornata')
+        
+    def onLoading(self, record, newrecord, loadingParameters, recInfo):
+        if newrecord:
+            country = self.site.config('defaults?country')
+            record['country'] = country
 ############################## RPC_METHODS ###################################       
     def rpc_dammilora(self,nome=None,**kwargs):
         return "caro %s sono le %s" %(nome,str(datetime.now()))

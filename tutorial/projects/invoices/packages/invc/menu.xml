@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <GenRoBag>
-    <invoice_root label="Area ufficio" tags="staff" basepath="/invc">
+    <invoice_root label="Area ufficio" tags="user" basepath="/invc">
         <invoices label="!!Invoices Tables">
             <customers label="!!Customers" file="customer"/>
             <products label="!!Products" file="product"/>

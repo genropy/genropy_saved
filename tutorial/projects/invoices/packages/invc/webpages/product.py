@@ -49,7 +49,7 @@ class GnrCustomWebPage(object):
     def formBase(self, parentBC,disabled=False, **kwargs):
         pane=parentBC.contentPane(padding='4em', **kwargs)
         fb=pane.formbuilder(cols=2, border_spacing='6px',disabled=disabled)
-        fb.field('code',tag='div')
+        fb.field('code',readOnly=True)
         fb.field('description')
         fb.field('product_type')
         pane.dataFormula("form.title", "code+'-'+description",code="^.code",description="^.description")

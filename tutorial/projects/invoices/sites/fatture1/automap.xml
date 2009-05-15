@@ -1,6 +1,5 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<GenRoBag><sys><frameset path="frameset.py" pkg="sys" name="!!Frameset"/></sys>
-<adm><change_password path="change_password.py" pkg="adm" name="!!Change_password"/>
+<GenRoBag><adm><change_password path="change_password.py" pkg="adm" name="!!Change_password"/>
 <index path="index.py" pkg="adm" name="!!Index"/>
 <login path="login.py" pkg="adm" name="!!Login"/>
 <lost_password path="lost_password.py" pkg="adm" name="!!Lost_password"/>
@@ -12,4 +11,7 @@
 <index path="index.py" pkg="glbl" name="!!Index"/>
 <regione path="regione.py" pkg="glbl" name="!!Regione"/></glbl>
 <invc><customer path="customer.py" pkg="invc" name="!!Customer"/>
-<index path="index.py" pkg="invc" name="!!Index"/></invc></GenRoBag>
+<hello path="hello.py" pkg="invc" name="!!Hello"/>
+<index path="index.py" pkg="invc" name="!!Index"/>
+<product path="product.py" pkg="invc" name="!!Product"/>
+<product_type path="product_type.py" pkg="invc" name="!!Product_type"/></invc></GenRoBag>
