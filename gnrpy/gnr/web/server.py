@@ -15,7 +15,7 @@ import optparse
 import threading
 import atexit
 import logging
-from gnr.core.gnrsys import expandpath
+from gnr.core.gnrsys import expandpath, listdirs
 MAXFD = 1024
 
 wsgi_options=dict(
@@ -30,6 +30,7 @@ wsgi_options=dict(
     )
 
 DNS_SD_PID = None
+
 
 def start_bonjour(host=None, port=None, server_name=None,
     server_description=None,home_uri=None):
@@ -232,17 +233,17 @@ class NewServer(object):
 
     def get_config(self):
         site_config_path = os.path.join(self.site_path,'siteconfig.xml')
-        site_config = self.gnr_config['gnr.siteconfig.default_xml']
-        for path, site_template in self.gnr_config['gnr.environment_xml'].digest('sites:#a.path,#a.site_template'):
-            if path == os.path.dirname(self.site_path):
-                if site_config:
+        base_site_config = Bag(site_config_path)
+        site_config = self.gnr_config['gnr.siteconfig.default_xml'] or Bag()
+        template = site_config['site?template']
+        if template:
+            instance_config.update(self.gnr_config['gnr.instanceconfig.%s_xml'%template] or Bag())
+        if 'sites' in self.gnr_config['gnr.environment_xml']:
+            for path, site_template in self.gnr_config.digest('gnr.environment_xml.sites:#a.path,#a.site_template'):
+                if path == os.path.dirname(self.site_path):
                     site_config.update(self.gnr_config['gnr.siteconfig.%s_xml'%site_template] or Bag())
-                else:
-                    site_config = self.gnr_config['gnr.siteconfig.%s_xml'%site_template]
-        if site_config:
-            site_config.update(Bag(site_config_path))
-        else:
-            site_config = Bag(site_config_path)
+        site_config.update(Bag(site_config_path))
+        
         return site_config
 
     def set_user(self):
@@ -335,8 +336,16 @@ class NewServer(object):
                 if self.options.verbose > 1:
                     print 'Running reloading file monitor'
                 reloader.install(int(self.options.reload_interval))
-                if False: #self.requires_config_file:  #VERIFICARE
-                    reloader.watch_file(self.args[0])
+                menu_path = os.path.join(self.site_path,'menu.xml')
+                site_config_path = os.path.join(self.site_path,'siteconfig.xml')
+                for file_path in (menu_path,site_config_path):
+                    if os.path.isfile(file_path):
+                        print file_path
+                        reloader.watch_file(file_path)
+                config_path = expandpath(self.options.config_path)
+                if os.path.isdir(config_path):
+                    for file_path in listdirs(config_path):
+                        reloader.watch_file(file_path)
             else:
                 return self.restart_with_reloader()
 
