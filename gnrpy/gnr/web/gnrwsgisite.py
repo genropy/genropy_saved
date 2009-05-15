@@ -101,13 +101,13 @@ class GnrWsgiSite(object):
 
     def load_site_config(self):
         site_config_path = os.path.join(self.site_path,'siteconfig.xml')
-        site_config = self.server_config['gnr.siteconfig.default_xml']
-        for path, site_template in self.server_config['gnr.environment_xml'].digest('sites:#a.path,#a.site_template'):
+        site_config = self.gnr_config['gnr.siteconfig.default_xml']
+        for path, site_template in self.gnr_config['gnr.environment_xml'].digest('sites:#a.path,#a.site_template'):
             if path == os.path.dirname(self.site_path):
                 if site_config:
-                    site_config.update(self.server_config['gnr.siteconfig.%s_xml'%site_template] or Bag())
+                    site_config.update(self.gnr_config['gnr.siteconfig.%s_xml'%site_template] or Bag())
                 else:
-                    site_config = self.server_config['gnr.siteconfig.%s_xml'%site_template]
+                    site_config = self.gnr_config['gnr.siteconfig.%s_xml'%site_template]
         if site_config:
             site_config.update(Bag(site_config_path))
         else:
