@@ -234,7 +234,7 @@ class SqlDbAdapter(SqlDbBaseAdapter):
             result.append(dict(name=idx['name'], primary=None, unique=idx['unique'], columns=','.join(cols)))
         return result
     
-    def addForeignKeySql(self, c_name, o_pkg, o_tbl, o_fld, m_pkg, m_tbl, m_fld, on_up, on_del):
+    def addForeignKeySql(self, c_name, o_pkg, o_tbl, o_fld, m_pkg, m_tbl, m_fld, on_up, on_del, init_deferred):
         """Sqlite cannot add foreign keys, only define them in CREATE TABLE. However they are not enforced."""
         return ''
         
