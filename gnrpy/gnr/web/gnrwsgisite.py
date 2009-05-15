@@ -29,6 +29,7 @@ class GnrWsgiSite(object):
             self.gnr_config = _gnrconfig
         else:
             self.gnr_config = self.load_gnr_config()
+            self.set_environment()
         if _config:
             self.config = _config
         else:
@@ -56,11 +57,13 @@ class GnrWsgiSite(object):
         self.page_factories={}
         self.page_factory_lock=RLock()
         
-    def name_to_path(self,res_id):
+    def resource_name_to_path(self,res_id):
+        project_resource_path = os.path.join(self.site_path, '..','..','resources',res_id)
+        if os.path.isdir(project_resource_path):
+            return project_resource_path
         if 'resources' in self.gnr_config['gnr.environment_xml']:
             for path in self.gnr_config['gnr.environment_xml'].digest('resources:#a.path'):
                 res_path=expandpath(os.path.join(path,res_id))
-                print res_path
                 if os.path.isdir(res_path):
                     return res_path
         raise Exception(
@@ -83,12 +86,17 @@ class GnrWsgiSite(object):
             if rsrc_path:
                 self.resources[resource.label] = rsrc_path
             else:
-                rsrc_path = self.name_to_path(resource.label)
+                rsrc_path = self.resource_name_to_path(resource.label)
                 self.resources[resource.label] = rsrc_path
         self.resources_dirs = self.resources.values()
         self.resources_dirs.reverse()
-        print self.resources_dirs
-            
+        
+    def set_environment(self):
+        for var,value in self.gnr_config['gnr.environment_xml'].digest('environment:#k,#a.value'):
+            var=var.upper()
+            if not os.getenv(var):
+                os.environ[var]=str(value)
+    
     def load_gnr_config(self):
         config_path = expandpath('~/.gnr')
         if os.path.isdir(config_path):
@@ -153,8 +161,9 @@ class GnrWsgiSite(object):
         page_attr = page_node.getInheritedAttributes()
         if not page_attr.get('path'):
             return self.not_found(environ,start_response)
-        if not self.debug:
+        if self.debug:
             page = self.page_create(**page_attr)
+            print 'post page_create'
         else:
             try:
                 page = self.page_create(**page_attr)
@@ -179,6 +188,7 @@ class GnrWsgiSite(object):
             debug=page_kwargs.pop('debug')
         else:
             debug=None
+        print 'pre page_init'
         self.page_init(page,request=req, response=resp, page_id=page_id, debug=debug, 
                             _user_login=_user_login, _rpc_resultPath=_rpc_resultPath)
         if not page:
@@ -199,6 +209,7 @@ class GnrWsgiSite(object):
             resp=result
         totaltime = time()-t
         resp.headers['X-GnrTime'] = str(totaltime)
+        print 'pre return'
         return resp(environ, start_response)
 
     def not_found(self, environ, start_response, debug_message=None):
@@ -263,9 +274,12 @@ class GnrWsgiSite(object):
         self.automap.toXml(os.path.join(self.site_path,'automap.xml'))
     
     def get_page_factory(self, path, pkg = None):
-        if path in self.page_factories:
-            return self.page_factories[path]
+        #if path in self.page_factories:
+        #    return self.page_factories[path]
+        print 'preimport'
+        print path
         page_module = gnrImport(path,importAs='%s-%s'%(pkg or 'site',str(path.lstrip('/').replace('/','_')[:-3])))
+        print 'postimport'
         page_factory = getattr(page_module,'page_factory',GnrWsgiPage)
         custom_class = getattr(page_module,'GnrCustomWebPage')
         py_requires = splitAndStrip(getattr(custom_class, 'py_requires', '') ,',')
@@ -286,6 +300,7 @@ class GnrWsgiSite(object):
         page_class._packageId = pkg
         self.page_class_custom_mixin(page_class, path, pkg=pkg)
         self.page_factories[path]=page_class
+        print 'post factory'
         return page_class
 
     def page_class_base_mixin(self,page_class,pkg=None):
@@ -348,7 +363,9 @@ class GnrWsgiSite(object):
             page_class = self.get_page_factory(module_path, pkg = pkg)
         finally:
             self.page_factory_lock.release()
+        print 'pre instance'
         page = page_class(self, filepath = module_path, packageId = pkg)
+        print 'post instance'
         return page
 
     def page_init(self,page, request=None, response=None, page_id=None, debug=None, _user_login=None, _rpc_resultPath=None):

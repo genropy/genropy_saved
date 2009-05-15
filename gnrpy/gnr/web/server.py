@@ -340,7 +340,6 @@ class NewServer(object):
                 site_config_path = os.path.join(self.site_path,'siteconfig.xml')
                 for file_path in (menu_path,site_config_path):
                     if os.path.isfile(file_path):
-                        print file_path
                         reloader.watch_file(file_path)
                 config_path = expandpath(self.options.config_path)
                 if os.path.isdir(config_path):
