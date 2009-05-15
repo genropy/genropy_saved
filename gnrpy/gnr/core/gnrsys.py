@@ -35,4 +35,15 @@ def mkdir(path, privileges=0777):
         
 def expandpath(path):
     return os.path.expanduser(os.path.expandvars(path))
+    
+def listdirs(path, invisible_files=False):
+    """returns a list of all files contained in path and its descendant"""
+    def callb(files,top,names):
+        for name in names:
+            file_path = os.path.realpath(os.path.join(top,name))
+            if (invisible_files or not name.startswith('.')) and os.path.isfile(file_path):
+                files.append(file_path)
+    files=[]
+    os.path.walk(path,callb,files)
+    return files
         
