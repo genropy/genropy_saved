@@ -140,6 +140,7 @@ dojo.declare("gnr.GnrFrmHandler",null,{
                 value = node.getValue('static');
                 if(removed){
                     data.setItem(node.label, null, objectUpdate(node.attr,{'_deleterecord':true}));
+                    data.__isRealChange=true;
                 }
                 else if(stringEndsWith(node.label,'_removed')){
                     this._getRecordChanges(value, data, true, currpath);

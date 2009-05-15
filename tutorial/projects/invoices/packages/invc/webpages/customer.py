@@ -47,7 +47,11 @@ class GnrCustomWebPage(object):
 ############################## FORM METHODS ##################################
 
     def formBase(self, parentBC,disabled=False, **kwargs):
-        pane=parentBC.contentPane(padding='4em', **kwargs)
+        tc=parentBC.tabContainer(margin='5px', **kwargs)
+        self.page1(tc.contentPane(title='!!Profile'),disabled=disabled)
+        self.page2(tc.borderContainer(title='!!Invoices'),disabled=disabled)
+        
+    def page1(self,pane,disabled=False):
         fb=pane.formbuilder(cols=2, border_spacing='6px',disabled=disabled)
         #fb.field('code',readOnly='^aux_code.readOnly')
         fb.field('code',readOnly=not self.isDeveloper())
@@ -56,8 +60,16 @@ class GnrCustomWebPage(object):
         fb.field('address')
         fb.field('zip')
         fb.field('city')
-        fb.button('Che Ore Sono?',fire='abu.ora')
         
+    def page2(self,bc,disabled=False):
+        self.includedViewBox(bc,label='!!Invoices',
+                            storepath='.@invc_invoice_customer_id',
+                            columns="""number,date,net,vat,total""",
+                            table='invc.invoice', autoWidth=True)
+        
+    def pagetest(self,pane,disabled=False):
+        fb=pane.formbuilder(cols=1,border_spacing='4px')
+        fb.button('Che Ore Sono?',fire='abu.ora')
         fb.dataRpc('abu.oraRitornata','dammilora', nome='=form.record.name', _fired='^abu.ora')
         fb.div('^abu.oraRitornata')
         
