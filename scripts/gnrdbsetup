@@ -144,10 +144,10 @@ def check_db():
         if options.verbose:
             print '*CHANGES:\n%s'%'\n'.join(app.db.model.modelChanges)
         else:
-            print 'CHANGES APPLIED TO DATABASE'
+            print 'STUCTURE NEEDS CHANGES'
     else:
         print 'STRUCTURE OK'
-    return app
+    return app, changes
     
 def import_db(filepath):
     app = get_app()
@@ -160,4 +160,8 @@ if __name__ == '__main__':
     elif options.import_file:
         import_db(options.import_file)
     else: 
-        check_db().applyChangesToDb()
+        app,changes = check_db()
+        if changes:
+            print 'APPLYING CHANGES TO DATABASE...'
+            app.applyChangesToDb()
+            print 'CHANGES APPLIED TO DATABASE'

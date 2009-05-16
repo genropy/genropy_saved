@@ -339,6 +339,9 @@ class SqlDbAdapter(object):
         else:
             unique = ''
         return "CREATE %sINDEX %s ON %s (%s);" % (unique, index_name, table_sql, columns)
+        
+    def createDbSql(self, dbname, encoding):
+        pass
 
     def getWhereTranslator(self):
         return GnrWhereTranslator()

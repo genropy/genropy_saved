@@ -33,7 +33,7 @@ from psycopg2.extensions import ISOLATION_LEVEL_AUTOCOMMIT, ISOLATION_LEVEL_READ
 from gnr.sql.adapters._gnrbaseadapter import GnrDictRow, GnrWhereTranslator
 from gnr.sql.adapters._gnrbaseadapter import SqlDbAdapter as SqlDbBaseAdapter
 from gnr.core.gnrbag import Bag
-
+from gnr.sql.gnrsql_exceptions import GnrNonExistingDbException
 #from gnr.sql.PersistentDB import PersistentDB
 
 RE_SQL_PARAMS = re.compile(":(\w*)(\W|$)")
@@ -153,12 +153,19 @@ class SqlDbAdapter(SqlDbBaseAdapter):
         conn.set_isolation_level(ISOLATION_LEVEL_AUTOCOMMIT)
         return conn
     
-    def createDb(self, name, encoding='unicode'):
+    def createDb(self, dbname=None, encoding='unicode'):
+        if not dbname:
+            dbname = self.dbroot.dbname
         conn = self._managerConnection()
         curs = conn.cursor()
-        curs.execute("CREATE DATABASE %s ENCODING '%s';" % (name, encoding))
+        curs.execute("""CREATE DATABASE "%s" ENCODING '%s';""" % (dbname, encoding))
         curs.close()
         conn.close()
+        curs = None
+        conn = None
+        
+    def createDbSql(self, dbname, encoding):
+        return "CREATE DATABASE %s ENCODING '%s';" % (dbname, encoding)
         
     def dropDb(self, name):
         conn = self._managerConnection()
@@ -215,7 +222,10 @@ class SqlDbAdapter(SqlDbBaseAdapter):
         @param kwargs: schema, table
         @return: list of object names"""        
         query = getattr(self, '_list_%s' % elType)()
-        result = self.dbroot.execute(query, kwargs).fetchall()
+        try:
+            result = self.dbroot.execute(query, kwargs).fetchall()
+        except psycopg2.OperationalError:
+            raise GnrNonExistingDbException(self.dbroot.dbname)
         return [r[0] for r in result]
     
     def _list_schemata(self):

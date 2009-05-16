@@ -167,6 +167,9 @@ class DbModel(object):
         return bool(self.modelChanges)
         
     def applyModelChanges(self):
+        if self.modelChanges[0].startswith('CREATE DATABASE'):
+            self.db.adapter.createDb()
+            self.modelChanges.pop(0)
         for x in self.modelChanges:
             self.db.execute(x)
         self.db.commit()

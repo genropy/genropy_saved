@@ -9,6 +9,7 @@ Copyright (c) 2007 __MyCompanyName__. All rights reserved.
 
 from gnr.core import gnrlist
 from gnr.core.gnrbag import Bag
+from gnr.sql.gnrsql_exceptions import GnrNonExistingDbException
 
 class ModelExtractor(object):
     def __init__(self, dbroot):
@@ -92,21 +93,30 @@ class SqlModelChecker(object):
         prepares self.actual_tables, self.actual_schemata, self.actual_views and calls _checkPackage for each package.
         Returns a list of instructions for the database building.
         """
+        create_db = False
         self.changes = []
         self.bagChanges = Bag()
-        self.actual_schemata = self.db.adapter.listElements('schemata')
-        self.actual_tables = dict([(k, self.db.adapter.listElements('tables', schema=k)) for k in self.actual_schemata])
-        self.actual_views = dict([(k, self.db.adapter.listElements('views', schema=k)) for k in self.actual_schemata])
-        
-        actual_relations = self.db.adapter.relations()
-        self.actual_relations = {}
-        for r in actual_relations:
-            self.actual_relations.setdefault('%s.%s' % (r[1], r[2]), []).append(r)
+        try:
+            self.actual_schemata = self.db.adapter.listElements('schemata')
+        except GnrNonExistingDbException, exc:
+            self.actual_schemata = []
+            self.actual_tables = {}
+            self.actual_views = {}
+            self.actual_relations = {}
+            self.changes.append(self.db.adapter.createDbSql(exc.dbname, 'UNICODE'))
+            create_db = True
+        if not create_db:
+            self.actual_tables = dict([(k, self.db.adapter.listElements('tables', schema=k)) for k in self.actual_schemata])
+            self.actual_views = dict([(k, self.db.adapter.listElements('views', schema=k)) for k in self.actual_schemata])
+            actual_relations = self.db.adapter.relations()
+            self.actual_relations = {}
+            for r in actual_relations:
+                self.actual_relations.setdefault('%s.%s' % (r[1], r[2]), []).append(r)
         
         for pkg in self.db.packages.values():
             #print '----------checking %s----------'%pkg.name
             self._checkPackage(pkg)
-        self._chackAllRelations()
+        self._checkAllRelations()
         return [x for x in self.changes if x]
     
     def _checkPackage(self, pkg):
@@ -181,12 +191,12 @@ class SqlModelChecker(object):
                     self.bagChanges.setItem('%s.%s.indexes.%s' % (tbl.pkg.name, tbl.name, idx.sqlname), None, changes=change)
         return tablechanges
 
-    def _chackAllRelations(self):
+    def _checkAllRelations(self):
         for pkg in self.db.packages.values():
             for tbl in pkg.tables.values():
-                self._chackTblRelations(tbl)
+                self._checkTblRelations(tbl)
                 
-    def _chackTblRelations(self, tbl):
+    def _checkTblRelations(self, tbl):
         if tbl.relations:
             tbl_actual_rels = self.actual_relations.get(tbl.sqlfullname, [])[:] #get all db foreignkey of the current table
             relations = [rel[0] for rel in tbl.relations.digest('#a.joiner') if rel]
@@ -337,6 +347,12 @@ class SqlModelChecker(object):
         for col in tbl.columns.values():
             sqlfields.append(self._sqlColumn(col))
         return 'CREATE TABLE %s (%s);' % (tablename, ', '.join(sqlfields))
+    
+    def _sqlDatabase(self, tbl):
+        """
+        returns the sql statement string that creates the new database
+        """
+        return 'CREATE DATABASE "Dooo"  WITH ENCODING "UNICODE";'
     
     def _sqlTableIndexes(self, tbl):
         """

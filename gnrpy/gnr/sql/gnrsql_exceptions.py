@@ -36,6 +36,12 @@ class GnrSqlException(GnrException):
         self.code = code
         self.message = message
         
+class GnrNonExistingDbException(GnrSqlException):
+    
+    def __init__(self, dbname):
+        self.dbname = dbname
+
+        
 class NotMatchingModelError(GnrSqlException):
     pass
 
