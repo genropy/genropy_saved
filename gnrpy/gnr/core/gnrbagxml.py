@@ -246,9 +246,9 @@ class BagToXml(object):
         return '\n'.join([self.nodeToXmlBlock(node) for node in bag.nodes])
 
 #-------------------- toXml --------------------------------
-    def build(self, bag, filename=None, encoding='UTF-8', catalog=None, typeattrs=True,
-                  unresolved=False, autocreate=False, jsonmode=None, jsonkey=None,
-                  translate_cb=None, omitUnknownTypes=False):
+    def build(self, bag, filename=None, encoding='UTF-8', catalog=None, typeattrs=True, addBagTypeAttr=True,
+                  unresolved=False, autocreate=False, jsonmode=None, jsonkey=None, 
+                  translate_cb=None, omitUnknownTypes=False, omitRoot=False, forcedTagAttr=None):
         """
         This method returns a complete standard XML version of the Bag, including the encoding tag 
         <?xml version=\'1.0\' encoding=\'UTF-8\'?> ; the content of the Bag is hierarchically represented 
@@ -272,11 +272,16 @@ class BagToXml(object):
         self.typeattrs=typeattrs
         self.jsonmode=jsonmode
         self.jsonkey=jsonkey
+        self.forcedTagAttr=forcedTagAttr
+        self.addBagTypeAttr = addBagTypeAttr
         if not typeattrs:
             self.catalog.addSerializer("asText", bool, lambda b: 'y'*int(b))
 
         self.unresolved=unresolved
-        result=result+self.buildTag('GenRoBag', self.bagToXmlBlock(bag), xmlMode=True)
+        if omitRoot:
+            result = result + self.bagToXmlBlock(bag)
+        else:
+            result=result+self.buildTag('GenRoBag', self.bagToXmlBlock(bag), xmlMode=True)
         result = unicode(result).encode(encoding,'replace')
         
         if filename:    
@@ -287,10 +292,12 @@ class BagToXml(object):
             output=open(filename,'w')
             output.write(result)
             output.close()
-        else: return result
+        else: 
+            return result
         
     
     def buildTag(self, tagName, value, attributes=None,cls='', xmlMode=False):
+        
         #if value == None:
         #    value = ''
         t = cls
@@ -298,7 +305,10 @@ class BagToXml(object):
             if value != '':
                 #if not isinstance(value, basestring):
                 if isinstance(value, Bag):
-                    value, t = '', 'BAG'
+                    if self.addBagTypeAttr:
+                        value, t = '', 'BAG'
+                    else:
+                        value = ''
                 else:
                     value, t = self.catalog.asTextAndType(value, translate_cb=self.translate_cb)
                 try:
@@ -307,6 +317,10 @@ class BagToXml(object):
                     raise '%s: %s' % (str(tagName), value)
                     
         if attributes:
+            if self.forcedTagAttr and self.forcedTagAttr in attributes:
+                tagName = attributes.pop(self.forcedTagAttr)
+            if tagName ==  '__flatten__':
+                return value
             if self.omitUnknownTypes:
                 attributes = dict([(k,v) for k,v in attributes.items() 
                                    if type(v) in (basestring,str, unicode, int, float, long,

@@ -1469,9 +1469,9 @@ class Bag(GnrObject):
         setCallable(self, name, argstring=argstring, func=func)
 
 #-------------------- toXml --------------------------------
-    def toXml(self,filename=None,encoding='UTF-8',typeattrs=True, unresolved=False, 
-              autocreate=False, jsonmode=None, jsonkey=None, translate_cb=None, 
-              omitUnknownTypes=False, catalog=None):
+    def toXml(self,filename=None,encoding='UTF-8',typeattrs=True, unresolved=False, addBagTypeAttr=True,
+              autocreate=False, jsonmode=None, jsonkey=None, translate_cb=None,
+              omitUnknownTypes=False, catalog=None, omitRoot=False, forcedTagAttr=None):
         """
         This method returns a complete standard XML version of the Bag,
         including the encoding tag <?xml version=\'1.0\' encoding=\'UTF-8\'?>
@@ -1497,10 +1497,10 @@ class Bag(GnrObject):
              4567</bb></aa></GenRoBag>'
         """
         from gnr.core.gnrbagxml import BagToXml
-        return BagToXml().build(self, filename=filename, encoding=encoding,typeattrs=typeattrs,
-                                    unresolved=unresolved,autocreate=autocreate,
-                                    jsonmode=jsonmode,jsonkey=jsonkey,
-                                    translate_cb=translate_cb, omitUnknownTypes=omitUnknownTypes, catalog=catalog)
+        return BagToXml().build(self, filename=filename, encoding=encoding,typeattrs=typeattrs, addBagTypeAttr=addBagTypeAttr,
+                                    unresolved=unresolved,autocreate=autocreate, forcedTagAttr=forcedTagAttr,
+                                    jsonmode=jsonmode,jsonkey=jsonkey, translate_cb=translate_cb, 
+                                    omitUnknownTypes=omitUnknownTypes, catalog=catalog, omitRoot=omitRoot)
         
     def fillFrom(self, source):
         """

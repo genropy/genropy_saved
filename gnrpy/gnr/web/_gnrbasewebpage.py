@@ -110,14 +110,6 @@ class GnrBaseWebPage(GnrObject):
 
     def get_session(self, **kwargs):
         return self._request.environ['beaker.session']
-
-    #def _get_site(self):
-    #    try:
-    #        return self._site
-    #    except AttributeError:
-    #        self._site = self.siteHandler['site']
-    #        return self._site
-    #__site = property(_get_site)
     
     def _get_filename(self):
         try:

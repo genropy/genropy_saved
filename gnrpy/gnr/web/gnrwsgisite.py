@@ -26,7 +26,7 @@ class GnrWsgiSite(object):
     def __call__(self, environ, start_response):
         return self.wsgiapp(environ, start_response)
     
-    def __init__(self,script_path,site_name=None,_config=None,_gnrconfig=None):
+    def __init__(self, script_path, site_name=None, _config=None, _gnrconfig=None):
         self.site_path = os.path.dirname(os.path.abspath(script_path))
         self.site_name = site_name or os.path.basename(self.site_path)
         if _gnrconfig:
