@@ -313,8 +313,9 @@ class BagToXml(object):
                     value, t = self.catalog.asTextAndType(value, translate_cb=self.translate_cb)
                 try:
                     value = unicode(value)
-                except:
-                    raise '%s: %s' % (str(tagName), value)
+                except Exception,e:
+                    raise e
+                    #raise '%s: %s' % (str(tagName), value)
                     
         if attributes:
             if self.forcedTagAttr and self.forcedTagAttr in attributes:
