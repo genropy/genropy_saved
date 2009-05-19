@@ -310,15 +310,17 @@ dojo.declare('gnr.GenroClient', null, {
         return result;
     },
     recordToPDF: function(table,pkey,template){
-        var url = genro.rpc.rpcUrl("app.recordToPDF", {table:table, pkey:pkey, template:template});
-        genro.download(url);
+        //var url = genro.rpc.rpcUrl("app.recordToPDF", {table:table, pkey:pkey, template:template});
+        genro.download("",{table:table, pkey:pkey, template:template, method:"app.recordToPDF"});
     },
     getPDF: function(method,parameters){
         var url = genro.rpc.rpcUrl(method, parameters);
         genro.download(url);
     },
-    download: function(url,onload_cb){
-        url=genro.makeUrl(url,{'download':true});
+    download: function(url, args, onload_cb){
+        var args=args || {}
+        args.download=true
+        url=genro.makeUrl(url,args);
         console.log(url);
         genro.src.getNode()._('div', '_dlframe');
         var node = genro.src.getNode('_dlframe').clearValue().freeze();
