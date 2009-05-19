@@ -45,14 +45,29 @@ class GnrRmlElem(object):
     
 
 class GnrRmlSrc(GnrStructData):
-    rmlNS=['document', 'template', 'pageTemplate', 'setFont', 'pageGraphics', 'drawRightString', 'pageDrawing',
-            'drawLeftString', 'drawCenteredString', 'drawString', 'textAnnotation', 'param', 'font',
-            'stylesheet', 'frame', 'initialize', 'alias', 'paraStyle', 'story', 'para','content']
-                                    
+
+    rmlNS = ['addMapping', 'alias', 'bar', 'barChart', 'barChart3D', 'barCode', 'barCodeFlowable', 'bars', 
+     'blockAlignment', 'blockBackground', 'blockBottomPadding', 'blockColBackground', 'blockFont', 'blockLeading', 
+     'blockLeftPadding', 'blockRightPadding', 'blockRowBackground', 'blockSpan', 'blockTable', 'blockTableStyle', 
+     'blockTextColor', 'blockTopPadding', 'blockValign', 'bookmark', 'bulkData', 'buttonField', 'categoryAxis', 
+     'circle', 'color', 'condPageBreak', 'curves', 'curvesto', 'curveto', 'document', 'drawAlignedString', 
+     'drawCenteredString', 'drawCentredString', 'drawRightString', 'drawString', 'ellipse', 'fill', 'fixedSize', 
+     'frame', 'font', 'grid', 'h1', 'h2', 'h3', 'hr', 'illustration', 'image', 'imageAndFlowables', 'initialize', 
+     'indent', 'keepInFrame', 'keepTogether', 'label', 'labels', 'line', 'lineLabels', 'lineMode', 'linePlot', 
+     'lineStyle', 'lines', 'link', 'moveto', 'name', 'nextFrame', 'option', 'outlineAdd', 'pageGraphics', 
+     'pageInfo', 'pageTemplate', 'pageNumber', 'para', 'paraStyle', 'param', 'path', 'pieChart', 'pieChart3D', 
+     'place', 'plugInFlowable', 'pointer', 'pre', 'rect', 'registerCidFont', 'registerFont', 'registerTTFont', 
+     'registerType1Face', 'rotate', 'scale', 'selectField', 'series', 'setFont', 'setNextFrame', 
+     'setNextTemplate', 'skew', 'slice', 'slices', 'spacer', 'spiderChart', 'spoke', 'spokeLabels', 'spokes', 
+     'stylesheet','story', 'strand', 'strandLabels', 'strands', 'stroke', 'td', 'template', 'text', 
+     'textAnnotation', 'textField', 'title', 'transform', 'translate', 'valueAxis', 'xValueAxis', 'xpre', 
+     'yValueAxis']
+
     gnrNS=['string','_content']
            
     genroNameSpace=dict([(name.lower(),name) for name in rmlNS])
     genroNameSpace.update(dict([(name.lower(),name) for name in gnrNS]))
+    
     def __getattr__(self,fname):
         fnamelower=fname.lower()
         if (fname != fnamelower) and hasattr(self,fnamelower) :
@@ -77,6 +92,10 @@ class GnrRmlSrc(GnrStructData):
     def _content(self,content):
         self.child('__flatten__',content=content)
     
+    def child(self,*args,**kwargs):
+        if 'name' in kwargs:
+            kwargs['_name'] = kwargs.pop('name')
+        return super(GnrRmlSrc, self).child(*args,**kwargs)
 
 class GnrRml(object):
 
@@ -101,32 +120,13 @@ class GnrRml(object):
             output.seek(0)
             return output.read()
         output.close()
-        
-
-doc="""
-<!DOCTYPE document SYSTEM "rml_1_0.dtd"> 
-<document filename="test_000_simple.pdf" invariant="1">
-<stylesheet/>
-
-<pageDrawing>
-<drawCentredString x="4.1in" y="5.8in">
-Hello World. First Page Drawing
-</drawCentredString>
-</pageDrawing>
-<pageDrawing>
-<drawCentredString x="3.1in" y="4.8in">
-Hello World. Second Page Drawing
-</drawCentredString>
-</pageDrawing>
-
-</document>
-"""
 
 if __name__ =='__main__':
     pdf = GnrRml(filename='a.pdf')
     document=pdf.document
     template=document.template(pageSize='letter', leftMargin=72, showBoundary=1)
-    pg=template.pageTemplate(id='main', pageSize='letter portrait').pageGraphics()
+    pt=template.pageTemplate(id='main', pageSize='letter portrait')
+    pg =pt.pageGraphics()
     pg.setFont(_name='Helvetica-BoldOblique', size=18)
     pg.string('RML2PDF Test Suite',x=523, y=800,align='r')
     ta=pg.textAnnotation()
@@ -134,7 +134,7 @@ if __name__ =='__main__':
     ta.param(_name='F',content='3')
     ta.param(_name='escape',content='6')
     ta._content(content='X::PDF PX(S) MT(PINK)')
-    pg.frame(id='first',x1='1in',y1='1in',width='6.26in',height='9.69in')
+    pt.frame(id='first',x1='1in',y1='1in',width='6.26in',height='9.69in')
     ss = document.stylesheet()
     
     ss.initialize().alias(id='style.normal',value='style.Normal')
@@ -146,13 +146,13 @@ if __name__ =='__main__':
     para1=story.para(style='normal')
     para1._content(content='Hello World.  This is a normal paragraph. Blah')
     para1.font(color="red")._content(content='IPO') 
-#    para1._content(content="""blah blah blah blah growth forecast blah
-#blah blah forecast blah.Blah blah blah blah blah blah blah blah blah blah blah profit blah blah blah blah blah
-#blah blah blah blah blah IPO.Blah blah blah blah blah blah blah reengineering blah growth blah blah blah
-#proactive direction strategic blah blah blah forward-thinking blah.Blah blah doubletalk blah blah blah blah
-#blah profit blah blah growth blah blah blah blah blah profit.Blah blah blah blah venture capital blah blah blah
-#blah blah forward-thinking blah. Here are some common characters
-#        """)
-#    story.para(style='spaced', content=u"""This is spaced.  There should be 12 points before and after.""")
-    #print pdf.toPdf('/Users/michele/a.pdf')
-    print pdf.toRml('/Users/michele/a.rml')
+    para1._content(content="""blah blah blah blah growth forecast blah
+blah blah forecast blah.Blah blah blah blah blah blah blah blah blah blah blah profit blah blah blah blah blah
+blah blah blah blah blah IPO.Blah blah blah blah blah blah blah reengineering blah growth blah blah blah
+proactive direction strategic blah blah blah forward-thinking blah.Blah blah doubletalk blah blah blah blah
+blah profit blah blah growth blah blah blah blah blah profit.Blah blah blah blah venture capital blah blah blah
+blah blah forward-thinking blah. Here are some common characters
+        """)
+    story.para(style='spaced', content=u"""This is spaced.  There should be 12 points before and after.""")
+    print pdf.toPdf('/Users/michele/a.pdf')
+    #print pdf.toRml('/Users/michele/a.rml')
