@@ -196,6 +196,7 @@ dojo.declare("gnr.GnrDomSourceNode",gnr.GnrBagNode,{
                  var method=expr;
                  var httpMethod = objectPop(kwargs,'_POST')? 'POST' :'GET';
                  var _onResult = objectPop(kwargs,'_onResult');
+                 objectPop(kwargs,'nodeId');
                  var _onCalling = objectPop(kwargs,'_onCalling');
                  objectExtract(kwargs,'_*');
                  if (_onResult){
