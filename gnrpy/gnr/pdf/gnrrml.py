@@ -158,5 +158,5 @@ blah profit blah blah growth blah blah blah blah blah profit.Blah blah blah blah
 blah blah forward-thinking blah. Here are some common characters
         """)
     story.para(style='spaced', content=u"""This is spaced.  There should be 12 points before and after.""")
+
     print pdf.toPdf('~/a.pdf')
-    #print pdf.toRml('/Users/michele/a.rml')
