@@ -182,12 +182,12 @@ class TableHandler(BaseComponent):
                         confirm='^list.act_result', action='=list.act_value', _if='confirm=="confirm"',
                         table=self.maintable, selectionName='=list.selectionName')
     
-    def export_standard(self, selection, pkeys=None, locale=None,columns=None,filename=None):
+    def export_standard(self, selection, pkeys=None, locale=None,columns=None,filename=None,**kwargs):
         filename = filename or self.maintable or  self.request.uri.split('/')[-1]
         content = selection.output('tabtext', columns=columns, locale=locale)
         self.utils.sendFile(content,filename,'xls')
     
-    def print_standard(self, selection, pkeys=None, locale=None):
+    def print_standard(self, selection, pkeys=None, locale=None,**kwargs):
         columns = None # get columns from current view on client !
         if not columns:
             columns = [c for c in selection.allColumns if not c in ('pkey','rowidx')]
@@ -196,7 +196,7 @@ class TableHandler(BaseComponent):
         return self.makoTemplate('standard_print.tpl', striped='odd_row,even_row', outdata=outdata, colAttrs=colAttrs,
                 title='Print List', header='Print List', columns=columns)
                 
-    def pdf_standard(self, selection, pkeys=None, locale=None):
+    def pdf_standard(self, selection, pkeys=None, locale=None,**kwargs):
         columns = None # get columns from current view on client !
         if not columns:
             columns = [c for c in selection.allColumns if not c in ('pkey','rowidx')]
