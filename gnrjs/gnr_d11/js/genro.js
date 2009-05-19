@@ -311,9 +311,53 @@ dojo.declare('gnr.GenroClient', null, {
     },
     recordToPDF: function(table,pkey,template){
         var url = genro.rpc.rpcUrl("app.recordToPDF", {table:table, pkey:pkey, template:template});
-        genro.dev.exportUrl(url);
-    }
-    ,
+        genro.download(url);
+    },
+    getPDF: function(method,parameters){
+        var url = genro.rpc.rpcUrl(method, parameters);
+        genro.download(url);
+    },
+    download: function(url,onload_cb){
+        url=genro.makeUrl(url,{'download':true});
+        console.log(url);
+        genro.src.getNode()._('div', '_dlframe');
+        var node = genro.src.getNode('_dlframe').clearValue().freeze();
+        var params =  {'src':url, display:'hidden', width:'0px', height:'0px'};
+        if (onload_cb) {
+            if (onload_cb=='print'){
+                onload_cb="genro.dom.iFramePrint(this.domNode);";
+            }
+            params['connect_onload'] = onload_cb;
+        };
+        frm = node._('iframe',params);
+        node.unfreeze();
+    },
+    makeUrl: function(url,kwargs){
+        if (url.indexOf('://')==-1){
+            if (url.slice(0,1)!='/'){
+                var base = document.location.pathname;
+                url = base+'/'+url;
+            };
+            url=document.location.protocol+'//'+document.location.host+url
+        };
+        return genro.addKwargs(url,kwargs);
+    },
+    addKwargs: function(url,kwargs){
+        if(kwargs){
+            var currParams = {};
+            var parameters = [];
+            currParams['page_id']=genro.page_id;
+            currParams['xxcnt']=genro.getCounter();
+            objectUpdate(currParams, kwargs);
+            for (var key in currParams){
+                parameters.push(key+'='+escape(currParams[key]));
+            }
+            url = url+'?'+parameters.join('&');
+        } else {
+            url = url+document.location.search;
+        }
+        return url;
+    },
     _invalidNodes: function(databag, sourceNode){
         if (typeof(databag)=='string'){
             if(sourceNode){

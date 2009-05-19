@@ -204,20 +204,26 @@ dojo.declare("gnr.GnrDevHandler",null,{
         genro.wdgById('_localizer').show();
     },
     printUrl: function(url){
-        genro.src.getNode()._('div', '_printframe');
+        genro.dev.deprecation("genro.dev.printUrl(url)","genro.download(url,'print')");
+        genro.download(url,'print');
+        /*genro.src.getNode()._('div', '_printframe');
         var node = genro.src.getNode('_printframe').clearValue().freeze();
         frm = node._('iframe', {'src':url, connect_onload:"genro.dom.iFramePrint(this.domNode);", 
                                           display:'hidden', width:'0px', height:'0px'});
-        node.unfreeze();
+        node.unfreeze();*/
     },
     exportUrl: function(url){
-        genro.src.getNode()._('div', '_printframe');
+        genro.dev.deprecation('genro.dev.exportUrl','genro.download');
+        genro.download(url);
+        // USELESS, USE download(url) instead of this
+/*        genro.src.getNode()._('div', '_printframe');
         var node = genro.src.getNode('_printframe').clearValue().freeze();
         frm = node._('iframe', {'src':url, display:'hidden', width:'0px', height:'0px'});
-        node.unfreeze();
+        node.unfreeze();*/
     },
     deprecation:function(oldval,newval){
-        this.debugMessage('Deprecation warning: '+oldval+' was replaced with '+newval,'WARNING');
+        console.warn('Deprecation warning: '+oldval+' was replaced with '+newval,'WARNING');
+        //this.debugMessage('Deprecation warning: '+oldval+' was replaced with '+newval,'WARNING');
     },
     dataDebugTrigger : function(kw){
         var path=kw.pathlist.join('.');

@@ -18,6 +18,7 @@ import mimetypes
 from gnr.core.gnrsys import expandpath
 
 mimetypes.init()
+
 class GnrWebServerError(Exception):
     pass
 
@@ -40,6 +41,8 @@ class GnrWsgiSite(object):
             self.config = self.load_site_config()
         
         self.home_uri = self.config['wsgi?home_uri'] or '/'
+        if self.home_uri[-1]!='/':
+            self.home_uri+='/'
         self.mainpackage = self.config['wsgi?mainpackage']
         self.homepage = self.config['wsgi?homepage'] or self.home_uri+'index'
         if not self.homepage.startswith('/'):
@@ -150,9 +153,11 @@ class GnrWsgiSite(object):
         if path_info.endswith('.py'):
             path_info = path_info[:-3]
         path_list = path_info.strip('/').split('/')
+        path_list = [p for p in path_list if p]
         # if url starts with _ go to static file handling
+        page_kwargs=dict(req.params)
         if path_list[0].startswith('_'):
-            return self.serve_staticfile(path_list,environ,start_response)
+            return self.serve_staticfile(path_list,environ,start_response,**page_kwargs)
         # get the deepest node in the sitemap bag associated with the given url
         page_node,page_args=self.sitemap.getDeepestNode('.'.join(path_list))
         if self.mainpackage and not page_node: # try in the main package
@@ -174,7 +179,6 @@ class GnrWsgiSite(object):
                 page = self.page_create(**page_attr)
             except Exception,exc:
                 raise exc
-        page_kwargs=dict(req.params)
         #page.filepath = page_attr['path'] ### Non usare per favore...
         page.folders= page._get_folders()
         if '_rpc_resultPath' in page_kwargs:
@@ -285,7 +289,7 @@ class GnrWsgiSite(object):
         custom_class = getattr(page_module,'GnrCustomWebPage')
         py_requires = splitAndStrip(getattr(custom_class, 'py_requires', '') ,',')
         page_class = cloneClass('GnrCustomWebPage',page_factory)
-        page_class.__module__ = custom_class.__module__
+        page_class.__module__ = page_module
         self.page_class_base_mixin(page_class, pkg=pkg)
         page_class.dojoversion = getattr(custom_class, 'dojoversion', None) or self.config['dojo?version'] or '11'
         page_class.gnrjsversion = getattr(custom_class, 'gnrjsversion', None) or self.config['gnrjs?version'] or '11'
@@ -441,41 +445,46 @@ class GnrWsgiSite(object):
         return os.path.join(self.site_static_dir, *args)
 
     def site_static_url(self,*args):
-        return '/_site/%s'%('/'.join(args))
+        return '%s_site/%s'%(self.home_uri,'/'.join(args))
 
     def pkg_static_path(self,pkg,*args):
         return os.path.join(self.gnrapp.packages[pkg].packageFolder, *args)
 
     def pkg_static_url(self,pkg,*args):
-        return '/_pkg/%s/%s'%(pkg,'/'.join(args))
+        return '%s_pkg/%s/%s'%(self.home_uri,pkg,'/'.join(args))
     
     def rsrc_static_path(self,rsrc,*args):
         return os.path.join(self.resources[rsrc], *args)
     
     def rsrc_static_url(self,rsrc,*args):
-        return '/_rsrc/%s/%s'%(rsrc,'/'.join(args))
+        return '%s_rsrc/%s/%s'%(self.home_uri,rsrc,'/'.join(args))
     
     def pages_static_path(self,*args):
         return os.path.join(self.site_path,'pages', *args)
     
     def pages_static_url(self,*args):
-        return '/_pages/%s'%('/'.join(args))
+        return '%s_pages/%s'%(self.home_uri,'/'.join(args))
     
     def dojo_static_path(self, version,*args):
         return expandpath(os.path.join(self.dojo_path[version], *args))
     
     def dojo_static_url(self, version,*args):
-        return '/_dojo/%s/%s'%(version,'/'.join(args))
+        return '%s_dojo/%s/%s'%(self.home_uri,version,'/'.join(args))
     
     def gnr_static_path(self, version,*args):
         return expandpath(os.path.join(self.gnr_path[version], *args))
 
     def gnr_static_url(self, version,*args):
-        return '/_gnr/%s/%s'%(version,'/'.join(args))
+        return '%s_gnr/%s/%s'%(self.home_uri,version,'/'.join(args))
         
+    def connection_static_path(self,connection_id,page_id,*args):
+        return os.path.join(self.site_path,'data','_connections', connection_id, page_id, *args)
+        
+    def connection_static_url(self, page,*args):
+        return '%s_conn/%s/%s/%s'%(self.home_uri,page.connection.connection_id, page.page_id,'/'.join(args))
     ########################### begin static file handling #################################
     
-    def serve_staticfile(self,path_list,environ,start_response):
+    def serve_staticfile(self,path_list,environ,start_response,download=False,**kwargs):
         handler = getattr(self,'static%s'%path_list[0],None)
         if handler:
             fullpath = handler(path_list)
@@ -493,7 +502,10 @@ class GnrWsgiSite(object):
                 ETAG.update(headers, mytime)
                 start_response('304 Not Modified', headers)
                 return [''] # empty body
-        file_responder = fileapp.FileApp(fullpath)
+        file_args=dict()
+        if download:
+            file_args['content_disposition']="attachment; filename=%s" % os.path.basename(fullpath)
+        file_responder = fileapp.FileApp(fullpath,**file_args)
         if self.cache_max_age:
             file_responder.cache_control(max_age=self.cache_max_age)
         return file_responder(environ, start_response)
@@ -525,6 +537,10 @@ class GnrWsgiSite(object):
         resource_path = self.resources.get(resource_id)
         if resource_path:
             return os.path.join(resource_path, *path_list[2:])
+            
+    def static_conn(self, path_list):
+        connection_id, page_id = path_list[1],path_list[2]
+        return self.connection_static_path(connection_id, page_id,*path_list[3:])
     ##################### end static file handling #################################
 
 

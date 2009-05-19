@@ -26,6 +26,7 @@
 from gnr.core.gnrbag import Bag
 from gnr.core.gnrstructures import GnrStructData
 from gnr.core import gnrstring
+from gnr.core.gnrsys import expandpath
 from lxml import etree
 from z3c.rml import document as pdfdoc
 import cStringIO
@@ -105,12 +106,15 @@ class GnrRml(object):
     
 
     def toRml(self,filename=None):
+        if filename:
+            filename=expandpath(filename)
         return self.root.toRml(filename=filename)
         
     def toPdf(self,filename=None):
         if filename:
             self.root.setAttr('#0',filename=os.path.basename(filename))
-            output = open(filename,'wb')
+            print expandpath(filename)
+            output = open(expandpath(filename),'wb')
         else:
             output = cStringIO.StringIO()
         root = etree.fromstring(self.toRml())
@@ -154,5 +158,5 @@ blah profit blah blah growth blah blah blah blah blah profit.Blah blah blah blah
 blah blah forward-thinking blah. Here are some common characters
         """)
     story.para(style='spaced', content=u"""This is spaced.  There should be 12 points before and after.""")
-    print pdf.toPdf('/Users/michele/a.pdf')
+    print pdf.toPdf('~/a.pdf')
     #print pdf.toRml('/Users/michele/a.rml')

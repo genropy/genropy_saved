@@ -188,6 +188,18 @@ class GnrBaseWebPage(GnrObject):
             self.debug_mode = False
         self._dbconnection=None
         
+    def mixinFromPage(self,kls,pkg=None):
+        if isinstance(kls,basestring):
+            if not pkg:
+                pkg = self.packageId
+            page_path, kls_name = kls.split(':')
+            page_path=self.site.pkg_static_path(pkg,(page_path.split('/')))
+            self.mixin('%s:%s'%(page_path,kls_name))
+        else:
+            self.mixin(cls)
+        page_path=self.site.pkg_static_path(pkg,*args)
+        self.mixin('%s:%s'%(page_path,kls))
+    
     def getUuid(self):
         return getUuid()
         
@@ -331,7 +343,6 @@ class GnrBaseWebPage(GnrObject):
         for css in self.css_requires:
             if css:
                 csslist = self.getResourceList(css,'css')
-                print csslist
                 if csslist:
                     csslist.reverse()
                     css_requires.extend( [self.diskPathToUri(css) for css in csslist])
@@ -344,10 +355,15 @@ class GnrBaseWebPage(GnrObject):
     
     def getPublicMethod(self, prefix, method):
         if '.' in method:
-            group, submethod = method.split('.',1)
-            handler = getattr(self, group)
-            if handler:
-                handler = getattr(handler, '%s_%s' % (prefix,submethod))
+            proxy_name, submethod = method.split('.',1)
+            proxy_object = getattr(self, proxy_name, None)
+            if not proxy_object:
+                proxy_class = getattr(self.__module__,proxy_name.capitalize(), None)
+                if proxy_class:
+                    proxy_object = proxy_class(self)
+                    setattr(self, proxy_name, proxy_object)
+            if proxy_object:
+                handler = getattr(proxy_object, '%s_%s' % (prefix,submethod), None)
         else:
             handler = getattr(self, '%s_%s' % (prefix,method))
         return handler
@@ -578,8 +594,6 @@ class GnrBaseWebPage(GnrObject):
             avatar = self.application.getAvatar(guestName)
         else:
             avatar = self.application.getAvatar(login['user'], password=login['password'], authenticate=True)
-            print avatar
-            print login
         if avatar:
             self.connection.updateAvatar(avatar)
             login['message'] = ''
@@ -648,8 +662,6 @@ class GnrBaseWebPage(GnrObject):
         return self._connection
     connection = property(_get_connection)
     
-    
-    
     def _get_utils(self):
         if not hasattr(self, '_utils'):
             self._utils = GnrWebUtils(self)
@@ -662,6 +674,16 @@ class GnrBaseWebPage(GnrObject):
         return self._rpc
     rpc = property(_get_rpc)
     
+    def temporaryDocument(self, *args):
+        filepath = os.path.join(self.connection.connectionFolder, self.page_id, 'temp',*args)
+        folder = os.path.dirname(filepath)
+        if not os.path.isdir(folder):
+            os.makedirs(folder)
+        return filepath
+    
+    def temporaryDocumentUrl(self, *args):
+        return self.site.connection_static_url(self,'temp',*args)
+        
 #    def _get_html(self):
 #        if not hasattr(self, '_html'):
 #            self._html = HtmlFormatter()

@@ -1215,29 +1215,7 @@ class GnrBaseWebAppHandler(object):
         record = self.db.table(table).record(pkey).output('bag')
         return self.page.rmlTemplate(path=template, record=record)
 
-#class GnrWebAppHandler(GnrBaseWebAppHandler): 
-#    def __init__(self, page):
-#        #self._page = weakref.ref(page)
-#        self._page = page
-#        appHandlers = page.siteHandler['applications']
-#        self.gnrapp = appHandlers.get(self.appId)
-#        siteStatus=page.siteStatus
-#        if self.gnrapp and siteStatus['resetTime'] and self.gnrapp.creationTime < siteStatus['resetTime']:
-#            self.gnrapp=None
-#
-#        if self.gnrapp is None :
-#            instanceNode = self.page.config.getNode('instances.%s' % self.appId)
-#            self.gnrapp = appHandlers[self.appId] = GnrWebApp(instanceNode.getAttr('path'), custom_config=instanceNode.getValue(),
-#                                                              pagesFolder=page.folders['pages'])
-#        elif siteStatus['resetLocalizationTime'] and self.gnrapp.localizationTime < siteStatus['resetLocalizationTime']:
-#            self.gnrapp.buildLocalization()
-#        self.db = self.gnrapp.db
-#    
-#    def _get_page(self):
-#        if self._page:
-#            #return self._page()
-#            return self._page
-#    page = property(_get_page) 
+
     
     
 class GnrWsgiWebAppHandler(GnrBaseWebAppHandler): 
