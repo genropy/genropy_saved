@@ -219,12 +219,12 @@ class GnrPackage(object):
         """Find a resource in current _resources folder one"""
         if not hasattr(self, '_resourceDirs'):
             site = self.application.site
-            pagesPath = os.path.join(self.packageFolder , 'webpages','_resources')
+            pagesPath = os.path.join(self.packageFolder , 'webpages')
             resourcePkg = None
             result = [] # result is now empty
             
             resourcePkg = self.attributes.get('resourcePkg')
-            fpath = os.path.join(pagesPath, '_custom', self.pkg.name, '_resources')
+            fpath = os.path.join(site.site_path, '_custom', self.id, '_resources')
             if os.path.isdir(fpath):
                 result.append(fpath) # we add a custom resource folder for current package
 
@@ -233,7 +233,7 @@ class GnrPackage(object):
                     fpath = os.path.join(site.site_path,'_custom', pkg, '_resources')
                     if os.path.isdir(fpath):
                         result.append(fpath)
-            fpath = os.path.join(site.site_path, '_resources')
+            fpath = os.path.join(pagesPath, '_resources')
             if os.path.isdir(fpath):
                 result.append(fpath) # we add a resource folder for common package
             result.extend(site.resources_dirs)

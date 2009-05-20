@@ -156,7 +156,6 @@ class GnrWsgiSite(object):
         path_list = [p for p in path_list if p]
         # if url starts with _ go to static file handling
         page_kwargs=dict(req.params)
-        print page_kwargs
         if path_list[0].startswith('_'):
             return self.serve_staticfile(path_list,environ,start_response,**page_kwargs)
         # get the deepest node in the sitemap bag associated with the given url
@@ -245,15 +244,15 @@ class GnrWsgiSite(object):
         instance_path = os.path.join(self.site_path,'instance')
         if os.path.isdir(instance_path):
             self.config.setItem('instances.app',None,path=instance_path)
-            return GnrWsgiWebApp(instance_path)
+            return GnrWsgiWebApp(instance_path, site=self)
         instance_path = os.path.join(self.site_path,'..','..','instances',self.site_name)
         if os.path.isdir(instance_path):
             self.config.setItem('instances.app',None,path=instance_path)
-            return GnrWsgiWebApp(instance_path)
+            return GnrWsgiWebApp(instance_path,site=self)
         instance_path = self.config['instance?path'] or self.config['instances.#0?path']
         if os.path.isdir(instance_path):
             self.config.setItem('instances.app',None,path=instance_path)
-            return GnrWsgiWebApp(instance_path)
+            return GnrWsgiWebApp(instance_path, site=self)
         
     def find_instance(self,instance_name):
         if 'instances' in self.gnr_config['gnr.environment_xml']:
@@ -337,9 +336,9 @@ class GnrWsgiSite(object):
                 self.mixinResource(page_class, page_class._resourceDirs, mix)
     
     def loadResource(self,pkg, *path):
-        resourceDirs = self.gnrapp.packages[self.pkg.name].resourceDirs
-        resource_base_class = cloneClass('CustomResource',BaseResource)
-        resource_class = self.mixinResource(resource_base_class, resourceDirs, *path)
+        resourceDirs = self.gnrapp.packages[pkg].resourceDirs
+        resource_class = cloneClass('CustomResource',BaseResource)
+        self.mixinResource(resource_class, resourceDirs, *path)
         resource_class.site = self
         return resource_class()
         

@@ -563,7 +563,10 @@ class SqlTable(GnrObject):
 
     def getResource(self,path):
         app = self.db.application
-        return app.site.loadResource(self.pkg.name,self.name,path)
+        resource = app.site.loadResource(self.pkg.name,'tables',self.name,path)
+        resource.table = self
+        resource.db = self.db
+        return resource
 
     #---------- method to implement via mixin
     def onIniting(self):
