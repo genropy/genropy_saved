@@ -6,42 +6,21 @@ from gnr.app.gnrapp import GnrApp
 
 class GnrWsgiWebApp(GnrApp):
     
+    def __init__(self,*args,**kwargs):
+        if 'site' in kwargs:
+            self.site=kwargs.get('site')
+            kwargs.pop('site')
+        else:
+            self.site=None
+        super(GnrWsgiWebApp,self).__init__(*args,**kwargs)
+    
     def onInited(self):
         pass
-        #self.webpageIndex = Bag()
-        #if 'pagesFolder' in self.kwargs:
-        #    self.buildWebpageIndex(self.kwargs['pagesFolder'])
-        
-    #def buildWebpageIndex(self, path):
-    #    self.webpageIndex['root'] = DirectoryResolver(path, cacheTime=600, 
-    #                                                 callback=self.webpageAnalyze, 
-    #                                                 include='*.py',
-    #                                                 exclude='_*,.*')
+
     def checkPagePermission(self, pagepath, tags):
         pagepath = pagepath.replace('.','_').replace('/','.')
         pageAuthTags = self.webpageIndex.getAttr('root.%s' % pagepath, 'pageAuthTags')
         return self.checkResourcePermission(pageAuthTags, tags)
-
-    #def webpageAnalyze(self, fullpath):
-    #    result = {}
-    #    if os.path.isfile(fullpath):
-    #        pkgId =  self._get_pagePackageId(fullpath)
-    #        if pkgId:
-    #            result['packageId'] = pkgId
-    #            result['pageAuthTags'] = self.db.package(pkgId).attributes.get('auth_tags','')
-    #        try:
-    #            m = gnrImport(fullpath)
-    #            custompage = getattr(m,'GnrCustomWebPage', None)
-    #            if custompage:
-    #                custompage = custompage()
-    #                if hasattr(custompage, 'pageAuthTags'):
-    #                    result['pageAuthTags'] = self.addResourceTags(result.get('pageAuthTags'), custompage.pageAuthTags())
-    #                result['__doc__'] = custompage.__doc__
-    #                if hasattr(custompage, 'getPageinfo'):
-    #                    result['info'] = custompage.getPageinfo()
-    #        except:
-    #            pass
-    #    return result
 
     def _get_pagePackageId(self, filename):
         _packageId = None

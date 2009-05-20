@@ -97,7 +97,7 @@ class BaseComponent(object):
                 
     @classmethod            
     def __on_class_mixin__(cls, _mixintarget, site=None):
-        js_requires = splitAndStrip( getattr(cls, 'js_requires', ''),',')
+        js_requires = splitAndStrip(getattr(cls, 'js_requires', ''),',')
         css_requires = splitAndStrip(getattr(cls, 'css_requires', ''),',')
         py_requires = splitAndStrip(getattr(cls, 'py_requires', '') ,',')
         _mixintarget.css_requires.extend(css_requires)
@@ -106,3 +106,9 @@ class BaseComponent(object):
             if site:
                 site.page_pyrequires_mixin(_mixintarget, py_requires)
 
+
+class BaseProxy(object):
+    """Base class for a webpage proxy."""
+    def __init__(self,**kwargs):
+        for argname,argvalue in kwargs.items():
+            setattr(self,argname,argvalue)

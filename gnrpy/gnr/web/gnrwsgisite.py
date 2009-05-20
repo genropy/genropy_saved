@@ -156,6 +156,7 @@ class GnrWsgiSite(object):
         path_list = [p for p in path_list if p]
         # if url starts with _ go to static file handling
         page_kwargs=dict(req.params)
+        print page_kwargs
         if path_list[0].startswith('_'):
             return self.serve_staticfile(path_list,environ,start_response,**page_kwargs)
         # get the deepest node in the sitemap bag associated with the given url
@@ -299,7 +300,7 @@ class GnrWsgiSite(object):
         page_class.js_requires = splitAndStrip(getattr(custom_class, 'js_requires', ''),',')
         page_class.auth_tags = getattr(custom_class, 'auth_tags', '')
         self.page_class_resourceDirs(page_class, path, pkg=pkg)
-        self.page_pyrequires_mixin(page_class, py_requires, pkg=pkg)
+        self.page_pyrequires_mixin(page_class, py_requires)
         classMixin(page_class,custom_class)
         self.page_class_resourceDirs(page_class, path, pkg=pkg)
         page_class._packageId = pkg
@@ -330,31 +331,40 @@ class GnrWsgiSite(object):
                 if component_page_class:
                     classMixin(page_class, component_page_class)
                     
-    def page_pyrequires_mixin(self, page_class, py_requires, pkg=None):
+    def page_pyrequires_mixin(self, page_class, py_requires):
         for mix in py_requires:
             if mix:
-                modName, clsName = mix.split(':')
-                modPathList = self.page_getResourceList(page_class, modName, 'py') or []
-                if modPathList:
-                    modPathList.reverse()
-                    for modPath in modPathList:
-                        component_module = gnrImport(modPath)
-                        component_class = getattr(component_module,clsName,None)
-                        if component_class:
-                            classMixin(page_class, component_class, site=self)
-                else:
-                    raise GnrWebServerError('Cannot import component %s' % modName)
+                self.mixinResource(page_class, page_class._resourceDirs, mix)
+    
+    def loadResource(self,pkg, *path):
+        resourceDirs = self.gnrapp.packages[self.pkg.name].resourceDirs
+        resource_base_class = cloneClass('CustomResource',BaseResource)
+        resource_class = self.mixinResource(resource_base_class, resourceDirs, *path)
+        resource_class.site = self
+        return resource_class()
+        
+    def mixinResource(self, kls,resourceDirs,*path):
+        path = os.path.join(*path)
+        modName, clsName = path.split(':')
+        modPathList = self.getResourceList(resourceDirs, modName, 'py') or []
+        if modPathList:
+            modPathList.reverse()
+            for modPath in modPathList:
+                component_module = gnrImport(modPath)
+                component_class = getattr(component_module,clsName,None)
+                if component_class:
+                    classMixin(kls, component_class, site=self)
+        else:
+            raise GnrWebServerError('Cannot import component %s' % modName)
 
-    def page_getResourceList(self, page_class, path, ext=None):
-        """Find a resource in current _resources folder or in parent folders one"""
+    def getResourceList(self, resourceDirs, path ,ext=None):
         result=[]
         if ext and not path.endswith('.%s' % ext): path = '%s.%s' % (path, ext)
-        for dpath in page_class._resourceDirs:
+        for dpath in resourceDirs:
             fpath = os.path.join(dpath, path)
             if os.path.exists(fpath):
                 result.append(fpath)
-        return result 
-
+        return result
     def page_create(self,path=None,auth_tags=None,pkg=None,name=None):
         """Given a path returns a GnrWebPage ready to be called"""
         if pkg=='*':
@@ -544,6 +554,8 @@ class GnrWsgiSite(object):
     ##################### end static file handling #################################
 
 
+class BaseResource(object):
+    pass
         
 class GnrModWsgiSite(GnrWsgiSite):
     def __init__(self, script_path):

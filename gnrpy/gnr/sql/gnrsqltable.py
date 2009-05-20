@@ -560,7 +560,11 @@ class SqlTable(GnrObject):
             return lastid[0] + 1
         else:
             return getUuid()
-    
+
+    def getResource(self,path):
+        app = self.db.application
+        return app.site.loadResource(self.pkg.name,self.name,path)
+
     #---------- method to implement via mixin
     def onIniting(self):
         pass

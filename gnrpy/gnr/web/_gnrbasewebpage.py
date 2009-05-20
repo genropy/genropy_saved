@@ -187,18 +187,18 @@ class GnrBaseWebPage(GnrObject):
         else:
             self.debug_mode = False
         self._dbconnection=None
+    
+    def importPageModule(self, page_path, pkg=None):
+         if not pkg:
+             pkg = self.packageId
+         return gnrImport(self.site.pkg_static_path(pkg,(page_path.split('/'))))
         
     def mixinFromPage(self,kls,pkg=None):
         if isinstance(kls,basestring):
-            if not pkg:
-                pkg = self.packageId
             page_path, kls_name = kls.split(':')
-            page_path=self.site.pkg_static_path(pkg,(page_path.split('/')))
-            self.mixin('%s:%s'%(page_path,kls_name))
-        else:
-            self.mixin(cls)
-        page_path=self.site.pkg_static_path(pkg,*args)
-        self.mixin('%s:%s'%(page_path,kls))
+            module = importPageModule(page_path,pkg=pkg)
+            kls = getattr(module, kls_name)
+        self.mixin(kls)
     
     def getUuid(self):
         return getUuid()
@@ -238,7 +238,7 @@ class GnrBaseWebPage(GnrObject):
                     raise GnrWebServerError('Cannot import component %s' % modName)
 
         
-    def index(self ,**kwargs):
+    def _index(self ,**kwargs):
         self.kwargs.update(kwargs)
         self.onInit()
         if self._user_login:
@@ -1414,7 +1414,6 @@ class GnrBaseWebPage(GnrObject):
         doc.process(output)
         output.seek(0)
         return output.read()
-
 
 
     def rpc_debuggerContent(self):
