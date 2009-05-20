@@ -342,6 +342,16 @@ class GnrWsgiSite(object):
         resource_class.site = self
         return resource_class()
         
+    def loadTableResource(self, table, path):
+        application=self.gnrapp
+        if isinstance(table, basestring):
+            table=application.db.table(table)
+        resourceDirs = application.packages(table.pkg.name).resourceDirs
+        resource_base_class = cloneClass('CustomResource',BaseResource)
+        resource_class = self.mixinResource(resource_base_class, resourceDirs, path)
+        resource_class.site = self
+        return resource_class()
+        
     def mixinResource(self, kls,resourceDirs,*path):
         path = os.path.join(*path)
         modName, clsName = path.split(':')
