@@ -206,7 +206,8 @@ class PageTableBuilder(TableBuilder):
             <table class="full_page $tableclass" id="maintable">
             """
         all_css = []
-        styles = self.page.get_css_genro('gnr_d%s' % self.page.dojoversion)
+        self.page.theme = getattr(self.page,'theme','tundra')
+        styles = self.page.get_css_genro()
         print_styles = styles.pop('print', [])
 
         for cssmedia, cssnames  in styles.items():

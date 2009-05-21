@@ -86,7 +86,7 @@ class GnrWsgiPage(GnrBaseWebPage):
         return result
     
     def indexPage(self,theme=None,pagetemplate=None,**kwargs):
-        self.theme = theme
+        self.theme = theme or 'tundra'
         self.charset='utf-8'
         tpl = pagetemplate or 'standard.tpl'
         if not isinstance(tpl, basestring):
@@ -101,7 +101,7 @@ class GnrWsgiPage(GnrBaseWebPage):
         return mytemplate.render(mainpage=self, **arg_dict)
     
     def makoTemplate(self, path, theme=None, striped='odd_row,even_row', **kwargs):
-        self.theme = theme
+        self.theme = theme or 'tundra'
         auth = self._checkAuth()
         if auth != AUTH_OK:
             self.raiseUnauthorized()
