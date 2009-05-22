@@ -31,6 +31,7 @@ from lxml import etree
 from z3c.rml import document as pdfdoc
 import cStringIO
 import os
+from gnr.core.gnrlang import optArgs
 
 class GnrRmlSrcError(Exception):
     pass
@@ -94,9 +95,35 @@ class GnrRmlSrc(GnrStructData):
         self.child('__flatten__',content=content)
     
     def child(self,*args,**kwargs):
-        if 'name' in kwargs:
-            kwargs['_name'] = kwargs.pop('name')
+        name_mapping = {
+            'name':'_name',
+            'structId':'name'}
+        for name in name_mapping:
+            if name in kwargs:
+                kwargs[name_mapping[name]] = kwargs.pop(name)
+        kwargs = optArgs(**kwargs)
         return super(GnrRmlSrc, self).child(*args,**kwargs)
+    
+    def document(self, filename, debug=0, compression=1, invariant=1):
+        return self.child('document', filename = filename, debug=0, compression=1, invariant=1)
+        
+    def story(self, firstPageTemplate=''):
+        return self.child('story', firstPageTemplate=firstPageTemplate)
+    
+    def paraStyle(self, name='', fontName=None, fontSize=None, leading=None, leftIndent=None,
+                    rightIndent=None, firstLineIndent=None, spaceBefore=None, spaceAfter=None,
+                    alignment=None, bulletFontName=None, bulletFontSize=None, bulletIndent=None,
+                    textColor=None, backColor=None, keepWithNext=None, wordWrap=None, alias=None, parent=None):
+                    
+        return self.child('paraStyle', name=name, fontName=fontName, fontSize=fontSize, leading=leading, 
+                    leftIndent=leftIndent, rightIndent=rightIndent, firstLineIndent=firstLineIndent, 
+                    spaceBefore=spaceBefore, spaceAfter=spaceAfter, alignment=alignment, 
+                    bulletFontName=bulletFontName, bulletFontSize=bulletFontSize, bulletIndent=bulletIndent, 
+                    textColor=textColor, backColor=backColor, keepWithNext=keepWithNext, 
+                    wordWrap=wordWrap, alias=alias, parent=parent)
+
+    def blockTableStyle(self, id='', keepWithNext=None):
+        return self.child('blockTableStyle', id=id, keepWithNext=keepWithNext)
 
 class GnrRml(object):
 

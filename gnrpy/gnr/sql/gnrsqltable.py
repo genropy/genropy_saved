@@ -297,6 +297,14 @@ class SqlTable(GnrObject):
         else:
             return record
         
+    def recordAs(self, record, mode='bag'):
+        if isinstance(record, basestring):
+            return self.record(pkey = record, mode=mode)
+        if mode=='dict' and not isinstance(record, dict):
+            return dict([(k, v) for k,v in record.items() if not k.startswith('@')])
+        if mode=='bag' and not isinstance(record, Bag):
+            return self.record(pkey = record['pkey'], mode=mode)
+            
         
     def defaultValues (self):
         """Override this to assign defaults to new record.

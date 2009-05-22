@@ -351,6 +351,7 @@ class GnrWsgiSite(object):
         resource_class = cloneClass('CustomResource',BaseResource)
         self.mixinResource(resource_class, resourceDirs, path)
         resource_class.site = self
+        resource_class.table = table
         return resource_class()
         
     def mixinResource(self, kls,resourceDirs,*path):
