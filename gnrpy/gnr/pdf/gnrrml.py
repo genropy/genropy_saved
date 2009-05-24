@@ -103,12 +103,8 @@ class GnrRmlSrc(GnrStructData):
             kwargs['_name'] = kwargs.pop('name')
         kwargs = optArgs(**kwargs)
         return super(GnrRmlSrc, self).child(*args,**kwargs)
-    
-    def document(self, filename, debug=0, compression=1, invariant=1):
-        return self.child('document', filename = filename, debug=0, compression=1, invariant=1)
         
-    def story(self, firstPageTemplate=None):
-        return self.child('story', firstPageTemplate=firstPageTemplate)
+
     
     def paraStyle(self, name='', fontName=None, fontSize=None, leading=None, leftIndent=None,
                     rightIndent=None, firstLineIndent=None, spaceBefore=None, spaceAfter=None,
@@ -525,20 +521,41 @@ class GnrRmlSrc(GnrStructData):
 
 
 
-class GnrRml(object):
+class GnrPdf(object):
 
-    def __init__(self, filename='', invariant=1, **kwargs):
+    def __init__(self, filename=None,debug=None,compression=None,invariant=None,**kwargs):
         self.root = GnrRmlSrc.makeRoot()
-        self.document = self.root.document(filename=filename, invariant=invariant, **kwargs)
-        self.stylesheets=self.document.stylesheet()
+        self.document = self.root.document(filename=filename, debug=debug, compression=compression,invariant=invariant)
+        self.stylesheet=self.document.stylesheet()
+        for k,v in kwargs.items():
+            setattr(self,k,v)
         
     def template(self,**kwargs):
-        self.templates=self.document.template(**kwargs)
+        self.template=self.document.template(**kwargs)
+        
+    def _get_stylesheet(self):
+        if not hasattr(self,'stylesheet'):
+            self._stylesheet=self.document.stylesheet()
+        return self._stylesheet
         
     def toRml(self,filename=None):
         if filename:
             filename=expandpath(filename)
         return self.root.toRml(filename=filename)
+        
+    def pageTemplate(self,id=None,**kwargs):
+        template=self.template.pageTemplate(id=id,**kwargs)
+        getattr(self,'pageTemplate_%s'% id)(template)
+        
+    def tableStyle(self,id=None, **kwargs):
+        sheet = self.stylesheet.blockTableStyle(id=id,**kwargs)
+        getattr(self,'tableStyle_%s' % id)(sheet)
+        
+    def paraStyle(self,**kwargs):
+        self.stylesheet.paraStyle(**kwargs)
+        
+    def boxStyle(self, **kwargs):
+        self.stylesheet.boxStyle(**kwargs)
         
     def toPdf(self,filename=None):
         if filename:
