@@ -886,7 +886,7 @@ class GnrBaseWebAppHandler(object):
             whereargs.update(kwargs)
             whereargs.update(searchargs)
             if where and condition:
-                where = '(%s) AND (%s)' % (where, condition)
+                where = '%s AND %s' % (where, condition)
             else:
                 where = where or condition
             return tblobj.query(where=where, columns=','.join(resultcolumns), limit=limit,
