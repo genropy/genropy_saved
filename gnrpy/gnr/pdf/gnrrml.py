@@ -91,15 +91,16 @@ class GnrRmlSrc(GnrStructData):
         return self.toXml(filename=filename, encoding=encoding,typeattrs=False, autocreate=True,
                 omitUnknownTypes=True, omitRoot=True, forcedTagAttr='tag',addBagTypeAttr=False)
 
-    def content(self,content):
+    def __content(self,content):
         self.child('__flatten__',content=content)
         
-    def __content(self,content):
-        if not (isinstance(content, list) or isinstance(content, list) ) :
+    def content(self,content):
+        if not (isinstance(content, list) or isinstance(content, tuple) ) :
             content=[content]
         for single_content in content:
-            if isinstance (single_content,BagNode):
-                self.child(content=single_content.value, **single_content.attr)
+            if isinstance (single_content,GnrRmlSrc):
+                tag=single_content.parentNode.attr.pop('tag')
+                self.child(tag, content=single_content, **single_content.parentNode.attr)
             else:
                 self.child('__flatten__',content=single_content)
 
@@ -110,14 +111,14 @@ class GnrRmlSrc(GnrStructData):
             return self.parent.um
         return 'pt'
         
-    def child(self,*args, **kwargs):
+    def child(self,tag,*args, **kwargs):
         um=kwargs.pop('um',None)
         if um:
             self._um=um
         if 'name' in kwargs:
             kwargs['_name'] = kwargs.pop('name')
         kwargs = optArgs(**kwargs)
-        return super(GnrRmlSrc, self).child(*args,**kwargs)
+        return super(GnrRmlSrc, self).child(tag,*args,**kwargs)
         
 
     
@@ -243,8 +244,12 @@ class GnrRmlSrc(GnrStructData):
     def blockValign(self, start=None, stop=None, value=None, **kwargs):
         return self.child('blockValign', start=start, stop=stop, value=value, **kwargs)
 
-    def blockSpan(self, start=None, stop=None, **kwargs):
-        return self.child('blockSpan', start=start, stop=stop, **kwargs)
+    def blockSpan(self, block_list=None, start=None, stop=None, **kwargs):
+        if block_list:
+            for start,stop in block_list:
+                 self.child('blockSpan', start=start, stop=stop, **kwargs)
+        else:
+            self.child('blockSpan', start=start, stop=stop, **kwargs)
 
     def lineStyle(self, start=None, stop=None, kind=None, thickness=None, colorName=None, cap=None, dash=None, join=None, count=None, **kwargs):
         return self.child('lineStyle', start=start, stop=stop, kind=kind, thickness=thickness, colorName=colorName, cap=cap, dash=dash, join=join, count=count, **kwargs)
@@ -296,15 +301,25 @@ class GnrRmlSrc(GnrStructData):
 
     def para(self, content=None, fontName=None, fontSize=None, leading=None, leftIndent=None, rightIndent=None, firstLineIndent=None, spaceBefore=None, spaceAfter=None, alignment=None, bulletFontName=None, bulletFontSize=None, bulletIndent=None, textColor=None, backColor=None, keepWithNext=None, wordWrap=None, style=None, bulletText=None, dedent=None, text=None, **kwargs):
         para = self.child('para', fontName=fontName, fontSize=fontSize, leading=leading, leftIndent=leftIndent, rightIndent=rightIndent, firstLineIndent=firstLineIndent, spaceBefore=spaceBefore, spaceAfter=spaceAfter, alignment=alignment, bulletFontName=bulletFontName, bulletFontSize=bulletFontSize, bulletIndent=bulletIndent, textColor=textColor, backColor=backColor, keepWithNext=keepWithNext, wordWrap=wordWrap, style=style, bulletText=bulletText, dedent=dedent, text=text, **kwargs)
-        para.content(content)
+        if content:
+            para.content(content)
         return para
         
-    def blockTable(self, style=None, rowHeights=None, colWidths=None, repeatRows=None, alignment=None, **kwargs):
+    def blockTable(self,columns=None, style=None, rowHeights=None, colWidths=None, repeatRows=None, alignment=None, **kwargs):
+        colIndex_dict = {}
+        if columns:
+            col_list = columns.split(',')
+            colWidths_list = []
+            for idx,col in enumerate(col_list):
+                name, width = col_list.split(':')
+                colWidths_list.append(width)
+                colIndex_dict[name]=idx
+            colWidths = ','.join(colWidths_list)
         child= self.child('blockTable', style=style, rowHeights=rowHeights, colWidths=colWidths, repeatRows=repeatRows, alignment=alignment, **kwargs)
         child.cols=len(colWidths.split(','))
+        child.columns = colIndex_dict
         return child
 
-        return
     def td(self, content=None, fontName=None, fontSize=None, leading=None, fontColor=None, leftPadding=None, rightPadding=None, topPadding=None, bottomPadding=None, background=None, align=None, vAlign=None, lineBelowThickness=None, lineBelowColor=None, lineBelowCap=None, lineBelowCount=None, lineBelowSpace=None, lineAboveThickness=None, lineAboveColor=None, lineAboveCap=None, lineAboveCount=None, lineAboveSpace=None, lineLeftThickness=None, lineLeftColor=None, lineLeftCap=None, lineLeftCount=None, lineLeftSpace=None, lineRightThickness=None, lineRightColor=None, lineRightCap=None, lineRightCount=None, lineRightSpace=None, **kwargs):
         return self.child('td', content=content, fontName=fontName, fontSize=fontSize, leading=leading, fontColor=fontColor, leftPadding=leftPadding, rightPadding=rightPadding, topPadding=topPadding, bottomPadding=bottomPadding, background=background, align=align, vAlign=vAlign, lineBelowThickness=lineBelowThickness, lineBelowColor=lineBelowColor, lineBelowCap=lineBelowCap, lineBelowCount=lineBelowCount, lineBelowSpace=lineBelowSpace, lineAboveThickness=lineAboveThickness, lineAboveColor=lineAboveColor, lineAboveCap=lineAboveCap, lineAboveCount=lineAboveCount, lineAboveSpace=lineAboveSpace, lineLeftThickness=lineLeftThickness, lineLeftColor=lineLeftColor, lineLeftCap=lineLeftCap, lineLeftCount=lineLeftCount, lineLeftSpace=lineLeftSpace, lineRightThickness=lineRightThickness, lineRightColor=lineRightColor, lineRightCap=lineRightCap, lineRightCount=lineRightCount, lineRightSpace=lineRightSpace, **kwargs)
 
@@ -570,9 +585,14 @@ class GnrPdf(object):
         self.stylesheet.boxStyle(**kwargs)
         
     def para(self,content=None,**kwargs):
-        self.auxroot.para(**kwargs)
-        return self.auxroot.popNode('#0')
-  
+        self.auxroot.para(content=content,**kwargs)
+        return self.auxroot.popNode('#0').value
+    
+    def child(self,tag,**kwargs):
+        handler=getattr(self.auxroot,tag)
+        handler(**kwargs)
+        return self.auxroot.popNode('#0').value
+    
     def toPdf(self,filename=None):
         if filename:
             self.root.setAttr('#0',filename=os.path.basename(filename))

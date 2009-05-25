@@ -318,6 +318,7 @@ class BagToXml(object):
                     #raise '%s: %s' % (str(tagName), value)
                     
         if attributes:
+            attributes=dict(attributes)
             if self.forcedTagAttr and self.forcedTagAttr in attributes:
                 tagName = attributes.pop(self.forcedTagAttr)
             if tagName ==  '__flatten__':

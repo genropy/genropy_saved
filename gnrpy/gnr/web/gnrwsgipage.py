@@ -150,6 +150,7 @@ class GnrWsgiPage(GnrBaseWebPage):
         css_dojo = getattr(self, '_css_dojo_d%s' % self.dojoversion)()
         arg_dict['css_dojo'] = [self.site.dojo_static_url(self.dojoversion,'dojo',f) for f in css_dojo]
         arg_dict['css_genro'] = self.get_css_genro()
+        self.js_requires.append(self.pagename)
         js_requires = [x for x in [self.getResourceUri(r,'js') for r in self.js_requires] if x]
         if os.path.isfile(self.resolvePath('%s.js' % self.pagename)):
             js_requires.append('%s.js' % self.pagename)
