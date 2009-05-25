@@ -29,7 +29,7 @@ class Table(object):
 
 
 if __name__=='__main__':
-    xmlPath = '/Users/gpo/Desktop/mnt/saved.xml'
-    destPath = '/Users/gpo/Desktop/mnt/model'
+    xmlPath = '/Users/saverioporcari/sviluppo/goodsoftware/projects/pforce/packages/oldpforce/model/config_db.xml'
+    destPath = '/Users/saverioporcari/sviluppo/goodsoftware/projects/pforce/packages/oldpforce/model'
     struct = Bag(xmlPath)
-    structToPy(struct['packages.manettiani.tables'],destPath)
+    structToPy(struct['packages.oldpforce.tables'],destPath)
