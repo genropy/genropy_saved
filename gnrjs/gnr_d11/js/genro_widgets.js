@@ -345,14 +345,14 @@ dojo.declare("gnr.widgets.baseDojo",gnr.widgets.baseHtml,{
                 setTimeout(function(){sourceNode.widget.focus();}, 1);
             }*/ 
         }
-        value = this.convertValueOnBagSetItem(sourceNode,value)
+        value = this.convertValueOnBagSetItem(sourceNode,value);
         genro._data.setItem(path, value, valueAttr, {'doTrigger':sourceNode});
     },
     mixin_setTip: function (tip) {
         this.setAttribute('title',tip);
     },
     convertValueOnBagSetItem: function(sourceNode, value){
-        return value
+        return value;
     },
     validatemixin_validationsOnChange: function(sourceNode, value){
         var result = genro.vld.validate(sourceNode, value);
@@ -1225,6 +1225,16 @@ dojo.declare("gnr.widgets.TimeTextBox",gnr.widgets.baseDojo,{
         //genro.debug('onChanged:'+value);
         //widget.sourceNode.setAttributeInDatasource('value',value);
         this._doChangeInData(widget.domNode, widget.sourceNode, value,{dtype:'H'});
+    },
+    creating: function(attributes, sourceNode){
+        if ('ftype' in attributes) {
+            attributes.constraints['type'] = objectPop(attributes['ftype']);
+        }
+    },
+    mixin_setPickInterval:function(interval){
+        var timeInt = 'T00:'+interval+':00';
+        this.constraints.clickableIncrement=timeInt;
+        
     }
 });
 
@@ -1244,7 +1254,7 @@ dojo.declare("gnr.widgets.NumberTextBox",gnr.widgets.baseDojo,{
         if (value == ""){
             value = null;
         }
-        return value
+        return value;
     }
 });
 dojo.declare("gnr.widgets.CurrencyTextBox",gnr.widgets.NumberTextBox,{
@@ -2602,7 +2612,7 @@ dojo.declare("gnr.widgets.IncludedView",gnr.widgets.VirtualStaticGrid,{
          if(sourceNode.attr.multiSelect==false){
              widget.selection.multiSelect = false;
          }
-         console.log('created call rpcViewColumns')
+         console.log('created call rpcViewColumns');
          widget.rpcViewColumns();
          widget.updateRowCount('*');
     },
@@ -3036,7 +3046,7 @@ dojo.declare("gnr.widgets.Tree",gnr.widgets.baseDojo,{
         if(!nodeWidget || !nodeWidget.isTreeNode){
             return;
         }
-        nodeWidget.__eventmodifier = eventToString(e)
+        nodeWidget.__eventmodifier = eventToString(e);
         this._onClick_replaced(e);
     },
     mixin_getItemById: function(id){
@@ -3086,7 +3096,7 @@ dojo.declare("gnr.widgets.Tree",gnr.widgets.baseDojo,{
     },
     mixin__updateSelect: function(item,node){
         var modifiers = objectPop(node,'__eventmodifier');
-        var attributes = {}
+        var attributes = {};
         if (modifiers){
             attributes._modifiers = modifiers;
         }
