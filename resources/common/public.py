@@ -935,8 +935,7 @@ class RecordHandler(object):
         stack = bc.stackContainer(region='center',_class='pbl_background' ,formId=formId,
                                   selected='^%s.stackPane' %controllerPath,datapath='.record')
         loading = stack.contentPane(_class='waiting')
-        bc.dataController("""SET %s.disabled=!unlocked;""" % controllerPath , unlocked='^form.unlocked')
-        formCb(stack, disabled='^%s.disabled' % controllerPath, table=table)
+        formCb(stack, disabled='^form.locked', table=table)
         
     def _record_dialog_bottom(self,pane):
         pane.button('!!Cancel',float='left',baseClass='bottom_btn',
