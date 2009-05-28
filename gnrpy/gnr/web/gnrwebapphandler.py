@@ -444,20 +444,27 @@ class GnrBaseWebAppHandler(object):
             thermoBag = session.pagedata.getItem('thermo_%s' % thermoid) or Bag()
         return thermoBag
         
-    def rpc_onSelectionDo(self, table, selectionName, command, callmethod=None, pkeys=None, recordcall=False, **kwargs):
+    def rpc_onSelectionDo(self, table, selectionName, command, callmethod=None, selectedRowidx=None, recordcall=False, **kwargs):
+        print 'rpc_onSelectionDo'
         result = None
         tblobj = self.db.table(table)
         selection = self.page.unfreezeSelection(tblobj, selectionName)
-        if pkeys:
-            if isinstance(pkeys, basestring):
-                pkeys = pkeys.split(',')
-            pkeys = set(pkeys)
-            selection.filter(lambda r: r['pkey'] in pkeys)
+        if selectedRowidx:
+            if isinstance(selectedRowidx, basestring):
+                selectedRowidx = [int(x) for x  in selectedRowidx.split(',')]
+            selectedRowidx = set(selectedRowidx)
+            selection.filter(lambda r: r['rowidx'] in selectedRowidx)
+            print selection.output('bag')
         callmethod = callmethod or 'standard'
+        print callmethod
+        print command
+        print recordcall
         if command in ('print', 'rpc', 'export', 'action', 'pdf'):
+            print '%s_%s' % (command, callmethod)
             h = getattr(self.page, '%s_%s' % (command, callmethod), None)
             if not h:
                 h = getattr(tblobj, '%s_%s' % (command, callmethod), None)
+            print 'handler : %s' % str(h)
             if h:
                 if recordcall:
                     result = []
@@ -466,7 +473,7 @@ class GnrBaseWebAppHandler(object):
                         if onres != None:
                             result.append(onres)
                 else:
-                    result = h(selection, locale=self.page.locale, pkeys=pkeys, **kwargs)
+                    result = h(selection, locale=self.page.locale, **kwargs)
         return result
         
     def _joinConditionsFromContext(self, obj, sqlContextName):

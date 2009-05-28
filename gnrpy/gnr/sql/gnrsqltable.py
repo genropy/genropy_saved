@@ -441,18 +441,7 @@ class SqlTable(GnrObject):
         for rel in self.relations_many:
             onDelete=rel.getAttr('onDelete','').lower()
             if onDelete and not (onDelete in ('i' ,'ignore')):
-                mpkg, mtbl, mfld = rel.attr['many_relation'].split('.')
-                opkg, otbl, ofld = rel.attr['one_relation'].split('.')
-                relatedTable = self.db.table(mtbl,pkg=mpkg)
-                sel = relatedTable.query(columns='*', where='%s = :pid' % mfld,
-                                            pid=record[ofld], for_update=True).fetch()
-                if sel:
-                    if onDelete in ('r' ,'raise'):
-                        raise GnrSqlSaveChangesException ("saveRecordCluster_10","Cannot delete this record.(deleteRelated violates)")
-                    
-                    elif onDelete in ('c' ,'cascade') :
-                        for row in sel:
-                            relatedTable.delete(relatedTable.record(row['pkey'], mode='bag'))
+                self.deleteRelationRecord(rel)
     
     def update(self, record, old_record=None, pkey=None):
         """This method updates a single record.

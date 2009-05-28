@@ -1423,6 +1423,15 @@ dojo.declare("gnr.widgets.Grid",gnr.widgets.baseDojo,{
         }
         return result;
     },
+    mixin_getSelectedRowidx: function(){
+        var sel = this.selection.getSelected();
+        var result = [];
+        for (var i=0; i < sel.length; i++){
+            var row = this.rowByIndex(sel[i]);
+            result.push(row.rowidx);
+        }
+        return result;
+    },
     structFromBag: function(struct, cellmap, gnreditors){
         var cellmap = cellmap || {};
         var result = [];

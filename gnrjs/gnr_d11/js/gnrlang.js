@@ -526,7 +526,8 @@ function convertFromText (value, t, fromLocale){
 }
 
 function convertToText (value, params){
-    if (value==null || value == undefined){ 
+    if (value==null || value == undefined){
+        console.log('value null')
         return ['NN', ''];
     }
     var result;

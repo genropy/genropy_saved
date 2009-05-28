@@ -145,16 +145,20 @@ class TableHandler(BaseComponent):
                                fired='^list.onSelectionMenu', askTitle='!!Commands', message="!!Export or Print the selection",
                                exportButton="!!Export", printButton="!!Print",pdfButton='!!Pdf', actionsButton='!!Actions', cancelButton='!!Cancel')
         pane.dataController("""
-            var pkeys = genro.wdgById("maingrid").getSelectedPkeys();
+            //var pkeys = genro.wdgById("maingrid").getSelectedPkeys();
+            var selectedRowidx = genro.wdgById("maingrid").getSelectedRowidx();
             if(command=='print'){
                 var url = genro.rpc.rpcUrl("app.onSelectionDo", {table:table, selectionName:selectionName, command:'print',
-                                                             callmethod:null, pkeys:pkeys})
+                                                             callmethod:null, selectedRowidx:selectedRowidx})
                 genro.dev.printUrl(url);
             }
             else if((command=='export')||(command='pdf')){
-                var url = genro.rpc.rpcUrl("app.onSelectionDo", {table:table, selectionName:selectionName, command:command,
-                                                             callmethod:null, pkeys:pkeys})
-                genro.dev.exportUrl(url);
+                console.log(selectedRowidx);
+                //var url = genro.rpc.rpcUrl("app.onSelectionDo", {table:table, selectionName:selectionName, command:command,
+                //                                            callmethod:null, selectedRowidx:selectedRowidx})
+                
+                genro.download('', {method:"app.onSelectionDo",table:table, selectionName:selectionName, command:command,
+                                                             callmethod:null, selectedRowidx:selectedRowidx});
             }
             else if(command=='actions'){
                 genro.dlg.listChoice(act_title, act_msg, {confirm:btn_confirm,cancel:btn_cancel},
@@ -176,18 +180,25 @@ class TableHandler(BaseComponent):
         for action in [m[7:] for m in dir(self) if m.startswith('action_')]:
             act_bag[action] = '!!%s' % action.capitalize().replace('_', ' ')
         pane.data('list.act_store', act_bag, id='#k',caption='#v')
-        pane.dataController("""var pkeys = genro.wdgById("maingrid").getSelectedPkeys();
+        pane.dataController("""var selectedRowidx = genro.wdgById("maingrid").getSelectedRowidx();
                                    genro.serverCall('app.onSelectionDo', {table:table, selectionName:selectionName, command:'action',
-                                                     callmethod:action, pkeys:pkeys}, 'function(result){genro.dlg.alert(result)}')""",
+                                                     callmethod:action, selectedRowidx:selectedRowidx}, 'function(result){genro.dlg.alert(result)}')""",
                         confirm='^list.act_result', action='=list.act_value', _if='confirm=="confirm"',
                         table=self.maintable, selectionName='=list.selectionName')
+        #pane.dataController("""var pkeys = genro.wdgById("maingrid").getSelectedPkeys();
+        #                           genro.serverCall('app.onSelectionDo', {table:table, selectionName:selectionName, command:'action',
+        #                                             callmethod:action, pkeys:pkeys}, 'function(result){genro.dlg.alert(result)}')""",
+        #                confirm='^list.act_result', action='=list.act_value', _if='confirm=="confirm"',
+        #                table=self.maintable, selectionName='=list.selectionName')
     
-    def export_standard(self, selection, pkeys=None, locale=None,columns=None,filename=None,**kwargs):
+    def export_standard(self, selection, locale=None,columns=None,filename=None,**kwargs):
+        print 'export_standard'
+        print selection.output('bag')
         filename = filename or self.maintable or  self.request.uri.split('/')[-1]
         content = selection.output('tabtext', columns=columns, locale=locale)
         self.utils.sendFile(content,filename,'xls')
     
-    def print_standard(self, selection, pkeys=None, locale=None,**kwargs):
+    def print_standard(self, selection, locale=None,**kwargs):
         columns = None # get columns from current view on client !
         if not columns:
             columns = [c for c in selection.allColumns if not c in ('pkey','rowidx')]
@@ -196,7 +207,7 @@ class TableHandler(BaseComponent):
         return self.makoTemplate('standard_print.tpl', striped='odd_row,even_row', outdata=outdata, colAttrs=colAttrs,
                 title='Print List', header='Print List', columns=columns)
                 
-    def pdf_standard(self, selection, pkeys=None, locale=None,**kwargs):
+    def pdf_standard(self, selection, locale=None,**kwargs):
         columns = None # get columns from current view on client !
         if not columns:
             columns = [c for c in selection.allColumns if not c in ('pkey','rowidx')]
