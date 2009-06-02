@@ -824,7 +824,7 @@ class IncludedView(object):
 class RecordHandler(object):
     """
     RecordHandler allows to Load and Save a record without passing through the mainrecord path
-    it executes saving and loading in an indipendent way from the mainrecord of a a standard table. 
+    it executes saving and loading in an independent way from the mainrecord of a standard table. 
     """
     def recordDialog(self,table,firedPkey=None,height=None,width=None,_class=None,
                     title=None,formCb=None,onSaved='',saveKwargs={},loadKwargs={},
