@@ -270,7 +270,7 @@ class NewServer(object):
                 self.restvars = self.args[:]
 
     def set_bonjour(self):
-        start_bonjour(host=self.options.host, port=self.options.port, server_name=self.options.server_name, server_description=self.server_description,home_uri=self.home_uri)
+        start_bonjour(host=self.options.host, port=self.options.port, server_name=self.options.site_name, server_description=self.server_description,home_uri=self.siteconfig['wsgi?home_uri'] or '/')
 
     def check_cmd(self):
         if self.cmd not in (None, 'start', 'stop', 'restart', 'status'):

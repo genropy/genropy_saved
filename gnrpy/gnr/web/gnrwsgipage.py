@@ -107,7 +107,7 @@ class GnrWsgiPage(GnrBaseWebPage):
             self.raiseUnauthorized()
         if striped:
             kwargs['striped']=itertools.cycle(striped.split(','))
-        tpldirectories=[os.path.dirname(path), self.parentdirpath]+self.resourceDirs+self.site.gnr_static_path(self.gnrjsversion,'tpl')
+        tpldirectories=[os.path.dirname(path), self.parentdirpath]+self.resourceDirs+[self.site.gnr_static_path(self.gnrjsversion,'tpl')]
         lookup=TemplateLookup(directories=tpldirectories,
                               output_encoding='utf-8', encoding_errors='replace')                      
         template = lookup.get_template(os.path.basename(path))
@@ -120,7 +120,7 @@ class GnrWsgiPage(GnrBaseWebPage):
         return template.render(mainpage=self,
                                css_genro = self.get_css_genro(),
                                css_requires = self.get_css_requires(),
-                               css_dojo = [self.site.rsrc_static_url(dojorsrc,'_static','lib_%s'%self.dojoversion,'dojo',f) for f in css_dojo],
+                               css_dojo = [self.site.dojo_static_url(self.dojoversion,'dojo',f) for f in css_dojo],
                                dojolib=dojolib,
                                djConfig="parseOnLoad: false, isDebug: %s, locale: '%s'" % (self.isDeveloper() and 'true' or 'false',self.locale),
                                gnrModulePath=gnrModulePath, **kwargs)
