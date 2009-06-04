@@ -58,7 +58,9 @@ class GnrCustomWebPage(object):
         fb.field('description')
         fb.field('product_type')
         fb.field('price', tag='currencyTextbox')
+        fb.field('full_description', tag='simpleTextArea', height='8ex', width='100%', colspan='2', lbl_vertical_align='top')
         pane.dataFormula("form.title", "code+'-'+description",code="^.code",description="^.description")
+        pane.dataFormula(".full_description", "description", description='^.description', full_description='=.full_description', _if='!full_description')
 
     def invoicesPage(self,bc,disabled=False):
         topbc=bc.borderContainer(region='top', height='50%',splitter= True)
