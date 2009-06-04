@@ -724,9 +724,11 @@ class TableHandler(BaseComponent):
         elem.dataFormula('aux.listpage', '!selectedpage', selectedpage='^selectedPage', _init=True)
         elem.dataController("""if(logical_deleted){
                                    SET form.record.__del_ts =new Date();
+                                   genro.console.log('add logicalDeleted');
                                    genro.dom.addClass("formRoot", "logicalDeleted");
                                }else{
                                    SET form.record.__del_ts = null;
+                                   genro.console.log('remove logicalDeleted');
                                    genro.dom.removeClass("formRoot", "logicalDeleted");
                                }""",
                           logical_deleted='^form.logical_deleted' )

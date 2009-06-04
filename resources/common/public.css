@@ -15,6 +15,8 @@
     border: 3px solid white;
 }
 
+
+
 .pbl_username{
 	-moz-border-radius:6px;
 	-webkit-border-radius:6px;
@@ -300,7 +302,12 @@ padding-bottom: 2px;
 /* @end */
 
 /* @group Grid */
-
+.logicalDeleted .dojoxGrid-cell{
+	color: #b50000;
+}
+.logicalDeleted .dojoxGrid-row-selected .dojoxGrid-cell{
+	color: #b50000;
+}
 ._common_d11 .dojoxGrid {
 	background-color: transparent;
 }
