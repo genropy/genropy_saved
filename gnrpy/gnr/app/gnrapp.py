@@ -166,6 +166,7 @@ class GnrPackage(object):
                 for cname in dir(tbl_module):
                     member = getattr(tbl_module, cname, None)
                     if type(member) == type and issubclass(member, SqlTablePlugin):
+                        self.tableMixinDict[tbl]._plugins[cname]= member # Miki 20090605
                         self.tablePlugins.setdefault(tbl, {})[cname] = member # TODO get plugins also from custom
             else:
                 instanceMixin(self.tableMixinDict[tbl], cls)

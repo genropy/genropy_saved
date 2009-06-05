@@ -505,7 +505,7 @@ def classMixin( target_class, source_class, methods=None, only_callables=True, *
     if hasattr(source_class,'__on_class_mixin__'):
         source_class.__on_class_mixin__(target_class,**kwargs)
         
-def instanceMixin(obj, source, methods=None, **kwargs): 
+def instanceMixin(obj, source, methods=None, attributes=None, **kwargs): 
     """
     Add to the instance obj methods from 'source'.
     Source can be an instance or a class
@@ -532,9 +532,15 @@ def instanceMixin(obj, source, methods=None, **kwargs):
         method = getattr(source, name).im_func
         k = instmethod(method, obj, obj.__class__)
         if hasattr(obj,name):
-            original = getattr(obj,name) 
-            setattr(obj,name+'_',original) 
+            original = getattr(obj,name)
+            setattr(obj,name+'_',original)
         setattr(obj,name,k) 
+    if attributes:
+        if isinstance(attributes, basestring):
+            attributes=attributes.split(',')
+        for attribute in attributes:
+            if hasattr(source,attribute):
+                setattr(obj,attribute,getattr(source,attribute))
     if hasattr(source,'__onmixin__'):
         source.__onmixin__.im_func(obj,_mixinsource=source,**kwargs)
  

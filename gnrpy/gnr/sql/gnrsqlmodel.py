@@ -371,7 +371,7 @@ class DbModelObj(GnrStructObj):
         mixpath = self._getMixinPath()
         mixobj=self._getMixinObj()
         if mixpath:
-            mixobj.mixin(self.db.model.mixins[mixpath])
+            mixobj.mixin(self.db.model.mixins[mixpath], attributes='_plugins')
         mixin = self.attributes.get('mixin')
         if mixin:
             if not ':' in mixin:

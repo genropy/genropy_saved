@@ -445,7 +445,6 @@ class GnrBaseWebAppHandler(object):
         return thermoBag
         
     def rpc_onSelectionDo(self, table, selectionName, command, callmethod=None, selectedRowidx=None, recordcall=False, **kwargs):
-        print 'rpc_onSelectionDo'
         result = None
         tblobj = self.db.table(table)
         selection = self.page.unfreezeSelection(tblobj, selectionName)
@@ -454,28 +453,72 @@ class GnrBaseWebAppHandler(object):
                 selectedRowidx = [int(x) for x  in selectedRowidx.split(',')]
             selectedRowidx = set(selectedRowidx)
             selection.filter(lambda r: r['rowidx'] in selectedRowidx)
-            print selection.output('bag')
         callmethod = callmethod or 'standard'
-        print callmethod
-        print command
-        print recordcall
         if command in ('print', 'rpc', 'export', 'action', 'pdf'):
-            print '%s_%s' % (command, callmethod)
-            h = getattr(self.page, '%s_%s' % (command, callmethod), None)
-            if not h:
-                h = getattr(tblobj, '%s_%s' % (command, callmethod), None)
-            print 'handler : %s' % str(h)
-            if h:
+            handler = getattr(self.page, '%s_%s' % (command, callmethod), None)
+            if not handler:
+                handler = getattr(tblobj, '%s_%s' % (command, callmethod), None)
+            if handler:
                 if recordcall:
                     result = []
                     for r in selection:
-                        onres = h(tblobj.record(r['pkey']), locale=self.page.locale, **kwargs)
+                        onres = handler(tblobj.record(r['pkey']), locale=self.page.locale, **kwargs)
                         if onres != None:
                             result.append(onres)
                 else:
-                    result = h(selection, locale=self.page.locale, **kwargs)
+                    result = handler(selection, locale=self.page.locale, **kwargs)
         return result
         
+    def rpc_(self, table, selectionName, command, callmethod=None, selectedRowidx=None, recordcall=False, **kwargs):
+        result = None
+        tblobj = self.db.table(table)
+        selection = self.page.unfreezeSelection(tblobj, selectionName)
+        if selectedRowidx:
+            if isinstance(selectedRowidx, basestring):
+                selectedRowidx = [int(x) for x  in selectedRowidx.split(',')]
+            selectedRowidx = set(selectedRowidx)
+            selection.filter(lambda r: r['rowidx'] in selectedRowidx)
+        callmethod = callmethod or 'standard'
+        if command in ('print', 'rpc', 'export', 'action', 'pdf'):
+            handler = getattr(self.page, '%s_%s' % (command, callmethod), None)
+            if not handler:
+                handler = getattr(tblobj, '%s_%s' % (command, callmethod), None)
+            if handler:
+                if recordcall:
+                    result = []
+                    for r in selection:
+                        onres = handler(tblobj.record(r['pkey']), locale=self.page.locale, **kwargs)
+                        if onres != None:
+                            result.append(onres)
+                else:
+                    result = handler(selection, locale=self.page.locale, **kwargs)
+        return result
+        
+    def export_standard(self, selection, locale=None,columns=None,filename=None,**kwargs):
+        print 'export_standard'
+        print selection.output('bag')
+        filename = filename or self.maintable or  self.request.uri.split('/')[-1]
+        content = selection.output('tabtext', columns=columns, locale=locale)
+        self.page.utils.sendFile(content,filename,'xls')
+    
+    def print_standard(self, selection, locale=None,**kwargs):
+        columns = None # get columns from current view on client !
+        if not columns:
+            columns = [c for c in selection.allColumns if not c in ('pkey','rowidx')]
+        outdata = selection.output('dictlist', columns=columns, asIterator=True)
+        colAttrs = selection.colAttrs
+        return self.page.makoTemplate('standard_print.tpl', striped='odd_row,even_row', outdata=outdata, colAttrs=colAttrs,
+                title='Print List', header='Print List', columns=columns)
+                
+    def pdf_standard(self, selection, locale=None,**kwargs):
+        columns = None # get columns from current view on client !
+        if not columns:
+            columns = [c for c in selection.allColumns if not c in ('pkey','rowidx')]
+        outdata = selection.output('dictlist', columns=columns, asIterator=True)
+        colAttrs = selection.colAttrs
+        return self.page.rmlTemplate('standard_print.rml', outdata=outdata, colAttrs=colAttrs,
+                title='Print List', header='Print List', columns=columns)
+                  
     def _joinConditionsFromContext(self, obj, sqlContextName):
         sessionCtx = self.page.session.pagedata['context.%s' % sqlContextName]
         if sessionCtx:

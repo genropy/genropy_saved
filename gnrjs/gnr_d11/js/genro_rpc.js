@@ -237,7 +237,10 @@ dojo.declare("gnr.GnrRpcHandler",null,{
             sync:false
         });
     },
-        
+    downloadCall: function(method, kwargs){
+        var cb = function(result){genro.download(result);};
+        genro.rpc.remoteCall(method, kwargs, null, 'POST', null, cb)
+    },
     remoteCall:function(method, params, mode, httpMethod, preventCache, async_cb){
         var callKwargs = objectUpdate({}, params);
         callKwargs.method = method;
@@ -440,6 +443,7 @@ dojo.declare("gnr.GnrRpcHandler",null,{
     serializeParameters: function(kwargs){
         var cntrlstr=[];
         var currarg, nodeattrs;
+        console.log('serializeParameters');
         for (var attr in kwargs){
             currarg = kwargs[attr];
             if((currarg instanceof gnr.GnrBag) && (currarg.getParentNode() != null)){

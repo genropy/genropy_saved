@@ -781,7 +781,8 @@ class SqlTable(GnrObject):
         return self.plugins[name](self, **kwargs)
     
     def _get_plugins(self):
-        return self.db.application.packages.getItem(self.pkg.name).tablePlugins.get(self.name, {})
+        return self._plugins
+        #return self.db.application.packages.getItem(self.pkg.name).tablePlugins.get(self.name, {})
     plugins = property(_get_plugins)
 
 class SqlTablePlugin(object):

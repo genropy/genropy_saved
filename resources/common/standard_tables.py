@@ -191,31 +191,6 @@ class TableHandler(BaseComponent):
         #                confirm='^list.act_result', action='=list.act_value', _if='confirm=="confirm"',
         #                table=self.maintable, selectionName='=list.selectionName')
     
-    def export_standard(self, selection, locale=None,columns=None,filename=None,**kwargs):
-        print 'export_standard'
-        print selection.output('bag')
-        filename = filename or self.maintable or  self.request.uri.split('/')[-1]
-        content = selection.output('tabtext', columns=columns, locale=locale)
-        self.utils.sendFile(content,filename,'xls')
-    
-    def print_standard(self, selection, locale=None,**kwargs):
-        columns = None # get columns from current view on client !
-        if not columns:
-            columns = [c for c in selection.allColumns if not c in ('pkey','rowidx')]
-        outdata = selection.output('dictlist', columns=columns, asIterator=True)
-        colAttrs = selection.colAttrs
-        return self.makoTemplate('standard_print.tpl', striped='odd_row,even_row', outdata=outdata, colAttrs=colAttrs,
-                title='Print List', header='Print List', columns=columns)
-                
-    def pdf_standard(self, selection, locale=None,**kwargs):
-        columns = None # get columns from current view on client !
-        if not columns:
-            columns = [c for c in selection.allColumns if not c in ('pkey','rowidx')]
-        outdata = selection.output('dictlist', columns=columns, asIterator=True)
-        colAttrs = selection.colAttrs
-        return self.rmlTemplate('standard_print.rml', outdata=outdata, colAttrs=colAttrs,
-                title='Print List', header='Print List', columns=columns)
-    
     def listToolbar(self, pane, datapath=None,arrows=True):
         self.listController(pane)
         tb = pane.toolbar()
