@@ -9,6 +9,3 @@ class GnrCustomWebPage(object):
         self.pkg_defined_method()
         root.div('Hello assopy', font_size='40pt', 
                         border='3px solid yellow', padding='20px')
-
-def index(req, **kwargs):
-    return GnrWebPage(req, GnrCustomWebPage, __file__, **kwargs).index()
