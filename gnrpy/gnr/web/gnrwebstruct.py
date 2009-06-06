@@ -522,7 +522,7 @@ class GnrFormBuilder(object):
     def __init__(self, tbl, cols=None, dbtable=None,fieldclass=None,
                 lblclass='gnrfieldlabel',lblpos='L',lblalign=None,fldalign=None,
                 lblvalign='middle',fldvalign='middle', rowdatapath=None, head_rows=None):
-        self.lblalign=lblalign or {'L':'right','T':'center'}[lblpos]
+        self.lblalign=lblalign or {'L':'right','T':'center'}[lblpos] # jbe?  why is this right and not left?
         self.fldalign=fldalign or {'L':'left','T':'center'}[lblpos]
         self.lblvalign=lblvalign
         self.fldvalign=fldvalign
