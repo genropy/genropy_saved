@@ -34,11 +34,9 @@ class GnrCustomWebPage(object):
         box.div('Source',_class='stateButton',connect_onclick='SET panel=2')
         
         left_client = left.contentPane(region='center')
-        tree = left_client.div(_class='navcont').tree(storepath='tree.#0',isTree=False,inspect='shift',
-                         selected_rel_path='selected.page',selected_file_ext='selected.ext',
-                         selected_abs_path='selected.abspage',selected_file_name='aux.filename')
-                         
-        
+        tree = left_client.div(_class='navcont').tree(storepath='tree',isTree=False,inspect='shift',
+                                                     selected_rel_path='selected.page',selected_file_ext='selected.ext',
+                                                     selected_abs_path='selected.abspage',selected_file_name='aux.filename')
         
         right = client.stackContainer(sizeShare=80, _class='demoright',selected='^panel')
         demo = right.contentPane(overflow='hidden')
@@ -61,7 +59,7 @@ class GnrCustomWebPage(object):
 
     def pageController(self,root):
         """The data controller on the page"""
-        root.dataRemote('tree','diskDirectory')
+        root.data('tree',self.diskDirectory())
         root.dataRpc('result','saveDocumentation',_doSave='^aux.doSave',_if='_doSave',
                       docbag='^demo.doc',
                       currpath='^selected.abspage')
@@ -91,8 +89,8 @@ class GnrCustomWebPage(object):
         
     def pageAddAttributes(self,node):
         attr=node.getAttr()
-        if attr.get('file_ext') == 'py' :
-            abs_path=node.getAttr('abs_path')
+        if attr.get('path') :
+            abs_path=node.getAttr('path')
             m = gnrImport(abs_path)
             custompage = getattr(m,'GnrCustomWebPage', None)
             if custompage:
@@ -101,8 +99,9 @@ class GnrCustomWebPage(object):
                 if hasattr(custompage,'windowTitle'):
                     attr['title'] = custompage.windowTitle()
 # ------------  Rpc custom Calls ------------    
-    def rpc_diskDirectory(self):         
-        pages =  self.utils.dirbag('',include='*.py',exclude='_*,.*,index.py,about.py')
+    def diskDirectory(self):         
+        #pages =  self.utils.dirbag('',include='*.py',exclude='_*,.*,index.py,about.py')
+        pages = self.site.sitemap['showcase']
         pages.walk(self.pageAddAttributes)
         return pages
         

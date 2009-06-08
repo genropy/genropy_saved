@@ -64,7 +64,8 @@ class GnrCustomWebPage(object):
         fb.checkbox(lbl="notnull",value='^.notnull') 
         fb.TextBox(lbl="Name notrim notnull",value='^.namenotrim', trim=False, 
                    validate_notnull='^.notnull', validate_notnull_error='required!')
-        fb.TextBox(lbl="Email", value='^.email', validate_email=True, validate_email_iswarning='^', validate_email_warning='Email non corretta')
+        fb.TextBox(lbl="Email", value='^.email', validate_email=True, validate_email_iswarning='^', 
+                        validate_email_warning='Email non corretta')
         
         fb.checkbox(lbl="iswarning",value='^.iswarning') 
         fb.TextBox(lbl="contains abc", value='^.nameregex', colspan=2, 
@@ -74,12 +75,12 @@ class GnrCustomWebPage(object):
                         validate_regex_warning='dovrebbe contenere "abc"')
         fb.span('Validation using Callback and Remote function',colspan=2, color='== _email ? "red" : "green"', _email='^.email')
         
-        
         fb.NumberTextBox(lbl="Min",value='^.min') 
         fb.NumberTextBox(lbl="Max",value='^.max') 
 
-        fb.NumberTextBox(lbl="between 10 and 100", value='^.namecall', validate_max='^.max', validate_min='^.min',
-                   validate_call="""   
+        fb.NumberTextBox(lbl="between min and max", value='^.namecall', 
+                        validate_max='^.max', validate_min='^.min',
+                        validate_call="""   
                                        if (value < min){
                                            return 'min';
                                        } else if (value > max){
@@ -89,7 +90,8 @@ class GnrCustomWebPage(object):
                     
                     
         fb.TextBox(lbl="remote Name up", value='^.nameremote', 
-                            validate_remote="nameremote", validate_name='^.name', validate_remote_error='valore inserito diverso dal campo nome')
+                    validate_remote="nameremote", validate_name='^.name', 
+                    validate_remote_error='valore inserito diverso dal campo nome')
     
     def rpc_nameremote(self, value=None, name=None, **kwargs):
         if not value:
