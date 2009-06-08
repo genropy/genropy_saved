@@ -322,7 +322,7 @@ class SqlTable(GnrObject):
         """This method return an object SqlQuery object which represents a query that
         can be executed with different modes.
            
-           @param columns: it represents what stays between 'SELECT' and 'FROM' in the traditional SQL query.
+           @param columns: it represents what the 'SELECT' clause in the traditional SQL query.
                 It is a string of column names and related fields separated by comma.
                 Each column's name is prefixed with '$'. Related fields uses a syntax based on the char '@'
                 and 'dot notation'.
@@ -335,12 +335,12 @@ class SqlTable(GnrObject):
                       because using this way will look after all data conversion and string quoting automatically
                       e.g. where="$date BETWEEN :mybirthday AND :christmas", mybirthday=mbd, christmas=xmas
            
-           @param order_by (optional): this param corrisponds to sql ORDER BY operator
-           @param distinct (optional): this param corrisponds to sql DISTINCT operator
+           @param order_by (optional): this param corresponds to sql ORDER BY operator
+           @param distinct (optional): this param corresponds to sql DISTINCT operator
            @param limit (optional): number of result's rows.
-           @param offset (optional): this param corrisponds to sql OFFSET operator
-           @param group_by (optional): this param corrisponds to sql GROUP BY operator
-           @param having (optional): this param corrisponds to sql HAVING operator
+           @param offset (optional): this param corresponds to sql OFFSET operator
+           @param group_by (optional): this param corresponds to sql GROUP BY operator
+           @param having (optional): this param corresponds to sql HAVING operator
            @param relationDict (optional):a dictionary which associates relationPath names
                                         with an alias name. eg: {'$member_name':'@member_id.name'}
            @param sqlparams (optional): an optional dictionary for sql query parameters.
