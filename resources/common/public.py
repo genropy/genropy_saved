@@ -589,9 +589,7 @@ class IncludedView(object):
     def _iv_IncludedViewController(self, controller, gridId):
         controllerPath = 'grids.%s' % gridId
         controller.dataController("""var grid = genro.wdgById(gridId);
-                                     console.log('fired addRecord');
                                      grid.addBagRow('#id', '*', grid.newBagRow(),event);
-                                     console.log('added bagrow');
                                      """ , 
                                      event='^.addRecord',
                                      gridId=gridId)
@@ -601,9 +599,7 @@ class IncludedView(object):
                        FIRE %s.%s""" % (controllerPath,'onDeletedRow')
         controller.dataController(delScript, _fired='^.delRecord', delSelection='^.delSelection',
                                 idx='=.selectedIndex', gridId=gridId)
-        controller.dataController("""console.log('fired editRow');
-                                     genro.wdgById(gridId).editBagRow();
-                                     console.log('after editBagRow');
+        controller.dataController("""genro.wdgById(gridId).editBagRow();
                                      """,fired='^.editRow',gridId=gridId)
         controller.dataController("genro.wdgById(gridId).printData();" ,fired='^.printView',gridId=gridId)
         controller.dataController("genro.wdgById(gridId).exportData();" ,fired='^.exportView',gridId=gridId)

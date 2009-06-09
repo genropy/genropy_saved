@@ -127,7 +127,8 @@ class TableHandler(BaseComponent):
                                         FIRE form.doLoad = true;
                                     } else {
                                         SET form.record = new gnr.GnrBag();
-                                        genro.formById("formPane").reset();
+                                        if (genro.formById("formPane")){
+                                        genro.formById("formPane").reset();}
                                     }
                                     if(idx == -2){SET selectedPage=0;} else {SET selectedPage = 1;}""" ,
                              idx='^list.selectedIndex')
@@ -153,7 +154,6 @@ class TableHandler(BaseComponent):
                 genro.dev.printUrl(url);
             }
             else if((command=='export')||(command='pdf')){
-                console.log(selectedRowidx);
                 //var url = genro.rpc.rpcUrl("app.onSelectionDo", {table:table, selectionName:selectionName, command:command,
                 //                                            callmethod:null, selectedRowidx:selectedRowidx})
                 
