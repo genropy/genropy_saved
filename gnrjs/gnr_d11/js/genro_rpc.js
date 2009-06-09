@@ -443,7 +443,6 @@ dojo.declare("gnr.GnrRpcHandler",null,{
     serializeParameters: function(kwargs){
         var cntrlstr=[];
         var currarg, nodeattrs;
-        console.log('serializeParameters');
         for (var attr in kwargs){
             currarg = kwargs[attr];
             if((currarg instanceof gnr.GnrBag) && (currarg.getParentNode() != null)){

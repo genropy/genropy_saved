@@ -315,8 +315,9 @@ dojo.declare('gnr.GenroClient', null, {
     },
 
     download: function(url, args, onload_cb){
-        var args=args || {}
-        args.download=true
+        var args=args || {};
+        args.download=true;
+        console.log(url);
         url=genro.makeUrl(url,args);
         console.log(url);
         genro.src.getNode()._('div', '_dlframe');
@@ -541,8 +542,13 @@ dojo.declare('gnr.GenroClient', null, {
     },
     absoluteUrl: function(url, kwargs){
         var base = document.location.pathname;
-        if (url){url = base+'/'+url;}
-        else{url = base;}
+        if (url){
+            var sep=url.slice(0,1)=='?'?'':'/';
+            url = base+sep+url;
+            }
+        else {
+            url = base;
+            }
         if(kwargs){
             var currParams = {};
             currParams['page_id']=genro.page_id;

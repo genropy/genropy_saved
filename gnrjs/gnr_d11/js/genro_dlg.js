@@ -431,7 +431,7 @@ dojo.declare("gnr.GnrQueryBuilder",null,{
         };
         this.buildQueryPane();
     },
-    createQuery:function(pars){
+    createQuery:function(pars){  // Rifare con query more complesse
         var querybag = genro.getData(this.datapath);
         querybag.clear();
         querybag.setItem('c_0',0);

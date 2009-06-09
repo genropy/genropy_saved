@@ -2621,7 +2621,6 @@ dojo.declare("gnr.widgets.IncludedView",gnr.widgets.VirtualStaticGrid,{
          if(sourceNode.attr.multiSelect==false){
              widget.selection.multiSelect = false;
          }
-         console.log('created call rpcViewColumns');
          widget.rpcViewColumns();
          widget.updateRowCount('*');
     },
@@ -3129,7 +3128,6 @@ dojo.declare("gnr.widgets.Tree",gnr.widgets.baseDojo,{
         }
         var selattr=objectExtract(this.sourceNode.attr,'selected_*',true);
         for (var sel in selattr){
-            console.log(sel);
             var path=this.sourceNode.attrDatapath('selected_'+sel);
             genro.setData(path,item.attr[sel],attributes);
         }
