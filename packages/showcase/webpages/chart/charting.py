@@ -1,5 +1,7 @@
 #!/usr/bin/env pythonw
-# -*- coding: UTF-8 -*-
+# -*- codin
+
+g: UTF-8 -*-
 #
 #  untitled
 #
