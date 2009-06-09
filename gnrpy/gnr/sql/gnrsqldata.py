@@ -36,7 +36,7 @@ from gnr.core import gnrlist
 from gnr.core.gnrbag import Bag, BagResolver
 from gnr.core.gnranalyzingbag import AnalyzingBag
 from gnr.sql.gnrsql_exceptions import SelectionExecutionError,RecordDuplicateError,\
-                                      RecordNotExistingError,RecordSelectionError
+                                      RecordNotExistingError,RecordSelectionError, GnrSqlMissingField
 
 
 COLFINDER = re.compile(r"(\W|^)\$(\w+)")
@@ -128,7 +128,8 @@ class SqlQueryCompiler(object):
         if not fld in curr.keys():
             fldalias = self.db.table(curr.tbl_name, pkg=curr.pkg_name).model.virtual_columns[fld]
             if fldalias == None:
-                raise str('Missing field %s in table %s.%s (requested field %s)' % (fld, curr.pkg_name, curr.tbl_name, '.'.join(newpath)))
+                
+                raise GnrSqlMissingField('Missing field %s in table %s.%s (requested field %s)' % (fld, curr.pkg_name, curr.tbl_name, '.'.join(newpath)))
             elif fldalias.relation_path: #resolve 
                 #pathlist.append(fldalias.relation_path)
                 #newfieldpath = '.'.join(pathlist)        # replace the field alias with the column relation_path

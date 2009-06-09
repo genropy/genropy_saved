@@ -29,8 +29,10 @@ from gnr.core.gnrlang import moduleDict
 from gnr.core.gnrstructures import GnrStructObj, GnrStructData
 from gnr.sql.gnrsqlutils import SqlModelChecker, ModelExtractor
 from gnr.sql.gnrsqltable import SqlTable
-import threading
+from gnr.sql.gnrsql_exceptions import GnrSqlMissingField, GnrSqlMissingTable,\
+                                      GnrSqlMissingColumn, GnrSqlRelationError
 
+import threading
 logger= logging.getLogger('gnr.sql.gnrsql')
 
 class NotExistingTableError(Exception): 
@@ -448,7 +450,7 @@ class DbPackageObj(DbModelObj):
         @params name: table's name"""
         table=self['tables.%s' % name]
         if table is None:
-            raise NotExistingTableError("Table '%s' undefined in package: '%s'" % (name,self.name))
+            raise GnrSqlMissingTable("Table '%s' undefined in package: '%s'" % (name,self.name))
         return table
     
     def tableSqlName(self, tblobj):
@@ -625,7 +627,7 @@ class DbTableObj(DbModelObj):
                     elif colalias.py_method:
                         col = colalias
                     else:
-                        raise str('Invalid column %s in table %s' % (name, self.name_full))
+                        raise GnrSqlMissingColumn('Invalid column %s in table %s' % (name, self.name_full))
         if name.startswith('@'):
             col = self._relatedColumn(name)
         #if col == None:
@@ -644,7 +646,7 @@ class DbTableObj(DbModelObj):
             if tblalias == None:
                 #from gnr.sql.gnrsql import GnrSqlBadRequest
                 #raise GnrSqlBadRequest('Missing field %s' % fieldpath )
-                raise 'Missing field %s' % fieldpath
+                raise GnrSqlMissingField('Missing field %s' % fieldpath)
             else:
                 relpath = tblalias.relation_path.split('.') + relpath # set the alias table relation_path in the current path
                 reltbl = self
@@ -668,7 +670,7 @@ class DbTableObj(DbModelObj):
         if not attrs:
             tblalias = self['table_aliases.%s' % firstrel]
             if tblalias == None:
-                raise 'Cannot find %s in %s' % (tblalias, self.name)
+                raise GnrSqlRelationError('Cannot find %s in %s' % (tblalias, self.name))
             else:
                 relpath = tblalias.relation_path.split('.') + relpath # set the alias table relation_path in the current path
                 return self.resolveRelationPath('.'.join(relpath))

@@ -99,8 +99,9 @@ class GnrRmlSrc(GnrStructData):
             content=[content]
         for single_content in content:
             if isinstance (single_content,GnrRmlSrc):
-                tag=single_content.parentNode.attr.pop('tag')
-                self.child(tag, content=single_content, **single_content.parentNode.attr)
+                childattr=dict(single_content.parentNode.attr)
+                tag=childattr.pop('tag')
+                self.child(tag, content=single_content, **childattr)
             else:
                 self.child('__flatten__',content=single_content)
 
@@ -147,16 +148,26 @@ class GnrRmlSrc(GnrStructData):
                 r.td()
         return r
     
+
+    
     def row(self,cell_list=None,height=None,startcol=0,rowidx=None,**kwargs):
-        row = self._getRow(rowidx)
-        cell_list = cell_list or []
-        for i,cell in enumerate(cell_list):
-            cellidx = i + startcol
+        def fill_cell(cellidx,cell):
             destcell = row.cell(cellidx)
             if isinstance(cell, tuple) and isinstance(cell[-1],dict):
                 destcell.parentNode.attr = cell[-1]
                 cell=cell[0:-1]
             destcell.content(cell)
+            
+        row = self._getRow(rowidx)
+        if isinstance(cell_list,list):
+            for i,cell in enumerate(cell_list):
+                fill_cell(startcol+i, cell)
+        else:
+            for cellname,cellidx in self.columns.items():
+                fill_cell(cellidx, kwargs.get(cellname))
+
+        
+            
         return row
 
     def cell(self, rowidx, colidx=None):
@@ -170,7 +181,9 @@ class GnrRmlSrc(GnrStructData):
             row = self['#%i'%rowidx]
         if cellidx<0:
             cellidx = len(row)+cellidx
-        return row['#%i'%cellidx]
+        return row['#%i'%int(cellidx)]
+
+    #def cellStyle(self, rowidx, colidx, rowspan=None, colspan=None,):
 
     def blockTableStyle(self, id='', keepWithNext=None):
         return self.child('blockTableStyle', id=id, keepWithNext=keepWithNext)
@@ -305,18 +318,21 @@ class GnrRmlSrc(GnrStructData):
             para.content(content)
         return para
         
-    def blockTable(self,columns=None, style=None, rowHeights=None, colWidths=None, repeatRows=None, alignment=None, **kwargs):
+    def blockTable(self, style=None, rowHeights=None, colWidths=None, repeatRows=None, alignment=None, **kwargs):
         colIndex_dict = {}
-        if columns:
-            col_list = columns.split(',')
-            colWidths_list = []
-            for idx,col in enumerate(col_list):
-                name, width = col_list.split(':')
-                colWidths_list.append(width)
-                colIndex_dict[name]=idx
-            colWidths = ','.join(colWidths_list)
+        col_list = colWidths.split(',')
+        colWidths_list = []
+        for idx,col in enumerate(col_list):
+            if ':' in col:
+                name, width = col.split(':')
+            else:
+                name = 'c%i'%idx
+                width = col
+            colWidths_list.append(width)
+            colIndex_dict[name]=idx
+        colWidths = ','.join(colWidths_list)
         child= self.child('blockTable', style=style, rowHeights=rowHeights, colWidths=colWidths, repeatRows=repeatRows, alignment=alignment, **kwargs)
-        child.cols=len(colWidths.split(','))
+        child.cols=len(col_list)
         child.columns = colIndex_dict
         return child
 
@@ -556,9 +572,13 @@ class GnrPdf(object):
         for k,v in kwargs.items():
             setattr(self,k,v)
         self.auxroot = GnrRmlSrc.makeRoot()
-        
+    
     def template(self,**kwargs):
         self.template=self.document.template(**kwargs)
+        
+    def story(self,firstPageTemplate=None, **kwargs):
+        self.document.popNode('story')
+        return self.document.story(firstPageTemplate=firstPageTemplate, **kwargs)
         
     def _get_stylesheet(self):
         if not hasattr(self,'stylesheet'):

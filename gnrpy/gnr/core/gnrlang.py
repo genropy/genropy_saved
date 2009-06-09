@@ -498,13 +498,23 @@ def classMixin( target_class, source_class, methods=None, only_callables=True, *
         methods = [k for k in methods if k in mlist]
     for name in methods:
         original=target_class.__dict__.get(name)
-        new = source_class.__dict__[name]
+        base_generator=base_visitor(source_class)
+        new=None
+        while not new:
+            base_class = base_generator.next()
+            new = base_class.__dict__.get(name)
         setattr(target_class,name,new)
         if original:
             setattr(target_class,'%s_'%name,original)
     if hasattr(source_class,'__on_class_mixin__'):
         source_class.__on_class_mixin__(target_class,**kwargs)
-        
+
+def base_visitor(cls):
+    yield cls
+    for base in cls.__bases__:
+        for inner_base in base_visitor(base):
+            yield inner_base
+    
 def instanceMixin(obj, source, methods=None, attributes=None, **kwargs): 
     """
     Add to the instance obj methods from 'source'.

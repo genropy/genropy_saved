@@ -1,6 +1,7 @@
 from gnr.core.gnrbag import Bag, DirectoryResolver
 from gnr.core.gnrlang import gnrImport, getUuid, classMixin, cloneClass
 from gnr.core.gnrstring import splitAndStrip
+from gnr.web.gnrwebpage import BaseResource
 from gnr.web.gnrwsgipage import GnrWsgiPage
 from gnr.web.gnrwebreqresp import GnrWebRequest,GnrWebResponse
 from beaker.middleware import SessionMiddleware
@@ -342,17 +343,29 @@ class GnrWsgiSite(object):
         resource_class.site = self
         return resource_class()
         
-    def loadTableResource(self, table, path):
+    def loadTableResource(self, page, table, path):
         application=self.gnrapp
         if isinstance(table, basestring):
             table=application.db.table(table)
         path = os.path.join('tables',table.name,*(path.split('/')))
         resourceDirs = application.packages[table.pkg.name].resourceDirs
-        resource_class = cloneClass('CustomResource',BaseResource)
-        self.mixinResource(resource_class, resourceDirs, path)
-        resource_class.site = self
-        resource_class.table = table
-        return resource_class()
+        modName, clsName = path.split(':')
+        modPathList = self.getResourceList(resourceDirs, modName, 'py') or []
+        if modPathList:
+            modPathList.reverse()
+            resource_module = gnrImport(modPathList.pop(-1))
+            resource_class = getattr(resource_module,clsName,None)
+            resource_obj = resource_class(page=page,db=application.db, site=self)
+            for modPath in modPathList:
+                resource_module = gnrImport(modPath)
+                resource_class = getattr(resource_module,clsName,None)
+                if resource_class:
+                    obj.mixin(resource_class)
+            if hasattr(resource_obj,'init'):
+                resource_obj.init(page)
+            return resource_obj
+        else:
+            raise GnrWebServerError('Cannot import component %s' % modName)
         
     def mixinResource(self, kls,resourceDirs,*path):
         path = os.path.join(*path)
@@ -563,12 +576,3 @@ class GnrWsgiSite(object):
         connection_id, page_id = path_list[1],path_list[2]
         return self.connection_static_path(connection_id, page_id,*path_list[3:])
     ##################### end static file handling #################################
-
-
-class BaseResource(object):
-    pass
-        
-class GnrModWsgiSite(GnrWsgiSite):
-    def __init__(self, script_path):
-        
-        super(GnrModWsgiSite,self).__init__()

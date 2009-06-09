@@ -29,6 +29,7 @@ Copyright (c) 2007 Softwell. All rights reserved.
 """
 from gnr.core.gnrbag import Bag 
 from gnr.core.gnrstring import  splitAndStrip
+from gnr.core.gnrlang import GnrObject
 
 class GnrWebPage(object):
     pass
@@ -106,6 +107,12 @@ class BaseComponent(object):
             if site:
                 site.page_pyrequires_mixin(_mixintarget, py_requires)
 
+class BaseResource(GnrObject):
+    """Base class for a webpage resource."""
+    def __init__(self, **kwargs):
+        for k,v in kwargs.items():
+            if v:
+                setattr(self,k,v)
 
 class BaseProxy(object):
     """Base class for a webpage proxy."""

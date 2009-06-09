@@ -1,6 +1,6 @@
 from gnr.core.gnrbag import Bag
 from gnr.core.gnrstring import toText
-
+import time
 class TotalizeSelection(object):
     def fillFilter(self, params, dpath, fltquery, keyfield='_pkey'):
         """Utility per ricevere una lista di pkey da una grid e aggiungere condizioni
@@ -48,10 +48,9 @@ class TotalizeSelection(object):
     def calculate(self, prevperiod=False):
         serverfetch = self.getRowCursor()
         self.rowsTotalize(serverfetch, prevperiod=prevperiod)
-        
         result = []
         for pathlist, node in self.data.getIndex(): # ritorna data corrente anche se calcolo prevperiod, 
-            d = dict(node.getAttr())                # perche' modificato con le righe solo anno scorso
+            d = dict(node.attr)                # perche' modificato con le righe solo anno scorso
             d['pathlist'] = pathlist
             result.append(d)
         result.sort(key=lambda v: v.get('_sort_'))
@@ -76,6 +75,7 @@ class TotalizeSelection(object):
             for r in rows:
                 self.rowPreprocess(r)
                 self.readRow(r, prevperiod=prevperiod)
+
                 
     def rowPreprocess(self, r):
         pass
@@ -99,43 +99,44 @@ class TotalizeSelection(object):
 
     def readRow(self, row, prevperiod=False):
         for colnum, grprods in self.colgroups.items():
-            if (grprods=='*tot*') or (row[self.grcol] in grprods):
-                blocknode = self.getOneBlock(row, self.subtotals, prevperiod=prevperiod)
-                blockAttr = blocknode.getAttr()
-                if not blockAttr and self.anagfields:
-                    self.getAnagFields(row, blockAttr)
-                    blockAttr['_sort_'] = self.sortKey(row, self.subtotals[:-1])+'_'.join([toText(blockAttr[k]) for k in self.sortfields])
-                    
-                    if prevperiod: # aggiungo una riga al precedente e, se manca, anche al corrente
-                        newblockAttr = self.getOneBlock(row, self.subtotals, prevperiod=False).getAttr()
-                        if not newblockAttr:
-                            newblockAttr.update(blockAttr)
-                    
-                    grouplist = []
-                    for i,gr in enumerate(self.subtotals[:-1]):
-                        grouplist.append(gr)
-                        grAttr = self.getOneBlock(row, grouplist, prevperiod=prevperiod).getAttr()
-                        grAttr['_sort_'] = self.sortKey(row, grouplist) + '_zzzzzzzzzzzzzzzzzzzz'
-                        grAttr['_subtot_'] = 'subtot_%i' % i
-                        
-                        grAttr.update(dict([(x, row[x]) for x in grouplist[1:]]))
-                        if prevperiod:
-                            newgrAttr = self.getOneBlock(row, grouplist, prevperiod=False).getAttr()
-                            if not newgrAttr:
-                                newgrAttr.update(grAttr)
-                            
-                values = self.getRowValues(row, colnum, blockAttr)
+            if not ((grprods=='*tot*') or (row[self.grcol] in grprods)):
+                continue
+            blocknode = self.getOneBlock(row, self.subtotals, prevperiod=prevperiod)
+            blockAttr = blocknode.getAttr()
+            if not blockAttr and self.anagfields:
+                self.getAnagFields(row, blockAttr)
+                blockAttr['_sort_'] = self.sortKey(row, self.subtotals[:-1])+'_'.join([toText(blockAttr[k]) for k in self.sortfields])
+                
+                if prevperiod: # aggiungo una riga al precedente e, se manca, anche al corrente
+                    newblockAttr = self.getOneBlock(row, self.subtotals, prevperiod=False).getAttr()
+                    if not newblockAttr:
+                        newblockAttr.update(blockAttr)
                 
                 grouplist = []
-                for i,gr in enumerate(self.subtotals):
+                for i,gr in enumerate(self.subtotals[:-1]):
                     grouplist.append(gr)
-                    blocknode = self.getOneBlock(row, grouplist, prevperiod=prevperiod)
-                    blockAttr = blocknode.getAttr()
-                    #if (i < (len(self.subtotals)-1)):
-                    #    blockAttr['_subtot_'] = 'subtot_%i' % i
-                    self.addToGroup(values, colnum, blockAttr)
+                    grAttr = self.getOneBlock(row, grouplist, prevperiod=prevperiod).getAttr()
+                    grAttr['_sort_'] = self.sortKey(row, grouplist) + '_zzzzzzzzzzzzzzzzzzzz'
+                    grAttr['_subtot_'] = 'subtot_%i' % i
+                    
+                    grAttr.update(dict([(x, row[x]) for x in grouplist[1:]]))
+                    if prevperiod:
+                        newgrAttr = self.getOneBlock(row, grouplist, prevperiod=False).getAttr()
+                        if not newgrAttr:
+                            newgrAttr.update(grAttr)
+                        
+            values = self.getRowValues(row, colnum, blockAttr)
             
-    
+            grouplist = []
+            for i,gr in enumerate(self.subtotals):
+                grouplist.append(gr)
+                blocknode = self.getOneBlock(row, grouplist, prevperiod=prevperiod)
+                blockAttr = blocknode.getAttr()
+                #if (i < (len(self.subtotals)-1)):
+                #    blockAttr['_subtot_'] = 'subtot_%i' % i
+                self.addToGroup(values, colnum, blockAttr)
+        
+
     def getAnagFields(self, row, totals):
         for f in self.anagfields:
             getattr(self, 'anag_'+f, self.anag_base)(row, totals, f)

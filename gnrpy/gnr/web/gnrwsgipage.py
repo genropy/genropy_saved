@@ -117,9 +117,13 @@ class GnrWsgiPage(GnrBaseWebPage):
         _resources.reverse()
         dojolib = self.site.dojo_static_url(self.dojoversion,'dojo','dojo','dojo.js')
         gnrModulePath = self.site.gnr_static_url(self.gnrjsversion)
+        self.js_requires.append(self.pagename)
+        js_requires = [x for x in [self.getResourceUri(r,'js') for r in self.js_requires] if x]
+        if os.path.isfile(self.resolvePath('%s.js' % self.pagename)):
+            js_requires.append('%s.js' % self.pagename)
         return template.render(mainpage=self,
                                css_genro = self.get_css_genro(),
-                               css_requires = self.get_css_requires(),
+                               css_requires = self.get_css_requires(), js_requires=self.js_requires,
                                css_dojo = [self.site.dojo_static_url(self.dojoversion,'dojo',f) for f in css_dojo],
                                dojolib=dojolib,
                                djConfig="parseOnLoad: false, isDebug: %s, locale: '%s'" % (self.isDeveloper() and 'true' or 'false',self.locale),
@@ -156,8 +160,8 @@ class GnrWsgiPage(GnrBaseWebPage):
             js_requires.append('%s.js' % self.pagename)
         arg_dict['js_requires'] = js_requires
         css_requires = self.get_css_requires()
-        if os.path.isfile(self.resolvePath('%s.css' % self.pagename)):
-            css_requires.append('%s.css' % self.pagename)
+        #if os.path.isfile(self.resolvePath('%s.css' % self.pagename)):
+        #    css_requires.append('%s.css' % self.pagename)
         arg_dict['css_requires'] = css_requires
         return arg_dict
     
@@ -249,6 +253,8 @@ class GnrWsgiPage(GnrBaseWebPage):
                     css_requires.extend( [self.getResourceUri(css) for css in csslist])
         if os.path.isfile('%s.css' % filepath):
             css_requires.append(self.getResourceUri('%s.css' % filepath))
+        if os.path.isfile(self.resolvePath('%s.css' % self.pagename)):
+            css_requires.append('%s.css' % self.pagename)
         return css_requires
         
     def getResourceUri(self, path, ext=None):
