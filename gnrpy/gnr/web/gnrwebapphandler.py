@@ -374,7 +374,7 @@ class GnrBaseWebAppHandler(object):
     def rpc_runSelectionBatch(self, table, selectionName=None, batchFactory=None, pkeys=None, 
                             thermoid=None, thermofield=None, 
                             stopOnError=False, forUpdate=False, onRow=None, **kwargs):
-        """batchFactory: name of the Class, plugin of table, which executes the batch action
+        """ batchFactory: name of the Class, plugin of table, which executes the batch action
             thermoid:
             thermofield: the field of the main table to use for thermo display or * for record caption
             stopOnError: at the first error stop execution

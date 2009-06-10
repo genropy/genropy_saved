@@ -87,7 +87,6 @@ class SelectionToXls(GnrBatch):
         
     
     def data_fetcher(self):
-        print self.selection
         for row in self.selection.output('dictlist', columns=self.columns, locale=self.locale):
             yield row
         
@@ -95,12 +94,10 @@ class SelectionToXls(GnrBatch):
         import xlwt
         self.workbook = xlwt.Workbook(encoding='latin-1')
         self.sheet = self.workbook.add_sheet(self.filename)
-        
         float_style = xlwt.XFStyle()
         float_style.num_format_str = '#,##0.00'
         int_style = xlwt.XFStyle()
         int_style.num_format_str = '#,##0'
-        
         font0 = xlwt.Font()
         font0.name = 'Times New Roman'
         font0.bold = True
@@ -133,7 +130,6 @@ class SelectionToPdf(GnrBatch):
         self.table = table
         self.folder = folder or 'temp_print_%s'%table.replace('.','_')
         
-    
     def data_fetcher(self):     ##### Rivedere per passare le colonne
         for row in self.selection.output('pkeylist'):
             yield row
