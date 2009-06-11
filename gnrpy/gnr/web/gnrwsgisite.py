@@ -236,24 +236,20 @@ class GnrWsgiSite(object):
         if self.debug:
             wsgiapp = EvalException(wsgiapp, debug=True)
         beaker_path = os.path.join(os.path.dirname(os.path.realpath(self.site_path)),'_data')
-        wsgiapp = SessionMiddleware(wsgiapp, key=self.session_key, secret=self.secret, 
-                data_dir=beaker_path)
+        wsgiapp = SessionMiddleware(wsgiapp, dict(key=self.session_key, secret=self.secret, 
+                data_dir=beaker_path, type='memory', auto=True))
         return wsgiapp
         
     def build_gnrapp(self):
         """Builds the GnrApp associated with this site"""
         instance_path = os.path.join(self.site_path,'instance')
-        if os.path.isdir(instance_path):
-            self.config.setItem('instances.app',None,path=instance_path)
-            return GnrWsgiWebApp(instance_path, site=self)
-        instance_path = os.path.join(self.site_path,'..','..','instances',self.site_name)
-        if os.path.isdir(instance_path):
-            self.config.setItem('instances.app',None,path=instance_path)
-            return GnrWsgiWebApp(instance_path,site=self)
-        instance_path = self.config['instance?path'] or self.config['instances.#0?path']
-        if os.path.isdir(instance_path):
-            self.config.setItem('instances.app',None,path=instance_path)
-            return GnrWsgiWebApp(instance_path, site=self)
+        if not os.path.isdir(instance_path):
+            instance_path = os.path.join(self.site_path,'..','..','instances',self.site_name)
+        if not os.path.isdir(instance_path):
+            instance_path = self.config['instance?path'] or self.config['instances.#0?path']
+        app = GnrWsgiWebApp(instance_path, site=self)
+        self.config.setItem('instances.app', app, path=instance_path)
+        return app
         
     def find_instance(self,instance_name):
         if 'instances' in self.gnr_config['gnr.environment_xml']:

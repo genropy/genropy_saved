@@ -394,12 +394,6 @@ class GnrBaseWebAppHandler(object):
             
     def setThermo(self, thermoid, progress_1=None, message_1=None, 
                    maximum_1=None, command=None, **kwargs):
-        #progress==None --> indeterminate
-        #now = time.time()
-        #if (not command) and now - self.lastThermoUpd < 1:
-        #    return
-        #self.lastThermoUpd = now
-        
         session = self.page.session
         session.loadSessionData()
         if command == 'init':

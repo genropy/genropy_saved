@@ -9,13 +9,17 @@
 
 # --------------------------- GnrWebPage subclass ---------------------------
 import time
+from collections import defaultdict
 class GnrBatch(object):
     
     def __init__(self, thermocb = None, thermoid=None, thermofield='*', **kwargs):
         self.thermocb = thermocb or (lambda *a,**kw:None)
         self.thermoid = thermoid
         self.thermofield = thermofield
-        self.thermostatus = 0
+        self.thermo_status = defaultdict(lambda: 0)
+        self.thermo_message = defaultdict(lambda: None)
+        self.thermo_maximum = defaultdict(lambda: None)
+        self.thermo_indeterminate = defaultdict(lambda: None)
         for k,v in kwargs.items():
             if v:
                 setattr(self,k,v)
@@ -48,15 +52,24 @@ class GnrBatch(object):
         self.thermo_end()
         return self.collect_result()
     
-    def thermo_init(self):
+    def thermo_init(self, rows=1):
         if self.thermoid:
-            self.thermocb(self.thermoid, None, '', self.data_counter(), command='init')
+            kwargs = dict()
+            for i in range(rows):
+                j = i+1
+                kwargs['progress_%i'%j] = self.thermo_status[j]
+                kwargs['message_%i'%j] = self.thermo_message[j]
+                kwargs['maximum_%i'%j] = self.thermo_maximum[j]
+                kwargs['indeterminate_%i'%j] = self.thermo_indeterminate[j]
+            self.thermocb(self.thermoid, command='init', **kwargs)
             
-    def thermo_step(self, chunk=None, step=1):
-        self.thermostatus += step
+    def thermo_step(self, chunk=None, step=1, row=1, message=None):
+        self.thermo_status[row] += step
         if self.thermoid:
-            msg = self.thermo_chunk_message(chunk=chunk)
-            result = self.thermocb(self.thermoid, self.thermostatus, msg)
+            kwargs = dict()
+            kwargs['progress_%i'%row] = self.thermo_status[row]
+            kwargs['message_%i'%row] = self.thermo_chunk_message(chunk=chunk)
+            result = self.thermocb(self.thermoid, **kwargs)
             if result=='stop':
                 self.thermocb(self.thermoid, command='stopped')
             return result
@@ -78,16 +91,22 @@ class SelectionToXls(GnrBatch):
         self.selection = selection
         self.columns = columns
         self.tblobj = self.selection.db.table(table)
-    
+        self.data = self.selection.output('dictlist', columns=self.columns, locale=self.locale)
+        self.data_len = len(self.data)
+        self.thermo_maximum[1] = self.data_len
+        
     def thermo_chunk_message(self, chunk):
         if self.thermofield=='*':
             msg = self.tblobj.recordCaption(chunk)
         else:
             msg = chunk[self.thermofield]
+        return msg
         
+    def data_counter(self):
+        return self.data_len
     
     def data_fetcher(self):
-        for row in self.selection.output('dictlist', columns=self.columns, locale=self.locale):
+        for row in self.data:
             yield row
         
     def pre_process(self):

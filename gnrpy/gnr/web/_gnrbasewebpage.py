@@ -1858,7 +1858,7 @@ class GnrWebSession(object):
         self.locked = False
         
     def loadSessionData(self, locking=True):
-        if locking and (not(self.locked)):
+        if locking and not self.locked:
             self.session.load()
             self.session.lock()
             self.locked = True
@@ -1883,7 +1883,7 @@ class GnrWebSession(object):
 
     def getActivePages(self, connection_id):
         result = {}
-        items=self.session
+        items=dict(self.session)
         if items.has_key('_accessed_time'): del items['_accessed_time']
         if items.has_key('_creation_time'): del items['_creation_time']
         for page_id, pagedata in items.items():
