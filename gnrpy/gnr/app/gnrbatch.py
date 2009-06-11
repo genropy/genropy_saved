@@ -124,7 +124,6 @@ class SelectionToXls(GnrBatch):
         hstyle.font = font0
         for c,header in enumerate(self.columns):
             self.sheet.write(0, c, header, hstyle)
-            print a
         self.current_row=1
         
     def process_chunk(self, chunk):
