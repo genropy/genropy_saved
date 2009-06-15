@@ -326,7 +326,7 @@ class SqlTable(GnrObject):
                 It is a string of column names and related fields separated by comma.
                 Each column's name is prefixed with '$'. Related fields uses a syntax based on the char '@'
                 and 'dot notation'.
-                e.g. "@member_id.name".For selecting all columns use che char '*'.
+                e.g. "@member_id.name".For selecting all columns use the char '*'.
                 columns parameter accepts also special statements such as 'COUNT','DISTINCT' and 'SUM'.
            
            @param where (optional):This is the sql "WHERE" clause. We suggest not
@@ -561,7 +561,7 @@ class SqlTable(GnrObject):
                 getattr(self, 'trigger_%s' % trgFunc)(record, fldname)
     
     def newPkeyValue(self):
-        """This method get a new univoque id to use as primary key on the current table"""
+        """This method get a new unique id to use as primary key on the current table"""
         pkey = self.model.pkey
         if self.model.column(pkey).dtype in ('L','I','R'):
             lastid = self.query(columns='max($%s)' % pkey, group_by='*').fetch()[0] or [0]
