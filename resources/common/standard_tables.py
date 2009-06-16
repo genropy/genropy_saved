@@ -114,7 +114,6 @@ class TableHandler(BaseComponent):
                         _if='selectedPage == 0',_else='formtitle',formtitle='^form.title',_init=True)
         pane.dataFormula('list.canWrite','(!locked ) && writePermission',locked='^status.locked',writePermission='=usr.writePermission',_init=True)
         pane.dataFormula('list.canDelete','(!locked) && deletePermission',locked='^status.locked',deletePermission='=usr.deletePermission',_init=True)
-        pane.dataController('alert("cancelleremo..")',fired='^list.deleteRecords')
         pane.dataController("SET list.selectedIndex=-1;", fired='^list.newRecord')
         pane.dataController(""" var pkey;
                                     if (idx < -1){pkey = null;PUT list.selectedIndex = null;}
@@ -231,9 +230,9 @@ class TableHandler(BaseComponent):
             trbtn.button('!!Unlock', float='right',fire='status.unlock', iconClass="tb_button icnBaseLocked", showLabel=False,hidden='^status.unlocked')
             trbtn.button('!!Lock', float='right',fire='status.lock', iconClass="tb_button icnBaseUnlocked", showLabel=False,hidden='^status.locked')
         trbtn.button('!!Add', float='right',fire='list.newRecord', iconClass="tb_button db_add", visible='^list.canWrite', showLabel=False)
-        trbtn.button('!!Delete', float='right',fire='list.deleteRecords', iconClass="tb_button db_del",visible='^list.canDelete',
-                               disabled='^list.noSelection', showLabel=False)
-        #trbtn.button('!!Query', float='right',fire='list.runQuery', iconClass="tb_button db_query",showLabel=False)
+       #trbtn.button('!!Delete', float='right',fire='list.deleteRecords', iconClass="tb_button db_del",visible='^list.canDelete',
+       #                       disabled='^list.noSelection', showLabel=False)
+       ##trbtn.button('!!Query', float='right',fire='list.runQuery', iconClass="tb_button db_query",showLabel=False)
     
     def pageListController(self,pane):
         """docstring for pageListController"""

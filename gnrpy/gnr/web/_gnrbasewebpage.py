@@ -1048,6 +1048,7 @@ class GnrBaseWebPage(GnrObject):
         recordClusterAttr = node.getAttr()
         #try:
         if True:
+            onSavedKwargs = dict()
             if onSavingHandler:
                 onSavedKwargs = onSavingHandler(recordCluster, recordClusterAttr, resultAttr=resultAttr) or {}
             record = tblobj.writeRecordCluster(recordCluster,recordClusterAttr)
