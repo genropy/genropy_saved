@@ -1399,6 +1399,13 @@ dojo.declare("gnr.widgets.Grid",gnr.widgets.baseDojo,{
             }
         }
     },
+    mixin_indexByRowAttr:function(attrName, attrValue){
+        for (var i=0; i < this.rowCount; i++){
+            var row = this.rowByIndex(i);
+            if (row[attrName]==attrValue) {return i;}
+        }
+        return -1;
+    },
     
     mixin_rowBagNode: function(idx){
         var idx=(idx==null) ? this.selection.selectedIndex : idx;
