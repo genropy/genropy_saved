@@ -155,7 +155,7 @@ class GnrRmlSrc(GnrStructData):
             destcell = row.cell(cellidx)
             if isinstance(cell, tuple) and isinstance(cell[-1],dict):
                 destcell.parentNode.attr = cell[-1]
-                cell=cell[0:-1]
+                cell=cell[0]
             destcell.content(cell)
             
         row = self._getRow(rowidx)
