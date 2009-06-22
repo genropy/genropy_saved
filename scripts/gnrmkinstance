@@ -10,7 +10,6 @@ import getopt
 import optparse
 from gnr.core.gnrbag import Bag
 from gnr.core.gnrsys import mkdir
-from gnr.core.gnrenv import GNRHOME,GNRINSTANCES,GNRPACKAGES
 
 
 usage = """
@@ -29,8 +28,6 @@ parser.add_option('-p','--path',
 def createInstance(name, *packages, **kwargs):
     if options.path:
         path=option.path
-    else:
-        path=GNRINSTANCES
     instpath = os.path.join(path, name)
     mkdir(instpath)
     datapath = os.path.join(instpath,'data')
