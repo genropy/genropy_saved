@@ -391,7 +391,7 @@ class GnrWhereTranslator(object):
                     column = '$%s' % column
                 if dtype in('D','DH'):
                     value, op = self.decodeDates(value, op, dtype)
-                if not dtype in ('A','T') and op in ('contains','startswith','endswith','regex','wordstart'):
+                if not dtype in ('A','T') and op in ('contains','notcontains','startswith','endswith','regex','wordstart'):
                     value=str(value)
                     column='CAST (%s as text)'%column
                     dtype='A'
@@ -454,6 +454,10 @@ class GnrWhereTranslator(object):
     def op_equal(self, column, value, dtype, sqlArgs):
         "Equal to"
         return '%s = :%s' % (column, self.storeArgs(value, dtype, sqlArgs))
+    
+    def op_notequal(self, column, value, dtype, sqlArgs):
+        "Not equal to"
+        return '%s <> :%s' % (column, self.storeArgs(value, dtype, sqlArgs))
         
     def op_startswith(self, column, value, dtype, sqlArgs):
         "Starts with"
@@ -467,6 +471,10 @@ class GnrWhereTranslator(object):
     def op_contains(self, column, value, dtype, sqlArgs):
         "Contains"
         return '%s ILIKE :%s' % (column, self.storeArgs('%%%s%%' % value, dtype, sqlArgs))
+        
+    def op_notcontains(self, column, value, dtype, sqlArgs):
+        "Doesn't contain"
+        return '%s NOT ILIKE :%s' % (column, self.storeArgs('%%%s%%' % value, dtype, sqlArgs))
         
     def op_greater(self, column, value, dtype, sqlArgs):
         "Greater than"
@@ -492,11 +500,20 @@ class GnrWhereTranslator(object):
     def op_isnull(self, column, value, dtype, sqlArgs):
         "Is null"
         return '%s IS NULL' % column
+    
+    def op_isnotnull(self, column, value, dtype, sqlArgs):
+        "Is not null"
+        return '%s IS NOT NULL' % column
         
     def op_in(self, column, value, dtype, sqlArgs):
         "In"
         values_string = self.storeArgs(value.split(','), dtype, sqlArgs)
         return '%s IN :%s' % (column, values_string)
+    
+    def op_notin(self, column, value, dtype, sqlArgs):
+        "Not in"
+        values_string = self.storeArgs(value.split(','), dtype, sqlArgs)
+        return '%s NOT IN :%s' % (column, values_string)
             
     def op_regex(self, column, value, dtype, sqlArgs):
         "Regular expression"
