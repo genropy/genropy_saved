@@ -27,7 +27,7 @@ sudo easy_install -U -Z mercurial
 sudo easy_install -U -Z paver
 
 [genro]
-hg clone http://hg.genropy.org/genro
+svn co http://svn.genropy.org/genro/trunk genro
 cd genro
 cd gnrpy
 sudo paver develop
