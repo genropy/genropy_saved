@@ -24,6 +24,9 @@ import datetime
 import re
 
 from gnr.core import gnrstring
+from gnr.core.gnrdate import decodeOneDate, decodeDatePeriod
+
+ISO_MATCH = re.compile(r'\d{4}\W\d{1,2}\W\d{1,2}')
     
 class GnrClassCatalog(object):
     __standard = None
@@ -130,7 +133,7 @@ class GnrClassCatalog(object):
             s='"%s"' % s
         return s
     
-    def fromText(self, txt, clsname):
+    def fromText(self, txt, clsname, **kwargs):
         if not clsname:
             return txt
         if not txt:
@@ -142,14 +145,16 @@ class GnrClassCatalog(object):
                 return txt
         f = self.parsers.get(clsname, None)
         if f:
-            return f(txt)
+            return f(txt, **kwargs)
         else:
             return self.classes[clsname](txt)
         
-    def fromTypedText(self, txt):
+    def fromTypedText(self, txt, **kwargs):
         result = re.split('::(\w*)$', txt)
         if len(result) == 1:
             return txt
+        elif result[1]=='D':
+            return self.fromText(result[0], result[1], **kwargs)
         else:
             return self.fromText(result[0], result[1])
     
@@ -204,19 +209,21 @@ class GnrClassCatalog(object):
         self.addSerializer("asText",type(None), lambda txt: '')
         
         self.addClass(cls=list, altcls=[dict, tuple], key='JS', empty=None)
-        self.addSerializer("asText",list, self.toJson)
-        self.addSerializer("asText",tuple, self.toJson)
-        self.addSerializer("asText",dict, self.toJson)
+        self.addSerializer("asText", list, self.toJson)
+        self.addSerializer("asText", tuple, self.toJson)
+        self.addSerializer("asText", dict, self.toJson)
         
         
     def parse_float(self, txt):
         if txt.lower()!='inf':
             return float(txt)
 
-    def parse_date(self, txt):
-        if txt and txt!='0000-00-00':
+    def parse_date(self, txt, workdate=None):
+        if txt and txt!='0000-00-00' and ISO_MATCH.match(txt):
             return datetime.date(*[int(el) for el in gnrstring.wordSplit(txt)[0:3]])
-        
+        else:
+            return decodeDatePeriod(txt, workdate=workdate, returnDate=True)
+            
     def parse_time(self, txt):
         if txt and txt!='00:00:00':
             return datetime.time(*[int(el) for el in gnrstring.wordSplit(txt)])

@@ -179,7 +179,7 @@ def decodeOneDate(datestr, workdate=None, months=None, days=None, quarters=None,
         else:
             return dateStart
 
-def decodeDatePeriod(datestr, workdate=None, locale=None, returnDate=False,dtype='D'):
+def decodeDatePeriod(datestr, workdate=None, locale=None, returnDate=False, dtype='D'):
     """Parse a string representing a date or a period and returns a string of one or two dates in iso format separated by ';'
        See doc of decodeOneDate for details on possible formats of a single date.
        The input string can be:
@@ -273,7 +273,11 @@ def decodeDatePeriod(datestr, workdate=None, locale=None, returnDate=False,dtype
         dateEnd = datetime.datetime(dateEnd.year,dateEnd.month,dateEnd.day)
 
     if returnDate:
-        return (dateStart, dateEnd)
+        if dateStart == dateEnd:
+            return dateStart
+        else:
+            return (dateStart, dateEnd)
+        
     if dateStart == dateEnd:
         return str(dateStart or '')
     else:

@@ -610,7 +610,7 @@ class GnrBaseWebPage(GnrObject):
         for k,v in kwargs.items():
             if isinstance(v, basestring):
                 try:
-                    v=self.catalog.fromTypedText(v)
+                    v=self.catalog.fromTypedText(v, workdate=self.workdate)
                     if isinstance(v, basestring):
                         v = v.decode('utf-8')
                     parameters[k] = v
