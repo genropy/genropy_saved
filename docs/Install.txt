@@ -42,9 +42,9 @@ sudo paver develop
 #sudo easy_install -U -Z weberror
 #sudo easy_install -U -Z mako
 #-----------
-#sudo easy_install -U -Z babel pytz vobject
-#sudo easy_install -U -Z paste webob weberror
-#sudo easy_install -U -Z mako
+sudo easy_install -U -Z babel pytz vobject
+sudo easy_install -U -Z paste webob weberror
+sudo easy_install -U -Z mako
 -----------------------------------------------------
 [ReportLab]
 download from: http://www.reportlab.org/ftp/ReportLab_2_3.tar.gz
@@ -74,7 +74,7 @@ sudo easy_install -U -Z pylint
 sudo easy_install -U -Z virtualenv
 
 [mod_wsgi]
-Download: http://modwsgi.googlecode.com/files/mod_wsgi-2.4.tar.gz
+Download: http://modwsgi.googlecode.com/files/mod_wsgi-2.5.tar.gz
 ./configure
 make && sudo make install
 
