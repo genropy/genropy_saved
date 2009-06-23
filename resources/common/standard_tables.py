@@ -192,7 +192,7 @@ class TableHandler(BaseComponent):
     
     def listToolbar(self, pane, datapath=None,arrows=True):
         self.listController(pane)
-        tb = pane.toolbar()
+        tb = pane.toolbar(height='100%')
         t_r = tb.div(float='right',width='110px')
         t_l = tb.div(width='20px',margin_left='2px',float='left',border_right='1px solid gray',height='25px')
         t_l.div(_class='db_treebtn',connect_onclick="SET list.showToolbox = ! (GET list.showToolbox);")
@@ -706,7 +706,7 @@ class TableHandler(BaseComponent):
                           logical_deleted='^form.logical_deleted' )
 
     def formToolbar(self, pane):
-        tb = pane.toolbar()
+        tb = pane.toolbar(height='100%')
         self.confirm(pane,title='!!Confirm record deletion',width='50em',
                            msg='!!Are you sure to delete ?',
                            btn_ok='!!Delete',btn_cancel='!!Cancel',
@@ -719,7 +719,7 @@ class TableHandler(BaseComponent):
         t_l.button('!!Last', fire_last='form.navbutton', iconClass="tb_button icnNavLast", disabled='^form.atEnd', showLabel=False)
         t_r = tb.div(position='absolute',right='0',width='200px')
         self.formtoolbar_right(t_r)
-        t_c = tb.div(height='25px')
+        #t_c = tb.div(height='25px')
                 
     def formtoolbar_right(self,t_r):
         if self.userCanDelete() or self.userCanWrite():

@@ -232,6 +232,8 @@ padding-bottom: 2px;
 }
     
 ._common_d11 .dijitTooltip .dijitTooltipContainer{
+	-webkit-border-radius:0px;
+    -moz-border-radius:0px;
     background: #fff4a1;
     border: 1px solid #676767;
     font-size: .8em;
