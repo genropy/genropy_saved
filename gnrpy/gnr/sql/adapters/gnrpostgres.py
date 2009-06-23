@@ -261,6 +261,7 @@ class SqlDbAdapter(SqlDbBaseAdapter):
                 c2.table_name AS un_tbl,
                 ucols.column_name AS un_col,
                 r.update_rule AS upd_rule,
+                r.delete_rule AS del_rule,
                 c1.initially_deferred AS init_defer
                 
                 FROM information_schema.referential_constraints AS r
@@ -281,7 +282,7 @@ class SqlDbAdapter(SqlDbBaseAdapter):
                                         """
         ref_constraints = self.dbroot.execute(sql).fetchall()
         ref_dict = {}
-        for (ref, schema, tbl, col, un_ref, un_schema, un_tbl, un_col, upd_rule, init_defer) in ref_constraints:
+        for (ref, schema, tbl, col, un_ref, un_schema, un_tbl, un_col, upd_rule, del_rule, init_defer) in ref_constraints:
             r = ref_dict.get(ref, None)
             if r:
                 if not col in r[3]:
@@ -289,7 +290,7 @@ class SqlDbAdapter(SqlDbBaseAdapter):
                 if not un_col in r[7]:
                     r[7].append(un_col)
             else:
-                ref_dict[ref] = [ref, schema, tbl, [col], un_ref, un_schema, un_tbl, [un_col], upd_rule, init_defer]
+                ref_dict[ref] = [ref, schema, tbl, [col], un_ref, un_schema, un_tbl, [un_col], upd_rule, del_rule, init_defer]
         return ref_dict.values()
 
     def getPkey(self, table, schema):

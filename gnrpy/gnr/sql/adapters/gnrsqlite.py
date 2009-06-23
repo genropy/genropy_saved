@@ -142,7 +142,7 @@ class SqlDbAdapter(SqlDbBaseAdapter):
                     ref = tbl
                     un_ref = un_tbl
                     
-                    result.append([ref, schema, tbl, [col], un_ref, un_schema, un_tbl, [un_col]],None)
+                    result.append([ref, schema, tbl, [col], un_ref, un_schema, un_tbl, [un_col]],None,None,None)
         return result
     
     def getPkey(self, table, schema):

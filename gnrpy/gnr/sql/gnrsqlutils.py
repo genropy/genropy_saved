@@ -204,7 +204,7 @@ class SqlModelChecker(object):
                 if rel.get('foreignkey'): # link has foreignkey constraint
                     o_pkg_sql, o_tbl_sql, o_fld_sql, m_pkg_sql, m_tbl_sql, m_fld_sql = self._relationToSqlNames(rel)
                     on_up = self._onStatementToSql(rel.get('onUpdate_sql')) or 'NO ACTION'
-                    on_del = self._onStatementToSql(rel.get('onDelete_sql'))
+                    on_del = self._onStatementToSql(rel.get('onDelete_sql')) or 'NO ACTION'
                     init_deferred = self._deferredToSql(rel.get('deferred'))
                     existing = False
                     tobuild = True
@@ -220,7 +220,10 @@ class SqlModelChecker(object):
                                     if actual_rel[8] != on_up:
                                         tobuild=True
                                         break
-                                    if (actual_rel[9]=='YES' and not rel.get('deferred')) or (actual_rel[9]=='NO' and  rel.get('deferred')):
+                                    if actual_rel[9] != on_del:
+                                        tobuild=True
+                                        break
+                                    if (actual_rel[10]=='YES' and not rel.get('deferred')) or (actual_rel[9]=='NO' and  rel.get('deferred')):
                                         tobuild=True
                                         break
                                         
@@ -254,7 +257,7 @@ class SqlModelChecker(object):
             return 'CASCADE'
         elif command in ('N','NO ACTION'):
             return 'NO ACTION'
-        elif command in ('ST','SETNULL','SET NULL'):
+        elif command in ('SN','SETNULL','SET NULL'):
             return 'SET NULL'
         elif command in ('SD','SETDEFAULT','SET DEFAULT'):
             return 'SET DEFAULT'
