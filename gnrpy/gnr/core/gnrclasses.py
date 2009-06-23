@@ -24,7 +24,7 @@ import datetime
 import re
 
 from gnr.core import gnrstring
-
+    
 class GnrClassCatalog(object):
     __standard = None
     

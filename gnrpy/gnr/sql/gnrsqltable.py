@@ -393,10 +393,12 @@ class SqlTable(GnrObject):
     def empty(self):
         self.db.adapter.emptyTable(self)
         
-    def deleteSelection(self, relation_field, relation_id):
+    def deleteSelection(self, condition_field, condition_value):
         # if self.trigger_onDeleting:
         sel = self.query(columns='*',
-                         where='%s = :pid' % relation_field, pid=relation_id, for_update=True).fetch()
+                         where='%s = :value' % condition_field,
+                         value=condition_value,
+                         for_update=True).fetch()
         for r in sel:
             self.delete(r)
         # if not self.trigger_onDeleting:
