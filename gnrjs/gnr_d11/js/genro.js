@@ -241,7 +241,15 @@ dojo.declare('gnr.GenroClient', null, {
             v = stringStrip(dojo.currency.format(v,f));
         }
         else if (typeof(v) == 'boolean' ){
-            //console.log(v)
+            var divcontent= v? (f['true'] ||(f['trueclass']? '': 'true')) : (f['false'] || (f['falseclass']? '':'false'));
+            var divclass= v ? (f['trueclass'] ? f['trueclass']:'') : (f['falseclass'] ? f['falseclass']:''); 
+            divclass = divclass? 'class="'+divclass+'"':'';
+            //var onclick = '';
+            //if (f['onclick']){
+                //onclick = f['onclick']? "onclick=function(e){"+f['onclick']+"}" : '' ;
+                //onclick="onclick=function(e){alert('miao');console.log(e);}(e)"
+            //}
+            v="<div style='margin:auto;' "+divclass+">"+divcontent+"</div>";
         }
         return v;
     },
@@ -390,9 +398,9 @@ dojo.declare('gnr.GenroClient', null, {
         var kw = {'evt':'fired', 'node':node, 'pathlist':('main.'+path).split('.')};
         dojo.publish('_trigger_data', [kw]);
     },
-   getSourceNode: function(obj){
+    getSourceNode: function(obj){
        return genro.src.getNode(obj);
-   },
+    },
    
     pathResolve: function(obj){
         if (typeof (obj)=='string'){

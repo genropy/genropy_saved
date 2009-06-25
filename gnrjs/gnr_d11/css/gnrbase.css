@@ -490,6 +490,7 @@ table.formbuilder {
 	height: 16px;
 }
 
+
 .icnBaseEmail {
 	background: url(icons/base16/email.gif) no-repeat;
 	width: 16px;
@@ -561,6 +562,23 @@ table.formbuilder {
 	width: 16px;
 	height: 16px;
 }
+
+/* @group boole */
+.icnTrue{
+	background: url(icons/base16/ok.gif) no-repeat;
+	width: 16px;
+	height: 16px;
+	cursor: pointer;
+}
+.icnFalse {
+	background: url(icons/base16/cancel.gif) no-repeat;
+	width: 16px;
+	height: 16px;
+	cursor: pointer;
+}
+
+
+/* @end */
 
 .icnBaseOneWay {
 	background: url(icons/base16/oneway.gif) no-repeat;
