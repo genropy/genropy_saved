@@ -246,7 +246,6 @@ dojo.declare('gnr.GenroClient', null, {
             divclass = divclass? 'class="'+divclass+'"':'';
             var event_attrs = '';
             var events = objectExtract(f,'on*');
-            console.log(events)
             if (events){
                 for(var e in events){
                     var cb = funcCreate(events[e]);
@@ -254,7 +253,7 @@ dojo.declare('gnr.GenroClient', null, {
                     event_attrs += " on"+e+"='var cb="+cb.toString()+"; cb("+serialize(cellPars)+")'";
                 }
             }
-            v="<div "+event_attrs +" style='margin:auto; border:1px solid black;' "+divclass+">"+divcontent+"</div>";
+            v="<div "+event_attrs +" style='margin:auto;' "+divclass+">"+divcontent+"</div>";
         }
         return v;
     },
