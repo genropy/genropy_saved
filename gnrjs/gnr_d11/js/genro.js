@@ -244,12 +244,17 @@ dojo.declare('gnr.GenroClient', null, {
             var divcontent= v? (f['true'] ||(f['trueclass']? '': 'true')) : (f['false'] || (f['falseclass']? '':'false'));
             var divclass= v ? (f['trueclass'] ? f['trueclass']:'') : (f['falseclass'] ? f['falseclass']:''); 
             divclass = divclass? 'class="'+divclass+'"':'';
-            //var onclick = '';
-            //if (f['onclick']){
-                //onclick = f['onclick']? "onclick=function(e){"+f['onclick']+"}" : '' ;
-                //onclick="onclick=function(e){alert('miao');console.log(e);}(e)"
-            //}
-            v="<div style='margin:auto;' "+divclass+">"+divcontent+"</div>";
+            var event_attrs = '';
+            var events = objectExtract(f,'on*');
+            console.log(events)
+            if (events){
+                for(var e in events){
+                    var cb = funcCreate(events[e]);
+                    var cellPars = f['cellPars'] || {};
+                    event_attrs += " on"+e+"='var cb="+cb.toString()+"; cb("+serialize(cellPars)+")'";
+                }
+            }
+            v="<div "+event_attrs +" style='margin:auto; border:1px solid black;' "+divclass+">"+divcontent+"</div>";
         }
         return v;
     },

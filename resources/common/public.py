@@ -632,7 +632,9 @@ class IncludedView(object):
         search.span('!!Search ')
         controller.dataController("""var grid = genro.wdgById(gridId);
                                         grid.filterColumn = col;
-                                        grid.applyFilter(true);""", col='^.flt.selected.col', gridId=gridId, _onStart='^gnr.onStart')
+                                        grid.applyFilter(true);""", 
+                                        col='^.flt.selected.col', 
+                                        gridId=gridId, _onStart=True)
         if len(colsMenu) > 1:
             controller.data('.flt.colsMenu', colsMenu)
             search.span(value='^.flt.selected.caption')

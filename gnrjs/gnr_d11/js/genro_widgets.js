@@ -1455,6 +1455,7 @@ dojo.declare("gnr.widgets.Grid",gnr.widgets.baseDojo,{
                 if(v==null){
                     return '&nbsp;';
                 }
+                opt['cellPars'] = {rowIndex:inRowIndex};
                 return genro.format(v,opt);
                 };
             };
@@ -1810,7 +1811,7 @@ dojo.declare("gnr.widgets.VirtualStaticGrid",gnr.widgets.Grid,{
             if (this.filterColumn.indexOf('+') > 0){
                 colType = 'T';
             } else {
-                colType = this.cellmap[this.filterColumn].dtype;
+                colType = this.cellmap[this.filterColumn]['dtype'] || 'A';
             }
             if(colType in {'A':null,'T':null}){
                 this.filtered_compvalue = new RegExp(this.filtered_value, 'i');
