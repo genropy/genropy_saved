@@ -223,7 +223,7 @@ class SqlModelChecker(object):
                                     if actual_rel[9] != on_del:
                                         tobuild=True
                                         break
-                                    if (actual_rel[10]=='YES' and not rel.get('deferred')) or (actual_rel[9]=='NO' and  rel.get('deferred')):
+                                    if (actual_rel[10]=='YES' and not rel.get('deferred')) or (actual_rel[10]=='NO' and  rel.get('deferred')):
                                         tobuild=True
                                         break
                                         
