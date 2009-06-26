@@ -273,10 +273,7 @@ def decodeDatePeriod(datestr, workdate=None, locale=None, returnDate=False, dtyp
         dateEnd = datetime.datetime(dateEnd.year,dateEnd.month,dateEnd.day)
 
     if returnDate:
-        if dateStart == dateEnd:
-            return dateStart
-        else:
-            return (dateStart, dateEnd)
+        return (dateStart, dateEnd)
         
     if dateStart == dateEnd:
         return str(dateStart or '')

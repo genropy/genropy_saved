@@ -1774,7 +1774,7 @@ dojo.declare("gnr.widgets.VirtualStaticGrid",gnr.widgets.Grid,{
     },
     
     attributes_mixin_canSort: function(){
-        return true;
+        return ('canSort' in this.sourceNode.attr )? this.sourceNode.attr.canSort : true
     },
     mixin_filterExcluded: function(rowdata, index){
         if(this.excludeList){

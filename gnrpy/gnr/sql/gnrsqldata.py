@@ -331,7 +331,7 @@ class SqlQueryCompiler(object):
         
         # group_by == '*': if all columns are aggregate functions, there will be no GROUP BY columns, 
         #                  but SqlQueryCompiler need to know that result will aggregate db rows
-        if group_by == '*': 
+        if group_by == '*':
             group_by = None
         self.init()
         if not 'pkey' in self.cpl.relationDict:
