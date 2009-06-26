@@ -245,7 +245,7 @@ dojo.declare('gnr.GenroClient', null, {
             var divclass= v ? (f['trueclass'] ? f['trueclass']:'') : (f['falseclass'] ? f['falseclass']:''); 
             divclass = divclass? 'class="'+divclass+'"':'';
             var event_attrs = '';
-            var events = objectExtract(f,'on*');
+            var events = objectExtract(f,'on*',true);
             if (events){
                 for(var e in events){
                     var cb = funcCreate(events[e]);
@@ -253,7 +253,7 @@ dojo.declare('gnr.GenroClient', null, {
                     event_attrs += " on"+e+"='var cb="+cb.toString()+"; cb("+serialize(cellPars)+")'";
                 }
             }
-            v="<div "+event_attrs +" style='margin:auto;' "+divclass+">"+divcontent+"</div>";
+            v="<div "+ event_attrs +" style='margin:auto;' "+divclass+">"+divcontent+"</div>";
         }
         return v;
     },
