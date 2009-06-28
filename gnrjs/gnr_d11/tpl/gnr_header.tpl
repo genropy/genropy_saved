@@ -38,7 +38,15 @@
             @import url("${cssname}");
             % endfor
         </style>
-
+        
+        % for cssmedia, cssnames  in css_media_requires.items():
+        <style type="text/css" media="${cssmedia}">
+                % for cssname in cssnames:
+            @import url("${cssname}");
+                % endfor
+        </style>
+        % endfor
+        
         <script type="text/javascript">
             var genro = new gnr.GenroClient({ page_id:'${page_id}',baseUrl:'${filename}', pageMode: '${pageMode or "legacy"}',
                                               domRootName:'mainWindow', startArgs: ${startArgs}});

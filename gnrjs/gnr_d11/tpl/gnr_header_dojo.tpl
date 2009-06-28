@@ -21,3 +21,11 @@
             @import url("${cssname}");
             % endfor
         </style>
+        
+        % for cssmedia, cssnames  in css_media_requires.items():
+        <style type="text/css" media="${cssmedia}">
+                % for cssname in cssnames:
+            @import url("${cssname}");
+                % endfor
+        </style>
+        % endfor
