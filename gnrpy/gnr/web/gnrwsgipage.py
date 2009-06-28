@@ -121,9 +121,11 @@ class GnrWsgiPage(GnrBaseWebPage):
         js_requires = [x for x in [self.getResourceUri(r,'js') for r in self.js_requires] if x]
         if os.path.isfile(self.resolvePath('%s.js' % self.pagename)):
             js_requires.append('%s.js' % self.pagename)
+        css_requires, css_media_requires = self.get_css_requires()
         return template.render(mainpage=self,
                                css_genro = self.get_css_genro(),
-                               css_requires = self.get_css_requires(), js_requires=self.js_requires,
+                               css_requires = css_requires , js_requires=self.js_requires,
+                               css_media_requires = css_media_requires,
                                css_dojo = [self.site.dojo_static_url(self.dojoversion,'dojo',f) for f in css_dojo],
                                dojolib=dojolib,
                                djConfig="parseOnLoad: false, isDebug: %s, locale: '%s'" % (self.isDeveloper() and 'true' or 'false',self.locale),
@@ -162,7 +164,9 @@ class GnrWsgiPage(GnrBaseWebPage):
         css_requires = self.get_css_requires()
         #if os.path.isfile(self.resolvePath('%s.css' % self.pagename)):
         #    css_requires.append('%s.css' % self.pagename)
+        css_requires, css_media_requires = self.get_css_requires()
         arg_dict['css_requires'] = css_requires
+        arg_dict['css_media_requires'] = css_media_requires
         return arg_dict
     
     def homeUrl(self):
@@ -244,18 +248,27 @@ class GnrWsgiPage(GnrBaseWebPage):
     
     def get_css_requires(self):
         filepath = os.path.splitext(self.filepath)[0]
-        css_requires=[]
+        css_requires = []
+        css_media_requires = {}
         for css in self.css_requires:
             if css:
+                if ':' in css:
+                    css, media = css.split(':')
+                else:
+                    media = None
                 csslist = self.getResourceList(css,'css')
                 if csslist:
                     csslist.reverse()
-                    css_requires.extend( [self.getResourceUri(css) for css in csslist])
+                    css_uri_list = [self.getResourceUri(css) for css in csslist]
+                    if media:
+                        css_media_requires.setdefault(media,[]).extend(css_uri_list)
+                    else:
+                        css_requires.extend(css_uri_list)
         if os.path.isfile('%s.css' % filepath):
             css_requires.append(self.getResourceUri('%s.css' % filepath))
         if os.path.isfile(self.resolvePath('%s.css' % self.pagename)):
             css_requires.append('%s.css' % self.pagename)
-        return css_requires
+        return css_requires, css_media_requires
         
     def getResourceUri(self, path, ext=None):
         fpath=self.getResource(path, ext=ext)
