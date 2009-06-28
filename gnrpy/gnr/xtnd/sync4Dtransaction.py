@@ -117,7 +117,7 @@ class TransactionManager4D(object):
 
     def do_trigger(self, data, tablepath, action):
         if action=='INS':
-            self.db.table(tablepath).insert(data)
+            self.db.table(tablepath).insertOrUpdate(data)
         elif action=='UPD':
             self.db.table(tablepath).update(data)
         elif action=='DEL':
