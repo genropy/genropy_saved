@@ -54,10 +54,11 @@ class GnrBatch(object):
         self.thermo_end()
         return self.collect_result()
     
-    def thermo_init(self):
+    def thermo_init(self, row=None):
         if self.thermoid:
             kwargs = dict()
-            for i in range(self.thermo_rows):
+            rows = row and [row] or range(self.thermo_rows)
+            for i in rows:
                 j = i+1
                 kwargs['progress_%i'%j] = self.thermo_status[j]
                 kwargs['message_%i'%j] = self.thermo_message[j]
@@ -75,7 +76,7 @@ class GnrBatch(object):
             if result=='stop':
                 self.thermocb(self.thermoid, command='stopped')
             return result
-        
+    
     def thermo_chunk_message(self, chunk, row):
         pass
         
