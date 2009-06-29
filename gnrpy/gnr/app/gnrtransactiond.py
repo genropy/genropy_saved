@@ -22,16 +22,15 @@
 
 import os
 from datetime import datetime, timedelta
-#import logging
+import logging
 
-#gnrlogger=logging.getLogger('gnr')
-#hdlr=logging.FileHandler('logs.log')
-#gnrlogger.addHandler(hdlr)
+gnrlogger=logging.getLogger('gnr')
+
 from logging.handlers import TimedRotatingFileHandler
 from logging import Formatter
 
 from gnr.core.gnrlog import gnrlogging
-gnrlogger = gnrlogging.getLogger('gnr.app.gnrtransactiond')
+#gnrlogger = gnrlogging.getLogger('gnr.app.gnrtransactiond')
 
 from gnr.core.gnrlang import errorLog
 from gnr.core.gnrbag import Bag
@@ -52,6 +51,19 @@ class GnrAppTransactionAgent(GnrApp):
         self.transaction_pkgid = 'gnr'
         self.transaction_tname = '%s.transaction' % self.transaction_pkgid
         self.error_tname = '%s.error' % self.transaction_pkgid
+        if self.config['logging.email']:
+            mailhost = self.config['logging.email?host'] or 'mail.softwell.it'
+            fromaddr = self.config['logging.email?fromaddr'] or 'michele.bertoldi@softwell.it'
+            toaddr = self.config['logging.email?toaddr'] or 'michele.bertoldi@softwell.it'
+            subject = self.config['logging.email?subject'] or 'Errore'
+            username = self.config['logging.email?username'] or 'michele.bertoldi@softwell.it'
+            password = self.config['logging.email?password'] or 'r0tr1n9'
+            if username and password:
+                credentials = (username, password)
+            else:
+                credentials = None
+            hdlr=logging.SMTPHandler(mailhost, fromaddr, toaddr, subject,credentials=credentials)
+            gnrlogger.addHandler(hdlr)
 
     def _startLog(self):
         logdir = os.path.join(self.instanceFolder, 'logs')
@@ -130,6 +142,7 @@ class GnrAppTransactionAgent(GnrApp):
 
     def expandTransaction(self, transaction):
         trargs = {'id':transaction['id'], 'execution_start':datetime.now()}
+        print transaction['id']
         try:
             tablepath = transaction['maintable']
             data = Bag(transaction['data'])

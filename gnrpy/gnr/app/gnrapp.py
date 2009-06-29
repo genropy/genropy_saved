@@ -94,6 +94,7 @@ class GnrPackage(object):
         filename=filename or pkg_id
         self.application = application
         self.packageFolder = os.path.join(path,filename)
+        self.libPath = os.path.join(self.packageFolder,'lib')
         self.attributes = {}
         self.tableMixins = {}
         self.tablePlugins = {}
@@ -334,6 +335,7 @@ class GnrApp(object):
             self.db.packageMixin('%s' % (pkgid), apppkg.pkgMixin)
             for tblname, mixobj in apppkg.tableMixinDict.items():
                 self.db.tableMixin('%s.%s' % (pkgid, tblname), mixobj)
+            sys.path.append(apppkg.libPath)
         self.db.inTransactionDaemon = False
         self.db.startup()
         if len(self.config['menu'])==1:
@@ -382,7 +384,6 @@ class GnrApp(object):
         else:
             raise Exception(
                 'Error: package %s not found' % pkgid)
-
     
     def onIniting(self):
         pass
