@@ -304,6 +304,7 @@ class SqlTable(GnrObject):
             return dict([(k, v) for k,v in record.items() if not k.startswith('@')])
         if mode=='bag' and not isinstance(record, Bag):
             return self.record(pkey = record['pkey'], mode=mode)
+        return record
             
         
     def defaultValues (self):

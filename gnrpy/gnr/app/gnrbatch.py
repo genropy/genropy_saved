@@ -164,7 +164,7 @@ class SelectionToPdf(GnrBatch):
         
     
 class SelectedRecordsToPrint(GnrBatch):
-    def __init__(self, table_resource=None, selection=None, table=None, folder=None, printer_name=None, printer_options=None, **kwargs):
+    def __init__(self, table_resource=None, selection=None, table=None, folder=None, printerName=None, printerOptions=None, **kwargs):
         import cups
         super(SelectedRecordsToPrint,self).__init__(**kwargs)
         if table_resource:

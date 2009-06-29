@@ -26,6 +26,7 @@ class Table(object):
                           )
         tbl.column('md5pwd', name_long='!!PasswordMD5', size=':65')
         tbl.column('locale', name_long='!!Default Language', size=':12')
+        tbl.column('preferences', dtype='X', name_long='!!Preferences')
 
     def createPassword(self):
         password=getUuid()[0:6]
@@ -35,3 +36,15 @@ class Table(object):
         if fromDump:
             dump_folder = os.path.join(self.db.application.instanceFolder,'dumps')
             self.importFromXmlDump(dump_folder)
+    
+    def getPreference(self, record, package, name):
+        record = self.recordAs(record, mode='bag')
+        return record['preferences'].getItem('%s.%s' % (package,name))
+        
+    def setPreference(self, record, package, name, value):
+        record = self.recordAs(record, mode='bag')
+        record['preferences'].setItem('%s.%s' % (package,name,value))
+        self.update(record)
+        self.db.commit()
+        
+        
