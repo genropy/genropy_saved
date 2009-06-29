@@ -266,7 +266,7 @@ class GnrBaseWebAppHandler(object):
                           js_resolver_one='relOneResolver', js_resolver_many='relManyResolver',
                           sqlContextName=None, one_one=None, **kwargs):
         if one_one is not None:
-            raise 'supercazzola'
+            raise 'error'
             
         pkg, tbl, related_field = target_fld.split('.')
         table = '%s.%s' % (pkg, tbl)
@@ -784,7 +784,7 @@ class GnrBaseWebAppHandler(object):
             dbtable='%s.%s' % (pkg, dbtable)
         tblobj = self.db.table(dbtable)
         newrecord = False
-        if pkey: 
+        if pkey is not None: 
             kwargs['pkey'] = pkey
         rec = tblobj.record(eager=self.page.eagers.get(dbtable),
                             ignoreMissing=ignoreMissing,ignoreDuplicate=ignoreDuplicate,
