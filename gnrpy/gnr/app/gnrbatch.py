@@ -12,6 +12,8 @@ import time
 from collections import defaultdict
 class GnrBatch(object):
     
+    thermo_rows = 1
+    
     def __init__(self, thermocb = None, thermoid=None, thermofield='*', **kwargs):
         self.thermocb = thermocb or (lambda *a,**kw:None)
         self.thermoid = thermoid
@@ -52,10 +54,10 @@ class GnrBatch(object):
         self.thermo_end()
         return self.collect_result()
     
-    def thermo_init(self, rows=1):
+    def thermo_init(self):
         if self.thermoid:
             kwargs = dict()
-            for i in range(rows):
+            for i in range(self.thermo_rows):
                 j = i+1
                 kwargs['progress_%i'%j] = self.thermo_status[j]
                 kwargs['message_%i'%j] = self.thermo_message[j]
@@ -68,13 +70,13 @@ class GnrBatch(object):
         if self.thermoid:
             kwargs = dict()
             kwargs['progress_%i'%row] = self.thermo_status[row]
-            kwargs['message_%i'%row] = self.thermo_chunk_message(chunk=chunk)
+            kwargs['message_%i'%row] = message or self.thermo_chunk_message(chunk=chunk, row=row)
             result = self.thermocb(self.thermoid, **kwargs)
             if result=='stop':
                 self.thermocb(self.thermoid, command='stopped')
             return result
         
-    def thermo_chunk_message(self, chunk):
+    def thermo_chunk_message(self, chunk, row):
         pass
         
     def thermo_end(self):
@@ -95,7 +97,7 @@ class SelectionToXls(GnrBatch):
         self.data_len = len(self.data)
         self.thermo_maximum[1] = self.data_len
         
-    def thermo_chunk_message(self, chunk):
+    def thermo_chunk_message(self, chunk, row):
         if self.thermofield=='*':
             msg = self.tblobj.recordCaption(chunk)
         else:
