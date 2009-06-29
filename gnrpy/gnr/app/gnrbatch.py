@@ -161,3 +161,38 @@ class SelectionToPdf(GnrBatch):
     def process_chunk(self, chunk):
         self.pdfmaker.getPdf(self.table,chunk,folder=self.folder)
         self.pdfmaker.toPdf(self.pdfmaker.filePath)
+        
+    
+class SelectedRecordsToPrint(GnrBatch):
+    def __init__(self, table_resource=None, selection=None, table=None, folder=None, printer_name=None, printer_options=None, **kwargs):
+        import cups
+        super(SelectedRecordsToPrint,self).__init__(**kwargs)
+        if table_resource:
+            table_resource=self.page.site.loadTableResource(page=self.page,table=table,path=table_resource)
+        self.pdfmaker=table_resource
+        self.selection = selection
+        self.table = table
+        self.folder = folder or 'temp_print_%s'%table.replace('.','_')
+        self.cups_connection = cups.Connection()
+        self.printer_name = printer_name
+        self.printer_options = printer_options or {}
+        self.pdf_list = []
+
+    def data_fetcher(self):     ##### Rivedere per passare le colonne
+        for row in self.selection.output('pkeylist'):
+            yield row
+
+    def process_chunk(self, chunk):
+        self.pdfmaker.getPdf(self.table,chunk,folder=self.folder)
+        self.pdfmaker.toPdf(self.pdfmaker.filePath)
+        self.pdf_list.append(self.pdfmaker.filePath)
+        
+    def collect_result(self):
+        if self.printer_name=='PDF':
+            for pdf_name in self.pdf_list:
+                #zip
+                pass
+        else:
+            self.cups_connection.printFiles(self.printer_name, ','.join(self.pdf_list), self.printer_options)
+            
+    
