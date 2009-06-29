@@ -19,7 +19,7 @@ class GnrBatch(object):
         self.thermoid = thermoid
         self.thermofield = thermofield
         self.thermo_status = defaultdict(lambda: 0)
-        self.thermo_message = defaultdict(lambda: None)
+        self.thermo_message = defaultdict(lambda: '')
         self.thermo_maximum = defaultdict(lambda: None)
         self.thermo_indeterminate = defaultdict(lambda: None)
         for k,v in kwargs.items():
@@ -65,10 +65,16 @@ class GnrBatch(object):
                 kwargs['message_%i'%j] = self.thermo_message[j]
                 kwargs['maximum_%i'%j] = self.thermo_maximum[j]
                 kwargs['indeterminate_%i'%j] = self.thermo_indeterminate[j]
-            self.thermocb(self.thermoid, command='init', **kwargs)
+            if not row:
+                self.thermocb(self.thermoid, **kwargs)
+            else:
+                self.thermocb(self.thermoid, command='init', **kwargs)
             
-    def thermo_step(self, chunk=None, step=1, row=1, message=None):
-        self.thermo_status[row] += step
+    def thermo_step(self, chunk=None, step=1, row=1, status=None, message=None):
+        if status is not None:
+            self.thermo_status[row] = status
+        else:
+            self.thermo_status[row] += step
         if self.thermoid:
             kwargs = dict()
             kwargs['progress_%i'%row] = self.thermo_status[row]
@@ -97,7 +103,7 @@ class SelectionToXls(GnrBatch):
         self.tblobj = self.selection.db.table(table)
         self.data = self.selection.output('dictlist', columns=self.columns, locale=self.locale)
         self.data_len = len(self.data)
-        self.thermo_maximum[1] = self.data_len
+        self.thermo_maximum[0] = self.data_len
         
     def thermo_chunk_message(self, chunk, row):
         if self.thermofield=='*':
@@ -196,3 +202,22 @@ class SelectedRecordsToPrint(GnrBatch):
             self.cups_connection.printFiles(self.printer_name, ','.join(self.pdf_list), self.printer_options)
             
     
+class Fake(GnrBatch):
+    thermo_rows = 2
+    def __init__(self, **kwargs):
+        super(Fake,self).__init__(**kwargs)
+        self.thermo_maximum[1] = 1000
+        self.thermo_maximum[2] = 1000
+        
+    def data_fetcher(self):     ##### Rivedere per passare le colonne
+        for row in range(1000):
+            yield row
+
+    def process_chunk(self, chunk):
+        i=0
+        self.thermo_step(row = 2, status = 0)
+        for subrow in range(1000):
+            self.thermo_step(row = 2, message = 'fake %i/%i'%(chunk,subrow))
+            
+    def collect_result(self):
+        pass
