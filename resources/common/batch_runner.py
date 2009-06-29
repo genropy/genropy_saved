@@ -10,7 +10,7 @@
 from gnr.core.gnrbag import Bag
 from gnr.web.gnrwebpage import BaseComponent
 import gnr.app.gnrbatch
-
+from gnr.core.gnrlang import gnrImport
 
 
 class BatchRunner(BaseComponent):

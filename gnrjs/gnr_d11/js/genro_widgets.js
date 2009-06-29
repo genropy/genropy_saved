@@ -1430,6 +1430,10 @@ dojo.declare("gnr.widgets.Grid",gnr.widgets.baseDojo,{
         }
         return result;
     },
+    mixin_getSelectedRow: function(){
+        return  this.rowByIndex(this.selection.selectedIndex);
+    },
+    
     mixin_getSelectedRowidx: function(){
         var sel = this.selection.getSelected();
         var result = [];

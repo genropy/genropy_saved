@@ -30,7 +30,8 @@ class GnrBatch(object):
         return 0
     
     def data_fetcher(self):
-        pass
+        for row in self.data:
+            yield row
         
     def pre_process(self):
         pass
@@ -108,9 +109,6 @@ class SelectionToXls(GnrBatch):
     def data_counter(self):
         return self.data_len
     
-    def data_fetcher(self):
-        for row in self.data:
-            yield row
         
     def pre_process(self):
         import xlwt
