@@ -32,7 +32,7 @@ class BatchRunner(BaseComponent):
         thermoid = None
         if 'field' in thermoParams:
             thermoid = self.getUuid()
-            self.thermoDialog(pane, thermoid=thermoid, title=thermoParams.get('title', 'Batch Running'), fired=fired, alertResult=True)
+            self.thermoDialog(pane, thermoid=thermoid, title=thermoParams.get('title', 'Batch Running'),thermolines=thermoParams.get('lines',1), fired=fired, alertResult=True)
         pane.dataRpc('%s.result' % resultpath, 'runBatch', timeout=0, _POST=True,
                      table=self.maintable, selectionName=selectionName,
                      batchClass=batchClass, 
