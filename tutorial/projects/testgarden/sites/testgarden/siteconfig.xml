@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <GenRoBag>
-    <wsgi homepage='testgarden/index' mainpackage='testgarden' port='8086' debug='true'/>
+    <wsgi homepage='showcase/index' mainpackage='showcase' port='8086' debug='true'/>
 	<defaults country='IT' vat_rate='20'/>
 </GenRoBag>
