@@ -1,0 +1,28 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<GenRoBag><description><short>formbuilder</short>
+<full>Il formbuilder rappresenta un modo veloce e pratico per definire un layout a griglia, analogo alla table html dove collocare altri elementi dom o widget.
+
+Il suo impiego più classico è la definizione di form, composte da campi ed etichette. Infatti consente una gestione automatica delle etichette relative ai campi e il loro posizionamento.
+
+Ad un formbuilder si possono aggiungere elementi con la seguente sintassi dandone la posizione col parametro pos che dovrà valere una coppia di valori separati da virgola intesi come numero di riga e numero di colonna all'interno della griglia. Se la posizione non viene specificata l'elemento viene automaticamente posizionato alla primo posto disponibile. L'attributo pos può anche avere come numero di riga i seguenti valori speciali + e * . Il primo serve per riferirsi alla riga seguente mentre il secondo alla riga corrente.
+Inoltre gli elementi posti in un formbuilder possono essere etichettati automaticamente, inserendo un valore al parametro lbl. L'etichetta comparirà a sinistra dell'oggetto nella configurazione di default, ma è possibile specificarne posizione, stile ed allineamento nei parametri del formbuilder (lblclass, lblpos, lblalign).
+
+
+Tipicamente gli elementi caratteristici di un formbuilder sono i field. Ovvero un'astrazione che rappresenta un modo di inserire i dati corrispondenti ad una colonna di una table del database, integrato col sistema di creazione delle form.
+
+
+L'unico parametro obbligatorio di un field è il nome della colonna espresso dal path (package.table.colonna), il formbuilder ricaverà automaticamente, dalle informazioni presenti in model il tipo di campo (data, testo, boolean, numerico), la larghezza dello stesso e la sua etichetta, presa dall'attributo 'name_long'. A seconda del tipo di dato della colonna del database, il field sarà rappresentato come un campo testo, un datepicker, un check box o un combobox se si tratta di un campo in relazione e sarà corredato dell'opportuna etichetta.
+Altre caratteristiche e parametri del field verranno esaminati nella rispettiva pagina di documentazione
+</full>
+<children>Qualsiasi widget o elemento...</children>
+<params>I parametri specifici del formbuilder sono
+
+cols : rappresenta il numero di colonne che deve avere la griglia
+cellspacing: equivale al cellspacing della table html. Default=10
+lblclass: è la classe css delle label. Default='gnrfieldlabel'
+lblpos: è la posizione dell'etichetta rispetto al campo. Può valere L(left), R(right), T(top), B(bottom). Default=L
+lblalign: è l'allineamento orizzontale della label rispetto alla cella. (left, right, center)
+blvalign: è l'allineamento verticale della label rispetto alla cella (top, middle, bottom). Default='middle',
+fldalign: è l'allineamento orizzontale del field rispetto alla cella. (left, right, center)
+fldvalign: è l'allineamento verticale del field rispetto alla cella (top, middle, bottom). Default='middle',</params>
+<link/></description></GenRoBag>
