@@ -11,6 +11,7 @@
 .mainindex .leftpane{
 	background-color: #bbb59f;
 	padding: 5px;
+	overflow: auto;
 }
 .mainindex .centerfooter{
 	background-color: #32353d;

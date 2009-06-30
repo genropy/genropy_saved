@@ -24,7 +24,7 @@ class GnrDboPackage(object):
         return self.dbtable('userobject').listUserObject(pkg=pkg or self.name, **kwargs)
 
 class TableBase(object):
-    def sysFields(self, tbl, id=True, ins=True, upd=True, ldel=True, md5=False, group=None):
+    def sysFields(self, tbl, id=True, ins=True, upd=True, ldel=True, md5=False, group='_'):
         if id:
             tbl.column('id',size='22',group='_',readOnly='y',name_long='!!Id')
             pkey = tbl.attributes.get('pkey')
