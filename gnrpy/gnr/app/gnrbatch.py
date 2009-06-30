@@ -170,7 +170,7 @@ class SelectionToPdf(GnrBatch):
         
     
 class SelectedRecordsToPrint(GnrBatch):
-    def __init__(self, table_resource=None, selection=None, table=None, folder=None, printerName=None, printerOptions=None, **kwargs):
+    def __init__(self, table_resource=None, selection=None, table=None, folder=None, printParams=None, **kwargs):
         import cups
         super(SelectedRecordsToPrint,self).__init__(**kwargs)
         if table_resource:
@@ -180,8 +180,8 @@ class SelectedRecordsToPrint(GnrBatch):
         self.table = table
         self.folder = folder or 'temp_print_%s'%table.replace('.','_')
         self.cups_connection = cups.Connection()
-        self.printer_name = printer_name
-        self.printer_options = printer_options or {}
+        self.printer_name = printParams['printer_name']
+        self.printer_options = printParams['printer_options'] or {}
         self.pdf_list = []
 
     def data_fetcher(self):     ##### Rivedere per passare le colonne
@@ -190,7 +190,7 @@ class SelectedRecordsToPrint(GnrBatch):
 
     def process_chunk(self, chunk):
         self.pdfmaker.getPdf(self.table,chunk,folder=self.folder)
-        self.pdfmaker.toPdf(self.pdfmaker.filePath)
+        #self.pdfmaker.toPdf(self.pdfmaker.filePath)
         self.pdf_list.append(self.pdfmaker.filePath)
         
     def collect_result(self):
@@ -199,7 +199,7 @@ class SelectedRecordsToPrint(GnrBatch):
                 #zip
                 pass
         else:
-            self.cups_connection.printFiles(self.printer_name, ','.join(self.pdf_list), self.printer_options)
+            self.cups_connection.printFiles(self.printer_name, self.pdf_list,'GenroPrint', self.printer_options)
             
     
 class Fake(GnrBatch):
