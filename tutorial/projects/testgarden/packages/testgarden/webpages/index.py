@@ -87,7 +87,7 @@ class GnrCustomWebPage(object):
        
     #----------  Rpc custom Calls ------------    
     def diskDirectory(self):         
-        pages = self.site.sitemap['testgarden']
+        pages = self.site.sitemap['showcase']
         return pages
         
     def rpc_saveDocumentation(self, docbag, currpath):

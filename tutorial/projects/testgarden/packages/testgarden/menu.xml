@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<GenRoBag>
-    <widget_root label="!!Widgets" basepath="/testgarden/widgets">
-        <layout label='!!Layout' basepath='/layout' >
-        	<event label="!!Accordion" file="accordion.py"/>
-        </layout>
-    </widget_root>
-</GenRoBag>
