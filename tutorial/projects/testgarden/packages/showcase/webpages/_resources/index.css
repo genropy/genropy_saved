@@ -1,0 +1,29 @@
+.mainindex{
+	color: #32353d;
+}
+
+.mainindex .header{
+	background-color: #67393f;
+	color: #dfcfbe;
+	font-variant: small-caps;
+}
+
+.mainindex .leftpane{
+	background-color: #bbb59f;
+	padding: 5px;
+}
+.mainindex .centerfooter{
+	background-color: #32353d;
+}
+.indexbutton .dijitButtonNode{
+	background: #dfcfbe;
+}
+.indexbuttonHover .dijitButtonNode{
+	background: #bbb59f;
+}
+
+.indexbuttonDisabled .dijitButtonNode{
+	background: #dfcfbe;
+	opacity: 0.4;
+	cursor: not-allowed;
+}
