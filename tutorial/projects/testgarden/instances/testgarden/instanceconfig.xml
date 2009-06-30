@@ -2,7 +2,7 @@
 <GenRoBag><db dbname="showcase"/>
 <packages >
 	<adm />
-	<testgarden/>
+	<showcase/>
 </packages>
 <authentication pkg='adm'>
 	<py_auth defaultTags="user" pkg="adm" method="authenticate"/>
