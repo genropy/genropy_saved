@@ -12,6 +12,32 @@ from gnr.core.gnrbag import Bag
 
 # --------------------------- GnrWebPage subclass ---------------------------
 class PrintUtils(BaseComponent):
+    
+    def paper_size(self):
+        paper_size = {
+            'A4': '!!A4',
+            'Legal':'!!Legal',
+            'A4Small': '!!A4 with margins',
+            'COM10': '!!COM10',
+            'DL':'!!DL',
+            'Letter':'!!Letter',
+            'ISOB5':'ISOB5',
+            'JISB5':'JISB5',
+            'LetterSmall':'LetterSmall',
+            'LegalSmall':'LegalSmall'
+            }
+        return paper_size
+    
+    def paper_tray(self):
+        paper_tray = {
+            'MultiPurpose':'!!MultiPurpose',
+            'Transparency':'!!Transparency',
+            'Upper':'!!Upper',
+            'Lower':'!!Lower',
+            'LargeCapacity':'!!LargeCapacity'
+            }
+        return paper_tray
+    
     def printDialog(self,data, title=None, _fired=None, parentDialog=None):
         page = self.pageSource()
         dlgId = data.replace('.','_')
@@ -35,6 +61,9 @@ class PrintUtils(BaseComponent):
                    lbl='Printer:',readOnly=True).menu(storepath='%s.printers' % data,
                                           modifiers='*',
                                           action='SET .selected_printer = $1.fullpath; SET .printer_name=$1.name;')
+        cfb.filteringselect(value='^.printer_options.paper',lbl='!!Paper:', storepath='.printer_attributes.paper_supported')
+        cfb.filteringselect(value='^.printer_options.tray',lbl='!!Tray:', storepath='.printer_attributes.tray_supported')
+        cfb.dataRpc('.printer_attributes','getPrinterAttributes', printer_name='^.printer_name')
         bottomBar.button('!!PDF', float='right', action='SET .selPage="pdf";')
         
         bottomBar.button('!!Print', float='right', action="FIRE .run; genro.wdgById('%s').hide();"%dlgId)
@@ -42,8 +71,21 @@ class PrintUtils(BaseComponent):
         
     def rpc_getPrinters(self):
         printersBag=Bag()
-        connection = cups.Connection()
-        for printer_name, printer in connection.getPrinters().items():
+        cups_connection = cups.Connection()
+        for printer_name, printer in cups_connection.getPrinters().items():
             printer.update(dict(name=printer_name))
             printersBag.setItem('%s.%s'%(printer['printer-location'],printer_name),None,printer)
         return printersBag
+        
+    def rpc_getPrinterAttributes(self,printer_name):
+        cups_connection = cups.Connection()
+        printer_attributes = cups_connection.getPrinterAttributes(printer_name)
+        attributesBag = Bag()
+        for i,(media,description) in enumerate(self.paper_size().items()):
+            if media in printer_attributes['media-supported']:
+                attributesBag.setItem('paper_supported.%i'%i,None,id=media,caption=description)
+        for i,(tray,description) in enumerate(self.paper_tray().items()):
+            if tray in printer_attributes['media-supported']:
+                attributesBag.setItem('tray_supported.%i'%i,None,id=tray,caption=description)
+        return attributesBag
+        

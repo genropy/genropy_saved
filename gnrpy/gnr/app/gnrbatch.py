@@ -181,7 +181,14 @@ class SelectedRecordsToPrint(GnrBatch):
         self.folder = folder or 'temp_print_%s'%table.replace('.','_')
         self.cups_connection = cups.Connection()
         self.printer_name = printParams['printer_name']
+        printer_media=[]
+        for media_option in ('paper','tray','source'):
+            media_value = printParams['printer_options'] and printParams['printer_options'].pop(media_option)
+            if media_value:
+                printer_media.append(media_value)
         self.printer_options = printParams['printer_options'] or {}
+        if printer_media:
+            self.printer_options['media'] = ','.join(printer_media)
         self.pdf_list = []
 
     def data_fetcher(self):     ##### Rivedere per passare le colonne
@@ -190,7 +197,7 @@ class SelectedRecordsToPrint(GnrBatch):
 
     def process_chunk(self, chunk):
         self.pdfmaker.getPdf(self.table,chunk,folder=self.folder)
-        #self.pdfmaker.toPdf(self.pdfmaker.filePath)
+        self.pdfmaker.toPdf(self.pdfmaker.filePath)
         self.pdf_list.append(self.pdfmaker.filePath)
         
     def collect_result(self):
