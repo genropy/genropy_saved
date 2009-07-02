@@ -100,7 +100,7 @@ class GnrWsgiPage(GnrBaseWebPage):
         arg_dict = self.build_arg_dict(**kwargs)
         return mytemplate.render(mainpage=self, **arg_dict)
     
-    def makoTemplate(self, path, theme=None, striped='odd_row,even_row', **kwargs):
+    def makoTemplate(self, path, theme=None, striped='odd_row,even_row', pdf=False, **kwargs):
         self.theme = theme or 'tundra'
         auth = self._checkAuth()
         if auth != AUTH_OK:
@@ -111,8 +111,8 @@ class GnrWsgiPage(GnrBaseWebPage):
         lookup=TemplateLookup(directories=tpldirectories,
                               output_encoding='utf-8', encoding_errors='replace')                      
         template = lookup.get_template(os.path.basename(path))
-        self.response.content_type = 'text/html'
         css_dojo = getattr(self, '_css_dojo_d%s' % self.dojoversion)()
+        
         _resources = self.site.resources.keys()
         _resources.reverse()
         dojolib = self.site.dojo_static_url(self.dojoversion,'dojo','dojo','dojo.js')
@@ -122,7 +122,7 @@ class GnrWsgiPage(GnrBaseWebPage):
         if os.path.isfile(self.resolvePath('%s.js' % self.pagename)):
             js_requires.append('%s.js' % self.pagename)
         css_requires, css_media_requires = self.get_css_requires()
-        return template.render(mainpage=self,
+        output = template.render(mainpage=self,
                                css_genro = self.get_css_genro(),
                                css_requires = css_requires , js_requires=self.js_requires,
                                css_media_requires = css_media_requires,
@@ -130,6 +130,25 @@ class GnrWsgiPage(GnrBaseWebPage):
                                dojolib=dojolib,
                                djConfig="parseOnLoad: false, isDebug: %s, locale: '%s'" % (self.isDeveloper() and 'true' or 'false',self.locale),
                                gnrModulePath=gnrModulePath, **kwargs)
+        if not pdf:
+            self.response.content_type = 'text/html'
+            return output
+        else:
+            import sx.pisa3.pisa as pisa
+            self.response.content_type = 'application/pdf'
+            import cStringIO
+            htmlfile = cStringIO.StringIO()
+            htmlfile_out = cStringIO.StringIO()
+            htmlfile.write(output)
+            htmlfile.seek(0)
+            outfile_name = self.temporaryDocument(path)
+            outfile_url = self.temporaryDocumentUrl(path)
+            outfile = open(outfile_name,'wb')
+            pdf = pisa.CreatePDF(htmlfile, htmlfile_out, path = os.path.dirname(template.filename))
+            htmlfile_out.seek(0)
+            self.response.add_header("Content-Disposition",str("%s; filename=%s.pdf"%('inline',os.path.split(outfile_name)[-1])))
+            return htmlfile_out.read()
+            
     
     def build_arg_dict(self,**kwargs):
         _resources = self.site.resources.keys()
