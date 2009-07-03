@@ -144,11 +144,8 @@ class GnrWsgiPage(GnrBaseWebPage):
                 url = '%s?%s'%(self.path_url,query_string)
             else:
                 url = self.path_url
-            print 'pre'
             wkprinter = WK2pdf(url,tmp_name)
-            print 'run'
             wkprinter.run()
-            print 'ran'
             wkprinter.exec_()
             self.response.add_header("Content-Disposition",str("%s; filename=%s.pdf"%('inline',self.path_url.split('/')[-1]+'.pdf')))
             tmp_file = open(tmp_name)
