@@ -379,3 +379,7 @@ class GnrWsgiPage(GnrBaseWebPage):
             #except Exception,err:
         else:
             return (self._errorPage(err), pageattr)
+            
+class GnrMakoPage(GnrWsgiPage):
+    def index(self,*args, **kwargs):
+        return GnrWsgiPage.index(self,*args, mako=self.mako_template(),**kwargs)
