@@ -208,7 +208,8 @@ class SelectedRecordsToPrint(GnrBatch):
         else:
             self.cups_connection.printFiles(self.printer_name, self.pdf_list,'GenroPrint', self.printer_options)
             
-    
+
+
 class Fake(GnrBatch):
     thermo_rows = 2
     def __init__(self, **kwargs):

@@ -134,20 +134,27 @@ class GnrWsgiPage(GnrBaseWebPage):
             self.response.content_type = 'text/html'
             return output
         else:
-            import sx.pisa3.pisa as pisa
+            from wk2pdf import WK2pdf
+            import tempfile
+            import sys
             self.response.content_type = 'application/pdf'
-            import cStringIO
-            htmlfile = cStringIO.StringIO()
-            htmlfile_out = cStringIO.StringIO()
-            htmlfile.write(output)
-            htmlfile.seek(0)
-            outfile_name = self.temporaryDocument(path)
-            outfile_url = self.temporaryDocumentUrl(path)
-            outfile = open(outfile_name,'wb')
-            pdf = pisa.CreatePDF(htmlfile, htmlfile_out, path = os.path.dirname(template.filename))
-            htmlfile_out.seek(0)
-            self.response.add_header("Content-Disposition",str("%s; filename=%s.pdf"%('inline',os.path.split(outfile_name)[-1])))
-            return htmlfile_out.read()
+            tmp_name = self.temporaryDocument('tmp.pdf')
+            if self.query_string:
+                query_string = '&'.join([q for q in self.query_string.split('&') if not 'pdf' in q.lower()])
+                url = '%s?%s'%(self.path_url,query_string)
+            else:
+                url = self.path_url
+            print 'pre'
+            wkprinter = WK2pdf(url,tmp_name)
+            print 'run'
+            wkprinter.run()
+            print 'ran'
+            wkprinter.exec_()
+            self.response.add_header("Content-Disposition",str("%s; filename=%s.pdf"%('inline',self.path_url.split('/')[-1]+'.pdf')))
+            tmp_file = open(tmp_name)
+            tmp_content = tmp_file.read()
+            tmp_file.close()
+            return tmp_content
             
     
     def build_arg_dict(self,**kwargs):

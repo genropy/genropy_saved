@@ -405,6 +405,9 @@ class GnrWsgiSite(object):
         page.siteFolder = page._sitepath=self.site_path
         page.folders= page._get_folders()
         page._request = request
+        page.called_url = request.url
+        page.path_url = request.path_url
+        page.query_string = request.query_string
         page._user_login=_user_login
         if not response: 
             response = Response()
