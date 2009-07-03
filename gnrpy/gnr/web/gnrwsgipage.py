@@ -134,7 +134,7 @@ class GnrWsgiPage(GnrBaseWebPage):
             self.response.content_type = 'text/html'
             return output
         else:
-            from wk2pdf import WK2pdf
+            from gnr.pdf.wk2pdf import WK2pdf
             import tempfile
             import sys
             self.response.content_type = 'application/pdf'
