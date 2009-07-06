@@ -55,7 +55,7 @@ class GnrHtmlSrc(GnrStructData):
                    'select', 'small', 'span', 'strong', 'style', 'sub', 'sup', 'table', 'tbody', 'td',
                    'textarea', 'tfoot', 'th', 'thead', 'title', 'tr', 'tt', 'ul', 'var']
                    
-    gnrNS=['layotu','row','cell']
+    gnrNS=['layout','row','cell']
          
     genroNameSpace=dict([(name.lower(),name) for name in htmlNS])
     genroNameSpace.update(dict([(name.lower(),name) for name in gnrNS]))
@@ -70,9 +70,12 @@ class GnrHtmlSrc(GnrStructData):
         else:
             raise AttributeError, fname 
     def toHtml(self):
-        result,hasRows= self._toHtmlInner()
+        result= self._toHtmlInner()
         return result
     
+    def style(self,style=''):
+        self.root.head.child('style',content=style)
+        
     def _toHtmlInner(self):
         result=Bag()
         hasRows=False
@@ -80,61 +83,20 @@ class GnrHtmlSrc(GnrStructData):
             label=node.label
             attr=dict(node.attr)
             tag=attr.pop('tag')
-            if tag=='row':
-                hasRows=True
             value=node.getValue()
             if isinstance(value,GnrHtmlSrc) :
                 if len(value)==0:
-                    value=''
+                    newValue=' '
                 else:
-                    value,hasInnerRows=value._toHtmlInner()
-                    if tag=='cell' and hasInnerRows:
-                        tag='container'
+                    newValue=value._toHtmlInner()
+            else:
+                newValue=value
             if hasattr(self,'compile_%s' %tag):
                 handler = getattr(self,'compile_%s' %tag)
-                tag,attr= handler(tag,attr)
-            result.addItem(tag,value,attr)
-        return result,hasRows
-            
-        
-    def compile_layout(self,tag,attr):
-        tag = 'div'
-        xclass = 'layout_table'
-        if attr.get('class'):
-            attr['class'] = '%s %s' %(attr['class'],xclass)
-        else:
-            attr['class'] = xclass
-        return tag,attr
-        
-    def compile_cell(self,tag,attr):
-        tag = 'div'
-        xclass = 'layout_cell'
-        if attr.get('class'):
-            attr['class'] = '%s %s' %(attr['class'],xclass)
-        else:
-            attr['class'] = xclass
-        return tag,attr
-    
-    def compile_container(self,tag,attr):
-        tag = 'div'
-        xclass = 'layout_container'
-        if attr.get('class'):
-            attr['class'] = '%s %s' %(attr['class'],xclass)
-        else:
-            attr['class'] = xclass
-        return tag,attr
-    
-    def compile_row(self,tag,attr):
-        tag = 'div'
-        xclass = 'layout_row'
-        if attr.get('class'):
-            attr['class'] = '%s %s' %(attr['class'],xclass)
-        else:
-            attr['class'] = xclass
-        return tag,attr
-    
+                tag,attr= handler(value,tag,attr)
+            result.addItem(tag,newValue,attr)
+        return result
 
-    
     def __content(self,content):
         self.child('__flatten__',content=content)
         
@@ -148,57 +110,191 @@ class GnrHtmlSrc(GnrStructData):
                 self.child(tag, content=single_content, **childattr)
             else:
                 self.child('__flatten__',content=single_content)
-
-    def child(self,tag,*args, **kwargs):
+                
+    def valueAndUm(self,value,um):
+        try:
+            value=float(value)
+            i_value=int(value)
+            if i_value==value:
+                value=i_value
+            return '%s%s' % (value,um)
+        except:
+            return value
+            
+    def child_(self,tag,*args, **kwargs):
+        
         width=kwargs.pop('width',None)
         height=kwargs.pop('height',None)
+        position=kwargs.pop('position',None)
+        left=kwargs.pop('left',None)
+        top=kwargs.pop('top',None)
+        _class=kwargs.pop('_class',None)
         style=kwargs.pop('style','') 
-        
+        um=kwargs.pop('um','') 
         if width or height:
-            
             style_dict = dict([(x.split(':')) for x in style.split(';') if x])
             if width:
-                style_dict['width']=width
+                style_dict['width']=self.valueAndUm(width,um)
             if height:
-                style_dict['height']=height
+                style_dict['height']=self.valueAndUm(height,um)
+                style_dict['width']=self.valueAndUm(width,um)
+            if position:
+                style_dict['position']=position
+            if left is not None:
+                style_dict['left']=self.valueAndUm(left,um)
+            if top is not None:
+                style_dict['top']=self.valueAndUm(top,um)
+                
             style = ''.join(['%s:%s;' %(k,v) for k,v in style_dict.items()])
         if style:
             kwargs['style'] = style
+        if _class:
+            kwargs['class'] = _class
         return super(GnrHtmlSrc, self).child(tag,*args,**kwargs)
-        
-    def _tagType(self):
-        return self.parentNode.attr['tag']
-    tagType=property(_tagType)
-    
-    def _getRow(self, rowidx):
-        if rowidx is None:
-            rowidx = len(self)+1
-        while len(self)<rowidx:
-            r=self.tr()
-            while len(r)<self.cols:
-                r.td()
-        return r
-    
-    def layout(self,width=0,height=0,**kwargs):
-        child = self.child(tag='layout', width=width, height=height,**kwargs)
-        child.height = height
-        child.width = width
-        return child
+
+    def layout(self,width=0,height=0,top=0,left=0,layout_name='l1',um='mm',
+                           border_size=0.1,border_color='red',lbl_height=3,
+                           lbl_class='lbl_base',content_class='content_base',
+                           border_style='solid',**kwargs):
+        parentNode=self.parentNode
+        if parentNode.getAttr('tag')=='cell':
+            if not width:
+                width=float(parentNode.getAttr('width'))
+            
+                           
+        self.style(self.globalCss(layout_name=layout_name,um=um,border_size=border_size,
+                                     border_color=border_color,
+                                     border_style=border_style))
+                                     
+        container = self.child(tag='layout',width=width,height=height,
+                               top=top,left=left, **kwargs)
+        container.height = height
+        container.width = width
+        container.border_size=float(border_size)
+        container.um=um
+        container.lbl_height=lbl_height
+        container.lbl_class=lbl_class
+        container.content_class=content_class
+        container.layout_name=layout_name
+        container.height_calc=0
+        return container
         
     def row(self,height=0,**kwargs):
-        child = self.child(tag='row',**kwargs)
-        child.height = height
-        return child
+        container=self
+        row = container.child(tag='row',height=height,
+                              width=container.width,
+                              **kwargs)
+        row.idx=len(container)-1
+        row.container=container
         
-    def cell(self,content=None,width=0, **kwargs):
-        child = self.child(tag='cell',width=width,content=content,height=self.height,**kwargs)
-        return child
+        row.um=container.um
+        row.layout_name=container.layout_name
+        row.border_size=container.border_size
+        row.height = height
+        row.max_width=float(container.width or '0')
+        row.delta_y='%spx'%((len(container)-1)*container.border_size)
+        row.curr_x=0
+        return row
+    
+    def borderWidths(self,b):
+        b=b.upper()
+        borders=['T' in b,'R' in b,'B' in b,'L' in b]
+        if True in borders:
+            return 'border-width:%s;' % ' '.join([ ('%spx')%int(x) for x in borders])
 
-    #def cellStyle(self, rowidx, colidx, rowspan=None, colspan=None,):
+        
+    def cell(self,content=None,width=0,lbl=None,lbl_class=None,lbl_height=None, content_class=None,**kwargs):
+        row=self
+        width=float(width)
+        um=row.container.um
+        dbs=row.border_size
+        content_class=content_class or row.container.content_class
+        if lbl:
+            lbl_height=lbl_height or row.container.lbl_height
+            lbl_class=lbl_class or row.container.lbl_class
+            cell= row.child(tag='cell', width=width, idx=len(row),**kwargs)
+            caption_attr={'class':lbl_class,'top':dbs,'height':lbl_height,'width':width-(2*dbs),'left':dbs}
+            self.setValueAndUm(caption_attr,um=um,position='absolute')
+            cell.child('div',content=lbl,**caption_attr)
+            content_attr={'class':content_class,'top':dbs+lbl_height}
+            self.setValueAndUm(content_attr,um=um,position='absolute')
+            cell=cell.child('div',content=content,**content_attr)
+        else:
+            cell= row.child(tag='cell', content=content, width=width, idx=len(row),**kwargs)
+        return cell
+
+    def compile_cell(self,cell,tag,attr):
+        bs=self.border_size
+        dbs=min(bs/2.,.2)
+        tag = 'div'
+        width=float(attr['width'])
+        idx=attr.pop('idx')
+        if width==0:
+            wl=[float(w) for w in self.digest('#a.width')][idx:]
+            width=(self.max_width-(self.curr_x+sum(wl)))/wl.count(0.0)
+        
+        if self.height==0:
+            hl=[float(h) for h in self.container.digest('#a.height')][self.idx:]
+            self.height=(self.container.height-(self.container.height_calc+sum(hl)))/hl.count(0.0)
+        width=width-bs  
+        attr['width']=width+dbs
+        attr['height']=self.height-bs+dbs
+        attr['class']='%s_br' % self.layout_name
+        attr['top']=-dbs
+        attr['left']=self.curr_x-dbs
+        self.curr_x=self.curr_x+  width + bs
+        self.setValueAndUm(attr,self.um)
+        return tag,attr
+
+    
+    def compile_row(self,row,tag,attr):
+        tag = 'div'
+        attr['top']=row.container.height_calc
+        self.height_calc=self.height_calc+float(row.height)
+        self.setValueAndUm(attr,self.um,position='absolute')
+        return tag,attr
+                
+    def compile_layout(self,layout,tag,attr):
+        tag = 'div'
+        attr['height']=layout.height_calc-.2
+        attr['class']='%s_tl' % layout.layout_name
+        self.setValueAndUm(attr,layout.um,position='absolute')
+        return tag,attr
+
+        
+    def setValueAndUm(self,attr,um,**kwargs):
+        style=attr.pop('style','')
+        style_dict = dict([(x.split(':')) for x in style.split(';') if x])
+        style_dict.update(kwargs)
+        for name in ('width','height','top','left'):
+            if name in attr:
+                value=attr.pop(name)
+                try:
+                    value=float(value)
+                    i_value=int(value)
+                    if i_value==value:
+                        value=i_value
+                    value='%s%s' % (value,um)
+                except:
+                    pass
+                style_dict[name]=value
+                
+        attr['style']=''.join(['%s:%s;' %(k,v) for k,v in style_dict.items()])
+        
+    def globalCss(self,layout_name='',um='mm',border_size=0.1,border_color='gray',border_style='solid'):
+        st='%s%s %s %s' %(border_size,um,border_style,border_color)
+        css= """.%s_tl{border-top:%s;border-left:%s;position:absolute;}
+                  .%s_br{border-bottom:%s;border-right:%s;position:absolute;}
+               """%(layout_name,st,st,layout_name,st,st)
+        return css
+ 
 
 class GnrHtmlPdf(object):
     def __init__(self, filename=None,**kwargs):
         self.root = GnrHtmlSrc.makeRoot()
+        html = self.root.html()
+        self.root.head = html.head()
+        self.body = html.body()
         
     def toXml(self,filename=None,encoding='UTF-8'):
         return self.root.toXml(filename=filename, encoding=encoding,typeattrs=False, autocreate=True,
@@ -208,33 +304,13 @@ class GnrHtmlPdf(object):
         if filename:
             filename=expandpath(filename)
         result=self.root.toHtml()
-        return result.toXml(filename=filename,omitRoot=True)
+        return result.toXml(filename=filename,omitRoot=True,autocreate=True)
     
     
     def toPdf(self,filename=None):
         """call the pdf webkit generator"""
         pass
-def globalCss():
-    return """
-    .layout_table{
-        display:table;
-        border-collapse:collapse;
-		border-top:1px solid gray;
 
-    }
-    .layout_row{
-		border-bottom:1px solid gray;
-    }
-    .layout_cell{
-        display:table-cell;
-		border-left:1px solid gray;
-	    border-right:1px solid gray;
-    }
-    .layout_container{
-		display:table-cell;
-	}
-    
-    """
 def test2(body):
     layout = body.layout(width='190mm')
     r1 = layout.row(height='15mm')
@@ -254,8 +330,6 @@ def test2(body):
 def test1(body):
     layout = body.layout(width='190mm')
     r1 = layout.row(height='15mm')
-
-
     r1.cell('pluto',width='30mm',lbl='name',lbl_class='z1')
     r1.cell('paperino',width='30mm',lbl='name',lbl_class='z1')
     r2 = layout.row(height='90mm')
@@ -272,15 +346,49 @@ def test1(body):
     r4.cell(width='130mm')
     r4.cell(width='139mm')
     
+def test0(body):
+    layout = body.layout(width='180',height=100,um='mm',top=10,left=10,border_size=.3,
+                        lbl_height=4,lbl_class='z1',content_class='content')
+    layout.style(".z1{font-size:7pt;background-color:silver;text-align:center}")
+    layout.style(".z2{font-size:9pt;background-color:pink;text-align:right;}")
+    layout.style(".content{font-size:12pt;text-align:center;}")
+
+    r1 = layout.row(height=20)
+    r1.cell('foo',width=40,lbl='name')
+    r1.cell('bar',width=22)
+    r1.cell('spam',width=18)
+    r1.cell()
+    r1.cell('eggs',width=30)
+    
+    r2 = layout.row()
+    r2.cell(lbl='name',lbl_class='z1')
+    subtable=r2.cell(width='80',lbl='name')
+    r2.cell('gina',width=30,lbl='name')
+    
+    r3 = layout.row(height=20)
+    r3.cell('a',width='30',lbl='name')
+    r3.cell('b',width=20,lbl='name')
+    r3.cell('c',width=20,lbl='name',lbl_class='z2')
+    r3.cell('',lbl='name')
+
+    #l2=subtable.layout(layout_name='inner',um='mm',top=0,left=0,border_size=.3)
+    #r = l2.row(height=10)
+    #r.cell('xx',width=12)
+    #r.cell('yy',width=22)
+    #r.cell('zz',width=8)
+    #r.cell()
+    #r.cell('tt',width=8)
+    #r = l2.row()
+    #r.cell('gg',width=9)
+    #r.cell('nn',width=12)
+    #r.cell('mm',width=6)
+    #r.cell()
+
 if __name__ =='__main__':
     pdf = GnrHtmlPdf('testbag.pdf') 
-    root=pdf.root
-    html = root.html()
-    head = html.head()
-    head.style(content=globalCss())
-    body= html.body()
+    body= pdf.body
     #test1(body)
-    test2(body)
-    
-    pdf.toHtml('test3.html')
+    test0(body)
+    pdf.root.toXml('testhtml/test0.xml',autocreate=True)
+    pdf.toHtml('testhtml/test0.html')
     print body
