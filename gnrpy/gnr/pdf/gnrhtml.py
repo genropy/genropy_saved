@@ -213,7 +213,7 @@ class GnrHtmlSrc(GnrStructData):
             lbl_height=lbl_height or row.container.lbl_height
             lbl_class=lbl_class or row.container.lbl_class
             cell= row.child(tag='cell', width=width, idx=len(row),**kwargs)
-            caption_attr={'class':lbl_class,'top':dbs,'height':lbl_height,'width':width-(2*dbs),'left':dbs}
+            caption_attr={'class':lbl_class,'top':dbs,'height':lbl_height,'left':dbs, 'right':dbs}
             self.setValueAndUm(caption_attr,um=um,position='absolute')
             cell.child('div',content=lbl,**caption_attr)
             content_attr={'class':content_class,'top':dbs+lbl_height}
@@ -266,7 +266,7 @@ class GnrHtmlSrc(GnrStructData):
         style=attr.pop('style','')
         style_dict = dict([(x.split(':')) for x in style.split(';') if x])
         style_dict.update(kwargs)
-        for name in ('width','height','top','left'):
+        for name in ('width','height','top','left','right'):
             if name in attr:
                 value=attr.pop(name)
                 try:
@@ -355,6 +355,7 @@ def test0(body):
 
     r1 = layout.row(height=20)
     r1.cell('foo',width=40,lbl='name')
+    r1.cell()
     r1.cell('bar',width=22)
     r1.cell('spam',width=18)
     r1.cell()
@@ -371,18 +372,19 @@ def test0(body):
     r3.cell('c',width=20,lbl='name',lbl_class='z2')
     r3.cell('',lbl='name')
 
-    #l2=subtable.layout(layout_name='inner',um='mm',top=0,left=0,border_size=.3)
-    #r = l2.row(height=10)
-    #r.cell('xx',width=12)
-    #r.cell('yy',width=22)
-    #r.cell('zz',width=8)
-    #r.cell()
-    #r.cell('tt',width=8)
-    #r = l2.row()
-    #r.cell('gg',width=9)
-    #r.cell('nn',width=12)
-    #r.cell('mm',width=6)
-    #r.cell()
+    l2=subtable.layout(layout_name='inner',um='mm',top=0,left=0,width='80',border_size=.3)
+    r = l2.row(height=10)
+    r.cell('xx',width=12)
+    r.cell('yy',width=22)
+    r.cell('zz',width=8)
+    r.cell()
+    r.cell('tt',width=8)
+    r = l2.row()
+    r.cell('gg',width=9)
+    r.cell('nn',width=12)
+    r.cell()
+    r.cell('mm',width=6)
+    
 
 if __name__ =='__main__':
     pdf = GnrHtmlPdf('testbag.pdf') 
@@ -391,4 +393,10 @@ if __name__ =='__main__':
     test0(body)
     pdf.root.toXml('testhtml/test0.xml',autocreate=True)
     pdf.toHtml('testhtml/test0.html')
+    from gnr.pdf.wk2pdf import WK2pdf
+    wkprinter = WK2pdf('testhtml/test0.html','testhtml/test0.pdf')
+    wkprinter.run()
+    wkprinter.exec_()
+            
+            
     print body
