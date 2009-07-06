@@ -347,16 +347,14 @@ class BagToXml(object):
         if t != '' and t != 'T': 
             result= '%s _T="%s"' % (result, t)
         if attributes: result = "%s %s" % (result, attributes)
-        if value!='':
-            if not xmlMode:
-                if not isinstance(value, unicode): value = unicode(value, 'UTF-8')
-                #if REGEX_XML_ILLEGAL.search(value): value='<![CDATA[%s]]>' % value
-                #else: value = saxutils.escape((value))
-                if REGEX_XML_ILLEGAL.search(value):
-                    value = saxutils.escape(value)
-            #if value.find('\n')!=-1: value= '\n%s\n' % value
-            result =  '%s>%s</%s>' % (result, value, tagName)
-        
-        else: result = result +'/>'
+        if not xmlMode:
+            if not isinstance(value, unicode): value = unicode(value, 'UTF-8')
+            #if REGEX_XML_ILLEGAL.search(value): value='<![CDATA[%s]]>' % value
+            #else: value = saxutils.escape((value))
+            if REGEX_XML_ILLEGAL.search(value):
+                value = saxutils.escape(value)
+        #if value.find('\n')!=-1: value= '\n%s\n' % value
+        result =  '%s>%s</%s>' % (result, value, tagName)
+     
         return result
     
