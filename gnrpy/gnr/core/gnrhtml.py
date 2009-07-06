@@ -25,7 +25,6 @@ class GnrHtmlElem(object):
         self.obj=obj
         self.tag=tag
     
-    
     def clean_names(self, kw, names):
         for name in names:
             if name in kw:
@@ -157,10 +156,7 @@ class GnrHtmlBuilder(object):
                            .x_b{border-top:none!important;border-left:none!important;border-right:none!important;}
                            .x_{border:none!important;}
                         """)
-    #def toXml(self,filename=None,encoding='UTF-8'):
-    #    return self.root.toXml(filename=filename, encoding=encoding,typeattrs=False, autocreate=True,
-    #            omitUnknownTypes=True, omitRoot=True, forcedTagAttr='tag',addBagTypeAttr=False)
-    #
+
     def toHtml(self,filename=None):
         if filename:
             filename=expandpath(filename)
@@ -196,6 +192,10 @@ class GnrHtmlBuilder(object):
             
                 
     def finalize_layout_before(self, parent, attr, layout):
+        if layout.nested:
+            layout.width=layout.width or parent.width
+            layout.height=layout.height or parent.row.height
+      
         if layout.elastic_rows:
             if layout.height:
                 height = (layout.height - sum([row.height for row in layout.values() if row.height]))/len(layout.elastic_rows)
@@ -266,17 +266,47 @@ class GnrHtmlBuilder(object):
         row.curr_x += width
 
         self.calculate_style(attr, row.layout.um)
-        
-        
+
     def finalize_pass(self, src, attr, value):
         pass
-    #
-    #
-    #def toPdf(self,filename=None):
-    #    """call the pdf webkit generator"""
-    #    pass
 
 def test0(pane):
+    d=144
+    layout = pane.layout(width=d,height=d,um='mm',top=10,left=10,border_width=1,
+                        lbl_height=4,lbl_class='z1',content_class='content')
+    x=d/3.
+    r = layout.row()
+    r.cell('foo')
+    r.cell('bar',width=x)
+    r.cell('baz')
+    r = layout.row(height=x)
+    r.cell('foo')
+    subtable=r.cell(width=x)
+    r.cell('baz')
+    r = layout.row()
+    r.cell('foo')
+    r.cell('bar',width=x)
+    r.cell('baz')
+    layout=subtable.layout(name='inner',um='mm',border_width=.3,
+                        border_color='green',
+                        lbl_height=4,lbl_class='z1',content_class='content')
+    x=x/2.
+    r = layout.row()
+    r.cell('foo')
+    r.cell('bar',width=x)
+    r.cell('baz')
+    r = layout.row(height=x)
+    r.cell('foo')
+    r.cell('bar',width=x)
+    r.cell('baz')
+    r = layout.row()
+    r.cell('foo')
+    r.cell('bar',width=x)
+    r.cell('baz')
+    
+    
+    
+def test1(pane):
     layout = pane.layout(width='150',height=150,um='mm',top=10,left=10,border_width=.3,
                         lbl_height=4,lbl_class='z1',content_class='content')
     layout.style(".z1{font-size:7pt;background-color:silver;text-align:center}")
@@ -290,11 +320,23 @@ def test0(pane):
     r.cell('spam',width=18)
     r.cell()
     r.cell('eggs',width=30)
-    layout.row().cell()
+    sublayout = layout.row().cell()
     r = layout.row(height=40)
     r.cell('maa',width=60,lbl='name')
     r.cell()
     r.cell('dooo',width=60)
+    sl=sublayout.layout(width='150',height=70,um='mm',top=0,left=0,border_width=.3,
+                        lbl_height=4,lbl_class='z1',content_class='content')
+    r=sl.row(height=10)
+    r.cell('xx',width=10)
+    r.cell()
+    r.cell('yy',width=20)
+    sl.row().cell()
+    r=sl.row(height=30)
+    r.cell('tt',width=40)
+    r.cell('kkkkk')
+    r.cell('mmm',width=40)
+    
     
 
 
@@ -304,8 +346,8 @@ if __name__ =='__main__':
     test0(builder.body)
     #pdf.root.toXml('testhtml/test0.xml',autocreate=True)
     builder.toHtml('testhtml/test0.html')
-    #from gnr.pdf.wk2pdf import WK2pdf
-    #wkprinter = WK2pdf('testhtml/test0.html','testhtml/test0.pdf')
-    #wkprinter.run()
-    #wkprinter.exec_()
-    print builder.html
+    from gnr.pdf.wk2pdf import WK2pdf
+    wkprinter = WK2pdf('testhtml/test0.html','testhtml/test0.pdf')
+    wkprinter.run()
+    wkprinter.exec_()
+    #print builder.html
