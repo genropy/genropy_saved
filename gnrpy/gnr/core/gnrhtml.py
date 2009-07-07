@@ -317,7 +317,7 @@ def test0(pane):
     r.cell('baz',lbl='time')
     r = layout.row(height=x)
     r.cell('foo',lbl='cc')
-    subtable=r.cell(width=x,lbl='subtable')
+    subtable=r.cell(width=x)
     r.cell('baz',lbl='dd')
     r = layout.row()
     r.cell('foo',lbl='alfa')
