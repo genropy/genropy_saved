@@ -191,13 +191,13 @@ class GnrHtmlBuilder(object):
         for node in src:
             node_tag = node.getAttr('tag')
             node_value = node.value
-            getattr(self,'finalize_%s_before'%node_tag, self.finalize_pass)(src, node.attr, node.value)
+            getattr(self,'finalize_%s'%node_tag, self.finalize_pass)(src, node.attr, node.value)
             if node_value and isinstance(node_value, GnrHtmlSrc):
                 self.finalize(node_value)
             getattr(self,'finalize_%s_after'%node_tag, self.finalize_pass)(src, node.attr, node.value)
             
                 
-    def finalize_layout_before(self, parent, attr, layout):
+    def finalize_layout(self, parent, attr, layout):
         if layout.nested:
             layout.width=layout.width or parent.width-layout.left-layout.right-layout.border_width
             layout.height=layout.height or parent.height-layout.top-layout.bottom-layout.border_width
@@ -229,7 +229,7 @@ class GnrHtmlBuilder(object):
         layout.curr_y = 0
         attr['tag'] = 'div'
         
-    def finalize_row_before(self, layout, attr, row):
+    def finalize_row(self, layout, attr, row):
         width = layout.width
         if row.elastic_cells:
             if width:
@@ -250,7 +250,7 @@ class GnrHtmlBuilder(object):
         row.curr_x = 0
         
         
-    def finalize_cell_before(self, row, attr, cell):
+    def finalize_cell(self, row, attr, cell):
         cell.height = row.height
         width = cell.width
         um = row.layout.um
@@ -299,7 +299,7 @@ class GnrHtmlBuilder(object):
 
 def test0(pane):
     
-    d=90
+    d=180
     layout = pane.layout(width=d,height=d,um='mm',top=10,left=10,border_width=.3,
                         lbl_height=4,lbl_class='z1',content_class='content',_class='mmm')
 
@@ -316,14 +316,14 @@ def test0(pane):
     r.cell('bar',width=x,lbl='weight')
     r.cell('baz',lbl='time')
     r = layout.row(height=x)
-    r.cell('foo')
+    r.cell('foo',lbl='cc')
     subtable=r.cell(width=x,lbl='subtable')
-    r.cell('baz')
+    r.cell('baz',lbl='dd')
     r = layout.row()
-    r.cell('foo')
-    r.cell('bar',width=x)
-    r.cell('baz')
-    layout=subtable.layout(name='inner',um='mm',border_width=.3,top=2,left=2,right=2,bottom=2,
+    r.cell('foo',lbl='alfa')
+    r.cell('bar',width=x,lbl='beta')
+    r.cell('baz',lbl='gamma')
+    layout=subtable.layout(name='inner',um='mm',border_width=.3,top=0,left=0,right=0,bottom=0,
                         border_color='green',
                         lbl_height=4,lbl_class='z1',content_class='content')
     x=x/2.
