@@ -9,6 +9,7 @@
 
 
 from gnr.core.gnrbag import Bag,BagNode
+from gnr.core.gnrstring import splitAndStrip
 from gnr.core.gnrstructures import GnrStructData
 #from gnr.core import gnrstring
 from gnr.core.gnrsys import expandpath
@@ -129,7 +130,7 @@ class GnrHtmlSrc(GnrStructData):
         row=self
         cell = self.child(tag='cell', **kwargs)
         if content:
-            cell.child(tag='div', content=content, class_=content_class,style="position:absolute;left:0;top:0;")
+            cell.child(tag='div', content=content, class_=content_class)
         cell.width = float(width or 0)
         cell.row = row
         cell.content_class=content_class
@@ -171,7 +172,8 @@ class GnrHtmlBuilder(object):
         
     def calculate_style(self,attr,um,**kwargs):
         style=attr.pop('style','')
-        style_dict = dict([(x.split(':')) for x in style.split(';') if x])
+        style = style.replace('\n','')
+        style_dict = dict([(splitAndStrip(x,':')) for x in style.split(';') if ':' in x])
         style_dict.update(kwargs)
         for name in ('width', 'height', 'top', 'left', 'right','bottom'):
             if name in attr:
