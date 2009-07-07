@@ -54,11 +54,13 @@ def start_bonjour(host=None, port=None, server_name=None,
         # that.  Program availability on the filesystem was never enough...
         if os.path.exists(cmd):
             DNS_SD_PID = os.spawnv(os.P_NOWAIT, cmd, [cmd]+args)
+            print DNS_SD_PID
             atexit.register(stop_bonjour)
             break
 
 def stop_bonjour():
     import signal
+    global DNS_SD_PID
     if not DNS_SD_PID:
         return
     try:
@@ -523,7 +525,7 @@ class NewServer(object):
                         os.kill(proc.pid, signal.SIGTERM)
                     except (OSError, IOError):
                         pass
-
+            stop_bonjour()
             if reloader:
                 # Reloader always exits with code 3; but if we are
                 # a monitor, any exit code will restart
