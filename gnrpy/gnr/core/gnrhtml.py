@@ -129,7 +129,7 @@ class GnrHtmlSrc(GnrStructData):
         row=self
         cell = self.child(tag='cell', **kwargs)
         if content:
-            cell.child(tag='span', content=content, class_=content_class)
+            cell.child(tag='div', content=content, class_=content_class,style="position:absolute;left:0;top:0;")
         cell.width = float(width or 0)
         cell.row = row
         cell.content_class=content_class
@@ -270,7 +270,6 @@ class GnrHtmlBuilder(object):
             cell_class=cell_class.replace('b','')
         if not right_border_width:
             cell_class=cell_class.replace('r','')
-
         attr['class'] = ' '.join(x for x in [attr.get('class'),row.layout.layout_class,cell_class] if x)   
         row.curr_x += width
         self.calculate_style(attr, row.layout.um)
@@ -287,7 +286,7 @@ class GnrHtmlBuilder(object):
         lbl_attr={'class':lbl_class,'top':0,'height':lbl_height,'left':0, 'right':0}
         self.calculate_style(lbl_attr, um,position='absolute')
         cell.child('div',content=lbl,**lbl_attr)
-        content_attr={'class':content_class,'top':lbl_height}
+        content_attr={'class':content_class,'top':lbl_height,'left':0, 'right':0}
         self.calculate_style(content_attr, um,position='absolute')
         x=cell.child('div',**content_attr)
         x.setItem('div_0',cur_content)
