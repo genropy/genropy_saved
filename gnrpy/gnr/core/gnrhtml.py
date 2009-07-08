@@ -146,11 +146,6 @@ class GnrHtmlSrc(GnrStructData):
         return cell
 
 
-    def toHtml(self):
-        self.finalize()
-        result = self._toHtmlInner()
-        return result
-
 class GnrHtmlBuilder(object):
     def __init__(self):
         self.root = GnrHtmlSrc.makeRoot()
