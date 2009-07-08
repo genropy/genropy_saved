@@ -430,7 +430,9 @@ class StandardIndex(object):
     def indexTitle(self):
         return self.windowTitle()
 
-class IncludedView(object):
+class IncludedView(BaseComponent):
+    css_requires = 'public'
+    js_requires = 'public'
     """IncludedView allows you to manage data of the table
        in relation many to many. includedViewBox is the method that return some
        custom widgets those allow all these operations"""
