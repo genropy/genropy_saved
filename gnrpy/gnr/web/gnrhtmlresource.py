@@ -42,7 +42,7 @@ class HtmlResource(object):
             value=self.data.getItem(path, default)
         return value
         
-    def getHtmlFromRecord(self, record, table=None, filename = None, folder=None):
+    def getHtmlFromRecord(self, record='', table=None, filename = None, folder=None):
         self.data = self.db.table(table or self.maintable or self.resource_table).recordAs(record, mode='bag')
         self.main()
         return self.builder.toHtml()

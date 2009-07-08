@@ -380,7 +380,7 @@ class GnrWsgiPage(GnrBaseWebPage):
         else:
             return (self._errorPage(err), pageattr)
             
-    def loadTableResource(self, restype, respath, class_name='Main'):
+    def loadTableResource(self, table,restype, respath, class_name='Main'):
         return self.site.loadTableResource(self, table=table,path='%s/%s:%s' % (restype,respath,class_name))
         
     def rpc_tableResource(self,table, restype, respath, class_name='Main',method='run',**kwargs):
