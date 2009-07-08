@@ -287,7 +287,7 @@ class BagToXml(object):
         if filename:    
             if autocreate:
                 dirname = os.path.dirname(filename)
-                if not os.path.exists(dirname):
+                if dirname and not os.path.exists(dirname):
                     os.makedirs(dirname)
             output=open(filename,'w')
             output.write(result)
@@ -347,6 +347,7 @@ class BagToXml(object):
         if t != '' and t != 'T': 
             result= '%s _T="%s"' % (result, t)
         if attributes: result = "%s %s" % (result, attributes)
+
         if not xmlMode:
             if not isinstance(value, unicode): value = unicode(value, 'UTF-8')
             #if REGEX_XML_ILLEGAL.search(value): value='<![CDATA[%s]]>' % value
