@@ -128,7 +128,8 @@ class GnrHtmlSrc(GnrStructData):
     def cell(self, content=None,width=0, content_class=None, lbl=None,lbl_class=None,lbl_height=None, cell_border=None, **kwargs):
         assert self.parentNode.getAttr('tag') == 'row'
         row=self
-        cell = self.child(tag='cell', **kwargs)
+        cell = row.child(tag='cell', **kwargs)
+        #cell = row.child(tag='cell',content=content, **kwargs)
         if content:
             cell.child(tag='div', content=content, class_=content_class)
         cell.width = float(width or 0)
@@ -147,12 +148,13 @@ class GnrHtmlSrc(GnrStructData):
 
 
 class GnrHtmlBuilder(object):
-    def __init__(self):
+    def __init__(self,bodyAttributes=None):
+        bodyAttributes=bodyAttributes or {}
         self.root = GnrHtmlSrc.makeRoot()
         self.root.builder = self
         self.html = self.root.html()
         self.head = self.html.head()
-        self.body = self.html.body()
+        self.body = self.html.body(**bodyAttributes)
         self.head.style(""".x_br{border-top:none!important;border-left:none!important;}
                            .x_r{border-top:none!important;border-left:none!important;border-bottom:none!important;}
                            .x_b{border-top:none!important;border-left:none!important;border-right:none!important;}
@@ -212,7 +214,7 @@ class GnrHtmlBuilder(object):
         if layout.nested:
             borders=' '.join(['%s%s'% (int(getattr(layout,side)!=0) * layout.border_width,layout.um) for side in ('top','right','bottom','left')])
         else:
-            borders='0%s'% layout.um
+            borders='%s%s'% (layout.border_width,layout.um)
         attr['top'] = layout.top
         attr['left'] = layout.left
         attr['bottom'] = layout.bottom
@@ -220,7 +222,7 @@ class GnrHtmlBuilder(object):
         attr['height'] = layout.height
         attr['width'] = layout.width
         attr['class'] = ' '.join(x for x in [attr.get('class'),row.layout.layout_class] if x) 
-        kw={'border-with':borders}
+        kw={'border-width':borders}
        
         self.calculate_style(attr, layout.um,**kw)
         layout.curr_y = 0
