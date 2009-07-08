@@ -9,7 +9,7 @@
 
 # --------------------------- GnrWebPage subclass ---------------------------
 from gnr.core.gnrbag import Bag
-from gnr.core.gnrhtml import GnrHtmlBuilder
+from gnr.core.gnrhtml_n import GnrHtmlBuilder
 
 class GnrCustomWebPage(object):
     py_requires='public:IncludedView'
@@ -74,16 +74,16 @@ class GnrCustomWebPage(object):
         nodetypes.setItem('layout',None,caption='Layout',elemtype='layout')
         nodetypes.setItem('row',None,caption='Row',elemtype='row')
         nodetypes.setItem('cell',None,caption='Cell',elemtype='cell')
-
+  
         top.data('nodetypes',nodetypes)
         top.tree(storepath='tplbag',margin='10px',
                 inspect='shift',selectedPath='tplbag_nodepath')
+   
         center = bc.borderContainer(region='center',margin='5px')
         iv = self.includedViewBox(center,label='!!Edit node',datamode='bag',
                                  storepath='current_node', struct=self.element_struct(),
                                  autoWidth=True,add_action=True,del_action=True,
                                  editorEnabled=True)
-        
         gridEditor = iv.gridEditor()
         gridEditor.textbox(gridcell='key')
         gridEditor.textbox(gridcell='value')
@@ -105,7 +105,7 @@ class GnrCustomWebPage(object):
     def rpc_getHtmlSrc(self,**kwargs):
         builder = GnrHtmlBuilder() 
         self.htmltest(builder.body)
-        return builder.body
+        return builder.html
         
     def htmltest(self,pane):
         d=180
