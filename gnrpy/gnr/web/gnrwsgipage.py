@@ -380,6 +380,15 @@ class GnrWsgiPage(GnrBaseWebPage):
         else:
             return (self._errorPage(err), pageattr)
             
+    def loadTableResource(self, table, path):
+        return self.site.loadTableResource(self, table=table,path=path)
+        
+    def rpc_tableResource(self, restype, table, path, clsname='Main',method='run',**kwargs):
+        respath = '%s/%s:%s' % (restype,path,clsname)
+        tblResObj=self.loadTableResource(table='pforce.job',path=respath)
+        handler=getattr(tblResObj, method)
+        return handler(**kwargs)
+            
 class GnrMakoPage(GnrWsgiPage):
     def index(self,*args, **kwargs):
         return GnrWsgiPage.index(self,*args, mako=self.mako_template(),**kwargs)

@@ -351,7 +351,7 @@ class GnrWsgiSite(object):
             modPathList.reverse()
             resource_module = gnrImport(modPathList.pop(-1))
             resource_class = getattr(resource_module,clsName,None)
-            resource_obj = resource_class(page=page,db=application.db, site=self)
+            resource_obj = resource_class(page=page,db=application.db, site=self, resource_table=table)
             for modPath in modPathList:
                 resource_module = gnrImport(modPath)
                 resource_class = getattr(resource_module,clsName,None)
