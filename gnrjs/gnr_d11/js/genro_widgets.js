@@ -111,6 +111,7 @@ dojo.declare("gnr.widgets.baseHtml",null,{
         if(extension){
             sourceNode[extension] = new gnr.ext[extension](sourceNode);
         }
+        
         this._makeInteger(attributes,['sizeShare','sizerWidth']);
         var savedAttrs = {};
         savedAttrs.connectedMenu=objectPop(attributes,'connectedMenu');
@@ -1779,7 +1780,7 @@ dojo.declare("gnr.widgets.VirtualStaticGrid",gnr.widgets.Grid,{
     },
     
     attributes_mixin_canSort: function(){
-        return ('canSort' in this.sourceNode.attr )? this.sourceNode.attr.canSort : true
+        return ('canSort' in this.sourceNode.attr )? this.sourceNode.attr.canSort : true;
     },
     mixin_filterExcluded: function(rowdata, index){
         if(this.excludeList){
