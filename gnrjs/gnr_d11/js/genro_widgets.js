@@ -301,6 +301,7 @@ dojo.declare("gnr.widgets.iframe",gnr.widgets.baseHtml,{
         rpcCall=objectPop(attributes,'rpcCall')
         if (rpcCall){
             params=objectExtract(attributes,'rpc_*')
+            params.mode= params.mode? params.mode:'text' 
             attributes['src']=genro.remoteUrl(rpcCall,params)
         }
         var savedAttrs = objectExtract(attributes,'rowcount,tableid');
