@@ -13,6 +13,7 @@ from gnr.core.gnrstring import splitAndStrip
 from gnr.core.gnrstructures import GnrStructData
 #from gnr.core import gnrstring
 from gnr.core.gnrsys import expandpath
+from gnr.pdf.wk2pdf import WK2pdf
 import sys
 #import cStringIO
 import os
@@ -152,9 +153,9 @@ class GnrHtmlBuilder(object):
         bodyAttributes=bodyAttributes or {}
         self.root = GnrHtmlSrc.makeRoot()
         self.root.builder = self
-        self.html = self.root.html()
-        self.head = self.html.head()
-        self.body = self.html.body(**bodyAttributes)
+        self.htmlBag = self.root.html()
+        self.head = self.htmlBag.head()
+        self.body = self.htmlBag.body(**bodyAttributes)
         self.head.style(""".x_br{border-top:none!important;border-left:none!important;}
                            .x_r{border-top:none!important;border-left:none!important;border-bottom:none!important;}
                            .x_b{border-top:none!important;border-left:none!important;border-right:none!important;}
@@ -165,7 +166,18 @@ class GnrHtmlBuilder(object):
         if filename:
             filename=expandpath(filename)
         self.finalize(self.body)
-        return self.root.toXml(filename=filename,omitRoot=True,autocreate=True,forcedTagAttr='tag',addBagTypeAttr=False, typeattrs=False)
+        self.html = self.root.toXml(filename=filename,
+                                    omitRoot=True,
+                                    autocreate=True,
+                                    forcedTagAttr='tag',
+                                    addBagTypeAttr=False, typeattrs=False)
+        return self.html
+        
+    def toPdf(self, filename):
+        self.toHtml()
+        wkprinter = WK2pdf(self.html,filename)
+        wkprinter.run()
+        wkprinter.exec_()
         
     def calculate_style(self,attr,um,**kwargs):
         style=attr.pop('style','')

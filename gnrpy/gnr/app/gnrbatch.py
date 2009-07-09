@@ -153,9 +153,7 @@ class SelectionToXls(GnrBatch):
 class SelectionToPdf(GnrBatch):
     def __init__(self, table_resource=None, selection=None, table=None, folder=None, **kwargs):
         super(SelectionToPdf,self).__init__(**kwargs)
-        if table_resource:
-            table_resource=self.page.site.loadTableResource(page=self.page,table=table,path=table_resource)
-        self.pdfmaker=table_resource
+        self.pdfmaker=self.page.site.loadTableResource(page=self.page,table=table,path=table_resource)
         self.selection = selection
         self.table = table
         self.folder = folder or 'temp_print_%s'%table.replace('.','_')
@@ -166,7 +164,6 @@ class SelectionToPdf(GnrBatch):
     
     def process_chunk(self, chunk):
         self.pdfmaker.getPdfFromRecord(record=chunk,table=self.table,folder=self.folder)
-        self.pdfmaker.toPdf(self.pdfmaker.filePath)
         
     
 class SelectedRecordsToPrint(GnrBatch):
@@ -196,9 +193,8 @@ class SelectedRecordsToPrint(GnrBatch):
             yield row
 
     def process_chunk(self, chunk):
-        self.pdfmaker.getPdf(self.table,chunk,folder=self.folder)
-        self.pdfmaker.toPdf(self.pdfmaker.filePath)
-        self.pdf_list.append(self.pdfmaker.filePath)
+        outputPath= self.pdfmaker.getPdfFromRecord(record=chunk,table=self.table,folder=self.folder)
+        self.pdf_list.append(outputPath)
         
     def collect_result(self):
         if self.printer_name=='PDF':

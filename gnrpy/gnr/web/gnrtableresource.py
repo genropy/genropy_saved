@@ -9,7 +9,7 @@ Copyright (c) 2009 __MyCompanyName__. All rights reserved.
 
 from gnr.core.gnrhtml import GnrHtmlBuilder
 from gnr.core.gnrstring import toText
-from gnr.pdf.wk2pdf import WK2pdf
+
 
 class BaseTableResource(object):
     def staticUrl(self, path):
@@ -20,6 +20,12 @@ class BaseTableResource(object):
         ext= ext or self.output_document_ext
         doc_name = '%s_%s' % (self.maintable_obj.name, self.maintable_obj.recordCaption(record))
         return doc_name
+        
+    def filePath(self, folder, filename):
+        self.filePath=self.page.temporaryDocument(folder, filename)
+    
+    def fileUrl(self, folder, filename):
+        self.fileUrl=self.page.temporaryDocumentUrl(folder, filename)
        
 class HtmlResource(BaseTableResource):
     maintable=''
@@ -57,11 +63,11 @@ class HtmlResource(BaseTableResource):
             value=self.data.getItem(path, default)
         return value
         
-
-        
-    def getHtmlFromRecord(self, record='', table=None, filename = None, folder=None):
+    def loadDatastore(self, record, table):
         self.data = self.db.table(table or self.maintable or self.resource_table).recordAs(record, mode='bag')
-        self.main()
+
+    def getHtmlFromRecord(self, record='', table=None, filename = None, folder=None):
+        self.loadDatastore(self,record,table)
         return self.builder.toHtml()
         
     def toText(self, obj, locale=None, format=None, mask=None, encoding=None):
@@ -70,19 +76,9 @@ class HtmlResource(BaseTableResource):
         return toText(obj, locale=locale, format=format, mask=mask, encoding=encoding)
         
     def getPdfFromRecord(self, record, table, filename = None, folder=None):
-        self.filename=filename or self.outputDocName(record)
-        html=self.getHtmlFromRecord(record, table, filename,folder)
-        
-        
-        wkprinter = WK2pdf(html,outputDoc_path)
-        wkprinter.run()
-        wkprinter.exec_()
-        
-        self.filePath=self.page.temporaryDocument(folder, self.filename)
-        self.fileUrl=self.page.temporaryDocumentUrl(folder, self.filename)
-       
-        
-    def toPdf(self, pdfmaker, filePath):
-        pass
-        
+        self.loadDatastore(self,record,table)
+        filename=filename or self.outputDocName(self.data)
+        outputPath = self.filePath(filename, folder)
+        self.builder.toPdf(outputPath)
+        return outputPath
         
