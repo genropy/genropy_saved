@@ -17,7 +17,8 @@ import thread
 import mimetypes
 #import hashlib
 from gnr.core.gnrsys import expandpath
-
+from gnr.web.gnrbasewebtool import GnrBaseWebTool
+import inspect
 mimetypes.init()
 
 class GnrWebServerError(Exception):
@@ -64,8 +65,27 @@ class GnrWsgiSite(object):
         self.find_gnrjs_and_dojo()
         self.page_factories={}
         self.page_factory_lock=RLock()
+        self.webtools = self.find_webtools()
         
+    
+    def find_webtools(self):
+        def isgnrwebtool(cls):
+            return inspect.isclass(cls) and issubclass(cls,GnrBaseWebTool)
+        tools = {}
+        if 'webtools' in self.gnr_config['gnr.environment_xml']:
+            for path in self.gnr_config['gnr.environment_xml'].digest('webtools:#a.path'):
+                path = expandpath(path)
+                if os.path.isdir(path):
+                    for tool_module in os.listdir(path):
+                        if tool_module.endswith('.py'):
+                            module_path =os.path.join(path,tool_module)
+                            module = gnrImport(module_path)
+                            tool_classes = inspect.getmembers(module, isgnrwebtool)
+                            tool_classes = [(name.lower(),value) for name,value in tool_classes]
+                            tools.update(dict(tool_classes))
+        return tools
         
+    
     def resource_name_to_path(self,res_id):
         project_resource_path = os.path.join(self.site_path, '..','..','resources',res_id)
         if os.path.isdir(project_resource_path):
@@ -221,7 +241,36 @@ class GnrWsgiSite(object):
         resp.headers['X-GnrTime'] = str(totaltime)
         return resp(environ, start_response)
         
-
+    def tools_call(self, path_list, environ, start_response, **kwargs):
+        toolname = path_list[1]
+        args = path_list[2:]
+        tool = self.load_webtool(toolname)
+        if not tool:
+            return self.not_found(environ, start_response)
+        response = Response()
+        request = Request(environ)
+        result = tool(*args, **kwargs)
+        content_type = getattr(tool,'content_type')
+        if content_type:
+            response.content_type = content_type
+        headers = getattr(tool,'headers',[])
+        for header_name, header_value in headers:
+            response.add_header(header_name, header_value)
+        
+        if isinstance(result, unicode):
+            response.content_type='text/plain'
+            response.unicode_body=result
+        elif isinstance(result, basestring):
+            response.body=result
+        elif isinstance(result, Response):
+            response=result
+        return response(environ, start_response)
+        
+    def load_webtool(self, tool_name):
+        webtool = self.webtools.get(tool_name)
+        if webtool:
+            return webtool()
+    
     def not_found(self, environ, start_response, debug_message=None):
         exc = httpexceptions.HTTPNotFound(
             'The resource at %s could not be found'
