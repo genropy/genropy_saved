@@ -87,7 +87,6 @@ class GnrWsgiSite(object):
             elif lib.startswith('gnr_'):
                 self.gnr_path[lib[4:]] = path
     
-    
     def find_resources(self):
         self.resources=Bag()
         for resource in self.config['resources']:
@@ -157,7 +156,9 @@ class GnrWsgiSite(object):
         path_list = [p for p in path_list if p]
         # if url starts with _ go to static file handling
         page_kwargs=dict(req.params)
-        if path_list[0].startswith('_'):
+        if path_list[0].startswith('_tools'):
+            return self.tools_call(path_list,environ,start_response,**page_kwargs)
+        elif path_list[0].startswith('_'):
             return self.serve_staticfile(path_list,environ,start_response,**page_kwargs)
         # get the deepest node in the sitemap bag associated with the given url
         page_node,page_args=self.sitemap.getDeepestNode('.'.join(path_list))
@@ -235,7 +236,7 @@ class GnrWsgiSite(object):
         wsgiapp=self.dispatcher
         if self.debug:
             wsgiapp = EvalException(wsgiapp, debug=True)
-        beaker_path = os.path.join(os.path.dirname(os.path.realpath(self.site_path)),'_data')
+        beaker_path = os.path.join(os.path.realpath(self.site_path),'session_data')
         wsgiapp = SessionMiddleware(wsgiapp, dict(key=self.session_key, secret=self.secret, 
                 data_dir=beaker_path, type='memory', auto=True))
         return wsgiapp
@@ -345,6 +346,9 @@ class GnrWsgiSite(object):
             table=application.db.table(table)
         path = os.path.join('tables',table.name,*(path.split('/')))
         resourceDirs = application.packages[table.pkg.name].resourceDirs
+        fpath = os.path.join(self.site_path,'_custom', table.pkg.name, '_resources')
+        if os.path.isdir(fpath):
+            resourceDirs.append(fpath)
         modName, clsName = path.split(':')
         modPathList = self.getResourceList(resourceDirs, modName, 'py') or []
         if modPathList:
