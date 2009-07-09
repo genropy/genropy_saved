@@ -165,7 +165,7 @@ class SelectionToPdf(GnrBatch):
             yield row
     
     def process_chunk(self, chunk):
-        self.pdfmaker.getPdf(self.table,chunk,folder=self.folder)
+        self.pdfmaker.getPdfFromRecord(record=chunk,table=self.table,folder=self.folder)
         self.pdfmaker.toPdf(self.pdfmaker.filePath)
         
     

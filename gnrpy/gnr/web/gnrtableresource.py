@@ -9,23 +9,32 @@ Copyright (c) 2009 __MyCompanyName__. All rights reserved.
 
 from gnr.core.gnrhtml import GnrHtmlBuilder
 from gnr.core.gnrstring import toText
+from gnr.pdf.wk2pdf import WK2pdf
 
 class BaseTableResource(object):
     def staticUrl(self, path):
         #miki implementa qui il rimappaggio
         return path
         
+    def outputDocName(self, record, ext=''):
+        ext= ext or self.output_document_ext
+        doc_name = '%s_%s' % (self.maintable_obj.name, self.maintable_obj.recordCaption(record))
+        return doc_name
+       
 class HtmlResource(BaseTableResource):
     maintable=''
     
-    def __init__(self, page=None, resource_table = None, locale=None, encoding='UTF-8', **kwargs):
-        
+    def __init__(self, page=None, resource_table = None,
+                       locale=None, encoding='UTF-8', **kwargs):
         self.encoding = encoding
         self.page = page
         self.locale = locale or self.page.locale
         self.db = self.page.db
-        self.site = self.page.site
         self.resource_table = resource_table
+        if not hasattr(self,'maintable'):
+            self.maintable=self.resource_table
+        self.maintable_obj=self.db.table(self.maintable)
+        self.site = self.page.site
         self.builder = GnrHtmlBuilder()
         self.body = self.builder.body
         
@@ -48,6 +57,8 @@ class HtmlResource(BaseTableResource):
             value=self.data.getItem(path, default)
         return value
         
+
+        
     def getHtmlFromRecord(self, record='', table=None, filename = None, folder=None):
         self.data = self.db.table(table or self.maintable or self.resource_table).recordAs(record, mode='bag')
         self.main()
@@ -57,4 +68,21 @@ class HtmlResource(BaseTableResource):
         locale = locale or self.locale
         encoding = locale or self.encoding
         return toText(obj, locale=locale, format=format, mask=mask, encoding=encoding)
+        
+    def getPdfFromRecord(self, record, table, filename = None, folder=None):
+        self.filename=filename or self.outputDocName(record)
+        html=self.getHtmlFromRecord(record, table, filename,folder)
+        
+        
+        wkprinter = WK2pdf(html,outputDoc_path)
+        wkprinter.run()
+        wkprinter.exec_()
+        
+        self.filePath=self.page.temporaryDocument(folder, self.filename)
+        self.fileUrl=self.page.temporaryDocumentUrl(folder, self.filename)
+       
+        
+    def toPdf(self, pdfmaker, filePath):
+        pass
+        
         
