@@ -10,7 +10,12 @@ Copyright (c) 2009 __MyCompanyName__. All rights reserved.
 from gnr.core.gnrhtml import GnrHtmlBuilder
 from gnr.core.gnrstring import toText
 
-class HtmlResource(object):
+class BaseTableResource(object):
+    def staticUrl(self, path):
+        #miki implementa qui il rimappaggio
+        return path
+        
+class HtmlResource(BaseTableResource):
     maintable=''
     
     def __init__(self, page=None, resource_table = None, locale=None, encoding='UTF-8', **kwargs):
@@ -24,7 +29,8 @@ class HtmlResource(object):
         self.builder = GnrHtmlBuilder()
         self.body = self.builder.body
         
-    def field(self,path,default=None,locale=None, format=None, mask=None, encoding=None):
+    def field(self, path, default=None, locale=None,
+                    format=None, mask=None, encoding=None):
         datanode=self.data.getNode(path, default)
         value = datanode.value
         attr=datanode.attr
