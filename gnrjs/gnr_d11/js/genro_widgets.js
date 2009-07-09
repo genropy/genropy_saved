@@ -298,6 +298,11 @@ dojo.declare("gnr.widgets.baseHtml",null,{
 
 dojo.declare("gnr.widgets.iframe",gnr.widgets.baseHtml,{
     creating:function(attributes, sourceNode){
+        rpcCall=objectPop(attributes,'rpcCall')
+        if (rpcCall){
+            params=objectExtract(attributes,'rpc_*')
+            attributes['src']=genro.remoteUrl(rpcCall,params)
+        }
         var savedAttrs = objectExtract(attributes,'rowcount,tableid');
         return savedAttrs;
     },
