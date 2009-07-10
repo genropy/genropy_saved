@@ -822,7 +822,8 @@ function funcApply(fnc, parsobj, scope){
         argValues.push(parsobj[attr]);
     }
     var func = funcCreate(fnc, argNames.join(','));
-    return func.apply(scope, argValues);
+    var result = func.apply(scope, argValues);
+    return result;
 }
 
 function localeParser(/*String*/value, /*Object?*/options){
