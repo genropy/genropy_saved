@@ -127,33 +127,6 @@ def gnrImport(source, importAs=None):
                 raise error
     return module
 
-def gnrImport_(source, importAs=None):
-    if source in sys.modules:
-        return sys.modules[source]
-    path=None
-    if os.path.isfile(source) or '/' in source:
-        path=[os.path.dirname(source)]
-        source=os.path.splitext(os.path.basename(source))[0]
-    segments=source.split('.')
-    for segment in segments:
-        module_file=None
-        try:
-            imp.acquire_lock()
-            module_file,module_path,module_description = imp.find_module(segment,path)
-            if importAs and segment==segments[-1]:
-                segment=importAs
-            module = imp.load_module(segment,module_file,module_path,module_description)
-            path=getattr(module,'__path__',None)
-        except Exception,e:
-            module = None
-            raise e
-        finally:
-            if module_file:
-                module_file.close()
-            if imp.lock_held():
-                imp.release_lock()
-    return module
-
 class GnrException(Exception): 
     """Standard Gnr Exception.
 

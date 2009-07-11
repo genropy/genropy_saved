@@ -11,15 +11,15 @@
 
 
 from gnr.web.gnrbasewebtool import GnrBaseWebTool
-from code39 import Code39Encoder
-from code128 import Code128Encoder
-from datamatrix import DataMatrixEncoder
-from qrcode import QRCodeEncoder
-from ean13 import EAN13Encoder
+#from code39 import Code39Encoder
+from huBarcode.code128 import Code128Encoder
+from huBarcode.datamatrix import DataMatrixEncoder
+from huBarcode.qrcode import QRCodeEncoder
+from huBarcode.ean13 import EAN13Encoder
 import tempfile
 import mimetypes
 encoders = {
-    'code39' : Code39Encoder,
+    #'code39' : Code39Encoder,
     'code128' : Code128Encoder,
     'datamatrix' : DataMatrixEncoder,
     'qrcode': QRCodeEncoder,

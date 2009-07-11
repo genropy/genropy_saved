@@ -602,7 +602,7 @@ class GnrBaseWebPage(GnrObject):
         return login
     
 
-    def _rpcDispatcher(self, method=None, **kwargs): 
+    def _rpcDispatcher(self, method=None, xxcnt='',**kwargs): 
         if False and method!= 'main':
             if self.session.pagedata['page_id']!=self.page_id :
                 self.raiseUnauthorized()

@@ -12,6 +12,16 @@ from gnr.core.gnrstring import toText
 
 
 class BaseTableResource(object):
+        
+    def __init__(self, page=None, resource_table = None):
+        self.page = page
+        self.site = self.page.site
+        self.locale = self.page.locale
+        self.db = self.page.db
+        self.resource_table = resource_table
+        self.init()
+        
+
     def staticUrl(self, path):
         #miki implementa qui il rimappaggio
         return path
@@ -29,23 +39,19 @@ class BaseTableResource(object):
        
 class HtmlResource(BaseTableResource):
     maintable=''
+    encoding= 'utf-8'
     
-    def __init__(self, page=None, resource_table = None,
-                       locale=None, encoding='UTF-8', **kwargs):
-        self.encoding = encoding
-        self.page = page
-        self.locale = locale or self.page.locale
-        self.db = self.page.db
-        self.resource_table = resource_table
-        if not hasattr(self,'maintable'):
-            self.maintable=self.resource_table
+    def init(self,**kwargs):
+        self.maintable=self.maintable or self.resource_table
         self.maintable_obj=self.db.table(self.maintable)
-        self.site = self.page.site
         self.builder = GnrHtmlBuilder()
         self.body = self.builder.body
         
+    def rpc_run(self,**kwargs):
+        return self.getHtmlFromRecord(**kwargs)
+        
     def field(self, path, default=None, locale=None,
-                    format=None, mask=None, encoding=None):
+                    format=None, mask=None):
         datanode=self.data.getNode(path, default)
         value = datanode.value
         attr=datanode.attr
@@ -53,7 +59,7 @@ class HtmlResource(BaseTableResource):
             value=default
         format= format or attr.get('format')
         mask= mask or attr.get('mask')
-        return self.toText(value,locale,format, mask, encoding)
+        return self.toText(value,locale,format, mask, self.encoding)
 
     def getData(self,path,default=None):
         wildchars = []
@@ -67,7 +73,8 @@ class HtmlResource(BaseTableResource):
         self.data = self.db.table(table or self.maintable or self.resource_table).recordAs(record, mode='bag')
 
     def getHtmlFromRecord(self, record='', table=None, filename = None, folder=None):
-        self.loadDatastore(self,record,table)
+        self.loadDatastore(record,table)
+        self.main()
         return self.builder.toHtml()
         
     def toText(self, obj, locale=None, format=None, mask=None, encoding=None):

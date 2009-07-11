@@ -1,5 +1,5 @@
 from gnr.core.gnrbag import Bag, DirectoryResolver
-from gnr.core.gnrlang import gnrImport, getUuid, classMixin, cloneClass
+from gnr.core.gnrlang import gnrImport, getUuid, classMixin, cloneClass,instanceMixin
 from gnr.core.gnrstring import splitAndStrip
 from gnr.web.gnrwebpage import BaseResource
 from gnr.web.gnrwsgipage import GnrWsgiPage
@@ -395,23 +395,22 @@ class GnrWsgiSite(object):
             table=application.db.table(table)
         path = os.path.join('tables',table.name,*(path.split('/')))
         resourceDirs = application.packages[table.pkg.name].resourceDirs
-        fpath = os.path.join(self.site_path,'_custom', table.pkg.name, '_resources')
-        if os.path.isdir(fpath):
-            resourceDirs.append(fpath)
         modName, clsName = path.split(':')
         modPathList = self.getResourceList(resourceDirs, modName, 'py') or []
+
         if modPathList:
             modPathList.reverse()
-            resource_module = gnrImport(modPathList.pop(-1))
+            basePath=modPathList.pop(0)
+            resource_module = gnrImport(basePath)
             resource_class = getattr(resource_module,clsName,None)
-            resource_obj = resource_class(page=page,db=application.db, site=self, resource_table=table)
+            resource_obj = resource_class(page=page,resource_table=table)          
             for modPath in modPathList:
                 resource_module = gnrImport(modPath)
                 resource_class = getattr(resource_module,clsName,None)
                 if resource_class:
-                    obj.mixin(resource_class)
-            if hasattr(resource_obj,'init'):
-                resource_obj.init(page)
+                    print 'mixining'
+                    x=resource_class()
+                    instanceMixin(resource_obj,x)
             return resource_obj
         else:
             raise GnrWebServerError('Cannot import component %s' % modName)
