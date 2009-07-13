@@ -150,6 +150,10 @@ class GnrHtmlSrc(GnrStructData):
 
 class GnrHtmlBuilder(object):
     def __init__(self,bodyAttributes=None):
+        pass
+
+                        
+    def initializeSrc(self, bodyAttributes=None):
         bodyAttributes=bodyAttributes or {}
         self.root = GnrHtmlSrc.makeRoot()
         self.root.builder = self
@@ -174,8 +178,8 @@ class GnrHtmlBuilder(object):
         return self.html
         
     def toPdf(self, filename):
-        self.toHtml()
-        wkprinter = WK2pdf(self.html,filename)
+        self.toHtml('%s.%s'%(filename,'html'))
+        wkprinter = WK2pdf('%s.%s'%(filename,'html'),filename)
         wkprinter.run()
         wkprinter.exec_()
         

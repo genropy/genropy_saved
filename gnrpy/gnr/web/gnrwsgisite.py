@@ -167,6 +167,7 @@ class GnrWsgiSite(object):
         t=time()
         req = Request(environ)
         resp = Response()
+        self.external_host = self.config['wsgi?external_host'] or req.host_url
         path_info = req.path_info
         if path_info==self.home_uri:
             path_info=self.homepage
@@ -527,7 +528,7 @@ class GnrWsgiSite(object):
     
     def webtools_url(self,tool,**kwargs):
         kwargs_string = '&'.join(['%s=%s'%(k,v) for k,v in kwargs.items()])
-        return '%s_tools/%s?%s'%(self.home_uri,tool,kwargs_string)
+        return '%s%s_tools/%s?%s'%(self.external_host,self.home_uri,tool,kwargs_string)
         
     def site_static_path(self,*args):
         return os.path.join(self.site_static_dir, *args)

@@ -193,7 +193,7 @@ class SelectedRecordsToPrint(GnrBatch):
             yield row
 
     def process_chunk(self, chunk):
-        outputPath= self.pdfmaker.getPdfFromRecord(record=chunk,table=self.table,folder=self.folder)
+        outputPath= self.pdfmaker.getPdf(record=chunk,table=self.table,folder=self.folder)
         self.pdf_list.append(outputPath)
         
     def collect_result(self):

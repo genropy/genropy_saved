@@ -45,7 +45,7 @@ class HtmlResource(BaseTableResource):
         self.maintable=self.maintable or self.resource_table
         self.maintable_obj=self.db.table(self.maintable)
         self.builder = GnrHtmlBuilder()
-        self.body = self.builder.body
+        
         
     def rpc_run(self,**kwargs):
         return self.getHtmlFromRecord(**kwargs)
@@ -74,6 +74,8 @@ class HtmlResource(BaseTableResource):
 
     def getHtmlFromRecord(self, record='', table=None, filename = None, folder=None):
         self.loadDatastore(record,table)
+        self.builder.initializeSrc()
+        self.body = self.builder.body
         self.main()
         if filename:
             filename = self.filePath(folder, filename)
@@ -84,9 +86,12 @@ class HtmlResource(BaseTableResource):
         encoding = locale or self.encoding
         return toText(obj, locale=locale, format=format, mask=mask, encoding=encoding)
         
-    def getPdfFromRecord(self, record, table, filename = None, folder=None):
-        self.loadDatastore(self,record,table)
-        filename=filename or self.outputDocName(self.data)
+    def getPdf(self, record='', table=None, filename = None, folder=None):
+        self.loadDatastore(record,table)
+        self.builder.initializeSrc()
+        self.body = self.builder.body
+        self.main()
+        filename=filename or self.outputDocName(self.data, ext='.pdf')
         outputPath = self.filePath(filename, folder)
         self.builder.toPdf(outputPath)
         return outputPath
