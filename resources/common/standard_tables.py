@@ -317,7 +317,7 @@ class TableHandler(BaseComponent):
         fb.textbox(lbl='Color', value='^.?color')
         fb.textbox(lbl='Background', value='^.?background_color')
         self.editorPane('view', ve_editpane, datapath='list.view.structure')
-        self.listBottomPane(bc)
+        self.listBottomPane(bc,region='bottom')
         st = bc.stackContainer(region='center',datapath='list.grid', margin='5px',
                                      nodeId='_gridpane_', selected='^list.gridpage')
         self.gridPane(st)
@@ -330,8 +330,7 @@ class TableHandler(BaseComponent):
         bottomPane_list = sorted([func_name for func_name in dir(self) if func_name.startswith('bottomPane_')])
         if not bottomPane_list:
             return
-        pane = bc.contentPane(height='27px',font_size='0.9em',region='bottom',
-                              background_color='silver',**kwargs)
+        pane = bc.contentPane(height='27px',font_size='0.9em',background_color='silver',**kwargs)
         for func_name in bottomPane_list:
             getattr(self,func_name)(pane)
             
