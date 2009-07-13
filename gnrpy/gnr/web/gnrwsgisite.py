@@ -524,7 +524,8 @@ class GnrWsgiSite(object):
     siteResources = property(_get_siteResources)
     # so we return a list of any possible resource folder starting from 
     # most customized and ending with most generic ones
-    def tools_call_url(self,tool,**kwargs):
+    
+    def webtools_url(self,tool,**kwargs):
         kwargs_string = '&'.join(['%s=%s'%(k,v) for k,v in kwargs.items()])
         return '%s_tools/%s?%s'%(self.home_uri,tool,kwargs_string)
         

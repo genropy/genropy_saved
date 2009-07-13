@@ -32,10 +32,10 @@ class BaseTableResource(object):
         return doc_name
         
     def filePath(self, folder, filename):
-        self.filePath=self.page.temporaryDocument(folder, filename)
+        return self.page.temporaryDocument(folder, filename)
     
     def fileUrl(self, folder, filename):
-        self.fileUrl=self.page.temporaryDocumentUrl(folder, filename)
+        return self.page.temporaryDocumentUrl(folder, filename)
        
 class HtmlResource(BaseTableResource):
     maintable=''
@@ -75,7 +75,9 @@ class HtmlResource(BaseTableResource):
     def getHtmlFromRecord(self, record='', table=None, filename = None, folder=None):
         self.loadDatastore(record,table)
         self.main()
-        return self.builder.toHtml()
+        if filename:
+            filename = self.filePath(folder, filename)
+        return self.builder.toHtml(filename=filename)
         
     def toText(self, obj, locale=None, format=None, mask=None, encoding=None):
         locale = locale or self.locale
