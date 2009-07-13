@@ -32,7 +32,6 @@ class Barcode(GnrBaseWebTool):
     
 
     def __call__(self,text=None, mode='code128',height=None,width=None,suffix='.png', **kwargs):
-        print text
         encoder = encoders.get(mode)
         if not encoder:
             return
