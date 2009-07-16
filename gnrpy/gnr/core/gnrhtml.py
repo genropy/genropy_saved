@@ -13,7 +13,7 @@ from gnr.core.gnrstring import splitAndStrip
 from gnr.core.gnrstructures import GnrStructData
 #from gnr.core import gnrstring
 from gnr.core.gnrsys import expandpath
-from gnr.pdf.wk2pdf import WK2pdf
+
 import sys
 #import cStringIO
 import os
@@ -177,6 +177,7 @@ class GnrHtmlBuilder(object):
         return self.html
         
     def toPdf(self, filename):
+        from gnr.pdf.wk2pdf import WK2pdf
         self.toHtml('%s.%s'%(filename,'html'))
         wkprinter = WK2pdf('%s.%s'%(filename,'html'),filename)
         wkprinter.run()
