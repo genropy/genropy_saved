@@ -15,7 +15,7 @@ sudo python ez_setup.py
 
 [psycopg2]
 download from curl -O http://initd.org/pub/software/psycopg/psycopg2-2.0.11.tar.gz
-tar xvfz psycopg2-2.0.10.tar.gz
+tar xvfz psycopg2-2.0.11.tar.gz
 cd psycopg2-2.0.11
 python setup.py build
 sudo python setup.py install
