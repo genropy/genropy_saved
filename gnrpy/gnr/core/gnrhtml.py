@@ -78,7 +78,6 @@ class GnrHtmlSrc(GnrStructData):
                     border_width=0.3,border_color='grey',border_style='solid', row_border=True, cell_border=True,
                     lbl_height=3, lbl_class='lbl_base',content_class='content_base',
                     **kwargs):
-                    
         self.style(".%s_layout{border:%s%s %s %s;position:absolute;}" % (name,border_width,um,border_style,border_color))
                                      
         layout = self.child(tag='layout', **kwargs)
