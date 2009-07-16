@@ -659,7 +659,6 @@ class Bag(GnrObject):
                 if self.backref:
                     self._onNodeInserted(newnode,i)
             elif returnLastMatch:
-                print a
                 return self.parentNode, [label]+pathlist
             else:
                 return None, None
