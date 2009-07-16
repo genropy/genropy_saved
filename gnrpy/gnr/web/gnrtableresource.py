@@ -13,12 +13,16 @@ from gnr.core.gnrstring import toText
 
 class BaseTableResource(object):
         
-    def __init__(self, page=None, resource_table = None):
-        self.page = page
-        self.site = self.page.site
-        self.locale = self.page.locale
-        self.db = self.page.db
-        self.resource_table = resource_table
+    def __init__(self, page=None, resource_table = None,db=None,locale='en'):
+        if page:
+            self.page = page
+            self.site = self.page.site
+            self.locale = self.page.locale
+            self.db = self.page.db
+            self.resource_table = resource_table
+        else:
+            self.db=db
+            self.locale=locale
         self.init()
         
 
@@ -32,7 +36,10 @@ class BaseTableResource(object):
         return doc_name
         
     def filePath(self, folder, filename):
-        return self.page.temporaryDocument(folder, filename)
+        if hasattr(self,'page'):
+            return self.page.temporaryDocument(folder, filename)
+        else:
+            return filename
     
     def fileUrl(self, folder, filename):
         return self.page.temporaryDocumentUrl(folder, filename)
