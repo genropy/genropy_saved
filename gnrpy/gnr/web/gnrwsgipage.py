@@ -38,6 +38,7 @@ from gnr.core.gnrlang import getUuid
 from mako.lookup import TemplateLookup
 from gnr.web.gnrwebapphandler import GnrWsgiWebAppHandler
 from gnr.core.gnrlang import GnrGenericException
+from gnr.core.gnrhtml import GnrHtmlBuilder
 
 CONNECTION_TIMEOUT = 3600
 CONNECTION_REFRESH = 20
@@ -391,3 +392,24 @@ class GnrWsgiPage(GnrBaseWebPage):
 class GnrMakoPage(GnrWsgiPage):
     def index(self,*args, **kwargs):
         return GnrWsgiPage.index(self,*args, mako=self.mako_template(),**kwargs)
+        
+class GnrHtmlPage(GnrWsgiPage):
+    
+    def __init__(self, site, packageId=None,filepath=None):
+        self.packageId=packageId
+        self.filepath = filepath
+        self.site = site
+        self.builder = GnrHtmlBuilder()
+        
+    def main(*args, **kwargs):
+        pass
+        
+    def index(self, *args, **kwargs):
+        for popkey in ('theme', 'pagetemplate'):
+            if popkey in kwargs:
+                kwargs.pop(popkey)
+        self.builder.initializeSrc()
+        self.body = self.builder.body
+        self.main(*args, **kwargs)
+        return self.builder.toHtml()
+        
