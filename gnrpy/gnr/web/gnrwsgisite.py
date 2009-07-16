@@ -185,6 +185,7 @@ class GnrWsgiSite(object):
         page_node,page_args=self.sitemap.getDeepestNode('.'.join(path_list))
         if self.mainpackage and not page_node: # try in the main package
             page_node,page_args=self.sitemap.getDeepestNode('.'.join([self.mainpackage]+path_list))
+            
         if not page_node:
             return self.not_found(environ,start_response)
         page_attr = page_node.getInheritedAttributes()

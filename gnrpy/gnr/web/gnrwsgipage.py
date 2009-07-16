@@ -410,6 +410,6 @@ class GnrHtmlPage(GnrWsgiPage):
                 kwargs.pop(popkey)
         self.builder.initializeSrc()
         self.body = self.builder.body
-        self.main(*args, **kwargs)
+        self.main(self.body,*args, **kwargs)
         return self.builder.toHtml()
         
