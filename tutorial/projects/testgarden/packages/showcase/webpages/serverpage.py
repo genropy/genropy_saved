@@ -16,7 +16,7 @@ class GnrCustomWebPage(object):
         root.div('%s!'%name, style='color:red;')
         root.input(_type="text", 
                    dojoType='dijit.form.DateTextBox',
-                   id="mydate")
+                   id="mydate",name='mydate')
         root.label(_for='mydate',content="my text")
         
 

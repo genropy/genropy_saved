@@ -414,9 +414,7 @@ class GnrHtmlPage(GnrWsgiPage):
         import_statements = ';\n    '.join(['@import url("%s")'%self.site.dojo_static_url(self.dojoversion,'dojo',f) for f in css_dojo])
         self.body.script(src=self.site.dojo_static_url(version,'dojo','dojo','dojo.js'), djConfig=djConfig)
         self.builder.head.style(import_statements+';\n', type="text/css")
-        
-        
-    
+
     def gnr_css(self):
         css_genro = self.get_css_genro()
         for css_media,css_link in css_genro.items():
@@ -427,7 +425,7 @@ class GnrHtmlPage(GnrWsgiPage):
         for popkey in ('theme', 'pagetemplate'):
             if popkey in kwargs:
                 kwargs.pop(popkey)
-        self.builder.initializeSrc()
+        self.builder.initializeSrc(_class='tundra')
         self.body = self.builder.body
         self.main(self.body,*args, **kwargs)
         return self.builder.toHtml()

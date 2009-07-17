@@ -78,11 +78,17 @@ class HtmlResource(BaseTableResource):
         
     def loadDatastore(self, record, table):
         self.data = self.db.table(table or self.maintable or self.resource_table).recordAs(record, mode='bag')
-
-    def getHtmlFromRecord(self, record='', table=None, filename = None, folder=None):
-        self.loadDatastore(record,table)
+    def initializeBuilder(self):
         self.builder.initializeSrc()
         self.body = self.builder.body
+        self.builder.head.style(""".x_br{border-top:none!important;border-left:none!important;}
+                           .x_r{border-top:none!important;border-left:none!important;border-bottom:none!important;}
+                           .x_b{border-top:none!important;border-left:none!important;border-right:none!important;}
+                           .x_{border:none!important;}
+                        """)
+    def getHtmlFromRecord(self, record='', table=None, filename = None, folder=None):
+        self.loadDatastore(record,table)
+        self.initializeBuilder()
         self.main()
         if filename:
             filename = self.filePath(folder, filename)
@@ -95,8 +101,7 @@ class HtmlResource(BaseTableResource):
         
     def getPdf(self, record='', table=None, filename = None, folder=None):
         self.loadDatastore(record,table)
-        self.builder.initializeSrc()
-        self.body = self.builder.body
+        self.initializeBuilder()
         self.main()
         filename=filename or self.outputDocName(self.data, ext='.pdf')
         outputPath = self.filePath(filename, folder)

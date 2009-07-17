@@ -78,15 +78,12 @@ class GnrHtmlSrc(GnrStructData):
         self.root.builder.head.child('link',href=href,rel="stylesheet",_type="text/css",media=media,**kwargs)
         
     def child(self,tag,*args, **kwargs):
-        if('_class' in kwargs):
-            kwargs['class']=kwargs.pop('_class')
-        if('class_' in kwargs):
-            kwargs['class']=kwargs.pop('class_')
-        if('type_' in kwargs):
-            kwargs['class']=kwargs.pop('type_')
-        if('_type' in kwargs):
-            kwargs['class']=kwargs.pop('_type')
-            
+        for lbl in ['_class','class_','_type','type_','_for','for_']:
+            if lbl in kwargs:
+                kwargs[lbl.replace('_','')]=kwargs.pop(lbl)
+
+        if 'name' in kwargs:
+            kwargs['_name']=kwargs.pop('name')
         return super(GnrHtmlSrc, self).child(tag,*args,**kwargs)
 
     def layout(self, name='l1', um='mm',top=0,left=0,bottom=0,right=0,width=0,height=0,
@@ -166,19 +163,13 @@ class GnrHtmlBuilder(object):
     def __init__(self,bodyAttributes=None):
         pass
 
-                        
-    def initializeSrc(self, bodyAttributes=None):
+    def initializeSrc(self, **bodyAttributes):
         bodyAttributes=bodyAttributes or {}
         self.root = GnrHtmlSrc.makeRoot()
         self.root.builder = self
         self.htmlBag = self.root.html()
         self.head = self.htmlBag.head()
         self.body = self.htmlBag.body(**bodyAttributes)
-        self.head.style(""".x_br{border-top:none!important;border-left:none!important;}
-                           .x_r{border-top:none!important;border-left:none!important;border-bottom:none!important;}
-                           .x_b{border-top:none!important;border-left:none!important;border-right:none!important;}
-                           .x_{border:none!important;}
-                        """)
 
     def toHtml(self,filename=None):
         if filename:
