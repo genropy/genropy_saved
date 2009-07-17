@@ -11,6 +11,8 @@ class GnrCustomWebPage(object):
         
         body.div('Hello,')
         body.div('%s!'%name, style='color:red;')
+        self.dojo(version='11')
+        self.gnr_css()
         #tbl = body.table()
         #for i in range(100):
         #    tr = tbl.tr()

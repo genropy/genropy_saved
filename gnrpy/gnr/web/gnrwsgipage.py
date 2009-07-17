@@ -401,9 +401,26 @@ class GnrHtmlPage(GnrWsgiPage):
         self.site = site
         self.builder = GnrHtmlBuilder()
         
-    def main(*args, **kwargs):
+    def main(self, *args, **kwargs):
         pass
         
+    
+    def dojo(self, version=None, theme='tundra'):
+        self.theme = theme
+        version = version or self.dojoversion
+        djConfig="parseOnLoad: true, isDebug: %s, locale: '%s'" % (self.isDeveloper() and 'true' or 'false',self.locale)
+        css_dojo = getattr(self, '_css_dojo_d%s' % version)()
+        import_statements = ';\n'.join(['@import url("%s")'%self.site.dojo_static_url(self.dojoversion,'dojo',f) for f in css_dojo])
+        self.builder.head.style(import_statements+';', type="text/css")
+        
+        self.body.script(src=self.site.dojo_static_url(version,'dojo','dojo','dojo.js'), djConfig=djConfig)
+    
+    def gnr_css(self):
+        css_genro = self.get_css_genro()
+        for css_media,css_link in css_genro.items():
+            import_statements = ';\n'.join(css_link)
+            self.builder.head.style(import_statements+';', type="text/css", media=css_media)
+    
     def index(self, *args, **kwargs):
         for popkey in ('theme', 'pagetemplate'):
             if popkey in kwargs:
