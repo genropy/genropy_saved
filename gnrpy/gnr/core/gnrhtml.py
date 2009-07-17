@@ -64,14 +64,29 @@ class GnrHtmlSrc(GnrStructData):
         else:
             raise AttributeError, func_name
             
-    def style(self,style=''):
-        self.root.builder.head.child('style',content=style)
+    def style(self,style='',**kwargs):
+        self.root.builder.head.child('style',content=style,**kwargs)
+        
+                
+    def script(self,script='',_type="text/javascript",**kwargs):
+        self.root.builder.head.child('script',content=script, _type=_type,**kwargs)
+        
+    def link(self,href='',**kwargs ):
+        self.root.builder.head.child('link',href=href,**kwargs)
+        
+    def csslink(self,href='',media='screen',**kwargs ):
+        self.root.builder.head.child('link',href=href,rel="stylesheet",_type="text/css",media=media,**kwargs)
         
     def child(self,tag,*args, **kwargs):
         if('_class' in kwargs):
             kwargs['class']=kwargs.pop('_class')
         if('class_' in kwargs):
             kwargs['class']=kwargs.pop('class_')
+        if('type_' in kwargs):
+            kwargs['class']=kwargs.pop('type_')
+        if('_type' in kwargs):
+            kwargs['class']=kwargs.pop('_type')
+            
         return super(GnrHtmlSrc, self).child(tag,*args,**kwargs)
 
     def layout(self, name='l1', um='mm',top=0,left=0,bottom=0,right=0,width=0,height=0,
@@ -323,7 +338,7 @@ def test0(pane):
     layout.style(".myclass{font-size:18pt;text-align:center;background-color:green;}")
     layout.style(".uuu{color:red;}")
     layout.style(".mmm{font-family:courier;}")
-
+    layout.script("aaaaaaaaaaa")
     x=d/3.
     r = layout.row(_class='uuu')
     r.cell('foo',lbl='name',_class='myclass')
@@ -392,12 +407,13 @@ def test1(pane):
 
 if __name__ =='__main__':
     builder = GnrHtmlBuilder() 
+    builder.initializeSrc()
     #test1(body)
     test0(builder.body)
     #pdf.root.toXml('testhtml/test0.xml',autocreate=True)
     builder.toHtml('testhtml/test0.html')
-    from gnr.pdf.wk2pdf import WK2pdf
-    wkprinter = WK2pdf('testhtml/test0.html','testhtml/test0.pdf')
-    wkprinter.run()
-    wkprinter.exec_()
+   #from gnr.pdf.wk2pdf import WK2pdf
+   #wkprinter = WK2pdf('testhtml/test0.html','testhtml/test0.pdf')
+   #wkprinter.run()
+   #wkprinter.exec_()
     #print builder.html
