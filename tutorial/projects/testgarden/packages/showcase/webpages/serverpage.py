@@ -8,11 +8,18 @@ from gnr.web.gnrwsgipage import GnrHtmlPage as page_factory
 class GnrCustomWebPage(object):
 
     def main(self, body, name='World'):
-        
-        body.div('Hello,')
-        body.div('%s!'%name, style='color:red;')
         self.dojo(version='11')
         self.gnr_css()
+        root=body.div(_class='tundra')
+        root.script("""dojo.require("dijit.form.DateTextBox");""")
+        root.div('Hello,')
+        root.div('%s!'%name, style='color:red;')
+        root.input(_type="text", 
+                   dojoType='dijit.form.DateTextBox',
+                   id="mydate")
+        root.label(_for='mydate',content="my text")
+        
+
         #tbl = body.table()
         #for i in range(100):
         #    tr = tbl.tr()

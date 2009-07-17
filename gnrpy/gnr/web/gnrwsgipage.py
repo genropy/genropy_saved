@@ -411,8 +411,8 @@ class GnrHtmlPage(GnrWsgiPage):
         version = version or self.dojoversion
         djConfig="parseOnLoad: true, isDebug: %s, locale: '%s'" % (self.isDeveloper() and 'true' or 'false',self.locale)
         css_dojo = getattr(self, '_css_dojo_d%s' % version)()
-        import_statements = ';\n'.join(['@import url("%s")'%self.site.dojo_static_url(self.dojoversion,'dojo',f) for f in css_dojo])
-        self.builder.head.style(import_statements+';', type="text/css")
+        import_statements = ';\n    '.join(['@import url("%s")'%self.site.dojo_static_url(self.dojoversion,'dojo',f) for f in css_dojo])
+        self.builder.head.style(import_statements+';\n', type="text/css")
         
         self.body.script(src=self.site.dojo_static_url(version,'dojo','dojo','dojo.js'), djConfig=djConfig)
     
