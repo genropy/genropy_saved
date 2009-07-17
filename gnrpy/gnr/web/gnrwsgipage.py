@@ -270,11 +270,12 @@ class GnrWsgiPage(GnrBaseWebPage):
             cpf.close()
         return jspath
     
-    def get_css_requires(self):
+    def get_css_requires(self, requires=None):
+        requires = requires or self.css_requires
         filepath = os.path.splitext(self.filepath)[0]
         css_requires = []
         css_media_requires = {}
-        for css in self.css_requires:
+        for css in requires:
             if css:
                 if ':' in css:
                     css, media = css.split(':')
