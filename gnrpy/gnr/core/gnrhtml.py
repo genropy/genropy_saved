@@ -166,7 +166,7 @@ class GnrHtmlBuilder(object):
                               'z_index', 'border','position','padding','margin',
                               'color','white_space','vertical_align','background'];
     def __init__(self,srcfactory=None,bodyAttributes=None):
-        self.srcfactory=srcfactory=GnrHtmlSrc or GnrHtmlSrc 
+        self.srcfactory=srcfactory or GnrHtmlSrc 
 
     def initializeSrc(self, **bodyAttributes):
         bodyAttributes=bodyAttributes or {}
@@ -217,9 +217,9 @@ class GnrHtmlBuilder(object):
         style=attr.pop('style','')
         style = style.replace('\n','')
         style_dict = dict([(splitAndStrip(x,':')) for x in style.split(';') if ':' in x])
-        for oneattr in attr:
+        for oneattr in attr.keys():
             if oneattr in self.styleAttrNames or ('_' in oneattr and oneattr.split('_')[0] in self.styleAttrNames) :
-                style_dict[oneattr.replace('_','-')]=attr[oneattr]
+                style_dict[oneattr.replace('_','-')]=attr.pop(oneattr)
         attr['style']=''.join(['%s:%s;' %(k,v) for k,v in style_dict.items()])
         
     def finalize(self, src):
