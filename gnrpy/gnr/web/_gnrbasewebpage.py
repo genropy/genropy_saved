@@ -285,12 +285,13 @@ class GnrBaseWebPage(GnrObject):
     def _css_genro_d10(self):
            return {'all': ['gnrbase','gnricons'], 'print':['gnrprint']}
     
-    def _css_dojo_d11(self):
+    def _css_dojo_d11(self,theme=None):
+        theme=theme or self.theme
         return ['dojo/resources/dojo.css',
                 'dijit/themes/dijit.css',
-                'dijit/themes/%s/%s.css' % (self.theme,self.theme),
+                'dijit/themes/%s/%s.css' % (theme,theme),
                 'dojox/grid/_grid/Grid.css',
-                'dojox/grid/_grid/%sGrid.css' % self.theme
+                'dojox/grid/_grid/%sGrid.css' % theme
                 ]
     
     def _gnrjs_d11(self):
@@ -301,12 +302,13 @@ class GnrBaseWebPage(GnrObject):
     def _css_genro_d11(self):
            return {'all': ['gnrbase'], 'print':['gnrprint']}
            
-    def _css_dojo_d12(self):
+    def _css_dojo_d12(self,theme=None):
+        theme=theme or self.theme
         return ['dojo/resources/dojo.css',
                 'dijit/themes/dijit.css',
-                'dijit/themes/%s/%s.css' % (self.theme,self.theme),
+                'dijit/themes/%s/%s.css' % (theme,theme),
                 'dojox/grid/_grid/Grid.css',
-                'dojox/grid/_grid/%sGrid.css' % self.theme
+                'dojox/grid/_grid/%sGrid.css' % theme
                 ]
     
     def _gnrjs_d12(self):
@@ -316,12 +318,13 @@ class GnrBaseWebPage(GnrObject):
     def _css_genro_d12(self):
            return {'all': ['gnrbase'], 'print':['gnrprint']}
                 
-    def _css_dojo_d13(self):
+    def _css_dojo_d13(self,theme=None):
+        theme=theme or self.theme
         return ['dojo/resources/dojo.css',
                 'dijit/themes/dijit.css',
-                'dijit/themes/%s/%s.css' % (self.theme,self.theme),
+                'dijit/themes/%s/%s.css' % (theme,theme),
                 'dojox/grid/_grid/Grid.css',
-                'dojox/grid/_grid/%sGrid.css' % self.theme
+                'dojox/grid/_grid/%sGrid.css' % theme
                 ]
     
     def _gnrjs_d13(self):

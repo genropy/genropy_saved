@@ -404,16 +404,6 @@ class GnrHtmlPage(GnrWsgiPage):
         
     def main(self, *args, **kwargs):
         pass
-        
-    
-    def dojo(self, version=None, theme='tundra'):
-        self.theme = theme
-        version = version or self.dojoversion
-        djConfig="parseOnLoad: true, isDebug: %s, locale: '%s'" % (self.isDeveloper() and 'true' or 'false',self.locale)
-        css_dojo = getattr(self, '_css_dojo_d%s' % version)()
-        import_statements = ';\n    '.join(['@import url("%s")'%self.site.dojo_static_url(version,'dojo',f) for f in css_dojo])
-        self.body.script(src=self.site.dojo_static_url(version,'dojo','dojo','dojo.js'), djConfig=djConfig)
-        self.builder.head.style(import_statements+';\n', type="text/css")
 
     def gnr_css(self):
         css_genro = self.get_css_genro()
@@ -422,11 +412,31 @@ class GnrHtmlPage(GnrWsgiPage):
             self.builder.head.style(import_statements+';', type="text/css", media=css_media)
     
     def index(self, *args, **kwargs):
-        theme=kwargs.pop('theme', 'tundra')
+        theme=kwargs.pop('theme')
         pagetemplate=kwargs.pop('pagetemplate')
-   
         self.builder.initializeSrc(_class=theme)
         self.body = self.builder.body
         self.main(self.body,*args, **kwargs)
         return self.builder.toHtml()
         
+        
+class GnrHtmlDojoPage(GnrHtmlPage):
+ 
+    def dojo(self, version=None, theme=None):
+        theme=theme or self.theme 
+        version = version or self.dojoversion
+        djConfig="parseOnLoad: true, isDebug: %s, locale: '%s'" % (self.isDeveloper() and 'true' or 'false',self.locale)
+        css_dojo = getattr(self, '_css_dojo_d%s' % version)(theme=theme)
+        import_statements = ';\n    '.join(['@import url("%s")'%self.site.dojo_static_url(version,'dojo',f) for f in css_dojo])
+        self.body.script(src=self.site.dojo_static_url(version,'dojo','dojo','dojo.js'), djConfig=djConfig)
+        self.builder.head.style(import_statements+';\n', type="text/css")
+        
+    def index(self, *args, **kwargs):
+        self.theme=kwargs.pop('theme') or self.theme
+        pagetemplate=kwargs.pop('pagetemplate')
+        self.builder.initializeSrc(_class=self.theme)
+        self.body = self.builder.body
+        self.dojo()
+        self.gnr_css()
+        self.main(self.body,*args, **kwargs)
+        return self.builder.toHtml()

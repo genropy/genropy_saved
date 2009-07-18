@@ -229,7 +229,7 @@ class GnrWsgiSite(object):
         if page_method and not 'method' in page_kwargs:
             page_kwargs['method'] = page_method
             page_args = page_args[1:]
-        theme =page_kwargs.pop('theme') or getattr(page, 'theme', None) or self.config['dojo?theme'] or 'tundra'
+        theme =page_kwargs.pop('theme',None) or getattr(page, 'theme', None) or self.config['dojo?theme'] or 'tundra'
         pagetemplate = getattr(page, 'pagetemplate', None) or self.config['dojo?pagetemplate'] # index
         result = page.index(theme=theme,pagetemplate=pagetemplate,**page_kwargs)
         if isinstance(result, unicode):
@@ -341,6 +341,7 @@ class GnrWsgiSite(object):
         page_class.__module__ = page_module
         self.page_class_base_mixin(page_class, pkg=pkg)
         page_class.dojoversion = getattr(custom_class, 'dojoversion', None) or self.config['dojo?version'] or '11'
+        page_class.theme = getattr(custom_class, 'theme', None) or self.config['dojo?theme'] or 'tundra'
         page_class.gnrjsversion = getattr(custom_class, 'gnrjsversion', None) or self.config['gnrjs?version'] or '11'
         page_class.maintable = getattr(custom_class, 'maintable', None)
         page_class.eagers = getattr(custom_class, 'eagers', {})
