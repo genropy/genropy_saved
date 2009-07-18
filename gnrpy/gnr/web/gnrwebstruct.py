@@ -514,6 +514,9 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
         else:
             result['tag']='textBox'
         if kwargs:
+            if 'autospan' in kwargs:
+                kwargs['colspan'] = kwargs.pop('autospan')
+                kwargs['width'] = '100%'
             result.update(kwargs)
         
         return result
