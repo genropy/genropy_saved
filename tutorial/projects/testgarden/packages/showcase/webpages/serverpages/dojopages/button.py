@@ -2,7 +2,7 @@
 # -*- coding: UTF-8 -*-
 #
 
-from gnr.web.gnrwsgipage import GnrHtmlDojoPage as page_factory
+from gnr.web.gnrhtmlpage import GnrHtmlDojoPage as page_factory
 
 
 class GnrCustomWebPage(object):

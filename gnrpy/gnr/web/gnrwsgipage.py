@@ -3,8 +3,8 @@
 # package           : GenroPy web - see LICENSE for details
 # module gnrwebcore : core module for genropy web framework
 # Copyright (c)     : 2004 - 2007 Softwell sas - Milano 
-# Written by        : Giovanni Porcari, Francesco Cavazzana
-#                     Saverio Porcari, Francesco Porcari
+# Written by    : Giovanni Porcari, Michele Bertoldi
+#                 Saverio Porcari, Francesco Porcari , Francesco Cavazzana
 #--------------------------------------------------------------------------
 #This library is free software; you can redistribute it and/or
 #modify it under the terms of the GNU Lesser General Public
@@ -393,50 +393,3 @@ class GnrWsgiPage(GnrBaseWebPage):
 class GnrMakoPage(GnrWsgiPage):
     def index(self,*args, **kwargs):
         return GnrWsgiPage.index(self,*args, mako=self.mako_template(),**kwargs)
-        
-class GnrHtmlPage(GnrWsgiPage):
-    
-    def __init__(self, site, packageId=None,filepath=None):
-        self.packageId=packageId
-        self.filepath = filepath
-        self.site = site
-        self.builder = GnrHtmlBuilder()
-        
-    def main(self, *args, **kwargs):
-        pass
-
-    def gnr_css(self):
-        css_genro = self.get_css_genro()
-        for css_media,css_link in css_genro.items():
-            import_statements = ';\n'.join(css_link)
-            self.builder.head.style(import_statements+';', type="text/css", media=css_media)
-    
-    def index(self, *args, **kwargs):
-        theme=kwargs.pop('theme')
-        pagetemplate=kwargs.pop('pagetemplate')
-        self.builder.initializeSrc(_class=theme)
-        self.body = self.builder.body
-        self.main(self.body,*args, **kwargs)
-        return self.builder.toHtml()
-        
-        
-class GnrHtmlDojoPage(GnrHtmlPage):
- 
-    def dojo(self, version=None, theme=None):
-        theme=theme or self.theme 
-        version = version or self.dojoversion
-        djConfig="parseOnLoad: true, isDebug: %s, locale: '%s'" % (self.isDeveloper() and 'true' or 'false',self.locale)
-        css_dojo = getattr(self, '_css_dojo_d%s' % version)(theme=theme)
-        import_statements = ';\n    '.join(['@import url("%s")'%self.site.dojo_static_url(version,'dojo',f) for f in css_dojo])
-        self.body.script(src=self.site.dojo_static_url(version,'dojo','dojo','dojo.js'), djConfig=djConfig)
-        self.builder.head.style(import_statements+';\n', type="text/css")
-        
-    def index(self, *args, **kwargs):
-        self.theme=kwargs.pop('theme') or self.theme
-        pagetemplate=kwargs.pop('pagetemplate')
-        self.builder.initializeSrc(_class=self.theme)
-        self.body = self.builder.body
-        self.dojo()
-        self.gnr_css()
-        self.main(self.body,*args, **kwargs)
-        return self.builder.toHtml()

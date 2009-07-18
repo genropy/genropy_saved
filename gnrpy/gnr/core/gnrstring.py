@@ -3,8 +3,8 @@
 # package       : GenroPy core - see LICENSE for details
 # module gnrstring : gnr string implementation
 # Copyright (c) : 2004 - 2007 Softwell sas - Milano 
-# Written by    : Giovanni Porcari, Francesco Cavazzana
-#                 Saverio Porcari, Francesco Porcari
+# Written by    : Giovanni Porcari, Michele Bertoldi
+#                 Saverio Porcari, Francesco Porcari , Francesco Cavazzana
 #--------------------------------------------------------------------------
 #This library is free software; you can redistribute it and/or
 #modify it under the terms of the GNU Lesser General Public

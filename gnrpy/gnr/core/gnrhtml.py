@@ -160,12 +160,17 @@ class GnrHtmlSrc(GnrStructData):
 
 
 class GnrHtmlBuilder(object):
-    def __init__(self,bodyAttributes=None):
-        pass
+    
+    styleAttrNames=['height', 'width','top','left', 'right', 'bottom',
+                              'visibility', 'overflow', 'float', 'clear', 'display',
+                              'z_index', 'border','position','padding','margin',
+                              'color','white_space','vertical_align','background'];
+    def __init__(self,srcfactory=None,bodyAttributes=None):
+        self.srcfactory=srcfactory=GnrHtmlSrc or GnrHtmlSrc 
 
     def initializeSrc(self, **bodyAttributes):
         bodyAttributes=bodyAttributes or {}
-        self.root = GnrHtmlSrc.makeRoot()
+        self.root = self.srcfactory.makeRoot()
         self.root.builder = self
         self.htmlBag = self.root.html()
         self.head = self.htmlBag.head()
@@ -208,15 +213,25 @@ class GnrHtmlBuilder(object):
                 style_dict[name]=value
         attr['style']=''.join(['%s:%s;' %(k,v) for k,v in style_dict.items()])
         
+    def styleMaker(self,attr):
+        style=attr.pop('style','')
+        style = style.replace('\n','')
+        style_dict = dict([(splitAndStrip(x,':')) for x in style.split(';') if ':' in x])
+        for oneattr in attr:
+            if oneattr in self.styleAttrNames or ('_' in oneattr and oneattr.split('_')[0] in self.styleAttrNames) :
+                style_dict[oneattr.replace('_','-')]=attr[oneattr]
+        attr['style']=''.join(['%s:%s;' %(k,v) for k,v in style_dict.items()])
+        
     def finalize(self, src):
         for node in src:
             node_tag = node.getAttr('tag')
             node_value = node.value
             getattr(self,'finalize_%s'%node_tag, self.finalize_pass)(src, node.attr, node.value)
+            
             if node_value and isinstance(node_value, GnrHtmlSrc):
                 self.finalize(node_value)
             getattr(self,'finalize_%s_after'%node_tag, self.finalize_pass)(src, node.attr, node.value)
-            
+            self.styleMaker(node.attr)
                 
     def finalize_layout(self, parent, attr, layout):
         if layout.nested:
