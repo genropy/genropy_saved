@@ -411,7 +411,7 @@ class GnrHtmlPage(GnrWsgiPage):
         version = version or self.dojoversion
         djConfig="parseOnLoad: true, isDebug: %s, locale: '%s'" % (self.isDeveloper() and 'true' or 'false',self.locale)
         css_dojo = getattr(self, '_css_dojo_d%s' % version)()
-        import_statements = ';\n    '.join(['@import url("%s")'%self.site.dojo_static_url(self.dojoversion,'dojo',f) for f in css_dojo])
+        import_statements = ';\n    '.join(['@import url("%s")'%self.site.dojo_static_url(version,'dojo',f) for f in css_dojo])
         self.body.script(src=self.site.dojo_static_url(version,'dojo','dojo','dojo.js'), djConfig=djConfig)
         self.builder.head.style(import_statements+';\n', type="text/css")
 
@@ -422,10 +422,10 @@ class GnrHtmlPage(GnrWsgiPage):
             self.builder.head.style(import_statements+';', type="text/css", media=css_media)
     
     def index(self, *args, **kwargs):
-        for popkey in ('theme', 'pagetemplate'):
-            if popkey in kwargs:
-                kwargs.pop(popkey)
-        self.builder.initializeSrc(_class='tundra')
+        theme=kwargs.pop('theme', 'tundra')
+        pagetemplate=kwargs.pop('pagetemplate')
+   
+        self.builder.initializeSrc(_class=theme)
         self.body = self.builder.body
         self.main(self.body,*args, **kwargs)
         return self.builder.toHtml()

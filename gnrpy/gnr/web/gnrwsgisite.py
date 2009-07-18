@@ -229,7 +229,7 @@ class GnrWsgiSite(object):
         if page_method and not 'method' in page_kwargs:
             page_kwargs['method'] = page_method
             page_args = page_args[1:]
-        theme = getattr(page, 'theme', None) or self.config['dojo?theme'] or 'tundra'
+        theme =page_kwargs.pop('theme') or getattr(page, 'theme', None) or self.config['dojo?theme'] or 'tundra'
         pagetemplate = getattr(page, 'pagetemplate', None) or self.config['dojo?pagetemplate'] # index
         result = page.index(theme=theme,pagetemplate=pagetemplate,**page_kwargs)
         if isinstance(result, unicode):
