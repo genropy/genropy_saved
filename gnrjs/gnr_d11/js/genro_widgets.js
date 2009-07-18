@@ -1429,12 +1429,20 @@ dojo.declare("gnr.widgets.Grid",gnr.widgets.baseDojo,{
         }
         bagnode.setAttr(attributes);
     },
-    mixin_getSelectedPkeys: function(){
+    mixin_getSelectedPkeys: function(noneIsAll){
         var sel = this.selection.getSelected();
         var result = [];
-        for (var i=0; i < sel.length; i++){
-            result.push(this.rowIdByIndex(sel[i]));
+        if (sel.length>0){
+            for (var i=0; i < sel.length; i++){
+                result.push(this.rowIdByIndex(sel[i]));
+            }
+        } else if(noneIsAll){
+            for (var i=0; i < this.rowCount; i++){
+                result.push(this.rowIdByIndex(i));
+            }
         }
+        
+
         return result;
     },
     mixin_getSelectedRow: function(){
