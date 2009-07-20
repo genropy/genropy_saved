@@ -175,6 +175,13 @@ class GnrHtmlBuilder(object):
         self.htmlBag = self.root.html()
         self.head = self.htmlBag.head()
         self.body = self.htmlBag.body(**bodyAttributes)
+    
+    def styleForLayout(self):
+        self.head.style(""".x_br{border-top:none!important;border-left:none!important;}
+                           .x_r{border-top:none!important;border-left:none!important;border-bottom:none!important;}
+                           .x_b{border-top:none!important;border-left:none!important;border-right:none!important;}
+                           .x_{border:none!important;}
+                        """)
 
     def toHtml(self,filename=None):
         if filename:
@@ -237,24 +244,28 @@ class GnrHtmlBuilder(object):
             self.styleMaker(node.attr)
                 
     def finalize_layout(self, parent, attr, layout):
+        borders='%s%s'% (layout.border_width,layout.um)
         if layout.nested:
-            layout.width=layout.width or parent.width-layout.left-layout.right-layout.border_width
-            layout.height=layout.height or parent.height-layout.top-layout.bottom-layout.border_width
+            layout.has_topBorder = bool(layout.top)
+            layout.has_leftBorder = layout.left !=0
+            layout.has_rightBorder = layout.right !=0
+            layout.has_bottomBorder = layout.bottom !=0
+            
+            layout.width=layout.width or parent.width-layout.left-layout.right -  int(layout.has_leftBorder)*layout.border_width - int(layout.has_rightBorder)*layout.border_width
+            layout.height=layout.height or parent.height-layout.top-layout.bottom - int(layout.has_topBorder)*layout.border_width - int(layout.has_bottomBorder)*layout.border_width
+            borders=' '.join(['%s%s'% (int(getattr(layout,'has_%sBorder'%side)) * layout.border_width,layout.um) for side in ('top','right','bottom','left') ])
       
         if layout.elastic_rows:
             if layout.height:
-                height = (layout.height - sum([row.height for row in layout.values() if row.height]))/len(layout.elastic_rows)
+                height = (layout.height - sum([(row.height) for row in layout.values() if row.height]) - layout.border_width*(len(layout)-1))/len(layout.elastic_rows)
                 for row in layout.elastic_rows:
                     row.height = height
             else:
                 raise GnrHtmlSrcError('No total height with elastic rows')
                 ## Possibile ricerca in profondità
-        layout.height = sum([row.height for row in layout.values()])
+        layout.height = sum([row.height for row in layout.values()])+layout.border_width*(len(layout)-1)
         layout.values()[-1].row_border=False
-        if layout.nested:
-            borders=' '.join(['%s%s'% (int(getattr(layout,side)!=0) * layout.border_width,layout.um) for side in ('top','right','bottom','left')])
-        else:
-            borders='%s%s'% (layout.border_width,layout.um)
+        
         attr['top'] = layout.top
         attr['left'] = layout.left
         attr['bottom'] = layout.bottom
@@ -269,10 +280,9 @@ class GnrHtmlBuilder(object):
         attr['tag'] = 'div'
         
     def finalize_row(self, layout, attr, row):
-        width = layout.width
         if row.elastic_cells:
-            if width:
-                elastic_width = (width - sum([cell.width for cell in row.values() if cell.width]))/len(row.elastic_cells)
+            if layout.width:
+                elastic_width = (layout.width - sum([cell.width for cell in row.values() if cell.width]) - layout.border_width*(len(row)-1))/len(row.elastic_cells)
                 for cell in row.elastic_cells:
                     cell.width = elastic_width
             else:
@@ -284,7 +294,7 @@ class GnrHtmlBuilder(object):
         attr['height'] = row.height
         attr['top'] = layout.curr_y
         attr['tag'] = 'div'
-        layout.curr_y += row.height
+        layout.curr_y += row.height+layout.border_width
         self.calculate_style(attr, layout.um,position='absolute')
         row.curr_x = 0
         
@@ -297,10 +307,8 @@ class GnrHtmlBuilder(object):
             self.setLabel(cell, attr)
         bottom_border_width = row.layout.border_width if row.row_border else 0
         right_border_width = row.layout.border_width if cell.cell_border else 0
-        net_width = width - right_border_width
-        net_height = cell.height - bottom_border_width
-        attr['width'] = net_width
-        attr['height'] = net_height
+        attr['width'] = width
+        attr['height'] = cell.height
         attr['tag'] = 'div'
         attr['top']=0
         attr['left']=row.curr_x
@@ -310,7 +318,7 @@ class GnrHtmlBuilder(object):
         if not right_border_width:
             cell_class=cell_class.replace('r','')
         attr['class'] = ' '.join(x for x in [attr.get('class'),row.layout.layout_class,cell_class] if x)   
-        row.curr_x += width
+        row.curr_x += width+right_border_width
         self.calculate_style(attr, row.layout.um)
         
     def setLabel(self, cell, attr):
@@ -338,7 +346,7 @@ class GnrHtmlBuilder(object):
 def test0(pane):
     
     d=180
-    layout = pane.layout(width=d,height=d,um='mm',top=10,left=10,border_width=.3,
+    layout = pane.layout(width=d,height=d,um='mm',top=10,left=10,border_width=3,
                         lbl_height=4,lbl_class='z1',content_class='content',_class='mmm')
 
     layout.style(".z1{font-size:7pt;background-color:silver;text-align:center}")
@@ -361,7 +369,7 @@ def test0(pane):
     r.cell('foo',lbl='alfa')
     r.cell('bar',width=x,lbl='beta')
     r.cell('baz',lbl='gamma')
-    layout=subtable.layout(name='inner',um='mm',border_width=.3,top=0,left=0,right=0,bottom=0,
+    layout=subtable.layout(name='inner',um='mm',border_width=1,top=0,left=0,right=0,bottom=0,
                         border_color='green',
                         lbl_height=4,lbl_class='z1',content_class='content')
     x=x/2.
@@ -411,14 +419,55 @@ def test1(pane):
     r.cell('kkkkk')
     r.cell('mmm',width=40)
     
+def testColumns(pane):
+    layout = pane.layout(name='outer',width=180,height=130,um='mm',
+                         top=1,left=1,
+                         border_width=3,border_color='red',
+                         lbl_height=4,
+                         lbl_class='z1')
+
+    layout.style(".z1{font-size:7pt;background-color:silver;text-align:center}")
     
+    first_row=layout.row().cell('pippo')
+    
+    row=layout.row().cell('pluto')
+    row=layout.row().cell('paperino')
+    
+    last_row = layout.row(height=20)
+    outer_cell = last_row.cell(lbl='puzza')
+    l2=outer_cell.layout(name='inner',um='mm',top=1,left=1,bottom=1,right=1,border_width=1,border_color='navy')
+    l2.row().cell('di merda')    
 
+def testRowsInner(cell):
+    innerLayout=cell.layout(name='inner',um='mm',top=0,left=0,bottom=0,right=0,border_width=1.2,border_color='navy',lbl_height=4,
+                         lbl_class='z1')
+    row=innerLayout.row()
+    row.cell('aaa', width =30, lbl='bb')
+    row.cell('bbb', width =0, lbl='aa')
+    
+    
+def testRows(pane):
+    layout = pane.layout(name='outer',width=180,height=130,um='mm',
+                         top=1,left=1,
+                         border_width=3,border_color='red',
+                         lbl_height=4,
+                         lbl_class='z1')
 
+    layout.style(".z1{font-size:7pt;background-color:silver;text-align:center}")
+    
+    for h in [20,0,0,20]:
+        row=layout.row(height=h)
+        testRowsInner(row.cell(lbl='foo', width=60))
+        testRowsInner(row.cell(lbl='bar'))
+    
+    
+    
 if __name__ =='__main__':
     builder = GnrHtmlBuilder() 
     builder.initializeSrc()
+    builder.styleForLayout()
     #test1(body)
-    test0(builder.body)
+    testRows(builder.body)
     #pdf.root.toXml('testhtml/test0.xml',autocreate=True)
     builder.toHtml('testhtml/test0.html')
    #from gnr.pdf.wk2pdf import WK2pdf

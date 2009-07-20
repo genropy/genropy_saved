@@ -81,11 +81,7 @@ class HtmlResource(BaseTableResource):
     def initializeBuilder(self):
         self.builder.initializeSrc()
         self.body = self.builder.body
-        self.builder.head.style(""".x_br{border-top:none!important;border-left:none!important;}
-                           .x_r{border-top:none!important;border-left:none!important;border-bottom:none!important;}
-                           .x_b{border-top:none!important;border-left:none!important;border-right:none!important;}
-                           .x_{border:none!important;}
-                        """)
+        self.builder.styleForLayout()
     def getHtmlFromRecord(self, record='', table=None, filename = None, folder=None):
         self.loadDatastore(record,table)
         self.initializeBuilder()
