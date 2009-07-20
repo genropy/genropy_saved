@@ -183,6 +183,8 @@ class GnrHtmlDojoPage(GnrHtmlPage):
         self.gnr_css()
         self.main(self.body,*args, **kwargs)
         self.finalizeDojo()
-        return self.builder.toHtml()
+        result=self.builder.toHtml()
+        print result
+        return result
         
     

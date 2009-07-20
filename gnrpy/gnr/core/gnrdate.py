@@ -311,7 +311,7 @@ def dateLastYear(d):
 
 if __name__=='__main__':
     workdate = datetime.date(2009,1,12)
-    res = decodeDatePeriod(u"mese scorso", workdate=workdate, locale='it')
+    res = decodeDatePeriod(u"10 giugno,30 giugno", workdate=workdate, locale='it')
     print res
 
     

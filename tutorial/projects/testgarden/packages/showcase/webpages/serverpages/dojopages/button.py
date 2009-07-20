@@ -8,10 +8,6 @@ from gnr.web.gnrhtmlpage import GnrHtmlDojoPage as page_factory
 class GnrCustomWebPage(object):
     dojoversion='13'
     theme='soria'
-    def main(self, body, name='World'):
-        body.script("""dojo.addOnLoad(function(){alert("PPPP")};)""")
-        bc=body.div('hhh')
-                   
 
     def main_(self, body, name='World'):
         body.script("""dojo.addOnLoad(function(){alert("PPPP")};)""")
