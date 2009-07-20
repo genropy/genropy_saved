@@ -188,11 +188,14 @@ class GnrHtmlBuilder(object):
         return self.html
         
     def toPdf(self, filename):
-        from gnr.pdf.wk2pdf import WK2pdf
-        self.toHtml('%s.%s'%(filename,'html'))
-        wkprinter = WK2pdf('%s.%s'%(filename,'html'),filename)
-        wkprinter.run()
-        wkprinter.exec_()
+        from subprocess import call
+        #call(['ls','-l','*.py'])
+        #from gnr.pdf.wk2pdf import WK2pdf
+        #self.toHtml('%s.%s'%(filename,'html'))
+        #wkprinter = WK2pdf('%s.%s'%(filename,'html'),filename)
+        #wkprinter.run()
+        #wkprinter.exec_()
+        res = call(['wk2pdf','%s.%s'%(filename,'html'),filename])
         
     def calculate_style(self,attr,um,**kwargs):
         style=attr.pop('style','')
