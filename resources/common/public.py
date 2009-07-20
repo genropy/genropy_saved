@@ -829,7 +829,7 @@ class RecordHandler(object):
     def recordDialog(self,table,firedPkey=None,height=None,width=None,_class=None,
                     title=None,formCb=None,onSaved='',saveKwargs={},loadKwargs={},
                     savePath='',parentDialog=None,bottomCb=None,savingMethod=None,
-                    loadingMethod=None, onClosed=''):
+                    loadingMethod=None, onClosed='',validation_failed='alert'):
         """
         Allow to manage a form into a dialog for editing and saving a single RecordHandler.
         * `table`: The table where the record is saved.
@@ -840,6 +840,7 @@ class RecordHandler(object):
         * `onSaved`: a string with JS evaluated after the saving.
         * `saveKwargs`: optional kwargs for the rpc saving method.
         * `loadKwargs`: optional kwargs for the rpc loading method.
+        * `validation_failed`: can be "alert" or "focus"
         """
         assert not '_onResult' in saveKwargs
         assert not '_onResult' in loadKwargs
@@ -857,12 +858,14 @@ class RecordHandler(object):
                                     sqlContextTable= table)
         self._recordDialogController(dlgBC,table,tableId,saveKwargs,
                                     loadKwargs,controllerPath,firedPkey,sqlContextName,
-                                    onSaved,onClosed, savePath,savingMethod,loadingMethod)
+                                    onSaved,onClosed, savePath,savingMethod,loadingMethod,
+                                    validation_failed)
         self._recordDialogLayout(dlgBC,tableId,formCb,controllerPath,table,bottomCb)
 
     def _recordDialogController(self,pane,table,tableId,saveKwargs,
                                 loadKwargs,controllerPath,firedPkey,sqlContextName,
-                                onSaved,onClosed,savePath,savingMethod,loadingMethod):
+                                onSaved,onClosed,savePath,savingMethod,loadingMethod,
+                                validation_failed):
         formId = "%s_form" %tableId
         dlgId = "dlg_%s" %tableId
         onSaved = onSaved or ''
@@ -917,14 +920,20 @@ class RecordHandler(object):
                                     SET .stackPane = 1;
                             }""",
                             loading='^gnr.forms.%s.loading' %formId)
-                            
         pane.dataController("""if(save_failed == "nochange"){
-                                    FIRE .exitAction='nochange';
-                               }else if(save_failed == "invalid"){
-                                    genro.dlg.alert(msg,title)
-                               }""",
-                            save_failed='^gnr.forms.%s.save_failed' %formId,
-                            msg='!!Not valid data. Please check the form',title='!!Warning')
+                                        FIRE .exitAction='nochange';
+                                }else if(save_failed == "invalid"){
+                                    FIRE .validation_failed;
+                                }""",save_failed='^gnr.forms.%s.save_failed' %formId)
+                                  
+        if validation_failed == "alert":
+            pane.dataController("genro.dlg.alert(msg,title)",
+                                  _fired='^.validation_failed',
+                                  msg='!!Not valid data. Please check the form',
+                                  title='!!Warning')
+                                  
+        elif validation_failed == "focus":
+            pane.dataController("genro.formById('%s').focusFirstInvalidField()" %formId,_fired="^.validation_failed")
         
     def _recordDialogLayout(self,bc,tableId,formCb,controllerPath,table,bottomCb):
         dlgId = "dlg_%s" %tableId
