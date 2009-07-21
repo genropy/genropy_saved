@@ -336,10 +336,12 @@ class GnrHtmlBuilder(object):
         lbl_height=cell.lbl_height or row.lbl_height or layout.lbl_height
         lbl_class=cell.lbl_class or row.lbl_class or layout.lbl_class
         content_class=cell.content_class or row.content_class or layout.content_class
-        
-        cur_content_node=cell.popNode('#0')
-        cur_content_attr= cur_content_node.attr
-        cur_content_value= cur_content_node.value
+        if len(cell) >0:
+            cur_content_node=cell.popNode('#0')
+            cur_content_attr= cur_content_node.attr
+            cur_content_value= cur_content_node.value
+        else:
+            cur_content_value = ''
         # set the label
         lbl_attr={'class':lbl_class,'top':0,'height':lbl_height,'left':0, 'right':0}
         self.calculate_style(lbl_attr, um,position='absolute')
@@ -431,25 +433,6 @@ def test1(pane):
     r.cell('tt',width=40)
     r.cell('kkkkk')
     r.cell('mmm',width=40)
-    
-def testColumns(pane):
-    layout = pane.layout(name='outer',width=180,height=130,um='mm',
-                         top=1,left=1,
-                         border_width=3,border_color='red',
-                         lbl_height=4,
-                         lbl_class='z1')
-
-    layout.style(".z1{font-size:7pt;background-color:silver;text-align:center}")
-    
-    first_row=layout.row().cell('pippo')
-    
-    row=layout.row().cell('pluto')
-    row=layout.row().cell('paperino')
-    
-    last_row = layout.row(height=20)
-    outer_cell = last_row.cell(lbl='puzza')
-    l2=outer_cell.layout(name='inner',um='mm',top=1,left=1,bottom=1,right=1,border_width=1,border_color='navy')
-    l2.row().cell('di merda')    
 
 def testRowsInner(cell):
     innerLayout=cell.layout(name='inner',um='mm',top=0,left=0,bottom=3,right=0,border_width=1.2,border_color='navy',lbl_height=4,
@@ -471,7 +454,7 @@ def testRows(pane):
     for h in [20,0,0,20]:
         row=layout.row(height=h)
         #row.cell('hhh',lbl='foo', width=60)
-        row.cell('mmm',lbl='bar')
+        row.cell(lbl='bar')
         testRowsInner(row.cell(lbl='foo', width=60))
         #testRowsInner(row.cell(lbl='bar'))
     
