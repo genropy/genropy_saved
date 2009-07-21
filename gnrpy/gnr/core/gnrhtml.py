@@ -438,7 +438,7 @@ def testRowsInner(cell):
     innerLayout=cell.layout(name='inner',um='mm',top=0,left=0,bottom=3,right=0,border_width=1.2,border_color='navy',lbl_height=4,
                          lbl_class='z1',hasBorderLeft=True)
     row=innerLayout.row()
-    row.cell('aaa', width =30, lbl='bb')
+    row.cell('aaa', width =30, lbl='bb', background_color='lime')
     row.cell('bbb', width =0, lbl='aa')
     
     
