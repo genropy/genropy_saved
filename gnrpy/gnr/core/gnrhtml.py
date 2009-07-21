@@ -89,6 +89,7 @@ class GnrHtmlSrc(GnrStructData):
     def layout(self, name='l1', um='mm',top=0,left=0,bottom=0,right=0,width=0,height=0,
                     border_width=0.3,border_color='grey',border_style='solid', row_border=True, cell_border=True,
                     lbl_height=3, lbl_class='lbl_base',content_class='content_base',
+                    hasBorderTop=None,hasBorderLeft=None,hasBorderRight=None,hasBorderBottom=None,
                     **kwargs):
         self.style(".%s_layout{border:%s%s %s %s;position:absolute;}" % (name,border_width,um,border_style,border_color))
                                      
@@ -111,6 +112,10 @@ class GnrHtmlSrc(GnrStructData):
         layout.lbl_class = lbl_class
         layout.content_class = content_class
         layout.elastic_rows = []
+        layout.hasBorderTop=hasBorderTop
+        layout.hasBorderLeft=hasBorderLeft
+        layout.hasBorderRight=hasBorderRight
+        layout.hasBorderBottom=hasBorderBottom
         layout.nested = self.parentNode.getAttr('tag')=='cell'
         return layout
         
@@ -242,14 +247,16 @@ class GnrHtmlBuilder(object):
                 self.finalize(node_value)
             getattr(self,'finalize_%s_after'%node_tag, self.finalize_pass)(src, node.attr, node.value)
             self.styleMaker(node.attr)
-                
+    
     def finalize_layout(self, parent, attr, layout):
+
         borders='%s%s'% (layout.border_width,layout.um)
         if layout.nested:
-            layout.has_topBorder = bool(layout.top)
-            layout.has_leftBorder = layout.left !=0
-            layout.has_rightBorder = layout.right !=0
-            layout.has_bottomBorder = layout.bottom !=0
+
+            layout.has_topBorder = layout.hasBorderTop if layout.hasBorderTop is not None else bool(layout.top or parent.lbl)
+            layout.has_leftBorder = layout.hasBorderLeft if layout.hasBorderLeft is not None else bool(layout.left)
+            layout.has_rightBorder = layout.hasBorderRight if layout.hasBorderRight is not None else bool(layout.right)
+            layout.has_bottomBorder = layout.hasBorderBottom if layout.hasBorderBottom is not None else bool(layout.bottom)
             
             layout.width=layout.width or parent.width-layout.left-layout.right -  int(layout.has_leftBorder)*layout.border_width - int(layout.has_rightBorder)*layout.border_width
             layout.height=layout.height or parent.height-layout.top-layout.bottom - int(layout.has_topBorder)*layout.border_width - int(layout.has_bottomBorder)*layout.border_width
@@ -329,16 +336,22 @@ class GnrHtmlBuilder(object):
         lbl_height=cell.lbl_height or row.lbl_height or layout.lbl_height
         lbl_class=cell.lbl_class or row.lbl_class or layout.lbl_class
         content_class=cell.content_class or row.content_class or layout.content_class
-        cur_content=cell.popNode('#0')
+        
+        cur_content_node=cell.popNode('#0')
+        cur_content_attr= cur_content_node.attr
+        cur_content_value= cur_content_node.value
+        # set the label
         lbl_attr={'class':lbl_class,'top':0,'height':lbl_height,'left':0, 'right':0}
         self.calculate_style(lbl_attr, um,position='absolute')
         cell.child('div',content=lbl,**lbl_attr)
-        content_attr={'class':content_class,'top':lbl_height,'left':0, 'right':0}
-        self.calculate_style(content_attr, um,position='absolute')
-        x=cell.child('div',**content_attr)
-        x.setItem('div_0',cur_content)
-        x.width=cell.width
-        x.height=cell.height-lbl_height
+        if isinstance (cur_content_value, GnrHtmlSrc):
+            tag=cur_content_attr.pop('tag')
+            cur_content_value.top=cur_content_value.top+lbl_height
+            cell.child(tag,content=cur_content_value, **cur_content_attr)
+        else:
+            content_attr={'class':content_class,'top':lbl_height,'left':0, 'right':0}
+            self.calculate_style(content_attr, um,position='absolute')
+            cell.child('div',content=cur_content_value, **content_attr)
 
     def finalize_pass(self, src, attr, value):
         pass
@@ -439,8 +452,8 @@ def testColumns(pane):
     l2.row().cell('di merda')    
 
 def testRowsInner(cell):
-    innerLayout=cell.layout(name='inner',um='mm',top=0,left=0,bottom=0,right=0,border_width=1.2,border_color='navy',lbl_height=4,
-                         lbl_class='z1')
+    innerLayout=cell.layout(name='inner',um='mm',top=0,left=0,bottom=3,right=0,border_width=1.2,border_color='navy',lbl_height=4,
+                         lbl_class='z1',hasBorderLeft=True)
     row=innerLayout.row()
     row.cell('aaa', width =30, lbl='bb')
     row.cell('bbb', width =0, lbl='aa')
@@ -457,8 +470,10 @@ def testRows(pane):
     
     for h in [20,0,0,20]:
         row=layout.row(height=h)
+        #row.cell('hhh',lbl='foo', width=60)
+        row.cell('mmm',lbl='bar')
         testRowsInner(row.cell(lbl='foo', width=60))
-        testRowsInner(row.cell(lbl='bar'))
+        #testRowsInner(row.cell(lbl='bar'))
     
     
     
