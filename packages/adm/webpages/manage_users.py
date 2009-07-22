@@ -45,23 +45,20 @@ class GnrCustomWebPage(object):
         fb.field('firstname',width='15em',lbl='!!Firstname')
         fb.field('lastname',width='15em',lbl='!!Lastname')
         fb.textBox(value='^.md5pwd',lbl='Password', type='password')
-        fb.field('status')
+        fb.field('status',tag='filteringSelect',values='!!conf:Confirmed,wait:Waiting',width='15em',
+                validate_notnull=True,validate_notnull_error='!!Required')
         #fb.field('adm.user.password',width='15em',lbl='!!Password')
         
         fb.field('adm.user.email',width='15em',lbl='!!Email')
-        user.dataSelection('aux.alltag','adm.tag',columns='*',_fired='^gnr.onStart')
-        pickerPars= pickerPars = dict(width='16em', height='24ex', label='!!Choose Tag',
-                            table='adm.tag', columns='tagname:10,description:10', autoWidth=True, 
-                            nodeId='tagPicker',
-                            storepath='aux.alltag', filterOn='tagname'
-                            )
         ic = userbc.borderContainer(margin='5px',region='center')
-        self.includedViewBox(ic, label='!!Authorization tags', add_action=True, del_action=True,
-                             nodeId='tagsGrid', storepath='.tag_bag', 
-                             struct=self._structTagsGrid(),
-                             pickerPars=pickerPars, 
-                             #fromPicker_nodup_field = 'tagname', #no duplicate
-                             fromPicker_target_fields='tagname=tagname')
+        
+        iv = self.includedViewBox(ic,label='!!Authorization tags',
+                            storepath='.tag_bag', 
+                            columns="""tagname""",datamode='bag',
+                            table='adm.tag', autoWidth=True,
+                            add_action=True,del_action=True)
+        gridEditor = iv.gridEditor()
+        gridEditor.dbCombobox(gridcell='tagname',columns='tagname',dbtable='adm.tag',hasDownArrow=True)
                                      
 
     def orderBase(self):
@@ -70,7 +67,7 @@ class GnrCustomWebPage(object):
     def _structTagsGrid(self):
         struct = self.newGridStruct('adm.tag')
         r = struct.view().rows()
-        r.fieldcell('tagname',name='Tag',width='6em')
+        r.fieldcell('tagname',name='Tag',width='10em')
         return struct
         
     def onLoading(self, record, newrecord, loadingParameters, recInfo):
@@ -78,10 +75,11 @@ class GnrCustomWebPage(object):
         b = Bag()
         if tags:
             for n,tag in enumerate(tags.split(',')):
-                b.setItem('r%i' %n,None,tagname=tag)
+                b.setItem('r%i.tagname' %n,tag)
         record.setItem('tag_bag', b, _bag_md5 = tags)
 
     def onSaving(self, recordCluster, recordClusterAttr, resultAttr=None):
+        tagtable = self.db.table('adm.tag')
         if recordCluster:
             li = []
             recordCluster.pop('tag_bag_removed')
@@ -90,7 +88,10 @@ class GnrCustomWebPage(object):
                 oldtags = tags.getAttr('oldValue')
                 tags = tags.value
                 for node in tags:
-                    tag = node.getAttr('tagname')
+                    tag = node.value.getItem('tagname')
+                    count_tag = tagtable.query(where='tagname=:t',t=tag).count()
+                    if count_tag==0:
+                        tagtable.insert(dict(tagname=tag))
                     li.append(tag)
                 else:
                     tags = ''
