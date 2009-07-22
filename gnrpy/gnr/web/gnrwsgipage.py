@@ -382,11 +382,11 @@ class GnrWsgiPage(GnrBaseWebPage):
         else:
             return (self._errorPage(err), pageattr)
             
-    def loadTableResource(self, table,restype, respath, class_name='Main'):
-        return self.site.loadTableResource(self, table=table,path='%s/%s:%s' % (restype,respath,class_name))
+    def loadTableResource(self, table, respath, class_name='Main'):
+        return self.site.loadTableResource(self, table=table,path='%s:%s' % (respath,class_name))
         
-    def rpc_tableResource(self,table, restype, respath, class_name='Main',method='run',**kwargs):
-        instance=self.loadTableResource(table=table,restype=restype,respath=respath,class_name=class_name)
+    def rpc_callTableScript(self,table, respath, class_name='Main',method='run',**kwargs):
+        instance=self.loadTableResource(table=table,respath=respath,class_name=class_name)
         handler=getattr(instance, 'rpc_%s' % method)
         return handler(**kwargs)
             
