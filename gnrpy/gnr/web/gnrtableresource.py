@@ -10,7 +10,6 @@ Copyright (c) 2009 __MyCompanyName__. All rights reserved.
 from gnr.core.gnrhtml import GnrHtmlBuilder
 from gnr.core.gnrstring import toText
 
-
 class BaseTableResource(object):
         
     def __init__(self, page=None, resource_table = None,db=None,locale='en'):
@@ -44,7 +43,7 @@ class BaseTableResource(object):
     def fileUrl(self, folder, filename):
         return self.page.temporaryDocumentUrl(folder, filename)
        
-class HtmlResource(BaseTableResource):
+class HtmlResource_old(BaseTableResource):
     maintable=''
     encoding= 'utf-8'
     
@@ -83,6 +82,8 @@ class HtmlResource(BaseTableResource):
         self.body = self.builder.body
         self.builder.styleForLayout()
     def getHtmlFromRecord(self, record='', table=None, filename = None, folder=None):
+        if not record:
+            return None
         self.loadDatastore(record,table)
         self.initializeBuilder()
         self.main()
@@ -103,4 +104,5 @@ class HtmlResource(BaseTableResource):
         outputPath = self.filePath(filename, folder)
         self.builder.toPdf(outputPath)
         return outputPath
+        
         

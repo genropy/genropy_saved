@@ -291,9 +291,8 @@ class BagToXml(object):
                     os.makedirs(dirname)
             output=open(filename,'w')
             output.write(result)
-            output.close()
-        else: 
-            return result
+            output.close() 
+        return result
         
     
     def buildTag(self, tagName, value, attributes=None,cls='', xmlMode=False):

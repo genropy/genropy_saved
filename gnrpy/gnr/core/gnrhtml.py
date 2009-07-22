@@ -188,11 +188,11 @@ class GnrHtmlBuilder(object):
                            .x_{border:none!important;}
                         """)
 
-    def toHtml(self,filename=None):
-        if filename:
-            filename=expandpath(filename)
+    def toHtml(self,filepath=None):
+        if filepath:
+            filepath=expandpath(filepath)
         self.finalize(self.body)
-        self.html = self.root.toXml(filename=filename,
+        self.html = self.root.toXml(filename=filepath,
                                     omitRoot=True,
                                     autocreate=True,
                                     forcedTagAttr='tag',

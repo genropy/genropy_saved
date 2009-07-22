@@ -173,19 +173,12 @@ class SelectedRecordsToPrint(GnrBatch):
         if table_resource:
             table_resource=self.page.site.loadTableResource(page=self.page,table=table,path=table_resource)
         self.pdfmaker=table_resource
+        
         self.selection = selection
         self.table = table
         self.folder = folder or 'temp_print_%s'%table.replace('.','_')
-        self.cups_connection = cups.Connection()
-        self.printer_name = printParams['printer_name']
-        printer_media=[]
-        for media_option in ('paper','tray','source'):
-            media_value = printParams['printer_options'] and printParams['printer_options'].pop(media_option)
-            if media_value:
-                printer_media.append(media_value)
-        self.printer_options = printParams['printer_options'] or {}
-        if printer_media:
-            self.printer_options['media'] = ','.join(printer_media)
+        printer_name = printParams.pop('printer_name')
+        self.print_connection = self.page.site.print_handler.getPrinterConnection(printer_name, **printParams)
         self.pdf_list = []
 
     def data_fetcher(self):     ##### Rivedere per passare le colonne
@@ -202,8 +195,7 @@ class SelectedRecordsToPrint(GnrBatch):
                 #zip
                 pass
         else:
-            self.cups_connection.printFiles(self.printer_name, self.pdf_list,'GenroPrint', self.printer_options)
-            
+            self.print_connection.printFiles(self.pdf_list,'GenroPrint')
 
 
 class Fake(GnrBatch):
