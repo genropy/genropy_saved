@@ -34,7 +34,7 @@ class GnrCustomWebPage(object):
         return 'admin'
         
     def columnsBase(self):
-        return """username:7,firstname:10,lastname:10,email:20,auth_tags:10"""
+        return """username:7,firstname:10,lastname:10,email:20,auth_tags:15"""
         
     def formBase(self,parentBC,disabled=False,**kwargs):
         userbc = parentBC.borderContainer(**kwargs)
