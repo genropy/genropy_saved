@@ -167,35 +167,30 @@ class SelectionToPdf(GnrBatch):
         
     
 class SelectedRecordsToPrint(GnrBatch):
-    def __init__(self, table_resource=None, selection=None, table=None, folder=None, printParams=None, **kwargs):
+    def __init__(self, table_resource=None, class_name=None, selection=None, table=None,
+                folder=None, printParams=None, **kwargs):
         import cups
         super(SelectedRecordsToPrint,self).__init__(**kwargs)
-        if table_resource:
-            table_resource=self.page.site.loadTableResource(page=self.page,table=table,path=table_resource)
-        self.pdfmaker=table_resource
-        
+        self.htmlMaker=self.page.site.loadTableScript(page=self.page,table=table,
+                                                      respath=table_resource,
+                                                      class_name=class_name)
         self.selection = selection
         self.table = table
-        self.folder = folder or 'temp_print_%s'%table.replace('.','_')
+        self.folder = folder or self.htmlMaker.pdfFolderPath()
         printer_name = printParams.pop('printer_name')
-        self.print_connection = self.page.site.print_handler.getPrinterConnection(printer_name, **printParams)
-        self.pdf_list = []
+        self.print_connection = self.page.site.print_handler.getPrinterConnection(printer_name, printParams)
+        self.file_list = []
 
     def data_fetcher(self):     ##### Rivedere per passare le colonne
         for row in self.selection.output('pkeylist'):
             yield row
 
-    def process_chunk(self, chunk):
-        outputPath= self.pdfmaker.getPdf(record=chunk,table=self.table,folder=self.folder)
-        self.pdf_list.append(outputPath)
+    def process_chunk(self, chunk, **kwargs):
+        self.htmlMaker(record=chunk, **kwargs)
+        self.file_list.append(self.htmlMaker.filepath)
         
     def collect_result(self):
-        if self.printer_name=='PDF':
-            for pdf_name in self.pdf_list:
-                #zip
-                pass
-        else:
-            self.print_connection.printFiles(self.pdf_list,'GenroPrint')
+        self.print_connection.printFiles(self.file_list, 'GenroPrint', storeFolder=self.folder)
 
 
 class Fake(GnrBatch):

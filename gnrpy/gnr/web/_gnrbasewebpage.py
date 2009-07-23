@@ -678,15 +678,21 @@ class GnrBaseWebPage(GnrObject):
     rpc = property(_get_rpc)
     
     def temporaryDocument(self, *args):
-        filepath = os.path.join(self.connection.connectionFolder, self.page_id, 'temp',*args)
+        return self.connectionDocument('temp',*args)
+    
+    def temporaryDocumentUrl(self, *args):
+        return self.connectionDocumentUrl('temp',*args)
+        
+    def connectionDocument(self, *args):
+        filepath = os.path.join(self.connection.connectionFolder, self.page_id, *args)
         folder = os.path.dirname(filepath)
         if not os.path.isdir(folder):
             os.makedirs(folder)
         return filepath
     
-    def temporaryDocumentUrl(self, *args):
-        return self.site.connection_static_url(self,'temp',*args)
-        
+    def connectionDocumentUrl(self, *args):
+        return self.site.connection_static_url(self,*args)
+    
 #    def _get_html(self):
 #        if not hasattr(self, '_html'):
 #            self._html = HtmlFormatter()

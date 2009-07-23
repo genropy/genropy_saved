@@ -1,4 +1,5 @@
 from gnr.core.gnrbag import Bag, DirectoryResolver
+from gnr.core.gnrprinthandler import PrintHandler
 from gnr.core.gnrlang import gnrImport, getUuid, classMixin, cloneClass,instanceMixin
 from gnr.core.gnrstring import splitAndStrip
 from gnr.web.gnrwebpage import BaseResource
@@ -19,7 +20,7 @@ import mimetypes
 from gnr.core.gnrsys import expandpath
 from gnr.web.gnrbasewebtool import GnrBaseWebTool
 import inspect
-import cups
+
 mimetypes.init()
 
 class GnrWebServerError(Exception):
@@ -71,7 +72,7 @@ class GnrWsgiSite(object):
         self.page_factory_lock=RLock()
         self.webtools = self.find_webtools()
         
-        self.print_handler=PrintHandler(self)  
+        self.print_handler=PrintHandler(parent = self)  
     
     def find_webtools(self):
         def isgnrwebtool(cls):
@@ -389,7 +390,7 @@ class GnrWsgiSite(object):
         for mix in py_requires:
             if mix:
                 self.mixinResource(page_class, page_class._resourceDirs, mix)
-    
+                
     def loadResource(self,pkg, *path):
         resourceDirs = self.gnrapp.packages[pkg].resourceDirs
         resource_class = cloneClass('CustomResource',BaseResource)
@@ -397,24 +398,28 @@ class GnrWsgiSite(object):
         resource_class.site = self
         return resource_class()
         
-    def loadTableResource(self, page, table, path):
+    def callTableScript(self, page=None, table=None, respath=None, class_name=None, **kwargs):
+        script=self.loadTableScript(page = page, table=table, respath=respath, class_name=class_name)
+        return script(**kwargs)
+        
+    def loadTableScript(self, page, table, respath, class_name=None):
+        class_name=class_name or 'Main'
         application=self.gnrapp
         if isinstance(table, basestring):
             table=application.db.table(table)
-        path = os.path.join('tables',table.name,*(path.split('/')))
+        modName = os.path.join('tables',table.name,*(respath.split('/')))
         resourceDirs = application.packages[table.pkg.name].resourceDirs
-        modName, clsName = path.split(':')
         modPathList = self.getResourceList(resourceDirs, modName, 'py') or []
 
         if modPathList:
             modPathList.reverse()
             basePath=modPathList.pop(0)
             resource_module = gnrImport(basePath)
-            resource_class = getattr(resource_module,clsName,None)
+            resource_class = getattr(resource_module,class_name,None)
             resource_obj = resource_class(page=page,resource_table=table)          
             for modPath in modPathList:
                 resource_module = gnrImport(modPath)
-                resource_class = getattr(resource_module,clsName,None)
+                resource_class = getattr(resource_module,class_name,None)
                 if resource_class:
                     print 'mixining'
                     x=resource_class()
@@ -638,81 +643,3 @@ class GnrWsgiSite(object):
         connection_id, page_id = path_list[1],path_list[2]
         return self.connection_static_path(connection_id, page_id,*path_list[3:])
     ##################### end static file handling #################################
-    
-class PrinterConnection(object):
-    
-    def __init__(self, parent, printer_name=None, **printerParams):
-        self.parent = parent
-        self.connection = cups.Connection()
-        self.printer_name = printParams['printer_name']
-        printer_media=[]
-        for media_option in ('paper','tray','source'):
-            media_value = printParams['printer_options'] and printParams['printer_options'].pop(media_option)
-            if media_value:
-                printer_media.append(media_value)
-        self.printer_options = printParams['printer_options'] or {}
-        if printer_media:
-            self.printer_options['media'] = ','.join(printer_media)
-            
-    def printFiles(self,pdflist,jobname='GenroPrint'):
-        self.connection.printFiles(self.printer_name, pdf_list,jobname, self.printer_options)
-            
-class PrintHandler(object):
-    paper_size = {
-            'A4': '!!A4',
-            'Legal':'!!Legal',
-            'A4Small': '!!A4 with margins',
-            'COM10': '!!COM10',
-            'DL':'!!DL',
-            'Letter':'!!Letter',
-            'ISOB5':'ISOB5',
-            'JISB5':'JISB5',
-            'LetterSmall':'LetterSmall',
-            'LegalSmall':'LegalSmall'
-            }
-    paper_tray = {
-            'MultiPurpose':'!!MultiPurpose',
-            'Transparency':'!!Transparency',
-            'Upper':'!!Upper',
-            'Lower':'!!Lower',
-            'LargeCapacity':'!!LargeCapacity'
-            }
-    
-    def __init__(self, site):
-        self.site= site
-        
-    def htmlToPdf(self, srcPath, destPath):
-        from subprocess import call
-        if os.path.isdir(destPath):
-            baseName = os.path.splitext(os.path.basename(srcPath))[0]
-            destPath=os.path.join(destPath, '%s.pdf' % baseName)
-        result = call(['wk2pdf',srcPath,destPath])
-        if result < 0:
-            raise PrintHandlerError('wk2pdf error')
-            
-    def getPrinters(self):
-        printersBag=Bag()
-        cups_connection = cups.Connection()
-        for printer_name, printer in cups_connection.getPrinters().items():
-            printer.update(dict(name=printer_name))
-            printersBag.setItem('%s.%s'%(printer['printer-location'],printer_name),None,printer)
-        return printersBag
-        
-    def getPrinterAttributes(self, printer_name):
-        cups_connection = cups.Connection()
-        printer_attributes = cups_connection.getPrinterAttributes(printer_name)
-        attributesBag = Bag()
-        for i,(media,description) in enumerate(self.paper_size.items()):
-            if media in printer_attributes['media-supported']:
-                attributesBag.setItem('paper_supported.%i'%i,None,id=media,caption=description)
-        for i,(tray,description) in enumerate(self.paper_tray.items()):
-            if tray in printer_attributes['media-supported']:
-                attributesBag.setItem('tray_supported.%i'%i,None,id=tray,caption=description)
-        return attributesBag
-        
-    def getPrinterConnection(self, printer_name=None, **printerParams):
-        return PrinterConnection(self, printer_name=printer_name, **printerParams)
-        
-            
-            
-        
