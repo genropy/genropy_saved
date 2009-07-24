@@ -977,28 +977,29 @@ class DynamicEditor(object):
 class RecordToHtmlFrame(BaseComponent):
     def recordToHtmlFrame(self, bc, frameId='', table='',
                           respath=None, pkeyPath='',
-                          enableConditionPath='',docNameColumnPath=''):
+                          enableConditionPath='',docNamePath=''):
         
         table = table or self.maintable
         frameId = frameId or self.getUuid()
         controllerPath = 'aux_frames.%s' % frameId
         top=bc.contentPane(region='top', height='32px')
-        #top.button('print pdf', fire_print='aux.getTicketPdf')
-        #top.button('print html',
-        #            action='genro.dom.iFramePrint(genro.domById("ticketFrame"));')
         top.button('Print', fire='%s.print' % controllerPath)
         top.button('PDF',fire='%s.downloadPdf' % controllerPath)
+        top.checkbox("Don't cache", value='%s.noCache' % controllerPath,)
+        
         top.dataController("""console.log('downloadPdf');
-                             var docNameColumn=docNameColumn.replace('.', '');
-                             var downloadAs ='%s'+docNameColumn+'.pdf';
+                             var docName=docNameColumn.replace('.', '');
+                             var downloadAs =docNameColumn+'.pdf';
                              genro.rpcDownload("callTableScript",
                                   {record:record,table:'%s',
                                   downloadAs:downloadAs,
                                   pdf:true,
-                                  respath:'%s'})""" % (frameId,table,respath),
+                                  respath:'%s',
+                                  rebuild:rebuild})""" % (table,respath),
                     _fired='^%s.downloadPdf' % controllerPath,
                     record = '=%s' % pkeyPath,
-                    docNameColumn ='=%s' % docNameColumnPath)
+                    docName ='=%s' % docNamePath,
+                    rebuild='=%s.noCache' % controllerPath)
                     
         center = bc.borderContainer(region='center')
         frame = center.iframe(nodeId=frameId,
@@ -1009,6 +1010,7 @@ class RecordToHtmlFrame(BaseComponent):
                               rpc_record = '=%s' % pkeyPath,
                               rpc_table = table,
                               rpc_respath=respath,
+                              rpc_rebuild='=%s.noCache' % controllerPath,
                               _print='^%s.print' % controllerPath,
                               _reloader='^%s' % pkeyPath,
                               _if=enableConditionPath)
