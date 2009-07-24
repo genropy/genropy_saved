@@ -988,14 +988,14 @@ class RecordToHtmlFrame(BaseComponent):
         #            action='genro.dom.iFramePrint(genro.domById("ticketFrame"));')
         top.button('Print', fire='%s.print' % controllerPath)
         top.button('PDF',fire='%s.downloadPdf' % controllerPath)
-        top.dataController("""
+        top.dataController("""console.log('downloadPdf');
                              var docNameColumn=docNameColumn.replace('.', '');
                              var downloadAs ='%s'+docNameColumn+'.pdf';
                              genro.rpcDownload("callTableScript",
-                                  {record:record,table:'pforce.job',
+                                  {record:record,table:'%s',
                                   downloadAs:downloadAs,
                                   pdf:true,
-                                  respath:'%s'})""" % (frameId,respath),
+                                  respath:'%s'})""" % (frameId,table,respath),
                     _fired='^%s.downloadPdf' % controllerPath,
                     record = '=%s' % pkeyPath,
                     docNameColumn ='=%s' % docNameColumnPath)
