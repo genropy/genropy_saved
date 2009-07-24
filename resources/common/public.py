@@ -977,33 +977,29 @@ class DynamicEditor(object):
 class RecordToHtmlFrame(BaseComponent):
     def recordToHtmlFrame(self, bc, frameId='', table='',
                           respath=None, pkeyPath='',
-                          enableConditionPath=''):
+                          enableConditionPath='',docNameColumnPath=''):
         
         table = table or self.maintable
-        frameId = self.getUuid()
+        frameId = frameId or self.getUuid()
         controllerPath = 'aux_frames.%s' % frameId
         top=bc.contentPane(region='top', height='32px')
         #top.button('print pdf', fire_print='aux.getTicketPdf')
         #top.button('print html',
         #            action='genro.dom.iFramePrint(genro.domById("ticketFrame"));')
-        top.button('print frame html', fire='%s.print' % controllerPath)
-        #top.button('PDF',fire='aux.getTicketPdf')
-        #top.dataController("""
-        #                     var jobcode=jobcode.replace('.', '');
-        #                     var onload_cb=null;
-        #                     var downloadAs ='jobTicket_'+jobcode+'.pdf';
-        #                     if (_fired=='print'){
-        #                         var onload_cb = 'print';
-        #                         var downloadAs = null;
-        #                     }
-        #                     genro.rpcDownload("callTableScript",
-        #                          {record:record,table:'pforce.job',
-        #                          downloadAs:downloadAs,
-        #                          pdf:true,
-        #                          respath:'html_res/job_ticket'},onload_cb)""",
-        #            _fired='^aux.getTicketPdf',
-        #            record ='=aux.id',
-        #            jobcode ='=.code')
+        top.button('Print', fire='%s.print' % controllerPath)
+        top.button('PDF',fire='%s.downloadPdf' % controllerPath)
+        top.dataController("""
+                             var docNameColumn=docNameColumn.replace('.', '');
+                             var downloadAs ='%s'+docNameColumn+'.pdf';
+                             genro.rpcDownload("callTableScript",
+                                  {record:record,table:'pforce.job',
+                                  downloadAs:downloadAs,
+                                  pdf:true,
+                                  respath:'%s'})""" % (frameId,respath),
+                    _fired='^%s.downloadPdf' % controllerPath,
+                    record = '=%s' % pkeyPath,
+                    docNameColumn ='=%s' % docNameColumnPath)
+                    
         center = bc.borderContainer(region='center')
         frame = center.iframe(nodeId=frameId,
                               border='0px',
