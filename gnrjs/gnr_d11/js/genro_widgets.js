@@ -298,17 +298,12 @@ dojo.declare("gnr.widgets.baseHtml",null,{
 
 dojo.declare("gnr.widgets.iframe",gnr.widgets.baseHtml,{
     creating:function(attributes, sourceNode){
-        rpcCall=objectPop(attributes,'rpcCall')
-        if (rpcCall){
-            params=objectExtract(attributes,'rpc_*')
-            params.mode= params.mode? params.mode:'text' 
-            attributes['src']=genro.remoteUrl(rpcCall,params)
-        }
-        var savedAttrs = objectExtract(attributes,'rowcount,tableid');
-        return savedAttrs;
+        sourceNode.savedAttrs = objectExtract(attributes,'rowcount,tableid,src,rpcCall');
+        return sourceNode.savedAttrs;
     },
     created:function(newobj, savedAttrs, sourceNode){
         if (savedAttrs.rowcount && savedAttrs.tableid){
+            
             var rowcount = savedAttrs.rowcount;
             var tableid = savedAttrs.tableid;
             var fnc = dojo.hitch(newobj, function(){
@@ -320,6 +315,34 @@ dojo.declare("gnr.widgets.iframe",gnr.widgets.baseHtml,{
                 genro.setData(rowcount, nlines);
             });
             dojo.connect(newobj, 'onload', fnc);
+        }
+        this.setSrc(newobj, savedAttrs.src);
+    },
+    prepareSrc:function(domnode){
+        var sourceNode = domnode.sourceNode;
+        var attributes = sourceNode.attr;
+        if(attributes['src']){
+            return attributes['src'];
+        }else if(attributes['rpcCall']){
+            params=objectExtract(attributes,'rpc_*', true);
+            params.mode= params.mode? params.mode:'text';
+            return genro.remoteUrl(attributes['rpcCall'],params, sourceNode);
+        }
+    },
+    set_print:function(domnode,v,kw){
+        genro.dom.iFramePrint(domnode);
+    },
+    set_if:function(domnode,v,kw){
+        domnode.gnr.setSrc(domnode);
+    },
+    set_reloader:function(domnode,v,kw){
+        domnode.gnr.setSrc(domnode);
+    },
+    setSrc:function(domnode, v, kw){
+        var sourceNode = domnode.sourceNode;
+        if( (!sourceNode.attr._if) || (sourceNode.getAttributeFromDatasource('_if'))){
+            var v = v || this.prepareSrc(domnode);
+            domnode.src = v;
         }
     }
 });
@@ -980,7 +1003,8 @@ dojo.declare("gnr.widgets.Button",gnr.widgets.baseDojo,{
     onClick:function(e){
         var action = this.getInheritedAttributes().action;
         if (action){
-            funcCreate(action).call(this,e);
+            //funcCreate(action).call(this,e);
+            funcApply(action, objectUpdate(this.currentAttributes(),{event:e}), this);
         }
         if (this.attr.fire){
             var s=eventToString(e) || true;

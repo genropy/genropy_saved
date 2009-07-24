@@ -325,7 +325,9 @@ dojo.declare('gnr.GenroClient', null, {
         //var url = genro.rpc.rpcUrl("app.recordToPDF", {table:table, pkey:pkey, template:template});
         genro.download("",{table:table, pkey:pkey, template:template, method:"app.recordToPDF",mode:'text'});
     },
-
+    rpcDownload: function(method, kwargs, onload_cb){
+        genro.download('',genro.rpc.getRpcUrlArgs(method, kwargs), onload_cb)
+    },
     download: function(url, args, onload_cb){
         var args=args || {};
         args.download=true;
@@ -627,8 +629,8 @@ dojo.declare('gnr.GenroClient', null, {
         }
         return obj;
     },
-    remoteUrl: function(method, arguments){
-         return genro.rpc.rpcUrl(method, arguments);
+    remoteUrl: function(method, arguments, sourceNode){
+         return genro.rpc.rpcUrl(method, arguments, sourceNode);
      },
     setUrlRemote: function(widget, method, arguments){
         var url = genro.rpc.rpcUrl(method, arguments);

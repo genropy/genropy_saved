@@ -239,7 +239,7 @@ dojo.declare("gnr.GnrRpcHandler",null,{
     },
     downloadCall: function(method, kwargs){
         var cb = function(result){genro.download(result);};
-        genro.rpc.remoteCall(method, kwargs, null, 'POST', null, cb)
+        genro.rpc.remoteCall(method, objectUpdate(kwargs,{'mode':'text'}), null, 'POST', null, cb)
     },
     remoteCall:function(method, params, mode, httpMethod, preventCache, async_cb){
         var callKwargs = objectUpdate({}, params);
@@ -379,20 +379,17 @@ dojo.declare("gnr.GnrRpcHandler",null,{
     updateUrlParams: function(params, source){
         return dojo.io.argsFromMap(objectUpdate(genro.rpc.getURLParams(source), params, true));
     },
-
-    rpcUrl:function(method, kwargs){
+    getRpcUrlArgs:function(method, kwargs, sourceNode){
         var currParams = {};
         currParams['page_id']=this.application.page_id;
         currParams['method']=method;
         currParams['mode']='text';
         currParams['xxcnt'] = genro.getCounter();
-        objectUpdate(currParams, this.serializeParameters(this.dynamicParameters(kwargs)));
-        //var parameters = [];
-        //for (var key in currParams){
-        //    parameters.push(key+'='+encodeURIComponent(currParams[key]));
-        //}
-        //return this.application.absoluteUrl('?'+parameters.join('&'));
-        return this.application.absoluteUrl(null, currParams);
+        return objectUpdate(currParams, this.serializeParameters(this.dynamicParameters(kwargs, sourceNode)));
+    }
+    ,
+    rpcUrl:function(method, kwargs, sourceNode){
+        return this.application.absoluteUrl(null,  genro.rpc.getRpcUrlArgs(method, kwargs, sourceNode));
     },
     
     makoUrl:function(template, kwargs){

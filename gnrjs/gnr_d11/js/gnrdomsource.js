@@ -690,6 +690,7 @@ dojo.declare("gnr.GnrDomSourceNode",gnr.GnrBagNode,{
         }
         else if(this.domNode){
             var domnode=this.domNode;
+            var setter='set'+stringCapitalize(attr);
             if(attr=='disabled'){domnode.disabled = value ? true : false; return;}
             else if(attr=='visible'){dojo.style(domnode,'visibility',(value ? 'visible':'hidden'));return;}
             else if(attr=='hidden'){dojo.style(domnode,'display',(value ? 'none':''));return;}
@@ -710,6 +711,9 @@ dojo.declare("gnr.GnrDomSourceNode",gnr.GnrBagNode,{
            else if(genro.dom.isStyleAttr(attr)){
                 var attr=attr.replace('_','-');
                 dojo.style(domnode,attr,value);
+           }
+           else if(setter in domnode.gnr){
+               dojo.hitch(domnode.gnr, setter)(domnode, value, kw);
            }
            else{
                var attrdict = {};

@@ -973,4 +973,44 @@ class DynamicEditor(object):
         editPane.editor(value=value,nodeId=editorId,**kwargs)
         st.dataController('genro.wdgById("%s").setSelected(disabled?0:1)'%stackId,
                         disabled=disabled,fired='^gnr.onStart')
+                        
+class RecordToHtmlFrame(BaseComponent):
+    def recordToHtmlFrame(self, bc, frameId='', table='', respath=None, pkeyPath=''):
+        
+        frameId = self.getUuid()
+        controllerPath = 'aux_frames.%s' % frameId
+                bc.dataFormula('aux.frameEnabled',"selected_tab==4",
+                        selected_tab='^aux.selectedTab')
+        top=bc.contentPane(region='top', height='32px')
+        top.button('print pdf', fire_print='aux.getTicketPdf')
+        top.button('print html',
+                    action='genro.dom.iFramePrint(genro.domById("ticketFrame"));')
+        top.button('print frame html',
+                    fire='aux.printTicketPdf')
+        top.button('PDF',fire='aux.getTicketPdf')
+        top.dataController("""
+                             var jobcode=jobcode.replace('.', '');
+                             var onload_cb=null;
+                             var downloadAs ='jobTicket_'+jobcode+'.pdf';
+                             if (_fired=='print'){
+                                 var onload_cb = 'print';
+                                 var downloadAs = null;
+                             }
+                             genro.rpcDownload("callTableScript",
+                                  {record:record,table:'pforce.job',
+                                  downloadAs:downloadAs,
+                                  pdf:true,
+                                  respath:'html_res/job_ticket'},onload_cb)""",
+                    _fired='^aux.getTicketPdf',
+                    record ='=aux.id',
+                    jobcode ='=.code')
+        center = bc.borderContainer(region='center').iframe(nodeId='ticketFrame', height='100%', width='100%',
+                                  border='0px',rpcCall='callTableScript',
+                                  rpc_record='=.id',
+                                  rpc_table='pforce.job',
+                                  rpc_respath='html_res/job_ticket',
+                                  connect_onload='console.log("loaded frame");',
+                                  _print='^aux.printTicketPdf',
+                                  _reloader='^.id',
+                                  _if='^aux.frameEnabled')
         
