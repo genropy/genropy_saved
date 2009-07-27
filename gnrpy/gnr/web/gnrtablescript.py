@@ -51,17 +51,6 @@ class TableScriptOnRecord(TableScript):
     def __call__(self, record=None, **kwargs):
         raise NotImplementedException()
         
-    def field(self, path, default=None, locale=None,
-                    format=None, mask=None):
-        datanode=self._data.getNode(path, default)
-        value = datanode.value
-        attr=datanode.attr
-        if value is None:
-            value=default
-        format= format or attr.get('format')
-        mask= mask or attr.get('mask')
-        return self.toText(value,locale,format, mask, self.encoding)
-
     def getData(self,path,default=None):
         wildchars = []
         if path[0] in wildchars:
@@ -148,6 +137,18 @@ class RecordToHtml(TableScriptOnRecord):
     #        filename = self.filePath(folder, filename)
     #    return self.builder.toHtml(filename=filename)
         
+        
+    def field(self, path, default=None, locale=None,
+                    format=None, mask=None):
+        datanode=self._data.getNode(path, default)
+        value = datanode.value
+        attr=datanode.attr
+        if value is None:
+            value=default
+        format= format or attr.get('format')
+        mask= mask or attr.get('mask')
+        return self.toText(value,locale,format, mask, self.encoding)
+
     def toText(self, obj, locale=None, format=None, mask=None, encoding=None):
         locale = locale or self.locale
         encoding = locale or self.encoding
