@@ -987,19 +987,22 @@ class RecordToHtmlFrame(BaseComponent):
         top.button('PDF',fire='%s.downloadPdf' % controllerPath)
         top.checkbox("Don't cache", value='%s.noCache' % controllerPath,)
         
-        top.dataController("""console.log('downloadPdf');
-                             var docName=docNameColumn.replace('.', '');
-                             var downloadAs =docNameColumn+'.pdf';
-                             genro.rpcDownload("callTableScript",
-                                  {record:record,table:'%s',
-                                  downloadAs:downloadAs,
-                                  pdf:true,
-                                  respath:'%s',
-                                  rebuild:rebuild})""" % (table,respath),
+        top.dataController("""
+                             var docName=docName.replace('.', '');
+                             var downloadAs =docName+'.pdf';
+                             var parameters = {'record':record,
+                                               'table':'%s',
+                                               'downloadAs':downloadAs,
+                                               'pdf':true,
+                                               'respath':'%s',
+                                               'rebuild':rebuild}
+                             genro.rpcDownload("callTableScript",parameters);
+                             """ % (table,respath),
                     _fired='^%s.downloadPdf' % controllerPath,
                     record = '=%s' % pkeyPath,
                     docName ='=%s' % docNamePath,
-                    rebuild='=%s.noCache' % controllerPath)
+                    rebuild=True)
+                    #rebuild='=%s.noCache' % controllerPath)
                     
         center = bc.borderContainer(region='center')
         frame = center.iframe(nodeId=frameId,
@@ -1010,7 +1013,8 @@ class RecordToHtmlFrame(BaseComponent):
                               rpc_record = '=%s' % pkeyPath,
                               rpc_table = table,
                               rpc_respath=respath,
-                              rpc_rebuild='=%s.noCache' % controllerPath,
+                              #rpc_rebuild='=%s.noCache' % controllerPath,
+                              rpc_rebuild=True,
                               _print='^%s.print' % controllerPath,
                               _reloader='^%s' % pkeyPath,
                               _if=enableConditionPath)
