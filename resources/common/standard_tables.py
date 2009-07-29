@@ -192,7 +192,7 @@ class TableHandler(BaseComponent):
     
     def listToolbar(self, pane, datapath=None,arrows=True):
         self.listController(pane)
-        tb = pane.toolbar(height='100%')
+        tb = pane.toolbar(height='26px')
         t_r = tb.div(float='right',width='110px')
         t_l = tb.div(width='20px',margin_left='2px',float='left',border_right='1px solid gray',height='25px')
         t_l.div(_class='db_treebtn',connect_onclick="SET list.showToolbox = ! (GET list.showToolbox);")
@@ -716,7 +716,7 @@ class TableHandler(BaseComponent):
                           logical_deleted='^form.logical_deleted' )
 
     def formToolbar(self, pane):
-        tb = pane.toolbar(height='100%')
+        tb = pane.toolbar(height='26px')
         self.confirm(pane,title='!!Confirm record deletion',width='50em',
                            msg='!!Are you sure to delete ?',
                            btn_ok='!!Delete',btn_cancel='!!Cancel',
