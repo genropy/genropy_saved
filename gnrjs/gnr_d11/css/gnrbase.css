@@ -4,11 +4,24 @@
 .dijitReset .dijitValidationIcon{
 	display: none;
 }
+
 .tundra .dijitError {
 	background-color: #fff2f5;
 	background-image:none;
 	border-color: #ff0041;
 }
+.tundra .dijitTextBoxErrorDisabled{
+	background-color: white;
+	background-image:none;
+	border-color: silver;
+}
+.tundra .dijitComboBoxErrorDisabled{
+	border-color: #d5d5d5 #bdbdbd #bdbdbd #d5d5d5;
+	background:#e4e4e4 url(images/buttonDisabled.png) top repeat-x;
+	opacity: 0.60; 
+}
+
+
 
 /* @end */
 
