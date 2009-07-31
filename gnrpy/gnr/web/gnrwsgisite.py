@@ -1,5 +1,4 @@
 from gnr.core.gnrbag import Bag, DirectoryResolver
-from gnr.core.gnrprinthandler import PrintHandler
 from gnr.core.gnrlang import gnrImport, getUuid, classMixin, cloneClass,instanceMixin
 from gnr.core.gnrstring import splitAndStrip
 from gnr.web.gnrwebpage import BaseResource
@@ -20,7 +19,11 @@ import mimetypes
 from gnr.core.gnrsys import expandpath
 from gnr.web.gnrbasewebtool import GnrBaseWebTool
 import inspect
-
+try:
+    from gnr.core.gnrprinthandler import PrintHandler
+    HAS_PRINTHANDLER = True
+except:
+    HAS_PRINTHANDLER = False
 mimetypes.init()
 
 class GnrWebServerError(Exception):
@@ -71,8 +74,8 @@ class GnrWsgiSite(object):
         self.page_factories={}
         self.page_factory_lock=RLock()
         self.webtools = self.find_webtools()
-        
-        self.print_handler=PrintHandler(parent = self)  
+        if HAS_PRINTHANDLER:
+            self.print_handler=PrintHandler(parent = self)  
     
     def find_webtools(self):
         def isgnrwebtool(cls):
