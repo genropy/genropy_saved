@@ -8,6 +8,7 @@ Copyright (c) 2009 __MyCompanyName__. All rights reserved.
 """
 import os.path
 import tempfile
+from gnr.core.gnrbag import Bag
 from gnr.core.gnrhtml import GnrHtmlBuilder
 from gnr.core.gnrstring import toText
 from gnr.core.gnrlang import NotImplementedException
@@ -91,6 +92,12 @@ class RecordToHtml(TableScriptOnRecord):
         if not record:
             return
         self.loadRecord(record)
+        if kwargs:
+            self._data['kwargs']=Bag()
+            for k,v in kwargs.items():
+                self._data['kwargs.%s' % k] = v
+            
+            
         #if not (dontSave or pdf):
         self.filepath=filepath or os.path.join(self.hmtlFolderPath(),self.outputDocName(ext='html'))
         #else:

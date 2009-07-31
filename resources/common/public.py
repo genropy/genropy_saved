@@ -977,7 +977,7 @@ class DynamicEditor(object):
 class RecordToHtmlFrame(BaseComponent):
     def recordToHtmlFrame(self, bc, frameId='', table='',
                           respath=None, pkeyPath='',
-                          enableConditionPath='',docNamePath=''):
+                          enableConditionPath='',docNamePath='', **kwargs):
         
         table = table or self.maintable
         frameId = frameId or self.getUuid()
@@ -985,7 +985,7 @@ class RecordToHtmlFrame(BaseComponent):
         top=bc.contentPane(region='top', height='32px')
         top.button('Print', fire='%s.print' % controllerPath)
         top.button('PDF',fire='%s.downloadPdf' % controllerPath)
-        top.checkbox("Don't cache", value='%s.noCache' % controllerPath,)
+        #top.checkbox("Don't cache", value='%s.noCache' % controllerPath,)
         
         top.dataController("""
                              var docName=docName.replace('.', '');
@@ -1017,5 +1017,6 @@ class RecordToHtmlFrame(BaseComponent):
                               rpc_rebuild=True,
                               _print='^%s.print' % controllerPath,
                               _reloader='^%s' % pkeyPath,
-                              _if=enableConditionPath)
+                              _if=enableConditionPath,
+                              **kwargs)
         
