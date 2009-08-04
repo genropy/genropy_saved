@@ -622,6 +622,12 @@ table.formbuilder {
 	width: 16px;
 	height: 16px;
 }
+.icnBasePdf {
+	background: url(icons/base16/pdf_icon.gif) no-repeat;
+	width: 16px;
+	height: 16px;
+}
+
 
 .icnBaseReadOnly {
 	background: url(icons/base16/readonly.gif) no-repeat;
