@@ -985,8 +985,8 @@ class RecordToHtmlFrame(BaseComponent):
         top=bc.contentPane(region='top', height='32px')
         toolbar = top.toolbar(height='23px',margin_top='2px')
         toolbar.button('!!PDF',fire='%s.downloadPdf' % controllerPath,iconClass='icnBasePdf',
-                        float='right',margin_right='10px')
-        toolbar.button('!!Print', fire='%s.print' % controllerPath,showIcon=False,
+                        float='right',margin_right='10px',showLabel=False,)
+        toolbar.button('!!Print', fire='%s.print' % controllerPath,showLabel=False,
                        float='right',margin_right='10px',iconClass='icnBasePrinter')
 
         #top.checkbox("Don't cache", value='%s.noCache' % controllerPath,)
