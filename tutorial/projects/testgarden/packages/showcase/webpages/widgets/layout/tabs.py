@@ -17,7 +17,7 @@ class GnrCustomWebPage(object):
     def main(self, root, **kwargs):
         tc = root.tabContainer(height='100%',nodeId='ppp',selected='^aux.selected')
         tc.contentPane(title='one').button('jj',action='genro.test()')
-        tc.contentPane(title='two')
+        tc.contentPane(title='two',url='border')
         tc.contentPane(title='three',iconClass='icnBaseAction',tip='Action').button('pp',tooltip='aaa')
         tc.contentPane(title='aaa',nodeId='panex')
 

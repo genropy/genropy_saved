@@ -983,8 +983,12 @@ class RecordToHtmlFrame(BaseComponent):
         frameId = frameId or self.getUuid()
         controllerPath = 'aux_frames.%s' % frameId
         top=bc.contentPane(region='top', height='32px')
-        top.button('Print', fire='%s.print' % controllerPath)
-        top.button('PDF',fire='%s.downloadPdf' % controllerPath)
+        toolbar = top.toolbar(height='23px',margin_top='2px')
+        toolbar.button('!!PDF',fire='%s.downloadPdf' % controllerPath,iconClass='icnBasePdf',
+                        float='right',margin_right='10px')
+        toolbar.button('!!Print', fire='%s.print' % controllerPath,showIcon=False,
+                       float='right',margin_right='10px',iconClass='icnBasePrinter')
+
         #top.checkbox("Don't cache", value='%s.noCache' % controllerPath,)
         
         top.dataController("""
