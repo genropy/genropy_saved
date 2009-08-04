@@ -988,22 +988,27 @@ class RecordToHtmlFrame(BaseComponent):
         #top.checkbox("Don't cache", value='%s.noCache' % controllerPath,)
         
         top.dataController("""
+                             var docName = docName || record;
                              var docName=docName.replace('.', '');
-                             var downloadAs =docName+'.pdf';
+                             var downloadAs =docName +'.pdf';
                              var parameters = {'record':record,
                                                'table':'%s',
                                                'downloadAs':downloadAs,
                                                'pdf':true,
                                                'respath':'%s',
                                                'rebuild':rebuild}
+                             objectUpdate(parameters,moreargs);
                              genro.rpcDownload("callTableScript",parameters);
                              """ % (table,respath),
                     _fired='^%s.downloadPdf' % controllerPath,
                     record = '=%s' % pkeyPath,
                     docName ='=%s' % docNamePath,
+                    moreargs=kwargs,
                     rebuild=True)
                     #rebuild='=%s.noCache' % controllerPath)
-                    
+        rpc_args={}
+        for k,v in kwargs.items():
+            rpc_args['rpc_%s'%k]=v
         center = bc.borderContainer(region='center')
         frame = center.iframe(nodeId=frameId,
                               border='0px',
@@ -1017,6 +1022,6 @@ class RecordToHtmlFrame(BaseComponent):
                               rpc_rebuild=True,
                               _print='^%s.print' % controllerPath,
                               _reloader='^%s' % pkeyPath,
-                              _if=enableConditionPath,
-                              **kwargs)
+                              _if='^%s' % enableConditionPath, #
+                              **rpc_args)
         
