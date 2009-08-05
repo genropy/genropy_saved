@@ -25,7 +25,7 @@ class AnalyzingBag(Bag):
             if sum is not None:
                 for fld in sum:
                     lbl = 'sum_%s' % fld 
-                    attr[lbl] = attr.get(lbl, 0) + (row[fld] or 0)
+                    attr[lbl] = attr.get(lbl, 0) + (row.get(fld,0) or 0)
             if collect is not None:
                 for fld in collect:
                     lbl = 'collect_%s' % fld

@@ -976,7 +976,7 @@ class DynamicEditor(object):
                         
 class RecordToHtmlFrame(BaseComponent):
     def recordToHtmlFrame(self, bc, frameId='', table='',
-                          respath=None, pkeyPath='',
+                          respath=None, pkeyPath='',background_color='white',
                           enableConditionPath='',docNamePath='', **kwargs):
         
         table = table or self.maintable
@@ -1013,7 +1013,7 @@ class RecordToHtmlFrame(BaseComponent):
         rpc_args={}
         for k,v in kwargs.items():
             rpc_args['rpc_%s'%k]=v
-        center = bc.borderContainer(region='center')
+        center = bc.borderContainer(region='center', background_color=background_color)
         frame = center.iframe(nodeId=frameId,
                               border='0px',
                               height='100%',
