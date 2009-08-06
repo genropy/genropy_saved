@@ -1014,6 +1014,10 @@ class RecordToHtmlFrame(BaseComponent):
         for k,v in kwargs.items():
             rpc_args['rpc_%s'%k]=v
         center = bc.borderContainer(region='center', background_color=background_color)
+        if enableConditionPath:
+            enableCondition = '^%s' % enableConditionPath
+        else:
+            enableCondition  = None
         frame = center.iframe(nodeId=frameId,
                               border='0px',
                               height='100%',
@@ -1026,6 +1030,6 @@ class RecordToHtmlFrame(BaseComponent):
                               rpc_rebuild=True,
                               _print='^%s.print' % controllerPath,
                               _reloader='^%s' % pkeyPath,
-                              _if='^%s' % enableConditionPath, #
+                              _if=enableCondition,
                               **rpc_args)
         
