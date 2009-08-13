@@ -911,13 +911,20 @@ class GnrBaseWebPage(GnrObject):
     tblobj = property(_get_tblobj)
     
     def _get_workdate(self):
-        workdate = self.pageArgs.get('_workdate_')
-        if not workdate or not self.userTags or not('superadmin' in self.userTags):
-            workdate =  datetime.date.today()
-        if isinstance(workdate, basestring):
-            workdate = self.application.catalog.fromText(workdate, 'D')
-        return workdate
-    workdate = property(_get_workdate)
+        if not hasattr(self,'_workdate'):
+            workdate = self.pageArgs.get('_workdate_')
+            if not workdate or not self.userTags or not('superadmin' in self.userTags):
+                workdate =  self.session.pagedata['workdate'] or datetime.date.today()
+            if isinstance(workdate, basestring):
+                workdate = self.application.catalog.fromText(workdate, 'D')
+            self._workdate = workdate
+        return self._workdate
+    
+    def _set_workdate(self, workdate):
+        self.session.setInPageData('workdate', workdate)
+        self._workdate = workdate
+
+    workdate = property(_get_workdate, _set_workdate)
     
     def _get_logfile(self):
         if not hasattr(self, '_logfile'):
