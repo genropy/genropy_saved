@@ -1051,7 +1051,7 @@ class Bag(GnrObject):
             return self._nodes[path]
         obj, label = self._htraverse(path,autocreate=autocreate)
 
-        if obj != None:
+        if isinstance(obj,Bag):
             node=obj._getNode(label,autocreate,default)
             if asTuple:
                 return (obj,node)
