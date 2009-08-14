@@ -309,7 +309,6 @@ dojo.declare("gnr.GnrRpcHandler",null,{
                 }
             };
         }
-        
         var error = envelope.getItem('error'); 
         if(!error){
             var locStatus = envelope.getItem('_localizerStatus');
@@ -327,6 +326,7 @@ dojo.declare("gnr.GnrRpcHandler",null,{
         if(resultAsNode){
             return envNode;
         } else {
+
             return envNode.getValue();
 
         }

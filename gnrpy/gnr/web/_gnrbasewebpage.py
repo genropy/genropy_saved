@@ -1629,7 +1629,8 @@ class GnrWebRpc(object):
                 else:
                     dataChanges = result[2]
             result=result[0]
-            envelope['resultType'] = 'node'
+            if resultAttrs is not None:
+                envelope['resultType'] = 'node'
         if error:
             envelope['error'] = error
         if isinstance(result, page.domSrcFactory):
