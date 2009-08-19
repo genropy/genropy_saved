@@ -859,7 +859,7 @@ class GnrBaseWebAppHandler(object):
         tblobj = self.db.table(dbtable)
         
         captioncolumns = tblobj.rowcaptionDecode(rowcaption)[0]
-        querycolumns = tblobj.getQueryFields(columns)#or captioncolumns
+        querycolumns = tblobj.getQueryFields(columns,captioncolumns)
         showcolumns = gnrlist.merge(querycolumns, tblobj.columnsFromString(auxColumns))
         resultcolumns = gnrlist.merge(showcolumns, captioncolumns, tblobj.columnsFromString(hiddenColumns))
         if alternatePkey and not alternatePkey in resultcolumns:
