@@ -610,6 +610,7 @@ class SqlTable(GnrObject):
         pass
     
     def columnsFromString(self, columns):
+        print 'columns = %s' %columns
         result = []
         if not columns:
             return result
@@ -619,10 +620,13 @@ class SqlTable(GnrObject):
             if not col.startswith('@') and not col.startswith('$'):
                 col = '$%s' % col
             result.append(col)
+        #print 'columnsFromString = %s' %str(result)
         return result
     
-    def getQueryFields(self, columns=None):
-        columns = columns or self.model.queryfields or self.rowcaptionDecode()[0]
+    def getQueryFields(self, columns=None,captioncolumns=None):
+        #print'1 '+str(columns)
+        columns = columns or self.model.queryfields or captioncolumns
+        #print'2 '+str(columns)
         return self.columnsFromString(columns)
     
     def rowcaptionDecode(self, rowcaption=None):
