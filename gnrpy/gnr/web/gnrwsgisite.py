@@ -526,6 +526,7 @@ class GnrWsgiSite(object):
         result.extend(resources_list)
         page_class.tpldirectories=result+[self.gnr_static_path(page_class.gnrjsversion,'tpl')]
         page_class._resourceDirs = result
+
         
     def _get_siteResources(self):
         if not hasattr(self,'_siteResources'):
