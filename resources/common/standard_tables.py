@@ -422,7 +422,7 @@ class TableHandler(BaseComponent):
     def gridPane(self,pane):
         if self.hierarchicalViewConf():
             tc = pane.tabContainer()
-            gridpane =  tc.contentPane(title='!!Plain view')
+            gridpane =  tc.contentPane(title='!!Standard view')
             treepane =  tc.contentPane(title='!!Hierarchical view', datapath='list')
             self.treePane(treepane)
         else:
