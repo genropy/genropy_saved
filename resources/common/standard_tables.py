@@ -355,10 +355,10 @@ class TableHandler(BaseComponent):
         pane.div(_class='st_editor_body st_editor_%s' % restype, nodeId='%s_root' % restype, datapath=datapath)
     
     def treePane(self, pane):
-        client = pane.borderContainer(region = 'client')
+        client = pane.borderContainer(region = 'center')
         client.data('hv_conf', self.hierarchicalViewConf())
         client.dataRemote('.tree_view.tree', 'selectionAsTree', selectionName='^.selectionName' )
-        leftpane = client.contentPane(region = 'client', overflow='auto')
+        leftpane = client.contentPane(region = 'center', overflow='auto')
         leftpane.dataRecord('.tree_view.current_record', self.maintable, pkey='^.tree_view.selected_id')
         leftpane.tree(storepath ='.tree_view.tree',
                      selected_pkey ='.tree_view.selected_id',
