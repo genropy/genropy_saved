@@ -1264,7 +1264,7 @@ class GnrBaseWebPage(GnrObject):
         f.div(content = 'Forbidden Page',text_align="center",font_size='24pt')
         tbl = f.contentPane(_class='dojoDialogInner').table()
         row = tbl.tr()
-        row.td(content='Sorry. You are not allowed to use this page.', align="center",font_size='18pt')
+        row.td(content='Sorry. You are not allowed to use this page.', align="center",font_size='16pt', color='#c90031')
         cell = tbl.tr().td()
         cell.div(float='right',padding='2px').button('Back', action='genro.pageBack()')
         
