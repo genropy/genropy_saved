@@ -46,7 +46,7 @@ class GnrCustomWebPage(object):
         center = sc.contentPane(datapath='form')
         self.formController(center)
         fb = center.formbuilder(cols=1, margin_top='1em', datapath='.data.user',
-                                 onEnter='FIRE form.doSave=true',margin_left='2em',margin_top='1em')
+                                 onEnter='FIRE form.doSave=true',margin_left='2em')
         fb.field('adm.user.email', width='18em', validate_email=True, invalidMessage='!!Invalid email', required=True)
         
         fb.field('adm.user.username', width='12em', validate_len='3:32' ,
