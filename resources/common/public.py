@@ -291,16 +291,21 @@ class Public(BaseComponent):
         dates = ','.join(dates)
         return dates
         
-    def periodCombo(self, fb):
-        fb.dataRpc('.period', 'decodeDatePeriod', datestr='^.period_input', 
+    def periodCombo(self, fb, period_store = None):
+        if not period_store:
+            period_store = '.period'
+            string_store = 'vars.period_string'
+        else:
+            string_store = '%s.period_string' % period_store
+        fb.dataRpc(period_store, 'decodeDatePeriod', datestr='^.period_input', 
                     _if='datestr', _else='SET .period=null;', _fired='^gnr.onStart')
-        fb.dataScript('vars.period_string',
+        fb.dataScript(string_store,
                          """if(ff && tt){
                             return 'da '+ asText(ff, {format:'full'}) +' a '+ asText(tt, {format:'full'});
                          } else {
                             return '';
                          }  """,
-                          ff='^.period.from', tt='^.period.to')
+                          ff='^%s.from' % period_store, tt='^%s.to'% period_store)
         fb.combobox(lbl='!!Period',value='^.period_input', width='16em',
                     values=self._pbl_datesHints(), margin_right='5px',padding_top='1px')
                     
