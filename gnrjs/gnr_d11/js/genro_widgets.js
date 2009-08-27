@@ -2426,15 +2426,16 @@ dojo.declare("gnr.widgets.VirtualStaticGrid",gnr.widgets.Grid,{
         genro.rpc.remoteCall('app.printStaticGrid', 
                                 pars, 
                                 'bag', 'POST', null, 
-                                function(filename){
-                                        var url = genro.rpc.rpcUrl("app.printStaticGridDownload", {filename:filename});
-                                        genro.dev.printUrl(url);
+                                function(url){
+                                        //var url = genro.rpc.rpcUrl("app.printStaticGridDownload", {filename:filename});
+                                        genro.download(url,null,'print');
                                         curgrid.loadingContent(false);
                                     });
     },
     mixin_structbag:function(){
-         return genro.getData(this.sourceNode.absDatapath(structpath));
+        return genro.getData(this.sourceNode.absDatapath(structpath));
     },
+    
     mixin_getCellEditor:function(row, col){
         var cell = this.getCell(col);
         var editWidget = genro.wdgById(this.editorId + '_' + cell.field);
@@ -2692,6 +2693,10 @@ dojo.declare("gnr.widgets.IncludedView",gnr.widgets.VirtualStaticGrid,{
         return {'gnreditors':gnreditors, 'structure':structure};
     },
     mixin_structbag:function(){
+        //return genro.getData(this.sourceNode.absDatapath(structpath));
+        return genro.getData(this.sourceNode.absDatapath(this.sourceNode.attr.structpath));
+    },
+    mixinex_structbag:function(){
         var structure = this.sourceNode.getValue();
         if (structure){
             structure=structure.getItem('struct');

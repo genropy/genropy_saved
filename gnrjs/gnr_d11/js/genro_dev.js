@@ -205,7 +205,7 @@ dojo.declare("gnr.GnrDevHandler",null,{
     },
     printUrl: function(url){
         genro.dev.deprecation("genro.dev.printUrl(url)","genro.download(url,'print')");
-        genro.download(url,'print');
+        genro.download(url,null,'print');
         /*genro.src.getNode()._('div', '_printframe');
         var node = genro.src.getNode('_printframe').clearValue().freeze();
         frm = node._('iframe', {'src':url, connect_onload:"genro.dom.iFramePrint(this.domNode);", 

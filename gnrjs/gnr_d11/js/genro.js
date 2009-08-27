@@ -330,17 +330,22 @@ dojo.declare('gnr.GenroClient', null, {
     },
     download: function(url, args, onload_cb){
         var args=args || {};
-        args.download=true;
-        console.log(url);
+        if (onload_cb=='print'){
+            onload_cb="genro.dom.iFramePrint(this.domNode);";
+        }
+        else
+        {
+            args.download=true;
+        }
+        
         url=genro.makeUrl(url,args);
-        console.log(url);
         genro.src.getNode()._('div', '_dlframe');
         var node = genro.src.getNode('_dlframe').clearValue().freeze();
         var params =  {'src':url, display:'hidden', width:'0px', height:'0px'};
         if (onload_cb) {
-            if (onload_cb=='print'){
-                onload_cb="genro.dom.iFramePrint(this.domNode);";
-            }
+            //if (onload_cb=='print'){
+            //    onload_cb="genro.dom.iFramePrint(this.domNode);";
+            //}
             params['connect_onload'] = onload_cb;
         };
         frm = node._('iframe',params);
