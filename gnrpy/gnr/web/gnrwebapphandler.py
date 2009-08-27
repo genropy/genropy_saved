@@ -1217,6 +1217,8 @@ class GnrBaseWebAppHandler(object):
         
     def rpc_printStaticGrid(self, structbag, storebag, filename=None, makotemplate='standard_print.tpl', **kwargs): 
         filename = self._exportFileNameClean(filename)
+        if not filename.lower().endswith('.html') or filename.lower().endswith('.htm'):
+            filename+='.html'
         storebag = self._getStoreBag(storebag)
         columns = []
         colAttrs = {}
@@ -1239,13 +1241,15 @@ class GnrBaseWebAppHandler(object):
         result = self.page.makoTemplate(makotemplate, striped='odd_row,even_row', outdata=outdata, colAttrs=colAttrs,
                                             columns=columns, meta=kwargs)
 
-        fpath = self.page.pageLocalDocument(filename)
+        #fpath = self.page.pageLocalDocument(filename)
+        fpath = self.page.temporaryDocument(filename)
         f = open(fpath, 'w')
         if isinstance(result, unicode):
             result = result.encode('utf-8')
         f.write(result)
         f.close()
-        return filename
+        return self.page.temporaryDocumentUrl(filename)
+        #return filename
         
     def rpc_printStaticGridDownload(self, filename, **kwargs):
         fpath = self.page.pageLocalDocument(filename)
