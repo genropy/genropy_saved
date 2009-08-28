@@ -839,13 +839,13 @@ class GnrBaseWebAppHandler(object):
                           notnull=None, weakCondition=False, **kwargs):
         """
         * dbtable: table source for the query
-        * columns: columns that is involved into the query
-        * auxColumns: showed only as result, not involved into the search.
-        * hiddenColumns: data that is getted but is not showed.
+        * columns: columns that are involved into the query
+        * auxColumns: showed only as result, not involved in the search.
+        * hiddenColumns: data that is retrieved but is not showed.
         * rowcaption: what you see into the field. Often is different from 
                       what you set with dbselect
         * condition: more condition into the query. Every kwargs params that 
-                    starts with condition_ ar the variables involved into the clause.
+                    starts with condition_  are the variables involved in the 'where' clause.
         * selectmethod: custom rpc_method you can use for make the query on the server.
         * weakCondition: if there's a condition and it's not defined a selectedmethod
         """
