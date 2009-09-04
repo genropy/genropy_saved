@@ -410,7 +410,7 @@ dojo.declare("gnr.GnrDomSourceNode",gnr.GnrBagNode,{
         }
     },
      setRemoteContent:function(kwargs) {
-         kwargs.sync =('sync' in kwargs) ? sync : true;
+         kwargs.sync =('sync' in kwargs) ? kwargs.sync : true;
          var cacheTime=objectPop(kwargs,'cacheTime');
          var resolver = new gnr.GnrRemoteResolver(kwargs, false, cacheTime);
          resolver.updateAttr=true;
