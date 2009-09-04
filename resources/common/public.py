@@ -836,7 +836,7 @@ class RecordHandler(object):
     def recordDialog(self,table,firedPkey=None,height=None,width=None,_class=None,
                     title=None,formCb=None,onSaved='',saveKwargs={},loadKwargs={},
                     savePath='',parentDialog=None,bottomCb=None,savingMethod=None,
-                    loadingMethod=None, onClosed='',validation_failed='alert'):
+                    loadingMethod=None, onClosed='',validation_failed='alert',custom_table_id=None):
         """
         Allow to manage a form into a dialog for editing and saving a single RecordHandler.
         * `table`: The table where the record is saved.
@@ -851,7 +851,7 @@ class RecordHandler(object):
         """
         assert not '_onResult' in saveKwargs
         assert not '_onResult' in loadKwargs
-        tableId = table.replace('.','_')
+        tableId = custom_table_id or table.replace('.','_')
         sqlContextName='sqlcontext_%s' %tableId
         controllerPath = 'aux_forms.%s' % tableId
         sqlContextRoot= 'aux_forms.%s.record' % tableId
@@ -982,19 +982,24 @@ class DynamicEditor(object):
                         disabled=disabled,fired='^gnr.onStart')
                         
 class RecordToHtmlFrame(BaseComponent):
+    def _custom_print_toolbar(self,toolbar):
+        pass
+        
     def recordToHtmlFrame(self, bc, frameId='', table='',
                           respath=None, pkeyPath='',background_color='white',
-                          enableConditionPath='',docNamePath='', **kwargs):
+                          enableConditionPath='',docNamePath='', customToolbarCb=None,**kwargs):
         
         table = table or self.maintable
         frameId = frameId or self.getUuid()
         controllerPath = 'aux_frames.%s' % frameId
         top=bc.contentPane(region='top', height='32px')
         toolbar = top.toolbar(height='23px',margin_top='2px')
+        custom_toolbarCb = customToolbarCb or getattr(self,'_custom_print_toolbar')
+        custom_toolbarCb(toolbar)
         toolbar.button('!!PDF',fire='%s.downloadPdf' % controllerPath,iconClass='icnBasePdf',
-                        float='right',margin_right='10px',showLabel=False,)
+                        position='absolute',right='10px',top='5px',showLabel=False,)
         toolbar.button('!!Print', fire='%s.print' % controllerPath,showLabel=False,
-                       float='right',margin_right='10px',iconClass='icnBasePrinter')
+                       position='absolute',right='40px',top='5px',iconClass='icnBasePrinter')
 
         #top.checkbox("Don't cache", value='%s.noCache' % controllerPath,)
         
