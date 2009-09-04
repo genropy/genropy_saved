@@ -50,7 +50,9 @@ class Public(BaseComponent):
                        getIconClass='return node.attr.iconClass || "treeNoIcon"',
                        getLabelClass='return node.attr.labelClass',
                        openOnClick=True,
-                       connect_onClick='genro.gotoURL($1.getAttr("file"),true)',
+                       #connect_onClick='genro.gotoURL($1.getAttr("file"),true)',
+                       #getLabel="""return "<a href='"+node.attr.file+"'>"+node.attr.label+"</a>::HTML";""",
+                       getLabel="""if(node.attr.file){ return 'innerHTML:<a href="'+node.attr.file+'">'+node.attr.label+'</a>'}else  {return node.attr.label};""",
                        nodeId='_menutree_')
         leftPane.dataController("genro.wdgById('_gnrRoot').showHideRegion('left', false);",fired='^gnr.onStart',
                                 appmenu="=gnr.appmenu",_if="appmenu.len()==0")

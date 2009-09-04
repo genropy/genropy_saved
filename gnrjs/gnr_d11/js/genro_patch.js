@@ -720,3 +720,16 @@ dojo.declare("dijit.layout._Splitter", [ dijit._Widget, dijit._Templated ],
 });
 };
 
+genropatches.tree=function(){
+    dojo.require('dijit.Tree');
+    dijit._TreeNode.prototype.setLabelNode=function(label){
+        this.labelNode.innerHTML = "";
+        if (label &&(label.indexOf('innerHTML:')>=0)){
+            this.labelNode.innerHTML =label.replace('innerHTML:','')
+            this.isTreeNode=false
+        }else{
+            this.labelNode.appendChild(dojo.doc.createTextNode(label));
+        };
+    };
+	
+};
