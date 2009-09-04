@@ -659,6 +659,15 @@ padding-right:5px;
 	background-color: #e5e5e5;
 }
 
+.menupane .dijitTreeLabel > a{
+	color: white !important;
+}
+
+.menupane .dijitTreeLabel > a:visited{
+	color: white !important;
+}
+
+
 .menupane > div{
 	position: absolute;
 	left: 0px;
