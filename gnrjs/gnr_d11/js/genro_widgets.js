@@ -3064,7 +3064,9 @@ dojo.declare("gnr.widgets.Tree",gnr.widgets.baseDojo,{
         if (attributes['getLabel']){
             var labelGetter = funcCreate(attributes['getLabel'],'node');
             attributes.getLabel=function(node){
-                return labelGetter(node);
+                if(node.attr){
+                    return labelGetter(node);
+               }
             };
         }
         if (attributes['getLabelClass']){
