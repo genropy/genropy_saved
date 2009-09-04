@@ -18,8 +18,6 @@ class GnrCustomWebPage(object):
                             chart.render();
                             };
                        dojo.addOnLoad(makeChart);""")
-        
-
         bc=body.borderContainer(height='500px',width='600px',margin='10px',background_color='red')
         bc.contentPane(region='top',height='5ex',splitter='true',background_color='lime')
         bc.contentPane(region='left',width='15em',splitter='true',background_color='gray')
