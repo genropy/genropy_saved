@@ -678,8 +678,13 @@ class GnrFormBuilder(object):
         lblalign, fldalign = self.lblalign, self.fldalign
         lblvalign, fldvalign = self.lblvalign, self.fldvalign
         lbl_kwargs={}
+        lblhref=None
         if field != None:
             lbl=field.pop('lbl','')
+            if 'lbl_href' in field:
+                lblhref=field.pop('lbl_href')
+                lblvalue=lbl
+                lbl=None
             row_class = field.pop('row_class',None)
             for k in field.keys():
                 if k.startswith('lbl_'):
@@ -703,7 +708,10 @@ class GnrFormBuilder(object):
             lbl_kwargs.update(kwargs)
             lblvalign=lbl_kwargs.pop('vertical_align', lblvalign)
             lblalign=lbl_kwargs.pop('align', lblalign)
-            row.td(name='c_%i_l' % c, content=lbl,align=lblalign,vertical_align=lblvalign, _class=self.lblclass,**lbl_kwargs)
+
+            cell=row.td(name='c_%i_l' % c, content=lbl,align=lblalign,vertical_align=lblvalign, _class=self.lblclass,**lbl_kwargs)
+            if lblhref:
+                cell.a(content=lblvalue,href=lblhref)            
             if row_class:
                 row.parentNode.attr['_class'] = row_class
             if colspan>1:
