@@ -265,6 +265,11 @@ table.formbuilder {
 
 /* @group Icons */
 
+.icnWarning{
+	background: url(icons/iconWarning.gif) no-repeat;
+	width: 20px;
+	height: 16px;
+}
 /* @group base14 */
 
 
