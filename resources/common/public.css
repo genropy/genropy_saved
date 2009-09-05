@@ -669,9 +669,13 @@ padding-right:5px;
 
 .gnrzoomlabel{
 	text-decoration: none;
+	padding-left:15px;
+
 }
 .gnrzoomlabel:hover{
-	text-decoration: underline;
+	-moz-border-radius:7px;
+    -webkit-border-radius:7px;
+	background:  yellow url(icons/linkto.gif) no-repeat;
 }
 
 
@@ -690,12 +694,14 @@ padding-right:5px;
 
     border-left: 0px;
     overflow-y:auto;
+	background: url(icons/linkto.gif) no-repeat;
 }
 
 .menutree{
 	margin-top: 15px;
 	margin-right: 10px;
 	font-weight: bold;
+	background-position: left;
 }
 .menutree .dijitTreeIcon{
 	visibility: hidden;
