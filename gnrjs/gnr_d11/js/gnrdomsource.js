@@ -614,6 +614,7 @@ dojo.declare("gnr.GnrDomSourceNode",gnr.GnrBagNode,{
     //},
     updateAttrBuiltObj:function(attr, kw, trigger_reason){
        var attr = attr || 'value';
+       var attr_lower = attr.toLowerCase();
        var path;
        var value=this.getAttributeFromDatasource(attr);
        value = (value!=null) ? value : '';
@@ -650,8 +651,8 @@ dojo.declare("gnr.GnrDomSourceNode",gnr.GnrBagNode,{
            else if(attr.indexOf('__')==0){
                return;
            }
-           else if (attr=='disabled') {
-               this.widget.setAttribute('disabled',value? true:false);
+           else if ((attr_lower=='disabled') || (attr_lower=='readonly'))  {
+               this.widget.setAttribute(attr_lower,value? true:false);
            }
            else if ((attr=='storepath') && (this.attr.storepath.indexOf('^') == 0)){
                this.rebuild();

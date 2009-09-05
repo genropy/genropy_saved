@@ -288,6 +288,13 @@ class GnrDomSrc(GnrStructData):
             result['recordpath']=':@*'
             result['keyfield']=relcol.name
             result['_class']='linkerselect'
+            if hasattr(lnktblobj,'zoomUrl'):
+                zoomPage=lnktblobj.zoomUrl()
+                
+            else:
+                zoomPage=linktable.replace('.','/')
+            result['lbl_href']='^.%s?zoomUrl' % fld
+            result['zoomPage']=zoomPage
         #elif attr.get('mode')=='M':
         #    result['tag']='bagfilteringtable'
         elif dtype == 'A':
@@ -477,6 +484,14 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
             if ':' in size:
                 size=size.split(':')[1]
             size=int(size)
+            if kwargs.get('zoom') != False:
+                if hasattr(lnktblobj,'zoomUrl'):
+                    zoomPage=lnktblobj.zoomUrl()
+                else:
+                    zoomPage=lnktblobj.fullname.replace('.','/')
+                result['lbl_href']="=='/%s?pkey='+pkey" % zoomPage
+                result['lbl_pkey']='^.%s' % fieldobj.name
+            
             result['lbl']=fieldobj.table.dbtable.relationName('@%s' % fieldobj.name)
             result['tag']='DbSelect'
             result['dbtable']=lnktblobj.fullname
@@ -709,9 +724,11 @@ class GnrFormBuilder(object):
             lblvalign=lbl_kwargs.pop('vertical_align', lblvalign)
             lblalign=lbl_kwargs.pop('align', lblalign)
 
-            cell=row.td(name='c_%i_l' % c, content=lbl,align=lblalign,vertical_align=lblvalign, _class=self.lblclass,**lbl_kwargs)
             if lblhref:
-                cell.a(content=lblvalue,href=lblhref)            
+                cell=row.td(name='c_%i_l' % c, content=lbl,align=lblalign,vertical_align=lblvalign)
+                cell.a(content=lblvalue,href=lblhref,_class=self.lblclass,**lbl_kwargs)
+            else:
+                row.td(name='c_%i_l' % c, content=lbl,align=lblalign,vertical_align=lblvalign, _class=self.lblclass,**lbl_kwargs)          
             if row_class:
                 row.parentNode.attr['_class'] = row_class
             if colspan>1:
