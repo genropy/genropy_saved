@@ -485,13 +485,13 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
                 size=size.split(':')[1]
             size=int(size)
             if kwargs.get('zoom') != False:
-                if hasattr(lnktblobj,'zoomUrl'):
-                    zoomPage=lnktblobj.zoomUrl()
-                else:
+                if hasattr(lnktblobj.dbtable,'zoomUrl'):
+                    zoomPage=lnktblobj.dbtable.zoomUrl()
+                else :
                     zoomPage=lnktblobj.fullname.replace('.','/')
                 result['lbl_href']="=='/%s?pkey='+pkey" % zoomPage
                 result['lbl_pkey']='^.%s' % fieldobj.name
-            
+                result['lbl__class']='gnrzoomlabel'
             result['lbl']=fieldobj.table.dbtable.relationName('@%s' % fieldobj.name)
             result['tag']='DbSelect'
             result['dbtable']=lnktblobj.fullname
@@ -725,8 +725,8 @@ class GnrFormBuilder(object):
             lblalign=lbl_kwargs.pop('align', lblalign)
 
             if lblhref:
-                cell=row.td(name='c_%i_l' % c, content=lbl,align=lblalign,vertical_align=lblvalign)
-                cell.a(content=lblvalue,href=lblhref,_class=self.lblclass,**lbl_kwargs)
+                cell=row.td(name='c_%i_l' % c, content=lbl,align=lblalign,vertical_align=lblvalign,_class=self.lblclass)
+                cell.a(content=lblvalue,href=lblhref,**lbl_kwargs)
             else:
                 row.td(name='c_%i_l' % c, content=lbl,align=lblalign,vertical_align=lblvalign, _class=self.lblclass,**lbl_kwargs)          
             if row_class:
