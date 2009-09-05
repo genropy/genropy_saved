@@ -659,12 +659,19 @@ padding-right:5px;
 	background-color: #e5e5e5;
 }
 
-.menupane .dijitTreeLabel > a{
-	color: white !important;
+.menu_page  > a{
+	color: white ;
+	text-decoration: none;
+}
+.menu_page  > a:hover{
+	text-decoration: underline;
 }
 
-.menupane .dijitTreeLabel > a:visited{
-	color: white !important;
+.gnrzoomlabel{
+	text-decoration: none;
+}
+.gnrzoomlabel:hover{
+	text-decoration: underline;
 }
 
 
