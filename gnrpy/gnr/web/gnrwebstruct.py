@@ -484,7 +484,8 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
             if ':' in size:
                 size=size.split(':')[1]
             size=int(size)
-            if kwargs.get('zoom') != False:
+            defaultZoom=self.page.pageOptions.get('enableZoom',True)
+            if kwargs.get('zoom',defaultZoom) :
                 if hasattr(lnktblobj.dbtable,'zoomUrl'):
                     zoomPage=lnktblobj.dbtable.zoomUrl()
                 else :

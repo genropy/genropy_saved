@@ -356,6 +356,7 @@ class GnrWsgiSite(object):
         page_class.eagers = getattr(custom_class, 'eagers', {})
         page_class.css_requires = splitAndStrip(getattr(custom_class, 'css_requires', ''),',')
         page_class.js_requires = splitAndStrip(getattr(custom_class, 'js_requires', ''),',')
+        page_class.pageOptions = getattr(custom_class,'pageOptions',{})
         page_class.auth_tags = getattr(custom_class, 'auth_tags', '')
         self.page_class_resourceDirs(page_class, path, pkg=pkg)
         self.page_pyrequires_mixin(page_class, py_requires)
