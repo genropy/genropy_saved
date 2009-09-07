@@ -101,7 +101,7 @@ dojo.declare('gnr.GenroClient', null, {
         Here starts the application on page loading.
         It calls the remoteCall to receive the page contained in the bag called 'main'.
         */
-        //genro.timeIt('** dostart **');
+        genro.timeIt('** dostart **');
         genropatches.comboBox();
         genropatches.tree();
         if (dojoversion=='1.1'){
@@ -129,18 +129,18 @@ dojo.declare('gnr.GenroClient', null, {
         this.dlg.createStandardMsg(document.body);
         this.dev.srcInspector(document.body);
         this.contextIndex = {};
-        //genro.timeIt('** getting main **');
+        genro.timeIt('** getting main **');
         var mainBagPage  = this.rpc.remoteCall('main', this.startArgs, 'bag');
-        //genro.timeIt('**  main received  **');
+        genro.timeIt('**  main received  **');
         if(mainBagPage && mainBagPage.attr.redirect){
             var url=this.addParamsToUrl(mainBagPage.attr.redirect, {'fromPage':this.absoluteUrl()});
             this.gotoURL(url);
         }
         //this.loadPersistentData()
         this.loadContext();
-        //genro.timeIt('** starting builder **');
+        genro.timeIt('** starting builder **');
         this.src.startUp(mainBagPage);
-        //genro.timeIt('** end builder **');
+        genro.timeIt('** end builder **');
         genro.dom.removeClass('mainWindow', 'waiting');
         var _this=this;                                            
         this._dataroot.subscribe('dataTriggers', {'any':dojo.hitch(this, "dataTrigger")});

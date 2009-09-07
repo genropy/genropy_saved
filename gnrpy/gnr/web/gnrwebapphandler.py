@@ -686,7 +686,7 @@ class GnrBaseWebAppHandler(object):
             where._locale = self.page.locale
             where._workdate = self.page.workdate
             where, kwargs = tblobj.sqlWhereFromBag(where, kwargs)
-        if condition:
+        if condition and not pkeys:
             where = '(%s) AND (%s)' % (where, condition)
         sql_kwargs = dict([(str(k), v) for k,v in kwargs.items() if not k.startswith('frm_')])
         fmt_kwargs = dict([(str(k[4:]), v) for k,v in kwargs.items() if k.startswith('frm_')])
