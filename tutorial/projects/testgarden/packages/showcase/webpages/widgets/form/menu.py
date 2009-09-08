@@ -62,7 +62,7 @@ class GnrCustomWebPage(object):
         p.menuline('-')
         p.menuline('File')
         x.menuline('-')
-        x.menuline('Do nothing')
+        x.menuline('Do nothing',disabled=True)
         
     def pageCtrlMenu(self,m):
         m.menuline('Open...',gnrIcon='Save',action="alert('Opening now...')")

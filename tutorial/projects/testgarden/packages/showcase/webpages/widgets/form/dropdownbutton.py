@@ -18,8 +18,10 @@ class GnrCustomWebPage(object):
     def main(self, root, **kwargs):
         root.data('contents', self._receiptBag())
         root.data('label','contents')
-        x=root.toolbar().dropdownbutton('^label',id='zzz').menu(storepath='contents',
-                                                       action='SET label=this.attr.label')
+      #x=root.toolbar().dropdownbutton('^label',id='zzz').menu(storepath='contents',
+      #                                               action='SET label=this.attr.label')
+        x=root.div(height='40px',width='40px',background='red').menu(storepath='contents',modifiers='*',
+                                                                    action='alert(this.attr.label)')
         
     def _receiptBag(self):
         b = Bag()
