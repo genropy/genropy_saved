@@ -247,7 +247,10 @@ dojo.declare("gnr.widgets.baseHtml",null,{
             if (typeof(menu)=='string'){
                 menu=dijit.byId(menu);
             }
-            menu.bindDomNode(domNode);
+            if(menu){
+                menu.bindDomNode(domNode);
+            }
+            
         }
         if(!sourceNode){
             return;
@@ -1334,6 +1337,7 @@ dojo.declare("gnr.widgets.Grid",gnr.widgets.baseDojo,{
     },
 
     mixin_setStructpath:function(val,kw){
+        console.log('dentro setStructpath');
         var structure = genro.getData(this.sourceNode.attrDatapath('structpath'));
         this.cellmap = {};
         this.setStructure(this.gnr.structFromBag(structure, this.cellmap, this.gnreditors));
@@ -2166,6 +2170,7 @@ dojo.declare("gnr.widgets.VirtualStaticGrid",gnr.widgets.Grid,{
     },
     
     mixin_onSetStructpath: function(structure){
+     console.log('dentro onSetStructpath')
      var columns = gnr.columnsFromStruct(structure);
         if(this.sourceNode.hiddencolumns){
             columns = columns+','+this.sourceNode.hiddencolumns;
@@ -2725,6 +2730,7 @@ dojo.declare("gnr.widgets.IncludedView",gnr.widgets.VirtualStaticGrid,{
         this.editorEnabled = enabled;
     },
     mixin_rpcViewColumns: function(){
+        console.log('dentro rpcViewColumns')
         if ((this.relation_path) && (this.relation_path.indexOf('@')==0)){
             genro.rpc.remoteCall('setViewColumns', {query_columns:this.query_columns,
                                                     contextName:this.sqlContextName,
