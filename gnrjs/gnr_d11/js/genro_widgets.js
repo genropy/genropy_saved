@@ -2025,7 +2025,13 @@ dojo.declare("gnr.widgets.VirtualStaticGrid",gnr.widgets.Grid,{
     patch_onStyleRow:function(row){
         var attr = this.rowCached(row.index);
         if(attr._customClasses){
-            row.customClasses = attr._customClasses;
+            var customClasses = null;
+            if (attr._customClasses.slice(0,1)=='!'){
+                customClasses = attr._customClasses.slice(1);
+            }else{
+                customClasses = row.customClasses + ' ' + attr._customClasses;
+            }
+            row.customClasses = customClasses;
         }
         if(attr._customStyles){
             row.customStyles = attr._customStyles;
