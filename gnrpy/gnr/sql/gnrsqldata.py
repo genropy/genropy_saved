@@ -1118,14 +1118,14 @@ class SqlSelection(object):
                 
         if rowsToChange:
             rowsToChange.reverse()
-        for i, change in rowsToChange:
-            if change is None:
-                self._data.pop(i)
-            else:
-                self._data.pop(i)
-                change.reverse()
-                for r in change:
-                    self.insert(i, r)
+            for i, change in rowsToChange:
+                if change is None:
+                    self._data.pop(i)
+                else:
+                    self._data.pop(i)
+                    change.reverse()
+                    for r in change:
+                        self.insert(i, r)
                 
         self.isChangedData = True
     
