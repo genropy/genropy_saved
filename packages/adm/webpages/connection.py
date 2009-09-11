@@ -53,10 +53,11 @@ class GnrCustomWebPage(object):
                             storepath='.@adm_served_page_connection_id', struct=self.served_page_struct(),
                              autoWidth=True)
         gridEditor = iv.gridEditor()
+        
     def served_page_struct(self):
         struct = self.newGridStruct()
         r = struct.view().rows()
-        r.cell('page_id',name='Page',width='20em')
+        r.cell('page_id',name='Served Page ID',width='20em')
         r.fieldcell('start_ts',name='Start',width='10em')
         r.fieldcell('end_ts',name='End',width='10em')
         r.cell('pagename',name='Page name',width='15em')

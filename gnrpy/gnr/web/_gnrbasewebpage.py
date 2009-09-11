@@ -504,7 +504,8 @@ class GnrBaseWebPage(GnrObject):
             self.session.saveSessionData()
         
         if hasattr(self, '_connection'):
-            self.connection._finalize()
+            if self.user:
+                self.connection._finalize()
         if hasattr(self, '_app'):
             self._app._finalize(self)
         self.onEnd()
@@ -1699,7 +1700,7 @@ class GnrWebConnection(object):
             if not self.cookie:
                 self.connection_id = getUuid()
                 self.cookie = self.page.newMarshalCookie(self.cookieName, {'connection_id': self.connection_id, 'slots':{}, 'locale':None, 'timestamp':None}, secret = self.secret)
-    
+
     def _get_data(self):
         if not hasattr(self, '_data'):
             if os.path.isfile(self.connectionFile):
@@ -1815,10 +1816,15 @@ class GnrWebConnection(object):
         self.close()
         
     def close(self):
-        self.connFolderRemove()
+        self.dropConnection(self.connection_id)
         
-    def connFolderRemove(self, path=None):
-        path = path or self.connectionFolder
+    def dropConnection(self,connection_id):
+        self.page.site.connectionLog(self.page,'close')
+        self.connFolderRemove(connection_id)
+        
+    def connFolderRemove(self, connection_id):
+        path= os.path.join(self.allConnectionsFolder, connection_id)
+        print 'cleaning expired connection %s' % path
         for root, dirs, files in os.walk(path, topdown=False):
             for name in files:
                 os.remove(os.path.join(root, name))
@@ -1859,7 +1865,7 @@ class GnrWebConnection(object):
             for conn_id, conn_files, abs_path in dirbag.digest('#k,#v,#a.abs_path'):
                 cookieAge = t - (conn_files['connection_xml.cookieData.timestamp'] or 0)
                 if cookieAge > int(self.page.config.getItem('connection_timeout') or CONNECTION_TIMEOUT):
-                    self.connFolderRemove(abs_path)
+                    self.dropConnection(conn_id)
         
     def connectionsBag(self):
         if os.path.isdir(self.allConnectionsFolder):

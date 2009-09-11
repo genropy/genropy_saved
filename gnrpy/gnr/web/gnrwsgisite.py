@@ -399,7 +399,11 @@ class GnrWsgiSite(object):
     def pageLog(self,page,event):
         if 'adm' in page.db.packages:
             page.db.packages['adm'].pageLog(page,event)
-                    
+            
+    def connectionLog(self,page,event):
+        if 'adm' in page.db.packages:
+            page.db.packages['adm'].connectionLog(page,event)
+             
     def loadResource(self,pkg, *path):
         resourceDirs = self.gnrapp.packages[pkg].resourceDirs
         resource_class = cloneClass('CustomResource',BaseResource)

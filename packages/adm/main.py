@@ -34,24 +34,30 @@ class Package(GnrDboPackage):
         if update_md5 and hasattr(avatar,'md5len') and avatar.md5len==32: 
             self.update_md5(avatar)
         avatar.login_pwd = None
-        if not hasattr(avatar,'page'):
-            return
-        page = avatar.page
+        if hasattr(avatar,'page'):
+            self.connectionLog(avatar.page,'open',avatar)
+
+    def connectionLog(self,page,event,avatar=None):
         connection = page.connection
         tblconnection = page.db.table('adm.connection')
-        userid = None
-        if avatar.userid == avatar.id:
-            userid = avatar.id
-        new_connection_record = dict(id=connection.connection_id,username=avatar.id,
-                                    userid=userid,start_ts=datetime.now(),
-                                    ip=page.request.remote_addr,
-                                     user_agent=page.request.get_header('User-Agent'))
-        try:
+        if event == 'open':
+            userid = None
+            if avatar.userid == avatar.id:
+                userid = avatar.id
+            new_connection_record = dict(id=connection.connection_id,username=avatar.id,
+                                        userid=userid,start_ts=datetime.now(),
+                                        ip=page.request.remote_addr,
+                                         user_agent=page.request.get_header('User-Agent'))
             tblconnection.insert(new_connection_record)
-            page.db.commit()
-        except:
-            pass
-        
+        else:
+            end_ts=datetime.now()
+            tblservedpage = page.db.table('adm.served_page')
+            open_pages=tblservedpage.query(where='connection_id = :conn_id',conn_id=connection.connection_id).fetch()
+            for pg in open_pages:
+                tblservedpage.update(dict(page_id=pg['page_id'],end_ts=end_ts))
+            tblconnection.update(dict(id=connection.connection_id,end_ts=end_ts))
+        page.db.commit()
+            
     def pageLog(self,page,event):
         tblservedpage = page.db.table('adm.served_page')
         if event == 'open':
