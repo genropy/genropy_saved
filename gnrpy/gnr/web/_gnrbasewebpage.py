@@ -596,7 +596,7 @@ class GnrBaseWebPage(GnrObject):
         if guestName:
             avatar = self.application.getAvatar(guestName)
         else:
-            avatar = self.application.getAvatar(login['user'], password=login['password'], authenticate=True)
+            avatar = self.application.getAvatar(login['user'], password=login['password'], authenticate=True,page=self)
         if avatar:
             self.connection.updateAvatar(avatar)
             login['message'] = ''
@@ -1142,6 +1142,7 @@ class GnrBaseWebPage(GnrObject):
     def rpc_onClosePage(self, **kwargs):
         self.session.removePageData()
         self.connection.cookieToRefresh()
+        self.site.pageLog(self,'close')
         
     def rpc_main(self, _auth=AUTH_OK, debugger=None, **kwargs):
         self.connection.cookieToRefresh()
@@ -1177,6 +1178,8 @@ class GnrBaseWebPage(GnrObject):
                 self.main(rootwdg, **kwargs)
                 self.onMainCalls()
                 self._createContext(root)
+                if True:
+                    self.site
             elif _auth==AUTH_NOT_LOGGED:
                 loginUrl = self.application.loginUrl()
                 page = None
@@ -1679,8 +1682,8 @@ class GnrWebConnection(object):
         self.oldcookie=None
         if page._user_login:
             user, password = page._user_login.split(':')
-            avatar = page.application.getAvatar(user, password, authenticate=True)
             self.connection_id = getUuid()
+            avatar = page.application.getAvatar(user, password, authenticate=True,connection=self)
             self.cookie = self.page.newMarshalCookie(self.cookieName, {'connection_id': self.connection_id or getUuid(), 'slots':{}, 'locale':None, 'timestamp':None}, secret = self.secret)
             if avatar:
                 self.updateAvatar(avatar)

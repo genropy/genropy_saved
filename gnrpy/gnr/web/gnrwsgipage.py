@@ -368,6 +368,9 @@ class GnrWsgiPage(GnrBaseWebPage):
                 self.main(rootwdg, **kwargs)
                 self.onMainCalls()
                 self._createContext(root)
+                if self.user:
+                    self.site.pageLog(self,'open')
+                    
             elif _auth==AUTH_NOT_LOGGED:
                 loginUrl = self.application.loginUrl()
                 page = None

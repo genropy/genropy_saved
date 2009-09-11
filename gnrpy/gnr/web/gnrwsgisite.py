@@ -168,8 +168,8 @@ class GnrWsgiSite(object):
             _sitemap.setBackRef()
             self._sitemap = _sitemap
         return self._sitemap
-    sitemap = property(_get_sitemap)
-    
+    sitemap = property(_get_sitemap)        
+        
     def dispatcher(self,environ,start_response):
         """Main WSGI dispatcher, calls serve_staticfile for static files and self.createWebpage for
          GnrWebPages"""
@@ -395,6 +395,11 @@ class GnrWsgiSite(object):
             if mix:
                 self.mixinResource(page_class, page_class._resourceDirs, mix)
                 
+                
+    def pageLog(self,page,event):
+        if 'adm' in page.db.packages:
+            page.db.packages['adm'].pageLog(page,event)
+                    
     def loadResource(self,pkg, *path):
         resourceDirs = self.gnrapp.packages[pkg].resourceDirs
         resource_class = cloneClass('CustomResource',BaseResource)
@@ -467,6 +472,7 @@ class GnrWsgiSite(object):
         finally:
             self.page_factory_lock.release()
         page = page_class(self, filepath = module_path, packageId = pkg)
+        page.basename = path
         return page
 
     def page_init(self,page, request=None, response=None, page_id=None, debug=None, _user_login=None, _rpc_resultPath=None):

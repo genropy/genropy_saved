@@ -725,12 +725,12 @@ class GnrBaseWebAppHandler(object):
     def gridSelectionData(self, selection, outsource, recordResolver, numberedRows, logicalDeletionField):
         result = Bag()  
         for j,row in enumerate(outsource) :
-            row_class=None
             row = dict(row)
+            _customClasses = row.get('_customClasses','')
             pkey = row.pop('pkey', None)
             isDeleted=row.pop('_isdeleted',None)
             if isDeleted:
-                row_class='logicalDeleted'
+                _customClasses=_customClasses+' logicalDeleted'
             if numberedRows or not pkey:
                 row_key='r_%i'%j
             else:
@@ -738,7 +738,7 @@ class GnrBaseWebAppHandler(object):
             result.setItem(row_key, None, _pkey=pkey or row_key,
                            _target_fld = '%s.%s' % (selection.dbtable.fullname, selection.dbtable.pkey),
                            _relation_value=pkey, _resolver_name='relOneResolver',
-                           _attributes=row, _removeNullAttributes=False, _customClasses=row_class)
+                           _attributes=row, _removeNullAttributes=False, _customClasses=_customClasses)
         return result
                 
         
