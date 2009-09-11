@@ -439,7 +439,7 @@ class GnrApp(object):
     def authPackage(self):
         return self.packages[self.config.getAttr('authentication','pkg')]
 
-    def getAvatar(self, username, password=None, authenticate=False):
+    def getAvatar(self, username, password=None, authenticate=False,page=None):
         if username:
             authmethods = self.config['authentication']
             if authmethods:
@@ -448,6 +448,7 @@ class GnrApp(object):
                     avatar = getattr(self, 'auth_%s' % node.label.replace('_auth',''))(node, username, password=password, authenticate=authenticate)
         
                     if not (avatar is None):
+                        avatar.page = page
                         for pkg in self.packages.values():
                             pkg.onAuthentication(avatar)
                         return avatar
@@ -494,7 +495,6 @@ class GnrApp(object):
     def auth_sql(self, node, username, password=None, authenticate=False):
         """In file instanceconfig.xml insert a tag like:
            <sql_auth  defaultTags='myusers' dbtable='mypkg.users' username='username_fld' pwd='pwd_fld' userid='optional_id_fld' />
-           
            Mandatory attributes: dbtable, username, pwd
            Optional attributes: defaultTags, userid (the primary key of the db table if it is not the username field)
            Other attributes are aliases of dbfield names: myavatarfield='mydbfield'
