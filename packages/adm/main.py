@@ -3,6 +3,7 @@
 
 from gnr.app.gnrdbo import GnrDboTable, GnrDboPackage, Table_counter, Table_userobject
 import hashlib
+from datetime import datetime
 class Package(GnrDboPackage):
     
     def config_attributes(self):
@@ -30,8 +31,38 @@ class Package(GnrDboPackage):
             
     def onAuthentication(self, avatar):
         update_md5 = self.attributes.get('update_md5',False) not in ('N','n','F','f','False','false','FALSE','No','NO','no',False)
-        if update_md5 and hasattr(avatar,'md5len') and avatar.md5len==32: self.update_md5(avatar)
-        avatar.login_pwd=None
+        if update_md5 and hasattr(avatar,'md5len') and avatar.md5len==32: 
+            self.update_md5(avatar)
+        avatar.login_pwd = None
+        if not hasattr(avatar,'page'):
+            return
+        page = avatar.page
+        connection = page.connection
+        tblconnection = page.db.table('adm.connection')
+        userid = None
+        if avatar.userid == avatar.id:
+            userid = avatar.id
+        new_connection_record = dict(id=connection.connection_id,username=avatar.id,
+                                    userid=userid,start_ts=datetime.now(),
+                                    ip=page.request.remote_addr,
+                                     user_agent=page.request.get_header('User-Agent'))
+        try:
+            tblconnection.insert(new_connection_record)
+            page.db.commit()
+        except:
+            pass
+        
+    def pageLog(self,page,event):
+        tblservedpage = page.db.table('adm.served_page')
+        if event == 'open':
+            record_served_page = dict(page_id=page.page_id,
+                                      connection_id=page.connection.connection_id,
+                                      start_ts=datetime.now(),pagename=page.basename,
+                                      subscribed_tables=page.pageOptions.get('subscribed_tables',None))
+            tblservedpage.insert(record_served_page)
+        else:
+            tblservedpage.update(dict(page_id=page.page_id,end_ts=datetime.now()))
+        page.db.commit()
         
     def update_md5(self,avatar):
         md5_userid=hashlib.md5(str(avatar.userid)).hexdigest()
