@@ -62,5 +62,4 @@ class GnrCustomWebPage(object):
         r.fieldcell('end_ts',name='End',width='10em')
         r.cell('pagename',name='Page name',width='15em')
         r.cell('subscribed_tables',name='Subscribed table',width='20em')
-
         return struct
