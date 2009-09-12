@@ -355,7 +355,7 @@ class GnrWsgiPage(GnrBaseWebPage):
                 page.data('gnr.locale',self.locale)
                 page.data('_server', None, context='_server')
                 page.dataController('genro.dlg.alert(msg);', msg='^gnr.alert')
-                page.dataController('genro.rpc.managePolling(freq);', freq='^gnr.polling', _fired='^gnr.onStart')
+                page.dataController('genro.rpc.managePolling(freq);', freq='^gnr.polling', _onStart=True)
                 morePars={}
                 
                 root=page.borderContainer(design='sidebar', height='100%', nodeId='_gnrRoot', regions='^_clientCtx.mainBC')
