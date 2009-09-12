@@ -29,6 +29,8 @@ class GnrCustomWebPage(object):
         struct = self.newGridStruct()
         r = struct.view().rows()
         r.fieldcell('username',width='10em',name='Username')
+        r.fieldcell('user_fullname',width='10em',name='User name')
+
         r.fieldcell('start_ts',width='20em',name='!!Connection start')
         r.fieldcell('end_ts',width='20em',name='!!Connection end')
         r.fieldcell('ip',width='10em',name='!!Remote addr.')

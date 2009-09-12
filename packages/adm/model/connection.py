@@ -11,6 +11,8 @@ class Table(object):
         tbl.column('start_ts','DH',name_long='!!Start TS')
         tbl.column('end_ts','DH',name_long='!!Start TS')
         tbl.column('user_agent',name_long='!!User agent')
+        tbl.aliasColumn('user_fullname',relation_path='@userid.fullname',name_long='!!User fullname')
+        
         
     #def trigger_onUpdating(self, record, old_record=None):
     #    pass

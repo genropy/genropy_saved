@@ -27,7 +27,7 @@ class Table(object):
         tbl.column('md5pwd', name_long='!!PasswordMD5', size=':65')
         tbl.column('locale', name_long='!!Default Language', size=':12')
         tbl.column('preferences', dtype='X', name_long='!!Preferences')
-        tbl.aliasColumn('fullname', 'firstname || lastname', name_long=u'!!Name')
+        tbl.formulaColumn('fullname', "firstname||' '||lastname", name_long=u'!!Name')
 
     def createPassword(self):
         password=getUuid()[0:6]

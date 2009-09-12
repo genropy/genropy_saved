@@ -32,13 +32,14 @@ class GnrCustomWebPage(object):
                             autoWidth=True,selected_username='current.user',
                             nodeId='connected_users')
         bc.dataSelection('selection.connectedUsers','adm.connection',
-                         where='$end_ts IS NULL',distinct='$username',
-                         columnsFromView='connected_users',_onStart=True)
+                         where='$end_ts IS NULL',distinct=True,
+                         columns='$username,@userid.fullname,$ip',_onStart=True)
                             
     def _connectedUser_struct(self):
         struct = self.newGridStruct()
         r = struct.view().rows()
-        r.cell('username', name='User', width='15em')
+        r.cell('username', name='User', width='10em')
+        r.cell('user_fullname', name='User fullname', width='10')
         r.cell('ip', name='Remote addr.', width='15em')
         return struct
         
