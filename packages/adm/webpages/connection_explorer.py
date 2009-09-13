@@ -90,6 +90,7 @@ class GnrCustomWebPage(object):
         r.cell('page_id',name='Served Page ID',width='20em')
         r.cell('start_ts',name='Start',dtype='DH',width='10em')
         r.cell('end_ts',name='End',dtype='DH',width='10em')
+        r.cell('end_reason',name='End reason',width='10em')
         r.cell('pagename',name='Page name',width='15em')
         r.cell('subscribed_tables',name='Subscribed table',width='20em')
         return struct

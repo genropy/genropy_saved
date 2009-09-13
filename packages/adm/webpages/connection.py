@@ -33,6 +33,7 @@ class GnrCustomWebPage(object):
 
         r.fieldcell('start_ts',width='20em',name='!!Connection start')
         r.fieldcell('end_ts',width='20em',name='!!Connection end')
+        r.fieldcell('end_reason',width='20em',name='!!End reason')
         r.fieldcell('ip',width='10em',name='!!Remote addr.')
         r.fieldcell('user_agent',width='30em')
 
@@ -62,6 +63,7 @@ class GnrCustomWebPage(object):
         r.cell('page_id',name='Served Page ID',width='20em')
         r.fieldcell('start_ts',name='Start',width='10em')
         r.fieldcell('end_ts',name='End',width='10em')
+        r.fieldcell('end_reason',name='End reason',width='10em')
         r.cell('pagename',name='Page name',width='15em')
         r.cell('subscribed_tables',name='Subscribed table',width='20em')
         return struct

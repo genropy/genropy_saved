@@ -20,17 +20,17 @@ class Table(object):
         if record['end_ts']:
             self.db.table('adm.served_page').closePendingPages(connection_id=record['id'],
                                              end_ts=record['end_ts'],
-                                             reason=record['reason'])
+                                             end_reason=record['end_reason'])
     def getPendingConnections(self,userid=None):
         where='$end_ts is null'
         if userid:
-            where='%s AND %S' % ('$userid=:userid',where)
-        return self.query(where=where).fetch()
+            where='%s AND %s' % ('$userid=:userid',where)
+        return self.query(where=where,userid=userid).fetch()
         
-    def closePendingConnections(self, end_ts=None, reason=None):
+    def closePendingConnections(self, end_ts=None, end_reason=None):
         end_ts=end_ts or datetime.now()
-        for conn in getPendingConnections():
-            self.closeConnection(conn['id'],end_ts=end_ts,reason=reason)
+        for conn in self.getPendingConnections():
+            self.closeConnection(conn['id'],end_ts=end_ts,end_reason=end_reason)
             
-    def closeConnection(self,connection_id,end_ts=None, reason=None):
-        self.update(dict(id=connection_id,end_ts=end_ts or datetime.now(),reason=reason))
+    def closeConnection(self,connection_id,end_ts=None, end_reason=None):
+        self.update(dict(id=connection_id,end_ts=end_ts or datetime.now(),end_reason=end_reason))

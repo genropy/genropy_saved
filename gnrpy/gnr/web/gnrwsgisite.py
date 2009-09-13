@@ -78,21 +78,35 @@ class GnrWsgiSite(object):
         self.webtools = self.find_webtools()
         if HAS_PRINTHANDLER:
             self.print_handler=PrintHandler(parent = self)
-        
-        if not counter:
-            print 'oniniter'
+            
+        if counter==0:
             self.onInited(clean = not noclean)
         
          
     def onInited(self, clean):
         if clean:
-            print 'clean'
+            print 'Cleanup'
+            self.dropAllConnectionFolders()
+            self.initializePackages()
+           
         else:
             print 'noclean'
-        #for pkg in self.application.packages.values():
-        #    if hasattr(pkg,'onSiteInited'):
-        #        pkg.onSiteInited()
-    
+
+    def initializePackages(self):
+        for pkg in self.gnrapp.packages.values():
+            if hasattr(pkg,'onSiteInited'):
+                pkg.onSiteInited()
+                
+    def dropAllConnectionFolders(self):
+        print 'dropAllConnectionFolders'
+        connectionFolder=os.path.join(self.site_path, 'data', '_connections')
+        for root, dirs, files in os.walk(connectionFolder, topdown=False):
+            for name in files:
+                os.remove(os.path.join(root, name))
+            for name in dirs:
+                os.rmdir(os.path.join(root, name))
+        
+        
     def find_webtools(self):
         def isgnrwebtool(cls):
             return inspect.isclass(cls) and issubclass(cls,GnrBaseWebTool)

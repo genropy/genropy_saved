@@ -50,12 +50,7 @@ class Package(GnrDboPackage):
                                          user_agent=page.request.get_header('User-Agent'))
             tblconnection.insert(new_connection_record)
         else:
-            end_ts=datetime.now()
-            tblservedpage = page.db.table('adm.served_page')
-            open_pages=tblservedpage.query(where='connection_id = :conn_id',conn_id=connection.connection_id).fetch()
-            for pg in open_pages:
-                tblservedpage.update(dict(page_id=pg['page_id'],end_ts=end_ts))
-            tblconnection.update(dict(id=connection.connection_id,end_ts=end_ts))
+            tblconnection.closeConnection(id=connection.connection_id,end_ts=end_ts,end_reason='logout')
         page.db.commit()
             
     def pageLog(self,page,event):
@@ -67,7 +62,7 @@ class Package(GnrDboPackage):
                                       subscribed_tables=page.pageOptions.get('subscribed_tables',None))
             tblservedpage.insert(record_served_page)
         else:
-            tblservedpage.update(dict(page_id=page.page_id,end_ts=datetime.now()))
+            tblservedpage.closePage(page_id=page.page_id,end_ts=datetime.now(),end_reason='unload')
         page.db.commit()
         
     def update_md5(self,avatar):
@@ -91,7 +86,7 @@ class Package(GnrDboPackage):
     def onSiteInited(self):
         print 'adm onSiteInited'
         db=self.application.db
-        db.table('adm.connection').closePendingConnections(end_ts=datetime.now(), reason='sys_restart')
+        db.table('adm.connection').closePendingConnections(end_ts=datetime.now(), end_reason='sys_restart')
         db.commit()
     
 class Table(GnrDboTable):

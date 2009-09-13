@@ -16,15 +16,15 @@ class Table(object):
     def getPendingPages(self,connection_id=None):
         where='$end_ts is null'
         if connection_id:
-            where='%s AND %S' % ('$connection_id=:connection_id',where)
-        return self.query(where=where).fetch()
+            where='%s AND %s' % ('$connection_id=:connection_id',where)
+        return self.query(where=where,connection_id=connection_id).fetch()
         
-    def closePendingPages(self,connection_id=None,end_ts=None,reason=None):
+    def closePendingPages(self,connection_id=None,end_ts=None,end_reason=None):
         for page in self.getPendingPages(connection_id=connection_id):
-            self.closePage(page['page_id'],reason)
+            self.closePage(page['page_id'],end_ts=end_ts,end_reason=end_reason)
             
-    def closePage(self,page_id,end_ts=None,reason=None,):
-        self.update(dict(id=page_id,end_ts=end_ts or datetime.now(),reason=reason))
+    def closePage(self,page_id,end_ts=None,end_reason=None):
+        self.update(dict(page_id=page_id,end_ts=end_ts or datetime.now(),end_reason=end_reason))
         
         
             
