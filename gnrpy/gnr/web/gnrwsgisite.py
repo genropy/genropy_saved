@@ -37,7 +37,8 @@ class GnrWsgiSite(object):
     def __call__(self, environ, start_response):
         return self.wsgiapp(environ, start_response)
     
-    def __init__(self, script_path, site_name=None, _config=None, _gnrconfig=None,options=None):
+    def __init__(self, script_path, site_name=None, _config=None, _gnrconfig=None, counter=None, noclean=None):
+        counter = int(counter or '0')
         self.site_path = os.path.dirname(os.path.abspath(script_path))
         self.site_name = site_name or os.path.basename(self.site_path)
         if _gnrconfig:
@@ -45,6 +46,7 @@ class GnrWsgiSite(object):
         else:
             self.gnr_config = self.load_gnr_config()
             self.set_environment()
+            
         if _config:
             self.config = _config
         else:
@@ -75,15 +77,21 @@ class GnrWsgiSite(object):
         self.page_factory_lock=RLock()
         self.webtools = self.find_webtools()
         if HAS_PRINTHANDLER:
-            self.print_handler=PrintHandler(parent = self) 
-        #self.onInited()
-        print sys.argv
+            self.print_handler=PrintHandler(parent = self)
+        
+        if not counter:
+            print 'oniniter'
+            self.onInited(clean = not noclean)
         
          
-    def onInited(self):
-        for pkg in self.application.packages.values():
-            if hasattr(pkg,'onSiteInited'):
-                pkg.onSiteInited()
+    def onInited(self, clean):
+        if clean:
+            print 'clean'
+        else:
+            print 'noclean'
+        #for pkg in self.application.packages.values():
+        #    if hasattr(pkg,'onSiteInited'):
+        #        pkg.onSiteInited()
     
     def find_webtools(self):
         def isgnrwebtool(cls):

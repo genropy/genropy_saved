@@ -26,7 +26,8 @@ wsgi_options=dict(
     set_group=None,
     session_key='session',
     server_name='Genropy',
-    debug=True
+    debug=True,
+    noclean=False
     )
 
 DNS_SD_PID = None
@@ -166,6 +167,15 @@ class NewServer(object):
     parser.add_option('-s','--site',
                 dest='site_name',
                 help="Use command on site identified by supplied name")
+
+    parser.add_option('-n','--noclean',
+                dest='noclean',
+                help="Don't perform a clean (full reset) restart",
+                action='store_true')
+
+    parser.add_option('--counter',
+                dest='counter',
+                help="Startup counter")
 
     _scheme_re = re.compile(r'^[a-z][a-z]+:', re.I)
 
@@ -381,7 +391,7 @@ class NewServer(object):
 
     def serve(self):
         try:
-            gnrServer=GnrWsgiSite(self.site_script, site_name = self.options.site_name, _config = self.siteconfig, _gnrconfig = self.gnr_config,options=self.options)
+            gnrServer=GnrWsgiSite(self.site_script, site_name = self.options.site_name, _config = self.siteconfig, _gnrconfig = self.gnr_config, counter = getattr(self.options,'counter',None), noclean=self.options.noclean)
             httpserver.serve(gnrServer, host=self.options.host, port=self.options.port)
         except (SystemExit, KeyboardInterrupt), e:
             if self.options.verbose > 1:
@@ -498,8 +508,10 @@ class NewServer(object):
                 print 'Starting subprocess with file monitor'
             else:
                 print 'Starting subprocess with monitor parent'
+        run_counter = 0
         while 1:
-            args = [sys.executable] + sys.argv
+            args = [sys.executable] + sys.argv + ['--counter', str(run_counter)]
+            run_counter += 1
             new_environ = os.environ.copy()
             if reloader:
                 new_environ[self._reloader_environ_key] = 'true'
