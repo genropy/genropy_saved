@@ -14,9 +14,9 @@ class GnrWsgiWebApp(GnrApp):
             self.site=None
         super(GnrWsgiWebApp,self).__init__(*args,**kwargs)
     
-    def onInited(self):
-        pass
-
+    def notifyDbEvent(self,tblobj,record,event,old_record=None):
+        self.site.notifyDbEvent(tblobj,record,event,old_record=old_record)
+        
     def checkPagePermission(self, pagepath, tags):
         pagepath = pagepath.replace('.','_').replace('/','.')
         pageAuthTags = self.webpageIndex.getAttr('root.%s' % pagepath, 'pageAuthTags')

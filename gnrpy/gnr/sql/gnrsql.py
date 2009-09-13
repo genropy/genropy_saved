@@ -210,6 +210,7 @@ class GnrSqlDb(GnrObject):
         tblobj.trigger_onUpdating(record, old_record=old_record)
         self.adapter.update(tblobj, record, pkey=pkey)
         tblobj.trigger_onUpdated(record, old_record=old_record)
+
         
     def delete(self, tblobj, record):
         """Delete a record from the table.

@@ -1,4 +1,5 @@
 # encoding: utf-8
+import datetime
 
 class Table(object):
     def config_db(self, pkg):
@@ -9,5 +10,21 @@ class Table(object):
         tbl.column('connection_id',size='22',group='_').relation('connection.id',mode='foreignkey',onDelete='cascade')
         tbl.column('start_ts','DH',name_long='!!Start ts')
         tbl.column('end_ts','DH',name_long='!!Start ts')
+        tbl.column('end_reason',size=':12',name_long='!!End Reason')
         tbl.column('subscribed_tables',name_long='!!Subscribed tables')
-        tbl.column('aborted','B',name_long='!!Aborted')
+        
+    def getPendingPages(self,connection_id=None):
+        where='$end_ts is null'
+        if connection_id:
+            where='%s AND %S' % ('$connection_id=:connection_id',where)
+        return self.query(where=where).fetch()
+        
+    def closePendingPages(self,connection_id=None,end_ts=None,reason=None):
+        for page in self.getPendingPages(connection_id=connection_id):
+            self.closePage(page['page_id'],reason)
+            
+    def closePage(self,page_id,end_ts=None,reason=None,):
+        self.update(dict(id=page_id,end_ts=end_ts or datetime.now(),reason=reason))
+        
+        
+            

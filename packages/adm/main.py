@@ -84,6 +84,15 @@ class Package(GnrDboPackage):
     
     def loginUrl(self):
         return 'adm/login'
+        
+    def onApplicationInited(self):
+        print 'adm onApplicationInited'
+        
+    def onSiteInited(self):
+        print 'adm onSiteInited'
+        db=self.application.db
+        db.table('adm.connection').closePendingConnections(end_ts=datetime.now(), reason='sys_restart')
+        db.commit()
     
 class Table(GnrDboTable):
     pass

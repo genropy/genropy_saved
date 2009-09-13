@@ -23,9 +23,13 @@ class GnrCustomWebPage(object):
         self.connectedUser(topBC.borderContainer(region='left',width='50%',margin='5px'))
         self.userConnections(topBC.borderContainer(region='center',margin_left=0,margin='5px'))
         centerBC = bc.borderContainer(region='center',margin='5px',margin_top=0)
-        self.userSevedPages(centerBC)
+        self.userServedPages(centerBC)
         
     def connectedUser(self,bc):
+        topfb=bc.contentPane(region='top',height='40px').formBuilder(cols='2')
+        topfb.textBox(value='^messages.user.text',lbl='User message',width='30em')
+        topfb.button('send',lbl='',action='alert("vv")')
+        bc=bc.borderContainer(region='center')
         self.includedViewBox(bc,label='!!Live user connected',
                             storepath='selection.connectedUsers', 
                             struct=self._connectedUser_struct(), 
@@ -44,6 +48,10 @@ class GnrCustomWebPage(object):
         return struct
         
     def userConnections(self,bc):
+        topfb=bc.contentPane(region='top',height='40px').formBuilder(cols='2')
+        topfb.textBox(value='^messages.connection.text',lbl='Connection message',width='30em')
+        topfb.button('send',lbl='',action='alert("vv")')
+        bc=bc.borderContainer(region='center')
         self.includedViewBox(bc,label='!!User connections',
                             storepath='selection.userConnections', 
                             struct=self._userConnections_struct(), 
@@ -61,10 +69,14 @@ class GnrCustomWebPage(object):
         r.cell('user_agent', name='User agent', width='15em')
         return struct
         
-    def userSevedPages(self,bc):
+    def userServedPages(self,bc):
+        topfb=bc.contentPane(region='top',height='40px').formBuilder(cols='2')
+        topfb.textBox(value='^messages.page.text',lbl='Page message',width='30em')
+        topfb.button('send',lbl='',action='alert("vv")')
+        bc=bc.borderContainer(region='center')
         self.includedViewBox(bc,label='!!User served pages',
                             storepath='selection.servedPage', 
-                            struct=self._userSevedPages_struct(), 
+                            struct=self._userServedPages_struct(), 
                             autoWidth=True,selectedId='current.servedPage',
                            nodeId='user_servedpages')
         bc.dataSelection('selection.servedPage','adm.served_page',
@@ -72,7 +84,7 @@ class GnrCustomWebPage(object):
                          connection='^current.connection',
                          columnsFromView='user_servedpages')
                          
-    def _userSevedPages_struct(self):
+    def _userServedPages_struct(self):
         struct = self.newGridStruct()
         r = struct.view().rows()
         r.cell('page_id',name='Served Page ID',width='20em')

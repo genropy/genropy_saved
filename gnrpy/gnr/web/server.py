@@ -381,7 +381,7 @@ class NewServer(object):
 
     def serve(self):
         try:
-            gnrServer=GnrWsgiSite(self.site_script, site_name = self.options.site_name, _config = self.siteconfig, _gnrconfig = self.gnr_config)
+            gnrServer=GnrWsgiSite(self.site_script, site_name = self.options.site_name, _config = self.siteconfig, _gnrconfig = self.gnr_config,options=self.options)
             httpserver.serve(gnrServer, host=self.options.host, port=self.options.port)
         except (SystemExit, KeyboardInterrupt), e:
             if self.options.verbose > 1:

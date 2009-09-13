@@ -37,7 +37,7 @@ class GnrWsgiSite(object):
     def __call__(self, environ, start_response):
         return self.wsgiapp(environ, start_response)
     
-    def __init__(self, script_path, site_name=None, _config=None, _gnrconfig=None):
+    def __init__(self, script_path, site_name=None, _config=None, _gnrconfig=None,options=None):
         self.site_path = os.path.dirname(os.path.abspath(script_path))
         self.site_name = site_name or os.path.basename(self.site_path)
         if _gnrconfig:
@@ -75,7 +75,15 @@ class GnrWsgiSite(object):
         self.page_factory_lock=RLock()
         self.webtools = self.find_webtools()
         if HAS_PRINTHANDLER:
-            self.print_handler=PrintHandler(parent = self)  
+            self.print_handler=PrintHandler(parent = self) 
+        #self.onInited()
+        print sys.argv
+        
+         
+    def onInited(self):
+        for pkg in self.application.packages.values():
+            if hasattr(pkg,'onSiteInited'):
+                pkg.onSiteInited()
     
     def find_webtools(self):
         def isgnrwebtool(cls):
@@ -403,7 +411,9 @@ class GnrWsgiSite(object):
     def connectionLog(self,page,event):
         if 'adm' in page.db.packages:
             page.db.packages['adm'].connectionLog(page,event)
-             
+    def notifyDbEvent(self,tblobj,record,event,old_record=None):
+        print 'dbevent %s on table %s record %s' %(event,tblobj.name,tblobj.recordCaption(record))
+            
     def loadResource(self,pkg, *path):
         resourceDirs = self.gnrapp.packages[pkg].resourceDirs
         resource_class = cloneClass('CustomResource',BaseResource)

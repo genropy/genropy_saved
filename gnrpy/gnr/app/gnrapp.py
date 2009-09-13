@@ -75,19 +75,23 @@ class GnrSqlAppDb(GnrSqlDb):
         #    tblobj.sync_out('DEL', record)
         self.checkTransactionWritable(tblobj)
         GnrSqlDb.delete(self, tblobj, record)
+        self.application.notifyDbEvent(tblobj,record,'D')
+
             
     def update(self, tblobj, record, old_record=None, pkey=None):
         #if tblobj.attributes.get('sync_out'):
         #    tblobj.sync_out('UPD', record)
         self.checkTransactionWritable(tblobj)
         GnrSqlDb.update(self, tblobj, record, old_record=old_record,pkey=pkey)
+        self.application.notifyDbEvent(tblobj,record,'U',old_record)
             
     def insert(self, tblobj, record):
         #if tblobj.attributes.get('sync_out'):
         #    tblobj.sync_out('INS', record)
         self.checkTransactionWritable(tblobj)
         GnrSqlDb.insert(self, tblobj, record)
-           
+        self.application.notifyDbEvent(tblobj,record,'I')
+        
 class GnrPackage(object):
     def __init__(self, pkg_id, application, path=None,filename=None ,**pkgattrs):
         self.id = pkg_id
@@ -244,9 +248,9 @@ class GnrPackage(object):
         # most customized and ending with most generic ones
         return self._resourceDirs 
     resourceDirs = property(_get_resourceDirs)
-
-
-
+    
+    def onApplicationInited(self):
+        pass
 
 class GnrApp(object):
     def __init__(self, instanceFolder, custom_config=None, **kwargs):
@@ -389,7 +393,9 @@ class GnrApp(object):
         pass
     
     def onInited(self):
-        pass
+        for pkg in self.packages.values():
+            pkg.onApplicationInited()
+
         
     def buildLocalization(self):
         self.localization = {}
@@ -633,8 +639,8 @@ class GnrApp(object):
         
     def errorAnalyze(self, e, caller=None, package=None):
         raise e
-
-
+    def notifyDbEvent(self,tblobj,record,event,old_record):
+        pass
 class GnrAvatar(object):
     def __init__(self, id, username, tags='', userid=None, **kwargs):
         self.id = id
