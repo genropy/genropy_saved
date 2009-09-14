@@ -4,11 +4,11 @@ from gnr.app.gnrdbo import GnrDboTable, GnrDboPackage, Table_counter, Table_user
 
 class Package(GnrDboPackage):
     def config_attributes(self):
-        return dict(sqlschema='common',
-                    comment='common',
-                    name_short='common',
-                    name_long='common',
-                    name_full='common')
+        return dict(sqlschema='sys',
+                    comment='sys',
+                    name_short='sys',
+                    name_long='sys',
+                    name_full='sys')
                     
     def config_db(self,pkg):
         #you can describe here your database or separate table into classes
