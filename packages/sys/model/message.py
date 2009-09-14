@@ -15,7 +15,8 @@ class Table(object):
         tbl.column('body',dtype='X',name_long='!!Message body')
         
     def getMessages(self, connection_id, user, page_id):
-        return self.db.table('sys.message').query(where="""($dst_connection_id=:connection_id OR $dst_user=:user OR $dst_page_id=:page_id) 
+        return self.db.table('sys.message').query('$id, $datetime, $dst_connection_id, $dst_user, $dst_page_id, $body, $message_type',
+                                                    where="""($dst_connection_id=:connection_id OR $dst_user=:user OR $dst_page_id=:page_id) 
                                                     AND ($expiry IS NULL OR $expiry >:curr_time)""", connection_id=connection_id,
                                                     user=user, page_id=page_id, curr_time=datetime.now()).fetch()
         
@@ -31,3 +32,6 @@ class Table(object):
             )
         self.insert(record)
         return record['id']
+        
+    def deleteMessage(self, message_id):
+        self.delete(dict(id=message_id))
