@@ -85,20 +85,16 @@ class GnrWsgiSite(object):
          
     def onInited(self, clean):
         if clean:
-            print 'Cleanup'
             self.dropAllConnectionFolders()
             self.initializePackages()
-           
         else:
-            print 'noclean'
-
+            pass
     def initializePackages(self):
         for pkg in self.gnrapp.packages.values():
             if hasattr(pkg,'onSiteInited'):
                 pkg.onSiteInited()
                 
     def dropAllConnectionFolders(self):
-        print 'dropAllConnectionFolders'
         connectionFolder=os.path.join(self.site_path, 'data', '_connections')
         for root, dirs, files in os.walk(connectionFolder, topdown=False):
             for name in files:
@@ -435,16 +431,27 @@ class GnrWsgiSite(object):
             page.db.packages['adm'].connectionLog(page,event)
     
     def getMessages(self,**kwargs):
-        print 'getMessages: ', kwargs
         if 'sys' in self.gnrapp.db.packages:
             return self.gnrapp.db.table('sys.message').getMessages(**kwargs)
         
     def writeMessage(self,**kwargs):
         if 'sys' in self.gnrapp.db.packages:
             return self.gnrapp.db.table('sys.message').writeMessage(**kwargs)
+
+    def deleteMessage(self,message_id):
+        if 'sys' in self.gnrapp.db.packages:
+            return self.gnrapp.db.table('sys.message').deleteMessage(message_id)
     
     def notifyDbEvent(self,tblobj,record,event,old_record=None):
-        print 'dbevent %s on table %s record %s' %(event,tblobj.name,tblobj.recordCaption(record))
+        print 'dbevent %s on table %s record %s' %(event,tblobj.fullname,tblobj.recordCaption(record))
+        if 'adm' in self.gnrapp.db.packages:
+            listeningPages=self.gnrapp.db.table('adm.served_page').getLivePages(topic=tblobj.fullname)
+            msg_body = Bag()
+            msg_body.setItem('dbevent', record[tblobj.pkey],_client_data_path='gnr.dbevent.%s'%tblobj.fullname, dbevent=event)
+            print 'listeningPages', listeningPages
+            for page in listeningPages:
+                self.writeMessage(page_id=page['page_id'], body=msg_body, message_type='datachange')
+                print 'sentMessage to %s' % page['page_id']
             
     def loadResource(self,pkg, *path):
         resourceDirs = self.gnrapp.packages[pkg].resourceDirs
@@ -476,7 +483,6 @@ class GnrWsgiSite(object):
                 resource_module = gnrImport(modPath)
                 resource_class = getattr(resource_module,class_name,None)
                 if resource_class:
-                    print 'mixining'
                     x=resource_class()
                     instanceMixin(resource_obj,x)
             return resource_obj

@@ -354,7 +354,9 @@ class GnrWsgiPage(GnrBaseWebPage):
                 page.data('gnr.userTags', self.userTags)
                 page.data('gnr.locale',self.locale)
                 page.data('_server', None, context='_server')
-                page.dataController('genro.dlg.alert(msg);', msg='^gnr.alert')
+                page.dataController('genro.dlg.serverMessage(msg);', msg='^gnr.servermsg')
+                page.dataController('console.log(msg);funcCreate(msg)();', msg='^gnr.servercode')
+                
                 page.dataController('genro.rpc.managePolling(freq);', freq='^gnr.polling', _onStart=True)
                 morePars={}
                 
