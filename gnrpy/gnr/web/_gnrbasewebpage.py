@@ -495,6 +495,7 @@ class GnrBaseWebPage(GnrObject):
         pass
     
     def _onEnd(self):
+        self.handleMessages()
         if hasattr(self, '_localizer'):
             self.session.loadSessionData()
             localization={}
@@ -635,9 +636,9 @@ class GnrBaseWebPage(GnrObject):
                 auth = AUTH_FORBIDDEN
                 
             if auth == AUTH_NOT_LOGGED and method != 'main':
-               if not self.connection.oldcookie:
-                   print 'commentata : self.raiseUnauthorized()'
-               #    self.raiseUnauthorized()
+                if not self.connection.oldcookie:
+                    print 'commentata : self.raiseUnauthorized()'
+                    #self.raiseUnauthorized()
                 auth = 'EXPIRED'
         elif parameters.get('_loginRequired') == 'y':
             auth = AUTH_NOT_LOGGED
@@ -1344,6 +1345,35 @@ class GnrBaseWebPage(GnrObject):
                     attributes['file'] = os.path.join(*(currbasepath+[filepath]))
                 result.setItem(node.label,value,attributes)
         return result
+
+    def handleMessages(self):
+        messages = self.site.getMessages(user=self.user, page_id=self.page_id, connection_id=self.connection.connection_id) or []
+        for message in messages:
+            if message['dst_page_id']:
+                self.handleMessages_page(message)
+            elif message['dst_connection_id']:
+                self.handleMessages_connection(message)
+            elif message['dst_user']:
+                self.handleMessages_user(message)
+        
+    
+    
+    def handleMessages_user(self,message):
+        print message
+        if message['message_type']=='alert':
+            print 'setInClientData'
+            self.setInClientData('gnr.alert',message['body']['alert'], fired=True,save=True)
+        
+    def handleMessages_connection(self,message):
+        if message['message_type']=='alert':
+            print 'setInClientData'
+            self.setInClientData('gnr.alert',message['body']['alert'], fired=True,save=True)
+    
+    def handleMessages_page(self,message):
+        if message['message_type']=='alert':
+            print 'setInClientData'
+            self.setInClientData('gnr.alert',message['body']['alert'], fired=True,save=True)
+    
     def newSourceRoot(self):
         return self.domSrcFactory.makeRoot(self)
     
@@ -1760,7 +1790,7 @@ class GnrWebConnection(object):
         b['sent'] = datetime.datetime.now()
         b.toXml(msgpath, autocreate=True)
         
-    def getUserMessages(self):
+    def _getUserMessages(self):
         msgbag = Bag()
         msgfolder = self.page.resolvePath('_messages', folder='*home')
         if os.path.exists(msgfolder):

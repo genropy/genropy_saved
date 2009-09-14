@@ -433,6 +433,16 @@ class GnrWsgiSite(object):
     def connectionLog(self,page,event):
         if 'adm' in page.db.packages:
             page.db.packages['adm'].connectionLog(page,event)
+    
+    def getMessages(self,**kwargs):
+        print 'getMessages: ', kwargs
+        if 'sys' in self.gnrapp.db.packages:
+            return self.gnrapp.db.table('sys.message').getMessages(**kwargs)
+        
+    def writeMessage(self,**kwargs):
+        if 'sys' in self.gnrapp.db.packages:
+            return self.gnrapp.db.table('sys.message').writeMessage(**kwargs)
+    
     def notifyDbEvent(self,tblobj,record,event,old_record=None):
         print 'dbevent %s on table %s record %s' %(event,tblobj.name,tblobj.recordCaption(record))
             
