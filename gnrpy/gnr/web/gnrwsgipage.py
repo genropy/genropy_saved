@@ -394,4 +394,5 @@ class GnrWsgiPage(GnrBaseWebPage):
             
 class GnrMakoPage(GnrWsgiPage):
     def index(self,*args, **kwargs):
-        return GnrWsgiPage.index(self,*args, mako=self.mako_template(),**kwargs)
+        kwargs['mako']=self.mako_template()
+        return GnrWsgiPage.index(self,*args, **kwargs)
