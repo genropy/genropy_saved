@@ -42,7 +42,7 @@ import StringIO
 #from decimal import Decimal
 
 from gnr.core.gnrlog import gnrlogging
-from gnr.core.gnrlang import optArgs
+from gnr.core.gnrlang import optArgs, timer_call
 
 gnrlogger = gnrlogging.getLogger('gnr.web.gnrwebcore')
 
@@ -1147,56 +1147,7 @@ class GnrBaseWebPage(GnrObject):
         self.connection.cookieToRefresh()
         self.site.pageLog(self,'close')
         
-    def rpc_main(self, _auth=AUTH_OK, debugger=None, **kwargs):
-        self.connection.cookieToRefresh()
-        page = self.domSrcFactory.makeRoot(self)
-        self._root = page
-        pageattr = {}
-        #try :
-        if True:
-            if _auth==AUTH_OK:
-                if hasattr(self,'main_root'):
-                    self.main_root(page,**kwargs)
-                    return (page, pageattr)
-                #page.script('genro.dom.windowTitle("%s")' % self.windowTitle())
-                page.data('gnr.windowTitle', self.windowTitle())
-                page.data('gnr.homepage', self.externalUrl('index'))
-                page.data('gnr.homeFolder', self.externalUrl('').rstrip('/'))
-                page.data('gnr.homeUrl', self.homeUrl())
-                page.data('gnr.userTags', self.userTags)
-                page.data('gnr.locale',self.locale)
-
-                page.data('_server', None, context='_server')
-                page.dataController('genro.dlg.alert(msg);', msg='^gnr.alert')
-                page.dataController('genro.rpc.managePolling(freq);', freq='^gnr.polling', _fired='^gnr.onStart')
-                morePars={}
-                
-                root=page.borderContainer(design='sidebar', height='100%', nodeId='_gnrRoot', regions='^_clientCtx.mainBC')
-                root.dataController("SET _clientCtx.mainBC.right?show=false;",_init=True)
-                root.dataController("if(show){genro.nodeById('gnr_debugger').updateContent();}",show='^_clientCtx.mainBC.right?show')
-                debugAc = root.accordionContainer(width='20%',region='right',splitter=True, nodeId='gnr_debugger')
-                debugAc.remote('debuggerContent', cacheTime=-1)
-                self.mainLeftContent(root,region='left',splitter=True, nodeId='gnr_main_left')
-                rootwdg = self.rootWidget(root, region='center', nodeId='_pageRoot')
-                self.main(rootwdg, **kwargs)
-                self.onMainCalls()
-                self._createContext(root)
-                if True:
-                    self.site
-            elif _auth==AUTH_NOT_LOGGED:
-                loginUrl = self.application.loginUrl()
-                page = None
-                if loginUrl:
-                    pageattr['redirect'] = self.resolvePathAsUrl(loginUrl,folder='*pages')
-                else:
-                    pageattr['redirect'] = self.resolvePathAsUrl('simplelogin.py',folder='*common')
-            else:
-                self.forbiddenPage(page, **kwargs)
-            return (page, pageattr)
-            #except Exception,err:
-        else:
-            return (self._errorPage(err), pageattr)
-            
+    
     def mainLeftContent(self,parentBC,**kwargs):
         pass
         
@@ -1345,41 +1296,54 @@ class GnrBaseWebPage(GnrObject):
                     attributes['file'] = os.path.join(*(currbasepath+[filepath]))
                 result.setItem(node.label,value,attributes)
         return result
-
+        
     def handleMessages(self):
         messages = self.site.getMessages(user=self.user, page_id=self.page_id, connection_id=self.connection.connection_id) or []
         for message in messages:
+            message_body = Bag(message['body'])
+            message_type = message['message_type']
+            message_id = message['id']
+            handler = getattr(self,'msg_%s'%message_type,self.msg_undefined)
             if message['dst_page_id']:
-                self.handleMessages_page(message)
+                mode = 'page'
             elif message['dst_connection_id']:
-                self.handleMessages_connection(message)
+                mode = 'connection'
             elif message['dst_user']:
-                self.handleMessages_user(message)
+                mode = 'user'
+            getattr(self, 'handleMessages_%s'%mode,lambda *a,**kw: None)(handler, message_id, message_body)
+    
+    def handleMessages_user(self,handler, message_id, message_body):
+        handler(message_body)
         
-    
-    
-    def handleMessages_user(self,message):
-        print message
-        if message['message_type']=='alert':
-            print 'setInClientData'
-            self.setInClientData('gnr.alert',message['body']['alert'], fired=True,save=True)
+    def handleMessages_connection(self,handler, message_id, message_body):
+        handler(message_body)
+            
+    def handleMessages_page(self, handler, message_id, message_body):
+        handler(message_body)
+        self.db.rollback()
+        self.site.deleteMessage(message_id)
+        self.db.commit()
         
-    def handleMessages_connection(self,message):
-        if message['message_type']=='alert':
-            print 'setInClientData'
-            self.setInClientData('gnr.alert',message['body']['alert'], fired=True,save=True)
+    def msg_servermsg(self, message_body):
+        self.setInClientData('gnr.servermsg', message_body['servermsg'], fired=True, save=True)
     
-    def handleMessages_page(self,message):
-        if message['message_type']=='alert':
-            print 'setInClientData'
-            self.setInClientData('gnr.alert',message['body']['alert'], fired=True,save=True)
+    def msg_servercode(self, message_body):
+        self.setInClientData('gnr.servercode', Bag(message['body'])['servercode'], fired=True, save=True)
     
+    def msg_datachange(self, message_body):
+        for change in message_body:
+            self.setInClientData(change.attr.pop('_client_data_path'), change.value , _attributes=change.attr, save=True)
+    
+    
+    def msg_undefined(self, message):
+        pass
+        
     def newSourceRoot(self):
         return self.domSrcFactory.makeRoot(self)
     
     def newGridStruct(self, maintable=None):
         return GnrGridStruct.makeRoot(self, maintable=maintable)
-        
+    
     def _get_domSrcFactory(self):
         if self.dojoversion=='11':
             return GnrDomSrc_dojo_11
@@ -1390,7 +1354,6 @@ class GnrBaseWebPage(GnrObject):
     domSrcFactory=property(_get_domSrcFactory)
 
     def rpc_resolverRecall(self, resolverPars=None, **auxkwargs):
-        #raise 'resolverPars - %s' % str(resolverPars)
         if isinstance(resolverPars,basestring):
             resolverPars = json.loads(resolverPars) #should never happen
         resolverclass = resolverPars['resolverclass']
@@ -1415,8 +1378,7 @@ class GnrBaseWebPage(GnrObject):
             return self.globals[resolverclass](*args,**kwargs)()
         else:
             raise str(resolverclass)
-            
-            
+    
     def makoTemplate(self,path,striped='odd_row,even_row', **kwargs):
         auth = self._checkAuth()
         if auth != AUTH_OK:
