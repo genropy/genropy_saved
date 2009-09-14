@@ -6,6 +6,7 @@ class Table(object):
                       name_plural='!!Messages')
         tbl.column('id',size='22',name_long='!!id')
         tbl.column('datetime','DH',name_long='!!Date and Time')
+        tbl.column('expiry','DH',name_long='!!Expiry')
         tbl.column('dst_page_id',size='22',name_long='!!Destination page_id',indexed=True)
         tbl.column('dst_user',size=':32',name_long='!!Destination user',indexed=True)
         tbl.column('dst_connection_id',size='22',name_long='!!Connection Id',indexed=True)
