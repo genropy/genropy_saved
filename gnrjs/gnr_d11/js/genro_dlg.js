@@ -145,6 +145,11 @@ dojo.declare("gnr.GnrDlgHandler",null,{
         genro.wdgById('_dlg_alert').show();
     },
     
+    serverMessage: function(msg){
+        console.log(msg);
+        alert(msg);
+    },
+    
     ask: function(title, msg, buttons, resultPathOrActions){
         genro.src.getNode()._('div', '_dlg_ask');
         var buttons = buttons || {confirm:'Confirm',cancel:'Cancel'};
