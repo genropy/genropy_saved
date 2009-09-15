@@ -446,12 +446,13 @@ class GnrWsgiSite(object):
         print 'dbevent %s on table %s record %s' %(event,tblobj.fullname,tblobj.recordCaption(record))
         if 'adm' in self.gnrapp.db.packages:
             listeningPages=self.gnrapp.db.table('adm.served_page').getLivePages(topic=tblobj.fullname)
+            if not listeningPages:
+                return
             msg_body = Bag()
-            msg_body.setItem('dbevent', Bag(record),_client_data_path='gnr.dbevent.%s'%tblobj.fullname, dbevent=event)
-            print 'listeningPages', listeningPages
+            bagrecord=Bag([(k,v) for k,v in record.items() if not k.startswith('@')])
+            msg_body.setItem('dbevent', bagrecord,_client_data_path='gnr.dbevent.%s'%tblobj.fullname, dbevent=event)
             for page in listeningPages:
                 self.writeMessage(page_id=page['page_id'], body=msg_body, message_type='datachange')
-                print 'sentMessage to %s' % page['page_id']
             
     def loadResource(self,pkg, *path):
         resourceDirs = self.gnrapp.packages[pkg].resourceDirs
