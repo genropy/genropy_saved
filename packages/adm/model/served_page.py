@@ -1,5 +1,5 @@
 # encoding: utf-8
-import datetime
+from datetime import datetime
 
 class Table(object):
     def config_db(self, pkg):

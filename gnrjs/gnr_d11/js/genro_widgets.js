@@ -1442,6 +1442,18 @@ dojo.declare("gnr.widgets.Grid",gnr.widgets.baseDojo,{
         return -1;
     },
     
+    mixin_selectByRowAttr:function(attrName, attrValue){
+        var selection=this.selection;
+        if (typeof (attrValue)=='object'){
+             selection.select(-1);
+             var grid=this
+             dojo.forEach(attrValue, function(v){selection.addToSelection(grid.indexByRowAttr(attrName, v)); });           
+        }else{
+           selection.select(this.indexByRowAttr(attrName, attrValue));
+        }
+      
+    },
+
     mixin_rowBagNode: function(idx){
         var idx=(idx==null) ? this.selection.selectedIndex : idx;
         return this.model.store.rootData().getNodes()[idx];
@@ -2168,15 +2180,34 @@ dojo.declare("gnr.widgets.VirtualStaticGrid",gnr.widgets.Grid,{
          }
          return storebag;
     },
-    
-    mixin_reload:function(){
+    mixin_loadedData:function(){
+        if(this.prevSelectedIdentifiers){
+            this.selectByRowAttr(this._identifier,this.prevSelectedIdentifiers);
+        }
+    },
+    mixin_reload:function(keep_selection){
+        if (keep_selection){
+             prevSelectedIdentifiers=[];
+             var identifier=this._identifier;
+             dojo.forEach(this.getSelectedNodes(), function(node){prevSelectedIdentifiers.push(node.attr[identifier]); });
+             this.prevSelectedIdentifiers=prevSelectedIdentifiers
+        }else{
+            this.prevSelectedIdentifiers=null;
+        }
         var storebag = this.storebag();
         var storeParent = storebag.getParentNode();
-        storeParent.refresh(true);
+        if (storeParent.getResolver()){
+            storeParent.refresh(true);
+        }
+        else{
+            var selectionNode=genro.nodeById(this.sourceNode.attr.nodeId+'_selection');
+            if (selectionNode){
+                selectionNode.fireNode();
+            }
+        }
     },
     
     mixin_onSetStructpath: function(structure){
-     console.log('dentro onSetStructpath')
      var columns = gnr.columnsFromStruct(structure);
         if(this.sourceNode.hiddencolumns){
             columns = columns+','+this.sourceNode.hiddencolumns;
@@ -2736,7 +2767,6 @@ dojo.declare("gnr.widgets.IncludedView",gnr.widgets.VirtualStaticGrid,{
         this.editorEnabled = enabled;
     },
     mixin_rpcViewColumns: function(){
-        console.log('dentro rpcViewColumns')
         if ((this.relation_path) && (this.relation_path.indexOf('@')==0)){
             genro.rpc.remoteCall('setViewColumns', {query_columns:this.query_columns,
                                                     contextName:this.sqlContextName,

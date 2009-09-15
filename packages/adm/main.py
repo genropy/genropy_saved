@@ -50,7 +50,7 @@ class Package(GnrDboPackage):
                                          user_agent=page.request.get_header('User-Agent'))
             tblconnection.insert(new_connection_record)
         else:
-            tblconnection.closeConnection(id=connection.connection_id,end_ts=end_ts,end_reason='logout')
+            tblconnection.closeConnection(connection.connection_id,end_reason='logout')
         page.db.commit()
             
     def pageLog(self,page,event):

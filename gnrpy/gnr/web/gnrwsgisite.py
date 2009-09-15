@@ -447,7 +447,7 @@ class GnrWsgiSite(object):
         if 'adm' in self.gnrapp.db.packages:
             listeningPages=self.gnrapp.db.table('adm.served_page').getLivePages(topic=tblobj.fullname)
             msg_body = Bag()
-            msg_body.setItem('dbevent', record[tblobj.pkey],_client_data_path='gnr.dbevent.%s'%tblobj.fullname, dbevent=event)
+            msg_body.setItem('dbevent', Bag(record),_client_data_path='gnr.dbevent.%s'%tblobj.fullname, dbevent=event)
             print 'listeningPages', listeningPages
             for page in listeningPages:
                 self.writeMessage(page_id=page['page_id'], body=msg_body, message_type='datachange')
