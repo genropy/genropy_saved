@@ -256,6 +256,9 @@ dojo.declare('gnr.GenroClient', null, {
             }
             v="<div "+ event_attrs +" style='margin:auto;' "+divclass+">"+divcontent+"</div>";
         }
+        else if(!v){
+            console.log('v nullo');
+        }
         return v;
     },
     setdebug:function(topic,level){

@@ -1285,7 +1285,7 @@ dojo.declare("gnr.widgets.NumberTextBox",gnr.widgets.baseDojo,{
         };
     },
     convertValueOnBagSetItem: function(sourceNode, value){
-        if (value == ""){
+        if (value === ""){
             value = null;
         }
         return value;
@@ -2532,9 +2532,10 @@ dojo.declare("gnr.widgets.VirtualStaticGrid",gnr.widgets.Grid,{
                 }
              }
              if(editWidget.sourceNode.hasValidationError()){
+                 console.log(editWidget.sourceNode);
                  //var cellNode = editWidget.cellNode;
                  //dojo.style(cellNode,'color','red');
-                 genro.dlg.alert(editWidget.sourceNode.getValidationError(),"Warning");
+                 //genro.dlg.alert(editWidget.sourceNode.getValidationError(),"Warning");
              }else{
                  //genro.dom.removeClass(editWidget.cellNode,'notValidCell');
              }
