@@ -81,7 +81,7 @@ class GnrWsgiSite(object):
             
         if counter==0:
             self.onInited(clean = not noclean)
-        
+        self._currentPages={}
          
     def onInited(self, clean):
         if clean:
@@ -452,7 +452,14 @@ class GnrWsgiSite(object):
             msg_body.setItem('dbevent', bagrecord,_client_data_path='gnr.dbevent.%s'%tblobj.fullname, dbevent=event)
             for page in listeningPages:
                 self.writeMessage(page_id=page['page_id'], body=msg_body, message_type='datachange')
-            
+    def _get_currentPage(self):
+        """property currentPage it returns the page currently used in this thread"""
+        return self._currentPages[thread.get_ident()]
+    def _set_currentPage(self,page):
+        """set currentPage for this thread"""
+        self._currentPages[thread.get_ident()] = page
+    currentPage = property(_get_currentPage,_set_currentPage)
+    
     def loadResource(self,pkg, *path):
         resourceDirs = self.gnrapp.packages[pkg].resourceDirs
         resource_class = cloneClass('CustomResource',BaseResource)
@@ -528,6 +535,7 @@ class GnrWsgiSite(object):
         return page
 
     def page_init(self,page, request=None, response=None, page_id=None, debug=None, _user_login=None, _rpc_resultPath=None):
+        self.currentPage=page
         page._rpc_resultPath=_rpc_resultPath
         page.siteFolder = page._sitepath=self.site_path
         page.folders= page._get_folders()
