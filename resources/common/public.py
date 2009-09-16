@@ -453,8 +453,7 @@ class IncludedView(BaseComponent):
                         tools_action=None, tools_class='buttonIcon icnBaseAction', 
                         tools_menu=None,upd_action=False,
                         filterOn=None, formPars=None, pickerPars=None,centerPaneCb=None,
-                        editorEnabled=None,
-                        **kwargs):
+                        editorEnabled=None,**kwargs):
         """
         This method returns a grid (includedView) for, viewing and selecting
         rows from a many to many table related to the main table,
@@ -535,19 +534,19 @@ class IncludedView(BaseComponent):
             gridtop.div(float='left', _class=close_class, connect_onclick=close_action)
         if print_action:
             if print_action is True:
-                print_action = 'FIRE %s.printView;' % controllerPath
+                print_action = 'FIRE %s.print;' % controllerPath
             gridtop.div(float='left', _class=print_class, connect_onclick=print_action)
         if export_action:
             if export_action is True:
-                #export_action = 'FIRE %s.exportView' % controllerPath
-                export_action = 'FIRE %s.exportViewXls;' % controllerPath # TEST todo: different buttons ?
+                #export_action = 'FIRE %s.export' % controllerPath
+                export_action = 'FIRE %s.export="xls";' % controllerPath # TEST todo: different buttons ?
             gridtop.div(float='left', _class=export_class, connect_onclick=export_action)
         if tools_menu:
             btn = gridtop.div(float='left', _class = tools_class,margin_right='5px')
             btn.menu(storepath=tools_menu, modifiers='*')
         elif tools_action:
             if tools_action is True:
-                tools_action = 'FIRE %s.reloadView' % controllerPath            
+                tools_action = 'FIRE %s.reload' % controllerPath            
             gridtop.div(float='left', _class=tools_class, connect_onclick=tools_action)
         if del_action:
             if del_action is True:
@@ -569,8 +568,7 @@ class IncludedView(BaseComponent):
             if upd_action is True:
                 upd_action = 'FIRE %s.showRecord' %controllerPath
             gridtop.div(float='right', _class='icnBaseEdit buttonIcon', connect_onclick=upd_action,
-                        margin_right='2px',visible=add_enable)
-            
+                        margin_right='2px',visible=add_enable)            
         self._iv_IncludedViewController(controller, gridId)
         
         if filterOn:
@@ -610,10 +608,9 @@ class IncludedView(BaseComponent):
                                 idx='=.selectedIndex', gridId=gridId)
         controller.dataController("""genro.wdgById(gridId).editBagRow();
                                      """,fired='^.editRow',gridId=gridId)
-        controller.dataController("genro.wdgById(gridId).printData();" ,fired='^.printView',gridId=gridId)
-        controller.dataController("genro.wdgById(gridId).exportData();" ,fired='^.exportView',gridId=gridId)
-        controller.dataController("genro.wdgById(gridId).exportData('xls');" ,fired='^.exportViewXls',gridId=gridId)
-        controller.dataController("genro.wdgById(gridId).reload();" ,fired='^.reloadView',gridId=gridId)
+        controller.dataController("genro.wdgById(gridId).printData();" ,fired='^.print',gridId=gridId)
+        controller.dataController("genro.wdgById(gridId).exportData(mode);" ,mode='^.export',gridId=gridId)
+        controller.dataController("genro.wdgById(gridId).reload(true);" ,_fired='^.reload',gridId=gridId)
         controller.dataController("""SET .selectedIndex = null;
                                      PUT .selectedLabel= null;""",
                                   _fired="^gnr.forms.formPane.saving") 

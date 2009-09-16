@@ -456,7 +456,8 @@ class GnrWsgiSite(object):
                 return
             msg_body = Bag()
             bagrecord=Bag([(k,v) for k,v in record.items() if not k.startswith('@')])
-            msg_body.setItem('dbevent', bagrecord,_client_data_path='gnr.dbevent.%s'%tblobj.fullname, dbevent=event)
+            msg_body.setItem('dbevent', bagrecord,_client_data_path='gnr.dbevent.%s'%tblobj.fullname.replace('.','_'), dbevent=event)
+
             for page in listeningPages:
                 self.writeMessage(page_id=page['page_id'], body=msg_body, message_type='datachange')
                 

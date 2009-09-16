@@ -635,11 +635,12 @@ class GnrBaseWebPage(GnrObject):
             elif not self.application.checkResourcePermission(pageTags, self.userTags):
                 auth = AUTH_FORBIDDEN
                 
-            if auth == AUTH_NOT_LOGGED and method != 'main':
+            if auth == AUTH_NOT_LOGGED and method != 'main' and method!='onClosePage':
                 if not self.connection.oldcookie:
-                    print 'commentata : self.raiseUnauthorized()'
+                    print 'commentata : self.raiseUnauthorized() method:%s' %method
                     #self.raiseUnauthorized()
                 auth = 'EXPIRED'
+                
         elif parameters.get('_loginRequired') == 'y':
             auth = AUTH_NOT_LOGGED
         return auth

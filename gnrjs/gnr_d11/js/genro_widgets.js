@@ -1387,12 +1387,8 @@ dojo.declare("gnr.widgets.Grid",gnr.widgets.baseDojo,{
     mixin_rowItemByIdentity: function(identifier){
         return this.model.store.fetchItemByIdentity({identity:identifier});
     },
-    mixin__setSelectedMeta: function(idx){
-        var gridId = this.sourceNode.attr.nodeId;
-        genro.setData('gnr.grids.'+gridId+'.sel.idx', idx);
-    },
+
     mixin__gnrUpdateSelect: function(idx){
-        this._setSelectedMeta(idx);
         if (this.sourceNode.attr.selectedIndex){
             this.sourceNode.setAttributeInDatasource('selectedIndex', ((idx < 0) ? null : idx));
         }
@@ -1805,21 +1801,7 @@ dojo.declare("gnr.widgets.VirtualStaticGrid",gnr.widgets.Grid,{
          //}
          widget.updateRowCount('*');
     },
-    XXXmixin__setSelectedMeta: function(idx){
-        var selectedDataPath=null;
-        if (idx>=0){
-            selectedDataPath = this.dataNodeByIndex(idx).getFullpath(null, true);
-        }
-        var selectedId=null;
-        if (idx>=0){
-            selectedId=this.rowIdentity(this.rowByIndex(idx));
-        }
-        var gridId = this.sourceNode.attr.nodeId;
-        genro.setData('gnr.grids.'+gridId+'.sel.idx', idx);
-        genro.setData('gnr.grids.'+gridId+'.sel.id', selectedId);
-        genro.setData('gnr.grids.'+gridId+'.sel.datapath', selectedDataPath);
-    },
-    
+
     attributes_mixin_get: function(inRowIndex){
         return this.grid.rowCached(inRowIndex)[this.field];
     },
@@ -1939,6 +1921,13 @@ dojo.declare("gnr.widgets.VirtualStaticGrid",gnr.widgets.Grid,{
         }
         this.updateRowCount();
         this.selection.unselectAll();
+        if((this.prevSelectedIdentifiers) && (this.prevSelectedIdentifiers.length>0 )){
+            this.selectByRowAttr(this._identifier,this.prevSelectedIdentifiers);
+            this.prevSelectedIdentifiers = null;
+        }
+        if((this.autoSelect)&&(this.selection.selectedIndex==-1)){
+            this.selection.select(0);
+        }
     },
     mixin_setStorepath:function(val,kw){
         if((!this._updatingIncludedView)&& (! this._batchUpdating)){
@@ -1985,9 +1974,13 @@ dojo.declare("gnr.widgets.VirtualStaticGrid",gnr.widgets.Grid,{
                 }
                 this.renderOnIdle();
                 this._updatingIncludedView=false;
+              // if (this.prevSelectedIdentifiers){
+              //     
+              // }
             }
         }
     },
+    
     mixin_setSelectedIndex: function(idx){
         var nrow = this.rowCount;
         if(nrow==0 ){
@@ -2166,28 +2159,7 @@ dojo.declare("gnr.widgets.VirtualStaticGrid",gnr.widgets.Grid,{
              return storebag;
          }
     },
-    mixinz_storebag:function(){
-         var storepath = this.sourceNode.absDatapath(this.sourceNode.attr.storepath);
-         var storebag;
-         var storenode=genro.getDataNode(storepath);
-         if (storenode != null){
-             storebag = storenode.getValue();
-         }
-         if ((storenode == null) || !(storebag instanceof gnr.GnrBag)){
-             storebag=new gnr.GnrBag();
-             genro.setData(storepath,storebag);
-         }
-         return storebag;
-    },
-    mixin_loadedData:function(autoSelect){
-        
-        if((this.prevSelectedIdentifiers) && (this.prevSelectedIdentifiers.length>0 )){
-            this.selectByRowAttr(this._identifier,this.prevSelectedIdentifiers);
-        }
-        if((autoSelect)&&(this.selection.selectedIndex==-1)){
-            this.selection.select(0);
-        }
-    },
+
     mixin_reload:function(keep_selection){
         if (keep_selection){
              prevSelectedIdentifiers=[];
@@ -2707,6 +2679,9 @@ dojo.declare("gnr.widgets.IncludedView",gnr.widgets.VirtualStaticGrid,{
         genro.setData('grids.'+sourceNode.attr.nodeId+'.columns', attributes.query_columns);
     },    
     created: function(widget, savedAttrs, sourceNode){
+         var selectionId = sourceNode.attr['selectionId'] || sourceNode.attr.nodeId+'_selection';
+         widget.autoSelect = sourceNode.attr['autoSelect'];
+         widget.linkedSelection = genro.nodeById(selectionId);
          genro.src.afterBuildCalls.push(dojo.hitch(widget,'render'));
          //dojo.connect(widget, 'onSelected', widget,'_gnrUpdateSelect');
          dojo.connect(widget, 'modelAllChange', dojo.hitch(sourceNode ,this.modelAllChange));
