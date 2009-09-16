@@ -522,6 +522,9 @@ class IncludedView(BaseComponent):
         assert not 'selectedIndex' in viewPars
         viewPars['selectedIndex'] = '^%s.selectedIndex' % controllerPath
         assert not 'selectedLabel' in viewPars
+        if not viewPars.get('selectedId'):
+            viewPars['selectedId'] = '^%s.selectedId' % controllerPath
+            
         viewPars['selectedLabel'] = '^%s.selectedLabel' % controllerPath
         label_pars = dict([(k[6:], kwargs.pop(k)) for k in kwargs.keys() if k.startswith('label_')])
         label_pars['_class'] = label_pars.pop('class', None) or 'pbl_viewBoxLabel'

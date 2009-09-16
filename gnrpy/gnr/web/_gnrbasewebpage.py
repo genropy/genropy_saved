@@ -1311,29 +1311,36 @@ class GnrBaseWebPage(GnrObject):
                 mode = 'connection'
             elif message['dst_user']:
                 mode = 'user'
-            getattr(self, 'handleMessages_%s'%mode,lambda *a,**kw: None)(handler, message_id, message_body)
+            getattr(self, 'handleMessages_%s'%mode,lambda *a,**kw: None)(handler=handler, message_id=message_id, message_body=message_body,src_page_id=message['src_page_id'],
+                                                                        src_connection_id=message['src_connection_id'],src_user=message['src_user'])
     
-    def handleMessages_user(self,handler, message_id, message_body):
-        handler(message_body)
+    def handleMessages_user(self,handler,**kwargs):
+        handler(**kwargs)
         
-    def handleMessages_connection(self,handler, message_id, message_body):
-        handler(message_body)
+    def handleMessages_connection(self,handler,**kwargs):
+        handler(**kwargs)
             
-    def handleMessages_page(self, handler, message_id, message_body):
-        handler(message_body)
+    def handleMessages_page(self,handler,message_id=None, **kwargs):
+        handler(message_id=message_id,**kwargs)
         self.db.rollback()
         self.site.deleteMessage(message_id)
         self.db.commit()
         
-    def msg_servermsg(self, message_body):
-        self.setInClientData('gnr.servermsg', message_body['servermsg'], fired=True, save=True)
+    def msg_servermsg(self,message_id=None, message_body=None,src_page_id=None,src_user=None,src_connection_id=None):
+        self.setInClientData('gnr.servermsg', message_body['servermsg'], fired=True, save=True,
+                            src_page_id=src_page_id,src_user=src_user,src_connection_id=src_connection_id,
+                            message_id=message_id)
     
-    def msg_servercode(self, message_body):
-        self.setInClientData('gnr.servercode', Bag(message['body'])['servercode'], fired=True, save=True)
+    def msg_servercode(self, message_id=None, message_body=None,src_page_id=None,src_user=None,src_connection_id=None):
+        self.setInClientData('gnr.servercode', Bag(message['body'])['servercode'], fired=True, save=True,
+                            src_page_id=src_page_id,src_user=src_user,src_connection_id=src_connection_id,
+                            message_id=message_id)
     
-    def msg_datachange(self, message_body):
+    def msg_datachange(self, message_id=None, message_body=None,src_page_id=None,src_user=None,src_connection_id=None):
         for change in message_body:
-            self.setInClientData(change.attr.pop('_client_data_path'), change.value , _attributes=change.attr, save=True)
+            self.setInClientData(change.attr.pop('_client_data_path'), change.value , _attributes=change.attr, save=True,
+                                src_page_id=src_page_id,src_user=src_user,src_connection_id=src_connection_id,
+                                message_id=message_id)
     
     
     def msg_undefined(self, message):

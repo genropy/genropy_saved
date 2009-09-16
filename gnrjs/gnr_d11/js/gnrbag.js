@@ -1183,7 +1183,7 @@ dojo.declare("gnr.GnrBag",null,{
      * @param {Boolean} autocreate
      * @param {Object} dflt
      */
-    
+
     getNode: function(path, asTuple, autocreate, _default){
         if (path==null){
             return;

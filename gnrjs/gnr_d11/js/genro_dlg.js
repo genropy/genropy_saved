@@ -146,8 +146,7 @@ dojo.declare("gnr.GnrDlgHandler",null,{
     },
     
     serverMessage: function(msg){
-        console.log(msg);
-        alert(msg);
+        genro.dlg.alert(msg,'Warning');
     },
     
     ask: function(title, msg, buttons, resultPathOrActions){

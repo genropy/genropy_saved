@@ -1389,9 +1389,6 @@ dojo.declare("gnr.widgets.Grid",gnr.widgets.baseDojo,{
     },
 
     mixin__gnrUpdateSelect: function(idx){
-        if (this.sourceNode.attr.selectedIndex){
-            this.sourceNode.setAttributeInDatasource('selectedIndex', ((idx < 0) ? null : idx));
-        }
 
         if (this.sourceNode.attr.selectedDataPath){
             var selectedDataPath=null;
@@ -1428,6 +1425,10 @@ dojo.declare("gnr.widgets.Grid",gnr.widgets.baseDojo,{
             }
             this.sourceNode.setAttributeInDatasource('selectedId', selectedId);
         }
+        if (this.sourceNode.attr.selectedIndex){
+            this.sourceNode.setAttributeInDatasource('selectedIndex', ((idx < 0) ? null : idx),null,this.rowByIndex(idx));
+        }
+
     },
     mixin_indexByRowAttr:function(attrName, attrValue){
         for (var i=0; i < this.rowCount; i++){

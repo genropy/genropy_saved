@@ -26,6 +26,18 @@
 
 //########################  Lang #########################
 
+function bagAsObj(bag){
+    var result = {};
+    var parentNode = bag.getParentNode();
+    if (parentNode) {
+        result._a = parentNode.attr;
+    }
+    dojo.forEach(bag.getNodes(),function(n){
+            result[n.label] = n.getValue();
+    });
+    return result;
+}
+
 function arrayContains(arr,item){
     for (var i = 0; i < arr.length; i++) {
             if (arr[i] == item) {

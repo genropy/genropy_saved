@@ -449,15 +449,12 @@ class GnrWsgiSite(object):
             if not page:
                 return
             page_id = page.page_id
-            print "dbevent:%s table:%s record:%s page:%s" %(event,tblobj.fullname, tblobj.recordCaption(record),page_id)
-
-            listeningPages=self.gnrapp.db.table('adm.served_page').getLivePages(topic=tblobj.fullname,current_page_id=page_id)
+            listeningPages=self.gnrapp.db.table('adm.served_page').getLivePages(topic=tblobj.fullname)
             if not listeningPages:
                 return
             msg_body = Bag()
             bagrecord=Bag([(k,v) for k,v in record.items() if not k.startswith('@')])
             msg_body.setItem('dbevent', bagrecord,_client_data_path='gnr.dbevent.%s'%tblobj.fullname.replace('.','_'), dbevent=event)
-
             for page in listeningPages:
                 self.writeMessage(page_id=page['page_id'], body=msg_body, message_type='datachange')
                 

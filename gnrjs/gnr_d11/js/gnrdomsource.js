@@ -243,11 +243,11 @@ dojo.declare("gnr.GnrDomSourceNode",gnr.GnrBagNode,{
             }
         }
     },
-    setAttributeInDatasource: function(attrname,value,doTrigger){
+    setAttributeInDatasource: function(attrname,value,doTrigger,attributes){
         var doTrigger=(doTrigger==false) ? doTrigger : this; 
         var path=this.attrDatapath(attrname);
         if(genro._data.getItem(path)!=value){
-            genro._data.setItem(path,value,null,{'doTrigger':doTrigger});
+            genro._data.setItem(path,value,attributes,{'doTrigger':doTrigger});
         }
     },
     defineForm: function(form_id,formDatapath){
