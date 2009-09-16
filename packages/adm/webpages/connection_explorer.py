@@ -51,7 +51,9 @@ class GnrCustomWebPage(object):
         topfb=bc.contentPane(region='top',height='40px', datapath='.messages').formBuilder(cols='3')
         topfb.textBox(value='^.text',lbl='User message',width='15em')
         topfb.button('send',lbl='',fire='.send')
-        topfb.button('refresh',lbl='',action="genro.wdgById('connected_users').reload(true)")
+        #topfb.button('refresh',lbl='',action="genro.wdgById('connected_users').reload(true)")
+        topfb.button('refresh',lbl='',fire_reload="user.refresh")
+
         topfb.dataRpc('.result','sendMessage',_fired='^.send', msg='=.text', dest_user='=user.current')
         bc=bc.borderContainer(region='center')
         self.includedViewBox(bc,label='!!Live user connected',

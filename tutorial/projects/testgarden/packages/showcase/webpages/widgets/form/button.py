@@ -26,6 +26,8 @@ class GnrCustomWebPage(object):
         top.button("Save it",action="alert('Saving!')",nodeId='cbtn',iconClass='^icon',
                    tooltip='click me',font_size='^font_size',width='^width_calc',font_family='^fontfam')
         center = bc.contentPane(region='center')
+        titlepane = center.titlepane(title='pippo')
+        titlepane.div(height='200px',width='250px')
         
         fb = center.formbuilder(cols=3,margin_top='10px')
         fb.br()

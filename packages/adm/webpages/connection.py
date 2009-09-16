@@ -30,13 +30,11 @@ class GnrCustomWebPage(object):
         r = struct.view().rows()
         r.fieldcell('username',width='10em',name='Username')
         r.fieldcell('user_fullname',width='10em',name='User name')
-
         r.fieldcell('start_ts',width='20em',name='!!Connection start')
         r.fieldcell('end_ts',width='20em',name='!!Connection end')
         r.fieldcell('end_reason',width='20em',name='!!End reason')
         r.fieldcell('ip',width='10em',name='!!Remote addr.')
         r.fieldcell('user_agent',width='30em')
-
         return struct
             
     def orderBase(self):

@@ -39,6 +39,7 @@ class GnrWsgiSite(object):
     
     def __init__(self, script_path, site_name=None, _config=None, _gnrconfig=None, counter=None, noclean=None):
         counter = int(counter or '0')
+        self._currentPages={}
         self.site_path = os.path.dirname(os.path.abspath(script_path))
         self.site_name = site_name or os.path.basename(self.site_path)
         if _gnrconfig:
@@ -81,7 +82,7 @@ class GnrWsgiSite(object):
             
         if counter==0:
             self.onInited(clean = not noclean)
-        self._currentPages={}
+        
          
     def onInited(self, clean):
         if clean:
@@ -444,7 +445,13 @@ class GnrWsgiSite(object):
     
     def notifyDbEvent(self,tblobj,record,event,old_record=None):
         if 'adm' in self.gnrapp.db.packages:
-            listeningPages=self.gnrapp.db.table('adm.served_page').getLivePages(topic=tblobj.fullname)
+            page = self.currentPage
+            if not page:
+                return
+            page_id = page.page_id
+            print "dbevent:%s table:%s record:%s page:%s" %(event,tblobj.fullname, tblobj.recordCaption(record),page_id)
+
+            listeningPages=self.gnrapp.db.table('adm.served_page').getLivePages(topic=tblobj.fullname,current_page_id=page_id)
             if not listeningPages:
                 return
             msg_body = Bag()
@@ -452,9 +459,11 @@ class GnrWsgiSite(object):
             msg_body.setItem('dbevent', bagrecord,_client_data_path='gnr.dbevent.%s'%tblobj.fullname, dbevent=event)
             for page in listeningPages:
                 self.writeMessage(page_id=page['page_id'], body=msg_body, message_type='datachange')
+                
     def _get_currentPage(self):
         """property currentPage it returns the page currently used in this thread"""
-        return self._currentPages[thread.get_ident()]
+        return self._currentPages.get(thread.get_ident())
+        
     def _set_currentPage(self,page):
         """set currentPage for this thread"""
         self._currentPages[thread.get_ident()] = page

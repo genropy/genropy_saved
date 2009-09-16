@@ -13,13 +13,19 @@ class Table(object):
         tbl.column('end_reason',size=':12',name_long='!!End Reason')
         tbl.column('subscribed_tables',name_long='!!Subscribed tables')
         
-    def getLivePages(self,connection_id=None,topic=None):
+    def getLivePages(self,connection_id=None,topic=None,current_page_id=None):
         where=['$end_ts is null']
         if connection_id:
             where.append('$connection_id=:connection_id')
         if topic:
             where.append('$subscribed_tables ILIKE :topic')
-        return self.query(where=' AND '.join(where),connection_id=connection_id,topic="%%%s%%"%(topic or '')).fetch()
+        if current_page_id:
+            where.append('$page_id!=:current_page_id')
+            
+        return self.query(where=' AND '.join(where),
+                        connection_id=connection_id,
+                        topic="%%%s%%"%(topic or ''),
+                        current_page_id=current_page_id).fetch()
         
     def closePendingPages(self,connection_id=None,end_ts=None,end_reason=None):
         for page in self.getLivePages(connection_id=connection_id):

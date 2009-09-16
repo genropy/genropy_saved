@@ -11,6 +11,9 @@ class Table(object):
         tbl.column('dst_page_id',size='22',name_long='!!Destination page_id',indexed=True)
         tbl.column('dst_user',size=':32',name_long='!!Destination user',indexed=True)
         tbl.column('dst_connection_id',size='22',name_long='!!Connection Id',indexed=True)
+        tbl.column('src_page_id',size='22',name_long='!!Source page_id',indexed=True)
+        tbl.column('src_user',size=':32',name_long='!!Source user',indexed=True)
+        tbl.column('src_connection_id',size='22',name_long='!!Source Connection Id',indexed=True)
         tbl.column('message_type',size=':12',name_long='!!Message Type')
         tbl.column('body',dtype='X',name_long='!!Message body')
         
@@ -21,6 +24,7 @@ class Table(object):
                                                     user=user, page_id=page_id, curr_time=datetime.now()).fetch()
         
     def writeMessage(self, body=None, connection_id=None, user=None, page_id=None, expiry=None, message_type=None):
+        srcpage = self.db.application.site.currentPage
         record = dict(
             body=body,
             dst_connection_id=connection_id,
@@ -28,8 +32,10 @@ class Table(object):
             dst_page_id=page_id,
             expiry=expiry,
             message_type=message_type,
-            datetime=datetime.now()
-            )
+            datetime=datetime.now(),
+            src_connection_id=srcpage.connection.connection_id,
+            src_page_id=srcpage.page_id,
+            src_user=srcpage.user)
         self.insert(record)
         return record['id']
         
