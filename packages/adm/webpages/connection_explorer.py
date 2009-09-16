@@ -30,31 +30,47 @@ class GnrCustomWebPage(object):
         self.userConnections(topBC.borderContainer(region='center',margin_left=0,margin='5px',datapath='connection'))
         centerBC = bc.borderContainer(region='center',margin='5px',margin_top=0, datapath='page')
         self.userServedPages(centerBC)
-        
+    def gridControllers(self,pane):
+        pane.dataController( """genro.wdgById('connected_users').reload(true);
+                              if((username==current_user)&&(userip==current_ip)){
+                                  genro.wdgById('user_connections').reload(true);
+                              }""",
+                              dbevent='^gnr.dbevent.adm.connection?dbevent',
+                              current_user='=user.current.name',
+                              current_ip='=user.current.ip',
+                              userip='=gnr.dbevent.adm.connection.ip',
+                              username='=gnr.dbevent.adm.connection.username')
+                              
+        pane.dataController( """if (connection_id==current_connection){
+                                    genro.wdgById('user_servedpages').reload(true);
+                               }""",
+                              dbevent='^gnr.dbevent.adm.served_page?dbevent',
+                              current_connection='=connection.current',
+                              connection_id='=gnr.dbevent.adm.served_page.connection_id')
     def connectedUser(self,bc):
         topfb=bc.contentPane(region='top',height='40px', datapath='.messages').formBuilder(cols='3')
         topfb.textBox(value='^.text',lbl='User message',width='15em')
         topfb.button('send',lbl='',fire='.send')
-        #topfb.button('refresh',lbl='',fire='user.refresh')
         topfb.button('refresh',lbl='',action="genro.wdgById('connected_users').reload(true)")
-
         topfb.dataRpc('.result','sendMessage',_fired='^.send', msg='=.text', dest_user='=user.current')
         bc=bc.borderContainer(region='center')
         self.includedViewBox(bc,label='!!Live user connected',
                             storepath='.selection', 
                             struct=self._connectedUser_struct(), 
-                            autoWidth=True,selected_username='.current',
-                            nodeId='connected_users')
+                            autoWidth=True,
+                            selected_username='.current.name',
+                            selected_ip='.current.ip',
+                            selectedId='.current.pkey',
+                            nodeId='connected_users'
+                            )
         bc.dataSelection('.selection','adm.connection',nodeId='connected_users_selection',
                          where='$end_ts IS NULL',distinct=True,applymethod='createUserUniqueIdentifier',
-                         columns='$username,@userid.fullname,$ip',_onStart=True, #_fired='^.refresh',
-                         _onResult="genro.wdgById('connected_users').loadedData()")
-        bc.dataController( """console.log('update user');genro.wdgById('connected_users').reload(true)""",
-                              dbevent='^gnr.dbevent.adm.connection')
+                         columns='$username,@userid.fullname,$ip',_onStart=True, 
+                         _onResult="genro.wdgById('connected_users').loadedData(true)")
+
     def rpc_createUserUniqueIdentifier(self,selection):
         def createPkey(row):         
             result= dict(pkey ='%s.%s' %(row['username'],row['ip'])) 
-            print result
             return result
         selection.apply(createPkey)  
                       
@@ -71,8 +87,7 @@ class GnrCustomWebPage(object):
         topfb=bc.contentPane(region='top',height='40px', datapath='.messages').formBuilder(cols='3')
         topfb.textBox(value='^.text',lbl='Connection message',width='15em')
         topfb.button('send',lbl='',fire='.send')
-        topfb.button('refresh',lbl='',fire='connection.refresh')
-        
+        topfb.button('refresh',lbl='',action="genro.wdgById('user_connections').reload(true)")
         topfb.dataRpc('.result','sendMessage',_fired='^.send', msg='=.text', dest_connection='=connection.current')
         
         bc=bc.borderContainer(region='center')
@@ -81,10 +96,13 @@ class GnrCustomWebPage(object):
                             struct=self._userConnections_struct(), 
                             autoWidth=True,selectedId='.current',
                             nodeId='user_connections')
-        bc.dataSelection('.selection','adm.connection',
-                         where='$end_ts IS NULL AND username=:user',
-                         user='^user.current',
-                         columnsFromView='user_connections', _fired='^.refresh')
+        bc.dataSelection('.selection','adm.connection',nodeId='user_connections_selection',
+                         where='$end_ts IS NULL AND $username=:user AND $ip=:ip',
+                         user='=user.current.name',
+                         ip='=user.current.ip',
+                         _fired='^user.current.pkey',
+                         columnsFromView='user_connections', 
+                         _onResult="genro.wdgById('user_connections').loadedData(true)")
                          
     def _userConnections_struct(self):
         struct = self.newGridStruct()
@@ -97,7 +115,7 @@ class GnrCustomWebPage(object):
         topfb=bc.contentPane(region='top',height='40px', datapath='.messages').formBuilder(cols='3')
         topfb.textBox(value='^.text',lbl='Page message',width='30em')
         topfb.button('send',lbl='',fire='.send')
-        topfb.button('refresh',lbl='',fire='page.refresh')
+        topfb.button('refresh',lbl='',action="genro.wdgById('user_servedpages').reload(true)")
         
         topfb.dataRpc('.result','sendMessage',_fired='^.send', msg='=.text', dest_page='=page.current')
         bc=bc.borderContainer(region='center')
@@ -106,10 +124,12 @@ class GnrCustomWebPage(object):
                             struct=self._userServedPages_struct(), 
                             autoWidth=True,selectedId='.current',
                            nodeId='user_servedpages')
-        bc.dataSelection('.selection','adm.served_page',
+        bc.dataSelection('.selection','adm.served_page',nodeId='user_servedpages_selection',
                          where='connection_id=:connection',
                          connection='^connection.current',
-                         columnsFromView='user_servedpages', _fired='^.refresh')
+                         columnsFromView='user_servedpages', 
+                         _onResult="genro.wdgById('user_servedpages').loadedData(true)"
+                         )
                          
     def _userServedPages_struct(self):
         struct = self.newGridStruct()

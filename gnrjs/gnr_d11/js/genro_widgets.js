@@ -1394,17 +1394,9 @@ dojo.declare("gnr.widgets.Grid",gnr.widgets.baseDojo,{
     mixin__gnrUpdateSelect: function(idx){
         this._setSelectedMeta(idx);
         if (this.sourceNode.attr.selectedIndex){
-            //var path=this.sourceNode.attrDatapath('selectedIndex');
-            //genro.setData(path,idx);
             this.sourceNode.setAttributeInDatasource('selectedIndex', ((idx < 0) ? null : idx));
         }
-        if (this.sourceNode.attr.selectedId){
-            var selectedId=null;
-            if (idx>=0){
-                selectedId=this.rowIdentity(this.rowByIndex(idx));
-            }
-            this.sourceNode.setAttributeInDatasource('selectedId', selectedId);
-        }
+
         if (this.sourceNode.attr.selectedDataPath){
             var selectedDataPath=null;
             if (idx>=0){
@@ -1433,6 +1425,13 @@ dojo.declare("gnr.widgets.Grid",gnr.widgets.baseDojo,{
                 var path=this.sourceNode.setRelativeData(selattr[sel],value);
             }
         }
+        if (this.sourceNode.attr.selectedId){
+            var selectedId=null;
+            if (idx>=0){
+                selectedId=this.rowIdentity(this.rowByIndex(idx));
+            }
+            this.sourceNode.setAttributeInDatasource('selectedId', selectedId);
+        }
     },
     mixin_indexByRowAttr:function(attrName, attrValue){
         for (var i=0; i < this.rowCount; i++){
@@ -1446,7 +1445,7 @@ dojo.declare("gnr.widgets.Grid",gnr.widgets.baseDojo,{
         var selection=this.selection;
         if (typeof (attrValue)=='object'){
              selection.select(-1);
-             var grid=this
+             var grid=this;
              dojo.forEach(attrValue, function(v){selection.addToSelection(grid.indexByRowAttr(attrName, v)); });           
         }else{
            selection.select(this.indexByRowAttr(attrName, attrValue));
@@ -2180,9 +2179,13 @@ dojo.declare("gnr.widgets.VirtualStaticGrid",gnr.widgets.Grid,{
          }
          return storebag;
     },
-    mixin_loadedData:function(){
-        if(this.prevSelectedIdentifiers){
+    mixin_loadedData:function(autoSelect){
+        
+        if((this.prevSelectedIdentifiers) && (this.prevSelectedIdentifiers.length>0 )){
             this.selectByRowAttr(this._identifier,this.prevSelectedIdentifiers);
+        }
+        if((autoSelect)&&(this.selection.selectedIndex==-1)){
+            this.selection.select(0);
         }
     },
     mixin_reload:function(keep_selection){
@@ -2190,7 +2193,7 @@ dojo.declare("gnr.widgets.VirtualStaticGrid",gnr.widgets.Grid,{
              prevSelectedIdentifiers=[];
              var identifier=this._identifier;
              dojo.forEach(this.getSelectedNodes(), function(node){prevSelectedIdentifiers.push(node.attr[identifier]); });
-             this.prevSelectedIdentifiers=prevSelectedIdentifiers
+             this.prevSelectedIdentifiers=prevSelectedIdentifiers;
         }else{
             this.prevSelectedIdentifiers=null;
         }

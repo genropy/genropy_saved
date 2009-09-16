@@ -443,7 +443,6 @@ class GnrWsgiSite(object):
             return self.gnrapp.db.table('sys.message').deleteMessage(message_id)
     
     def notifyDbEvent(self,tblobj,record,event,old_record=None):
-        print 'dbevent %s on table %s record %s' %(event,tblobj.fullname,tblobj.recordCaption(record))
         if 'adm' in self.gnrapp.db.packages:
             listeningPages=self.gnrapp.db.table('adm.served_page').getLivePages(topic=tblobj.fullname)
             if not listeningPages:
