@@ -134,7 +134,6 @@ dojo.declare('gnr.GenroClient', null, {
         genro.timeIt('**  main received  **');
         if(mainBagPage && mainBagPage.attr.redirect){
             var url=this.addParamsToUrl(mainBagPage.attr.redirect, {'fromPage':this.absoluteUrl()});
-            alert('redirecting...'+url);
             this.gotoURL(url);
         }
         //this.loadPersistentData()
