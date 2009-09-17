@@ -443,25 +443,13 @@ class GnrWsgiSite(object):
         if 'sys' in self.gnrapp.db.packages:
             return self.gnrapp.db.table('sys.message').deleteMessage(message_id)
     
-    def notifyDbEvent_old(self,tblobj,record,event,old_record=None):
-        if 'adm' in self.gnrapp.db.packages:
-            page = self.currentPage
-            if not page:
-                return
-            page_id = page.page_id
-            listeningPages=self.gnrapp.db.table('adm.served_page').getLivePages(topic=tblobj.fullname)
-            if not listeningPages:
-                return
-            msg_body = Bag()
-            bagrecord=Bag([(k,v) for k,v in record.items() if not k.startswith('@')])
-            msg_body.setItem('dbevent', bagrecord,_client_data_path='gnr.dbevent.%s'%tblobj.fullname.replace('.','_'), dbevent=event)
-            for page in listeningPages:
-                self.writeMessage(page_id=page['page_id'], body=msg_body, message_type='datachange')
-                
     def notifyDbEvent(self,tblobj,record,event,old_record=None):
         if 'adm' in self.gnrapp.db.packages:
             page = self.currentPage
-            if page and page.subscribedTablesDict and tblobj.fullname in page.subscribedTablesDict :
+            print 'notify:', tblobj.fullname
+            print tblobj.attributes
+            if tblobj.attributes.get('broadcast') and page and page.subscribedTablesDict and tblobj.fullname in page.subscribedTablesDict :
+                print 'notified:', tblobj.fullname
                 msg_body = Bag()
                 msg_body.setItem('dbevent', 
                                  Bag([(k,v) for k,v in record.items() if not k.startswith('@')]),

@@ -37,17 +37,16 @@ gnrlogger = gnrlogging.getLogger('gnr.sql.gnrsqltable')
 
 class SqlTable(GnrObject):
     def __init__(self, tblobj):
-        #self._model = weakref.ref(tblobj)
         self._model = tblobj
         self.name = tblobj.name
         self.fullname = tblobj.fullname
         self.name_long = tblobj.name_long
         self.name_plural = tblobj.name_plural
+        
     
     def _get_model(self):
         """property model.
         Return the corresponding DbTableObj object"""
-        #return self._model()
         return self._model
     model = property(_get_model)
     

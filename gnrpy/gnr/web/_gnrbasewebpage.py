@@ -505,7 +505,6 @@ class GnrBaseWebPage(GnrObject):
             self.session.saveSessionData()
         
         if hasattr(self, '_connection'):
-            print 'onEnd',self.user
             if self.user:
                 self.connection._finalize()
         if hasattr(self, '_app'):
@@ -564,11 +563,10 @@ class GnrBaseWebPage(GnrObject):
             
     def _get_user(self):
         """Get the user from hidden _user attribute."""
-        if not hasattr(self, '_user'):
-            print "if not hasattr(self, '_user')"
+        if not self._user:
             self._user = self.connection.appSlot.get('user')
-            print "if not hasattr(self, '_user')",self._user
         return self._user
+        
     user = property(_get_user)
         
     def _get_userTags(self):
@@ -635,20 +633,16 @@ class GnrBaseWebPage(GnrObject):
         if pageTags:
             if not self.user:
                 auth = AUTH_NOT_LOGGED
-                print 'if not self.user'
             elif not self.application.checkResourcePermission(pageTags, self.userTags):
-                print "elif not self.application.checkResourcePermission(pageTags, self.userTags)"
                 auth = AUTH_FORBIDDEN
                 
             if auth == AUTH_NOT_LOGGED and method != 'main' and method!='onClosePage':
-                print "if auth == AUTH_NOT_LOGGED and method != 'main' and method!='onClosePage'" 
                 if not self.connection.oldcookie:
-                    print 'commentata : self.raiseUnauthorized() method:%s' %method
+                    pass
                     #self.raiseUnauthorized()
                 auth = 'EXPIRED'
                 
         elif parameters.get('_loginRequired') == 'y':
-            print "elif parameters.get('_loginRequired') == 'y':"
             auth = AUTH_NOT_LOGGED
         return auth
         
@@ -1214,7 +1208,6 @@ class GnrBaseWebPage(GnrObject):
                            If a parameter is the name of a defined method the method is called and the result 
                            is used as the parameter value. The method has to be defined as 'ctxname_methodname'.
         """
-        print 'setJoinCondition Division: %s' % kwargs.get('division_code','param')
         self._cliCtxData['%s.%s_%s' % (ctxname, target_fld.replace('.','_'), from_fld.replace('.','_'))] = Bag(dict(target_fld=target_fld, from_fld=from_fld, condition=condition, one_one=one_one, applymethod=applymethod, params=Bag(kwargs)))
         
     def setJoinColumns(self, ctxname, target_fld, from_fld, joincolumns):
@@ -1339,12 +1332,11 @@ class GnrBaseWebPage(GnrObject):
                             message_id=message_id)
     
     def msg_servercode(self, message_id=None, message_body=None,src_page_id=None,src_user=None,src_connection_id=None):
-        self.setInClientData('gnr.servercode', Bag(message['body'])['servercode'], fired=True, save=True,
+        self.setInClientData('gnr.servercode', message_body['servercode'], fired=True, save=True,
                             src_page_id=src_page_id,src_user=src_user,src_connection_id=src_connection_id,
                             message_id=message_id)
     
     def msg_datachange(self, message_id=None, message_body=None,src_page_id=None,src_user=None,src_connection_id=None):
-        print 'msg_datachange'
         for change in message_body:
             self.setInClientData(change.attr.pop('_client_data_path'), change.value , _attributes=change.attr, save=True,
                                 src_page_id=src_page_id,src_user=src_user,src_connection_id=src_connection_id,
@@ -1724,7 +1716,6 @@ class GnrWebConnection(object):
         self.cookie.value['timestamp'] = None
         
     def _finalize(self):
-        print 'finalize'
         if not self.cookie.value.get('timestamp'):
             self.cookie.value['timestamp'] = time.time()
             self.data['ip'] = self.page.request.remote_addr
@@ -1737,7 +1728,6 @@ class GnrWebConnection(object):
         self.data.toXml(self.connectionFile, autocreate=True)
 
     def write(self):
-        print 'write cookie'
         self.cookie.path = self.page.siteUri
         self.page.add_cookie(self.cookie)
         self.data['cookieData'] = Bag(self.cookie.value)
@@ -1760,9 +1750,7 @@ class GnrWebConnection(object):
         appSlot = self.appSlot
         appSlot['user'] = avatar.id
         appSlot['tags'] = avatar.tags
-        print 'updateAvatar',appSlot
-        print 'updateAvatar: self.user',self.page.user
-    
+        
     def rpc_sendUserMessage(self, user, msg):
         msgid = '%s.xml' % getUuid()
         msgpath = self.page.resolvePath(user, '_messages', msgid, folder='*users')
@@ -1838,7 +1826,6 @@ class GnrWebConnection(object):
         
     def connFolderRemove(self, connection_id):
         path= os.path.join(self.allConnectionsFolder, connection_id)
-        print 'cleaning expired connection %s' % path
         for root, dirs, files in os.walk(path, topdown=False):
             for name in files:
                 os.remove(os.path.join(root, name))

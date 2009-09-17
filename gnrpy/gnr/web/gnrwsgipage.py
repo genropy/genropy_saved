@@ -55,6 +55,7 @@ class GnrWsgiPage(GnrBaseWebPage):
         self.packageId=packageId
         self.filepath = filepath
         self.site = site
+        self._user = None
     
     def _get_config(self):
         return self.site.config
@@ -384,7 +385,6 @@ class GnrWsgiPage(GnrBaseWebPage):
             elif _auth==AUTH_NOT_LOGGED:
                 loginUrl = self.application.loginUrl()
                 page = None
-                print 'elif _auth==AUTH_NOT_LOGGED'
                 if loginUrl:
                     pageattr['redirect'] = self.resolvePathAsUrl(loginUrl,folder='*pages')
                 else:
