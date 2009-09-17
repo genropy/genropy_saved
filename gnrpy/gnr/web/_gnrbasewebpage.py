@@ -609,6 +609,8 @@ class GnrBaseWebPage(GnrObject):
     
 
     def _rpcDispatcher(self, method=None, xxcnt='',**kwargs): 
+        print 'method:',method
+ 
         if False and method!= 'main':
             if self.session.pagedata['page_id']!=self.page_id :
                 self.raiseUnauthorized()
@@ -624,7 +626,9 @@ class GnrBaseWebPage(GnrObject):
                     raise e
         auth = AUTH_OK
         if not method in ('doLogin', 'jscompress'):
+            print 'xx method ',method
             auth = self._checkAuth(method=method, **parameters)
+            print 'yy method ',method
         return self.rpc(self, method=method, _auth=auth, **parameters)
         
     def _checkAuth(self, method=None, **parameters):

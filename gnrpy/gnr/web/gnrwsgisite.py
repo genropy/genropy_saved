@@ -446,10 +446,7 @@ class GnrWsgiSite(object):
     def notifyDbEvent(self,tblobj,record,event,old_record=None):
         if 'adm' in self.gnrapp.db.packages:
             page = self.currentPage
-            print 'notify:', tblobj.fullname
-            print tblobj.attributes
             if tblobj.attributes.get('broadcast') and page and page.subscribedTablesDict and tblobj.fullname in page.subscribedTablesDict :
-                print 'notified:', tblobj.fullname
                 msg_body = Bag()
                 msg_body.setItem('dbevent', 
                                  Bag([(k,v) for k,v in record.items() if not k.startswith('@')]),

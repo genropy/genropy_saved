@@ -58,10 +58,15 @@ class Package(GnrDboPackage):
     def pageLog(self,page,event):
         tblservedpage = page.db.table('adm.served_page')
         if event == 'open':
+            subscribed_tables=page.pageOptions.get('subscribed_tables',None)
+            if subscribed_tables:
+                for table in subscribed_tables.split(','):
+                    assert page.db.table(table).attributes.get('broadcast')
             record_served_page = dict(page_id=page.page_id,end_reason=None,end_ts=None,
                                       connection_id=page.connection.connection_id,
                                       start_ts=datetime.now(),pagename=page.basename,
-                                      subscribed_tables=page.pageOptions.get('subscribed_tables',None))
+                                      subscribed_tables=subscribed_tables)
+                                      
             tblservedpage.insertOrUpdate(record_served_page)
         else:
             tblservedpage.closePage(page_id=page.page_id,end_ts=datetime.now(),end_reason='unload')

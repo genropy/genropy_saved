@@ -1418,14 +1418,14 @@ dojo.declare("gnr.widgets.Grid",gnr.widgets.baseDojo,{
             }
         }
         if (this.sourceNode.attr.selectedIndex){
-            this.sourceNode.setAttributeInDatasource('selectedIndex', ((idx < 0) ? null : idx));
+            this.sourceNode.setAttributeInDatasource('selectedIndex', ((idx < 0) ? null : idx),null,null,true);
         }
         if (this.sourceNode.attr.selectedId){
             var selectedId=null;
             if (idx>=0){
                 selectedId=this.rowIdentity(this.rowByIndex(idx));
             }
-            this.sourceNode.setAttributeInDatasource('selectedId', selectedId,null,this.rowByIndex(idx));
+            this.sourceNode.setAttributeInDatasource('selectedId', selectedId,null,this.rowByIndex(idx),true);
         }
 
 
@@ -1441,7 +1441,7 @@ dojo.declare("gnr.widgets.Grid",gnr.widgets.baseDojo,{
     mixin_selectByRowAttr:function(attrName, attrValue){
         var selection=this.selection;
         if (typeof (attrValue)=='object'){
-             selection.select(-1);
+             selection.unselectAll();
              var grid=this;
              dojo.forEach(attrValue, function(v){selection.addToSelection(grid.indexByRowAttr(attrName, v)); });           
         }else{
@@ -1926,7 +1926,7 @@ dojo.declare("gnr.widgets.VirtualStaticGrid",gnr.widgets.Grid,{
             this.selectByRowAttr(this._identifier,this.prevSelectedIdentifiers);
             this.prevSelectedIdentifiers = null;
         }
-        if((this.autoSelect)&&(this.selection.selectedIndex==-1)){
+        else if(this.autoSelect){
             this.selection.select(0);
         }
     },
@@ -2161,7 +2161,7 @@ dojo.declare("gnr.widgets.VirtualStaticGrid",gnr.widgets.Grid,{
          }
     },
     mixin_setReloader: function(){
-        console.log('reloading')
+        console.log('reloading');
         this.reload(true);
         
     },
@@ -2173,7 +2173,7 @@ dojo.declare("gnr.widgets.VirtualStaticGrid",gnr.widgets.Grid,{
                     if (node) {prevSelectedIdentifiers.push(node.attr[identifier]);};
              });
              this.prevSelectedIdentifiers=prevSelectedIdentifiers;
-             console.log('this.prevSelectedIdentifiers')
+             console.log('this.prevSelectedIdentifiers');
         }else{
             this.prevSelectedIdentifiers=null;
         }

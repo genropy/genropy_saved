@@ -33,35 +33,18 @@ class GnrCustomWebPage(object):
         self.gridControllers(rootBC)
         
     def gridControllers(self,pane):
-       pane.dataController( """genro.wdgById('connected_users').reload(true);
-                             if((username==current_user)&&(userip==current_ip)){
-                                 genro.wdgById('user_connections').reload(true);
-                             }""",
-                             dbevent='=gnr.dbevent.adm_connection?dbevent',
-                             current_user='=user.current.name',
-                             current_ip='=user.current.ip',
-                             userip='=gnr.dbevent.adm_connection.ip',
-                             username='=gnr.dbevent.adm_connection.username',
-                             _fired='^gnr.dbevent.adm_connection')
+       pane.dataController( "FIRE grids.connected_users.reload;",_fired='^gnr.dbevent.adm_connection')
                              
-       pane.dataController( """
-                              console.log('cambiato pagina')
-                              if (connection_id==current_connection){
-                                    console.log('riga corrente connessioni')
-                                   genro.wdgById('user_servedpages').reload(true);
-                              }else{
-                                   console.log('current_connection:'+current_connection+' connection_id:'+connection_id+' dbevent:'+dbevent)
-                              }""",
-                             dbevent='=gnr.dbevent.adm_served_page?dbevent',
-                             current_connection='=connection.current',
+       pane.dataController( "FIRE grids.user_servedpages.reload;",
+                             current_connection='=grids.user_connections.selectedId',
                              connection_id='=gnr.dbevent.adm_served_page.connection_id',
+                             _if='connection_id==current_connection',
                              _fired='^gnr.dbevent.adm_served_page')
 
     def connectedUser(self,bc):
         topfb=bc.contentPane(region='top',height='40px', datapath='messages.user').formBuilder(cols='3')
         topfb.textBox(value='^.text',lbl='User message',width='15em')
         topfb.button('send',lbl='',fire='.send')
-        #topfb.button('refresh',lbl='',action="genro.wdgById('connected_users').reload(true)")
         topfb.button('refresh',lbl='',fire="grids.connected_users.reload")
         topfb.dataRpc('.result','sendMessage',_fired='^.send', msg='=.text', 
                       dest_user='=grids.connected_user.selectedId?username')
@@ -100,16 +83,16 @@ class GnrCustomWebPage(object):
         self.includedViewBox(bc,label='!!User connections',
                             table='adm.connection',
                             struct=self._userConnections_struct, 
-                            autoWidth=True,nodeId='user_connections',autoSelect=True,
-                            reloader='^grids.connected_users.selectedId',
+                            autoWidth=True,nodeId='user_connections',#autoSelect=True,
+                            reloader='^grids.connected_users.selectedId',autoSelect=True,
                             selectionPars=dict(where='$end_ts IS NULL AND $username=:user AND $ip=:ip',
                                                 user='=grids.connected_users.selectedId?username',
                                                 ip='=grids.connected_users.selectedId?ip'))
 
     def _userConnections_struct(self,struct):
         r = struct.view().rows()
-        r.fieldcell('start_ts',width='15em')
-        r.fieldcell('user_agent', width='15em')
+        r.fieldcell('start_ts',width='8em')
+        r.fieldcell('user_agent', width='35em')
         return struct
         
     def userServedPages(self,bc):
@@ -124,8 +107,8 @@ class GnrCustomWebPage(object):
                             struct=self._userServedPages_struct, autoWidth=True,
                            nodeId='user_servedpages',autoSelect=True,
                            reloader='^grids.user_connections.selectedId',
-                           selectionPars=dict(where='$connection_id=:conn_id',
-                                                conn_id='=grids.user_connections.selectedId',
+                           selectionPars=dict(where='$connection_id=:connection_id AND $end_ts IS NULL',
+                                                connection_id='=grids.user_connections.selectedId',
                                                 order_by='$start_ts desc'))
                            
 
