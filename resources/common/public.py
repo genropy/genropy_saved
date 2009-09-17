@@ -444,7 +444,8 @@ class IncludedView(BaseComponent):
        in relation many to many. includedViewBox is the method that return some
        custom widgets those allow all these operations"""
        
-    def includedViewBox(self, parentBC, label=None, 
+    def includedViewBox(self, parentBC, nodeId=None,table=None,
+                        storepath=None,selectionPars=None,formPars=None,label=None,
                         add_action=None, add_class='buttonIcon icnBaseAdd',add_enable='^form.canWrite',
                         del_action=None, del_class='buttonIcon icnBaseDelete', del_enable='^form.canWrite',
                         close_action=None, close_class='buttonIcon icnTabClose', 
@@ -452,8 +453,8 @@ class IncludedView(BaseComponent):
                         export_action=None, export_class='buttonIcon icnBaseExport', 
                         tools_action=None, tools_class='buttonIcon icnBaseAction', 
                         tools_menu=None,upd_action=False,
-                        filterOn=None, formPars=None, pickerPars=None,centerPaneCb=None,
-                        editorEnabled=None,**kwargs):
+                        filterOn=None,  pickerPars=None,centerPaneCb=None,
+                        editorEnabled=None,reloader=None,**kwargs):
         """
         This method returns a grid (includedView) for, viewing and selecting
         rows from a many to many table related to the main table,
@@ -463,23 +464,13 @@ class IncludedView(BaseComponent):
         The form can be contained inside a dialog or a contentPane and is useful
         for editing a single record. If the data is stored inside another table 
         you should use the picker to select the rows from that table.
+        
         @param parentBC: MANDATORY this is a border container you have to pass
                          to includedViewBox for containing the the includedView
                          and its label.
-        @param label: (string) adding this kwparam you put a label to the includedView
-        @param add_action: (boolean) adding this kwparam you allow the inserting 
-                           of a row inside the includedView
-        @param add_class: css class of add button
-        @param add_enable: a path to enable/disable add action 
-        @param del_action: (boolean) adding this kwparam you allow the deleting 
-                           of a row inside the includedView
-        
-        @param del_class: css class of delete button
-        @param del_enable: a path to enable/disable del action 
-        @param close_action: (boolean) adding closing button on tooltipDialog
-        @param close_class: css class of close button adding closing button on tooltipDialog
-        @param filterOn: (boolean only for picker) adding this kwparam you allow the filtering
-                         inside the pickers grid.
+        @param table:
+        @param storepath:
+        @param selectionPars:
         @param formPars:(dict) contains all the param of the widget that host the form:
                         these can be:
                         - mode: "dialog"/"pane", the default is "dialog"
@@ -495,6 +486,20 @@ class IncludedView(BaseComponent):
                         - pane: OPTIONAL pane of the input form
                         - parentDialog: OPTIONAL. if mode dialog, this is another 
 -                          dialog that must be closed in order to avoid bugs
+        @param label: (string) adding this kwparam you put a label to the includedView
+        
+        @param add_action: (boolean) adding this kwparam you allow the inserting 
+                           of a row inside the includedView
+        @param add_class: css class of add button
+        @param add_enable: a path to enable/disable add action 
+        @param del_action: (boolean) adding this kwparam you allow the deleting 
+                           of a row inside the includedView
+        @param del_class: css class of delete button
+        @param del_enable: a path to enable/disable del action 
+        @param close_action: (boolean) adding closing button on tooltipDialog
+        @param close_class: css class of close button adding closing button on tooltipDialog
+        @param filterOn: (boolean only for picker) adding this kwparam you allow the filtering
+                         inside the pickers grid.
 
         @param pickerPars:(dict) contains all the param of the tooltip dialog
                            which host the picker grid. 
@@ -515,16 +520,17 @@ class IncludedView(BaseComponent):
         @params kwargs: you have to put the includedView params: autoWidth, storepath etc
         """
         viewPars = dict(kwargs)
-        gridId = viewPars.get('nodeId') or self.getUuid()
-        viewPars['nodeId'] = gridId
-        controllerPath = 'grids.%s' % gridId
-        controller = parentBC.dataController(datapath=controllerPath)
+        gridId = nodeId or self.getUuid()
+        viewPars['nodeId'] = gridId        
+        controllerPath = 'grids.%s' %gridId
+        storepath = storepath or '%s.selection' %controllerPath
+        viewPars['storepath'] = storepath
+        controller = self.pageController(datapath=controllerPath)
         assert not 'selectedIndex' in viewPars
         viewPars['selectedIndex'] = '^%s.selectedIndex' % controllerPath
         assert not 'selectedLabel' in viewPars
         if not viewPars.get('selectedId'):
             viewPars['selectedId'] = '^%s.selectedId' % controllerPath
-            
         viewPars['selectedLabel'] = '^%s.selectedLabel' % controllerPath
         label_pars = dict([(k[6:], kwargs.pop(k)) for k in kwargs.keys() if k.startswith('label_')])
         label_pars['_class'] = label_pars.pop('class', None) or 'pbl_viewBoxLabel'
@@ -584,10 +590,16 @@ class IncludedView(BaseComponent):
             gridcenter = getattr(self,centerPaneCb)(parentBC, region='center', **box_pars)
         else:
             gridcenter = parentBC.contentPane(region='center', **box_pars)
+        if not 'columns' in viewPars:
+            if callable(viewPars['struct']) and not isinstance(viewPars['struct'],Bag):
+                viewPars['struct'] = viewPars['struct'](self.newGridStruct(table))
         view = gridcenter.includedView(extension='includedViewPicker',
                                        _controllerDatapath= controllerPath,
                                        editorEnabled=editorEnabled or '^form.canWrite',
-                                       **viewPars)
+                                       reloader=reloader,**viewPars)
+        if selectionPars:
+            self._iv_includedViewSelection(gridcenter,gridId,table,storepath,selectionPars)
+            
         if formPars:
             formPars.setdefault('pane', gridcenter)
             self._includedViewForm(controller, controllerPath, view, formPars)
@@ -595,7 +607,17 @@ class IncludedView(BaseComponent):
             pickerPars.setdefault('pane', gridcenter)
             self._iv_Picker(controller, controllerPath, view, pickerPars)
         return view
-
+        
+    def _iv_includedViewSelection(self,pane,gridId,table,storepath,selectionPars):
+        assert table
+        assert not 'columnsFromView' in selectionPars
+        assert not 'nodeId' in selectionPars
+        assert 'where' in selectionPars
+        
+        selectionPars['nodeId'] = "%s_selection" %gridId
+        selectionPars['columns'] = selectionPars.get('columns') or '=grids.%s.columns' %gridId
+        pane.dataSelection(storepath,table,**selectionPars)
+        
     def _iv_IncludedViewController(self, controller, gridId):
         controllerPath = 'grids.%s' % gridId
         controller.dataController("""var grid = genro.wdgById(gridId);

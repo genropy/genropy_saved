@@ -43,7 +43,7 @@ class Package(GnrDboPackage):
         tblconnection = page.db.table('adm.connection')
         if event == 'open':
             userid = None
-            if avatar.userid == avatar.id:
+            if avatar.userid != avatar.id:
                 userid = avatar.id
             new_connection_record = dict(id=connection.connection_id,username=avatar.id,
                                         userid=userid,start_ts=datetime.now(),
@@ -58,11 +58,11 @@ class Package(GnrDboPackage):
     def pageLog(self,page,event):
         tblservedpage = page.db.table('adm.served_page')
         if event == 'open':
-            record_served_page = dict(page_id=page.page_id,
+            record_served_page = dict(page_id=page.page_id,end_reason=None,end_ts=None,
                                       connection_id=page.connection.connection_id,
                                       start_ts=datetime.now(),pagename=page.basename,
                                       subscribed_tables=page.pageOptions.get('subscribed_tables',None))
-            tblservedpage.insert(record_served_page)
+            tblservedpage.insertOrUpdate(record_served_page)
         else:
             tblservedpage.closePage(page_id=page.page_id,end_ts=datetime.now(),end_reason='unload')
         page.db.commit()

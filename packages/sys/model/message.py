@@ -43,6 +43,7 @@ class Table(object):
                 record['dst_page_id']=p
                 self.insert(record)
                 sent_messages_id_list.append(record['id'])
+                record['id'] = None
             return sent_messages_id_list
         else:
             self.insert(record)

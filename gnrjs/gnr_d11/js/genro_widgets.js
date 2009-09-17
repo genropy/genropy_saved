@@ -1389,7 +1389,6 @@ dojo.declare("gnr.widgets.Grid",gnr.widgets.baseDojo,{
     },
 
     mixin__gnrUpdateSelect: function(idx){
-
         if (this.sourceNode.attr.selectedDataPath){
             var selectedDataPath=null;
             if (idx>=0){
@@ -1418,16 +1417,17 @@ dojo.declare("gnr.widgets.Grid",gnr.widgets.baseDojo,{
                 var path=this.sourceNode.setRelativeData(selattr[sel],value);
             }
         }
+        if (this.sourceNode.attr.selectedIndex){
+            this.sourceNode.setAttributeInDatasource('selectedIndex', ((idx < 0) ? null : idx));
+        }
         if (this.sourceNode.attr.selectedId){
             var selectedId=null;
             if (idx>=0){
                 selectedId=this.rowIdentity(this.rowByIndex(idx));
             }
-            this.sourceNode.setAttributeInDatasource('selectedId', selectedId);
+            this.sourceNode.setAttributeInDatasource('selectedId', selectedId,null,this.rowByIndex(idx));
         }
-        if (this.sourceNode.attr.selectedIndex){
-            this.sourceNode.setAttributeInDatasource('selectedIndex', ((idx < 0) ? null : idx),null,this.rowByIndex(idx));
-        }
+
 
     },
     mixin_indexByRowAttr:function(attrName, attrValue){
@@ -1517,9 +1517,9 @@ dojo.declare("gnr.widgets.Grid",gnr.widgets.baseDojo,{
         if(struct){
             var bagnodes = struct.getNodes();
             var formats, dtype, editor;
-             var view, viewnode, rows, rowsnodes, i, k, j, cellsnodes, row, cell, rowattrs, rowBag;
-             var localTypes = {'R':{places:2},'L':{places:0},'I':{places:0},'D':{date:'short'},'H':{time:'short'},'DH':{datetime:'short'}};
-             for (i=0; i < bagnodes.length; i++){
+            var view, viewnode, rows, rowsnodes, i, k, j, cellsnodes, row, cell, rowattrs, rowBag;
+            var localTypes = {'R':{places:2},'L':{places:0},'I':{places:0},'D':{date:'short'},'H':{time:'short'},'DH':{datetime:'short'}};
+            for (i=0; i < bagnodes.length; i++){
                  viewnode = bagnodes[i];
                  view = objectUpdate({}, viewnode.attr);
                  delete view.tag;
@@ -2160,13 +2160,20 @@ dojo.declare("gnr.widgets.VirtualStaticGrid",gnr.widgets.Grid,{
              return storebag;
          }
     },
-
+    mixin_setReloader: function(){
+        console.log('reloading')
+        this.reload(true);
+        
+    },
     mixin_reload:function(keep_selection){
         if (keep_selection){
              prevSelectedIdentifiers=[];
              var identifier=this._identifier;
-             dojo.forEach(this.getSelectedNodes(), function(node){prevSelectedIdentifiers.push(node.attr[identifier]); });
+             dojo.forEach(this.getSelectedNodes(), function(node){
+                    if (node) {prevSelectedIdentifiers.push(node.attr[identifier]);};
+             });
              this.prevSelectedIdentifiers=prevSelectedIdentifiers;
+             console.log('this.prevSelectedIdentifiers')
         }else{
             this.prevSelectedIdentifiers=null;
         }

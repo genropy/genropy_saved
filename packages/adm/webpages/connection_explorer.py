@@ -26,9 +26,9 @@ class GnrCustomWebPage(object):
         rootBC.data('gnr.polling',3)
         bc,top,bottom = self.pbl_rootBorderContainer(rootBC,'!!Connections')
         topBC = bc.borderContainer(region='top',height='50%')
-        self.connectedUser(topBC.borderContainer(region='left',width='50%',margin='5px', datapath='user'))
-        self.userConnections(topBC.borderContainer(region='center',margin_left=0,margin='5px',datapath='connection'))
-        centerBC = bc.borderContainer(region='center',margin='5px',margin_top=0, datapath='page')
+        self.connectedUser(topBC.borderContainer(region='left',width='50%',margin='5px'))
+        self.userConnections(topBC.borderContainer(region='center',margin_left=0,margin='5px'))
+        centerBC = bc.borderContainer(region='center',margin='5px',margin_top=0)
         self.userServedPages(centerBC)
         self.gridControllers(rootBC)
         
@@ -56,29 +56,25 @@ class GnrCustomWebPage(object):
                              current_connection='=connection.current',
                              connection_id='=gnr.dbevent.adm_served_page.connection_id',
                              _fired='^gnr.dbevent.adm_served_page')
-                              
+
     def connectedUser(self,bc):
-        topfb=bc.contentPane(region='top',height='40px', datapath='.messages').formBuilder(cols='3')
+        topfb=bc.contentPane(region='top',height='40px', datapath='messages.user').formBuilder(cols='3')
         topfb.textBox(value='^.text',lbl='User message',width='15em')
         topfb.button('send',lbl='',fire='.send')
         #topfb.button('refresh',lbl='',action="genro.wdgById('connected_users').reload(true)")
         topfb.button('refresh',lbl='',fire="grids.connected_users.reload")
-
-        topfb.dataRpc('.result','sendMessage',_fired='^.send', msg='=.text', dest_user='=user.current')
+        topfb.dataRpc('.result','sendMessage',_fired='^.send', msg='=.text', 
+                      dest_user='=grids.connected_user.selectedId?username')
         bc=bc.borderContainer(region='center')
-        self.includedViewBox(bc,label='!!Live user connected',
-                            storepath='.selection', 
-                            struct=self._connectedUser_struct(), 
-                            autoWidth=True,
-                            selected_username='.current.name',
-                            selected_ip='.current.ip',
-                            selectedId='.current.pkey',
+        self.includedViewBox(bc,table='adm.connection',
                             nodeId='connected_users',
-                            autoSelect=True
-                            )
-        bc.dataSelection('.selection','adm.connection',nodeId='connected_users_selection',
-                         where='$end_ts IS NULL',distinct=True,applymethod='createUserUniqueIdentifier',
-                         columns='$username,@userid.fullname,$ip',_onStart=True)
+                            label='!!Live user connected',
+                            struct=self._connectedUser_struct, 
+                            autoWidth=True,autoSelect=True,
+                            selectionPars=dict(where='$end_ts IS NULL',distinct=True,
+                                                applymethod='createUserUniqueIdentifier',
+                                                _onStart=True))
+
 
     def rpc_createUserUniqueIdentifier(self,selection):
         def createPkey(row):         
@@ -86,62 +82,55 @@ class GnrCustomWebPage(object):
             return result
         selection.apply(createPkey)  
                       
-    def _connectedUser_struct(self):
-        struct = self.newGridStruct()
+    def _connectedUser_struct(self,struct):
         r = struct.view().rows()
-        r.cell('username', name='User', width='10em')
-        r.cell('user_fullname', name='User fullname', width='10')
-        r.cell('ip', name='Remote addr.', width='15em')
+        r.fieldcell('username',width='10em')
+        r.fieldcell('user_fullname', width='10em')
+        r.fieldcell('ip', name='Remote addr.', width='15em')
         return struct
         
     
     def userConnections(self,bc):
-        topfb=bc.contentPane(region='top',height='40px', datapath='.messages').formBuilder(cols='3')
+        topfb=bc.contentPane(region='top',height='40px',datapath='messages.connection').formBuilder(cols='3')
         topfb.textBox(value='^.text',lbl='Connection message',width='15em')
         topfb.button('send',lbl='',fire='.send')
-        topfb.button('refresh',lbl='',action="genro.wdgById('user_connections').reload(true)")
+        topfb.button('refresh',lbl='',fire="grids.user_connections.reload")
         topfb.dataRpc('.result','sendMessage',_fired='^.send', msg='=.text', dest_connection='=connection.current')
-        
         bc=bc.borderContainer(region='center')
         self.includedViewBox(bc,label='!!User connections',
-                            storepath='.selection', 
-                            struct=self._userConnections_struct(), 
-                            autoWidth=True,selectedId='.current',
-                            nodeId='user_connections',autoSelect=True)
-        bc.dataSelection('.selection','adm.connection',nodeId='user_connections_selection',
-                         where='$end_ts IS NULL AND $username=:user AND $ip=:ip',
-                         user='=user.current.name',
-                         ip='=user.current.ip',
-                         _fired='^user.current.pkey',
-                         columnsFromView='user_connections')
-                         
-    def _userConnections_struct(self):
-        struct = self.newGridStruct()
+                            table='adm.connection',
+                            struct=self._userConnections_struct, 
+                            autoWidth=True,nodeId='user_connections',autoSelect=True,
+                            reloader='^grids.connected_users.selectedId',
+                            selectionPars=dict(where='$end_ts IS NULL AND $username=:user AND $ip=:ip',
+                                                user='=grids.connected_users.selectedId?username',
+                                                ip='=grids.connected_users.selectedId?ip'))
+
+    def _userConnections_struct(self,struct):
         r = struct.view().rows()
-        r.cell('start_ts', name='Start',dtype='DH', width='15em')
-        r.cell('user_agent', name='User agent', width='15em')
+        r.fieldcell('start_ts',width='15em')
+        r.fieldcell('user_agent', width='15em')
         return struct
         
     def userServedPages(self,bc):
-        topfb=bc.contentPane(region='top',height='40px', datapath='.messages').formBuilder(cols='3')
+        topfb=bc.contentPane(region='top',height='40px', datapath='messages.pages').formBuilder(cols='3')
         topfb.textBox(value='^.text',lbl='Page message',width='30em')
         topfb.button('send',lbl='',fire='.send')
-        topfb.button('refresh',lbl='',action="genro.wdgById('user_servedpages').reload(true)")
+        topfb.button('refresh',lbl='',fire="grids.user_servedpages.reload")
         
-        topfb.dataRpc('.result','sendMessage',_fired='^.send', msg='=.text', dest_page='=page.current')
+        topfb.dataRpc('.result','sendMessage',_fired='^.send', msg='=.text', dest_page='=grids.user_servedpages.selectedId')
         bc=bc.borderContainer(region='center')
-        self.includedViewBox(bc,label='!!User served pages',
-                            storepath='.selection', 
-                            struct=self._userServedPages_struct(), 
-                            autoWidth=True,selectedId='.current',
-                           nodeId='user_servedpages',autoSelect=True)
-        bc.dataSelection('.selection','adm.served_page',nodeId='user_servedpages_selection',
-                         where='$connection_id=:connection AND $end_ts IS NULL',
-                         connection='^connection.current',
-                         columnsFromView='user_servedpages',order_by='$start_ts desc')
+        self.includedViewBox(bc,label='!!User served pages',table='adm.served_page', 
+                            struct=self._userServedPages_struct, autoWidth=True,
+                           nodeId='user_servedpages',autoSelect=True,
+                           reloader='^grids.user_connections.selectedId',
+                           selectionPars=dict(where='$connection_id=:conn_id',
+                                                conn_id='=grids.user_connections.selectedId',
+                                                order_by='$start_ts desc'))
+                           
+
                          
-    def _userServedPages_struct(self):
-        struct = self.newGridStruct()
+    def _userServedPages_struct(self,struct):
         r = struct.view().rows()
         r.cell('page_id',name='Served Page ID',width='20em')
         r.cell('start_ts',name='Start',dtype='DH',width='10em')
