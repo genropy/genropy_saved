@@ -18,4 +18,3 @@ class Table(object):
         tbl.column('topo2',size=':62',name_long='Topo 2')
         tbl.column('pref',name_long='Pref')
         tbl.column('n_civico',name_long='n_civico')
-
