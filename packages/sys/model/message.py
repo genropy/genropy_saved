@@ -36,8 +36,17 @@ class Table(object):
             src_connection_id=srcpage.connection.connection_id,
             src_page_id=srcpage.page_id,
             src_user=srcpage.user)
-        self.insert(record)
-        return record['id']
+            
+        if isinstance(page_id,list):
+            sent_messages_id_list=[]
+            for p in page_id:
+                record['dst_page_id']=p
+                self.insert(record)
+                sent_messages_id_list.append(record['id'])
+            return sent_messages_id_list
+        else:
+            self.insert(record)
+            return record['id']
         
     def deleteMessage(self, message_id):
         self.delete(dict(id=message_id))

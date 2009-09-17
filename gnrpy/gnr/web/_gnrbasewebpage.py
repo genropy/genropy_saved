@@ -505,6 +505,7 @@ class GnrBaseWebPage(GnrObject):
             self.session.saveSessionData()
         
         if hasattr(self, '_connection'):
+            print 'onEnd',self.user
             if self.user:
                 self.connection._finalize()
         if hasattr(self, '_app'):
@@ -564,7 +565,9 @@ class GnrBaseWebPage(GnrObject):
     def _get_user(self):
         """Get the user from hidden _user attribute."""
         if not hasattr(self, '_user'):
+            print "if not hasattr(self, '_user')"
             self._user = self.connection.appSlot.get('user')
+            print "if not hasattr(self, '_user')",self._user
         return self._user
     user = property(_get_user)
         
@@ -632,16 +635,20 @@ class GnrBaseWebPage(GnrObject):
         if pageTags:
             if not self.user:
                 auth = AUTH_NOT_LOGGED
+                print 'if not self.user'
             elif not self.application.checkResourcePermission(pageTags, self.userTags):
+                print "elif not self.application.checkResourcePermission(pageTags, self.userTags)"
                 auth = AUTH_FORBIDDEN
                 
             if auth == AUTH_NOT_LOGGED and method != 'main' and method!='onClosePage':
+                print "if auth == AUTH_NOT_LOGGED and method != 'main' and method!='onClosePage'" 
                 if not self.connection.oldcookie:
                     print 'commentata : self.raiseUnauthorized() method:%s' %method
                     #self.raiseUnauthorized()
                 auth = 'EXPIRED'
                 
         elif parameters.get('_loginRequired') == 'y':
+            print "elif parameters.get('_loginRequired') == 'y':"
             auth = AUTH_NOT_LOGGED
         return auth
         
@@ -1337,6 +1344,7 @@ class GnrBaseWebPage(GnrObject):
                             message_id=message_id)
     
     def msg_datachange(self, message_id=None, message_body=None,src_page_id=None,src_user=None,src_connection_id=None):
+        print 'msg_datachange'
         for change in message_body:
             self.setInClientData(change.attr.pop('_client_data_path'), change.value , _attributes=change.attr, save=True,
                                 src_page_id=src_page_id,src_user=src_user,src_connection_id=src_connection_id,
@@ -1716,6 +1724,7 @@ class GnrWebConnection(object):
         self.cookie.value['timestamp'] = None
         
     def _finalize(self):
+        print 'finalize'
         if not self.cookie.value.get('timestamp'):
             self.cookie.value['timestamp'] = time.time()
             self.data['ip'] = self.page.request.remote_addr
@@ -1728,13 +1737,15 @@ class GnrWebConnection(object):
         self.data.toXml(self.connectionFile, autocreate=True)
 
     def write(self):
+        print 'write cookie'
         self.cookie.path = self.page.siteUri
         self.page.add_cookie(self.cookie)
         self.data['cookieData'] = Bag(self.cookie.value)
         self.data.toXml(self.connectionFile, autocreate=True)
 
     def _get_appSlot(self):
-        return self.cookie.value['slots'].setdefault(self.page.app.appId, {})
+        appslot= self.cookie.value['slots'].setdefault(self.page.app.appId, {})
+        return appslot
     appSlot = property(_get_appSlot)
     
     def _get_locale(self):
@@ -1749,6 +1760,8 @@ class GnrWebConnection(object):
         appSlot = self.appSlot
         appSlot['user'] = avatar.id
         appSlot['tags'] = avatar.tags
+        print 'updateAvatar',appSlot
+        print 'updateAvatar: self.user',self.page.user
     
     def rpc_sendUserMessage(self, user, msg):
         msgid = '%s.xml' % getUuid()

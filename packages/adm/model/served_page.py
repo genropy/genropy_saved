@@ -26,7 +26,19 @@ class Table(object):
                         connection_id=connection_id,
                         topic="%%%s%%"%(topic or ''),
                         current_page_id=current_page_id).fetch()
+                        
+    def subscribedTablesDict(self):
+        pages=self.query(columns='$page_id,$subscribed_tables',
+                        addPkeyColumn=False,
+                        where="""$end_ts is null AND 
+                                 $subscribed_tables IS NOT NULL""").fetch()
+        result=dict()
+        for page_id,subscribed_tables in pages:
+            for table in subscribed_tables.split(','):
+                result.setdefault(table,[]).append(page_id)
+        return result
         
+
     def closePendingPages(self,connection_id=None,end_ts=None,end_reason=None):
         for page in self.getLivePages(connection_id=connection_id):
             self.closePage(page['page_id'],end_ts=end_ts,end_reason=end_reason)

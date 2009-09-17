@@ -443,7 +443,7 @@ class GnrWsgiSite(object):
         if 'sys' in self.gnrapp.db.packages:
             return self.gnrapp.db.table('sys.message').deleteMessage(message_id)
     
-    def notifyDbEvent(self,tblobj,record,event,old_record=None):
+    def notifyDbEvent_old(self,tblobj,record,event,old_record=None):
         if 'adm' in self.gnrapp.db.packages:
             page = self.currentPage
             if not page:
@@ -458,6 +458,19 @@ class GnrWsgiSite(object):
             for page in listeningPages:
                 self.writeMessage(page_id=page['page_id'], body=msg_body, message_type='datachange')
                 
+    def notifyDbEvent(self,tblobj,record,event,old_record=None):
+        if 'adm' in self.gnrapp.db.packages:
+            page = self.currentPage
+            if page and page.subscribedTablesDict and tblobj.fullname in page.subscribedTablesDict :
+                msg_body = Bag()
+                msg_body.setItem('dbevent', 
+                                 Bag([(k,v) for k,v in record.items() if not k.startswith('@')]),
+                                 _client_data_path='gnr.dbevent.%s'%tblobj.fullname.replace('.','_'), 
+                                 dbevent=event)
+                self.writeMessage(page_id=page.subscribedTablesDict[tblobj.fullname],
+                                  body=msg_body,
+                                  message_type='datachange')
+                      
     def _get_currentPage(self):
         """property currentPage it returns the page currently used in this thread"""
         return self._currentPages.get(thread.get_ident())

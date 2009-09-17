@@ -239,6 +239,14 @@ class GnrWsgiPage(GnrBaseWebPage):
             return self._parentdirpath
     parentdirpath = property(_get_parentdirpath)
     
+    def _get_subscribedTablesDict(self):
+        """return a dict of subscribed tables. any element is a list
+           of page_id that subscribe that page"""
+        if not hasattr (self, '_subscribedTablesDict'):
+            self._subscribedTablesDict=self.db.table('adm.served_page').subscribedTablesDict()
+        return self._subscribedTablesDict
+    subscribedTablesDict = property(_get_subscribedTablesDict)
+    
     def checkPermission(self, pagepath, relative=True):
         return self.application.checkResourcePermission(self.auth_tags, self.userTags)
     
@@ -376,6 +384,7 @@ class GnrWsgiPage(GnrBaseWebPage):
             elif _auth==AUTH_NOT_LOGGED:
                 loginUrl = self.application.loginUrl()
                 page = None
+                print 'elif _auth==AUTH_NOT_LOGGED'
                 if loginUrl:
                     pageattr['redirect'] = self.resolvePathAsUrl(loginUrl,folder='*pages')
                 else:

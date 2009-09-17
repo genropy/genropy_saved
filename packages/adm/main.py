@@ -38,6 +38,7 @@ class Package(GnrDboPackage):
             self.connectionLog(avatar.page,'open',avatar)
 
     def connectionLog(self,page,event,avatar=None):
+        print 'connectionLog ',event
         connection = page.connection
         tblconnection = page.db.table('adm.connection')
         if event == 'open':
@@ -52,6 +53,7 @@ class Package(GnrDboPackage):
         else:
             tblconnection.closeConnection(connection.connection_id,end_reason='logout')
         page.db.commit()
+        print 'connectionLog out ',event
             
     def pageLog(self,page,event):
         tblservedpage = page.db.table('adm.served_page')
