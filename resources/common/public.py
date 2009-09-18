@@ -454,7 +454,7 @@ class IncludedView(BaseComponent):
                         tools_action=None, tools_class='buttonIcon icnBaseAction', 
                         tools_menu=None,upd_action=False,
                         filterOn=None,  pickerPars=None,centerPaneCb=None,
-                        editorEnabled=None,reloader=None,**kwargs):
+                        editorEnabled=None,reloader=None,externalChanges=None,**kwargs):
         """
         This method returns a grid (includedView) for, viewing and selecting
         rows from a many to many table related to the main table,
@@ -597,6 +597,22 @@ class IncludedView(BaseComponent):
                                        _controllerDatapath= controllerPath,
                                        editorEnabled=editorEnabled or '^form.canWrite',
                                        reloader=reloader,**viewPars)
+        if externalChanges:
+            subscribed_tables = [t for self.pageOptions.get('subscribed_tables','').split(',') if t]
+            if not table in subscribed_tables:
+                subscribed_tables.append(table)
+                self.pageOptions['subscribed_tables'] = ','.join(subscribed_tables)
+            event_path = 'gnr.dbevent.%s' %table.replace('.','_')
+            pars = dict()
+            conditions = list()
+            if isinstance(externalChanges,basestring):
+                for fld in externalChanges.split(','):
+                    conditions.append('curr_%s==event_%s' %(fld,fld))
+                    pars['event_%s' %fld] = '=%s.%s' %(event_path,fld)
+                    pars['curr_%s' %fld] = '=.selectedId?%s' %fld                    
+            controller.dataController("FIRE .reload",_if=' && '.join(conditions),
+                                     _fired='^%s' %event_path,**pars)
+            
         if selectionPars:
             self._iv_includedViewSelection(gridcenter,gridId,table,storepath,selectionPars)
             
