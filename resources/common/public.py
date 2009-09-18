@@ -598,6 +598,12 @@ class IncludedView(BaseComponent):
                                        editorEnabled=editorEnabled or '^form.canWrite',
                                        reloader=reloader,**viewPars)
         if externalChanges:
+            externalChangesTypes=''
+            if isinstance(externalChanges,basestring):
+                if ':' in externalChanges:
+                    externalChanges,externalChangesTypes=externalChanges.split(':')
+                    if externalChanges=='*':
+                        externalChanges=True
             subscribed_tables = [t for t in self.pageOptions.get('subscribed_tables','').split(',') if t]
             if not table in subscribed_tables:
                 subscribed_tables.append(table)
@@ -609,7 +615,11 @@ class IncludedView(BaseComponent):
                 for fld in externalChanges.split(','):
                     conditions.append('curr_%s==event_%s' %(fld,fld))
                     pars['event_%s' %fld] = '=%s.%s' %(event_path,fld)
-                    pars['curr_%s' %fld] = '=.selectedId?%s' %fld                    
+                    pars['curr_%s' %fld] = '=.selectedId?%s' %fld  
+            if externalChangesTypes:
+                conditions.append('evtypes.indexOf(evtype)')
+                pars['evtypes'] = externalChangesTypes
+                pars['evtype'] = '=%s?dbevent' %event_path
             controller.dataController("FIRE .reload",_if=' && '.join(conditions),
                                      _fired='^%s' %event_path,**pars)
             
