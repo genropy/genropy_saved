@@ -593,7 +593,7 @@ class IncludedView(BaseComponent):
         if not 'columns' in viewPars:
             if callable(viewPars['struct']) and not isinstance(viewPars['struct'],Bag):
                 viewPars['struct'] = viewPars['struct'](self.newGridStruct(table))
-        view = gridcenter.includedView(extension='includedViewPicker',
+        view = gridcenter.includedView(extension='includedViewPicker',table=table,
                                        _controllerDatapath= controllerPath,
                                        editorEnabled=editorEnabled or '^form.canWrite',
                                        reloader=reloader,**viewPars)
