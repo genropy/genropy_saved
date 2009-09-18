@@ -1306,8 +1306,9 @@ class GnrBaseWebPage(GnrObject):
         return result
         
     def handleMessages(self):
-        print 'handling messages'
+        print 'in Handle messages'
         messages = self.site.getMessages(user=self.user, page_id=self.page_id, connection_id=self.connection.connection_id) or []
+        print '%i new messages'%(len(messages))
         for message in messages:
             print 'single message: %s' %str(message)
             message_body = Bag(message['body'])

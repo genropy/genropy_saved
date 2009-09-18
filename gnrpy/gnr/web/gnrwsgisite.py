@@ -443,7 +443,7 @@ class GnrWsgiSite(object):
         if 'sys' in self.gnrapp.db.packages:
             return self.gnrapp.db.table('sys.message').deleteMessage(message_id)
     
-    def notifyDbEvent(self,tblobj,record,event,old_record=None):
+    def notifyDbEvent_(self,tblobj,record,event,old_record=None):
         if 'adm' in self.gnrapp.db.packages:
             page = self.currentPage
             if tblobj.attributes.get('broadcast') and page and page.subscribedTablesDict and tblobj.fullname in page.subscribedTablesDict :
@@ -452,10 +452,42 @@ class GnrWsgiSite(object):
                                  Bag([(k,v) for k,v in record.items() if not k.startswith('@')]),
                                  _client_data_path='gnr.dbevent.%s'%tblobj.fullname.replace('.','_'), 
                                  dbevent=event)
-                self.writeMessage(page_id=page.subscribedTablesDict[tblobj.fullname],
+                self.writeMessage(page_id=page.subscribedTablesDict[tblobj.fullname]['page_id'],
                                   body=msg_body,
                                   message_type='datachange')
-                      
+
+    def notifyDbEvent(self,tblobj,record,event,old_record=None):
+        if 'adm' in self.gnrapp.db.packages:
+            page = self.currentPage
+            if tblobj.attributes.get('broadcast') and page and page.subscribedTablesDict and tblobj.fullname in page.subscribedTablesDict:
+                for page_id, connection_id in page.subscribedTablesDict[tblobj.fullname]:
+                    self.setInClientPage(page_id=page_id,
+                                        connection_id=connection_id,
+                                        client_path='gnr.dbevent.%s'%tblobj.fullname.replace('.','_'),
+                                        value=Bag([(k,v) for k,v in record.items() if not k.startswith('@')]),
+                                        attributes=dict(dbevent=event))
+    
+    def setInClientPage(self, page_id=None, connection_id=None, client_path=None, value=None, attributes=None,  fired=False, saveSession=False):
+        """@param save: remember to save on the last setInClientPage. The first call to setInClientPage implicitly lock the session util 
+                        setInClientPage is called with save=True
+        """
+        currentPage = self.currentPage
+        page_id = page_id or currentPage.page_id
+        attributes = dict(attributes or {})
+        attributes['_client_path'] = client_path    
+        if not connection_id or  connection_id==currentPage.connection.connection_id:
+            currentPage.session.setInPageData('_clientDataChanges.%s' % client_path.replace('.','_'), 
+                                        value, _attributes=attributes, page_id=page_id)
+            if saveSession: 
+                self.session.saveSessionData()
+        else:
+            msg_body = Bag()
+            msg_body.setItem('dbevent', value,_client_data_path=_client_data_path, dbevent=attributes['dbevent'])
+            self.writeMessage(page_id=page_id,
+                              body=msg_body,
+                              message_type='datachange')
+            
+    
     def _get_currentPage(self):
         """property currentPage it returns the page currently used in this thread"""
         return self._currentPages.get(thread.get_ident())
