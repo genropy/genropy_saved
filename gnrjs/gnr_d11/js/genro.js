@@ -78,6 +78,9 @@ dojo.declare('gnr.GenroClient', null, {
         this.lastTime=new Date();
         console.log('----timeIt:'+msg+':'+(this.lastTime-t)+ ' - totalTime:'+(this.lastTime-this.startTime));
     },
+    ping:function(){
+        genro.rpc.ping();
+    },
     onWindowUnload:function(e){
         var result;
         genro.saveContextCookie();

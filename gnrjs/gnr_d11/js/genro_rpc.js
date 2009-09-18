@@ -465,11 +465,14 @@ dojo.declare("gnr.GnrRpcHandler",null,{
             genro.lastRpc = new Date();
             genro.polling = setInterval(function(){ var now = new Date();
                                 if ((!genro.pollingRunning) && ((now - genro.lastRpc) > (freq*1000) )){
-                                    genro.pollingRunning=true;
-                                    genro.rpc.remoteCall('ping', null, null, null, null, function(){genro.pollingRunning=false;});
+                                    genro.rpc.ping();
                                 }
                         }, 1000);
         }
+    },
+    ping:function(){
+        genro.pollingRunning=true;
+        genro.rpc.remoteCall('ping', null, null, null, null, function(){genro.pollingRunning=false;});
     },
     
     
