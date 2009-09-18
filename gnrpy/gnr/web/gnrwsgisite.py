@@ -482,7 +482,7 @@ class GnrWsgiSite(object):
                 self.session.saveSessionData()
         else:
             msg_body = Bag()
-            msg_body.setItem('dbevent', value,_client_data_path=_client_data_path, dbevent=attributes['dbevent'])
+            msg_body.setItem('dbevent', value,_client_data_path=client_path, dbevent=attributes['dbevent'])
             self.writeMessage(page_id=page_id,
                               body=msg_body,
                               message_type='datachange')

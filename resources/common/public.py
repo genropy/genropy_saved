@@ -598,7 +598,7 @@ class IncludedView(BaseComponent):
                                        editorEnabled=editorEnabled or '^form.canWrite',
                                        reloader=reloader,**viewPars)
         if externalChanges:
-            subscribed_tables = [t for self.pageOptions.get('subscribed_tables','').split(',') if t]
+            subscribed_tables = [t for t in self.pageOptions.get('subscribed_tables','').split(',') if t]
             if not table in subscribed_tables:
                 subscribed_tables.append(table)
                 self.pageOptions['subscribed_tables'] = ','.join(subscribed_tables)
