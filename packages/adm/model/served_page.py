@@ -28,14 +28,14 @@ class Table(object):
                         current_page_id=current_page_id).fetch()
                         
     def subscribedTablesDict(self):
-        pages=self.query(columns='$page_id,$subscribed_tables',
+        pages=self.query(columns='$page_id,$connection_id,$subscribed_tables',
                         addPkeyColumn=False,
                         where="""$end_ts is null AND 
                                  $subscribed_tables IS NOT NULL""").fetch()
         result=dict()
-        for page_id,subscribed_tables in pages:
+        for page_id,connection_id,subscribed_tables in pages:
             for table in subscribed_tables.split(','):
-                result.setdefault(table,[]).append(page_id)
+                result.setdefault(table,[]).append((page_id,connection_id))
         return result
         
 
