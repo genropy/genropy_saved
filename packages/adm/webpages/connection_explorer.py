@@ -33,10 +33,10 @@ class GnrCustomWebPage(object):
         self.gridControllers(rootBC)
         
     def gridControllers(self,pane):
-       pane.dataController( "FIRE grids.connected_users.reload;",_fired='^gnr.dbevent.adm_connection')
+       pane.dataController( "FIRE users.reload;",_fired='^gnr.dbevent.adm_connection')
                              
-       pane.dataController( "FIRE grids.user_servedpages.reload;",
-                             current_connection='=grids.user_connections.selectedId',
+       pane.dataController( "FIRE pages.reload;",
+                             current_connection='=connections.selectedId',
                              connection_id='=gnr.dbevent.adm_served_page.connection_id',
                              _if='connection_id==current_connection',
                              _fired='^gnr.dbevent.adm_served_page')
@@ -45,12 +45,13 @@ class GnrCustomWebPage(object):
         topfb=bc.contentPane(region='top',height='40px', datapath='messages.user').formBuilder(cols='3')
         topfb.textBox(value='^.text',lbl='User message',width='15em')
         topfb.button('send',lbl='',fire='.send')
-        topfb.button('refresh',lbl='',fire="grids.connected_users.reload")
+        topfb.button('refresh',lbl='',fire="users.reload")
         topfb.dataRpc('.result','sendMessage',_fired='^.send', msg='=.text', 
-                      dest_user='=grids.connected_user.selectedId?username')
+                      dest_user='=users.selectedId?username')
         bc=bc.borderContainer(region='center')
         self.includedViewBox(bc,table='adm.connection',
                             nodeId='connected_users',
+                            datapath='users',
                             label='!!Live user connected',
                             struct=self._connectedUser_struct, 
                             autoWidth=True,autoSelect=True,
@@ -77,17 +78,18 @@ class GnrCustomWebPage(object):
         topfb=bc.contentPane(region='top',height='40px',datapath='messages.connection').formBuilder(cols='3')
         topfb.textBox(value='^.text',lbl='Connection message',width='15em')
         topfb.button('send',lbl='',fire='.send')
-        topfb.button('refresh',lbl='',fire="grids.user_connections.reload")
+        topfb.button('refresh',lbl='',fire="connections.reload")
         topfb.dataRpc('.result','sendMessage',_fired='^.send', msg='=.text', dest_connection='=connection.current')
         bc=bc.borderContainer(region='center')
         self.includedViewBox(bc,label='!!User connections',
                             table='adm.connection',
                             struct=self._userConnections_struct, 
                             autoWidth=True,nodeId='user_connections',#autoSelect=True,
-                            reloader='^grids.connected_users.selectedId',autoSelect=True,
+                            datapath='connections',
+                            reloader='^users.selectedId',autoSelect=True,
                             selectionPars=dict(where='$end_ts IS NULL AND $username=:user AND $ip=:ip',
-                                                user='=grids.connected_users.selectedId?username',
-                                                ip='=grids.connected_users.selectedId?ip'))
+                                                user='=users.selectedId?username',
+                                                ip='=users.selectedId?ip'))
 
     def _userConnections_struct(self,struct):
         r = struct.view().rows()
@@ -99,16 +101,17 @@ class GnrCustomWebPage(object):
         topfb=bc.contentPane(region='top',height='40px', datapath='messages.pages').formBuilder(cols='3')
         topfb.textBox(value='^.text',lbl='Page message',width='30em')
         topfb.button('send',lbl='',fire='.send')
-        topfb.button('refresh',lbl='',fire="grids.user_servedpages.reload")
+        topfb.button('refresh',lbl='',fire="pages.reload")
         
-        topfb.dataRpc('.result','sendMessage',_fired='^.send', msg='=.text', dest_page='=grids.user_servedpages.selectedId')
+        topfb.dataRpc('.result','sendMessage',_fired='^.send', msg='=.text', dest_page='=pages.selectedId')
         bc=bc.borderContainer(region='center')
         self.includedViewBox(bc,label='!!User served pages',table='adm.served_page', 
                             struct=self._userServedPages_struct, autoWidth=True,
                            nodeId='user_servedpages',autoSelect=True,
-                           reloader='^grids.user_connections.selectedId',
+                           datapath='pages',
+                           reloader='^connections.selectedId',
                            selectionPars=dict(where='$connection_id=:connection_id AND $end_ts IS NULL',
-                                                connection_id='=grids.user_connections.selectedId',
+                                                connection_id='=connections.selectedId',
                                                 order_by='$start_ts desc'))
                            
 

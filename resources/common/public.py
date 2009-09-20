@@ -444,7 +444,7 @@ class IncludedView(BaseComponent):
        in relation many to many. includedViewBox is the method that return some
        custom widgets those allow all these operations"""
        
-    def includedViewBox(self, parentBC, nodeId=None,table=None,
+    def includedViewBox(self, parentBC, nodeId=None,table=None,datapath=None,
                         storepath=None,selectionPars=None,formPars=None,label=None,
                         add_action=None, add_class='buttonIcon icnBaseAdd',add_enable='^form.canWrite',
                         del_action=None, del_class='buttonIcon icnBaseDelete', del_enable='^form.canWrite',
@@ -471,6 +471,7 @@ class IncludedView(BaseComponent):
         @param table:
         @param storepath:
         @param selectionPars:
+        @param datapath:
         @param formPars:(dict) contains all the param of the widget that host the form:
                         these can be:
                         - mode: "dialog"/"pane", the default is "dialog"
@@ -522,9 +523,10 @@ class IncludedView(BaseComponent):
         viewPars = dict(kwargs)
         gridId = nodeId or self.getUuid()
         viewPars['nodeId'] = gridId        
-        controllerPath = 'grids.%s' %gridId
+        controllerPath = datapath or 'grids.%s' %gridId
         storepath = storepath or '%s.selection' %controllerPath
         viewPars['storepath'] = storepath
+        viewPars['controllerPath']= controllerPath
         controller = self.pageController(datapath=controllerPath)
         assert not 'selectedIndex' in viewPars
         viewPars['selectedIndex'] = '^%s.selectedIndex' % controllerPath
@@ -578,7 +580,7 @@ class IncludedView(BaseComponent):
                 upd_action = 'FIRE %s.showRecord' %controllerPath
             gridtop.div(float='right', _class='icnBaseEdit buttonIcon', connect_onclick=upd_action,
                         margin_right='2px',visible=add_enable)            
-        self._iv_IncludedViewController(controller, gridId)
+        self._iv_IncludedViewController(controller, gridId,controllerPath)
         
         if filterOn:
             self._iv_gridFilter(gridId, gridtop, controller, controllerPath, filterOn, kwargs)        
@@ -594,7 +596,6 @@ class IncludedView(BaseComponent):
             if callable(viewPars['struct']) and not isinstance(viewPars['struct'],Bag):
                 viewPars['struct'] = viewPars['struct'](self.newGridStruct(table))
         view = gridcenter.includedView(extension='includedViewPicker',table=table,
-                                       _controllerDatapath= controllerPath,
                                        editorEnabled=editorEnabled or '^form.canWrite',
                                        reloader=reloader,**viewPars)
         if externalChanges:
@@ -624,7 +625,7 @@ class IncludedView(BaseComponent):
                                      _fired='^%s' %event_path,**pars)
             
         if selectionPars:
-            self._iv_includedViewSelection(gridcenter,gridId,table,storepath,selectionPars)
+            self._iv_includedViewSelection(gridcenter,gridId,table,storepath,selectionPars,controllerPath)
             
         if formPars:
             formPars.setdefault('pane', gridcenter)
@@ -634,18 +635,17 @@ class IncludedView(BaseComponent):
             self._iv_Picker(controller, controllerPath, view, pickerPars)
         return view
         
-    def _iv_includedViewSelection(self,pane,gridId,table,storepath,selectionPars):
+    def _iv_includedViewSelection(self,pane,gridId,table,storepath,selectionPars,controllerPath):
         assert table
         assert not 'columnsFromView' in selectionPars
         assert not 'nodeId' in selectionPars
         assert 'where' in selectionPars
         
         selectionPars['nodeId'] = "%s_selection" %gridId
-        selectionPars['columns'] = selectionPars.get('columns') or '=grids.%s.columns' %gridId
+        selectionPars['columns'] = selectionPars.get('columns') or '=%s.columns' %controllerPath
         pane.dataSelection(storepath,table,**selectionPars)
         
-    def _iv_IncludedViewController(self, controller, gridId):
-        controllerPath = 'grids.%s' % gridId
+    def _iv_IncludedViewController(self, controller, gridId ,controllerPath):
         controller.dataController("""var grid = genro.wdgById(gridId);
                                      grid.addBagRow('#id', '*', grid.newBagRow(),event);
                                      """ , 

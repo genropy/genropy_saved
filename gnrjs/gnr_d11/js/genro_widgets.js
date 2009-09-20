@@ -2481,17 +2481,13 @@ dojo.declare("gnr.widgets.VirtualStaticGrid",gnr.widgets.Grid,{
         this.gnrediting = true;
         if (this.sourceNode.currentEditedRow != row){
             var selectedDataPath = this.dataNodeByIndex(row).getFullpath(null, true);
-            this.sourceNode.setRelativeData('gnr.grids.'+this.sourceNode.attr.nodeId+'.sel.edit_datapath',
+            this.sourceNode.setRelativeData(this.sourceNode.attr.controllerPath+'.edit_datapath',
                                             selectedDataPath);
             this.sourceNode.currentEditedRow = row;
             setTimeout(dojo.hitch(this, 'startEditCell', row, col), 1);
             return;
         }
         editWidget.sourceNode.editedRowIndex = row;
-
-        //var selectedDataPath = this.dataNodeByIndex(row).getFullpath(null, true);
-        //this.sourceNode.setRelativeData('gnr.grids.'+this.sourceNode.attr.nodeId+'.sel.edit_datapath', selectedDataPath);
-        
         editWidget.replacedNode = editWidget.cellNode.childNodes[0];
         
         if(editWidget.replacedNode){
@@ -2594,7 +2590,7 @@ dojo.declare("gnr.widgets.GridEditor",gnr.widgets.baseHtml,{
     creating: function(attributes, sourceNode){
         attributes.display='none';
         sourceNode.attr.nodeId='grided_' + sourceNode.getStringId();
-        sourceNode.attr.datapath = '^gnr.grids.'+sourceNode.getParentNode().attr.nodeId+'.sel.edit_datapath';
+        sourceNode.attr.datapath = '^'+sourceNode.getParentNode().attr.controllerPath+'.edit_datapath';
         sourceNode.registerDynAttr('datapath');
         
         
@@ -2684,7 +2680,8 @@ dojo.declare("gnr.widgets.IncludedView",gnr.widgets.VirtualStaticGrid,{
         attributes.rowCount=0;
         attributes.datamode = datamode;
         sourceNode.attr.nodeId = sourceNode.attr.nodeId || 'grid_' + sourceNode.getStringId();
-        genro.setData('grids.'+sourceNode.attr.nodeId+'.columns', attributes.query_columns);
+        sourceNode.attr.controllerPath = sourceNode.attr.controllerPath || 'grids.' + sourceNode.attr.nodeId 
+        genro.setData(sourceNode.attr.controllerPath+'.columns', attributes.query_columns);
     },    
     created: function(widget, savedAttrs, sourceNode){
          var selectionId = sourceNode.attr['selectionId'] || sourceNode.attr.nodeId+'_selection';
