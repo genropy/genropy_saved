@@ -13,9 +13,7 @@ from gnr.core.gnrbag import Bag
 class GnrCustomWebPage(object):
     maintable='adm.connection'
     py_requires='public:Public,public:IncludedView'
-    
-    pageOptions=dict(subscribed_tables='adm.connection,adm.served_page')
-    
+        
     def pageAuthTags(self, method=None, **kwargs):
         return 'user'
         
