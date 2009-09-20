@@ -614,13 +614,16 @@ class IncludedView(BaseComponent):
             conditions = list()
             if isinstance(externalChanges,basestring):
                 for fld in externalChanges.split(','):
-                    conditions.append('curr_%s==event_%s' %(fld,fld))
-                    pars['event_%s' %fld] = '=%s.%s' %(event_path,fld)
-                    pars['curr_%s' %fld] = '=.selectedId?%s' %fld  
+                    fldname,fldpath=fld.split('=')
+                    conditions.append('curr_%s==event_%s' %(fldname,fldname))
+                    pars['event_%s' %fldname] = '=%s.%s' %(event_path,fldname)
+                    pars['curr_%s' %fldname] = '=%s' %fldpath  
             if externalChangesTypes:
                 conditions.append('evtypes.indexOf(evtype)')
                 pars['evtypes'] = externalChangesTypes
                 pars['evtype'] = '=%s?dbevent' %event_path
+            print ' && '.join(conditions),
+            print str(pars)
             controller.dataController("FIRE .reload",_if=' && '.join(conditions),
                                      _fired='^%s' %event_path,**pars)
             

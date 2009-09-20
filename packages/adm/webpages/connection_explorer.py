@@ -30,16 +30,6 @@ class GnrCustomWebPage(object):
         self.userConnections(topBC.borderContainer(region='center',margin_left=0,margin='5px'))
         centerBC = bc.borderContainer(region='center',margin='5px',margin_top=0)
         self.userServedPages(centerBC)
-        self.gridControllers(rootBC)
-        
-    def gridControllers(self,pane):
-       pane.dataController( "FIRE users.reload;",_fired='^gnr.dbevent.adm_connection')
-                             
-       pane.dataController( "FIRE pages.reload;",
-                             current_connection='=connections.selectedId',
-                             connection_id='=gnr.dbevent.adm_served_page.connection_id',
-                             _if='connection_id==current_connection',
-                             _fired='^gnr.dbevent.adm_served_page')
 
     def connectedUser(self,bc):
         topfb=bc.contentPane(region='top',height='40px', datapath='messages.user').formBuilder(cols='3')
@@ -55,6 +45,7 @@ class GnrCustomWebPage(object):
                             label='!!Live user connected',
                             struct=self._connectedUser_struct, 
                             autoWidth=True,autoSelect=True,
+                            externalChanges=True,
                             selectionPars=dict(where='$end_ts IS NULL',distinct=True,
                                                 applymethod='createUserUniqueIdentifier',
                                                 _onStart=True))
@@ -73,7 +64,6 @@ class GnrCustomWebPage(object):
         r.fieldcell('ip', name='Remote addr.', width='15em')
         return struct
         
-    
     def userConnections(self,bc):
         topfb=bc.contentPane(region='top',height='40px',datapath='messages.connection').formBuilder(cols='3')
         topfb.textBox(value='^.text',lbl='Connection message',width='15em')
@@ -81,11 +71,9 @@ class GnrCustomWebPage(object):
         topfb.button('refresh',lbl='',fire="connections.reload")
         topfb.dataRpc('.result','sendMessage',_fired='^.send', msg='=.text', dest_connection='=connection.current')
         bc=bc.borderContainer(region='center')
-        self.includedViewBox(bc,label='!!User connections',
-                            table='adm.connection',
+        self.includedViewBox(bc,nodeId='user_connections',datapath='connections',table='adm.connection',
                             struct=self._userConnections_struct, 
-                            autoWidth=True,nodeId='user_connections',#autoSelect=True,
-                            datapath='connections',
+                            autoWidth=True,label='!!User connections',
                             reloader='^users.selectedId',autoSelect=True,
                             selectionPars=dict(where='$end_ts IS NULL AND $username=:user AND $ip=:ip',
                                                 user='=users.selectedId?username',
@@ -109,6 +97,7 @@ class GnrCustomWebPage(object):
                             struct=self._userServedPages_struct, autoWidth=True,
                            nodeId='user_servedpages',autoSelect=True,
                            datapath='pages',
+                           externalChanges='connection_id=connections.selectedId:UID',
                            reloader='^connections.selectedId',
                            selectionPars=dict(where='$connection_id=:connection_id AND $end_ts IS NULL',
                                                 connection_id='=connections.selectedId',
