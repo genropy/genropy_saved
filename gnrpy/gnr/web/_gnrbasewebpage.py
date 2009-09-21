@@ -71,7 +71,7 @@ from gnr.web.gnrwebstruct import  GnrDomSrc_dojo_11, GnrDomSrc_dojo_12,GnrDomSrc
 #from gnr.web.gnrwebapphandler import GnrProcessHandler
 from gnr.sql.gnrsql_exceptions import GnrSqlSaveChangesException
 
-CONNECTION_TIMEOUT = 3600
+CONNECTION_TIMEOUT = 60
 CONNECTION_REFRESH = 20
 AUTH_OK=0
 AUTH_NOT_LOGGED=1
@@ -609,9 +609,7 @@ class GnrBaseWebPage(GnrObject):
         return login
     
 
-    def _rpcDispatcher(self, method=None, xxcnt='',**kwargs): 
-        print 'method:',method
- 
+    def _rpcDispatcher(self, method=None, xxcnt='',**kwargs):
         if False and method!= 'main':
             if self.session.pagedata['page_id']!=self.page_id :
                 self.raiseUnauthorized()
@@ -627,9 +625,7 @@ class GnrBaseWebPage(GnrObject):
                     raise e
         auth = AUTH_OK
         if not method in ('doLogin', 'jscompress'):
-            print 'xx method ',method
             auth = self._checkAuth(method=method, **parameters)
-            print 'yy method ',method
         return self.rpc(self, method=method, _auth=auth, **parameters)
         
     def _checkAuth(self, method=None, **parameters):
@@ -641,7 +637,7 @@ class GnrBaseWebPage(GnrObject):
             elif not self.application.checkResourcePermission(pageTags, self.userTags):
                 auth = AUTH_FORBIDDEN
                 
-            if auth == AUTH_NOT_LOGGED and method != 'main' and method!='onClosePage':
+            if auth == AUTH_NOT_LOGGED and method != 'main':# and method!='onClosePage':
                 if not self.connection.oldcookie:
                     pass
                     #self.raiseUnauthorized()
@@ -671,7 +667,9 @@ class GnrBaseWebPage(GnrObject):
     
     def _get_connection(self):
         if not hasattr(self, '_connection'):
-            self._connection = GnrWebConnection(self)
+            connection = GnrWebConnection(self)
+            self._connection = connection
+            connection.initConnection()
         return self._connection
     connection = property(_get_connection)
     
@@ -1307,11 +1305,8 @@ class GnrBaseWebPage(GnrObject):
         return result
         
     def handleMessages(self):
-        print 'in Handle messages'
         messages = self.site.getMessages(user=self.user, page_id=self.page_id, connection_id=self.connection.connection_id) or []
-        print '%i new messages'%(len(messages))
         for message in messages:
-            print 'single message: %s' %str(message)
             message_body = Bag(message['body'])
             message_type = message['message_type']
             message_id = message['id']
@@ -1686,11 +1681,15 @@ class GnrWebRpc(object):
     
 class GnrWebConnection(object):
     def __init__(self, page):
-#        self._page = weakref.ref(page)
         self.page = page
-        self.cookieName = 'conn_%s' % page.siteName
-        self.secret = page.config['secret'] or page.siteName
-        self.allConnectionsFolder = os.path.join(page.siteFolder, 'data', '_connections')
+        self.expired = False
+        
+    
+    def initConnection(self):
+        page = self.page
+        self.cookieName = 'conn_%s' % self.page.siteName
+        self.secret = page.config['secret'] or self.page.siteName
+        self.allConnectionsFolder = os.path.join(self.page.siteFolder, 'data', '_connections')
         self.cookie = None
         self.oldcookie=None
         if page._user_login:
@@ -1802,8 +1801,7 @@ class GnrWebConnection(object):
                             conn_lastupd=conn_lastupd,
                             conn_len=conn_len,
                             conn_idle=conn_idle,
-                            conn_id=conn_id
-                                        )
+                            conn_id=conn_id)
         return result
         
     def rpc_connectionsPagesGrid(self, conn_id):
@@ -1850,10 +1848,7 @@ class GnrWebConnection(object):
             expire=False
             if cookie.value.get('expire'):
                 expire=True
-                #cookie = self.page.newMarshalCookie(self.cookieName, {'connection_id':None,'slots':cookie.value.get('slots'), 'timestamp':None}, secret = self.secret)
-                self.close() # old cookie: destroy
-                return cookie
-            if cookie.value.get('timestamp'):
+            elif cookie.value.get('timestamp'):
                 cookieAge = time.time() - cookie.value['timestamp']
                 if cookieAge < int(self.page.config.getItem('connection_refresh') or CONNECTION_REFRESH):
                     return cookie # fresh cookie
@@ -1866,9 +1861,9 @@ class GnrWebConnection(object):
                 else:
                     expire=True
             if expire:
+                self.isExpired = True
                 #cookie = self.page.newMarshalCookie(self.cookieName, {'slots':cookie.value.get('slots'), 'timestamp':None}, secret = self.secret)
                 self.close() # old cookie: destroy
-                
                 return cookie
                 
     def cleanExpiredConnections(self, rnd=None):
@@ -1878,6 +1873,7 @@ class GnrWebConnection(object):
             for conn_id, conn_files, abs_path in dirbag.digest('#k,#v,#a.abs_path'):
                 cookieAge = t - (conn_files['connection_xml.cookieData.timestamp'] or 0)
                 if cookieAge > int(self.page.config.getItem('connection_timeout') or CONNECTION_TIMEOUT):
+                    print 'clearExpiredConnections ---->'
                     self.dropConnection(conn_id)
         
     def connectionsBag(self):
