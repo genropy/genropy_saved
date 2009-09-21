@@ -51,7 +51,6 @@ class GnrCustomWebPage(object):
         
         fb.field('adm.user.email',width='15em',lbl='!!Email')
         ic = userbc.borderContainer(margin='5px',region='center')
-        
         iv = self.includedViewBox(ic,label='!!Authorization tags',
                             storepath='.tag_bag', 
                             columns="""tagname""",datamode='bag',

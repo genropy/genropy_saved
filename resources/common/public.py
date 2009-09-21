@@ -527,7 +527,7 @@ class IncludedView(BaseComponent):
         storepath = storepath or '%s.selection' %controllerPath
         viewPars['storepath'] = storepath
         viewPars['controllerPath']= controllerPath
-        controller = self.pageController(datapath=controllerPath)
+        controller = parentBC.dataController(datapath=controllerPath)
         assert not 'selectedIndex' in viewPars
         viewPars['selectedIndex'] = '^%s.selectedIndex' % controllerPath
         assert not 'selectedLabel' in viewPars
@@ -624,7 +624,7 @@ class IncludedView(BaseComponent):
                 pars['evtype'] = '=%s?dbevent' %event_path
             print ' && '.join(conditions),
             print str(pars)
-            controller.dataController("FIRE .reload",_if=' && '.join(conditions),
+            parentBC.dataController("FIRE %s.reload" %controllerPath,_if=' && '.join(conditions),
                                      _fired='^%s' %event_path,**pars)
             
         if selectionPars:
@@ -646,6 +646,7 @@ class IncludedView(BaseComponent):
         
         selectionPars['nodeId'] = "%s_selection" %gridId
         selectionPars['columns'] = selectionPars.get('columns') or '=%s.columns' %controllerPath
+        print selectionPars['columns']
         pane.dataSelection(storepath,table,**selectionPars)
         
     def _iv_IncludedViewController(self, controller, gridId ,controllerPath):
