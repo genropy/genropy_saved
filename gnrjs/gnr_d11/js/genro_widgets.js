@@ -2680,7 +2680,7 @@ dojo.declare("gnr.widgets.IncludedView",gnr.widgets.VirtualStaticGrid,{
         attributes.rowCount=0;
         attributes.datamode = datamode;
         sourceNode.attr.nodeId = sourceNode.attr.nodeId || 'grid_' + sourceNode.getStringId();
-        sourceNode.attr.controllerPath = sourceNode.attr.controllerPath || 'grids.' + sourceNode.attr.nodeId 
+        sourceNode.attr.controllerPath = sourceNode.attr.controllerPath || 'grids.' + sourceNode.attr.nodeId;
         genro.setData(sourceNode.attr.controllerPath+'.columns', attributes.query_columns);
     },    
     created: function(widget, savedAttrs, sourceNode){
@@ -3172,7 +3172,7 @@ dojo.declare("gnr.widgets.Tree",gnr.widgets.baseDojo,{
     mixin_setStorepath:function(val,kw){
         //genro.debug('trigger_store:'+kw.evt+' at '+kw.pathlist.join('.'));
         if(kw.evt=='upd'){
-            if(!kw.updattr){
+            if(kw.updvalue){
                 if (kw.value instanceof gnr.GnrBag){
                     this._onItemChildrenChange(/*dojo.data.Item*/ kw.node, /*dojo.data.Item[]*/ kw.value.getNodes());
                 }else{
