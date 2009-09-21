@@ -446,6 +446,7 @@ class GnrApp(object):
         return self.packages[self.config.getAttr('authentication','pkg')]
 
     def getAvatar(self, username, password=None, authenticate=False,page=None):
+        print 'getAvatar ',username
         if username:
             authmethods = self.config['authentication']
             if authmethods:
@@ -456,6 +457,7 @@ class GnrApp(object):
                     if not (avatar is None):
                         avatar.page = page
                         for pkg in self.packages.values():
+                            print 'onAuthentication----: ',pkg.id
                             pkg.onAuthentication(avatar)
                         return avatar
                 

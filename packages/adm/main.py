@@ -30,6 +30,7 @@ class Package(GnrDboPackage):
             return result
             
     def onAuthentication(self, avatar):
+        print 'onAuthentication '
         update_md5 = self.attributes.get('update_md5',False) not in ('N','n','F','f','False','false','FALSE','No','NO','no',False)
         if update_md5 and hasattr(avatar,'md5len') and avatar.md5len==32: 
             self.update_md5(avatar)

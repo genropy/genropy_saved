@@ -596,6 +596,7 @@ class GnrBaseWebPage(GnrObject):
         - The user exists and his password is correct.
         - The user is guest
         """
+        print 'rpc_doLogin'
         if guestName:
             avatar = self.application.getAvatar(guestName)
         else:
@@ -1695,6 +1696,7 @@ class GnrWebConnection(object):
         if page._user_login:
             user, password = page._user_login.split(':')
             self.connection_id = getUuid()
+            print '__init__:',user, password
             avatar = page.application.getAvatar(user, password, authenticate=True,connection=self)
             self.cookie = self.page.newMarshalCookie(self.cookieName, {'connection_id': self.connection_id or getUuid(), 'slots':{}, 'locale':None, 'timestamp':None}, secret = self.secret)
             if avatar:
