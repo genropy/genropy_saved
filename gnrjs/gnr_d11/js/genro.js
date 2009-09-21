@@ -107,6 +107,7 @@ dojo.declare('gnr.GenroClient', null, {
         genro.timeIt('** dostart **');
         genropatches.comboBox();
         genropatches.tree();
+        genropatches.parseNumbers()
         if (dojoversion=='1.1'){
             genropatches.borderContainer();
         }

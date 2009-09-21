@@ -725,11 +725,60 @@ genropatches.tree=function(){
     dijit._TreeNode.prototype.setLabelNode=function(label){
         this.labelNode.innerHTML = "";
         if ((typeof(label)=='string') &&(label.indexOf('innerHTML:')>=0)){
-            this.labelNode.innerHTML =label.replace('innerHTML:','')
-            this.isTreeNode=false
+            this.labelNode.innerHTML =label.replace('innerHTML:','');
+            this.isTreeNode=false;
         }else{
             this.labelNode.appendChild(dojo.doc.createTextNode(label));
         };
     };
 	
+};
+
+
+
+genropatches.parseNumbers=function(){
+    dojo.require('dojo.number');
+    
+    dojo.number._integerRegexp = function(/*dojo.number.__IntegerRegexpFlags?*/flags){
+	// summary: 
+	//		Builds a regular expression that matches an integer
+
+	// assign default values to missing paramters
+	flags = flags || {};
+	if(!("signed" in flags)){ flags.signed = [true, false]; }
+	if(!("separator" in flags)){
+		flags.separator = "";
+	}else if(!("groupSize" in flags)){
+		flags.groupSize = 3;
+	}
+	// build sign RE
+	var signRE = dojo.regexp.buildGroupRE(flags.signed,
+		function(q) { return q ? "[-+]" : ""; },
+		true
+	);
+
+	// number RE
+	var numberRE = dojo.regexp.buildGroupRE(flags.separator,
+		function(sep){
+			if(!sep){
+				return "(?:\\d+)";
+			}
+
+			sep = dojo.regexp.escapeString(sep);
+			if(sep == " "){ sep = "\\s"; }
+			else if(sep == "\xa0"){ sep = "\\s\\xa0"; }
+
+			var grp = flags.groupSize, grp2 = flags.groupSize2;
+			if(grp2){
+				var grp2RE = "(?:0|[1-9]\\d{0," + (grp2-1) + "}(?:[" + sep + "]\\d{" + grp2 + "})*[" + sep + "]\\d{" + grp + "})";
+				return ((grp-grp2) > 0) ? "(?:" + grp2RE + "|(?:0|[1-9]\\d{0," + (grp-1) + "}))" : grp2RE;
+			}
+			return "(?:0|[1-9]\\d{0," + (grp-1) + "}(?:[" + sep + "]\\d{" + grp + "})*)";
+		},
+		true
+	);
+
+	// integer RE
+	return signRE + numberRE; // String
+};
 };
