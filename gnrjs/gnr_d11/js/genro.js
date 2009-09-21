@@ -226,6 +226,7 @@ dojo.declare('gnr.GenroClient', null, {
         }
     },
     format: function (v,f,m){
+        console.log('FORMAT '+v);
         if(v instanceof Date){
             var opt=objectUpdate({},f);
             if(opt['time']){
