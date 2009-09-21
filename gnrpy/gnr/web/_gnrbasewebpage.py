@@ -71,7 +71,7 @@ from gnr.web.gnrwebstruct import  GnrDomSrc_dojo_11, GnrDomSrc_dojo_12,GnrDomSrc
 #from gnr.web.gnrwebapphandler import GnrProcessHandler
 from gnr.sql.gnrsql_exceptions import GnrSqlSaveChangesException
 
-CONNECTION_TIMEOUT = 60
+CONNECTION_TIMEOUT = 3600
 CONNECTION_REFRESH = 20
 AUTH_OK=0
 AUTH_NOT_LOGGED=1
