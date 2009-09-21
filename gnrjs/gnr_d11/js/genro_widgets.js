@@ -2270,9 +2270,9 @@ dojo.declare("gnr.widgets.VirtualStaticGrid",gnr.widgets.Grid,{
     },
 
     mixin_rowFromBagNode:function(node){
+        var result = objectUpdate({},node.attr);
         if(this.datamode=='bag'){
             var value = node.getValue();
-            var result = {};
             if(value){
                 var node;
                 for (var i=0; i < value._nodes.length; i++) {
@@ -2280,10 +2280,8 @@ dojo.declare("gnr.widgets.VirtualStaticGrid",gnr.widgets.Grid,{
                     result[node.label] = node.attr.caption ? node.attr.caption : node.getValue();
                 };
             };
-            return result;
-        }else{
-            return node.attr;
         }
+        return result;
     },
     nodemixin_updateGridCellAttr: function(kw){ // update node attributes (for cell display) from new field values
         var grid = this.widget;

@@ -593,8 +593,9 @@ class IncludedView(BaseComponent):
         else:
             gridcenter = parentBC.contentPane(region='center', **box_pars)
         if not 'columns' in viewPars:
-            if callable(viewPars['struct']) and not isinstance(viewPars['struct'],Bag):
-                viewPars['struct'] = viewPars['struct'](self.newGridStruct(table))
+            struct =  viewPars.get('struct',None)
+            if struct and callable(struct) and not isinstance(struct,Bag):
+                struct = struct(self.newGridStruct(table))
         view = gridcenter.includedView(extension='includedViewPicker',table=table,
                                        editorEnabled=editorEnabled or '^form.canWrite',
                                        reloader=reloader,**viewPars)
@@ -756,22 +757,24 @@ class IncludedView(BaseComponent):
         controller.dataFormula('.atEnd','(idx==genro.wdgById(gridId).rowCount-1)',idx='^.selectedIndex',gridId=gridId)
 
     def _iv_FormStaticController(self, controller, gridId):
-        controller.dataController("""var recordpath,selId;
-                                     var node=(idx!=null)? genro.wdgById(gridId).dataNodeByIndex(idx) : null
-                                   if(node){
-                                        recordpath = '.'+node.label;
-                                        selId = node.attr._pkey;
-                                    }
-                                    else{
-                                        recordpath = 'vars.'+gridId+'.unselected'
-                                        selId = null
-                                    }
-                                
-                                    //SET .recordpath = recordpath;
-                                    SET .selectedId = selId;""", 
-                                    idx='^.selectedIndex',
-                                    gridId=gridId)
-                                                                            
+        #controller.dataController("""var recordpath,selId;
+        #                             var node=(idx!=null)? genro.wdgById(gridId).dataNodeByIndex(idx) : null
+        #                           if(node){
+        #                                recordpath = '.'+node.label;
+        #                                selId = node.attr._pkey;
+        #                            }
+        #                            else{
+        #                                recordpath = 'vars.'+gridId+'.unselected'
+        #                                selId = null
+        #                            }
+        #                        
+        #                            //SET .recordpath = recordpath;
+        #                            console.log(selId);
+        #                            //SET .selectedId = selId;
+        #                            console.log('settato selectedId - 773');""", 
+        #                            idx='^.selectedIndex',
+        #                            gridId=gridId)
+        #                                                                    
         controller.dataController("""var newidx;
                                  var rowcount = genro.wdgById(gridId).rowCount;
                                  if (btn == 'first'){newidx = 0;} 
