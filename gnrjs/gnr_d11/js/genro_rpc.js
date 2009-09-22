@@ -529,7 +529,7 @@ dojo.declare("gnr.GnrRpcHandler",null,{
         var kw = {};
         var cacheTime = -1;
         var isGetter = false;
-        
+
         var kwargs = {'sync':true, 
                       'from_fld':params._from_fld, 'target_fld':params._target_fld, 'relation_value':params._relation_value,
                       'sqlContextName':params._sqlContextName};
@@ -539,17 +539,30 @@ dojo.declare("gnr.GnrRpcHandler",null,{
         resolver.updateAttr=true;
         resolver.onSetResolver = function(node){
             node.newBagRow = function(defaultArgs){
+                var childResolverParams=this.attr.childResolverParams
+                var table = childResolverParams._target_fld.split('.').slice(0,2).join('_');
+                var loadingParameters = genro.getData('gnr.tables.'+table+'.loadingParameters');
                 if (defaultArgs instanceof Array){
                     
                 } else {
                     //var defaultArgs = defaultArgs || {};
-                    var resolver = genro.getRelationResolver(objectUpdate(this.attr.childResolverParams,{'sync':true}));
+                    var resolver = genro.getRelationResolver(objectUpdate(childResolverParams,{'sync':true}));
+                    if (!defaultArgs){
+                        
+                    }
                     resolver.kwargs.rowLoadingParameters = new gnr.GnrBag(defaultArgs);
                     
-                    var attr = objectUpdate({}, this.attr.childResolverParams);
+                    var attr = objectUpdate({}, childResolverParams);
                     for (var label in defaultArgs) {
                         attr[label.replace(/\W/g,'_')] = defaultArgs[label];
                     };
+                    if (loadingParameters){
+                        var nodes= loadingParameters.getNodes();
+                        for (var i=0; i < nodes.length; i++) {
+                            var n = nodes[i];
+                            attr[n.label] = n.getValue();
+                        };
+                    }
                     var result = new gnr.GnrBagNode(null,'label',null , attr, resolver);
                     //result.getValue();
                     return result;

@@ -493,6 +493,10 @@ dojo.declare('gnr.GenroClient', null, {
              return this._data;
          }
     },
+    _: function(path,dflt){
+        return this._data.getItem(path,dflt);
+    },
+    
     resetData: function(path){
         var node = genro.getDataNode(path);
         if ('_loadedValue' in node.attr){

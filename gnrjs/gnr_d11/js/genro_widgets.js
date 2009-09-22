@@ -1429,11 +1429,19 @@ dojo.declare("gnr.widgets.Grid",gnr.widgets.baseDojo,{
 
 
     },
-    mixin_indexByRowAttr:function(attrName, attrValue,op){
+    mixin_indexByRowAttr:function(attrName, attrValue,op,backward){
         var op = op || '==';        
-        for (var i=0; i < this.rowCount; i++){
-            var row = this.rowByIndex(i);
-            if (genro.compareDict[op].call(this,row[attrName],attrValue,op)) {return i;}
+        if (backward){
+            for (var i = this.rowCount - 1; i >= 0; i--){
+                var row = this.rowByIndex(i);
+                if (genro.compareDict[op].call(this,row[attrName],attrValue,op)) {return i;}                   
+            };
+        }
+        else{
+            for (var i=0; i < this.rowCount; i++){
+                var row = this.rowByIndex(i);
+                if (genro.compareDict[op].call(this,row[attrName],attrValue,op)) {return i;}
+            }
         }
         return -1;
     },

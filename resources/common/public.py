@@ -579,7 +579,7 @@ class IncludedView(BaseComponent):
                 upd_action = 'FIRE %s.showRecord' %controllerPath
             gridtop.div(float='right', _class='icnBaseEdit buttonIcon', connect_onclick=upd_action,
                         margin_right='2px',visible=add_enable)            
-        self._iv_IncludedViewController(controller, gridId,controllerPath)
+        self._iv_IncludedViewController(controller, gridId,controllerPath,table=table)
         
         if filterOn:
             self._iv_gridFilter(gridId, gridtop, controller, controllerPath, filterOn, kwargs)        
@@ -649,12 +649,16 @@ class IncludedView(BaseComponent):
         print selectionPars['columns']
         pane.dataSelection(storepath,table,**selectionPars)
         
-    def _iv_IncludedViewController(self, controller, gridId ,controllerPath):
+    def _iv_IncludedViewController(self, controller, gridId ,controllerPath,table=None):
+        loadingParameters=None
+        if table:
+            loadingParameters='=gnr.tables.%s.loadingParameters' %table.replace('.','_')
         controller.dataController("""var grid = genro.wdgById(gridId);
                                      grid.addBagRow('#id', '*', grid.newBagRow(),event);
                                      """ , 
                                      event='^.addRecord',
                                      gridId=gridId)
+                                     #loadingParameters=loadingParameters)
         delScript = """PUT .selectedLabel= null;
                        var grid = genro.wdgById(gridId);
                        var nodesToDel = grid.delBagRow('*', delSelection);

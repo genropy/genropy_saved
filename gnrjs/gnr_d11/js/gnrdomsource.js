@@ -152,6 +152,9 @@ dojo.declare("gnr.GnrDomSourceNode",gnr.GnrBagNode,{
         }
         var tag=objectPop(attributes,'tag');
         var path=objectPop(attributes,'path');
+        objectPop(attributes,'_onStart');
+        objectPop(attributes,'_fired_onStart');
+
         var destinationPath, dataNode;
         if (path){ // if it has a result path set it to the returned value
             destinationPath = this.absDatapath(path);
