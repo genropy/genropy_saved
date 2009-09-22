@@ -720,6 +720,11 @@ dojo.declare('gnr.GenroClient', null, {
         dojo.eval('genro.auxresult=('+expr+')');
         return genro.auxresult;
     },
+    isEqual:function(a,b){
+      var a = a instanceof Date? a.valueOf():a;
+      var b = b instanceof Date? b.valueOf():b;
+      return a==b;
+    },
     connect: function(target, funcName, objToConnect){
         if (typeof objToConnect == 'function'){
             dojo.connect(target, funcName, objToConnect);

@@ -34,6 +34,9 @@ gnr.columnsFromStruct = function(struct, columns){
         var nodes = struct.getNodes();
         for (var i=0; i < nodes.length; i++){
             var node = nodes[i];
+            if (node.attr['calculated']){
+                continue;
+            }
             var fld = node.attr.field;
             if (fld){
                 if ((!stringStartsWith(fld,'$')) && (!stringStartsWith(fld,'@'))){

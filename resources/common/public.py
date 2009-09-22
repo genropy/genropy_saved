@@ -452,7 +452,7 @@ class IncludedView(BaseComponent):
                         print_action=None, print_class='buttonIcon icnBasePrinter', 
                         export_action=None, export_class='buttonIcon icnBaseExport', 
                         tools_action=None, tools_class='buttonIcon icnBaseAction', 
-                        tools_menu=None,upd_action=False,
+                        tools_menu=None,upd_action=False,_onStart=False,
                         filterOn=None,  pickerPars=None,centerPaneCb=None,
                         editorEnabled=None,reloader=None,externalChanges=None,**kwargs):
         """
@@ -598,6 +598,8 @@ class IncludedView(BaseComponent):
         view = gridcenter.includedView(extension='includedViewPicker',table=table,
                                        editorEnabled=editorEnabled or '^form.canWrite',
                                        reloader=reloader,**viewPars)
+        if _onStart:
+            controller.dataController("FIRE .reload",_onStart=True)
         if externalChanges:
             externalChangesTypes=''
             if isinstance(externalChanges,basestring):
@@ -615,7 +617,7 @@ class IncludedView(BaseComponent):
             if isinstance(externalChanges,basestring):
                 for fld in externalChanges.split(','):
                     fldname,fldpath=fld.split('=')
-                    conditions.append('curr_%s==event_%s' %(fldname,fldname))
+                    conditions.append('genro.isEqual(curr_%s,event_%s)' %(fldname,fldname))
                     pars['event_%s' %fldname] = '=%s.%s' %(event_path,fldname)
                     pars['curr_%s' %fldname] = '=%s' %fldpath  
             if externalChangesTypes:
