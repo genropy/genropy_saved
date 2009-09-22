@@ -25,7 +25,6 @@
  //funzioni di utilità varie
 
 //########################  Lang #########################
-
 function bagAsObj(bag){
     var result = {};
     var parentNode = bag.getParentNode();

@@ -1120,7 +1120,7 @@ class GnrBaseWebPage(GnrObject):
         except:
             raise 'deleteRow failed'
                 
-    def setLoadingParameters(self, table, **kwargs):
+    def setLoadingParameters(self, table,**kwargs):
         self.pageSource().dataFormula('gnr.tables.%s.loadingParameters' %table.replace('.','_'), 
                                        '',_onStart=True, **kwargs)
                                        

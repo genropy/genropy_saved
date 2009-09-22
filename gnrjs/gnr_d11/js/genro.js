@@ -56,7 +56,15 @@ dojo.declare('gnr.GenroClient', null, {
         this.pageMode = kwargs.pageMode
         this.startTime=new Date();
         this.lastTime=this.startTime;
-        
+        this.compareDict={'==':function(a,b){return (a==b)},
+                          '>':function(a,b){return (a>b)},
+                          '>=':function(a,b){return (a>=b)},
+                          '<':function(a,b){return (a<b)},
+                          '<=':function(a,b){return (a<=b)},
+                          '!=':function(a,b){return (a!=b)},
+                          '%':function(a,b){return (a.indexOf(b)>=0)},
+                          '!%':function(a,b){return (a.indexOf(b)<0)}
+                          };
        // this.timeIt('** Init **');
        // djConfig.usePlainJson=true ;
         window.onbeforeunload = function(e){
@@ -226,7 +234,6 @@ dojo.declare('gnr.GenroClient', null, {
         }
     },
     format: function (v,f,m){
-        console.log('FORMAT '+v);
         if(v instanceof Date){
             var opt=objectUpdate({},f);
             if(opt['time']){
