@@ -501,7 +501,6 @@ class IncludedView(BaseComponent):
         @param close_class: css class of close button adding closing button on tooltipDialog
         @param filterOn: (boolean only for picker) adding this kwparam you allow the filtering
                          inside the pickers grid.
-
         @param pickerPars:(dict) contains all the param of the tooltip dialog
                            which host the picker grid. 
                            these can be: 
