@@ -67,6 +67,7 @@ class GnrWsgiSite(object):
         self.cache_max_age = self.config['wsgi?cache_max_age'] or 0
         self.gnrapp = self.build_gnrapp()
         self.wsgiapp = self.build_wsgiapp()
+        self.db=self.gnrapp.db
         self.build_automap()
         self.pages_dir = os.path.join(self.site_path, 'pages')
         self.site_static_dir = self.config['resources?site'] or '.'
@@ -380,6 +381,7 @@ class GnrWsgiSite(object):
         page_class.theme = getattr(custom_class, 'theme', None) or self.config['dojo?theme'] or 'tundra'
         page_class.gnrjsversion = getattr(custom_class, 'gnrjsversion', None) or self.config['gnrjs?version'] or '11'
         page_class.maintable = getattr(custom_class, 'maintable', None)
+        page_class.recordLock = getattr(custom_class, 'recordLock', None)
         page_class.eagers = getattr(custom_class, 'eagers', {})
         page_class.css_requires = splitAndStrip(getattr(custom_class, 'css_requires', ''),',')
         page_class.js_requires = splitAndStrip(getattr(custom_class, 'js_requires', ''),',')
@@ -442,7 +444,24 @@ class GnrWsgiSite(object):
     def deleteMessage(self,message_id):
         if 'sys' in self.gnrapp.db.packages:
             return self.gnrapp.db.table('sys.message').deleteMessage(message_id)
-    
+            
+    def lockRecord(self,page,table,pkey):
+        if 'sys' in self.gnrapp.db.packages:
+            return self.gnrapp.db.table('sys.locked_record').lockRecord(page,table,pkey)
+    def unlockRecord(self,page,table,pkey):
+        if 'sys' in self.gnrapp.db.packages:
+            return self.gnrapp.db.table('sys.locked_record').unlockRecord(page,table,pkey)
+            
+    def clearRecordLocks(self,**kwargs):
+        if 'sys' in self.gnrapp.db.packages:
+            return self.gnrapp.db.table('sys.locked_record').clearExistingLocks(**kwargs)
+            
+    def onClosePage(self):
+        page=self.currentPage
+        self.pageLog(page,'close')
+        self.clearRecordLocks(page_id=page.page_id)
+        self.db.commit()
+        
     def notifyDbEvent_(self,tblobj,record,event,old_record=None):
         if 'adm' in self.gnrapp.db.packages:
             page = self.currentPage

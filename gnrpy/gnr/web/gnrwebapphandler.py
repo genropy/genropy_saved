@@ -774,18 +774,23 @@ class GnrBaseWebAppHandler(object):
         return structure
     #@timer_call()
     def rpc_getRecord(self, table=None, dbtable=None, pkg=None, pkey=None,
-                    ignoreMissing=True, ignoreDuplicate=True, 
+                    ignoreMissing=True, ignoreDuplicate=True, lock=False,
                     from_fld=None, target_fld=None, sqlContextName=None, applymethod=None,
                     js_resolver_one='relOneResolver', js_resolver_many='relManyResolver', 
                     loadingParameters=None, **kwargs):
         t = time.time()
         dbtable = dbtable or table
+        locked=False
         if pkg:
             dbtable='%s.%s' % (pkg, dbtable)
         tblobj = self.db.table(dbtable)
         newrecord = False
         if pkey is not None: 
             kwargs['pkey'] = pkey
+        elif lock:
+            lock=False
+        if lock:
+            kwargs['for_update']=True
         rec = tblobj.record(eager=self.page.eagers.get(dbtable),
                             ignoreMissing=ignoreMissing,ignoreDuplicate=ignoreDuplicate,
                             sqlContextName=sqlContextName,**kwargs)
@@ -797,10 +802,17 @@ class GnrBaseWebAppHandler(object):
             record = rec.output('newrecord', resolver_one=js_resolver_one, resolver_many=js_resolver_many)
         else:
             record = rec.output('bag', resolver_one=js_resolver_one, resolver_many=js_resolver_many)
-            
         recInfo = dict(_pkey=record[tblobj.pkey] or '*newrecord*',
                         caption=tblobj.recordCaption(record,newrecord),
                         _newrecord=newrecord, sqlContextName=sqlContextName)
+        if lock :
+            locked,aux=self.page.site.lockRecord(self.page,dbtable,pkey)
+            if locked:
+                recInfo['lockId']=aux
+            else:
+                for f in aux:
+                    recInfo['locking_%s'%f]=aux[f]
+   
         method = None
         if loadingParameters:
             method = loadingParameters.pop('method')
@@ -825,6 +837,8 @@ class GnrBaseWebAppHandler(object):
         recInfo['servertime'] = int((time.time() - t)*1000)
         if tblobj.lastTS:
             recInfo['lastTS'] = str(record[tblobj.lastTS])
+        if locked:
+            self.db.commit()
         return (record,recInfo)
     
     def setRecordDefaults(self, record, defaults):

@@ -1026,7 +1026,7 @@ class GnrBaseWebPage(GnrObject):
                        data=data %formId, _onResult='genro.formById("%s").saved();%s;' %(formId,onSaved), 
                        table=table,**kwargs)
                        
-    def formLoader(self,formId,resultPath,table=None,pkey=None, _fired=None,loadOnStart = False,
+    def formLoader(self,formId,resultPath,table=None,pkey=None, _fired=None,loadOnStart = False,lock=False,
                     method=None,onLoading=None, 
                     onLoaded=None,loadingParameters=None,**kwargs):
         pkey = pkey or '*newrecord*'
@@ -1044,7 +1044,7 @@ class GnrBaseWebPage(GnrObject):
                     
         controller.dataRpc(resultPath, method=method, pkey=pkey, table=table,
                            nodeId='%s_loader' %formId,
-                           _onResult=';'.join(onResultScripts),
+                           _onResult=';'.join(onResultScripts),lock=lock,
                            loadingParameters=loadingParameters, **kwargs)
                     
     def rpc_loadRecordCluster(self, table=None, pkey=None, recordGetter='app.getRecord', **kwargs):
@@ -1150,9 +1150,8 @@ class GnrBaseWebPage(GnrObject):
     def rpc_onClosePage(self, **kwargs):
         self.session.removePageData()
         self.connection.cookieToRefresh()
-        self.site.pageLog(self,'close')
+        self.site.onClosePage()
         
-    
     def mainLeftContent(self,parentBC,**kwargs):
         pass
         
@@ -1761,60 +1760,7 @@ class GnrWebConnection(object):
         appSlot = self.appSlot
         appSlot['user'] = avatar.id
         appSlot['tags'] = avatar.tags
-        
-    def rpc_sendUserMessage(self, user, msg):
-        msgid = '%s.xml' % getUuid()
-        msgpath = self.page.resolvePath(user, '_messages', msgid, folder='*users')
-        
-        b = Bag()
-        b['msg'] = msg
-        b['from'] = self.page.user
-        b['sent'] = datetime.datetime.now()
-        b.toXml(msgpath, autocreate=True)
-        
-    def _getUserMessages(self):
-        msgbag = Bag()
-        msgfolder = self.page.resolvePath('_messages', folder='*home')
-        if os.path.exists(msgfolder):
-            files = [(os.stat(os.path.join(msgfolder, f)).st_mtime, f) for f in os.listdir(msgfolder)]
-            files.sort()
-            for f in files:
-                if not f.startswith('.'):
-                    fname = os.path.join(msgfolder, f)
-                    b = Bag(fname)
-                    pass # TODO FINIRE QUESTO METODO
-        return msgbag
-        
-    def rpc_connectionsGrid(self):
-        result = Bag()
-        b = self.connectionsBag()
-        for conn_id, conn_files in b.items():
-            conn_value = conn_files['connection_xml']
-            user = conn_value['cookieData.slots.%s.user' % self.page.app.appId] or 'anonymous'
-            conn_start = conn_value['start.datetime']
-            ip = conn_value['ip']
-            conn_lastupd = datetime.datetime.fromtimestamp(conn_value['cookieData.timestamp'])
-            conn_len = (datetime.datetime.now() - conn_start).seconds
-            conn_idle = (datetime.datetime.now() - conn_lastupd).seconds
-            result.setItem(conn_id, None, user=user, ip=ip, 
-                            conn_start=conn_start,
-                            conn_lastupd=conn_lastupd,
-                            conn_len=conn_len,
-                            conn_idle=conn_idle,
-                            conn_id=conn_id)
-        return result
-        
-    def rpc_connectionsPagesGrid(self, conn_id):
-        result = Bag()
-        conn = self.connectionsBag()[conn_id]
-        if conn:
-            conn_value = conn['connection_xml']
-            for page_id, pagedata in conn_value['pages'].items():
-                result.setItem(page_id, None, pagepath=pagedata['pagepath'], page_id=page_id,
-                                            conn_id=pagedata['connection_id'], 
-                                            )
-        return result
-        
+
     def _get_connectionFolder(self):
         return os.path.join(self.allConnectionsFolder, self.connection_id)
     connectionFolder = property(_get_connectionFolder)

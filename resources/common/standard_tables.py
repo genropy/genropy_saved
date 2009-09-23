@@ -600,11 +600,26 @@ class TableHandler(BaseComponent):
         pane.dataFormula('form.unlocked','!locked',locked='^form.locked')
         pane.dataFormula('form.canWrite','(!locked ) && writePermission',locked='^form.locked',writePermission='=usr.writePermission',_init=True)
         pane.dataFormula('form.canDelete','(!locked) && deletePermission',locked='^form.locked',deletePermission='=usr.deletePermission',_init=True)
+        pane.dataFormula('form.lockAcquire','(!statusLocked) || lock',statusLocked='^status.locked',
+                                     lock=self.recordLock)
+        pane.dataController("""SET form.logical_deleted = (GET form.record.__del_ts != null);
+                               if (lockId){
+                                   alert('lockId:'+lockId)
+                               }
+                               else if (username){
+                                   alert('already locked by:'+username)
+                                   SET status.locked=true;
+                               }
+                            
+                            """,
+                            lockId='=form.record?lockId',
+                            username='=form.record?locking_username',
+                            _fired='^form.onRecordLoaded')
         
-        self.formLoader('formPane', resultPath='form.record',_fired='^form.doLoad',
+        self.formLoader('formPane', resultPath='form.record',_fired='^form.doLoad',lock='=form.lockAcquire',
                         table=self.maintable, pkey='=list.selectedId',method='loadRecordCluster',
                         loadingParameters='=gnr.tables.maintable.loadingParameters',
-                        onLoading='SET form.logical_deleted = (GET form.record.__del_ts != null)',
+                        onLoading='FIRE form.onRecordLoaded',
                         sqlContextName='sql_record')
         self.formSaver('formPane',resultPath='form.save_result',method='saveRecordCluster',
                         table=self.maintable,_fired='^form.save',_onCalling='FIRE pbl.bottomMsg=msg;',
