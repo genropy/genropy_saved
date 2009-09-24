@@ -597,7 +597,7 @@ class IncludedView(BaseComponent):
                 viewPars['struct'] = struct(self.newGridStruct(table))
         view = gridcenter.includedView(extension='includedViewPicker',table=table,
                                        editorEnabled=editorEnabled or '^form.canWrite',
-                                       reloader=reloader,**viewPars)
+                                       reloader=reloader, **viewPars)
         if _onStart:
             controller.dataController("FIRE .reload",_onStart=True)
         if externalChanges:
