@@ -603,6 +603,7 @@ class GnrBaseWebPage(GnrObject):
             avatar = self.application.getAvatar(login['user'], password=login['password'], authenticate=True,page=self)
         if avatar:
             self.connection.updateAvatar(avatar)
+            self.site.onAutenticated(avatar)
             login['message'] = ''
         else:
             login['message'] = 'invalid login'

@@ -35,6 +35,9 @@ class Package(GnrDboPackage):
         if update_md5 and hasattr(avatar,'md5len') and avatar.md5len==32: 
             self.update_md5(avatar)
         avatar.login_pwd = None
+        
+    def onAuthenticated(self,avatar):
+        print 'onAutenticated'
         if hasattr(avatar,'page'):
             self.connectionLog(avatar.page,'open',avatar)
 

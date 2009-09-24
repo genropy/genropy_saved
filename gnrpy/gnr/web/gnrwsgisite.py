@@ -424,7 +424,10 @@ class GnrWsgiSite(object):
             if mix:
                 self.mixinResource(page_class, page_class._resourceDirs, mix)
                 
-                
+    def onAutenticated  (self,avatar):
+        if 'adm' in self.db.packages:
+            self.db.packages['adm'].onAuthenticated(avatar)
+              
     def pageLog(self,page,event):
         if 'adm' in page.db.packages:
             page.db.packages['adm'].pageLog(page,event)
