@@ -365,6 +365,11 @@ dojo.declare("gnr.GnrDomSourceNode",gnr.GnrBagNode,{
             path=path.slice(1);
         }
         var currNode=this;
+        if ((path.indexOf('#')==0) && (path.indexOf('#parent') !=0)){
+            var pathlist=path.split('.')
+            currNode=genro.nodeById(pathlist[0].slice(1))
+            path='.'+pathlist.slice(1).join('.')         
+        }
         var datapath;
         while(currNode && ((!path) || path.indexOf('.')==0)){
             //datapath = currNode.getAttributeFromDatasource('datapath');
