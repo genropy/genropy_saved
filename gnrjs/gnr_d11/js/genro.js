@@ -53,17 +53,17 @@ dojo.declare('gnr.GenroClient', null, {
         this.page_id = kwargs.page_id;
         this.startArgs = kwargs.startArgs || {};
         this.debuglevel = kwargs.startArgs.debug || null;
-        this.pageMode = kwargs.pageMode
+        this.pageMode = kwargs.pageMode;
         this.startTime=new Date();
         this.lastTime=this.startTime;
-        this.compareDict={'==':function(a,b){return (a==b)},
-                          '>':function(a,b){return (a>b)},
-                          '>=':function(a,b){return (a>=b)},
-                          '<':function(a,b){return (a<b)},
-                          '<=':function(a,b){return (a<=b)},
-                          '!=':function(a,b){return (a!=b)},
-                          '%':function(a,b){return (a.indexOf(b)>=0)},
-                          '!%':function(a,b){return (a.indexOf(b)<0)}
+        this.compareDict={'==':function(a,b){return (a==b);},
+                          '>':function(a,b){return (a>b);},
+                          '>=':function(a,b){return (a>=b);},
+                          '<':function(a,b){return (a<b);},
+                          '<=':function(a,b){return (a<=b);},
+                          '!=':function(a,b){return (a!=b);},
+                          '%':function(a,b){return (a.indexOf(b)>=0);},
+                          '!%':function(a,b){return (a.indexOf(b)<0);}
                           };
        // this.timeIt('** Init **');
        // djConfig.usePlainJson=true ;
@@ -112,10 +112,10 @@ dojo.declare('gnr.GenroClient', null, {
         Here starts the application on page loading.
         It calls the remoteCall to receive the page contained in the bag called 'main'.
         */
-        genro.timeIt('** dostart **');
+        //genro.timeIt('** dostart **');
         genropatches.comboBox();
         genropatches.tree();
-        genropatches.parseNumbers()
+        genropatches.parseNumbers();
         if (dojoversion=='1.1'){
             genropatches.borderContainer();
         }
@@ -141,18 +141,18 @@ dojo.declare('gnr.GenroClient', null, {
         this.dlg.createStandardMsg(document.body);
         this.dev.srcInspector(document.body);
         this.contextIndex = {};
-        genro.timeIt('** getting main **');
+        //genro.timeIt('** getting main **');
         var mainBagPage  = this.rpc.remoteCall('main', this.startArgs, 'bag');
-        genro.timeIt('**  main received  **');
+        //genro.timeIt('**  main received  **');
         if(mainBagPage && mainBagPage.attr.redirect){
             var url=this.addParamsToUrl(mainBagPage.attr.redirect, {'fromPage':this.absoluteUrl()});
             this.gotoURL(url);
         }
         //this.loadPersistentData()
         this.loadContext();
-        genro.timeIt('** starting builder **');
+        //genro.timeIt('** starting builder **');
         this.src.startUp(mainBagPage);
-        genro.timeIt('** end builder **');
+        //genro.timeIt('** end builder **');
         genro.dom.removeClass('mainWindow', 'waiting');
         var _this=this;                                            
         this._dataroot.subscribe('dataTriggers', {'any':dojo.hitch(this, "dataTrigger")});
@@ -269,7 +269,7 @@ dojo.declare('gnr.GenroClient', null, {
             v="<div "+ event_attrs +" style='margin:auto;' "+divclass+">"+divcontent+"</div>";
         }
         else if(!v){
-            console.log('v nullo');
+            //console.log('v nullo');
         }
         return v;
     },
@@ -342,7 +342,7 @@ dojo.declare('gnr.GenroClient', null, {
         genro.download("",{table:table, pkey:pkey, template:template, method:"app.recordToPDF",mode:'text'});
     },
     rpcDownload: function(method, kwargs, onload_cb){
-        genro.download('',genro.rpc.getRpcUrlArgs(method, kwargs), onload_cb)
+        genro.download('',genro.rpc.getRpcUrlArgs(method, kwargs), onload_cb);
     },
     download: function(url, args, onload_cb){
         var args=args || {};
@@ -373,7 +373,7 @@ dojo.declare('gnr.GenroClient', null, {
                 var base = document.location.pathname;
                 url = base+'/'+url;
             };
-            url=document.location.protocol+'//'+document.location.host+url
+            url=document.location.protocol+'//'+document.location.host+url;
         };
         return genro.addKwargs(url,kwargs);
     },
@@ -494,6 +494,7 @@ dojo.declare('gnr.GenroClient', null, {
          }
     },
     _: function(path,dflt){
+        var path = genro.src.getNode().absDatapath(path);
         return this._data.getItem(path,dflt);
     },
     
@@ -631,7 +632,11 @@ dojo.declare('gnr.GenroClient', null, {
         }
     },
     nodeById:function(nodeId){
-        return genro.src._index[nodeId];
+        var node = genro.src._index[nodeId];
+        if (!node && genro.src.building) {
+            node = genro.src._main.getNodeByAttr('nodeId',nodeId);
+        }
+        return node;
     },
     domById:function(nodeId){
         var node = this.nodeById(nodeId);

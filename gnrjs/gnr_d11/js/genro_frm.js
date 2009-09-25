@@ -526,7 +526,6 @@ dojo.declare("gnr.GnrValidator",null,{
             }
             return result;
         } else {
-		   
             return rpcresult;
         }
     },

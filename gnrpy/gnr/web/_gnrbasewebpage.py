@@ -596,7 +596,6 @@ class GnrBaseWebPage(GnrObject):
         - The user exists and his password is correct.
         - The user is guest
         """
-        print 'rpc_doLogin'
         if guestName:
             avatar = self.application.getAvatar(guestName)
         else:

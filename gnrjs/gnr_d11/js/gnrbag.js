@@ -1155,14 +1155,14 @@ dojo.declare("gnr.GnrBag",null,{
                 path.push(node.label);
                 return node;
             }
-            if(node.getValue() instanceof gnr.GnrBag){
+            if(node.getValue('static') instanceof gnr.GnrBag){
                 bags.push(node);
             }
         }
         for (var i=0; i<bags.length; i++){
             var node= bags[i];
             var nl= [node.label];
-            n= node.getValue().getNodeByAttr(attr, value, nl);
+            n= node.getValue('static').getNodeByAttr(attr, value, nl);
             if(n){
                 path.concat(nl);
                 return n;

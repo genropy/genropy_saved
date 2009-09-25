@@ -30,19 +30,16 @@ class Package(GnrDboPackage):
             return result
             
     def onAuthentication(self, avatar):
-        print 'onAuthentication '
         update_md5 = self.attributes.get('update_md5',False) not in ('N','n','F','f','False','false','FALSE','No','NO','no',False)
         if update_md5 and hasattr(avatar,'md5len') and avatar.md5len==32: 
             self.update_md5(avatar)
         avatar.login_pwd = None
         
     def onAuthenticated(self,avatar):
-        print 'onAutenticated'
         if hasattr(avatar,'page'):
             self.connectionLog(avatar.page,'open',avatar)
 
     def connectionLog(self,page,event,avatar=None):
-        print 'connectionLog ',event
         connection = page.connection
         tblconnection = page.db.table('adm.connection')
         if event == 'open':
@@ -57,7 +54,6 @@ class Package(GnrDboPackage):
         else:
             tblconnection.closeConnection(connection.connection_id,end_reason='logout')
         page.db.commit()
-        print 'connectionLog out ',event
             
     def pageLog(self,page,event):
         tblservedpage = page.db.table('adm.served_page')
@@ -92,7 +88,7 @@ class Package(GnrDboPackage):
         return 'adm/login'
         
     def onApplicationInited(self):
-        print 'adm onApplicationInited'
+        pass
         
     def onSiteInited(self):
         print 'adm onSiteInited'

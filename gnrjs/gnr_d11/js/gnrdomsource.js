@@ -359,34 +359,40 @@ dojo.declare("gnr.GnrDomSourceNode",gnr.GnrBagNode,{
             return true;
         }
     },
+    symbolicDatapath:function(path){
+        var pathlist=path.split('.');
+        var nodeId = pathlist[0].slice(1);
+        currNode=genro.nodeById(nodeId);
+        if (!currNode){
+            alert('not existing nodeId:'+nodeId);
+        }
+        var relpath=pathlist.slice(1).join('.');
+        path= currNode.absDatapath(relpath?'.'+relpath:'');
+        return path;
+    },
     absDatapath: function(path){
         var path=path || '';
         if(this.isPointerPath(path)){
             path=path.slice(1);
         }
-        var currNode=this;
-        if ((path.indexOf('#')==0) && (path.indexOf('#parent') !=0)){
-            var pathlist=path.split('.')
-            currNode=genro.nodeById(pathlist[0].slice(1))
-            path='.'+pathlist.slice(1).join('.')         
+        if (path.indexOf('#')==0){
+            return this.symbolicDatapath(path);
         }
+        var currNode=this;
         var datapath;
         while(currNode && ((!path) || path.indexOf('.')==0)){
-            //datapath = currNode.getAttributeFromDatasource('datapath');
             datapath = currNode.attr.datapath;
-            
             if(datapath){
                 if(this.isPointerPath(datapath)){
                     datapath = currNode.getAttributeFromDatasource('datapath');
-                    if(datapath!=null){
-                        path = datapath + path;
-                    }else{
+                    if(!datapath){
                         return null;
                     }
-                    
-                } else {
-                    path = datapath + path;
+                } 
+                if (datapath.indexOf('#')==0){
+                    datapath = this.symbolicDatapath(datapath);
                 }
+                path =datapath + path;
             }
             currNode = currNode.getParentNode();
         }
