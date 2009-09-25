@@ -645,10 +645,10 @@ class IncludedView(BaseComponent):
         return view
         
     def _iv_includedViewSelection(self,pane,gridId,table,storepath,selectionPars,controllerPath):
-        assert table
+        #assert table
         assert not 'columnsFromView' in selectionPars
         assert not 'nodeId' in selectionPars
-        assert 'where' in selectionPars
+        #assert 'where' in selectionPars
         selectionPars['nodeId'] = "%s_selection" %gridId
         selectionPars['columns'] = selectionPars.get('columns') or '=.columns' 
         pane.dataSelection(storepath,table,**selectionPars)
@@ -986,7 +986,7 @@ class RecordHandler(object):
         
         self.formLoader(formId,resultPath= '%s.record'%controllerPath,
                         table=table,pkey='=%s.current_pkey' %controllerPath,
-                        method=loadingMethod,loadingParameters='=gnr.tables.%s.loadingParameters' %tableId,
+                        method=loadingMethod,loadingParameters='=gnr.tables.%s.loadingParameters' %table.replace('.','_'),
                         sqlContextName=sqlContextName,**loadKwargs)
                        
         self.formSaver(formId,resultPath= savePath or '%s.savingResult' %controllerPath,
