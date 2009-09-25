@@ -725,11 +725,9 @@ padding-right:5px;
     padding-bottom:4px;
     padding-top:0px;
 }
-.menutree .menu_level_1{
-    border: 1px solid white;
-	background-color: #3f3f3f;
-	color: white;
-	font-size: 1em;
+
+.searchWidth{
+    width 6em;
 }
 
 .menutree .menu_level_0{
@@ -739,9 +737,13 @@ padding-right:5px;
 	font-size: 1em;
 }
 
-.searchWidth{
-    width 6em;
+.menutree .menu_level_1{
+    border: 1px solid white;
+	background-color: #3f3f3f;
+	color: white;
+	font-size: 1em;
 }
+
 .menutree .menu_level_2{
 	border: 1px solid white;
 	background-color: #3f3f3f;
@@ -750,6 +752,13 @@ padding-right:5px;
 }
 
 .menutree .menu_level_3{
+    border: 1px solid white;
+	background-color: #3f3f3f;
+	color: #f8f8f8;
+	font-size: 1em;
+}
+
+.menutree .menu_level_4{
     border: 1px solid white;
 	background-color: #3f3f3f;
 	color: #f8f8f8;
