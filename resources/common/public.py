@@ -454,7 +454,8 @@ class IncludedView(BaseComponent):
                         tools_action=None, tools_class='buttonIcon icnBaseAction', 
                         tools_menu=None,upd_action=False,_onStart=False,
                         filterOn=None,  pickerPars=None,centerPaneCb=None,
-                        editorEnabled=None,reloader=None,externalChanges=None,**kwargs):
+                        editorEnabled=None,reloader=None,externalChanges=None,
+                        addOnCb = None, **kwargs):
         """
         This method returns a grid (includedView) for, viewing and selecting
         rows from a many to many table related to the main table,
@@ -600,10 +601,12 @@ class IncludedView(BaseComponent):
             struct =  viewPars.get('struct',None)
             if struct and callable(struct) and not isinstance(struct,Bag):
                 viewPars['struct'] = struct(self.newGridStruct(table))
-                
+        viewPars['structpath'] = viewPars.get('structpath') or '.struct'  or 'grids.%s.struct' %nodeId
         view = gridcenter.includedView(extension='includedViewPicker',table=table,
                                        editorEnabled=editorEnabled or '^form.canWrite',
                                        reloader=reloader, **viewPars)
+        if addOnCb:
+            addOnCb(gridcenter)
         if _onStart:
             controller.dataController("FIRE .reload",_onStart=True)
         if externalChanges:

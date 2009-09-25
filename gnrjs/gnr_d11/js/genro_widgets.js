@@ -2692,7 +2692,9 @@ dojo.declare("gnr.widgets.IncludedView",gnr.widgets.VirtualStaticGrid,{
         attributes.datamode = datamode;
         sourceNode.attr.nodeId = sourceNode.attr.nodeId || 'grid_' + sourceNode.getStringId();
         sourceNode.attr.controllerPath = sourceNode.attr.controllerPath || 'grids.' + sourceNode.attr.nodeId;
-        sourceNode.setRelativeData('.columns', attributes.query_columns);
+        if (attributes.query_columns){
+            sourceNode.setRelativeData(sourceNode.attr.controllerPath+'.columns', attributes.query_columns);
+        }
     },    
     created: function(widget, savedAttrs, sourceNode){
          var selectionId = sourceNode.attr['selectionId'] || sourceNode.attr.nodeId+'_selection';

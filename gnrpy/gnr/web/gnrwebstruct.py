@@ -387,8 +387,9 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
         return self.child('dataRemote', path=path, method=method, **kwargs)
 
     def includedview(self, storepath=None, structpath=None, struct=None,table=None,
-                    nodeId = None,columns=None,**kwargs):
-        structpath = structpath or '.struct'  or 'grids.%s' %nodeId
+                    nodeId = None, columns=None,**kwargs):
+        nodeId = nodeId or self.page.getUuid()
+        structpath = structpath or 'grids.%s.struct' %nodeId
         if not struct and (columns and table):
             struct = self.page.newGridStruct(maintable=table)
             rows = struct.view().rows()
