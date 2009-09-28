@@ -26,14 +26,14 @@
 //######################## genro  #########################
 
 dojo.declare("gnr.GnrFrmHandler",null,{
-    constructor: function(form_id,formDatapath){
+    constructor: function(form_id,formDatapath,controllerNodeId){
         this.form_id = form_id;
         this.changed = false;
         this.status = null;
         this.current_field = null;
-        this.invalidFieldsPath = 'gnr.forms.'+this.form_id+'.invalidFields';
+        this.controllerPath = controllerNodeId?genro.nodeById(controllerNodeId).absDatapath()+'.form':'gnr.forms.'+this.form_id;
+        this.invalidFieldsPath = this.controllerPath+'.invalidFields';
         this.formDatapath = formDatapath;
-
     },
     reset: function(){
         this.resetChanges();
@@ -47,7 +47,7 @@ dojo.declare("gnr.GnrFrmHandler",null,{
                                                             'del':dojo.hitch(this, "triggerDEL")
                                                             });
         
-        this.changesLogger = 'gnr.forms.'+this.form_id+'.changesLogger';
+        this.changesLogger = this.controllerPath+'.changesLogger';
         genro.setData(this.changesLogger, new gnr.GnrBag());
         this._setChangeStatus(false);
     },
@@ -71,7 +71,7 @@ dojo.declare("gnr.GnrFrmHandler",null,{
         this.updateInvalidField(sourceNode, sourceNode.attrDatapath('value'));
     },
     load: function(sync){
-        genro.setData('gnr.forms.'+this.form_id+'.loading', true);
+        genro.setData(this.controllerPath+'.loading', true);
         this.status = 'loading';
         this.resetInvalids(); // reset invalid fields before loading to intercept required fields during loading process
         var loaderNode = genro.nodeById(this.form_id+'_loader');
@@ -87,25 +87,25 @@ dojo.declare("gnr.GnrFrmHandler",null,{
     },
     loaded: function(){
         this.resetChanges(); // reset changes after loading to subscribe the triggers to the current new data bag
-        genro.setData('gnr.forms.'+this.form_id+'.loading', false);
-        genro.fireEvent('gnr.forms.'+this.form_id+'.loaded');
+        genro.setData(this.controllerPath+'.loading', false);
+        genro.fireEvent(this.controllerPath+'.loaded');
         this.status = null;
     },
-    save: function(){
+    save: function(always){
         if (!this.status){
-            if (this.changed){
+            if (this.changed || always){
                 var invalidfields = this.getInvalidFields();
-                var formChanges = this.getFormChanges();
+                //var formChanges = this.getFormChanges(changesOnly);
                 var invalid = (invalidfields.len()>0);
                 if(invalid){
-                    genro.fireEvent('gnr.forms.'+this.form_id+'.save_failed','invalid');
+                    genro.fireEvent(this.controllerPath+'.save_failed','invalid');
                     return 'invalid:'+invalid;
                 }
-                genro.fireEvent('gnr.forms.'+this.form_id+'.saving');
+                genro.fireEvent(this.controllerPath+'.saving');
                 this.status = 'saving';
                 genro.nodeById(this.form_id+'_saver').fireNode();
             }else{
-                genro.fireEvent('gnr.forms.'+this.form_id+'.save_failed','nochange');
+                genro.fireEvent(this.controllerPath+'.save_failed','nochange');
             }
         }
     },
@@ -113,7 +113,7 @@ dojo.declare("gnr.GnrFrmHandler",null,{
         this.status = null;
     },
     getFormData: function(){
-        return genro._data.getItem(this.formDatapath);
+        return genro._(this.formDatapath);
     },
     hasChanges: function(){
         return ;
@@ -268,7 +268,7 @@ dojo.declare("gnr.GnrFrmHandler",null,{
         this._setInvalidStatus(invalid);
     },
     _setInvalidStatus:function(invalid){
-        genro.setData('gnr.forms.'+this.form_id+'.valid', !invalid);
+        genro.setData(this.controllerPath+'.valid', !invalid);
     },
     checkInvalidFields: function(){
         var node, sourceNode, changekey;
@@ -306,7 +306,7 @@ dojo.declare("gnr.GnrFrmHandler",null,{
         return genro.getData(this.changesLogger);
     },
     _setChangeStatus:function(changed){
-        genro.setData('gnr.forms.'+this.form_id+'.changed', changed);
+        genro.setData(this.controllerPath+'.changed', changed);
         this.changed = changed;
     },
     hasChangesAtPath:function(path){

@@ -130,8 +130,9 @@ dojo.declare("gnr.widgets.baseHtml",null,{
             if(sourceNode.attr.nodeId && (sourceNode.attr.nodeId != formId)){
                 alert('formId '+formId+' will replace nodeId '+ sourceNode.attr.nodeId);
             }
+            var dlgId = objectPop(attributes,'dlgId');
             sourceNode.attr.nodeId = formId;
-            sourceNode.defineForm(formId,sourceNode.absDatapath());
+            sourceNode.defineForm(formId,sourceNode.absDatapath(),dlgId);
         }
         //Fix Colspan in Internet explorer
         if(dojo.isIE>0){
@@ -454,6 +455,12 @@ dojo.declare("gnr.widgets.baseDojo",gnr.widgets.baseHtml,{
 
 });
 dojo.declare("gnr.widgets.Dialog",gnr.widgets.baseDojo,{
+    constructor: function(application){
+        this._attachTo = 'mainWindow';
+        this._domtag = 'div';
+        this._dojotag = 'Dialog';
+    },
+    
     creating:function(attributes, sourceNode){
         objectPop(attributes,'parentDialog');
         var closable = ('closable' in attributes) ? objectPop(attributes,'closable') : true;

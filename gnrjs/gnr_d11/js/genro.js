@@ -858,7 +858,8 @@ dojo.declare('gnr.GenroClient', null, {
     //forms functions
     formInfo: function(name){
         var name = name || 'formPane';
-        return genro._data.getItem('gnr.forms.'+name);
+        var controllerPath = genro.formById(name).controllerPath;
+        return genro._(controllerPath);
     },
     
     invalidFields: function(name){

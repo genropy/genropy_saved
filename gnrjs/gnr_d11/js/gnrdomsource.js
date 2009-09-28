@@ -256,8 +256,8 @@ dojo.declare("gnr.GnrDomSourceNode",gnr.GnrBagNode,{
             genro._data.setItem(path,value,attributes,{'doTrigger':doTrigger});
         }
     },
-    defineForm: function(form_id,formDatapath){
-        this.formHandler = new gnr.GnrFrmHandler(form_id,formDatapath);
+    defineForm: function(form_id,formDatapath,controllerNodeId){
+        this.formHandler = new gnr.GnrFrmHandler(form_id,formDatapath,controllerNodeId);
     },
     hasDynamicAttr: function(attr){
         return (this._dynattr && this._dynattr[attr]);
