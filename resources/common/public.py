@@ -159,7 +159,37 @@ class Public(BaseComponent):
         return center, top, bottom
         
     def pbl_topBarLeft(self,pane):
-        pane.div('^gnr.workdate', float='left', format='short', color='white', _class='pbl_workdate buttonIcon')
+        pane.div('^gnr.workdate', float='left', format='short', color='white',
+                _class='pbl_workdate buttonIcon',connect_onclick='FIRE gnr.dlg_workdate.show;')
+
+    def pbl_workdate(self,pane):
+        pane.dataController('genro.wdgById("gnr_workdate_dlg").show();',
+                            _fired = '^gnr.dlg_workdate.show')
+        pane.dataController('genro.wdgById("gnr_workdate_dlg").hide();',
+                            _fired = '^gnr.dlg_workdate.hide')
+                            
+        bc = pane.dialog(nodeId= 'gnr_workdate_dlg',
+                               title='!!Change workdate'
+                               ).borderContainer(height='64px',
+                                width='240px',datapath='gnr.dlg_workdate')
+        dlg_bottom = bc.contentPane(region='bottom', _class='dialog_bottom')
+        dlg_bottom.button('!!Change', float='right',baseClass='bottom_btn',
+                          action='FIRE .setWorkdate; FIRE .hide;')
+        dlg_bottom.button('!!Cancel', float='left',fire='.hide',baseClass='bottom_btn')
+        dlg_top = bc.contentPane(region='center', _class='pbl_roundedGroup')
+        fld = dlg_top.div(margin_left='30px')
+        fld.div("Data: ", float='left',margin='5px')
+        fld.dateTextBox(value='^.workdate',width='6em', margin='5px')
+                                 
+        pane.dataController('.gnr.workdate','changeServerWorkdate', newdate='=.workdate',
+                            _if='newdate', _fired='^.setWorkdate')
+        
+        
+    def rpc_changeServerWorkdate(self, newdate=None):
+        if newdate:
+            self.workdate = newdate
+        return self.workdate
+
 
     def pbl_topBar(self,top,title=None,flagsLocale=False):
         """docstring for publicTitleBar"""
@@ -521,7 +551,7 @@ class IncludedView(BaseComponent):
         @params kwargs: you have to put the includedView params: autoWidth, storepath etc
         """
         if not datapath:
-            if storepath.startswith('.'):
+            if storepath.startswith('.'): 
                 storepath = '%s%s' % (parentBC.parentNode.getInheritedAttributes()['sqlContextRoot'], storepath)
         print 'storepath %s' % str(storepath)
         viewPars = dict(kwargs)
@@ -676,9 +706,9 @@ class IncludedView(BaseComponent):
         controller.dataController("genro.wdgById(gridId).printData();" ,fired='^.print',gridId=gridId)
         controller.dataController("genro.wdgById(gridId).exportData(mode);" ,mode='^.export',gridId=gridId)
         controller.dataController("genro.wdgById(gridId).reload(true);" ,_fired='^.reload',gridId=gridId)
-        controller.dataController("""SET .selectedIndex = null;
-                                     PUT .selectedLabel= null;""",
-                                  _fired="^gnr.forms.formPane.saving") 
+       #controller.dataController("""SET .selectedIndex = null;
+       #                             PUT .selectedLabel= null;""",
+       #                          _fired="^gnr.forms.formPane.saving") 
         
     def _iv_gridFilter(self, gridId, gridtop, controller, controllerPath, filterOn, kwargs):
         colsMenu = Bag()
@@ -1027,21 +1057,21 @@ class RecordHandler(object):
         loading = stack.contentPane(_class='waiting')
         formCb(stack, disabled='^form.locked', table=table)
 
-    def _record_dialog_bottom(self,pane):
-        # edited by Jeff in first attempt to have nicer buttons, (will continue to work on it)
-        tblbody=pane.div().table(cellspacing="0", border='0').tbody()
-        r1=tblbody.tr()
-        c13=r1.td().div('&nbsp;', width='10px')
-        c11=r1.td().div(width='80px', align='left').button('!!Cancel', width='60px',baseClass='bottom_btn',fire_cancel='.exitAction')
-        c12=r1.td().div(width='80px', align='left').button('!!Save',width='60px', align='right', baseClass='bottom_btn',fire=".saveAndClose")
-        c13=r1.td().div('&nbsp;')
-
+    #def _record_dialog_bottom(self,pane):
+    #    # edited by Jeff in first attempt to have nicer buttons, (will continue to work on it)
+    #    tblbody=pane.div().table(cellspacing="0", border='0').tbody()
+    #    r1=tblbody.tr()
+    #    c13=r1.td().div('&nbsp;', width='10px')
+    #    c11=r1.td().div(width='80px', align='left').button('!!Cancel', width='60px',baseClass='bottom_btn',fire_cancel='.exitAction')
+    #    c12=r1.td().div(width='80px', align='left').button('!!Save',width='60px', align='right', baseClass='bottom_btn',fire=".saveAndClose")
+    #    c13=r1.td().div('&nbsp;')
+    # try to define inside goodsoftware _resources
                     
-   #def _record_dialog_bottom(self,pane):
-   #    pane.button('!!Cancel',float='left',baseClass='bottom_btn',
-   #                fire_cancel='.exitAction')
-   #    pane.button('!!Save',float='right',baseClass='bottom_btn',
-   #                fire=".saveAndClose")
+    def _record_dialog_bottom(self,pane):
+        pane.button('!!Cancel',float='left',baseClass='bottom_btn',
+                    fire_cancel='.exitAction')
+        pane.button('!!Save',float='right',baseClass='bottom_btn',
+                    fire=".saveAndClose")
                         
     def rpc_deleteIncludedViewRecord(self, table, rowToDelete,**kwargs):
         tblobj = self.db.table(table)
@@ -1128,4 +1158,4 @@ class RecordToHtmlFrame(BaseComponent):
                               _reloader='^%s' % pkeyPath,
                               _if=enableCondition,
                               **rpc_args)
-        
+    
