@@ -64,7 +64,7 @@ class GnrWsgiSite(object):
         self.config['secret'] = self.secret
         self.session_key = self.config['wsgi?session_key'] or 'gnrsession'
         self.debug = self.config['wsgi?debug']=='true' or False
-        self.cache_max_age = self.config['wsgi?cache_max_age'] or 0
+        self.cache_max_age = self.config['wsgi?cache_max_age'] or 2592000
         self.gnrapp = self.build_gnrapp()
         self.wsgiapp = self.build_wsgiapp()
         self.db=self.gnrapp.db
@@ -123,7 +123,7 @@ class GnrWsgiSite(object):
         return tools
         
     
-    def resource_name_to_path(self,res_id):
+    def resource_name_to_path(self,res_id, safe=True):
         project_resource_path = os.path.join(self.site_path, '..','..','resources',res_id)
         if os.path.isdir(project_resource_path):
             return project_resource_path
@@ -132,8 +132,8 @@ class GnrWsgiSite(object):
                 res_path=expandpath(os.path.join(path,res_id))
                 if os.path.isdir(res_path):
                     return res_path
-        raise Exception(
-            'Error: resource %s not found' % res_id)
+        if safe:
+            raise Exception('Error: resource %s not found' % res_id)
     
     def find_gnrjs_and_dojo(self):
         self.dojo_path={}
@@ -146,13 +146,16 @@ class GnrWsgiSite(object):
     
     def find_resources(self):
         self.resources=Bag()
-        for resource in self.config['resources']:
-            rsrc_path = resource.attr.get('path')
+        resources_list = [(resource.label,resource.attr.get('path')) for resource in self.config['resources']]
+        for label,rsrc_path in resources_list:
             if rsrc_path:
-                self.resources[resource.label] = rsrc_path
+                self.resources[label] = rsrc_path
             else:
-                rsrc_path = self.resource_name_to_path(resource.label)
-                self.resources[resource.label] = rsrc_path
+                rsrc_path = self.resource_name_to_path(label)
+                self.resources[label] = rsrc_path
+        auto_resource_path = self.resource_name_to_path(self.site_name, safe=False)
+        if auto_resource_path:
+            self.resources[self.site_name] = os.path.realpath(auto_resource_path)
         self.resources_dirs = self.resources.values()
         self.resources_dirs.reverse()
         
@@ -728,6 +731,7 @@ class GnrWsgiSite(object):
             return self.not_found(environ, start_response)
         if_none_match = environ.get('HTTP_IF_NONE_MATCH')
         if if_none_match:
+            print 'none match'
             mytime = os.stat(fullpath).st_mtime
             if str(mytime) == if_none_match:
                 headers = []
