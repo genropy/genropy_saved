@@ -639,7 +639,7 @@ class GnrApp(object):
         
     def errorAnalyze(self, e, caller=None, package=None):
         raise e
-    def notifyDbEvent(self,tblobj,record,event,old_record):
+    def notifyDbEvent(self,tblobj,record,event,old_record=None):
         pass
         
 class GnrAvatar(object):
