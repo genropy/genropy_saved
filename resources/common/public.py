@@ -1031,10 +1031,20 @@ class RecordHandler(object):
         self._storepath_base= ''
 
     def _record_dialog_bottom(self,pane):
-        pane.button('!!Cancel',float='left',baseClass='bottom_btn',
-                    fire_cancel='.exitAction')
-        pane.button('!!Save',float='right',baseClass='bottom_btn',
-                    fire=".saveAndClose")
+        # edited by Jeff in first attempt to have nicer buttons, (will continue to work on it)
+        tblbody=pane.div().table(cellspacing="0", border='0').tbody()
+        r1=tblbody.tr()
+        c13=r1.td().div('&nbsp;', width='10px')
+        c11=r1.td().div(width='80px', align='left').button('!!Cancel', width='60px',baseClass='bottom_btn',fire_cancel='.exitAction')
+        c12=r1.td().div(width='80px', align='left').button('!!Save',width='60px', align='right', baseClass='bottom_btn',fire=".saveAndClose")
+        c13=r1.td().div('&nbsp;')
+
+                    
+   #def _record_dialog_bottom(self,pane):
+   #    pane.button('!!Cancel',float='left',baseClass='bottom_btn',
+   #                fire_cancel='.exitAction')
+   #    pane.button('!!Save',float='right',baseClass='bottom_btn',
+   #                fire=".saveAndClose")
                         
     def rpc_deleteIncludedViewRecord(self, table, rowToDelete,**kwargs):
         tblobj = self.db.table(table)

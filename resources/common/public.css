@@ -531,13 +531,15 @@ padding-bottom: 2px;
 }
 .bottom_btn .dijitButtonNode{
 	color: white;
-	-moz-border-radius:6px;
-    -webkit-border-radius:6px;
+	/*-moz-border-radius:6px;
+    -webkit-border-radius:6px;*/
     background: #3F5A8D;
     cursor: pointer;
-    font-size: 0.8em;
+    font-size: 0.9em;
     font-weight: bold;
     border: white solid 1px;
+	font-variant: small-caps;
+	opacity: .9;
 }
 .bottom_btnDisabled .dijitButtonNode{
 	opacity: .8;
