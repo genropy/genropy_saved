@@ -360,6 +360,14 @@ class SqlTable(GnrObject):
         
         return query
     
+    def batchUpdate(self,callback=None,**kwargs):
+        fetch = tblapp.query(addPkeyColumn=False,for_update=True,**kwargs)
+        for row in fetch:
+            old_row = dict(row)
+            callback(row)
+            self.update(row,old_row)
+        
+    
     def sqlWhereFromBag(self, wherebag, sqlArgs=None):
         """
             <c_0 column="invoice_num" op="ISNULL" rem='without invoice' />
