@@ -1979,6 +1979,7 @@ dojo.declare("gnr.widgets.VirtualStaticGrid",gnr.widgets.Grid,{
                 } else if(kw.evt=='ins') {//ATTENZIONE: questo trigger fa scattare il ridisegno della grid e cambia l'indice di riga
                     if (parent_lv == 1){
                         this.updateRowCount();
+                        //fa srotellare in presenza di parametri con ==
                         this.setSelectedIndex(kw.ind);
                     } else {
                         //if ((storebag == kw.where) && (parent_lv<1)){
@@ -2384,8 +2385,9 @@ dojo.declare("gnr.widgets.VirtualStaticGrid",gnr.widgets.Grid,{
             } 
         }
         var kw = {'_position':pos};
+        console.log('prima setItem');
         storebag.setItem(label, newnode, null, kw); //questa provoca la chiamata della setStorePath che ha trigger di ins.
-        
+        console.log('dopo setItem');
         // ATTENZIONE: Commentato questo perchè il trigger di insert già ridisegna ed aggiorna l'indice, ma non fa apply filter.
         // Cambiare l'indice di selezione corrente nelle includedview con form significa cambiare datapath a tutti i widget. PROCESSO LENTO.
         
@@ -2497,7 +2499,9 @@ dojo.declare("gnr.widgets.VirtualStaticGrid",gnr.widgets.Grid,{
         this.gnrediting = true;
         if (this.sourceNode.currentEditedRow != row){
             var selectedDataPath = this.dataNodeByIndex(row).getFullpath(null, true);
-            this.sourceNode.setRelativeData('.edit_datapath',selectedDataPath);
+            //this.sourceNode.setRelativeData('.edit_datapath',selectedDataPath);
+            this.sourceNode.setRelativeData('_temp.grids.'+this.sourceNode.attr.nodeId+'.edit_datapath',
+                                            selectedDataPath);
             this.sourceNode.currentEditedRow = row;
             setTimeout(dojo.hitch(this, 'startEditCell', row, col), 1);
             return;
@@ -2602,9 +2606,11 @@ dojo.declare("gnr.widgets.GridEditor",gnr.widgets.baseHtml,{
         this._domtag = 'div';
     },
     creating: function(attributes, sourceNode){
+        var viewId = sourceNode.getParentNode().attr.nodeId;
         attributes.display='none';
         sourceNode.attr.nodeId='grided_' + sourceNode.getStringId();
-        sourceNode.attr.datapath = '^'+sourceNode.getParentNode().absDatapath('.edit_datapath');
+        sourceNode.attr.datapath = '^_temp.grids.'+viewId+'.edit_datapath';
+        //sourceNode.attr.datapath = '^'+sourceNode.getParentNode().absDatapath('.edit_datapath');
         sourceNode.registerDynAttr('datapath');
         
         
@@ -2622,7 +2628,7 @@ dojo.declare("gnr.widgets.GridEditor",gnr.widgets.baseHtml,{
                 node.attr['value'] = '^.' + node.attr.gridcell;
             }
             if(node.attr.exclude == true){
-                node.attr.exclude = '==genro.wdgById("'+sourceNode.attr.nodeId+'").getColumnValues("'+node.attr['value']+'")';
+                node.attr.exclude = '==genro.wdgById("'+viewId+'").getColumnValues("'+node.attr['value']+'")';
             }
             var dflt = node.attr['default'] || node.attr['default_value'] || '';
             node.getAttributeFromDatasource('value', true, dflt);
