@@ -1068,10 +1068,11 @@ class RecordHandler(object):
     # try to define inside goodsoftware _resources
                     
     def _record_dialog_bottom(self,pane):
-        pane.button('!!Cancel',float='left',baseClass='bottom_btn',
-                    fire_cancel='.exitAction')
         pane.button('!!Save',float='right',baseClass='bottom_btn',
-                    fire=".saveAndClose")
+                    fire=".saveAndClose", margin_left='5px', width='5em')
+        pane.button('!!Cancel',float='right',baseClass='bottom_btn',
+                    fire_cancel='.exitAction', margin_left='5px', width='5em')
+        
                         
     def rpc_deleteIncludedViewRecord(self, table, rowToDelete,**kwargs):
         tblobj = self.db.table(table)
