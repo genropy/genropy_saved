@@ -293,7 +293,7 @@ dojo.declare("gnr.GnrBagNode",null,{
             if (label in this.attr){
                 return this.attr[label];
             } else {
-                return _default;
+                return _default || null;
             }
         }
         return this.attr;
