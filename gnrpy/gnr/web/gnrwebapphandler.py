@@ -777,7 +777,7 @@ class GnrBaseWebAppHandler(object):
                     ignoreMissing=True, ignoreDuplicate=True, lock=False,
                     from_fld=None, target_fld=None, sqlContextName=None, applymethod=None,
                     js_resolver_one='relOneResolver', js_resolver_many='relManyResolver', 
-                    loadingParameters=None, **kwargs):
+                    loadingParameters=None, eager=None,**kwargs):
         t = time.time()
         dbtable = dbtable or table
         locked=False
@@ -791,7 +791,7 @@ class GnrBaseWebAppHandler(object):
             lock=False
         if lock:
             kwargs['for_update']=True
-        rec = tblobj.record(eager=self.page.eagers.get(dbtable),
+        rec = tblobj.record(eager=eager or self.page.eagers.get(dbtable),
                             ignoreMissing=ignoreMissing,ignoreDuplicate=ignoreDuplicate,
                             sqlContextName=sqlContextName,**kwargs)
         if sqlContextName:
@@ -833,7 +833,6 @@ class GnrBaseWebAppHandler(object):
 
         if applymethod:
             self.page.getPublicMethod('rpc', applymethod)(record)
-            
         recInfo['servertime'] = int((time.time() - t)*1000)
         if tblobj.lastTS:
             recInfo['lastTS'] = str(record[tblobj.lastTS])
