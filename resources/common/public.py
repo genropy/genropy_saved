@@ -522,9 +522,8 @@ class IncludedView(BaseComponent):
         """
         if not datapath:
             if storepath.startswith('.'):
-                storepath_base = getattr(self,'_storepath_base',None) or 'form.record'
-                storepath = '%s%s' %(storepath_base,storepath)
-                
+                storepath = '%s%s' % (parentBC.parentNode.getInheritedAttributes()['sqlContextRoot'], storepath)
+        print 'storepath %s' % str(storepath)
         viewPars = dict(kwargs)
         gridId = nodeId or self.getUuid()
         viewPars['nodeId'] = gridId        
@@ -925,7 +924,7 @@ class RecordHandler(object):
         * `validation_failed`: can be "alert" or "focus"
         """
         assert not '_onResult' in saveKwargs
-        assert not '_onResult' in loadKwargs
+        assert not '_onResult' in loadKwargs        
         tableId = custom_table_id or table.replace('.','_')
         sqlContextName='sqlcontext_%s' %tableId
         controllerPath = 'aux_forms.%s' % tableId
@@ -1019,16 +1018,14 @@ class RecordHandler(object):
         
     def _recordDialogLayout(self,bc,tableId,formCb,controllerPath,table,bottomCb):
         dlgId = "dlg_%s" %tableId
-        formId = "%s_form" %tableId
+        formId = "%s_form" %tableId        
         bottom = bc.contentPane(region='bottom',_class='dialog_bottom')
         bottomCb = bottomCb or getattr(self,'_record_dialog_bottom')
         bottomCb(bottom)
         stack = bc.stackContainer(region='center',_class='pbl_background' ,formId=formId,
                                   selected='^%s.stackPane' %controllerPath,datapath='.record')
         loading = stack.contentPane(_class='waiting')
-        self._storepath_base ='%s.record' %controllerPath
         formCb(stack, disabled='^form.locked', table=table)
-        self._storepath_base= ''
 
     def _record_dialog_bottom(self,pane):
         # edited by Jeff in first attempt to have nicer buttons, (will continue to work on it)
