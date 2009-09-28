@@ -868,7 +868,9 @@ class SqlQuery(object):
             n = l[0][0]
         cursor.close()
         return n
-
+        
+        
+        
 class SqlSelection(object):
     """ Is the resulting data from the execution of a SqlQuery. Through
        SqlSelection you can get data into differents modes, using output method or
