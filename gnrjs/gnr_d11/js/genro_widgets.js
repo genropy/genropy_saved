@@ -2597,7 +2597,7 @@ dojo.declare("gnr.widgets.GridEditor",gnr.widgets.baseHtml,{
     creating: function(attributes, sourceNode){
         attributes.display='none';
         sourceNode.attr.nodeId='grided_' + sourceNode.getStringId();
-        sourceNode.attr.datapath = '^.edit_datapath';
+        sourceNode.attr.datapath = '^'+sourceNode.getParentNode().absDatapath('.edit_datapath');
         sourceNode.registerDynAttr('datapath');
         
         
