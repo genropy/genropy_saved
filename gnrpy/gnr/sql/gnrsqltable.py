@@ -361,12 +361,21 @@ class SqlTable(GnrObject):
         return query
     
     def batchUpdate(self,callback=None,**kwargs):
-        fetch = tblapp.query(addPkeyColumn=False,for_update=True,**kwargs)
+        fetch = self.query(addPkeyColumn=False,for_update=True,**kwargs).fetch()
         for row in fetch:
             old_row = dict(row)
             callback(row)
             self.update(row,old_row)
-        
+    def readColumns(self,pkey,columns):
+        fetch = self.query(columns=columns,limit=1,where='$%s=:pkey' %self.pkey,
+                           pkey=pkey,addPkeyColumn=False).fetch()
+        if not fetch:
+            row = [None for x in columns.split(',')]
+        else:
+            row = fetch[0]
+        if len(row)==1:
+            row = row[0]
+        return row
     
     def sqlWhereFromBag(self, wherebag, sqlArgs=None):
         """
