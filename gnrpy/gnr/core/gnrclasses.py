@@ -196,7 +196,7 @@ class GnrClassCatalog(object):
         self.addParser(datetime.date, self.parse_date)
         
         self.addClass(cls=datetime.datetime, key='DH', aliases=['DATETIME','DT'], empty=None)
-        self.addParser(datetime.datetime, lambda txt: datetime.datetime(*[int(el) for el in gnrstring.wordSplit(txt)]))
+        self.addParser(datetime.datetime, self.parse_datetime)
 
         self.addClass(cls=datetime.time, key='H', aliases=['TIME'], empty=None)
         self.addParser(datetime.time, self.parse_time)
@@ -214,9 +214,15 @@ class GnrClassCatalog(object):
         self.addSerializer("asText", dict, self.toJson)
         
         
+        
     def parse_float(self, txt):
         if txt.lower()!='inf':
             return float(txt)
+            
+    def parse_datetime(self, txt, workdate=None):
+        splitted = gnrstring.wordSplit(txt)
+        result = datetime.datetime(*[int(el) for el in splitted])
+        return result
 
     def parse_date(self, txt, workdate=None):
         if txt and txt!='0000-00-00' and ISO_MATCH.match(txt):
