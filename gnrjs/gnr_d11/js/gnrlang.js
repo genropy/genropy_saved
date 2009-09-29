@@ -465,7 +465,7 @@ zip = function(list){
 };
 
 function asTypedTxt(value){
-    var typedText = convertToText(value);
+    var typedText = convertToText(value,{'xml':true});
     var valType = typedText[0];
     var valText = typedText[1];
     if (valType!='' && valType!='T'){
@@ -548,7 +548,6 @@ function convertToText (value, params){
     var dtype = objectPop(params,'dtype');
     var forXml = objectPop(params,'xml');
     var t = typeof(value);
-    
     if (t=='string') {
         result = ['T', value];
     } 
@@ -569,46 +568,34 @@ function convertToText (value, params){
         } else {
             result = ['R', v];
         }
-     }  else if ((value instanceof Date) && dtype=='H'){
-            if (forXml){
-                opt = {selector:'time',timePattern:"H:mm:ss"};
-            }
-            else{
-                opt = {selector:'time'};
-            }
-            opt = objectUpdate(opt,params);
-            result = ['H',v= dojo.date.locale.format(value,opt)];
-            
-    }  else if (value instanceof Date) {
-        if (format){
-            opt = {selector:'date'};
-            opt.formatLength = format;
+     
+     }
+     else if(value instanceof Date){
+         var selectors = {'D':'date','H':'time','DH':null};
+         var opt = {'selector':selectors[dtype || 'D']};
+         if (forXml){
+             opt.timePattern='HH:mm:ss';
+             opt.datePattern='yyyy-MM-dd';
+         }else{
+             opt = objectUpdate(opt,params);
+             opt.formatLength = format;
+         }
+         var result = [dtype||'D',v= dojo.date.locale.format(value,opt)];
 
-            result = ['D', dojo.date.locale.format(value, opt)];
-            
-            //result = ['D', format.replace(
-            //            '%Y', value.getFullYear()).replace(
-            //            '%d', value.getDate()).replace(
-            //            '%m', (value.getMonth()+1))
-            //        ];
-        } else {
-            result = ['D', value.getFullYear() + '-' +
-                          (value.getMonth()+1) + '-' +
-                           value.getDate()];
-        }
-    }   
+     }
+
     else if (value instanceof gnr.GnrBag){
         result=['bag',value.toXml({mode:'static'})];
     }
      else if (t=='object'){
             result=['JS',dojo.toJson(value)];
     }
-    
     if (mask){
         result[1] = mask.replace(/%s/g, result[1]);
     }
+
+     
     return result;
-    //elif isinstance(value, time): return 'H'  
 };
 
 function asText (value, params){
