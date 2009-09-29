@@ -735,6 +735,10 @@ class GnrBaseWebPage(GnrObject):
             if save: self.session.saveSessionData()
         else:
             pass
+    
+    def sendMessage(self,message):
+        self.setInClientData('gnr.servermsg', message, fired=True, save=True,
+                            src_page_id=self.page_id,src_user=self.user,src_connection_id=self.connection.connection_id)
             
     def clientDataChanges(self):
         if self.session.pagedata['_clientDataChanges']:
