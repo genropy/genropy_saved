@@ -2670,7 +2670,7 @@ dojo.declare("gnr.widgets.IncludedView",gnr.widgets.VirtualStaticGrid,{
         objectUpdate(attributes,gridAttributes);
         var structure, gnreditors, contents;
         var inAttrs= sourceNode.getInheritedAttributes();
-        var ctxRoot = inAttrs.sqlContextRoot;
+        var ctxRoot = sourceNode.absDatapath(inAttrs.sqlContextRoot);
         var abs_storepath = sourceNode.absDatapath(sourceNode.attr.storepath);
         var relation_path = abs_storepath;
         if (abs_storepath.indexOf(ctxRoot) == 0){
