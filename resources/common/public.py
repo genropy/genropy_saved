@@ -553,7 +553,6 @@ class IncludedView(BaseComponent):
         if not datapath:
             if storepath.startswith('.'): 
                 storepath = '%s%s' % (parentBC.parentNode.getInheritedAttributes()['sqlContextRoot'], storepath)
-        print 'storepath %s' % str(storepath)
         viewPars = dict(kwargs)
         gridId = nodeId or self.getUuid()
         viewPars['nodeId'] = gridId        
@@ -937,8 +936,8 @@ class RecordHandler(object):
     RecordHandler allows to Load and Save a record without passing through the mainrecord path
     it executes saving and loading in an independent way from the mainrecord of a standard table. 
     """
-    def recordDialog(self,table,firedPkey=None,height=None,width=None,_class=None,
-                    title=None,formCb=None,onSaved='',saveKwargs={},loadKwargs={},
+    def recordDialog(self,table=None,firedPkey=None,pane=None,height=None,width=None,_class=None,
+                    title=None,formCb=None,onSaved='',saveKwargs=None,loadKwargs=None,
                     savePath='',parentDialog=None,bottomCb=None,savingMethod=None,
                     loadingMethod=None, onClosed='',validation_failed='alert',custom_table_id=None):
         """
@@ -953,13 +952,18 @@ class RecordHandler(object):
         * `loadKwargs`: optional kwargs for the rpc loading method.
         * `validation_failed`: can be "alert" or "focus"
         """
-        assert not '_onResult' in saveKwargs
-        assert not '_onResult' in loadKwargs        
+        saveKwargs = saveKwargs or {}
+        loadKwargs = loadKwargs or {}
+
+        assert not '_onResult' in saveKwargs,'You cannot put a _onResult here'
+        assert not '_onResult' in loadKwargs,'You cannot put a _onResult here'
         tableId = custom_table_id or table.replace('.','_')
         sqlContextName='sqlcontext_%s' %tableId
         controllerPath = 'aux_forms.%s' % tableId
         sqlContextRoot= 'aux_forms.%s.record' % tableId
-        page = self.pageSource()
+        page = pane
+        if page is None:
+            page = self.pageSource()
         dlg = page.dialog(nodeId='dlg_%s' % tableId,title=title,
                           parentDialog=parentDialog)
         dlgBC = dlg.borderContainer(datapath=controllerPath, height=height, 
