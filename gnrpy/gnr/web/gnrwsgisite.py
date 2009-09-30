@@ -741,6 +741,8 @@ class GnrWsgiSite(object):
         if download:
             file_args['content_disposition']="attachment; filename=%s" % os.path.basename(fullpath)
         file_responder = fileapp.FileApp(fullpath,**file_args)
+        file_responder.cache_control(max_age=0)
+        print self.cache_max_age
         if self.cache_max_age:
             file_responder.cache_control(max_age=self.cache_max_age)
         return file_responder(environ, start_response)
