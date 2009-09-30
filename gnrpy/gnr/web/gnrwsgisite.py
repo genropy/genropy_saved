@@ -64,7 +64,7 @@ class GnrWsgiSite(object):
         self.config['secret'] = self.secret
         self.session_key = self.config['wsgi?session_key'] or 'gnrsession'
         self.debug = self.config['wsgi?debug']=='true' or False
-        self.cache_max_age = self.config['wsgi?cache_max_age'] or 2592000
+        self.cache_max_age = self.config['wsgi?cache_max_age'] or 0# 2592000
         self.gnrapp = self.build_gnrapp()
         self.wsgiapp = self.build_wsgiapp()
         self.db=self.gnrapp.db
@@ -730,12 +730,8 @@ class GnrWsgiSite(object):
         if not (fullpath and os.path.exists(fullpath)):
             return self.not_found(environ, start_response)
         if_none_match = environ.get('HTTP_IF_NONE_MATCH')
-        print 'pre if if_none_match'
         if if_none_match:
-            print 'if_none_match'
-            print if_none_match
             mytime = os.stat(fullpath).st_mtime
-            print mytime
             if str(mytime) == if_none_match:
                 headers = []
                 ETAG.update(headers, mytime)
