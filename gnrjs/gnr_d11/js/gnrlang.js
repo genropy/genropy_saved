@@ -804,11 +804,12 @@ function funcCreate(fnc, pars, scope){
             if (!stringStartsWith(fnc, 'function')){
                 fnc = 'function('+pars+'){'+fnc+'}';
             }
-            return genro.evaluate(fnc);
+            fnc = genro.evaluate(fnc);
+            if (scope) {
+                fnc = dojo.hitch(scope,fnc);
+            }
         }
-        else{
-            return fnc;
-        }
+        return fnc;
     }
 }
 
