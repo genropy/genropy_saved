@@ -731,7 +731,7 @@ class GnrWsgiSite(object):
         if not (fullpath and os.path.exists(fullpath)):
             return self.not_found(environ, start_response)
         if_none_match = environ.get('HTTP_IF_NONE_MATCH')
-        if if_none_match:
+        if False:#if_none_match:
             mytime = os.stat(fullpath).st_mtime
             if str(mytime) == if_none_match:
                 headers = []
