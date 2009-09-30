@@ -64,7 +64,7 @@ class GnrWsgiSite(object):
         self.config['secret'] = self.secret
         self.session_key = self.config['wsgi?session_key'] or 'gnrsession'
         self.debug = self.config['wsgi?debug']=='true' or False
-        self.cache_max_age = self.config['wsgi?cache_max_age'] or 0# 2592000
+        self.cache_max_age = self.config['wsgi?cache_max_age'] or 2592000
         self.gnrapp = self.build_gnrapp()
         self.wsgiapp = self.build_wsgiapp()
         self.db=self.gnrapp.db
@@ -730,7 +730,7 @@ class GnrWsgiSite(object):
         if not (fullpath and os.path.exists(fullpath)):
             return self.not_found(environ, start_response)
         if_none_match = environ.get('HTTP_IF_NONE_MATCH')
-        if False: #if_none_match:
+        if if_none_match:
             mytime = os.stat(fullpath).st_mtime
             if str(mytime) == if_none_match:
                 headers = []
@@ -741,8 +741,6 @@ class GnrWsgiSite(object):
         if download:
             file_args['content_disposition']="attachment; filename=%s" % os.path.basename(fullpath)
         file_responder = fileapp.FileApp(fullpath,**file_args)
-        file_responder.cache_control(max_age=0)
-        print self.cache_max_age
         if self.cache_max_age:
             file_responder.cache_control(max_age=self.cache_max_age)
         return file_responder(environ, start_response)
