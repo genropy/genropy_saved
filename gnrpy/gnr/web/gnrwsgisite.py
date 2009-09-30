@@ -4,7 +4,7 @@ from gnr.core.gnrstring import splitAndStrip
 from gnr.web.gnrwebpage import BaseResource
 from gnr.web.gnrwsgipage import GnrWsgiPage
 from gnr.web.gnrwebreqresp import GnrWebRequest,GnrWebResponse
-#from gnr.web.gzipmiddleware import Gzipper
+from gnr.web.gzipmiddleware import Gzipper
 from beaker.middleware import SessionMiddleware
 from paste import fileapp, httpexceptions, request
 from paste.httpheaders import ETAG
@@ -330,7 +330,7 @@ class GnrWsgiSite(object):
         beaker_path = os.path.join(os.path.realpath(self.site_path),'session_data')
         wsgiapp = SessionMiddleware(wsgiapp, dict(key=self.session_key, secret=self.secret, 
                 data_dir=beaker_path, type='memory', auto=True))
-        #wsgiapp = Gzipper(wsgiapp, compresslevel=8)
+        wsgiapp = Gzipper(wsgiapp, compresslevel=8)
         return wsgiapp
         
     def build_gnrapp(self):
