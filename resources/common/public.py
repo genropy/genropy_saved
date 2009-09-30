@@ -183,8 +183,7 @@ class Public(BaseComponent):
                                  
         pane.dataController('.gnr.workdate','changeServerWorkdate', newdate='=.workdate',
                             _if='newdate', _fired='^.setWorkdate')
-        
-        
+                            
     def rpc_changeServerWorkdate(self, newdate=None):
         if newdate:
             self.workdate = newdate
