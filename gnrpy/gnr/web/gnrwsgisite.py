@@ -209,6 +209,7 @@ class GnrWsgiSite(object):
         resp = Response()
         self.external_host = self.config['wsgi?external_host'] or req.host_url
         path_info = req.path_info
+        print path_info
         if path_info==self.home_uri:
             path_info=self.homepage
         if path_info.endswith('.py'):
@@ -721,7 +722,6 @@ class GnrWsgiSite(object):
     
     def serve_staticfile(self,path_list,environ,start_response,download=False,**kwargs):
         handler = getattr(self,'static%s'%path_list[0],None)
-        print path_list
         if handler:
             fullpath = handler(path_list)
             if fullpath and not os.path.isabs(fullpath):
@@ -731,7 +731,7 @@ class GnrWsgiSite(object):
         if not (fullpath and os.path.exists(fullpath)):
             return self.not_found(environ, start_response)
         if_none_match = environ.get('HTTP_IF_NONE_MATCH')
-        if False:#if_none_match:
+        if if_none_match:
             mytime = os.stat(fullpath).st_mtime
             if str(mytime) == if_none_match:
                 headers = []
