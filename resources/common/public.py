@@ -622,7 +622,7 @@ class IncludedView(BaseComponent):
         else:
             gridtop.div(label,margin_top='2px',float='left')
         if centerPaneCb:
-            gridcenter = getattr(self,centerPaneCb)(parentBC,region='center', **box_pars)
+            gridcenter = getattr(self,centerPaneCb)(parentBC,region='center', datapath=controllerPath, **box_pars)
         else:
             gridcenter = parentBC.contentPane(region='center',datapath=controllerPath, **box_pars)
         if not 'columns' in viewPars:
