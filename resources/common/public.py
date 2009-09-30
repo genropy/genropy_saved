@@ -939,7 +939,8 @@ class RecordHandler(object):
     def recordDialog(self,table=None,firedPkey=None,pane=None,height=None,width=None,_class=None,
                     title=None,formCb=None,onSaved='',saveKwargs=None,loadKwargs=None,
                     savePath='',parentDialog=None,bottomCb=None,savingMethod=None,
-                    loadingMethod=None, onClosed='',validation_failed='alert',custom_table_id=None):
+                    loadingMethod=None, loadingParameters=None,onClosed='',
+                    validation_failed='alert',custom_table_id=None,**kwargs):
         """
         Allow to manage a form into a dialog for editing and saving a single RecordHandler.
         * `table`: The table where the record is saved.
@@ -957,6 +958,8 @@ class RecordHandler(object):
 
         assert not '_onResult' in saveKwargs,'You cannot put a _onResult here'
         assert not '_onResult' in loadKwargs,'You cannot put a _onResult here'
+        assert not 'loadingParameters' in loadKwargs,'You cannot put a loadingParameters here'
+
         tableId = custom_table_id or table.replace('.','_')
         sqlContextName='sqlcontext_%s' %tableId
         controllerPath = 'aux_forms.%s' % tableId
@@ -974,13 +977,13 @@ class RecordHandler(object):
         self._recordDialogController(dlgBC,table,tableId,saveKwargs,
                                     loadKwargs,controllerPath,firedPkey,sqlContextName,
                                     onSaved,onClosed, savePath,savingMethod,loadingMethod,
-                                    validation_failed)
+                                    loadingParameters,validation_failed,**kwargs)
         self._recordDialogLayout(dlgBC,tableId,formCb,controllerPath,table,bottomCb)
 
     def _recordDialogController(self,pane,table,tableId,saveKwargs,
                                 loadKwargs,controllerPath,firedPkey,sqlContextName,
                                 onSaved,onClosed,savePath,savingMethod,loadingMethod,
-                                validation_failed):
+                                loadingParameters,validation_failed,**kwargs):
         formId = "%s_form" %tableId
         dlgId = "dlg_%s" %tableId
         onSaved = onSaved or ''
@@ -1020,9 +1023,12 @@ class RecordHandler(object):
                                } 
                             """%dlgId, exitAction ='^.exitAction', onClosed=onClosed)
         
+        loadingParameters = loadingParameters or '=gnr.tables.%s.loadingParameters' %table.replace('.','_')
+        loadKwargs = dict(loadKwargs)
+        loadKwargs.update(**kwargs)
         self.formLoader(formId,resultPath= '%s.record'%controllerPath,
                         table=table,pkey='=%s.current_pkey' %controllerPath,
-                        method=loadingMethod,loadingParameters='=gnr.tables.%s.loadingParameters' %table.replace('.','_'),
+                        method=loadingMethod,loadingParameters=loadingParameters,
                         sqlContextName=sqlContextName,**loadKwargs)
                        
         self.formSaver(formId,resultPath= savePath or '%s.savingResult' %controllerPath,
