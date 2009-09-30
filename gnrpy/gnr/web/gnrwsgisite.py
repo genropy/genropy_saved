@@ -729,6 +729,7 @@ class GnrWsgiSite(object):
             fullpath = None
         if not (fullpath and os.path.exists(fullpath)):
             return self.not_found(environ, start_response)
+        print fullpath
         if_none_match = environ.get('HTTP_IF_NONE_MATCH')
         if if_none_match:
             mytime = os.stat(fullpath).st_mtime
