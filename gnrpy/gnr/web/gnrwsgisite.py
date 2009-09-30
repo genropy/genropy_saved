@@ -721,6 +721,7 @@ class GnrWsgiSite(object):
     
     def serve_staticfile(self,path_list,environ,start_response,download=False,**kwargs):
         handler = getattr(self,'static%s'%path_list[0],None)
+        print path_list
         if handler:
             fullpath = handler(path_list)
             if fullpath and not os.path.isabs(fullpath):
@@ -729,7 +730,6 @@ class GnrWsgiSite(object):
             fullpath = None
         if not (fullpath and os.path.exists(fullpath)):
             return self.not_found(environ, start_response)
-        print fullpath
         if_none_match = environ.get('HTTP_IF_NONE_MATCH')
         if if_none_match:
             mytime = os.stat(fullpath).st_mtime
