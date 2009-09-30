@@ -812,10 +812,11 @@ class GnrBaseWebAppHandler(object):
             else:
                 for f in aux:
                     recInfo['locking_%s'%f]=aux[f]
-   
+        loadingParameters = loadingParameters or {}
+        loadingParameters.update(dict([(k[8:],v) for k,v in kwargs.items() if k.startswith('default_')]))
         method = None
         if loadingParameters:
-            method = loadingParameters.pop('method')
+            method = loadingParameters.pop('method',None)
         if method:
             handler = self.page.getPublicMethod('rpc', method)
         else:
