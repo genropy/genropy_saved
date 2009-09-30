@@ -203,12 +203,15 @@ dojo.declare("gnr.GnrDomSourceNode",gnr.GnrBagNode,{
                  var _onCalling = objectPop(kwargs,'_onCalling');
                  objectExtract(kwargs,'_*');
                  if (_onResult){
-                    _onResult = dojo.hitch(this, funcCreate(_onResult));
+                    //_onResult = dojo.hitch(this, funcCreate(_onResult));
+                    _onResult = funcCreate(_onResult,'result,kwargs',this);
+
                  }
                  kwargs['_rpc_resultPath']=destinationPath;
+                 var origKwargs = kwargs;
                  var cb = function(result){   dataNode.setValue(result);
                                               if(_onResult){
-                                                    _onResult(result);
+                                                    _onResult(result,origKwargs);
                                               }
                                         };
                 
@@ -362,7 +365,7 @@ dojo.declare("gnr.GnrDomSourceNode",gnr.GnrBagNode,{
     symbolicDatapath:function(path){
         var pathlist=path.split('.');
         var nodeId = pathlist[0].slice(1);
-        currNode=genro.nodeById(nodeId);
+        currNode=nodeId?genro.nodeById(nodeId):this;
         if (!currNode){
             alert('not existing nodeId:'+nodeId);
         }
