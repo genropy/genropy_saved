@@ -722,7 +722,11 @@ dojo.declare('gnr.GenroClient', null, {
     },
     evaluate:function(expr){
         //console.log(expr)
-        dojo.eval('genro.auxresult=('+expr+')');
+        if (genro._lastEvaluated) {console.warning('there was an error during evaluation:'+genro._lastEvaluated);};
+        var toEval = 'genro.auxresult=('+expr+')';
+        genro._lastEvaluated = toEval;
+        dojo.eval(toEval);
+        genro._lastEvaluated = null;
         return genro.auxresult;
     },
     isEqual:function(a,b){

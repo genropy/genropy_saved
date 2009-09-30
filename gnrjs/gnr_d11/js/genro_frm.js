@@ -329,10 +329,10 @@ dojo.declare("gnr.GnrValidator",null,{
         var validations = this.getCurrentValidations(sourceNode);
         return this._validate(sourceNode, value, validations, ['notnull']);
     },
-    validate: function(sourceNode, value){
+    validate: function(sourceNode, value,userChange){
         var validations = this.getCurrentValidations(sourceNode);
         var result = this._validate(sourceNode, value, validations, this.validationTags);
-        this.exitValidation(result, sourceNode, validations);
+        this.exitValidation(result, sourceNode, validations,userChange);
         return result;
     },
     _validate: function(sourceNode, value, validations, validationTags){
@@ -429,19 +429,19 @@ dojo.declare("gnr.GnrValidator",null,{
         validreturn['message'] = errormessage;
         return validreturn;
     },
-    exitValidation: function(result, sourceNode, validations){
+    exitValidation: function(result, sourceNode, validations,userChange){
         var func;
         if(result['error']){
             if(validations['onReject']){
-                func = funcCreate(validations['onReject'], 'value,result,validations,rowIndex');
+                func = funcCreate(validations['onReject'], 'value,result,validations,rowIndex,userChange');
             }
         } else {
             if(validations['onAccept']){
-                func = funcCreate(validations['onAccept'], 'value,result,validations,rowIndex');
+                func = funcCreate(validations['onAccept'], 'value,result,validations,rowIndex,userChange');
             }
         }
         if(func){
-            genro.callAfter(dojo.hitch(sourceNode, func, result['value'], result, validations, sourceNode.editedRowIndex), 1);
+            genro.callAfter(dojo.hitch(sourceNode, func, result['value'], result, validations, sourceNode.editedRowIndex,userChange), 1);
         }
     },
     validate_notnull: function(param, value){

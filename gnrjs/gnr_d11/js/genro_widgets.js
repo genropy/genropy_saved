@@ -392,7 +392,7 @@ dojo.declare("gnr.widgets.baseDojo",gnr.widgets.baseHtml,{
         return value;
     },
     validatemixin_validationsOnChange: function(sourceNode, value){
-        var result = genro.vld.validate(sourceNode, value);
+        var result = genro.vld.validate(sourceNode, value,true);
         if(result['modified']){
             sourceNode._modifying = true;
             sourceNode.widget.setValue(result['value']);
@@ -2709,7 +2709,7 @@ dojo.declare("gnr.widgets.IncludedView",gnr.widgets.VirtualStaticGrid,{
          var selectionId = sourceNode.attr['selectionId'] || sourceNode.attr.nodeId+'_selection';
          widget.autoSelect = sourceNode.attr['autoSelect'];
          if (typeof(widget.autoSelect)=='string'){
-             widget.autoSelect = funcCreate(widget.autoSelect,null,this);
+             widget.autoSelect = funcCreate(widget.autoSelect,null,widget);
          }
          widget.linkedSelection = genro.nodeById(selectionId);
          genro.src.afterBuildCalls.push(dojo.hitch(widget,'render'));

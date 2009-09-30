@@ -450,12 +450,19 @@ dojo.declare("gnr.GnrBag",null,{
     newNode: function(parentbag,label,value , _attr, _resolver){
          return  new this._nodeFactory (parentbag,label,value , _attr, _resolver);
     },
+    
     fillFrom: function(source){
         if (source instanceof Array){
             for (var i=0; i < source.length; i++){
                 this.setItem(source[i][0], source[i][1]);
             }
-        } else if (source instanceof Object){
+        }else if (source instanceof gnr.GnrBag) {
+           var dest = this;
+           source.forEach(function(node){
+               dest.setItem(node.label, node.getValue(),objectUpdate({},node.getAttr()));
+           }); 
+        }
+        else if (source instanceof Object){
             for (var k in source){
                 this.setItem(k, source[k]);
             }
@@ -1478,15 +1485,17 @@ dojo.declare("gnr.GnrBag",null,{
         };
         return this.walk(f, 'static');
     },
-    
-    walk: function (callback,mode,kw){
+    forEach: function(callback,mode,kw){
+        this.walk(callback,mode,kw,true);
+    },
+    walk: function (callback,mode,kw,notRecursive){
         var result;
         var bagnodes = this.getNodes();
         for (var i=0;((i<bagnodes.length) && (result == null));i++){
             result = callback(bagnodes[i],kw,i);
             if (result == null){
                 var value = bagnodes[i].getValue(mode);
-                if (value instanceof gnr.GnrBag){
+                if ((!notRecursive) && (value instanceof gnr.GnrBag)){
                     result = value.walk(callback,mode,kw);
                 }
             }
