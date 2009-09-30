@@ -4,7 +4,7 @@ from gnr.core.gnrstring import splitAndStrip
 from gnr.web.gnrwebpage import BaseResource
 from gnr.web.gnrwsgipage import GnrWsgiPage
 from gnr.web.gnrwebreqresp import GnrWebRequest,GnrWebResponse
-from gnr.web.gzipmiddleware import Gzipper
+#from gnr.web.gzipmiddleware import Gzipper
 from beaker.middleware import SessionMiddleware
 from paste import fileapp, httpexceptions, request
 from paste.httpheaders import ETAG
