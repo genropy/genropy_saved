@@ -731,8 +731,9 @@ class GnrWsgiSite(object):
             return self.not_found(environ, start_response)
         if_none_match = environ.get('HTTP_IF_NONE_MATCH')
         if if_none_match:
-            print 'none match'
+            print if_none_match
             mytime = os.stat(fullpath).st_mtime
+            print mytime
             if str(mytime) == if_none_match:
                 headers = []
                 ETAG.update(headers, mytime)
