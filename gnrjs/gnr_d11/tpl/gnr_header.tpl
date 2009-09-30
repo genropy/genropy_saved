@@ -1,19 +1,16 @@
 <!-- ================  Genropy Headers ================ -->
-        <script type="text/javascript" src="${dojolib}"
-                djConfig="${djConfig}"></script>
-        <script type="text/javascript">
-             dojo.registerModulePath('gnr','${gnrModulePath}')
-        </script>
+<script type="text/javascript" src="${dojolib}" djConfig="${djConfig}"> </script>
+<script type="text/javascript">dojo.registerModulePath('gnr','${gnrModulePath}');</script>
 % if dijitImport:
-        <script type="text/javascript" src="${dijitImport}"></script>
+    <script type="text/javascript" src="${dijitImport}"></script>
 % endif
 
 % for jsname in genroJsImport:
-        <script type="text/javascript" src="${jsname}"></script>
+    <script type="text/javascript" src="${jsname}"></script>
 % endfor
 
 % for customHeader in customHeaders:
-        ${customHeader}
+    ${customHeader}
 % endfor
 
 % for jsname in js_requires:
