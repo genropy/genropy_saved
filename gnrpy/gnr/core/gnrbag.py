@@ -860,18 +860,21 @@ class Bag(GnrObject):
             if n:
                 return n
             
-    def pop(self, path):
+    def pop(self, path,dflt=None):
         """ 
         This method is analog to dictionary's pop() method. It pops the given item
         from the Bag; it returns the given item.
         * `path`: path of the given item.
         @return: the given item.
         """
+        result = dflt
         obj, label = self._htraverse(path)
         if obj: 
             n = obj._pop(label)
             if n:
-                return n.value
+                result = n.value
+        return result
+        
     delItem = pop
     __delitem__=pop
     
@@ -899,6 +902,10 @@ class Bag(GnrObject):
         this method merge a Bag into the current one.
         * `otherbag`: a Bag to merge into.
         """
+        if isinstance(otherbag,dict):
+            for k,v in otherbag.items():
+                self.setItem(k,v)
+            return
         if isinstance(otherbag, basestring):
             cls=self.__class__
             b = Bag()
