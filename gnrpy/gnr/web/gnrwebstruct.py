@@ -397,18 +397,6 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
         if struct:
             self.data(structpath,struct)
         return self.child('includedView', storepath=storepath, structpath=structpath, nodeId=nodeId, **kwargs)
-          
-    def dialog(self,parentDialog=None,**kwargs):
-        current = self
-        if not parentDialog:
-            def isDialog(item):
-                return item.parentNode and item.parentNode.attr.get('tag').lower()=='dialog'
-
-            while not isDialog(current) and current.parent:
-                current = current.parent
-            if isDialog(current):
-                parentDialog = current.parentNode.attr.get('nodeId')
-        return self.child('dialog',parentDialog=parentDialog, **kwargs)
         
     def button(self,label=None,**kwargs):
         return self.child('button',label=label,**kwargs)
