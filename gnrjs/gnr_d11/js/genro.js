@@ -722,7 +722,7 @@ dojo.declare('gnr.GenroClient', null, {
     },
     evaluate:function(expr){
         //console.log(expr)
-        if (genro._lastEvaluated) {console.warning('there was an error during evaluation:'+genro._lastEvaluated);};
+        if (genro._lastEvaluated) {console.warn('there was an error during evaluation:'+genro._lastEvaluated);};
         var toEval = 'genro.auxresult=('+expr+')';
         genro._lastEvaluated = toEval;
         dojo.eval(toEval);
