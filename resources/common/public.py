@@ -1066,16 +1066,7 @@ class RecordHandler(object):
         loading = stack.contentPane(_class='waiting')
         formCb(stack, disabled='^form.locked', table=table)
 
-    #def _record_dialog_bottom(self,pane):
-    #    # edited by Jeff in first attempt to have nicer buttons, (will continue to work on it)
-    #    tblbody=pane.div().table(cellspacing="0", border='0').tbody()
-    #    r1=tblbody.tr()
-    #    c13=r1.td().div('&nbsp;', width='10px')
-    #    c11=r1.td().div(width='80px', align='left').button('!!Cancel', width='60px',baseClass='bottom_btn',fire_cancel='.exitAction')
-    #    c12=r1.td().div(width='80px', align='left').button('!!Save',width='60px', align='right', baseClass='bottom_btn',fire=".saveAndClose")
-    #    c13=r1.td().div('&nbsp;')
-    # try to define inside goodsoftware _resources
-                    
+    #Jeff suggests that the margins be taken out of the code and put into the css
     def _record_dialog_bottom(self,pane):
         pane.button('!!Save',float='right',baseClass='bottom_btn',
                     fire=".saveAndClose", margin_left='5px', width='5em')
