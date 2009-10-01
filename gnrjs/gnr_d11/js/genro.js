@@ -89,6 +89,9 @@ dojo.declare('gnr.GenroClient', null, {
     ping:function(){
         genro.rpc.ping();
     },
+    bp:function(aux){
+        console.log('bp '+aux);
+    },
     onWindowUnload:function(e){
         var result;
         genro.saveContextCookie();
