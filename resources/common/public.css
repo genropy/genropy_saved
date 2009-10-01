@@ -680,6 +680,19 @@ padding-right:5px;
 	background:  #adc2ff url(icons/linkto.gif) no-repeat;
 }
 
+.gnrmenulabel{
+	text-decoration: none;
+	padding-right:15px;
+    cursor:pointer;
+    font-weight:bold;
+}
+.gnrmenulabel:hover{
+	-moz-border-radius:7px;
+    -webkit-border-radius:7px;
+	background:  #adc2ff url(icons/linktomenu.gif) right no-repeat;
+}
+
+
 
 .menupane > div{
 	position: absolute;
