@@ -473,11 +473,32 @@ dojo.declare("gnr.widgets.Dialog",gnr.widgets.baseDojo,{
         }
     },
     created:function(newobj, savedAttrs, sourceNode){
-        if ('parentDialog' in sourceNode.attr){
-            var parentDlg=genro.wdgById(sourceNode.attr.parentDialog);
-            dojo.connect(newobj,"show",function(){parentDlg.hide();});
-            dojo.connect(newobj,"hide",function(){parentDlg.show();});
-        }
+        dojo.connect(newobj,"show",newobj,
+                    function(){
+                        if (this!=genro.dialogStack.slice(-1)[0]) {
+                            genro.dialogStack.push(this);
+                            if (genro.dialogStack.length>1) {
+                                genro.dialogStack.slice(-2)[0].hide();
+                            }
+                        }
+                    });
+        dojo.connect(newobj,"hide",newobj,
+                    function(){ 
+                            if (this==genro.dialogStack.slice(-1)[0]) {
+                                    genro.dialogStack.pop();
+                                    if (genro.dialogStack.length>0) {
+                                        genro.dialogStack.slice(-1)[0].show();
+                                    }}});
+        
+       //if ('parentDialog' in sourceNode.attr){
+       //    
+       //    var parentDlg=genro.wdgById(sourceNode.attr.parentDialog);
+       //    dojo.connect(newobj,"show",function(){parentDlg.hide();});
+       //    dojo.connect(newobj,"hide",function(){parentDlg.show();});
+       //}else{
+       //    dojo.connect(newobj,"show",newobj,'parentHide');
+       //    dojo.connect(newobj,"hide",newobj,'parentShow');
+       //}
     },
 
     attributes_mixin_onAskCancel:function(){
@@ -494,8 +515,17 @@ dojo.declare("gnr.widgets.Dialog",gnr.widgets.baseDojo,{
     },
     mixin_setTitle:function(title){
         this.titleNode.innerHTML = title;
+    },
+    mixin_parentHide: function(){
+        console.log('parentHide')
+    },
+    mixin_parentShow: function(){
+        console.log('parentShow')
+    },
+    mixin_getParentDialog: function(){
+        console.log('getParentDialog')
     }
-    
+
 });
 dojo.declare("gnr.widgets.Editor",gnr.widgets.baseDojo,{
     constructor: function(application){
