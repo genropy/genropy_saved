@@ -483,7 +483,15 @@ table.formbuilder {
 	width: 7px;
 	height: 12px;
 }
+.smallmenu .dijitMenuItem {
+	font-size: .85em !important;
+}
 
+.smallmenu .dijitMenuItem TD {
+	padding-top: 0px;
+	padding-bottom: 0px;
+	padding-right: .40em;
+}
 .floatingPopup {
 	padding-right: 15px;
 }
