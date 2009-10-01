@@ -3217,7 +3217,7 @@ dojo.declare("gnr.widgets.Tree",gnr.widgets.baseDojo,{
         var attributes = {};
         if (modifiers){
             attributes._modifiers = modifiers;
-        }
+        };
         if(!item){
             return;
         }
@@ -3227,6 +3227,17 @@ dojo.declare("gnr.widgets.Tree",gnr.widgets.baseDojo,{
         if (this.sourceNode.attr.selectedLabel){
             var path=this.sourceNode.attrDatapath('selectedLabel');
             genro.setData(path,item.label,attributes);
+        }
+        if (this.sourceNode.attr.selectedNodes){
+            var nodes = this.getSelectedNodes();
+            if (nodes){
+                var selNodes=new gnr.GnrBag();
+                dojo.forEach(nodes,
+                    function(node){selNodes.setItem(node.label,null,node.getAttr());}
+                            );
+            }
+            var path=this.sourceNode.attrDatapath('selectedNodes');
+            genro.setData(path,selNodes,{'count':selNodes.len()});
         }
         if (this.sourceNode.attr.selectedItem){
             var path=this.sourceNode.attrDatapath('selectedItem');
