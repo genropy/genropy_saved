@@ -56,6 +56,7 @@ dojo.declare('gnr.GenroClient', null, {
         this.pageMode = kwargs.pageMode;
         this.startTime=new Date();
         this.lastTime=this.startTime;
+        this.dialogStack = [];
         this.compareDict={'==':function(a,b){return (a==b);},
                           '>':function(a,b){return (a>b);},
                           '>=':function(a,b){return (a>=b);},
