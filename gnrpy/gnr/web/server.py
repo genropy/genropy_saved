@@ -48,6 +48,7 @@ def start_bonjour(host=None, port=None, server_name=None,
     port = str(port)
     cmds = [['/usr/bin/avahi-publish-service', ["-H", host, name,type, port]],['/usr/bin/dns-sd', ['-R', name, type, "."+host, port, "path=/"]]]
 
+
     for cmd, args in cmds:
         # TODO:. This check is flawed.  If one has both services installed and
         # avahi isn't the one running, then this won't work.  We should either
@@ -55,13 +56,12 @@ def start_bonjour(host=None, port=None, server_name=None,
         # that.  Program availability on the filesystem was never enough...
         if os.path.exists(cmd):
             DNS_SD_PID = os.spawnv(os.P_NOWAIT, cmd, [cmd]+args)
-            print DNS_SD_PID
             atexit.register(stop_bonjour)
             break
 
 def stop_bonjour():
-    import signal
     global DNS_SD_PID
+    import signal
     if not DNS_SD_PID:
         return
     try:
@@ -359,8 +359,8 @@ class NewServer(object):
                         reloader.watch_file(file_path)
             else:
                 return self.restart_with_reloader()
-
-        if self.options.bonjour:
+        first_run=int(getattr(self.options,'counter',0))==0
+        if self.options.bonjour and first_run:
             self.set_bonjour()
         if self.cmd:
             return self.check_cmd()
@@ -474,7 +474,10 @@ class NewServer(object):
             if not live_pidfile(pid_file):
                 break
             import signal
-            os.kill(pid, signal.SIGTERM)
+            global DNS_SD_PID
+            if DNS_SD_PID:
+                os.kill(DNS_SD_PID, signal.SIGTERM)
+                DNS_SD_PID = None
             time.sleep(1)
         else:
             print "failed to kill web process %s" % pid
@@ -534,6 +537,10 @@ class NewServer(object):
                     and hasattr(os, 'kill')):
                     import signal
                     try:
+                        global DNS_SD_PID
+                        if DNS_SD_PID:
+                            os.kill(DNS_SD_PID, signal.SIGTERM)
+                            DNS_SD_PID = None
                         os.kill(proc.pid, signal.SIGTERM)
                     except (OSError, IOError):
                         pass
