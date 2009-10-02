@@ -677,7 +677,7 @@ padding-right:5px;
 .gnrzoomlabel:hover{
 	-moz-border-radius:7px;
     -webkit-border-radius:7px;
-	background:  #adc2ff url(icons/linkto.gif) no-repeat;
+	background: transparent url(icons/linkto.gif) no-repeat;
 }
 
 .gnrmenulabel{
