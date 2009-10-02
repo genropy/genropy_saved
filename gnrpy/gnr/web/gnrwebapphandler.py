@@ -489,8 +489,6 @@ class GnrBaseWebAppHandler(object):
         return result
         
     def export_standard(self, selection, locale=None,columns=None,filename=None,**kwargs):
-        print 'export_standard'
-        print selection.output('bag')
         filename = filename or self.maintable or  self.request.uri.split('/')[-1]
         content = selection.output('tabtext', columns=columns, locale=locale)
         self.page.utils.sendFile(content,filename,'xls')
