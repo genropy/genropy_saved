@@ -80,7 +80,8 @@ class GnrWsgiSite(object):
         self.webtools = self.find_webtools()
         if HAS_PRINTHANDLER:
             self.print_handler=PrintHandler(parent = self)
-            
+        else:
+            self.print_handler=None
         if counter==0:
             self.onInited(clean = not noclean)
         
