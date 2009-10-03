@@ -45,7 +45,8 @@ class PrintUtils(BaseComponent):
         bottomBar.button('!!Cancel', float='right', action="genro.wdgById('%s').hide()"%dlgId)
         
     def rpc_getPrinters(self):
-        return self.site.print_handler.getPrinters()
+        if self.site.print_handler:
+            return self.site.print_handler.getPrinters()
         
     def rpc_getPrinterAttributes(self,printer_name):
         return self.site.print_handler.getPrinterAttributes(printer_name)
