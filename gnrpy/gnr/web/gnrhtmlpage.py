@@ -184,7 +184,7 @@ class GnrHtmlDojoPage(GnrHtmlPage):
         self.main(self.body,*args, **kwargs)
         self.finalizeDojo()
         result=self.builder.toHtml()
-        print result
+        #print result #commented out by Jeff
         return result
         
     
