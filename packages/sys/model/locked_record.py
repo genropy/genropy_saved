@@ -3,7 +3,7 @@ from datetime import datetime
 class Table(object):
     def config_db(self, pkg):
         tbl =  pkg.table('locked_record',  pkey='id',name_long='!!Locked Record',
-                      name_plural='!!Messages')
+                      name_plural='!!Locked records')
         tbl.column('id',size='22',name_long='!!id')
         tbl.column('lock_ts','DH',name_long='!!Date and Time')
         tbl.column('lock_table',size=':64',name_long='!!Table')
