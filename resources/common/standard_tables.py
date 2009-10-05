@@ -602,7 +602,7 @@ class TableHandler(BaseComponent):
         pane.dataFormula('form.canDelete','(!locked) && deletePermission',locked='^form.locked',deletePermission='=usr.deletePermission',_init=True)
         pane.dataFormula('form.lockAcquire','(!statusLocked) && lock',statusLocked='^status.locked',
                                      lock=self.recordLock or False)
-        pane.dataController("""console.log('record loaded')
+        pane.dataController("""
                                SET form.logical_deleted = (GET form.record.__del_ts != null);
                                if (lockId){
                                    alert('lockId:'+lockId)
@@ -611,7 +611,7 @@ class TableHandler(BaseComponent):
                                    alert('already locked by:'+username)
                                    SET status.locked=true;
                                }
-                              console.log('end record loaded')
+                              
                             """,
                             lockId='=form.record?lockId',
                             username='=form.record?locking_username',
