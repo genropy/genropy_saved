@@ -264,10 +264,10 @@ dojo.declare('gnr.GenroClient', null, {
             var event_attrs = '';
             var events = objectExtract(f,'on*',true);
             if (events){
-                for(var e in events){
-                    var cb = funcCreate(events[e]);
+                for(var event_type in events){
                     var cellPars = f['cellPars'] || {};
-                    event_attrs += " on"+e+"='var cb="+cb.toString()+"; cb("+serialize(cellPars)+")'";
+                    var jsCode="genro.src.onEventCall(event,'"+escapeLiterals(events[event_type])+"',"+serialize(cellPars) +");"
+                    event_attrs += " on"+event_type+'="'+cleanJsCode(jsCode)+'"';
                 }
             }
             v="<div "+ event_attrs +" style='margin:auto;' "+divclass+">"+divcontent+"</div>";

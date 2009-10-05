@@ -1391,10 +1391,12 @@ class GnrBaseWebPage(GnrObject):
             h=getattr(self, 'class_%s' % resolverclass)
             c=h()
             c(*args,**kwargs)()
-        elif resolverclass in self.globals:
+        elif hasattr(self, 'globals') and resolverclass in self.globals:
             return self.globals[resolverclass](*args,**kwargs)()
         else:
-            raise str(resolverclass)
+            #raise str(resolverclass)
+            #handle this case!
+            pass
     
     def makoTemplate(self,path,striped='odd_row,even_row', **kwargs):
         auth = self._checkAuth()

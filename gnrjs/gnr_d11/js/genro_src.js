@@ -198,6 +198,28 @@ dojo.declare("gnr.GnrSrcHandler",null,{
     setInRootContainer:function(label,item){
         alert('removed : setInRootContainer in genro_src');
     },
+    enclosingSourceNode:function(item){
+        if (item.sourceNode){
+            return item.sourceNode;
+        }
+        if (item.widget){
+            var widget = item.widget;
+        }else{
+            var widget = dijit.getEnclosingWidget(item);
+        }
+        if (widget){
+            if (widget.sourceNode){
+                return widget.sourceNode
+            }else{
+                return genro.src.enclosingSourceNode(widget.domNode.parentNode);
+            }
+        }
+    },
+    onEventCall:function(e, code, kw){
+        var sourceNode = genro.src.enclosingSourceNode(e.target);
+        var func = funcCreate(code,'kw,e',sourceNode)
+        func(kw,e);
+    },
     refreshSourceIndexAndSubscribers:function(){
         var oldSubscribedNodes=this._subscribedNodes;
         this._index={};

@@ -585,6 +585,16 @@ table.formbuilder {
 
 .icnBaseOk {
 	background: url(icons/base16/ok.gif) no-repeat;
+	width: 17px;
+	height: 17px;
+}
+.checkboxOn {
+	background: url(icons/checkMarkOn.png) no-repeat;
+	width: 17px;
+	height: 17px;
+}
+.checkboxOff {
+	background: url(icons/checkMarkOff.png) no-repeat;
 	width: 16px;
 	height: 16px;
 }

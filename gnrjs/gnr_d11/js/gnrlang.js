@@ -736,6 +736,12 @@ function macroExpand_FIRE_AFTER(fnc){
     fnc = fnc.replace(/;FIRE_AFTER/g,'; FIRE_AFTER').replace(macroSET, "$1this.setRelativeData('$2', true, null, true,null,10)$3 ");
     return fnc;
 }
+function cleanJsCode(code){
+    return code.replace(/\n/g,'').replace(/;(\s)+/g,';');
+}
+function escapeLiterals(code){
+    return code.replace(/'/g,"\\\'").replace(/"/g,"\\\'");
+}
 function eventToString(e){
     var result='';
     if (e.shiftKey){result+="Shift";}
