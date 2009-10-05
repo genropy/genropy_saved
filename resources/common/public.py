@@ -680,7 +680,7 @@ class IncludedView(BaseComponent):
         assert not 'nodeId' in selectionPars
         #assert 'where' in selectionPars
         selectionPars['nodeId'] = "%s_selection" %gridId
-        selectionPars['columns'] = selectionPars.get('columns') or '=.columns' 
+        selectionPars['columns'] = selectionPars.get('columns') or '=.columns'
         pane.dataSelection(storepath,table,**selectionPars)
         
     def _iv_IncludedViewController(self, controller, gridId ,controllerPath,table=None):
@@ -1100,9 +1100,10 @@ class RecordToHtmlFrame(BaseComponent):
     def _custom_print_toolbar(self,toolbar):
         pass
         
-    def recordToHtmlFrame(self, bc, frameId='', table='',
+    def recordToHtmlFrame(self, bc, frameId='', table='', delay=None,
                           respath=None, pkeyPath='',background_color='white',
-                          enableConditionPath='',docNamePath='', customToolbarCb=None,**kwargs):
+                          enableConditionPath='',condition_function=None, condition_value='',
+                          docNamePath='', customToolbarCb=None,**kwargs):
         
         table = table or self.maintable
         frameId = frameId or self.getUuid()
@@ -1149,6 +1150,9 @@ class RecordToHtmlFrame(BaseComponent):
                               border='0px',
                               height='100%',
                               width='100%',
+                              delay=delay,
+                              condition_function=condition_function,
+                              condition_value = condition_value,
                               rpcCall='callTableScript',
                               rpc_record = '=%s' % pkeyPath,
                               rpc_table = table,

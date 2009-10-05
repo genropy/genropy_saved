@@ -379,17 +379,19 @@ dojo.declare("gnr.GnrRpcHandler",null,{
     updateUrlParams: function(params, source){
         return dojo.io.argsFromMap(objectUpdate(genro.rpc.getURLParams(source), params, true));
     },
-    getRpcUrlArgs:function(method, kwargs, sourceNode){
+    getRpcUrlArgs:function(method, kwargs, sourceNode, avoidCache){
         var currParams = {};
         currParams['page_id']=this.application.page_id;
         currParams['method']=method;
         currParams['mode']='text';
-        currParams['xxcnt'] = genro.getCounter();
+        if(avoidCache!=false){
+            currParams['xxcnt'] = genro.getCounter();
+        }
         return objectUpdate(currParams, this.serializeParameters(this.dynamicParameters(kwargs, sourceNode)));
     }
     ,
-    rpcUrl:function(method, kwargs, sourceNode){
-        return this.application.absoluteUrl(null,  genro.rpc.getRpcUrlArgs(method, kwargs, sourceNode));
+    rpcUrl:function(method, kwargs, sourceNode, avoidCache){
+        return genro.absoluteUrl(null,  genro.rpc.getRpcUrlArgs(method, kwargs, sourceNode,avoidCache), avoidCache);
     },
     
     makoUrl:function(template, kwargs){

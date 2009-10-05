@@ -584,7 +584,7 @@ dojo.declare('gnr.GenroClient', null, {
         }
         dojo.publish(topic, args);
     },
-    absoluteUrl: function(url, kwargs){
+    absoluteUrl: function(url, kwargs, avoidCache){
         var base = document.location.pathname;
         if (url){
             var sep=url.slice(0,1)=='?'?'':'/';
@@ -596,12 +596,16 @@ dojo.declare('gnr.GenroClient', null, {
         if(kwargs){
             var currParams = {};
             currParams['page_id']=genro.page_id;
-            currParams['xxcnt']=genro.getCounter();
+            if (avoidCache != false){
+                currParams['xxcnt']=genro.getCounter();
+            }
             objectUpdate(currParams, kwargs);
             var parameters = [];
             for (var key in currParams){
                 parameters.push(key+'='+escape(currParams[key]));
             }
+
+            
             url = url+'?'+parameters.join('&');
         } else {
             url = url+document.location.search;
@@ -663,8 +667,8 @@ dojo.declare('gnr.GenroClient', null, {
         }
         return obj;
     },
-    remoteUrl: function(method, arguments, sourceNode){
-         return genro.rpc.rpcUrl(method, arguments, sourceNode);
+    remoteUrl: function(method, arguments, sourceNode, avoidCache){
+         return genro.rpc.rpcUrl(method, arguments, sourceNode, avoidCache);
      },
     setUrlRemote: function(widget, method, arguments){
         var url = genro.rpc.rpcUrl(method, arguments);

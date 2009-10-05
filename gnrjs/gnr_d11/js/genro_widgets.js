@@ -306,6 +306,11 @@ dojo.declare("gnr.widgets.baseHtml",null,{
 dojo.declare("gnr.widgets.iframe",gnr.widgets.baseHtml,{
     creating:function(attributes, sourceNode){
         sourceNode.savedAttrs = objectExtract(attributes,'rowcount,tableid,src,rpcCall');
+        var condFunc= objectPop(attributes,'condition_function');
+        var condValue= objectPop(attributes,'condition_value');
+        if (condFunc){
+            sourceNode.condition_function = funcCreate(condFunc, 'value');
+        }
         return sourceNode.savedAttrs;
     },
     created:function(newobj, savedAttrs, sourceNode){
@@ -333,7 +338,7 @@ dojo.declare("gnr.widgets.iframe",gnr.widgets.baseHtml,{
         }else if(attributes['rpcCall']){
             params=objectExtract(attributes,'rpc_*', true);
             params.mode= params.mode? params.mode:'text';
-            return genro.remoteUrl(attributes['rpcCall'],params, sourceNode);
+            return genro.remoteUrl(attributes['rpcCall'],params, sourceNode, false);
         }
     },
     set_print:function(domnode,v,kw){
@@ -342,15 +347,35 @@ dojo.declare("gnr.widgets.iframe",gnr.widgets.baseHtml,{
     set_if:function(domnode,v,kw){
         domnode.gnr.setSrc(domnode);
     },
+    setCondition_value:function(domnode,v,kw){
+        domnode.sourceNode.condition_value=v;
+        domnode.gnr.setSrc(domnode);
+    },
     set_reloader:function(domnode,v,kw){
         domnode.gnr.setSrc(domnode);
     },
     setSrc:function(domnode, v, kw){
         var sourceNode = domnode.sourceNode;
-        if( (!sourceNode.attr._if) || (sourceNode.getAttributeFromDatasource('_if'))){
-            var v = v || this.prepareSrc(domnode);
-            domnode.src = v;
+        if(sourceNode.attr._if && !sourceNode.getAttributeFromDatasource('_if')){
+            console.log("there's _if and it is false");
+             var v='';
+        }else if(sourceNode.condition_function && !sourceNode.condition_function(sourceNode.condition_value)){
+            console.log("there's conditionFunction and its result is false");
+            var v='';
         }
+        else{
+            console.log("no condition or condition is true");
+            var v = v || this.prepareSrc(domnode);
+        }
+        if (sourceNode.currentSetTimeout){
+            clearTimeout(sourceNode.currentSetTimeout);
+        }
+        sourceNode.currentSetTimeout = setTimeout(function(d,url){
+                                              var absUrl = document.location.protocol+'//'+document.location.host+url;
+                                               if (absUrl!=d.src){
+                                                   d.src = url;
+                                               }
+                                           }, sourceNode.attr.delay || 1 ,domnode,v);
     }
 });
 
@@ -1459,6 +1484,17 @@ dojo.declare("gnr.widgets.Grid",gnr.widgets.baseDojo,{
         if (this.sourceNode.attr.selectedIndex){
             this.sourceNode.setAttributeInDatasource('selectedIndex', ((idx < 0) ? null : idx),null,null,true);
         }
+        if (this.sourceNode.attr.selectedNodes){
+            var nodes = this.getSelectedNodes();
+            if (nodes){
+                var selNodes=new gnr.GnrBag();
+                dojo.forEach(nodes,
+                    function(node){selNodes.setItem(node.label,null,node.getAttr());}
+                            );
+            }
+            var path=this.sourceNode.attrDatapath('selectedNodes');
+            genro.setData(path,selNodes,{'count':selNodes.len()});
+        }
         if (this.sourceNode.attr.selectedId){
             var selectedId=null;
             if (idx>=0){
@@ -1466,8 +1502,6 @@ dojo.declare("gnr.widgets.Grid",gnr.widgets.baseDojo,{
             }
             this.sourceNode.setAttributeInDatasource('selectedId', selectedId,null,this.rowByIndex(idx),true);
         }
-
-
     },
     mixin_indexByRowAttr:function(attrName, attrValue,op,backward){
         var op = op || '==';        
@@ -3257,17 +3291,6 @@ dojo.declare("gnr.widgets.Tree",gnr.widgets.baseDojo,{
         if (this.sourceNode.attr.selectedLabel){
             var path=this.sourceNode.attrDatapath('selectedLabel');
             genro.setData(path,item.label,attributes);
-        }
-        if (this.sourceNode.attr.selectedNodes){
-            var nodes = this.getSelectedNodes();
-            if (nodes){
-                var selNodes=new gnr.GnrBag();
-                dojo.forEach(nodes,
-                    function(node){selNodes.setItem(node.label,null,node.getAttr());}
-                            );
-            }
-            var path=this.sourceNode.attrDatapath('selectedNodes');
-            genro.setData(path,selNodes,{'count':selNodes.len()});
         }
         if (this.sourceNode.attr.selectedItem){
             var path=this.sourceNode.attrDatapath('selectedItem');
