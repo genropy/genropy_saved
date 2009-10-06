@@ -50,7 +50,7 @@ class Package(GnrDboPackage):
                                         userid=userid,start_ts=datetime.now(),
                                         ip=page.request.remote_addr,
                                          user_agent=page.request.get_header('User-Agent'))
-            tblconnection.insert(new_connection_record)
+            tblconnection.insertOrUpdate(new_connection_record)
         else:
             tblconnection.closeConnection(connection.connection_id,end_reason='logout')
         page.db.commit()
