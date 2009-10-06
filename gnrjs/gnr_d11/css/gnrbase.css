@@ -590,13 +590,13 @@ table.formbuilder {
 }
 .checkboxOn {
 	background: url(icons/checkMarkOn.png) no-repeat;
-	width: 17px;
-	height: 17px;
+	width: 15px;
+	height: 15px;
 }
 .checkboxOff {
 	background: url(icons/checkMarkOff.png) no-repeat;
-	width: 16px;
-	height: 16px;
+	width: 15px;
+	height: 15px;
 }
 
 /* @group boole */
