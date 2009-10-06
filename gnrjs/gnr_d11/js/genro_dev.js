@@ -179,7 +179,7 @@ dojo.declare("gnr.GnrDevHandler",null,{
         var node = genro.src.getNode('_localizer').clearValue().freeze();
         genro.setData('gnr.pageLocalization',genro.rpc.remoteCall('app.pageLocalizationLoad'));
         var dlg=node._('dialog',{nodeId:'_localizer',title:'Localizer',width:'40em','padding':'2px'});
-        var xx=dlg._('div',{height:'200px',overflow:'auto',background_color:'#eee',border:'1px inset'});
+        var xx=dlg._('div',{height:'400px',overflow:'auto',background_color:'#eee',border:'1px inset'});
         var saveData=function(){
             var data=genro.getData('gnr.pageLocalization');
             var cb=function(){
