@@ -611,7 +611,10 @@ class TableHandler(BaseComponent):
                                    alert('already locked by:'+username)
                                    SET status.locked=true;
                                }
+<<<<<<< .mine
+=======
                               
+>>>>>>> .r1023
                             """,
                             lockId='=form.record?lockId',
                             username='=form.record?locking_username',
