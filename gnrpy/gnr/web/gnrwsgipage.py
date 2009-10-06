@@ -186,7 +186,7 @@ class GnrWsgiPage(GnrBaseWebPage):
         if os.path.isfile(self.resolvePath('%s.js' % self.pagename)):
             js_requires.append('%s.js' % self.pagename)
         arg_dict['js_requires'] = js_requires
-        css_requires = self.get_css_requires()
+        #css_requires = self.get_css_requires()
         #if os.path.isfile(self.resolvePath('%s.css' % self.pagename)):
         #    css_requires.append('%s.css' % self.pagename)
         css_requires, css_media_requires = self.get_css_requires()
@@ -280,7 +280,8 @@ class GnrWsgiPage(GnrBaseWebPage):
         return jspath
     
     def get_css_requires(self, requires=None):
-        requires = requires or self.css_requires
+        requires = list(set([r for r in (requires or self.css_requires) if r]))
+        requires.reverse()
         filepath = os.path.splitext(self.filepath)[0]
         css_requires = []
         css_media_requires = {}

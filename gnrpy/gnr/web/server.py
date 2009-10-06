@@ -33,6 +33,7 @@ wsgi_options=dict(
 DNS_SD_PID = None
 
 
+
 def start_bonjour(host=None, port=None, server_name=None,
     server_description=None,home_uri=None):
     global DNS_SD_PID
@@ -473,11 +474,11 @@ class NewServer(object):
         for j in range(10):
             if not live_pidfile(pid_file):
                 break
-            import signal
-            global DNS_SD_PID
-            if DNS_SD_PID:
-                os.kill(DNS_SD_PID, signal.SIGTERM)
-                DNS_SD_PID = None
+            #import signal
+            #global DNS_SD_PID
+            #if DNS_SD_PID:
+                #os.kill(DNS_SD_PID, signal.SIGTERM)
+                #DNS_SD_PID = None
             time.sleep(1)
         else:
             print "failed to kill web process %s" % pid
@@ -537,10 +538,10 @@ class NewServer(object):
                     and hasattr(os, 'kill')):
                     import signal
                     try:
-                        global DNS_SD_PID
-                        if DNS_SD_PID:
-                            os.kill(DNS_SD_PID, signal.SIGTERM)
-                            DNS_SD_PID = None
+                        #global DNS_SD_PID
+                        #if DNS_SD_PID:
+                            #os.kill(DNS_SD_PID, signal.SIGTERM)
+                            #DNS_SD_PID = None
                         os.kill(proc.pid, signal.SIGTERM)
                     except (OSError, IOError):
                         pass
