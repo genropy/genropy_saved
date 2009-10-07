@@ -160,7 +160,7 @@ def readXLS(doc):
         
         
 class GnrNamedList(list):
-    """A row object that allow by-colun-name access to data, the capacity to add columns and alter data."""
+    """A row object that allow by-column-name access to data, the capacity to add columns and alter data."""
     def __init__(self, index, values=None):
         self._index = index
         if values is None:

@@ -520,7 +520,7 @@ class GnrWhereTranslator(object):
         return '%s ~* :%s' % (column, self.storeArgs(value, dtype, sqlArgs))
 
 class GnrDictRow(GnrNamedList):
-    """A row object that allow by-colun-name access to data, the capacity to add columns and alter data."""
+    """A row object that allow by-column-name access to data, the capacity to add columns and alter data."""
     def __init__(self, cursor, values=None):
         self._index = cursor.index
         if values is None:
