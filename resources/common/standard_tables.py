@@ -610,8 +610,8 @@ class TableHandler(BaseComponent):
                                else if (username){
                                    alert('already locked by:'+username)
                                    SET status.locked=true;
-                               }
-                            """,
+                               }""",
+
                             lockId='=form.record?lockId',
                             username='=form.record?locking_username',
                             _fired='^form.onRecordLoaded')
