@@ -587,6 +587,7 @@ dojo.declare('gnr.GenroClient', null, {
     },
     absoluteUrl: function(url, kwargs, avoidCache){
         var base = document.location.pathname;
+        var avoidCache= avoidCache===false?false:true;
         if (url){
             var sep=url.slice(0,1)=='?'?'':'/';
             url = base+sep+url;

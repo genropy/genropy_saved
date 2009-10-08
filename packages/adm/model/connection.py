@@ -17,7 +17,7 @@ class Table(object):
         
         
     def trigger_onUpdating(self, record, old_record=None):
-        if record['end_ts']:
+        if 'end_ts' in record and record['end_ts']:
             self.db.table('adm.served_page').closePendingPages(connection_id=record['id'],
                                              end_ts=record['end_ts'],
                                              end_reason=record['end_reason'])

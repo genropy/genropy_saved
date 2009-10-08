@@ -380,6 +380,7 @@ dojo.declare("gnr.GnrRpcHandler",null,{
         return dojo.io.argsFromMap(objectUpdate(genro.rpc.getURLParams(source), params, true));
     },
     getRpcUrlArgs:function(method, kwargs, sourceNode, avoidCache){
+        var avoidCache= avoidCache===false?false:true;
         var currParams = {};
         currParams['page_id']=this.application.page_id;
         currParams['method']=method;
