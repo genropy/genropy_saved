@@ -199,7 +199,7 @@ class GnrWsgiPage(GnrBaseWebPage):
         
     def getDomainUrl(self, path='', **kwargs):
         params = urllib.urlencode(kwargs)
-        path =  '%s/%s'%(self.homeUrl,path.lstrip('/'))
+        path =  '%s/%s'%(self.site.home_uri.rstrip('/'),path.lstrip('/'))
         if params:
             path = '%s?%s' % (path, params)
         return path

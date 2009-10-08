@@ -372,7 +372,7 @@ class GnrWsgiSite(object):
             self.automap[package.id] = packagemap
         self.automap.toXml(os.path.join(self.site_path,'automap.xml'))
     
-    def get_page_factory(self, path, pkg = None):
+    def get_page_factory(self, path, pkg = None, rel_path=None):
         #if path in self.page_factories:
         #    return self.page_factories[path]
         page_module = gnrImport(path,importAs='%s-%s'%(pkg or 'site',str(path.lstrip('/').replace('/','_')[:-3])))
@@ -397,7 +397,7 @@ class GnrWsgiSite(object):
         classMixin(page_class,custom_class)
         self.page_class_resourceDirs(page_class, path, pkg=pkg)
         page_class._packageId = pkg
-        self.page_class_custom_mixin(page_class, path, pkg=pkg)
+        self.page_class_custom_mixin(page_class, rel_path, pkg=pkg)
         self.page_factories[path]=page_class
         return page_class
 
@@ -591,7 +591,7 @@ class GnrWsgiSite(object):
             module_path = os.path.join(self.gnrapp.packages[pkg].packageFolder,'webpages',path)
         try:
             self.page_factory_lock.acquire()
-            page_class = self.get_page_factory(module_path, pkg = pkg)
+            page_class = self.get_page_factory(module_path, pkg = pkg, rel_path=path)
         finally:
             self.page_factory_lock.release()
         page = page_class(self, filepath = module_path, packageId = pkg)
