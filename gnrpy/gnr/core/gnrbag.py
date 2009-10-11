@@ -31,8 +31,8 @@ with some useful properties:
 - hierarchical    
     
 A Bag can store any kind of python object with a label in an ordered list.
-It can also store attributes about any value stored: bag attributes are metadata,
-do not interfere with the stored object. 
+It can also store attributes about any value stored: bag attributes are metadata
+that are an addition to the stored object without distrurbing the stored data
 
 A Bag can be loaded and saved in some ways:
 - saved to and loaded from pikle files or strings: 
