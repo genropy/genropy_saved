@@ -110,7 +110,14 @@ class GnrBaseWebPage(GnrObject):
 
     def get_session(self, **kwargs):
         return self._request.environ['beaker.session']
-    
+    def _get_clientContext(self):
+        cookie=self.get_cookie('genroContext','simple')
+        if cookie:
+            return Bag(urllib.unquote(cookie.value))
+        else:
+            return Bag()
+    clientContext = property(_get_clientContext)
+        
     def _get_filename(self):
         try:
             return self._filename
@@ -297,7 +304,9 @@ class GnrBaseWebPage(GnrObject):
     def _gnrjs_d11(self):
         return ['gnrbag','genro', 'genro_widgets', 'genro_rpc', 'genro_patch',
                                            'genro_dev','genro_dlg','genro_frm','genro_dom','gnrdomsource',
-                                           'genro_wdg','genro_src','gnrlang','gnrstores']
+                                           'genro_wdg','genro_src','gnrlang','gnrstores'
+                                           #,'soundmanager/soundmanager2-nodebug-jsmin'
+                                           ]
     
     def _css_genro_d11(self):
            return {'all': ['gnrbase'], 'print':['gnrprint']}
@@ -718,6 +727,7 @@ class GnrBaseWebPage(GnrObject):
     pageArgs = property(_get_pageArgs)
     
     def rpc_updateSessionContext(self, context, path, evt, value=None, attr=None):
+        print'update context'
         self.session.loadSessionData()
         self.session.setInPageData('context.%s.%s' % (context, path), value, attr)
         self.session.saveSessionData()
