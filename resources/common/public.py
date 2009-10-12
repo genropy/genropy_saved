@@ -967,8 +967,8 @@ class RecordHandler(object):
         if page is None:
             page = self.pageSource()
         dlg = page.dialog(nodeId='dlg_%s' % tableId,title=title,
-                          parentDialog=parentDialog)
-        dlgBC = dlg.borderContainer(datapath=controllerPath, height=height, 
+                          parentDialog=parentDialog,datapath=controllerPath)
+        dlgBC = dlg.borderContainer(height=height, 
                                     width=width, _class=_class,
                                     sqlContextName=sqlContextName,
                                     sqlContextRoot=sqlContextRoot, 
