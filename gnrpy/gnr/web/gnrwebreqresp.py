@@ -21,7 +21,8 @@
 #Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 
 import gnr.web.gnrcookie as  Cookie
-cookie_types = {'marshal': Cookie.MarshalCookie}
+cookie_types = {'marshal': Cookie.MarshalCookie,
+                 'simple':Cookie.Cookie}
 
 class GnrWebRequest(object):
     
