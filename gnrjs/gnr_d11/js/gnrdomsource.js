@@ -296,6 +296,7 @@ dojo.declare("gnr.GnrDomSourceNode",gnr.GnrBagNode,{
             setTimeout(dojo.hitch(this,'setRelativeData',path,value, attributes, fired, reason),delay);
         }else{
             var reason = reason==null ? true : reason;
+            var oldpath=path;
             var path=this.absDatapath(path);
             if (fired){
                 genro._firingNode = this;
@@ -400,7 +401,8 @@ dojo.declare("gnr.GnrDomSourceNode",gnr.GnrBagNode,{
             currNode = currNode.getParentNode();
         }
         if (path.indexOf('.')==0){
-            }
+            console.error('unresolved relativepath'+path);
+        }
         path = path.replace('.?','?');
         if(path.indexOf('#parent') >0){
             path = gnr.bagRealPath(path);
