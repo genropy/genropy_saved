@@ -1040,14 +1040,8 @@ textarea:disabled {
 		-khtml-box-shadow:rgba(128,192,255,0.75) 0px 8px 24px;
 		-moz-box-shadow:rgba(128,192,255,0.75) 0px 8px 24px;
 		box-shadow:rgba(128,192,255,0.75) 0px 8px 24px;
-		margin-right:1.5em;
 	}
 	
-	#shiny-demo-1,
-	#shiny-demo-2 {
-		margin-right:1.5em;
-		margin-right:1.5em;
-	}
 
 
 
