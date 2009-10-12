@@ -113,7 +113,7 @@ class Cookie(object):
     IGNORE = 1
     EXCEPTION = 3
 
-    def parse(Class, str, **kw):
+    def parse(Class, str,secret=None,**kw):
         """
         Parse a Cookie or Set-Cookie header value, and return
         a dict of Cookies. Note: the string should NOT include the
