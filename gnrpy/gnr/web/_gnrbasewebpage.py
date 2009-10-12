@@ -1700,7 +1700,6 @@ class GnrWebConnection(object):
         if page._user_login:
             user, password = page._user_login.split(':')
             self.connection_id = getUuid()
-            print '__init__:',user, password
             avatar = page.application.getAvatar(user, password, authenticate=True,connection=self)
             self.cookie = self.page.newMarshalCookie(self.cookieName, {'connection_id': self.connection_id or getUuid(), 'slots':{}, 'locale':None, 'timestamp':None}, secret = self.secret)
             if avatar:
@@ -1825,7 +1824,6 @@ class GnrWebConnection(object):
             for conn_id, conn_files, abs_path in dirbag.digest('#k,#v,#a.abs_path'):
                 cookieAge = t - (conn_files['connection_xml.cookieData.timestamp'] or 0)
                 if cookieAge > int(self.page.config.getItem('connection_timeout') or CONNECTION_TIMEOUT):
-                    print 'clearExpiredConnections ---->'
                     self.dropConnection(conn_id)
         
     def connectionsBag(self):
