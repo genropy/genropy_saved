@@ -357,14 +357,11 @@ dojo.declare("gnr.widgets.iframe",gnr.widgets.baseHtml,{
     setSrc:function(domnode, v, kw){
         var sourceNode = domnode.sourceNode;
         if(sourceNode.attr._if && !sourceNode.getAttributeFromDatasource('_if')){
-            console.log("there's _if and it is false");
              var v='';
         }else if(sourceNode.condition_function && !sourceNode.condition_function(sourceNode.condition_value)){
-            console.log("there's conditionFunction and its result is false");
             var v='';
         }
         else{
-            console.log("no condition or condition is true");
             var v = v || this.prepareSrc(domnode);
         }
         if (sourceNode.currentSetTimeout){
@@ -542,13 +539,11 @@ dojo.declare("gnr.widgets.Dialog",gnr.widgets.baseDojo,{
         this.titleNode.innerHTML = title;
     },
     mixin_parentHide: function(){
-        console.log('parentHide')
     },
     mixin_parentShow: function(){
-        console.log('parentShow')
+        
     },
     mixin_getParentDialog: function(){
-        console.log('getParentDialog')
     }
 
 });
@@ -2449,9 +2444,7 @@ dojo.declare("gnr.widgets.VirtualStaticGrid",gnr.widgets.Grid,{
             } 
         }
         var kw = {'_position':pos};
-        console.log('prima setItem');
         storebag.setItem(label, newnode, null, kw); //questa provoca la chiamata della setStorePath che ha trigger di ins.
-        console.log('dopo setItem');
         // ATTENZIONE: Commentato questo perchè il trigger di insert già ridisegna ed aggiorna l'indice, ma non fa apply filter.
         // Cambiare l'indice di selezione corrente nelle includedview con form significa cambiare datapath a tutti i widget. PROCESSO LENTO.
         
