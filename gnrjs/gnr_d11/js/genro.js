@@ -174,6 +174,19 @@ dojo.declare('gnr.GenroClient', null, {
         if (windowTitle){
             genro.dom.windowTitle(windowTitle);
         }
+        //genro.soundManagerStart();
+    },
+    soundManagerStart:function(){
+      // genro.sounds={};
+      // soundManager.url = 'swf/';
+      // soundManager.debugMode = true;
+      // soundManager.onload = function() {
+      // genro.sounds['bass'] = soundManager.createSound({
+      //                   id: 'bass_sound',
+      //                   url: '_mp3/bass.mp3'});
+      //  genro.sounds['bass'].play();
+      //
+      // }
     },
     setInServer: function(path, value){
         genro.rpc.remoteCall('setInServer', {path:path, value:value});
