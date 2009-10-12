@@ -91,7 +91,6 @@ class Package(GnrDboPackage):
         pass
         
     def onSiteInited(self):
-        print 'adm onSiteInited'
         db=self.application.db
         db.table('adm.connection').closePendingConnections(end_ts=datetime.now(), end_reason='sys_restart')
         db.commit()
