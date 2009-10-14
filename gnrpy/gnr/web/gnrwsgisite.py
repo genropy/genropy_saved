@@ -82,7 +82,7 @@ class GnrWsgiSite(object):
             self.print_handler=PrintHandler(parent = self)
         else:
             self.print_handler=None
-        if counter==0:
+        if counter==0 and self.debug:
             self.onInited(clean = not noclean)
         
          
