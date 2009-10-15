@@ -37,7 +37,7 @@ def findByAttr(l,**kwargs):
 def sortByItem(l, *args, **kwargs):
     """Sort the list "l", filled of objects with dict interface by items with key in *args.
        @param *args: a list of keys to sort for. Each key can be reverse sorted by adding ':d' to the key.
-       @param hkeys: if True and a key contains '.' it is interpreted as a hyerarchical path and sub dict are looked for
+       @param hkeys: if True and a key contains '.' it is interpreted as a hierarchical path and sub dict are looked for
        """
     def hGetItem(obj,attr):
         if obj is None: return None
