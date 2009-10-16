@@ -858,8 +858,9 @@ class GnrBaseWebAppHandler(object):
                       what you set with dbselect
         * condition: more condition into the query. Every kwargs params that 
                     starts with condition_  are the variables involved in the 'where' clause.
-        * selectmethod: custom rpc_method you can use for make the query on the server.
-        * weakCondition: if there's a condition and it's not defined a selectedmethod
+        * selectmethod: custom rpc_method you can use to make the query on the server.
+        * weakCondition: will apply the condition if there is a result, but if there is no result for the condition
+                         then the condition will not be used. A selectmethod over-rides this attribute.
         """
         resultClass=''
         if selectmethod or not condition:
