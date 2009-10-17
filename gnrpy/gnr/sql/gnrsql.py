@@ -60,7 +60,7 @@ class GnrSqlDb(GnrObject):
         @param port: the connection port (for sqlite is None)
         @param main_schema: the database main_schema
         """
-         
+        
         self.dbname = dbname
         self.implementation=implementation
         self.host = host

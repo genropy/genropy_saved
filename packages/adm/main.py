@@ -94,6 +94,7 @@ class Package(GnrDboPackage):
         db=self.application.db
         db.table('adm.connection').closePendingConnections(end_ts=datetime.now(), end_reason='sys_restart')
         db.commit()
+        db.closeConnection()
     
 class Table(GnrDboTable):
     pass

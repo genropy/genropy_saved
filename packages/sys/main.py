@@ -29,6 +29,7 @@ class Package(GnrDboPackage):
         db=self.application.db
         db.table('sys.locked_record').clearExistingLocks()
         db.commit()
+        db.closeConnection()
        
 class Table(GnrDboTable):
     pass
