@@ -515,7 +515,6 @@ class GnrWsgiSite(object):
             print 'external message'
             msg_body = Bag()
             msg_body.setItem('dbevent', value,_client_data_path=client_path, dbevent=attributes['dbevent'])
-            print 'external message'
             print msg_body
             self.writeMessage(page_id=page_id,
                               body=msg_body,
