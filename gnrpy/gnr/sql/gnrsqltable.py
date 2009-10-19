@@ -409,11 +409,16 @@ class SqlTable(GnrObject):
     
     def empty(self):
         self.db.adapter.emptyTable(self)
-        
-    def deleteSelection(self, condition_field, condition_value):
+
+    #Jeff added the support to deleteSelection for passing no condition so that all records would be deleted
+    def deleteSelection(self, condition_field=None, condition_value=None):
         # if self.trigger_onDeleting:
+        if(condition_field and condition_value):
+            where = '%s = :value' % condition_field
+        else:
+            where = ''
         sel = self.query(columns='*',
-                         where='%s = :value' % condition_field,
+                         where=where,
                          value=condition_value,
                          for_update=True).fetch()
         for r in sel:
