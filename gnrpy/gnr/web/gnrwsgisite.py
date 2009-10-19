@@ -34,6 +34,10 @@ class PrintHandlerError(Exception):
 
 class GnrWsgiSite(object):
     
+    def log_print(self,str):
+        if getattr(self,'debug',True):
+            print str
+    
     def __call__(self, environ, start_response):
         return self.wsgiapp(environ, start_response)
     
