@@ -487,9 +487,12 @@ class GnrWsgiSite(object):
 
     def notifyDbEvent(self,tblobj,record,event,old_record=None):
         if 'adm' in self.gnrapp.db.packages:
+            print'***********notifyDbEvent*****************'
             page = self.currentPage
             if tblobj.attributes.get('broadcast') and page and page.subscribedTablesDict and tblobj.fullname in page.subscribedTablesDict:
+                print'***********notifyDbEvent start for*****************'
                 for page_id, connection_id in page.subscribedTablesDict[tblobj.fullname]:
+                    print'***********notifyDbEvent setInClientPage*****************'
                     self.setInClientPage(page_id=page_id,
                                         connection_id=connection_id,
                                         client_path='gnr.dbevent.%s'%tblobj.fullname.replace('.','_'),
