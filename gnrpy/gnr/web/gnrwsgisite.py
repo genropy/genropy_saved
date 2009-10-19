@@ -388,6 +388,7 @@ class GnrWsgiSite(object):
         page_class.gnrjsversion = getattr(custom_class, 'gnrjsversion', None) or self.config['gnrjs?version'] or '11'
         page_class.maintable = getattr(custom_class, 'maintable', None)
         page_class.recordLock = getattr(custom_class, 'recordLock', None)
+        page_class.polling = getattr(custom_class, 'polling', None)
         page_class.eagers = getattr(custom_class, 'eagers', {})
         page_class.css_requires = splitAndStrip(getattr(custom_class, 'css_requires', ''),',')
         page_class.js_requires = splitAndStrip(getattr(custom_class, 'js_requires', ''),',')
@@ -499,18 +500,23 @@ class GnrWsgiSite(object):
         """@param save: remember to save on the last setInClientPage. The first call to setInClientPage implicitly lock the session util 
                         setInClientPage is called with save=True
         """
+       
         currentPage = self.currentPage
         page_id = page_id or currentPage.page_id
         attributes = dict(attributes or {})
         attributes['_client_path'] = client_path    
-        if not connection_id or  connection_id==currentPage.connection.connection_id:
+        if not connection_id or  connection_id==currentPage.connection.connection_id and not currentPage.forked:
+            print 'internal message'
             currentPage.session.setInPageData('_clientDataChanges.%s' % client_path.replace('.','_'), 
                                         value, _attributes=attributes, page_id=page_id)
             if saveSession: 
                 self.session.saveSessionData()
         else:
+            print 'external message'
             msg_body = Bag()
             msg_body.setItem('dbevent', value,_client_data_path=client_path, dbevent=attributes['dbevent'])
+            print 'external message'
+            print msg_body
             self.writeMessage(page_id=page_id,
                               body=msg_body,
                               message_type='datachange')
@@ -602,6 +608,7 @@ class GnrWsgiSite(object):
     def page_init(self,page, request=None, response=None, page_id=None, debug=None, _user_login=None, _rpc_resultPath=None):
         self.currentPage=page
         page._rpc_resultPath=_rpc_resultPath
+        page.forked=False
         page.siteFolder = page._sitepath=self.site_path
         page.folders= page._get_folders()
         page._request = request
