@@ -283,6 +283,7 @@ class GnrWsgiSite(object):
         totaltime = time()-t
         resp.headers['X-GnrTime'] = str(totaltime)
         self.currentPage = None
+        self.db.closeConnection()
         return resp(environ, start_response)
         
     def tools_call(self, path_list, environ, start_response, **kwargs):
