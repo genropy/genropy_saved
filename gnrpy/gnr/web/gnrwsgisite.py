@@ -488,12 +488,9 @@ class GnrWsgiSite(object):
 
     def notifyDbEvent(self,tblobj,record,event,old_record=None):
         if 'adm' in self.gnrapp.db.packages:
-            print'***********notifyDbEvent*****************'
             page = self.currentPage
             if tblobj.attributes.get('broadcast') and page and page.subscribedTablesDict and tblobj.fullname in page.subscribedTablesDict:
-                print'***********notifyDbEvent start for*****************'
                 for page_id, connection_id in page.subscribedTablesDict[tblobj.fullname]:
-                    print'***********notifyDbEvent setInClientPage*****************'
                     self.setInClientPage(page_id=page_id,
                                         connection_id=connection_id,
                                         client_path='gnr.dbevent.%s'%tblobj.fullname.replace('.','_'),
@@ -510,16 +507,13 @@ class GnrWsgiSite(object):
         attributes = dict(attributes or {})
         attributes['_client_path'] = client_path    
         if not connection_id or  connection_id==currentPage.connection.connection_id and not currentPage.forked:
-            print 'internal message'
             currentPage.session.setInPageData('_clientDataChanges.%s' % client_path.replace('.','_'), 
                                         value, _attributes=attributes, page_id=page_id)
             if saveSession: 
                 self.session.saveSessionData()
         else:
-            print 'external message'
             msg_body = Bag()
             msg_body.setItem('dbevent', value,_client_data_path=client_path, dbevent=attributes['dbevent'])
-            print msg_body
             self.writeMessage(page_id=page_id,
                               body=msg_body,
                               message_type='datachange')
