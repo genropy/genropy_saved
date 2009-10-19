@@ -305,7 +305,7 @@ class GnrBaseWebPage(GnrObject):
         return ['gnrbag','genro', 'genro_widgets', 'genro_rpc', 'genro_patch',
                                            'genro_dev','genro_dlg','genro_frm','genro_dom','gnrdomsource',
                                            'genro_wdg','genro_src','gnrlang','gnrstores'
-                                           #,'soundmanager/soundmanager2-nodebug-jsmin'
+                                           #,'soundmanager/soundmanager2'
                                            ]
     
     def _css_genro_d11(self):
@@ -1356,7 +1356,9 @@ class GnrBaseWebPage(GnrObject):
                             message_id=message_id)
     
     def msg_datachange(self, message_id=None, message_body=None,src_page_id=None,src_user=None,src_connection_id=None):
+        print'$$$$$$$$$$$ msg_datachange'
         for change in message_body:
+            print'$$$$$$$$$$$ msg_datachange set in client data'
             self.setInClientData(change.attr.pop('_client_data_path'), change.value , _attributes=change.attr, save=True,
                                 src_page_id=src_page_id,src_user=src_user,src_connection_id=src_connection_id,
                                 message_id=message_id)
