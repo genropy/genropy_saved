@@ -727,7 +727,6 @@ class GnrBaseWebPage(GnrObject):
     pageArgs = property(_get_pageArgs)
     
     def rpc_updateSessionContext(self, context, path, evt, value=None, attr=None):
-        print'update context'
         self.session.loadSessionData()
         self.session.setInPageData('context.%s.%s' % (context, path), value, attr)
         self.session.saveSessionData()
@@ -1356,9 +1355,7 @@ class GnrBaseWebPage(GnrObject):
                             message_id=message_id)
     
     def msg_datachange(self, message_id=None, message_body=None,src_page_id=None,src_user=None,src_connection_id=None):
-        print'$$$$$$$$$$$ msg_datachange'
         for change in message_body:
-            print'$$$$$$$$$$$ msg_datachange set in client data'
             self.setInClientData(change.attr.pop('_client_data_path'), change.value , _attributes=change.attr, save=True,
                                 src_page_id=src_page_id,src_user=src_user,src_connection_id=src_connection_id,
                                 message_id=message_id)
