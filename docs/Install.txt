@@ -45,6 +45,8 @@ sudo paver develop
 sudo easy_install -U -Z babel pytz vobject
 sudo easy_install -U -Z paste webob weberror
 sudo easy_install -U -Z mako
+sudo easy_install -U -Z pypdf
+
 -----------------------------------------------------
 [ReportLab]
 download from: http://www.reportlab.org/ftp/ReportLab_2_3.tar.gz
