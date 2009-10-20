@@ -103,6 +103,9 @@ def parselocal(txt, cls, locale=None):
     """return an object of class cls
        """
     locale = (locale or DEFAULT_LOCALE).replace('-','_')
+    if locale and '_' in locale:
+        loc, country = locale.split('_')
+        locale = '%s_%s'%(loc, country.upper())
     if not txt: return None
     f = TYPES_LOCALPARSERS_DICT.get(cls)
     if f:
