@@ -685,6 +685,7 @@ padding-right:5px;
 	padding-right:15px;
     cursor:pointer;
     font-weight:bold;
+    background: url(icons/linktomenu.gif) right no-repeat;
 }
 .gnrmenulabel:hover{
 	-moz-border-radius:7px;
