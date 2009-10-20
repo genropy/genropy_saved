@@ -185,7 +185,8 @@ class GnrSqlDb(GnrObject):
         except Exception, e:
             gnrlogger.warning('error executing:%s - with kwargs:%s \n\n', sql, unicode(sqlargs))
             #raise str('error %s executing:%s - with kwargs:%s \n\n' % (str(e), sql, unicode(sqlargs).encode('ascii', 'ignore')))
-            raise
+            self.rollback()
+            raise e
         if autocommit:
             self.commit()
         return cursor
