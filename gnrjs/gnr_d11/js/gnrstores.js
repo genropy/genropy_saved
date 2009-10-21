@@ -392,10 +392,7 @@ dojo.declare("gnr.GnrStoreBag",null,{
 
     fetchItemByIdentity: function(/* object */ request){
         //genro.debug('fetchItemByIdentity: identity='+request.identity);
-        if (!request.identity){
-            //genro.debug('fetchItemByIdentity: return null');
-            return null;
-        }else{
+        if (request.identity){
             var id=request.identity;
             var item=null;
             var bagnode;
@@ -408,14 +405,18 @@ dojo.declare("gnr.GnrStoreBag",null,{
                     break;
                 }
             }
-            if(request.onItem){
-                var scope =  request.scope?request.scope:dojo.global;
-                request.onItem.call(scope,item);
-            }
-            else{
-                return item;
-            }
         }
+        else{
+            item=null;
+        }
+        if(request.onItem){
+            var scope =  request.scope?request.scope:dojo.global;
+            request.onItem.call(scope,item);
+        }
+        else{
+            return item;
+        }
+        
     },
 // -----------------------------------------Notification API ------------------------------
   

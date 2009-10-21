@@ -3002,6 +3002,14 @@ dojo.declare("gnr.widgets.FilteringSelect",gnr.widgets.BaseCombo,{
     constructor: function(application){
         this._domtag = 'div';
         this._dojotag = 'FilteringSelect';
+    },
+    //this patch will fix the problem where the displayed value stuck for a new record
+    patch_setValue:function(value,priorityChange){
+        this.setValue_replaced(value,priorityChange)
+        if (!this._isvalid){
+            this.valueNode.value=null;
+            this.setDisplayedValue('');
+        }
     }
 });
 dojo.declare("gnr.widgets.ComboBox",gnr.widgets.BaseCombo,{
