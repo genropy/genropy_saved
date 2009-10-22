@@ -19,6 +19,7 @@ import mimetypes
 #import hashlib
 from gnr.core.gnrsys import expandpath
 from gnr.web.gnrbasewebtool import GnrBaseWebTool
+import cPickle
 import inspect
 try:
     from gnr.core.gnrprinthandler import PrintHandler
@@ -26,13 +27,117 @@ try:
 except:
     HAS_PRINTHANDLER = False
 mimetypes.init()
+site_cache = {}
 class GnrWebServerError(Exception):
     pass
     
 class PrintHandlerError(Exception):
     pass
 
+class memoize(object):
+    class Node:
+        __slots__ = ['key', 'value', 'older', 'newer']
+        def __init__(self, key, value, older=None, newer=None):
+            self.key = key
+            self.value = value
+            self.older = older
+            self.newer = newer
+
+    def __init__(self, capacity=30):#, keyfunc=lambda *args, **kwargs: cPickle.dumps((args, kwargs))):
+        self.capacity = capacity
+        #self.keyfunc = keyfunc
+        global site_cache
+        self.nodes = site_cache or {}
+        self.reset()
+
+
+    def reset(self):
+        for node in self.nodes:
+            del nodes[node]
+        self.mru = self.Node(None, None)
+        self.mru.older = self.mru.newer = self.mru
+        self.nodes[self.mru.key] = self.mru
+        self.count = 1
+        self.hits = 0
+        self.misses = 0
+        
+    
+    def cached_call(self):
+        def decore(func):
+            def wrapper(*args,**kwargs):
+                func_type = type(func).__name__
+                key = (((func.__name__,)+args[1:]), cPickle.dumps(kwargs))
+                #key = self.keyfunc(*((func.__name__,)+args), **kwargs)
+                print args
+                if key in self.nodes:
+                    print 'hit'
+                    node = self.nodes[key]
+                else:
+                    print 'miss'
+                    # We have an entry not in the cache
+                    self.misses += 1
+
+                    value = func(*args, **kwargs)
+
+                    lru = self.mru.newer  # Always true
+
+                    # If we haven't reached capacity
+                    if self.count < self.capacity:
+                        # Put it between the MRU and LRU - it'll be the new MRU
+                        node = self.Node(key, value, self.mru, lru)
+                        self.mru.newer = node
+
+                        lru.older = node
+                        self.mru = node
+                        self.count += 1
+                    else:
+                        # It's FULL! We'll make the LRU be the new MRU, but replace its
+                        # value first
+                        del self.nodes[lru.key]  # This mapping is now invalid
+                        lru.key = key
+                        lru.value = value
+                        self.mru = lru
+
+                    # Add the new mapping
+                    self.nodes[key] = self.mru
+                    return value
+
+                # We have an entry in the cache
+                self.hits += 1
+
+                # If it's already the MRU, do nothing
+                if node is self.mru:
+                    return node.value
+
+                lru = self.mru.newer  # Always true
+
+                # If it's the LRU, update the MRU to be it
+                if node is lru:
+                    self.mru = lru
+                    return node.value
+
+                # Remove the node from the list
+                node.older.newer = node.newer
+                node.newer.older = node.older
+
+                # Put it between MRU and LRU
+                node.older = self.mru
+                self.mru.newer = node
+
+                node.newer = lru
+                lru.older = node
+
+                self.mru = node
+                return node.value
+            return wrapper
+        return decore
+        
+
+cache = memoize()
+
 class GnrWsgiSite(object):
+    
+    #cache = memoize()
     
     def log_print(self,str):
         if getattr(self,'debug',True):
