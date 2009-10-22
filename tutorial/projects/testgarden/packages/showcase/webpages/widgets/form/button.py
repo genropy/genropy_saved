@@ -11,7 +11,7 @@
 import os
 from gnr.core.gnrbag import Bag
 from gnr.web.gnrwebpage import GnrWebPage
-
+from gnr.web.gnrwsgisite import cache
 # --------------------------- GnrWebPage subclass ---------------------------
 class GnrCustomWebPage(object):    
     css_requires='index,button'
@@ -30,6 +30,9 @@ class GnrCustomWebPage(object):
         titlepane.div(height='200px',width='250px')
         
         fb = center.formbuilder(cols=3,margin_top='10px')
+        fb.button('!!Calcola', action='FIRE ^calcola')
+        fb.textbox(value='^risultato')
+        fb.dataRpc('risultato','calcola',_fired='^calcola')
         fb.br()
         fb.horizontalslider(lbl='!!width', value = '^width', width='200px', 
                                          minimum=3, maximum=50,intermediateChanges=True)
@@ -63,6 +66,9 @@ class GnrCustomWebPage(object):
         pane=pane.formbuilder(cols=cols)
         for label in labels:
             pane.checkbox(label) 
-            
-def index(req, **kwargs):
-    return GnrWebPage(req, GnrCustomWebPage, __file__, **kwargs).index()
+        
+    @cache.cached_call()
+    def rpc_calcola(self):
+        for i in range(1000000):
+            j=i*2
+        return j
