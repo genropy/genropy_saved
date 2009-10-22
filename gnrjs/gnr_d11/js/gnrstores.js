@@ -93,8 +93,6 @@ dojo.declare("gnr.GnrStoreBag",null,{
             var itemvalue=item.getValue();
             if (itemvalue instanceof gnr.GnrBag){
                 return itemvalue.getNodes();
-            }else if(itemvalue==null) {
-                return [];
             }
             else{
                 return [{'id':item._id+'c','label':itemvalue}];
@@ -140,7 +138,8 @@ dojo.declare("gnr.GnrStoreBag",null,{
                         return null;
                     }
                     else{
-                        return (result != null);
+                        //return (result != null);
+                        return true
                     }
                 } 
              }
