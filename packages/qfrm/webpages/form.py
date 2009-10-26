@@ -51,6 +51,7 @@ class GnrCustomWebPage(object):
         fb.field('pkg_table',width='20em', colspan=2)
         fb.field('bag_field',width='20em', colspan=2)
         fb.field('version',width='20em', colspan=2)
+        fb.field('sort_order',width='10',colspan=2)
         fb.field('short_name',width='20em', colspan=2)
         fb.field('long_name',width='30em',colspan=2)
         fb.field('cols',width='6em',colspan=1)
