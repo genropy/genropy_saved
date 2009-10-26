@@ -16,11 +16,8 @@ from gnr.core.gnrlang import gnrImport
 class BatchRunner(BaseComponent):
     
     def buildBatchRunner(self, pane, gridId=None, resultpath='aux.cmd', selectionName='=list.selectionName', fired=None, batchClass=None,
-                             thermoParams=None, endScript=None,
-                             stopOnError=False, forUpdate=False, onRow=None, **kwargs):
+                             thermoParams=None, endScript=None,stopOnError=False, forUpdate=False, onRow=None, **kwargs):
         """Prepare a batch action on the maintable with a thermometer
-           @param pane: it MUST NOT BE a container. Is the pane where selectionBatchRunner
-                  append dataController and dialog.
            @param resultpath: the path into the datastore where the result is stored.
            @param fired: the path where you fire the event that launch the dataRpc of selectionBatchRunner.
            @param batchFactory: is used instead of rpc. Name of the Factory Class, used as
@@ -38,7 +35,7 @@ class BatchRunner(BaseComponent):
                      batchClass=batchClass, 
                      thermofield=thermoParams.get('field'), thermoid = thermoid,
                      selectedRowidx =  """==genro.wdgById("maingrid").getSelectedRowidx();""",
-                     fired=fired, _onResult=endScript,
+                     _fired=fired, _onResult=endScript,
                      forUpdate=forUpdate, **kwargs)
         dlgid = self.getUuid()
         pane.dataController('genro.wdgById(dlgid).show()', _if='errors',
@@ -51,7 +48,8 @@ class BatchRunner(BaseComponent):
         d.div(position='absolute', top='28px', right='4px',
             bottom='4px', left='4px').includedView(storepath='%s.errors' % resultpath, struct=struct)
             
-    def rpc_runBatch(self, table, selectionName=None, batch_class=None, selectedRowidx=None, forUpdate=False, columns=None, **kwargs):
+    def rpc_runBatch(self, table, selectionName=None, batch_class=None, 
+                    selectedRowidx=None, forUpdate=False, columns=None, **kwargs):
         """batchFactory: name of the Class, plugin of table, which executes the batch action
             thermoid:
             thermofield: the field of the main table to use for thermo display or * for record caption
@@ -72,7 +70,6 @@ class BatchRunner(BaseComponent):
             columns = selection.columns
         batch_class = self.batch_loader(batch_class)
         if batch_class:
-            print kwargs
             batch = batch_class(selection=selection, table=table, page=self, columns=columns, thermocb=self.app.setThermo, **kwargs)
             return batch.run()
         else:

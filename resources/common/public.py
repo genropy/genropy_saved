@@ -322,7 +322,7 @@ class Public(BaseComponent):
         dates = ','.join(dates)
         return dates
         
-    def periodCombo(self, fb, period_store = None):
+    def periodCombo(self, fb, period_store = None,lbl=None):
         if not period_store:
             period_store = '.period'
             string_store = 'vars.period_string'
@@ -337,7 +337,7 @@ class Public(BaseComponent):
                             return '';
                          }  """,
                           ff='^%s.from' % period_store, tt='^%s.to'% period_store)
-        fb.combobox(lbl='!!Period',value='^.period_input', width='16em',
+        fb.combobox(lbl=lbl or '!!Period',value='^.period_input', width='16em',
                     values=self._pbl_datesHints(), margin_right='5px',padding_top='1px')
                     
                     
@@ -724,11 +724,11 @@ class IncludedView(BaseComponent):
         controller.data('.flt.selected.col', colsMenu['#0?col'])
         controller.data('.flt.selected.caption', colsMenu['#0?caption'])
         
-        gridtop.input(float='right', _class='searchInput searchWidth', margin_right='5px', font_size='.9em',
-            connect_onkeyup='genro.wdgById("%s").applyFilter($1.target.value);' % gridId)
-            
-        search = gridtop.div(float='right', datapath=controllerPath, margin_right='4px')
-        search.span('!!Search ')
+                
+        searchbox = gridtop.div(position='absolute', right='5px',top='4px',
+                                width='22em',datapath=controllerPath)
+        searchlbl = searchbox.div(position='absolute', right='15em',top='2px')
+        searchlbl.div('!!Search ',float='left')
         controller.dataController("""var grid = genro.wdgById(gridId);
                                         grid.filterColumn = col;
                                         grid.applyFilter(true);""", 
@@ -736,10 +736,16 @@ class IncludedView(BaseComponent):
                                         gridId=gridId, _onStart=True)
         if len(colsMenu) > 1:
             controller.data('.flt.colsMenu', colsMenu)
-            search.span(value='^.flt.selected.caption')
-            search.menu(modifiers='*', _class='smallmenu', storepath='.flt.colsMenu',
+            searchlbl.div(value='^.flt.selected.caption',float='left',margin_left='2px',_class='buttonIcon')
+            searchbox.menu(modifiers='*', _class='smallmenu', storepath='.flt.colsMenu',
                         selected_col='.flt.selected.col',
-                        selected_caption='.flt.selected.caption')
+                        selected_caption='.flt.selected.caption',
+                        position='absolute', right='0',width='6em')
+        
+        searchbox.input(float='right', _class='searchInput searchWidth', font_size='.9em',
+            connect_onkeyup='genro.wdgById("%s").applyFilter($1.target.value);' % gridId)
+            
+
                 
     def _includedViewForm(self, controller, controllerPath, view, formPars):
         viewPars = view.attributes
@@ -1105,7 +1111,7 @@ class RecordToHtmlFrame(BaseComponent):
     def recordToHtmlFrame(self, bc, frameId='', table='', delay=None,
                           respath=None, pkeyPath='',background_color='white',
                           enableConditionPath='',condition_function=None, condition_value='',
-                          docNamePath='', customToolbarCb=None,**kwargs):
+                          docNamePath='',runKwargsPath=None, customToolbarCb=None,**kwargs):
         
         table = table or self.maintable
         frameId = frameId or self.getUuid()
@@ -1130,12 +1136,14 @@ class RecordToHtmlFrame(BaseComponent):
                                                'downloadAs':downloadAs,
                                                'pdf':true,
                                                'respath':'%s',
-                                               'rebuild':rebuild}
+                                               'rebuild':rebuild,
+                                               runKwargs:runKwargs}
                              objectUpdate(parameters,moreargs);
                              genro.rpcDownload("callTableScript",parameters);
                              """ % (table,respath),
                     _fired='^%s.downloadPdf' % controllerPath,
                     record = '=%s' % pkeyPath,
+                    runKwargs = '=%s' % runKwargsPath, #aggiunto
                     docName ='=%s' % docNamePath,
                     moreargs=kwargs,
                     rebuild=True)
@@ -1157,6 +1165,7 @@ class RecordToHtmlFrame(BaseComponent):
                               condition_value = condition_value,
                               rpcCall='callTableScript',
                               rpc_record = '=%s' % pkeyPath,
+                              rpc_runKwargs = '=%s' % runKwargsPath, #aggiunto 
                               rpc_table = table,
                               rpc_respath=respath,
                               #rpc_rebuild='=%s.noCache' % controllerPath,

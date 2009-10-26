@@ -11,10 +11,8 @@
 import time
 from collections import defaultdict
 class GnrBatch(object):
-    
     thermo_rows = 1
-    
-    def __init__(self, thermocb = None, thermoid=None, thermofield='*', **kwargs):
+    def __init__(self, thermocb = None, thermoid=None, thermofield='*',runKwargs=None,**kwargs):
         self.thermocb = thermocb or (lambda *a,**kw:None)
         self.thermoid = thermoid
         self.thermofield = thermofield
@@ -22,6 +20,7 @@ class GnrBatch(object):
         self.thermo_message = defaultdict(lambda: '')
         self.thermo_maximum = defaultdict(lambda: None)
         self.thermo_indeterminate = defaultdict(lambda: None)
+        self.runKwargs = runKwargs.asDict(True) if runKwargs else {}
         for k,v in kwargs.items():
             if v:
                 setattr(self,k,v)
@@ -49,7 +48,7 @@ class GnrBatch(object):
         self.thermo_init()
         self.pre_process()
         for chunk in self.data_fetcher():
-            self.process_chunk(chunk)
+            self.process_chunk(chunk,**self.runKwargs)
             self.thermo_step(chunk)
         self.post_process()
         self.thermo_end()
@@ -171,14 +170,16 @@ class SelectedRecordsToPrint(GnrBatch):
                 folder=None, printParams=None, **kwargs):
         import cups
         super(SelectedRecordsToPrint,self).__init__(**kwargs)
-        self.htmlMaker=self.page.site.loadTableScript(page=self.page,table=table,
+        self.htmlMaker = self.page.site.loadTableScript(page=self.page,table=table,
                                                       respath=table_resource,
                                                       class_name=class_name)
         self.selection = selection
         self.table = table
+        
         self.folder = folder or self.htmlMaker.pdfFolderPath()
-        printer_name = printParams.pop('printer_name')
-        self.print_connection = self.page.site.print_handler.getPrinterConnection(printer_name, printParams)
+        if printParams:
+            printer_name = printParams.pop('printer_name')
+            self.print_connection = self.page.site.print_handler.getPrinterConnection(printer_name, printParams)
         self.file_list = []
 
     def data_fetcher(self):     ##### Rivedere per passare le colonne
@@ -190,7 +191,7 @@ class SelectedRecordsToPrint(GnrBatch):
         self.file_list.append(self.htmlMaker.filepath)
         
     def collect_result(self):
-        self.print_connection.printFiles(self.file_list, 'GenroPrint', storeFolder=self.folder)
+        return self.print_connection.printFiles(self.file_list, 'GenroPrint', storeFolder=self.folder)
 
 
 class Fake(GnrBatch):

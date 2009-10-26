@@ -60,7 +60,7 @@ class TableScriptOnRecord(TableScript):
             value=self._data.getItem(path, default)
         return value
         
-    def loadRecord(self, record):
+    def loadRecord(self, record,**kwargs):
         self._data = self.db.table(self.maintable or self.resource_table).recordAs(record, mode='bag')
         
     def test(self):
@@ -85,18 +85,18 @@ class RecordToHtml(TableScriptOnRecord):
         self.builder = GnrHtmlBuilder()
         
     def __call__(self, record=None, filepath=None,
-                       rebuild=False, dontSave=False, pdf=False, **kwargs):
+                       rebuild=False, dontSave=False, pdf=False, runKwargs=None,**kwargs):
         """This method returns the html corresponding to a given record.
            the html can be loaded from a cached document or created if still doesn't exist.
         """
         if not record:
             return
-        self.loadRecord(record)
+        self.loadRecord(record, **kwargs)
         if kwargs:
             self._data['kwargs']=Bag()
             for k,v in kwargs.items():
                 self._data['kwargs.%s' % k] = v
-            
+           
             
         #if not (dontSave or pdf):
         self.filepath=filepath or os.path.join(self.hmtlFolderPath(),self.outputDocName(ext='html'))

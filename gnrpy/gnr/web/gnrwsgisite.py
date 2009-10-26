@@ -645,8 +645,11 @@ class GnrWsgiSite(object):
         resource_class.site = self
         return resource_class()
         
-    def callTableScript(self, page=None, table=None, respath=None, class_name=None, **kwargs):
+    def callTableScript(self, page=None, table=None, respath=None, class_name=None, runKwargs=None,**kwargs):
         script=self.loadTableScript(page = page, table=table, respath=respath, class_name=class_name)
+        if runKwargs:
+            for k,v in runKwargs.items():
+                kwargs[str(k)] = v
         return script(**kwargs)
         
     def loadTableScript(self, page, table, respath, class_name=None):
