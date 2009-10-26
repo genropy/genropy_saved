@@ -225,10 +225,11 @@ class GnrClassCatalog(object):
         return result
 
     def parse_date(self, txt, workdate=None):
-        if txt and txt!='0000-00-00' and ISO_MATCH.match(txt):
-            return datetime.date(*[int(el) for el in gnrstring.wordSplit(txt)[0:3]])
-        else:
-            return decodeDatePeriod(txt, workdate=workdate, returnDate=True)
+        if txt!='0000-00-00':
+            if txt and ISO_MATCH.match(txt):
+                return datetime.date(*[int(el) for el in gnrstring.wordSplit(txt)[0:3]])
+            else:
+                return decodeDatePeriod(txt, workdate=workdate, returnDate=True)
             
     def parse_time(self, txt):
         if txt and txt!='00:00:00':

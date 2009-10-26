@@ -51,7 +51,7 @@ class BagFromXml(object):
                 if l[1].args[0] == 'not well-formed (invalid token)':
                     nerror = nerror + 1
                     linepos, colpos = (l[1]._locator.getLineNumber()-1, l[1]._locator.getColumnNumber())
-                    print "xml error %i at line %i, col %i: trying to recover..." % (nerror, linepos, colpos)
+                    #print "xml error %i at line %i, col %i: trying to recover..." % (nerror, linepos, colpos)
                     if fromFile:
                         f = open(source,'r')
                         source = f.read()

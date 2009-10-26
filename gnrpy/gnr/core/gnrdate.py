@@ -170,6 +170,7 @@ def decodeOneDate(datestr, workdate=None, months=None, days=None, quarters=None,
         elif datestr in def_days:                                                   # weekday name
             dateStart = workdate + datetime.timedelta(def_days[datestr] - workdate.weekday())
         elif re.match('\d{4}-\d{2}-\d{2}', datestr):                            # ISO date
+            date_items= [int(el) for el in wordSplit(datestr)[0:3]]
             dateStart = datetime.date(*[int(el) for el in wordSplit(datestr)[0:3]])
         else:                                                                   # a date in local format
             dateStart = gnrlocale.parselocal(datestr, datetime.date, locale)
