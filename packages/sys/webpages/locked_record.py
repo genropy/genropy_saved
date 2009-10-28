@@ -14,7 +14,7 @@ class GnrCustomWebPage(object):
         return '!!Locked records'
          
     def pageAuthTags(self, method=None, **kwargs):
-        return 'admin'
+        return 'user'
         
     def tableWriteTags(self):
         return 'admin'

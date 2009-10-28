@@ -21,11 +21,7 @@ from gnr.core.gnrsys import expandpath
 from gnr.web.gnrbasewebtool import GnrBaseWebTool
 import cPickle
 import inspect
-try:
-    from gnr.core.gnrprinthandler import PrintHandler
-    HAS_PRINTHANDLER = True
-except:
-    HAS_PRINTHANDLER = False
+from gnr.core.gnrprinthandler import PrintHandler
 mimetypes.init()
 site_cache = {}
 class GnrWebServerError(Exception):
@@ -188,14 +184,11 @@ class GnrWsgiSite(object):
         self.page_factories={}
         self.page_factory_lock=RLock()
         self.webtools = self.find_webtools()
-        if HAS_PRINTHANDLER:
-            self.print_handler=PrintHandler(parent = self)
-        else:
-            self.print_handler=None
+        self.print_handler=PrintHandler(parent = self)
         if counter==0 and self.debug:
             self.onInited(clean = not noclean)
         
-         
+        
     def onInited(self, clean):
         if clean:
             self.dropAllConnectionFolders()
@@ -896,3 +889,13 @@ class GnrWsgiSite(object):
         connection_id, page_id = path_list[1],path_list[2]
         return self.connection_static_path(connection_id, page_id,*path_list[3:])
     ##################### end static file handling #################################
+    
+    def zipFiles(self, file_list=None, zipPath=None):
+        import zipfile
+        zipresult = open(zipPath,'wb')
+        zip_archive = zipfile.ZipFile(zipresult, mode='w', compression=zipfile.ZIP_DEFLATED)
+        for fname in file_list:
+            zip_archive.write(fname, os.path.basename(fname))
+        zip_archive.close()
+        zipresult.close()
+        

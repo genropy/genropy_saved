@@ -1,7 +1,15 @@
-import cups
+try:
+    import cups
+    HAS_CUPS = True
+except ImportError:
+    HAS_CUPS = False
 import os.path
 from subprocess import call
-from pyPdf import PdfFileWriter, PdfFileReader
+try:
+    from pyPdf import PdfFileWriter, PdfFileReader
+    HAS_PYPDF = True
+except ImportError:
+    HAS_PYPDF = False
 from gnr.core.gnrbag import Bag, DirectoryResolver
 
 class PrinterConnection(object):
@@ -9,34 +17,30 @@ class PrinterConnection(object):
     def __init__(self, parent, printer_name=None, printerParams=None, **kwargs):
         self.parent = parent
         if printer_name == 'PDF':
-            self.initPdf(printerParams, **kwargs)
+            self.initPdf(printerParams=printerParams, **kwargs)
         else:
             self.initPrinter(printer_name, printerParams, **kwargs)
-        
-    def initPdf(self, zipped=True, printerParams=None, **kwargs):
+    
+    def initPdf(self, zipped=False, printerParams=None, **kwargs):
         self.zipped=zipped
+        
         self.printAgent = self.printPdf
         
-    def printPdf(self,pdf_list, jobname):
+    def printPdf(self,pdf_list, jobname,outputFilePath=None):
         if self.zipped:
-            return #crea un archivio zip dei files
+            outputFilePath += '.zip'
+            self.parent.zipPdf(pdf_list,outputFilePath)
         else:
-            output_pdf = PdfFileWriter()
-            for input_path in file_list:
-                with open(input_path,'rb') as input_file:
-                    input_pdf = PdfFileReader(input_file)
-                    for page in input_pdf.pages:
-                        output_pdf.addPage(page)
-            with open(output_path,'wb') as output_file:
-                output_file.output(output_pdf)
-            return output_file
+            outputFilePath += '.pdf'
+            self.parent.joinPdf(pdf_list,outputFilePath)
+        return os.path.basename(outputFilePath)
             
-    def printCups(self,pdf_list, jobname):
-        self.connection.printFiles(self.printer_name, pdf_list, jobname, self.printer_options)
+    def printCups(self,pdf_list, jobname,**kwargs):
+        self.cups_connection.printFiles(self.printer_name, pdf_list, jobname, self.printer_options)
          
     def initPrinter(self, printer_name=None, printerParams=None, **kwargs):
         printerParams = printerParams or {}
-        self.connection = cups.Connection()
+        self.cups_connection = cups.Connection()
         self.printer_name = printer_name
         printer_media=[]
         for media_option in ('paper','tray','source'):
@@ -48,11 +52,12 @@ class PrinterConnection(object):
             self.printer_options['media'] = str(','.join(printer_media))
         self.printAgent = self.printCups
             
-    def printFiles(self, file_list, jobname='GenroPrint', storeFolder=None):
+    def printFiles(self, file_list, jobname='GenroPrint', storeFolder=None,outputFilePath=None):
         pdf_list = self.parent.autoConvertFiles(file_list,storeFolder)
-        self.printAgent(pdf_list, jobname)
+        return self.printAgent(pdf_list, jobname,outputFilePath=outputFilePath)
         
 class PrintHandler(object):
+
     paper_size = {
             'A4': '!!A4',
             'Legal':'!!Legal',
@@ -74,6 +79,9 @@ class PrintHandler(object):
             }
     
     def __init__(self, parent=None):
+        global HAS_CUPS,HAS_PYPDF
+        self.hasCups = HAS_CUPS
+        self.hasPyPdf = HAS_PYPDF
         self.parent= parent
         
     def htmlToPdf(self, srcPath, destPath): #srcPathList per ridurre i processi?
@@ -102,10 +110,13 @@ class PrintHandler(object):
     
     def getPrinters(self):
         printersBag=Bag()
-        cups_connection = cups.Connection()
-        for printer_name, printer in cups_connection.getPrinters().items():
-            printer.update(dict(name=printer_name))
-            printersBag.setItem('%s.%s'%(printer['printer-location'],printer_name),None,printer)
+        if self.hasCups:
+            cups_connection = cups.Connection()
+            for printer_name, printer in cups_connection.getPrinters().items():
+                printer.update(dict(name=printer_name))
+                printersBag.setItem('%s.%s'%(printer['printer-location'],printer_name),None,printer)
+        else:
+            print 'pyCups is not installed'
         return printersBag
         
     def getPrinterAttributes(self, printer_name):
@@ -122,7 +133,24 @@ class PrintHandler(object):
         
     def getPrinterConnection(self, printer_name=None, printerParams=None,**kwargs):
         return PrinterConnection(self, printer_name=printer_name, printerParams=printerParams,**kwargs)
+    
+    def joinPdf(self,pdf_list, output_filepath):
+        output_pdf = PdfFileWriter()
+        open_files =[]
+        for input_path in pdf_list:
+            input_file  = open(input_path,'rb')
+            open_files.append(input_file)
+            input_pdf = PdfFileReader(input_file)
+            for page in input_pdf.pages:
+                output_pdf.addPage(page)
+        output_file = open(output_filepath,'wb')
+        output_pdf.write(output_file)
+        output_file.close()
+        for input_file in open_files:
+            input_file.close()
+
+
         
-            
-            
-        
+    def zipPdf(self,file_list=None, zipPath=None):
+        self.parent.zipFiles(file_list = file_list, zipPath = zipPath)
+    

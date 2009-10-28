@@ -1,7 +1,6 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <GenRoBag><db dbname="showcase"/>
 <packages >
-	<adm />
 	<showcase/>
 </packages>
 <authentication pkg='adm'>

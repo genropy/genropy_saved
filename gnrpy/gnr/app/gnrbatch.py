@@ -177,9 +177,9 @@ class SelectedRecordsToPrint(GnrBatch):
         self.table = table
         
         self.folder = folder or self.htmlMaker.pdfFolderPath()
-        if printParams:
-            printer_name = printParams.pop('printer_name')
-            self.print_connection = self.page.site.print_handler.getPrinterConnection(printer_name, printParams)
+        
+        self.printer_name = printParams.pop('printer_name')
+        self.print_connection = self.page.site.print_handler.getPrinterConnection(self.printer_name, printParams)
         self.file_list = []
 
     def data_fetcher(self):     ##### Rivedere per passare le colonne
@@ -191,7 +191,11 @@ class SelectedRecordsToPrint(GnrBatch):
         self.file_list.append(self.htmlMaker.filepath)
         
     def collect_result(self):
-        return self.print_connection.printFiles(self.file_list, 'GenroPrint', storeFolder=self.folder)
+        print self.file_list
+        result = self.print_connection.printFiles(self.file_list, 'GenroPrint', 
+                    storeFolder=self.folder, outputFilePath=self.page.temporaryDocument(self.docName))
+        if result:
+            return self.page.temporaryDocumentUrl(result)
 
 
 class Fake(GnrBatch):

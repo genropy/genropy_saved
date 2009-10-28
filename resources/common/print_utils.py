@@ -21,27 +21,6 @@ class PrintUtils(BaseComponent):
             if k.startswith('dlg_'):
                 dlgPars[k[4:]] = v
                 kwargs.pop(k)        
-        pane.dataController("""
-                             var docName='kxkx';
-                             var downloadAs =docName +'.pdf';
-                             var parameters = {'batch_class':batch_class,
-                                               'table':table,
-                                               'downloadAs':downloadAs,
-                                               'table_resource':table_resource,
-                                               'rebuild':true,
-                                               printParams:printParams,
-                                               selectionName:selectionName,
-                                               runKwargs:runKwargs}
-                             genro.rpcDownload("runBatch",parameters);
-                             """ ,
-                              table=self.maintable,
-                              batch_class='SelectedRecordsToPrint', 
-                              table_resource=table_resource,
-                              resultpath=resultpath, 
-                              thermoParams=dict(field='*'),
-                              selectionName=selectionName,
-                              printParams='=.printer',_fired='^.dlpdf',
-                              runKwargs='=.parameters.data',datapath=datapath)
                     
         self._printOptDialog(pane,name,datapath,dlgPars=dlgPars,parameters_cb=parameters_cb)
         self.buildBatchRunner(pane.div(datapath=datapath), 
@@ -51,8 +30,22 @@ class PrintUtils(BaseComponent):
                               thermoParams=dict(field='*'),
                               selectionName=selectionName,
                               printParams='=.printer',fired='^.run',
-                              runKwargs='=.parameters.data',**kwargs)      
-    
+                              runKwargs='=.parameters.data',**kwargs)    
+                              
+                                
+        pane.dataRpc("dummy","runBatch" ,_onCalling="""SET .printer.printer_name = PDF;""",
+                      _onResult='console.log("devo fare il dl")'
+                             table=self.maintable,
+                             batch_class='SelectedRecordsToPrint', 
+                             table_resource=table_resource,
+                             resultpath=resultpath, 
+                             thermoParams=dict(field='*'),
+                             selectionName=selectionName,
+                             printParams='=.printer',_fired='^.dlpdf',
+                             docName='testxx',
+                             runKwargs='=.parameters.data',datapath=datapath)
+                             
+      
     def _printOptDialog(self,pane,name,datapath,dlgPars=None,parameters_cb=None):
         title = dlgPars.get('title',"!!Print options")
         height = dlgPars.get('height',"200px")
@@ -64,13 +57,10 @@ class PrintUtils(BaseComponent):
         bottom = bc.contentPane(region='bottom',_class='dialog_bottom')
         bottom.button('!!Close',baseClass='bottom_btn',float='left',margin='1px',fire='.hide')
         bottom.button('!!Pdf',baseClass='bottom_btn',float='right',margin='1px',
-                        fire='.dlpdf')
+                        action='FIRE .dlpdf;')
         bottom.button('!!Print',baseClass='bottom_btn',float='right',margin='1px',
                         action='FIRE .run;')
-
-                              
         tc_opt = bc.tabContainer(region='center',margin='5px')
-        
         if parameters_cb:
             parameters_cb(tc_opt,datapath='.parameters')
         self._utl_print_opt(tc_opt)
