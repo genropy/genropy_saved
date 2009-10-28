@@ -201,6 +201,7 @@ dojo.declare("gnr.GnrDomSourceNode",gnr.GnrBagNode,{
                  var _onResult = objectPop(kwargs,'_onResult');
                  objectPop(kwargs,'nodeId');
                  var _onCalling = objectPop(kwargs,'_onCalling');
+                 var origKwargs = objectUpdate({},kwargs);
                  objectExtract(kwargs,'_*');
                  if (_onResult){
                     //_onResult = dojo.hitch(this, funcCreate(_onResult));
@@ -208,7 +209,7 @@ dojo.declare("gnr.GnrDomSourceNode",gnr.GnrBagNode,{
 
                  }
                  kwargs['_rpc_resultPath']=destinationPath;
-                 var origKwargs = kwargs;
+                 
                  var cb = function(result){   dataNode.setValue(result);
                                               if(_onResult){
                                                     _onResult(result,origKwargs);

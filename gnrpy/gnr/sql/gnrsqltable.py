@@ -366,6 +366,7 @@ class SqlTable(GnrObject):
             old_row = dict(row)
             callback(row)
             self.update(row,old_row)
+            
     def readColumns(self,pkey,columns):
         fetch = self.query(columns=columns,limit=1,where='$%s=:pkey' %self.pkey,
                            pkey=pkey,addPkeyColumn=False).fetch()
