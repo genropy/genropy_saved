@@ -167,7 +167,7 @@ class SelectionToPdf(GnrBatch):
     
 class SelectedRecordsToPrint(GnrBatch):
     def __init__(self, table_resource=None, class_name=None, selection=None, table=None,
-                folder=None, printParams=None, **kwargs):
+                folder=None, printParams=None, pdfParams=None,**kwargs):
         import cups
         super(SelectedRecordsToPrint,self).__init__(**kwargs)
         self.htmlMaker = self.page.site.loadTableScript(page=self.page,table=table,
@@ -177,8 +177,13 @@ class SelectedRecordsToPrint(GnrBatch):
         self.table = table
         
         self.folder = folder or self.htmlMaker.pdfFolderPath()
-        
-        self.printer_name = printParams.pop('printer_name')
+        if pdfParams:
+            self.printer_name = 'PDF'
+            printParams = pdfParams
+            self.outputFilePath = self.page.temporaryDocument(self.docName)
+        else:  
+            self.printer_name = printParams.pop('printer_name')
+            self.outputFilePath = None
         self.print_connection = self.page.site.print_handler.getPrinterConnection(self.printer_name, printParams)
         self.file_list = []
 
@@ -187,13 +192,13 @@ class SelectedRecordsToPrint(GnrBatch):
             yield row
 
     def process_chunk(self, chunk, **kwargs):
-        self.htmlMaker(record=chunk, **kwargs)
+        self.htmlMaker(record=chunk, rebuild=self.rebuild,**kwargs)
         self.file_list.append(self.htmlMaker.filepath)
         
     def collect_result(self):
         print self.file_list
         result = self.print_connection.printFiles(self.file_list, 'GenroPrint', 
-                    storeFolder=self.folder, outputFilePath=self.page.temporaryDocument(self.docName))
+                    storeFolder=self.folder, outputFilePath=self.outputFilePath)
         if result:
             return self.page.temporaryDocumentUrl(result)
 

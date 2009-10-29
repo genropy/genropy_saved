@@ -60,7 +60,7 @@ class TableScriptOnRecord(TableScript):
             value=self._data.getItem(path, default)
         return value
         
-    def loadRecord(self, record,**kwargs):
+    def loadRecord(self, record=None,**kwargs):
         self._data = self.db.table(self.maintable or self.resource_table).recordAs(record, mode='bag')
         
     def test(self):
@@ -91,7 +91,7 @@ class RecordToHtml(TableScriptOnRecord):
         """
         if not record:
             return
-        self.loadRecord(record, **kwargs)
+        self.loadRecord(record=record, **kwargs)
         if kwargs:
             self._data['kwargs']=Bag()
             for k,v in kwargs.items():
