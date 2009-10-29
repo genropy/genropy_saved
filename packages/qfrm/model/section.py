@@ -16,7 +16,7 @@ class Table(object):
                                                                  onDelete='delete',
                                                                  one_group='')
         tbl.column('code', size=':10',name_long='!!Code')
-        tbl.column('name', size=':60',name_long='!!Short Name')
+        tbl.column('name', size=':60',name_long='!!Name')
         tbl.column('long_name', size=':60',name_long='!!Long Name') 
         tbl.column('cols', 'I',name_long='!!Section columns')
         tbl.column('rows', 'I',name_long='!!Section rows')
