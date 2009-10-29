@@ -62,18 +62,32 @@ class GnrCustomWebPage(object):
         width='100%'
         fb.field('code',width='10em', colspan=1)
         fb.field('name',width=width, colspan=1)
-        self.sectionsContainer(bc.borderContainer(region='center', _class='pbl_roundedGroup',margin='0px'),disabled=True)
+        self.sectionContainer(bc.borderContainer(region='center', _class='pbl_roundedGroup',margin='0px'),disabled=True)
         
     def formOtherParsTab(self,pane,disabled=True):
         #pane.div('!!Other Parameters',_class='pbl_roundedGroupLabel')
         fb = pane.formbuilder(cols=3, margin_left='2em',border_spacing='5px',margin_top='1em',disabled=disabled, width='600px')
         width='100%'
-        fb.field('long_name',width=width,colspan=2)
+        fb.field('code',width='10em', colspan=1)
+        fb.field('name',width=width, colspan=2)
         fb.field('pkg_table',width='10em', colspan=1)
+        fb.field('long_name',width=width,colspan=2)
         fb.field('bag_field',width=width, colspan=1)
         fb.field('sort_order',width=width,colspan=1)
-        fb.field('version',width='10em', colspan=1)
+        fb.field('version',width='10.1em', colspan=1)
         fb.simpleTextarea(lbl='CSS',value='^.css',lbl_vertical_align='top', width=width, height='10em', colspan=3)
+        helptext="""<ul><li>Code - the identifier of this form</li>
+                    <li>Name - The short name used in the tab of main page for the form</li>
+                    <li>Package.Table - This must be a valid package and table name separated by a period. It is used to identify which
+                        table the xml column is placed to hold the custom data entered into the form</li>
+                    <li>Long Name - is the more description name for this form useful for reports</li>
+                    <li>Bag Field - This is the name of the column in the hosting table for the quick form. It is used to store the data
+                        entered into the custom form fields</li>
+                    <li>Sort Order - is an alpha numeric field that the tab order is ordered by</li>
+                    <li>Version - The version of the form can be used to isolate the form for particular main package codes</li>
+                    <li>css - Here the operator can create custom css classes to be used in the section and form items</li></ul>
+                    """
+        pane.div(helptext, margin='10px', padding='10px', color='#003366')
 
     def previewTab(self, pane, **kwargs):
             pass
@@ -86,7 +100,7 @@ class GnrCustomWebPage(object):
 
 #-------------- BEGIN SECTION --------------------
         
-    def sectionsContainer(self, bc, **kwargs):
+    def sectionContainer(self, bc, **kwargs):
         self.includedViewBox(bc,label=u'!!Sections',datapath='aux_sections',
                     table='qfrm.section',
                     add_action='FIRE .addingRecord;',
@@ -120,7 +134,7 @@ class GnrCustomWebPage(object):
         #adding section
         bc.dataController("""FIRE .firedPkey;""",
                         _fired="^.addingRecord",
-                        section_id='=form.record.id', _if='section_id',
+                        form_id='=form.record.id', _if='form_id',
                         _else="genro.dlg.alert(msg)",
                         msg= self.addingRecordMsg % 'Section')
 
@@ -136,8 +150,14 @@ class GnrCustomWebPage(object):
 
 
     def sectionIncludedForm(self,recordBC,**kwargs):
-        pane = recordBC.contentPane(_class='pbl_roundedGroup',**kwargs)
-        self.sectionForm(pane)
+        top=recordBC.contentPane(region='top', height='100px', _class='pbl_roundedGroup',**kwargs)
+        bottom=recordBC.borderContainer(region='center', _class='pbl_roundedGroup',**kwargs)
+        self.sectionForm(top)
+        self.groupContainer(bottom)
+        #bc = recordBC.borderContainer(region='center', _class='pbl_roundedGroup',margin='0px')
+        
+        #self.groupContainer(recordBC.borderContainer(region='center', _class='pbl_roundedGroup',margin='0px'),disabled=True)
+
 
     def sectionForm(self, pane):
         fb = pane.formbuilder(cols=1, margin_left='1em',border_spacing='5px',dbtable='qfrm.section')
@@ -149,3 +169,70 @@ class GnrCustomWebPage(object):
 
 #-------------- END section --------------------
 
+#-------------- BEGIN GROUP --------------------
+        
+    def groupContainer(self, bc, **kwargs):
+        self.includedViewBox(bc,label=u'!!Groups',datapath='aux_groups',
+                    table='qfrm.group',
+                    add_action='FIRE .addingRecord;',
+                    del_action='FIRE .deletingRecord;',
+                    addOnCb=self.groupController,
+                    multiSelect=False,
+                    nodeId='groupGrid',
+                    reloader='^aux_sections.selectedId',
+                    connect_onRowDblClick="""
+                            FIRE .firedPkey = this.widget.rowIdByIndex($1.rowIndex);
+                            """,
+                    columns="""code:7,
+                               label:10,
+                               x_position:10,
+                               y_position:10
+                               """,
+                    selectionPars = dict(where='$section_id =:section_id',
+                                         section_id='=aux_sections.selectedId',
+                                         _if='section_id', order_by='$label',
+                                         _else='null'))
+
+        self.recordDialog('qfrm.group',firedPkey='^#groupGrid.firedPkey',
+                        default_section_id='=aux_sections.selectedId',
+                        onSaved='FIRE #groupGrid.reload;', 
+                        height='500px',width='500px',title='!!Group',
+                        formCb=self.groupIncludedForm,savePath='aux_groups.lastSaved') # the default is the id of the last record you have touched + attributes (the resultAttr)
+                        
+        
+    def groupController(self, bc, **kwargs):
+
+        #adding section
+        bc.dataController("""FIRE .firedPkey;""",
+                        _fired="^.addingRecord",
+                        section_id='=aux_sections.selectedId', _if='section_id',
+                        _else="genro.dlg.alert(msg)",
+                        msg= self.addingRecordMsg % 'Group')
+
+        #deleting section
+        bc.dataRpc("dummy2",'deleteIncludedViewRecord',table='qfrm.group',
+                    rowToDelete="=.selectedId", _fired='^.proceedDelete',
+                     _if='rowToDelete', _onResult="""FIRE .reload;""")
+                                                       
+        bc.dataController("""genro.dlg.ask('Warning',msg,null,resultPathOrActions)""",
+                            _fired="^.deletingRecord",
+                            msg= self.deletingRecordMsg % 'Group',
+                            resultPathOrActions='.proceedDelete')
+
+
+    def groupIncludedForm(self,recordBC,**kwargs):
+        pane = recordBC.contentPane(_class='pbl_roundedGroup',**kwargs)
+        self.groupForm(pane)
+        
+
+    def groupForm(self, pane):
+        fb = pane.formbuilder(cols=2, margin_left='1em',border_spacing='5px',dbtable='qfrm.group')
+        fb.field('code', width='10em', colspan=2)
+        fb.field('label', width='20em', colspan=2)
+        fb.field('x_position', width='10em')
+        fb.field('y_position',width='10em')
+        fb.field('colspan',width='10em')
+        fb.field('rowspan',width='10em')
+
+
+#-------------- END GROUP --------------------
