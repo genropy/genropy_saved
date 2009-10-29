@@ -36,8 +36,8 @@ class GnrCustomWebPage(object):
     def columnsBase(self,):
         return """
                   code:10,
+                  label:10,
                   name:10,
-                  long_name:10,
                   pkg_table:10,
                   bag_field:10,
                   version:5,
@@ -60,7 +60,7 @@ class GnrCustomWebPage(object):
         #top.div('!!Form',_class='pbl_roundedGroupLabel')
         fb = top.formbuilder(cols=2, margin_left='2em',border_spacing='5px',margin_top='1em',disabled=disabled)
         fb.field('code',width='10em', colspan=1)
-        fb.field('name',width='30em', colspan=1)
+        fb.field('label', lbl='Form Label', lbl_width='8em', width='30em', colspan=1)
         self.sectionContainer(bc.borderContainer(region='center', _class='pbl_roundedGroup',margin='0px'),disabled=True)
         
     def formOtherParsTab(self,pane,disabled=True):
@@ -68,18 +68,18 @@ class GnrCustomWebPage(object):
         fb = pane.formbuilder(cols=3, margin_left='2em',border_spacing='5px',margin_top='1em',disabled=disabled, width='600px')
         width='100%'
         fb.field('code',width='10em', colspan=1)
-        fb.field('name',width=width, colspan=2)
+        fb.field('label',width=width, colspan=2)
         fb.field('pkg_table',width='10em', colspan=1)
-        fb.field('long_name',width=width,colspan=2)
+        fb.field('name',width=width,colspan=2)
         fb.field('bag_field',width=width, colspan=1)
         fb.field('sort_order',width=width,colspan=1)
         fb.field('version',width='10.1em', colspan=1)
         fb.simpleTextarea(lbl='CSS',value='^.css',lbl_vertical_align='top', width=width, height='10em', colspan=3)
         helptext="""<ul><li>Code - the identifier of this form</li>
-                    <li>Name - The short name used in the tab of main page for the form</li>
+                    <li>Label - The label used in the tab of main page for the form</li>
                     <li>Package.Table - This must be a valid package and table name separated by a period. It is used to identify which
                         table the xml column is placed to hold the custom data entered into the form</li>
-                    <li>Long Name - is the more description name for this form useful for reports</li>
+                    <li>Name - is the more descriptive name for this form useful for reports</li>
                     <li>Bag Field - This is the name of the column in the hosting table for the quick form. It is used to store the data
                         entered into the custom form fields</li>
                     <li>Sort Order - is an alpha numeric field that the tab order is ordered by</li>
@@ -92,10 +92,10 @@ class GnrCustomWebPage(object):
             pass
 
     def orderBase(self):
-        return 'name'
+        return 'label'
     
     def queryBase(self):
-        return dict(column='name',op='contains', val='%', runOnStart=True)
+        return dict(column='label',op='contains', val='%', runOnStart=True)
 
 #-------------- BEGIN SECTION --------------------
         
@@ -112,8 +112,8 @@ class GnrCustomWebPage(object):
                             FIRE .firedPkey = this.widget.rowIdByIndex($1.rowIndex);
                             """,
                     columns="""code:7,
-                               name/Name (Tab):10,
-                               long_name:20,
+                               label/Tab Label:10,
+                               name:20,
                                cols:9,
                                rows:9,
                                sort_order:10
@@ -158,19 +158,17 @@ class GnrCustomWebPage(object):
         bottom=temp.borderContainer(region='center', _class='pbl_roundedGroup',**kwargs)
         self.sectionForm(top)
         self.groupContainer(middle)
-        self.formItemContainer(bottom)
+        self.itemContainer(bottom)
 
-    def formItemContainer(self, bc):
-        pass
 
     def sectionForm(self, pane):
         fb = pane.formbuilder(cols=3, margin_left='1em',border_spacing='5px',dbtable='qfrm.section', width='550px')
         fb.field('code', width='7em', colspan=1)
-        fb.field('name', width='100%', colspan=2)
-        fb.field('long_name', width='100%', colspan=3)
+        fb.field('label', width='100%', colspan=2)
+        fb.field('name', width='100%', colspan=3)
         fb.field('sort_order',width='7em', colspan=1)
-        fb.field('cols',width='4em', colspan=1)
-        fb.field('rows',width='100%', colspan=1) #, lbl_width='5em'
+        fb.field('cols',lbl='Columns', width='4em', colspan=1)
+        fb.field('rows',lbl='Rows', lbl_width='5em', width='4em', colspan=1) #, lbl_width='5em'
         
 
 #-------------- END section --------------------
@@ -244,3 +242,69 @@ class GnrCustomWebPage(object):
         pane.div('<HR>', margin_left='10px', margin_right='10px')
 
 #-------------- END GROUP --------------------
+
+#-------------- BEGIN ITEM --------------------
+        
+    def itemContainer(self, bc, **kwargs):
+        self.includedViewBox(bc,label=u'!!Items',datapath='aux_items',
+                    table='qfrm.item',
+                    add_action='FIRE .addingRecord;',
+                    del_action='FIRE .deletingRecord;',
+                    addOnCb=self.itemController,
+                    multiSelect=False,
+                    nodeId='itemGrid',
+                    reloader='^aux_sections.selectedId',
+                    connect_onRowDblClick="""
+                            FIRE .firedPkey = this.widget.rowIdByIndex($1.rowIndex);
+                            """,
+                    columns="""short_code:7,
+                               label:13,
+                               colspan:7,
+                               rowspan:7
+                               """,
+                    selectionPars = dict(where='$section_id =:section_id',
+                                         section_id='=aux_sections.selectedId',
+                                         _if='section_id', order_by='$label',
+                                         _else='null'))
+
+        self.recordDialog('qfrm.item',firedPkey='^#itemGrid.firedPkey',
+                        default_section_id='=aux_sections.selectedId',
+                        onSaved='FIRE #itemGrid.reload;', 
+                        height='600px',width='600px',title='!!Item',
+                        formCb=self.itemIncludedForm,savePath='aux_items.lastSaved') # the default is the id of the last record you have touched + attributes (the resultAttr)
+                        
+        
+    def itemController(self, bc, **kwargs):
+
+        #adding item
+        bc.dataController("""FIRE .firedPkey;""",
+                        _fired="^.addingRecord",
+                        section_id='=aux_sections.selectedId', _if='section_id',
+                        _else="genro.dlg.alert(msg)",
+                        msg= self.addingRecordMsg % 'Item')
+
+        #deleting item
+        bc.dataRpc("dummy3",'deleteIncludedViewRecord',table='qfrm.item',
+                    rowToDelete="=.selectedId", _fired='^.proceedDelete',
+                     _if='rowToDelete', _onResult="""FIRE .reload;""")
+                                                       
+        bc.dataController("""genro.dlg.ask('Warning',msg,null,resultPathOrActions)""",
+                            _fired="^.deletingRecord",
+                            msg= self.deletingRecordMsg % 'Item',
+                            resultPathOrActions='.proceedDelete')
+
+
+    def itemIncludedForm(self,recordBC,**kwargs):
+        pane = recordBC.contentPane(_class='pbl_roundedGroup',**kwargs)
+        self.itemForm(pane)
+        
+
+    def itemForm(self, pane):
+        fb = pane.formbuilder(cols=2, margin_left='1em',border_spacing='5px',dbtable='qfrm.group', width='270px')
+        fb.field('code', width='5em', colspan=2)
+        fb.field('label', width='100%', colspan=2)
+        fb.field('colspan', width='3.5em')
+        fb.field('rowspan', width='3.5em')
+        pane.div('<HR>', margin_left='10px', margin_right='10px')
+
+#-------------- END ITEM --------------------
