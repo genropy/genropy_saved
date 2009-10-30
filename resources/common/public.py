@@ -737,7 +737,7 @@ class IncludedView(BaseComponent):
         if len(colsMenu) > 1:
             controller.data('.flt.colsMenu', colsMenu)
             searchlbl.div(value='^.flt.selected.caption',float='left',margin_left='2px',_class='buttonIcon')
-            searchbox.menu(modifiers='*', _class='smallmenu', storepath='.flt.colsMenu',
+            searchlbl.menu(modifiers='*', _class='smallmenu', storepath='.flt.colsMenu',
                         selected_col='.flt.selected.col',
                         selected_caption='.flt.selected.caption',
                         position='absolute', right='0',width='6em')
