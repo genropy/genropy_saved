@@ -303,10 +303,33 @@ class GnrCustomWebPage(object):
         self.rightItemFormPane(bc.contentPane(region='center', _class='pbl_roundedGroup',**kwargs))
 
         
-    def rightItemFormPane(self, pane):
-        pane.div('Hello')
-        
-    def leftItemFormPane(self, pane, disabled=True):
+    def rightItemFormPane(self, pane, disabled=False, **kwargs):
+        pane.dataFormula('aux.fb_class','"answer_type_"+ansType',ansType='^.answer_type')
+        pane=pane.div(_class='^aux.fb_class')
+
+        fb = pane.formbuilder(cols=1, dbtable='qfrm.item', margin_left='1em', border_spacing='5px', margin_top='1em',width='90%',disabled=disabled)
+        lblwidth='90px'
+        fb.div(lbl="""Setting the answer type will determine the widget used on the form.  You can also set the colspan, sort order,
+                      and the value list.  The value list is comma delimited used for a popup.""",lbl_colspan=2,  lbl_class='helptext', lbl_padding_top='0px', lbl_padding_bottom='10px', lbl_width=lblwidth)
+
+        fb.field('answer_type',width='10em', tag='filteringSelect',nodeId='testfilter',
+                               values='B:CheckBox,D:Date Field,R:Float Field,L:Integer Field,A:Text Field,T:Text Area Field,Z:Form Text',
+                               colspan=1, lbl_width=lblwidth)
+        fb.field('width', width='5em',colspan=1, lbl_width=lblwidth, row_class='width_field')
+        fb.field('height',width='5em',colspan=1, lbl_width=lblwidth, row_class='height_field')
+        fb.field('colspan',width='5em',colspan=1, lbl_width=lblwidth)
+        fb.field('tooltip',width='20em',colspan=1, lbl_width=lblwidth)
+    
+        fb.simpleTextarea(lbl='Value List',value='^.value_list', lbl_width=lblwidth, lbl_vertical_align='top', 
+                                                                  width='20em',height='5em', colspan=1, row_class='value_list_field')
+        fb.field('form_text_style',width='20em',colspan=1, lbl_width=lblwidth, tag='filteringSelect', values='customFormHeader:Heading,customFormBody:Body,customFormFooter:Footer', row_class='form_text_style_field')
+        fb.simpleTextarea(lbl='Form Text',value='^.form_text', lbl_width=lblwidth, lbl_vertical_align='top', 
+                                                                  width='20em',height='5em', colspan=1, row_class='form_text_field')                                                                  
+        fb.simpleTextarea(lbl='Formula',value='^.formula', lbl_width=lblwidth, lbl_vertical_align='top', 
+                                                                  width='20em',height='5em', colspan=1, row_class='formula_field')
+
+
+    def leftItemFormPane(self, pane, disabled=False):
         fb = pane.formbuilder(cols=2, dbtable='qfrm.item', margin_left='1em', border_spacing='5px', margin_top='1em',width='380px',disabled=disabled)
         fld_width='100%'
         lblwidth='100px'
@@ -323,8 +346,8 @@ class GnrCustomWebPage(object):
 
         fb.simpleTextarea(lbl='Question',value='^.name',lbl_vertical_align='top', width=fld_width, height='5em', colspan=2, lbl_width=lblwidth)
 
-        fb.div(lbl="""Set the following fields to make the question specific to an organisation or a facility,
-                      to override, or to exclude.""",lbl_colspan=4, colspan=2,  lbl_class='helptext', lbl_padding_top='20px', lbl_padding_bottom='10px', lbl_width=lblwidth)
+        fb.div(lbl="""Set the following fields to make the question specific to a version,to override, or to exclude.""",
+                      lbl_colspan=4, colspan=2,  lbl_class='helptext', lbl_padding_top='20px', lbl_padding_bottom='10px', lbl_width=lblwidth)
         fb.field('version', lbl='Version',width=fld_width, colspan=2, lbl_width=lblwidth)
         fb.field('exclude',colspan=2)
 

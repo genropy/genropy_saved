@@ -1,0 +1,69 @@
+/* @group qfrm */
+
+.helptext {
+	color: rgba(0,51,102,0.5);
+	text-align: left;
+	overflow: visible;
+	text-decoration: none;
+	text-transform: none;
+	font: italic normal small "Helvetica Neue", Arial, Helvetica, Geneva, sans-serif;
+}
+
+.dialog_bottom{
+    height: 40px;
+}
+
+
+.customFormHeader {
+	color: rgba(0,51,102,0.8);
+	text-align: left;
+	overflow: visible;
+	text-decoration: none;
+	text-transform: none;
+	font: italic normal small "Helvetica Neue", Arial, Helvetica, Geneva, sans-serif;
+}
+.customFormBody {
+	color: rgba(0,51,102,0.7);
+	text-align: left;
+	overflow: visible;
+	text-decoration: none;
+	text-transform: none;
+	font: normal normal normal small "Helvetica Neue", Arial, Helvetica, Geneva, sans-serif;
+}
+.customFormFooter {
+	color: rgba(0,51,102,0.7);
+	text-align: left;
+	overflow: visible;
+	text-decoration: none;
+	text-transform: none;
+	font: xx-small "Helvetica Neue", Arial, Helvetica, Geneva, sans-serif;
+}
+
+.width_field,
+.height_field,
+.form_text_field,
+.form_text_style_field,
+.value_list_field,
+.formula_field {
+display:none;
+}
+.answer_type_D .width_field,
+.answer_type_D .formula_field,
+.answer_type_R .width_field,
+.answer_type_R .formula_field,
+.answer_type_L .width_field,
+.answer_type_L .formula_field,
+.answer_type_A .width_field,
+.answer_type_A .formula_field,
+.answer_type_A .value_list_field,
+.answer_type_T .width_field,
+.answer_type_T .formula_field,
+.answer_type_T .height_field,
+.answer_type_Z .width_field,
+.answer_type_Z .form_text_field,
+.answer_type_Z .form_text_style_field{
+display: table-row;
+}
+
+
+/* @end */
