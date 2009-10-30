@@ -91,7 +91,7 @@ class RecordToHtml(TableScriptOnRecord):
         """
         if not record:
             return
-        self.loadRecord(record=record, **kwargs)
+        self.loadRecord(record, **kwargs)
         if kwargs:
             self._data['kwargs']=Bag()
             for k,v in kwargs.items():

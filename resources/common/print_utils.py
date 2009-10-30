@@ -104,6 +104,7 @@ class PrintUtils(BaseComponent):
         fb.checkbox(value='^.zipped',label='!!Zip folder')
         
 ####################DEPRECATED STUFF###################
+
     def printDialog(self,data, title=None, _fired=None):
         page = self.pageSource()
         dlgId = data.replace('.','_')
