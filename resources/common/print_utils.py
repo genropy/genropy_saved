@@ -128,7 +128,7 @@ class PrintUtils(BaseComponent):
                                           action='SET .selected_printer = $1.fullpath; SET .printer_name=$1.name;')
         cfb.filteringselect(value='^.printer_options.paper',lbl='!!Paper:', storepath='.printer_attributes.paper_supported')
         cfb.filteringselect(value='^.printer_options.tray',lbl='!!Tray:', storepath='.printer_attributes.tray_supported')
-        cfb.dataRpc('.printer_attributes','getPrinterAttributes', printer_name='^.printer_name')
+        cfb.dataRpc('.printer_attributes','getPrinterAttributes', printer_name='^.printer_name',_if='printer_name')
         bottomBar.button('!!PDF', float='right', action='SET .selPage="pdf";')
         
         bottomBar.button('!!Print', float='right', action="FIRE .run; genro.wdgById('%s').hide();"%dlgId)
