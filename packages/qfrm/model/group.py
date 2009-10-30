@@ -19,9 +19,11 @@ class Table(object):
                                                                  onDelete='delete',
                                                                  one_group='')
         tbl.column('code', size=':10',name_long='!!Code')
-        tbl.column('label', 'T', name_long='!!Label')
+        tbl.column('label', 'T', name_long='!!Label', indexed=True)
+        tbl.column('label_css', 'T',name_long='!!Label css')
         tbl.column('x_position', 'I',name_long='!!X position')
         tbl.column('y_position', 'I',name_long='!!Y position')
         tbl.column('colspan', 'I',name_long='!!Colspan')
         tbl.column('rowspan', 'I',name_long='!!Rowspan')
+        
 

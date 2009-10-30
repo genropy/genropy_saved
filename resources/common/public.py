@@ -595,7 +595,7 @@ class IncludedView(BaseComponent):
             if del_action is True:
                 del_action = 'FIRE .delSelection' 
             gridtop.div(float='right', _class=del_class, connect_onclick=del_action,
-                        margin_right='2px',visible=del_enable)
+                        margin_right='7px',visible=del_enable)
         if add_action:
             if add_action is True:
                 if pickerPars:

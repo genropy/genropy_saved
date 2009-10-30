@@ -71,9 +71,9 @@ class GnrCustomWebPage(object):
         fb.field('label',width=width, colspan=2)
         fb.field('pkg_table',width='10em', colspan=1)
         fb.field('name',width=width,colspan=2)
-        fb.field('bag_field',width=width, colspan=1)
-        fb.field('sort_order',width=width,colspan=1)
-        fb.field('version',width='10.1em', colspan=1)
+        fb.field('bag_field',width='10em', colspan=1)
+        fb.field('sort_order',width='5em',colspan=1)
+        fb.field('version', lbl_width='5em', width='100%', colspan=1)
         fb.simpleTextarea(lbl='CSS',value='^.css',lbl_vertical_align='top', width=width, height='10em', colspan=3)
         helptext="""<ul><li>Code - the identifier of this form</li>
                     <li>Label - The label used in the tab of main page for the form</li>
@@ -202,7 +202,7 @@ class GnrCustomWebPage(object):
         self.recordDialog('qfrm.group',firedPkey='^#groupGrid.firedPkey',
                         default_section_id='=aux_sections.selectedId',
                         onSaved='FIRE #groupGrid.reload;', 
-                        height='150px',width='300px',title='!!Group',
+                        height='200px',width='300px',title='!!Group',
                         formCb=self.groupIncludedForm,savePath='aux_groups.lastSaved') # the default is the id of the last record you have touched + attributes (the resultAttr)
                         
         
@@ -235,11 +235,12 @@ class GnrCustomWebPage(object):
         fb = pane.formbuilder(cols=2, margin_left='1em',border_spacing='5px',dbtable='qfrm.group', width='270px')
         fb.field('code', width='5em', colspan=2)
         fb.field('label', width='100%', colspan=2)
+        fb.field('label_css', width='100%', colspan=2)
         fb.field('x_position', width='3.5em')
         fb.field('y_position',width='100%')
         fb.field('colspan',width='3.5em')
         fb.field('rowspan',width='100%')
-        pane.div('<HR>', margin_left='10px', margin_right='10px')
+        pane.div('<BR><BR><HR>', margin_left='10px', margin_right='10px')
 
 #-------------- END GROUP --------------------
 
@@ -258,7 +259,8 @@ class GnrCustomWebPage(object):
                             FIRE .firedPkey = this.widget.rowIdByIndex($1.rowIndex);
                             """,
                     columns="""short_code:7,
-                               label:13,
+                               @group_id.label/Group:13,
+                               label/Item Label:13,
                                colspan:7,
                                rowspan:7
                                """,
@@ -270,7 +272,7 @@ class GnrCustomWebPage(object):
         self.recordDialog('qfrm.item',firedPkey='^#itemGrid.firedPkey',
                         default_section_id='=aux_sections.selectedId',
                         onSaved='FIRE #itemGrid.reload;', 
-                        height='600px',width='600px',title='!!Item',
+                        height='600px',width='800px',title='!!Item',
                         formCb=self.itemIncludedForm,savePath='aux_items.lastSaved') # the default is the id of the last record you have touched + attributes (the resultAttr)
                         
         
@@ -295,16 +297,44 @@ class GnrCustomWebPage(object):
 
 
     def itemIncludedForm(self,recordBC,**kwargs):
-        pane = recordBC.contentPane(_class='pbl_roundedGroup',**kwargs)
-        self.itemForm(pane)
-        
+        #print 'kwargs: ', kwargs  disabled and the table qfrm.item
+        bc = recordBC.borderContainer(_class='pbl_roundedGroup',**kwargs)
+        self.leftItemFormPane(bc.contentPane(region='left',width='400px', _class='pbl_roundedGroup',**kwargs), disabled=True)
+        self.rightItemFormPane(bc.contentPane(region='center', _class='pbl_roundedGroup',**kwargs))
 
-    def itemForm(self, pane):
-        fb = pane.formbuilder(cols=2, margin_left='1em',border_spacing='5px',dbtable='qfrm.group', width='270px')
-        fb.field('code', width='5em', colspan=2)
-        fb.field('label', width='100%', colspan=2)
-        fb.field('colspan', width='3.5em')
-        fb.field('rowspan', width='3.5em')
-        pane.div('<HR>', margin_left='10px', margin_right='10px')
+        
+    def rightItemFormPane(self, pane):
+        pane.div('Hello')
+        
+    def leftItemFormPane(self, pane, disabled=True):
+        fb = pane.formbuilder(cols=2, dbtable='qfrm.item', margin_left='1em', border_spacing='5px', margin_top='1em',width='380px',disabled=disabled)
+        fld_width='100%'
+        lblwidth='100px'
+        fb.div(lbl="""Set the details of the question, including its code for query purposes,
+                      the label, group and default value""",lbl_colspan=4, colspan=2,  lbl_class='helptext', lbl_padding_bottom='10px', lbl_width=lblwidth)
+        
+        fb.field('short_code',width='10em',colspan=2, lbl_width=lblwidth)
+        fb.field('group_id', lbl='Group',width=fld_width, colspan=2, lbl_width=lblwidth,
+                        condition='$section_id =:sectionId' ,condition_sectionId='^aux_sections.selectedId') #exclude=self.getGroupsToExclude(),
+        fb.field('code', lbl='Calculated Code', tag='div', colspan=2, lbl_padding_top='5px', padding_top='5px', lbl_width=lblwidth)
+        fb.field('label',width=fld_width ,colspan=2, lbl_width=lblwidth)
+        fb.field('default_value',width=fld_width,colspan=2, lbl_width=lblwidth)
+        fb.field('sort_order',width='7em',colspan=2, lbl_width=lblwidth)
+
+        fb.simpleTextarea(lbl='Question',value='^.name',lbl_vertical_align='top', width=fld_width, height='5em', colspan=2, lbl_width=lblwidth)
+
+        fb.div(lbl="""Set the following fields to make the question specific to an organisation or a facility,
+                      to override, or to exclude.""",lbl_colspan=4, colspan=2,  lbl_class='helptext', lbl_padding_top='20px', lbl_padding_bottom='10px', lbl_width=lblwidth)
+        fb.field('version', lbl='Version',width=fld_width, colspan=2, lbl_width=lblwidth)
+        fb.field('exclude',colspan=2)
+
+       #fb = pane.formbuilder(cols=2, margin_left='1em',border_spacing='5px',dbtable='qfrm.item', width='350px')
+       #fb.field('short_code', width='5em', colspan=1)
+       #fb.field('group_id', width='15em', colspan=2)
+       #fb.field('code', lbl='Calculated Code', tag='div', width='5em', colspan=1)
+       #fb.field('label', width='100%', colspan=2)
+       #fb.field('colspan', width='3.5em')
+       #fb.field('rowspan', width='3.5em')
+       #pane.div('<HR>', margin_left='10px', margin_right='10px')
 
 #-------------- END ITEM --------------------
