@@ -727,7 +727,7 @@ class IncludedView(BaseComponent):
                 
         searchbox = gridtop.div(position='absolute', right='5px',top='4px',
                                 width='22em',datapath=controllerPath)
-        searchlbl = searchbox.div(position='absolute', right='20em',top='2px')
+        searchlbl = searchbox.div(position='absolute', right='15em',top='2px')
         searchlbl.div('!!Search ',float='left')
         controller.dataController("""var grid = genro.wdgById(gridId);
                                         grid.filterColumn = col;
@@ -736,7 +736,7 @@ class IncludedView(BaseComponent):
                                         gridId=gridId, _onStart=True)
         if len(colsMenu) > 1:
             controller.data('.flt.colsMenu', colsMenu)
-            searchlbl.span(value='^.flt.selected.caption',float='left',margin_left='2px',_class='buttonIcon')
+            searchlbl.div(value='^.flt.selected.caption',float='left',margin_left='2px',_class='buttonIcon')
             searchlbl.menu(modifiers='*', _class='smallmenu', storepath='.flt.colsMenu',
                         selected_col='.flt.selected.col',
                         selected_caption='.flt.selected.caption',
