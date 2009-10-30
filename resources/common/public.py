@@ -736,7 +736,7 @@ class IncludedView(BaseComponent):
                                         gridId=gridId, _onStart=True)
         if len(colsMenu) > 1:
             controller.data('.flt.colsMenu', colsMenu)
-            searchlbl.div(value='^.flt.selected.caption',float='left',margin_left='2px',_class='buttonIcon')
+            searchlbl.span(value='^.flt.selected.caption',float='left',margin_left='2px',_class='buttonIcon')
             searchlbl.menu(modifiers='*', _class='smallmenu', storepath='.flt.colsMenu',
                         selected_col='.flt.selected.col',
                         selected_caption='.flt.selected.caption',
