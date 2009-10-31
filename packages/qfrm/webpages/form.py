@@ -202,7 +202,7 @@ class GnrCustomWebPage(object):
         self.recordDialog('qfrm.group',firedPkey='^#groupGrid.firedPkey',
                         default_section_id='=aux_sections.selectedId',
                         onSaved='FIRE #groupGrid.reload;', 
-                        height='200px',width='300px',title='!!Group',
+                        height='300px',width='350px',title='!!Group',
                         formCb=self.groupIncludedForm,savePath='aux_groups.lastSaved') # the default is the id of the last record you have touched + attributes (the resultAttr)
                         
         
@@ -235,12 +235,19 @@ class GnrCustomWebPage(object):
         fb = pane.formbuilder(cols=2, margin_left='1em',border_spacing='5px',dbtable='qfrm.group', width='270px')
         fb.field('code', width='5em', colspan=2)
         fb.field('label', width='100%', colspan=2)
-        fb.field('label_css', width='100%', colspan=2)
+        fb.field('label_class',width='100%', colspan=2)
         fb.field('x_position', width='3.5em')
         fb.field('y_position',width='100%')
         fb.field('colspan',width='3.5em')
         fb.field('rowspan',width='100%')
+        fb.field('cols',width='3.5em', tooltip='Number of columns for the inner form') # columns in the inner form builder
+        fb.field('lblpos',width='3.5em') # L, T
+        fb.field('lblalign',width='100%') #left, right, center, justify, char
+        fb.field('fldalign',width='3.5em') #left, right, center, justify, char
+        fb.field('lblvalign',width='100%') #left, right, center, justify, char
+        fb.field('fldvalign',width='3.5em') #left, right, center, justify, char
         pane.div('<BR><BR><HR>', margin_left='10px', margin_right='10px')
+
 
 #-------------- END GROUP --------------------
 

@@ -20,10 +20,19 @@ class Table(object):
                                                                  one_group='')
         tbl.column('code', size=':10',name_long='!!Code')
         tbl.column('label', 'T', name_long='!!Label', indexed=True)
-        tbl.column('label_css', 'T',name_long='!!Label css')
         tbl.column('x_position', 'I',name_long='!!X position')
         tbl.column('y_position', 'I',name_long='!!Y position')
         tbl.column('colspan', 'I',name_long='!!Colspan')
         tbl.column('rowspan', 'I',name_long='!!Rowspan')
         
+        tbl.column('cols', 'I',name_long='!!Columns') # columns in the inner form builder
+        tbl.column('label_class', 'T',name_long='!!Label Class')
+        tbl.column('lblpos', size=':1',name_long='!!Label Position') # L, T
+        tbl.column('lblalign', size=':10',name_long='!!Label Align') #left, right, center, justify, char
+        tbl.column('fldalign', size=':10',name_long='!!Field Align') #left, right, center, justify, char
+        tbl.column('lblvalign', size=':10',name_long='!!Label V Align') #left, right, center, justify, char
+        tbl.column('fldvalign', size=':10',name_long='!!Field V Align') #left, right, center, justify, char
 
+#        def __init__(self, tbl, cols=None, dbtable=None,fieldclass=None,
+#            lblclass='gnrfieldlabel',lblpos='L',lblalign=None,fldalign=None,
+#                lblvalign='middle',fldvalign='middle', rowdatapath=None, head_rows=None):
