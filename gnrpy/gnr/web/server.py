@@ -342,8 +342,7 @@ class NewServer(object):
         if self.options.stop_daemon:
             return self.stop_daemon()
         self.set_user()
-
-        if self.options.reload:
+        if not (self.options.reload=='false' or self.options.reload=='False' or self.options.reload==False or self.options.reload==None):
             if os.environ.get(self._reloader_environ_key):
                 from paste import reloader
                 if self.options.verbose > 1:
@@ -360,7 +359,7 @@ class NewServer(object):
                         reloader.watch_file(file_path)
             else:
                 return self.restart_with_reloader()
-        first_run=int(getattr(self.options,'counter',0))==0
+        first_run=int(getattr(self.options,'counter',0) or 0)==0
         if self.options.bonjour and first_run:
             self.set_bonjour()
         if self.cmd:
