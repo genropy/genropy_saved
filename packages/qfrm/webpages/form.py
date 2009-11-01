@@ -201,8 +201,12 @@ class GnrCustomWebPage(object):
 
         self.recordDialog('qfrm.group',firedPkey='^#groupGrid.firedPkey',
                         default_section_id='=aux_sections.selectedId',
+                        default_lblpos='L',
+                        default_lblalign='left', default_fldalign='left',default_lblvalign='middle', default_fldvalign='middle',
+                        default_x_position=1, default_y_position=1,default_rows=1, default_cols=1,default_colspan=1, default_rowspan=1,
+                        default_lblclass='gnrfieldlabel',
                         onSaved='FIRE #groupGrid.reload;', 
-                        height='300px',width='350px',title='!!Group',
+                        height='300px',width='400px',title='!!Group',
                         formCb=self.groupIncludedForm,savePath='aux_groups.lastSaved') # the default is the id of the last record you have touched + attributes (the resultAttr)
                         
         
@@ -232,21 +236,46 @@ class GnrCustomWebPage(object):
         
 
     def groupForm(self, pane):
-        fb = pane.formbuilder(cols=2, margin_left='1em',border_spacing='5px',dbtable='qfrm.group', width='270px')
-        fb.field('code', width='5em', colspan=2)
-        fb.field('label', width='100%', colspan=2)
-        fb.field('label_class',width='100%', colspan=2)
-        fb.field('x_position', width='3.5em')
-        fb.field('y_position',width='100%')
-        fb.field('colspan',width='3.5em')
-        fb.field('rowspan',width='100%')
-        fb.field('cols',width='3.5em', tooltip='Number of columns for the inner form') # columns in the inner form builder
-        fb.field('lblpos',width='3.5em') # L, T
-        fb.field('lblalign',width='100%') #left, right, center, justify, char
-        fb.field('fldalign',width='3.5em') #left, right, center, justify, char
-        fb.field('lblvalign',width='100%') #left, right, center, justify, char
-        fb.field('fldvalign',width='3.5em') #left, right, center, justify, char
+        leftwidth='6em'
+        rightwidth='100%'
+        fb = pane.formbuilder(cols=2, margin_left='1em',border_spacing='5px',dbtable='qfrm.group', width='350px')
+        fb.field('code', width=leftwidth, colspan=2)
+        fb.field('label', width=rightwidth, colspan=2)
+        fb.field('lblclass',width=rightwidth, colspan=2)
+        fb.div('', colspan=2)
+        fb.field('x_position', width=leftwidth, tag='numberSpinner')
+        fb.field('colspan',width=rightwidth, tag='numberSpinner')
+        fb.field('y_position',width=leftwidth, tag='numberSpinner')
+        fb.field('rowspan',width=rightwidth,tag='numberSpinner')
+        fb.field('lblpos',width=leftwidth, colspan=1, tag='filteringSelect', values='L:Left,T:Top') # L, T
+        fb.field('cols',width=rightwidth, tag='numberSpinner', tooltip='Number of columns for the inner form') # columns in the inner form builder
+        fb.div('')
+        fb.field('rows',width=rightwidth, tag='numberSpinner', tooltip='Number of rows for the inner form') # optional rows in the inner form builder
+        fb.field('lblalign',width=leftwidth, tag='filteringSelect', values='left:left,right:right,center:center,justify:justify,char:char')
+        fb.field('lblvalign',width=rightwidth, tag='filteringSelect', values='top:top,middle:middle,bottom:bottom,baseline:baseline')
+        fb.field('fldalign',width=leftwidth, tag='filteringSelect', values='left:left,right:right,center:center,justify:justify,char:char') 
+        fb.field('fldvalign',width=rightwidth, tag='filteringSelect', values='top:top,middle:middle,bottom:bottom,baseline:baseline')
         pane.div('<BR><BR><HR>', margin_left='10px', margin_right='10px')
+        
+# def formbuilder(self, cols=1, dbtable=None, tblclass='formbuilder',
+#                      lblclass='gnrfieldlabel', lblpos='L', _class='', fieldclass='gnrfield',
+#                      lblalign=None, lblvalign='middle',
+#                      fldalign=None, fldvalign='middle', disabled=False,
+#                      rowdatapath=None, head_rows=None, **kwargs):
+        
+# http://www.w3schools.com/Css/pr_pos_vertical-align.asp
+# this vertical-align property is misnamed and is not inherited and has values of:
+# length    Raises or lower an element by the specified length. Negative values are allowed
+# % Raises or lower an element in a percent of the "line-height" property. Negative values are allowed
+# baseline  Align the baseline of the element with the baseline of the parent element. This is default
+# sub   Aligns the element as it was subscript
+# super Aligns the element as it was superscript
+# top   The top of the element is aligned with the top of the tallest element on the line
+# text-top  The top of the element is aligned with the top of the parent element's font
+# middle    The element is placed in the middle of the parent element
+# bottom    The bottom of the element is aligned with the lowest element on the line
+# text-bottom   The bottom of the element is aligned with the bottom of the parent element's font
+# inherit   Specifies that the value of the vertical-align property should be inherited from the parent element
 
 
 #-------------- END GROUP --------------------

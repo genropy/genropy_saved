@@ -26,12 +26,13 @@ class Table(object):
         tbl.column('rowspan', 'I',name_long='!!Rowspan')
         
         tbl.column('cols', 'I',name_long='!!Columns') # columns in the inner form builder
-        tbl.column('label_class', 'T',name_long='!!Label Class')
+        tbl.column('rows', 'I',name_long='!!Rows') # columns in the inner form builder
+        tbl.column('lblclass', 'T',name_long='!!Label Class')
         tbl.column('lblpos', size=':1',name_long='!!Label Position') # L, T
         tbl.column('lblalign', size=':10',name_long='!!Label Align') #left, right, center, justify, char
         tbl.column('fldalign', size=':10',name_long='!!Field Align') #left, right, center, justify, char
-        tbl.column('lblvalign', size=':10',name_long='!!Label V Align') #left, right, center, justify, char
-        tbl.column('fldvalign', size=':10',name_long='!!Field V Align') #left, right, center, justify, char
+        tbl.column('lblvalign', size=':10',name_long='!!Label vAlign') #left, right, center, justify, char
+        tbl.column('fldvalign', size=':10',name_long='!!Field vAlign') #left, right, center, justify, char
 
 #        def __init__(self, tbl, cols=None, dbtable=None,fieldclass=None,
 #            lblclass='gnrfieldlabel',lblpos='L',lblalign=None,fldalign=None,
