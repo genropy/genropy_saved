@@ -33,7 +33,7 @@ class Table(object):
         tbl.column('fldalign', size=':10',name_long='!!Field Align') #left, right, center, justify, char
         tbl.column('lblvalign', size=':10',name_long='!!Label vAlign') #left, right, center, justify, char
         tbl.column('fldvalign', size=':10',name_long='!!Field vAlign') #left, right, center, justify, char
-
+        tbl.column('default_colwidths', 'T',name_long='!!Column Widths')
 #        def __init__(self, tbl, cols=None, dbtable=None,fieldclass=None,
 #            lblclass='gnrfieldlabel',lblpos='L',lblalign=None,fldalign=None,
 #                lblvalign='middle',fldvalign='middle', rowdatapath=None, head_rows=None):

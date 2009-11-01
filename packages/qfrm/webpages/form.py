@@ -108,6 +108,8 @@ class GnrCustomWebPage(object):
                     multiSelect=False,
                     nodeId='sectionGrid',
                     reloader='^form.record.id',
+                    default_cols=1,
+                    default_rows=1,
                     connect_onRowDblClick="""
                             FIRE .firedPkey = this.widget.rowIdByIndex($1.rowIndex);
                             """,
@@ -167,8 +169,8 @@ class GnrCustomWebPage(object):
         fb.field('label', width='100%', colspan=2)
         fb.field('name', width='100%', colspan=3)
         fb.field('sort_order',width='7em', colspan=1)
-        fb.field('cols',lbl='Columns', width='4em', colspan=1)
-        fb.field('rows',lbl='Rows', lbl_width='5em', width='4em', colspan=1) #, lbl_width='5em'
+        fb.field('cols',lbl='Columns', width='4em', colspan=1, tag='numberSpinner')
+        fb.field('rows',lbl='Rows', lbl_width='5em', width='4em', colspan=1,tag='numberSpinner') #, lbl_width='5em'
         
 
 #-------------- END section --------------------
@@ -220,7 +222,7 @@ class GnrCustomWebPage(object):
                         msg= self.addingRecordMsg % 'Group')
 
         #deleting section
-        bc.dataRpc("dummy2",'deleteIncludedViewRecord',table='qfrm.group',
+        bc.dataRpc("dummy",'deleteIncludedViewRecord',table='qfrm.group',
                     rowToDelete="=.selectedId", _fired='^.proceedDelete',
                      _if='rowToDelete', _onResult="""FIRE .reload;""")
                                                        
@@ -255,7 +257,9 @@ class GnrCustomWebPage(object):
         fb.field('lblvalign',width=rightwidth, tag='filteringSelect', values='top:top,middle:middle,bottom:bottom,baseline:baseline')
         fb.field('fldalign',width=leftwidth, tag='filteringSelect', values='left:left,right:right,center:center,justify:justify,char:char') 
         fb.field('fldvalign',width=rightwidth, tag='filteringSelect', values='top:top,middle:middle,bottom:bottom,baseline:baseline')
-        pane.div('<BR><BR><HR>', margin_left='10px', margin_right='10px')
+        fb.field('default_colwidths',width=rightwidth, colspan=2, tooltip='eg.12px,20px,50px for 3 columns')
+        
+        pane.div('<BR><HR>', margin_left='10px', margin_right='10px')
         
 # def formbuilder(self, cols=1, dbtable=None, tblclass='formbuilder',
 #                      lblclass='gnrfieldlabel', lblpos='L', _class='', fieldclass='gnrfield',
@@ -322,7 +326,7 @@ class GnrCustomWebPage(object):
                         msg= self.addingRecordMsg % 'Item')
 
         #deleting item
-        bc.dataRpc("dummy3",'deleteIncludedViewRecord',table='qfrm.item',
+        bc.dataRpc("dummy",'deleteIncludedViewRecord',table='qfrm.item',
                     rowToDelete="=.selectedId", _fired='^.proceedDelete',
                      _if='rowToDelete', _onResult="""FIRE .reload;""")
                                                        
@@ -365,8 +369,8 @@ class GnrCustomWebPage(object):
                                                                   width='20em',height='5em', colspan=1, row_class='formula_field')
 
 
-    def leftItemFormPane(self, pane, disabled=False):
-        fb = pane.formbuilder(cols=2, dbtable='qfrm.item', margin_left='1em', border_spacing='5px', margin_top='1em',width='380px',disabled=disabled)
+    def leftItemFormPane(self, pane, disabled=False, **kwargs):
+        fb = pane.formbuilder(cols=2, dbtable='qfrm.item', margin_left='1em', border_spacing='5px', margin_top='1em',width='380px',disabled=False)
         fld_width='100%'
         lblwidth='100px'
         fb.div(lbl="""Set the details of the question, including its code for query purposes,

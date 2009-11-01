@@ -19,7 +19,7 @@ class Table(object):
         tbl.column('group_id',size='22', group='_').relation('group.id',
                                                                  many_name='Form Item',
                                                                  one_name='Group',
-                                                                 mode='foreignkey',
+                                                                 mode='relation',
                                                                  onDelete='delete',
                                                                  one_group='')
         tbl.column('code', size=':20',name_long='!!Code', index=True)
