@@ -62,7 +62,11 @@ class TableScriptOnRecord(TableScript):
         
     def loadRecord(self, record=None,**kwargs):
         self._data = self.db.table(self.maintable or self.resource_table).recordAs(record, mode='bag')
+        self.onRecordLoaded(**kwargs)  
         
+    def onRecordLoaded(self,**kwargs):
+        pass
+    
     def test(self):
         x=TableScriptOnRecord(mypage)
         

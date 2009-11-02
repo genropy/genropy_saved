@@ -845,7 +845,11 @@ class SqlQuery(object):
         cursor.arraysize = arraysize
         rows = cursor.fetchmany()
         return cursor, self._cursorGenerator(cursor,rows)
-        
+    
+    def iterfetch(self,arraysize=30):
+        for r in self.serverfetch(arraysize=arraysize)[1]:
+            yield r
+    
     def _cursorGenerator(self, cursor,firstRows=None):
         if firstRows:
             yield firstRows

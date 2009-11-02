@@ -198,8 +198,8 @@ class DbModel(object):
         @param pkg: package name"""
         if '.' in tblname:
             pkg, tblname = tblname.split('.')[:2]
-        if pkg is None:
-            pkg = self.obj.keys()[0]
+        #if pkg is None:
+        #    pkg = self.obj.keys()[0]
         return self.obj[pkg].table(tblname)
     
     def column(self, colname):
