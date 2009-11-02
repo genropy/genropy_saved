@@ -196,7 +196,11 @@ class GnrWsgiPage(GnrBaseWebPage):
     
     def homeUrl(self):
         return self.site.home_uri
-        
+    
+    def packageUrl(self,*args,**kwargs):
+        pkg = kwargs.get('pkg',self.packageId)
+        return self.site.pkg_page_url(pkg, *args)
+    
     def getDomainUrl(self, path='', **kwargs):
         params = urllib.urlencode(kwargs)
         path =  '%s/%s'%(self.site.home_uri.rstrip('/'),path.lstrip('/'))

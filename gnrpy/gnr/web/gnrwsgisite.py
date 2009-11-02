@@ -784,6 +784,9 @@ class GnrWsgiSite(object):
     # so we return a list of any possible resource folder starting from 
     # most customized and ending with most generic ones
     
+    def pkg_page_url(self,pkg,*args):
+        return ('%s%s/%s'%(self.home_uri,pkg,'/'.join(args))).replace('//','/')
+    
     def webtools_url(self,tool,**kwargs):
         kwargs_string = '&'.join(['%s=%s'%(k,v) for k,v in kwargs.items()])
         return '%s%s_tools/%s?%s'%(self.external_host,self.home_uri,tool,kwargs_string)
