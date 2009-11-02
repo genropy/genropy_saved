@@ -336,41 +336,94 @@ class GnrCustomWebPage(object):
                             resultPathOrActions='.proceedDelete')
 
 
-    def itemIncludedForm(self,recordBC,**kwargs):
+    def itemIncludedForm(self,recordBC, disabled=True, **kwargs):
         #print 'kwargs: ', kwargs  disabled and the table qfrm.item
         bc = recordBC.borderContainer(_class='pbl_roundedGroup',**kwargs)
-        self.leftItemFormPane(bc.contentPane(region='left',width='400px', _class='pbl_roundedGroup',**kwargs), disabled=True)
-        self.rightItemFormPane(bc.contentPane(region='center', _class='pbl_roundedGroup',**kwargs))
+        self.leftItemFormPane(bc.contentPane(region='left',width='400px', _class='pbl_roundedGroup',**kwargs), disabled=disabled)
+        self.rightItemFormPane(bc.stackContainer(region='center', _class='pbl_roundedGroup', selected='^.currentFormItemType',**kwargs), disabled=disabled)
 
         
-    def rightItemFormPane(self, pane, disabled=False, **kwargs):
-        pane.dataFormula('aux.fb_class','"answer_type_"+ansType',ansType='^.answer_type')
-        pane=pane.div(_class='^aux.fb_class')
+    def rightItemFormPane(self, sc, disabled=False, **kwargs):
+        self.formItemTypeEmpty(sc.contentPane(margin='10px'), disabled=disabled)
+        self.formItemTypeCheckBox(sc.contentPane(margin='10px'), disabled=disabled) # color='#454545'
+        self.formItemTypeDate(sc.contentPane(margin='10px'), disabled=disabled)  
+        self.formItemTypeReal(sc.contentPane(margin='10px'), disabled=disabled)   
+        self.formItemTypeLongint(sc.contentPane(margin='10px'), disabled=disabled)
+        self.formItemTypeText(sc.contentPane(margin='10px'), disabled=disabled)
+        self.formItemTypeGrid(sc.contentPane(margin='10px'), disabled=disabled)
+        
+        sc.dataController("""if    (answer_type==''){SET .currentFormItemType=0;}
+                             else if (answer_type=='B'){SET .currentFormItemType=1;}
+                             else if (answer_type=='D'){SET .currentFormItemType=2;}
+                             else if (answer_type=='R'){SET .currentFormItemType=3;}
+                             else if (answer_type=='L'){SET .currentFormItemType=4;}
+                             else if (answer_type=='T'){SET .currentFormItemType=5;}
+                             else if (answer_type=='X'){SET .currentFormItemType=6;}""",
+                             answer_type='^.answer_type')
 
-        fb = pane.formbuilder(cols=1, dbtable='qfrm.item', margin_left='1em', border_spacing='5px', margin_top='1em',width='90%',disabled=disabled)
+    def _drawFormItem(self, pane, disabled=True, width_fld=False, height_fld=False, colspan_fld=False, rowspan_fld=False,
+                            tooltip_fld=False, value_list_fld=False, formula_fld=False, **kwargs):
+        
+        #disabled=False
+        
         lblwidth='90px'
+        fb = pane.formbuilder(cols=1, dbtable='qfrm.item', margin_left='1em', border_spacing='5px', 
+                                      margin_top='1em',width='90%',disabled=disabled)
+        
         fb.div(lbl="""Setting the answer type will determine the widget used on the form.  You can also set the colspan, sort order,
-                      and the value list.  The value list is comma delimited used for a popup.""",lbl_colspan=2,  lbl_class='helptext', lbl_padding_top='0px', lbl_padding_bottom='10px', lbl_width=lblwidth)
+                      and the value list.  The value list is comma delimited used for a popup.""",
+                      lbl_colspan=2,  lbl_class='helptext', lbl_padding_top='0px', lbl_padding_bottom='10px', lbl_width=lblwidth)
 
         fb.field('answer_type',width='10em', tag='filteringSelect',nodeId='testfilter',
-                               values='B:CheckBox,D:Date Field,R:Float Field,L:Integer Field,A:Text Field,T:Text Area Field,Z:Form Text',
+                               values='B:Boolean,D:Date,R:Float Field,L:Integer,T:Text,X:Grid',
                                colspan=1, lbl_width=lblwidth)
-        fb.field('width', width='5em',colspan=1, lbl_width=lblwidth, row_class='width_field')
-        fb.field('height',width='5em',colspan=1, lbl_width=lblwidth, row_class='height_field')
-        fb.field('colspan',width='5em',colspan=1, lbl_width=lblwidth)
-        fb.field('tooltip',width='20em',colspan=1, lbl_width=lblwidth)
-    
-        fb.simpleTextarea(lbl='Value List',value='^.value_list', lbl_width=lblwidth, lbl_vertical_align='top', 
-                                                                  width='20em',height='5em', colspan=1, row_class='value_list_field')
-        fb.field('form_text_style',width='20em',colspan=1, lbl_width=lblwidth, tag='filteringSelect', values='customFormHeader:Heading,customFormBody:Body,customFormFooter:Footer', row_class='form_text_style_field')
-        fb.simpleTextarea(lbl='Form Text',value='^.form_text', lbl_width=lblwidth, lbl_vertical_align='top', 
-                                                                  width='20em',height='5em', colspan=1, row_class='form_text_field')                                                                  
-        fb.simpleTextarea(lbl='Formula',value='^.formula', lbl_width=lblwidth, lbl_vertical_align='top', 
-                                                                  width='20em',height='5em', colspan=1, row_class='formula_field')
+        if width_fld:
+            fb.field('width', width='5em',colspan=1, lbl_width=lblwidth)
+        if height_fld:
+            fb.field('height',width='5em',colspan=1, lbl_width=lblwidth)
+        if colspan_fld:
+            fb.field('colspan',width='5em',colspan=1, lbl_width=lblwidth)
+        if rowspan_fld:
+            fb.field('rowspan',width='5em',colspan=1, lbl_width=lblwidth)
+        if tooltip_fld:
+            fb.field('tooltip',width='20em',colspan=1, lbl_width=lblwidth)
+        if value_list_fld:
+            fb.simpleTextarea(lbl='Value List',value='^.value_list', lbl_width=lblwidth, lbl_vertical_align='top',
+                                                                                         width='20em',height='5em', colspan=1)
+        if formula_fld:
+            fb.simpleTextarea(lbl='Formula',value='^.formula', lbl_width=lblwidth, lbl_vertical_align='top', 
+                                                                                   width='20em',height='5em', colspan=1)                                                               
 
+                                                                  
+                                                                  
+    def formItemTypeEmpty(self, pane, disabled=False, **kwargs):
+        self._drawFormItem(pane, disabled=disabled, **kwargs)
+        
+    def formItemTypeCheckBox(self, pane, disabled=False, **kwargs):
+        self._drawFormItem(pane, disabled=disabled, width_fld=True, colspan_fld=True, tooltip_fld=True, **kwargs)
+
+    def formItemTypeDate(self, pane, disabled=False, **kwargs):
+        self._drawFormItem(pane, disabled=disabled, width_fld=True, colspan_fld=True, tooltip_fld=True, 
+                                                                        value_list_fld=True, formula_fld=True, **kwargs)
+    def formItemTypeReal(self, pane, disabled=False, **kwargs):
+        self._drawFormItem(pane, disabled=disabled, width_fld=True, colspan_fld=True, tooltip_fld=True, 
+                                                                        value_list_fld=True, formula_fld=True, **kwargs)
+
+    def formItemTypeLongint(self, pane, disabled=False, **kwargs):
+        self._drawFormItem(pane, disabled=disabled, width_fld=True, colspan_fld=True, tooltip_fld=True,
+                                                                        value_list_fld=True, formula_fld=True, **kwargs)
+        
+    def formItemTypeText(self, pane, disabled=False, **kwargs):
+        self._drawFormItem(pane, disabled=disabled, width_fld=True, height_fld=True, colspan_fld=True, tooltip_fld=True,
+                                                                        value_list_fld=True, formula_fld=True, **kwargs)
+                                               
+    def formItemTypeGrid(self, pane, disabled=False, **kwargs):
+        self._drawFormItem(pane, disabled=disabled, width_fld=True, height_fld=True, colspan_fld=True, tooltip_fld=True,
+                                                                        value_list_fld=True, formula_fld=True, **kwargs)
 
     def leftItemFormPane(self, pane, disabled=False, **kwargs):
-        fb = pane.formbuilder(cols=2, dbtable='qfrm.item', margin_left='1em', border_spacing='5px', margin_top='1em',width='380px',disabled=False)
+        fb = pane.formbuilder(cols=2, dbtable='qfrm.item', margin_left='1em', border_spacing='5px', 
+                                      margin_top='1em',width='380px',disabled=disabled)
         fld_width='100%'
         lblwidth='100px'
         fb.div(lbl="""Set the details of the question, including its code for query purposes,

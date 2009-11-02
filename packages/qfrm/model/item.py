@@ -31,8 +31,8 @@ class Table(object):
         tbl.column('version', size=':30',name_long='!!Version')
         tbl.column('sort_order', size=':5',name_long='!!Sort Order')
 
-        tbl.column('form_text','T', name_long='!!Form Text')
-        tbl.column('form_text_style', size=':20', name_long='!!Text Style')
+        #tbl.column('form_text','T', name_long='!!Form Text')
+        #tbl.column('form_text_style', size=':20', name_long='!!Text Style')
         tbl.column('answer_type',size=':2', name_long='!!Answer Type')
         tbl.column('value_list', name_long='!!Value List') #comma delimited string of values to be used for dbCombo or filteringSelect
         tbl.column('exclude','B', name_long='!!Exclude')
