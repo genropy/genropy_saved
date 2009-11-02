@@ -63,7 +63,7 @@ class WK2pdf(object):
             setattr(self,k,v)
         
         if len(args)<2:
-            self.app.quit(1)
+            self.app.quit()
             raise Exception('You need to specify atleast one input file, and exactly one output file\nUse - for stdin or stdout\n\n')
         args = list(args)
         self.out = args.pop(-1)
@@ -216,7 +216,7 @@ class WK2pdf(object):
         printer.setOrientation(self.orientation)
         printer.setColorMode(self.colorMode)
         if not printer.isValid():
-            self.app.quit(1)
+            self.app.quit()
             raise Exception("Unable to write to output file")
         while len(self.pages):
             page = self.pages.pop(0)
