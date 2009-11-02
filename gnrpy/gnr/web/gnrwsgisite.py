@@ -250,7 +250,7 @@ class GnrWsgiSite(object):
     
     def find_resources(self):
         self.resources=Bag()
-        resources_list = [(resource.label,resource.attr.get('path')) for resource in self.config['resources']]
+        resources_list = [(resource.label,resource.attr.get('path')) for resource in self.config['resources'] or []]
         for label,rsrc_path in resources_list:
             if rsrc_path:
                 self.resources[label] = rsrc_path
