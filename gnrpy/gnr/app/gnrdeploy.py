@@ -89,8 +89,8 @@ class SiteMaker(object):
     def do(self):
         self.site_path = os.path.join(self.base_path, self.site_name)
         pages_path = os.path.join(self.site_path, 'pages')
-        root_py_path = os.path.join(pages_path, 'root.py')
-        siteconfig_xml_path = os.path.join(pages_path, 'siteconfig.xml')
+        root_py_path = os.path.join(self.site_path, 'root.py')
+        siteconfig_xml_path = os.path.join(self.site_path, 'siteconfig.xml')
         if not os.path.isdir(self.site_path):
             os.mkdir(self.site_path)
         if not os.path.isdir(pages_path):
@@ -116,6 +116,7 @@ if __name__ == '__main__':
             siteconfig = Bag()
             if self.instance:
                 siteconfig.setItem('instances.%s' % self.instance, None)
+            siteconfig.setItem('resources' , None)
             for resource in self.resources:
                 if isinstance(resource,tuple) or isinstance(resource,list):
                     resource, resource_path = resource
@@ -124,7 +125,7 @@ if __name__ == '__main__':
                     siteconfig.setItem('resources.%s' % resource, None)
             wsgi_options = dict()
             for option in ('reload', 'debug', 'port', 'mainpackage'):
-                value = getattr(self, 'wsgi_'%option, None)
+                value = getattr(self, 'wsgi_%s'%option, None)
                 if value:
                     wsgi_options[option] = value
             siteconfig.setItem('wsgi', None, **wsgi_options)
@@ -167,6 +168,7 @@ class InstanceMaker(object):
                 os.mkdir(path)
         if not os.path.isfile(instanceconfig_xml_path):
             instanceconfig = Bag()
+            instanceconfig.setItem('packages', None)
             for package in self.packages:
                 if isinstance(package,tuple) or isinstance(package,list):
                     package, package_path = package
@@ -175,7 +177,7 @@ class InstanceMaker(object):
                     instanceconfig.setItem('packages.%s' % package, None)
             db_options = dict()
             for option in ('dbname', 'implementation', 'host', 'port', 'username', 'password'):
-                value = getattr(self, 'db_'%option, None)
+                value = getattr(self, 'db_%s'%option, None)
                 if value:
                     db_options[option] = value
             instanceconfig.setItem('db', None, **db_options)
