@@ -116,7 +116,6 @@ if __name__ == '__main__':
             siteconfig = Bag()
             if self.instance:
                 siteconfig.setItem('instances.%s' % self.instance, None)
-            siteconfig.setItem('resources' , None)
             for resource in self.resources:
                 if isinstance(resource,tuple) or isinstance(resource,list):
                     resource, resource_path = resource
