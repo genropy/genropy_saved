@@ -170,9 +170,13 @@ class GnrHtmlBuilder(object):
                               'visibility', 'overflow', 'float', 'clear', 'display',
                               'z_index', 'border','position','padding','margin',
                               'color','white_space','vertical_align','background'];
-    def __init__(self,srcfactory=None,bodyAttributes=None):
+    def __init__(self,page_height=None,page_width=None,page_debug=False,srcfactory=None,print_button=None,bodyAttributes=None):
         self.srcfactory=srcfactory or GnrHtmlSrc 
-
+        self.page_height = page_height or 280
+        self.page_width = page_width or 200
+        self.page_debug = page_debug 
+        self.print_button = print_button
+        
     def initializeSrc(self, **bodyAttributes):
         bodyAttributes=bodyAttributes or {}
         self.root = self.srcfactory.makeRoot()
@@ -180,6 +184,40 @@ class GnrHtmlBuilder(object):
         self.htmlBag = self.root.html()
         self.head = self.htmlBag.head()
         self.body = self.htmlBag.body(**bodyAttributes)
+        self.body.style("""
+                        .no_print{
+                            display:none;
+                        }
+                        """,media='print')
+        self.body.style("""
+                        #printButton{
+                            position:fixed;right:30px;top:5px;z-index:100;
+                            cursor:pointer;',onclick='window.print();
+                            background:#3F5A8D; color:white; -moz-border-radius:8px;
+                            -webkit-border-radius:8px;font-size:9pt;
+                            padding:3px;padding-left:8px;
+                            padding-right:8px;border:1px solid white;
+                            -moz-box-shadow:4px 4px 5px gray;
+                            -webkit-box-shadow:4px 4px 5px gray;
+                            font-family:courier;
+                        }
+                        """)
+
+        
+    def newPage(self):
+        firstpage = (len(self.body)==0)
+        border_color = 'red' if self.page_debug else 'white'
+        page_break = '' if firstpage else 'page-break-before:always;'
+        page = self.body.div(style="""position:relative;
+                                   width:%smm;
+                                   height:%smm;
+                                   border:.3mm solid %s; /* do not remove */
+                                   top:0mm;
+                                   left:0mm;
+                                   %s""" %(self.page_width,self.page_height,border_color,page_break))
+        if firstpage and self.print_button:
+            page.div(self.print_button,_class='no_print',id='printButton',onclick='window.print();')
+        return page
     
     def styleForLayout(self):
         self.head.style(""".x_br{border-top:none!important;border-left:none!important;}

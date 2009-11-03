@@ -82,11 +82,16 @@ class RecordToHtml(TableScriptOnRecord):
     html_folder = '*connections/html'
     pdf_folder = '*connections/pdf'
     encoding= 'utf-8'
-    
+    page_debug = False
+    page_width = 200
+    page_height = 280
+    print_button = None
+
     def init(self,**kwargs):
         self.maintable=self.maintable or self.resource_table
         self.maintable_obj=self.db.table(self.maintable)
-        self.builder = GnrHtmlBuilder()
+        self.builder = GnrHtmlBuilder(page_width=self.page_width,page_height=self.page_height,
+                                      page_debug=self.page_debug,print_button=self.print_button)
         
     def __call__(self, record=None, filepath=None,
                        rebuild=False, dontSave=False, pdf=False, runKwargs=None,**kwargs):
@@ -129,6 +134,7 @@ class RecordToHtml(TableScriptOnRecord):
     def initializeBuilder(self):
         self.builder.initializeSrc()
         self.body = self.builder.body
+        self.getNewPage = self.builder.newPage
         self.builder.styleForLayout()
         
     def hmtlFolderPath(self):
