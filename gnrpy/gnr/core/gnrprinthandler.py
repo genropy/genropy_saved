@@ -100,7 +100,7 @@ class PrintHandler(object):
                 result = call(['wk2pdf',filename.replace(' ','\ '),destPath])
                 if result < 0:
                     raise PrintHandlerError('wk2pdf error')
-                resultList.append(destPath.replace(' ','\ '))
+                resultList.append(destPath)
             elif ext.lower() =='.pdf':
                 resultList.append(filename)
             else:
