@@ -128,7 +128,7 @@ class GnrCustomWebPage(object):
         self.recordDialog('qfrm.section',firedPkey='^#sectionGrid.firedPkey',
                         default_form_id='=form.record.id',
                         onSaved='FIRE #sectionGrid.reload;', 
-                        height='600px',width='600px',title='!!Section',
+                        height='600px',width='800px',title='!!Section',
                         formCb=self.sectionIncludedForm,savePath='aux_sections.lastSaved') # the default is the id of the last record you have touched + attributes (the resultAttr)
                         
         
@@ -155,22 +155,23 @@ class GnrCustomWebPage(object):
     def sectionIncludedForm(self,recordBC,**kwargs):
         bc = recordBC.borderContainer(_class='pbl_roundedGroup',**kwargs)
         top=bc.contentPane(region='top', height='80px', _class='pbl_roundedGroup',**kwargs)
-        temp=bc.borderContainer(region='center') #, _class='pbl_roundedGroup',**kwargs
-        middle=temp.borderContainer(region='top', height='150px', _class='pbl_roundedGroup',**kwargs)
-        bottom=temp.borderContainer(region='center', _class='pbl_roundedGroup',**kwargs)
+        temp=bc.borderContainer(region='bottom') #, _class='pbl_roundedGroup',**kwargs
+        left=temp.borderContainer(region='left', width='380px', _class='pbl_roundedGroup',**kwargs)
+        right=temp.borderContainer(region='center', _class='pbl_roundedGroup',**kwargs)
         self.sectionForm(top)
-        self.groupContainer(middle)
-        self.itemContainer(bottom)
+        self.groupContainer(left)
+        self.itemContainer(right)
 
 
     def sectionForm(self, pane):
-        fb = pane.formbuilder(cols=3, margin_left='1em',border_spacing='5px',dbtable='qfrm.section', width='550px')
+        fb = pane.formbuilder(cols=4, margin_left='1em',border_spacing='5px',dbtable='qfrm.section', width='550px')
         fb.field('code', width='7em', colspan=1)
-        fb.field('label', width='100%', colspan=2)
-        fb.field('name', width='100%', colspan=3)
-        fb.field('sort_order',width='7em', colspan=1)
-        fb.field('cols',lbl='Columns', width='4em', colspan=1, tag='numberSpinner')
-        fb.field('rows',lbl='Rows', lbl_width='5em', width='4em', colspan=1,tag='numberSpinner') #, lbl_width='5em'
+        fb.field('label', width='20em', colspan=2)
+        fb.field('sort_order',width='100%', colspan=1)
+        fb.field('name', width='20em', colspan=2)
+        
+        fb.field('cols',lbl='Columns', width='4em', tag='numberSpinner',colspan=1)# lbl_width='5em'
+        fb.field('rows',lbl='Rows', width='4em', tag='numberSpinner', colspan=1) #, lbl_width='5em'
         
 
 #-------------- END section --------------------
@@ -349,9 +350,10 @@ class GnrCustomWebPage(object):
         fb = pane.formbuilder(cols=1, dbtable='qfrm.item', margin_left='1em', border_spacing='5px', 
                                       margin_top='0em',width='90%',disabled=disabled)
         
-        fb.div(lbl="""Setting the answer type will determine the widget used on the form.  You can also set the colspan, sort order,
-                      and the value list.  The value list is comma delimited used for a popup.""",margin='0px',
-                      lbl_colspan=2, colspan=1, lbl_class='helptext', lbl_padding_top='0px', lbl_padding_bottom='10px', lbl_width=lblwidth)
+        fb.div(lbl="""Setting the answer type will determine the widget used on the form.  You have control to set the colspan,
+                      rowspan, sort order, height and width, and the value list and a special formula column.""",
+                      margin='0px', lbl_colspan=2, colspan=1, lbl_class='helptext', lbl_padding_top='0px',
+                      lbl_padding_bottom='10px', lbl_width=lblwidth)
 
         fb.field('answer_type',width='10em', tag='filteringSelect',nodeId='testfilter',
                                values='B:Boolean,D:Date,R:Float Field,L:Integer,T:Text,X:Grid',
@@ -369,7 +371,7 @@ class GnrCustomWebPage(object):
                                                                                          width='20em',height='5em', colspan=1)
         if value_list_fld:
             fb.simpleTextarea(lbl='Value List',value='^.value_list', lbl_width=lblwidth, lbl_vertical_align='top',
-                                                                                         width='20em',height='5em', colspan=1)
+                                               tooltip='The value list is either comma delimited used for a popup or in the format \'code:value,\'', width='20em',height='5em', colspan=1)
         if formula_fld:
             fb.simpleTextarea(lbl='Formula',value='^.formula', lbl_width=lblwidth, lbl_vertical_align='top', 
                                                                                    width='20em',height='5em', colspan=1)                                                               
