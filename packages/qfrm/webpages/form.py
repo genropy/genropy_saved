@@ -361,10 +361,9 @@ class GnrCustomWebPage(object):
                              else if (answer_type=='X'){SET .currentFormItemType=6;}""",
                              answer_type='^.answer_type')
 
-    def _drawFormItem(self, pane, disabled=True, width_fld=False, height_fld=False, colspan_fld=False, rowspan_fld=False,
-                            tooltip_fld=False, value_list_fld=False, formula_fld=False, **kwargs):
+    def _drawFormItem(self, pane, disabled=True, width_fld=True, height_fld=False, colspan_fld=True, rowspan_fld=True,
+                            tooltip_fld=True, value_list_fld=False, formula_fld=False, **kwargs):
         
-        #disabled=False
         
         lblwidth='90px'
         fb = pane.formbuilder(cols=1, dbtable='qfrm.item', margin_left='1em', border_spacing='5px', 
@@ -397,10 +396,11 @@ class GnrCustomWebPage(object):
                                                                   
                                                                   
     def formItemTypeEmpty(self, pane, disabled=False, **kwargs):
-        self._drawFormItem(pane, disabled=disabled, **kwargs)
+        self._drawFormItem(pane, disabled=disabled, colspan_fld=False, rowspan_fld=False, value_list_fld=False,
+                                 height_fld=False, formula_fld=False, **kwargs)
         
     def formItemTypeCheckBox(self, pane, disabled=False, **kwargs):
-        self._drawFormItem(pane, disabled=disabled, width_fld=True, colspan_fld=True, tooltip_fld=True, **kwargs)
+        self._drawFormItem(pane, disabled=disabled, **kwargs)
 
     def formItemTypeDate(self, pane, disabled=False, **kwargs):
         self._drawFormItem(pane, disabled=disabled, width_fld=True, colspan_fld=True, tooltip_fld=True, 
