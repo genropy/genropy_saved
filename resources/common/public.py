@@ -202,8 +202,8 @@ class Public(BaseComponent):
         center = top.contentPane(region='center',margin_top='3px',overflow='hidden')
         if title:
             center.div(title,_class='pbl_title_caption')
-        right.div(connect_onclick="genro.pageBack()", title="!!Back",
-                  _class='icnBaseUpYellow buttonIcon', content='&nbsp;', float='right',margin_left='10px')
+        #right.div(connect_onclick="genro.pageBack()", title="!!Back",
+        #          _class='icnBaseUpYellow buttonIcon', content='&nbsp;', float='right',margin_left='10px')
         if flagsLocale:
             right.dataRpc('aux.locale_ok', 'changeLocale', locale='^aux.locale')
             right.dataController('genro.pageReload()', _fired='^aux.locale_ok')
