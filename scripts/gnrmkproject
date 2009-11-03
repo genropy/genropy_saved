@@ -10,7 +10,7 @@ import sys, os, shutil
 
 from gnr.core.gnrbag import Bag
 from gnr.app.gnrapp import GnrApp
-from gnr.app.gnrdeploy import ProjectMaker, InstanceMaker, SiteMaker
+from gnr.app.gnrdeploy import ProjectMaker, InstanceMaker, SiteMaker, PathResolver
 from optparse import OptionParser
 
 if __name__ == '__main__':
@@ -38,19 +38,24 @@ if __name__ == '__main__':
     if not args:
         print 'You should specify a project name'
     else:
-        print 'Creating project %s in %s...'%(args[0],base_path or 'current directory')
-        project_maker = ProjectMaker(args[0], base_path=base_path)
-        print 'Project %s created'%args[0]
+        project_name = args[0]
+        if '.' in args[0]:
+            path_resolver = PathResolver()
+            repo_name,project_name = args[0].split('.')
+            base_path = base_path or path_resolver.project_repository_name_to_path(repo_name)
+        print 'Creating project %s in %s...'%(project_name,base_path or 'current directory')
+        project_maker = ProjectMaker(project_name, base_path=base_path)
+        print 'Project %s created'%project_name
         project_maker.do()
         if create_site:
-            print 'Creating site %s in %s...'%(args[0],project_maker.sites_path)
-            site_maker = SiteMaker(args[0], base_path=project_maker.sites_path)
+            print 'Creating site %s in %s...'%(project_name,project_maker.sites_path)
+            site_maker = SiteMaker(project_name, base_path=project_maker.sites_path)
             site_maker.do()
-            print 'Site %s created'%args[0]
+            print 'Site %s created'%project_name
         if create_instance:
-            print 'Creating instance %s in %s...'%(args[0],project_maker.instances_path)
-            instance_maker = InstanceMaker(args[0], base_path=project_maker.instances_path)
+            print 'Creating instance %s in %s...'%(project_name,project_maker.instances_path)
+            instance_maker = InstanceMaker(project_name, base_path=project_maker.instances_path)
             instance_maker.do()
-            print 'Instance %s created'%args[0]
+            print 'Instance %s created'%project_name
 
     

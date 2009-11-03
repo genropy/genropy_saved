@@ -32,14 +32,14 @@ class PathResolver(object):
             for path in [expandpath(path) for path in self.gnr_config['gnr.environment_xml'].digest('%s:#a.path'%entity) if os.path.isdir(expandpath(path))]:
                 entity_path=os.path.join(path,entity_name)
                 if os.path.isdir(entity_path):
-                    return entity_path
+                    return expandpath(entity_path)
         if look_in_projects and 'projects' in self.gnr_config['gnr.environment_xml']:
             projects = [expandpath(path) for path in self.gnr_config['gnr.environment_xml'].digest('projects:#a.path') if os.path.isdir(expandpath(path))]
             for project_path in projects:
                 for path in glob.glob(os.path.join(project_path,'*/%s'%entity)):
                     entity_path=os.path.join(path,entity_name)
                     if os.path.isdir(entity_path):
-                        return entity_path
+                        return expandpath(entity_path)
         raise Exception('Error: %s %s not found' % (entity_type, entity_name))
     
     def site_name_to_path(self, site_name):
@@ -56,6 +56,14 @@ class PathResolver(object):
     
     def project_name_to_path(self, project_name):
         return self.entity_name_to_path(project_name, 'project', look_in_projects=False)
+    
+    def project_repository_name_to_path(self, project_repository_name, strict=True):
+        if not strict or 'gnr.environment_xml.projects.%s'%project_repository_name in self.gnr_config:
+            path = self.gnr_config['gnr.environment_xml.projects.%s?path'%project_repository_name]
+            if path:
+                return expandpath(path)
+        else:
+            raise Exception('Error: Project Repository %s not found' % project_repository_name)
 
 class ProjectMaker(object):
     def __init__(self, project_name, base_path=None):
