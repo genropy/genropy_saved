@@ -260,26 +260,6 @@ class GnrCustomWebPage(object):
         fb.field('default_colwidths',width=rightwidth, colspan=2, tooltip='eg.12px,20px,50px for 3 columns')
         
         pane.div('<BR><HR>', margin_left='10px', margin_right='10px')
-        
-# def formbuilder(self, cols=1, dbtable=None, tblclass='formbuilder',
-#                      lblclass='gnrfieldlabel', lblpos='L', _class='', fieldclass='gnrfield',
-#                      lblalign=None, lblvalign='middle',
-#                      fldalign=None, fldvalign='middle', disabled=False,
-#                      rowdatapath=None, head_rows=None, **kwargs):
-        
-# http://www.w3schools.com/Css/pr_pos_vertical-align.asp
-# this vertical-align property is misnamed and is not inherited and has values of:
-# length    Raises or lower an element by the specified length. Negative values are allowed
-# % Raises or lower an element in a percent of the "line-height" property. Negative values are allowed
-# baseline  Align the baseline of the element with the baseline of the parent element. This is default
-# sub   Aligns the element as it was subscript
-# super Aligns the element as it was superscript
-# top   The top of the element is aligned with the top of the tallest element on the line
-# text-top  The top of the element is aligned with the top of the parent element's font
-# middle    The element is placed in the middle of the parent element
-# bottom    The bottom of the element is aligned with the lowest element on the line
-# text-bottom   The bottom of the element is aligned with the bottom of the parent element's font
-# inherit   Specifies that the value of the vertical-align property should be inherited from the parent element
 
 
 #-------------- END GROUP --------------------
@@ -312,7 +292,7 @@ class GnrCustomWebPage(object):
         self.recordDialog('qfrm.item',firedPkey='^#itemGrid.firedPkey',
                         default_section_id='=aux_sections.selectedId',
                         onSaved='FIRE #itemGrid.reload;', 
-                        height='600px',width='800px',title='!!Item',
+                        height='500px',width='800px',title='!!Item',
                         formCb=self.itemIncludedForm,savePath='aux_items.lastSaved') # the default is the id of the last record you have touched + attributes (the resultAttr)
                         
         
@@ -367,15 +347,15 @@ class GnrCustomWebPage(object):
         
         lblwidth='90px'
         fb = pane.formbuilder(cols=1, dbtable='qfrm.item', margin_left='1em', border_spacing='5px', 
-                                      margin_top='1em',width='90%',disabled=disabled)
+                                      margin_top='0em',width='90%',disabled=disabled)
         
         fb.div(lbl="""Setting the answer type will determine the widget used on the form.  You can also set the colspan, sort order,
-                      and the value list.  The value list is comma delimited used for a popup.""",
-                      lbl_colspan=2,  lbl_class='helptext', lbl_padding_top='0px', lbl_padding_bottom='10px', lbl_width=lblwidth)
+                      and the value list.  The value list is comma delimited used for a popup.""",margin='0px',
+                      lbl_colspan=2, colspan=1, lbl_class='helptext', lbl_padding_top='0px', lbl_padding_bottom='10px', lbl_width=lblwidth)
 
         fb.field('answer_type',width='10em', tag='filteringSelect',nodeId='testfilter',
                                values='B:Boolean,D:Date,R:Float Field,L:Integer,T:Text,X:Grid',
-                               colspan=1, lbl_width=lblwidth)
+                               colspan=2, lbl_width=lblwidth)
         if width_fld:
             fb.field('width', width='5em',colspan=1, lbl_width=lblwidth)
         if height_fld:
@@ -385,7 +365,8 @@ class GnrCustomWebPage(object):
         if rowspan_fld:
             fb.field('rowspan',width='5em',colspan=1, lbl_width=lblwidth)
         if tooltip_fld:
-            fb.field('tooltip',width='20em',colspan=1, lbl_width=lblwidth)
+            fb.simpleTextarea(lbl='Tooltip',value='^.tooltip', lbl_width=lblwidth, lbl_vertical_align='top',
+                                                                                         width='20em',height='5em', colspan=1)
         if value_list_fld:
             fb.simpleTextarea(lbl='Value List',value='^.value_list', lbl_width=lblwidth, lbl_vertical_align='top',
                                                                                          width='20em',height='5em', colspan=1)
@@ -393,37 +374,38 @@ class GnrCustomWebPage(object):
             fb.simpleTextarea(lbl='Formula',value='^.formula', lbl_width=lblwidth, lbl_vertical_align='top', 
                                                                                    width='20em',height='5em', colspan=1)                                                               
 
-                                                                  
-                                                                  
+
     def formItemTypeEmpty(self, pane, disabled=False, **kwargs):
         self._drawFormItem(pane, disabled=disabled, colspan_fld=False, rowspan_fld=False, value_list_fld=False,
-                                 height_fld=False, formula_fld=False, **kwargs)
+                                 width_fld=False, height_fld=False, formula_fld=False, **kwargs)
         
     def formItemTypeCheckBox(self, pane, disabled=False, **kwargs):
-        self._drawFormItem(pane, disabled=disabled, **kwargs)
+        self._drawFormItem(pane, disabled=disabled, width_fld=False, **kwargs)
 
     def formItemTypeDate(self, pane, disabled=False, **kwargs):
         self._drawFormItem(pane, disabled=disabled, width_fld=True, colspan_fld=True, tooltip_fld=True, 
-                                                                        value_list_fld=True, formula_fld=True, **kwargs)
+                                                                    formula_fld=True, **kwargs)
     def formItemTypeReal(self, pane, disabled=False, **kwargs):
         self._drawFormItem(pane, disabled=disabled, width_fld=True, colspan_fld=True, tooltip_fld=True, 
-                                                                        value_list_fld=True, formula_fld=True, **kwargs)
+                                                                    formula_fld=True, **kwargs)
 
     def formItemTypeLongint(self, pane, disabled=False, **kwargs):
         self._drawFormItem(pane, disabled=disabled, width_fld=True, colspan_fld=True, tooltip_fld=True,
-                                                                        value_list_fld=True, formula_fld=True, **kwargs)
+                                                                    formula_fld=True, **kwargs)
         
     def formItemTypeText(self, pane, disabled=False, **kwargs):
         self._drawFormItem(pane, disabled=disabled, width_fld=True, height_fld=True, colspan_fld=True, tooltip_fld=True,
-                                                                        value_list_fld=True, formula_fld=True, **kwargs)
+                                                                    value_list_fld=True, formula_fld=True, **kwargs)
                                                
     def formItemTypeGrid(self, pane, disabled=False, **kwargs):
         self._drawFormItem(pane, disabled=disabled, width_fld=True, height_fld=True, colspan_fld=True, tooltip_fld=True,
-                                                                        value_list_fld=True, formula_fld=True, **kwargs)
+                                                                    value_list_fld=True, formula_fld=True, **kwargs)
 
     def leftItemFormPane(self, pane, disabled=False, **kwargs):
+        pane.dataController("SET .code = form_code+'.'+short_code;", _if='form_code && short_code', form_code='^.@section_id.@form_id.code', short_code='^.short_code')
+
         fb = pane.formbuilder(cols=2, dbtable='qfrm.item', margin_left='1em', border_spacing='5px', 
-                                      margin_top='1em',width='380px',disabled=disabled)
+                                      margin_top='.8em',width='380px',disabled=disabled)
         fld_width='100%'
         lblwidth='100px'
         fb.div(lbl="""Set the details of the question, including its code for query purposes,
@@ -443,6 +425,7 @@ class GnrCustomWebPage(object):
                       lbl_colspan=4, colspan=2,  lbl_class='helptext', lbl_padding_top='20px', lbl_padding_bottom='10px', lbl_width=lblwidth)
         fb.field('version', lbl='Version',width=fld_width, colspan=2, lbl_width=lblwidth)
         fb.field('exclude',colspan=2)
+
 
        #fb = pane.formbuilder(cols=2, margin_left='1em',border_spacing='5px',dbtable='qfrm.item', width='350px')
        #fb.field('short_code', width='5em', colspan=1)

@@ -41,3 +41,16 @@ class Table(object):
         tbl.column('width', size=':5', name_long='!!Width')
         tbl.column('tooltip', 'T', name_long='!!Tooltip')
         tbl.column('formula', 'T', name_long='!!Formula')
+        
+    def trigger_onInserted(self, record_data):
+        self.calculateCode(record_data)
+
+    def trigger_onUpdating(self, record_data, old_record=None):
+        self.calculateCode(record_data)
+        
+    def calculateCode(self, record_data):
+        pkey = record_data['section_id']
+        form_id=self.db.table('qfrm.section').readColumns(pkey,'$form_id')
+        form_code=self.db.table('qfrm.form').readColumns(form_id,'$code')
+        record_data['code']='%s.%s' %(form_code,record_data['short_code'])
+        print record_data['code']
