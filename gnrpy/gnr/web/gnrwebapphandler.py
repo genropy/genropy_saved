@@ -1094,7 +1094,7 @@ class GnrBaseWebAppHandler(object):
         os.remove(fpath)
         
     def _exportFileNameClean(self, filename=None):
-        filename = filename or self.page.maintable or  self.page.request.uri.split('/')[-1]
+        filename = filename or self.page.maintable or  self.page.request.path_info.split('/')[-1]
         filename = filename.replace(' ','_').replace('.','_').replace('/','_')[:64]
         filename = filename.encode('ascii', 'ignore')
         return filename
