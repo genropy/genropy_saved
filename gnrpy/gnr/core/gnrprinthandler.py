@@ -138,12 +138,12 @@ class PrintHandler(object):
         output_pdf = PdfFileWriter()
         open_files =[]
         for input_path in pdf_list:
-            input_file  = open(input_path.replace(' ','\ '),'rb')
+            input_file  = open(input_path,'rb')
             open_files.append(input_file)
             input_pdf = PdfFileReader(input_file)
             for page in input_pdf.pages:
                 output_pdf.addPage(page)
-        output_file = open(output_filepath.replace(' ','\ '),'wb')
+        output_file = open(output_filepath,'wb')
         output_pdf.write(output_file)
         output_file.close()
         for input_file in open_files:
