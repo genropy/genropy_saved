@@ -1758,8 +1758,9 @@ class GnrWebConnection(object):
         self.data.toXml(self.connectionFile, autocreate=True)
 
     def _get_appSlot(self):
-        appslot= self.cookie.value['slots'].setdefault(self.page.app.appId, {})
-        return appslot
+        if self.cookie:
+            return self.cookie.value['slots'].setdefault(self.page.app.appId, {})
+        return {}
     appSlot = property(_get_appSlot)
     
     def _get_locale(self):
