@@ -412,16 +412,19 @@ class SqlTable(GnrObject):
         self.db.adapter.emptyTable(self)
 
     #Jeff added the support to deleteSelection for passing no condition so that all records would be deleted
-    def deleteSelection(self, condition_field=None, condition_value=None):
+    def deleteSelection(self, condition_field=None, condition_value=None, excludeLogicalDeleted=False):
         # if self.trigger_onDeleting:
         if(condition_field and condition_value):
             where = '%s = :value' % condition_field
         else:
             where = ''
-        sel = self.query(columns='*',
+        q= self.query(columns='$%s' % self.pkey,
                          where=where,
+                         excludeLogicalDeleted=excludeLogicalDeleted,
                          value=condition_value,
-                         for_update=True).fetch()
+                         addPkeyColumn=False,
+                         for_update=True)
+        sel = q.fetch()
         for r in sel:
             self.delete(r)
         # if not self.trigger_onDeleting:
@@ -713,10 +716,18 @@ class SqlTable(GnrObject):
         else:
             filepath=os.path.join(path,'%s_dump.xml' %self.name)
         data = Bag(filepath)
-        for record in data['records'].values():
-            record.pop('_isdeleted')
-            self.insert(record)
-    
+        if data:
+            for record in data['records'].values():
+                record.pop('_isdeleted')
+                self.insert(record)
+                
+    def importFromAuxInstance(self, instance_name, tbl_name=None):
+        aux_db = self.db.application.site.getAuxInstance(instance_name).db
+        source_tbl = aux_db.table(tbl_name or self.fullname)
+        source_records = source_tbl.query(addPkeyColumn=False).fetch()
+        for record in source_records:
+            self.insertOrUpdate(record)
+            
     def forEach(self, pkeyList, formula, for_update=False):
         for r in pkeyList:
             record = tblobj.record(k, mode='bag', for_update=for_update)

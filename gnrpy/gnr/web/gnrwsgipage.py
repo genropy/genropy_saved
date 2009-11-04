@@ -408,6 +408,9 @@ class GnrWsgiPage(GnrBaseWebPage):
             self.response.content_type = mimetypes.guess_type(downloadAs)[0]
             self.response.add_header("Content-Disposition",str("attachment; filename=%s"%downloadAs))
         return self.site.callTableScript(page=self, table=table, respath=respath, class_name=class_name, **kwargs)
+        
+    def getAuxInstance(self, name):
+        return self.site.getAuxInstance(name)
             
 class GnrMakoPage(GnrWsgiPage):
     def index(self,*args, **kwargs):

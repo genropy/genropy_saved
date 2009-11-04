@@ -227,6 +227,7 @@ class GnrSqlDb(GnrObject):
         
     def commit(self):
         """Commit a transaction"""
+        print 'COMMIT'
         self.connection.commit()
         
     def rollback(self):
