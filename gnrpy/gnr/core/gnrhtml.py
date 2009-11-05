@@ -126,7 +126,9 @@ class GnrHtmlSrc(GnrStructData):
         row.lbl_height = float(lbl_height or 0)
         row.lbl_class = lbl_class
         row.content_class = content_class
-        row.height = float(height or 0)
+        if height:
+            height = height - layout.border_width
+        row.height = float(height or 0) 
         if row_border is None:
             row.row_border = layout.row_border
         else:

@@ -8,7 +8,7 @@ Copyright (c) 2009 __MyCompanyName__. All rights reserved.
 """
 import os.path
 import tempfile
-from gnr.core.gnrbag import Bag
+from gnr.core.gnrbag import Bag, BagCbResolver
 from gnr.core.gnrhtml import GnrHtmlBuilder
 from gnr.core.gnrstring import toText
 from gnr.core.gnrlang import NotImplementedException
@@ -156,8 +156,9 @@ class RecordToHtml(TableScriptOnRecord):
         
         
     def field(self, path, default=None, locale=None,
-                    format=None, mask=None):
-        datanode=self._data.getNode(path, default)
+                    format=None, mask=None,root=None):
+        root=root or self._data
+        datanode=root.getNode(path, default)
         value = datanode.value
         attr=datanode.attr
         if value is None:
@@ -181,5 +182,309 @@ class RecordToHtml(TableScriptOnRecord):
     #    self.builder.toPdf(outputPath)
     #    return outputPath
     #
-       
+    
+class RecordToHtmlNew(TableScriptOnRecord):
+    maintable=''
+    rows_path = 'rows'
+    html_folder = '*connections/html'
+    pdf_folder = '*connections/pdf'
+    encoding= 'utf-8'
+    page_debug = False
+    page_width = 200
+    page_height = 280
+    print_button = None
+    currencyFormat=u'#,###.00'
+    row_mode='bag'
+    
+    
+    #override these lines
+
+    row_mode = 'value'
+    page_header_height = 0 #
+    page_footer_height = 0 
+    doc_header_height = 0 # eg 10
+    doc_footer_height = 0 # eg 15
+    grid_header_height = 0 # eg 6.2
+    grid_footer_height = 0 
+    grid_col_widths=[0,0,0] 
+    grid_row_height=5
+    copies_per_page=1
+    copy_extra_height=0
+
+    def init(self,**kwargs):
+        self.maintable=self.maintable or self.resource_table
+        self.maintable_obj=self.db.table(self.maintable)
+        self.builder = GnrHtmlBuilder(page_width=self.page_width,page_height=self.page_height,
+                                      page_debug=self.page_debug,print_button=self.print_button)
         
+    def __call__(self, record=None, filepath=None,
+                       rebuild=False, dontSave=False, pdf=False, runKwargs=None,**kwargs):
+        """This method returns the html corresponding to a given record.
+           the html can be loaded from a cached document or created if still doesn't exist.
+        """
+        if not record:
+            return
+        self.loadRecord(record, **kwargs)
+        if kwargs:
+            self._data['kwargs']=Bag()
+            for k,v in kwargs.items():
+                self._data['kwargs.%s' % k] = v
+           
+        #if not (dontSave or pdf):
+        self.filepath=filepath or os.path.join(self.hmtlFolderPath(),self.outputDocName(ext='html'))
+        #else:
+        #    self.filepath = None
+        if rebuild or not os.path.isfile(self.filepath):
+            html=self.createHtml(filepath=self.filepath , **kwargs)
+            
+        else:
+            with open(self.filepath,'r') as f:
+                html=f.read()
+        if pdf:
+            temp = tempfile.NamedTemporaryFile(suffix='.pdf')
+            self.page.site.print_handler.htmlToPdf(self.filepath, temp.name)
+            with open(temp.name,'rb') as f:
+                html=f.read()
+        return html
+        
+    def createHtml(self, filepath=None, **kwargs):
+        #filepath = filepath or self.filepath
+        self.initializeBuilder()
+        self.main()
+        self.builder.toHtml(filepath=filepath)
+        return self.builder.html
+        
+    def initializeBuilder(self):
+        self.builder.initializeSrc()
+        self.body = self.builder.body
+        self.getNewPage = self.builder.newPage
+        self.builder.styleForLayout()
+        
+    def hmtlFolderPath(self):
+        return self.getFolderPath(*self.html_folder.split('/'))
+        
+    def pdfFolderPath(self):
+        return self.getFolderPath(*self.pdf_folder.split('/'))
+        
+    def field(self, path, default=None, locale=None,
+                    format=None, mask=None,root=None):
+        if root is None:
+            root = self._data
+        if isinstance(root,Bag):
+            datanode = root.getNode(path)
+            value = datanode.value
+            attr=datanode.attr
+        else:
+            value = root.get(path)
+            attr = {}
+        if value is None:
+            value=default
+        format= format or attr.get('format')
+        mask= mask or attr.get('mask')
+        return self.toText(value,locale,format, mask, self.encoding)
+
+    def toText(self, obj, locale=None, format=None, mask=None, encoding=None):
+        locale = locale or self.locale
+        encoding = locale or self.encoding
+        return toText(obj, locale=locale, format=format, mask=mask, encoding=encoding)
+
+    def main(self):
+        """can be overridden"""
+        self.mainLoop()
+        
+    def pageCounter(self,mask=None):
+        mask = mask or '%s/%s'
+        def getPage(currPage=0):
+            result = mask % (currPage+1, self.copies[self.copy]['currPage']+1)
+            return result
+        return BagCbResolver(getPage,currPage=self.copies[self.copy]['currPage'])
+        
+    def copyHeight(self):
+        return (self.page_height-self.copy_extra_height*(self.copies_per_page-1))/self.copies_per_page
+        
+    def mainLoop(self):
+        self.copies=[]
+        self.defineStandardStyles()
+        self.defineCustomStyles()
+        self.doc_height = self.copyHeight() - self.page_header_height - self.page_footer_height
+        self.grid_height = self.doc_height - self.doc_header_height -self.doc_footer_height
+        self.grid_body_height = self.grid_height -self.grid_header_height - self.grid_footer_height
+        for copy in range(self.copies_per_page):
+            self.copies.append(dict(grid_body_used=self.grid_height,currPage=-1))
+        lines=self.getData(self.rows_path)
+        if lines:
+            for rowDataNode in lines.getNodes():
+                self.currRowDataNode = rowDataNode
+                for copy in range(self.copies_per_page):
+                    self.copy=copy
+                    rowheight = self.calcRowHeight()
+                    availableSpace = self.grid_height-self.copyValue('grid_body_used')-\
+                                     self.calcGridHeaderHeight()-self.calcGridFooterHeight()
+                    if rowheight > availableSpace:
+                        self._newPage()
+                    row = self.copyValue('body_grid').row(height=rowheight)
+                    self.copies[self.copy]['grid_body_used'] = self.copyValue('grid_body_used')+rowheight
+                    self.currColumn = 0
+                    self.prepareRow(row)
+                
+            for copy in range(self.copies_per_page):
+                self.copy=copy
+                self._closePage(True)
+                
+    def _newPage(self):
+        if self.copyValue('currPage') >= 0:
+            self._closePage()
+        self.copies[self.copy]['currPage'] = self.copyValue('currPage')+1
+        self.copies[self.copy]['grid_body_used']=0
+        self._createPage()
+        self._openPage()
+           
+    def rowField(self,path=None,**kwargs):
+        if self.row_mode=='attribute':
+            data = self.currRowDataNode.attr
+        else:
+            data = self.currRowDataNode.value
+        return self.field(path,root=data,**kwargs)
+        
+    def rowCell(self,row,field,default=None, locale=None,
+                    format=None, mask=None,**kwargs):
+        row.cell(self.rowField(field,default=default,locale=locale,format=format,mask=mask),
+                width=self.grid_col_widths[self.currColumn],**kwargs)
+        self.currColumn = self.currColumn + 1
+        
+    def _createPage(self):
+        print '_createPage'
+        curr_copy = self.copies[self.copy]
+        if self.copy==0:
+            self.paperPage = self.getNewPage()
+        self.page_layout = self.mainLayout(self.paperPage)
+        if self.page_header_height:
+            curr_copy['page_header'] = self.page_layout.row(height=self.page_header_height,lbl_height=4,lbl_class='caption').cell()
+        if self.doc_header_height:
+            curr_copy['doc_header'] = self.page_layout.row(height=self.doc_header_height,lbl_height=4,lbl_class='caption').cell()
+        curr_copy['doc_body'] = self.page_layout.row(height=0,lbl_height=4,lbl_class='caption').cell()
+        if self.doc_footer_height:
+            curr_copy['doc_footer'] = self.page_layout.row(height=self.doc_footer_height,lbl_height=4,lbl_class='caption').cell()
+        if self.page_footer_height:
+            curr_copy['page_footer'] = self.page_layout.row(height=self.page_footer_height,lbl_height=4,lbl_class='caption').cell()
+            
+    def mainLayout(self,page):
+        """must be overridden"""
+        pass
+        
+    def _openPage(self):
+        if self.page_header_height:
+            self.pageHeader(self.copyValue('page_header')) #makeTop
+        if self.doc_header_height:
+            self.docHeader(self.copyValue('doc_header'))
+        self._docBody(self.copyValue('doc_body'))
+        
+    def _closePage(self,lastPage=None):
+        self.fillBodyGrid()
+        footer_height =self.calcGridFooterHeight()
+        if footer_height:
+            self.gridFooter(self.copyValue('body_grid').row(height=footer_height))
+        if self.doc_footer_height:
+            self.docFooter(self.copyValue('doc_footer'),lastPage=lastPage)
+        if self.page_footer_height:
+            self.pageFooter(self.copyValue('page_footer'),lastPage=lastPage)
+    
+    def _docBody(self,body):
+        header_height = self.calcGridHeaderHeight()
+        grid=self.gridLayout(body)
+        if header_height:
+            self.gridHeader(grid.row(height=header_height))
+        self.copies[self.copy]['body_grid'] = grid
+
+    def gridLayout(self,grid):
+        """must be overridden"""
+        print 'gridLayout must be overridden'
+        
+    def gridHeader(self,row):
+        """can be overridden"""
+        lbl_height = 4
+        headers=self.grid_col_headers
+        if ':' in headers:
+            headers,lbl_height=headers.split(':')
+            lbl_height=int(lbl_height)
+        for k,lbl in enumerate(self.grid_col_headers.split(',')):
+            row.cell(lbl=lbl, lbl_class='caption', lbl_height=lbl_height, width=self.grid_col_widths[k])
+
+
+    def gridFooter(self,row):
+        """can be overridden"""
+        print 'gridFooter must be overridden'
+        
+    def fillBodyGrid(self):
+        row=self.copyValue('body_grid').row()
+        for w in self.grid_col_widths:
+            row.cell(width=w)
+    
+    def copyValue(self,valuename):
+        return self.copies[self.copy][valuename]
+            
+    def calcRowHeight(self):
+        """override for special needs"""
+        return self.grid_row_height
+    
+    def calcGridHeaderHeight(self):
+        """override for special needs"""
+        return self.grid_header_height
+      
+    def calcGridFooterHeight(self):
+        """override for special needs"""
+        return self.grid_footer_height
+        
+    def defineCustomStyles(self):
+        """override this for custom styles"""
+        pass
+    
+    def docFooter(self, footer,lastPage=None):
+        pass
+    
+    def pageFooter(self, footer,lastPage=None):
+        pass
+    
+    def pageHeader(self,header):
+        pass
+        
+    def docHeader(self,header):
+        pass
+        
+    def defineStandardStyles(self):
+        self.body.style("""
+                        .caption{text-align:center;
+                                 color:gray;
+                                 font-size:8pt;
+                                 height:4mm;
+                                 line-height:4mm;
+                                 font-weight: normal;
+                                 }
+                        .smallCaption{font-size:7pt;
+                                  text-align:left;
+                                  color:gray;
+                                  text-indent:1mm;
+                                  width:auto;
+                                  font-weight: normal;
+                                  line-height:auto;
+                                  line-height:3mm;
+                                  height:3mm;""")
+                     
+        self.body.style("""
+                        .extrasmall {font-size:6pt;text-align:left;line-height:3mm;}
+                        .textfield {text-indent:0mm;margin:1mm;line-height:3mm}
+                        .dotted_bottom {border-bottom:1px dotted gray;}
+                        .margined_left {text-indent:0mm;margin-left:4mm;margin-top:2mm;''}
+                        
+                        .aligned_right{
+                            text-align:right;
+                            margin-right:1mm;
+                        }
+                        .aligned_left{
+                            text-align:left;
+                            margin-left:2mm;
+                        }
+                        .aligned_center{
+                            text-align:center;
+                        }
+                         """)
