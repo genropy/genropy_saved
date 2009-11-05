@@ -2513,9 +2513,10 @@ dojo.declare("gnr.widgets.VirtualStaticGrid",gnr.widgets.Grid,{
         genro.rpc.remoteCall('app.exportStaticGrid_'+mode, 
                                 pars, 
                                 'bag', 'POST', null, 
-                                function(filename){
-                                        var url = genro.rpc.rpcUrl("app.exportStaticGridDownload_"+mode, {filename:filename});
-                                        genro.dev.exportUrl(url);
+                                function(url){
+                                    
+                                        //var url = genro.rpc.rpcUrl("app.exportStaticGridDownload_"+mode, {filename:filename});
+                                        genro.download(url);
                                         curgrid.loadingContent(false);
                                     });
       },

@@ -1157,9 +1157,11 @@ class GnrBaseWebAppHandler(object):
         
 
         filename = self._exportFileNameClean(filename)
-        fpath = self.page.pageLocalDocument(filename)
+        if not filename.lower().endswith('.xls'):
+            filename += '.xls'
+        fpath = self.page.temporaryDocument(filename)
         w.save(fpath)
-        return filename
+        return self.page.temporaryDocumentUrl(filename)
         
     def rpc_exportStaticGridDownload_xls(self, filename, **kwargs):
         fpath = self.page.pageLocalDocument(filename)
