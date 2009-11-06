@@ -17,7 +17,7 @@ sudo python ez_setup.py
 download from curl -O http://initd.org/pub/software/psycopg/psycopg2-2.0.13.tar.gz
 tar xvfz psycopg2-2.0.13.tar.gz
 cd psycopg2-2.0.13
-python setup.py build
+python setup.py build (on Snow Leopard CC=/usr/bin/gcc-4.0 python setup.py build)
 sudo python setup.py install
 
 [mercurial]
@@ -46,13 +46,17 @@ sudo easy_install -U -Z babel pytz vobject
 sudo easy_install -U -Z paste webob weberror
 sudo easy_install -U -Z mako
 sudo easy_install -U -Z pypdf
+sudo easy_install -U -Z huBarcode
 
 -----------------------------------------------------
 [ReportLab]
 download from: http://www.reportlab.org/ftp/ReportLab_2_3.tar.gz
 tar xvfz ReportLab_2_3.tar.gz
 cd ReportLab_2_3
-python setup.py build
+Leopard:
+python setup.py build 
+Snow Leopard:
+CC=/usr/bin/gcc-4.0 python setup.py build
 sudo python setup.py install
 
 [LibXml2 & Libxslt]
@@ -60,7 +64,10 @@ Download attached Packages:
 http://dl.getdropbox.com/u/428566/LibXml2.pkg
 
 [lxml]
-PATH=/usr/local/libxml2-2.7.3/bin/:/usr/local/libxslt-1.1.24/bin/:$PATH sudo easy_install -Z -U lxml
+Leopard:
+	PATH=/usr/local/libxml2-2.7.3/bin/:/usr/local/libxslt-1.1.24/bin/:$PATH sudo easy_install -Z -U lxml
+Snow Leopard:
+	sudo easy_install -Z -U lxml
 
 [z3c.rml]
 sudo easy_install -Z -U z3c.rml
@@ -70,7 +77,13 @@ sudo easy_install -U -Z xlrd
 sudo easy_install -U -Z xlwt
 
 [Useful packages for developers]
-sudo easy_install -U -Z readline ipython
+Leopard:
+	sudo easy_install -U -Z readline ipython
+Snow Leopard:
+	sudo su
+	CC=/usr/bin/gcc-4.0 easy_install -U -Z readline
+	exit
+	sudo easy_install -U -Z ipython
 sudo easy_install -U -Z pyflakes
 sudo easy_install -U -Z pylint
 sudo easy_install -U -Z virtualenv
