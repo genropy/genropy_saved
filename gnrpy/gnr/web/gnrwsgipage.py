@@ -390,6 +390,8 @@ class GnrWsgiPage(GnrBaseWebPage):
 
             elif _auth==AUTH_NOT_LOGGED:
                 loginUrl = self.application.loginUrl()
+                if not loginUrl.startswith('/'):
+                    loginUrl = self.packageUrl(loginUrl)
                 page = None
                 if loginUrl:
                     pageattr['redirect'] = self.resolvePathAsUrl(loginUrl,folder='*pages')
