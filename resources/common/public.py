@@ -322,7 +322,7 @@ class Public(BaseComponent):
         dates = ','.join(dates)
         return dates
         
-    def periodCombo(self, fb, period_store = None,lbl=None):
+    def periodCombo(self, fb, period_store = None,lbl=None,**kwargs):
         if not period_store:
             period_store = '.period'
             string_store = 'vars.period_string'
@@ -338,7 +338,7 @@ class Public(BaseComponent):
                          }  """,
                           ff='^%s.from' % period_store, tt='^%s.to'% period_store)
         fb.combobox(lbl=lbl or '!!Period',value='^.period_input', width='16em',
-                    values=self._pbl_datesHints(), margin_right='5px',padding_top='1px')
+                    values=self._pbl_datesHints(), margin_right='5px',padding_top='1px',**kwargs)
                     
                     
 class ThermoDialog(object):

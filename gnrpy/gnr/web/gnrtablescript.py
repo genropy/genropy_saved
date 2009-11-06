@@ -61,9 +61,14 @@ class TableScriptOnRecord(TableScript):
         return value
         
     def loadRecord(self, record=None,**kwargs):
-        self._data = self.db.table(self.maintable or self.resource_table).recordAs(record, mode='bag')
+        self._data = Bag()
+        self._data['record'] = self.db.table(self.maintable or self.resource_table).recordAs(record, mode='bag')
+        if kwargs:
+            self._data['kwargs']=Bag()
+            for k,v in kwargs.items():
+                self._data['kwargs.%s' % k] = v
         self.onRecordLoaded(**kwargs)  
-        
+
     def onRecordLoaded(self,**kwargs):
         pass
     
@@ -157,7 +162,7 @@ class RecordToHtml(TableScriptOnRecord):
         
     def field(self, path, default=None, locale=None,
                     format=None, mask=None,root=None):
-        root=root or self._data
+        root=root or self._data['record']
         datanode=root.getNode(path, default)
         value = datanode.value
         attr=datanode.attr
@@ -196,9 +201,7 @@ class RecordToHtmlNew(TableScriptOnRecord):
     currencyFormat=u'#,###.00'
     row_mode='bag'
     
-    
     #override these lines
-
     row_mode = 'value'
     page_header_height = 0 #
     page_footer_height = 0 
@@ -210,6 +213,7 @@ class RecordToHtmlNew(TableScriptOnRecord):
     grid_row_height=5
     copies_per_page=1
     copy_extra_height=0
+    starting_page_number=0
 
     def init(self,**kwargs):
         self.maintable=self.maintable or self.resource_table
@@ -225,11 +229,6 @@ class RecordToHtmlNew(TableScriptOnRecord):
         if not record:
             return
         self.loadRecord(record, **kwargs)
-        if kwargs:
-            self._data['kwargs']=Bag()
-            for k,v in kwargs.items():
-                self._data['kwargs.%s' % k] = v
-           
         #if not (dontSave or pdf):
         self.filepath=filepath or os.path.join(self.hmtlFolderPath(),self.outputDocName(ext='html'))
         #else:
@@ -269,7 +268,7 @@ class RecordToHtmlNew(TableScriptOnRecord):
     def field(self, path, default=None, locale=None,
                     format=None, mask=None,root=None):
         if root is None:
-            root = self._data
+            root = self._data['record']
         if isinstance(root,Bag):
             datanode = root.getNode(path)
             value = datanode.value
@@ -295,7 +294,8 @@ class RecordToHtmlNew(TableScriptOnRecord):
     def pageCounter(self,mask=None):
         mask = mask or '%s/%s'
         def getPage(currPage=0):
-            result = mask % (currPage+1, self.copies[self.copy]['currPage']+1)
+            result = mask % (currPage+1+self.starting_page_number, 
+                             self.copies[self.copy]['currPage']+1+self.starting_page_number)
             return result
         return BagCbResolver(getPage,currPage=self.copies[self.copy]['currPage'])
         
@@ -410,7 +410,6 @@ class RecordToHtmlNew(TableScriptOnRecord):
         for k,lbl in enumerate(self.grid_col_headers.split(',')):
             row.cell(lbl=lbl, lbl_class='caption', lbl_height=lbl_height, width=self.grid_col_widths[k])
 
-
     def gridFooter(self,row):
         """can be overridden"""
         print 'gridFooter must be overridden'
@@ -474,8 +473,7 @@ class RecordToHtmlNew(TableScriptOnRecord):
                         .extrasmall {font-size:6pt;text-align:left;line-height:3mm;}
                         .textfield {text-indent:0mm;margin:1mm;line-height:3mm}
                         .dotted_bottom {border-bottom:1px dotted gray;}
-                        .margined_left {text-indent:0mm;margin-left:4mm;margin-top:2mm;''}
-                        
+                                                
                         .aligned_right{
                             text-align:right;
                             margin-right:1mm;
