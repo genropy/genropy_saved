@@ -54,16 +54,6 @@ parser.add_option('--config',
 
 (options,args)=parser.parse_args()
 
-
-def name_to_path(server_config,site_name):
-    if 'sites' in server_config:
-        for path in server_config.digest('sites:#a.path'):
-            site_path=os.path.join(path,site_name)
-            if os.path.isdir(site_path):
-                return site_path
-    raise ServerException(
-        'Error: erroneous site provided (not %s)' % site_name)
-
 def site_name_to_path(gnr_config,site_name):
     path_list=[]
     if 'sites' in gnr_config['gnr.environment_xml']:
@@ -76,7 +66,7 @@ def site_name_to_path(gnr_config,site_name):
             site_path = os.path.join(path,site_name)
             if os.path.isdir(site_path):
                 return site_path
-        raise ServerException(
+        raise Exception(
             'Error: no site named %s found' % site_name) 
 
 def instance_name_to_path(gnr_config,instance_name):
@@ -91,8 +81,8 @@ def instance_name_to_path(gnr_config,instance_name):
             instance_path = os.path.join(path,instance_name)
             if os.path.isdir(instance_path):
                 return instance_path
-        raise ServerException(
-            'Error: no site named %s found' % site_name) 
+        raise Exception(
+            'Error: no instance named %s found' % site_name) 
 
 
 def load_gnr_config():
