@@ -76,7 +76,7 @@ class Public(BaseComponent):
                     if 'basepath' in attributes:
                         newbasepath=node.getAttr('basepath')
                         if newbasepath.startswith('/'):
-                            currbasepath=[newbasepath]
+                            currbasepath=[self.site.home_uri+newbasepath[1:]]
                         else:
                             currbasepath=basepath+[newbasepath]
                     if isinstance(value,Bag):
