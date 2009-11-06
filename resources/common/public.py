@@ -212,7 +212,7 @@ class Public(BaseComponent):
             right.div(connect_onclick="SET aux.locale = 'IT'", title="!!Italian",
                     _class='icnIntlIt buttonIcon', content='&nbsp;', float='right',margin_left='5px',margin_top='2px')
         if self.user:
-            right.div(connect_onclick="genro.serverCall('connection.logout');genro.gotoHome()", title="!!Logout",
+            right.div(connect_onclick="genro.logout()", title="!!Logout",
                   _class='icnBaseLogout buttonIcon', content='&nbsp;', float='right')
             right.div(content=self.user, float='right', _class='pbl_username buttonIcon')
 
