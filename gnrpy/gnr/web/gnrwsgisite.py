@@ -167,8 +167,9 @@ class GnrWsgiSite(object):
             self.home_uri+='/'
         self.mainpackage = self.config['wsgi?mainpackage']
         self.homepage = self.config['wsgi?homepage'] or self.home_uri+'index'
+        self.indexpage = self.config['wsgi?homepage'] or '/index'
         if not self.homepage.startswith('/'):
-            self.homepage = '%s/%s'%(self.home_uri,self.homepage)
+            self.homepage = '%s%s'%(self.home_uri,self.homepage)
         self.secret = self.config['wsgi?secret'] or 'supersecret'
         self.config['secret'] = self.secret
         self.session_key = self.config['wsgi?session_key'] or 'gnrsession'
@@ -317,8 +318,7 @@ class GnrWsgiSite(object):
         self.external_host = self.config['wsgi?external_host'] or req.host_url
         path_info = req.path_info
         if path_info=='/' or path_info=='':
-            path_info = self.homepage
-        print path_info
+            path_info = self.indexpage
         if path_info.endswith('.py'):
             path_info = path_info[:-3]
         path_list = path_info.strip('/').split('/')
