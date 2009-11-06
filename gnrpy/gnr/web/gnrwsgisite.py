@@ -317,10 +317,13 @@ class GnrWsgiSite(object):
         resp = Response()
         self.external_host = self.config['wsgi?external_host'] or req.host_url
         path_info = req.path_info
+        print 'pre------    ',path_info
         if path_info=='/' or path_info=='':
             path_info = self.indexpage
         if path_info.endswith('.py'):
             path_info = path_info[:-3]
+        print 'post-----    ',path_info
+        
         path_list = path_info.strip('/').split('/')
         path_list = [p for p in path_list if p]
         # if url starts with _ go to static file handling
