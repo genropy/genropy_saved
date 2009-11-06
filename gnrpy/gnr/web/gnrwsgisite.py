@@ -172,7 +172,7 @@ class GnrWsgiSite(object):
         self.secret = self.config['wsgi?secret'] or 'supersecret'
         self.config['secret'] = self.secret
         self.session_key = self.config['wsgi?session_key'] or 'gnrsession'
-        self.debug = self.config['wsgi?debug']=='true' or False
+        self.debug = self.config['wsgi?debug'] == 'true' or False
         self.cache_max_age = self.config['wsgi?cache_max_age'] or 2592000
         self.gnrapp = self.build_gnrapp()
         self.wsgiapp = self.build_wsgiapp()
@@ -316,8 +316,9 @@ class GnrWsgiSite(object):
         resp = Response()
         self.external_host = self.config['wsgi?external_host'] or req.host_url
         path_info = req.path_info
+        print path_info
         if path_info=='/' or path_info=='':
-            path_info=self.homepage
+            path_info = self.homepage
         if path_info.endswith('.py'):
             path_info = path_info[:-3]
         path_list = path_info.strip('/').split('/')
