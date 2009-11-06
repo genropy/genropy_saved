@@ -42,10 +42,10 @@ class GnrCustomWebPage(object):
             center.div(title,_class='pbl_title_caption')
         right.dataRpc('aux.locale_ok', 'changeLocale', locale='^aux.locale')
         right.dataScript('dummy', 'genro.pageReload()', fired='^aux.locale_ok')
-        right.div(connect_onclick="genro.pageBack()", tooltip="!!Back",
-                  _class='icnBaseUpYellow buttonIcon', content='&nbsp;', float='right',margin_left='10px')
+        #right.div(connect_onclick="genro.pageBack()", tooltip="!!Back",
+        #          _class='icnBaseUpYellow buttonIcon', content='&nbsp;', float='right',margin_left='10px')
         if self.user:
-            right.div(connect_onclick="genro.serverCall('connection.logout');genro.gotoHome()", tooltip="!!Logout",
+            right.div(connect_onclick="genro.logout()", tooltip="!!Logout",
                   _class='icnBaseLogout buttonIcon', content='&nbsp;', float='right')
             right.div(content=self.user, float='right', _class='pbl_username buttonIcon')
 
