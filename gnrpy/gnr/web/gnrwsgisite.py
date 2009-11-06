@@ -316,7 +316,7 @@ class GnrWsgiSite(object):
         resp = Response()
         self.external_host = self.config['wsgi?external_host'] or req.host_url
         path_info = req.path_info
-        if path_info==self.home_uri or path_info==[]:
+        if path_info=='/':
             path_info=self.homepage
         if path_info.endswith('.py'):
             path_info = path_info[:-3]
