@@ -394,7 +394,7 @@ class GnrWsgiPage(GnrBaseWebPage):
                     loginUrl = self.site.home_uri+loginUrl
                 page = None
                 if loginUrl:
-                    pageattr['redirect'] = self.resolvePathAsUrl(loginUrl,folder='*pages')
+                    pageattr['redirect'] = loginUrl
                 else:
                     pageattr['redirect'] = self.resolvePathAsUrl('simplelogin.py',folder='*common')
             else:
