@@ -26,7 +26,7 @@ wsgi_options=dict(
     set_group=None,
     session_key='session',
     server_name='Genropy',
-    debug=True,
+    #debug=True,
     noclean=False
     )
 
@@ -109,7 +109,12 @@ class NewServer(object):
     parser.add_option('--debug',
                       dest='debug',
                       action='store_true',
+                      default=True,
                       help="Use weberror debugger")
+    parser.add_option('--nodebug',
+                      dest='debug',
+                      action='store_false',
+                      help="Don't use weberror debugger")
     parser.add_option('--profile',
                       dest='profile',
                       action='store_true',
@@ -240,7 +245,7 @@ class NewServer(object):
         self.siteconfig=self.get_config()
         options = self.options.__dict__
         for option in options.keys():
-            if not options.get(option):
+            if options.get(option) is None:
                 site_option = self.siteconfig['wsgi?%s'%option]
                 self.options.__dict__[option] = site_option or wsgi_options.get(option)
 
@@ -391,7 +396,8 @@ class NewServer(object):
 
     def serve(self):
         try:
-            gnrServer=GnrWsgiSite(self.site_script, site_name = self.options.site_name, _config = self.siteconfig, _gnrconfig = self.gnr_config, counter = getattr(self.options,'counter',None), noclean=self.options.noclean)
+            gnrServer=GnrWsgiSite(self.site_script, site_name = self.options.site_name, _config = self.siteconfig, _gnrconfig = self.gnr_config, 
+                                  counter = getattr(self.options,'counter',None), noclean=self.options.noclean,options=self.options)
             httpserver.serve(gnrServer, host=self.options.host, port=self.options.port)
         except (SystemExit, KeyboardInterrupt), e:
             if self.options.verbose > 1:
