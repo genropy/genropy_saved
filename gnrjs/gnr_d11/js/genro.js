@@ -46,8 +46,7 @@ dijit.showTooltip = function(/*String*/ innerHTML, /*DomNode*/ aroundNode){
 
 /* ----------- Class gnr.GenroClient ----------------*/  
 dojo.declare('gnr.GenroClient', null, {
-    
-/* ----------- constructor --------------*/    
+
     constructor: function(kwargs){
         this.domRootName = kwargs.domRootName || 'mainWindow';
         this.page_id = kwargs.page_id;
@@ -289,9 +288,6 @@ dojo.declare('gnr.GenroClient', null, {
                 }
             }
             v="<div "+ event_attrs +" style='margin:auto;' "+divclass+">"+divcontent+"</div>";
-        }
-        else if(!v){
-            //console.log('v nullo');
         }
         return v;
     },
