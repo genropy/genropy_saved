@@ -283,7 +283,7 @@ dojo.declare('gnr.GenroClient', null, {
             if (events){
                 for(var event_type in events){
                     var cellPars = f['cellPars'] || {};
-                    var jsCode="genro.src.onEventCall(event,'"+escapeLiterals(events[event_type])+"',"+serialize(cellPars) +");"
+                    var jsCode="genro.src.onEventCall(event,'"+escapeLiterals(events[event_type])+"',"+serialize(cellPars) +");";
                     event_attrs += " on"+event_type+'="'+cleanJsCode(jsCode)+'"';
                 }
             }
