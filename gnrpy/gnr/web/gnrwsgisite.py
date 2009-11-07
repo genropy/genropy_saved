@@ -143,7 +143,7 @@ class GnrWsgiSite(object):
     def __call__(self, environ, start_response):
         return self.wsgiapp(environ, start_response)
     
-    def __init__(self, script_path, site_name=None, _config=None, _gnrconfig=None, counter=None, noclean=None):
+    def __init__(self, script_path, site_name=None, _config=None, _gnrconfig=None, counter=None, noclean=None,options=None):
         counter = int(counter or '0')
         self._currentPages={}
         self.site_path = os.path.dirname(os.path.abspath(script_path))
@@ -173,7 +173,7 @@ class GnrWsgiSite(object):
         self.secret = self.config['wsgi?secret'] or 'supersecret'
         self.config['secret'] = self.secret
         self.session_key = self.config['wsgi?session_key'] or 'gnrsession'
-        self.debug = self.config['wsgi?debug'] == 'true' or False
+        self.debug = options.debug
         self.cache_max_age = self.config['wsgi?cache_max_age'] or 2592000
         self.gnrapp = self.build_gnrapp()
         self.wsgiapp = self.build_wsgiapp()
