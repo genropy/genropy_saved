@@ -1585,11 +1585,12 @@ dojo.declare("gnr.widgets.Grid",gnr.widgets.baseDojo,{
                 if(cellClassFunc){
                     cellClassFunc(this, v, inRowIndex);
                 }
+                opt['cellPars'] = {rowIndex:inRowIndex};
+                v = genro.format(v,opt);
                 if(v==null){
                     return '&nbsp;';
                 }
-                opt['cellPars'] = {rowIndex:inRowIndex};
-                return genro.format(v,opt);
+                return v;
                 };
             };
         if(struct){

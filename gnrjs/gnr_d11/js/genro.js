@@ -289,6 +289,29 @@ dojo.declare('gnr.GenroClient', null, {
             }
             v="<div "+ event_attrs +" style='margin:auto;' "+divclass+">"+divcontent+"</div>";
         }
+        // area passibile di modifiche
+        else if(!v){
+            if( f['isbutton']==true){
+                var divclass= f['buttonclass'];
+                divclass = divclass? 'class="'+divclass+'"':'';
+                var event_attrs = '';
+                var events = objectExtract(f,'on*',true);
+                if (events){
+                    for(var event_type in events){
+                        var cellPars = f['cellPars'] || {};
+                        var jsCode="genro.src.onEventCall(event,'"+escapeLiterals(events[event_type])+"',"+serialize(cellPars) +");";
+                        event_attrs += " on"+event_type+'="'+cleanJsCode(jsCode)+'"';
+                    }
+                }
+                v="<div "+ event_attrs +" style='margin:auto;' "+divclass+">"+'&nbsp;'+"</div>";
+            }
+            else if( f['inlineedit']==true){
+                v = "<span style='font-family: wingdings; text-decoration: underline;'>&nbsp;&nbsp;&nbsp;&nbsp;&#x270d;&nbsp;&nbsp;&nbsp;&nbsp;</span>"
+            }
+            
+        }
+        // fine area passibile di modifiche
+
         return v;
     },
     setdebug:function(topic,level){
