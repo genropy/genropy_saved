@@ -92,7 +92,7 @@ class Public(object):
         topright.dataRpc('aux.locale_ok', 'changeLocale', locale='^aux.locale')
         topright.dataScript('dummy', 'genro.pageReload()', fired='^aux.locale_ok')
         if self.user:
-            topright.a(connect_onclick="genro.serverCall('connection.logout');genro.gotoHome()", 
+            topright.a(connect_onclick="genro.logout()", 
                   tooltip="!!Esci dall'applicativo Assopy",
                   href='#', _class='logout', content='&nbsp;')
         topright.dataScript('gnr.localizerClass',"""return 'localizer_'+status""",status='^gnr.localizerStatus',_init=True,_else="return 'localizer_hidden'")
