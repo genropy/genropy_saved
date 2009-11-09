@@ -26,7 +26,7 @@ wsgi_options=dict(
     set_group=None,
     session_key='session',
     server_name='Genropy',
-    #debug=True,
+    debug=True,
     noclean=False
     )
 
@@ -109,7 +109,6 @@ class NewServer(object):
     parser.add_option('--debug',
                       dest='debug',
                       action='store_true',
-                      default=True,
                       help="Use weberror debugger")
     parser.add_option('--nodebug',
                       dest='debug',
@@ -245,7 +244,7 @@ class NewServer(object):
         self.siteconfig=self.get_config()
         options = self.options.__dict__
         for option in options.keys():
-            if options.get(option) is None:
+            if (options.get(option)=='false' or options.get(option)=='False' or options.get(option)==False or options.get(option)==None):
                 site_option = self.siteconfig['wsgi?%s'%option]
                 self.options.__dict__[option] = site_option or wsgi_options.get(option)
 
