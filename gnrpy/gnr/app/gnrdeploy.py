@@ -16,13 +16,29 @@ class PathResolver(object):
         self.gnr_config=gnr_config or self.load_gnr_config()
     
     def load_gnr_config(self):
-        config_path = expandpath('~/.gnr')
-        if os.path.isdir(config_path):
-            return Bag(config_path)
-        config_path = expandpath(os.path.join('/etc/gnr'))
-        if os.path.isdir(config_path):
-            return Bag(config_path)
-        return Bag()
+        home_config_path = expandpath('~/.gnr')
+        global_config_path = expandpath(os.path.join('/etc/gnr'))
+        if os.path.isdir(home_config_path):
+            config = Bag(home_config_path)
+        elif os.path.isdir(global_config_path):
+            config = Bag(global_config_path)
+        else:
+            config = Bag()
+        self.set_environment(config)
+        return config
+
+    def set_environment(self, config):
+        for var,value in config['gnr.environment_xml'].digest('environment:#k,#a.value'):
+            var=var.upper()
+            if not os.getenv(var):
+                os.environ[var]=str(value)    
+
+    def js_path(self, lib_type='gnr', version='11'):
+        path = self.gnr_config['gnr.environment_xml.static.js.%s_%s?path'%(lib_type,version)]
+        if path:
+            path = os.path.join(expandpath(path),'js')
+        return path
+
     
     def entity_name_to_path(self, entity_name, entity_type, look_in_projects=True):
         entity = self.entities.get(entity_type)
