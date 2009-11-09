@@ -31,6 +31,7 @@ dojo.declare("gnr.GnrSrcHandler",null,{
         this.application=application;
         //this.builder = new gnr.GnrDomBuilder(this);
         this._main=new gnr.GnrDomSource();
+        this._main.application=this.application;
         this._main.setBackRef();
         this._main.subscribe('sourceTriggers',{'any':dojo.hitch(this, "nodeTrigger")});
         this._subscribedNodes={};

@@ -26,6 +26,9 @@
 
 //######################## class BagNode##########################
 dojo.declare("gnr.GnrDomSourceNode",gnr.GnrBagNode,{
+    application:function(){
+        return this.getParentBag().getRoot().application; 
+    },
     freeze:function(){
         this._savedparentbag=this._parentbag;
         this._parentbag=null;
