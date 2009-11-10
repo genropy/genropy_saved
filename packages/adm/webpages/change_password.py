@@ -79,7 +79,7 @@ class GnrCustomWebPage(object):
                                 margin_top='1em',margin_right='3em',margin_left='3em')
         client.div(u'!!Password has been changed', _class='pbl_mediummessage',
                                 margin_top='1em',margin_right='3em',margin_left='3em')
-        bottom['left'].div(u'!!Back to login',connect_onclick="genro.serverCall('connection.logout');genro.logout()", _class='bottom_btn', float='left')
+        bottom['left'].div(u'!!Back to login',connect_onclick="genro.logout()", _class='bottom_btn', float='left')
         
 
     def rpc_checkOldPwd(self, value):
