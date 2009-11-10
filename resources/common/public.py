@@ -581,8 +581,12 @@ class IncludedView(BaseComponent):
             gridtop.div(float='left', _class=print_class, connect_onclick=print_action)
         if export_action:
             if export_action is True:
-                #export_action = 'FIRE %s.export' % controllerPath
-                export_action = 'FIRE .export="xls";' 
+                export_action='xls'
+            if export_action.startswith('custom_'):
+                export_method =  export_action[7:] # len('custom_')
+            else:
+                export_method = 'app.exportStaticGrid_'+export_action
+            export_action = 'FIRE .export="%s";'%export_method 
             gridtop.div(float='left', _class=export_class, connect_onclick=export_action)
         if tools_menu:
             btn = gridtop.div(float='left', _class = tools_class,margin_right='5px')
@@ -702,7 +706,7 @@ class IncludedView(BaseComponent):
         controller.dataController("""genro.wdgById(gridId).editBagRow();
                                      """,fired='^.editRow',gridId=gridId)
         controller.dataController("genro.wdgById(gridId).printData();" ,fired='^.print',gridId=gridId)
-        controller.dataController("genro.wdgById(gridId).exportData(mode);" ,mode='^.export',gridId=gridId)
+        controller.dataController("genro.wdgById(gridId).exportData(mode, export_method);" ,mode='^.export', export_method='=.export_method',gridId=gridId)
         controller.dataController("genro.wdgById(gridId).reload(true);" ,_fired='^.reload',gridId=gridId)
        #controller.dataController("""SET .selectedIndex = null;
        #                             PUT .selectedLabel= null;""",
