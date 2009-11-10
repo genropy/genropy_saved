@@ -2511,7 +2511,7 @@ dojo.declare("gnr.widgets.VirtualStaticGrid",gnr.widgets.Grid,{
         var pars = objectUpdate({'structbag':this.structbag(), 'storebag':this.storebag()}, meta);
         var curgrid = this;
         curgrid.loadingContent(true);
-        genro.rpc.remoteCall('app.exportStaticGrid_'+mode, 
+        genro.rpc.remoteCall(mode, 
                                 pars, 
                                 'bag', 'POST', null, 
                                 function(url){
