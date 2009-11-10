@@ -455,6 +455,7 @@ class TableHandler(BaseComponent):
         treediv.tree(storepath='gnr.qb.fieldstree',persist=False,
                      inspect='shift', labelAttribute='caption',
                      _class='fieldsTree',
+                     hideValues=True,
                      getIconClass='if(node.attr.dtype){return "icnDtype_"+node.attr.dtype}',
                      dndController="dijit._tree.dndSource",
                      onDndDrop="function(){this.onDndCancel();}::JS",
