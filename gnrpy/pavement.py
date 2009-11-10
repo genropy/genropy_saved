@@ -54,7 +54,7 @@ setup(
         install_requires = ['paste','beaker','mako','webob','weberror','vobject','pytz','babel',],
         zip_safe=False,
         extras_require = dict(
-            pdf = ['z3c.rml'],
+            #pdf = ['z3c.rml'],
             postgres = ['psycopg2'],
             pg8000 = ['pg8000'],
             sqlite = ['pysqlite']
