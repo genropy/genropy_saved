@@ -349,14 +349,22 @@ class DbModelSrc(GnrStructData):
        
     def relation(self, related_column, mode='relation',  one_name=None,
                   many_name=None, eager_one=None, eager_many=None, one_one=None, child=None,
-                 one_group=None, many_group=None, **kwargs):
-        """@param related_column: the column wich the relation points to
-           @param mode: relation (dflt), insensitive, foreignkey
-           @param  one_name: alias for one relation
-           @param  many_name: alias for many relation
-           @param one_one: if True the relation is a one-one
-           @param one_group:
-           @param many group
+                  one_group=None, many_group=None, onUpdate=None, onUpdate_sql=None, onDelete=None,
+                  onDelete_sql=None, deferred=None, **kwargs):
+        """ This method adds a relation in the current model.
+            @param many_relation_tuple: the column of the "many table" as tuple. Eg. ('video','movie','director_id')
+            @param oneColumn: the column of the "one table" as string. Eg. 'video.director.id'
+            @param  one_name: the one_to_many relation's name. Eg. 'movies'
+            @param  many_name: the many_to_one relation's name. Eg. 'director'
+            @param mode: relation (dflt), insensitive, foreignkey
+            @param eager_one: if True ('Y') the one_to_many relation is eager
+            @param eager_many: if True ('Y') the many_to_one relation is eager
+            @param onDelete: 'C:cascade' | 'I:ignore' | 'R:raise'
+            @param onUpdate:
+            @param onUpdate_sql:
+            @param onDelete:
+            @param onDelete_sql:
+            @param deferred:
         """
         return self.setItem('relation', self.__class__(), related_column=related_column, mode=mode, 
                               one_name= one_name,  many_name= many_name, one_one=one_one, child=child,
