@@ -330,6 +330,9 @@ padding-bottom: 2px;
 	border-bottom: 1px dotted gray;
 	height: 16px;
 }
+._common_d11 nopadding .dojoxGrid-cell {
+	padding: 0px 0px;
+}
 
 /*
 ._common_d11 .dojoxGrid-row-table {
