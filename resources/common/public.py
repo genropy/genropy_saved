@@ -729,24 +729,26 @@ class IncludedView(BaseComponent):
         controller.data('.flt.selected.caption', colsMenu['#0?caption'])
         
                 
-        searchbox = gridtop.div(position='absolute', right='5px',top='4px',
-                                width='22em',datapath=controllerPath)
-        searchlbl = searchbox.div(position='absolute', right='15em',top='2px')
-        searchlbl.div('!!Search ',float='left')
+        searchbox = gridtop.div(float='right', margin_right='5px',
+                            datapath=controllerPath)
+        searchlbl = searchbox.div(float='left',margin_top='2px')
+        searchlbl.span('!!Search ',float='left')
         controller.dataController("""var grid = genro.wdgById(gridId);
+                                        SET .currentFilter = "";
                                         grid.filterColumn = col;
-                                        grid.applyFilter(true);""", 
+                                        grid.applyFilter("");""", #empty the searchbox if change the filtercolumn
                                         col='^.flt.selected.col', 
-                                        gridId=gridId, _onStart=True)
+                                        gridId=gridId, _onStart=True,_fired='^.reload')
         if len(colsMenu) > 1:
             controller.data('.flt.colsMenu', colsMenu)
-            searchlbl.div(value='^.flt.selected.caption',float='left',margin_left='2px',_class='buttonIcon')
+            searchlbl.span(':')
+            searchlbl.span(value='^.flt.selected.caption',_class='buttonIcon')
             searchlbl.menu(modifiers='*', _class='smallmenu', storepath='.flt.colsMenu',
                         selected_col='.flt.selected.col',
                         selected_caption='.flt.selected.caption',
                         position='absolute', right='0',width='6em')
         
-        searchbox.input(float='right', _class='searchInput searchWidth', font_size='.9em',
+        searchbox.input(value='^.currentFilter',_class='searchInput searchWidth', font_size='.9em',
             connect_onkeyup='genro.wdgById("%s").applyFilter($1.target.value);' % gridId)
             
 
