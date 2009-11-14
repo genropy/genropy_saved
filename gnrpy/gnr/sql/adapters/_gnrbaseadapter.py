@@ -210,7 +210,16 @@ class SqlDbAdapter(object):
                #data_out[str(k.lower())] = v
                 data_out[str(k)] = v
         return data_out
-    
+        
+    def lockTable(self, dbtable, mode, nowait):
+        """-- IMPLEMENT THIS --
+        Lock a table
+        @param name: db name
+        @param encoding: database text encoding
+        """
+        raise NotImplementedException()
+        
+        
     def insert(self, dbtable, record_data):
         """Insert a record in the db. 
         All fields in record_data will be added: all keys must correspond to a column in the db.

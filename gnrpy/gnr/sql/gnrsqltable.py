@@ -453,6 +453,10 @@ class SqlTable(GnrObject):
         else:
             return self.insert(record)
     
+    def lock(self, mode='ACCESS EXCLUSIVE', nowait=False):
+        self.db.adapter.lockTable(self, mode, nowait)
+        
+        
     def insert(self, record):
         """This method inserts a single record.
         @param record_data: a dictionary that represent the record that must be inserted

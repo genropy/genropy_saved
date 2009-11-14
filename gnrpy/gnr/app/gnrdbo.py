@@ -2,7 +2,6 @@
 # encoding: utf-8
 
 import datetime
-
 from gnr.core.gnrbag import Bag
 
 class GnrDboPackage(object):
@@ -144,20 +143,29 @@ class Table_counter(TableBase):
         
         record = self.record(codekey, mode='record', for_update=True, ignoreMissing=True)
         if not record:
-            record = Bag()
-            record['name'] = '%s-%s' % (pkg, name)
-            record['code'] = code
-            record['pkg'] = pkg
-            record['codekey'] = codekey
-            record['counter'] = 0
-            self.insert(record)
-            record = self.record(codekey, mode='record', for_update=True)
+            print 'not existing %s try lock' % codekey
+            self.lock()
+            print 'locked %s' % codekey
+            record = self.record(codekey, mode='record', for_update=True, ignoreMissing=True)
+            if not record:
+                record = self.createCounter(codekey,code, pkg,name)
             
         counter = record['counter'] + 1
         record['counter'] = counter
         record['last_used'] = date
         self.update(record)
         return self.formatCode(code, output, ymd, counter)
+    
+    def createCounter(self,codekey,code,pkg,name):
+        record = Bag()
+        record['name'] = '%s-%s' % (pkg, name)
+        record['code'] = code
+        record['pkg'] = pkg
+        record['codekey'] = codekey
+        record['counter'] = 0
+        print '---------------INSERTING COUNTER-----%s' % str(codekey)
+        self.insert(record)
+        return self.record(codekey, mode='record', for_update=True)
             
     def counterCode(self, code, codekey, ymd):
         """compose a counter code key"""

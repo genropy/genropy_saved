@@ -164,6 +164,14 @@ class SqlDbAdapter(SqlDbBaseAdapter):
         curs = None
         conn = None
         
+    def lockTable(self, dbtable, mode='ACCESS EXCLUSIVE', nowait=False):
+        if nowait:
+            nowait= 'NO WAIT'
+        else:
+            nowait=''
+        sql="LOCK %s IN %s MODE %s;" % (dbtable.model.sqlfullname, mode, nowait)
+        self.dbroot.execute(sql)
+        
     def createDbSql(self, dbname, encoding):
         return "CREATE DATABASE %s ENCODING '%s';" % (dbname, encoding)
         
