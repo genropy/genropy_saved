@@ -430,8 +430,8 @@ class SqlTable(GnrObject):
         # if not self.trigger_onDeleting:
         #  sql delete where
     
-    def touchRecords(self, where=None):
-        sel = self.query(where=where, addPkeyColumn=False).fetch()
+    def touchRecords(self, where=None,**kwargs):
+        sel = self.query(where=where, addPkeyColumn=False,**kwargs).fetch()
         for row in sel:
             row._notUserChange = True
             self.update(row)
