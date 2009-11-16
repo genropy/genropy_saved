@@ -88,6 +88,8 @@ class PrintHandler(object):
         if os.path.isdir(destPath):
             baseName = os.path.splitext(os.path.basename(srcPath))[0]
             destPath=os.path.join(destPath, '%s.pdf' % baseName)
+        print '******************'
+        print sys.platform
         if sys.platform.startswith('linux'):
             result = call(['xvfb-run','wk2pdf',srcPath,destPath])
         else:
@@ -101,6 +103,8 @@ class PrintHandler(object):
             baseName,ext = os.path.splitext(os.path.basename(filename))
             if ext.lower() == '.html':
                 destPath=os.path.join(storeFolder, '%s.pdf' % baseName)
+                print '******************'
+                print sys.platform
                 if sys.platform.startswith('linux'):
                     result = call(['xvfb-run','wk2pdf',filename,destPath])
                 else:
