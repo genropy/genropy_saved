@@ -88,7 +88,10 @@ class PrintHandler(object):
         if os.path.isdir(destPath):
             baseName = os.path.splitext(os.path.basename(srcPath))[0]
             destPath=os.path.join(destPath, '%s.pdf' % baseName)
-        result = call(['wk2pdf',srcPath,destPath])
+        if sys.platform.startswith('linux'):
+            result = call(['xvfb-run','wk2pdf',srcPath,destPath])
+        else:
+            result = call(['wk2pdf',srcPath,destPath])
         if result < 0:
             raise PrintHandlerError('wk2pdf error')
             
