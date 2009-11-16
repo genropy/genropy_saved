@@ -11,6 +11,7 @@ try:
 except ImportError:
     HAS_PYPDF = False
 from gnr.core.gnrbag import Bag, DirectoryResolver
+import sys
 
 class PrinterConnection(object):
     
