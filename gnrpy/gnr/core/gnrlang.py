@@ -32,7 +32,7 @@ from gnr.core import gnrstring
 import uuid
 import base64
 import time
-
+import thread
 def deprecated(func):
     """This is a decorator which can be used to mark functions
     as deprecated. It will result in a warning being emmitted
@@ -73,7 +73,7 @@ class NotImplementedException(GnrGenericException):
     pass
 
 def getUuid():
-    return base64.urlsafe_b64encode(uuid.uuid1().bytes)[0:22]
+    return base64.urlsafe_b64encode(uuid.uuid3(uuid.uuid1(),str(thread.get_ident())).bytes)[0:22]
 
 def safe_dict(d):
     return dict([(str(k), v) for k,v in d.items()])
