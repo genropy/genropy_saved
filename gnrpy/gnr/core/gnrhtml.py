@@ -247,6 +247,7 @@ class GnrHtmlBuilder(object):
         #wkprinter = WK2pdf('%s.%s'%(filename,'html'),filename)
         #wkprinter.run()
         #wkprinter.exec_()
+        print sys.platform
         if sys.platform.startswith('linux'):
             print 'linux print'
             res = call(['xvfb-run','wk2pdf','%s.%s'%(filename,'html'),filename])
