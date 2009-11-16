@@ -247,7 +247,10 @@ class GnrHtmlBuilder(object):
         #wkprinter = WK2pdf('%s.%s'%(filename,'html'),filename)
         #wkprinter.run()
         #wkprinter.exec_()
-        res = call(['wk2pdf','%s.%s'%(filename,'html'),filename])
+        if sys.platform.startswith('linux'):
+            res = call(['xvfb-run','wk2pdf','%s.%s'%(filename,'html'),filename])
+        else:
+            res = call(['wk2pdf','%s.%s'%(filename,'html'),filename])
         
     def calculate_style(self,attr,um,**kwargs):
         style=attr.pop('style','')
