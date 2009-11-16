@@ -87,12 +87,14 @@ dojo.declare("gnr.GnrFrmHandler",null,{
     },
     loaded: function(){
         this.resetChanges(); // reset changes after loading to subscribe the triggers to the current new data bag
+        genro.setData(this.controllerPath+'.is_newrecord', genro.getDataNode(this.formDatapath).attr._newrecord);
         genro.setData(this.controllerPath+'.loading', false);
         genro.fireEvent(this.controllerPath+'.loaded');
         this.status = null;
     },
     save: function(always){
         if (!this.status){
+            var always = always || genro._(this.controllerPath+'.is_newrecord');
             if (this.changed || always){
                 var invalidfields = this.getInvalidFields();
                 //var formChanges = this.getFormChanges(changesOnly);
