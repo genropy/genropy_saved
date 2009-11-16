@@ -91,9 +91,12 @@ class PrintHandler(object):
         print '******************'
         print sys.platform
         if sys.platform.startswith('linux'):
+            print ['xvfb-run','wk2pdf',srcPath,destPath]
             result = call(['xvfb-run','wk2pdf',srcPath,destPath])
         else:
+            print ['xvfb-run','wk2pdf',srcPath,destPath]
             result = call(['wk2pdf',srcPath,destPath])
+        print result
         if result < 0:
             raise PrintHandlerError('wk2pdf error')
             
