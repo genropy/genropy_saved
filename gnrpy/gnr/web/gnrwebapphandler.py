@@ -241,17 +241,24 @@ class GnrBaseWebAppHandler(object):
     
     def rpc_getRecordCount(self, field=None, value=None,
                            table='',distinct=False, columns='',where='', 
-                           relationDict=None, sqlparams=None, **kwargs):
-        sqlargs = dict(kwargs)
+                           relationDict=None, sqlparams=None, condition=None,
+                           **kwargs):
+        #sqlargs = dict(kwargs)
         if field:
             if not table:
                 pkg, table, field = splitAndStrip(field, '.', fixed=-3)
                 table = '%s.%s' % (pkg, table)
             where = '$%s = :value' % field
-        sqlargs['value'] = value
+            kwargs['value'] = value
         tblobj = self.db.table(table)
+        if isinstance(where, Bag):
+            where._locale = self.page.locale
+            where._workdate = self.page.workdate
+            where, kwargs = tblobj.sqlWhereFromBag(where, kwargs)
+        if condition:
+            where = '(%s) AND (%s)' % (where, condition)
         return tblobj.query(columns=columns, distinct=distinct, where=where,
-                            relationDict=relationDict, sqlparams=sqlparams, **sqlargs).count()
+                            relationDict=relationDict, sqlparams=sqlparams, **kwargs).count()
                             
     def rpc_selectionCall(self,table, selectionName, method, freeze=False, **kwargs):
         tblobj = self.db.table(table)
