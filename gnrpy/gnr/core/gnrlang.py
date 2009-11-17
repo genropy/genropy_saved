@@ -512,7 +512,7 @@ def instanceMixin(obj, source, methods=None, attributes=None, only_callables=Tru
     if exclude:
         exclude_list.extend(exclude.split(','))
     
-    mlist = [k for k in dir(source) if ((only_callables and callable(getattr(source_class,k))) or not only_callables) and not k in exclude_list] 
+    mlist = [k for k in dir(source) if ((only_callables and callable(getattr(source,k))) or not only_callables) and not k in exclude_list] 
     instmethod = type(obj.__init__)
     if not methods:
         methods = mlist
