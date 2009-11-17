@@ -371,6 +371,7 @@ class TableHandler(BaseComponent):
         leftpane.tree(storepath ='.tree_view.tree',
                      selected_pkey ='.tree_view.selected_id',
                      isTree =False,
+                     hideValues=True,
                      selected_rec_type = '.tree_view.current_rec_type',
                      inspect ='shift',
                      labelAttribute ='caption',
@@ -484,7 +485,8 @@ class TableHandler(BaseComponent):
                           labelAttribute='caption',connect_ondblclick='FIRE list.runQuery = true;',
                           selected_pkey='list.query.selectedId', selected_code='list.query.selectedCode',
                           _class='queryTree',
-                             _saved='^list.query.saved', _deleted='^list.query.deleted')
+                          hideValues=True,
+                          _saved='^list.query.saved', _deleted='^list.query.deleted')
         #btnpane = container.contentPane(region='top', height='30px').toolbar()
         self.saveQueryButton(treepane)
         self.deleteQueryButton(treepane)
@@ -540,7 +542,7 @@ class TableHandler(BaseComponent):
         trpane = container.contentPane(region='center')
         treepane = trpane.div(_class='treeContainer')
         treepane.tree(storepath='list.actions.actions_menu', persist=False, inspect='shift',
-                          labelAttribute='caption',
+                          labelAttribute='caption',hideValues=True,
                           _class='queryTree')
     
     def actionsController(self, pane):
@@ -554,7 +556,8 @@ class TableHandler(BaseComponent):
                           labelAttribute='caption', connect_ondblclick='FIRE list.runQuery = true;',
                           selected_pkey='list.view.selectedId', selected_code='list.view.selectedCode',
                           _class='queryTree',
-                             _saved='^list.view.saved', _deleted='^list.view.deleted')
+                          hideValues=True,
+                          _saved='^list.view.saved', _deleted='^list.view.deleted')
         #btnpane = container.contentPane(region='top', height='30px').toolbar()
         self.saveViewButton(treepane)
         self.deleteViewButton(treepane)
