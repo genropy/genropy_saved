@@ -219,21 +219,29 @@ class TableHandler(BaseComponent):
                                                         selected_caption='.c_0?op_caption',
                                                         _class='smallFakeTextBox floatingPopup')
         querypane.textbox(lbl='!!Value',value='^.c_0',width='12em', _autoselect=True)
-        t_c.button('!!Run query', fire='list.runQuery', iconClass="tb_button db_query",showLabel=False)
-        #->Buttons for query changed or new records
-        #t_c.button('!!New records', fire_newrecords='list.querySet', showLabel=True)
-        #t_c.button('!!Changed records', fire_changedrecords='list.querySet', showLabel=True)
-        
-        #querypane.div(connect_onclick="genro.querybuilder.addDelFunc('add',1,$1)", _class='qb_btn qb_add');
+        querypane.dataController()
+        t_c.button('!!Run query', fire='list.runQueryButton', iconClass="tb_button db_query",showLabel=False)
+        t_c.dataFormula('list.currentQueryCountAsString','msg.replace("_rec_",cnt)',
+                                               cnt='^list.currentQueryCount',_if='cnt',_else='',
+                                               msg='!!Current query will return _rec_ items')
+        t_c.dataController("""if(fired=='Shift'){SET list.currentQueryCountAsString = waitmsg;
+                                                 genro.fireAfter('list.updateCurrentQueryCount');
+                                                 genro.dlg.alert('^list.currentQueryCountAsString',dlgtitle)
+                                                }
+                                                else
+                                                {FIRE list.runQuery}""",
+                                                fired='^list.runQueryButton',
+                                                waitmsg='!!Working.....',
+                                                dlgtitle='!!Current query record count'
+                                                )
+
         trbtn=t_r.div(width='110px',nodeId='query_buttons')
         if self.userCanDelete() or self.userCanWrite():
             trbtn.button('!!Unlock', float='right',fire='status.unlock', iconClass="tb_button icnBaseLocked", showLabel=False,hidden='^status.unlocked')
             trbtn.button('!!Lock', float='right',fire='status.lock', iconClass="tb_button icnBaseUnlocked", showLabel=False,hidden='^status.locked')
         trbtn.button('!!Add', float='right',fire='list.newRecord', iconClass="tb_button db_add", visible='^list.canWrite', showLabel=False)
-       #trbtn.button('!!Delete', float='right',fire='list.deleteRecords', iconClass="tb_button db_del",visible='^list.canDelete',
-       #                       disabled='^list.noSelection', showLabel=False)
-       ##trbtn.button('!!Query', float='right',fire='list.runQuery', iconClass="tb_button db_query",showLabel=False)
-    
+
+                             
     def pageListController(self,pane):
         """docstring for pageListController"""
         pane.dataController('genro.dom.disable("query_buttons");SET list.gridpage = 1;SET list.queryRunning = true;FIRE list.runQueryDo = true;',
@@ -449,7 +457,10 @@ class TableHandler(BaseComponent):
                                 connect_onRowDblClick='SET list.selectedIndex = GET list.rowIndex;',
                                 connect_onRowContextMenu="FIRE list.onSelectionMenu = true;")
         
-    
+        pane.dataRpc('list.currentQueryCount','app.getRecordCount', condition=condition,fired='^list.updateCurrentQueryCount',
+                      table=self.maintable, where='=list.query.where',excludeLogicalDeleted='=list.excludeLogicalDeleted',
+                      **condPars)
+                      
     def toolboxFields(self,pane):
         treediv=pane.div(_class='treeContainer')
         treediv.tree(storepath='gnr.qb.fieldstree',persist=False,
