@@ -136,7 +136,7 @@ dojo.declare("gnr.GnrDlgHandler",null,{
         var node = genro.src.getNode('_dlg_alert').clearValue().freeze();
         var dlg=node._('dialog',{nodeId:'_dlg_alert', title:title, toggle:"fade", toggleDuration:250})._('div',{_class:'dlg_ask',
                                     'action':"genro.wdgById('_dlg_alert').hide();genro.fireEvent('"+resultPath+"',this.attr.actCode);"});
-        dlg._('div',{'content':msg,'_class':'dlg_ask_msg'});
+        dlg._('div',{'innerHTML':msg,'_class':'dlg_ask_msg'});
         var buttonBox = dlg._('div',{'_class':'dlg_ask_btnBox'});
         for (var btn in buttons){
             dlg._('button',{'_class':'dlg_ask_btn','label':buttons[btn],'actCode':btn});
