@@ -977,7 +977,7 @@ dojo.declare("gnr.widgets.Tooltip",gnr.widgets.baseDojo,{
     creating:function(attributes, sourceNode){
         var callback= objectPop(attributes,'callback');
         if (callback){
-            attributes['label']=funcCreate('return '+callback,'n');
+            attributes['label']=funcCreate(callback,'n',sourceNode);
         }
         var savedAttrs = objectExtract(attributes, 'modifiers,validclass');
         if( ! attributes.connectId){
