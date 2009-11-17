@@ -507,7 +507,7 @@ class GnrWsgiSite(object):
         page_class.auth_tags = getattr(custom_class, 'auth_tags', '')
         self.page_class_resourceDirs(page_class, path, pkg=pkg)
         self.page_pyrequires_mixin(page_class, py_requires)
-        classMixin(page_class,custom_class)
+        classMixin(page_class,custom_class, only_callables=False)
         self.page_class_resourceDirs(page_class, path, pkg=pkg)
         page_class._packageId = pkg
         self.page_class_custom_mixin(page_class, rel_path, pkg=pkg)
@@ -519,11 +519,11 @@ class GnrWsgiSite(object):
         if pkg:
             package = self.gnrapp.packages[pkg]
         if package and package.webPageMixin:
-            classMixin(page_class,package.webPageMixin) # first the package standard
+            classMixin(page_class,package.webPageMixin, only_callables=False) # first the package standard
         if self.gnrapp.webPageCustom:
-            classMixin(page_class,self.gnrapp.webPageCustom) # then the application custom
+            classMixin(page_class,self.gnrapp.webPageCustom, only_callables=False) # then the application custom
         if package and package.webPageMixinCustom:
-            classMixin(page_class,package.webPageMixinCustom) # finally the package custom
+            classMixin(page_class,package.webPageMixinCustom, only_callables=False) # finally the package custom
 
     
     def page_class_custom_mixin(self,page_class, path, pkg=None):
@@ -535,7 +535,7 @@ class GnrWsgiSite(object):
                 component_page_module = gnrImport(customPagePath)
                 component_page_class = getattr(component_page_module,'WebPage',None)
                 if component_page_class:
-                    classMixin(page_class, component_page_class)
+                    classMixin(page_class, component_page_class, only_callables=False)
                     
     def page_pyrequires_mixin(self, page_class, py_requires):
         for mix in py_requires:
@@ -678,7 +678,7 @@ class GnrWsgiSite(object):
                 resource_class = getattr(resource_module,class_name,None)
                 if resource_class:
                     x=resource_class()
-                    instanceMixin(resource_obj,x)
+                    instanceMixin(resource_obj,x,only_callables=False)
             return resource_obj
         else:
             raise GnrWebServerError('Cannot import component %s' % modName)
@@ -693,7 +693,7 @@ class GnrWsgiSite(object):
                 component_module = gnrImport(modPath)
                 component_class = getattr(component_module,clsName,None)
                 if component_class:
-                    classMixin(kls, component_class, site=self)
+                    classMixin(kls, component_class, site=self, only_callables=False)
         else:
             raise GnrWebServerError('Cannot import component %s' % modName)
 
