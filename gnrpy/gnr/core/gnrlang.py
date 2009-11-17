@@ -491,8 +491,10 @@ def base_visitor(cls):
     for base in cls.__bases__:
         for inner_base in base_visitor(base):
             yield inner_base
-    
-def instanceMixin(obj, source, methods=None, attributes=None, only_callables=True, exclude='js_requires,css_requires,py_requires', **kwargs): 
+
+
+def instanceMixin(obj, source, methods=None, attributes=None, only_callables=True,
+                exclude='js_requires,css_requires,py_requires', **kwargs): 
     """
     Add to the instance obj methods from 'source'.
     Source can be an instance or a class
@@ -508,11 +510,8 @@ def instanceMixin(obj, source, methods=None, attributes=None, only_callables=Tru
         
     if source is None:
         return
-    exclude_list = dir(type)+['__weakref__','__onmixin__']
-    if exclude:
-        exclude_list.extend(exclude.split(','))
     
-    mlist = [k for k in dir(source) if ((only_callables and callable(getattr(source,k))) or not only_callables) and not k in exclude_list] 
+    mlist = [k for k in dir(source) if callable(getattr(source,k)) and not k in dir(type)+['__weakref__','__onmixin__']] 
     instmethod = type(obj.__init__)
     if not methods:
         methods = mlist
@@ -524,7 +523,10 @@ def instanceMixin(obj, source, methods=None, attributes=None, only_callables=Tru
         if hasattr(obj,name):
             original = getattr(obj,name)
             setattr(obj,name+'_',original)
-        setattr(obj,name,k) 
+        setattr(obj,name,k)
+    if not only_callables:
+        exclude = (exclude or '').split(',')
+        attributes = [k for k in dir(source) if not callable(getattr(source,k)) and not k.startswith('_') and not k in exclude] 
     if attributes:
         if isinstance(attributes, basestring):
             attributes=attributes.split(',')
@@ -533,7 +535,9 @@ def instanceMixin(obj, source, methods=None, attributes=None, only_callables=Tru
                 setattr(obj,attribute,getattr(source,attribute))
     if hasattr(source,'__onmixin__'):
         source.__onmixin__.im_func(obj,_mixinsource=source,**kwargs)
- 
+
+
+
 def safeStr(self,o):
     if isinstance(o,unicode):
         return o.encode('UTF-8','ignore')
