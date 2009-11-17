@@ -447,12 +447,14 @@ def cloneClass(name,source_class):
                 if not k in ('__dict__', '__module__', '__weakref__', '__doc__')]))
 
 
-def classMixin( target_class, source_class, methods=None, only_callables=True, **kwargs): 
+def classMixin( target_class, source_class, methods=None, only_callables=True, exclude='js_requires,css_requires,py_requires', **kwargs): 
     """
     Add to the class methods from 'source'.
     Source isclass
     If not 'methods' all methods are added.  
     """
+    #def include(value):
+    #    if 
     if isinstance(source_class, basestring):
         modulename, clsname = source_class.split(':')
         m = gnrImport(modulename)
@@ -463,8 +465,10 @@ def classMixin( target_class, source_class, methods=None, only_callables=True, *
         
     if source_class is None:
         return
-
-    mlist = [k for k in dir(source_class) if ((only_callables and callable(getattr(source_class,k))) or not only_callables) and not k in dir(type)+['__weakref__','__onmixin__','__on_class_mixin__']] 
+    exclude_list = dir(type)+['__weakref__','__onmixin__','__on_class_mixin__']
+    if exclude:
+        exclude_list.extend(exclude.split(','))
+    mlist = [k for k in dir(source_class) if ((only_callables and callable(getattr(source_class,k))) or not only_callables) and not k in exclude_list] 
     if not methods:
         methods = mlist
     else:
@@ -488,7 +492,7 @@ def base_visitor(cls):
         for inner_base in base_visitor(base):
             yield inner_base
     
-def instanceMixin(obj, source, methods=None, attributes=None, **kwargs): 
+def instanceMixin(obj, source, methods=None, attributes=None, only_callables=True, exclude='js_requires,css_requires,py_requires', **kwargs): 
     """
     Add to the instance obj methods from 'source'.
     Source can be an instance or a class
@@ -504,8 +508,11 @@ def instanceMixin(obj, source, methods=None, attributes=None, **kwargs):
         
     if source is None:
         return
+    exclude_list = dir(type)+['__weakref__','__onmixin__']
+    if exclude:
+        exclude_list.extend(exclude.split(','))
     
-    mlist = [k for k in dir(source) if callable(getattr(source,k)) and not k in dir(type)+['__weakref__','__onmixin__']] 
+    mlist = [k for k in dir(source) if ((only_callables and callable(getattr(source_class,k))) or not only_callables) and not k in exclude_list] 
     instmethod = type(obj.__init__)
     if not methods:
         methods = mlist
