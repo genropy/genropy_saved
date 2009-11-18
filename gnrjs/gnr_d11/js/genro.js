@@ -80,7 +80,9 @@ dojo.declare('gnr.GenroClient', null, {
 
         dojo.addOnLoad(this,'start');
     },
-    
+    compare: function(op,a,b){
+        return genro.compareDict[op](a,b) 
+    },
     timeIt:function(msg){
         var t=this.lastTime;
         this.lastTime=new Date();
