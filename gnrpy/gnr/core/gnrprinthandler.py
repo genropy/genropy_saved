@@ -39,7 +39,7 @@ class PrinterConnection(object):
         self.cups_connection.printFiles(self.printer_name, pdf_list, jobname, self.printer_options)
          
     def initPrinter(self, printer_name=None, printerParams=None, **kwargs):
-        printerParams = printerParams or {}
+        printerParams = printerParams or Bag()
         self.cups_connection = cups.Connection()
         self.printer_name = printer_name
         printer_media=[]

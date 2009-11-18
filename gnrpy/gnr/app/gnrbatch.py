@@ -182,6 +182,7 @@ class PrintDbData(GnrBatch):
         else:  
             self.printer_name = printParams.pop('printer_name')
             self.outputFilePath = None
+        print printParams
         self.print_connection = self.page.site.print_handler.getPrinterConnection(self.printer_name, printParams)
         self.file_list = []
         

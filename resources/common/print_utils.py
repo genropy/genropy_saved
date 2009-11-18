@@ -13,17 +13,17 @@ from gnr.core.gnrbag import Bag
 # --------------------------- GnrWebPage subclass ---------------------------
 class PrintUtils(BaseComponent):
     py_requires='batch_runner:BatchRunner'
-    def serverPrint(self,pane,name,table_resource=None,datapath=None,parameters_cb=None,
-                    selectionName='=list.selectionName',resultpath='.print_result',
-                    thermoParams=None,docName=None,rebuild=True,batch_mode='item',
-                    batch_class='PrintDbData',**kwargs):
+    def serverPrintBatch(self,pane,name,table_resource=None,datapath=None,parameters_cb=None,
+                        selectionName='=list.selectionName',resultpath='.print_result',
+                        thermoParams=None,docName=None,rebuild=True,batch_mode='item',
+                        gridId='maingrid',batch_class='PrintDbData',**kwargs):
         datapath = datapath or 'serverprint.%s' %name
         dlgPars = {}
         for k,v in kwargs.items():
             if k.startswith('dlg_'):
                 dlgPars[k[4:]] = v
                 kwargs.pop(k)        
-        self._printOptDialog(pane,name,datapath,dlgPars=dlgPars,parameters_cb=parameters_cb)
+        self.printOptDialog(pane,name,datapath,dlgPars=dlgPars,parameters_cb=parameters_cb)
         self.buildBatchRunner(pane.div(datapath=datapath), 
                               batch_class=batch_class, 
                               table_resource=table_resource,
@@ -34,7 +34,6 @@ class PrintUtils(BaseComponent):
                               batch_mode=batch_mode,
                               printParams='=.printer.params',fired='^.run',
                               runKwargs='=.parameters.data',**kwargs)    
-                                
         pane.dataRpc("dummy","runBatch" ,
                       _onResult='genro.download($1)',
                       table=self.maintable,
@@ -44,11 +43,10 @@ class PrintUtils(BaseComponent):
                       rebuild=rebuild,
                       resultpath=resultpath,thermoParams=dict(field='*'),
                       selectionName=selectionName,pdfParams='=.pdf',
-                      docName=docName,selectedRowidx="==genro.wdgById('maingrid').getSelectedRowidx();",
+                      docName=docName,selectedRowidx="==genro.wdgById('%s').getSelectedRowidx();" %gridId,
                       _fired='^.dlpdf',runKwargs='=.parameters.data',datapath=datapath)
                              
-      
-    def _printOptDialog(self,pane,name,datapath,dlgPars=None,parameters_cb=None):
+    def printOptDialog(self,pane,name,datapath=None,dlgPars=None,parameters_cb=None):
         title = dlgPars.get('title',"!!Print options")
         height = dlgPars.get('height',"200px")
         width = dlgPars.get('width',"450px")
