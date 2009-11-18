@@ -223,19 +223,6 @@ class GnrSqlDb(GnrObject):
         tblobj.deleteRelated(record)
         self.adapter.delete(tblobj, record)
         tblobj.trigger_onDeleted(record)
-    
-    def sql_deleteSelection(self, tblobj, where,**kwargs):
-        """Delete a selection from the table. It works only in SQL so
-        no python trigger is executed.
-        @param tblobj: the table object
-        @param where: the where condition
-        @param **kwargs : arguments for where
-        """
-        tblobj.query(tblobj.pkey,where=where,**kwargs).fetch()
-        tblobj.trigger_onDeleting(record)
-        tblobj.deleteRelated(record)
-        self.adapter.delete(tblobj, record)
-        tblobj.trigger_onDeleted(record)
         
     def commit(self):
         """Commit a transaction"""

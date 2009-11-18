@@ -410,7 +410,19 @@ class SqlTable(GnrObject):
     
     def empty(self):
         self.db.adapter.emptyTable(self)
-
+    
+    
+    def sql_deleteSelection(self, where,**kwargs):
+        """Delete a selection from the table. It works only in SQL so
+        no python trigger is executed.
+        @param tblobj: the table object
+        @param where: the where condition
+        @param **kwargs : arguments for where
+        """
+        todelete=self.query('$%s'%self.pkey, where=where,addPkeyColumn=False,for_update=True, **kwargs).fetch()
+        if todelete:
+            self.db.adapter.sql_deleteSelection(self, pkeyList=[x[0] for x in todelete])
+        
     #Jeff added the support to deleteSelection for passing no condition so that all records would be deleted
     def deleteSelection(self, condition_field=None, condition_value=None, excludeLogicalDeleted=False):
         # if self.trigger_onDeleting:

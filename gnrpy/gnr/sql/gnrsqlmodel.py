@@ -102,14 +102,12 @@ class DbModel(object):
             @param eager_many: if True ('Y') the many_to_one relation is eager
             @param onDelete: 'C:cascade' | 'I:ignore' | 'R:raise'
         """
-
         try:
             many_pkg, many_table, many_field = many_relation_tuple
             many_relation = '.'.join(many_relation_tuple)
             
             one_pkg, one_table, one_field = self.resolveAlias(oneColumn)
             one_relation = '.'.join((one_pkg, one_table, one_field))
-        
             if not (many_field and one_field):
                 logger.warning("pkg, table or field involved in the relation %s -> %s doesn't exist" % (many_relation, one_relation))
                 return
@@ -121,7 +119,6 @@ class DbModel(object):
             #     one_name = link_many_name
             case_insensitive = (mode=='insensitive')
             foreignkey = (mode=='foreignkey')
-            
             self.relations.setItem('%s.%s.@%s' % (many_pkg, many_table, link_many_name), None, mode='O',
                            many_relation=many_relation, many_rel_name= many_name, foreignkey=foreignkey, 
                            one_relation=one_relation, one_rel_name= one_name, one_one=one_one, onDelete=onDelete, onDelete_sql=onDelete_sql,
@@ -368,7 +365,7 @@ class DbModelSrc(GnrStructData):
         """
         return self.setItem('relation', self.__class__(), related_column=related_column, mode=mode, 
                               one_name= one_name,  many_name= many_name, one_one=one_one, child=child,
-                             one_group=one_group, many_group=many_group, 
+                             one_group=one_group, many_group=many_group, deferred=deferred,
                              eager_one=eager_one, eager_many=eager_many,
                              **kwargs)
 

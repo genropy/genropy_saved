@@ -263,6 +263,16 @@ class SqlDbAdapter(object):
         pkey = tblobj.pkey
         sql = 'DELETE FROM %s WHERE %s=:%s;' % (tblobj.sqlfullname, tblobj.sqlnamemapper[pkey], pkey)
         return self.dbroot.execute(sql, record_data)
+    
+    def sql_deleteSelection(self, dbtable, pkeyList):
+        """Delete a selection from the table. It works only in SQL so
+        no python trigger is executed.
+        @param dbtable: the table object
+        @param pkeyList: records to delete
+        """
+        tblobj=dbtable.model
+        sql = 'DELETE FROM %s WHERE %s IN :pkeyList;' % (tblobj.sqlfullname, tblobj.sqlnamemapper[tblobj.pkey])
+        return self.dbroot.execute(sql, sqlargs=dict(pkeyList=pkeyList))
         
     def emptyTable(self, dbtable):
         """Delete all table rows
