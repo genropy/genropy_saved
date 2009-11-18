@@ -15,7 +15,7 @@ from gnr.core.gnrlang import gnrImport
 
 class BatchRunner(BaseComponent):
     
-    def buildBatchRunner(self, pane, gridId=None, resultpath='aux.cmd', selectionName='=list.selectionName', fired=None, batchClass=None,
+    def buildBatchRunner(self, pane, gridId=None, resultpath='aux.cmd', selectionName='=list.selectionName', fired=None, batch_class=None,
                              thermoParams=None, endScript=None,stopOnError=False, forUpdate=False, onRow=None, **kwargs):
         """Prepare a batch action on the maintable with a thermometer
            @param resultpath: the path into the datastore where the result is stored.
@@ -25,6 +25,8 @@ class BatchRunner(BaseComponent):
            @param rpc: is used instead of batchFactory. The name of the custum rpc you can use for the batch
                        for every selected row.
         """
+        print kwargs
+        
         thermoParams = thermoParams or dict()
         thermoid = None
         if 'field' in thermoParams:
@@ -32,7 +34,8 @@ class BatchRunner(BaseComponent):
             self.thermoDialog(pane, thermoid=thermoid, title=thermoParams.get('title', 'Batch Running'),thermolines=thermoParams.get('lines',1), fired=fired, alertResult=True)
         pane.dataRpc('%s.result' % resultpath, 'runBatch', timeout=0, _POST=True,
                      table=self.maintable, selectionName=selectionName,
-                     batchClass=batchClass, 
+                     #batchClass=batchClass, nonviene chiamato
+                     batch_class=batch_class,
                      thermofield=thermoParams.get('field'), thermoid = thermoid,
                      selectedRowidx =  """==genro.wdgById("maingrid").getSelectedRowidx();""",
                      _fired=fired, _onResult=endScript,
@@ -70,7 +73,7 @@ class BatchRunner(BaseComponent):
             columns = selection.columns
         batch_class = self.batch_loader(batch_class)
         if batch_class:
-            batch = batch_class(selection=selection, table=table, page=self, columns=columns, thermocb=self.app.setThermo, **kwargs)
+            batch = batch_class(collection=selection, table=table, page=self, columns=columns, thermocb=self.app.setThermo, **kwargs)
             return batch.run()
         else:
             raise Exception

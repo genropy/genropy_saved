@@ -656,6 +656,7 @@ class GnrWsgiSite(object):
         if runKwargs:
             for k,v in runKwargs.items():
                 kwargs[str(k)] = v
+        #script.parentSite = self      idea
         return script(**kwargs)
         
     def loadTableScript(self, page, table, respath, class_name=None):
@@ -666,7 +667,6 @@ class GnrWsgiSite(object):
         modName = os.path.join('tables',table.name,*(respath.split('/')))
         resourceDirs = application.packages[table.pkg.name].resourceDirs
         modPathList = self.getResourceList(resourceDirs, modName, 'py') or []
-
         if modPathList:
             modPathList.reverse()
             basePath=modPathList.pop(0)
@@ -677,8 +677,7 @@ class GnrWsgiSite(object):
                 resource_module = gnrImport(modPath)
                 resource_class = getattr(resource_module,class_name,None)
                 if resource_class:
-                    x=resource_class()
-                    instanceMixin(resource_obj,x,only_callables=False)
+                    instanceMixin(resource_obj,resource_class,only_callables=False)
             return resource_obj
         else:
             raise GnrWebServerError('Cannot import component %s' % modName)

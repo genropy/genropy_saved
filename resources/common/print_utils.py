@@ -12,31 +12,34 @@ from gnr.core.gnrbag import Bag
 
 # --------------------------- GnrWebPage subclass ---------------------------
 class PrintUtils(BaseComponent):
+    py_requires='batch_runner:BatchRunner'
     def serverPrint(self,pane,name,table_resource=None,datapath=None,parameters_cb=None,
                     selectionName='=list.selectionName',resultpath='.print_result',
-                    thermoParams=None,docName=None,rebuild=True,**kwargs):
+                    thermoParams=None,docName=None,rebuild=True,batch_mode='item',
+                    batch_class='PrintDbData',**kwargs):
         datapath = datapath or 'serverprint.%s' %name
         dlgPars = {}
         for k,v in kwargs.items():
             if k.startswith('dlg_'):
                 dlgPars[k[4:]] = v
                 kwargs.pop(k)        
-                    
         self._printOptDialog(pane,name,datapath,dlgPars=dlgPars,parameters_cb=parameters_cb)
         self.buildBatchRunner(pane.div(datapath=datapath), 
-                              batch_class='SelectedRecordsToPrint', 
+                              batch_class=batch_class, 
                               table_resource=table_resource,
                               resultpath=resultpath, 
                               rebuild=rebuild,
                               thermoParams=dict(field='*'),
                               selectionName=selectionName,
+                              batch_mode=batch_mode,
                               printParams='=.printer.params',fired='^.run',
                               runKwargs='=.parameters.data',**kwargs)    
                                 
         pane.dataRpc("dummy","runBatch" ,
                       _onResult='genro.download($1)',
                       table=self.maintable,
-                      batch_class='SelectedRecordsToPrint', 
+                      batch_class=batch_class, 
+                      batch_mode=batch_mode,
                       table_resource=table_resource,
                       rebuild=rebuild,
                       resultpath=resultpath,thermoParams=dict(field='*'),

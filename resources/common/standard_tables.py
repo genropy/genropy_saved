@@ -33,6 +33,10 @@ class TableHandler(BaseComponent):
     def tableDeleteTags(self):
          return 'superadmin'
     
+    def rpc_onLoadingSelection(self,selection):
+        """ovverride if you need"""
+        pass
+    
     def rowsPerPage(self):
         return 25
     
@@ -450,6 +454,7 @@ class TableHandler(BaseComponent):
                              sqlContextName='standard_list', totalRowCount=True,
                              row_start='0', row_count=self.rowsPerPage(),
                              excludeLogicalDeleted='^list.excludeLogicalDeleted',
+                             applymethod='onLoadingSelection',
                              _onResult='FIRE list.queryEnd=true;',**condPars)
                                      
         grid = gridpane.virtualGrid(nodeId='maingrid', structpath="list.view.structure", storepath=".data", autoWidth=False,
