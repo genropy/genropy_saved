@@ -12,8 +12,7 @@ import time
 from collections import defaultdict
 class GnrBatch(object):
     thermo_rows = 1
-    def __init__(self,collection=None, batch_mode=None,runKwargs=None, thermocb = None, thermoid=None,thermofield='*',**kwargs):
-        self.batch_mode = batch_mode
+    def __init__(self,data=None,runKwargs=None, thermocb = None, thermoid=None,thermofield='*',**kwargs):
         self.thermocb = thermocb or (lambda *a,**kw:None)
         self.thermoid = thermoid
         self.thermofield = thermofield
@@ -22,17 +21,17 @@ class GnrBatch(object):
         self.thermo_maximum = defaultdict(lambda: None)
         self.thermo_indeterminate = defaultdict(lambda: None)
         self.runKwargs = runKwargs.asDict(True) if runKwargs else {}
-        self.collection = collection
+        self.data = data
         for k,v in kwargs.items():
             if v:
                 setattr(self,k,v)
     
     def data_counter(self):
-        return 0
+        return len(self.data)
     
     def data_fetcher(self):
-        for row in self.data:
-            yield row
+        for item in self.data:
+            yield item
         
     def pre_process(self):
         pass
@@ -49,15 +48,15 @@ class GnrBatch(object):
     def run(self):
         self.thermo_init()
         self.pre_process()
-        if self.batch_mode == 'item':
-            for chunk in self.data_fetcher():
-                self.process_chunk(chunk,**self.runKwargs)
-                self.thermo_step(chunk)
-        elif self.batch_mode=='collection':
-            self.process_chunk(self.collection,**self.runKwargs)
+        self.process()
         self.post_process()
         self.thermo_end()
         return self.collect_result()
+        
+    def process(self):
+        for chunk in self.data_fetcher():
+            self.process_chunk(chunk,**self.runKwargs)
+            self.thermo_step(chunk)
     
     def thermo_init(self, row=None):
         if self.thermoid:
@@ -96,15 +95,18 @@ class GnrBatch(object):
             self.thermocb(self.thermoid, command='end')
         
 class SelectionToXls(GnrBatch):
-    def __init__(self, selection=None, table=None, filename=None, columns=None, locale=None, **kwargs):
-        super(SelectionToXls,self).__init__(**kwargs)
+    def __init__(self, data=None, table=None, filename=None, columns=None, locale=None, **kwargs):
+        if columns:
+            columns = columns.split(',')
+        else:
+            columns = data.columns
+        self.columns = columns
         self.locale = locale
         self.filename = filename or '%s.xls'%table.replace('.','_')
-        self.columns = columns
-        self.tblobj = self.collection.db.table(table)
-        self.data = self.collection.output('dictlist', columns=self.columns, locale=self.locale)
-        self.data_len = len(self.data)
-        self.thermo_maximum[0] = self.data_len
+        data=data.output('dictlist', columns=self.columns, locale=self.locale)
+        super(SelectionToXls,self).__init__(data=data,**kwargs)
+        self.tblobj = self.page.db.table(table)
+        self.thermo_maximum[0] = self.data_counter()
         
     def thermo_chunk_message(self, chunk, row):
         if self.thermofield=='*':
@@ -112,9 +114,7 @@ class SelectionToXls(GnrBatch):
         else:
             msg = chunk[self.thermofield]
         return msg
-        
-    def data_counter(self):
-        return self.data_len
+
     
     def pre_process(self):
         import xlwt
@@ -158,14 +158,14 @@ class SelectionToPdf(GnrBatch):
         self.folder = folder or 'temp_print_%s'%table.replace('.','_')
         
     def data_fetcher(self):     ##### Rivedere per passare le colonne
-        for row in self.collection.output('pkeylist'):
+        for row in self.data.output('pkeylist'):
             yield row
     
     def process_chunk(self, chunk):
         self.pdfmaker.getPdfFromRecord(record=chunk,table=self.table,folder=self.folder)
         
 class PrintDbData(GnrBatch):
-    def __init__(self, table_resource=None, class_name=None, selection=None, table=None,
+    def __init__(self, table=None,table_resource=None, class_name=None, selection=None,
                 folder=None, printParams=None, pdfParams=None,**kwargs):
         import cups
         super(PrintDbData,self).__init__(**kwargs)
@@ -182,7 +182,6 @@ class PrintDbData(GnrBatch):
         else:  
             self.printer_name = printParams.pop('printer_name')
             self.outputFilePath = None
-        print printParams
         self.print_connection = self.page.site.print_handler.getPrinterConnection(self.printer_name, printParams)
         self.file_list = []
         
@@ -191,14 +190,23 @@ class PrintDbData(GnrBatch):
                     storeFolder=self.folder, outputFilePath=self.outputFilePath)
         if result:
             return self.page.temporaryDocumentUrl(result)
-            
+                     
     def process_chunk(self, chunk, **kwargs):
         self.htmlMaker(chunk, rebuild=self.rebuild,**kwargs)
         self.file_list.append(self.htmlMaker.filepath)
     
     def data_fetcher(self):     ##### Rivedere per passare le colonne
-        for row in self.collection.output('pkeylist'):
+        for row in self.data.output('pkeylist'):
             yield row
+
+class PrintSelection(PrintDbData):
+    pass
+
+
+class PrintRecord(PrintDbData):
+    def process(self):
+        self.process_chunk(self.data,**self.runKwargs)
+
 ################################
 class Fake(GnrBatch):
     thermo_rows = 2

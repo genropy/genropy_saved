@@ -297,7 +297,8 @@ class Public(BaseComponent):
         d.div(width='100%', height='4em').div(margin='auto').button('Stop', 
                 action='genro.wdgById("%s").onAskCancel();' % dlgid)
         
-        pane.dataController('genro.wdgById(dlgid).show()', dlgid=dlgid, fired=fired)
+        #pane.dataController('genro.wdgById(dlgid).show()', dlgid=dlgid, fired=fired)
+        pane.dataController('console.log(dlgid)', dlgid=dlgid, fired=fired)
         
         pane.dataController('genro.wdgById(dlgid).hide();', dlgid=dlgid, 
                             status='^_thermo.%s.result.status' % thermoid, _if='(status=="stopped" || status=="end")')

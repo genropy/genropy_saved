@@ -105,14 +105,11 @@ class RecordToHtmlNew(TableScriptOnRecord):
     starting_page_number=0
 
     def init(self,**kwargs):
-        self.customize()
         self.maintable=self.maintable or self.resource_table
         self.maintable_obj=self.db.table(self.maintable)
         self.builder = GnrHtmlBuilder(page_width=self.page_width,page_height=self.page_height,
                                       page_debug=self.page_debug,print_button=self.print_button)
-    def customize(self):
-        pass
-        
+
     def __call__(self, record=None, filepath=None,
                        rebuild=False, dontSave=False, pdf=False, runKwargs=None,**kwargs):
         """This method returns the html corresponding to a given record.
@@ -245,7 +242,6 @@ class RecordToHtmlNew(TableScriptOnRecord):
         self.currColumn = self.currColumn + 1
         
     def _createPage(self):
-        print '_createPage'
         curr_copy = self.copies[self.copy]
         if self.copy==0:
             self.paperPage = self.getNewPage()

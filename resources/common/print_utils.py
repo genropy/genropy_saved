@@ -13,10 +13,23 @@ from gnr.core.gnrbag import Bag
 # --------------------------- GnrWebPage subclass ---------------------------
 class PrintUtils(BaseComponent):
     py_requires='batch_runner:BatchRunner'
-    def serverPrintBatch(self,pane,name,table_resource=None,datapath=None,parameters_cb=None,
-                        selectionName='=list.selectionName',resultpath='.print_result',
-                        thermoParams=None,docName=None,rebuild=True,batch_mode='item',
-                        gridId='maingrid',batch_class='PrintDbData',**kwargs):
+    def serverPrint(self,pane,name,table=None,table_resource=None,
+                        selectionName='=list.selectionName',
+                        recordId = None,
+                         datapath=None,parameters_cb=None,
+                        resultpath='.print_result',
+                        thermoParams=None,docName=None,rebuild=True,
+                        gridId='maingrid',batch_class=None,**kwargs):
+             
+        selectedRowidx = None           
+        if not batch_class:
+            if recordId:
+                batch_class='PrintRecord'
+            else:
+                batch_class='PrintSelection'
+        if not recordId:
+            selectedRowidx =  "==genro.wdgById('%s').getSelectedRowidx();" %gridId
+                
         datapath = datapath or 'serverprint.%s' %name
         dlgPars = {}
         for k,v in kwargs.items():
@@ -24,28 +37,36 @@ class PrintUtils(BaseComponent):
                 dlgPars[k[4:]] = v
                 kwargs.pop(k)        
         self.printOptDialog(pane,name,datapath,dlgPars=dlgPars,parameters_cb=parameters_cb)
-        self.buildBatchRunner(pane.div(datapath=datapath), 
+        controller = pane.dataController(datapath=datapath)
+        controller.dataController("FIRE .run = 'print';",_if='cachedPrinterParams.getItem("printer_name")',
+                                cachedPrinterParams="=_clientCtx.printerSetup.%s" %name,
+                                _fired='^.print',_else='genro.dlg.alert(msg,title)',
+                                msg='!!No printer selected',title='!!Warning')
+        self.buildBatchRunner(controller, 
                               batch_class=batch_class, 
+                              table=table,
                               table_resource=table_resource,
                               resultpath=resultpath, 
                               rebuild=rebuild,
                               thermoParams=dict(field='*'),
-                              selectionName=selectionName,
-                              batch_mode=batch_mode,
-                              printParams='=.printer.params',fired='^.run',
-                              runKwargs='=.parameters.data',**kwargs)    
+                              recordId=recordId,selectionName=selectionName,
+                              selectedRowidx = selectedRowidx,
+                              #printParams='=.printer.params', 
+                              printParams='=_clientCtx.printerSetup.%s' %name,
+                              fired='^.run',runKwargs='=.parameters.data',**kwargs) 
+                               
         pane.dataRpc("dummy","runBatch" ,
-                      _onResult='genro.download($1)',
-                      table=self.maintable,
-                      batch_class=batch_class, 
-                      batch_mode=batch_mode,
-                      table_resource=table_resource,
-                      rebuild=rebuild,
-                      resultpath=resultpath,thermoParams=dict(field='*'),
-                      selectionName=selectionName,pdfParams='=.pdf',
-                      docName=docName,selectedRowidx="==genro.wdgById('%s').getSelectedRowidx();" %gridId,
-                      _fired='^.dlpdf',runKwargs='=.parameters.data',datapath=datapath)
-                             
+                     _onResult='genro.download($1)',
+                     table=table or self.maintable,
+                     batch_class=batch_class, 
+                     table_resource=table_resource,
+                     rebuild=rebuild,recordId=recordId,
+                     resultpath=resultpath,thermoParams=dict(field='*'),
+                     selectionName=selectionName,pdfParams='=.pdf',
+                     docName=docName,selectedRowidx=selectedRowidx,
+                     _fired='^.dlpdf',runKwargs='=.parameters.data',datapath=datapath) 
+                     
+                              
     def printOptDialog(self,pane,name,datapath=None,dlgPars=None,parameters_cb=None):
         title = dlgPars.get('title',"!!Print options")
         height = dlgPars.get('height',"200px")
@@ -59,13 +80,13 @@ class PrintUtils(BaseComponent):
         bottom = bc.contentPane(region='bottom',_class='dialog_bottom')
         bottom.button('!!Close',baseClass='bottom_btn',float='left',margin='1px',fire='.hide')
         bottom.button('!!Pdf',baseClass='bottom_btn',float='right',margin='1px',
-                        action='FIRE .dlpdf; FIRE .hide;')
+                        action='FIRE .hide; FIRE .dlpdf;')
                         
         bottom.button('!!Print',baseClass='bottom_btn',float='right',margin='1px',
                         action="""  FIRE .hide;
                                     var currPrinterOpt = GET .printer.params;
                                     SET _clientCtx.printerSetup.%s = currPrinterOpt.deepCopy(); 
-                                    FIRE .run; 
+                                    FIRE .print; 
                                     """ %name)
         tc_opt = bc.tabContainer(region='center',margin='5px')
         if parameters_cb:
@@ -95,7 +116,6 @@ class PrintUtils(BaseComponent):
     def rpc_getPrinterAttributes(self,printer_name):
         if printer_name and printer_name!='PDF':
             attributes = self.site.print_handler.getPrinterAttributes(printer_name)
-            print attributes
             return attributes
 
     def _utl_pdf_opt(self,tc):
@@ -103,6 +123,7 @@ class PrintUtils(BaseComponent):
         fb= pane.formbuilder(cols=1)
         fb.dataFormula('.zipped','false',_onStart=True)
         fb.checkbox(value='^.zipped',label='!!Zip folder')
+
         
 ####################DEPRECATED STUFF###################
 
