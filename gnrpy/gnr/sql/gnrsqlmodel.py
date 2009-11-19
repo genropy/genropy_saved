@@ -281,8 +281,8 @@ class DbModelSrc(GnrStructData):
            @param unique
            @param indexed
            @param group: group is a hierarchical path of logical categories and subacategories the columns belongs to.
-                         If the group path starts with '_' the group is "reserved".
-                         If it starts with '*' it can be seen only from amministration tools. 
+                         If the group path starts with '_' the group is "reserved" (invisible).
+                         If it starts with '*' it can be seen only from aministration tools. 
            @param oninserting
            @param onupdating
            @param ondeleting
