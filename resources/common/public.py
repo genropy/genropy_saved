@@ -289,15 +289,16 @@ class Public(BaseComponent):
                         connect_show='this.intervalRef = setInterval(function(){genro.fireEvent("_thermo.%s.flag")}, 500)' % thermoid,
                         connect_hide='clearInterval(this.intervalRef);')
                         #onAskCancel
+        
         for x in range(thermolines):
-            tl = d.div(datapath='.t%i' % (x+1, ))
+            tl = d.div(datapath='.t%i' % (x+1, ), border_bottom='1px solid gray', margin_bottom='3px')
+            tl.div('^.message', height='1em', text_align='center')
             tl.progressBar(width='25em', indeterminate='^.indeterminate', maximum='^.maximum', 
                           places='^.places', progress='^.progress', margin_left='auto', margin_right='auto')
-            tl.div('^.message', height='1em', text_align='center')
+                          
         d.div(width='100%', height='4em').div(margin='auto').button('Stop', 
                 action='genro.wdgById("%s").onAskCancel();' % dlgid)
-        
-        #pane.dataController('genro.wdgById(dlgid).show()', dlgid=dlgid, fired=fired)
+        pane.dataController('genro.wdgById(dlgid).show()', dlgid=dlgid, fired=fired)
         pane.dataController('console.log(dlgid)', dlgid=dlgid, fired=fired)
         
         pane.dataController('genro.wdgById(dlgid).hide();', dlgid=dlgid, 

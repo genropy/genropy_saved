@@ -54,9 +54,11 @@ class GnrBatch(object):
         return self.collect_result()
         
     def process(self):
+        print 'in process'
         for chunk in self.data_fetcher():
+            print 'calling process_chunk'
             self.process_chunk(chunk,**self.runKwargs)
-            self.thermo_step(chunk)
+            #self.thermo_step(chunk)
     
     def thermo_init(self, row=None):
         if self.thermoid:
@@ -91,7 +93,9 @@ class GnrBatch(object):
         pass
         
     def thermo_end(self):
+        print 'thermo_end'
         if self.thermoid:
+            print 'thermo_end 2'
             self.thermocb(self.thermoid, command='end')
         
 class SelectionToXls(GnrBatch):
