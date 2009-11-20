@@ -283,7 +283,7 @@ class Public(BaseComponent):
 
     def thermoDialog(self, pane, thermoid='thermo', title='', thermolines=1, fired=None, alertResult=False):
         dlgid = 'dlg_%s' % thermoid
-        d = pane.dialog(nodeId=dlgid, title=title, width='27em', datapath='_thermo.%s.result' % thermoid, 
+        d = pane.dialog(nodeId=dlgid, title=title, width='27em',height='50ex',datapath='_thermo.%s.result' % thermoid, 
                         closable='ask', close_msg='!!Stop the batch execution ?', close_confirm='Stop', close_cancel='Continue', 
                         close_action='FIRE ^_thermo.%s.flag = "stop"' % thermoid,
                         connect_show='this.intervalRef = setInterval(function(){genro.fireEvent("_thermo.%s.flag")}, 500)' % thermoid,
@@ -296,7 +296,7 @@ class Public(BaseComponent):
             tl.progressBar(width='25em', indeterminate='^.indeterminate', maximum='^.maximum', 
                           places='^.places', progress='^.progress', margin_left='auto', margin_right='auto')
                           
-        d.div(width='100%', height='4em').div(margin='auto').button('Stop', 
+        d.div(width='100%', height='3ex').div(margin='auto').button('Stop', 
                 action='genro.wdgById("%s").onAskCancel();' % dlgid)
         pane.dataController('genro.wdgById(dlgid).show()', dlgid=dlgid, fired=fired)
         pane.dataController('console.log(dlgid)', dlgid=dlgid, fired=fired)
@@ -486,7 +486,7 @@ class IncludedView(BaseComponent):
                         tools_menu=None,upd_action=False,_onStart=False,
                         filterOn=None,  pickerPars=None,centerPaneCb=None,
                         editorEnabled=None,reloader=None,externalChanges=None,
-                        addOnCb = None, **kwargs):
+                        addOnCb = None, zoom=True,**kwargs):
         """
         This method returns a grid (includedView) for, viewing and selecting
         rows from a many to many table related to the main table,
@@ -635,6 +635,8 @@ class IncludedView(BaseComponent):
             if struct and callable(struct) and not isinstance(struct,Bag):
                 viewPars['struct'] = struct(self.newGridStruct(table))
         viewPars['structpath'] = viewPars.get('structpath') or '.struct'  or 'grids.%s.struct' %nodeId
+        
+        
         view = gridcenter.includedView(extension='includedViewPicker',table=table,
                                        editorEnabled=editorEnabled or '^form.canWrite',
                                        reloader=reloader, **viewPars)
