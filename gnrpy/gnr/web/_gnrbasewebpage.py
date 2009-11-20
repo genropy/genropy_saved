@@ -1832,7 +1832,11 @@ class GnrWebConnection(object):
             dirbag = self.connectionsBag()
             t = time.time()
             for conn_id, conn_files, abs_path in dirbag.digest('#k,#v,#a.abs_path'):
-                cookieAge = t - (conn_files['connection_xml.cookieData.timestamp'] or 0)
+                try:
+                    cookieAge = t - (conn_files['connection_xml.cookieData.timestamp'] or 0)
+                except:
+                    cookieAge = t
+                    print conn_id
                 if cookieAge > int(self.page.config.getItem('connection_timeout') or CONNECTION_TIMEOUT):
                     self.dropConnection(conn_id)
         
