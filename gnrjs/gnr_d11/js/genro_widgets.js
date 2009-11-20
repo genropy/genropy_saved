@@ -43,7 +43,11 @@ gnr.columnsFromStruct = function(struct, columns){
                     fld = '$'+fld;
                 }
                 columns.push(fld);
+                if (node.attr.zoomPkey){
+                    columns.push('$'+node.attr.zoomPkey);
+                }
             }
+
             if (node.getValue() instanceof gnr.GnrBag){
                 gnr.columnsFromStruct(node.getValue(), columns);
             }
@@ -1576,19 +1580,25 @@ dojo.declare("gnr.widgets.Grid",gnr.widgets.baseDojo,{
         var cellmap = cellmap || {};
         var result = [];
         var _cellFormatter=function(formatOptions, cellClassCB){
+
             var opt=objectUpdate({}, formatOptions);
             var cellClassFunc;
             if(cellClassCB){
                 cellClassFunc = funcCreate(cellClassCB, 'cell,v,inRowIndex');
             }
             return function(v, inRowIndex){
+                
                 if(cellClassFunc){
                     cellClassFunc(this, v, inRowIndex);
                 }
                 opt['cellPars'] = {rowIndex:inRowIndex};
+                var zoomPage=opt['zoomPage'];
                 v = genro.format(v,opt);
-                if(v==null){
-                    return '&nbsp;';
+                v= (v!=null) ? v : '&nbsp;';
+                if(zoomPage){
+                    var zoomPkey=opt['zoomPkey'];
+                    var key=this.grid.currRenderedRow[zoomPkey? zoomPkey : this.grid._identifier];
+                    v= "<a class='gnrzoomcell' href='/"+zoomPage+"?pkey="+key+"'>"+v+"</a>";
                 }
                 return v;
                 };
@@ -1614,6 +1624,7 @@ dojo.declare("gnr.widgets.Grid",gnr.widgets.baseDojo,{
                          rowsnodes[k].setValue(rowBag, false);
                      }
                      cellsnodes = rowBag.getNodes();
+                     
                      row = [];
                      for (j=0; j < cellsnodes.length; j++){
                          cell = objectUpdate({}, rowattrs);
@@ -1631,6 +1642,10 @@ dojo.declare("gnr.widgets.Grid",gnr.widgets.baseDojo,{
                          cell.cellStyles=objectAsStyle(genro.dom.getStyleDict(cell,[ 'width']));
                          formats=objectExtract(cell,'format_*');
                          format=objectExtract(cell,'format');
+                         var zoomPage=objectPop(cell,'zoomPage');
+                         if (zoomPage)
+                            formats['zoomPage']=zoomPage;
+                            formats['zoomPkey']=objectPop(cell,'zoomPkey');
                          if (format){
                              formats['format']=format;
                          }
@@ -1644,6 +1659,7 @@ dojo.declare("gnr.widgets.Grid",gnr.widgets.baseDojo,{
                          row.push(cell);
                          cellmap[cell.field] = cell;
                      }
+              
                      rows.push(row);
                  }
                  view.rows = rows;
@@ -3007,7 +3023,7 @@ dojo.declare("gnr.widgets.FilteringSelect",gnr.widgets.BaseCombo,{
     },
     //this patch will fix the problem where the displayed value stuck for a new record
     patch_setValue:function(value,priorityChange){
-        this.setValue_replaced(value,priorityChange)
+        this.setValue_replaced(value,priorityChange);
         if (!this._isvalid){
             this.valueNode.value=null;
             this.setDisplayedValue('');
