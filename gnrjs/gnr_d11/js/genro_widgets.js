@@ -1604,7 +1604,6 @@ dojo.declare("gnr.widgets.Grid",gnr.widgets.baseDojo,{
                 if(zoomPage){
                     var zoomPkey=opt['zoomPkey'];
                     if (zoomPkey){
-                        zoomPkey = zoomPkey.replace('$','');
                         zoomPkey = zoomPkey.replace(/\W/g,'_');
                     }
                     var key=this.grid.currRenderedRow[zoomPkey? zoomPkey : this.grid._identifier];

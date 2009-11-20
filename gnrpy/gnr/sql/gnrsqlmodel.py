@@ -640,7 +640,7 @@ class DbTableObj(DbModelObj):
                 mixedattributes=dict(relcol.attributes)
                 colalias_attributes=dict(colalias.attributes)
                 colalias_attributes.pop('tag')
-                colalias_attributes['original_relation_path']=colalias_attributes.pop('relation_path')
+                colalias_attributes['full_relation_path']=colalias_attributes.pop('relation_path')
                 mixedattributes.update(colalias_attributes)
                 col=relcol
                 col.attributes=mixedattributes
@@ -673,7 +673,12 @@ class DbTableObj(DbModelObj):
             else:
                 relpkg, reltbl, relfld = joiner['many_relation'].split('.')
             reltbl = self.dbroot.package(relpkg).table(reltbl)
-        return reltbl.column('.'.join(relpath))
+    
+        col = reltbl.column('.'.join(relpath))
+        if 'full_relation_path' in col.attributes:
+            col.attributes=dict(col.attributes)
+            col.attributes['full_relation_path']='%s.%s' %(firstrel,col.attributes['full_relation_path'])
+        return col
     
     def resolveRelationPath(self, relpath):
         if relpath in self.relations:
