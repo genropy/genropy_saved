@@ -289,7 +289,7 @@ class Public(BaseComponent):
                         connect_show='this.intervalRef = setInterval(function(){genro.fireEvent("_thermo.%s.flag")}, 500)' % thermoid,
                         connect_hide='clearInterval(this.intervalRef);')
                         #onAskCancel
-        bc=dlg.borderContainer(width='300px', height='%ipx' %(100+thermolines*40) )
+        bc=dlg.borderContainer(width='330px', height='%ipx' %(100+thermolines*40) )
         footer=bc.contentPane(region='bottom', _class='dialog_bottom')
         body=bc.contentPane(region='center')
         for x in range(thermolines):
