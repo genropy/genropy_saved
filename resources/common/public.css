@@ -687,7 +687,7 @@ padding-right:5px;
 	text-decoration: none;
 	padding-left:3px;
 	padding-right:3px;
-
+	color:inherit;
 }
 .gnrzoomcell:hover{
 	-moz-border-radius:7px;

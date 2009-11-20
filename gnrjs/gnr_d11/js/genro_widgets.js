@@ -1594,13 +1594,16 @@ dojo.declare("gnr.widgets.Grid",gnr.widgets.baseDojo,{
                 opt['cellPars'] = {rowIndex:inRowIndex};
                 var zoomPage=opt['zoomPage'];
                 v = genro.format(v,opt);
-                v= (v!=null) ? v : '&nbsp;';
+                if (v==null){
+                    return  '&nbsp;';
+                }
                 if(zoomPage){
                     var zoomPkey=opt['zoomPkey'];
                     var key=this.grid.currRenderedRow[zoomPkey? zoomPkey : this.grid._identifier];
-                    v= "<a class='gnrzoomcell' href='/"+zoomPage+"?pkey="+key+"'>"+v+"</a>";
+                    v = "<a class='gnrzoomcell' href='/"+zoomPage+"?pkey="+key+"'>"+v+"</a>";
                 }
                 return v;
+                
                 };
             };
         if(struct){
