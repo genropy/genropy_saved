@@ -811,13 +811,26 @@ class GnrGridStruct(GnrStructData):
         return self.child('cell', content= '', field=field, _name=name or field, width=width, dtype=dtype, 
                           classes=classes, cellClasses=cellClasses, headerClasses=headerClasses, **kwargs)
     
-    def fieldcell(self, field, _as=None, name=None, width=None, dtype=None, classes=None, cellClasses=None, headerClasses=None, **kwargs):
+    def fieldcell(self, field, _as=None, name=None, width=None, dtype=None, 
+                  classes=None, cellClasses=None, headerClasses=None, zoom=False, **kwargs):
         tableobj = self.tblobj
         fldobj = tableobj.column(field)
         
         name = name or fldobj.name_long
         dtype = dtype or fldobj.dtype
         width = width or '%iem' % fldobj.print_width
+        if zoom:
+            zoomtbl=fldobj.table
+            relfld=field.split('.')[0]
+            if relfld.startswith('@'):
+                relfld=relfld[1:]
+                zoomtbl=tableobj.column(relfld).relatedTable()
+                kwargs['zoomPkey']=relfld
+            if hasattr(zoomtbl.dbtable,'zoomUrl'):
+                zoomPage=zoomtbl.dbtable.zoomUrl()
+            else:
+                zoomPage=zoomtbl.fullname.replace('.','/')
+            kwargs['zoomPage']=zoomPage
         return self.cell(field=_as or field, name=name, width=width, dtype=dtype, 
                           classes=classes, cellClasses=cellClasses, headerClasses=headerClasses, **kwargs)
      
