@@ -618,6 +618,7 @@ class DbTableObj(DbModelObj):
         Eg:@director_id.name
         """
         col = None
+        colalias = None
         if name.startswith('$'):
             name = name[1:]
         if not name.startswith('@'):
@@ -634,7 +635,14 @@ class DbTableObj(DbModelObj):
                     else:
                         raise GnrSqlMissingColumn('Invalid column %s in table %s' % (name, self.name_full))
         if name.startswith('@'):
-            col = self._relatedColumn(name)
+            relcol = self._relatedColumn(name)
+            if colalias is not None:
+                mixedattributes=dict(relcol.attributes)
+                mixedattributes.update(colalias.attributes)
+                col=relcol
+                col.attributes=mixedattributes
+            else:
+                col=relcol
         #if col == None:
         #    raise 'Missing column %s' % name
         return col
