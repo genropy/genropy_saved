@@ -638,7 +638,10 @@ class DbTableObj(DbModelObj):
             relcol = self._relatedColumn(name)
             if colalias is not None:
                 mixedattributes=dict(relcol.attributes)
-                mixedattributes.update(colalias.attributes)
+                colalias_attributes=dict(colalias.attributes)
+                colalias_attributes.pop('tag')
+                colalias_attributes['original_relation_path']=colalias_attributes.pop('relation_path')
+                mixedattributes.update(colalias_attributes)
                 col=relcol
                 col.attributes=mixedattributes
             else:

@@ -821,11 +821,32 @@ class GnrGridStruct(GnrStructData):
         width = width or '%iem' % fldobj.print_width
         if zoom:
             zoomtbl=fldobj.table
-            relfld=field.split('.')[0]
-            if relfld.startswith('@'):
-                relfld=relfld[1:]
-                zoomtbl=tableobj.column(relfld).relatedTable()
-                kwargs['zoomPkey']=relfld
+            print x
+            if not field.startswith('@'):
+                if 'original_relation_path' in fldobj.attributes:
+                    field = fldobj.attributes['original_relation_path']
+            relfldlst=field.split('.')
+            if len(relfldlst)>1:
+                if zoom is True:
+                    zoom = relfldlst[-2][1:]
+                #if zoom is True and len(relfldlst)>1:
+                #    print relfldlst
+                #    zoom = relfldlst[-2]
+                #    if zoom.startswith('@'):
+                #        zoom = zoom[1:]
+                #    print zoom
+               #if zoom is True:
+               #    relfld=relfldlst[0]
+               #    if relfld.startswith('@'):
+               #        relfld=relfld[1:]
+               #        zoomtbl=tableobj.column(relfld).relatedTable()
+               #        kwargs['zoomPkey']='%s' %relfld
+               # else:
+                ridx = relfldlst.index('@%s'% zoom)
+                fldbase='.'.join(relfldlst[0:ridx+1])
+                zoomtbl = tableobj.column(fldbase).parent
+                relfldlst[ridx]=relfldlst[ridx][1:]
+                kwargs['zoomPkey']='.'.join(relfldlst[0:ridx+1])      
             if hasattr(zoomtbl.dbtable,'zoomUrl'):
                 zoomPage=zoomtbl.dbtable.zoomUrl()
             else:

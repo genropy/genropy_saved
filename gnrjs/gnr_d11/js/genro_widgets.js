@@ -42,9 +42,13 @@ gnr.columnsFromStruct = function(struct, columns){
                 if ((!stringStartsWith(fld,'$')) && (!stringStartsWith(fld,'@'))){
                     fld = '$'+fld;
                 }
-                columns.push(fld);
+                arrayPushNoDup(columns,fld);
                 if (node.attr.zoomPkey){
-                    columns.push('$'+node.attr.zoomPkey);
+                    var zoomPkey=node.attr.zoomPkey
+                    if ((!stringStartsWith(zoomPkey,'$')) && (!stringStartsWith(zoomPkey,'@'))){
+                        zoomPkey = '$'+zoomPkey;
+                    }
+                    arrayPushNoDup(columns,zoomPkey);
                 }
             }
 
@@ -1599,6 +1603,10 @@ dojo.declare("gnr.widgets.Grid",gnr.widgets.baseDojo,{
                 }
                 if(zoomPage){
                     var zoomPkey=opt['zoomPkey'];
+                    if (zoomPkey){
+                        zoomPkey = zoomPkey.replace('$','');
+                        zoomPkey = zoomPkey.replace(/\W/g,'_');
+                    }
                     var key=this.grid.currRenderedRow[zoomPkey? zoomPkey : this.grid._identifier];
                     v = "<a class='gnrzoomcell' href='/"+zoomPage+"?pkey="+key+"'>"+v+"</a>";
                 }

@@ -54,6 +54,11 @@ function arrayIndexOf(arr,item){
         }
         return -1;
 }
+function arrayPushNoDup(arr,item){
+    if (dojo.indexOf(arr,item)<0) {
+        arr.push(item);
+    };
+}
 
 //funzione di utilità per una split insensibile al punto 
 function smartsplit(/*string*/path, /*string*/on)
