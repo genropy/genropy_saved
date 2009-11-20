@@ -283,20 +283,22 @@ class Public(BaseComponent):
 
     def thermoDialog(self, pane, thermoid='thermo', title='', thermolines=1, fired=None, alertResult=False):
         dlgid = 'dlg_%s' % thermoid
-        d = pane.dialog(nodeId=dlgid, title=title, width='27em',height='50ex',datapath='_thermo.%s.result' % thermoid, 
+        dlg = pane.dialog(nodeId=dlgid, title=title,datapath='_thermo.%s.result' % thermoid, 
                         closable='ask', close_msg='!!Stop the batch execution ?', close_confirm='Stop', close_cancel='Continue', 
                         close_action='FIRE ^_thermo.%s.flag = "stop"' % thermoid,
                         connect_show='this.intervalRef = setInterval(function(){genro.fireEvent("_thermo.%s.flag")}, 500)' % thermoid,
                         connect_hide='clearInterval(this.intervalRef);')
                         #onAskCancel
-        
+        bc=dlg.borderContainer(width='300px', height='%ipx' %(100+thermolines*40) )
+        footer=bc.contentPane(region='bottom', _class='dialog_bottom')
+        body=bc.contentPane(region='center')
         for x in range(thermolines):
-            tl = d.div(datapath='.t%i' % (x+1, ), border_bottom='1px solid gray', margin_bottom='3px')
+            tl = body.div(datapath='.t%i' % (x+1, ), border_bottom='1px solid gray', margin_bottom='3px')
             tl.div('^.message', height='1em', text_align='center')
             tl.progressBar(width='25em', indeterminate='^.indeterminate', maximum='^.maximum', 
                           places='^.places', progress='^.progress', margin_left='auto', margin_right='auto')
                           
-        d.div(width='100%', height='3ex').div(margin='auto').button('Stop', 
+        footer.button('Stop', baseClass='bottom_btn',
                 action='genro.wdgById("%s").onAskCancel();' % dlgid)
         pane.dataController('genro.wdgById(dlgid).show()', dlgid=dlgid, fired=fired)
         pane.dataController('console.log(dlgid)', dlgid=dlgid, fired=fired)
