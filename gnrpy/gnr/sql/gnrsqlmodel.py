@@ -365,7 +365,7 @@ class DbModelSrc(GnrStructData):
         """
         return self.setItem('relation', self.__class__(), related_column=related_column, mode=mode, 
                               one_name= one_name,  many_name= many_name, one_one=one_one, child=child,
-                             one_group=one_group, many_group=many_group, deferred=deferred,
+                             one_group=one_group, many_group=many_group, deferred=deferred, onUpdate=onUpdate, onDelete=onDelete,
                              eager_one=eager_one, eager_many=eager_many, onUpdate_sql=onUpdate_sql, onDelete_sql=onDelete_sql,
                              **kwargs)
 
