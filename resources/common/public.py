@@ -301,8 +301,6 @@ class Public(BaseComponent):
         footer.button('Stop', baseClass='bottom_btn',
                 action='genro.wdgById("%s").onAskCancel();' % dlgid)
         pane.dataController('genro.wdgById(dlgid).show()', dlgid=dlgid, fired=fired)
-        pane.dataController('console.log(dlgid)', dlgid=dlgid, fired=fired)
-        
         pane.dataController('genro.wdgById(dlgid).hide();', dlgid=dlgid, 
                             status='^_thermo.%s.result.status' % thermoid, _if='(status=="stopped" || status=="end")')
         if alertResult:
