@@ -20,7 +20,7 @@ class PrintUtils(BaseComponent):
                         resultpath='.print_result',
                         thermoParams=None,docName=None,rebuild=True,
                         gridId='maingrid',batch_class=None,**kwargs):
-             
+        table = table or self.maintable
         selectedRowidx = None           
         if not batch_class:
             if recordId:
@@ -38,10 +38,11 @@ class PrintUtils(BaseComponent):
                 kwargs.pop(k)        
         self.printOptDialog(pane,name,datapath,dlgPars=dlgPars,parameters_cb=parameters_cb)
         controller = pane.dataController(datapath=datapath)
-        controller.dataController("FIRE .run = 'print';",_if='cachedPrinterParams.getItem("printer_name")',
+        controller.dataController("console.log(cachedPrinterParams); FIRE .run = 'print';",_if='cachedPrinterParams.getItem("printer_name")',
                                 cachedPrinterParams="=_clientCtx.printerSetup.%s" %name,
                                 _fired='^.print',_else='genro.dlg.alert(msg,title)',
                                 msg='!!No printer selected',title='!!Warning')
+                                
         self.buildBatchRunner(controller, 
                               batch_class=batch_class, 
                               table=table,
@@ -86,6 +87,7 @@ class PrintUtils(BaseComponent):
                         action="""  FIRE .hide;
                                     var currPrinterOpt = GET .printer.params;
                                     SET _clientCtx.printerSetup.%s = currPrinterOpt.deepCopy(); 
+                                    console.log('pre stampa');
                                     FIRE .print; 
                                     """ %name)
         tc_opt = bc.tabContainer(region='center',margin='5px')
