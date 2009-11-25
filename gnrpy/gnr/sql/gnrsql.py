@@ -39,6 +39,8 @@ from gnr.sql.gnrsql_exceptions import GnrSqlException,GnrSqlExecutionException,\
 
 import thread
 
+IN_OPERATOR_PATCH=re.compile(r'\s\S+\sIN\s\(\)')
+
 class GnrSqlDb(GnrObject):
     """
        This is the main class of the gnrsql module.
@@ -157,6 +159,7 @@ class GnrSqlDb(GnrObject):
     connection = property(_get_connection)
     
     def execute(self, sql, sqlargs=None, cursor=None, cursorname=None, autocommit=False):
+        
         """Execute the sql statement using given kwargs"""
         # transform list and tuple parameters in named values.
         # Eg.   WHERE foo IN:bar ----> WHERE foo in (:bar_1, :bar_2..., :bar_n)
@@ -166,7 +169,8 @@ class GnrSqlDb(GnrObject):
             sqlargs.pop(k)
             sqlargs.update(dict([('%s%i' % (k, i), ov) for i, ov in enumerate(v)]))
             sql = re.sub(':%s(\W|$)' % k, sqllist , sql)
-            
+        sql = re.sub(IN_OPERATOR_PATCH,' FALSE', sql)
+
         sql, sqlargs = self.adapter.prepareSqlText(sql, sqlargs)
         #gnrlogger.info('Executing:%s - with kwargs:%s \n\n',sql,unicode(kwargs))
         
