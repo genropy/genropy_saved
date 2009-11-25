@@ -1174,11 +1174,8 @@ class GnrBaseWebPage(GnrObject):
             getattr(self, m)()
         self.onMain()
     
-    def pageController(self,datapath=None):
-        controller = self.pageSource()
-        if datapath:
-            controller = controller.dataController(datapath=datapath)
-        return controller
+    def pageController(self,**kwargs):
+        return self.pageSource().dataController(**kwargs)
 
     def pageSource(self, nodeid=None):
         if nodeid:
