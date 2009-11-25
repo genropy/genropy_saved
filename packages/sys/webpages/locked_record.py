@@ -31,8 +31,7 @@ class GnrCustomWebPage(object):
       
         
         
-    def lstBase(self):
-        struct = self.newGridStruct()
+    def lstBase(self,struct):
         r = struct.view().rows()
         r.fieldcell('id')
         r.fieldcell('lock_ts')

@@ -21,12 +21,11 @@ class GnrCustomWebPage(object):
         self.dbform.simpleTableManager(root, table='assopy.ordine_riga')
         
 
-    def lstBase(self):
-        lst=Bag()
-        r=lst.child('view').child('rows')
-        r.child('cell',field='numero_riga',width='2em',name='Numero')
-        r.child('cell',field='tipo',width='7em',name='Tipo')
-        r.child('cell',field='prezzo',width='4em',name='Prezzo')
+    def lstBase(self,struct):
+        r = struct.view().rows()
+        r.fieldcell('numero_riga',width='2em',name='Numero')
+        r.fieldcell('tipo',width='7em',name='Tipo')
+        r.fieldcell('prezzo',width='4em',name='Prezzo')
 
         return lst
 

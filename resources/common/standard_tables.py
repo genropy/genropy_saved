@@ -52,8 +52,7 @@ class TableHandler(BaseComponent):
     def columnsBase(self):
         return ''
     
-    def lstBase(self,):
-        struct = self.newGridStruct()
+    def lstBase(self, struct):
         r=struct.view().rows()
         r.fields(self.columnsBase())
         return struct
@@ -309,7 +308,7 @@ class TableHandler(BaseComponent):
         if self.tblobj.logicalDeletionField:
             delprefpane = toolboxPane.contentPane(region='bottom',height='20px',background_color='lightgray', _class='pbl_roundedGroup', margin='3px')
             delprefpane.checkbox(value='^aux.showDeleted', label='!!Show hidden records')
-            delprefpane.dataController("""SET list.excludeLogicalDeleted =!showDeleted;""",showDeleted='^aux.showDeleted')
+            delprefpane.dataController("""SET list.excludeLogicalDeleted = showDeleted? 'mark':true;""",showDeleted='^aux.showDeleted')
         self.toolboxFields(toolboxPane.contentPane(region='top',height='50%',splitter=True))
         toolboxPane = toolboxPane.tabContainer(region='center', selected='^list.selectedLeft',margin='5px',margin_top='10px')
         self.toolboxQueries(toolboxPane.borderContainer(title='',tip='!!Queries',iconClass='icnBaseLens'))
@@ -866,7 +865,7 @@ class TableHandler(BaseComponent):
     
     def rpc_new_view(self, filldefaults=False, **kwargs):
         if filldefaults:
-            result=self.lstBase()
+            result=self.lstBase(self.newGridStruct())
         else:
             result = self.newGridStruct()
             result.view().rows()

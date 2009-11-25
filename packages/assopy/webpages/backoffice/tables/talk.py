@@ -33,7 +33,7 @@ class GnrCustomWebPage(object):
     def barTitle(self):
         return '!!Gestione Talks'
     
-    def lstBase(self):
+    def lstBase(self,struct):
         struct = self.newGridStruct()
         r=struct.view().rows(classes='tablewiew_grid',cellClasses='tablewiew_cells',headerClasses='tablewiew_headers')
         r.cell('@oratore_id.@anagrafica_id.@utente_id.nome_cognome',width='15em',name='Oratore')
@@ -44,8 +44,7 @@ class GnrCustomWebPage(object):
         
         return struct
     
-    def lstBase_full(self):
-        struct = self.newGridStruct()
+    def lstBase_full(self,struct):
         view=struct.view()
         rows1=view.rows(classes='tablewiew_grid',cellClasses='talk_cell_row1 tablewiew_cells',headerClasses='tablewiew_headers')
         rows1.cell('@oratore_id.@anagrafica_id.@utente_id.nome_cognome',width='15em',name='Oratore')

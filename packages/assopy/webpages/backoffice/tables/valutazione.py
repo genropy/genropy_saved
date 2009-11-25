@@ -25,8 +25,7 @@ class GnrCustomWebPage(object):
     def barTitle(self):
         return '!!Gestione Valutazioni'
         
-    def lstBase(self):
-        struct = self.newGridStruct()
+    def lstBase(self,struct):
         r=struct.view().rows(classes='lst_grid',cellClasses='lst_grid_cells',headerClasses='lst_grid_headers')
         r.fields("""@socio_id.nome_cognome/Socio:12,@talk_id.codice/Talk:9,voto:3""")
         return struct   

@@ -415,14 +415,15 @@ class SqlQueryCompiler(object):
         #if excludeLogicalDeleted==True we have additional conditions in the where clause
         logicalDeletionField = self.tblobj.logicalDeletionField
         if logicalDeletionField:
-            if excludeLogicalDeleted:
+            if excludeLogicalDeleted==True:
                 extracnd = 't0.%s IS NULL' % logicalDeletionField
                 if where:
                     where = '%s AND %s' % (extracnd,where)
                 else:
                     where = extracnd
-            elif not (aggregate or count):
-                columns = '%s, t0.%s AS _isdeleted' % (columns, logicalDeletionField)
+            elif excludeLogicalDeleted=='mark':
+                if not (aggregate or count):
+                    columns = '%s, t0.%s AS _isdeleted' % (columns, logicalDeletionField)
         
         # add a special joinCondition for the main selection, not for JOINs
         if self.joinConditions:

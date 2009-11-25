@@ -25,8 +25,7 @@ class GnrCustomWebPage(object):
     def barTitle(self):
         return '!!Message'
         
-    def lstBase(self):
-        struct = self.newGridStruct()
+    def lstBase(self,struct):
         r = struct.view().rows()
         r.fieldcell('datetime',width='7em')
         r.fieldcell('expiry',width='7em')

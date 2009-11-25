@@ -25,8 +25,7 @@ class GnrCustomWebPage(object):
     def barTitle(self):
         return '!!Connection'
         
-    def lstBase(self):
-        struct = self.newGridStruct()
+    def lstBase(self,struct):
         r = struct.view().rows()
         r.fieldcell('username',width='10em',name='Username')
         r.fieldcell('user_fullname',width='10em',name='User name')
