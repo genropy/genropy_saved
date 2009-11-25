@@ -231,3 +231,16 @@ class Fake(GnrBatch):
             
     def collect_result(self):
         pass
+##################################
+
+class ProgressThermo(object):
+    def __init__(self, name,lines=None,**kwargs):
+        
+        self.name = name
+        self.lines = lines or Bag()
+        self.lines.update(dict([(k[8:],dict(maximum=v)) for k,v in kwargs.items() if k.startswith('maximum_')]))
+
+    def setLine(self,line,**kwargs):
+        self.lines[line].update(kwargs)
+        
+        
