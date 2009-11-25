@@ -129,7 +129,6 @@ class PrintHandler(object):
     def getPrinterAttributes(self, printer_name):
         cups_connection = cups.Connection()
         printer_attributes = cups_connection.getPrinterAttributes(printer_name)
-        print printer_attributes
         attributesBag = Bag()
         for i,(media,description) in enumerate(self.paper_size.items()):
             if media in printer_attributes['media-supported']:
