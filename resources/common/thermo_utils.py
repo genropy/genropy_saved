@@ -9,15 +9,17 @@ class ThermoUtils(BaseComponent):
     
     setThermo('pippo','fatture',progress_fatture=20,message='Stampo xxx')
     setThermo('pippo',progress_1=21,message_1='Pippo')
-    def initThermo(self, name, lines='pippo,pluto,paperino'):
+    def initThermo(self, name, lines='pippo,pluto,paperino', maximum_pippo=100,progress_pippo='+s',message_pippo='', step_pippo=5):
         thermoBag = Bag()
         session.setInPageData('thermo.%s' % name, thermoBag)
         session.saveSessionData()
         
-    setThermo(self,name,thermo_pippo=dict(progress=20,message='progresso'))
+    setThermo(self,name,thermo_pippo=dict(progress_p=20,message='progresso'),thermo_pluto=dict(progress=20,message='progresso'))
     
-    def setThermo(self, thermoid, progress_1=None, message_1=None, 
-                   maximum_1=None, command=None, **kwargs):
+    stepThermo('pippo', step_fatture='')
+    stepThermo('pippo.fatture',message='')
+    
+    def setThermo(self, name, **kwargs):
         session = self.page.session
         session.loadSessionData()
         if command == 'init':

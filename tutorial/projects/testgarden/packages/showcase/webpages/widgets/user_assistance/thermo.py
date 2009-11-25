@@ -18,29 +18,13 @@ from gnr.web.gnrwebpage import GnrWebPage
 # --------------------------- GnrWebPage subclass ---------------------------
 class GnrCustomWebPage(object):
     def main(self, root,cols='3', **kwargs):        
-        lc = root.layoutContainer(height='100%')
-        top = lc.contentPane(layoutAlign='top', height='10em', background_color='whitesmoke')
-        main = lc.contentPane(layoutAlign='client', background_color='white')
-        bottom = lc.contentPane(gnrId='bottom', layoutAlign='bottom', height='10em', background_color='green')
-        
-        self.thermo(bottom, thermoid='untermometro', title='Termometro inutile', thermolines=3)
-        
-        
-        trmbtn = top.button("Thermo Start", gnrId='trmbtn', action="""
-        genro.setData('start_operazioneLunga', null);
-        genro.publish('start_untermometro');
-        """)
-        
-        trmbtn.dataRpc('operazioneLunga', 'operazioneLunga', upd='^start_operazioneLunga')
-        top.div('^operazioneLunga')
-        
-        
-        
-        bottom.progressBar(width='300px', gnrId='trm', indeterminate='^trm.indet', maximum='^trm.max', places='^trm.places', progress='^trm.progress')
-        
-        bottom.data('trm.max', 20)
-        bottom.data('trm.progress', 5)
-        
+        bc = root.borderContainer(height='100%')
+        top = bc.contentPane(region='top', height='10em', background_color='whitesmoke')
+        bottom = bc.contentPane(nodeId='bottom', region='bottom', height='10em', background_color='green')
+        main = bc.contentPane(region='center', background_color='white')
+        bottom.progressBar(width='300px', gnrId='trm', indeterminate='^trm.indet', 
+                            maximum='^trm.max', places='^trm.places', progress='^trm.progress')
+    
     def thermo(self, where, thermoid='thermo', title='', thermolines=1):
         kwargs = {}
         kwargs['subscribe_start_%s' % thermoid] = """
@@ -59,6 +43,45 @@ class GnrCustomWebPage(object):
             setTimeout(dojo.hitch(this, 'refreshThermo'), 1000);
             this.show(); 
             """ % (thermoid, thermoid)
+
+    def rpc_operazioneLunga(self):
+        import time
+        self.setThermo('untermometro', 0, 'messaggio bello' , maximum_1=10, maximum_2=10, maximum_3=10)
+        
+        for x in range(10):
+            stop = self.setThermo('untermometro', x, 'messaggio bello %i' % x)
+            if stop: 
+                self.setThermo('untermometro', end=True)
+                return "stopped"
+            
+            for y in range(10):
+                self.setThermo('untermometro', progress_2=y, message_2='messaggio medio %i' % y)
+                for z in range(10):
+                    self.setThermo('untermometro', progress_3=z, message_3='messaggio brutto %i' % z)
+                    
+                    time.sleep(0.1)
+        self.setThermo('untermometro', end=True)
+        return "finito"
+                
+    def pizzetto(self):
+        self.thermo(bottom, thermoid='untermometro', title='Termometro inutile', thermolines=3)
+        
+        
+        trmbtn = top.button("Thermo Start", gnrId='trmbtn', action="""
+                                genro.setData('start_operazioneLunga', null);
+                                genro.publish('start_untermometro');
+                            """)
+        
+        trmbtn.dataRpc('operazioneLunga', 'operazioneLunga', upd='^start_operazioneLunga')
+        top.div('^operazioneLunga')
+        
+        
+        
+        
+        bottom.data('trm.max', 20)
+        bottom.data('trm.progress', 5)
+        
+
         
         d = where.dialog(title=title, width='27em', datapath='_thermo.%s' % thermoid, closable=False, **kwargs)
         
@@ -111,27 +134,7 @@ class GnrCustomWebPage(object):
         thermoBag.toXml(self.pageLocalDocument('thermo_%s' % thermoid), autocreate=True)
         return thermoBag['stop']
         
-    def rpc_operazioneLunga(self):
-        import time
-        self.setThermo('untermometro', 0, 'messaggio bello' , maximum_1=10, maximum_2=10, maximum_3=10)
-        
-        for x in range(10):
-            stop = self.setThermo('untermometro', x, 'messaggio bello %i' % x)
-            if stop: 
-                self.setThermo('untermometro', end=True)
-                return "stopped"
-            
-            for y in range(10):
-                self.setThermo('untermometro', progress_2=y, message_2='messaggio medio %i' % y)
-                for z in range(10):
-                    self.setThermo('untermometro', progress_3=z, message_3='messaggio brutto %i' % z)
-                    
-                    time.sleep(0.1)
-                    
-                    
-                    
-        self.setThermo('untermometro', end=True)
-        return "finito"
+
         
 
 

@@ -15,6 +15,19 @@ from gnr.core.gnrlang import gnrImport
 
 class BatchRunner(BaseComponent):
     
+##################### new stuff ###################
+
+    #py_requires='thermo_utils:ThermoUtils'
+    def buildBatch(self, name,datapath=None,**kwargs):
+        controller = self.pageController(datapath=datapath,nodeId=name)
+        controller.dataRpc('.result','runBatch',_fired='^.run',timeout=0,_POST=True,**kwargs)
+        # FIRE #mybatch.run
+    
+    
+##################### old stuff###################
+    
+    
+    
     def buildBatchRunner(self, pane, resultpath='aux.cmd', 
                          selectionName=None,selectedRowidx=None,recordId=None, 
                          fired=None, batch_class=None,
@@ -27,14 +40,12 @@ class BatchRunner(BaseComponent):
            @param rpc: is used instead of batchFactory. The name of the custum rpc you can use for the batch
                        for every selected row.
         """
-            
-        
         thermoParams = thermoParams or dict()
         thermoid = None
         if 'field' in thermoParams:
             thermoid = self.getUuid()
-            #self.thermoDialog(pane, thermoid=thermoid, title=thermoParams.get('title', 'Batch Running'),
-            #                thermolines=thermoParams.get('lines',1), fired='^.openthermo', alertResult=True)
+            self.thermoDialog(pane, thermoid=thermoid, title=thermoParams.get('title', 'Batch Running'),
+                            thermolines=thermoParams.get('lines',1), fired='^.openthermo', alertResult=True)
         pane.dataRpc('%s.result' % resultpath, 'runBatch', timeout=0, _POST=True,
                      table=kwargs.pop('table', self.maintable), selectionName=selectionName,
                      recordId = recordId,
@@ -42,7 +53,7 @@ class BatchRunner(BaseComponent):
                      thermofield=thermoParams.get('field'), thermoid = thermoid,
                      selectedRowidx =selectedRowidx,
                      _fired=fired, _onResult=endScript,
-                     forUpdate=forUpdate, _onCalling='FIRE .openthermo',**kwargs)
+                     forUpdate=forUpdate, _onCalling='console.log("call thermo");FIRE .openthermo',**kwargs)
         dlgid = self.getUuid()
         pane.dataController('genro.wdgById(dlgid).show()', _if='errors',
                             dlgid=dlgid, errors='^%s.errors' % resultpath)
@@ -65,7 +76,7 @@ class BatchRunner(BaseComponent):
             """
         tblobj = self.db.table(table)  
 
-        if recordId and recordId!='*':
+        if recordId:
             data = tblobj.record(pkey=recordId,ignoreMissing=True).output('bag')
         else:    
             data = self.unfreezeSelection(tblobj, selectionName)

@@ -220,9 +220,9 @@ class Public(BaseComponent):
 
     def pbl_bottomBar(self,bottom):
         """docstring for publicTitleBar"""
-        left = bottom.contentPane(region='left',width='25%', overflow='hidden')
-        right = bottom.contentPane(region='right', width='25%', overflow='hidden')
-        center = bottom.contentPane(region='center')
+        left = bottom.contentPane(region='left',width='25%', overflow='hidden',nodeId='pbl_bottomBarLeft')
+        right = bottom.contentPane(region='right', width='25%', overflow='hidden',nodeId='pbl_bottomBarRight')
+        center = bottom.contentPane(region='center',nodeId='pbl_bottomBarCenter')
         center.div('^pbl.bottomMsg', _class='pbl_messageBottom', nodeId='bottomMsg')
         
         right.dataScript('gnr.localizerClass',"""return 'localizer_'+status""", 
@@ -283,12 +283,13 @@ class Public(BaseComponent):
 
     def thermoDialog(self, pane, thermoid='thermo', title='', thermolines=1, fired=None, alertResult=False):
         dlgid = 'dlg_%s' % thermoid
-        dlg = pane.dialog(nodeId=dlgid, title=title,datapath='_thermo.%s.result' % thermoid, 
+        dlg = pane.dialog(nodeId=dlgid, title=title,datapath='_thermo.%s.result' % thermoid,
                         closable='ask', close_msg='!!Stop the batch execution ?', close_confirm='Stop', close_cancel='Continue', 
                         close_action='FIRE ^_thermo.%s.flag = "stop"' % thermoid,
                         connect_show='this.intervalRef = setInterval(function(){genro.fireEvent("_thermo.%s.flag")}, 500)' % thermoid,
                         connect_hide='clearInterval(this.intervalRef);')
                         #onAskCancel
+        print dlg
         bc=dlg.borderContainer(width='330px', height='%ipx' %(100+thermolines*40) )
         footer=bc.contentPane(region='bottom', _class='dialog_bottom')
         body=bc.contentPane(region='center')
@@ -300,7 +301,7 @@ class Public(BaseComponent):
                           
         footer.button('Stop', baseClass='bottom_btn',
                 action='genro.wdgById("%s").onAskCancel();' % dlgid)
-        pane.dataController('genro.wdgById(dlgid).show()', dlgid=dlgid, fired=fired)
+        pane.dataController('console.log("open thermo %s");genro.wdgById("%s").show()' %(dlgid,dlgid), fired=fired)
         pane.dataController('genro.wdgById(dlgid).hide();', dlgid=dlgid, 
                             status='^_thermo.%s.result.status' % thermoid, _if='(status=="stopped" || status=="end")')
         if alertResult:
@@ -1161,12 +1162,19 @@ class RecordToHtmlFrame(BaseComponent):
         rpc_args={}
         for k,v in kwargs.items():
             rpc_args['rpc_%s'%k]=v
-        center = bc.borderContainer(region='center', background_color=background_color)
+            
+        center = bc.stackContainer(region='center', background_color=background_color,selected='^%s.selectedPane' %controllerPath)
+        loadingPane = center.contentPane(_class='waiting')
+        iframePane = center.contentPane(overflow='hidden')
+
         if enableConditionPath:
-            enableCondition = '^%s' % enableConditionPath
+            enableCondition = '=%s' % enableConditionPath
+            center.dataController("SET %s.selectedPane= 0; FIRE %s.load;" %(controllerPath,controllerPath),_fired='^%s' % enableConditionPath)
         else:
             enableCondition  = None
-        frame = center.iframe(nodeId=frameId,
+        center.dataController("SET %s.selectedPane= 0; FIRE %s.load;" %(controllerPath,controllerPath),_fired='^%s' % pkeyPath)
+
+        frame = iframePane.iframe(nodeId=frameId,
                               border='0px',
                               height='100%',
                               width='100%',
@@ -1179,9 +1187,10 @@ class RecordToHtmlFrame(BaseComponent):
                               rpc_table = table,
                               rpc_respath=respath,
                               #rpc_rebuild='=%s.noCache' % controllerPath,
+                              onLoad='genro.setData("%s.selectedPane", 1);' %controllerPath,
                               rpc_rebuild=True,
                               _print='^%s.print' % controllerPath,
-                              _reloader='^%s' % pkeyPath,
+                              _reloader='^%s.load' %controllerPath,
                               _if=enableCondition,
                               **rpc_args)
     

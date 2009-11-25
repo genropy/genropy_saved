@@ -385,7 +385,7 @@ dojo.declare('gnr.GenroClient', null, {
         genro.download("",{table:table, pkey:pkey, template:template, method:"app.recordToPDF",mode:'text'});
     },
     rpcDownload: function(method, kwargs, onload_cb){
-        
+        console.log(method)
         genro.download('',genro.rpc.getRpcUrlArgs(method, kwargs), onload_cb);
         
     },

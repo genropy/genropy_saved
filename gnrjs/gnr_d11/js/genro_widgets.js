@@ -313,7 +313,7 @@ dojo.declare("gnr.widgets.baseHtml",null,{
 
 dojo.declare("gnr.widgets.iframe",gnr.widgets.baseHtml,{
     creating:function(attributes, sourceNode){
-        sourceNode.savedAttrs = objectExtract(attributes,'rowcount,tableid,src,rpcCall');
+        sourceNode.savedAttrs = objectExtract(attributes,'rowcount,tableid,src,rpcCall,onLoad');
         var condFunc= objectPop(attributes,'condition_function');
         var condValue= objectPop(attributes,'condition_value');
         if (condFunc){
@@ -335,6 +335,10 @@ dojo.declare("gnr.widgets.iframe",gnr.widgets.baseHtml,{
                 genro.setData(rowcount, nlines);
             });
             dojo.connect(newobj, 'onload', fnc);
+
+        }
+        if (savedAttrs.onLoad){
+            dojo.connect(newobj, 'onload', funcCreate(savedAttrs.onLoad));
         }
         this.setSrc(newobj, savedAttrs.src);
     },
@@ -347,6 +351,7 @@ dojo.declare("gnr.widgets.iframe",gnr.widgets.baseHtml,{
             params=objectExtract(attributes,'rpc_*', true);
             params.mode= params.mode? params.mode:'text';
             return genro.remoteUrl(attributes['rpcCall'],params, sourceNode, false);
+            
         }
     },
     set_print:function(domnode,v,kw){
