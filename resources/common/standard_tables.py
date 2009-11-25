@@ -18,6 +18,7 @@ from gnr.sql.gnrsql_exceptions import GnrSqlException,GnrSqlSaveChangesException
 from gnr.core.gnrbag import Bag
 
 class TableHandler(BaseComponent):
+    py_requires=''
     css_requires = 'standard_tables'
     js_requires = 'standard_tables'
     
@@ -304,6 +305,7 @@ class TableHandler(BaseComponent):
         mainbc = pane.borderContainer()
         self.listToolbar(mainbc.contentPane(region='top',_class='sttbl_list_top'))
         bc = mainbc.borderContainer(region='center',design='sidebar',liveSplitters=False,nodeId='gridbc')
+        #left
         toolboxPane = bc.borderContainer(width='250px',region = 'left',_class='toolbox',splitter=True,hidden=True)
         if self.tblobj.logicalDeletionField:
             delprefpane = toolboxPane.contentPane(region='bottom',height='20px',background_color='lightgray', _class='pbl_roundedGroup', margin='3px')
@@ -317,6 +319,7 @@ class TableHandler(BaseComponent):
         toolboxPane.contentPane(title='',tip='!!Mail',iconClass='icnBaseEmail')
         toolboxPane.contentPane(title='',tip='!!Print',iconClass='icnBasePrinter')
         
+        #top
         topStackContainer = bc.stackContainer(region='top',height='20%', splitter=True,hidden=True,selected='^list.selectedTop')
         extendedQueryPane = topStackContainer.contentPane(onEnter='FIRE list.runQuery=true;')
         self.editorPane('query', extendedQueryPane, datapath='list.query.where')
@@ -329,6 +332,7 @@ class TableHandler(BaseComponent):
         fb.textbox(lbl='Background', value='^.?background_color')
         self.editorPane('view', ve_editpane, datapath='list.view.structure')
         self.listBottomPane(bc,region='bottom')
+        #center
         st = bc.stackContainer(region='center',datapath='list.grid', margin='5px',
                                      nodeId='_gridpane_', selected='^list.gridpage')
         self.gridPane(st)
@@ -432,11 +436,15 @@ class TableHandler(BaseComponent):
         return struct
     
     def gridPane(self,pane):
-        if self.hierarchicalViewConf():
+        stats_main = getattr(self,'stats_main',None)
+        if self.hierarchicalViewConf() or stats_main:
             tc = pane.tabContainer()
             gridpane =  tc.contentPane(title='!!Standard view')
-            treepane =  tc.contentPane(title='!!Hierarchical view', datapath='list')
-            self.treePane(treepane)
+            if self.hierarchicalViewConf():
+                treepane =  tc.contentPane(title='!!Hierarchical view', datapath='list')
+                self.treePane(treepane)
+            if stats_main:
+                stats_main(tc,datapath='stats',title='!!Statistical view')
         else:
             gridpane = pane
         pane.data('.sorted',self.orderBase())
