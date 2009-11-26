@@ -6,9 +6,13 @@ from gnr.core.gnrbag import Bag
 
 class GnrDboPackage(object):
     def getCounter(self, name, code, codekey, output, 
-                   date=None, phyear=False):
+                   date=None, phyear=False,lastAssigned=None):
         return self.dbtable('counter').getCounter(name=name, pkg=self.name, code=code, codekey=codekey, output=output, 
-                                                date=date, phyear=phyear)
+                                                date=date, phyear=phyear,lastAssigned=lastAssigned)
+    def setCounter(self, name, code, codekey, output, 
+                   date=None, phyear=False,value=0):
+        return self.dbtable('counter').setCounter(name=name, pkg=self.name, code=code, codekey=codekey, output=output, 
+                                                date=date, phyear=phyear,value=value)
                                                 
     def loadUserObject(self, pkg=None, **kwargs):
         return self.dbtable('userobject').loadUserObject(pkg=pkg or self.name, **kwargs)
@@ -124,11 +128,13 @@ class Table_counter(TableBase):
         tbl.column('name', name_long='!!Name')
         tbl.column('counter', 'L', name_long='!!Counter')
         tbl.column('last_used', 'D', name_long='!!Counter')
+        
     def setCounter(self, name, pkg, code, 
                    codekey='$YYYY_$MM_$K', output='$K/$YY$MM.$NNNN', 
                    date=None, phyear=False, value=0):
+                   
         self.getCounter(name,pkg,code,codekey=codekey,output=output,date=date,
-                        phyear=phyear,value=value,lastAssigned=value-1)
+                        phyear=phyear,lastAssigned=value-1)
                         
     def getCounter(self, name, pkg, code, 
                    codekey='$YYYY_$MM_$K', output='$K/$YY$MM.$NNNN', 
@@ -142,7 +148,7 @@ class Table_counter(TableBase):
         @param date: the date of counter attribution.
         @param phyear: phiscal year.
         """
-        
+        print lastAssigned
         ymd = self.getYmd(date, phyear=phyear)
         codekey = '%s_%s' % (pkg, self.counterCode(code, codekey, ymd))
         
