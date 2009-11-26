@@ -16,7 +16,7 @@ class AnalyzingBag(Bag):
                 label = group(row)
             if not isinstance(label, basestring):
                 label = str(label)
-            return label
+            return label.replace('.','_')
                 
         def updateTotals(bagnode, k, row):
             attr = bagnode.getAttr()
