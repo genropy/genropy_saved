@@ -176,7 +176,8 @@ class SqlQueryCompiler(object):
            If the relation is traversed for the first time, it builds the join clause.
            Here case_insensitive relations and joinConditions are addressed.
         """
-        ref = attrs['many_relation'].split('.')[-1]
+        #ref = attrs['many_relation'].split('.')[-1]
+        ref = attrs['many_relation'].split('.',1)[-1] #fix 25-11-09
         newpath = path + [ref]
         pw = tuple(newpath)
         if pw in self.aliases: # if the requested join table is yet added by previous columns
