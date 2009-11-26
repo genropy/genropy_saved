@@ -447,6 +447,8 @@ class RecordToHtml(TableScriptOnRecord):
         attr=datanode.attr
         if value is None:
             value=default
+        if isinstance(value,Bag):
+            return value
         format= format or attr.get('format')
         mask= mask or attr.get('mask')
         return self.toText(value,locale,format, mask, self.encoding)
