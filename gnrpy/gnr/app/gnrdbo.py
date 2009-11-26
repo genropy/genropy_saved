@@ -124,10 +124,15 @@ class Table_counter(TableBase):
         tbl.column('name', name_long='!!Name')
         tbl.column('counter', 'L', name_long='!!Counter')
         tbl.column('last_used', 'D', name_long='!!Counter')
-
+    def setCounter(self, name, pkg, code, 
+                   codekey='$YYYY_$MM_$K', output='$K/$YY$MM.$NNNN', 
+                   date=None, phyear=False, value=0):
+        self.getCounter(name,pkg,code,codekey=codekey,output=output,date=date,
+                        phyear=phyear,value=value,lastAssigned=value-1)
+                        
     def getCounter(self, name, pkg, code, 
                    codekey='$YYYY_$MM_$K', output='$K/$YY$MM.$NNNN', 
-                   date=None, phyear=False):
+                   date=None, phyear=False, lastAssigned=0):
         """
         @param name: counter name
         @param pkg: package: the package involved.
@@ -148,7 +153,7 @@ class Table_counter(TableBase):
             print 'locked %s' % codekey
             record = self.record(codekey, mode='record', for_update=True, ignoreMissing=True)
             if not record:
-                record = self.createCounter(codekey,code, pkg,name)
+                record = self.createCounter(codekey,code, pkg,name,lastAssigned)
             
         counter = record['counter'] + 1
         record['counter'] = counter
@@ -156,13 +161,13 @@ class Table_counter(TableBase):
         self.update(record)
         return self.formatCode(code, output, ymd, counter)
     
-    def createCounter(self,codekey,code,pkg,name):
+    def createCounter(self,codekey,code,pkg,name,lastAssigned):
         record = Bag()
         record['name'] = '%s-%s' % (pkg, name)
         record['code'] = code
         record['pkg'] = pkg
         record['codekey'] = codekey
-        record['counter'] = 0
+        record['counter'] = lastAssigned
         print '---------------INSERTING COUNTER-----%s' % str(codekey)
         self.insert(record)
         return self.record(codekey, mode='record', for_update=True)

@@ -1607,12 +1607,15 @@ dojo.declare("gnr.widgets.Grid",gnr.widgets.baseDojo,{
                     return  '&nbsp;';
                 }
                 if(zoomPage){
+                    window.onlyCommandClick=function(ev){if(!ev.metaKey){dojo.stopEvent(ev);}}
                     var zoomPkey=opt['zoomPkey'];
                     if (zoomPkey){
                         zoomPkey = zoomPkey.replace(/\W/g,'_');
                     }
                     var key=this.grid.currRenderedRow[zoomPkey? zoomPkey : this.grid._identifier];
-                    v = "<a class='gnrzoomcell' href='/"+zoomPage+"?pkey="+key+"'>"+v+"</a>";
+                    //v = "<a onclick='onlyCommandClick(arguments[0])' class='gnrzoomcell' href='/"+zoomPage+"?pkey="+key+"'>"+v+"</a>";
+                    v = "<a onclick='var ev = arguments[0]; if(!ev.metaKey){dojo.stopEvent(ev);}' class='gnrzoomcell' href='/"+zoomPage+"?pkey="+key+"&autoLinkFrom="+genro.page_id+"'>"+v+"</a>";
+
                 }
                 return v;
                 
