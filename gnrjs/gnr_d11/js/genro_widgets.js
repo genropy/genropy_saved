@@ -1658,6 +1658,7 @@ dojo.declare("gnr.widgets.Grid",gnr.widgets.baseDojo,{
                          formats=objectExtract(cell,'format_*');
                          format=objectExtract(cell,'format');
                          var zoomPage=objectPop(cell,'zoomPage');
+                         formats['dtype']=dtype;
                          if (zoomPage)
                             formats['zoomPage']=zoomPage;
                             formats['zoomPkey']=objectPop(cell,'zoomPkey');

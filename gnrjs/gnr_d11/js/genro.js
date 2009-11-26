@@ -274,6 +274,12 @@ dojo.declare('gnr.GenroClient', null, {
            v= dojo.date.locale.format(v,opt);
         }
         else if (typeof(v) == 'number' ){
+            if (!f.places && f.dtype=='L'){
+                f.places=0;
+            }
+            if (!f.pattern && f.places==0){
+                f.pattern= '##########'
+            }
             v = stringStrip(dojo.currency.format(v,f));
         }
         else if (typeof(v) == 'boolean' ){

@@ -167,6 +167,9 @@ class RecordToHtmlNew(TableScriptOnRecord):
             attr = {}
         if value is None:
             value=default
+        elif isinstance(value,Bag):
+            return value
+            
         format= format or attr.get('format')
         mask= mask or attr.get('mask')
         return self.toText(value,locale,format, mask, self.encoding)
@@ -196,7 +199,7 @@ class RecordToHtmlNew(TableScriptOnRecord):
         self.defineStandardStyles()
         self.defineCustomStyles()
         self.doc_height = self.copyHeight() - self.page_header_height - self.page_footer_height
-        self.grid_height = self.doc_height - self.doc_header_height -self.doc_footer_height
+        self.grid_height = self.doc_height - self.calcDocHeaderHeight() -self.doc_footer_height
         self.grid_body_height = self.grid_height -self.grid_header_height - self.grid_footer_height
         for copy in range(self.copies_per_page):
             self.copies.append(dict(grid_body_used=self.grid_height,currPage=-1))
@@ -317,11 +320,15 @@ class RecordToHtmlNew(TableScriptOnRecord):
     def calcGridHeaderHeight(self):
         """override for special needs"""
         return self.grid_header_height
-      
+        
     def calcGridFooterHeight(self):
         """override for special needs"""
         return self.grid_footer_height
-        
+    
+    def calcDocHeaderHeight(self):
+        """override for special needs"""
+        return self.doc_header_height
+      
     def defineCustomStyles(self):
         """override this for custom styles"""
         pass
