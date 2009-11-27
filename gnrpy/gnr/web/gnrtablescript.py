@@ -252,7 +252,7 @@ class RecordToHtmlNew(TableScriptOnRecord):
         if self.page_header_height:
             curr_copy['page_header'] = self.page_layout.row(height=self.page_header_height,lbl_height=4,lbl_class='caption').cell()
         if self.doc_header_height:
-            curr_copy['doc_header'] = self.page_layout.row(height=self.doc_header_height,lbl_height=4,lbl_class='caption').cell()
+            curr_copy['doc_header'] = self.page_layout.row(height=self.calcDocHeaderHeight(),lbl_height=4,lbl_class='caption').cell()
         curr_copy['doc_body'] = self.page_layout.row(height=0,lbl_height=4,lbl_class='caption').cell()
         if self.doc_footer_height:
             curr_copy['doc_footer'] = self.page_layout.row(height=self.doc_footer_height,lbl_height=4,lbl_class='caption').cell()

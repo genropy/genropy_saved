@@ -795,17 +795,23 @@ class Bag(GnrObject):
         
         if not what:
             what = '#k,#v,#a'
-        if ':' in what:
-            where, what = what.split(':')
-            obj=self[where]
+        if isinstance(what,basestring):
+            if ':' in what:
+                where, what = what.split(':')
+                obj=self[where]
+            else:
+                obj=self
+            whatsplit=[x.strip() for x in what.split(',')]
         else:
+            whatsplit = what
             obj=self
         result=[]
         nodes=obj.getNodes(condition)
-        for w in what.split(','):
-            w=w.strip()
+        for w in whatsplit:
             if w=='#k':
                 result.append([x.label for x in nodes])
+            elif callable(w):
+                result.append([w(x) for x in nodes])
             elif w=='#v':
                 result.append([x.value for x in nodes])
             elif w.startswith('#v.'):

@@ -171,7 +171,8 @@ class GnrHtmlBuilder(object):
     styleAttrNames=['height', 'width','top','left', 'right', 'bottom',
                               'visibility', 'overflow', 'float', 'clear', 'display',
                               'z_index', 'border','position','padding','margin',
-                              'color','white_space','vertical_align','background'];
+                              'color','white_space','vertical_align','background', 'text'];
+                              
     def __init__(self,page_height=None,page_width=None,page_debug=False,srcfactory=None,print_button=None,bodyAttributes=None):
         self.srcfactory=srcfactory or GnrHtmlSrc 
         self.page_height = page_height or 280
