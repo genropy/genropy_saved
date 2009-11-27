@@ -179,6 +179,12 @@ class SqlModelChecker(object):
         if tbl.indexes:
             dbindexes = dict([(c['name'], c) for c in self.db.adapter.getIndexesForTable(schema=tbl.sqlschema,table=tbl.sqlname)])
             for idx in tbl.indexes.values():
+                if idx.sqlname.endswith('_idx') and idx.sqlname[0:-4] in dbindexes:
+                    change = self.db.adapter.dropIndex(idx.sqlname[0:-4],sqlschema=tbl.sqlschema)
+                    self.changes.append(change)
+                    tablechanges.append(change)
+                    self.bagChanges.setItem('%s.%s.indexes.%s' % (tbl.pkg.name, tbl.name, idx.sqlname), None, changes=change)
+                    
                 if idx.sqlname in dbindexes:
                     pass
                 else:
