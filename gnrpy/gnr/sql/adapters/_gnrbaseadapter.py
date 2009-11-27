@@ -343,6 +343,13 @@ class SqlDbAdapter(object):
             table = sqltable
         if table in self.listElements('tables', schema=sqlschema):
             self.dbroot.execute('DROP TABLE %s;' % sqltable)
+            
+    def dropIndex(self, index_name, sqlschema=None):
+        """drop an index
+        @param index_name: name of the index (unique in schema)"""
+        if sqlschema:
+            index_name='%s.%s' % (sqlschema,index_name)
+        return "DROP INDEX IF EXISTS %s;" % index_name
     
     def createIndex(self, index_name, columns, table_sql, sqlschema=None, unique=None):
         """create a new index
