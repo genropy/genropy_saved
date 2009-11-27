@@ -131,9 +131,18 @@ class DbModel(object):
                            onUpdate=onUpdate,onUpdate_sql=onUpdate_sql, deferred=deferred, case_insensitive=case_insensitive, eager_one=eager_one,eager_many=eager_many,
                            one_group=one_group, many_group=many_group)
             #print 'The relation %s - %s was added'%(str('.'.join(many_relation_tuple)), str(oneColumn))
+            self.checkRelationIndex(many_pkg, many_table, many_field)
+            self.checkRelationIndex(one_pkg, one_table, one_field)
         except:
             logger.warning('The relation %s - %s cannot be added',str('.'.join(many_relation_tuple)), str(oneColumn))
             #print 'The relation %s - %s cannot be added'%(str('.'.join(many_relation_tuple)), str(oneColumn))
+            
+    def checkRelationIndex(self, pkg, table, column):
+        tblobj=self.table(table,pkg=pkg)
+        indexname = '%s_%s_key' % (table, column)
+        if column != tblobj.pkey and not indexname in tblobj.indexes:
+            tblobj.indexes.children[indexname] = DbIndexObj(parent=tblobj.indexes, attrs=dict(columns=column))
+            
     def load(self, source=None):
         """Load the modelsrc from a xml source
         @param source: xml model (diskfile or text or url)
@@ -894,7 +903,7 @@ class DbTableListObj(DbModelObj):
 class DbIndexObj(DbModelObj):    
     sqlclass="index"
     def _get_sqlname(self):
-        return self.attributes.get('sqlname', '%s_%s' %(self.table.sqlname, self.getAttr('columns').replace(',','_')))
+        return self.attributes.get('sqlname', '%s_%s_idx' %(self.table.sqlname, self.getAttr('columns').replace(',','_')))
     sqlname = property(_get_sqlname)
     
     def _get_table(self):
