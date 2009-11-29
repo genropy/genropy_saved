@@ -44,7 +44,7 @@ gnr.columnsFromStruct = function(struct, columns){
                 }
                 arrayPushNoDup(columns,fld);
                 if (node.attr.zoomPkey){
-                    var zoomPkey=node.attr.zoomPkey
+                    var zoomPkey=node.attr.zoomPkey;
                     if ((!stringStartsWith(zoomPkey,'$')) && (!stringStartsWith(zoomPkey,'@'))){
                         zoomPkey = '$'+zoomPkey;
                     }
@@ -1528,7 +1528,19 @@ dojo.declare("gnr.widgets.Grid",gnr.widgets.baseDojo,{
         }
         return -1;
     },
-    
+    mixin_indexByCb:function(cb,backward){     
+        if (backward){
+            for (var i = this.rowCount - 1; i >= 0; i--){
+                if (cb(this.rowByIndex(i))) {return i;}                   
+            };
+        }
+        else{
+            for (var i=0; i < this.rowCount; i++){
+                if (cb(this.rowByIndex(i))) {return i;} 
+            }
+        }
+        return -1;
+    },
     mixin_selectByRowAttr:function(attrName, attrValue,op){
         var selection=this.selection;
         if (typeof (attrValue)=='object'){
@@ -1607,15 +1619,12 @@ dojo.declare("gnr.widgets.Grid",gnr.widgets.baseDojo,{
                     return  '&nbsp;';
                 }
                 if(zoomPage){
-                    window.onlyCommandClick=function(ev){if(!ev.metaKey){dojo.stopEvent(ev);}}
                     var zoomPkey=opt['zoomPkey'];
                     if (zoomPkey){
                         zoomPkey = zoomPkey.replace(/\W/g,'_');
                     }
                     var key=this.grid.currRenderedRow[zoomPkey? zoomPkey : this.grid._identifier];
-                    //v = "<a onclick='onlyCommandClick(arguments[0])' class='gnrzoomcell' href='/"+zoomPage+"?pkey="+key+"'>"+v+"</a>";
                     v = "<a onclick='var ev = arguments[0]; if(!ev.metaKey){dojo.stopEvent(ev);}' class='gnrzoomcell' href='/"+zoomPage+"?pkey="+key+"&autoLinkFrom="+genro.page_id+"'>"+v+"</a>";
-
                 }
                 return v;
                 

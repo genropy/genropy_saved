@@ -345,9 +345,10 @@ class TableHandler(BaseComponent):
         bottomPane_list = sorted([func_name for func_name in dir(self) if func_name.startswith('bottomPane_')])
         if not bottomPane_list:
             return
-        pane = bc.contentPane(height='27px',font_size='0.9em',background_color='silver',**kwargs)
+        pane = bc.contentPane(height='27px',font_size='0.9em',background_color='silver',datapath='list.bottom',overflow='hidden',**kwargs)
+        fb = pane.formbuilder(cols=15,border_spacing='2px')
         for func_name in bottomPane_list:
-            getattr(self,func_name)(pane)
+            getattr(self,func_name)(fb.div(datapath='.%s' %func_name[11:]))
             
     def editorPane(self, restype, pane, datapath):
         parentdatapath, resname = datapath.rsplit('.', 1)

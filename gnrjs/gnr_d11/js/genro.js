@@ -282,7 +282,7 @@ dojo.declare('gnr.GenroClient', null, {
             }
             v = stringStrip(dojo.currency.format(v,f));
         }
-        else if (typeof(v) == 'boolean' ){
+        else if (typeof(v) == 'boolean' || f.dtype=='B'){
             var divcontent= v? (f['true'] ||(f['trueclass']? '': 'true')) : (f['false'] || (f['falseclass']? '':'false'));
             var divclass= v ? (f['trueclass'] ? f['trueclass']:'') : (f['falseclass'] ? f['falseclass']:''); 
             divclass = divclass? 'class="'+divclass+'"':'';

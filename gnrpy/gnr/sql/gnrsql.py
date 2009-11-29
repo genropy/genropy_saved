@@ -173,7 +173,7 @@ class GnrSqlDb(GnrObject):
 
         sql, sqlargs = self.adapter.prepareSqlText(sql, sqlargs)
         #gnrlogger.info('Executing:%s - with kwargs:%s \n\n',sql,unicode(kwargs))
-        
+        #print 'sql:\n',sql
         try:
             if not cursor:
                 #if not self.connection: self.connection=self.adapter.connect()

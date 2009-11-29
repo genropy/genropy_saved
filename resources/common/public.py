@@ -316,7 +316,6 @@ class Public(BaseComponent):
         dates = []
         dates.append(str(today.year))
         dates.append(str(today.year - 1))
-        
         for k,v in DATEKEYWORDS[self.locale[:2]].items():
             if k != 'to':
                 if isinstance(v,tuple):

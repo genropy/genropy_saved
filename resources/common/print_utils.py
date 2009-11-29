@@ -45,7 +45,7 @@ class PrintUtils(BaseComponent):
                                 msg='!!No printer selected',title='!!Warning',datapath=datapath)
                                 
         pane.dataRpc("dummy","runBatch" ,datapath=datapath,
-                     _onResult='genro.download($1)',
+                     _onResult='if($1){genro.download($1)}',
                      table=table or self.maintable,
                      batch_class=batch_class, 
                      table_resource=table_resource,
@@ -55,7 +55,7 @@ class PrintUtils(BaseComponent):
                      docName=docName,selectedRowidx=selectedRowidx,
                      _fired='^.dlpdf',runKwargs='=.parameters.data') 
                              
-        self.buildBatchRunner(pane.div(datapath=datapath), 
+        self.buildBatchRunner(pane.div(datapath=datapath,display='inline'),
                               batch_class=batch_class, 
                               table=table,
                               table_resource=table_resource,

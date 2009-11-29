@@ -62,7 +62,7 @@ class TableScriptOnRecord(TableScript):
             self._data['kwargs']=Bag()
             for k,v in kwargs.items():
                 self._data['kwargs.%s' % k] = v
-        self.onRecordLoaded(**kwargs)  
+        return self.onRecordLoaded(**kwargs)  
 
     def onRecordLoaded(self,**kwargs):
         pass
@@ -116,8 +116,10 @@ class RecordToHtmlNew(TableScriptOnRecord):
            the html can be loaded from a cached document or created if still doesn't exist.
         """
         if not record:
-            return
-        self.loadRecord(record, **kwargs)
+            return False
+        loadResult=self.loadRecord(record, **kwargs)
+        if loadResult==False:
+            return False
         #if not (dontSave or pdf):
         self.filepath=filepath or os.path.join(self.hmtlFolderPath(),self.outputDocName(ext='html'))
         #else:

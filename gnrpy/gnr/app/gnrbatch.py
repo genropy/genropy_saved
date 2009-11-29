@@ -190,14 +190,17 @@ class PrintDbData(GnrBatch):
         self.file_list = []
         
     def collect_result(self):
-        result = self.print_connection.printFiles(self.file_list, 'GenroPrint', 
-                    storeFolder=self.folder, outputFilePath=self.outputFilePath)
+        result = None
+        if self.file_list:
+            result = self.print_connection.printFiles(self.file_list, 'GenroPrint', 
+                        storeFolder=self.folder, outputFilePath=self.outputFilePath)
         if result:
             return self.page.temporaryDocumentUrl(result)
                      
     def process_chunk(self, chunk, **kwargs):
-        self.htmlMaker(chunk, rebuild=self.rebuild,**kwargs)
-        self.file_list.append(self.htmlMaker.filepath)
+        result = self.htmlMaker(chunk, rebuild=self.rebuild,**kwargs)
+        if result!=False:
+            self.file_list.append(self.htmlMaker.filepath)
     
     def data_fetcher(self):     ##### Rivedere per passare le colonne
         for row in self.data.output('pkeylist'):
