@@ -546,7 +546,7 @@ class GnrBaseWebAppHandler(object):
                             relationDict=None, sqlparams=None, row_start='0', row_count='0',
                             recordResolver=True, selectionName='', structure=False, numberedRows=True,
                             pkeys=None, fromSelection=None, applymethod=None, totalRowCount=False,
-                            selectmethod=None, expressions=None,
+                            selectmethod=None, expressions=None,sum_columns=None,
                             sortedBy=None,excludeLogicalDeleted=True, **kwargs):
         t = time.time()
         #if 'sqlContextName' in kwargs:
@@ -606,6 +606,10 @@ class GnrBaseWebAppHandler(object):
         #ADDED CONDITION AND **KWARGS (PARAMETERS FOR CONDITION)
         if totalRowCount:
             resultAttributes['totalRowCount'] = tblobj.query(where=condition, excludeLogicalDeleted=excludeLogicalDeleted, **kwargs).count()
+        if sum_columns:
+            for col in sum_columns.split(','):
+                col=col.strip()
+                resultAttributes['sum_%s' % col]=data.sum('#a.%s'%col)
             
         return (result,resultAttributes)
         

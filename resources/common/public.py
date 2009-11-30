@@ -476,7 +476,7 @@ class IncludedView(BaseComponent):
        custom widgets those allow all these operations"""
        
     def includedViewBox(self, parentBC, nodeId=None,table=None,datapath=None,
-                        storepath=None,selectionPars=None,formPars=None,label=None,
+                        storepath=None,selectionPars=None,formPars=None,label=None,footer=None,
                         add_action=None, add_class='buttonIcon icnBaseAdd',add_enable='^form.canWrite',
                         del_action=None, del_class='buttonIcon icnBaseDelete', del_enable='^form.canWrite',
                         close_action=None, close_class='buttonIcon icnTabClose', 
@@ -573,6 +573,12 @@ class IncludedView(BaseComponent):
         box_pars = dict([(k[4:], kwargs.pop(k)) for k in kwargs.keys() if k.startswith('box_')])
         box_pars['_class'] = (box_pars.pop('class', None) or 'pbl_viewBox')
         gridtop = parentBC.contentPane(region='top',datapath=controllerPath, **label_pars)
+        if footer:
+            gridbottom = parentBC.contentPane(region='bottom',
+                                              datapath=controllerPath,
+                                              height='18px', _class='pbl_roundedGroupBottom')
+            if callable(footer):
+                footer(gridbottom)
         if close_action:
             if close_action is True:
                 close_action = 'FIRE .closeSelection;' 
