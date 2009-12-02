@@ -219,6 +219,7 @@ class RecordToHtmlNew(TableScriptOnRecord):
                     row = self.copyValue('body_grid').row(height=rowheight)
                     self.copies[self.copy]['grid_body_used'] = self.copyValue('grid_body_used')+rowheight
                     self.currColumn = 0
+                    self.currRow = row
                     self.prepareRow(row)
                 
             for copy in range(self.copies_per_page):
@@ -240,10 +241,13 @@ class RecordToHtmlNew(TableScriptOnRecord):
             data = self.currRowDataNode.value
         return self.field(path,root=data,**kwargs)
         
-    def rowCell(self,row,field,default=None, locale=None,
+    def rowCell(self,field,default=None, locale=None,
                     format=None, mask=None,**kwargs):
-        row.cell(self.rowField(field,default=default,locale=locale,format=format,mask=mask),
-                width=self.grid_col_widths[self.currColumn],**kwargs)
+        if callable(field):
+            value=field()
+        else:
+            value=self.rowField(field,default=default,locale=locale,format=format,mask=mask)
+        self.currRow.cell(value,width=self.grid_col_widths[self.currColumn],overflow='hidden',white_space='nowrap',**kwargs)
         self.currColumn = self.currColumn + 1
         
     def _createPage(self):
@@ -301,7 +305,7 @@ class RecordToHtmlNew(TableScriptOnRecord):
             headers,lbl_height=headers.split(':')
             lbl_height=int(lbl_height)
         for k,lbl in enumerate(self.grid_col_headers.split(',')):
-            row.cell(lbl=lbl, lbl_class='caption', lbl_height=lbl_height, width=self.grid_col_widths[k])
+            row.cell(lbl=lbl, lbl_height=lbl_height, width=self.grid_col_widths[k])
 
     def gridFooter(self,row):
         """can be overridden"""
