@@ -252,7 +252,7 @@ class GnrBaseWebAppHandler(object):
             kwargs['value'] = value
         tblobj = self.db.table(table)
         if isinstance(where, Bag):
-            where, kwargs = self._decodeWhereBag(tblobj,where)
+            where, kwargs = self._decodeWhereBag(tblobj,where,kwargs)
         if condition:
             where = '(%s) AND (%s)' % (where, condition)
         return tblobj.query(columns=columns, distinct=distinct, where=where,
@@ -690,7 +690,7 @@ class GnrBaseWebAppHandler(object):
                 pkeys = pkeys.split(',')
             kwargs['pkeys'] = pkeys
         elif isinstance(where, Bag):
-            where,kwargs = self._decodeWhereBag(tblobj, where)
+            where, kwargs = self._decodeWhereBag(tblobj, where, kwargs)
         if condition and not pkeys:
             where = '(%s) AND (%s)' % (where, condition)
         sql_kwargs = dict([(str(k), v) for k,v in kwargs.items() if not k.startswith('frm_')])
@@ -711,7 +711,7 @@ class GnrBaseWebAppHandler(object):
                     
         return selection
         
-    def _decodeWhereBag(self, tblobj,where):
+    def _decodeWhereBag(self, tblobj, where, kwargs):
         if hasattr(self.page,'getSelection_filters'):
             selection_filters = self.page.getSelection_filters()
             if selection_filters:
