@@ -821,9 +821,7 @@ class GnrGridStruct(GnrStructData):
         width = width or '%iem' % fldobj.print_width
         if zoom:
             zoomtbl=fldobj.table
-            if 'full_relation_path' in fldobj.attributes:
-                field = fldobj.attributes['full_relation_path']
-            relfldlst=field.split('.')
+            relfldlst=tableobj.fullRelationPath(field).split('.')
             if len(relfldlst)>1:
                 if zoom is True:
                     ridx=-2

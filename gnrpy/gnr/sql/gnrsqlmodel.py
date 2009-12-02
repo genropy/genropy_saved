@@ -649,7 +649,7 @@ class DbTableObj(DbModelObj):
                 mixedattributes=dict(relcol.attributes)
                 colalias_attributes=dict(colalias.attributes)
                 colalias_attributes.pop('tag')
-                colalias_attributes['full_relation_path']=colalias_attributes.pop('relation_path')
+                colalias_attributes.pop('relation_path')
                 mixedattributes.update(colalias_attributes)
                 col=relcol
                 col.attributes=mixedattributes
@@ -683,12 +683,32 @@ class DbTableObj(DbModelObj):
                 relpkg, reltbl, relfld = joiner['many_relation'].split('.')
             reltbl = self.dbroot.package(relpkg).table(reltbl)
     
-        col = reltbl.column('.'.join(relpath))
-        if 'full_relation_path' in col.attributes:
-            col.attributes=dict(col.attributes)
-            col.attributes['full_relation_path']='%s.%s' %(firstrel,col.attributes['full_relation_path'])
-        return col
-    
+        return reltbl.column('.'.join(relpath))
+
+    def fullRelationPath(self,name):
+        """Returns the full relation path to the given column
+        @param fieldpath: ex "@member_id.name"
+        """
+        if name.startswith('$'):
+            name = name[1:]
+        if not name.startswith('@') and not name in self['columns'].keys() :
+            colalias = self['virtual_columns.%s' % name]
+            if colalias != None:
+                if colalias.relation_path:
+                    name = colalias.relation_path
+        if name.startswith('@'):
+            rel,pathlist = name.split('.',1)
+            if 'table_aliases' in self and rel in self['table_aliases']:
+                relpath = self['table_aliases.%s' % rel].relation_path
+                rel,pathlist = ('%s.%s' % (relpath,pathlist)).split('.',1)
+            
+            reltbl=self.column(rel[1:]).relatedTable()
+            return '%s.%s' % (rel,reltbl.fullRelationPath(pathlist))
+        else:
+            return name
+
+                
+     
     def resolveRelationPath(self, relpath):
         if relpath in self.relations:
             return relpath # it is a real relation path with no aliases

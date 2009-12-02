@@ -72,6 +72,8 @@ class SqlTable(GnrObject):
         Eg:@director_id.name
         """
         return self.model.column(name)
+    def fullRelationPath(self,name):
+        return self.model.fullRelationPath(name)
     
     def getColumnPrintWidth(self, column):
         if column.dtype in ['A','C','T','X','P']:
