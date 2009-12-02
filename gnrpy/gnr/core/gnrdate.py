@@ -201,7 +201,7 @@ def decodeDatePeriod(datestr, workdate=None, locale=None, returnDate=False, dtyp
     workdate = workdate or datetime.date.today()
     months = gnrlocale.getMonthNames(locale)
     days = gnrlocale.getDayNames(locale)
-    datestr = datestr.lower().strip()
+    datestr = datestr.lower().strip().replace(',',';').replace(':',';')
     exercise = False  # TODO
     
     dateStart = None

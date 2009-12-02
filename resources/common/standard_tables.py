@@ -46,7 +46,10 @@ class TableHandler(BaseComponent):
     
     def conditionBase(self):
         return (None,None)
-    
+        
+    def filterBase(self):
+        return
+        
     def formTitleBase(self,pane):
         pane.data("form.title", self.tblobj.attributes.get('name_long','Record'))
     
@@ -288,7 +291,15 @@ class TableHandler(BaseComponent):
                                    }
                                 """,fired='^list.queryEnd', initialPkey='=initialPkey')
     
+    def getSelection_filters(self):
+        return self.clientContext['filter.%s' % self.pagename]
+        
     def pageList(self, pane):
+        filterpath='filter.%s' % self.pagename
+        if not filterpath in self.clientContext:
+            filterBase=self.filterBase()
+            if filterBase:
+                pane.data('_clientCtx.%s'%filterpath, filterBase)
         pane.data('list.showToolbox', False)
         pane.data('list.showExtendedQuery', False)
         pane.dataController("""genro.wdgById("gridbc").showHideRegion("top",showquery);genro.resizeAll();""",
@@ -474,7 +485,7 @@ class TableHandler(BaseComponent):
         pane.dataRpc('list.currentQueryCount','app.getRecordCount', condition=condition,fired='^list.updateCurrentQueryCount',
                       table=self.maintable, where='=list.query.where',excludeLogicalDeleted='=list.excludeLogicalDeleted',
                       **condPars)
-                      
+
     def toolboxFields(self,pane):
         treediv=pane.div(_class='treeContainer')
         treediv.tree(storepath='gnr.qb.fieldstree',persist=False,

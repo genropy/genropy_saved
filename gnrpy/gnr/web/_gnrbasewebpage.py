@@ -110,6 +110,7 @@ class GnrBaseWebPage(GnrObject):
 
     def get_session(self, **kwargs):
         return self._request.environ['beaker.session']
+        
     def _get_clientContext(self):
         cookie=self.get_cookie('genroContext','simple')
         if cookie:

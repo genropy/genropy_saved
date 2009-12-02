@@ -252,9 +252,7 @@ class GnrBaseWebAppHandler(object):
             kwargs['value'] = value
         tblobj = self.db.table(table)
         if isinstance(where, Bag):
-            where._locale = self.page.locale
-            where._workdate = self.page.workdate
-            where, kwargs = tblobj.sqlWhereFromBag(where, kwargs)
+            where, kwargs = self._decodeWhereBag(tblobj,where)
         if condition:
             where = '(%s) AND (%s)' % (where, condition)
         return tblobj.query(columns=columns, distinct=distinct, where=where,
@@ -653,7 +651,7 @@ class GnrBaseWebAppHandler(object):
         resultAttributes = dict(table=table, selectionName=selectionName, 
                                 servertime=int((time.time() - t)*1000), newproc=getattr(self, 'self.newprocess', 'no'))
         return (len(selection), resultAttributes)
-
+        
     def _default_getSelection(self,tblobj=None, table=None,distinct=None, columns=None,where=None,condition=None,
                             order_by=None,limit=None, offset=None, group_by=None,having=None,
                             relationDict=None, sqlparams=None, row_start=None,row_count=None,
@@ -692,9 +690,7 @@ class GnrBaseWebAppHandler(object):
                 pkeys = pkeys.split(',')
             kwargs['pkeys'] = pkeys
         elif isinstance(where, Bag):
-            where._locale = self.page.locale
-            where._workdate = self.page.workdate
-            where, kwargs = tblobj.sqlWhereFromBag(where, kwargs)
+            where,kwargs = self._decodeWhereBag(tblobj, where)
         if condition and not pkeys:
             where = '(%s) AND (%s)' % (where, condition)
         sql_kwargs = dict([(str(k), v) for k,v in kwargs.items() if not k.startswith('frm_')])
@@ -715,6 +711,18 @@ class GnrBaseWebAppHandler(object):
                     
         return selection
         
+    def _decodeWhereBag(self, tblobj,where):
+        if hasattr(self.page,'getSelection_filters'):
+            selection_filters = self.page.getSelection_filters()
+            if selection_filters:
+                new_where=Bag()
+                new_where.setItem('filter',selection_filters)
+                new_where.setItem('where',where, jc='and')
+                where=new_where
+        where._locale = self.page.locale
+        where._workdate = self.page.workdate
+        return tblobj.sqlWhereFromBag(where, kwargs)
+            
     def _columnsFromStruct(self, viewbag, columns=None):
         if columns is None:
             columns = []
