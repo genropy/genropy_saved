@@ -517,8 +517,6 @@ class IncludedView(BaseComponent):
                         - toolbarHandler = OPTIONAL a callback for the form toolbar
                         - title: MANDATORY for mode dialog
                         - pane: OPTIONAL pane of the input form
-                        - parentDialog: OPTIONAL. if mode dialog, this is another 
--                          dialog that must be closed in order to avoid bugs
         @param label: (string) adding this kwparam you put a label to the includedView
         
         @param add_action: (boolean) adding this kwparam you allow the inserting 
@@ -959,9 +957,10 @@ class RecordHandler(object):
     """
     def recordDialog(self,table=None,firedPkey=None,pane=None,height=None,width=None,_class=None,
                     title=None,formCb=None,onSaved='',saveKwargs=None,loadKwargs=None,
-                    savePath='',parentDialog=None,bottomCb=None,savingMethod=None,
+                    savePath='',bottomCb=None,savingMethod=None,
                     loadingMethod=None, loadingParameters=None,onClosed='',
-                    validation_failed='alert',custom_table_id=None,**kwargs):
+                    validation_failed='alert',custom_table_id=None,
+                    dlgId=None,formId=None,datapath=None,**kwargs):
         """
         Allow to manage a form into a dialog for editing and saving a single RecordHandler.
         * `table`: The table where the record is saved.
@@ -983,32 +982,31 @@ class RecordHandler(object):
 
         tableId = custom_table_id or table.replace('.','_')
         sqlContextName='sqlcontext_%s' %tableId
-        controllerPath = 'aux_forms.%s' % tableId
-        sqlContextRoot= 'aux_forms.%s.record' % tableId
+        controllerPath = datapath or 'aux_forms.%s' % tableId
+        sqlContextRoot= '%s.record' % controllerPath
+        title = title or '^.record?caption'
+        dlgId = dlgId or  'dlg_%s' % tableId
+        formId = formId or  '%s_form' % tableId
         page = pane
         if page is None:
             page = self.pageSource()
-        title = title or '^.record?caption'
-        
-        dlg = page.dialog(nodeId='dlg_%s' % tableId,title=title,
-                          parentDialog=parentDialog,datapath=controllerPath)
+        dlg = page.dialog(nodeId=dlgId,title=title,datapath=controllerPath)
         dlgBC = dlg.borderContainer(height=height, 
                                     width=width, _class=_class,
                                     sqlContextName=sqlContextName,
                                     sqlContextRoot=sqlContextRoot, 
                                     sqlContextTable= table)
-        self._recordDialogController(dlgBC,table,tableId,saveKwargs,
-                                    loadKwargs,controllerPath,firedPkey,sqlContextName,
-                                    onSaved,onClosed, savePath,savingMethod,loadingMethod,
+        self._recordDialogController(dlgBC,dlgId,formId,controllerPath,
+                                    table,saveKwargs,loadKwargs,firedPkey,sqlContextName,
+                                    onSaved,onClosed,savePath,savingMethod,loadingMethod,
                                     loadingParameters,validation_failed,**kwargs)
-        self._recordDialogLayout(dlgBC,tableId,formCb,controllerPath,table,bottomCb)
+                                    
+        self._recordDialogLayout(dlgBC,dlgId,formId,controllerPath,table,formCb,bottomCb)
 
-    def _recordDialogController(self,pane,table,tableId,saveKwargs,
-                                loadKwargs,controllerPath,firedPkey,sqlContextName,
+    def _recordDialogController(self,pane,dlgId,formId,controllerPath,
+                                table,saveKwargs,loadKwargs,firedPkey,sqlContextName,
                                 onSaved,onClosed,savePath,savingMethod,loadingMethod,
                                 loadingParameters,validation_failed,**kwargs):
-        formId = "%s_form" %tableId
-        dlgId = "dlg_%s" %tableId
         onSaved = onSaved or ''
         onSaved = 'FIRE %s.afterSaving; %s' %(controllerPath,onSaved)
         
@@ -1079,9 +1077,7 @@ class RecordHandler(object):
         elif validation_failed == "focus":
             pane.dataController("genro.formById('%s').focusFirstInvalidField()" %formId,_fired="^.validation_failed")
         
-    def _recordDialogLayout(self,bc,tableId,formCb,controllerPath,table,bottomCb):
-        dlgId = "dlg_%s" %tableId
-        formId = "%s_form" %tableId        
+    def _recordDialogLayout(self,bc,dlgId,formId,controllerPath,table,formCb,bottomCb):
         bottom = bc.contentPane(region='bottom',_class='dialog_bottom')
         bottomCb = bottomCb or getattr(self,'_record_dialog_bottom')
         bottomCb(bottom)
@@ -1097,7 +1093,6 @@ class RecordHandler(object):
         pane.button('!!Cancel',float='right',baseClass='bottom_btn',
                     fire_cancel='.exitAction', margin_left='5px', width='5em')
         
-                        
     def rpc_deleteIncludedViewRecord(self, table, rowToDelete,**kwargs):
         tblobj = self.db.table(table)
         recordToDelete = tblobj.record(rowToDelete,for_update=True, mode='bag')
