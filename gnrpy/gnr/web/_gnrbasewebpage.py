@@ -117,7 +117,12 @@ class GnrBaseWebPage(GnrObject):
             return Bag(urllib.unquote(cookie.value))
         else:
             return Bag()
-    clientContext = property(_get_clientContext)
+            
+    def _set_clientContext(self,bag):
+        cookie=self.get_cookie('genroContext','simple')
+        cookie.value=bag
+        cookie=self.add_cookie(cookie)
+    clientContext = property(_get_clientContext,_get_clientContext)
         
     def _get_filename(self):
         try:
