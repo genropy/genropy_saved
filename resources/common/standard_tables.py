@@ -240,7 +240,8 @@ class TableHandler(BaseComponent):
                                                 dlgtitle='!!Current query record count'
                                                 )
         if self.enableFilter():
-            ddb = queryfb.dropDownButton('!!Set Filter',showLabel=False,iconClass='icnBaseAction')
+            ddb = queryfb.dropDownButton('!!Set Filter',showLabel=False,iconClass='icnBaseAction',
+                                        baseClass='st_filterButton')
             menu = ddb.menu(_class='smallmenu',action='FIRE list.filterCommand = $1.command')
             menu.menuline('!!Set new filter',command='new_filter')
             menu.menuline('!!Add to current filter',command='add_to_filter')
@@ -260,6 +261,8 @@ class TableHandler(BaseComponent):
                                     query = '=list.query.where',
                                     pagename=self.pagename,
                                  command="^list.filterCommand")
+            pane.dataController("if(current_filter){dojo.addClass(dojo.body(),'st_filterOn')}else{dojo.removeClass(dojo.body(),'st_filterOn')}",
+                                current_filter='^_clientCtx.filter.%s' %self.pagename,_onStart=True)
 
     def enableFilter(self):
         return False
