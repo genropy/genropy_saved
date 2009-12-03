@@ -39,6 +39,16 @@ def sortByItem(l, *args, **kwargs):
        @param *args: a list of keys to sort for. Each key can be reverse sorted by adding ':d' to the key.
        @param hkeys: if True and a key contains '.' it is interpreted as a hierarchical path and sub dict are looked for
        """
+    def safeCmp(a,b):
+        if a is None :
+            if b is None:
+                return 0
+            return -1
+        elif b is None:
+            return 1
+        else:
+            return cmp(a,b)
+
     def hGetItem(obj,attr):
         if obj is None: return None
         if not '.' in attr:
@@ -64,14 +74,14 @@ def sortByItem(l, *args, **kwargs):
     for crit,rev,caseInsensitive in criteria:
         if caseInsensitive:
             if '.' in crit and hkeys:
-                l.sort(lambda a,b: cmp((hGetItem(a,crit) or '').lower(),(hGetItem(b,crit) or '').lower()))
+                l.sort(lambda a,b: safeCmp((hGetItem(a,crit) or '').lower(),(hGetItem(b,crit) or '').lower()))
             else:
-                l.sort(lambda a,b: cmp((a.get(crit,None) or '').lower(),(b.get(crit,None) or '').lower()))
+                l.sort(lambda a,b: safeCmp((a.get(crit,None) or '').lower(),(b.get(crit,None) or '').lower()))
         else:
             if '.' in crit and hkeys:
-                l.sort(lambda a,b: cmp(hGetItem(a,crit),hGetItem(b,crit)))
+                l.sort(lambda a,b: safeCmp(hGetItem(a,crit),hGetItem(b,crit)))
             else:
-                l.sort(lambda a,b: cmp(a.get(crit,None),b.get(crit,None)))
+                l.sort(lambda a,b: safeCmp(a.get(crit,None),b.get(crit,None)))
         if(rev):
             l.reverse()
     return l

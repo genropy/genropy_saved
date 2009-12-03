@@ -226,11 +226,44 @@ class TableHandler(BaseComponent):
                                                         _class='smallFakeTextBox floatingPopup')
         queryfb.textbox(lbl='!!Value',value='^.c_0',width='12em', _autoselect=True)
         queryfb.button('!!Run query', fire='list.runQueryButton', iconClass="tb_button db_query",showLabel=False)
+        queryfb.dataFormula('list.currentQueryCountAsString','msg.replace("_rec_",cnt)',
+                                               cnt='^list.currentQueryCount',_if='cnt',_else='',
+                                               msg='!!Current query will return _rec_ items')
+        queryfb.dataController("""if(fired=='Shift'){SET list.currentQueryCountAsString = waitmsg;
+                                                 genro.fireAfter('list.updateCurrentQueryCount');
+                                                 genro.dlg.alert('^list.currentQueryCountAsString',dlgtitle)
+                                                }
+                                                else
+                                                {FIRE list.runQuery}""",
+                                                fired='^list.runQueryButton',
+                                                waitmsg='!!Working.....',
+                                                dlgtitle='!!Current query record count'
+                                                )
         if self.enableFilter():
-            queryfb.button('!!Set Filter', fire='list.setAsFilter')
-            pane.dataController("""genro.setData('_clientCtx.filter.'+pagename,query.deepCopy());genro.saveContextCookie()""",_fired='^list.setAsFilter',query='=list.query.where',pagename='=gnr.pagename')
+            ddb = queryfb.dropDownButton('!!Set Filter',showLabel=False,iconClass='icnBaseAction')
+            menu = ddb.menu(_class='smallmenu',action='FIRE list.filterCommand = $1.command')
+            menu.menuline('!!Set new filter',command='new_filter')
+            menu.menuline('!!Add to current filter',command='add_to_filter')
+            menu.menuline('!!Remove filter',command='remove_filter')
+            pane.dataController(""" var filter;
+                                    if (command=='new_filter'){
+                                        filter = query.deepCopy();
+                                        console.log
+                                    }else if(command=='add_to_filter'){
+                                        alert('add filter');
+                                    }else if(command=='remove_filter'){
+                                        filter = null;
+                                    }
+                                     genro.setData('_clientCtx.filter.'+pagename,filter);
+                                     genro.saveContextCookie();
+                                """,current_filter='=_clientCtx.filter.%s' %self.pagename,
+                                    query = '=list.query.where',
+                                    pagename=self.pagename,
+                                 command="^list.filterCommand")
+
     def enableFilter(self):
         return False
+        
     def listToolbar_rightbuttons(self, pane):
         pane=pane.div(width='60px',nodeId='query_buttons',position='absolute',right='2px',top='1px')
         if self.userCanDelete() or self.userCanWrite():
