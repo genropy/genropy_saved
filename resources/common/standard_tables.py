@@ -226,9 +226,11 @@ class TableHandler(BaseComponent):
                                                         _class='smallFakeTextBox floatingPopup')
         queryfb.textbox(lbl='!!Value',value='^.c_0',width='12em', _autoselect=True)
         queryfb.button('!!Run query', fire='list.runQueryButton', iconClass="tb_button db_query",showLabel=False)
-        queryfb.button('!!Set Filter', fire='list.setAsFilter')
-        pane.dataController("""genro.setData('_clientCtx.filter.'+pagename,query.deepCopy());genro.saveContextCookie()""",_fired='^list.setAsFilter',query='=list.query.where',pagename='=gnr.pagename')
-        
+        if self.enableFilter():
+            queryfb.button('!!Set Filter', fire='list.setAsFilter')
+            pane.dataController("""genro.setData('_clientCtx.filter.'+pagename,query.deepCopy());genro.saveContextCookie()""",_fired='^list.setAsFilter',query='=list.query.where',pagename='=gnr.pagename')
+    def enableFilter(self):
+        return False
     def listToolbar_rightbuttons(self, pane):
         pane=pane.div(width='60px',nodeId='query_buttons',position='absolute',right='2px',top='1px')
         if self.userCanDelete() or self.userCanWrite():
