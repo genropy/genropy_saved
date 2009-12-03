@@ -29,6 +29,7 @@ def localize_number(obj, locale, format=None, currency=None):
             else:
                 format= '%s;%s' % (flist[0],flist[1])
         if currency:
+            print currency
             return numbers.format_currency(obj,currency=currency,format=format,locale=locale)
         else:
             return numbers.format_decimal(obj,format=format,locale=locale)

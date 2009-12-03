@@ -51,7 +51,10 @@ class TableHandler(BaseComponent):
         return
         
     def formTitleBase(self,pane):
-        pane.data("form.title", self.tblobj.attributes.get('name_long','Record'))
+        pane.data('form.title',self.tblobj.attributes.get('name_long','Record'))
+        if self.tblobj.attributes.get('rowcaption'):
+            record_caption='^form.record?caption'
+            pane.dataFormula("form.title",'record_caption', record_caption=record_caption)
     
     def columnsBase(self):
         return ''

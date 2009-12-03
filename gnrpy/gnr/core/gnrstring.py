@@ -501,7 +501,7 @@ def fromText(mystring, obj, locale=None):
     #what?
     return parselocal(mystring, obj, locale=locale)
 
-def toText(obj, locale=None, format=None, mask=None, encoding=None):
+def toText(obj, locale=None, format=None, mask=None, encoding=None,currency=None):
     """Return a unicode string representing an object of any class.
        If there are locale or format parameters Babel is used to format the value 
        according to the given localization or format.
@@ -511,7 +511,7 @@ def toText(obj, locale=None, format=None, mask=None, encoding=None):
     if not (locale or format):
         result = unicode(obj)
     else:
-        result = localize(obj, locale=locale, format=format)
+        result = localize(obj, locale=locale, format=format,currency=currency)
         
     if mask:
         result = mask % result

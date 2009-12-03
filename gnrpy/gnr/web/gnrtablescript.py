@@ -157,7 +157,7 @@ class RecordToHtmlNew(TableScriptOnRecord):
         return self.getFolderPath(*self.pdf_folder.split('/'))
         
     def field(self, path, default=None, locale=None,
-                    format=None, mask=None,root=None):
+                    format=None, mask=None,root=None,**kwargs):
         if root is None:
             root = self._data['record']
         if isinstance(root,Bag):
@@ -174,12 +174,12 @@ class RecordToHtmlNew(TableScriptOnRecord):
             
         format= format or attr.get('format')
         mask= mask or attr.get('mask')
-        return self.toText(value,locale,format, mask, self.encoding)
+        return self.toText(value,locale,format, mask, self.encoding,**kwargs)
 
-    def toText(self, obj, locale=None, format=None, mask=None, encoding=None):
+    def toText(self, obj, locale=None, format=None, mask=None, encoding=None,**kwargs):
         locale = locale or self.locale
         encoding = locale or self.encoding
-        return toText(obj, locale=locale, format=format, mask=mask, encoding=encoding)
+        return toText(obj, locale=locale, format=format, mask=mask, encoding=encoding,**kwargs)
 
     def main(self):
         """can be overridden"""
@@ -242,11 +242,11 @@ class RecordToHtmlNew(TableScriptOnRecord):
         return self.field(path,root=data,**kwargs)
         
     def rowCell(self,field,default=None, locale=None,
-                    format=None, mask=None,**kwargs):
+                    format=None, mask=None,currency=None,**kwargs):
         if callable(field):
             value=field()
         else:
-            value=self.rowField(field,default=default,locale=locale,format=format,mask=mask)
+            value=self.rowField(field,default=default,locale=locale,format=format,mask=mask,currency=currency)
         self.currRow.cell(value,width=self.grid_col_widths[self.currColumn],overflow='hidden',white_space='nowrap',**kwargs)
         self.currColumn = self.currColumn + 1
         
