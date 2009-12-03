@@ -148,7 +148,6 @@ class GnrWsgiSite(object):
         self._currentPages={}
         self.site_path = os.path.dirname(os.path.abspath(script_path))
         self.site_name = site_name or os.path.basename(self.site_path)
-        self.aux_instances= {}
         
         if _gnrconfig:
             self.gnr_config = _gnrconfig
@@ -582,12 +581,6 @@ class GnrWsgiSite(object):
         self.pageLog(page,'close')
         self.clearRecordLocks(page_id=page.page_id)
         self.db.commit()
-        
-    def getAuxInstance(self, name):
-        if not name in self.aux_instances:
-            instance_name=self.config['aux_instances.%s?name' % name]
-            self.aux_instances[name] = GnrApp(instance_name)
-        return self.aux_instances[name]
         
     def notifyDbEvent_(self,tblobj,record,event,old_record=None):
         if 'adm' in self.gnrapp.db.packages:

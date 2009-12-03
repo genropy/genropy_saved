@@ -254,6 +254,7 @@ class GnrPackage(object):
 
 class GnrApp(object):
     def __init__(self, instanceFolder, custom_config=None, **kwargs):
+        self.aux_instances= {}
         self.gnr_config=self.load_gnr_config()
         self.set_environment()
         if not os.path.isdir(instanceFolder):
@@ -282,6 +283,7 @@ class GnrApp(object):
             self.webPageCustom = getattr(self.main_module, 'WebPage', None)
         self.init()
         self.creationTime=time.time()
+        
     
     def set_environment(self):
         for var,value in self.gnr_config['gnr.environment_xml'].digest('environment:#k,#a.value'):
@@ -641,6 +643,12 @@ class GnrApp(object):
         raise e
     def notifyDbEvent(self,tblobj,record,event,old_record=None):
         pass
+        
+    def getAuxInstance(self, name):
+        if not name in self.aux_instances:
+            instance_name=self.config['aux_instances.%s?name' % name]
+            self.aux_instances[name] = GnrApp(instance_name)
+        return self.aux_instances[name]
         
 class GnrAvatar(object):
     def __init__(self, id, username, tags='', userid=None, **kwargs):

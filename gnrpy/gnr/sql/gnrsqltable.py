@@ -741,7 +741,7 @@ class SqlTable(GnrObject):
                 self.insert(record)
                 
     def importFromAuxInstance(self, instance_name, tbl_name=None, empty_before=False):
-        aux_db = self.db.application.site.getAuxInstance(instance_name).db
+        aux_db = self.db.application.getAuxInstance(instance_name).db
         source_tbl = aux_db.table(tbl_name or self.fullname)
         source_records = source_tbl.query(addPkeyColumn=False).fetch()
         if empty_before:
