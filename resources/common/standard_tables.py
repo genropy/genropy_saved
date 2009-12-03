@@ -196,59 +196,43 @@ class TableHandler(BaseComponent):
         #                                             callmethod:action, pkeys:pkeys}, 'function(result){genro.dlg.alert(result)}')""",
         #                confirm='^list.act_result', action='=list.act_value', _if='confirm=="confirm"',
         #                table=self.maintable, selectionName='=list.selectionName')
-    
     def listToolbar(self, pane, datapath=None,arrows=True):
         self.listController(pane)
-        tb = pane.toolbar(height='26px')
-        t_r = tb.div(float='right',width='110px')
-        t_l = tb.div(width='20px',margin_left='2px',float='left',border_right='1px solid gray',height='25px')
-        t_l.div(_class='db_treebtn',connect_onclick="SET list.showToolbox = ! (GET list.showToolbox);")
-        t_l.div(_class='db_querybtn',connect_onclick="SET list.showExtendedQuery =! (GET list.showExtendedQuery);")
-        t_l2 = tb.div(margin_left='8px',height='100%', float='left')
-        t_c = tb.div(margin_left='8px',height='100%')
+        tb = pane.toolbar().div(position='relative',top='0px',left='0px',height='26px')
+        self.listToolbar_lefticons(tb)
+        self.listToolbar_query(tb)
+        self.listToolbar_rightbuttons(tb)
         
-        if self.queryBase().get('runOnStart'):
-            pane.dataController('FIRE list.runQuery',fired='^gnr.onStart',_delay=500)
+    def listToolbar_lefticons(self, pane):
+        pane = pane.div(width='20px',position='absolute',top='0px',border_right='1px solid gray',height='26px')
+        pane.div(_class='db_treebtn',connect_onclick="SET list.showToolbox = ! (GET list.showToolbox);")
+        pane.div(_class='db_querybtn',connect_onclick="SET list.showExtendedQuery =! (GET list.showExtendedQuery);")
         
-        querypane = t_l2.formbuilder(cols=3,datapath='list.query.where',_class='query_pane',
+    def listToolbar_query(self, pane):
+        pane = pane.div(position='absolute',top='0px',left='24px',height='26px')
+        queryfb = pane.formbuilder(cols=5,datapath='list.query.where',_class='query_pane',
                                           border_spacing='4px',onEnter='FIRE list.runQuery=true;')
         
-        tb = querypane.div('^.c_0?column_caption',min_width='12em',_class='smallFakeTextBox floatingPopup',lbl='!!Query',
-                              dnd_onDrop="""SET .c_0?column_caption = item.attr.fullcaption;
-                                          SET .c_0?column = item.attr.fieldpath;""",
-                              dnd_allowDrop="return !(item.attr.one_relation);",
-                              
-                              nodeId='fastQueryColumn',
-                              selected_fieldpath='.c_0?column',
-                              selected_fullcaption='.c_0?column_caption')
-        querypane.div('^.c_0?op_caption',lbl='!!Op.', min_width='7em',nodeId='fastQueryOp',readonly=True,
+        tb = queryfb.div('^.c_0?column_caption',min_width='12em',_class='smallFakeTextBox floatingPopup',lbl='!!Query',
+                              dnd_onDrop="SET .c_0?column_caption = item.attr.fullcaption;SET .c_0?column = item.attr.fieldpath;",
+                              dnd_allowDrop="return !(item.attr.one_relation);", nodeId='fastQueryColumn',
+                              selected_fieldpath='.c_0?column',selected_fullcaption='.c_0?column_caption')
+        queryfb.div('^.c_0?op_caption',lbl='!!Op.', min_width='7em',nodeId='fastQueryOp',readonly=True,
                                                         selected_fullpath='.c_0?op',
                                                         selected_caption='.c_0?op_caption',
                                                         _class='smallFakeTextBox floatingPopup')
-        querypane.textbox(lbl='!!Value',value='^.c_0',width='12em', _autoselect=True)
-        querypane.dataController()
-        t_c.button('!!Run query', fire='list.runQueryButton', iconClass="tb_button db_query",showLabel=False)
-        t_c.dataFormula('list.currentQueryCountAsString','msg.replace("_rec_",cnt)',
-                                               cnt='^list.currentQueryCount',_if='cnt',_else='',
-                                               msg='!!Current query will return _rec_ items')
-        t_c.dataController("""if(fired=='Shift'){SET list.currentQueryCountAsString = waitmsg;
-                                                 genro.fireAfter('list.updateCurrentQueryCount');
-                                                 genro.dlg.alert('^list.currentQueryCountAsString',dlgtitle)
-                                                }
-                                                else
-                                                {FIRE list.runQuery}""",
-                                                fired='^list.runQueryButton',
-                                                waitmsg='!!Working.....',
-                                                dlgtitle='!!Current query record count'
-                                                )
-
-        trbtn=t_r.div(width='110px',nodeId='query_buttons')
+        queryfb.textbox(lbl='!!Value',value='^.c_0',width='12em', _autoselect=True)
+        queryfb.button('!!Run query', fire='list.runQueryButton', iconClass="tb_button db_query",showLabel=False)
+        queryfb.button('!!Set Filter', fire='list.setAsFilter')
+        pane.dataController("""genro.setData('_clientCtx.filter.'+pagename,query.deepCopy());genro.saveContextCookie()""",_fired='^list.setAsFilter',query='=list.query.where',pagename='=gnr.pagename')
+        
+    def listToolbar_rightbuttons(self, pane):
+        pane=pane.div(width='60px',nodeId='query_buttons',position='absolute',right='2px',top='1px')
         if self.userCanDelete() or self.userCanWrite():
-            trbtn.button('!!Unlock', float='right',fire='status.unlock', iconClass="tb_button icnBaseLocked", showLabel=False,hidden='^status.unlocked')
-            trbtn.button('!!Lock', float='right',fire='status.lock', iconClass="tb_button icnBaseUnlocked", showLabel=False,hidden='^status.locked')
-        trbtn.button('!!Add', float='right',fire='list.newRecord', iconClass="tb_button db_add", visible='^list.canWrite', showLabel=False)
+            pane.button('!!Unlock', position='absolute',right='0px',fire='status.unlock', iconClass="tb_button icnBaseLocked", showLabel=False,hidden='^status.unlocked')
+            pane.button('!!Lock', position='absolute',right='0px',fire='status.lock', iconClass="tb_button icnBaseUnlocked", showLabel=False,hidden='^status.locked')
+        pane.button('!!Add',position='absolute',left='0px',fire='list.newRecord', iconClass="tb_button db_add", visible='^list.canWrite', showLabel=False)
 
-                             
     def pageListController(self,pane):
         """docstring for pageListController"""
         pane.dataController('genro.dom.disable("query_buttons");SET list.gridpage = 1;SET list.queryRunning = true;FIRE list.runQueryDo = true;',
@@ -299,7 +283,10 @@ class TableHandler(BaseComponent):
         if not filterpath in self.clientContext:
             filterBase=self.filterBase()
             if filterBase:
-                pane.data('_clientCtx.%s'%filterpath, filterBase)
+                cookie=self.clientContext
+                cookie[filterpath]=filterBase
+                self.clientContext=cookie
+                #pane.data('_clientCtx.%s'%filterpath, filterBase)
         pane.data('list.showToolbox', False)
         pane.data('list.showExtendedQuery', False)
         pane.dataController("""genro.wdgById("gridbc").showHideRegion("top",showquery);genro.resizeAll();""",
