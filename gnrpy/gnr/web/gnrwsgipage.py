@@ -367,6 +367,7 @@ class GnrWsgiPage(GnrBaseWebPage):
                 page.data('gnr.homeUrl', self.site.home_uri)
                 page.data('gnr.userTags', self.userTags)
                 page.data('gnr.locale',self.locale)
+                page.data('gnr.pagename',self.pagename)
                 page.data('gnr.polling',self.polling)
                 page.data('_server', None, context='_server')
                 page.dataController('genro.dlg.serverMessage(msg);', msg='^gnr.servermsg')
