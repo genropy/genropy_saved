@@ -740,12 +740,17 @@ class SqlTable(GnrObject):
                 record.pop('_isdeleted')
                 self.insert(record)
                 
-    def importFromAuxInstance(self, instance_name, tbl_name=None):
+    def importFromAuxInstance(self, instance_name, tbl_name=None, empty_before=False):
         aux_db = self.db.application.site.getAuxInstance(instance_name).db
         source_tbl = aux_db.table(tbl_name or self.fullname)
         source_records = source_tbl.query(addPkeyColumn=False).fetch()
+        if empty_before:
+            self.empty()
         for record in source_records:
-            self.insertOrUpdate(record)
+            if empty_before:
+                self.insert(record)
+            else:
+                self.insertOrUpdate(record)
             
     def forEach(self, pkeyList, formula, for_update=False):
         for r in pkeyList:
