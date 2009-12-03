@@ -181,6 +181,23 @@ class SqlDbAdapter(SqlDbBaseAdapter):
         curs.execute("DROP DATABASE %s;" % name)
         curs.close()
         conn.close()
+    
+    def dump(self,filename):
+        """
+        Dump an existing database
+        @param name: db name
+        """
+        from subprocess import call
+        return call(['pg_dump',self.dbroot.dbname,'-U',self.dbroot.user,'-f',filename])
+
+        
+    def restore(self,filename):
+        """-- IMPLEMENT THIS --
+        Drop an existing database
+        @param name: db name
+        """
+        from subprocess import call
+        return call(['psql',self.dbroot.dbname,'-U',self.dbroot.user,'-f',filename])
         
     def createTableAs(self, sqltable, query, sqlparams):
         self.dbroot.execute("CREATE TABLE %s WITH OIDS AS %s;" % (sqltable, query), sqlparams)

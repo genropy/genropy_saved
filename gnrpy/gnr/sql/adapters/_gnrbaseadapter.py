@@ -90,6 +90,20 @@ class SqlDbAdapter(object):
         @param name: db name
         """
         raise NotImplementedException()
+        
+    def dump(self,filename):
+        """-- IMPLEMENT THIS --
+        Dump a database to a given path
+        @param name: db name
+        """
+        raise NotImplementedException()
+        
+    def restore(self,filename):
+        """-- IMPLEMENT THIS --
+        Restore a database from existing path
+        @param name: db name
+        """
+        raise NotImplementedException()
 
     def defaultMainSchema(self):
         """-- IMPLEMENT THIS --
@@ -306,9 +320,9 @@ class SqlDbAdapter(object):
             self.dbroot.execute(self.createSchemaSql(sqlschema))
 
     def dropSchema(self, sqlschema):
-        """Create a new database schema"""
+        """Drop database schema"""
         if sqlschema in self.listElements('schemata'):
-            self.dbroot.execute('DROP SCHEMA %s;' % sqlschema)
+            self.dbroot.execute('DROP SCHEMA %s CASCADE;' % sqlschema)
     
     def createTableAs(self, sqltable, query, sqlparams):
         self.dbroot.execute("CREATE TABLE %s AS %s;" % (sqltable, query), sqlparams)

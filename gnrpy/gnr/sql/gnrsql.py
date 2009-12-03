@@ -297,11 +297,27 @@ class GnrSqlDb(GnrObject):
         @param name"""
         self.adapter.dropDb(name)
         
+    def dump(self,filename):
+        """Dump db to a given path
+        @param name"""
+        self.adapter.dump(filename)
+        
+    def restore(self,filename):
+        """Restore db to a given path
+        @param name"""
+        #self.dropDb(self.dbname)
+        #self.createDb(self.dbname)
+        self.adapter.restore(filename)
+        
     def createSchema(self, name):
-        """Create a db with given name and encoding
-        @param name
-        @param encoding"""
+        """Create a db schema
+        @param name"""
         self.adapter.createSchema(name)
+        
+    def dropSchema(self, name):
+        """Drop a db schema
+        @param name"""
+        self.adapter.dropSchema(name)
 
     def importXmlData(self, path):
         """Populates a database from an xml file
