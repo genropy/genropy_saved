@@ -1618,6 +1618,10 @@ dojo.declare("gnr.widgets.Grid",gnr.widgets.baseDojo,{
                 if (v==null){
                     return  '&nbsp;';
                 }
+                var template=opt['template'];
+                if(template){
+                    v = template.replace('#',v);
+                }
                 if(zoomPage){
                     var zoomPkey=opt['zoomPkey'];
                     if (zoomPkey){
@@ -1670,6 +1674,10 @@ dojo.declare("gnr.widgets.Grid",gnr.widgets.baseDojo,{
                          formats=objectExtract(cell,'format_*');
                          format=objectExtract(cell,'format');
                          var zoomPage=objectPop(cell,'zoomPage');
+                         var template=objectPop(cell,'template');
+                         if (template){
+                             formats['template']=template;
+                         }
                          formats['dtype']=dtype;
                          if (zoomPage)
                             formats['zoomPage']=zoomPage;
