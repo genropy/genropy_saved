@@ -1089,7 +1089,7 @@ class RecordHandler(object):
     #Jeff suggests that the margins be taken out of the code and put into the css
     def _record_dialog_bottom(self,pane):
         pane.button('!!Save',float='right',baseClass='bottom_btn',
-                    fire=".saveAndClose", margin_left='5px', margin_right='10px', width='5em')
+                    fire=".saveAndClose", margin_left='5px', width='5em')
         pane.button('!!Cancel',float='right',baseClass='bottom_btn',
                     fire_cancel='.exitAction', margin_left='5px', width='5em')
         
