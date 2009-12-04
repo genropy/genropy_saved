@@ -1620,7 +1620,7 @@ dojo.declare("gnr.widgets.Grid",gnr.widgets.baseDojo,{
                 }
                 var template=opt['template'];
                 if(template){
-                    v = template.replace('#',v);
+                    v = template.replace(/#/g,v);
                 }
                 if(zoomPage){
                     var zoomPkey=opt['zoomPkey'];
