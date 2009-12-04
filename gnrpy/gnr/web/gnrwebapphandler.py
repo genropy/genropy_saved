@@ -1133,7 +1133,7 @@ class GnrBaseWebAppHandler(object):
     def rpc_exportStaticGrid_xls(self, structbag, storebag, filename=None, **kwargs):
         import xlwt
         w = xlwt.Workbook(encoding='latin-1')
-        ws = w.add_sheet(filename)
+        ws = w.add_sheet(filename[:31])
         
         float_style = xlwt.XFStyle()
         float_style.num_format_str = '#,##0.00'
