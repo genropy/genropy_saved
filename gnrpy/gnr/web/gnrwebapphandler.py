@@ -1133,6 +1133,7 @@ class GnrBaseWebAppHandler(object):
     def rpc_exportStaticGrid_xls(self, structbag, storebag, filename=None, **kwargs):
         import xlwt
         w = xlwt.Workbook(encoding='latin-1')
+        filename = self._exportFileNameClean(filename)
         ws = w.add_sheet(filename[:31])
         
         float_style = xlwt.XFStyle()
@@ -1175,7 +1176,7 @@ class GnrBaseWebAppHandler(object):
                     ws.write(i+1, c, self.page.toText(r.get(col)))
         
 
-        filename = self._exportFileNameClean(filename)
+        
         if not filename.lower().endswith('.xls'):
             filename += '.xls'
         fpath = self.page.temporaryDocument(filename)
