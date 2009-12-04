@@ -656,6 +656,11 @@ table.formbuilder {
 	width: 16px;
 	height: 16px;
 }
+.icnBaseWrite {
+	background: url(icons/base16/pencil.gif) no-repeat;
+	width: 16px;
+	height: 16px;
+}
 
 .icnBaseTrash {
 	background: url(icons/base16/trash.gif) no-repeat;
