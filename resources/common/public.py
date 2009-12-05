@@ -740,7 +740,7 @@ class IncludedView(BaseComponent):
         searchbox = gridtop.div(float='right', margin_right='5px',
                             datapath=controllerPath)
         searchlbl = searchbox.div(float='left',margin_top='2px')
-        searchlbl.span('!!Search ',float='left', margin_right='7px')
+        searchlbl.span('!!Search ',float='left', margin_right='5px')
         controller.dataController("""var grid = genro.wdgById(gridId);
                                         SET .currentFilter = "";
                                         grid.filterColumn = col;
