@@ -34,7 +34,7 @@ class GnrCustomWebPage(object):
         self.left_menu(rootBC.contentPane(region='left',width='230px',splitter=True,_class='leftpane'))
         top = rootBC.contentPane(region='top',height='20px',_class='header',padding='5px')
         top.span("TestGarden > ")
-        top.span('^current_demo')
+        top.span().a('^current_demo',href='^current_demo',color='#dfcfa4')
         top.dataFormula("current_demo", "page?page:'index'",_onStart=True,page='^iframe.selected_page')
         center = rootBC.borderContainer(region='center')
         buttons = center.contentPane(region='bottom',height='30px',_class='centerfooter').div(position='absolute',right='15px',top='2px')
