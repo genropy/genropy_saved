@@ -802,6 +802,7 @@ dojo.declare("gnr.widgets.Menuline",gnr.widgets.baseDojo,{
     constructor: function(application){
         this._domtag = '*';
         this._dojotag = 'MenuItem';
+        this._basedojotag = 'MenuItem';
     },
     creating:function(attributes, sourceNode){
         var savedAttrs = {};
