@@ -584,7 +584,7 @@ class IncludedView(BaseComponent):
         if print_action:
             if print_action is True:
                 print_action = 'FIRE .print;' 
-            gridtop.div(float='left', _class=print_class, connect_onclick=print_action)
+            gridtop.div(float='left', margin_right='7px', _class=print_class, connect_onclick=print_action)
         if export_action:
             if export_action is True:
                 export_action='xls'
@@ -593,9 +593,9 @@ class IncludedView(BaseComponent):
             else:
                 export_method = 'app.exportStaticGrid_'+export_action
             export_action = 'FIRE .export="%s";'%export_method 
-            gridtop.div(float='left', _class=export_class, connect_onclick=export_action)
+            gridtop.div(float='left', margin_right='7px', _class=export_class, connect_onclick=export_action)
         if tools_menu:
-            btn = gridtop.div(float='left', _class = tools_class,margin_right='5px')
+            btn = gridtop.div(float='left', _class = tools_class,margin_right='7px')
             btn.menu(storepath=tools_menu, modifiers='*')
         elif tools_action:
             if tools_action is True:
@@ -740,7 +740,7 @@ class IncludedView(BaseComponent):
         searchbox = gridtop.div(float='right', margin_right='5px',
                             datapath=controllerPath)
         searchlbl = searchbox.div(float='left',margin_top='2px')
-        searchlbl.span('!!Search ',float='left')
+        searchlbl.span('!!Search ',float='left', margin_right='7px')
         controller.dataController("""var grid = genro.wdgById(gridId);
                                         SET .currentFilter = "";
                                         grid.filterColumn = col;
@@ -756,7 +756,7 @@ class IncludedView(BaseComponent):
                         selected_caption='.flt.selected.caption',
                         position='absolute', right='0',width='6em')
         
-        searchbox.input(value='^.currentFilter',_class='searchInput searchWidth', font_size='.9em',
+        searchbox.input(value='^.currentFilter',_class='searchInput searchWidth', font_size='1.0em',
             connect_onkeyup='genro.wdgById("%s").applyFilter($1.target.value);' % gridId)
             
 
