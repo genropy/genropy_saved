@@ -472,7 +472,7 @@ dojo.declare("gnr.GnrWdgHandler",null,{
                     obj[funcname]=handler[prop];
                     if (oldfunc){
                         obj[funcname+'_replaced']=oldfunc;
-                    }else{
+                    }else if((!handler._basedojotag)||(handler._dojotag==handler._basedojotag)){
                         genro.warning(tag+' - Patch '+prop+': cannot find the replaced method.');
                     }
                 }else{
