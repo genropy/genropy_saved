@@ -1168,8 +1168,8 @@ class GnrBaseWebAppHandler(object):
                     
         ws.panes_frozen = True
         ws.horz_split_pos = 1
-        
         for c,header in enumerate(headers):
+            #self.page._(self.tblobj.column(header).name_long)
             ws.write(0, c, header, hstyle)
             
         for i,row in enumerate(storebag):
