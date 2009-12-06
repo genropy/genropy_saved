@@ -104,9 +104,14 @@ class SelectionToXls(GnrBatch):
             columns = columns.split(',')
         else:
             columns = data.columns
+        self.colHeaders={}
+        if('structure') in kwargs:
+            self.colHeaders=dict([(x.replace('.','_').replace('@','_').replace('$',''),y) for x,y in kwargs['structure']['#0.#0'].digest('#a.field,#a.name')])
+            columns=[c for c in columns if c in self.colHeaders ]
         self.columns = columns
         self.locale = locale
         self.filename = filename or '%s.xls'%table.replace('.','_')
+        self.colAttrs=data.colAttrs
         data=data.output('dictlist', columns=self.columns, locale=self.locale)
         super(SelectionToXls,self).__init__(data=data,**kwargs)
         self.tblobj = self.page.db.table(table)
@@ -134,7 +139,7 @@ class SelectionToXls(GnrBatch):
         hstyle = xlwt.XFStyle()
         hstyle.font = font0
         for c,header in enumerate(self.columns):
-            self.sheet.write(0, c, header, hstyle)
+            self.sheet.write(0, c, self.colHeaders[header], hstyle)
         self.current_row=1
         
     def process_chunk(self, chunk):
