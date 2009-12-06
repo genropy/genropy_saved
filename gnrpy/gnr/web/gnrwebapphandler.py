@@ -224,12 +224,19 @@ class GnrBaseWebAppHandler(object):
 
     def rpc_getSqlOperators(self):
         result = Bag()
+        listop=('equal','startswith','wordstart','contains','startswithchars','greater','greatereq','less','lesseq','between','isnull','in','regex')
         wt = self.db.whereTranslator
-        for op in ('startswith','wordstart','contains','notcontains','greater','greatereq','less','lesseq','between','isnull','isnotnull','in','notin','equal','regex'):
+        for op in listop:
             result.setItem('op.%s' % op, None, caption='!!%s' % wt.opCaption(op))
+        result.setItem('op.sep', None, caption='-')
+        for op in listop:
+            op='not_%s' % op
+            result.setItem('op.%s' % op, None, caption='!!%s' % wt.opCaption(op))
+            
             
         for op in ('startswith','wordstart','contains','regex'):
             result.setAttr('op.%s' % op, onlyText=True)
+            result.setAttr('op.not_%s' % op, onlyText=True)
             
         result.setItem('jc.and', None, caption='!!AND')
         result.setItem('jc.or', None, caption='!!OR')
