@@ -474,7 +474,8 @@ class TableHandler(BaseComponent):
         r.cell('lbl', name='Field',width='10em', headerStyles='display:none;', cellClasses='infoLabels', odd=False)
         r.cell('val', name='Value',width='10em', headerStyles='display:none;', cellClasses='infoValues', odd=False)
         return struct
-    
+    def onQueryCalling(self):
+        return None
     def gridPane(self,pane):
         stats_main = getattr(self,'stats_main',None)
         if self.hierarchicalViewConf() or stats_main:
@@ -502,6 +503,7 @@ class TableHandler(BaseComponent):
                              row_start='0', row_count=self.rowsPerPage(),
                              excludeLogicalDeleted='^list.excludeLogicalDeleted',
                              applymethod='onLoadingSelection',
+                             _onCalling=self.onQueryCalling(),
                              _onResult='FIRE list.queryEnd=true;',**condPars)
                                      
         grid = gridpane.virtualGrid(nodeId='maingrid', structpath="list.view.structure", storepath=".data", autoWidth=False,
