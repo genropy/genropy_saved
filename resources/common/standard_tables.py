@@ -326,8 +326,8 @@ class TableHandler(BaseComponent):
             if filterBase:
                 cookie=self.clientContext
                 cookie[filterpath]=filterBase
-                self.clientContext=cookie
-                #pane.data('_clientCtx.%s'%filterpath, filterBase)
+                #self.clientContext=cookie
+                pane.data('_clientCtx.%s'%filterpath, filterBase)
         pane.data('list.showToolbox', False)
         pane.data('list.showExtendedQuery', False)
         pane.dataController("""genro.wdgById("gridbc").showHideRegion("top",showquery);genro.resizeAll();""",
