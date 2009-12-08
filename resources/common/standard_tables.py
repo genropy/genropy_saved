@@ -561,15 +561,17 @@ class TableHandler(BaseComponent):
     def saveQueryButton(self, pane):
         dlg = pane.dropdownbutton('Save Query', iconClass='tb_button db_save',nodeId='save_query_btn',hidden=True,
                                   arrow=False,showLabel=False).tooltipDialog(nodeId='save_query_dlg', width='35em', datapath='list.query',height='35ex')
+        dlg.div('!!Save query',_class='tt_dialog_top')
         fields = dlg.div(font_size='0.9em',_class='pbl_roundedGroup')
-        fb = fields.formbuilder(cols=1)
-        fb.textBox(lbl='!!Code' ,value='^.where?code', width='25em')
-        fb.textarea(lbl='!!Description' ,value='^.where?description', width='25em', border='1px solid gray')
-        fb.checkbox(lbl='!!Private' ,value='^.where?private')
-        fb.textBox(lbl='!!Permissions' ,value='^.where?auth_tags', width='25em')
+        fb = fields.formbuilder(cols=2)
+        fb.textBox(lbl='!!Code' ,value='^.where?code', width='25em',colspan=2)
+        fb.simpleTextarea(lbl='!!Description' ,value='^.where?description', 
+                    width='25em', border='1px solid gray',lbl_vertical_align='top',colspan=2)
+        fb.textBox(lbl='!!Permissions' ,value='^.where?auth_tags', width='15em')
+        fb.checkbox(label='!!Private' ,value='^.where?private')
         buttons = dlg.div(font_size='0.9em', _class='tt_dialog_bottom')
-        buttons.div('Save',connect_onclick='FIRE .save', _class='tt_bottom_btn', float='right')
-        buttons.div('cancel',connect_onclick='genro.wdgById("save_query_dlg").onCancel();',_class='tt_bottom_btn', float='right')
+        buttons.button('!!Save',action='FIRE .save', baseClass='bottom_btn', margin_right='5px',float='right')
+        buttons.button('!!Cancel',action='genro.wdgById("save_query_dlg").onCancel();',baseClass='bottom_btn', float='right',margin_right='5px')
         
         dlg.dataRpc('.saveResult', 'save_query', userobject='=.where',
                        _fired='^.save', _POST=True, _onResult='genro.wdgById("save_query_dlg").onCancel();FIRE .saved = true')
@@ -578,13 +580,14 @@ class TableHandler(BaseComponent):
     def deleteQueryButton(self, pane):
         dlg = pane.dropdownbutton('Delete query', nodeId='delete_query_btn',iconClass='icnBaseTrash',
                                 hidden=True, arrow=False,showLabel=False).tooltipDialog(nodeId='delete_query_dlg', width='25em', datapath='list.query')
+        dlg.div('!!Delete query',_class='tt_dialog_top')
         msg = dlg.div(font_size='0.9em',_class='pbl_roundedGroup',height='3ex',padding='10px')
         msg.div('!!Do you really want to delete the query: ')
         msg.span('^.selectedCode')
         
         buttons = dlg.div(font_size='0.9em', _class='tt_dialog_bottom')
-        buttons.div('!!Delete', connect_onclick='FIRE ^.delete', _class='tt_bottom_btn', float='right')
-        buttons.div('!!Cancel', connect_onclick='genro.wdgById("delete_query_dlg").onCancel();', _class='tt_bottom_btn', float='right')
+        buttons.button('!!Delete', action='FIRE ^.delete', baseClass='bottom_btn', margin_right='5px',float='right')
+        buttons.button('!!Cancel', action='genro.wdgById("delete_query_dlg").onCancel();',baseClass='bottom_btn', margin_right='5px',float='right')
 
         
         dlg.dataRpc('.deleteResult', 'delete_query', id='=list.query.selectedId',

@@ -256,11 +256,11 @@ class Public(BaseComponent):
         top.div(title)        
         bottom = container.contentPane(region='bottom',_class='tt_dialog_bottom')
         if bottom_left:
-            bottom.button(bottom_left,float='left',baseClass='tt_bottom_btn',
-                       connect_onclick=bottom_left_action)
+            bottom.button(bottom_left,baseClass='bottom_btn',
+                       connect_onclick=bottom_left_action,float='right',margin_right='5px')
         if bottom_right:
-            bottom.button(bottom_right,float='right',baseClass='tt_bottom_btn',
-                       connect_onclick=bottom_right_action)
+            bottom.button(bottom_right,baseClass='bottom_btn',
+                       connect_onclick=bottom_right_action,float='right',margin_right='5px')
         center=container.borderContainer(region='center',_class='tt_dialog_cnt')
         return center
         
