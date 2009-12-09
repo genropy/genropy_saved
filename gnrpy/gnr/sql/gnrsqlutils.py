@@ -168,7 +168,26 @@ class SqlModelChecker(object):
             for col in tbl.columns.values():
                 if col.sqlname in dbcolumns:
                     #it there's the column it should check if has been edited.
-                    pass
+                    new_dtype = col.attributes['dtype']
+                    new_size=col.attributes.get('size')
+                    old_dtype = dbcolumns[col.sqlname]['dtype']
+                    old_size=dbcolumns[col.sqlname].get('length')
+                    if new_dtype in ('A','C') and old_dtype in ('A','C'):
+                        if new_dtype=='A':
+                            if ':' in new_size:
+                                final_size=new_size.split(':')[1]
+                                final_type='A'
+                            else:
+                                final_size=new_size
+                                final_type='C'
+                        if final_type!=old_dtype or final_size!=str(old_size):
+                            change = self._alterColumnType(col,new_dtype, new_size,old_dtype,old_size)
+                            self.changes.append(change)
+                    elif new_dtype=='X' and old_dtype=='T':
+                        pass
+                    elif new_dtype!=old_dtype :
+                        change = self._alterColumnType(col,new_dtype, new_size,old_dtype,old_size)
+                        self.changes.append(change)
                     #sql.extend(self.checkColumn(colnode, dbcolumns[self.sqlName(colnode)]))
                 else:
                     change = self._buildColumn(col)
@@ -328,6 +347,15 @@ class SqlModelChecker(object):
         """
         return 'ALTER TABLE %s ADD COLUMN %s' % (col.table.sqlfullname, self._sqlColumn(col))
 
+    def _alterColumnType(self, col, new_dtype, new_size=None, old_dtype=None, old_size=None):
+        """
+        Prepares the sql statement for altering the type of a given column.
+        Returns the statement.
+        """
+        sqlType=self.db.adapter.columnSqlType(new_dtype, new_size)
+        return 'ALTER TABLE %s ALTER COLUMN %s TYPE %s' % (col.table.sqlfullname, col.sqlname, sqlType)
+
+    
     def _buildForeignKey(self, o_pkg, o_tbl, o_fld, m_pkg, m_tbl, m_fld, on_up, on_del, init_deferred):
         """
         Prepares the sql statement for adding the new constraint to the given table.

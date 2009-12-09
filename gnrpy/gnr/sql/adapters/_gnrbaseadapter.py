@@ -335,19 +335,25 @@ class SqlDbAdapter(object):
         """
         returns the statement string for creating a table's column
         """
-        sql = '%s %s' % (sqlname, self.revTypesDict[dtype])
-        if dtype == 'A':
-            if ':' in size:
-                sql = '%s(%s)' % (sql, size.split(':')[1])
-            else:
-                sql = '%s %s(%s)' % (sqlname, self.revTypesDict['C'], size)
-                
+        sql = '%s %s' % (sqlname, self.columnSqlType(dtype,size))
         if notnull:
             sql = sql + ' NOT NULL'
         if pkey:
             sql = sql + ' PRIMARY KEY'
         return sql
-    
+
+    def columnSqlType(self, dtype, size=None):
+        if size:
+            if ':' in size:
+                size=size.split(':')[1]
+                dtype='A'
+            else:
+                dtype='C'
+        if size:
+            return '%s(%s)' % (self.revTypesDict[dtype],size)
+        else:
+            return self.revTypesDict[dtype]
+          
     def dropTable(self, sqltable):
         """Create a new database schema"""
         if '.' in sqltable:
