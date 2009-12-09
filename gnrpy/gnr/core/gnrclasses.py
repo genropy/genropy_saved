@@ -25,6 +25,7 @@ import re
 
 from gnr.core import gnrstring
 from gnr.core.gnrdate import decodeOneDate, decodeDatePeriod
+from decimal import Decimal 
 
 ISO_MATCH = re.compile(r'\d{4}\W\d{1,2}\W\d{1,2}')
     
@@ -207,6 +208,14 @@ class GnrClassCatalog(object):
         self.addClass(cls=type(None), key='NN', aliases=['NONE', 'NULL'], empty=None)
         self.addParser(type(None), lambda txt: None)
         self.addSerializer("asText",type(None), lambda txt: '')
+        
+        self.addClass(cls=Decimal, key='N', aliases=['NUMERIC', 'DECIMAL'], align='R',empty=D('0'))
+        self.addParser(Decimal, lambda txt: Decimal(txt))
+        #self.addSerializer("asText",type(None), lambda txt: '')
+        #self.addClass(cls=type(None), key='NN', aliases=['NONE', 'NULL'], empty=None)
+        #self.addParser(type(None), lambda txt: None)
+        #self.addSerializer("asText",type(None), lambda txt: '')
+        
         
         self.addClass(cls=list, altcls=[dict, tuple], key='JS', empty=None)
         self.addSerializer("asText", list, self.toJson)
