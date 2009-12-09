@@ -209,7 +209,7 @@ class GnrClassCatalog(object):
         self.addParser(type(None), lambda txt: None)
         self.addSerializer("asText",type(None), lambda txt: '')
         
-        self.addClass(cls=Decimal, key='N', aliases=['NUMERIC', 'DECIMAL'], align='R',empty=D('0'))
+        self.addClass(cls=Decimal, key='N', aliases=['NUMERIC', 'DECIMAL'], align='R',empty=Decimal('0'))
         self.addParser(Decimal, lambda txt: Decimal(txt))
         #self.addSerializer("asText",type(None), lambda txt: '')
         #self.addClass(cls=type(None), key='NN', aliases=['NONE', 'NULL'], empty=None)
