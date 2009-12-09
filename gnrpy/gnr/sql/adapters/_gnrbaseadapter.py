@@ -31,11 +31,11 @@ class SqlDbAdapter(object):
     but only a few must be implemented in a specific adapter."""
     typesDict = {'character varying':'A', 'character':'A', 'text':'T', 
                  'boolean':'B', 'date':'D', 'time without time zone':'H', 'timestamp without time zone':'DH',
-                 'timestamp with time zone':'DH',
+                 'timestamp with time zone':'DH','numeric':'N','money':'M',
                  'integer':'I', 'bigint':'L','smallint':'I', 'double precision':'R', 'real':'R', 'bytea':'O'}
     
     revTypesDict = {'A':'character varying', 'C':'character', 'T':'text', 
-                    'X':'text','P':'text','Z':'text',
+                    'X':'text','P':'text','Z':'text','N':'numeric','M':'money',
                  'B':'boolean', 'D':'date', 'H':'time without time zone', 'DH':'timestamp without time zone',
                  'I':'integer', 'L':'bigint', 'R':'real',
                  'serial':'serial8','O':'bytea'}
