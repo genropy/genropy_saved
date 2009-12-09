@@ -174,7 +174,7 @@ class Table_counter(TableBase):
         record['pkg'] = pkg
         record['codekey'] = codekey
         record['counter'] = lastAssigned
-        print '---------------INSERTING COUNTER-----%s' % str(codekey)
+        #print '---------------INSERTING COUNTER-----%s' % str(codekey) # commented out by Jeff 9/12/2009
         self.insert(record)
         return self.record(codekey, mode='record', for_update=True)
             
