@@ -744,11 +744,11 @@ class SqlTable(GnrObject):
         aux_db = self.db.application.getAuxInstance(instance_name).db
         source_tbl = aux_db.table(tbl_name or self.fullname)
         source_records = source_tbl.query(addPkeyColumn=False).fetch()
-        print 'Source db=%s' % aux_db.dbname
-        print 'Source tbl=%s' % source_tbl.fullname
-        
-        print 'Curr db=%s'  %self.db.dbname
-        print 'Curr tbl=%s' % self.fullname
+       #print 'Source db=%s' % aux_db.dbname
+       #print 'Source tbl=%s' % source_tbl.fullname
+       #
+       #print 'Curr db=%s'  %self.db.dbname
+       #print 'Curr tbl=%s' % self.fullname
         
         if empty_before:
             self.empty()
