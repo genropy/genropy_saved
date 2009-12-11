@@ -187,6 +187,7 @@ class GnrSqlDb(GnrObject):
                     #cursor = self.connection.cursor()
             cursor.execute(sql, sqlargs)
         except Exception, e:
+            #print sql
             gnrlogger.warning('error executing:%s - with kwargs:%s \n\n', sql, unicode(sqlargs))
             #raise str('error %s executing:%s - with kwargs:%s \n\n' % (str(e), sql, unicode(sqlargs).encode('ascii', 'ignore')))
             self.rollback()
