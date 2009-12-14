@@ -161,7 +161,7 @@ class GnrWsgiSite(object):
             self.config = self.load_site_config()
         
         self.home_uri = self.config['wsgi?home_uri'] or '/'
-        self.session_type = self.config['wsgi?session_type'] or 'file'
+        self.session_type = self.config['wsgi?session_type'] or 'dbm'
         if self.home_uri[-1]!='/':
             self.home_uri+='/'
         self.mainpackage = self.config['wsgi?mainpackage']
@@ -441,9 +441,9 @@ class GnrWsgiSite(object):
             wsgiapp = EvalException(wsgiapp, debug=True)
         beaker_data_path = os.path.join(os.path.realpath(self.site_path),'session_data', 'data')
         beaker_lock_path = os.path.join(os.path.realpath(self.site_path),'session_data', 'lock')
-        
-        wsgiapp = SessionMiddleware(wsgiapp, dict(key=self.session_key, secret=self.secret, 
-                data_dir=beaker_data_path,lock_dir=beaker_lock_path, type=self.session_type, auto=True))
+        wsgiapp = SessionMiddleware(wsgiapp, config={'session.key':self.session_key, 'session.secret':self.secret, 
+            'session.data_dir':beaker_data_path,
+             'session.type':self.session_type, 'session.auto':True})
         #wsgiapp = Gzipper(wsgiapp, compresslevel=8)
         return wsgiapp
         
