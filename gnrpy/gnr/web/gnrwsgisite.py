@@ -439,8 +439,7 @@ class GnrWsgiSite(object):
         wsgiapp=self.dispatcher
         if self.debug:
             wsgiapp = EvalException(wsgiapp, debug=True)
-        beaker_data_path = os.path.join(os.path.realpath(self.site_path),'session_data', 'data')
-        beaker_lock_path = os.path.join(os.path.realpath(self.site_path),'session_data', 'lock')
+        beaker_data_path = os.path.join(os.path.realpath(self.site_path),'data','_beaker_data')
         wsgiapp = SessionMiddleware(wsgiapp, config={'session.key':self.session_key, 'session.secret':self.secret, 
             'session.data_dir':beaker_data_path,
              'session.type':self.session_type, 'session.auto':True})
