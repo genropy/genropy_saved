@@ -90,6 +90,9 @@ class GnrBaseWebPage(GnrObject):
     def __init__(self, request, customclass, filepath, home_uri, response=None, **kwargs):
         raise NotImplementedException()
     
+    def newCookie(self, name, value, **kw):
+        return self.request.newCookie(name, value, **kw)
+        
     def newMarshalCookie(self, name, value, secret=None, **kw):
         return self.request.newMarshalCookie(name,value,secret=secret,**kw)
 
@@ -102,8 +105,9 @@ class GnrBaseWebPage(GnrObject):
     def get_request_header(self,header):
         raise NotImplementedException()
         
-    def get_cookie(self, cookieName, cookieType, secret = None):
-        return self.request.get_cookie(cookieName, cookieType, secret = secret)
+    def get_cookie(self, cookieName, cookieType, secret = None,  path=None):
+        return self.request.get_cookie(cookieName, cookieType,
+                                    secret = secret,  path =path)
 
     def add_cookie(self,cookie):
         self.response.add_cookie(cookie)
@@ -119,9 +123,11 @@ class GnrBaseWebPage(GnrObject):
             return Bag()
     
     def _set_clientContext(self,bag):
-        cookie=self.get_cookie('genroContext','simple')
-        cookie.value=bag
-        cookie=self.add_cookie(cookie)
+        value=urllib.quote(bag.toXml())
+        cookie=self.get_cookie('genroContext','simple', path=self.siteUri)
+        cookie.value = value
+        self.add_cookie(cookie)
+        
     clientContext = property(_get_clientContext,_set_clientContext)
         
     def _get_filename(self):

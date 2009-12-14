@@ -70,10 +70,17 @@ class GnrWebRequest(object):
     def newMarshalCookie(self, name, value, secret=None, **kw):
         return Cookie.MarshalCookie(name,value,secret=secret,**kw)
     
-    def get_cookie(self, cookieName, cookieType, secret = None):
+    def newCookie(self, name, value, **kw):
+        return Cookie.Cookie(name,value,**kw)
+        
+    def get_cookie(self, cookieName, cookieType, secret = None, path=None):
         cookieType = cookie_types[cookieType]
         cookie=Cookie.get_cookie(self._request, cookieName, cookieType, secret = secret)
-        if type(cookie) is not cookieType: cookie=None
+        if type(cookie) is not cookieType:
+            cookie=None
+        if cookie is None and path:
+            cookie= cookieType(cookieName, '', secret=secret)
+            cookie.path=path
         return cookie
     
 class GnrWebResponse(object):
