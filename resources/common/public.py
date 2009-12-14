@@ -404,7 +404,8 @@ class UserObject(object):
         fb = dlgpane.formbuilder(cols=2, border_spacing='4px')
         dlgpane.dataController("genro.wdgById('%s_saveDlg').onCancel();" %objtype, _fired="^.close_save")
                                          
-        fb.textBox(lbl='!!Code' ,value='^.resource?code', width='10em',colspan=2)
+        fb.textBox(lbl='!!Code' ,value='^.resource?code', width='10em',colspan=1)
+        fb.checkbox(lbl='!!Shortlist' ,value='^.resource?inside_shortlist')
         fb.simpleTextarea(lbl='!!Description' ,value='^.resource?description',
                           width='20em',lbl_vertical_align='top',rowspan=2,colspan=2)
         fb.textBox(lbl='!!Permissions' ,value='^.resource?auth_tags', width='10em')        

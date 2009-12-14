@@ -226,9 +226,10 @@ class Table_userobject(TableBase):
         tbl.column('data', 'X', name_long='!!Data')
         tbl.column('authtags', 'T', name_long='!!Auth tags')
         tbl.column('private', 'B', name_long='!!Private')
+        tbl.column('inside_shortlist', 'B', name_long='!!Shortlist')
 
     def saveUserObject(self, data, id=None, code=None, objtype=None, pkg=None, tbl=None, userid=None, 
-                             description=None, authtags=None, private=None, **kwargs):
+                             description=None, authtags=None, private=None,inside_shortlist=None, **kwargs):
         if id:
             record = self.record(id, mode='record', for_update=True, ignoreMissing=True)
         else:
@@ -239,7 +240,7 @@ class Table_userobject(TableBase):
             isNew = True
             
         loc = locals()
-        for k in ['code','objtype','pkg','tbl','userid','description','data','authtags','private']:
+        for k in ['code','objtype','pkg','tbl','userid','description','data','authtags','private','inside_shortlist']:
             record[k] = loc[k]
             
         if isNew:

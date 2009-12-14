@@ -18,7 +18,7 @@ from gnr.sql.gnrsql_exceptions import GnrSqlException,GnrSqlSaveChangesException
 from gnr.core.gnrbag import Bag
 
 class TableHandler(BaseComponent):
-    py_requires=''
+    py_requires='standard_tables_core:UserObject'
     css_requires = 'standard_tables'
     js_requires = 'standard_tables'
     
@@ -52,9 +52,9 @@ class TableHandler(BaseComponent):
         
     def formTitleBase(self,pane):
         pane.data('form.title',self.tblobj.attributes.get('name_long','Record'))
-        if self.tblobj.attributes.get('rowcaption'):
-            record_caption='^form.record?caption'
-            pane.dataFormula("form.title",'record_caption', record_caption=record_caption)
+       #if self.tblobj.attributes.get('rowcaption'):
+       #    record_caption='^form.record?caption'
+       #    pane.dataFormula("form.title",'record_caption', record_caption=record_caption)
     
     def columnsBase(self):
         return ''
@@ -67,6 +67,8 @@ class TableHandler(BaseComponent):
     def main(self, root, pkey=None, **kwargs):
         root.data('selectedPage',0)
         root.data('gnr.maintable',self.maintable)
+        self.userObjectDialog()
+
         self.setOnBeforeUnload(root, cb="genro.getData('gnr.forms.formPane.changed')",
                                msg="!!There are unsaved changes, do you want to close the page without saving?")
         pages,top,bottom = self.pbl_rootStackContainer(root,title='^list.title_bar', selected='^selectedPage',_class='pbl_mainstack')
@@ -274,10 +276,29 @@ class TableHandler(BaseComponent):
             pane.button('!!Lock', position='absolute',right='0px',fire='status.lock', iconClass="tb_button icnBaseUnlocked", showLabel=False,hidden='^status.locked')
         pane.button('!!Add',position='absolute',left='0px',fire='list.newRecord', iconClass="tb_button db_add", visible='^list.canWrite', showLabel=False)
 
+    def queryParamsDialog(self,pane):
+        pane.dataController("""var where = GET list.query.where;
+                              var kw = {needPars:false};
+                              var cb = function(node,kw,i){
+                                  var v = node.getValue();
+                                  if (v.indexOf('?')==0){
+                                     node.setAttr('value_capiton',v.slice(1));
+                                     node.setValue(null);
+                                     kw['needPars'] = true;
+                                  }
+                              }
+                              where.walk(cb,kw);
+                              if (kw['needPars']){
+                                  genro.querybuilder.queryParamsDialog();
+                              }
+                              else{
+                                FIRE list.runQueryDo = true;
+                              }""",_fired="")
     def pageListController(self,pane):
         """docstring for pageListController"""
+        self.queryParamsDialog(pane)
         pane.dataController('genro.dom.disable("query_buttons");SET list.gridpage = 1;SET list.queryRunning = true;FIRE list.runQueryDo = true;',
-                                                                    running='=list.queryRunning', _if='!running', fired='^list.runQuery')
+                                                                    running='=list.queryRunning', _if='!running', fired='^list.runQuery')        
         pane.dataController('SET list.noSelection=true;SET list.rowIndex=null;', fired='^list.runQuery', _init=True)
         
         pane.dataController("""SET selectedPage=1;
@@ -393,12 +414,14 @@ class TableHandler(BaseComponent):
         parentdatapath, resname = datapath.rsplit('.', 1)
         top = pane.div(_class='st_editor_bar', datapath=parentdatapath)        
         top.div(_class='icnBase10_Doc buttonIcon',float='right',
-                                connect_onclick="FIRE .new=true;",
+                                connect_onclick=" SET list.query.selectedId = null ;FIRE .new=true;",
                                 margin_right='5px', margin_top='2px', tooltip='!!New %s' % restype);
         
-        top.div(_class='icnBase10_Save buttonIcon', float='right',
-                                              onCreated="genro.dlg.connectTooltipDialog($1,'save_%s_btn')" % restype,
-                                             margin_right='5px', margin_top='2px', tooltip='!!Save %s' % restype);
+        top.div(_class='icnBase10_Save buttonIcon', float='right',margin_right='5px', margin_top='2px',
+                connect_onclick="""var currentqueryId = GET list.query.selectedId; 
+                                   FIRE #userobject_dlg.pkey = currentqueryId?currentqueryId:"*newrecord*";""",
+                                              #onCreated="genro.dlg.connectTooltipDialog($1,'save_%s_btn')" % restype,
+                tooltip='!!Save %s' % restype);
         
         top.div(_class='icnBase10_Trash buttonIcon', float='right',
                                                 onCreated="genro.dlg.connectTooltipDialog($1,'delete_%s_btn')" % restype,
@@ -559,22 +582,8 @@ class TableHandler(BaseComponent):
 
     
     def saveQueryButton(self, pane):
-        dlg = pane.dropdownbutton('Save Query', iconClass='tb_button db_save',nodeId='save_query_btn',hidden=True,
-                                  arrow=False,showLabel=False).tooltipDialog(nodeId='save_query_dlg', width='35em', datapath='list.query',height='35ex')
-        dlg.div('!!Save query',_class='tt_dialog_top')
-        fields = dlg.div(font_size='0.9em',_class='pbl_roundedGroup')
-        fb = fields.formbuilder(cols=2)
-        fb.textBox(lbl='!!Code' ,value='^.where?code', width='25em',colspan=2)
-        fb.simpleTextarea(lbl='!!Description' ,value='^.where?description', 
-                    width='25em', border='1px solid gray',lbl_vertical_align='top',colspan=2)
-        fb.textBox(lbl='!!Permissions' ,value='^.where?auth_tags', width='15em')
-        fb.checkbox(label='!!Private' ,value='^.where?private')
-        buttons = dlg.div(font_size='0.9em', _class='tt_dialog_bottom')
-        buttons.button('!!Save',action='FIRE .save', baseClass='bottom_btn', margin_right='5px',float='right')
-        buttons.button('!!Cancel',action='genro.wdgById("save_query_dlg").onCancel();',baseClass='bottom_btn', float='right',margin_right='5px')
-        
-        dlg.dataRpc('.saveResult', 'save_query', userobject='=.where',
-                       _fired='^.save', _POST=True, _onResult='genro.wdgById("save_query_dlg").onCancel();FIRE .saved = true')
+        pane.button('Save Query', iconClass='tb_button db_save',action='FIRE #userobject_dlg.pkey = "*newrecord*";',hidden=True,showLabel=True)
+
 
     
     def deleteQueryButton(self, pane):
@@ -847,11 +856,11 @@ class TableHandler(BaseComponent):
             t_r.button('!!Revert',position='absolute', right='115px',fire='form.doLoad', iconClass="tb_button db_revert",
                          disabled='== !_changed', _changed='^gnr.forms.formPane.changed', 
                          showLabel=False, hidden='^status.locked')
-            if self.userCanDelete():
-                t_r.button('!!Delete', float='left',fire='form.deleteRecord', iconClass="tb_button db_del",
-                                   visible='^form.canDelete',disabled='^form.noDelete', showLabel=False)
             t_r.button('!!Add', float='left', fire_add='form.navbutton', iconClass="tb_button db_add",
                          disabled='^form.noAdd', showLabel=False,visible='^form.canWrite')
+        if self.userCanDelete():
+            t_r.button('!!Delete', float='left',fire='form.deleteRecord', iconClass="tb_button db_del",
+                                   visible='^form.canDelete',disabled='^form.noDelete', showLabel=False)
             
         
     
