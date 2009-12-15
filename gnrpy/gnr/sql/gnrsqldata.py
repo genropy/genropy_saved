@@ -41,6 +41,7 @@ from gnr.sql.gnrsql_exceptions import SelectionExecutionError,RecordDuplicateErr
 
 COLFINDER = re.compile(r"(\W|^)\$(\w+)")
 RELFINDER = re.compile(r"(\W|^)(\@([\w.@:]+))")
+PERIODFINDER = re.compile(r" #PERIOD\( *(\w*) *, *(\w*) *\) ")
 
 class SqlCompiledQuery(object):
     """SqlCompiledQuery is a private class used by SqlQueryCompiler. 
@@ -78,7 +79,23 @@ class SqlCompiledQuery(object):
             kwargs[k] = getattr(self, k)        
         return db.adapter.compileSql(**kwargs)
     
-
+class SqlMacroExpander(object):
+    SQLMACRO = {'PERIOD':'expandPeriod',
+            'SELF':'tableMacros'}
+    
+    def __init__(self, tblobj, sqlparams):
+        self.tblobj=tblobj
+        self.sqlparams=sqlparams
+         
+    def __call__(self, expression):
+        for macro in self.sqlmacro.keys():
+            pass
+             
+    def expandPeriod(self):
+        pass
+        
+    def tableMacros(self):
+        pass
         
 class SqlQueryCompiler(object):
     """SqlQueryCompiler is a private class used by SqlQuery and SqlRecord to build an SqlCompiledQuery instance."""
@@ -446,7 +463,7 @@ class SqlQueryCompiler(object):
                     distinct = 'DISTINCT '     # add a DISTINCT to remove unusefull rows: eg. a JOIN used only for a where, not for columns
                     if count:
                         columns = 't0.%s' % self.tblobj.pkey
-                        # Count the DISTINCT maintable pkeys, instead of count(*) which will give the number of JOINt rows.
+                        # Count the DISTINCT maintable pkeys, instead of count(*) which will give the number of JOIN rows.
                         # That gives the count of rows on the main table: the result is different from the actual number
                         # of rows returned by the query, but it is correct in terms of main table records.
                         # It is the right behaviour ???? Yes in some cases: see SqlSelection._aggregateRows
@@ -1890,6 +1907,6 @@ class SqlRecordBag(Bag):
             #return self._db()
             return self._db
     db = property(_get_db, _set_db)
-        
+    
 
 

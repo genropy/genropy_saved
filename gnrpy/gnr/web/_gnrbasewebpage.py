@@ -617,6 +617,7 @@ class GnrBaseWebPage(GnrObject):
         - The user exists and his password is correct.
         - The user is guest
         """
+        loginPars={}
         if guestName:
             avatar = self.application.getAvatar(guestName)
         else:
@@ -625,9 +626,10 @@ class GnrBaseWebPage(GnrObject):
             self.connection.updateAvatar(avatar)
             self.site.onAutenticated(avatar)
             login['message'] = ''
+            loginPars=avatar.loginPars
         else:
             login['message'] = 'invalid login'
-        return login
+        return (login,loginPars)
     
 
     def _rpcDispatcher(self, method=None, xxcnt='',**kwargs):

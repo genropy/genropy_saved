@@ -656,6 +656,7 @@ class GnrAvatar(object):
         self.username = username
         self.userid = userid or id
         self.tags = tags
+        self.loginPars={'tags':self.tags}
         for k,v in kwargs.items():
             setattr(self, k, v)
             

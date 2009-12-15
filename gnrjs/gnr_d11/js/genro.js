@@ -81,7 +81,7 @@ dojo.declare('gnr.GenroClient', null, {
         dojo.addOnLoad(this,'start');
     },
     compare: function(op,a,b){
-        return genro.compareDict[op](a,b) 
+        return genro.compareDict[op](a,b);
     },
     timeIt:function(msg){
         var t=this.lastTime;
@@ -104,6 +104,10 @@ dojo.declare('gnr.GenroClient', null, {
         if (clientCtx){
             dojo.cookie("genroContext",clientCtx.toXml(), { expires: 5,path:genro.getData('gnr.homeUrl')});
         }
+    },
+    clientCtx:function(path){
+        var path = path? '.'+path:'';
+        return genro._('_clientCtx'+path);
     },
     warning: function(msg){
         console.warn(msg);
@@ -278,7 +282,7 @@ dojo.declare('gnr.GenroClient', null, {
                 f.places=0;
             }
             if (!f.pattern && f.places==0){
-                f.pattern= '##########'
+                f.pattern= '##########';
             }
             v = stringStrip(dojo.currency.format(v,f));
         }
@@ -314,7 +318,7 @@ dojo.declare('gnr.GenroClient', null, {
                 v="<div "+ event_attrs +" style='margin:auto;' "+divclass+">"+'&nbsp;'+"</div>";
             }
             else if( f['inlineedit']==true){
-                v = "<span style='font-family: wingdings; text-decoration: underline;'>&nbsp;&nbsp;&nbsp;&nbsp;&#x270d;&nbsp;&nbsp;&nbsp;&nbsp;</span>"
+                v = "<span style='font-family: wingdings; text-decoration: underline;'>&nbsp;&nbsp;&nbsp;&nbsp;&#x270d;&nbsp;&nbsp;&nbsp;&nbsp;</span>";
             }
             
         }
@@ -391,7 +395,6 @@ dojo.declare('gnr.GenroClient', null, {
         genro.download("",{table:table, pkey:pkey, template:template, method:"app.recordToPDF",mode:'text'});
     },
     rpcDownload: function(method, kwargs, onload_cb){
-        console.log(method)
         genro.download('',genro.rpc.getRpcUrlArgs(method, kwargs), onload_cb);
         
     },
