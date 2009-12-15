@@ -408,11 +408,11 @@ dojo.declare('gnr.GenroClient', null, {
         url=genro.makeUrl(url,args);
         genro.src.getNode()._('div', '_dlframe');
         var node = genro.src.getNode('_dlframe').clearValue().freeze();
-        var params =  {'src':url, display:'hidden', width:'0px', height:'0px',name:'aaaaaaaaaaaaaaa',title:'bbbbbbbbbbbbbbbbbbbbb'};
+        var params =  {'src':url, display:'hidden', width:'0px', height:'0px'};
         if (onload_cb) {
-            //if (onload_cb=='print'){
-            //    onload_cb="genro.dom.iFramePrint(this.domNode);";
-            //}
+            if (onload_cb=='print'){
+                onload_cb="genro.dom.iFramePrint(this.domNode);";
+            }
             params['connect_onload'] = onload_cb;
         };
         frm = node._('iframe',params);
