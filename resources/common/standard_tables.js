@@ -366,7 +366,9 @@ dojo.declare("gnr.GnrQueryAnalyzer",null,{
             tr = queryform._('tr');
             tr._('td')._('div', {'innerHTML':attrs['value_caption'] + ':',_class:'gnrfieldlabel'});
             tr._('td')._('textBox',{'value':'^.'+attrs['relpath'], width:'10em', _class:'gnrfield'});
-        };    
+        };   
+        bottom._('button',{label:'Cancel',baseClass:'bottom_btn','float':'left',
+                          action:"genro.wdgById('_dlg_ask_querypars').hide();SET list.queryRunning = false;SET list.gridpage = 0;"}); 
         bottom._('button',{label:'Confirm',baseClass:'bottom_btn','float':'right',action:action});
         bottom._('button',{label:'Count',baseClass:'bottom_btn','float':'right',action:'FIRE list.showQueryCountDlg;'});
 
