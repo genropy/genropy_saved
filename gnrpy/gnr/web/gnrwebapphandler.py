@@ -704,7 +704,7 @@ class GnrBaseWebAppHandler(object):
         fmt_kwargs = dict([(str(k[4:]), v) for k,v in kwargs.items() if k.startswith('frm_')])
         query=tblobj.query(columns=columns,distinct=distinct, where=where,
                         order_by=order_by,limit=limit, offset=offset, group_by=group_by,having=having,
-                        relationDict=relationDict, sqlparams=sqlparams,
+                        relationDict=relationDict, sqlparams=sqlparams,locale=self.page.locale,
                         excludeLogicalDeleted=excludeLogicalDeleted,**sql_kwargs)
         if sqlContextName: 
             self._joinConditionsFromContext(query, sqlContextName)

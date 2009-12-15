@@ -27,7 +27,7 @@ import calendar
 
 from gnr.core import gnrlocale
 from gnr.core.gnrlocale import DEFAULT_LOCALE
-from gnr.core.gnrstring import splitAndStrip, anyWordIn, wordSplit
+from gnr.core.gnrstring import splitAndStrip, anyWordIn, wordSplit, toText
 
 logger= logging.getLogger('gnr.core.gnrdate')
 
@@ -179,7 +179,22 @@ def decodeOneDate(datestr, workdate=None, months=None, days=None, quarters=None,
             return dateEnd
         else:
             return dateStart
-
+            
+def periodCaption(dateFrom=None, dateTo=None, locale=None):
+    localTo = gnrlocale.getDateKeywords('to', locale)[0]
+    localFrom = gnrlocale.getDateKeywords('from', locale)[0]
+    textFrom=toText(dateFrom, locale=locale)
+    textTo=toText(dateTo, locale=locale)
+    if dateFrom and dateTo:
+        return '%s %s %s %s' % (localFrom, textFrom, localTo, textTo)
+    if dateFrom:
+        return '%s %s' % (localFrom, textFrom)
+    elif dateTo:
+        return '%s %s' % (localTo, textTo)
+    else:
+        return ''
+    
+    
 def decodeDatePeriod(datestr, workdate=None, locale=None, returnDate=False, dtype='D'):
     """Parse a string representing a date or a period and returns a string of one or two dates in iso format separated by ';'
        See doc of decodeOneDate for details on possible formats of a single date.

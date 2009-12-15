@@ -319,7 +319,7 @@ class SqlTable(GnrObject):
               distinct=None, limit=None, offset=None,
               group_by=None, having=None, for_update=False,
               relationDict=None, sqlparams=None,excludeLogicalDeleted=True,
-              addPkeyColumn=True,
+              addPkeyColumn=True,locale=None,
               mode=None, **kwargs):
         """This method return an object SqlQuery object which represents a query that
         can be executed with different modes.
@@ -354,7 +354,7 @@ class SqlTable(GnrObject):
                          group_by=group_by, having=having, for_update=for_update,
                          relationDict=relationDict, sqlparams=sqlparams,
                          excludeLogicalDeleted=excludeLogicalDeleted,
-                         addPkeyColumn=addPkeyColumn,
+                         addPkeyColumn=addPkeyColumn,locale=locale,
                          **kwargs)
         
         if mode:

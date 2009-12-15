@@ -324,25 +324,24 @@ class Public(BaseComponent):
         dates = ','.join(dates)
         return dates
         
-    def periodCombo(self, fb, period_store = None,lbl=None,**kwargs):
+    def periodCombo(self, fb,period_store = None,value=None , lbl=None,**kwargs):
+        value = value or '^.period_input'
         if not period_store:
             period_store = '.period'
             string_store = 'vars.period_string'
         else:
             string_store = '%s.period_string' % period_store
-        fb.dataRpc(period_store, 'decodeDatePeriod', datestr='^.period_input', 
-                    _if='datestr', _else='SET .period=null;', _fired='^gnr.onStart')
-        fb.dataScript(string_store,
-                         """if(ff && tt){
-                            return 'da '+ asText(ff, {format:'full'}) +' a '+ asText(tt, {format:'full'});
-                         } else {
-                            return '';
-                         }  """,
-                          ff='^%s.from' % period_store, tt='^%s.to'% period_store)
-        fb.combobox(lbl=lbl or '!!Period',value='^.period_input', width='16em',
+        fb.dataRpc(period_store, 'decodeDatePeriod', datestr=value, 
+                    _if='datestr', _else='SET .period=null;', _fired='^gnr.onStart',
+                    _onResult="""if (result.getItem("valid")){
+                                 console.log('valid');
+                                 }else{
+                                 console.log('invalid');
+                                 result.setItem('period_string','Invalid period');
+                                 }""")
+        fb.combobox(lbl=lbl or '!!Period',value=value, width='16em',tip='^%s.period_string'%period_store,
                     values=self._pbl_datesHints(), margin_right='5px',padding_top='1px',**kwargs)
-                    
-                    
+                        
 class ThermoDialog(object):
     def thermoNewDialog(self, pane, thermoid='thermo', title='', thermolines=1, fired=None, pollingFreq=1):
         dlgid = 'dlg_%s' % thermoid

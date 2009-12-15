@@ -491,15 +491,22 @@ class GnrBaseWebPage(GnrObject):
     def rpc_decodeDatePeriod(self, datestr, workdate=None, locale=None):
         workdate = workdate or self.workdate
         locale = locale or self.locale
+        period=datestr
+        valid=False
         try:
             returnDate = gnrdate.decodeDatePeriod(datestr, workdate=workdate, locale=locale, returnDate=True)
+            valid=True
         except:
             returnDate = (None, None)
+            period=None
         result = Bag()
         result['from'] = returnDate[0]
         result['to'] = returnDate[1]
         result['prev_from'] = gnrdate.dateLastYear(returnDate[0])
         result['prev_to'] = gnrdate.dateLastYear(returnDate[1])
+        result['period'] = period
+        result['valid']=valid
+        result['period_string'] = gnrdate.periodCaption(*returnDate,locale=locale)
         return result
     
     def rpc_ping(self, **kwargs):

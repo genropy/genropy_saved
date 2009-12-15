@@ -28,6 +28,7 @@ import itertools
 import hashlib
 
 from gnr.core.gnrlang import deprecated
+from gnr.core.gnrdate import decodeDatePeriod
 from gnr.core.gnrlist import GnrNamedList
 
 from gnr.core.gnrclasses import GnrClassCatalog
@@ -41,7 +42,7 @@ from gnr.sql.gnrsql_exceptions import SelectionExecutionError,RecordDuplicateErr
 
 COLFINDER = re.compile(r"(\W|^)\$(\w+)")
 RELFINDER = re.compile(r"(\W|^)(\@([\w.@:]+))")
-PERIODFINDER = re.compile(r" #PERIOD\( *(\w*) *, *(\w*) *\) ")
+PERIODFINDER = re.compile(r"(?:\W|^)#PERIOD *?\( *?((?:\$|@)?\w*) *?, *?(\w*)\)(?:\W|^)?")
 
 class SqlCompiledQuery(object):
     """SqlCompiledQuery is a private class used by SqlQueryCompiler. 
@@ -78,28 +79,10 @@ class SqlCompiledQuery(object):
         for k in ('maintable', 'distinct','columns','joins','where', 'group_by', 'having', 'order_by', 'limit', 'offset', 'for_update'):
             kwargs[k] = getattr(self, k)        
         return db.adapter.compileSql(**kwargs)
-    
-class SqlMacroExpander(object):
-    SQLMACRO = {'PERIOD':'expandPeriod',
-            'SELF':'tableMacros'}
-    
-    def __init__(self, tblobj, sqlparams):
-        self.tblobj=tblobj
-        self.sqlparams=sqlparams
-         
-    def __call__(self, expression):
-        for macro in self.sqlmacro.keys():
-            pass
-             
-    def expandPeriod(self):
-        pass
-        
-    def tableMacros(self):
-        pass
         
 class SqlQueryCompiler(object):
     """SqlQueryCompiler is a private class used by SqlQuery and SqlRecord to build an SqlCompiledQuery instance."""
-    def __init__(self, tblobj, joinConditions=None, sqlContextName=None, sqlparams=None):
+    def __init__(self, tblobj, joinConditions=None, sqlContextName=None, sqlparams=None, locale=None):
         """
             * `tblobj`: the main table to query: an instance of SqlTable, you can get it using db.table('pkgname.tablename')
             * `joinConditions`: special conditions for joining related tables. See SqlQuery.setJoinCondition.
@@ -116,6 +99,7 @@ class SqlQueryCompiler(object):
         self.sqlContextName = sqlContextName
         self.cpl = None
         self._currColKey = None
+        self.locale=locale
         
     def init (self, lazy=None, eager=None):
         self._explodingRows = False
@@ -377,6 +361,8 @@ class SqlQueryCompiler(object):
             columns = ','.join(new_col_list)
             
         # translate @relname.fldname in $_relname_fldname and add them to the relationDict
+        if where:
+            where= PERIODFINDER.sub(self.expandPeriod,where)
         columns = self.updateFieldDict(columns)
         where = self.updateFieldDict(where or '')
         order_by = self.updateFieldDict(order_by or '')
@@ -495,6 +481,31 @@ class SqlQueryCompiler(object):
         self.cpl.for_update = for_update
         return self.cpl
     
+    def expandPeriod(self,m):
+        fld=m.group(1)
+        period_param = m.group(2)
+        date_from,date_to = decodeDatePeriod(self.sqlparams[period_param],
+                                             returnDate=True, locale=self.locale)
+        from_param = '%s_from' % period_param
+        to_param = '%s_to'%period_param
+        if date_from is None and date_to is None:
+            return ' true'
+        elif date_from and date_to:
+            if date_from==date_to:
+                self.sqlparams[from_param]=date_from
+                return ' %s = :%s' % (fld, from_param)
+            
+            self.sqlparams[from_param]=date_from
+            self.sqlparams[to_param]=date_to
+            return ' %s BETWEEN :%s AND :%s' % (fld, from_param, to_param)
+        
+        elif date_from:
+            self.sqlparams[from_param]=date_from
+            return ' %s >= :%s' % (fld, from_param)
+        else:
+            self.sqlparams[to_param]=date_to
+            return ' %s <= :%s' % (fld, to_param)
+        
     def _recordWhere(self,  where=None): # usato da record resolver e record getter
         if where:
             self.updateFieldDict(where)
@@ -684,7 +695,7 @@ class SqlQuery(object):
                  relationDict=None, sqlparams=None,  bagFields=False, 
                  joinConditions=None, sqlContextName=None, 
                  excludeLogicalDeleted=True,
-                 addPkeyColumn = True,
+                 addPkeyColumn = True,locale=None,
                  **kwargs):
         self.dbtable = dbtable
         self.sqlparams = sqlparams or {}
@@ -698,6 +709,7 @@ class SqlQuery(object):
         self.sqlparams.update(kwargs)
         self.excludeLogicalDeleted=excludeLogicalDeleted
         self.addPkeyColumn= addPkeyColumn
+        self.locale=locale
         
         test = " ".join([v for v in (columns, where, order_by,group_by, having) if v])
         rels = set(re.findall('\$(\w*)', test))
@@ -730,7 +742,7 @@ class SqlQuery(object):
             self._compiled = SqlQueryCompiler(self.dbtable.model,
                                               joinConditions=self.joinConditions,
                                               sqlContextName=self.sqlContextName, 
-                                              sqlparams=self.sqlparams).compiledQuery(relationDict=self.relationDict,
+                                              sqlparams=self.sqlparams,locale=self.locale).compiledQuery(relationDict=self.relationDict,
                                                                                 bagFields=self.bagFields,
                                                                                 excludeLogicalDeleted=self.excludeLogicalDeleted,
                                                                                 addPkeyColumn = self.addPkeyColumn,

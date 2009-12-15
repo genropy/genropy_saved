@@ -328,8 +328,6 @@ class GnrSqlDb(GnrObject):
         for table, pkg in data.digest('#k,#a.pkg'):
             for n in data[table]:
                 self.table(table, pkg=pkg).insertOrUpdate(n.attr)
-
-
 if __name__=='__main__':
     pass
     
