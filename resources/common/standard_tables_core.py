@@ -37,3 +37,31 @@ class UserObject(BaseComponent):
         fb.field('authtags',autospan=2,lbl='!!Permissions')
         fb.field('private',lbl='',label='!!Private')
         
+class ViewExporter(BaseComponent):
+    def rpc_rpcSavedSelection(self, table, view=None, query=None, userid=None, out_mode='tabtext', **kwargs):
+        tblobj = self.db.table(table)
+        
+        columns = tblobj.pkg.loadUserObject(code=view, objtype='view',  tbl=table, userid=userid)[0]
+        where = tblobj.pkg.loadUserObject(code=query, objtype='query',  tbl=table, userid=userid)[0]
+        
+        selection = self.app._default_getSelection(tblobj=tblobj, columns=columns, where=where, **kwargs)
+        return selection.output(out_mode)
+        
+    def savedQueryResult(self, table, view=None, query=None,
+                                  order_by=None,group_by=None,
+                                  having=None,distinct=False,
+                                  excludeLogicalDeleted=True,
+                                  **kwargs):
+        tblobj = self.db.table(table)
+        
+        columnsBag = tblobj.pkg.loadUserObject(code=view, objtype='view',  tbl=table)[0]
+        columns = self.app._columnsFromStruct(columnsBag)      
+        whereBag = tblobj.pkg.loadUserObject(code=query, objtype='query',  tbl=table)[0]
+        whereBag._locale = self.locale
+        whereBag._workdate = self.workdate
+        where, kwargs = tblobj.sqlWhereFromBag(whereBag, kwargs)
+        
+        query=tblobj.query(columns=columns,distinct=distinct, where=where,
+                        order_by=order_by, group_by=group_by,having=having,
+                        excludeLogicalDeleted=excludeLogicalDeleted,**kwargs)
+        return query

@@ -422,7 +422,9 @@
 	font-style: italic;
 	font-size: 0.8em;
 }
-
+.queryAsk .dijitInputField{
+    background:yellow;
+}
 
 /* @end */
 

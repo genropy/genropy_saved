@@ -92,3 +92,4 @@ class StatsHandler(BaseComponent):
                                     key=key_col,captionCb=captionCb)
         self.freezeSelection(selection,selectionName)
         return result
+        
