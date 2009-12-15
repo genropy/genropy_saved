@@ -1255,7 +1255,7 @@ class GnrBaseWebPage(GnrObject):
         
 
     def windowTitle(self):
-        return os.path.split(self.filename)[1].replace('_',' ').capitalize()
+        return os.path.splitext(os.path.basename(self.filename))[0].replace('_',' ').capitalize()
 
     def _errorPage(self,err,method=None,kwargs=None):
         page = self.domSrcFactory.makeRoot(self)
