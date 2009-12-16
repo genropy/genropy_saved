@@ -223,7 +223,7 @@ dojo.declare("gnr.GnrQueryBuilder",null,{
             tr._('td')._('div',{_class:'qb_div qb_op floatingPopup', connectedMenu:'qb_op_menu',selected_fullpath:relpath+'?op',
                                 selected_caption: relpath+'?op_caption',innerHTML:'^'+relpath+'?op_caption'});
             tr._('td')._('div',{_class:'qb_div qb_value'})._('textbox',{value:'^'+relpath, width:'10em',
-                         _autoselect:true,_class:'^'+relpath+'?_class'});
+                         _autoselect:true,_class:'^'+relpath+'?css_class',validate_onAccept:'genro.queryanalyzer.checkQueryLineValue(this,value);'});
         }
         tr._('td')._('div',{connect_onclick:dojo.hitch(this,'addDelFunc','add',i+1), _class:'qb_btn qb_add'});
         if (i>0){
@@ -325,26 +325,18 @@ dojo.declare("gnr.GnrQueryAnalyzer",null,{
         this.triggerpath = triggerpath;
     },
     checkQueryLineValue:function(sourceNode,value){
-        console.log('a')
-       //if (value.indexOf('?')==0){
-       //    var relpath = sourceNode.attr.value.slice(1);
-       //    sourceNode.setRelativeData(relpath,null)
-       //    sourceNode.setRelativeData(relpath+'?_class','queryAsk');
-       //    sourceNode.setRelativeData(relpath+'?value_caption',value.slice(1));
-       //    sourceNode.setRelativeData(relpath+'?dtype',genro._('gnr.qb.fieldstree.'+sourceNode.attr.column+'?dtype'));
-       //}
+       if (value.indexOf('?')==0){
+           var relpath = sourceNode.attr.value.slice(1);
+           sourceNode.setRelativeData(relpath,null)
+           sourceNode.setRelativeData(relpath+'?css_class','queryAsk');
+           sourceNode.setRelativeData(relpath+'?value_caption',value.slice(1));
+           sourceNode.setRelativeData(relpath+'?dtype',genro._('gnr.qb.fieldstree.'+sourceNode.attr.column+'?dtype'));
+       }
     },
     translateQueryPars: function(){
         var currwhere =genro._(this.wherepath);
         var parslist = [];
         var cb = function(node,parslist,idx){
-            var v = node.getValue();
-            if (v.indexOf('?')==0){
-                node.attr._class = 'queryAsk';
-                node.attr.value_caption = v.slice(1);
-                node.attr.dtype = genro._('gnr.qb.fieldstree.'+node.attr.column+'?dtype');
-                node.setValue(null);
-            }
             if(node.attr.value_caption){
                 var relpath = node.getFullpath('static',currwhere);
                 var result = objectUpdate({},node.attr);

@@ -227,7 +227,8 @@ class TableHandler(BaseComponent):
                                                         selected_fullpath='.c_0?op',
                                                         selected_caption='.c_0?op_caption',
                                                         _class='smallFakeTextBox floatingPopup')
-        queryfb.textbox(lbl='!!Value',value='^.c_0',width='12em', _autoselect=True,_class='^.c_0?_class')
+        queryfb.textbox(lbl='!!Value',value='^.c_0',width='12em', _autoselect=True,_class='^.c_0?css_class',
+                        validate_onAccept='genro.queryanalyzer.checkQueryLineValue(this,value);')
         queryfb.button('!!Run query', fire='list.runQueryButton', iconClass="tb_button db_query",showLabel=False)
         queryfb.dataFormula('list.currentQueryCountAsString','msg.replace("_rec_",cnt)',
                                                cnt='^list.currentQueryCount',_if='cnt',_else='',
