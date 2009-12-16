@@ -354,18 +354,17 @@ dojo.declare("gnr.GnrQueryAnalyzer",null,{
         
         var bc = dlg._('borderContainer',{_class:'pbl_dialog_center',
                                           height:parslist.length*30+100+'px',
-                                          width:'300px'});
-        var bottom = bc._('contentPane',{'region':'bottom',_class:'dialog_bottom'});
-
-        var center = bc._('contentPane',{'region':'center'});      
+                                          width:'350px'});
+        var center = bc._('contentPane',{'region':'center'}); 
+        var bottom = bc._('contentPane',{'region':'bottom',_class:'dialog_bottom'});     
         var queryform = center._('div',{padding:'10px',font_size:'.8'})._('table',{border_spacing:'8px',onEnter:action,margin_top:'10px'})._('tbody');
 
         var tr, attrs;
         for (var i=0; i < parslist.length; i++) {
             attrs = parslist[i];
             tr = queryform._('tr');
-            tr._('td')._('div', {'innerHTML':attrs['value_caption'] + ':',_class:'gnrfieldlabel'});
-            tr._('td')._('textBox',{'value':'^.'+attrs['relpath'], width:'10em', _class:'gnrfield'});
+            tr._('td')._('div', {'innerHTML':attrs['value_caption'] + ':',_class:'gnrfieldlabel',width:'10em'});
+            tr._('td')._('textBox',{'value':'^.'+attrs['relpath'], width:'12em', _class:'gnrfield',tabindex:i});
         };   
         bottom._('button',{label:'Cancel',baseClass:'bottom_btn','float':'left',
                           action:"genro.wdgById('_dlg_ask_querypars').hide();SET list.queryRunning = false;SET list.gridpage = 0;"}); 
