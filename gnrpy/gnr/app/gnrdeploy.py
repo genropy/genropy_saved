@@ -228,8 +228,8 @@ class PackageMaker(object):
         self.lib_path = os.path.join(self.package_path, 'lib')
         self.webpages_path = os.path.join(self.package_path, 'webpages')
         self.resources_path = os.path.join(self.webpages_path, '_resources')
-        self.main_py_path = os.path.join(self.project_path, 'main.py')
-        self.menu_xml_path = os.path.join(self.project_path, 'menu.xml')
+        self.main_py_path = os.path.join(self.package_path, 'main.py')
+        self.menu_xml_path = os.path.join(self.package_path, 'menu.xml')
         self.examplemodel_py_example_path = os.path.join(self.model_path, 'examplemodel_py.example')
         self.examplewebpage_py_example_path = os.path.join(self.webpages_path, 'examplewebpage_py.example')
         for path in (self.package_path, self.model_path, self.lib_path, self.webpages_path, self.resources_path):
