@@ -2,61 +2,34 @@
 # encoding: utf-8
 
 """
-create a new empty package 
-usage: gnrmkpackage [--path=packagespath] packagename
+create a new genroproject
+usage: gnrmkproject projectname
+
 """
-import sys, os
-import getopt
+import sys, os, shutil
+
 from gnr.core.gnrbag import Bag
-from gnr.core.gnrstring import templateReplace
-from gnr.core.gnrsys import mkdir
 from gnr.app.gnrapp import GnrApp
+from gnr.app.gnrdeploy import PackageMaker, PathResolver
+from optparse import OptionParser
 
-def createPackage(name, path=None):
-    if not path: path = os.getcwd()
-    pkgpath = os.path.join(path, name)
-    mkdir(pkgpath)
-    
-    deploypath = '/usr/local/genro/packages/%s' % name
-    if pkgpath != deploypath:
-        try:
-            os.remove(deploypath)
-        except:
-            pass
-        os.symlink(pkgpath, deploypath)
-
-    
-    modelpath = os.path.join(pkgpath,'model')
-    os.mkdir(modelpath)
-    
-    webpagespath = os.path.join(pkgpath,'webpages')
-    os.mkdir(webpagespath)   
-    
-    libpath = os.path.join(pkgpath,'lib')
-    os.mkdir(libpath)   
-    
-    main ="""#!/usr/bin/env python
-# encoding: utf-8
-from gnr.app.gnrdbo import GnrDboTable, GnrDboPackage, Table_counter, Table_userobject
-
-class Package(GnrDboPackage):
-    def config_attributes(self):
-        return dict(comment='$name package',
-                name_short='$name', name_long='$name', name_full='$name')
-        
-    def config_db(self, pkg):
-        pass
-        
-class Table(GnrDboTable):
-    pass
-"""
-    
-    main = templateReplace(main, {'name':name})
-    f = file(os.path.join(pkgpath, 'main.py'),'w')
-    f.write(main)
-    f.close()
-    
 if __name__ == '__main__':
-    kwargs, args= getopt.getopt(sys.argv[1:], '',['path='])
-    kwargs=dict(kwargs)
-    createPackage(args[0],path=kwargs.get('--path'))
+    parser = OptionParser()
+    parser.add_option("-b", "--base-path", dest="base_path",
+                      help="base path where project will be created")
+    
+    (options, args) = parser.parse_args()
+    base_path = getattr(options,'base_path', None)
+    if not args:
+        print 'You should specify a package name'
+    else:
+        package_name = args[0]
+        if '.' in args[0]:
+            path_resolver = PathResolver()
+            project_name,package_name = args[0].split('.')
+            base_path = base_path or os.path.join(path_resolver.project_name_to_path(project_name),'packages')
+        print 'Creating package %s in %s...'%(package_name,base_path or 'current directory')
+        package_maker = PackageMaker(package_name, base_path=base_path)
+        print 'Package %s created'%package_name
+        package_maker.do()
+        
