@@ -173,11 +173,11 @@ DATEKEYWORDS = {
     'en':{'this week':('this week', 'week'), 'next week':'next week', 'last week':'last week',
           'this month':('this month', 'month'), 'next month':'next month', 'last month':'last month',
           'today':'today', 'yesterday':'yesterday', 'tomorrow':'tomorrow', 
-          'to':('to','and'), 'from':('from', 'between')},
+          'to':('to','and'), 'from':('from', 'between'), 'no period':('no period','always')},
     'it':{'this week':('questa settimana','settimana'),'next week':'settimana prossima','last week':'settimana scorsa',
           'this month':('questo mese', 'mese'), 'next month':'mese prossimo', 'last month':'mese scorso',
           'today':'oggi', 'yesterday':'ieri', 'tomorrow':'domani',
-          'from':('da','dal','dalla'), 'to':('a', 'al', 'alla', 'e')}
+          'from':('da','dal','dalla'), 'to':('a', 'al', 'alla', 'e'), 'no period':('senza periodo','sempre')}
 }
 
 

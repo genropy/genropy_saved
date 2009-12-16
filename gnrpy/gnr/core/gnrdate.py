@@ -181,6 +181,7 @@ def decodeOneDate(datestr, workdate=None, months=None, days=None, quarters=None,
             return dateStart
             
 def periodCaption(dateFrom=None, dateTo=None, locale=None):
+    localNoPeriod = gnrlocale.getDateKeywords('no period', locale)[0]
     localTo = gnrlocale.getDateKeywords('to', locale)[0]
     localFrom = gnrlocale.getDateKeywords('from', locale)[0]
     textFrom=toText(dateFrom, locale=locale)
@@ -192,7 +193,7 @@ def periodCaption(dateFrom=None, dateTo=None, locale=None):
     elif dateTo:
         return '%s %s' % (localTo, textTo)
     else:
-        return ''
+        return localNoPeriod
     
     
 def decodeDatePeriod(datestr, workdate=None, locale=None, returnDate=False, dtype='D'):

@@ -326,13 +326,9 @@ class Public(BaseComponent):
         
     def periodCombo(self, fb,period_store = None,value=None , lbl=None,**kwargs):
         value = value or '^.period_input'
-        if not period_store:
-            period_store = '.period'
-            string_store = 'vars.period_string'
-        else:
-            string_store = '%s.period_string' % period_store
+        period_store = period_store or '.period'
         fb.dataRpc(period_store, 'decodeDatePeriod', datestr=value, 
-                    _if='datestr', _else='SET .period=null;', _fired='^gnr.onStart',
+                    _fired='^gnr.onStart',
                     _onResult="""if (result.getItem("valid")){
                                  console.log('valid');
                                  }else{
