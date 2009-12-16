@@ -297,7 +297,7 @@ class TableHandler(BaseComponent):
         pane.dataController("""SET selectedPage=1;
                                    SET list.query.pkeys=initialPkey;
                                    FIRE list.runQuery = true;""",
-                                 _onStart=300, initialPkey='=initialPkey', _if='initialPkey')
+                                 _onStart=1, initialPkey='=initialPkey', _if='initialPkey')
                                  
         pane.dataController("""var pkeys= genro.getData('list.'+dataset_name);
                                    if(pkeys){
