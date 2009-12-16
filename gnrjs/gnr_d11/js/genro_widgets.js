@@ -516,6 +516,7 @@ dojo.declare("gnr.widgets.Dialog",gnr.widgets.baseDojo,{
                             if (genro.dialogStack.length>1) {
                                 genro.dialogStack.slice(-2)[0].hide();
                             }
+                            
                         }
                     });
         dojo.connect(newobj,"hide",newobj,
@@ -525,16 +526,6 @@ dojo.declare("gnr.widgets.Dialog",gnr.widgets.baseDojo,{
                                     if (genro.dialogStack.length>0) {
                                         genro.dialogStack.slice(-1)[0].show();
                                     }}});
-        
-       //if ('parentDialog' in sourceNode.attr){
-       //    
-       //    var parentDlg=genro.wdgById(sourceNode.attr.parentDialog);
-       //    dojo.connect(newobj,"show",function(){parentDlg.hide();});
-       //    dojo.connect(newobj,"hide",function(){parentDlg.show();});
-       //}else{
-       //    dojo.connect(newobj,"show",newobj,'parentHide');
-       //    dojo.connect(newobj,"hide",newobj,'parentShow');
-       //}
     },
 
     attributes_mixin_onAskCancel:function(){
@@ -551,13 +542,6 @@ dojo.declare("gnr.widgets.Dialog",gnr.widgets.baseDojo,{
     },
     mixin_setTitle:function(title){
         this.titleNode.innerHTML = title;
-    },
-    mixin_parentHide: function(){
-    },
-    mixin_parentShow: function(){
-        
-    },
-    mixin_getParentDialog: function(){
     }
 
 });
@@ -1378,13 +1362,6 @@ dojo.declare("gnr.widgets.NumberSpinner",gnr.widgets.NumberTextBox,{
         this._dojotag='NumberSpinner';
     }
 });
-dojo.declare("gnr.widgets.TooltipDialog___",gnr.widgets.baseDojo,{
-    constructor: function(application){
-        this._domtag = 'div';
-        this._dojotag='TooltipDialog';
-    }
-});
-
 
 dojo.declare("gnr.widgets.Grid",gnr.widgets.baseDojo,{
     constructor: function(application){
