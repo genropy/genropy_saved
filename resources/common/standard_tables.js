@@ -324,6 +324,16 @@ dojo.declare("gnr.GnrQueryAnalyzer",null,{
         this.wherepath = wherepath;
         this.triggerpath = triggerpath;
     },
+    checkQueryLineValue:function(sourceNode,value){
+        console.log('a')
+       //if (value.indexOf('?')==0){
+       //    var relpath = sourceNode.attr.value.slice(1);
+       //    sourceNode.setRelativeData(relpath,null)
+       //    sourceNode.setRelativeData(relpath+'?_class','queryAsk');
+       //    sourceNode.setRelativeData(relpath+'?value_caption',value.slice(1));
+       //    sourceNode.setRelativeData(relpath+'?dtype',genro._('gnr.qb.fieldstree.'+sourceNode.attr.column+'?dtype'));
+       //}
+    },
     translateQueryPars: function(){
         var currwhere =genro._(this.wherepath);
         var parslist = [];
