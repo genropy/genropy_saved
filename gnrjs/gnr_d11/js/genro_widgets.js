@@ -516,7 +516,6 @@ dojo.declare("gnr.widgets.Dialog",gnr.widgets.baseDojo,{
                             if (genro.dialogStack.length>1) {
                                 genro.dialogStack.slice(-2)[0].hide();
                             }
-                            
                         }
                     });
         dojo.connect(newobj,"hide",newobj,
