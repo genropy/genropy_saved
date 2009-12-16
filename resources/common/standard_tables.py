@@ -227,7 +227,8 @@ class TableHandler(BaseComponent):
                                                         selected_fullpath='.c_0?op',
                                                         selected_caption='.c_0?op_caption',
                                                         _class='smallFakeTextBox floatingPopup')
-        queryfb.textbox(lbl='!!Value',value='^.c_0',width='12em', _autoselect=True,_class='^.c_0?_class')
+        queryfb.textbox(lbl='!!Value',value='^.c_0',width='12em', _autoselect=True,_class='^.c_0?_class',
+                        validate_onAccept="""genro.queryanalyzer.checkQueryLineValue(this,value)""")
         queryfb.button('!!Run query', fire='list.runQueryButton', iconClass="tb_button db_query",showLabel=False)
         queryfb.dataFormula('list.currentQueryCountAsString','msg.replace("_rec_",cnt)',
                                                cnt='^list.currentQueryCount',_if='cnt',_else='',
@@ -297,7 +298,7 @@ class TableHandler(BaseComponent):
         pane.dataController("""SET selectedPage=1;
                                    SET list.query.pkeys=initialPkey;
                                    FIRE list.runQuery = true;""",
-                                 _onStart=True, initialPkey='=initialPkey', _if='initialPkey')
+                                 _onStart=300, initialPkey='=initialPkey', _if='initialPkey')
                                  
         pane.dataController("""var pkeys= genro.getData('list.'+dataset_name);
                                    if(pkeys){
