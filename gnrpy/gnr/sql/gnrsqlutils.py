@@ -183,7 +183,7 @@ class SqlModelChecker(object):
                         if final_type!=old_dtype or final_size!=str(old_size):
                             change = self._alterColumnType(col,new_dtype, new_size,old_dtype,old_size)
                             self.changes.append(change)
-                    elif new_dtype in ('X','Z') and old_dtype=='T':
+                    elif new_dtype in ('X','Z','P') and old_dtype=='T':
                         pass
                     elif new_dtype!=old_dtype :
                         change = self._alterColumnType(col,new_dtype, new_size,old_dtype,old_size)
