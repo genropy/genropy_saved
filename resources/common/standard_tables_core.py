@@ -6,7 +6,7 @@ print_utils.py
 Created by Saverio Porcari on 2009-06-29.
 Copyright (c) 2009 __MyCompanyName__. All rights reserved.
 """
-import cups
+
 from gnr.web.gnrwebpage import BaseComponent
 from gnr.core.gnrbag import Bag
 
