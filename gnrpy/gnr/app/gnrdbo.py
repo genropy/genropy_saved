@@ -114,7 +114,7 @@ class GnrDboTable(TableBase):
                         elif rowop=='IU':
                             child_tblobj.insertOrUpdate(row)   
              
-                
+
 class Table_counter(TableBase):
     """This table is automatically created for every package that inherit from
        GnrDboPackage."""
@@ -128,6 +128,7 @@ class Table_counter(TableBase):
         tbl.column('name', name_long='!!Name')
         tbl.column('counter', 'L', name_long='!!Counter')
         tbl.column('last_used', 'D', name_long='!!Counter')
+        tbl.column('holes', 'X', name_long='!!Holes')
         
     def setCounter(self, name, pkg, code, 
                    codekey='$YYYY_$MM_$K', output='$K/$YY$MM.$NNNN', 
