@@ -70,7 +70,7 @@ class TableBuilder(object):
         
     def sendFile(self, filename, mimetype, ext, content):
         content = content.encode('utf-8')
-        filename = filename.replace(' ','_').replace('/','-').replace(':','-').encode('utf-8')
+        filename = filename.replace(' ','_').replace('/','-').replace(':','-').replace('\n','').encode('utf-8')
         if len(content) < 200000:
             self.response.content_type = mimetype
             self.response.add_header("Content-Disposition", "attachment; filename=%s.%s" % (filename, ext))
