@@ -619,6 +619,7 @@ class SqlTable(GnrObject):
     def getResource(self,path):
         app = self.db.application
         resource = app.site.loadResource(self.pkg.name,'tables',self.name,path)
+        resource.site=app.site
         resource.table = self
         resource.db = self.db
         return resource
