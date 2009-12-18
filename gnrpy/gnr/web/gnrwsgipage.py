@@ -414,7 +414,10 @@ class GnrWsgiPage(GnrBaseWebPage):
         
     def getAuxInstance(self, name):
         return self.site.getAuxInstance(name)
-            
+        
+    def handleSubUrl(self,suburl):
+        return '.'.join(suburl)
+        
 class GnrMakoPage(GnrWsgiPage):
     def index(self,*args, **kwargs):
         kwargs['mako']=self.mako_template()
