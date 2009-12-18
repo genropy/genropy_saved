@@ -896,7 +896,6 @@ class GnrBaseWebAppHandler(object):
         limit = int(limit)
         result = Bag()
         tblobj = self.db.table(dbtable)
-        
         captioncolumns = tblobj.rowcaptionDecode(rowcaption)[0]
         querycolumns = tblobj.getQueryFields(columns,captioncolumns)
         showcolumns = gnrlist.merge(querycolumns, tblobj.columnsFromString(auxColumns))
@@ -906,6 +905,7 @@ class GnrBaseWebAppHandler(object):
         selection = None
         identifier= 'pkey'
         rows=[]  
+        querycolumns = ['cast (%s AS TEXT)' %x for x in querycolumns]
         if _id:
             if alternatePkey:
                 where ='$%s = :id' % alternatePkey

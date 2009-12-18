@@ -1029,7 +1029,7 @@ class RecordHandler(object):
                             _fired="^.addNew")
                             
         pane.dataController("""genro.wdgById("%s").show(); 
-                               SET .current_pkey = (!firedPkey||firedPkey==true) ? "*newrecord*" : firedPkey;
+                               SET .current_pkey = (!firedPkey||firedPkey===true) ? "*newrecord*" : firedPkey;
                                genro.formById("%s").load();
                             """ %(dlgId,formId),firedPkey=firedPkey)
                             

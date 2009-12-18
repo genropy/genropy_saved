@@ -663,6 +663,7 @@ class SqlTable(GnrObject):
         for col in columns:
             if not col.startswith('@') and not col.startswith('$'):
                 col = '$%s' % col
+                #FIX 
             result.append(col)
         return result
     
