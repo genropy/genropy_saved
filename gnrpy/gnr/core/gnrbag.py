@@ -659,11 +659,11 @@ class Bag(GnrObject):
                 if self.backref:
                     self._onNodeInserted(newnode,i)
             elif returnLastMatch:
-                return self.parentNode, [label]+pathlist
+                return self.parentNode, '.'.join([label]+pathlist)
             else:
                 return None, None
-            
-        newcurr = curr._nodes[i].value #maybe a deferred
+        newcurrnode=curr._nodes[i]
+        newcurr = newcurrnode.value #maybe a deferred
         # if deferred : 
             #return deferred.addcallback(this.getItem(path rimanente))
         isbag = hasattr(newcurr, '_htraverse')
@@ -675,6 +675,8 @@ class Bag(GnrObject):
         if isbag:
             return newcurr._htraverse(pathlist, autocreate=autocreate, returnLastMatch=returnLastMatch)
         else:
+            if returnLastMatch:
+                return newcurrnode,'.'.join(pathlist)
             return newcurr, '.'.join(pathlist)
     
     def __iter__(self):
@@ -1042,14 +1044,8 @@ class Bag(GnrObject):
             return (None,['foo','bar','baz'])
         """
         result = self._htraverse(path,returnLastMatch=True)
-        if result==(None, None):
-            return None, gnrstring.smartsplit(path,'.')
         if hasattr(result[0],'_htraverse'):
-            bag,label=result
-            node = bag.getNode(label)
-            if not node:
-                return bag.parentNode,[label]
-            return node, []
+            return result[0].getNode(result[1]), ''
         return result
         
 #-------------------- getNode --------------------------------        
