@@ -375,6 +375,8 @@ class GnrWsgiSite(object):
                             _user_login=_user_login, _rpc_resultPath=_rpc_resultPath)
         if not page:
             return self.not_found(environ,start_response)
+        if page_args:
+            page_args=page.handleSubUrl(page_args.split('.'))
         page_method = page_args and page_args[0]
         if page_method and not 'method' in page_kwargs:
             page_kwargs['method'] = page_method
@@ -642,7 +644,6 @@ class GnrWsgiSite(object):
         resourceDirs = self.gnrapp.packages[pkg].resourceDirs
         resource_class = cloneClass('CustomResource',BaseResource)
         self.mixinResource(resource_class, resourceDirs, *path)
-        resource_class.site = self
         return resource_class()
         
     def callTableScript(self, page=None, table=None, respath=None, class_name=None, runKwargs=None,**kwargs):
