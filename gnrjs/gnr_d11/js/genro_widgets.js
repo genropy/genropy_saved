@@ -3382,6 +3382,23 @@ dojo.declare("gnr.widgets.GoogleMap",gnr.widgets.baseHtml,{
      map_newMarker: function(center){
          return new GMarker(this.getMapLoc(center));
      }
+});
+dojo.declare("gnr.widgets.CkEditor",gnr.widgets.baseHtml,{
+    constructor: function(application){
+        this._domtag = 'div';
+    },
+    creating: function(attributes, sourceNode){
+        attributes.id=attributes.id || 'ckedit_'+sourceNode.getStringId()
+        savedAttrs=objectExtract(attributes,'foo_*');
+        return savedAttrs;
+    },
+     created: function(widget, savedAttrs, sourceNode){
+          CKEDITOR.replace(widget)
+          sourceNode.editorData=function(){
+              CKEDITOR.instances['ckedit_'+this.getStringId()].getData();
+        }
+     }
+
 
 });
 dojo.declare("gnr.widgets.fileInput",gnr.widgets.baseDojo,{
