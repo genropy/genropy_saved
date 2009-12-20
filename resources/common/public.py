@@ -87,8 +87,11 @@ class Public(BaseComponent):
                         labelClass = 'menu_page'
                     attributes['labelClass'] = 'menu_shape %s' %labelClass
                     filepath=attributes.get('file')
-                    if filepath and not filepath.startswith('/'):
-                        attributes['file'] = os.path.join(*(currbasepath+[filepath]))
+                    if filepath: 
+                        if not filepath.startswith('/'):
+                            attributes['file'] = os.path.join(*(currbasepath+[filepath]))
+                        else:
+                            attributes['file'] = self.site.home_uri + filepath.lstrip('/')
                     result.setItem(node.label,value,attributes)
             return result
         result=userMenu(self.userTags,self.application.config['menu'],0,[])
