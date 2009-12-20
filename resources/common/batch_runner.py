@@ -65,7 +65,7 @@ class BatchRunner(BaseComponent):
         d.div(position='absolute', top='28px', right='4px',
             bottom='4px', left='4px').includedView(storepath='%s.errors' % resultpath, struct=struct)
             
-    def rpc_runBatch(self, table, selectionName=None,recordId=None ,batch_class=None, 
+    def rpc_runBatch(self, table, selectionName=None,selectionFilterCb=None,recordId=None ,batch_class=None, 
                     selectedRowidx=None, forUpdate=False, **kwargs):
         """batchFactory: name of the Class, plugin of table, which executes the batch action
             thermoid:
@@ -80,7 +80,12 @@ class BatchRunner(BaseComponent):
             data = tblobj.record(pkey=recordId,ignoreMissing=True).output('bag')
         else:    
             data = self.unfreezeSelection(tblobj, selectionName)
-            if selectedRowidx:
+            print selectionFilterCb
+            if selectionFilterCb:
+                filterCb=getattr(self, 'rpc_%s' % selectionFilterCb)
+                data.filter(filterCb)
+                print x
+            elif selectedRowidx:
                 if isinstance(selectedRowidx, basestring):
                     selectedRowidx = [int(x) for x  in selectedRowidx.split(',')]
                 selectedRowidx = set(selectedRowidx)
@@ -89,6 +94,7 @@ class BatchRunner(BaseComponent):
         batch_class = self.batch_loader(batch_class)
         if batch_class:
             batch = batch_class(data=data, table=table, page=self, thermocb=self.app.setThermo, **kwargs)
+            print y
             return batch.run()
         else:
             raise Exception

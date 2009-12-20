@@ -15,13 +15,14 @@ class PrintUtils(BaseComponent):
     py_requires='batch_runner:BatchRunner'
     def serverPrint(self,pane,name,table=None,table_resource=None,
                         selectionName='=list.selectionName',
+                        selectionFilterCb=None,
                         recordId = None,
                          datapath=None,parameters_cb=None,
                         resultpath='.print_result',
                         thermoParams=None,docName=None,rebuild=True,
-                        gridId='maingrid',batch_class=None,**kwargs):
-        table = table or self.maintable
-        selectedRowidx = None           
+                        gridId='maingrid',batch_class=None,
+                        selectedRowidx=None,**kwargs):
+        table = table or self.maintable         
         if not batch_class:
             if recordId:
                 batch_class='PrintRecord'
@@ -29,7 +30,7 @@ class PrintUtils(BaseComponent):
                     recordId=None
             else:
                 batch_class='PrintSelection'
-        if not recordId:
+        if not recordId and not selectedRowidx and not selectionFilterCb:
             selectedRowidx =  "==genro.wdgById('%s').getSelectedRowidx();" %gridId
                 
         datapath = datapath or 'serverprint.%s' %name
@@ -43,7 +44,7 @@ class PrintUtils(BaseComponent):
                                 cachedPrinterParams="=_clientCtx.printerSetup.%s" %name,
                                 _fired='^.print',_else='genro.dlg.alert(msg,title)',
                                 msg='!!No printer selected',title='!!Warning',datapath=datapath)
-                                
+        print selectionFilterCb                        
         pane.dataRpc("dummy","runBatch" ,datapath=datapath,
                      _onResult='if($1){genro.download($1)}',
                      table=table or self.maintable,
@@ -51,7 +52,9 @@ class PrintUtils(BaseComponent):
                      table_resource=table_resource,
                      rebuild=rebuild,recordId=recordId,
                      resultpath=resultpath,thermoParams=dict(field='*'),
-                     selectionName=selectionName,pdfParams='=.pdf',
+                     selectionName=selectionName,
+                     selectionFilterCb=selectionFilterCb,
+                     pdfParams='=.pdf',
                      docName=docName,selectedRowidx=selectedRowidx,
                      _fired='^.dlpdf',runKwargs='=.parameters.data') 
                              

@@ -135,7 +135,11 @@ class RecordToHtmlNew(TableScriptOnRecord):
             self.page.site.print_handler.htmlToPdf(self.filepath, temp.name)
             with open(temp.name,'rb') as f:
                 html=f.read()
+        self.onRecordExit(self._data['record'])
         return html
+        
+    def onRecordExit(self, recordBag):
+        return
         
     def createHtml(self, filepath=None, **kwargs):
         #filepath = filepath or self.filepath
