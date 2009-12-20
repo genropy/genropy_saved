@@ -116,7 +116,8 @@ dojo.declare("gnr.GnrWdgHandler",null,{
                              'Grid':'dojox.grid.Grid:dojox.Grid',
                              'VirtualGrid':'dojox.grid.VirtualGrid:dojox.VirtualGrid',
                              'Calendar':'mywidgets.widget.Calendar,mywidgets.widget.Timezones',
-                             'GoogleMap':''
+                             'GoogleMap':'',
+                             'CkEditor':''
                               };
         var tag;
         for(tag in this.widgetcatalog ){
