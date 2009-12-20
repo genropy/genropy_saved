@@ -66,6 +66,7 @@ class PrintUtils(BaseComponent):
                               rebuild=rebuild,
                               thermoParams=dict(field='*'),
                               recordId=recordId,selectionName=selectionName,
+                              selectionFilterCb=selectionFilterCb,
                               selectedRowidx = selectedRowidx,
                               #printParams='=.printer.params', 
                               printParams='=_clientCtx.printerSetup.%s' %name,

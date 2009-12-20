@@ -30,7 +30,7 @@ class BatchRunner(BaseComponent):
     
     def buildBatchRunner(self, pane, resultpath='aux.cmd', 
                          selectionName=None,selectedRowidx=None,recordId=None, 
-                         fired=None, batch_class=None,
+                         fired=None, batch_class=None,selectionFilterCb=None,
                          thermoParams=None, endScript=None,stopOnError=False, forUpdate=False, onRow=None, **kwargs):
         """Prepare a batch action on the maintable with a thermometer
            @param resultpath: the path into the datastore where the result is stored.
@@ -50,6 +50,7 @@ class BatchRunner(BaseComponent):
                      table=kwargs.pop('table', self.maintable), selectionName=selectionName,
                      recordId = recordId,
                      batch_class=batch_class,
+                     selectionFilterCb=selectionFilterCb,
                      thermofield=thermoParams.get('field'), thermoid = thermoid,
                      selectedRowidx =selectedRowidx,
                      _fired=fired, _onResult=endScript,
@@ -84,7 +85,6 @@ class BatchRunner(BaseComponent):
             if selectionFilterCb:
                 filterCb=getattr(self, 'rpc_%s' % selectionFilterCb)
                 data.filter(filterCb)
-                print x
             elif selectedRowidx:
                 if isinstance(selectedRowidx, basestring):
                     selectedRowidx = [int(x) for x  in selectedRowidx.split(',')]
@@ -94,7 +94,6 @@ class BatchRunner(BaseComponent):
         batch_class = self.batch_loader(batch_class)
         if batch_class:
             batch = batch_class(data=data, table=table, page=self, thermocb=self.app.setThermo, **kwargs)
-            print y
             return batch.run()
         else:
             raise Exception
