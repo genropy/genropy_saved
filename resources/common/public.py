@@ -1046,14 +1046,15 @@ class RecordHandler(object):
         loadingParameters = loadingParameters or '=gnr.tables.%s.loadingParameters' %table.replace('.','_')
         loadKwargs = dict(loadKwargs)
         loadKwargs.update(**kwargs)
-        self.formLoader(formId,resultPath= '%s.record'%controllerPath,
-                        table=table,pkey='=%s.current_pkey' %controllerPath,
+        self.formLoader(formId,resultPath='.record',
+                        table=table,pkey='=.current_pkey',
                         method=loadingMethod,loadingParameters=loadingParameters,
+                        datapath=controllerPath,
                         sqlContextName=sqlContextName,**loadKwargs)
                        
-        self.formSaver(formId,resultPath= savePath or '%s.savingResult' %controllerPath,
-                       table=table, _fired='^%s.saveRecord' %controllerPath,
-                       method=savingMethod,onSaved=onSaved,**saveKwargs)
+        self.formSaver(formId,resultPath= savePath or '.savingResult',
+                       table=table, _fired='^.saveRecord',
+                       method=savingMethod,onSaved=onSaved,datapath=controllerPath,**saveKwargs)
                        
         pane.dataController("""if(loading){
                                     SET .stackPane = 0;

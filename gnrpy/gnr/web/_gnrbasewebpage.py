@@ -1046,7 +1046,7 @@ class GnrBaseWebPage(GnrObject):
                     label = n.getAttr('info', {}).get('label', k.replace('_',' ').capitalize())
                     menu.menuline(label, href=href)
                     
-    def formSaver(self,formId,table=None,method=None,_fired='',
+    def formSaver(self,formId,table=None,method=None,_fired='',datapath=None,
                     resultPath='dummy',changesOnly=True,onSaved=None,**kwargs):
         method = method or 'saveRecordCluster'
         controller = self.pageController()
@@ -1054,15 +1054,18 @@ class GnrBaseWebPage(GnrObject):
         onSaved = onSaved or ''
         if changesOnly:
             data = '==genro.getFormChanges("%s");'
-        controller.dataController('genro.formById("%s").save()' %formId,_fired=_fired)
+        controller.dataController('genro.formById("%s").save()' %formId,_fired=_fired,
+                                 datapath=datapath)
         kwargs['fireModifiers'] = _fired.replace('^','=')
         controller.dataRpc(resultPath, method=method ,nodeId='%s_saver' %formId ,_POST=True,
-                       data=data %formId, _onResult='genro.formById("%s").saved();%s;' %(formId,onSaved), 
-                       table=table,**kwargs)
+                           datapath=datapath,data=data %formId, 
+                           _onResult='genro.formById("%s").saved();%s;' %(formId,onSaved), 
+                           table=table,**kwargs)
                        
-    def formLoader(self,formId,resultPath,table=None,pkey=None, _fired=None,loadOnStart = False,lock=False,
-                    method=None,onLoading=None, 
-                    onLoaded=None,loadingParameters=None,**kwargs):
+    def formLoader(self,formId,resultPath,table=None,pkey=None,  datapath=None,
+                    _fired=None,loadOnStart = False,lock=False,
+                    method=None,onLoading=None,onLoaded=None,loadingParameters=None,
+                    **kwargs):
         pkey = pkey or '*newrecord*'
         method = method or 'loadRecordCluster'
         onResultScripts=[]
@@ -1074,10 +1077,10 @@ class GnrBaseWebPage(GnrObject):
         loadingParameters = loadingParameters or '=gnr.tables.maintable.loadingParameters'
         controller = self.pageController()
         controller.dataController('genro.formById("%s").load();' %formId,
-                                _fired=_fired, _onStart=loadOnStart,_delay=1)
+                                _fired=_fired, _onStart=loadOnStart,_delay=1,datapath=datapath)
                     
         controller.dataRpc(resultPath, method=method, pkey=pkey, table=table,
-                           nodeId='%s_loader' %formId,
+                           nodeId='%s_loader' %formId,datapath=datapath,
                            _onResult=';'.join(onResultScripts),lock=lock,
                            loadingParameters=loadingParameters, **kwargs)
                     
