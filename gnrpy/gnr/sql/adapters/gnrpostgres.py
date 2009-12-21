@@ -66,6 +66,9 @@ def dsn_clean(dsn=''):
 def connect(dsn):
     dsn, d = dsn_clean(dsn)
     return pg.connect(dsn), d
+    
+def transactionStatus(self,connection):
+    return connection.get_transaction_status()
 
 def get_cursor(dsn=''):
     """Creates a new connection (if necessary) and a new cursor"""

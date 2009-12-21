@@ -233,6 +233,10 @@ class SqlDbAdapter(object):
         """
         raise NotImplementedException()
         
+    def transactionStatus(self,connection):
+        """implement this"""
+        pass
+
         
     def insert(self, dbtable, record_data):
         """Insert a record in the db. 
