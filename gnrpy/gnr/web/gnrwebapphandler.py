@@ -905,7 +905,6 @@ class GnrBaseWebAppHandler(object):
         selection = None
         identifier= 'pkey'
         rows=[]  
-        querycolumns = ['cast (%s AS TEXT)' %x for x in querycolumns]
         if _id:
             if alternatePkey:
                 where ='$%s = :id' % alternatePkey
