@@ -223,7 +223,7 @@ dojo.declare("gnr.GnrQueryBuilder",null,{
             tr._('td')._('div',{_class:'qb_div qb_op floatingPopup', connectedMenu:'qb_op_menu',selected_fullpath:relpath+'?op',
                                 selected_caption: relpath+'?op_caption',innerHTML:'^'+relpath+'?op_caption'});
             tr._('td')._('div',{_class:'qb_div qb_value'})._('textbox',{value:'^'+relpath, width:'10em',
-                         _autoselect:true,_class:'^'+relpath+'?css_class',validate_onAccept:'genro.queryanalyzer.checkQueryLineValue(this,value);'});
+                         _autoselect:true,_class:'st_conditionValue',validate_onAccept:'genro.queryanalyzer.checkQueryLineValue(this,value);'});
         }
         tr._('td')._('div',{connect_onclick:dojo.hitch(this,'addDelFunc','add',i+1), _class:'qb_btn qb_add'});
         if (i>0){
@@ -240,7 +240,7 @@ dojo.declare("gnr.GnrQueryBuilder",null,{
         var tbl = container._('table', {_class:'qb_table'})._('tbody');
         for (var i=0; i < bagnodes.length; i++) {
             node = bagnodes[i];
-            this._buildQueryRow(tbl._('tr'), bagnodes[i] , i, level);
+            this._buildQueryRow(tbl._('tr',{_class:'^.'+node.label+'?css_class'}), bagnodes[i] , i, level);
         }
     },
     saveQueryDialog:function(title, actions, buttons, labels){
@@ -327,10 +327,16 @@ dojo.declare("gnr.GnrQueryAnalyzer",null,{
     checkQueryLineValue:function(sourceNode,value){
        if (value.indexOf('?')==0){
            var relpath = sourceNode.attr.value.slice(1);
-           sourceNode.setRelativeData(relpath,null)
-           sourceNode.setRelativeData(relpath+'?css_class','queryAsk');
-           sourceNode.setRelativeData(relpath+'?value_caption',value.slice(1));
-           sourceNode.setRelativeData(relpath+'?dtype',genro._('gnr.qb.fieldstree.'+sourceNode.attr.column+'?dtype'));
+           if (value=='?'){
+               sourceNode.setRelativeData(relpath+'?css_class',null);
+               sourceNode.setRelativeData(relpath,null);
+               sourceNode.setRelativeData(relpath+'?value_caption',null);
+           }else{
+               sourceNode.setRelativeData(relpath,null)
+               sourceNode.setRelativeData(relpath+'?css_class','queryAsk');
+               sourceNode.setRelativeData(relpath+'?value_caption',value.slice(1));
+               sourceNode.setRelativeData(relpath+'?dtype',genro._('gnr.qb.fieldstree.'+sourceNode.attr.column+'?dtype'));
+           }
        }
     },
     translateQueryPars: function(){

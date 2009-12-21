@@ -18,7 +18,7 @@ from gnr.sql.gnrsql_exceptions import GnrSqlException,GnrSqlSaveChangesException
 from gnr.core.gnrbag import Bag
 
 class TableHandler(BaseComponent):
-    py_requires='standard_tables_core:UserObject'
+    py_requires='standard_tables_core:UserObject,standard_tables_core:ViewExporter'
     css_requires = 'standard_tables'
     js_requires = 'standard_tables'
     
@@ -52,10 +52,7 @@ class TableHandler(BaseComponent):
         
     def formTitleBase(self,pane):
         pane.data('form.title',self.tblobj.attributes.get('name_long','Record'))
-       #if self.tblobj.attributes.get('rowcaption'):
-       #    record_caption='^form.record?caption'
-       #    pane.dataFormula("form.title",'record_caption', record_caption=record_caption)
-    
+        
     def columnsBase(self):
         return ''
     
@@ -98,6 +95,7 @@ class TableHandler(BaseComponent):
         pane.data('list.excludeLogicalDeleted',True)
         pane.data('aux.showDeleted',False)
         pane.dataController("""genro.querybuilder = new gnr.GnrQueryBuilder("query_root", "%s", "list.query.where");""" % self.maintable,_init=True)
+        pane.dataController("""genro.queryanalyzer = new gnr.GnrQueryAnalyzer("translator_root","list.query.where","list.runQueryDo")""",_onStart=True)
         pane.dataController("""genro.viewEditor = new gnr.GnrViewEditor("view_root", "%s", "maingrid");""" % self.maintable,_onStart=True)
         pane.dataController("""genro.querybuilder.createMenues();
                                   dijit.byId('qb_fields_menu').bindDomNode(genro.domById('fastQueryColumn'));
@@ -216,7 +214,7 @@ class TableHandler(BaseComponent):
     def listToolbar_query(self, pane):
         pane = pane.div(position='absolute',top='0px',left='24px',height='26px')
         queryfb = pane.formbuilder(cols=5,datapath='list.query.where',_class='query_pane',
-                                          border_spacing='4px',onEnter='FIRE list.runQuery=true;')
+                                          border_spacing='4px',onEnter='genro.fireAfter("list.runQuery",true,10);')
         
         tb = queryfb.div('^.c_0?column_caption',min_width='12em',_class='smallFakeTextBox floatingPopup',lbl='!!Query',
                               dnd_onDrop="SET .c_0?column_caption = item.attr.fullcaption;SET .c_0?column = item.attr.fieldpath;",
@@ -227,22 +225,24 @@ class TableHandler(BaseComponent):
                                                         selected_caption='.c_0?op_caption',
                                                         _class='smallFakeTextBox floatingPopup')
 
-        queryfb.textbox(lbl='!!Value',value='^.c_0',width='12em', _autoselect=True,_class='^.c_0?css_class',
-                        validate_onAccept='genro.queryanalyzer.checkQueryLineValue(this,value);')
+        queryfb.textbox(lbl='!!Value',value='^.c_0',width='12em', _autoselect=True,row_class='^.c_0?css_class',
+                        validate_onAccept='genro.queryanalyzer.checkQueryLineValue(this,value);',_class='st_conditionValue')
         queryfb.button('!!Run query', fire='list.runQueryButton', iconClass="tb_button db_query",showLabel=False)
         queryfb.dataFormula('list.currentQueryCountAsString','msg.replace("_rec_",cnt)',
                                                cnt='^list.currentQueryCount',_if='cnt',_else='',
                                                msg='!!Current query will return _rec_ items')
-        queryfb.dataController("""if(fired=='Shift'){SET list.currentQueryCountAsString = waitmsg;
-                                                 genro.fireAfter('list.updateCurrentQueryCount');
-                                                 genro.dlg.alert('^list.currentQueryCountAsString',dlgtitle)
-                                                }
-                                                else
-                                                {FIRE list.runQuery}""",
-                                                fired='^list.runQueryButton',
-                                                waitmsg='!!Working.....',
-                                                dlgtitle='!!Current query record count'
-                                                )
+        queryfb.dataController("""if(fired=='Shift'){
+                                     FIRE list.showQueryCountDlg;
+                                     }else{
+                                         FIRE list.runQuery;
+                                     }""",fired='^list.runQueryButton')
+        queryfb.dataController("""SET list.currentQueryCountAsString = waitmsg;
+                                     genro.fireAfter('list.updateCurrentQueryCount');
+                                     genro.dlg.alert('^list.currentQueryCountAsString',dlgtitle);
+                                  """,_fired="^list.showQueryCountDlg",waitmsg='!!Working.....',
+                                                 dlgtitle='!!Current query record count')
+                                                
+        
         if self.enableFilter():
             ddb = queryfb.dropDownButton('!!Set Filter',showLabel=False,iconClass='icnBaseAction',
                                         baseClass='st_filterButton')
@@ -278,30 +278,22 @@ class TableHandler(BaseComponent):
             pane.button('!!Lock', position='absolute',right='0px',fire='status.lock', iconClass="tb_button icnBaseUnlocked", showLabel=False,hidden='^status.locked')
         pane.button('!!Add',position='absolute',left='0px',fire='list.newRecord', iconClass="tb_button db_add", visible='^list.canWrite', showLabel=False)
 
-    def queryParamsDialog(self,pane):
-        pane.dataController("""var where = GET list.query.where;
-                              var kw = {needPars:false};
-                              var cb = function(node,kw,i){
-                                  var v = node.getValue();
-                                  if (v.indexOf('?')==0){
-                                     node.setAttr('value_capiton',v.slice(1));
-                                     node.setValue(null);
-                                     kw['needPars'] = true;
-                                  }
-                              }
-                              where.walk(cb,kw);
-                              if (kw['needPars']){
-                                  genro.querybuilder.queryParamsDialog();
-                              }
-                              else{
-                                FIRE list.runQueryDo = true;
-                              }""",_fired="")
+
     def pageListController(self,pane):
         """docstring for pageListController"""
-        self.queryParamsDialog(pane)
-        pane.dataController('genro.dom.disable("query_buttons");SET list.gridpage = 1;SET list.queryRunning = true;FIRE list.runQueryDo = true;',
-                                                                    running='=list.queryRunning', _if='!running', fired='^list.runQuery')        
         pane.dataController('SET list.noSelection=true;SET list.rowIndex=null;', fired='^list.runQuery', _init=True)
+        pane.dataController("""genro.dom.disable("query_buttons");
+                               SET list.gridpage = 1;
+                               SET list.queryRunning = true;
+                               var parslist = genro.queryanalyzer.translateQueryPars();
+                               if (parslist.length>0){
+                                  genro.queryanalyzer.buildParsDialog(parslist);
+                               }else{
+                                  FIRE list.runQueryDo = true;
+                               }
+                               
+                               """,
+                              running='=list.queryRunning', _if='!running', fired='^list.runQuery')         
         
         pane.dataController("""SET selectedPage=1;
                                    SET list.query.pkeys=initialPkey;
@@ -388,7 +380,7 @@ class TableHandler(BaseComponent):
         
         ve_editpane = topStackContainer.contentPane()
         fb = ve_editpane.dropdownbutton('', hidden=True, nodeId='ve_colEditor', datapath='^vars.editedColumn').tooltipdialog().formbuilder(border_spacing='3px', font_size='0.9em', cols=1)
-        fb.textbox(lbl='Name', value='^.?name', nodeId='pippo') #?
+        fb.textbox(lbl='Name', value='^.?name') 
         fb.textbox(lbl='Width', value='^.?width')
         fb.textbox(lbl='Color', value='^.?color')
         fb.textbox(lbl='Background', value='^.?background_color')
@@ -499,8 +491,10 @@ class TableHandler(BaseComponent):
         r.cell('lbl', name='Field',width='10em', headerStyles='display:none;', cellClasses='infoLabels', odd=False)
         r.cell('val', name='Value',width='10em', headerStyles='display:none;', cellClasses='infoValues', odd=False)
         return struct
+        
     def onQueryCalling(self):
         return None
+        
     def gridPane(self,pane):
         stats_main = getattr(self,'stats_main',None)
         if self.hierarchicalViewConf() or stats_main:
@@ -965,31 +959,3 @@ class TableHandler(BaseComponent):
     def xmlDebug(self, bag, filename):
         bag.toXml(self.pageLocalDocument('%s.xml' % filename))
     
-class ViewExporter(object):
-    def rpc_rpcSavedSelection(self, table, view=None, query=None, userid=None, out_mode='tabtext', **kwargs):
-        tblobj = self.db.table(table)
-        
-        columns = tblobj.pkg.loadUserObject(code=view, objtype='view',  tbl=table, userid=userid)[0]
-        where = tblobj.pkg.loadUserObject(code=query, objtype='query',  tbl=table, userid=userid)[0]
-        
-        selection = self.app._default_getSelection(tblobj=tblobj, columns=columns, where=where, **kwargs)
-        return selection.output(out_mode)
-        
-    def savedQueryResult(self, table, view=None, query=None,
-                                  order_by=None,group_by=None,
-                                  having=None,distinct=False,
-                                  excludeLogicalDeleted=True,
-                                  **kwargs):
-        tblobj = self.db.table(table)
-        
-        columnsBag = tblobj.pkg.loadUserObject(code=view, objtype='view',  tbl=table)[0]
-        columns = self.app._columnsFromStruct(columnsBag)      
-        whereBag = tblobj.pkg.loadUserObject(code=query, objtype='query',  tbl=table)[0]
-        whereBag._locale = self.locale
-        whereBag._workdate = self.workdate
-        where, kwargs = tblobj.sqlWhereFromBag(whereBag, kwargs)
-        
-        query=tblobj.query(columns=columns,distinct=distinct, where=where,
-                        order_by=order_by, group_by=group_by,having=having,
-                        excludeLogicalDeleted=excludeLogicalDeleted,**kwargs)
-        return query

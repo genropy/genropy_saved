@@ -344,7 +344,7 @@ dojo.declare("gnr.GnrBagNode",null,{
      * @id setAttr
      */
      
-    setAttr: function(attr,doTrigger,updateAttr){
+    setAttr: function(attr,doTrigger,updateAttr,changedAttr){
         if (doTrigger == null){
             doTrigger=true;
         }
@@ -357,7 +357,8 @@ dojo.declare("gnr.GnrBagNode",null,{
         if (doTrigger){
             if (this._parentbag && this._parentbag._backref){
                 this._parentbag.onNodeTrigger({'evt':'upd','node':this, 'pathlist':[this.label],
-                                                           'oldattr':oldattr,'updattr':true, reason:doTrigger});
+                                                           'oldattr':oldattr,'updattr':true, reason:doTrigger,
+                                                           'changedAttr':changedAttr});
             }
         }
     },
@@ -1334,7 +1335,7 @@ dojo.declare("gnr.GnrBag",null,{
                     if ('doTrigger' in kwargs){
                         _doTrigger = kwargs.doTrigger;
                     }
-                    node.setAttr(auxattr, _doTrigger, true);
+                    node.setAttr(auxattr, _doTrigger, true, attr);
                 } 
                 else {
                     obj.set(label, value, _attributes, kwargs);

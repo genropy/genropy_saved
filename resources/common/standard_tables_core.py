@@ -19,13 +19,12 @@ class UserObject(BaseComponent):
                                         $1.data.setItem('record.data',wherebag);
                                         """)
         self.recordDialog('%s.userobject' %self.package.name,'^.pkey',dlgId='userobject_dlg',
-                            datapath='gnr.userobject',width='26em',height='22ex',#datapath='list.query'
+                            datapath='gnr.userobject',width='26em',height='22ex',
                             title='!!Edit query',savePath='gnr.userobject.saved_query_id',
                              formCb=self._uo_edit_query_form,default_objtype='query',
                              default_pkg=self.package.name,default_tbl=self.maintable,
                              default_userid=self.user,saveKwargs=saveKwargs,
                              onSaved="""FIRE list.query.saved;""")
-
         
     def _uo_edit_query_form(self,parentContainer,disabled,table):
         pane = parentContainer.contentPane()

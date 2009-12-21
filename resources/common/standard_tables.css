@@ -422,11 +422,9 @@
 	font-style: italic;
 	font-size: 0.8em;
 }
-.queryAsk .dijitInputField input{
-    background-image:none;
-    background-color:lightyellow;
-
+.queryAsk .st_conditionValue{
+    background: #9e001b;
+    color: white;
 }
-
 /* @end */
 

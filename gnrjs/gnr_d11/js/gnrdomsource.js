@@ -651,6 +651,8 @@ dojo.declare("gnr.GnrDomSourceNode",gnr.GnrBagNode,{
            }
        }
        else if (attr=='_class'){
+           var oldvalue = ('oldvalue' in kw)? kw.oldvalue :  kw.changedAttr? kw.oldattr[kw.changedAttr]:null;
+           
            var domnode;
            if (this.widget){
                domnode=this.widget.domNode;
@@ -658,13 +660,13 @@ dojo.declare("gnr.GnrDomSourceNode",gnr.GnrBagNode,{
            else{
                domnode=this.domNode;
            }
-           if (kw.oldvalue){
-               if (kw.oldvalue instanceof gnr.GnrBag){
+           if (oldvalue){
+               if (oldvalue instanceof gnr.GnrBag){
                    var q = kw.pathlist.length;
                    var p=this.absDatapath(this.attr._class).split('.').slice(q-1);
-                   var old_class=kw.oldvalue.getItem(p.join('.'));
+                   var old_class=oldvalue.getItem(p.join('.'));
                }else{
-                   var old_class=kw.oldvalue;
+                   var old_class=oldvalue;
                }
                genro.dom.removeClass(domnode, old_class);
               }
