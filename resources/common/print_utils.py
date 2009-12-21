@@ -21,6 +21,7 @@ class PrintUtils(BaseComponent):
                         resultpath='.print_result',
                         thermoParams=None,docName=None,rebuild=True,
                         gridId='maingrid',batch_class=None,
+                        commitAfterPrint=None,
                         selectedRowidx=None,**kwargs):
         table = table or self.maintable         
         if not batch_class:
@@ -44,7 +45,7 @@ class PrintUtils(BaseComponent):
                                 cachedPrinterParams="=_clientCtx.printerSetup.%s" %name,
                                 _fired='^.print',_else='genro.dlg.alert(msg,title)',
                                 msg='!!No printer selected',title='!!Warning',datapath=datapath)
-        print selectionFilterCb                        
+                                                       
         pane.dataRpc("dummy","runBatch" ,datapath=datapath,
                      _onResult='if($1){genro.download($1)}',
                      table=table or self.maintable,
@@ -56,7 +57,8 @@ class PrintUtils(BaseComponent):
                      selectionFilterCb=selectionFilterCb,
                      pdfParams='=.pdf',
                      docName=docName,selectedRowidx=selectedRowidx,
-                     _fired='^.dlpdf',runKwargs='=.parameters.data') 
+                     commitAfterPrint=commitAfterPrint,
+                     _fired='^.dlpdf',runKwargs='=.parameters.data',**kwargs) 
                              
         self.buildBatchRunner(pane.div(datapath=datapath,display='inline'),
                               batch_class=batch_class, 
@@ -70,6 +72,7 @@ class PrintUtils(BaseComponent):
                               selectedRowidx = selectedRowidx,
                               #printParams='=.printer.params', 
                               printParams='=_clientCtx.printerSetup.%s' %name,
+                              commitAfterPrint=commitAfterPrint,
                               fired='^.run',runKwargs='=.parameters.data',**kwargs) 
                                
                      
@@ -81,7 +84,7 @@ class PrintUtils(BaseComponent):
         bc=dialog.borderContainer(height=height,width=width,_class='pbl_roundedGroup')
         bc.dataController('genro.wdgById("%s").hide();' %name,_fired="^.hide" )
         bc.dataController("""var currPrinterOpt = GET _clientCtx.printerSetup.%s;
-                             SET .printer.params = currPrinterOpt?currPrinterOpt.deepCopy():new gnr.GnrBag();
+                             SET .printer.params = currPrinterOpt? currPrinterOpt.deepCopy():new gnr.GnrBag();
                              genro.wdgById("%s").show();""" %(name,name) ,_fired='^.open')
         bottom = bc.contentPane(region='bottom',_class='dialog_bottom')
         bottom.button('!!Close',baseClass='bottom_btn',float='left',margin='1px',fire='.hide')

@@ -267,7 +267,7 @@ dojo.declare("gnr.GnrDomSourceNode",gnr.GnrBagNode,{
         this.formHandler = new gnr.GnrFrmHandler(form_id,formDatapath,controllerNodeId);
     },
     hasDynamicAttr: function(attr){
-        return (this._dynattr && this._dynattr[attr]);
+        return (this._dynattr && (attr in this._dynattr));
     },
     getRelativeData: function(path,autocreate,dflt){
          var path=this.absDatapath(path);

@@ -25,13 +25,11 @@ class BatchRunner(BaseComponent):
     
     
 ##################### old stuff###################
-    
-    
-    
     def buildBatchRunner(self, pane, resultpath='aux.cmd', 
                          selectionName=None,selectedRowidx=None,recordId=None, 
                          fired=None, batch_class=None,selectionFilterCb=None,
-                         thermoParams=None, endScript=None,stopOnError=False, forUpdate=False, onRow=None, **kwargs):
+                         thermoParams=None, endScript=None,stopOnError=False,
+                         forUpdate=False, onRow=None, commitAfterPrint=None,**kwargs):
         """Prepare a batch action on the maintable with a thermometer
            @param resultpath: the path into the datastore where the result is stored.
            @param fired: the path where you fire the event that launch the dataRpc of selectionBatchRunner.
@@ -54,6 +52,7 @@ class BatchRunner(BaseComponent):
                      thermofield=thermoParams.get('field'), thermoid = thermoid,
                      selectedRowidx =selectedRowidx,
                      _fired=fired, _onResult=endScript,
+                     commitAfterPrint=commitAfterPrint,
                      forUpdate=forUpdate, _onCalling='console.log("call thermo");FIRE .openthermo',**kwargs)
         dlgid = self.getUuid()
         pane.dataController('genro.wdgById(dlgid).show()', _if='errors',
@@ -67,7 +66,7 @@ class BatchRunner(BaseComponent):
             bottom='4px', left='4px').includedView(storepath='%s.errors' % resultpath, struct=struct)
             
     def rpc_runBatch(self, table, selectionName=None,selectionFilterCb=None,recordId=None ,batch_class=None, 
-                    selectedRowidx=None, forUpdate=False, **kwargs):
+                    selectedRowidx=None, forUpdate=False, commitAfterPrint=None, **kwargs):
         """batchFactory: name of the Class, plugin of table, which executes the batch action
             thermoid:
             thermofield: the field of the main table to use for thermo display or * for record caption
@@ -76,7 +75,6 @@ class BatchRunner(BaseComponent):
             onRow: optional method to execute on each record in selection, use if no batchFactory is given
             """
         tblobj = self.db.table(table)  
-
         if recordId:
             data = tblobj.record(pkey=recordId,ignoreMissing=True).output('bag')
         else:    
@@ -93,7 +91,8 @@ class BatchRunner(BaseComponent):
             
         batch_class = self.batch_loader(batch_class)
         if batch_class:
-            batch = batch_class(data=data, table=table, page=self, thermocb=self.app.setThermo, **kwargs)
+            batch = batch_class(data=data, table=table, page=self, thermocb=self.app.setThermo,
+                                commitAfterPrint=commitAfterPrint, **kwargs)
             return batch.run()
         else:
             raise Exception

@@ -175,8 +175,9 @@ class SelectionToPdf(GnrBatch):
         
 class PrintDbData(GnrBatch):
     def __init__(self, table=None,table_resource=None, class_name=None, selection=None,
-                folder=None, printParams=None, pdfParams=None,**kwargs):
+                folder=None, printParams=None, pdfParams=None, commitAfterPrint=False, **kwargs):
         import cups
+        
         super(PrintDbData,self).__init__(**kwargs)
         self.htmlMaker = self.page.site.loadTableScript(page=self.page,table=table,
                                                       respath=table_resource,
@@ -193,6 +194,7 @@ class PrintDbData(GnrBatch):
             self.outputFilePath = None
         self.print_connection = self.page.site.print_handler.getPrinterConnection(self.printer_name, printParams)
         self.file_list = []
+        self.commitAfterPrint=commitAfterPrint
         
     def collect_result(self):
         result = None
@@ -210,6 +212,10 @@ class PrintDbData(GnrBatch):
     def data_fetcher(self):     ##### Rivedere per passare le colonne
         for row in self.data.output('pkeylist'):
             yield row
+            
+    def post_process(self):
+        if self.commitAfterPrint:
+            self.page.db.commit()
 
 class PrintSelection(PrintDbData):
     pass
