@@ -22,7 +22,8 @@ class PrintUtils(BaseComponent):
                         thermoParams=None,docName=None,rebuild=True,
                         gridId='maingrid',batch_class=None,
                         commitAfterPrint=None,
-                        selectedRowidx=None,**kwargs):
+                        selectedRowidx=None,
+                        _onResult='',**kwargs):
         table = table or self.maintable         
         if not batch_class:
             if recordId:
@@ -47,7 +48,7 @@ class PrintUtils(BaseComponent):
                                 msg='!!No printer selected',title='!!Warning',datapath=datapath)
                                                        
         pane.dataRpc("dummy","runBatch" ,datapath=datapath,
-                     _onResult='if($1){genro.download($1)}',
+                     _onResult='if($1){genro.download($1)};%s'%_onResult,
                      table=table or self.maintable,
                      batch_class=batch_class, 
                      table_resource=table_resource,
@@ -73,6 +74,7 @@ class PrintUtils(BaseComponent):
                               #printParams='=.printer.params', 
                               printParams='=_clientCtx.printerSetup.%s' %name,
                               commitAfterPrint=commitAfterPrint,
+                              _onResult=_onResult,
                               fired='^.run',runKwargs='=.parameters.data',**kwargs) 
                                
                      

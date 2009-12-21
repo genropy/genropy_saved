@@ -28,7 +28,7 @@ class BatchRunner(BaseComponent):
     def buildBatchRunner(self, pane, resultpath='aux.cmd', 
                          selectionName=None,selectedRowidx=None,recordId=None, 
                          fired=None, batch_class=None,selectionFilterCb=None,
-                         thermoParams=None, endScript=None,stopOnError=False,
+                         thermoParams=None, _onResult=None,stopOnError=False,
                          forUpdate=False, onRow=None, commitAfterPrint=None,**kwargs):
         """Prepare a batch action on the maintable with a thermometer
            @param resultpath: the path into the datastore where the result is stored.
@@ -51,7 +51,7 @@ class BatchRunner(BaseComponent):
                      selectionFilterCb=selectionFilterCb,
                      thermofield=thermoParams.get('field'), thermoid = thermoid,
                      selectedRowidx =selectedRowidx,
-                     _fired=fired, _onResult=endScript,
+                     _fired=fired, _onResult=_onResult,
                      commitAfterPrint=commitAfterPrint,
                      forUpdate=forUpdate, _onCalling='console.log("call thermo");FIRE .openthermo',**kwargs)
         dlgid = self.getUuid()
