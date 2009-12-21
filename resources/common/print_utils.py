@@ -72,9 +72,7 @@ class PrintUtils(BaseComponent):
                               printParams='=_clientCtx.printerSetup.%s' %name,
                               fired='^.run',runKwargs='=.parameters.data',**kwargs) 
                                
-        
                      
-                              
     def printOptDialog(self,pane,name,datapath=None,dlgPars=None,parameters_cb=None):
         title = dlgPars.get('title',"!!Print options")
         height = dlgPars.get('height',"200px")
