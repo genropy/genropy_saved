@@ -232,10 +232,6 @@ class SqlDbAdapter(object):
         @param encoding: database text encoding
         """
         raise NotImplementedException()
-        
-    def transactionStatus(self,connection):
-        """implement this"""
-        pass
 
         
     def insert(self, dbtable, record_data):

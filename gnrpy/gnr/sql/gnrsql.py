@@ -158,9 +158,6 @@ class GnrSqlDb(GnrObject):
         return self._connections[thread.get_ident()]
     connection = property(_get_connection)
     
-    def transactionStatus(self):
-        return self.adapter.transactionStatus(self.connection)
-        
     def execute(self, sql, sqlargs=None, cursor=None, cursorname=None, autocommit=False):
         
         """Execute the sql statement using given kwargs"""
