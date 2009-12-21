@@ -100,6 +100,8 @@ class TableHandler(BaseComponent):
         pane.dataController("""genro.querybuilder.createMenues();
                                   dijit.byId('qb_fields_menu').bindDomNode(genro.domById('fastQueryColumn'));
                                   dijit.byId('qb_op_menu').bindDomNode(genro.domById('fastQueryOp'));
+                                  dijit.byId('qb_not_menu').bindDomNode(genro.domById('fastQueryNot'));
+
                                   genro.querybuilder.buildQueryPane();""" , _onStart=True)
         pane.data('usr.writePermission',self.userCanWrite())
         pane.data('usr.deletePermission',self.userCanDelete())
@@ -220,17 +222,22 @@ class TableHandler(BaseComponent):
                               dnd_onDrop="SET .c_0?column_caption = item.attr.fullcaption;SET .c_0?column = item.attr.fieldpath;",
                               dnd_allowDrop="return !(item.attr.one_relation);", nodeId='fastQueryColumn',
                               selected_fieldpath='.c_0?column',selected_fullcaption='.c_0?column_caption')
-        queryfb.div('^.c_0?op_caption',lbl='!!Op.', min_width='7em',nodeId='fastQueryOp',readonly=True,
-                                                        selected_fullpath='.c_0?op',
-                                                        selected_caption='.c_0?op_caption',
-                                                        _class='smallFakeTextBox floatingPopup')
+        optd = queryfb.div(_class='smallFakeTextBox',lbl='!!Op.')
+        optd.div('^.c_0?not_caption',selected_caption='.c_0?not_caption',selected_fullpath='.c_0?not',
+                display='inline-block',connectedMenu='qb_not_menu',width='1.5em',_class='floatingPopup',nodeId='fastQueryNot',border_right='1px solid silver')
+       #optd.div('^.c_0?op_caption',lbl='!!Op.', min_width='7em',nodeId='fastQueryOp',readonly=True,
+       #            selected_fullpath='.c_0?op',selected_caption='.c_0?op_caption',
+       #            _class='smallFakeTextBox floatingPopup')
+        optd.div('^.c_0?op_caption',lbl='!!Op.', min_width='7em',nodeId='fastQueryOp',readonly=True,
+                    selected_fullpath='.c_0?op',selected_caption='.c_0?op_caption',
+                    _class='floatingPopup',display='inline-block',padding_left='2px')
 
         queryfb.textbox(lbl='!!Value',value='^.c_0',width='12em', _autoselect=True,row_class='^.c_0?css_class',
                         validate_onAccept='genro.queryanalyzer.checkQueryLineValue(this,value);',_class='st_conditionValue')
         queryfb.button('!!Run query', fire='list.runQueryButton', iconClass="tb_button db_query",showLabel=False)
         queryfb.dataFormula('list.currentQueryCountAsString','msg.replace("_rec_",cnt)',
-                                               cnt='^list.currentQueryCount',_if='cnt',_else='',
-                                               msg='!!Current query will return _rec_ items')
+                            cnt='^list.currentQueryCount',_if='cnt',_else='',
+                            msg='!!Current query will return _rec_ items')
         queryfb.dataController("""if(fired=='Shift'){
                                      FIRE list.showQueryCountDlg;
                                      }else{
@@ -253,7 +260,6 @@ class TableHandler(BaseComponent):
             pane.dataController(""" var filter;
                                     if (command=='new_filter'){
                                         filter = query.deepCopy();
-                                        console.log
                                     }else if(command=='add_to_filter'){
                                         alert('add filter');
                                     }else if(command=='remove_filter'){
@@ -902,9 +908,13 @@ class TableHandler(BaseComponent):
             querybase = self.queryBase()
         else:
             querybase = {'op':'equal'}
-        result.setItem('c_0', querybase.get('val'), op=querybase.get('op'), column=querybase.get('column'),
-                                   op_caption='!!%s' % self.db.whereTranslator.opCaption(querybase.get('op')),
-                                   column_caption = self.app._relPathToCaption(self.maintable, querybase.get('column')))
+        op_not = querybase.get('not','yes')
+        not_caption = '&nbsp;' if op_not=='yes' else '!!not'
+        result.setItem('c_0', querybase.get('val'), 
+                        {'op':querybase.get('op'), 'column':querybase.get('column'),
+                          'op_caption':'!!%s' % self.db.whereTranslator.opCaption(querybase.get('op')),
+                          'not':op_not,'not_caption': not_caption,
+                          'column_caption' : self.app._relPathToCaption(self.maintable, querybase.get('column'))})
         
         resultattr = dict(objtype='query', tbl=self.maintable)
         return result, resultattr

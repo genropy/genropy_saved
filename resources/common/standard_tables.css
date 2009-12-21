@@ -209,6 +209,7 @@
 .qb_value {
 	min-width: 8em;
 	padding-right: 10px;
+	line-height:.9ex;
 }
 
 .qb_btn {
@@ -423,8 +424,8 @@
 	font-size: 0.8em;
 }
 .queryAsk .st_conditionValue{
-    background: #9e001b;
-    color: white;
-}
+    color: navy;
+	background: url(images/questionMark.gif) no-repeat right;
+} 
 /* @end */
 

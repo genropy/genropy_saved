@@ -427,7 +427,7 @@ class GnrWhereTranslator(object):
             if isinstance(value, basestring) and value.startswith('?'):
                 value=sqlArgs.get(value[1:])
             jc=attr.get('jc', '').upper()
-            negate=attr.get('not')
+            negate=attr.get('not')=='not'
             if isinstance(value, Bag):
                 onecondition = ('\n'+'    '*level).join(self.innerFromBag(tblobj,value,sqlArgs,level+1))
                 onecondition = '(\n'+'    '*level+onecondition+'\n'+'    '*level+')'
@@ -444,11 +444,11 @@ class GnrWhereTranslator(object):
                     column='CAST (%s as text)'%column
                     dtype='A'
                 ophandler = getattr(self, 'op_%s' % op,None)
-                if not ophandler and op.startswith('not_'):
-                    ophandler=getattr(self, 'op_%s' % op[4:])
-                    onecondition = '(NOT %s)'% ophandler(column, value, dtype, sqlArgs)
-                else:
-                    onecondition = ophandler(column, value, dtype, sqlArgs)
+                #if not ophandler and op.startswith('not_'):
+                #    ophandler=getattr(self, 'op_%s' % op[4:])
+                #    onecondition = '(NOT %s)'% ophandler(column, value, dtype, sqlArgs)
+                #else:
+                onecondition = ophandler(column, value, dtype, sqlArgs)
             if negate:
                 onecondition = '(NOT %s)' % onecondition
             result.append(' %s %s' % (jc, onecondition ))
@@ -518,7 +518,7 @@ class GnrWhereTranslator(object):
         "Starts with"
         return '%s ILIKE :%s'  % (column, self.storeArgs('%s%%' % value, dtype, sqlArgs))
         
-    def op_not_startswith(self, column, value, dtype, sqlArgs):
+    def __op_not_startswith(self, column, value, dtype, sqlArgs):
         "Not starts with"
         return ' (NOT %s) '% self.op_startswith(column, value, dtype, sqlArgs)
         
@@ -531,7 +531,7 @@ class GnrWhereTranslator(object):
         "Contains"
         return '%s ILIKE :%s' % (column, self.storeArgs('%%%s%%' % value, dtype, sqlArgs))
         
-    def op_not_contains(self, column, value, dtype, sqlArgs):
+    def __op_not_contains(self, column, value, dtype, sqlArgs):
         "Doesn't contain"
         return '%s NOT ILIKE :%s' % (column, self.storeArgs('%%%s%%' % value, dtype, sqlArgs))
         
@@ -560,7 +560,7 @@ class GnrWhereTranslator(object):
         "Is null"
         return '%s IS NULL' % column
     
-    def op_not_isnull(self, column, value, dtype, sqlArgs):
+    def __op_not_isnull(self, column, value, dtype, sqlArgs):
         "Is not null"
         return '%s IS NOT NULL' % column
         
@@ -569,7 +569,7 @@ class GnrWhereTranslator(object):
         values_string = self.storeArgs(value.split(','), dtype, sqlArgs)
         return '%s IN :%s' % (column, values_string)
     
-    def op_not_in(self, column, value, dtype, sqlArgs):
+    def __op_not_in(self, column, value, dtype, sqlArgs):
         "Not in"
         values_string = self.storeArgs(value.split(','), dtype, sqlArgs)
         return '%s NOT IN :%s' % (column, values_string)
