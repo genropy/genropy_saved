@@ -1268,6 +1268,18 @@ dojo.declare("gnr.widgets.TextArea_",gnr.widgets.baseDojo,{
      }
 });
 dojo.declare("gnr.widgets.DateTextBox",gnr.widgets.baseDojo,{
+    
+    onChanged:function(widget, value){
+        //genro.debug('onChanged:'+value);
+        //widget.sourceNode.setAttributeInDatasource('value',value);
+        if (value){
+            this._doChangeInData(widget.domNode, widget.sourceNode, value,{dtype:'D'});
+        }
+        else {
+            this._doChangeInData(widget.domNode, widget.sourceNode, null);
+        }
+    },
+    
     constructor: function(){
         this._domtag = 'input';
         this._dojotag='DateTextBox';
@@ -1314,9 +1326,12 @@ dojo.declare("gnr.widgets.TextBox",gnr.widgets.baseDojo,{
 });
 dojo.declare("gnr.widgets.TimeTextBox",gnr.widgets.baseDojo,{
     onChanged:function(widget, value){
-        //genro.debug('onChanged:'+value);
-        //widget.sourceNode.setAttributeInDatasource('value',value);
+        if (value){
         this._doChangeInData(widget.domNode, widget.sourceNode, value,{dtype:'H'});
+        }
+        else {
+            this._doChangeInData(widget.domNode, widget.sourceNode, null);
+        }
     },
     creating: function(attributes, sourceNode){
         if ('ftype' in attributes) {
