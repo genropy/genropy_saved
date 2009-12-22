@@ -117,11 +117,15 @@ dojo.declare("gnr.GnrQueryBuilder",null,{
         this.nodeId = nodeId;
         this.maintable=maintable;
         this.datapath = datapath;
-        genro.setDataFromRemote('gnr.qb.fieldstree',"app.relationExplorer", {table:maintable, omit:'_'});
+        genro.setDataFromRemote('gnr.qb.fieldstree',"relationExplorer", {table:maintable, omit:'_'});
         this.treefield = genro.getData('gnr.qb.fieldstree');
-        genro.setDataFromRemote('gnr.qb.fieldsmenu',"app.relationExplorer", {table:maintable, omit:'_*'});
-        genro.setDataFromRemote('gnr.qb.sqlop',"app.getSqlOperators");  
+        genro.setDataFromRemote('gnr.qb.fieldsmenu',"relationExplorer", {table:maintable, omit:'_*',quickquery:true});
+        
+        genro.setDataFromRemote('gnr.qb.quickview',"getQuickView", {table:maintable, omit:'_*'});
+
+        genro.setDataFromRemote('gnr.qb.sqlop',"getSqlOperators");  
     },
+
     createMenues: function(){
         genro.src.getNode()._('div', '_qbmenues');
         var node = genro.src.getNode('_qbmenues');
@@ -131,6 +135,9 @@ dojo.declare("gnr.GnrQueryBuilder",null,{
         node._('menu', {modifiers:'*',_class:'smallmenu',storepath:'gnr.qb.sqlop.not',id:'qb_not_menu'});
         node._('menu', {modifiers:'*',_class:'smallmenu',storepath:'gnr.qb.fieldsmenu',id:'qb_fields_menu'});
         node._('menu', {modifiers:'*',_class:'smallmenu',storepath:'gnr.qb.sqlop.op',id:'qb_op_menu'});
+        //aggiunta
+        node._('menu', {modifiers:'*',_class:'smallmenu',storepath:'gnr.qb.quickview',id:'qb_quickview_menu'});
+
         node.unfreeze();
     },
     getCaption: function(optype,val){

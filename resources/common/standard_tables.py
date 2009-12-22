@@ -18,7 +18,8 @@ from gnr.sql.gnrsql_exceptions import GnrSqlException,GnrSqlSaveChangesException
 from gnr.core.gnrbag import Bag
 
 class TableHandler(BaseComponent):
-    py_requires='standard_tables_core:UserObject,standard_tables_core:ViewExporter'
+    py_requires="""standard_tables_core:UserObject,standard_tables_core:ListQueryHandler,
+                standard_tables_core:ViewExporter"""
     css_requires = 'standard_tables'
     js_requires = 'standard_tables'
     
@@ -101,7 +102,6 @@ class TableHandler(BaseComponent):
                                   dijit.byId('qb_fields_menu').bindDomNode(genro.domById('fastQueryColumn'));
                                   dijit.byId('qb_op_menu').bindDomNode(genro.domById('fastQueryOp'));
                                   dijit.byId('qb_not_menu').bindDomNode(genro.domById('fastQueryNot'));
-
                                   genro.querybuilder.buildQueryPane();""" , _onStart=True)
         pane.data('usr.writePermission',self.userCanWrite())
         pane.data('usr.deletePermission',self.userCanDelete())
@@ -216,25 +216,26 @@ class TableHandler(BaseComponent):
     def listToolbar_query(self, pane):
         pane = pane.div(position='absolute',top='0px',left='24px',height='26px')
         queryfb = pane.formbuilder(cols=5,datapath='list.query.where',_class='query_pane',
-                                          border_spacing='4px',onEnter='genro.fireAfter("list.runQuery",true,10);')
+                                          border_spacing='2px',onEnter='genro.fireAfter("list.runQuery",true,10);')
         
-        tb = queryfb.div('^.c_0?column_caption',min_width='12em',_class='smallFakeTextBox floatingPopup',lbl='!!Query',
+        queryfb.div('^.c_0?column_caption',min_width='12em',_class='smallFakeTextBox floatingPopup',
                               dnd_onDrop="SET .c_0?column_caption = item.attr.fullcaption;SET .c_0?column = item.attr.fieldpath;",
                               dnd_allowDrop="return !(item.attr.one_relation);", nodeId='fastQueryColumn',
-                              selected_fieldpath='.c_0?column',selected_fullcaption='.c_0?column_caption')
-        optd = queryfb.div(_class='smallFakeTextBox',lbl='!!Op.')
+                              selected_fieldpath='.c_0?column',selected_fullcaption='.c_0?column_caption',
+                              lbl='!!Query')
+        optd = queryfb.div(_class='smallFakeTextBox',lbl='!!Op.',lbl_width='4em')
         optd.div('^.c_0?not_caption',selected_caption='.c_0?not_caption',selected_fullpath='.c_0?not',
-                display='inline-block',connectedMenu='qb_not_menu',width='1.5em',_class='floatingPopup',nodeId='fastQueryNot',border_right='1px solid silver')
+                display='inline-block',width='1.5em',_class='floatingPopup',nodeId='fastQueryNot',border_right='1px solid silver')
        #optd.div('^.c_0?op_caption',lbl='!!Op.', min_width='7em',nodeId='fastQueryOp',readonly=True,
        #            selected_fullpath='.c_0?op',selected_caption='.c_0?op_caption',
        #            _class='smallFakeTextBox floatingPopup')
-        optd.div('^.c_0?op_caption',lbl='!!Op.', min_width='7em',nodeId='fastQueryOp',readonly=True,
+        optd.div('^.c_0?op_caption', min_width='7em',nodeId='fastQueryOp',readonly=True,
                     selected_fullpath='.c_0?op',selected_caption='.c_0?op_caption',
                     _class='floatingPopup',display='inline-block',padding_left='2px')
 
-        queryfb.textbox(lbl='!!Value',value='^.c_0',width='12em', _autoselect=True,row_class='^.c_0?css_class',
+        queryfb.textbox(lbl='!!Value',value='^.c_0',width='12em',lbl_width='5em', _autoselect=True,row_class='^.c_0?css_class',
                         validate_onAccept='genro.queryanalyzer.checkQueryLineValue(this,value);',_class='st_conditionValue')
-        queryfb.button('!!Run query', fire='list.runQueryButton', iconClass="tb_button db_query",showLabel=False)
+        queryfb.button('!!Run query', fire='list.runQueryButton', padding_bottom='2px',iconClass="tb_button db_query",showLabel=False)
         queryfb.dataFormula('list.currentQueryCountAsString','msg.replace("_rec_",cnt)',
                             cnt='^list.currentQueryCount',_if='cnt',_else='',
                             msg='!!Current query will return _rec_ items')
@@ -292,6 +293,7 @@ class TableHandler(BaseComponent):
                                SET list.gridpage = 1;
                                SET list.queryRunning = true;
                                var parslist = genro.queryanalyzer.translateQueryPars();
+                               
                                if (parslist.length>0){
                                   genro.queryanalyzer.buildParsDialog(parslist);
                                }else{
@@ -299,7 +301,9 @@ class TableHandler(BaseComponent):
                                }
                                
                                """,
-                              running='=list.queryRunning', _if='!running', fired='^list.runQuery')         
+                              running='=list.queryRunning', _if='!running', fired='^list.runQuery')   
+        pane.dataController('SET list.query.selectedId = query_id; genro.fireAfter("list.runQueryButton",true,300)',
+                                query_id="^list.query_id")
         
         pane.dataController("""SET selectedPage=1;
                                    SET list.query.pkeys=initialPkey;
@@ -566,6 +570,7 @@ class TableHandler(BaseComponent):
                           _class='queryTree',
                           hideValues=True,
                           _saved='^list.query.saved', _deleted='^list.query.deleted')
+        
         #btnpane = container.contentPane(region='top', height='30px').toolbar()
         self.saveQueryButton(treepane)
         self.deleteQueryButton(treepane)
@@ -578,7 +583,8 @@ class TableHandler(BaseComponent):
                   _onResult='genro.querybuilder.buildQueryPane();')
         
         pane.dataRpc('list.query.where', 'new_query', filldefaults=True, _init=True, sync=True)
-        
+        pane.dataController("""genro.querybuilder.refreshQuickMenu();""",
+                            _fired="^list.query.saved")
         pane.dataRpc('list.query.where', 'new_query', _fired='^list.query.new', _deleted='^list.query.deleted',
                                     _onResult='genro.querybuilder.buildQueryPane();')
 
