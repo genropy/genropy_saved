@@ -222,29 +222,7 @@ class GnrBaseWebAppHandler(object):
         else:
             raise GnrWebServerError('Cannot import component %s' % modName)
 
-    def rpc_getSqlOperators(self):
-        result = Bag()
-        listop=('equal','startswith','wordstart','contains','startswithchars','greater','greatereq','less','lesseq','between','isnull','in','regex')
-        wt = self.db.whereTranslator
-        for op in listop:
-            result.setItem('op.%s' % op, None, caption='!!%s' % wt.opCaption(op))
-        #result.setItem('op.sep', None, caption='-')
-        #for op in listop:
-        #    op='not_%s' % op
-        #    result.setItem('op.%s' % op, None, caption='!!%s' % wt.opCaption(op))
-            
-            
-        for op in ('startswith','wordstart','contains','regex'):
-            result.setAttr('op.%s' % op, onlyText=True)
-            #result.setAttr('op.not_%s' % op, onlyText=True)
-            
-        result.setItem('jc.and', None, caption='!!AND')
-        result.setItem('jc.or', None, caption='!!OR')
-        
-        result.setItem('not.yes', None, caption='&nbsp;')
-        result.setItem('not.not', None, caption='!!NOT')
-        
-        return result
+
     
     def rpc_getRecordCount(self, field=None, value=None,
                            table='',distinct=False, columns='',where='', 
@@ -1040,29 +1018,6 @@ class GnrBaseWebAppHandler(object):
         tbltree = self.db.relationExplorer(table, dosort=False, pyresolver=True)
         fullcaption = tbltree.cbtraverse(relpath, lambda node: self.page._(node.getAttr('name_long')))
         return ':'.join(fullcaption)
-        
-        
-    def rpc_relationExplorer(self, table, prevRelation='', prevCaption='', omit='', **kwargs):
-        def buildLinkResolver(node, prevRelation, prevCaption):
-            nodeattr = node.getAttr()
-            if not 'name_long' in nodeattr:
-                raise str(nodeattr)
-            nodeattr['caption'] = nodeattr.pop('name_long')
-            nodeattr['fullcaption'] = concat(prevCaption, self.page._(nodeattr['caption']), ':')
-            if nodeattr.get('one_relation'):
-                nodeattr['_T'] = 'JS'
-                if nodeattr['mode']=='O':
-                    relpkg, reltbl, relfld = nodeattr['one_relation'].split('.')
-                else:
-                    relpkg, reltbl, relfld = nodeattr['many_relation'].split('.')
-                jsresolver = "genro.rpc.remoteResolver('app.relationExplorer',{table:'%s.%s', prevRelation:'%s', prevCaption:'%s', omit:'%s'})"
-                node.setValue(jsresolver % (relpkg, reltbl, concat(prevRelation, node.label), nodeattr['fullcaption'], omit))
-        result = self.db.relationExplorer(table=table, 
-                                         prevRelation=prevRelation,
-                                         omit=omit,
-                                        **kwargs)
-        result.walk(buildLinkResolver, prevRelation=prevRelation, prevCaption=prevCaption)
-        return result
                                                     
     def rpc_getRecordForm(self, dbtable=None, fields=None, **kwargs):
         self.getRecordForm(self.newSourceRoot(), dbtable=dbtable, fields=fields, **kwargs)
