@@ -56,7 +56,7 @@ class GnrWsgiPage(GnrBaseWebPage):
         self.filepath = filepath
         self.site = site
         self._user = None
-        self.test_closure_compiler = True
+        self.test_closure_compiler = False
         
     def _get_config(self):
         return self.site.config
