@@ -56,7 +56,8 @@ class GnrWsgiPage(GnrBaseWebPage):
         self.filepath = filepath
         self.site = site
         self._user = None
-    
+        self.test_closure_compiler = True
+        
     def _get_config(self):
         return self.site.config
     config = property(_get_config)
@@ -178,6 +179,13 @@ class GnrWsgiPage(GnrBaseWebPage):
         else:
             jsfiles = [self.site.gnr_static_path(self.gnrjsversion,'js', '%s.js' % f) for f in gnrimports]
             arg_dict['genroJsImport'] = [self._jscompress(jsfiles)]
+        if self.test_closure_compiler:
+            jsfiles = [self.site.gnr_static_path(self.gnrjsversion,'js', '%s.js' % f) for f in gnrimports]
+            if True:
+                arg_dict['genroJsImport'] = [self._jsclosurecompile(jsfiles)]
+            else:
+            #except OSError:
+                pass
         css_dojo = getattr(self, '_css_dojo_d%s' % self.dojoversion)()
         arg_dict['css_dojo'] = [self.site.dojo_static_url(self.dojoversion,'dojo',f) for f in css_dojo]
         arg_dict['css_genro'] = self.get_css_genro()
@@ -255,6 +263,28 @@ class GnrWsgiPage(GnrBaseWebPage):
     def checkPermission(self, pagepath, relative=True):
         return self.application.checkResourcePermission(self.auth_tags, self.userTags)
     
+    def _jsclosurecompile(self, jsfiles):
+        from subprocess import call
+        ts = str(max([os.path.getmtime(fname) for fname in jsfiles]))
+        key = '-'.join(jsfiles)
+        cpfile = '%s-%s.js' % (hashlib.md5(key+ts).hexdigest(),ts)
+        cppath = self.site.site_static_path('_static','_jslib', cpfile)
+        jspath = self.site.site_static_url('_static','_jslib', cpfile)
+        rebuild = True
+        if os.path.isfile(cppath):
+            rebuild = False
+        if rebuild:
+            path = self.site.site_static_path('_static','_jslib')
+            if not os.path.exists(path):
+                os.makedirs(path)
+            call_params = ['java','-jar',os.path.join(os.path.dirname(__file__),'compiler.jar')]
+            for path in jsfiles:
+                call_params.append('--js=%s'%path)
+            call_params.append('--js_output_file=%s'%cppath)
+            print call_params
+            out = call(call_params)
+        return jspath
+        
     def _jscompress(self, jsfiles):
         ts = str(max([os.path.getmtime(fname) for fname in jsfiles]))
         key = '-'.join(jsfiles)
