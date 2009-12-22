@@ -686,6 +686,12 @@ dojo.declare('gnr.GenroClient', null, {
             return fh.getFormData();
         }
     },
+    getFormCluster: function(formId){
+        var fh = genro.formById(formId);
+        if(fh){
+            return fh.getFormCluster();
+        }
+    },
     formById:function(formId){
         var node = genro.nodeById(formId);
         if(node){

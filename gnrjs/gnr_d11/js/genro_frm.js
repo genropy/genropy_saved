@@ -121,10 +121,13 @@ dojo.declare("gnr.GnrFrmHandler",null,{
         return ;
     },
     getFormChanges: function(){
-        return this._getRecordChanges(this.getFormData());
+        return this._getRecordCluster(this.getFormData(),true);
+    },
+    getFormCluster: function(){
+        return this._getRecordCluster(this.getFormData(),false);
     },
     
-    _getRecordChanges: function(record, result, removed, parentpath){
+    _getRecordCluster: function(record, changesOnly,result, removed, parentpath){
         if (record) {
             var parentpath = parentpath || genro.nodeById(this.form_id).absDatapath('');
             var data = new gnr.GnrBag();
@@ -134,7 +137,7 @@ dojo.declare("gnr.GnrFrmHandler",null,{
             var bagnodes = record.getNodes();
             for (var i=0;i<bagnodes.length;i++){
                 node=bagnodes[i];
-                sendback = node.attr._sendback;
+                sendback = changesOnly? node.attr._sendback:true;
                 if(sendback==false || node.label.slice(0,1)=='$'){
                     continue;
                 }
@@ -145,10 +148,10 @@ dojo.declare("gnr.GnrFrmHandler",null,{
                     data.__isRealChange=true;
                 }
                 else if(stringEndsWith(node.label,'_removed')){
-                    this._getRecordChanges(value, data, true, currpath);
+                    this._getRecordCluster(value,changesOnly, data, true, currpath);
                 }
                 else if ((node.attr.mode=='O') || (node.attr.mode=='M') || ('_pkey' in node.attr)){
-                    this._getRecordChanges(value, data, false, currpath);
+                    this._getRecordCluster(value, changesOnly,data, false, currpath);
                 } 
                 else if(value instanceof gnr.GnrBag){
                     sendBag = (sendback==true) || this.hasChangesAtPath(currpath);

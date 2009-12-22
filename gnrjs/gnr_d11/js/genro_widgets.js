@@ -251,6 +251,7 @@ dojo.declare("gnr.widgets.baseHtml",null,{
         }
         
     },
+
     _created:function(newobj, savedAttrs, sourceNode, ind){
         this.created(newobj, savedAttrs, sourceNode);
         if(savedAttrs.connectedMenu){
