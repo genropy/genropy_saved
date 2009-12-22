@@ -964,6 +964,7 @@ class GnrBaseWebPage(GnrObject):
     
     def _set_workdate(self, workdate):
         self.session.setInPageData('workdate', workdate)
+        self.session.saveSessionData()
         self._workdate = workdate
 
     workdate = property(_get_workdate, _set_workdate)
