@@ -1048,15 +1048,15 @@ class GnrBaseWebPage(GnrObject):
                     menu.menuline(label, href=href)
                     
     def formSaver(self,formId,table=None,method=None,_fired='',datapath=None,
-                    resultPath='dummy',changesOnly=True,onSaved=None,**kwargs):
+                    resultPath='dummy',changesOnly=True,onSaved=None,saveAlways=False,**kwargs):
         method = method or 'saveRecordCluster'
         controller = self.pageController()
-        data = '==genro.getFormData("%s");' 
+        data = '==genro.getFormCluster("%s");' 
         onSaved = onSaved or ''
         if changesOnly:
             data = '==genro.getFormChanges("%s");'
-        controller.dataController('genro.formById("%s").save()' %formId,_fired=_fired,
-                                 datapath=datapath)
+        controller.dataController('genro.formById("%s").save(always)' %formId,_fired=_fired,
+                                 datapath=datapath,always=saveAlways)
         kwargs['fireModifiers'] = _fired.replace('^','=')
         controller.dataRpc(resultPath, method=method ,nodeId='%s_saver' %formId ,_POST=True,
                            datapath=datapath,data=data %formId, 
