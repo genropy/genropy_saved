@@ -227,7 +227,7 @@ class Table_userobject(TableBase):
         tbl.column('data', 'X', name_long='!!Data')
         tbl.column('authtags', 'T', name_long='!!Auth tags')
         tbl.column('private', 'B', name_long='!!Private')
-        tbl.column('inside_shortlist', 'B', name_long='!!Shortlist')
+        tbl.column('quicklist', 'B', name_long='!!Quicklist')
 
     def saveUserObject(self, data, id=None, code=None, objtype=None, pkg=None, tbl=None, userid=None, 
                              description=None, authtags=None, private=None,inside_shortlist=None, **kwargs):
