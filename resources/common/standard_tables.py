@@ -583,8 +583,6 @@ class TableHandler(BaseComponent):
                   _onResult='genro.querybuilder.buildQueryPane();')
         
         pane.dataRpc('list.query.where', 'new_query', filldefaults=True, _init=True, sync=True)
-        pane.dataController("""genro.querybuilder.refreshQuickMenu();""",
-                            _fired="^list.query.saved")
         pane.dataRpc('list.query.where', 'new_query', _fired='^list.query.new', _deleted='^list.query.deleted',
                                     _onResult='genro.querybuilder.buildQueryPane();')
 
