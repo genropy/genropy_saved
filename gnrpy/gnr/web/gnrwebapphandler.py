@@ -531,7 +531,6 @@ class GnrBaseWebAppHandler(object):
                             pkeys=None, fromSelection=None, applymethod=None, totalRowCount=False,
                             selectmethod=None, expressions=None,sum_columns=None,
                             sortedBy=None,excludeLogicalDeleted=True, **kwargs):
-        print '-----------------GET SELECTION (%s)---------' % where
         t = time.time()
         #if 'sqlContextName' in kwargs:
         #    kwargs['sqlContext'] = dict(name=kwargs['sqlContextName'], ctxbag=self.page.session.pagedata['context'])
