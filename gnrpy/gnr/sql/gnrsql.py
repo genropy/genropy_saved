@@ -51,7 +51,7 @@ class GnrSqlDb(GnrObject):
     """
     def __init__(self, implementation='sqlite', dbname='mydb',
                  host=None, user=None, password=None, port=None,
-                 main_schema=None):
+                 main_schema=None,debugger=None):
         """
         This is the constructor method of the GnrSqlDb class. 
         @param implementation: 'sqlite' or 'postgres' or other sql implementations.
@@ -70,6 +70,7 @@ class GnrSqlDb(GnrObject):
         self.user = user
         self.password = password
         self.typeConverter = GnrClassCatalog()
+        self.debugger=debugger
         
         # All available adapter modules are already imported.
         # GnrSqlDb instantiates the SqlDbAdapter specified by 
@@ -174,6 +175,7 @@ class GnrSqlDb(GnrObject):
         sql, sqlargs = self.adapter.prepareSqlText(sql, sqlargs)
         #gnrlogger.info('Executing:%s - with kwargs:%s \n\n',sql,unicode(kwargs))
         #print 'sql:\n',sql
+
         try:
             if not cursor:
                 #if not self.connection: self.connection=self.adapter.connect()
@@ -185,6 +187,8 @@ class GnrSqlDb(GnrObject):
                 else:
                     cursor = self.adapter.cursor(self.connection)
                     #cursor = self.connection.cursor()
+            if self.debugger:
+                self.debugger(cursor=cursor, sql=sql, sqlargs=sqlargs)
             cursor.execute(sql, sqlargs)
         except Exception, e:
             #print sql
