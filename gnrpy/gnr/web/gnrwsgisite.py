@@ -585,6 +585,14 @@ class GnrWsgiSite(object):
         self.clearRecordLocks(page_id=page.page_id)
         self.db.commit()
         
+    def sqldebugger(self,cursor=None, sql=None, sqlargs=None):
+        if self.currentPage:
+            page =self.currentPage
+            sqldebug = page.kwargs.get('sqldebug',None)
+            if sqldebug and sqldebug.upper()=='PRINT':
+                print sql
+                print sqlargs
+        
     def notifyDbEvent_(self,tblobj,record,event,old_record=None):
         if 'adm' in self.gnrapp.db.packages:
             page = self.currentPage
