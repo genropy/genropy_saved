@@ -64,6 +64,7 @@ class GnrWsgiPage(GnrBaseWebPage):
     
     def index(self, theme=None, pagetemplate=None, **kwargs):
         self.onInit()
+        self.kwargs=kwargs
         if self._user_login:
             user=self.user # if we have an embedded login we get the user right now
         if True:
