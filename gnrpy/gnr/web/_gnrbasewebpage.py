@@ -1070,8 +1070,6 @@ class GnrBaseWebPage(GnrObject):
         pkey = pkey or '*newrecord*'
         method = method or 'loadRecordCluster'
         onResultScripts=[]
-        if onLoading:
-            onResultScripts.append(onLoading)
         onResultScripts.append('genro.formById("%s").loaded()' % formId)
         if onLoaded:
             onResultScripts.append(onLoaded)
@@ -1081,7 +1079,7 @@ class GnrBaseWebPage(GnrObject):
                                 _fired=_fired, _onStart=loadOnStart,_delay=1,datapath=datapath)
                     
         controller.dataRpc(resultPath, method=method, pkey=pkey, table=table,
-                           nodeId='%s_loader' %formId,datapath=datapath,
+                           nodeId='%s_loader' %formId,datapath=datapath,_onCalling=onLoading,
                            _onResult=';'.join(onResultScripts),lock=lock,
                            loadingParameters=loadingParameters, **kwargs)
                     
