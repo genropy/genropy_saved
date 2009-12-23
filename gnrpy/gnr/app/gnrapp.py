@@ -91,7 +91,7 @@ class GnrSqlAppDb(GnrSqlDb):
         self.checkTransactionWritable(tblobj)
         GnrSqlDb.insert(self, tblobj, record)
         self.application.notifyDbEvent(tblobj,record,'I')
-        
+    
 class GnrPackage(object):
     def __init__(self, pkg_id, application, path=None,filename=None ,**pkgattrs):
         self.id = pkg_id
@@ -323,7 +323,7 @@ class GnrApp(object):
         if dbattrs.get('implementation') =='sqlite':
             dbattrs['dbname'] = self.realPath(dbattrs.pop('filename'))
         configlist = []
-        self.db = GnrSqlAppDb(**dbattrs)
+        self.db = GnrSqlAppDb(debugger=self.sqldebugger, **dbattrs)
         self.db.application = self
         pkgMenues = self.config['menu?package'] or []
         if pkgMenues:
@@ -349,7 +349,8 @@ class GnrApp(object):
         self.buildLocalization()
         
         self.onInited()
-
+    def sqldebugger(self,cursor,sql,sqlargs):
+        pass
     def instance_name_to_path(self,instance_name):
         if 'instances' in self.gnr_config['gnr.environment_xml']:
             for path in [expandpath(path) for path in self.gnr_config['gnr.environment_xml'].digest('instances:#a.path') if os.path.isdir(expandpath(path))]:
