@@ -48,6 +48,9 @@ class GnrWsgiWebApp(GnrApp):
         authpkg = self.authPackage()
         if authpkg and hasattr(authpkg,'loginUrl'):
             return authpkg.loginUrl()
+            
+    def sqldebugger(self,**kwargs):
+        self.site.sqldebugger(**kwargs)
 
 
             
