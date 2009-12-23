@@ -95,9 +95,10 @@ class TableHandler(BaseComponent):
     def listController(self,pane):
         pane.data('list.excludeLogicalDeleted',True)
         pane.data('aux.showDeleted',False)
+        pane.data('list.view.structure',self.lstBase(self.newGridStruct()))
         pane.dataController("""genro.querybuilder = new gnr.GnrQueryBuilder("query_root", "%s", "list.query.where");""" % self.maintable,_init=True)
         pane.dataController("""genro.queryanalyzer = new gnr.GnrQueryAnalyzer("translator_root","list.query.where","list.runQueryDo")""",_onStart=True)
-        pane.dataController("""genro.viewEditor = new gnr.GnrViewEditor("view_root", "%s", "maingrid");""" % self.maintable,_onStart=True)
+        pane.dataController("""genro.viewEditor = new gnr.GnrViewEditor("view_root", "%s", "maingrid"); genro.viewEditor.colsFromBag();""" % self.maintable,_onStart=True)
         pane.dataController("""genro.querybuilder.createMenues();
                                   dijit.byId('qb_fields_menu').bindDomNode(genro.domById('fastQueryColumn'));
                                   dijit.byId('qb_op_menu').bindDomNode(genro.domById('fastQueryOp'));
@@ -141,7 +142,7 @@ class TableHandler(BaseComponent):
                                         if (genro.formById("formPane")){
                                         genro.formById("formPane").reset();}
                                     }
-                                    if(idx == -2){SET selectedPage=0;} else {SET selectedPage = 1;}""" ,
+                                    if(idx == -2){SET selectedPage=0; SET list.query.pkeys=null;}""" ,
                              idx='^list.selectedIndex')
         pane.dataController("SET status.locked=true;",fire='^status.lock')
         pane.dataController("SET status.locked=false;",fire='^status.unlock',_if='unlockPermission',
@@ -305,9 +306,11 @@ class TableHandler(BaseComponent):
         pane.dataController('SET list.query.selectedId = query_id; genro.fireAfter("list.runQueryButton",true,300)',
                                 query_id="^list.query_id")
         
-        pane.dataController("""SET selectedPage=1;
+        pane.dataController("""    
+                                   SET selectedPage=1;
                                    SET list.query.pkeys=initialPkey;
-                                   FIRE list.runQuery = true;""",
+                                  FIRE list.runQuery = true;
+                                   """,
                                  _onStart=1, initialPkey='=initialPkey', _if='initialPkey')
                                  
         pane.dataController("""var pkeys= genro.getData('list.'+dataset_name);
@@ -538,7 +541,7 @@ class TableHandler(BaseComponent):
         grid = gridpane.virtualGrid(nodeId='maingrid', structpath="list.view.structure", storepath=".data", autoWidth=False,
                                 selectedIndex='list.rowIndex', rowsPerPage=self.rowsPerPage(), sortedBy='^list.grid.sorted',
                                 connect_onSelectionChanged='SET list.noSelection = (genro.wdgById("maingrid").selection.getSelectedCount()==0)',
-                                connect_onRowDblClick='SET list.selectedIndex = GET list.rowIndex;',
+                                connect_onRowDblClick='SET list.selectedIndex = GET list.rowIndex; SET selectedPage = 1;',
                                 connect_onRowContextMenu="FIRE list.onSelectionMenu = true;")
         
         pane.dataRpc('list.currentQueryCount','app.getRecordCount', condition=condition,fired='^list.updateCurrentQueryCount',
@@ -644,8 +647,8 @@ class TableHandler(BaseComponent):
         #pane.dataRpc('list.view.structure', 'new_view', filldefaults=True, _init=True, sync=True)
         
         pane.dataRpc('list.view.structure', 'new_view', _fired='^list.view.new', _deleted='^list.view.deleted',
-                                    _onResult='genro.viewEditor.colsFromBag();', filldefaults='^gnr.onStart'
-                                    )
+                                    _onResult='genro.viewEditor.colsFromBag();' #filldefaults='^gnr.onStart'
+                        )
 
     
     def saveViewButton(self, pane):
