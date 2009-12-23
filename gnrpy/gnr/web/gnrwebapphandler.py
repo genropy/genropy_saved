@@ -531,6 +531,7 @@ class GnrBaseWebAppHandler(object):
                             pkeys=None, fromSelection=None, applymethod=None, totalRowCount=False,
                             selectmethod=None, expressions=None,sum_columns=None,
                             sortedBy=None,excludeLogicalDeleted=True, **kwargs):
+        print '-----------------GET SELECTION (%s)---------' % where
         t = time.time()
         #if 'sqlContextName' in kwargs:
         #    kwargs['sqlContext'] = dict(name=kwargs['sqlContextName'], ctxbag=self.page.session.pagedata['context'])
@@ -677,7 +678,7 @@ class GnrBaseWebAppHandler(object):
         elif isinstance(where, Bag):
             where, kwargs = self._decodeWhereBag(tblobj, where, kwargs)
         if condition and not pkeys:
-            where = '(%s) AND (%s)' % (where, condition)
+            where = '( %s ) AND ( %s )' % (where, condition)
         sql_kwargs = dict([(str(k), v) for k,v in kwargs.items() if not k.startswith('frm_')])
         fmt_kwargs = dict([(str(k[4:]), v) for k,v in kwargs.items() if k.startswith('frm_')])
         query=tblobj.query(columns=columns,distinct=distinct, where=where,

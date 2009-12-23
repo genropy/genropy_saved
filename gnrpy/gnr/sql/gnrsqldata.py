@@ -42,7 +42,7 @@ from gnr.sql.gnrsql_exceptions import SelectionExecutionError,RecordDuplicateErr
 
 COLFINDER = re.compile(r"(\W|^)\$(\w+)")
 RELFINDER = re.compile(r"(\W|^)(\@([\w.@:]+))")
-PERIODFINDER = re.compile(r"(?:\W|^)#PERIOD *?\( *?((?:\$|@)?\w*) *?, *?(\w*)\)(?:\W|^)?")
+PERIODFINDER = re.compile(r"#PERIOD\s*\(\s*((?:\$|@)?[\w\.\@]+)\s*,\s*(\w*)\)")
 
 class SqlCompiledQuery(object):
     """SqlCompiledQuery is a private class used by SqlQueryCompiler. 
@@ -493,18 +493,19 @@ class SqlQueryCompiler(object):
         elif date_from and date_to:
             if date_from==date_to:
                 self.sqlparams[from_param]=date_from
-                return ' %s = :%s' % (fld, from_param)
+                return ' %s = :%s ' % (fld, from_param)
             
             self.sqlparams[from_param]=date_from
             self.sqlparams[to_param]=date_to
-            return ' %s BETWEEN :%s AND :%s' % (fld, from_param, to_param)
+            result = ' (%s BETWEEN :%s AND :%s) ' % (fld, from_param, to_param)
+            return result
         
         elif date_from:
             self.sqlparams[from_param]=date_from
-            return ' %s >= :%s' % (fld, from_param)
+            return ' %s >= :%s ' % (fld, from_param)
         else:
             self.sqlparams[to_param]=date_to
-            return ' %s <= :%s' % (fld, to_param)
+            return ' %s <= :%s ' % (fld, to_param)
         
     def _recordWhere(self,  where=None): # usato da record resolver e record getter
         if where:
@@ -739,16 +740,21 @@ class SqlQuery(object):
     
     def _get_compiled(self):
         if self._compiled is None:
-            self._compiled = SqlQueryCompiler(self.dbtable.model,
+            self._compiled = self.compileQuery()
+        return self._compiled
+    compiled = property(_get_compiled)
+    
+    def compileQuery(self, count=False):
+        return SqlQueryCompiler(self.dbtable.model,
                                               joinConditions=self.joinConditions,
                                               sqlContextName=self.sqlContextName, 
                                               sqlparams=self.sqlparams,locale=self.locale).compiledQuery(relationDict=self.relationDict,
+                                                                                count=count,
                                                                                 bagFields=self.bagFields,
                                                                                 excludeLogicalDeleted=self.excludeLogicalDeleted,
                                                                                 addPkeyColumn = self.addPkeyColumn,
                                                                                  **self.querypars)
-        return self._compiled
-    compiled = property(_get_compiled)
+    
     
     #def getColumn_OLD(self,name):
     #    n = self.compiled.aliasDict.get(name,name).strip().strip('$')
@@ -892,10 +898,7 @@ class SqlQuery(object):
         
     def count(self):
         """return rowcount. It does not save a selection"""
-        compiledQuery = SqlQueryCompiler(self.dbtable.model).compiledQuery(count=True,
-                                                                           excludeLogicalDeleted=self.excludeLogicalDeleted,
-                                                                           addPkeyColumn=self.addPkeyColumn,
-                                                                           relationDict=self.relationDict, **self.querypars)
+        compiledQuery = self.compileQuery(count=True)
         cursor = self.db.execute(compiledQuery.get_sqltext(self.db), self.sqlparams)
         l = cursor.fetchall()
         n = len(l) # for group or distinct query select -1 for each group 
@@ -1713,23 +1716,26 @@ class SqlRecord(object):
             raise SelectionExecutionError('Not existing mode: %s' % mode)
     
     def _get_compiled(self):
-        if self._compiled is None:
-            if self.where:
-                where = self.where
-            elif self.pkey is not None:
-                where = '$pkey = :pkey'
-            else:
-                where = ' AND '.join(['t0.%s=:%s' % (k,k) for k in self.sqlparams.keys()])
-                
-            
-            self._compiled = SqlQueryCompiler(self.dbtable.model, sqlparams=self.sqlparams, 
-                                              joinConditions=self.joinConditions, 
-                                              sqlContextName=self.sqlContextName).compiledRecordQuery(where=where, 
-                                                                                                      relationDict=self.relationDict,
-                                                                                                      bagFields=self.bagFields, 
-                                                                                                      for_update=self.for_update, **self.relmodes)
+        if self._compiled is None: 
+            self._compiled = self.compileQuery()
         return self._compiled 
     compiled = property(_get_compiled)
+    
+    def compileQuery(self):
+        if self.where:
+            where = self.where
+        elif self.pkey is not None:
+            where = '$pkey = :pkey'
+        else:
+            where = ' AND '.join(['t0.%s=:%s' % (k,k) for k in self.sqlparams.keys()])
+            
+        result = SqlQueryCompiler(self.dbtable.model, sqlparams=self.sqlparams, 
+                                          joinConditions=self.joinConditions, 
+                                          sqlContextName=self.sqlContextName).compiledRecordQuery(where=where,
+                                                                                                  relationDict=self.relationDict,
+                                                                                                  bagFields=self.bagFields, 
+                                                                                                  for_update=self.for_update, **self.relmodes)
+        return result
     
     def _get_result(self):
         if self._result is None:

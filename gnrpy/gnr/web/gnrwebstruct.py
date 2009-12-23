@@ -832,7 +832,11 @@ class GnrGridStruct(GnrStructData):
                     ridx = relfldlst.index('@%s'% zoom)
                 zoomtbl = tableobj.column('.'.join(relfldlst[0:ridx+1])).parent
                 relfldlst[ridx]=relfldlst[ridx][1:]
-                kwargs['zoomPkey']='.'.join(relfldlst[0:ridx+1])      
+                kwargs['zoomPkey']='.'.join(relfldlst[0:ridx+1])
+            elif fldobj.relatedTable():
+                zoomtbl = fldobj.relatedTable()
+                kwargs['zoomPkey']=field
+                    
             if hasattr(zoomtbl.dbtable,'zoomUrl'):
                 zoomPage=zoomtbl.dbtable.zoomUrl()
             else:

@@ -198,6 +198,7 @@ class GnrSqlDb(GnrObject):
             raise e
         if autocommit:
             self.commit()
+        print sql
         return cursor
         
     def insert(self, tblobj, record):

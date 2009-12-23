@@ -531,7 +531,7 @@ class TableHandler(BaseComponent):
                              where='=list.query.where', sortedBy='=list.grid.sorted',
                              pkeys='=list.query.pkeys', fired='^list.runQueryDo',
                              selectionName='*', recordResolver=False, condition=condition,
-                             sqlContextName='standard_list', totalRowCount=True,
+                             sqlContextName='standard_list', totalRowCount=False,
                              row_start='0', row_count=self.rowsPerPage(),
                              excludeLogicalDeleted='^list.excludeLogicalDeleted',
                              applymethod='onLoadingSelection',
