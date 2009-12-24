@@ -333,9 +333,7 @@ class Public(BaseComponent):
         fb.dataRpc(period_store, 'decodeDatePeriod', datestr=value, 
                     _fired='^gnr.onStart',
                     _onResult="""if (result.getItem("valid")){
-                                 console.log('valid');
                                  }else{
-                                 console.log('invalid');
                                  result.setItem('period_string','Invalid period');
                                  }""")
         fb.combobox(lbl=lbl or '!!Period',value=value, width='16em',tip='^%s.period_string'%period_store,
