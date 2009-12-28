@@ -90,14 +90,17 @@ def moduleDict(module,proplist):
         result.update( dict([(getattr(x,prop).lower(),x) for x in modulelist]))
     return result
 
-def gnrImport(source, importAs=None):
-
+def gnrImport(source, importAs=None, avoidDup=False):
     try:
-        return sys.modules[source]
+        m=sys.modules[source]
+        return m
     except KeyError:
         pass
     path=None
     if os.path.isfile(source) or '/' in source:
+        if avoidDup and not importAs:
+            importAs= os.path.splitext(source)[0].replace('/', '_').replace('.','_')
+            
         path=[os.path.dirname(source)]
         source=os.path.splitext(os.path.basename(source))[0]
     segments=source.split('.')

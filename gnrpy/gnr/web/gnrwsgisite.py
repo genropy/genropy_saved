@@ -224,7 +224,7 @@ class GnrWsgiSite(object):
                         if tool_module.endswith('.py'):
                             module_path =os.path.join(path,tool_module)
                             try:
-                                module = gnrImport(module_path)
+                                module = gnrImport(module_path,avoidDup=True)
                                 tool_classes = inspect.getmembers(module, isgnrwebtool)
                                 tool_classes = [(name.lower(),value) for name,value in tool_classes]
                                 tools.update(dict(tool_classes))
@@ -488,9 +488,9 @@ class GnrWsgiSite(object):
         self.automap.toXml(os.path.join(self.site_path,'automap.xml'))
     
     def get_page_factory(self, path, pkg = None, rel_path=None):
-        #if path in self.page_factories:
-        #    return self.page_factories[path]
-        page_module = gnrImport(path,importAs='%s-%s'%(pkg or 'site',str(path.lstrip('/').replace('/','_')[:-3])))
+        if path in self.page_factories:
+            return self.page_factories[path]
+        page_module = gnrImport(path,avoidDup=True)
         page_factory = getattr(page_module,'page_factory',GnrWsgiPage)
         custom_class = getattr(page_module,'GnrCustomWebPage')
         py_requires = splitAndStrip(getattr(custom_class, 'py_requires', '') ,',')
@@ -535,7 +535,7 @@ class GnrWsgiSite(object):
         if pkg:
             customPagePath=os.path.join(self.gnrapp.customFolder, pkg, 'webpages', *path)
             if os.path.isfile(customPagePath):
-                component_page_module = gnrImport(customPagePath)
+                component_page_module = gnrImport(customPagePath,avoidDup=True)
                 component_page_class = getattr(component_page_module,'WebPage',None)
                 if component_page_class:
                     classMixin(page_class, component_page_class, only_callables=False)
@@ -684,11 +684,11 @@ class GnrWsgiSite(object):
         if modPathList:
             modPathList.reverse()
             basePath=modPathList.pop(0)
-            resource_module = gnrImport(basePath)
+            resource_module = gnrImport(basePath, avoidDup=True)
             resource_class = getattr(resource_module,class_name,None)
             resource_obj = resource_class(page=page,resource_table=table)          
             for modPath in modPathList:
-                resource_module = gnrImport(modPath)
+                resource_module = gnrImport(modPath, avoidDup=True)
                 resource_class = getattr(resource_module,class_name,None)
                 if resource_class:
                     instanceMixin(resource_obj,resource_class,only_callables=False)
@@ -703,7 +703,7 @@ class GnrWsgiSite(object):
         if modPathList:
             modPathList.reverse()
             for modPath in modPathList:
-                component_module = gnrImport(modPath)
+                component_module = gnrImport(modPath,avoidDup=True)
                 component_class = getattr(component_module,clsName,None)
                 if component_class:
                     classMixin(kls, component_class, site=self, only_callables=False)
