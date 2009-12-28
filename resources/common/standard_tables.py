@@ -127,7 +127,7 @@ class TableHandler(BaseComponent):
                         _if='selectedPage == 0',_else='formtitle',formtitle='^form.title',_init=True)
         pane.dataFormula('list.canWrite','(!locked ) && writePermission',locked='^status.locked',writePermission='=usr.writePermission',_init=True)
         pane.dataFormula('list.canDelete','(!locked) && deletePermission',locked='^status.locked',deletePermission='=usr.deletePermission',_init=True)
-        pane.dataController("SET list.selectedIndex=-1;", fired='^list.newRecord')
+        pane.dataController("SET list.selectedIndex=-1; SET selectedPage = 1", fired='^list.newRecord')
         pane.dataController(""" var pkey;
                                     if (idx < -1){pkey = null;PUT list.selectedIndex = null;}
                                     else if (idx == -1){
