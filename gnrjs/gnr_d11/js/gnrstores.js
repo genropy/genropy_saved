@@ -95,7 +95,7 @@ dojo.declare("gnr.GnrStoreBag",null,{
                 return itemvalue.getNodes();
             }
             else{
-                return [{'id':item._id+'c','label':itemvalue}];
+                return [{'id':item._id+'c','label':itemvalue,'attr':item.attr}];
             }
         }
         else if(attribute.indexOf('.') == 0){
@@ -139,7 +139,7 @@ dojo.declare("gnr.GnrStoreBag",null,{
                     }
                     else{
                         //return (result != null);
-                        return true
+                        return true;
                     }
                 } 
              }
@@ -296,7 +296,11 @@ dojo.declare("gnr.GnrStoreBag",null,{
             }
             return item.label;
         }else if (typeof(item)=='object'){
-            return item.label;
+            if(this.labelCb){
+                return this.labelCb.call(item);
+            }else{
+                return item.label;
+            }
         } 
         else{
             return item;

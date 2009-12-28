@@ -268,6 +268,10 @@ dojo.declare("gnr.GnrDevHandler",null,{
         var open = genro._data.getItem('_clientCtx.mainBC.right?show');
         genro._data.setItem('_clientCtx.mainBC.right?show', !open);
     },
+    showBottomHelper: function(){
+        var open = genro._data.getItem('_clientCtx.mainBC.bottom?show');
+        genro._data.setItem('_clientCtx.mainBC.bottom?show', !open);
+    },
     shortcut: function(shortcut,callback,opt){
         var default_options = {
             'type':'keydown',

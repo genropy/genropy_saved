@@ -52,6 +52,7 @@ dojo.declare('gnr.GenroClient', null, {
         this.page_id = kwargs.page_id;
         this.startArgs = kwargs.startArgs || {};
         this.debuglevel = kwargs.startArgs.debug || null;
+        this.debugopt = kwargs.startArgs.debugopt || null;
         this.pageMode = kwargs.pageMode;
         this.startTime=new Date();
         this.lastTime=this.startTime;
@@ -167,6 +168,7 @@ dojo.declare('gnr.GenroClient', null, {
         this._dataroot.subscribe('dataTriggers', {'any':dojo.hitch(this, "dataTrigger")});
         
         genro.dev.shortcut("Ctrl+Shift+D",function(){genro.dev.showDebugger();});
+        genro.dev.shortcut("Ctrl+Shift+B",function(){genro.dev.showBottomHelper();});
         
         genro.callAfter(function(){genro.fireEvent('gnr.onStart');}, 100);
        /* if (dojo.isSafari && genro.wdgById('pbl_root')){

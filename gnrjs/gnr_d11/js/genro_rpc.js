@@ -179,6 +179,9 @@ dojo.declare("gnr.GnrRpcHandler",null,{
         content.page_id = this.application.page_id;
         var kw = objectUpdate({},xhrKwargs);
         kw.url = kw.url || this.pageIndexUrl();
+        if (this.application.debugopt){
+            content.debugopt=this.application.debugopt;
+        }
         kw.content=content;
          //kw.preventCache = kw.preventCache - just to remember that we can have it
         kw.handleAs = kw.handleAs || 'xml';
@@ -239,7 +242,7 @@ dojo.declare("gnr.GnrRpcHandler",null,{
     },
     downloadCall: function(method, kwargs){
         var cb = function(result){genro.download(result);};
-        genro.rpc.remoteCall(method, objectUpdate(kwargs,{'mode':'text'}), null, 'POST', null, cb)
+        genro.rpc.remoteCall(method, objectUpdate(kwargs,{'mode':'text'}), null, 'POST', null, cb);
     },
     remoteCall:function(method, params, mode, httpMethod, preventCache, async_cb){
         var callKwargs = objectUpdate({}, params);
@@ -542,7 +545,7 @@ dojo.declare("gnr.GnrRpcHandler",null,{
         resolver.updateAttr=true;
         resolver.onSetResolver = function(node){
             node.newBagRow = function(defaultArgs){
-                var childResolverParams=this.attr.childResolverParams
+                var childResolverParams=this.attr.childResolverParams;
                 var table = childResolverParams._target_fld.split('.').slice(0,2).join('_');
                 var loadingParameters = genro.getData('gnr.tables.'+table+'.loadingParameters');
                 if (defaultArgs instanceof Array){
