@@ -755,32 +755,9 @@ class SqlQuery(object):
                                                                                 addPkeyColumn = self.addPkeyColumn,
                                                                                  **self.querypars)
     
-    
-    #def getColumn_OLD(self,name):
-    #    n = self.compiled.aliasDict.get(name,name).strip().strip('$')
-    #    n = self.compiled.relationDict.get(n,n)
-    #    return self.dbtable.column(n)
-    
-    #def getColHeaders(self,row,capitalize=False): INUTILE?
-    #    result =[]
-    #    if not row:
-    #        return []
-    #    if isinstance(row[0],list):
-    #        row=row[0]
-    #    for n in row.keys():
-    #        if n in self.compiled.aliasDict:
-    #            result.append(n)
-    #        else:
-    #            n=n.strip().strip('$')
-    #            col=self.dbtable.column(self.compiled.relationDict.get(n,n))
-    #            result.append(col.name_long)
-    #    if capitalize:
-    #        result=[r.capitalize() for r in result]
-    #    return result
-    
     def cursor(self):
         """get a cursor of current selection"""
-        return self.db.execute(self.sqltext, self.sqlparams)
+        return self.db.execute(self.sqltext, self.sqlparams, dbtable=self.dbtable.fullname)
     
     def fetch(self):
         """get a cursor of current selection and fetch it"""
@@ -899,7 +876,7 @@ class SqlQuery(object):
     def count(self):
         """return rowcount. It does not save a selection"""
         compiledQuery = self.compileQuery(count=True)
-        cursor = self.db.execute(compiledQuery.get_sqltext(self.db), self.sqlparams)
+        cursor = self.db.execute(compiledQuery.get_sqltext(self.db), self.sqlparams,dbtable=self.dbtable.fullname)
         l = cursor.fetchall()
         n = len(l) # for group or distinct query select -1 for each group 
         if n==1 and cursor.description[0][0] == 'gnr_row_count': # for plain query select count(*)

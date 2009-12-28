@@ -159,7 +159,7 @@ class GnrSqlDb(GnrObject):
         return self._connections[thread.get_ident()]
     connection = property(_get_connection)
     
-    def execute(self, sql, sqlargs=None, cursor=None, cursorname=None, autocommit=False):
+    def execute(self, sql, sqlargs=None, cursor=None, cursorname=None, autocommit=False,dbtable=None):
         
         """Execute the sql statement using given kwargs"""
         # transform list and tuple parameters in named values.
@@ -175,7 +175,6 @@ class GnrSqlDb(GnrObject):
         sql, sqlargs = self.adapter.prepareSqlText(sql, sqlargs)
         #gnrlogger.info('Executing:%s - with kwargs:%s \n\n',sql,unicode(kwargs))
         #print 'sql:\n',sql
-
         try:
             if not cursor:
                 #if not self.connection: self.connection=self.adapter.connect()
@@ -187,12 +186,14 @@ class GnrSqlDb(GnrObject):
                 else:
                     cursor = self.adapter.cursor(self.connection)
                     #cursor = self.connection.cursor()
-            if self.debugger:
-                self.debugger(cursor=cursor, sql=sql, sqlargs=sqlargs)
             cursor.execute(sql, sqlargs)
+            if self.debugger:
+                self.debugger(debugtype='sql',sql=sql, sqlargs=sqlargs,dbtable=dbtable)
         except Exception, e:
             #print sql
             gnrlogger.warning('error executing:%s - with kwargs:%s \n\n', sql, unicode(sqlargs))
+            if self.debugger:
+                self.debugger(debugtype='sql',sql=sql, sqlargs=sqlargs,dbtable=dbtable, error=str(e))
             #raise str('error %s executing:%s - with kwargs:%s \n\n' % (str(e), sql, unicode(sqlargs).encode('ascii', 'ignore')))
             self.rollback()
             raise e

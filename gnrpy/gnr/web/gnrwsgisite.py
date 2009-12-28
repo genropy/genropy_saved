@@ -371,7 +371,8 @@ class GnrWsgiSite(object):
             debug=page_kwargs.pop('debug')
         else:
             debug=None
-        self.page_init(page,request=req, response=resp, page_id=page_id, debug=debug, 
+        
+        self.page_init(page,request=req, response=resp, page_id=page_id, debug=debug,
                             _user_login=_user_login, _rpc_resultPath=_rpc_resultPath)
         if not page:
             return self.not_found(environ,start_response)
@@ -585,26 +586,37 @@ class GnrWsgiSite(object):
         self.clearRecordLocks(page_id=page.page_id)
         self.db.commit()
         
-    def sqldebugger(self,cursor=None, sql=None, sqlargs=None):
+    def debugger(self,debugtype,**kwargs):
         if self.currentPage:
             page =self.currentPage
-            sqldebug = page.kwargs.get('sqldebug',None)
-            if sqldebug and sqldebug.upper()=='PRINT':
-                print sql
-                print sqlargs
-        
-    def notifyDbEvent_(self,tblobj,record,event,old_record=None):
-        if 'adm' in self.gnrapp.db.packages:
-            page = self.currentPage
-            if tblobj.attributes.get('broadcast') and page and page.subscribedTablesDict and tblobj.fullname in page.subscribedTablesDict :
-                msg_body = Bag()
-                msg_body.setItem('dbevent', 
-                                 Bag([(k,v) for k,v in record.items() if not k.startswith('@')]),
-                                 _client_data_path='gnr.dbevent.%s'%tblobj.fullname.replace('.','_'), 
-                                 dbevent=event)
-                self.writeMessage(page_id=page.subscribedTablesDict[tblobj.fullname]['page_id'],
-                                  body=msg_body,
-                                  message_type='datachange')
+            debugopt=getattr(page,'debugopt','') or ''
+            if debugopt and debugtype in debugopt :
+                getattr(self,'debugger_%s' % debugtype)(page,**kwargs)
+       
+    def debugger_sql(self, page, sql=None, sqlargs=None,dbtable=None, error=None):
+        b=Bag()
+        page.debugger('py',ddddd='abcde')
+        dbtable=dbtable or ''
+        b['dbtable']=dbtable 
+        b['sql']="innerHTML:<div style='white-space: pre;font-size: x-small;background-color:#ffede7;padding:2px;'>%s</div>" % sql
+        b['sqlargs']=Bag(sqlargs)
+        if error:
+            b['error']=str(error)
+        page._debug_calls.addItem('SQL:%s'%(dbtable.replace('.','_')),b,debugtype='sql')
+
+    def debugger_py(self, page, _frame=None, **kwargs):
+        b=Bag(kwargs)
+        if  _frame:
+            import inspect
+            m=inspect.getmodule(_frame)
+            lines,start=inspect.getsourcelines(_frame)
+            code=''.join(['%05i %s'%(n+start,l)for n,l in enumerate(lines)])
+            b['module']=m.__name__
+            b['line_number']=_frame.f_lineno
+            b['locals']=Bag(_frame.f_locals)
+            b['code']="innerHTML:<div style='white-space: pre;font-size: x-small;background-color:#e0ffec;padding:2px;'>%s</div>" % code       
+            label='%s line:%i' %(m.__name__.replace('.','_'),_frame.f_lineno)
+        page._debug_calls.addItem('PY:%s'%label,b,debugtype='py')
 
     def notifyDbEvent(self,tblobj,record,event,old_record=None):
         if 'adm' in self.gnrapp.db.packages:

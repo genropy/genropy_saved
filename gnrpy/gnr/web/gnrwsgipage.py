@@ -39,7 +39,7 @@ from mako.lookup import TemplateLookup
 from gnr.web.gnrwebapphandler import GnrWsgiWebAppHandler
 from gnr.core.gnrlang import GnrGenericException
 from gnr.core.gnrhtml import GnrHtmlBuilder
-
+from gnr.core.gnrbag import Bag
 CONNECTION_TIMEOUT = 3600
 CONNECTION_REFRESH = 20
 AUTH_OK=0
@@ -64,7 +64,9 @@ class GnrWsgiPage(GnrBaseWebPage):
     
     def index(self, theme=None, pagetemplate=None, **kwargs):
         self.onInit()
-        self.kwargs=kwargs
+        self.debugopt=kwargs.pop('debugopt',None)
+        if self.debugopt:
+            self._debug_calls=Bag()
         if self._user_login:
             user=self.user # if we have an embedded login we get the user right now
         if True:
@@ -412,6 +414,10 @@ class GnrWsgiPage(GnrBaseWebPage):
                 root.dataController("if(show){genro.nodeById('gnr_debugger').updateContent();}",show='^_clientCtx.mainBC.right?show')
                 debugAc = root.accordionContainer(width='20%',region='right',splitter=True, nodeId='gnr_debugger')
                 debugAc.remote('debuggerContent', cacheTime=-1)
+                root.dataController("SET _clientCtx.mainBC.bottom?show=false;",_init=True)
+                root.dataController("if(show){genro.nodeById('gnr_bottomHelper').updateContent();}",show='^_clientCtx.mainBC.bottom?show')
+                bottomHelperTc = root.stackContainer(height='30%',region='bottom',splitter=True, nodeId='gnr_bottomHelper')
+                bottomHelperTc.remote('bottomHelperContent', cacheTime=-1)
                 self.mainLeftContent(root,region='left',splitter=True, nodeId='gnr_main_left')
                 rootwdg = self.rootWidget(root, region='center', nodeId='_pageRoot')
                 self.main(rootwdg, **kwargs)

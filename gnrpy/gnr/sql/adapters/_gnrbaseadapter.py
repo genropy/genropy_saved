@@ -179,7 +179,7 @@ class SqlDbAdapter(object):
         tblobj=dbtable.model
         pkey = tblobj.pkey
         result = self.dbroot.execute('SELECT 1 FROM %s WHERE %s=:id LIMIT 1;' % (tblobj.sqlfullname, tblobj.sqlnamemapper[pkey]), 
-                                     dict(id=record_data[pkey])).fetchall()
+                                     dict(id=record_data[pkey]),dbtable=dbtable.fullname).fetchall()
         if result:
             return True
         
@@ -247,7 +247,7 @@ class SqlDbAdapter(object):
             sql_flds.append(tblobj.sqlnamemapper[k])
             data_keys.append(':%s' % k)
         sql = 'INSERT INTO %s(%s) VALUES (%s);' % (tblobj.sqlfullname, ','.join(sql_flds), ','.join(data_keys))
-        return self.dbroot.execute(sql, record_data)
+        return self.dbroot.execute(sql, record_data,dbtable=dbtable.fullname)
     
     def update(self, dbtable, record_data, pkey=None):
         """Update a record in the db. 
@@ -265,7 +265,7 @@ class SqlDbAdapter(object):
             pkeyColumn='__pkey__'
             record_data[pkeyColumn]=pkey
         sql = 'UPDATE %s SET %s WHERE %s=:%s;' % (tblobj.sqlfullname, ','.join(sql_flds), tblobj.sqlnamemapper[tblobj.pkey], pkeyColumn)
-        return self.dbroot.execute(sql, record_data)
+        return self.dbroot.execute(sql, record_data,dbtable=dbtable.fullname)
     
     def delete(self, dbtable, record_data):
         """Delete a record from the db. 
@@ -276,7 +276,7 @@ class SqlDbAdapter(object):
         record_data = self.prepareRecordData(record_data)
         pkey = tblobj.pkey
         sql = 'DELETE FROM %s WHERE %s=:%s;' % (tblobj.sqlfullname, tblobj.sqlnamemapper[pkey], pkey)
-        return self.dbroot.execute(sql, record_data)
+        return self.dbroot.execute(sql, record_data,dbtable=dbtable.fullname)
     
     def sql_deleteSelection(self, dbtable, pkeyList):
         """Delete a selection from the table. It works only in SQL so
@@ -286,14 +286,14 @@ class SqlDbAdapter(object):
         """
         tblobj=dbtable.model
         sql = 'DELETE FROM %s WHERE %s IN :pkeyList;' % (tblobj.sqlfullname, tblobj.sqlnamemapper[tblobj.pkey])
-        return self.dbroot.execute(sql, sqlargs=dict(pkeyList=pkeyList))
+        return self.dbroot.execute(sql, sqlargs=dict(pkeyList=pkeyList),dbtable=dbtable.fullname)
         
     def emptyTable(self, dbtable):
         """Delete all table rows
         @param dbtable: a SqlTable object"""
         tblobj=dbtable.model
         sql = 'DELETE FROM %s;' % (tblobj.sqlfullname)
-        return self.dbroot.execute(sql)
+        return self.dbroot.execute(sql,dbtable=dbtable.fullname)
         
     def analyze(self):
         """Perform analyze routines on the db"""

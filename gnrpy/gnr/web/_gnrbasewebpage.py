@@ -29,6 +29,7 @@ Copyright (c) 2007 Softwell. All rights reserved.
 """
 import hashlib
 import os
+import sys
 import time
 import datetime
 import traceback
@@ -288,21 +289,6 @@ class GnrBaseWebPage(GnrObject):
         attrString=' '.join(['%s="%s"' % (k,str(v)) for k,v in kwargs.items()])
         self._htmlHeaders.append('<%s %s>%s</%s>'%(tag,attrString,innerHtml,tag))
         
-    def _css_dojo_d10(self):
-        return ['dojo/resources/dojo.css',
-                'dijit/themes/dijit.css',
-                'dijit/themes/%s/%s.css' % (self.theme,self.theme),
-                'dojox/grid/_grid/Grid.css',
-                'dojox/grid/_grid/%sGrid.css' % self.theme
-                ]
-    
-    def _gnrjs_d10(self):
-        return ['gnrbag','genro', 'genro_widgets', 'genro_rpc', 
-                                           'genro_dev','genro_dlg','genro_frm','genro_dom','gnrdomsource',
-                                           'genro_wdg','genro_src','gnrlang','gnrstores']
-    
-    def _css_genro_d10(self):
-           return {'all': ['gnrbase','gnricons'], 'print':['gnrprint']}
     
     def _css_dojo_d11(self,theme=None):
         theme=theme or self.theme
@@ -323,7 +309,7 @@ class GnrBaseWebPage(GnrObject):
     def _css_genro_d11(self):
            return {'all': ['gnrbase'], 'print':['gnrprint']}
            
-    def _css_dojo_d12(self,theme=None):
+    def _css_dojo_d14(self,theme=None):
         theme=theme or self.theme
         return ['dojo/resources/dojo.css',
                 'dijit/themes/dijit.css',
@@ -332,29 +318,13 @@ class GnrBaseWebPage(GnrObject):
                 'dojox/grid/_grid/%sGrid.css' % theme
                 ]
     
-    def _gnrjs_d12(self):
+    def _gnrjs_d14(self):
         return ['gnrbag','genro', 'genro_widgets', 'genro_rpc', 'genro_patch',
                                            'genro_dev','genro_dlg','genro_frm','genro_dom','gnrdomsource',
                                            'genro_wdg','genro_src','gnrlang','gnrstores'] 
-    def _css_genro_d12(self):
+    def _css_genro_d14(self):
            return {'all': ['gnrbase'], 'print':['gnrprint']}
-                
-    def _css_dojo_d13(self,theme=None):
-        theme=theme or self.theme
-        return ['dojo/resources/dojo.css',
-                'dijit/themes/dijit.css',
-                'dijit/themes/%s/%s.css' % (theme,theme),
-                'dojox/grid/_grid/Grid.css',
-                'dojox/grid/_grid/%sGrid.css' % theme
-                ]
-    
-    def _gnrjs_d13(self):
-        return ['gnrbag','genro', 'genro_widgets', 'genro_rpc', 'genro_patch',
-                                           'genro_dev','genro_dlg','genro_frm','genro_dom','gnrdomsource',
-                                           'genro_wdg','genro_src','gnrlang','gnrstores'] 
-    def _css_genro_d13(self):
-           return {'all': ['gnrbase'], 'print':['gnrprint']}
-           
+
     def get_css_genro(self, gnrlibpath):
         css_genro = getattr(self, '_css_genro_d%s' % self.dojoversion)()
         for media in css_genro.keys():
@@ -531,7 +501,6 @@ class GnrBaseWebPage(GnrObject):
             localization.update(self.localizer)
             self.session.setInPageData('localization', localization)
             self.session.saveSessionData()
-        
         if hasattr(self, '_connection'):
             if self.user:
                 self.connection._finalize()
@@ -1476,8 +1445,24 @@ class GnrBaseWebPage(GnrObject):
         doc.process(output)
         output.seek(0)
         return output.read()
-
-
+        
+    def debugger(self,debugtype,**kwargs):
+        self.site.debugger_py(self,_frame=sys._getframe(1),**kwargs)
+        
+    def rpc_bottomHelperContent(self):
+        src = self.domSrcFactory.makeRoot(self)
+        #src.data('debugger.main',Bang)
+        sc=src.stackContainer()
+        bc=sc.borderContainer()
+        left=bc.contentPane(region='left',width='160px',background_color='silver',overflow='hidden').formbuilder(cols=1)
+        left.checkBox(value='^debugger.sqldebug',label='Debug SQL')
+        left.checkBox(value='^debugger.pydebug',label='Debug Python')
+        bc.contentPane(region='center').tree(storepath='debugger.main',isTree=False,fired='^debugger.tree_redraw',
+                                             getIconClass="""return 'treeNoIcon';""",persist=False,inspect='shift')
+        src.dataController("genro.debugopt=sqldebug?(pydebug? 'sql,py' :'sql' ):(pydebug? 'py' :null )",
+                            sqldebug='^debugger.sqldebug',pydebug='^debugger.pydebug')
+        src.dataController("FIRE debugger.tree_redraw;",sqldebug='^debugger.main',_delay=1)
+        return src
     def rpc_debuggerContent(self):
         src = self.domSrcFactory.makeRoot(self)
         src.dataRemote('_dev.dbstruct','app.dbStructure')
@@ -1665,14 +1650,14 @@ class GnrWebRpc(object):
     def _call_bag(self, page, method, kwargs, result, error):
         envelope=Bag()
         resultAttrs={}
-        dataChanges = page.clientDataChanges()
+        dataChanges = page.clientDataChanges() or Bag()
         if isinstance(result,tuple):
             resultAttrs=result[1]
             if len(result)==3 and isinstance(result[2],Bag):
-                if dataChanges:
-                    dataChanges.update(result[2])
-                else:
-                    dataChanges = result[2]
+                #if dataChanges:
+                dataChanges.update(result[2])
+                #else:
+                    #dataChanges = result[2]
             result=result[0]
             if resultAttrs is not None:
                 envelope['resultType'] = 'node'
@@ -1683,8 +1668,12 @@ class GnrWebRpc(object):
         if page.isLocalizer():
             envelope['_localizerStatus']='*_localizerStatus*'
         envelope.setItem('result', result, _attributes=resultAttrs)
+        
+        if page.debugopt and page._debug_calls:
+            dataChanges.setItem('debugger_main',page._debug_calls,_client_path='debugger.main')           
         if dataChanges :
             envelope.setItem('dataChanges', dataChanges)
+        
         
         page.response.content_type = "text/xml"
         xmlresult= envelope.toXml(unresolved=True, jsonmode=True, jsonkey=page.page_id, 
