@@ -535,7 +535,6 @@ class GnrBaseWebAppHandler(object):
         #if 'sqlContextName' in kwargs:
         #    kwargs['sqlContext'] = dict(name=kwargs['sqlContextName'], ctxbag=self.page.session.pagedata['context'])
         #    kwargs['sqlContext'] = dict(name=kwargs['sqlContext'], fnc=getattr(self.page, kwargs['sqlContext']))
-        self.page.debugger('py',row_start=row_start)
         tblobj = self.db.table(table)
         row_start = int(row_start)
         row_count = int(row_count)
