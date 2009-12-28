@@ -601,7 +601,7 @@ class GnrWsgiSite(object):
         b['sqlargs']=Bag(sqlargs)
         if error:
             b['error']=str(error)
-        page._debug_calls.addItem('SQL:%s'%(dbtable.replace('.','_')),b,debugtype='sql')
+        page._debug_calls.addItem('%03i SQL:%s'%(len(page._debug_calls),dbtable.replace('.','_')),b,debugtype='sql')
 
     def debugger_py(self, page, _frame=None, **kwargs):
         b=Bag(kwargs)
@@ -615,7 +615,7 @@ class GnrWsgiSite(object):
             b['locals']=Bag(_frame.f_locals)
             b['code']="innerHTML:<div style='white-space: pre;font-size: x-small;background-color:#e0ffec;padding:2px;'>%s</div>" % code       
             label='%s line:%i' %(m.__name__.replace('.','_'),_frame.f_lineno)
-        page._debug_calls.addItem('PY:%s'%label,b,debugtype='py')
+        page._debug_calls.addItem('%03i PY:%s'%(len(page._debug_calls),label),b,debugtype='py')
 
     def notifyDbEvent(self,tblobj,record,event,old_record=None):
         if 'adm' in self.gnrapp.db.packages:
