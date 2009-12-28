@@ -926,7 +926,7 @@ class TableHandler(BaseComponent):
             querybase = self.queryBase()
         else:
             querybase = {'op':'equal'}
-        op_not = querybase.get('not','yes')
+        op_not = querybase.get('op_not','yes')
         not_caption = '&nbsp;' if op_not=='yes' else '!!not'
         result.setItem('c_0', querybase.get('val'), 
                         {'op':querybase.get('op'), 'column':querybase.get('column'),
