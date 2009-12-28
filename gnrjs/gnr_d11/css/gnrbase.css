@@ -1,5 +1,9 @@
 /* @group validation */
 
+.gnrdebugger{
+    z-index:1000 !important;
+}
+
 .dijitReset .dijitValidationIcon{
     display: none;
 }
