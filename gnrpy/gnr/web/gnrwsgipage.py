@@ -193,7 +193,6 @@ class GnrWsgiPage(GnrBaseWebPage):
         arg_dict['css_dojo'] = [self.site.dojo_static_url(self.dojoversion,'dojo',f) for f in css_dojo]
         arg_dict['css_genro'] = self.get_css_genro()
         #self.js_requires.append(self.pagename)
-        
         #if os.path.isfile(self.resolvePath('%s.js' % self.pagename)):
         #    js_requires.append('%s.js' % self.pagename)
         arg_dict['js_requires'] = [x for x in [self.getResourceUri(r,'js') for r in self.js_requires] if x]
@@ -412,11 +411,11 @@ class GnrWsgiPage(GnrBaseWebPage):
                 root=page.borderContainer(design='sidebar', height='100%', nodeId='_gnrRoot', regions='^_clientCtx.mainBC')
                 root.dataController("SET _clientCtx.mainBC.right?show=false;",_init=True)
                 root.dataController("if(show){genro.nodeById('gnr_debugger').updateContent();}",show='^_clientCtx.mainBC.right?show')
-                debugAc = root.accordionContainer(width='20%',region='right',splitter=True, nodeId='gnr_debugger',_class='gnrdebugger')
+                debugAc = root.accordionContainer(width='20%',region='right',splitter=True, nodeId='gnr_debugger')
                 debugAc.remote('debuggerContent', cacheTime=-1)
                 root.dataController("SET _clientCtx.mainBC.bottom?show=false;",_init=True)
                 root.dataController("if(show){genro.nodeById('gnr_bottomHelper').updateContent();}",show='^_clientCtx.mainBC.bottom?show')
-                bottomHelperTc = root.stackContainer(height='30%',region='bottom',splitter=True, nodeId='gnr_bottomHelper',_class='gnrdebugger')
+                bottomHelperTc = root.stackContainer(height='30%',region='bottom',splitter=True, nodeId='gnr_bottomHelper')
                 bottomHelperTc.remote('bottomHelperContent', cacheTime=-1)
                 self.mainLeftContent(root,region='left',splitter=True, nodeId='gnr_main_left')
                 rootwdg = self.rootWidget(root, region='center', nodeId='_pageRoot')
