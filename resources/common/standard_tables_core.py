@@ -71,7 +71,7 @@ class ViewExporter(BaseComponent):
 class ListQueryHandler(BaseComponent):
     def rpc_getSqlOperators(self):
         result = Bag()
-        listop=('equal','startswith','wordstart','contains','startswithchars','greater','greatereq','less','lesseq','between','isnull','in','regex')
+        listop=('equal','startswith','wordstart','contains','startswithchars','greater','greatereq','less','lesseq','between','isnull','nullorempty','in','regex')
         wt = self.db.whereTranslator
         for op in listop:
             result.setItem('op.%s' % op, None, caption='!!%s' % wt.opCaption(op))
