@@ -595,7 +595,6 @@ class GnrWsgiSite(object):
        
     def debugger_sql(self, page, sql=None, sqlargs=None,dbtable=None, error=None):
         b=Bag()
-        page.debugger('py',ddddd='abcde')
         dbtable=dbtable or ''
         b['dbtable']=dbtable 
         b['sql']="innerHTML:<div style='white-space: pre;font-size: x-small;background-color:#ffede7;padding:2px;'>%s</div>" % sql
