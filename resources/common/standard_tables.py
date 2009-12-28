@@ -51,6 +51,10 @@ class TableHandler(BaseComponent):
     def filterBase(self):
         return
         
+    def tableRecordCount(self):
+        """redefine to avoid the count query"""
+        return True
+        
     def formTitleBase(self,pane):
         pane.data('form.title',self.tblobj.attributes.get('name_long','Record'))
         
@@ -117,14 +121,19 @@ class TableHandler(BaseComponent):
         pane.data('list.plural',self.pluralRecordName())
         pane.data('list.rowcount',0)
         
-        pane.dataRpc('list.rowtotal','app.getRecordCount',_onStart=300,
-                      table=self.maintable, where=condition,**condPars)
-       
-       #pane.data('list',dict(plural=self.pluralRecordName(), rowcount=0,
-       #                      rowtotal=self.tblobj.query(where=condition,**condPars).count())) # mettere come RPC per aggiornare non solo al caricamento
-        pane.dataFormula('list.title_bar', "plural+' : '+rowcount+'/'+rowtotal", selectedPage='^selectedPage',
-                        plural='^list.plural',rowcount='^list.rowcount',rowtotal='^list.rowtotal',
-                        _if='selectedPage == 0',_else='formtitle',formtitle='^form.title',_init=True)
+        if self.tableRecordCount():
+            pane.dataRpc('list.rowtotal','app.getRecordCount',_onStart=300,
+                        table=self.maintable, where=condition,**condPars)
+                        
+        pane.dataFormula('list.title_bar', "rowtotal?plural+' : '+rowcount+'/'+rowtotal:plural+' : '+rowcount", 
+                            selectedPage='^selectedPage',plural='^list.plural',rowcount='^list.rowcount',
+                            rowtotal='^list.rowtotal',_if='selectedPage == 0',_else='formtitle',
+                            formtitle='^form.title',_init=True)
+
+            
+            #pane.data('list',dict(plural=self.pluralRecordName(), rowcount=0,
+            #                      rowtotal=self.tblobj.query(where=condition,**condPars).count())) # mettere come RPC per aggiornare non solo al caricamento
+            
         pane.dataFormula('list.canWrite','(!locked ) && writePermission',locked='^status.locked',writePermission='=usr.writePermission',_init=True)
         pane.dataFormula('list.canDelete','(!locked) && deletePermission',locked='^status.locked',deletePermission='=usr.deletePermission',_init=True)
         pane.dataController("SET list.selectedIndex=-1; SET selectedPage = 1", fired='^list.newRecord')
@@ -377,6 +386,7 @@ class TableHandler(BaseComponent):
         if self.tblobj.logicalDeletionField:
             delprefpane = toolboxPane.contentPane(region='bottom',height='20px',background_color='lightgray', _class='pbl_roundedGroup', margin='3px')
             delprefpane.checkbox(value='^aux.showDeleted', label='!!Show hidden records')
+            delprefpane.checkbox(value='^list.tableRecordCount', label='!!Show total count',margin_left='5px')
             delprefpane.dataController("""SET list.excludeLogicalDeleted = showDeleted? 'mark':true;""",showDeleted='^aux.showDeleted')
         self.toolboxFields(toolboxPane.contentPane(region='top',height='50%',splitter=True))
         toolboxPane = toolboxPane.tabContainer(region='center', selected='^list.selectedLeft',margin='5px',margin_top='10px')
@@ -527,11 +537,12 @@ class TableHandler(BaseComponent):
             condPars=condition[1] or {}
             condition=condition[0]
         pane.dataFormula('.columns', 'gnr.columnsFromStruct(struct);', struct='^list.view.structure', _init=True)
+        pane.data('list.tableRecordCount',self.tableRecordCount())
         pane.dataSelection('list.data_start', self.maintable, columns='=.columns',
                              where='=list.query.where', sortedBy='=list.grid.sorted',
                              pkeys='=list.query.pkeys', fired='^list.runQueryDo',
                              selectionName='*', recordResolver=False, condition=condition,
-                             sqlContextName='standard_list', totalRowCount=True,
+                             sqlContextName='standard_list', totalRowCount='=list.tableRecordCount',
                              row_start='0', row_count=self.rowsPerPage(),
                              excludeLogicalDeleted='^list.excludeLogicalDeleted',
                              applymethod='onLoadingSelection',
