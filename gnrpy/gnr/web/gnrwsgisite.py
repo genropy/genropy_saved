@@ -718,6 +718,7 @@ class GnrWsgiSite(object):
             if os.path.exists(fpath):
                 result.append(fpath)
         return result
+        
     def page_create(self,path=None,auth_tags=None,pkg=None,name=None):
         """Given a path returns a GnrWebPage ready to be called"""
         if pkg=='*':

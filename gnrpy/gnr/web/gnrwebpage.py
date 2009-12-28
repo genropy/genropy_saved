@@ -88,8 +88,15 @@ class BaseComponent(object):
         js_requires = splitAndStrip(getattr(_mixinsource, 'js_requires', ''),',')
         css_requires = splitAndStrip(getattr(_mixinsource, 'css_requires', ''),',')
         py_requires = splitAndStrip(getattr(_mixinsource, 'py_requires', '') ,',')
-        self.css_requires.extend(css_requires)
-        self.js_requires.extend(js_requires)
+        for css in css_requires:
+            if css and not css in self.css_requires:
+                self.css_requires.append(css)
+        for js in js_requires:
+            if js and not js in self.js_requires:
+                self.js_requires.append(js)
+                
+        #self.css_requires.extend(css_requires)
+        #self.js_requires.extend(js_requires)
         if py_requires:
             if site:
                 site.page_pyrequires_mixin(self, py_requires)
@@ -101,8 +108,15 @@ class BaseComponent(object):
         js_requires = splitAndStrip(getattr(cls, 'js_requires', ''),',')
         css_requires = splitAndStrip(getattr(cls, 'css_requires', ''),',')
         py_requires = splitAndStrip(getattr(cls, 'py_requires', '') ,',')
-        _mixintarget.css_requires.extend(css_requires)
-        _mixintarget.js_requires.extend(js_requires)
+        for css in css_requires:
+            if css and not css in _mixintarget.css_requires:
+                _mixintarget.css_requires.append(css)
+        for js in js_requires:
+            if js and not js in _mixintarget.js_requires:
+                _mixintarget.js_requires.append(js)
+                
+        #_mixintarget.css_requires.extend(css_requires)
+        #_mixintarget.js_requires.extend(js_requires)
         if py_requires:
             if site:
                 site.page_pyrequires_mixin(_mixintarget, py_requires)
