@@ -974,7 +974,7 @@ class GnrBaseWebAppHandler(object):
         
         if len(result) == 0: # few results from the startswith query on first col
             #self.page.gnotify('dbselect','filter')
-            regsrc = [x for x in re.split("\W", querystring) if x]
+            regsrc = [x for x in re.split(" ", querystring) if x]
             if regsrc:
                 whereargs = dict([('w%i' % i, '(^|\\W)%s' % w.strip()) for i,w in enumerate(regsrc)])
                 where =" AND ".join(["(%s)  ~* :w%i" % (" || ' ' || ".join(querycolumns), i) for i,w in enumerate(regsrc)])
