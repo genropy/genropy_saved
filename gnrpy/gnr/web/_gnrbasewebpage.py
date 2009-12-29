@@ -537,10 +537,10 @@ class GnrBaseWebPage(GnrObject):
     localizer = property(_get_localizer) 
     
     def isLocalizer(self) :
-        return ((self.userTags and ('_TRD_' in self.userTags)) or self.pageArgs.get('_loc_'))
+        return (self.userTags and ('_TRD_' in self.userTags))
         
     def isDeveloper(self) :
-        return ((self.userTags and ('_DEV_' in self.userTags)) or self.pageArgs.get('_dev_'))
+        return (self.userTags and ('_DEV_' in self.userTags)) 
         
     def _get_siteStatus(self):
         if not hasattr(self, '_siteStatus'):
@@ -1446,7 +1446,7 @@ class GnrBaseWebPage(GnrObject):
         output.seek(0)
         return output.read()
         
-    def debugger(self,debugtype,**kwargs):
+    def debugger(self,debugtype='py',**kwargs):
         self.site.debugger(debugtype,_frame=sys._getframe(1),**kwargs)
         
     def rpc_bottomHelperContent(self):

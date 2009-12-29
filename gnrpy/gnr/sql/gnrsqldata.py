@@ -1722,7 +1722,7 @@ class SqlRecord(object):
             if self.pkey is not None:
                 params['pkey'] = self.pkey
             #raise '%s \n\n%s' % (str(params), str(self.compiled.get_sqltext(self.db)))
-            cursor = self.db.execute(self.compiled.get_sqltext(self.db), params)
+            cursor = self.db.execute(self.compiled.get_sqltext(self.db), params,dbtable=self.dbtable.fullname)
             data = cursor.fetchall()
             if len(data) == 1:
                 self._result = data[0]

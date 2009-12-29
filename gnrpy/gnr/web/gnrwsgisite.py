@@ -589,9 +589,10 @@ class GnrWsgiSite(object):
     def debugger(self,debugtype,**kwargs):
         if self.currentPage:
             page =self.currentPage
-            debugopt=getattr(page,'debugopt','') or ''
-            if debugopt and debugtype in debugopt :
-                getattr(self,'debugger_%s' % debugtype)(page,**kwargs)
+            if self.debug or page.isDeveloper():
+                debugopt=getattr(page,'debugopt','') or ''
+                if debugopt and debugtype in debugopt :
+                    getattr(self,'debugger_%s' % debugtype)(page,**kwargs)
        
     def debugger_sql(self, page, sql=None, sqlargs=None,dbtable=None, error=None):
         b=Bag()
