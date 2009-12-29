@@ -1457,6 +1457,7 @@ class GnrBaseWebPage(GnrObject):
         left=bc.contentPane(region='left',width='160px',background_color='silver',overflow='hidden').formbuilder(cols=1)
         left.checkBox(value='^debugger.sqldebug',label='Debug SQL')
         left.checkBox(value='^debugger.pydebug',label='Debug Python')
+        left.button('Clear Debugger',action='genro.setData("debugger.main",null)')
         bc.contentPane(region='center').tree(storepath='debugger.main',isTree=False,fired='^debugger.tree_redraw',
                                              getIconClass="""return 'treeNoIcon';""",persist=False,inspect='shift')
         src.dataController("genro.debugopt=sqldebug?(pydebug? 'sql,py' :'sql' ):(pydebug? 'py' :null )",
@@ -1670,7 +1671,7 @@ class GnrWebRpc(object):
         envelope.setItem('result', result, _attributes=resultAttrs)
         
         if page.debugopt and page._debug_calls:
-            dataChanges.setItem('debugger_main',page._debug_calls,_client_path='debugger.main')           
+            dataChanges.setItem('debugger_main',page._debug_calls,_client_path='debugger.main.c_%s'%page.callcounter)           
         if dataChanges :
             envelope.setItem('dataChanges', dataChanges)
         

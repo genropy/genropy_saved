@@ -181,6 +181,7 @@ dojo.declare("gnr.GnrRpcHandler",null,{
         kw.url = kw.url || this.pageIndexUrl();
         if (this.application.debugopt){
             content.debugopt=this.application.debugopt;
+            content.callcounter=this.application.getCounter()
         }
         kw.content=content;
          //kw.preventCache = kw.preventCache - just to remember that we can have it

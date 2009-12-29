@@ -65,6 +65,7 @@ class GnrWsgiPage(GnrBaseWebPage):
     def index(self, theme=None, pagetemplate=None, **kwargs):
         self.onInit()
         self.debugopt=kwargs.pop('debugopt',None)
+        self.callcounter=kwargs.pop('callcounter',None) or 'begin'
         if self.debugopt:
             self._debug_calls=Bag()
         if self._user_login:
@@ -170,6 +171,8 @@ class GnrWsgiPage(GnrBaseWebPage):
         arg_dict['charset'] = self.charset
         arg_dict['filename'] = self.pagename
         arg_dict['pageMode'] = 'wsgi_10'
+        if self.debugopt:
+            kwargs['debugopt']=self.debugopt
         arg_dict['startArgs'] = toJson(kwargs)
         arg_dict['page_id'] = self.page_id or getUuid()
         arg_dict['bodyclasses'] = self.get_bodyclasses()

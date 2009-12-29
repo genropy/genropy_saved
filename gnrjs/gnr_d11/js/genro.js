@@ -181,6 +181,11 @@ dojo.declare('gnr.GenroClient', null, {
         if (windowTitle){
             genro.dom.windowTitle(windowTitle);
         }
+        if(this.debugopt){
+            genro.setData('debugger.sqldebug',this.debugopt.indexOf('sql')>=0)
+            genro.setData('debugger.pydebug',this.debugopt.indexOf('py')>=0)
+            genro.dev.showBottomHelper()
+        }
        // genro.soundManagerStart();
     },
     //soundManagerStart:function(){

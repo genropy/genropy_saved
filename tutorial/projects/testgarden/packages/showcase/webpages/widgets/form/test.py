@@ -17,6 +17,15 @@ class GnrCustomWebPage(object):
     def main(self, root, **kwargs):
         box = root.div(datapath='pluto')
         box.textbox(value='^.pippo')
+        self.debugger('py',ggg='uiuiuiui')
         box.data('.pippo','antonio')
         box.textbox(value='^.pippo?color')
+        box.button('sss',fire='xx')
+        self.debugger('py',yyyyy='weerftghjgfds')
+        box.dataRpc('dummy','test',_fired='^xx')
+        
+    def rpc_test(self,**kwargs):
+        self.debugger('py')
+    
+    
         
