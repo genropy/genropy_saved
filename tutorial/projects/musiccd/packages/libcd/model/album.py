@@ -3,7 +3,7 @@
 class Table(object):
     def config_db(self, pkg):
         tbl =  pkg.table('album',  pkey='id',name_long='!!Album',
-                      name_plural='!!Albums')
+                      name_plural='!!Albums',rowcaption='$title')
         self.sysFields(tbl)
         tbl.column('title',size=':40',name_long='!!Title')
         tbl.column('year','L',name_long='!!Year')
