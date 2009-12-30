@@ -1607,6 +1607,9 @@ dojo.declare("gnr.widgets.Grid",gnr.widgets.baseDojo,{
                 }
                 opt['cellPars'] = {rowIndex:inRowIndex};
                 var zoomPage=opt['zoomPage'];
+                if(typeof(v)=='number' && v<0){
+                    this.customClasses.push('negative_number');
+                }
                 v = genro.format(v,opt);
                 if (v==null){
                     return  '&nbsp;';

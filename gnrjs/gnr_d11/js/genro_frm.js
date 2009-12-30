@@ -162,7 +162,7 @@ dojo.declare("gnr.GnrFrmHandler",null,{
                 else if ((sendback==true) || (isNewRecord && value != null) || ('_loadedValue' in node.attr)) {
                     var attr_dict = {'dtype':node.attr.dtype};
                     if ('_loadedValue' in node.attr){
-                        attr_dict.oldValue=node.attr._loadedValue;
+                        attr_dict.oldValue=asTypedTxt(node.attr._loadedValue,attr_dict['dtype']);
                         data.__isRealChange=true;
                     }
                     data.setItem(node.label,value, attr_dict);
@@ -173,7 +173,7 @@ dojo.declare("gnr.GnrFrmHandler",null,{
                  var recordNode = record.getParentNode();
                  var resultattr = objectExtract(recordNode.attr,'_pkey,_newrecord,lastTS,mode,one_one', true);
                  result.setItem(recordNode.label, data, resultattr);
-                 result.__isRealChange=data.__isRealChange
+                 result.__isRealChange=data.__isRealChange;
              }
              return result;
         }

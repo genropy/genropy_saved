@@ -469,8 +469,8 @@ zip = function(list){
     return result;
 };
 
-function asTypedTxt(value){
-    var typedText = convertToText(value,{'xml':true});
+function asTypedTxt(value,dtype){
+    var typedText = convertToText(value,{'xml':true,'dtype':dtype});
     var valType = typedText[0];
     var valText = typedText[1];
     if (valType!='' && valType!='T'){

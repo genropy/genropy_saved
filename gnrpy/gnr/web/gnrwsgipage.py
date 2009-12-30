@@ -222,7 +222,7 @@ class GnrWsgiPage(GnrBaseWebPage):
         return path
 
     def get_bodyclasses(self):
-        return '%s _common_d11 pkg_%s page_%s' % (self.theme, self.packageId, self.pagename)
+        return '%s _common_d11 pkg_%s page_%s %s' % (self.theme, self.packageId, self.pagename,getattr(self,'bodyclasses',''))
     
     def get_css_genro(self):
         css_genro = getattr(self, '_css_genro_d%s' % self.gnrjsversion)()

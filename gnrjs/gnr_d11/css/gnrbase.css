@@ -931,12 +931,16 @@ textarea:disabled {
 
 .dojoxGrid td.cell_R, 
 .dojoxGrid td.cell_I, 
+.dojoxGrid td.cell_N, 
 .dojoxGrid td.cell_L{
     text-align: right;
 }
 
-.dtype_L, .dtype_R, .dtype_I{
+.dtype_L, .dtype_R, .dtype_I, .dtype_N{
     text-align: right;
+}
+.highlight_negative .negative_number{
+    color:red !important;
 }
 
 /* @end */
