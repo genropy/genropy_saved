@@ -35,7 +35,10 @@ class Public(BaseComponent):
         return self._userRecord[path]
 
     def onMain_pbl(self):
-        self.pageSource().data('gnr.appmenu',self.getUserMenu())
+        menuTbl=self.db.table('adm.menu')
+        fullMenubag = menuTbl.getMenuBag()
+        fullMenubag= fullMenubag or self.application.config['menu']
+        self.pageSource().data('gnr.appmenu',self.getUserMenu(fullMenubag))
         
     def mainLeftContent(self,parentBC,**kwargs):
         leftPane = parentBC.contentPane(width='20%',_class='menupane',**kwargs)
@@ -57,7 +60,7 @@ class Public(BaseComponent):
         leftPane.dataController("genro.wdgById('_gnrRoot').showHideRegion('left', false);",fired='^gnr.onStart',
                                 appmenu="=gnr.appmenu",_if="appmenu.len()==0")
 
-    def getUserMenu(self):
+    def getUserMenu(self, fullMenubag):
         def userMenu(userTags,menubag,level,basepath):
             result = Bag()
             if not userTags:
@@ -94,7 +97,7 @@ class Public(BaseComponent):
                             attributes['file'] = self.site.home_uri + filepath.lstrip('/')
                     result.setItem(node.label,value,attributes)
             return result
-        result=userMenu(self.userTags,self.application.config['menu'],0,[])
+        result=userMenu(self.userTags,fullMenubag,0,[])
         while len(result)==1:
             result=result['#0']
         return result
