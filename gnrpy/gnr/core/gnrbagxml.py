@@ -27,6 +27,7 @@ from xml import sax
 from xml.sax import saxutils
 
 from gnr.core.gnrbag import Bag, BagNode
+from decimal import Decimal
 
 from gnr.core import gnrstring
 from gnr.core import gnrclasses
@@ -327,7 +328,7 @@ class BagToXml(object):
                 attributes = dict([(k,v) for k,v in attributes.items() 
                                    if type(v) in (basestring,str, unicode, int, float, long,
                                                   datetime.date, datetime.time, datetime.datetime, 
-                                                  bool, type(None), list, tuple, dict)
+                                                  bool, type(None), list, tuple, dict,Decimal)
                                ])
             else:
                 attributes = dict([(k,v) for k,v in attributes.items()])
