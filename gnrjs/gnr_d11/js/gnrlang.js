@@ -498,17 +498,21 @@ function convertFromText (value, t, fromLocale){
     }
     else if (t=='L'){
         if(fromLocale){
-            return dojo.number.parse(value);
+            value = dojo.number.parse(value);
         } else {
-            return parseInt(value);
+            value = parseInt(value);
         }
+        value.genrodtype = t;
+        return value;
     }   
-    else if (t=='R'){
+    else if (t=='R'||t=='N'){
         if(fromLocale){
-            return dojo.number.parse(value);
+            value = dojo.number.parse(value);
         } else {
-            return parseFloat(value);
+            value = parseFloat(value);
         }
+        value.genrodtype = t;
+        return value;
     }
     else if (t=='B'){
         return (value.toLowerCase()=='true');
@@ -568,12 +572,16 @@ function convertToText (value, params){
         } else {
             var v = value.toString();
         }
-        if (value == parseInt(v)){
-            result = ['L', v];
-        } else {
-            result = ['R', v];
+        if (dtype){
+            result = [dtype,v];
         }
-     
+        else{
+            if (value == parseInt(v)){
+                result = ['L', v];
+            } else {
+                result = ['R', v];
+            }
+        }
      }
      else if(value instanceof Date){
          var selectors = {'D':'date','H':'time','DH':null};
