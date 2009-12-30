@@ -22,7 +22,7 @@ fmt = mainpage.toText
                     colattr = colAttrs.get(colname, dict())
                     %>
                     <td class='${"dtype_%s" % colattr.get("dtype", "T")}' colname='${colname}' style='${colattr.get("style")}'>
-                        ${fmt(r[colname], format=colattr.get('format'), mask=colattr.get('mask'), dtype=colattr.get("dtype"))}
+                        ${fmt(r.get(colname), format=colattr.get('format'), mask=colattr.get('mask'), dtype=colattr.get("dtype"))}
                     </td>
                 %endfor
                 </tr>
