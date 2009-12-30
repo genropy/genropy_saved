@@ -522,6 +522,9 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
         elif dtype == 'R':
             result['tag']='numberTextBox'
             result['width']='7em' 
+        elif dtype == 'N':
+            result['tag']='currencyTextBox'
+            result['width']='7em' 
         elif dtype == 'L' or dtype == 'I':
              result['tag']='numberTextBox'
              result['width']='7em' 
