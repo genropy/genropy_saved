@@ -23,13 +23,61 @@ class StatsHandler(BaseComponent):
         fb.button('Run',fire='.tree.totalize')
         
     def stats_left(self,pane):
-        pane.tree(storepath='.root',inspect='shift',selectedPath='.currentTreePath')
+        pane.tree(storepath='.root',inspect='shift',selectedPath='.currentTreePath',selectedItem='#_grid_total.data')
         pane.data('.root.data',Bag())
         pane.dataRpc('.root.data','stats_totalize',selectionName='=list.selectionName',tot_mode='=.tot_mode',_fired='^.totalize')
         
     def stats_center(self,bc):
-        pass
-    
+        self.includedViewBox(bc.borderContainer(region='top',height='50%',splitter=True),
+                             label='!!Analyze Grid',datapath='.grids.total',nodeId='_grid_total',
+                             storepath='.data',structpath='.struct',autoWidth=True)
+        bc.dataRpc('#_grid_total.struct','stats_get_struct_total',tot_mode='^.tree.tot_mode')
+        self.includedViewBox(bc.borderContainer(region='center'),label='!!Analyze Grid',
+                             datapath='.grids.detail',nodeId='_grid_detail',
+                             storepath='.data',structpath='.struct',autoWidth=True)
+                             
+        self.includedViewBox(bc.borderContainer(region='center'),
+                            label='!!Detail grid',
+                            datapath='.grids.detail',nodeId='_grid_detail',
+                            storepath='.data',structpath='.struct',
+                            table=self.maintable, autoWidth=True,
+                            reloader='^stats.tree.currentTreePath',
+                            selectionPars=dict(method='stats_get_detail',
+                                                flt_path='=stats.tree.currentTreePath',
+                                                selectionName='=list.selectionName'))  
+                             
+                             
+                             
+                             
+                             
+        bc.dataRpc('#_grid_detail.struct','stats_get_struct_detail',tot_mode='^.tree.tot_mode')
+
+                        
+    def rpc_stats_get_struct_total(self,tot_mode='*'):
+        struct = self.newGridStruct()
+        r = struct.view().rows()
+        grid_struct=self.stats_totals_cols(tot_mode=tot_mode)
+        for cellargs in grid_struct:
+            r.cell(**cellargs)
+        return struct
+    def rpc_stats_get_struct_detail(self,tot_mode='*'):
+        struct = self.newGridStruct()
+        r = struct.view().rows()
+        grid_struct=self.stats_detail_cols(tot_mode=tot_mode)
+        for cellargs in grid_struct:
+            r.cell(**cellargs)
+        return struct
+        
+    def rpc_stats_get_detail(self, flt_path=None,selectionName=None, **kwargs):
+        if not flt_path:
+            return
+        fieldpath = flt_path.split('.')[5:]
+        print fieldpath
+        fieldpath = '.'.join(fieldpath)
+        selection = self.unfreezeSelection(self.tblobj, selectionName)
+        result = selection.output('grid', subtotal_rows=fieldpath, recordResolver=False)
+        return result
+
     def stats_mode_menu(self):
         """Override this"""
         return
@@ -93,3 +141,7 @@ class StatsHandler(BaseComponent):
         self.freezeSelection(selection,selectionName)
         return result
         
+    def stats_captionCb(self,tot_mode):
+        def cb(group,row,bagnode):
+            return bagnode.label
+        return cb

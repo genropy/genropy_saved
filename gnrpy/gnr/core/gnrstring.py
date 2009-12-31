@@ -26,6 +26,7 @@ import zipfile
 import StringIO
 import logging
 import datetime
+from decimal import Decimal
 
 logger= logging.getLogger('gnr.core.gnrstring')
 
@@ -45,6 +46,8 @@ try:
         def default(self, obj):
             if isinstance(obj, datetime.date):
                 return obj.strftime('%m/%d/%Y')
+            if isinstance(obj, Decimal):
+                return str(obj)
             return json.JSONEncoder.default(self, obj)
     
     class JsonEncoderJS(json.JSONEncoder):
