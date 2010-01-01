@@ -3,7 +3,8 @@
 	<packages _T="NN">
 		<adm/>
 		<prj/>
-	<packages/>
+		<showcase/>
+	</packages>
 	<db _T="NN"/>
 	<authentication pkg="adm">
 		<py_auth _T="NN" defaultTags="user" pkg="adm" method="authenticate"/>

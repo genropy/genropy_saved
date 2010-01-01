@@ -1,6 +1,0 @@
-<?xml version='1.0' encoding='UTF-8'?>
-<GenRoBag><description><short>Accordion Container</short>
-<full>Permette di impaginare con un contenitore di pannelli a scomparsa. Ed è tutto molto bello</full>
-<children>ContentPane aventi come attributo "title"</children>
-<params>vedi documentazione di dojo</params>
-<link>http://www.dojotoolkit.org/book/</link></description></GenRoBag>
