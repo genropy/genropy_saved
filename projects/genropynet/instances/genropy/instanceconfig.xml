@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<GenRoBag>
+	<packages _T="NN">
+		<adm/>
+		<prj/>
+	<packages/>
+	<db _T="NN"/>
+	<authentication pkg="adm">
+		<py_auth _T="NN" defaultTags="user" pkg="adm" method="authenticate"/>
+	</authentication>
+</GenRoBag>
