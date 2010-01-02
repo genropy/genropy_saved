@@ -546,6 +546,7 @@ class TableHandler(BaseComponent):
                              row_start='0', row_count=self.rowsPerPage(),
                              excludeLogicalDeleted='^list.excludeLogicalDeleted',
                              applymethod='onLoadingSelection',
+                             timeout=180000,
                              _onCalling=self.onQueryCalling(),
                              _onResult='FIRE list.queryEnd=true;',**condPars)
                                      
