@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<GenRoBag><description><short>field</short>
+<full>Il field is an abstraction for inserting data into a column of db
+the first mandatory param is the name of the column you want the user set.</full>
+<children/>
+<params/>
+<link/></description></GenRoBag>

@@ -1,0 +1,24 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<GenRoBag>
+	<description>
+		<short>dbCombobox</short>
+		<full>
+		<![CDATA[
+		Il dbCombobox è un combobox che effettua ricerche su determinate colonne di table di un database, proponendo con autocompletamento i valori esistenti. Tuttavia consente, a differenza del dbSelect, di inserire nuovi valori non ancora presenti nel db.
+		]]></full>
+		<children><![CDATA[
+
+		]]></children>
+		<params><![CDATA[
+		I parametri di dbCombobox sono:<br/>
+		<i>dbtable</i> ovvero la table del database a cui si riferisce la ricerca, espressa col path package.table.<br/>
+		<i>columns</i> ovvero le colonne sulle quali viene effettuata la ricerca.<br/>
+		<i>auxColumns</i> le colonne aggiuntive che vengono mostrate nel menu popup delle opzioni trovate<br/>
+		Inoltre è possibile aggiungere diversi parametri chiamati formati dal prefisso <i>selected_</i> e dal nome di una colonna della table, nel quale specificare il datapath, dove salvare i rispettivi dati del record selezionato con il dbCombobox.
+		]]>
+		</params>
+		<link>
+aaaa
+		</link>
+	</description>
+</GenRoBag>
