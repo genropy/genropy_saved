@@ -89,7 +89,6 @@ class StatsHandler(BaseComponent):
         if not flt_path:
             return
         fieldpath = flt_path.split('.')[5:]
-        print fieldpath
         fieldpath = '.'.join(fieldpath)
         selection = self.unfreezeSelection(self.tblobj, selectionName)
         result = selection.output('grid', subtotal_rows=fieldpath, recordResolver=False)
@@ -138,8 +137,6 @@ class StatsHandler(BaseComponent):
         distinct_cols = distinct_cols or self.stats_distinct_cols(tot_mode)
         key_col = key_col or self.stats_key_col(tot_mode)
         captionCb = captionCb or self.stats_captionCb(tot_mode)
-        
-        print sum_cols
         if isinstance(group_by,basestring):
             group_by = group_by.split(',')
         if isinstance(sum_cols,basestring):
@@ -159,8 +156,10 @@ class StatsHandler(BaseComponent):
                     group_by[k] = date_converter(x[6:])
                 else:
                     group_by[k] = x.replace('@','_').replace('.','_')
-
-        keep_cols = [x.replace('@','_').replace('.','_') for x in keep_cols]
+        if keep_cols:
+            keep_cols = [x.replace('@','_').replace('.','_') for x in keep_cols]
+        if distinct_cols:
+            distinct_cols = [x.replace('@','_').replace('.','_') for x in distinct_cols]
 
         result = selection.totalize(group_by=group_by,sum=sum_cols,keep=keep_cols,
                                     collect=collect_cols,distinct=distinct_cols,

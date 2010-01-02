@@ -3408,7 +3408,7 @@ dojo.declare("gnr.widgets.CkEditor",gnr.widgets.baseHtml,{
     },
     creating: function(attributes, sourceNode){
         attributes.id=attributes.id || 'ckedit_'+sourceNode.getStringId()
-        savedAttrs=objectExtract(attributes,'foo_*');
+        savedAttrs=objectExtract(attributes,'config_*');
         return savedAttrs;
     },
      created: function(widget, savedAttrs, sourceNode){
