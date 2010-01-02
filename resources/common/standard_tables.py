@@ -521,13 +521,13 @@ class TableHandler(BaseComponent):
     def gridPane(self,pane):
         stats_main = getattr(self,'stats_main',None)
         if self.hierarchicalViewConf() or stats_main:
-            tc = pane.tabContainer()
+            tc = pane.tabContainer(selected='^list.selectedTab')
             gridpane =  tc.contentPane(title='!!Standard view')
+            if stats_main:
+                stats_main(tc,datapath='stats',title='!!Statistical view')
             if self.hierarchicalViewConf():
                 treepane =  tc.contentPane(title='!!Hierarchical view', datapath='list')
                 self.treePane(treepane)
-            if stats_main:
-                stats_main(tc,datapath='stats',title='!!Statistical view')
         else:
             gridpane = pane
         pane.data('.sorted',self.orderBase())

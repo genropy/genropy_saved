@@ -3,6 +3,7 @@
 
 from gnr.web.gnrwebpage import BaseComponent
 from gnr.core.gnrbag import Bag
+from gnr.core.gnrstring import toText
 
 # --------------------------- GnrWebPage subclass ---------------------------
 class StatsHandler(BaseComponent):
@@ -19,38 +20,57 @@ class StatsHandler(BaseComponent):
     
     def stats_top(self,pane):
         fb = pane.formbuilder(cols=2,border_spacing='4px')
-        fb.filteringSelect(values=self.stats_mode_menu(),value='^.tree.tot_mode',lbl='!!Menu')
-        fb.button('Run',fire='.tree.totalize')
+        fb.filteringSelect(values=self.stats_mode_menu(),
+                            value='^.tree.tot_mode',lbl='!!Mode')
+        #fb.button('Run',fire='.tree.totalize')
         
     def stats_left(self,pane):
-        pane.tree(storepath='.root',inspect='shift',selectedPath='.currentTreePath',selectedItem='#_grid_total.data')
+        pane.tree(storepath='.root.data',inspect='shift',selectedPath='.currentTreePath',
+                 selectedItem='#_grid_total.data',isTree=False,margin='10px',_fired='^.reload_tree')
         pane.data('.root.data',Bag())
-        pane.dataRpc('.root.data','stats_totalize',selectionName='=list.selectionName',tot_mode='=.tot_mode',_fired='^.totalize')
+        pane.dataRpc('.root.data','stats_totalize',selectionName='=list.selectionName',
+                        tot_mode='^.tot_mode',_if='tot_mode&&(selectedTab==1)',timeout=300000,
+                        totalrecords='=list.rowcount',selectedTab='=list.selectedTab',
+                        _onCalling='genro.wdgById("_stats_load_dlg").show();',
+                        _onResult='FIRE .reload_tree;genro.wdgById("_stats_load_dlg").hide();',_fired='^.do_totalize')
+        pane.dataController("""SET .root.data = null; FIRE .reload_tree;
+                                SET .grids.total.data = null;
+                                SET .grids.total.null = null;
+                                FIRE .grids.total.reload; 
+                                FIRE .grids.detail.reload;
+                                FIRE .do_totalize;""",_fired="^list.queryEnd")
+        dlg = pane.dialog(nodeId='_stats_load_dlg',title='!!Loading')
+        dlg.div(_class='pbl_roundedGroup',height='200px',width='300px').div(_class='waiting')
+        
         
     def stats_center(self,bc):
-        self.includedViewBox(bc.borderContainer(region='top',height='50%',splitter=True),
+        self.includedViewBox(bc.borderContainer(region='top',height='50%',splitter=True,margin='5px'),
                              label='!!Analyze Grid',datapath='.grids.total',nodeId='_grid_total',
                              storepath='.data',structpath='.struct',autoWidth=True)
         bc.dataRpc('#_grid_total.struct','stats_get_struct_total',tot_mode='^.tree.tot_mode')
         self.includedViewBox(bc.borderContainer(region='center'),label='!!Analyze Grid',
                              datapath='.grids.detail',nodeId='_grid_detail',
                              storepath='.data',structpath='.struct',autoWidth=True)
+                            
                              
-        self.includedViewBox(bc.borderContainer(region='center'),
-                            label='!!Detail grid',
+        self.includedViewBox(bc.borderContainer(region='center',margin='5px'),
+                            label=self._stats_detail_label,
                             datapath='.grids.detail',nodeId='_grid_detail',
                             storepath='.data',structpath='.struct',
                             table=self.maintable, autoWidth=True,
-                            reloader='^stats.tree.currentTreePath',
                             selectionPars=dict(method='stats_get_detail',
                                                 flt_path='=stats.tree.currentTreePath',
-                                                selectionName='=list.selectionName'))  
-                             
-                             
-                             
-                             
-                             
+                                                selectionName='=list.selectionName',
+                                                _autoupdate='=.autoupdate',_if='_autoupdate',
+                                                _else='null'))                     
         bc.dataRpc('#_grid_detail.struct','stats_get_struct_detail',tot_mode='^.tree.tot_mode')
+    
+    def _stats_detail_label(self,pane):
+        fb = pane.formbuilder(cols=2,border_spacing='2px')
+        fb.div(self.pluralRecordName())
+        fb.checkbox(value='^.autoupdate',label='!!Auto update',default=False,lbl=' ',lbl_width='1em')
+        fb.dataController("FIRE .reload;",_fired="^stats.tree.currentTreePath",
+                            autoupdate='^.autoupdate')
 
                         
     def rpc_stats_get_struct_total(self,tot_mode='*'):
@@ -58,6 +78,11 @@ class StatsHandler(BaseComponent):
         r = struct.view().rows()
         grid_struct=self.stats_totals_cols(tot_mode=tot_mode)
         for cellargs in grid_struct:
+            if not 'dtype' in cellargs:
+                if cellargs['field'].startswith('sum_') or cellargs['field'].startswith('avg_'):
+                    cellargs['dtype'] = 'N' 
+                elif cellargs['field'] == 'count' or cellargs['field'].startswith('count_'):
+                    cellargs['dtype'] = 'L' 
             r.cell(**cellargs)
         return struct
     def rpc_stats_get_struct_detail(self,tot_mode='*'):
@@ -65,7 +90,7 @@ class StatsHandler(BaseComponent):
         r = struct.view().rows()
         grid_struct=self.stats_detail_cols(tot_mode=tot_mode)
         for cellargs in grid_struct:
-            r.cell(**cellargs)
+            r.fieldcell(**cellargs)
         return struct
         
     def rpc_stats_get_detail(self, flt_path=None,selectionName=None, **kwargs):
@@ -97,6 +122,7 @@ class StatsHandler(BaseComponent):
     def stats_distinct_cols(self,tot_mode=None):
         """Override this"""
         return
+        
     def stats_key_col(self,tot_mode=None):
         """Override this"""
         return
@@ -132,7 +158,16 @@ class StatsHandler(BaseComponent):
             collect_cols = collect_cols.split(',')
         if isinstance(distinct_cols,basestring):
             distinct_cols = distinct_cols.split(',')
-        group_by = [x.replace('@','_').replace('.','_') for x in group_by]
+        def date_converter(mode):
+            datefield,formatmode =mode.split(':')     
+            return lambda r: toText(r[datefield],format=formatmode,locale=self.locale)
+        for k,x in enumerate(group_by):
+            if isinstance(x,basestring):
+                if x.startswith('#DATE='):
+                    group_by[k] = date_converter(x[6:])
+                else:
+                    group_by[k] = x.replace('@','_').replace('.','_')
+
         keep_cols = [x.replace('@','_').replace('.','_') for x in keep_cols]
 
         result = selection.totalize(group_by=group_by,sum=sum_cols,keep=keep_cols,

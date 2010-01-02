@@ -6,6 +6,7 @@ class AnalyzingBag(Bag):
     def analyze(self, data, group_by=None, sum=None, collect=None,
                 keep=None, distinct=None, key=None, captionCb=None):
         """comment analyze"""
+        totalize = sum
         def groupLabel(row,group):
             if isinstance(group, basestring):
                 if group.startswith('*'):
@@ -22,10 +23,13 @@ class AnalyzingBag(Bag):
             attr = bagnode.getAttr()
             idx = attr.setdefault('idx', set())
             idx.add(k)
-            if sum is not None:
-                for fld in sum:
+            cnt = len(idx)
+            if totalize is not None:
+                for fld in totalize:
                     lbl = 'sum_%s' % fld 
-                    attr[lbl] = attr.get(lbl, 0) + (row.get(fld,0) or 0)
+                    tt=attr[lbl] = attr.get(lbl, 0) + (row.get(fld,0) or 0)
+                    lbl = 'avg_%s' % fld 
+                    attr[lbl] = float(tt/cnt)
             if collect is not None:
                 for fld in collect:
                     lbl = 'collect_%s' % fld
@@ -36,6 +40,7 @@ class AnalyzingBag(Bag):
                 for fld in distinct:
                     fldset = attr.setdefault('dist_%s' % fld, set())
                     fldset.add(row[fld])
+                    attr['count_%s' %fld] = len(fldset)
                     
             if keep is not None:
                 for fld in keep:
@@ -43,7 +48,8 @@ class AnalyzingBag(Bag):
                     value=attr.get(lbl, None)
                     if not value:
                         attr[lbl]=row[fld]
-                    
+            attr['count'] = cnt
+
 
         counter=itertools.count()
         for row in data:
