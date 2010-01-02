@@ -1,3 +1,25 @@
+# -*- coding: UTF-8 -*-
+#--------------------------------------------------------------------------
+# package       : GenroPy core - see LICENSE for details
+# module gnrbag : an advanced data storage system
+# Copyright (c) : 2004 - 2007 Softwell sas - Milano 
+# Written by    : Giovanni Porcari, Michele Bertoldi
+#                 Saverio Porcari, Francesco Porcari , Francesco Cavazzana
+#--------------------------------------------------------------------------
+#This library is free software; you can redistribute it and/or
+#modify it under the terms of the GNU Lesser General Public
+#License as published by the Free Software Foundation; either
+#version 2.1 of the License, or (at your option) any later version.
+
+#This library is distributed in the hope that it will be useful,
+#but WITHOUT ANY WARRANTY; without even the implied warranty of
+#MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+#Lesser General Public License for more details.
+
+#You should have received a copy of the GNU Lesser General Public
+#License along with this library; if not, write to the Free Software
+#Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
+
 from gnr.core.gnrbag import Bag
 
 class DojoApiReader(object):
@@ -51,7 +73,6 @@ class DojoApiReader(object):
     def cpl_example(self,label,node_value,attr,destpath):
         return '%s.%s'%(destpath,label),node_value
     
-    
     def cpl_property(self,label,node_value,attr,destpath):
         return '%s.%s'%(destpath,attr['name']),node_value
     
@@ -65,6 +86,6 @@ class DojoApiReader(object):
         return attr['location'],None
     
 if __name__=='__main__':
-    obj=DojoApiReader("/Users/gpo/sviluppo/genro/dojo_libs/dojo_13/dojo/api.xml")
+    obj=DojoApiReader("/Users/gpo/sviluppo/Dojo/dojo_14/api.xml")
     print obj.apibag.keys()
     print x
