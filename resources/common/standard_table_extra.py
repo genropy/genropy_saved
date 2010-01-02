@@ -31,14 +31,11 @@ class StatsHandler(BaseComponent):
         pane.dataRpc('.root.data','stats_totalize',selectionName='=list.selectionName',
                         tot_mode='^.tot_mode',_if='tot_mode&&(selectedTab==1)',timeout=300000,
                         totalrecords='=list.rowcount',selectedTab='=list.selectedTab',
-                        _onCalling='genro.wdgById("_stats_load_dlg").show();',
-                        _onResult='FIRE .reload_tree;genro.wdgById("_stats_load_dlg").hide();',_fired='^.do_totalize')
-        pane.dataController("""SET .root.data = null; FIRE .reload_tree;
-                                SET .grids.total.data = null;
-                                SET .grids.total.null = null;
-                                FIRE .grids.total.reload; 
-                                FIRE .grids.detail.reload;
-                                FIRE .do_totalize;""",_fired="^list.queryEnd")
+                        _onCalling="""genro.wdgById("_stats_load_dlg").show();
+                                     SET #_grid_total.data = null;SET #_grid_detail.data = null;""",
+                        _onResult='FIRE .reload_tree;genro.wdgById("_stats_load_dlg").hide();',
+                        _fired='^.do_totalize')
+        pane.dataController("""SET .root.data = null; FIRE .reload_tree; FIRE .do_totalize;""",_fired="^list.queryEnd")
         dlg = pane.dialog(nodeId='_stats_load_dlg',title='!!Loading')
         dlg.div(_class='pbl_roundedGroup',height='200px',width='300px').div(_class='waiting')
         
@@ -46,18 +43,13 @@ class StatsHandler(BaseComponent):
     def stats_center(self,bc):
         self.includedViewBox(bc.borderContainer(region='top',height='50%',splitter=True,margin='5px'),
                              label='!!Analyze Grid',datapath='.grids.total',nodeId='_grid_total',
-                             storepath='.data',structpath='.struct',autoWidth=True)
+                             storepath='.data',structpath='.struct',autoWidth=True,export_action=True)
         bc.dataRpc('#_grid_total.struct','stats_get_struct_total',tot_mode='^.tree.tot_mode')
-        self.includedViewBox(bc.borderContainer(region='center'),label='!!Analyze Grid',
-                             datapath='.grids.detail',nodeId='_grid_detail',
-                             storepath='.data',structpath='.struct',autoWidth=True)
-                            
-                             
         self.includedViewBox(bc.borderContainer(region='center',margin='5px'),
                             label=self._stats_detail_label,
                             datapath='.grids.detail',nodeId='_grid_detail',
                             storepath='.data',structpath='.struct',
-                            table=self.maintable, autoWidth=True,
+                            table=self.maintable, autoWidth=True,export_action=True,
                             selectionPars=dict(method='stats_get_detail',
                                                 flt_path='=stats.tree.currentTreePath',
                                                 selectionName='=list.selectionName',

@@ -42,8 +42,7 @@ class GnrCustomWebPage(object):
         dlg = self.edit_record_dialog(root,title='Add Album',nodeId='album_dlg',datapath='album')
         dlg.dataController("FIRE .load; FIRE .show;",_fired="^.open")
         dlg.dataRecord('.record','libcd.album',pkey='=album_id',_fired='^.load',
-                            default_artist_id='=artist_id',default_year=self.workdate.year,
-                            default_rating=3)
+                            default_artist_id='=artist_id',default_year=self.workdate.year)
         fb = dlg.formbuilder(cols=1,border_spacing='4px',dbtable='libcd.album',
                             datapath='.record')
         fb.field('title') # fb.textbox(value='^.title',lbl='Title')
