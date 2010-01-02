@@ -25,7 +25,7 @@ class StatsHandler(BaseComponent):
         #fb.button('Run',fire='.tree.totalize')
         
     def stats_left(self,pane):
-        pane.tree(storepath='.root',inspect='shift',selectedPath='.currentTreePath',
+        pane.tree(storepath='.root.data',inspect='shift',selectedPath='.currentTreePath',
                  selectedItem='#_grid_total.data',isTree=True,margin='10px',_fired='^.reload_tree')
         pane.data('.root.data',Bag())
         pane.dataRpc('.root.data','stats_totalize',selectionName='=list.selectionName',
