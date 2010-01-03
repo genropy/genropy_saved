@@ -3407,17 +3407,31 @@ dojo.declare("gnr.widgets.CkEditor",gnr.widgets.baseHtml,{
         this._domtag = 'div';
     },
     creating: function(attributes, sourceNode){
-        attributes.id=attributes.id || 'ckedit_'+sourceNode.getStringId()
+        attributes.id=attributes.id || 'ckedit_'+sourceNode.getStringId();
         savedAttrs=objectExtract(attributes,'config_*');
         return savedAttrs;
+        
     },
-     created: function(widget, savedAttrs, sourceNode){
-          CKEDITOR.replace(widget)
-          sourceNode.editorData=function(){
-              CKEDITOR.instances['ckedit_'+this.getStringId()].getData();
-        }
-     }
-
+    created: function(widget, savedAttrs, sourceNode){
+          CKEDITOR.replace(widget);
+          var ckeditor=CKEDITOR.instances['ckedit_'+sourceNode.getStringId()];
+          sourceNode.externalWidget=ckeditor;
+          ckeditor.sourceNode=sourceNode;
+          ckeditor.getDataFromDatasource=function(){
+              this.setData(this.sourceNode.getAttributeFromDatasource('value'));
+          };
+          ckeditor.setDataInDatasource=function(){
+              this.sourceNode.setAttributeInDatasource('value',this.getData());
+          };
+          ckeditor.set_gnr_value=function(value,kw,reason){
+                  this.setData(value);
+          };
+          ckeditor.getDataFromDatasource();
+    },
+    connectChangeEvent:function(obj){
+        var ckeditor=obj.sourceNode.externalWidget
+         dojo.connect(ckeditor.focusManager,'blur', ckeditor, 'setDataInDatasource');
+    }
 
 });
 dojo.declare("gnr.widgets.fileInput",gnr.widgets.baseDojo,{
