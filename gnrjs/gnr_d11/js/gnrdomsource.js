@@ -650,6 +650,12 @@ dojo.declare("gnr.GnrDomSourceNode",gnr.GnrBagNode,{
                genro.fireDataTrigger(absDatapath);
            }
        }
+       if(this.externalWidget){
+           if ('set_gnr_'+attr in this.externalWidget){
+               this.externalWidget['set_gnr_'+attr](value,kw,trigger_reason);
+           }
+           return;
+       }
        else if (attr=='_class'){
            var oldvalue = ('oldvalue' in kw)? kw.oldvalue :  kw.changedAttr? kw.oldattr[kw.changedAttr]:null;
            
