@@ -16,8 +16,9 @@ from gnr.web.gnrwebpage import GnrWebPage
 class GnrCustomWebPage(object):
     js_requires='ckeditor/ckeditor'
     def main(self,root,**kwargs):
-        bc=root.borderContainer(height='100%')
-        top=bc.contentPane(height='150px',region='top')
-        top.button('sss',action="console.log(genro.nodeById('myedit').editorData())")
+        root.data('editors.cked1.data','My first line<br/>My second line')
+        bc=root.borderContainer()
+        top=bc.contentPane(height='50%',region='top',splitter=True)
+        top.ckeditor(value='^editors.cked1.data',nodeId='cked1')
         center=bc.contentPane(region='center')
-        center.ckeditor(nodeId='myedit')
+        center.div(innerHTML='^editors.cked1.data')
