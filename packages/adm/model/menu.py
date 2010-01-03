@@ -37,5 +37,4 @@ class Table(object):
         result=Bag()
         for line in lines:
             result.setItem(line['code'],None,line)
-        print result.toXml()
         return result
