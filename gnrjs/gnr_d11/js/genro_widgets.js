@@ -3408,12 +3408,12 @@ dojo.declare("gnr.widgets.CkEditor",gnr.widgets.baseHtml,{
     },
     creating: function(attributes, sourceNode){
         attributes.id=attributes.id || 'ckedit_'+sourceNode.getStringId();
-        savedAttrs=objectExtract(attributes,'config_*');
+        savedAttrs={'config':objectExtract(attributes,'config_*')};
         return savedAttrs;
         
     },
     created: function(widget, savedAttrs, sourceNode){
-          CKEDITOR.replace(widget);
+          CKEDITOR.replace(widget,savedAttrs.config);
           var ckeditor=CKEDITOR.instances['ckedit_'+sourceNode.getStringId()];
           sourceNode.externalWidget=ckeditor;
           ckeditor.sourceNode=sourceNode;
@@ -3429,7 +3429,7 @@ dojo.declare("gnr.widgets.CkEditor",gnr.widgets.baseHtml,{
           ckeditor.getDataFromDatasource();
     },
     connectChangeEvent:function(obj){
-        var ckeditor=obj.sourceNode.externalWidget
+        var ckeditor=obj.sourceNode.externalWidget;
          dojo.connect(ckeditor.focusManager,'blur', ckeditor, 'setDataInDatasource');
     }
 

@@ -19,6 +19,7 @@ class GnrCustomWebPage(object):
         root.data('editors.cked1.data','My first line<br/>My second line')
         bc=root.borderContainer()
         top=bc.contentPane(height='50%',region='top',splitter=True)
-        top.ckeditor(value='^editors.cked1.data',nodeId='cked1')
+        top.ckeditor(value='^editors.cked1.data',nodeId='cked1',config_toolbar='Basic',
+        config_uiColor= '#9AB8F3')
         center=bc.contentPane(region='center')
         center.div(innerHTML='^editors.cked1.data')
