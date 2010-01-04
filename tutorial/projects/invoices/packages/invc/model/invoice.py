@@ -10,9 +10,9 @@ class Table(object):
         tbl.column('date','D',name_long='!!Date')
         tbl.column('customer_id',validate_notnull=True,validate_notnull_error='!!Customer is mandatory',size='22',name_long='!!Customer_ID').relation('customer.id',
                     onDelete='raise', mode='foreignkey')
-        tbl.column('net','R',name_long='!!Net')
-        tbl.column('vat','R',name_long='!!Vat')
-        tbl.column('total','R',name_long='!!Total')
+        tbl.column('net','N',size='9,3', name_long='!!Net')
+        tbl.column('vat','N',size='12', name_long='!!Vat')
+        tbl.column('total','N', size='15,2',name_long='!!Total')
         tbl.aliasColumn('customer',relation_path='@customer_id.name')
         tbl.aliasColumn('city',relation_path='@customer_id.city')
         

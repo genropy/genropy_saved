@@ -41,6 +41,7 @@ class ModelExtractor(object):
             col_dict.pop('position')
             colname = col_dict.pop('name')
             length = col_dict.pop('length', 0)
+            decimals = col_dict.pop('decimals', 0)
             dtype = col_dict['dtype']
             if dtype=='A':
                 col_dict['size'] = '0:%s' % length
@@ -171,22 +172,18 @@ class SqlModelChecker(object):
                     new_dtype = col.attributes['dtype']
                     new_size=col.attributes.get('size')
                     old_dtype = dbcolumns[col.sqlname]['dtype']
-                    old_size=dbcolumns[col.sqlname].get('length')
-                    if new_dtype in ('A','C') and old_dtype in ('A','C'):
-                        if new_dtype=='A':
-                            if ':' in new_size:
-                                final_size=new_size.split(':')[1]
-                                final_type='A'
-                            else:
-                                final_size=new_size
-                                final_type='C'
-                        if final_type!=old_dtype or final_size!=str(old_size):
-                            change = self._alterColumnType(col,new_dtype, new_size,old_dtype,old_size)
-                            self.changes.append(change)
+                    old_size=dbcolumns[col.sqlname].get('size')
+                    if new_dtype=='A' and not ':' in new_size:
+                        new_dtype='C'
+                    if new_size and ':' in new_size:
+                        t1,t2 = new_size.split(':')
+                        new_size='%s:%s' % (t1 or '0',t2)
+                    if new_size and new_dtype == 'N' and not ',' in new_size:
+                        new_size='%s,0' % new_size
                     elif new_dtype in ('X','Z','P') and old_dtype=='T':
                         pass
-                    elif new_dtype!=old_dtype :
-                        change = self._alterColumnType(col,new_dtype, new_size,old_dtype,old_size)
+                    elif new_dtype!=old_dtype or new_size!=old_size:
+                        change = self._alterColumnType(col,new_dtype, new_size)
                         self.changes.append(change)
                     #sql.extend(self.checkColumn(colnode, dbcolumns[self.sqlName(colnode)]))
                 else:
@@ -347,7 +344,7 @@ class SqlModelChecker(object):
         """
         return 'ALTER TABLE %s ADD COLUMN %s' % (col.table.sqlfullname, self._sqlColumn(col))
 
-    def _alterColumnType(self, col, new_dtype, new_size=None, old_dtype=None, old_size=None):
+    def _alterColumnType(self, col, new_dtype, new_size=None):
         """
         Prepares the sql statement for altering the type of a given column.
         Returns the statement.

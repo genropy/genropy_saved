@@ -343,7 +343,7 @@ class SqlDbAdapter(object):
         return sql
 
     def columnSqlType(self, dtype, size=None):
-        if size:
+        if dtype!='N' and size:
             if ':' in size:
                 size=size.split(':')[1]
                 dtype='A'
@@ -562,6 +562,8 @@ class GnrWhereTranslator(object):
         
     def op_nullorempty(self, column, value, dtype, sqlArgs):
         "Is null or empty"
+        if dtype in ('L','N','M','R'):
+            return self.op_isnull(column,value,dtype,sqlArgs)
         return " (%s IS NULL OR %s ='')" % (column,column)
     
     def __op_not_isnull(self, column, value, dtype, sqlArgs):

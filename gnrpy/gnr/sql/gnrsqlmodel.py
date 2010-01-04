@@ -296,10 +296,13 @@ class DbModelSrc(GnrStructData):
            @param onupdating
            @param ondeleting
           """
-        if '::' in name: name, dtype = name.split('::')
+        
+        if '::' in name:
+            name, dtype = name.split('::')
+            
         if not 'columns' in self:
             self.child('column_list', 'columns')
-        return self.child('column', 'columns.%s' % name, dtype=dtype, size=size, 
+        return self.child('column', 'columns.%s' % name, dtype=dtype,size=size, 
               comment=comment, sqlname=sqlname,
               name_short=name_short, name_long=name_long, name_full=name_full,
               default=default, notnull=notnull, unique=unique, indexed=indexed,

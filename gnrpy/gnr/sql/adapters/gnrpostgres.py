@@ -378,8 +378,16 @@ class SqlDbAdapter(SqlDbBaseAdapter):
         for col in columns:
             col = dict(col)
             col = self._filterColInfo(col,'_pg_')
-            col['dtype'] = self.typesDict.get(col['dtype'], 'T') #for unrecognized types default dtype is T
+            dtype = col['dtype'] = self.typesDict.get(col['dtype'], 'T') #for unrecognized types default dtype is T
             col['notnull'] = (col['notnull']=='NO')
+            if dtype == 'N':
+                precision,scale =col.get('_pg_numeric_precision'),col.get('_pg_numeric_scale')
+                if precision:
+                    col['size'] = '%i,%i' % (precision,scale)
+            elif dtype == 'A':
+                col['size'] = '0:%i' % col.get('length')
+            elif dtype =='C':
+                col['size'] = str(col.get('length'))
             result.append(col)
         if column:
             result = result[0]
