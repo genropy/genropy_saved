@@ -1,5 +1,7 @@
-<?xml version='1.0' encoding='UTF-8'?>
-<GenRoBag><wsgi port="8089"></wsgi>
-<connection_timeout _T="NN"></connection_timeout>
-<connection_refresh _T="NN"></connection_refresh>
-<dojo _T="NN" version="11"></dojo></GenRoBag>
+<?xml version="1.0" encoding="UTF-8"?>
+<GenRoBag>
+	<wsgi port="8089" session_type='memory' mainpackage='base' />
+	<connection_timeout _T="NN"/>
+	<connection_refresh _T="NN"/>
+	<dojo _T="NN" version="11"/>
+</GenRoBag>

@@ -472,19 +472,25 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
         result['lbl']=fieldobj.name_long        
         result['dbfield'] = fieldobj.fullname
         dtype=result['dtype']=fieldobj.dtype
-        size=fieldobj.attributes.get('size','20')
-        if ':' in size:
-            size=size.split(':')[1]
-        size=int(size)
+        if dtype in ('A','C'):
+            size=fieldobj.attributes.get('size','20')
+            if ':' in size:
+                size=size.split(':')[1]
+            size=int(size)
+        else:
+            size = 5
         result.update(dict([(k,v) for k,v in fieldobj.attributes.items() if k.startswith('validate_')]))
         relcol = fieldobj.relatedColumn()
         if not relcol is None: 
             lnktblobj = relcol.table
             onerelfld=fieldobj.relatedColumnJoiner()['one_relation'].split('.')[2]
-            size=lnktblobj.attributes.get('size','20')
-            if ':' in size:
-                size=size.split(':')[1]
-            size=int(size)
+            if dtype in ('A','C'):
+                size=lnktblobj.attributes.get('size','20')
+                if ':' in size:
+                    size=size.split(':')[1]
+                size=int(size)
+            else:
+                size = 5
             defaultZoom=self.page.pageOptions.get('enableZoom',True)
             if kwargs.get('zoom',defaultZoom) :
                 if hasattr(lnktblobj.dbtable,'zoomUrl'):

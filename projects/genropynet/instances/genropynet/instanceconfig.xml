@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <GenRoBag>
+	<db dbname="genropynet"/>
 	<packages _T="NN">
+		<base/>
 		<adm/>
 		<prj/>
 		<showcase/>

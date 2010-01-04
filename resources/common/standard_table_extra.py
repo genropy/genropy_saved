@@ -20,15 +20,14 @@ class StatsHandler(BaseComponent):
     
     def stats_top(self,pane):
         fb = pane.formbuilder(cols=2,border_spacing='4px')
-        fb.filteringSelect(values=self.stats_mode_menu(),
+        fb.filteringSelect(values=','.join(["%s:%s" %(k,v) for k,v in self.stats_modes_dict().items()]),
                             value='^.tree.tot_mode',lbl='!!Mode')
         #fb.button('Run',fire='.tree.totalize')
         
     def stats_left(self,pane):
-        pane.tree(storepath='.root.data',inspect='shift',selectedPath='.currentTreePath',
-                 selectedItem='#_grid_total.data',isTree=True,margin='10px',_fired='^.reload_tree')
-        pane.data('.root.data',Bag())
-        pane.dataRpc('.root.data','stats_totalize',selectionName='=list.selectionName',
+        pane.tree(storepath='.root',inspect='shift',selectedPath='.currentTreePath',labelAttribute='caption',
+                 selectedItem='#_grid_total.data',isTree=True,margin='10px',_fired='^.reload_tree',hideValues=True)
+        pane.dataRpc('.root','stats_totalize',selectionName='=list.selectionName',
                         tot_mode='^.tot_mode',_if='tot_mode&&(selectedTab==1)',timeout=300000,
                         totalrecords='=list.rowcount',selectedTab='=list.selectedTab',
                         _onCalling="""genro.wdgById("_stats_load_dlg").show();
@@ -94,7 +93,7 @@ class StatsHandler(BaseComponent):
         result = selection.output('grid', subtotal_rows=fieldpath, recordResolver=False)
         return result
 
-    def stats_mode_menu(self):
+    def stats_modes_dict(self):
         """Override this"""
         return
         
@@ -160,11 +159,12 @@ class StatsHandler(BaseComponent):
             keep_cols = [x.replace('@','_').replace('.','_') for x in keep_cols]
         if distinct_cols:
             distinct_cols = [x.replace('@','_').replace('.','_') for x in distinct_cols]
-
-        result = selection.totalize(group_by=group_by,sum=sum_cols,keep=keep_cols,
+        result = Bag()
+        data = selection.totalize(group_by=group_by,sum=sum_cols,keep=keep_cols,
                                     collect=collect_cols,distinct=distinct_cols,
                                     key=key_col,captionCb=captionCb)
         self.freezeSelection(selection,selectionName)
+        result.setItem('data',data,caption=self.stats_modes_dict()[tot_mode])
         return result
         
     def stats_captionCb(self,tot_mode):
