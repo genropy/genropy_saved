@@ -299,7 +299,6 @@ class DbModelSrc(GnrStructData):
         
         if '::' in name:
             name, dtype = name.split('::')
-            
         if not 'columns' in self:
             self.child('column_list', 'columns')
         return self.child('column', 'columns.%s' % name, dtype=dtype,size=size, 
@@ -835,6 +834,9 @@ class DbColumnObj(DbBaseColumnObj):
                 self.attributes['dtype'] = 'A'
             else:
                 self.attributes['dtype'] = 'T'
+        attributes_mixin = getattr(self.pkg, 'custom_type_%s' % self.attributes['dtype'], None)
+        if attributes_mixin:
+            self.attributes.update(attributes_mixin())
         self.table.sqlnamemapper[self.name] = self.sqlname
         column_relation = self.structnode.value['relation']
         if column_relation is not None:
