@@ -17,9 +17,13 @@ class GnrCustomWebPage(object):
     js_requires='ckeditor/ckeditor'
     def main(self,root,**kwargs):
         root.data('editors.cked1.data','My first line<br/>My second line')
+        root.data('editors.cked1.disabled',True)
         bc=root.borderContainer()
         top=bc.contentPane(height='50%',region='top',splitter=True)
         top.ckeditor(value='^editors.cked1.data',nodeId='cked1',config_toolbar='Basic',
-        config_uiColor= '#9AB8F3')
-        center=bc.contentPane(region='center')
-        center.div(innerHTML='^editors.cked1.data')
+        config_uiColor= '#9AB8F3',readOnly='^editors.cked1.disabled')
+        
+        center=bc.borderContainer(region='center')
+        bottomleft=center.contentPane(region='left',width="200px",splitter=True)
+        center.contentPane(region='center').div(innerHTML='^editors.cked1.data')
+        bottomleft.checkbox(value='^editors.cked1.disabled')

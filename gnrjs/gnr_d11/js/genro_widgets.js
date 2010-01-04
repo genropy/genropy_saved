@@ -3408,7 +3408,7 @@ dojo.declare("gnr.widgets.CkEditor",gnr.widgets.baseHtml,{
     },
     creating: function(attributes, sourceNode){
         attributes.id=attributes.id || 'ckedit_'+sourceNode.getStringId();
-        savedAttrs={'config':objectExtract(attributes,'config_*')};
+        var savedAttrs={'config':objectExtract(attributes,'config_*')};
         return savedAttrs;
         
     },
@@ -3417,20 +3417,51 @@ dojo.declare("gnr.widgets.CkEditor",gnr.widgets.baseHtml,{
           var ckeditor=CKEDITOR.instances['ckedit_'+sourceNode.getStringId()];
           sourceNode.externalWidget=ckeditor;
           ckeditor.sourceNode=sourceNode;
-          ckeditor.getDataFromDatasource=function(){
-              this.setData(this.sourceNode.getAttributeFromDatasource('value'));
-          };
-          ckeditor.setDataInDatasource=function(){
-              this.sourceNode.setAttributeInDatasource('value',this.getData());
-          };
-          ckeditor.set_gnr_value=function(value,kw,reason){
-                  this.setData(value);
-          };
-          ckeditor.getDataFromDatasource();
+          for (var prop in this){
+              if (prop.indexOf('mixin_')==0){
+                  ckeditor[prop.replace('mixin_','')]=this[prop];
+              }
+          }
+          ckeditor.gnr_getFromDatastore();
+          setTimeout(function(){ckeditor.gnr_readOnly(sourceNode.getAttributeFromDatasource('readOnly'));},500);
+
     },
     connectChangeEvent:function(obj){
         var ckeditor=obj.sourceNode.externalWidget;
-         dojo.connect(ckeditor.focusManager,'blur', ckeditor, 'setDataInDatasource');
+         dojo.connect(ckeditor.focusManager,'blur', ckeditor, 'gnr_setInDatastore');
+    },
+    
+    mixin_gnr_value:function(value,kw,reason){
+        this.setData(value);
+    },
+    mixin_gnr_getFromDatastore : function(){
+        this.setData(this.sourceNode.getAttributeFromDatasource('value'));
+    },
+    mixin_gnr_setInDatastore : function(){
+        this.sourceNode.setAttributeInDatasource('value',this.getData());
+    },
+    
+    mixin_gnr_cancelEvent : function( evt ){
+                                evt.cancel();
+    },
+    mixin_gnr_readOnly:function(value,kw,reason){
+        this.gnr_setReadOnly(value);
+    },
+    mixin_gnr_setReadOnly:function(isReadOnly){
+        
+        this.document.$.body.disabled = isReadOnly;
+        CKEDITOR.env.ie ? this.document.$.body.contentEditable = !isReadOnly
+                         : this.document.$.designMode = isReadOnly ? "off" : "on";
+        this[ isReadOnly ? 'on' : 'removeListener' ]( 'key', this.gnr_cancelEvent, null, null, 0 );
+        this[ isReadOnly ? 'on' : 'removeListener' ]( 'selectionChange', this.gnr_cancelEvent, null, null, 0 );
+        var command,
+        commands = this._.commands,
+        mode = this.mode;
+        for ( var name in commands ){
+            command = commands[ name ];
+            isReadOnly ? command.disable() : command[ command.modes[ mode ] ? 'enable' : 'disable' ]();
+            this[ isReadOnly ? 'on' : 'removeListener' ]( 'state', this.gnr_cancelEvent, null, null, 0 );
+        }
     }
 
 });
