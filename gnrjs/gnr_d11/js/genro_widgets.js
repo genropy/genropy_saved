@@ -3408,7 +3408,16 @@ dojo.declare("gnr.widgets.CkEditor",gnr.widgets.baseHtml,{
     },
     creating: function(attributes, sourceNode){
         attributes.id=attributes.id || 'ckedit_'+sourceNode.getStringId();
-        var savedAttrs={'config':objectExtract(attributes,'config_*')};
+        var toolbar=objectPop(attributes,'toolbar');
+        var config = objectExtract(attributes,'config_*');
+        if  (typeof(toolbar)=='string'){
+            toolbar=genro.evaluate(toolbar);
+        };
+        if (toolbar){
+            config.toolbar='custom';
+            config.toolbar_custom=toolbar;
+        };
+        var savedAttrs={'config':config};
         return savedAttrs;
         
     },
