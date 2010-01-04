@@ -5,8 +5,8 @@ from gnr.app.gnrdbo import GnrDboTable, GnrDboPackage, Table_counter, Table_user
 
 class Package(GnrDboPackage):
     def config_attributes(self):
-        return dict(comment='prj package',sqlschema='prj',
-                name_short='Prj', name_long='Prj', name_full='Prj')
+        return dict(comment='base package',sqlschema='base',
+                name_short='Base', name_long='Base', name_full='Base')
 
     def config_db(self, pkg):
         pass
