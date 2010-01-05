@@ -12,10 +12,7 @@ DOJO 11
 """
 import os
 
-from gnr.core.gnrstring import templateReplace
 from gnr.web.gnrwebpage import BaseComponent
-from gnr.sql.gnrsql_exceptions import GnrSqlException,GnrSqlSaveChangesException,GnrSqlExecutionException
-from gnr.core.gnrbag import Bag
 
 class TableHandler(BaseComponent):
     py_requires='standard_tables/tablehandler'

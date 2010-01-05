@@ -22,11 +22,14 @@
 Component for thermo:
 """
 from gnr.web.gnrwebpage import BaseComponent
+from gnr.sql.gnrsql_exceptions import GnrSqlException,GnrSqlSaveChangesException,GnrSqlExecutionException
+from gnr.core.gnrbag import Bag
+from gnr.core.gnrstring import templateReplace
 
 class TableHandler(BaseComponent):
-    py_requires="""tablehandler_core"""
-    css_requires = 'tablehandler'
-    js_requires = 'tablehandler'
+    py_requires="standard_tables/tablehandler_core"
+    css_requires = 'standard_tables/tablehandler'
+    js_requires = 'standard_tables/tablehandler'
     
     def userCanWrite(self):
         return self.application.checkResourcePermission(self.tableWriteTags(), self.userTags)

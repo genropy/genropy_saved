@@ -14,7 +14,7 @@ from gnr.core.gnrstring import templateReplace, splitAndStrip, toText, toJson, c
 
 # --------------------------- GnrWebPage subclass ---------------------------
 class UserObject(BaseComponent):
-    py_requires='public:RecordHandler'
+    py_requires='foundation/recorddialog'
     def userObjectDialog(self):
         saveKwargs = dict(_onCalling="""
                                         var wherebag = GET list.query.where;
