@@ -64,3 +64,48 @@ class PeriodCombo(BaseComponent):
                                  }""")
         fb.combobox(lbl=lbl or '!!Period',value=value, width='16em',tip='^%s.period_string'%period_store,
                     values=self._pc_datesHints(), margin_right='5px',padding_top='1px',**kwargs)
+
+class RichTextEditor(BaseComponent):
+    """  This is the default toolbar definition used by the editor. It contains all editor features.
+         Any of these options can be used in the toolbar= parameter.  We are passing a string parameter 
+         to create a javascript array that is passed to the widget
+         to see more options, go to:
+         http://docs.cksource.com/ckeditor_api/symbols/CKEDITOR.config.html#.stylesCombo_stylesSet
+          config.toolbar_Full =
+              [
+               ['Source','-','Save','NewPage','Preview','-','Templates'],
+               ['Cut','Copy','Paste','PasteText','PasteFromWord','-','Print', 'SpellChecker', 'Scayt'],
+               ['Undo','Redo','-','Find','Replace','-','SelectAll','RemoveFormat'],
+               ['Form', 'Checkbox', 'Radio', 'TextField', 'Textarea', 'Select', 'Button', 'ImageButton', 'HiddenField'],
+               '/',
+               ['Bold','Italic','Underline','Strike','-','Subscript','Superscript'],
+               ['NumberedList','BulletedList','-','Outdent','Indent','Blockquote'],
+               ['JustifyLeft','JustifyCenter','JustifyRight','JustifyBlock'],
+               ['Link','Unlink','Anchor'],
+               ['Image','Flash','Table','HorizontalRule','Smiley','SpecialChar','PageBreak'],
+               '/',
+               ['Styles','Format','Font','FontSize'],
+               ['TextColor','BGColor'],
+               ['Maximize', 'ShowBlocks','-','About']
+              ];
+    """
+
+    js_requires='ckeditor/ckeditor'
+    def RichTextEditor(self, container, value, contentPars=None, disabled=None,
+                      nodeId=None,editorHeight='',toolbar=None,**kwargs):
+
+        editorId = "%s_editor"%nodeId
+        if isinstance(toolbar,basestring):
+            tb=getattr(self,'rte_toolbar_%s'%toolbar,None)
+            if tb:
+                toolbar=tb()
+        editPane = container.ckeditor(value=value, nodeId=editorId, readOnly=disabled, toolbar=toolbar,**kwargs)
+
+    def rte_toolbar_standard(self):
+        return """[
+                   ['Source','-','Bold', 'Italic', '-', 'NumberedList', 'BulletedList', '-', 'Link', 'Unlink'],
+                   ['Image','Table','HorizontalRule','PageBreak'],
+                   ['JustifyLeft','JustifyCenter','JustifyRight','JustifyBlock'],
+                   ['Styles','Format','Font','FontSize'],
+                   ['TextColor','BGColor'],['Maximize', 'ShowBlocks']
+                   ]"""
