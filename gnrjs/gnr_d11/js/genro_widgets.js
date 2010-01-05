@@ -3432,7 +3432,7 @@ dojo.declare("gnr.widgets.CkEditor",gnr.widgets.baseHtml,{
               }
           }
           ckeditor.gnr_getFromDatastore();
-          setTimeout(function(){ckeditor.gnr_readOnly(sourceNode.getAttributeFromDatasource('readOnly'));},500);
+          setTimeout(function(){ckeditor.gnr_readOnly(sourceNode.getAttributeFromDatasource('readOnly'));},1000);
 
     },
     connectChangeEvent:function(obj){
