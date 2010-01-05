@@ -18,10 +18,9 @@ from gnr.sql.gnrsql_exceptions import GnrSqlException,GnrSqlSaveChangesException
 from gnr.core.gnrbag import Bag
 
 class TableHandler(BaseComponent):
-    py_requires="""standard_tables_core:UserObject,standard_tables_core:ListQueryHandler,
-                standard_tables_core:ViewExporter"""
-    css_requires = 'standard_tables'
-    js_requires = 'standard_tables'
+    py_requires="""standard_table/standard_tables_core"""
+    css_requires = 'standard_table/standard_tables'
+    js_requires = 'standard_table/standard_tables'
     
     def userCanWrite(self):
         return self.application.checkResourcePermission(self.tableWriteTags(), self.userTags)
