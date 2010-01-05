@@ -8,16 +8,6 @@
 #
 
 """ public common11 """
-import os
-import time
-import datetime
-
-from gnr.web.gnrwebpage import GnrWebPage
-from gnr.core.gnrbag import Bag
-
-from gnr.core.gnrstring import templateReplace, splitAndStrip
-
-from gnr.core.gnrlocale import DATEKEYWORDS
 from gnr.web.gnrwebpage import BaseComponent
 
 # --------------------------- GnrWebPage subclass ---------------------------

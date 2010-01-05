@@ -22,6 +22,8 @@
 Component for thermo:
 """
 from gnr.web.gnrwebpage import BaseComponent
+import datetime
+from gnr.core.gnrlocale import DATEKEYWORDS
 
 class DynamicEditor(BaseComponent):
     def dynamicEditor(self, container, value,contentPars=None,disabled=None,

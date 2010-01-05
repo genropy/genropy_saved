@@ -22,6 +22,7 @@
 Component for thermo:
 """
 from gnr.web.gnrwebpage import BaseComponent
+import time
 
 class Thermo(BaseComponent):
     def thermoNewDialog(self, pane, thermoid='thermo', title='', thermolines=1, fired=None, pollingFreq=1):
