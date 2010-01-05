@@ -24,9 +24,9 @@ Component for thermo:
 from gnr.web.gnrwebpage import BaseComponent
 
 class TableHandler(BaseComponent):
-    py_requires="""standard_table/standard_tables_core"""
-    css_requires = 'standard_table/standard_tables'
-    js_requires = 'standard_table/standard_tables'
+    py_requires="""tablehandler_core"""
+    css_requires = 'tablehandler'
+    js_requires = 'tablehandler'
     
     def userCanWrite(self):
         return self.application.checkResourcePermission(self.tableWriteTags(), self.userTags)
