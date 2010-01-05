@@ -582,11 +582,6 @@ class GnrBaseWebPage(GnrObject):
         
     def pageAuthTags(self, method=None, **kwargs):
         return ""
-        
-    def checkPermission(self, pagepath, relative=True):
-        if relative:
-            pagepath = self.utils.pageFolder(pagepath).replace(self.utils.rootFolder(),'')
-        return self.application.checkPagePermission(pagepath, self.userTags)
     
     def rpc_doLogin(self, login=None, guestName=None, **kwargs):
         """Service method that set user's avatar into its connection if
@@ -1267,43 +1262,6 @@ class GnrBaseWebPage(GnrObject):
                 tr.td(v.encode('ascii','ignore'))
         return page
         
-    def userMenu(self,userTags=None,menubag=None,level=None,basepath=None):
-        userTags=userTags or self.userTags
-        menubag=menubag or self.application.config['menu']
-        level=level or 0
-        basepath=basepath or []
-        result = Bag()
-        if not userTags:
-            return result
-        for node in menubag.nodes:
-            allowed=True
-            if node.getAttr('tags'):
-                allowed=self.application.checkResourcePermission(node.getAttr('tags'), userTags)
-            if allowed and node.getAttr('file'):
-                allowed = self.checkPermission(node.getAttr('file'))
-            if allowed:
-                value=node.getStaticValue()
-                attributes={}
-                attributes.update(node.getAttr())
-                currbasepath=basepath
-                if 'basepath' in attributes:
-                    newbasepath=node.getAttr('basepath')
-                    if newbasepath.startswith('/'):
-                        currbasepath=[newbasepath]
-                    else:
-                        currbasepath=basepath+[newbasepath]
-                if isinstance(value,Bag):
-                    value = self.userMenu(userTags,value,level+1,currbasepath)
-                    labelClass = 'menu_level_%i' %level 
-                else:
-                    value=None
-                    labelClass = 'menu_page'
-                attributes['labelClass'] = 'menu_shape %s' %labelClass
-                filepath=attributes.get('file')
-                if filepath and not filepath.startswith('/'):
-                    attributes['file'] = os.path.join(*(currbasepath+[filepath]))
-                result.setItem(node.label,value,attributes)
-        return result
         
     def handleMessages(self):
         messages = self.site.getMessages(user=self.user, page_id=self.page_id, connection_id=self.connection.connection_id) or []

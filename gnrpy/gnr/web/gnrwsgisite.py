@@ -699,15 +699,15 @@ class GnrWsgiSite(object):
         
     def mixinResource(self, kls,resourceDirs,*path):
         path = os.path.join(*path)
-        modName, clsName = path.split(':')
+        if ':' in path:
+            modName, clsName = path.split(':')
+        else:
+            modName, clsName = path,'*'
         modPathList = self.getResourceList(resourceDirs, modName, 'py') or []
         if modPathList:
             modPathList.reverse()
             for modPath in modPathList:
-                component_module = gnrImport(modPath,avoidDup=True)
-                component_class = getattr(component_module,clsName,None)
-                if component_class:
-                    classMixin(kls, component_class, site=self, only_callables=False)
+                classMixin(kls,'%s:%s'%(modPath,clsName),only_callables=False,site=self)
         else:
             raise GnrWebServerError('Cannot import component %s' % modName)
 

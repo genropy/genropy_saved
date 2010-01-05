@@ -449,23 +449,34 @@ def cloneClass(name,source_class):
     return type(name,source_class.__bases__,dict([(k,v) for k,v in source_class.__dict__.items() 
                 if not k in ('__dict__', '__module__', '__weakref__', '__doc__')]))
 
-
-def classMixin( target_class, source_class, methods=None, only_callables=True, exclude='js_requires,css_requires,py_requires', **kwargs): 
+def moduleClasses(m):
+    modulename=m.__name__
+    return [x for x in dir(m) if (not x.startswith('__')) and  getattr(getattr(m,x),'__module__',None)==modulename]
+    
+def classMixin( target_class, source_class, methods=None, only_callables=True,
+                exclude='js_requires,css_requires,py_requires', **kwargs): 
     """
     Add to the class methods from 'source'.
     Source isclass
     If not 'methods' all methods are added.  
     """
-    #def include(value):
-    #    if 
     if isinstance(source_class, basestring):
-        modulename, clsname = source_class.split(':')
-        m = gnrImport(modulename)
-        if m != None:
-            source_class = getattr(m, clsname, None)
+        if ':' in source_class:
+            modulename, clsname = source_class.split(':')
         else:
+            modulename, clsname = source_class,'*'
+        m = gnrImport(modulename,avoidDup=True)
+        if m is None:
             raise GnrException('cannot import module: %s' % modulename)
-        
+        if clsname=='*':
+            classes=moduleClasses(m)
+        else:
+            classes=[clsname]
+        for clsname in classes:
+            source_class = getattr(m, clsname, None)
+            classMixin(target_class, source_class, methods=methods,
+                       only_callables=only_callables, exclude=exclude, **kwargs)   
+        return 
     if source_class is None:
         return
     exclude_list = dir(type)+['__weakref__','__onmixin__','__on_class_mixin__']
@@ -504,12 +515,21 @@ def instanceMixin(obj, source, methods=None, attributes=None, only_callables=Tru
     If not 'methods' all methods are added.  
     """
     if isinstance(source, basestring):
-        modulename, cls = source.split(':')
-        m = gnrImport(modulename)
-        if m != None:
-            source = getattr(m, cls, None)
+        if ':' in source:
+            modulename, clsname = source.split(':')
         else:
+            modulename, clsname = source,'*'        
+        m = gnrImport(modulename,avoidDup=True)
+        if m is None:
             raise GnrException('cannot import module: %s' % modulename)
+        if clsname=='*':
+            classes=moduleClasses(m)
+        else:
+            classes=[clsname]
+        for clsname in classes:
+            source = getattr(m, clsname, None)
+            instanceMixin(obj, source, methods=methods,only_callables=only_callables, exclude=exclude, **kwargs)  
+        return
         
     if source is None:
         return

@@ -9,6 +9,7 @@
 
 # --------------------------- GnrWebPage subclass ---------------------------
 class GnrCustomWebPage(object):
+    py_requires='foundation/menu'
     def pageAuthTags(self, method=None, **kwargs):
         return ''
         

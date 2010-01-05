@@ -105,6 +105,7 @@ class BaseComponent(object):
                 
     @classmethod            
     def __on_class_mixin__(cls, _mixintarget, site=None):
+
         js_requires = [x for x in splitAndStrip(getattr(cls, 'js_requires', ''),',') if x]
         css_requires = [x for x in splitAndStrip(getattr(cls, 'css_requires', ''),',') if x]
         py_requires = [x for x in splitAndStrip(getattr(cls, 'py_requires', '') ,',') if x]
