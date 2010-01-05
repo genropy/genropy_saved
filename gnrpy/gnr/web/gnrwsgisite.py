@@ -485,7 +485,7 @@ class GnrWsgiSite(object):
             packagemap = DirectoryResolver(os.path.join(package.packageFolder, 'webpages'),
                                              include='*.py',exclude='_*,.*')()
             packagemap.walk(handleNode,_mode='',pkg=package.id)
-            self.automap.setItem(package.id, packagemap,name=package.attributes['name_long'])
+            self.automap.setItem(package.id, packagemap,name=package.attributes.get('name_long') or package.id)
         self.automap.toXml(os.path.join(self.site_path,'automap.xml'))
     
     def get_page_factory(self, path, pkg = None, rel_path=None):

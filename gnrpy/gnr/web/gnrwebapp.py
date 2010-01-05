@@ -1,6 +1,6 @@
 import os
 
-#from gnr.core.gnrbag import Bag, DirectoryResolver
+from gnr.core.gnrbag import Bag
 from gnr.app.gnrapp import GnrApp
 #from gnr.core.gnrlang import gnrImport
 
@@ -66,8 +66,14 @@ class GnrWsgiWebApp(GnrApp):
         if not menubag:
             menubag=self.config['menu']
         if not menubag:
-            print x
-            self.site.automap
+            menubag=Bag()
+            for pathlist,node in self.site.automap.getIndex():
+                attr=dict(label=node.getAttr('name') or node.label.capitalize())
+                if isinstance(node.getValue(),Bag):
+                    attr['basepath']='/'.join(pathlist)
+                else:
+                    attr['file']=node.label
+                menubag.setItem(pathlist,None,attr)
         return menubag
         
 
