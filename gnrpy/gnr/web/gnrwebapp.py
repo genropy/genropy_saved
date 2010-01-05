@@ -12,6 +12,7 @@ class GnrWsgiWebApp(GnrApp):
             kwargs.pop('site')
         else:
             self.site=None
+        self._siteMenu = None
         super(GnrWsgiWebApp,self).__init__(*args,**kwargs)
     
     def notifyDbEvent(self,tblobj,record,event,old_record=None):
@@ -52,6 +53,23 @@ class GnrWsgiWebApp(GnrApp):
     def debugger(self,debugtype,**kwargs):
         self.site.debugger(debugtype,**kwargs)
 
+    def _get_siteMenu(self):
+        if not self._siteMenu:
+            self._siteMenu = self._buildSiteMenu()
+        return self._siteMenu
+    siteMenu = property(_get_siteMenu)
+    
+    def _buildSiteMenu(self):
+        menubag=None
+        if 'adm' in self.db.packages:
+            menubag=self.db.table('adm.menu').getMenuBag()
+        if not menubag:
+            menubag=self.config['menu']
+        if not menubag:
+            print x
+            self.site.automap
+        return menubag
+        
 
             
     

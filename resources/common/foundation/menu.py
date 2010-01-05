@@ -29,10 +29,7 @@ import os
 
 class Menu(BaseComponent):
     def onMain_menuInit(self):
-        menuTbl=self.db.table('adm.menu')
-        fullMenubag = menuTbl.getMenuBag()
-        fullMenubag= fullMenubag or self.application.config['menu']
-        self.pageSource().data('gnr.appmenu',self.getUserMenu(fullMenubag))
+        self.pageSource().data('gnr.appmenu',self.getUserMenu(self.application.siteMenu))
     
     def menu_menuPane(self,parentBC,**kwargs):
         leftPane = parentBC.contentPane(width='20%',_class='menupane',**kwargs)
