@@ -18,4 +18,5 @@ from gnr.sql.gnrsql_exceptions import GnrSqlException,GnrSqlSaveChangesException
 from gnr.core.gnrbag import Bag
 
 class TableHandler(BaseComponent):
-    py_requires='foundation/tablehandler'
+    py_requires='foundation/standard_tables/tablehandler'
+    print 'please direct require "foundation/standard_tables/tablehandler" '
