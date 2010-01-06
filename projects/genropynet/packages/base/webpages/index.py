@@ -17,7 +17,8 @@ class GnrCustomWebPage(object):
          return '!!Genropynet'
 
     def main(self, root, **kwargs):
-        root.div('hello genropy')
-        root.div(width='20px',height='20px',background_color='red').menu(action="function(attributes){genro.gotoURL(attributes.href)}").remote('menu_browse',cacheTime=60)
-
-
+        tb = root.toolbar()
+       #box = tb.div(width='20px',height='20px',background_color='red')
+       #menu = box.menu(modifiers='*',action="function(attributes){genro.gotoURL(attributes.file)}",
+       #                storepath='gnr.appmenu')
+       #
