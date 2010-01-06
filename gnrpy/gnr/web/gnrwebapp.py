@@ -76,6 +76,33 @@ class GnrWsgiWebApp(GnrApp):
                 menubag.setItem(pathlist,None,attr)
         return menubag
         
+    #def _buildSiteMenu_prepare(self,):
+    #    def userMenu(menubag,basepath):
+    #        for node in menubag.nodes:
+    #            nodetags=node.getAttr('tags')
+    #            value=node.getStaticValue()
+    #            attributes={}
+    #            attributes.update(node.getAttr())
+    #            currbasepath=basepath
+    #            if 'basepath' in attributes:
+    #                newbasepath=node.getAttr('basepath')
+    #                if newbasepath.startswith('/'):
+    #                    currbasepath=[self.site.home_uri+newbasepath[1:]]
+    #                else:
+    #                    currbasepath=basepath+[newbasepath]
+    #            if isinstance(value,Bag):
+    #                value = userMenu(value,currbasepath)
+    #            else:
+    #                value=None
+    #                filepath=attributes.get('file')
+    #                if filepath: 
+    #                    if not filepath.startswith('/'):
+    #                        attributes['file'] = os.path.join(*(currbasepath+[filepath]))
+    #                    else:
+    #                        attributes['file'] = self.site.home_uri + filepath.lstrip('/')
+    #            result.setItem(node.label,value,attributes)
+    #        return result
+    #    result=userMenu(self.userTags,fullMenubag,0,[])
 
             
     
