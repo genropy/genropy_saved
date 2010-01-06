@@ -19,18 +19,21 @@
 #You should have received a copy of the GNU Lesser General Public
 #License along with this library; if not, write to the Free Software
 #Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
+try:
+    from gnr.pdf.gnrrml import GnrPdf
 
-from gnr.pdf.gnrrml import GnrPdf
-
-class GnrWebPDF(GnrPdf):
+    class GnrWebPDF(GnrPdf):
     
-    def getPdf(self, table, record, filename = None, folder=None):
-        record = self.db.table(table).recordAs(record, mode='bag')
-        self.filename=filename or self.getFilename(record)
-        self.filePath=self.page.temporaryDocument(folder, self.filename)
-        self.fileUrl=self.page.temporaryDocumentUrl(folder, self.filename)
-        self.createStory(record)
-        
+        def getPdf(self, table, record, filename = None, folder=None):
+            record = self.db.table(table).recordAs(record, mode='bag')
+            self.filename=filename or self.getFilename(record)
+            self.filePath=self.page.temporaryDocument(folder, self.filename)
+            self.fileUrl=self.page.temporaryDocumentUrl(folder, self.filename)
+            self.createStory(record)
+except ImportError:
+    class GnrWebPDF(object):
+        def getPdf(self,*args,**kwargs):
+            pass
 def plain_redirect (page,params):
     return """<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
 "http://www.w3.org/TR/html4/loose.dtd">
