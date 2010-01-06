@@ -167,7 +167,8 @@ class IncludedView(BaseComponent):
                 if pickerPars:
                     add_action='FIRE .showPicker' 
                 elif formPars:
-                    add_action = 'FIRE .showRecord; FIRE .addRecord =$1;'
+                    #invertire?
+                    add_action = ' FIRE .showRecord; FIRE .addRecord =$1;'
                 else:
                     add_action = 'FIRE .addRecord =$1;FIRE .editRow;'   
             gridtop.div(float='right', _class=add_class,connect_onclick=add_action,
@@ -397,7 +398,9 @@ class IncludedView(BaseComponent):
         st.dataController("if(idx!=null){SET .dlgpage=0;}else{SET .dlgpage=1;}", 
                                             idx='^.selectedIndex', datapath=controllerPath, _fired='^gnr.onStart')
         _classBC = formPars.pop('_classBC','pbl_dialog_center') #aggiunto da fporcari
+        #recordBC.dataController("console.log(sel_label);", sel_label= '^%s.selectedLabel'%controllerPath)
         formBorderCont = st.borderContainer(datapath='^%s.selectedLabel?=if(#v){"."+#v}else{"emptypath"}' % controllerPath, _class=_classBC) #aggiunto il _classBC da fporcari
+        #--NEW--#formBorderCont = st.borderContainer(datapath='==sel_label?"."+sel_label:"emptypath"',sel_label='^%s.selectedLabel'% controllerPath, _class=_classBC)
         emptypane = st.contentPane()
         emptypane.div("No record selected",_class='dlg_msgbox')
         formPars['formCb'](formBorderCont,region='center',disabled=disabled)
@@ -449,34 +452,6 @@ class IncludedView(BaseComponent):
                                     """, 
                                     pickerId=pickerId,
                                     gridId=gridId, _fired='^.pickerAdd')
-
-
-    def _iv_Form_dialog(self, formPars, storepath, controller, controllerPath, gridId, toolbarPars):
-        dialogId = '%s_dialog' % gridId
-        height = formPars.pop('height', '40ex')
-        width = formPars.pop('width', '40em')
-        mainPane = formPars.pop('pane')
-        if 'onOpen' in formPars:
-            formPars['connect_show'] = '%s' %formPars.pop('onOpen')
-        controller.dataController("genro.wdgById('%s').show();" %dialogId, _fired='^.showRecord')
-        controller.dataController("genro.wdgById('%s').onCancel()" %dialogId ,_fired='^.close')
-                                    
-        toolbarHandler = formPars.pop('toolbarHandler', '_iv_FormToolbar')
-        
-        recordBC = mainPane.dialog(nodeId=dialogId,**formPars).borderContainer(nodeId='%s_bc' %gridId,datapath=storepath, 
-                                                                               height=height, width=width)
-        
-        getattr(self, toolbarHandler)(recordBC, controller, controllerPath=controllerPath,
-                                                gridId=gridId, **toolbarPars)
-        self._includedViewFormBody(recordBC, controller, controllerPath, formPars)
-        
-    def _iv_Form_pane(self, formPars, storepath, controller, controllerPath, gridId, toolbarPars):
-        mainPane = formPars.pop('pane')
-        toolbarHandler = formPars.pop('toolbarHandler', '_iv_FormToolbar')
-        recordBC = mainPane.borderContainer(datapath=storepath, **formPars)
-        getattr(self, toolbarHandler)(recordBC, controller, controllerPath=controllerPath,
-                                                gridId=gridId, **toolbarPars)
-        self._includedViewFormBody(recordBC, controller, controllerPath, formPars)
 
 
     def _iv_Form_dialog(self, formPars, storepath, controller, controllerPath, gridId, toolbarPars):
