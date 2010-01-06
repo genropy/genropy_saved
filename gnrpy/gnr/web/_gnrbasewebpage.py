@@ -168,46 +168,7 @@ class GnrBaseWebPage(GnrObject):
     def _get_parentdirpath(self):
         raise NotImplementedException()
     parentdirpath = property(_get_parentdirpath)
-    
-    def _initialize(self, customclass, filepath, home_uri=None, page_id=None, sitepath=None,
-                 _rpc_resultPath=None,xxcnt=None, _user_login=None, **kwargs):
-        self._rpc_resultPath=_rpc_resultPath
-        self.response.add_header('Pragma','no-cache')
-        self.page_id = page_id or getUuid()
-        self.filepath = filepath # TOGLIERE ????
-        self._user_login = _user_login
-        self.kwargs = kwargs
-        self._htmlHeaders=[]
-        self._cliCtxData = Bag()
-        if home_uri:
-            self._home_uri=home_uri
-        if sitepath:
-            self._sitepath=sitepath
-        else:
-            self._sitepath=os.path.dirname(os.path.dirname(self.filepath))
-        self.folders= self._get_folders()
-        self.pagename = os.path.splitext(os.path.basename(self.filename))[0]
-        self.pagepath = self.filename.replace(self.folders['pages'], '')
-        self.theme = getattr(customclass, 'theme', None) or self.config['dojo?theme'] or 'tundra'
-        self.dojoversion = getattr(customclass, 'dojoversion', None) or self.config['dojo?version'] or '11'
-        self.pagetemplate = getattr(customclass, 'pagetemplate', None) or self.config['dojo?pagetemplate']
-        self.maintable = getattr(customclass, 'maintable', None)
-        self.js_requires = splitAndStrip( getattr(customclass, 'js_requires', ''),',')
-        self.css_requires = splitAndStrip(getattr(customclass, 'css_requires', ''),',')
-        py_requires = splitAndStrip(getattr(customclass, 'py_requires', '') ,',')
-        self.eagers = getattr(customclass, 'eagers', {})
-        self._baseMixins()
-        self._pyrequiresMixin(py_requires)
-        self.mixin(customclass)
-        self._customPageMixins()
-        self.css_requires.reverse()
-        if kwargs.has_key('debug'): 
-            self.debug_mode = True
-            del kwargs['debug']
-        else:
-            self.debug_mode = False
-        self._dbconnection=None
-    
+
     def importPageModule(self, page_path, pkg=None):
          if not pkg:
              pkg = self.packageId
@@ -222,68 +183,6 @@ class GnrBaseWebPage(GnrObject):
     
     def getUuid(self):
         return getUuid()
-        
-    def _baseMixins(self):
-        pkgId = self.packageId
-        pkg=None
-        if pkgId:
-            pkg = self.application.packages[pkgId]
-        if pkg:
-            self.mixin(pkg.webPageMixin) # first the package standard
-        self.mixin(self.application.webPageCustom) # then the application custom
-        if pkg:
-            self.mixin(pkg.webPageMixinCustom) # finally the package custom
-
-    def _customPageMixins(self):
-        """Look in the instance custom folder for a file named as the current webpage"""
-        if self.packageId:
-            filepath = self.filepath.split(os.path.sep)
-            if len(filepath) > 1: #the page is into a package, not root level
-                filepath = list(filepath[1:])
-                filepath[-1] = filepath[-1].replace('.pyc','.py')
-                customPagePath=os.path.join(self.application.customFolder, self.packageId, 'webpages', *filepath)
-                if os.path.isfile(customPagePath):
-                    self.mixin('%s:%s' % (customPagePath,'WebPage'))
-                
-    def _pyrequiresMixin(self, py_requires):
-        for mix in py_requires:
-            if mix:
-                modName, clsName = mix.split(':')
-                modPathList = self.getResourceList(modName, 'py') or []
-                if modPathList:
-                    modPathList.reverse()
-                    for modPath in modPathList:
-                        self.mixin('%s:%s' % (modPath, clsName))
-                else:
-                    raise GnrWebServerError('Cannot import component %s' % modName)
-
-        
-    def _index(self ,**kwargs):
-        self.kwargs.update(kwargs)
-        self.onInit()
-        if self._user_login:
-            user=self.user # if we have an embedded login we get the user right now
-        
-        try:
-            if 'mako' in self.kwargs:
-                result = self.makoTemplate(path=self.kwargs['mako'], **self.kwargs)
-            elif 'rml' in self.kwargs:
-                result = self.rmlTemplate(path=self.kwargs['rml'], **self.kwargs)
-            elif 'method' in self.kwargs:
-                result = self._rpcDispatcher(**self.kwargs)
-            else:
-                result = self.indexPage()
-                self.session.loadSessionData()
-                self.session.pagedata['pageArgs'] = self.kwargs
-                self.session.pagedata['page_id'] = self.page_id
-                self.session.pagedata['connection_id'] = self.connection.connection_id
-                self.session.pagedata['pagepath'] = self.pagepath
-                self.session.saveSessionData()
-        except:
-            self._onEnd()
-            raise 
-        self._onEnd()
-        return result
         
     def addHtmlHeader(self,tag,innerHtml='',**kwargs):
         attrString=' '.join(['%s="%s"' % (k,str(v)) for k,v in kwargs.items()])
@@ -365,98 +264,13 @@ class GnrBaseWebPage(GnrObject):
     def htmlHeaders(self):
         pass
         
-    def indexPage(self):
-        startArgs = dict(self.kwargs)
-        charset='utf-8' # c'era una virgola, quindi diventava una tupla, voluto o errore?
-        
-        filename = os.path.splitext(os.path.basename(self.filename))[0]
-        dirname=os.path.dirname(self.filename)
-        if not self.pagetemplate:
-           tpl = 'standard.tpl'
-        else:
-           if isinstance(self.pagetemplate, basestring):
-               tpl = self.pagetemplate
-           else:
-               tpl = '%s.%s' % (self.pagename, 'tpl')    
-        tpldirectories=[self.parentdirpath]+self.resourceDirs+[self.resolvePath('gnrjs','gnr_d%s' % self.dojoversion,'tpl',folder='*lib')]
-        lookup=TemplateLookup(directories=tpldirectories, output_encoding='utf-8', encoding_errors='replace')
-        try:
-            mytemplate = lookup.get_template(tpl)
-        except:
-            raise str("No template %s found in %s" % (tpl, str(tpldirectories)))
-        debug = startArgs.get('jsdebug')
-        arg_dict = {}
-        self.htmlHeaders()
-        arg_dict['customHeaders']=self._htmlHeaders
-        arg_dict['charset'] = charset
-        arg_dict['filename'] = self.pagename
-        arg_dict['startArgs'] = toJson(startArgs)
-        arg_dict['page_id'] = self.page_id or getUuid()
-        arg_dict['bodyclasses'] = self.get_bodyclasses()
-        dojolib=self.resolvePathAsUrl('dojo/dojo_%s/dojo/dojo.js'%self.dojoversion, folder='*lib')
-        arg_dict['dojolib'] = dojolib
-        arg_dict['djConfig'] = "parseOnLoad: false, isDebug: %s, locale: '%s'" % (self.isDeveloper() and 'true' or 'false',self.locale)
-        arg_dict['gnrModulePath'] = '../../gnrjs'
-        gnrimports = getattr(self, '_gnrjs_d%s' % self.dojoversion)()
-        gnrlibpath='gnr_d%s' % self.dojoversion
-        if debug or self.isDeveloper():
-            arg_dict['genroJsImport'] = [self.resolvePathAsUrl('gnrjs', gnrlibpath,'js', '%s.js' % f, folder='*lib') for f in gnrimports]
-        else:
-            jsfiles = [self.resolvePath('gnrjs', gnrlibpath,'js', '%s.js' % f, folder='*lib') for f in gnrimports]
-            js=self.resolvePathAsUrl(self._jscompress(jsfiles))
-            arg_dict['genroJsImport'] = [self.resolvePathAsUrl(self._jscompress(jsfiles),folder='*pages')]
-            
-        
-        css_dojo = getattr(self, '_css_dojo_d%s' % self.dojoversion)()
-        arg_dict['css_dojo'] = [self.resolvePathAsUrl('dojo/dojo_%s/%s' % (self.dojoversion,f), folder='*lib') for f in css_dojo]
-
-        arg_dict['css_genro'] = self.get_css_genro(gnrlibpath)
-
-        js_requires = [x for x in [self.getResourceUri(r,'js') for r in self.js_requires ] if x]
-        if os.path.isfile(self.resolvePath('%s.js' % self.pagename)):
-            js_requires.append('%s.js' % self.pagename)
-        arg_dict['js_requires'] = js_requires
-        css_requires = self.get_css_requires()
-        if os.path.isfile(self.resolvePath('%s.css' % self.pagename)):
-            css_requires.append('%s.css' % self.pagename)
-        arg_dict['css_requires'] = css_requires
-        return mytemplate.render(mainpage=self, **arg_dict)
     
-    def _jscompress(self, jsfiles):
-        ts = str(max([os.path.getmtime(fname) for fname in jsfiles]))
-        key = '-'.join(jsfiles)
-        cpfile = '%s.js' % hashlib.md5(key+ts).hexdigest()
-        
-        cppath = self.resolvePath('_jslib', cpfile, folder='*pages')
-        jspath = '_jslib/%s'%cpfile
-        rebuild = True
-        if os.path.isfile(cppath):
-            cpf = file(cppath, 'r')
-            tsf = cpf.readline()
-            cpf.close()
-            if ts in tsf:
-                rebuild = False
-        if rebuild:
-            path=os.path.join(self.siteFolder, 'pages', '_jslib')
-            if not os.path.exists(path):
-                os.makedirs(path)
-            cpf = file(cppath, 'w')
-            cpf.write('// %s\n' % ts)
-            for fname in jsfiles:
-                f = file(fname)
-                js = f.read()
-                f.close()
-                cpf.write(jsmin(js))
-                cpf.write('\n\n\n\n')
-            cpf.close()
-        return jspath
-    
-    def rpc_jscompress(self, js, **kwargs):
-        cppath = self.resolvePath('temp','js', js, folder='*data')
-        f = file(cppath)
-        js = f.read()
-        f.close()
-        return js
+   #def rpc_jscompress(self, js, **kwargs):
+   #    cppath = self.resolvePath('temp','js', js, folder='*data')
+   #    f = file(cppath)
+   #    js = f.read()
+   #    f.close()
+   #    return js
     
     def rpc_decodeDatePeriod(self, datestr, workdate=None, locale=None):
         workdate = workdate or self.workdate
@@ -694,12 +508,6 @@ class GnrBaseWebPage(GnrObject):
     
     def connectionDocumentUrl(self, *args):
         return self.site.connection_static_url(self,*args)
-    
-#    def _get_html(self):
-#        if not hasattr(self, '_html'):
-#            self._html = HtmlFormatter()
-#        return self._html
-#    html = property(_get_html)
     
     def _get_session(self):
         if not hasattr(self, '_session'):
@@ -941,76 +749,7 @@ class GnrBaseWebPage(GnrObject):
             self._logfile = os.path.join(logdir, 'error_%s.log' % datetime.date.today().strftime('%Y%m%d'))
         return self._logfile
     logfile = property(_get_logfile)
-    
-    #def _get_siteHandler(self):
-    #    if not hasattr(self, '_siteHandler'):
-    #        global GNR_PROCESS_HANDLER
-    #        try: 
-    #            GNR_PROCESS_HANDLER # fare come thread.local
-    #        except NameError :
-    #            self.newprocess = True
-    #            GNR_PROCESS_HANDLER = GnrProcessHandler()
-    #        self._siteHandler = GNR_PROCESS_HANDLER.getSiteHandler(self)
-    #    return self._siteHandler
-    #siteHandler = property(_get_siteHandler)
-    
-    
-    def _findInheritedResource(self, moduleName,ext='py',uri=False):
-        """Find a resource in current _resources folder or in parent folders one"""
-        if not moduleName.endswith('.%s'%ext):
-            moduleName = '%s.%s' % (moduleName,ext)
-        pagesPath = os.path.dirname(self.sitepath)
-        curdir = os.path.dirname(self.filename)
-        while curdir.startswith(pagesPath):
-            fpath = os.path.join(curdir, '_resources', moduleName)
-            if os.path.isfile(fpath):
-                if uri:
-                    fpath=self.utils.diskPathToUri(fpath)
-                return fpath
-            curdir = os.path.dirname(curdir)
-            
-    def rpc_menu_browse(self, path=None):
-        try:
-            cacheTime = self.application.getResource('menues.%s?cacheTime' % 'browse', pkg=self.packageId) or 60
-        except:
-            cacheTime = 60
-        
-        menu=self.newSourceRoot()
-        dirRoot = self.application.webpageIndex['root']
-        if not path:
-            if self.folders['current'] == self.folders['pages']:
-                self._addMenulines(menu,dirRoot,cacheTime, path)
-            else:
-                dirFolder = dirRoot[path]
-                self._addMenulines(menu, dirFolder, cacheTime, path)
-                menu.menuline('-')
-                self._addMenulines(menu.menuline('Root').menu(),dirRoot,cacheTime, path)
-        else:
-            dirFolder = dirRoot[path]
-            self._addMenulines(menu,dirFolder,cacheTime, path)
-        return menu
-
-    def _addMenulines(self, menu, dirbag, cacheTime, path):
-        for n in dirbag.nodes:
-            k=n.label
-            href=self.utils.diskPathToUri(n.getAttr('abs_path'))
-            resolver=n.resolver    
-            if not resolver is None:
-                indexnode = n.getValue().getNode('index_py')
-                if indexnode and self.application.checkResourcePermission(indexnode.getAttr('pageAuthTags'), self.userTags):
-                    label = indexnode.getAttr('info', {}).get('label', k.replace('_',' ').capitalize())
-                    if path:
-                        newpath = '%s.%s' % (path, k)
-                    else:
-                        newpath = k
-                    menu.menuline(label).menu().remote('menu_browse',cacheTime=cacheTime, path=newpath)
-            elif not k.lower().startswith('index'):
-                if self.application.checkResourcePermission(n.getAttr('pageAuthTags'), self.userTags):
-                    if k.endswith('_py'):
-                        k=k[0:-3]
-                    label = n.getAttr('info', {}).get('label', k.replace('_',' ').capitalize())
-                    menu.menuline(label, href=href)
-                    
+               
     def formSaver(self,formId,table=None,method=None,_fired='',datapath=None,
                     resultPath='dummy',changesOnly=True,onSaved=None,saveAlways=False,**kwargs):
         method = method or 'saveRecordCluster'

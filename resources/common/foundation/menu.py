@@ -54,12 +54,13 @@ class Menu(BaseComponent):
     def getUserMenu(self, fullMenubag):
         def userMenu(userTags,menubag,level,basepath):
             result = Bag()
-            if not userTags:
-                return result
+            #if not userTags:
+                #return result
             for node in menubag.nodes:
                 allowed=True
-                if node.getAttr('tags'):
-                    allowed=self.application.checkResourcePermission(node.getAttr('tags'), userTags)
+                nodetags=node.getAttr('tags')
+                if nodetags:
+                    allowed=self.application.checkResourcePermission(nodetags, userTags)
                 if allowed and node.getAttr('file'):
                     allowed = self.checkPermission(node.getAttr('file'))
                 if allowed:
@@ -92,3 +93,57 @@ class Menu(BaseComponent):
         while len(result)==1:
             result=result['#0']
         return result
+    def rpc_menu_browse(self, path=None):
+        cacheTime = 60
+        menu=self.newSourceRoot()
+        menubag=self.getUserMenu(self.application.siteMenu)
+        dirbag = menubag[path]
+        for node in dirbag.nodes:
+            attributes=node.getAttr()
+            caption=attributes.get('name' or node.label)
+            if isinstance(node.getValue(),Bag):
+                menu.menuline(caption).menu().remote('menu_browse',cacheTime=cacheTime, path='%s.%s' % (path, node.label))
+            else:
+                menu.menuline(caption, href=href)
+        return menu
+    def rpc_menu_browse_(self, path=None):
+        try:
+            cacheTime = self.application.getResource('menues.%s?cacheTime' % 'browse', pkg=self.packageId) or 60
+        except:
+            cacheTime = 60
+        
+        menu=self.newSourceRoot()
+        dirRoot = self.application.webpageIndex['root']
+        if not path:
+            if self.folders['current'] == self.folders['pages']:
+                self._addMenulines(menu,dirRoot,cacheTime, path)
+            else:
+                dirFolder = dirRoot[path]
+                self._addMenulines(menu, dirFolder, cacheTime, path)
+                menu.menuline('-')
+                self._addMenulines(menu.menuline('Root').menu(),dirRoot,cacheTime, path)
+        else:
+            dirFolder = dirRoot[path]
+            self._addMenulines(menu,dirFolder,cacheTime, path)
+        return menu
+
+    def _addMenulines(self, menu, dirbag, cacheTime, path):
+        for n in dirbag.nodes:
+            k=n.label
+            href=self.utils.diskPathToUri(n.getAttr('abs_path'))
+            resolver=n.resolver    
+            if not resolver is None:
+                indexnode = n.getValue().getNode('index_py')
+                if indexnode and self.application.checkResourcePermission(indexnode.getAttr('pageAuthTags'), self.userTags):
+                    label = indexnode.getAttr('info', {}).get('label', k.replace('_',' ').capitalize())
+                    if path:
+                        newpath = '%s.%s' % (path, k)
+                    else:
+                        newpath = k
+                    menu.menuline(label).menu().remote('menu_browse',cacheTime=cacheTime, path=newpath)
+            elif not k.lower().startswith('index'):
+                if self.application.checkResourcePermission(n.getAttr('pageAuthTags'), self.userTags):
+                    if k.endswith('_py'):
+                        k=k[0:-3]
+                    label = n.getAttr('info', {}).get('label', k.replace('_',' ').capitalize())
+                    menu.menuline(label, href=href)

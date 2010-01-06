@@ -27,7 +27,6 @@ gnrapp
 import sys
 import os
 import hashlib
-#import weakref
 import re
 import smtplib
 import time
@@ -52,18 +51,6 @@ class GnrMixinObj(object):
         pass
 
 class GnrSqlAppDb(GnrSqlDb):
-    def _set_application(self, application):
-        if application is None:
-            self._application = application
-        else:
-            #self._application = weakref.ref(application)
-            self._application = application
-    def _get_application(self):
-        if not self._application is None:
-            return self._application
-            #return self._application()
-    application = property(_get_application, _set_application)
-    
     def checkTransactionWritable(self, tblobj):
         if not hasattr(tblobj, '_usesTransaction'):
             tblobj._usesTransaction = boolean(tblobj.attributes.get('transaction', tblobj.pkg.attributes.get('transaction','')))
@@ -71,23 +58,17 @@ class GnrSqlAppDb(GnrSqlDb):
             raise GnrWriteInReservedTableError('%s.%s' % (tblobj.pkg.name, tblobj.name))
             
     def delete(self, tblobj, record):
-        #if tblobj.attributes.get('sync_out'): 
-        #    tblobj.sync_out('DEL', record)
         self.checkTransactionWritable(tblobj)
         GnrSqlDb.delete(self, tblobj, record)
         self.application.notifyDbEvent(tblobj,record,'D')
 
             
     def update(self, tblobj, record, old_record=None, pkey=None):
-        #if tblobj.attributes.get('sync_out'):
-        #    tblobj.sync_out('UPD', record)
         self.checkTransactionWritable(tblobj)
         GnrSqlDb.update(self, tblobj, record, old_record=old_record,pkey=pkey)
         self.application.notifyDbEvent(tblobj,record,'U',old_record)
             
     def insert(self, tblobj, record):
-        #if tblobj.attributes.get('sync_out'):
-        #    tblobj.sync_out('INS', record)
         self.checkTransactionWritable(tblobj)
         GnrSqlDb.insert(self, tblobj, record)
         self.application.notifyDbEvent(tblobj,record,'I')
@@ -107,10 +88,6 @@ class GnrPackage(object):
             self.main_module = gnrImport(os.path.join(self.packageFolder, 'main.py'),'package_%s' % pkg_id)
         except:
             raise GnrImportException("Cannot import package %s from %s" % (pkg_id, os.path.join(self.packageFolder, 'main.py')))
-        try:
-            self.resources = Bag(os.path.join(self.packageFolder, 'resources.xml'))
-        except:
-            self.resources = Bag()
         try:
             self.pkgMenu = Bag(os.path.join(self.packageFolder, 'menu.xml'))
         except:
@@ -143,10 +120,6 @@ class GnrPackage(object):
         self.tableMixinDict = {}
         self.loadTableMixinDict(self.main_module, self.packageFolder)
         if os.path.isdir(self.customFolder):
-            try:
-                self.resources.update(os.path.join(self.packageFolder, 'resources.xml'))
-            except:
-                pass
             self.loadTableMixinDict(self.custom_module, self.customFolder)
         self.configure()
         
@@ -178,25 +151,10 @@ class GnrPackage(object):
                 
     def config_attributes(self):
         return {}
-    
-    def getResource(self, path, locale=None):
-        return self.resources[path]
-        
+
     def onAuthentication(self, avatar):
         """Hook after authentication: receive the avatar and can add information to it"""
-        
-    def _set_application(self, application):
-        if application is None:
-            self._application = application
-        else:
-            self._application = application
-            #self._application = weakref.ref(application)
-    def _get_application(self):
-        if not self._application is None:
-            return self._application
-            #return self._application()
-    application = property(_get_application, _set_application)
-    
+
     def configure(self):
         """Build db structure in this order:
         - package config_db.xml

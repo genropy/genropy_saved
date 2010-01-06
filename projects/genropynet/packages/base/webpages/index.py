@@ -18,4 +18,6 @@ class GnrCustomWebPage(object):
 
     def main(self, root, **kwargs):
         root.div('hello genropy')
+        root.div(width='20px',height='20px',background_color='red').menu(action="function(attributes){genro.gotoURL(attributes.href)}").remote('menu_browse',cacheTime=60)
+
 

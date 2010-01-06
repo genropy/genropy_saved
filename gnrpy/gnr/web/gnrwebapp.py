@@ -70,7 +70,7 @@ class GnrWsgiWebApp(GnrApp):
             for pathlist,node in self.site.automap.getIndex():
                 attr=dict(label=node.getAttr('name') or node.label.capitalize())
                 if isinstance(node.getValue(),Bag):
-                    attr['basepath']='/'.join(pathlist)
+                    attr['basepath']='/%s'% ('/'.join(pathlist))
                 else:
                     attr['file']=node.label
                 menubag.setItem(pathlist,None,attr)
