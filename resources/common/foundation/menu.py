@@ -24,34 +24,37 @@
 Component for menu handling:
 """
 from gnr.web.gnrwebpage import BaseComponent
-from gnr.core.gnrbag import Bag
+from gnr.core.gnrbag import Bag,BagResolver
 import os
 
 class Menu(BaseComponent):
     def onMain_menuInit(self):
-        self.pageSource().data('gnr.appmenu',self.getUserMenu(self.application.siteMenu))
+        b = Bag()
+        b['root'] = MenuResolver(path=None)
+        self.pageSource().data('gnr.appmenu',b)
     
     def menu_menuPane(self,parentBC,**kwargs):
         leftPane = parentBC.contentPane(width='20%',_class='menupane',**kwargs)
         leftPane = leftPane.div()
-        leftPane.tree(id="_gnr_main_menu_tree",storepath='gnr.appmenu',selected_file='gnr.filepath',
-                       labelAttribute='label',
-                       hideValues=True,
-                       _class='menutree',
-                       persist='site',
-                       inspect='shift',
-                       identifier='#p',
-                       getIconClass='return node.attr.iconClass || "treeNoIcon"',
-                       getLabelClass='return node.attr.labelClass',
-                       openOnClick=True,
-                       #connect_onClick='genro.gotoURL($1.getAttr("file"),true)',
-                       #getLabel="""return "<a href='"+node.attr.file+"'>"+node.attr.label+"</a>::HTML";""",
-                       getLabel="""if(node.attr.file){ return 'innerHTML:<a href="'+node.attr.file+'"><div style="width:100%;height:100%;">'+node.attr.label+'</div></a>'}else  {return node.attr.label};""",
-                       nodeId='_menutree_')
-        leftPane.dataController("genro.wdgById('_gnrRoot').showHideRegion('left', false);",fired='^gnr.onStart',
-                                appmenu="=gnr.appmenu",_if="appmenu.len()==0")
-
-    def getUserMenu(self, fullMenubag):
+       #leftPane.tree(id="_gnr_main_menu_tree",storepath='gnr.appmenu',selected_file='gnr.filepath',
+       #               labelAttribute='label',
+       #               hideValues=True,
+       #               _class='menutree',
+       #               persist='site',
+       #               inspect='shift',
+       #               identifier='#p',
+       #               getIconClass='return node.attr.iconClass || "treeNoIcon"',
+       #               getLabelClass='return node.attr.labelClass',
+       #               openOnClick=True,
+       #               #connect_onClick='genro.gotoURL($1.getAttr("file"),true)',
+       #               #getLabel="""return "<a href='"+node.attr.file+"'>"+node.attr.label+"</a>::HTML";""",
+       #               getLabel="""if(node.attr.file){ return 'innerHTML:<a href="'+node.attr.file+'"><div style="width:100%;height:100%;">'+node.attr.label+'</div></a>'}else  {return node.attr.label};""",
+       #               nodeId='_menutree_')
+       #leftPane.dataController("genro.wdgById('_gnrRoot').showHideRegion('left', false);",fired='^gnr.onStart',
+       #                        appmenu="=gnr.appmenu",_if="appmenu.len()==0")
+       #
+        
+    def getUserMenu_(self, fullMenubag):
         def userMenu(userTags,menubag,level,basepath):
             result = Bag()
             #if not userTags:
@@ -93,57 +96,50 @@ class Menu(BaseComponent):
         while len(result)==1:
             result=result['#0']
         return result
-    def rpc_menu_browse(self, path=None):
-        cacheTime = 60
-        menu=self.newSourceRoot()
-        menubag=self.getUserMenu(self.application.siteMenu)
-        dirbag = menubag[path]
-        for node in dirbag.nodes:
-            attributes=node.getAttr()
-            caption=attributes.get('name' or node.label)
-            if isinstance(node.getValue(),Bag):
-                menu.menuline(caption).menu().remote('menu_browse',cacheTime=cacheTime, path='%s.%s' % (path, node.label))
-            else:
-                menu.menuline(caption, href=href)
-        return menu
-    def rpc_menu_browse_(self, path=None):
-        try:
-            cacheTime = self.application.getResource('menues.%s?cacheTime' % 'browse', pkg=self.packageId) or 60
-        except:
-            cacheTime = 60
         
-        menu=self.newSourceRoot()
-        dirRoot = self.application.webpageIndex['root']
-        if not path:
-            if self.folders['current'] == self.folders['pages']:
-                self._addMenulines(menu,dirRoot,cacheTime, path)
-            else:
-                dirFolder = dirRoot[path]
-                self._addMenulines(menu, dirFolder, cacheTime, path)
-                menu.menuline('-')
-                self._addMenulines(menu.menuline('Root').menu(),dirRoot,cacheTime, path)
-        else:
-            dirFolder = dirRoot[path]
-            self._addMenulines(menu,dirFolder,cacheTime, path)
-        return menu
-
-    def _addMenulines(self, menu, dirbag, cacheTime, path):
-        for n in dirbag.nodes:
-            k=n.label
-            href=self.utils.diskPathToUri(n.getAttr('abs_path'))
-            resolver=n.resolver    
-            if not resolver is None:
-                indexnode = n.getValue().getNode('index_py')
-                if indexnode and self.application.checkResourcePermission(indexnode.getAttr('pageAuthTags'), self.userTags):
-                    label = indexnode.getAttr('info', {}).get('label', k.replace('_',' ').capitalize())
-                    if path:
-                        newpath = '%s.%s' % (path, k)
+class MenuResolver(BagResolver):
+    classKwargs={'cacheTime':60,
+                 'readOnly':True,
+                 'path':None}
+    classArgs=['path']
+    def load(self):
+        sitemenu = self._page.application.siteMenu
+        result = Bag()
+        level = 0
+        if self.path:
+            level = len(self.path.split('.'))
+        for node in sitemenu[self.path].nodes:
+            allowed=True
+            nodetags=node.getAttr('tags')
+            if nodetags:
+                allowed=self._page.application.checkResourcePermission(nodetags, userTags)
+            if allowed and node.getAttr('file'):
+                allowed = self._page.checkPermission(node.getAttr('file'))
+            if allowed:
+                value=node.getStaticValue()
+                attributes={}
+                attributes.update(node.getAttr())
+                if 'basepath' in attributes:
+                    newbasepath=node.getAttr('basepath')
+                    if newbasepath.startswith('/'):
+                        currbasepath=[self._page.site.home_uri+newbasepath[1:]]
+                if isinstance(value,Bag):
+                    newpath = node.label
+                    if self.path:
+                        newpath = '%s.%s' %(self.path,node.label)
+                    value = MenuResolver(path=newpath)
+                    labelClass = 'menu_level_%i' %level 
+                else:
+                    value=None
+                    labelClass = 'menu_page'
+                attributes['labelClass'] = 'menu_shape %s' %labelClass
+                filepath=attributes.get('file')
+                if filepath: 
+                    if not filepath.startswith('/'):
+                        attributes['file'] = os.path.join(*(currbasepath+[filepath]))
                     else:
-                        newpath = k
-                    menu.menuline(label).menu().remote('menu_browse',cacheTime=cacheTime, path=newpath)
-            elif not k.lower().startswith('index'):
-                if self.application.checkResourcePermission(n.getAttr('pageAuthTags'), self.userTags):
-                    if k.endswith('_py'):
-                        k=k[0:-3]
-                    label = n.getAttr('info', {}).get('label', k.replace('_',' ').capitalize())
-                    menu.menuline(label, href=href)
+                        attributes['file'] = self._page.site.home_uri + filepath.lstrip('/')
+                result.setItem(node.label,value,attributes)
+        return result
+            
+   
