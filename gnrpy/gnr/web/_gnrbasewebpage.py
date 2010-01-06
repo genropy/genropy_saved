@@ -1069,6 +1069,8 @@ class GnrBaseWebPage(GnrObject):
         if isinstance(resolverPars,basestring):
             resolverPars = json.loads(resolverPars) #should never happen
         resolverclass = resolverPars['resolverclass']
+        resolvermodule = resolverPars['resolvermodule']
+
         args = resolverPars['args'] or []
         kwargs = {}
         for k,v in (resolverPars['kwargs'] or {}).items():
@@ -1080,18 +1082,24 @@ class GnrBaseWebPage(GnrObject):
         kwargs.update(auxkwargs)
         self.response.content_type = "text/xml"
         resolverclass=str(resolverclass)
+        resolver=None
         if resolverclass in globals():
-            return globals()[resolverclass](*args,**kwargs)()
-        elif hasattr(self, 'class_%s' % resolverclass):
-            h=getattr(self, 'class_%s' % resolverclass)
-            c=h()
-            c(*args,**kwargs)()
-        elif hasattr(self, 'globals') and resolverclass in self.globals:
-            return self.globals[resolverclass](*args,**kwargs)()
+            resolver= globals()[resolverclass](*args,**kwargs)
         else:
-            #raise str(resolverclass)
-            #handle this case!
-            pass
+            resolver = getattr(sys.modules[resolvermodule],resolverclass)(*args,**kwargs)
+        #elif hasattr(self, 'class_%s' % resolverclass):
+        #    h=getattr(self, 'class_%s' % resolverclass)
+        #    c=h()
+        #    resolver=c(*args,**kwargs)
+        #elif hasattr(self, 'globals') and resolverclass in self.globals:
+        #    resolver = self.globals[resolverclass](*args,**kwargs)
+        #else:
+        #    #raise str(resolverclass)
+        #    #handle this case!
+        #    pass
+        if resolver is not None:
+            resolver._page=self
+            return resolver()
     
     def makoTemplate(self,path,striped='odd_row,even_row', **kwargs):
         auth = self._checkAuth()
