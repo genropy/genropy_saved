@@ -117,7 +117,9 @@ dojo.declare("gnr.GnrSrcHandler",null,{
                 destination.removeChild(widget);
                 widget.destroyRecursive();
             }else{
-                domNode.parentNode.replaceChild(newNode,domNode);
+                if(domNode.parentNode){
+                    domNode.parentNode.replaceChild(newNode,domNode);
+                }
                 widget.destroyRecursive();
             }
         }else{
