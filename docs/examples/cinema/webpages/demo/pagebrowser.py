@@ -10,7 +10,7 @@
 """ GnrDojo Examples & Tutorials """
 
 #from gnr.core.gnrbag import Bag
-from gnr.web.gnrwebpage import GnrWebPage
+"
 import os
 
 # ----- GnrWebPage subclass -----
@@ -50,6 +50,3 @@ class GnrCustomWebPage(object):
         result = result  % '\n'.join(rows)
         return result
 
-#---- rpc index call -----
-def index(req, **kwargs):
-    return GnrWebPage(req, GnrCustomWebPage, __file__, **kwargs).index()

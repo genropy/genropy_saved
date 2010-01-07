@@ -1,1 +1,1 @@
-from gnr.web.gnrwebpage import indexFolder as index
+#from gnr.web.gnrwebpage import indexFolder as index
