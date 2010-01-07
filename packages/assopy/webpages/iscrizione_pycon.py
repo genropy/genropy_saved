@@ -12,7 +12,6 @@ import os
 import datetime
 from urllib import urlencode
 
-from gnr.web.gnrwebpage import GnrWebPage
 from gnr.core.gnrbag import Bag
 from gnr.core.gnrstring import templateReplace, splitAndStrip
 

@@ -6,7 +6,6 @@ from processing import Process
 
 from popen2 import popen2
 
-from gnr.web.gnrwebpage import GnrWebPage
 
 class GnrCustomWebPage(object):
     py_requires = 'public:Public'

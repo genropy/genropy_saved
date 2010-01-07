@@ -9,7 +9,6 @@
 
 """ Standard table showcase """
 
-from gnr.web.gnrwebpage import GnrWebPage
 from gnr.core.gnrbag import Bag
 from gnr.sql.gnrsql_exceptions import RecordNotExistingError
 

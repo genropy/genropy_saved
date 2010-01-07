@@ -9,8 +9,7 @@
 
 """ menu manager"""
 
-#from gnr.web.gnrwebpage import GnrWebPage
-from gnr.core.gnrbag import Bag
+#from gnr.core.gnrbag import Bag
 from gnr.core.gnrdate import decodeOneDate
 import hashlib
 # --------------------------- GnrWebPage subclass ---------------------------

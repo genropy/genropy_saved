@@ -9,7 +9,6 @@
 
 """  Drag&Drop test 1 """
 from gnr.core.gnrbag import Bag
-from gnr.web.gnrwebpage import GnrWebPage
 
 # --------------------------- GnrWebPage subclass ---------------------------
 class GnrCustomWebPage(object):    

@@ -13,7 +13,6 @@ import os
 
 from gnr.core.gnrstring import templateReplace
 
-from gnr.web.gnrwebpage import GnrWebPage
 from gnr.core.gnrbag import Bag
 
 # --------------------------- GnrWebPage subclass ---------------------------

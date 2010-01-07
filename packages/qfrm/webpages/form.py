@@ -7,8 +7,7 @@ Created by Jeff Edwards on 2009-01-21.
 Copyright (c) 2008 Goodsoftware Pty Ltd All rights reserved.
 """
 import os
-#from gnr.web.gnrwebpage import GnrWebPage
-from gnr.core.gnrbag import Bag
+#from gnr.core.gnrbag import Bag
 
 # --------------------------- GnrWebPage subclass ---------------------------
 class GnrCustomWebPage(object):

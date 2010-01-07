@@ -9,7 +9,6 @@
 
 """ Season """
 import os
-from gnr.web.gnrwebpage import GnrWebPage
 from gnr.core.gnrbag import Bag
 from urllib import urlencode
 

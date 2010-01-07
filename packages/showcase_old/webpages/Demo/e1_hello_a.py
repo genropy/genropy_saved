@@ -1,7 +1,6 @@
 #!/usr/bin/env pythonw
 # -*- coding: UTF-8 -*-
 
-from gnr.web.gnrwebpage import GnrWebPage
 
 class GnrCustomWebPage(object):
     

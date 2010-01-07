@@ -10,7 +10,6 @@
 """ GnrDojo Hello World """
 import os
 
-from gnr.web.gnrwebpage import GnrWebPage
 
 # --------------------------- GnrWebPage subclass ---------------------------
 class GnrCustomWebPage(object):

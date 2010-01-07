@@ -13,7 +13,6 @@ import os
 from gnr.core.gnrlang import getUuid
 
 from gnr.core.gnrbag import Bag
-from gnr.web.gnrwebpage import GnrWebPage
 
 # --------------------------- GnrWebPage subclass ---------------------------
 class GnrCustomWebPage(object):

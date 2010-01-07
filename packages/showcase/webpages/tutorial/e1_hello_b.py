@@ -3,7 +3,6 @@
 
 import datetime
 
-from gnr.web.gnrwebpage import GnrWebPage
 
 class GnrCustomWebPage(object):
     

@@ -10,7 +10,6 @@
 """ dbCombobox """
 import os
 from gnr.core.gnrbag import Bag
-from gnr.web.gnrwebpage import GnrWebPage
 from gnr.core.gnrstring import templateReplace, splitAndStrip, countOf
 
 # --------------------------- GnrWebPage subclass ---------------------------

@@ -2,7 +2,6 @@
 # -*- coding: UTF-8 -*-
 
 import datetime
-from gnr.web.gnrwebpage import GnrWebPage
 
 class GnrCustomWebPage(object):
     

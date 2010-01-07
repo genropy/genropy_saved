@@ -9,7 +9,6 @@
 
 """ _paypal_user_return_ipn.py """
 
-from gnr.web.gnrwebpage import GnrWebPage
 from gnr.core.gnrbag import Bag
 
 # --------------------------- GnrWebPage subclass ---------------------------

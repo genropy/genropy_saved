@@ -10,7 +10,6 @@ from reportlab.pdfgen import canvas
 from reportlab.lib import colors
 from reportlab.lib.pagesizes import A4
 
-from gnr.web.gnrwebpage import GnrWebPage
 
 class GnrCustomWebPage(object):
     py_requires = 'public:Public'

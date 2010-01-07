@@ -17,7 +17,6 @@ from gnr.core.gnrlang import errorTxt
 
 from gnr.core.gnrstring import templateReplace
 from gnr.core.gnrbag import Bag
-from gnr.web.gnrwebpage import GnrWebPage
 
 # --------------------------- GnrWebPage subclass ---------------------------
 class GnrCustomWebPage(object):

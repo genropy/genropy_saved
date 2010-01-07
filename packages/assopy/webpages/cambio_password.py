@@ -10,7 +10,6 @@
 """ cambio_password.py """
 import md5
 
-from gnr.web.gnrwebpage import GnrWebPage
 from gnr.core.gnrbag import Bag
 
 # --------------------------- GnrWebPage subclass ---------------------------
