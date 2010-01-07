@@ -601,6 +601,7 @@ class SqlDataResolver(BagResolver):
     
     def resolverSerialize(self):
         attr = {}
+        attr['resolvermodule'] = self.__class__.__module__
         attr['resolverclass'] = self.__class__.__name__
         attr['args'] = list(self._initArgs)
         attr['kwargs'] = dict(self._initKwargs)
@@ -655,6 +656,7 @@ class SqlRelatedRecordResolver(BagResolver):
         
     def resolverSerialize(self):
         attr = {}
+        attr['resolvermodule'] = self.__class__.__module__
         attr['resolverclass'] = self.__class__.__name__
         attr['args'] = list(self._initArgs)
         attr['kwargs'] = dict(self._initKwargs)
@@ -1604,6 +1606,7 @@ class SqlRelatedSelectionResolver(BagResolver):
     
     def resolverSerialize(self):
         attr = {}
+        attr['resolvermodule'] = self.__class__.__module__
         attr['resolverclass'] = self.__class__.__name__
         attr['args'] = list(self._initArgs)
         attr['kwargs'] = dict(self._initKwargs)
