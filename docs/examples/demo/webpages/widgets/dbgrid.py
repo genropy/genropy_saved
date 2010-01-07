@@ -10,7 +10,6 @@
 """ GnrDojo Hello World """
 import os
 
-from gnr.web.gnrwebpage import GnrWebPage
 import datetime
 from gnr.core.gnrbag import Bag
 

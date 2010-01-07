@@ -1,7 +1,6 @@
 """ GnrDojo Examples & Tutorials """
 
 #from gnr.core.gnrbag import Bag
-from gnr.web.gnrwebpage import GnrWebPage
 import os
 
 # ----- GnrWebPage subclass -----
