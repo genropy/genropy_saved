@@ -7,13 +7,13 @@
 #  Copyright (c) 2007 Softwell. All rights reserved.
 #
 
-# --------------------------- GnrBaseWebTool subclass ---------------------------
+# --------------------------- BaseWebtool subclass ---------------------------
 
 
-from gnr.web.gnrbasewebtool import GnrBaseWebTool
+from gnr.web.gnrbaseclasses import BaseWebtool
 import twitter
 
-class Twitter(GnrBaseWebTool):
+class Twitter(BaseWebtool):
     
     def __call__(self,username=None, password=None,status=None):
         twitter_api = twitter.Api(username=username,password=password)
