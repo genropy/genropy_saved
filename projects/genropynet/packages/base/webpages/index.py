@@ -17,8 +17,12 @@ class GnrCustomWebPage(object):
          return '!!Genropynet'
 
     def main(self, root, **kwargs):
-        tb = root.toolbar()
-       #box = tb.div(width='20px',height='20px',background_color='red')
-       #menu = box.menu(modifiers='*',action="function(attributes){genro.gotoURL(attributes.file)}",
-       #                storepath='gnr.appmenu')
-       #
+        center, top, bottom = self.pbl_rootBorderContainer(root,
+                                                           title='gggggggggg')
+
+        tb=center.contentPane(region='top',height='30px',border_bottom='1px solid gray').toolbar()
+        center.contentPane(region='center').div('xxx')
+        menu=tb.dropdownbutton(label='Browse')
+        menu.menu(_class='browsemenu',action="function(attributes){genro.gotoURL(attributes.file)}",
+                      storepath='gnr.appmenu.root')
+      
