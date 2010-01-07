@@ -9,7 +9,6 @@
 
 """ dbBrowser"""
 
-from gnr.web.gnrwebpage import GnrWebPage
 from gnr.core.gnrbag import Bag
 # --------------------------- GnrWebPage subclass ---------------------------
 class GnrCustomWebPage(object):

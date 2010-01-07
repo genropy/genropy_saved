@@ -6,7 +6,6 @@ Copyright (c) 2008 Softwell. All rights reserved.
 """
 
 import os
-from gnr.web.gnrwebpage import GnrWebPage
 from gnr.core.gnrbag import Bag
 
 # --------------------------- GnrWebPage Standard header ---------------------------

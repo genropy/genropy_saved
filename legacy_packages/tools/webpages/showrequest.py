@@ -3,7 +3,6 @@
 """ GnrDojo : Show request object """
 
 import os.path
-from gnr.web.gnrwebpage import GnrWebPage
 from gnr.core.gnrbag import Bag
 
 #-------  configure: customize this configuration ------
