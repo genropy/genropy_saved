@@ -7,10 +7,10 @@
 #  Copyright (c) 2007 Softwell. All rights reserved.
 #
 
-# --------------------------- GnrBaseWebTool subclass ---------------------------
+# --------------------------- BaseWebtool subclass ---------------------------
 
 
-from gnr.web.gnrbasewebtool import GnrBaseWebTool
+from gnr.web.gnrbaseclasses import BaseWebtool
 #from code39 import Code39Encoder
 from huBarcode.code128 import Code128Encoder
 from huBarcode.datamatrix import DataMatrixEncoder
@@ -26,7 +26,7 @@ encoders = {
     'ean13' : EAN13Encoder
     
 }
-class Barcode(GnrBaseWebTool):
+class Barcode(BaseWebtool):
     #content_type = 'image/png'
     #headers = [('header_name','header_value')]
     
