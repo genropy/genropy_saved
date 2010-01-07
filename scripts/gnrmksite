@@ -100,7 +100,7 @@ def index(req,**kwargs):
         
         if not os.path.exists(os.path.join(pagespath, 'index.py')):
             f = file(os.path.join(pagespath,'index.py'),'w')
-            f.write('from gnr.web.gnrwebpage import indexFolder as index')
+            f.write('#from gnr.web.gnrwebpage import indexFolder as index')
             f.close()
 
 
