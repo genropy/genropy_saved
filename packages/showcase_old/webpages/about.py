@@ -14,7 +14,7 @@
 #from gnr.core.gnrbag import Bag
 #import os
 
-# ----- GnrWebPage subclass -----
+
 
 class GnrCustomWebPage(object): 
     #css_requires='index.css'   

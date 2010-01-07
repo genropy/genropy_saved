@@ -74,5 +74,3 @@ class GnrCustomWebPage(object):
                            struct=struct)
 
         
-def index(req, **kwargs):
-    return GnrWebPage(req, GnrCustomWebPage, __file__, **kwargs).index()

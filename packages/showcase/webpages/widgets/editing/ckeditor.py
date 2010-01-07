@@ -11,7 +11,6 @@
 import os
 
 
-# --------------------------- GnrWebPage subclass ---------------------------
 class GnrCustomWebPage(object):
     js_requires='ckeditor/ckeditor'
     def main(self,root,**kwargs):

@@ -14,7 +14,7 @@ from gnr.core.gnrlang import gnrImport
 from gnr.core.gnrbag import Bag
 import os
 
-# ----- GnrWebPage subclass -----
+
 
 class GnrCustomWebPage(object):    
     css_requires= 'index'
@@ -149,6 +149,3 @@ class GnrCustomWebPage(object):
         result = result  % '\n'.join(rows)
         return result
 
-#---- rpc index call -----
-def index(req, **kwargs):
-    return GnrWebPage(req, GnrCustomWebPage, __file__, **kwargs).index()

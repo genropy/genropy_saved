@@ -11,7 +11,6 @@
 
 from gnr.core.gnrbag import Bag
 
-# --------------------------- GnrWebPage subclass ---------------------------
 class GnrCustomWebPage(object):
     py_requires='basecomponent:Public'
     
@@ -52,5 +51,3 @@ class GnrCustomWebPage(object):
         
         
         
-def index(req, **kwargs):
-    return GnrWebPage(req, GnrCustomWebPage, __file__, **kwargs).index()

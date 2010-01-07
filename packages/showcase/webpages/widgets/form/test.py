@@ -11,7 +11,6 @@
 import os
 from gnr.core.gnrbag import Bag
 
-# --------------------------- GnrWebPage subclass ---------------------------
 class GnrCustomWebPage(object):    
     def main(self, root, **kwargs):
         box = root.div(datapath='pluto')

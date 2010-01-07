@@ -12,7 +12,6 @@ import os
 from gnr.core.gnrbag import Bag
 from gnr.core.gnrstring import templateReplace, splitAndStrip, countOf
 
-# --------------------------- GnrWebPage subclass ---------------------------
 class GnrCustomWebPage(object):
     css_requires='index.css'   
     def main(self, root, **kwargs):
@@ -25,5 +24,3 @@ class GnrCustomWebPage(object):
         
 
 
-def index(req, **kwargs):
-    return GnrWebPage(req, GnrCustomWebPage, __file__, **kwargs).index()

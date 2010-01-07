@@ -10,7 +10,6 @@
 """ Student """
 
 from gnr.core.gnrbag import Bag
-# --------------------------- GnrWebPage subclass ---------------------------
 class GnrCustomWebPage(object):
     maintable='glbl.regione'
     py_requires = 'public:Public,public:IncludedRecordView,standard_tables:TableHandler'
@@ -99,6 +98,4 @@ class GnrCustomWebPage(object):
     def queryBase(self):
         return dict(column='nome',op='startswith')
     
-def index(req, **kwargs):
-    return GnrWebPage(req, GnrCustomWebPage, __file__, **kwargs).index()
     

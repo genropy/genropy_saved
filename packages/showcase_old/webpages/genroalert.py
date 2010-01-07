@@ -11,7 +11,6 @@
 import os
 
 
-# --------------------------- GnrWebPage subclass ---------------------------
 class GnrCustomWebPage(object):
     def main(self, root, **kwargs):
         mydiv = root.div(nodeId='aaa',height='20ex',width='20em',border='1px solid black')
@@ -21,5 +20,3 @@ class GnrCustomWebPage(object):
             
                 
             
-def index(req, **kwargs):
-    return GnrWebPage(req, GnrCustomWebPage, __file__, **kwargs).index()

@@ -15,5 +15,3 @@ class GnrCustomWebPage(object):
         fb.numberTextBox(lbl='!!Area', value = '^area',border='1px solid grey',padding='2px')
        
             
-def index(req, **kwargs):
-    return GnrWebPage(req, GnrCustomWebPage, __file__, **kwargs).index()

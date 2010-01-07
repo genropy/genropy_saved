@@ -15,7 +15,6 @@ import os
 
 from gnr.core.gnrbag import Bag
 
-# --------------------------- GnrWebPage subclass ---------------------------
 class GnrCustomWebPage(object):
     def pageAuthTags(self, method=None, **kwargs):
         pass

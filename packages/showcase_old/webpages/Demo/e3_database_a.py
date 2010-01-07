@@ -9,8 +9,6 @@ class GnrCustomWebPage(object):
         root.dbSelect(value='^anagrafica.id', dbtable='assopy.anagrafica',
                              width='20em',margin='10px')
         
-def index(req, **kwargs):
-    return GnrWebPage(req, GnrCustomWebPage, __file__, **kwargs).index()
     
     
     

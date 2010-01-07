@@ -11,7 +11,6 @@
 import os
 
 
-# --------------------------- GnrWebPage subclass ---------------------------
 class GnrCustomWebPage(object):
     def main(self, root, **kwargs):       
         fb=root.formbuilder(cols=2)
@@ -19,5 +18,3 @@ class GnrCustomWebPage(object):
 
 
        
-def index(req, **kwargs):
-    return GnrWebPage(req, GnrCustomWebPage, __file__, **kwargs).index()

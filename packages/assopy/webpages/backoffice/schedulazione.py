@@ -12,7 +12,6 @@ import os
 from gnr.core.gnrstring import templateReplace
 from gnr.core.gnrbag import Bag
 
-# --------------------------- GnrWebPage subclass ---------------------------
 class GnrCustomWebPage(object):
     py_requires='basecomponent:Public'
     def windowTitle(self):
@@ -128,5 +127,3 @@ class GnrCustomWebPage(object):
             b.setItem('%s.S_18_00' % k,None,dict(start='18:00',end='18:30'))
         return b
 
-def index(req, **kwargs):
-    return GnrWebPage(req, GnrCustomWebPage, __file__, **kwargs).index()

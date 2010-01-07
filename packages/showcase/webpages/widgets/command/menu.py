@@ -13,7 +13,6 @@ import os
 import datetime
 from gnr.core.gnrbag import Bag, DirectoryResolver
 
-# --------------------------- GnrWebPage subclass ---------------------------
 class GnrCustomWebPage(object):
     def main(self, root, **kwargs):
         root.data('values.states', self.tableData_states())

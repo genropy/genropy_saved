@@ -212,5 +212,3 @@ class GnrCustomWebPage(object):
         bottom.div(u'!!Completa il profilo', connect_onclick='genro.gotoURL("modifica_utente.py")',_class='pbl_button',float='right',width='13em')
         bottom.div(u'!!Torna al menù', connect_onclick='genro.gotoURL("index.py")',_class='pbl_button',float='right')
 
-def index(req, **kwargs):
-    return GnrWebPage(req, GnrCustomWebPage, __file__, **kwargs).index()

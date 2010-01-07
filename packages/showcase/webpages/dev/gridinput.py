@@ -12,7 +12,6 @@ import os, datetime
 
 from gnr.core.gnrbag import Bag
 
-# --------------------------- GnrWebPage subclass ---------------------------
 class GnrCustomWebPage(object):
     py_requires = 'public:Public'
     def main(self, root, **kwargs):
@@ -69,5 +68,3 @@ class GnrCustomWebPage(object):
             result['r_%i' % i] = Bag({'c':i, 'name':'Dsc %i' % i, 'qt':None, 'new':bool(i%2), 'size':'big', 'date':date + datetime.timedelta(i)})
         return result
             
-def index(req, **kwargs):
-    return GnrWebPage(req, GnrCustomWebPage, __file__, **kwargs).index()

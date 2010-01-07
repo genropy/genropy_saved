@@ -11,7 +11,6 @@
 
 from gnr.core.gnrbag import Bag
 
-# --------------------------- GnrWebPage subclass ---------------------------
 class GnrCustomWebPage(object):
     maintable='assopy.ordine'
     py_requires='basecomponent:Public,standard_tables:TableHandler'
@@ -77,5 +76,3 @@ class GnrCustomWebPage(object):
         return dict(column='@anagrafica_id.ragione_sociale',op='contains', val=None)
 
 
-def index(req, **kwargs):
-    return GnrWebPage(req, GnrCustomWebPage, __file__, **kwargs).index()

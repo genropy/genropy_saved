@@ -12,7 +12,6 @@
 from gnr.core.gnrbag import Bag
 import hashlib
 
-# --------------------------- GnrWebPage subclass ---------------------------
 class GnrCustomWebPage(object):
     maintable='adm.user'
     py_requires = 'public:Public,public:IncludedView,standard_tables:TableHandler,utils:SendMail'
@@ -108,5 +107,3 @@ class GnrCustomWebPage(object):
     def queryBase(self):
         return dict(column='username',op='contains',val='%',runOnStart=True)
         
-def index(req, **kwargs):
-    return GnrWebPage(req, GnrCustomWebPage, __file__, **kwargs).index()

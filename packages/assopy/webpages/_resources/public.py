@@ -11,7 +11,6 @@
 
 
 
-# --------------------------- GnrWebPage subclass ---------------------------
 class Public(object):
     
     def pbl_userTable(self):

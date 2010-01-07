@@ -14,7 +14,6 @@ from gnr.core.gnrbag import Bag
 from gnr.core.gnrstring import templateReplace
 
 
-# --------------------------- GnrWebPage subclass ---------------------------
 class GnrCustomWebPage(object):
     maintable='assopy.partecipante'
     py_requires='basecomponent:Public,standard_tables:TableHandler,utils:SendMail'
@@ -113,5 +112,3 @@ class GnrCustomWebPage(object):
         else:
             return 'Email spedite'
 
-def index(req, **kwargs):
-    return GnrWebPage(req, GnrCustomWebPage, __file__, **kwargs).index()

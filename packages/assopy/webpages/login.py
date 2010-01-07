@@ -11,7 +11,6 @@
 
 from gnr.core.gnrbag import Bag
 
-# --------------------------- GnrWebPage subclass ---------------------------
 class GnrCustomWebPage(object):
     py_requires='basecomponent:Public'
     
@@ -39,5 +38,3 @@ class GnrCustomWebPage(object):
         bottom.div('!!Entra',connect_onclick="FIRE loginbtn=true",_class='pbl_button pbl_confirm',float='right',width='9em')
         bottom.div('!!Annulla',connect_onclick='genro.pageBack()',_class='pbl_button pbl_cancel',float='right',width='9em')
         
-def index(req, **kwargs):
-    return GnrWebPage(req, GnrCustomWebPage, __file__, **kwargs).index()

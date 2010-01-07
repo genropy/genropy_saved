@@ -13,7 +13,6 @@ import os
 from gnr.core.gnrbag import Bag,GeoCoderBag
 from gnr.core.gnrstring import templateReplace, splitAndStrip
 
-# --------------------------- GnrWebPage subclass ---------------------------
 class GnrCustomWebPage(object):
     py_requires='basecomponent:Public'
     def windowTitle(self):
@@ -57,5 +56,3 @@ class GnrCustomWebPage(object):
         return locator['curr']
         
 
-def index(req, **kwargs):
-    return GnrWebPage(req, GnrCustomWebPage, __file__, **kwargs).index()

@@ -12,7 +12,6 @@ import os, datetime
 
 from gnr.core.gnrbag import Bag
 
-# --------------------------- GnrWebPage subclass ---------------------------
 class GnrCustomWebPage(object):
     py_requires = 'public:Public'
     def main(self, root, **kwargs):
@@ -64,5 +63,3 @@ class GnrCustomWebPage(object):
         r.fieldcell('@glbl_provincia_regione.nome')
         return struct
 
-def index(req, **kwargs):
-    return GnrWebPage(req, GnrCustomWebPage, __file__, **kwargs).index()

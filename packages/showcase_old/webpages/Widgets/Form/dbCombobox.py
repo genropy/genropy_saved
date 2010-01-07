@@ -12,7 +12,6 @@ import os
 from gnr.core.gnrbag import Bag
 from gnr.core.gnrstring import templateReplace, splitAndStrip, countOf
 
-# --------------------------- GnrWebPage subclass ---------------------------
 class GnrCustomWebPage(object):
     def main(self, root, **kwargs):
         fb = root.formbuilder(cols=1, dbtable='showcase.cast',datapath='xxx')
@@ -21,5 +20,3 @@ class GnrCustomWebPage(object):
         fb.div(lbl='field con div', datapath='xxy').field('showcase.cast.movie_id')
         #fb.div(lbl='dbsel con div', datapath='xxz').dbselect(dbtable='showcase.movie', value='^dbselect.m2',  )
                            
-def index(req, **kwargs):
-    return GnrWebPage(req, GnrCustomWebPage, __file__, **kwargs).index()

@@ -13,7 +13,6 @@ import os
 from gnr.core.gnrbag import Bag
 from gnr.core.gnrstring import templateReplace, splitAndStrip
 
-# --------------------------- GnrWebPage subclass ---------------------------
 class GnrCustomWebPage(object):
     pagetemplate='assopy.tpl'
     def pageAuthTags(self, method=None, **kwargs):
@@ -37,5 +36,3 @@ class GnrCustomWebPage(object):
         client.div(u"!!Salvataggio effettuato",_class='pbl_largemessage',margin='3em')
         bottom.div(u'!!Torna al menù', connect_onclick=self.cancel_url(),_class='pbl_button',float='right')
 
-def index(req, **kwargs):
-    return GnrWebPage(req, GnrCustomWebPage, __file__, **kwargs).index()

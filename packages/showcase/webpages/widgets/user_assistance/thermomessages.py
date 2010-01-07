@@ -14,7 +14,6 @@ from gnr.core.gnrlang import getUuid
 
 from gnr.core.gnrbag import Bag
 
-# --------------------------- GnrWebPage subclass ---------------------------
 class GnrCustomWebPage(object):
     def main(self, root,cols='3', **kwargs):        
         lc = root.layoutContainer(height='100%')
@@ -164,5 +163,3 @@ class GnrCustomWebPage(object):
         elif target == 'all':
             pass
     
-def index(req, **kwargs):
-    return GnrWebPage(req, GnrCustomWebPage, __file__, **kwargs).index()

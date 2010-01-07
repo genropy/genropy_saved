@@ -13,7 +13,6 @@ from gnr.core.gnrbag import Bag
 from gnr.sql.gnrsql_exceptions import RecordNotExistingError
 
 
-# --------------------------- GnrWebPage subclass ---------------------------
 class GnrCustomWebPage(object):
     py_requires = 'public:Public'
     def main(self, root, **kwargs):
@@ -55,5 +54,3 @@ class GnrCustomWebPage(object):
         fb2.textbox(value='^.b',lbl='Spam')
         
 
-def index(req, **kwargs):
-    return GnrWebPage(req, GnrCustomWebPage, __file__, **kwargs).index()

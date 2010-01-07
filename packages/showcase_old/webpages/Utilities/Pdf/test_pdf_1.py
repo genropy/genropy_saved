@@ -95,6 +95,4 @@ class GnrCustomWebPage(object):
         doc.build(Story, onFirstPage=myLaterPages, onLaterPages=myLaterPages) 
         self.app.setThermo('build_pdf', command='end')
 
-def index(req, **kwargs):
-    return GnrWebPage(req, GnrCustomWebPage, __file__, **kwargs).index()
 

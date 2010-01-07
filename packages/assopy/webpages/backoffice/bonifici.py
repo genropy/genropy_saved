@@ -13,7 +13,6 @@ import os
 from gnr.core.gnrbag import Bag
 from gnr.core.gnrstring import templateReplace, splitAndStrip
 
-# --------------------------- GnrWebPage subclass ---------------------------
 class GnrCustomWebPage(object):
     py_requires='basecomponent:Public,utils:SendMail'
     
@@ -46,5 +45,3 @@ class GnrCustomWebPage(object):
         self.inviaLinkDocumento(ordine_id)
         
 
-def index(req, **kwargs):
-    return GnrWebPage(req, GnrCustomWebPage, __file__, **kwargs).index()

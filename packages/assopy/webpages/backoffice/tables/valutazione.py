@@ -11,7 +11,6 @@
 
 from gnr.core.gnrbag import Bag
 
-# --------------------------- GnrWebPage subclass ---------------------------
 class GnrCustomWebPage(object):
     maintable='assopy.valutazione'
     py_requires='basecomponent:Public,basecomponent:Tables'
@@ -49,5 +48,3 @@ class GnrCustomWebPage(object):
     
 
 
-def index(req, **kwargs):
-    return GnrWebPage(req, GnrCustomWebPage, __file__, **kwargs).index()

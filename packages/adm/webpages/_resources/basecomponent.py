@@ -13,7 +13,6 @@ from gnr.core.gnrbag import Bag
 from gnr.web.gnrwebpage import BaseComponent
 
 
-# --------------------------- GnrWebPage subclass ---------------------------
 class Public(BaseComponent):
     css_requires = 'folder'
         

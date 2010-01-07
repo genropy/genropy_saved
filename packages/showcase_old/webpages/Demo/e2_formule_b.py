@@ -25,5 +25,3 @@ class GnrCustomWebPage(object):
     def rpc_areaPython(self, base, height):
         return base * height
             
-def index(req, **kwargs):
-    return GnrWebPage(req, GnrCustomWebPage, __file__, **kwargs).index()

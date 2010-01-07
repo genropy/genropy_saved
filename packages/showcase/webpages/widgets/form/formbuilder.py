@@ -11,7 +11,6 @@
 import os
 from gnr.core.gnrbag import Bag
 
-# --------------------------- GnrWebPage subclass ---------------------------
 class GnrCustomWebPage(object):
     css_requires='button'
     
@@ -34,5 +33,3 @@ class GnrCustomWebPage(object):
 
 
 
-def index(req, **kwargs):
-    return GnrWebPage(req, GnrCustomWebPage, __file__, **kwargs).index()

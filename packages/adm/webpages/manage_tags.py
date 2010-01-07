@@ -11,7 +11,6 @@
 
 from gnr.core.gnrbag import Bag
 
-# --------------------------- GnrWebPage subclass ---------------------------
 class GnrCustomWebPage(object):
     maintable='adm.tag'
     py_requires = 'public:Public,standard_tables:TableHandler'
@@ -49,5 +48,3 @@ class GnrCustomWebPage(object):
     def queryBase(self):
         return dict(column='tagname',op='contains',val='%',runOnStart=True)
         
-def index(req, **kwargs):
-    return GnrWebPage(req, GnrCustomWebPage, __file__, **kwargs).index()

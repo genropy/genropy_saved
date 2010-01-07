@@ -11,7 +11,6 @@
 import os
 from gnr.core.gnrbag import Bag
 
-# --------------------------- GnrWebPage subclass ---------------------------
 class GnrCustomWebPage(object):
     
     def main(self, root, **kwargs):        
@@ -44,5 +43,3 @@ class GnrCustomWebPage(object):
         return mytable
     
 
-def index(req, **kwargs):
-    return GnrWebPage(req, GnrCustomWebPage, __file__, **kwargs).index()

@@ -29,8 +29,6 @@ class GnrCustomWebPage(object):
         fb.comboBox(width='5em',values='pt,px',value='^um_font',default='pt')
 
         
-def index(req, **kwargs):
-    return GnrWebPage(req, GnrCustomWebPage, __file__, **kwargs).index()
     
     
     

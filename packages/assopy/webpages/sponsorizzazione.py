@@ -149,5 +149,3 @@ class GnrCustomWebPage(object):
         result['paymode'] = paymode
         return result        
             
-def index(req, **kwargs):
-    return GnrWebPage(req, GnrCustomWebPage, __file__, **kwargs).index()

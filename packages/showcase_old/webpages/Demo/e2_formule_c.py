@@ -42,5 +42,3 @@ class GnrCustomWebPage(object):
         height = height or 0
         return base * height
             
-def index(req, **kwargs):
-    return GnrWebPage(req, GnrCustomWebPage, __file__, **kwargs).index()

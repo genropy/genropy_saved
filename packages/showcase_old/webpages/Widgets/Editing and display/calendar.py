@@ -13,7 +13,6 @@ import os
 import datetime
 from gnr.core.gnrbag import Bag, DirectoryResolver
 
-# --------------------------- GnrWebPage subclass ---------------------------
 class GnrCustomWebPage(object):
     py_requires='public:Public'
     css_requires='calendar'
@@ -98,5 +97,3 @@ class GnrCustomWebPage(object):
             'event_type': "reminder,meeting"})
         return b
 
-def index(req, **kwargs):
-    return GnrWebPage(req, GnrCustomWebPage, __file__, **kwargs).index()

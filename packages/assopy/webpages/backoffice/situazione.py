@@ -14,7 +14,6 @@ import hashlib
 from gnr.core.gnrstring import templateReplace
 from gnr.core.gnrbag import Bag
 
-# --------------------------- GnrWebPage subclass ---------------------------
 class GnrCustomWebPage(object):
     py_requires='basecomponent:Public'
     def windowTitle(self):
@@ -122,5 +121,3 @@ class GnrCustomWebPage(object):
         except Exception, err:
             return 'Record not saved. Error %s' %err
 
-def index(req, **kwargs):
-    return GnrWebPage(req, GnrCustomWebPage, __file__, **kwargs).index()

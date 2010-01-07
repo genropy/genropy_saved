@@ -12,7 +12,6 @@ import os
 from gnr.core.gnrbag import Bag
 from gnr.core.gnrstring import templateReplace, splitAndStrip, countOf
 
-# --------------------------- GnrWebPage subclass ---------------------------
 class GnrCustomWebPage(object):
     def main(self, root, **kwargs):
         fb = root.formbuilder(cols=3, border_spacing='6px',datapath='myform')
@@ -24,5 +23,3 @@ class GnrCustomWebPage(object):
         fb.div('^.role')
         
 
-def index(req, **kwargs):
-    return GnrWebPage(req, GnrCustomWebPage, __file__, **kwargs).index()

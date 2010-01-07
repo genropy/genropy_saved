@@ -22,8 +22,6 @@ class GnrCustomWebPage(object):
         ind.span('^.provincia', mask='(%s)',margin='4px')
         blocco_indirizzo.div('^.@utente_id.email',margin='4px')
         
-def index(req, **kwargs):
-    return GnrWebPage(req, GnrCustomWebPage, __file__, **kwargs).index()
     
     
     

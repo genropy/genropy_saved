@@ -23,5 +23,3 @@ class GnrCustomWebPage(object):
     def rpc_getTime(self):
         return self.toText(datetime.datetime.now(), format='HH:mm:ss')
         
-def index(req, **kwargs):
-    return GnrWebPage(req, GnrCustomWebPage, __file__, **kwargs).index()

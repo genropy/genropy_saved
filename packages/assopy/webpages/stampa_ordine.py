@@ -13,7 +13,6 @@ import os
 
 from gnr.core.gnrbag import Bag
 
-# --------------------------- GnrWebPage subclass ---------------------------
 class GnrCustomWebPage(object):
     def pageAuthTags(self, method=None, **kwargs):
         pass
@@ -38,5 +37,3 @@ def stampa(req, ordine_id, locale, **kwargs):
     return page.index(mako=tplfile)
 
 
-def index(req, **kwargs):
-    return GnrWebPage(req, GnrCustomWebPage, __file__, **kwargs).index()

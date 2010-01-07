@@ -12,7 +12,6 @@ import os, datetime
 
 from gnr.core.gnrbag import Bag
 
-# --------------------------- GnrWebPage subclass ---------------------------
 class GnrCustomWebPage(object):
     py_requires = 'public:Public'
     def main(self, root, **kwargs):
@@ -29,5 +28,3 @@ class GnrCustomWebPage(object):
         for x in range(10):
             fb.textbox(lbl='input %s' % x, value='^test.i_%s' % x, nodeId='input_%s' % x)
         
-def index(req, **kwargs):
-    return GnrWebPage(req, GnrCustomWebPage, __file__, **kwargs).index()

@@ -18,7 +18,6 @@ from gnr.core.gnrlang import errorTxt
 from gnr.core.gnrstring import templateReplace
 from gnr.core.gnrbag import Bag
 
-# --------------------------- GnrWebPage subclass ---------------------------
 class GnrCustomWebPage(object):
     py_requires='basecomponent:Public,utils:SendMail'
     

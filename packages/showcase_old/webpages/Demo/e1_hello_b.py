@@ -16,5 +16,3 @@ class GnrCustomWebPage(object):
         root.div('^demo.today', font_size='20pt', border='3px solid yellow', 
                                 padding='20px', margin_top='5px', format='long')
 
-def index(req, **kwargs):
-    return GnrWebPage(req, GnrCustomWebPage, __file__, **kwargs).index()

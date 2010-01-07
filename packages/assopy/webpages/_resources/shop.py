@@ -15,7 +15,6 @@ from urllib import urlencode
 from gnr.core.gnrstring import templateReplace,splitAndStrip
 
 
-# --------------------------- GnrWebPage subclass ---------------------------
 class Shop(object):
     def __onmixin__(self,**kwargs):
         self.js_requires.append('shop')

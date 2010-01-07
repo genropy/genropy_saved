@@ -11,7 +11,6 @@
 import os
 from gnr.core.gnrbag import Bag
 from gnr.web.gnrwsgisite import cache
-# --------------------------- GnrWebPage subclass ---------------------------
 class GnrCustomWebPage(object):    
     css_requires='index,button'
     def main(self, root, **kwargs):

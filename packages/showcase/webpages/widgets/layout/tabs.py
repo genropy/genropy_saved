@@ -11,7 +11,6 @@
 import os
 
 
-# --------------------------- GnrWebPage subclass ---------------------------
 class GnrCustomWebPage(object):
     def main(self, root, **kwargs):
         tc = root.tabContainer(height='100%',nodeId='ppp',selected='^aux.selected')
@@ -23,5 +22,3 @@ class GnrCustomWebPage(object):
             
                 
             
-def index(req, **kwargs):
-    return GnrWebPage(req, GnrCustomWebPage, __file__, **kwargs).index()

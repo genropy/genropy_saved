@@ -11,7 +11,6 @@
 
 from gnr.core.gnrbag import Bag
 
-# --------------------------- GnrWebPage subclass ---------------------------
 class GnrCustomWebPage(object):
     maintable='assopy.schedule'
     py_requires='basecomponent:Public,standard_tables:TableHandler'
@@ -56,5 +55,3 @@ class GnrCustomWebPage(object):
         self.db.commit()
         return ('ok',dict(_pkey=data[self.tblobj.pkey]))
     
-def index(req, **kwargs):
-    return GnrWebPage(req, GnrCustomWebPage, __file__, **kwargs).index()

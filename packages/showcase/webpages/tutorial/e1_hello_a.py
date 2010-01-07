@@ -7,7 +7,6 @@
 #  Copyright (c) 2007 Softwell. All rights reserved.
 #
 
-# --------------------------- GnrWebPage subclass ---------------------------
 import datetime
 
 class GnrCustomWebPage(object):

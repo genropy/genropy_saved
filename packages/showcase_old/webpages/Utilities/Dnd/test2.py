@@ -10,7 +10,6 @@
 """  Drag&Drop test 1 """
 from gnr.core.gnrbag import Bag
 
-# --------------------------- GnrWebPage subclass ---------------------------
 class GnrCustomWebPage(object):    
 
     def main(self, root, **kwargs):
@@ -21,5 +20,3 @@ class GnrCustomWebPage(object):
         a1=root.textarea(width='30em',height='30ex')
         a2=root.textarea(width='30em',height='30ex')
 
-def index(req, **kwargs):
-    return GnrWebPage(req, GnrCustomWebPage, __file__, **kwargs).index()

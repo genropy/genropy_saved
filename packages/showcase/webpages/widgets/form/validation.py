@@ -12,7 +12,6 @@ import os
 
 from gnr.core.gnrbag import Bag
 
-# --------------------------- GnrWebPage subclass ---------------------------
 class GnrCustomWebPage(object):
     def main(self, root, **kwargs):
         tc = root.tabContainer(height='100%',margin='5px',formId='testform', datapath='test')
@@ -153,5 +152,3 @@ class GnrCustomWebPage(object):
         fb.radioGroup('Jazz,Rock,Punk,Metal','genre',cols=4,border='1px solid red',padding='5px',value='^.rb')
 
 
-def index(req, **kwargs):
-    return GnrWebPage(req, GnrCustomWebPage, __file__, **kwargs).index()

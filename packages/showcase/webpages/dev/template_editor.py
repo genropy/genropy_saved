@@ -7,7 +7,6 @@
 #  Copyright (c) 2007 Softwell. All rights reserved.
 #
 
-# --------------------------- GnrWebPage subclass ---------------------------
 from gnr.core.gnrbag import Bag
 from gnr.core.gnrhtml_n import GnrHtmlBuilder
 

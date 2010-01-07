@@ -14,7 +14,6 @@ from gnr.core.gnrbag import Bag
 from gnr.core.gnrstring import templateReplace
 
 
-# --------------------------- GnrWebPage subclass ---------------------------
 class Public(object):
     def __onmixin__(self):
         self.css_requires.append('public')

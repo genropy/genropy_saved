@@ -12,7 +12,6 @@
 #from gnr.core.gnrbag import Bag
 from gnr.core.gnrdate import decodeOneDate
 import hashlib
-# --------------------------- GnrWebPage subclass ---------------------------
 class GnrCustomWebPage(object):
     maintable='adm.menu'
     py_requires='public:Public,public:IncludedView,public:RecordHandler'#we need to pass the name of components

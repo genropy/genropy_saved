@@ -13,7 +13,6 @@ import os
 import datetime
 from gnr.core.gnrbag import Bag, DirectoryResolver
 
-# --------------------------- GnrWebPage subclass ---------------------------
 class GnrCustomWebPage(object):
     def main(self, root, **kwargs):
         fb = root.form().formbuilder(datapath='form',cols=3)
@@ -29,5 +28,3 @@ class GnrCustomWebPage(object):
         fb.dateTextBox(value='^.r0.date',lbl='date')
         fb.dateTextBox(value='^.r0.dob',lbl='DOB',popup=False)
 
-def index(req, **kwargs):
-    return GnrWebPage(req, GnrCustomWebPage, __file__, **kwargs).index()

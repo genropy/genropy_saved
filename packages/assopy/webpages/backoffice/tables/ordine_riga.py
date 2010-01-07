@@ -11,7 +11,6 @@
 
 from gnr.core.gnrbag import Bag
 
-# --------------------------- GnrWebPage subclass ---------------------------
 class GnrCustomWebPage(object):
     def pageAuthTags(self, method=None, **kwargs):
         return 'admin'
@@ -44,5 +43,3 @@ class GnrCustomWebPage(object):
         return dict(column='tipo',op='contains', val=None)
 
 
-def index(req, **kwargs):
-    return GnrWebPage(req, GnrCustomWebPage, __file__, **kwargs).index()

@@ -13,7 +13,6 @@ import os
 import datetime
 from gnr.core.gnrbag import Bag, DirectoryResolver
 from gnr.web.gnrwebapp import WebPageResolver
-# --------------------------- GnrWebPage subclass ---------------------------
 class GnrCustomWebPage(object):
     def main(self, root, **kwargs):
         root.data('tree.data',self.treedata())
@@ -33,5 +32,3 @@ class GnrCustomWebPage(object):
         return b
 
 
-def index(req, **kwargs):
-    return GnrWebPage(req, GnrCustomWebPage, __file__, **kwargs).index()

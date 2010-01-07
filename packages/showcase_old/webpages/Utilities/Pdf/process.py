@@ -44,6 +44,4 @@ class GnrCustomWebPage(object):
         popen2('lpr %s' % fname)
 
         
-def index(req, **kwargs):
-    return GnrWebPage(req, GnrCustomWebPage, __file__, **kwargs).index()
 

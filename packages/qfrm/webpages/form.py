@@ -9,7 +9,6 @@ Copyright (c) 2008 Goodsoftware Pty Ltd All rights reserved.
 import os
 #from gnr.core.gnrbag import Bag
 
-# --------------------------- GnrWebPage subclass ---------------------------
 class GnrCustomWebPage(object):
     maintable='qfrm.form'
     py_requires='public:Public,standard_tables:TableHandler'

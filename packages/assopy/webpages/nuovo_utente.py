@@ -14,7 +14,6 @@ import haslib
 from gnr.core.gnrstring import templateReplace
 from gnr.core.gnrbag import Bag
 
-# --------------------------- GnrWebPage subclass ---------------------------
 class GnrCustomWebPage(object):
     py_requires='basecomponent:Public,utils:SendMail'
     
@@ -143,5 +142,3 @@ class GnrCustomWebPage(object):
         return self.db.query('assopy.utente', where='$%s = :val' % fldname, val=value).count()
         
     
-def index(req, **kwargs):
-    return GnrWebPage(req, GnrCustomWebPage, __file__, **kwargs).index()

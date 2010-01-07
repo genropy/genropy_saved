@@ -11,7 +11,6 @@
 
 from gnr.core.gnrbag import Bag
 
-# --------------------------- GnrWebPage subclass ---------------------------
 class GnrCustomWebPage(object):
     maintable='assopy.talk'
     py_requires='basecomponent:Public'
@@ -63,5 +62,3 @@ class GnrCustomWebPage(object):
     def iframe(self,pane):
         pass
 
-def index(req, **kwargs):
-    return GnrWebPage(req, GnrCustomWebPage, __file__, **kwargs).index()
