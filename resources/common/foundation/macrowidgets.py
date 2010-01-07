@@ -101,7 +101,7 @@ class RichTextEditor(BaseComponent):
             tb=getattr(self,'rte_toolbar_%s'%toolbar,None)
             if tb:
                 toolbar=tb()
-        editPane = container.ckeditor(value=value, nodeId=editorId, readOnly=disabled, toolbar=toolbar,**kwargs)
+        editPane = container.ckeditor(value=value, nodeId=editorId, height='100%', readOnly=disabled, toolbar=toolbar,**kwargs)
 
     def rte_toolbar_standard(self):
         return """[
