@@ -167,7 +167,6 @@ class IncludedView(BaseComponent):
                 if pickerPars:
                     add_action='FIRE .showPicker' 
                 elif formPars:
-                    #invertire?
                     add_action = ' FIRE .showRecord; FIRE .addRecord =$1;'
                 else:
                     add_action = 'FIRE .addRecord =$1;FIRE .editRow;'   
@@ -323,7 +322,8 @@ class IncludedView(BaseComponent):
         gridId = viewPars['nodeId']
         storepath = viewPars['storepath']
         assert not 'connect_onCellDblClick' in viewPars
-        viewPars['connect_onCellDblClick'] = """var grid = this.widget;
+        viewPars['connect_onCellDblClick'] = """console.log('dbl click')
+                                                var grid = this.widget;
                                                 var cell = grid.getCell($1.cellIndex);
                                                 if (!genro.nodeById(grid.editorId + '_' + cell.field)){
                                                     FIRE .showRecord = true;
@@ -461,7 +461,7 @@ class IncludedView(BaseComponent):
         mainPane = formPars.pop('pane')
         if 'onOpen' in formPars:
             formPars['connect_show'] = '%s' %formPars.pop('onOpen')
-        controller.dataController("genro.wdgById('%s').show();" %dialogId, _fired='^.showRecord')
+        controller.dataController("console.log('before show');genro.wdgById('%s').show();" %dialogId, _fired='^.showRecord')
         controller.dataController("genro.wdgById('%s').onCancel()" %dialogId ,_fired='^.close')
                                     
         toolbarHandler = formPars.pop('toolbarHandler', '_iv_FormToolbar')
