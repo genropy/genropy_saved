@@ -6,9 +6,9 @@ class Package(GnrDboPackage):
     def config_attributes(self):
         return dict(sqlschema='sys',
                     comment='sys',
-                    name_short='sys',
-                    name_long='sys',
-                    name_full='sys')
+                    name_short='System',
+                    name_long='System',
+                    name_full='System')
                     
     def config_db(self,pkg):
         #you can describe here your database or separate table into classes
