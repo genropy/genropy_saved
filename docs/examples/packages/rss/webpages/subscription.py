@@ -2,7 +2,6 @@
 # -*- coding: UTF-8 -*-
 """ GnrDojo Hello World """
 
-from gnr.web.gnrwebcore import GnrWebPage, GnrWebClientError
 import datetime
 from gnr.core.gnrbag import Bag, DirectoryResolver
 
@@ -65,6 +64,3 @@ class GnrCustomWebPage(object):
             raise GnrWebClientError('invalid_username')
         return value
 
-#---- rpc index call -----
-def index(req, **kwargs):
-    return GnrWebPage(req, GnrCustomWebPage, __file__, **kwargs).index()

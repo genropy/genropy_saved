@@ -13,7 +13,6 @@ import os
 import datetime
 from gnr.core.gnrbag import Bag, DirectoryResolver
 
-# --------------------------- GnrWebPage subclass ---------------------------
 class GnrCustomWebPage(object):
     def main(self, root, **kwargs):
         root = self.rootLayoutContainer(root)
@@ -121,5 +120,3 @@ class GnrCustomWebPage(object):
         mytable.setItem('r5',None,id='AL',caption='Alabama')        
         return mytable
     
-def index(req, **kwargs):
-    return GnrWebPage(req, GnrCustomWebPage, __file__, **kwargs).index()

@@ -6,9 +6,7 @@
 
 """ GnrDojo Hello World """
 import os
-from gnr.web.gnrwebcore import GnrWebPage
 from gnr.core.gnrbag import Bag, BagResolver
-# --------------------------- GnrWebPage subclass ---------------------------
 class GnrCustomWebPage(object):
 # BEGIN main page definition
     def main(self, root, **kwargs):
@@ -80,7 +78,5 @@ class GnrCustomWebPage(object):
         
 
 # ------------ Standard Rpc Call ------------
-def index(req, **kwargs):
-    return GnrWebPage(req, GnrCustomWebPage, __file__, **kwargs).index()
 
 

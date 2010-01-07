@@ -11,7 +11,6 @@
 import os
 
 
-# --------------------------- GnrWebPage subclass ---------------------------
 class GnrCustomWebPage(object):
     def main(self, root, **kwargs):
         root = self.rootLayoutContainer(root)
@@ -24,5 +23,3 @@ class GnrCustomWebPage(object):
         root.div('^xx')
 
        
-def index(req, **kwargs):
-    return GnrWebPage(req, GnrCustomWebPage, __file__, **kwargs).index()

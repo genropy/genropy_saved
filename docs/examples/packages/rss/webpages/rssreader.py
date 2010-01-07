@@ -6,9 +6,7 @@
 
 """ GnrDojo Hello World """
 import os
-from gnr.web.gnrwebcore import GnrWebPage
 from gnr.core.gnrbag import Bag, BagResolver
-# --------------------------- GnrWebPage subclass ---------------------------
 class GnrCustomWebPage(object):
 # BEGIN main page definition
     def pageAuthTags(self, method=None, **kwargs):
@@ -208,7 +206,5 @@ class RssFeedResolver(BagResolver):
 # END RssFeedResolver class definition
 
 # ------------ Standard Rpc Call ------------
-def index(req, **kwargs):
-    return GnrWebPage(req, GnrCustomWebPage, __file__, **kwargs).index()
 
 

@@ -11,7 +11,6 @@
 import os
 
 
-# --------------------------- GnrWebPage subclass ---------------------------
 class GnrCustomWebPage(object):
     def main(self, root, **kwargs):
         root = self.rootLayoutContainer(root)
@@ -22,5 +21,3 @@ class GnrCustomWebPage(object):
         right.iframe(src="http://www.apple.com",border='0px',height='100%',width='100%')
 
        
-def index(req, **kwargs):
-    return GnrWebPage(req, GnrCustomWebPage, __file__, **kwargs).index()

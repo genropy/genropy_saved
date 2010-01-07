@@ -13,7 +13,6 @@ import os
 import datetime
 from gnr.core.gnrbag import Bag, DirectoryResolver
 
-# --------------------------- GnrWebPage subclass ---------------------------
 class GnrCustomWebPage(object):
     def main(self, root, **kwargs):
         
@@ -597,5 +596,3 @@ class GnrCustomWebPage(object):
             [ '4498', -804, 1749, 158 ],
             [ '4499', 398, 3690, 708 ]]
         """)
-def index(req, **kwargs):
-    return GnrWebPage(req, GnrCustomWebPage, __file__, **kwargs).index()

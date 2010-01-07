@@ -12,7 +12,6 @@ import time
 import os
 from gnr.core.gnrbag import Bag
 
-# --------------------------- GnrWebPage subclass ---------------------------
 class GnrCustomWebPage(object):
     maintable='heroscape.prodotto'
     py_requires='public:Public,standard_tables:TableHandler'
@@ -74,5 +73,3 @@ class GnrCustomWebPage(object):
     def queryBase(self):
         return dict(column='nome',op='contains', val=None)
                                
-def index(req, **kwargs):
-    return GnrWebPage(req, GnrCustomWebPage, __file__, **kwargs).index()

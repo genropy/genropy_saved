@@ -11,7 +11,6 @@
 import os
 
 
-# --------------------------- GnrWebPage subclass ---------------------------
 class GnrCustomWebPage(object):
     def main(self, root, **kwargs):
         root = self.rootLayoutContainer(root)
@@ -24,5 +23,3 @@ class GnrCustomWebPage(object):
         client.button('Do This !', tooltip='Hey you can do this...', action='alert("Doing this now...")')
         client.button('Do That', tooltip='Hey you can do also that...', action='alert("Doing that too...")')
 
-def index(req, **kwargs):
-    return GnrWebPage(req, GnrCustomWebPage, __file__, **kwargs).index()

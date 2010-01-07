@@ -13,7 +13,7 @@
 from gnr.core.gnrbag import Bag, DirectoryResolver
 import os
 
-# ----- GnrWebPage subclass -----
+
 
 class GnrCustomWebPage(object):
     def main(self, root, **kwargs):
@@ -39,6 +39,3 @@ class GnrCustomWebPage(object):
         f.close()
         return relpath
 
-#---- rpc index call -----
-def index(req, **kwargs):
-    return GnrWebPage(req, GnrCustomWebPage, __file__, **kwargs).index()

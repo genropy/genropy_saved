@@ -12,7 +12,6 @@ import os
 from gnr.core.gnrbag import Bag
 from gnr.core.gnrstring import templateReplace, splitAndStrip, countOf
 
-# --------------------------- GnrWebPage subclass ---------------------------
 class GnrCustomWebPage(object):
     def main(self, root, **kwargs):
         root = self.rootLayoutContainer(root)
@@ -29,5 +28,3 @@ class GnrCustomWebPage(object):
                                    auxColumns='$an_localita,$an_provincia,@an_provincia.@regione.descrizione as regione')
     
         fb.dbCombobox(lbl='Localita', value='^record.localita', dbtable='utils.localita', columns='localita')
-def index(req, **kwargs):
-    return GnrWebPage(req, GnrCustomWebPage, __file__, **kwargs).index()

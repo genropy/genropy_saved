@@ -11,7 +11,6 @@
 import os
 from gnr.core.gnrbag import Bag
 
-# --------------------------- GnrWebPage subclass ---------------------------
 class GnrCustomWebPage(object):
 
     def main(self, root, **kwargs):
@@ -33,5 +32,3 @@ class GnrCustomWebPage(object):
         x=root.dropdownbutton('Table').menu(_class='gnrmenuscroll',storepath='tables',selected_tableid='selectedTable')
         #x=root.dropdownbutton('Field').menu(storepath='relations',selected='selectedField')
         x=root.dropdownbutton('Anagrafiche').menu(_class='gnrmenuscroll',storepath='anag',selected_fullpath='selectedFieldAnagrafiche')
-def index(req, **kwargs):
-    return GnrWebPage(req, GnrCustomWebPage, __file__, **kwargs).index()

@@ -13,7 +13,6 @@ import os
 import datetime
 from gnr.core.gnrbag import Bag, DirectoryResolver
 
-# --------------------------- GnrWebPage subclass ---------------------------
 class GnrCustomWebPage(object):
 
     def main(self, root, **kwargs):
@@ -114,8 +113,6 @@ class GnrCustomWebPage(object):
     def rpc_areatriangolo(self,base=0,altezza=0):
         return int(base)*int(altezza)/2.0
     
-def index(req, **kwargs):
-    return GnrWebPage(req, GnrCustomWebPage, __file__, **kwargs).index()
 
 
 

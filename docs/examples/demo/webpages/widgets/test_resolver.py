@@ -12,7 +12,6 @@ import os
 
 from gnr.core.gnrbag import Bag, DirectoryResolver
 
-# --------------------------- GnrWebPage subclass ---------------------------
 class GnrCustomWebPage(object):
     def main(self, root, **kwargs):
         #root = self.rootLayoutContainer(root)
@@ -24,5 +23,3 @@ class GnrCustomWebPage(object):
     def rpc_diskDirectory(self):
         return  DirectoryResolver('/usr/local/genro')()
         
-def index(req, **kwargs):
-    return GnrWebPage(req, GnrCustomWebPage, __file__, **kwargs).index()

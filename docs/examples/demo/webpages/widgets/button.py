@@ -11,7 +11,6 @@
 import os
 from gnr.core.gnrbag import Bag
 
-# --------------------------- GnrWebPage subclass ---------------------------
 class GnrCustomWebPage(object):
     
     def main(self, root,cols='3', **kwargs):
@@ -71,5 +70,3 @@ class GnrCustomWebPage(object):
         for label in labels:
             pane.checkbox(label) 
             
-def index(req, **kwargs):
-    return GnrWebPage(req, GnrCustomWebPage, __file__, **kwargs).index()

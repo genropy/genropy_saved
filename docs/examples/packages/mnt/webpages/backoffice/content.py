@@ -9,7 +9,6 @@ Copyright (c) 2008 Goodsoftware Pty Ltd All rights reserved.
 import os
 from gnr.core.gnrbag import Bag
 
-# --------------------------- GnrWebPage subclass ---------------------------
 class GnrCustomWebPage(object):
     maintable='mnt.jos_content'
     py_requires='public:Public,standard_tables:TableHandler,public:IncludedView'
@@ -79,5 +78,3 @@ class GnrCustomWebPage(object):
         return dict(column='title',op='contains', val='%', runOnStart=False)
 
                                
-def index(req, **kwargs):
-    return GnrWebPage(req, GnrCustomWebPage, __file__, **kwargs).index()

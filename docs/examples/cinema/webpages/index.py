@@ -3,7 +3,7 @@
 #from gnr.core.gnrbag import Bag
 import os
 
-# ----- GnrWebPage subclass -----
+
 
 class GnrCustomWebPage(object):
     def main(self, root, **kwargs):
@@ -19,6 +19,3 @@ class GnrCustomWebPage(object):
         r2.td(u'!!Genro vs The Layout',connect_onclick="genro.gotoURL('nuovo_utente.py')")
         r2.td(u'!!Genro vs The Demo',connect_onclick="genro.gotoURL('demo/pagebrowser.py')")
         
-#---- rpc index call -----
-def index(req, **kwargs):
-    return GnrWebPage(req, GnrCustomWebPage, __file__, **kwargs).index()

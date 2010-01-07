@@ -11,7 +11,6 @@
 import os
 
 
-# --------------------------- GnrWebPage subclass ---------------------------
 class GnrCustomWebPage(object):
     def main(self, root, **kwargs):
         root = self.rootLayoutContainer(root)
@@ -23,5 +22,3 @@ class GnrCustomWebPage(object):
         client=lc.contentPane(layoutAlign='client',background_color='yellow')
         client.button('genuflesso',tooltip='aiuto a genuflettersi')
         client.button('pignattino')
-def index(req, **kwargs):
-    return GnrWebPage(req, GnrCustomWebPage, __file__, **kwargs).index()

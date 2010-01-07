@@ -11,7 +11,6 @@
 import os
 from gnr.core.gnrbag import Bag
 
-# --------------------------- GnrWebPage subclass ---------------------------
 class GnrCustomWebPage(object):
     
     def main(self, root, **kwargs):
@@ -36,5 +35,3 @@ def rpc_test(req, name='',**kwargs):
     b['name']=name
     b['test']='test'+name
     return b       
-def index(req, **kwargs):
-    return GnrWebPage(req, GnrCustomWebPage, __file__, **kwargs).index()

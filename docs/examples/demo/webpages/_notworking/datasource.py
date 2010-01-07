@@ -2,7 +2,6 @@
 # -*- coding: UTF-8 -*-
 """ GnrDojo Hello World """
 
-from gnr.web.gnrwebpage import GnrWebPage, GnrWebClientError
 import datetime
 from gnr.core.gnrbag import Bag, DirectoryResolver
 
@@ -80,6 +79,3 @@ class GnrCustomWebPage(object):
         return  'hello _ now is :'+datetime.datetime.now().strftime('%H:%M:%S')
 
 
-#---- rpc index call -----
-def index(req, **kwargs):
-    return GnrWebPage(req, GnrCustomWebPage, __file__, **kwargs).index()

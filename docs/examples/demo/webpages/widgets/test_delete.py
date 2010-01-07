@@ -11,7 +11,6 @@
 import os
 from gnr.core.gnrbag import Bag
 
-# --------------------------- GnrWebPage subclass ---------------------------
 class GnrCustomWebPage(object):
     def main(self, root, **kwargs):
         root = root.div(height='100%',padding='10px',gnrId='bigone',background_color='pink')
@@ -63,5 +62,3 @@ class GnrCustomWebPage(object):
         pane3_2.button('ccc3',name='c')  
         pane3_2.button('ddd3',name='d')
     
-def index(req, **kwargs):
-    return GnrWebPage(req, GnrCustomWebPage, __file__, **kwargs).index()

@@ -15,7 +15,6 @@ from gnr.core.gnrbag import Bag
 
 import time
 
-# --------------------------- GnrWebPage subclass ---------------------------
 class GnrCustomWebPage(object):
     def main(self, root, **kwargs):
         root = self.rootLayoutContainer(root)
@@ -65,5 +64,3 @@ class GnrCustomWebPage(object):
     
             
     
-def index(req, **kwargs):
-    return GnrWebPage(req, GnrCustomWebPage, __file__, **kwargs).index()

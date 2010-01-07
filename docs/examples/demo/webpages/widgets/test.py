@@ -13,7 +13,6 @@ import os
 from gnr.core.gnrbag import Bag
 from gnr.core.gnrstring import templateReplace, splitAndStrip, countOf
 
-# --------------------------- GnrWebPage subclass ---------------------------
 class GnrCustomWebPage(object):
     def main(self, root, **kwargs):
         root.data('oggi',self.workdate)
@@ -48,5 +47,3 @@ class GnrCustomWebPage(object):
         fb.button('warning',action="genro.dlg.message('Test warning....','warning',10000, this.getDomNode());")
         fb.button('error',action="genro.dlg.message('Test error....','error',10000, this.getDomNode());")
         fb.button('fatal',action="genro.dlg.message('Test fatal....','fatal',10000, this.getDomNode());")
-def index(req, **kwargs):
-    return GnrWebPage(req, GnrCustomWebPage, __file__, **kwargs).index()

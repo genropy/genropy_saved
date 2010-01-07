@@ -6,10 +6,9 @@
 """ Movie info page """
 
 #------ imports ------
-from gnr.web.gnrwebcore import GnrWebPage
 
 
-# ----- GnrWebPage subclass -----
+
 
 class GnrCustomWebPage(object): 
 	
@@ -45,5 +44,3 @@ class GnrCustomWebPage(object):
 		inputfield = bottom.textarea(height='100%', width='100%',datasource='director.record.@video_movie_director')
 
 #---- rpc index call -----
-def index(req, **kwargs):
-    return GnrWebPage(req, GnrCustomWebPage, __file__, **kwargs).index()

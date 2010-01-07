@@ -10,7 +10,6 @@
 """ GnrDojo Hello World """
 
 
-# --------------------------- GnrWebPage subclass ---------------------------
 class GnrCustomWebPage(object):
     def main(self, root, **kwargs):
         root.css(".target {border: 1px dotted gray; width: 300px; height: 300px;padding: 5px;}")
@@ -31,7 +30,5 @@ class GnrCustomWebPage(object):
         return 'Simple DnD Example'
 
  
-def index(req, **kwargs):
-    return GnrWebPage(req, GnrCustomWebPage, __file__, **kwargs).index()
 
 

@@ -6,10 +6,9 @@
 """ Movie info page """
 
 #------ imports ------
-from gnr.web.gnrwebcore import GnrWebPage
 
 
-# ----- GnrWebPage subclass -----
+
 
 class GnrCustomWebPage(object): 
 	
@@ -44,5 +43,3 @@ class GnrCustomWebPage(object):
 		movie_info.span(datasource=':@director.name', mask=' directed by %s ')
 
 #---- rpc index call -----
-def index(req, **kwargs):
-    return GnrWebPage(req, GnrCustomWebPage, __file__, **kwargs).index()
