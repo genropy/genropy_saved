@@ -1,3 +1,0 @@
-<?xml version='1.0' encoding='UTF-8'?>
-<GenRoBag><description><short>mixed layout</short>
-<full>You have to distinguish container and pane. ContentPane (accordioPane for the accordionContainer) are the last element you have to put into a layout hiearchy</full></description></GenRoBag>
