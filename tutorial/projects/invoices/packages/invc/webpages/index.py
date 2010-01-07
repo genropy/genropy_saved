@@ -9,9 +9,7 @@
 
 """ index.py """
 
-from gnr.web.gnrwebpage import GnrWebPage
 
-# --------------------------- GnrWebPage subclass ---------------------------
 class GnrCustomWebPage(object):
     py_requires='public:Public'
     def windowTitle(self):

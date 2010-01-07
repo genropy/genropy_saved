@@ -6,11 +6,9 @@ Copyright (c) 2008 Softwell. All rights reserved.
 """
 
 import os
-from gnr.web.gnrwebpage import GnrWebPage
 from gnr.core.gnrbag import Bag
 from datetime import datetime
 
-# --------------------------- GnrWebPage Standard header ---------------------------
 class GnrCustomWebPage(object):
     maintable='invc.product'
     py_requires='public:Public,standard_tables:TableHandler,public:IncludedView,public:RecordHandler'

@@ -9,10 +9,8 @@
 
 """ index.py """
 
-from gnr.web.gnrwebpage import GnrWebPage
 from gnr.core.gnrbag import DirectoryResolver
 
-# --------------------------- GnrWebPage subclass ---------------------------
 class GnrCustomWebPage(object):
     
     def main(self, root, **kwargs):

@@ -7,7 +7,6 @@
 #  Copyright (c) 2007 Softwell. All rights reserved.
 #
 
-# --------------------------- GnrWebPage subclass ---------------------------
 class GnrCustomWebPage(object):
     py_requires='public:Public'
     def pageAuthTags(self, method=None, **kwargs):
