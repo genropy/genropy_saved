@@ -2437,6 +2437,7 @@ class BagResolverNew(object):
 
     def resolverSerialize(self):
         attr = {}
+        attr['resolvermodule'] = self.__class__.__module__
         attr['resolverclass'] = self.__class__.__name__
         attr['args'],attr['kwargs'] = self._argSerializer()
         return attr
