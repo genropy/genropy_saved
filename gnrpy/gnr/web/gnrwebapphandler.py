@@ -453,32 +453,7 @@ class GnrBaseWebAppHandler(object):
                 else:
                     result = handler(selection, locale=self.page.locale, **kwargs)
         return result
-        
-    def rpc_(self, table, selectionName, command, callmethod=None, selectedRowidx=None, recordcall=False, **kwargs):
-        result = None
-        tblobj = self.db.table(table)
-        selection = self.page.unfreezeSelection(tblobj, selectionName)
-        if selectedRowidx:
-            if isinstance(selectedRowidx, basestring):
-                selectedRowidx = [int(x) for x  in selectedRowidx.split(',')]
-            selectedRowidx = set(selectedRowidx)
-            selection.filter(lambda r: r['rowidx'] in selectedRowidx)
-        callmethod = callmethod or 'standard'
-        if command in ('print', 'rpc', 'export', 'action', 'pdf'):
-            handler = getattr(self.page, '%s_%s' % (command, callmethod), None)
-            if not handler:
-                handler = getattr(tblobj, '%s_%s' % (command, callmethod), None)
-            if handler:
-                if recordcall:
-                    result = []
-                    for r in selection:
-                        onres = handler(tblobj.record(r['pkey']), locale=self.page.locale, **kwargs)
-                        if onres != None:
-                            result.append(onres)
-                else:
-                    result = handler(selection, locale=self.page.locale, **kwargs)
-        return result
-        
+    
     def export_standard(self, selection, locale=None,columns=None,filename=None,**kwargs):
         filename = filename or self.maintable or  self.request.uri.split('/')[-1]
         content = selection.output('tabtext', columns=columns, locale=locale)

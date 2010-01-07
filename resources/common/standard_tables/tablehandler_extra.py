@@ -4,6 +4,7 @@
 from gnr.web.gnrwebpage import BaseComponent
 from gnr.core.gnrbag import Bag
 from gnr.core.gnrstring import toText
+import os
 
 class StatsHandler(BaseComponent):
     
@@ -121,11 +122,32 @@ class StatsHandler(BaseComponent):
     def stats_tot_modes(self):
         """Override this"""
         return ''
+    
+    def stats_columns(self):
+        """Override this"""
+        return 
+        
+    def stats_get_selection(self,selectionName):
+        if self.stats_columns():
+            cust_selectionName = '%s_cust' %selectionName
+            if not os.path.exists(self.pageLocalDocument(cust_selectionName)):
+                return self.stats_create_custom_selection(selectionName,cust_selectionName)
+            else:
+                selectionName = cust_selectionName
+        return self.unfreezeSelection(self.tblobj, selectionName)
+        
+    def stats_create_custom_selection(self,selectionName,cust_selectionName):
+        pkeys = self.unfreezeSelection(self.tblobj, selectionName).output('pkeylist')
+        query = self.tblobj.query(columns=self.stats_columns(),
+                                    where='t0.%s in :pkeys' % self.tblobj.pkey,
+                                    pkeys=pkeys,addPkeyColumn=False)
+        return query.selection()
+        
         
     def rpc_stats_totalize(self,selectionName=None,group_by=None,sum_cols=None,keep_cols=None,
                             collect_cols=None,distinct_cols=None,key_col=None,captionCb=None,
                             tot_mode=None,**kwargs):
-        selection = self.unfreezeSelection(self.tblobj, selectionName)
+        selection = self.stats_get_selection(selectionName)
         selection.totalize()
         
         group_by = group_by or self.stats_group_by(tot_mode)
