@@ -21,7 +21,7 @@ data_files = []
 #        url='http://www.genropy.org/',
 #        author_email='info@genropy.org',
 #        license='LGPL',
-#        scripts=['scripts/gnrdbsetup','scripts/gnrmkinstance','scripts/gnrmkpackage','scripts/gnrmksite','scripts/gnrwsgiserve',
+#        scripts=['scripts/gnrdbsetup','scripts/gnrmkinstance','scripts/gnrmkpackage','scripts/gnrwsgiserve',
 #                'scripts/gnrsendmail','scripts/gnrsitelocalize','scripts/gnrtrdeamon','scripts/rmltester','scripts/gnrsync4d'],
 #        packages=['gnr', 'gnr.core', 'gnr.app','gnr.web', 'gnr.sql'],
 #        package_dir={'gnr': 'gnrpy/gnr'},
