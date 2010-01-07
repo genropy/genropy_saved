@@ -22,7 +22,3 @@ class GnrCustomWebPage(object):
         cont = root.div(_class='docpane')
         cont.div("""Hello""", _class='demodoc')
         cont.button('prova',action='alert(window.parent.location.search)')
-
-#---- rpc index call -----
-#def index(req, **kwargs):
-#    return GnrWebPage(req, GnrCustomWebPage, __file__, **kwargs).index()
