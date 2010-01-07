@@ -8,7 +8,6 @@ Copyright (c) 2008 Softwell. All rights reserved.
 import os
 from gnr.core.gnrbag import Bag
 
-# --------------------------- GnrWebPage Standard header ---------------------------
 class GnrCustomWebPage(object):
     maintable='develop.staff'
     py_requires='public:Public,standard_tables:TableHandler,public:IncludedView'
@@ -58,7 +57,4 @@ class GnrCustomWebPage(object):
 
 ############################## RPC_METHODS ###################################       
 
-# --------------------------- GnrWebPage Standard footer ---------------------------
-def index(req, **kwargs):
-    return GnrWebPage(req, GnrCustomWebPage, __file__, **kwargs).index()
         

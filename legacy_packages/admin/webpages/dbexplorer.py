@@ -11,9 +11,8 @@
 
 from gnr.core.gnrbag import Bag
 
-from gnr.web.gnrwebcore import GnrWebPage
 
-# ----- GnrWebPage subclass -----
+
 
 class GnrCustomWebPage(object):
     def pageAuthTags(self, method=None, **kwargs):
@@ -62,7 +61,4 @@ class GnrCustomWebPage(object):
             self.dbform.bodyPane(lc.contentPane(sizeShare=70), dbtable=dbtable)
         return root
 
-#---- rpc index call -----
-def index(req, **kwargs):
-    return GnrWebPage(req, GnrCustomWebPage, __file__, **kwargs).index()
         

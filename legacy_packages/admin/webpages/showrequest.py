@@ -2,7 +2,6 @@
 # -*- coding: UTF-8 -*-
 """ GnrDojo : Show request object """
 
-from gnr.web.gnrwebcore import GnrWebPage
 
 #-------  configure: customize this configuration ------
 class GnrCustomWebPage(object):
@@ -57,5 +56,3 @@ class GnrCustomWebPage(object):
         return row
         
 #---- rpc index call -----
-def index(req, **kwargs):
-    return GnrWebPage(req, GnrCustomWebPage, __file__, **kwargs).index()

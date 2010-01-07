@@ -2,7 +2,6 @@
 # -*- coding: UTF-8 -*-
 """ GnrDojo Hello World """
 
-from gnr.web.gnrwebcore import GnrWebPage, GnrWebClientError
 import datetime, subprocess
 from gnr.core.gnrbag import Bag, DirectoryResolver
 import weakref
@@ -104,8 +103,5 @@ class GnrCustomWebPage(object):
                ]
         return fields
         
-#---- rpc index call -----
-def index(req, **kwargs):
-    return GnrWebPage(req, GnrCustomWebPage, __file__, **kwargs).index()
     
     

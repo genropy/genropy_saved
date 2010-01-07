@@ -2,7 +2,6 @@
 # -*- coding: UTF-8 -*-
 """ GnrDojo Hello World """
 
-from gnr.web.gnrwebcore import GnrWebPage, GnrWebClientError
 import datetime, subprocess
 from gnr.core.gnrbag import Bag, DirectoryResolver
 

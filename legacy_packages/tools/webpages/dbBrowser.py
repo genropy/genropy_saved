@@ -10,7 +10,6 @@
 """ dbBrowser"""
 
 from gnr.core.gnrbag import Bag
-# --------------------------- GnrWebPage subclass ---------------------------
 class GnrCustomWebPage(object):
 
     def main(self, root, **kwargs):
@@ -95,8 +94,6 @@ class GnrCustomWebPage(object):
             columns = splitAndStrip(columns)
         fb.placeFields(','.join(columns))
         return pane
-def index(req, **kwargs):
-    return GnrWebPage(req, GnrCustomWebPage, __file__, **kwargs).index()
 
 
 

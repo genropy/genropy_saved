@@ -104,5 +104,3 @@ class GnrCustomWebPage(object):
         
 
 #---- rpc index call -----
-def index(req, **kwargs):
-    return GnrWebPage(req, GnrCustomWebPage, __file__, **kwargs).index()

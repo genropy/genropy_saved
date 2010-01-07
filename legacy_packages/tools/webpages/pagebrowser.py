@@ -12,7 +12,7 @@
 #from gnr.core.gnrbag import Bag
 import os
 
-# ----- GnrWebPage subclass -----
+
 
 class GnrCustomWebPage(object):
     def main(self, root, **kwargs):
@@ -50,6 +50,3 @@ class GnrCustomWebPage(object):
         result = result  % '\n'.join(rows)
         return result
 
-#---- rpc index call -----
-def index(req, **kwargs):
-    return GnrWebPage(req, GnrCustomWebPage, __file__, **kwargs).index()
