@@ -17,11 +17,6 @@ class GnrWsgiWebApp(GnrApp):
     
     def notifyDbEvent(self,tblobj,record,event,old_record=None):
         self.site.notifyDbEvent(tblobj,record,event,old_record=old_record)
-        
-    def checkPagePermission(self, pagepath, tags):
-        pagepath = pagepath.replace('.','_').replace('/','.')
-        pageAuthTags = self.webpageIndex.getAttr('root.%s' % pagepath, 'pageAuthTags')
-        return self.checkResourcePermission(pageAuthTags, tags)
 
     def _get_pagePackageId(self, filename):
         _packageId = None
@@ -74,35 +69,36 @@ class GnrWsgiWebApp(GnrApp):
                 else:
                     attr['file']=node.label
                 menubag.setItem(pathlist,None,attr)
+        menubag=self._buildSiteMenu_prepare(menubag)
         return menubag
         
-    #def _buildSiteMenu_prepare(self,):
-    #    def userMenu(menubag,basepath):
-    #        for node in menubag.nodes:
-    #            nodetags=node.getAttr('tags')
-    #            value=node.getStaticValue()
-    #            attributes={}
-    #            attributes.update(node.getAttr())
-    #            currbasepath=basepath
-    #            if 'basepath' in attributes:
-    #                newbasepath=node.getAttr('basepath')
-    #                if newbasepath.startswith('/'):
-    #                    currbasepath=[self.site.home_uri+newbasepath[1:]]
-    #                else:
-    #                    currbasepath=basepath+[newbasepath]
-    #            if isinstance(value,Bag):
-    #                value = userMenu(value,currbasepath)
-    #            else:
-    #                value=None
-    #                filepath=attributes.get('file')
-    #                if filepath: 
-    #                    if not filepath.startswith('/'):
-    #                        attributes['file'] = os.path.join(*(currbasepath+[filepath]))
-    #                    else:
-    #                        attributes['file'] = self.site.home_uri + filepath.lstrip('/')
-    #            result.setItem(node.label,value,attributes)
-    #        return result
-    #    result=userMenu(self.userTags,fullMenubag,0,[])
-
-            
+    def _buildSiteMenu_prepare(self,menubag, basepath=None):
+        basepath=basepath or []
+        result=Bag()
+        for node in menubag.nodes:
+            value=node.getStaticValue()
+            attributes={}
+            attributes.update(node.getAttr())
+            currbasepath=basepath
+            if 'basepath' in attributes:
+                newbasepath=attributes.pop('basepath')
+                if newbasepath.startswith('/'):
+                    currbasepath=[self.site.home_uri+newbasepath[1:]]
+                else:
+                    currbasepath=basepath+[newbasepath]
+            if isinstance(value,Bag):
+                value = self._buildSiteMenu_prepare(value,currbasepath)
+            else:
+                value=None
+                filepath=attributes.get('file')
+                if filepath: 
+                    if not filepath.startswith('/'):
+                        attributes['file'] = os.path.join(*(currbasepath+[filepath]))
+                    else:
+                        attributes['file'] = self.site.home_uri + filepath.lstrip('/')
+            result.setItem(node.label,value,attributes)
+        return result
+        
+    
+           
     
