@@ -28,16 +28,16 @@ from gnr.core.gnrbag import Bag,BagResolver
 import os
 
 class Menu(BaseComponent):
-    def onMain_menuInit(self):
-        #b = Bag()
-        #b['root'] = MenuResolver(path=None)
-        b=self.getUserMenu(self.application.siteMenu)
-        self.pageSource().data('gnr.appmenu',b)
-    
+   #def onMain_menuInit(self):
+   #    self.pageSource().data('gnr.appmenu',MenuResolver(path=None))
+   #
     def menu_menuPane(self,parentBC,**kwargs):
+        b=Bag()
+        b['root']=MenuResolver(path=None)
+        parentBC.data('gnr.appmenu',b)
         leftPane = parentBC.contentPane(width='20%',_class='menupane',**kwargs)
         leftPane = leftPane.div()
-        leftPane.tree(id="_gnr_main_menu_tree",storepath='gnr.appmenu',selected_file='gnr.filepath',
+        leftPane.tree(id="_gnr_main_menu_tree",storepath='gnr.appmenu.root',selected_file='gnr.filepath',
                        labelAttribute='label',
                        hideValues=True,
                        _class='menutree',
@@ -98,53 +98,43 @@ class Menu(BaseComponent):
             result=result['#0']
         return result
         
-#lass MenuResolver(BagResolver):
-#   classKwargs={'cacheTime':60,
-#                'readOnly':True,
-#                'path':None}
-#   classArgs=['path']
-#   def load(self):
-#       sitemenu = self._page.application.siteMenu
-#       result = Bag()
-#       level = 0
-#       if self.path:
-#           level = len(self.path.split('.'))
-#       for node in sitemenu[self.path].nodes:
-#           allowed=True
-#           inheritedAttributes= node.getInheritedAttributes()
-#           nodetags=inheritedAttributes('tags')
-#           if nodetags:
-#               allowed=self._page.application.checkResourcePermission(nodetags, userTags)
-#           if allowed and node.getAttr('file'):
-#               allowed = self._page.checkPermission(node.getAttr('file'))
-#           if allowed:
-#               value=node.getStaticValue()
-#               attributes={}
-#               attributes.update(node.getAttr())
-#               if isinstance(value,Bag):
-#                   newpath = node.label
-#                   if self.path:
-#                       newpath = '%s.%s' %(self.path,node.label)
-#                   else:
-#                       newpath = node.label
-#                   value = MenuResolver(path=newpath)
-#                   labelClass = 'menu_level_%i' %level 
-#               else:
-#                   value=None
-#                   labelClass = 'menu_page'
-#                   filepath=attributes.pop('file')
-#                   if filepath.startswith('/'):
-#                       attributes['file'] = self._page.site.home_uri + filepath.lstrip('/')
-#                   else:
-#                       basepath=inheritedAttributes.get('basepath')
-#                       if basepath and basepath.startswith('/'):
-#                           basepath=[self._page.site.home_uri+basepath[1:]]
-#                       attributes['file'] = os.path.join(*(basepath+[filepath]))
-#                   else:
-#                       
-#               attributes['labelClass'] = 'menu_shape %s' %labelClass
-#      
-#               result.setItem(node.label,value,attributes)
-#       return result
-#           
+class MenuResolver(BagResolver):
+    classKwargs={'cacheTime':300,
+                 'readOnly':False,
+                 'path':None}
+    classArgs=['path']
+    def load(self):
+        sitemenu = self._page.application.siteMenu
+        userTags=self._page.userTags
+        result = Bag()
+        level = 0
+        if self.path:
+            level = len(self.path.split('.'))
+        for node in sitemenu[self.path].nodes:
+            allowed=True
+            nodetags=node.getAttr('tags')
+            filepath=node.getAttr('file')
+            if nodetags:
+                allowed=self._page.application.checkResourcePermission(nodetags, userTags)
+            if allowed and filepath:
+                allowed = self._page.checkPermission(filepath)
+            if allowed:
+                value=node.getStaticValue()
+                attributes={}
+                attributes.update(node.getAttr())
+                if isinstance(value,Bag):
+                    newpath = node.label
+                    if self.path:
+                        newpath = '%s.%s' %(self.path,node.label)
+                    else:
+                        newpath = node.label
+                    value = MenuResolver(path=newpath)
+                    labelClass = 'menu_level_%i' %level 
+                else:
+                    value=None
+                    labelClass = 'menu_page'             
+                attributes['labelClass'] = 'menu_shape %s' %labelClass
+                result.setItem(node.label,value,attributes)
+        return result
+            
    
