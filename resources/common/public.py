@@ -152,7 +152,7 @@ class Public(BaseComponent):
 class ThermoDialog(BaseComponent):
     py_requires='foundation/thermo'
 
-class UserObject(object):
+class UserObject(BaseComponent):
     py_requires='foundation/userobject'
 
 class IncludedView(BaseComponent):
@@ -161,7 +161,7 @@ class IncludedView(BaseComponent):
 class RecordHandler(BaseComponent):
     py_requires='foundation/recorddialog'
 
-class DynamicEditor(object):
+class DynamicEditor(BaseComponent):
     py_requires='foundation/dynamiceditor'
                         
 class RecordToHtmlFrame(BaseComponent):
