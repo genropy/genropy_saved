@@ -5,7 +5,6 @@ from gnr.web.gnrwebpage import BaseComponent
 from gnr.core.gnrbag import Bag
 from gnr.core.gnrstring import toText
 
-# --------------------------- GnrWebPage subclass ---------------------------
 class StatsHandler(BaseComponent):
     
     def stats_main(self,parent,**kwargs):

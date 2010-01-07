@@ -4,7 +4,6 @@
 from gnr.web.gnrwebpage import BaseComponent
 from gnr.core.gnrbag import Bag
 
-# --------------------------- GnrWebPage subclass ---------------------------
 class ThermoUtils(BaseComponent):
     
     setThermo('pippo','fatture',progress_fatture=20,message='Stampo xxx')

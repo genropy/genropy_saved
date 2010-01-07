@@ -12,7 +12,6 @@ from gnr.core.gnrbag import Bag
 from gnr.core.gnrstring import templateReplace, splitAndStrip, toText, toJson, concat
 
 
-# --------------------------- GnrWebPage subclass ---------------------------
 class UserObject(BaseComponent):
     py_requires='foundation/recorddialog'
     def userObjectDialog(self):

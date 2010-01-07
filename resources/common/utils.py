@@ -14,7 +14,6 @@ from gnr.core.gnrbag import Bag
 from gnr.core.gnrstring import templateReplace
 
 
-# --------------------------- GnrWebPage subclass ---------------------------
 class SendMail(object):
     def sendMailTemplate(self, tpl, mailto, params, locale=None, **kwargs):
         locale = locale or self.locale

@@ -10,7 +10,6 @@ Copyright (c) 2009 __MyCompanyName__. All rights reserved.
 from gnr.web.gnrwebpage import BaseComponent
 from gnr.core.gnrbag import Bag
 
-# --------------------------- GnrWebPage subclass ---------------------------
 class PrintUtils(BaseComponent):
     py_requires='batch_runner:BatchRunner'
     def serverPrint(self,pane,name,table=None,table_resource=None,
