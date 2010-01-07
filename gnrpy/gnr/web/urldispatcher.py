@@ -1,4 +1,3 @@
-#from gnr.web.gnrwebpage import GnrWebPage, GnrIndexWebPage
 from gnr.core.gnrlang import gnrImport
 from time import time
 import os.path

@@ -31,57 +31,7 @@ from gnr.core.gnrbag import Bag
 from gnr.core.gnrstring import  splitAndStrip
 from gnr.core.gnrlang import GnrObject
 
-class GnrWebPage(object):
-    pass
 
-
-class GnrIndexWebPage(object):
-    def main(self, root, **kwargs):
-        #root=self.rootLayoutContainer(root,_class='index_browserPane',menues='')
-        directory=Bag()
-        back=self.utils.relativePageFolder().lstrip('/').split('/')
-        directory=self.utils.dirbag(include='*.py',exclude='_*,.*,*.wsgi,indexwsgi.py')
-        directory=directory['#0']
-        self.walkDirectory(directory,root,back)
-
-    def windowTitle(self):
-        return 'IndexPage:'+self.utils.relativePageFolder().lstrip('/')
-
-    def walkDirectory(self, bag, where, back=None):
-        cmax=10
-        c=cmax
-        if back:
-            table=where.table(border="0",cellspacing="0", cellpadding="0",id='folderIndexTable').tbody()
-            main=back.pop()
-            href=['..' for x in back]
-            for label in back:
-                label = '!!' + label.replace('_',' ').capitalize() 
-                row=table.tr()
-                row.td(_class='index_td index_back',content=label,connect_onclick='genro.gotoURL("%s")'% '/'.join(href))
-                href.pop()
-            row=table.tr()
-            row.td(_class='index_header',content=main.replace('_',' ').capitalize())
-            table=table.tr().td(_class='index_back_client').table(border="0",cellspacing="1", cellpadding="0" ).tbody()
-        else:
-            table=where.table(border="0",cellspacing="1", cellpadding="0", border_spacing='2px').tbody()
-
-        for n in bag.nodes: 
-            k=n.label   
-            label = '!!' + k.replace('_',' ').capitalize()   
-            v=n.value
-            href=self.utils.diskPathToUri(n.getAttr('abs_path'))
-            if hasattr(v,'items'):
-                row=table.tr()
-                row.td(_class='index_td index_folder',connect_onclick='genro.gotoURL("%s")'% href,content=label)
-                self.walkDirectory( v,row.td(_class='index_tdfolder_right'))
-                c=cmax
-            elif k != 'index':
-                c=c+1
-                if(c>cmax):
-                    c=1
-                    row=table.tr()
-                row.td(_class='index_td index_file',connect_onclick='genro.gotoURL("%s")'% href,content=label)
-                
 class BaseComponent(object):
     """docstring for BaseComponent"""
     def __onmixin__(self, _mixinsource, site=None):
@@ -134,3 +84,6 @@ class BaseProxy(object):
     def __init__(self,**kwargs):
         for argname,argvalue in kwargs.items():
             setattr(self,argname,argvalue)
+
+class BaseWebtool(object):
+    pass

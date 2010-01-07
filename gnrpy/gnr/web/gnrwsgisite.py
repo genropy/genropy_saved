@@ -19,7 +19,7 @@ import thread
 import mimetypes
 #import hashlib
 from gnr.core.gnrsys import expandpath
-from gnr.web.gnrbasewebtool import GnrBaseWebTool
+from gnr.web.gnrbaseclasses import BaseWebtool
 import cPickle
 import inspect
 from gnr.core.gnrprinthandler import PrintHandler
@@ -214,7 +214,7 @@ class GnrWsgiSite(object):
         
     def find_webtools(self):
         def isgnrwebtool(cls):
-            return inspect.isclass(cls) and issubclass(cls,GnrBaseWebTool)
+            return inspect.isclass(cls) and issubclass(cls,BaseWebtool)
         tools = {}
         if 'webtools' in self.gnr_config['gnr.environment_xml']:
             for path in self.gnr_config['gnr.environment_xml'].digest('webtools:#a.path'):

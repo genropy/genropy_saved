@@ -425,6 +425,7 @@ class GnrBaseWebAppHandler(object):
             session.setInPageData('thermo_%s' % thermoid, thermoBag)
             session.saveSessionData()
         else:
+            session.loadSessionData(locking=False)
             thermoBag = session.pagedata.getItem('thermo_%s' % thermoid) or Bag()
         return thermoBag
         
