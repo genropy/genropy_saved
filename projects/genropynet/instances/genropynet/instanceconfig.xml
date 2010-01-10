@@ -2,7 +2,7 @@
 <GenRoBag>
 	<db dbname="genropynet"/>
 	<packages _T="NN">
-		<base/>
+		<portal/>
 		<adm/>
 		<prj/>
 		<showcase/>

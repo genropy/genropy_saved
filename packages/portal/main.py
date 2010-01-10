@@ -5,14 +5,14 @@ from gnr.app.gnrdbo import GnrDboTable, GnrDboPackage, Table_counter, Table_user
 
 class Package(GnrDboPackage):
     def config_attributes(self):
-        return dict(comment='base package',sqlschema='base',
-                name_short='Base', name_long='Base', name_full='Base')
+        return dict(comment='portal package',sqlschema='portal',
+                name_short='Portal', name_long='Portal', name_full='Portal')
 
     def config_db(self, pkg):
         pass
 
     def loginUrl(self):
-        return 'prj/login'
+        return 'portal/login'
 
 class Table(GnrDboTable):
     pass

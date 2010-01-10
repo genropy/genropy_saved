@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <GenRoBag>
-	<wsgi port="8089" session_type='memory' mainpackage='base' />
+	<wsgi port="8089" session_type='memory' mainpackage='portal' />
 	<connection_timeout _T="NN"/>
 	<connection_refresh _T="NN"/>
 	<dojo _T="NN" version="11"/>
