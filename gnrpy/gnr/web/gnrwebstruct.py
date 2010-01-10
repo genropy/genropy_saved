@@ -778,7 +778,16 @@ class GnrFormBuilder(object):
                     row[1].delItem('c_%i' %cs)
             
         if tag:
-            return getattr(td,tag)(**field)
+            tagHandler = getattr(td,tag)
+            ghost = field.pop('ghost',None)
+            if ghost:
+                if ghost is True:
+                    ghost = lbl
+                field['id'] = field.get('id',None) or self.page.getUuid()
+                td.label(_for=field['id'],_class='ghostlabel',id=field['id']+'_label').span(ghost)
+                field['connect__onMouse'] = 'genro.dom.ghostOnEvent($1);' 
+            obj= tagHandler(**field)
+            return obj
 class GnrDomSrc_dojo_12(GnrDomSrc_dojo_11):
     pass
 class GnrDomSrc_dojo_13(GnrDomSrc_dojo_11):
