@@ -18,12 +18,16 @@ class GnrCustomWebPage(object):
     py_requires='publicsite:SiteLayout'
     def main(self, root,**kwargs):
         layout = root.borderContainer(_class='site_body')
-        layout.borderContainer(region='left',_class='site_left')
-        layout.borderContainer(region='right',_class='site_right')
         header = layout.contentPane(region='top',_class='site_header')
-        footer = layout.contentPane(region='bottom',_class='site_footer')
         self.site_header(header)
-        self.center(layout.contentPane(region='center',_class='site_center'))
+        footer = layout.contentPane(region='bottom',_class='site_footer')
+        
+        left=layout.borderContainer(region='left',_class='site_left')
+        left.contentPane(_class='site_pane',height='100%')
+        
+        right=layout.borderContainer(region='right',_class='site_right')
+        right.contentPane(_class='site_pane')        
+        self.center(layout.contentPane(region='center',_class='site_pane'))
     
 
     def center(self,pane):

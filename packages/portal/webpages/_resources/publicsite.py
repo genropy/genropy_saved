@@ -24,7 +24,7 @@ Component for thermo:
 from gnr.web.gnrwebpage import BaseComponent
 
 class SiteLayout(BaseComponent):
-    css_requires='genropynet'
+    css_requires='publicsite'
 
     def site_header(self,header):
         header.span('menu')
