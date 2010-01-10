@@ -135,6 +135,7 @@ dojo.declare("gnr.GnrDomHandler",null,{
     dojo.style(where,kw);
     },
     
+    
     effect:function(where,effect,kw){
         var anim;
         var effect = effect.toLowerCase();
@@ -167,6 +168,17 @@ dojo.declare("gnr.GnrDomHandler",null,{
         return anim;
         
     },
+    ghostOnEvent:function(evt){
+        var evt_type = evt.type;
+        if (evt_type=='focus' || evt_type=='blur'){
+            genro.dom[evt_type=='focus'?'addClass':'removeClass'](evt.target.id+"_label","ghostpartial");
+        }
+        else if (evt_type=='keyup'){
+            genro.dom[evt.target.value.length>0?'addClass':'removeClass'](evt.target.id+"_label","ghosthidden");
+        }
+    },
+
+
     enableDisableNodes:function(where){
         if ( typeof (where) == 'string'){
                 var where=genro.domById(where);

@@ -1,7 +1,23 @@
-/* @group validation */
 
 .gnrdebugger{
     z-index:1000 !important;
+}
+/* @group validation */
+
+.ghostpartial{
+    opacity:.42;
+}
+.ghosthidden{
+    opacity:0;
+    z-index:0;
+}
+label.ghostlabel span{
+    opacity:1;
+    z-index:5;
+    position:absolute;
+    padding-left:3px;
+    padding-top:1px;
+    color:#808080;
 }
 
 .dijitReset .dijitValidationIcon{

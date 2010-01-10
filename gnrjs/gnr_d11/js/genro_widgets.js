@@ -134,6 +134,9 @@ dojo.declare("gnr.widgets.baseHtml",null,{
             savedAttrs.dom_id = attributes['id'];
         }
         var formId = objectPop(attributes,'formId');
+        if(attributes._for){
+            attributes['for'] = objectPop(attributes,'_for');
+        }
         if(sourceNode && formId){
             if(sourceNode.attr.nodeId && (sourceNode.attr.nodeId != formId)){
                 alert('formId '+formId+' will replace nodeId '+ sourceNode.attr.nodeId);
