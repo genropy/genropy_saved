@@ -2,7 +2,7 @@ from gnr.core.gnrbag import Bag, DirectoryResolver
 from gnr.app.gnrapp import GnrApp
 from gnr.core.gnrlang import gnrImport, getUuid, classMixin, cloneClass,instanceMixin
 from gnr.core.gnrstring import splitAndStrip
-from gnr.web.gnrwebpage import BaseResource
+from gnr.web.gnrbaseclasses import BaseResource
 from gnr.web.gnrwsgipage import GnrWsgiPage
 from gnr.web.gnrwebreqresp import GnrWebRequest,GnrWebResponse
 #from gnr.web.gzipmiddleware import Gzipper
