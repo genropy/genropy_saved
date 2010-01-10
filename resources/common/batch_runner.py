@@ -25,7 +25,7 @@ class BatchRunner(BaseComponent):
     
     
 ##################### old stuff###################
-    def buildBatchRunner(self, pane, resultpath='aux.cmd', 
+    def buildBatchRunner(self, pane, resultpath='aux.cmd', datapath=None,
                          selectionName=None,selectedRowidx=None,recordId=None, 
                          fired=None, batch_class=None,selectionFilterCb=None,
                          thermoParams=None, _onResult=None,stopOnError=False,
@@ -46,14 +46,16 @@ class BatchRunner(BaseComponent):
                             thermolines=thermoParams.get('lines',1), fired='^.openthermo', alertResult=True)
         pane.dataRpc('%s.result' % resultpath, 'runBatch', timeout=0, _POST=True,
                      table=kwargs.pop('table', self.maintable), selectionName=selectionName,
-                     recordId = recordId,
+                     recordId = recordId,datapath=datapath,
                      batch_class=batch_class,
                      selectionFilterCb=selectionFilterCb,
                      thermofield=thermoParams.get('field'), thermoid = thermoid,
                      selectedRowidx =selectedRowidx,
                      _fired=fired, _onResult=_onResult,
                      commitAfterPrint=commitAfterPrint,
-                     forUpdate=forUpdate, _onCalling='console.log("call thermo");FIRE .openthermo',**kwargs)
+                     forUpdate=forUpdate, _onCalling='console.log("call thermo");FIRE .openthermo',
+                     **kwargs)
+                     
         dlgid = self.getUuid()
         pane.dataController('genro.wdgById(dlgid).show()', _if='errors',
                             dlgid=dlgid, errors='^%s.errors' % resultpath)

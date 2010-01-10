@@ -21,7 +21,7 @@ class PrintUtils(BaseComponent):
                         thermoParams=None,docName=None,rebuild=True,
                         gridId='maingrid',batch_class=None,
                         commitAfterPrint=None,
-                        selectedRowidx=None,
+                        selectedRowidx=None,pdfOnly=False,
                         _onResult='',**kwargs):
         table = table or self.maintable         
         if not batch_class:
@@ -33,51 +33,36 @@ class PrintUtils(BaseComponent):
                 batch_class='PrintSelection'
         if not recordId and not selectedRowidx and not selectionFilterCb:
             selectedRowidx =  "==genro.wdgById('%s').getSelectedRowidx();" %gridId
-                
         datapath = datapath or 'serverprint.%s' %name
         dlgPars = {}
         for k,v in kwargs.items():
             if k.startswith('dlg_'):
                 dlgPars[k[4:]] = v
                 kwargs.pop(k)        
-        self.printOptDialog(pane,name,datapath,dlgPars=dlgPars,parameters_cb=parameters_cb)
+        self.printOptDialog(pane,name,datapath,dlgPars=dlgPars,parameters_cb=parameters_cb,pdfOnly=pdfOnly)
         pane.dataController("FIRE .run = 'print';",_if='cachedPrinterParams.getItem("printer_name")',
                                 cachedPrinterParams="=_clientCtx.printerSetup.%s" %name,
                                 _fired='^.print',_else='genro.dlg.alert(msg,title)',
                                 msg='!!No printer selected',title='!!Warning',datapath=datapath)
-                                                       
-        pane.dataRpc("dummy","runBatch" ,datapath=datapath,
-                     _onResult='if($1){genro.download($1)};%s'%_onResult,
-                     table=table or self.maintable,
-                     batch_class=batch_class, 
-                     table_resource=table_resource,
-                     rebuild=rebuild,recordId=recordId,
-                     resultpath=resultpath,thermoParams=dict(field='*'),
-                     selectionName=selectionName,
-                     selectionFilterCb=selectionFilterCb,
-                     pdfParams='=.pdf',
-                     docName=docName,selectedRowidx=selectedRowidx,
-                     commitAfterPrint=commitAfterPrint,
-                     _fired='^.dlpdf',runKwargs='=.parameters.data',**kwargs) 
-                             
-        self.buildBatchRunner(pane.div(datapath=datapath,display='inline'),
-                              batch_class=batch_class, 
-                              table=table,
-                              table_resource=table_resource,
-                              resultpath=resultpath, 
-                              rebuild=rebuild,
-                              thermoParams=dict(field='*'),
-                              recordId=recordId,selectionName=selectionName,
-                              selectionFilterCb=selectionFilterCb,
-                              selectedRowidx = selectedRowidx,
-                              #printParams='=.printer.params', 
-                              printParams='=_clientCtx.printerSetup.%s' %name,
-                              commitAfterPrint=commitAfterPrint,
-                              _onResult=_onResult,
-                              fired='^.run',runKwargs='=.parameters.data',**kwargs) 
+        batchPars = dict(datapath=datapath,
+                            table=table,batch_class=batch_class, 
+                            table_resource=table_resource,
+                            rebuild=rebuild,recordId=recordId,
+                            resultpath=resultpath,thermoParams=dict(field='*'),
+                            selectionName=selectionName,
+                            selectionFilterCb=selectionFilterCb,
+                            commitAfterPrint=commitAfterPrint,
+                            docName=docName,selectedRowidx=selectedRowidx,
+                            runKwargs='=.parameters.data',
+                            **kwargs)    
+        self.buildBatchRunner(pane,_onResult='if($1){genro.download($1)};%s'%_onResult,
+                            pdfParams='=.pdf',fired='^.dlpdf',**batchPars) 
+        if not pdfOnly:
+            self.buildBatchRunner(pane, printParams='=_clientCtx.printerSetup.%s' %name,
+                                _onResult=_onResult,fired='^.run',**batchPars) 
                                
                      
-    def printOptDialog(self,pane,name,datapath=None,dlgPars=None,parameters_cb=None):
+    def printOptDialog(self,pane,name,datapath=None,dlgPars=None,parameters_cb=None,pdfOnly=False):
         title = dlgPars.get('title',"!!Print options")
         height = dlgPars.get('height',"200px")
         width = dlgPars.get('width',"450px")
@@ -91,9 +76,9 @@ class PrintUtils(BaseComponent):
         bottom.button('!!Close',baseClass='bottom_btn',float='left',margin='1px',fire='.hide')
         bottom.button('!!Pdf',baseClass='bottom_btn',float='right',margin='1px',
                         action='FIRE .hide; FIRE .dlpdf;')
-                        
-        bottom.button('!!Print',baseClass='bottom_btn',float='right',margin='1px',
-                        action="""  FIRE .hide;
+        if not pdfOnly:
+            bottom.button('!!Print',baseClass='bottom_btn',float='right',margin='1px',
+                            action="""  FIRE .hide;
                                     var currPrinterOpt = GET .printer.params;
                                     SET _clientCtx.printerSetup.%s = currPrinterOpt.deepCopy(); 
                                     FIRE .print; 
@@ -101,7 +86,8 @@ class PrintUtils(BaseComponent):
         tc_opt = bc.tabContainer(region='center',margin='5px')
         if parameters_cb:
             parameters_cb(tc_opt,datapath='.parameters')
-        self._utl_print_opt(tc_opt)
+        if not pdfOnly:
+            self._utl_print_opt(tc_opt)
         self._utl_pdf_opt(tc_opt)
         
     def _utl_print_opt(self,tc):
