@@ -5,15 +5,14 @@
     background: #698a98;
 }
 .site_pane{
-	margin: 20px;
+	margin: 10px;
 	-moz-border-radius:15px;
 	-webkit-border-radius:15px;
 	background-color: #ececdd;
 	-webkit-box-shadow: 5px 5px 10px #472828; 
     -moz-box-shadow:  5px 5px 10px #472828; 
-
 }
--
+
 .site_left{
 	width:200px;
 }
