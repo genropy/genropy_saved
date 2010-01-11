@@ -35,14 +35,16 @@ class SiteLayout(BaseComponent):
             self.site_login_unlogged(loginbox)
             
     def site_login_logged(self,box):
-        pass
+        fb = box.formbuilder(cols=3,border_spacing='4px',_class='loginfb')
+        fb.div(self.user)
+        fb.button('!!Logout',baseClass='loginbutton',fire='.enter')
     def site_login_unlogged(self,box):
         fb = box.formbuilder(cols=3,border_spacing='4px',_class='loginfb',
                             datapath='login',onEnter='FIRE .enter')
         fb.textbox(value='^.user',ghost='User',_autoselect=True,width='10em')
         fb.textbox(value='^.password',ghost='Password',lbl_width='1em',type='password',
                  width='10em',_autoselect=True)
-        fb.button('Enter',baseClass='loginbutton',fire='.enter')
+        fb.button('!!Login',baseClass='loginbutton',fire='.enter')
         fb.dataRpc('_aux.login', 'doLogin', login='=login', btn='^.enter',_onResult='FIRE afterLogin')
         fb.dataScript('_aux.dologin',"genro.gotoURL('startpage')" , message='=_aux.login.message',
                                 _if="message==''", _else="FIRE error_msg = badUserMsg; SET _aux.login = null;",
