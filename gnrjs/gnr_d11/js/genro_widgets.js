@@ -637,6 +637,15 @@ dojo.declare("gnr.widgets.StackContainer",gnr.widgets.baseDojo,{
     mixin_setSelected:function(p){
         this.selectChild(this.getChildren()[p||0]);
     },
+    mixin_getSelected: function(){
+        var selected = {n:null};
+        dojo.forEach(this.getChildren(),function(n){if(n.selected){selected.n=n;}});
+        return selected.n;
+    },
+    mixin_getSelectedIndex: function(){
+        return this.getChildIndex(this.getSelected());
+    },
+
     mixin_setSelectedPage:function(pageName){
         if( this.gnrPageDict[pageName]){
             this.selectChild(this.gnrPageDict[pageName]);

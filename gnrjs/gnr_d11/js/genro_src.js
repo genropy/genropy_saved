@@ -107,6 +107,7 @@ dojo.declare("gnr.GnrSrcHandler",null,{
         var newNode = document.createElement('div');
         var widget=kw.node.widget;
         var ind=-1;
+        var selectedIndex=null;
         if(widget){
             if(widget.sizeShare){
                 kw.node.attr.sizeShare=widget.sizeShare;
@@ -114,6 +115,9 @@ dojo.declare("gnr.GnrSrcHandler",null,{
             if(destination.getChildren){
                 var children=destination.getChildren();
                 ind=children.indexOf(widget);
+                if(destination.getSelectedIndex){
+                    var selectedIndex = destination.getSelectedIndex();
+                }
                 destination.removeChild(widget);
                 widget.destroyRecursive();
             }else{
@@ -136,6 +140,9 @@ dojo.declare("gnr.GnrSrcHandler",null,{
         }
         this.refreshSourceIndexAndSubscribers();
         this.buildNode(kw.node, destination, ind); 
+        if(selectedIndex){
+            destination.setSelected(selectedIndex);
+        }
 
       },
     buildNode: function(sourceNode,where,ind){
@@ -213,7 +220,7 @@ dojo.declare("gnr.GnrSrcHandler",null,{
         }
         if (widget){
             if (widget.sourceNode){
-                return widget.sourceNode
+                return widget.sourceNode;
             }else{
                 return genro.src.enclosingSourceNode(widget.domNode.parentNode);
             }
@@ -221,7 +228,7 @@ dojo.declare("gnr.GnrSrcHandler",null,{
     },
     onEventCall:function(e, code, kw){
         var sourceNode = genro.src.enclosingSourceNode(e.target);
-        var func = funcCreate(code,'kw,e',sourceNode)
+        var func = funcCreate(code,'kw,e',sourceNode);
         func(kw,e);
     },
     refreshSourceIndexAndSubscribers:function(){

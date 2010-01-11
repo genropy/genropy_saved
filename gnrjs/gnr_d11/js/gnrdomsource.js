@@ -515,10 +515,9 @@ dojo.declare("gnr.GnrDomSourceNode",gnr.GnrBagNode,{
         this._isBuilding=false;
     },
     _buildChildren: function(destination){
-       /* if(this.attr.remote){
-            this.setRemoteContent(this.attr);
-            console.log(this);
-        }*/
+        if(this.attr.remote){
+            dojo.connect(this.widget,'onShow',this,'updateRemoteContent');
+        }
         var content = this.getValue('static');
         if (content instanceof gnr.GnrDomSource){
             var sourceNodes = content.getNodes();
@@ -853,7 +852,11 @@ dojo.declare("gnr.GnrDomSourceNode",gnr.GnrBagNode,{
         }     
         this._setDynAttributes();
     },
-    updateRemoteContent:function(){
+    updateRemoteContent:function(forceUpdate){
+        var currentValue = this.getValue('static');
+        if (currentValue && currentValue.len()>0 && !forceUpdate){
+            return;
+        }
         var kwargs={};
         for (var attrname in this.attr){
             if(attrname.indexOf('remote_')==0){

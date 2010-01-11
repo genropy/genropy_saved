@@ -31,10 +31,10 @@ class GnrCustomWebPage(object):
         bc = bc.borderContainer(region='center',_class='site_pane',margin=self.margin_default)
         tc = bc.tabContainer(region='center',margin='10px')
         self.page_0(tc.contentPane(title='Page 0',nodeId='tab0'))
-        self.ajaxContent('page_1',tc.contentPane(title='Page 1',
-                        onHide='console.log("hide")',nodeId='tab1'))
-        self.lazyContent('page_2',tc.contentPane(title='Page 2',onShow='this.updateRemoteContent()',
-                        onHide='console.log("hide 2")',nodeId='tab2'))
+        self.ajaxContent('page_1',tc.contentPane(title='Page 1',nodeId='tab1'))
+        #self.lazyContent('page_2',tc.contentPane(title='Page 2',onShow='this.updateRemoteContent(false);',
+        #                    nodeId='tab2'))
+        self.lazyContent('page_2',tc.contentPane(title='Page 2'))
         self.page_3(tc.contentPane(title='Page 3'))
 
     def page_0(self,pane):
@@ -65,7 +65,7 @@ class GnrCustomWebPage(object):
     def site_right(self,bc):
         pane=bc.contentPane(region='top',_class='site_pane',margin=self.margin_default,height='60px')
         bc.contentPane(region='bottom',_class='site_pane',margin=self.margin_default,height='60px')
-        center=bc.contentPane(region='center',_class='site_pane',margin=self.margin_default)
+        center=bc.borderContainer(region='center',_class='site_pane',margin=self.margin_default)
         fb = pane.formbuilder(cols=1,border_spacing='4px',margin=self.margin_default)
         fb.textbox(value='^tabs',lbl='Tabs',width='16em')        
         self.ajaxContent('tabContent',center.tabContainer(region='center',margin='8px'),tabs='^tabs')
