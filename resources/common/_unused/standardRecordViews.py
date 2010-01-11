@@ -8,7 +8,7 @@
 #
 
 from gnr.core.gnrbag import Bag
-from gnr.web.gnrwebpage import BaseComponent
+from gnr.web.gnrbaseclasses import BaseComponent
 
 class RecordAndViews(BaseComponent):
     js_requires = 'standard_tables/standard_tables'

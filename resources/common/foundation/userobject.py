@@ -21,7 +21,7 @@
 """
 Component for the old user object:
 """
-from gnr.web.gnrwebpage import BaseComponent
+from gnr.web.gnrbaseclasses import BaseComponent
 
 class UserObject(BaseComponent):
     def saveUserObjectDialog(self, pane, datapath, objtype, objectdesc):

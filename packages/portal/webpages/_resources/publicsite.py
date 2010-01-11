@@ -21,7 +21,7 @@
 """
 Component for thermo:
 """
-from gnr.web.gnrwebpage import BaseComponent
+from gnr.web.gnrbaseclasses import BaseComponent
 
 class SiteLayout(BaseComponent):
     css_requires='publicsite'

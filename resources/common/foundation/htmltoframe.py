@@ -21,7 +21,7 @@
 """
 Component for recordtohtmlframe:
 """
-from gnr.web.gnrwebpage import BaseComponent
+from gnr.web.gnrbaseclasses import BaseComponent
 
 class RecordToHtmlFrame(BaseComponent):
     def _custom_print_toolbar(self,toolbar):

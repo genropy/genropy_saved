@@ -21,7 +21,7 @@
 """
 Component for thermo:
 """
-from gnr.web.gnrwebpage import BaseComponent
+from gnr.web.gnrbaseclasses import BaseComponent
 
 class RemoteBuilder(BaseComponent):
     def buildRemote(self,method,pane,**kwargs):    

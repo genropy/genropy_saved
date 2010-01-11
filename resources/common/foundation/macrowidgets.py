@@ -21,7 +21,7 @@
 """
 Component for thermo:
 """
-from gnr.web.gnrwebpage import BaseComponent
+from gnr.web.gnrbaseclasses import BaseComponent
 import datetime
 from gnr.core.gnrlocale import DATEKEYWORDS
 

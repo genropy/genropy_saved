@@ -21,7 +21,7 @@
 """
 Component for thermo:
 """
-from gnr.web.gnrwebpage import BaseComponent
+from gnr.web.gnrbaseclasses import BaseComponent
 from gnr.sql.gnrsql_exceptions import GnrSqlException,GnrSqlSaveChangesException,GnrSqlExecutionException
 from gnr.core.gnrbag import Bag
 from gnr.core.gnrstring import templateReplace

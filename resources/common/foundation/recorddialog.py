@@ -21,7 +21,7 @@
 """
 Component for recorddialog:
 """
-from gnr.web.gnrwebpage import BaseComponent
+from gnr.web.gnrbaseclasses import BaseComponent
 
 class RecordDialog(BaseComponent):
     """

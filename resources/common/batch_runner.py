@@ -8,7 +8,7 @@
 #
 
 from gnr.core.gnrbag import Bag
-from gnr.web.gnrwebpage import BaseComponent
+from gnr.web.gnrbaseclasses import BaseComponent
 import gnr.app.gnrbatch
 from gnr.core.gnrlang import gnrImport
 

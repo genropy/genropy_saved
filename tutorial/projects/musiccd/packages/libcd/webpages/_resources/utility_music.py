@@ -1,4 +1,4 @@
-from gnr.web.gnrwebpage import BaseComponent
+from gnr.web.gnrbaseclasses import BaseComponent
 from gnr.core.gnrbag import Bag
 class Common(BaseComponent):
     def rpc_save(self,data,table,**kwargs):

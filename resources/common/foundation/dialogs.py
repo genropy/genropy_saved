@@ -21,7 +21,7 @@
 """
 Component for dialogs:
 """
-from gnr.web.gnrwebpage import BaseComponent
+from gnr.web.gnrbaseclasses import BaseComponent
 
 class Dialogs(BaseComponent):
     def hiddenTooltipDialog(self, pane, height='20ex',width='30em',title=None, 

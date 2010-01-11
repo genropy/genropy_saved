@@ -7,11 +7,7 @@
 #
 
 """ Registrazione nuovo utente """
-import datetime
-import os
-import hashlib
 
-from gnr.web.gnrwebpage import GnrWebPage
 from gnr.core.gnrbag import Bag
 # --------------------------- GnrWebPage subclass ---------------------------
 class GnrCustomWebPage(object):

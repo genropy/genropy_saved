@@ -4,7 +4,7 @@
 # Author Giovanni Porcari, Francesco Cavazzana, Saverio Porcari, Francesco Porcari
 import os.path
 from gnr.core.gnrbag import Bag
-from gnr.web.gnrwebpage import BaseComponent
+from gnr.web.gnrbaseclasses import BaseComponent
 
 class Utils4D(BaseComponent):
     def bag4dTableToListDict(self, b):

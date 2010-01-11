@@ -23,7 +23,7 @@
 """
 Component for menu handling:
 """
-from gnr.web.gnrwebpage import BaseComponent
+from gnr.web.gnrbaseclasses import BaseComponent
 from gnr.core.gnrbag import Bag,BagResolver
 import os
 

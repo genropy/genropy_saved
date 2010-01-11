@@ -7,7 +7,7 @@ Created by Saverio Porcari on 2009-06-29.
 Copyright (c) 2009 __MyCompanyName__. All rights reserved.
 """
 
-from gnr.web.gnrwebpage import BaseComponent
+from gnr.web.gnrbaseclasses import BaseComponent
 from gnr.core.gnrbag import Bag
 from gnr.core.gnrstring import templateReplace, splitAndStrip, toText, toJson, concat
 

@@ -1,4 +1,4 @@
-from gnr.web.gnrwebpage import BaseComponent
+from gnr.web.gnrbaseclasses import BaseComponent
 
 class Demo(BaseComponent):
     css_requires = 'demo,public,standard_tables/standard_tables'

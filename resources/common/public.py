@@ -8,7 +8,7 @@
 #
 
 """ public common11 """
-from gnr.web.gnrwebpage import BaseComponent
+from gnr.web.gnrbaseclasses import BaseComponent
 
 class Public(BaseComponent):
     """docstring for Public for common_d11: a complete restyling of Public of common_d10"""

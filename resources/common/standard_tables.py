@@ -12,7 +12,7 @@ DOJO 11
 """
 import os
 
-from gnr.web.gnrwebpage import BaseComponent
+from gnr.web.gnrbaseclasses import BaseComponent
 
 class TableHandler(BaseComponent):
     py_requires='standard_tables/tablehandler'

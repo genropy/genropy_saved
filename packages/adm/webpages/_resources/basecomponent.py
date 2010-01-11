@@ -10,7 +10,7 @@
 """ Season """
 
 from gnr.core.gnrbag import Bag
-from gnr.web.gnrwebpage import BaseComponent
+from gnr.web.gnrbaseclasses import BaseComponent
 
 
 class Public(BaseComponent):
