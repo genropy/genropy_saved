@@ -516,7 +516,6 @@ dojo.declare("gnr.GnrDomSourceNode",gnr.GnrBagNode,{
     },
     _buildChildren: function(destination){
        /* if(this.attr.remote){
-            console.log('fuck');
             this.setRemoteContent(this.attr);
             console.log(this);
         }*/
