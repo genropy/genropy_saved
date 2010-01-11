@@ -3,14 +3,14 @@
 }
 .site_body{
     background: #698a98;
+    overflow:hidden;
 }
 .site_pane{
-	margin: 10px;
 	-moz-border-radius:15px;
 	-webkit-border-radius:15px;
 	background-color: #ececdd;
-	-webkit-box-shadow: 5px 5px 10px #472828; 
-    -moz-box-shadow:  5px 5px 10px #472828; 
+	-webkit-box-shadow: 3px 3px 7px #472828; 
+    -moz-box-shadow:  3px 3px 7px #472828; 
 }
 
 .site_left{
