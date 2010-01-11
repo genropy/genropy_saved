@@ -515,6 +515,11 @@ dojo.declare("gnr.GnrDomSourceNode",gnr.GnrBagNode,{
         this._isBuilding=false;
     },
     _buildChildren: function(destination){
+       /* if(this.attr.remote){
+            console.log('fuck');
+            this.setRemoteContent(this.attr);
+            console.log(this);
+        }*/
         var content = this.getValue('static');
         if (content instanceof gnr.GnrDomSource){
             var sourceNodes = content.getNodes();
@@ -680,7 +685,7 @@ dojo.declare("gnr.GnrDomSourceNode",gnr.GnrBagNode,{
        }
        else if (this.widget){
            if(attr.indexOf('remote_')==0){
-               this.widget.gnr.updateRemoteContent(this);
+               this.updateRemoteContent(this);
            }
            else if(attr.indexOf('__')==0){
                return;
@@ -848,6 +853,19 @@ dojo.declare("gnr.GnrDomSourceNode",gnr.GnrBagNode,{
             }
         }     
         this._setDynAttributes();
+    },
+    updateRemoteContent:function(){
+        var kwargs={};
+        for (var attrname in this.attr){
+            if(attrname.indexOf('remote_')==0){
+                kwargs[attrname.slice(7)]=this.getAttributeFromDatasource(attrname);
+            }
+        }
+        var method=this.attr.remote;
+        var _sourceNode=this;
+        genro.rpc.remoteCall(method, kwargs, null, null, null, function(result){
+                                             _sourceNode.setValue(result);
+                                             });
     },
     getValidationError: function(){
         if (this._validations){

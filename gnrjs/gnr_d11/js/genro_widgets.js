@@ -137,6 +137,12 @@ dojo.declare("gnr.widgets.baseHtml",null,{
         if(attributes._for){
             attributes['for'] = objectPop(attributes,'_for');
         }
+        if(attributes.onShow){
+            attributes['onShow'] = funcCreate(attributes.onShow,'',sourceNode);
+        }
+        if(attributes.onHide){
+            attributes['onHide'] = funcCreate(attributes.onHide,'',sourceNode);
+        }
         if(sourceNode && formId){
             if(sourceNode.attr.nodeId && (sourceNode.attr.nodeId != formId)){
                 alert('formId '+formId+' will replace nodeId '+ sourceNode.attr.nodeId);
@@ -461,19 +467,6 @@ dojo.declare("gnr.widgets.baseDojo",gnr.widgets.baseHtml,{
     setUrlRemote: function(widget, method, arguments){
         var url = genro.rpc.rpcUrl(method, arguments);
         widget.setHref(url);
-    },
-    updateRemoteContent:function(sourceNode){
-        var kwargs={};
-        for (var attrname in sourceNode.attr){
-            if(attrname.indexOf('remote_')==0){
-                kwargs[attrname.slice(7)]=sourceNode.getAttributeFromDatasource(attrname);
-            }
-        }
-        var method=sourceNode.attr.remote;
-        var _sourceNode=sourceNode;
-        genro.rpc.remoteCall(method, kwargs, null, null, null, function(result){
-                                             _sourceNode.setValue(result);
-                                             });
     },
     mixin_setVisible: function(visible){
         dojo.style(this.domNode,'visibility',(visible? 'visible':'hidden'));

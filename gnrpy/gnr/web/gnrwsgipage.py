@@ -386,8 +386,7 @@ class GnrWsgiPage(GnrBaseWebPage):
     
     def rpc_main(self, _auth=AUTH_OK, debugger=None, **kwargs):
         self.connection.cookieToRefresh()
-        page = self.domSrcFactory.makeRoot(self)
-        self._root = page
+        page = self.newSourceRoot()
         pageattr = {}
         #try :
         if True:

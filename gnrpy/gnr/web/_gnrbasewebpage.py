@@ -1051,7 +1051,10 @@ class GnrBaseWebPage(GnrObject):
         pass
         
     def newSourceRoot(self):
-        return self.domSrcFactory.makeRoot(self)
+        root = self.domSrcFactory.makeRoot(self)
+        if not getattr(self,'_root',None):
+            self._root = root
+        return root
     
     def newGridStruct(self, maintable=None):
         return GnrGridStruct.makeRoot(self, maintable=maintable)

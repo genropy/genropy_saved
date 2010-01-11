@@ -24,7 +24,7 @@ Component for thermo:
 from gnr.web.gnrbaseclasses import BaseComponent
 
 class RemoteBuilder(BaseComponent):
-    def buildRemote(self,method,pane,**kwargs):    
+    def buildRemote(self,method,pane,lazy,**kwargs):    
         """collocazione provvisoria"""
         handler = getattr(self,'remote_%s' %method,None)
         if handler:
@@ -34,7 +34,15 @@ class RemoteBuilder(BaseComponent):
             for k,v in kwargs.items():
                 parentAttr['remote_%s' %k] = v
                 kwargs.pop(k)
-            handler(pane,**kwargs)
+            if not lazy:
+                handler(pane,**kwargs)
+            
+    def ajaxContent(self,method,pane,**kwargs):
+        handler = self.buildRemote(method,pane,False,**kwargs)
+
+        
+    def lazyContent(self,method,pane,**kwargs):
+        self.buildRemote(method,pane,True,**kwargs)
         
     def rpc_remoteBuilder(self,handler=None,**kwargs):
         handler = getattr(self,'remote_%s' %handler,None)
