@@ -128,11 +128,16 @@ class IncludedView(BaseComponent):
         box_pars['_class'] = (box_pars.pop('class', None) or 'pbl_viewBox')
         gridtop = parentBC.contentPane(region='top',datapath=controllerPath, **label_pars)
         if footer:
+            assert callable(footer),'footer param must be a callable'
+            footerPars = dict( [(k[7:],v) for k,v in kwargs.items() if k.startswith('footer_')] )
+            if not 'height' in footerPars:
+                footerPars['height'] = '18px'
+            if not '_class'in footerPars:
+                footerPars['_class']='pbl_roundedGroupBottom'           
             gridbottom = parentBC.contentPane(region='bottom',
-                                              datapath=controllerPath,
-                                              height='18px', _class='pbl_roundedGroupBottom')
-            if callable(footer):
-                footer(gridbottom)
+                                              datapath=controllerPath,**footerPars)
+
+            footer(gridbottom)
         if close_action:
             if close_action is True:
                 close_action = 'FIRE .closeSelection;' 
