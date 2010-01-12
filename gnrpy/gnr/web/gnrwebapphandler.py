@@ -276,7 +276,8 @@ class GnrBaseWebAppHandler(object):
             if ctx:
                 joinDict = ctx['%s_%s' % (target_fld.replace('.','_'), from_fld.replace('.','_'))]
         if joinDict and joinDict.get('applymethod'):
-            self.page.getPublicMethod('rpc', joinDict['applymethod'])(record)
+            applyPars = self._getApplyMethodPars(**kwargs)
+            self.page.getPublicMethod('rpc', joinDict['applymethod'])(record,**applyPars)
         return (record,recInfo)
         
     def setContextJoinColumns(self, table,contextName='', reason=None, path=None, columns=None):
@@ -335,7 +336,8 @@ class GnrBaseWebAppHandler(object):
             
         sel = query.selection()
         if joinDict and joinDict.get('applymethod'):
-            self.page.getPublicMethod('rpc', joinDict['applymethod'])(sel)
+            applyPars = self._getApplyMethodPars(**kwargs)
+            self.page.getPublicMethod('rpc', joinDict['applymethod'])(sel,**applyPars)
         
         result = Bag()
         content=None
@@ -500,6 +502,9 @@ class GnrBaseWebAppHandler(object):
                         params[k] = getattr(self, '%s_%s' % (sqlContextName, v))()
         return params
         
+    def _getApplyMethodPars(self,**kwargs):
+        return dict([(k[6:],v) for k,v in kwargs.items() if k.startswith('apply_')])
+        
     def rpc_getSelection(self, table='',distinct=False, columns='',where='',condition=None,
                             order_by=None, limit=None, offset=None, group_by=None, having=None,
                             relationDict=None, sqlparams=None, row_start='0', row_count='0',
@@ -535,7 +540,8 @@ class GnrBaseWebAppHandler(object):
                                expressions=expressions,sortedBy=sortedBy,
                                excludeLogicalDeleted=excludeLogicalDeleted, **kwargs)
             if applymethod:
-                self.page.getPublicMethod('rpc', applymethod)(selection)
+                applyPars = self._getApplyMethodPars(**kwargs)
+                self.page.getPublicMethod('rpc', applymethod)(selection,**applyPars)
                 
             if selectionName:
                 selection.setKey('rowidx')
@@ -667,7 +673,8 @@ class GnrBaseWebAppHandler(object):
             if ctx and False:
                 joinDict = ctx['%s_%s' % (target_fld.replace('.','_'), from_fld.replace('.','_'))]
                 if joinDict and joinDict.get('applymethod'):
-                    self.page.getPublicMethod('rpc', joinDict['applymethod'])(selection)
+                    applyPars = self._getApplyMethodPars(**kwargs)
+                    self.page.getPublicMethod('rpc', joinDict['applymethod'])(selection,**applyPars)
                     
         return selection
         
@@ -810,7 +817,8 @@ class GnrBaseWebAppHandler(object):
             self.setRecordDefaults(record,loadingParameters)
 
         if applymethod:
-            self.page.getPublicMethod('rpc', applymethod)(record)
+            applyPars = self._getApplyMethodPars(**kwargs)
+            self.page.getPublicMethod('rpc', applymethod)(record,**applyPars)
         recInfo['servertime'] = int((time.time() - t)*1000)
         if tblobj.lastTS:
             recInfo['lastTS'] = str(record[tblobj.lastTS])
