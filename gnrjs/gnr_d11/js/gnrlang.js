@@ -585,7 +585,10 @@ function convertToText (value, params){
      }
      else if(value instanceof Date){
          var selectors = {'D':'date','H':'time','DH':null};
-         var opt = {'selector':selectors[dtype || 'D']};
+         if (!dtype){
+             dtype = value.toString().indexOf('Thu Dec 31 1970') == 0? 'H':'D';
+         }
+         var opt = {'selector':selectors[dtype]};
          if (forXml){
              opt.timePattern='HH:mm:ss';
              opt.datePattern='yyyy-MM-dd';
