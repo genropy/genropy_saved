@@ -152,7 +152,7 @@ class ThermoDialog(BaseComponent):
     py_requires='foundation/thermo'
 
 class UserObject(BaseComponent):
-    py_requires='foundation/userobject'
+    py_requires='foundation/userobject' #import the new and the old userobject class
 
 class IncludedView(BaseComponent):
     py_requires='foundation/includedview'

@@ -129,16 +129,16 @@ class ListQueryHandler(BaseComponent):
         return result, resultattr
 
     def rpc_load_query(self, **kwargs):
-        return self.app.rpc_loadUserObject(**kwargs)
+        return self.rpc_loadUserObject(**kwargs)
     
     def rpc_save_query(self, userobject, userobject_attr):
-        return self.app.rpc_saveUserObject(userobject, userobject_attr)
+        return self.rpc_saveUserObject(userobject, userobject_attr)
     
     def rpc_delete_query(self, id):
-        return self.app.rpc_deleteUserObject(id)
+        return self.rpc_deleteUserObject(id)
     
     def rpc_list_query(self, **kwargs):
-        return self.app.rpc_listUserObject(objtype='query', **kwargs)
+        return self.rpc_listUserObject(objtype='query', **kwargs)
         
     def rpc_list_view(self, **kwargs):
         return self.rpc_listUserObject(objtype='view', **kwargs)

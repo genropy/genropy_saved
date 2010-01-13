@@ -52,8 +52,8 @@ class UserObject(BaseComponent):
 
     def rpc_listUserObject(self, objtype=None, tbl=None, **kwargs):
         result = Bag()
-        if hasattr(self.page.package,'listUserObject'):
-            objectsel = self.page.package.listUserObject(objtype=objtype, userid=self.page.user, tbl=tbl, authtags=self.page.userTags)
+        if hasattr(self.package,'listUserObject'):
+            objectsel = self.package.listUserObject(objtype=objtype, userid=self.user, tbl=tbl, authtags=self.userTags)
             if objectsel:
                 for i,r in enumerate(objectsel.data):
                     attrs = dict([(str(k), v) for k,v in r.items()])
@@ -61,12 +61,12 @@ class UserObject(BaseComponent):
         return result
 
     def rpc_loadUserObject(self, userid=None, **kwargs):
-        data, metadata = self.package.loadUserObject(userid=userid or self.page.user, **kwargs)
+        data, metadata = self.package.loadUserObject(userid=userid or self.user, **kwargs)
         return (data, metadata)
         
     def rpc_saveUserObject(self, userobject, userobject_attr):
         userobject_attr = dict([(str(k),v) for k,v in userobject_attr.items()])
-        userobject_attr['userid'] = userobject_attr.get('userid') or self.page.user
+        userobject_attr['userid'] = userobject_attr.get('userid') or self.user
         self.package.saveUserObject(userobject, **userobject_attr)
         self.db.commit()
         
