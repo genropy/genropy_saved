@@ -19,11 +19,62 @@
 #Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 
 """
-Component for the old user object:
+Component for managing  userobject:
 """
 from gnr.web.gnrbaseclasses import BaseComponent
 
 class UserObject(BaseComponent):
+    py_requires='foundation/recorddialog'
+    def userObjectDialog(self):
+        saveKwargs = dict(_onCalling="""
+                                        var wherebag = GET list.query.where;
+                                        $1.data.setItem('record.data',wherebag);
+                                        """,changesOnly=False,saveAlways=True)
+        self.recordDialog('%s.userobject' %self.package.name,'^.pkey',dlgId='userobject_dlg',
+                            datapath='gnr.userobject',width='26em',height='22ex',
+                            title='!!Edit query',savePath='gnr.userobject.saved_query_id',
+                             formCb=self._uo_edit_query_form,default_objtype='query',
+                             default_pkg=self.package.name,default_tbl=self.maintable,
+                             default_userid=self.user,saveKwargs=saveKwargs,
+                             onSaved="""FIRE list.query.saved;""")
+        
+    def _uo_edit_query_form(self,parentContainer,disabled,table):
+        pane = parentContainer.contentPane()
+        fb = pane.formbuilder(cols=3, dbtable=table)
+        fb.field('code',autospan=2)
+        fb.field('quicklist',lbl='',label='!!Quicklist')
+        fb.simpleTextarea(lbl='!!Description' ,value='^.description', 
+                    width='100%', border='1px solid gray',lbl_vertical_align='top',colspan=3)
+        fb.field('authtags',autospan=2,lbl='!!Permissions')
+        fb.field('private',lbl='',label='!!Private')    
+
+    def rpc_listUserObject(self, objtype=None, tbl=None, **kwargs):
+        result = Bag()
+        if hasattr(self.page.package,'listUserObject'):
+            objectsel = self.page.package.listUserObject(objtype=objtype, userid=self.page.user, tbl=tbl, authtags=self.page.userTags)
+            if objectsel:
+                for i,r in enumerate(objectsel.data):
+                    attrs = dict([(str(k), v) for k,v in r.items()])
+                    result.setItem(r['code'] or 'r_%i' % i, None, **attrs)
+        return result
+
+    def rpc_loadUserObject(self, userid=None, **kwargs):
+        data, metadata = self.package.loadUserObject(userid=userid or self.page.user, **kwargs)
+        return (data, metadata)
+        
+    def rpc_saveUserObject(self, userobject, userobject_attr):
+        userobject_attr = dict([(str(k),v) for k,v in userobject_attr.items()])
+        userobject_attr['userid'] = userobject_attr.get('userid') or self.page.user
+        self.package.saveUserObject(userobject, **userobject_attr)
+        self.db.commit()
+        
+    def rpc_deleteUserObject(self, id):
+        self.package.deleteUserObject(id)
+        self.db.commit()
+
+######### OLD STUFF USE  userObjectDialog INSTEAD OF ########################
+
+class UserObjectOld(BaseComponent):
     def saveUserObjectDialog(self, pane, datapath, objtype, objectdesc):
         pane.div(_class='icnBaseSave buttonIcon',connect_onclick='FIRE aux.save.%s' %objtype)
         dlgBC = self.hiddenTooltipDialog(pane, dlgId='%s_saveDlg' %objtype, title='!!Save %s' %objectdesc,
@@ -88,26 +139,4 @@ class UserObject(BaseComponent):
         dlg.dataRpc('dummy', 'delete_%s' % objtype, id='=.selectedId',
                     _onResult='FIRE .deleted', _fired='^.delete_ok')
                     
-    def rpc_listUserObject(self, objtype=None, tbl=None, **kwargs):
-        result = Bag()
-        if hasattr(self.page.package,'listUserObject'):
-            objectsel = self.page.package.listUserObject(objtype=objtype, userid=self.page.user, tbl=tbl, authtags=self.page.userTags)
-            if objectsel:
-                for i,r in enumerate(objectsel.data):
-                    attrs = dict([(str(k), v) for k,v in r.items()])
-                    result.setItem(r['code'] or 'r_%i' % i, None, **attrs)
-        return result
 
-    def rpc_loadUserObject(self, userid=None, **kwargs):
-        data, metadata = self.package.loadUserObject(userid=userid or self.page.user, **kwargs)
-        return (data, metadata)
-        
-    def rpc_saveUserObject(self, userobject, userobject_attr):
-        userobject_attr = dict([(str(k),v) for k,v in userobject_attr.items()])
-        userobject_attr['userid'] = userobject_attr.get('userid') or self.page.user
-        self.package.saveUserObject(userobject, **userobject_attr)
-        self.db.commit()
-        
-    def rpc_deleteUserObject(self, id):
-        self.package.deleteUserObject(id)
-        self.db.commit()

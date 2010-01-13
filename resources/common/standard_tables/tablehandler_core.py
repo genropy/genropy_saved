@@ -10,33 +10,6 @@ Copyright (c) 2009 __MyCompanyName__. All rights reserved.
 from gnr.web.gnrbaseclasses import BaseComponent
 from gnr.core.gnrbag import Bag
 from gnr.core.gnrstring import templateReplace, splitAndStrip, toText, toJson, concat
-
-
-class UserObject(BaseComponent):
-    py_requires='foundation/recorddialog'
-    def userObjectDialog(self):
-        saveKwargs = dict(_onCalling="""
-                                        var wherebag = GET list.query.where;
-                                        $1.data.setItem('record.data',wherebag);
-                                        """,changesOnly=False,saveAlways=True)
-        self.recordDialog('%s.userobject' %self.package.name,'^.pkey',dlgId='userobject_dlg',
-                            datapath='gnr.userobject',width='26em',height='22ex',
-                            title='!!Edit query',savePath='gnr.userobject.saved_query_id',
-                             formCb=self._uo_edit_query_form,default_objtype='query',
-                             default_pkg=self.package.name,default_tbl=self.maintable,
-                             default_userid=self.user,saveKwargs=saveKwargs,
-                             onSaved="""FIRE list.query.saved;""")
-        
-    def _uo_edit_query_form(self,parentContainer,disabled,table):
-        pane = parentContainer.contentPane()
-        fb = pane.formbuilder(cols=3, dbtable=table)
-        fb.field('code',autospan=2)
-        fb.field('quicklist',lbl='',label='!!Quicklist')
-        fb.simpleTextarea(lbl='!!Description' ,value='^.description', 
-                    width='100%', border='1px solid gray',lbl_vertical_align='top',colspan=3)
-        fb.field('authtags',autospan=2,lbl='!!Permissions')
-        fb.field('private',lbl='',label='!!Private')
-        
         
 class ViewExporter(BaseComponent):
     def rpc_rpcSavedSelection(self, table, view=None, query=None, userid=None, out_mode='tabtext', **kwargs):
@@ -68,6 +41,7 @@ class ViewExporter(BaseComponent):
         return query
         
 class ListQueryHandler(BaseComponent):
+    py_requires='foundation/userobject:UserObject'
     def rpc_getSqlOperators(self):
         result = Bag()
         listop=('equal','startswith','wordstart','contains','startswithchars','greater','greatereq','less','lesseq','between','isnull','nullorempty','in','regex')
@@ -165,7 +139,10 @@ class ListQueryHandler(BaseComponent):
     
     def rpc_list_query(self, **kwargs):
         return self.app.rpc_listUserObject(objtype='query', **kwargs)
-
+        
+    def rpc_list_view(self, **kwargs):
+        return self.rpc_listUserObject(objtype='view', **kwargs)
+        
     def saveQueryButton(self, pane):
         pane.button('Save Query', iconClass='tb_button db_save',action='FIRE #userobject_dlg.pkey = "*newrecord*";',hidden=True,showLabel=True)
 

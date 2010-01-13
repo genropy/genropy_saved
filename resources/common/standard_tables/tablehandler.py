@@ -897,9 +897,6 @@ class TableHandler(BaseComponent):
     def rpc_delete_view(self, id):
         return self.app.rpc_deleteUserObject(id)
     
-    def rpc_list_view(self, **kwargs):
-        return self.app.rpc_listUserObject(objtype='view', **kwargs)
-    
     def rpc_list_actions(self, tbl, **kwargs):
         #pkg, tbl = tbl.split('.')
         #actionFolders = self.getResourceList(os.path.join('addOn', tbl))
