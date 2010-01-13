@@ -445,7 +445,6 @@ class TableHandler(BaseComponent):
         top.div(_class='icnBase10_Save buttonIcon', float='right',margin_right='5px', margin_top='2px',
                 connect_onclick="""var currentqueryId = GET list.query.selectedId; 
                                    FIRE #userobject_dlg.pkey = currentqueryId?currentqueryId:"*newrecord*";""",
-                                              #onCreated="genro.dlg.connectTooltipDialog($1,'save_%s_btn')" % restype,
                 tooltip='!!Save %s' % restype);
         
         top.div(_class='icnBase10_Trash buttonIcon', float='right',
@@ -582,54 +581,6 @@ class TableHandler(BaseComponent):
         
         #left.accordionPane(title='!!Campi collegati')
          #action="""FIRE list.query.loadQuery=$1.pkey;
-    
-    def toolboxQueries(self, container):
-        self.savedQueryController(container)
-        trpane = container.contentPane(region='center')
-        treepane = trpane.div(_class='treeContainer')
-        treepane.tree(storepath='list.query.saved_menu',persist=False, inspect='shift',
-                          labelAttribute='caption',connect_ondblclick='FIRE list.runQuery = true;',
-                          selected_pkey='list.query.selectedId', selected_code='list.query.selectedCode',
-                          _class='queryTree',
-                          hideValues=True,
-                          _saved='^list.query.saved', _deleted='^list.query.deleted')
-        
-        #btnpane = container.contentPane(region='top', height='30px').toolbar()
-        self.saveQueryButton(treepane)
-        self.deleteQueryButton(treepane)
-        #btnpane.button('Add new query', iconClass='tb_button db_add', fire='list.query.new',showLabel=False)
-
-    
-    def savedQueryController(self, pane):
-        pane.dataRemote('list.query.saved_menu', 'list_query', tbl=self.maintable, cacheTime=10)
-        pane.dataRpc('list.query.where', 'load_query', id='^list.query.selectedId', _if='id',
-                  _onResult='genro.querybuilder.buildQueryPane();')
-        
-        pane.dataRpc('list.query.where', 'new_query', filldefaults=True, _init=True, sync=True)
-        pane.dataRpc('list.query.where', 'new_query', _fired='^list.query.new', _deleted='^list.query.deleted',
-                                    _onResult='genro.querybuilder.buildQueryPane();')
-
-    
-    def saveQueryButton(self, pane):
-        pane.button('Save Query', iconClass='tb_button db_save',action='FIRE #userobject_dlg.pkey = "*newrecord*";',hidden=True,showLabel=True)
-
-
-    
-    def deleteQueryButton(self, pane):
-        dlg = pane.dropdownbutton('Delete query', nodeId='delete_query_btn',iconClass='icnBaseTrash',
-                                hidden=True, arrow=False,showLabel=False).tooltipDialog(nodeId='delete_query_dlg', width='25em', datapath='list.query')
-        dlg.div('!!Delete query',_class='tt_dialog_top')
-        msg = dlg.div(font_size='0.9em',_class='pbl_roundedGroup',height='3ex',padding='10px')
-        msg.div('!!Do you really want to delete the query: ')
-        msg.span('^.selectedCode')
-        
-        buttons = dlg.div(font_size='0.9em', _class='tt_dialog_bottom')
-        buttons.button('!!Delete', action='FIRE ^.delete', baseClass='bottom_btn', margin_right='5px',float='right')
-        buttons.button('!!Cancel', action='genro.wdgById("delete_query_dlg").onCancel();',baseClass='bottom_btn', margin_right='5px',float='right')
-
-        
-        dlg.dataRpc('.deleteResult', 'delete_query', id='=list.query.selectedId',
-                       _fired='^.delete', _onResult='genro.wdgById("delete_query_dlg").onCancel();FIRE .deleted = true')
     
     
     def toolboxActions(self, container):
@@ -890,9 +841,7 @@ class TableHandler(BaseComponent):
         if self.userCanDelete():
             t_r.button('!!Delete', float='left',fire='form.deleteRecord', iconClass="tb_button db_del",
                                    visible='^form.canDelete',disabled='^form.noDelete', showLabel=False)
-            
-        
-    
+                                       
     def selectionBatchRunner(self, pane, title='', resultpath='aux.cmd.result', fired=None, batchFactory=None,
                              rpc=None,thermofield=None, thermoid=None, endScript=None,
                              stopOnError=False, forUpdate=False, onRow=None, **kwargs):
@@ -929,34 +878,6 @@ class TableHandler(BaseComponent):
         d.div(position='absolute', top='28px', right='4px',
             bottom='4px', left='4px').includedView(storepath='%s.errors' % resultpath, struct=struct)
   
-    def rpc_new_query(self, filldefaults=False, **kwargs):
-        result = Bag()
-        if filldefaults:
-            querybase = self.queryBase()
-        else:
-            querybase = {'op':'equal'}
-        op_not = querybase.get('op_not','yes')
-        not_caption = '&nbsp;' if op_not=='yes' else '!!not'
-        result.setItem('c_0', querybase.get('val'), 
-                        {'op':querybase.get('op'), 'column':querybase.get('column'),
-                          'op_caption':'!!%s' % self.db.whereTranslator.opCaption(querybase.get('op')),
-                          'not':op_not,'not_caption': not_caption,
-                          'column_caption' : self.app._relPathToCaption(self.maintable, querybase.get('column'))})
-        
-        resultattr = dict(objtype='query', tbl=self.maintable)
-        return result, resultattr
-
-    def rpc_load_query(self, **kwargs):
-        return self.app.rpc_loadUserObject(**kwargs)
-    
-    def rpc_save_query(self, userobject, userobject_attr):
-        return self.app.rpc_saveUserObject(userobject, userobject_attr)
-    
-    def rpc_delete_query(self, id):
-        return self.app.rpc_deleteUserObject(id)
-    
-    def rpc_list_query(self, **kwargs):
-        return self.app.rpc_listUserObject(objtype='query', **kwargs)
     
     def rpc_new_view(self, filldefaults=False, **kwargs):
         if filldefaults:
