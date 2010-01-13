@@ -87,3 +87,27 @@ class UserObject(BaseComponent):
                     _onCalling='FIRE .loading', _onResult='FIRE .loaded', _fired='^.new', _onstart='^gnr.onStart')
         dlg.dataRpc('dummy', 'delete_%s' % objtype, id='=.selectedId',
                     _onResult='FIRE .deleted', _fired='^.delete_ok')
+                    
+    def rpc_listUserObject(self, objtype=None, tbl=None, **kwargs):
+        result = Bag()
+        if hasattr(self.page.package,'listUserObject'):
+            objectsel = self.page.package.listUserObject(objtype=objtype, userid=self.page.user, tbl=tbl, authtags=self.page.userTags)
+            if objectsel:
+                for i,r in enumerate(objectsel.data):
+                    attrs = dict([(str(k), v) for k,v in r.items()])
+                    result.setItem(r['code'] or 'r_%i' % i, None, **attrs)
+        return result
+
+    def rpc_loadUserObject(self, userid=None, **kwargs):
+        data, metadata = self.page.package.loadUserObject(userid=userid or self.page.user, **kwargs)
+        return (data, metadata)
+        
+    def rpc_saveUserObject(self, userobject, userobject_attr):
+        userobject_attr = dict([(str(k),v) for k,v in userobject_attr.items()])
+        userobject_attr['userid'] = userobject_attr.get('userid') or self.page.user
+        self.page.package.saveUserObject(userobject, **userobject_attr)
+        self.db.commit()
+        
+    def rpc_deleteUserObject(self, id):
+        self.page.package.deleteUserObject(id)
+        self.db.commit()
