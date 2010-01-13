@@ -22,6 +22,8 @@
 Component for managing  userobject:
 """
 from gnr.web.gnrbaseclasses import BaseComponent
+from gnr.core.gnrbag import Bag
+
 
 class UserObject(BaseComponent):
     py_requires='foundation/recorddialog'
