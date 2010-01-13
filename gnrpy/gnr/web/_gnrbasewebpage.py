@@ -290,7 +290,7 @@ class GnrBaseWebPage(GnrObject):
         result['prev_to'] = gnrdate.dateLastYear(returnDate[1])
         result['period'] = period
         result['valid']=valid
-        result['period_string'] = gnrdate.periodCaption(*returnDate,locale=locale)
+        result['period_string'] = gnrdate.periodCaption(locale=locale, *returnDate)
         return result
     
     def rpc_ping(self, **kwargs):
