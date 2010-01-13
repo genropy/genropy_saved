@@ -164,13 +164,7 @@ class ListQueryHandler(BaseComponent):
         
 
     def rpc_getQuickQuery(self,**kwargs):
-        result = Bag()
-        tbluserobject = self.db.table('%s.userobject' %self.package.name)
-        f = tbluserobject.query(where='$tbl=:curr_tbl AND quicklist IS TRUE', 
-                                curr_tbl=self.maintable).fetch()
-        for r in f:
-            result.setItem('%s' %r['code'], None,caption=r['description'],query_id=r['id'])
-        return result
+        return self.rpc_listUserObject(objtype='query', onlyQuicklist=True,**kwargs)
             
     def rpc_getQuickView(self,**kwargs):
         return Bag()

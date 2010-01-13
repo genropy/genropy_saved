@@ -256,17 +256,21 @@ class Table_userobject(TableBase):
             record = self.record(code=code, objtype=objtype, pkg=pkg, tbl=tbl, userid=userid, mode='record', ignoreMissing=True)
         else:
             record = self.record(code=code, objtype=objtype, pkg=pkg, tbl=tbl, mode='record', ignoreMissing=True)
-        data = record.pop('data')
+        data = record.pop('data')            
         metadata = record.asDict(ascii=True)
         return data, metadata
         
     def deleteUserObject(self, id, pkg=None):
         self.delete({'id':id})
         
-    def listUserObject(self, objtype=None, pkg=None, tbl=None, userid=None, authtags=None):
+    def listUserObject(self, objtype=None, pkg=None, tbl=None, userid=None, authtags=None, onlyQuicklist=None):
+        onlyQuicklist = onlyQuicklist or False
         def checkUserObj(r):
+            condition = (not r['private']) or (r['userid']==userid)
+            if onlyQuicklist:
+                condition = condition and r['quicklist']
             if self.db.application.checkResourcePermission(r['authtags'], authtags):
-                if (not r['private']) or (r['userid']==userid):
+                if condition:
                     return True
         where = []
         
