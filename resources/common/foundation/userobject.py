@@ -99,15 +99,15 @@ class UserObject(BaseComponent):
         return result
 
     def rpc_loadUserObject(self, userid=None, **kwargs):
-        data, metadata = self.page.package.loadUserObject(userid=userid or self.page.user, **kwargs)
+        data, metadata = self.package.loadUserObject(userid=userid or self.page.user, **kwargs)
         return (data, metadata)
         
     def rpc_saveUserObject(self, userobject, userobject_attr):
         userobject_attr = dict([(str(k),v) for k,v in userobject_attr.items()])
         userobject_attr['userid'] = userobject_attr.get('userid') or self.page.user
-        self.page.package.saveUserObject(userobject, **userobject_attr)
+        self.package.saveUserObject(userobject, **userobject_attr)
         self.db.commit()
         
     def rpc_deleteUserObject(self, id):
-        self.page.package.deleteUserObject(id)
+        self.package.deleteUserObject(id)
         self.db.commit()
