@@ -144,7 +144,7 @@ class SelectionToXls(GnrBatch):
     def process_chunk(self, chunk):
         for c,column in enumerate(self.columns):
             if isinstance(chunk[column], list):
-                value=','.join(chunk[column])
+                value=','.join([str(x != None and x or '') for x in chunk[column]])
             else:
                 value = chunk[column]
             self.sheet.write(self.current_row, c, value)
