@@ -326,6 +326,10 @@ dojo.declare("gnr.widgets.iframe",gnr.widgets.baseHtml,{
         sourceNode.savedAttrs = objectExtract(attributes,'rowcount,tableid,src,rpcCall,onLoad');
         var condFunc= objectPop(attributes,'condition_function');
         var condValue= objectPop(attributes,'condition_value');
+        var onUpdating =  objectPop(attributes,'onUpdating');
+        if (onUpdating){
+            sourceNode.attr.onUpdating = funcCreate(onUpdating,'',sourceNode);
+        }
         if (condFunc){
             sourceNode.condition_function = funcCreate(condFunc, 'value');
         }
@@ -393,6 +397,9 @@ dojo.declare("gnr.widgets.iframe",gnr.widgets.baseHtml,{
         sourceNode.currentSetTimeout = setTimeout(function(d,url){
                                               var absUrl = document.location.protocol+'//'+document.location.host+url;
                                                if (absUrl!=d.src){
+                                                   if(d.src && sourceNode.attr.onUpdating){
+                                                       sourceNode.attr.onUpdating();
+                                                   }
                                                    d.src = url;
                                                }
                                            }, sourceNode.attr.delay || 1 ,domnode,v);

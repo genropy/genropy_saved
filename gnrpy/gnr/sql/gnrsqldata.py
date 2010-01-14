@@ -139,10 +139,12 @@ class SqlQueryCompiler(object):
             elif fldalias.sql_formula:
                 subreldict = {}
                 sql_formula = self.updateFieldDict(fldalias.sql_formula, reldict=subreldict)
+                sql_formula = sql_formula.replace('#THIS',alias)
                 subColPars = {}
                 for key, value in subreldict.items():
                     subColPars[key] = self.getFieldAlias(value, curr=curr, basealias=alias)
                 sql_formula = gnrstring.templateReplace(sql_formula, subColPars, safeMode=True)
+                
                 return sql_formula
             else:
                 raise str('Invalid column %s in table %s.%s (requested field %s)' % (fld, curr.pkg_name, curr.tbl_name, '.'.join(newpath)))

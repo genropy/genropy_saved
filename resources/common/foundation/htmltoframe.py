@@ -77,10 +77,10 @@ class RecordToHtmlFrame(BaseComponent):
 
         if enableConditionPath:
             enableCondition = '=%s' % enableConditionPath
-            center.dataController("SET %s.selectedPane= 0; FIRE %s.load;" %(controllerPath,controllerPath),_fired='^%s' % enableConditionPath)
+            center.dataController("FIRE %s.load;" %controllerPath, _fired='^%s' % enableConditionPath)
         else:
             enableCondition  = None
-        center.dataController("SET %s.selectedPane= 0; FIRE %s.load;" %(controllerPath,controllerPath),_fired='^%s' % pkeyPath)
+        center.dataController("FIRE %s.load;" % controllerPath, _fired='^%s' % pkeyPath)
 
         frame = iframePane.iframe(nodeId=frameId,
                               border='0px',
@@ -95,6 +95,7 @@ class RecordToHtmlFrame(BaseComponent):
                               rpc_table = table,
                               rpc_respath=respath,
                               #rpc_rebuild='=%s.noCache' % controllerPath,
+                              onUpdating='genro.setData("%s.selectedPane", 0);' %controllerPath,
                               onLoad='genro.setData("%s.selectedPane", 1);' %controllerPath,
                               rpc_rebuild=True,
                               _print='^%s.print' % controllerPath,
