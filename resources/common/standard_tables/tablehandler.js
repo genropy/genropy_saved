@@ -143,7 +143,12 @@ dojo.declare("gnr.GnrQueryBuilder",null,{
     getCaption: function(optype,val){
         if (val){
             if (optype=='column'){
-                return this.treefield.getAttr(val, 'fullcaption') || '&nbsp;';
+                var tnode = this.treefield.getNode(val);
+                if (!tnode){
+                    console.log('missing val:'+val);
+                    console.log(this.treefield);
+                }
+                return tnode.attr.fullcaption || '&nbsp;';
             }
             else{
                 return genro.getDataNode('gnr.qb.sqlop.'+optype+'.'+val).attr.caption;
@@ -223,7 +228,10 @@ dojo.declare("gnr.GnrQueryBuilder",null,{
             cell = tr._('td', {colspan:'3',datapath:relpath});
             this._buildQueryGroup(cell, val,level+1);
         } else {
-            attr.column_caption = this.getCaption('column',attr.column) ;
+            if (!attr.column_caption){
+                console.log('ask softwell');
+                attr.column_caption = this.getCaption('column',attr.column);
+            }
             attr.op_caption = this.getCaption('op',attr.op) ;
             tr._('td')._('div',{_class:'qb_div qb_field floatingPopup',connectedMenu:'qb_fields_menu',selected_fieldpath:relpath+'?column',
                             dnd_onDrop:"SET "+relpath+"?column_caption = item.attr.fullcaption;SET "+relpath+"?column = item.attr.fieldpath;",
