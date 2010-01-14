@@ -200,7 +200,7 @@ dojo.declare("gnr.GnrQueryBuilder",null,{
         this.buildQueryPane();
     },
     _buildQueryRow: function(tr,node,i,level){
-        console.log('build new row');
+        console.log('build row:'+node.label);
         var relpath = '.'+node.label;
         var val = node.getValue();
         var attr = node.getAttr();
