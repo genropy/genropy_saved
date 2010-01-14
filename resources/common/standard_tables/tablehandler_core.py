@@ -83,7 +83,7 @@ class ListQueryHandler(BaseComponent):
         if quickquery:
             result.addItem('-',None)
             jsresolver = "genro.rpc.remoteResolver('getQuickQuery',null,{cacheTime:'5'})"
-            result.addItem('custquery',jsresolver,_T='JS',caption='!!Custom query',action='FIRE list.query_id = $1.query_id;')
+            result.addItem('custquery',jsresolver,_T='JS',caption='!!Custom query',action='FIRE list.query_id = $1.pkey;')
         return result
         
     def toolboxQueries(self, container):
@@ -163,8 +163,10 @@ class ListQueryHandler(BaseComponent):
                        _fired='^.delete', _onResult='genro.wdgById("delete_query_dlg").onCancel();FIRE .deleted = true')        
         
 
-    def rpc_getQuickQuery(self,**kwargs):
-        return self.rpc_listUserObject(objtype='query', onlyQuicklist=True,**kwargs)
+    def rpc_getQuickQuery(self,**kwargs):        
+        result = self.rpc_listUserObject(objtype='query', tbl=self.maintable,onlyQuicklist=True,**kwargs)
+        return result
+            
             
     def rpc_getQuickView(self,**kwargs):
         return Bag()
