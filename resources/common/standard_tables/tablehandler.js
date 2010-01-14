@@ -140,15 +140,16 @@ dojo.declare("gnr.GnrQueryBuilder",null,{
 
         node.unfreeze();
     },
-    getCaption: function(optype,val){
+    getCaption: function(optype,pars){
+        var val = pars[optype];
         if (val){
             if (optype=='column'){
                 var tnode = this.treefield.getNode(val);
-                if (!tnode){
-                    console.log('missing val:'+val);
-                    console.log(this.treefield);
+                if (tnode){
+                    return tnode.attr.fullcaption || tnode.column || '&nbsp;';
                 }
-                return tnode.attr.fullcaption || '&nbsp;';
+                console.log('missing column while looking for caption:'+val);
+                return pars.column_caption || '&nbsp;';
             }
             else{
                 return genro.getDataNode('gnr.qb.sqlop.'+optype+'.'+val).attr.caption;
@@ -200,19 +201,17 @@ dojo.declare("gnr.GnrQueryBuilder",null,{
         querybag.setItem('c_0',0);
         querybag.setItem('c_0',pars.val,{op:pars.op,
                                  column:pars.column,
-                                 op_caption:this.getCaption('op',pars.op),
-                                 column_caption:this.getCaption('column',pars.column)});
+                                 op_caption:this.getCaption('op',pars),
+                                 column_caption:this.getCaption('column',pars)});
         this.buildQueryPane();
     },
     _buildQueryRow: function(tr,node,i,level){
-        console.log('build row:'+node.label);
-        console.log(node);
         var relpath = '.'+node.label;
         var val = node.getValue();
         var attr = node.getAttr();
         var noValueIndicator= "<span >&nbsp;</span>";
-        attr.jc_caption = this.getCaption('jc',attr.jc) ;
-        attr.not_caption = this.getCaption('not',attr.not) ;
+        attr.jc_caption = this.getCaption('jc',attr) ;
+        attr.not_caption = this.getCaption('not',attr) ;
         cell=tr._('td');
         if (i>0){
             cell._('div',{_class:'qb_div qb_jc floatingPopup',connectedMenu:'qb_jc_menu',selected_fullpath:relpath+'?jc',
@@ -228,18 +227,14 @@ dojo.declare("gnr.GnrQueryBuilder",null,{
             cell = tr._('td', {colspan:'3',datapath:relpath});
             this._buildQueryGroup(cell, val,level+1);
         } else {
-            if (!attr.column_caption){
-                console.log('ask softwell');
-                attr.column_caption = this.getCaption('column',attr.column);
-            }
-            attr.op_caption = this.getCaption('op',attr.op) ;
+            attr.column_caption = this.getCaption('column',attr);
+            attr.op_caption = this.getCaption('op',attr) ;
             tr._('td')._('div',{_class:'qb_div qb_field floatingPopup',connectedMenu:'qb_fields_menu',selected_fieldpath:relpath+'?column',
                             dnd_onDrop:"SET "+relpath+"?column_caption = item.attr.fullcaption;SET "+relpath+"?column = item.attr.fieldpath;",
                          dnd_allowDrop:"return !(item.attr.one_relation);",
                                 selected_fullcaption:relpath+'?column_caption',innerHTML:'^'+relpath+'?column_caption'});
             tr._('td')._('div',{_class:'qb_div qb_op floatingPopup', connectedMenu:'qb_op_menu',selected_fullpath:relpath+'?op',
                                 selected_caption: relpath+'?op_caption',innerHTML:'^'+relpath+'?op_caption'});
-            //modifica inizio
             var valtd=tr._('td')._('div',{_class:'qb_div qb_value'});
             
             var input_attrs={value:'^'+relpath, width:'10em',
@@ -251,13 +246,11 @@ dojo.declare("gnr.GnrQueryBuilder",null,{
                 valtd._('label',{_for:fld_id,_class:'ghostlabel','id':fld_id+'_label'})._('span',{innerHTML:val?'':attr.value_caption});
             }
             valtd._('textbox',input_attrs);
-            //modifica fine
         }
         tr._('td')._('div',{connect_onclick:dojo.hitch(this,'addDelFunc','add',i+1), _class:'qb_btn qb_add'});
         if (i>0){
         tr._('td')._('div',{connect_onclick:dojo.hitch(this,'addDelFunc','del',i), _class:'qb_btn qb_del'});
         }             
-         //tr._('td',{_class:'querybuilder_rem'})._('inlineeditbox',{value:'^.'+label+'?rem'});
      },
 
     _buildQueryGroup: function(sourceNode, querydata,level){
