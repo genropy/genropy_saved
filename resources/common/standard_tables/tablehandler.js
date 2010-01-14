@@ -229,8 +229,19 @@ dojo.declare("gnr.GnrQueryBuilder",null,{
                                 selected_fullcaption:relpath+'?column_caption',innerHTML:'^'+relpath+'?column_caption'});
             tr._('td')._('div',{_class:'qb_div qb_op floatingPopup', connectedMenu:'qb_op_menu',selected_fullpath:relpath+'?op',
                                 selected_caption: relpath+'?op_caption',innerHTML:'^'+relpath+'?op_caption'});
-            tr._('td')._('div',{_class:'qb_div qb_value'})._('textbox',{value:'^'+relpath, width:'10em',
-                         _autoselect:true,_class:'st_conditionValue',validate_onAccept:'genro.queryanalyzer.checkQueryLineValue(this,value);'});
+            //modifica inizio
+            var valtd=tr._('td')._('div',{_class:'qb_div qb_value'})
+            
+            var input_attrs={value:'^'+relpath, width:'10em',
+                         _autoselect:true,_class:'st_conditionValue',validate_onAccept:'genro.queryanalyzer.checkQueryLineValue(this,value);'}
+            if(attr.value_caption){
+                var fld_id=node.getStringId()+'_value';
+                input_attrs['id']=fld_id;
+                input_attrs['connect__onMouse'] = 'genro.dom.ghostOnEvent($1);' 
+                valtd._('label',{_for:fld_id,_class:'ghostlabel','id':fld_id+'_label'})._('span',{innerHTML:attr.value_caption})
+            }
+            valtd._('textbox',input_attrs);
+            //modifica fine
         }
         tr._('td')._('div',{connect_onclick:dojo.hitch(this,'addDelFunc','add',i+1), _class:'qb_btn qb_add'});
         if (i>0){
