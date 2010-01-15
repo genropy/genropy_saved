@@ -111,6 +111,7 @@ class ListQueryHandler(BaseComponent):
                                                 visible='^.%s?id' % resname)
         top.div(content='^.%s?code' % resname, _class='st_editor_title')
         pane.div(_class='st_editor_body st_editor_%s' % restype, nodeId='%s_root' % restype, datapath=datapath)
+        self.deleteQueryButton(pane)
         
     def savedQueryController(self, pane):
         pane.dataRemote('list.query.saved_menu', 'list_query', tbl=self.maintable, cacheTime=10)
@@ -209,16 +210,8 @@ class ListQueryHandler(BaseComponent):
         
     def rpc_list_view(self, **kwargs):
         return self.rpc_listUserObject(objtype='view', **kwargs)
-        
-    def saveQueryButton__old(self, pane):
-        pane.button('Save Query', iconClass='tb_button db_save',
-                    action="""console.log('aaa');
-                            SET #userobject_dlg.pars.title = 'Query';
-                              SET #userobject_dlg.pars.data = GET list.query.where;
-                            FIRE #userobject_dlg.pkey = (GET list.view.selectedId) || "*newrecord*";""",
-                    hidden=True,showLabel=True)
 
-    def deleteQueryButton__ols(self, pane):
+    def deleteQueryButton(self, pane):
         dlg = pane.dropdownbutton('Delete query', nodeId='delete_query_btn',iconClass='icnBaseTrash',
                                 hidden=True, arrow=False,showLabel=False).tooltipDialog(nodeId='delete_query_dlg', width='25em', datapath='list.query')
         dlg.div('!!Delete query',_class='tt_dialog_top')
