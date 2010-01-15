@@ -279,7 +279,7 @@ class Table_userobject(TableBase):
         if tbl:
             where.append('$tbl = :val_tbl')
         where = ' AND '.join(where)
-        sel = self.query(columns='$code, $objtype, $pkg, $tbl, $userid, $description, $authtags, $private', 
+        sel = self.query(columns='$code, $objtype, $pkg, $tbl, $userid, $description, $authtags, $private, $quicklist', 
                     where=where, order_by='$code',
                     val_objtype=objtype, val_tbl=tbl).selection()
                     
