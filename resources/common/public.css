@@ -10,7 +10,7 @@
     -webkit-border-top-left-radius:7px;}
 
 #mainWindow{
-	 background-color: #e5e5e5;
+	 background-color: #ededed;
 	 font-size:12px;
 	}
 
@@ -108,7 +108,7 @@
 -webkit-border-top-left-radius:6px;
 -webkit-border-top-right-radius:6px;
 border-radius:6px;
-background-color: #e5e5e5;
+background-color: #ededed;
 }
 
 .pbl_roundedGroupLabel{
@@ -140,11 +140,11 @@ padding-bottom: 5px;
 }
 
 .pbl_viewBox{
-background-color: #e5e5e5;
+background-color: #ededed;
 padding:5px;
 }
 .pbl_background{
-	background-color: #e5e5e5;
+	background-color: #ededed;
 }
 
 .pbl_viewBoxLabel{
@@ -559,18 +559,26 @@ padding-bottom: 2px;
 }
 .bottom_btn .dijitButtonNode{
 	color: white;
-	/*-moz-border-radius:6px;
-    -webkit-border-radius:6px;*/
-    background: #3F5A8D;
+    -moz-border-radius:4px;
+    -webkit-border-radius:4px;
+    -opera-border-radius:4px;
+    -khtml-border-radius:4px;
     cursor: pointer;
     font-size: 0.9em;
     font-weight: bold;
-    border: white solid 1px;
-	font-variant: small-caps;
-	opacity: .9;
+    border: #494949 solid 1px;
+    padding:0px 2px;
+    opacity: 1;
+    font-size:1em;
+    color:#494949;
+    font-weight:normal;
+    background:;
+    background-image:-webkit-gradient(center,top, from(rgba(182,182,182,0.75)), to(rgba(239,239,239,0.9)));
+    background-image:-moz-linear-gradient(center,top, from(rgba(182,182,182,0.75)), to(rgba(239,239,239,0.9)));
+
 }
 .bottom_btnDisabled .dijitButtonNode{
-	opacity: .8;
+	opacity: .6;
 	cursor: not-allowed !important;
 }
 
@@ -578,11 +586,10 @@ padding-bottom: 2px;
     opacity: 1;
 }
 .dialog_bottom{
-background-color: #676767;
+background-color: #EDEDED;
 color: white;
-font-size: .94em;
 font-weight: bold;
-height: 20px;
+height: 26px;
 padding-top:3px;
 padding-left:5px;
 padding-right:5px;
@@ -686,7 +693,7 @@ padding-right:5px;
 
 /* @group MenuTree */
 .menupane{
-	background-color: #e5e5e5;
+	background-color: #ededed;
 }
 
 .menu_page  > a{
