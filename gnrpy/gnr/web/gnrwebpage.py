@@ -72,12 +72,12 @@ class GnrWebPage(GnrBaseWebPage):
         self.filepath = filepath
         self.packageId = packageId
         self.basename = basename
+        self.siteFolder = self.site.site_path
         self.onIniting(request_args,request_kwargs)
         self._user_login = request_kwargs.pop('_user_login',None)
         self.private_kwargs=dict([(k[:2],v)for k,v in request_kwargs.items() if k.startswith('__')])
         self.dojo_theme =request_kwargs.pop('dojo_theme',None) or getattr(self, 'dojo_theme', None) or self.site.config['dojo?theme'] or 'tundra'
         self.pagetemplate = request_kwargs.pop('pagetemplate',None) or getattr(self, 'pagetemplate', None) or self.site.config['dojo?pagetemplate'] # index
-        self.siteFolder = self.site.site_path
         self.folders= self._get_folders()
         self.called_url = request.url
         self.path_url = request.path_url
