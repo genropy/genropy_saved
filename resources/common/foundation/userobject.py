@@ -49,10 +49,10 @@ class UserObject(BaseComponent):
         fb.simpleTextarea(lbl='!!Description' ,value='^.description', height='3.75em',
                  width='100%', border='1px solid gray',lbl_vertical_align='top',colspan=3)
                     
-    def rpc_listUserObject(self, objtype=None, tbl=None, **kwargs):
+    def rpc_listUserObject(self, objtype=None, tbl=None,onlyQuicklist=False, **kwargs):
         result = Bag()
         if hasattr(self.package,'listUserObject'):
-            objectsel = self.package.listUserObject(objtype=objtype, userid=self.user, tbl=tbl, authtags=self.userTags)
+            objectsel = self.package.listUserObject(objtype=objtype, userid=self.user, tbl=tbl, onlyQuicklist=onlyQuicklist,authtags=self.userTags)
             if objectsel:
                 for i,r in enumerate(objectsel.data):
                     attrs = dict([(str(k), v) for k,v in r.items()])
