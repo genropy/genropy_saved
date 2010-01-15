@@ -32,7 +32,7 @@ class GnrWebConnection(GnrBaseProxy):
     def initConnection(self):
         page = self.page
         self.cookieName = 'conn_%s' % self.page.siteName
-        self.secret = page.config['secret'] or self.page.siteName
+        self.secret = page.site.config['secret'] or self.page.siteName
         self.allConnectionsFolder = os.path.join(self.page.siteFolder, 'data', '_connections')
         self.cookie = None
         self.oldcookie=None
@@ -166,7 +166,7 @@ class GnrWebConnection(GnrBaseProxy):
                     cookieAge = t - (conn_files['connection_xml.cookieData.timestamp'] or 0)
                 except:
                     cookieAge = t
-                if cookieAge > int(self.page.config.getItem('connection_timeout') or CONNECTION_TIMEOUT):
+                if cookieAge > int(self.page.site.config.getItem('connection_timeout') or CONNECTION_TIMEOUT):
                     self.dropConnection(conn_id)
         
     def connectionsBag(self):

@@ -64,7 +64,7 @@ class GnrWebAppHandler(GnrBaseProxy):
 
     def _getAppId(self):
         if not hasattr(self, '_appId'):
-            instances=self.page.config['instances'].keys()
+            instances=self.page.site.config['instances'].keys()
             if len(instances)==1:
                 self._appId=instances[0]
             else:
