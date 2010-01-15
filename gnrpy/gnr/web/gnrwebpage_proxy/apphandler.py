@@ -432,7 +432,7 @@ class GnrWebAppHandler(GnrBaseProxy):
             columns = [c for c in selection.allColumns if not c in ('pkey','rowidx')]
         outdata = selection.output('dictlist', columns=columns, asIterator=True)
         colAttrs = selection.colAttrs
-        return self.page.makoTemplate('standard_print.tpl', striped='odd_row,even_row', outdata=outdata, colAttrs=colAttrs,
+        return self.page.mako(path='standard_print.tpl', striped='odd_row,even_row', outdata=outdata, colAttrs=colAttrs,
                 title='Print List', header='Print List', columns=columns)
                 
     def pdf_standard(self, selection, locale=None,**kwargs):
