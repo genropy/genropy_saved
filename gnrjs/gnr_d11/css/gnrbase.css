@@ -52,6 +52,13 @@ label.ghostlabel span{
 /* @end */
 
 /* @group SystemCss */
+.hideSplitter .dijitSplitter{
+	background: transparent;
+}
+
+.hideSplitter  .dijitSplitter .dijitSplitterThumb{
+	visibility: hidden;
+}
 
 /* @group dialog */
 .dlg_ask{

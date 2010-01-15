@@ -1903,7 +1903,7 @@ dojo.declare("gnr.GnrBagResolver",null,{
     },
     resolve: function(optkwargs, destinationNode){
         var destFullpath = destinationNode ?  destinationNode.getFullpath(null, genro._data) : '';
-        var kwargs = objectUpdate({'_rpc_resultPath':destFullpath},this.kwargs); // update kwargs
+        var kwargs = objectUpdate({},this.kwargs); // update kwargs
         if (optkwargs){
             objectUpdate(kwargs, optkwargs);
         }

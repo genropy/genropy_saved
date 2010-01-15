@@ -177,7 +177,7 @@ dojo.declare("gnr.GnrDevHandler",null,{
         noValueIndicator = "<span >&nbsp;</span>";
         genro.src.getNode()._('div', '_localizer');
         var node = genro.src.getNode('_localizer').clearValue().freeze();
-        genro.setData('gnr.pageLocalization',genro.rpc.remoteCall('app.pageLocalizationLoad'));
+        genro.setData('gnr.pageLocalization',genro.rpc.remoteCall('localizer.pageLocalizationLoad'));
         var dlg=node._('dialog',{nodeId:'_localizer',title:'Localizer',width:'40em','padding':'2px'});
         var xx=dlg._('div',{height:'400px',overflow:'auto',background_color:'#eee',border:'1px inset'});
         var saveData=function(){
@@ -185,7 +185,7 @@ dojo.declare("gnr.GnrDevHandler",null,{
             var cb=function(){
                 genro.pageReload();
             };
-            genro.rpc.remoteCall('app.pageLocalizationSave',{data:data},'bag','POST',null,cb);
+            genro.rpc.remoteCall('localizer.pageLocalizationSave',{data:data},'bag','POST',null,cb);
         };
         dlg._('button',{label:'Save',margin:'4px','float':'right',onClick:saveData});
         var nodes=genro.getData('gnr.pageLocalization').getNodes();

@@ -171,22 +171,18 @@ class StringTableBuilder(TableBuilder):
 class PageTableBuilder(TableBuilder):
     def doTable(self):
         self.response.content_type = 'text/html'
-        
         self.requestWrite(self.openPage())
-        
         if hasattr(self.source, 'serverfetch'):
             rowsource = self.fromServerCursor(5)
         else:
             rowsource = self.fromList()
-            
         for html in rowsource:
             self.requestWrite(html)
         self.requestWrite('</tbody>')
         if self.tot_cb:
             self.requestWrite(self.buildTableRow(self.tot_cb(), totals=True))
-            
         self.requestWrite(self.closePage())
-
+        
     def openPage(self):
         html="""
     <html>
@@ -248,17 +244,15 @@ class ExcelTableBuilder(TableBuilder):
             rowsource = self.fromServerCursor(50)
         else:
             rowsource = self.fromList()
-            
         result = list(rowsource)
         result.append('</tbody>')
         if self.tot_cb:
             result.append(self.buildTableRow(self.tot_cb(), totals=True))
-            
         result = self.templatePageExcel() % (self.header, '\n'.join(result), self.footer)
         result = result.replace('<br />','')
-        
         filename = self.filename or self.req.uri.split('/')[-1]
         self.sendFile(filename, 'application/vnd.ms-excel', 'xls', result)
+        
         
     def buildTableRow(self, row, totals=False):
         row = self.prepareTableRow(row)
@@ -306,7 +300,10 @@ def tablePage(page, source=None, title='', tableclass='', thead='', row_template
                            header=header, footer=footer, filename=filename, tot_cb=tot_cb, row_template_totals=row_template_totals, 
                            locale=locale, row_formats=row_formats,
                            **kwargs)
-    return builder.doTable()
+                           
+                           
+    result = builder.doTable()
+    return result
 
 def tableHtml(page, source=None, title='', tableclass='', thead='', row_template='', row_cb=None, skin='gnr_blue', 
                 excel=None,

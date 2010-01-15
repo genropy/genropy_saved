@@ -1,23 +1,18 @@
-from gnr.core.gnrbag import Bag, DirectoryResolver
-from gnr.app.gnrapp import GnrApp
-from gnr.core.gnrlang import gnrImport, getUuid, classMixin, cloneClass,instanceMixin
-from gnr.core.gnrstring import splitAndStrip
-from gnr.web.gnrbaseclasses import BaseResource
-from gnr.web.gnrwsgipage import GnrWsgiPage
-from gnr.web.gnrwebreqresp import GnrWebRequest,GnrWebResponse
-#from gnr.web.gzipmiddleware import Gzipper
+from gnr.core.gnrbag import Bag
+from gnr.web.gnrresourceloader import ResourceLoader
 from beaker.middleware import SessionMiddleware
-from paste import fileapp, httpexceptions, request
+from paste import fileapp, httpexceptions
+from paste import request as paste_request
 from paste.httpheaders import ETAG
 from weberror.evalexception import EvalException
 from webob import Request, Response
 from gnr.web.gnrwebapp import GnrWsgiWebApp
 import os
 from time import time
+from gnr.core.gnrlang import gnrImport, instanceMixin
 from threading import RLock
 import thread
 import mimetypes
-#import hashlib
 from gnr.core.gnrsys import expandpath
 from gnr.web.gnrbaseclasses import BaseWebtool
 import cPickle
@@ -50,7 +45,7 @@ class memoize(object):
 
     def reset(self):
         for node in self.nodes:
-            del nodes[node]
+            del self.nodes[node]
         self.mru = self.Node(None, None)
         self.mru.older = self.mru.newer = self.mru
         self.nodes[self.mru.key] = self.mru
@@ -62,15 +57,11 @@ class memoize(object):
     def cached_call(self):
         def decore(func):
             def wrapper(*args,**kwargs):
-                func_type = type(func).__name__
                 key = (((func.__name__,)+args[1:]), cPickle.dumps(kwargs))
                 #key = self.keyfunc(*((func.__name__,)+args), **kwargs)
-                print args
                 if key in self.nodes:
-                    print 'hit'
                     node = self.nodes[key]
                 else:
-                    print 'miss'
                     # We have an entry not in the cache
                     self.misses += 1
 
@@ -148,7 +139,6 @@ class GnrWsgiSite(object):
         self._currentPages={}
         self.site_path = os.path.dirname(os.path.abspath(script_path))
         self.site_name = site_name or os.path.basename(self.site_path)
-        
         if _gnrconfig:
             self.gnr_config = _gnrconfig
         else:
@@ -177,14 +167,13 @@ class GnrWsgiSite(object):
         self.gnrapp = self.build_gnrapp()
         self.wsgiapp = self.build_wsgiapp()
         self.db=self.gnrapp.db
-        self.build_automap()
+        self.resource_loader = ResourceLoader(self)
         self.pages_dir = os.path.join(self.site_path, 'pages')
         self.site_static_dir = self.config['resources?site'] or '.'
         if self.site_static_dir and not os.path.isabs(self.site_static_dir):
             self.site_static_dir = os.path.normpath(os.path.join(self.site_path,self.site_static_dir))
         self.find_resources()
         self.find_gnrjs_and_dojo()
-        self.page_factories={}
         self.page_factory_lock=RLock()
         self.webtools = self.find_webtools()
         self.print_handler=PrintHandler(parent = self)
@@ -284,16 +273,16 @@ class GnrWsgiSite(object):
             return Bag(config_path)
         return Bag()
     
-
     def load_site_config(self):
         site_config_path = os.path.join(self.site_path,'siteconfig.xml')
         site_config = self.gnr_config['gnr.siteconfig.default_xml']
-        for path, site_template in self.gnr_config['gnr.environment_xml'].digest('sites:#a.path,#a.site_template'):
-            if path == os.path.dirname(self.site_path):
-                if site_config:
-                    site_config.update(self.gnr_config['gnr.siteconfig.%s_xml'%site_template] or Bag())
-                else:
-                    site_config = self.gnr_config['gnr.siteconfig.%s_xml'%site_template]
+        if 'sites' in self.gnr_config['gnr.environment_xml']:
+            for path, site_template in self.gnr_config['gnr.environment_xml'].digest('sites:#a.path,#a.site_template'):
+                if path == os.path.dirname(self.site_path):
+                    if site_config:
+                        site_config.update(self.gnr_config['gnr.siteconfig.%s_xml'%site_template] or Bag())
+                    else:
+                        site_config = self.gnr_config['gnr.siteconfig.%s_xml'%site_template]
         if site_config:
             site_config.update(Bag(site_config_path))
         else:
@@ -301,24 +290,14 @@ class GnrWsgiSite(object):
         return site_config
 
     def _get_sitemap(self):
-        if not hasattr(self,'_sitemap'):
-            sitemap_path = os.path.join(self.site_path,'sitemap.xml')
-            if not os.path.isfile(sitemap_path):
-                sitemap_path = os.path.join(self.site_path,'automap.xml')
-            _sitemap = Bag(sitemap_path)
-            _sitemap.setBackRef()
-            self._sitemap = _sitemap
-        return self._sitemap
+        return self.page_server.sitemap
     sitemap = property(_get_sitemap)        
         
-    def dispatcher(self,environ,start_response):
-        """Main WSGI dispatcher, calls serve_staticfile for static files and self.createWebpage for
-         GnrWebPages"""
-        t=time()
-        req = Request(environ)
-        resp = Response()
-        self.external_host = self.config['wsgi?external_host'] or req.host_url
-        path_info = req.path_info
+    def loadResource(self,pkg, *path):
+        self.page_server.loadResource(pkg,*path)
+    
+    def get_path_list(self,path_info):
+        # No path -> indexpage is served
         if path_info=='/' or path_info=='':
             path_info = self.indexpage
         if path_info.endswith('.py'):
@@ -326,86 +305,68 @@ class GnrWsgiSite(object):
         path_list = path_info.strip('/').split('/')
         path_list = [p for p in path_list if p]
         # if url starts with _ go to static file handling
-        page_kwargs=dict(req.params)
-        if path_list[0].startswith('_tools'):
-            return self.tools_call(path_list,environ,start_response,**page_kwargs)
-        elif path_list[0].startswith('_'):
-            return self.serve_staticfile(path_list,environ,start_response,**page_kwargs)
-        # get the deepest node in the sitemap bag associated with the given url
-        page_node,page_args=self.sitemap.getDeepestNode('.'.join(path_list))
-        if self.mainpackage and not page_node: # try in the main package
-            page_node,page_args=self.sitemap.getDeepestNode('.'.join([self.mainpackage]+path_list))
-            
-        if not page_node:
-            return self.not_found(environ,start_response)
-        page_attr = page_node.getInheritedAttributes()
-        if not page_attr.get('path'):
-            page_node,page_args=self.sitemap.getDeepestNode('.'.join(path_list+['index']))
-        if not page_node:
-            return self.not_found(environ,start_response)
-        page_attr = page_node.getInheritedAttributes()
-        if not page_attr.get('path'):
-            return self.not_found(environ,start_response)
-        if self.debug:
-            page = self.page_create(**page_attr)
-        else:
-            try:
-                page = self.page_create(**page_attr)
-            except Exception,exc:
-                raise exc
-        #page.filepath = page_attr['path'] ### Non usare per favore...
-        page.folders= page._get_folders()
-        if '_rpc_resultPath' in page_kwargs:
-            _rpc_resultPath=page_kwargs.pop('_rpc_resultPath')
-        else:
-            _rpc_resultPath=None
-        if '_user_login' in page_kwargs:
-            _user_login=page_kwargs.pop('_user_login')
-        else:
-            _user_login=None
-        if 'page_id' in page_kwargs:
-            page_id=page_kwargs.pop('page_id')
-        else:
-            page_id=None
-        if 'debug' in page_kwargs:
-            debug=page_kwargs.pop('debug')
-        else:
-            debug=None
+        return path_list
         
-        self.page_init(page,request=req, response=resp, page_id=page_id, debug=debug,
-                            _user_login=_user_login, _rpc_resultPath=_rpc_resultPath)
-        if not page:
-            return self.not_found(environ,start_response)
-        if page_args:
-            page_args=page.handleSubUrl(page_args.split('.'))
-        page_method = page_args and page_args[0]
-        if page_method and not 'method' in page_kwargs:
-            page_kwargs['method'] = page_method
-            page_args = page_args[1:]
-        theme =page_kwargs.pop('theme',None) or getattr(page, 'theme', None) or self.config['dojo?theme'] or 'tundra'
-        pagetemplate = getattr(page, 'pagetemplate', None) or self.config['dojo?pagetemplate'] # index
-        result = page.index(theme=theme,pagetemplate=pagetemplate,**page_kwargs)
+    def dispatcher(self,environ,start_response):
+        """Main WSGI dispatcher, calls serve_staticfile for static files and self.createWebpage for
+         GnrWebPages"""
+        t=time()
+        request = Request(environ)
+        response = Response()
+        self.external_host = self.config['wsgi?external_host'] or request.host_url
+        # Url parsing start
+        path_list = self.get_path_list(request.path_info)
+        request_kwargs=dict(request.params)
+        if path_list[0].startswith('_tools'):
+            return self.serve_tool(path_list,environ,start_response,**request_kwargs)
+        elif path_list[0].startswith('_'):
+            return self.serve_staticfile(path_list,environ,start_response,**request_kwargs)
+        else:
+            if self.debug:
+                page = self.resource_loader(path_list, request, response)
+            else:
+                try:
+                    page = self.resource_loader(path_list, request, response)
+                except Exception,exc:
+                    raise exc
+            if not (page and page._call_handler):
+                return self.not_found(environ,start_response)
+            self.onServingPage(page)
+            self.currentPage = page
+            result = page()
+            self.onServedPage(page)
+            self.cleanup()
+            self.setResultInResponse(result, response, totaltime = time()-t)
+            return response(environ, start_response)
+               
+    def setResultInResponse(self, result, response, totaltime=None):
+        if totaltime:
+            response.headers['X-GnrTime'] = str(totaltime)
         if isinstance(result, unicode):
-            resp.content_type='text/plain'
-            resp.unicode_body=result
+            response.content_type='text/plain'
+            response.unicode_body=result
         elif isinstance(result, basestring):
-            resp.body=result
+            response.body=result
         elif isinstance(result, Response):
-            resp=result
-        totaltime = time()-t
-        resp.headers['X-GnrTime'] = str(totaltime)
+            response=result
+
+    def onServingPage(self, page):
+        pass
+    
+    def onServedPage(self, page):
+        pass
+    
+    def cleanup(self):
         self.currentPage = None
         self.db.closeConnection()
-        return resp(environ, start_response)
         
-    def tools_call(self, path_list, environ, start_response, **kwargs):
+    def serve_tool(self, path_list, environ, start_response, **kwargs):
         toolname = path_list[1]
         args = path_list[2:]
         tool = self.load_webtool(toolname)
         if not tool:
             return self.not_found(environ, start_response)
         response = Response()
-        request = Request(environ)
         result = tool(*args, **kwargs)
         content_type = getattr(tool,'content_type')
         if content_type:
@@ -431,7 +392,7 @@ class GnrWsgiSite(object):
     def not_found(self, environ, start_response, debug_message=None):
         exc = httpexceptions.HTTPNotFound(
             'The resource at %s could not be found'
-            % request.construct_url(environ),
+            % paste_request.construct_url(environ),
             comment='SCRIPT_NAME=%r; PATH_INFO=%r; debug: %s'
             % (environ.get('SCRIPT_NAME'), environ.get('PATH_INFO'),
                 debug_message or '(none)'))
@@ -460,92 +421,6 @@ class GnrWsgiSite(object):
         self.config.setItem('instances.app', app, path=instance_path)
         return app
         
-    def find_instance(self,instance_name):
-        if 'instances' in self.gnr_config['gnr.environment_xml']:
-            path_list.extend([expandpath(path) for path in self.gnr_config['gnr.environment_xml'].digest('sites:#a.path') if os.path.isdir(expandpath(path))])
-        
-    
-    def build_automap(self):
-        def handleNode(node, pkg=None):
-            attr = node.attr
-            file_name = attr['file_name']
-            node.attr = dict(
-                name = '!!%s'%file_name.capitalize(),
-                pkg = pkg
-                )
-            if attr['file_ext']=='py':
-                node.attr['path']=attr['rel_path']
-            node.label = file_name
-            if node._value is None:
-                node._value = ''
-        self.automap=DirectoryResolver(os.path.join(self.site_path,'pages'),ext='py',include='*.py',exclude='_*,.*,*.pyc')()
-        
-        self.automap.walk(handleNode, _mode='', pkg='*')
-        for package in self.gnrapp.packages.values():
-            packagemap = DirectoryResolver(os.path.join(package.packageFolder, 'webpages'),
-                                             include='*.py',exclude='_*,.*')()
-            packagemap.walk(handleNode,_mode='',pkg=package.id)
-            self.automap.setItem(package.id, packagemap,name=package.attributes.get('name_long') or package.id)
-        self.automap.toXml(os.path.join(self.site_path,'automap.xml'))
-    
-    def get_page_factory(self, path, pkg = None, rel_path=None):
-        if path in self.page_factories:
-            return self.page_factories[path]
-        page_module = gnrImport(path,avoidDup=True)
-        page_factory = getattr(page_module,'page_factory',GnrWsgiPage)
-        custom_class = getattr(page_module,'GnrCustomWebPage')
-        py_requires = splitAndStrip(getattr(custom_class, 'py_requires', '') ,',')
-        page_class = cloneClass('GnrCustomWebPage',page_factory)
-        page_class.__module__ = page_module
-        self.page_class_base_mixin(page_class, pkg=pkg)
-        page_class.dojoversion = getattr(custom_class, 'dojoversion', None) or self.config['dojo?version'] or '11'
-        page_class.theme = getattr(custom_class, 'theme', None) or self.config['dojo?theme'] or 'tundra'
-        page_class.gnrjsversion = getattr(custom_class, 'gnrjsversion', None) or self.config['gnrjs?version'] or '11'
-        page_class.maintable = getattr(custom_class, 'maintable', None)
-        page_class.recordLock = getattr(custom_class, 'recordLock', None)
-        page_class.polling = getattr(custom_class, 'polling', None)
-        page_class.eagers = getattr(custom_class, 'eagers', {})
-        page_class.css_requires = splitAndStrip(getattr(custom_class, 'css_requires', ''),',')
-        page_class.js_requires = splitAndStrip(getattr(custom_class, 'js_requires', ''),',')
-        page_class.pageOptions = getattr(custom_class,'pageOptions',{})
-        page_class.auth_tags = getattr(custom_class, 'auth_tags', '')
-        self.page_class_resourceDirs(page_class, path, pkg=pkg)
-        self.page_pyrequires_mixin(page_class, py_requires)
-        classMixin(page_class,custom_class, only_callables=False)
-        self.page_class_resourceDirs(page_class, path, pkg=pkg)
-        page_class._packageId = pkg
-        self.page_class_custom_mixin(page_class, rel_path, pkg=pkg)
-        self.page_factories[path]=page_class
-        return page_class
-
-    def page_class_base_mixin(self,page_class,pkg=None):
-        """Looks for custom classes in the package"""
-        if pkg:
-            package = self.gnrapp.packages[pkg]
-        if package and package.webPageMixin:
-            classMixin(page_class,package.webPageMixin, only_callables=False) # first the package standard
-        if self.gnrapp.webPageCustom:
-            classMixin(page_class,self.gnrapp.webPageCustom, only_callables=False) # then the application custom
-        if package and package.webPageMixinCustom:
-            classMixin(page_class,package.webPageMixinCustom, only_callables=False) # finally the package custom
-
-    
-    def page_class_custom_mixin(self,page_class, path, pkg=None):
-        """Look in the instance custom folder for a file named as the current webpage"""
-        path=path.split(os.path.sep)
-        if pkg:
-            customPagePath=os.path.join(self.gnrapp.customFolder, pkg, 'webpages', *path)
-            if os.path.isfile(customPagePath):
-                component_page_module = gnrImport(customPagePath,avoidDup=True)
-                component_page_class = getattr(component_page_module,'WebPage',None)
-                if component_page_class:
-                    classMixin(page_class, component_page_class, only_callables=False)
-                    
-    def page_pyrequires_mixin(self, page_class, py_requires):
-        for mix in py_requires:
-            if mix:
-                self.mixinResource(page_class, page_class._resourceDirs, mix)
-                
     def onAutenticated  (self,avatar):
         if 'adm' in self.db.packages:
             self.db.packages['adm'].onAuthenticated(avatar)
@@ -589,36 +464,8 @@ class GnrWsgiSite(object):
         
     def debugger(self,debugtype,**kwargs):
         if self.currentPage:
-            page =self.currentPage
-            if self.debug or page.isDeveloper():
-                debugopt=getattr(page,'debugopt','') or ''
-                if debugopt and debugtype in debugopt :
-                    getattr(self,'debugger_%s' % debugtype)(page,**kwargs)
-       
-    def debugger_sql(self, page, sql=None, sqlargs=None,dbtable=None, error=None):
-        b=Bag()
-        dbtable=dbtable or ''
-        b['dbtable']=dbtable 
-        b['sql']="innerHTML:<div style='white-space: pre;font-size: x-small;background-color:#ffede7;padding:2px;'>%s</div>" % sql
-        b['sqlargs']=Bag(sqlargs)
-        if error:
-            b['error']=str(error)
-        page._debug_calls.addItem('%03i SQL:%s'%(len(page._debug_calls),dbtable.replace('.','_')),b,debugtype='sql')
-
-    def debugger_py(self, page, _frame=None, **kwargs):
-        b=Bag(kwargs)
-        if  _frame:
-            import inspect
-            m=inspect.getmodule(_frame)
-            lines,start=inspect.getsourcelines(_frame)
-            code=''.join(['%05i %s'%(n+start,l)for n,l in enumerate(lines)])
-            b['module']=m.__name__
-            b['line_number']=_frame.f_lineno
-            b['locals']=Bag(_frame.f_locals)
-            b['code']="innerHTML:<div style='white-space: pre;font-size: x-small;background-color:#e0ffec;padding:2px;'>%s</div>" % code       
-            label='%s line:%i' %(m.__name__.replace('.','_'),_frame.f_lineno)
-        page._debug_calls.addItem('%03i PY:%s'%(len(page._debug_calls),label),b,debugtype='py')
-
+            self.currentPage.debugger.output(debugtype,**kwargs)
+            
     def notifyDbEvent(self,tblobj,record,event,old_record=None):
         if 'adm' in self.gnrapp.db.packages:
             page = self.currentPage
@@ -660,12 +507,6 @@ class GnrWsgiSite(object):
         """set currentPage for this thread"""
         self._currentPages[thread.get_ident()] = page
     currentPage = property(_get_currentPage,_set_currentPage)
-    
-    def loadResource(self,pkg, *path):
-        resourceDirs = self.gnrapp.packages[pkg].resourceDirs
-        resource_class = cloneClass('CustomResource',BaseResource)
-        self.mixinResource(resource_class, resourceDirs, *path)
-        return resource_class()
         
     def callTableScript(self, page=None, table=None, respath=None, class_name=None, runKwargs=None,**kwargs):
         script=self.loadTableScript(page = page, table=table, respath=respath, class_name=class_name)
@@ -698,19 +539,6 @@ class GnrWsgiSite(object):
         else:
             raise GnrWebServerError('Cannot import component %s' % modName)
         
-    def mixinResource(self, kls,resourceDirs,*path):
-        path = os.path.join(*path)
-        if ':' in path:
-            modName, clsName = path.split(':')
-        else:
-            modName, clsName = path,'*'
-        modPathList = self.getResourceList(resourceDirs, modName, 'py') or []
-        if modPathList:
-            modPathList.reverse()
-            for modPath in modPathList:
-                classMixin(kls,'%s:%s'%(modPath,clsName),only_callables=False,site=self)
-        else:
-            raise GnrWebServerError('Cannot import component %s' % modName)
 
     def getResourceList(self, resourceDirs, path ,ext=None):
         result=[]
@@ -721,82 +549,7 @@ class GnrWsgiSite(object):
                 result.append(fpath)
         return result
         
-    def page_create(self,path=None,auth_tags=None,pkg=None,name=None):
-        """Given a path returns a GnrWebPage ready to be called"""
-        if pkg=='*':
-            module_path = os.path.join(self.site_path,path)
-            pkg = self.config['packages?default']
-        else:
-            module_path = os.path.join(self.gnrapp.packages[pkg].packageFolder,'webpages',path)
-        try:
-            self.page_factory_lock.acquire()
-            page_class = self.get_page_factory(module_path, pkg = pkg, rel_path=path)
-        finally:
-            self.page_factory_lock.release()
-        page = page_class(self, filepath = module_path, packageId = pkg)
-        page.basename = path
-        return page
-
-    def page_init(self,page, request=None, response=None, page_id=None, debug=None, _user_login=None, _rpc_resultPath=None):
-        self.currentPage=page
-        page._rpc_resultPath=_rpc_resultPath
-        page.forked=False
-        page.siteFolder = page._sitepath=self.site_path
-        page.folders= page._get_folders()
-        page._request = request
-        page.called_url = request.url
-        page.path_url = request.path_url
-        page.query_string = request.query_string
-        page._user_login=_user_login
-        if not response: 
-            response = Response()
-        page._response = response
-        page.request = GnrWebRequest(request)
-        page.response = GnrWebResponse(response)
-        page.response.add_header('Pragma','no-cache')
-        page.page_id = page_id or getUuid()
-        page._htmlHeaders=[]
-        page._cliCtxData = Bag()
-        page.pagename = os.path.splitext(os.path.basename(page.filepath))[0].split(os.path.sep)[-1]
-        page.pagepath = page.filepath.replace(page.folders['pages'], '')
-        page.debug_mode = debug and True or False
-        page._dbconnection=None
         
-    def page_class_resourceDirs(self,page_class, path, pkg=None):  
-        """Find a resource in current _resources folder or in parent folders one"""
-        if pkg:
-            pagesPath = os.path.join(self.gnrapp.packages[pkg].packageFolder , 'webpages')
-        else:
-            pagesPath = os.path.join(self.site_path,'pages')
-        curdir = os.path.dirname(os.path.join(pagesPath,path))
-        resourcePkg = None
-        result = [] # result is now empty
-        if pkg: # for index page or other pages at root level (out of any package)
-            resourcePkg = self.gnrapp.packages[pkg].attributes.get('resourcePkg')
-            fpath = os.path.join(self.site_path,'_custom', pkg, '_resources')
-            if os.path.isdir(fpath):
-                result.append(fpath) # we add a custom resource folder for current package
-        fpath = os.path.join(self.site_path, '_resources')
-
-        if os.path.isdir(fpath):
-            result.append(fpath) # we add a custom resource folder for common package
-
-        while curdir.startswith(pagesPath):
-            fpath = os.path.join(curdir, '_resources')
-            if os.path.isdir(fpath):
-                result.append(fpath)
-            curdir = os.path.dirname(curdir) # we add a resource folder for folder 
-                                             # of current page
-        if resourcePkg:
-            for rp in resourcePkg.split(','):
-                fpath = os.path.join(self.gnrapp.packages[rp].packageFolder , 'webpages', '_resources')
-                if os.path.isdir(fpath):
-                    result.append(fpath)
-        #result.extend(self.siteResources)
-        resources_list = self.resources_dirs
-        result.extend(resources_list)
-        page_class.tpldirectories=result+[self.gnr_static_path(page_class.gnrjsversion,'tpl')]
-        page_class._resourceDirs = result
 
         
     def _get_siteResources(self):
@@ -931,3 +684,4 @@ class GnrWsgiSite(object):
         zip_archive.close()
         zipresult.close()
         
+            

@@ -1,1 +1,1 @@
-#No more used
+#from gnr.web.gnrwebpage import indexFolder as index

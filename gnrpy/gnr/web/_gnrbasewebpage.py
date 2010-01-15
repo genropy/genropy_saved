@@ -72,8 +72,6 @@ from gnr.web.gnrwebstruct import  GnrDomSrc_dojo_11, GnrDomSrc_dojo_12,GnrDomSrc
 #from gnr.web.gnrwebapphandler import GnrProcessHandler
 from gnr.sql.gnrsql_exceptions import GnrSqlSaveChangesException
 
-CONNECTION_TIMEOUT = 3600
-CONNECTION_REFRESH = 20
 AUTH_OK=0
 AUTH_NOT_LOGGED=1
 AUTH_FORBIDDEN=-1
@@ -88,8 +86,6 @@ class GnrWebServerError(Exception):
 
 class GnrBaseWebPage(GnrObject):
     
-    def __init__(self, request, customclass, filepath, home_uri, response=None, **kwargs):
-        raise NotImplementedException()
     
     def newCookie(self, name, value, **kw):
         return self.request.newCookie(name, value, **kw)
@@ -97,14 +93,6 @@ class GnrBaseWebPage(GnrObject):
     def newMarshalCookie(self, name, value, secret=None, **kw):
         return self.request.newMarshalCookie(name,value,secret=secret,**kw)
 
-    def raiseUnauthorized(self):
-        raise NotImplementedException()
-    
-    def add_response_header(self,header,value):
-        raise NotImplementedException()
-    
-    def get_request_header(self,header):
-        raise NotImplementedException()
         
     def get_cookie(self, cookieName, cookieType, secret = None,  path=None):
         return self.request.get_cookie(cookieName, cookieType,
@@ -139,36 +127,13 @@ class GnrBaseWebPage(GnrObject):
             return self._filename
     filename = property(_get_filename)
        
-    def get_site_id(self):
-        raise NotImplementedException()
-    
-    def _get_siteFolder(self):
-        raise NotImplementedException()
-    _siteFolder = property(_get_siteFolder)
-    
-    def _get_folders(self):
-        raise NotImplementedException()
-    #folders = property(_get_folders)
-    
-    def _get_sitepath(self):
-        raise NotImplementedException()
-    sitepath = property(_get_sitepath)
     
     def _get_canonical_filename(self):
         return self.filename
     canonical_filename = property(_get_canonical_filename)
     
-    def __siteFolder(self, *args,  **kwargs):
-        raise NotImplementedException()
-    
-    def _get_siteUri(self):
-        return self._home_uri
-    siteUri = property(_get_siteUri)
-    
-    def _get_parentdirpath(self):
-        raise NotImplementedException()
-    parentdirpath = property(_get_parentdirpath)
 
+    
     def importPageModule(self, page_path, pkg=None):
          if not pkg:
              pkg = self.packageId
@@ -223,54 +188,11 @@ class GnrBaseWebPage(GnrObject):
                                            'genro_wdg','genro_src','gnrlang','gnrstores'] 
     def _css_genro_d14(self):
            return {'all': ['gnrbase'], 'print':['gnrprint']}
-
-    def get_css_genro(self, gnrlibpath):
-        css_genro = getattr(self, '_css_genro_d%s' % self.dojoversion)()
-        for media in css_genro.keys():
-            css_genro[media] = [self.resolvePathAsUrl('gnrjs',gnrlibpath,'css', '%s.css' % f, folder='*lib') for f in css_genro[media]]
-        return css_genro
-        
-    def get_css_requires(self):
-        filename = os.path.splitext(os.path.basename(self.filename))[0]
-        css_requires=[]
-        for css in self.css_requires:
-            if css:
-                csslist = self.getResourceList(css,'css')
-                if csslist:
-                    csslist.reverse()
-                    css_requires.extend( [self.diskPathToUri(css) for css in csslist])
-        if os.path.isfile(self.resolvePath('%s.css' % filename)):
-            css_requires.append(self.diskPathToUri(self.resolvePath('%s.css' % filename)))
-        return css_requires
-
-    def get_bodyclasses(self):
-        return '%s _common_d11 pkg_%s page_%s' % (self.theme, self.packageId, self.pagename)
     
-    def getPublicMethod(self, prefix, method):
-        if '.' in method:
-            proxy_name, submethod = method.split('.',1)
-            proxy_object = getattr(self, proxy_name, None)
-            if not proxy_object:
-                proxy_class = getattr(self.__module__,proxy_name.capitalize(), None)
-                if proxy_class:
-                    proxy_object = proxy_class(self)
-                    setattr(self, proxy_name, proxy_object)
-            if proxy_object:
-                handler = getattr(proxy_object, '%s_%s' % (prefix,submethod), None)
-        else:
-            handler = getattr(self, '%s_%s' % (prefix,method))
-        return handler
+
                 
     def htmlHeaders(self):
         pass
-        
-    
-   #def rpc_jscompress(self, js, **kwargs):
-   #    cppath = self.resolvePath('temp','js', js, folder='*data')
-   #    f = file(cppath)
-   #    js = f.read()
-   #    f.close()
-   #    return js
     
     def rpc_decodeDatePeriod(self, datestr, workdate=None, locale=None):
         workdate = workdate or self.workdate
@@ -290,7 +212,7 @@ class GnrBaseWebPage(GnrObject):
         result['prev_to'] = gnrdate.dateLastYear(returnDate[1])
         result['period'] = period
         result['valid']=valid
-        result['period_string'] = gnrdate.periodCaption(locale=locale, *returnDate)
+        result['period_string'] = gnrdate.periodCaption(*returnDate,locale=locale)
         return result
     
     def rpc_ping(self, **kwargs):
@@ -303,33 +225,11 @@ class GnrBaseWebPage(GnrObject):
         self.app.setContextJoinColumns(table=contextTable, contextName=contextName, reason=gridId,
                                        path=relation_path, columns=query_columns)
     
-    def onEnd(self):
-        pass
-    
-    def _onEnd(self):
-        self.handleMessages()
-        if hasattr(self, '_localizer'):
-            self.session.loadSessionData()
-            localization={}
-            localization.update(self.session.pagedata['localization'] or {})
-            localization.update(self.localizer)
-            self.session.setInPageData('localization', localization)
-            self.session.saveSessionData()
-        if hasattr(self, '_connection'):
-            if self.user:
-                self.connection._finalize()
-        if hasattr(self, '_app'):
-            self._app._finalize(self)
-        self.onEnd()
     
     def mixins(self):
         """Implement this method in your page for mixin the page with methods from the local _resources folder
         @return: list of mixin names, moduleName:className"""
         return []
-    
-    def onInit(self):
-        # subclass hook
-        pass
         
     def requestWrite(self, txt, encoding='utf-8'):
         self.responseWrite(txt,encoding=encoding)
@@ -337,25 +237,8 @@ class GnrBaseWebPage(GnrObject):
     def responseWrite(self, txt, encoding='utf-8'):
         self.response.write(txt.encode(encoding))
 
-    def log(self, msg):
-        if getattr(self, 'debug', False):
-            f = file(self.logfile, 'a')
-            f.write('%s -- %s\n' % (datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'), msg))
-            f.close()
-            
-    def _get_localizer(self): 
-        if not hasattr(self, '_localizer'):
-            self._localizer={}
-            self.missingLoc=False
-        return self._localizer
-    localizer = property(_get_localizer) 
-    
-    def isLocalizer(self) :
-        return (self.userTags and ('_TRD_' in self.userTags))
-        
-    def isDeveloper(self) :
-        return (self.userTags and ('_DEV_' in self.userTags)) 
-        
+
+
     def _get_siteStatus(self):
         if not hasattr(self, '_siteStatus'):
             path = os.path.join(self.siteFolder, 'data', '_siteStatus.xml')
@@ -377,7 +260,6 @@ class GnrBaseWebPage(GnrObject):
         if not self._user:
             self._user = self.connection.appSlot.get('user')
         return self._user
-        
     user = property(_get_user)
         
     def _get_userTags(self):
@@ -415,26 +297,8 @@ class GnrBaseWebPage(GnrObject):
         else:
             login['message'] = 'invalid login'
         return (login,loginPars)
-    
 
-    def _rpcDispatcher(self, method=None, xxcnt='',**kwargs):
-        if False and method!= 'main':
-            if self.session.pagedata['page_id']!=self.page_id :
-                self.raiseUnauthorized()
-        parameters = dict(kwargs)
-        for k,v in kwargs.items():
-            if isinstance(v, basestring):
-                try:
-                    v=self.catalog.fromTypedText(v, workdate=self.workdate)
-                    if isinstance(v, basestring):
-                        v = v.decode('utf-8')
-                    parameters[k] = v
-                except Exception, e:
-                    raise e
-        auth = AUTH_OK
-        if not method in ('doLogin', 'jscompress'):
-            auth = self._checkAuth(method=method, **parameters)
-        return self.rpc(self, method=method, _auth=auth, **parameters)
+
         
     def _checkAuth(self, method=None, **parameters):
         auth = AUTH_OK
@@ -469,52 +333,6 @@ class GnrBaseWebPage(GnrObject):
             dbtable = self.db.table(dbtable)
         return dbtable.frozenSelection(self.pageLocalDocument(name))
 
-    def _get_connectionFolder(self):
-        return self.connection.connectionFolder
-    connectionFolder = property(_get_connectionFolder)
-    
-    def _get_connection(self):
-        if not hasattr(self, '_connection'):
-            connection = GnrWebConnection(self)
-            self._connection = connection
-            connection.initConnection()
-        return self._connection
-    connection = property(_get_connection)
-    
-    def _get_utils(self):
-        if not hasattr(self, '_utils'):
-            self._utils = GnrWebUtils(self)
-        return self._utils
-    utils = property(_get_utils)
-    
-    def _get_rpc(self):
-        if not hasattr(self, '_rpc'):
-            self._rpc = GnrWebRpc()
-        return self._rpc
-    rpc = property(_get_rpc)
-    
-    def temporaryDocument(self, *args):
-        return self.connectionDocument('temp',*args)
-    
-    def temporaryDocumentUrl(self, *args):
-        return self.connectionDocumentUrl('temp',*args)
-        
-    def connectionDocument(self, *args):
-        filepath = os.path.join(self.connection.connectionFolder, self.page_id, *args)
-        folder = os.path.dirname(filepath)
-        if not os.path.isdir(folder):
-            os.makedirs(folder)
-        return filepath
-    
-    def connectionDocumentUrl(self, *args):
-        return self.site.connection_static_url(self,*args)
-    
-    def _get_session(self):
-        if not hasattr(self, '_session'):
-            self._session = GnrWebSession(self, lock=0)
-        return self._session
-    session = property(_get_session)
-
     def _get_pageArgs(self):
         return self.session.pagedata['pageArgs'] or {}
     pageArgs = property(_get_pageArgs)
@@ -541,15 +359,7 @@ class GnrBaseWebPage(GnrObject):
     def sendMessage(self,message):
         self.setInClientData('gnr.servermsg', message, fired=True, save=True,
                             src_page_id=self.page_id,src_user=self.user,src_connection_id=self.connection.connection_id)
-            
-    def clientDataChanges(self):
-        if self.session.pagedata['_clientDataChanges']:
-            self.session.loadSessionData()
-            result = self.session.pagedata.pop('_clientDataChanges') or Bag()
-            self.session.saveSessionData()
-            return result
-        
-
+   
     def _get_catalog(self):
         if not hasattr(self, '_catalog'):
             self._catalog = self.application.catalog
@@ -567,66 +377,11 @@ class GnrBaseWebPage(GnrObject):
     def rpc_changeLocale(self, locale):
         self.connection.locale = locale.lower()
         
-    def translateText(self, txt):
-        key='%s|%s' % (self.packageId, txt.lower())
-        localelang = self.locale.split('-')[0]
-        loc = self.application.localization.get(key)
-        missingLoc=True
-        if not loc:
-            key=txt
-            loc = self.application.localization.get(txt)
-        if loc:
-            loctxt = loc.get(localelang) 
-            if loctxt :
-                missingLoc=False
-                txt=loctxt
-        else:
-            self._translateMissing(txt)
-            self.application.localization[key] = {}
-        if self.isLocalizer():
-            self.localizer[key]=self.application.localization[key]
-            self.missingLoc=self.missingLoc or missingLoc
-        return txt
-        
-    def _(self, txt):
-        if txt.startswith('!!'):
-            txt = self.translateText(txt[2:])
-        return txt
-    
-    def _translateMissing(self, txt):
-        if not self.packageId: return
-        missingpath = os.path.join(self.siteFolder, 'data', '_missingloc', self.packageId)
-        if isinstance(txt, unicode): 
-            txtmd5 = txt.encode('utf8', 'ignore')
-        else:
-            txtmd5 = txt
-        fname = os.path.join(missingpath, '%s.xml' % hashlib.md5(txtmd5).hexdigest())
-        
-        if not os.path.isfile(fname):
-            b = Bag()
-            b['txt'] = txt
-            b['pkg'] = self.packageId
-            old_umask = os.umask(2)
-            b.toXml(fname, autocreate=True)
-            os.umask(old_umask)
-        
+
     def toText(self, obj, locale=None, format=None, mask=None, encoding=None, dtype=None):
         locale = locale or self.locale
         return toText(obj, locale=locale, format=format, mask=mask, encoding=encoding)
-
-    def _get_config(self):
-        if not hasattr(self, '_config'):
-            self._config = Bag(self.utils.absoluteDiskPath('siteconfig.xml'))
-        return self._config
-    config = property(_get_config)
     
-    def getDomainUrl(self, path, **kwargs):
-        params = urllib.urlencode(kwargs)
-        path = os.path.join(self.folders['pages'].replace(self.folders['document_root'], ''), path)
-        if params:
-            path = '%s?%s' % (path, params)
-        return path
-        
     def externalUrl(self, path, **kwargs):
         params = urllib.urlencode(kwargs)
         #path = os.path.join(self.homeUrl(), path)
@@ -663,8 +418,6 @@ class GnrBaseWebPage(GnrObject):
             diskpath = os.path.join(sitefolder, 'pages', '_lib', *args)
         elif folder == '*static':
             diskpath = os.path.join(sitefolder, 'pages', 'static', *args)
-        elif folder == '*common':
-            diskpath = os.path.join(sitefolder, 'pages', '_common_d11' , *args)
         else:
             diskpath = os.path.join(os.path.dirname(self.filename), *args)
         diskpath = os.path.normpath(diskpath)
@@ -685,10 +438,6 @@ class GnrBaseWebPage(GnrObject):
     def _get_siteName(self):
         return os.path.basename(self.siteFolder.rstrip('/'))
     siteName = property(_get_siteName)
-    
-    def _get_app(self):
-        raise NotImplementedException()
-    app = property(_get_app) #cambiare in appHandler e diminuirne l'utilizzo al minimo
     
     def _get_db(self):
         return self.app.db
@@ -717,8 +466,6 @@ class GnrBaseWebPage(GnrObject):
             return self.db.package(pkgId)
     package = property(_get_package)
 
-
-    
     def _get_tblobj(self):
         if self.maintable:
             return self.db.table(self.maintable)
@@ -738,17 +485,8 @@ class GnrBaseWebPage(GnrObject):
         self.session.setInPageData('workdate', workdate)
         self.session.saveSessionData()
         self._workdate = workdate
-
     workdate = property(_get_workdate, _set_workdate)
     
-    def _get_logfile(self):
-        if not hasattr(self, '_logfile'):
-            logdir = os.path.normpath(os.path.join(self.utils.directory, '..', 'data', 'logs'))
-            if not os.path.isdir(logdir):
-                os.makedirs(logdir)
-            self._logfile = os.path.join(logdir, 'error_%s.log' % datetime.date.today().strftime('%Y%m%d'))
-        return self._logfile
-    logfile = property(_get_logfile)
                
     def formSaver(self,formId,table=None,method=None,_fired='',datapath=None,
                     resultPath='dummy',changesOnly=True,onSaved=None,saveAlways=False,**kwargs):
@@ -862,18 +600,6 @@ class GnrBaseWebPage(GnrObject):
     def setLoadingParameters(self, table,**kwargs):
         self.pageSource().dataFormula('gnr.tables.%s.loadingParameters' %table.replace('.','_'), 
                                        '',_onStart=True, **kwargs)
-                                       
-    def onSaving(self, recordCluster, recordClusterAttr, resultAttr=None):
-        pass
-    
-    def onSaved(self, record, resultAttr=None, **kwargs):
-        pass
-    
-    def onDeleting(self, recordCluster, recordClusterAttr):
-        pass
-    
-    def onDeleted(self, record):
-        pass
         
     def toJson(self,obj):
         return toJson(obj)
@@ -1051,10 +777,7 @@ class GnrBaseWebPage(GnrObject):
         pass
         
     def newSourceRoot(self):
-        root = self.domSrcFactory.makeRoot(self)
-        if not getattr(self,'_root',None):
-            self._root = root
-        return root
+        return self.domSrcFactory.makeRoot(self)
     
     def newGridStruct(self, maintable=None):
         return GnrGridStruct.makeRoot(self, maintable=maintable)
@@ -1104,56 +827,6 @@ class GnrBaseWebPage(GnrObject):
             resolver._page=self
             return resolver()
     
-    def makoTemplate(self,path,striped='odd_row,even_row', **kwargs):
-        auth = self._checkAuth()
-        if auth != AUTH_OK:
-            self.raiseUnauthorized()
-            
-        if striped:
-            kwargs['striped']=itertools.cycle(striped.split(','))
-            
-        tpldirectories=[os.path.dirname(path), self.parentdirpath]+self.resourceDirs+[self.resolvePath('gnrjs','gnr_d%s' % self.dojoversion,'tpl',folder='*lib')]
-        
-        lookup=TemplateLookup(directories=tpldirectories,
-                              output_encoding='utf-8', encoding_errors='replace')                      
-        template = lookup.get_template(os.path.basename(path))
-        self.response.content_type = 'text/html'
-        css_dojo = getattr(self, '_css_dojo_d%s' % self.dojoversion)()
-        gnrlibpath='gnr_d%s' % self.dojoversion
-        
-        dojolib=self.resolvePathAsUrl('dojo/dojo_%s/dojo/dojo.js'%self.dojoversion, folder='*lib')
-        return template.render(mainpage=self,
-                               css_genro = self.get_css_genro(gnrlibpath),
-
-                               css_dojo = [self.resolvePathAsUrl('dojo/dojo_%s/%s' % (self.dojoversion,f), folder='*lib') for f in css_dojo],
-                               dojolib=dojolib,
-                               djConfig="parseOnLoad: false, isDebug: %s, locale: '%s'" % (self.isDeveloper() and 'true' or 'false',self.locale),
-                               gnrModulePath='../../gnrjs',**kwargs)
-        
-    def rmlTemplate(self,path,inline=False,**kwargs):
-        auth = self._checkAuth()
-        if auth != AUTH_OK:
-            self.raiseUnauthorized()
-        tpldirectories=[os.path.dirname(path), self.parentdirpath]+self.resourceDirs+[self.resolvePath('gnrjs','gnr_d%s' % self.dojoversion,'tpl',folder='*lib')]
-        lookup=TemplateLookup(directories=tpldirectories,
-                             output_encoding='utf-8', encoding_errors='replace')                      
-        template = lookup.get_template(os.path.basename(path))
-        self.response.content_type = 'application/pdf'
-        filename=os.path.split(path)[-1].split('.')[0]
-        inline_attr=(inline and 'inline') or 'attachment'
-        self.response.add_header("Content-Disposition",str("%s; filename=%s.pdf"%(inline_attr,filename)))
-        import cStringIO
-        from lxml import etree
-        from z3c.rml import document
-        tmp = template.render(mainpage=self,**kwargs)
-        tmp=tmp.replace('&','&amp;')
-        root = etree.fromstring(tmp)
-        doc = document.Document(root)
-        output = cStringIO.StringIO()
-        doc.process(output)
-        output.seek(0)
-        return output.read()
-        
     def debugger(self,debugtype='py',**kwargs):
         self.site.debugger(debugtype,_frame=sys._getframe(1),**kwargs)
         
@@ -1171,32 +844,6 @@ class GnrBaseWebPage(GnrObject):
         src.dataController("genro.debugopt=sqldebug?(pydebug? 'sql,py' :'sql' ):(pydebug? 'py' :null )",
                             sqldebug='^debugger.sqldebug',pydebug='^debugger.pydebug')
         src.dataController("FIRE debugger.tree_redraw;",sqldebug='^debugger.main',_delay=1)
-        return src
-    def rpc_debuggerContent(self):
-        src = self.domSrcFactory.makeRoot(self)
-        src.dataRemote('_dev.dbstruct','app.dbStructure')
-        src.accordionPane(title='Datasource').tree(storepath='*D',persist=False,inspect='shift')
-        src.accordionPane(title='Database').tree(storepath='_dev.dbstruct',persist=False,inspect='shift')
-        src.accordionPane(title='Page source').tree(storepath='*S', label="Source inspector",
-                                                   inspect='shift',selectedPath='_dev.selectedSourceNode') 
-        src.dataScript('dummy','genro.src.highlightNode(fpath)',fpath='^_dev.selectedSourceNode')
-        dbmnt=src.accordionPane(title='Db Maintenance')
-        dbmnt.dataRpc('status', 'tableStatus', _fired='^aux.do_tableStatus')
-        dbmnt.dataRpc('status', 'checkDb', _fired='^aux.do_checkDb')
-        dbmnt.dataRpc('status', 'applyChangesToDb', _fired='^aux.do_applyChangesToDb')
-        dbmnt.dataRpc('status', 'resetApp', _fired='^aux.do_resetApp')
-        bc=dbmnt.borderContainer(height='100%')
-        top=bc.contentPane(region='top',font_size='.9em',height='10ex')
-        center=bc.tabContainer(region='center',font_size='.9em')
-        center.contentPane(title='test')
-        top.button('tableStatus', fire='aux.do_tableStatus',)
-        top.button('CheckDb', fire='aux.do_checkDb')
-        top.button('applyChangesToDb', fire='aux.do_applyChangesToDb')
-        top.button('resetApp', fire='aux.do_resetApp')
-        for k,x in enumerate(self.db.packages.items()):
-            pkgname, pkg = x
-            pane=center.contentPane(title=pkgname,height='100%')
-            pane.button('test')
         return src
         
     def rpc_resetApp(self, **kwargs):
@@ -1261,30 +908,11 @@ class GnrBaseWebPage(GnrObject):
             if not os.path.exists(path):
                 os.makedirs(path)
             return path
-            
-    def getResourceUri(self, path, ext=None):
-        fpath=self.getResource(path, ext=ext)
-        if fpath:
-            return self.diskPathToUri(fpath)
-            
-    def getResource(self, path, ext=None):
-        result=self.getResourceList(path=path,ext=ext)
-        if result:
-            return result[0]
-            
-    def getResourceList(self, path, ext=None):
-        """Find a resource in current _resources folder or in parent folders one"""
-        result=[]
-        if ext and not path.endswith('.%s' % ext): path = '%s.%s' % (path, ext)
-        for dpath in self.resourceDirs:
-            fpath = os.path.join(dpath, path)
-            if os.path.exists(fpath):
-                result.append(fpath)
-        return result 
 
     def _get_resourceDirs(self):
         """Find a resource in current _resources folder or in parent folders one"""
         if not hasattr(self, '_resourceDirs'):
+            raise Exception('NON WORKING')
             pagesPath = self.folders['pages']
             curdir = self.folders['current']
             resourcePkg = None
@@ -1320,450 +948,4 @@ class GnrBaseWebPage(GnrObject):
         # most customized and ending with most generic ones
         return self._resourceDirs 
     resourceDirs = property(_get_resourceDirs)
-             
-class GnrWebRpc(object):    
-    def __call__(self, page, method=None, mode='bag', _auth=AUTH_FORBIDDEN, **kwargs):
-        if _auth==AUTH_FORBIDDEN and method!='main':
-            result = None
-            error = 'forbidden call'
-        elif _auth=='EXPIRED':
-            result=None
-            error='expired'
-        else:
-            handler=page.getPublicMethod('rpc', method)
-            if method=='main':
-                kwargs['_auth'] = _auth
-            if handler:
-                if page.debug_mode:
-                    result = handler(**kwargs)
-                    error=None
-                else:
-                    if True:
-#                    try:
-                        result = handler(**kwargs)
-                        error = None
-#                    except GnrWebClientError, err:
-#                        result = err.args[0]
-#                        error = 'clientError'
-#                    except Exception, err:
-#                        raise err
-#                        result = page._errorPage(err,method,kwargs)
-#                        mode='bag'
-#                        error = 'serverError'
 
-            else:
-                result = None
-                error = 'missing handler:%s' % method
-        return getattr(self, '_call_%s' % mode.lower())(page, method, kwargs, result, error)
-        
-    def _call_bag(self, page, method, kwargs, result, error):
-        envelope=Bag()
-        resultAttrs={}
-        dataChanges = page.clientDataChanges() or Bag()
-        if isinstance(result,tuple):
-            resultAttrs=result[1]
-            if len(result)==3 and isinstance(result[2],Bag):
-                #if dataChanges:
-                dataChanges.update(result[2])
-                #else:
-                    #dataChanges = result[2]
-            result=result[0]
-            if resultAttrs is not None:
-                envelope['resultType'] = 'node'
-        if error:
-            envelope['error'] = error
-        if isinstance(result, page.domSrcFactory):
-            resultAttrs['__cls']='domsource'
-        if page.isLocalizer():
-            envelope['_localizerStatus']='*_localizerStatus*'
-        envelope.setItem('result', result, _attributes=resultAttrs)
-        
-        if page.debugopt and page._debug_calls:
-            dataChanges.setItem('debugger_main',page._debug_calls,_client_path='debugger.main.c_%s'%page.callcounter)           
-        if dataChanges :
-            envelope.setItem('dataChanges', dataChanges)
-        
-        
-        page.response.content_type = "text/xml"
-        xmlresult= envelope.toXml(unresolved=True, jsonmode=True, jsonkey=page.page_id, 
-                              translate_cb=page.translateText, omitUnknownTypes=True, catalog=page.catalog)
-        if page.isLocalizer():
-            _localizerStatus=''
-            if hasattr(page,'_localizer'):
-                if page.missingLoc:
-                    _localizerStatus='missingLoc'
-                else:
-                    _localizerStatus='ok'
-            xmlresult=xmlresult.replace('*_localizerStatus*', _localizerStatus)
-        return xmlresult
-
-    def _call_json(self, page, method, kwargs, result, error):
-        if not error:
-            return page.catalog.toJson(result)
-        else:
-            return page.catalog.toJson({'error':error})
-        
-    def _call_text(self, page, method, kwargs, result, error):
-        return result or error
-    
-    def _call_html(self, page, method, kwargs, result, error):
-        page.response.content_type = "text/html"
-        return result or error
-
-    
-class GnrWebConnection(object):
-    def __init__(self, page):
-        self.page = page
-        self.expired = False
-        
-    
-    def initConnection(self):
-        page = self.page
-        self.cookieName = 'conn_%s' % self.page.siteName
-        self.secret = page.config['secret'] or self.page.siteName
-        self.allConnectionsFolder = os.path.join(self.page.siteFolder, 'data', '_connections')
-        self.cookie = None
-        self.oldcookie=None
-        if page._user_login:
-            user, password = page._user_login.split(':')
-            self.connection_id = getUuid()
-            avatar = page.application.getAvatar(user, password, authenticate=True,connection=self)
-            self.cookie = self.page.newMarshalCookie(self.cookieName, {'connection_id': self.connection_id or getUuid(), 'slots':{}, 'locale':None, 'timestamp':None}, secret = self.secret)
-            if avatar:
-                self.updateAvatar(avatar)
-        else:
-            cookie = self.page.get_cookie(self.cookieName,'marshal', secret = self.secret)
-            if cookie: #Cookie is OK
-                self.oldcookie=cookie
-                self.connection_id = cookie.value.get('connection_id')
-                if self.connection_id:
-                    cookie = self.verify(cookie)
-                    if cookie:
-                        self.cookie = cookie
-            if not self.cookie:
-                self.connection_id = getUuid()
-                self.cookie = self.page.newMarshalCookie(self.cookieName, {'connection_id': self.connection_id, 'slots':{}, 'locale':None, 'timestamp':None}, secret = self.secret)
-
-    def _get_data(self):
-        if not hasattr(self, '_data'):
-            if os.path.isfile(self.connectionFile):
-                self._data = Bag(self.connectionFile)
-            else:
-                self._data = Bag()
-                self._data['start.datetime'] = datetime.datetime.now()                
-        return self._data
-    data = property(_get_data)
-    
-    def cookieToRefresh(self):
-        self.cookie.value['timestamp'] = None
-        
-    def _finalize(self):
-        if not self.cookie.value.get('timestamp'):
-            self.cookie.value['timestamp'] = time.time()
-            self.data['ip'] = self.page.request.remote_addr
-            self.data['pages'] = Bag(self.page.session.getActivePages(self.connection_id))
-            self.write()
-        self.cleanExpiredConnections(rnd=0.9)
-        
-    def writedata(self):
-        """Write immediatly the disk file, not the cookie: use it for update data during a long process"""
-        self.data.toXml(self.connectionFile, autocreate=True)
-
-    def write(self):
-        self.cookie.path = self.page.siteUri
-        self.page.add_cookie(self.cookie)
-        self.data['cookieData'] = Bag(self.cookie.value)
-        self.data.toXml(self.connectionFile, autocreate=True)
-
-    def _get_appSlot(self):
-        if self.cookie:
-            return self.cookie.value['slots'].setdefault(self.page.app.appId, {})
-        return {}
-    appSlot = property(_get_appSlot)
-    
-    def _get_locale(self):
-        return self.cookie.value.get('locale')
-    def _set_locale(self, v):
-        self.cookie.value['timestamp'] = None
-        self.cookie.value['locale'] = v
-    locale = property(_get_locale, _set_locale)
-    
-    def updateAvatar(self, avatar):
-        self.cookie.value['timestamp'] = None
-        appSlot = self.appSlot
-        appSlot['user'] = avatar.id
-        appSlot['tags'] = avatar.tags
-
-    def _get_connectionFolder(self):
-        return os.path.join(self.allConnectionsFolder, self.connection_id)
-    connectionFolder = property(_get_connectionFolder)
-
-    def _get_connectionFile(self):
-        return os.path.join(self.connectionFolder, 'connection.xml')
-    connectionFile = property(_get_connectionFile)
-    
-    def rpc_logout(self,**kwargs):
-        #self.cookie = self.page.newMarshalCookie(self.cookieName, {'expire':True,'connection_id': None, 'slots':{}, 'locale':None, 'timestamp':None}, secret = self.secret)
-        self.close()
-        
-    def close(self):
-        self.dropConnection(self.connection_id)
-        
-    def dropConnection(self,connection_id):
-        self.page.site.connectionLog(self.page,'close')
-        self.connFolderRemove(connection_id)
-        
-    def connFolderRemove(self, connection_id):
-        path= os.path.join(self.allConnectionsFolder, connection_id)
-        for root, dirs, files in os.walk(path, topdown=False):
-            for name in files:
-                os.remove(os.path.join(root, name))
-            for name in dirs:
-                os.rmdir(os.path.join(root, name))
-        os.rmdir(path)
-        
-    def verify(self, cookie):
-        if os.path.isfile(self.connectionFile):
-            expire=False
-            if cookie.value.get('expire'):
-                expire=True
-            elif cookie.value.get('timestamp'):
-                cookieAge = time.time() - cookie.value['timestamp']
-                if cookieAge < int(self.page.config.getItem('connection_refresh') or CONNECTION_REFRESH):
-                    return cookie # fresh cookie
-                elif cookieAge < int(self.page.config.getItem('connection_timeout') or CONNECTION_TIMEOUT):
-                    cookie = self.page.newMarshalCookie(self.cookieName, {'connection_id': cookie.value.get('connection_id') or getUuid(), 
-                                                                'locale':cookie.value.get('locale'),
-                                                                 'slots':cookie.value.get('slots'), 'timestamp':None}, 
-                                                                 secret = self.secret)
-                    return cookie
-                else:
-                    expire=True
-            if expire:
-                self.isExpired = True
-                #cookie = self.page.newMarshalCookie(self.cookieName, {'slots':cookie.value.get('slots'), 'timestamp':None}, secret = self.secret)
-                self.close() # old cookie: destroy
-                return cookie
-                
-    def cleanExpiredConnections(self, rnd=None):
-        if (not rnd) or (random.random() > rnd):
-            dirbag = self.connectionsBag()
-            t = time.time()
-            for conn_id, conn_files, abs_path in dirbag.digest('#k,#v,#a.abs_path'):
-                try:
-                    cookieAge = t - (conn_files['connection_xml.cookieData.timestamp'] or 0)
-                except:
-                    cookieAge = t
-                    print conn_id
-                if cookieAge > int(self.page.config.getItem('connection_timeout') or CONNECTION_TIMEOUT):
-                    self.dropConnection(conn_id)
-        
-    def connectionsBag(self):
-        if os.path.isdir(self.allConnectionsFolder):
-            dirbag = Bag(self.allConnectionsFolder)['_connections']
-        else:
-            dirbag = Bag()
-        return dirbag
-            
-    
-class GnrWebSession(object):
-    def __init__(self, page, sid=None, secret=None, timeout=None, lock=None):
-        self.page_id = page.page_id
-        kwargs=optArgs(sid=sid, secret=secret,timeout=timeout,lock=lock)
-        #self.session = Session.Session(page.request, **kwargs)
-        self.session = page.get_session(**kwargs)
-        self.loadSessionData(False)
-        self.locked = False
-        
-    def loadSessionData(self, locking=True):
-        if locking and not self.locked:
-            self.session.load()
-            self.session.lock()
-            self.locked = True
-        self.pagedata = self.getSessionData(self.page_id)
-        self.common = self.getSessionData('common')
-        
-    def saveSessionData(self):
-        if not self.locked:
-            raise
-        self.pagedata.makePicklable()
-        self.common.makePicklable()
-        self.session.save()
-        self.session.unlock()
-        self.locked = False
-        
-    #def getActivePages(self, connection_id):
-    #    result = {}
-    #    for page_id, pagedata in self.session.items():
-    #        if page_id != 'common' and pagedata['connection_id']==connection_id:
-    #            result[page_id] = pagedata
-    #    return result
-
-    def getActivePages(self, connection_id):
-        result = {}
-        items=dict(self.session)
-        if items.has_key('_accessed_time'): del items['_accessed_time']
-        if items.has_key('_creation_time'): del items['_creation_time']
-        for page_id, pagedata in items.items():
-            if page_id != 'common' and pagedata['connection_id']==connection_id:
-                result[page_id] = pagedata
-        return result
-
-    def setInPageData(self, path, value, _attributes=None, page_id=None, notifyClient=False):
-        if not self.locked:
-            self.loadSessionData()
-        if (not page_id) or (page_id==self.page_id):
-            self.pagedata.setItem(path, value, _attributes=_attributes)
-        else:
-            data = self.getSessionData(page_id)
-            data.setItem(path, value, _attributes=_attributes)
-            data.makePicklable()
-            
-    def modifyPageData(self, path, value, _attributes=None):
-        self.loadSessionData()
-        self.pagedata.setItem(path, value, _attributes=_attributes)
-        self.saveSessionData()
-        
-    def setInCommonData(self, path, value, attr=None):
-        self.common.setItem(path, value, attr)
-                
-    def removePageData(self):
-        self.loadSessionData()
-        self.session.pop(self.page_id)
-        self.saveSessionData()
-        
-    def getSessionData(self, page_id):
-        data = self.session.get(page_id)
-        if data is None:
-            data = Bag()
-            self.session[page_id] = data
-        else:
-            data.restoreFromPicklable()
-        return data
-        
-class GnrWebUtils(object):
-    def __init__(self, page):
-        #self._page=weakref.ref(page)
-        self.page=page
-        self.directory = page.sitepath
-        self.filename = page.filename
-        self.canonical_filename = page.canonical_filename
-        
-#    def _get_page(self):
-#          if self._page:
-#              return self._page()
-#    page = property(_get_page)
-      
-    def siteFolder(self, *args,  **kwargs):
-        """The http static root"""
-        path = os.path.normpath(os.path.join(self.directory, '..', *args))
-        relative=kwargs.get('relative')
-        if relative:
-            return self.diskPathToUri(path)
-        return path
-        
-    def linkPage(self, *args, **kwargs):
-        fromPage = kwargs.pop('fromPage')
-        fromPageArgs = kwargs.pop('fromPageArgs')
-        kwargs['relative'] = True
-        topath = self.rootFolder(*args, **kwargs)
-        if fromPage:
-            fromPage = self.rootFolder(*args,**{'reverse':True})
-            fromPage = '%s?%s' % (fromPage, urllib.urlencode(fromPageArgs))
-            topath = '%s?%s' % (topath, urllib.urlencode({'fromPage':fromPage}))
-        return topath
-
-    def rootFolder(self, *args, **kwargs):
-        """The mod_python root"""
-        path = os.path.normpath(os.path.join(self.directory, *args))
-        
-        if kwargs.get('reverse'):
-            return self.diskPathToUri(self.filename, fromfile=path)
-        elif kwargs.get('relative'):
-            return self.diskPathToUri(path)
-        return path
-        
-    def pageFolder(self,*args,**kwargs):
-        path = os.path.normpath(os.path.join(self.page.parentdirpath, *args))
-        relative=kwargs.get('relative')
-        if relative:
-            return self.diskPathToUri(path)
-        return path
-        
-    def relativePageFolder(self, *args, **kwargs):
-        return os.path.dirname(self.canonical_filename).replace(self.page.siteFolder,'')
-    
-    def abspath(self, path):
-        return os.path.normpath(os.path.join(os.path.dirname(self.filename), path))
-    
-    def absoluteDiskPath(self, path):
-        os.path.join(self.page.siteFolder, path)
-        return os.path.join(self.page.siteFolder, path)
-    
-    def diskPathToUri(self, tofile, fromfile=None):
-        return self.page.diskPathToUri(tofile,fromfile=fromfile)
-        fromfile = fromfile or self.filename
-        basepath=os.path.normpath(os.path.join(self.directory, '..'))
-        relUrl = tofile.replace(basepath,'').lstrip('/')
-        path = fromfile.replace(basepath,'')
-        rp = '../'*(len(path.split('/'))-2)
-        return '%s%s' % (rp, relUrl)
-        
-    def readFile(self, path):
-        if not path.startswith('/'):
-            path=self.abspath(path)
-        f=file(path,'r')
-        result=f.read()
-        f.close()
-        return result
-        
-    def filename(self):
-        return self.filename
-     
-    def dirbag(self, path='', base='', include='', exclude=None, ext=''):
-        if base=='site':
-            path = os.path.join(self.siteFolder, path)
-        elif base=='root':
-            path = os.path.join(self.rootFolder(), path)
-        else:
-            path = os.path.join(self.pageFolder(), path)
-        
-        result = Bag()
-        path=os.path.normpath(path)
-        path=path.rstrip('/')
-        if not os.path.exists(path):
-            os.makedirs(path)
-        result[os.path.basename(path)] = DirectoryResolver(path, include=include, exclude=exclude, dropext=True, ext=ext)
-        return result
-        
-    def pageTitle(self):
-        return self.canonical_filename.replace(self.directory,'')
-        
-    def sendFile(self, content, filename=None, ext='', encoding='utf-8', mimetype='', sizelimit=200000):
-        response = self.page.response
-        if not mimetype:
-            if ext=='xls':
-                mimetype='application/vnd.ms-excel'
-        filename = filename or self.page.request.uri.split('/')[-1]
-        if encoding:
-            content = content.encode(encoding)
-        filename = filename.replace(' ','_').replace('/','-').replace(':','-').encode(encoding or 'ascii', 'ignore')
-        if not sizelimit or len(content) < sizelimit:
-            response.content_type = mimetype
-            response.add_header("Content-Disposition", "attachment; filename=%s.%s" % (filename, ext))
-        else:
-            response.content_type = 'application/zip'
-            response.add_header("Content-Disposition", "attachment; filename=%s.zip" % filename)
-            zipresult = StringIO.StringIO()
-            zip = zipfile.ZipFile(zipresult, mode='w', compression=zipfile.ZIP_DEFLATED)
-            zipstring = zipfile.ZipInfo('%s.%s' % (filename, ext), datetime.datetime.now().timetuple()[:6])
-            zipstring.compress_type = zipfile.ZIP_DEFLATED
-            zip.writestr(zipstring, content)
-            zip.close()
-            content = zipresult.getvalue()
-            zipresult.close()
-        response.add_header("Content-Length", str(len(content)))
-        response.write(content)
-    
-        
-        

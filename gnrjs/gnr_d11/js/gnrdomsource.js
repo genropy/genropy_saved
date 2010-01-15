@@ -211,8 +211,6 @@ dojo.declare("gnr.GnrDomSourceNode",gnr.GnrBagNode,{
                     _onResult = funcCreate(_onResult,'result,kwargs',this);
 
                  }
-                 kwargs['_rpc_resultPath']=destinationPath;
-                 
                  var cb = function(result){   dataNode.setValue(result);
                                               if(_onResult){
                                                     _onResult(result,origKwargs);
@@ -245,7 +243,6 @@ dojo.declare("gnr.GnrDomSourceNode",gnr.GnrBagNode,{
                 var cacheTime=objectPop(attributes,'cacheTime', -1);
                 var isGetter=objectPop(attributes,'isGetter', false);
                 attributes.sync = ('sync' in attributes) ? attributes.sync: true;
-                attributes['_rpc_resultPath']=destinationPath;
                 attributes['_sourceNode']=this;
                 var resolver = genro.rpc.remoteResolver(method, attributes, {'cacheTime':cacheTime,
                                                         'isGetter':isGetter});

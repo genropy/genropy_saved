@@ -119,7 +119,7 @@ class TransactionManager4D(object):
         if action=='INS':
             self.db.table(tablepath).insertOrUpdate(data)
         elif action=='UPD':
-            self.db.table(tablepath).update(data)
+            self.db.table(tablepath).insertOrUpdate(data)
         elif action=='DEL':
             self.db.table(tablepath).delete(data)
         self.db.commit()

@@ -79,8 +79,3 @@ class GnrCustomWebPage(object):
         result = result  % '\n'.join(rows)
         return result
 
-#---- rpc index call -----
-def index(req, **kwargs):
-    #return GnrWebPage(req, GnrCustomWebPage, __file__, **kwargs).index()
-
-    return GnrWebPage(GnrCustomWebPage, __file__).index(req, **kwargs)

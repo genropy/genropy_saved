@@ -1043,11 +1043,34 @@ class Bag(GnrObject):
         else:
             return (None,['foo','bar','baz'])
         """
+        node, tail_path = self._htraverse(path,returnLastMatch=True)
+        if hasattr(node,'_htraverse'):
+            node = node.getNode(tail_path)
+            tail_path = ''
+        if node:
+            node._tail_list = []
+            if tail_path:
+                node._tail_list = tail_path.split('.')
+            return node
+        #return None
+        
+    def getDeepestNode_(self,path=None):
+        """
+        This method returns the deepest matching node in the bag and the remaining path of the path
+        eg: bag.getDeepestNode('foo.bar.baz') returns 
+        if 'foo.bar.baz' in bag:
+            return (bag.getNode(foo.bar.baz), [])
+        elif 'foo.bar' in bag:
+            return (bag.getNode('foo.bar'), ['baz'])
+        elif 'bar' in bag:
+            return (bag.getNode(foo),['bar','baz'])
+        else:
+            return (None,['foo','bar','baz'])
+        """
         result = self._htraverse(path,returnLastMatch=True)
         if hasattr(result[0],'_htraverse'):
             return result[0].getNode(result[1]), ''
         return result
-        
 #-------------------- getNode --------------------------------        
     def getNode(self, path=None, asTuple=False, autocreate=False, default=None):
         """

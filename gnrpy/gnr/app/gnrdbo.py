@@ -268,7 +268,7 @@ class Table_userobject(TableBase):
         def checkUserObj(r):
             condition = (not r['private']) or (r['userid']==userid)
             if onlyQuicklist:
-                condition = condition and (r['quicklist']==True)
+                condition = condition and r['quicklist']
             if self.db.application.checkResourcePermission(r['authtags'], authtags):
                 if condition:
                     return True
@@ -279,7 +279,7 @@ class Table_userobject(TableBase):
         if tbl:
             where.append('$tbl = :val_tbl')
         where = ' AND '.join(where)
-        sel = self.query(columns='$code, $objtype, $pkg, $tbl, $userid, $description, $authtags, $private,$quicklist', 
+        sel = self.query(columns='$code, $objtype, $pkg, $tbl, $userid, $description, $authtags, $private', 
                     where=where, order_by='$code',
                     val_objtype=objtype, val_tbl=tbl).selection()
                     

@@ -22,16 +22,20 @@
 #License along with this library; if not, write to the Free Software
 #Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 from gnr.core.gnrhtml import GnrHtmlSrc,GnrHtmlBuilder
-from gnr.web.gnrwsgipage import GnrWsgiPage
+from gnr.web.gnrwebpage import GnrWebPage
 
         
-class GnrHtmlPage(GnrWsgiPage):
+class GnrHtmlPage(GnrWebPage):
     srcfactory=GnrHtmlSrc
-    def __init__(self, site, packageId=None,filepath=None):
+    def __init__disabled_(self, site=None, request=None, response=None, request_kwargs=None, request_args=None, filepath = None, packageId = None, basename = None):
         self.packageId=packageId
         self.filepath = filepath
         self.site = site
-        self.builder = GnrHtmlBuilder(srcfactory=self.srcfactory)
+        
+        self._call_args = request_args or tuple()
+        self._call_kwargs = request_kwargs or {}
+        self._user_login = None
+        self._user = None
         
     def main(self, *args, **kwargs):
         pass
@@ -43,13 +47,19 @@ class GnrHtmlPage(GnrWsgiPage):
             self.builder.head.style(import_statements+';', type="text/css", media=css_media)
     
     def index(self, *args, **kwargs):
-        theme=kwargs.pop('theme')
-        pagetemplate=kwargs.pop('pagetemplate')
-        self.builder.initializeSrc(_class=theme)
+        self.builder.initializeSrc(_class=self.theme)
         self.body = self.builder.body
         self.main(self.body,*args, **kwargs)
         return self.builder.toHtml()
+    _call_handler = index
+    
+    def onIniting(self, request_args=None, request_kwargs=None):
+        self.builder = GnrHtmlBuilder(srcfactory=self.srcfactory)
+        self.theme = None
+        if request_kwargs and 'theme' in request_kwargs:
+            self.theme = request_kwargs.pop('theme')
         
+    
 class GnrHtmlDojoSrc(GnrHtmlSrc):
     html_base_NS=['a', 'abbr', 'acronym', 'address', 'area',  'base', 'bdo', 'big', 'blockquote',
             'body', 'br', 'button', 'caption', 'cite', 'code', 'col', 'colgroup', 'dd', 'del',

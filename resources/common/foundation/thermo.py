@@ -22,6 +22,7 @@
 Component for thermo:
 """
 from gnr.web.gnrbaseclasses import BaseComponent
+from gnr.core.gnrbag import Bag
 import time
 
 class Thermo(BaseComponent):

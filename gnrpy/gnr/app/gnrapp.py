@@ -72,6 +72,14 @@ class GnrSqlAppDb(GnrSqlDb):
         self.checkTransactionWritable(tblobj)
         GnrSqlDb.insert(self, tblobj, record)
         self.application.notifyDbEvent(tblobj,record,'I')
+        
+    def getResource(self,tblobj,path):
+        app = self.application
+        resource = app.site.loadResource(tblobj.pkg.name,'tables',tblobj.name,path)
+        resource.site=app.site
+        resource.table = tblobj
+        resource.db = self
+        return resource
     
 class GnrPackage(object):
     def __init__(self, pkg_id, application, path=None,filename=None ,**pkgattrs):
