@@ -52,11 +52,11 @@ label.ghostlabel span{
 /* @end */
 
 /* @group SystemCss */
-.hideSplitter .dijitSplitter{
+.hideSplitter >.dijitSplitter{
 	background: transparent;
 }
 
-.hideSplitter  .dijitSplitter .dijitSplitterThumb{
+.hideSplitter >.dijitSplitter .dijitSplitterThumb{
 	visibility: hidden;
 }
 

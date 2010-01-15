@@ -5,7 +5,7 @@ Created by Softwell on 2008-07-10.
 Copyright (c) 2008 Softwell. All rights reserved.
 """
 class GnrCustomWebPage(object):
-    maintable='base.staff'
+    maintable='portal.staff'
     py_requires='public:Public,standard_tables:TableHandler,public:IncludedView'
     js_requires='common'
 
@@ -90,7 +90,7 @@ class GnrCustomWebPage(object):
         self.includedViewBox(bc.borderContainer(region='center',margin='5px',
                                                 margin_left=0,margin_top=0),
                               label='!!Roles',storepath='.role_selection',
-                              nodeId='roleView',table='base.role',autoWidth=True,
+                              nodeId='roleView',table='portal.role',autoWidth=True,
                               struct=self.roles_struct)
                               
     def tags_struct(self,struct):
@@ -126,7 +126,7 @@ class GnrCustomWebPage(object):
         
     def onLoading(self,record,newrecord,loadingParameters,recInfo):
         tag_selection = self.db.table('adm.tag').query(order_by='tagname').selection()
-        role_selection = self.db.table('base.role').query(order_by='description').selection()
+        role_selection = self.db.table('portal.role').query(order_by='description').selection()
         record['tag_selection'] = tag_selection.output('grid')
         record['role_selection'] = role_selection.output('grid')
         #manca un out_ nel sqldata che simuli effettivamente quello che abbiamo con un dataselection

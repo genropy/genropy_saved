@@ -180,7 +180,9 @@ class GnrWsgiSite(object):
         if counter==0 and self.debug:
             self.onInited(clean = not noclean)
         
-        
+    def _get_automap(self):
+        return self.resource_loader.automap
+    automap = property(_get_automap)
     def onInited(self, clean):
         if clean:
             self.dropAllConnectionFolders()

@@ -10,19 +10,20 @@
     -webkit-border-top-left-radius:7px;}
 
 #mainWindow{
-	 background-color: #ededed;
+	 background-color: #bfb6ae;
 	 font-size:12px;
 	}
 
 /* @group Public */
 
 .pbl_root{
-     margin:4px;
-	-moz-border-radius-topright:10px;
-	-moz-border-radius-topleft:10px;
-    -webkit-border-top-right-radius:7px;
-    -webkit-border-top-left-radius:7px;
-    border: 3px solid white;
+     margin:8px;
+     margin-left: 0;
+     margin-right: 12px;
+	-moz-border-radius:7px;
+	-webkit-border-radius:7px;
+	-moz-box-shadow:4px 4px 4px #403b3b;
+	-webkit-box-shadow:4px 4px 4px #403b3b;
 }
 
 
@@ -31,7 +32,7 @@
 	-moz-border-radius:6px;
 	-webkit-border-radius:6px;
 	border-radius:6px;
-	background-color: gray;
+	background-color: #bfb6ae;
 	color: white;
 	font-size: 0.9em;
 	font-weight: bold;
@@ -46,7 +47,7 @@
 	-moz-border-radius:6px;
 	-webkit-border-radius:6px;
 	border-radius:6px;
-	background-color: gray;
+	background-color: #bfb6ae;
 	color: white;
 	font-size: 0.9em;
 	font-weight: bold;
@@ -61,27 +62,29 @@
 
 .pbl_root_top {
 	height: 24px;
-	background-color: #676767;
+	background-color: #8c8681;
 	vertical-align: middle;
 	color: white;
-	-moz-border-radius-topleft:6px;
-	-moz-border-radius-topright:6px;
-    -webkit-border-top-left-radius:6px;
-	-webkit-border-top-right-radius:6px;
+	-moz-border-radius-topleft:7px;
+	-moz-border-radius-topright:7px;
+    -webkit-border-top-left-radius:7px;
+	-webkit-border-top-right-radius:7px;
 }
 
 .pbl_root_bottom {
 	height: 20px;
-	background-color: #676767;
+	background-color: #8c8681;
 
 	vertical-align: middle;
 	color: white;
+	-moz-border-radius-bottomleft:7px;
+	-moz-border-radius-bottomright:7px;
+    -webkit-border-bottom-left-radius:7px;
+	-webkit-border-bottom-right-radius:7px;
 }
 
 .pbl_root_center{
-	border-left: 1px solid #676767;
-	border-right: 1px solid #676767;
-	background-color: whitesmoke;
+	background-color: #ece3da;
 }
 
 .pbl_mainstack{
@@ -103,12 +106,10 @@
 
 /* @group Form group */
 .pbl_roundedGroup{
--moz-border-radius-topleft:6px;
--moz-border-radius-topright:6px;
--webkit-border-top-left-radius:6px;
--webkit-border-top-right-radius:6px;
+-moz-border-radius:6px;
+-webkit-border-radius:6px;
 border-radius:6px;
-background-color: #ededed;
+background-color: #ece3da;
 }
 
 .pbl_roundedGroupLabel{
@@ -140,11 +141,15 @@ padding-bottom: 5px;
 }
 
 .pbl_viewBox{
-background-color: #ededed;
+background-color: #ece3da;
 padding:5px;
+-moz-border-radius-bottomleft:6px;
+-moz-border-radius-bottomright:6px;
+-webkit-border-bottom-left-radius:6px;
+-webkit-border-bottom-right-radius:6px;
 }
 .pbl_background{
-	background-color: #ededed;
+	background-color: #ece3da;
 }
 
 .pbl_viewBoxLabel{
@@ -557,6 +562,7 @@ padding-bottom: 2px;
     -moz-border-radius:6px;
     -webkit-border-radius:6px;
 }
+._common_d11 .dijitButtonNode, 
 .bottom_btn .dijitButtonNode{
 	color: white;
     -moz-border-radius:4px;
@@ -586,7 +592,7 @@ padding-bottom: 2px;
     opacity: 1;
 }
 .dialog_bottom{
-background-color: #EDEDED;
+background-color: #ece3da;
 color: white;
 font-weight: bold;
 height: 26px;
@@ -693,11 +699,29 @@ padding-right:5px;
 
 /* @group MenuTree */
 .menupane{
-	background-color: #ededed;
+	background-color: #8c8681;
+	margin-right: 8px;
+	margin-top: 8px;
+	margin-bottom: 8px;
+	-moz-border-radius-topright:7px;
+	-moz-border-radius-bottomright:7px;
+    -webkit-border-bottom-right-radius:7px;
+    -webkit-border-top-right-radius:7px;
+	-moz-box-shadow:4px 4px 4px #403b3b;
+	-webkit-box-shadow:4px 4px 4px #403b3b;
+    border-left: 0px;
+}
+.menupane > div {
+	bottom:7px;
+	left:0;
+	overflow-y:auto;
+	position:absolute;
+	right:7px;
+	top:7px;
 }
 
 .menu_page  > a{
-	color: white ;
+	color: #403b3b;
 	text-decoration: none;
 }
 .menu_page  > a:hover{
@@ -732,7 +756,7 @@ padding-right:5px;
 	text-decoration: none;
 	padding-right:15px;
     cursor:pointer;
-    font-weight:bold;
+    /*font-weight:bold;*/
     background: url(icons/linktomenu.gif) right no-repeat;
 }
 .gnrmenulabel:hover{
@@ -741,29 +765,10 @@ padding-right:5px;
 	background:  #adc2ff url(icons/linktomenu.gif) right no-repeat;
 }
 
-
-
-.menupane > div{
-	position: absolute;
-	left: 0px;
-	right: 4px;
-	top: 4px;
-	bottom: 4px;
-	-moz-border-radius-topright:7px;
-	-moz-border-radius-bottomright:7px;
-    -webkit-border-bottom-right-radius:7px;
-    -webkit-border-top-right-radius:7px;
-
-    border: 3px solid white;
-
-    border-left: 0px;
-    overflow-y:auto;
-}
-
 .menutree{
-	margin-top: 15px;
+	margin-top: 5px;
 	margin-right: 10px;
-	font-weight: bold;
+	/*font-weight: bold;*/
 	background-position: left;
 }
 .menutree .dijitTreeIcon{
@@ -795,44 +800,38 @@ padding-right:5px;
 }
 
 .menutree .menu_level_0{
-    border: 1px solid white;
-	background-color: #3f3f3f;
-	color: white;
+	background-color: #ece3da;
+	color: #403b3b;
 	font-size: 1em;
 }
 
 .menutree .menu_level_1{
-    border: 1px solid white;
-	background-color: #3f3f3f;
-	color: white;
+	background-color: #ece3da;
+	color: #403b3b;
 	font-size: 1em;
 }
 
 .menutree .menu_level_2{
-	border: 1px solid white;
-	background-color: #3f3f3f;
-	color: white;
+	background-color: #ece3da;
+	color: #403b3b;
 	font-size: 1.1em;
 }
 
 .menutree .menu_level_3{
-    border: 1px solid white;
-	background-color: #3f3f3f;
-	color: #f8f8f8;
+	background-color: #ece3da;
+	color: #403b3b;
 	font-size: 1em;
 }
 
 .menutree .menu_level_4{
-    border: 1px solid white;
-	background-color: #3f3f3f;
-	color: #f8f8f8;
+	background-color: #ece3da;
+	color: #403b3b;
 	font-size: 1em;
 }
 
 .menutree .menu_page{
-	border: 1px solid white;
-	background-color: #8b8b8b;
-	color: #fff;
+	background-color: #ece3da;
+	color: #403b3b;
 	font-size: .9em;
 }
 
@@ -841,16 +840,22 @@ padding-right:5px;
 	-moz-border-radius-bottomright:6px;
     -webkit-border-bottom-right-radius:6px;
     -webkit-border-top-right-radius:6px;
-	opacity: .7;
 	cursor: pointer;
 	display: block;
 	padding-top: 3px;
 	padding-bottom: 3px;
-	background-color: #4d4d4d;
+	background-color: #ece3da;
+	margin-right: 10px;
+	-moz-box-shadow:2px 2px 2px #403b3b;
+	-webkit-box-shadow:2px 2px 2px #403b3b;
+
+	margin-top: 3px;
+
 }
 
 .menutree .menu_shape:hover{
-	opacity: 1;
+    -moz-box-shadow:4px 4px 4px #403b3b;
+    -webkit-box-shadow:4px 4px 4px #403b3b;
 }
 
 .menutree .dijitTreeIcon{

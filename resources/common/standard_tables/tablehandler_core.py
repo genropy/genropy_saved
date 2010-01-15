@@ -90,7 +90,31 @@ class ListViewHandler(BaseComponent):
         return self.rpc_deleteUserObject(id)        
         
 class ListQueryHandler(BaseComponent):
+    
     def editorPane(self, restype, pane, datapath):
+        parentdatapath, resname = datapath.rsplit('.', 1)
+        top = pane.div(_class='st_editor_bar', datapath=parentdatapath)    
+        top.div(_class='icnBase10_Doc buttonIcon',float='right',
+                                connect_onclick=" SET list.query.selectedId = null ;FIRE .new=true;",
+                                margin_right='5px', margin_top='2px', tooltip='!!New %s' % restype);
+        top.div(_class='icnBase10_Save buttonIcon', float='right',margin_right='5px', margin_top='2px',
+                connect_onclick="""var currentId = GET list.%s.selectedId; 
+                                   SET #userobject_dlg.pars.objtype = '%s';
+                                   SET #userobject_dlg.pars.title = 'Edit %s';
+                                   SET #userobject_dlg.pars.data = GET %s;
+                                   FIRE #userobject_dlg.pkey = currentId?currentId:"*newrecord*";
+                                   """%(restype,restype,restype,datapath),
+                tooltip='!!Save %s' % restype);
+        top.div(_class='icnBase10_Trash buttonIcon', float='right',
+                                                onCreated="genro.dlg.connectTooltipDialog($1,'delete_%s_btn')" % restype,
+                                                margin_left='5px', margin_right='15px',
+                                                margin_top='2px', tooltip='!!Delete %s' % restype,
+                                                visible='^.%s?id' % resname)
+        top.div(content='^.%s?code' % resname, _class='st_editor_title')
+        pane.div(_class='st_editor_body st_editor_%s' % restype, nodeId='%s_root' % restype, datapath=datapath)
+        self.deleteQueryButton(pane)
+        
+    def editorPane__old(self, restype, pane, datapath):
         parentdatapath, resname = datapath.rsplit('.', 1)
         top = pane.div(_class='st_editor_bar', datapath=parentdatapath)        
         top.div(_class='icnBase10_Doc buttonIcon',float='right',

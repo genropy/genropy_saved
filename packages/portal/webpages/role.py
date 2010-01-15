@@ -5,7 +5,7 @@ Created by Softwell on 2008-07-10.
 Copyright (c) 2008 Softwell. All rights reserved.
 """
 class GnrCustomWebPage(object):
-    maintable='base.role'
+    maintable='portal.role'
     py_requires='public:Public,standard_tables:TableHandler,public:IncludedView'
 
 ######################## STANDARD TABLE OVERRIDDEN METHODS ###############
