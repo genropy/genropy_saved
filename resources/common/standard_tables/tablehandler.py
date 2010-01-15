@@ -27,7 +27,7 @@ from gnr.core.gnrbag import Bag
 from gnr.core.gnrstring import templateReplace
 
 class TableHandler(BaseComponent):
-    py_requires="standard_tables/tablehandler_core"
+    py_requires="standard_tables/tablehandler_core,foundation/userobject:UserObject"
     css_requires = 'standard_tables/tablehandler'
     js_requires = 'standard_tables/tablehandler'
     
@@ -434,27 +434,6 @@ class TableHandler(BaseComponent):
         fb = pane.formbuilder(cols=15,border_spacing='2px')
         for func_name in bottomPane_list:
             getattr(self,func_name)(fb.div(datapath='.%s' %func_name[11:]))
-            
-    def editorPane(self, restype, pane, datapath):
-        parentdatapath, resname = datapath.rsplit('.', 1)
-        top = pane.div(_class='st_editor_bar', datapath=parentdatapath)        
-        top.div(_class='icnBase10_Doc buttonIcon',float='right',
-                                connect_onclick=" SET list.query.selectedId = null ;FIRE .new=true;",
-                                margin_right='5px', margin_top='2px', tooltip='!!New %s' % restype);
-        
-        top.div(_class='icnBase10_Save buttonIcon', float='right',margin_right='5px', margin_top='2px',
-                connect_onclick="""var currentqueryId = GET list.query.selectedId; 
-                                   FIRE #userobject_dlg.pkey = currentqueryId?currentqueryId:"*newrecord*";""",
-                tooltip='!!Save %s' % restype);
-        
-        top.div(_class='icnBase10_Trash buttonIcon', float='right',
-                                                onCreated="genro.dlg.connectTooltipDialog($1,'delete_%s_btn')" % restype,
-                                                margin_left='5px', margin_right='15px',
-                                                margin_top='2px', tooltip='!!Delete %s' % restype,
-                                                visible='^.%s?id' % resname)
-        
-        top.div(content='^.%s?code' % resname, _class='st_editor_title')
-        pane.div(_class='st_editor_body st_editor_%s' % restype, nodeId='%s_root' % restype, datapath=datapath)
     
     def treePane(self, pane):
         client = pane.borderContainer(region = 'center')
@@ -601,58 +580,12 @@ class TableHandler(BaseComponent):
         treepane.tree(storepath='list.view.saved_menu',persist=False, inspect='shift',
                           labelAttribute='caption', connect_ondblclick='FIRE list.runQuery = true;',
                           selected_pkey='list.view.selectedId', selected_code='list.view.selectedCode',
-                          _class='queryTree',
-                          hideValues=True,
+                          _class='queryTree',hideValues=True,
                           _saved='^list.view.saved', _deleted='^list.view.deleted')
         #btnpane = container.contentPane(region='top', height='30px').toolbar()
         self.saveViewButton(treepane)
         self.deleteViewButton(treepane)
         #btnpane.button('Add View', iconClass='tb_button db_add', fire='list.view.new',showLabel=False)
-        
-    def savedViewController(self, pane):
-        pane.dataRemote('list.view.saved_menu', 'list_view', tbl=self.maintable, cacheTime=10)
-        pane.dataRpc('list.view.structure', 'load_view', id='^list.view.selectedId', _if='id',
-                    _onResult='genro.viewEditor.colsFromBag();'
-                  )
-        
-        #pane.dataRpc('list.view.structure', 'new_view', filldefaults=True, _init=True, sync=True)
-        
-        pane.dataRpc('list.view.structure', 'new_view', _fired='^list.view.new', _deleted='^list.view.deleted',
-                                    _onResult='genro.viewEditor.colsFromBag();' #filldefaults='^gnr.onStart'
-                        )
-
-    
-    def saveViewButton(self, pane):
-        dlg = pane.dropdownbutton('Save Views', iconClass='tb_button db_save',nodeId='save_view_btn', hidden=True,
-                                  arrow=False,showLabel=False).tooltipDialog(nodeId='save_view_dlg', width='35em', datapath='list.view')
-        
-        fields = dlg.div( font_size='0.9em')
-        fb = fields.formbuilder(cols=1)
-        fb.textBox(lbl='!!Code' ,value='^.structure?code', width='25em')
-        fb.textarea(lbl='!!Description' ,value='^.structure?description', width='25em', border='1px solid gray')
-        fb.checkbox(lbl='!!Private' ,value='^.structure?private')
-        fb.textBox(lbl='!!Permissions' ,value='^.structure?auth_tags', width='25em')
-        
-        buttons = dlg.div(height='2em',  font_size='0.9em')
-        buttons.button('!!Save', fire='.save', iconClass='icnBaseOk', float='right')
-        buttons.button('!!Cancel', action='genro.wdgById("save_view_dlg").onCancel();', iconClass='icnBaseCancel', float='right')
-        
-        dlg.dataRpc('.saveResult', 'save_view', userobject='=.structure',
-                       _fired='^.save', _POST=True, _onResult='genro.wdgById("save_view_dlg").onCancel();FIRE .saved = true')
-
-    
-    def deleteViewButton(self, pane):
-        dlg = pane.dropdownbutton(iconClass='icnBaseTrash', hidden=True, arrow=False,showLabel=False,nodeId='delete_view_btn').tooltipDialog(nodeId='delete_view_dlg', width='25em', datapath='list.view')
-        msg = dlg.div( font_size='0.9em')
-        msg.span('!!Do you really want to delete the query: ')
-        msg.span('^.selectedCode')
-        
-        buttons = dlg.div(height='2em',  font_size='0.9em')
-        buttons.button('!!Delete', fire='^.delete', iconClass='icnBaseTrash', float='right')
-        buttons.button('!!Cancel', action='genro.wdgById("delete_view_dlg").onCancel();', iconClass='icnBaseCancel', float='right')        
-        dlg.dataRpc('.deleteResult', 'delete_view', id='=list.view.selectedId',
-                       _fired='^.delete', _onResult='genro.wdgById("delete_view_dlg").onCancel();FIRE .deleted = true')
-    
         
     def formController(self,pane):
         self.formTitleBase(pane)
@@ -878,24 +811,6 @@ class TableHandler(BaseComponent):
         d.div(position='absolute', top='28px', right='4px',
             bottom='4px', left='4px').includedView(storepath='%s.errors' % resultpath, struct=struct)
   
-    
-    def rpc_new_view(self, filldefaults=False, **kwargs):
-        if filldefaults:
-            result=self.lstBase(self.newGridStruct())
-        else:
-            result = self.newGridStruct()
-            result.view().rows()
-        resultattr = dict(objtype='view', tbl=self.maintable)
-        return result, resultattr
-    
-    def rpc_load_view(self, **kwargs):
-        return self.app.rpc_loadUserObject(**kwargs)
-    
-    def rpc_save_view(self, userobject, userobject_attr):
-        return self.app.rpc_saveUserObject(userobject, userobject_attr)
-    
-    def rpc_delete_view(self, id):
-        return self.app.rpc_deleteUserObject(id)
     
     def rpc_list_actions(self, tbl, **kwargs):
         #pkg, tbl = tbl.split('.')
