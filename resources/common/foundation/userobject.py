@@ -33,8 +33,8 @@ class UserObject(BaseComponent):
                                         $1.data.setItem('record.data',wherebag);
                                         """,changesOnly=False,saveAlways=True)
         self.recordDialog('%s.userobject' %self.package.name,'^.pkey',dlgId='userobject_dlg',
-                            datapath='gnr.userobject',width='26em',height='22ex',
-                            title='!!Edit query',savePath='gnr.userobject.saved_query_id',
+                            datapath='gnr.userobject',width='28em',height='24ex',
+                            title='!!Edit Query',savePath='gnr.userobject.saved_query_id',
                              formCb=self._uo_edit_query_form,default_objtype='query',
                              default_pkg=self.package.name,default_tbl=self.maintable,
                              default_userid=self.user,saveKwargs=saveKwargs,
@@ -43,12 +43,13 @@ class UserObject(BaseComponent):
     def _uo_edit_query_form(self,parentContainer,disabled,table):
         pane = parentContainer.contentPane()
         fb = pane.formbuilder(cols=3, dbtable=table)
-        fb.field('code',autospan=2)
-        fb.field('quicklist',lbl='',label='!!Quicklist')
+        fb.field('code',autospan=2,tooltip='Dotted path and name of Query')
+        fb.field('quicklist',lbl='',label='!!Quicklist',tooltip='Query will appear in the query menu at the bottom')
+        fb.field('authtags',autospan=2,lbl='!!Permissions',tooltip='Comma separated list of auth tags.')
+        fb.field('private',lbl='',label='!!Private',tooltip='Query is only for me.')
         fb.simpleTextarea(lbl='!!Description' ,value='^.description', 
-                    width='100%', border='1px solid gray',lbl_vertical_align='top',colspan=3)
-        fb.field('authtags',autospan=2,lbl='!!Permissions')
-        fb.field('private',lbl='',label='!!Private')    
+                    width='95%', border='1px solid gray',lbl_vertical_align='top',colspan=3)
+          
 
     def rpc_listUserObject(self, objtype=None, tbl=None, **kwargs):
         result = Bag()
