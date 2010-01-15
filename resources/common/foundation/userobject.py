@@ -33,22 +33,34 @@ class UserObject(BaseComponent):
                                         $1.data.setItem('record.data',wherebag);
                                         """,changesOnly=False,saveAlways=True)
         self.recordDialog('%s.userobject' %self.package.name,'^.pkey',dlgId='userobject_dlg',
-                            datapath='gnr.userobject',width='28em',height='24ex',
+                            datapath='gnr.userobject',width='28em',height='28ex',
                             title='!!Edit Query',savePath='gnr.userobject.saved_query_id',
                              formCb=self._uo_edit_query_form,default_objtype='query',
                              default_pkg=self.package.name,default_tbl=self.maintable,
                              default_userid=self.user,saveKwargs=saveKwargs,
                              onSaved="""FIRE list.query.saved;""")
-        
+
     def _uo_edit_query_form(self,parentContainer,disabled,table):
-        pane = parentContainer.contentPane()
+        lbl_width='5.5em'
+        pane = parentContainer.contentPane(margin_top='5px')
+        fb = pane.formbuilder(cols=3, dbtable=table, width='320px', border_spacing='5px')
+        fb.div(lbl='Flags',colspan=1,lbl_width=lbl_width)
+        fb.field('quicklist',lbl='',label='!!Quicklist',lbl_width=lbl_width, colspan=1, tooltip='Will appear in the query menu at the bottom')
+        fb.field('private',lbl='',label='!!Private', colspan=1,tooltip='Only for me.')
+        fb.field('code',autospan=3,tooltip='Dotted path and name', lbl_width=lbl_width)
+        fb.field('authtags',autospan=3,lbl='!!Permissions',tooltip='Comma separated list of auth tags.',lbl_width=lbl_width)
+        fb.simpleTextarea(lbl='!!Description' ,value='^.description', height='3.75em',lbl_width=lbl_width,
+                 width='100%', border='1px solid gray',lbl_vertical_align='top',colspan=3)
+
+    def _uo_edit_query_form_old(self,parentContainer,disabled,table):
+        pane = parentContainer.contentPane(margin_top='5px')
         fb = pane.formbuilder(cols=3, dbtable=table)
-        fb.field('code',autospan=2,tooltip='Dotted path and name of Query')
-        fb.field('quicklist',lbl='',label='!!Quicklist',tooltip='Query will appear in the query menu at the bottom')
+        fb.field('code',autospan=2,tooltip='Dotted path and name', lbl_width='6.5em')
+        fb.field('quicklist',lbl='',label='!!Quicklist',tooltip='Will appear in the query menu at the bottom')
         fb.field('authtags',autospan=2,lbl='!!Permissions',tooltip='Comma separated list of auth tags.')
-        fb.field('private',lbl='',label='!!Private',tooltip='Query is only for me.')
-        fb.simpleTextarea(lbl='!!Description' ,value='^.description', 
-                    width='95%', border='1px solid gray',lbl_vertical_align='top',colspan=3)
+        fb.field('private',lbl='',label='!!Private',tooltip='Only for me.')
+        fb.simpleTextarea(lbl='!!Description' ,value='^.description', height='5em',
+                    width='98%', border='1px solid gray',lbl_vertical_align='top',colspan=3)
           
 
     def rpc_listUserObject(self, objtype=None, tbl=None, **kwargs):
