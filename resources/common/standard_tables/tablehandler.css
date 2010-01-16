@@ -133,6 +133,12 @@
 	font-size: .85em;
 	font-weight: bold;
 }
+.listbottompane{
+    height:27px;
+    font-size:0.9em;
+   /* background-color:silver; 
+    -moz-box-shadow:4px 0px 6px #403b3b;
+	-webkit-box-shadow:4px 0px 5px #403b3b;}*/
 
 .st_editor_body{
 	position: absolute;

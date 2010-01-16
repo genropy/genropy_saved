@@ -20,8 +20,8 @@
      margin:8px;
      margin-left: 0;
      margin-right: 12px;
-	-moz-border-radius:7px;
-	-webkit-border-radius:7px;
+	-moz-border-radius:6px;
+	-webkit-border-radius:6px;
 	-moz-box-shadow:4px 4px 4px #403b3b;
 	-webkit-box-shadow:4px 4px 4px #403b3b;
 }
@@ -64,23 +64,24 @@
 	height: 24px;
 	background-color: #59514f;
 	vertical-align: middle;
-	color: white;
-	-moz-border-radius-topleft:7px;
-	-moz-border-radius-topright:7px;
-    -webkit-border-top-left-radius:7px;
-	-webkit-border-top-right-radius:7px;
+	color: #ece3da;
+	-moz-border-radius-topleft:6px;
+	-moz-border-radius-topright:6px;
+    -webkit-border-top-left-radius:6px;
+	-webkit-border-top-right-radius:6px;
 }
 
 .pbl_root_bottom {
-	height: 20px;
-	background-color: #59514f;
+	height: 23px;
+	background-color: #fbf2e7;
 
 	vertical-align: middle;
-	color: white;
-	-moz-border-radius-bottomleft:7px;
-	-moz-border-radius-bottomright:7px;
-    -webkit-border-bottom-left-radius:7px;
-	-webkit-border-bottom-right-radius:7px;
+	color: #403b3b;
+	border-top: 1px solid  #bfb6ae;
+	-moz-border-radius-bottomleft:6px;
+	-moz-border-radius-bottomright:6px;
+    -webkit-border-bottom-left-radius:6px;
+	-webkit-border-bottom-right-radius:6px;
 }
 
 .pbl_root_center{
@@ -528,7 +529,7 @@ padding-bottom: 2px;
 ._common_d11 .dijitDialogTitleBar{
 	background: #59514f;
 	vertical-align: middle;
-	color: white;
+	color: #ece3da;
 	-moz-border-radius-topleft:6px;
 	-moz-border-radius-topright:6px;
     -webkit-border-top-left-radius:6px;
@@ -538,14 +539,33 @@ padding-bottom: 2px;
 ._common_d11 .dijitDialogCloseIcon{
 	display: none;
 }
+
 ._common_d11 .tracebackDialog .dijitDialogCloseIcon{
 	display: inherit;
 }
+
+.dlg_msgbox{
+	position:absolute;
+	top:5px;
+	left:5px;
+	bottom:5px;
+	right:5px;  
+	border:0px;
+	background-color: #fbf2e7;
+	text-align:center;
+	vertical-align: middle;
+	font-size:1em;
+	padding-top: 2em;
+    -moz-border-radius:6px;
+    -webkit-border-radius:6px;
+}
+
 ._common_d11 .dijitDialog{
-	-moz-border-radius:7px;
-	-webkit-border-radius:7px;
+	-moz-border-radius:6px;
+	-webkit-border-radius:6px;
 	-moz-box-shadow:4px 4px 6px #403b3b;
 	-webkit-box-shadow:4px 4px 6px #403b3b;
+	border:0px;
 }
 
 ._common_d11 .dijitDialog .dijitDialogPaneContent{
@@ -554,26 +574,12 @@ padding-bottom: 2px;
 	-webkit-border-bottom-left-radius:6px;
 	-webkit-border-bottom-right-radius:6px;
 	background-color: #fbf2e7;
+	border:0px;
 
-}
-.dlg_msgbox{
-	position:absolute;
-	top:5px;
-	left:5px;
-	bottom:5px;
-	right:5px;  
-	border:1px solid gray;
-	background-color:whitesmoke;
-	text-align:center;
-	vertical-align: middle;
-	font-size:1em;
-	padding-top: 2em;
-    -moz-border-radius:6px;
-    -webkit-border-radius:6px;
+
 }
 ._common_d11 .dijitButtonNode, 
 .bottom_btn .dijitButtonNode{
-	color: white;
     -moz-border-radius:4px;
     -webkit-border-radius:4px;
     -opera-border-radius:4px;
@@ -581,7 +587,9 @@ padding-bottom: 2px;
     cursor: pointer;
     font-size: 0.9em;
     font-weight: bold;
-    border: #494949 solid 1px;
+    border-color: #494949;
+    border-width: 1px;
+    border-style:solid;
     padding:0px 2px;
     opacity: 1;
     font-size:1em;
@@ -715,9 +723,9 @@ padding-bottom: 2px;
 	margin-right: 8px;
 	margin-top: 8px;
 	margin-bottom: 8px;
-	-moz-border-radius-topright:7px;
-	-moz-border-radius-bottomright:7px;
-    -webkit-border-bottom-right-radius:7px;
+	-moz-border-radius-topright:6px;
+	-moz-border-radius-bottomright:6px;
+    -webkit-border-bottom-right-radius:6px;
     -webkit-border-top-right-radius:7px;
 	-moz-box-shadow:4px 4px 4px #403b3b;
 	-webkit-box-shadow:4px 4px 4px #403b3b;
