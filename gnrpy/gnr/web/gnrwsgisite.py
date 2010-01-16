@@ -296,7 +296,7 @@ class GnrWsgiSite(object):
     sitemap = property(_get_sitemap)        
         
     def loadResource(self,pkg, *path):
-        self.resource_loader.loadResource(pkg,*path)
+        return self.resource_loader.loadResource(pkg,*path)
     
     def get_path_list(self,path_info):
         # No path -> indexpage is served
