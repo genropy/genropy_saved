@@ -745,7 +745,7 @@ dojo.declare("gnr.widgets.BorderContainer",gnr.widgets.baseDojo,{
         if (('_'+region) in this){
             var size = kw.node.getValue();
             if(size){
-                this['_'+region].style[this.horizontal ? "height" : "width"] = size;
+                this['_'+region].style[(region=='top' || region=='bottom' ) ? "height" : "width"] = size;
                 this._layoutChildren();
             }
         }
@@ -3444,7 +3444,15 @@ dojo.declare("gnr.widgets.CkEditor",gnr.widgets.baseHtml,{
               }
           }
           ckeditor.gnr_getFromDatastore();
-          setTimeout(function(){ckeditor.gnr_readOnly(sourceNode.getAttributeFromDatasource('readOnly'));},1000);
+          var parentWidget = dijit.getEnclosingWidget(widget)
+          ckeditor.gnr_readOnly('auto')
+          dojo.connect(parentWidget,'resize',function(){
+                console.log('resize');
+                console.log(arguments);
+                ckeditor.resize()
+                })
+         // dojo.connect(parentWidget,'onShow',function(){console.log("onshow");console.log(arguments);ckeditor.gnr_readOnly('auto');})
+         // setTimeout(function(){;},1000);
 
     },
     connectChangeEvent:function(obj){
@@ -3466,11 +3474,18 @@ dojo.declare("gnr.widgets.CkEditor",gnr.widgets.baseHtml,{
                                 evt.cancel();
     },
     mixin_gnr_readOnly:function(value,kw,reason){
+        var value = (value !='auto')? value : this.sourceNode.getAttributeFromDatasource('readOnly')
         this.gnr_setReadOnly(value);
     },
     mixin_gnr_setReadOnly:function(isReadOnly){
+        console.log(isReadOnly)
+        if (!this.document){
+            console.log('not yet built')
+            return
+        }
+        console.log('valid')
         
-        this.document.$.body.disabled = isReadOnly;
+        //this.document.$.body.disabled = isReadOnly;
         CKEDITOR.env.ie ? this.document.$.body.contentEditable = !isReadOnly
                          : this.document.$.designMode = isReadOnly ? "off" : "on";
         this[ isReadOnly ? 'on' : 'removeListener' ]( 'key', this.gnr_cancelEvent, null, null, 0 );
