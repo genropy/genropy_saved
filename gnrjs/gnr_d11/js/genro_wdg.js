@@ -46,7 +46,7 @@ dojo.declare("gnr.GnrWdgHandler",null,{
                          'ins', 'kbd', 'label', 'legend', 'li', 'link', 'map', 'meta', 'noframes', 'noscript',
                          'object', 'ol', 'optgroup', 'option', 'p', 'param', 'pre', 'q', 'samp', 'script', 
                          'select', 'small', 'span', 'strong', 'style', 'sub', 'sup', 'table', 'tbody', 'td',
-                         'textarea', 'tfoot', 'th', 'thead', 'title', 'tr', 'tt', 'ul', 'var'];
+                         'textarea', 'tfoot', 'th', 'thead', 'title', 'tr', 'tt', 'ul', 'var','embed'];
         for(var i=0;i< htmlspace.length;i++){
                     tag=htmlspace[i];
                     this.namespace[tag.toLowerCase()]=['html',tag] ;         
