@@ -32,7 +32,7 @@ class RecordDialog(BaseComponent):
                     title=None,formCb=None,onSaved='',saveKwargs=None,loadKwargs=None,
                     savePath='',bottomCb=None,savingMethod=None,
                     loadingMethod=None, loadingParameters=None,onClosed='',onShow='',
-                    validation_failed='alert',custom_table_id=None,
+                    validation_failed='alert',custom_table_id=None,centerOn=None,
                     dlgId=None,formId=None,datapath=None,dlgPars=None,**kwargs):
         """
         Allow to manage a form into a dialog for editing and saving a single RecordHandler.
@@ -65,7 +65,9 @@ class RecordDialog(BaseComponent):
             page = self.pageSource()
         dlgPars=dlgPars or {}
         if onShow:
-            dlgPars['connect_show']=onShow                   
+            dlgPars['connect_show']=onShow     
+        if centerOn:
+            dlgPars['centerOn']=centerOn             
         dlg = page.dialog(nodeId=dlgId,title=title,datapath=controllerPath,**dlgPars)
         dlgBC = dlg.borderContainer(height=height, 
                                     width=width, _class=_class,
