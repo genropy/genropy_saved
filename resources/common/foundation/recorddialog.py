@@ -65,7 +65,7 @@ class RecordDialog(BaseComponent):
             page = self.pageSource()
         dlgPars=dlgPars or {}
         if onShow:
-            dlgPars['connect_show']=onOpen                   
+            dlgPars['connect_show']=onShow                   
         dlg = page.dialog(nodeId=dlgId,title=title,datapath=controllerPath,**dlgPars)
         dlgBC = dlg.borderContainer(height=height, 
                                     width=width, _class=_class,
