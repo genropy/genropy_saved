@@ -75,7 +75,11 @@ class GnrWebRpc(GnrBaseProxy):
             xmlresult=xmlresult.replace('*_localizerStatus*', page.localizer.status)
             
         return xmlresult
-
+        
+    def result_xml(self, result):
+        self.page.response.content_type = "text/xml"
+        return result.toXml(unresolved=True, omitUnknownTypes=True)
+        
     def result_json(self,  result):
         error = getattr(self,'error',None)
         page = self.page
