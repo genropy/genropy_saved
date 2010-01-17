@@ -177,7 +177,7 @@ class GnrWebPage(GnrBaseWebPage):
             self._call_handler=self._rpcDispatcher
         elif 'rpc' in request_kwargs:
             method = request_kwargs.pop('rpc')
-            self._call_handler = self.getPublicMethod(method)
+            self._call_handler = self.getPublicMethod('rpc',method)
         else:
             self._call_handler=self.rootPage
             request_kwargs['dojo_theme']=self.dojo_theme
