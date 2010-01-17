@@ -607,7 +607,6 @@ padding-bottom: 2px;
     font-size:1em;
     color:#494949;
     font-weight:normal;
-    min-width:4em;
     background:;
     background-image:-webkit-gradient(center,top, from(rgba(182,182,182,0.75)), to(rgba(239,239,239,0.9)));
     background-image:-moz-linear-gradient(center,top, from(rgba(182,182,182,0.75)), to(rgba(239,239,239,0.9)));
