@@ -502,6 +502,7 @@ dojo.declare("gnr.widgets.Dialog",gnr.widgets.baseDojo,{
     
     creating:function(attributes, sourceNode){
         objectPop(attributes,'parentDialog');
+        objectPop(attributes,'centerOn');
         var closable = ('closable' in attributes) ? objectPop(attributes,'closable') : true;
         attributes.title = attributes.title || '';
         if (!closable){
@@ -521,6 +522,7 @@ dojo.declare("gnr.widgets.Dialog",gnr.widgets.baseDojo,{
                                 genro.dialogStack.slice(-2)[0].hide();
                             }
                         }
+                        
                     });
         dojo.connect(newobj,"hide",newobj,
                     function(){ 
@@ -529,6 +531,22 @@ dojo.declare("gnr.widgets.Dialog",gnr.widgets.baseDojo,{
                                     if (genro.dialogStack.length>0) {
                                         genro.dialogStack.slice(-1)[0].show();
                                     }}});
+    },
+    patch__position: function(){
+        var centerOn = this.sourceNode.attr.centerOn
+        if (!centerOn){
+            this._position_replaced();
+        }
+        else
+        {
+            var viewport=dojo.coords(genro.domById(centerOn));
+            viewport.l=viewport.x;
+            viewport.t=viewport.y;
+            var mb = dojo.marginBox(this.domNode);
+            var style = this.domNode.style;
+            style.left = Math.floor((viewport.l + (viewport.w - mb.w)/2)) + "px";
+            style.top = Math.floor((viewport.t + (viewport.h - mb.h)/2)) + "px";
+        }
     },
 
     attributes_mixin_onAskCancel:function(){
