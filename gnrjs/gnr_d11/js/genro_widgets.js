@@ -533,7 +533,7 @@ dojo.declare("gnr.widgets.Dialog",gnr.widgets.baseDojo,{
                                     }}});
     },
     patch__position: function(){
-        var centerOn = this.sourceNode.attr.centerOn
+        var centerOn = this.sourceNode.attr.centerOn;
         if (!centerOn){
             this._position_replaced();
         }
@@ -640,18 +640,25 @@ dojo.declare("gnr.widgets.ProgressBar",gnr.widgets.baseDojo,{
 
 dojo.declare("gnr.widgets.StackContainer",gnr.widgets.baseDojo,{
     creating:function(attributes, sourceNode){
-        var savedAttrs = objectExtract(attributes,'selected');
-        return savedAttrs;
+        objectPop(attributes,'selected');
+        objectPop(attributes,'selectedPage');
+        return {};
     },
     created: function(widget, savedAttrs, sourceNode){
-        var selpath=sourceNode.attr.selected;
+        var selpath=sourceNode.attr['selected'];
+        var selpage=sourceNode.attr['selectedPage'];
         widget.gnrPageDict={};
-        if(selpath){
+        if(selpath || selpage){
             var controller=widget.tablist || widget;
             var evt = (controller == widget) ? 'selectChild' :'onSelectChild';
             dojo.connect(controller, evt, dojo.hitch(widget,function(child){
                             if(!widget.sourceNode._isBuilding){
-                                this.sourceNode.setRelativeData(selpath,this.getChildIndex(child));
+                                if (selpath){
+                                    this.sourceNode.setRelativeData(selpath,this.getChildIndex(child));
+                                }
+                                if (selpage){
+                                    this.sourceNode.setRelativeData(selpage,child.sourceNode.attr.pageName);
+                                }
                             }
                         }));
             dojo.connect(widget,'addChild',dojo.hitch(this,'onAddChild',widget));
@@ -660,11 +667,12 @@ dojo.declare("gnr.widgets.StackContainer",gnr.widgets.baseDojo,{
         
     },
     mixin_setSelected:function(p){
-        if( this.gnrPageDict && this.gnrPageDict[p]){
-            this.selectChild(this.gnrPageDict[p]);
-        } else{
-            this.selectChild(this.getChildren()[p||0]);
+        var child=this.getChildren()[p||0];
+        if (this.sourceNode.attr['selectedPage']){
+            this.sourceNode.setAttributeInDatasource('selectedPage',child.sourceNode.attr.pageName);
         }
+        this.selectChild(child);
+       
     },
     mixin_getSelected: function(){
         var selected = {n:null};
@@ -675,11 +683,15 @@ dojo.declare("gnr.widgets.StackContainer",gnr.widgets.baseDojo,{
         return this.getChildIndex(this.getSelected());
     },
 
-   //mixin_setSelectedPage:function(pageName){
-   //    if( this.gnrPageDict[pageName]){
-   //        this.selectChild(this.gnrPageDict[pageName]);
-   //    }        
-   //},
+    mixin_setSelectedPage:function(pageName){
+        var child=this.gnrPageDict[pageName];
+        if(child){
+            if (this.sourceNode.attr['selected']){
+                this.sourceNode.setAttributeInDatasource('selected',this.getChildIndex(child));
+            }
+            this.selectChild(child);
+        }        
+    },
         
     mixin_getChildIndex:function(obj){
         return dojo.indexOf(this.getChildren(),obj);
@@ -3466,13 +3478,13 @@ dojo.declare("gnr.widgets.CkEditor",gnr.widgets.baseHtml,{
               }
           }
           ckeditor.gnr_getFromDatastore();
-          var parentWidget = dijit.getEnclosingWidget(widget)
-          ckeditor.gnr_readOnly('auto')
+          var parentWidget = dijit.getEnclosingWidget(widget);
+          ckeditor.gnr_readOnly('auto');
           dojo.connect(parentWidget,'resize',function(){
                 console.log('resize');
                 console.log(arguments);
-                ckeditor.resize()
-                })
+                ckeditor.resize();
+                });
          // dojo.connect(parentWidget,'onShow',function(){console.log("onshow");console.log(arguments);ckeditor.gnr_readOnly('auto');})
          // setTimeout(function(){;},1000);
 
@@ -3496,16 +3508,16 @@ dojo.declare("gnr.widgets.CkEditor",gnr.widgets.baseHtml,{
                                 evt.cancel();
     },
     mixin_gnr_readOnly:function(value,kw,reason){
-        var value = (value !='auto')? value : this.sourceNode.getAttributeFromDatasource('readOnly')
+        var value = (value !='auto')? value : this.sourceNode.getAttributeFromDatasource('readOnly');
         this.gnr_setReadOnly(value);
     },
     mixin_gnr_setReadOnly:function(isReadOnly){
-        console.log(isReadOnly)
+        console.log(isReadOnly);
         if (!this.document){
-            console.log('not yet built')
-            return
+            console.log('not yet built');
+            return;
         }
-        console.log('valid')
+        console.log('valid');
         
         //this.document.$.body.disabled = isReadOnly;
         CKEDITOR.env.ie ? this.document.$.body.contentEditable = !isReadOnly
