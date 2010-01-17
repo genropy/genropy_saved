@@ -642,7 +642,11 @@ dojo.declare("gnr.widgets.StackContainer",gnr.widgets.baseDojo,{
         
     },
     mixin_setSelected:function(p){
-        this.selectChild(this.getChildren()[p||0]);
+        if( this.gnrPageDict && this.gnrPageDict[p]){
+            this.selectChild(this.gnrPageDict[p]);
+        } else{
+            this.selectChild(this.getChildren()[p||0]);
+        }
     },
     mixin_getSelected: function(){
         var selected = {n:null};
@@ -653,11 +657,11 @@ dojo.declare("gnr.widgets.StackContainer",gnr.widgets.baseDojo,{
         return this.getChildIndex(this.getSelected());
     },
 
-    mixin_setSelectedPage:function(pageName){
-        if( this.gnrPageDict[pageName]){
-            this.selectChild(this.gnrPageDict[pageName]);
-        }        
-    },
+   //mixin_setSelectedPage:function(pageName){
+   //    if( this.gnrPageDict[pageName]){
+   //        this.selectChild(this.gnrPageDict[pageName]);
+   //    }        
+   //},
         
     mixin_getChildIndex:function(obj){
         return dojo.indexOf(this.getChildren(),obj);

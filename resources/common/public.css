@@ -26,7 +26,19 @@
 	-webkit-box-shadow:4px 4px 4px #403b3b;
 }
 
+.shadow_4{
+    -moz-box-shadow:4px 4px 4px #403b3b;
+	-webkit-box-shadow:4px 4px 4px #403b3b;
+}
+.shadow_2{
+    -moz-box-shadow:2px 2px 2px #403b3b;
+	-webkit-box-shadow:2px 2px 2px #403b3b;
+}
 
+.shadow_6{
+    -moz-box-shadow:6px 6px 5px #403b3b;
+	-webkit-box-shadow:6px 6px 5px #403b3b;
+}
 
 .pbl_username{
 	-moz-border-radius:6px;
@@ -595,6 +607,7 @@ padding-bottom: 2px;
     font-size:1em;
     color:#494949;
     font-weight:normal;
+    min-width:4em;
     background:;
     background-image:-webkit-gradient(center,top, from(rgba(182,182,182,0.75)), to(rgba(239,239,239,0.9)));
     background-image:-moz-linear-gradient(center,top, from(rgba(182,182,182,0.75)), to(rgba(239,239,239,0.9)));

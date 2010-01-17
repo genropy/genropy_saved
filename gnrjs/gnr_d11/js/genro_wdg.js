@@ -31,7 +31,8 @@ dojo.declare("gnr.GnrWdgHandler",null,{
         this.application=application;
         this.noConvertStyle={
             'table' :[ 'width', 'border'],
-            'editor' :[ 'height']};
+            'editor' :[ 'height'],
+            'embed':['width','height']};
         this.tagParameters={};
         this.tagParameters['button']={'caption':'input'};
         this.tagParameters['contentpane']={'label':'input','layoutAlign':'select:top,bottom,left,right,client'};

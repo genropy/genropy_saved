@@ -31,9 +31,9 @@ class RecordDialog(BaseComponent):
     def recordDialog(self,table=None,firedPkey=None,pane=None,height=None,width=None,_class=None,
                     title=None,formCb=None,onSaved='',saveKwargs=None,loadKwargs=None,
                     savePath='',bottomCb=None,savingMethod=None,
-                    loadingMethod=None, loadingParameters=None,onClosed='',
+                    loadingMethod=None, loadingParameters=None,onClosed='',onShow='',
                     validation_failed='alert',custom_table_id=None,
-                    dlgId=None,formId=None,datapath=None,**kwargs):
+                    dlgId=None,formId=None,datapath=None,dlgPars=None,**kwargs):
         """
         Allow to manage a form into a dialog for editing and saving a single RecordHandler.
         * `table`: The table where the record is saved.
@@ -63,7 +63,10 @@ class RecordDialog(BaseComponent):
         page = pane
         if page is None:
             page = self.pageSource()
-        dlg = page.dialog(nodeId=dlgId,title=title,datapath=controllerPath)
+        dlgPars=dlgPars or {}
+        if onShow:
+            dlgPars['connect_show']=onOpen                   
+        dlg = page.dialog(nodeId=dlgId,title=title,datapath=controllerPath,**dlgPars)
         dlgBC = dlg.borderContainer(height=height, 
                                     width=width, _class=_class,
                                     sqlContextName=sqlContextName,
@@ -115,6 +118,7 @@ class RecordDialog(BaseComponent):
                                if (onClosed){
                                    funcCreate(onClosed, 'exitAction').call(dlgNode,exitAction);
                                } 
+
                             """%dlgId, exitAction ='^.exitAction', onClosed=onClosed)
         
         loadingParameters = loadingParameters or '=gnr.tables.%s.loadingParameters' %table.replace('.','_')
