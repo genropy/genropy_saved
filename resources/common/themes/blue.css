@@ -9,6 +9,10 @@
 .pbl_viewBoxLabel {
 	background-color:#97AEA9;
 }
+
+.pbl_viewBoxLabel .gnrfieldlabel {
+	color: #1b2125 !important;
+}
 .pbl_viewBox {
 	background-color: #E1E9E9;
 }
