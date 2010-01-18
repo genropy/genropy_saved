@@ -1,0 +1,200 @@
+/*ACTUAL SETS OF COLOR WITHOUT ANY DEFINITION USE THIS AS TEMPLATE TO MAKE NEW THEMES*/
+
+/* @group pbl_form */
+.pbl_roundedGroup{
+	background-color: #ece3da;
+}
+
+.pbl_roundedGroupLabel{
+	background-color: #bfb6ae;
+}
+.pbl_roundedGroupBottom{
+	background-color: #bfb6ae;
+}
+
+
+.pbl_dialog_center{
+	background-color: #fbf2e7;
+}
+
+.pbl_viewBox{
+background-color: #ece3da;
+
+}
+.pbl_background{
+	background-color: #ece3da;
+}
+
+.pbl_viewBoxLabel{
+	background-color: #bfb6ae;
+
+}
+
+/* @end */
+
+/* @group pbl_layout */
+
+.pbl_username{
+	background-color: #bfb6ae;
+	color: #403b3b;
+}
+
+.pbl_workdate{
+	background-color: #bfb6ae;
+	color: #403b3b !important;
+}
+
+
+.pbl_root_top {
+	background-color: #59514f;
+	color: #ece3da;
+}
+
+.pbl_root_bottom {
+	background-color: #fbf2e7;
+	color: #403b3b;
+	border-color:#bfb6ae;
+}
+
+.pbl_root_center{
+	background-color: #fbf2e7;
+}
+
+/* @end */
+
+
+/* @group widgets */
+
+/* @group Tooltip & Dialog */
+
+
+
+
+ /* @end */
+
+._common_d11 .dijitTitlePane .dijitTitlePaneTitle{
+	background: #bfb6ae;
+}
+
+/* @group Accordion */
+._common_d11 .dijitAccordionTitle{
+	background: #bfb6ae;
+}
+
+._common_d11 .dijitAccordionTitle-selected{
+	background: #59514f;
+	color: white;
+}
+
+/* @end */
+
+/* @group Tabcontainer */
+
+._common_d11 .dijitTab{
+	font-size: .9em;
+	background: #bfb6ae;
+	-moz-border-radius-topleft:6px;
+	-moz-border-radius-topright:6px;
+    -webkit-border-top-left-radius:6px;
+	-webkit-border-top-right-radius:6px;
+}
+._common_d11 .dijitTabChecked{
+	background: #fbf2e7;
+	border-bottom-color: #fbf2e7 ;
+}
+._common_d11 .dijitAlignTop .dijitTabChecked, ._common_d11 .dijitAlignTop .dijitTabCloseButtonChecked{
+	border-bottom-color:#fbf2e7 ;
+	background-color: #fbf2e7;
+}
+
+._common_d11 .dijitTabPaneWrapper{
+	background-color: #fbf2e7;
+}
+
+
+
+
+/* @end */
+
+/* @group Dialog */
+
+._common_d11 .dijitDialogTitleBar{
+	background: #59514f;
+	color: #ece3da;
+}
+
+.dlg_msgbox{
+	background-color: #fbf2e7;
+}
+
+._common_d11 .dijitDialog .dijitDialogPaneContent{
+	background-color: #fbf2e7;
+}
+.dialog_bottom{
+	background-color: #ece3da;
+	font-weight: bold;
+	height: 26px;
+	padding-top:3px;
+	padding-left:5px;
+	padding-right:5px;
+	-moz-border-radius-bottomleft:7px;
+	-moz-border-radius-bottomright:7px;
+	-webkit-border-bottom-left-radius:7px;
+	-webkit-border-bottom-right-radius:7px;
+}
+/* @end */
+
+/* @end */
+
+
+/* @group MenuTree */
+.menupane{
+	background-color: #8c8681;
+    border-left: 0px;
+}
+
+.menutree .menu_level_0{
+	background-color: #ece3da;
+	color: #403b3b;
+}
+
+.menutree .menu_level_1{
+	background-color: #ece3da;
+	color: #403b3b;
+}
+
+.menutree .menu_level_2{
+	background-color: #ece3da;
+	color: #403b3b;
+}
+
+.menutree .menu_level_3{
+	background-color: #ece3da;
+	color: #403b3b;
+}
+
+.menutree .menu_level_4{
+	background-color: #ece3da;
+	color: #403b3b;
+}
+
+.menutree .menu_page{
+	background-color: #ece3da;
+	color: #403b3b;
+}
+
+.menutree .menu_shape{
+	background-color: #ece3da;
+}
+
+/* @end */
+
+/* @group general */
+#mainWindow{
+	background-color: #bfb6ae;
+	font-size:12px;
+}
+
+
+
+/* @end */

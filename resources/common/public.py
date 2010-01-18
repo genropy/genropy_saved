@@ -12,7 +12,7 @@ from gnr.web.gnrbaseclasses import BaseComponent
 
 class Public(BaseComponent):
     """docstring for Public for common_d11: a complete restyling of Public of common_d10"""
-    css_requires = 'public'
+    css_requires = 'public,themes/blue'
     js_requires = 'public'
     py_requires = 'foundation/menu:Menu,foundation/dialogs,foundation/macrowidgets'
         

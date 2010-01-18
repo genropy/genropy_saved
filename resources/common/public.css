@@ -186,6 +186,41 @@ padding-bottom: 2px;
 
 /* @group _common_d11 theme */
 
+/* @group buttons */
+._common_d11 .dijitButtonNode, 
+.bottom_btn .dijitButtonNode{
+    -moz-border-radius:4px;
+    -webkit-border-radius:4px;
+    -opera-border-radius:4px;
+    -khtml-border-radius:4px;
+    cursor: pointer;
+    font-size: 0.9em;
+    font-weight: bold;
+    border-color: #494949;
+    border-width: 1px;
+    border-style:solid;
+    padding:0px 2px;
+    opacity: 1;
+    font-size:1em;
+    color:#494949;
+    font-weight:normal;
+    background:;
+    background-image:-webkit-gradient(center,top, from(rgba(182,182,182,0.75)), to(rgba(239,239,239,0.9)));
+    background-image:-moz-linear-gradient(center,top, from(rgba(182,182,182,0.75)), to(rgba(239,239,239,0.9)));
+
+}
+.bottom_btnDisabled .dijitButtonNode{
+	opacity: .6;
+	cursor: not-allowed !important;
+}
+
+.bottom_btnHover .dijitButtonNode{
+    opacity: 1;
+}
+
+
+/* @end */
+
 /* @group Tooltip & Dialog */
 
 /* @group connector */
@@ -211,9 +246,9 @@ padding-bottom: 2px;
 /* genro widget */
 
 .tt_dialog_top{
-	background: #676767;
+	background: #59514f;
 	vertical-align: middle;
-	color: white;
+	color: #ece3da;
 	-moz-border-radius-topleft:6px;
 	-moz-border-radius-topright:6px;
     -webkit-border-top-left-radius:6px;
@@ -223,13 +258,14 @@ padding-bottom: 2px;
 }
 
 .tt_dialog_bottom{
-	color: white;
+	color: #403b3b;
 	font-size: .94em;
 	font-weight: bold;
 	height: 18px;
 	padding-top:3px;
 	padding-left:5px;
 	padding-right:5px;
+	background-color: #bfb6ae;
 }
 .tt_dialog_cnt{
 	-moz-border-radius:10px;
@@ -238,17 +274,7 @@ padding-bottom: 2px;
 }
 
 .tt_bottom_btn .dijitButtonNode{
-	color: white;
-	-moz-border-radius:6px;
-    -webkit-border-radius:6px;
-    background: #3F5A8D;
-    cursor: pointer;
     font-size: 0.8em;
-    font-weight: bold;
-    border: white solid 1px;
-}
-.tt_bottom_btnHover .dijitButtonNode{
-	color: yellow;
 }
 
 /* @end */
@@ -260,7 +286,7 @@ padding-bottom: 2px;
     -webkit-border-radius:6px;
     padding:0px;
     border: 0;
-    background: #676767;
+    background: #ece3da;
 	font-size: inherit;
 }
 
@@ -590,36 +616,7 @@ padding-bottom: 2px;
 
 
 }
-._common_d11 .dijitButtonNode, 
-.bottom_btn .dijitButtonNode{
-    -moz-border-radius:4px;
-    -webkit-border-radius:4px;
-    -opera-border-radius:4px;
-    -khtml-border-radius:4px;
-    cursor: pointer;
-    font-size: 0.9em;
-    font-weight: bold;
-    border-color: #494949;
-    border-width: 1px;
-    border-style:solid;
-    padding:0px 2px;
-    opacity: 1;
-    font-size:1em;
-    color:#494949;
-    font-weight:normal;
-    background:;
-    background-image:-webkit-gradient(center,top, from(rgba(182,182,182,0.75)), to(rgba(239,239,239,0.9)));
-    background-image:-moz-linear-gradient(center,top, from(rgba(182,182,182,0.75)), to(rgba(239,239,239,0.9)));
 
-}
-.bottom_btnDisabled .dijitButtonNode{
-	opacity: .6;
-	cursor: not-allowed !important;
-}
-
-.bottom_btnHover .dijitButtonNode{
-    opacity: 1;
-}
 .dialog_bottom{
 	background-color: #ece3da;
 	font-weight: bold;

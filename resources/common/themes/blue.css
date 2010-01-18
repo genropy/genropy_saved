@@ -1,0 +1,136 @@
+/* @group pbl_form */
+
+.pbl_roundedGroupBottom {
+	background-color:#97AEA9;
+}
+.pbl_roundedGroupLabel {
+	background-color:#97AEA9;
+}
+.pbl_viewBoxLabel {
+	background-color:#97AEA9;
+}
+.pbl_viewBox {
+	background-color: #E1E9E9;
+}
+
+.pbl_roundedGroup {
+	background-color: #E1E9E9;
+}
+
+
+/* @end */
+
+/* @group pbl_layout */
+
+.pbl_root_top {
+	background-color:#4D5962;
+	color: #F5F5F5;
+}
+.pbl_root_bottom{
+	background-color:#4D5962;
+}
+a{
+	color: #4D5962;
+	text-decoration: none;
+}
+.pbl_root_center{
+	background-color: #F5F5F5;
+}
+
+/* @end */
+
+/* @group MenuTree */
+
+.menupane {
+	background-color: rgba(168,181,182,0.8);
+    background-image:-webkit-gradient(linear, 0% 0%, 0% 90%, from(rgba(105,127,127,0.50)), to(rgba(192,192,192,0.9)));
+    background-image:-moz-linear-gradient(top, bottom,from(rgba(105,127,127,0.50)), to(rgba(192,192,192,0.9)));
+}
+.menu_page > a {
+	color:#FFFFFF;
+}
+.menutree .menu_shape {
+	background-color:#68858E;
+	color:#FFFFFF;
+}
+
+
+
+/* @end */
+
+/* @group tablehandler */
+
+/* multi row query */
+.st_editor_bar {
+	background-color:#68858E !important;
+}
+.st_editor_body {
+	background-color:#9E856F !important;
+}
+
+.qb_group_even {
+	background-color:#9E856F !important;
+}
+
+
+
+/* @end */
+
+/* @group widgets */
+
+/* @group Tabcontainer */
+
+._common_d11 .dijitTabChecked{
+    background: orange;
+    border-bottom-color: blue;
+}
+._common_d11 .dijitAlignTop .dijitTabChecked, ._common_d11 .dijitAlignTop .dijitTabCloseButtonChecked{
+    border-bottom-color:silver;
+    background-color: silver;
+}
+._common_d11 .dijitTabPaneWrapper{
+    background-color: #F5F5F5;
+}
+._common_d11 .dijitTab {
+    background:#F5F5F5 none repeat scroll 0 0;
+}
+
+
+
+/* @end */
+
+/* @group dialogs */
+
+._common_d11 .dijitDialogTitleBar {
+	background:#4D5962 none repeat scroll 0 0;
+	color:#F5F5F5;
+}
+.pbl_background {
+	background-color: rgba(201,224,237,0.5);
+}
+.dialog_bottom {
+	background-color: rgba(201,224,237,0.5);
+}
+
+/* @end */
+
+
+
+/* @end */
+
+/* @group general */
+/* @group form */
+.gnrfieldlabel {
+	color: rgba(72,84,92,0.9);
+}
+/* @end */
+
+
+#mainWindow{
+	background-color: #E1E9E9;
+	 font-size:12px;
+	}
+
+
+
+/* @end */
