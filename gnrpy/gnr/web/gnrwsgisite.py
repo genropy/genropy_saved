@@ -152,7 +152,7 @@ class GnrWsgiSite(object):
             self.config = self.load_site_config()
         
         self.home_uri = self.config['wsgi?home_uri'] or '/'
-        self.session_type = self.config['wsgi?session_type'] or 'file'
+        self.session_type = self.config['wsgi?session_type'] or 'dbm'
         if self.home_uri[-1]!='/':
             self.home_uri+='/'
         self.mainpackage = self.config['wsgi?mainpackage']
