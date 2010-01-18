@@ -4,7 +4,7 @@ from gnr.core.gnrbag import Bag
 
 class Table(object):
     def config_db(self, pkg):
-        tbl =  pkg.table('message',  pkey='id',name_long='!!Messages',
+        tbl =  pkg.table('external_token',  pkey='id',name_long='!!Messages',
                       name_plural='!!Messages')
         tbl.column('id',size='22',name_long='!!id')
         tbl.column('datetime','DH',name_long='!!Date and Time')
