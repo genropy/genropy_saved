@@ -164,8 +164,8 @@ class _SaxImporter(sax.handler.ContentHandler):
                         value = self.catalog.fromText(value,self.currType)
                     except:
                         import sys
-                        print sys.exc_info()[1]
-                        print value
+                        #print sys.exc_info()[1]
+                        #print value
                         value = None
         if self.currArray : #handles an array
             if self.currArray != tagLabel: # array's content
