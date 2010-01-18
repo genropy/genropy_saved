@@ -187,8 +187,8 @@ class GnrWebPage(GnrBaseWebPage):
                     self._call_handler=self.rootPage
                 else:
                     self._call_handler = self.getPublicMethod('rpc',method)
-                request_args = token_args
-                request_kwargs = token_kwargs
+                request_args.extend(token_args)
+                request_kwargs.update([(str(k),v) for k,v in token_kwargs.items()])
         else:
             self._call_handler=self.rootPage
             request_kwargs['dojo_theme']=self.dojo_theme
