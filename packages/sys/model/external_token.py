@@ -9,7 +9,7 @@ class Table(object):
         tbl.column('id',size='22',name_long='!!id')
         tbl.column('datetime','DH',name_long='!!Date and Time')
         tbl.column('expiry','DH',name_long='!!Expiry')
-        tbl.column('user',size=':32',name_long='!!Destination user',indexed=True)
+        tbl.column('allowed_user',size=':32',name_long='!!Destination user')
         tbl.column('connection_id',size='22',name_long='!!Connection Id',indexed=True)
         tbl.column('max_usages','I',name_long='!!Max uses')
         tbl.column('allowed_host',name_long='!!Allowed host')
@@ -18,13 +18,13 @@ class Table(object):
         tbl.column('parameters',dtype='X',name_long='!!Parameters')
 
 
-    def create_token(self,page_path,expiry=None,allowed_host=None, user=None,
+    def create_token(self,page_path,expiry=None,allowed_host=None, allowed_user=None,
                 connection_id=None,max_usages=None,method=None,parameters=None):
         record = dict(
             page_path=page_path,
             expiry=expiry,
             allowed_host=allowed_host,
-            user=user,
+            allowed_user=allowed_user,
             connection_id=connection_id,
             max_usages=max_usages,
             method=method,
