@@ -9,5 +9,5 @@
 
 # --------------------------- GnrWebPage subclass ---------------------------
 class GnrWebFrontend(object):
-    def __init__(self):
+    def __init__(self,page):
         self.page = page
