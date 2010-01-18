@@ -148,6 +148,13 @@ background-color: #ece3da;
 
 
 /* @group MenuTree */
+.menu_page  > a{
+	color: #403b3b;
+	text-decoration: none;
+}
+.menu_page  > a:hover{
+	text-decoration: underline;
+}
 .menupane{
 	background-color: #8c8681;
     border-left: 0px;
