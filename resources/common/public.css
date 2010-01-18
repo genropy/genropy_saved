@@ -84,9 +84,9 @@
 }
 
 .pbl_root_bottom {
+	padding-top: 1px;
 	height: 23px;
 	background-color: #fbf2e7;
-
 	vertical-align: middle;
 	color: #403b3b;
 	border-top: 1px solid  #bfb6ae;
