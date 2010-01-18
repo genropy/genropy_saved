@@ -105,10 +105,16 @@ a{
 
 /* @group dialogs */
 
+/*._common_d11 .dijitDialogTitleBar {
+	background:#4D5962 none repeat scroll 0 0;
+	color:#F5F5F5;
+}*/
+
 ._common_d11 .dijitDialogTitleBar {
 	background:#4D5962 none repeat scroll 0 0;
 	color:#F5F5F5;
 }
+
 .pbl_background {
 	background-color: rgba(201,224,237,0.5);
 }
