@@ -8,6 +8,7 @@ from weberror.evalexception import EvalException
 from webob import Request, Response
 from gnr.web.gnrwebapp import GnrWsgiWebApp
 import os
+import glob
 from time import time
 from gnr.core.gnrlang import gnrImport, instanceMixin
 from threading import RLock
@@ -278,8 +279,13 @@ class GnrWsgiSite(object):
     def load_site_config(self):
         site_config_path = os.path.join(self.site_path,'siteconfig.xml')
         site_config = self.gnr_config['gnr.siteconfig.default_xml']
-        if 'sites' in self.gnr_config['gnr.environment_xml']:
-            for path, site_template in self.gnr_config['gnr.environment_xml'].digest('sites:#a.path,#a.site_template'):
+        path_list=[]
+        if 'projects' in self.gnr_config['gnr.environment_xml']:
+            projects = [(expandpath(path),site_template) for path,site_template in self.gnr_config['gnr.environment_xml.projects'].digest('#a.path,#a.template') if os.path.isdir(expandpath(path))]
+            for project_path,site_template in projects:
+                sites=glob.glob(os.path.join(project_path,'*/sites'))
+                path_list.extend([(site_path,site_template) for site_path in sites])
+            for path,site_template in path_list:
                 if path == os.path.dirname(self.site_path):
                     if site_config:
                         site_config.update(self.gnr_config['gnr.siteconfig.%s_xml'%site_template] or Bag())
