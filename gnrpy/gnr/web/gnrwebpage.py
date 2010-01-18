@@ -181,8 +181,12 @@ class GnrWebPage(GnrBaseWebPage):
         elif 'gnrtoken' in request_kwargs:
             external_token = request_kwargs.pop('gnrtoken')
             method,token_args,token_kwargs = self.db.table('sys.external_token').use_token(external_token, commit=True)
+            print token_kwargs
             if method:
-                self.getPublicMethod('rpc',method)
+                if method=='root':
+                    self._call_handler=self.rootPage
+                else:
+                    self._call_handler = self.getPublicMethod('rpc',method)
                 request_args = token_args
                 request_kwargs = token_kwargs
         else:
@@ -376,9 +380,9 @@ class GnrWebPage(GnrBaseWebPage):
             path = '%s?%s' % (path, params)
         return path
     
-    def externalUrlToken(self, path, _expiry=None,_host=None, **kwargs):
+    def externalUrlToken(self, path, _expiry=None,_host=None, method='root', **kwargs):
         assert 'sys' in self.site.gnrapp.packages
-        external_token = self.db.table('sys.external_token').create_token(path,_expiry=_expiry,_host=_host,**kwargs)
+        external_token = self.db.table('sys.external_token').create_token(path,expiry=_expiry,allowed_host=_host,method=method,parameters=kwargs)
         return self.externalUrl(path, gnrtoken=external_token)
         
     def get_bodyclasses(self):
