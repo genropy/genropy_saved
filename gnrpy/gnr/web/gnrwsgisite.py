@@ -281,7 +281,7 @@ class GnrWsgiSite(object):
         site_config = self.gnr_config['gnr.siteconfig.default_xml']
         path_list=[]
         if 'projects' in self.gnr_config['gnr.environment_xml']:
-            projects = [(expandpath(path),site_template) for path,site_template in self.gnr_config['gnr.environment_xml.projects'].digest('#a.path,#a.template') if os.path.isdir(expandpath(path))]
+            projects = [(expandpath(path),site_template) for path,site_template in self.gnr_config['gnr.environment_xml.projects'].digest('#a.path,#a.site_template') if os.path.isdir(expandpath(path))]
             for project_path,site_template in projects:
                 sites=glob.glob(os.path.join(project_path,'*/sites'))
                 path_list.extend([(site_path,site_template) for site_path in sites])

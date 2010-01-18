@@ -215,9 +215,9 @@ class NewServer(object):
     def site_name_to_path(self,site_name):
         path_list=[]
         if 'sites' in self.gnr_config['gnr.environment_xml']:
-            path_list.extend([(expandpath(path),site_template) for path,site_template in self.gnr_config['gnr.environment_xml.sites'].digest('#a.path,#a.template') if os.path.isdir(expandpath(path))])
+            path_list.extend([(expandpath(path),site_template) for path,site_template in self.gnr_config['gnr.environment_xml.sites'].digest('#a.path,#a.site_template') if os.path.isdir(expandpath(path))])
         if 'projects' in self.gnr_config['gnr.environment_xml']:
-            projects = [(expandpath(path),site_template) for path,site_template in self.gnr_config['gnr.environment_xml.projects'].digest('#a.path,#a.template') if os.path.isdir(expandpath(path))]
+            projects = [(expandpath(path),site_template) for path,site_template in self.gnr_config['gnr.environment_xml.projects'].digest('#a.path,#a.site_template') if os.path.isdir(expandpath(path))]
             for project_path,site_template in projects:
                 sites=glob.glob(os.path.join(project_path,'*/sites'))
                 path_list.extend([(site_path,site_template) for site_path in sites])
