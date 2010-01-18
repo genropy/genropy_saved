@@ -178,6 +178,13 @@ class GnrWebPage(GnrBaseWebPage):
         elif 'rpc' in request_kwargs:
             method = request_kwargs.pop('rpc')
             self._call_handler = self.getPublicMethod('rpc',method)
+        elif 'gnrtoken' in request_kwargs:
+            external_token = request_kwargs.pop('gnrtoken')
+            method,token_args,token_kwargs = self.db.table('sys.external_token').use_token(external_token, commit=True)
+            if method:
+                self.getPublicMethod('rpc',method)
+                request_args = token_args
+                request_kwargs = token_kwargs
         else:
             self._call_handler=self.rootPage
             request_kwargs['dojo_theme']=self.dojo_theme
@@ -360,6 +367,20 @@ class GnrWebPage(GnrBaseWebPage):
             path = '%s?%s' % (path, params)
         return path
 
+    def externalUrl(self, path, **kwargs):
+        params = urllib.urlencode(kwargs)
+        #path = os.path.join(self.homeUrl(), path)
+        if path=='': path=self.siteUri
+        path=self._request.relative_url(path)
+        if params:
+            path = '%s?%s' % (path, params)
+        return path
+    
+    def externalUrlToken(self, path, _expiry=None,_host=None, **kwargs):
+        assert 'sys' in self.site.gnrapp.packages
+        external_token = self.db.table('sys.external_token').create_token(path,_expiry=_expiry,_host=_host,**kwargs)
+        return self.externalUrl(path, gnrtoken=external_token)
+        
     def get_bodyclasses(self):
         return '%s _common_d11 pkg_%s page_%s %s' % (self.dojo_theme, self.packageId, self.pagename,getattr(self,'bodyclasses',''))
     

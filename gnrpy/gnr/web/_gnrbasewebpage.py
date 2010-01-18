@@ -383,14 +383,7 @@ class GnrBaseWebPage(GnrObject):
         locale = locale or self.locale
         return toText(obj, locale=locale, format=format, mask=mask, encoding=encoding)
     
-    def externalUrl(self, path, **kwargs):
-        params = urllib.urlencode(kwargs)
-        #path = os.path.join(self.homeUrl(), path)
-        if path=='': path=self.siteUri
-        path=self._request.relative_url(path)
-        if params:
-            path = '%s?%s' % (path, params)
-        return path
+
         
     def getAbsoluteUrl(self, path, **kwargs):
         """return an external link to the page
