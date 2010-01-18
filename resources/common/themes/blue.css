@@ -67,11 +67,11 @@ a{
 	background-color:#68858E !important;
 }
 .st_editor_body {
-	background-color:#9E856F !important;
+	background-color: rgba(168,181,182,0.8);  !important;
 }
 
 .qb_group_even {
-	background-color:#9E856F !important;
+	background-color: rgba(168,181,182,0.8); !important;
 }
 
 
