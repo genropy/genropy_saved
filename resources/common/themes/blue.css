@@ -65,8 +65,6 @@ a{
 /* @end */
 
 /* @group tablehandler */
-
-/* multi row query */
 .st_editor_bar {
 	background-color:#68858E !important;
 }
@@ -87,8 +85,8 @@ a{
 /* @group Tabcontainer */
 
 ._common_d11 .dijitTabChecked{
-    background: orange;
-    border-bottom-color: blue;
+    background: #9E856F;
+    border-bottom-color: #9E856F;
 }
 ._common_d11 .dijitAlignTop .dijitTabChecked, ._common_d11 .dijitAlignTop .dijitTabCloseButtonChecked{
     border-bottom-color:silver;
