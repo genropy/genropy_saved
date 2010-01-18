@@ -1032,7 +1032,7 @@ class GnrWebAppHandler(GnrBaseProxy):
         for i,row in enumerate(storebag):
             r = row.getAttr()
             for c,col in enumerate(columns):
-                if coltype[col] in ('R', 'F'):
+                if coltype[col] in ('R', 'F','N'):
                     ws.write(i+1, c, r.get(col), float_style)
                 elif coltype[col] in ('L','I'):
                     ws.write(i+1, c, r.get(col), int_style)
