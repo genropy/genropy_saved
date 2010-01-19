@@ -90,7 +90,6 @@ class ListViewHandler(BaseComponent):
         return self.rpc_deleteUserObject(id)        
         
 class ListQueryHandler(BaseComponent):
-    
     def editorPane(self, restype, pane, datapath):
         parentdatapath, resname = datapath.rsplit('.', 1)
         top = pane.div(_class='st_editor_bar', datapath=parentdatapath)    
@@ -113,30 +112,7 @@ class ListQueryHandler(BaseComponent):
         top.div(content='^.%s?code' % resname, _class='st_editor_title')
         pane.div(_class='st_editor_body st_editor_%s' % restype, nodeId='%s_root' % restype, datapath=datapath)
         self.deleteQueryButton(pane)
-        
-    def editorPane__old(self, restype, pane, datapath):
-        parentdatapath, resname = datapath.rsplit('.', 1)
-        top = pane.div(_class='st_editor_bar', datapath=parentdatapath)        
-        top.div(_class='icnBase10_Doc buttonIcon',float='right',
-                                connect_onclick=" SET list.query.selectedId = null ;FIRE .new=true;",
-                                margin_right='5px', margin_top='2px', tooltip='!!New %s' % restype);
-        top.div(_class='icnBase10_Save buttonIcon', float='right',margin_right='5px', margin_top='2px',
-                connect_onclick="""var currentId = GET list.%s.selectedId; 
-                                   SET #userobject_dlg.pars.objtype = '%s';
-                                   SET #userobject_dlg.pars.title = 'Edit %s';
-                                   SET #userobject_dlg.pars.data = GET %s;
-                                   FIRE #userobject_dlg.pkey = currentId?currentId:"*newrecord*";
-                                   """%(restype,restype,restype,datapath),
-                tooltip='!!Save %s' % restype);
-        top.div(_class='icnBase10_Trash buttonIcon', float='right',
-                                                onCreated="genro.dlg.connectTooltipDialog($1,'delete_%s_btn')" % restype,
-                                                margin_left='5px', margin_right='15px',
-                                                margin_top='2px', tooltip='!!Delete %s' % restype,
-                                                visible='^.%s?id' % resname)
-        top.div(content='^.%s?code' % resname, _class='st_editor_title')
-        pane.div(_class='st_editor_body st_editor_%s' % restype, nodeId='%s_root' % restype, datapath=datapath)
-        self.deleteQueryButton(pane)
-        
+
     def savedQueryController(self, pane):
         pane.dataRemote('list.query.saved_menu', 'list_query', tbl=self.maintable, cacheTime=10)
         pane.dataRpc('list.query.where', 'load_query', id='^list.query.selectedId', _if='id',
@@ -152,7 +128,7 @@ class ListQueryHandler(BaseComponent):
         listop=('equal','startswith','wordstart','contains','startswithchars','greater','greatereq','less','lesseq','between','isnull','nullorempty','in','regex')
         optype = dict(alpha=['contains','startswith','equal','wordstart',
                             'startswithchars','isnull','nullorempty','in','regex'],
-                      date=['equal'],
+                      date=['equal','in','isnull','greater','greatereq','less','lesseq','between'],
                       number=['equal','greater','greatereq','less','lesseq','isnull','in'],
                       others=['equal','greater','greatereq','less','lesseq','in'])
         

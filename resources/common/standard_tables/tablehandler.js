@@ -183,6 +183,30 @@ dojo.declare("gnr.GnrQueryBuilder",null,{
                                         genro.getDataNode('gnr.qb.sqlop.op.'+default_op).attr.caption);
         }
     },
+    onChangedQueryOp: function(contextNode,op_attr,label){
+        var label = label || 'c_0';
+        var relpath = '.'+label;
+        if (op_attr.fullpath=='in'){
+            this.openInOpDialog(relpath,label);
+        }
+    },
+    openInOpDialog:function(relpath,title){
+        genro.src.getNode()._('div', '_dlg_stOpIn');
+        var buttons = buttons || {confirm:'OK'};
+        var kw = objectUpdate({'width':'20em'},kw);
+        var resultPath = resultPath || 'dummy';
+        var node = genro.src.getNode('_dlg_alert').clearValue().freeze();
+        var dlg=node._('dialog',{nodeId:'_dlg_alert', title:title, toggle:"fade", toggleDuration:250})._('div',{_class:'dlg_ask',
+                                    'action':"genro.wdgById('_dlg_alert').hide();genro.fireEvent('"+resultPath+"',this.attr.actCode);"});
+        dlg._('div',{'innerHTML':msg,'_class':'dlg_ask_msg'});
+        var buttonBox = dlg._('div',{'_class':'dlg_ask_btnBox'});
+        for (var btn in buttons){
+            dlg._('button',{'_class':'dlg_ask_btn','label':buttons[btn],'actCode':btn});
+        }
+        node.unfreeze();
+        genro.wdgById('_dlg_alert').show();
+    },
+    
     buildQueryPane: function(startNode, datapath){
         var startNode = startNode || genro.nodeById(this.nodeId);
         var datapath = datapath || this.datapath;
@@ -275,7 +299,12 @@ dojo.declare("gnr.GnrQueryBuilder",null,{
                 input_attrs['connect__onMouse'] = 'genro.dom.ghostOnEvent($1);';
                 valtd._('label',{_for:fld_id,_class:'ghostlabel','id':fld_id+'_label'})._('span',{innerHTML:val?'':attr.value_caption});
             }
-            valtd._('textbox',input_attrs);
+            input_attrs.position='relative';
+            input_attrs.padding_right='10px';
+            value_input = valtd._('textbox',input_attrs);
+            value_input._('div',{height:'8px',width:'8px',position:'absolute',
+                                 background:'red',top:'2px',right:'2px',z_index:10,
+                                 connect_onclick:'FIRE list.query.helper.in'});
         }
         tr._('td')._('div',{connect_onclick:dojo.hitch(this,'addDelFunc','add',i+1), _class:'qb_btn qb_add'});
         if (i>0){

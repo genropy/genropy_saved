@@ -27,7 +27,7 @@ from gnr.core.gnrbag import Bag
 from gnr.core.gnrstring import templateReplace
 
 class TableHandler(BaseComponent):
-    py_requires="standard_tables/tablehandler_core,foundation/userobject:UserObject"
+    py_requires="standard_tables/tablehandler_core,foundation/userobject:UserObject,foundation/dialogs"
     css_requires = 'standard_tables/tablehandler'
     js_requires = 'standard_tables/tablehandler'
     
@@ -226,6 +226,7 @@ class TableHandler(BaseComponent):
         pane.div(_class='db_querybtn',connect_onclick="SET list.showExtendedQuery =! (GET list.showExtendedQuery);")
         
     def listToolbar_query(self, pane):
+        self._query_helpers(pane)
         pane = pane.div(position='absolute',top='0px',left='24px',height='26px')
         queryfb = pane.formbuilder(cols=5,datapath='list.query.where',_class='query_pane',
                                           border_spacing='2px',onEnter='genro.fireAfter("list.runQuery",true,10);')
@@ -235,16 +236,17 @@ class TableHandler(BaseComponent):
                               dnd_allowDrop="return !(item.attr.one_relation);", nodeId='fastQueryColumn',
                               selected_fieldpath='.c_0?column',selected_fullcaption='.c_0?column_caption',
                               selected_dtype='.c_0?column_dtype',
-                              action="""genro.querybuilder.onChangedQueryColumn($2,$1);
-                                        """,
+                              action="genro.querybuilder.onChangedQueryColumn($2,$1);",
                               lbl='!!Query')
         optd = queryfb.div(_class='smallFakeTextBox',lbl='!!Op.',lbl_width='4em')
+        
         optd.div('^.c_0?not_caption',selected_caption='.c_0?not_caption',selected_fullpath='.c_0?not',
                 display='inline-block',width='1.5em',_class='floatingPopup',nodeId='fastQueryNot',
                 border_right='1px solid silver')
         optd.div('^.c_0?op_caption', min_width='7em',nodeId='fastQueryOp',readonly=True,
                     selected_fullpath='.c_0?op',selected_caption='.c_0?op_caption',
                     connectedMenu='==genro.querybuilder.getOpMenuId(_dtype);',
+                    action="genro.querybuilder.onChangedQueryOp($2,$1);",
                     _dtype='^.c_0?column_dtype',
                     _class='floatingPopup',display='inline-block',padding_left='2px')
 
@@ -290,6 +292,15 @@ class TableHandler(BaseComponent):
             pane.dataController("if(current_filter){dojo.addClass(dojo.body(),'st_filterOn')}else{dojo.removeClass(dojo.body(),'st_filterOn')}",
                                 current_filter='^_clientCtx.filter.%s' %self.pagename,_onStart=True)
 
+    def _query_helpers(self,pane):
+        dlgBC = self.hiddenTooltipDialog(pane, dlgId='helper_in', title="!!In",
+                                         width="42em",height="23ex",fired='^list.query.helper.in', 
+                                         datapath='list.query.helper.curr_value',
+                                         bottom_right='!!Add',bottom_right_action='console.log("aaa")')
+        dlgpane = dlgBC.contentPane(region='center',_class='pbl_dialog_center')
+        box = dlgpane.div(position='absolute',top='1px',bottom='1px',left='1px',right='1px')
+        box.simpleTextArea(height='100%',width='100%')
+        
     def enableFilter(self):
         return False
         
