@@ -77,7 +77,20 @@ def getUuid():
 
 def safe_dict(d):
     return dict([(str(k), v) for k,v in d.items()])
-    
+
+def uniqify(seq, idfun=None):  
+    if idfun is None: 
+        def idfun(x): return x 
+    seen = {} 
+    result = [] 
+    for item in seq: 
+        marker = idfun(item) 
+        if marker in seen: continue 
+        seen[marker] = 1 
+        result.append(item) 
+    return result
+
+
 def optArgs(**kwargs):
     return dict([(k,v) for k,v in kwargs.items() if v!=None])
 
