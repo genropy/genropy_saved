@@ -78,7 +78,10 @@ def getUuid():
 def safe_dict(d):
     return dict([(str(k), v) for k,v in d.items()])
 
-def uniqify(seq, idfun=None):  
+def uniqify(seq, idfun=None):
+    """http://www.peterbe.com/plog/uniqifiers-benchmark
+       the above link has some further suggestions, I noticed that this is the sames as f5
+       J."""
     if idfun is None: 
         def idfun(x): return x 
     seen = {} 
