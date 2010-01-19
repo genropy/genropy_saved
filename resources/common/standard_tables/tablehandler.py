@@ -113,7 +113,6 @@ class TableHandler(BaseComponent):
         pane.dataController("""genro.viewEditor = new gnr.GnrViewEditor("view_root", "%s", "maingrid"); genro.viewEditor.colsFromBag();""" % self.maintable,_onStart=True)
         pane.dataController("""genro.querybuilder.createMenues();
                                   dijit.byId('qb_fields_menu').bindDomNode(genro.domById('fastQueryColumn'));
-                                  dijit.byId('qb_op_menu').bindDomNode(genro.domById('fastQueryOp'));
                                   dijit.byId('qb_not_menu').bindDomNode(genro.domById('fastQueryNot'));
                                   genro.querybuilder.buildQueryPane();""" , _onStart=True)
         pane.data('usr.writePermission',self.userCanWrite())
@@ -214,11 +213,6 @@ class TableHandler(BaseComponent):
                                                      callmethod:action, selectedRowidx:selectedRowidx}, 'function(result){genro.dlg.alert(result)}')""",
                         confirm='^list.act_result', action='=list.act_value', _if='confirm=="confirm"',
                         table=self.maintable, selectionName='=list.selectionName')
-        #pane.dataController("""var pkeys = genro.wdgById("maingrid").getSelectedPkeys();
-        #                           genro.serverCall('app.onSelectionDo', {table:table, selectionName:selectionName, command:'action',
-        #                                             callmethod:action, pkeys:pkeys}, 'function(result){genro.dlg.alert(result)}')""",
-        #                confirm='^list.act_result', action='=list.act_value', _if='confirm=="confirm"',
-        #                table=self.maintable, selectionName='=list.selectionName')
     def listToolbar(self, pane, datapath=None,arrows=True):
         self.listController(pane)
         tb = pane.toolbar().div(position='relative',top='0px',left='0px',height='26px')
@@ -237,18 +231,21 @@ class TableHandler(BaseComponent):
                                           border_spacing='2px',onEnter='genro.fireAfter("list.runQuery",true,10);')
         
         queryfb.div('^.c_0?column_caption',min_width='12em',_class='smallFakeTextBox floatingPopup',
-                              dnd_onDrop="SET .c_0?column_caption = item.attr.fullcaption;SET .c_0?column = item.attr.fieldpath;",
+                              dnd_onDrop="genro.querybuilder.onChangedQueryColumn(this,item.attr);",
                               dnd_allowDrop="return !(item.attr.one_relation);", nodeId='fastQueryColumn',
                               selected_fieldpath='.c_0?column',selected_fullcaption='.c_0?column_caption',
+                              selected_dtype='.c_0?column_dtype',
+                              action="""genro.querybuilder.onChangedQueryColumn($2,$1);
+                                        """,
                               lbl='!!Query')
         optd = queryfb.div(_class='smallFakeTextBox',lbl='!!Op.',lbl_width='4em')
         optd.div('^.c_0?not_caption',selected_caption='.c_0?not_caption',selected_fullpath='.c_0?not',
-                display='inline-block',width='1.5em',_class='floatingPopup',nodeId='fastQueryNot',border_right='1px solid silver')
-       #optd.div('^.c_0?op_caption',lbl='!!Op.', min_width='7em',nodeId='fastQueryOp',readonly=True,
-       #            selected_fullpath='.c_0?op',selected_caption='.c_0?op_caption',
-       #            _class='smallFakeTextBox floatingPopup')
+                display='inline-block',width='1.5em',_class='floatingPopup',nodeId='fastQueryNot',
+                border_right='1px solid silver')
         optd.div('^.c_0?op_caption', min_width='7em',nodeId='fastQueryOp',readonly=True,
                     selected_fullpath='.c_0?op',selected_caption='.c_0?op_caption',
+                    connectedMenu='==genro.querybuilder.getOpMenuId(_dtype);',
+                    _dtype='^.c_0?column_dtype',
                     _class='floatingPopup',display='inline-block',padding_left='2px')
 
         queryfb.textbox(lbl='!!Value',value='^.c_0',width='12em',lbl_width='5em', _autoselect=True,row_class='^.c_0?css_class',

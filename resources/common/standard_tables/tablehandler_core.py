@@ -143,19 +143,27 @@ class ListQueryHandler(BaseComponent):
                   _onResult='genro.querybuilder.buildQueryPane();')
         pane.dataController("FIRE list.query.saved",_fired="^#userobject_dlg.saved",
                             objtype='=#userobject_dlg.pars.objtype',_if='objtype=="query"')
-        pane.dataRpc('list.query.where', 'new_query', filldefaults=True, _init=True, sync=True)
+        pane.dataRpc('list.query.where', 'new_query', filldefaults=True, _onStart=True, sync=True)
         pane.dataRpc('list.query.where', 'new_query', _fired='^list.query.new', _deleted='^list.query.deleted',
                         _onResult='genro.querybuilder.buildQueryPane(); SET list.view.selectedId = null;')
         
     def rpc_getSqlOperators(self):
         result = Bag()
         listop=('equal','startswith','wordstart','contains','startswithchars','greater','greatereq','less','lesseq','between','isnull','nullorempty','in','regex')
+        optype = dict(alpha=['contains','startswith','equal','wordstart',
+                            'startswithchars','isnull','nullorempty','in','regex'],
+                      date=['equal'],
+                      number=['equal','greater','greatereq','less','lesseq','isnull','in'],
+                      others=['equal','greater','greatereq','less','lesseq','in'])
+        
         wt = self.db.whereTranslator
         for op in listop:
-            result.setItem('op.%s' % op, None, caption='!!%s' % wt.opCaption(op))
+            result.setItem('op.%s' % op,  None, caption='!!%s' % wt.opCaption(op))
+        for optype,values in optype.items():
+            for operation in values:
+                result.setItem('op_spec.%s.%s' % (optype,operation), operation, caption='!!%s' % wt.opCaption(operation))
+        result.setItem('op_spec.unselected_column.x',None,caption='!!Please select the column')
             
-        for op in ('startswith','wordstart','contains','regex'):
-            result.setAttr('op.%s' % op, onlyText=True)
             
         result.setItem('jc.and', None, caption='!!AND')
         result.setItem('jc.or', None, caption='!!OR')
@@ -210,12 +218,17 @@ class ListQueryHandler(BaseComponent):
         else:
             querybase = {'op':'equal'}
         op_not = querybase.get('op_not','yes')
+        column = querybase.get('column')
+        column_dtype = None
+        if column:
+            column_dtype = self.tblobj.column(column).getAttr('dtype')
         not_caption = '&nbsp;' if op_not=='yes' else '!!not'
         result.setItem('c_0', querybase.get('val'), 
-                        {'op':querybase.get('op'), 'column':querybase.get('column'),
-                          'op_caption':'!!%s' % self.db.whereTranslator.opCaption(querybase.get('op')),
-                          'not':op_not,'not_caption': not_caption,
-                          'column_caption' : self.app._relPathToCaption(self.maintable, querybase.get('column'))})
+                        {'op':querybase.get('op'),'column':column,
+                         'op_caption':'!!%s' %self.db.whereTranslator.opCaption(querybase.get('op')),
+                         'not':op_not,'not_caption': not_caption,
+                         'column_dtype': column_dtype,
+                         'column_caption' : self.app._relPathToCaption(self.maintable, column)})
         
         resultattr = dict(objtype='query', tbl=self.maintable)
         return result, resultattr

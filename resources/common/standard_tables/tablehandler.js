@@ -117,6 +117,9 @@ dojo.declare("gnr.GnrQueryBuilder",null,{
         this.nodeId = nodeId;
         this.maintable=maintable;
         this.datapath = datapath;
+        this.dtypes_dict = {'A':'alpha','T':'alpha','C':'alpha',
+                            'D':'date','DH':'date','I':'number',
+                            'L':'number','N':'number','R':'number'};
         genro.setDataFromRemote('gnr.qb.fieldstree',"relationExplorer", {table:maintable, omit:'_'});
         this.treefield = genro.getData('gnr.qb.fieldstree');
         genro.setDataFromRemote('gnr.qb.fieldsmenu',"relationExplorer", {table:maintable, omit:'_*',quickquery:true});
@@ -135,10 +138,18 @@ dojo.declare("gnr.GnrQueryBuilder",null,{
         node._('menu', {modifiers:'*',_class:'smallmenu',storepath:'gnr.qb.sqlop.not',id:'qb_not_menu'});
         node._('menu', {modifiers:'*',_class:'smallmenu',storepath:'gnr.qb.fieldsmenu',id:'qb_fields_menu'});
         node._('menu', {modifiers:'*',_class:'smallmenu',storepath:'gnr.qb.sqlop.op',id:'qb_op_menu'});
+        var opmenu_types = ['alpha','date','number','other','unselected_column'];
+        for (var i=0; i < opmenu_types.length; i++) {
+            node._('menu', {modifiers:'*',_class:'smallmenu',
+                   storepath:'gnr.qb.sqlop.op_spec.'+opmenu_types[i],id:'qb_op_menu_'+opmenu_types[i]});
+        }
         //aggiunta
         node._('menu', {modifiers:'*',_class:'smallmenu',storepath:'gnr.qb.quickview',id:'qb_quickview_menu'});
 
         node.unfreeze();
+    },
+    getOpMenuId: function(dtype){
+        return dtype?"qb_op_menu_"+this.dtypes_dict[dtype] || "other":'qb_op_menu_unselected_column';;
     },
     getCaption: function(optype,pars){
         var val = pars[optype];
@@ -156,6 +167,20 @@ dojo.declare("gnr.GnrQueryBuilder",null,{
             }
         }else{
             return '&nbsp;';
+        }
+    },
+    onChangedQueryColumn: function(contextNode,column_attr,label){
+        var label = label || 'c_0';
+        var relpath = '.'+label;
+        contextNode.setRelativeData(relpath+'?column_caption', column_attr.fullcaption);
+        contextNode.setRelativeData(relpath+'?column', column_attr.fieldpath);
+        var currentDtype = contextNode.getRelativeData(relpath+'?column_dtype');
+        if (currentDtype!=column_attr.dtype){
+            contextNode.setRelativeData(relpath+'?column_dtype',column_attr.dtype);
+            var default_op = genro._('gnr.qb.sqlop.op_spec.'+this.dtypes_dict[column_attr.dtype]+'.#0');
+            contextNode.setRelativeData(relpath+'?op',default_op);
+            contextNode.setRelativeData(relpath+'?op_caption',
+                                        genro.getDataNode('gnr.qb.sqlop.op.'+default_op).attr.caption);
         }
     },
     buildQueryPane: function(startNode, datapath){
@@ -227,14 +252,19 @@ dojo.declare("gnr.GnrQueryBuilder",null,{
             cell = tr._('td', {colspan:'3',datapath:relpath});
             this._buildQueryGroup(cell, val,level+1);
         } else {
+            var op_menu_id ='qb_op_menu_'+ (this.dtypes_dict[attr.column_dtype || 'T'] || 'other');
             attr.column_caption = this.getCaption('column',attr);
             attr.op_caption = this.getCaption('op',attr) ;
-            tr._('td')._('div',{_class:'qb_div qb_field floatingPopup',connectedMenu:'qb_fields_menu',selected_fieldpath:relpath+'?column',
-                            dnd_onDrop:"SET "+relpath+"?column_caption = item.attr.fullcaption;SET "+relpath+"?column = item.attr.fieldpath;",
-                         dnd_allowDrop:"return !(item.attr.one_relation);",
-                                selected_fullcaption:relpath+'?column_caption',innerHTML:'^'+relpath+'?column_caption'});
-            tr._('td')._('div',{_class:'qb_div qb_op floatingPopup', connectedMenu:'qb_op_menu',selected_fullpath:relpath+'?op',
-                                selected_caption: relpath+'?op_caption',innerHTML:'^'+relpath+'?op_caption'});
+            tr._('td')._('div',{_class:'qb_div qb_field floatingPopup',connectedMenu:'qb_fields_menu',
+                                dnd_onDrop:"genro.querybuilder.onChangedQueryColumn(this,item.attr,'"+node.label+"');",
+                                action:"genro.querybuilder.onChangedQueryColumn($2,$1,'"+node.label+"');",
+                                dnd_allowDrop:"return !(item.attr.one_relation);",
+                                innerHTML:'^'+relpath+'?column_caption'});
+            tr._('td')._('div',{_class:'qb_div qb_op floatingPopup', 
+                                connectedMenu:'==genro.querybuilder.getOpMenuId(_dtype);',
+                                _dtype:'^'+relpath+'?column_dtype',selected_fullpath:relpath+'?op',
+                                selected_caption: relpath+'?op_caption',innerHTML:'^'+relpath+'?op_caption', 
+                                id:'_op_'+node.getStringId(),_fired:'^'+relpath+'?column_dtype'});
             var valtd=tr._('td')._('div',{_class:'qb_div qb_value'});
             
             var input_attrs={value:'^'+relpath, width:'10em',
