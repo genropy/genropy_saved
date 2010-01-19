@@ -490,7 +490,7 @@ class GnrWebPage(GnrBaseWebPage):
     def get_css_requires(self, requires=None):
         requires = [r for r in (requires or self.css_requires) if r]
         requires = uniqify(requires)
-        #requires.reverse()
+        requires.reverse()
         filepath = os.path.splitext(self.filepath)[0]
         css_requires = []
         css_media_requires = {}
@@ -502,7 +502,7 @@ class GnrWebPage(GnrBaseWebPage):
                     media = None
                 csslist = self.getResourceList(css,'css')
                 if csslist:
-                    #csslist.reverse()
+                    csslist.reverse()
                     css_uri_list = [self.getResourceUri(css) for css in csslist]
                     if media:
                         css_media_requires.setdefault(media,[]).extend(css_uri_list)
