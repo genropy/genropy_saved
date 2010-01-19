@@ -190,21 +190,9 @@ dojo.declare("gnr.GnrQueryBuilder",null,{
             this.openInOpDialog(relpath,label);
         }
     },
-    openInOpDialog:function(relpath,title){
-        genro.src.getNode()._('div', '_dlg_stOpIn');
-        var buttons = buttons || {confirm:'OK'};
-        var kw = objectUpdate({'width':'20em'},kw);
-        var resultPath = resultPath || 'dummy';
-        var node = genro.src.getNode('_dlg_alert').clearValue().freeze();
-        var dlg=node._('dialog',{nodeId:'_dlg_alert', title:title, toggle:"fade", toggleDuration:250})._('div',{_class:'dlg_ask',
-                                    'action':"genro.wdgById('_dlg_alert').hide();genro.fireEvent('"+resultPath+"',this.attr.actCode);"});
-        dlg._('div',{'innerHTML':msg,'_class':'dlg_ask_msg'});
-        var buttonBox = dlg._('div',{'_class':'dlg_ask_btnBox'});
-        for (var btn in buttons){
-            dlg._('button',{'_class':'dlg_ask_btn','label':buttons[btn],'actCode':btn});
-        }
-        node.unfreeze();
-        genro.wdgById('_dlg_alert').show();
+    onHelperOpen:function(){
+        var node = genro._firingNode;
+        node.setRelativeData('#helper_in.buffer',node.getRelativeData(node.attr._relpath));
     },
     
     buildQueryPane: function(startNode, datapath){
@@ -302,9 +290,10 @@ dojo.declare("gnr.GnrQueryBuilder",null,{
             input_attrs.position='relative';
             input_attrs.padding_right='10px';
             value_input = valtd._('textbox',input_attrs);
-            value_input._('div',{height:'8px',width:'8px',position:'absolute',
-                                 background:'red',top:'2px',right:'2px',z_index:10,
-                                 connect_onclick:'FIRE list.query.helper.in'});
+            //value_input._('div',{height:'8px',width:'8px',position:'absolute',
+            //                     background:'red',top:'2px',right:'2px',z_index:10,
+            //                     _relpath:relpath,
+            //                     connect_onclick:'FIRE list.query.helper.in'});
         }
         tr._('td')._('div',{connect_onclick:dojo.hitch(this,'addDelFunc','add',i+1), _class:'qb_btn qb_add'});
         if (i>0){

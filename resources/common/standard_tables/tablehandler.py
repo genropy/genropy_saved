@@ -226,11 +226,11 @@ class TableHandler(BaseComponent):
         pane.div(_class='db_querybtn',connect_onclick="SET list.showExtendedQuery =! (GET list.showExtendedQuery);")
         
     def listToolbar_query(self, pane):
-        self._query_helpers(pane)
         pane = pane.div(position='absolute',top='0px',left='24px',height='26px')
         queryfb = pane.formbuilder(cols=5,datapath='list.query.where',_class='query_pane',
                                           border_spacing='2px',onEnter='genro.fireAfter("list.runQuery",true,10);')
-        
+        #self._query_helpers(queryfb)
+
         queryfb.div('^.c_0?column_caption',min_width='12em',_class='smallFakeTextBox floatingPopup',
                               dnd_onDrop="genro.querybuilder.onChangedQueryColumn(this,item.attr);",
                               dnd_allowDrop="return !(item.attr.one_relation);", nodeId='fastQueryColumn',
@@ -295,11 +295,14 @@ class TableHandler(BaseComponent):
     def _query_helpers(self,pane):
         dlgBC = self.hiddenTooltipDialog(pane, dlgId='helper_in', title="!!In",
                                          width="42em",height="23ex",fired='^list.query.helper.in', 
-                                         datapath='list.query.helper.curr_value',
-                                         bottom_right='!!Add',bottom_right_action='console.log("aaa")')
+                                         datapath='list.query.helper',
+                                         bottom_right='!!Add',onOpen='genro.querybuilder.onHelperOpen();',
+                                         bottom_right_action="""var currpath = GET list.query.helper.currentpath;
+                                                                genro.setData(currpath,GET list.query.helper.buffer);"""
+                                            )
         dlgpane = dlgBC.contentPane(region='center',_class='pbl_dialog_center')
-        box = dlgpane.div(position='absolute',top='1px',bottom='1px',left='1px',right='1px')
-        box.simpleTextArea(height='100%',width='100%')
+        box = dlgpane.div(position='absolute',top='1px',bottom='2px',left='1px',right='1px')
+        box.simpleTextArea(value = '^.buffer',height='100%',width='100%')
         
     def enableFilter(self):
         return False

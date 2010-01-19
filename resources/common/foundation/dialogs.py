@@ -34,6 +34,7 @@ class Dialogs(BaseComponent):
         bcId = '%s_bc' % dlgId
         btnId = '%s_btn' % dlgId
         dlg = pane.dropdownbutton('', hidden=True, nodeId=btnId, datapath=datapath)
+
         dlg=dlg.tooltipdialog(nodeId=dlgId, connect_onOpen='genro.wdgById("%s").resize();%s' % (bcId, onOpen),
                               connect_onClose=close_action)
         pane.dataController("""genro.wdgById(btnId)._openDropDown(genro._firingNode.getDomNode());""", 
