@@ -880,10 +880,15 @@ dojo.declare("gnr.widgets.Menuline",gnr.widgets.baseDojo,{
         }
        // var ctxSourceNode = originalTarget ? originalTarget.sourceNode || dijit.byId(originalTarget.attributes.id.value).sourceNode :sourceNode
         var inAttr=sourceNode.getInheritedAttributes();
-        var action=inAttr.action;
+        var actionScope = sourceNode;
+        var action=inAttr.action ;
+        if(ctxSourceNode&&ctxSourceNode.attr.action){
+            action=ctxSourceNode.attr.action;
+            actionScope = ctxSourceNode;
+        }
         f=funcCreate(action);
         if (f){
-            f.call(sourceNode,sourceNode.getAttr(),ctxSourceNode);
+            f.call(actionScope,sourceNode.getAttr(),ctxSourceNode);
         }
         var selattr=objectExtract(inAttr,'selected_*',true);
         if(ctxSourceNode){
