@@ -488,7 +488,7 @@ class GnrWebPage(GnrBaseWebPage):
         return jspath
     
     def get_css_requires(self, requires=None):
-        requires = list(set([r for r in (requires or self.css_requires) if r]))
+        requires = [r for r in (requires or self.css_requires) if r]
         requires.reverse()
         filepath = os.path.splitext(self.filepath)[0]
         css_requires = []
