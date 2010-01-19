@@ -253,7 +253,7 @@ class NewServer(object):
         site_config_path = os.path.join(self.site_path,'siteconfig.xml')
         base_site_config = Bag(site_config_path)
         site_config = self.gnr_config['gnr.siteconfig.default_xml'] or Bag()
-        template = site_config['site?template'] or getattr(self,'site_template')
+        template = site_config['site?template'] or getattr(self,'site_template', None)
         if template:
             site_config.update(self.gnr_config['gnr.siteconfig.%s_xml'%template] or Bag())
         if 'sites' in self.gnr_config['gnr.environment_xml']:
