@@ -34,7 +34,7 @@ from gnr.web._gnrbasewebpage import GnrBaseWebPage
 import os
 from gnr.core.gnrstring import toJson
 from gnr.web.jsmin import jsmin
-from gnr.core.gnrlang import getUuid, uniqify
+from gnr.core.gnrlang import getUuid
 from mako.lookup import TemplateLookup
 from gnr.web.gnrwebreqresp import GnrWebRequest,GnrWebResponse
 from gnr.web.gnrwebpage_proxy.apphandler import GnrWebAppHandler
@@ -488,8 +488,7 @@ class GnrWebPage(GnrBaseWebPage):
         return jspath
     
     def get_css_requires(self, requires=None):
-        requires = [r for r in (requires or self.css_requires) if r]
-        requires = uniqify(requires)
+        requires = list(set([r for r in (requires or self.css_requires) if r]))
         requires.reverse()
         filepath = os.path.splitext(self.filepath)[0]
         css_requires = []
