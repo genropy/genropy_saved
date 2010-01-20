@@ -789,9 +789,8 @@ class GnrFormBuilder(object):
                 field['connect__onMouse'] = 'genro.dom.ghostOnEvent($1);' 
             obj= tagHandler(**field)
             return obj
-class GnrDomSrc_dojo_12(GnrDomSrc_dojo_11):
-    pass
-class GnrDomSrc_dojo_13(GnrDomSrc_dojo_11):
+
+class GnrDomSrc_dojo_14(GnrDomSrc_dojo_11):
     pass
 class GnrGridStruct(GnrStructData):
     """        r=struct.child('view').child('rows',classes='df_grid',cellClasses='df_cells',headerClasses='df_headers')
