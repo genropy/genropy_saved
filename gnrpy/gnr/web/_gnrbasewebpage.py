@@ -66,7 +66,7 @@ from gnr.core import gnrdate
 
 from gnr.web.jsmin import jsmin
 
-from gnr.web.gnrwebstruct import  GnrDomSrc_dojo_11, GnrDomSrc_dojo_12,GnrDomSrc_dojo_13, GnrGridStruct
+from gnr.web.gnrwebstruct import  GnrDomSrc_dojo_11, GnrDomSrc_dojo_14, GnrGridStruct
 
 #from gnr.web.gnrwebreqresp import GnrWebRequest, GnrWebResponse
 #from gnr.web.gnrwebapphandler import GnrProcessHandler
@@ -779,10 +779,8 @@ class GnrBaseWebPage(GnrObject):
     def _get_domSrcFactory(self):
         if self.dojoversion=='11':
             return GnrDomSrc_dojo_11
-        elif self.dojoversion=='12':
-            return GnrDomSrc_dojo_12
-        elif self.dojoversion=='13':
-            return GnrDomSrc_dojo_13
+        elif self.dojoversion=='14':
+            return GnrDomSrc_dojo_14
     domSrcFactory=property(_get_domSrcFactory)
 
     def rpc_resolverRecall(self, resolverPars=None, **auxkwargs):
