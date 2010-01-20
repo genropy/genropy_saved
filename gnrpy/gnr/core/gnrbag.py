@@ -585,10 +585,10 @@ class Bag(GnrObject):
             result=[]
             wlist=what.split(',')
             for w in wlist:
-                result.append(sum(self.digest(w)))
+                result.append(sum(map(lambda n : n or 0,self.digest(w))))
             return result
         else:
-            return sum(self.digest(what))
+            return sum(map(lambda n : n or 0,self.digest(what)))
 
     
     def get(self, label, default=None, mode=None):
