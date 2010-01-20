@@ -29,8 +29,8 @@ Copyright (c) 2007 Softwell. All rights reserved.
 """
 from gnr.core.gnrbag import Bag 
 from gnr.core.gnrstring import  splitAndStrip
-from gnr.core.gnrlang import GnrObject
-
+from gnr.core.gnrlang import GnrObject, uniqify
+from itertools import chain
 
 class BaseComponent(object):
     """docstring for BaseComponent"""
@@ -52,25 +52,24 @@ class BaseComponent(object):
                 site.page_pyrequires_mixin(self, py_requires)
             else:
                 self._pyrequiresMixin(py_requires)
-                
-    @classmethod            
-    def __on_class_mixin__(cls, _mixintarget, site=None):
-
+    
+    @classmethod
+    def __on_class_mixin__(cls, _mixintarget, **kwargs):
         js_requires = [x for x in splitAndStrip(getattr(cls, 'js_requires', ''),',') if x]
         css_requires = [x for x in splitAndStrip(getattr(cls, 'css_requires', ''),',') if x]
-        py_requires = [x for x in splitAndStrip(getattr(cls, 'py_requires', '') ,',') if x]
         for css in css_requires:
             if css and not css in _mixintarget.css_requires:
                 _mixintarget.css_requires.append(css)
         for js in js_requires:
             if js and not js in _mixintarget.js_requires:
                 _mixintarget.js_requires.append(js)
-                
-        #_mixintarget.css_requires.extend(css_requires)
-        #_mixintarget.js_requires.extend(js_requires)
-        if py_requires:
-            if site:
-                site.page_pyrequires_mixin(_mixintarget, py_requires)
+    
+    @classmethod
+    def __py_requires__(cls, target_class, **kwargs):
+        from gnr.web.gnrwsgisite import currentSite
+        loader = currentSite().resource_loader
+        return loader.py_requires_iterator(cls, target_class)
+        
 
 class BaseResource(GnrObject):
     """Base class for a webpage resource."""

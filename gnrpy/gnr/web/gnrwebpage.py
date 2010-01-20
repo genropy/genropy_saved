@@ -62,6 +62,7 @@ class GnrWebPageException(GnrGenericException):
 
 class GnrWebPage(GnrBaseWebPage):
     
+    
     def __init__(self, site=None, request=None, response=None, request_kwargs=None, request_args=None, filepath = None, packageId = None, basename = None):
         self.site = site
         self._event_subscribers = {}
@@ -78,6 +79,7 @@ class GnrWebPage(GnrBaseWebPage):
         self.private_kwargs=dict([(k[:2],v)for k,v in request_kwargs.items() if k.startswith('__')])
         self.dojo_theme =request_kwargs.pop('dojo_theme',None) or getattr(self, 'dojo_theme', None) or self.site.config['dojo?theme'] or 'tundra'
         self.pagetemplate = request_kwargs.pop('pagetemplate',None) or getattr(self, 'pagetemplate', None) or self.site.config['dojo?pagetemplate'] # index
+        self.css_theme = request_kwargs.pop('css_theme',None) or getattr(self, 'css_theme', None) or self.site.config['gui?css_theme']
         self.folders= self._get_folders()
         self.called_url = request.url
         self.path_url = request.path_url
@@ -322,8 +324,8 @@ class GnrWebPage(GnrBaseWebPage):
         return handler
     
     def build_arg_dict(self,**kwargs):
-        _resources = self.site.resources.keys()
-        _resources.reverse()
+        #_resources = self.site.resources.keys()
+        #_resources.reverse()
         dojolib = self.site.dojo_static_url(self.dojoversion,'dojo','dojo','dojo.js')
         gnrModulePath = self.site.gnr_static_url(self.gnrjsversion)
         arg_dict={}
@@ -352,9 +354,9 @@ class GnrWebPage(GnrBaseWebPage):
         arg_dict['css_dojo'] = [self.site.dojo_static_url(self.dojoversion,'dojo',f) for f in css_dojo]
         arg_dict['css_genro'] = self.get_css_genro()
         arg_dict['js_requires'] = [x for x in [self.getResourceUri(r,'js') for r in self.js_requires] if x]
-        css_requires, css_media_requires = self.get_css_requires()
-        arg_dict['css_requires'] = css_requires
-        arg_dict['css_media_requires'] = css_media_requires
+        css_path, css_media_path = self.get_css_path()
+        arg_dict['css_requires'] = css_path
+        arg_dict['css_media_requires'] = css_media_path
         return arg_dict
     
     def homeUrl(self):
@@ -487,31 +489,40 @@ class GnrWebPage(GnrBaseWebPage):
             cpf.close()
         return jspath
     
-    def get_css_requires(self, requires=None):
+    def get_css_theme(self):
+        return self.css_theme
+    
+    def get_css_path(self, requires=None):
         requires = [r for r in (requires or self.css_requires) if r]
-        requires.reverse()
+        css_theme = self.get_css_theme()
+        if css_theme:
+            requires.append('themes/%s'%self.css_theme)
+        self.onServingCss(requires)
+        #requires.reverse()
         filepath = os.path.splitext(self.filepath)[0]
         css_requires = []
         css_media_requires = {}
         for css in requires:
-            if css:
-                if ':' in css:
-                    css, media = css.split(':')
+            if ':' in css:
+                css, media = css.split(':')
+            else:
+                media = None
+            csslist = self.getResourceList(css,'css')
+            if csslist:
+                #csslist.reverse()
+                css_uri_list = [self.getResourceUri(css) for css in csslist]
+                if media:
+                    css_media_requires.setdefault(media,[]).extend(css_uri_list)
                 else:
-                    media = None
-                csslist = self.getResourceList(css,'css')
-                if csslist:
-                    csslist.reverse()
-                    css_uri_list = [self.getResourceUri(css) for css in csslist]
-                    if media:
-                        css_media_requires.setdefault(media,[]).extend(css_uri_list)
-                    else:
-                        css_requires.extend(css_uri_list)
+                    css_requires.extend(css_uri_list)
         if os.path.isfile('%s.css' % filepath):
             css_requires.append(self.getResourceUri('%s.css' % filepath))
         if os.path.isfile(self.resolvePath('%s.css' % self.pagename)):
             css_requires.append('%s.css' % self.pagename)
         return css_requires, css_media_requires
+        
+    def onServingCss(self, css_requires):
+        pass
         
     def getResourceUri(self, path, ext=None):
         fpath=self.getResource(path, ext=ext)
@@ -540,8 +551,11 @@ class GnrWebPage(GnrBaseWebPage):
     def getResourceList(self, path, ext=None):
         """Find a resource in current _resources folder or in parent folders one"""
         result=[]
+        location=self.resourceDirs[:]
+        if ext=='css' or ext=='js':
+            location.reverse()
         if ext and not path.endswith('.%s' % ext): path = '%s.%s' % (path, ext)
-        for dpath in self.resourceDirs:
+        for dpath in location:
             fpath = os.path.join(dpath, path)
             if os.path.exists(fpath):
                 result.append(fpath)

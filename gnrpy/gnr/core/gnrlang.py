@@ -80,21 +80,13 @@ def safe_dict(d):
     
 
 def uniqify(seq):
-    def seen_function(seq, idfun=None):
+    def seen_function(seq):
         seen = set()
-        if idfun is None:
-            for x in seq:
-                if x in seen:
-                    continue
-                seen.add(x)
-                yield x
-        else:
-            for x in seq:
-                x = idfun(x)
-                if x in seen:
-                    continue
-                seen.add(x)
-                yield x
+        for x in seq:
+            if x in seen:
+                continue
+            seen.add(x)
+            yield x
     return list(seen_function(seq))
 
 
@@ -473,13 +465,14 @@ def moduleClasses(m):
     modulename=m.__name__
     return [x for x in dir(m) if (not x.startswith('__')) and  getattr(getattr(m,x),'__module__',None)==modulename]
     
-def classMixin( target_class, source_class, methods=None, only_callables=True,
+def classMixin(target_class, source_class, methods=None, only_callables=True,
                 exclude='js_requires,css_requires,py_requires', **kwargs): 
     """
     Add to the class methods from 'source'.
     Source isclass
     If not 'methods' all methods are added.  
     """
+    
     if isinstance(source_class, basestring):
         if ':' in source_class:
             modulename, clsname = source_class.split(':')
@@ -499,7 +492,12 @@ def classMixin( target_class, source_class, methods=None, only_callables=True,
         return 
     if source_class is None:
         return
-    exclude_list = dir(type)+['__weakref__','__onmixin__','__on_class_mixin__']
+    if hasattr(source_class,'__py_requires__'):
+        py_requires_iterator = source_class.__py_requires__(target_class,**kwargs)
+        for cls_address in py_requires_iterator:
+            classMixin(target_class, cls_address, methods=methods,
+                    only_callables=only_callables, exclude=exclude, **kwargs)
+    exclude_list = dir(type)+['__weakref__','__onmixin__','__on_class_mixin__','__py_requires__']
     if exclude:
         exclude_list.extend(exclude.split(','))
     mlist = [k for k in dir(source_class) if ((only_callables and callable(getattr(source_class,k))) or not only_callables) and not k in exclude_list] 

@@ -28,6 +28,8 @@ from gnr.core.gnrbag import Bag,BagResolver
 import os
 
 class Menu(BaseComponent):
+    css_requires = 'menu'
+    
    #def onMain_menuInit(self):
    #    self.pageSource().data('gnr.appmenu',MenuResolver(path=None))
    #

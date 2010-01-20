@@ -141,9 +141,9 @@ class GnrWebConnection(GnrBaseProxy):
                 expire=True
             elif cookie.value.get('timestamp'):
                 cookieAge = time.time() - cookie.value['timestamp']
-                if cookieAge < int(self.page.config.getItem('connection_refresh') or CONNECTION_REFRESH):
+                if cookieAge < int(self.page.site.config.getItem('connection_refresh') or CONNECTION_REFRESH):
                     return cookie # fresh cookie
-                elif cookieAge < int(self.page.config.getItem('connection_timeout') or CONNECTION_TIMEOUT):
+                elif cookieAge < int(self.page.site.config.getItem('connection_timeout') or CONNECTION_TIMEOUT):
                     cookie = self.page.newMarshalCookie(self.cookieName, {'connection_id': cookie.value.get('connection_id') or getUuid(), 
                                                                 'locale':cookie.value.get('locale'),
                                                                  'slots':cookie.value.get('slots'), 'timestamp':None}, 

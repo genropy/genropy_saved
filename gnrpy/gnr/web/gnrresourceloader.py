@@ -113,13 +113,15 @@ class ResourceLoader(object):
         page_class.recordLock = getattr(custom_class, 'recordLock', None)
         page_class.polling = getattr(custom_class, 'polling', None)
         page_class.eagers = getattr(custom_class, 'eagers', {})
-        page_class.css_requires = splitAndStrip(getattr(custom_class, 'css_requires', ''),',')
+        page_class.css_requires = []
+        #page_class.css_requires = splitAndStrip(getattr(custom_class, 'css_requires', ''),',')
         page_class.js_requires = splitAndStrip(getattr(custom_class, 'js_requires', ''),',')
         page_class.pageOptions = getattr(custom_class,'pageOptions',{})
         page_class.auth_tags = getattr(custom_class, 'auth_tags', '')
         self.page_class_resourceDirs(page_class, module_path, pkg=pkg)
         self.page_pyrequires_mixin(page_class, py_requires)
         classMixin(page_class,custom_class, only_callables=False)
+        page_class.css_requires.extend([x for x in splitAndStrip(getattr(custom_class, 'css_requires', ''),',') if x])
         self.page_class_resourceDirs(page_class, module_path, pkg=pkg)
         page_class._packageId = pkg
         self.page_class_custom_mixin(page_class, path, pkg=pkg)
@@ -191,6 +193,7 @@ class ResourceLoader(object):
             if mix:
                 self.mixinResource(page_class, page_class._resourceDirs, mix)
 
+
     def mixinResource(self, kls,resourceDirs,*path):
         path = os.path.join(*path)
         if ':' in path:
@@ -204,6 +207,23 @@ class ResourceLoader(object):
                 classMixin(kls,'%s:%s'%(modPath,clsName),only_callables=False,site=self)
         else:
             raise GnrMixinError('Cannot import component %s' % modName)
+
+    def py_requires_iterator(self, source_class, target_class):
+        resourceDirs = target_class._resourceDirs
+        py_requires = [x for x in splitAndStrip(getattr(source_class, 'py_requires', '') ,',') if x] or []
+        for path in py_requires:
+            if ':' in path:
+                modName, clsName = path.split(':')
+            else:
+                modName, clsName = path,'*'
+            modPathList = self.site.getResourceList(resourceDirs, modName, 'py') or []
+            if modPathList:
+                modPathList.reverse()
+                for modPath in modPathList:
+                    yield '%s:%s'%(modPath,clsName)
+                    #classMixin(kls,'%s:%s'%(modPath,clsName),only_callables=False,site=self)
+            else:
+                raise GnrMixinError('Cannot import component %s' % modName)
 
 
     def loadResource(self,pkg, *path):

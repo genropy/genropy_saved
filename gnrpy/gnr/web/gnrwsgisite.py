@@ -21,6 +21,12 @@ import inspect
 from gnr.core.gnrprinthandler import PrintHandler
 mimetypes.init()
 site_cache = {}
+
+
+def currentSite():
+    global GNRSITE
+    return GNRSITE
+
 class GnrWebServerError(Exception):
     pass
     
@@ -136,6 +142,8 @@ class GnrWsgiSite(object):
         return self.wsgiapp(environ, start_response)
     
     def __init__(self, script_path, site_name=None, _config=None, _gnrconfig=None, counter=None, noclean=None,options=None):
+        global GNRSITE
+        GNRSITE = self
         counter = int(counter or '0')
         self._currentPages={}
         self.site_path = os.path.dirname(os.path.abspath(script_path))

@@ -26,6 +26,8 @@ import datetime
 from gnr.core.gnrlocale import DATEKEYWORDS
 
 class DynamicEditor(BaseComponent):
+    
+    css_requires = 'dyn_editor'
     def dynamicEditor(self, container, value,contentPars=None,disabled=None,
                       nodeId=None,editorHeight='',**kwargs):
         nodeId = nodeId or self.getUuid()
@@ -42,6 +44,8 @@ class DynamicEditor(BaseComponent):
                         disabled=disabled,fired='^gnr.onStart')
                         
 class PeriodCombo(BaseComponent):
+    css_requires = 'period_combo'
+    
     def _pc_datesHints(self):
         today = datetime.date.today()
         dates = []
@@ -91,7 +95,8 @@ class RichTextEditor(BaseComponent):
                ['Maximize', 'ShowBlocks','-','About']
               ];
     """
-
+    
+    css_requires = 'rich_edit'
     js_requires='ckeditor/ckeditor'
     def RichTextEditor(self, container, value, contentPars=None, disabled=None,
                       nodeId=None,editorHeight='',toolbar=None,**kwargs):

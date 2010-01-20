@@ -24,6 +24,8 @@ Component for dialogs:
 from gnr.web.gnrbaseclasses import BaseComponent
 
 class Dialogs(BaseComponent):
+    css_requires = 'dialogs'
+    
     def hiddenTooltipDialog(self, pane, height='20ex',width='30em',title=None, 
                             close_action=None, dlgId=None, 
                             bottom_left=None,bottom_left_action=None,
