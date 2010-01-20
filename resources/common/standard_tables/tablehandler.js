@@ -177,7 +177,7 @@ dojo.declare("gnr.GnrQueryBuilder",null,{
         var currentDtype = contextNode.getRelativeData(relpath+'?column_dtype');
         if (currentDtype!=column_attr.dtype){
             contextNode.setRelativeData(relpath+'?column_dtype',column_attr.dtype);
-            var default_op = genro._('gnr.qb.sqlop.op_spec.'+this.dtypes_dict[column_attr.dtype]+'.#0');
+            var default_op = genro._('gnr.qb.sqlop.op_spec.'+this.dtypes_dict[column_attr.dtype]||'other'+'.#0');
             contextNode.setRelativeData(relpath+'?op',default_op);
             contextNode.setRelativeData(relpath+'?op_caption',
                                         genro.getDataNode('gnr.qb.sqlop.op.'+default_op).attr.caption);
@@ -186,9 +186,6 @@ dojo.declare("gnr.GnrQueryBuilder",null,{
     onChangedQueryOp: function(contextNode,op_attr,label){
         var label = label || 'c_0';
         var relpath = '.'+label;
-        if (op_attr.fullpath=='in'){
-            this.openInOpDialog(relpath,label);
-        }
     },
     onHelperOpen:function(){
         var node = genro._firingNode;
