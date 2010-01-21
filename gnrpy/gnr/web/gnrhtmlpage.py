@@ -46,19 +46,22 @@ class GnrHtmlPage(GnrWebPage):
             import_statements = ';\n'.join(css_link)
             self.builder.head.style(import_statements+';', type="text/css", media=css_media)
     
-    def index(self, *args, **kwargs):
+    def rootPage(self, *args, **kwargs):
+        print kwargs
         self.builder.initializeSrc(_class=self.theme)
         self.body = self.builder.body
+        kwargs = kwargs or {}
+        if 'dojo_theme' in kwargs:
+            self.theme = kwargs.pop('dojo_theme')
+        if 'pagetemplate' in kwargs:
+            self.theme = kwargs.pop('pagetemplate')
         self.main(self.body,*args, **kwargs)
         return self.builder.toHtml()
-    _call_handler = index
     
     def onIniting(self, request_args=None, request_kwargs=None):
         self.builder = GnrHtmlBuilder(srcfactory=self.srcfactory)
-        self.theme = None
-        if request_kwargs and 'theme' in request_kwargs:
-            self.theme = request_kwargs.pop('theme')
-        
+            
+            
     
 class GnrHtmlDojoSrc(GnrHtmlSrc):
     html_base_NS=['a', 'abbr', 'acronym', 'address', 'area',  'base', 'bdo', 'big', 'blockquote',
