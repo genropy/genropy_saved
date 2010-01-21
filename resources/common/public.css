@@ -1,4 +1,170 @@
-/* My Comment */
+/* @group dragDrop */
+
+.dojoDndItemOver		{background: #feb;}
+		.dojoDndItemSelected	{background: #ccf; color: #444;}
+		.dojoDndItemAnchor		{background: #ccf; color: black;}
+		.dojoDndItemOver.dojoDndItemSelected	{background: #ec8;}
+		.dojoDndItemOver.dojoDndItemAnchor		{background: #ec8;}
+		.dojoDndItemBefore		{border-top:    3px solid red;}
+		.dojoDndItemAfter		{border-bottom: 3px solid red;}
+		.dojoDndHorizontal .dojoDndItemBefore		{border-top:    none;}
+		.dojoDndHorizontal .dojoDndItemAfter		{border-bottom: none;}
+		.dojoDndHorizontal .dojoDndItemBefore img	{border-left:  3px solid red;}
+		.dojoDndHorizontal .dojoDndItemAfter img	{border-right: 3px solid red;}
+
+/* @end */
+
+/* @group zoom */
+
+.gnrzoomcell{
+	text-decoration: none;
+	padding-left:3px;
+	padding-right:3px;
+	color:inherit;
+}
+
+.gnrzoomlabel{
+	text-decoration: none;
+	padding-left:15px;
+}
+.gnrzoomlabel:hover{
+	-moz-border-radius:7px;
+    -webkit-border-radius:7px;
+	background: transparent url(icons/linkto.gif) no-repeat;
+}
+
+.gnrzoomcell:hover{
+	-moz-border-radius:7px;
+    -webkit-border-radius:7px;
+	background: yellow;
+}
+
+
+.gnrmenulabel{
+	text-decoration: none;
+	padding-right:15px;
+    cursor:pointer;
+    /*font-weight:bold;*/
+    background: url(icons/linktomenu.gif) right no-repeat;
+}
+.gnrmenulabel:hover{
+	-moz-border-radius:7px;
+    -webkit-border-radius:7px;
+	background:  #adc2ff url(icons/linktomenu.gif) right no-repeat;
+}
+
+
+
+/* @end */
+
+/* @group  pbl_messageBottom*/
+
+.pbl_messageBottom{
+	text-align: center;
+	padding-top:2px;
+}
+
+
+/* @end */
+
+/* @group MenuTree */
+
+.menupane > div {
+	bottom:7px;
+	left:0;
+	overflow-y:auto;
+	position:absolute;
+	right:7px;
+	top:7px;
+}
+
+.menu_page  > a{
+	text-decoration: none;
+}
+.menu_page  > a:hover{
+	text-decoration: underline;
+}
+
+.menutree{
+	margin-top: 5px;
+	margin-right: 10px;
+	background-position: left;
+}
+.menutree .dijitTreeIcon{
+	visibility: hidden;
+	cursor: pointer;
+}
+.menutree .dijitTreeExpando{
+    display: none;
+}
+
+.menutree .dijitTreeIsLast{
+	background: none;
+}
+         
+.menutree .dijitTreeNode{
+	background: none;
+}
+
+.menutree .dijitTreeContent{
+    margin-left:0px;
+    min-height:10px;
+    padding-bottom:4px;
+    padding-top:0px;
+}
+
+.menutree .menu_shape{
+	cursor: pointer;
+	display: block;
+	padding-top: 3px;
+	padding-bottom: 3px;
+	margin-right: 10px;
+	margin-top: 3px;
+}
+
+.menutree .dijitTreeIcon{
+	display: block;
+	float: left;
+}
+
+
+/* @end */
+
+/* @group Widgets&Components */
+
+/* @group components */
+
+/* @group DynamicEditor */
+
+.formattedBox{
+	position: absolute;
+	top: 5px;
+	bottom: 5px;
+	left: 5px;
+	right: 5px;
+	background-color: white;
+	-moz-border-radius:10px;
+    -webkit-border-radius:10px;
+    border: 1px solid silver;
+    padding: 5px;
+    overflow:auto;
+}
+
+.editorPane .RichTextEditable{
+	border: 0px !important;
+	background-color: white;
+	position: absolute;
+	top: 5px;
+	bottom: 5px;
+	left: 5px;
+	right: 5px;
+}
+
+
+/* @end */
+
+/* @group tablehandler */
+
 .st_filterOn .st_filterButton{
 	background-color: red;
 }
@@ -9,182 +175,80 @@
     -webkit-border-top-right-radius:7px;
     -webkit-border-top-left-radius:7px;}
 
-#mainWindow{
-	 background-color: #bfb6ae;
-	 font-size:12px;
-	}
-
-/* @group Public */
-
-.pbl_root{
-     margin:8px;
-     margin-left: 0;
-     margin-right: 12px;
-	-moz-border-radius:6px;
-	-webkit-border-radius:6px;
-	-moz-box-shadow:4px 4px 4px #403b3b;
-	-webkit-box-shadow:4px 4px 4px #403b3b;
-}
-
-.shadow_4{
-    -moz-box-shadow:4px 4px 4px #403b3b;
-	-webkit-box-shadow:4px 4px 4px #403b3b;
-}
-.shadow_2{
-    -moz-box-shadow:2px 2px 2px #403b3b;
-	-webkit-box-shadow:2px 2px 2px #403b3b;
-}
-
-.shadow_6{
-    -moz-box-shadow:6px 6px 5px #403b3b;
-	-webkit-box-shadow:6px 6px 5px #403b3b;
-}
-
-.pbl_username{
-	-moz-border-radius:6px;
-	-webkit-border-radius:6px;
-	border-radius:6px;
-	background-color: #bfb6ae;
-	color: #403b3b;
-	font-size: 0.9em;
-	font-weight: bold;
-	padding-left: 6px;
-	padding-right: 6px;
-	padding-top: 1px;
-	padding-bottom: 1px;
-	margin-right: 6px;
-}
-
-.pbl_workdate{
-	-moz-border-radius:6px;
-	-webkit-border-radius:6px;
-	border-radius:6px;
-	background-color: #bfb6ae;
-	color: #403b3b !important;
-	font-size: 0.9em;
-	font-weight: bold;
-	padding-left: 6px;
-	padding-right: 6px;
-	padding-top: 1px;
-	padding-bottom: 1px;
-	margin-left: 6px;
-	margin-top: 5px;
-}
 
 
-.pbl_root_top {
-	height: 24px;
-	background-color: #59514f;
-	vertical-align: middle;
-	color: #ece3da;
-	-moz-border-radius-topleft:6px;
-	-moz-border-radius-topright:6px;
-    -webkit-border-top-left-radius:6px;
-	-webkit-border-top-right-radius:6px;
-}
+/* @end */
 
-.pbl_root_bottom {
-	padding-top: 1px;
-	height: 23px;
-	background-color: #fbf2e7;
-	vertical-align: middle;
-	color: #403b3b;
-	border-top: 1px solid  #bfb6ae;
-	-moz-border-radius-bottomleft:6px;
-	-moz-border-radius-bottomright:6px;
-    -webkit-border-bottom-left-radius:6px;
-	-webkit-border-bottom-right-radius:6px;
-}
+/* @group includedview */
 
-.pbl_root_center{
-	background-color: #fbf2e7;
-}
-
-.pbl_mainstack{
-	height: 100%;
-}
-
-.pbl_title_caption{
-	font-size: 11pt;
-	margin-top: 1px;
-	text-align: center;
-}
-
-.pbl_index_content{
-	margin:auto;
-	vertical-align: middle;
-	text-align: center;
-	font-size: 13px;
-}
-
-/* @group Form group */
-.pbl_roundedGroup{
--moz-border-radius:6px;
--webkit-border-radius:6px;
-border-radius:6px;
-background-color: #ece3da;
-}
-
-.pbl_roundedGroupLabel{
-height:18px;
-background-color: #bfb6ae;
--moz-border-radius-topleft:6px;
--moz-border-radius-topright:6px;
--webkit-border-top-left-radius:6px;
--webkit-border-top-right-radius:6px;
-padding-left:10px ;
-font-size: 0.9em;
-padding-top: 5px;
-}
-.pbl_roundedGroupBottom{
-height:18px;
-background-color: #bfb6ae;
--moz-border-radius-bottomleft:6px;
--moz-border-radius-bottomright:6px;
--webkit-border-bottom-left-radius:6px;
--webkit-border-bottom-right-radius:6px;
-padding-left:10px ;
-font-size: 0.9em;
-padding-bottom: 5px;
-}
-
-
-.pbl_dialog_center{
-	background-color: #fbf2e7;
-}
-
-.pbl_viewBox{
-background-color: #ece3da;
-padding:5px;
--moz-border-radius-bottomleft:6px;
--moz-border-radius-bottomright:6px;
--webkit-border-bottom-left-radius:6px;
--webkit-border-bottom-right-radius:6px;
-}
-.pbl_background{
-	background-color: #ece3da;
-}
-
-.pbl_viewBoxLabel{
-height:18px;
-background-color: #bfb6ae;
--moz-border-radius-topleft:6px;
--moz-border-radius-topright:6px;
--webkit-border-top-left-radius:6px;
--webkit-border-top-right-radius:6px;
-padding-left:10px ;
-font-size: 0.9em;
-padding-top: 3px;
-padding-bottom: 2px;
+.searchWidth{
+    width 6em;
 }
 
 
 
 /* @end */
 
+
+
 /* @end */
 
-/* @group _common_d11 theme */
+/* @group tooltip */
+
+/* @group tootlipDialog */
+
+._common_d11 .dijitTooltipDialog .dijitTooltipContainer{
+	/*control*/
+    padding:0px;
+    border: 0;
+}
+
+
+
+/* @end */
+
+/* @group Pure tooltip */
+
+._common_d11 .dijitTooltipContents{
+
+}
+    
+._common_d11 .dijitTooltip .dijitTooltipContainer{
+	-webkit-border-radius:0px;
+    -moz-border-radius:0px;
+    background: #fff4a1;
+    border: 1px solid #676767;
+    font-size: .8em;
+	padding: 2px 4px;
+	border-width: 1px;
+	margin-top: 40px;
+	margin-bottom: -2px;
+	margin-left: -10px;
+}
+
+/* @end */
+
+/* @group connector */
+
+/* they are common for tooltip and tooltipdialog */
+
+._common_d11  .dijitTooltipLeft .dijitTooltipConnector {
+	display: none;
+}
+._common_d11 .dijitTooltipRight .dijitTooltipConnector {
+	display: none;
+}
+._common_d11  .dijitTooltipUp .dijitTooltipConnector {
+	display: none;
+}
+._common_d11  .dijitTooltipBelow .dijitTooltipConnector {
+	display: none;
+}
+/* @end */
+
+
+
+/* @end */
 
 /* @group buttons */
 ._common_d11 .dijitButtonNode, 
@@ -221,154 +285,33 @@ padding-bottom: 2px;
 
 /* @end */
 
-/* @group Tooltip & Dialog */
-
-/* @group connector */
-
-/* they are common for tooltip and tooltipdialog */
-
-._common_d11  .dijitTooltipLeft .dijitTooltipConnector {
-	display: none;
-}
-._common_d11 .dijitTooltipRight .dijitTooltipConnector {
-	display: none;
-}
-._common_d11  .dijitTooltipUp .dijitTooltipConnector {
-	display: none;
-}
-._common_d11  .dijitTooltipBelow .dijitTooltipConnector {
-	display: none;
-}
-/* @end */
-
-/* @group HiddenTooltipDialog */
-
-/* genro widget */
-
-.tt_dialog_top{
-	background: #59514f;
-	vertical-align: middle;
-	color: #ece3da;
-	-moz-border-radius-topleft:6px;
-	-moz-border-radius-topright:6px;
-    -webkit-border-top-left-radius:6px;
-	-webkit-border-top-right-radius:6px;
-	text-align: center;
-	height: 18px;
+/* @group Menu */
+._common_d11__ .dijitMenu {
+	border:1px solid gray;
+	background-color:whitesmoke;
+	position:relative;
+	top: 3px;
+	left: 4px;
+	border-top: 0px;
+    padding-bottom:6px;
+    padding-left:3px;
+	padding-right:3px;
+	}
+._common_d11__ .dijitMenuTable {
+	margin:1px 0;
+	border-collapse:collapse;
+	border-width:0;
+	background-color:whitesmoke;
 }
 
-.tt_dialog_bottom{
-	color: #403b3b;
-	font-size: .94em;
-	font-weight: bold;
-	height: 18px;
-	padding-top:3px;
-	padding-left:5px;
-	padding-right:5px;
-	background-color: #bfb6ae;
-}
-.tt_dialog_cnt{
-	-moz-border-radius:10px;
-    -webkit-border-radius:10px;
-    background-color: white;
+._common_d11__ .dijitMenuItem{
+	white-space: nowrap;
+		font-size:.9em;
+	color: ;
+   	padding:0em 0em;
+	border-bottom:1px solid white;
 }
 
-.tt_bottom_btn .dijitButtonNode{
-    font-size: 0.8em;
-}
-
-/* @end */
-
-/* @group tootlipDialog */
-
-._common_d11 .dijitTooltipDialog .dijitTooltipContainer{
-	-moz-border-radius:6px;
-    -webkit-border-radius:6px;
-    padding:0px;
-    border: 0;
-    background: #ece3da;
-	font-size: inherit;
-}
-
-
-
-/* @end */
-
-/* @group Pure tooltip */
-
-._common_d11 .dijitTooltipContents{
-
-}
-    
-._common_d11 .dijitTooltip .dijitTooltipContainer{
-	-webkit-border-radius:0px;
-    -moz-border-radius:0px;
-    background: #fff4a1;
-    border: 1px solid #676767;
-    font-size: .8em;
-	padding: 2px 4px;
-	border-width: 1px;
-	margin-top: 40px;
-	margin-bottom: -2px;
-	margin-left: -10px;
-}
-
-/* @end */
-
-
-
-
- /* @end */
-
-.common_d11 .dijitTitlePane .dijitArrowNode {
-	display: none;
-}
-._common_d11 .dijitButtonNode{
-	padding: 0;
-}
-
-._common_d11 .dijitTitlePane .dijitTitlePaneTitle{
-	background: #bfb6ae;
-	-moz-border-radius-topleft:8px;
-	-moz-border-radius-topright:8px;
-    -webkit-border-top-left-radius:8px;
-	-webkit-border-top-right-radius:8px;
-	font-size: .9em;
-	text-decoration: none;
-	padding: 4px 4px 4px;
-}
-._common_d11 .dijitButton .dijitButtonNode{
-	padding: 0;
-	margin-bottom: 3px;
-}
-
-/* @group Accordion */
-._common_d11 .dijitAccordionContainer{
-	border: 1px solid gray;
-	-moz-border-radius-topleft:7px;
-	-moz-border-radius-topright:7px;
-    -webkit-border-top-left-radius:7px;
-	-webkit-border-top-right-radius:7px;
-}
-._common_d11 .dijitAccordionTitle{
-	background: #bfb6ae;
-	padding: 4px 4px 4px 8px;
-	-moz-border-radius-topleft:8px;
-	-moz-border-radius-topright:8px;
-    -webkit-border-top-left-radius:8px;
-	-webkit-border-top-right-radius:8px;
-	font-size: .9em;
-}
-
-._common_d11 .dijitAccordionTitle-selected{
-	background: #59514f;
-	color: white;
-	padding: 5px 4px 5px 8px;
-}
-
-._common_d11 .dijitAccordionArrow{
-	display: none;
-}
 
 /* @end */
 
@@ -476,479 +419,25 @@ padding-bottom: 2px;
 
 /* @end */
 
-/* @group Tabcontainer */
-
-._common_d11 .dijitTab{
-	font-size: .9em;
-	background: #bfb6ae;
-	-moz-border-radius-topleft:6px;
-	-moz-border-radius-topright:6px;
-    -webkit-border-top-left-radius:6px;
-	-webkit-border-top-right-radius:6px;
-}
-._common_d11 .dijitTabHover{
-	opacity: 0.8;
-}
-
-._common_d11 .dijitTabInnerDiv{
-	border-left: 0;
-	border-bottom: 0; 
-}
-._common_d11 .dijitTabCheckedHover{
-	opacity: 1;
-}
-._common_d11 .dijitTabChecked{
-	background: #fbf2e7;
-	border-bottom-color: #fbf2e7 ;
-}
-._common_d11 .dijitAlignTop .dijitTabChecked, ._common_d11 .dijitAlignTop .dijitTabCloseButtonChecked{
-	border-bottom-color:#fbf2e7 ;
-	background-color: #fbf2e7;
-}
-
-._common_d11 .dijitTabPaneWrapper{
-	-moz-border-radius:6px;
-	-webkit-border-radius:6px;
-	-moz-border-radius-topleft:0px;
-    -webkit-border-top-left-radius:0px;
-	background-color: #fbf2e7;
-}
-/* @group righttab */
-
-._common_d11 .dijitTabLabels-right-h .dijitTab{
-	-moz-border-radius-bottomright:6px;
-	-moz-border-radius-topright:6px;
-	-moz-border-radius-bottomleft:0px;
-	-moz-border-radius-topleft:0px;
-    -webkit-border-bottom-right-radius:6px;
-	-webkit-border-top-right-radius:6px;
-    -webkit-border-bottom-left-radius:0px;
-    -webkit-border-top-left-radius:0px;
-}
-._common_d11 .dijitTabLabels-right-h .dijitTabInnerDiv{
-	border: 0;
-	/*padding: 2px 3px;*/
-}
-._common_d11 .dijitTabLabels-right-h.dijitAlignTop .dijitTabChecked, ._common_d11 .dijitAlignTop .dijitTabCloseButtonChecked{
-	border-left-color:whitesmoke ;
-}
 
 /* @end */
 
-/* @group lefttab */
+/* @group Effects (css3) */
 
-._common_d11 .dijitTabLabels-left-h .dijitTab{
-	-moz-border-radius-bottomright:0px;
-	-moz-border-radius-topright:0px;
-	-moz-border-radius-bottomleft:6px;
-	-moz-border-radius-topleft:6px;
-    -webkit-border-bottom-right-radius:0px;
-	-webkit-border-top-right-radius:0px;
-    -webkit-border-bottom-left-radius:6px;
-    -webkit-border-top-left-radius:6px;
-
-}
-._common_d11 .dijitTabLabels-left-h .dijitTabInnerDiv{
-	padding: 3px 4px;
-}
-._common_d11 .dijitTabLabels-left-h  .dijitAlignTop .dijitTabChecked, ._common_d11 .dijitAlignTop .dijitTabCloseButtonChecked{
-	border-right-color:whitesmoke ;
-}
-
-/* @end */
-
-
-
-
-/* @end */
-
-/* @group Dialog */
-
-._common_d11 .dijitDialogTitleBar{
-	background: #59514f;
-	vertical-align: middle;
-	color: #ece3da;
-	-moz-border-radius-topleft:6px;
-	-moz-border-radius-topright:6px;
-    -webkit-border-top-left-radius:6px;
-	-webkit-border-top-right-radius:6px;
-	text-align: center;
-}
-._common_d11 .dijitDialogCloseIcon{
-	display: none;
-}
-
-._common_d11 .tracebackDialog .dijitDialogCloseIcon{
-	display: inherit;
-}
-
-.dlg_msgbox{
-	position:absolute;
-	top:5px;
-	left:5px;
-	bottom:5px;
-	right:5px;  
-	border:0px;
-	background-color: #fbf2e7;
-	text-align:center;
-	vertical-align: middle;
-	font-size:1em;
-	padding-top: 2em;
-    -moz-border-radius:6px;
-    -webkit-border-radius:6px;
-}
-
-._common_d11 .dijitDialog{
-	-moz-border-radius:6px;
-	-webkit-border-radius:6px;
-	-moz-box-shadow:4px 4px 6px #403b3b;
-	-webkit-box-shadow:4px 4px 6px #403b3b;
-	border:0px;
-}
-
-._common_d11 .dijitDialog .dijitDialogPaneContent{
-	-moz-border-radius-bottomleft:6px;
-	-moz-border-radius-bottomright:6px;
-	-webkit-border-bottom-left-radius:6px;
-	-webkit-border-bottom-right-radius:6px;
-	background-color: #fbf2e7;
-	border:0px;
-
-
-}
-
-.dialog_bottom{
-	background-color: #ece3da;
-	font-weight: bold;
-	height: 26px;
-	padding-top:3px;
-	padding-left:5px;
-	padding-right:5px;
-	-moz-border-radius-bottomleft:7px;
-	-moz-border-radius-bottomright:7px;
-	-webkit-border-bottom-left-radius:7px;
-	-webkit-border-bottom-right-radius:7px;
-}
-/* @end */
-
-/* @end */
-
-/* @group  pbl_messageBottom*/
-
-.pbl_messageBottom{
-	text-align: center;
-	padding-top:2px;
-}
-
-
-/* @end */
-
-/* @group Logo */
-
-.pbl_logo_icon{
-	background: url(icons/genropy.gif) no-repeat  center center;
-	width: 30px;
-	height: 24px;
-}
-
-.pbl_logo_caption{
-	font-size:8.5pt;
-	font-weight:bold;
-	text-align:left;
-	margin-top:6px;
-}
-/* @end */
-
-/* @group WizardPages */
-
-.pbl_largemessage{
-	font-size: x-large;
-}
-
-.pbl_mediummessage{
-	font-size: medium;
-	text-align: center;
-}
-/* @end */
-
-/* @group Index Page */
-
-.page_index h1{
-	
-	display: block;
-	width: 85%;
-	margin-right: auto;
-	margin-left: auto;
-	-moz-border-radius-topleft:8px;
-	-moz-border-radius-topright:8px;
-    -webkit-border-top-left-radius:8px;
-	-webkit-border-top-right-radius:8px;
-	background-color:#676767;
-	border: 1px solid #676767;
-	color: white;
-	font-size: 1.2em;
-	font-weight: bold;
-	padding: 6px;
-	margin-top: 20px;
-	margin-bottom: none;
-	text-align: center;
-}
-
-.page_index .container {
-	width: 85%;
-	display: block;
-	margin-top: -5px;
-	margin-right: auto;
-	margin-left: auto;
-	-moz-border-radius-bottomleft:8px;
-	-moz-border-radius-bottomright:8px;
-    -webkit-border-bottom-left-radius:8px;
-	-webkit-border-bottom-right-radius:8px;
-	border: 2px solid #676767;
-	padding: 5px;
-}
-
-/* @end */
-
-/* @group dragDrop */
-
-.dojoDndItemOver		{background: #feb;}
-		.dojoDndItemSelected	{background: #ccf; color: #444;}
-		.dojoDndItemAnchor		{background: #ccf; color: black;}
-		.dojoDndItemOver.dojoDndItemSelected	{background: #ec8;}
-		.dojoDndItemOver.dojoDndItemAnchor		{background: #ec8;}
-		.dojoDndItemBefore		{border-top:    3px solid red;}
-		.dojoDndItemAfter		{border-bottom: 3px solid red;}
-		.dojoDndHorizontal .dojoDndItemBefore		{border-top:    none;}
-		.dojoDndHorizontal .dojoDndItemAfter		{border-bottom: none;}
-		.dojoDndHorizontal .dojoDndItemBefore img	{border-left:  3px solid red;}
-		.dojoDndHorizontal .dojoDndItemAfter img	{border-right: 3px solid red;}
-
-/* @end */
-
-/* @group MenuTree */
-.menupane{
-	background-color: #8c8681;
-	margin-right: 8px;
-	margin-top: 8px;
-	margin-bottom: 8px;
-	-moz-border-radius-topright:6px;
-	-moz-border-radius-bottomright:6px;
-    -webkit-border-bottom-right-radius:6px;
-    -webkit-border-top-right-radius:7px;
-	-moz-box-shadow:4px 4px 4px #403b3b;
-	-webkit-box-shadow:4px 4px 4px #403b3b;
-    border-left: 0px;
-}
-.menupane > div {
-	bottom:7px;
-	left:0;
-	overflow-y:auto;
-	position:absolute;
-	right:7px;
-	top:7px;
-}
-
-.menu_page  > a{
-	color: #403b3b;
-	text-decoration: none;
-}
-.menu_page  > a:hover{
-	text-decoration: underline;
-}
-
-.gnrzoomlabel{
-	text-decoration: none;
-	padding-left:15px;
-
-}
-.gnrzoomlabel:hover{
-	-moz-border-radius:7px;
-    -webkit-border-radius:7px;
-	background: transparent url(icons/linkto.gif) no-repeat;
-}
-
-.gnrzoomcell{
-	text-decoration: none;
-	padding-left:3px;
-	padding-right:3px;
-	color:inherit;
-}
-.gnrzoomcell:hover{
-	-moz-border-radius:7px;
-    -webkit-border-radius:7px;
-	background: yellow;
-}
-
-
-.gnrmenulabel{
-	text-decoration: none;
-	padding-right:15px;
-    cursor:pointer;
-    /*font-weight:bold;*/
-    background: url(icons/linktomenu.gif) right no-repeat;
-}
-.gnrmenulabel:hover{
-	-moz-border-radius:7px;
-    -webkit-border-radius:7px;
-	background:  #adc2ff url(icons/linktomenu.gif) right no-repeat;
-}
-
-.menutree{
-	margin-top: 5px;
-	margin-right: 10px;
-	/*font-weight: bold;*/
-	background-position: left;
-}
-.menutree .dijitTreeIcon{
-	visibility: hidden;
-	cursor: pointer;
-	
-}
-.menutree .dijitTreeExpando{
-    display: none;
-}
-
-.menutree .dijitTreeIsLast{
-	background: none;
-}
-         
-.menutree .dijitTreeNode{
-	background: none;
-}
-
-.menutree .dijitTreeContent{
-    margin-left:0px;
-    min-height:10px;
-    padding-bottom:4px;
-    padding-top:0px;
-}
-
-.searchWidth{
-    width 6em;
-}
-
-.menutree .menu_level_0{
-	background-color: #ece3da;
-	color: #403b3b;
-	font-size: 1em;
-}
-
-.menutree .menu_level_1{
-	background-color: #ece3da;
-	color: #403b3b;
-	font-size: 1em;
-}
-
-.menutree .menu_level_2{
-	background-color: #ece3da;
-	color: #403b3b;
-	font-size: 1.1em;
-}
-
-.menutree .menu_level_3{
-	background-color: #ece3da;
-	color: #403b3b;
-	font-size: 1em;
-}
-
-.menutree .menu_level_4{
-	background-color: #ece3da;
-	color: #403b3b;
-	font-size: 1em;
-}
-
-.menutree .menu_page{
-	background-color: #ece3da;
-	color: #403b3b;
-	font-size: .9em;
-}
-
-.menutree .menu_shape{
-	-moz-border-radius-topright:6px;
-	-moz-border-radius-bottomright:6px;
-    -webkit-border-bottom-right-radius:6px;
-    -webkit-border-top-right-radius:6px;
-	cursor: pointer;
-	display: block;
-	padding-top: 3px;
-	padding-bottom: 3px;
-	background-color: #ece3da;
-	margin-right: 10px;
-	-moz-box-shadow:2px 2px 2px #403b3b;
-	-webkit-box-shadow:2px 2px 2px #403b3b;
-
-	margin-top: 3px;
-
-}
-
-.menutree .menu_shape:hover{
+.shadow_4{
     -moz-box-shadow:4px 4px 4px #403b3b;
-    -webkit-box-shadow:4px 4px 4px #403b3b;
+	-webkit-box-shadow:4px 4px 4px #403b3b;
+}
+.shadow_2{
+    -moz-box-shadow:2px 2px 2px #403b3b;
+	-webkit-box-shadow:2px 2px 2px #403b3b;
 }
 
-.menutree .dijitTreeIcon{
-	display: block;
-	float: left;
+.shadow_6{
+    -moz-box-shadow:6px 6px 5px #403b3b;
+	-webkit-box-shadow:6px 6px 5px #403b3b;
 }
+
 
 
 /* @end */
-
-/* @group DynamicEditor */
-
-.formattedBox{
-	position: absolute;
-	top: 5px;
-	bottom: 5px;
-	left: 5px;
-	right: 5px;
-	background-color: white;
-	-moz-border-radius:10px;
-    -webkit-border-radius:10px;
-    border: 1px solid silver;
-    padding: 5px;
-    overflow:auto;
-}
-
-
-/* @end */
-
-/* @group Menu */
-._common_d11__ .dijitMenu {
-	border:1px solid gray;
-	background-color:whitesmoke;
-	position:relative;
-	top: 3px;
-	left: 4px;
-	border-top: 0px;
-    padding-bottom:6px;
-    padding-left:3px;
-	padding-right:3px;
-	}
-._common_d11__ .dijitMenuTable {
-	margin:1px 0;
-	border-collapse:collapse;
-	border-width:0;
-	background-color:whitesmoke;
-}
-
-._common_d11__ .dijitMenuItem{
-	white-space: nowrap;
-		font-size:.9em;
-	color: ;
-   	padding:0em 0em;
-	border-bottom:1px solid white;
-}
-
-
-/* @end */
-.editorPane .RichTextEditable{
-	border: 0px !important;
-	background-color: white;
-	position: absolute;
-	top: 5px;
-	bottom: 5px;
-	left: 5px;
-	right: 5px;
-}
