@@ -187,9 +187,9 @@ class GnrHtmlDojoPage(GnrHtmlPage):
             if node_value and isinstance(node_value, GnrHtmlSrc):
                 self.finalizeDojo_inner(node_value,widgetcatalog,dojorequire)
       
-    def index(self, *args, **kwargs):
-        self.theme=kwargs.pop('theme') or self.theme
-        pagetemplate=kwargs.pop('pagetemplate')
+    def rootPage(self, *args, **kwargs):
+        self.theme=kwargs.pop('theme',None) or self.theme
+        pagetemplate=kwargs.pop('pagetemplate',None)
         self.builder.initializeSrc(_class=self.theme)
         self.body = self.builder.body
         self.dojo()
