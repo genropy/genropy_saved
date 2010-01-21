@@ -174,7 +174,7 @@ class IncludedView(BaseComponent):
                 elif formPars:
                     add_action = ' FIRE .showRecord; FIRE .addRecord =$1;'
                 else:
-                    add_action = 'FIRE .addRecord =$1;FIRE .editRow;'   
+                    add_action = 'FIRE .addRecord =$1;'#';FIRE .editRow;'   
             gridtop.div(float='right', _class=add_class,connect_onclick=add_action,
                         margin_right='2px',visible=add_enable)
                         
@@ -272,7 +272,7 @@ class IncludedView(BaseComponent):
                        FIRE .%s""" % 'onDeletedRow'
         controller.dataController(delScript, _fired='^.delRecord', delSelection='^.delSelection',
                                 idx='=.selectedIndex', gridId=gridId)
-        controller.dataController("""genro.wdgById(gridId).editBagRow();
+        controller.dataController("""console.log('Start Edit');genro.wdgById(gridId).editBagRow();console.log('End Edit')
                                      """,fired='^.editRow',gridId=gridId)
         controller.dataController("genro.wdgById(gridId).printData();" ,fired='^.print',gridId=gridId)
         controller.dataController("genro.wdgById(gridId).exportData(mode, export_method);" ,mode='^.export', export_method='=.export_method',gridId=gridId)
