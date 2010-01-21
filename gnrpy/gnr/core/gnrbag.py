@@ -1501,7 +1501,7 @@ class Bag(GnrObject):
         setCallable(self, name, argstring=argstring, func=func)
 
 #-------------------- toXml --------------------------------
-    def toXml(self,filename=None,encoding='UTF-8',typeattrs=True, unresolved=False, addBagTypeAttr=True,
+    def toXml(self,filename=None,encoding='UTF-8',typeattrs=True,typevalue=True, unresolved=False, addBagTypeAttr=True,
               autocreate=False, jsonmode=None, jsonkey=None, translate_cb=None,
               omitUnknownTypes=False, catalog=None, omitRoot=False, forcedTagAttr=None):
         """
@@ -1529,7 +1529,7 @@ class Bag(GnrObject):
              4567</bb></aa></GenRoBag>'
         """
         from gnr.core.gnrbagxml import BagToXml
-        return BagToXml().build(self, filename=filename, encoding=encoding,typeattrs=typeattrs, addBagTypeAttr=addBagTypeAttr,
+        return BagToXml().build(self, filename=filename, encoding=encoding,typeattrs=typeattrs,typevalue=typevalue, addBagTypeAttr=addBagTypeAttr,
                                     unresolved=unresolved,autocreate=autocreate, forcedTagAttr=forcedTagAttr,
                                     jsonmode=jsonmode,jsonkey=jsonkey, translate_cb=translate_cb, 
                                     omitUnknownTypes=omitUnknownTypes, catalog=catalog, omitRoot=omitRoot)

@@ -247,7 +247,7 @@ class BagToXml(object):
         return '\n'.join([self.nodeToXmlBlock(node) for node in bag.nodes])
 
 #-------------------- toXml --------------------------------
-    def build(self, bag, filename=None, encoding='UTF-8', catalog=None, typeattrs=True, addBagTypeAttr=True,
+    def build(self, bag, filename=None, encoding='UTF-8', catalog=None, typeattrs=True,typevalue=True, addBagTypeAttr=True,
                   unresolved=False, autocreate=False, jsonmode=None, jsonkey=None, 
                   translate_cb=None, omitUnknownTypes=False, omitRoot=False, forcedTagAttr=None):
         """
@@ -271,6 +271,7 @@ class BagToXml(object):
         self.omitUnknownTypes = omitUnknownTypes
         self.catalog = catalog
         self.typeattrs=typeattrs
+        self.typevalue=typevalue
         self.jsonmode=jsonmode
         self.jsonkey=jsonkey
         self.forcedTagAttr=forcedTagAttr
@@ -345,7 +346,7 @@ class BagToXml(object):
         else:
             result = '<%s' % tagName;
         
-        if t != '' and t != 'T': 
+        if self.typevalue and t != '' and t != 'T': 
             result= '%s _T="%s"' % (result, t)
         if attributes: result = "%s %s" % (result, attributes)
 
