@@ -1,4 +1,4 @@
-/* Elephant Theme */
+/* Blue Theme */
 
 /* @group pbl_elements */
 
@@ -476,37 +476,26 @@ padding-bottom: 5px;
 }
 
 .menutree .menu_level_0{
-	background-color: #ece3da;
-	color: #403b3b;
 	font-size: 1em;
 }
 
 .menutree .menu_level_1{
-	background-color: #ece3da;
-	color: #403b3b;
 	font-size: 1em;
 }
 
 .menutree .menu_level_2{
-	background-color: #ece3da;
-	color: #403b3b;
 	font-size: 1.1em;
 }
 
 .menutree .menu_level_3{
-	background-color: #ece3da;
-	color: #403b3b;
 	font-size: 1em;
 }
 
 .menutree .menu_level_4{
-	background-color: #ece3da;
-	color: #403b3b;
 	font-size: 1em;
 }
 
 .menutree .menu_page{
-	background-color: #ece3da;
 	color: #403b3b;
 	font-size: .9em;
 }
