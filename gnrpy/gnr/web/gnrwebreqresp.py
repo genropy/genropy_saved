@@ -30,11 +30,13 @@ class GnrWebRequest(object):
         self._request=request
         
     def __getattr__(self, name):
-        attr = getattr(self,name,None)
-        if not attr:
-            attr = getattr(self._request, name)
-        return attr
-        
+        if name in self.__dict__:
+            return getattr(self, name)
+        else:
+            return getattr(self._request, name)
+
+            
+
     def _get_path_info(self):
         return self._request.path_info
     path_info= property(_get_path_info)
@@ -95,10 +97,10 @@ class GnrWebResponse(object):
         self._response=response
 
     def __getattr__(self, name):
-        attr = getattr(self,name,None)
-        if not attr:
-            attr = getattr(self._response, name)
-        return attr
+        if name in self.__dict__:
+            return getattr(self, name)
+        else:
+            return getattr(self._response, name)
     
     def add_cookie(self,cookie):
         Cookie.add_cookie(self._response,cookie)
