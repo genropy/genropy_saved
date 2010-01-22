@@ -1,4 +1,14 @@
-/* My Comment */
+/* @variables  
+	bg_light=siver
+	fontcolor = #002200
+	=#('all=6')
+*/
+
+/* @group My Group */
+
+
+
+/* @end */
 
 /* @group pbl_elements */
 
@@ -7,13 +17,20 @@
 /* @group IncludedViewBox */
 
 .pbl_viewBoxLabel{
-height:18px;
-background-color: gray;
-padding-left:10px ;
-font-size: 0.9em;
-padding-top: 3px;
-padding-bottom: 2px;
+	/* @expand
+	    color:$fontcolor;
+		$macro:roundedCorner(all=6)
+		height:$hlabel;
+	 */
+
+	height:18px;
+	background-color: gray;
+	padding-left:10px ;
+	font-size: 0.9em;
+	padding-top: 3px;
+	padding-bottom: 2px;
 }
+
 
 .pbl_viewBox{
 	/*where you place the grid inside an includedviewbox*/

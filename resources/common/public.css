@@ -69,15 +69,6 @@
 
 /* @group MenuTree */
 
-.menupane > div {
-	bottom:7px;
-	left:0;
-	overflow-y:auto;
-	position:absolute;
-	right:7px;
-	top:7px;
-}
-
 .menu_page  > a{
 	text-decoration: none;
 }

@@ -38,7 +38,6 @@ class Menu(BaseComponent):
         b['root']=MenuResolver(path=None)
         parentBC.data('gnr.appmenu',b)
         leftPane = parentBC.contentPane(width='20%',_class='menupane',**kwargs)
-        leftPane = leftPane.div()
         leftPane.tree(id="_gnr_main_menu_tree",storepath='gnr.appmenu.root',selected_file='gnr.filepath',
                        labelAttribute='label',
                        hideValues=True,

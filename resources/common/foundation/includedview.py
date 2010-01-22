@@ -174,7 +174,7 @@ class IncludedView(BaseComponent):
                 elif formPars:
                     add_action = ' FIRE .showRecord; FIRE .addRecord =$1;'
                 else:
-                    add_action = 'FIRE .addRecord =$1;'#';FIRE .editRow;'   
+                    add_action = 'FIRE .addRecord =$1;FIRE .editRow;'   
             gridtop.div(float='right', _class=add_class,connect_onclick=add_action,
                         margin_right='2px',visible=add_enable)
                         

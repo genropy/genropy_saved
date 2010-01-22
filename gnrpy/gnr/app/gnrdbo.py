@@ -25,7 +25,16 @@ class GnrDboPackage(object):
 
     def listUserObject(self, pkg=None, **kwargs):
         return self.dbtable('userobject').listUserObject(pkg=pkg or self.name, **kwargs)
-
+                
+    def getPreferences(self,autocreate=False):
+        if self.db.package('adm'):
+            return self.db.table('adm.preference').getPrefRecord(self.name,autocreate=autocreate)
+            
+    def setPreferences(self,record):
+        if self.db.package('adm'):
+            self.db.table('adm.preference').update(record)
+    
+        
 class TableBase(object):
     def sysFields(self, tbl, id=True, ins=True, upd=True, ldel=True, md5=False, group='_'):
         if id:
