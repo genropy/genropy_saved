@@ -386,7 +386,7 @@ class GnrWebPage(GnrBaseWebPage):
         assert 'sys' in self.site.gnrapp.packages
         external_token = self.db.table('sys.external_token').create_token(path,expiry=_expiry,allowed_host=_host,method=method,parameters=kwargs)
         return self.externalUrl(path, gnrtoken=external_token)
-        
+    
     def get_bodyclasses(self):
         return '%s _common_d11 pkg_%s page_%s %s' % (self.dojo_theme, self.packageId, self.pagename,getattr(self,'bodyclasses',''))
     
@@ -507,7 +507,7 @@ class GnrWebPage(GnrBaseWebPage):
                 css, media = css.split(':')
             else:
                 media = None
-            csslist = self.getResourceList(css,'css')
+            csslist = self.site.resource_loader.getResourceList(self.resourceDirs,css,'css')
             if csslist:
                 #csslist.reverse()
                 css_uri_list = [self.getResourceUri(css) for css in csslist]
@@ -544,22 +544,10 @@ class GnrWebPage(GnrBaseWebPage):
                     return self.site.rsrc_static_url(rsrc,*uripath)
         
     def getResource(self, path, ext=None):
-        result=self.getResourceList(path=path,ext=ext)
+        result=self.site.resource_loader.getResourceList(self.resourceDirs,path, ext=ext)
         if result:
             return result[0]
 
-    def getResourceList(self, path, ext=None):
-        """Find a resource in current _resources folder or in parent folders one"""
-        result=[]
-        location=self.resourceDirs[:]
-        if ext=='css' or ext=='js':
-            location.reverse()
-        if ext and not path.endswith('.%s' % ext): path = '%s.%s' % (path, ext)
-        for dpath in location:
-            fpath = os.path.join(dpath, path)
-            if os.path.exists(fpath):
-                result.append(fpath)
-        return result 
 
     def _get_package_folder(self):
         if not hasattr(self,'_package_folder'):
