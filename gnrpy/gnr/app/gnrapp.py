@@ -186,35 +186,6 @@ class GnrPackage(object):
             if hasattr(self, '_structFix4D'):
                 config_db_xml = self._structFix4D(struct, config_db_xml)
             struct.update(config_db_xml)
-    
-    def _get_resourceDirs(self):
-        """Find a resource in current _resources folder one"""
-        if not hasattr(self, '_resourceDirs'):
-            site = self.application.site
-            pagesPath = os.path.join(self.packageFolder , 'webpages')
-            resourcePkg = None
-            result = [] # result is now empty
-            
-            resourcePkg = self.attributes.get('resourcePkg')
-            fpath = os.path.join(site.site_path, '_custom', self.id, '_resources')
-            if os.path.isdir(fpath):
-                result.append(fpath) # we add a custom resource folder for current package
-
-            if resourcePkg:
-                for rp in resourcePkg.split(','):
-                    fpath = os.path.join(site.site_path,'_custom', pkg, '_resources')
-                    if os.path.isdir(fpath):
-                        result.append(fpath)
-            fpath = os.path.join(pagesPath, '_resources')
-            if os.path.isdir(fpath):
-                result.append(fpath) # we add a resource folder for common package
-            result.extend(site.resources_dirs)
-            self._resourceDirs = result
-        # so we return a list of any possible resource folder starting from 
-        # most customized and ending with most generic ones
-        return self._resourceDirs 
-    resourceDirs = property(_get_resourceDirs)
-    
     def onApplicationInited(self):
         pass
 
