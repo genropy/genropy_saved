@@ -85,7 +85,8 @@ class Menu(BaseComponent):
                     else:
                         value=None
                         labelClass = 'menu_page'
-                    attributes['labelClass'] = 'menu_shape %s' %labelClass
+                    customLabelClass = attributes['customLabelClass'] or ''
+                    attributes['labelClass'] = 'menu_shape %s %s' %(labelClass, customLabelClass)
                     filepath=attributes.get('file')
                     if filepath: 
                         if not filepath.startswith('/'):
@@ -134,7 +135,8 @@ class MenuResolver(BagResolver):
                 else:
                     value=None
                     labelClass = 'menu_page'             
-                attributes['labelClass'] = 'menu_shape %s' %labelClass
+                customLabelClass = attributes.get('customLabelClass','')
+                attributes['labelClass'] = 'menu_shape %s %s' %(labelClass, customLabelClass)
                 result.setItem(node.label,value,attributes)
         return result
             
