@@ -57,6 +57,10 @@
 
 /* @end */
 
+.hide_row_checker .row_checker{
+    display:none;
+}
+
 /* @group  pbl_messageBottom*/
 
 .pbl_messageBottom{

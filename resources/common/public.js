@@ -37,3 +37,17 @@ dojo.declare('gnr.ext.includedViewPicker', null, {
         grid.loadingContent(false);
     }
 })
+var IVSelectionSearchComponent = {};
+IVSelectionSearchComponent.check_row  = function(idx, evt, sourceNode){
+    dojo.stopEvent(evt);
+    var grid = sourceNode.widget;
+    var storebag = grid.storebag();
+    var bagNodes = storebag.getNodes();
+    var row = bagNodes[idx];
+    var attr = row.getAttr();
+    attr['_checkedrow']=!attr['_checkedrow'];
+    row.setAttr(attr);
+    var checkedList = grid.sourceNode.getRelativeData('.#parent.checkedList') || [];
+    checkedList.push(attr['_pkey'])
+    grid.sourceNode.setRelativeData('.#parent.checkedList',checkedList);
+};

@@ -102,4 +102,35 @@ class Dialogs(BaseComponent):
         
         pane.dataRpc('_thermo.%s.result' % thermoid, 'app.getThermo', thermoid=thermoid,
                                                              flag='^_thermo.%s.flag' % thermoid)
-                                             
+                                                             
+class DialogForm(BaseComponent):
+    def dialog_form(self,parent,title='',formId='',height='',width='',datapath='',
+                cb_center=None,cb_bottom='*',loadsync=False,**kwargs):
+        def cb_bottom_standard(bc,**kwargs):
+            bottom = bc.contentPane(**kwargs)
+            bottom.button('!!Cancel',baseClass='bottom_btn',float='left',margin='1px',fire='.hide')
+            bottom.button('!!Confirm',baseClass='bottom_btn',float='right',margin='1px',
+                            fire_always='.save',hidden='^.save_disabled')
+        if cb_bottom=='*':
+            cb_bottom=cb_bottom_standard
+        if loadsync:
+            loadsync='true'
+        else:
+            loadsync='false'
+        dlgId='%s_dlg'%formId
+        dialog = parent.dialog(title=title,nodeId=dlgId,datapath=datapath,**kwargs)
+        bc=dialog.borderContainer(height=height,width=width)
+        if cb_bottom:
+            cb_bottom(bc,region='bottom',_class='dialog_bottom')
+        if cb_center:
+            cb_center(bc,region='center',datapath='.data',_class='pbl_dialog_center', 
+                     formId=formId,dlgId=dlgId)
+        bc.dataController('genro.wdgById("%s").show();' %dlgId,_fired="^.show" )
+        bc.dataController('genro.wdgById("%s").hide();' %dlgId,_fired="^.hide" )
+        bc.dataController("FIRE .show; genro.formById('%s').load(%s)" %(formId,loadsync),_fired="^.open" )
+
+        bc.dataController('SET .save_disabled=true; genro.formById("%s").save(always=="always"?true:false);' %formId,
+                          always="^.save" )
+        bc.dataController('genro.formById("%s").saved(); FIRE .hide; SET .save_disabled=false;' %formId,_fired="^.saved" )
+        bc.dataController('genro.formById("%s").loaded();' %formId,_fired="^.loaded" )
+        return bc                                      

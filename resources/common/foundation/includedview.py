@@ -485,3 +485,143 @@ class IncludedView(BaseComponent):
         getattr(self, toolbarHandler)(recordBC, controller, controllerPath=controllerPath,
                                                 gridId=gridId, **toolbarPars)
         self._includedViewFormBody(recordBC, controller, controllerPath, formPars)
+        
+class IVBEditGrid(BaseComponent):
+    py_requires='foundation/includedview:IncludedView'
+    def includedViewBoxEditor(self,bc,nodeId=None,storepath=None,table=None,struct=None,label=None,**kwargs):
+        iv = self.includedViewBox(bc,label=label,nodeId=nodeId,storepath=storepath, struct=struct,
+                                  table=table,add_action=True,del_action=True,**kwargs)
+        return iv.gridEditor()
+
+class IVBSelectionRecord(BaseComponent):
+    py_requires='foundation/includedview:IncludedView,foundation/recorddialog'
+    def includedViewBoxRD(self,bc,nodeId=None,table=None,datapath=None,struct=None,label=None,
+                         selectionPars=None,dialogPars=None,reloader=None,externalChanges=None,
+                         hiddencolumns=None,custom_addCondition=None,custom_delCondition=None,
+                         askBeforeDelete=True,**kwargs):
+        if dialogPars:
+            assert not 'table' in dialogPars, 'take the table of the grid'
+            assert not 'firedPkey' in dialogPars, 'auto firedPkey'
+            assert not 'datapath' in dialogPars,'datapath calculated'
+            assert not 'toolbarCb' in dialogPars,'toolbarCb calculated'
+            
+            dialogPars['table'] = table
+            dialogPars['datapath'] = '%s.dlg' %datapath
+            dialogPars['onSaved'] = 'FIRE #%s.reload; %s' %(nodeId,dialogPars.get('onSaved',''))
+            dialogPars['firedPkey'] = '^.pkey'
+            dialogPars['toolbarCb'] = self.rd_toolbar
+
+            self.recordDialog(**dialogPars)
+            assert not 'add_action' in kwargs, 'remove add_action par'
+            assert not 'del_action' in kwargs,'remove del_action par'
+            assert not 'add_enable' in kwargs, 'remove add_action par'
+            assert not 'del_enable' in kwargs,'remove del_action par'
+            assert not 'connect_onRowDblClick' in kwargs,'remove connect_onRowDblClick par'
+            
+        self.includedViewBox(bc,label=label,datapath=datapath,
+                             add_action='FIRE .dlg.pkey="*newrecord*";',
+                             add_enable='^.can_add',del_enable='^.can_del',
+                             del_action='FIRE .delete_record;',
+                             nodeId=nodeId,table=table,struct=struct,hiddencolumns=hiddencolumns,
+                             reloader=reloader, externalChanges=externalChanges,
+                             connect_onRowDblClick='FIRE .dlg.pkey = GET .selectedId;',
+                             selectionPars=selectionPars,askBeforeDelete=True,**kwargs)
+                             
+        controller = bc.dataController(datapath=datapath)
+        if self.maintable:
+            main_record_id='^form.record.%s' %self.db.table(self.maintable).pkey
+            
+        controller.dataFormula(".can_add","add_enabled?(main_record_id!=null)&&custom_condition:false",
+                              add_enabled='^form.canWrite',main_record_id=main_record_id or True,
+                              custom_condition=custom_addCondition or True)
+                              
+        controller.dataFormula(".can_del","del_enabled?(main_record_id!=null)&&custom_condition:false",
+                              del_enabled='^form.canWrite',selectedId='^.selectedId',_if='selectedId',_else='false',
+                              main_record_id=main_record_id or True,custom_condition=custom_addCondition or True)
+        controller.dataController("genro.dlg.ask(title, msg, null, '%s.confirm_delete')" %datapath,
+                                    _fired="^.delete_record",title='!!Warning',
+                                    msg='!!You cannot undo this operation. Do you want to proceed?',
+                                    _if=askBeforeDelete)
+        controller.dataRpc('.dummy','iv_delete_selected_record',record='=.selectedId',table=table,
+                            _confirmed='^.confirm_delete',_if='_confirmed=="confirm"',
+                            _onResult='FIRE .reload')
+        controller.dataController("""var newidx;
+                                 var rowcount = genro.wdgById(gridId).rowCount;
+                                 if (btn == 'first'){newidx = 0;} 
+                                 else if (btn == 'last'){newidx = rowcount-1;}
+                                 else if ((btn == 'prev') && (idx > 0)){newidx = idx-1;}
+                                 else if ((btn == 'next') && (idx < rowcount-1)){newidx = idx+1;}
+                                 SET .selectedIndex = newidx;
+                                 SET .dlg.current_pkey = GET .selectedId;
+                                 FIRE .dlg.load;
+                              """, btn='^.navbutton',idx='=.selectedIndex', gridId=nodeId)
+        controller.dataFormula('.atBegin','(idx==0)',idx='^.selectedIndex')
+        controller.dataFormula('.atEnd','(idx==genro.wdgById(gridId).rowCount-1)',idx='^.selectedIndex',gridId=nodeId)
+                            
+    def rpc_iv_delete_selected_record(self,record,table):
+        tblobj = self.db.table(table)
+        record = tblobj.record(pkey=record,for_update=True).output('dict')
+        tblobj.delete(record)
+        self.db.commit()
+        return 'ok'
+                             
+    def rd_toolbar(self,parentBC,**kwargs):
+        pane = parentBC.contentPane(height='28px',overflow='hidden',**kwargs)
+        tb = pane.toolbar(datapath='.#parent') #referred to the grid
+        tb.button('!!First', fire_first='.navbutton', iconClass="tb_button icnNavFirst", disabled='^.atBegin', showLabel=False)
+        tb.button('!!Previous', fire_prev='.navbutton', iconClass="tb_button icnNavPrev", disabled='^.atBegin', showLabel=False)
+        tb.button('!!Next', fire_next='.navbutton', iconClass="tb_button icnNavNext", disabled='^.atEnd', showLabel=False)
+        tb.button('!!Last', fire_last='.navbutton', iconClass="tb_button icnNavLast", disabled='^.atEnd', showLabel=False)
+        
+       #if del_action:
+       #    if del_action is True:
+       #        del_action = 'FIRE .delRecord=true'
+       #    del_class = del_class or 'buttonIcon icnBaseDelete'
+       #    del_enable = del_enable or '^form.canWrite'
+       #    tb.button('!!Delete', float='right',action=del_action, iconClass=del_class, 
+       #                        showLabel=False,visible=del_enable)
+       #if add_action:
+       #    if add_action is True:
+       #        add_action = 'FIRE .addRecord=true'
+       #    add_class = add_class or 'buttonIcon icnBaseAdd'
+       #    add_enable = add_enable or '^form.canWrite'
+       #    tb.button('!!Add', float='right',action=add_action,visible=add_enable,
+       #                    iconClass=add_class, showLabel=False)
+       #
+class IVSelectionSearch(BaseComponent):
+    py_requires='foundation/includedview:IncludedView'
+    def includedViewBoxSearch(self,bc,nodeId=None,table=None,datapath=None,struct=None,label=None,
+                             reloader=None,filterOn=None,hiddencolumns=None,selectionPars=None,order_by=None,**kwargs):
+        assert not 'footer' in kwargs, 'remove footer par'
+        assert not 'reloader' in kwargs, 'reloader is mandatory'
+
+        assert struct, 'struct is mandatory'
+        if callable(struct):
+            struct = struct(self.newGridStruct(table))
+        struct['#0']['#0'].cell('_checkedrow',name=' ',width='2em',
+                    format_trueclass='checkboxOn',
+                    styles='background:none!important;border:0;',
+                    format_falseclass='checkboxOff',classes='row_checker',
+                    format_onclick='IVSelectionSearchComponent.check_row(kw.rowIndex, e, this,"tags");',
+                    dtype='B',calculated=True)
+        if not selectionPars:
+            if order_by:
+                selectionPars=dict(order_by=order_by) 
+            else:
+                selectionPars=dict()
+        viewpars = dict(label=label,struct=struct,filterOn=filterOn,table=table,
+                         hiddencolumns=hiddencolumns,reloader=reloader,autoWidth=True)
+        footer = bc.contentPane(region='bottom',_class='pbl_roundedGroupBottom')
+        footer.button('Back',action='SET %s.selectedGrid=0;' %datapath)
+        footer.button('Next',action='FIRE #%s_result.reload; SET %s.selectedGrid=1;' %(nodeId,datapath))
+        stack = bc.stackContainer(region='center',datapath=datapath,selected='^.selectedGrid')
+        self.includedViewBox(stack.borderContainer(),datapath='.gridcheck',
+                            selectionPars=selectionPars,nodeId=nodeId,**viewpars)
+        selectionPars_result = dict(where='$%s IN :checked' %self.db.table(table).pkey,
+                                    checked='=.#parent.checkedList',_if='checked')
+
+        self.includedViewBox(stack.borderContainer(_class='hide_row_checker'),nodeId='%s_result' %nodeId,
+                             datapath='.resultgrid',selectionPars=selectionPars_result,
+                             **viewpars)
+
+    

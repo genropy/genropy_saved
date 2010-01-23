@@ -33,7 +33,7 @@ class RecordDialog(BaseComponent):
                     savePath='',bottomCb=None,savingMethod=None,
                     loadingMethod=None, loadingParameters=None,onClosed='',onShow='',
                     validation_failed='alert',custom_table_id=None,centerOn=None,
-                    dlgId=None,formId=None,datapath=None,dlgPars=None,**kwargs):
+                    dlgId=None,formId=None,datapath=None,dlgPars=None,toolbarCb=None,**kwargs):
         """
         Allow to manage a form into a dialog for editing and saving a single RecordHandler.
         * `table`: The table where the record is saved.
@@ -54,12 +54,13 @@ class RecordDialog(BaseComponent):
         assert not 'loadingParameters' in loadKwargs,'You cannot put a loadingParameters here'
 
         tableId = custom_table_id or table.replace('.','_')
+        dlgId = dlgId or  'dlg_%s' % tableId
+        formId = formId or  '%s_form' % tableId
+        
         sqlContextName='sqlcontext_%s' %tableId
         controllerPath = datapath or 'aux_forms.%s' % tableId
         sqlContextRoot= '%s.record' % controllerPath
         title = title or '^.record?caption'
-        dlgId = dlgId or  'dlg_%s' % tableId
-        formId = formId or  '%s_form' % tableId
         page = pane
         if page is None:
             page = self.pageSource()
@@ -69,7 +70,7 @@ class RecordDialog(BaseComponent):
         if centerOn:
             dlgPars['centerOn']=centerOn             
         dlg = page.dialog(nodeId=dlgId,title=title,datapath=controllerPath,**dlgPars)
-        dlgBC = dlg.borderContainer(height=height, 
+        dlgBC = dlg.borderContainer(height=height, nodeId='%s_layout' %dlgId,
                                     width=width, _class=_class,
                                     sqlContextName=sqlContextName,
                                     sqlContextRoot=sqlContextRoot, 
@@ -79,7 +80,7 @@ class RecordDialog(BaseComponent):
                                     onSaved,onClosed,savePath,savingMethod,loadingMethod,
                                     loadingParameters,validation_failed,**kwargs)
                                     
-        self._recordDialogLayout(dlgBC,dlgId,formId,controllerPath,table,formCb,bottomCb)
+        self._recordDialogLayout(dlgBC,dlgId,formId,controllerPath,table,formCb,bottomCb,toolbarCb)
 
     def _recordDialogController(self,pane,dlgId,formId,controllerPath,
                                 table,saveKwargs,loadKwargs,firedPkey,sqlContextName,
@@ -107,13 +108,13 @@ class RecordDialog(BaseComponent):
                             closeDlg='=.closeDlg')
         
         pane.dataController("""SET .current_pkey = "*newrecord*";
-                               genro.formById("%s").load();"""%formId,
-                            _fired="^.addNew")
+                               FIRE .load""",_fired="^.addNew")
                             
         pane.dataController("""genro.wdgById("%s").show(); 
                                SET .current_pkey = (!firedPkey||firedPkey===true) ? "*newrecord*" : firedPkey;
-                               genro.formById("%s").load();
-                            """ %(dlgId,formId),firedPkey=firedPkey)
+                               FIRE .load;
+                            """ %dlgId,firedPkey=firedPkey)
+        pane.dataController('genro.formById("%s").load();' %formId,_fired="^.load")
                             
         pane.dataController("""var dlgNode=genro.nodeById("%s");
                                dlgNode.widget.onCancel();
@@ -157,7 +158,9 @@ class RecordDialog(BaseComponent):
         elif validation_failed == "focus":
             pane.dataController("genro.formById('%s').focusFirstInvalidField()" %formId,_fired="^.validation_failed")
         
-    def _recordDialogLayout(self,bc,dlgId,formId,controllerPath,table,formCb,bottomCb):
+    def _recordDialogLayout(self,bc,dlgId,formId,controllerPath,table,formCb,bottomCb,toolbarCb):
+        if callable(toolbarCb):
+            toolbarCb(bc,region='top',table=table)
         bottom = bc.contentPane(region='bottom',_class='dialog_bottom')
         bottomCb = bottomCb or getattr(self,'_record_dialog_bottom')
         bottomCb(bottom)
