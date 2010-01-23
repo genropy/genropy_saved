@@ -181,7 +181,6 @@ class GnrWsgiSite(object):
         self.site_static_dir = self.config['resources?site'] or '.'
         if self.site_static_dir and not os.path.isabs(self.site_static_dir):
             self.site_static_dir = os.path.normpath(os.path.join(self.site_path,self.site_static_dir))
-        self.find_resources()
         self.find_gnrjs_and_dojo()
         self.page_factory_lock=RLock()
         self.webtools = self.find_webtools()
@@ -254,20 +253,7 @@ class GnrWsgiSite(object):
             elif lib.startswith('gnr_'):
                 self.gnr_path[lib[4:]] = path
     
-    def find_resources(self):
-        self.resources=Bag()
-        resources_list = [(resource.label,resource.attr.get('path')) for resource in self.config['resources'] or []]
-        for label,rsrc_path in resources_list:
-            if rsrc_path:
-                self.resources[label] = rsrc_path
-            else:
-                rsrc_path = self.resource_name_to_path(label)
-                self.resources[label] = rsrc_path
-        auto_resource_path = self.resource_name_to_path(self.site_name, safe=False)
-        if auto_resource_path:
-            self.resources[self.site_name] = os.path.realpath(auto_resource_path)
-        self.resources_dirs = self.resources.values()
-        self.resources_dirs.reverse()
+
         
     def set_environment(self):
         for var,value in self.gnr_config['gnr.environment_xml'].digest('environment:#k,#a.value'):
@@ -529,59 +515,24 @@ class GnrWsgiSite(object):
         if runKwargs:
             for k,v in runKwargs.items():
                 kwargs[str(k)] = v
-        #script.parentSite = self      idea
         return script(**kwargs)
         
     def loadTableScript(self, page, table, respath, class_name=None):
-        class_name=class_name or 'Main'
-        application=self.gnrapp
-        if isinstance(table, basestring):
-            table=application.db.table(table)
-        modName = os.path.join('tables',table.name,*(respath.split('/')))
-        resourceDirs = application.packages[table.pkg.name].resourceDirs
-        modPathList = self.getResourceList(resourceDirs, modName, 'py') or []
-        if modPathList:
-            modPathList.reverse()
-            basePath=modPathList.pop(0)
-            resource_module = gnrImport(basePath, avoidDup=True)
-            resource_class = getattr(resource_module,class_name,None)
-            resource_obj = resource_class(page=page,resource_table=table)          
-            for modPath in modPathList:
-                resource_module = gnrImport(modPath, avoidDup=True)
-                resource_class = getattr(resource_module,class_name,None)
-                if resource_class:
-                    instanceMixin(resource_obj,resource_class,only_callables=False)
-            return resource_obj
-        else:
-            raise GnrWebServerError('Cannot import component %s' % modName)
-        
-
-    def getResourceList(self, resourceDirs, path ,ext=None):
-        result=[]
-        if ext and not path.endswith('.%s' % ext): path = '%s.%s' % (path, ext)
-        for dpath in resourceDirs:
-            fpath = os.path.join(dpath, path)
-            if os.path.exists(fpath):
-                result.append(fpath)
-        return result
-        
-        
-
-        
-    def _get_siteResources(self):
-        if not hasattr(self,'_siteResources'):
-            self._siteResources=[]
-            fpath = os.path.join(self.site_static_dir, '_resources')
-            if os.path.isdir(fpath):
-                self._siteResources.append(fpath) # we add a resource folder for common package
-            resources_path = [fpath for fpath in self.resources_dirs if os.path.isdir(fpath)]
-            #if os.path.isdir(fpath):
-            self._siteResources.extend(resources_path) # we add a resource folder for common package
-        return self._siteResources
-    siteResources = property(_get_siteResources)
-    # so we return a list of any possible resource folder starting from 
-    # most customized and ending with most generic ones
+        return self.resource_loader.loadTableScript( page, table, respath, class_name=class_name)
+  
+    def _get_resources(self):
+        if not hasattr (self,'_resources'):
+            self._resources= self.resource_loader.site_resources()
+        return self._resources
+    resources=property(_get_resources)
     
+    def _get_resources_dirs(self):
+        if not hasattr (self,'_resources_dirs'):
+            self._resources_dirs = self.resources.values()
+            self._resources_dirs.reverse()
+        return self._resources_dirs
+    resources_dirs=property(_get_resources_dirs)
+        
     def pkg_page_url(self,pkg,*args):
         return ('%s%s/%s'%(self.home_uri,pkg,'/'.join(args))).replace('//','/')
     
