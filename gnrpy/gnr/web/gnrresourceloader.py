@@ -10,6 +10,8 @@ from gnr.core.gnrbag import Bag, DirectoryResolver
 import os
 from gnr.core.gnrlang import gnrImport, classMixin, cloneClass
 from gnr.core.gnrstring import splitAndStrip
+from gnr.core.gnrsys import expandpath
+
 from gnr.web.gnrwebpage import GnrWebPage
 from gnr.web.gnrbaseclasses import BaseResource
 
@@ -21,6 +23,8 @@ class ResourceLoader(object):
     def __init__(self, site=None):
         self.site = site
         self.site_path = self.site.site_path
+        self.site_name = self.site.site_name
+        self.gnr_config = self.site.gnr_config
         self.gnrapp = self.site.gnrapp
         self.debug = self.site.debug
         self.build_automap()
@@ -114,21 +118,19 @@ class ResourceLoader(object):
         page_class.polling = getattr(custom_class, 'polling', None)
         page_class.eagers = getattr(custom_class, 'eagers', {})
         page_class.css_requires = []
-        #page_class.css_requires = splitAndStrip(getattr(custom_class, 'css_requires', ''),',')
         page_class.js_requires = splitAndStrip(getattr(custom_class, 'js_requires', ''),',')
         page_class.pageOptions = getattr(custom_class,'pageOptions',{})
         page_class.auth_tags = getattr(custom_class, 'auth_tags', '')
-        self.page_class_resourceDirs(page_class, module_path, pkg=pkg)
+        page_class.resourceDirs=self.page_class_resourceDirs(page_class, module_path, pkg=pkg)
         self.page_pyrequires_mixin(page_class, py_requires)
         classMixin(page_class,custom_class, only_callables=False)
         page_class.css_requires.extend([x for x in splitAndStrip(getattr(custom_class, 'css_requires', ''),',') if x])
-        self.page_class_resourceDirs(page_class, module_path, pkg=pkg)
+        page_class.tpldirectories=page_class.resourceDirs+[self.site.gnr_static_path(page_class.gnrjsversion,'tpl')]
         page_class._packageId = pkg
         self.page_class_custom_mixin(page_class, path, pkg=pkg)
         self.page_factories[module_path]=page_class
         return page_class
-        
-    
+
     def page_class_base_mixin(self,page_class,pkg=None):
         """Looks for custom classes in the package"""
         if pkg:
@@ -153,7 +155,7 @@ class ResourceLoader(object):
                     classMixin(page_class, component_page_class, only_callables=False)
 
     def page_class_resourceDirs(self,page_class, path, pkg=None):  
-        """Find a resource in current _resources folder or in parent folders one"""
+        """Build page resources dirs"""
         if pkg:
             pagesPath = os.path.join(self.gnrapp.packages[pkg].packageFolder , 'webpages')
         else:
@@ -185,13 +187,64 @@ class ResourceLoader(object):
         #result.extend(self.siteResources)
         resources_list = self.site.resources_dirs
         result.extend(resources_list)
-        page_class.tpldirectories=result+[self.site.gnr_static_path(page_class.gnrjsversion,'tpl')]
-        page_class._resourceDirs = result
+        return result
+        
+    def package_resourceDirs(self,pkg):
+        pkg=self.gnrapp.packages[pkg]
+        if not hasattr(pkg, '_resourceDirs'):
+            pagesPath = os.path.join(pkg.packageFolder , 'webpages')
+            resourcePkg = None
+            result = [] # result is now empty
+            resourcePkg = pkg.attributes.get('resourcePkg')
+            fpath = os.path.join(self.site_path, '_custom', pkg.id, '_resources')
+            if os.path.isdir(fpath):
+                result.append(fpath) # we add a custom resource folder for current package
 
+            if resourcePkg:
+                for rp in resourcePkg.split(','):
+                    fpath = os.path.join(self.site_path,'_custom', pkg, '_resources')
+                    if os.path.isdir(fpath):
+                        result.append(fpath)
+            fpath = os.path.join(pagesPath, '_resources')
+            if os.path.isdir(fpath):
+                result.append(fpath) # we add a resource folder for common package
+            result.extend(self.site.resources_dirs)
+            pkg._resourceDirs= result
+        # so we return a list of any possible resource folder starting from 
+        # most customized and ending with most generic ones
+        return pkg._resourceDirs 
+
+        
+    def site_resources(self):
+        resources=Bag()
+        resources_list = [(resource.label,resource.attr.get('path')) for resource in self.site.config['resources'] or []]
+        for label,rsrc_path in resources_list:
+            if rsrc_path:
+                resources[label] = rsrc_path
+            else:
+                rsrc_path = self.resource_name_to_path(label)
+                resources[label] = rsrc_path
+        auto_resource_path = self.resource_name_to_path(self.site_name, safe=False)
+        if auto_resource_path:
+            resources[self.site_name] = os.path.realpath(auto_resource_path)
+        return resources
+            
+    def resource_name_to_path(self,res_id, safe=True):
+        project_resource_path = os.path.join(self.site_path, '..','..','resources',res_id)
+        if os.path.isdir(project_resource_path):
+            return project_resource_path
+        if 'resources' in self.gnr_config['gnr.environment_xml']:
+            for path in self.gnr_config['gnr.environment_xml'].digest('resources:#a.path'):
+                res_path=expandpath(os.path.join(path,res_id))
+                if os.path.isdir(res_path):
+                    return res_path
+        if safe:
+            raise Exception('Error: resource %s not found' % res_id)
+            
     def page_pyrequires_mixin(self, page_class, py_requires):
         for mix in py_requires:
             if mix:
-                self.mixinResource(page_class, page_class._resourceDirs, mix)
+                self.mixinResource(page_class, page_class.resourceDirs, mix)
 
 
     def mixinResource(self, kls,resourceDirs,*path):
@@ -200,7 +253,7 @@ class ResourceLoader(object):
             modName, clsName = path.split(':')
         else:
             modName, clsName = path,'*'
-        modPathList = self.site.getResourceList(resourceDirs, modName, 'py') or []
+        modPathList = self.getResourceList(resourceDirs, modName, 'py') or []
         if modPathList:
             modPathList.reverse()
             for modPath in modPathList:
@@ -209,14 +262,14 @@ class ResourceLoader(object):
             raise GnrMixinError('Cannot import component %s' % modName)
 
     def py_requires_iterator(self, source_class, target_class):
-        resourceDirs = target_class._resourceDirs
+        resourceDirs = target_class.resourceDirs
         py_requires = [x for x in splitAndStrip(getattr(source_class, 'py_requires', '') ,',') if x] or []
         for path in py_requires:
             if ':' in path:
                 modName, clsName = path.split(':')
             else:
                 modName, clsName = path,'*'
-            modPathList = self.site.getResourceList(resourceDirs, modName, 'py') or []
+            modPathList = self.getResourceList(resourceDirs, modName, 'py') or []
             if modPathList:
                 modPathList.reverse()
                 for modPath in modPathList:
@@ -224,10 +277,46 @@ class ResourceLoader(object):
                     #classMixin(kls,'%s:%s'%(modPath,clsName),only_callables=False,site=self)
             else:
                 raise GnrMixinError('Cannot import component %s' % modName)
-
-
+        
+    def getResourceList(self, resourceDirs, path, ext=None):
+        """Find a resource in current _resources folder or in parent folders one"""
+        result=[]
+        locations=resourceDirs[:]
+        if ext=='css' or ext=='js':
+            locations.reverse()
+        if ext and not path.endswith('.%s' % ext): path = '%s.%s' % (path, ext)
+        for dpath in locations:
+            fpath = os.path.join(dpath, path)
+            if os.path.exists(fpath):
+                result.append(fpath)
+        return result 
+        
     def loadResource(self,pkg, *path):
         resourceDirs = self.gnrapp.packages[pkg].resourceDirs
         resource_class = cloneClass('CustomResource',BaseResource)
         self.mixinResource(resource_class, resourceDirs, *path)
         return resource_class()
+        
+    def loadTableScript(self, page, table, respath, class_name=None):
+        class_name=class_name or 'Main'
+        application=self.gnrapp
+        if isinstance(table, basestring):
+            table=application.db.table(table)
+        modName = os.path.join('tables',table.name,*(respath.split('/')))
+        #resourceDirs = application.packages[table.pkg.name].resourceDirs
+        resourceDirs=self.package_resourceDirs(table.pkg.name)
+        modPathList = self.getResourceList(resourceDirs, modName, 'py') or []
+        if modPathList:
+            modPathList.reverse()
+            basePath=modPathList.pop(0)
+            resource_module = gnrImport(basePath, avoidDup=True)
+            resource_class = getattr(resource_module,class_name,None)
+            resource_obj = resource_class(page=page,resource_table=table)          
+            for modPath in modPathList:
+                resource_module = gnrImport(modPath, avoidDup=True)
+                resource_class = getattr(resource_module,class_name,None)
+                if resource_class:
+                    instanceMixin(resource_obj,resource_class,only_callables=False)
+            return resource_obj
+        else:
+            raise GnrWebServerError('Cannot import component %s' % modName)
