@@ -901,43 +901,5 @@ class GnrBaseWebPage(GnrObject):
                 os.makedirs(path)
             return path
 
-    def _get_resourceDirs(self):
-        """Find a resource in current _resources folder or in parent folders one"""
-        if not hasattr(self, '_resourceDirs'):
-            raise Exception('NON WORKING')
-            pagesPath = self.folders['pages']
-            curdir = self.folders['current']
-            resourcePkg = None
-            result = [] # result is now empty
-            if self.packageId: # for index page or other pages at root level (out of any package)
-                resourcePkg = self.package.attributes.get('resourcePkg')
-                fpath = os.path.join(pagesPath, '_custom', self.packageId, '_resources')
-                if os.path.isdir(fpath):
-                    result.append(fpath) # we add a custom resource folder for current package
-                
-            fpath = os.path.join(pagesPath, '_custom', '_common_d11' , '_resources')
-            
-            if os.path.isdir(fpath):
-                result.append(fpath) # we add a custom resource folder for common package
-            
-            while curdir.startswith(pagesPath):
-                fpath = os.path.join(curdir, '_resources')
-                if os.path.isdir(fpath):
-                    result.append(fpath)
-                curdir = os.path.dirname(curdir) # we add a resource folder for folder 
-                                                 # of current page
-            if resourcePkg:
-                for rp in resourcePkg.split(','):
-                    fpath = os.path.join(pagesPath, rp, '_resources')
-                    if os.path.isdir(fpath):
-                        result.append(fpath)
-                        
-            fpath = os.path.join(pagesPath, '_common_d11' , '_resources')
-            if os.path.isdir(fpath):
-                result.append(fpath) # we add a resource folder for common package
-            self._resourceDirs = result
-        # so we return a list of any possible resource folder starting from 
-        # most customized and ending with most generic ones
-        return self._resourceDirs 
-    resourceDirs = property(_get_resourceDirs)
+    
 
