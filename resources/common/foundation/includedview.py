@@ -612,9 +612,9 @@ class IVBSelectionRecord(BaseComponent):
 class IVSelectionSearch(BaseComponent):
     py_requires='foundation/includedview:IncludedView'
     def includedViewBoxSearch(self,bc,nodeId=None,table=None,datapath=None,struct=None,label=None,
-                             reloader=None,filterOn=None,hiddencolumns=None,selectionPars=None,order_by=None,**kwargs):
+                             reloader=None,filterOn=None,hiddencolumns=None,selectionPars=None,order_by=None,
+                             **kwargs):
         assert not 'footer' in kwargs, 'remove footer par'
-        assert not 'reloader' in kwargs, 'reloader is mandatory'
 
         assert struct, 'struct is mandatory'
         if callable(struct):
