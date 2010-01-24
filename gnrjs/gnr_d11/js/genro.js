@@ -182,9 +182,9 @@ dojo.declare('gnr.GenroClient', null, {
             genro.dom.windowTitle(windowTitle);
         }
         if(this.debugopt){
-            genro.setData('debugger.sqldebug',this.debugopt.indexOf('sql')>=0)
-            genro.setData('debugger.pydebug',this.debugopt.indexOf('py')>=0)
-            genro.dev.showBottomHelper()
+            genro.setData('debugger.sqldebug',this.debugopt.indexOf('sql')>=0);
+            genro.setData('debugger.pydebug',this.debugopt.indexOf('py')>=0);
+            genro.dev.showBottomHelper();
         }
        // genro.soundManagerStart();
     },
@@ -310,7 +310,7 @@ dojo.declare('gnr.GenroClient', null, {
         }
         // area passibile di modifiche
         else if(!v){
-            if( f['isbutton']==true){
+            if( f['isbutton']===true){
                 var divclass= f['buttonclass'];
                 divclass = divclass? 'class="'+divclass+'"':'';
                 var event_attrs = '';
