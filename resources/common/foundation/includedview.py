@@ -498,50 +498,48 @@ class IVBSelectionRecord(BaseComponent):
     def includedViewBoxRD(self,bc,nodeId=None,table=None,datapath=None,struct=None,label=None,
                          selectionPars=None,dialogPars=None,reloader=None,externalChanges=None,
                          hiddencolumns=None,custom_addCondition=None,custom_delCondition=None,
-                         askBeforeDelete=True,**kwargs):
-        if dialogPars:
-            assert not 'table' in dialogPars, 'take the table of the grid'
-            assert not 'firedPkey' in dialogPars, 'auto firedPkey'
-            assert not 'datapath' in dialogPars,'datapath calculated'
-            assert not 'toolbarCb' in dialogPars,'toolbarCb calculated'
-            assert not 'formId' in dialogPars,'formId calculated as nodeId_frm'
-            assert not 'dlgId' in dialogPars,'formId calculated as dlgId_form'
+                         askBeforeDelete=True,checkMainRecord=True,**kwargs):
+        assert dialogPars,'dialogPars are Mandatory'
+        assert not 'table' in dialogPars, 'take the table of the grid'
+        assert not 'firedPkey' in dialogPars, 'auto firedPkey'
+        assert not 'toolbarCb' in dialogPars,'toolbarCb calculated'
+        assert not 'add_action' in kwargs, 'remove add_action par'
+        assert 'order_by' in selectionPars, 'add order_by to selectionPars'
+        assert not 'del_action' in kwargs,'remove del_action par'
+        assert not 'add_enable' in kwargs, 'remove add_action par'
+        assert not 'del_enable' in kwargs,'remove del_action par'
+        assert not 'connect_onRowDblClick' in kwargs,'remove connect_onRowDblClick par'
+        
+        dialogPars['table'] = table
+        dlgId = dialogPars.get('dlgId',"%s_dlg" %nodeId)
+        dialogPars['dlgId'] = dlgId
+        dialogPars['formId'] = dialogPars.get('formId',"%s_form" %nodeId)
+        dialogPars['datapath'] = dialogPars.get('datapath','%s.dlg' %datapath)
+        dialogPars['onSaved'] = 'FIRE #%s.reload; %s' %(nodeId,dialogPars.get('onSaved',''))
+        dialogPars['firedPkey'] = '^.pkey'
+        dialogPars['toolbarCb'] = self.rd_toolbar
 
-            dialogPars['table'] = table
-            dialogPars['dlgId'] = "%s_dlg" %nodeId
-            dialogPars['formId'] = "%s_form" %nodeId
-            dialogPars['datapath'] = '%s.dlg' %datapath
-            dialogPars['onSaved'] = 'FIRE #%s.reload; %s' %(nodeId,dialogPars.get('onSaved',''))
-            dialogPars['firedPkey'] = '^.pkey'
-            dialogPars['toolbarCb'] = self.rd_toolbar
-
-            self.recordDialog(**dialogPars)
-            assert not 'add_action' in kwargs, 'remove add_action par'
-            assert 'order_by' in selectionPars, 'add order_by to selectionPars'
-            assert not 'del_action' in kwargs,'remove del_action par'
-            assert not 'add_enable' in kwargs, 'remove add_action par'
-            assert not 'del_enable' in kwargs,'remove del_action par'
-            assert not 'connect_onRowDblClick' in kwargs,'remove connect_onRowDblClick par'
-            
+        self.recordDialog(**dialogPars)
+       
+        connect_onRowDblClick='FIRE #%s.pkey = GET .selectedId;' %dlgId
         self.includedViewBox(bc,label=label,datapath=datapath,
                              add_action='FIRE .dlg.pkey="*newrecord*";',
                              add_enable='^.can_add',del_enable='^.can_del',
                              del_action='FIRE .delete_record;',
                              nodeId=nodeId,table=table,struct=struct,hiddencolumns=hiddencolumns,
                              reloader=reloader, externalChanges=externalChanges,
-                             connect_onRowDblClick='FIRE .dlg.pkey = GET .selectedId;',
+                             connect_onRowDblClick=connect_onRowDblClick,
                              selectionPars=selectionPars,askBeforeDelete=True,**kwargs)
                              
         controller = bc.dataController(datapath=datapath)
-        if self.maintable:
+        main_record_id= True
+        if self.maintable and checkMainRecord:
             main_record_id='^form.record.%s' %self.db.table(self.maintable).pkey
-            
         controller.dataFormula(".can_add","add_enabled?(main_record_id!=null)&&custom_condition:false",
-                              add_enabled='^form.canWrite',main_record_id=main_record_id or True,
+                              add_enabled='^form.canWrite',main_record_id=main_record_id,
                               custom_condition=custom_addCondition or True)
-                              
         controller.dataFormula(".can_del","del_enabled?(main_record_id!=null)&&custom_condition:false",
-                              del_enabled='^form.canWrite',selectedId='^.selectedId',_if='selectedId',_else='false',
+                              del_enabled='^form.canDelete',selectedId='^.selectedId',_if='selectedId',_else='false',
                               main_record_id=main_record_id or True,custom_condition=custom_addCondition or True)
         controller.dataController("genro.dlg.ask(title, msg, null, '%s.confirm_delete')" %datapath,
                                     _fired="^.delete_record",title='!!Warning',
@@ -561,11 +559,11 @@ class IVBSelectionRecord(BaseComponent):
                                                  {save:save,dont_save:dont_save,cancel:cancel},
                                                  {save:saveAction,dont_save:noSaveAction});
                                  }
-                                 
+                             
                               """, btn='^.navbutton', 
                                 title='!!Warning',
                                 msg='!!There are unsaved changes',
-                                save='!!Save',save_act='FIRE .dlg.saveAndChangeIn',
+                                save='!!Save',save_act='FIRE #%s.saveAndChangeIn' %dlgId,
                                 dont_save='!!Do not save',
                                 cancel='!!Cancel',gridId=nodeId)
         controller.dataController("""
@@ -580,15 +578,14 @@ class IVBSelectionRecord(BaseComponent):
                                     SET .selectedIndex = newidx;
                                     var selectedId = btn=='new'?'*newrecord*':genro.wdgById(gridId).rowIdByIndex(newidx);
                                     if(changeAnyway){
-                                        SET .dlg.current_pkey = selectedId;
-                                        FIRE .dlg.load;
+                                        SET #%s.current_pkey = selectedId;
+                                        FIRE #%s.load;
                                     }else if(saveAndChange){
-                                        FIRE .dlg.saveAndChangeIn = selectedId;
+                                        FIRE #%s.saveAndChangeIn = selectedId;
                                     }
-                                    """,saveAndChange="^.saveAndChange",
+                                    """%(dlgId,dlgId,dlgId),saveAndChange="^.saveAndChange",
                                     changeAnyway='^.changeAnyway',gridId=nodeId,
                                     idx='=.selectedIndex')
-                                    
         controller.dataFormula('.atBegin','(idx==0)',idx='^.selectedIndex')
         controller.dataFormula('.atEnd','(idx==genro.wdgById(gridId).rowCount-1)',idx='^.selectedIndex',gridId=nodeId)
                             
