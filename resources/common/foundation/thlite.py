@@ -96,7 +96,7 @@ class TableHandlerLite(BaseComponent):
             condPars=condition[1] or {}
             condition=condition[0]
             
-        bc,top,bottom = self.pbl_rootBorderContainer(root,title='^list.title_bar',margin='5px')
+        bc,top,bottom = self.pbl_rootBorderContainer(root,title='^list.title_bar',id='mainBC_center',margin='5px')
         bc.dataController("FIRE #maingrid.reload;",_onStart=True)
         dimension = self.formBaseDimension()
         struct = self.lstBase(self.newGridStruct())
@@ -105,7 +105,8 @@ class TableHandlerLite(BaseComponent):
                                nodeId='maingrid',table=self.maintable,
                                struct=struct,selectionPars=dict(where=condition,order_by=self.orderBase,**condPars),
                                dialogPars=dict(height=dimension['height'],width=dimension['width'],datapath='form',
-                                              title='^form.title',formCb=self.formBase),checkMainRecord=False,
+                                              title='^form.title',formCb=self.formBase,dlgPars=dict(centerOn="mainBC_center")),
+                                checkMainRecord=False,
                                footer=self.footerBase,filterOn=filterOn)
     def footerBase(self,pane,**kwargs):
         pane.data('usr.writePermission',self.userCanWrite())
