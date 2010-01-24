@@ -104,7 +104,7 @@ class TableHandlerLite(BaseComponent):
         self.includedViewBoxRD(bc,label='!!View',datapath="selection",
                                nodeId='maingrid',table=self.maintable,
                                struct=struct,selectionPars=dict(where=condition,order_by=self.orderBase,**condPars),
-                               dialogPars=dict(height=dimension['height'],width=dimension['width'],
+                               dialogPars=dict(height=dimension['height'],width=dimension['width'],datapath='form',
                                               title='^form.title',formCb=self.formBase),checkMainRecord=False,
                                footer=self.footerBase,filterOn=filterOn)
     def footerBase(self,pane,**kwargs):
