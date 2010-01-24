@@ -292,7 +292,7 @@ class ResourceLoader(object):
         return result 
         
     def loadResource(self,pkg, *path):
-        resourceDirs = self.gnrapp.packages[pkg].resourceDirs
+        resourceDirs = self.package_resourceDirs(table.pkg.name)
         resource_class = cloneClass('CustomResource',BaseResource)
         self.mixinResource(resource_class, resourceDirs, *path)
         return resource_class()
