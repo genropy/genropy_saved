@@ -523,7 +523,7 @@ class IVBSelectionRecord(BaseComponent):
        
         connect_onRowDblClick='FIRE #%s.pkey = GET .selectedId;' %dlgId
         self.includedViewBox(bc,label=label,datapath=datapath,
-                             add_action='FIRE .dlg.pkey="*newrecord*";',
+                             add_action='FIRE #%s.pkey="*newrecord*";'%dlgId,
                              add_enable='^.can_add',del_enable='^.can_del',
                              del_action='FIRE .delete_record;',
                              nodeId=nodeId,table=table,struct=struct,hiddencolumns=hiddencolumns,
