@@ -504,8 +504,12 @@ class IVBSelectionRecord(BaseComponent):
             assert not 'firedPkey' in dialogPars, 'auto firedPkey'
             assert not 'datapath' in dialogPars,'datapath calculated'
             assert not 'toolbarCb' in dialogPars,'toolbarCb calculated'
-            
+            assert not 'formId' in dialogPars,'formId calculated as nodeId_frm'
+            assert not 'dlgId' in dialogPars,'formId calculated as dlgId_form'
+
             dialogPars['table'] = table
+            dialogPars['dlgId'] = "%s_dlg" %nodeId
+            dialogPars['formId'] = "%s_form" %nodeId
             dialogPars['datapath'] = '%s.dlg' %datapath
             dialogPars['onSaved'] = 'FIRE #%s.reload; %s' %(nodeId,dialogPars.get('onSaved',''))
             dialogPars['firedPkey'] = '^.pkey'
@@ -513,6 +517,7 @@ class IVBSelectionRecord(BaseComponent):
 
             self.recordDialog(**dialogPars)
             assert not 'add_action' in kwargs, 'remove add_action par'
+            assert 'order_by' in selectionPars, 'add order_by to selectionPars'
             assert not 'del_action' in kwargs,'remove del_action par'
             assert not 'add_enable' in kwargs, 'remove add_action par'
             assert not 'del_enable' in kwargs,'remove del_action par'
@@ -545,16 +550,45 @@ class IVBSelectionRecord(BaseComponent):
         controller.dataRpc('.dummy','iv_delete_selected_record',record='=.selectedId',table=table,
                             _confirmed='^.confirm_delete',_if='_confirmed=="confirm"',
                             _onResult='FIRE .reload')
-        controller.dataController("""var newidx;
-                                 var rowcount = genro.wdgById(gridId).rowCount;
-                                 if (btn == 'first'){newidx = 0;} 
-                                 else if (btn == 'last'){newidx = rowcount-1;}
-                                 else if ((btn == 'prev') && (idx > 0)){newidx = idx-1;}
-                                 else if ((btn == 'next') && (idx < rowcount-1)){newidx = idx+1;}
-                                 SET .selectedIndex = newidx;
-                                 SET .dlg.current_pkey = GET .selectedId;
-                                 FIRE .dlg.load;
-                              """, btn='^.navbutton',idx='=.selectedIndex', gridId=nodeId)
+        controller.dataController("""
+                                 var form = genro.formById(gridId+'_form');
+                                 if(!form.changed){
+                                    FIRE .changeAnyway= btn;
+                                 }else{
+                                    var saveAction = "genro.fireEvent('#"+gridId+".saveAndChange','"+btn+"');";
+                                    var noSaveAction = "genro.fireEvent('#"+gridId+".changeAnyway','"+btn+"');";
+                                    genro.dlg.ask(title,msg,
+                                                 {save:save,dont_save:dont_save,cancel:cancel},
+                                                 {save:saveAction,dont_save:noSaveAction});
+                                 }
+                                 
+                              """, btn='^.navbutton', 
+                                title='!!Warning',
+                                msg='!!There are unsaved changes',
+                                save='!!Save',save_act='FIRE .dlg.saveAndChangeIn',
+                                dont_save='!!Do not save',
+                                cancel='!!Cancel',gridId=nodeId)
+        controller.dataController("""
+                                    var btn = changeAnyway||saveAndChange;
+                                    var grid = genro.wdgById(gridId);
+                                    var rowcount = grid.rowCount;
+                                    var newidx;
+                                    if (btn == 'first' || btn=='new'){newidx = 0;} 
+                                    else if (btn == 'last'){newidx = rowcount-1;}
+                                    else if ((btn == 'prev') && (idx > 0)){newidx = idx-1;}
+                                    else if ((btn == 'next') && (idx < rowcount-1)){newidx = idx+1;}
+                                    SET .selectedIndex = newidx;
+                                    var selectedId = btn=='new'?'*newrecord*':genro.wdgById(gridId).rowIdByIndex(newidx);
+                                    if(changeAnyway){
+                                        SET .dlg.current_pkey = selectedId;
+                                        FIRE .dlg.load;
+                                    }else if(saveAndChange){
+                                        FIRE .dlg.saveAndChangeIn = selectedId;
+                                    }
+                                    """,saveAndChange="^.saveAndChange",
+                                    changeAnyway='^.changeAnyway',gridId=nodeId,
+                                    idx='=.selectedIndex')
+                                    
         controller.dataFormula('.atBegin','(idx==0)',idx='^.selectedIndex')
         controller.dataFormula('.atEnd','(idx==genro.wdgById(gridId).rowCount-1)',idx='^.selectedIndex',gridId=nodeId)
                             
@@ -572,22 +606,12 @@ class IVBSelectionRecord(BaseComponent):
         tb.button('!!Previous', fire_prev='.navbutton', iconClass="tb_button icnNavPrev", disabled='^.atBegin', showLabel=False)
         tb.button('!!Next', fire_next='.navbutton', iconClass="tb_button icnNavNext", disabled='^.atEnd', showLabel=False)
         tb.button('!!Last', fire_last='.navbutton', iconClass="tb_button icnNavLast", disabled='^.atEnd', showLabel=False)
+        add_action = 'FIRE .navbutton="new";'
+        add_class =  'buttonIcon icnBaseAdd'
+        add_enable = '^form.canWrite'
+        tb.button('!!Add', float='right',action=add_action,visible=add_enable,
+                        iconClass=add_class, showLabel=False)
         
-       #if del_action:
-       #    if del_action is True:
-       #        del_action = 'FIRE .delRecord=true'
-       #    del_class = del_class or 'buttonIcon icnBaseDelete'
-       #    del_enable = del_enable or '^form.canWrite'
-       #    tb.button('!!Delete', float='right',action=del_action, iconClass=del_class, 
-       #                        showLabel=False,visible=del_enable)
-       #if add_action:
-       #    if add_action is True:
-       #        add_action = 'FIRE .addRecord=true'
-       #    add_class = add_class or 'buttonIcon icnBaseAdd'
-       #    add_enable = add_enable or '^form.canWrite'
-       #    tb.button('!!Add', float='right',action=add_action,visible=add_enable,
-       #                    iconClass=add_class, showLabel=False)
-       #
 class IVSelectionSearch(BaseComponent):
     py_requires='foundation/includedview:IncludedView'
     def includedViewBoxSearch(self,bc,nodeId=None,table=None,datapath=None,struct=None,label=None,

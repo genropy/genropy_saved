@@ -97,14 +97,25 @@ class RecordDialog(BaseComponent):
                                     SET .addRecord = false;
                                     SET .closeDlg = true; 
                                     FIRE .saveRecord = saveAndClose;
-                                }""",saveAndAdd="^.saveAndAdd",saveAndClose="^.saveAndClose")
+                                }else if(saveAndChangeIn){
+                                    SET .closeDlg = false;
+                                    SET .addRecord = false;
+                                    SET .changeRecordIn = saveAndChangeIn;
+                                    FIRE .saveRecord;
+                                }""",saveAndAdd="^.saveAndAdd",
+                                saveAndClose="^.saveAndClose",
+                                saveAndChangeIn='^.saveAndChangeIn')
                                 
         pane.dataController(""" if(closeDlg){
                                     FIRE .exitAction='saved';
                                 }else if(addRecord){
                                     FIRE .addNew;
+                                }else if(changeRecordIn){
+                                    SET .current_pkey = changeRecordIn;
+                                    FIRE .load;
                                 }""",
                             _fired="^.afterSaving",addRecord='=.addRecord',
+                            changeRecordIn='=.changeRecordIn',
                             closeDlg='=.closeDlg')
         
         pane.dataController("""SET .current_pkey = "*newrecord*";
