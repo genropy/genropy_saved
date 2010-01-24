@@ -88,6 +88,12 @@ class TableHandlerLite(BaseComponent):
                         name = name[2:]
                 filterOn.append('%s:%s' %(name,field))
         return ','.join(filterOn)
+        
+    def printActionBase(self):
+        return False
+        
+    def exportActionBase(self):
+        return True
     
     def main(self, root, pkey=None, **kwargs):
         condition=self.conditionBase()
@@ -103,9 +109,13 @@ class TableHandlerLite(BaseComponent):
         filterOn = self.filterOnBase(struct)
         self.includedViewBoxRD(bc,label='!!View',datapath="selection",
                                nodeId='maingrid',table=self.maintable,
+                               print_action=self.printActionBase(),
+                               export_action=self.exportActionBase(),
                                struct=struct,selectionPars=dict(where=condition,order_by=self.orderBase,**condPars),
-                               dialogPars=dict(height=dimension['height'],width=dimension['width'],datapath='form',
-                                              title='^form.title',formCb=self.formBase,dlgPars=dict(centerOn="mainBC_center")),
+                               dialogPars=dict(height=dimension['height'],width=dimension['width'],
+                                              record_datapath='form.record',
+                                              title='^form.title',formCb=self.formBase,
+                                              dlgPars=dict(centerOn="mainBC_center")),
                                 checkMainRecord=False,
                                footer=self.footerBase,filterOn=filterOn)
     def footerBase(self,pane,**kwargs):

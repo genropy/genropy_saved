@@ -33,7 +33,8 @@ class RecordDialog(BaseComponent):
                     savePath='',bottomCb=None,savingMethod=None,
                     loadingMethod=None, loadingParameters=None,onClosed='',onShow='',
                     validation_failed='alert',custom_table_id=None,centerOn=None,
-                    dlgId=None,formId=None,datapath=None,dlgPars=None,toolbarCb=None,**kwargs):
+                    dlgId=None,formId=None,datapath=None,dlgPars=None,toolbarCb=None,
+                    record_datapath=None,**kwargs):
         """
         Allow to manage a form into a dialog for editing and saving a single RecordHandler.
         * `table`: The table where the record is saved.
@@ -80,7 +81,7 @@ class RecordDialog(BaseComponent):
                                     onSaved,onClosed,savePath,savingMethod,loadingMethod,
                                     loadingParameters,validation_failed,**kwargs)
                                     
-        self._recordDialogLayout(dlgBC,dlgId,formId,controllerPath,table,formCb,bottomCb,toolbarCb)
+        self._recordDialogLayout(dlgBC,dlgId,formId,controllerPath,table,formCb,bottomCb,toolbarCb,record_datapath)
 
     def _recordDialogController(self,pane,dlgId,formId,controllerPath,
                                 table,saveKwargs,loadKwargs,firedPkey,sqlContextName,
@@ -169,14 +170,15 @@ class RecordDialog(BaseComponent):
         elif validation_failed == "focus":
             pane.dataController("genro.formById('%s').focusFirstInvalidField()" %formId,_fired="^.validation_failed")
         
-    def _recordDialogLayout(self,bc,dlgId,formId,controllerPath,table,formCb,bottomCb,toolbarCb):
+    def _recordDialogLayout(self,bc,dlgId,formId,controllerPath,table,
+                            formCb,bottomCb,toolbarCb,record_datapath):
         if callable(toolbarCb):
             toolbarCb(bc,region='top',table=table)
         bottom = bc.contentPane(region='bottom',_class='dialog_bottom')
         bottomCb = bottomCb or getattr(self,'_record_dialog_bottom')
         bottomCb(bottom)
         stack = bc.stackContainer(region='center',_class='pbl_background' ,formId=formId,
-                                  selected='^%s.stackPane' %controllerPath,datapath='.record')
+                                  selected='^%s.stackPane' %controllerPath,datapath=record_datapath or '.record')
         loading = stack.contentPane(_class='waiting')
         formCb(stack, disabled='^form.locked', table=table)
 

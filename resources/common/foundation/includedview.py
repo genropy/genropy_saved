@@ -498,7 +498,7 @@ class IVBSelectionRecord(BaseComponent):
     def includedViewBoxRD(self,bc,nodeId=None,table=None,datapath=None,struct=None,label=None,
                          selectionPars=None,dialogPars=None,reloader=None,externalChanges=None,
                          hiddencolumns=None,custom_addCondition=None,custom_delCondition=None,
-                         askBeforeDelete=True,checkMainRecord=True,**kwargs):
+                         askBeforeDelete=True,checkMainRecord=True,record_datapath=None,**kwargs):
         assert dialogPars,'dialogPars are Mandatory'
         assert not 'table' in dialogPars, 'take the table of the grid'
         assert not 'firedPkey' in dialogPars, 'auto firedPkey'
@@ -515,6 +515,7 @@ class IVBSelectionRecord(BaseComponent):
         dialogPars['dlgId'] = dlgId
         dialogPars['formId'] = dialogPars.get('formId',"%s_form" %nodeId)
         dialogPars['datapath'] = dialogPars.get('datapath','%s.dlg' %datapath)
+        dialogPars['record_datapath'] = record_datapath
         dialogPars['onSaved'] = 'FIRE #%s.reload; %s' %(nodeId,dialogPars.get('onSaved',''))
         dialogPars['firedPkey'] = '^.pkey'
         dialogPars['toolbarCb'] = self.rd_toolbar
