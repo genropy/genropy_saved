@@ -103,7 +103,7 @@ class TableHandlerLite(BaseComponent):
         filterOn = self.filterOnBase(struct)
         self.includedViewBoxRD(bc,label='!!View',datapath="selection",
                                nodeId='maingrid',table=self.maintable,
-                               struct=struct,selectionPars=dict(condition=condition,order_by=self.orderBase,**condPars),
+                               struct=struct,selectionPars=dict(where=condition,order_by=self.orderBase,**condPars),
                                dialogPars=dict(height=dimension['height'],width=dimension['width'],
                                               title='^form.title',formCb=self.formBase),checkMainRecord=False,
                                footer=self.footerBase,filterOn=filterOn)
@@ -116,9 +116,9 @@ class TableHandlerLite(BaseComponent):
         
         pane.dataFormula('status.unlocked','!locked',locked='^status.locked',_onStart=True)
         pane.dataFormula('form.canWrite','(!locked ) && writePermission',
-                        locked='^status.locked',writePermission='=usr.writePermission',_init=True)
+                        locked='^status.locked',writePermission='=usr.writePermission',_onStart=True)
         pane.dataFormula('form.canDelete','(!locked) && deletePermission',
-                        locked='^status.locked',deletePermission='=usr.deletePermission',_init=True)
+                        locked='^status.locked',deletePermission='=usr.deletePermission',_onStart=True)
         pane.dataController("SET status.locked=true;",fire='^status.lock')
         pane.dataController("SET status.locked=false;",fire='^status.unlock',_if='unlockPermission',
                             unlockPermission='=usr.unlockPermission',
