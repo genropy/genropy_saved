@@ -153,7 +153,7 @@ class ListQueryHandler(BaseComponent):
         def buildLinkResolver(node, prevRelation, prevCaption):
             nodeattr = node.getAttr()
             if not 'name_long' in nodeattr:
-                raise str(nodeattr)
+                raise Exception(nodeattr) # FIXME: use a specific exception class
             nodeattr['caption'] = nodeattr.pop('name_long')
             nodeattr['fullcaption'] = concat(prevCaption, self._(nodeattr['caption']), ':')
             if nodeattr.get('one_relation'):

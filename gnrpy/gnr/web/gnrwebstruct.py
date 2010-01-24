@@ -894,7 +894,7 @@ class GnrGridStruct(GnrStructData):
             field,name=gnrstring.splitAndStrip(field, sep='/', n=2, fixed=2)
             fldobj = tableobj.column(field)
             if fldobj is None:
-                raise str("Unknown field %s in table %s" % (field, tableobj.fullname))
+                raise Exception("Unknown field %s in table %s" % (field, tableobj.fullname)) # FIXME: use a specific exception class
             fields.append(field)
             names.append(name or fldobj.name_long)
             width=int(width  or fldobj.print_width)

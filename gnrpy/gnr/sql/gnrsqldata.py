@@ -37,7 +37,8 @@ from gnr.core import gnrlist
 from gnr.core.gnrbag import Bag, BagResolver
 from gnr.core.gnranalyzingbag import AnalyzingBag
 from gnr.sql.gnrsql_exceptions import SelectionExecutionError,RecordDuplicateError,\
-                                      RecordNotExistingError,RecordSelectionError, GnrSqlMissingField
+                                      RecordNotExistingError,RecordSelectionError, \
+                                      GnrSqlMissingField, GnrSqlMissingColumn
 
 
 COLFINDER = re.compile(r"(\W|^)\$(\w+)")
@@ -147,7 +148,7 @@ class SqlQueryCompiler(object):
                 
                 return sql_formula
             else:
-                raise str('Invalid column %s in table %s.%s (requested field %s)' % (fld, curr.pkg_name, curr.tbl_name, '.'.join(newpath)))
+                raise GnrSqlMissingColumn('Invalid column %s in table %s.%s (requested field %s)' % (fld, curr.pkg_name, curr.tbl_name, '.'.join(newpath)))
         return '%s.%s' % (alias, fld)
         
     def _findRelationAlias(self, pathlist, curr, basealias, newpath):
@@ -162,7 +163,7 @@ class SqlQueryCompiler(object):
                 #DUBBIO: non esiste più GnrSqlBadRequest
                 #from gnr.sql.gnrsql import 
                 #raise GnrSqlBadRequest('Missing field %s in requested field %s' % (p, fieldpath))
-                raise str('Missing field %s in table %s.%s (requested field %s)' % (p, curr.pkg_name, curr.tbl_name, '.'.join(newpath)))
+                raise GnrSqlMissingField('Missing field %s in table %s.%s (requested field %s)' % (p, curr.pkg_name, curr.tbl_name, '.'.join(newpath)))
             else:
                 pathlist = tblalias.relation_path.split('.') + pathlist # set the alias table relation_path in the current path
         else:                                                           # then call _findRelationAlias recursively
