@@ -76,6 +76,18 @@ class TableHandlerLite(BaseComponent):
         
     def formBaseDimension(self):
         return dict(height='400px',width='600px')
+        
+    def filterOnBase(self,struct):
+        filterOn = []
+        for k,cell in enumerate(struct['#0']['#0']):
+            if cell.attr['dtype']=='A' or cell.attr['dtype']=='T':
+                name = cell.attr['name']
+                field = cell.attr['field']
+                if k>0:
+                    if name.startswith('!!'):
+                        name = name[2:]
+                filterOn.append('%s:%s' %(name,field))
+        return ','.join(filterOn)
     
     def main(self, root, pkey=None, **kwargs):
         condition=self.conditionBase()
@@ -88,15 +100,7 @@ class TableHandlerLite(BaseComponent):
         bc.dataController("FIRE #maingrid.reload;",_onStart=True)
         dimension = self.formBaseDimension()
         struct = self.lstBase(self.newGridStruct())
-        filterOn = []
-        for k,cell in enumerate(struct['#0']['#0']):
-            name = cell.attr['name']
-            field = cell.attr['field']
-            if k>0:
-                if name.startswith('!!'):
-                    name = name[2:]
-            filterOn.append('%s:%s' %(name,field))
-        filterOn = ','.join(filterOn)
+        filterOn = self.filterOnBase(struct)
         self.includedViewBoxRD(bc,label='!!View',datapath="selection",
                                nodeId='maingrid',table=self.maintable,
                                struct=struct,selectionPars=dict(condition=condition,order_by=self.orderBase,**condPars),
