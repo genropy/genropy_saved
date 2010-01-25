@@ -517,7 +517,7 @@ class IVBSelectionRecord(BaseComponent):
         dialogPars['datapath'] = dialogPars.get('datapath','%s.dlg' %datapath)
         dialogPars['onSaved'] = 'FIRE #%s.reload; %s' %(nodeId,dialogPars.get('onSaved',''))
         dialogPars['firedPkey'] = '^.pkey'
-        dialogPars['toolbarCb'] = self.rd_toolbar
+        dialogPars['toolbarCb'] = self._ivrd_toolbar
 
         self.recordDialog(**dialogPars)
        
@@ -596,7 +596,7 @@ class IVBSelectionRecord(BaseComponent):
         self.db.commit()
         return 'ok'
                              
-    def rd_toolbar(self,parentBC,**kwargs):
+    def _ivrd_toolbar(self,parentBC,**kwargs):
         pane = parentBC.contentPane(height='28px',overflow='hidden',**kwargs)
         tb = pane.toolbar(datapath='.#parent') #referred to the grid
         tb.button('!!First', fire_first='.navbutton', iconClass="tb_button icnNavFirst", disabled='^.atBegin', showLabel=False)
