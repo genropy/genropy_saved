@@ -27,7 +27,7 @@ from gnr.core.gnrbag import Bag
 from gnr.core.gnrstring import templateReplace
 
 class TableHandlerLight(BaseComponent):
-    py_requires="foundation/includedview:IVBSelectionRecord"
+    py_requires="gnrcomponents/selectionhandler"
     css_requires = 'standard_tables/tablehandler'
     js_requires = 'standard_tables/tablehandler'
 
@@ -110,7 +110,7 @@ class TableHandlerLight(BaseComponent):
         dimension = self.formBaseDimension()
         struct = self.lstBase(self.newGridStruct())
         filterOn = self.filterOnBase(struct)
-        self.includedViewBoxRD(bc,label=self.gridLabel(),datapath="selection",
+        self.selectionHandler(bc,label=self.gridLabel(),datapath="selection",
                                nodeId='maingrid',table=self.maintable,
                                print_action=self.printActionBase(),
                                export_action=self.exportActionBase(),
