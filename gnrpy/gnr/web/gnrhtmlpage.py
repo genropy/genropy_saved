@@ -47,7 +47,6 @@ class GnrHtmlPage(GnrWebPage):
             self.builder.head.style(import_statements+';', type="text/css", media=css_media)
     
     def rootPage(self, *args, **kwargs):
-        print kwargs
         self.builder.initializeSrc(_class=self.theme)
         self.body = self.builder.body
         kwargs = kwargs or {}
