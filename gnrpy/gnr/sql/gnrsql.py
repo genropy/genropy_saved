@@ -22,6 +22,7 @@
 
 __version__='1.0b'
 
+import sys
 import re
 from gnr.core.gnrlog import gnrlogging
 gnrlogger = gnrlogging.getLogger('gnr.sql.gnrsql')
@@ -76,7 +77,10 @@ class GnrSqlDb(GnrObject):
         # GnrSqlDb instantiates the SqlDbAdapter specified by 
         # the parameter implementation.
         #self.adapter = globals()['gnr%s' % implementation].SqlDbAdapter(self)
-        self.adapter = gnrImport('gnr.sql.adapters.gnr%s' % implementation).SqlDbAdapter(self)
+        module = 'gnr.sql.adapters.gnr%s' % implementation
+        if module not in sys.modules:
+            __import__(module)
+        self.adapter = sys.modules[module].SqlDbAdapter(self)
         self.whereTranslator = self.adapter.getWhereTranslator()
         if main_schema is None: 
             main_schema = self.adapter.defaultMainSchema()

@@ -20,6 +20,8 @@
 #License along with this library; if not, write to the Free Software
 #Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 
+import sys
+
 import re
 import select
 
@@ -396,6 +398,7 @@ class SqlDbAdapter(SqlDbBaseAdapter):
 
 class GnrDictConnection(_connection):
     """A connection that uses DictCursor automatically."""
+    
     _lock = threading.Lock()
     def __init__(self,*args,**kwargs):
         super(GnrDictConnection,self).__init__(*args,**kwargs)
@@ -404,9 +407,9 @@ class GnrDictConnection(_connection):
         self._lock.acquire()
         try:
             if name:
-                cur = _connection.cursor(self, name, cursor_factory=GnrDictCursor)
+                cur = super(GnrDictConnection, self).cursor(name, cursor_factory=GnrDictCursor)
             else:
-                cur = _connection.cursor(self, cursor_factory=GnrDictCursor)
+                cur = super(GnrDictConnection, self).cursor(cursor_factory=GnrDictCursor)
         finally:
             self._lock.release()
         return cur
