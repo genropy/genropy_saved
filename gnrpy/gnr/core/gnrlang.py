@@ -45,7 +45,12 @@ def deprecated(func):
     newFunc.__doc__ = func.__doc__
     newFunc.__dict__.update(func.__dict__)
     return newFunc
-
+    
+def importModule(module):
+    if module not in sys.modules:
+        __import__(module)
+    return sys.modules[module]
+        
 def timer_call(time_list=[],print_time=True):
     def decore(func):
         def wrapper(*arg,**kw):
