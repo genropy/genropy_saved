@@ -43,6 +43,9 @@ class SqlTable(GnrObject):
         self.name_long = tblobj.name_long
         self.name_plural = tblobj.name_plural
         
+
+    def __repr__(self):
+        return "<SqlTable %s>" % repr(self.fullname)
     
     def _get_model(self):
         """property model.
