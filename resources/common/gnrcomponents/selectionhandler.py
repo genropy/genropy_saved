@@ -29,7 +29,8 @@ class SelectionHandler(BaseComponent):
     def selectionHandler(self,bc,nodeId=None,table=None,datapath=None,struct=None,label=None,
                          selectionPars=None,dialogPars=None,reloader=None,externalChanges=None,
                          hiddencolumns=None,custom_addCondition=None,custom_delCondition=None,
-                         askBeforeDelete=True,checkMainRecord=True,**kwargs):
+                         askBeforeDelete=True,checkMainRecord=True,onDeleting=None,
+                         onDeleted=None,**kwargs):
         assert dialogPars,'dialogPars are Mandatory'
         assert not 'table' in dialogPars, 'take the table of the grid'
         assert not 'firedPkey' in dialogPars, 'auto firedPkey'
@@ -76,9 +77,10 @@ class SelectionHandler(BaseComponent):
                                     _fired="^.delete_record",title='!!Warning',
                                     msg='!!You cannot undo this operation. Do you want to proceed?',
                                     _if=askBeforeDelete)
+        onDeleted = onDeleted or ''
         controller.dataRpc('.dummy','iv_delete_selected_record',record='=.selectedId',table=table,
-                            _confirmed='^.confirm_delete',_if='_confirmed=="confirm"',
-                            _onResult='FIRE .reload')
+                            _confirmed='^.confirm_delete',_if='_confirmed=="confirm"',_onCalling=onDeleting,
+                            _onResult='FIRE .reload; %s' %onDeleted)
         controller.dataController("""
                                  var form = genro.formById(gridId+'_form');
                                  if(!form.changed){
