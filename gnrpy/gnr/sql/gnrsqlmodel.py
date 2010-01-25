@@ -204,6 +204,8 @@ class DbModel(object):
         @param pkg: package name"""
         if '.' in tblname:
             pkg, tblname = tblname.split('.')[:2]
+        if pkg is None:
+            raise ValueError("table() called with '%(tblname)s' instead of '<packagename>.%(tblname)s'" % {'tblname': tblname})
         #if pkg is None:
         #    pkg = self.obj.keys()[0]
         return self.obj[pkg].table(tblname)
