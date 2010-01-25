@@ -16,4 +16,6 @@ from gnr.web.gnrbaseclasses import BaseComponent
 
 class TableHandler(BaseComponent):
     py_requires='standard_tables/tablehandler'
-    print 'please direct require "standard_tables/tablehandler" '
+    
+class TableHandlerLight(BaseComponent):
+    py_requires='standard_tables/tablehandler_light'
