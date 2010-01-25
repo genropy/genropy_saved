@@ -26,7 +26,7 @@ from gnr.sql.gnrsql_exceptions import GnrSqlException,GnrSqlSaveChangesException
 from gnr.core.gnrbag import Bag
 from gnr.core.gnrstring import templateReplace
 
-class TableHandlerLite(BaseComponent):
+class TableHandlerLight(BaseComponent):
     py_requires="foundation/includedview:IVBSelectionRecord"
     css_requires = 'standard_tables/tablehandler'
     js_requires = 'standard_tables/tablehandler'
