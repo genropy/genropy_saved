@@ -404,9 +404,9 @@ class GnrDictConnection(_connection):
         self._lock.acquire()
         try:
             if name:
-                cur = super(GnrDictConnection,self).cursor(name, cursor_factory=GnrDictCursor)
+                cur = _connection.cursor(self, name, cursor_factory=GnrDictCursor)
             else:
-                cur = super(GnrDictConnection,self).cursor(cursor_factory=GnrDictCursor)
+                cur = _connection.cursor(self, cursor_factory=GnrDictCursor)
         finally:
             self._lock.release()
         return cur

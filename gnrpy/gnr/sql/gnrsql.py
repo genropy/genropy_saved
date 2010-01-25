@@ -196,7 +196,7 @@ class GnrSqlDb(GnrObject):
                 self.debugger(debugtype='sql',sql=sql, sqlargs=sqlargs,dbtable=dbtable, error=str(e))
             #raise str('error %s executing:%s - with kwargs:%s \n\n' % (str(e), sql, unicode(sqlargs).encode('ascii', 'ignore')))
             self.rollback()
-            raise e
+            raise
         if autocommit:
             self.commit()
         return cursor
@@ -206,7 +206,7 @@ class GnrSqlDb(GnrObject):
         @param tblobj: the table object
         @param record: an object implementing dict interface as colname, colvalue
         """
-        newkey = tblobj.checkPkey(record)
+        tblobj.checkPkey(record)
         tblobj._doFieldTriggers('onInserting', record)
         tblobj.trigger_onInserting(record)
         self.adapter.insert(tblobj, record)
