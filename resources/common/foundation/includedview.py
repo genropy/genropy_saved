@@ -498,7 +498,7 @@ class IVBSelectionRecord(BaseComponent):
     def includedViewBoxRD(self,bc,nodeId=None,table=None,datapath=None,struct=None,label=None,
                          selectionPars=None,dialogPars=None,reloader=None,externalChanges=None,
                          hiddencolumns=None,custom_addCondition=None,custom_delCondition=None,
-                         askBeforeDelete=True,checkMainRecord=True,record_datapath=None,**kwargs):
+                         askBeforeDelete=True,checkMainRecord=True,**kwargs):
         assert dialogPars,'dialogPars are Mandatory'
         assert not 'table' in dialogPars, 'take the table of the grid'
         assert not 'firedPkey' in dialogPars, 'auto firedPkey'
@@ -515,16 +515,15 @@ class IVBSelectionRecord(BaseComponent):
         dialogPars['dlgId'] = dlgId
         dialogPars['formId'] = dialogPars.get('formId',"%s_form" %nodeId)
         dialogPars['datapath'] = dialogPars.get('datapath','%s.dlg' %datapath)
-        dialogPars['record_datapath'] = record_datapath
         dialogPars['onSaved'] = 'FIRE #%s.reload; %s' %(nodeId,dialogPars.get('onSaved',''))
         dialogPars['firedPkey'] = '^.pkey'
         dialogPars['toolbarCb'] = self.rd_toolbar
 
         self.recordDialog(**dialogPars)
        
-        connect_onRowDblClick='FIRE #%s.pkey = GET .selectedId;' %dlgId
+        connect_onRowDblClick='FIRE .dlg.pkey = GET .selectedId;'
         self.includedViewBox(bc,label=label,datapath=datapath,
-                             add_action='FIRE #%s.pkey="*newrecord*";'%dlgId,
+                             add_action='FIRE .dlg.pkey="*newrecord*";',
                              add_enable='^.can_add',del_enable='^.can_del',
                              del_action='FIRE .delete_record;',
                              nodeId=nodeId,table=table,struct=struct,hiddencolumns=hiddencolumns,
@@ -564,7 +563,7 @@ class IVBSelectionRecord(BaseComponent):
                               """, btn='^.navbutton', 
                                 title='!!Warning',
                                 msg='!!There are unsaved changes',
-                                save='!!Save',save_act='FIRE #%s.saveAndChangeIn' %dlgId,
+                                save='!!Save',save_act='FIRE .dlg.saveAndChangeIn',
                                 dont_save='!!Do not save',
                                 cancel='!!Cancel',gridId=nodeId)
         controller.dataController("""
@@ -579,12 +578,12 @@ class IVBSelectionRecord(BaseComponent):
                                     SET .selectedIndex = newidx;
                                     var selectedId = btn=='new'?'*newrecord*':genro.wdgById(gridId).rowIdByIndex(newidx);
                                     if(changeAnyway){
-                                        SET #%s.current_pkey = selectedId;
-                                        FIRE #%s.load;
+                                        SET .dlg.current_pkey = selectedId;
+                                        FIRE .dlg.load;
                                     }else if(saveAndChange){
-                                        FIRE #%s.saveAndChangeIn = selectedId;
+                                        FIRE .dlg.saveAndChangeIn = selectedId;
                                     }
-                                    """%(dlgId,dlgId,dlgId),saveAndChange="^.saveAndChange",
+                                    """,saveAndChange="^.saveAndChange",
                                     changeAnyway='^.changeAnyway',gridId=nodeId,
                                     idx='=.selectedIndex')
         controller.dataFormula('.atBegin','(idx==0)',idx='^.selectedIndex')

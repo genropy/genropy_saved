@@ -70,7 +70,8 @@ class RecordDialog(BaseComponent):
             dlgPars['connect_show']=onShow     
         if centerOn:
             dlgPars['centerOn']=centerOn             
-        dlg = page.dialog(nodeId=dlgId,title=title,datapath=controllerPath,**dlgPars)
+        dlg = page.dialog(nodeId=dlgId,title=title,
+                        datapath=controllerPath,**dlgPars)
         dlgBC = dlg.borderContainer(height=height, nodeId='%s_layout' %dlgId,
                                     width=width, _class=_class,
                                     sqlContextName=sqlContextName,
@@ -79,14 +80,14 @@ class RecordDialog(BaseComponent):
         self._recordDialogController(dlgBC,dlgId,formId,controllerPath,
                                     table,saveKwargs,loadKwargs,firedPkey,sqlContextName,
                                     onSaved,onClosed,savePath,savingMethod,loadingMethod,
-                                    loadingParameters,validation_failed,**kwargs)
+                                    loadingParameters,validation_failed,record_datapath,**kwargs)
                                     
         self._recordDialogLayout(dlgBC,dlgId,formId,controllerPath,table,formCb,bottomCb,toolbarCb,record_datapath)
 
     def _recordDialogController(self,pane,dlgId,formId,controllerPath,
                                 table,saveKwargs,loadKwargs,firedPkey,sqlContextName,
                                 onSaved,onClosed,savePath,savingMethod,loadingMethod,
-                                loadingParameters,validation_failed,**kwargs):
+                                loadingParameters,validation_failed,record_datapath,**kwargs):
         onSaved = onSaved or ''
         onSaved = 'FIRE %s.afterSaving; %s' %(controllerPath,onSaved)
         
@@ -132,14 +133,13 @@ class RecordDialog(BaseComponent):
                                dlgNode.widget.onCancel();
                                if (onClosed){
                                    funcCreate(onClosed, 'exitAction').call(dlgNode,exitAction);
-                               } 
-
+                               }
                             """%dlgId, exitAction ='^.exitAction', onClosed=onClosed)
         
         loadingParameters = loadingParameters or '=gnr.tables.%s.loadingParameters' %table.replace('.','_')
         loadKwargs = dict(loadKwargs)
         loadKwargs.update(**kwargs)
-        self.formLoader(formId,resultPath='.record',
+        self.formLoader(formId,resultPath=record_datapath or '.record',
                         table=table,pkey='=.current_pkey',
                         method=loadingMethod,loadingParameters=loadingParameters,
                         datapath=controllerPath,
@@ -153,7 +153,7 @@ class RecordDialog(BaseComponent):
                                     SET .stackPane = 0;
                                 }else{
                                     SET .stackPane = 1;
-                            }""",
+                                }""",
                             loading='^gnr.forms.%s.loading' %formId)
         pane.dataController("""if(save_failed == "nochange"){
                                         FIRE .exitAction='nochange';

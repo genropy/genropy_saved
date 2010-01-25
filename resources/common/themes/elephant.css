@@ -433,6 +433,7 @@ padding-bottom: 5px;
 	text-decoration: underline;
 }
 .menupane{
+	overflow: auto;
 	background-color: #8c8681;
 	margin-right: 8px;
 	margin-top: 8px;

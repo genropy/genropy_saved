@@ -116,9 +116,9 @@ class TableHandlerLite(BaseComponent):
                                export_action=self.exportActionBase(),
                                struct=struct,selectionPars=dict(where=condition,order_by=self.orderBase,**condPars),
                                dialogPars=dict(height=dimension['height'],width=dimension['width'],
-                                              record_datapath='form.record',
-                                              title='^form.title',formCb=self.formBase,
-                                              dlgPars=dict(centerOn="mainBC_center")),
+                                               record_datapath='form.record',
+                                               title='^form.title',formCb=self.formBase,
+                                               dlgPars=dict(centerOn="mainBC_center")),
                                 checkMainRecord=False,
                                footer=self.footerBase,filterOn=filterOn)
     def footerBase(self,pane,**kwargs):
