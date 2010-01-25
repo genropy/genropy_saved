@@ -30,53 +30,53 @@ class TableHandlerLite(BaseComponent):
     py_requires="foundation/includedview:IVBSelectionRecord"
     css_requires = 'standard_tables/tablehandler'
     js_requires = 'standard_tables/tablehandler'
-    
+
     def userCanWrite(self):
         return self.application.checkResourcePermission(self.tableWriteTags(), self.userTags)
-    
+
     def userCanDelete(self):
         return self.application.checkResourcePermission(self.tableDeleteTags(), self.userTags)
-    
+
     def tableWriteTags(self):
          return 'superadmin'
-    
+
     def tableDeleteTags(self):
          return 'superadmin'
-    
+
     def rpc_onLoadingSelection(self,selection):
         """ovverride if you need"""
         pass
-        
+
     def rowsPerPage(self):
         return 25
-    
+
     def hierarchicalViewConf(self):
         return None
-    
+
     def conditionBase(self):
         return (None,None)
-        
+
     def filterBase(self):
         return
-        
+
     def tableRecordCount(self):
         """redefine to avoid the count query"""
         return True
-        
+
     def formTitleBase(self,pane):
         pane.data('form.title',self.tblobj.attributes.get('name_long','Record'))
-        
+
     def columnsBase(self):
         return ''
-    
+
     def lstBase(self, struct):
         r=struct.view().rows()
         r.fields(self.columnsBase())
         return struct
-        
+
     def formBaseDimension(self):
         return dict(height='400px',width='600px')
-        
+
     def filterOnBase(self,struct):
         filterOn = []
         for k,cell in enumerate(struct['#0']['#0']):
@@ -88,26 +88,29 @@ class TableHandlerLite(BaseComponent):
                         name = name[2:]
                 filterOn.append('%s:%s' %(name,field))
         return ','.join(filterOn)
-        
+
     def printActionBase(self):
         return False
-        
+
     def exportActionBase(self):
         return True
-    
+
+    def gridLabel(self):
+        return None
+
     def main(self, root, pkey=None, **kwargs):
         condition=self.conditionBase()
         condPars={}
         if condition:
             condPars=condition[1] or {}
             condition=condition[0]
-            
+
         bc,top,bottom = self.pbl_rootBorderContainer(root,title='^list.title_bar',id='mainBC_center',margin='5px')
         bc.dataController("FIRE #maingrid.reload;",_onStart=True)
         dimension = self.formBaseDimension()
         struct = self.lstBase(self.newGridStruct())
         filterOn = self.filterOnBase(struct)
-        self.includedViewBoxRD(bc,label='!!View',datapath="selection",
+        self.includedViewBoxRD(bc,label=self.gridLabel(),datapath="selection",
                                nodeId='maingrid',table=self.maintable,
                                print_action=self.printActionBase(),
                                export_action=self.exportActionBase(),
@@ -124,7 +127,7 @@ class TableHandlerLite(BaseComponent):
         pane.data('usr.unlockPermission',self.userCanDelete() or self.userCanWrite())
         pane.data('status.locked',True)
         pane.dataFormula('status.unlocked','!locked',locked='^status.locked',_init=True)
-        
+
         pane.dataFormula('status.unlocked','!locked',locked='^status.locked',_onStart=True)
         pane.dataFormula('form.canWrite','(!locked ) && writePermission',
                         locked='^status.locked',writePermission='=usr.writePermission',_onStart=True)
@@ -153,5 +156,4 @@ class TableHandlerLite(BaseComponent):
         fb = pane.formbuilder(cols=15,border_spacing='2px')
         for func_name in bottomPane_list:
             getattr(self,func_name)(fb.div(datapath='.%s' %func_name[11:]))
-        
-                          
+

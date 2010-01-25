@@ -37,7 +37,7 @@
 	margin-top: 5px;
 }
 
-
+	
 .pbl_root_top {
 	height: 24px;
 	vertical-align: middle;
@@ -48,8 +48,8 @@
 	color: #F5F5F5;
 	border-color: rgba(77,89,98,0.99) ;
 	background-color: #4D5962;
-    background-image:-webkit-gradient(linear, 0% 0%, 0% 90%, from(rgba(77,89,98,0.99)), to(rgba(94,143,140,0.9)));
-    background-image:-moz-linear-gradient(top, bottom,from(rgba(77,89,98,0.99)), to(rgba(94,143,140,0.9)));
+    background-image:-webkit-gradient(linear, 0% 0%, 0% 90%, from(rgba(77,89,98,0.99)), to(rgba(101,135,142,0.9)));
+    background-image:-moz-linear-gradient(top, bottom,from(rgba(77,89,98,0.99)), to(rgba(101,135,142,0.9)));
 }
 	/*background-color: #59514f;
 	color: #ece3da;*/
@@ -116,6 +116,8 @@
 	-moz-border-radius-bottomright:6px;
     -webkit-border-bottom-left-radius:6px;
 	-webkit-border-bottom-right-radius:6px;
+	background-image:-webkit-gradient(linear, 0% 0%, 0% 90%, from(rgba(101,135,142,0.9)), to(rgba(77,89,98,0.99)));
+    background-image:-moz-linear-gradient(top, bottom,from(rgba(101,135,142,0.9)), to(rgba(77,89,98,0.99)));
 }
 
 .pbl_root_center{
@@ -223,7 +225,7 @@ padding-bottom: 5px;
 	bottom:5px;
 	right:5px;  
 	border:0px;
-	background-color: #fbf2e7;
+	background-color: #E1E9E9;
 	text-align:center;
 	vertical-align: middle;
 	font-size:1em;
@@ -238,6 +240,8 @@ padding-bottom: 5px;
 
 ._common_d11 .dijitDialogTitleBar{
 	background:#4D5962 none repeat scroll 0 0;
+	background-image:-webkit-gradient(linear, 0% 0%, 0% 90%, from(rgba(77,89,98,0.99)), to(rgba(101,135,142,0.9)));
+    background-image:-moz-linear-gradient(top, bottom,from(rgba(77,89,98,0.99)), to(rgba(101,135,142,0.9)));
 	color:#F5F5F5;
 	vertical-align: middle;
 	-moz-border-radius-topleft:6px;
@@ -269,7 +273,7 @@ padding-bottom: 5px;
 
 }
 .dialog_bottom{
-	background-color: rgba(201,224,237,0.5);
+	background-color: #E1E9E9;
 	font-weight: bold;
 	height: 26px;
 	padding-top:3px;
