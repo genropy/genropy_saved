@@ -60,7 +60,7 @@ class RecordDialog(BaseComponent):
         
         sqlContextName='sqlcontext_%s' %tableId
         controllerPath = datapath or 'aux_forms.%s' % tableId
-        sqlContextRoot= '%s.record' % controllerPath
+        sqlContextRoot= record_datapath or '%s.record' % controllerPath
         title = title or '^.record?caption'
         page = pane
         if page is None:
