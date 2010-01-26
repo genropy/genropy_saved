@@ -78,9 +78,9 @@ class SelectionHandler(BaseComponent):
                                     msg='!!You cannot undo this operation. Do you want to proceed?',
                                     _if=askBeforeDelete)
         onDeleted = onDeleted or ''
-        controller.dataRpc('.dummy','iv_delete_selected_record',record='=.selectedId',table=table,
+        controller.dataRpc('.deletedPkey','iv_delete_selected_record',record_id='=.selectedId',table=table,
                             _confirmed='^.confirm_delete',_if='_confirmed=="confirm"',_onCalling=onDeleting,
-                            _onResult='FIRE .reload; %s' %onDeleted)
+                            _onResult='FIRE .afterDeleting; FIRE .reload; %s' %onDeleted)
         controller.dataController("""
                                  var form = genro.formById(gridId+'_form');
                                  if(!form.changed){
@@ -122,12 +122,12 @@ class SelectionHandler(BaseComponent):
         controller.dataFormula('.atBegin','(idx==0)',idx='^.selectedIndex')
         controller.dataFormula('.atEnd','(idx==genro.wdgById(gridId).rowCount-1)',idx='^.selectedIndex',gridId=nodeId)
                             
-    def rpc_iv_delete_selected_record(self,record,table):
+    def rpc_iv_delete_selected_record(self,record_id,table):
         tblobj = self.db.table(table)
-        record = tblobj.record(pkey=record,for_update=True).output('dict')
+        record = tblobj.record(pkey=record_id,for_update=True).output('dict')
         tblobj.delete(record)
         self.db.commit()
-        return 'ok'
+        return record_id
                              
     def _ivrd_toolbar(self,parentBC,**kwargs):
         pane = parentBC.contentPane(height='28px',overflow='hidden',**kwargs)
