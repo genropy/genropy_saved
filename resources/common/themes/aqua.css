@@ -144,25 +144,25 @@
 /* @group includedviewbox */
 
 .pbl_viewBox{
-background-color: #E1E9E9;
-padding:5px;
--moz-border-radius-bottomleft:6px;
--moz-border-radius-bottomright:6px;
--webkit-border-bottom-left-radius:6px;
--webkit-border-bottom-right-radius:6px;
+	background-color: #E1E9E9;
+	padding:5px;
+	-moz-border-radius-bottomleft:6px;
+	-moz-border-radius-bottomright:6px;
+	-webkit-border-bottom-left-radius:6px;
+	-webkit-border-bottom-right-radius:6px;
 }
 
 .pbl_viewBoxLabel{
-height:18px;
-background-color:#97AEA9;
--moz-border-radius-topleft:6px;
--moz-border-radius-topright:6px;
--webkit-border-top-left-radius:6px;
--webkit-border-top-right-radius:6px;
-padding-left:10px ;
-font-size: 0.9em;
-padding-top: 3px;
-padding-bottom: 2px;
+	height:18px;
+	background-color:#97AEA9;
+	-moz-border-radius-topleft:6px;
+	-moz-border-radius-topright:6px;
+	-webkit-border-top-left-radius:6px;
+	-webkit-border-top-right-radius:6px;
+	padding-left:10px ;
+	font-size: 0.9em;
+	padding-top: 3px;
+	padding-bottom: 2px;
 }
 
 
@@ -175,36 +175,37 @@ padding-bottom: 2px;
 
 /* @group Form group */
 .pbl_roundedGroup{
--moz-border-radius:6px;
--webkit-border-radius:6px;
-border-radius:6px;
-background-color: #E1E9E9;
+	-moz-border-radius:6px;
+	-webkit-border-radius:6px;
+	border-radius:6px;
+	background-color: #E1E9E9;
 }
 
 .pbl_roundedGroupLabel{
-height:18px;
-background-color:#97AEA9;
--moz-border-radius-topleft:6px;
--moz-border-radius-topright:6px;
--webkit-border-top-left-radius:6px;
--webkit-border-top-right-radius:6px;
-padding-left:10px ;
-font-size: 0.9em;
-padding-top: 5px;
+	height:18px;
+	background-color:#97AEA9;
+	-moz-border-radius-topleft:6px;
+	-moz-border-radius-topright:6px;
+	-webkit-border-top-left-radius:6px;
+	-webkit-border-top-right-radius:6px;
+	padding-left:10px ;
+	font-size: 0.9em;
+	padding-top: 5px;
+	background-image:-webkit-gradient(linear, left top, right bottom, from(rgba(151,174,169,99)), to(rgba(225,233,233,0.99)));
+    background-image:-moz-linear-gradient(left, right,from(rgba(151,174,169,99)), to(rgba(225,233,233,0.99)));
 }
+
 .pbl_roundedGroupBottom{
-height:18px;
-background-color:#97AEA9;
--moz-border-radius-bottomleft:6px;
--moz-border-radius-bottomright:6px;
--webkit-border-bottom-left-radius:6px;
--webkit-border-bottom-right-radius:6px;
-padding-left:10px ;
-font-size: 0.9em;
-padding-bottom: 5px;
+	height:18px;
+	background-color:#97AEA9;
+	-moz-border-radius-bottomleft:6px;
+	-moz-border-radius-bottomright:6px;
+	-webkit-border-bottom-left-radius:6px;
+	-webkit-border-bottom-right-radius:6px;
+	padding-left:10px ;
+	font-size: 0.9em;
+	padding-bottom: 5px;
 }
-
-
 
 /* @end */
 
@@ -295,7 +296,7 @@ padding-bottom: 5px;
 	-webkit-border-top-right-radius:7px;
 }
 ._common_d11 .dijitAccordionTitle{
-	background: #bfb6ae;
+	background: #E0CEBE;
 	padding: 4px 4px 4px 8px;
 	-moz-border-radius-topleft:8px;
 	-moz-border-radius-topright:8px;
@@ -305,7 +306,7 @@ padding-bottom: 5px;
 }
 
 ._common_d11 .dijitAccordionTitle-selected{
-	background: #59514f;
+	background: #4D5962;
 	color: white;
 	padding: 5px 4px 5px 8px;
 }
@@ -316,15 +317,20 @@ padding-bottom: 5px;
 
 /* @end */
 
+.mycolor{color: #68858e;}
+.mycolor2{color: rgba(245,245,245,0.99);}
 /* @group Tabcontainer */
 
 ._common_d11 .dijitTab{
 	font-size: .9em;
-    background:#F5F5F5 none repeat scroll 0 0;
+    background:#97AEA9 none repeat scroll 0 0;
 	-moz-border-radius-topleft:6px;
 	-moz-border-radius-topright:6px;
     -webkit-border-top-left-radius:6px;
 	-webkit-border-top-right-radius:6px;
+		/*background-image:-webkit-gradient(linear, 0% 0%, 0% 90%, from(rgba(104,133,142,0.99)), to(rgba(223,223,223,0.99)));
+    background-image:-moz-linear-gradient(top, bottom,from(rgba(104,133,142,0.99)), to(rgba(223,223,223,0.99)));*/
+	
 }
 ._common_d11 .dijitTabHover{
 	opacity: 0.8;
@@ -340,10 +346,11 @@ padding-bottom: 5px;
 ._common_d11 .dijitTabChecked{
     background: #9E856F;
     border-bottom-color: #9E856F;
+    color: #F5F5F5;
 }
 ._common_d11 .dijitAlignTop .dijitTabChecked, ._common_d11 .dijitAlignTop .dijitTabCloseButtonChecked{
-	border-bottom-color:silver;
-    background-color: silver;
+	border-bottom-color: #68858e;
+    background-color: #68858e;
 }
 
 ._common_d11 .dijitTabPaneWrapper{
@@ -415,7 +422,7 @@ padding-bottom: 5px;
     -webkit-border-radius:6px;
     padding:0px;
     border: 0;
-    background: #676767;
+    background: #68858E;
 	font-size: inherit;
 }
 
