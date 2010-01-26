@@ -185,7 +185,9 @@ dojo.declare("gnr.GnrFrmHandler",null,{
         if ( kw.reason=='selected_' && kw.pathlist[0][0]=='@'){// avoid to change related records from dbselect
             return;
         }*/
-        if (kw.node.label[0]=='$') {return;};
+        if (kw.node.label[0]=='$') {
+            return;
+        };
         if(kw.value instanceof gnr.GnrBag){
             //console.log('dataChangeLogger event: ' + kw.evt + ' is Bag ' + path)
         } else if (kw.evt=='upd' && kw.updvalue){
