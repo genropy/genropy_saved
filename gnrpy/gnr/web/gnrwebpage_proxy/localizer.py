@@ -10,6 +10,7 @@ import os
 import hashlib
 from gnr.core.gnrbag import Bag
 from gnr.web.gnrwebpage_proxy.gnrbaseproxy import GnrBaseProxy
+import time
 
 class GnrWebLocalizer(GnrBaseProxy):
     
