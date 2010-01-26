@@ -8,7 +8,7 @@
 #
 from gnr.core.gnrbag import Bag, DirectoryResolver
 import os
-from gnr.core.gnrlang import gnrImport, classMixin, cloneClass
+from gnr.core.gnrlang import gnrImport, classMixin, cloneClass, instanceMixin
 from gnr.core.gnrstring import splitAndStrip
 from gnr.core.gnrsys import expandpath
 
