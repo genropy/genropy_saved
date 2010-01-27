@@ -84,17 +84,21 @@ class MultiSelect(BaseComponent):
                             selectionPars=selectionPars,nodeId=nodeId,**viewpars)
         if showSelected:
             selectionPars_result = dict(where='$%s IN :checked' %self.db.table(table).pkey,
-                                    checked=values,_if='checked')
+                                    checked='=%s' %values,_if='checked')
 
             self.includedViewBox(stack.borderContainer(_class='hide_row_checker'),nodeId='%s_result' %nodeId,
                                     datapath='.resultgrid',selectionPars=selectionPars_result,
                                     **viewpars)
                                     
     def rpc_ms_setCheckedOnReload(self,selection,checkedRows=None,callAfter=None,**kwargs):
+        checkedRows = checkedRows or []
+        print checkedRows
         def cb(row):
             result = dict(_checkedrow=False)
             if row['pkey'] in checkedRows:
                 result['_checkedrow'] = True
+            else:
+                result['_checkedrow'] = False
             return result
         selection.apply(cb)
         if callAfter:
