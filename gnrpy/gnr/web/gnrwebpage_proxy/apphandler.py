@@ -763,9 +763,7 @@ class GnrWebAppHandler(GnrBaseProxy):
                     recInfo['locking_%s'%f]=aux[f]
         loadingParameters = loadingParameters or {}
         defaultParameters=dict([(k[8:],v) for k,v in kwargs.items() if k.startswith('default_')])
-        if defaultParameters and newrecord:
-             self.setRecordDefaults(record,defaultParameters)
-             loadingParameters.update(defaultParameters)
+        loadingParameters.update(defaultParameters)
         method = None
         if loadingParameters:
             method = loadingParameters.pop('method',None)
@@ -780,6 +778,8 @@ class GnrWebAppHandler(GnrBaseProxy):
             handler = getattr(self.page, method, None)
             
         if handler:
+            if defaultParameters and newrecord:
+                self.setRecordDefaults(record,defaultParameters)
             handler(record, newrecord, loadingParameters,recInfo)
         elif newrecord and loadingParameters:
             self.setRecordDefaults(record,loadingParameters)

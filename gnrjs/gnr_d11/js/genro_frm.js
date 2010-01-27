@@ -219,7 +219,9 @@ dojo.declare("gnr.GnrFrmHandler",null,{
         }
     },
     triggerINS: function(kw){
-        if (kw.node.label[0]=='$') {return;};
+        if (kw.node.getFullpath().indexOf('$')>0) {
+            return;
+        };
         if(kw.reason == 'autocreate' || kw.reason == '_removedRow'){ // || kw.reason==true){
             return;
         }
