@@ -25,6 +25,30 @@ from gnr.core.gnrstring import templateReplace, splitAndStrip
 import os
 
 class SelectionHandler(BaseComponent):
+    """
+    To use it you should include  py_requires="selectionhandler"
+    
+    selectionHandler is a new component that is used as a replacement for includedView and recordDialog. 
+    It adds a navigation toolbar for first, previous, next and last.
+    It adds a + button to add new records from within the dialog
+    It manages automatically:
+    - all the dataControllers for add and delete .
+    - the the add_action and del_action.
+    - the connect_onRowDblClick parameter.
+    
+    To replace an includedView and recordDialog do the following:
+    comment out:
+        #add_action
+        #del_action
+        #addOnCb
+        #connect_onRowDblClick="""FIRE .firedPkey = this.widget.rowIdByIndex($1.rowIndex);"""
+        #controllers that manage delete or add
+        
+    add a new parameter to replace the recordDialog function, having all parameters of the recordDialog
+        passed into a dictionary, except for: onSaved='FIRE #contact_logGrid.reload;',
+        dialogPars=dict(
+    
+    """
     py_requires='foundation/includedview:IncludedView,foundation/recorddialog'
     def selectionHandler(self,bc,nodeId=None,table=None,datapath=None,struct=None,label=None,
                          selectionPars=None,dialogPars=None,reloader=None,externalChanges=None,
