@@ -64,7 +64,7 @@ class BagFromXml(object):
                     source = ''.join(source)
                     testmode = True
                 else:
-                    raise _BagXmlException(fromFile, l[1].args[0])
+                    raise _BagXmlException(source, l[1].args[0])
         if testmode:
             result = self.do_build(source, fromFile, catalog=catalog,bagcls=bagcls,empty=empty)
         return result
