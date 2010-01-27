@@ -657,6 +657,8 @@ class GnrWebPage(GnrBaseWebPage):
     ##### END: DEPRECATED METHODS #####
     
 class GnrMakoPage(GnrWebPage):
+    
     def onIniting(self, request_args, request_kwargs):
-        request_kwargs['mako']=self.mako_template()
+        request_kwargs['_plugin']='mako'
+        request_kwargs['path']=self.mako_template()
     
