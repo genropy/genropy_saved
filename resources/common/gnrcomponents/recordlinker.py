@@ -48,16 +48,18 @@ class RecordLinker(BaseComponent):
                             border_top='0px',style="""-moz-border-radius-bottomleft:6px;
                                                       -moz-border-radius-bottomright:6px;
                                                     """)
+        editAction = 'FIRE #%s.pkey = GET %s;' %(dialogPars['dlgId'], value[1:])
+        print editAction
         selectorViewer.button('!!Edit',baseClass='no_background',showLabel=False,
                     right='2px',z_index='100',bottom='2px',position='absolute',
-                    action='FIRE #%s.pkey = GET %s;' %(dialogPars['dlgId'], value[1:]),
+                    action=editAction,
                     iconClass='icnBaseEdit',disabled=disabled)
           
         assert not 'firedPkey' in dialogPars, 'firedPkey is used by the component'     
         assert not 'savedPath' in dialogPars, 'savedPath is used by the component'                  
              
         selectorBox.dataRecord(record_path,table,pkey=value,_if='pkey')
-        selectorBox.dataController("FIRE %s = savedId;" %value[1:],
+        selectorBox.dataController("SET %s = savedId;" %value[1:],
                                     savedId='=#%s.savedId' %dialogPars['dlgId'],
                                     _fired='^#%s.recordSaved' %dialogPars['dlgId'])
         onSaved = ''
