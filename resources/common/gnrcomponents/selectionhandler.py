@@ -38,6 +38,7 @@ class SelectionHandler(BaseComponent):
     
     To replace an includedView and recordDialog do the following:
     comment out:
+        replace the call to includedView with a call to recordHandler
         #add_action
         #del_action
         #addOnCb
