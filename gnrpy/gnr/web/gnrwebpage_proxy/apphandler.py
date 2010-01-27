@@ -432,7 +432,7 @@ class GnrWebAppHandler(GnrBaseProxy):
             columns = [c for c in selection.allColumns if not c in ('pkey','rowidx')]
         outdata = selection.output('dictlist', columns=columns, asIterator=True)
         colAttrs = selection.colAttrs
-        return self.page.mako(path='standard_print.tpl', striped='odd_row,even_row', outdata=outdata, colAttrs=colAttrs,
+        return self.page.pluginhandler.get_plugin('mako')(path='standard_print.tpl', striped='odd_row,even_row', outdata=outdata, colAttrs=colAttrs,
                 title='Print List', header='Print List', columns=columns)
                 
     def pdf_standard(self, selection, locale=None,**kwargs):
@@ -1137,7 +1137,7 @@ class GnrWebAppHandler(GnrBaseProxy):
         for row in storebag:
             outdata.append(row.getAttr())
         
-        result = self.page.mako(path=makotemplate, striped='odd_row,even_row', outdata=outdata, colAttrs=colAttrs,
+        result = self.page.pluginhandler.get_plugin('mako')(path=makotemplate, striped='odd_row,even_row', outdata=outdata, colAttrs=colAttrs,
                                             columns=columns, meta=kwargs)
 
         #fpath = self.page.pageLocalDocument(filename)
