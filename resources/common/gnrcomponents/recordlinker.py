@@ -25,7 +25,7 @@ from gnr.web.gnrwebpage import BaseComponent
 
 class RecordLinker(BaseComponent):
     def recordLinker(self,fb,table=None,dialogPars=None,record_template=None,record_path=None,lbl=None,
-                    value=None,width=None,height=None,colspan=1,rowspan=1,**kwargs):
+                    value=None,width=None,height=None,colspan=1,rowspan=1,disabled=False,**kwargs):
         """docstring for recordLinker"""
         selectorBox = fb.div(lbl=lbl,lbl_vertical_align='top',
                             min_height=height,width=width,colspan=colspan,
@@ -34,7 +34,7 @@ class RecordLinker(BaseComponent):
                                         left='0px',right='0px',top='0px',**kwargs)
             
         selector.button('!!Add',position='absolute',right='2px',z_index='100',iconClass='icnBaseAdd',
-                        baseClass='no_background', showLabel=False,
+                        baseClass='no_background', showLabel=False,disabled=disabled,
                         connect_onclick='FIRE attestazione.pkey;',top='-3px')
         
         selectorViewer = selectorBox.div(innerHTML='==dataTemplate(_tpl,_data)',
@@ -48,9 +48,8 @@ class RecordLinker(BaseComponent):
                                                     """)
         selectorViewer.button('!!Edit',baseClass='no_background',showLabel=False,
                     right='2px',z_index='100',bottom='2px',position='absolute',
-                    action='FIRE attestazione.pkey = GET .attestazione_id;',
-                    iconClass='icnBaseEdit')#hidden='==!_att_id',
-                   # _att_id='^.attestazione_id')
+                    action='FIRE #%s.pkey = GET %s;' %(dialogPars['dlgId'], value[1:]),
+                    iconClass='icnBaseEdit',disabled=disabled)
           
         assert 'dlgId' in dialogPars, 'this param is mandatory'
         assert not 'firedPkey' in dialogPars, 'firedPkey is used by the component'     
