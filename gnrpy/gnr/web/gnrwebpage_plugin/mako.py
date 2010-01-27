@@ -40,7 +40,7 @@ class Plugin(GnrBasePlugin):
         js_requires = [x for x in [page.getResourceUri(r,'js') for r in page.js_requires] if x]
         if os.path.isfile(page.resolvePath('%s.js' % page.pagename)):
             js_requires.append('%s.js' % page.pagename)
-        css_requires, css_media_requires = page.get_css_requires()
+        css_requires, css_media_requires = page.get_css_path()
         output = template.render(mainpage=page,
                                css_genro = page.get_css_genro(),
                                css_requires = css_requires , js_requires=page.js_requires,
