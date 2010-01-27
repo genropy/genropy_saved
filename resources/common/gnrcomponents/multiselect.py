@@ -19,8 +19,9 @@ import os
 
 class MultiSelect(BaseComponent):
     py_requires='foundation/includedview:IncludedView'
-    def multiSelect(self,bc,nodeId=None,table=None,datapath=None,struct=None,label=None,
+    def multiSelect(self,bc,nodeId=None,table=None,datapath=None,struct=None,label=None,values=None,
                              reloader=None,filterOn=None,hiddencolumns=None,selectionPars=None,order_by=None,
+                             showSelected=False,
                              **kwargs):
         assert not 'footer' in kwargs, 'remove footer par'
 
@@ -40,14 +41,19 @@ class MultiSelect(BaseComponent):
                 selectionPars=dict()
         viewpars = dict(label=label,struct=struct,filterOn=filterOn,table=table,
                          hiddencolumns=hiddencolumns,reloader=reloader,autoWidth=True)
-        footer = bc.contentPane(region='bottom',_class='pbl_roundedGroupBottom')
-        footer.button('Back',action='SET %s.selectedGrid=0;' %datapath)
-        footer.button('Next',action='FIRE #%s_result.reload; SET %s.selectedGrid=1;' %(nodeId,datapath))
-        stack = bc.stackContainer(region='center',datapath=datapath,selected='^.selectedGrid')
-        self.includedViewBox(stack.borderContainer(),datapath='.gridcheck',
+        
+        checkboxGridBC = bc
+        if showSelected:
+            footer = bc.contentPane(region='bottom',_class='pbl_roundedGroupBottom')
+            footer.button('Back',action='SET %s.selectedGrid=0;' %datapath)
+            footer.button('Next',action='FIRE #%s_result.reload; SET %s.selectedGrid=1;' %(nodeId,datapath))
+            checked= values or '=.#parent.checkedList'
+            stack = bc.stackContainer(region='center',datapath=datapath,selected='^.selectedGrid')
+            checkboxGridBC = stack.borderContainer()
+        self.includedViewBox(checkboxGridBC,datapath='.gridcheck',
                             selectionPars=selectionPars,nodeId=nodeId,**viewpars)
         selectionPars_result = dict(where='$%s IN :checked' %self.db.table(table).pkey,
-                                    checked='=.#parent.checkedList',_if='checked')
+                                    checked=checked,_if='checked')
 
         self.includedViewBox(stack.borderContainer(_class='hide_row_checker'),nodeId='%s_result' %nodeId,
                              datapath='.resultgrid',selectionPars=selectionPars_result,

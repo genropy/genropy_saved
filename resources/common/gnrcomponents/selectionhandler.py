@@ -41,7 +41,7 @@ class SelectionHandler(BaseComponent):
         #add_action
         #del_action
         #addOnCb
-        #connect_onRowDblClick="""FIRE .firedPkey = this.widget.rowIdByIndex($1.rowIndex);"""
+        #connect_onRowDblClick="FIRE .firedPkey = this.widget.rowIdByIndex($1.rowIndex);"
         #controllers that manage delete or add
         
     add a new parameter to replace the recordDialog function, having all parameters of the recordDialog
@@ -53,8 +53,8 @@ class SelectionHandler(BaseComponent):
     def selectionHandler(self,bc,nodeId=None,table=None,datapath=None,struct=None,label=None,
                          selectionPars=None,dialogPars=None,reloader=None,externalChanges=None,
                          hiddencolumns=None,custom_addCondition=None,custom_delCondition=None,
-                         askBeforeDelete=True,checkMainRecord=True,onDeleting=None,
-                         onDeleted=None,**kwargs):
+                         askBeforeDelete=True,checkMainRecord=True,onDeleting=None,dialogAddRecord=True,
+                         onDeleted=None,groupingColumn=None,groups=None,**kwargs):
         assert dialogPars,'dialogPars are Mandatory'
         assert not 'table' in dialogPars, 'take the table of the grid'
         assert not 'firedPkey' in dialogPars, 'auto firedPkey'
@@ -143,6 +143,7 @@ class SelectionHandler(BaseComponent):
                                     """,saveAndChange="^.saveAndChange",
                                     changeAnyway='^.changeAnyway',gridId=nodeId,
                                     idx='=.selectedIndex')
+        controller.data(".dialogAddDisabled", not dialogAddRecord)
         controller.dataFormula('.atBegin','(idx==0)',idx='^.selectedIndex')
         controller.dataFormula('.atEnd','(idx==genro.wdgById(gridId).rowCount-1)',idx='^.selectedIndex',gridId=nodeId)
                             
@@ -163,7 +164,7 @@ class SelectionHandler(BaseComponent):
         add_action = 'FIRE .navbutton="new";'
         add_class =  'buttonIcon icnBaseAdd'
         add_enable = '^form.canWrite'
-        tb.button('!!Add', float='right',action=add_action,visible=add_enable,
+        tb.button('!!Add', float='right',action=add_action,visible=add_enable,hidden='^.dialogAddDisabled',
                         iconClass=add_class, showLabel=False)
         
 
