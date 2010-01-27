@@ -30,6 +30,8 @@ class MultiSelect(BaseComponent):
             struct = struct(self.newGridStruct(table))
         values= values or '=.checkedList'           
         readCol = readCol or '_pkey' 
+        if readCol != '_pkey':
+            assert showSelected==False, 'to use this mode readCol must be "_pkey"'
         struct['#0']['#0'].cell('_checkedrow',name=' ',width='2em',
                     format_trueclass='checkboxOn',
                     styles='background:none!important;border:0;',
