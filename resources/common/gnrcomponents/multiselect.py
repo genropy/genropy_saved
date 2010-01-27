@@ -34,7 +34,7 @@ class MultiSelect(BaseComponent):
             assert showSelected==False, 'to use this mode readCol must be "_pkey"'
         struct['#0']['#0'].cell('_checkedrow',name=' ',width='2em',
                     format_trueclass='checkboxOn',
-                    styles='background:none!important;border:0;',
+                    cellStyles='background:none!important;border:0;',
                     format_falseclass='checkboxOff',classes='row_checker',
                     #format_onclick='MultiSelectComponent.toggle_row(kw.rowIndex, e, this,"%s");' %values, 
                     format_onclick="""var readCol = '%s';
@@ -65,7 +65,6 @@ class MultiSelect(BaseComponent):
                 selectionPars=dict()
         viewpars = dict(label=label,struct=struct,filterOn=filterOn,table=table,
                          hiddencolumns=hiddencolumns,reloader=reloader,autoWidth=True)
-        
         checkboxGridBC = bc
         checkboxGridDatapath = datapath
         if showSelected:
@@ -80,8 +79,27 @@ class MultiSelect(BaseComponent):
             selectionPars['apply_callAfter'] = selectionPars['applymethod']
         selectionPars['apply_checkedRows'] = '=%s' %values
         selectionPars['applymethod'] = 'ms_setCheckedOnReload'
+        
+        checkboxGridBC.dataController("""var nodes = selection.getNodes();
+                                         var result = [];
+                                         dojo.forEach(nodes,function(row){
+                                            var attrs = row.getAttr();
+                                            attrs._checkedrow = (selectrows=='all');
+                                            if(selectrows=='all'){
+                                                if(readCol=='*'){
+                                                    result.push(row.attr);
+                                                }else{
+                                                    result.push(row.attr[readCol]);
+                                                }
+                                            }
+                                            row.setAttr(attrs);
+                                        })
+                                        SET %s = result;
+                                          """ %values,
+                                        selectrows="^.selectrows",selection='=.selection',_if='selection',
+                                        readCol=readCol,datapath=checkboxGridDatapath)
         self.includedViewBox(checkboxGridBC,datapath=checkboxGridDatapath,
-                            selectionPars=selectionPars,nodeId=nodeId,**viewpars)
+                            selectionPars=selectionPars,nodeId=nodeId,footer=self.ms_footer,**viewpars)
         if showSelected:
             selectionPars_result = dict(where='$%s IN :checked' %self.db.table(table).pkey,
                                     checked='=%s' %values,_if='checked')
@@ -90,6 +108,12 @@ class MultiSelect(BaseComponent):
                                     datapath='.resultgrid',selectionPars=selectionPars_result,
                                     **viewpars)
                                     
+    def ms_footer(self,pane,**kwargs):
+        pane.button('!!Select All',fire_all='.selectrows')
+        pane.button('!!Unselect All',fire_none='.selectrows')
+
+        
+        
     def rpc_ms_setCheckedOnReload(self,selection,checkedRows=None,callAfter=None,**kwargs):
         checkedRows = checkedRows or []
         print checkedRows
