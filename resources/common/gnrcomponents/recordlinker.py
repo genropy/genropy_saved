@@ -27,6 +27,8 @@ class RecordLinker(BaseComponent):
     def recordLinker(self,fb,table=None,dialogPars=None,record_template=None,record_path=None,lbl=None,
                     value=None,width=None,height=None,colspan=1,rowspan=1,disabled=False,**kwargs):
         """docstring for recordLinker"""
+        assert 'dlgId' in dialogPars, 'this param is mandatory'
+
         selectorBox = fb.div(lbl=lbl,lbl_vertical_align='top',
                             min_height=height,width=width,colspan=colspan,
                             rowspan=rowspan,position='relative')
@@ -35,7 +37,7 @@ class RecordLinker(BaseComponent):
             
         selector.button('!!Add',position='absolute',right='2px',z_index='100',iconClass='icnBaseAdd',
                         baseClass='no_background', showLabel=False,disabled=disabled,
-                        connect_onclick='FIRE attestazione.pkey;',top='-3px')
+                        connect_onclick='FIRE #%s.pkey;' %dialogPars['dlgId'],top='-3px')
         
         selectorViewer = selectorBox.div(innerHTML='==dataTemplate(_tpl,_data)',
                             _data='^%s' %record_path,
@@ -51,7 +53,6 @@ class RecordLinker(BaseComponent):
                     action='FIRE #%s.pkey = GET %s;' %(dialogPars['dlgId'], value[1:]),
                     iconClass='icnBaseEdit',disabled=disabled)
           
-        assert 'dlgId' in dialogPars, 'this param is mandatory'
         assert not 'firedPkey' in dialogPars, 'firedPkey is used by the component'     
         assert not 'savedPath' in dialogPars, 'savedPath is used by the component'                  
              
