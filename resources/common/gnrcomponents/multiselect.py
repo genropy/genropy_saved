@@ -34,7 +34,7 @@ class MultiSelect(BaseComponent):
             assert showSelected==False, 'to use this mode readCol must be "_pkey"'
         struct['#0']['#0'].cell('_checkedrow',name=' ',width='2em',
                     format_trueclass='checkboxOn',
-                    cellStyles='background:none!important;border:0;',
+                   # styles='background:none!important;border:0;',
                     format_falseclass='checkboxOff',classes='row_checker',
                     #format_onclick='MultiSelectComponent.toggle_row(kw.rowIndex, e, this,"%s");' %values, 
                     format_onclick="""var readCol = '%s';

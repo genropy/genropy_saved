@@ -104,6 +104,9 @@ class TableHandlerLight(BaseComponent):
 
     def gridLabel(self):
         return None
+    
+    def defaultsBase(self):
+        return dict()
 
     def main(self, root, pkey=None, **kwargs):
         condition=self.conditionBase()
@@ -111,12 +114,12 @@ class TableHandlerLight(BaseComponent):
         if condition:
             condPars=condition[1] or {}
             condition=condition[0]
-
         bc,top,bottom = self.pbl_rootBorderContainer(root,title='^list.title_bar',id='mainBC_center',margin='5px')
         bc.dataController("FIRE #maingrid.reload;",_onStart=True)
         dimension = self.formBaseDimension()
         struct = self.lstBase(self.newGridStruct())
         filterOn = self.filterOnBase(struct)
+        defaults = self.defaultsBase()
         self.selectionHandler(bc,label=self.gridLabel(),datapath="selection",
                                nodeId='maingrid',table=self.maintable,
                                print_action=self.printActionBase(),
@@ -125,7 +128,7 @@ class TableHandlerLight(BaseComponent):
                                dialogPars=dict(height=dimension['height'],width=dimension['width'],
                                                record_datapath='form.record',
                                                title='^form.title',formCb=self.formBase,
-                                               dlgPars=dict(centerOn="mainBC_center")),
+                                               dlgPars=dict(centerOn="mainBC_center"),**defaults),
                                 checkMainRecord=False,
                                footer=self.footerBase,filterOn=filterOn)
     def footerBase(self,pane,**kwargs):
