@@ -74,6 +74,8 @@ class SelectionHandler(BaseComponent):
         dialogPars['datapath'] = dialogPars.get('datapath','%s.dlg' %datapath)
         dialogPars['onSaved'] = 'FIRE #%s.reload; %s' %(nodeId,dialogPars.get('onSaved',''))
         dialogPars['firedPkey'] = '^.pkey'
+        dialogPars['add_action'] = dialogPars.get('add_action',True)
+        dialogPars['lock_action'] = dialogPars.get('lock_action',True)
         dialogPars['toolbarCb'] = self._ivrd_toolbar
 
         self.recordDialog(**dialogPars)
@@ -155,18 +157,26 @@ class SelectionHandler(BaseComponent):
         self.db.commit()
         return record_id
                              
-    def _ivrd_toolbar(self,parentBC,**kwargs):
+    def _ivrd_toolbar(self,parentBC,add_action=None,lock_action=None,**kwargs):
         pane = parentBC.contentPane(height='28px',overflow='hidden',**kwargs)
         tb = pane.toolbar(datapath='.#parent') #referred to the grid
         tb.button('!!First', fire_first='.navbutton', iconClass="tb_button icnNavFirst", disabled='^.atBegin', showLabel=False)
         tb.button('!!Previous', fire_prev='.navbutton', iconClass="tb_button icnNavPrev", disabled='^.atBegin', showLabel=False)
         tb.button('!!Next', fire_next='.navbutton', iconClass="tb_button icnNavNext", disabled='^.atEnd', showLabel=False)
         tb.button('!!Last', fire_last='.navbutton', iconClass="tb_button icnNavLast", disabled='^.atEnd', showLabel=False)
-        add_action = 'FIRE .navbutton="new";'
-        add_class =  'buttonIcon icnBaseAdd'
-        add_enable = '^form.canWrite'
-        tb.button('!!Add', float='right',action=add_action,visible=add_enable,hidden='^.dialogAddDisabled',
-                        iconClass=add_class, showLabel=False)
+        if lock_action:
+            spacer = tb.div(float='right',width='30px',height='20px',position='relative')
+            spacer.button('!!Unlock', position='absolute',right='0px',fire='status.unlock', baseClass='no_background',
+                        iconClass="tb_button icnBaseLocked", showLabel=False,hidden='^status.unlocked')
+            spacer.button('!!Lock', position='absolute',right='0px',fire='status.lock',  baseClass='no_background',
+                        iconClass="tb_button icnBaseUnlocked", showLabel=False,hidden='^status.locked')  
+        if add_action:
+            add_action = 'FIRE .navbutton="new";'
+            add_class =  'buttonIcon icnBaseAdd'
+            add_enable = '^form.canWrite'
+            tb.button('!!Add', float='right',action=add_action,visible=add_enable,
+                            iconClass=add_class, showLabel=False)
+        
         
 
     

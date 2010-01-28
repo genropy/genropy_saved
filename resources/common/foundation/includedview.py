@@ -39,7 +39,7 @@ class IncludedView(BaseComponent):
                         print_action=None, print_class='buttonIcon icnBasePrinter', 
                         export_action=None, export_class='buttonIcon icnBaseExport', 
                         tools_action=None, tools_class='buttonIcon icnBaseAction', 
-                        formLock=False,tools_menu=None,upd_action=False,_onStart=False,
+                        lock_action=False,tools_menu=None,upd_action=False,_onStart=False,
                         filterOn=None,  pickerPars=None,centerPaneCb=None,
                         editorEnabled=None,reloader=None,externalChanges=None,
                         addOnCb = None, zoom=True,**kwargs):
@@ -149,9 +149,9 @@ class IncludedView(BaseComponent):
                                  del_class=del_class, del_enable=del_enable,pickerPars=pickerPars,
                                  formPars=formPars) 
                              
-        if formLock:
+        if lock_action:
             gridtop_lock = gridtop_right.div(float='left',margin_right='5px')
-            self._iv_gridLock(gridtop_lock,formLock=formLock)
+            self._iv_gridLock(gridtop_lock,lock_action=lock_action)
             
              
         
@@ -221,8 +221,8 @@ class IncludedView(BaseComponent):
             self._iv_Picker(controller, controllerPath, view, pickerPars)
         return view
         
-    def _iv_gridLock(self,pane,formLock=None):
-        if formLock is True:
+    def _iv_gridLock(self,pane,lock_action=None):
+        if lock_action is True:
             spacer = pane.div(float='right',width='30px',height='20px',position='relative')
             spacer.button('!!Unlock', position='absolute',right='0px',fire='status.unlock', baseClass='no_background',
                         iconClass="tb_button icnBaseLocked", showLabel=False,hidden='^status.unlocked')

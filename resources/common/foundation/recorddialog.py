@@ -34,7 +34,7 @@ class RecordDialog(BaseComponent):
                     loadingMethod=None, loadingParameters=None,onClosed='',onShow='',
                     validation_failed='alert',custom_table_id=None,centerOn=None,
                     dlgId=None,formId=None,datapath=None,dlgPars=None,toolbarCb=None,
-                    record_datapath=None,**kwargs):
+                    add_action=False,lock_action=False,record_datapath=None,**kwargs):
         """
         Allow to manage a form into a dialog for editing and saving a single RecordHandler.
         * `table`: The table where the record is saved.
@@ -82,7 +82,8 @@ class RecordDialog(BaseComponent):
                                     onSaved,onClosed,savePath,savingMethod,loadingMethod,
                                     loadingParameters,validation_failed,record_datapath,**kwargs)
                                     
-        self._recordDialogLayout(dlgBC,dlgId,formId,controllerPath,table,formCb,bottomCb,toolbarCb,record_datapath)
+        self._recordDialogLayout(dlgBC,dlgId,formId,controllerPath,table,formCb,
+                                 bottomCb,toolbarCb,record_datapath,add_action,lock_action)
 
     def _recordDialogController(self,pane,dlgId,formId,controllerPath,
                                 table,saveKwargs,loadKwargs,firedPkey,sqlContextName,
@@ -171,9 +172,9 @@ class RecordDialog(BaseComponent):
             pane.dataController("genro.formById('%s').focusFirstInvalidField()" %formId,_fired="^.validation_failed")
         
     def _recordDialogLayout(self,bc,dlgId,formId,controllerPath,table,
-                            formCb,bottomCb,toolbarCb,record_datapath):
+                            formCb,bottomCb,toolbarCb,record_datapath,add_action,lock_action):
         if callable(toolbarCb):
-            toolbarCb(bc,region='top',table=table)
+            toolbarCb(bc,region='top',table=table,add_action=add_action,lock_action=lock_action)
         bottom = bc.contentPane(region='bottom',_class='dialog_bottom')
         bottomCb = bottomCb or getattr(self,'_record_dialog_bottom')
         bottomCb(bottom)

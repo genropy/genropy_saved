@@ -126,10 +126,9 @@ class TableHandlerLight(BaseComponent):
                                export_action=self.exportActionBase(),
                                struct=struct,selectionPars=dict(where=condition,order_by=self.orderBase(),**condPars),
                                dialogPars=dict(height=dimension['height'],width=dimension['width'],
-                                               record_datapath='form.record',
-                                               title='^form.title',formCb=self.formBase,
+                                               record_datapath='form.record',title='^form.title',formCb=self.formBase,
                                                dlgPars=dict(centerOn="mainBC_center"),**defaults),
-                                checkMainRecord=False,formLock=True,
+                                checkMainRecord=False,lock_action=True,
                                footer=self.footerBase,filterOn=filterOn)
     def footerBase(self,pane,**kwargs):
         pane.data('usr.writePermission',self.userCanWrite())
