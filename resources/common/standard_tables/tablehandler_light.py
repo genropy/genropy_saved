@@ -124,7 +124,7 @@ class TableHandlerLight(BaseComponent):
                                nodeId='maingrid',table=self.maintable,
                                print_action=self.printActionBase(),
                                export_action=self.exportActionBase(),
-                               struct=struct,selectionPars=dict(where=condition,order_by=self.orderBase,**condPars),
+                               struct=struct,selectionPars=dict(where=condition,order_by=self.orderBase(),**condPars),
                                dialogPars=dict(height=dimension['height'],width=dimension['width'],
                                                record_datapath='form.record',
                                                title='^form.title',formCb=self.formBase,
