@@ -642,7 +642,7 @@ dojo.declare("gnr.GnrDomSourceNode",gnr.GnrBagNode,{
        var attr = attr || 'value';
        var attr_lower = attr.toLowerCase();
        var path;
-       var value=this.getAttributeFromDatasource(attr);
+       var value=this.getAttributeFromDatasource(attr,true);
        value = (value!=null) ? value : '';
        if (attr=='datapath'){           
            var absDatapath = this.absDatapath();
