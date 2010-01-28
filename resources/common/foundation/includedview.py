@@ -39,7 +39,7 @@ class IncludedView(BaseComponent):
                         print_action=None, print_class='buttonIcon icnBasePrinter', 
                         export_action=None, export_class='buttonIcon icnBaseExport', 
                         tools_action=None, tools_class='buttonIcon icnBaseAction', 
-                        tools_menu=None,upd_action=False,_onStart=False,
+                        formLock=False,tools_menu=None,upd_action=False,_onStart=False,
                         filterOn=None,  pickerPars=None,centerPaneCb=None,
                         editorEnabled=None,reloader=None,externalChanges=None,
                         addOnCb = None, zoom=True,**kwargs):
@@ -127,6 +127,34 @@ class IncludedView(BaseComponent):
         box_pars = dict([(k[4:], kwargs.pop(k)) for k in kwargs.keys() if k.startswith('box_')])
         box_pars['_class'] = (box_pars.pop('class', None) or 'pbl_viewBox')
         gridtop = parentBC.contentPane(region='top',datapath=controllerPath, **label_pars)
+        gridtop_left= gridtop.div(float='left')
+        if callable(label):
+            label(gridtop_left)
+        else:
+            gridtop_left.div(label,margin_top='2px',float='left')
+        gridtop_right = gridtop.div(float='right')
+        if filterOn:
+            gridtop_filter = gridtop_right.div(float='left',margin_right='5px')
+            self._iv_gridFilter(gridId, gridtop_filter, 
+                                controller, controllerPath, filterOn, kwargs) 
+        if print_action or export_action or tools_menu or tools_action:
+            gridtop_actions = gridtop_right.div(float='left',margin_right='5px')
+            self._iv_gridAction(gridtop_actions,print_action=print_action,export_action=export_action,
+                                export_class=export_class,print_class=print_class,
+                                tools_menu=tools_menu,tools_action=tools_action)
+        if add_action or del_action:
+            gridtop_add_del = gridtop_right.div(float='left',margin_right='5px')
+            self._iv_gridAddDel(gridtop_add_del,add_action=add_action,del_action=del_action,
+                                 add_class=add_class,add_enable=add_enable,
+                                 del_class=del_class, del_enable=del_enable,pickerPars=pickerPars,
+                                 formPars=formPars) 
+                             
+        if formLock:
+            gridtop_lock = gridtop_right.div(float='left',margin_right='5px')
+            self._iv_gridLock(gridtop_lock,formLock=formLock)
+            
+             
+        
         if footer:
             assert callable(footer),'footer param must be a callable'
             footerPars = dict( [(k[7:],v) for k,v in kwargs.items() if k.startswith('footer_')] )
@@ -136,61 +164,9 @@ class IncludedView(BaseComponent):
                 footerPars['_class']='pbl_roundedGroupBottom'           
             gridbottom = parentBC.contentPane(region='bottom',
                                               datapath=controllerPath,**footerPars)
-
             footer(gridbottom)
-        if close_action:
-            if close_action is True:
-                close_action = 'FIRE .closeSelection;' 
-            gridtop.div(float='left', _class=close_class, connect_onclick=close_action)
-        if print_action:
-            if print_action is True:
-                print_action = 'FIRE .print;' 
-            gridtop.div(float='left', margin_right='7px', _class=print_class, connect_onclick=print_action)
-        if export_action:
-            if export_action is True:
-                export_action='xls'
-            if export_action.startswith('custom_'):
-                export_method =  export_action[7:] # len('custom_')
-            else:
-                export_method = 'app.exportStaticGrid_'+export_action
-            export_action = 'FIRE .export="%s";'%export_method 
-            gridtop.div(float='left', margin_right='7px', _class=export_class, connect_onclick=export_action)
-        if tools_menu:
-            btn = gridtop.div(float='left', _class = tools_class,margin_right='7px')
-            btn.menu(storepath=tools_menu, modifiers='*')
-        elif tools_action:
-            if tools_action is True:
-                tools_action = 'FIRE .reload'         
-            gridtop.div(float='left', _class=tools_class, connect_onclick=tools_action)
-        if del_action:
-            if del_action is True:
-                del_action = 'FIRE .delSelection' 
-            gridtop.div(float='right', _class=del_class, connect_onclick=del_action,
-                        margin_right='7px',visible=del_enable)
-        if add_action:
-            if add_action is True:
-                if pickerPars:
-                    add_action='FIRE .showPicker' 
-                elif formPars:
-                    add_action = ' FIRE .showRecord; FIRE .addRecord =$1;'
-                else:
-                    add_action = 'FIRE .addRecord =$1;FIRE .editRow;'   
-            gridtop.div(float='right', _class=add_class,connect_onclick=add_action,
-                        margin_right='2px',visible=add_enable)
-                        
-        if upd_action:
-            if upd_action is True:
-                upd_action = 'FIRE .showRecord' 
-            gridtop.div(float='right', _class='icnBaseEdit buttonIcon', connect_onclick=upd_action,
-                        margin_right='2px',visible=add_enable)            
+
         self._iv_IncludedViewController(controller, gridId,controllerPath,table=table)
-        
-        if filterOn:
-            self._iv_gridFilter(gridId, gridtop, controller, controllerPath, filterOn, kwargs)        
-        if callable(label):
-            label(gridtop)
-        else:
-            gridtop.div(label,margin_top='2px',float='left')
         if centerPaneCb:
             gridcenter = getattr(self,centerPaneCb)(parentBC,region='center', datapath=controllerPath, **box_pars)
         else:
@@ -200,8 +176,6 @@ class IncludedView(BaseComponent):
             if struct and callable(struct) and not isinstance(struct,Bag):
                 viewPars['struct'] = struct(self.newGridStruct(table))
         viewPars['structpath'] = viewPars.get('structpath') or '.struct'  or 'grids.%s.struct' %nodeId
-        
-        
         view = gridcenter.includedView(extension='includedViewPicker',table=table,
                                        editorEnabled=editorEnabled or '^form.canWrite',
                                        reloader=reloader, **viewPars)
@@ -246,6 +220,61 @@ class IncludedView(BaseComponent):
             pickerPars.setdefault('pane', gridcenter)
             self._iv_Picker(controller, controllerPath, view, pickerPars)
         return view
+        
+    def _iv_gridLock(self,pane,formLock=None):
+        if formLock is True:
+            spacer = pane.div(float='right',width='30px',height='20px',position='relative')
+            spacer.button('!!Unlock', position='absolute',right='0px',fire='status.unlock', baseClass='no_background',
+                        iconClass="tb_button icnBaseLocked", showLabel=False,hidden='^status.unlocked')
+            spacer.button('!!Lock', position='absolute',right='0px',fire='status.lock',  baseClass='no_background',
+                        iconClass="tb_button icnBaseUnlocked", showLabel=False,hidden='^status.locked')
+                        
+    def _iv_gridAddDel(self,pane,add_action=None,del_action=None,upd_action=None, add_class=None,add_enable=None,
+                        del_class=None, del_enable=None,pickerPars=None,formPars=None):
+        if del_action:
+            if del_action is True:
+                del_action = 'FIRE .delSelection' 
+            pane.div(float='right', _class=del_class, connect_onclick=del_action,
+                        margin_right='2px',visible=del_enable)
+        if add_action:
+            if add_action is True:
+                if pickerPars:
+                    add_action='FIRE .showPicker' 
+                elif formPars:
+                    add_action = ' FIRE .showRecord; FIRE .addRecord =$1;'
+                else:
+                    add_action = 'FIRE .addRecord =$1;FIRE .editRow;'   
+            pane.div(float='right', _class=add_class,connect_onclick=add_action,
+                        margin_right='2px',visible=add_enable)
+        if upd_action:
+            if upd_action is True:
+                upd_action = 'FIRE .showRecord' 
+            pane.div(float='right', _class='icnBaseEdit buttonIcon', connect_onclick=upd_action,
+                        margin_right='2px',visible=add_enable)    
+                         
+    def _iv_gridAction(self,pane,print_action=None,export_action=None,tools_menu=None,
+                       tools_action=None,export_class=None,print_class=None):
+        if print_action:
+            if print_action is True:
+                print_action = 'FIRE .print;' 
+            pane.div(float='left', margin_right='7px', _class=print_class, connect_onclick=print_action)
+        if export_action:
+            if export_action is True:
+                export_action='xls'
+            if export_action.startswith('custom_'):
+                export_method =  export_action[7:] # len('custom_')
+            else:
+                export_method = 'app.exportStaticGrid_'+export_action
+            export_action = 'FIRE .export="%s";'%export_method 
+            pane.div(float='left', margin_right='7px', _class=export_class, connect_onclick=export_action)
+        if tools_menu:
+            btn = gridtop.div(float='left', _class = tools_class,margin_right='7px')
+            btn.menu(storepath=tools_menu, modifiers='*')
+        elif tools_action:
+            if tools_action is True:
+                tools_action = 'FIRE .reload'         
+            pane.div(float='left', _class=tools_class, connect_onclick=tools_action)
+        
         
     def _iv_includedViewSelection(self,pane,gridId,table,storepath,selectionPars,controllerPath):
         #assert table

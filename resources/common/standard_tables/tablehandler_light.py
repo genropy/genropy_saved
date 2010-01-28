@@ -129,7 +129,7 @@ class TableHandlerLight(BaseComponent):
                                                record_datapath='form.record',
                                                title='^form.title',formCb=self.formBase,
                                                dlgPars=dict(centerOn="mainBC_center"),**defaults),
-                                checkMainRecord=False,
+                                checkMainRecord=False,formLock=True,
                                footer=self.footerBase,filterOn=filterOn)
     def footerBase(self,pane,**kwargs):
         pane.data('usr.writePermission',self.userCanWrite())
@@ -150,10 +150,7 @@ class TableHandlerLight(BaseComponent):
                             unlockForbiddenMsg ='=usr.unlockForbiddenMsg',
                             dfltForbiddenMsg = "!!You cannot unlock this table",
                             _else='FIRE gnr.alert = forbiddenMsg') 
-        pane.button('!!Unlock', position='absolute',right='5px',fire='status.unlock', 
-                    iconClass="tb_button icnBaseLocked", showLabel=False,hidden='^status.unlocked')
-        pane.button('!!Lock', position='absolute',right='5px',fire='status.lock', 
-                    iconClass="tb_button icnBaseUnlocked", showLabel=False,hidden='^status.locked')
+        
                             
     def listBottomPane(self,bc,**kwargs):
         """
