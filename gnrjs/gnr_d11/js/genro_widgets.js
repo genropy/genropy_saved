@@ -314,6 +314,14 @@ dojo.declare("gnr.widgets.baseHtml",null,{
         dojo.connect(newobj,'onfocus',function(e){
            genro.currentFocusedElement=newobj.domNode || newobj;
          });
+        if (sourceNode.attr['hasGhost']){
+            var _textbox = newobj.textbox;
+            dojo.connect(newobj.textbox,'onfocus',function(e){genro.dom.ghostOnEvent(e);});
+            dojo.connect(newobj.textbox,'onblur',function(e){genro.dom.ghostOnEvent(e);});
+            dojo.connect(newobj.textbox,'onkeyup',function(e){genro.dom.ghostOnEvent(e);});
+            dojo.connect(newobj,'setValue',function(value){genro.dom.ghostOnEvent({type:'setvalue',value:value,obj:newobj});});
+
+        }
      },
      created:function(newobj, savedAttrs, sourceNode){
          /*override this for each widget*/

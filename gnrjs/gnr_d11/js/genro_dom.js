@@ -169,12 +169,14 @@ dojo.declare("gnr.GnrDomHandler",null,{
         
     },
     ghostOnEvent:function(evt){
-        var evt_type = evt.type;
+        evt_type = evt.type;
         if (evt_type=='focus' || evt_type=='blur'){
             genro.dom[evt_type=='focus'?'addClass':'removeClass'](evt.target.id+"_label","ghostpartial");
         }
-        else if (evt_type=='keyup'){
+        else if (evt_type=='keyup'||evt_type=='keypress'){
             genro.dom[evt.target.value.length>0?'addClass':'removeClass'](evt.target.id+"_label","ghosthidden");
+        }else if (evt_type=='setvalue'){
+            genro.dom[evt.value.length>0?'addClass':'removeClass'](evt.obj.id+"_label","ghosthidden");
         }
     },
 
