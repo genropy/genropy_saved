@@ -44,7 +44,7 @@ class Table(object):
         
     def setPreference(self, record, package, name, value):
         record = self.recordAs(record, mode='bag')
-        record['preferences'].setItem('%s.%s' % (package,name,value))
+        record['preferences'].setItem('%s.%s' % (package,name), value)
         self.update(record)
         self.db.commit()
         
