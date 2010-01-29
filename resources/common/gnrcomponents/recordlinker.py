@@ -32,6 +32,7 @@ class RecordLinker(BaseComponent):
         selectorBox = fb.div(lbl=lbl,lbl_vertical_align='top',
                             min_height=height,width=width,colspan=colspan,
                             rowspan=rowspan,position='relative')
+        kwargs['width'] = width
         selector = selectorBox.dbSelect(value=value,dbtable=table,position='absolute',
                                         left='0px',right='0px',top='0px',**kwargs)
             
