@@ -20,9 +20,8 @@
 
 from gnr.web.gnrbaseclasses import BaseComponent
 from gnr.core.gnrbag import Bag
-from gnr.core.gnrstring import templateReplace, splitAndStrip
+from gnr.core.gnrstring import splitAndStrip
 
-import os
 
 class IncludedView(BaseComponent):
     css_requires = 'public'
@@ -140,7 +139,7 @@ class IncludedView(BaseComponent):
         if print_action or export_action or tools_menu or tools_action:
             gridtop_actions = gridtop_right.div(float='left',margin_right='5px')
             self._iv_gridAction(gridtop_actions,print_action=print_action,export_action=export_action,
-                                export_class=export_class,print_class=print_class,
+                                export_class=export_class,print_class=print_class,tools_class=tools_class,
                                 tools_menu=tools_menu,tools_action=tools_action)
         if add_action or del_action:
             gridtop_add_del = gridtop_right.div(float='left',margin_right='5px')
@@ -252,7 +251,7 @@ class IncludedView(BaseComponent):
             pane.div(float='right', _class='icnBaseEdit buttonIcon', connect_onclick=upd_action,
                         margin_right='2px',visible=add_enable)    
                          
-    def _iv_gridAction(self,pane,print_action=None,export_action=None,tools_menu=None,
+    def _iv_gridAction(self,pane,print_action=None,export_action=None,tools_menu=None,tools_class=None,
                        tools_action=None,export_class=None,print_class=None):
         if print_action:
             if print_action is True:
@@ -267,8 +266,8 @@ class IncludedView(BaseComponent):
                 export_method = 'app.exportStaticGrid_'+export_action
             export_action = 'FIRE .export="%s";'%export_method 
             pane.div(float='left', margin_right='7px', _class=export_class, connect_onclick=export_action)
-        if tools_menu:
-            btn = gridtop.div(float='left', _class = tools_class,margin_right='7px')
+        if tools_menu:                
+            btn = pane.div(float='left', _class = tools_class,margin_right='7px')
             btn.menu(storepath=tools_menu, modifiers='*')
         elif tools_action:
             if tools_action is True:
