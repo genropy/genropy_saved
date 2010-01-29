@@ -23,15 +23,7 @@ Component for thermo:
 """
 import sys
 from gnr.web.gnrbaseclasses import BaseComponent
-from gnr.sql.gnrsql_exceptions import GnrSqlException,GnrSqlSaveChangesException,GnrSqlExecutionException
-from gnr.core.gnrbag import Bag
-from gnr.core.gnrstring import templateReplace
 
-try:
-    # If xlwt is available, we'll show the export button
-    import xlwt
-except ImportError:
-    pass
 
 class TableHandlerLight(BaseComponent):
     py_requires="gnrcomponents/selectionhandler"
