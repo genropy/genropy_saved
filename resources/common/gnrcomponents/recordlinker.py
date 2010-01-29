@@ -25,16 +25,17 @@ from gnr.web.gnrwebpage import BaseComponent
 
 class RecordLinker(BaseComponent):
     def recordLinker(self,fb,table=None,dialogPars=None,record_template=None,record_path=None,lbl=None,
-                    value=None,width=None,height=None,colspan=1,rowspan=1,disabled=False,**kwargs):
+                    value=None,width=None,height=None,colspan=1,rowspan=1,disabled=False,
+                    default_path=None,**kwargs):
         """docstring for recordLinker"""
         assert 'dlgId' in dialogPars, 'this param is mandatory'
 
         selectorBox = fb.div(lbl=lbl,lbl_vertical_align='top',
                             min_height=height,width=width,colspan=colspan,
                             rowspan=rowspan,position='relative')
-        kwargs['width'] = width
         selector = selectorBox.dbSelect(value=value,dbtable=table,position='absolute',
-                                        left='0px',right='0px',top='0px',**kwargs)
+                                        left='0px',top='0px',width='100%',**kwargs)
+        
             
         selector.button('!!Add',position='absolute',right='2px',z_index='100',iconClass='icnBaseAdd',
                         baseClass='no_background', showLabel=False,disabled=disabled,
@@ -44,13 +45,12 @@ class RecordLinker(BaseComponent):
                             _data='^%s' %record_path,
                             _tpl=record_template,_class='box_tpl',
                             position='absolute',
-                            background_color='white',top='16px',bottom='0px',
-                            left='1px',right='1px',border='1px solid silver',
+                            background_color='white',top='17px',bottom='0px',
+                            left='1px',width='100%',border='1px solid silver',
                             border_top='0px',style="""-moz-border-radius-bottomleft:6px;
                                                       -moz-border-radius-bottomright:6px;
                                                     """)
         editAction = 'FIRE #%s.pkey = GET %s;' %(dialogPars['dlgId'], value[1:])
-        print editAction
         selectorViewer.button('!!Edit',baseClass='no_background',showLabel=False,
                     right='2px',z_index='100',bottom='2px',position='absolute',
                     action=editAction,

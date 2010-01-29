@@ -53,6 +53,11 @@
 	background:  #adc2ff url(icons/linktomenu.gif) right no-repeat;
 }
 
+.pbl_menu_icon{
+	background: url(icons/genropy.gif) no-repeat  center center;
+	width: 30px;
+	height: 24px;
+}
 
 
 /* @end */
