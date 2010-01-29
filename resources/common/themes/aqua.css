@@ -568,6 +568,17 @@
 .label {
 	color: rgba(72,84,92,0.9);
 }
+
+
+.gnr_recordinfo{
+	padding: 5px;
+	background-color: #F5F5F5;
+	-webkit-box-shadow: rgb(158,133,111) 2px 2px 2px;
+	-moz-box-shadow: rgb(158,133,111) 2px 2px 2px;
+	-webkit-border-radius:6px;
+	-moz-border-radius:6px;
+	border-radius:6px;
+}
 /* @end */
 
 
