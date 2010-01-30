@@ -365,7 +365,8 @@ class GnrWsgiSite(object):
     def serve_tool(self, path_list, environ, start_response, **kwargs):
         toolname = path_list[1]
         args = path_list[2:]
-        tool = self.load_webtool(toolname)
+        tool = self.load_webtool(toolname)  
+        tool.site=self      
         if not tool:
             return self.not_found(environ, start_response)
         response = Response()
