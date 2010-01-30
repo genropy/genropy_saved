@@ -339,7 +339,7 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
              'FisheyeList','Loader','Toaster','FileInput','fileInputBlind','FileInputAuto','ColorPicker',
              'SortList','TimeSpinner','Iterator',
              'Gallery','Lightbox','SlideShow','ThumbnailPicker',
-             'Deck','Slide','GoogleMap','Calendar',
+             'Deck','Slide','GoogleMap','Calendar','GoogleChart','GoogleVisualization',
              'Grid','VirtualGrid','VirtualStaticGrid']
     
     #gnrNS=['menu','menuBar','menuItem','Tree','Select','DbSelect','Combobox','Data',
