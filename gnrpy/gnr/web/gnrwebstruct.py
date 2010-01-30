@@ -538,6 +538,9 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
         elif dtype == 'D':
             result['tag']='dateTextBox'
             result['width']='9em' 
+        elif dtype == 'H':
+            result['tag'] = 'timeTextBox'
+            result['width'] ='7em'
         else:
             result['tag']='textBox'
         if kwargs:

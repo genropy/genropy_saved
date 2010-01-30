@@ -9,7 +9,7 @@ Copyright (c) 2009 __MyCompanyName__. All rights reserved.
 
 from gnr.web.gnrbaseclasses import BaseComponent
 from gnr.core.gnrbag import Bag
-from gnr.core.gnrstring import templateReplace, splitAndStrip, toText, toJson, concat
+from gnr.core.gnrstring import templateReplace, splitAndStrip, toText, toJson, concat, jsquote
         
 class ViewExporter(BaseComponent):
     def rpc_rpcSavedSelection(self, table, view=None, query=None, userid=None, out_mode='tabtext', **kwargs):
@@ -162,8 +162,8 @@ class ListQueryHandler(BaseComponent):
                     relpkg, reltbl, relfld = nodeattr['one_relation'].split('.')
                 else:
                     relpkg, reltbl, relfld = nodeattr['many_relation'].split('.')
-                jsresolver = "genro.rpc.remoteResolver('relationExplorer',{table:'%s.%s', prevRelation:'%s', prevCaption:'%s', omit:'%s'})"
-                node.setValue(jsresolver % (relpkg, reltbl, concat(prevRelation, node.label), nodeattr['fullcaption'], omit))
+                jsresolver = "genro.rpc.remoteResolver('relationExplorer',{table:%s, prevRelation:%s, prevCaption:%s, omit:%s})"
+                node.setValue(jsresolver % (jsquote("%s.%s" % (relpkg, reltbl)), jsquote(concat(prevRelation, node.label)), jsquote(nodeattr['fullcaption']), jsquote(omit)))
         result = self.db.relationExplorer(table=table, 
                                          prevRelation=prevRelation,
                                          omit=omit,
@@ -245,4 +245,3 @@ class ListQueryHandler(BaseComponent):
             
     def rpc_getQuickView(self,**kwargs):
         return Bag()
-        

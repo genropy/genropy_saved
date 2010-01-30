@@ -606,7 +606,19 @@ def fromJson(obj):
 
 def anyWordIn(wordlist, mystring):
     return [k for k in wordlist if k in mystring]
-    
+
+def jsquote(str_or_unicode):
+    """
+    >>> print jsquote('pippo')
+    'pippo'
+    >>> print jsquote(u'pippo')
+    'pippo'
+    """
+    if isinstance(str_or_unicode, str):
+        return repr(str_or_unicode)
+    elif isinstance(str_or_unicode, unicode):
+        return repr(str_or_unicode.encode('utf-8'))
+
 if __name__=='__main__':
     incl='%.py,%.css'
     excl='_%,.%'
