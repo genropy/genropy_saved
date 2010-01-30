@@ -292,7 +292,7 @@ class GnrWsgiSite(object):
         return site_config
 
     def _get_sitemap(self):
-        return self.page_server.sitemap
+        return self.resource_loader.sitemap
     sitemap = property(_get_sitemap)        
         
     def loadResource(self,pkg, *path):
