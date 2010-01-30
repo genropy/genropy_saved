@@ -118,6 +118,8 @@ dojo.declare("gnr.GnrWdgHandler",null,{
                              'VirtualGrid':'dojox.grid.VirtualGrid:dojox.VirtualGrid',
                              'Calendar':'mywidgets.widget.Calendar,mywidgets.widget.Timezones',
                              'GoogleMap':'',
+                             'GoogleChart':'',
+                             'GoogleVisualization':'',
                              'CkEditor':''
                               };
         var tag;
