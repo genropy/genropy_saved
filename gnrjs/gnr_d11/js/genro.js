@@ -151,6 +151,7 @@ dojo.declare('gnr.GenroClient', null, {
         this.dlg.createStandardMsg(document.body);
         this.dev.srcInspector(document.body);
         this.contextIndex = {};
+        this.sounds={};
         //genro.timeIt('** getting main **');
         var mainBagPage  = this.rpc.remoteCall('main', this.startArgs, 'bag');
         //genro.timeIt('**  main received  **');
@@ -186,22 +187,14 @@ dojo.declare('gnr.GenroClient', null, {
         }
        // genro.soundManagerStart();
     },
-    //soundManagerStart:function(){
-    //  genro.sounds={};
-    //  soundManager.url = '../../swf/';
-    //  soundManager.debugMode = true;
-    //  soundManager.onload = function() {
-    //  console.log('called onload sound')
-    //  genro.sounds['bass'] = soundManager.createSound({
-    //                    id: 'bass_sound',
-    //                    url: '_mp3/bass.mp3'}
-    //                    );
-    //   console.log('now play')                 
-    //   genro.sounds['bass'].play();
-    //   console.log('after play') 
-    // 
-    //  }
-    //},
+    playSound:function(name,path,ext){
+        if (!(name in genro.sounds)){
+             var path=path || '/_gnr/11/sounds/';
+             var ext = ext || 'wav';
+             genro.sounds[name] = new Audio(path+name+'.'+ext);
+        }
+         genro.sounds[name].play();
+    },
     setInServer: function(path, value){
         genro.rpc.remoteCall('setInServer', {path:path, value:value});
     },
