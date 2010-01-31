@@ -1,4 +1,4 @@
-from gnr.core.gnrstring import  concat
+from gnr.core.gnrstring import  concat, jsquote
 
 class GnrCustomWebPage(object):   
     css_theme='textmate'
@@ -58,8 +58,8 @@ class GnrCustomWebPage(object):
                     relpkg, reltbl, relfld = nodeattr['one_relation'].split('.')
                 else:
                     relpkg, reltbl, relfld = nodeattr['many_relation'].split('.')
-                jsresolver = "genro.rpc.remoteResolver('relationExplorer',{table:'%s.%s', prevRelation:'%s', prevCaption:'%s', omit:'%s'})"
-                node.setValue(jsresolver % (relpkg, reltbl, concat(prevRelation, node.label), nodeattr['fullcaption'], omit))
+                jsresolver = "genro.rpc.remoteResolver('relationExplorer',{table:%s, prevRelation:%s, prevCaption:%s, omit:%s})"
+                node.setValue(jsresolver % (jsquote("%s.%s" % (relpkg, reltbl)), jsquote(concat(prevRelation, node.label)), jsquote(nodeattr['fullcaption']),jsquote(omit)))
         result = self.db.relationExplorer(table=table, 
                                          prevRelation=prevRelation,
                                          omit=omit,
