@@ -421,7 +421,21 @@ table.formbuilder {
 }
 
 /* @end */
-
+.tableTreeNode{
+	font-weight: bold;
+}
+.aliasColumnTreeNode{
+    background-color: #feffe2}
+    font-style: italic;
+    -moz-border-radius:4px;
+    -webkit-border-radius:4px;
+   } 
+.formulaColumnTreeNode{
+    background-color: #d1ffeb;
+	font-style: italic;
+	-moz-border-radius:4px;
+    -webkit-border-radius:4px;
+}
 /* @group Dtype */
 
 .icnDtype_A {
@@ -429,7 +443,11 @@ table.formbuilder {
     width: 10px;
     height: 10px;
 }
-
+.icnDtype_DH {
+    background: url(icons/dtype/datetime.gif) no-repeat;
+    width: 10px;
+    height: 10px;
+}
 .icnDtype_B {
     background: url(icons/dtype/bool.gif) no-repeat;
     width: 10px;
