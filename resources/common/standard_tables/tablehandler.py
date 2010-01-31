@@ -22,9 +22,7 @@
 Component for thermo:
 """
 from gnr.web.gnrbaseclasses import BaseComponent
-from gnr.sql.gnrsql_exceptions import GnrSqlException,GnrSqlSaveChangesException,GnrSqlExecutionException
 from gnr.core.gnrbag import Bag
-from gnr.core.gnrstring import templateReplace
 
 class TableHandler(BaseComponent):
     py_requires="standard_tables/tablehandler_core,foundation/userobject:UserObject,foundation/dialogs"

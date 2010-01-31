@@ -125,8 +125,12 @@ class TableHandlerLight(BaseComponent):
     def footerBase(self,pane,**kwargs):
         pane.data('usr.writePermission',self.userCanWrite())
         pane.data('usr.deletePermission',self.userCanDelete())
-        pane.data('usr.unlockPermission',self.userCanDelete() or self.userCanWrite())
         pane.data('status.locked',True)
+        pane.dataFormula('form.locked','statusLocked || recordLocked',statusLocked='^status.locked',
+                                     recordLocked='=form.recordLocked',_onStart=True)
+        pane.dataFormula('form.unlocked','!locked',locked='^form.locked')
+        
+        pane.data('usr.unlockPermission',self.userCanDelete() or self.userCanWrite())
         pane.dataFormula('status.unlocked','!locked',locked='^status.locked',_init=True)
 
         pane.dataFormula('status.unlocked','!locked',locked='^status.locked',_onStart=True)
