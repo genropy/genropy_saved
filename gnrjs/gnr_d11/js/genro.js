@@ -174,9 +174,7 @@ dojo.declare('gnr.GenroClient', null, {
        /* if (dojo.isSafari && genro.wdgById('pbl_root')){
             setTimeout(genro.forceResize,1);
         }*/
-        dojo.publish('onPageStart',[]);
-                               
-                                                    
+        dojo.publish('onPageStart',[]);                                         
         var windowTitle=this.getData('gnr.windowTitle');
         if (windowTitle){
             genro.dom.windowTitle(windowTitle);
