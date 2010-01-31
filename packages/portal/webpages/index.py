@@ -19,11 +19,8 @@ class GnrCustomWebPage(object):
         self.site_header(layout.contentPane(region='top',_class='site_header'))
         self.site_footer(layout.contentPane(region='bottom',_class='site_footer',height='15px'))
         left=self.site_left(layout.borderContainer(region='left',width='25%'))
-
         right=self.site_right(layout.borderContainer(region='right',width='25%'))
-        
         self.site_center(layout.borderContainer(region='center'))
-    
     def rpc_pippo(self):
         return Bag(dict(pippo='pluto',paperino=12))
 
@@ -40,6 +37,10 @@ class GnrCustomWebPage(object):
     def page_0(self,pane):
         """docstring for page_0"""
         pane.div('page 0')
+        pane.button('Hero',action='genro.playSound("Hero")')
+        pane.button('Frog',action='genro.playSound("Frog")')
+        pane.button('Glass',action='genro.playSound("Glass")')
+        pane.button('Submarine',action='genro.playSound("Submarine")')
         
     def remote_page_1(self,pane):
         """docstring for page_1"""
