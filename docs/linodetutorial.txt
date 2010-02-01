@@ -89,6 +89,7 @@ tail -n NUMEROLINEE  -f /var/log/apache2/error.log (legge NUMEROLINEE alla fine 
 
 [/etc/apache2/sites-available]
 
+
 <VirtualHost *:80> 
 # *:80 indica la coppia indirizzo porta a cui il virtualhost risponde
 # se si volesse che il server, con ipotetico indirizzo 192.168.1.1, rispondesse solo
