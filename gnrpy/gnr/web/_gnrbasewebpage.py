@@ -819,8 +819,9 @@ class GnrBaseWebPage(GnrObject):
             resolver._page=self
             return resolver()
     
-    def debugger(self,debugtype='py',**kwargs):
-        self.site.debugger(debugtype,_frame=sys._getframe(1),**kwargs)
+    # ----See gnrwebpage.py
+    #def debugger(self,debugtype='py',**kwargs):
+    #    self.site.debugger(debugtype,_frame=sys._getframe(1),**kwargs)
         
     def rpc_bottomHelperContent(self):
         src = self.domSrcFactory.makeRoot(self)
