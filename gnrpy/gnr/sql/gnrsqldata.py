@@ -44,6 +44,7 @@ from gnr.sql.gnrsql_exceptions import SelectionExecutionError,RecordDuplicateErr
 COLFINDER = re.compile(r"(\W|^)\$(\w+)")
 RELFINDER = re.compile(r"(\W|^)(\@([\w.@:]+))")
 PERIODFINDER = re.compile(r"#PERIOD\s*\(\s*((?:\$|@)?[\w\.\@]+)\s*,\s*(\w*)\)")
+ENVFINDER = re.compile(r"#ENV\(([^,)]+)(,[^),]+)?\)")
 
 class SqlCompiledQuery(object):
     """SqlCompiledQuery is a private class used by SqlQueryCompiler. 
@@ -111,10 +112,23 @@ class SqlQueryCompiler(object):
         self.fieldlist = []
         
     def getFieldAlias(self, fieldpath, curr=None, basealias=None):
+        
+        def expandEnv(m):
+            handler_name = m.group(1)
+            if m.group(2):
+                env_tblobj= self.db.table(m.group(2)[1:])
+            else:
+                env_tblobj = curr_tblobj
+            handler = getattr(env_tblobj, 'env_%s' % handler_name, None)
+            if handler:
+                return handler()
+            else:
+                return 'Not found %s' % handler_name
+            
         """Internal method: translate fields and related fields path in a valid sql string for the column.
            It translate '@relname.@rel2name.colname' to 't4.colname'.
            It has nothing to do with the AS operator, nor the name of the output columns.
-           It automatically adds the joint tables as needed.
+           It automatically adds the join tables as needed.
            It can be recursive to resolve virtualcolumns.
            * `fieldpath`: a path to a field, like '$colname' or '@relname.@rel2name.colname'
         """
@@ -128,7 +142,8 @@ class SqlQueryCompiler(object):
         else:
             alias = basealias
         if not fld in curr.keys():
-            fldalias = self.db.table(curr.tbl_name, pkg=curr.pkg_name).model.virtual_columns[fld]
+            curr_tblobj = self.db.table(curr.tbl_name, pkg=curr.pkg_name)
+            fldalias = curr_tblobj.model.virtual_columns[fld]
             if fldalias == None:
                 
                 raise GnrSqlMissingField('Missing field %s in table %s.%s (requested field %s)' % (fld, curr.pkg_name, curr.tbl_name, '.'.join(newpath)))
@@ -141,6 +156,7 @@ class SqlQueryCompiler(object):
                 subreldict = {}
                 sql_formula = self.updateFieldDict(fldalias.sql_formula, reldict=subreldict)
                 sql_formula = sql_formula.replace('#THIS',alias)
+                sql_formula = ENVFINDER.sub(expandEnv,sql_formula)
                 subColPars = {}
                 for key, value in subreldict.items():
                     subColPars[key] = self.getFieldAlias(value, curr=curr, basealias=alias)
