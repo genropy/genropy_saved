@@ -89,19 +89,36 @@ tail -n NUMEROLINEE  -f /var/log/apache2/error.log (legge NUMEROLINEE alla fine 
 
 [/etc/apache2/sites-available]
 
-<VirtualHost *:80>
+<VirtualHost *:80> 
+# *:80 indica la coppia indirizzo porta a cui il virtualhost risponde
+# se si volesse che il server, con ipotetico indirizzo 192.168.1.1, rispondesse solo
+# alla rete locale sulla porta 8080 si scriverebbe <VirtualHost 192.168.1.1:8080>
         ServerAdmin webmaster@localhost
+# Indirizzo di posta che viene stampato nei messaggi di errore standard di Apache
         DocumentRoot /var/www
+# Path dove apache cerca i documenti, a noi non interessa particolarmente,
+# Ci interesserebbe solo se avessimo personalizzato le pagine 404 o 500 come
+# pagine statiche di apache
         WSGIDaemonProcess gnr user=genro group=genro python-eggs=/tmp threads=25
+# Definisce un processo daemon WSGI:
+# user e group indicano lo user e il gruppo di esecuzione di tal processo (standard sarebbero stati www-data:www-data)
+# python-eggs indica il path dove espandere gli egg compressi, deve essere un path scrivibile dall'utente specificato prima
+#      solitamente /tmp è scrivibile da tutti
+# threads indica il numero di thread massimi per ogni processo WSGI
+# processes indica il numero di processi massimi, omettendolo si limita al singleprocess
         SetEnv PROCESS_GROUP gnr
+# Setta una variabile di ambiente di Apache
         WSGIProcessGroup %{ENV:PROCESS_GROUP}
+# Specifica che questo virtualhost deve essere servito dal processo WSGI specificato prima
         # modify the following line to point your site
         WSGIScriptAlias / /home/genro/progetti/mmusic/sites/provarci/root.py
-        #WSGIRestrictProcess gnr
+# Associa un path di apache a un file root.py (contenuto nella directory del sito) che deve rispondere
+# Il path di apache deve essere uguale al home_uri specificato nel siteconfig.xml
         <Directory /home/genro/progetti/mmusic/sites/provarci>
             Options Indexes FollowSymLinks
             AllowOverride All
             Order allow,deny
             Allow from all
         </Directory>
+# Tutta la sezione directory serve a specificare che la cartella del sito deve essere leggibile dall'esterno
 </VirtualHost>
