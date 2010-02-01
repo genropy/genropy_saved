@@ -105,12 +105,12 @@ class Public(BaseComponent):
 
     def pbl_topBar(self,top,title=None,flagsLocale=False):
         """docstring for publicTitleBar"""
-        left = top.contentPane(region='left',width='200px')
+        left = top.contentPane(region='left',width='250px')
         menubtn = left.div(_class='pbl_menu_icon buttonIcon', float='left',
                             connect_onclick="""SET _clientCtx.mainBC.left?show = !GET _clientCtx.mainBC.left?show;
                             """)
         self.pbl_topBarLeft(left)
-        right = top.contentPane(region='right', width='200px', padding_top='5px', padding_right='8px')
+        right = top.contentPane(region='right', width='250px', padding_top='5px', padding_right='8px')
         right.div(connect_onclick='genro.pageBack()', _class='goback',tooltip='!!Torna alla pagina precedente')
         center = top.contentPane(region='center',margin_top='3px',overflow='hidden')
         if title:

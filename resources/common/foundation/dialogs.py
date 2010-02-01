@@ -27,12 +27,12 @@ class Dialogs(BaseComponent):
     css_requires = 'dialogs'
     
     def hiddenTooltipDialog(self, pane, height='20ex',width='30em',title=None, 
-                            close_action=None, dlgId=None, 
+                            close_action=None, dlgId=None, nodeId=None,
                             bottom_left=None,bottom_left_action=None,
                             bottom_right=None,bottom_right_action=None,
                             fired=None, datapath=None, onOpen=None, onEnter=None):
         onOpen = onOpen or ''
-        dlgId = dlgId or self.getUuid()
+        dlgId = dlgId or nodeId or self.getUuid()
         bcId = '%s_bc' % dlgId
         btnId = '%s_btn' % dlgId
         dlg = pane.dropdownbutton('', hidden=True, nodeId=btnId, datapath=datapath)
@@ -42,18 +42,18 @@ class Dialogs(BaseComponent):
         pane.dataController("""genro.wdgById(btnId)._openDropDown(genro._firingNode.getDomNode());""", 
                                 btnId=btnId, fired=fired) 
         container=dlg.borderContainer(height=height,width=width,nodeId=bcId, onEnter=onEnter)
-        top = container.contentPane(region='top',_class='tt_dialog_top',height='18px')
+        top = container.contentPane(region='top',_class='dijitDialogTitleBar',height='18px')
         if close_action:
             top.div(_class='icnTabClose',float='right',margin='2px',connect_onclick=close_action)
         top.div(title)        
-        bottom = container.contentPane(region='bottom',_class='tt_dialog_bottom')
+        bottom = container.contentPane(region='bottom',height='18px')
         if bottom_left:
             bottom.button(bottom_left,baseClass='bottom_btn',
                        connect_onclick=bottom_left_action,float='right',margin_right='5px')
         if bottom_right:
             bottom.button(bottom_right,baseClass='bottom_btn',
                        connect_onclick=bottom_right_action,float='right',margin_right='5px')
-        center=container.borderContainer(region='center',_class='tt_dialog_cnt')
+        center=container.borderContainer(region='center')
         return center
         
     def confirm(self, pane, dlgId=None, title='!!Confirm',msg='!!Are you sure ?',

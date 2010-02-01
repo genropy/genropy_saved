@@ -1,0 +1,107 @@
+Abilitato in /etc/apt/sources.list le repositories universe levando il commento
+
+reference: http://wiki.ubuntu-it.org/AmministrazioneSistema/Apt
+
+ssh ipdelsito -l root
+
+apt-get update
+apt-get upgrade
+apt-cache search string elenca i pacchetti che hanno una relazione con quella stringa
+apt-get install nomepacchetto installa il pacchetto
+
+PER NOI 
+
+CON APT-GET
+apt-get install libapache2-mod-wsgi
+apt-get install postgresql
+apt-get install build-essential
+apt-get install subversion
+apt-get install python-psycopg2
+apt-get install python-setuptools
+apt-get install python-dev 
+apt-get install python-reportlab
+apt-get install python-qt4  
+apt-get install libxml2-dev libxslt-dev
+apt-get install libcups2-dev wget cups cups-client
+
+MEGAPAROLAMAGICA
+apt-get install libapache2-mod-wsgi postgresql build-essential subversion python-psycopg2 python-setuptools python-dev python-reportlab python-qt4 libxml2-dev libxslt-dev libcups2-dev wget cups cups-client
+
+CON EASYINSTALL
+easy_install -U -Z paver 
+easy_install -U -Z babel pytz vobject
+easy_install -U -Z paste webob weberror
+easy_install -U -Z mako
+easy_install -U -Z pypdf
+easy_install -U -Z z3c.rml
+easy_install -U -Z ipython
+
+MEGAPAROLAMAGICA
+easy_install -U -Z paver babel pytz vobject paste webob weberror mako pypdf z3c.rml ipython
+
+
+CONSIGLIATO
+adduser genro
+visudo (copio root e gli metto il nome genro)
+
+mettergli una password molto sicura
+
+loggati nuovamente via ssh come utente genro
+
+[genro]
+svn co http://svn.genropy.org/genro/trunk genro
+cd genro/gnrpy
+sudo paver develop
+
+mkdir ~/progetti
+cd ~/progetti
+svn co http://...../progetto
+
+sudo -u postgres psql
+postgres=# \password
+
+(nuova pass dell'utente postgres solitamente postgres o postgnr)
+
+postgres=# \q
+
+copio nella home di genro la cartella .gnr
+edito i path
+
+[pycups]
+wget http://cyberelk.net/tim/data/pycups/pycups-1.9.46.tar.bz2
+tar xvfj pycups-1.9.46.tar.bz2
+cd pycups-1.9.46
+make
+sudo make install
+
+[screen]
+apt-get install screen
+con il comando screen si effettua un fork della sessione corrente, i comandi lanciati in quasta nuova sessione 
+sopravvivono alla chiusura della sessione ssh.
+Per tornare alla vista normale ctrl-a seguito da d.
+per riaprire lo schermo con i processi in esecuzione: screen -r
+man screen è amico.
+
+[Leggere i log]
+less /var/log/apache2/error.log (legge dall'inizio del file. q per uscire)
+tail -n NUMEROLINEE /var/log/apache2/error.log (legge NUMEROLINEE alla fine del file.)
+tail -n NUMEROLINEE  -f /var/log/apache2/error.log (legge NUMEROLINEE alla fine del file e mantiene aperto il file in modo che aggiornamenti allo stesso siano immediatamente visualizzati. Ctrl-C per uscire)
+
+[/etc/apache2/sites-available]
+
+<VirtualHost *:80>
+        ServerAdmin webmaster@localhost
+        DocumentRoot /var/www
+        WSGIDaemonProcess gnr user=genro group=genro python-eggs=/tmp threads=25
+        SetEnv PROCESS_GROUP gnr
+        WSGIProcessGroup %{ENV:PROCESS_GROUP}
+        # modify the following line to point your site
+        WSGIScriptAlias / /home/genro/progetti/mmusic/sites/provarci/root.py
+        #WSGIRestrictProcess gnr
+        <Directory /home/genro/progetti/mmusic/sites/provarci>
+            Options Indexes FollowSymLinks
+            AllowOverride All
+            Order allow,deny
+            Allow from all
+        </Directory>
+</VirtualHost>

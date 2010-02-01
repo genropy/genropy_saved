@@ -320,6 +320,7 @@ dojo.declare("gnr.widgets.baseHtml",null,{
             dojo.connect(newobj.textbox,'onblur',function(e){genro.dom.ghostOnEvent(e);});
             dojo.connect(newobj.textbox,'onkeyup',function(e){genro.dom.ghostOnEvent(e);});
             dojo.connect(newobj,'setValue',function(value){genro.dom.ghostOnEvent({type:'setvalue',value:value,obj:newobj});});
+            dojo.connect(newobj,'onChange',function(value){genro.dom.ghostOnEvent({type:'setvalue',value:value,obj:newobj});});
 
         }
      },

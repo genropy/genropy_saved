@@ -201,6 +201,8 @@
 	/*control*/
     padding:0px;
     border: 0;
+    -moz-box-shadow:4px 4px 4px #403b3b;
+	-webkit-box-shadow:4px 4px 4px #403b3b;
 }
 
 
