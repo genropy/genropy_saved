@@ -39,7 +39,7 @@ class RecordLinker(BaseComponent):
             
         selector.button('!!Add',position='absolute',right='2px',z_index='100',iconClass='icnBaseAdd',
                         baseClass='no_background', showLabel=False,disabled=disabled,
-                        connect_onclick='FIRE #%s.pkey;' %dialogPars['dlgId'],top='-3px')
+                        connect_onclick='FIRE #%s.pkey;' %dialogPars['dlgId'],top='-2px')
         
         selectorViewer = selectorBox.div(innerHTML='==dataTemplate(_tpl,_data)',
                             _data='^%s' %record_path,
@@ -68,6 +68,6 @@ class RecordLinker(BaseComponent):
             onSaved = dialogPars.pop('onSaved')
         self.recordDialog(table,firedPkey='^#%s.pkey' %dialogPars['dlgId'],
                          onSaved='FIRE #%s.recordSaved; %s' %(dialogPars['dlgId'],onSaved),
-                         savedPath='#%s.savedId' %dialogPars['dlgId'],**dialogPars)
+                         savePath='#%s.savedId' %dialogPars['dlgId'],**dialogPars)
 
     
