@@ -472,6 +472,12 @@ table.formbuilder {
     height: 10px;
 }
 
+.icnDtype_N {
+    background: url(icons/dtype/numeric.gif) no-repeat;
+    width: 10px;
+    height: 10px;
+}
+
 .icnDtype_T {
     background: url(icons/dtype/text.gif) no-repeat;
     width: 10px;
