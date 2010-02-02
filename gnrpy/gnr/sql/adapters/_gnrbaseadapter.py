@@ -560,6 +560,14 @@ class GnrWhereTranslator(object):
         "Is null"
         return '%s IS NULL' % column
         
+    def op_istrue(self, column, value, dtype, sqlArgs):
+        "Is true"
+        return '%s IS TRUE' % column
+        
+    def op_isfalse(self, column, value, dtype, sqlArgs):
+        "Is true"
+        return '%s IS FALSE' % column
+        
     def op_nullorempty(self, column, value, dtype, sqlArgs):
         "Is null or empty"
         if dtype in ('L','N','M','R'):
