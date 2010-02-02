@@ -36,6 +36,7 @@ class IncludedView(BaseComponent):
                         del_action=None, del_class='buttonIcon icnBaseDelete', del_enable='^form.canWrite',
                         close_action=None, close_class='buttonIcon icnTabClose', 
                         print_action=None, print_class='buttonIcon icnBasePrinter', 
+                        pdf_action=None,pdf_class='buttonIcon icnBasePdf',pdf_name=None,
                         export_action=None, export_class='buttonIcon icnBaseExport', 
                         tools_action=None, tools_class='buttonIcon icnBaseAction', 
                         lock_action=False,tools_menu=None,upd_action=False,_onStart=False,
@@ -136,11 +137,12 @@ class IncludedView(BaseComponent):
             gridtop_filter = gridtop_right.div(float='left',margin_right='5px')
             self._iv_gridFilter(gridId, gridtop_filter, 
                                 controller, controllerPath, filterOn, kwargs) 
-        if print_action or export_action or tools_menu or tools_action:
+        if print_action or export_action or tools_menu or tools_action or pdf_action:
             gridtop_actions = gridtop_right.div(float='left',margin_right='5px')
             self._iv_gridAction(gridtop_actions,print_action=print_action,export_action=export_action,
                                 export_class=export_class,print_class=print_class,tools_class=tools_class,
-                                tools_menu=tools_menu,tools_action=tools_action)
+                                tools_menu=tools_menu,tools_action=tools_action,pdf_action=pdf_action,
+                                pdf_class=pdf_class,pdf_name=pdf_name,table=table,gridId=gridId)
         if add_action or del_action:
             gridtop_add_del = gridtop_right.div(float='left',margin_right='5px')
             self._iv_gridAddDel(gridtop_add_del,add_action=add_action,del_action=del_action,
@@ -252,7 +254,8 @@ class IncludedView(BaseComponent):
                         margin_right='2px',visible=add_enable)    
                          
     def _iv_gridAction(self,pane,print_action=None,export_action=None,tools_menu=None,tools_class=None,
-                       tools_action=None,export_class=None,print_class=None):
+                       tools_action=None,export_class=None,print_class=None,pdf_action=None,pdf_class=None,
+                       pdf_name=None,table=None,gridId=None,**kwargs):
         if print_action:
             if print_action is True:
                 print_action = 'FIRE .print;' 
@@ -273,6 +276,28 @@ class IncludedView(BaseComponent):
             if tools_action is True:
                 tools_action = 'FIRE .reload'         
             pane.div(float='left', _class=tools_class, connect_onclick=tools_action)
+        if pdf_action:
+            pane.dataController("""
+                             var record = genro.wdgById(gridId).storebag();
+                             var docName = docName || record;
+                             var docName=docName.replace('.', '');
+                             var downloadAs =docName +'.pdf';
+                             var parameters = {'recordId':null,
+                                               'downloadAs':downloadAs,
+                                               'pdf':true,
+                                               'respath':respath,
+                                               'rebuild':rebuild,
+                                               'table':table};
+                             //objectUpdate(parameters,moreargs);
+                             genro.rpcDownload("callTableScript",parameters);
+                             """,
+                    _fired='^.downloadPdf',
+                    #runKwargs = '=%s' % runKwargsPath, #aggiunto
+                    docName ='%s' %pdf_name,
+                    table=table,gridId=gridId,respath=pdf_action,
+                    rebuild=True)
+            pane.div(float='left', _class=pdf_class, connect_onclick='FIRE .downloadPdf')
+
         
         
     def _iv_includedViewSelection(self,pane,gridId,table,storepath,selectionPars,controllerPath):

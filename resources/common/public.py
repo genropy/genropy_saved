@@ -73,7 +73,7 @@ class Public(BaseComponent):
         return center, top, bottom
         
     def pbl_topBarLeft(self,pane):
-        pane.div('^gnr.workdate', float='left', format='short', color='white',
+        pane.div('^gnr.workdate', float='left', format='short',
                 _class='pbl_workdate buttonIcon',connect_onclick='FIRE gnr.dlg_workdate.show;')
 
     def pbl_workdate(self,pane):
@@ -126,7 +126,7 @@ class Public(BaseComponent):
                     _class='icnIntlIt buttonIcon', content='&nbsp;', float='right',margin_left='5px',margin_top='2px')
         if self.user:
             right.div(connect_onclick="genro.logout()", title="!!Logout",
-                  _class='icnBaseLogout buttonIcon', content='&nbsp;', float='right')
+                  _class='pbl_logout buttonIcon', content='&nbsp;', float='right')
             right.div(content=self.user, float='right', _class='pbl_username buttonIcon')
 
         return center

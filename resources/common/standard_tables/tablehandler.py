@@ -213,18 +213,18 @@ class TableHandler(BaseComponent):
                         table=self.maintable, selectionName='=list.selectionName')
     def listToolbar(self, pane, datapath=None,arrows=True):
         self.listController(pane)
-        tb = pane.toolbar().div(position='relative',top='0px',left='0px',height='26px')
+        tb = pane.toolbar(_class='th_toolbar')
         self.listToolbar_lefticons(tb)
         self.listToolbar_query(tb)
         self.listToolbar_rightbuttons(tb)
         
     def listToolbar_lefticons(self, pane):
-        pane = pane.div(width='20px',position='absolute',top='0px',border_right='1px solid gray',height='26px')
+        pane = pane.div(_class='button_placeholder',float='left')
         pane.div(_class='db_treebtn',connect_onclick="SET list.showToolbox = ! (GET list.showToolbox);")
         pane.div(_class='db_querybtn',connect_onclick="SET list.showExtendedQuery =! (GET list.showExtendedQuery);")
         
     def listToolbar_query(self, pane):
-        pane = pane.div(position='absolute',top='0px',left='24px',height='26px')
+        pane = pane.div(float='left')
         queryfb = pane.formbuilder(cols=5,datapath='list.query.where',_class='query_pane',
                                           border_spacing='2px',onEnter='genro.fireAfter("list.runQuery",true,10);')
         #self._query_helpers(queryfb)
@@ -304,11 +304,12 @@ class TableHandler(BaseComponent):
         return False
         
     def listToolbar_rightbuttons(self, pane):
-        pane=pane.div(width='60px',nodeId='query_buttons',position='absolute',right='2px',top='1px')
+        pane = pane.div(nodeId='query_buttons',float='right')
         if self.userCanDelete() or self.userCanWrite():
-            pane.button('!!Unlock', position='absolute',right='0px',fire='status.unlock', iconClass="tb_button icnBaseLocked", showLabel=False,hidden='^status.unlocked')
-            pane.button('!!Lock', position='absolute',right='0px',fire='status.lock', iconClass="tb_button icnBaseUnlocked", showLabel=False,hidden='^status.locked')
-        pane.button('!!Add',position='absolute',left='0px',fire='list.newRecord', iconClass="tb_button db_add", visible='^list.canWrite', showLabel=False)
+            ph = pane.div(_class='button_placeholder',float='right')
+            ph.button('!!Unlock',float='right',fire='status.unlock', iconClass="tb_button icnBaseLocked", showLabel=False,hidden='^status.unlocked')
+            ph.button('!!Lock',float='right',fire='status.lock', iconClass="tb_button icnBaseUnlocked", showLabel=False,hidden='^status.locked')
+        pane.button('!!Add',float='right',fire='list.newRecord', iconClass="tb_button db_add", visible='^list.canWrite', showLabel=False)
 
 
     def pageListController(self,pane):
@@ -732,30 +733,31 @@ class TableHandler(BaseComponent):
                           logical_deleted='^form.logical_deleted' )
 
     def formToolbar(self, pane):
-        tb = pane.toolbar(height='26px')
+        tb = pane.toolbar(_class='th_toolbar')
         self.confirm(pane,title='!!Confirm record deletion',width='50em',
                            msg='!!Are you sure to delete ?',
                            btn_ok='!!Delete',btn_cancel='!!Cancel',
                            action_ok='FIRE form.doDeleteRecord',
                            fired='^form.deleteRecord')
-        t_l = tb.div(float='left',margin_left='4px',width='130px')
+        t_l = tb.div(float='left',margin_left='4px')
         t_l.button('!!First', fire_first='form.navbutton', iconClass="tb_button icnNavFirst", disabled='^form.atBegin', showLabel=False)
         t_l.button('!!Previous', fire_prev='form.navbutton', iconClass="tb_button icnNavPrev", disabled='^form.atBegin', showLabel=False)
         t_l.button('!!Next', fire_next='form.navbutton', iconClass="tb_button icnNavNext", disabled='^form.atEnd', showLabel=False)
         t_l.button('!!Last', fire_last='form.navbutton', iconClass="tb_button icnNavLast", disabled='^form.atEnd', showLabel=False)
-        t_r = tb.div(position='absolute',right='0',width='200px')
+        t_r = tb.div(float='right')
         self.formtoolbar_right(t_r)
         #t_c = tb.div(height='25px')
                 
     def formtoolbar_right(self,t_r):
         if self.userCanDelete() or self.userCanWrite():
-            t_r.button('!!Unlock', float='right',fire='status.unlock', 
+            ph = t_r.div(_class='button_placeholder',float='right')
+            ph.button('!!Unlock', float='right',fire='status.unlock', 
                         iconClass="tb_button icnBaseLocked", showLabel=False,hidden='^status.unlocked')
-            t_r.button('!!Lock', float='right',fire='status.lock', 
+            ph.button('!!Lock', float='right',fire='status.lock', 
                         iconClass="tb_button icnBaseUnlocked", showLabel=False,hidden='^status.locked')
-        t_r.button('!!List view', float='right',margin_left='10px', action='FIRE form.newidx = -2;', 
+        t_r.div(_class='button_placeholder',float='right').button('!!List view', float='right', action='FIRE form.newidx = -2;', 
                     iconClass="tb_button tb_listview", showLabel=False)
-        t_r.div(position='absolute',top='5px',right='75px',nodeId='formStatus',hidden='^status.locked')
+        t_r.div(float='right',nodeId='formStatus',hidden='^status.locked',_class='semaphore')
         t_r.data('form.statusClass','greenLight')
         t_r.dataController("""genro.dom.removeClass('formStatus',"greenLight redLight yellowLight");
                               if(isValid){
@@ -770,16 +772,15 @@ class TableHandler(BaseComponent):
                               """,isChanged="^gnr.forms.formPane.changed",
                             isValid='^gnr.forms.formPane.valid')
         if self.userCanWrite():
-            t_r.button('!!Save', position='absolute',right='90px',fire="form.save", 
-                        iconClass="tb_button db_save",showLabel=False,
-                        hidden='^status.locked')
-            t_r.button('!!Revert',position='absolute', right='115px',fire='form.doLoad', iconClass="tb_button db_revert",
-                         disabled='== !_changed', _changed='^gnr.forms.formPane.changed', 
+            t_r.div(_class='button_placeholder', float='right').button('!!Save',fire="form.save", iconClass="tb_button db_save",showLabel=False,
+                                hidden='^status.locked')
+            t_r.div(_class='button_placeholder', float='right').button('!!Revert',fire='form.doLoad', iconClass="tb_button db_revert",
+                                        disabled='== !_changed', _changed='^gnr.forms.formPane.changed', 
                          showLabel=False, hidden='^status.locked')
-            t_r.button('!!Add', float='left', fire_add='form.navbutton', iconClass="tb_button db_add",
+            t_r.div(_class='button_placeholder', float='right').button('!!Add', fire_add='form.navbutton', iconClass="tb_button db_add",
                          disabled='^form.noAdd', showLabel=False,visible='^form.canWrite')
         if self.userCanDelete():
-            t_r.button('!!Delete', float='left',fire='form.deleteRecord', iconClass="tb_button db_del",
+            t_r.div(_class='button_placeholder', float='right').button('!!Delete',fire='form.deleteRecord', iconClass="tb_button db_del",
                                    visible='^form.canDelete',disabled='^form.noDelete', showLabel=False)
                                        
     def selectionBatchRunner(self, pane, title='', resultpath='aux.cmd.result', fired=None, batchFactory=None,

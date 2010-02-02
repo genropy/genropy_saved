@@ -1,3 +1,18 @@
+/* @group Icons */
+.pbl_menu_icon{
+	background: url(icons/sidemenu.png) no-repeat  center center;
+	width: 30px;
+	height: 24px;
+}
+.pbl_logout{
+	background: url(icons/logout.png) no-repeat  center center;
+	width: 16px;
+	height: 16px;
+}
+
+
+/* @end */
+
 /* @group dragDrop */
 
 .dojoDndItemOver		{background: #feb;}
@@ -52,13 +67,6 @@
     -webkit-border-radius:7px;
 	background:  #adc2ff url(icons/linktomenu.gif) right no-repeat;
 }
-
-.pbl_menu_icon{
-	background: url(icons/genropy.gif) no-repeat  center center;
-	width: 30px;
-	height: 24px;
-}
-
 
 /* @end */
 

@@ -74,7 +74,10 @@ class TableScriptOnRecord(TableScript):
         maintable_obj = self.db.table(self.maintable)
         if ext and not ext[0]=='.':
             ext = '.%s' % ext
-        doc_name = '%s_%s%s' % (maintable_obj.name, maintable_obj.recordCaption(self.getData('record')), ext)
+        caption = ''
+        if self.getData('record'):
+            maintable_obj.recordCaption(self.getData('record'))
+        doc_name = '%s_%s%s' % (maintable_obj.name, caption, ext)
         return doc_name
     
 class RecordToHtmlNew(TableScriptOnRecord):

@@ -1,7 +1,12 @@
 .logicalDeleted .gnrfield{
 	color: #f00;
 }
-
+.button_placeholder{
+    width:25px;
+}
+.th_toolbar{
+    height:26px;
+}
 .sttbl_list_top {
 	height: 30px;
 	/*border-bottom: 1px solid silver;*/
@@ -14,8 +19,17 @@
 .disabled {
 	opacity: 0.3;
 }
+.semaphore{
+    margin:5px;
+}
 
 /* @group querypane */
+
+.query_pane .smallFakeTextBox,.query_pane .dijitInputField{
+	height: 15px;
+	line-height: 15px;
+}
+
 
 .sttbl_treepane {
 	padding: 4px;
