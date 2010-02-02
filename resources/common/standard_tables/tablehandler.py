@@ -226,7 +226,7 @@ class TableHandler(BaseComponent):
     def listToolbar_query(self, pane):
         pane = pane.div(float='left')
         queryfb = pane.formbuilder(cols=5,datapath='list.query.where',_class='query_pane',
-                                          border_spacing='2px',onEnter='genro.fireAfter("list.runQuery",true,10);')
+                                          border_spacing='2px',onEnter='genro.fireAfter("list.runQuery",true,10);',float='left')
         #self._query_helpers(queryfb)
 
         queryfb.div('^.c_0?column_caption',min_width='12em',_class='smallFakeTextBox floatingPopup',
@@ -248,7 +248,8 @@ class TableHandler(BaseComponent):
 
         queryfb.textbox(lbl='!!Value',value='^.c_0',width='12em',lbl_width='5em', _autoselect=True,row_class='^.c_0?css_class',
                         validate_onAccept='genro.queryanalyzer.checkQueryLineValue(this,value);',_class='st_conditionValue')
-        queryfb.button('!!Run query', fire='list.runQueryButton', padding_bottom='2px',iconClass="tb_button db_query",showLabel=False)
+        pane.button('!!Run query', fire='list.runQueryButton',
+                    iconClass="tb_button db_query",showLabel=False,float='left')
         queryfb.dataFormula('list.currentQueryCountAsString','msg.replace("_rec_",cnt)',
                             cnt='^list.currentQueryCount',_if='cnt',_else='',
                             msg='!!Current query will return _rec_ items')
