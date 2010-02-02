@@ -9,7 +9,7 @@ Copyright (c) 2009 __MyCompanyName__. All rights reserved.
 
 from gnr.web.gnrbaseclasses import BaseComponent
 from gnr.core.gnrbag import Bag
-from gnr.core.gnrstring import templateReplace, splitAndStrip, toText, toJson, concat, jsquote
+from gnr.core.gnrstring import concat, jsquote
         
 class ViewExporter(BaseComponent):
     def rpc_rpcSavedSelection(self, table, view=None, query=None, userid=None, out_mode='tabtext', **kwargs):
@@ -22,10 +22,10 @@ class ViewExporter(BaseComponent):
         return selection.output(out_mode)
         
     def savedQueryResult(self, table, view=None, query=None,
-                                  order_by=None,group_by=None,
-                                  having=None,distinct=False,
-                                  excludeLogicalDeleted=True,
-                                  **kwargs):
+                        order_by=None,group_by=None,
+                        having=None,distinct=False,
+                        excludeLogicalDeleted=True,
+                        **kwargs):
         tblobj = self.db.table(table)
         
         columnsBag = tblobj.pkg.loadUserObject(code=view, objtype='view',  tbl=table)[0]
@@ -62,7 +62,7 @@ class ListViewHandler(BaseComponent):
     def deleteViewButton(self, pane):
         dlg = pane.dropdownbutton(iconClass='icnBaseTrash', hidden=True, arrow=False,showLabel=False,nodeId='delete_view_btn').tooltipDialog(nodeId='delete_view_dlg', width='25em', datapath='list.view')
         msg = dlg.div( font_size='0.9em')
-        msg.span('!!Do you really want to delete the query: ')
+        msg.span('!!Do you really want to delete: ')
         msg.span('^.selectedCode')
         
         buttons = dlg.div(height='2em',  font_size='0.9em')
@@ -94,7 +94,7 @@ class ListQueryHandler(BaseComponent):
         parentdatapath, resname = datapath.rsplit('.', 1)
         top = pane.div(_class='st_editor_bar', datapath=parentdatapath)    
         top.div(_class='icnBase10_Doc buttonIcon',float='right',
-                                connect_onclick=" SET list.query.selectedId = null ;FIRE .new=true;",
+                                connect_onclick=" SET list.%s.selectedId = null ;FIRE .new=true;" %restype, 
                                 margin_right='5px', margin_top='2px', tooltip='!!New %s' % restype);
         top.div(_class='icnBase10_Save buttonIcon', float='right',margin_right='5px', margin_top='2px',
                 connect_onclick="""var currentId = GET list.%s.selectedId; 
@@ -125,11 +125,13 @@ class ListQueryHandler(BaseComponent):
         
     def rpc_getSqlOperators(self):
         result = Bag()
-        listop=('equal','startswith','wordstart','contains','startswithchars','greater','greatereq','less','lesseq','between','isnull','nullorempty','in','regex')
+        listop=('equal','startswith','wordstart','contains','startswithchars','greater','greatereq',
+                    'less','lesseq','between','isnull','istrue','isfalse','nullorempty','in','regex')
         optype = dict(alpha=['contains','startswith','equal','wordstart',
                             'startswithchars','isnull','nullorempty','in','regex'],
                       date=['equal','in','isnull','greater','greatereq','less','lesseq','between'],
                       number=['equal','greater','greatereq','less','lesseq','isnull','in'],
+                      boolean=['istrue','isfalse','isnull'],
                       others=['equal','greater','greatereq','less','lesseq','in'])
         
         wt = self.db.whereTranslator

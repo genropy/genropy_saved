@@ -119,7 +119,7 @@ dojo.declare("gnr.GnrQueryBuilder",null,{
         this.datapath = datapath;
         this.dtypes_dict = {'A':'alpha','T':'alpha','C':'alpha',
                             'D':'date','DH':'date','I':'number',
-                            'L':'number','N':'number','R':'number'};
+                            'L':'number','N':'number','R':'number','B':'boolean'};
         genro.setDataFromRemote('gnr.qb.fieldstree',"relationExplorer", {table:maintable, omit:'_'});
         this.treefield = genro.getData('gnr.qb.fieldstree');
         genro.setDataFromRemote('gnr.qb.fieldsmenu',"relationExplorer", {table:maintable, omit:'_*',quickquery:true});
@@ -138,7 +138,7 @@ dojo.declare("gnr.GnrQueryBuilder",null,{
         node._('menu', {modifiers:'*',_class:'smallmenu',storepath:'gnr.qb.sqlop.not',id:'qb_not_menu'});
         node._('menu', {modifiers:'*',_class:'smallmenu',storepath:'gnr.qb.fieldsmenu',id:'qb_fields_menu'});
         node._('menu', {modifiers:'*',_class:'smallmenu',storepath:'gnr.qb.sqlop.op',id:'qb_op_menu'});
-        var opmenu_types = ['alpha','date','number','other','unselected_column'];
+        var opmenu_types = ['alpha','date','number','other','boolean','unselected_column'];
         for (var i=0; i < opmenu_types.length; i++) {
             node._('menu', {modifiers:'*',_class:'smallmenu',
                    storepath:'gnr.qb.sqlop.op_spec.'+opmenu_types[i],id:'qb_op_menu_'+opmenu_types[i]});
