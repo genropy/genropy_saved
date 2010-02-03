@@ -158,7 +158,7 @@ class SelectionHandler(BaseComponent):
         return record_id
                              
     def _ivrd_toolbar(self,parentBC,add_action=None,lock_action=None,**kwargs):
-        pane = parentBC.contentPane(height='28px',overflow='hidden',**kwargs)
+        pane = parentBC.contentPane(padding='2px',overflow='hidden',**kwargs)
         tb = pane.toolbar(datapath='.#parent') #referred to the grid
         tb.button('!!First', fire_first='.navbutton', iconClass="tb_button icnNavFirst", disabled='^.atBegin', showLabel=False)
         tb.button('!!Previous', fire_prev='.navbutton', iconClass="tb_button icnNavPrev", disabled='^.atBegin', showLabel=False)
