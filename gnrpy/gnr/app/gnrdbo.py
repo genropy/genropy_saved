@@ -39,7 +39,7 @@ class GnrDboPackage(object):
     
         
 class TableBase(object):
-    def sysFields(self, tbl, id=True, ins=True, upd=True, ldel=True, md5=False, group='_'):
+    def sysFields(self, tbl, id=True, ins=True, upd=True, ldel=True, md5=False, tags=False,group='_'):
         if id:
             tbl.column('id',size='22',group='_',readOnly='y',name_long='!!Id')
             pkey = tbl.attributes.get('pkey')
@@ -57,14 +57,23 @@ class TableBase(object):
                 tbl.attributes['lastTS'] = '__mod_ts'
         if md5:
             tbl.column('__rec_md5', name_long='!!Update date', onUpdating='setRecordMd5', onInserting='setRecordMd5', group='_')
-             
+           
+        if tags:
+            tbl.column('__rec_tags', name_long='!!Record tags', onUpdating='setRecordTags', onInserting='setRecordTags', group='_')
+
+
     def trigger_setTSNow(self, record, fldname):
         if not getattr(record,'_notUserChange',None):
             record[fldname]=datetime.datetime.today()
             
     def trigger_setRecordMd5(self,record,fldname):
         pass
+        
+    def trigger_setRecordTags(self,record,fldname):
+        pass
     
+    def hasRecordTags(self):
+        return self.column['__rec_tags'] is not None
 class GnrDboTable(TableBase):
        
     def dboLoad(self, pkey=None, **kwargs):
