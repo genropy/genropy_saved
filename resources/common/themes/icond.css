@@ -763,7 +763,9 @@ padding-bottom: 5px;
 .center_pane{
 	font-size:1em;
 	margin-left:10px;
-	margin-top:3px;
+}
+.query_form{
+	margin-top:2px;
 }
 .center_pane .smallFakeTextBox,.center_pane .dijitInputField{
 	height: 18px;

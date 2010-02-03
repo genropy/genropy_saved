@@ -246,7 +246,7 @@ class TableHandler(BaseComponent):
 
         
     def listToolbar_query(self,pane):
-        queryfb = pane.formbuilder(cols=5,datapath='list.query.where',
+        queryfb = pane.formbuilder(cols=5,datapath='list.query.where',_class='query_form',
                                           border_spacing='2px',onEnter='genro.fireAfter("list.runQuery",true,10);',float='left')
         #self._query_helpers(queryfb)
 

@@ -21,9 +21,12 @@
 }
 .center_pane {
 	font-size: 0.9em;
-	margin-top: 2px;
 	margin-left: 5px;
 }
+.query_form{
+    margin-top: 2px;
+}
+
 .center_pane .smallFakeTextBox,.center_pane .dijitInputField{
 	height: 15px;
 	line-height: 15px;
