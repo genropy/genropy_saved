@@ -1546,6 +1546,12 @@ dojo.declare("gnr.widgets.Grid",gnr.widgets.baseDojo,{
         if (this.sourceNode.attr.selectedIndex){
             this.sourceNode.setAttributeInDatasource('selectedIndex', ((idx < 0) ? null : idx),null,null,true);
         }
+        if (this.sourceNode.attr.selectedPkeys){
+            this.sourceNode.setAttributeInDatasource('selectedPkeys', this.getSelectedPkeys(),null,null,true);
+        }
+        if (this.sourceNode.attr.selectedRowidx){
+            this.sourceNode.setAttributeInDatasource('Rowidx', this.getSelectedRowidx(),null,null,true);
+        }
         if (this.sourceNode.attr.selectedNodes){
             var nodes = this.getSelectedNodes();
             if (nodes){
