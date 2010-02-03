@@ -25,7 +25,8 @@ from gnr.web.gnrbaseclasses import BaseComponent
 from gnr.core.gnrbag import Bag
 
 class TableHandler(BaseComponent):
-    py_requires="standard_tables/tablehandler_core,foundation/userobject:UserObject,foundation/dialogs"
+    py_requires="""standard_tables/tablehandler_core,
+                foundation/userobject:UserObject,foundation/dialogs"""
     css_requires = 'standard_tables/tablehandler'
     js_requires = 'standard_tables/tablehandler'
     
@@ -214,18 +215,38 @@ class TableHandler(BaseComponent):
     def listToolbar(self, pane, datapath=None,arrows=True):
         self.listController(pane)
         tb = pane.toolbar(_class='th_toolbar')
-        self.listToolbar_lefticons(tb)
-        self.listToolbar_query(tb)
+        self.listToolbar_lefticons(tb.div(float='left',_class='th_toolbar_left'))
+        self.listToolbar_center(tb)
         self.listToolbar_rightbuttons(tb)
         
     def listToolbar_lefticons(self, pane):
-        pane = pane.div(_class='button_placeholder',float='left')
-        pane.div(_class='db_treebtn',connect_onclick="SET list.showToolbox = ! (GET list.showToolbox);")
-        pane.div(_class='db_querybtn',connect_onclick="SET list.showExtendedQuery =! (GET list.showExtendedQuery);")
+        buttons = pane.div(_class='button_placeholder',float='left')
+        buttons.div(_class='db_treebtn',connect_onclick="SET list.showToolbox = ! (GET list.showToolbox);")
+        buttons.div(_class='db_querybtn',connect_onclick="SET list.showExtendedQuery =! (GET list.showExtendedQuery);")
+        if self.tblobj.hasRecordTags():
+            ddbutton = pane.div(_class='listOptMenu',float='left')
+            menu = ddbutton.dropDownButton('^list.tbar.stacklabel').menu(action="""
+                                                                    SET list.tbar.stacklabel= $1.label;
+                                                                    SET list.tbar.stackpage= $1.page;""",
+                                                                    _class='smallmenu')
+            menu.menuline(label='!!Query',page=0)
+            menu.menuline(label='!!Tags',page=1)
+            menu.menuline(label='!!Filters',page=2)
+
+            pane.data('list.tbar.stacklabel','!!Query')
+            pane.data('list.tbar.stackpage',0)
+
+    def listToolbar_center(self, pane):
+        sc = pane.stackContainer(float='left',selected='^list.tbar.stackpage')
+        self.listToolbar_query(sc.contentPane(_class='center_pane'))
+        if self.tblobj.hasRecordTags():
+            self.listToolbar_tags(sc.contentPane(_class='center_pane')) #inside core
+            self.listToolbar_filters(sc.contentPane(_class='center_pane')) #inside core
+
+
         
-    def listToolbar_query(self, pane):
-        pane = pane.div(float='left')
-        queryfb = pane.formbuilder(cols=5,datapath='list.query.where',_class='query_pane',
+    def listToolbar_query(self,pane):
+        queryfb = pane.formbuilder(cols=5,datapath='list.query.where',
                                           border_spacing='2px',onEnter='genro.fireAfter("list.runQuery",true,10);',float='left')
         #self._query_helpers(queryfb)
 
@@ -233,7 +254,7 @@ class TableHandler(BaseComponent):
                               dnd_onDrop="genro.querybuilder.onChangedQueryColumn(this,item.attr);",
                               dnd_allowDrop="return !(item.attr.one_relation);", nodeId='fastQueryColumn',
                               action="genro.querybuilder.onChangedQueryColumn($2,$1);",
-                              lbl='!!Query')
+                              lbl='!!Search')
         optd = queryfb.div(_class='smallFakeTextBox',lbl='!!Op.',lbl_width='4em')
         
         optd.div('^.c_0?not_caption',selected_caption='.c_0?not_caption',selected_fullpath='.c_0?not',

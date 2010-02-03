@@ -760,12 +760,12 @@ padding-bottom: 5px;
 	margin: 2px;
 }
 
-.query_pane{
+.center_pane{
 	font-size:1em;
 	margin-left:10px;
 	margin-top:3px;
 }
-.query_pane .smallFakeTextBox,.query_pane .dijitInputField{
+.center_pane .smallFakeTextBox,.center_pane .dijitInputField{
 	height: 18px;
 	line-height: 18px;
 }

@@ -11,6 +11,42 @@ from gnr.web.gnrbaseclasses import BaseComponent
 from gnr.core.gnrbag import Bag
 from gnr.core.gnrstring import concat, jsquote
         
+class ListToolbarOptions(BaseComponent):
+    def listToolbar_tags(self,pane):
+        self._th_showtags_dlg(pane)
+        pane.button('Show tags',action='FIRE #record_tag_dlg.open')
+        
+    def _th_showtags_dlg(self,pane):
+        def cb_center(bc,**kwargs):
+            iv = self.includedViewBox(bc.borderContainer(**kwargs),label='!!Tags',nodeId='record_tag_grid',
+                                storepath='#record_tag_dlg.tags',
+                                columns="""tag:6,description:10""",
+                                table='adm.record_tag', autoWidth=True,
+                                add_action=True,del_action=True)
+            gridEditor = iv.gridEditor()
+            gridEditor.textbox(gridcell='tag')
+            gridEditor.textbox(gridcell='description')
+
+                                
+        dialogBc = self.dialog_form(pane,title='!!Edit tag',loadsync=False,
+                                datapath='gnr.record_tag',
+                                height='180px',width='300px',
+                                formId='record_tag',cb_center=cb_center)
+                                
+        dialogBc.dataRpc('dummy',"save_record_tag",nodeId="record_tag_saver",
+                                tags='=.tags',_onResult='FIRE .saved')
+        dialogBc.dataRpc('.tags','load_record_tag',nodeId='record_tag_loader')
+    
+    def rpc_load_record_tag(self):
+        return self.db.table('adm.record_tag').query(where='$table_name =:tbl',tbl=self.maintable).selection().output('grid')
+        
+    def rpc_save_record_tag(self,data):
+        pass
+
+    def listToolbar_filters(self,pane):
+        pane.button('bbb')
+
+        
 class ViewExporter(BaseComponent):
     def rpc_rpcSavedSelection(self, table, view=None, query=None, userid=None, out_mode='tabtext', **kwargs):
         tblobj = self.db.table(table)
@@ -247,3 +283,4 @@ class ListQueryHandler(BaseComponent):
             
     def rpc_getQuickView(self,**kwargs):
         return Bag()
+        
