@@ -21,15 +21,16 @@ class Table(object):
                 
     def use_auth(self,code,username):
         record = self.record(pkey=code,for_update=True).output('bag')
-        record['use_datetime'] =  datetime.now()
+        record['use_ts'] =  datetime.now()
         record['used_by'] =  username
         self.update(record)
     
     def check_auth(self,code):
         code = code.upper()
-        coupon = self.db.record(pkey=code)
-        if not coupon:
+        exists = self.query(where='$code=:code', code=code).fetch()
+        if not exists:
             return False
-        if coupon['use_datetime']:
+        coupon= exists[0]
+        if coupon['use_ts']:
             return False
         return True
