@@ -30,7 +30,7 @@ def writeDigraph(title, relations, out):
     print>> out, "digraph", title, "{"
     for tbl1, tables in relations.items():
         for tbl2 in tables.keys():
-            print>> out, "  ", quote(tbl1), "->", quote(tbl2)
+            print>> out, "  ", quote(tbl2), "->", quote(tbl1)
     print>> out, "}"
 
 def main():
