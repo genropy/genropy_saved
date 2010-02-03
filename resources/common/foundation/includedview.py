@@ -321,8 +321,8 @@ class IncludedView(BaseComponent):
                                      #loadingParameters=loadingParameters)
         delScript = """PUT .selectedLabel= null;
                        var grid = genro.wdgById(gridId);
-                       var nodesToDel = grid.delBagRow('*', delSelection);
-                       FIRE .%s""" % 'onDeletedRow'
+                       var nodesToDel = grid.delBagRow('*', delSelection);"""
+                       
         controller.dataController(delScript, _fired='^.delRecord', delSelection='^.delSelection',
                                 idx='=.selectedIndex', gridId=gridId)
         controller.dataController("""console.log('Start Edit');genro.wdgById(gridId).editBagRow();console.log('End Edit')
