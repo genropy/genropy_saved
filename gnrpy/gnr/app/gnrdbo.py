@@ -73,7 +73,7 @@ class TableBase(object):
         pass
     
     def hasRecordTags(self):
-        return self.column['__rec_tags'] is not None
+        return self.column('__rec_tags') is not None
 class GnrDboTable(TableBase):
        
     def dboLoad(self, pkey=None, **kwargs):
