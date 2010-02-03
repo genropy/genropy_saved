@@ -84,7 +84,7 @@ def safe_dict(d):
     return dict([(str(k), v) for k,v in d.items()])
     
 
-def uniqify(seq):
+def uniquify(seq):
     def seen_function(seq):
         seen = set()
         for x in seq:

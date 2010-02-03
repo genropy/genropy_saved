@@ -27,7 +27,7 @@ import cPickle
 import itertools
 import hashlib
 
-from gnr.core.gnrlang import deprecated
+from gnr.core.gnrlang import deprecated, uniquify
 from gnr.core.gnrdate import decodeDatePeriod
 from gnr.core.gnrlist import GnrNamedList
 
@@ -1266,7 +1266,10 @@ class SqlSelection(object):
         for r in outsource:
             n += 1
         return n
-    
+        
+    def out_distinctColumns(self, outsource):
+        return [uniquify(x) for x in zip(*[[v for k,v in r] for r in outsource])]
+
     def out_distinct(self, outsource):
         return set([tuple([col[1] for col in r]) for r in outsource])
     

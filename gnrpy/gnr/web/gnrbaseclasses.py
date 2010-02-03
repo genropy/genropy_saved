@@ -29,7 +29,7 @@ Copyright (c) 2007 Softwell. All rights reserved.
 """
 from gnr.core.gnrbag import Bag 
 from gnr.core.gnrstring import  splitAndStrip
-from gnr.core.gnrlang import GnrObject, uniqify
+from gnr.core.gnrlang import GnrObject, uniquify
 from itertools import chain
 
 class BaseComponent(object):
