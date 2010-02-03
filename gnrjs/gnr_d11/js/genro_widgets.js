@@ -2722,6 +2722,9 @@ dojo.declare("gnr.widgets.VirtualStaticGrid",gnr.widgets.Grid,{
         //this.edit.info = {};
         this.gnrediting = false;
         editWidget.sourceNode.editedRowIndex = null;
+        this.sourceNode.setRelativeData('_temp.grids.'+this.sourceNode.attr.nodeId+'.edit_datapath',
+                                            null);
+        this.sourceNode.currentEditedRow = null;
     },
     mixin_findNextEditableCell: function(rc, delta){
         var row = rc.row;
