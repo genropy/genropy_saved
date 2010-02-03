@@ -28,29 +28,28 @@ class GnrCustomWebPage(object):
         
     def lstBase(self,struct):
         r = struct.view().rows()
-        r.fieldcell('@user_id.username',width='15em',name='!!By')
-        r.fieldcell('auth_tag',width='15em')
+        r.fieldcell('@user_id.username',width='15em',name='!!Created by')
         r.fieldcell('note',width='30em')
-        r.fieldcell('code',width='6em',styles='display:block;')
+        r.fieldcell('code',width='6em')
+        r.fieldcell('used_by',name='Used by',width='8em')
+        r.fieldcell('use_ts',name='Use date',width='8em')
         return struct
                   
     def orderBase(self):
         return '@user_id.username'
         
-    def conditionBase(self):
-        return ('$redeemed IS FALSE',{})
+    def conditionBase__(self):
+        return ('$use_ts IS NULL',{})
  
 ############################## FORM METHODS ##################################
 
     def formBase(self, parentBC,disabled=False, **kwargs):
         pane = parentBC.contentPane(**kwargs)
         fb = pane.formbuilder(cols=1, border_spacing='4px',disabled=disabled)
-        fb.field('auth_tag',dbtable='adm.tag',hasDownArrow=True,tag='dbCombobox')
-        fb.simpleTextArea(value='^.note',lbl='!!Note')
-        fb.div('^.code')
+        fb.textbox(value='^.code',lbl='!!Code',readOnly=True,font_size='2em',ghost='!!To be created')
+        fb.simpleTextArea(value='^.note',lbl='!!Note',height='10ex',width='100%')
         
     def onSaving(self, recordCluster, recordClusterAttr, resultAttr):
         recordCluster['code'] = self.tblobj.generate_code()
         recordCluster['user_id'] = self.userRecord('id')
-        recordCluster['redeemed'] = False
         

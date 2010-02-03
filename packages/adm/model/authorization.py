@@ -9,8 +9,7 @@ class Table(object):
         self.sysFields(tbl, id=False)
         tbl.column('code', size='8',validate_case='U', name_long='!!Code')
         tbl.column('user_id',size='22',name_long='!!Event').relation('user.id',mode='foreignkey')
-        tbl.column('auth_tag',size=':10',name_long='!!Level')
-        tbl.column('use_datetime','DH',name_long='!!Used datetime')
+        tbl.column('use_ts','DH',name_long='!!Used datetime')
         tbl.column('used_by',size=':32',name_long='!!Used by')
         tbl.column('note',name_long='!!Note')     
         
