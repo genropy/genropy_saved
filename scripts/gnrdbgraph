@@ -61,6 +61,7 @@ def main():
             if pkg:
                 tt = ["%s.%s" % (p_or_t, t) for t in pkg.tables.keys()]
             else:
+                tt = []
                 print>> sys.stderr, "Package not found:", p_or_t
         if not exclude:
             tables.extend(tt)
