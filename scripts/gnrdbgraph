@@ -26,10 +26,16 @@ def loadRelations(app, tables):
 def quote(s):
     return s.replace('.','_')
 
-def writeDigraph(title, relations, out):
+def remove_package(full):
+    pkg, tbl = full.split('.',2)
+    return tbl
+
+def writeDigraph(title, relations, remove_package_prefix, out):
     print>> out, "digraph", title, "{"
     for tbl1, tables in relations.items():
+        if remove_package_prefix: tbl1=remove_package(tbl1)        
         for tbl2 in tables.keys():
+            if remove_package_prefix: tbl2=remove_package(tbl2)
             print>> out, "  ", quote(tbl2), "->", quote(tbl1)
     print>> out, "}"
 
@@ -40,6 +46,7 @@ def main():
     p.add_option('-G','--graphviz-options', dest="graphviz_options", help="Graphviz options", default='')
     p.add_option('-o','--output-file',dest='output_file', help='Output file (defaults to <instance name>.<output type>)', default=None)
     p.add_option('-O','--auto-open',dest='auto_open',default=False,help="Auto call 'open' on output file (works on MacOSX)", action="store_true")
+    p.add_option('-P','--remove-package-prefix', dest='remove_package_prefix',default=False,help="Remove package prefixes", action="store_true")
     
     options, params = p.parse_args()
     if not params:
@@ -83,7 +90,7 @@ def main():
     print cmdline
     graphviz = subprocess.Popen(cmdline, stdin=subprocess.PIPE, shell=True)
     buf = StringIO()
-    writeDigraph(instance, relations, buf)
+    writeDigraph(instance, relations, options.remove_package_prefix, buf)
     graphviz.communicate(buf.getvalue())
     if options.auto_open:
         subprocess.call(["open %s" % output], shell=True)
