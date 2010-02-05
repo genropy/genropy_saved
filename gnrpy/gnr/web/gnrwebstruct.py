@@ -324,7 +324,7 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
                    'ins', 'kbd', 'label', 'legend', 'li', 'link', 'map', 'meta', 'noframes', 'noscript',
                    'object', 'ol', 'optgroup', 'option', 'p', 'param', 'pre', 'q', 'samp', 
                    'select', 'small', 'span', 'strong', 'style', 'sub', 'sup', 'table', 'tbody', 'td',
-                   'textarea', 'tfoot', 'th', 'thead', 'title', 'tr', 'tt', 'ul', 'var','embed']
+                   'textarea', 'tfoot', 'th', 'thead', 'title', 'tr', 'tt', 'ul','audio','video','var','embed']
 
                                         
                                         
