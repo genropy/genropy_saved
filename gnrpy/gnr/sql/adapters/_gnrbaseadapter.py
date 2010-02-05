@@ -565,7 +565,7 @@ class GnrWhereTranslator(object):
         return '%s IS TRUE' % column
         
     def op_isfalse(self, column, value, dtype, sqlArgs):
-        "Is true"
+        "Is false"
         return '%s IS FALSE' % column
         
     def op_nullorempty(self, column, value, dtype, sqlArgs):
