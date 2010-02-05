@@ -743,7 +743,7 @@ dojo.declare('gnr.GenroClient', null, {
         if (relative) {
             url = genro.constructUrl(url);
         } else {
-            url = genro.joinPath(genro.getData('gnr.homeUrl'),url);
+            url = genro.joinPath(genro.getData('gnr.homeUrl') || '',url);
         }
         window.location.assign(url);
     },
