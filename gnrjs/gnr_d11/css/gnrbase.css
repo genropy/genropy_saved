@@ -1111,7 +1111,6 @@ textarea:disabled {
 
 /* @group menu */
 
-
 .browsemenu .tundra .dijitMenuItemIcon {
 	width: 4px;
 	height: 14px;
@@ -1120,3 +1119,15 @@ textarea:disabled {
 
 
 /* @end */
+
+/* @group Fonts */
+@font-face {
+	font-family: 'Abadi';
+	font-weight: normal;
+	src: url('/_gnr/11/fonts/abadi/Abadi_MT_Condensed_Light.ttf');
+}
+
+
+/* @end */
+
+
