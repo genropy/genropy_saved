@@ -2671,12 +2671,14 @@ dojo.declare("gnr.widgets.VirtualStaticGrid",gnr.widgets.Grid,{
             return;
         }
         this.gnrediting = true;
-        if (this.sourceNode.currentEditedRow != row){
+        var currentEditedRow = genro._('_temp.grids.'+this.sourceNode.attr.nodeId+'.currentRow');
+        if (currentEditedRow != row){
             var selectedDataPath = this.dataNodeByIndex(row).getFullpath(null, true);
             //this.sourceNode.setRelativeData('.edit_datapath',selectedDataPath);
             this.sourceNode.setRelativeData('_temp.grids.'+this.sourceNode.attr.nodeId+'.edit_datapath',
                                             selectedDataPath);
-            this.sourceNode.currentEditedRow = row;
+            this.sourceNode.setRelativeData('_temp.grids.'+this.sourceNode.attr.nodeId+'.currentRow',
+                                            row);
             setTimeout(dojo.hitch(this, 'startEditCell', row, col), 1);
             return;
         }
@@ -2722,9 +2724,6 @@ dojo.declare("gnr.widgets.VirtualStaticGrid",gnr.widgets.Grid,{
         //this.edit.info = {};
         this.gnrediting = false;
         editWidget.sourceNode.editedRowIndex = null;
-        this.sourceNode.setRelativeData('_temp.grids.'+this.sourceNode.attr.nodeId+'.edit_datapath',
-                                            null);
-        this.sourceNode.currentEditedRow = null;
     },
     mixin_findNextEditableCell: function(rc, delta){
         var row = rc.row;

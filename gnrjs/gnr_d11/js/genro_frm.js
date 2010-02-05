@@ -74,6 +74,7 @@ dojo.declare("gnr.GnrFrmHandler",null,{
         genro.setData(this.controllerPath+'.loading', true);
         this.status = 'loading';
         this.resetInvalids(); // reset invalid fields before loading to intercept required fields during loading process
+        genro.setData('_temp.grids',null);
         var loaderNode = genro.nodeById(this.form_id+'_loader');
         if(loaderNode){
             loaderNode.fireNode();
