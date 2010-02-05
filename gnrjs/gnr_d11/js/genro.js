@@ -742,8 +742,25 @@ dojo.declare('gnr.GenroClient', null, {
     gotoURL:function(url,relative){      
         if (relative) {
             url = genro.constructUrl(url);
-        };
+        } else {
+            url = genro.joinPath(genro.getData('gnr.homeUrl'),url);
+        }
         window.location.assign(url);
+    },
+    joinPath:function() {
+        result = arguments[0];
+        var i;
+        for(i = 1; i < arguments.length; i++) {
+            var p = arguments[i];
+            if(result.substr(-1) != "/") {
+                result += "/";
+            }
+            if(p.substr(0,1) == "/") {
+                p = p.substr(1);
+            }
+            result += p;
+        }
+        return result;
     },
     gotoHome:function(){      
         window.location.assign(genro.getData('gnr.homepage'));
