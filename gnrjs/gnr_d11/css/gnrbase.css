@@ -1,4 +1,3 @@
-
 .gnrdebugger{
     z-index:1000 !important;
 }
@@ -1115,7 +1114,40 @@ textarea:disabled {
 	width: 4px;
 	height: 14px;
 }
+/* @end */
 
+/* @group Video HTML5 */
+#videoelem {
+	width: 100%; height: 100%; position: absolute;
+}
+#videocontainer {
+	position: relative; width: 400px; height:225px;
+                                      -webkit-user-select:none; 
+                                      -webkit-transition-duration:0.2s
+}
+.videobutton {line-height: 40pt; border: 3px solid white; 
+              -webkit-border-radius: 20px;
+              opacity: 0.5;position: absolute; font-size: 40pt;
+              color: white;background-color: gray;cursor: pointer;
+              text-align: center; z-index: 1;
+}
+.videozoombutton { bottom:10px;right:10px;width:1.1em;
+                   height:1.1em;font-size:15pt; line-height: 15pt;
+                   border:2px solid white; -webkit-border-radius: 8px;
+}
+.videoloading { top: 0; bottom: 0; margin:auto; left:0; right:0;
+                                    width: 7em; height: 1.2em; cursor:default;
+}
+videofadeout { 
+    -webkit-transition: 1.5s; opacity:0; 
+}
+#videocontainer:hover .videofadeout {
+	opacity: 0.5;
+}
+.videoplay {
+	top: 0; bottom: 0; margin:auto; left:0; 
+    right:0; width: 1.2em; height: 1.2em;
+}
 
 
 /* @end */
@@ -1126,8 +1158,6 @@ textarea:disabled {
 	font-weight: normal;
 	src: url('/_gnr/11/fonts/abadi/Abadi_MT_Condensed_Light.ttf');
 }
-
-
 /* @end */
 
 
