@@ -64,12 +64,6 @@ from gnr.core.gnrlang import getUuid, NotImplementedException
 from gnr.core.gnrstring import splitAndStrip, toText, toJson
 from gnr.core import gnrdate
 
-from gnr.web.jsmin import jsmin
-
-from gnr.web.gnrwebstruct import  GnrDomSrc_dojo_11, GnrDomSrc_dojo_14, GnrGridStruct
-
-#from gnr.web.gnrwebreqresp import GnrWebRequest, GnrWebResponse
-#from gnr.web.gnrwebapphandler import GnrProcessHandler
 from gnr.sql.gnrsql_exceptions import GnrSqlSaveChangesException
 
 AUTH_OK=0
@@ -135,65 +129,18 @@ class GnrBaseWebPage(GnrObject):
     
 
     
-    def importPageModule(self, page_path, pkg=None):
+    def OLD_importPageModule(self, page_path, pkg=None):
          if not pkg:
              pkg = self.packageId
          return gnrImport(self.site.pkg_static_path(pkg,(page_path.split('/'))))
         
-    def mixinFromPage(self,kls,pkg=None):
+    def OLD_mixinFromPage(self,kls,pkg=None):
         if isinstance(kls,basestring):
             page_path, kls_name = kls.split(':')
             module = importPageModule(page_path,pkg=pkg)
             kls = getattr(module, kls_name)
         self.mixin(kls)
     
-    def getUuid(self):
-        return getUuid()
-        
-    def addHtmlHeader(self,tag,innerHtml='',**kwargs):
-        attrString=' '.join(['%s="%s"' % (k,str(v)) for k,v in kwargs.items()])
-        self._htmlHeaders.append('<%s %s>%s</%s>'%(tag,attrString,innerHtml,tag))
-        
-    
-    def _css_dojo_d11(self,theme=None):
-        theme=theme or self.theme
-        return ['dojo/resources/dojo.css',
-                'dijit/themes/dijit.css',
-                'dijit/themes/%s/%s.css' % (theme,theme),
-                'dojox/grid/_grid/Grid.css',
-                'dojox/grid/_grid/%sGrid.css' % theme
-                ]
-    
-    def _gnrjs_d11(self):
-        return ['gnrbag','genro', 'genro_widgets', 'genro_rpc', 'genro_patch',
-                                           'genro_dev','genro_dlg','genro_frm','genro_dom','gnrdomsource',
-                                           'genro_wdg','genro_src','gnrlang','gnrstores'
-                                           #,'soundmanager/soundmanager2'
-                                           ]
-    
-    def _css_genro_d11(self):
-           return {'all': ['gnrbase'], 'print':['gnrprint']}
-           
-    def _css_dojo_d14(self,theme=None):
-        theme=theme or self.theme
-        return ['dojo/resources/dojo.css',
-                'dijit/themes/dijit.css',
-                'dijit/themes/%s/%s.css' % (theme,theme),
-                'dojox/grid/_grid/Grid.css',
-                'dojox/grid/_grid/%sGrid.css' % theme
-                ]
-    
-    def _gnrjs_d14(self):
-        return ['gnrbag','genro', 'genro_widgets', 'genro_rpc', 'genro_patch',
-                                           'genro_dev','genro_dlg','genro_frm','genro_dom','gnrdomsource',
-                                           'genro_wdg','genro_src','gnrlang','gnrstores'] 
-    def _css_genro_d14(self):
-           return {'all': ['gnrbase'], 'print':['gnrprint']}
-    
-
-                
-    def htmlHeaders(self):
-        pass
     
     def rpc_decodeDatePeriod(self, datestr, workdate=None, locale=None):
         workdate = workdate or self.workdate
@@ -770,18 +717,6 @@ class GnrBaseWebPage(GnrObject):
     def msg_undefined(self, message):
         pass
         
-    def newSourceRoot(self):
-        return self.domSrcFactory.makeRoot(self)
-    
-    def newGridStruct(self, maintable=None):
-        return GnrGridStruct.makeRoot(self, maintable=maintable)
-    
-    def _get_domSrcFactory(self):
-        if self.dojoversion=='11':
-            return GnrDomSrc_dojo_11
-        elif self.dojoversion=='14':
-            return GnrDomSrc_dojo_14
-    domSrcFactory=property(_get_domSrcFactory)
 
     def rpc_resolverRecall(self, resolverPars=None, **auxkwargs):
         if isinstance(resolverPars,basestring):

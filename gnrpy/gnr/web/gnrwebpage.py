@@ -45,6 +45,8 @@ from gnr.web.gnrwebpage_proxy.localizer import GnrWebLocalizer
 from gnr.web.gnrwebpage_proxy.debugger import GnrWebDebugger
 from gnr.web.gnrwebpage_proxy.utils import GnrWebUtils
 from gnr.web.gnrwebpage_proxy.pluginhandler import GnrWebPluginHandler
+from gnr.web.gnrwebpage_proxy.jstools import GnrWebJSTools
+from gnr.web.gnrwebstruct import GnrGridStruct
 from gnr.core.gnrlang import GnrGenericException, gnrImport
 from gnr.core.gnrbag import Bag
 from gnr.core.gnrlang import deprecated
@@ -77,7 +79,6 @@ class GnrWebPage(GnrBaseWebPage):
         self.onIniting(request_args,request_kwargs)
         self._user_login = request_kwargs.pop('_user_login',None)
         self.private_kwargs=dict([(k[:2],v)for k,v in request_kwargs.items() if k.startswith('__')])
-        self.dojo_theme =request_kwargs.pop('dojo_theme',None) or getattr(self, 'dojo_theme', None) or self.site.config['dojo?theme'] or 'tundra'
         self.pagetemplate = request_kwargs.pop('pagetemplate',None) or getattr(self, 'pagetemplate', None) or self.site.config['dojo?pagetemplate'] # index
         self.css_theme = request_kwargs.pop('css_theme',None) or getattr(self, 'css_theme', None) or self.site.config['gui?css_theme']
         self.folders= self._get_folders()
@@ -97,7 +98,6 @@ class GnrWebPage(GnrBaseWebPage):
         self.set_call_handler(request_args, request_kwargs)
         self._call_args = request_args or tuple()
         self._call_kwargs = request_kwargs or {}
-    
 ##### BEGIN: PROXY DEFINITION ########
 
     def _get_frontend(self):
@@ -155,6 +155,12 @@ class GnrWebPage(GnrBaseWebPage):
         return self._pluginhandler
     pluginhandler = property(_get_pluginhandler)
 
+    def _get_jstools(self):
+        if not hasattr(self, '_jstools'):
+            self._jstools = GnrWebJSTools(self)
+        return self._jstools
+    jstools = property(_get_jstools)
+
 ###### END: PROXY DEFINITION #########
 
     def __call__(self):
@@ -194,7 +200,7 @@ class GnrWebPage(GnrBaseWebPage):
                 request_kwargs.update([(str(k),v) for k,v in token_kwargs.items()])
         else:
             self._call_handler=self.rootPage
-            request_kwargs['dojo_theme']=self.dojo_theme
+            #request_kwargs['dojo_theme']=self.dojo_theme
             request_kwargs['pagetemplate']=self.pagetemplate
 
     def _rpcDispatcher(self, method=None, xxcnt='', mode='bag',**kwargs):
@@ -281,9 +287,9 @@ class GnrWebPage(GnrBaseWebPage):
         for subscriber in self._event_subscribers.get(event,[]):
             getattr(subscriber,'event_%s'%event)()
     
-    def rootPage(self,dojo_theme=None,pagetemplate=None,**kwargs):
-        self.frontend
-        self.dojo_theme = dojo_theme or 'tundra'
+    def rootPage(self,pagetemplate=None,**kwargs):
+        #self.frontend
+        #self.dojo_theme = dojo_theme or 'tundra'
         self.charset='utf-8'
         tpl = pagetemplate or 'standard.tpl'
         if not isinstance(tpl, basestring):
@@ -306,6 +312,17 @@ class GnrWebPage(GnrBaseWebPage):
         self.session.pagedata['pagepath'] = self.pagepath
         self.session.saveSessionData()
     
+    def getUuid(self):
+        return getUuid()
+
+    def addHtmlHeader(self,tag,innerHtml='',**kwargs):
+        attrString=' '.join(['%s="%s"' % (k,str(v)) for k,v in kwargs.items()])
+        self._htmlHeaders.append('<%s %s>%s</%s>'%(tag,attrString,innerHtml,tag))
+
+    def htmlHeaders(self):
+        pass
+
+    
     def _(self, txt):
         if txt.startswith('!!'):
             txt = self.localizer.translateText(txt[2:])
@@ -325,11 +342,9 @@ class GnrWebPage(GnrBaseWebPage):
         return handler
     
     def build_arg_dict(self,**kwargs):
-        #_resources = self.site.resources.keys()
-        #_resources.reverse()
-        dojolib = self.site.dojo_static_url(self.dojoversion,'dojo','dojo','dojo.js')
         gnrModulePath = self.site.gnr_static_url(self.gnrjsversion)
         arg_dict={}
+        self.frontend.frontend_arg_dict(arg_dict)
         arg_dict['customHeaders']=self._htmlHeaders
         arg_dict['charset'] = self.charset
         arg_dict['filename'] = self.pagename
@@ -339,20 +354,16 @@ class GnrWebPage(GnrBaseWebPage):
         arg_dict['startArgs'] = toJson(kwargs)
         arg_dict['page_id'] = self.page_id or getUuid()
         arg_dict['bodyclasses'] = self.get_bodyclasses()
-        arg_dict['dojolib'] = dojolib
-        arg_dict['djConfig'] = "parseOnLoad: false, isDebug: %s, locale: '%s'" % (self.isDeveloper() and 'true' or 'false',self.locale)
         arg_dict['gnrModulePath'] = gnrModulePath
-        gnrimports = getattr(self, '_gnrjs_d%s' % self.dojoversion)()
+        gnrimports = self.frontend.gnrjs_frontend()
         if self.site.debug or self.isDeveloper():
             arg_dict['genroJsImport'] = [self.site.gnr_static_url( self.gnrjsversion,'js', '%s.js' % f) for f in gnrimports]
         elif self.site.config['closure_compiler']:
             jsfiles = [self.site.gnr_static_path(self.gnrjsversion,'js', '%s.js' % f) for f in gnrimports]
-            arg_dict['genroJsImport'] = [self._jsclosurecompile(jsfiles)]
+            arg_dict['genroJsImport'] = [self.jstools.closurecompile(jsfiles)]
         else:
             jsfiles = [self.site.gnr_static_path(self.gnrjsversion,'js', '%s.js' % f) for f in gnrimports]
-            arg_dict['genroJsImport'] = [self._jscompress(jsfiles)]
-        css_dojo = getattr(self, '_css_dojo_d%s' % self.dojoversion)()
-        arg_dict['css_dojo'] = [self.site.dojo_static_url(self.dojoversion,'dojo',f) for f in css_dojo]
+            arg_dict['genroJsImport'] = [self.jstools.compress(jsfiles)]
         arg_dict['css_genro'] = self.get_css_genro()
         arg_dict['js_requires'] = [x for x in [self.getResourceUri(r,'js') for r in self.js_requires] if x]
         css_path, css_media_path = self.get_css_path()
@@ -388,14 +399,25 @@ class GnrWebPage(GnrBaseWebPage):
         external_token = self.db.table('sys.external_token').create_token(path,expiry=_expiry,allowed_host=_host,method=method,parameters=kwargs, exec_user=self.user)
         return self.externalUrl(path, gnrtoken=external_token)
     
-    def get_bodyclasses(self):
-        return '%s _common_d11 pkg_%s page_%s %s' % (self.dojo_theme, self.packageId, self.pagename,getattr(self,'bodyclasses',''))
+    def get_bodyclasses(self):   #  ancora necessario _common_d11?
+        return '%s _common_d11 pkg_%s page_%s %s' % (self.frontend.theme or '', self.packageId, self.pagename,getattr(self,'bodyclasses',''))
     
     def get_css_genro(self):
-        css_genro = getattr(self, '_css_genro_d%s' % self.gnrjsversion)()
+        css_genro = self.frontend.css_genro_frontend()
         for media in css_genro.keys():
            css_genro[media] = [self.site.gnr_static_url(self.gnrjsversion,'css', '%s.css' % f) for f in css_genro[media]]
         return css_genro
+    
+    def _get_domSrcFactory(self):
+        return self.frontend.domSrcFactory
+    domSrcFactory = property(_get_domSrcFactory)
+    
+    def newSourceRoot(self):
+        return self.domSrcFactory.makeRoot(self)
+    
+    def newGridStruct(self, maintable=None):
+        return GnrGridStruct.makeRoot(self, maintable=maintable)
+    
     
     def _get_folders(self):
         return {'pages':self.site.pages_dir,
@@ -440,56 +462,7 @@ class GnrWebPage(GnrBaseWebPage):
     
     def checkPermission(self, pagepath, relative=True):
         return self.application.checkResourcePermission(self.auth_tags, self.userTags)
-    
-    def _jsclosurecompile(self, jsfiles):
-        from subprocess import call
-        ts = str(max([os.path.getmtime(fname) for fname in jsfiles]))
-        key = '-'.join(jsfiles)
-        cpfile = '%s-%s.js' % (hashlib.md5(key+ts).hexdigest(),ts)
-        cppath = self.site.site_static_path('_static','_jslib', cpfile)
-        jspath = self.site.site_static_url('_static','_jslib', cpfile)
-        rebuild = True
-        if os.path.isfile(cppath):
-            rebuild = False
-        if rebuild:
-            path = self.site.site_static_path('_static','_jslib')
-            if not os.path.exists(path):
-                os.makedirs(path)
-            call_params = ['java','-jar',os.path.join(os.path.dirname(__file__),'compiler.jar')]
-            for path in jsfiles:
-                call_params.append('--js=%s'%path)
-            call_params.append('--js_output_file=%s'%cppath)
-            call(call_params)
-        return jspath
-        
-    def _jscompress(self, jsfiles):
-        ts = str(max([os.path.getmtime(fname) for fname in jsfiles]))
-        key = '-'.join(jsfiles)
-        cpfile = '%s.js' % hashlib.md5(key+ts).hexdigest()
-        cppath = self.site.site_static_path('_static','_jslib', cpfile)
-        jspath = self.site.site_static_url('_static','_jslib', cpfile)
-        rebuild = True
-        if os.path.isfile(cppath):
-            cpf = file(cppath, 'r')
-            tsf = cpf.readline()
-            cpf.close()
-            if ts in tsf:
-                rebuild = False
-        if rebuild:
-            path = self.site.site_static_path('_static','_jslib')
-            if not os.path.exists(path):
-                os.makedirs(path)
-            cpf = file(cppath, 'w')
-            cpf.write('// %s\n' % ts)
-            for fname in jsfiles:
-                f = file(fname)
-                js = f.read()
-                f.close()
-                cpf.write(jsmin(js))
-                cpf.write('\n\n\n\n')
-            cpf.close()
-        return jspath
-    
+
     def get_css_theme(self):
         return self.css_theme
     
@@ -548,7 +521,6 @@ class GnrWebPage(GnrBaseWebPage):
         result=self.site.resource_loader.getResourceList(self.resourceDirs,path, ext=ext)
         if result:
             return result[0]
-
 
     def _get_package_folder(self):
         if not hasattr(self,'_package_folder'):
