@@ -599,23 +599,23 @@ padding-bottom: 5px;
 }
 /* @group Lock */
 
-.icnBaseLocked{
+.dijitToolbar .icnBaseLocked{
 	height: 24px;
 	width: 24px;
 	background: url(icons/lock/lock_24.png) no-repeat;
 }
-.dijitButtonHover .icnBaseLocked{
+.dijitToolbar .dijitButtonHover .icnBaseLocked{
 	height: 24px;
 	width: 24px;
 	background: url(icons/lock/lock_over_24.png) no-repeat;
 }
 
-.icnBaseUnlocked{
+.dijitToolbar .icnBaseUnlocked{
 	height: 24px;
 	width: 24px;
 	background: url(icons/unlock/unlock_24.png) no-repeat;
 }
-.dijitButtonHover .icnBaseUnlocked{
+.dijitToolbar .dijitButtonHover .icnBaseUnlocked{
 	height: 24px;
 	width: 24px;
 	background: url(icons/unlock/unlock_over_24.png) no-repeat;
