@@ -34,6 +34,12 @@ class RecordToHtmlFrame(BaseComponent):
         
         table = table or self.maintable
         frameId = frameId or self.getUuid()
+        runKwargs = None
+        enableCondition  = None
+
+        if runKwargsPath:
+            runKwargs = '=%s' %runKwargsPath
+
         controllerPath = 'aux_frames.%s' % frameId
         top=bc.contentPane(region='top', height='32px')
         toolbar = top.toolbar(height='23px',margin_top='2px')
@@ -62,7 +68,7 @@ class RecordToHtmlFrame(BaseComponent):
                              """ % (table,respath),
                     _fired='^%s.downloadPdf' % controllerPath,
                     record = '=%s' % pkeyPath,
-                    runKwargs = '=%s' % runKwargsPath, #aggiunto
+                    runKwargs = runKwargs, #aggiunto
                     docName ='=%s' % docNamePath,
                     moreargs=kwargs,
                     rebuild=True)
@@ -78,10 +84,7 @@ class RecordToHtmlFrame(BaseComponent):
         if enableConditionPath:
             enableCondition = '=%s' % enableConditionPath
             center.dataController("FIRE %s.load;" %controllerPath, _fired='^%s' % enableConditionPath)
-        else:
-            enableCondition  = None
         center.dataController("FIRE %s.load;" % controllerPath, _fired='^%s' % pkeyPath)
-
         frame = iframePane.iframe(nodeId=frameId,
                               border='0px',
                               height='100%',
@@ -91,7 +94,7 @@ class RecordToHtmlFrame(BaseComponent):
                               condition_value = condition_value,
                               rpcCall='callTableScript',
                               rpc_record = '=%s' % pkeyPath,
-                              rpc_runKwargs = '=%s' % runKwargsPath, #aggiunto 
+                              rpc_runKwargs = runKwargs, #aggiunto 
                               rpc_table = table,
                               rpc_respath=respath,
                               #rpc_rebuild='=%s.noCache' % controllerPath,
