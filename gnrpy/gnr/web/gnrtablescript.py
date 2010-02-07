@@ -66,9 +66,7 @@ class TableScriptOnRecord(TableScript):
 
     def onRecordLoaded(self,**kwargs):
         pass
-    
-    def test(self):
-        x=TableScriptOnRecord(mypage)
+
         
     def outputDocName(self, ext=''):
         maintable_obj = self.db.table(self.maintable)
@@ -106,7 +104,7 @@ class RecordToHtmlNew(TableScriptOnRecord):
     copies_per_page=1
     copy_extra_height=0
     starting_page_number=0
-
+    
     def init(self,**kwargs):
         self.maintable=self.maintable or self.resource_table
         self.maintable_obj=self.db.table(self.maintable)
@@ -248,13 +246,15 @@ class RecordToHtmlNew(TableScriptOnRecord):
             data = self.currRowDataNode.value
         return self.field(path,root=data,**kwargs)
         
-    def rowCell(self,field,default=None, locale=None,
-                    format=None, mask=None,currency=None,**kwargs):
-        if callable(field):
-            value=field()
-        else:
-            value=self.rowField(field,default=default,locale=locale,format=format,mask=mask,currency=currency)
-        self.currRow.cell(value,width=self.grid_col_widths[self.currColumn],overflow='hidden',white_space='nowrap',**kwargs)
+    def rowCell(self,field=None,value=None,default=None, locale=None,
+               format=None, mask=None,currency=None,**kwargs):
+        if field:
+            if callable(field):
+                value=field()
+            else:
+                value=self.rowField(field,default=default,locale=locale,format=format,mask=mask,currency=currency)            
+        if value is not None:
+            self.currRow.cell(value,width=self.grid_col_widths[self.currColumn],overflow='hidden',white_space='nowrap',**kwargs)
         self.currColumn = self.currColumn + 1
         
     def _createPage(self):
@@ -388,7 +388,7 @@ class RecordToHtmlNew(TableScriptOnRecord):
                         }
                         .aligned_left{
                             text-align:left;
-                            margin-left:2mm;
+                            margin-left:1mm;
                         }
                         .aligned_center{
                             text-align:center;
