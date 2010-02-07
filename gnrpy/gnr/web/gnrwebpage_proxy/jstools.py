@@ -26,13 +26,13 @@ class GnrWebJSTools(GnrBaseProxy):
         ts = str(max([os.path.getmtime(fname) for fname in jsfiles]))
         key = '-'.join(jsfiles)
         cpfile = '%s-%s.js' % (hashlib.md5(key+ts).hexdigest(),ts)
-        cppath = self.site.site_static_path('_static','_jslib', cpfile)
-        jspath = self.site.site_static_url('_static','_jslib', cpfile)
+        cppath = self.page.site.site_static_path('_static','_jslib', cpfile)
+        jspath = self.page.site.site_static_url('_static','_jslib', cpfile)
         rebuild = True
         if os.path.isfile(cppath):
             rebuild = False
         if rebuild:
-            path = self.site.site_static_path('_static','_jslib')
+            path = self.page.site.site_static_path('_static','_jslib')
             if not os.path.exists(path):
                 os.makedirs(path)
             call_params = ['java','-jar',os.path.join(os.path.dirname(__file__),'compiler.jar')]
@@ -46,8 +46,8 @@ class GnrWebJSTools(GnrBaseProxy):
         ts = str(max([os.path.getmtime(fname) for fname in jsfiles]))
         key = '-'.join(jsfiles)
         cpfile = '%s.js' % hashlib.md5(key+ts).hexdigest()
-        cppath = self.site.site_static_path('_static','_jslib', cpfile)
-        jspath = self.site.site_static_url('_static','_jslib', cpfile)
+        cppath = self.page.site.site_static_path('_static','_jslib', cpfile)
+        jspath = self.page.site.site_static_url('_static','_jslib', cpfile)
         rebuild = True
         if os.path.isfile(cppath):
             cpf = file(cppath, 'r')
@@ -56,7 +56,7 @@ class GnrWebJSTools(GnrBaseProxy):
             if ts in tsf:
                 rebuild = False
         if rebuild:
-            path = self.site.site_static_path('_static','_jslib')
+            path = self.page.site.site_static_path('_static','_jslib')
             if not os.path.exists(path):
                 os.makedirs(path)
             cpf = file(cppath, 'w')
