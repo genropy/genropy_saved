@@ -294,8 +294,10 @@ class BagNode(object):
         If it doesn't exists returns a default value.
         * `label`: the label of the attribute to get.
         """
-        if label: return self.attr.get(label,default)
-        return self.attr
+        if not label or label=='#': 
+            return self.attr
+        return self.attr.get(label,default)
+        
     
     def getInheritedAttributes(self):
         inherited = {}
