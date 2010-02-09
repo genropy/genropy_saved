@@ -59,11 +59,12 @@ class RecordDialog(BaseComponent):
         formId = formId or  '%s_form' % tableId
         
         sqlContextName='sqlcontext_%s' %tableId
-        controllerPath = datapath or 'aux_forms.%s' % tableId
-        sqlContextRoot= record_datapath or '%s.record' % controllerPath
+        mainDatapath = datapath or 'aux_forms.%s' % tableId
+        sqlContextRoot= record_datapath or '#%s.record' %dlgId
         title = title or '^.record?caption'
         page = pane
         if page is None:
+            assert not datapath.startswith('.'),'pass a pane if you need to use a relative datapath'
             page = self.pageSource()
         dlgPars=dlgPars or {}
         if onShow:
@@ -71,13 +72,13 @@ class RecordDialog(BaseComponent):
         if centerOn:
             dlgPars['centerOn']=centerOn             
         dlg = page.dialog(nodeId=dlgId,title=title,
-                        datapath=controllerPath,**dlgPars)
+                        datapath=mainDatapath,**dlgPars)
         dlgBC = dlg.borderContainer(height=height, nodeId='%s_layout' %dlgId,
                                     width=width, _class=_class,
                                     sqlContextName=sqlContextName,
                                     sqlContextRoot=sqlContextRoot, 
                                     sqlContextTable= table)
-        self._recordDialogController(dlgBC,dlgId,formId,controllerPath,
+        self._recordDialogController(dlgBC,dlgId,formId,
                                     table,saveKwargs,loadKwargs,firedPkey,sqlContextName,
                                     onSaved,onClosed,savePath,savingMethod,loadingMethod,
                                     loadingParameters,validation_failed,record_datapath,**kwargs)
@@ -85,12 +86,12 @@ class RecordDialog(BaseComponent):
         self._recordDialogLayout(dlgBC,dlgId,formId,table,formCb,
                                  bottomCb,toolbarCb,record_datapath,add_action,lock_action)
 
-    def _recordDialogController(self,pane,dlgId,formId,controllerPath,
+    def _recordDialogController(self,pane,dlgId,formId,
                                 table,saveKwargs,loadKwargs,firedPkey,sqlContextName,
                                 onSaved,onClosed,savePath,savingMethod,loadingMethod,
                                 loadingParameters,validation_failed,record_datapath,**kwargs):
         onSaved = onSaved or ''
-        onSaved = 'FIRE %s.afterSaving; %s' %(controllerPath,onSaved)
+        onSaved = 'FIRE #%s.afterSaving; %s' %(dlgId,onSaved)
         
         pane.dataController("""if(saveAndAdd){
                                     SET .closeDlg = false;
@@ -143,12 +144,14 @@ class RecordDialog(BaseComponent):
         self.formLoader(formId,resultPath=record_datapath or '.record',
                         table=table,pkey='=.current_pkey',
                         method=loadingMethod,loadingParameters=loadingParameters,
-                        datapath=controllerPath,
+                        datapath='#%s' %dlgId,
                         sqlContextName=sqlContextName,**loadKwargs)
                        
         self.formSaver(formId,resultPath= savePath or '.savingResult',
                        table=table, _fired='^.saveRecord',
-                       method=savingMethod,onSaved=onSaved,datapath=controllerPath,**saveKwargs)
+                       method=savingMethod,onSaved=onSaved,
+                       datapath='#%s' %dlgId,
+                       **saveKwargs)
                        
         pane.dataController("""if(loading){
                                     SET .stackPane = 0;
@@ -179,7 +182,7 @@ class RecordDialog(BaseComponent):
         bottomCb = bottomCb or getattr(self,'_record_dialog_bottom')
         bottomCb(bottom)
         stack = bc.stackContainer(region='center',_class='pbl_background' ,formId=formId,
-                                  selected='^.#parent.stackPane' ,datapath=record_datapath or '.record')
+                                  selected='^#%s.stackPane' %dlgId,datapath=record_datapath or '.record')
         loading = stack.contentPane(_class='waiting')
         formCb(stack, disabled='^form.locked', table=table)
 
