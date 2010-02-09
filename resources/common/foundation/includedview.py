@@ -156,8 +156,6 @@ class IncludedView(BaseComponent):
             gridtop_lock = gridtop_right.div(float='left',margin_right='5px')
             self._iv_gridLock(gridtop_lock,lock_action=lock_action)
             
-             
-        
         if footer:
             assert callable(footer),'footer param must be a callable'
             footerPars = dict( [(k[7:],v) for k,v in kwargs.items() if k.startswith('footer_')] )

@@ -310,4 +310,4 @@ class Table_recordtag_link(TableBase):
     def config_db(self, pkg):
         tbl =  pkg.table('recordtag_link',  pkey='id', name_long='!!Record tag link', transaction=False)
         self.sysFields(tbl, id=True, ins=False, upd=False)
-        tbl.column('tag_id',name_long='!!Tag',size='22').relation('recordtag.id',mode='foreignkey')
+        tbl.column('tag_id',name_long='!!Tag id',size='22').relation('recordtag.id',mode='foreignkey')
