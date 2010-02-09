@@ -22,14 +22,12 @@
 
 __version__='1.0b'
 
-import sys
 import re
 from gnr.core.gnrlog import gnrlogging
 gnrlogger = gnrlogging.getLogger('gnr.sql.gnrsql')
 
 from gnr.core.gnrlang import getUuid
 from gnr.core.gnrlang import GnrObject
-from gnr.core.gnrlang import gnrImport
 from gnr.core.gnrlang import importModule
 from gnr.core.gnrbag import Bag
 from gnr.core.gnrclasses import GnrClassCatalog
@@ -53,7 +51,7 @@ class GnrSqlDb(GnrObject):
     """
     def __init__(self, implementation='sqlite', dbname='mydb',
                  host=None, user=None, password=None, port=None,
-                 main_schema=None,debugger=None):
+                 main_schema=None,debugger=None,application=None):
         """
         This is the constructor method of the GnrSqlDb class. 
         @param implementation: 'sqlite' or 'postgres' or other sql implementations.
@@ -65,25 +63,16 @@ class GnrSqlDb(GnrObject):
         @param main_schema: the database main_schema
         """
         
-        self.dbname = dbname
         self.implementation=implementation
+        self.dbname = dbname
         self.host = host
         self.port = port
         self.user = user
         self.password = password
         self.typeConverter = GnrClassCatalog()
         self.debugger=debugger
+        self.application=application
         
-        # All available adapter modules are already imported.
-        # GnrSqlDb instantiates the SqlDbAdapter specified by 
-        # the parameter implementation.
-        #self.adapter = globals()['gnr%s' % implementation].SqlDbAdapter(self)
-        # 
-
-        #module = 'gnr.sql.adapters.gnr%s' % implementation
-        #if module not in sys.modules:
-        #    __import__(module)
-        #self.adapter = sys.modules[module].SqlDbAdapter(self)
         self.adapter = importModule('gnr.sql.adapters.gnr%s' % implementation).SqlDbAdapter(self)
         self.whereTranslator = self.adapter.getWhereTranslator()
         if main_schema is None: 
@@ -92,11 +81,10 @@ class GnrSqlDb(GnrObject):
         self.model = DbModel(self)
         self._connections = {}
         self.started = False
+        self.dbstores={}
+        self._currentEnv={}
         
-#    def __del__(self): # deprecated?
-#        self.closeConnection()
-#        object.__del__(self)
-        
+
     #------------------------Configure and Startup-----------------------------
     def startup(self):
         """Build the model.obj from the model.src"""
@@ -158,6 +146,22 @@ class GnrSqlDb(GnrObject):
      #      finally:
      #          self._connections[thread.get_ident()] = None
     
+    def addDbstore(self,storename, dbname=None, host=None, user=None, password=None, port=None):
+        self.dbstores[storename]=dict(dbname=dbname or storename,
+                            host=host or self.host,user=user or self.user,
+                            password=password or self.password,port=port or self.port)
+                            
+    def dropDbstore(self,storename):
+        self.dbstores.pop(storename,None)
+        
+    def _get_currentEnv(self):
+        """property currentEnv it returns the env currently used in this thread"""
+        return self._currentEnv.get(thread.get_ident())
+        
+    def _set_currentEnv(self,env):
+        """set currentEnv for this thread"""
+        self._currentEnv[thread.get_ident()] = env
+    currentEnv = property(_get_currentEnv,_set_currentEnv)
     
     def _get_connection(self):
         """property .connection
@@ -341,6 +345,9 @@ class GnrSqlDb(GnrObject):
         for table, pkg in data.digest('#k,#a.pkg'):
             for n in data[table]:
                 self.table(table, pkg=pkg).insertOrUpdate(n.attr)
+                
+
+    
 if __name__=='__main__':
     pass
     
