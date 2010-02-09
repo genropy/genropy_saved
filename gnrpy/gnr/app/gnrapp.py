@@ -240,6 +240,9 @@ class GnrApp(object):
         
     def load_dbstores_config(self):
         dbstores={}
+        dbstores_path =os.path.join(self.instanceFolder,'dbstores')
+        if not os.path.isdir(dbstores_path):
+            return dbstores
         dbstoresConfig=Bag(os.path.join(self.instanceFolder,'dbstores'))
         if dbstoresConfig:
             for name,parameters in dbstoresConfig['#0'].digest('#a.file_name,#v.#0?#'):
@@ -268,7 +271,8 @@ class GnrApp(object):
         self.localization = {}
         if dbattrs.get('implementation') =='sqlite':
             dbattrs['dbname'] = self.realPath(dbattrs.pop('filename'))
-        self.db = GnrSqlAppDb(debugger=getattr(self,'debugger',None,application=self), **dbattrs)
+        dbattrs['application'] = self
+        self.db = GnrSqlAppDb(debugger=getattr(self,'debugger',None), **dbattrs)
         pkgMenues = self.config['menu?package'] or []
         if pkgMenues:
             pkgMenues = pkgMenues.split(',')

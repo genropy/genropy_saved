@@ -36,68 +36,12 @@ from gnr.sql.adapters._gnrbaseadapter import GnrDictRow, GnrWhereTranslator
 from gnr.sql.adapters._gnrbaseadapter import SqlDbAdapter as SqlDbBaseAdapter
 from gnr.core.gnrbag import Bag
 from gnr.sql.gnrsql_exceptions import GnrNonExistingDbException
-#from gnr.sql.PersistentDB import PersistentDB
 
 RE_SQL_PARAMS = re.compile(":(\w*)(\W|$)")
 
 psycopg2.extensions.register_type(psycopg2.extensions.UNICODE)
 import threading
 import thread
-#def init():
-#    global con, thr
-#    con, thr = None, {}
-
-#init()
-
-def dsn_clean(dsn=''):
-    l = dsn.split('=')                              # split kvskv to k,vsk,v
-    d, k = {}, l[0]                                 #                k
-    for vk in l[1:-1]: d[k], k = vk.rsplit(' ', 1)  #                 =v,k
-    d[k] = l[-1]                                    #                     =v
-    dsn = ''
-    for k,v in d.items():
-        v = v.rstrip()
-        if v:
-            v = v[0] == v[-1] and v[0] in '\'"' and v[1:-1] or v
-            d[k] = v
-    for k in 'dbname','host','port','user','password','sslmode':
-        if k in d:
-            dsn = dsn + (k.lower() +'='+ d[k])
-    return dsn, d
-
-def connect(dsn):
-    dsn, d = dsn_clean(dsn)
-    return pg.connect(dsn), d
-
-
-def get_cursor(dsn=''):
-    """Creates a new connection (if necessary) and a new cursor"""
-    global con
-    cxn = con
-    if       dsn: cxn, d = connect(dsn)
-    elif not con or con.closed:
-        con, d = connect(config.dsn)
-        cxn = con
-    else: d = {}
-
-    if   v == 1: cur = cxn.cursor()
-    elif v == 2: cur = cxn.cursor(cursor_factory = ex.DictCursor)
-
-    if d.get('autocommit'):
-        if   v == 1: cxn.autocommit(1)
-        elif v == 2: cxn.set_isolation_level(0)
-    if d.get('encoding'):
-        if   v == 1: cur.execute("SET CLIENT_ENCODING=%s", (d['encoding'],))
-        elif v == 2: cxn.set_client_encoding(d['encoding'])
-    return cur
-
-def get_thread_cursor(dsn='', pid=[-1]):
-    """Utility to create separate cursors for different (pid x thread)s."""
-    global thr, con
-
-    if pid[0] != os.getpid(): con, pid[0], thr = None, os.getpid(), {}
-    me = (dsn, thread.get_ident())
-    return thr.setdefault(me, get_cursor(dsn))
 
 
 class SqlDbAdapter(SqlDbBaseAdapter):
@@ -126,7 +70,8 @@ class SqlDbAdapter(SqlDbBaseAdapter):
         """Return a new connection object: provides cursors accessible by col number or col name
         @return: a new connection object"""
         dbroot = self.dbroot
-        kwargs = dict(host=dbroot.host, database=dbroot.dbname, user=dbroot.user, password=dbroot.password, port=dbroot.port)
+        kwargs = self.dbroot.get_connection_params()
+        #kwargs = dict(host=dbroot.host, database=dbroot.dbname, user=dbroot.user, password=dbroot.password, port=dbroot.port)
         kwargs = dict([(k,v) for k,v in kwargs.items() if v != None]) # remove None parameters, psycopg can't handle them
         kwargs['connection_factory'] = GnrDictConnection # build a DictConnection: provides cursors accessible by col number or col name
         self._lock.acquire()

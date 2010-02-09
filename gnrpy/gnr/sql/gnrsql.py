@@ -171,6 +171,9 @@ class GnrSqlDb(GnrObject):
         return self._connections[thread.get_ident()]
     connection = property(_get_connection)
     
+    def get_connection_params(self):
+        return dict(host=self.host, database=self.dbname, user=self.user, password=self.password, port=self.port)
+    
     def execute(self, sql, sqlargs=None, cursor=None, cursorname=None, autocommit=False,dbtable=None):
         
         """Execute the sql statement using given kwargs"""

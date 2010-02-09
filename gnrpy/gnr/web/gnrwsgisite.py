@@ -320,6 +320,9 @@ class GnrWsgiSite(object):
         # Url parsing start
         path_list = self.get_path_list(request.path_info)
         request_kwargs=dict(request.params)
+        storename = None
+        if path_list[0] in self.dbstores:
+            storename = path_list.pop(0)
         if path_list[0].startswith('_tools'):
             return self.serve_tool(path_list,environ,start_response,**request_kwargs)
         elif path_list[0].startswith('_'):
@@ -336,6 +339,7 @@ class GnrWsgiSite(object):
                 return self.not_found(environ,start_response)
             self.onServingPage(page)
             self.currentPage = page
+            page.storename = storename
             result = page()
             self.onServedPage(page)
             self.cleanup()
