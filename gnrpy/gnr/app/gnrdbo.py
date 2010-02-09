@@ -3,6 +3,7 @@
 
 import datetime
 from gnr.core.gnrbag import Bag
+from gnr.core.gnrstring import splitAndStrip
 
 class GnrDboPackage(object):
     def getCounter(self, name, code, codekey, output, 
@@ -39,7 +40,7 @@ class GnrDboPackage(object):
     
         
 class TableBase(object):
-    def sysFields(self, tbl, id=True, ins=True, upd=True, ldel=True, md5=False, tags=False,group='_'):
+    def sysFields(self, tbl, id=True, ins=True, upd=True, ldel=True, md5=False,group='_'):
         if id:
             tbl.column('id',size='22',group='_',readOnly='y',name_long='!!Id')
             pkey = tbl.attributes.get('pkey')
@@ -58,8 +59,6 @@ class TableBase(object):
         if md5:
             tbl.column('__rec_md5', name_long='!!Update date', onUpdating='setRecordMd5', onInserting='setRecordMd5', group='_')
            
-        if tags:
-            tbl.column('__rec_tags', name_long='!!Record tags', onUpdating='setRecordTags', onInserting='setRecordTags', group='_')
 
 
     def trigger_setTSNow(self, record, fldname):
@@ -68,73 +67,21 @@ class TableBase(object):
             
     def trigger_setRecordMd5(self,record,fldname):
         pass
-        
-    def trigger_setRecordTags(self,record,fldname):
-        pass
     
     def hasRecordTags(self):
-        return self.column('__rec_tags') is not None
+        return self.attributes.get('hasRecordTags',False)
+    
+    def setTagColumn(self,tbl):
+        tagtbl = tbl.parentNode.parentbag.parentNode.parentbag.table('recordtag_link')
+        tblname = tbl.parentNode.label
+        tbl.parentNode.attr['hasRecordTags'] = True
+        pkey = tbl.parentNode.getAttr('pkey')
+        pkeycolAttrs = tbl.column(pkey).getAttr()
+        tagtbl.column('%s_%s' %(tblname,pkey),dtype=pkeycolAttrs.get('dtype'),
+                      size=pkeycolAttrs.get('size')).relation('%s.%s' %(tblname,pkey),mode='foreignkey')
+        
 class GnrDboTable(TableBase):
-       
-    def dboLoad(self, pkey=None, **kwargs):
-        """method to implement via mixin"""
-        return self.dboDoLoad(dbo, pkey=pkey, **kwargs)
-        
-    def dboDoLoad(self, pkey=None, record=None, **kwargs):
-        dbo = Bag()
-        if pkey:
-            record=self.record(pkey,mode='record',ignoreMissing=True)
-        dbo.setItem('mainrecord', record, _pkey=record[self.pkey], _table=self.fullname, _opcode='U')
-        return dbo
-    
-    def dboCreate(self, **kwargs):
-        """method to implement via mixin"""
-        return self.dboDoCreate()
-        
-    def dboDoCreate(self, **kwargs):
-        dbo = Bag()
-        rec = self.newrecord(True, **kwargs)
-        dbo.setItem('mainrecord', rec, _pkey=rec[self.pkey], _table=self.fullname, _opcode='I')
-        return dbo
-    
-    def dboProcess(self, dbo, **kwargs):
-        pass
-    
-    def dboExecute(self, dbo, **kwargs):
-        """method to implement via mixin
-           @param mode: I (insert) U (update) IU (insert or update)"""
-        self.dboDoExecute(dbo, **kwargs)
-        
-    def dboDoExecute(self, dbo, **kwargs):
-        _opcode = dbo['mainrecord?_opcode']
-        mainrecord = dbo['mainrecord']
-        if _opcode=='D':
-            self.delete(mainrecord)
-            return
-        if _opcode=='I':
-            self.insert(mainrecord)
-        elif _opcode=='U':
-            self.update(mainrecord)
-        elif _opcode=='IU':
-            self.insertOrUpdate(mainrecord)
-            
-        children = dbo['children']
-        for childrows, childtable, childcb in children.digest('#v,#a._table,#a._cb'):
-            child_tblobj = self.db.table(childtable)
-            if childrows:
-                for row, rowop in childrows.digest('#v,#a._opcode'):
-                    if childcb:
-                        child_tblobj.getattr(childcb)(row, rowop)
-                    else:
-                        if rowop=='D':
-                            child_tblobj.delete(row)
-                        elif rowop=='I':
-                            child_tblobj.insert(row)
-                        elif rowop=='U':
-                            child_tblobj.update(row)
-                        elif rowop=='IU':
-                            child_tblobj.insertOrUpdate(row)   
-             
+    pass
 
 class Table_counter(TableBase):
     """This table is automatically created for every package that inherit from
@@ -307,4 +254,60 @@ class Table_userobject(TableBase):
         sel.filter(checkUserObj)
         return sel
     
+class Table_recordtag(TableBase):
+    def config_db(self, pkg):
+        tbl =  pkg.table('recordtag',  pkey='id', name_long='!!Record tags', transaction=False)
+        self.sysFields(tbl, id=True, ins=False, upd=False)
+        tbl.column('tablename',name_long='!!Table name')
+        tbl.column('tag',name_long='!!Tag')
+        tbl.column('description',name_long='!!Description')
+        tbl.column('values',name_long='!!Values')
+        tbl.column('is_child','B',name_long='!!Is child')
+        
+    def trigger_onInserting(self, record_data):
+        if record_data['values']:
+            self.setTagChildren(record_data)
+            
+    def setTagChildren(self,record_data,old_record_data=None):
+        tablename = record_data['tablename']
+        parentTag = record_data['tag']
+        oldChildren = {}
+        if old_record_data:
+            parentTag_old = old_record_data['tag']
+            if parentTag_old != parentTag:
+                def cb_tag(row):
+                    row['tag'] = row['tag'].replace('%s_' %parentTag_old,'%s_'%parentTag)
+                self.batchUpdate(cb_tag,where='$tag LIKE :p_tag',p_tag='%s_%%' % parentTag_old)                
+        if old_record_data and old_record_data['values']:
+            for item in splitAndStrip(old_record_data['values'],','):
+                tag,description = splitAndStrip('%s:%s'%(item,item),':',n=2,fixed=2)     
+                oldChildren['%s_%s'%(parentTag,tag)] = description
+                
+        for item in splitAndStrip(record_data['values'],','):
+            tag,description = splitAndStrip('%s:%s'%(item,item),':',n=2,fixed=2)
+            tag='%s_%s' %(parentTag,tag) 
+            if tag in oldChildren:
+                if description != oldChildren[tag]:
+                    def cb_desc(row):
+                        row['description'] = description
+                    self.batchUpdate(cb_desc,where='$tag=:c_tag',c_tag=tag)
+                oldChildren.pop(tag)
+            else:
+                self.insert(Bag(dict(tablename=tablename,tag=tag,description=description,is_child=True)))
+        tagsToDelete = oldChildren.keys()
+        if tagsToDelete:
+            self.deleteSelection('tag',tagsToDelete,condition_op='IN') 
 
+    def trigger_onDeleting(self, record):
+        if record['values']:
+            self.deleteSelection('tag','%s_%%' %record['tag'],condition_op='LIKE')
+
+    def trigger_onUpdating(self, record_data, old_record):
+        if not record_data['is_child']:
+            self.setTagChildren(record_data, old_record)
+               
+class Table_recordtag_link(TableBase):
+    def config_db(self, pkg):
+        tbl =  pkg.table('recordtag_link',  pkey='id', name_long='!!Record tag link', transaction=False)
+        self.sysFields(tbl, id=True, ins=False, upd=False)
+        tbl.column('tag_id',name_long='!!Tag',size='22').relation('recordtag.id',mode='foreignkey')
