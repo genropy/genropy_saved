@@ -269,7 +269,8 @@ class DbModelSrc(GnrStructData):
             self.child('table_list', 'tables')
         return self.child('table', 'tables.%s' % name, comment=comment, 
               name_short=name_short, name_long=name_long, name_full=name_full, 
-              pkey=pkey, lastTS=lastTS, rowcaption=rowcaption, **kwargs)
+              pkey=pkey, lastTS=lastTS, rowcaption=rowcaption,pkg=self.parentNode.label,
+               **kwargs)
 
     def column(self, name, dtype=None, size=None, 
                default=None, notnull=None, unique=None, indexed=None,
