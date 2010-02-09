@@ -382,7 +382,7 @@ class GnrBaseWebPage(GnrObject):
     
     def _get_db(self):
         if not hasattr(self, '_db'):
-            self._db = self.app.get_db(self)
+            self._db = self.application.get_db(self)
             self._db.currentEnv = dict(storename = self.storename)
             # self._db.set_env(storename= self.storename, **kwargs)
         return self._db
