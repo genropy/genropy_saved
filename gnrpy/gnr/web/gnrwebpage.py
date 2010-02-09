@@ -161,7 +161,16 @@ class GnrWebPage(GnrBaseWebPage):
         return self._jstools
     jstools = property(_get_jstools)
 
-###### END: PROXY DEFINITION #########
+    def _get_db(self):
+        if not hasattr(self, '_db'):
+            self._db = self.app.db
+            self._db.currentEnv = dict(storename = self.storename)
+            # self._db.set_env(storename= self.storename, **kwargs)
+        return self._db
+    db = property(_get_db)
+
+    ###### END: PROXY DEFINITION #########
+
 
     def __call__(self):
         """Internal method dispatcher"""
