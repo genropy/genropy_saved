@@ -35,9 +35,9 @@ from email.MIMEText import MIMEText
 from gnr.utils import ssmtplib
 
 from gnr.core.gnrclasses import GnrClassCatalog
-from gnr.core.gnrbag import Bag, DirectoryResolver
+from gnr.core.gnrbag import Bag
 
-from gnr.core.gnrlang import GnrObject, gnrImport, instanceMixin, GnrGenericException
+from gnr.core.gnrlang import  gnrImport, instanceMixin, GnrGenericException
 from gnr.core.gnrstring import makeSet, toText, splitAndStrip, like, boolean
 from gnr.core.gnrsys import expandpath
 from gnr.sql.gnrsql import GnrSqlDb
@@ -173,7 +173,7 @@ class GnrPackage(object):
         - customized Package objects (method config_db_custom)
         """
         struct = self.application.db.model.src
-        pkg = struct.package(self.id, **self.attributes)
+        struct.package(self.id, **self.attributes)
         
         config_db_xml = os.path.join(self.packageFolder,'model','config_db.xml')
         if os.path.isfile(config_db_xml):
@@ -201,6 +201,7 @@ class GnrApp(object):
         self.packages = Bag()
         self.packagesIdByPath = {}
         self.config = self.load_instance_config()
+        self.dbstores=self.load_dbstores_config()
         self.build_package_path()
         db_settings_path = os.path.join(self.instanceFolder, 'dbsettings.xml')
         if os.path.isfile(db_settings_path):
@@ -237,6 +238,14 @@ class GnrApp(object):
             return Bag(config_path)
         return Bag()
         
+    def load_dbstores_config(self):
+        dbstores={}
+        dbstoresConfig=Bag(os.path.join(self.instanceFolder,'dbstores'))
+        if dbstoresConfig:
+            for name,parameters in dbstoresConfig['#0'].digest('#a.file_name,#v.#0?#'):
+                dbstores[name]=parameters
+        return dbstores
+                
     def load_instance_config(self):
         instance_config_path = os.path.join(self.instanceFolder,'instanceconfig.xml')
         base_instance_config = Bag(instance_config_path)
@@ -259,9 +268,7 @@ class GnrApp(object):
         self.localization = {}
         if dbattrs.get('implementation') =='sqlite':
             dbattrs['dbname'] = self.realPath(dbattrs.pop('filename'))
-        configlist = []
-        self.db = GnrSqlAppDb(debugger=getattr(self,'debugger',None), **dbattrs)
-        self.db.application = self
+        self.db = GnrSqlAppDb(debugger=getattr(self,'debugger',None,application=self), **dbattrs)
         pkgMenues = self.config['menu?package'] or []
         if pkgMenues:
             pkgMenues = pkgMenues.split(',')
@@ -281,6 +288,8 @@ class GnrApp(object):
             sys.path.append(apppkg.libPath)
         self.db.inTransactionDaemon = False
         self.db.startup()
+        for storename,store in self.dbstores:
+            self.addDbstore(storename,store)
         if len(self.config['menu'])==1:
             self.config['menu'] = self.config['menu']['#0']
         self.buildLocalization()
@@ -301,7 +310,7 @@ class GnrApp(object):
                     if os.path.isdir(instance_path):
                         return instance_path
         raise Exception(
-            'Error: instance %s not found' % pkgid)
+            'Error: instance %s not found' % instance_name)
         
     def build_package_path(self):
         self.package_path={}
@@ -536,7 +545,13 @@ class GnrApp(object):
             if not tag in resourceTags:
                 resourceTags.append(tag)
         return ','.join(resourceTags)
-    
+        
+    def addDbstore(self,storename, store):
+        self.db.addDbstore(storename, **store)
+                           
+    def dropDbstore(self,storename):
+        self.db.dropDbstore(storename=storename)
+        
     def checkDb(self):
         return self.db.checkDb()
         
