@@ -63,8 +63,9 @@ class RecordDialog(BaseComponent):
         sqlContextRoot= record_datapath or '#%s.record' %dlgId
         title = title or '^.record?caption'
         page = pane
-        if datapath and page is None:
-            assert not datapath.startswith('.'),'pass a pane if you need to use a relative datapath'
+        if page is None:
+            if datapath:
+                assert not datapath.startswith('.'),'pass a pane if you need to use a relative datapath'
             page = self.pageSource()
         dlgPars=dlgPars or {}
         if onShow:
