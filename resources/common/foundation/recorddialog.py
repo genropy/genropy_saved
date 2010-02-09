@@ -82,7 +82,7 @@ class RecordDialog(BaseComponent):
                                     onSaved,onClosed,savePath,savingMethod,loadingMethod,
                                     loadingParameters,validation_failed,record_datapath,**kwargs)
                                     
-        self._recordDialogLayout(dlgBC,dlgId,formId,controllerPath,table,formCb,
+        self._recordDialogLayout(dlgBC,dlgId,formId,table,formCb,
                                  bottomCb,toolbarCb,record_datapath,add_action,lock_action)
 
     def _recordDialogController(self,pane,dlgId,formId,controllerPath,
@@ -171,7 +171,7 @@ class RecordDialog(BaseComponent):
         elif validation_failed == "focus":
             pane.dataController("genro.formById('%s').focusFirstInvalidField()" %formId,_fired="^.validation_failed")
         
-    def _recordDialogLayout(self,bc,dlgId,formId,controllerPath,table,
+    def _recordDialogLayout(self,bc,dlgId,formId,table,
                             formCb,bottomCb,toolbarCb,record_datapath,add_action,lock_action):
         if callable(toolbarCb):
             toolbarCb(bc,region='top',table=table,add_action=add_action,lock_action=lock_action)
@@ -179,7 +179,7 @@ class RecordDialog(BaseComponent):
         bottomCb = bottomCb or getattr(self,'_record_dialog_bottom')
         bottomCb(bottom)
         stack = bc.stackContainer(region='center',_class='pbl_background' ,formId=formId,
-                                  selected='^%s.stackPane' %controllerPath,datapath=record_datapath or '.record')
+                                  selected='^.#parent.stackPane' ,datapath=record_datapath or '.record')
         loading = stack.contentPane(_class='waiting')
         formCb(stack, disabled='^form.locked', table=table)
 
