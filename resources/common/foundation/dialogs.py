@@ -110,8 +110,8 @@ class DialogForm(BaseComponent):
             bottom = bc.contentPane(**kwargs)
             bottom.button('!!Cancel',baseClass='bottom_btn',float='left',margin='1px',fire='.hide')
             bottom.button('!!Confirm',baseClass='bottom_btn',float='right',margin='1px',
-                            fire_always='.save',hidden='^.save_disabled',disabled='^.disable_button')
-            bottom.dataFormula(".disable_button", "!valid",valid="^.form.valid")
+                            fire_always='.save',disabled='^.disable_button')
+            bottom.dataFormula(".disable_button", "!valid || saving",valid="^.form.valid",saving='^.form.saving')
         if cb_bottom=='*':
             cb_bottom=cb_bottom_standard
         dlgId='%s_dlg'%formId
@@ -128,9 +128,9 @@ class DialogForm(BaseComponent):
         bc.dataController("FIRE .show; genro.formById(formId).load(loadsync)" ,
                         formId=formId,loadsync=loadsync,_fired="^.open" )
 
-        bc.dataController('SET .save_disabled=true; genro.formById("%s").save(always=="always"?true:false);' %formId,
+        bc.dataController('genro.formById("%s").save(always=="always"?true:false);' %formId,
                           always="^.save" )
-        bc.dataController('genro.formById("%s").saved(); FIRE .hide; SET .save_disabled=false;' %formId,
+        bc.dataController('genro.formById("%s").saved(); FIRE .hide;' %formId,
                          _fired="^.saved" )
         bc.dataController('genro.formById("%s").loaded();' %formId,_fired="^.loaded" )
         return bc                                      
