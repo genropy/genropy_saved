@@ -110,13 +110,10 @@ class DialogForm(BaseComponent):
             bottom = bc.contentPane(**kwargs)
             bottom.button('!!Cancel',baseClass='bottom_btn',float='left',margin='1px',fire='.hide')
             bottom.button('!!Confirm',baseClass='bottom_btn',float='right',margin='1px',
-                            fire_always='.save',hidden='^.save_disabled')
+                            fire_always='.save',hidden='^.save_disabled',disabled='^.disable_button')
+            bottom.dataFormula(".disable_button", "!valid",valid="^.form.valid")
         if cb_bottom=='*':
             cb_bottom=cb_bottom_standard
-        if loadsync:
-            loadsync='true'
-        else:
-            loadsync='false'
         dlgId='%s_dlg'%formId
         dialog = parent.dialog(title=title,nodeId=dlgId,datapath=datapath,**kwargs)
         bc=dialog.borderContainer(height=height,width=width)
@@ -125,12 +122,15 @@ class DialogForm(BaseComponent):
         if cb_center:
             cb_center(bc,region='center',datapath='.data',_class='pbl_dialog_center', 
                      formId=formId,dlgId=dlgId)
-        bc.dataController('genro.wdgById("%s").show();' %dlgId,_fired="^.show" )
-        bc.dataController('genro.wdgById("%s").hide();' %dlgId,_fired="^.hide" )
-        bc.dataController("FIRE .show; genro.formById('%s').load(%s)" %(formId,loadsync),_fired="^.open" )
+        
+        bc.dataController('genro.wdgById(dlgId).show();',dlgId=dlgId,_fired="^.show" )
+        bc.dataController('genro.wdgById(dlgId).hide();',dlgId=dlgId,_fired="^.hide" )
+        bc.dataController("FIRE .show; genro.formById(formId).load(loadsync)" ,
+                        formId=formId,loadsync=loadsync,_fired="^.open" )
 
         bc.dataController('SET .save_disabled=true; genro.formById("%s").save(always=="always"?true:false);' %formId,
                           always="^.save" )
-        bc.dataController('genro.formById("%s").saved(); FIRE .hide; SET .save_disabled=false;' %formId,_fired="^.saved" )
+        bc.dataController('genro.formById("%s").saved(); FIRE .hide; SET .save_disabled=false;' %formId,
+                         _fired="^.saved" )
         bc.dataController('genro.formById("%s").loaded();' %formId,_fired="^.loaded" )
         return bc                                      
