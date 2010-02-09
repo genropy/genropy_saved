@@ -402,7 +402,7 @@ dojo.declare("gnr.GnrDomSourceNode",gnr.GnrBagNode,{
             currNode = currNode.getParentNode();
         }
         if (path.indexOf('.')==0){
-            console.error('unresolved relativepath'+path);
+            console.error('unresolved relativepath '+path);
         }
         path = path.replace('.?','?');
         if(path.indexOf('#parent') >0){
