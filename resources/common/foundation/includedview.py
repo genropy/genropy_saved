@@ -110,7 +110,7 @@ class IncludedView(BaseComponent):
                 storepath = '%s%s' % (parentBC.parentNode.getInheritedAttributes()['sqlContextRoot'], storepath)
         viewPars = dict(kwargs)
         gridId = nodeId or self.getUuid()
-        viewPars['nodeId'] = gridId        
+        viewPars['nodeId'] = gridId    
         controllerPath = datapath or 'grids.%s' %gridId
         storepath = storepath or '.selection' 
         viewPars['storepath'] = storepath
@@ -440,11 +440,13 @@ class IncludedView(BaseComponent):
                                  SET .selectedIndex = newidx;
                               """, btn='^.navbutton',idx='=.selectedIndex', gridId=gridId)
                               
-    def _includedViewFormBody(self, recordBC, controller, controllerPath, formPars):
+    def _includedViewFormBody(self, recordBC, controller, storepath, gridId,formPars):
+        #controller not used
+        #recordBC datapath = controllerPath
         bottom_left = formPars.pop('bottom_left',None)
         bottom_right = formPars.pop('bottom_right','!!Close')
         bottom_left_action = formPars.pop('bottom_left_action',None)
-        bottom_right_action = formPars.pop('bottom_right_action','FIRE %s.close' %controllerPath)
+        bottom_right_action = formPars.pop('bottom_right_action','FIRE .close')
         disabled=formPars.pop('disabled','^form.locked')
         if formPars.get('mode', 'dialog') == 'dialog':
             bottom = recordBC.contentPane(region='bottom',_class='dialog_bottom')
@@ -454,12 +456,22 @@ class IncludedView(BaseComponent):
             if bottom_right:
                 bottom.button(bottom_right,float='right',baseClass='bottom_btn',
                            connect_onclick=bottom_right_action)
-        st = recordBC.stackContainer(region='center',selected='^%s.dlgpage' % controllerPath)
+        st = recordBC.stackContainer(region='center',selected='^.dlgpage')
         st.dataController("if(idx!=null){SET .dlgpage=0;}else{SET .dlgpage=1;}", 
-                                            idx='^.selectedIndex', datapath=controllerPath, _fired='^gnr.onStart')
+                                            idx='^.selectedIndex', _onStart=True)
         _classBC = formPars.pop('_classBC','pbl_dialog_center') #aggiunto da fporcari
-        #recordBC.dataController("console.log(sel_label);", sel_label= '^%s.selectedLabel'%controllerPath)
-        formBorderCont = st.borderContainer(datapath='^%s.selectedLabel?=if(#v){"."+#v}else{"emptypath"}' % controllerPath, _class=_classBC) #aggiunto il _classBC da fporcari
+        recordBC.dataController("""var currLineDatapath;
+                                   if (sel_label){
+                                       currLineDatapath = view_storepath+'.'+sel_label;
+                                   }else{
+                                       currLineDatapath='.emptypath';
+                                   }
+                                   SET _temp.grids.%s.currLineDatapath=currLineDatapath;
+                                   """%gridId,
+                                   sel_label= '^.selectedLabel',
+                                   view_storepath=storepath)
+        formBorderCont = st.borderContainer(datapath='^_temp.grids.%s.currLineDatapath' % gridId)
+        # #datapath='^.selectedLabel?=if(#v){"."+#v}else{"emptypath"}', _class=_classBC) #aggiunto il _classBC da fporcari
         #--NEW--#formBorderCont = st.borderContainer(datapath='==sel_label?"."+sel_label:"emptypath"',sel_label='^%s.selectedLabel'% controllerPath, _class=_classBC)
         emptypane = st.contentPane()
         emptypane.div("No record selected",_class='dlg_msgbox')
@@ -526,18 +538,20 @@ class IncludedView(BaseComponent):
                                     
         toolbarHandler = formPars.pop('toolbarHandler', '_iv_FormToolbar')
         
-        recordBC = mainPane.dialog(nodeId=dialogId,**formPars).borderContainer(nodeId='%s_bc' %gridId,datapath=storepath, 
+        #recordBC = mainPane.dialog(nodeId=dialogId,**formPars).borderContainer(nodeId='%s_bc' %gridId,
+        #                                                                       datapath=storepath, #[check]
+        #                                                                       height=height, width=width)
+        recordBC = mainPane.dialog(nodeId=dialogId,**formPars).borderContainer(nodeId='%s_bc' %gridId,
+                                                                               datapath=controllerPath,
                                                                                height=height, width=width)
-        
-        getattr(self, toolbarHandler)(recordBC, controller, controllerPath=controllerPath,
-                                                gridId=gridId, **toolbarPars)
-        self._includedViewFormBody(recordBC, controller, controllerPath, formPars)
+        getattr(self, toolbarHandler)(recordBC, controller, controllerPath=controllerPath, gridId=gridId, **toolbarPars)
+        self._includedViewFormBody(recordBC, controller, storepath, gridId, formPars)
         
     def _iv_Form_pane(self, formPars, storepath, controller, controllerPath, gridId, toolbarPars):
         mainPane = formPars.pop('pane')
         toolbarHandler = formPars.pop('toolbarHandler', '_iv_FormToolbar')
-        recordBC = mainPane.borderContainer(datapath=storepath, **formPars)
+        recordBC = mainPane.borderContainer(datapath=storepath, **formPars) #[check]
         getattr(self, toolbarHandler)(recordBC, controller, controllerPath=controllerPath,
                                                 gridId=gridId, **toolbarPars)
-        self._includedViewFormBody(recordBC, controller, controllerPath, formPars)
+        self._includedViewFormBody(recordBC, controller, storepath,gridId, formPars)
         

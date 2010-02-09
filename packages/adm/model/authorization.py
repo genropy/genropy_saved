@@ -21,6 +21,8 @@ class Table(object):
                 
     def use_auth(self,code,username):
         record = self.record(pkey=code,for_update=True).output('bag')
+        if record['use_ts']:
+            raise
         record['use_ts'] =  datetime.now()
         record['used_by'] =  username
         self.update(record)
