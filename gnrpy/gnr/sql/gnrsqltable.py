@@ -430,15 +430,14 @@ class SqlTable(GnrObject):
             self.db.adapter.sql_deleteSelection(self, pkeyList=[x[0] for x in todelete])
         
     #Jeff added the support to deleteSelection for passing no condition so that all records would be deleted
-    def deleteSelection(self, condition_field=None, condition_value=None, excludeLogicalDeleted=False):
+    def deleteSelection(self, condition_field=None, condition_value=None, excludeLogicalDeleted=False,condition_op='='):
         # if self.trigger_onDeleting:
         if(condition_field and condition_value):
-            where = '%s = :value' % condition_field
+            where = '%s %s :value' % (condition_field,condition_op)
         else:
             where = ''
-        q= self.query(columns='$%s' % self.pkey,
-                         where=where,
-                         excludeLogicalDeleted=excludeLogicalDeleted,
+        q= self.query(where=where,
+                        excludeLogicalDeleted=excludeLogicalDeleted,
                          value=condition_value,
                          addPkeyColumn=False,
                          for_update=True)
