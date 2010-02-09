@@ -19,10 +19,7 @@
 #Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 
 from gnr.web.gnrbaseclasses import BaseComponent
-from gnr.core.gnrbag import Bag
-from gnr.core.gnrstring import templateReplace, splitAndStrip
 
-import os
 
 class SelectionHandler(BaseComponent):
     """
@@ -55,7 +52,8 @@ class SelectionHandler(BaseComponent):
                          selectionPars=None,dialogPars=None,reloader=None,externalChanges=None,
                          hiddencolumns=None,custom_addCondition=None,custom_delCondition=None,
                          askBeforeDelete=True,checkMainRecord=True,onDeleting=None,dialogAddRecord=True,
-                         onDeleted=None,groupingColumn=None,groups=None,**kwargs):
+                         onDeleted=None,groupingColumn=None,groups=None,add_enable=None,del_enable=None,
+                         **kwargs):
         assert dialogPars,'dialogPars are Mandatory'
         assert not 'table' in dialogPars, 'take the table of the grid'
         assert not 'firedPkey' in dialogPars, 'auto firedPkey'
@@ -63,15 +61,13 @@ class SelectionHandler(BaseComponent):
         assert not 'add_action' in kwargs, 'remove add_action par'
         assert 'order_by' in selectionPars, 'add order_by to selectionPars'
         assert not 'del_action' in kwargs,'remove del_action par'
-        assert not 'add_enable' in kwargs, 'remove add_action par'
-        assert not 'del_enable' in kwargs,'remove del_action par'
         assert not 'connect_onRowDblClick' in kwargs,'remove connect_onRowDblClick par'
         
         dialogPars['table'] = table
         dlgId = dialogPars.get('dlgId',"%s_dlg" %nodeId)
         dialogPars['dlgId'] = dlgId
         dialogPars['formId'] = dialogPars.get('formId',"%s_form" %nodeId)
-        dialogPars['datapath'] = dialogPars.get('datapath','%s.dlg' %datapath)
+        dialogPars['datapath'] = dialogPars.get('datapath','#%s.dlg' %nodeId)
         dialogPars['onSaved'] = 'FIRE #%s.reload; %s' %(nodeId,dialogPars.get('onSaved',''))
         dialogPars['firedPkey'] = '^.pkey'
         dialogPars['add_action'] = dialogPars.get('add_action',True)
@@ -79,7 +75,7 @@ class SelectionHandler(BaseComponent):
         dialogPars['toolbarCb'] = self._ivrd_toolbar
 
         self.recordDialog(**dialogPars)
-       
+
         connect_onRowDblClick='FIRE .dlg.pkey = GET .selectedId;'
         self.includedViewBox(bc,label=label,datapath=datapath,
                              add_action='FIRE .dlg.pkey="*newrecord*";',
@@ -91,16 +87,18 @@ class SelectionHandler(BaseComponent):
                              selectionPars=selectionPars,askBeforeDelete=True,**kwargs)
                              
         controller = bc.dataController(datapath=datapath)
-        main_record_id= True
+        main_record_id = True
         if self.maintable and checkMainRecord:
             main_record_id='^form.record.%s' %self.db.table(self.maintable).pkey
-        controller.dataFormula(".can_add","add_enabled?(main_record_id!=null)&&custom_condition:false",
-                              add_enabled='^form.canWrite',main_record_id=main_record_id,
+        add_enable = add_enable or '^form.canWrite'
+        del_enable = del_enable or '^form.canDelete'
+        controller.dataFormula(".can_add","add_enable?(main_record_id!=null)&&custom_condition:false",
+                              add_enable=add_enable,main_record_id=main_record_id,
                               custom_condition=custom_addCondition or True)
-        controller.dataFormula(".can_del","del_enabled?(main_record_id!=null)&&custom_condition:false",
-                              del_enabled='^form.canDelete',selectedId='^.selectedId',_if='selectedId',_else='false',
+        controller.dataFormula(".can_del","del_enable?(main_record_id!=null)&&custom_condition:false",
+                              del_enable=del_enable,selectedId='^.selectedId',_if='selectedId',_else='false',
                               main_record_id=main_record_id or True,custom_condition=custom_addCondition or True)
-        controller.dataController("genro.dlg.ask(title, msg, null, '%s.confirm_delete')" %datapath,
+        controller.dataController("genro.dlg.ask(title, msg, null, '#%s.confirm_delete')" %nodeId,
                                     _fired="^.delete_record",title='!!Warning',
                                     msg='!!You cannot undo this operation. Do you want to proceed?',
                                     _if=askBeforeDelete)

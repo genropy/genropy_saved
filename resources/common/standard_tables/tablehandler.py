@@ -223,15 +223,17 @@ class TableHandler(BaseComponent):
         buttons = pane.div(_class='button_placeholder',float='left')
         buttons.div(_class='db_treebtn',connect_onclick="SET list.showToolbox = ! (GET list.showToolbox);")
         buttons.div(_class='db_querybtn',connect_onclick="SET list.showExtendedQuery =! (GET list.showExtendedQuery);")
-        if self.tblobj.hasRecordTags():
+        if self.tblobj.hasRecordTags() or self.enableFilter():
             ddbutton = pane.div(_class='listOptMenu',float='left')
             menu = ddbutton.dropDownButton('^list.tbar.stacklabel').menu(action="""
                                                                     SET list.tbar.stacklabel= $1.label;
                                                                     SET list.tbar.stackpage= $1.page;""",
                                                                     _class='smallmenu')
             menu.menuline(label='!!Query',page=0)
-            menu.menuline(label='!!Tags',page=1)
-            menu.menuline(label='!!Filters',page=2)
+            if self.tblobj.hasRecordTags():
+                menu.menuline(label='!!Tags',page=1)
+            if self.enableFilter(): 
+                menu.menuline(label='!!Filters',page=2)
 
             pane.data('list.tbar.stacklabel','!!Query')
             pane.data('list.tbar.stackpage',0)
@@ -239,9 +241,12 @@ class TableHandler(BaseComponent):
     def listToolbar_center(self, pane):
         sc = pane.stackContainer(float='left',selected='^list.tbar.stackpage')
         self.listToolbar_query(sc.contentPane(_class='center_pane'))
+        tags_pane = sc.contentPane(_class='center_pane')
+        filter_pane = sc.contentPane(_class='center_pane')
         if self.tblobj.hasRecordTags():
-            self.listToolbar_tags(sc.contentPane(_class='center_pane')) #inside core
-            self.listToolbar_filters(sc.contentPane(_class='center_pane')) #inside core
+            self.listToolbar_tags(tags_pane) #inside core
+        if self.enableFilter():
+            self.listToolbar_filters(filter_pane) #inside core
 
 
         

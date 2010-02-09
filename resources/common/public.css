@@ -192,7 +192,10 @@
 .searchWidth{
     width 6em;
 }
-
+.pbl_viewBoxToolbar{
+    height:20px;
+    padding:2px;
+}
 
 
 /* @end */
