@@ -38,11 +38,11 @@ class IncludedView(BaseComponent):
                         print_action=None, print_class='buttonIcon icnBasePrinter', 
                         pdf_action=None,pdf_class='buttonIcon icnBasePdf',pdf_name=None,
                         export_action=None, export_class='buttonIcon icnBaseExport', 
-                        tools_action=None, tools_class='buttonIcon icnBaseAction', 
+                        tools_action=None, tools_class='buttonIcon icnBaseAction',
                         lock_action=False,tools_menu=None,upd_action=False,_onStart=False,
                         filterOn=None,  pickerPars=None,centerPaneCb=None,
                         editorEnabled=None,reloader=None,externalChanges=None,
-                        addOnCb = None, zoom=True,**kwargs):
+                        addOnCb = None, zoom=True,hasToolbar=False,**kwargs):
         """
         This method returns a grid (includedView) for, viewing and selecting
         rows from a many to many table related to the main table,
@@ -123,10 +123,12 @@ class IncludedView(BaseComponent):
             viewPars['selectedId'] = '^.selectedId'
         viewPars['selectedLabel'] = '^.selectedLabel'
         label_pars = dict([(k[6:], kwargs.pop(k)) for k in kwargs.keys() if k.startswith('label_')])
-        label_pars['_class'] = label_pars.pop('class', None) or 'pbl_viewBoxLabel'
+        label_pars['_class'] = label_pars.pop('class', None) or (not hasToolbar and 'pbl_viewBoxLabel')
         box_pars = dict([(k[4:], kwargs.pop(k)) for k in kwargs.keys() if k.startswith('box_')])
         box_pars['_class'] = (box_pars.pop('class', None) or 'pbl_viewBox')
-        gridtop = parentBC.contentPane(region='top',datapath=controllerPath, **label_pars)
+        gridtop = parentBC.contentPane(region='top',datapath=controllerPath, overflow='hidden',**label_pars)
+        if hasToolbar is True:
+            gridtop = gridtop.toolbar(_class='pbl_viewBoxToolbar')
         gridtop_left= gridtop.div(float='left')
         if callable(label):
             label(gridtop_left)
