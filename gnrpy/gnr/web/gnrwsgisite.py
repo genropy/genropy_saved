@@ -10,7 +10,7 @@ from gnr.web.gnrwebapp import GnrWsgiWebApp
 import os
 import glob
 from time import time
-from gnr.core.gnrlang import gnrImport, instanceMixin
+from gnr.core.gnrlang import gnrImport
 from threading import RLock
 import thread
 import mimetypes
@@ -22,7 +22,7 @@ from gnr.core.gnrprinthandler import PrintHandler
 mimetypes.init()
 site_cache = {}
 
-
+global GNRSITE
 def currentSite():
     global GNRSITE
     return GNRSITE
@@ -176,6 +176,7 @@ class GnrWsgiSite(object):
         self.gnrapp = self.build_gnrapp()
         self.wsgiapp = self.build_wsgiapp()
         self.db=self.gnrapp.db
+        self.dbstores=self.db.dbstores
         self.resource_loader = ResourceLoader(self)
         self.pages_dir = os.path.join(self.site_path, 'pages')
         self.site_static_dir = self.config['resources?site'] or '.'
