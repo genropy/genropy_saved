@@ -103,7 +103,7 @@ class SqlDbAdapter(SqlDbBaseAdapter):
     
     def createDb(self, dbname=None, encoding='unicode'):
         if not dbname:
-            dbname = self.dbroot.dbname
+            dbname = self.dbroot.get_dbname()
         conn = self._managerConnection()
         curs = conn.cursor()
         curs.execute("""CREATE DATABASE "%s" ENCODING '%s';""" % (dbname, encoding))

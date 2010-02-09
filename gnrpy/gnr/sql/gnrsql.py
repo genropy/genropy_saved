@@ -136,18 +136,17 @@ class GnrSqlDb(GnrObject):
         
     def closeConnection(self):
         """Close a connection"""
-        if self._connections.get(thread.get_ident()) != None:
-            try:
-                self._connections[thread.get_ident()].close()
-                self._connections[thread.get_ident()] = None
-            except Exception:
-                self._connections[thread.get_ident()] = None
-     #          pass
-     #      finally:
-     #          self._connections[thread.get_ident()] = None
+        if self._connections.get(thread.get_ident()) != {}:
+            thread_connections_keys = self._connections[thread.get_ident()].keys()
+            for conn_name in thread_connections_keys:
+                conn = self._connections[thread.get_ident()].pop(conn_name)
+                try:
+                    conn.close()
+                except Exception:
+                    conn = None
     
     def addDbstore(self,storename, dbname=None, host=None, user=None, password=None, port=None):
-        self.dbstores[storename]=dict(dbname=dbname or storename,
+        self.dbstores[storename]=dict(database=dbname or storename,
                             host=host or self.host,user=user or self.user,
                             password=password or self.password,port=port or self.port)
                             
@@ -156,23 +155,42 @@ class GnrSqlDb(GnrObject):
         
     def _get_currentEnv(self):
         """property currentEnv it returns the env currently used in this thread"""
-        return self._currentEnv.get(thread.get_ident())
+        return self._currentEnv.setdefault(thread.get_ident(),{})
         
     def _set_currentEnv(self,env):
         """set currentEnv for this thread"""
         self._currentEnv[thread.get_ident()] = env
     currentEnv = property(_get_currentEnv,_set_currentEnv)
     
+    def set_env(self, **kwargs):
+        self.currentEnv.update(kwargs)
+    
+    def use_store(self, storename=None):
+        self.set_env(storename=storename)
+    
+    def get_dbname(self):
+        storename = self.currentEnv.get('storename')
+        if storename:
+            return self.dbstores[storename]['database']
+        else:
+            return self.dbname
+        
+    
     def _get_connection(self):
         """property .connection
         If there's not connection open and return connection to database"""
-        if not self._connections.get(thread.get_ident()):
-            self._connections[thread.get_ident()] = self.adapter.connect()
-        return self._connections[thread.get_ident()]
+        thread_ident = thread.get_ident()
+        storename = self.currentEnv.get('storename')
+        thread_connections = self._connections.setdefault(thread_ident,{})
+        return thread_connections.setdefault(storename, self.adapter.connect())
     connection = property(_get_connection)
     
     def get_connection_params(self):
-        return dict(host=self.host, database=self.dbname, user=self.user, password=self.password, port=self.port)
+        storename = self.currentEnv.get('storename')
+        if storename:
+            return self.dbstores[storename]
+        else:
+            return dict(host=self.host, database=self.dbname, user=self.user, password=self.password, port=self.port)
     
     def execute(self, sql, sqlargs=None, cursor=None, cursorname=None, autocommit=False,dbtable=None):
         

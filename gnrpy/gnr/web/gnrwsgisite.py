@@ -159,15 +159,15 @@ class GnrWsgiSite(object):
         else:
             self.config = self.load_site_config()
         
-        self.home_uri = self.config['wsgi?home_uri'] or '/'
+        self.default_uri = self.config['wsgi?home_uri'] or '/'
         self.session_type = self.config['wsgi?session_type'] or 'dbm'
-        if self.home_uri[-1]!='/':
-            self.home_uri+='/'
+        if self.default_uri[-1]!='/':
+            self.default_uri+='/'
         self.mainpackage = self.config['wsgi?mainpackage']
-        self.homepage = self.config['wsgi?homepage'] or self.home_uri+'index'
+        self.homepage = self.config['wsgi?homepage'] or self.default_uri+'index'
         self.indexpage = self.config['wsgi?homepage'] or '/index'
         if not self.homepage.startswith('/'):
-            self.homepage = '%s%s'%(self.home_uri,self.homepage)
+            self.homepage = '%s%s'%(self.default_uri,self.homepage)
         self.secret = self.config['wsgi?secret'] or 'supersecret'
         self.config['secret'] = self.secret
         self.session_key = self.config['wsgi?session_key'] or 'gnrsession'
@@ -309,6 +309,14 @@ class GnrWsgiSite(object):
         path_list = [p for p in path_list if p]
         # if url starts with _ go to static file handling
         return path_list
+        
+    def _get_home_uri(self):
+        print self.currentPage.storename
+        if self.currentPage.storename:
+            return '%s%s/'%(self.default_uri,self.currentPage.storename)
+        else:
+            return self.default_uri
+    home_uri=property(_get_home_uri)
         
     def dispatcher(self,environ,start_response):
         """Main WSGI dispatcher, calls serve_staticfile for static files and self.createWebpage for

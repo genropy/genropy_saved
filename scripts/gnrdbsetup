@@ -99,6 +99,7 @@ def set_environment(gnr_config):
             os.environ[var]=str(value)
 
 def get_app():
+    storename = None
     if options.directory:
         instance_path=options.directory
         if os.path.isdir(instance_path): 
@@ -108,10 +109,14 @@ def get_app():
     gnr_config = load_gnr_config()
     set_environment(gnr_config)
     if options.instance:
+        if '.' in options.instance:
+            instance, storename= options.instance.split('.')
+        else:
+            instance = options.instance
         gnr_config = load_gnr_config()
-        instance_path = instance_name_to_path(gnr_config, options.instance)
+        instance_path = instance_name_to_path(gnr_config, instance)
         if os.path.isdir(instance_path): 
-            return GnrApp(instance_path)
+            return GnrApp(instance_path),storename
         else:
             raise Exception("No valid instance provided")
     if options.site:
@@ -121,15 +126,17 @@ def get_app():
             site_path = os.path.join(gnr_config['gnr.environment_xml.sites?path'] or '', options.site)
         instance_path = os.path.join(site_path,'instance')
         if os.path.isfile(os.path.join(instance_path,'instanceconfig.xml')):
-            return GnrApp(instance_path)
+            return GnrApp(instance_path),storename
         else:
             raise "No valid instance provided"
-    return GnrApp(os.getcwd())
+    return GnrApp(os.getcwd()),storename
 
 
-def check_db():
-    app = get_app()
-    changes = app.checkDb()
+def check_db(app):
+    changes = app.db.model.check()
+    dbname = app.db.currentEnv.get('storename')
+    dbname = dbname or 'Main'
+    print 'DB %s:' %  dbname
     if changes:
         if options.verbose:
             print '*CHANGES:\n%s'%'\n'.join(app.db.model.modelChanges)
@@ -137,7 +144,7 @@ def check_db():
             print 'STUCTURE NEEDS CHANGES'
     else:
         print 'STRUCTURE OK'
-    return app, changes
+    return changes
     
 def import_db(filepath):
     app = get_app()
@@ -145,13 +152,20 @@ def import_db(filepath):
     app.db.commit()
 
 if __name__ == '__main__':
-    if options.check:
-        check_db()
-    elif options.import_file:
-        import_db(options.import_file)
-    else: 
-        app,changes = check_db()
-        if changes:
-            print 'APPLYING CHANGES TO DATABASE...'
-            app.applyChangesToDb()
-            print 'CHANGES APPLIED TO DATABASE'
+    app,storename = get_app()
+    if storename=='*':
+        stores = [None]+app.db.dbstores.keys()
+    else:
+        stores = [storename]
+    for storename in stores:
+        app.db.use_store(storename)
+        if options.check:
+            check_db(app)
+        elif options.import_file:
+            import_db(options.import_file)
+        else: 
+            changes = check_db(app)
+            if changes:
+                print 'APPLYING CHANGES TO DATABASE...'
+                app.db.model.applyModelChanges()
+                print 'CHANGES APPLIED TO DATABASE'

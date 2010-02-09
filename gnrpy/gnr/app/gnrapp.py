@@ -292,7 +292,7 @@ class GnrApp(object):
             sys.path.append(apppkg.libPath)
         self.db.inTransactionDaemon = False
         self.db.startup()
-        for storename,store in self.dbstores:
+        for storename,store in self.dbstores.items():
             self.addDbstore(storename,store)
         if len(self.config['menu'])==1:
             self.config['menu'] = self.config['menu']['#0']
@@ -556,11 +556,11 @@ class GnrApp(object):
     def dropDbstore(self,storename):
         self.db.dropDbstore(storename=storename)
         
-    def checkDb(self):
-        return self.db.checkDb()
+    #def checkDb(self, storename=None):
+    #    return self.get_store_db(storename=storename).checkDb()
         
-    def applyChangesToDb(self):
-        return self.db.model.applyModelChanges()
+    #def applyChangesToDb(self):
+    #    return self.db.model.applyModelChanges()
     
     def realPath(self, path):
         path=os.path.expandvars(str(path))
