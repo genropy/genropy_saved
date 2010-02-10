@@ -365,12 +365,14 @@ class SqlTable(GnrObject):
         
         return query
     
-    def batchUpdate(self,callback=None,**kwargs):
+    def batchUpdate(self,updater=None,**kwargs):
         fetch = self.query(addPkeyColumn=False,for_update=True,**kwargs).fetch()
         for row in fetch:
             old_row = dict(row)
-            if callback:
-                callback(row)
+            if callable(updater):
+                updater(row)
+            elif isinstance(updater,dict):
+                row.update(updater)
             self.update(row,old_row)
             
     def readColumns(self,pkey,columns):
@@ -749,11 +751,7 @@ class SqlTable(GnrObject):
                 self.insert(record)
             else:
                 self.insertOrUpdate(record)
-            
-    def forEach(self, pkeyList, formula, for_update=False):
-        for r in pkeyList:
-            record = tblobj.record(k, mode='bag', for_update=for_update)
-            yield (record, formula(record))
+
     
     def relationExplorer(self, omit='', prevRelation='', dosort=True, pyresolver=False, **kwargs):
         def xvalue(attributes):
