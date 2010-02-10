@@ -31,7 +31,10 @@ class GnrWebConnection(GnrBaseProxy):
     
     def initConnection(self):
         page = self.page
-        self.cookieName = 'conn_%s' % self.page.siteName
+        storename = getattr(page, 'storename', None)
+        sitename = self.page.siteName
+        conn_name = storename and 'conn_%s_%s'%(sitename,storename) or 'conn_%s'%sitename
+        self.cookieName = conn_name
         self.secret = page.site.config['secret'] or self.page.siteName
         self.allConnectionsFolder = os.path.join(self.page.siteFolder, 'data', '_connections')
         self.cookie = None

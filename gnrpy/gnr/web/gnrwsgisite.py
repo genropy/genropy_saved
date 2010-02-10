@@ -311,7 +311,6 @@ class GnrWsgiSite(object):
         return path_list
         
     def _get_home_uri(self):
-        print self.currentPage.storename
         if self.currentPage.storename:
             return '%s%s/'%(self.default_uri,self.currentPage.storename)
         else:
