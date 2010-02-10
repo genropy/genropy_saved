@@ -357,6 +357,7 @@ class GnrWebPage(GnrBaseWebPage):
         arg_dict['charset'] = self.charset
         arg_dict['filename'] = self.pagename
         arg_dict['pageMode'] = 'wsgi_10'
+        arg_dict['baseUrl'] = self.site.home_uri
         if self.debugopt:
             kwargs['debugopt']=self.debugopt
         arg_dict['startArgs'] = toJson(kwargs)

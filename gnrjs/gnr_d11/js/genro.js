@@ -54,6 +54,7 @@ dojo.declare('gnr.GenroClient', null, {
         this.debuglevel = kwargs.startArgs.debug || null;
         this.debugopt = kwargs.startArgs.debugopt || null;
         this.pageMode = kwargs.pageMode;
+        this.baseUrl = kwargs.baseUrl;
         this.startTime=new Date();
         this.lastTime=this.startTime;
         this.dialogStack = [];
@@ -748,7 +749,7 @@ dojo.declare('gnr.GenroClient', null, {
         window.location.assign(url);
     },
     joinPath:function() {
-        result = arguments[0];
+        var result = arguments[0];
         var i;
         for(i = 1; i < arguments.length; i++) {
             var p = arguments[i];

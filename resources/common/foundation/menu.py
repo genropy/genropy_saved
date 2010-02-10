@@ -50,7 +50,11 @@ class Menu(BaseComponent):
                        openOnClick=True,
                        #connect_onClick='genro.gotoURL($1.getAttr("file"),true)',
                        #getLabel="""return "<a href='"+node.attr.file+"'>"+node.attr.label+"</a>::HTML";""",
-                       getLabel="""if(node.attr.file){ return 'innerHTML:<a href="'+node.attr.file+'"><div style="width:100%;height:100%;">'+node.attr.label+'</div></a>'}else  {return node.attr.label};""",
+                       getLabel="""if(node.attr.file){ 
+                                        var url = genro.joinPath(genro.baseUrl, node.attr.file);
+                                        return 'innerHTML:<a href="'+url+'"><div style="width:100%;height:100%;">'+node.attr.label+'</div></a>'}
+                                        else  
+                                        {return node.attr.label};""",
                        nodeId='_menutree_')
         leftPane.dataController("genro.wdgById('_gnrRoot').showHideRegion('left', false);",fired='^gnr.onStart',
                                 appmenu="=gnr.appmenu",_if="appmenu.len()==0")
@@ -92,7 +96,8 @@ class Menu(BaseComponent):
                         if not filepath.startswith('/'):
                             attributes['file'] = os.path.join(*(currbasepath+[filepath]))
                         else:
-                            attributes['file'] = self.site.home_uri + filepath.lstrip('/')
+                            #attributes['file'] = self.site.home_uri + filepath.lstrip('/')
+                            attributes['file'] = filepath
                     result.setItem(node.label,value,attributes)
             return result
         result=userMenu(self.userTags,fullMenubag,0,[])

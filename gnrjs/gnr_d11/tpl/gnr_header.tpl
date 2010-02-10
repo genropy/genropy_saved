@@ -46,5 +46,5 @@
         
         <script type="text/javascript">
             var genro = new gnr.GenroClient({ page_id:'${page_id}',baseUrl:'${filename}', pageMode: '${pageMode or "legacy"}',
-                                              domRootName:'mainWindow', startArgs: ${startArgs}});
+                                              domRootName:'mainWindow', startArgs: ${startArgs}, baseUrl:'${baseUrl or "/"}'});
         </script>
