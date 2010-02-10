@@ -150,11 +150,11 @@ class TableHandlerForm(BaseComponent):
         
     def rpc_th_linktag_apply(self,selection,record_pkey=None):
         def cb(row):
-            checkbox = ' %s <input type="checkbox" name="cb" value="%s"/>' %(row['description'],row['tag'])
+            checkbox = ' %s <input type="checkbox" name="cb" value="^.%s"/>' %(row['description'],row['tag'])
             result = dict(_widget=checkbox)
             if row['values']:
                 options = row['values'].split(',')
-                optwdg = []
+                optwdg = ['<option value="-">-</option>']
                 for opt in options:
                     optlist = splitAndStrip('%s:%s'%(opt,opt),':',n=2,fixed=2)
                     optwdg.append("""<option value="%s">%s</option>""" %(optlist[0],optlist[1]))

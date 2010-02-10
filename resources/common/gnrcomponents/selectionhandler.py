@@ -163,16 +163,17 @@ class SelectionHandler(BaseComponent):
         tb.button('!!Next', fire_next='.navbutton', iconClass="tb_button icnNavNext", disabled='^.atEnd', showLabel=False)
         tb.button('!!Last', fire_last='.navbutton', iconClass="tb_button icnNavLast", disabled='^.atEnd', showLabel=False)
         if lock_action:
-            spacer = tb.div(float='right',width='30px',height='20px',position='relative')
-            spacer.button('!!Unlock', position='absolute',right='0px',fire='status.unlock', baseClass='no_background',
+            spacer = tb.div(float='right',_class='button_placeholder')
+            spacer.button('!!Unlock',fire='status.unlock', 
                         iconClass="tb_button icnBaseLocked", showLabel=False,hidden='^status.unlocked')
-            spacer.button('!!Lock', position='absolute',right='0px',fire='status.lock',  baseClass='no_background',
+            spacer.button('!!Lock',fire='status.lock',  
                         iconClass="tb_button icnBaseUnlocked", showLabel=False,hidden='^status.locked')  
         if add_action:
+            spacer = tb.div(float='right',_class='button_placeholder')
             add_action = 'FIRE .navbutton="new";'
             add_class =  'buttonIcon icnBaseAdd'
             add_enable = '^form.canWrite'
-            tb.button('!!Add', float='right',action=add_action,visible=add_enable,
+            spacer.button('!!Add',action=add_action,visible=add_enable,
                             iconClass=add_class, showLabel=False)
         
         

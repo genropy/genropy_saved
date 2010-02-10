@@ -526,7 +526,9 @@ padding-bottom: 5px;
 /* @end */
 
 /* @group Standard Table */
-
+.button_placeholder{
+    width:25px;
+}
 
 /* @group tablehandler */
 .st_editor_bar {

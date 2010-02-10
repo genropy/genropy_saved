@@ -106,40 +106,40 @@ class TableHandlerLight(BaseComponent):
         if condition:
             condPars=condition[1] or {}
             condition=condition[0]
-        bc,top,bottom = self.pbl_rootBorderContainer(root,title='^list.title_bar',id='mainBC_center',margin='5px')
+        bc,top,bottom = self.pbl_rootBorderContainer(root,title='^list.title_bar',id='mainBC_center')
         bc.dataController("FIRE #maingrid.reload;",_onStart=True)
         dimension = self.formBaseDimension()
         struct = self.lstBase(self.newGridStruct())
         filterOn = self.filterOnBase(struct)
         defaults = self.defaultsBase()
-        self.selectionHandler(bc,label=self.gridLabel(),datapath="selection",
+        self.selectionHandler(bc,label=self.gridLabel(),datapath="list",
                                nodeId='maingrid',table=self.maintable,
                                print_action=self.printActionBase(),
                                export_action=self.exportActionBase(),
+                               box_class='tablehandler_light_body',
                                struct=struct,selectionPars=dict(where=condition,order_by=self.orderBase(),**condPars),
                                dialogPars=dict(height=dimension['height'],width=dimension['width'],
                                                record_datapath='form.record',title='^form.title',formCb=self.formBase,
                                                dlgPars=dict(centerOn="mainBC_center"),**defaults),
-                                checkMainRecord=False,lock_action=True,
-                               footer=self.footerBase,filterOn=filterOn)
-    def footerBase(self,pane,**kwargs):
-        pane.data('usr.writePermission',self.userCanWrite())
-        pane.data('usr.deletePermission',self.userCanDelete())
-        pane.data('status.locked',True)
-        pane.dataFormula('form.locked','statusLocked || recordLocked',statusLocked='^status.locked',
+                                checkMainRecord=False,lock_action=True,hasToolbar=True,filterOn=filterOn)
+        controller = bc.dataController(datapath="selection")
+        controller.data('usr.writePermission',self.userCanWrite())
+        controller.data('usr.deletePermission',self.userCanDelete())
+        controller.data('status.locked',True)
+        controller.dataFormula('form.locked','statusLocked || recordLocked',statusLocked='^status.locked',
                                      recordLocked='=form.recordLocked',_onStart=True)
-        pane.dataFormula('form.unlocked','!locked',locked='^form.locked')
+        controller.dataFormula('form.unlocked','!locked',locked='^form.locked')
         
-        pane.data('usr.unlockPermission',self.userCanDelete() or self.userCanWrite())
-        pane.dataFormula('status.unlocked','!locked',locked='^status.locked',_init=True)
+        controller.data('usr.unlockPermission',self.userCanDelete() or self.userCanWrite())
+        controller.dataFormula('status.unlocked','!locked',locked='^status.locked',_init=True)
 
-        pane.dataFormula('status.unlocked','!locked',locked='^status.locked',_onStart=True)
-        pane.dataFormula('form.canWrite','(!locked ) && writePermission',
+        controller.dataFormula('status.unlocked','!locked',locked='^status.locked',_onStart=True)
+        controller.dataFormula('form.canWrite','(!locked ) && writePermission',
                         locked='^status.locked',writePermission='=usr.writePermission',_onStart=True)
-        pane.dataFormula('form.canDelete','(!locked) && deletePermission',
+        controller.dataFormula('form.canDelete','(!locked) && deletePermission',
                         locked='^status.locked',deletePermission='=usr.deletePermission',_onStart=True)
-        pane.dataController("SET status.locked=true;",fire='^status.lock')
-        pane.dataController("SET status.locked=false;",fire='^status.unlock',_if='unlockPermission',
+        controller.dataController("SET status.locked=true;",fire='^status.lock')
+        controller.dataController("SET status.locked=false;",fire='^status.unlock',_if='unlockPermission',
                             unlockPermission='=usr.unlockPermission',
                             forbiddenMsg = '==  unlockForbiddenMsg || dfltForbiddenMsg',
                             unlockForbiddenMsg ='=usr.unlockForbiddenMsg',
