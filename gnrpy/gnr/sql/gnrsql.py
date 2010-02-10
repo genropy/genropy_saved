@@ -138,7 +138,7 @@ class GnrSqlDb(GnrObject):
         """Close a connection"""
         thread_ident=thread.get_ident()
         conn_dict= self._connections.get(thread_ident) 
-        if conn_dict != {}:
+        if conn_dict:
             thread_connections_keys = conn_dict.keys()
             for conn_name in thread_connections_keys:
                 conn = conn_dict.pop(conn_name)
