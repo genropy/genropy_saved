@@ -18,6 +18,9 @@ class ListToolbarOptions(BaseComponent):
         pane.button('Show tags',action='FIRE #recordtag_dlg.open')
         
     def _th_showtags_dlg(self,pane):
+        def cb_bottom(parentBC,**kwargs):
+            bottom = parentBC.contentPane(**kwargs)
+            bottom.button('!!Close',baseClass='bottom_btn',float='right',margin='1px',fire='.hide')
 
         def cb_center(parentBC,**kwargs):
             bc = parentBC.borderContainer(**kwargs)
@@ -34,7 +37,8 @@ class ListToolbarOptions(BaseComponent):
         dialogBc = self.dialog_form(pane,title='!!Edit tag',loadsync=True,
                                 datapath='gnr.recordtag',
                                 height='230px',width='400px',
-                                formId='recordtag',cb_center=cb_center)
+                                formId='recordtag',cb_center=cb_center,
+                                cb_bottom=cb_bottom)
         dialogBc.dataController("FIRE #recordtag_view.reload;",nodeId="recordtag_loader")
         
     def _th_recordtag_struct(self,struct):

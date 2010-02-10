@@ -108,9 +108,10 @@ class DialogForm(BaseComponent):
                 cb_center=None,cb_bottom='*',loadsync=False,**kwargs):
         def cb_bottom_standard(bc,**kwargs):
             bottom = bc.contentPane(**kwargs)
-            bottom.button('!!Cancel',baseClass='bottom_btn',float='left',margin='1px',fire='.hide')
             bottom.button('!!Confirm',baseClass='bottom_btn',float='right',margin='1px',
                             fire_always='.save',disabled='^.disable_button')
+            bottom.button('!!Cancel',baseClass='bottom_btn',float='right',margin='1px',fire='.hide')
+
             bottom.dataFormula(".disable_button", "!valid || saving",valid="^.form.valid",saving='^.form.saving')
         if cb_bottom=='*':
             cb_bottom=cb_bottom_standard
