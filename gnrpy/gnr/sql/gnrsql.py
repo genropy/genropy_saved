@@ -136,10 +136,12 @@ class GnrSqlDb(GnrObject):
         
     def closeConnection(self):
         """Close a connection"""
-        if self._connections.get(thread.get_ident()) != {}:
-            thread_connections_keys = self._connections[thread.get_ident()].keys()
+        thread_ident=thread.get_ident()
+        conn_dict= self._connections.get(thread_ident) 
+        if conn_dict != {}:
+            thread_connections_keys = conn_dict.keys()
             for conn_name in thread_connections_keys:
-                conn = self._connections[thread.get_ident()].pop(conn_name)
+                conn = conn_dict.pop(conn_name)
                 try:
                     conn.close()
                 except Exception:
@@ -367,7 +369,26 @@ class GnrSqlDb(GnrObject):
             for n in data[table]:
                 self.table(table, pkg=pkg).insertOrUpdate(n.attr)
                 
+class SqlEnv(object):
+    """
+    with db.tempEnv(pippo=7) as db:
+        jlkjlkjl
+        hkjhkhk
 
+    """
+    def __init__(self,db,**kwargs):
+        self.db=db
+        self.kwargs=kwargs
+
+    def __enter__(self):
+        currentEnv=self.db.currentEnv
+        self.savedEnv=dict(currentEnv)
+        currentEnv.update(self.kwargs)
+        return self.db
+        
+    def __exit__(self):
+        self.db.currentEnv=self.savedEnv
+        
     
 if __name__=='__main__':
     pass
