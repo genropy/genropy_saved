@@ -1568,7 +1568,11 @@ dojo.declare("gnr.widgets.Grid",gnr.widgets.baseDojo,{
             if (idx>=0){
                 selectedId=this.rowIdentity(this.rowByIndex(idx));
             }
-            this.sourceNode.setAttributeInDatasource('selectedId', selectedId,null,this.rowByIndex(idx),true);
+            var row = this.rowByIndex(idx);
+            if (!selectedId){
+                console.log(row);
+            }
+            this.sourceNode.setAttributeInDatasource('selectedId', selectedId,null,row,true);
         }
     },
     mixin_indexByRowAttr:function(attrName, attrValue,op,backward){

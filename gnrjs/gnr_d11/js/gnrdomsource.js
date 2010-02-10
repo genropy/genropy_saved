@@ -253,10 +253,10 @@ dojo.declare("gnr.GnrDomSourceNode",gnr.GnrBagNode,{
     setAttributeInDatasource: function(attrname,value,doTrigger,attributes,forceChanges){
         var doTrigger=(doTrigger==false) ? doTrigger : this; 
         var path=this.attrDatapath(attrname);
-        if (forceChanges){
+        /*if (forceChanges){
                genro._data.setItem(path,null,null,{'doTrigger':false});
-        }
-        if (genro._data.getItem(path)!=value){
+        }*/
+        if (forceChanges || (genro._data.getItem(path)!=value)){
             genro._data.setItem(path,value,attributes,{'doTrigger':doTrigger});
         }
     },

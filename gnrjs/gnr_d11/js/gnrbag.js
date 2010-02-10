@@ -232,15 +232,17 @@ dojo.declare("gnr.GnrBagNode",null,{
         }
         var oldvalue = this._value;
         var oldattr;
-        var updattr=false;
+        var updated_attr=false;
         this._value = value;
         //doTrigger = doTrigger && (oldvalue!=this._value);
         
-        if(objectNotEmpty(_attributes)){
-            updattr=true;
+        //if(objectNotEmpty(_attributes)){ 
+        //replaced condition with if(_attributes)
+        if(_attributes){
+            updated_attr=true;
             oldattr= objectUpdate({},this.attr); 
             this.setAttr(_attributes, /*trigger*/false, _updattr);
-        } 
+        }
         if(this._onChangedValue){
             this._onChangedValue(this, value, oldvalue);
         }
@@ -251,7 +253,7 @@ dojo.declare("gnr.GnrBagNode",null,{
             if(doTrigger){
                 this._parentbag.onNodeTrigger({'evt':'upd','node':this, 'pathlist':[this.label],
                                                'oldvalue':oldvalue,'value':value,'oldattr':oldattr, 
-                                               'updvalue':true,'updattr':updattr,'reason':doTrigger});
+                                               'updvalue':true,'updattr':updated_attr,'reason':doTrigger});
             }
         }
     },
