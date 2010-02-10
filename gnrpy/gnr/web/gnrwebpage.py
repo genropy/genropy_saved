@@ -165,7 +165,7 @@ class GnrWebPage(GnrBaseWebPage):
         if not hasattr(self, '_db'):
             self._db = self.app.db
             #self._db.currentEnv = dict(storename = getattr(self,'storename', None))
-            self._db.set_env(storename= self.storename)
+            self._db.set_env(storename= getattr(self,'storename', None))
         return self._db
     db = property(_get_db)
 
