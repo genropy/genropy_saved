@@ -158,16 +158,20 @@ class SelectionHandler(BaseComponent):
     def _ivrd_toolbar(self,parentBC,add_action=None,lock_action=None,**kwargs):
         pane = parentBC.contentPane(padding='2px',overflow='hidden',**kwargs)
         tb = pane.toolbar(datapath='.#parent') #referred to the grid
-        tb.button('!!First', fire_first='.navbutton', iconClass="tb_button icnNavFirst", disabled='^.atBegin', showLabel=False)
-        tb.button('!!Previous', fire_prev='.navbutton', iconClass="tb_button icnNavPrev", disabled='^.atBegin', showLabel=False)
-        tb.button('!!Next', fire_next='.navbutton', iconClass="tb_button icnNavNext", disabled='^.atEnd', showLabel=False)
-        tb.button('!!Last', fire_last='.navbutton', iconClass="tb_button icnNavLast", disabled='^.atEnd', showLabel=False)
+        tb.button('!!First', fire_first='.navbutton', iconClass="tb_button icnNavFirst", 
+                    disabled='^.atBegin', showLabel=False)
+        tb.button('!!Previous', fire_prev='.navbutton', iconClass="tb_button icnNavPrev", 
+                    disabled='^.atBegin', showLabel=False)
+        tb.button('!!Next', fire_next='.navbutton', iconClass="tb_button icnNavNext", 
+                    disabled='^.atEnd', showLabel=False)
+        tb.button('!!Last', fire_last='.navbutton', iconClass="tb_button icnNavLast", 
+                    disabled='^.atEnd', showLabel=False)
         if lock_action:
             spacer = tb.div(float='right',_class='button_placeholder')
-            spacer.button('!!Unlock',fire='status.unlock', 
-                        iconClass="tb_button icnBaseLocked", showLabel=False,hidden='^status.unlocked')
-            spacer.button('!!Lock',fire='status.lock',  
-                        iconClass="tb_button icnBaseUnlocked", showLabel=False,hidden='^status.locked')  
+            spacer.button('!!Unlock',fire='status.unlock',iconClass="tb_button icnBaseLocked",
+                        showLabel=False,hidden='^status.unlocked')
+            spacer.button('!!Lock',fire='status.lock',iconClass="tb_button icnBaseUnlocked", 
+                        showLabel=False,hidden='^status.locked')  
         if add_action:
             spacer = tb.div(float='right',_class='button_placeholder')
             add_action = 'FIRE .navbutton="new";'
