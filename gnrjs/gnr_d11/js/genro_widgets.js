@@ -1688,6 +1688,9 @@ dojo.declare("gnr.widgets.Grid",gnr.widgets.baseDojo,{
                 if(template){
                     v = template.replace(/#/g,v);
                 }
+                if (opt['js']) {                    
+                    v = opt['js'](v,this.grid.storebag().getNodes()[inRowIndex]);
+                };
                 if(zoomPage){
                     var zoomPkey=opt['zoomPkey'];
                     if (zoomPkey){
@@ -1741,10 +1744,14 @@ dojo.declare("gnr.widgets.Grid",gnr.widgets.baseDojo,{
                          format=objectExtract(cell,'format');
                          var zoomPage=objectPop(cell,'zoomPage');
                          var template=objectPop(cell,'template');
+                         var js=objectPop(cell,'js');
                          if (template){
                              formats['template']=template;
                          }
                          formats['dtype']=dtype;
+                         if (js) {
+                             formats['js'] = genro.evaluate(js);
+                         }
                          if (zoomPage)
                             formats['zoomPage']=zoomPage;
                             formats['zoomPkey']=objectPop(cell,'zoomPkey');

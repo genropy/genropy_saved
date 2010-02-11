@@ -163,10 +163,8 @@ dojo.declare("gnr.GnrDomHandler",null,{
             //genro.debug('the effect does not exist','console') ;
             return;
         }
-  
         anim.play();
         return anim;
-        
     },
     ghostOnEvent:function(evt){
         evt_type = evt.type;
@@ -178,10 +176,44 @@ dojo.declare("gnr.GnrDomHandler",null,{
         }else if (evt_type=='setvalue'){
             genro.dom[evt.value.length>0?'addClass':'removeClass'](evt.obj.id+"_label","ghosthidden");
         }else{
-            console.log(evt)
+            console.log(evt);
         }
     },
-
+    html_maker:function(kw,bagnode){
+        kw = genro.evaluate(kw);
+        return genro.dom['html_'+kw.widget](kw,bagnode);
+    },
+    html_checkbox:function(kw,bagnode){
+        if ('value' in kw){
+            var path = kw.value;
+            kw.onclick = dojo.hitch(bagnode,function(e){
+                    var v = e.target.checked;
+                    this.setAttr(path,v);
+            });
+            kw.checked = bagnode.getAttr(path);
+        }
+        return '<input type="checkbox" name="'+kw.name+'" checked="'+kw.checked+'" id="'+kw.id+'" onclick="'+kw.onclick+'"><label for="'+kw.id+'">'+kw.label+'</label>';
+    },
+    
+    html_select:function(kw){
+        var values = kw.values.split(',');
+        var wdg = '<label for="'+kw.id+'">'+kw.label+'</label>';
+        wdg = wdg+'<select name="'+kw.name+'" id="'+kw.id+'" onchange="'+kw.onchange+'" size="1">';
+        wdg = wdg + '<option value="false">&nbsp</option>';
+        for (var i=0; i < values.length; i++) {
+            var val = values[i];
+            var subwdg = null;
+            if (val.indexOf(':')){
+                val = val.split(':');
+                subwdg = '<option value="'+val[0]+'">'+val[1]+'</option>';
+            }else{
+                subwdg = '<option value="'+val+'">'+val+'</option>';
+            }
+            wdg = wdg + subwdg;
+        };
+        wdg = wdg + '</select>';
+        return wdg;
+    },
 
     enableDisableNodes:function(where){
         if ( typeof (where) == 'string'){
