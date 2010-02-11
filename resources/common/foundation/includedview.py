@@ -300,13 +300,15 @@ class IncludedView(BaseComponent):
 
         
         
-    def _iv_includedViewSelection(self,pane,gridId,table,storepath,selectionPars,controllerPath):
+    def _iv_includedViewSelection(self, pane, gridId, table, storepath, selectionPars,controllerPath):
         #assert table
         assert not 'columnsFromView' in selectionPars
         assert not 'nodeId' in selectionPars
         #assert 'where' in selectionPars
         selectionPars['nodeId'] = "%s_selection" %gridId
         selectionPars['columns'] = selectionPars.get('columns') or '=.columns'
+        onResult = selectionPars.get('onResult','') #patch Savi
+        onResult = '%s FIRE .reloaded;' % onResult
         pane.dataSelection(storepath,table,**selectionPars)
         
     def _iv_IncludedViewController(self, controller, gridId ,controllerPath,table=None):
@@ -328,7 +330,8 @@ class IncludedView(BaseComponent):
         controller.dataController("""console.log('Start Edit');genro.wdgById(gridId).editBagRow();console.log('End Edit')
                                      """,fired='^.editRow',gridId=gridId)
         controller.dataController("genro.wdgById(gridId).printData();" ,fired='^.print',gridId=gridId)
-        controller.dataController("genro.wdgById(gridId).exportData(mode, export_method);" ,mode='^.export', export_method='=.export_method',gridId=gridId)
+        controller.dataController("genro.wdgById(gridId).exportData(mode, export_method);" ,
+                                   mode='^.export', export_method='=.export_method', gridId=gridId)
         controller.dataController("genro.wdgById(gridId).reload(true);" ,_fired='^.reload',gridId=gridId)
        #controller.dataController("""SET .selectedIndex = null;
        #                             PUT .selectedLabel= null;""",
@@ -349,8 +352,6 @@ class IncludedView(BaseComponent):
             
         controller.data('.flt.selected.col', colsMenu['#0?col'])
         controller.data('.flt.selected.caption', colsMenu['#0?caption'])
-        
-                
         searchbox = gridtop.div(float='right', margin_right='5px',
                             datapath=controllerPath)
         searchlbl = searchbox.div(float='left',margin_top='2px')
@@ -360,7 +361,9 @@ class IncludedView(BaseComponent):
                                         grid.filterColumn = col;
                                         grid.applyFilter("");""", #empty the searchbox if change the filtercolumn
                                         col='^.flt.selected.col', 
-                                        gridId=gridId, _onStart=True,_fired='^.reload')
+                                        gridId=gridId, _onStart=True,
+                                        #_fired='^.reload',
+                                        _fired='^.reloaded') #patch SAVI
         if len(colsMenu) > 1:
             controller.data('.flt.colsMenu', colsMenu)
             searchlbl.span(':')
@@ -526,8 +529,8 @@ class IncludedView(BaseComponent):
 
     def _iv_Form_dialog(self, formPars, storepath, controller, controllerPath, gridId, toolbarPars):
         dialogId = '%s_dialog' % gridId
-        height = formPars.pop('height', '40ex')
-        width = formPars.pop('width', '40em')
+        height = formPars.pop('height','40ex')
+        width = formPars.pop('width','40em')
         mainPane = formPars.pop('pane')
         if 'onOpen' in formPars:
             formPars['connect_show'] = '%s' %formPars.pop('onOpen')
@@ -535,7 +538,6 @@ class IncludedView(BaseComponent):
         controller.dataController("genro.wdgById('%s').onCancel()" %dialogId ,_fired='^.close')
                                     
         toolbarHandler = formPars.pop('toolbarHandler', '_iv_FormToolbar')
-        
         #recordBC = mainPane.dialog(nodeId=dialogId,**formPars).borderContainer(nodeId='%s_bc' %gridId,
         #                                                                       datapath=storepath, #[check]
         #                                                                       height=height, width=width)

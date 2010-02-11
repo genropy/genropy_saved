@@ -133,12 +133,14 @@ dojo.declare("gnr.GnrDomSourceNode",gnr.GnrBagNode,{
                     setTimeout(dojo.hitch(this,'setDataNodeValue',kw.node,kw,trigger_reason),this.attr._delay);
                    
                 }else{
+                    //console.log('136 '+mydpath+'   -   '+dpath);
                     this.setDataNodeValue(kw.node,kw,trigger_reason);
                 }
                 
             }
             else{
                 if (kw.reason != this){
+                    //console.log('143 '+mydpath+'   -   '+dpath);
                     this.updateAttrBuiltObj(prop,kw, trigger_reason);
                 }
             }

@@ -2365,6 +2365,8 @@ dojo.declare("gnr.widgets.VirtualStaticGrid",gnr.widgets.Grid,{
         
     },
     mixin_reload:function(keep_selection){
+        console.log('mixin_reload');
+        console.log(this);
         if (keep_selection){
              prevSelectedIdentifiers=[];
              var identifier=this._identifier;
