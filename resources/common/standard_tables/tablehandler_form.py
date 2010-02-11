@@ -2,7 +2,7 @@
 # encoding: utf-8
 
 from gnr.web.gnrbaseclasses import BaseComponent
-from gnr.core.gnrstring import splitAndStrip
+from gnr.core.gnrstring import splitAndStrip,toJson
 
 class TableHandlerForm(BaseComponent):
     def pageForm(self,pane,bottom):
@@ -145,25 +145,20 @@ class TableHandlerForm(BaseComponent):
                 
     def _th_linktag_struct(self,struct):
         r = struct.view().rows()
-        r.cell('_widget',calculated=True,name='!!Tags',width='250px')
+        r.cell('_widget',calculated=True,js='genro.dom.html_maker',name='!!Tags',width='250px')
         return struct
         
     def rpc_th_linktag_apply(self,selection,record_pkey=None):
         def cb(row):
-            checkbox = ' %s <input type="checkbox" name="cb" value="^.%s"/>' %(row['description'],row['tag'])
-            result = dict(_widget=checkbox)
+            #checkbox = ' %s <input type="checkbox" name="cb" value="%s"/>' %(row['description'],row['tag'])
+            checkbox = toJson(dict(value='value',label=row['description'],
+                                    name=row['tag'],widget='checkbox',id=row['tag'],checked=False))
+            select = toJson(dict(value=row['tag'],label=row['description'],
+                                    name=row['tag'],widget='select',id=row['tag'],
+                                    values=row['values']))
+            result = dict(_widget=checkbox,value=False)
             if row['values']:
-                options = row['values'].split(',')
-                optwdg = ['<option value="-">-</option>']
-                for opt in options:
-                    optlist = splitAndStrip('%s:%s'%(opt,opt),':',n=2,fixed=2)
-                    optwdg.append("""<option value="%s">%s</option>""" %(optlist[0],optlist[1]))
-                result['_widget']= """
-                                    %s
-                                    <select name="prova" id="prova" onchange="console.log(event);console.log(event.currentTarget.value + '%s');" size="1">
-                                        %s
-                                    </select>
-                                    """%(row['description'], row['pkey'], '\n'.join(optwdg))                
+                result['_widget'] = select
             return result
         selection.apply(cb)
         
