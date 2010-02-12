@@ -208,7 +208,6 @@ dojo.declare('gnr.GenroClient', null, {
         }
         genro.setData('_clientCtx', contextBag);    
     },
-
     fireEvent: function(path, msg){
         msg = msg || true;
         var path = genro.src.getNode().absDatapath(path);

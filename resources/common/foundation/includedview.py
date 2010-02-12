@@ -208,7 +208,7 @@ class IncludedView(BaseComponent):
                 conditions.append('evtypes.indexOf(evtype)>=0')
                 pars['evtypes'] = externalChangesTypes
                 pars['evtype'] = '=%s?dbevent' %event_path
-            gridcenter.dataController("FIRE .reload" ,_if=' && '.join(conditions),
+            gridcenter.dataController("FIRE .reload;" ,_if=' && '.join(conditions),
                                      _fired='^%s' %event_path,**pars)
             
         if selectionPars:
@@ -304,12 +304,12 @@ class IncludedView(BaseComponent):
         #assert table
         assert not 'columnsFromView' in selectionPars
         assert not 'nodeId' in selectionPars
+        _onResult = selectionPars.pop('_onResult','')
+        _onResult = "%s; FIRE .loaded;" %_onResult
         #assert 'where' in selectionPars
         selectionPars['nodeId'] = "%s_selection" %gridId
         selectionPars['columns'] = selectionPars.get('columns') or '=.columns'
-        onResult = selectionPars.get('onResult','') #patch Savi
-        onResult = '%s FIRE .reloaded;' % onResult
-        pane.dataSelection(storepath,table,**selectionPars)
+        pane.dataSelection(storepath,table,_onResult=_onResult,**selectionPars)
         
     def _iv_IncludedViewController(self, controller, gridId ,controllerPath,table=None):
         loadingParameters=None
@@ -359,11 +359,15 @@ class IncludedView(BaseComponent):
         controller.dataController("""var grid = genro.wdgById(gridId);
                                         SET .currentFilter = "";
                                         grid.filterColumn = col;
-                                        grid.applyFilter("");""", #empty the searchbox if change the filtercolumn
+                                        grid.applyFilter("");""",
                                         col='^.flt.selected.col', 
-                                        gridId=gridId, _onStart=True,
-                                        #_fired='^.reload',
-                                        _fired='^.reloaded') #patch SAVI
+                                        gridId=gridId, _onStart=True) 
+                                        
+        controller.dataController("""var grid = genro.wdgById(gridId); 
+                                     SET .currentFilter=''; 
+                                     grid.applyFilter("");""",
+                                     gridId=gridId,_fired='^.resetFilter',
+                                     nodeId='%s_filterReset' %gridId)
         if len(colsMenu) > 1:
             controller.data('.flt.colsMenu', colsMenu)
             searchlbl.span(':')

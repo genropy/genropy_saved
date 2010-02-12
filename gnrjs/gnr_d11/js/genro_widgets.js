@@ -2368,14 +2368,12 @@ dojo.declare("gnr.widgets.VirtualStaticGrid",gnr.widgets.Grid,{
          }
     },
     mixin_setReloader: function(){
+        genro.nodeById(this.sourceNode.attr.nodeId+'_filterReset').fireNode();
         this.reload(true);
-        
     },
     mixin_reload:function(keep_selection){
-        console.log('mixin_reload');
-        console.log(this);
         if (keep_selection){
-             prevSelectedIdentifiers=[];
+             var prevSelectedIdentifiers=[];
              var identifier=this._identifier;
              dojo.forEach(this.getSelectedNodes(), function(node){
                     if (node) {prevSelectedIdentifiers.push(node.attr[identifier]);};
@@ -2392,6 +2390,7 @@ dojo.declare("gnr.widgets.VirtualStaticGrid",gnr.widgets.Grid,{
         else{
             var selectionNode=genro.nodeById(this.sourceNode.attr.nodeId+'_selection');
             if (selectionNode){
+                this.filterToRebuild = true;
                 selectionNode.fireNode();
             }
         }
