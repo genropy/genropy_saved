@@ -2368,7 +2368,10 @@ dojo.declare("gnr.widgets.VirtualStaticGrid",gnr.widgets.Grid,{
          }
     },
     mixin_setReloader: function(){
-        genro.nodeById(this.sourceNode.attr.nodeId+'_filterReset').fireNode();
+        var filterNode = genro.nodeById(this.sourceNode.attr.nodeId+'_filterReset');
+        if (filterNode){
+            filterNode.fireNode();
+        }
         this.reload(true);
     },
     mixin_reload:function(keep_selection){
