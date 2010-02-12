@@ -26,7 +26,7 @@ from gnr.web.gnrwebpage import BaseComponent
 class RecordLinker(BaseComponent):
     def recordLinker(self,fb,table=None,dialogPars=None,record_template=None,record_path=None,lbl=None,
                     value=None,width=None,height=None,colspan=1,rowspan=1,disabled=False,
-                    default_path=None,**kwargs):
+                    default_path=None, record_reloader=None,**kwargs):
         """docstring for recordLinker"""
         assert 'dlgId' in dialogPars, 'this param is mandatory'
 
@@ -59,7 +59,7 @@ class RecordLinker(BaseComponent):
         assert not 'firedPkey' in dialogPars, 'firedPkey is used by the component'     
         assert not 'savedPath' in dialogPars, 'savedPath is used by the component'                  
         
-        selectorBox.dataRecord(record_path,table,pkey=value,_if='pkey')
+        selectorBox.dataRecord(record_path,table,pkey=record_reloader or value, _if='pkey')
         selectorBox.dataController("SET %s = savedId;" %value[1:],
                                     savedId='=#%s.savedId' %dialogPars['dlgId'],
                                     _fired='^#%s.recordSaved' %dialogPars['dlgId'])
