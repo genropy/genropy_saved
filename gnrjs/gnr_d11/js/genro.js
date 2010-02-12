@@ -747,9 +747,24 @@ dojo.declare('gnr.GenroClient', null, {
         }
         window.location.assign(url);
     },
-     joinPath: function() {
+    joinPath:function() {
+        var result = arguments[0];
+        var i;
+        for(i = 1; i < arguments.length; i++) {
+            var p = arguments[i];
+            if(result.substr(-1) != "/") {
+                result += "/";
+            }
+            if(p.substr(0,1) == "/") {
+                p = p.substr(1);
+            }
+            result += p;
+        }
+        return result;
+    },
+    /*joinPath: function() {
         return arguments.join('/').replace(/\/+/g,'/');
-     },
+     },*/ //arguments.join is not a function!
     gotoHome:function(){      
         window.location.assign(genro.getData('gnr.homepage'));
     },
