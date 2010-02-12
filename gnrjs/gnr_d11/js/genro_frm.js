@@ -301,7 +301,7 @@ dojo.declare("gnr.GnrFrmHandler",null,{
         };
     },
     getInvalidFields: function(){
-        return genro.getData(this.invalidFieldsPath);
+        return genro.getData(this.invalidFieldsPath) || new gnr.GnrBag();
     },
     focusFirstInvalidField: function(){
         if (dojo.isIE>0){
