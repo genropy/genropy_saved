@@ -155,6 +155,9 @@ class GnrSqlDb(GnrObject):
     def dropDbstore(self,storename):
         self.dbstores.pop(storename,None)
         
+    def tempEnv(self, **kwargs):
+        return SqlEnv(self, **kwargs)
+        
     def _get_currentEnv(self):
         """property currentEnv it returns the env currently used in this thread"""
         return self._currentEnv.setdefault(thread.get_ident(),{})
@@ -386,7 +389,7 @@ class SqlEnv(object):
         currentEnv.update(self.kwargs)
         return self.db
         
-    def __exit__(self):
+    def __exit__(self, type, value, traceback):
         self.db.currentEnv=self.savedEnv
         
     
