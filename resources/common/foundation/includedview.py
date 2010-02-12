@@ -304,12 +304,10 @@ class IncludedView(BaseComponent):
         #assert table
         assert not 'columnsFromView' in selectionPars
         assert not 'nodeId' in selectionPars
-        _onResult = selectionPars.pop('_onResult','')
-        _onResult = "%s; FIRE .loaded;" %_onResult
         #assert 'where' in selectionPars
         selectionPars['nodeId'] = "%s_selection" %gridId
         selectionPars['columns'] = selectionPars.get('columns') or '=.columns'
-        pane.dataSelection(storepath,table,_onResult=_onResult,**selectionPars)
+        pane.dataSelection(storepath,table,**selectionPars)
         
     def _iv_IncludedViewController(self, controller, gridId ,controllerPath,table=None):
         loadingParameters=None
