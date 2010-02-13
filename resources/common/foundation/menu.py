@@ -35,7 +35,7 @@ class Menu(BaseComponent):
    #
     def menu_menuPane(self,parentBC,**kwargs):
         b=Bag()
-        b['root']=MenuResolver(path=None)
+        b['root']=MenuResolver(path=None,pagepath=self.pagepath)
         parentBC.data('gnr.appmenu',b)
         leftPane = parentBC.contentPane(width='20%',_class='menupane',**kwargs)
         leftPane.tree(id="_gnr_main_menu_tree",storepath='gnr.appmenu.root',selected_file='gnr.filepath',
@@ -48,6 +48,12 @@ class Menu(BaseComponent):
                        getIconClass='return node.attr.iconClass || "treeNoIcon"',
                        getLabelClass='return node.attr.labelClass',
                        openOnClick=True,
+                       connect__expandNode="""var node=$1;
+                                              dojo.forEach(node.getParent().getChildren(),function(n){
+                                              if (n!=node && n.isExpanded){
+                                                  n.collapse();
+                                              }
+                                              });""",
                        #connect_onClick='genro.gotoURL($1.getAttr("file"),true)',
                        #getLabel="""return "<a href='"+node.attr.file+"'>"+node.attr.label+"</a>::HTML";""",
                        getLabel="""if(node.attr.file){ 
@@ -89,6 +95,7 @@ class Menu(BaseComponent):
                     else:
                         value=None
                         labelClass = 'menu_page'
+                        print x
                     customLabelClass = attributes['customLabelClass'] or ''
                     attributes['labelClass'] = 'menu_shape %s %s' %(labelClass, customLabelClass)
                     filepath=attributes.get('file')
@@ -108,7 +115,8 @@ class Menu(BaseComponent):
 class MenuResolver(BagResolver):
     classKwargs={'cacheTime':300,
                  'readOnly':False,
-                 'path':None}
+                 'path':None,
+                 'pagepath':None}
     classArgs=['path']
     def load(self):
         sitemenu = self._page.application.siteMenu
@@ -135,11 +143,13 @@ class MenuResolver(BagResolver):
                         newpath = '%s.%s' %(self.path,node.label)
                     else:
                         newpath = node.label
-                    value = MenuResolver(path=newpath)
+                    value = MenuResolver(path=newpath,pagepath=self.pagepath)
                     labelClass = 'menu_level_%i' %level 
                 else:
                     value=None
-                    labelClass = 'menu_page'             
+                    labelClass = 'menu_page'   
+                    if 'file' in attributes and  attributes['file'].endswith(self.pagepath.replace('.py','')):
+                        labelClass = 'menu_page menu_current_page'      
                 customLabelClass = attributes.get('customLabelClass','')
                 attributes['labelClass'] = 'menu_shape %s %s' %(labelClass, customLabelClass)
                 result.setItem(node.label,value,attributes)
