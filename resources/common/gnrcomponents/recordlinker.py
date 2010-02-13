@@ -34,7 +34,7 @@ class RecordLinker(BaseComponent):
                             min_height=height,width=width,colspan=colspan,
                             rowspan=rowspan,position='relative')
         selector = selectorBox.dbSelect(value=value,dbtable=table,position='absolute',
-                                        left='0px',top='0px',width='100%',**kwargs)
+                                        left='0px',top='0px',width='100%',disabled=disabled,**kwargs)
         
             
         selector.button('!!Add',position='absolute',right='2px',z_index='100',iconClass='icnBaseAdd',
@@ -53,13 +53,13 @@ class RecordLinker(BaseComponent):
         editAction = 'FIRE #%s.pkey = GET %s;' %(dialogPars['dlgId'], value[1:])
         selectorViewer.button('!!Edit',baseClass='no_background',showLabel=False,
                     right='2px',z_index='100',bottom='2px',position='absolute',
-                    action=editAction,
-                    iconClass='icnBaseEdit',disabled=disabled)
+                    action=editAction,visible=value,
+                    iconClass='icnBaseEdit')#disabled=disabled)
           
         assert not 'firedPkey' in dialogPars, 'firedPkey is used by the component'     
         assert not 'savedPath' in dialogPars, 'savedPath is used by the component'                  
         
-        selectorBox.dataRecord(record_path,table,pkey=record_reloader or value, _if='pkey')
+        selectorBox.dataRecord(record_path,table,pkey=record_reloader or value, _if='pkey',_else='null')
         selectorBox.dataController("SET %s = savedId;" %value[1:],
                                     savedId='=#%s.savedId' %dialogPars['dlgId'],
                                     _fired='^#%s.recordSaved' %dialogPars['dlgId'])
