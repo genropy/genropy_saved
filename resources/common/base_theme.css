@@ -446,6 +446,7 @@
 	color: whitesmoke;
 	text-decoration: none;
 }
+
 .menu_page  > a:hover{
 	text-decoration: underline;
 }
@@ -495,6 +496,10 @@
 	margin-right: 10px;
 	margin-top: 3px;
 }
+.menutree .menu_current_page {
+	background-color: #b12109 ! important;
+}
+
 
 .menutree .menu_shape:hover{
     opacity: .8;
