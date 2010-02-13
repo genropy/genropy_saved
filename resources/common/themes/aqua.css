@@ -442,10 +442,7 @@
 	color:#FFFFFF;
 	text-decoration: none;
 }
-.menu_current_page >a{
-	text-shadow: 3px 3px 3px #333;
-	border: 1px solid red;
-}
+
 .menu_page  > a:hover{
 	text-decoration: underline;
 }
@@ -534,6 +531,9 @@
 	-webkit-box-shadow:2px 2px 2px #403b3b;
 	margin-top: 3px;
 	color:#FFFFFF;
+}
+.menutree .menu_current_page {
+	background-color: #b12109 ! important;
 }
 
 .menutree .menu_shape:hover{
