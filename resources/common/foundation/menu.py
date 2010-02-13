@@ -95,7 +95,6 @@ class Menu(BaseComponent):
                     else:
                         value=None
                         labelClass = 'menu_page'
-                        print x
                     customLabelClass = attributes['customLabelClass'] or ''
                     attributes['labelClass'] = 'menu_shape %s %s' %(labelClass, customLabelClass)
                     filepath=attributes.get('file')
