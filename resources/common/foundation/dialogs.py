@@ -105,10 +105,11 @@ class Dialogs(BaseComponent):
                                                              
 class DialogForm(BaseComponent):
     def dialog_form(self,parent,title='',formId='',height='',width='',datapath='',
-                cb_center=None,cb_bottom='*',loadsync=False,**kwargs):
-        def cb_bottom_standard(bc,**kwargs):
+                cb_center=None,cb_bottom='*',loadsync=False,confirm_btn=None,**kwargs):
+        def cb_bottom_standard(bc,confirm_btn=None,**kwargs):
             bottom = bc.contentPane(**kwargs)
-            bottom.button('!!Confirm',baseClass='bottom_btn',float='right',margin='1px',
+            confirm_btn = confirm_btn or '!!Confirm'
+            bottom.button(confirm_btn,baseClass='bottom_btn',float='right',margin='1px',
                             fire_always='.save',disabled='^.disable_button')
             bottom.button('!!Cancel',baseClass='bottom_btn',float='right',margin='1px',fire='.hide')
 
@@ -119,7 +120,7 @@ class DialogForm(BaseComponent):
         dialog = parent.dialog(title=title,nodeId=dlgId,datapath=datapath,**kwargs)
         bc=dialog.borderContainer(height=height,width=width)
         if cb_bottom:
-            cb_bottom(bc,region='bottom',_class='dialog_bottom')
+            cb_bottom(bc,region='bottom',_class='dialog_bottom',confirm_btn=confirm_btn)
         if cb_center:
             cb_center(bc,region='center',datapath='.data',_class='pbl_dialog_center', 
                      formId=formId,dlgId=dlgId)
