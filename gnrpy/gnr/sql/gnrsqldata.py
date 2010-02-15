@@ -31,7 +31,6 @@ from gnr.core.gnrlang import deprecated, uniquify
 from gnr.core.gnrdate import decodeDatePeriod
 from gnr.core.gnrlist import GnrNamedList
 
-from gnr.core.gnrclasses import GnrClassCatalog
 from gnr.core import gnrstring
 from gnr.core import gnrlist
 from gnr.core.gnrbag import Bag, BagResolver
@@ -114,16 +113,18 @@ class SqlQueryCompiler(object):
     def getFieldAlias(self, fieldpath, curr=None, basealias=None):
         
         def expandEnv(m):
-            handler_name = m.group(1)
+            what = m.group(1)
+            if what in self.db.currentEnv:
+                return self.db.currentEnv[what]
             if m.group(2):
                 env_tblobj= self.db.table(m.group(2)[1:])
             else:
                 env_tblobj = curr_tblobj
-            handler = getattr(env_tblobj, 'env_%s' % handler_name, None)
+            handler = getattr(env_tblobj, 'env_%s' % what, None)
             if handler:
                 return handler()
             else:
-                return 'Not found %s' % handler_name
+                return 'Not found %s' % what
             
         """Internal method: translate fields and related fields path in a valid sql string for the column.
            It translate '@relname.@rel2name.colname' to 't4.colname'.
@@ -825,29 +826,23 @@ class SqlQuery(object):
             index = cursor.index
         return index, data
     
-    def selection(self, pyWhere=None, workTable=None, key=None, sortedBy=None, _aggregateRows=False):
+    def selection(self, pyWhere=None, key=None, sortedBy=None, _aggregateRows=False):
         """Execute the query and return a SqlSelection
            or a SqlSelectionInTable. 
-        @param workTable: when the selection it's too large to be kept in memory you can
-                           give a name for a temporary table to store it. By the way
-                           in this case the api to access to the selection is quite different.
         @param pyWhere: a cb that can be used to reduce the selection during the fetch.
         """
-        assert not(workTable and pyWhere)
-        if workTable:
-            return SqlSelectionInTable(self.dbtable, self.workTable, self.compiled, self.sqlparams)
-        else:
-            index, data = self._dofetch(pyWhere=pyWhere)
-            return SqlSelection(self.dbtable, data, 
-                                      index = index,
-                                      colAttrs = self._prepColAttrs(index),
-                                      joinConditions = self.joinConditions,
-                                      sqlContextName = self.sqlContextName,
-                                      key=key,
-                                      sortedBy=sortedBy,
-                                      explodingColumns = self.compiled.explodingColumns,
-                                      _aggregateRows = _aggregateRows
-                                      )
+
+        index, data = self._dofetch(pyWhere=pyWhere)
+        return SqlSelection(self.dbtable, data, 
+                                  index = index,
+                                  colAttrs = self._prepColAttrs(index),
+                                  joinConditions = self.joinConditions,
+                                  sqlContextName = self.sqlContextName,
+                                  key=key,
+                                  sortedBy=sortedBy,
+                                  explodingColumns = self.compiled.explodingColumns,
+                                  _aggregateRows = _aggregateRows
+                                  )
                                     
     
     def _prepColAttrs(self, index):
@@ -1309,9 +1304,6 @@ class SqlSelection(object):
         for r in outsource:
             yield self.dbtable.record(r[0][1], mode='bag')
 
-    def out_tablebag(self, outsource):
-        return self.buildAsTableBag(outsource)
-
     def out_bag(self, outsource, recordResolver=False):
         b = Bag()
         headers = Bag()
@@ -1360,7 +1352,6 @@ class SqlSelection(object):
         
     def out_baglist(self, outsource, recordResolver=False, caption=False):
         result = Bag()
-        content = ''
         for j, row in enumerate(outsource) :
             row = dict(row)
             pkey = row.pop('pkey', None)
@@ -1435,25 +1426,6 @@ class SqlSelection(object):
         result['structure'] = structure
         result['data'] = self.buildAsGrid(outsource, recordResolver)
         return result
-        
-    def buildAsTableBag(self, outsource):
-        result = Bag()
-        result['headers'] = self.bagHeaders(outsource)
-        if rows:
-            for j,row in enumerate(outsource) :
-                row = Bag(row.items())
-                rowcaption = self.dbtable.model.attributes.get('rowcaption', '')
-                if rowcaption:
-                    rowcaption='-'.join([row[c.strip()] for c in rowcaption.split(',')])
-                else:
-                    rowcaption = spkey
-                result.setItem('R_%6i' % j, row, nodecaption=rowcaption)
-                result['R_%6i._' % j] = SqlRelatedRecordResolver(db=self.db, cacheTime=-1, mode='bag',
-                                                           target_fld='%s.%s' % (defaultTable, self.dbtable.pkey),
-                                                           relation_value=pkey, joinConditions=self.joinConditions, sqlContextName=self.sqlContextName)
-
-
-        return result
 
     def out_tabtext(self, outsource):
         def translate(txt):
@@ -1474,152 +1446,6 @@ class SqlSelection(object):
             r = dict(row)
             result.append('\t'.join([r[col].replace('\n',' ').replace('\r',' ').replace('\t',' ') for col in columns]))
         return '\n'.join(result)
-        
-class SqlSelectionInTable(SqlSelection):        
-    def __init__(self, dbtable, workTable, compiled, sqlparams):
-        self.dbtable = dbtable
-        self.workTable = workTable
-        self.compiled = compiled
-        self.sqlparams = sqlparams
-        self.relationDict = self.compiled.relationDict
-        self.aliasDict = self.compiled.aliasDict
-        self.arraysize = 100
-        
-        self._index = {}
-        self.columns = None
-        
-        self.freezepath = None
-        self._data = None
-        self._filtered_data = None
-        
-        if '.' in self.workTable:
-            sqlschema, sqltable = self.workTable.split('.')
-            self.db.createSchema(self.workTable.split('.')[0])
-        else:
-            sqlschema = None
-            sqltable = self.workTable
-            
-        self.db.adapter.dropTable(self.workTable)
-        self.db.adapter.createTableAs(self.workTable, self.sqltext, self.sqlparams)
-        self.db.adapter.addColumn(self.workTable, 'gnr_select_visible', dtype='B')
-        
-        self.db.execute(self.db.adapter.createIndex('%s_oid' % sqltable, 'oid', sqltable, sqlschema=sqlschema, unique=True))
-        self.db.execute("UPDATE %s SET gnr_select_visible = :tr;" % self.workTable, {'tr':True})
-        self.db.commit()
-        self._sort = ['oid']
-        
-    def _freeze_update(self):
-        self.db.commit()
-        SqlSelection._freeze_update(self)
-        
-    def _freeze_data(self, mode):
-        pass
-
-    def _freeze_filtered(self, mode):
-        pass
-    
-    def __len__(self):
-        return self.db.execute("SELECT count(*) FROM %s WHERE gnr_select_visible IS :tr;" % self.workTable, {'tr':True}).fetchall()[0][0]
-        
-    def _get_data(self):
-        raise SelectionExecutionError("SqlSelectionInTable object has no attribute data")    
-        
-    def sort(self, *args):
-        self._sort = []
-        for col in args:
-            if ':' in col:
-                col, mode = col.split(':')
-                if mode.lower() == 'd':
-                    col = '%s DESC' % col
-            self._sort.append(col)
-        self._sort.append('oid')
-        self._freeze_update()
-            
-    def filter(self, flt=None):
-        self.db.execute("UPDATE %s SET gnr_select_visible = :no WHERE gnr_select_visible IS :tr;" % self.workTable, {'tr':True, 'no':None})
-        if flt:
-            sqlupdate = "UPDATE %s SET gnr_select_visible = :tr WHERE oid IN :filtered ;" % self.workTable
-            cursor = self.db.execute('SELECT oid, * FROM %s ' % self.workTable, cursorname='*')
-            cursor.arraysize = self.arraysize
-            rows = True
-            while rows:
-                rows = cursor.fetchmany()
-                filtered = filter(flt,rows)
-                if filtered:
-                    self.db.execute(sqlupdate, {'tr':True, 'filtered':filtered})
-                    
-            cursor.close()
-        self._freeze_update()
-        
-    def apply(self, cb):
-        cursor = self.db.execute('SELECT oid, * FROM %s WHERE gnr_select_visible IS :tr ;' % self.workTable, {'tr':True}, cursorname='*')
-        cursor.arraysize = self.arraysize
-        rows = True
-        sqlupdate = None
-        catalog = GnrClassCatalog()
-        while rows:
-            rows = cursor.fetchmany()
-            for r in rows:
-                pars = cb(r)
-                if not sqlupdate:
-                    sqlupdate = []
-                    for k,v in pars.items():
-                        self.db.adapter.addColumn(self.workTable, k, dtype=catalog.getType(v))
-                        sqlupdate.append('%s = :%s' % (k, k))
-                    sqlupdate = 'UPDATE %s SET %s WHERE oid = :oid ;' % (self.workTable, ','.join(sqlupdate))
-                pars['oid'] = r['oid']
-                self.db.execute(sqlupdate, pars)
-        cursor.close()
-        self._freeze_update()
-        
-    def output(self, mode, columns=None, offset=None, limit=None, where=None, where_pars=None):
-        if mode == 'pkeylist':
-            columns = 'pkey'
-        if isinstance(columns, basestring):
-            columns = gnrstring.splitAndStrip(columns, ',')
-        if hasattr(self, 'out_%s' % mode):
-            outgen = self.out(columns=columns, offset=offset, limit=limit, where=where, where_pars=where_pars)
-            return getattr(self, 'out_%s' % mode)(outgen) #calls the output method
-        else:
-            raise SelectionExecutionError('Not existing mode: %s' % mode)
-
-    def _out(self, columns=None, offset=0, limit=None, where=None, where_pars=None):
-        columns = columns or ['*']
-        sql, where_pars = self._getSql(columns, offset, limit, where, where_pars)
-        
-        cursor = self.db.execute(sql, where_pars, cursorname='*')
-        cursor.arraysize = self.arraysize
-        rows = cursor.fetchmany()
-        self.columns = [r[0] for r in cursor.description]
-        return self._outgen(cursor)
-    
-    def _outgen(self, cursor):
-        while rows:
-            for r in rows:
-                yield r.items()
-            rows = cursor.fetchmany()
-        cursor.close()
-    
-    def _getSql(self, columns, offset, limit, where=None, where_pars=None):
-        where_pars = where_pars or {}
-        where_pars['tr'] = True
-        
-        wherelist = ['gnr_select_visible IS :tr']
-        if where:
-            wherelist.append(where)
-        where = ' AND '.join(wherelist)        
-        
-        sql = []
-        flt = False
-        sql.append('SELECT %s FROM %s WHERE %s' % (','.join(columns), self.workTable, where))
-        sql.append('ORDER BY %s' % ','.join(self._sort))
-        
-        if offset:
-            sql.append('OFFSET %i' % offset)
-        if not limit in ('',None):
-            sql.append('LIMIT %i' % limit)
-        sql = ' '.join(sql)
-        return sql, where_pars       
 
 class SqlRelatedSelectionResolver(BagResolver):
     classKwargs={'cacheTime':0, 'readOnly':True, 'db':None,
@@ -1651,26 +1477,6 @@ class SqlRelatedSelectionResolver(BagResolver):
                          joinConditions=self.joinConditions, sqlContextName=self.sqlContextName,
                          bagFields=self.bagFields, **self.sqlparams)
         return query.selection().output(self.mode, recordResolver=(self.mode=='grid'))
-
-
-#class SqlSelectionResolver(SqlDataResolver):    
-    #classKwargs={'cacheTime':0, 'readOnly':True, 'db':None,
-                 #'columns':None, 'where':None, 'order_by':None,
-                 #'distinct':None, 'limit':None, 'offset':None,
-                 #'group_by':None, 'having':None,
-                 #'relationDict':None, 'sqlparams':None,
-                  #'mode':None}
-    #classArgs=['tablename']
- 
-    #def load(self):
-        #self.sqlparams = self.sqlparams or {}
-        #self.sqlparams.update(self.kwargs)
-        #query = SqlQuery(self.dbtable,columns=self.columns, 
-                                      #where=self.where, order_by=self.order_by, 
-                                      #distinct=self.distinct,limit=self.limit, offset=self.offset,
-                                      #group_by=self.group_by, having=self.having,
-                                      #relationDict=self.relationDict, sqlparams=self.sqlparams)
-        #return query.selection().output(self.mode, recordResolver=(self.mode=='grid'))
 
 class SqlRecord(object):
     def __init__(self, dbtable, pkey=None, where=None,
