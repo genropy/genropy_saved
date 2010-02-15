@@ -7,14 +7,9 @@ Created by Saverio Porcari on 2010-01-25.
 Copyright (c) 2010 __MyCompanyName__. All rights reserved.
 """
 
-import sys
-import os
 
 from gnr.web.gnrbaseclasses import BaseComponent
-from gnr.core.gnrbag import Bag
-from gnr.core.gnrstring import templateReplace, splitAndStrip
 
-import os
 
 
 class MultiSelect(BaseComponent):
@@ -22,7 +17,7 @@ class MultiSelect(BaseComponent):
     js_requires='gnrcomponents/multiselect'
     def multiSelect(self,bc,nodeId=None,table=None,datapath=None,struct=None,label=None,values=None,readColumns=None,
                              reloader=None,filterOn=None,hiddencolumns=None,selectionPars=None,order_by=None,
-                             showSelected=False, readCol=None,**kwargs):
+                             showSelected=False, readCol=None,hasToolbar=False,**kwargs):
         assert not 'footer' in kwargs, 'remove footer par'
 
         assert struct, 'struct is mandatory'
@@ -64,7 +59,8 @@ class MultiSelect(BaseComponent):
             else:
                 selectionPars=dict()
         viewpars = dict(label=label,struct=struct,filterOn=filterOn,table=table,
-                         hiddencolumns=hiddencolumns,reloader=reloader,autoWidth=True)
+                         hiddencolumns=hiddencolumns,reloader=reloader,autoWidth=True,
+                         hasToolbar=hasToolbar)
         checkboxGridBC = bc
         checkboxGridDatapath = datapath
         if showSelected:
