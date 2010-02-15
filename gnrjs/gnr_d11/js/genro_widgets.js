@@ -2393,7 +2393,9 @@ dojo.declare("gnr.widgets.VirtualStaticGrid",gnr.widgets.Grid,{
         else{
             var selectionNode=genro.nodeById(this.sourceNode.attr.nodeId+'_selection');
             if (selectionNode){
-                this.filterToRebuild = true;
+                if (this.filtered){
+                    this.filterToRebuild = true;
+                }
                 selectionNode.fireNode();
             }
         }
@@ -2413,7 +2415,7 @@ dojo.declare("gnr.widgets.VirtualStaticGrid",gnr.widgets.Grid,{
     
     mixin_absIndex: function(inRowIndex){
         if (this.filterToRebuild){
-            alert('filtro invalido');
+            console.log('invalid filter');
         }
         return this.filtered ? this.filtered[inRowIndex] : inRowIndex;
     },
