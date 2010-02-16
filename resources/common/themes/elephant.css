@@ -476,6 +476,9 @@ padding-bottom: 5px;
     padding-bottom:4px;
     padding-top:0px;
 }
+.menutree .menu_current_page {
+	background-color: #b12109 ! important;
+}
 
 .menutree .menu_level_0{
 	background-color: #ece3da;
