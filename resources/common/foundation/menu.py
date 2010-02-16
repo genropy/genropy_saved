@@ -48,14 +48,7 @@ class Menu(BaseComponent):
                        getIconClass='return node.attr.iconClass || "treeNoIcon"',
                        getLabelClass='return node.attr.labelClass',
                        openOnClick=True,
-                       connect__expandNode="""var node=$1;
-                                              dojo.forEach(node.getParent().getChildren(),function(n){
-                                              if (n!=node && n.isExpanded){
-                                                  n.collapse();
-                                              }
-                                              });""",
-                       #connect_onClick='genro.gotoURL($1.getAttr("file"),true)',
-                       #getLabel="""return "<a href='"+node.attr.file+"'>"+node.attr.label+"</a>::HTML";""",
+                       autoCollapse=True,
                        getLabel="""if(node.attr.file){ 
                                         var url = genro.joinPath(genro.baseUrl, node.attr.file);
                                         return 'innerHTML:<a href="'+url+'"><div style="width:100%;height:100%;">'+node.attr.label+'</div></a>'}
