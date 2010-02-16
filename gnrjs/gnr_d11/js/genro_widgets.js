@@ -3337,7 +3337,7 @@ dojo.declare("gnr.widgets.Tree",gnr.widgets.baseDojo,{
                 }
             };
         }
-        var savedAttrs=objectExtract(attributes,'inspect');
+        var savedAttrs=objectExtract(attributes,'inspect,autoCollapse');
         return savedAttrs;
     },
     created: function(widget, savedAttrs, sourceNode){
@@ -3357,12 +3357,25 @@ dojo.declare("gnr.widgets.Tree",gnr.widgets.baseDojo,{
          else{
              sourceNode.registerDynAttr('storepath');
          }
+         
+         if(savedAttrs.autoCollapse){
+             dojo.connect(widget,'_expandNode',function(node){
+                  dojo.forEach(node.getParent().getChildren(),function(n){
+                        if (n!=node && n.isExpanded){
+                                                  n.tree._collapseNode(n);
+                        }
+                  });
+             });         
+         }
     },
 
     patch__onClick:function(e){
         var nodeWidget = dijit.getEnclosingWidget(e.target);
         if(!nodeWidget || !nodeWidget.isTreeNode){
             return;
+        }
+        if(nodeWidget==nodeWidget.tree.rootNode){
+            return
         }
         nodeWidget.__eventmodifier = eventToString(e);
         this._onClick_replaced(e);
