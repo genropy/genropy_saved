@@ -127,7 +127,7 @@ class DialogForm(BaseComponent):
         
         bc.dataController('genro.wdgById(dlgId).show();',dlgId=dlgId,_fired="^.show" )
         bc.dataController('genro.wdgById(dlgId).hide();',dlgId=dlgId,_fired="^.hide" )
-        bc.dataController("FIRE .show; genro.formById(formId).load(loadsync)" ,
+        bc.dataController("FIRE .show; console.log(formId); genro.formById(formId).load(loadsync)" ,
                         formId=formId,loadsync=loadsync,_fired="^.open" )
 
         bc.dataController('genro.formById("%s").save(always=="always"?true:false);' %formId,
