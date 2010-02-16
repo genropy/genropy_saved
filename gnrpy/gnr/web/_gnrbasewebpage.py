@@ -460,7 +460,8 @@ class GnrBaseWebPage(GnrObject):
         controller.dataRpc(resultPath, method=method, pkey=pkey, table=table,
                            nodeId='%s_loader' %formId,datapath=datapath,_onCalling=onLoading,
                            _onResult=';'.join(onResultScripts),lock=lock,
-                           loadingParameters=loadingParameters, **kwargs)
+                           loadingParameters=loadingParameters,_firedNode=True,
+                           **kwargs)
                     
     def rpc_loadRecordCluster(self, table=None, pkey=None, recordGetter='app.getRecord', **kwargs):
         table = table or self.maintable
