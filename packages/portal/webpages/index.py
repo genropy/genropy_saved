@@ -12,9 +12,10 @@ from gnr.core.gnrbag import Bag
 # --------------------------- GnrWebPage subclass ---------------------------
 class GnrCustomWebPage(object):
     py_requires='publicsite:SiteLayout,foundation/tools:RemoteBuilder'
+    css_requires='fonts/Nadia/stylesheet'
     def main(self, root,**kwargs):
         self.margin_default='7px'
-        layout = root.borderContainer(_class='site_body')
+        layout = root.borderContainer(_class='site_body',font_family='NadiaSerifNormal')
         layout.dataRemote('pippo','pippo')
         self.site_header(layout.contentPane(region='top',_class='site_header'))
         self.site_footer(layout.contentPane(region='bottom',_class='site_footer',height='15px'))
@@ -36,16 +37,138 @@ class GnrCustomWebPage(object):
 
     def page_0(self,pane):
         """docstring for page_0"""
+       # self.videoScript(pane)
         pane.div('page 0')
         pane.button('Hero',action='genro.playSound("Hero")')
         pane.button('Frog',action='genro.playSound("Frog")')
         pane.button('Glass',action='genro.playSound("Glass")')
         pane.button('Submarine',action='genro.playSound("Submarine")')
-        
+        #pane.button('initvideo',action='initVideo()')
+        pane.video(src="http://movies.apple.com/movies/us/apple/ipoditunes/2007/touch/ads/apple_ipodtouch_touch_r640-9cie.mov", autoplay=True)
+       #videocontainer= pane.div(id='videocontainer')
+       #videocontainer.video(id='videoelem', poster="/blog-files/touch-poster.png")
+       #videocontainer.div(_class="videobutton videoplay", id="videoplaybutton")
+       #videocontainer.div(id='videozoombutton', _class="videobutton videozoombutton videofadeout")
+
     def remote_page_1(self,pane):
         """docstring for page_1"""
-        pane.div('page 1')
-        
+        pane.data('angle','30::L')
+        pane.dataController(""" var st='-webkit-transform: rotate('+angle+'deg);'+
+                                   '-moz-transform: rotate('+angle+'deg);'+
+                                   'border:6px dotted red;width:4em;'+
+                                   'padding:10px;text-align:center;'+
+                                   '-webkit-border-radius:8px;'+
+                                    '-moz-border-radius:8px;'+
+                                    'color:red;cursor:pointer;'+
+                                    'background-color:yellow;'+
+                                    'font-size:3em;'+
+                                    'margin-top:50px;'+
+                                    'margin-left:20px;'+
+                                    '-mox-box-shadow:15px 15px 35px #888;'+
+                                    '-webkit-box-shadow:15px 15px 35px #888;'+
+                                    'text-shadow:6px 6px 14px #333;'
+                                    SET divstyle=st;
+                                   """,angle='^angle',_onStart=True)
+        pane.div('page 1',style="^divstyle",connect_onclick='SET angle=GET angle+2;')
+    def videoScript(self,pane): 
+        pane.script("""var videoElem;
+                       var playButton;
+                       var showProgress = true;
+                       var videoLargeSize = false;
+                       function startedPlaying() {
+                            showProgress = false;
+                            playButton.innerHTML = "||"
+                            playButton.className = "videobutton videoplay videofadeout";
+                       }
+                       function stoppedPlaying() {
+                           playButton.innerHTML = ">"
+                           playButton.className = "videobutton videoplay";
+                       }
+                       function waiting (ev) {
+                            if (!showProgress) {
+                                showProgress = true;
+                                playButton.innerHTML = "Loading...";
+                                playButton.className = "videobutton videoloading";
+                            }
+                       }
+                       function loadRequired() {
+                           if ("DATA_UNAVAILABLE" in HTMLMediaElement)
+                               return videoElem.readyState == HTMLMediaElement.DATA_UNAVAILABLE;
+                           if ("HAVE_NOTHING" in HTMLMediaElement)
+                               return videoElem.readyState == HTMLMediaElement.HAVE_NOTHING;
+                           return false
+                       }
+                       function canPlayThrough() {
+                           if ("CAN_PLAY_THROUGH" in HTMLMediaElement)
+                               return videoElem.readyState == HTMLMediaElement.CAN_PLAY_THROUGH;
+                           if ("HAVE_ENOUGH_DATA" in HTMLMediaElement)
+                               return videoElem.readyState == HTMLMediaElement.HAVE_ENOUGH_DATA;
+                           return false
+                       }
+                       function updateProgress(ev) {
+                           if (!showProgress)
+                              return;
+                           if (ev.total)
+                               playButton.innerHTML = "Loading " + (100*ev.loaded/ev.total).toFixed(0) + "%";
+                           else
+                               playButton.innerHTML = "Loading...";
+                           playButton.className = "videobutton videoloading";
+                       }
+                       function initVideo() {
+                           videoElem = document.getElementById("videoelem");
+                           playButton = document.getElementById("videoplaybutton");
+                           videoZoomButton = document.getElementById("videozoombutton");
+                           if (!videoElem.play) {
+                              playButton.style.display = "none";
+                              videoZoomButton.style.display = "none";
+                              return;
+                           }
+                           videoElem.addEventListener("play", startedPlaying);
+                           videoElem.addEventListener("pause", stoppedPlaying);
+                           videoElem.addEventListener("ended", function () {
+                               if (!videoElem.paused)
+                                   videoElem.pause();
+                               stoppedPlaying();
+                           });
+                           videoElem.addEventListener("progress", updateProgress);
+                           videoElem.addEventListener("begin", updateProgress);
+                           videoElem.addEventListener("canplaythrough", function () {
+                                videoElem.play();
+                           });
+                           videoElem.addEventListener("error", function() {
+                               playButton.innerHTML = "Load failed";
+                           });
+                           videoElem.addEventListener("waiting", waiting);
+                           videoElem.addEventListener("dataunavailable", waiting);
+                           videoZoomButton.addEventListener("click", function () {
+                               var container = document.getElementById("videocontainer");
+                               videoLargeSize = !videoLargeSize;
+                               if (videoLargeSize) {
+                                   container.style.width = "640px";
+                                   container.style.height = "360px";
+                                   videoZoomButton.innerHTML = "-";
+                               } else {
+                                   container.style.width = "400px";
+                                   container.style.height = "225px";
+                                   videoZoomButton.innerHTML = "+";
+                               }
+                           });
+                           playButton.addEventListener("click", function () {
+                               if (videoElem.paused) {
+                                   if (!videoElem.src)
+                                       //videoElem.src = "sample.mov";
+                                       videoElem.src = "http://movies.apple.com/movies/us/apple/ipoditunes/2007/touch/ads/apple_ipodtouch_touch_r640-9cie.mov";
+                                   if (loadRequired())
+                                       videoElem.load();
+                                   if (canPlayThrough())
+                                       videoElem.play();
+                               } else
+                                   videoElem.pause();
+                           } );
+}
+        """)
+
+                                
     def remote_page_2(self,pane):
         """docstring for page_2"""
         pane.div('page 2')
