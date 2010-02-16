@@ -17,7 +17,7 @@ class MultiSelect(BaseComponent):
     js_requires='gnrcomponents/multiselect'
     def multiSelect(self,bc,nodeId=None,table=None,datapath=None,struct=None,label=None,values=None,readColumns=None,
                              reloader=None,filterOn=None,hiddencolumns=None,selectionPars=None,order_by=None,
-                             showSelected=False, readCol=None,hasToolbar=False,**kwargs):
+                             showSelected=False, readCol=None,hasToolbar=False,_onStart=False,**kwargs):
         assert not 'footer' in kwargs, 'remove footer par'
 
         assert struct, 'struct is mandatory'
@@ -60,7 +60,7 @@ class MultiSelect(BaseComponent):
                 selectionPars=dict()
         viewpars = dict(label=label,struct=struct,filterOn=filterOn,table=table,
                          hiddencolumns=hiddencolumns,reloader=reloader,autoWidth=True,
-                         hasToolbar=hasToolbar)
+                         hasToolbar=hasToolbar,_onStart=_onStart)
         checkboxGridBC = bc
         checkboxGridDatapath = datapath
         if showSelected:
