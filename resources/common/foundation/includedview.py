@@ -126,12 +126,12 @@ class IncludedView(BaseComponent):
         label_pars['_class'] = label_pars.pop('class', None) or (not hasToolbar and 'pbl_viewBoxLabel')
         box_pars = dict([(k[4:], kwargs.pop(k)) for k in kwargs.keys() if k.startswith('box_')])
         box_pars['_class'] = (box_pars.pop('class', None) or 'pbl_viewBox')
-        gridtop = parentBC.contentPane(region='top',datapath=controllerPath, overflow='hidden',**label_pars)
+        gridtop = parentBC.contentPane(region='top',datapath=controllerPath, overflow='hidden',nodeId='%s_top' %gridId,**label_pars)
         if hasToolbar is True:
             gridtop = gridtop.toolbar(_class='pbl_viewBoxToolbar')
         gridtop_left= gridtop.div(float='left')
         if callable(label):
-            label(gridtop_left)
+            label(gridtop)
         else:
             gridtop_left.div(label,margin_top='2px',float='left')
         gridtop_right = gridtop.div(float='right')
