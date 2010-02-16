@@ -147,14 +147,10 @@ dojo.declare("gnr.GnrDomSourceNode",gnr.GnrBagNode,{
         }
     },
     fireNode: function(){
-        this.setDataNodeValue(null,null,'firedNode');
+        this.setDataNodeValue();
     },
     setDataNodeValue:function(node, kw, trigger_reason){
         var attributes=objectUpdate({}, this.attr);
-        var firedNode = objectPop(attributes,'_firedNode');
-        if(firedNode && trigger_reason!='firedNode'){
-            return;
-        }
         var _userChanges=objectPop(attributes,'_userChanges');
         if ((kw && kw.reason == 'autocreate' )||( _userChanges && trigger_reason!='node')){
             return;
@@ -163,7 +159,7 @@ dojo.declare("gnr.GnrDomSourceNode",gnr.GnrBagNode,{
         var path=objectPop(attributes,'path');
         objectPop(attributes,'_onStart');
         objectPop(attributes,'_fired_onStart');
-        
+
         var destinationPath, dataNode;
         if (path){ // if it has a result path set it to the returned value
             destinationPath = this.absDatapath(path);
