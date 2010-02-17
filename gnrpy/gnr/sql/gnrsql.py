@@ -22,7 +22,7 @@
 
 __version__='1.0b'
 
-import re
+
 from gnr.core.gnrlog import gnrlogging
 gnrlogger = gnrlogging.getLogger('gnr.sql.gnrsql')
 
@@ -36,8 +36,10 @@ from gnr.sql.gnrsql_exceptions import GnrSqlException,GnrSqlExecutionException,\
                                       GnrSqlSaveChangesException
 
 #from gnr.sql.adapters import *
-
+from datetime import datetime
+import re
 import thread
+import locale
 
 IN_OPERATOR_PATCH=re.compile(r'\s\S+\sIN\s\(\)')
 
@@ -166,6 +168,16 @@ class GnrSqlDb(GnrObject):
         """set currentEnv for this thread"""
         self._currentEnv[thread.get_ident()] = env
     currentEnv = property(_get_currentEnv,_set_currentEnv)
+    
+    def _get_workdate(self):
+        """property currentEnv it returns the workdate currently used in this thread"""
+        return self.currentEnv.get('workdate') or datetime.today()
+    workdate = property(_get_workdate)
+        
+    def _get_locale(self):
+        """property currentEnv it returns the workdate currently used in this thread"""
+        return self.currentEnv.get('locale') or locale.getdefaultlocale()[0]
+    locale = property(_get_locale)
     
     def set_env(self, **kwargs):
         self.currentEnv.update(kwargs)
