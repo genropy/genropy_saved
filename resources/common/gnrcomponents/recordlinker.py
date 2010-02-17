@@ -40,21 +40,18 @@ class RecordLinker(BaseComponent):
         selector.button('!!Add',position='absolute',right='2px',z_index='100',iconClass='icnBaseAdd',
                         baseClass='no_background', showLabel=False,disabled=disabled,
                         connect_onclick='FIRE #%s.pkey;' %dialogPars['dlgId'],top='-2px')
-        
-        selectorViewer = selectorBox.div(innerHTML='==dataTemplate(_tpl,_data)',
-                            _data='^%s' %record_path,
-                            _tpl=record_template,_class='box_tpl',
-                            position='absolute',
-                            background_color='white',top='17px',bottom='0px',
+        selectorViewer = selectorBox.div(_class='box_tpl',position='absolute',background_color='white',
+                            top='17px',bottom='0px',
                             left='1px',width='100%',border='1px solid silver',
                             border_top='0px',style="""-moz-border-radius-bottomleft:6px;
                                                       -moz-border-radius-bottomright:6px;
                                                     """)
-        editAction = 'FIRE #%s.pkey = GET %s;' %(dialogPars['dlgId'], value[1:])
+        selectorViewer.div(innerHTML='==dataTemplate(_tpl,_data)',_data='^%s' %record_path,
+                            _tpl=record_template)
         selectorViewer.button('!!Edit',baseClass='no_background',showLabel=False,
                     right='2px',z_index='100',bottom='2px',position='absolute',
-                    action=editAction,visible=value,
-                    iconClass='icnBaseEdit')#disabled=disabled)
+                    action='FIRE #%s.pkey = GET %s;' %(dialogPars['dlgId'], value[1:]),
+                    visible=value,iconClass='icnBaseEdit')#disabled=disabled)
           
         assert not 'firedPkey' in dialogPars, 'firedPkey is used by the component'     
         assert not 'savedPath' in dialogPars, 'savedPath is used by the component'                  

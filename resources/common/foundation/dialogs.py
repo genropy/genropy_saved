@@ -25,7 +25,6 @@ from gnr.web.gnrbaseclasses import BaseComponent
 
 class Dialogs(BaseComponent):
     css_requires = 'dialogs'
-    
     def hiddenTooltipDialog(self, pane, height='20ex',width='30em',title=None, 
                             close_action=None, dlgId=None, nodeId=None,
                             bottom_left=None,bottom_left_action=None,
@@ -81,7 +80,6 @@ class Dialogs(BaseComponent):
                         connect_show='this.intervalRef = setInterval(function(){genro.fireEvent("_thermo.%s.flag")}, 500)' % thermoid,
                         connect_hide='clearInterval(this.intervalRef);')
                         #onAskCancel
-        print dlg
         bc=dlg.borderContainer(width='330px', height='%ipx' %(100+thermolines*40) )
         footer=bc.contentPane(region='bottom', _class='dialog_bottom')
         body=bc.contentPane(region='center')
