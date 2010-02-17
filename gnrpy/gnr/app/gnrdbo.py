@@ -117,19 +117,15 @@ class Table_counter(TableBase):
         @param date: the date of counter attribution.
         @param phyear: phiscal year.
         """
-        print lastAssigned
         ymd = self.getYmd(date, phyear=phyear)
         codekey = '%s_%s' % (pkg, self.counterCode(code, codekey, ymd))
         
         record = self.record(codekey, mode='record', for_update=True, ignoreMissing=True)
         if not record:
-            print 'not existing %s try lock' % codekey
             self.lock()
-            print 'acquired lock on table Counter to insert item: %s' % codekey
             record = self.record(codekey, mode='record', for_update=True, ignoreMissing=True)
             if not record:
                 record = self.createCounter(codekey,code, pkg,name,lastAssigned)
-                print 'inserted counter : %s' % str(codekey)
                 
             
         counter = record['counter'] + 1
@@ -145,7 +141,6 @@ class Table_counter(TableBase):
         record['pkg'] = pkg
         record['codekey'] = codekey
         record['counter'] = lastAssigned
-        #print '---------------INSERTING COUNTER-----%s' % str(codekey) # commented out by Jeff 9/12/2009
         self.insert(record)
         return self.record(codekey, mode='record', for_update=True)
             
