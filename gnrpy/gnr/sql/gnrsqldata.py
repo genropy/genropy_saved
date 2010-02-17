@@ -114,10 +114,14 @@ class SqlQueryCompiler(object):
         
         def expandEnv(m):
             what = m.group(1)
-            if what in self.db.currentEnv:
-                return self.db.currentEnv[what]
             if m.group(2):
-                env_tblobj= self.db.table(m.group(2)[1:])
+                par2= m.group(2)[1:]
+            if what in self.db.currentEnv:
+                return "'%s'"%gnrstring.toText( self.db.currentEnv[what])
+            elif par2 in self.db.currentEnv:
+                return "'%s'"%gnrstring.toText(self.db.currentEnv[par2])
+            if par2:
+                env_tblobj= self.db.table(par2)
             else:
                 env_tblobj = curr_tblobj
             handler = getattr(env_tblobj, 'env_%s' % what, None)
@@ -505,6 +509,7 @@ class SqlQueryCompiler(object):
         fld=m.group(1)
         period_param = m.group(2)
         date_from,date_to = decodeDatePeriod(self.sqlparams[period_param],
+                                             workdate=self.db.currentEnv.get('workdate'),
                                              returnDate=True, locale=self.locale)
         from_param = '%s_from' % period_param
         to_param = '%s_to'%period_param
