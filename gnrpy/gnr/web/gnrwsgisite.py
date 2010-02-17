@@ -171,7 +171,7 @@ class GnrWsgiSite(object):
         self.secret = self.config['wsgi?secret'] or 'supersecret'
         self.config['secret'] = self.secret
         self.session_key = self.config['wsgi?session_key'] or 'gnrsession'
-        self.debug = options and getattr(options,'debug',False)
+        self.debug = options and getattr(options,'debug',False) or self.config['wsgi?debug']
         self.cache_max_age = self.config['wsgi?cache_max_age'] or 2592000
         self.gnrapp = self.build_gnrapp()
         self.wsgiapp = self.build_wsgiapp()

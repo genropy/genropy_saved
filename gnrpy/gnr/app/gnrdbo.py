@@ -125,10 +125,12 @@ class Table_counter(TableBase):
         if not record:
             print 'not existing %s try lock' % codekey
             self.lock()
-            print 'locked %s' % codekey
+            print 'acquired lock on table Counter to insert item: %s' % codekey
             record = self.record(codekey, mode='record', for_update=True, ignoreMissing=True)
             if not record:
                 record = self.createCounter(codekey,code, pkg,name,lastAssigned)
+                print 'inserted counter : %s' % str(codekey)
+                
             
         counter = record['counter'] + 1
         record['counter'] = counter
