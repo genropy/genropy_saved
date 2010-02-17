@@ -263,6 +263,8 @@ class Table_recordtag(TableBase):
         tbl.column('description',name_long='!!Description')
         tbl.column('values',name_long='!!Values')
         tbl.column('is_child','B',name_long='!!Is child')
+        tbl.column('maintag',name_long='!!Main tag')
+        
         
     def trigger_onInserting(self, record_data):
         if record_data['values']:
@@ -293,7 +295,7 @@ class Table_recordtag(TableBase):
                     self.batchUpdate(cb_desc,where='$tag=:c_tag',c_tag=tag)
                 oldChildren.pop(tag)
             else:
-                self.insert(Bag(dict(tablename=tablename,tag=tag,description=description,is_child=True)))
+                self.insert(Bag(dict(tablename=tablename,tag=tag,description=description,is_child=True,maintag=parentTag)))
         tagsToDelete = oldChildren.keys()
         if tagsToDelete:
             self.deleteSelection('tag',tagsToDelete,condition_op='IN') 
@@ -305,9 +307,43 @@ class Table_recordtag(TableBase):
     def trigger_onUpdating(self, record_data, old_record):
         if not record_data['is_child']:
             self.setTagChildren(record_data, old_record)
+            
                
 class Table_recordtag_link(TableBase):
     def config_db(self, pkg):
         tbl =  pkg.table('recordtag_link',  pkey='id', name_long='!!Record tag link', transaction=False)
         self.sysFields(tbl, id=True, ins=False, upd=False)
         tbl.column('tag_id',name_long='!!Tag id',size='22').relation('recordtag.id',mode='foreignkey')
+    
+    def getTagLinks(self,table,record_id):
+        where= '$%s=:record_id' %self.tagForeignKey(table)
+        return self.query(columns='@tag_id.tag,@tag_id.description',
+                            where=where,record_id=record_id).fetchAsDict(key='@tag_id.tag')
+                            
+    def getTagTable(self):
+        return self.db.table('%s.recordtag' %self.pkg)
+        
+    def getTagDict(self,table):
+        cachename = '_tagDict_%s' %table.replace('.','_')
+        tagDict = getattr(self,cachename)
+        if not tagDict:
+            tagDict = self.getTagTable().query(where='$tablename =:tbl',tbl=table).fetchAsDict(key='tag')
+            setattr(self,cachename,tagDict)
+        return tagDict
+        
+    def assignTagLink(self,table,record_id,tag,value):
+        fkey = self.tagForeignKey(table)
+        tagDict = self.getTagDict(table)
+        tagRecord = tagDict[tag]
+        if 'values' in tagRecord:
+            tagRecord = tagDict['%s_%s' %(tag,value)]
+        existing = self.query(where='$%s=:record_id AND $tag_id=:tag_id' %fkey,
+                            tag_id = tagRecord['id'],for_update=True).fetch()   
+        record = dict()
+        record[fkey] = record_id
+        if existing:
+            pass
+            
+    def tagForeignKey(self,table):
+        tblobj = self.db.table(table)
+        return '%s_%s' %(tblobj.name,tblobj.pkey)

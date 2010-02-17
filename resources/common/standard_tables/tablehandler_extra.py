@@ -3,11 +3,161 @@
 
 from gnr.web.gnrbaseclasses import BaseComponent
 from gnr.core.gnrbag import Bag
-from gnr.core.gnrstring import toText
+from gnr.core.gnrstring import toText,splitAndStrip
+
 import os
 
-class StatsHandler(BaseComponent):
+class FiltersHandler(BaseComponent):
+    def filterBase(self):
+        return
+    def listToolbar_filters(self,pane):
+        #trial
+        pane.button('bbb')
+        
+    def th_filtermenu(self,queryfb):
+        ddb = queryfb.dropDownButton('!!Set Filter',showLabel=False,iconClass='icnBaseAction',
+                                        baseClass='st_filterButton')
+        menu = ddb.menu(_class='smallmenu',action='FIRE list.filterCommand = $1.command')
+        menu.menuline('!!Set new filter',command='new_filter')
+        menu.menuline('!!Add to current filter',command='add_to_filter')
+        menu.menuline('!!Remove filter',command='remove_filter')
+        queryfb.dataController(""" var filter;
+                                if (command=='new_filter'){
+                                    filter = query.deepCopy();
+                                }else if(command=='add_to_filter'){
+                                    alert('add filter');
+                                }else if(command=='remove_filter'){
+                                    filter = null;
+                                }
+                                 genro.setData('_clientCtx.filter.'+pagename,filter);
+                                 genro.saveContextCookie();
+                            """,current_filter='=_clientCtx.filter.%s' %self.pagename,
+                                query = '=list.query.where',
+                                pagename=self.pagename,
+                             command="^list.filterCommand")
+        queryfb.dataController("if(current_filter){dojo.addClass(dojo.body(),'st_filterOn')}else{dojo.removeClass(dojo.body(),'st_filterOn')}",
+                            current_filter='^_clientCtx.filter.%s' %self.pagename,_onStart=True)
+
+class TagsHandler(BaseComponent):
+    py_requires='foundation/tools:RemoteBuilder'
+    def lst_tags_main(self,pane):
+        self.managetags_dlg(pane)
+        pane.button('Show tags',action='FIRE #recordtag_dlg.open')
+        
+    def form_tags_main(self,pane):
+        self.linktag_dlg(pane)
+        ph = pane.div(_class='button_placeholder',float='right')
+        ph.button('!!Tags', float='right',action='FIRE #linktag_dlg.ajaxcontent; FIRE #linktag_dlg.open;', 
+                  iconClass="tb_button icnBaseAction",showLabel=False)#to change    
     
+    def managetags_dlg(self,pane):
+        def cb_bottom(parentBC,**kwargs):
+            bottom = parentBC.contentPane(**kwargs)
+            bottom.button('!!Close',baseClass='bottom_btn',float='right',margin='1px',fire='.hide')
+
+        def cb_center(parentBC,**kwargs):
+            bc = parentBC.borderContainer(**kwargs)
+            self.selectionHandler(bc,label='!!Edit tags',
+                                   datapath=".tags",nodeId='recordtag_view',
+                                   table='%s.recordtag' %self.package.name,
+                                   struct=self.recordtag_struct,hasToolbar=True,add_enable=True,
+                                   del_enable=True,checkMainRecord=False,
+                                   selectionPars=dict(where='$tablename =:tbl AND $is_child IS NOT TRUE',tbl=self.maintable,
+                                                        order_by='tag'),
+                                   dialogPars=dict(formCb=self.recordtag_form,height='180px',
+                                                    width='300px',dlgId='_th_recortag_dlg',title='!!Record Tag',
+                                                    default_tablename=self.maintable,lock_action=False))                                
+        dialogBc = self.dialog_form(pane,title='!!Edit tag',loadsync=True,
+                                datapath='gnr.recordtag',
+                                height='230px',width='400px',
+                                formId='recordtag',cb_center=cb_center,
+                                cb_bottom=cb_bottom)
+        dialogBc.dataController("FIRE #recordtag_view.reload;",nodeId="recordtag_loader")
+        
+    def recordtag_struct(self,struct):
+        r = struct.view().rows()
+        r.fieldcell('tag',width='5em')
+        r.fieldcell('description',width='10em')
+        return struct
+
+    def recordtag_form(self,parentContainer,disabled,table,**kwargs):
+        pane = parentContainer.contentPane()
+        fb = pane.formbuilder(cols=1, border_spacing='4px',width='90%',
+                            disabled=disabled,dbtable=table)
+        fb.field('tag',autospan=1)
+        fb.field('description',autospan=1)
+        fb.checkbox(value='^.$multiple_values',)
+        fb.field('values',autospan=1,row_hidden='==!_multiple_values',
+                 _multiple_values='^.$multiple_values')
+        
+    def rpc_load_recordtag(self):
+        #'%s.userobject' %self.package.name
+        return self.db.table('%s.recordtag' %self.package.name).query(where='$tablename =:tbl',tbl=self.maintable).selection().output('grid')
+        
+    def rpc_save_recordtag(self,tags):
+        tblrecordtag = self.db.table('%s.recordtag' %self.package.name)
+        
+        for r in tags.values():
+            if not r['id']:
+                r['tablename'] = self.maintable
+                tblrecordtag.insertOrUpdate(r)
+        self.db.commit()
+        
+
+    def linktag_dlg(self,pane):
+        def cb_center(parentBC,**kwargs):
+            pane = parentBC.contentPane(**kwargs)
+            self.lazyContent('getFormTags',pane,reloader='^.#parent.ajaxcontent',
+                            pkey='=form.record.%s' %self.tblobj.pkey)
+                                                    
+        dialogBc = self.dialog_form(pane,title='!!Link tag',loadsync=True,
+                                datapath='form.linkedtags',allowNoChanges=False,
+                                height='230px',width='400px',
+                                formId='linktag',cb_center=cb_center)
+                                
+        dialogBc.dataController("FIRE aa;",nodeId="linktag_loader")
+        dialogBc.dataRpc(".result",'saveRecordTagLinks',nodeId="linktag_saver",
+                        data='=.data',pkey='=form.record.%s' %self.tblobj.pkey)
+                        
+    def rpc_saveRecordTagLinks(self,data=None,pkey=None):
+        tagbag = data['tagbag']
+        tag_table = self.db.table('%s.recordtag' %self.package.name)
+        taglink_table = self.db.table('%s.recordtag_link' %self.package.name)
+        tag_dict = tag_table.query(where='$tablename =:tbl',tbl=self.maintable).fetchAsDict(key='tag')
+        #tag_link_dict =  self.db.table('%s.recordtag_link' %self.package.name).getTagLinks(self.maintable,pkey)
+        for node in tagbag:
+            tag = node.label
+            value = [k for k,v in node.value.items() if v]
+            if value:
+                taglink_table.assignTagLink(self.maintable,pkey,tag,value[0])
+                        
+        
+    def remote_getFormTags(self,pane,table=None,pkey=None,**kwargs):
+       # if pkey:
+            #link_bag = self.db.table('%s.recordtag' %self.package.name).getTagLinks(table,pkey)
+        table = self.db.table('%s.recordtag' %self.package.name)
+        rows = table.query(where='$tablename =:tbl AND $is_child IS NOT TRUE',
+                          tbl=self.maintable,order_by='$values desc,$tag').fetch()
+        fb = pane.formbuilder(cols=1, border_spacing='4px',datapath='.tagbag')
+        for r in rows:
+            values = r['values']
+            tag = r['tag']
+            description = r['description']
+            if not values:
+                row_fb = fb.formbuilder(lbl='%s:' %description,cols=2, 
+                                        border_spacing='2px',datapath='.%s' %tag)
+                row_fb.radioButton('!!No',group=tag,value='^.false')
+                row_fb.radioButton('!!Yes',group=tag,value='^.true')
+            elif values:
+                lst_values = values.split(',')
+                row_fb = fb.formbuilder(lbl='%s:' %description,cols=len(lst_values)+1, 
+                                        border_spacing='2px',datapath='.%s' %tag)
+                row_fb.radioButton('!!No',group=tag,value='^.false')
+                for val in lst_values:
+                    subtag,lbl = splitAndStrip('%s:%s'%(val,val),':',n=2,fixed=2)
+                    row_fb.radioButton(lbl,group=tag,value='^.%s' %subtag)
+                    
+class StatsHandler(BaseComponent):
     def stats_main(self,parent,**kwargs):
         """docstring for stats_mainpane"""
         bc = parent.borderContainer(**kwargs)
@@ -116,9 +266,7 @@ class StatsHandler(BaseComponent):
     def stats_key_col(self,tot_mode=None):
         """Override this"""
         return
-    def stats_captionCb(self,tot_mode=None):
-        """Override this"""
-        return
+
     def stats_tot_modes(self):
         """Override this"""
         return ''

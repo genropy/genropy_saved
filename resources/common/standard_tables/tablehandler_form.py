@@ -2,7 +2,6 @@
 # encoding: utf-8
 
 from gnr.web.gnrbaseclasses import BaseComponent
-from gnr.core.gnrstring import splitAndStrip,toJson
 
 class TableHandlerForm(BaseComponent):
     def pageForm(self,pane,bottom):
@@ -142,44 +141,6 @@ class TableHandlerForm(BaseComponent):
         t_r = tb.div(float='right')
         self.formtoolbar_right(t_r)
         #t_c = tb.div(height='25px')
-                
-    def _th_linktag_struct(self,struct):
-        r = struct.view().rows()
-        r.cell('_widget',calculated=True,js='genro.dom.html_maker',name='!!Tags',width='250px')
-        return struct
-        
-    def rpc_th_linktag_apply(self,selection,record_pkey=None):
-        def cb(row):
-            #checkbox = ' %s <input type="checkbox" name="cb" value="%s"/>' %(row['description'],row['tag'])
-            checkbox = toJson(dict(value='value',label=row['description'],
-                                    name=row['tag'],widget='checkbox',id=row['tag'],checked=False))
-            select = toJson(dict(value=row['tag'],label=row['description'],
-                                    name=row['tag'],widget='select',id=row['tag'],
-                                    values=row['values']))
-            result = dict(_widget=checkbox,value=False)
-            if row['values']:
-                result['_widget'] = select
-            return result
-        selection.apply(cb)
-        
-        
-    def _th_linktag_dlg(self,pane):
-        def cb_center(parentBC,**kwargs):
-            bc = parentBC.borderContainer(**kwargs)
-            self.includedViewBox(bc,label='!!Tags',datapath='.current_tags',
-                                 nodeId='linktag_view',table='%s.recordtag' %self.package.name,label_style='display:none;',
-                                 autoWidth=True,struct=self._th_linktag_struct,hiddencolumns='tag,description,values',
-                                 selectionPars=dict(where='$tablename =:tbl AND $is_child IS NOT TRUE',
-                                                    tbl=self.maintable,order_by='tag',
-                                                    applymethod='th_linktag_apply',
-                                                    apply_record_pkey='=form.record.%s' %self.tblobj.pkey),
-                                                    hasToolbar=True)
-                                                    
-        dialogBc = self.dialog_form(pane,title='!!Link tag',loadsync=True,
-                                datapath='form.linkedtags',
-                                height='230px',width='400px',
-                                formId='linktag',cb_center=cb_center)
-        dialogBc.dataController("FIRE #linktag_view.reload;",nodeId="linktag_loader")
         
     def formtoolbar_right(self,t_r):
         if self.userCanDelete() or self.userCanWrite():
@@ -190,11 +151,7 @@ class TableHandlerForm(BaseComponent):
                         iconClass="tb_button icnBaseUnlocked", showLabel=False,hidden='^status.locked')
                         
         if self.tblobj.hasRecordTags():
-            self._th_linktag_dlg(t_r)
-            ph = t_r.div(_class='button_placeholder',float='right')
-            ph.button('!!Tags', float='right',fire='#linktag_dlg.open', 
-                        iconClass="tb_button icnBaseAction", 
-                        showLabel=False)#to change
+            self.form_tags_main(t_r)
         
         t_r.div(_class='button_placeholder',float='right').button('!!List view', float='right', action='FIRE form.newidx = -2;', 
                     iconClass="tb_button tb_listview", showLabel=False)

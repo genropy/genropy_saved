@@ -13,69 +13,7 @@ from gnr.core.gnrstring import concat, jsquote
         
 class ListToolbarOptions(BaseComponent):
     py_requires = 'gnrcomponents/selectionhandler'
-    def listToolbar_tags(self,pane):
-        self._th_showtags_dlg(pane)
-        pane.button('Show tags',action='FIRE #recordtag_dlg.open')
-        
-    def _th_showtags_dlg(self,pane):
-        def cb_bottom(parentBC,**kwargs):
-            bottom = parentBC.contentPane(**kwargs)
-            bottom.button('!!Close',baseClass='bottom_btn',float='right',margin='1px',fire='.hide')
 
-        def cb_center(parentBC,**kwargs):
-            bc = parentBC.borderContainer(**kwargs)
-            self.selectionHandler(bc,label='!!Edit tags',
-                                   datapath=".tags",nodeId='recordtag_view',
-                                   table='%s.recordtag' %self.package.name,
-                                   struct=self._th_recordtag_struct,hasToolbar=True,add_enable=True,
-                                   del_enable=True,checkMainRecord=False,
-                                   selectionPars=dict(where='$tablename =:tbl AND $is_child IS NOT TRUE',tbl=self.maintable,
-                                                        order_by='tag'),
-                                   dialogPars=dict(formCb=self._th_recordtag_record,height='180px',
-                                                    width='300px',dlgId='_th_recortag_dlg',title='!!Record Tag',
-                                                    default_tablename=self.maintable,lock_action=False))                                
-        dialogBc = self.dialog_form(pane,title='!!Edit tag',loadsync=True,
-                                datapath='gnr.recordtag',
-                                height='230px',width='400px',
-                                formId='recordtag',cb_center=cb_center,
-                                cb_bottom=cb_bottom)
-        dialogBc.dataController("FIRE #recordtag_view.reload;",nodeId="recordtag_loader")
-        
-    def _th_recordtag_struct(self,struct):
-        r = struct.view().rows()
-        r.fieldcell('tag',width='5em')
-        r.fieldcell('description',width='10em')
-        return struct
-
-
-    def _th_recordtag_record(self,parentContainer,disabled,table,**kwargs):
-        pane = parentContainer.contentPane()
-        fb = pane.formbuilder(cols=1, border_spacing='4px',width='90%',
-                            disabled=disabled,dbtable=table)
-        fb.field('tag',autospan=1)
-        fb.field('description',autospan=1)
-        fb.checkbox(value='^.$multiple_values',)
-        fb.field('values',autospan=1,row_hidden='==!_multiple_values',
-                 _multiple_values='^.$multiple_values')
-        
-    def rpc_load_recordtag(self):
-        #'%s.userobject' %self.package.name
-        return self.db.table('%s.recordtag' %self.package.name).query(where='$tablename =:tbl',tbl=self.maintable).selection().output('grid')
-        
-    def rpc_save_recordtag(self,tags):
-        tblrecordtag = self.db.table('%s.recordtag' %self.package.name)
-        
-        for r in tags.values():
-            if not r['id']:
-                r['tablename'] = self.maintable
-                tblrecordtag.insertOrUpdate(r)
-        self.db.commit()
-        
-
-    def listToolbar_filters(self,pane):
-        pane.button('bbb')
-
-        
 class ViewExporter(BaseComponent):
     def rpc_rpcSavedSelection(self, table, view=None, query=None, userid=None, out_mode='tabtext', **kwargs):
         tblobj = self.db.table(table)

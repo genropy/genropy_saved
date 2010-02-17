@@ -112,7 +112,7 @@ class DialogForm(BaseComponent):
                             fire_always='.save',disabled='^.disable_button')
             bottom.button('!!Cancel',baseClass='bottom_btn',float='right',margin='1px',fire='.hide')
 
-            bottom.dataFormula(".disable_button", "!valid||(!changed||allowNoChanges)||saving",valid="^.form.valid",
+            bottom.dataFormula(".disable_button", "!valid||(!changed && !allowNoChanges)||saving",valid="^.form.valid",
                                 changed="^.form.changed",saving='^.form.saving',
                                 allowNoChanges=allowNoChanges)
         if cb_bottom=='*':

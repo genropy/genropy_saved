@@ -185,7 +185,7 @@ class TableHandlerForm(BaseComponent):
         buttons = pane.div(_class='button_placeholder',float='left')
         buttons.div(_class='db_treebtn',connect_onclick="SET list.showToolbox = ! (GET list.showToolbox);")
         buttons.div(_class='db_querybtn',connect_onclick="SET list.showExtendedQuery =! (GET list.showExtendedQuery);")
-        if self.tblobj.hasRecordTags() or self.enableFilter():
+        if self.tblobj.hasRecordTags(): #or self.enableFilter():
             ddbutton = pane.div(_class='listOptMenu',float='left')
             menu = ddbutton.dropDownButton('^list.tbar.stacklabel').menu(action="""
                                                                     SET list.tbar.stacklabel= $1.label;
@@ -194,9 +194,9 @@ class TableHandlerForm(BaseComponent):
             menu.menuline(label='!!Query',page=0)
             if self.tblobj.hasRecordTags():
                 menu.menuline(label='!!Tags',page=1)
-            if self.enableFilter(): 
-                menu.menuline(label='!!Filters',page=2)
-
+            #if self.enableFilter(): 
+            #    menu.menuline(label='!!Filters',page=2)
+            #
             pane.data('list.tbar.stacklabel','!!Query')
             pane.data('list.tbar.stackpage',0)
 
@@ -206,9 +206,9 @@ class TableHandlerForm(BaseComponent):
         tags_pane = sc.contentPane(_class='center_pane')
         filter_pane = sc.contentPane(_class='center_pane')
         if self.tblobj.hasRecordTags():
-            self.listToolbar_tags(tags_pane) #inside core
+            self.lst_tags_main(tags_pane) #inside extra
         if self.enableFilter():
-            self.listToolbar_filters(filter_pane) #inside core
+            self.listToolbar_filters(filter_pane) #inside extra
         
     def listToolbar_query(self,pane):
         queryfb = pane.formbuilder(cols=5,datapath='list.query.where',_class='query_form',
@@ -249,31 +249,8 @@ class TableHandlerForm(BaseComponent):
                                      genro.dlg.alert('^list.currentQueryCountAsString',dlgtitle);
                                   """,_fired="^list.showQueryCountDlg",waitmsg='!!Working.....',
                                                  dlgtitle='!!Current query record count')
-                                                
-        
         if self.enableFilter():
-            ddb = queryfb.dropDownButton('!!Set Filter',showLabel=False,iconClass='icnBaseAction',
-                                        baseClass='st_filterButton')
-            menu = ddb.menu(_class='smallmenu',action='FIRE list.filterCommand = $1.command')
-            menu.menuline('!!Set new filter',command='new_filter')
-            menu.menuline('!!Add to current filter',command='add_to_filter')
-            menu.menuline('!!Remove filter',command='remove_filter')
-            pane.dataController(""" var filter;
-                                    if (command=='new_filter'){
-                                        filter = query.deepCopy();
-                                    }else if(command=='add_to_filter'){
-                                        alert('add filter');
-                                    }else if(command=='remove_filter'){
-                                        filter = null;
-                                    }
-                                     genro.setData('_clientCtx.filter.'+pagename,filter);
-                                     genro.saveContextCookie();
-                                """,current_filter='=_clientCtx.filter.%s' %self.pagename,
-                                    query = '=list.query.where',
-                                    pagename=self.pagename,
-                                 command="^list.filterCommand")
-            pane.dataController("if(current_filter){dojo.addClass(dojo.body(),'st_filterOn')}else{dojo.removeClass(dojo.body(),'st_filterOn')}",
-                                current_filter='^_clientCtx.filter.%s' %self.pagename,_onStart=True)
+            self.th_filtermenu(queryfb)
 
     def _query_helpers(self,pane):
         dlgBC = self.hiddenTooltipDialog(pane, dlgId='helper_in', title="!!In",
@@ -286,9 +263,6 @@ class TableHandlerForm(BaseComponent):
         dlgpane = dlgBC.contentPane(region='center',_class='pbl_dialog_center')
         box = dlgpane.div(position='absolute',top='1px',bottom='2px',left='1px',right='1px')
         box.simpleTextArea(value = '^.buffer',height='100%',width='100%')
-        
-    def enableFilter(self):
-        return False
         
     def listToolbar_rightbuttons(self, pane):
         pane = pane.div(nodeId='query_buttons',float='right')

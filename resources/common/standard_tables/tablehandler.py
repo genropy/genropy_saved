@@ -27,7 +27,9 @@ class TableHandler(BaseComponent):
     py_requires="""standard_tables/tablehandler_core,
                     standard_tables/tablehandler_form,
                      standard_tables/tablehandler_list,
-                foundation/userobject:UserObject,foundation/dialogs"""
+                     standard_tables/tablehandler_extra:TagsHandler,
+                     standard_tables/tablehandler_extra:FiltersHandler,
+                    foundation/userobject:UserObject,foundation/dialogs"""
     css_requires = 'standard_tables/tablehandler'
     js_requires = 'standard_tables/tablehandler'
     
@@ -56,9 +58,10 @@ class TableHandler(BaseComponent):
     def conditionBase(self):
         return (None,None)
         
-    def filterBase(self):
-        return
-        
+    def enableFilter(self):
+        #to deprecate
+        return False    
+    
     def tableRecordCount(self):
         """redefine to avoid the count query"""
         return True
@@ -68,7 +71,7 @@ class TableHandler(BaseComponent):
         
     def columnsBase(self):
         return ''
-    
+        
     def lstBase(self, struct):
         r=struct.view().rows()
         r.fields(self.columnsBase())
