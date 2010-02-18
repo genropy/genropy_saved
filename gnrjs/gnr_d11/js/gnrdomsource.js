@@ -867,6 +867,7 @@ dojo.declare("gnr.GnrDomSourceNode",gnr.GnrBagNode,{
         }
         var method=this.attr.remote;
         var _sourceNode=this;
+        kwargs.sync=true;
         genro.rpc.remoteCall(method, kwargs, null, null, null, function(result){
                                              _sourceNode.setValue(result);
                                              });

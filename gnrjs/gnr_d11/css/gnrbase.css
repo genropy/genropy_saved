@@ -297,6 +297,11 @@ table.formbuilder {
     width: 20px;
     height: 16px;
 }
+.icnTag{
+	background: url(icons/iconTag.png) no-repeat;
+    width: 32px;
+    height: 32px;
+}
 /* @group base14 */
 
 
