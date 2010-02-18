@@ -734,7 +734,6 @@ class GnrWebAppHandler(GnrBaseProxy):
         if pkg:
             dbtable='%s.%s' % (pkg, dbtable)
         tblobj = self.db.table(dbtable)
-        newrecord = False
         if pkey is not None: 
             kwargs['pkey'] = pkey
         elif lock:
@@ -748,14 +747,15 @@ class GnrWebAppHandler(GnrBaseProxy):
             self._joinConditionsFromContext(rec, sqlContextName)
             
         if (pkey=='*newrecord*'):
-            newrecord = True
             record = rec.output('newrecord', resolver_one=js_resolver_one, resolver_many=js_resolver_many)
         else:
             record = rec.output('bag', resolver_one=js_resolver_one, resolver_many=js_resolver_many)
-        recInfo = dict(_pkey=record[tblobj.pkey] or '*newrecord*',
+        pkey = record[tblobj.pkey] or '*newrecord*'
+        newrecord = pkey=='*newrecord*'
+        recInfo = dict(_pkey=pkey,
                         caption=tblobj.recordCaption(record,newrecord),
                         _newrecord=newrecord, sqlContextName=sqlContextName)
-        if lock :
+        if lock and not newrecord:
             locked,aux=self.page.site.lockRecord(self.page,dbtable,pkey)
             if locked:
                 recInfo['lockId']=aux
