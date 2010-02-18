@@ -97,7 +97,8 @@ class GnrWebConnection(GnrBaseProxy):
     appSlot = property(_get_appSlot)
     
     def _get_locale(self):
-        return self.cookie.value.get('locale')
+        if self.cookie:
+            return self.cookie.value.get('locale')
     def _set_locale(self, v):
         self.cookie.value['timestamp'] = None
         self.cookie.value['locale'] = v
@@ -125,7 +126,9 @@ class GnrWebConnection(GnrBaseProxy):
         self.dropConnection(self.connection_id)
         
     def dropConnection(self,connection_id):
-        self.page.site.connectionLog(self.page,'close')
+        page=self.page
+        site=page.site
+        site.connectionLog(page,'close')
         self.connFolderRemove(connection_id)
         
     def connFolderRemove(self, connection_id):
