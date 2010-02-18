@@ -114,11 +114,12 @@ class SqlQueryCompiler(object):
         
         def expandEnv(m):
             what = m.group(1)
+            par2=None
             if m.group(2):
                 par2= m.group(2)[1:]
             if what in self.db.currentEnv:
                 return "'%s'"%gnrstring.toText( self.db.currentEnv[what])
-            elif par2 in self.db.currentEnv:
+            elif par2 and par2 in self.db.currentEnv:
                 return "'%s'"%gnrstring.toText(self.db.currentEnv[par2])
             if par2:
                 env_tblobj= self.db.table(par2)
