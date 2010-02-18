@@ -38,7 +38,7 @@ class IncludedView(BaseComponent):
                         print_action=None, print_class='buttonIcon icnBasePrinter', 
                         pdf_action=None,pdf_class='buttonIcon icnBasePdf',pdf_name=None,
                         export_action=None, export_class='buttonIcon icnBaseExport', 
-                        tools_action=None, tools_class='buttonIcon icnBaseAction',
+                        tools_action=None, tools_class='buttonIcon icnBaseAction',tools_enable='^form.canWrite',tools_lbl=None,
                         lock_action=False,tools_menu=None,upd_action=False,_onStart=False,
                         filterOn=None,  pickerPars=None,centerPaneCb=None,
                         editorEnabled=None,reloader=None,externalChanges=None,
@@ -144,7 +144,8 @@ class IncludedView(BaseComponent):
             self._iv_gridAction(gridtop_actions,print_action=print_action,export_action=export_action,
                                 export_class=export_class,print_class=print_class,tools_class=tools_class,
                                 tools_menu=tools_menu,tools_action=tools_action,pdf_action=pdf_action,
-                                pdf_class=pdf_class,pdf_name=pdf_name,table=table,gridId=gridId)
+                                pdf_class=pdf_class,pdf_name=pdf_name,table=table,gridId=gridId,
+                                tools_enable=tools_enable, tools_lbl=tools_lbl)
         if add_action or del_action:
             gridtop_add_del = gridtop_right.div(float='left',margin_right='5px')
             self._iv_gridAddDel(gridtop_add_del,add_action=add_action,del_action=del_action,
@@ -255,7 +256,7 @@ class IncludedView(BaseComponent):
                          
     def _iv_gridAction(self,pane,print_action=None,export_action=None,tools_menu=None,tools_class=None,
                        tools_action=None,export_class=None,print_class=None,pdf_action=None,pdf_class=None,
-                       pdf_name=None,table=None,gridId=None,**kwargs):
+                       pdf_name=None,table=None,gridId=None,tools_enable=None,tools_lbl=None,**kwargs):
         if print_action:
             if print_action is True:
                 print_action = 'FIRE .print;' 
@@ -274,8 +275,11 @@ class IncludedView(BaseComponent):
             btn.menu(storepath=tools_menu, modifiers='*')
         elif tools_action:
             if tools_action is True:
-                tools_action = 'FIRE .reload'         
-            pane.div(float='left', _class=tools_class, connect_onclick=tools_action)
+                tools_action = 'FIRE .reload'  
+            tool_block=pane.div(margin='0px', border_spacing='0px', visible=tools_enable)       
+            tool_block.div(float='left', _class=tools_class, connect_onclick=tools_action)
+            if tools_lbl:
+                tool_block.div(tools_lbl, margin_left='5px', width='70px', font_size='0.9em')
         if pdf_action:
             pane.dataController("""
                              var record = genro.wdgById(gridId).storebag();
