@@ -42,6 +42,7 @@ from gnr.core import gnrlist
 from gnr.core.gnrlang import getUuid
 from gnr.core.gnrstring import templateReplace, splitAndStrip, toText, toJson, concat
 from gnr.web.gnrwebpage_proxy.gnrbaseproxy import GnrBaseProxy
+ESCAPE_SPECIAL=re.compile(r'[\[\\\^\$\.\|\?\*\+\(\)\]\{\}]')
 
 class GnrWebAppHandler(GnrBaseProxy): 
         
@@ -925,7 +926,7 @@ class GnrWebAppHandler(GnrBaseProxy):
         
         if len(result) == 0: # few results from the startswith query on first col
             #self.page.gnotify('dbselect','filter')
-            regsrc = [x for x in re.split(" ", querystring) if x]
+            regsrc = [x for x in re.split(" ", ESCAPE_SPECIAL.sub('',querystring)) if x]
             if regsrc:
                 whereargs = dict([('w%i' % i, '(^|\\W)%s' % w.strip()) for i,w in enumerate(regsrc)])
                 where =" AND ".join(["(%s)  ~* :w%i" % (" || ' ' || ".join(querycolumns), i) for i,w in enumerate(regsrc)])
