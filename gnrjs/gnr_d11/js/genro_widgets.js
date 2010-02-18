@@ -1214,19 +1214,19 @@ dojo.declare("gnr.widgets.Calendar",gnr.widgets.baseDojo,{
         }
     }
 });
-dojo.declare("gnr.widgets.ToggleButton",gnr.widgets.baseDojo,{
-    created: function(widget, savedAttrs, sourceNode){
-        if(sourceNode.hasDynamicAttr('value')){
-            var value=sourceNode.getAttributeFromDatasource('value');
-            //widget.setChecked(value);
-            widget.setAttribute('checked',value);
-        }
-    },
-    mixin_setValue: function(/*String*/ value,pc){
-        //this.setChecked(value,pc);
-        this.setAttribute('checked',pc);
-    }
-});
+//dojo.declare("gnr.widgets.ToggleButton",gnr.widgets.baseDojo,{
+//    created: function(widget, savedAttrs, sourceNode){
+//        if(sourceNode.hasDynamicAttr('value')){
+//            var value=sourceNode.getAttributeFromDatasource('value');
+//            //widget.setChecked(value);
+//            widget.setAttribute('checked',value);
+//        }
+//    },
+//    mixin_setValue: function(/*String*/ value,pc){
+//        //this.setChecked(value,pc);
+//        this.setAttribute('checked',pc);
+//    }
+//});
 
 dojo.declare("gnr.widgets.RadioButton",gnr.widgets.baseDojo,{
     constructor: function(application){
@@ -1253,6 +1253,11 @@ dojo.declare("gnr.widgets.RadioButton",gnr.widgets.baseDojo,{
               var domnode = genro.wdg.create ('label',widget.domNode.parentNode, labelattrs );
               domnode.innerHTML = label;
           }
+          if(sourceNode.hasDynamicAttr('value')){
+            var value=sourceNode.getAttributeFromDatasource('value');
+             //widget.setChecked(value);
+             widget.setAttribute('checked',value);
+           }
       },
       patch_onClick:function(e){
           var action = this.sourceNode.getInheritedAttributes().action;
