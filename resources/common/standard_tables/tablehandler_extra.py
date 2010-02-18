@@ -43,11 +43,13 @@ class TagsHandler(BaseComponent):
     def lst_tags_main(self,pane):
         self.managetags_dlg(pane)
         pane.button('Show tags',action='FIRE #recordtag_dlg.open')
+        pane.button('Link tags',action="""FIRE #linktag_dlg.open;""")
+
         
     def form_tags_main(self,pane):
         self.linktag_dlg(pane)
         ph = pane.div(_class='button_placeholder',float='right')
-        ph.button('!!Tags', float='right',action='FIRE #linktag_dlg.ajaxcontent; FIRE #linktag_dlg.open;', 
+        ph.button('!!Tags', float='right',action='FIRE #linktag_dlg.open;', 
                   iconClass="tb_button icnBaseAction",showLabel=False)#to change    
     
     def managetags_dlg(self,pane):
@@ -62,7 +64,7 @@ class TagsHandler(BaseComponent):
                                    table='%s.recordtag' %self.package.name,
                                    struct=self.recordtag_struct,hasToolbar=True,add_enable=True,
                                    del_enable=True,checkMainRecord=False,
-                                   selectionPars=dict(where='$tablename =:tbl AND $is_child IS NOT TRUE',tbl=self.maintable,
+                                   selectionPars=dict(where='$tablename =:tbl AND $maintag IS NULL',tbl=self.maintable,
                                                         order_by='tag'),
                                    dialogPars=dict(formCb=self.recordtag_form,height='180px',
                                                     width='300px',dlgId='_th_recortag_dlg',title='!!Record Tag',
@@ -107,55 +109,63 @@ class TagsHandler(BaseComponent):
     def linktag_dlg(self,pane):
         def cb_center(parentBC,**kwargs):
             pane = parentBC.contentPane(**kwargs)
-            self.lazyContent('getFormTags',pane,reloader='^.#parent.ajaxcontent',
-                            pkey='=form.record.%s' %self.tblobj.pkey)
+            self.lazyContent('getFormTags',pane,pkeys='^.pkeys') 
                                                     
-        dialogBc = self.dialog_form(pane,title='!!Link tag',loadsync=True,
-                                datapath='form.linkedtags',allowNoChanges=False,
-                                height='230px',width='400px',
-                                formId='linktag',cb_center=cb_center)
-                                
-        dialogBc.dataController("FIRE aa;",nodeId="linktag_loader")
+        dialogBc = self.dialog_form(pane,title='!!Link tag',loadsync=False,
+                                datapath='form.linkedtags',allowNoChanges=False , 
+                                height='400px',width='700px',
+                                formId='linktag',cb_center=cb_center)                                
+        dialogBc.dataController("""SET .data = new gnr.GnrBag({pkeys:pkeys}); 
+                                   FIRE .loaded;""",
+                                nodeId="linktag_loader",
+                                pkeys="==genro.wdgById('maingrid').getSelectedPkeys();")
         dialogBc.dataRpc(".result",'saveRecordTagLinks',nodeId="linktag_saver",
-                        data='=.data',pkey='=form.record.%s' %self.tblobj.pkey)
+                        data='=.data',_onResult='FIRE .saved;')
                         
-    def rpc_saveRecordTagLinks(self,data=None,pkey=None):
+    def rpc_saveRecordTagLinks(self,data=None):
+        pkeys = data['pkeys']
         tagbag = data['tagbag']
-        tag_table = self.db.table('%s.recordtag' %self.package.name)
         taglink_table = self.db.table('%s.recordtag_link' %self.package.name)
-        tag_dict = tag_table.query(where='$tablename =:tbl',tbl=self.maintable).fetchAsDict(key='tag')
-        #tag_link_dict =  self.db.table('%s.recordtag_link' %self.package.name).getTagLinks(self.maintable,pkey)
+        for pkey in pkeys:
+            self._assignTagOnRecord(pkey,tagbag,taglink_table)
+        self.db.commit()
+                        
+    def _assignTagOnRecord(self,pkey,tagbag,taglink_table):
+        print pkey
         for node in tagbag:
             tag = node.label
             value = [k for k,v in node.value.items() if v]
+            print value
             if value:
                 taglink_table.assignTagLink(self.maintable,pkey,tag,value[0])
-                        
         
-    def remote_getFormTags(self,pane,table=None,pkey=None,**kwargs):
-       # if pkey:
-            #link_bag = self.db.table('%s.recordtag' %self.package.name).getTagLinks(table,pkey)
+    def remote_getFormTags(self,pane,pkeys=None,**kwargs):
+        if len(pkeys)==1:
+            tagbag = self.db.table('%s.recordtag_link' %self.package.name).getTagLinksBag(self.maintable,pkeys[0])
+            pane.data('.tagbag',tagbag)
         table = self.db.table('%s.recordtag' %self.package.name)
-        rows = table.query(where='$tablename =:tbl AND $is_child IS NOT TRUE',
+        rows = table.query(where='$tablename =:tbl AND $maintag IS NULL',
                           tbl=self.maintable,order_by='$values desc,$tag').fetch()
-        fb = pane.formbuilder(cols=1, border_spacing='4px',datapath='.tagbag')
-        for r in rows:
+        externalFrame = pane.div(_class='tag_frame',datapath='.tagbag')        
+        for j,r in enumerate(rows):
             values = r['values']
             tag = r['tag']
             description = r['description']
-            if not values:
-                row_fb = fb.formbuilder(lbl='%s:' %description,cols=2, 
-                                        border_spacing='2px',datapath='.%s' %tag)
-                row_fb.radioButton('!!No',group=tag,value='^.false')
-                row_fb.radioButton('!!Yes',group=tag,value='^.true')
-            elif values:
-                lst_values = values.split(',')
-                row_fb = fb.formbuilder(lbl='%s:' %description,cols=len(lst_values)+1, 
-                                        border_spacing='2px',datapath='.%s' %tag)
-                row_fb.radioButton('!!No',group=tag,value='^.false')
-                for val in lst_values:
+            oddOrEven = 'even'
+            if j%2:
+                oddOrEven = 'odd'
+            line = externalFrame.div(_class='tag_line tag_%s' %oddOrEven,datapath='.%s' %tag)
+            label_col = line.div(description,_class='tag_label_col')
+            value_col = line.div(_class='tag_value_col')
+            buttons = [dict(value='^.false',_class='dijitButtonNode tag_button tag_false',label='!!No')]
+            if values:
+                for val in values.split(','):
                     subtag,lbl = splitAndStrip('%s:%s'%(val,val),':',n=2,fixed=2)
-                    row_fb.radioButton(lbl,group=tag,value='^.%s' %subtag)
+                    buttons.append(dict(value='^.%s' %subtag,_class='dijitButtonNode tag_button tag_value',label=lbl))
+            else:
+                buttons.append(dict(value='^.true',_class='dijitButtonNode tag_button tag_true',label='!!Yes'))
+            for btn in buttons:
+                value_col.div(_class=btn['_class']).radiobutton(value=btn['value'],label=btn['label'],group=tag)
                     
 class StatsHandler(BaseComponent):
     def stats_main(self,parent,**kwargs):
