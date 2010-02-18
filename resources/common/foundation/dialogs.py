@@ -120,8 +120,9 @@ class DialogForm(BaseComponent):
         
         bc.dataController('genro.wdgById(dlgId).show();',dlgId=dlgId,_fired="^.show" )
         bc.dataController('genro.wdgById(dlgId).hide();',dlgId=dlgId,_fired="^.hide" )
-        bc.dataController("FIRE .show; console.log(formId); genro.formById(formId).load(loadsync)" ,
-                        formId=formId,loadsync=loadsync,_fired="^.open" )
+        bc.dataController("FIRE .show; FIRE .load;" ,_fired="^.open" )
+        bc.dataController("genro.formById(formId).load(loadsync);",
+                         _fired="^.load",_delay=1,formId=formId,loadsync=loadsync)
 
         bc.dataController('genro.formById("%s").save(always=="always"?true:false);' %formId,
                           always="^.save" )
