@@ -105,20 +105,12 @@ class DialogForm(BaseComponent):
     def dialog_form(self,parent,title='',formId='',height='',width='',datapath='',
                 cb_center=None,cb_bottom='*',loadsync=False,confirm_btn=None,
                 allowNoChanges=True,**kwargs):
-        def cb_bottom_standard(bc,confirm_btn=None,**kwargs):
-            bottom = bc.contentPane(**kwargs)
-            confirm_btn = confirm_btn or '!!Confirm'
-            bottom.button(confirm_btn,baseClass='bottom_btn',float='right',margin='1px',
-                            fire_always='.save',disabled='^.disable_button')
-            bottom.button('!!Cancel',baseClass='bottom_btn',float='right',margin='1px',fire='.hide')
-
-            bottom.dataFormula(".disable_button", "!valid||(!changed && !allowNoChanges)||saving",valid="^.form.valid",
-                                changed="^.form.changed",saving='^.form.saving',
-                                allowNoChanges=allowNoChanges)
         if cb_bottom=='*':
-            cb_bottom=cb_bottom_standard
+            cb_bottom = self.dialog_form_bottom
         dlgId='%s_dlg'%formId
         dialog = parent.dialog(title=title,nodeId=dlgId,datapath=datapath,**kwargs)
+        dialog.dataFormula(".disable_button", "!valid||(!changed && !allowNoChanges)||saving",valid="^.form.valid",
+                            changed="^.form.changed",saving='^.form.saving',allowNoChanges=allowNoChanges)
         bc=dialog.borderContainer(height=height,width=width)
         if cb_bottom:
             cb_bottom(bc,region='bottom',_class='dialog_bottom',confirm_btn=confirm_btn)
@@ -136,4 +128,12 @@ class DialogForm(BaseComponent):
         bc.dataController('genro.formById("%s").saved(); FIRE .hide;' %formId,
                          _fired="^.saved" )
         bc.dataController('genro.formById("%s").loaded();' %formId,_fired="^.loaded" )
-        return bc                                      
+        return bc    
+                                          
+    def dialog_form_bottom(self,bc,confirm_btn=None,**kwargs):
+        bottom = bc.contentPane(**kwargs)
+        confirm_btn = confirm_btn or '!!Confirm'
+        bottom.button(confirm_btn,baseClass='bottom_btn',float='right',margin='1px',
+                        fire_always='.save',disabled='^.disable_button')
+        bottom.button('!!Cancel',baseClass='bottom_btn',float='right',margin='1px',fire='.hide')
+        return bottom
