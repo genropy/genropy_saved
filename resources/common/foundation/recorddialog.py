@@ -165,12 +165,14 @@ class RecordDialog(BaseComponent):
                                 }else if(save_failed == "invalid"){
                                     FIRE .validation_failed;
                                 }""",save_failed='^gnr.forms.%s.save_failed' %formId)
-                                  
+        pane.dataController("SET .saveDisabled = saving;",saving="gnr.forms.%s.saving" %formId)
+                                                                  
         if validation_failed == "alert":
             pane.dataController("genro.dlg.alert(msg,title)",
                                   _fired='^.validation_failed',
                                   msg='!!Not valid data. Please check the form',
                                   title='!!Warning')
+                        
                                   
         elif validation_failed == "focus":
             pane.dataController("genro.formById('%s').focusFirstInvalidField()" %formId,_fired="^.validation_failed")
@@ -180,7 +182,7 @@ class RecordDialog(BaseComponent):
         if callable(toolbarCb):
             toolbarCb(bc,region='top',table=table,add_action=add_action,lock_action=lock_action)
         bottom = bc.contentPane(region='bottom',_class='dialog_bottom')
-        bottomCb = bottomCb or getattr(self,'_record_dialog_bottom')
+        bottomCb = bottomCb or getattr(self,'recordDialog_bottom')
         bottomCb(bottom)
         stack = bc.stackContainer(region='center',_class='pbl_background' ,formId=formId,
                                   selected='^#%s.stackPane' %dlgId,datapath=record_datapath or '.record')
@@ -188,11 +190,13 @@ class RecordDialog(BaseComponent):
         formCb(stack, disabled='^form.locked', table=table)
 
     #Jeff suggests that the margins be taken out of the code and put into the css
-    def _record_dialog_bottom(self,pane):
+    def recordDialog_bottom(self,pane):
         pane.button('!!Save',float='right',baseClass='bottom_btn',
-                    fire=".saveAndClose", margin_left='5px', width='5em')
+                    fire=".saveAndClose", margin_left='5px', width='5em',
+                    disabled='^.saveDisabled' )
         pane.button('!!Cancel',float='right',baseClass='bottom_btn',
                     fire_cancel='.exitAction', margin_left='5px', width='5em')
+        return pane
         
     def rpc_deleteIncludedViewRecord(self, table, rowToDelete,**kwargs):
         tblobj = self.db.table(table)
