@@ -71,14 +71,21 @@ class TableBase(object):
     def hasRecordTags(self):
         return self.attributes.get('hasRecordTags',False)
     
-    def setTagColumn(self,tbl):
+    def setTagColumn(self,tbl,name_long=None,group=None):
+        name_long = name_long or '!!Tag'
         tagtbl = tbl.parentNode.parentbag.parentNode.parentbag.table('recordtag_link')
         tblname = tbl.parentNode.label
         tbl.parentNode.attr['hasRecordTags'] = True
         pkey = tbl.parentNode.getAttr('pkey')
         pkeycolAttrs = tbl.column(pkey).getAttr()
-        tagtbl.column('%s_%s' %(tblname,pkey),dtype=pkeycolAttrs.get('dtype'),
-                      size=pkeycolAttrs.get('size')).relation('%s.%s' %(tblname,pkey),mode='foreignkey')
+        rel = '%s.%s' %(tblname,pkey)
+        fkey = rel.replace('.','_')
+        tagtbl.column(fkey,dtype=pkeycolAttrs.get('dtype'),
+                      size=pkeycolAttrs.get('size'),group='_').relation(rel,mode='foreignkey',
+                                                                        many_group='_',one_group='_')
+        relation_path = '@%s_recordtag_link_%s.@tag_id.description' %(tbl.getAttr()['pkg'],fkey)                                                                
+        tbl.aliasColumn('_tag_rel',relation_path=relation_path,group=group,name_long=name_long,group='_')
+       # tbl.formulaColumn('_tag',relation_path ,group='04',name_long='Telefoni')
         
 class GnrDboTable(TableBase):
     pass
@@ -311,6 +318,10 @@ class Table_recordtag_link(TableBase):
         tbl =  pkg.table('recordtag_link',  pkey='id', name_long='!!Record tag link', transaction=False)
         self.sysFields(tbl, id=True, ins=False, upd=False)
         tbl.column('tag_id',name_long='!!Tag id',size='22').relation('recordtag.id',mode='foreignkey')
+        tbl.aliasColumn('tag',relation_path='@tag_id.tag')
+        tbl.aliasColumn('description',relation_path='@tag_id.description')
+
+        
     
     def getTagLinks(self,table,record_id):
         where= '$%s=:record_id' %self.tagForeignKey(table)
