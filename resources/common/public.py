@@ -35,7 +35,7 @@ class Public(BaseComponent):
         return 'adm.user'
         
     def rootWidget(self, root, **kwargs):
-        return root.borderContainer(_class='pbl_root', **kwargs)
+        return root.borderContainer(_class='pbl_root',**kwargs)
         
     def _pbl_root(self, rootbc, title=None, height=None, width=None, centered=None,flagsLocale=False):
         userTable=self.pbl_userTable()

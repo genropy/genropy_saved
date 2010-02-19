@@ -472,9 +472,9 @@
 /* @group tags */
 
 .tag_button label{
-	padding-right: 16px;
 	font-size: .9em;
 }
+
 .tag_button .dijitRadio{
 	background: transparent;
 	width: 14px;
@@ -497,6 +497,9 @@
 	display: inline-block;
 	margin-left:2px;
 	padding:3px !important;
+	padding-left:0px !important;
+	padding-right:17px !important;
+
 	cursor: pointer !important;
 }
 
