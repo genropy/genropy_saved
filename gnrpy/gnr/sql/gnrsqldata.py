@@ -161,8 +161,8 @@ class SqlQueryCompiler(object):
             elif fldalias.sql_formula:
                 subreldict = {}
                 sql_formula = self.updateFieldDict(fldalias.sql_formula, reldict=subreldict)
-                sql_formula = sql_formula.replace('#THIS',alias)
                 sql_formula = ENVFINDER.sub(expandEnv,sql_formula)
+                sql_formula = sql_formula.replace('#THIS',alias)
                 subColPars = {}
                 for key, value in subreldict.items():
                     subColPars[key] = self.getFieldAlias(value, curr=curr, basealias=alias)
