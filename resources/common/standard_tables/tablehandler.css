@@ -479,11 +479,13 @@
 	background: transparent;
 	width: 14px;
 	height: 14px;
+	cursor: pointer;
 }
 .tag_button .dijitRadioChecked{
 	background: url(../icons/greenLight.gif) no-repeat center center;
     width: 14px;
     height: 14px;
+	cursor: pointer;
 }
 
 .tag_false .dijitRadioChecked{
@@ -495,8 +497,8 @@
 	display: inline-block;
 	margin-left:2px;
 	padding:3px !important;
+	cursor: pointer !important;
 }
-
 
 .tag_frame{
 	top:0px;
@@ -506,36 +508,37 @@
     position:absolute;
     overflow:auto;
 }
+
 .tag_line{
-	padding: 3px;
 	-moz-border-radius:8px;
 	-webkit-border-radius:8px;
 	margin-top: 4px;
-	margin-right: 4px;
-	margin-left: 4px;
+	margin-right: 8px;
+	margin-left: 8px;
 	-moz-box-shadow:2px 2px 4px #403b3b;
 	-webkit-box-shadow:2px 2px 4px #403b3b;
 }
 .tag_odd{
-	background-color: #c9e2fc;
+
 }
 .tag_even{
-	background-color: #f7f8f8;
+
 }
 .tag_label_col{
-	width: 120px;
-	padding:3px !important;
+	padding-left: 20px;
+	display: table-cell;
 	text-align: right;
-	background-color: #5998dd;
-	height: 100%;
-	display: inline-block;
+	line-height: 30px;
+	font-size: .9em;
+	font-weight: bold;
+	padding-right:4px;
 	-moz-border-radius-topleft:8px;
 	-moz-border-radius-bottomleft:8px;
 	-webkit-border-top-radius-left:8px;
 	-webkit-border-bottom-radius-left:8px;
 }
 .tag_value_col{
-	display: inline-block;
+	display: table-cell;
 	-moz-border-radius-topright:8px;
 	-moz-border-radius-bottomright:8px;
 	-webkit-border-top-radius-right:8px;

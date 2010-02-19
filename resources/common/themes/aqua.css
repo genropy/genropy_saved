@@ -596,3 +596,53 @@
 
 
 /* @end */
+
+/* @group Colors */
+
+/* @group font color */
+
+.color_darkest{
+	color: rgba(77,89,98,0.99);
+}
+.color_dark{
+	color: #bfb6ae;
+}
+.color_medium{
+	color:#97AEA9;
+}
+.color_bright{
+	color: #E1E9E9;
+}
+
+.color_brightest{
+	color: #F5F5F5;
+}
+
+
+/* @end */
+
+/* @group bgcolor */
+
+.bgcolor_darkest{
+	background-color: rgba(77,89,98,0.99);
+}
+.bgcolor_dark{
+	background-color: #bfb6ae;
+}
+.bgcolor_medium{
+	background-color:#97AEA9;
+ }
+.bgcolor_bright{
+	background-color: #E1E9E9;
+}
+
+.bgcolor_brightest{
+	background-color: #F5F5F5;
+}
+
+/* @end */
+
+
+
+
+/* @end */

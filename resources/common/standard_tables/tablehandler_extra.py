@@ -113,7 +113,7 @@ class TagsHandler(BaseComponent):
                                                     
         dialogBc = self.dialog_form(pane,title='!!Link tag',loadsync=False,
                                 datapath='form.linkedtags',allowNoChanges=False , 
-                                height='400px',width='700px',
+                                height='400px',width='610px',
                                 formId='linktag',cb_center=cb_center)                                
         dialogBc.dataController("""SET .data = new gnr.GnrBag({pkeys:pkeys}); 
                                    FIRE .loaded;""",
@@ -138,7 +138,8 @@ class TagsHandler(BaseComponent):
             print value
             if value:
                 taglink_table.assignTagLink(self.maintable,pkey,tag,value[0])
-        
+                
+                
     def remote_getFormTags(self,pane,pkeys=None,**kwargs):
         if len(pkeys)==1:
             tagbag = self.db.table('%s.recordtag_link' %self.package.name).getTagLinksBag(self.maintable,pkeys[0])
@@ -146,16 +147,101 @@ class TagsHandler(BaseComponent):
         table = self.db.table('%s.recordtag' %self.package.name)
         rows = table.query(where='$tablename =:tbl AND $maintag IS NULL',
                           tbl=self.maintable,order_by='$values desc,$tag').fetch()
-        externalFrame = pane.div(_class='tag_frame',datapath='.tagbag')        
+        externalFrame = pane.div(_class='tag_frame',datapath='.tagbag')
+        tag_table = externalFrame.div(style='display:table',width='580px',margin='5px',margin_left='8px')
+        for j,r in enumerate(rows):
+            values = r['values']
+            tag = r['tag']
+            description = r['description']
+            buttons = []
+            if values:
+                for val in values.split(','):
+                    subtag,lbl = splitAndStrip('%s:%s'%(val,val),':',n=2,fixed=2)
+                    buttons.append(dict(value='^.%s' %subtag,_class='dijitButtonNode tag_button tag_value',label=lbl))
+            else:
+                buttons.append(dict(value='^.true',_class='dijitButtonNode tag_button tag_true',label='!!Yes'))
+                
+            oddOrEven = 'even'
+            colorRow = 'bgcolor_bright'
+            if j%2:
+                oddOrEven = 'odd'
+                colorRow = 'bgcolor_brightest'
+            tag_row = tag_table.div(style='display:table-row',height='5px') #no dimensioni riga solo padding dimensioni ai contenuti delle celle
+            tag_row = tag_table.div(style='display:table-row',_class='tag_line tag_%s' %(oddOrEven),datapath='.%s' %tag) #no dimensioni riga solo padding dimensioni ai contenuti delle celle
+            label_col = tag_row.div(description,style='display:table-cell',_class='tag_label_col bgcolor_darkest color_brightest')
+            tag_row.div(style='display:table-cell',_class='bgcolor_medium').div(_class='dijitButtonNode tag_button tag_false',
+                                            margin='3px',margin_top=0).radiobutton(value='^.false',label='!!No',group=tag)
+            value_col = tag_row.div(style='display:table-cell',_class='tag_value_col %s' %colorRow)
+            for btn in buttons:
+                value_col.div(_class=btn['_class'],margin='3px',margin_top=0).radiobutton(value=btn['value'],label=btn['label'],group=tag)
+                
+            
+
+    def remote_getFormTags_(self,pane,pkeys=None,**kwargs):
+        if len(pkeys)==1:
+            tagbag = self.db.table('%s.recordtag_link' %self.package.name).getTagLinksBag(self.maintable,pkeys[0])
+            pane.data('.tagbag',tagbag)
+        table = self.db.table('%s.recordtag' %self.package.name)
+        rows = table.query(where='$tablename =:tbl AND $maintag IS NULL',
+                          tbl=self.maintable,order_by='$values desc,$tag').fetch()
+        externalFrame = pane.div(_class='tag_frame bgcolor_medium',datapath='.tagbag')        
+        for j,r in enumerate(rows):
+            tagPane = externalFrame.titlePane(title=description)
+            values = r['values']
+            tag = r['tag']
+            description = r['description']
+            oddOrEven = 'even'
+            colorRow = 'bgcolor_bright'
+            if j%2:
+                oddOrEven = 'odd'
+                colorRow = 'bgcolor_brightest'
+
+            #line = externalFrame.div(_class='tag_line tag_%s %s' %(oddOrEven,colorRow),datapath='.%s' %tag)
+            label_col = line.div(description,_class='tag_label_col bgcolor_darkest color_brightest')
+            value_col = line.div(_class='tag_value_col')
+            buttons = [dict(value='^.false',_class='dijitButtonNode tag_button tag_false',label='!!No')]
+            if values:
+                for val in values.split(','):
+                    subtag,lbl = splitAndStrip('%s:%s'%(val,val),':',n=2,fixed=2)
+                    buttons.append(dict(value='^.%s' %subtag,_class='dijitButtonNode tag_button tag_value',label=lbl))
+            else:
+                buttons.append(dict(value='^.true',_class='dijitButtonNode tag_button tag_true',label='!!Yes'))
+            for btn in buttons:
+                value_col.div(_class=btn['_class']).radiobutton(value=btn['value'],label=btn['label'],group=tag)
+
+
+
+
+
+
+
+                
+                
+                
+
+                
+                
+        
+    def remote_getFormTags__notable(self,pane,pkeys=None,**kwargs):
+        if len(pkeys)==1:
+            tagbag = self.db.table('%s.recordtag_link' %self.package.name).getTagLinksBag(self.maintable,pkeys[0])
+            pane.data('.tagbag',tagbag)
+        table = self.db.table('%s.recordtag' %self.package.name)
+        rows = table.query(where='$tablename =:tbl AND $maintag IS NULL',
+                          tbl=self.maintable,order_by='$values desc,$tag').fetch()
+        externalFrame = pane.div(_class='tag_frame bgcolor_medium',datapath='.tagbag')        
         for j,r in enumerate(rows):
             values = r['values']
             tag = r['tag']
             description = r['description']
             oddOrEven = 'even'
+            colorRow = 'bgcolor_bright'
             if j%2:
                 oddOrEven = 'odd'
-            line = externalFrame.div(_class='tag_line tag_%s' %oddOrEven,datapath='.%s' %tag)
-            label_col = line.div(description,_class='tag_label_col')
+                colorRow = 'bgcolor_brightest'
+
+            line = externalFrame.div(_class='tag_line tag_%s %s' %(oddOrEven,colorRow),datapath='.%s' %tag)
+            label_col = line.div(description,_class='tag_label_col bgcolor_darkest color_brightest')
             value_col = line.div(_class='tag_value_col')
             buttons = [dict(value='^.false',_class='dijitButtonNode tag_button tag_false',label='!!No')]
             if values:
