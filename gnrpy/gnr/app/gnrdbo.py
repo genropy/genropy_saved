@@ -84,7 +84,7 @@ class TableBase(object):
                       size=pkeycolAttrs.get('size'),group='_').relation(rel,mode='foreignkey',
                                                                         many_group='_',one_group='_')
         relation_path = '@%s_recordtag_link_%s.@tag_id.description' %(tbl.getAttr()['pkg'],fkey)                                                                
-        tbl.aliasColumn('_tag_rel',relation_path=relation_path,group=group,name_long=name_long,group='_')
+        tbl.aliasColumn('_tag_rel',relation_path=relation_path,group=group,name_long=name_long)
        # tbl.formulaColumn('_tag',relation_path ,group='04',name_long='Telefoni')
         
 class GnrDboTable(TableBase):
