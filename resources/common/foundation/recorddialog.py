@@ -69,7 +69,8 @@ class RecordDialog(BaseComponent):
             page = self.pageSource()
         dlgPars=dlgPars or {}
         if onShow:
-            dlgPars['connect_show']=onShow     
+            dlgPars['connect_show']=onShow 
+        dlgPars['centerOn'] = '_pageRoot'    
         if centerOn:
             dlgPars['centerOn']=centerOn             
         dlg = page.dialog(nodeId=dlgId,title=title,
@@ -173,7 +174,6 @@ class RecordDialog(BaseComponent):
                                   msg='!!Not valid data. Please check the form',
                                   title='!!Warning')
                         
-                                  
         elif validation_failed == "focus":
             pane.dataController("genro.formById('%s').focusFirstInvalidField()" %formId,_fired="^.validation_failed")
         
