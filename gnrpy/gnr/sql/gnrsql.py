@@ -158,7 +158,7 @@ class GnrSqlDb(GnrObject):
         self.dbstores.pop(storename,None)
         
     def tempEnv(self, **kwargs):
-        return SqlEnv(self, **kwargs)
+        return TempEnv(self, **kwargs)
         
     def _get_currentEnv(self):
         """property currentEnv it returns the env currently used in this thread"""
@@ -214,7 +214,9 @@ class GnrSqlDb(GnrObject):
         """Execute the sql statement using given kwargs"""
         # transform list and tuple parameters in named values.
         # Eg.   WHERE foo IN:bar ----> WHERE foo in (:bar_1, :bar_2..., :bar_n)
-        sqlargs = sqlargs or {}
+        envargs = dict([('env_%s'%k,v) for k,v in self.currentEnv.items()])
+        envargs.update(sqlargs)
+        sqlargs=envargs
         for k, v in [(k, v) for k, v in sqlargs.items() if isinstance(v, list) or isinstance(v, tuple)]:
             sqllist = '(%s) ' % ','.join([':%s%i' % (k, i) for i, ov in enumerate(v)])
             sqlargs.pop(k)
@@ -227,15 +229,12 @@ class GnrSqlDb(GnrObject):
         #print 'sql:\n',sql
         try:
             if not cursor:
-                #if not self.connection: self.connection=self.adapter.connect()
                 if cursorname:
                     if cursorname == '*':
                         cursorname = 'c%s' % re.sub('\W', '_', getUuid())
                     cursor = self.adapter.cursor(self.connection, cursorname)
-                    #cursor = self.connection.cursor(cursorname=cursorname)
                 else:
                     cursor = self.adapter.cursor(self.connection)
-                    #cursor = self.connection.cursor()
             cursor.execute(sql, sqlargs)
             if self.debugger:
                 self.debugger(debugtype='sql',sql=sql, sqlargs=sqlargs,dbtable=dbtable)
@@ -384,11 +383,11 @@ class GnrSqlDb(GnrObject):
             for n in data[table]:
                 self.table(table, pkg=pkg).insertOrUpdate(n.attr)
                 
-class SqlEnv(object):
+class TempEnv(object):
     """
-    with db.tempEnv(pippo=7) as db:
-        jlkjlkjl
-        hkjhkhk
+    with db.tempEnv(foo=7) as db:
+        .......
+        ....
 
     """
     def __init__(self,db,**kwargs):
