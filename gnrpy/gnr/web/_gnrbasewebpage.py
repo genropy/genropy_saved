@@ -27,23 +27,16 @@ core.py
 Created by Giovanni Porcari on 2007-03-24.
 Copyright (c) 2007 Softwell. All rights reserved.
 """
-import hashlib
 import os
 import sys
 import time
-import datetime
 import traceback
-import random
-import itertools
 import urllib
-import zipfile
-import StringIO
 
 
 #from decimal import Decimal
 
 from gnr.core.gnrlog import gnrlogging
-from gnr.core.gnrlang import optArgs, timer_call
 
 gnrlogger = gnrlogging.getLogger('gnr.web.gnrwebcore')
 
@@ -54,14 +47,10 @@ try:
 except:
     import simplejson as json
 
-from mako.lookup import TemplateLookup
-
-from gnr.core.gnrbag import Bag, DirectoryResolver, TraceBackResolver
+from gnr.core.gnrbag import Bag, TraceBackResolver
 
 from gnr.core.gnrlang import GnrObject
-
-from gnr.core.gnrlang import getUuid, NotImplementedException
-from gnr.core.gnrstring import splitAndStrip, toText, toJson
+from gnr.core.gnrstring import  toText, toJson
 from gnr.core import gnrdate
 
 from gnr.sql.gnrsql_exceptions import GnrSqlSaveChangesException
@@ -128,19 +117,6 @@ class GnrBaseWebPage(GnrObject):
     canonical_filename = property(_get_canonical_filename)
     
 
-    
-    def OLD_importPageModule(self, page_path, pkg=None):
-         if not pkg:
-             pkg = self.packageId
-         return gnrImport(self.site.pkg_static_path(pkg,(page_path.split('/'))))
-        
-    def OLD_mixinFromPage(self,kls,pkg=None):
-        if isinstance(kls,basestring):
-            page_path, kls_name = kls.split(':')
-            module = importPageModule(page_path,pkg=pkg)
-            kls = getattr(module, kls_name)
-        self.mixin(kls)
-    
     
     def rpc_decodeDatePeriod(self, datestr, workdate=None, locale=None):
         workdate = workdate or self.workdate
@@ -408,24 +384,7 @@ class GnrBaseWebPage(GnrObject):
         if self.maintable:
             return self.db.table(self.maintable)
     tblobj = property(_get_tblobj)
-    
-    def _get_workdate(self):
-        if not hasattr(self,'_workdate'):
-            workdate = self.pageArgs.get('_workdate_')
-            if not workdate or not self.userTags or not('superadmin' in self.userTags):
-                workdate =  self.session.pagedata['workdate'] or datetime.date.today()
-            if isinstance(workdate, basestring):
-                workdate = self.application.catalog.fromText(workdate, 'D')
-            self._workdate = workdate
-        return self._workdate
-    
-    def _set_workdate(self, workdate):
-        self.session.setInPageData('workdate', workdate)
-        self.session.saveSessionData()
-        self._workdate = workdate
-    workdate = property(_get_workdate, _set_workdate)
-    
-               
+         
     def formSaver(self,formId,table=None,method=None,_fired='',datapath=None,
                     resultPath='dummy',changesOnly=True,onSaved=None,saveAlways=False,**kwargs):
         method = method or 'saveRecordCluster'
