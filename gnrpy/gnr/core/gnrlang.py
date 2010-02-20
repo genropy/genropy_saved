@@ -46,6 +46,15 @@ def deprecated(func):
     newFunc.__dict__.update(func.__dict__)
     return newFunc
     
+def boolean(x):
+    if isinstance(x,basestring):
+        x=x.upper()
+        if x in ('TRUE','T','Y','YES','1'):
+            return True
+        if x in ('FALSE','F','N','NO','0'):
+            return False
+        return bool(x)
+        
 def importModule(module):
     if module not in sys.modules:
         __import__(module)
