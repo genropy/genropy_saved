@@ -172,18 +172,24 @@ class GnrSqlDb(GnrObject):
     def _get_workdate(self):
         """property currentEnv it returns the workdate currently used in this thread"""
         return self.currentEnv.get('workdate') or datetime.today()
-    workdate = property(_get_workdate)
+        
+    def _set_workdate(self,workdate):
+        self.currentEnv['workdate']=workdate
+    workdate = property(_get_workdate,_set_workdate)
         
     def _get_locale(self):
         """property currentEnv it returns the workdate currently used in this thread"""
         return self.currentEnv.get('locale') or locale.getdefaultlocale()[0]
-    locale = property(_get_locale)
+        
+    def _set_locale(self,locale):
+        self.currentEnv['locale']=locale
+    locale = property(_get_locale,_set_locale)
     
-    def set_env(self, **kwargs):
+    def updateEnv(self, **kwargs):
         self.currentEnv.update(kwargs)
     
     def use_store(self, storename=None):
-        self.set_env(storename=storename)
+        self.updateEnv(storename=storename)
     
     def get_dbname(self):
         storename = self.currentEnv.get('storename')
