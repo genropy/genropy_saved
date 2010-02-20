@@ -164,10 +164,26 @@ class GnrWebPage(GnrBaseWebPage):
     def _get_db(self):
         if not hasattr(self, '_db'):
             self._db = self.app.db
-            self._db.set_env(storename= getattr(self,'storename', None),workdate=self.workdate, locale=self.locale)
+            self._db.updateEnv(storename= getattr(self,'storename', None),workdate=self.workdate, locale=self.locale)
         return self._db
     db = property(_get_db)
-
+    
+    def _get_workdate(self):
+        if not hasattr(self,'_workdate'):
+            workdate = self.pageArgs.get('_workdate_')
+            if not workdate or not self.userTags or not('superadmin' in self.userTags):
+                workdate =  self.session.pagedata['workdate'] or datetime.date.today()
+            if isinstance(workdate, basestring):
+                workdate = self.application.catalog.fromText(workdate, 'D')
+            self._workdate = workdate
+        return self._workdate
+    
+    def _set_workdate(self, workdate):
+        self.session.setInPageData('workdate', workdate)
+        self.session.saveSessionData()
+        self._workdate = workdate
+        self.db.workdate=workdate
+    workdate = property(_get_workdate, _set_workdate)
     ###### END: PROXY DEFINITION #########
 
 
