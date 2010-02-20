@@ -50,6 +50,7 @@ from gnr.web.gnrwebstruct import GnrGridStruct
 from gnr.core.gnrlang import GnrGenericException, gnrImport
 from gnr.core.gnrbag import Bag
 from gnr.core.gnrlang import deprecated
+import datetime
 
 AUTH_OK=0
 AUTH_NOT_LOGGED=1
@@ -164,7 +165,11 @@ class GnrWebPage(GnrBaseWebPage):
     def _get_db(self):
         if not hasattr(self, '_db'):
             self._db = self.app.db
-            self._db.updateEnv(storename= getattr(self,'storename', None),workdate=self.workdate, locale=self.locale)
+            self._db.updateEnv(storename= getattr(self,'storename', None),workdate=self.workdate, locale=self.locale,
+                               user=self.user, pagename=self.pagename)
+            for dbenv in [getattr(self,x) for x in dir(self) if x.startswith('dbenv_')]:
+                kwargs=dbenv() or {}
+                self._db.updateEnv( **kwargs)
         return self._db
     db = property(_get_db)
     
@@ -310,7 +315,7 @@ class GnrWebPage(GnrBaseWebPage):
     def _publish_event(self,event):
         for subscriber in self._event_subscribers.get(event,[]):
             getattr(subscriber,'event_%s'%event)()
-    
+
     def rootPage(self,pagetemplate=None,**kwargs):
         #self.frontend
         #self.dojo_theme = dojo_theme or 'tundra'
