@@ -40,9 +40,10 @@ class Table(object):
         self.passwordTrigger(record)
         
     def passwordTrigger(self,record):
-        password =record['md5pwd']
-        if len(password)<32:
-            record['md5pwd']=self.db.application.changePassword(None, None, password, userid=record['username'])
+        if 'md5pwd' in record:
+            password =record['md5pwd']
+            if len(password)<32:
+                record['md5pwd']=self.db.application.changePassword(None, None, password, userid=record['username'])
             
         
     def populate(self, fromDump=None):
