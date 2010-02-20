@@ -59,11 +59,10 @@ class GnrWebDebugger(GnrBaseProxy):
         return src
        
     def output(self,debugtype,**kwargs):
-        page =self.page
-        if self.debug or page.isDeveloper():
-            debugopt=getattr(page,'debugopt','') or ''
-            if debugopt and debugtype in debugopt:
-                getattr(self,'output_%s' % debugtype)(page,**kwargs)
+        page=self.page
+        debugopt=getattr(page,'debugopt','') or ''
+        if debugopt and debugtype in debugopt:
+            getattr(self,'output_%s' % debugtype)(page,**kwargs)
 
     def output_sql(self, page, sql=None, sqlargs=None,dbtable=None, error=None):
         b=Bag()
