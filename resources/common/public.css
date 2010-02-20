@@ -292,12 +292,14 @@
     background-image:-moz-linear-gradient(center,top, from(rgba(182,182,182,0.75)), to(rgba(239,239,239,0.9)));
 
 }
+
 .bottom_btnDisabled .dijitButtonNode{
 	opacity: .6;
 	cursor: not-allowed !important;
 }
 
 .bottom_btnHover .dijitButtonNode{
+
     opacity: 1;
 }
 .no_background .dijitButtonNode{
