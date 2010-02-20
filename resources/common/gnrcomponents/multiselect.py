@@ -74,6 +74,7 @@ class MultiSelect(BaseComponent):
         if 'applymethod' in selectionPars:
             selectionPars['apply_callAfter'] = selectionPars['applymethod']
         selectionPars['apply_checkedRows'] = '=%s' %values
+        selectionPars['apply_readCol'] = readCol
         selectionPars['applymethod'] = 'ms_setCheckedOnReload'
         
         checkboxGridBC.dataController("""var nodes = selection.getNodes();
@@ -110,12 +111,13 @@ class MultiSelect(BaseComponent):
 
         
         
-    def rpc_ms_setCheckedOnReload(self,selection,checkedRows=None,callAfter=None,**kwargs):
+    def rpc_ms_setCheckedOnReload(self,selection,checkedRows=None,callAfter=None,readCol=None,**kwargs):
         checkedRows = checkedRows or []
-        print checkedRows
+        if readCol=='_pkey' or readCol=='*':
+            readCol = 'pkey'
         def cb(row):
             result = dict(_checkedrow=False)
-            if row['pkey'] in checkedRows:
+            if row[readCol] in checkedRows:
                 result['_checkedrow'] = True
             else:
                 result['_checkedrow'] = False
