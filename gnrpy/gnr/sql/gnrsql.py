@@ -221,7 +221,7 @@ class GnrSqlDb(GnrObject):
         # transform list and tuple parameters in named values.
         # Eg.   WHERE foo IN:bar ----> WHERE foo in (:bar_1, :bar_2..., :bar_n)
         envargs = dict([('env_%s'%k,v) for k,v in self.currentEnv.items()])
-        envargs.update(sqlargs)
+        envargs.update(sqlargs or {})
         sqlargs=envargs
         for k, v in [(k, v) for k, v in sqlargs.items() if isinstance(v, list) or isinstance(v, tuple)]:
             sqllist = '(%s) ' % ','.join([':%s%i' % (k, i) for i, ov in enumerate(v)])
