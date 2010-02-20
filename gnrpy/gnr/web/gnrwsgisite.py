@@ -10,7 +10,7 @@ from gnr.web.gnrwebapp import GnrWsgiWebApp
 import os
 import glob
 from time import time
-from gnr.core.gnrlang import gnrImport
+from gnr.core.gnrlang import gnrImport,boolean
 from threading import RLock
 import thread
 import mimetypes
@@ -171,7 +171,7 @@ class GnrWsgiSite(object):
         self.secret = self.config['wsgi?secret'] or 'supersecret'
         self.config['secret'] = self.secret
         self.session_key = self.config['wsgi?session_key'] or 'gnrsession'
-        self.debug = options and getattr(options,'debug',False) or self.config['wsgi?debug']
+        self.debug = boolean(options and getattr(options,'debug',False) or self.config['wsgi?debug'])
         self.cache_max_age = self.config['wsgi?cache_max_age'] or 2592000
         self.gnrapp = self.build_gnrapp()
         self.wsgiapp = self.build_wsgiapp()
@@ -479,7 +479,9 @@ class GnrWsgiSite(object):
         
     def debugger(self,debugtype,**kwargs):
         if self.currentPage:
-            self.currentPage.debugger.output(debugtype,**kwargs)
+            page =self.currentPage
+            if self.debug or page.isDeveloper():
+                page.debugger.output(debugtype,**kwargs)
             
     def notifyDbEvent(self,tblobj,record,event,old_record=None):
         if 'adm' in self.gnrapp.db.packages:
