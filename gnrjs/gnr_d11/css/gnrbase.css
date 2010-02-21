@@ -945,6 +945,9 @@ table.formbuilder {
     background: url(icons/ajax-loader-1.gif) no-repeat center center;
 
 }
+.notvisible{
+	visibility: hidden;
+}
 #_gnrRoot{
 	opacity: 0;
 }

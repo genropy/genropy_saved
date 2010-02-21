@@ -583,7 +583,7 @@ class GnrWebPage(GnrBaseWebPage):
                 page.dataController('console.log(msg);funcCreate(msg)();', msg='^gnr.servercode')
                 
                 page.dataController('genro.rpc.managePolling(freq);', freq='^gnr.polling', _onStart=True)
-                root=page.borderContainer(design='sidebar', height='100%', nodeId='_gnrRoot',_class='hideSplitter', 
+                root=page.borderContainer(design='sidebar', height='100%', nodeId='_gnrRoot',_class='hideSplitter notvisible', 
                                             regions='^_clientCtx.mainBC')
                 self.debugger.right_pane(root)
                 self.debugger.bottom_pane(root)

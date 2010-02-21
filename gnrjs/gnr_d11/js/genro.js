@@ -166,6 +166,7 @@ dojo.declare('gnr.GenroClient', null, {
         this.src.startUp(mainBagPage);
         //genro.timeIt('** end builder **');
         genro.dom.removeClass('mainWindow', 'waiting');
+        genro.dom.removeClass('_gnrRoot', 'notvisible');
         genro.dom.effect('_gnrRoot','fadein',{duration:400});
         var _this=this;                                            
         this._dataroot.subscribe('dataTriggers', {'any':dojo.hitch(this, "dataTrigger")});
