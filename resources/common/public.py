@@ -203,7 +203,7 @@ class RecordHandler(BaseComponent):
     py_requires='foundation/recorddialog'
 
 class DynamicEditor(BaseComponent):
-    py_requires='foundation/dynamiceditor'
+    py_requires='foundation/macrowidgets:DynamicEditor'
                         
 class RecordToHtmlFrame(BaseComponent):
     py_requires='foundation/htmltoframe'

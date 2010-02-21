@@ -223,7 +223,7 @@ dojo.declare("gnr.GnrDlgHandler",null,{
         var node = genro.src.getNode('_dlg_ask').clearValue().freeze();
         var dlgRoot = node._('div');
         var baseId = node.getValue().getNodes()[0].getStringId();
-        var kw = {width:'28em',height:'1.8em',margin:'15px','float':'left',
+        var kw = {width:'340px',height:'25px',margin:'15px',
                            label:label,
                            cancel:cancel,
                            id:baseId+'_uploader',
@@ -236,7 +236,7 @@ dojo.declare("gnr.GnrDlgHandler",null,{
         }
                            
         var dlg = dlgRoot._('dialog',{id:baseId+'_dlg',title:title})._('div',{_class:'dlg_ask'});
-        dlg._('fileInput',kw);   
+        dlg._('div')._('fileInput',kw);   
                           
         var cb = function(){
             var dlgid=baseId+'_dlg';
@@ -248,7 +248,7 @@ dojo.declare("gnr.GnrDlgHandler",null,{
             dijit.byId(uploaderid).uploadFile();
         };
         
-        dlg._('button',{label:send,margin_top:'15px',margin_top:'18px',
+        dlg._('div')._('button',{label:send,margin_right:'15px',margin_bottom:'1px',
                         onClick:cb});
         node.unfreeze();
         dijit.byId(baseId+'_dlg').show();
