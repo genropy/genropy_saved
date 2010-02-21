@@ -560,8 +560,18 @@
 .qb_group_even {
 	background-color: rgba(168,181,182,0.8); !important;
 }
-
-
+.listbottompane{
+	background-color: rgba(168,181,182,0.8);
+}
+.listbottompane .dijitButtonNode{
+	-moz-box-shadow:1px 1px 2px #403b3b;
+	-webkit-box-shadow:1px 1px 2px #403b3b;
+}
+.listbottompane .dijitButtonNode:hover{
+	-moz-box-shadow:2px 2px 4px #403b3b;
+	-webkit-box-shadow:2px 2px 4px #403b3b;
+	
+}
 
 /* @end */
 /* @end */
