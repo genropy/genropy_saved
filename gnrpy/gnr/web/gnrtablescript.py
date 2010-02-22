@@ -74,8 +74,9 @@ class TableScriptOnRecord(TableScript):
             ext = '.%s' % ext
         caption = ''
         if self.getData('record'):
-            maintable_obj.recordCaption(self.getData('record'))
+            caption= maintable_obj.recordCaption(self.getData('record'))
         doc_name = '%s_%s%s' % (maintable_obj.name, caption, ext)
+        print doc_name
         return doc_name
     
 class RecordToHtmlNew(TableScriptOnRecord):
