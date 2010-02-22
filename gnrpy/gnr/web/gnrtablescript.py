@@ -240,6 +240,15 @@ class RecordToHtmlNew(TableScriptOnRecord):
         self._createPage()
         self._openPage()
            
+
+        
+    def _get_rowData(self):
+        if self.row_mode=='attribute':
+            return self.currRowDataNode.attr
+        else:
+            return self.currRowDataNode.value
+    rowData = property(_get_rowData)    
+    
     def rowField(self,path=None,**kwargs):
         if self.row_mode=='attribute':
             data = self.currRowDataNode.attr
