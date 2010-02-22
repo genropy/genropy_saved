@@ -194,7 +194,8 @@ class ListQueryHandler(BaseComponent):
                       date=['equal','in','isnull','greater','greatereq','less','lesseq','between'],
                       number=['equal','greater','greatereq','less','lesseq','isnull','in'],
                       boolean=['istrue','isfalse','isnull'],
-                      others=['equal','greater','greatereq','less','lesseq','in'])
+                      others=['equal','greater','greatereq','less','lesseq','in'],
+                      istag=['contains'])
         
         wt = self.db.whereTranslator
         for op in listop:

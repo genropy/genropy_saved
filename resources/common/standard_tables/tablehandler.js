@@ -119,7 +119,7 @@ dojo.declare("gnr.GnrQueryBuilder",null,{
         this.datapath = datapath;
         this.dtypes_dict = {'A':'alpha','T':'alpha','C':'alpha',
                             'D':'date','DH':'date','I':'number',
-                            'L':'number','N':'number','R':'number','B':'boolean'};
+                            'L':'number','N':'number','R':'number','B':'boolean','TAG':'istag'};
         genro.setDataFromRemote('gnr.qb.fieldstree',"relationExplorer", {table:maintable, omit:'_'});
         this.treefield = genro.getData('gnr.qb.fieldstree');
         genro.setDataFromRemote('gnr.qb.fieldsmenu',"relationExplorer", {table:maintable, omit:'_*',quickquery:true});
@@ -287,10 +287,10 @@ dojo.declare("gnr.GnrQueryBuilder",null,{
             input_attrs.position='relative';
             input_attrs.padding_right='10px';
             value_input = valtd._('textbox',input_attrs);
-            //value_input._('div',{height:'8px',width:'8px',position:'absolute',
-            //                     background:'red',top:'2px',right:'2px',z_index:10,
-            //                     _relpath:relpath,
-            //                     connect_onclick:'FIRE list.query.helper.in'});
+            var action = 'FIRE list.helper.queryrow = "'+relpath.slice(1)+'";';
+            value_input._('div',{height:'8px',width:'8px',position:'absolute',
+                                 background:'red',top:'2px',right:'2px',z_index:10,
+                                 connect_onclick:action});
         }
         tr._('td')._('div',{connect_onclick:dojo.hitch(this,'addDelFunc','add',i+1), _class:'qb_btn qb_add'});
         if (i>0){

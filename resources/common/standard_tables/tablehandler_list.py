@@ -6,6 +6,7 @@ from gnr.core.gnrbag import Bag
 
 class TableHandlerForm(BaseComponent):
     def pageList(self, pane):
+        self.query_helper_main(pane)
         filterpath='filter.%s' % self.pagename
         if not filterpath in self.clientContext:
             filterBase=self.filterBase()
@@ -213,8 +214,6 @@ class TableHandlerForm(BaseComponent):
     def listToolbar_query(self,pane):
         queryfb = pane.formbuilder(cols=5,datapath='list.query.where',_class='query_form',
                                           border_spacing='2px',onEnter='genro.fireAfter("list.runQuery",true,10);',float='left')
-        #self._query_helpers(queryfb)
-
         queryfb.div('^.c_0?column_caption',min_width='12em',_class='smallFakeTextBox floatingPopup',
                               dnd_onDrop="genro.querybuilder.onChangedQueryColumn(this,item.attr);",
                               dnd_allowDrop="return !(item.attr.one_relation);", nodeId='fastQueryColumn',
@@ -250,19 +249,8 @@ class TableHandlerForm(BaseComponent):
                                   """,_fired="^list.showQueryCountDlg",waitmsg='!!Working.....',
                                                  dlgtitle='!!Current query record count')
         if self.enableFilter():
-            self.th_filtermenu(queryfb)
+            self.th_filtermenu(queryfb)        
 
-    def _query_helpers(self,pane):
-        dlgBC = self.hiddenTooltipDialog(pane, dlgId='helper_in', title="!!In",
-                                         width="42em",height="23ex",fired='^list.query.helper.in', 
-                                         datapath='list.query.helper',
-                                         bottom_right='!!Add',onOpen='genro.querybuilder.onHelperOpen();',
-                                         bottom_right_action="""var currpath = GET list.query.helper.currentpath;
-                                                                genro.setData(currpath,GET list.query.helper.buffer);"""
-                                            )
-        dlgpane = dlgBC.contentPane(region='center',_class='pbl_dialog_center')
-        box = dlgpane.div(position='absolute',top='1px',bottom='2px',left='1px',right='1px')
-        box.simpleTextArea(value = '^.buffer',height='100%',width='100%')
         
     def listToolbar_rightbuttons(self, pane):
         pane = pane.div(nodeId='query_buttons',float='right')

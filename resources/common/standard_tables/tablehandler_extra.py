@@ -7,6 +7,42 @@ from gnr.core.gnrstring import toText,splitAndStrip
 
 import os
 
+class QueryHelper(BaseComponent):
+    def query_helper_main(self,pane):
+        pane.dataController(""" console.log(queryrow);
+                                var op = genro._('list.query.where.'+queryrow+'?op');
+                                console.log(op)
+                                if(op=='in'){
+                                    SET  #helper_in_dlg.pars.queryrow = queryrow;
+                                    FIRE #helper_in_dlg.open;
+                                }else if(op=='tag'){
+                                    FIRE #helper_tag_dlg.open;
+                                }""",
+                            queryrow="^list.helper.queryrow")
+        self.helper_in_dlg(pane)
+        self.helper_tag_dlg(pane)
+        
+    def helper_in_dlg(self,pane):
+        def cb_center(parentBC,**kwargs):
+            pane = parentBC.contentPane(**kwargs)  
+            pane.simpleTextArea(value='^.items',height='100%',width='100%')                             
+        dialogBc = self.dialog_form(pane,title='!!Helper IN',loadsync=True,
+                                datapath='list.helper.op_in',centerOn='_pageRoot',
+                                height='250px',width='400px',
+                                formId='helper_in',cb_center=cb_center)
+        dialogBc.dataController("""var x =genro._('list.query.where.'+queryrow);
+                                   SET .data.items=x.replace(/,+/g,'\n')""",
+                                nodeId="helper_in_loader",queryrow='=.pars.queryrow')
+                                
+        dialogBc.dataController("""genro.setData('list.query.where.'+queryrow,items.replace(/\s+/g,','));
+                                FIRE .saved;""",
+                                items='=.data.items',queryrow='=.pars.queryrow',_if='items',
+                                nodeId="helper_in_saver")
+                                
+
+    def helper_tag_dlg(self,pane):
+        pass
+
 class FiltersHandler(BaseComponent):
     def filterBase(self):
         return

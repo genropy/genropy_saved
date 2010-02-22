@@ -28,6 +28,7 @@ class TableHandler(BaseComponent):
                     standard_tables/tablehandler_form,
                      standard_tables/tablehandler_list,
                      standard_tables/tablehandler_extra:TagsHandler,
+                     standard_tables/tablehandler_extra:QueryHelper,
                      standard_tables/tablehandler_extra:FiltersHandler,
                     foundation/userobject:UserObject,foundation/dialogs"""
     css_requires = 'standard_tables/tablehandler'
