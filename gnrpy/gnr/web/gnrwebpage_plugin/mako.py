@@ -31,7 +31,7 @@ class Plugin(GnrBasePlugin):
                               output_encoding='utf-8', encoding_errors='replace')                      
         template = lookup.get_template(os.path.basename(path))
         #css_dojo = getattr(page, '_css_dojo_d%s' % page.dojoversion)()
-        
+        page.charset='utf-8'
         _resources = page.site.resources.keys()
         _resources.reverse()
         #dojolib = page.site.dojo_static_url(page.dojoversion,'dojo','dojo','dojo.js')
