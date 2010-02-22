@@ -134,7 +134,7 @@ dojo.declare("gnr.GnrDlgHandler",null,{
         var kw = objectUpdate({'width':'20em'},kw);
         var resultPath = resultPath || 'dummy';
         var node = genro.src.getNode('_dlg_alert').clearValue().freeze();
-        var dlg=node._('dialog',{nodeId:'_dlg_alert', title:title, toggle:"fade", toggleDuration:250})._('div',{_class:'dlg_ask',
+        var dlg=node._('dialog',{nodeId:'_dlg_alert', title:title, toggle:"fade", toggleDuration:250,centerOn:'_pageRoot'})._('div',{_class:'dlg_ask',
                                     'action':"genro.wdgById('_dlg_alert').hide();genro.fireEvent('"+resultPath+"',this.attr.actCode);"});
         dlg._('div',{'innerHTML':msg,'_class':'dlg_ask_msg'});
         var buttonBox = dlg._('div',{'_class':'dlg_ask_btnBox'});
@@ -163,7 +163,7 @@ dojo.declare("gnr.GnrDlgHandler",null,{
              var actions=resultPathOrActions || {};
              action="genro.wdgById('_dlg_ask').hide();if (this.attr.act){funcCreate(this.attr.act).call();};";
          }
-        var dlg=node._('dialog',{nodeId:'_dlg_ask',title:title})._('div',{_class:'dlg_ask','action':action});
+        var dlg=node._('dialog',{nodeId:'_dlg_ask',title:title,centerOn:'_pageRoot'})._('div',{_class:'dlg_ask','action':action});
         dlg._('div',{'content':msg,'_class':'dlg_ask_msg'});
         var buttonBox = dlg._('div',{'_class':'dlg_ask_btnBox'});
 

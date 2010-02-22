@@ -83,9 +83,10 @@ class TableBase(object):
         tagtbl.column(fkey,dtype=pkeycolAttrs.get('dtype'),
                       size=pkeycolAttrs.get('size'),group='_').relation(rel,mode='foreignkey',
                                                                         many_group='_',one_group='_')
-        relation_path = '@%s_recordtag_link_%s.@tag_id.description' %(tbl.getAttr()['pkg'],fkey)                                                                
-        tbl.aliasColumn('_tag_rel',relation_path=relation_path,group=group,name_long=name_long)
-       # tbl.formulaColumn('_tag',relation_path ,group='04',name_long='Telefoni')
+        relation_path = '@%s_recordtag_link_%s.@tag_id.description' %(tbl.getAttr()['pkg'],fkey)  
+        print relation_path
+        tbl.aliasColumn('_recordtag',relation_path=relation_path,group=group,name_long=name_long,dtype='TAG')
+        
         
 class GnrDboTable(TableBase):
     pass
@@ -267,7 +268,7 @@ class Table_recordtag(TableBase):
         tbl.column('description',name_long='!!Description')
         tbl.column('values',name_long='!!Values')
         tbl.column('maintag',name_long='!!Main tag')
-        tbl.column('subtag',name_long='!!Main tag')
+        tbl.column('subtag',name_long='!!Sub tag')
 
         
     def trigger_onInserting(self, record_data):
@@ -277,20 +278,30 @@ class Table_recordtag(TableBase):
     def setTagChildren(self,record_data,old_record_data=None):
         tablename = record_data['tablename']
         parentTag = record_data['tag']
+        parentDescription = record_data['description']
+        
         oldChildren = {}
         if old_record_data:
+            #updating
             parentTag_old = old_record_data['tag']
-            if parentTag_old != parentTag:
+            parentDescription_old = old_record_data['description']
+            if parentTag_old != parentTag or parentDescription_old!=parentDescription:
+                #updating if change parentTag
                 def cb_tag(row):
                     row['tag'] = row['tag'].replace('%s_' %parentTag_old,'%s_'%parentTag)
-                self.batchUpdate(cb_tag,where='$tag LIKE :p_tag',p_tag='%s_%%' % parentTag_old)                
+                    row['description'] = row['description'].replace('%s:' %parentDescription_old,'%s:' %parentDescription)
+                    row['maintag'] = parentTag
+                self.batchUpdate(cb_tag,where='$maintag =:p_tag AND tablename=:t_name',
+                                p_tag=parentTag_old,t_name=tablename)                
         if old_record_data and old_record_data['values']:
+            #updating if change change values
             for item in splitAndStrip(old_record_data['values'],','):
-                tag,description = splitAndStrip('%s:%s'%(item,item),':',n=2,fixed=2)     
-                oldChildren['%s_%s'%(parentTag,tag)] = description
+                tag,description = splitAndStrip('%s:%s'%(item,item),':',n=2,fixed=2)  
+                oldChildren['%s_%s'%(parentTag,tag)] = '%s:%s' %(parentDescription,description)
                 
         for item in splitAndStrip(record_data['values'],','):
             tag,description = splitAndStrip('%s:%s'%(item,item),':',n=2,fixed=2)
+            description = '%s:%s' %(parentDescription,description)
             fulltag='%s_%s' %(parentTag,tag) 
             if fulltag in oldChildren:
                 if description != oldChildren[fulltag]:
@@ -317,7 +328,7 @@ class Table_recordtag_link(TableBase):
     def config_db(self, pkg):
         tbl =  pkg.table('recordtag_link',  pkey='id', name_long='!!Record tag link', transaction=False)
         self.sysFields(tbl, id=True, ins=False, upd=False)
-        tbl.column('tag_id',name_long='!!Tag id',size='22').relation('recordtag.id',mode='foreignkey')
+        tbl.column('tag_id',name_long='!!Tag id',size='22').relation('recordtag.id',onDelete='cascade',mode='foreignkey')
         tbl.aliasColumn('tag',relation_path='@tag_id.tag')
         tbl.aliasColumn('description',relation_path='@tag_id.description')
 
