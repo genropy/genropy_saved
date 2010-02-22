@@ -41,7 +41,7 @@ class Plugin(GnrBasePlugin):
         #if os.path.isfile(page.resolvePath('%s.js' % page.pagename)):
         #    js_requires.append('%s.js' % page.pagename)
         #css_requires, css_media_requires = page.get_css_path()
-        arg_dict=page.build_arg_dict(**kwargs)
+        arg_dict=page.build_arg_dict()
         arg_dict['mainpage']=page
         output = template.render(**arg_dict)
         #output = template.render(mainpage=page,
