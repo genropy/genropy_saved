@@ -1570,12 +1570,10 @@ dojo.declare("gnr.widgets.Grid",gnr.widgets.baseDojo,{
         }
         if (this.sourceNode.attr.selectedId){
             var selectedId=null;
+            var row={};
             if (idx>=0){
                 selectedId=this.rowIdentity(this.rowByIndex(idx));
-            }
-            var row = this.rowByIndex(idx);
-            if (!selectedId){
-                console.log(row);
+                var row = this.rowByIndex(idx);
             }
             this.sourceNode.setAttributeInDatasource('selectedId', selectedId,null,row,true);
         }
@@ -3380,7 +3378,7 @@ dojo.declare("gnr.widgets.Tree",gnr.widgets.baseDojo,{
             return;
         }
         if(nodeWidget==nodeWidget.tree.rootNode){
-            return
+            return;
         }
         nodeWidget.__eventmodifier = eventToString(e);
         this._onClick_replaced(e);

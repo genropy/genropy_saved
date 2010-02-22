@@ -176,7 +176,7 @@ dojo.declare("gnr.GnrDomHandler",null,{
         }else if (evt_type=='setvalue'){
             genro.dom[evt.value.length>0?'addClass':'removeClass'](evt.obj.id+"_label","ghosthidden");
         }else{
-            console.log(evt);
+            console.log('line 179 genro_dom');
         }
     },
     html_maker:function(kw,bagnode){
