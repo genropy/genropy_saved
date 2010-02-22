@@ -551,7 +551,10 @@ table.formbuilder {
 .floatingPopup {
     padding-right: 15px;
 }
-
+.dijitMenu{
+    -moz-box-shadow:2px 2px 4px #403b3b;
+	-webkit-box-shadow:2px 2px 4px #403b3b;
+}
 .floatingPopup:hover {
     background: #feffb4 url(icons/base12/smallpopup.gif) no-repeat right;
 }
