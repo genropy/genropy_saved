@@ -44,7 +44,7 @@ class GnrCustomWebPage(object):
         pane.button('Glass',action='genro.playSound("Glass")')
         pane.button('Submarine',action='genro.playSound("Submarine")')
         #pane.button('initvideo',action='initVideo()')
-        pane.video(src="http://movies.apple.com/movies/us/apple/ipoditunes/2007/touch/ads/apple_ipodtouch_touch_r640-9cie.mov", autoplay=True)
+        #pane.video(src="http://movies.apple.com/movies/us/apple/ipoditunes/2007/touch/ads/apple_ipodtouch_touch_r640-9cie.mov", autoplay=True)
        #videocontainer= pane.div(id='videocontainer')
        #videocontainer.video(id='videoelem', poster="/blog-files/touch-poster.png")
        #videocontainer.div(_class="videobutton videoplay", id="videoplaybutton")
