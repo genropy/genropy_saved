@@ -329,8 +329,7 @@ class IncludedView(BaseComponent):
                        
         controller.dataController(delScript, _fired='^.delRecord', delSelection='^.delSelection',
                                 idx='=.selectedIndex', gridId=gridId)
-        controller.dataController("""console.log('Start Edit');genro.wdgById(gridId).editBagRow();console.log('End Edit')
-                                     """,fired='^.editRow',gridId=gridId)
+        controller.dataController("""genro.wdgById(gridId).editBagRow();""",fired='^.editRow',gridId=gridId)
         controller.dataController("genro.wdgById(gridId).printData();" ,fired='^.print',gridId=gridId)
         controller.dataController("genro.wdgById(gridId).exportData(mode, export_method);" ,
                                    mode='^.export', export_method='=.export_method', gridId=gridId)
@@ -389,8 +388,7 @@ class IncludedView(BaseComponent):
         gridId = viewPars['nodeId']
         storepath = viewPars['storepath']
         assert not 'connect_onCellDblClick' in viewPars
-        viewPars['connect_onCellDblClick'] = """console.log('dbl click')
-                                                var grid = this.widget;
+        viewPars['connect_onCellDblClick'] = """var grid = this.widget;
                                                 var cell = grid.getCell($1.cellIndex);
                                                 if (!genro.nodeById(grid.editorId + '_' + cell.field)){
                                                     FIRE .showRecord = true;
@@ -540,7 +538,7 @@ class IncludedView(BaseComponent):
         mainPane = formPars.pop('pane')
         if 'onOpen' in formPars:
             formPars['connect_show'] = '%s' %formPars.pop('onOpen')
-        controller.dataController("console.log('before show');genro.wdgById('%s').show();" %dialogId, _fired='^.showRecord')
+        controller.dataController("genro.wdgById('%s').show();" %dialogId, _fired='^.showRecord')
         controller.dataController("genro.wdgById('%s').onCancel()" %dialogId ,_fired='^.close')
                                     
         toolbarHandler = formPars.pop('toolbarHandler', '_iv_FormToolbar')
