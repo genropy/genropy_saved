@@ -43,6 +43,7 @@ class Plugin(GnrBasePlugin):
         #css_requires, css_media_requires = page.get_css_path()
         arg_dict=page.build_arg_dict()
         arg_dict['mainpage']=page
+        arg_dict.update(kwargs)
         output = template.render(**arg_dict)
         #output = template.render(mainpage=page,
         #                       css_genro = page.get_css_genro(),
