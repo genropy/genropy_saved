@@ -145,8 +145,10 @@ class SelectionHandler(BaseComponent):
                                     changeAnyway='^.changeAnyway',gridId=nodeId,
                                     idx='=.selectedIndex')
         controller.data(".dialogAddDisabled", not dialogAddRecord)
-        controller.dataFormula('.atBegin','(idx==0)',idx='^.selectedIndex')
-        controller.dataFormula('.atEnd','(idx==genro.wdgById(gridId).rowCount-1)',idx='^.selectedIndex',gridId=nodeId)
+        controller.data('.atBegin',True)
+        controller.data('.atEnd',True)
+        controller.dataFormula('.atBegin','(idx==0||idx==-1)',idx='^.selectedIndex')
+        controller.dataFormula('.atEnd','(idx==genro.wdgById(gridId).rowCount-1)||idx==-1',idx='^.selectedIndex',gridId=nodeId)
                             
     def rpc_iv_delete_selected_record(self,record_id,table):
         tblobj = self.db.table(table)
