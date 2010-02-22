@@ -20,7 +20,7 @@ class Plugin(GnrBasePlugin):
     
     def __call__(self, path=None, dojo_theme=None, striped='odd_row,even_row', pdf=False, **kwargs):
         page = self.page
-        dojo_theme = dojo_theme or page.dojo_theme or 'tundra'
+        dojo_theme = dojo_theme or getattr(self.page, 'dojo_theme', None) or 'tundra'
         auth = page._checkAuth()
         if auth != AUTH_OK:
             page.raiseUnauthorized()
