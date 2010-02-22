@@ -8,7 +8,6 @@ Copyright (c) 2009 __MyCompanyName__. All rights reserved.
 """
 
 from gnr.web.gnrbaseclasses import BaseComponent
-from gnr.core.gnrbag import Bag
 
 class PrintUtils(BaseComponent):
     py_requires='batch_runner:BatchRunner'
@@ -22,7 +21,7 @@ class PrintUtils(BaseComponent):
                         gridId='maingrid',batch_class=None,
                         commitAfterPrint=None,
                         selectedRowidx=None,pdfOnly=False,
-                        _onResult='',**kwargs):
+                        _onResult='',data_method=None, **kwargs):
         table = table or self.maintable         
         if not batch_class:
             if recordId:
@@ -54,6 +53,7 @@ class PrintUtils(BaseComponent):
                             commitAfterPrint=commitAfterPrint,
                             docName=docName,selectedRowidx=selectedRowidx,
                             runKwargs='=.parameters.data',
+                            data_method=data_method,
                             **kwargs)    
         self.buildBatchRunner(pane,_onResult='if($1){genro.download($1)};%s'%_onResult,
                             pdfParams='=.pdf',fired='^.dlpdf',**batchPars) 
@@ -120,7 +120,6 @@ class PrintUtils(BaseComponent):
         fb.dataFormula('.zipped','false',_onStart=True)
         fb.checkbox(value='^.zipped',label='!!Zip folder')
 
-        
 ####################DEPRECATED STUFF###################
 
     def printDialog(self,data, title=None, _fired=None):

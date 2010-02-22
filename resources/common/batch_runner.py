@@ -7,7 +7,7 @@
 #  Copyright (c) 2007 Softwell. All rights reserved.
 #
 
-from gnr.core.gnrbag import Bag
+
 from gnr.web.gnrbaseclasses import BaseComponent
 import gnr.app.gnrbatch
 from gnr.core.gnrlang import gnrImport
@@ -68,7 +68,7 @@ class BatchRunner(BaseComponent):
             bottom='4px', left='4px').includedView(storepath='%s.errors' % resultpath, struct=struct)
             
     def rpc_runBatch(self, table, selectionName=None,selectionFilterCb=None,recordId=None ,batch_class=None, 
-                    selectedRowidx=None, forUpdate=False, commitAfterPrint=None, **kwargs):
+                    selectedRowidx=None, forUpdate=False, commitAfterPrint=None, data_method=None, **kwargs):
         """batchFactory: name of the Class, plugin of table, which executes the batch action
             thermoid:
             thermofield: the field of the main table to use for thermo display or * for record caption
@@ -77,11 +77,15 @@ class BatchRunner(BaseComponent):
             onRow: optional method to execute on each record in selection, use if no batchFactory is given
             """
         tblobj = self.db.table(table)  
-        if recordId:
+        if data_method:
+            handler = getattr(self, 'rpc_%s'%data_method)
+            runKwargs = kwargs['runKwargs']
+            data = handler(selectionName=selectionName, selectedRowidx=selectedRowidx, selectionFilterCb=selectionFilterCb, pars=runKwargs)
+            batch_class = 'PrintRecord'
+        elif recordId:
             data = tblobj.record(pkey=recordId,ignoreMissing=True).output('bag')
-        else:    
+        else:   
             data = self.unfreezeSelection(tblobj, selectionName)
-            print selectionFilterCb
             if selectionFilterCb:
                 filterCb=getattr(self, 'rpc_%s' % selectionFilterCb)
                 data.filter(filterCb)
