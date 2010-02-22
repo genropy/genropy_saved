@@ -96,7 +96,7 @@ dojo.declare("gnr.GnrSrcHandler",null,{
         }else{
             var widgets = dojo.query('[widgetId]', domNode);
             widgets= widgets.map(dijit.byNode);     // Array
-                dojo.forEach(widgets, function(widget){ widget.destroy(); });
+                dojo.forEach(widgets, function(widget){ widget.destroyRecursive(); });
             dojo._destroyElement(domNode);
         }
         this.refreshSourceIndexAndSubscribers();
@@ -130,9 +130,15 @@ dojo.declare("gnr.GnrSrcHandler",null,{
             if(domNode.parentNode){
                 domNode.parentNode.replaceChild(newNode,domNode);
             }
+            
             var widgets = dojo.query('[widgetId]', domNode);
-            widgets= widgets.map(dijit.byNode);     // Array
-            dojo.forEach(widgets, function(widget){ widget.destroy(); });
+            while(widgets.length >0){
+                widgets= widgets.map(dijit.byNode); 
+                widgets[0].destroyRecursive()
+                widgets = dojo.query('[widgetId]', domNode);
+            }
+                // Array
+            //dojo.forEach(widgets, function(widget){ widget.destroyRecursive(); });
             while (domNode.childNodes.length > 0){
                 dojo._destroyElement(domNode.childNodes[0]);
             }

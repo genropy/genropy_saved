@@ -55,9 +55,15 @@ dojo.declare('gnr.GenroClient', null, {
         this.debugopt = kwargs.startArgs.debugopt || null;
         this.pageMode = kwargs.pageMode;
         this.baseUrl = kwargs.baseUrl;
-        this.startTime=new Date();
+        setTimeout(dojo.hitch(this, 'genroInit'), 1);
+        console.log('created genro');
+    },
+    genroInit:function(){
+        console.log('initing genro');
+         this.startTime=new Date();
         this.lastTime=this.startTime;
         this.dialogStack = [];
+        this.sounds={};
         this.compareDict={'==':function(a,b){return (a==b);},
                           '>':function(a,b){return (a>b);},
                           '>=':function(a,b){return (a>=b);},
@@ -67,8 +73,6 @@ dojo.declare('gnr.GenroClient', null, {
                           '%':function(a,b){return (a.indexOf(b)>=0);},
                           '!%':function(a,b){return (a.indexOf(b)<0);}
                           };
-       // this.timeIt('** Init **');
-       // djConfig.usePlainJson=true ;
         window.onbeforeunload = function(e){
             var exit;
             if (genro.checkBeforeUnload){
@@ -79,8 +83,30 @@ dojo.declare('gnr.GenroClient', null, {
        window.onunload = function(e){
             genro.onWindowUnload(e);
        };
+        this.rpc= new gnr.GnrRpcHandler(this);
+        this.src= new gnr.GnrSrcHandler(this);
+        this.wdg= new gnr.GnrWdgHandler(this);
+        this.dev= new gnr.GnrDevHandler(this);
+        this.dlg= new gnr.GnrDlgHandler(this); //da implementare
+        this.dom= new gnr.GnrDomHandler(this);
+        this.vld = new gnr.GnrValidator(this);
+        genropatches.comboBox();
+        genropatches.tree();
+        genropatches.parseNumbers();
+        if (dojoversion=='1.1'){
+            genropatches.borderContainer();
+        }
+        this.clsdict = {domsource:gnr.GnrDomSource, bag:gnr.GnrBag};
+        this.eventPath = '_sys.events';
+        this.prefs = {'recordpath':'tables.$dbtable.record',
+                          'selectionpath':'tables.$dbtable.selection',
+                          'limit':'50'};
 
         dojo.addOnLoad(this,'start');
+        console.log('genro inited');
+    },
+    start:function() {
+        setTimeout(dojo.hitch(this, 'dostart'), 1);
     },
     compare: function(op,a,b){
         return genro.compareDict[op](a,b);
@@ -97,9 +123,11 @@ dojo.declare('gnr.GenroClient', null, {
         console.log('bp '+aux);
     },
     onWindowUnload:function(e){
+        if (genro._data){
         var result;
         genro.saveContextCookie();
         this.rpc.remoteCall('onClosePage');
+    }
     },
     saveContextCookie:function(){
         var clientCtx=genro.getData('_clientCtx');
@@ -115,44 +143,26 @@ dojo.declare('gnr.GenroClient', null, {
         console.warn(msg);
         genro.dlg.message(msg );
     },
-    start: function(){
-        setTimeout(dojo.hitch(this, 'dostart'), 10);
-    },
     dostart: function(){
         /*
         Here starts the application on page loading.
         It calls the remoteCall to receive the page contained in the bag called 'main'.
         */
         //genro.timeIt('** dostart **');
-        genropatches.comboBox();
-        genropatches.tree();
-        genropatches.parseNumbers();
-        if (dojoversion=='1.1'){
-            genropatches.borderContainer();
-        }
+        console.log('starting page');
         this._dataroot = new gnr.GnrBag();
         this._dataroot.setBackRef();
         this._data = new gnr.GnrBag();
+        //this.setData('_dev.widgets',this.catalog);
         this._dataroot.setItem('main', this._data);
-        this.rpc= new gnr.GnrRpcHandler(this);
-        this.src= new gnr.GnrSrcHandler(this);
-        this.wdg= new gnr.GnrWdgHandler(this);
-        this.dev= new gnr.GnrDevHandler(this);
-        this.dlg= new gnr.GnrDlgHandler(this); //da implementare
-        this.dom= new gnr.GnrDomHandler(this);
-        this.vld = new gnr.GnrValidator(this);
-        this.clsdict = {domsource:gnr.GnrDomSource, bag:gnr.GnrBag};
+        
         this.widget = {};
         this._counter= 0;
-        this.eventPath = '_sys.events';
-        this.prefs = {'recordpath':'tables.$dbtable.record',
-                          'selectionpath':'tables.$dbtable.selection',
-                          'limit':'50'};
-
+       
         this.dlg.createStandardMsg(document.body);
         this.dev.srcInspector(document.body);
         this.contextIndex = {};
-        this.sounds={};
+        
         //genro.timeIt('** getting main **');
         var mainBagPage  = this.rpc.remoteCall('main', this.startArgs, 'bag');
         //genro.timeIt('**  main received  **');
@@ -188,7 +198,7 @@ dojo.declare('gnr.GenroClient', null, {
             genro.setData('debugger.pydebug',this.debugopt.indexOf('py')>=0);
             genro.dev.showBottomHelper();
         }
-       // genro.soundManagerStart();
+        console.log('started page');
     },
     playSound:function(name,path,ext){
         if (!(name in genro.sounds)){
@@ -215,6 +225,9 @@ dojo.declare('gnr.GenroClient', null, {
         var path = genro.src.getNode().absDatapath(path);
         genro._data.setItem(path, msg);
         genro._data.setItem(path, null, null, {'doTrigger':false});
+    },
+    test:function(){
+        this.start();
     },
     resizeAll: function(){
         return;

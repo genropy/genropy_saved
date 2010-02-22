@@ -39,7 +39,7 @@ dojo.declare("gnr.GnrWdgHandler",null,{
         this.tagParameters['splitcontainer']={'activeSizing':'checkbox','sizerWidth':'input'};        
         this.catalog=new gnr.GnrBag();
         this.namespace={};
-        this.dummy_menu= new dijit.Menu();
+        //this.dummy_menu= new dijit.Menu();
         var htmlspace=   ['a', 'abbr', 'acronym', 'address', 'area', 'b', 'base', 'bdo', 'big', 'blockquote',
                          'body', 'br', 'button', 'caption', 'cite', 'code', 'col', 'colgroup', 'dd', 'del',
                          'div', 'dfn', 'dl', 'dt', 'em', 'fieldset', 'form', 'frame', 'frameset', 
@@ -130,7 +130,7 @@ dojo.declare("gnr.GnrWdgHandler",null,{
         for (var wdg in gnr.widgets){
             this.widgets[wdg.toLowerCase()] = wdg;
         }
-        this.application.setData('_dev.widgets',this.catalog);
+        
         
     },
     makeDomNode:function(tag,destination,ind){
