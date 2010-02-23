@@ -102,33 +102,36 @@ class Dialogs(BaseComponent):
                                                              flag='^_thermo.%s.flag' % thermoid)
                                                              
 class DialogForm(BaseComponent):
-    def dialog_form(self,parent,title='',formId='',height='',width='',datapath='',
+    def dialog_form(self,parent,title='',formId='',dlgId=None,height='',width='',datapath='',
                 cb_center=None,cb_bottom='*',loadsync=False,confirm_btn=None,
                 allowNoChanges=True,**kwargs):
         if cb_bottom=='*':
             cb_bottom = self.dialog_form_bottom
-        dlgId='%s_dlg'%formId
+        dlgId= dlgId or '%s_dlg'%formId
         dialog = parent.dialog(title=title,nodeId=dlgId,datapath=datapath,**kwargs)
         dialog.dataFormula(".disable_button", "!valid||(!changed && !allowNoChanges)||saving",valid="^.form.valid",
-                            changed="^.form.changed",saving='^.form.saving',allowNoChanges=allowNoChanges)
+                            changed="^.form.changed",saving='^.form.saving',allowNoChanges=allowNoChanges,
+                            formId=formId,_if='formId')
         bc=dialog.borderContainer(height=height,width=width)
         if cb_bottom:
             cb_bottom(bc,region='bottom',_class='dialog_bottom',confirm_btn=confirm_btn)
         if cb_center:
             cb_center(bc,region='center',datapath='.data',_class='pbl_dialog_center', 
                      formId=formId,dlgId=dlgId)
-        
+        #only use without form
         bc.dataController('genro.wdgById(dlgId).show();',dlgId=dlgId,_fired="^.show" )
         bc.dataController('genro.wdgById(dlgId).hide();',dlgId=dlgId,_fired="^.hide" )
+        #only in form mode
         bc.dataController("FIRE .show; FIRE .load;" ,_fired="^.open" )
         bc.dataController("genro.formById(formId).load(loadsync);",
-                         _fired="^.load",_delay=1,formId=formId,loadsync=loadsync)
-
-        bc.dataController('genro.formById("%s").save(always=="always"?true:false);' %formId,
-                          always="^.save" )
-        bc.dataController('genro.formById("%s").saved(); FIRE .hide;' %formId,
-                         _fired="^.saved" )
-        bc.dataController('genro.formById("%s").loaded();' %formId,_fired="^.loaded" )
+                         _fired="^.load",_delay=1,formId=formId,_if='formId',
+                         loadsync=loadsync)
+        bc.dataController('genro.formById(formId).save(always=="always"?true:false);' ,
+                          always="^.save" ,formId=formId,_if='formId')
+        bc.dataController('genro.formById(formId).saved(); FIRE .hide;' ,formId='formId',
+                         _fired="^.saved",_if='formId')
+        bc.dataController('genro.formById(formId).loaded();', formId=formId,
+                        _if='formId',_fired="^.loaded" )
         return bc    
                                           
     def dialog_form_bottom(self,bc,confirm_btn=None,**kwargs):
