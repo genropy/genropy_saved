@@ -9,13 +9,16 @@ import os
 
 class QueryHelper(BaseComponent):
     def query_helper_main(self,pane):
-        pane.dataController(""" console.log(queryrow);
-                                var op = genro._('list.query.where.'+queryrow+'?op');
-                                console.log(op)
+        pane.dataController(""" var row = genro.getDataNode('list.query.where.'+queryrow);
+                                var attrs = row.getAttr();
+                                var op = attrs['op'];
+                                var col_caption = attrs['column_caption'];
+                                var op_caption = attrs['op_caption']
                                 if(op=='in'){
+                                    SET #helper_in_dlg.title = col_caption+' '+op_caption;
                                     SET  #helper_in_dlg.pars.queryrow = queryrow;
                                     FIRE #helper_in_dlg.open;
-                                }else if(op=='tag'){
+                                }else if(op=='tagged'){
                                     FIRE #helper_tag_dlg.open;
                                 }""",
                             queryrow="^list.helper.queryrow")
@@ -24,24 +27,61 @@ class QueryHelper(BaseComponent):
         
     def helper_in_dlg(self,pane):
         def cb_center(parentBC,**kwargs):
-            pane = parentBC.contentPane(**kwargs)  
-            pane.simpleTextArea(value='^.items',height='100%',width='100%')                             
-        dialogBc = self.dialog_form(pane,title='!!Helper IN',loadsync=True,
+            bc = parentBC.borderContainer(**kwargs) 
+            top = bc.contentPane(region='top',margin_bottom='0',padding='2px')
+            top.div('!!Enter a list of values:')
+            
+            center = bc.contentPane(region='center',margin='5px',margin_top=0)
+            center.simpleTextArea(value='^.items',height='99%',width='99%')                       
+        dialogBc = self.dialog_form(pane,title='^.title',loadsync=True,
                                 datapath='list.helper.op_in',centerOn='_pageRoot',
-                                height='250px',width='400px',
-                                formId='helper_in',cb_center=cb_center)
-        dialogBc.dataController("""var x =genro._('list.query.where.'+queryrow);
-                                   SET .data.items=x.replace(/,+/g,'\n')""",
+                                height='300px',width='300px',
+                                formId='helper_in',cb_center=cb_center,cb_bottom=self.helper_in_dlg_bottom)
+        dialogBc.dataController("""var val =genro._('list.query.where.'+queryrow);
+                                   SET .data.items=val.replace(/,+/g,'\\n')""",
                                 nodeId="helper_in_loader",queryrow='=.pars.queryrow')
                                 
-        dialogBc.dataController("""genro.setData('list.query.where.'+queryrow,items.replace(/\s+/g,','));
+        dialogBc.dataController("""genro.setData('list.query.where.'+queryrow,items.replace(/\s+/g,',').replace(/,+$/g,''));
                                 FIRE .saved;""",
-                                items='=.data.items',queryrow='=.pars.queryrow',_if='items',
+                                items='=.data.items',queryrow='=.pars.queryrow',
                                 nodeId="helper_in_saver")
+        dialogBc.dataController("""
+                                  data = data.replace(/\s+/g,',').replace(/,+$/g,'');
+                                  var pars = new gnr.GnrBag({data:new gnr.GnrBag({values:data}),title:title,objtype:objtype});
+                                  SET #userobject_dlg.pars = pars;
+                                  FIRE #userobject_dlg.pkey = GET .data.user_obj.pkey || '*newrecord*';""",
+                                _fired="^.saveAsUserObject",
+                                data='=.data.items',title='!!Save list',
+                                objtype='list')
                                 
+    def helper_in_dlg_bottom(self,bc,confirm_btn=None,**kwargs):
+        std_bottom = self.dialog_form_bottom(bc,'Confirm',**kwargs)
+        std_bottom.button('!!Save',fire='.saveAsUserObject')
+
 
     def helper_tag_dlg(self,pane):
-        pass
+        def cb_center(parentBC,**kwargs):
+            pane = parentBC.contentPane(**kwargs)
+            self.lazyContent('getFormTags',pane,loadcontent='^.loadcontent')                              
+        dialogBc = self.dialog_form(pane,title='!!Helper TAG',loadsync=False,
+                                datapath='list.helper.op_tag',centerOn='_pageRoot',
+                                height='300px',width='510px',allowNoChanges=False,
+                                formId='helper_tag',cb_center=cb_center)
+        dialogBc.dataController("""SET .data = new gnr.GnrBag()""",
+                                nodeId="helper_tag_loader",queryrow='=.pars.queryrow')
+                                
+        dialogBc.dataController("""
+                                var result = [];
+                                var cb = function(node){
+                                    if(node.getValue()){
+                                        result.push(node.label)
+                                    }
+                                }
+                                tagbag.walk(cb);
+                                genro.setData('list.query.where.'+queryrow,result.join(','));
+                                FIRE .saved;""",
+                                tagbag='=.data.tagbag',queryrow='=.pars.queryrow',
+                                nodeId="helper_tag_saver")
 
 class FiltersHandler(BaseComponent):
     def filterBase(self):
@@ -175,9 +215,10 @@ class TagsHandler(BaseComponent):
                 
                 
     def remote_getFormTags(self,pane,pkeys=None,**kwargs):
-        if len(pkeys)==1:
-            tagbag = self.db.table('%s.recordtag_link' %self.package.name).getTagLinksBag(self.maintable,pkeys[0])
-            pane.data('.tagbag',tagbag)
+        if pkeys:
+            if len(pkeys)==1:
+                tagbag = self.db.table('%s.recordtag_link' %self.package.name).getTagLinksBag(self.maintable,pkeys[0])
+                pane.data('.tagbag',tagbag)
         table = self.db.table('%s.recordtag' %self.package.name)
         rows = table.query(where='$tablename =:tbl AND $maintag IS NULL',
                           tbl=self.maintable,order_by='$values desc,$tag').fetch()

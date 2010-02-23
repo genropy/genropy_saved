@@ -1738,6 +1738,9 @@ dojo.declare("gnr.widgets.Grid",gnr.widgets.baseDojo,{
                              this.setCellEditor(cell, gnreditors[cell.field]);
                          }
                          cell.original_field = cell.field;
+                         if (!cell.field){
+                             console.log('line 1747');
+                         }
                          cell.field = cell.field.replace(/\W/g,'_');
                          if (dtype){
                              cell.cellClasses = (cell.cellClasses || '') + ' cell_' + dtype;

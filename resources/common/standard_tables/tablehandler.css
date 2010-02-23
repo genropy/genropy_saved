@@ -193,6 +193,16 @@
 
 /* @group qb */
 
+/* @group helper */
+
+.helperIcon{
+	background: url(../icons/linkto.gif) no-repeat right;
+	height: 14px;
+	width: 14px;
+}
+
+/* @end */
+
 .qb_table {
 	border-spacing: 3px;
 	font-size: x-small;

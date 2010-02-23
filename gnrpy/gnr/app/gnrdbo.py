@@ -83,10 +83,10 @@ class TableBase(object):
         tagtbl.column(fkey,dtype=pkeycolAttrs.get('dtype'),
                       size=pkeycolAttrs.get('size'),group='_').relation(rel,mode='foreignkey',
                                                                         many_group='_',one_group='_')
-        relation_path = '@%s_recordtag_link_%s.@tag_id.description' %(tbl.getAttr()['pkg'],fkey)  
-        print relation_path
-        tbl.aliasColumn('_recordtag',relation_path=relation_path,group=group,name_long=name_long,dtype='TAG')
-        
+        relation_path = '@%s_recordtag_link_%s.@tag_id' %(tbl.getAttr()['pkg'],fkey)  
+        tbl.aliasColumn('_recordtag_desc',relation_path='%s.description' %relation_path,group=group,name_long=name_long)
+        tbl.aliasColumn('_recordtag_tag',relation_path='%s.tag' %relation_path,group=group,name_long='!!Has tags',dtype='TAG')
+
         
 class GnrDboTable(TableBase):
     pass

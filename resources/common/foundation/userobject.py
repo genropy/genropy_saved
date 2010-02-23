@@ -26,11 +26,21 @@ from gnr.core.gnrbag import Bag
 
 
 class UserObject(BaseComponent):
-    py_requires='foundation/recorddialog'
+    py_requires='foundation/recorddialog,foundation/dialogs:DialogForm'
+    def deleteUserObjectDialog(self):
+        page = self.pageSource()
+        def cb_center(parentBc,**kwargs):
+            pane = parentBc.contentPane(**kwargs)
+            pane.div("!!You cannot undo this operation. Are you sure?")
+        dlg = self.dialog_form(page,dlgId='deleteUserObject',title='^.pars.title',datapath='gnr.userobject.delete_dlg',
+                               height='100px',width='300px',cb_center=cb_center)
+        dlg.dataRpc('dummy','deleteUserObject',id='=.pars.pkey',_if='id',_fired='^.save',
+                    _onResult='FIRE .hide;FIRE .deleted;')
+        
     def userObjectDialog(self):
         saveKwargs = dict(changesOnly=False,saveAlways=True)
         self.recordDialog('%s.userobject' %self.package.name,'^.pkey',dlgId='userobject_dlg',
-                            datapath='gnr.userobject',width='28em',height='28ex',
+                            datapath='gnr.userobject.create_dlg',width='28em',height='28ex',
                             title='^.pars.title',
                             formCb=self._uo_form,default_objtype='=.pars.objtype',
                             default_pkg=self.package.name,default_tbl=self.maintable,

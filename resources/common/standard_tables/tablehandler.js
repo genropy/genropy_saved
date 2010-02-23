@@ -25,7 +25,7 @@ dojo.declare("gnr.GnrViewEditor",null,{
     clearCols: function(){
         var startNode = genro.nodeById(this.nodeId);
         var dndBag = startNode.getValue();
-        if(dndBag.len()>0){
+        if(dndBag && dndBag.len()>0){
             dndBag.getNode('#0').dndSource.destroy();
         }
         startNode.clearValue();
@@ -120,6 +120,7 @@ dojo.declare("gnr.GnrQueryBuilder",null,{
         this.dtypes_dict = {'A':'alpha','T':'alpha','C':'alpha',
                             'D':'date','DH':'date','I':'number',
                             'L':'number','N':'number','R':'number','B':'boolean','TAG':'istag'};
+        this.helper_op_dict = {'in':'in','tagged':'tagged'};
         genro.setDataFromRemote('gnr.qb.fieldstree',"relationExplorer", {table:maintable, omit:'_'});
         this.treefield = genro.getData('gnr.qb.fieldstree');
         genro.setDataFromRemote('gnr.qb.fieldsmenu',"relationExplorer", {table:maintable, omit:'_*',quickquery:true});
@@ -286,11 +287,14 @@ dojo.declare("gnr.GnrQueryBuilder",null,{
             }
             input_attrs.position='relative';
             input_attrs.padding_right='10px';
+            input_attrs.connect_onclick = "var op = GET "+relpath+"?op;if(op in genro.querybuilder.helper_op_dict){FIRE list.helper.queryrow='"+relpath.slice(1)+"';}";
+            input_attrs.disabled = "==(_op in _helperOp);";
+            input_attrs._helperOp = this.helper_op_dict;
+            input_attrs._op = '^'+relpath+'?op';
             value_input = valtd._('textbox',input_attrs);
-            var action = 'FIRE list.helper.queryrow = "'+relpath.slice(1)+'";';
-            value_input._('div',{height:'8px',width:'8px',position:'absolute',
-                                 background:'red',top:'2px',right:'2px',z_index:10,
-                                 connect_onclick:action});
+            value_input._('div',{innerHTML:'^'+relpath,hidden:'==!(_op in _helperOp)',
+                                _op:'^'+relpath+'?op',_helperOp:this.helper_op_dict,
+                                 _class:'helperField'});
         }
         tr._('td')._('div',{connect_onclick:dojo.hitch(this,'addDelFunc','add',i+1), _class:'qb_btn qb_add'});
         if (i>0){

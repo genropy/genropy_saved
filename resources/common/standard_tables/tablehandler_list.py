@@ -32,32 +32,10 @@ class TableHandlerForm(BaseComponent):
         self.listToolbar(mainbc.contentPane(region='top',_class='sttbl_list_top'))
         bc = mainbc.borderContainer(region='center',design='sidebar',liveSplitters=False,nodeId='gridbc')
         #left
-        toolboxPane = bc.borderContainer(width='250px',region = 'left',_class='toolbox',splitter=True,hidden=True)
-        if self.tblobj.logicalDeletionField:
-            delprefpane = toolboxPane.contentPane(region='bottom',height='20px',background_color='lightgray', _class='pbl_roundedGroup', margin='3px')
-            delprefpane.checkbox(value='^aux.showDeleted', label='!!Show hidden records')
-            delprefpane.checkbox(value='^list.tableRecordCount', label='!!Show total count',margin_left='5px')
-            delprefpane.dataController("""SET list.excludeLogicalDeleted = showDeleted? 'mark':true;""",showDeleted='^aux.showDeleted')
-        self.toolboxFields(toolboxPane.contentPane(region='top',height='50%',splitter=True))
-        toolboxPane = toolboxPane.tabContainer(region='center', selected='^list.selectedLeft',margin='5px',margin_top='10px')
-        self.toolboxQueries(toolboxPane.borderContainer(title='',tip='!!Queries',iconClass='icnBaseLens'))
-        self.toolboxViews(toolboxPane.borderContainer(title='',tip='!!Views',iconClass='icnBaseView'))
-        self.toolboxActions(toolboxPane.borderContainer(title='',tip='!!Actions',iconClass='icnBaseAction'))
-        toolboxPane.contentPane(title='',tip='!!Mail',iconClass='icnBaseEmail')
-        toolboxPane.contentPane(title='',tip='!!Print',iconClass='icnBasePrinter')
-        
+        self.lstToolbox(bc.borderContainer(width='250px',region = 'left',_class='toolbox',splitter=True,hidden=True))
         #top
         topStackContainer = bc.stackContainer(region='top',height='20%', splitter=True,hidden=True,selected='^list.selectedTop')
-        extendedQueryPane = topStackContainer.contentPane(onEnter='FIRE list.runQuery=true;')
-        self.editorPane('query', extendedQueryPane, datapath='list.query.where')
-        
-        ve_editpane = topStackContainer.contentPane()
-        fb = ve_editpane.dropdownbutton('', hidden=True, nodeId='ve_colEditor', datapath='^vars.editedColumn').tooltipdialog().formbuilder(border_spacing='3px', font_size='0.9em', cols=1)
-        fb.textbox(lbl='Name', value='^.?name') 
-        fb.textbox(lbl='Width', value='^.?width')
-        fb.textbox(lbl='Color', value='^.?color')
-        fb.textbox(lbl='Background', value='^.?background_color')
-        self.editorPane('view', ve_editpane, datapath='list.view.structure')
+        self.lstEditors_main(topStackContainer)
         self.listBottomPane(bc,region='bottom')
         #center
         st = bc.stackContainer(region='center',datapath='list.grid', margin='5px',
@@ -68,7 +46,7 @@ class TableHandlerForm(BaseComponent):
     def listController(self,pane):
         pane.data('list.excludeLogicalDeleted',True)
         pane.data('aux.showDeleted',False)
-        pane.data('list.view.structure',self.lstBase(self.newGridStruct()))
+        pane.data('list.view.structure',self.lstBase(self.newGridStruct()),objtype='view', tbl=self.maintable)
         pane.dataController("""genro.querybuilder = new gnr.GnrQueryBuilder("query_root", "%s", "list.query.where");""" % self.maintable,_init=True)
         pane.dataController("""genro.queryanalyzer = new gnr.GnrQueryAnalyzer("translator_root","list.query.where","list.runQueryDo")""",_onStart=True)
         pane.dataController("""genro.viewEditor = new gnr.GnrViewEditor("view_root", "%s", "maingrid"); genro.viewEditor.colsFromBag();""" % self.maintable,_onStart=True)
@@ -230,9 +208,17 @@ class TableHandlerForm(BaseComponent):
                     action="genro.querybuilder.onChangedQueryOp($2,$1);",
                     _dtype='^.c_0?column_dtype',
                     _class='floatingPopup',display='inline-block',padding_left='2px')
-
-        queryfb.textbox(lbl='!!Value',value='^.c_0',width='12em',lbl_width='5em', _autoselect=True,row_class='^.c_0?css_class',
-                        validate_onAccept='genro.queryanalyzer.checkQueryLineValue(this,value);',_class='st_conditionValue')
+        value_textbox = queryfb.textbox(lbl='!!Value',value='^.c_0',width='12em',lbl_width='5em',
+                        _autoselect=True,
+                        row_class='^.c_0?css_class',position='relative',
+                        disabled='==(_op in genro.querybuilder.helper_op_dict)',_op='^.c_0?op',
+                        validate_onAccept='genro.queryanalyzer.checkQueryLineValue(this,value);',
+                        _class='st_conditionValue')
+                        
+        value_textbox.div('^.c_0',hidden='==!(_op in genro.querybuilder.helper_op_dict)',
+                          connect_onclick="if(GET .c_0?op in genro.querybuilder.helper_op_dict){FIRE list.helper.queryrow='c_0';}",
+                          _op='^.c_0?op',_class='helperField')
+        
         pane.button('!!Run query', fire='list.runQueryButton',
                     iconClass="tb_button db_query",showLabel=False,float='left')
         queryfb.dataFormula('list.currentQueryCountAsString','msg.replace("_rec_",cnt)',
@@ -373,46 +359,8 @@ class TableHandlerForm(BaseComponent):
         pane.dataRpc('list.currentQueryCount','app.getRecordCount', condition=condition,fired='^list.updateCurrentQueryCount',
                       table=self.maintable, where='=list.query.where',excludeLogicalDeleted='=list.excludeLogicalDeleted',
                       **condPars)
-                      
-class ListToolbox(BaseComponent):
-    def toolboxFields(self,pane):
-        treediv=pane.div(_class='treeContainer')
-        treediv.tree(storepath='gnr.qb.fieldstree',persist=False,
-                     inspect='shift', labelAttribute='caption',
-                     _class='fieldsTree',
-                     hideValues=True,
-                     getIconClass='if(node.attr.dtype){return "icnDtype_"+node.attr.dtype}',
-                     dndController="dijit._tree.dndSource",
-                     onDndDrop="function(){this.onDndCancel();}::JS",
-                     checkAcceptance='function(){return false;}::JS',
-                     checkItemAcceptance='function(){return false;}::JS')
-        
-        #left.accordionPane(title='!!Campi collegati')
-         #action="""FIRE list.query.loadQuery=$1.pkey;
-             
-    def toolboxActions(self, container):
-        self.actionsController(container)
-        trpane = container.contentPane(region='center')
-        treepane = trpane.div(_class='treeContainer')
-        treepane.tree(storepath='list.actions.actions_menu', persist=False, inspect='shift',
-                          labelAttribute='caption',hideValues=True,
-                          _class='queryTree')
     
-    def actionsController(self, pane):
-        pane.dataRemote('list.actions.actions_menu', 'list_actions', tbl=self.maintable, cacheTime=10)
-    
-    def toolboxViews(self, container):
-        self.savedViewController(container)
-        trpane = container.contentPane(region='center')
-        treepane = trpane.div(_class='treeContainer')
-        treepane.tree(storepath='list.view.saved_menu',persist=False, inspect='shift',
-                          labelAttribute='caption', connect_ondblclick='FIRE list.runQuery = true;',
-                          selected_pkey='list.view.selectedId', selected_code='list.view.selectedCode',
-                          _class='queryTree',hideValues=True,
-                          _saved='^list.view.saved', _deleted='^list.view.deleted')
-        #btnpane = container.contentPane(region='top', height='30px').toolbar()
-        self.saveViewButton(treepane)
-        self.deleteViewButton(treepane)
+
         #btnpane.button('Add View', iconClass='tb_button db_add', fire='list.view.new',showLabel=False)
         
 

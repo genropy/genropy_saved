@@ -583,6 +583,11 @@ class GnrWhereTranslator(object):
         values_string = self.storeArgs(value.split(','), dtype, sqlArgs)
         return '%s IN :%s' % (column, values_string)
     
+    def op_tagged(self, column, value, dtype, sqlArgs):
+        "Tag In"
+        values_string = self.storeArgs(value.split(','), dtype, sqlArgs)
+        return '%s IN :%s' % (column, values_string)
+    
     def __op_not_in(self, column, value, dtype, sqlArgs):
         "Not in"
         values_string = self.storeArgs(value.split(','), dtype, sqlArgs)
