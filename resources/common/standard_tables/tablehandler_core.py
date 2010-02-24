@@ -153,13 +153,7 @@ class ListViewHandler(BaseComponent):
         pane.dataRpc('list.view.structure', 'new_view', _reason='^list.view.new',
                     _onResult="""
                                 genro.viewEditor.colsFromBag(); 
-                                
                                 SET list.view.selectedId=null;
-                                if($2._reason=='rebuild'){
-                                    console.log($2._reason);
-                                    FIRE list.view.reload;
-                                    console.log('after')
-                                }
                                 """ ,filldefaults=True)
 
     def toolboxViews(self, container):
@@ -225,7 +219,7 @@ class LstUserObjects(BaseComponent):
                 margin_left='5px', margin_right='15px',
                 margin_top='2px', tooltip='!!Delete %s' % restype,
                 visible='^.%s?id' % resname)
-        top.dataController("FIRE list.%s.new='rebuild';"%restype,
+        top.dataController("FIRE list.%s.reload; FIRE list.%s.new;"%(restype,restype),
                             _fired="^#deleteUserObject.deleted",restype=restype,
                             objtype='=#userobject_dlg.pars.objtype',
                             _if='objtype==restype')
@@ -298,19 +292,16 @@ class LstQueryHandler(BaseComponent):
                           selected_pkey='list.query.selectedId', selected_code='list.query.selectedCode',
                           _class='queryTree',
                           hideValues=True,_reload='^list.query.reload')
-        treepane.dataController("console.log('query reload')",_fired="^list.query.reload")
                           
     def savedQueryController(self, pane):
-        pane.dataRemote('list.query.saved_menu', 'list_query', tbl=self.maintable, cacheTime=10)
+        pane.dataRemote('list.query.saved_menu', 'list_query', tbl=self.maintable, cacheTime=3)
+        
         pane.dataRpc('list.query.where', 'load_query', id='^list.query.selectedId', _if='id',
                   _onResult='genro.querybuilder.buildQueryPane();')
         pane.dataRpc('list.query.where', 'new_query', filldefaults=True, _onStart=True, sync=True)
         pane.dataRpc('list.query.where', 'new_query', _reason='^list.query.new',
                         _onResult="""genro.querybuilder.buildQueryPane(); 
                                     SET list.view.selectedId = null;
-                                    if ($2._reason=='rebuild'){
-                                        FIRE list.query.reload;
-                                    }
                                     """,
                         filldefaults=True)
         
