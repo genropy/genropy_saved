@@ -128,7 +128,7 @@ class DialogForm(BaseComponent):
                          loadsync=loadsync)
         bc.dataController('genro.formById(formId).save(always=="always"?true:false);' ,
                           always="^.save" ,formId=formId,_if='formId')
-        bc.dataController('genro.formById(formId).saved(); FIRE .hide;' ,formId='formId',
+        bc.dataController('genro.formById(formId).saved(); FIRE .hide;' ,formId=formId,
                          _fired="^.saved",_if='formId')
         bc.dataController('genro.formById(formId).loaded();', formId=formId,
                         _if='formId',_fired="^.loaded" )
