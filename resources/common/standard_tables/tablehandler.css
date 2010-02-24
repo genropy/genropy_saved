@@ -4,6 +4,9 @@
 .button_placeholder{
     width:25px;
 }
+.listbuttons_placeholder{
+    margin-top:2px;
+}
 .th_toolbar{
     height:26px;
 }
@@ -483,6 +486,10 @@
 
 .tag_button label{
 	font-size: .9em;
+	cursor: pointer;
+}
+.tag_button label:hover{
+	text-decoration: underline;
 }
 
 .tag_button .dijitRadio{
@@ -510,7 +517,7 @@
 	padding-left:0px !important;
 	padding-right:17px !important;
 
-	cursor: pointer !important;
+	cursor: default !important;
 }
 
 .tag_frame{
@@ -545,7 +552,9 @@
 	font-size: .9em;
 	font-weight: bold;
 	padding-right:4px;
-	-moz-border-radius-topleft:8px;
+}
+.tag_left_col{
+    -moz-border-radius-topleft:8px;
 	-moz-border-radius-bottomleft:8px;
 	-webkit-border-top-radius-left:8px;
 	-webkit-border-bottom-radius-left:8px;

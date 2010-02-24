@@ -164,7 +164,7 @@ class TableHandlerForm(BaseComponent):
         buttons = pane.div(_class='button_placeholder',float='left')
         buttons.div(_class='db_treebtn',connect_onclick="SET list.showToolbox = ! (GET list.showToolbox);")
         buttons.div(_class='db_querybtn',connect_onclick="SET list.showExtendedQuery =! (GET list.showExtendedQuery);")
-        if self.tblobj.hasRecordTags(): #or self.enableFilter():
+        if False and self.tblobj.hasRecordTags(): #or self.enableFilter():
             ddbutton = pane.div(_class='listOptMenu',float='left')
             menu = ddbutton.dropDownButton('^list.tbar.stacklabel').menu(action="""
                                                                     SET list.tbar.stacklabel= $1.label;
@@ -184,10 +184,10 @@ class TableHandlerForm(BaseComponent):
         self.listToolbar_query(sc.contentPane(_class='center_pane'))
         tags_pane = sc.contentPane(_class='center_pane')
         filter_pane = sc.contentPane(_class='center_pane')
-        if self.tblobj.hasRecordTags():
-            self.lst_tags_main(tags_pane) #inside extra
-        if self.enableFilter():
-            self.listToolbar_filters(filter_pane) #inside extra
+        #if self.tblobj.hasRecordTags():
+        #    self.lst_tags_main(tags_pane) #inside extra
+        #if self.enableFilter():
+        #    self.listToolbar_filters(filter_pane) #inside extra
         
     def listToolbar_query(self,pane):
         queryfb = pane.formbuilder(cols=5,datapath='list.query.where',_class='query_form',
@@ -219,8 +219,12 @@ class TableHandlerForm(BaseComponent):
                           connect_onclick="if(GET .c_0?op in genro.querybuilder.helper_op_dict){FIRE list.helper.queryrow='c_0';}",
                           _op='^.c_0?op',_class='helperField')
         
-        pane.button('!!Run query', fire='list.runQueryButton',
-                    iconClass="tb_button db_query",showLabel=False,float='left')
+        buttons = pane.div(_class='listbuttons_placeholder',float='right')
+        buttons.button('!!Run query', fire='list.runQueryButton',
+                    iconClass="tb_button db_query",showLabel=False)
+        if self.tblobj.hasRecordTags():
+            buttons.button('!!Assign tag',iconClass='icnTag',showLabel=False,fire_list='#linktag_dlg.open')
+
         queryfb.dataFormula('list.currentQueryCountAsString','msg.replace("_rec_",cnt)',
                             cnt='^list.currentQueryCount',_if='cnt',_else='',
                             msg='!!Current query will return _rec_ items')
@@ -234,6 +238,8 @@ class TableHandlerForm(BaseComponent):
                                      genro.dlg.alert('^list.currentQueryCountAsString',dlgtitle);
                                   """,_fired="^list.showQueryCountDlg",waitmsg='!!Working.....',
                                                  dlgtitle='!!Current query record count')
+        
+            
         if self.enableFilter():
             self.th_filtermenu(queryfb)        
 

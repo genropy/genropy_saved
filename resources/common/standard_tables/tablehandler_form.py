@@ -151,7 +151,9 @@ class TableHandlerForm(BaseComponent):
                         iconClass="tb_button icnBaseUnlocked", showLabel=False,hidden='^status.locked')
                         
         if self.tblobj.hasRecordTags():
-            self.form_tags_main(t_r)
+            ph = t_r.div(_class='button_placeholder',float='right')
+            ph.button('!!Tags', float='right',fire_form='#linktag_dlg.open', 
+                        iconClass="icnTag",showLabel=False)
         
         t_r.div(_class='button_placeholder',float='right').button('!!List view', float='right', action='FIRE form.newidx = -2;', 
                     iconClass="tb_button tb_listview", showLabel=False)

@@ -375,6 +375,7 @@ class Table_recordtag_link(TableBase):
             record['tag_id'] = tagRecord['id']
             self.insert(record)
         return
+        
     def getTagLinksBag(self,table,record_id):
         result = Bag()
         taglinks = self.query(columns='@tag_id.maintag AS maintag, @tag_id.subtag AS subtag, @tag_id.tag AS tag',
@@ -386,6 +387,19 @@ class Table_recordtag_link(TableBase):
                 tagLabel = '%s.true' %link['tag']
             result[tagLabel] = True
         return result
+        
+    def getCountLinkBag(self,table,pkeys):
+        result = Bag()
+        taglinks = self.query(columns='@tag_id.maintag AS maintag, @tag_id.subtag AS subtag, @tag_id.tag AS tag',
+                                where='$%s in :pkeys' %self.tagForeignKey(table),pkeys=pkeys).fetch()
+        for link in taglinks:
+            if link['maintag']:
+                tagLabel = '%s.%s' %(link['maintag'],link['subtag'])
+            else:
+                tagLabel = '%s.true' %link['tag']
+            result[tagLabel] = True
+        return result
+    
     
     def tagForeignKey(self,table):
         tblobj = self.db.table(table)

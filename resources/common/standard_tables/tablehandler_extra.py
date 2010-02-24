@@ -19,7 +19,7 @@ class QueryHelper(BaseComponent):
                                     SET  #helper_in_dlg.pars.queryrow = queryrow;
                                     FIRE #helper_in_dlg.open;
                                 }else if(op=='tagged'){
-                                    FIRE #helper_tag_dlg.open;
+                                    FIRE #helper_tag_dlg.open = 'list';
                                 }""",
                             queryrow="^list.helper.queryrow")
         self.helper_in_dlg(pane)
@@ -143,17 +143,9 @@ class FiltersHandler(BaseComponent):
 
 class TagsHandler(BaseComponent):
     py_requires='foundation/tools:RemoteBuilder'
-    def lst_tags_main(self,pane):
-        self.managetags_dlg(pane)
-        pane.button('Show tags',action='FIRE #recordtag_dlg.open')
-        pane.button('Link tags',action="""FIRE #linktag_dlg.open;""")
-
-        
-    def form_tags_main(self,pane):
+    def tags_main(self,pane):
         self.linktag_dlg(pane)
-        ph = pane.div(_class='button_placeholder',float='right')
-        ph.button('!!Tags', float='right',action='FIRE #linktag_dlg.open;', 
-                  iconClass="tb_button icnBaseAction",showLabel=False)#to change    
+        self.managetags_dlg(pane)
     
     def managetags_dlg(self,pane):
         def cb_bottom(parentBC,**kwargs):
@@ -173,7 +165,7 @@ class TagsHandler(BaseComponent):
                                                     width='300px',dlgId='_th_recortag_dlg',title='!!Record Tag',
                                                     default_tablename=self.maintable,lock_action=False))                                
         dialogBc = self.dialog_form(pane,title='!!Edit tag',loadsync=True,
-                                datapath='gnr.recordtag',centerOn='_pageRoot',
+                                datapath='gnr.recordtag.edit',centerOn='_pageRoot',
                                 height='250px',width='400px',
                                 formId='recordtag',cb_center=cb_center,
                                 cb_bottom=cb_bottom)
@@ -205,31 +197,36 @@ class TagsHandler(BaseComponent):
                 r['tablename'] = self.maintable
                 tblrecordtag.insertOrUpdate(r)
         self.db.commit()
-        
 
     def linktag_dlg(self,pane):
         def cb_center(parentBC,**kwargs):
             pane = parentBC.contentPane(**kwargs)
-            self.lazyContent('getFormTags',pane,pkeys='^.pkeys') 
+            self.lazyContent('getFormTags',pane,pkeys='^.pkeys',reason='=.#parent.reason') 
                                                     
         dialogBc = self.dialog_form(pane,title='!!Link tag',loadsync=False,
-                                datapath='form.linkedtags',allowNoChanges=False , 
+                                datapath='gnr.recordtag.assign',allowNoChanges=False , 
                                 height='300px',width='510px',centerOn='_pageRoot',
-                                formId='linktag',cb_center=cb_center)                                
+                                formId='linktag',cb_center=cb_center,cb_bottom=self.linktag_dlg_bottom)                                
         dialogBc.dataController("""SET .data = new gnr.GnrBag({pkeys:pkeys}); 
                                    FIRE .loaded;""",
                                 nodeId="linktag_loader",
                                 pkeys="==genro.wdgById('maingrid').getSelectedPkeys();")
         dialogBc.dataRpc(".result",'saveRecordTagLinks',nodeId="linktag_saver",
-                        data='=.data',_onResult='FIRE .saved;')
+                        data='=.data',selectionName='=list.selectionName',_onResult='FIRE .saved;',
+                        _if='selectionName',_else='FIRE .hide;')
                         
-    def rpc_saveRecordTagLinks(self,data=None):
+    def rpc_saveRecordTagLinks(self,data=None,selectionName=None):
         pkeys = data['pkeys']
         tagbag = data['tagbag']
         taglink_table = self.db.table('%s.recordtag_link' %self.package.name)
         for pkey in pkeys:
             self._assignTagOnRecord(pkey,tagbag,taglink_table)
         self.db.commit()
+    
+    def linktag_dlg_bottom(self,bc,confirm_btn=None,**kwargs):
+        bottom = self.dialog_form_bottom(bc,confirm_btn=None,**kwargs)
+        bottom.button('!!Edit tags',margin='1px',float='left',fire='#recordtag_dlg.open')
+        bottom.dataController("FIRE .load;",_fired="^#recordtag_dlg.hide")
                         
     def _assignTagOnRecord(self,pkey,tagbag,taglink_table):
         print pkey
@@ -241,11 +238,11 @@ class TagsHandler(BaseComponent):
                 taglink_table.assignTagLink(self.maintable,pkey,tag,value[0])
                 
                 
-    def remote_getFormTags(self,pane,pkeys=None,**kwargs):
+    def remote_getFormTags(self,pane,pkeys=None,reason=None,**kwargs):
         if pkeys:
-            if len(pkeys)==1:
+            if reason=='form':
                 tagbag = self.db.table('%s.recordtag_link' %self.package.name).getTagLinksBag(self.maintable,pkeys[0])
-                pane.data('.tagbag',tagbag)
+                pane.data('.tagbag',tagbag)                     
         table = self.db.table('%s.recordtag' %self.package.name)
         rows = table.query(where='$tablename =:tbl AND $maintag IS NULL',
                           tbl=self.maintable,order_by='$values desc,$tag').fetch()
@@ -275,11 +272,21 @@ class TagsHandler(BaseComponent):
                 colorRow = 'bgcolor_brightest'
             tag_row = tag_table.div(style='display:table-row',height='5px') #no dimensioni riga solo padding dimensioni ai contenuti delle celle
             tag_row = tag_table.div(style='display:table-row',_class='tag_line tag_%s' %(oddOrEven),datapath='.%s' %tag) #no dimensioni riga solo padding dimensioni ai contenuti delle celle
-            label_col = tag_row.div(description,style='display:table-cell',_class='tag_label_col bgcolor_darkest color_brightest')
-            tag_row.div(style='display:table-cell',_class=colorRow).div(_class='dijitButtonNode tag_button tag_false').radiobutton(value='^.false',label='!!No',group=tag)
+            if reason=='form':
+                label_col = tag_row.div(description,style='display:table-cell',_class='tag_left_col tag_label_col bgcolor_darkest color_brightest')
+            else:
+                cb_col = tag_row.div(style='display:table-cell',_class='tag_left_col bgcolor_darkest color_brightest',padding_left='10px')
+                cb_col.checkbox(value='^.?enabled',validate_onAccept="""if(!value){
+                                                                            var line = GET #; 
+                                                                            line.walk(function(node){if(node.getValue()){node.setValue(null);}});
+                                                                        }else if(userChange){
+                                                                            SET .?enabled = false;
+                                                                        }""")
+                label_col = tag_row.div(description,style='display:table-cell',_class='bgcolor_darkest color_brightest tag_label_col',padding_left='10px')
+            tag_row.div(style='display:table-cell',_class=colorRow).div(_class='dijitButtonNode tag_button tag_false').radiobutton(value='^.false',label='!!No',group=tag,connect_onclick='SET .?enabled= true;')
             value_col = tag_row.div(style='display:table-cell',_class='tag_value_col %s' %colorRow)
             for btn in buttons:
-                value_col.div(_class=btn['_class'],width=max_width).radiobutton(value=btn['value'],label=btn['label'],group=tag)
+                value_col.div(_class=btn['_class'],width=max_width).radiobutton(value=btn['value'],label=btn['label'],group=tag,connect_onclick='SET .?enabled= true;')
          
 class StatsHandler(BaseComponent):
     def stats_main(self,parent,**kwargs):
