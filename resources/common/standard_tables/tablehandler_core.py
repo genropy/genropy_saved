@@ -225,7 +225,10 @@ class LstUserObjects(BaseComponent):
                 margin_left='5px', margin_right='15px',
                 margin_top='2px', tooltip='!!Delete %s' % restype,
                 visible='^.%s?id' % resname)
-        top.dataController("FIRE list.%s.new='rebuild';"%restype,_fired="^#deleteUserObject.deleted")
+        top.dataController("FIRE list.%s.new='rebuild';"%restype,
+                            _fired="^#deleteUserObject.deleted",restype=restype,
+                            objtype='=#userobject_dlg.pars.objtype',
+                            _if='objtype==restype')
         top.div(content='^.%s?code' % resname, _class='st_editor_title')
         pane.div(_class='st_editor_body st_editor_%s' % restype, nodeId='%s_root' % restype, datapath=datapath)
 
@@ -295,6 +298,7 @@ class LstQueryHandler(BaseComponent):
                           selected_pkey='list.query.selectedId', selected_code='list.query.selectedCode',
                           _class='queryTree',
                           hideValues=True,_reload='^list.query.reload')
+        treepane.dataController("console.log('query reload')",_fired="^list.query.reload")
                           
     def savedQueryController(self, pane):
         pane.dataRemote('list.query.saved_menu', 'list_query', tbl=self.maintable, cacheTime=10)
@@ -303,7 +307,6 @@ class LstQueryHandler(BaseComponent):
         pane.dataRpc('list.query.where', 'new_query', filldefaults=True, _onStart=True, sync=True)
         pane.dataRpc('list.query.where', 'new_query', _reason='^list.query.new',
                         _onResult="""genro.querybuilder.buildQueryPane(); 
-                        
                                     SET list.view.selectedId = null;
                                     if ($2._reason=='rebuild'){
                                         FIRE list.query.reload;

@@ -28,15 +28,27 @@ class QueryHelper(BaseComponent):
     def helper_in_dlg(self,pane):
         def cb_center(parentBC,**kwargs):
             bc = parentBC.borderContainer(**kwargs) 
-            top = bc.contentPane(region='top',margin_bottom='0',padding='2px')
-            top.div('!!Enter a list of values:')
-            
+            top = bc.contentPane(region='top',margin_bottom='0',padding='2px',
+                                datapath='.#parent',height='25px',overflow='hidden')
+            top = top.toolbar(height='24px')
+            top.div('!!Enter a list of values:',float='left',margin='3px')
+            menubag = Bag()
+            menubag.setItem('save',None,label='!!Save',action='FIRE .saveAsUserObject;')
+            menubag.setItem('save_as',None,label='!!Save as',action='FIRE .saveAsUserObject = "new";')
+            menubag.setItem('delete',None,label='!!Delete ',action='FIRE .deleteCurrSaved;')
+            menubag.setItem('-',None)
+            top.data('.menu',menubag)
+            top.dataRemote('.menu.load','getObjListIn',cacheTime=10,
+                            sync=True,label='!!Load',
+                            action='FIRE .loadUserObject = $1.pkey;')
+            ddb = top.dropDownButton('!!Edit',float='right')            
+            ddb.menu(storepath='.menu',_class='smallmenu')
             center = bc.contentPane(region='center',margin='5px',margin_top=0)
             center.simpleTextArea(value='^.items',height='99%',width='99%')                       
         dialogBc = self.dialog_form(pane,title='^.title',loadsync=True,
                                 datapath='list.helper.op_in',centerOn='_pageRoot',
                                 height='300px',width='300px',
-                                formId='helper_in',cb_center=cb_center,cb_bottom=self.helper_in_dlg_bottom)
+                                formId='helper_in',cb_center=cb_center)
         dialogBc.dataController("""var val =genro._('list.query.where.'+queryrow);
                                    SET .data.items=val.replace(/,+/g,'\\n')""",
                                 nodeId="helper_in_loader",queryrow='=.pars.queryrow')
@@ -49,15 +61,24 @@ class QueryHelper(BaseComponent):
                                   data = data.replace(/\s+/g,',').replace(/,+$/g,'');
                                   var pars = new gnr.GnrBag({data:new gnr.GnrBag({values:data}),title:title,objtype:objtype});
                                   SET #userobject_dlg.pars = pars;
-                                  FIRE #userobject_dlg.pkey = GET .data.user_obj.pkey || '*newrecord*';""",
-                                _fired="^.saveAsUserObject",
+                                  if(command=='new'){
+                                       current = "*newrecord*"
+                                  }
+                                  FIRE #userobject_dlg.pkey = current || '*newrecord*';""",
+                                command="^.saveAsUserObject",current='=.currentUserObject',
                                 data='=.data.items',title='!!Save list',
-                                objtype='list')
+                                objtype='list_in')
+        dialogBc.dataRpc('dummy','loadUserObject',
+                        tbl=self.maintable,id='^.loadUserObject',_if='id',
+                        _onResult='SET .currentUserObject = $2.id; SET .data.items = $1.getValue().getItem("values");')
+        dialogBc.dataController("SET .currentUserObject=pkey",_fired="^#userobject_dlg.saved",
+                                    pkey='=#userobject_dlg.savedPkey',
+                                    objtype='=#userobject_dlg.pars.objtype',
+                                    _if='objtype=="list_in"')
                                 
-    def helper_in_dlg_bottom(self,bc,confirm_btn=None,**kwargs):
-        std_bottom = self.dialog_form_bottom(bc,'Confirm',**kwargs)
-        std_bottom.button('!!Save',fire='.saveAsUserObject')
-
+    def rpc_getObjListIn(self,**kwargs):
+        result = self.rpc_listUserObject(objtype='list_in', tbl=self.maintable,**kwargs)
+        return result
 
     def helper_tag_dlg(self,pane):
         def cb_center(parentBC,**kwargs):
