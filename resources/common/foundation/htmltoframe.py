@@ -53,6 +53,7 @@ class RecordToHtmlFrame(BaseComponent):
         #top.checkbox("Don't cache", value='%s.noCache' % controllerPath,)
         
         top.dataController("""
+                             var runKwargs=runKwargs || {};
                              var docName = docName || record;
                              var docName=docName.replace('.', '');
                              var downloadAs =docName +'.pdf';
@@ -64,6 +65,7 @@ class RecordToHtmlFrame(BaseComponent):
                                                'rebuild':rebuild,
                                                runKwargs:runKwargs}
                              objectUpdate(parameters,moreargs);
+                             console.log(parameters);
                              genro.rpcDownload("callTableScript",parameters);
                              """ % (table,respath),
                     _fired='^%s.downloadPdf' % controllerPath,
