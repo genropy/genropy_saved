@@ -44,7 +44,7 @@ class QueryHelper(BaseComponent):
             ddb = top.dropDownButton('!!Command',float='right')            
             ddb.menu(storepath='.menu',_class='smallmenu')
             center = bc.contentPane(region='center',margin='5px',margin_top=0)
-            center.simpleTextArea(value='^.items',height='99%',width='99%')                       
+            center.simpleTextArea(value='^.items',height='90%',width='95%',margin='5px')                       
         dialogBc = self.dialog_form(pane,title='^.title',loadsync=True,
                                 datapath='list.helper.op_in',centerOn='_pageRoot',
                                 height='300px',width='300px',
@@ -75,6 +75,12 @@ class QueryHelper(BaseComponent):
                                     pkey='=#userobject_dlg.savedPkey',
                                     objtype='=#userobject_dlg.pars.objtype',
                                     _if='objtype=="list_in"')
+        dialogBc.dataController("""SET #deleteUserObject.pars = new gnr.GnrBag({title:title,pkey:current,objtype:"list_in"}); 
+                                   FIRE #deleteUserObject.show;""",_fired="^.deleteCurrSaved",
+                                   title='!!Delete list of values',current='=.currentUserObject',_if='current')
+        dialogBc.dataController("console.log('xxx');SET .data.items = null; SET .currentUserObject=null;",
+                                _fired="^#deleteUserObject.deleted",objtype='=#deleteUserObject.pars.objtype',
+                                _if='objtype=="list_in"')
                                 
     def rpc_getObjListIn(self,**kwargs):
         result = self.rpc_listUserObject(objtype='list_in', tbl=self.maintable,**kwargs)

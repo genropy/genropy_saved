@@ -33,7 +33,7 @@ class UserObject(BaseComponent):
             pane = parentBc.contentPane(**kwargs)
             pane.div("!!You cannot undo this operation. Are you sure?")
         dlg = self.dialog_form(page,dlgId='deleteUserObject',title='^.pars.title',datapath='gnr.userobject.delete_dlg',
-                               height='100px',width='300px',cb_center=cb_center)
+                               height='100px',width='300px',cb_center=cb_center,centerOn='_pageRoot')
         dlg.dataRpc('dummy','deleteUserObject',id='=.pars.pkey',_if='id',_fired='^.save',
                     _onResult='FIRE .hide;FIRE .deleted;')
         
@@ -41,7 +41,7 @@ class UserObject(BaseComponent):
         saveKwargs = dict(changesOnly=False,saveAlways=True)
         self.recordDialog('%s.userobject' %self.package.name,'^.pkey',dlgId='userobject_dlg',
                             datapath='gnr.userobject.create_dlg',width='28em',height='28ex',
-                            title='^.pars.title',
+                            title='^.pars.title',centerOn='_pageRoot',
                             formCb=self._uo_form,default_objtype='=.pars.objtype',
                             default_pkg=self.package.name,default_tbl=self.maintable,
                             default_userid=self.user,saveKwargs=saveKwargs,
