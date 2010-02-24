@@ -41,7 +41,7 @@ class QueryHelper(BaseComponent):
             top.dataRemote('.menu.load','getObjListIn',cacheTime=10,
                             sync=True,label='!!Load',
                             action='FIRE .loadUserObject = $1.pkey;')
-            ddb = top.dropDownButton('!!Edit',float='right')            
+            ddb = top.dropDownButton('!!Command',float='right')            
             ddb.menu(storepath='.menu',_class='smallmenu')
             center = bc.contentPane(region='center',margin='5px',margin_top=0)
             center.simpleTextArea(value='^.items',height='99%',width='99%')                       
