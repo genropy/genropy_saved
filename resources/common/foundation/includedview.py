@@ -131,7 +131,7 @@ class IncludedView(BaseComponent):
             gridtop = gridtop.toolbar(_class='pbl_viewBoxToolbar')
         gridtop_left= gridtop.div(float='left')
         if callable(label):
-            label(gridtop)
+            label(gridtop_left)
         else:
             gridtop_left.div(label,margin_top='2px',float='left')
         gridtop_right = gridtop.div(float='right')
