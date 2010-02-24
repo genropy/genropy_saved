@@ -219,6 +219,8 @@ class TagsHandler(BaseComponent):
         pkeys = data['pkeys']
         tagbag = data['tagbag']
         taglink_table = self.db.table('%s.recordtag_link' %self.package.name)
+        if not pkeys:
+            pkeys = self.unfreezeSelection(self.tblobj, selectionName).output('pkeylist')
         for pkey in pkeys:
             self._assignTagOnRecord(pkey,tagbag,taglink_table)
         self.db.commit()
