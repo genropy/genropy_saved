@@ -74,22 +74,29 @@ class Public(BaseComponent):
         
     def pbl_topBarLeft(self,pane):
         self.pbl_workdateManager(pane)
+        
+    def pbl_canChangeWorkdate(self):
+        return
 
     def pbl_workdateManager(self, pane):
+        connect_onclick = None
+        if self.application.checkResourcePermission(self.pbl_canChangeWorkdate(), self.userTags):
+            connect_onclick='FIRE #changeWorkdate_dlg.open;'
         pane.div('^gnr.workdate', float='left', format='short',
                 _class='pbl_workdate buttonIcon',
-                 connect_onclick='FIRE #changeWorkdate_dlg.open;')
-        def cb_center(parentBC,**kwargs):
-            pane = parentBC.contentPane(**kwargs)
-            fb = pane.formbuilder(cols=1, border_spacing='5px', margin='25px',margin_top='20px')
-            fb.dateTextBox(value='^.current_date',width='8em',lbl='!!Date')
+                 connect_onclick=connect_onclick)
+        if connect_onclick:
+            def cb_center(parentBC,**kwargs):
+                pane = parentBC.contentPane(**kwargs)
+                fb = pane.formbuilder(cols=1, border_spacing='5px', margin='25px',margin_top='20px')
+                fb.dateTextBox(value='^.current_date',width='8em',lbl='!!Date')
             
-        dlg = self.dialog_form(pane,title='!!Set workdate',datapath='changeWorkdate',
-                             formId='changeWorkdate', height='100px',width='200px',
-                             cb_center=cb_center, loadsync=True)
-        dlg.dataController("SET .data.current_date=date;",date="=gnr.workdate",nodeId='changeWorkdate_loader')
-        dlg.dataRpc('gnr.workdate','pbl_changeServerWorkdate', newdate='=.data.current_date', 
-                    _if='newdate', nodeId='changeWorkdate_saver',_onResult='FIRE .saved;')
+            dlg = self.dialog_form(pane,title='!!Set workdate',datapath='changeWorkdate',
+                                 formId='changeWorkdate', height='100px',width='200px',
+                                 cb_center=cb_center, loadsync=True)
+            dlg.dataController("SET .data.current_date=date;",date="=gnr.workdate",nodeId='changeWorkdate_loader')
+            dlg.dataRpc('gnr.workdate','pbl_changeServerWorkdate', newdate='=.data.current_date', 
+                        _if='newdate', nodeId='changeWorkdate_saver',_onResult='FIRE .saved;')
                             
     def rpc_pbl_changeServerWorkdate(self, newdate=None):
         if newdate:
