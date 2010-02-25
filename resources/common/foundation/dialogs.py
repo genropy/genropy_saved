@@ -122,7 +122,17 @@ class DialogForm(BaseComponent):
         bc.dataController('genro.wdgById(dlgId).show();',dlgId=dlgId,_fired="^.show" )
         bc.dataController('genro.wdgById(dlgId).hide();',dlgId=dlgId,_fired="^.hide" )
         #only in form mode
-        bc.dataController("SET .reason=openReason; FIRE .show; FIRE .load;" ,openReason="^.open" )
+        bc.dataController("""if(typeof(opener)=='object'){
+                                if ( opener.dialogPage){
+                                    SET .page = objectPop(opener,'dialogPage');
+                                }
+                                opener = new gnr.GnrBag(opener);
+                             }
+                             SET .opener = opener;
+                             FIRE .show; 
+                             
+                             FIRE .load;
+                             """ ,opener="^.open")
         bc.dataController("genro.formById(formId).load(loadsync);",
                          _fired="^.load",_delay=1,formId=formId,_if='formId',
                          loadsync=loadsync)

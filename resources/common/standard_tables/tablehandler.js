@@ -181,8 +181,9 @@ dojo.declare("gnr.GnrQueryBuilder",null,{
             var default_op = genro._('gnr.qb.sqlop.op_spec.'+this.dtypes_dict[column_attr.dtype]+'.#0');
             contextNode.setRelativeData(relpath+'?op',default_op);
             contextNode.setRelativeData(relpath+'?op_caption',
-            genro.getDataNode('gnr.qb.sqlop.op.'+default_op).attr.caption);
+                                        genro.getDataNode('gnr.qb.sqlop.op.'+default_op).attr.caption);
         }
+        contextNode.setRelativeData(relpath,'');
     },
     onChangedQueryOp: function(contextNode,op_attr,label){
         var label = label || 'c_0';

@@ -223,7 +223,8 @@ class TableHandlerForm(BaseComponent):
         buttons.button('!!Run query', fire='list.runQueryButton',
                     iconClass="tb_button db_query",showLabel=False)
         if self.tblobj.hasRecordTags():
-            buttons.button('!!Assign tag',iconClass='icnTag',showLabel=False,fire_list='#linktag_dlg.open')
+            buttons.button('!!Tag',iconClass='icnTag',showLabel=False,
+                          action='if(GET list.selectionName){FIRE #linktag_dlg.open={call_mode:"list"};}else{FIRE #recordtag_dlg.open;}')
 
         queryfb.dataFormula('list.currentQueryCountAsString','msg.replace("_rec_",cnt)',
                             cnt='^list.currentQueryCount',_if='cnt',_else='',

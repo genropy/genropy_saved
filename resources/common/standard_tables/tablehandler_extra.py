@@ -16,10 +16,9 @@ class QueryHelper(BaseComponent):
                                 var op_caption = attrs['op_caption']
                                 if(op=='in'){
                                     SET #helper_in_dlg.title = col_caption+' '+op_caption;
-                                    SET  #helper_in_dlg.pars.queryrow = queryrow;
-                                    FIRE #helper_in_dlg.open;
+                                    FIRE #helper_in_dlg.open = {row:queryrow};
                                 }else if(op=='tagged'){
-                                    FIRE #helper_tag_dlg.open = 'list';
+                                    FIRE #helper_tag_dlg.open = {row:queryrow,call_mode:'helper'};
                                 }""",
                             queryrow="^list.helper.queryrow")
         self.helper_in_dlg(pane)
@@ -54,11 +53,11 @@ class QueryHelper(BaseComponent):
                                        SET .data.items=val.replace(/,+/g,'\\n');
                                    }
                                    """,
-                                nodeId="helper_in_loader",queryrow='=.pars.queryrow')
+                                nodeId="helper_in_loader",queryrow='=.opener')
                                 
         dialogBc.dataController("""genro.setData('list.query.where.'+queryrow,items.replace(/\s+/g,',').replace(/,+$/g,''));
                                 FIRE .saved;""",
-                                items='=.data.items',queryrow='=.pars.queryrow',
+                                items='=.data.items',queryrow='=.opener.row',
                                 nodeId="helper_in_saver")
         dialogBc.dataController("""
                                   data = data.replace(/\s+/g,',').replace(/,+$/g,'');
@@ -92,25 +91,37 @@ class QueryHelper(BaseComponent):
     def helper_tag_dlg(self,pane):
         def cb_center(parentBC,**kwargs):
             pane = parentBC.contentPane(**kwargs)
-            self.lazyContent('getFormTags',pane,loadcontent='^.loadcontent')                              
+            self.lazyContent('getFormTags_query',pane,
+                              values='^.loadcontent',call_mode='=.#parent.opener.call_mode')                              
         dialogBc = self.dialog_form(pane,title='!!Helper TAG',loadsync=False,
                                 datapath='list.helper.op_tag',centerOn='_pageRoot',
                                 height='300px',width='510px',allowNoChanges=False,
                                 formId='helper_tag',cb_center=cb_center)
-        dialogBc.dataController("""SET .data = new gnr.GnrBag()""",
-                                nodeId="helper_tag_loader",queryrow='=.pars.queryrow')
+        dialogBc.dataController("""
+                                   SET .data = null;
+                                   FIRE .loadcontent =genro._('list.query.where.'+queryrow);
+                                   FIRE .loaded;
+                                """,
+                                nodeId="helper_tag_loader",queryrow='=.opener.row')
                                 
         dialogBc.dataController("""
-                                var result = [];
+                                var tagged = [];
+                                var tagged_not = [];
                                 var cb = function(node){
-                                    if(node.getValue()){
-                                        result.push(node.label)
+                                    var selectedTag = node.attr['selectedTag'];
+                                    if (selectedTag){
+                                        if (selectedTag[0]=='!'){
+                                            tagged_not.push(selectedTag.slice(1));
+                                        }else{
+                                            tagged.push(selectedTag);
+                                        }
                                     }
                                 }
-                                tagbag.walk(cb);
-                                genro.setData('list.query.where.'+queryrow,result.join(','));
+                                tagbag.forEach(cb);
+                                var result = tagged.join(',')+'!'+tagged_not.join(',');
+                                genro.setData('list.query.where.'+queryrow,result);
                                 FIRE .saved;""",
-                                tagbag='=.data.tagbag',queryrow='=.pars.queryrow',
+                                tagbag='=.data.tagbag',queryrow='=.reason',
                                 nodeId="helper_tag_saver")
 
 class FiltersHandler(BaseComponent):
@@ -208,7 +219,7 @@ class TagsHandler(BaseComponent):
         def cb_center(parentBC,**kwargs):
             pane = parentBC.contentPane(**kwargs)
             self.lazyContent('getFormTags',pane,selectedRowIdx='=.#parent.selectedRowIdx',
-                            pkey=pkey,reason='=.#parent.reason',
+                            pkey=pkey,call_mode='=.#parent.opener.call_mode',
                             selectionName=selectionName,_fired='^.#parent.loadContent') 
                                                     
         dialogBc = self.dialog_form(pane,title='!!Link tag',loadsync=False,
@@ -217,10 +228,11 @@ class TagsHandler(BaseComponent):
                                 formId='linktag',cb_center=cb_center,cb_bottom=self.linktag_dlg_bottom)                                
         dialogBc.dataController("""SET .data = null; 
                                    SET .selectedRowIdx = selectedRowIdx;
+                                   console.log('before loadcontent');
                                    FIRE .loadContent;
                                    FIRE .loaded;""",
                                 nodeId="linktag_loader",selectedRowIdx=selectedRowIdx)
-        dialogBc.dataRpc(".result",'saveRecordTagLinks',nodeId="linktag_saver",reason='=.reason',
+        dialogBc.dataRpc(".result",'saveRecordTagLinks',nodeId="linktag_saver",call_mode='=.opener.call_mode',
                         selectedRowIdx=selectedRowIdx,data='=.data',selectionName=selectionName,pkey=pkey,
                         _onResult='FIRE .saved;',_if='selectionName',_else='FIRE .hide;')
 
@@ -229,11 +241,11 @@ class TagsHandler(BaseComponent):
         bottom.button('!!Edit tags',margin='1px',float='left',fire='#recordtag_dlg.open')
         bottom.dataController("FIRE .load;",_fired="^#recordtag_dlg.hide")
                            
-    def rpc_saveRecordTagLinks(self,data=None,reason=None,selectedRowIdx=None,pkey=None,selectionName=None):
+    def rpc_saveRecordTagLinks(self,data=None,call_mode=None,selectedRowIdx=None,pkey=None,selectionName=None):
         tagbag = data['tagbag']
         taglink_table = self.db.table('%s.recordtag_link' %self.package.name)
         pkeys = [pkey]
-        if reason=='list':
+        if call_mode=='list':
             pkeys = self.getUserSelection(table=self.tblobj,selectionName=selectionName,
                                         selectedRowidx=selectedRowIdx).output('pkeylist')
         for pkey in pkeys:
@@ -247,22 +259,26 @@ class TagsHandler(BaseComponent):
             if value:
                 taglink_table.assignTagLink(self.maintable,pkey,tag,value[0])
                 
-                
-    def remote_getFormTags(self,pane,pkey=None,selectedRowIdx=None,reason=None,selectionName=None,**kwargs):
+    def remote_getFormTags_query(self,pane,values=None,**kwargs):
+        self.remote_getFormTags(pane,values=None,**kwargs)
+
+    
+    def remote_getFormTags(self,pane,pkey=None,selectedRowIdx=None,call_mode=None,selectionName=None,values=None,**kwargs):
+        print call_mode
         taglinktbl = self.db.table('%s.recordtag_link' %self.package.name)
         def lblGetter (fulltag,label):
             return label
-        if reason=='form':
+        if call_mode=='form':
             tagbag = taglinktbl.getTagLinksBag(self.maintable,pkey)
             pane.data('.tagbag',tagbag)
-        elif reason=='list':
+        elif call_mode=='list' and selectionName:
             pkeys = self.getUserSelection(table=self.tblobj,selectionName=selectionName,
                                            selectedRowidx=selectedRowIdx).output('pkeylist')
             countDict = taglinktbl.getCountLinkDict(self.maintable,pkeys)  
             def lblGetter (fulltag,label):
                 if countDict.get(fulltag):
                     return  "%s(%i)" %(label,countDict.get(fulltag)['howmany'])
-                return label
+                return label            
         recordtagtbl = self.db.table('%s.recordtag' %self.package.name)
         rows = recordtagtbl.query(where='$tablename =:tbl AND $maintag IS NULL',
                           tbl=self.maintable,order_by='$values desc,$tag').fetch()
@@ -277,15 +293,16 @@ class TagsHandler(BaseComponent):
             if values:
                 for val in values.split(','):
                     subtag,label = splitAndStrip('%s:%s'%(val,val),':',n=2,fixed=2)
-                    label=lblGetter('%s_%s' % (tag,subtag),label)
-                    buttons.append(dict(value='^.%s' %subtag,_class='dijitButtonNode tag_button tag_value',label=label))
+                    fulltag = '%s_%s' % (tag,subtag)
+                    label=lblGetter(fulltag,label)
+                    buttons.append(dict(value='^.%s' %subtag,_class='dijitButtonNode tag_button tag_value',label=label,fulltag=fulltag))
                 for b in buttons:
                     if len(b['label'])>max_width:
                         max_width = len(b['label'])
                 max_width = '%fpx' %((max_width*5)+20)
             else:
                 label=lblGetter(tag,'!!Yes')
-                buttons.append(dict(value='^.true',_class='dijitButtonNode tag_button tag_true',label=label))
+                buttons.append(dict(value='^.true',_class='dijitButtonNode tag_button tag_true',label=label,fulltag=tag))
             oddOrEven = 'even'
             colorRow = 'bgcolor_bright'
             if j%2:
@@ -293,22 +310,23 @@ class TagsHandler(BaseComponent):
                 colorRow = 'bgcolor_brightest'
             tag_row = tag_table.div(style='display:table-row',height='5px') #no dimensioni riga solo padding dimensioni ai contenuti delle celle
             tag_row = tag_table.div(style='display:table-row',_class='tag_line tag_%s' %(oddOrEven),datapath='.%s' %tag) #no dimensioni riga solo padding dimensioni ai contenuti delle celle
-            if reason=='form':
+            if call_mode=='form':
                 label_col = tag_row.div(description,style='display:table-cell',_class='tag_left_col tag_label_col bgcolor_darkest color_brightest')
             else:
                 cb_col = tag_row.div(style='display:table-cell',_class='tag_left_col bgcolor_darkest color_brightest',padding_left='10px')
                 cb_col.checkbox(value='^.?enabled',validate_onAccept="""if(!value){
                                                                             var line = GET #; 
                                                                             line.walk(function(node){if(node.getValue()){node.setValue(null);}});
+                                                                            SET .?selectedTag = null;
                                                                         }else if(userChange){
                                                                             SET .?enabled = false;
                                                                         }""")
                 label_col = tag_row.div(description,style='display:table-cell',_class='bgcolor_darkest color_brightest tag_label_col',padding_left='10px')
-            tag_row.div(style='display:table-cell',_class=colorRow).div(_class='dijitButtonNode tag_button tag_false').radiobutton(value='^.false',label='!!No',group=tag,connect_onclick='SET .?enabled= true;')
+            tag_row.div(style='display:table-cell',_class=colorRow).div(_class='dijitButtonNode tag_button tag_false').radiobutton(value='^.false',label='!!No',group=tag,connect_onclick='SET .?enabled= true; SET .?selectedTag="!%s";' %tag)
             value_col = tag_row.div(style='display:table-cell',_class='tag_value_col %s' %colorRow)
             for btn in buttons:
-                value_col.div(_class=btn['_class'],width=max_width).radiobutton(value=btn['value'],label=btn['label'],group=tag,connect_onclick='SET .?enabled= true;')
-         
+                value_col.div(_class=btn['_class'],width=max_width).radiobutton(value=btn['value'],label=btn['label'],group=tag,connect_onclick='SET .?enabled= true; SET .?selectedTag="%s";' %btn['fulltag'])
+
 class StatsHandler(BaseComponent):
     def stats_main(self,parent,**kwargs):
         """docstring for stats_mainpane"""

@@ -152,7 +152,7 @@ class TableHandlerForm(BaseComponent):
                         
         if self.tblobj.hasRecordTags():
             ph = t_r.div(_class='button_placeholder',float='right')
-            ph.button('!!Tags', float='right',fire_form='#linktag_dlg.open', 
+            ph.button('!!Tags', float='right',action='FIRE #linktag_dlg.open={call_mode:"form"};', 
                         iconClass="icnTag",showLabel=False)
         
         t_r.div(_class='button_placeholder',float='right').button('!!List view', float='right', action='FIRE form.newidx = -2;', 
