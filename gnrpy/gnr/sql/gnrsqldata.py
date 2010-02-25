@@ -1118,9 +1118,15 @@ class SqlSelection(object):
         return self.keyDict[k]
 
     def sort(self, *args):
+        args=list(args)
         if len(args)==1 and (',' in args[0]):
             args=gnrstring.splitAndStrip(args[0],',')
         if args != self.sortedBy:
+            if self.explodingColumns:
+                newargs=[]
+                for k,arg in enumerate(args):
+                    if arg.split(':')[0] in self.explodingColumns:
+                        args[k] = arg.replace('*','')
             self.sortedBy=args
             gnrlist.sortByItem(self.data, *args)
             self.isChangedSelection = True #prova
