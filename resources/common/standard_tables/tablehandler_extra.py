@@ -50,7 +50,10 @@ class QueryHelper(BaseComponent):
                                 height='300px',width='300px',
                                 formId='helper_in',cb_center=cb_center)
         dialogBc.dataController("""var val =genro._('list.query.where.'+queryrow);
-                                   SET .data.items=val.replace(/,+/g,'\\n')""",
+                                   if(val){
+                                       SET .data.items=val.replace(/,+/g,'\\n');
+                                   }
+                                   """,
                                 nodeId="helper_in_loader",queryrow='=.pars.queryrow')
                                 
         dialogBc.dataController("""genro.setData('list.query.where.'+queryrow,items.replace(/\s+/g,',').replace(/,+$/g,''));
@@ -78,7 +81,7 @@ class QueryHelper(BaseComponent):
         dialogBc.dataController("""SET #deleteUserObject.pars = new gnr.GnrBag({title:title,pkey:current,objtype:"list_in"}); 
                                    FIRE #deleteUserObject.show;""",_fired="^.deleteCurrSaved",
                                    title='!!Delete list of values',current='=.currentUserObject',_if='current')
-        dialogBc.dataController("console.log('xxx');SET .data.items = null; SET .currentUserObject=null;",
+        dialogBc.dataController("SET .data.items = null; SET .currentUserObject=null;",
                                 _fired="^#deleteUserObject.deleted",objtype='=#deleteUserObject.pars.objtype',
                                 _if='objtype=="list_in"')
                                 
