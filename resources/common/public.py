@@ -73,32 +73,25 @@ class Public(BaseComponent):
         return center, top, bottom
         
     def pbl_topBarLeft(self,pane):
-        pane.div('^gnr.workdate', float='left', format='short',
-                _class='pbl_workdate buttonIcon',connect_onclick='FIRE gnr.dlg_workdate.show;')
+        self.pbl_workdateManager(pane)
 
-    def pbl_workdate(self,pane):
-        pane.dataController('genro.wdgById("gnr_workdate_dlg").show();',
-                            _fired = '^gnr.dlg_workdate.show')
-        pane.dataController('genro.wdgById("gnr_workdate_dlg").hide();',
-                            _fired = '^gnr.dlg_workdate.hide')
+    def pbl_workdateManager(self, pane):
+        pane.div('^gnr.workdate', float='left', format='short',
+                _class='pbl_workdate buttonIcon',
+                 connect_onclick='FIRE #changeWorkdate_dlg.open;')
+        def cb_center(parentBC,**kwargs):
+            pane = parentBC.contentPane(**kwargs)
+            fb = pane.formbuilder(cols=1, border_spacing='5px', margin='25px',margin_top='20px')
+            fb.dateTextBox(value='^.current_date',width='8em',lbl='!!Date')
+            
+        dlg = self.dialog_form(pane,title='!!Set workdate',datapath='changeWorkdate',
+                             formId='changeWorkdate', height='100px',width='200px',
+                             cb_center=cb_center, loadsync=True)
+        dlg.dataController("SET .data.current_date=date;",date="=gnr.workdate",nodeId='changeWorkdate_loader')
+        dlg.dataRpc('gnr.workdate','pbl_changeServerWorkdate', newdate='=.data.current_date', 
+                    _if='newdate', nodeId='changeWorkdate_saver',_onResult='FIRE .saved;')
                             
-        bc = pane.dialog(nodeId= 'gnr_workdate_dlg',
-                               title='!!Change workdate'
-                               ).borderContainer(height='64px',
-                                width='240px',datapath='gnr.dlg_workdate')
-        dlg_bottom = bc.contentPane(region='bottom', _class='dialog_bottom')
-        dlg_bottom.button('!!Change', float='right',baseClass='bottom_btn',
-                          action='FIRE .setWorkdate; FIRE .hide;')
-        dlg_bottom.button('!!Cancel', float='left',fire='.hide',baseClass='bottom_btn')
-        dlg_top = bc.contentPane(region='center', _class='pbl_roundedGroup')
-        fld = dlg_top.div(margin_left='30px')
-        fld.div("Data: ", float='left',margin='5px')
-        fld.dateTextBox(value='^.workdate',width='6em', margin='5px')
-                                 
-        pane.dataController('.gnr.workdate','changeServerWorkdate', newdate='=.workdate',
-                            _if='newdate', _fired='^.setWorkdate')
-                            
-    def rpc_changeServerWorkdate(self, newdate=None):
+    def rpc_pbl_changeServerWorkdate(self, newdate=None):
         if newdate:
             self.workdate = newdate
         return self.workdate
