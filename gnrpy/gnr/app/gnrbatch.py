@@ -7,7 +7,7 @@
 #  Copyright (c) 2007 Softwell. All rights reserved.
 #
 
-import time
+#import time
 from collections import defaultdict
 class GnrBatch(object):
     thermo_rows = 1
@@ -53,9 +53,7 @@ class GnrBatch(object):
         return self.collect_result()
         
     def process(self):
-        print 'in process'
         for chunk in self.data_fetcher():
-            print 'calling process_chunk'
             self.process_chunk(chunk,**self.runKwargs)
             #self.thermo_step(chunk)
     
@@ -175,7 +173,7 @@ class SelectionToPdf(GnrBatch):
 class PrintDbData(GnrBatch):
     def __init__(self, table=None,table_resource=None, class_name=None, selection=None,
                 folder=None, printParams=None, pdfParams=None, commitAfterPrint=False, **kwargs):
-        import cups
+        #import cups
         
         super(PrintDbData,self).__init__(**kwargs)
         self.htmlMaker = self.page.site.loadTableScript(page=self.page,table=table,
