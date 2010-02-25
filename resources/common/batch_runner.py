@@ -85,16 +85,8 @@ class BatchRunner(BaseComponent):
         elif recordId:
             data = tblobj.record(pkey=recordId,ignoreMissing=True).output('bag')
         else:   
-            data = self.unfreezeSelection(tblobj, selectionName)
-            if selectionFilterCb:
-                filterCb=getattr(self, 'rpc_%s' % selectionFilterCb)
-                data.filter(filterCb)
-            elif selectedRowidx:
-                if isinstance(selectedRowidx, basestring):
-                    selectedRowidx = [int(x) for x  in selectedRowidx.split(',')]
-                selectedRowidx = set(selectedRowidx)
-                data.filter(lambda r: r['rowidx'] in selectedRowidx)
-            
+            data = self.getUserSelection(table=tblobj,selectionName=selectionName,
+                                         selectedRowidx=selectedRowidx,filterCb=selectionFilterCb)
         batch_class = self.batch_loader(batch_class)
         if batch_class:
             batch = batch_class(data=data, table=table, page=self, thermocb=self.app.setThermo,

@@ -400,12 +400,7 @@ class GnrWebAppHandler(GnrBaseProxy):
     def rpc_onSelectionDo(self, table, selectionName, command, callmethod=None, selectedRowidx=None, recordcall=False, **kwargs):
         result = None
         tblobj = self.db.table(table)
-        selection = self.page.unfreezeSelection(tblobj, selectionName)
-        if selectedRowidx:
-            if isinstance(selectedRowidx, basestring):
-                selectedRowidx = [int(x) for x  in selectedRowidx.split(',')]
-            selectedRowidx = set(selectedRowidx)
-            selection.filter(lambda r: r['rowidx'] in selectedRowidx)
+        selection = self.page.getUserSelection(table=tblobj, selectionName=selectionName,selectedRowidx=selectedRowidx)
         callmethod = callmethod or 'standard'
         if command in ('print', 'rpc', 'export', 'action', 'pdf'):
             handler = getattr(self.page, '%s_%s' % (command, callmethod), None)

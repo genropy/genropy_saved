@@ -369,7 +369,7 @@ class Table_recordtag_link(TableBase):
         if value!='false':
             if tagRecord['maintag']:
                 self.sql_deleteSelection(where='@tag_id.maintag=:mt AND $%s=:record_id' %fkey,
-                                         mt=tagRecord['tag'],record_id=record_id)
+                                         mt=tagRecord['maintag'],record_id=record_id)
             record = dict()
             record[fkey] = record_id
             record['tag_id'] = tagRecord['id']
@@ -388,17 +388,10 @@ class Table_recordtag_link(TableBase):
             result[tagLabel] = True
         return result
         
-    def getCountLinkBag(self,table,pkeys):
-        result = Bag()
-        taglinks = self.query(columns='@tag_id.maintag AS maintag, @tag_id.subtag AS subtag, @tag_id.tag AS tag',
-                                where='$%s in :pkeys' %self.tagForeignKey(table),pkeys=pkeys).fetch()
-        for link in taglinks:
-            if link['maintag']:
-                tagLabel = '%s.%s' %(link['maintag'],link['subtag'])
-            else:
-                tagLabel = '%s.true' %link['tag']
-            result[tagLabel] = True
-        return result
+    def getCountLinkDict(self,table,pkeys):
+        return self.query(columns='@tag_id.tag as tag,count(*) as howmany',group_by='@tag_id.tag', 
+                          where='$%s IN :pkeys' %self.tagForeignKey(table),pkeys=pkeys).fetchAsDict(key='tag')
+
     
     
     def tagForeignKey(self,table):

@@ -202,54 +202,69 @@ class TagsHandler(BaseComponent):
         self.db.commit()
 
     def linktag_dlg(self,pane):
+        pkey='=form.record.%s' %self.tblobj.pkey
+        selectionName='=list.selectionName'
+        selectedRowIdx="==genro.wdgById('maingrid').getSelectedRowidx();"
         def cb_center(parentBC,**kwargs):
             pane = parentBC.contentPane(**kwargs)
-            self.lazyContent('getFormTags',pane,pkeys='^.pkeys',reason='=.#parent.reason') 
+            self.lazyContent('getFormTags',pane,selectedRowIdx='=.#parent.selectedRowIdx',
+                            pkey=pkey,reason='=.#parent.reason',
+                            selectionName=selectionName,_fired='^.#parent.loadContent') 
                                                     
         dialogBc = self.dialog_form(pane,title='!!Link tag',loadsync=False,
                                 datapath='gnr.recordtag.assign',allowNoChanges=False , 
                                 height='300px',width='510px',centerOn='_pageRoot',
                                 formId='linktag',cb_center=cb_center,cb_bottom=self.linktag_dlg_bottom)                                
-        dialogBc.dataController("""SET .data = new gnr.GnrBag({pkeys:pkeys}); 
+        dialogBc.dataController("""SET .data = null; 
+                                   SET .selectedRowIdx = selectedRowIdx;
+                                   FIRE .loadContent;
                                    FIRE .loaded;""",
-                                nodeId="linktag_loader",
-                                pkeys="==genro.wdgById('maingrid').getSelectedPkeys();")
-        dialogBc.dataRpc(".result",'saveRecordTagLinks',nodeId="linktag_saver",
-                        data='=.data',selectionName='=list.selectionName',_onResult='FIRE .saved;',
-                        _if='selectionName',_else='FIRE .hide;')
-                        
-    def rpc_saveRecordTagLinks(self,data=None,selectionName=None):
-        pkeys = data['pkeys']
-        tagbag = data['tagbag']
-        taglink_table = self.db.table('%s.recordtag_link' %self.package.name)
-        if not pkeys:
-            pkeys = self.unfreezeSelection(self.tblobj, selectionName).output('pkeylist')
-        for pkey in pkeys:
-            self._assignTagOnRecord(pkey,tagbag,taglink_table)
-        self.db.commit()
-    
+                                nodeId="linktag_loader",selectedRowIdx=selectedRowIdx)
+        dialogBc.dataRpc(".result",'saveRecordTagLinks',nodeId="linktag_saver",reason='=.reason',
+                        selectedRowIdx=selectedRowIdx,data='=.data',selectionName=selectionName,pkey=pkey,
+                        _onResult='FIRE .saved;',_if='selectionName',_else='FIRE .hide;')
+
     def linktag_dlg_bottom(self,bc,confirm_btn=None,**kwargs):
         bottom = self.dialog_form_bottom(bc,confirm_btn=None,**kwargs)
         bottom.button('!!Edit tags',margin='1px',float='left',fire='#recordtag_dlg.open')
         bottom.dataController("FIRE .load;",_fired="^#recordtag_dlg.hide")
-                        
+                           
+    def rpc_saveRecordTagLinks(self,data=None,reason=None,selectedRowIdx=None,pkey=None,selectionName=None):
+        tagbag = data['tagbag']
+        taglink_table = self.db.table('%s.recordtag_link' %self.package.name)
+        pkeys = [pkey]
+        if reason=='list':
+            pkeys = self.getUserSelection(table=self.tblobj,selectionName=selectionName,
+                                        selectedRowidx=selectedRowIdx).output('pkeylist')
+        for pkey in pkeys:
+            self._assignTagOnRecord(pkey,tagbag,taglink_table)
+        self.db.commit()
+    
     def _assignTagOnRecord(self,pkey,tagbag,taglink_table):
-        print pkey
         for node in tagbag:
             tag = node.label
             value = [k for k,v in node.value.items() if v]
-            print value
             if value:
                 taglink_table.assignTagLink(self.maintable,pkey,tag,value[0])
                 
                 
-    def remote_getFormTags(self,pane,pkeys=None,reason=None,**kwargs):
-        if pkeys:
-            if reason=='form':
-                tagbag = self.db.table('%s.recordtag_link' %self.package.name).getTagLinksBag(self.maintable,pkeys[0])
-                pane.data('.tagbag',tagbag)                     
-        table = self.db.table('%s.recordtag' %self.package.name)
-        rows = table.query(where='$tablename =:tbl AND $maintag IS NULL',
+    def remote_getFormTags(self,pane,pkey=None,selectedRowIdx=None,reason=None,selectionName=None,**kwargs):
+        taglinktbl = self.db.table('%s.recordtag_link' %self.package.name)
+        def lblGetter (fulltag,label):
+            return label
+        if reason=='form':
+            tagbag = taglinktbl.getTagLinksBag(self.maintable,pkey)
+            pane.data('.tagbag',tagbag)
+        elif reason=='list':
+            pkeys = self.getUserSelection(table=self.tblobj,selectionName=selectionName,
+                                           selectedRowidx=selectedRowIdx).output('pkeylist')
+            countDict = taglinktbl.getCountLinkDict(self.maintable,pkeys)  
+            def lblGetter (fulltag,label):
+                if countDict.get(fulltag):
+                    return  "%s(%i)" %(label,countDict.get(fulltag)['howmany'])
+                return label
+        recordtagtbl = self.db.table('%s.recordtag' %self.package.name)
+        rows = recordtagtbl.query(where='$tablename =:tbl AND $maintag IS NULL',
                           tbl=self.maintable,order_by='$values desc,$tag').fetch()
         externalFrame = pane.div(_class='tag_frame bgcolor_medium',datapath='.tagbag',padding='10px')
         tag_table = externalFrame.div(style='display:table;width:100%')
@@ -261,15 +276,16 @@ class TagsHandler(BaseComponent):
             max_width=3
             if values:
                 for val in values.split(','):
-                    subtag,lbl = splitAndStrip('%s:%s'%(val,val),':',n=2,fixed=2)
-                    buttons.append(dict(value='^.%s' %subtag,_class='dijitButtonNode tag_button tag_value',label=lbl))
+                    subtag,label = splitAndStrip('%s:%s'%(val,val),':',n=2,fixed=2)
+                    label=lblGetter('%s_%s' % (tag,subtag),label)
+                    buttons.append(dict(value='^.%s' %subtag,_class='dijitButtonNode tag_button tag_value',label=label))
                 for b in buttons:
                     if len(b['label'])>max_width:
                         max_width = len(b['label'])
-                max_width = '%fem' %(max_width*.7)
+                max_width = '%fpx' %((max_width*5)+20)
             else:
-                buttons.append(dict(value='^.true',_class='dijitButtonNode tag_button tag_true',label='!!Yes'))
-                
+                label=lblGetter(tag,'!!Yes')
+                buttons.append(dict(value='^.true',_class='dijitButtonNode tag_button tag_true',label=label))
             oddOrEven = 'even'
             colorRow = 'bgcolor_bright'
             if j%2:
