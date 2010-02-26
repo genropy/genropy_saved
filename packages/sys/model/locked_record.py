@@ -23,14 +23,16 @@ class Table(object):
                     username=page.user,
                     connection_id=page.connection.connection_id
                     )
-        try:
-            self.insert(record)
-            return (True,record['id'])
-        except self.db.connection.IntegrityError,e:
-            self.db.rollback()
-            return (False,dict(self.query('$id,$lock_ts AS ts,$page_id,$connection_id,$username',where='$lock_table=:table AND lock_pkey=:pkey',
-                                          table=table,pkey=pkey,addPkeyColumn=False).fetch()[0]))
-
+        with self.db.tempEnv(connectionName='system'):
+            try:
+                self.insert(record)
+                self.db.commit()
+                result = (True,record['id'])
+            except self.db.connection.IntegrityError:
+                self.db.rollback()
+                result = (False,dict(self.query('$id,$lock_ts AS ts,$page_id,$connection_id,$username',where='$lock_table=:table AND lock_pkey=:pkey',
+                                              table=table,pkey=pkey,addPkeyColumn=False).fetch()[0]))
+        return result
         
     def existingLocks(self,lockId=None, connection_id=None,page_id=None,username=None):
         where=None
@@ -50,5 +52,7 @@ class Table(object):
         return query.fetch()
                         
     def clearExistingLocks(self,lockId=None, connection_id=None,page_id=None,username=None):
-        for lock in self.existingLocks(lockId=lockId,connection_id=connection_id,page_id=page_id,username=username):
-            self.delete(lock)
+        with self.db.tempEnv(connectionName='system'):
+            for lock in self.existingLocks(lockId=lockId,connection_id=connection_id,page_id=page_id,username=username):
+                self.delete(lock)
+            self.db.commit()
