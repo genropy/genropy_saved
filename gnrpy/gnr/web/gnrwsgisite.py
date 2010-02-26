@@ -463,6 +463,7 @@ class GnrWsgiSite(object):
     def lockRecord(self,page,table,pkey):
         if 'sys' in self.gnrapp.db.packages:
             return self.gnrapp.db.table('sys.locked_record').lockRecord(page,table,pkey)
+            
     def unlockRecord(self,page,table,pkey):
         if 'sys' in self.gnrapp.db.packages:
             return self.gnrapp.db.table('sys.locked_record').unlockRecord(page,table,pkey)
