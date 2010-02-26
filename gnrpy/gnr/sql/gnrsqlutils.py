@@ -134,7 +134,8 @@ class SqlModelChecker(object):
                     tablechanges = self._checkTable(tbl)
                 else:
                     tablechanges = self._buildTable(tbl)#Create sql commands to BUILD the missing table
-                self.bagChanges.setItem('%s.%s' % (tbl.pkg.name, tbl.name), None, changes='\n'.join([ch for ch in tablechanges if ch]))
+                if tablechanges:
+                    self.bagChanges.setItem('%s.%s' % (tbl.pkg.name, tbl.name), None, changes='\n'.join([ch for ch in tablechanges if ch]))
                 
         #views = node.value['views']
         #if views:
@@ -197,9 +198,10 @@ class SqlModelChecker(object):
             for idx in tbl.indexes.values():
                 if idx.sqlname.endswith('_idx') and idx.sqlname[0:-4] in dbindexes:
                     change = self.db.adapter.dropIndex(idx.sqlname[0:-4],sqlschema=tbl.sqlschema)
-                    self.changes.append(change)
-                    tablechanges.append(change)
-                    self.bagChanges.setItem('%s.%s.indexes.%s' % (tbl.pkg.name, tbl.name, idx.sqlname), None, changes=change)
+                    if change:
+                        self.changes.append(change)
+                        tablechanges.append(change)
+                        self.bagChanges.setItem('%s.%s.indexes.%s' % (tbl.pkg.name, tbl.name, idx.sqlname), None, changes=change)
                     
                 if idx.sqlname in dbindexes:
                     pass
@@ -208,9 +210,10 @@ class SqlModelChecker(object):
                     icols = ','.join([tbl.column(col.strip()).sqlname for col in icols.split(',')])
                     unique = idx.getAttr('unique')
                     change = self._buildIndex(tbl.sqlname, idx.sqlname, icols, sqlschema=tbl.sqlschema, unique=unique, pkey=tbl.pkey)
-                    self.changes.append(change)
-                    tablechanges.append(change)
-                    self.bagChanges.setItem('%s.%s.indexes.%s' % (tbl.pkg.name, tbl.name, idx.sqlname), None, changes=change)
+                    if change:
+                        self.changes.append(change)
+                        tablechanges.append(change)
+                        self.bagChanges.setItem('%s.%s.indexes.%s' % (tbl.pkg.name, tbl.name, idx.sqlname), None, changes=change)
         return tablechanges
 
     def _checkAllRelations(self):
