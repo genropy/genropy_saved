@@ -651,7 +651,13 @@ class SqlTable(GnrObject):
     
     def trigger_onDeleted(self, record):
         pass
-    
+        
+    def protect_write(self,record):
+        pass
+        
+    def protect_delete(self,record):
+        pass
+        
     def columnsFromString(self, columns):
         result = []
         if not columns:

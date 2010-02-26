@@ -139,10 +139,9 @@ class GnrSqlDb(GnrObject):
     def closeConnection(self):
         """Close a connection"""
         thread_ident=thread.get_ident()
-        conn_dict= self._connections.get(thread_ident) 
-        if conn_dict:
-            thread_connections_keys = conn_dict.keys()
-            for conn_name in thread_connections_keys:
+        connections_dict= self._connections.get(thread_ident) 
+        if connections_dict:
+            for conn_name in connections_dict.keys():
                 conn = conn_dict.pop(conn_name)
                 try:
                     conn.close()
@@ -203,9 +202,11 @@ class GnrSqlDb(GnrObject):
         """property .connection
         If there's not connection open and return connection to database"""
         thread_ident = thread.get_ident()
-        storename = self.currentEnv.get('storename')
+        storename = self.currentEnv.get('storename') or '_main_db'
         thread_connections = self._connections.setdefault(thread_ident,{})
-        return thread_connections.setdefault(storename, self.adapter.connect())
+        connectionName='%s_%s' % (storename,self.currentEnv.get('connectionName') or '_main_connection')
+        print 'using connection %s' % connectionName
+        return thread_connections.setdefault(connectionName, self.adapter.connect())
     connection = property(_get_connection)
     
     def get_connection_params(self):
@@ -408,7 +409,6 @@ class TempEnv(object):
         
     def __exit__(self, type, value, traceback):
         self.db.currentEnv=self.savedEnv
-        
     
 if __name__=='__main__':
     pass
