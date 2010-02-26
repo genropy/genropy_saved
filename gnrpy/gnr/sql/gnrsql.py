@@ -142,7 +142,7 @@ class GnrSqlDb(GnrObject):
         connections_dict= self._connections.get(thread_ident) 
         if connections_dict:
             for conn_name in connections_dict.keys():
-                conn = conn_dict.pop(conn_name)
+                conn = connections_dict.pop(conn_name)
                 try:
                     conn.close()
                 except Exception:
