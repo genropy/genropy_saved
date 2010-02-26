@@ -181,6 +181,7 @@ class GnrWebPage(GnrBaseWebPage):
             if isinstance(workdate, basestring):
                 workdate = self.application.catalog.fromText(workdate, 'D')
             self._workdate = workdate
+            self.db.workdate=workdate
         return self._workdate
     
     def _set_workdate(self, workdate):

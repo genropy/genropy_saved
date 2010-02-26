@@ -40,7 +40,7 @@ from gnr.core.gnrbag import Bag
 from gnr.core import gnrlist
 
 from gnr.core.gnrlang import getUuid
-from gnr.core.gnrstring import templateReplace, splitAndStrip, toText, toJson, concat
+from gnr.core.gnrstring import templateReplace, splitAndStrip, toText, toJson
 from gnr.web.gnrwebpage_proxy.gnrbaseproxy import GnrBaseProxy
 ESCAPE_SPECIAL=re.compile(r'[\[\\\^\$\.\|\?\*\+\(\)\]\{\}]')
 
@@ -106,7 +106,6 @@ class GnrWebAppHandler(GnrBaseProxy):
     rpc_getTableFields = getTableFields
     
     def dbStructure(self, path='', **kwargs):
-        result = Bag()
         curr = self.db.packages
         if path:
             curr = curr[path]
@@ -305,9 +304,7 @@ class GnrWebAppHandler(GnrBaseProxy):
             applyPars = self._getApplyMethodPars(**kwargs)
             self.page.getPublicMethod('rpc', joinDict['applymethod'])(sel,**applyPars)
         
-        result = Bag()
-        content=None
-        
+        result = Bag()        
         relOneParams = dict(_target_fld = '%s.%s' % (dbtable, self.db.table(dbtable).pkey),
                             _from_fld='', 
                             _resolver_name=js_resolver_one, 
@@ -363,7 +360,7 @@ class GnrWebAppHandler(GnrBaseProxy):
         max = maximum_1 or thermoBag['t1.maximum']
         prog = progress_1 or thermoBag['t1.maximum']            
         if max and prog > max:
-            end = True
+            command == 'end'
             
         if command == 'end':
             thermoBag['status']='end'
@@ -481,6 +478,11 @@ class GnrWebAppHandler(GnrBaseProxy):
         row_start = int(row_start)
         row_count = int(row_count)
         newSelection=True
+        formats={}
+        for k in kwargs.keys():
+            if k.startswith('format_'):
+                formats[7:]=kwargs.pop(k)
+        
         if selectionName.startswith('*'):
             if selectionName=='*':
                 selectionName=getUuid()
@@ -516,7 +518,7 @@ class GnrWebAppHandler(GnrBaseProxy):
                 selection.freezeUpdate()
             debug='fromPickle'
             resultAttributes={}
-        generator = selection.output(mode='generator',offset=row_start,limit=row_count)
+        generator = selection.output(mode='generator',offset=row_start,limit=row_count, formats=formats)
         data = self.gridSelectionData(selection, generator, logicalDeletionField=tblobj.logicalDeletionField,
                                       recordResolver=recordResolver, numberedRows=numberedRows)
         if not structure:
@@ -620,12 +622,10 @@ class GnrWebAppHandler(GnrBaseProxy):
             where, kwargs = self._decodeWhereBag(tblobj, where, kwargs)
         if condition and not pkeys:
             where = '( %s ) AND ( %s )' % (where, condition)
-        sql_kwargs = dict([(str(k), v) for k,v in kwargs.items() if not k.startswith('frm_')])
-        fmt_kwargs = dict([(str(k[4:]), v) for k,v in kwargs.items() if k.startswith('frm_')])
         query=tblobj.query(columns=columns,distinct=distinct, where=where,
                         order_by=order_by,limit=limit, offset=offset, group_by=group_by,having=having,
                         relationDict=relationDict, sqlparams=sqlparams,locale=self.page.locale,
-                        excludeLogicalDeleted=excludeLogicalDeleted,**sql_kwargs)
+                        excludeLogicalDeleted=excludeLogicalDeleted,**kwargs)
         if sqlContextName: 
             self._joinConditionsFromContext(query, sqlContextName)
         selection = query.selection(sortedBy=sortedBy, _aggregateRows=True)
@@ -718,6 +718,25 @@ class GnrWebAppHandler(GnrBaseProxy):
                 r.child('cell', childname=colname,field=colname,**kwargs)
         return structure
     #@timer_call()
+    # 
+    def _getRecord_locked(self,tblobj,record,recInfo):
+        print 'recordLock'
+        locked,aux=self.page.site.lockRecord(self.page,tblobj.fullname,record[tblobj.pkey])
+        if locked:
+            recInfo['lockId']=aux
+            return
+        for f in aux:
+            recInfo['locking_%s'%f]=aux[f]
+        protect_write=tblobj.protect_write(record)
+        if  protect_write:
+            if isinstance(protect_write,dict):
+                recInfo['protect_write']=protect_write.get('protect_write')
+                recInfo['protect_fields']=protect_write.get('protect_fields')
+                recInfo['unprotect_fields']=protect_write.get('unprotect_fields')
+            else:
+                recInfo['protect_write']=protect_write
+        recInfo['protect_delete']=tblobj.protect_delete(record)
+            
     def rpc_getRecord(self, table=None, dbtable=None, pkg=None, pkey=None,
                     ignoreMissing=True, ignoreDuplicate=True, lock=False,
                     from_fld=None, target_fld=None, sqlContextName=None, applymethod=None,
@@ -725,7 +744,6 @@ class GnrWebAppHandler(GnrBaseProxy):
                     loadingParameters=None, eager=None,**kwargs):
         t = time.time()
         dbtable = dbtable or table
-        locked=False
         if pkg:
             dbtable='%s.%s' % (pkg, dbtable)
         tblobj = self.db.table(dbtable)
@@ -751,12 +769,7 @@ class GnrWebAppHandler(GnrBaseProxy):
                         caption=tblobj.recordCaption(record,newrecord),
                         _newrecord=newrecord, sqlContextName=sqlContextName)
         if lock and not newrecord:
-            locked,aux=self.page.site.lockRecord(self.page,dbtable,pkey)
-            if locked:
-                recInfo['lockId']=aux
-            else:
-                for f in aux:
-                    recInfo['locking_%s'%f]=aux[f]
+            self._getRecord_locked(tblobj,record,recInfo)            
         loadingParameters = loadingParameters or {}
         defaultParameters=dict([(k[8:],v) for k,v in kwargs.items() if k.startswith('default_')])
         loadingParameters.update(defaultParameters)
@@ -786,8 +799,6 @@ class GnrWebAppHandler(GnrBaseProxy):
         recInfo['servertime'] = int((time.time() - t)*1000)
         if tblobj.lastTS:
             recInfo['lastTS'] = str(record[tblobj.lastTS])
-        if locked:
-            self.db.commit()
         return (record,recInfo)
     
     def setRecordDefaults(self, record, defaults):
