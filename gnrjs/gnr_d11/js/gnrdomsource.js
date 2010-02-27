@@ -255,10 +255,11 @@ dojo.declare("gnr.GnrDomSourceNode",gnr.GnrBagNode,{
     setAttributeInDatasource: function(attrname,value,doTrigger,attributes,forceChanges){
         var doTrigger=(doTrigger==false) ? doTrigger : this; 
         var path=this.attrDatapath(attrname);
-        /*if (forceChanges){
-               genro._data.setItem(path,null,null,{'doTrigger':false});
-        }*/
-        if (forceChanges || (genro._data.getItem(path)!=value)){
+        var old_value = genro._data.getItem(path);
+        //if (forceChanges){
+        //    genro._data.setItem(path,v,null,{'doTrigger':false});
+        //}
+        if (old_value!=value || (forceChanges&&value!=null)){
             genro._data.setItem(path,value,attributes,{'doTrigger':doTrigger});
         }
     },
