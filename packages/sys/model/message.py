@@ -18,10 +18,11 @@ class Table(object):
         tbl.column('body',dtype='X',name_long='!!Message body')
         
     def getMessages(self, connection_id, user, page_id):
-        return self.db.table('sys.message').query('*,body',
-                                                    where="""($dst_connection_id=:connection_id OR $dst_user=:user OR $dst_page_id=:page_id) 
+        with self.db.tempEnv(connectionName='system'): 
+            fetch = self.query('*,body',where="""($dst_connection_id=:connection_id OR $dst_user=:user OR $dst_page_id=:page_id) 
                                                     AND ($expiry IS NULL OR $expiry >:curr_time)""", connection_id=connection_id,
                                                     user=user, page_id=page_id, curr_time=datetime.now()).fetch()
+            return fetch
         
     def writeMessage(self, body=None, connection_id=None, user=None, page_id=None, expiry=None, message_type=None):
         srcpage = self.db.application.site.currentPage
@@ -37,17 +38,22 @@ class Table(object):
             src_page_id=srcpage.page_id,
             src_user=srcpage.user)
             
-        if isinstance(page_id,list):
-            sent_messages_id_list=[]
-            for p in page_id:
-                record['dst_page_id']=p
+        with self.db.tempEnv(connectionName='system'): 
+            if isinstance(page_id,list):
+                sent_messages_id_list=[]
+                for p in page_id:
+                    record['dst_page_id']=p
+                    self.insert(record)
+                    sent_messages_id_list.append(record['id'])
+                    record['id'] = None
+                result = sent_messages_id_list
+            else:
                 self.insert(record)
-                sent_messages_id_list.append(record['id'])
-                record['id'] = None
-            return sent_messages_id_list
-        else:
-            self.insert(record)
-            return record['id']
-        
+                result = record['id']
+            self.db.commit()
+            return result
+            
     def deleteMessage(self, message_id):
-        self.delete(dict(id=message_id))
+        with self.db.tempEnv(connectionName='system'):
+            self.delete(dict(id=message_id))
+            self.db.commit()

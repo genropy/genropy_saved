@@ -32,5 +32,28 @@ class Table(object):
         for conn in self.getPendingConnections():
             self.closeConnection(conn['id'],end_ts=end_ts,end_reason=end_reason)
             
-    def closeConnection(self,connection_id,end_ts=None, end_reason=None):
-        self.update(dict(id=connection_id,end_ts=end_ts or datetime.now(),end_reason=end_reason))
+    def connectionLog(self,event):
+        if event == 'open':
+            self.openConnection()
+        else:
+            self.closeConnection(end_reason='logout')
+            
+    def closeConnection(self,connection_id=None, end_ts=None, end_reason=None):
+        page = self.db.application.site.currentPage
+        connection_id=connection_id or page.connection.connection_id
+        with self.db.tempEnv(connectionName='system'):
+            self.batchUpdate(dict(end_ts=end_ts or datetime.now(),end_reason=end_reason),
+                            where='$id=:connection_id',connection_id=connection_id)
+            self.db.commit()
+            
+    def openConnection(self):
+        page = self.db.application.site.currentPage
+        avatar=page.avatar
+        
+        new_connection_record = dict(id=page.connection.connection_id,username=page.user,
+                                        userid=avatar.userid,start_ts=datetime.now(),
+                                        ip=page.request.remote_addr,
+                                         user_agent=page.request.get_header('User-Agent'))
+        with self.db.tempEnv(connectionName='system'):
+            self.insertOrUpdate(new_connection_record)
+            self.db.commit()

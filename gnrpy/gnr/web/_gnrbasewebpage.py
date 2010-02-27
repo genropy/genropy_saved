@@ -672,9 +672,7 @@ class GnrBaseWebPage(GnrObject):
             
     def handleMessages_page(self,handler,message_id=None, **kwargs):
         handler(message_id=message_id,**kwargs)
-        self.db.rollback()
         self.site.deleteMessage(message_id)
-        self.db.commit()
         
     def msg_servermsg(self,message_id=None, message_body=None,src_page_id=None,src_user=None,src_connection_id=None):
         self.setInClientData('gnr.servermsg', message_body['servermsg'], fired=True, save=True,

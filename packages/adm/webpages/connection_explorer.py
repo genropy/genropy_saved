@@ -90,6 +90,7 @@ class GnrCustomWebPage(object):
         
         topfb.dataRpc('.result','sendMessage',_fired='^.send', msg='=.text', dest_page='=pages.selectedId')
         bc=bc.borderContainer(region='center')
+        bc.dataController("console.log(selectedId)",selectedId="^connections.selectedId")
         self.includedViewBox(bc,label='!!User served pages',table='adm.served_page', 
                             struct=self._userServedPages_struct, autoWidth=True,
                            nodeId='user_servedpages',autoSelect=True,
@@ -98,7 +99,7 @@ class GnrCustomWebPage(object):
                            reloader='^connections.selectedId',
                            selectionPars=dict(where='$connection_id=:connection_id AND $end_ts IS NULL',
                                                 connection_id='=connections.selectedId',
-                                                order_by='$start_ts desc'))
+                                                order_by='$start_ts desc',_if='connection_id'))
                            
 
                          

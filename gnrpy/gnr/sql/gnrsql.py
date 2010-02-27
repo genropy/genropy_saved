@@ -205,7 +205,6 @@ class GnrSqlDb(GnrObject):
         storename = self.currentEnv.get('storename') or '_main_db'
         thread_connections = self._connections.setdefault(thread_ident,{})
         connectionName='%s_%s' % (storename,self.currentEnv.get('connectionName') or '_main_connection')
-        print 'using connection %s' % connectionName
         return thread_connections.setdefault(connectionName, self.adapter.connect())
     connection = property(_get_connection)
     

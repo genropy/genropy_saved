@@ -303,7 +303,6 @@ class GnrWebPage(GnrBaseWebPage):
     
     def clientDataChanges(self):
         if self.session.pagedata['_clientDataChanges']:
-            #print self.session.pagedata['_clientDataChanges']
             self.session.loadSessionData()
             result = self.session.pagedata.pop('_clientDataChanges') or Bag()
             self.session.saveSessionData()
@@ -594,7 +593,7 @@ class GnrWebPage(GnrBaseWebPage):
                 self.onMainCalls()
                 self._createContext(root)
                 if self.user:
-                    self.site.pageLog(self,'open')
+                    self.site.pageLog('open')
 
             elif _auth==AUTH_NOT_LOGGED:
                 loginUrl = self.application.loginUrl()

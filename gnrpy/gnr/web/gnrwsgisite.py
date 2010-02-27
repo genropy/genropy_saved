@@ -440,14 +440,14 @@ class GnrWsgiSite(object):
         if 'adm' in self.db.packages:
             self.db.packages['adm'].onAuthenticated(avatar)
               
-    def pageLog(self,page,event):
-        if 'adm' in page.db.packages:
-            page.db.packages['adm'].pageLog(page,event)
+    def pageLog(self,event):
+        if 'adm' in self.db.packages:
+            self.db.table('adm.served_page').pageLog(event)
             
-    def connectionLog(self,page,event):
-        if 'adm' in page.db.packages:
-            page.db.packages['adm'].connectionLog(page,event)
-    
+    def connectionLog(self,event):
+        if 'adm' in self.db.packages:
+            self.db.table('adm.connection').connectionLog(event)
+                
     def getMessages(self,**kwargs):
         if 'sys' in self.gnrapp.db.packages:
             return self.gnrapp.db.table('sys.message').getMessages(**kwargs)
@@ -474,9 +474,8 @@ class GnrWsgiSite(object):
             
     def onClosePage(self):
         page=self.currentPage
-        self.pageLog(page,'close')
+        self.pageLog('close')
         self.clearRecordLocks(page_id=page.page_id)
-        self.db.commit()
         
     def debugger(self,debugtype,**kwargs):
         if self.currentPage:
@@ -499,7 +498,6 @@ class GnrWsgiSite(object):
         """@param save: remember to save on the last setInClientPage. The first call to setInClientPage implicitly lock the session util 
                         setInClientPage is called with save=True
         """
-       
         currentPage = self.currentPage
         page_id = page_id or currentPage.page_id
         attributes = dict(attributes or {})

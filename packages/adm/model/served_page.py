@@ -38,12 +38,36 @@ class Table(object):
                 result.setdefault(table,[]).append((page_id,connection_id))
         return result
         
+    def pageLog(self,event):
+        if event == 'open':
+            self.openServedPage()
+        else:
+            self.closeServedPage(end_ts=datetime.now(),end_reason='unload')
 
     def closePendingPages(self,connection_id=None,end_ts=None,end_reason=None):
         for page in self.getLivePages(connection_id=connection_id):
-            self.closePage(page['page_id'],end_ts=end_ts,end_reason=end_reason)
+            self.closeServedPage(page['page_id'],end_ts=end_ts,end_reason=end_reason)
             
-    def closePage(self,page_id,end_ts=None,end_reason=None):
-        self.update(dict(page_id=page_id,end_ts=end_ts or datetime.now(),end_reason=end_reason))
+    def openServedPage(self):
+        page = self.db.application.site.currentPage
+        subscribed_tables=page.pageOptions.get('subscribed_tables',None)
+        if subscribed_tables:
+            for table in subscribed_tables.split(','):
+                assert self.db.table(table).attributes.get('broadcast')
+        record_served_page = dict(page_id=page.page_id,end_reason=None,end_ts=None,
+                                  connection_id=page.connection.connection_id,
+                                  start_ts=datetime.now(),pagename=page.basename,
+                                  subscribed_tables=subscribed_tables)
+        with self.db.tempEnv(connectionName='system'):  
+            self.insertOrUpdate(record_served_page)
+            self.db.commit()
+            
+    def closeServedPage(self,page_id=None,end_ts=None,end_reason=None):
+        page = self.db.application.site.currentPage
+        page_id = page_id or page.page_id
+        with self.db.tempEnv(connectionName='system'): 
+            self.batchUpdate(dict(end_ts=end_ts or datetime.now(),end_reason=end_reason),
+                            where='$page_id=:page_id',page_id=page_id)
+            self.db.commit()
 
             

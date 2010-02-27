@@ -128,7 +128,7 @@ class GnrWebConnection(GnrBaseProxy):
     def dropConnection(self,connection_id):
         page=self.page
         site=page.site
-        site.connectionLog(page,'close')
+        site.connectionLog('close')
         self.connFolderRemove(connection_id)
         
     def connFolderRemove(self, connection_id):
