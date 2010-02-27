@@ -1025,7 +1025,7 @@ class SqlSelection(object):
         outmethod = '%s_%s' % (prefix, mode)
         if hasattr(self, outmethod):
             outgen = self._out(columns=columns, offset=offset, limit=limit, filterCb=filterCb)
-            if formats is not None:
+            if formats:
                 outgen = self.toTextGen(outgen, formats=formats, locale=locale, dfltFormats=dfltFormats or {})
             return getattr(self, outmethod)(outgen, **kwargs) #calls the output method
         else:

@@ -509,6 +509,8 @@ def toText(obj, locale=None, format=None, mask=None, encoding=None,currency=None
        If there are locale or format parameters Babel is used to format the value 
        according to the given localization or format.
        """
+    if isinstance(obj,list) or isinstance(obj,tuple):
+        return ','.join([toText(v) for v in obj])
        #what?
     if obj is None: return u''
     if not (locale or format):
