@@ -24,12 +24,6 @@ class GnrCustomWebPage(object):
     def barTitle(self):
         return '!!Locked records'
         
-        
-        
-        
-      
-        
-        
     def lstBase(self,struct):
         r = struct.view().rows()
         r.fieldcell('id')
