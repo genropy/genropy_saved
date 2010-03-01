@@ -31,7 +31,7 @@ class GnrWebSession(GnrBaseProxy):
             if not self.session_loaded:
                 self.session.load()
                 self.session_loaded = True
-            self.session.lock()
+            #self.session.lock()
             self.locked = True
         self.pagedata = self.getSessionData(self.page_id)
         self.common = self.getSessionData('common')
@@ -45,7 +45,7 @@ class GnrWebSession(GnrBaseProxy):
         if persist:
             self.session.persist()
         self.session_changed = True
-        self.session.unlock()
+        #self.session.unlock()
         self.locked = False
         
     
