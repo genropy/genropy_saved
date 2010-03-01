@@ -450,7 +450,7 @@ class GnrWhereTranslator(object):
                 #else:
                 onecondition = ophandler(column, value, dtype, sqlArgs)
             if negate:
-                onecondition = '(NOT %s)' % onecondition
+                onecondition = ' NOT %s  ' % onecondition
             result.append(' %s %s' % (jc, onecondition ))
         return result
 
