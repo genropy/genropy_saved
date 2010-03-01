@@ -85,7 +85,7 @@ class TableBase(object):
                                                                         many_group='_',one_group='_')
         relation_path = '@%s_recordtag_link_%s.@tag_id' %(tbl.getAttr()['pkg'],fkey)  
         tbl.aliasColumn('_recordtag_desc',relation_path='%s.description' %relation_path,group=group,name_long=name_long,dtype='TAG')
-        #tbl.aliasColumn('_recordtag_tag',relation_path='%s.tag' %relation_path,group=group,name_long='!!Has tags',dtype='TAG')
+        tbl.aliasColumn('_recordtag_tag',relation_path='%s.tag' %relation_path,name_long='!!Tagcode',group='_')
 
         
 class GnrDboTable(TableBase):
@@ -285,11 +285,10 @@ class Table_recordtag(TableBase):
             #updating
             parentTag_old = old_record_data['tag']
             parentDescription_old = old_record_data['description']
-            if parentTag_old != parentTag or parentDescription_old!=parentDescription:
+            if parentTag_old != parentTag :
                 #updating if change parentTag
                 def cb_tag(row):
                     row['tag'] = row['tag'].replace('%s_' %parentTag_old,'%s_'%parentTag)
-                    row['description'] = row['description'].replace('%s:' %parentDescription_old,'%s:' %parentDescription)
                     row['maintag'] = parentTag
                 self.batchUpdate(cb_tag,where='$maintag =:p_tag AND tablename=:t_name',
                                 p_tag=parentTag_old,t_name=tablename)                
@@ -297,11 +296,10 @@ class Table_recordtag(TableBase):
             #updating if change change values
             for item in splitAndStrip(old_record_data['values'],','):
                 tag,description = splitAndStrip('%s:%s'%(item,item),':',n=2,fixed=2)  
-                oldChildren['%s_%s'%(parentTag,tag)] = '%s:%s' %(parentDescription,description)
+                oldChildren['%s_%s'%(parentTag,tag)] =description
                 
         for item in splitAndStrip(record_data['values'],','):
             tag,description = splitAndStrip('%s:%s'%(item,item),':',n=2,fixed=2)
-            description = '%s:%s' %(parentDescription,description)
             fulltag='%s_%s' %(parentTag,tag) 
             if fulltag in oldChildren:
                 if description != oldChildren[fulltag]:

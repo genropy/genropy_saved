@@ -386,7 +386,7 @@ class SqlTable(GnrObject):
             row = row[0]
         return row
     
-    def sqlWhereFromBag(self, wherebag, sqlArgs=None):
+    def sqlWhereFromBag(self, wherebag, sqlArgs=None,**kwargs):
         """
             <c_0 column="invoice_num" op="ISNULL" rem='without invoice' />
             <c_1 column="@anagrafica.provincia" op="IN" jc='AND'>MI,FI,TO</condition>
@@ -397,7 +397,7 @@ class SqlTable(GnrObject):
         """
         if sqlArgs is None:
             sqlArgs = {}
-        result = self.db.whereTranslator(self, wherebag, sqlArgs)
+        result = self.db.whereTranslator(self, wherebag, sqlArgs,**kwargs)
         return result, sqlArgs
     
     def frozenSelection(self, fpath):

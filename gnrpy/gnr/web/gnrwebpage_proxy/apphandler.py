@@ -647,9 +647,9 @@ class GnrWebAppHandler(GnrBaseProxy):
                 new_where.setItem('filter',selection_filters)
                 new_where.setItem('where',where, jc='and')
                 where=new_where
-        where._locale = self.page.locale
-        where._workdate = self.page.workdate
-        return tblobj.sqlWhereFromBag(where, kwargs)
+        page = self.page
+        customOpCbDict=dict([(x[12:],getattr(page,x)) for x in dir(page) if x.startswith('customSqlOp_') ])
+        return tblobj.sqlWhereFromBag(where, kwargs,customOpCbDict=customOpCbDict)
             
     def _columnsFromStruct(self, viewbag, columns=None):
         if columns is None:

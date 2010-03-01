@@ -119,7 +119,7 @@ dojo.declare("gnr.GnrQueryBuilder",null,{
         this.datapath = datapath;
         this.dtypes_dict = {'A':'alpha','T':'alpha','C':'alpha',
                             'D':'date','DH':'date','I':'number',
-                            'L':'number','N':'number','R':'number','B':'boolean','TAG':'istag'};
+                            'L':'number','N':'number','R':'number','B':'boolean','TAG':'tagged'};
         this.helper_op_dict = {'in':'in','tagged':'tagged'};
         genro.setDataFromRemote('gnr.qb.fieldstree',"relationExplorer", {table:maintable, omit:'_'});
         this.treefield = genro.getData('gnr.qb.fieldstree');
@@ -130,6 +130,12 @@ dojo.declare("gnr.GnrQueryBuilder",null,{
         genro.setDataFromRemote('gnr.qb.sqlop',"getSqlOperators");  
     },
 
+    getDtypeGroup:function(dtype){
+        var dflt=('other_'+dtype).toLowerCase();
+        var dflt='other';
+        return this.dtypes_dict[dtype] || dflt;
+    },
+    
     createMenues: function(){
         genro.src.getNode()._('div', '_qbmenues');
         var node = genro.src.getNode('_qbmenues');
@@ -150,7 +156,7 @@ dojo.declare("gnr.GnrQueryBuilder",null,{
         node.unfreeze();
     },
     getOpMenuId: function(dtype){
-        return dtype?"qb_op_menu_"+this.dtypes_dict[dtype] || "other":'qb_op_menu_unselected_column';;
+        return dtype?"qb_op_menu_"+this.getDtypeGroup(dtype):'qb_op_menu_unselected_column';
     },
     getCaption: function(optype,pars){
         var val = pars[optype];
@@ -178,7 +184,8 @@ dojo.declare("gnr.GnrQueryBuilder",null,{
         var currentDtype = contextNode.getRelativeData(relpath+'?column_dtype');
         if (currentDtype!=column_attr.dtype){
             contextNode.setRelativeData(relpath+'?column_dtype',column_attr.dtype);
-            var default_op = genro._('gnr.qb.sqlop.op_spec.'+this.dtypes_dict[column_attr.dtype]+'.#0');
+            var default_op = genro._('gnr.qb.sqlop.op_spec.'+this.getDtypeGroup(column_attr.dtype)+'.#0');
+            console.log(default_op)
             contextNode.setRelativeData(relpath+'?op',default_op);
             contextNode.setRelativeData(relpath+'?op_caption',
                                         genro.getDataNode('gnr.qb.sqlop.op.'+default_op).attr.caption);
@@ -263,7 +270,7 @@ dojo.declare("gnr.GnrQueryBuilder",null,{
             cell = tr._('td', {colspan:'3',datapath:relpath});
             this._buildQueryGroup(cell, val,level+1);
         } else {
-            var op_menu_id ='qb_op_menu_'+ (this.dtypes_dict[attr.column_dtype || 'T'] || 'other');
+            var op_menu_id ='qb_op_menu_'+ (this.getDtypeGroup(attr.column_dtype || 'T'));
             attr.column_caption = this.getCaption('column',attr);
             attr.op_caption = this.getCaption('op',attr) ;
             tr._('td')._('div',{_class:'qb_div qb_field floatingPopup',connectedMenu:'qb_fields_menu',

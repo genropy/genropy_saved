@@ -13,7 +13,7 @@ class QueryHelper(BaseComponent):
                                 var attrs = row.getAttr();
                                 var op = attrs['op'];
                                 var col_caption = attrs['column_caption'];
-                                var op_caption = attrs['op_caption']
+                                var op_caption = attrs['op_caption'];
                                 if(op=='in'){
                                     SET #helper_in_dlg.title = col_caption+' '+op_caption;
                                     FIRE #helper_in_dlg.open = {row:queryrow};
@@ -92,14 +92,17 @@ class QueryHelper(BaseComponent):
         def cb_center(parentBC,**kwargs):
             pane = parentBC.contentPane(**kwargs)
             self.lazyContent('getFormTags_query',pane,
-                              values='^.loadcontent',call_mode='=.#parent.opener.call_mode')                              
+                              queryValues='^.#parent.queryValues',call_mode='helper')                              
         dialogBc = self.dialog_form(pane,title='!!Helper TAG',loadsync=False,
                                 datapath='list.helper.op_tag',centerOn='_pageRoot',
                                 height='300px',width='510px',allowNoChanges=False,
                                 formId='helper_tag',cb_center=cb_center)
         dialogBc.dataController("""
                                    SET .data = null;
-                                   FIRE .loadcontent =genro._('list.query.where.'+queryrow);
+                                   console.log(queryrow);
+                                   var queryValues = genro._('list.query.where.'+queryrow);
+                                   console.log(queryValues);
+                                   FIRE .queryValues = queryValues;
                                    FIRE .loaded;
                                 """,
                                 nodeId="helper_tag_loader",queryrow='=.opener.row')
@@ -121,7 +124,7 @@ class QueryHelper(BaseComponent):
                                 var result = tagged.join(',')+'!'+tagged_not.join(',');
                                 genro.setData('list.query.where.'+queryrow,result);
                                 FIRE .saved;""",
-                                tagbag='=.data.tagbag',queryrow='=.reason',
+                                tagbag='=.data.tagbag',queryrow='=.opener.row',
                                 nodeId="helper_tag_saver")
 
 class FiltersHandler(BaseComponent):
@@ -157,6 +160,26 @@ class FiltersHandler(BaseComponent):
 
 class TagsHandler(BaseComponent):
     py_requires='foundation/tools:RemoteBuilder'
+    def customSqlOp_tagged(self,column=None,value=None,dtype=None,sqlArgs=None,optype_dict=None,whereTranslator=None):
+        if optype_dict:
+            operation = 'tagged'
+            optype_dict['tagged'] = operation
+            return ('tagged','!!Tag in')
+        elif whereTranslator:
+            conditions = []
+            tagged,tagged_not = value.split('!')
+            if tagged:
+                cond_tag=[]
+                for tag in tagged.split(','):
+                    cond_tag.append('$_recordtag_tag =:%s' %whereTranslator.storeArgs(tag,'A',sqlArgs)) 
+                conditions.append(' AND '.join(cond_tag))
+            if tagged_not:
+                cond_tag=[]
+                for tag in tagged_not.split(','):
+                    cond_tag.append('$_recordtag_tag LIKE :%s' %whereTranslator.storeArgs('%s%%'%tag,'A',sqlArgs)) 
+                conditions.append(' NOT (%s)' %' OR '.join(cond_tag))
+            return ' AND '.join(conditions)
+       
     def tags_main(self,pane):
         self.linktag_dlg(pane)
         self.managetags_dlg(pane)
@@ -259,12 +282,22 @@ class TagsHandler(BaseComponent):
             if value:
                 taglink_table.assignTagLink(self.maintable,pkey,tag,value[0])
                 
-    def remote_getFormTags_query(self,pane,values=None,**kwargs):
-        self.remote_getFormTags(pane,values=None,**kwargs)
+    def remote_getFormTags_query(self,pane,queryValues=None,**kwargs):
+        if queryValues:
+            tagged,tagged_not = queryValues.split('!')
+            queryValues = Bag()
+            queryValues['tagged'] = dict()
+            queryValues['tagged_not'] = dict()
+
+            for tag in tagged.split(','):
+                queryValues['tagged'][tag] = True
+            for tag in tagged_not.split(','):
+                queryValues['tagged_not'][tag] = True
+        self.remote_getFormTags(pane,queryValues=queryValues,**kwargs)
 
     
-    def remote_getFormTags(self,pane,pkey=None,selectedRowIdx=None,call_mode=None,selectionName=None,values=None,**kwargs):
-        print call_mode
+    def remote_getFormTags(self,pane,pkey=None,selectedRowIdx=None,call_mode=None,
+                            selectionName=None,queryValues=None,**kwargs):
         taglinktbl = self.db.table('%s.recordtag_link' %self.package.name)
         def lblGetter (fulltag,label):
             return label
@@ -311,7 +344,8 @@ class TagsHandler(BaseComponent):
             tag_row = tag_table.div(style='display:table-row',height='5px') #no dimensioni riga solo padding dimensioni ai contenuti delle celle
             tag_row = tag_table.div(style='display:table-row',_class='tag_line tag_%s' %(oddOrEven),datapath='.%s' %tag) #no dimensioni riga solo padding dimensioni ai contenuti delle celle
             if call_mode=='form':
-                label_col = tag_row.div(description,style='display:table-cell',_class='tag_left_col tag_label_col bgcolor_darkest color_brightest')
+                label_col = tag_row.div(description,style='display:table-cell',
+                                        _class='tag_left_col tag_label_col bgcolor_darkest color_brightest')
             else:
                 cb_col = tag_row.div(style='display:table-cell',_class='tag_left_col bgcolor_darkest color_brightest',padding_left='10px')
                 cb_col.checkbox(value='^.?enabled',validate_onAccept="""if(!value){
@@ -322,10 +356,23 @@ class TagsHandler(BaseComponent):
                                                                             SET .?enabled = false;
                                                                         }""")
                 label_col = tag_row.div(description,style='display:table-cell',_class='bgcolor_darkest color_brightest tag_label_col',padding_left='10px')
-            tag_row.div(style='display:table-cell',_class=colorRow).div(_class='dijitButtonNode tag_button tag_false').radiobutton(value='^.false',label='!!No',group=tag,connect_onclick='SET .?enabled= true; SET .?selectedTag="!%s";' %tag)
+            no_td = tag_row.div(style='display:table-cell',_class=colorRow).div(_class='dijitButtonNode tag_button tag_false')
+            if call_mode=='helper' and queryValues:
+                if tag in queryValues['tagged_not']:
+                    no_td.data('.false',True)
+                    no_td.data('.?enabled',True)
+                    no_td.data('.?selectedTag','!%s' %tag)
+            no_td.radiobutton(value='^.false',label='!!No',group=tag,connect_onclick='SET .?enabled= true; SET .?selectedTag="!%s";' %tag)
             value_col = tag_row.div(style='display:table-cell',_class='tag_value_col %s' %colorRow)
             for btn in buttons:
-                value_col.div(_class=btn['_class'],width=max_width).radiobutton(value=btn['value'],label=btn['label'],group=tag,connect_onclick='SET .?enabled= true; SET .?selectedTag="%s";' %btn['fulltag'])
+                value_td = value_col.div(_class=btn['_class'],width=max_width)
+                if call_mode=='helper' and queryValues:
+                    if btn['fulltag'] in queryValues['tagged']:
+                        value_td.data(btn['value'][1:],True)
+                        value_td.data('.?enabled',True)
+                        value_td.data('.?selectedTag',btn['fulltag'])
+                value_td.radiobutton(value=btn['value'],label=btn['label'],
+                                    group=tag,connect_onclick='SET .?enabled= true; SET .?selectedTag="%s";' %btn['fulltag'])
 
 class StatsHandler(BaseComponent):
     def stats_main(self,parent,**kwargs):

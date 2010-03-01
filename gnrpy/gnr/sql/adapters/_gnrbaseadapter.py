@@ -396,14 +396,17 @@ class GnrWhereTranslator(object):
     def __init__(self):
         self.catalog = GnrClassCatalog()
         
-    def __call__(self, tblobj, wherebag, sqlArgs, workdate=None, locale=None):
+    def __call__(self, tblobj, wherebag, sqlArgs, customOpCbDict=None):
         if sqlArgs is None:
             sqlArgs = {}
-        self.locale = getattr(wherebag, '_locale', None)
-        self.workdate = getattr(wherebag, '_workdate', None)
+        currentEnv=tblobj.db.currentEnv
+        self.locale = currentEnv.get('locale')
+        self.workdate = currentEnv.get('workdate')
+        self.customOpCbDict=customOpCbDict
         result = self.innerFromBag(tblobj, wherebag, sqlArgs, 0)
         self.locale = None
         self.workdate = None
+        
         return '\n'.join(result)
         
     def opCaption(self,op):
@@ -444,11 +447,12 @@ class GnrWhereTranslator(object):
                     column='CAST (%s as text)'%column
                     dtype='A'
                 ophandler = getattr(self, 'op_%s' % op,None)
-                #if not ophandler and op.startswith('not_'):
-                #    ophandler=getattr(self, 'op_%s' % op[4:])
-                #    onecondition = '(NOT %s)'% ophandler(column, value, dtype, sqlArgs)
-                #else:
-                onecondition = ophandler(column, value, dtype, sqlArgs)
+                if ophandler :
+                    onecondition = ophandler(column=column, value=value, dtype=dtype, sqlArgs=sqlArgs)
+                else:
+                    ophandler=self.customOpCbDict.get(op)
+                    assert ophandler,'undefined ophandler'
+                    onecondition = ophandler(column=column, value=value, dtype=dtype, sqlArgs=sqlArgs,whereTranslator=self)
             if negate:
                 onecondition = ' NOT %s  ' % onecondition
             result.append(' %s %s' % (jc, onecondition ))
@@ -573,25 +577,11 @@ class GnrWhereTranslator(object):
         if dtype in ('L','N','M','R'):
             return self.op_isnull(column,value,dtype,sqlArgs)
         return " (%s IS NULL OR %s ='')" % (column,column)
-    
-    def __op_not_isnull(self, column, value, dtype, sqlArgs):
-        "Is not null"
-        return '%s IS NOT NULL' % column
         
     def op_in(self, column, value, dtype, sqlArgs):
         "In"
         values_string = self.storeArgs(value.split(','), dtype, sqlArgs)
         return '%s IN :%s' % (column, values_string)
-    
-    def op_tagged(self, column, value, dtype, sqlArgs):
-        "Tag In"
-        values_string = self.storeArgs(value.split(','), dtype, sqlArgs)
-        return '%s IN :%s' % (column, values_string)
-    
-    def __op_not_in(self, column, value, dtype, sqlArgs):
-        "Not in"
-        values_string = self.storeArgs(value.split(','), dtype, sqlArgs)
-        return '%s NOT IN :%s' % (column, values_string)
             
     def op_regex(self, column, value, dtype, sqlArgs):
         "Regular expression"

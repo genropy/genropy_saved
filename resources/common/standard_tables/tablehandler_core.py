@@ -152,7 +152,7 @@ class ListViewHandler(BaseComponent):
                     _onResult='genro.viewEditor.colsFromBag();')
         pane.dataRpc('list.view.structure', 'new_view', _reason='^list.view.new',
                     _onResult="""
-                                genro.viewEditor.colsFromBag(); 
+                                //genro.viewEditor.colsFromBag(); 
                                 SET list.view.selectedId=null;
                                 """ ,filldefaults=True)
 
@@ -231,22 +231,27 @@ class LstQueryHandler(BaseComponent):
     def rpc_getSqlOperators(self):
         result = Bag()
         listop=('equal','startswith','wordstart','contains','startswithchars','greater','greatereq',
-                    'less','lesseq','between','isnull','istrue','isfalse','nullorempty','in','regex','tagged')
-        optype = dict(alpha=['contains','startswith','equal','wordstart',
+                    'less','lesseq','between','isnull','istrue','isfalse','nullorempty','in','regex')
+        optype_dict = dict(alpha=['contains','startswith','equal','wordstart',
                             'startswithchars','isnull','nullorempty','in','regex',
-                            'greater','greatereq','less','lesseq',],
+                            'greater','greatereq','less','lesseq'],
                       date=['equal','in','isnull','greater','greatereq','less','lesseq','between'],
                       number=['equal','greater','greatereq','less','lesseq','isnull','in'],
                       boolean=['istrue','isfalse','isnull'],
-                      others=['equal','greater','greatereq','less','lesseq','in'],
-                      istag=['tagged'])
+                      others=['equal','greater','greatereq','less','lesseq','in'])
         
         wt = self.db.whereTranslator
         for op in listop:
             result.setItem('op.%s' % op,  None, caption='!!%s' % wt.opCaption(op))
-        for optype,values in optype.items():
+        for optype,values in optype_dict.items():
             for operation in values:
                 result.setItem('op_spec.%s.%s' % (optype,operation), operation, caption='!!%s' % wt.opCaption(operation))
+        customOperatorsHandlers=[(x[12:],getattr(self,x)) for x in dir(self) if x.startswith('customSqlOp_') ]
+        for optype,handler in customOperatorsHandlers:
+            operation,caption=handler(optype_dict=optype_dict)
+            result.setItem('op_spec.%s.%s' % (optype,operation), operation, caption=caption)
+            result.setItem('op.%s' % operation,  None, caption=caption)
+            
         result.setItem('op_spec.unselected_column.x',None,caption='!!Please select the column')
             
             

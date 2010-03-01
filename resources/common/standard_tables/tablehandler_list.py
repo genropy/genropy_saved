@@ -367,7 +367,9 @@ class TableHandlerForm(BaseComponent):
                       table=self.maintable, where='=list.query.where',excludeLogicalDeleted='=list.excludeLogicalDeleted',
                       **condPars)
     
+    
 
         #btnpane.button('Add View', iconClass='tb_button db_add', fire='list.view.new',showLabel=False)
         
+
 
