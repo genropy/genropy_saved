@@ -28,11 +28,12 @@ class GnrWebSession(GnrBaseProxy):
         
     def loadSessionData(self, locking=True):
         if locking and not self.locked:
-            if not self.session_loaded:
-                self.session.load()
-                self.session_loaded = True
+            #if not self.session_loaded:
+            #    self.session.load()
+            #    self.session_loaded = True
             #self.session.lock()
             self.locked = True
+        
         self.pagedata = self.getSessionData(self.page_id)
         self.common = self.getSessionData('common')
         
