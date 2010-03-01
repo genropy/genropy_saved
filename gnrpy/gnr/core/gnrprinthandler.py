@@ -7,6 +7,7 @@ import os.path
 from subprocess import call
 try:
     from pyPdf import PdfFileWriter, PdfFileReader
+    from cStringIO import StringIO
     HAS_PYPDF = True
 except ImportError:
     HAS_PYPDF = False
@@ -145,8 +146,10 @@ class PrintHandler(object):
         open_files =[]
         for input_path in pdf_list:
             input_file  = open(input_path,'rb')
-            open_files.append(input_file)
-            input_pdf = PdfFileReader(input_file)
+            memory_file = StringIO(input_file.read())
+            open_files.append(memory_file)
+            input_file.close()
+            input_pdf = PdfFileReader(memory_file)
             for page in input_pdf.pages:
                 output_pdf.addPage(page)
         output_file = open(output_filepath,'wb')
