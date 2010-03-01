@@ -7,14 +7,17 @@
 #  Copyright (c) 2007 Softwell. All rights reserved.
 #
 
-#import time
+from time import time
 from collections import defaultdict
+
 class GnrBatch(object):
     thermo_rows = 1
-    def __init__(self,data=None,runKwargs=None, thermocb = None, thermoid=None,thermofield='*',**kwargs):
+    def __init__(self,data=None,runKwargs=None, thermocb = None, thermoid=None,thermofield='*',thermodelay=2,**kwargs):
         self.thermocb = thermocb or (lambda *a,**kw:None)
         self.thermoid = thermoid
+        self.thermodelay = thermodelay
         self.thermofield = thermofield
+        self.last_thermotime = time()
         self.thermo_status = defaultdict(lambda: 0)
         self.thermo_message = defaultdict(lambda: '')
         self.thermo_maximum = defaultdict(lambda: None)
@@ -78,13 +81,15 @@ class GnrBatch(object):
         else:
             self.thermo_status[row] += step
         if self.thermoid:
-            kwargs = dict()
-            kwargs['progress_%i'%row] = self.thermo_status[row]
-            kwargs['message_%i'%row] = message or self.thermo_chunk_message(chunk=chunk, row=row)
-            result = self.thermocb(self.thermoid, **kwargs)
-            if result=='stop':
-                self.thermocb(self.thermoid, command='stopped')
-            return result
+            if time()-self.last_thermotime >= self.thermodelay:
+                self.last_thermotime=time()
+                kwargs = dict()
+                kwargs['progress_%i'%row] = self.thermo_status[row]
+                kwargs['message_%i'%row] = message or self.thermo_chunk_message(chunk=chunk, row=row)
+                result = self.thermocb(self.thermoid, **kwargs)
+                if result=='stop':
+                    self.thermocb(self.thermoid, command='stopped')
+                return result
     
     def thermo_chunk_message(self, chunk, row):
         pass
