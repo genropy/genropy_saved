@@ -89,11 +89,11 @@ class PrintHandler(object):
             baseName = os.path.splitext(os.path.basename(srcPath))[0]
             destPath=os.path.join(destPath, '%s.pdf' % baseName)
         if sys.platform.startswith('linux'):
-            result = call(['xvfb-run -a wk2pdf "%s" "%s"'%(srcPath,destPath)],shell=True)
+            result = call(['wkhtmltopdf','-q',srcPath,destPath])
         else:
-            result = call(['wk2pdf',srcPath,destPath])
+            result = call(['wkhtmltopdf','-q',srcPath,destPath])
         if result < 0:
-            raise PrintHandlerError('wk2pdf error')
+            raise PrintHandlerError('wkhtmltopdf error')
             
     def autoConvertFiles(self, files, storeFolder):
         resultList = []
@@ -102,11 +102,11 @@ class PrintHandler(object):
             if ext.lower() == '.html':
                 destPath=os.path.join(storeFolder, '%s.pdf' % baseName)
                 if sys.platform.startswith('linux'):
-                    result = call(['xvfb-run -a wk2pdf "%s" "%s"'%(filename,destPath)],shell=True)
+                    result = call(['wkhtmltopdf','-q',filename,destPath])
                 else:
-                    result = call(['wk2pdf',filename,destPath])
+                    result = call(['wkhtmltopdf','-q',filename,destPath])
                 if result < 0:
-                    raise PrintHandlerError('wk2pdf error')
+                    raise PrintHandlerError('wkhtmltopdf error')
                 resultList.append(destPath)
             elif ext.lower() =='.pdf':
                 resultList.append(filename)

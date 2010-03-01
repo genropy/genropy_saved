@@ -90,11 +90,6 @@ class GnrCustomWebPage(object):
     def mytest(self):
         builder = GnrHtmlBuilder() 
         self.htmltest(builder.body)
-       # html = builder.toHtml()
-       #from gnr.pdf.wk2pdf import WK2pdf
-       #wkprinter = WK2pdf('testhtml/test0.html','testhtml/test0.pdf')
-       #wkprinter.run()
-       #wkprinter.exec_()
         return html
         
     def rpc_xyz(self,bag=None,**kwargs):

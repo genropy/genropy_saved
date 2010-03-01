@@ -242,17 +242,10 @@ class GnrHtmlBuilder(object):
         
     def toPdf(self, filename):
         from subprocess import call
-        #call(['ls','-l','*.py'])
-        #from gnr.pdf.wk2pdf import WK2pdf
-        #self.toHtml('%s.%s'%(filename,'html'))
-        #wkprinter = WK2pdf('%s.%s'%(filename,'html'),filename)
-        #wkprinter.run()
-        #wkprinter.exec_()
-        
         if sys.platform.startswith('linux'):
-            res = call(['xvfb-run -a wk2pdf "%s" "%s"'%(filename+'.html',filename)])
+            res = call(['wkhtmltopdf','-q','%s.%s'%(filename,'html'),filename])
         else:
-            res = call(['wk2pdf','%s.%s'%(filename,'html'),filename])
+            res = call(['wkhtmltopdf','-q','%s.%s'%(filename,'html'),filename])
         
     def calculate_style(self,attr,um,**kwargs):
         style=attr.pop('style','')
@@ -509,12 +502,5 @@ if __name__ =='__main__':
     builder = GnrHtmlBuilder() 
     builder.initializeSrc()
     builder.styleForLayout()
-    #test1(body)
     testRows(builder.body)
-    #pdf.root.toXml('testhtml/test0.xml',autocreate=True)
     builder.toHtml('testhtml/test0.html')
-   #from gnr.pdf.wk2pdf import WK2pdf
-   #wkprinter = WK2pdf('testhtml/test0.html','testhtml/test0.pdf')
-   #wkprinter.run()
-   #wkprinter.exec_()
-    #print builder.html

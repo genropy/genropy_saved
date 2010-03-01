@@ -389,14 +389,7 @@ def test0(body):
 if __name__ =='__main__':
     pdf = GnrHtmlPdf('testbag.pdf') 
     body= pdf.body
-    #test1(body)
     test0(body)
     pdf.root.toXml('testhtml/test0.xml',autocreate=True)
     pdf.toHtml('testhtml/test0.html')
-    from gnr.pdf.wk2pdf import WK2pdf
-    wkprinter = WK2pdf('testhtml/test0.html','testhtml/test0.pdf')
-    wkprinter.run()
-    wkprinter.exec_()
-            
-            
     print body

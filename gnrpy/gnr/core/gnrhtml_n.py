@@ -481,16 +481,9 @@ def test1(pane):
 
 if __name__ =='__main__':
     builder = GnrHtmlBuilder() 
-    #test1(body)
     test0(builder.body)
-    #pdf.root.toXml('testhtml/test0.xml',autocreate=True)
     builder.toXml('testhtml/test0.xml')
     builder.compile()
     builder.compiled.toXml('testhtml/test0_cmp.xml')
     
     builder.toHtml('testhtml/test0.html')
-   #from gnr.pdf.wk2pdf import WK2pdf
-   #wkprinter = WK2pdf('testhtml/test0.html','testhtml/test0.pdf')
-   #wkprinter.run()
-   #wkprinter.exec_()
-    #print builder.html
