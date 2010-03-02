@@ -15,8 +15,7 @@ class QueryHelper(BaseComponent):
                                 var col_caption = attrs['column_caption'];
                                 var op_caption = attrs['op_caption'];
                                 if(op=='in'){
-                                    SET #helper_in_dlg.title = col_caption+' '+op_caption;
-                                    FIRE #helper_in_dlg.open = {row:queryrow};
+                                    FIRE #helper_in_dlg.open = {row:queryrow,title:col_caption+' '+op_caption};
                                 }else if(op=='tagged'){
                                     FIRE #helper_tag_dlg.open = {row:queryrow,call_mode:'helper'};
                                 }""",
@@ -44,18 +43,24 @@ class QueryHelper(BaseComponent):
             ddb.menu(storepath='.menu',_class='smallmenu')
             center = bc.contentPane(region='center',margin='5px',margin_top=0)
             center.simpleTextArea(value='^.items',height='90%',width='95%',margin='5px')                       
-        dialogBc = self.dialog_form(pane,title='^.title',loadsync=True,
+        dialogBc = self.dialog_form(pane,title='^.opener.title',loadsync=True,
                                 datapath='list.helper.op_in',centerOn='_pageRoot',
                                 height='300px',width='300px',
                                 formId='helper_in',cb_center=cb_center)
         dialogBc.dataController("""var val =genro._('list.query.where.'+queryrow);
                                    if(val){
-                                       SET .data.items=val.replace(/,+/g,'\\n');
+                                       SET .data.items = val.replace(/,+/g,'\\n');                                       
+                                   }else{
+                                        SET .data = null;
                                    }
                                    """,
-                                nodeId="helper_in_loader",queryrow='=.opener')
+                                nodeId="helper_in_loader",queryrow='=.opener.row')
                                 
-        dialogBc.dataController("""genro.setData('list.query.where.'+queryrow,items.replace(/\s+/g,',').replace(/,+$/g,''));
+        dialogBc.dataController("""
+                                var splitPattern=/\s*[\\n\\,]+\s*/g;
+                                var cleanPattern=/(^\\s*[\\n\\,]*\\s*|\\s*[\\n\\,]*\\s*$)/g;
+                                items=items.replace(cleanPattern,'').split(splitPattern).join(',');
+                                genro.setData('list.query.where.'+queryrow,items);
                                 FIRE .saved;""",
                                 items='=.data.items',queryrow='=.opener.row',
                                 nodeId="helper_in_saver")
@@ -91,7 +96,7 @@ class QueryHelper(BaseComponent):
     def helper_tag_dlg(self,pane):
         def cb_center(parentBC,**kwargs):
             pane = parentBC.contentPane(**kwargs)
-            self.lazyContent('getFormTags_query',pane,
+            self.lazyContent('getFormTags_query',pane,queryColumn='=.#parent.queryColumn',
                               queryValues='^.#parent.queryValues',call_mode='helper')                              
         dialogBc = self.dialog_form(pane,title='!!Helper TAG',loadsync=False,
                                 datapath='list.helper.op_tag',centerOn='_pageRoot',
@@ -99,10 +104,9 @@ class QueryHelper(BaseComponent):
                                 formId='helper_tag',cb_center=cb_center)
         dialogBc.dataController("""
                                    SET .data = null;
-                                   console.log(queryrow);
-                                   var queryValues = genro._('list.query.where.'+queryrow);
-                                   console.log(queryValues);
-                                   FIRE .queryValues = queryValues;
+                                   var rowNode = genro.getDataNode('list.query.where.'+queryrow);
+                                   SET .queryColumn  = rowNode.attr.column;
+                                   FIRE .queryValues = rowNode.getValue();
                                    FIRE .loaded;
                                 """,
                                 nodeId="helper_tag_loader",queryrow='=.opener.row')
@@ -165,24 +169,32 @@ class TagsHandler(BaseComponent):
             operation = 'tagged'
             optype_dict['tagged'] = operation
             return ('tagged','!!Tag in')
-        elif whereTranslator:
+        elif whereTranslator and value:
+            column = column.replace('_recordtag_desc','_recordtag_tag')
             conditions = []
             tagged,tagged_not = value.split('!')
             if tagged:
                 cond_tag=[]
                 for tag in tagged.split(','):
-                    cond_tag.append('$_recordtag_tag =:%s' %whereTranslator.storeArgs(tag,'A',sqlArgs)) 
+                    cond_tag.append('%s =:%s' %(column,whereTranslator.storeArgs(tag,'A',sqlArgs)))
                 conditions.append(' AND '.join(cond_tag))
             if tagged_not:
                 cond_tag=[]
                 for tag in tagged_not.split(','):
-                    cond_tag.append('$_recordtag_tag LIKE :%s' %whereTranslator.storeArgs('%s%%'%tag,'A',sqlArgs)) 
+                    cond_tag.append('%s LIKE :%s' %(column,whereTranslator.storeArgs('%s%%'%tag,'A',sqlArgs)))
                 conditions.append(' NOT (%s)' %' OR '.join(cond_tag))
             return ' AND '.join(conditions)
        
     def tags_main(self,pane):
-        self.linktag_dlg(pane)
-        self.managetags_dlg(pane)
+        if self.application.checkResourcePermission(self.canLinkTag(), self.userTags):
+            self.linktag_dlg(pane)
+            self.managetags_dlg(pane)
+            
+    def canManageTag(self):
+        return 'admin'
+        
+    def canLinkTag(self):
+        return
     
     def managetags_dlg(self,pane):
         def cb_bottom(parentBC,**kwargs):
@@ -261,7 +273,8 @@ class TagsHandler(BaseComponent):
 
     def linktag_dlg_bottom(self,bc,confirm_btn=None,**kwargs):
         bottom = self.dialog_form_bottom(bc,confirm_btn=None,**kwargs)
-        bottom.button('!!Edit tags',margin='1px',float='left',fire='#recordtag_dlg.open')
+        if self.application.checkResourcePermission(self.canManageTag(), self.userTags):
+            bottom.button('!!Edit tags',margin='1px',float='left',fire='#recordtag_dlg.open')
         bottom.dataController("FIRE .load;",_fired="^#recordtag_dlg.hide")
                            
     def rpc_saveRecordTagLinks(self,data=None,call_mode=None,selectedRowIdx=None,pkey=None,selectionName=None):
@@ -282,7 +295,8 @@ class TagsHandler(BaseComponent):
             if value:
                 taglink_table.assignTagLink(self.maintable,pkey,tag,value[0])
                 
-    def remote_getFormTags_query(self,pane,queryValues=None,**kwargs):
+    def remote_getFormTags_query(self,pane,queryValues=None,queryColumn=None,**kwargs):        
+        table = self.tblobj.column(queryColumn.replace('._recordtag_desc','')[1:]).relatedTable().fullname
         if queryValues:
             tagged,tagged_not = queryValues.split('!')
             queryValues = Bag()
@@ -293,28 +307,28 @@ class TagsHandler(BaseComponent):
                 queryValues['tagged'][tag] = True
             for tag in tagged_not.split(','):
                 queryValues['tagged_not'][tag] = True
-        self.remote_getFormTags(pane,queryValues=queryValues,**kwargs)
+        self.remote_getFormTags(pane,queryValues=queryValues,table=table,**kwargs)
 
-    
     def remote_getFormTags(self,pane,pkey=None,selectedRowIdx=None,call_mode=None,
-                            selectionName=None,queryValues=None,**kwargs):
+                            selectionName=None,queryValues=None,table=None,**kwargs):
         taglinktbl = self.db.table('%s.recordtag_link' %self.package.name)
+        table = table or self.maintable
         def lblGetter (fulltag,label):
             return label
         if call_mode=='form':
             tagbag = taglinktbl.getTagLinksBag(self.maintable,pkey)
             pane.data('.tagbag',tagbag)
         elif call_mode=='list' and selectionName:
-            pkeys = self.getUserSelection(table=self.tblobj,selectionName=selectionName,
+            pkeys = self.getUserSelection(table=table,selectionName=selectionName,
                                            selectedRowidx=selectedRowIdx).output('pkeylist')
-            countDict = taglinktbl.getCountLinkDict(self.maintable,pkeys)  
+            countDict = taglinktbl.getCountLinkDict(table,pkeys)  
             def lblGetter (fulltag,label):
                 if countDict.get(fulltag):
                     return  "%s(%i)" %(label,countDict.get(fulltag)['howmany'])
                 return label            
         recordtagtbl = self.db.table('%s.recordtag' %self.package.name)
         rows = recordtagtbl.query(where='$tablename =:tbl AND $maintag IS NULL',
-                          tbl=self.maintable,order_by='$values desc,$tag').fetch()
+                          tbl=table,order_by='$values desc,$tag').fetch()
         externalFrame = pane.div(_class='tag_frame bgcolor_medium',datapath='.tagbag',padding='10px')
         tag_table = externalFrame.div(style='display:table;width:100%')
         for j,r in enumerate(rows):

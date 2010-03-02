@@ -28,8 +28,17 @@ class Public(BaseComponent):
         pass
         
     def mainLeftContent(self,parentBC,**kwargs):
-        self.menu_menuPane(parentBC,**kwargs)
-
+        bc = parentBC.borderContainer(width='20%',_class='menupane',**kwargs)
+        logo_pane = bc.contentPane(region='bottom',_class='menupane_pref')
+        self.pbl_prefbtnpane(logo_pane)
+        menu_pane = bc.contentPane(region='center',_class='menutree_container',overflow='auto')
+        self.menu_menuPane(menu_pane)
+    
+    def pbl_prefbtnpane(self,pane):
+        pane.div(_class='buttonIcon %s' %self.pbl_logoclass())
+        
+    def pbl_logoclass(self):
+        return ''
         
     def pbl_userTable(self):
         return 'adm.user'

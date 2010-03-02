@@ -33,12 +33,12 @@ class Menu(BaseComponent):
    #def onMain_menuInit(self):
    #    self.pageSource().data('gnr.appmenu',MenuResolver(path=None))
    #
-    def menu_menuPane(self,parentBC,**kwargs):
+    def menu_menuPane(self,pane,**kwargs):
         b=Bag()
         b['root']=MenuResolver(path=None,pagepath=self.pagepath)
-        parentBC.data('gnr.appmenu',b)
-        leftPane = parentBC.contentPane(width='20%',_class='menupane',**kwargs)
-        leftPane.tree(id="_gnr_main_menu_tree",storepath='gnr.appmenu.root',selected_file='gnr.filepath',
+        pane.data('gnr.appmenu',b)
+        #leftPane = parentBC.contentPane(width='20%',_class='menupane',**kwargs)
+        pane.tree(id="_gnr_main_menu_tree",storepath='gnr.appmenu.root',selected_file='gnr.filepath',
                        labelAttribute='label',
                        hideValues=True,
                        _class='menutree',
@@ -55,7 +55,7 @@ class Menu(BaseComponent):
                                         else  
                                         {return node.attr.label};""",
                        nodeId='_menutree_')
-        leftPane.dataController("genro.wdgById('_gnrRoot').showHideRegion('left', false);",fired='^gnr.onStart',
+        pane.dataController("genro.wdgById('_gnrRoot').showHideRegion('left', false);",fired='^gnr.onStart',
                                 appmenu="=gnr.appmenu",_if="appmenu.len()==0")
         
         

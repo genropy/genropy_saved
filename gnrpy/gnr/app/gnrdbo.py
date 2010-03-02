@@ -341,11 +341,12 @@ class Table_recordtag_link(TableBase):
         return self.db.table('%s.recordtag' %self.pkg.name)
         
     def getTagDict(self,table):
+        currentEnv = self.db.currentEnv
         cachename = '_tagDict_%s' %table.replace('.','_')
-        tagDict = getattr(self,cachename,None)
+        tagDict =currentEnv.get(cachename)
         if not tagDict:
             tagDict = self.getTagTable().query(where='$tablename =:tbl',tbl=table).fetchAsDict(key='tag')
-            setattr(self,cachename,tagDict)
+            currentEnv[cachename] = tagDict
         return tagDict
         
     def assignTagLink(self,table,record_id,tag,value):

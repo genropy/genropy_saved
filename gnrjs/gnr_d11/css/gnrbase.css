@@ -573,6 +573,7 @@ table.formbuilder {
 	padding-top: 1px;
 	padding-right: 15px;
 	overflow: hidden;
+	white-space: pre;
 }
 
 /* @end */

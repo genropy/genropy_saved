@@ -222,9 +222,10 @@ class TableHandlerForm(BaseComponent):
         buttons = pane.div(_class='listbuttons_placeholder',float='right')
         buttons.button('!!Run query', fire='list.runQueryButton',
                     iconClass="tb_button db_query",showLabel=False)
-        if self.tblobj.hasRecordTags():
+        if self.tblobj.hasRecordTags() and \
+           self.application.checkResourcePermission(self.canLinkTag(), self.userTags):
             buttons.button('!!Tag',iconClass='icnTag',showLabel=False,
-                          action='if(GET list.selectionName){FIRE #linktag_dlg.open={call_mode:"list"};}else{FIRE #recordtag_dlg.open;}')
+                            action='FIRE #linktag_dlg.open={call_mode:"list"};')
 
         queryfb.dataFormula('list.currentQueryCountAsString','msg.replace("_rec_",cnt)',
                             cnt='^list.currentQueryCount',_if='cnt',_else='',

@@ -512,7 +512,7 @@
 }
 .tag_button{
 	display: inline-block;
-	margin-left:2px;
+	margin:2px;
 	padding:3px !important;
 	padding-left:0px !important;
 	padding-right:17px !important;
@@ -552,19 +552,20 @@
 	font-size: .9em;
 	font-weight: bold;
 	padding-right:4px;
+	white-space:pre;
 }
 .tag_left_col{
     -moz-border-radius-topleft:8px;
 	-moz-border-radius-bottomleft:8px;
-	-webkit-border-top-radius-left:8px;
-	-webkit-border-bottom-radius-left:8px;
+	-webkit-border-top-left-radius:8px;
+	-webkit-border-bottom-left-radius:8px;
 }
 .tag_value_col{
 	display: table-cell;
 	-moz-border-radius-topright:8px;
 	-moz-border-radius-bottomright:8px;
-	-webkit-border-top-radius-right:8px;
-	-webkit-border-bottom-radius-right:8px;
+	-webkit-border-top-right-radius:8px;
+	-webkit-border-bottom-right-radius:8px;
 }
 
 

@@ -453,9 +453,10 @@ class GnrWhereTranslator(object):
                     ophandler=self.customOpCbDict.get(op)
                     assert ophandler,'undefined ophandler'
                     onecondition = ophandler(column=column, value=value, dtype=dtype, sqlArgs=sqlArgs,whereTranslator=self)
-            if negate:
-                onecondition = ' NOT %s  ' % onecondition
-            result.append(' %s %s' % (jc, onecondition ))
+            if onecondition:
+                if negate:
+                    onecondition = ' NOT %s  ' % onecondition
+                result.append(' %s %s' % (jc, onecondition ))
         return result
 
     def decodeDates(self, value, op, dtype):    
