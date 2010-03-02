@@ -58,7 +58,7 @@ class GnrBatch(object):
     def process(self):
         for chunk in self.data_fetcher():
             self.process_chunk(chunk,**self.runKwargs)
-            #self.thermo_step(chunk)
+            self.thermo_step(chunk)
     
     def thermo_init(self, row=None):
         if self.thermoid:

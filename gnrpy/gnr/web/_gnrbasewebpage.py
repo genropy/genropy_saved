@@ -257,8 +257,10 @@ class GnrBaseWebPage(GnrObject):
             dbtable = self.db.table(dbtable)
         return dbtable.frozenSelection(self.pageLocalDocument(name))
     
-    def getUserSelection(self, table=None, selectionName=None, selectedRowidx=None,filterCb=None,columns=None):
+    def getUserSelection(self, table=None, selectionName=None, selectedRowidx=None,filterCb=None,columns=None,
+                          condition=None, condition_args=None):
         table = table or self.maintable
+        
         if isinstance(table, basestring):
             table = self.db.table(table)
         selection = self.unfreezeSelection(table, selectionName)
@@ -272,11 +274,14 @@ class GnrBaseWebPage(GnrObject):
                 selectedRowidx = set(selectedRowidx) #use uniquify (gnrlang) instead
             selection.filter(lambda r: r['rowidx'] in selectedRowidx)
         if columns:
-            cust_selectionName = '%s_cust' %selectionName
-            if not os.path.exists(self.pageLocalDocument(cust_selectionName)):
-                pkeys = selection.output('pkeylist')
-                selection = table.query(columns=columns,where='t0.%s in :pkeys' %table.pkey,
-                                        pkeys=pkeys,addPkeyColumn=False).selection()
+            condition_args=condition_args or {}
+            pkeys = selection.output('pkeylist')
+            where = 't0.%s in :pkeys' %table.pkey
+            if condition:
+                where = '%s AND %s' % (where,condition)
+            selection = table.query(columns=columns,where=where,
+                                    pkeys=pkeys,addPkeyColumn=False,
+                                    **condition_args).selection()
         return selection
         
     def _get_pageArgs(self):

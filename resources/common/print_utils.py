@@ -22,7 +22,9 @@ class PrintUtils(BaseComponent):
                         commitAfterPrint=None,
                         selectedRowidx=None,pdfOnly=False,
                         _onResult='',data_method=None, **kwargs):
-        table = table or self.maintable         
+        table = table or self.maintable
+        if thermoParams == True:
+            thermoParams= dict(field='*')
         if not batch_class:
             if recordId:
                 batch_class='PrintRecord'
@@ -47,7 +49,7 @@ class PrintUtils(BaseComponent):
                             table=table,batch_class=batch_class, 
                             table_resource=table_resource,
                             rebuild=rebuild,recordId=recordId,
-                            resultpath=resultpath,thermoParams=dict(field='*'),
+                            resultpath=resultpath,thermoParams=thermoParams,
                             selectionName=selectionName,
                             selectionFilterCb=selectionFilterCb,
                             commitAfterPrint=commitAfterPrint,
