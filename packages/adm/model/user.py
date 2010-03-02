@@ -22,8 +22,7 @@ class Table(object):
         tbl.column('auth_tags', name_long='!!Authorization Tags')
         tbl.column('status', name_long='!!Status', size='4',
                           validate_values_conf='!!Confirmed',
-                          validate_values_wait='!!Waiting'
-                          )
+                          validate_values_wait='!!Waiting')
         tbl.column('md5pwd', name_long='!!PasswordMD5', size=':65')
         tbl.column('locale', name_long='!!Default Language', size=':12')
         tbl.column('preferences', dtype='X', name_long='!!Preferences')
@@ -45,7 +44,6 @@ class Table(object):
             if len(password)<32:
                 record['md5pwd']=self.db.application.changePassword(None, None, password, userid=record['username'])
             
-        
     def populate(self, fromDump=None):
         if fromDump:
             dump_folder = os.path.join(self.db.application.instanceFolder,'dumps')
