@@ -563,7 +563,7 @@ dojo.declare("gnr.GnrStoreQuery",gnr.GnrStoreBag,{
             var finalize=dojo.hitch(this,function(r){
                 var result;
                 var scope =  request.scope?request.scope:dojo.global;
-                result=r.getValue();
+                result=result.getValue();
                 if (result instanceof gnr.GnrBag){
                      result=result.getNode('#0');
                 }else{
