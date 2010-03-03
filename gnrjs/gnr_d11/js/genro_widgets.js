@@ -369,7 +369,7 @@ dojo.declare("gnr.widgets.iframe",gnr.widgets.baseHtml,{
         var sourceNode = domnode.sourceNode;
         var attributes = sourceNode.attr;
         if(attributes['src']){
-            return attributes['src'];
+            return sourceNode.getAttributeFromDatasource('src');
         }else if(attributes['rpcCall']){
             params=objectExtract(attributes,'rpc_*', true);
             params.mode= params.mode? params.mode:'text';
@@ -403,7 +403,8 @@ dojo.declare("gnr.widgets.iframe",gnr.widgets.baseHtml,{
         if (sourceNode.currentSetTimeout){
             clearTimeout(sourceNode.currentSetTimeout);
         }
-        sourceNode.currentSetTimeout = setTimeout(function(d,url){
+        if (v){
+            sourceNode.currentSetTimeout = setTimeout(function(d,url){
                                               var absUrl = document.location.protocol+'//'+document.location.host+url;
                                                if (absUrl!=d.src){
                                                    if(d.src && sourceNode.attr.onUpdating){
@@ -412,6 +413,8 @@ dojo.declare("gnr.widgets.iframe",gnr.widgets.baseHtml,{
                                                    d.src = url;
                                                }
                                            }, sourceNode.attr.delay || 1 ,domnode,v);
+        }
+        
     }
 });
 

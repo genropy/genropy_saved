@@ -226,8 +226,8 @@ dojo.declare('gnr.GenroClient', null, {
         genro._data.setItem(path, msg);
         genro._data.setItem(path, null, null, {'doTrigger':false});
     },
-    test:function(){
-        this.start();
+    test:function(v){
+        console.log(v);
     },
     resizeAll: function(){
         return;
