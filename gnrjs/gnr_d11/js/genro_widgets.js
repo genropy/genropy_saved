@@ -1956,18 +1956,19 @@ dojo.declare("gnr.widgets.VirtualGrid",gnr.widgets.Grid,{
           return this._identifier;
       },
     patch_onStyleRow:function(row){
-        if(this.currRenderedRow){
-            if(this.currRenderedRow._customClasses){
+        var attr = this.rowByIndex(row.index);
+        if(attr){
+            if(attr._customClasses){
                 var customClasses = null;
-                if (this.currRenderedRow._customClasses.slice(0,1)=='!'){
-                    customClasses = this.currRenderedRow._customClasses.slice(1);
+                if (attr._customClasses.slice(0,1)=='!'){
+                    customClasses = attr._customClasses.slice(1);
                 }else{
-                    customClasses = row.customClasses + ' ' + this.currRenderedRow._customClasses;
+                    customClasses = row.customClasses + ' ' + attr._customClasses;
                 }
                 row.customClasses = customClasses;
             }
-            if(this.currRenderedRow._customStyles){
-                row.customStyles = this.currRenderedRow._customStyles;
+            if(attr._customStyles){
+                row.customStyles = attr._customStyles;
             }
         }   
         this.onStyleRow_replaced(row);
