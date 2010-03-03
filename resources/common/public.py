@@ -100,7 +100,7 @@ class Public(BaseComponent):
                 fb = pane.formbuilder(cols=1, border_spacing='5px', margin='25px',margin_top='20px')
                 fb.dateTextBox(value='^.current_date',width='8em',lbl='!!Date')
             
-            dlg = self.dialogForm(pane,title='!!Set workdate',datapath='changeWorkdate',
+            dlg = self.formDialog(pane,title='!!Set workdate',datapath='changeWorkdate',
                                  formId='changeWorkdate', height='100px',width='200px',
                                  cb_center=cb_center, loadsync=True)
             dlg.dataController("SET .data.current_date=date;",date="=gnr.workdate",nodeId='changeWorkdate_loader')

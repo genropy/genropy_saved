@@ -43,7 +43,7 @@ class QueryHelper(BaseComponent):
             ddb.menu(storepath='.menu',_class='smallmenu')
             center = bc.contentPane(region='center',margin='5px',margin_top=0)
             center.simpleTextArea(value='^.items',height='90%',width='95%',margin='5px')                       
-        dialogBc = self.dialogForm(pane,title='^.opener.title',loadsync=True,
+        dialogBc = self.formDialog(pane,title='^.opener.title',loadsync=True,
                                 datapath='list.helper.op_in',centerOn='_pageRoot',
                                 height='300px',width='300px',
                                 formId='helper_in',cb_center=cb_center)
@@ -98,7 +98,7 @@ class QueryHelper(BaseComponent):
             pane = parentBC.contentPane(**kwargs)
             self.lazyContent('getFormTags_query',pane,queryColumn='=.#parent.queryColumn',
                               queryValues='^.#parent.queryValues',call_mode='helper')                              
-        dialogBc = self.dialogForm(pane,title='!!Helper TAG',loadsync=False,
+        dialogBc = self.formDialog(pane,title='!!Helper TAG',loadsync=False,
                                 datapath='list.helper.op_tag',centerOn='_pageRoot',
                                 height='300px',width='510px',allowNoChanges=False,
                                 formId='helper_tag',cb_center=cb_center)
@@ -213,7 +213,7 @@ class TagsHandler(BaseComponent):
                                    dialogPars=dict(formCb=self.recordtag_form,height='180px',
                                                     width='300px',dlgId='_th_recortag_dlg',title='!!Record Tag',
                                                     default_tablename=self.maintable,lock_action=False))                                
-        dialogBc = self.dialogForm(pane,title='!!Edit tag',loadsync=True,
+        dialogBc = self.formDialog(pane,title='!!Edit tag',loadsync=True,
                                 datapath='gnr.recordtag.edit',centerOn='_pageRoot',
                                 height='250px',width='400px',
                                 formId='recordtag',cb_center=cb_center,
@@ -257,7 +257,7 @@ class TagsHandler(BaseComponent):
                             pkey=pkey,call_mode='=.#parent.opener.call_mode',
                             selectionName=selectionName,_fired='^.#parent.loadContent') 
                                                     
-        dialogBc = self.dialogForm(pane,title='!!Link tag',loadsync=False,
+        dialogBc = self.formDialog(pane,title='!!Link tag',loadsync=False,
                                 datapath='gnr.recordtag.assign',allowNoChanges=False , 
                                 height='300px',width='510px',centerOn='_pageRoot',
                                 formId='linktag',cb_center=cb_center,cb_bottom=self.linktag_dlg_bottom)                                
@@ -272,7 +272,7 @@ class TagsHandler(BaseComponent):
                         _onResult='FIRE .saved;',_if='selectionName',_else='FIRE .hide;')
 
     def linktag_dlg_bottom(self,bc,confirm_btn=None,**kwargs):
-        bottom = self.dialogForm_bottom(bc,confirm_btn=None,**kwargs)
+        bottom = self.formDialog_bottom(bc,confirm_btn=None,**kwargs)
         if self.application.checkResourcePermission(self.canManageTag(), self.userTags):
             bottom.button('!!Edit tags',margin='1px',float='left',fire='#recordtag_dlg.open')
         bottom.dataController("FIRE .load;",_fired="^#recordtag_dlg.hide")

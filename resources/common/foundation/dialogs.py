@@ -102,18 +102,18 @@ class Dialogs(BaseComponent):
         controller.dataRpc('_thermo.%s.result' % thermoid, 'app.getThermo', thermoid=thermoid,
                                                              flag='^_thermo.%s.flag' % thermoid)
         
-class DialogForm(BaseComponent):
+class FormDialog(BaseComponent):
     #@deprecated
     def dialog_form(self,*args,**kwargs):
-        print 'deprecated use dialogForm instead of'
-        self.dialogForm(*args,**kwargs)
+        print 'deprecated use formDialog instead of'
+        self.formDialog(*args,**kwargs)
     
     def dialog_form_bottom(self,*args,**kwargs):
-        print 'deprecated use dialogForm_bottom instead of'
-        self.dialogForm_bottom(*args,**kwargs)
+        print 'deprecated use formDialog_bottom instead of'
+        self.formDialog_bottom(*args,**kwargs)
 
         
-    def dialogForm(self,parent,title='',formId='',height='',width='',datapath='',
+    def formDialog(self,parent,title='',formId='',height='',width='',datapath='',
                 cb_center=None,cb_bottom='*',loadsync=False,confirm_btn=None,
                 allowNoChanges=True,**kwargs):
                 
@@ -153,7 +153,7 @@ class DialogForm(BaseComponent):
     def dialogBase(self,parent,title='',dlgId=None,height='',width='',datapath='',
                     cb_center=None,cb_bottom='*',confirm_btn=None,**kwargs):
         if cb_bottom=='*':
-            cb_bottom = self.dialogForm_bottom
+            cb_bottom = self.formDialog_bottom
         dialog = parent.dialog(title=title,nodeId=dlgId,datapath=datapath,**kwargs)
         bc=dialog.borderContainer(height=height,width=width)
         if cb_bottom:
@@ -164,7 +164,7 @@ class DialogForm(BaseComponent):
         bc.dataController('genro.wdgById(dlgId).hide();',dlgId=dlgId,_fired="^.hide" )
         return bc
                                           
-    def dialogForm_bottom(self,bc,confirm_btn=None,**kwargs):
+    def formDialog_bottom(self,bc,confirm_btn=None,**kwargs):
         bottom = bc.contentPane(**kwargs)
         confirm_btn = confirm_btn or '!!Confirm'
         bottom.button(confirm_btn,baseClass='bottom_btn',float='right',margin='1px',
