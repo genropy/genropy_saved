@@ -72,7 +72,7 @@ class Dialogs(BaseComponent):
             bottom.button(btn, action=action, float='left')
         
 
-    def thermoDialog(self, pane, thermoid='thermo', title='', thermolines=1, fired=None, alertResult=False):
+    def thermoDialog(self, pane, thermoid='thermo', title='', thermolines=1, fired=None, alertResult=False,datapath=None):
         dlgid = 'dlg_%s' % thermoid
         dlg = pane.dialog(nodeId=dlgid, title=title,datapath='_thermo.%s.result' % thermoid,
                         closable='ask', close_msg='!!Stop the batch execution ?', close_confirm='Stop', close_cancel='Continue', 
@@ -91,36 +91,42 @@ class Dialogs(BaseComponent):
                           
         footer.button('Stop', baseClass='bottom_btn',
                 action='genro.wdgById("%s").onAskCancel();' % dlgid)
-        pane.dataController('console.log("open thermo %s");genro.wdgById("%s").show()' %(dlgid,dlgid), fired=fired)
-        pane.dataController('genro.wdgById(dlgid).hide();', dlgid=dlgid, 
+        controller =pane.dataController(datapath=datapath)
+        controller.dataController('console.log("open thermo %s");genro.wdgById("%s").show()' %(dlgid,dlgid), fired=fired)
+        controller.dataController('genro.wdgById(dlgid).hide();', dlgid=dlgid, 
                             status='^_thermo.%s.result.status' % thermoid, _if='(status=="stopped" || status=="end")')
         if alertResult:
-            pane.dataFormula('gnr.alert', 'msg', msg='=_thermo.%s.result.message' % thermoid, 
+            controller.dataFormula('gnr.alert', 'msg', msg='=_thermo.%s.result.message' % thermoid, 
                             status='^_thermo.%s.result.status' % thermoid, _if='(status=="stopped" || status=="end")')
         
-        pane.dataRpc('_thermo.%s.result' % thermoid, 'app.getThermo', thermoid=thermoid,
+        controller.dataRpc('_thermo.%s.result' % thermoid, 'app.getThermo', thermoid=thermoid,
                                                              flag='^_thermo.%s.flag' % thermoid)
-                                                             
+        
 class DialogForm(BaseComponent):
-    def dialog_form(self,parent,title='',formId='',dlgId=None,height='',width='',datapath='',
+    #@deprecated
+    def dialog_form(self,*args,**kwargs):
+        print 'deprecated use dialogForm instead of'
+        self.dialogForm(*args,**kwargs)
+    
+    def dialog_form_bottom(self,*args,**kwargs):
+        print 'deprecated use dialogForm_bottom instead of'
+        self.dialogForm_bottom(*args,**kwargs)
+
+        
+    def dialogForm(self,parent,title='',formId='',height='',width='',datapath='',
                 cb_center=None,cb_bottom='*',loadsync=False,confirm_btn=None,
                 allowNoChanges=True,**kwargs):
-        if cb_bottom=='*':
-            cb_bottom = self.dialog_form_bottom
-        dlgId= dlgId or '%s_dlg'%formId
-        dialog = parent.dialog(title=title,nodeId=dlgId,datapath=datapath,**kwargs)
-        dialog.dataFormula(".disable_button", "!valid||(!changed && !allowNoChanges)||saving",valid="^.form.valid",
-                            changed="^.form.changed",saving='^.form.saving',allowNoChanges=allowNoChanges,
-                            formId=formId,_if='formId')
-        bc=dialog.borderContainer(height=height,width=width)
-        if cb_bottom:
-            cb_bottom(bc,region='bottom',_class='dialog_bottom',confirm_btn=confirm_btn)
+                
+        dlgId='%s_dlg'%formId
+        bc = self.dialogBase(parent,title=title,dlgId=dlgId,datapath=datapath,
+                               height=height,width=width,cb_bottom=cb_bottom,
+                               confirm_btn=confirm_btn,**kwargs)
+        bc.dataFormula(".disable_button", "!valid||(!changed && !allowNoChanges)||saving",valid="^.form.valid",
+                        changed="^.form.changed",saving='^.form.saving',allowNoChanges=allowNoChanges,
+                        formId=formId,_if='formId')
         if cb_center:
-            cb_center(bc,region='center',datapath='.data',_class='pbl_dialog_center', 
-                     formId=formId,dlgId=dlgId)
-        #only use without form
-        bc.dataController('genro.wdgById(dlgId).show();',dlgId=dlgId,_fired="^.show" )
-        bc.dataController('genro.wdgById(dlgId).hide();',dlgId=dlgId,_fired="^.hide" )
+            cb_center(bc,region='center',datapath='.data',_class='pbl_dialog_center',dlgId=dlgId,
+                     formId=formId)
         #only in form mode
         bc.dataController("""if(typeof(opener)=='object'){
                                 if ( opener.dialogPage){
@@ -143,11 +149,26 @@ class DialogForm(BaseComponent):
         bc.dataController('genro.formById(formId).loaded();', formId=formId,
                         _if='formId',_fired="^.loaded" )
         return bc    
+        
+    def dialogBase(self,parent,title='',dlgId=None,height='',width='',datapath='',
+                    cb_center=None,cb_bottom='*',confirm_btn=None,**kwargs):
+        if cb_bottom=='*':
+            cb_bottom = self.dialogForm_bottom
+        dialog = parent.dialog(title=title,nodeId=dlgId,datapath=datapath,**kwargs)
+        bc=dialog.borderContainer(height=height,width=width)
+        if cb_bottom:
+            cb_bottom(bc,region='bottom',_class='dialog_bottom',confirm_btn=confirm_btn)
+        if cb_center:
+            cb_center(bc,region='center',datapath='.data',_class='pbl_dialog_center',dlgId=dlgId)
+        bc.dataController('genro.wdgById(dlgId).show();',dlgId=dlgId,_fired="^.show" )
+        bc.dataController('genro.wdgById(dlgId).hide();',dlgId=dlgId,_fired="^.hide" )
+        return bc
                                           
-    def dialog_form_bottom(self,bc,confirm_btn=None,**kwargs):
+    def dialogForm_bottom(self,bc,confirm_btn=None,**kwargs):
         bottom = bc.contentPane(**kwargs)
         confirm_btn = confirm_btn or '!!Confirm'
         bottom.button(confirm_btn,baseClass='bottom_btn',float='right',margin='1px',
                         fire_always='.save',disabled='^.disable_button')
         bottom.button('!!Cancel',baseClass='bottom_btn',float='right',margin='1px',fire='.hide')
         return bottom
+    

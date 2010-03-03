@@ -35,7 +35,7 @@ class Public(BaseComponent):
         self.menu_menuPane(menu_pane)
     
     def pbl_prefbtnpane(self,pane):
-        pane.div(_class='buttonIcon %s' %self.pbl_logoclass())
+        pane.img(_class='buttonIcon %s' %self.pbl_logoclass())
         
     def pbl_logoclass(self):
         return ''
@@ -100,7 +100,7 @@ class Public(BaseComponent):
                 fb = pane.formbuilder(cols=1, border_spacing='5px', margin='25px',margin_top='20px')
                 fb.dateTextBox(value='^.current_date',width='8em',lbl='!!Date')
             
-            dlg = self.dialog_form(pane,title='!!Set workdate',datapath='changeWorkdate',
+            dlg = self.dialogForm(pane,title='!!Set workdate',datapath='changeWorkdate',
                                  formId='changeWorkdate', height='100px',width='200px',
                                  cb_center=cb_center, loadsync=True)
             dlg.dataController("SET .data.current_date=date;",date="=gnr.workdate",nodeId='changeWorkdate_loader')

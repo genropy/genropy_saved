@@ -32,7 +32,7 @@ class UserObject(BaseComponent):
         def cb_center(parentBc,**kwargs):
             pane = parentBc.contentPane(**kwargs)
             pane.div("!!You cannot undo this operation. Are you sure?")
-        dlg = self.dialog_form(page,dlgId='deleteUserObject',title='^.pars.title',datapath='gnr.userobject.delete_dlg',
+        dlg = self.dialogBase(page,dlgId='deleteUserObject',title='^.pars.title',datapath='gnr.userobject.delete_dlg',
                                height='100px',width='300px',cb_center=cb_center,centerOn='_pageRoot')
         dlg.dataRpc('dummy','deleteUserObject',id='=.pars.pkey',_if='id',_fired='^.save',
                     _onResult='FIRE .hide;FIRE .deleted;')
