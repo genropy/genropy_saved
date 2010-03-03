@@ -70,17 +70,17 @@ class PrintUtils(BaseComponent):
         width = dlgPars.get('width',"450px")
         dialog = pane.dialog(title="!!Print options",nodeId=name,datapath=datapath)
         bc=dialog.borderContainer(height=height,width=width,_class='pbl_roundedGroup')
-        bc.dataController('genro.wdgById("%s").hide();' %name,_fired="^.hide" )
+        bc.dataController('genro.wdgById("%s").hide();' %name,_fired="^.close" )
         bc.dataController("""var currPrinterOpt = GET _clientCtx.printerSetup.%s;
                              SET .printer.params = currPrinterOpt? currPrinterOpt.deepCopy():new gnr.GnrBag();
                              genro.wdgById("%s").show();""" %(name,name) ,_fired='^.open')
         bottom = bc.contentPane(region='bottom',_class='dialog_bottom')
-        bottom.button('!!Close',baseClass='bottom_btn',float='left',margin='1px',fire='.hide')
+        bottom.button('!!Close',baseClass='bottom_btn',float='left',margin='1px',fire='.close')
         bottom.button('!!Pdf',baseClass='bottom_btn',float='right',margin='1px',
-                        action='FIRE .hide; FIRE .dlpdf;')
+                        action='FIRE .close; FIRE .dlpdf;')
         if not pdfOnly:
             bottom.button('!!Print',baseClass='bottom_btn',float='right',margin='1px',
-                            action="""  FIRE .hide;
+                            action="""  FIRE .close;
                                     var currPrinterOpt = GET .printer.params;
                                     SET _clientCtx.printerSetup.%s = currPrinterOpt.deepCopy(); 
                                     FIRE .print; 

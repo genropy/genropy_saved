@@ -215,7 +215,7 @@ class LstUserObjects(BaseComponent):
         top.div(_class='icnBase10_Trash buttonIcon', float='right',
                 connect_onclick=""" SET #deleteUserObject.pars.pkey= GET .%s?id; 
                                     SET #deleteUserObject.pars.title= "Delete %s"
-                                    FIRE #deleteUserObject.show;""" %(resname,restype),
+                                    FIRE #deleteUserObject.open;""" %(resname,restype),
                 margin_left='5px', margin_right='15px',
                 margin_top='2px', tooltip='!!Delete %s' % restype,
                 visible='^.%s?id' % resname)

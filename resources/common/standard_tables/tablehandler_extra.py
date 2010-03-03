@@ -83,7 +83,7 @@ class QueryHelper(BaseComponent):
                                     objtype='=#userobject_dlg.pars.objtype',
                                     _if='objtype=="list_in"')
         dialogBc.dataController("""SET #deleteUserObject.pars = new gnr.GnrBag({title:title,pkey:current,objtype:"list_in"}); 
-                                   FIRE #deleteUserObject.show;""",_fired="^.deleteCurrSaved",
+                                   FIRE #deleteUserObject.open;""",_fired="^.deleteCurrSaved",
                                    title='!!Delete list of values',current='=.currentUserObject',_if='current')
         dialogBc.dataController("SET .data.items = null; SET .currentUserObject=null;",
                                 _fired="^#deleteUserObject.deleted",objtype='=#deleteUserObject.pars.objtype',
@@ -199,7 +199,7 @@ class TagsHandler(BaseComponent):
     def managetags_dlg(self,pane):
         def cb_bottom(parentBC,**kwargs):
             bottom = parentBC.contentPane(**kwargs)
-            bottom.button('!!Close',baseClass='bottom_btn',float='right',margin='1px',fire='.hide')
+            bottom.button('!!Close',baseClass='bottom_btn',float='right',margin='1px',fire='.close')
 
         def cb_center(parentBC,**kwargs):
             bc = parentBC.borderContainer(**kwargs)
@@ -269,7 +269,7 @@ class TagsHandler(BaseComponent):
                                 nodeId="linktag_loader",selectedRowIdx=selectedRowIdx)
         dialogBc.dataRpc(".result",'saveRecordTagLinks',nodeId="linktag_saver",call_mode='=.opener.call_mode',
                         selectedRowIdx=selectedRowIdx,data='=.data',selectionName=selectionName,pkey=pkey,
-                        _onResult='FIRE .saved;',_if='selectionName',_else='FIRE .hide;')
+                        _onResult='FIRE .saved;',_if='selectionName',_else='FIRE .close;')
 
     def linktag_dlg_bottom(self,bc,confirm_btn=None,**kwargs):
         bottom = self.formDialog_bottom(bc,confirm_btn=None,**kwargs)
@@ -295,8 +295,10 @@ class TagsHandler(BaseComponent):
             if value:
                 taglink_table.assignTagLink(self.maintable,pkey,tag,value[0])
                 
-    def remote_getFormTags_query(self,pane,queryValues=None,queryColumn=None,**kwargs):        
-        table = self.tblobj.column(queryColumn.replace('._recordtag_desc','')[1:]).relatedTable().fullname
+    def remote_getFormTags_query(self,pane,queryValues=None,queryColumn=None,**kwargs):
+        table = self.maintable
+        if queryColumn != '_recordtag_desc':
+            table = self.tblobj.column(queryColumn.replace('._recordtag_desc','')[1:]).relatedTable().fullname
         if queryValues:
             tagged,tagged_not = queryValues.split('!')
             queryValues = Bag()

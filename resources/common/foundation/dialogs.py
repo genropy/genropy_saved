@@ -118,7 +118,7 @@ class FormDialog(BaseComponent):
                 allowNoChanges=True,**kwargs):
                 
         dlgId='%s_dlg'%formId
-        bc = self.dialogBase(parent,title=title,dlgId=dlgId,datapath=datapath,
+        bc = self._simpleDialog(parent,title=title,dlgId=dlgId,datapath=datapath,
                                height=height,width=width,cb_bottom=cb_bottom,
                                confirm_btn=confirm_btn,**kwargs)
         bc.dataFormula(".disable_button", "!valid||(!changed && !allowNoChanges)||saving",valid="^.form.valid",
@@ -128,29 +128,34 @@ class FormDialog(BaseComponent):
             cb_center(bc,region='center',datapath='.data',_class='pbl_dialog_center',dlgId=dlgId,
                      formId=formId)
         #only in form mode
-        bc.dataController("""if(typeof(opener)=='object'){
-                                if ( opener.dialogPage){
-                                    SET .page = objectPop(opener,'dialogPage');
-                                }
-                                opener = new gnr.GnrBag(opener);
-                             }
-                             SET .opener = opener;
-                             FIRE .show; 
-                             
+        bc.dataController("""
+                             FIRE ._setOpener = opener;
+                             FIRE ._openSimpleDialog; 
                              FIRE .load;
                              """ ,opener="^.open")
+        bc.dataController("FIRE ._closeSimpleDialog;",_fired="^.close")
         bc.dataController("genro.formById(formId).load(loadsync);",
                          _fired="^.load",_delay=1,formId=formId,_if='formId',
                          loadsync=loadsync)
         bc.dataController('genro.formById(formId).save(always=="always"?true:false);' ,
                           always="^.save" ,formId=formId,_if='formId')
-        bc.dataController('genro.formById(formId).saved(); FIRE .hide;' ,formId=formId,
+        bc.dataController('genro.formById(formId).saved(); FIRE .close;' ,formId=formId,
                          _fired="^.saved",_if='formId')
         bc.dataController('genro.formById(formId).loaded();', formId=formId,
                         _if='formId',_fired="^.loaded" )
         return bc    
         
-    def dialogBase(self,parent,title='',dlgId=None,height='',width='',datapath='',
+    def simpleDialog(self,parent,title='',dlgId=None,height='',width='',datapath='',
+                    cb_center=None,cb_bottom='*',confirm_btn=None,**kwargs):
+        bc = self._simpleDialog(parent,title=title,dlgId=dlgId,height=height,width=width,datapath=datapath,
+                                cb_center=cb_center,cb_bottom=cb_bottom,confirm_btn=confirm_btn,**kwargs)
+        bc.dataController("""FIRE ._setOpener;
+                             FIRE ._openSimpleDialog; 
+                             """ ,opener="^.open")
+        bc.dataController("FIRE ._closeSimpleDialog;",_fired="^.close")
+        return bc
+                    
+    def _simpleDialog(self,parent,title='',dlgId=None,height='',width='',datapath='',
                     cb_center=None,cb_bottom='*',confirm_btn=None,**kwargs):
         if cb_bottom=='*':
             cb_bottom = self.formDialog_bottom
@@ -160,8 +165,15 @@ class FormDialog(BaseComponent):
             cb_bottom(bc,region='bottom',_class='dialog_bottom',confirm_btn=confirm_btn)
         if cb_center:
             cb_center(bc,region='center',datapath='.data',_class='pbl_dialog_center',dlgId=dlgId)
-        bc.dataController('genro.wdgById(dlgId).show();',dlgId=dlgId,_fired="^.show" )
-        bc.dataController('genro.wdgById(dlgId).hide();',dlgId=dlgId,_fired="^.hide" )
+        bc.dataController("""if(typeof(opener)=='object'){
+                                if ( opener.dialogPage){
+                                    SET .page = objectPop(opener,'dialogPage');
+                                }
+                                opener = new gnr.GnrBag(opener);
+                             }
+                             SET .opener = opener;""",opener="^._setOpener")
+        bc.dataController('genro.wdgById(dlgId).show();',dlgId=dlgId,_fired="^._openSimpleDialog" )
+        bc.dataController('genro.wdgById(dlgId).hide();',dlgId=dlgId,_fired="^._closeSimpleDialog" )
         return bc
                                           
     def formDialog_bottom(self,bc,confirm_btn=None,**kwargs):
@@ -169,6 +181,38 @@ class FormDialog(BaseComponent):
         confirm_btn = confirm_btn or '!!Confirm'
         bottom.button(confirm_btn,baseClass='bottom_btn',float='right',margin='1px',
                         fire_always='.save',disabled='^.disable_button')
-        bottom.button('!!Cancel',baseClass='bottom_btn',float='right',margin='1px',fire='.hide')
+        bottom.button('!!Cancel',baseClass='bottom_btn',float='right',margin='1px',fire='.close')
         return bottom
     
+    def iframeDialog(self,parent,title='',dlgId='',height='',width='',src='',datapath='',
+                    confirm_btn=None,allowNoChanges=True,**kwargs):
+        def cb_center(parentBC,**kwargs):
+            pane = parentBC.contentPane(**kwargs)
+            pane.iframe(order='0px',
+                        height='100%',
+                        width='100%',
+                        border=0,
+                        nodeId='%s_frame' %dlgId,
+                        src=src
+                        #_if='=.#parent.frame.toload',
+                        #_reloader='^.#parent.frame.reload'
+                        )
+        dlg = self.simpleDialog(parent,title=title,datapath='pref',
+                             dlgId=dlgId, height=height,width=width,
+                             cb_center=cb_center)
+        #dlg.dataController("""
+        #                    console.log('loading iframe:'+src)
+        #                    if (!currSrc&&src){
+        #                        SET .frame.toload = true;
+        #                        SET .frame.currSrc = src;
+        #                        FIRE .frame.reload;
+        #                    }
+        #                    if(src!=currSrc){
+        #                        SET .frame.currSrc = src;
+        #                        FIRE .frame.reload;
+        #                    }
+        #                    FIRE .loaded;
+        #                    SET .frame.toload = false;
+        #                    """,
+        #                    nodeId="%s_loader___" %formId,src=src,
+        #                    currSrc='=.frame.currSrc')
