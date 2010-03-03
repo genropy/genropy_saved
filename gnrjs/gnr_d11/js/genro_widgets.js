@@ -1958,7 +1958,13 @@ dojo.declare("gnr.widgets.VirtualGrid",gnr.widgets.Grid,{
     patch_onStyleRow:function(row){
         if(this.currRenderedRow){
             if(this.currRenderedRow._customClasses){
-                row.customClasses = this.currRenderedRow._customClasses;
+                var customClasses = null;
+                if (this.currRenderedRow._customClasses.slice(0,1)=='!'){
+                    customClasses = this.currRenderedRow._customClasses.slice(1);
+                }else{
+                    customClasses = row.customClasses + ' ' + this.currRenderedRow._customClasses;
+                }
+                row.customClasses = customClasses;
             }
             if(this.currRenderedRow._customStyles){
                 row.customStyles = this.currRenderedRow._customStyles;
