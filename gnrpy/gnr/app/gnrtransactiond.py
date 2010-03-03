@@ -83,7 +83,7 @@ class GnrAppTransactionAgent(GnrApp):
         
         
     def loop(self):
-        changes = self.checkDb()
+        changes = self.db.checkDb()
         if changes:
             raise NotMatchingModelError('\n'.join(self.db.model.modelChanges))
         self.running = True
