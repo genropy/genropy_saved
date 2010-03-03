@@ -44,11 +44,13 @@ class Struct4D(object):
     
     def areaFolder(self, area):
         path = os.path.join(self.packages_folder, area)
+        print 'areaFolder:',path
         if not os.path.isdir(path):
             os.mkdir(path)
         return path
 
     def modelFolder(self, area):
+        
         path = os.path.join(self.areaFolder(area), 'model')
         if not os.path.isdir(path):
             os.mkdir(path)
@@ -183,9 +185,7 @@ class Struct4D(object):
 class GnrAppSync4D(GnrApp):
     def onIniting(self):
         basepath = self.config.getAttr('packages', 'path')
-        
         self.s4d = Struct4D(self.instanceFolder, basepath)
-        
         if not self.config['packages']:
             self.rebuildRecipe()
             
@@ -245,7 +245,7 @@ class GnrAppSync4D(GnrApp):
     folder4dDataOut = property(_get_folder4dDataOut)
 
     def beforeLoop(self):
-        changes = self.checkDb()
+        changes = self.db.checkDb()
         if changes:
             raise NotMatchingModelError('\n'.join(self.db.model.modelChanges))
         self.running = True
