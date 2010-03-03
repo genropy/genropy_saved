@@ -172,8 +172,8 @@ class FormDialog(BaseComponent):
                                 opener = new gnr.GnrBag(opener);
                              }
                              SET .opener = opener;""",opener="^._setOpener")
-        bc.dataController('genro.wdgById(dlgId).show();',dlgId=dlgId,_fired="^._openSimpleDialog" )
-        bc.dataController('genro.wdgById(dlgId).hide();',dlgId=dlgId,_fired="^._closeSimpleDialog" )
+        bc.dataController('genro.wdgById(dlgId).show();SET .isOpen=true;',dlgId=dlgId,_fired="^._openSimpleDialog" )
+        bc.dataController('genro.wdgById(dlgId).hide();SET .isOpen=false;',dlgId=dlgId,_fired="^._closeSimpleDialog" )
         return bc
                                           
     def formDialog_bottom(self,bc,confirm_btn=None,**kwargs):
@@ -193,26 +193,13 @@ class FormDialog(BaseComponent):
                         width='100%',
                         border=0,
                         nodeId='%s_frame' %dlgId,
-                        src=src
-                        #_if='=.#parent.frame.toload',
-                        #_reloader='^.#parent.frame.reload'
-                        )
+                        src=src,condition_function='return value;',
+                         condition_value='^.#parent.isOpen')
+            
         dlg = self.simpleDialog(parent,title=title,datapath='pref',
                              dlgId=dlgId, height=height,width=width,
-                             cb_center=cb_center)
-        #dlg.dataController("""
-        #                    console.log('loading iframe:'+src)
-        #                    if (!currSrc&&src){
-        #                        SET .frame.toload = true;
-        #                        SET .frame.currSrc = src;
-        #                        FIRE .frame.reload;
-        #                    }
-        #                    if(src!=currSrc){
-        #                        SET .frame.currSrc = src;
-        #                        FIRE .frame.reload;
-        #                    }
-        #                    FIRE .loaded;
-        #                    SET .frame.toload = false;
-        #                    """,
-        #                    nodeId="%s_loader___" %formId,src=src,
-        #                    currSrc='=.frame.currSrc')
+                             cb_center=cb_center,cb_bottom=self.frameDialog_bottom)
+                             
+    def frameDialog_bottom(self,bc,confirm_btn=None,**kwargs):
+        bottom = self.formDialog_bottom(bc,confirm_btn=None,**kwargs)
+        bottom.button('do on frame',action='genro.test("pippo")',float='left')
