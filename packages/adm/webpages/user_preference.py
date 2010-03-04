@@ -8,6 +8,7 @@
 #
 
 class GnrCustomWebPage(object):
+    """USER PREFERENCE BUILDER"""
     maintable ='adm.preference'
     py_requires="""public:Public"""   
     
@@ -23,13 +24,12 @@ class GnrCustomWebPage(object):
     def onIniting(self, url_parts, request_kwargs):
         for pkgname in self.db.packages.keys():
             try:
-                cl=self.site.loadResource(pkgname,'preference:AppPref')
+                cl=self.site.loadResource(pkgname,'preference:UserPref')
                 self.mixin(cl) 
             except:
                 pass
                 
     def main(self, rootBC, **kwargs):
-        """APPLICATION PREFERENCE BUILDER"""
         self.controllers(rootBC)
         self.bottom(rootBC.contentPane(region='bottom',_class='dialog_bottom'))    
         tc = rootBC.tabContainer(region='center',datapath='preference',formId='preference')
@@ -37,7 +37,7 @@ class GnrCustomWebPage(object):
             panecb = getattr(self,'prefpane_%s' %pkg.name,None)
             if panecb:
                 panecb(tc,title=pkg.name_full,datapath='.%s' %pkg.name,nodeId=pkg.name)
-
+        
     def bottom(self,bottom):
         bottom.button('!!Apply settings',baseClass='bottom_btn',float='right',margin='1px',
                         action='genro.formById("preference").save(true)')
@@ -45,7 +45,7 @@ class GnrCustomWebPage(object):
                         fire='frame.close')    
                         
     def controllers(self,pane):
-        pane.dataController("""parent.genro.fireEvent("#mainpreference.close");""",_fired="^frame.close")
+        pane.dataController("""parent.genro.fireEvent("#userpreference.close");""",_fired="^frame.close")
         pane.dataController("genro.formById('preference').load()",_onStart=True)
         pane.dataRpc('dummy','savePreference',preference='=preference',nodeId='preference_saver',
                     _onResult='genro.formById("preference").saved();FIRE frame.close;')
@@ -53,9 +53,9 @@ class GnrCustomWebPage(object):
                      _onResult='genro.formById("preference").loaded();')
         
     def rpc_loadPreference(self):
-        return self.loadAppPreference()
+        return self.loadUserPreference(self.userRecord('id'))
     
     def rpc_savePreference(self,preference):
-        self.saveAppPreference(preference)
+        self.saveUserPreference(self.userRecord('id'),preference)
         return
  

@@ -29,15 +29,10 @@ class GnrDboPackage(object):
                 
     def getPreferences(self,path=None,autocreate=False):
         if self.db.package('adm'):
-            preferences = self.db.table('adm.preference').getPrefRecord(self.name,autocreate=autocreate)
+            preferences = self.db.table('adm.preference').getPreference()[self.name]
             if path:
                 preferences = preferences[path]
             return preferences
-            
-    def setPreferences(self,record):
-        if self.db.package('adm'):
-            self.db.table('adm.preference').update(record)
-    
         
 class TableBase(object):
     def sysFields(self, tbl, id=True, ins=True, upd=True, ldel=True, md5=False,group='_'):

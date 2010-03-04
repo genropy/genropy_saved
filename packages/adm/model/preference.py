@@ -9,10 +9,18 @@ class Table(object):
         tbl.column('code',size='12',name_long='!!Code')
         tbl.column('data','X',name_long='!!Data')        
         
-    def getPrefRecord(self,code=None,autocreate=False):
-        record = self.record(pkey=code, ignoreMissing=True).output('bag')
-        if autocreate and not record['code']:
-            record = Bag(dict(code=code))
-            self.insert(record)
+    def getPreference(self):
+        with self.db.tempEnv(connectionName='system'):
+            record = self.record(pkey='_mainpref_', ignoreMissing=True).output('bag')
+            if not record['code']:
+                record = Bag(dict(code='_mainpref_'))
+                self.insert(record)
+                self.db.commit()
+        return record['data']
+    
+    def setPreference(self,data):
+        with self.db.tempEnv(connectionName='system'):
+            record = self.record(pkey='_mainpref_', for_update=True).output('bag')
+            record['data'] = data
+            self.update(record)
             self.db.commit()
-        return record

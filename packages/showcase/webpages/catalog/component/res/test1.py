@@ -24,7 +24,6 @@ Component for referto:
 
 class GnrCustomWebPage(object):
     #py_requires='public:Public'
-
     def pageAuthTags(self, method=None, **kwargs):
         return ''
         
@@ -33,3 +32,4 @@ class GnrCustomWebPage(object):
          
     def main(self, root, **kwargs):
         root.div('hello')
+        root.button('Close Dialog',action='parent.genro.fireEvent("#myframe.close");')

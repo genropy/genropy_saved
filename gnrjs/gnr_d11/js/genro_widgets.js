@@ -336,6 +336,7 @@ dojo.declare("gnr.widgets.iframe",gnr.widgets.baseHtml,{
         var condFunc= objectPop(attributes,'condition_function');
         var condValue= objectPop(attributes,'condition_value');
         var onUpdating =  objectPop(attributes,'onUpdating');
+
         if (onUpdating){
             sourceNode.attr.onUpdating = funcCreate(onUpdating,'',sourceNode);
         }

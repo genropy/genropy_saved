@@ -553,7 +553,33 @@ class GnrWebPage(GnrBaseWebPage):
         result=self.site.resource_loader.getResourceList(self.resourceDirs,path, ext=ext)
         if result:
             return result[0]
-
+            
+    def saveAppPreference(self,data):
+        if self.db.package('adm'):
+            self.db.table('adm.preference').setPreference(data)
+            
+    def loadAppPreference(self,path='',dflt=''):
+        if self.db.package('adm'):
+            preference = self.db.table('adm.preference').getPreference()
+            if not preference:
+                return dflt
+            if path:
+                preference = preferences[path]
+            return preference
+    #getPackagePreference?
+    def loadUserPreference(self,user_id,path='',dflt=''):
+        if self.db.package('adm'):
+            preference = self.db.table('adm.user').getPreference(user_id)
+            if not preference:
+                return dflt
+            if path:
+                preference = preferences[path]
+            return preference
+            
+    def saveUserPreference(self,user_id,data):
+        if self.db.package('adm'):
+            self.db.table('adm.user').setPreference(user_id,data)
+            
     def _get_package_folder(self):
         if not hasattr(self,'_package_folder'):
             self._package_folder = os.path.join(self.site.gnrapp.packages[self.packageId].packageFolder,'webpages')

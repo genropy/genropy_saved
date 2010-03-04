@@ -9,6 +9,7 @@
 
 """ public common11 """
 from gnr.web.gnrbaseclasses import BaseComponent
+import os
 
 class Public(BaseComponent):
     """docstring for Public for common_d11: a complete restyling of Public of common_d10"""
@@ -30,15 +31,38 @@ class Public(BaseComponent):
     def mainLeftContent(self,parentBC,**kwargs):
         bc = parentBC.borderContainer(width='20%',_class='menupane',**kwargs)
         logo_pane = bc.contentPane(region='bottom',_class='menupane_pref')
-        self.pbl_prefbtnpane(logo_pane)
+        #logo_path = self.site.site_static_path('data','adm','logo.png')
+       #if not os.path.isfile(logo_path):
+       #    logo_path = self.getResourceUri('images/information.png')
+       #logo_pane.img(src=logo_path,connect_onclick='FIRE gnr.openAppPreference;',
+       #             _class='buttonIcon',float='right',width="100px",height="50px",border='1px solid white')
+        logo_pane.button('!!Preferences',float='right',action='FIRE gnr.openPreference="app";')
+        self.pbl_preference_main(logo_pane)
         menu_pane = bc.contentPane(region='center',_class='menutree_container',overflow='auto')
         self.menu_menuPane(menu_pane)
     
-    def pbl_prefbtnpane(self,pane):
-        pane.img(_class='buttonIcon %s' %self.pbl_logoclass())
-        
-    def pbl_logoclass(self):
-        return ''
+    def pbl_preference_main(self,pane):
+        #pane.img(_class='buttonIcon %s' %self.pbl_logoclass())
+        if self.db.packages['adm']:
+            pane.dataController("""var frameId = prefCode=='app'?app+'_frame':user+'_frame';
+                                   console.log(frameId);
+                                   var frameWindow = genro.domById(frameId).contentWindow;
+                                   if('genro' in frameWindow){
+                                        frameWindow.genro.formById('preference').load();
+                                    }
+                                    if (prefCode=='app'){
+                                        FIRE #mainpreference.open;
+                                    }
+                                    else if (prefCode=='user'){
+                                        FIRE #userpreference.open;
+                                    }
+                                    """,prefCode="^gnr.openPreference",app='mainpreference',
+                                    user='userpreference')
+                                    
+            self.iframeDialog(pane,title='!!Application Preference',dlgId='mainpreference',src='/adm/app_preference',
+                             cached=False,height='400px',width='600px',centerOn='_pageRoot',datapath='gnr.preference.application')
+            self.iframeDialog(pane,title='!!User Preference',dlgId='userpreference',src='/adm/user_preference',
+                             cached=False,height='300px',width='400px',centerOn='_pageRoot',datapath='gnr.preference.user')
         
     def pbl_userTable(self):
         return 'adm.user'
@@ -136,7 +160,7 @@ class Public(BaseComponent):
         if self.user:
             right.div(connect_onclick="genro.logout()", title="!!Logout",
                   _class='pbl_logout buttonIcon', content='&nbsp;', float='right')
-            right.div(content=self.user, float='right', _class='pbl_username buttonIcon')
+            right.div(content=self.user, float='right', _class='pbl_username buttonIcon',connect_onclick='FIRE gnr.openPreference="user";')
 
         return center
 

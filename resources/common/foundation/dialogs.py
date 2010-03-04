@@ -154,6 +154,13 @@ class FormDialog(BaseComponent):
                              """ ,opener="^.open")
         bc.dataController("FIRE ._closeSimpleDialog;",_fired="^.close")
         return bc
+    def formDialog_bottom(self,bc,confirm_btn=None,**kwargs):
+        bottom = bc.contentPane(**kwargs)
+        confirm_btn = confirm_btn or '!!Confirm'
+        bottom.button(confirm_btn,baseClass='bottom_btn',float='right',margin='1px',
+                        fire_always='.save',disabled='^.disable_button')
+        bottom.button('!!Cancel',baseClass='bottom_btn',float='right',margin='1px',fire='.close')
+        return bottom
                     
     def _simpleDialog(self,parent,title='',dlgId=None,height='',width='',datapath='',
                     cb_center=None,cb_bottom='*',confirm_btn=None,**kwargs):
@@ -175,31 +182,17 @@ class FormDialog(BaseComponent):
         bc.dataController('genro.wdgById(dlgId).show();SET .isOpen=true;',dlgId=dlgId,_fired="^._openSimpleDialog" )
         bc.dataController('genro.wdgById(dlgId).hide();SET .isOpen=false;',dlgId=dlgId,_fired="^._closeSimpleDialog" )
         return bc
-                                          
-    def formDialog_bottom(self,bc,confirm_btn=None,**kwargs):
-        bottom = bc.contentPane(**kwargs)
-        confirm_btn = confirm_btn or '!!Confirm'
-        bottom.button(confirm_btn,baseClass='bottom_btn',float='right',margin='1px',
-                        fire_always='.save',disabled='^.disable_button')
-        bottom.button('!!Cancel',baseClass='bottom_btn',float='right',margin='1px',fire='.close')
-        return bottom
     
     def iframeDialog(self,parent,title='',dlgId='',height='',width='',src='',datapath='',
-                    confirm_btn=None,allowNoChanges=True,**kwargs):
+                    confirm_btn=None,allowNoChanges=True,cb_bottom=None,**kwargs):
         def cb_center(parentBC,**kwargs):
             pane = parentBC.contentPane(**kwargs)
-            pane.iframe(order='0px',
-                        height='100%',
-                        width='100%',
-                        border=0,
-                        nodeId='%s_frame' %dlgId,
+            pane.iframe(order='0px',height='100%',width='100%',
+                        border=0,nodeId='%s_frame' %dlgId, 
                         src=src,condition_function='return value;',
-                         condition_value='^.#parent.isOpen')
+                        condition_value='^.#parent.isOpen')
             
-        dlg = self.simpleDialog(parent,title=title,datapath='pref',
+        dlg = self.simpleDialog(parent,title=title,datapath=datapath,
                              dlgId=dlgId, height=height,width=width,
-                             cb_center=cb_center,cb_bottom=self.frameDialog_bottom)
+                             cb_center=cb_center,cb_bottom=cb_bottom,**kwargs)
                              
-    def frameDialog_bottom(self,bc,confirm_btn=None,**kwargs):
-        bottom = self.formDialog_bottom(bc,confirm_btn=None,**kwargs)
-        bottom.button('do on frame',action='genro.test("pippo")',float='left')
