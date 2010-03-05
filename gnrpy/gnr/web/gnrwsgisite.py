@@ -447,6 +447,22 @@ class GnrWsgiSite(object):
     def connectionLog(self,event):
         if 'adm' in self.db.packages:
             self.db.table('adm.connection').connectionLog(event)
+
+    def setPreference(self,data,pkg='',path=''):
+        if self.db.package('adm'):
+            self.db.table('adm.preference').setPreference(data,pkg=pkg,path=path)
+            
+    def getPreference(self,pkg='',path='',dflt=''):
+        if self.db.package('adm'):
+            return self.db.table('adm.preference').getPreference(path=path,pkg=pkg,dflt=dflt)
+            
+    def getUserPreference(self,user_id,pkg='',path='',dflt=''):
+        if self.db.package('adm'):
+            return self.db.table('adm.user').getPreference(user_id,pkg=pkg,path=path,dlft=dflt)
+            
+    def setUserPreference(self,user_id,data,pkg='',path=''):
+        if self.db.package('adm'):
+            self.db.table('adm.user').setPreference(user_id,data,pkg=pkg,path=path)
                 
     def getMessages(self,**kwargs):
         if 'sys' in self.gnrapp.db.packages:

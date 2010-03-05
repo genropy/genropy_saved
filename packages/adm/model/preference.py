@@ -9,18 +9,18 @@ class Table(object):
         tbl.column('code',size='12',name_long='!!Code')
         tbl.column('data','X',name_long='!!Data')        
         
-    def getPreference(self):
+    def getPreference(self,pkg='',path='',dflt=''):
         with self.db.tempEnv(connectionName='system'):
             record = self.record(pkey='_mainpref_', ignoreMissing=True).output('bag')
             if not record['code']:
                 record = Bag(dict(code='_mainpref_'))
                 self.insert(record)
                 self.db.commit()
-        return record['data']
+        return record['data.%s.%s' %(pkg,path)] or dflt
     
-    def setPreference(self,data):
+    def setPreference(self,data,pkg='',path=''):
         with self.db.tempEnv(connectionName='system'):
             record = self.record(pkey='_mainpref_', for_update=True).output('bag')
-            record['data'] = data
+            record['data.%s.%s' %(pkg,path)] = data
             self.update(record)
             self.db.commit()

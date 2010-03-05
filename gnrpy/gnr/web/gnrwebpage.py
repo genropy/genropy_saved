@@ -554,31 +554,17 @@ class GnrWebPage(GnrBaseWebPage):
         if result:
             return result[0]
             
-    def saveAppPreference(self,data):
-        if self.db.package('adm'):
-            self.db.table('adm.preference').setPreference(data)
+    def setPreference(self,data,pkg='',path=''):
+        self.site.setPreference(data,pkg=pkg,path=path)
             
-    def loadAppPreference(self,path='',dflt=''):
-        if self.db.package('adm'):
-            preference = self.db.table('adm.preference').getPreference()
-            if not preference:
-                return dflt
-            if path:
-                preference = preferences[path]
-            return preference
-    #getPackagePreference?
-    def loadUserPreference(self,user_id,path='',dflt=''):
-        if self.db.package('adm'):
-            preference = self.db.table('adm.user').getPreference(user_id)
-            if not preference:
-                return dflt
-            if path:
-                preference = preferences[path]
-            return preference
+    def getPreference(self,pkg='',path='',dflt=''):
+        return self.site.getPreference(path=path,pkg=pkg,dflt=dflt)
             
-    def saveUserPreference(self,user_id,data):
-        if self.db.package('adm'):
-            self.db.table('adm.user').setPreference(user_id,data)
+    def getUserPreference(self,user_id,pkg='',path='',dflt=''):
+        return self.site.getPreference(user_id,pkg=pkg,path=path,dlft=dflt)
+            
+    def setUserPreference(self,user_id,data,pkg='',path=''):
+        self.site.setPreference(user_id,data,pkg=pkg,path=path)
             
     def _get_package_folder(self):
         if not hasattr(self,'_package_folder'):

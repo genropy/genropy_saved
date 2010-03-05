@@ -26,13 +26,6 @@ class GnrDboPackage(object):
 
     def listUserObject(self, pkg=None, **kwargs):
         return self.dbtable('userobject').listUserObject(pkg=pkg or self.name, **kwargs)
-                
-    def getPreferences(self,path=None,autocreate=False):
-        if self.db.package('adm'):
-            preferences = self.db.table('adm.preference').getPreference()[self.name]
-            if path:
-                preferences = preferences[path]
-            return preferences
         
 class TableBase(object):
     def sysFields(self, tbl, id=True, ins=True, upd=True, ldel=True, md5=False,group='_'):

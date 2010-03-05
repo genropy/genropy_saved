@@ -53,9 +53,9 @@ class GnrCustomWebPage(object):
                      _onResult='genro.formById("preference").loaded();')
         
     def rpc_loadPreference(self):
-        return self.loadUserPreference(self.userRecord('id'))
+        return self.db.table('adm.user').getPreference(self.userRecord('id'))
     
     def rpc_savePreference(self,preference):
-        self.saveUserPreference(self.userRecord('id'),preference)
+        self.db.table('adm.user').setPreference(self.userRecord('id'),preference)
         return
  
