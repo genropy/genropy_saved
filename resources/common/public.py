@@ -221,8 +221,34 @@ class Public(BaseComponent):
             # -webkit-gradient (%(mode)s, %(begin)s, %(end)s, from(%(from)s), to(%(to)s));
             # 
         return '%s\n%s' % ('\n'.join(result) ,style)         
+    
+    def app_logo_url(self):
+        logo_url = self.custom_logo_url()
+        if not logo_url:
+            logo_url = self.getResourceUri('images/logo/application_logo.png')
+        if not logo_url:
+            logo_url = self.getResourceUri('images/logo/base_logo.png')
+        return logo_url
 
-           
+    def custom_logo_url(self):
+        logo_image = self.custom_logo_filename()
+        if logo_image:
+            return self.site.site_static_url('_resources','images','logo',logo_image)
+    
+    def custom_logo_path(self):
+        logo_image = self.custom_logo_filename()
+        if logo_image:
+            return self.site.site_static_path('_resources','images','logo',logo_image)
+        
+    def custom_logo_filename(self):
+        logo_folder = self.site.site_static_path('_resources','images','logo')
+        logo_url=None
+        if os.path.isdir(logo_folder):
+            files=os.listdir(logo_folder)
+            images=[f for f in files if f.startswith('%s'%'custom_logo')]
+            if images:
+                return images[0]
+                
 class ThermoDialog(BaseComponent):
     py_requires='foundation/thermo'
 
