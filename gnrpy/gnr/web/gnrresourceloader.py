@@ -202,7 +202,7 @@ class ResourceLoader(object):
 
             if resourcePkg:
                 for rp in resourcePkg.split(','):
-                    fpath = os.path.join(self.site_path,'_custom', pkg, '_resources')
+                    fpath = os.path.join(self.site_path,'_custom', pkg.id, '_resources')
                     if os.path.isdir(fpath):
                         result.append(fpath)
             fpath = os.path.join(pagesPath, '_resources')
