@@ -249,7 +249,7 @@ class GnrSqlDb(GnrObject):
             gnrlogger.warning('error executing:%s - with kwargs:%s \n\n', sql, unicode(sqlargs))
             if self.debugger:
                 self.debugger(debugtype='sql',sql=sql, sqlargs=sqlargs,dbtable=dbtable, error=str(e))
-            #raise str('error %s executing:%s - with kwargs:%s \n\n' % (str(e), sql, unicode(sqlargs).encode('ascii', 'ignore')))
+            print str('error %s executing:%s - with kwargs:%s \n\n' % (str(e), sql, unicode(sqlargs).encode('ascii', 'ignore')))
             self.rollback()
             raise
         if autocommit:
