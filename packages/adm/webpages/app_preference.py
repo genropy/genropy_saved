@@ -26,7 +26,6 @@ class GnrCustomWebPage(object):
         for pkgname in self.db.packages.keys():
             try:
                 cl=self.site.loadResource(pkgname,'preference:AppPref')
-                print pkgname
                 self.mixin(cl)
             except GnrMixinError:
                 pass
