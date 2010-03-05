@@ -7,6 +7,8 @@
 #  Copyright (c) 2007 Softwell. All rights reserved.
 #
 
+from gnr.web.gnrresourceloader import GnrMixinError
+
 class GnrCustomWebPage(object):
     maintable ='adm.preference'
     py_requires="""public:Public"""   
@@ -24,8 +26,9 @@ class GnrCustomWebPage(object):
         for pkgname in self.db.packages.keys():
             try:
                 cl=self.site.loadResource(pkgname,'preference:AppPref')
-                self.mixin(cl) 
-            except:
+                print pkgname
+                self.mixin(cl)
+            except GnrMixinError:
                 pass
                 
     def main(self, rootBC, **kwargs):
