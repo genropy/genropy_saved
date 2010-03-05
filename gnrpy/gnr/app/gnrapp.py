@@ -605,14 +605,6 @@ class GnrApp(object):
             instance_name=self.config['aux_instances.%s?name' % name]
             self.aux_instances[name] = GnrApp(instance_name)
         return self.aux_instances[name]
-        
-    def getPreferences(self,autocreate=False):
-        if self.db.package('adm'):
-            return self.db.table('adm.preference').getPrefRecord('_application_',autocreate=autocreate)
-            
-    def setPreferences(self,record):
-        if self.db.package('adm'):
-            self.db.table('adm.preference').update(record)
             
         
 class GnrAvatar(object):

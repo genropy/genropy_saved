@@ -50,15 +50,17 @@ class GnrCustomWebPage(object):
     def controllers(self,pane):
         pane.dataController("""parent.genro.fireEvent("#mainpreference.close");""",_fired="^frame.close")
         pane.dataController("genro.formById('preference').load()",_onStart=True)
-        pane.dataRpc('dummy','savePreference',preference='=preference',nodeId='preference_saver',
+        pane.dataRpc('dummy','savePreference',data='=preference',nodeId='preference_saver',
                     _onResult='genro.formById("preference").saved();FIRE frame.close;')
         pane.dataRpc('preference','loadPreference',nodeId='preference_loader',
                      _onResult='genro.formById("preference").loaded();')
         
-    def rpc_loadPreference(self):
-        return self.db.table('adm.preference').getPreference()
+    def rpc_loadPreference(self, **kwargs):
+        record= self.tblobj.loadPreference() or self.tblobj.newPreference()
+        return record['data']
     
-    def rpc_savePreference(self,preference):
-        self.db.table('adm.preference').setPreference(preference)
-        return
+    def rpc_savePreference(self,data, **kwargs):
+        record = self.tblobj.loadPreference(for_update=True)
+        record['data']=data
+        self.tblobj.savePreference(record)
  

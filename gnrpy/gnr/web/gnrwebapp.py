@@ -99,6 +99,11 @@ class GnrWsgiWebApp(GnrApp):
             result.setItem(node.label,value,attributes)
         return result
         
-    
-           
+    def setPreference(self, path, data, pkg):
+        if self.db.package('adm'):
+            self.db.table('adm.preference').setPreference(path,data,pkg=pkg)
+            
+    def getPreference(self, path, pkg, dflt=''):
+        if self.db.package('adm'):
+            return self.db.table('adm.preference').getPreference(path,pkg=pkg, dflt=dflt)
     

@@ -554,17 +554,17 @@ class GnrWebPage(GnrBaseWebPage):
         if result:
             return result[0]
             
-    def setPreference(self,data,pkg='',path=''):
-        self.site.setPreference(data,pkg=pkg,path=path)
+    def setPreference(self, path, data, pkg=''):
+        self.site.setPreference(path, data,pkg=pkg)
             
-    def getPreference(self,pkg='',path='',dflt=''):
-        return self.site.getPreference(path=path,pkg=pkg,dflt=dflt)
+    def getPreference(self,path, pkg='', dflt=''):
+        return self.site.getPreference(path, pkg=pkg, dflt=dflt)
             
-    def getUserPreference(self,user_id,pkg='',path='',dflt=''):
-        return self.site.getPreference(user_id,pkg=pkg,path=path,dlft=dflt)
+    def getUserPreference(self,path, pkg='',dflt='', username=''):
+        return self.site.getUserPreference(path,pkg=pkg,dlft=dflt, username=username)
             
-    def setUserPreference(self,user_id,data,pkg='',path=''):
-        self.site.setPreference(user_id,data,pkg=pkg,path=path)
+    def setUserPreference(self, path, data, pkg='',username=''):
+        self.site.setUserPreference(path,data,pkg=pkg,username=username)
             
     def _get_package_folder(self):
         if not hasattr(self,'_package_folder'):

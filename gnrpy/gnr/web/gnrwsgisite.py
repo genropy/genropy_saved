@@ -448,21 +448,27 @@ class GnrWsgiSite(object):
         if 'adm' in self.db.packages:
             self.db.table('adm.connection').connectionLog(event)
 
-    def setPreference(self,data,pkg='',path=''):
+    def setPreference(self,path, data,pkg=''):
         if self.db.package('adm'):
-            self.db.table('adm.preference').setPreference(data,pkg=pkg,path=path)
+            pkg=pkg or self.currentPage.packageId
+            self.db.table('adm.preference').setPreference(path,data,pkg=pkg)
             
-    def getPreference(self,pkg='',path='',dflt=''):
+    def getPreference(self, path, pkg='', dflt=''):
         if self.db.package('adm'):
-            return self.db.table('adm.preference').getPreference(path=path,pkg=pkg,dflt=dflt)
+            pkg=pkg or self.currentPage.packageId
+            return self.db.table('adm.preference').getPreference(path,pkg=pkg,dflt=dflt)
             
-    def getUserPreference(self,user_id,pkg='',path='',dflt=''):
+    def getUserPreference(self,path, pkg='',dflt='',username='',):
         if self.db.package('adm'):
-            return self.db.table('adm.user').getPreference(user_id,pkg=pkg,path=path,dlft=dflt)
+            pkg=pkg or self.currentPage.packageId
+            username = username or self.currentPage.user
+            return self.db.table('adm.user').getPreference(path,pkg=pkg,path=path,dlft=dflt,username=username)
             
-    def setUserPreference(self,user_id,data,pkg='',path=''):
+    def setUserPreference(self, path,data, pkg='',username=''):
         if self.db.package('adm'):
-            self.db.table('adm.user').setPreference(user_id,data,pkg=pkg,path=path)
+            pkg=pkg or self.currentPage.packageId
+            username = username or self.currentPage.user
+            self.db.table('adm.user').setPreference(path,data,pkg=pkg,username=username)
                 
     def getMessages(self,**kwargs):
         if 'sys' in self.gnrapp.db.packages:
