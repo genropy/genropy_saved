@@ -49,16 +49,18 @@ class Table(object):
             dump_folder = os.path.join(self.db.application.instanceFolder,'dumps')
             self.importFromXmlDump(dump_folder)
     
-    def getPreference(self,user_id,pkg='',path='',dflt=''):
-        result = self.record(pkey=user_id,ignoreMissing=True).output('bag')
-        return result['preferences.%s.%s' %(pkg,path)] or dflt
+    def getPreference(self,path='', pkg='',dflt='',username=''):
+        return self.loadRecord(username)['preferences.%s.%s' %(pkg,path)] or dflt
             
-    def setPreference(self,user_id,data,pkg='',path=''):
+    def setPreference(self,path='',data='', pkg='',username=''):
         with self.db.tempEnv(connectionName='system'):
-            record = self.record(pkey=user_id, for_update=True).output('bag')
+            record = self.loadRecord(username,for_update=True)
             record['preferences.%s.%s' %(pkg,path)] = data
             self.update(record)
             self.db.commit()
+    
+    def loadRecord(self,username,for_update=False):
+        return self.record(username=username,for_update=for_update).output('bag')
 
         
         

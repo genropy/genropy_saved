@@ -458,7 +458,7 @@ class GnrWsgiSite(object):
             pkg=pkg or self.currentPage.packageId
             return self.db.table('adm.preference').getPreference(path,pkg=pkg,dflt=dflt)
             
-    def getUserPreference(self,path, pkg='',dflt='',username='',):
+    def getUserPreference(self,path, pkg='',dflt='',username=''):
         if self.db.package('adm'):
             pkg=pkg or self.currentPage.packageId
             username = username or self.currentPage.user
