@@ -33,8 +33,8 @@ class GnrCustomWebPage(object):
          
     def main(self, rootBC, **kwargs):
         pane, top, bottom = self.pbl_rootContentPane(rootBC, '!!Test iframe dialog',margin='5px') 
-        pane.button('open 1',action='SET framepage_test ="/catalog/component/res/test1"; FIRE #myframe.open;')
-        pane.button('open 2',action='SET framepage_test ="/catalog/component/res/test2"; FIRE #myframe.open;')
+        pane.button('open 1',action='SET framepage_test ="/showcase/catalog/component/res/test1"; FIRE #myframe.open;')
+        pane.button('open 2',action='SET framepage_test ="/showcase/catalog/component/res/test2"; FIRE #myframe.open;')
         
         self.iframeDialog(pane,title='test iframe',dlgId='myframe',height='300px',
                             width='400px',src='=framepage_test',datapath='test')
