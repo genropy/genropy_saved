@@ -309,7 +309,11 @@ class SqlDbAdapter(object):
             if on_value: statement += ' %s %s'%(on_command,on_value)
         statement = '%s %s'%(statement,init_deferred or '')
         return statement
-
+        
+    def addUniqueConstraint(self, pkg, tbl, fld):
+        statement = 'ALTER TABLE %s.%s ADD CONSTRAINT un_%s_%s_%s UNIQUE (%s)' % (pkg, tbl, pkg, tbl, fld, fld)
+        return statement
+        
     def createSchemaSql(self, sqlschema):
         """Returns the sql command to create a new database schema"""
         return 'CREATE SCHEMA %s;' % sqlschema
