@@ -52,6 +52,8 @@ class TableHandler(BaseComponent):
     
     def rowsPerPage(self):
         return 25
+    def hiddencolumnsBase(self):
+        return
     
     def hierarchicalViewConf(self):
         return None
