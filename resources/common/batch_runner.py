@@ -39,12 +39,14 @@ class BatchRunner(BaseComponent):
                        for every selected row.
         """
         onBatchCalling = None
+        thermofield = None
         if thermoParams:
-            if thermoParams==True:
+            if thermoParams is True:
                 thermoParams= dict(field='*')
             thermoId = thermoId or self.getUuid()
             self.thermoDialog(pane,thermoId=thermoId,thermolines=thermoParams.get('lines',2),
                               title=thermoParams.get('title', 'Batch Running'),**kwargs)
+            thermofield = thermoParams.get('field')
             onBatchCalling = 'FIRE #%s_dlg.open;' %thermoId
             
         pane.dataRpc('%s.result' % resultpath, 'runBatch', timeout=0, _POST=True,
@@ -52,7 +54,7 @@ class BatchRunner(BaseComponent):
                      recordId = recordId,datapath=datapath,
                      batch_class=batch_class,
                      selectionFilterCb=selectionFilterCb,
-                     thermofield=thermoParams.get('field'), thermoId = thermoId,
+                     thermofield=thermofield, thermoId = thermoId,
                      selectedRowidx =selectedRowidx,
                      _fired=fired, _onResult=_onResult,
                      commitAfterPrint=commitAfterPrint,

@@ -344,7 +344,17 @@ class TableHandlerForm(BaseComponent):
         if condition:
             condPars=condition[1] or {}
             condition=condition[0]
-        pane.dataFormula('.columns', 'gnr.columnsFromStruct(struct);', struct='^list.view.structure', _init=True)
+        pane.dataController("""
+        var columns = gnr.columnsFromStruct(struct);
+        if(hiddencolumns){
+            var hiddencolumns = hiddencolumns.split(',');
+            columns = columns+','+hiddencolumns;
+        }
+        
+        SET .columns = columns;
+        """,hiddencolumns=self.hiddencolumnsBase(),
+         struct='^list.view.structure', _init=True)
+        
         pane.data('list.tableRecordCount',self.tableRecordCount())
         pane.dataSelection('list.data_start', self.maintable, columns='=.columns',
                              where='=list.query.where', sortedBy='=list.grid.sorted',

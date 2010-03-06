@@ -256,7 +256,7 @@ class PrintSelection(PrintDbData):
 
 class PrintRecord(PrintDbData):
     def process(self):
-        self.process_chunk(self.data,**self.runKwargs)
+        self.process_chunk(dict(pkey=self.data),**self.runKwargs)
 
 ################################
 class Fake(GnrBatch):
