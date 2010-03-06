@@ -175,19 +175,6 @@ class SelectionToXls(GnrBatch):
     def collect_result(self):
         return self.fileUrl
 
-class SelectionToPdf(GnrBatch):
-    def __init__(self, table_resource=None, selection=None, table=None, folder=None, **kwargs):
-        super(SelectionToPdf,self).__init__(**kwargs)
-        self.pdfmaker=self.page.site.loadTableResource(page=self.page,table=table,path=table_resource)
-        self.table = table
-        self.folder = folder or 'temp_print_%s'%table.replace('.','_')
-        
-    def data_fetcher(self):     ##### Rivedere per passare le colonne
-        for row in self.data.output('pkeylist'):
-            yield row
-    
-    def process_chunk(self, chunk):
-        self.pdfmaker.getPdfFromRecord(record=chunk,table=self.table,folder=self.folder)
         
 class PrintDbData(GnrBatch):
     def __init__(self, table=None,table_resource=None, class_name=None, selection=None,
@@ -237,7 +224,7 @@ class PrintDbData(GnrBatch):
 
     def thermo_chunk_message(self, chunk, row):
         if self.thermofield=='*':
-            msg = self.tblobj.recordCaption(chunk)
+            msg = self.data.dbtable.recordCaption(chunk)
         else:
             msg = chunk[self.thermofield]
         return msg

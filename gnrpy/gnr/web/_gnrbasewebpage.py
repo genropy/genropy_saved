@@ -252,19 +252,23 @@ class GnrBaseWebPage(GnrObject):
     def freezeSelection(self, selection, name):
         selection.freeze(self.pageLocalDocument(name), autocreate=True)
         
-    def unfreezeSelection(self, dbtable, name):
+    def unfreezeSelection(self, dbtable=None, name=None):
+        assert name,'name is mandatory'
         if isinstance(dbtable, basestring):
             dbtable = self.db.table(dbtable)
-        return dbtable.frozenSelection(self.pageLocalDocument(name))
+        selection = self.db.unfreezeSelection(self.pageLocalDocument(name))
+        if dbtable:
+            assert dbtable == selection.dbtable, 'unfrozen selection does not belong to the given table'
+        return selection
     
-    def getUserSelection(self, table=None, selectionName=None, selectedRowidx=None,filterCb=None,columns=None,
-                          condition=None, condition_args=None):
-        table = table or self.maintable
-        
+    def getUserSelection(self, selectionName=None, selectedRowidx=None,filterCb=None,columns=None,
+                          condition=None, table=None,condition_args=None):
+        # table is for checking if the selection belong to the table
+        assert selectionName,'selectionName is mandatory'
         if isinstance(table, basestring):
             table = self.db.table(table)
-        selection = self.unfreezeSelection(table, selectionName)
-        
+        selection = self.unfreezeSelection(dbtable=table, name=selectionName)
+        table = table or selection.dbtable 
         if filterCb:
             filterCb=getattr(self, 'rpc_%s' %filterCb)
             selection.filter(filterCb)

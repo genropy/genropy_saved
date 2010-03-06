@@ -25,6 +25,7 @@ __version__='1.0b'
 
 from gnr.core.gnrlog import gnrlogging
 gnrlogger = gnrlogging.getLogger('gnr.sql.gnrsql')
+import cPickle
 
 from gnr.core.gnrlang import getUuid
 from gnr.core.gnrlang import GnrObject
@@ -313,6 +314,7 @@ class GnrSqlDb(GnrObject):
         """Analyze db"""
         self.adapter.vacuum()
         
+        
     #------------------ PUBLIC METHODS--------------------------
     
     def package(self, pkg):
@@ -388,6 +390,14 @@ class GnrSqlDb(GnrObject):
         for table, pkg in data.digest('#k,#a.pkg'):
             for n in data[table]:
                 self.table(table, pkg=pkg).insertOrUpdate(n.attr)
+                
+    def unfreezeSelection(self, fpath):
+        """it gets a pickled selection"""
+        f = file('%s.pik' % fpath, 'r')
+        selection = cPickle.load(f)
+        f.close()
+        selection.dbtable = self.table(selection.tablename)
+        return selection
                 
 class TempEnv(object):
     """

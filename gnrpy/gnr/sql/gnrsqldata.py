@@ -918,6 +918,7 @@ class SqlSelection(object):
         self._frz_data = None
         self._frz_filtered_data = None
         self.dbtable = dbtable
+        self.tablename = dbtable.fullname
         self.explodingColumns = explodingColumns
         if _aggregateRows==True:
             data = self._aggregateRows(data, index, explodingColumns)

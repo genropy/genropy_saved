@@ -23,7 +23,6 @@
 __version__='1.0b'
 
 #import weakref
-import cPickle
 import os
 
 from gnr.core import gnrstring
@@ -402,10 +401,8 @@ class SqlTable(GnrObject):
     
     def frozenSelection(self, fpath):
         """it gets a pickled selection"""
-        f = file('%s.pik' % fpath, 'r')
-        selection = cPickle.load(f)
-        f.close()
-        selection.dbtable = self
+        selection = self.db.unfreezeSelection(fpath)
+        assert selection.dbtable == self,'the frozen selection does not belong to this table'
         return selection
     
     def checkPkey(self,record):

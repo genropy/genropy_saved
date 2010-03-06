@@ -81,21 +81,21 @@ class BatchRunner(BaseComponent):
             forUpdate: load records for update and commit at end (always use for writing batch)
             onRow: optional method to execute on each record in selection, use if no batchFactory is given
             """
-        tblobj = self.db.table(table)  
         if data_method:
             handler = getattr(self, 'rpc_%s'%data_method)
             runKwargs = kwargs['runKwargs']
             data = handler(selectionName=selectionName, selectedRowidx=selectedRowidx, selectionFilterCb=selectionFilterCb, pars=runKwargs)
             batch_class = 'PrintRecord'
         elif recordId:
-            data = tblobj.record(pkey=recordId,ignoreMissing=True).output('bag')
+            data = self.db.table(table).record(pkey=recordId,ignoreMissing=True).output('bag')
         else:   
-            data = self.getUserSelection(table=tblobj,selectionName=selectionName,
-                                         selectedRowidx=selectedRowidx,filterCb=selectionFilterCb)
+            data = self.getUserSelection(selectionName=selectionName,
+                                         selectedRowidx=selectedRowidx,
+                                         filterCb=selectionFilterCb)
         batch_class = self.batch_loader(batch_class)
         if batch_class:
             batch = batch_class(data=data, table=table, page=self, thermocb=self.app.setThermo,
-                                commitAfterPrint=commitAfterPrint, tblobj=tblobj,**kwargs)
+                                commitAfterPrint=commitAfterPrint,**kwargs)
             return batch.run()
         else:
             raise Exception
