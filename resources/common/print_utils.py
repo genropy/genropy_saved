@@ -23,8 +23,6 @@ class PrintUtils(BaseComponent):
                         selectedRowidx=None,pdfOnly=False,
                         _onResult='',data_method=None, **kwargs):
         table = table or self.maintable
-        if thermoParams == True:
-            thermoParams= dict(field='*')
         if not batch_class:
             if recordId:
                 batch_class='PrintRecord'
@@ -58,10 +56,10 @@ class PrintUtils(BaseComponent):
                             data_method=data_method,
                             **kwargs)    
         self.buildBatchRunner(pane,_onResult='if($1){genro.download($1)};%s'%_onResult,
-                            pdfParams='=.pdf',fired='^.dlpdf',**batchPars) 
+                            pdfParams='=.pdf',fired='^.dlpdf',thermoId='%s_thermo_pdf'%name,**batchPars) 
         if not pdfOnly:
             self.buildBatchRunner(pane, printParams='=_clientCtx.printerSetup.%s' %name,
-                                _onResult=_onResult,fired='^.run',**batchPars) 
+                                _onResult=_onResult,fired='^.run',thermoId='%s_thermo_print'%name,**batchPars) 
                                
                      
     def printOptDialog(self,pane,name,datapath=None,dlgPars=None,parameters_cb=None,pdfOnly=False):

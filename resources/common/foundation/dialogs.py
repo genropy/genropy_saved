@@ -71,37 +71,6 @@ class Dialogs(BaseComponent):
         for btn, action in [(kwargs[k], kwargs.get('action_%s' % k[4:])) for k in kwargs.keys() if k.startswith('btn_')]:
             bottom.button(btn, action=action, float='left')
         
-
-    def thermoDialog(self, pane, thermoid='thermo', title='', thermolines=1, fired=None, alertResult=False,datapath=None):
-        dlgid = 'dlg_%s' % thermoid
-        dlg = pane.dialog(nodeId=dlgid, title=title,datapath='_thermo.%s.result' % thermoid,
-                        closable='ask', close_msg='!!Stop the batch execution ?', close_confirm='Stop', close_cancel='Continue', 
-                        close_action='FIRE ^_thermo.%s.flag = "stop"' % thermoid,
-                        connect_show='this.intervalRef = setInterval(function(){genro.fireEvent("_thermo.%s.flag")}, 500)' % thermoid,
-                        connect_hide='clearInterval(this.intervalRef);')
-                        #onAskCancel
-        bc=dlg.borderContainer(width='330px', height='%ipx' %(100+thermolines*40) )
-        footer=bc.contentPane(region='bottom', _class='dialog_bottom')
-        body=bc.contentPane(region='center')
-        for x in range(thermolines):
-            tl = body.div(datapath='.t%i' % (x+1, ), border_bottom='1px solid gray', margin_bottom='3px')
-            tl.div('^.message', height='1em', text_align='center')
-            tl.progressBar(width='25em', indeterminate='^.indeterminate', maximum='^.maximum', 
-                          places='^.places', progress='^.progress', margin_left='auto', margin_right='auto')
-                          
-        footer.button('Stop', baseClass='bottom_btn',
-                action='genro.wdgById("%s").onAskCancel();' % dlgid)
-        controller =pane.dataController(datapath=datapath)
-        controller.dataController('console.log("open thermo %s");genro.wdgById("%s").show()' %(dlgid,dlgid), fired=fired)
-        controller.dataController('genro.wdgById(dlgid).hide();', dlgid=dlgid, 
-                            status='^_thermo.%s.result.status' % thermoid, _if='(status=="stopped" || status=="end")')
-        if alertResult:
-            controller.dataFormula('gnr.alert', 'msg', msg='=_thermo.%s.result.message' % thermoid, 
-                            status='^_thermo.%s.result.status' % thermoid, _if='(status=="stopped" || status=="end")')
-        
-        controller.dataRpc('_thermo.%s.result' % thermoid, 'app.getThermo', thermoid=thermoid,
-                                                             flag='^_thermo.%s.flag' % thermoid)
-        
 class FormDialog(BaseComponent):
     #@deprecated
     def dialog_form(self,*args,**kwargs):
@@ -171,7 +140,7 @@ class FormDialog(BaseComponent):
         if cb_bottom:
             cb_bottom(bc,region='bottom',_class='dialog_bottom',confirm_btn=confirm_btn)
         if cb_center:
-            cb_center(bc,region='center',datapath='.data',_class='pbl_dialog_center',dlgId=dlgId)
+            cb_center(bc,region='center',_class='pbl_dialog_center',dlgId=dlgId)
         bc.dataController("""if(typeof(opener)=='object'){
                                 if ( opener.dialogPage){
                                     SET .page = objectPop(opener,'dialogPage');
@@ -190,9 +159,8 @@ class FormDialog(BaseComponent):
             pane.iframe(order='0px',height='100%',width='100%',
                         border=0,nodeId='%s_frame' %dlgId, 
                         src=src,condition_function='return value;',
-                        condition_value='^.#parent.isOpen')
+                        condition_value='^.isOpen')
             
         dlg = self.simpleDialog(parent,title=title,datapath=datapath,
                              dlgId=dlgId, height=height,width=width,
-                             cb_center=cb_center,cb_bottom=cb_bottom,**kwargs)
-                             
+                             cb_center=cb_center,cb_bottom=cb_bottom,**kwargs)                             

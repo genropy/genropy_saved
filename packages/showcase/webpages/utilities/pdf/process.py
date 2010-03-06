@@ -18,7 +18,7 @@ class GnrCustomWebPage(object):
         fb.dataRpc('result', 'Test',  pdfmode='^dotest', _POST=True)
         fb.dataRpc('result', 'processTest',  pdfmode='^do', _POST=True)
         fb.dataController("alert(result);", result='^result')
-        self.thermoDialog(root, thermoid='build_pdf', title='Generazione PDF', thermolines=2, fired='^do')
+        self.thermoDialog(root, thermoId='build_pdf', title='Generazione PDF', thermolines=2, fired='^do')
 
     def rpc_processTest(self, **kwargs):
         self.app.setThermo('build_pdf', 0, 'Preparo elaborazione' , 10, command='init')

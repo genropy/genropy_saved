@@ -95,20 +95,24 @@ class PrintHandler(object):
             result = call(['wkhtmltopdf','-q',srcPath,destPath])
         if result < 0:
             raise PrintHandlerError('wkhtmltopdf error')
+        return destPath
             
     def autoConvertFiles(self, files, storeFolder):
         resultList = []
         for filename in files:
             baseName,ext = os.path.splitext(os.path.basename(filename))
             if ext.lower() == '.html':
-                destPath=os.path.join(storeFolder, '%s.pdf' % baseName)
-                if sys.platform.startswith('linux'):
-                    result = call(['wkhtmltopdf','-q',filename,destPath])
-                else:
-                    result = call(['wkhtmltopdf','-q',filename,destPath])
-                if result < 0:
-                    raise PrintHandlerError('wkhtmltopdf error')
-                resultList.append(destPath)
+                resultList.append(self.htmlToPdf(filename,storeFolder))
+
+                #destPath=os.path.join(storeFolder, '%s.pdf' % baseName)
+
+                #if sys.platform.startswith('linux'):
+                #    result = call(['wkhtmltopdf','-q',filename,destPath])
+                #else:
+                #    result = call(['wkhtmltopdf','-q',filename,destPath])
+                #if result < 0:
+                #    raise PrintHandlerError('wkhtmltopdf error')
+                #resultList.append(destPath)
             elif ext.lower() =='.pdf':
                 resultList.append(filename)
             else:

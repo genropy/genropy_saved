@@ -26,7 +26,7 @@ class GnrCustomWebPage(object):
         
         fb.dataRpc('pdf.filename', 'app.pdfmaker', txt='=pdf.text', pdfmode='^pdf.do', _POST=True)
         fb.dataController("genro.viewPDF(filename, forcedownload);", filename='^pdf.filename', forcedownload='=pdf.down', _if='filename')
-        self.thermoDialog(root, thermoid='build_pdf', title='Generazione PDF', thermolines=2, fired='^pdf.do')
+        self.thermoDialog(root, thermoId='build_pdf', title='Generazione PDF', thermolines=2, fired='^pdf.do')
 
     def pdf_testCanvas(self, fpath, txt, **kwargs):
         c = canvas.Canvas(fpath) 

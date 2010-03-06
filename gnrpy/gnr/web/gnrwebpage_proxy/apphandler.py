@@ -327,10 +327,10 @@ class GnrWebAppHandler(GnrBaseProxy):
         return (result,resultAttributes)
 
     def rpc_runSelectionBatch(self, table, selectionName=None, batchFactory=None, pkeys=None, 
-                            thermoid=None, thermofield=None, 
+                            thermoId=None, thermofield=None, 
                             stopOnError=False, forUpdate=False, onRow=None, **kwargs):
         """ batchFactory: name of the Class, plugin of table, which executes the batch action
-            thermoid:
+            thermoId:
             thermofield: the field of the main table to use for thermo display or * for record caption
             stopOnError: at the first error stop execution
             forUpdate: load records for update and commit at end (always use for writing batch)
@@ -342,19 +342,19 @@ class GnrWebAppHandler(GnrBaseProxy):
             pkeys = selection.output('pkeylist')
             
         batch = tblobj.getPlugin(name=batchFactory or 'batch', thermoCb=self.setThermo, 
-                                    thermoid=thermoid, thermofield=thermofield, 
+                                    thermoId=thermoId, thermofield=thermofield, 
                                     stopOnError=stopOnError, forUpdate=forUpdate, onRow=onRow, **kwargs)
         return batch.run(pkeyList=pkeys)
         
             
-    def setThermo(self, thermoid, progress_1=None, message_1=None, 
+    def setThermo(self, thermoId, progress_1=None, message_1=None, 
                    maximum_1=None, command=None, **kwargs):
         session = self.page.session
         session.loadSessionData()
         if command == 'init':
             thermoBag = Bag()
         else:
-            thermoBag = session.pagedata.getItem('thermo_%s' % thermoid) or Bag()
+            thermoBag = session.pagedata.getItem('thermo_%s' % thermoId) or Bag()
 
             
         max = maximum_1 or thermoBag['t1.maximum']
@@ -376,22 +376,22 @@ class GnrWebAppHandler(GnrBaseProxy):
                     key, thermo = k.split('_')
                     thermoBag['t%s.%s' % (thermo, key)] = v      
                               
-        session.setInPageData('thermo_%s' % thermoid, thermoBag)
+        session.setInPageData('thermo_%s' % thermoId, thermoBag)
         session.saveSessionData()
         if thermoBag['stop']:
             return 'stop'
         
-    def rpc_getThermo(self, thermoid, flag=None):
+    def rpc_getThermo(self, thermoId, flag=None):
         session = self.page.session
         if flag=='stop':
             session.loadSessionData()
-            thermoBag = session.pagedata.getItem('thermo_%s' % thermoid) or Bag()
+            thermoBag = session.pagedata.getItem('thermo_%s' % thermoId) or Bag()
             thermoBag['stop'] = True
-            session.setInPageData('thermo_%s' % thermoid, thermoBag)
+            session.setInPageData('thermo_%s' % thermoId, thermoBag)
             session.saveSessionData()
         else:
             session.loadSessionData(locking=False)
-            thermoBag = session.pagedata.getItem('thermo_%s' % thermoid) or Bag()
+            thermoBag = session.pagedata.getItem('thermo_%s' % thermoId) or Bag()
         return thermoBag
         
     def rpc_onSelectionDo(self, table, selectionName, command, callmethod=None, selectedRowidx=None, recordcall=False, **kwargs):

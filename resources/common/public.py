@@ -82,7 +82,7 @@ class Public(BaseComponent):
         self.pageSource('_pageRoot').setAttr(height=height, width=width, margin=margin)
         top = self.pbl_topBar(rootbc.borderContainer(region='top', _class='pbl_root_top',overflow='hidden'),title,flagsLocale=flagsLocale)
         bottom = self.pbl_bottomBar(rootbc.borderContainer(region='bottom', _class='pbl_root_bottom',overflow='hidden'))
-        bc = rootbc.borderContainer(region='center', _class='pbl_root_center')
+        bc = rootbc.borderContainer(region='center', _class='pbl_root_center')        
         return bc, top, bottom
         
     def pbl_rootContentPane(self, root, title=None, height=None, width=None, centered=False, flagsLocale=False,**kwargs):

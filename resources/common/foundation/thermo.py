@@ -26,11 +26,11 @@ from gnr.core.gnrbag import Bag
 import time
 
 class Thermo(BaseComponent):
-    def thermoNewDialog(self, pane, thermoid='thermo', title='', thermolines=1, fired=None, pollingFreq=1):
-        dlgid = 'dlg_%s' % thermoid
-        d = pane.dialog(nodeId=dlgid, title=title, width='27em', datapath='_thermo.%s' % thermoid, 
+    def thermoNewDialog(self, pane, thermoId='thermo', title='', thermolines=1, fired=None, pollingFreq=1):
+        dlgid = 'dlg_%s' % thermoId
+        d = pane.dialog(nodeId=dlgid, title=title, width='27em', datapath='_thermo.%s' % thermoId, 
                         closable='ask', close_msg='!!Stop the batch execution ?', close_confirm='Stop', close_cancel='Continue', 
-                        close_action='genro.setInServer("thermo.%s.stop", true);' % thermoid)
+                        close_action='genro.setInServer("thermo.%s.stop", true);' % thermoId)
         for x in range(thermolines):
             tl = d.div(datapath='.t.t%i' % (x, ))
             tl.progressBar(width='25em', indeterminate='^.indeterminate', maximum='^.maximum', 
@@ -40,17 +40,17 @@ class Thermo(BaseComponent):
                                                     action='genro.wdgById("%s").onAskCancel();' % dlgid)
         
         pane.dataController('genro.wdgById(dlgid).show();genro.rpc.managePolling(%s);' % pollingFreq, dlgid=dlgid, fired=fired)
-        pane.dataController('genro.wdgById(dlgid).hide();genro.rpc.managePolling();', dlgid=dlgid, _fired='^_thermo.%s.c.end' % thermoid)
+        pane.dataController('genro.wdgById(dlgid).hide();genro.rpc.managePolling();', dlgid=dlgid, _fired='^_thermo.%s.c.end' % thermoId)
         
         
-    def setNewThermo(self, thermoid, level, progress, maximum, message='', indeterminate=False, lazy=True):
+    def setNewThermo(self, thermoId, level, progress, maximum, message='', indeterminate=False, lazy=True):
         #lazy: send to client at most 1 value change per second. 
         #Subsequent calls to setNewThermo in the next second are ignored
         end = (level==-1 or (level==0 and progress >= maximum))
         if end:
-            self.setInClientData('_thermo.%s.c.end' % thermoid, True, fired=True, save=True)
-            if self.session.pagedata['thermo.%s.stop' % thermoid]:
-                self.session.modifyPageData('thermo.%s.stop' % thermoid, None)
+            self.setInClientData('_thermo.%s.c.end' % thermoId, True, fired=True, save=True)
+            if self.session.pagedata['thermo.%s.stop' % thermoId]:
+                self.session.modifyPageData('thermo.%s.stop' % thermoId, None)
             return
             
         now = time.time()
@@ -66,9 +66,9 @@ class Thermo(BaseComponent):
         
             
         tbag = Bag(dict(progress=progress, maximum=maximum, message=message, indeterminate=indeterminate))
-        self.setInClientData('_thermo.%s.t.t%s' % (thermoid, level), tbag, save=True)
+        self.setInClientData('_thermo.%s.t.t%s' % (thermoId, level), tbag, save=True)
         
-        if self.session.pagedata['thermo.%s.stop' % thermoid]:
+        if self.session.pagedata['thermo.%s.stop' % thermoId]:
             return True
         else:
             return False

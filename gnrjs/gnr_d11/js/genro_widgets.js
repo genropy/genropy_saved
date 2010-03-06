@@ -138,7 +138,7 @@ dojo.declare("gnr.widgets.baseHtml",null,{
             attributes['for'] = objectPop(attributes,'_for');
         }
         if(attributes.onShow){
-            attributes['onShow'] = funcCreate(attributes.onShow,'',sourceNode);
+            attributes['onShow'] = funcCreate(attributes.onShow,'console.log("showing")',sourceNode);
         }
         if(attributes.onHide){
             attributes['onHide'] = funcCreate(attributes.onHide,'',sourceNode);

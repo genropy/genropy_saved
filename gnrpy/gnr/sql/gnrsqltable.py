@@ -865,12 +865,12 @@ class SqlTableBatch(SqlTablePlugin):
     stopOnError = True
     forUpdate = False
     thermofield = None
-    def __init__(self, tblobj, thermoCb=None, thermoid=None, thermofield=None,
+    def __init__(self, tblobj, thermoCb=None, thermoId=None, thermofield=None,
                             stopOnError=False, forUpdate=False, onRow=None, **kwargs):
         self.db = tblobj.db
         self.tblobj = tblobj
         self.thermoCb = thermoCb
-        self.thermoid = thermoid
+        self.thermoId = thermoId
         if thermofield:
             self.thermofield = thermofield
         if stopOnError:
@@ -889,13 +889,13 @@ class SqlTableBatch(SqlTablePlugin):
         self.result = []
         self.errors = []
         
-        if self.thermoid:
-            self.thermoCb(self.thermoid, None, '', len(pkeyList), command='init')
+        if self.thermoId:
+            self.thermoCb(self.thermoId, None, '', len(pkeyList), command='init')
         
         self.onStart()
         self.loop()
         self.onEnd()
-        if self.thermoid: self.thermoCb(self.thermoid, command='end')
+        if self.thermoId: self.thermoCb(self.thermoId, command='end')
         return self.prepareResult()
     
     def prepareResult(self):
@@ -924,14 +924,14 @@ class SqlTableBatch(SqlTablePlugin):
                     self.errors.append((i, record[self.tblobj.pkey], self.tblobj.recordCaption(record), e))
     
     def setThermo(self, i, record):
-        if self.thermoid:
+        if self.thermoId:
             if self.thermofield=='*':
                 msg = self.tblobj.recordCaption(record[0])
             else:
                 msg = result[0][self.thermofield]
-            result = self.thermoCb(self.thermoid, i+1, msg)
+            result = self.thermoCb(self.thermoId, i+1, msg)
             if result=='stop':
-                self.thermoCb(self.thermoid, command='stopped')
+                self.thermoCb(self.thermoId, command='stopped')
             return result
     
     def onStart(self, **kwargs):

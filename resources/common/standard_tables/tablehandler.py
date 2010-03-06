@@ -139,7 +139,7 @@ class TableHandler(BaseComponent):
 
                                        
     def selectionBatchRunner(self, pane, title='', resultpath='aux.cmd.result', fired=None, batchFactory=None,
-                             rpc=None,thermofield=None, thermoid=None, endScript=None,
+                             rpc=None,thermofield=None, thermoId=None, endScript=None,
                              stopOnError=False, forUpdate=False, onRow=None, **kwargs):
         """Prepare a batch action on the maintable with a thermometer
            @param pane: it MUST NOT BE a container. Is the pane where selectionBatchRunner
@@ -151,13 +151,13 @@ class TableHandler(BaseComponent):
            @param rpc: is used instead of batchFactory. The name of the custum rpc you can use for the batch
                        for every selected row.
         """
-        thermoid = None
+        thermoId = None
         if thermofield:
-            thermoid = self.getUuid()
-            self.thermoDialog(pane, thermoid=thermoid, title=title, fired=fired, alertResult=True)
+            thermoId = self.getUuid()
+            self.thermoDialog(pane, thermoId=thermoId, title=title, fired=fired, alertResult=True)
         pane.dataRpc(resultpath, rpc or 'app.runSelectionBatch',
                      table=self.maintable, selectionName='=list.selectionName',
-                     batchFactory=batchFactory, thermoid=thermoid,
+                     batchFactory=batchFactory, thermoId=thermoId,
                      thermofield=thermofield,
                      pkeys='==genro.wdgById("maingrid").getSelectedPkeys()',
                      fired=fired, _onResult=endScript,

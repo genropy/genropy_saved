@@ -24,7 +24,7 @@ class ThermoUtils(BaseComponent):
         if command == 'init':
             thermoBag = Bag()
         else:
-            thermoBag = session.pagedata.getItem('thermo_%s' % thermoid) or Bag()
+            thermoBag = session.pagedata.getItem('thermo_%s' % thermoId) or Bag()
 
             
         max = maximum_1 or thermoBag['t1.maximum']
@@ -46,21 +46,21 @@ class ThermoUtils(BaseComponent):
                     key, thermo = k.split('_')
                     thermoBag['t%s.%s' % (thermo, key)] = v      
                               
-        session.setInPageData('thermo_%s' % thermoid, thermoBag)
+        session.setInPageData('thermo_%s' % thermoId, thermoBag)
         session.saveSessionData()
         if thermoBag['stop']:
             return 'stop'
         
-    def rpc_getThermo(self, thermoid, flag=None):
+    def rpc_getThermo(self, thermoId, flag=None):
         session = self.page.session
         if flag=='stop':
             session.loadSessionData()
-            thermoBag = session.pagedata.getItem('thermo_%s' % thermoid) or Bag()
+            thermoBag = session.pagedata.getItem('thermo_%s' % thermoId) or Bag()
             thermoBag['stop'] = True
-            session.setInPageData('thermo_%s' % thermoid, thermoBag)
+            session.setInPageData('thermo_%s' % thermoId, thermoBag)
             session.saveSessionData()
         else:
-            thermoBag = session.pagedata.getItem('thermo_%s' % thermoid) or Bag()
+            thermoBag = session.pagedata.getItem('thermo_%s' % thermoId) or Bag()
         return thermoBag
     
     def _make_dialog(self,name,title='',height='',width='',datapath='',
@@ -86,7 +86,7 @@ class ThermoUtils(BaseComponent):
             pane = self.pageSource('pbl_bottomBarLeft')
             self.progressBarPane(pane)
         
-    def progressDialogCenter(self,parent,thermoid='thermo',**kwargs):
+    def progressDialogCenter(self,parent,thermoId='thermo',**kwargs):
         pane = parent.contentPane(**kwargs)
         self.progressBarPane(pane)
         
@@ -99,12 +99,12 @@ class ThermoUtils(BaseComponent):
         bottom.button('!!Confirm',baseClass='bottom_btn',float='right',margin='1px',fire_always='.save')
         
        
-    def OLD_thermoDialog(self, pane, thermoid='thermo', title='', thermolines=1, fired=None, alertResult=False):
-        dlgid = 'dlg_%s' % thermoid
-        dlg = pane.dialog(nodeId=dlgid, title=title,datapath='_thermo.%s.result' % thermoid,
+    def OLD_thermoDialog(self, pane, thermoId='thermo', title='', thermolines=1, fired=None, alertResult=False):
+        dlgid = 'dlg_%s' % thermoId
+        dlg = pane.dialog(nodeId=dlgid, title=title,datapath='_thermo.%s.result' % thermoId,
                         closable='ask', close_msg='!!Stop the batch execution ?', close_confirm='Stop', close_cancel='Continue', 
-                        close_action='FIRE ^_thermo.%s.flag = "stop"' % thermoid,
-                        connect_show='this.intervalRef = setInterval(function(){genro.fireEvent("_thermo.%s.flag")}, 500)' % thermoid,
+                        close_action='FIRE ^_thermo.%s.flag = "stop"' % thermoId,
+                        connect_show='this.intervalRef = setInterval(function(){genro.fireEvent("_thermo.%s.flag")}, 500)' % thermoId,
                         connect_hide='clearInterval(this.intervalRef);')
                         #onAskCancel
         bc=dlg.borderContainer(width='330px', height='%ipx' %(100+thermolines*40) )
@@ -120,10 +120,10 @@ class ThermoUtils(BaseComponent):
                 action='genro.wdgById("%s").onAskCancel();' % dlgid)
         pane.dataController('console.log("open thermo %s");genro.wdgById("%s").show()' %(dlgid,dlgid), fired=fired)
         pane.dataController('genro.wdgById(dlgid).hide();', dlgid=dlgid, 
-                            status='^_thermo.%s.result.status' % thermoid, _if='(status=="stopped" || status=="end")')
+                            status='^_thermo.%s.result.status' % thermoId, _if='(status=="stopped" || status=="end")')
         if alertResult:
-            pane.dataFormula('gnr.alert', 'msg', msg='=_thermo.%s.result.message' % thermoid, 
-                            status='^_thermo.%s.result.status' % thermoid, _if='(status=="stopped" || status=="end")')
+            pane.dataFormula('gnr.alert', 'msg', msg='=_thermo.%s.result.message' % thermoId, 
+                            status='^_thermo.%s.result.status' % thermoId, _if='(status=="stopped" || status=="end")')
         
-        pane.dataRpc('_thermo.%s.result' % thermoid, 'app.getThermo', thermoid=thermoid,
-                                                             flag='^_thermo.%s.flag' % thermoid)
+        pane.dataRpc('_thermo.%s.result' % thermoId, 'app.getThermo', thermoId=thermoId,
+                                                             flag='^_thermo.%s.flag' % thermoId)

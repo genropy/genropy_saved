@@ -21,7 +21,7 @@ class GnrCustomWebPage(object):
         main = lc.contentPane(layoutAlign='client', background_color='white')
         bottom = lc.contentPane(gnrId='bottom', layoutAlign='bottom', height='10em', background_color='green')
         
-        self.thermo(bottom, thermoid='untermometro', title='Termometro inutile', thermolines=3)
+        self.thermo(bottom, thermoId='untermometro', title='Termometro inutile', thermolines=3)
         
         
         trmbtn = top.button("Thermo Start", gnrId='trmbtn', action="""
@@ -39,9 +39,9 @@ class GnrCustomWebPage(object):
         bottom.data('trm.max', 20)
         bottom.data('trm.progress', 5)
         
-    def thermo(self, where, thermoid='thermo', title='', thermolines=1):
+    def thermo(self, where, thermoId='thermo', title='', thermolines=1):
         kwargs = {}
-        kwargs['subscribe_start_%s' % thermoid] = """
+        kwargs['subscribe_start_%s' % thermoId] = """
             this.refreshThermo = function(){
                 genro.setData('_thermo._trigger.%s', null);
                 var prog = genro.getData('_thermo.%s.t1.progress');
@@ -56,9 +56,9 @@ class GnrCustomWebPage(object):
             this.lastprog = null;
             setTimeout(dojo.hitch(this, 'refreshThermo'), 1000);
             this.show(); 
-            """ % (thermoid, thermoid)
+            """ % (thermoId, thermoId)
         
-        d = where.dialog(title=title, width='27em', datapath='_thermo.%s' % thermoid, closable=False, **kwargs)
+        d = where.dialog(title=title, width='27em', datapath='_thermo.%s' % thermoId, closable=False, **kwargs)
         
         for x in range(thermolines):
             tl = d.div(datapath='.t%i' % (x+1, ))
@@ -67,25 +67,25 @@ class GnrCustomWebPage(object):
             tl.div('^.message', height='1em')
         
         
-        d.dataRpc('_thermo.%s' % thermoid, 'thermoProgress', thermoid=thermoid,
-                                                             stop='^_thermo._trigger.%s' % thermoid)
-        d.button('Stop', action="genro.setData('_thermo._trigger.%s', true);" % thermoid)
+        d.dataRpc('_thermo.%s' % thermoId, 'thermoProgress', thermoId=thermoId,
+                                                             stop='^_thermo._trigger.%s' % thermoId)
+        d.button('Stop', action="genro.setData('_thermo._trigger.%s', true);" % thermoId)
         
         
-    def rpc_thermoProgress(self, thermoid, stop=None):
+    def rpc_thermoProgress(self, thermoId, stop=None):
         try:
-            thermoBag = Bag(self.pageLocalDocument('thermo_%s' % thermoid))
+            thermoBag = Bag(self.pageLocalDocument('thermo_%s' % thermoId))
             if stop: 
                 thermoBag['stop'] = True
-                thermoBag.toXml(self.pageLocalDocument('thermo_%s' % thermoid), autocreate=True)
+                thermoBag.toXml(self.pageLocalDocument('thermo_%s' % thermoId), autocreate=True)
             return thermoBag
         except:
             pass
         
         
-    def setThermo(self, thermoid, progress_1=None, message_1=None, maximum_1=None, indeterminate_1=None, stop=None, end=None, **kwargs):
+    def setThermo(self, thermoId, progress_1=None, message_1=None, maximum_1=None, indeterminate_1=None, stop=None, end=None, **kwargs):
         try:
-            thermoBag = Bag(self.pageLocalDocument('thermo_%s' % thermoid))
+            thermoBag = Bag(self.pageLocalDocument('thermo_%s' % thermoId))
         except:
             thermoBag = Bag()
             
@@ -106,7 +106,7 @@ class GnrCustomWebPage(object):
                         if not kwargs.get('indeterminate_%s' % thermo):
                             thermoBag.pop('indeterminate_%s' % thermo)
                             
-        thermoBag.toXml(self.pageLocalDocument('thermo_%s' % thermoid), autocreate=True)
+        thermoBag.toXml(self.pageLocalDocument('thermo_%s' % thermoId), autocreate=True)
         return thermoBag['stop']
         
     def rpc_operazioneLunga(self):

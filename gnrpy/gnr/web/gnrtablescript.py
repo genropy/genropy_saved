@@ -14,9 +14,10 @@ from gnr.core.gnrstring import toText
 from gnr.core.gnrlang import NotImplementedException
 
 class TableScript(object):
-    def __init__(self, page=None, resource_table = None,db=None,locale='en',tempFolder='',**kwargs):
+    def __init__(self, page=None, resource_table = None,db=None,locale='en',tempFolder='',batch=None,**kwargs):
         if page:
             self.page = page
+            self.batch = batch
             self.site = self.page.site
             self.locale = self.page.locale
             self.db = self.page.db
@@ -109,6 +110,7 @@ class RecordToHtmlNew(TableScriptOnRecord):
     def init(self,**kwargs):
         self.maintable=self.maintable or self.resource_table
         self.maintable_obj=self.db.table(self.maintable)
+        self.stopped = False
         self.builder = GnrHtmlBuilder(page_width=self.page_width,page_height=self.page_height,
                                       page_debug=self.page_debug,print_button=self.print_button)
 
@@ -147,8 +149,9 @@ class RecordToHtmlNew(TableScriptOnRecord):
         #filepath = filepath or self.filepath
         self.initializeBuilder()
         self.main()
-        self.builder.toHtml(filepath=filepath)
-        return self.builder.html
+        if not self.stopped:
+            self.builder.toHtml(filepath=filepath)
+            return self.builder.html
         
     def initializeBuilder(self):
         self.builder.initializeSrc()
@@ -213,8 +216,15 @@ class RecordToHtmlNew(TableScriptOnRecord):
             self.copies.append(dict(grid_body_used=self.grid_height,currPage=-1))
         lines=self.getData(self.rows_path)
         if lines:
-            for rowDataNode in lines.getNodes():
+            nodes = lines.getNodes()
+            self.totalRowCount= len(nodes)
+            self.thermo_init()
+            for k,rowDataNode in enumerate(nodes):
                 self.currRowDataNode = rowDataNode
+                self.currRowCount = k
+                self.stopped = self.thermo_step()
+                if self.stopped:
+                    break
                 for copy in range(self.copies_per_page):
                     self.copy=copy
                     rowheight = self.calcRowHeight()
@@ -231,7 +241,19 @@ class RecordToHtmlNew(TableScriptOnRecord):
             for copy in range(self.copies_per_page):
                 self.copy=copy
                 self._closePage(True)
-                
+    
+
+    def thermo_init(self):
+        if self.thermoCb:
+            self.thermoCb(row=2,max_value=self.totalRowCount)
+            
+    def thermo_step(self):
+        if self.thermoCb:
+            return self.thermoCb(row=2,message=self.thermo_message())
+            
+    def thermo_message(self):
+        return '%i/%i' %(self.currRowCount,self.totalRowCount)
+
     def _newPage(self):
         if self.copyValue('currPage') >= 0:
             self._closePage()

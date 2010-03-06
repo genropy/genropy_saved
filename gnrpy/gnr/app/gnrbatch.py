@@ -12,12 +12,13 @@ from collections import defaultdict
 
 class GnrBatch(object):
     thermo_rows = 1
-    def __init__(self,data=None,runKwargs=None, thermocb = None, thermoid=None,thermofield='*',thermodelay=2,**kwargs):
+    def __init__(self,data=None,runKwargs=None, thermocb = None, thermoId=None,thermofield='*',thermodelay=0.5,**kwargs):
         self.thermocb = thermocb or (lambda *a,**kw:None)
-        self.thermoid = thermoid
+        self.thermoId = thermoId
         self.thermodelay = thermodelay
         self.thermofield = thermofield
         self.last_thermotime = time()
+        self.stopped = False
         self.thermo_status = defaultdict(lambda: 0)
         self.thermo_message = defaultdict(lambda: '')
         self.thermo_maximum = defaultdict(lambda: None)
@@ -52,18 +53,23 @@ class GnrBatch(object):
         self.pre_process()
         self.process()
         self.post_process()
+        result = self.collect_result()
         self.thermo_end()
-        return self.collect_result()
+        return result
+
         
     def process(self):
         for chunk in self.data_fetcher():
-            self.process_chunk(chunk,**self.runKwargs)
             self.thermo_step(chunk)
-    
+            if self.stopped:
+                break
+            self.process_chunk(chunk,**self.runKwargs)
+            
     def thermo_init(self, row=None):
-        if self.thermoid:
+        if self.thermoId:
             kwargs = dict()
             rows = row and [row] or range(self.thermo_rows)
+            print rows
             for i in rows:
                 j = i+1
                 kwargs['progress_%i'%j] = self.thermo_status[j]
@@ -71,34 +77,42 @@ class GnrBatch(object):
                 kwargs['maximum_%i'%j] = self.thermo_maximum[j]
                 kwargs['indeterminate_%i'%j] = self.thermo_indeterminate[j]
             if not row:
-                self.thermocb(self.thermoid, **kwargs)
+                self.thermocb(self.thermoId, **kwargs)
             else:
-                self.thermocb(self.thermoid, command='init', **kwargs)
+                self.thermocb(self.thermoId, command='init', **kwargs)
             
-    def thermo_step(self, chunk=None, step=1, row=1, status=None, message=None):
+    def thermo_reset(self,row,max_value):
+        kwargs = dict()
+        self.thermo_maximum[row] = max_value
+        kwargs['maximum_%i'%row] = max_value
+        self.thermo_status[row] = 0
+        kwargs['progress_%i'%row] = self.thermo_status[row]
+        self.last_thermotime=time()
+        return self.thermocb(self.thermoId, **kwargs)
+        
+    def thermo_step(self, chunk=None, row=1, status=None, message=None,step=1):
+        kwargs = dict()
         if status is not None:
             self.thermo_status[row] = status
         else:
             self.thermo_status[row] += step
-        if self.thermoid:
+        if self.thermoId:
             if time()-self.last_thermotime >= self.thermodelay:
                 self.last_thermotime=time()
-                kwargs = dict()
                 kwargs['progress_%i'%row] = self.thermo_status[row]
                 kwargs['message_%i'%row] = message or self.thermo_chunk_message(chunk=chunk, row=row)
-                result = self.thermocb(self.thermoid, **kwargs)
+                result = self.thermocb(self.thermoId, **kwargs)
                 if result=='stop':
-                    self.thermocb(self.thermoid, command='stopped')
+                    self.stopped = True
+                    self.thermocb(self.thermoId, command='stopped')
                 return result
     
     def thermo_chunk_message(self, chunk, row):
         pass
         
     def thermo_end(self):
-        print 'thermo_end'
-        if self.thermoid:
-            print 'thermo_end 2'
-            self.thermocb(self.thermoid, command='end')
+        if self.thermoId:
+            self.thermocb(self.thermoId, command='end')
         
 class SelectionToXls(GnrBatch):
     def __init__(self, data=None, table=None, filename=None, columns=None, locale=None, **kwargs):
@@ -185,6 +199,7 @@ class PrintDbData(GnrBatch):
                                                       respath=table_resource,
                                                       class_name=class_name)
         self.htmlMaker.parentBatch = self
+        self.htmlMaker.thermoCb = self.thermoHandler
         self.table = table
         self.folder = folder or self.htmlMaker.pdfFolderPath()
         if pdfParams:
@@ -194,25 +209,41 @@ class PrintDbData(GnrBatch):
         else:  
             self.printer_name = printParams.pop('printer_name')
             self.outputFilePath = None
-        self.print_connection = self.page.site.print_handler.getPrinterConnection(self.printer_name, printParams)
+        self.thermo_maximum[1] = len(self.data)
+        self.print_handler = self.page.site.print_handler
+        self.print_connection = self.print_handler.getPrinterConnection(self.printer_name, printParams)
         self.file_list = []
         self.commitAfterPrint=commitAfterPrint
         
+    def thermoHandler(self,row=None,max_value=None,message=None):
+        if max_value:
+            self.thermo_reset(row,max_value=max_value)
+        else:
+            self.thermo_step(row=row,message=message)
+            return self.stopped
+        
+        
     def collect_result(self):
         result = None
-        if self.file_list:
-            result = self.print_connection.printFiles(self.file_list, 'GenroPrint', 
-                        storeFolder=self.folder, outputFilePath=self.outputFilePath)
+        if self.file_list:        
+            result = self.print_connection.printFiles(self.file_list, 'GenroPrint', outputFilePath=self.outputFilePath)
         if result:
             return self.page.temporaryDocumentUrl(result)
                      
     def process_chunk(self, chunk, **kwargs):
-        result = self.htmlMaker(chunk, rebuild=self.rebuild,**kwargs)
-        if result!=False:
-            self.file_list.append(self.htmlMaker.filepath)
+        html = self.htmlMaker(chunk['pkey'], rebuild=self.rebuild,**kwargs)
+        if html!=False:
+            self.file_list.append(self.print_handler.htmlToPdf(self.htmlMaker.filepath,self.folder))
+
+    def thermo_chunk_message(self, chunk, row):
+        if self.thermofield=='*':
+            msg = self.tblobj.recordCaption(chunk)
+        else:
+            msg = chunk[self.thermofield]
+        return msg
     
     def data_fetcher(self):     ##### Rivedere per passare le colonne
-        for row in self.data.output('pkeylist'):
+        for row in self.data.output('dictlist'):
             yield row
             
     def post_process(self):
@@ -253,7 +284,7 @@ class ProgressThermo(object):
     def __init__(self, name,lines=None,**kwargs):
         
         self.name = name
-        self.lines = lines or Bag()
+        self.lines = lines
         self.lines.update(dict([(k[8:],dict(maximum=v)) for k,v in kwargs.items() if k.startswith('maximum_')]))
 
     def setLine(self,line,**kwargs):
