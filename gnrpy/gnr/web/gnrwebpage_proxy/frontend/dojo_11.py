@@ -20,6 +20,7 @@ class GnrWebFrontend(GnrBaseDojoFrontend):
         return ['dojo/resources/dojo.css',
                 'dijit/themes/dijit.css',
                 'dijit/themes/%s/%s.css' % (theme,theme),
+                'dojox/widget/ColorPicker/ColorPicker.css',
                 'dojox/grid/_grid/Grid.css',
                 'dojox/grid/_grid/%sGrid.css' % theme
                 ]
