@@ -69,7 +69,6 @@ class GnrBatch(object):
         if self.thermoId:
             kwargs = dict()
             rows = row and [row] or range(self.thermo_rows)
-            print rows
             for i in rows:
                 j = i+1
                 kwargs['progress_%i'%j] = self.thermo_status[j]

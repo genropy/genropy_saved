@@ -244,11 +244,11 @@ class RecordToHtmlNew(TableScriptOnRecord):
     
 
     def thermo_init(self):
-        if self.thermoCb:
+        if hasattr(self,'thermoCb'):
             self.thermoCb(row=2,max_value=self.totalRowCount)
             
     def thermo_step(self):
-        if self.thermoCb:
+        if hasattr(self,'thermoCb'):
             return self.thermoCb(row=2,message=self.thermo_message())
             
     def thermo_message(self):
