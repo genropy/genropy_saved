@@ -207,6 +207,7 @@ class RecordToHtmlNew(TableScriptOnRecord):
         
     def mainLoop(self):
         self.copies=[]
+        self.lastPage=False
         self.defineStandardStyles()
         self.defineCustomStyles()
         self.doc_height = self.copyHeight() - self.page_header_height - self.page_footer_height
@@ -286,8 +287,14 @@ class RecordToHtmlNew(TableScriptOnRecord):
             else:
                 value=self.rowField(field,default=default,locale=locale,format=format,mask=mask,currency=currency)            
         if value is not None:
+            if self.lastPage:
+                print field
+                print value
+                print self.currColumn
+                print self.grid_col_widths[self.currColumn]
             self.currRow.cell(value,width=self.grid_col_widths[self.currColumn],overflow='hidden',white_space='nowrap',**kwargs)
         self.currColumn = self.currColumn + 1
+        return value
         
     def _createPage(self):
         curr_copy = self.copies[self.copy]
@@ -316,10 +323,15 @@ class RecordToHtmlNew(TableScriptOnRecord):
         self._docBody(self.copyValue('doc_body'))
         
     def _closePage(self,lastPage=None):
+        if lastPage:
+            self.lastPage=True
         self.fillBodyGrid()
         footer_height =self.calcGridFooterHeight()
         if footer_height:
-            self.gridFooter(self.copyValue('body_grid').row(height=footer_height))
+            row = self.copyValue('body_grid').row(height=footer_height)
+            self.currColumn = 0
+            self.currRow = row
+            self.gridFooter(row)
         if self.doc_footer_height:
             self.docFooter(self.copyValue('doc_footer'),lastPage=lastPage)
         if self.page_footer_height:
