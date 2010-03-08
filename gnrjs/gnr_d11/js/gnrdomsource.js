@@ -656,6 +656,10 @@ dojo.declare("gnr.GnrDomSourceNode",gnr.GnrBagNode,{
                genro.fireDataTrigger(absDatapath);
            }
        }
+       else if (attr=='zoomFactor'){
+              if (this.setZoomFactor){
+              this.setZoomFactor(value);}
+          }
        else if(this.externalWidget){
            if ('gnr_'+attr in this.externalWidget){
                this.externalWidget['gnr_'+attr](value,kw,trigger_reason);

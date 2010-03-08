@@ -143,6 +143,19 @@ dojo.declare("gnr.widgets.baseHtml",null,{
         if(attributes.onHide){
             attributes['onHide'] = funcCreate(attributes.onHide,'',sourceNode);
         }
+        
+        if(sourceNode && sourceNode.attr.zoomFactor){
+            savedAttrs['zoomFactor'] = objectPop(attributes,'zoomFactor');
+            sourceNode.setZoomFactor = function (factor){
+                if (typeof(factor)=='string' && factor[factor.length-1]=='%'){
+                    factor = factor.slice(0,factor.length-1)/100;
+                }
+                domNode = this.getDomNode();
+                dojo.style(domNode, 'zoom', factor);
+                dojo.style(domNode, 'MozTransform', 'scale('+factor+')');
+                
+            };
+        }
         if(sourceNode && formId){
             if(sourceNode.attr.nodeId && (sourceNode.attr.nodeId != formId)){
                 alert('formId '+formId+' will replace nodeId '+ sourceNode.attr.nodeId);
@@ -273,6 +286,9 @@ dojo.declare("gnr.widgets.baseHtml",null,{
                 menu.bindDomNode(domNode);
             }
             
+        }
+        if (savedAttrs.zoomFactor){
+            sourceNode.setZoomFactor(savedAttrs.zoomFactor);
         }
         if(!sourceNode){
             return;
@@ -3538,7 +3554,8 @@ dojo.declare("gnr.widgets.CkEditor",gnr.widgets.baseHtml,{
     },
     created: function(widget, savedAttrs, sourceNode){
           CKEDITOR.replace(widget,savedAttrs.config);
-          var ckeditor=CKEDITOR.instances['ckedit_'+sourceNode.getStringId()];
+          var ckeditor_id='ckedit_'+sourceNode.getStringId();
+          var ckeditor=CKEDITOR.instances[ckeditor_id];
           sourceNode.externalWidget=ckeditor;
           ckeditor.sourceNode=sourceNode;
           for (var prop in this){
@@ -3549,11 +3566,16 @@ dojo.declare("gnr.widgets.CkEditor",gnr.widgets.baseHtml,{
           ckeditor.gnr_getFromDatastore();
           var parentWidget = dijit.getEnclosingWidget(widget);
           ckeditor.gnr_readOnly('auto');
-          dojo.connect(parentWidget,'resize',function(){
+          /*dojo.connect(parentWidget,'resize',function(){
+                var ckeditor=CKEDITOR.instances[ckeditor_id];
+                console.log(ckeditor_id);
                 console.log('resize');
                 console.log(arguments);
-                ckeditor.resize();
-                });
+                if (ckeditor){
+                console.log(ckeditor);
+                ckeditor.resize();}
+                else{console.log('undefined');}
+                });*/
          // dojo.connect(parentWidget,'onShow',function(){console.log("onshow");console.log(arguments);ckeditor.gnr_readOnly('auto');})
          // setTimeout(function(){;},1000);
 
