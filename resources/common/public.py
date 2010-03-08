@@ -60,7 +60,7 @@ class Public(BaseComponent):
                                     user='userpreference')
                                     
             self.iframeDialog(pane,title='!!Application Preference',dlgId='mainpreference',src='/adm/app_preference',
-                             cached=False,height='400px',width='600px',centerOn='_pageRoot',datapath='gnr.preference.application')
+                             cached=False,height='450px',width='800px',centerOn='_pageRoot',datapath='gnr.preference.application')
             self.iframeDialog(pane,title='!!User Preference',dlgId='userpreference',src='/adm/user_preference',
                              cached=False,height='300px',width='400px',centerOn='_pageRoot',datapath='gnr.preference.user')
         
@@ -260,6 +260,18 @@ class IncludedView(BaseComponent):
         
 class RecordHandler(BaseComponent):
     py_requires='foundation/recorddialog'
+
+class Tools(BaseComponent):
+    py_requires='foundation/tools'
+
+class SelectionHandler(BaseComponent):
+    py_requires='gnrcomponents/selectionhandler'
+
+class RecordLinker(BaseComponent):
+    py_requires='gnrcomponents/recordlinker'
+
+class MultiSelect(BaseComponent):
+    py_requires='gnrcomponents/multiselect'
 
 class DynamicEditor(BaseComponent):
     py_requires='foundation/macrowidgets:DynamicEditor'

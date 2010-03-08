@@ -22,22 +22,119 @@ import os
 import random
 
 class AppPref(object):
+    def permission_adm(self,**kwargs):
+        return 'admin'
+
     def prefpane_adm(self,tc,**kwargs):
-        pane = tc.contentPane(**kwargs)
-        fb = pane.formbuilder(cols=2, border_spacing='4px')
+        tc = tc.tabContainer(**kwargs)
+        tab_logo = tc.contentPane(title='!!Logo')
+        fb = tab_logo.formbuilder(cols=2, border_spacing='4px')
         fb.numberTextBox(value='^.personal',lbl='!!Personal info')
-        logobox = pane.div(height='135px',width='135px',
+        logobox = tab_logo.div(height='135px',width='135px',
                                     margin_left='3em',margin_top='40px',
                                 padding='0px',background_color='white')
-        logobox.img(style='width: 135px;',src='^aux.logoPath',_fired='^uploaded')
+        logobox.img(style='width: 135px;',src='^aux.app.logoPath',_fired='^uploaded')
 
-        pane.button('!!Upload logo',action='FIRE aux.uploadLogo;',
+        tab_logo.button('!!Upload logo',action='FIRE aux.app.uploadLogo;',
                     margin_left='6em',margin_top='4ex',width='135px')
         
-        pane.dataRpc('aux.logoPath','logoUrl',_onStart=True,_fired='^aux.uploaded')
-        pane.dataController('genro.dlg.upload(msg,"uploadLogo","imgPath",{},label,cancel,send,fireOnSend)',
+        tab_logo.dataRpc('aux.app.logoPath','logoUrl',_onStart=True,_fired='^aux.app.uploaded')
+        tab_logo.dataController('genro.dlg.upload(msg,"uploadLogo","imgPath",{},label,cancel,send,fireOnSend)',
                                msg='!!Choose file',cancel='!!Cancel',label='!!Browse...',
-                               send='!!Send', fired='^aux.uploadLogo',fireOnSend='aux.uploaded')
+                               send='!!Send', fired='^aux.app.uploadLogo',fireOnSend='aux.app.uploaded')
+        self.printTemplateTab(tc)
+    
+    def printTemplateTab(self,parentTc):
+        bc = parentTc.borderContainer(title='!!Print elements',nodeId='elemBc')
+        gridBc = bc.borderContainer(region='left',width='200px')
+        self.ajaxContent('printLayout',bc ,design='^aux.adm.design')
+
+        pane = gridBc.contentPane(region='bottom',_class='pbl_roundedGroupBottom')
+        pane.data('aux.adm.zoomFactor',0.3)
+        def cb_bottom(bc,**kwargs):
+            bottom = bc.contentPane(**kwargs)
+            bottom.button('!!Close',baseClass='bottom_btn',float='right',margin='1px',fire='.close')
+        self.simpleDialog(pane,height='300px',width='700px',dlgId='editorDialog',cb_bottom=cb_bottom,
+                            cb_center=self.templateEditorPane,datapath='aux.adm.editDialog')
+
+        pane.horizontalSlider(value='^aux.adm.zoomFactor', minimum=0, maximum=1,
+                              intermediateChanges=True)
+                              
+        iv = self.includedViewBox(gridBc.borderContainer(region='center'),
+                                label='!!Template name',nodeId='printTemplateGrid',
+                                storepath='#adm.templates', 
+                                selected_design='aux.adm.design',
+                                struct=self.template_name_struct(),
+                                autoWidth=True,add_action=True,del_action=True)
+        gridEditor = iv.gridEditor()
+        gridEditor.textbox(gridcell='name')
+        gridEditor.filteringSelect(gridcell='design',values='sidebar:Sidebar,headline:Headline')
+    
+    def templateEditorPane(self,parentBc,**kwargs):
+        bc = parentBc.borderContainer(datapath='^currentEditedArea',**kwargs)
+        self.RichTextEditor(bc, value='^.html', contentPars=dict(region='center'),
+                            nodeId='htmlEditor',editorHeight='200px')
+        
+    def remote_printLayout(self,parentBc,design=None,**kwargs):
+        bc = parentBc.borderContainer(region='center',overflow='auto'
+                     ).borderContainer(region='center',width='200mm',
+                                        height='280mm',
+                                        border='1px solid gray',style="""
+                                                                    background-color:white;
+                                                                    -moz-box-shadow:8px 8px 15px gray;
+	                                                                -webkit-box-shadow:8px 8px 15px gray;
+                                                                    """,
+                                        zoomFactor='^aux.adm.zoomFactor',margin='5px'
+                                        ).borderContainer(region='center',margin='10mm',
+                                                            connect_ondblclick="""
+                                                                        var clickedNode = dijit.getEnclosingWidget($1.originalTarget).sourceNode;
+                                                                        SET currentEditedArea = clickedNode.absDatapath();
+                                                                        FIRE #editorDialog.open;
+                                                                        """,
+                                                            _class='hideSplitter',
+                                        regions='^aux.adm.template.dimensions',datapath='.template.layout',
+                                        design=design)
+        bc.css('.printRegion','margin:.5mm;border:.3mm dotted silver;cursor:pointer;')
+
+
+        if design=='sidebar':
+            self._sidebarRegions(bc.borderContainer(region='left',width='50mm',splitter=True,datapath='.left',
+                                                _class='hideSplitter',regions='^aux.adm.template.sideleft'),'50mm')
+            self._sidebarRegions(bc.borderContainer(region='right',datapath='.right',width='50mm',splitter=True,_class='hideSplitter',
+                                                        regions='^aux.adm.template.sideright'),'50mm')
+            self._sidebarRegions(bc.borderContainer(region='center',datapath='^.center',_class='hideSplitter'),'25mm')
+        else:
+            self._headlineRegions(bc.borderContainer(region='top',height='50mm',splitter=True,
+                                                    _class='hideSplitter',datapath='.top',
+                                                    regions='^aux.adm.template.header'),'50mm')
+            self._headlineRegions(bc.borderContainer(region='bottom',datapath='.bottom',height='50mm',
+                                                        splitter=True,_class='hideSplitter',regions='^aux.adm.template.footer'),'50mm')
+            self._headlineRegions(bc.borderContainer(region='center',_class='hideSplitter',datapath='.center'),'25mm')
+            
+    def _sidebarRegions(self,bc,height):
+        bc.contentPane(region='top',height=height,_class='printRegion sideTop',
+                        splitter=True,datapath='.top').div(innerHTML='^.html')
+        bc.contentPane(region='bottom',height=height,_class='printRegion sideBottom',
+                        splitter=True,datapath='.bottom').div(innerHTML='^.html')
+        bc.contentPane(region='center',_class='printRegion sideCenter',
+                        datapath='.center').div(innerHTML='^.html')
+        
+    def _headlineRegions(self,bc,width):
+        bc.contentPane(region='left',width=width,_class='printRegion headLeft',splitter=True, 
+                        datapath='.left').div(innerHTML='^.html')
+        bc.contentPane(region='right',width=width,_class='printRegion headRight',splitter=True,
+                        datapath='.right').div(innerHTML='^.html')
+        bc.contentPane(region='center',_class='printRegion headCenter',
+                        datapath='.center').div(innerHTML='^.html')
+
+        
+    def template_name_struct(self):
+        struct = self.newGridStruct()
+        r = struct.view().rows()
+        r.cell('name', name='!!Name', width='12em')
+        r.cell('design', name='!!Design', width='6em')
+        return struct
+
 
     def rpc_logoUrl(self):
         return '%s?nocache=%i'%(self.app_logo_url(),random.randint(1,1000))

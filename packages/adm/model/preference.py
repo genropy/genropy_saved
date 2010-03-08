@@ -19,8 +19,10 @@ class Table(object):
             
     def loadPreference(self, for_update=False):
         with self.db.tempEnv(connectionName='system'):
-            return self.record(pkey='_mainpref_', ignoreMissing=True, for_update=for_update).output('bag')
-        
+            record = self.record(pkey='_mainpref_', ignoreMissing=True, for_update=for_update).output('bag')
+        if not record['code']:
+            record=None
+        return record
     def newPreference(self):
         with self.db.tempEnv(connectionName='system'):
             record = Bag(dict(code='_mainpref_', data=Bag()))

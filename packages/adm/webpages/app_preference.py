@@ -11,7 +11,8 @@ from gnr.web.gnrresourceloader import GnrMixinError
 
 class GnrCustomWebPage(object):
     maintable ='adm.preference'
-    py_requires="""public:Public"""   
+    py_requires="""public:Public,foundation/includedview,foundation/dialogs,
+                   foundation/tools,foundation/macrowidgets:RichTextEditor"""   
     
     def windowTitle(self):
          return '!!Preference panel'
@@ -36,17 +37,23 @@ class GnrCustomWebPage(object):
         self.bottom(rootBC.contentPane(region='bottom',_class='dialog_bottom'))    
         tc = rootBC.tabContainer(region='center',datapath='preference',formId='preference')
         for pkg in self.db.packages.values():
+            permmissioncb = getattr(self,'permission_%s' %pkg.name,None)
+            auth = True
+            if permmissioncb:
+                auth = self.application.checkResourcePermission(permmissioncb(), self.userTags)
             panecb = getattr(self,'prefpane_%s' %pkg.name,None)
-            if panecb:
+            if panecb and auth:
                 panecb(tc,title=pkg.name_full,datapath='.%s' %pkg.name,nodeId=pkg.name)
 
     def bottom(self,bottom):
-        bottom.button('!!Apply settings',baseClass='bottom_btn',float='right',margin='1px',
+        #bottom.a('!!Zoom',float='left',href='/adm/app_preference')
+        bottom.button('!!Save',baseClass='bottom_btn',float='right',margin='1px',
                         action='genro.formById("preference").save(true)')
         bottom.button('!!Cancel',baseClass='bottom_btn',float='right',margin='1px',
                         fire='frame.close')    
                         
     def controllers(self,pane):
+        pane.data('form.canWrite',True)
         pane.dataController("""parent.genro.fireEvent("#mainpreference.close");""",_fired="^frame.close")
         pane.dataController("genro.formById('preference').load()",_onStart=True)
         pane.dataRpc('dummy','savePreference',data='=preference',nodeId='preference_saver',
