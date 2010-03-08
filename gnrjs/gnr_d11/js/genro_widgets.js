@@ -152,6 +152,7 @@ dojo.declare("gnr.widgets.baseHtml",null,{
                 }
                 domNode = this.getDomNode();
                 dojo.style(domNode, 'zoom', factor);
+                dojo.style(domNode,'MozTransformOrigin','top left')
                 dojo.style(domNode, 'MozTransform', 'scale('+factor+')');
                 
             };
