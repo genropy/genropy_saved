@@ -341,15 +341,16 @@ dojo.declare("gnr.GnrValidator",null,{
     },
     validate: function(sourceNode, value,userChange){
         var validations = this.getCurrentValidations(sourceNode);
-        var result = this._validate(sourceNode, value, validations, this.validationTags);
+        var result = this._validate(sourceNode, value, validations, this.validationTags, userChange); //userChange added by sporcari
         this.exitValidation(result, sourceNode, validations,userChange);
         return result;
     },
-    _validate: function(sourceNode, value, validations, validationTags){
+    _validate: function(sourceNode, value, validations, validationTags, userChange){
         var validation, validreturn;
         var result = {'warnings':[]};
         result['value'] = value;
         var parameters = objectUpdate({}, validations);
+        parameters.userChange=userChange; //added by sporcari userChange was not in _validate params
         objectExtract(parameters, this.validationTags.join(',')); 
         for (var i=0; i < validationTags.length; i++) {
             validation = validationTags[i];
@@ -527,7 +528,6 @@ dojo.declare("gnr.GnrValidator",null,{
     validate_remote: function(param, value, sourceNode, parameters){
         var rpcresult = genro.rpc.remoteCall(param, objectUpdate({'value':value}, parameters), null, 'GET');
         if (rpcresult instanceof gnr.GnrBag){
-
             var result = {};
             result['errorcode'] = rpcresult.getItem('errorcode');
             result['iswarning'] = rpcresult.getItem('iswarning');
