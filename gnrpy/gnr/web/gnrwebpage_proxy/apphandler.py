@@ -352,6 +352,7 @@ class GnrWebAppHandler(GnrBaseProxy):
         session = self.page.session
         session.loadSessionData()
         if command == 'init':
+            print 'initing'
             thermoBag = Bag()
         else:
             thermoBag = session.pagedata.getItem('thermo_%s' % thermoId) or Bag()

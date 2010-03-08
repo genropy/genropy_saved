@@ -75,7 +75,7 @@ class GnrBatch(object):
                 kwargs['message_%i'%j] = self.thermo_message[j]
                 kwargs['maximum_%i'%j] = self.thermo_maximum[j]
                 kwargs['indeterminate_%i'%j] = self.thermo_indeterminate[j]
-            if not row:
+            if row is not None:
                 self.thermocb(self.thermoId, **kwargs)
             else:
                 self.thermocb(self.thermoId, command='init', **kwargs)
