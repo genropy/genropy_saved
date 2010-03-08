@@ -40,9 +40,12 @@ class BatchRunner(BaseComponent):
         """
         onBatchCalling = None
         thermofield = None
+        if thermoParams is None:
+            thermoParams= dict()
+        elif thermoParams is True:
+            thermoParams= dict(field='*') 
+        thermoParams.update(dict([(k[7:],kwargs.pop(k)) for k in kwargs.keys() if k.startswith('thermo_')]))
         if thermoParams:
-            if thermoParams is True:
-                thermoParams= dict(field='*')
             thermoId = thermoId or self.getUuid()
             self.thermoDialog(pane,thermoId=thermoId,thermolines=thermoParams.get('lines',2),
                               title=thermoParams.get('title', 'Batch Running'),**kwargs)
@@ -129,10 +132,11 @@ class BatchRunner(BaseComponent):
                                 dlgId='%s_dlg' %thermoId,cb_center=cb_center,
                                 cb_bottom=cb_bottom,width='330px', title=title,
                                 height='%ipx' %(100+thermolines*40),
-                                connect_show='this.intervalRef = setInterval(function(){genro.fireEvent("_thermo.%s.getThermo")}, 500)' % thermoId,
-                                connect_hide='clearInterval(this.intervalRef);')
+                                connect_show='this.intervalRef = setInterval(function(){genro.fireEvent("_thermo.%s.getThermo")}, 500)' %thermoId,
+                                connect_hide='clearInterval(this.intervalRef); SET .result = new gnr.GnrBag();')
         dlg.dataRpc('.result', 'app.getThermo', thermoId=thermoId,_fired='^.getThermo',
                     flag='=.flag',_onResult="""var status=result.getItem('status');
+                                               console.log(status);
                                                                     if (status=='stopped' || status=='end'){
                                                                         FIRE .close;
                                                                     }
