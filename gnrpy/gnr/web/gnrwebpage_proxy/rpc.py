@@ -17,6 +17,7 @@ class GnrWebRpc(GnrBaseProxy):
             result = None
             error = 'forbidden call'
         elif _auth=='EXPIRED':
+            print 'expired connection'
             result=None
             error='expired'
         else:
@@ -44,6 +45,8 @@ class GnrWebRpc(GnrBaseProxy):
             else:
                 result = None
                 error = 'missing handler:%s' % method
+        if error:
+            self.error=error
         return result
     
     def result_bag(self, result):
