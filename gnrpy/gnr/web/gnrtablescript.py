@@ -287,11 +287,11 @@ class RecordToHtmlNew(TableScriptOnRecord):
             else:
                 value=self.rowField(field,default=default,locale=locale,format=format,mask=mask,currency=currency)            
         if value is not None:
-            if self.lastPage:
-                print field
-                print value
-                print self.currColumn
-                print self.grid_col_widths[self.currColumn]
+            #if self.lastPage:
+            #    print 'last page'
+            #    print self.currColumn
+            #    print self.grid_col_widths[self.currColumn]
+            value = self.toText(value,locale,format, mask, self.encoding)
             self.currRow.cell(value,width=self.grid_col_widths[self.currColumn],overflow='hidden',white_space='nowrap',**kwargs)
         self.currColumn = self.currColumn + 1
         return value
