@@ -8,13 +8,20 @@
 #
 
 """ GnrDojo Hello World """
-import os
 
 
 class GnrCustomWebPage(object):
     def main(self,root,**kwargs):
         center=root.borderContainer(region='center')
-        bottomleft=center.contentPane(region='left',width="300px",splitter=True)
+        center.data('aux.zoom',100)
+        center.dataController("""
+                        zoom = zoom || 100;
+                        SET aux.zoom_factor= zoom+'%';
+                        """,zoom='^aux.zoom', _onStart=True)
+        bottomleft=center.contentPane(region='top',height="225",splitter=True)
         bottomleft.ColorPicker(value='^aux.color',showHsv=False,showRgb=False,webSafe=False,showHex=False)
-        center.contentPane(region='center', background_color='^aux.color').div(innerHTML='^editors.cked1.data')
-        bottomleft.checkbox(value='^editors.cked1.disabled')
+        bottomleft.horizontalslider(lbl='!!Zoom', value = '^aux.zoom', width='200px', 
+                                         minimum=50, maximum=200, float='left',discreteValues=31)
+        bottomleft.numberTextBox(value='^aux.zoom', places=0)
+        square=center.contentPane(region='center').div(padding='20px',height='200px', width='200px',background_color='^aux.color',zoomFactor='^aux.zoom_factor')
+        square.div(height='200px', width='200px', border='1px solid black;').div('Testo')
