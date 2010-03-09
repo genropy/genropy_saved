@@ -19,6 +19,7 @@ from gnr.web.gnrbaseclasses import BaseWebtool
 import cPickle
 import inspect
 from gnr.core.gnrprinthandler import PrintHandler
+from gnr.core.gnrmailhandler import MailHandler
 mimetypes.init()
 site_cache = {}
 
@@ -186,6 +187,7 @@ class GnrWsgiSite(object):
         self.page_factory_lock=RLock()
         self.webtools = self.find_webtools()
         self.print_handler=PrintHandler(parent = self)
+        self.mail_handler=MailHandler(parent = self)
         if counter==0 and self.debug:
             self.onInited(clean = not noclean)
         
