@@ -337,6 +337,7 @@ class TagsHandler(BaseComponent):
             values = r['values']
             tag = r['tag']
             description = r['description']
+            label_width = '%fem' %((len(description)*0.5)+2)
             buttons = []
             max_width=3
             if values:
@@ -348,7 +349,7 @@ class TagsHandler(BaseComponent):
                 for b in buttons:
                     if len(b['label'])>max_width:
                         max_width = len(b['label'])
-                max_width = '%fpx' %((max_width*5)+20)
+                max_width = '%fem' %((max_width*.5)+2)
             else:
                 label=lblGetter(tag,'!!Yes')
                 buttons.append(dict(value='^.true',_class='dijitButtonNode tag_button tag_true',label=label,fulltag=tag))
@@ -359,11 +360,13 @@ class TagsHandler(BaseComponent):
                 colorRow = 'bgcolor_brightest'
             tag_row = tag_table.div(style='display:table-row',height='5px') #no dimensioni riga solo padding dimensioni ai contenuti delle celle
             tag_row = tag_table.div(style='display:table-row',_class='tag_line tag_%s' %(oddOrEven),datapath='.%s' %tag) #no dimensioni riga solo padding dimensioni ai contenuti delle celle
+            
             if call_mode=='form':
-                label_col = tag_row.div(description,style='display:table-cell',
+                label_col = tag_row.div(description,style='display:table-cell',width=label_width,
                                         _class='tag_left_col tag_label_col bgcolor_darkest color_brightest')
             else:
-                cb_col = tag_row.div(style='display:table-cell',_class='tag_left_col bgcolor_darkest color_brightest',padding_left='10px')
+                cb_col = tag_row.div(style='display:table-cell',_class='tag_left_col bgcolor_darkest color_brightest',
+                                        padding_left='10px',width='30px')
                 cb_col.checkbox(value='^.?enabled',validate_onAccept="""if(!value){
                                                                             var line = GET #; 
                                                                             line.walk(function(node){if(node.getValue()){node.setValue(null);}});
@@ -371,14 +374,17 @@ class TagsHandler(BaseComponent):
                                                                         }else if(userChange){
                                                                             SET .?enabled = false;
                                                                         }""")
-                label_col = tag_row.div(description,style='display:table-cell',_class='bgcolor_darkest color_brightest tag_label_col',padding_left='10px')
-            no_td = tag_row.div(style='display:table-cell',_class=colorRow).div(_class='dijitButtonNode tag_button tag_false')
+                label_col = tag_row.div(description,style='display:table-cell',width=label_width,
+                                        _class='bgcolor_darkest color_brightest tag_label_col',
+                                        padding_left='10px')
+            no_td = tag_row.div(style='display:table-cell',_class=colorRow,width='4em').div(_class='dijitButtonNode tag_button tag_false')
             if call_mode=='helper' and queryValues:
                 if tag in queryValues['tagged_not']:
                     no_td.data('.false',True)
                     no_td.data('.?enabled',True)
                     no_td.data('.?selectedTag','!%s' %tag)
-            no_td.radiobutton(value='^.false',label='!!No',group=tag,connect_onclick='SET .?enabled= true; SET .?selectedTag="!%s";' %tag)
+            no_td.radiobutton(value='^.false',label='!!No',group=tag,
+                            connect_onclick='SET .?enabled= true; SET .?selectedTag="!%s";' %tag)
             value_col = tag_row.div(style='display:table-cell',_class='tag_value_col %s' %colorRow)
             for btn in buttons:
                 value_td = value_col.div(_class=btn['_class'],width=max_width)
