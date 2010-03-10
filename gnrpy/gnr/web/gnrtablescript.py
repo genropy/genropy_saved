@@ -115,7 +115,6 @@ class RecordToHtmlNew(TableScriptOnRecord):
         self.maintable=self.maintable or self.resource_table
         self.maintable_obj=self.db.table(self.maintable)
         self.stopped = False
-    def useTemplate(self):
         if self.templates:
             self.htmlTemplate = self.db.table('adm.htmltemplate').getTemplate(self.templates)
             self.page_height = self.page_height or self.htmlTemplate['main.page.height'] or 280
