@@ -115,6 +115,17 @@ class RecordToHtmlNew(TableScriptOnRecord):
         self.maintable=self.maintable or self.resource_table
         self.maintable_obj=self.db.table(self.maintable)
         self.stopped = False
+
+    def __call__(self, record=None, filepath=None,
+                       rebuild=False, dontSave=False, pdf=False, runKwargs=None,**kwargs):
+        """This method returns the html corresponding to a given record.
+           the html can be loaded from a cached document or created if still doesn't exist.
+        """
+        if not record:
+            return False
+        loadResult=self.loadRecord(record, **kwargs)
+        if loadResult==False:
+            return False
         if self.templates:
             self.htmlTemplate = self.db.table('adm.htmltemplate').getTemplate(self.templates)
             self.page_height = self.page_height or self.htmlTemplate['main.page.height'] or 280
@@ -129,17 +140,6 @@ class RecordToHtmlNew(TableScriptOnRecord):
                                   page_margin_top=self.page_margin_top,page_margin_bottom=self.page_margin_bottom,
                                   page_margin_left=self.page_margin_left,page_margin_right=self.page_margin_right,
                                   page_debug=self.page_debug,print_button=self.print_button,htmlTemplate=self.htmlTemplate)
-
-    def __call__(self, record=None, filepath=None,
-                       rebuild=False, dontSave=False, pdf=False, runKwargs=None,**kwargs):
-        """This method returns the html corresponding to a given record.
-           the html can be loaded from a cached document or created if still doesn't exist.
-        """
-        if not record:
-            return False
-        loadResult=self.loadRecord(record, **kwargs)
-        if loadResult==False:
-            return False
         #if not (dontSave or pdf):
         self.filepath=filepath or os.path.join(self.hmtlFolderPath(),self.outputDocName(ext='html'))
         #else:
