@@ -126,6 +126,7 @@ class RecordToHtmlNew(TableScriptOnRecord):
         loadResult=self.loadRecord(record, **kwargs)
         if loadResult==False:
             return False
+        self.htmlTemplate=None
         if self.templates:
             self.htmlTemplate = self.db.table('adm.htmltemplate').getTemplate(self.templates)
             self.page_height = self.page_height or self.htmlTemplate['main.page.height'] or 280
