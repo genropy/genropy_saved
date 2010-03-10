@@ -191,30 +191,34 @@ dojo.declare("gnr.GnrFrmHandler",null,{
         };
         if(kw.value instanceof gnr.GnrBag){
             //console.log('dataChangeLogger event: ' + kw.evt + ' is Bag ' + path)
-        } else if (kw.evt=='upd' && kw.updvalue){
-            var changed = null;
-            var changes = this.getChangesLogger();
-            var changekey = this.getChangeKey(kw.node);
+        } else if (kw.evt=='upd' ){
+            if (kw.updvalue){
+                var changed = null;
+                var changes = this.getChangesLogger();
+                var changekey = this.getChangeKey(kw.node);
             
-            if (!('_loadedValue' in kw.node.attr)){//has never been changed before
-                kw.node.attr._loadedValue = kw.oldvalue;
-                changed = true;
-                //console.log('dataChangeLogger NEWCHANGE: ' + path);
-            }else if(kw.node.attr._loadedValue == kw.value){//value = _loadedValue
-                delete kw.node.attr._loadedValue;
-                changed = false;
-                //console.log('dataChangeLogger UNCHANGED: ' + path);
+                if (!('_loadedValue' in kw.node.attr)){//has never been changed before
+                    kw.node.attr._loadedValue = kw.oldvalue;
+                    changed = true;
+                    //console.log('dataChangeLogger NEWCHANGE: ' + path);
+                }else if(kw.node.attr._loadedValue == kw.value){//value = _loadedValue
+                    delete kw.node.attr._loadedValue;
+                    changed = false;
+                    //console.log('dataChangeLogger UNCHANGED: ' + path);
+                }
+            
+                if(changed){
+                    changes.setItem(changekey, null);
+                }else if(changed === false){
+                    changes.pop(changekey);
+                } 
+                // if changed == null is a modification of a yet modified value, do nothing
+            
+                this._setChangeStatus((changes.len()>0));
+                //this.updateInvalidField(kw.reason, changekey);
+            }else{
+                //changed attributes
             }
-            
-            if(changed){
-                changes.setItem(changekey, null);
-            }else if(changed === false){
-                changes.pop(changekey);
-            } 
-            // if changed == null is a modification of a yet modified value, do nothing
-            
-            this._setChangeStatus((changes.len()>0));
-            //this.updateInvalidField(kw.reason, changekey);
         } else {
             //console.log('dataChangeLogger event: ' + kw.evt + ' updattr:' + kw.updattr +' - ' + path)
         }

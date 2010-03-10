@@ -77,11 +77,11 @@ class TableScriptOnRecord(TableScript):
         if self.getData('record'):
             caption= maintable_obj.recordCaption(self.getData('record'))
         doc_name = '%s_%s%s' % (maintable_obj.name, caption, ext)
-        print doc_name
         return doc_name
     
 class RecordToHtmlNew(TableScriptOnRecord):
     maintable=''
+    templates = ''
     rows_path = 'rows'
     html_folder = '*connections/html'
     pdf_folder = '*connections/pdf'
@@ -89,6 +89,10 @@ class RecordToHtmlNew(TableScriptOnRecord):
     page_debug = False
     page_width = 200
     page_height = 280
+    page_margin_top = 0
+    page_margin_left = 0
+    page_margin_right = 0
+    page_margin_bottom = 0
     print_button = None
     currencyFormat=u'#,###.00'
     row_mode='bag'
@@ -111,8 +115,20 @@ class RecordToHtmlNew(TableScriptOnRecord):
         self.maintable=self.maintable or self.resource_table
         self.maintable_obj=self.db.table(self.maintable)
         self.stopped = False
-        self.builder = GnrHtmlBuilder(page_width=self.page_width,page_height=self.page_height,
-                                      page_debug=self.page_debug,print_button=self.print_button)
+        if self.templates:
+            self.htmlTemplate = self.db.table('adm.htmltemplate').getTemplate(self.templates)
+            self.page_height = self.page_height or self.htmlTemplate['main.page.height'] or 280
+            self.page_width = self.page_width or self.htmlTemplate['main.page.width'] or 200
+            self.page_header_height = self.page_header_height or  self.htmlTemplate['layout.top?height'] or 0
+            self.page_footer_height = self.page_footer_height or  self.htmlTemplate['layout.bottom?height'] or 0
+            self.page_margin_top = self.page_margin_top or self.htmlTemplate['main.page.top'] or 0
+            self.page_margin_left = self.page_margin_left or self.htmlTemplate['main.page.left'] or 0
+            self.page_margin_right = self.page_margin_right or self.htmlTemplate['main.page.right'] or 0
+            self.page_margin_bottom = self.page_margin_bottom or self.htmlTemplate['main.page.bottom'] or 0
+            self.builder = GnrHtmlBuilder(page_width=self.page_width,page_height=self.page_height,
+                                      page_margin_top=self.page_margin_top,page_margin_bottom=self.page_margin_bottom,
+                                      page_margin_left=self.page_margin_left,page_margin_right=self.page_margin_right,
+                                      page_debug=self.page_debug,print_button=self.print_button,htmlTemplate=self.htmlTemplate)
 
     def __call__(self, record=None, filepath=None,
                        rebuild=False, dontSave=False, pdf=False, runKwargs=None,**kwargs):
@@ -202,15 +218,18 @@ class RecordToHtmlNew(TableScriptOnRecord):
             return result
         return BagCbResolver(getPage,currPage=self.copies[self.copy]['currPage'])
         
+
     def copyHeight(self):
-        return (self.page_height-self.copy_extra_height*(self.copies_per_page-1))/self.copies_per_page
+        return (self.page_height-self.page_margin_top-self.page_margin_bottom-\
+                self.page_header_height - self.page_footer_height-\
+                self.copy_extra_height*(self.copies_per_page-1))/self.copies_per_page
         
     def mainLoop(self):
         self.copies=[]
         self.lastPage=False
         self.defineStandardStyles()
         self.defineCustomStyles()
-        self.doc_height = self.copyHeight() - self.page_header_height - self.page_footer_height
+        self.doc_height = self.copyHeight() #- self.page_header_height - self.page_footer_height
         self.grid_height = self.doc_height - self.calcDocHeaderHeight() -self.doc_footer_height
         self.grid_body_height = self.grid_height -self.grid_header_height - self.grid_footer_height
         for copy in range(self.copies_per_page):
@@ -301,23 +320,23 @@ class RecordToHtmlNew(TableScriptOnRecord):
         if self.copy==0:
             self.paperPage = self.getNewPage()
         self.page_layout = self.mainLayout(self.paperPage)
-        if self.page_header_height:
-            curr_copy['page_header'] = self.page_layout.row(height=self.page_header_height,lbl_height=4,lbl_class='caption').cell()
+       #if self.page_header_height:
+       #    curr_copy['page_header'] = self.page_layout.row(height=self.page_header_height,lbl_height=4,lbl_class='caption').cell()
         if self.doc_header_height:
             curr_copy['doc_header'] = self.page_layout.row(height=self.calcDocHeaderHeight(),lbl_height=4,lbl_class='caption').cell()
         curr_copy['doc_body'] = self.page_layout.row(height=0,lbl_height=4,lbl_class='caption').cell()
         if self.doc_footer_height:
             curr_copy['doc_footer'] = self.page_layout.row(height=self.doc_footer_height,lbl_height=4,lbl_class='caption').cell()
-        if self.page_footer_height:
-            curr_copy['page_footer'] = self.page_layout.row(height=self.page_footer_height,lbl_height=4,lbl_class='caption').cell()
+        #if self.page_footer_height:
+        #    curr_copy['page_footer'] = self.page_layout.row(height=self.page_footer_height,lbl_height=4,lbl_class='caption').cell()
             
     def mainLayout(self,page):
         """must be overridden"""
         pass
         
     def _openPage(self):
-        if self.page_header_height:
-            self.pageHeader(self.copyValue('page_header')) #makeTop
+        #if self.page_header_height:
+        #    self.pageHeader(self.copyValue('page_header')) #makeTop
         if self.doc_header_height:
             self.docHeader(self.copyValue('doc_header'))
         self._docBody(self.copyValue('doc_body'))
@@ -334,8 +353,8 @@ class RecordToHtmlNew(TableScriptOnRecord):
             self.gridFooter(row)
         if self.doc_footer_height:
             self.docFooter(self.copyValue('doc_footer'),lastPage=lastPage)
-        if self.page_footer_height:
-            self.pageFooter(self.copyValue('page_footer'),lastPage=lastPage)
+       #if self.page_footer_height:
+       #    self.pageFooter(self.copyValue('page_footer'),lastPage=lastPage)
     
     def _docBody(self,body):
         header_height = self.calcGridHeaderHeight()
@@ -440,6 +459,7 @@ class RecordToHtmlNew(TableScriptOnRecord):
                          """)
 class RecordToHtml(TableScriptOnRecord):
     maintable=''
+    templates = ''
     html_folder = '*connections/html'
     pdf_folder = '*connections/pdf'
     encoding= 'utf-8'
@@ -447,12 +467,21 @@ class RecordToHtml(TableScriptOnRecord):
     page_width = 200
     page_height = 280
     print_button = None
-
+    page_margin_top = 0
+    page_margin_left = 0
+    page_margin_right = 0
+    page_margin_bottom = 0
+    htmlTemplate = None
+        
     def init(self,**kwargs):
         self.maintable=self.maintable or self.resource_table
         self.maintable_obj=self.db.table(self.maintable)
+        if self.templates:
+            self.htmlTemplate = self.db.table('adm.htmltemplate').getTemplate(self.templates)
         self.builder = GnrHtmlBuilder(page_width=self.page_width,page_height=self.page_height,
-                                      page_debug=self.page_debug,print_button=self.print_button)
+                                      page_margin_top=self.page_margin_top,page_margin_bottom=self.page_margin_bottom,
+                                      page_margin_left=self.page_margin_left,page_margin_right=self.page_margin_right,
+                                      page_debug=self.page_debug,print_button=self.print_button,htmlTemplate=self.htmlTemplate)
         
     def __call__(self, record=None, filepath=None,
                        rebuild=False, dontSave=False, pdf=False, runKwargs=None,**kwargs):

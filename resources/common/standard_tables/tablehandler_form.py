@@ -45,7 +45,7 @@ class TableHandlerForm(BaseComponent):
                         sqlContextName='sql_record')
         self.formSaver('formPane',resultPath='form.save_result',method='saveRecordCluster',
                         table=self.maintable,_fired='^form.save',_onCalling='FIRE pbl.bottomMsg=msg;',
-                        msg ='!!Saving...')
+                        msg ='!!Saving...',saveAlways=getattr(self,'saveAlways',False))
         pane.dataController(""" var msg = '';
                                 if(reason=='invalid'){
                                     msg = msg_invalid;

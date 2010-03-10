@@ -9,6 +9,7 @@ Copyright (c) 2008 Softwell. All rights reserved.
 from gnr.core.gnrbag import Bag
 
 class GnrCustomWebPage(object):
+    saveAlways=True
     maintable='adm.htmltemplate'
     py_requires='public:Public,standard_tables:TableHandler,public:IncludedView'
 
@@ -58,10 +59,17 @@ class GnrCustomWebPage(object):
             record['data.main.design'] = 'headline'
             for i in ('top','center','bottom'):
                 if i !='center':
-                    record['data.layout.regions.%s' %i] = 30
+                    record.setItem('data.layout.%s' %i,None,height=30)
                 for j in ('left','right'):
-                    path = '%s.regions.%s'  %(i,j)
-                    record['data.layout.%s' %path] = 30
+                    path = '%s.%s'  %(i,j)
+                    record.setItem('data.layout.%s' %path,None,width= 30)
+                    
+            for i in ('left','center','right'):
+                if i !='center':
+                    record.setItem('data.layout.%s' %i,None,width=30)
+                for j in ('top','bottom'):
+                    path = '%s.%s'  %(i,j)
+                    record.setItem('data.layout.%s' %path,None,height= 30)
                     
 ############################## FORM METHODS ##################################
 
@@ -72,11 +80,11 @@ class GnrCustomWebPage(object):
         self.editorDialog(bc)
         self.controllers(bc)
         self.mainInfo(bc.borderContainer(region='left',width='30em',disabled=disabled))
-        editorBc = bc.borderContainer(region='center',overflow='auto',datapath='_temp.mockup')
+        editorBc = bc.borderContainer(region='center',overflow='auto',datapath='_temp.data')
         self.ajaxContent('printLayout',editorBc ,design='^form.record.data.main.design')
 
     def remote_printLayout(self,parentBc,design=None,**kwargs):
-        
+        design = design or 'headline'
         page = parentBc.borderContainer(region='center',
                                         height='^.main.page.height',
                                         width='^.main.page.width',
@@ -97,52 +105,26 @@ class GnrCustomWebPage(object):
                                     FIRE #editorDialog.open;
                                 """,
                           _class='hideSplitter',
-                           regions='^.layout.regions',
+                           regions='^_temp.data.layout.regions',
                           design=design
                           )
-        if design=='sidebar':
-            self._sidebarRegions(bc.borderContainer(region='left',width='50mm',splitter=True,datapath='.layout.left',
-                                                _class='hideSplitter',regions='^.regions'
-                                                ),'50mm')
-            self._sidebarRegions(bc.borderContainer(region='right',datapath='.layout.right',width='50mm',
-                                                    splitter=True,_class='hideSplitter',
-                                                       regions='^.regions'
-                                                        ),'50mm')
-            self._sidebarRegions(bc.borderContainer(region='center',datapath='.layout.center',_class='hideSplitter'),'25mm')
-        else:
-            self._headlineRegions(bc.borderContainer(region='top',height='^_temp.mockup.layout.regions.top',splitter=True,
-                                                    _class='hideSplitter',datapath='.layout.top',
-                                                   regions='^.regions'
-                                                    ),'50mm')
-            self._headlineRegions(bc.borderContainer(region='bottom',datapath='.layout.bottom',
-                                                        height='^_temp.mockup.layout.regions.bottom',
-                                                        splitter=True,_class='hideSplitter',
-                                                        regions='^.regions'
-                                                        ),'50mm')
-            self._headlineRegions(bc.borderContainer(region='center',_class='hideSplitter',datapath='.layout.center'),'25mm')
+        regions=dict(headline=('top','bottom','center'),sidebar=('left','right','center'))
+        for region in regions[design]:
+            self._subRegions(bc,region=region,design=design)
 
-    def _sidebarRegions(self,bc,height):
-        
-        bc.contentPane(region='top',height=height,_class='printRegion sideTop',
-                        splitter=True,datapath='.top').div(innerHTML='^.html')
-        bc.contentPane(region='bottom',height=height,_class='printRegion sideBottom',
-                        splitter=True,datapath='.bottom').div(innerHTML='^.html')
-        bc.contentPane(region='center',_class='printRegion sideCenter',
-                        datapath='.center').div(innerHTML='^.html')
-        
-    def _headlineRegions(self,bc,width):
-        bc.contentPane(region='left',width=width,_class='printRegion headLeft',splitter=True, 
-                        datapath='.left').div(innerHTML='^.html')
-        bc.contentPane(region='right',width=width,_class='printRegion headRight',splitter=True,
-                        datapath='.right').div(innerHTML='^.html')
-        bc.contentPane(region='center',_class='printRegion headCenter',
-                        datapath='.center').div(innerHTML='^.html')
-
+    def _subRegions(self,parentBc,region=None,design=None):
+        subregions=dict(sidebar=('top','bottom','center'),headline=('left','right','center'))
+        bc = parentBc.borderContainer(region=region,splitter=(region!='center'),
+                            _class='hideSplitter',datapath='.layout.%s' %region,
+                            regions='^.regions')
+        for subregion in subregions[design]:
+            bc.contentPane(region=subregion,_class='printRegion',splitter=(subregion!='center'),
+                            datapath='form.record.data.layout.%s.%s'%(region,subregion)).div(innerHTML='^.html' )
 
     def controllers(self,pane):
         for part in ('height','width','top','bottom','left','right'):
-            pane.dataFormula("_temp.mockup.main.page.%s" %part, "part+'mm';",part='^.data.main.page.%s' %part)
-        pane.dataFormula("_temp.mockup.main.design", "design",design="^.data.main.design")
+            pane.dataFormula("_temp.data.main.page.%s" %part, "part+'mm';",part='^.data.main.page.%s' %part)
+        pane.dataFormula("_temp.data.main.design", "design",design="^.data.main.design")
             
     def editorDialog(self,pane):
         def cb_bottom(bc,**kwargs):
@@ -187,26 +169,50 @@ class GnrCustomWebPage(object):
         fb = pane.formbuilder(cols=3, border_spacing='4px',datapath='.layout')
         for i in ('top','center','bottom'):
             if i != 'center':
-                fb.numbertextBox(lbl='!!%s height' %i.title(),width='4em')
-                fb.dataController("SET _temp.mockup.layout.%s.regions = val+'mm';" %i ,
-                                    val="^.regions.%s" %i,
-                                    _fired='^gnr.forms.formPane.loaded')
+                fb.numbertextBox(value='^.%s?height' %i,lbl='!!%s height' %i.title(),
+                                width='4em')
+                fb.dataController("""genro.setData("_temp.data.layout.regions.%s",
+                                                      parseInt((val||0)*3.779527559)+'px',
+                                                      {show:val!=0});"""%i,
+                                    val="^.%s?height" %i)
+                fb.dataController("if(_triggerpars.kw.reason!=true){SET .%s?height = dojo.number.round(parseFloat(heightpx.slice(0,-2))/3.779527559,2);}" %i,
+                                    heightpx="^_temp.data.layout.regions.%s" %i)
             else:
                 fb.div()
             for j in ('left','right'):
-                path = '%s.regions.%s'  %(i,j)
-                fb.numberTextbox(value='^.%s' %path,
+                data_path = '%s.%s?width' %(i,j)
+                temp_path = '%s.regions.%s'  %(i,j)
+                fb.numberTextbox(value='^.%s' %data_path,
                                 lbl='!!%s' %j.title(),
-                                width='5em',validate_onAccept="if(userChange){SET _temp.mockup.layout.%s = value+'mm';}" %path)
-                fb.dataController("SET _temp.mockup.layout.%s = val+'mm';" %path ,val="=.%s" %path,_if='val',
-                                _fired='^gnr.forms.formPane.loaded')
-               #fb.dataController("console.log(val);SET .%s = parseFloat(val.slice(0,-2))*.2" %path,
-               #                    val="^_temp.mockup.layout.%s" %path,_if='val')
-                
+                                width='5em')
+                fb.dataController("""genro.setData('_temp.data.layout.%s',
+                                                    parseInt((val||0)*3.779527559)+'px',
+                                                    {show:val!=0});""" %temp_path ,
+                                  val="^.%s" %data_path)
+                fb.dataController("if(_triggerpars.kw.reason!=true){SET .%s = dojo.number.round(parseFloat(val.slice(0,-2))/3.779527559,2);}" %data_path,
+                                    val="^_temp.data.layout.%s" %temp_path)
+    
     def sideBarOpt(self,pane):
-        fb = pane.formbuilder(cols=2, border_spacing='4px',datapath='.layout')
+        fb = pane.formbuilder(cols=3, border_spacing='4px',datapath='.layout')
         for i in ('left','center','right'):
+            if i != 'center':
+                fb.numbertextBox(value='^.%s?width' %i,lbl='!!%s width' %i.title(),
+                                width='4em')
+                fb.dataController("""
+                                     SET _temp.data.layout.regions.%s = parseInt((val||0)*3.779527559)+'px';
+                                    """%i,
+                                    val="^.%s?width" %i)
+                fb.dataController("if(_triggerpars.kw.reason!=true){SET .%s?width = dojo.number.round(parseFloat(heightpx.slice(0,-2))/3.779527559,2);}" %i,
+                                    heightpx="^_temp.data.layout.regions.%s" %i)
+            else:
+                fb.div()
             for j in ('top','bottom'):
-                fb.numberTextbox(value='^.%s.regions.%s' %(i,j),lbl='!!%s %s'%(i.title(),j.title()),width='5em')
-
-        
+                data_path = '%s.%s?height' %(i,j)
+                temp_path = '%s.regions.%s'  %(i,j)
+                fb.numberTextbox(value='^.%s' %data_path,
+                                lbl='!!%s' %j.title(),
+                                width='5em')
+                fb.dataController("SET _temp.data.layout.%s = parseInt((val||0)*3.779527559)+'px';" %temp_path ,
+                                  val="^.%s" %data_path)
+                fb.dataController("if(_triggerpars.kw.reason!=true){SET .%s = dojo.number.round(parseFloat(val.slice(0,-2))/3.779527559,2);}" %data_path,
+                                    val="^_temp.data.layout.%s" %temp_path)

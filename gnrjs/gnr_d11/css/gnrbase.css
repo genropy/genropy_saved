@@ -803,8 +803,6 @@ table.formbuilder {
 
 /* @end */
 
-/* @group Common */
-
 /* @group Dijit custom */
 
 /* @group Editor */
@@ -1191,6 +1189,16 @@ videofadeout {
 	font-family: 'Abadi';
 	font-weight: normal;
 	src: url('/_gnr/11/fonts/abadi/Abadi_MT_Condensed_Light.ttf');
+}
+/* @end */
+
+/* @group General HTML */
+
+p{
+font-size:inherit;
+line-height:inherit;
+margin-bottom:inherit;
+margin-top:inherit;
 }
 /* @end */
 

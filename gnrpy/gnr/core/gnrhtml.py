@@ -173,10 +173,18 @@ class GnrHtmlBuilder(object):
                               'z_index', 'border','position','padding','margin',
                               'color','white_space','vertical_align','background', 'text'];
                               
-    def __init__(self,page_height=None,page_width=None,page_debug=False,srcfactory=None,print_button=None,bodyAttributes=None):
-        self.srcfactory=srcfactory or GnrHtmlSrc 
-        self.page_height = page_height or 280
-        self.page_width = page_width or 200
+    def __init__(self,page_height=None,page_width=None,page_margin_top=None,
+                    page_margin_left=None,page_margin_right=None,page_margin_bottom=None,
+                    htmlTemplate=None,page_debug=False,srcfactory=None,
+                    print_button=None,bodyAttributes=None):
+        self.srcfactory=srcfactory or GnrHtmlSrc
+        self.htmlTemplate = htmlTemplate or Bag()
+        self.page_height = page_height or self.htmlTemplate['main.page.height'] or 280
+        self.page_width = page_width or self.htmlTemplate['main.page.width'] or 200
+        self.page_margin_top = page_margin_top or self.htmlTemplate['main.page.top'] or 0
+        self.page_margin_left = page_margin_left or self.htmlTemplate['main.page.left'] or 0
+        self.page_margin_right = page_margin_right or self.htmlTemplate['main.page.right'] or 0
+        self.page_margin_bottom = page_margin_bottom or self.htmlTemplate['main.page.bottom'] or 0
         self.page_debug = page_debug 
         self.print_button = print_button
         
@@ -207,6 +215,26 @@ class GnrHtmlBuilder(object):
                         """)
 
         
+    def prepareTplLayout(self,tpl):
+        layout = tpl.layout(top=0,height=self.page_height-self.page_margin_top-self.page_margin_bottom,
+                            left=0,width=self.page_width-self.page_margin_left-self.page_margin_right,
+                            border=0)
+        regions = dict(center_center=layout)
+        if self.htmlTemplate['main.design'] == 'headline':
+            for region in ('top','center','bottom'):
+                height = self.htmlTemplate['layout.%s?height' %region] or 0
+                if region=='center' or height:
+                    row = layout.row(height=height)
+                    for subregion in ('left','center','right'):
+                        width = self.htmlTemplate['layout.%s.%s?width' %(region,subregion)] or 0
+                        if subregion=='center' or width:
+                            innerHTML = self.htmlTemplate['layout.%s.%s.html' %(region,subregion)] or None
+                            if innerHTML:
+                                innerHTML = "%s::HTML" %innerHTML
+                            regions['%s_%s' %(region,subregion)] = row.cell(content=innerHTML,width=width,border=0)
+        return regions['center_center']
+                            
+            
     def newPage(self):
         firstpage = (len(self.body)==0)
         border_color = 'red' if self.page_debug else 'white'
@@ -218,9 +246,18 @@ class GnrHtmlBuilder(object):
                                    top:0mm;
                                    left:0mm;
                                    %s""" %(self.page_width,self.page_height,border_color,page_break))
+        tplpage = page.div(style="""position:absolute;
+                                   top:%imm;
+                                   left:%imm;
+                                   right:%imm;
+                                   bottom:%imm;""" %(
+                                   self.page_margin_top,self.page_margin_left,
+                                   self.page_margin_right,self.page_margin_bottom))
+        if self.htmlTemplate:
+            tplpage = self.prepareTplLayout(tplpage)                           
         if firstpage and self.print_button:
-            page.div(self.print_button,_class='no_print',id='printButton',onclick='window.print();')
-        return page
+            tplpage.div(self.print_button,_class='no_print',id='printButton',onclick='window.print();')
+        return tplpage
     
     def styleForLayout(self):
         self.head.style(""".x_br{border-top:none!important;border-left:none!important;}
