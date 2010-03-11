@@ -74,6 +74,7 @@ class Public(BaseComponent):
         userTable=self.pbl_userTable()
         if self.user and userTable:
             rootbc.dataRecord('gnr.user_record',userTable, username=self.user, _init=True)
+            rootbc.data('gnr.user_preference',self.getUserPreference('*'))
         rootbc.data('gnr.workdate', self.workdate)
         if centered:
             margin = 'auto'
