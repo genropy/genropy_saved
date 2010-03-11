@@ -3604,13 +3604,9 @@ dojo.declare("gnr.widgets.CkEditor",gnr.widgets.baseHtml,{
         this.gnr_setReadOnly(value);
     },
     mixin_gnr_setReadOnly:function(isReadOnly){
-        console.log(isReadOnly);
         if (!this.document){
-            console.log('not yet built');
             return;
-        }
-        console.log('valid');
-        
+        }        
         //this.document.$.body.disabled = isReadOnly;
         CKEDITOR.env.ie ? this.document.$.body.contentEditable = !isReadOnly
                          : this.document.$.designMode = isReadOnly ? "off" : "on";

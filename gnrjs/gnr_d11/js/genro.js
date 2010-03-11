@@ -56,10 +56,8 @@ dojo.declare('gnr.GenroClient', null, {
         this.pageMode = kwargs.pageMode;
         this.baseUrl = kwargs.baseUrl;
         setTimeout(dojo.hitch(this, 'genroInit'), 1);
-        console.log('created genro');
     },
     genroInit:function(){
-        console.log('initing genro');
          this.startTime=new Date();
         this.lastTime=this.startTime;
         this.dialogStack = [];
@@ -104,7 +102,6 @@ dojo.declare('gnr.GenroClient', null, {
                           'limit':'50'};
 
         dojo.addOnLoad(this,'start');
-        console.log('genro inited');
     },
     start:function() {
         setTimeout(dojo.hitch(this, 'dostart'), 1);
@@ -149,7 +146,6 @@ dojo.declare('gnr.GenroClient', null, {
         It calls the remoteCall to receive the page contained in the bag called 'main'.
         */
         //genro.timeIt('** dostart **');
-        console.log('starting page');
         this._dataroot = new gnr.GnrBag();
         this._dataroot.setBackRef();
         this._data = new gnr.GnrBag();
@@ -198,7 +194,6 @@ dojo.declare('gnr.GenroClient', null, {
             genro.setData('debugger.pydebug',this.debugopt.indexOf('py')>=0);
             genro.dev.showBottomHelper();
         }
-        console.log('started page');
     },
     playSound:function(name,path,ext){
         if (!(name in genro.sounds)){
