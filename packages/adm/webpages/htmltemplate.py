@@ -100,7 +100,7 @@ class GnrCustomWebPage(object):
                                     margin_left='^.main.page.left',
                                     margin_right='^.main.page.right',
                           connect_ondblclick="""
-                                    var clickedNode = dijit.getEnclosingWidget($1.originalTarget).sourceNode;
+                                    var clickedNode = dijit.getEnclosingWidget($1.target).sourceNode;
                                     SET currentEditedArea = clickedNode.absDatapath();
                                     FIRE #editorDialog.open;
                                 """,
