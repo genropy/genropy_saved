@@ -26,6 +26,21 @@ class AppPref(object):
 
 class UserPref(object):
     def prefpane_sys(self,tc,**kwargs):
-        pane = tc.contentPane(**kwargs)
-        fb = pane.formbuilder(cols=2, border_spacing='4px')
-        fb.textbox(value='^.kk',lbl='kk')
+        tc = tc.tabContainer(**kwargs)
+        self.pref_sound(tc.contentPane(title='Sounds',datapath='.sounds'))
+        
+    def pref_sound(self,pane):
+        fb = pane.formbuilder(cols=1, border_spacing='4px')
+        fb.filteringSelect(value='^.onsaving',lbl='On saving',values=self._allSounds(),
+                          validate_onAccept='genro.playSound(value);')
+        fb.filteringSelect(value='^.onsaved',lbl='On saved',values=self._allSounds(),
+                          validate_onAccept='genro.playSound(value);')
+        fb.filteringSelect(value='^.error',lbl='On error',values=self._allSounds(),
+                          validate_onAccept='genro.playSound(value);')
+    
+    def _allSounds(self):
+        return """Basso:Basso,Blow:Blow,Bottle:Bottle,
+                  Frog:Frog,Funk:Funk,Glass:Glass,Hero:Hero,
+                  Morse:Morse,NewMessage:NewMessage,Ping:Ping,
+                  Pop:Pop,Purr:Purr,Sosumi:Sosumi,sound1:Sound1,
+                  Submarine:Submarine,Tink:Tink"""

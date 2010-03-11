@@ -561,7 +561,7 @@ class GnrWebPage(GnrBaseWebPage):
         return self.site.getPreference(path, pkg=pkg, dflt=dflt)
             
     def getUserPreference(self,path, pkg='',dflt='', username=''):
-        return self.site.getUserPreference(path,pkg=pkg,dlft=dflt, username=username)
+        return self.site.getUserPreference(path,pkg=pkg,dflt=dflt, username=username)
             
     def setUserPreference(self, path, data, pkg='',username=''):
         self.site.setUserPreference(path,data,pkg=pkg,username=username)

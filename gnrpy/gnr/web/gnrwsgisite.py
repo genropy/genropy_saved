@@ -462,9 +462,9 @@ class GnrWsgiSite(object):
             
     def getUserPreference(self,path, pkg='',dflt='',username=''):
         if self.db.package('adm'):
-            pkg=pkg or self.currentPage.packageId
             username = username or self.currentPage.user
-            return self.db.table('adm.user').getPreference(path,pkg=pkg,path=path,dlft=dflt,username=username)
+            pkg=pkg or self.currentPage.packageId
+            return self.db.table('adm.user').getPreference(path=path,pkg=pkg,dflt=dflt,username=username)
             
     def setUserPreference(self, path,data, pkg='',username=''):
         if self.db.package('adm'):

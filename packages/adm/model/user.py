@@ -50,7 +50,10 @@ class Table(object):
             self.importFromXmlDump(dump_folder)
     
     def getPreference(self,path='', pkg='',dflt='',username=''):
-        return self.loadRecord(username)['preferences.%s.%s' %(pkg,path)] or dflt
+        result = self.loadRecord(username)['preferences'] 
+        if path!='*':
+            result = result['%s.%s' %(pkg,path)]           
+        return result or dflt
             
     def setPreference(self,path='',data='', pkg='',username=''):
         with self.db.tempEnv(connectionName='system'):

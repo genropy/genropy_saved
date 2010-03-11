@@ -39,7 +39,7 @@ class GnrCustomWebPage(object):
                 panecb(tc,title=pkg.name_full,datapath='.%s' %pkg.name,nodeId=pkg.name)
         
     def bottom(self,bottom):
-        bottom.button('!!Apply settings',baseClass='bottom_btn',float='right',margin='1px',
+        bottom.button('!!Save',baseClass='bottom_btn',float='right',margin='1px',
                         action='genro.formById("preference").save(true)')
         bottom.button('!!Cancel',baseClass='bottom_btn',float='right',margin='1px',
                         fire='frame.close')    
@@ -48,12 +48,12 @@ class GnrCustomWebPage(object):
         pane.dataController("""parent.genro.fireEvent("#userpreference.close");""",_fired="^frame.close")
         pane.dataController("genro.formById('preference').load()",_onStart=True)
         pane.dataRpc('dummy','savePreference',data='=preference',nodeId='preference_saver',
-                    _onResult='genro.formById("preference").saved();FIRE frame.close;')
+                    _onResult='genro.formById("preference").saved();FIRE frame.setOnParent;FIRE frame.close;')
         pane.dataRpc('preference','loadPreference',nodeId='preference_loader',
                      _onResult='genro.formById("preference").loaded();')
         
     def rpc_loadPreference(self):
-        return self.db.table('adm.user').getPreference(username=self.user)
+        return self.getUserPreference('*')
     
     def rpc_savePreference(self,data):
         self.db.table('adm.user').setPreference(username=self.user,data=data)
