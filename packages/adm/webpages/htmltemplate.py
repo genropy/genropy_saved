@@ -76,10 +76,10 @@ class GnrCustomWebPage(object):
     def formBase(self, parentBC,disabled=False, **kwargs):
         bc = parentBC.borderContainer(**kwargs)
         bc.css('.printRegion','margin:.5mm;border:.3mm dotted silver;cursor:pointer;')
-        bc.data('zoomFactor',.7)
-        self.editorDialog(bc)
+        bc.data('zoomFactor',.5)
+        #self.editorDialog(bc)
         self.controllers(bc)
-        self.mainInfo(bc.borderContainer(region='left',width='30em',disabled=disabled))
+        self.mainInfo(bc.borderContainer(region='left',width='50em',splitter=True,disabled=disabled))
         editorBc = bc.borderContainer(region='center',overflow='auto',datapath='_temp.data')
         self.ajaxContent('printLayout',editorBc ,design='^form.record.data.main.design')
 
@@ -99,10 +99,9 @@ class GnrCustomWebPage(object):
                                     margin_bottom='^.main.page.bottom',
                                     margin_left='^.main.page.left',
                                     margin_right='^.main.page.right',
-                          connect_ondblclick="""
+                          connect_onclick="""
                                     var clickedNode = dijit.getEnclosingWidget($1.target).sourceNode;
                                     SET currentEditedArea = clickedNode.absDatapath();
-                                    FIRE #editorDialog.open;
                                 """,
                           _class='hideSplitter',
                            regions='^_temp.data.layout.regions',
@@ -125,39 +124,33 @@ class GnrCustomWebPage(object):
         for part in ('height','width','top','bottom','left','right'):
             pane.dataFormula("_temp.data.main.page.%s" %part, "part+'mm';",part='^.data.main.page.%s' %part)
         pane.dataFormula("_temp.data.main.design", "design",design="^.data.main.design")
-            
-    def editorDialog(self,pane):
-        def cb_bottom(bc,**kwargs):
-            bottom = bc.contentPane(**kwargs)
-            bottom.button('!!Close',baseClass='bottom_btn',float='right',margin='1px',fire='.close')
-        self.simpleDialog(pane,height='300px',width='700px',dlgId='editorDialog',cb_bottom=cb_bottom,
-                            cb_center=self.templateEditorPane,datapath='editorDialog')
-    def templateEditorPane(self,parentBc,**kwargs):
-        bc = parentBc.borderContainer(datapath='^currentEditedArea',**kwargs)
-        self.RichTextEditor(bc, value='^.html', contentPars=dict(region='center'),
-                            nodeId='htmlEditor',editorHeight='200px')
-        
+       
     def mainInfo(self,bc,disabled=False):
-        top = bc.contentPane(region='top',height='18ex',margin='5px',_class='pbl_roundedGroup')
-        top.div('!!Info',_class='pbl_roundedGroupLabel')
-        fb = top.formbuilder(cols=1, border_spacing='4px',disabled=disabled)
-        fb.field('name',width='15em')
-        fb.field('version',width='15em')
-        bottom = bc.contentPane(region='bottom',margin='5px',margin_top='0',
+        editorPane = bc.borderContainer(datapath='^currentEditedArea',region='bottom',height='320px')
+        self.RichTextEditor(editorPane, value='^.html', contentPars=dict(region='center'),
+                            nodeId='htmlEditor',editorHeight='200px',toolbar=self.rte_toolbar_standard())
+                            
+        mainBc = bc.borderContainer(region='center',margin='5px',_class='pbl_roundedGroup',)
+        topleft = mainBc.borderContainer(region='left',width='20em')
+        self.tplInfo(topleft.contentPane(region='top'),disabled=disabled)
+        bottom = mainBc.contentPane(region='bottom',margin='5px',margin_top='0',
                                 _class='pbl_roundedGroupBottom')
         bottom.horizontalSlider(value='^zoomFactor', minimum=0, maximum=1,
-                                intermediateChanges=True,width='15em',float='right') 
-        self.layoutMainInfo(bc.borderContainer(region='center',margin='5px',margin_top='0',_class='pbl_roundedGroup',
-                                datapath='.data'),disabled=disabled)
-
-    
-    def layoutMainInfo(self,bc,disabled=None):
-        topTC = bc.tabContainer(region='top',height='50%',selectedPage='^.main.design')
+                                intermediateChanges=True,width='15em',float='right')
+        self.basePageParams(topleft.contentPane(region='center',datapath='.data.main.page'),disabled=disabled)
+        topTC = mainBc.tabContainer(region='center',selectedPage='^.data.main.design')
         self.headLineOpt(topTC.contentPane(title='Headline',pageName='headline'))
         self.sideBarOpt(topTC.contentPane(title='Sidebar',pageName='sidebar'))
+
         
-        center = bc.contentPane(region='center',datapath='.main.page')
-        fb = center.formbuilder(cols=2, border_spacing='4px',disabled=disabled)
+    def tplInfo(self,pane,disabled=None):
+        pane.div('!!Info',_class='pbl_roundedGroupLabel')
+        fb = pane.formbuilder(cols=1, border_spacing='4px',disabled=disabled)
+        fb.field('name',width='15em')
+        fb.field('version',width='15em')
+ 
+    def basePageParams(self,pane,disabled=None):
+        fb = pane.formbuilder(cols=2, border_spacing='4px',disabled=disabled)
         fb.numbertextBox(value='^.height',lbl='!!Height',width='5em')
         fb.numbertextBox(value='^.width',lbl='!!Width',width='5em')
         fb.numbertextBox(value='^.top',lbl='!!Top',width='5em')
@@ -166,7 +159,7 @@ class GnrCustomWebPage(object):
         fb.numbertextBox(value='^.right',lbl='!!Right',width='5em')
         
     def headLineOpt(self,pane):
-        fb = pane.formbuilder(cols=3, border_spacing='4px',datapath='.layout')
+        fb = pane.formbuilder(cols=3, border_spacing='4px',datapath='.data.layout')
         for i in ('top','center','bottom'):
             if i != 'center':
                 fb.numbertextBox(value='^.%s?height' %i,lbl='!!%s height' %i.title(),
