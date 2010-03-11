@@ -124,10 +124,9 @@ dojo.declare('gnr.GenroClient', null, {
     },
     onWindowUnload:function(e){
         if (genro._data){
-        var result;
-        genro.saveContextCookie();
-        this.rpc.remoteCall('onClosePage');
-    }
+            this.rpc.remoteCall('onClosePage',{sync:true});
+            genro.saveContextCookie();
+        }
     },
     saveContextCookie:function(){
         var clientCtx=genro.getData('_clientCtx');
