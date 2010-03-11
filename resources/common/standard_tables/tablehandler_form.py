@@ -108,9 +108,13 @@ class TableHandlerForm(BaseComponent):
                                }
                                SET list.selectedId = pkey;
                                FIRE pbl.bottomMsg = msg;
+                               if (custom_sound){
+                                    genro.playSound(custom_sound);
+                               }
                                FIRE form.doLoad;
                             """, record='=form.record',
                                  msg='!!Record saved',
+                                 custom_sound='=gnr.user_preference.sys.sounds.onsaved',
                                  idx='=list.selectedIndex',
                                  pkey='^form.save_result',
                                  old_pkey='=list.selectedId',
