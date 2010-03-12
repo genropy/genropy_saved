@@ -1878,6 +1878,7 @@ dojo.declare("gnr.widgets.VirtualGrid",gnr.widgets.Grid,{
     mixin_loadBagPageFromServer:function(pageIdx){
         var row_start=pageIdx*this.rowsPerPage;
         var kw=this.storebag.attr;
+        console.log('loadBagPageFromServer: '+pageIdx+' selectionName '+kw.selectionName);
         var data=genro.rpc.remoteCall(kw.method, {'selectionName':kw.selectionName,
                                                   'row_start':row_start,
                                                   'row_count':this.rowsPerPage,
@@ -1907,7 +1908,7 @@ dojo.declare("gnr.widgets.VirtualGrid",gnr.widgets.Grid,{
         this.currRenderedRow=null;
         this.currCachedPageIdx=null;
         this.currCachedPage=null;
-        this.selection.unselectAll();
+        //this.selection.unselectAll();
     },
     
     mixin_setSortedBy:function(sortedBy){

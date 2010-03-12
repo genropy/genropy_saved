@@ -84,20 +84,30 @@ class TableHandlerForm(BaseComponent):
         pane.dataFormula('list.canDelete','(!locked) && deletePermission',locked='^status.locked',deletePermission='=usr.deletePermission',_init=True)
         pane.dataController("SET list.selectedIndex=-1; SET selectedPage = 1", fired='^list.newRecord')
         pane.dataController(""" var pkey;
-                                    if (idx < -1){pkey = null;PUT list.selectedIndex = null;}
+                                    if (idx < -1){
+                                        pkey = null;
+                                        PUT list.selectedIndex = null;
+                                        SET selectedPage=0; 
+                                        SET list.query.pkeys=null;
+                                        return;
+                                    }
                                     else if (idx == -1){
                                                         pkey = '*newrecord*';
                                                         PUT list.selectedIndex = null;}
-                                    else {pkey = genro.wdgById("maingrid").rowIdByIndex(idx);}
+                                    else {
+                                          pkey = genro.wdgById("maingrid").rowIdByIndex(idx);
+                                         }
                                     if(pkey){
                                         SET list.selectedId = pkey;
                                         FIRE form.doLoad = true;
-                                    } else {
+                                    } 
+                                    /*else {
                                         SET form.record = new gnr.GnrBag();
                                         if (genro.formById("formPane")){
                                         genro.formById("formPane").reset();}
                                     }
-                                    if(idx == -2){SET selectedPage=0; SET list.query.pkeys=null;}""" ,
+                                    if(idx == -2){}
+                                    */""" ,
                              idx='^list.selectedIndex')
         pane.dataController("SET status.locked=true;",fire='^status.lock')
         pane.dataController("SET status.locked=false;",fire='^status.unlock',_if='unlockPermission',
@@ -290,7 +300,8 @@ class TableHandlerForm(BaseComponent):
         
         pane.dataController('genro.wdgById("maingrid").updateRowCount(rowcount)',rowcount='^list.rowcount')
         
-        pane.dataController("""var nodeStart=genro.getDataNode('list.data_start');
+        pane.dataController("""
+                                var nodeStart=genro.getDataNode('list.data_start');
                                    var grid=genro.wdgById("maingrid");
                                    grid.clearBagCache();
                                    var rowcount=nodeStart.attr.totalrows;
@@ -301,6 +312,7 @@ class TableHandlerForm(BaseComponent):
                                    SET list.selectionName = nodeStart.attr.selectionName;
                                    grid.updateRowCount(0);
                                    grid.updateRowCount(rowcount);
+                                   grid.selection.unselectAll();                            
                                    genro.dom.enable("query_buttons");
                                    SET list.queryRunning = false;
                                    SET list.gridpage = 0;
