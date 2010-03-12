@@ -25,7 +25,7 @@ class TableHandlerForm(BaseComponent):
         elem.dataController("""if(logical_deleted){
                                    genro.dom.addClass("formRoot", "logicalDeleted");
                                }else{
-                                   genro.dom.removeClass("formRoot", "logicalDeleted");
+                                   genro.dom.removeClass("formRoot", "logicalDeleted");,
                                }
                                if($2.kw.reason!=true){
                                    if (delete_ts && !logical_deleted){
@@ -65,8 +65,7 @@ class TableHandlerForm(BaseComponent):
         self.formLoader('formPane', resultPath='form.record',_fired='^form.doLoad',lock='=form.lockAcquire',
                         table=self.maintable, pkey='=list.selectedId',method='loadRecordCluster',
                         loadingParameters='=gnr.tables.maintable.loadingParameters',
-                        onLoaded='FIRE form.onRecordLoaded',
-                        sqlContextName='sql_record')
+                        onLoaded='FIRE form.onRecordLoaded;',sqlContextName='sql_record')
         self.formSaver('formPane',resultPath='form.save_result',method='saveRecordCluster',
                         table=self.maintable,_fired='^form.save',_onCalling='FIRE pbl.bottomMsg=msg;',
                         msg ='!!Saving...',saveAlways=getattr(self,'saveAlways',False))

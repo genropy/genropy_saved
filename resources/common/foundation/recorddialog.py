@@ -94,7 +94,6 @@ class RecordDialog(BaseComponent):
                                 loadingParameters,validation_failed,record_datapath,**kwargs):
         onSaved = onSaved or ''
         onSaved = 'FIRE #%s.afterSaving; %s' %(dlgId,onSaved)
-        
         pane.dataController("""if(saveAndAdd){
                                     SET .closeDlg = false;
                                     SET .addRecord = true;
@@ -154,13 +153,6 @@ class RecordDialog(BaseComponent):
                        method=savingMethod,onSaved=onSaved,
                        datapath='#%s' %dlgId,
                        **saveKwargs)
-                       
-        pane.dataController("""if(loading){
-                                    SET .stackPane = 0;
-                                }else{
-                                    SET .stackPane = 1;
-                                }""",
-                            loading='^gnr.forms.%s.loading' %formId)
         pane.dataController("""if(save_failed == "nochange"){
                                         FIRE .exitAction='nochange';
                                 }else if(save_failed == "invalid"){
@@ -186,7 +178,6 @@ class RecordDialog(BaseComponent):
         bottomCb(bottom)
         stack = bc.stackContainer(region='center',_class='pbl_background' ,formId=formId,
                                   selected='^#%s.stackPane' %dlgId,datapath=record_datapath or '.record')
-        loading = stack.contentPane(_class='waiting')
         formCb(stack, disabled='^form.locked', table=table)
 
     #Jeff suggests that the margins be taken out of the code and put into the css

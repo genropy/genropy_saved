@@ -130,6 +130,35 @@ label.ghostlabel span{
 .gnrfield {
     
 }
+
+/* @group loading classes */
+
+.loadingForm .gnrfield input{
+	opacity: 0;
+}
+.loadingForm .dojoxGrid-content{
+	opacity: 0;
+}
+.loadingForm textarea{
+	color: transparent;
+}
+.loadingForm gnrfield >div{
+	opacity: 0;
+}
+.formHider{
+	position:absolute;
+	top:0;
+	left:0;
+	right:0;
+	bottom:0;
+	z-index:100;
+	opacity: .3;
+	background: white;
+}
+
+/* @end */
+
+
 .fakeTextBox {
     border: 1px solid silver;
     background: white;
