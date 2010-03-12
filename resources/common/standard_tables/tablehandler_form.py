@@ -23,13 +23,19 @@ class TableHandlerForm(BaseComponent):
                                                   disabled='^form.locked')
         elem.dataFormula('aux.listpage', '!selectedpage', selectedpage='^selectedPage', _init=True)
         elem.dataController("""if(logical_deleted){
-                                   SET form.record.__del_ts =new Date();
                                    genro.dom.addClass("formRoot", "logicalDeleted");
                                }else{
-                                   SET form.record.__del_ts = null;
                                    genro.dom.removeClass("formRoot", "logicalDeleted");
-                               }""",
-                          logical_deleted='^form.logical_deleted' )
+                               }
+                               if($2.kw.reason!=true){
+                                   if (delete_ts && !logical_deleted){
+                                        SET form.record.__del_ts = null;
+                                    }else if(logical_deleted && !delete_ts){
+                                        SET form.record.__del_ts =new Date();
+                                    }
+                               }
+                               """,
+                          logical_deleted='^form.logical_deleted',delete_ts='=form.record.__del_ts')
 
 
             

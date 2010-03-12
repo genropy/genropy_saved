@@ -445,7 +445,8 @@ class GnrWhereTranslator(object):
                 if not column[0] in '@$':
                     column = '$%s' % column
                 if dtype in('D','DH'):
-                    value, op = self.decodeDates(value, op, dtype)
+                    value, op = self.decodeDates(value, op, 'D')
+                    column = 'CAST (%s AS date)' %column
                 if not dtype in ('A','T') and op in ('contains','notcontains','startswith','endswith','regex','wordstart'):
                     value=str(value)
                     column='CAST (%s as text)'%column
@@ -519,10 +520,7 @@ class GnrWhereTranslator(object):
     def op_equal(self, column, value, dtype, sqlArgs):
         "Equal to"
         return '%s = :%s' % (column, self.storeArgs(value, dtype, sqlArgs))
-   #def op_not_equal(self, column, value, dtype, sqlArgs):
-   #    "Not equal to"
-   #    return '%s <> :%s' % (column, self.storeArgs(value, dtype, sqlArgs))
-        
+
     def op_startswith(self, column, value, dtype, sqlArgs):
         "Starts with"
         return '%s ILIKE :%s'  % (column, self.storeArgs('%s%%' % value, dtype, sqlArgs))
