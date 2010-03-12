@@ -275,7 +275,7 @@ class TagsHandler(BaseComponent):
         bottom = self.formDialog_bottom(bc,confirm_btn=None,**kwargs)
         if self.application.checkResourcePermission(self.canManageTag(), self.userTags):
             bottom.button('!!Edit tags',margin='1px',float='left',fire='#recordtag_dlg.open')
-        bottom.dataController("FIRE .load;",_fired="^#recordtag_dlg.hide")
+        bottom.dataController("FIRE .load;",_fired="^#recordtag_dlg.close")
                            
     def rpc_saveRecordTagLinks(self,data=None,call_mode=None,selectedRowIdx=None,pkey=None,selectionName=None):
         tagbag = data['tagbag']
@@ -337,7 +337,7 @@ class TagsHandler(BaseComponent):
             values = r['values']
             tag = r['tag']
             description = r['description']
-            label_width = '%fem' %((len(description)*0.5)+2)
+            label_width = '%fem' %((len(description)*0.3)+2)
             buttons = []
             max_width=3
             if values:
