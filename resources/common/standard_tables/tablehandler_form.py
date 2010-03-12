@@ -43,13 +43,12 @@ class TableHandlerForm(BaseComponent):
         pane.dataFormula('form.lockAcquire','(!statusLocked) && lock',statusLocked='^status.locked',
                                      lock=self.recordLock or False)
         pane.dataController("""
-                               console.log('set logical deleted');
                                SET form.logical_deleted = (GET form.record.__del_ts != null);
                                if (lockId){
-                                   alert('lockId:'+lockId)
+                                   //alert('lockId:'+lockId)
                                }
                                else if (username){
-                                   alert('already locked by:'+username)
+                                   //alert('already locked by:'+username)
                                    SET status.locked=true;
                                }""",
 

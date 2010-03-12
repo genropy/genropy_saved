@@ -31,12 +31,16 @@ class GnrDboPackage(object):
         return self.db.application.getPreference(path, pkg=self.name, dflt=dflt)
         
 class TableBase(object):
-    def sysFields(self, tbl, id=True, ins=True, upd=True, ldel=True, md5=False,group='_'):
+    def sysFields(self, tbl, id=True, ins=True, upd=True, ldel=True, md5=False,group='zzz',group_name='!!System'):
         if id:
             tbl.column('id',size='22',group='_',readOnly='y',name_long='!!Id')
             pkey = tbl.attributes.get('pkey')
             if not pkey:
                 tbl.attributes['pkey'] = 'id'
+            if group and group_name:
+                tbl.attributes['group_%s' %group] = group_name
+            else:
+                group='_'
         if ins:
             tbl.column('__ins_ts', dtype='DH', name_long='!!Insert date', onInserting='setTSNow', group=group)
         if ldel:
