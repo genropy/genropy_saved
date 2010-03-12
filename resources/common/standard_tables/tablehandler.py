@@ -121,24 +121,6 @@ class TableHandler(BaseComponent):
         r.cell('lbl', name='Field',width='10em', headerStyles='display:none;', cellClasses='infoLabels', odd=False)
         r.cell('val', name='Value',width='10em', headerStyles='display:none;', cellClasses='infoValues', odd=False)
         return struct
-        
-    def setLogicalDeletionCheckBox(self, elem):
-        elem.div(padding_left='5px',
-                 padding_top='2px',
-                 hidden='^aux.listpage').checkbox(label='!!Hidden',
-                                                  value='^form.logical_deleted',
-                                                  disabled='^form.locked')
-        elem.dataFormula('aux.listpage', '!selectedpage', selectedpage='^selectedPage', _init=True)
-        elem.dataController("""if(logical_deleted){
-                                   SET form.record.__del_ts =new Date();
-                                   genro.dom.addClass("formRoot", "logicalDeleted");
-                               }else{
-                                   SET form.record.__del_ts = null;
-                                   genro.dom.removeClass("formRoot", "logicalDeleted");
-                               }""",
-                          logical_deleted='^form.logical_deleted' )
-
-
                                        
     def selectionBatchRunner(self, pane, title='', resultpath='aux.cmd.result', fired=None, batchFactory=None,
                              rpc=None,thermofield=None, thermoId=None, endScript=None,

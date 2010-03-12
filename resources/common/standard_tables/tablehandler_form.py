@@ -14,6 +14,24 @@ class TableHandlerForm(BaseComponent):
         self.formBase(bc,datapath='form.record',disabled='^form.locked',region='center',formId='formPane')
         if self.tblobj.logicalDeletionField:
             self.setLogicalDeletionCheckBox(bottom['left'])
+    
+    def setLogicalDeletionCheckBox(self, elem):
+        elem.div(padding_left='5px',
+                 padding_top='2px',
+                 hidden='^aux.listpage').checkbox(label='!!Hidden',
+                                                  value='^form.logical_deleted',
+                                                  disabled='^form.locked')
+        elem.dataFormula('aux.listpage', '!selectedpage', selectedpage='^selectedPage', _init=True)
+        elem.dataController("""if(logical_deleted){
+                                   SET form.record.__del_ts =new Date();
+                                   genro.dom.addClass("formRoot", "logicalDeleted");
+                               }else{
+                                   SET form.record.__del_ts = null;
+                                   genro.dom.removeClass("formRoot", "logicalDeleted");
+                               }""",
+                          logical_deleted='^form.logical_deleted' )
+
+
             
     def formController(self,pane):
         self.formTitleBase(pane)
@@ -25,6 +43,7 @@ class TableHandlerForm(BaseComponent):
         pane.dataFormula('form.lockAcquire','(!statusLocked) && lock',statusLocked='^status.locked',
                                      lock=self.recordLock or False)
         pane.dataController("""
+                               console.log('set logical deleted');
                                SET form.logical_deleted = (GET form.record.__del_ts != null);
                                if (lockId){
                                    alert('lockId:'+lockId)
@@ -41,7 +60,7 @@ class TableHandlerForm(BaseComponent):
         self.formLoader('formPane', resultPath='form.record',_fired='^form.doLoad',lock='=form.lockAcquire',
                         table=self.maintable, pkey='=list.selectedId',method='loadRecordCluster',
                         loadingParameters='=gnr.tables.maintable.loadingParameters',
-                        onLoading='FIRE form.onRecordLoaded',
+                        onLoaded='FIRE form.onRecordLoaded',
                         sqlContextName='sql_record')
         self.formSaver('formPane',resultPath='form.save_result',method='saveRecordCluster',
                         table=self.maintable,_fired='^form.save',_onCalling='FIRE pbl.bottomMsg=msg;',

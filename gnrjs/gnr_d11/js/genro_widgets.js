@@ -1908,7 +1908,6 @@ dojo.declare("gnr.widgets.VirtualGrid",gnr.widgets.Grid,{
         this.currRenderedRow=null;
         this.currCachedPageIdx=null;
         this.currCachedPage=null;
-        //this.selection.unselectAll();
     },
     
     mixin_setSortedBy:function(sortedBy){
