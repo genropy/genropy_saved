@@ -1,5 +1,24 @@
-#!/usr/bin/env python
-# encoding: utf-8
+# -*- coding: UTF-8 -*-
+#--------------------------------------------------------------------------
+# Copyright (c) : 2004 - 2007 Softwell sas - Milano 
+# Written by    : Giovanni Porcari, Michele Bertoldi
+#                 Saverio Porcari, Francesco Porcari , Francesco Cavazzana
+#--------------------------------------------------------------------------
+#This library is free software; you can redistribute it and/or
+#modify it under the terms of the GNU Lesser General Public
+#License as published by the Free Software Foundation; either
+#version 2.1 of the License, or (at your option) any later version.
+
+#This library is distributed in the hope that it will be useful,
+#but WITHOUT ANY WARRANTY; without even the implied warranty of
+#MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+#Lesser General Public License for more details.
+
+#You should have received a copy of the GNU Lesser General Public
+#License along with this library; if not, write to the Free Software
+#Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
+# 
+
 
 from gnr.web.gnrbaseclasses import BaseComponent
 
@@ -66,9 +85,11 @@ class TableHandlerForm(BaseComponent):
                         table=self.maintable, pkey='=list.selectedId',method='loadRecordCluster',
                         loadingParameters='=gnr.tables.maintable.loadingParameters',
                         onLoaded='FIRE form.onRecordLoaded;',sqlContextName='sql_record')
+                        
         self.formSaver('formPane',resultPath='form.save_result',method='saveRecordCluster',
                         table=self.maintable,_fired='^form.save',_onCalling='FIRE pbl.bottomMsg=msg;',
                         msg ='!!Saving...',saveAlways=getattr(self,'saveAlways',False))
+                        
         pane.dataController(""" var msg = '';
                                 if(reason=='invalid'){
                                     msg = msg_invalid;
@@ -83,6 +104,7 @@ class TableHandlerForm(BaseComponent):
                               msg_nochange='!!No change to save.', 
                               msg_invalid='!!Invalid data, please check the form.',
                               title="!!Warning")
+                              
         pane.dataRpc('form.delete_result','deleteRecordCluster', data='=form.record?=genro.getFormChanges("formPane");', _POST=True,
                         table=self.maintable,toDelete='^form.doDeleteRecord')
         pane.dataController("""genro.dlg.ask(askTitle,saveMessage,{save:saveButton,forget:cancelButton},'form.dlgAction');
