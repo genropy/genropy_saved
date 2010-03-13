@@ -51,6 +51,23 @@ dojo.declare("gnr.GnrRemoteResolver",gnr.GnrBagResolver,{
         }
         var sync = this.xhrKwargs.sync;
         var sourceNode = objectPop(kwargs, '_sourceNode');
+        if (this.useClientCache) {
+            if (this.useClientCache=='local') {}
+            else if (this.useClientCache==-1){
+                this.currentKey = this.clientCacheKeyBuilder(kwargs);
+                console.log('trying to use cache :'+this.currentKey )
+
+                var result = sessionStorage.getItem(this.currentKey);
+                if (result) {
+                    var auxBag = new gnr.GnrBag();
+                    var parser = new DOMParser();
+                    auxBag.fromXmlDoc(parser.parseFromString(result,'text/xml'),genro.clsdict);
+                    result = auxBag.getNode('#0');
+                    console.log('served by cache')
+                    return result;
+                };
+            }
+        };
         var result = genro.rpc._serverCall(kwargs, this.xhrKwargs, this.httpMethod, sourceNode);
         if (sync){
             result.addCallback(function(value){
@@ -63,7 +80,16 @@ dojo.declare("gnr.GnrRemoteResolver",gnr.GnrBagResolver,{
         return genro.rpc.errorHandler(response, ioArgs);
     },
     resultHandler: function(response, ioArgs){
-        return genro.rpc.resultHandler(response, ioArgs, (this.updateAttr ? this._parentNode.attr: null));
+        var result =genro.rpc.resultHandler(response, ioArgs, (this.updateAttr ? this._parentNode.attr: null));
+        if (this.currentKey){
+            var auxBag = new gnr.GnrBag();
+            auxBag.setItem(result.label,result.getValue(),result.attr);
+            var xmltext = auxBag.toXml();
+            sessionStorage.setItem(this.currentKey ,xmltext);
+            console.log('saved in cache :'+this.currentKey);
+            this.currentKey=null;
+        }
+        return result;
     }
 });
 
@@ -181,7 +207,7 @@ dojo.declare("gnr.GnrRpcHandler",null,{
         kw.url = kw.url || this.pageIndexUrl();
         if (this.application.debugopt){
             content.debugopt=this.application.debugopt;
-            content.callcounter=this.application.getCounter()
+            content.callcounter=this.application.getCounter();
         }
         kw.content=content;
          //kw.preventCache = kw.preventCache - just to remember that we can have it

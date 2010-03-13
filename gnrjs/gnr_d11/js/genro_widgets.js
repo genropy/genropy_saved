@@ -950,6 +950,9 @@ dojo.declare("gnr.widgets.Menu",gnr.widgets.baseDojo,{
     },
     creating:function(attributes, sourceNode){
         var savedAttrs = objectExtract(attributes, 'modifiers,validclass,storepath');
+        if (savedAttrs.storepath){
+            sourceNode.registerDynAttr('storepath');
+        }
         if(!attributes.connectId){
             savedAttrs['connectToParent']=true;
         }
@@ -995,7 +998,14 @@ dojo.declare("gnr.widgets.Menu",gnr.widgets.baseDojo,{
     
     
     },
-   
+    mixin_setStorepath:function(val,kw){
+        console.log(val);
+        console.log(kw);
+        var menubag=new gnr.GnrDomSource();
+        var content=this.sourceNode.getRelativeData();
+        gnr.menuFromBag(content,menubag,this.sourceNode.attr._class,this.sourceNode.attr.fullpath);
+        this.sourceNode.setValue(menubag);
+    },
     patch__contextMouse: function (e){
         this.originalContextTarget=e.target;
         var sourceNode=this.sourceNode;
@@ -3107,6 +3117,8 @@ dojo.declare("gnr.widgets.dbBaseCombo",gnr.widgets.BaseCombo,{
             resolverAttrs['hiddenColumns'] = hiddenColumns.join(',');
         }
         resolverAttrs['method'] = resolverAttrs['method'] || 'app.dbSelect';
+        var clientCache = objectPop(attributes,'clientCache');
+       
         resolverAttrs['notnull'] = attributes['validate_notnull'];
         savedAttrs['dbtable'] = resolverAttrs['dbtable'];
         savedAttrs['auxColumns'] = resolverAttrs['auxColumns'];
@@ -3125,7 +3137,14 @@ dojo.declare("gnr.widgets.dbBaseCombo",gnr.widgets.BaseCombo,{
         store._identifier =resolverAttrs['alternatePkey'] || storeAttrs['id'] || '_pkey';
         resolverAttrs._sourceNode = sourceNode;
         var resolver = new gnr.GnrRemoteResolver(resolverAttrs, true ,0);
+        
         resolver.sourceNode=sourceNode;
+        if (clientCache){
+            resolver.useClientCache = clientCache;
+            resolver.clientCacheKeyBuilder = function(kw){
+                return kw['method']+'_'+kw['dbtable']+'_'+kw['_id'];
+            };
+        }
         store.rootDataNode().setResolver(resolver);
         attributes.searchDelay = attributes.searchDelay || 300;
         attributes.autoComplete = attributes.autoComplete || false;

@@ -134,16 +134,16 @@ label.ghostlabel span{
 /* @group loading classes */
 
 .loadingForm .gnrfield input{
-	opacity: 0;
+	opacity: .3;
 }
 .loadingForm .dojoxGrid-content{
-	opacity: 0;
+	opacity: .3;
 }
 .loadingForm textarea{
 	color: transparent;
 }
 .loadingForm gnrfield >div{
-	opacity: 0;
+	opacity: .3;
 }
 .formHider{
 	position:absolute;

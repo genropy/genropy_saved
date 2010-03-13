@@ -445,7 +445,8 @@ class GnrBaseWebPage(GnrObject):
         loadingParameters = loadingParameters or '=gnr.tables.maintable.loadingParameters'
         controller = self.pageController()
         controller.dataController('genro.formById("%s").load();' %formId,
-                                _fired=_fired, _onStart=loadOnStart,_delay=1,datapath=datapath)
+                                _fired=_fired, _onStart=loadOnStart,_delay=1,
+                                datapath=datapath)
                     
         controller.dataRpc(resultPath, method=method, pkey=pkey, table=table,
                            nodeId='%s_loader' %formId,datapath=datapath,_onCalling=onLoading,

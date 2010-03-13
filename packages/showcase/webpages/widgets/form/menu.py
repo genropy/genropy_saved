@@ -35,7 +35,9 @@ class GnrCustomWebPage(object):
         dlg.textbox(lbl='Filename',value='^.filename')
         dlg.checkbox('Make a copy',value='^.docopy')
         dlg.button('Ok',action='genro.savedlg.hide()')
-        
+        x = fb.div(height='30px',width='50px',background='lime')
+        x.menu(storepath='values.states')
+
         
     def savingDialog(self,root,gnrId): 
         dlg=root.dialog(title='Saving all',datapath='saving',gnrId=gnrId).formbuilder(cols='2',cellspacing='8')
@@ -91,6 +93,7 @@ class GnrCustomWebPage(object):
         
         sex = fb.filteringSelect(lbl='Sex', value='^.r%i.sex' % r,storepath='values.sex')
         state = fb.filteringSelect(lbl='State', value = '^.r%i.state' % r, storepath='values.states')
+        
         
     def myRecords(self):
         data=Bag()
