@@ -44,7 +44,7 @@ class TableHandlerForm(BaseComponent):
         elem.dataController("""if(logical_deleted){
                                    genro.dom.addClass("formRoot", "logicalDeleted");
                                }else{
-                                   genro.dom.removeClass("formRoot", "logicalDeleted");,
+                                   genro.dom.removeClass("formRoot", "logicalDeleted");
                                }
                                if($2.kw.reason!=true){
                                    if (delete_ts && !logical_deleted){
