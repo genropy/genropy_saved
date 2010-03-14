@@ -1001,12 +1001,19 @@ dojo.declare("gnr.widgets.Menu",gnr.widgets.baseDojo,{
     mixin_setStorepath:function(val,kw){
         this.sourceNode.rebuild();
     },
+    patch_destroy: function(){
+        if (this._bindings){
+                dojo.forEach(this._bindings,function(b){
+                    dojo.forEach(b, dojo.disconnect);
+                })
+                delete this._bindings;
+        }
+        this.destroy_replaced.call(this);
+    },
     patch__contextMouse: function (e){
-         console.log('patch__contextMouse')
         this.originalContextTarget=e.target;
         var sourceNode=this.sourceNode;
         if (sourceNode){
-            console.log('patch__contextMouse_bbb')
             var resolver=sourceNode.getResolver();
             if (resolver && resolver.expired()){
                 var result=sourceNode.getValue('notrigger');
@@ -1019,24 +1026,20 @@ dojo.declare("gnr.widgets.Menu",gnr.widgets.baseDojo,{
                 }
             }
         }
-        console.log('patch__contextMouse_2')
         if((e.button==2) && (!this.modifiers)){
             this._contextMouse_replaced.call(this,e);
         }
-        console.log('patch__contextMouse_3')
         else if(this.modifiers && genro.wdg.filterEvent(e, this.modifiers, this.validclass)){
             this._contextMouse_replaced.call(this,e);
             this._openMyself_replaced.call(this,e);
         }
     },
     patch__openMyself: function (e){
-        console.log('patch__openMyself')
         if((e.button==2)&&(!this.modifiers)){
             this._openMyself_replaced.call(this,e);
         }
    },
    patch__openPopup: function (e){
-       console.log('patch__openPopup')
         var sourceNode=this.focusedChild.popup.sourceNode;
         if (sourceNode){
             var resolver=sourceNode.getResolver();
