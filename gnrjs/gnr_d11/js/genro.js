@@ -673,6 +673,24 @@ dojo.declare('gnr.GenroClient', null, {
         }
         return url;
     },
+    setInStorage:function(sessionType,key,value){
+        var sessionType=sessionType || 'session';
+        var storage=(sessionType=='local')? localStorage:sessionStorage;
+        storage.setItem(key,value);
+        console.log('Stored in '+sessionType+'Storage at key:'+key+'  value:'+value);
+    },
+    getFromStorage:function(sessionType,key){
+        var sessionType=sessionType || 'session';
+        var storage=(sessionType=='local')? localStorage:sessionStorage;
+        var value=storage.getItem(key);
+        if (value){
+            console.log('Loaded from '+sessionType+'Storage at key:'+key+'  value:'+value);
+        }else{
+            console.log('Not existing in '+sessionType+'Storage key:'+key);
+        }
+        return value;
+    },
+    
     
     addParamsToUrl: function(url, params){
         var parameters = [];
