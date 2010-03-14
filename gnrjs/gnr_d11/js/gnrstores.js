@@ -560,6 +560,16 @@ dojo.declare("gnr.GnrStoreQuery",gnr.GnrStoreBag,{
             dojo.hitch(scope,request.onItem)(result);
         }else{
             var id=request.identity;
+            if (this.cachePrefix){
+                value= genro.getFromStorage('session',this.cachePrefix+request.identity);
+                if (value){
+                    var scope =  request.scope?request.scope:dojo.global;
+                    result={attr:{}};
+                    result.attr[this.searchAttr]=value;
+                    dojo.hitch(scope,request.onItem)(result);
+                    return;
+                }
+            }
             var finalize=dojo.hitch(this,function(r){
                 var result;
                 var scope =  request.scope?request.scope:dojo.global;
@@ -571,6 +581,9 @@ dojo.declare("gnr.GnrStoreQuery",gnr.GnrStoreBag,{
                 }
                
                 if(result){
+                     if (this.cachePrefix){
+                         genro.setInStorage('session',this.cachePrefix+request.identity,result.attr[this.searchAttr]);
+                     }
                     dojo.hitch(scope,request.onItem)(result);
                 }
             });
