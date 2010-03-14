@@ -3093,6 +3093,8 @@ dojo.declare("gnr.widgets.BaseCombo",gnr.widgets.baseDojo,{
             val = row[sel];
             this.sourceNode.setRelativeData(path,val,null,false,'selected_');
         }
+    },    connectForUpdate: function(widget,sourceNode){
+        return;
     }
     
 });
