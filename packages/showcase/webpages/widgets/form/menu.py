@@ -14,7 +14,15 @@ import datetime
 from gnr.core.gnrbag import Bag, DirectoryResolver
 
 class GnrCustomWebPage(object):
-    def main(self, root, **kwargs):
+    def main(self,root):
+        root.data('values.states', self.tableData_states())
+        fb = root.formbuilder(cols=1, border_spacing='4px')
+        x = fb.div(height='30px',width='50px',background='lime')
+        x.menu(storepath='values.states',action='alert($1.caption);')
+        fb.button('addItem to menu',action='genro.setData("values.states.r6",null,{caption:"Washington",id:"WA"})')
+        fb.button('delItem to menu',action='genro._data.pop("values.states.r6");')
+        
+    def main_(self, root, **kwargs):
         root.data('values.states', self.tableData_states())
         root.data('values.sex', self.tableData_sex(), id='#k', caption='#v')
         root.data('records', self.myRecords())
@@ -35,8 +43,7 @@ class GnrCustomWebPage(object):
         dlg.textbox(lbl='Filename',value='^.filename')
         dlg.checkbox('Make a copy',value='^.docopy')
         dlg.button('Ok',action='genro.savedlg.hide()')
-        x = fb.div(height='30px',width='50px',background='lime')
-        x.menu(storepath='values.states')
+        
 
         
     def savingDialog(self,root,gnrId): 

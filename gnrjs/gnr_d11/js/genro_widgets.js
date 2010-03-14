@@ -999,12 +999,7 @@ dojo.declare("gnr.widgets.Menu",gnr.widgets.baseDojo,{
     
     },
     mixin_setStorepath:function(val,kw){
-        console.log(val);
-        console.log(kw);
-        var menubag=new gnr.GnrDomSource();
-        var content=this.sourceNode.getRelativeData();
-        gnr.menuFromBag(content,menubag,this.sourceNode.attr._class,this.sourceNode.attr.fullpath);
-        this.sourceNode.setValue(menubag);
+        this.sourceNode.rebuild();
     },
     patch__contextMouse: function (e){
         this.originalContextTarget=e.target;
