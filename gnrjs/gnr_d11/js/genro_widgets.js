@@ -1005,7 +1005,7 @@ dojo.declare("gnr.widgets.Menu",gnr.widgets.baseDojo,{
         if (this._bindings){
                 dojo.forEach(this._bindings,function(b){
                     dojo.forEach(b, dojo.disconnect);
-                })
+                });
                 delete this._bindings;
         }
         this.destroy_replaced.call(this);
