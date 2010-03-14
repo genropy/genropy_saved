@@ -3063,6 +3063,7 @@ dojo.declare("gnr.widgets.BaseCombo",gnr.widgets.baseDojo,{
         var tag = 'cls_'+sourceNode.attr.tag;        
         dojo.addClass(widget.domNode.childNodes[0],tag);
         this.connectFocus(widget);
+        this.connectForUpdate(widget,sourceNode);
     },
     connectFocus: function(widget, savedAttrs, sourceNode){
         dojo.connect(widget,'onFocus', widget, function(e){
@@ -3198,7 +3199,15 @@ dojo.declare("gnr.widgets.FilteringSelect",gnr.widgets.BaseCombo,{
         if (!this._isvalid){
             this.valueNode.value=null;
             this.setDisplayedValue('');
-        }
+        }   
+    },
+    connectForUpdate: function(widget,sourceNode){
+        var selattr=objectExtract(widget.sourceNode.attr,'selected_*',true);
+        if(objectNotEmpty(selattr)){
+            dojo.connect(widget, '_doSelect', widget, function(){
+                                this._updateSelect(this.item);
+                            });
+        } 
     }
 });
 dojo.declare("gnr.widgets.ComboBox",gnr.widgets.BaseCombo,{
