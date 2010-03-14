@@ -3135,16 +3135,14 @@ dojo.declare("gnr.widgets.dbBaseCombo",gnr.widgets.BaseCombo,{
         store = new gnr.GnrStoreQuery({'searchAttr':attributes.searchAttr});
         
         store._identifier =resolverAttrs['alternatePkey'] || storeAttrs['id'] || '_pkey';
+        if (clientCache){
+            store.cachePrefix='DBSEL_'+savedAttrs['dbtable']+'_';
+        }
         resolverAttrs._sourceNode = sourceNode;
         var resolver = new gnr.GnrRemoteResolver(resolverAttrs, true ,0);
         
         resolver.sourceNode=sourceNode;
-        if (clientCache){
-            resolver.useClientCache = clientCache;
-            resolver.clientCacheKeyBuilder = function(kw){
-                return kw['method']+'_'+kw['dbtable']+'_'+kw['_id'];
-            };
-        }
+
         store.rootDataNode().setResolver(resolver);
         attributes.searchDelay = attributes.searchDelay || 300;
         attributes.autoComplete = attributes.autoComplete || false;
