@@ -18,7 +18,7 @@ class GnrCustomWebPage(object):
         root.data('values.states', self.tableData_states())
         fb = root.formbuilder(cols=1, border_spacing='4px')
         x = fb.div(height='30px',width='50px',background='lime')
-        x.menu(storepath='values.states',action='alert($1.caption);')
+        x.menu(modifiers='*',storepath='values.states',action='alert($1.caption);')
         fb.button('addItem to menu',action='genro.setData("values.states.r6",null,{caption:"Washington",id:"WA"})')
         fb.button('delItem to menu',action='genro._data.pop("values.states.r6");')
         
