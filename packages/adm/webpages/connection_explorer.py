@@ -47,14 +47,25 @@ class GnrCustomWebPage(object):
         def label(pane,**kwargs):
             pane.checkbox(value='^.activeOnly',label='!!Only active connections')
         bc.dataFormula(".connections.activeOnly", True,_onStart=True)
+        tools_menu = Bag()
+        tools_menu.setItem('reload',None,caption='Reload',action='FIRE .reload')
+        tools_menu.setItem('send_message',None,caption='Send Message',action='FIRE .send_message')
+        tools_menu.setItem('-',None,caption='-')
+        tools_menu.setItem('clear',None,caption='Clear expired',action='FIRE .clear_expired')
+        bc.data(".connections.tools_menu", tools_menu)
+        bc.dataRpc('dummy','clearExpiredConnections',_fired='^.connections.clear_expired')
+        
         self.includedViewBox(bc,label=label,datapath='.connections',
                              nodeId='connectionMainGrid',table='adm.connection',autoWidth=True,
                              struct=self.connectionMainGrid_struct,filterOn='!!User:username,End reason:end_reason',
-                             reloader='^.activeOnly', externalChanges=True,tools_menu=self.toolsMenu(bc,'connectionMainGrid'),
+                             reloader='^.activeOnly', externalChanges=True,tools_menu=".tools_menu",
                              selectionPars=dict(where='($end_ts IS NULL AND :activeOnly) OR ($end_ts IS NOT NULL AND NOT :activeOnly)',
                              activeOnly='=.activeOnly',order_by='$start_ts DESC'))
                              
                              
+    def rpc_clearExpiredConnections(self):
+        self.site.clearExpiredConnections()
+        
     def connectionMainGrid_struct(self,struct):
         r = struct.view().rows()
         r.fieldcell('username', name='User', width='12em')
