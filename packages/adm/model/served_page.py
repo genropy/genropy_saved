@@ -69,5 +69,10 @@ class Table(object):
             self.batchUpdate(dict(end_ts=end_ts or datetime.now(),end_reason=end_reason),
                             where='$page_id=:page_id',page_id=page_id)
             self.db.commit()
+    def closeOrphans(self):
+        with self.db.tempEnv(connectionName='system'): 
+            self.batchUpdate(dict(end_reason='expired',end_ts=datetime.now()),
+                            where='@connection_id.end_ts IS NOT NULL')
+            self.db.commit()
 
             

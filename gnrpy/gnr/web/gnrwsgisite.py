@@ -483,7 +483,6 @@ class GnrWsgiSite(object):
         if 'adm' in self.db.packages:
             tblconnection = self.db.table('adm.connection')
             pendingConnections = tblconnection.getPendingConnections()
-
             for connection in pendingConnections:
                 connection_id = connection['id']
                 connectionPath = os.path.join(self.site_path, 'data', '_connections',connection_id,'connection.xml')
@@ -497,6 +496,8 @@ class GnrWsgiSite(object):
                     tblconnection.closeConnection(connection_id,end_reason='expired')
                     if dropFolder:
                         self.dropConnectionFolder(connection_id=connection_id)
+            self.db.table('adm.served_page').closeOrphans()
+
                     
     def dropConnectionFolder(self,connection_id=None):
         pathlist = ['data', '_connections']
