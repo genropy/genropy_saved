@@ -488,12 +488,15 @@ class GnrWsgiSite(object):
                 connection_id = connection['id']
                 connectionPath = os.path.join(self.site_path, 'data', '_connections',connection_id,'connection.xml')
                 expired = True
+                dropFolder=False
                 if os.path.isfile(connectionPath):
                     connectionBag = Bag(connectionPath)
                     expired = (time()-(connectionBag['cookieData.timestamp'] or 0)) > self.connection_timeout
+                    dropFolder=True
                 if expired:
                     tblconnection.closeConnection(connection_id,end_reason='expired')
-                    self.dropConnectionFolder(connection_id=connection_id)
+                    if dropFolder:
+                        self.dropConnectionFolder(connection_id=connection_id)
                     
     def dropConnectionFolder(self,connection_id=None):
         pathlist = ['data', '_connections']

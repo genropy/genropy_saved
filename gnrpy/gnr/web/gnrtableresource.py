@@ -77,6 +77,7 @@ class HtmlResource_old(BaseTableResource):
         
     def loadDatastore(self, record, table):
         self.data = self.db.table(table or self.maintable or self.resource_table).recordAs(record, mode='bag')
+        
     def initializeBuilder(self):
         self.builder.initializeSrc()
         self.body = self.builder.body
