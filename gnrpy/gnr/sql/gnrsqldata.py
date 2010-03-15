@@ -597,7 +597,7 @@ class SqlQueryCompiler(object):
                             if extra_one_one \
                                 or (fieldpath in self.eager) \
                                 or (testallpath in self.eager) \
-                                or (attrs.get('eager_relation') and not fieldpath in self.lazy):
+                                or (attrs.get('eager_one') and not fieldpath in self.lazy):
                                 #call recordFields recoursively for related records to be loaded in one query
                                 alias, newpath = self.getAlias(attrs, newpath, newbase)
                                 self.cpl.template.setItem('.'.join(bagpath+[field]), None, _attributes=attrs, basealias=newbase)
