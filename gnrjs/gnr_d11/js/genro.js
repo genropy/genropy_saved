@@ -62,7 +62,6 @@ dojo.declare('gnr.GenroClient', null, {
         this.lastTime=this.startTime;
         this.dialogStack = [];
         this.sounds={};
-        dojo.addOnUnload(function(e){genro.onWindowUnload(e);});
         this.compareDict={'==':function(a,b){return (a==b);},
                           '>':function(a,b){return (a>b);},
                           '>=':function(a,b){return (a>=b);},
@@ -79,9 +78,9 @@ dojo.declare('gnr.GenroClient', null, {
             }
             if(exit){return exit;}
        };
-       //window.onunload = function(e){
-       //     genro.onWindowUnload(e);
-       //};
+        window.onunload = function(e){
+            genro.onWindowUnload(e);
+        };
         this.rpc= new gnr.GnrRpcHandler(this);
         this.src= new gnr.GnrSrcHandler(this);
         this.wdg= new gnr.GnrWdgHandler(this);
