@@ -22,7 +22,7 @@ class Table(object):
                                              end_ts=record['end_ts'],
                                              end_reason=record['end_reason'])
     def getPendingConnections(self,userid=None):
-        where='$end_ts is null'
+        where='$end_ts IS NULL'
         if userid:
             where='%s AND %s' % ('$userid=:userid',where)
         return self.query(where=where,userid=userid).fetch()
@@ -32,11 +32,11 @@ class Table(object):
         for conn in self.getPendingConnections():
             self.closeConnection(conn['id'],end_ts=end_ts,end_reason=end_reason)
             
-    def connectionLog(self,event):
+    def connectionLog(self,event,connection_id=None):
         if event == 'open':
             self.openConnection()
         else:
-            self.closeConnection(end_reason='logout')
+            self.closeConnection(connection_id=connection_id,end_reason='logout')
             
     def closeConnection(self,connection_id=None, end_ts=None, end_reason=None):
         page = self.db.application.site.currentPage

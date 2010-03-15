@@ -23,6 +23,9 @@ from gnr.core.gnrmailhandler import MailHandler
 mimetypes.init()
 site_cache = {}
 
+CONNECTION_TIMEOUT = 3600
+CONNECTION_REFRESH = 20
+
 global GNRSITE
 def currentSite():
     global GNRSITE
@@ -197,7 +200,7 @@ class GnrWsgiSite(object):
     automap = property(_get_automap)
     def onInited(self, clean):
         if clean:
-            self.dropAllConnectionFolders()
+            self.dropConnectionFolder()
             self.initializePackages()
         else:
             pass
@@ -206,14 +209,6 @@ class GnrWsgiSite(object):
             if hasattr(pkg,'onSiteInited'):
                 pkg.onSiteInited()
                 
-    def dropAllConnectionFolders(self):
-        connectionFolder=os.path.join(self.site_path, 'data', '_connections')
-        for root, dirs, files in os.walk(connectionFolder, topdown=False):
-            for name in files:
-                os.remove(os.path.join(root, name))
-            for name in dirs:
-                os.rmdir(os.path.join(root, name))
-        
         
     def find_webtools(self):
         def isgnrwebtool(cls):
@@ -446,13 +441,13 @@ class GnrWsgiSite(object):
         if 'adm' in self.db.packages:
             self.db.packages['adm'].onAuthenticated(avatar)
               
-    def pageLog(self,event):
+    def pageLog(self,event,page_id=None):
         if 'adm' in self.db.packages:
-            self.db.table('adm.served_page').pageLog(event)
+            self.db.table('adm.served_page').pageLog(event,page_id=page_id)
             
-    def connectionLog(self,event):
+    def connectionLog(self,event,connection_id=None):
         if 'adm' in self.db.packages:
-            self.db.table('adm.connection').connectionLog(event)
+            self.db.table('adm.connection').connectionLog(event,connection_id=connection_id)
 
     def setPreference(self,path, data,pkg=''):
         if self.db.package('adm'):
@@ -475,7 +470,44 @@ class GnrWsgiSite(object):
             pkg=pkg or self.currentPage.packageId
             username = username or self.currentPage.user
             self.db.table('adm.user').setPreference(path,data,pkg=pkg,username=username)
-                
+            
+    def _get_connection_timeout(self):
+        return self.config.getItem('connection_timeout') or CONNECTION_TIMEOUT
+    connection_timeout = property(_get_connection_timeout)
+
+    def _get_connection_refresh(self):
+        return self.config.getItem('connection_refresh') or CONNECTION_REFRESH
+    connection_refresh = property(_get_connection_refresh)
+        
+    def clearExpiredConnections(self):
+        if 'adm' in self.db.packages:
+            tblconnection = self.db.table('adm.connection')
+            pendingConnections = tblconnection.getPendingConnections()
+
+            for connection in pendingConnections:
+                connection_id = connection['id']
+                connectionPath = os.path.join(self.site_path, 'data', '_connections',connection_id,'connection.xml')
+                expired = True
+                if os.path.isfile(connectionPath):
+                    connectionBag = Bag(connectionPath)
+                    expired = (time()-(connectionBag['cookieData.timestamp'] or 0)) > self.connection_timeout
+                if expired:
+                    tblconnection.closeConnection(connection_id,end_reason='expired')
+                    self.dropConnectionFolder(connection_id=connection_id)
+                    
+    def dropConnectionFolder(self,connection_id=None):
+        pathlist = ['data', '_connections']
+        if connection_id:
+            pathlist.append(connection_id)
+        connectionFolder=os.path.join(self.site_path, *pathlist)
+        for root, dirs, files in os.walk(connectionFolder, topdown=False):
+            for name in files:
+                os.remove(os.path.join(root, name))
+            for name in dirs:
+                os.rmdir(os.path.join(root, name))
+        if connection_id:
+            os.rmdir(connectionFolder)
+            
     def getMessages(self,**kwargs):
         if 'sys' in self.gnrapp.db.packages:
             return self.gnrapp.db.table('sys.message').getMessages(**kwargs)
@@ -500,9 +532,8 @@ class GnrWsgiSite(object):
         if 'sys' in self.gnrapp.db.packages:
             return self.gnrapp.db.table('sys.locked_record').clearExistingLocks(**kwargs)
             
-    def onClosePage(self):
-        page=self.currentPage
-        self.pageLog('close')
+    def onClosePage(self,page):
+        self.pageLog('close',page_id=page.page_id)
         self.clearRecordLocks(page_id=page.page_id)
         
     def debugger(self,debugtype,**kwargs):

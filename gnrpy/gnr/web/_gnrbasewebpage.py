@@ -543,7 +543,7 @@ class GnrBaseWebPage(GnrObject):
         
         
     def rpc_onClosePage(self, **kwargs):
-        self.site.onClosePage()
+        self.site.onClosePage(self)
         self.session.removePageData()
         self.connection.cookieToRefresh()
         

@@ -38,11 +38,11 @@ class Table(object):
                 result.setdefault(table,[]).append((page_id,connection_id))
         return result
         
-    def pageLog(self,event):
+    def pageLog(self,event,page_id=None):
         if event == 'open':
             self.openServedPage()
         else:
-            self.closeServedPage(end_ts=datetime.now(),end_reason='unload')
+            self.closeServedPage(page_id=page_id,end_ts=datetime.now(),end_reason='unload')
 
     def closePendingPages(self,connection_id=None,end_ts=None,end_reason=None):
         for page in self.getLivePages(connection_id=connection_id):

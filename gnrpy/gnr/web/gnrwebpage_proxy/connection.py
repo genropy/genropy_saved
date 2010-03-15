@@ -15,9 +15,6 @@ from gnr.core.gnrlang import getUuid
 from gnr.web.gnrwebpage_proxy.gnrbaseproxy import GnrBaseProxy
 
 
-CONNECTION_TIMEOUT = 3600
-CONNECTION_REFRESH = 20
-
 
 
 class GnrWebConnection(GnrBaseProxy):
@@ -128,7 +125,7 @@ class GnrWebConnection(GnrBaseProxy):
     def dropConnection(self,connection_id):
         page=self.page
         site=page.site
-        site.connectionLog('close')
+        site.connectionLog('close',connection_id=connection_id)
         self.connFolderRemove(connection_id)
         
     def connFolderRemove(self, connection_id):
@@ -147,9 +144,9 @@ class GnrWebConnection(GnrBaseProxy):
                 expire=True
             elif cookie.value.get('timestamp'):
                 cookieAge = time.time() - cookie.value['timestamp']
-                if cookieAge < int(self.page.site.config.getItem('connection_refresh') or CONNECTION_REFRESH):
+                if cookieAge < int(self.page.site.connection_refresh):
                     return cookie # fresh cookie
-                elif cookieAge < int(self.page.site.config.getItem('connection_timeout') or CONNECTION_TIMEOUT):
+                elif cookieAge < int(self.page.site.connection_timeout):
                     cookie = self.page.newMarshalCookie(self.cookieName, {'connection_id': cookie.value.get('connection_id') or getUuid(), 
                                                                 'locale':cookie.value.get('locale'),
                                                                  'slots':cookie.value.get('slots'), 'timestamp':None}, 
@@ -161,18 +158,18 @@ class GnrWebConnection(GnrBaseProxy):
                 self.isExpired = True
                 #cookie = self.page.newMarshalCookie(self.cookieName, {'slots':cookie.value.get('slots'), 'timestamp':None}, secret = self.secret)
                 self.close() # old cookie: destroy
-                return cookie
-                
+                return cookie        
+           
     def cleanExpiredConnections(self, rnd=None):
         if (not rnd) or (random.random() > rnd):
             dirbag = self.connectionsBag()
             t = time.time()
-            for conn_id, conn_files, abs_path in dirbag.digest('#k,#v,#a.abs_path'):
+            for conn_id, conn_files in dirbag.digest('#k,#v'):
                 try:
                     cookieAge = t - (conn_files['connection_xml.cookieData.timestamp'] or 0)
                 except:
                     cookieAge = t
-                if cookieAge > int(self.page.site.config.getItem('connection_timeout') or CONNECTION_TIMEOUT):
+                if cookieAge > int(self.page.site.connection_timeout):
                     self.dropConnection(conn_id)
         
     def connectionsBag(self):
