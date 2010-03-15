@@ -3124,8 +3124,7 @@ dojo.declare("gnr.widgets.dbBaseCombo",gnr.widgets.BaseCombo,{
             resolverAttrs['hiddenColumns'] = hiddenColumns.join(',');
         }
         resolverAttrs['method'] = resolverAttrs['method'] || 'app.dbSelect';
-        var clientCache = objectPop(attributes,'clientCache');
-       
+        var clientCache = objectPop(attributes,'clientCache',true);
         resolverAttrs['notnull'] = attributes['validate_notnull'];
         savedAttrs['dbtable'] = resolverAttrs['dbtable'];
         savedAttrs['auxColumns'] = resolverAttrs['auxColumns'];
