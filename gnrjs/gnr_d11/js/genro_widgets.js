@@ -3142,7 +3142,11 @@ dojo.declare("gnr.widgets.dbBaseCombo",gnr.widgets.BaseCombo,{
         
         store._identifier =resolverAttrs['alternatePkey'] || storeAttrs['id'] || '_pkey';
         if (clientCache){
-            store.cachePrefix='DBSEL_'+savedAttrs['dbtable']+'_';
+            var storageMode = 'sessionStorage' in window? 'session':'localStorage' in window? 'local':null;
+            if (storageMode){
+                store.storageMode= storageMode;
+                store.cachePrefix='DBSEL_'+savedAttrs['dbtable']+'_';
+            }
         }
         resolverAttrs._sourceNode = sourceNode;
         var resolver = new gnr.GnrRemoteResolver(resolverAttrs, true ,0);

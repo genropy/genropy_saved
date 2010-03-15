@@ -561,7 +561,7 @@ dojo.declare("gnr.GnrStoreQuery",gnr.GnrStoreBag,{
         }else{
             var id=request.identity;
             if (this.cachePrefix){
-                value= genro.getFromStorage('session',this.cachePrefix+request.identity);
+                value= genro.getFromStorage(this.storageMode,this.cachePrefix+request.identity);
                 if (value){
                     var scope =  request.scope?request.scope:dojo.global;
                     result={attr:{}};
@@ -582,7 +582,7 @@ dojo.declare("gnr.GnrStoreQuery",gnr.GnrStoreBag,{
                
                 if(result){
                      if (this.cachePrefix){
-                         genro.setInStorage('session',this.cachePrefix+request.identity,result.attr[this.searchAttr]);
+                         genro.setInStorage(this.storageMode,this.cachePrefix+request.identity,result.attr[this.searchAttr]);
                      }
                     dojo.hitch(scope,request.onItem)(result);
                 }
