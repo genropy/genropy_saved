@@ -27,7 +27,9 @@ class AppPref(object):
 class UserPref(object):
     def prefpane_sys(self,tc,**kwargs):
         tc = tc.tabContainer(**kwargs)
+        self.pref_cache(tc.contentPane(title='Caching',datapath='.cache'))
         self.pref_sound(tc.contentPane(title='Sounds',datapath='.sounds'))
+
         
     def pref_sound(self,pane):
         fb = pane.formbuilder(cols=1, border_spacing='4px')
@@ -37,6 +39,14 @@ class UserPref(object):
                           validate_onAccept='genro.playSound(value);')
         fb.filteringSelect(value='^.error',lbl='On error',values=self._allSounds(),
                           validate_onAccept='genro.playSound(value);')
+    def pref_cache(self,pane):
+        fb = pane.formbuilder(cols=1, border_spacing='4px')
+        fb.checkbox(value='^.dbselect',label='Dbselect enable')
+        fb.button('Reset session storage',action='if(sessionStorage){sessionStorage.clear();}')
+        fb.button('Reset local storage',action='if(localStorage){localStorage.clear();}')
+
+
+
     
     def _allSounds(self):
         return """Basso:Basso,Blow:Blow,Bottle:Bottle,
