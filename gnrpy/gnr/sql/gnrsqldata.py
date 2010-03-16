@@ -594,10 +594,11 @@ class SqlQueryCompiler(object):
                             fieldpath = '.'.join(bagpath+[field])
                             testallpath = '.'.join(bagpath+['*'])
                             # if joinExtra.get('one_one') we had to eager load the relation in order to use the joinExtra conditions
+                            is_eager_one = attrs.get('eager_one') and self.db.allow_eager_one
                             if extra_one_one \
                                 or (fieldpath in self.eager) \
                                 or (testallpath in self.eager) \
-                                or (attrs.get('eager_one') and not fieldpath in self.lazy):
+                                or (is_eager_one and not fieldpath in self.lazy):
                                 #call recordFields recoursively for related records to be loaded in one query
                                 alias, newpath = self.getAlias(attrs, newpath, newbase)
                                 self.cpl.template.setItem('.'.join(bagpath+[field]), None, _attributes=attrs, basealias=newbase)

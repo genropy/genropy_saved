@@ -354,12 +354,21 @@ class BagToXml(object):
             if not isinstance(value, unicode): value = unicode(value, 'UTF-8')
             #if REGEX_XML_ILLEGAL.search(value): value='<![CDATA[%s]]>' % value
             #else: value = saxutils.escape((value))
-  
-            if REGEX_XML_ILLEGAL.search(value):
-                if value.endswith('::HTML'):
-                    value = value[:-6]
-                else:
-                    value = saxutils.escape(value)
+            
+            if value.endswith('::HTML'):
+                value = value[:-6] 
+            elif REGEX_XML_ILLEGAL.search(value):
+                value = saxutils.escape(value)
+                
+            
+            #if REGEX_XML_ILLEGAL.search(value):
+            #    if value.endswith('::HTML'):
+            #        value = value[:-6]
+            #    else:
+            #        value = saxutils.escape(value)
+            #elif value.endswith('::HTML'):
+            #    value = value[:-6]
+            #    
         #if value.find('\n')!=-1: value= '\n%s\n' % value
         result =  '%s>%s</%s>' % (result, value, tagName)
      
