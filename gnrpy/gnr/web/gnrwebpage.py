@@ -584,8 +584,13 @@ class GnrWebPage(GnrBaseWebPage):
                     self.main_root(page,**kwargs)
                     return (page, pageattr)
                 #page.script('genro.dom.windowTitle("%s")' % self.windowTitle())
-                if self.site.config['client_cache?dbselect']:
-                    page.script('genro.cache_dbselect = %s' %self.site.config['client_cache?dbselect'])
+                dbselect_cache = None
+                if self.user:
+                    dbselect_cache = self.getUserPreference(path='cache.dbselect',pkg='sys') 
+                if dbselect_cache is None:
+                    dbselect_cache = self.site.config['client_cache?dbselect']
+                if dbselect_cache:
+                    page.script('genro.cache_dbselect = true')
                 page.data('gnr.windowTitle', self.windowTitle())
                 page.data('gnr.homepage', self.externalUrl(self.site.homepage))
                 page.data('gnr.homeFolder', self.externalUrl(self.site.home_uri).rstrip('/'))
