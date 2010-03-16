@@ -3,6 +3,7 @@
 
 import os
 from gnr.core.gnrlang import getUuid
+from gnr.core.gnrbag import Bag
 
 class Table(object):
    
@@ -63,7 +64,11 @@ class Table(object):
             self.db.commit()
     
     def loadRecord(self,username,for_update=False):
-        return self.record(username=username,for_update=for_update).output('bag')
+        try:
+            record = self.record(username=username,for_update=for_update).output('bag')
+        except:
+            record = Bag()
+        return record
 
         
         
