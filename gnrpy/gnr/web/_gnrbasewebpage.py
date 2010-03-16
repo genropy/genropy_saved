@@ -458,7 +458,6 @@ class GnrBaseWebPage(GnrObject):
         table = table or self.maintable
         getterHandler = self.getPublicMethod('rpc', recordGetter)
         record, recinfo = getterHandler(table=table, pkey=pkey, **kwargs)
-        print record
         return record, recinfo
         
 
