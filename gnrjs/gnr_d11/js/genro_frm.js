@@ -73,12 +73,14 @@ dojo.declare("gnr.GnrFrmHandler",null,{
     load: function(sync){
         genro.setData(this.controllerPath+'.loading', true);
         this.status = 'loading';
-        var formDomNode = genro.domById(this.form_id);
-        genro.dom.addClass(formDomNode,'loadingForm');
-        var formHider = document.createElement("div");
-        formHider.id = this.form_id+"_hider";
-        dojo.addClass(formHider,'formHider');
-        formDomNode.appendChild(formHider);
+        if (!sync){
+            var formDomNode = genro.domById(this.form_id);
+            genro.dom.addClass(formDomNode,'loadingForm');
+            var formHider = document.createElement("div");
+            formHider.id = this.form_id+"_hider";
+            dojo.addClass(formHider,'formHider');
+            formDomNode.appendChild(formHider);
+        }
         this.resetInvalids(); // reset invalid fields before loading to intercept required fields during loading process
         genro.setData('_temp.grids',null);
         var loaderNode = genro.nodeById(this.form_id+'_loader');
@@ -94,7 +96,10 @@ dojo.declare("gnr.GnrFrmHandler",null,{
     },
     loaded: function(){
         genro.dom.removeClass(this.form_id,'loadingForm');
-        genro.domById(this.form_id).removeChild(dojo.byId(this.form_id+"_hider"));
+        var hider = dojo.byId(this.form_id+"_hider");
+        if (hider){
+            genro.domById(this.form_id).removeChild(hider);
+        }
         this.resetChanges(); // reset changes after loading to subscribe the triggers to the current new data bag
         genro.setData(this.controllerPath+'.is_newrecord', genro.getDataNode(this.formDatapath).attr._newrecord);
         genro.setData(this.controllerPath+'.loading', false);
