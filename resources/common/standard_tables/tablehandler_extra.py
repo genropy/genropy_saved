@@ -280,7 +280,6 @@ class TagsHandler(BaseComponent):
                                 formId='linktag',cb_center=cb_center,cb_bottom=self.linktag_dlg_bottom)                                
         dialogBc.dataController("""SET .data = null; 
                                    SET .selectedRowIdx = selectedRowIdx;
-                                   console.log('before loadcontent');
                                    FIRE .loadContent;
                                    FIRE .loaded;""",
                                 nodeId="linktag_loader",selectedRowIdx=selectedRowIdx)
