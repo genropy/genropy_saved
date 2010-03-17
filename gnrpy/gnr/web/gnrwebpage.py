@@ -513,13 +513,13 @@ class GnrWebPage(GnrBaseWebPage):
             csslist = self.site.resource_loader.getResourceList(self.resourceDirs,css,'css')
             if csslist:
                 #csslist.reverse()
-                css_uri_list = [self.getResourceUri(css) for css in csslist]
+                css_uri_list = [self.getResourceUri(css,add_mtime=True) for css in csslist]
                 if media:
                     css_media_requires.setdefault(media,[]).extend(css_uri_list)
                 else:
                     css_requires.extend(css_uri_list)
         if os.path.isfile('%s.css' % filepath):
-            css_requires.append(self.getResourceUri('%s.css' % filepath))
+            css_requires.append(self.getResourceUri('%s.css' % filepath,add_mtime=True))
         if os.path.isfile(self.resolvePath('%s.css' % self.pagename)):
             css_requires.append('%s.css' % self.pagename)
         return css_requires, css_media_requires
