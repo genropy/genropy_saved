@@ -20,8 +20,6 @@ cd psycopg2-2.0.13
 python setup.py build (on Snow Leopard CC=/usr/bin/gcc-4.0 python setup.py build)
 sudo python setup.py install
 
-[mercurial]
-sudo easy_install -U -Z mercurial
 
 [paver]
 sudo easy_install -U -Z paver

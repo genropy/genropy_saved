@@ -27,13 +27,10 @@ gnrwebpage.py
 Created by Giovanni Porcari on 2007-03-24.
 Copyright (c) 2007 Softwell. All rights reserved.
 """
-import hashlib
 import urllib
-import itertools
 from gnr.web._gnrbasewebpage import GnrBaseWebPage
 import os
 from gnr.core.gnrstring import toJson
-from gnr.web.jsmin import jsmin
 from gnr.core.gnrlang import getUuid
 from mako.lookup import TemplateLookup
 from gnr.web.gnrwebreqresp import GnrWebRequest,GnrWebResponse
@@ -530,24 +527,29 @@ class GnrWebPage(GnrBaseWebPage):
     def onServingCss(self, css_requires):
         pass
         
-    def getResourceUri(self, path, ext=None):
+    def getResourceUri(self, path, ext=None, add_mtime=False):
         fpath=self.getResource(path, ext=ext)
         if not fpath:
             return
         if fpath.startswith(self.site.site_path):
             uripath=fpath[len(self.site.site_path):].lstrip('/').split(os.path.sep)
-            return self.site.site_static_url(*uripath)
+            url = self.site.site_static_url(*uripath)
         elif fpath.startswith(self.site.pages_dir):
             uripath=fpath[len(self.site.pages_dir):].lstrip('/').split(os.path.sep)
-            return self.site.pages_static_url(*uripath)
+            url = self.site.pages_static_url(*uripath)
         elif fpath.startswith(self.package_folder):
             uripath=fpath[len(self.package_folder):].lstrip('/').split(os.path.sep)
-            return self.site.pkg_static_url(self.packageId,*uripath)
+            url = self.site.pkg_static_url(self.packageId,*uripath)
         else:
             for rsrc,rsrc_path in self.site.resources.items():
                 if fpath.startswith(rsrc_path):
                     uripath=fpath[len(rsrc_path):].lstrip('/').split(os.path.sep)
-                    return self.site.rsrc_static_url(rsrc,*uripath)
+                    url = self.site.rsrc_static_url(rsrc,*uripath)
+                    break
+        if add_mtime:
+            mtime = os.stat(fpath).st_mtime
+            url = '%s?mtime=%0.0f'%(url,mtime)
+        return url
         
     def getResource(self, path, ext=None):
         result=self.site.resource_loader.getResourceList(self.resourceDirs,path, ext=ext)
