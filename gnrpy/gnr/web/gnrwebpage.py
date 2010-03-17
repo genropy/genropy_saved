@@ -394,7 +394,7 @@ class GnrWebPage(GnrBaseWebPage):
             jsfiles = [self.site.gnr_static_path(self.gnrjsversion,'js', '%s.js' % f) for f in gnrimports]
             arg_dict['genroJsImport'] = [self.jstools.compress(jsfiles)]
         arg_dict['css_genro'] = self.get_css_genro()
-        arg_dict['js_requires'] = [x for x in [self.getResourceUri(r,'js') for r in self.js_requires] if x]
+        arg_dict['js_requires'] = [x for x in [self.getResourceUri(r,'js',add_mtime=True) for r in self.js_requires] if x]
         css_path, css_media_path = self.get_css_path()
         arg_dict['css_requires'] = css_path
         arg_dict['css_media_requires'] = css_media_path
