@@ -835,7 +835,7 @@ class GnrWebAppHandler(GnrBaseProxy):
         tblobj = self.db.table(dbtable)
         captioncolumns = tblobj.rowcaptionDecode(rowcaption)[0]
         querycolumns = tblobj.getQueryFields(columns,captioncolumns)
-        showcolumns = gnrlist.merge(querycolumns, tblobj.columnsFromString(auxColumns))
+        showcolumns = gnrlist.merge(captioncolumns, tblobj.columnsFromString(auxColumns))
         resultcolumns = gnrlist.merge(showcolumns, captioncolumns, tblobj.columnsFromString(hiddenColumns))
         if alternatePkey and not alternatePkey in resultcolumns:
             resultcolumns.append(alternatePkey)
@@ -934,7 +934,6 @@ class GnrWebAppHandler(GnrBaseProxy):
         if len(result) == 0: # few results from the startswith query on first col
             #self.page.gnotify('dbselect','filter')
             regsrc = [x for x in re.split(" ", ESCAPE_SPECIAL.sub('',querystring)) if x]
-            print 'regsrc',regsrc
             if regsrc:
                 whereargs = dict([('w%i' % i, '(^|\\W)%s' % w.strip()) for i,w in enumerate(regsrc)])
                 where =" AND ".join(["(%s)  ~* :w%i" % (" || ' ' || ".join(querycolumns), i) for i,w in enumerate(regsrc)])
