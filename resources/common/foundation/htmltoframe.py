@@ -80,6 +80,7 @@ class RecordToHtmlFrame(BaseComponent):
             rpc_args['rpc_%s'%k]=v
             
         center = bc.stackContainer(region='center', background_color=background_color,selected='^%s.selectedPane' %controllerPath)
+        emptyPane = center.contentPane()
         loadingPane = center.contentPane(_class='waiting')
         iframePane = center.contentPane(overflow='hidden')
 
@@ -100,10 +101,11 @@ class RecordToHtmlFrame(BaseComponent):
                               rpc_table = table,
                               rpc_respath=respath,
                               #rpc_rebuild='=%s.noCache' % controllerPath,
-                              onUpdating='genro.setData("%s.selectedPane", 0);' %controllerPath,
-                              onLoad='genro.setData("%s.selectedPane", 1);' %controllerPath,
+                              onUpdating='genro.setData("%s.selectedPane", 1);' %controllerPath,
+                              onLoad='genro.setData("%s.selectedPane", 2);' %controllerPath,
                               rpc_rebuild=True,
                               _print='^%s.print' % controllerPath,
                               _reloader='^%s.load' %controllerPath,
                               _if=enableCondition,
+                              _else='genro.setData("%s.selectedPane", 0);',
                               **rpc_args)
