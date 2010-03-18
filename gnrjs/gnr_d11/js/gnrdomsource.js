@@ -714,6 +714,7 @@ dojo.declare("gnr.GnrDomSourceNode",gnr.GnrBagNode,{
            else{
                 var setter='set'+stringCapitalize(attr);
                 if (setter in this.widget){
+                    var trgevt =kw.evt
                     if (attr=='value'){
                         this.resetValidationError();                // reset validationError when data from bag is set in widget
                         if('_lastValueReported' in this.widget){    // VERIFICARE DOJO 1.2
@@ -722,7 +723,7 @@ dojo.declare("gnr.GnrDomSourceNode",gnr.GnrBagNode,{
                         kw = false;
                     }
                     dojo.hitch(this.widget,setter)(value, kw);
-                    if ((attr=='value') && (this.hasValidations())){
+                    if ((trgevt!='del') && (attr=='value') && (this.hasValidations())){
                         var formHandler = this.getFormHandler();
                         if(formHandler){
                             formHandler.validateFromDatasource(this, value, trigger_reason);
