@@ -42,8 +42,8 @@ from gnr.core import gnrlist
 from gnr.core.gnrlang import getUuid
 from gnr.core.gnrstring import templateReplace, splitAndStrip, toText, toJson
 from gnr.web.gnrwebpage_proxy.gnrbaseproxy import GnrBaseProxy
-#ESCAPE_SPECIAL=re.compile(r'[\[\\\^\$\.\|\?\*\+\(\)\]\{\}]')
-ESCAPE_SPECIAL=re.compile(r'[\[\\\^\$\|\?\*\+\(\)\]\{\}]')
+ESCAPE_SPECIAL=re.compile(r'[\[\\\^\$\.\|\?\*\+\(\)\]\{\}]')
+
 class GnrWebAppHandler(GnrBaseProxy): 
         
     def init(self, **kwargs):
