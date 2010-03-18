@@ -386,7 +386,7 @@ class GnrWebPage(GnrBaseWebPage):
         arg_dict['gnrModulePath'] = gnrModulePath
         gnrimports = self.frontend.gnrjs_frontend()
         if self.site.debug or self.isDeveloper():
-            arg_dict['genroJsImport'] = [self.site.gnr_static_url( self.gnrjsversion,'js', '%s.js' % f) for f in gnrimports]
+            arg_dict['genroJsImport'] = [self.mtimeurl(self.gnrjsversion,'js', '%s.js' % f) for f in gnrimports]
         elif self.site.config['closure_compiler']:
             jsfiles = [self.site.gnr_static_path(self.gnrjsversion,'js', '%s.js' % f) for f in gnrimports]
             arg_dict['genroJsImport'] = [self.jstools.closurecompile(jsfiles)]
@@ -399,6 +399,13 @@ class GnrWebPage(GnrBaseWebPage):
         arg_dict['css_requires'] = css_path
         arg_dict['css_media_requires'] = css_media_path
         return arg_dict
+    
+    def mtimeurl(self, *args):
+        fpath = self.site.gnr_static_path(*args)
+        mtime = os.stat(fpath).st_mtime
+        url = self.site.gnr_static_url(*args)
+        url = '%s?mtime=%0.0f'%(url,mtime)
+        return url
     
     def homeUrl(self):
         return self.site.home_uri
@@ -434,7 +441,7 @@ class GnrWebPage(GnrBaseWebPage):
     def get_css_genro(self):
         css_genro = self.frontend.css_genro_frontend()
         for media in css_genro.keys():
-           css_genro[media] = [self.site.gnr_static_url(self.gnrjsversion,'css', '%s.css' % f) for f in css_genro[media]]
+           css_genro[media] = [self.mtimeurl(self.gnrjsversion,'css', '%s.css' % f) for f in css_genro[media]]
         return css_genro
     
     def _get_domSrcFactory(self):
