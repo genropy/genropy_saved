@@ -930,20 +930,23 @@ class GnrWebAppHandler(GnrBaseProxy):
             return getSelection(None)
         
         result = getSelection("%s ILIKE :searchval" % querycolumns[0], searchval='%s%%' % ('%% '.join(srclist)))
-        
+        columns_concat="ARRAY_TO_STRING(ARRAY[%s], ' ')" % ','.join(querycolumns)
         if len(result) == 0: # few results from the startswith query on first col
             #self.page.gnotify('dbselect','filter')
             regsrc = [x for x in re.split(" ", ESCAPE_SPECIAL.sub('',querystring)) if x]
             if regsrc:
                 whereargs = dict([('w%i' % i, '(^|\\W)%s' % w.strip()) for i,w in enumerate(regsrc)])
-                where =" AND ".join(["(%s)  ~* :w%i" % (" || ' ' || ".join(querycolumns), i) for i,w in enumerate(regsrc)])
+                #where =" AND ".join(["(%s)  ~* :w%i" % (" || ' ' || ".join(querycolumns), i) for i,w in enumerate(regsrc)])
+                where =" AND ".join(["(%s)  ~* :w%i" % (columns_concat, i) for i,w in enumerate(regsrc)])
+                
                 result = getSelection(where, **whereargs)
             
         if len(result) == 0:
             #self.page.gnotify('dbselect','contained')
             whereargs = dict([('w%i' % i, '%%%s%%' % w.strip()) for i,w in enumerate(srclist)])
             
-            where =" AND ".join(["(%s)  ILIKE :w%i" % (" || ' ' || ".join(querycolumns), i) for i,w in enumerate(srclist)])
+            #where =" AND ".join(["(%s)  ILIKE :w%i" % (" || ' ' || ".join(querycolumns), i) for i,w in enumerate(srclist)])
+            where =" AND ".join(["(%s)  ILIKE :w%i" % (columns_concat, i) for i,w in enumerate(srclist)])
             result = getSelection(where, **whereargs)
                         
         return result
