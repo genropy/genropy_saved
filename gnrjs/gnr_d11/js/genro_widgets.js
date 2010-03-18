@@ -161,6 +161,7 @@ dojo.declare("gnr.widgets.baseHtml",null,{
             if(sourceNode.attr.nodeId && (sourceNode.attr.nodeId != formId)){
                 alert('formId '+formId+' will replace nodeId '+ sourceNode.attr.nodeId);
             }
+            //for having form information inside the form datapath
             var dlgId = objectPop(attributes,'dlgId');
             sourceNode.attr.nodeId = formId;
             sourceNode.defineForm(formId,sourceNode.absDatapath(),dlgId);
