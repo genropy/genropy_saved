@@ -270,6 +270,12 @@
     -opera-border-radius:0px;
     -khtml-border-radius:0px;
 }
+._common_d11 .dijitSpinnerButtonContainer .dijitArrowButton{
+	-moz-border-radius:0px;
+    -webkit-border-radius:0px;
+    -opera-border-radius:0px;
+    -khtml-border-radius:0px;
+}
 ._common_d11 .dijitButtonNode, 
 .bottom_btn .dijitButtonNode{
     -moz-border-radius:4px;
