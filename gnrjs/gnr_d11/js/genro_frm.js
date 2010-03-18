@@ -270,7 +270,7 @@ dojo.declare("gnr.GnrFrmHandler",null,{
             return;
         }
         changekey = this.getChangeKey(changekey);
-        if(changekey.indexOf('emptypath') == 0){
+        if(changekey.indexOf('emptypath') >= 0){
             return; // PROVVISORIO per includedview con form
         }
         var invalidfields = this.getInvalidFields();
