@@ -107,5 +107,4 @@ class RecordToHtmlFrame(BaseComponent):
                               _print='^%s.print' % controllerPath,
                               _reloader='^%s.load' %controllerPath,
                               _if=enableCondition,
-                              _else='genro.setData("%s.selectedPane", 0);',
                               **rpc_args)
