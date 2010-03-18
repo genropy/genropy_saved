@@ -536,6 +536,7 @@ class GnrWebPage(GnrBaseWebPage):
         
     def getResourceUri(self, path, ext=None, add_mtime=False):
         fpath=self.getResource(path, ext=ext)
+        url = None
         if not fpath:
             return
         if fpath.startswith(self.site.site_path):
@@ -553,7 +554,7 @@ class GnrWebPage(GnrBaseWebPage):
                     uripath=fpath[len(rsrc_path):].lstrip('/').split(os.path.sep)
                     url = self.site.rsrc_static_url(rsrc,*uripath)
                     break
-        if add_mtime:
+        if url and add_mtime:
             mtime = os.stat(fpath).st_mtime
             url = '%s?mtime=%0.0f'%(url,mtime)
         return url
