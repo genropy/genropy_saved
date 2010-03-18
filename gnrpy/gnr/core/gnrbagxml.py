@@ -32,7 +32,7 @@ from decimal import Decimal
 from gnr.core import gnrstring
 from gnr.core import gnrclasses
 REGEX_XML_ILLEGAL=re.compile(r'<|>|&')
-REGEX_XML_CDATA = re.compile(r'\x01-\x08')
+REGEX_XML_CDATA = re.compile(r'\x01|\x02|\x03|\x04|\x05|\x06|\x07|\x08')
 
 class _BagXmlException(Exception): pass 
 class BagFromXml(object): 
