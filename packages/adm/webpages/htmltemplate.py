@@ -11,7 +11,7 @@ from gnr.core.gnrbag import Bag
 class GnrCustomWebPage(object):
     saveAlways=True
     maintable='adm.htmltemplate'
-    py_requires='public:Public,standard_tables:TableHandler,public:IncludedView'
+    py_requires='public:Public,standard_tables:TableHandler,public:IncludedView,foundation/macrowidgets:RichTextEditor'
 
 ######################## STANDARD TABLE OVERRIDDEN METHODS ###############
     def windowTitle(self):
