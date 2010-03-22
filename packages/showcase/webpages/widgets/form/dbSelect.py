@@ -10,13 +10,16 @@
 """ dbSelect """
 import os
 from gnr.core.gnrbag import Bag
-from gnr.core.gnrstring import templateReplace, splitAndStrip, countOf
 
 class GnrCustomWebPage(object):
-    def main(self, root, **kwargs):
+    def main(self, root,cache=False, **kwargs):
+        if cache:
+            root.script('genro.cache_dbselect = true;')
         fb = root.formbuilder(cols=3, border_spacing='6px',datapath='myform')
         fb.dbSelect(dbtable='showcase.person',columns='$name',value='^.person',
                    lbl='Star')
+        fb.data('.person','jQ6gVT1AOb6nmc0pMzCiaA')
+                   
         fb.dbSelect(dbtable='showcase.cast',columns='@movie_id.title',value='^.movie',
                     condition='$person_id =:p',condition_p='=.person',auxColumns='$role,$prizes',
                     rowcaption='@movie_id.title',selected_role='.role')
