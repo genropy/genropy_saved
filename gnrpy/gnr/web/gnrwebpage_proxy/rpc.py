@@ -17,7 +17,6 @@ class GnrWebRpc(GnrBaseProxy):
             result = None
             error = 'forbidden call'
         elif _auth=='EXPIRED':
-            print 'expired connection'
             result=None
             error='expired'
         else:
