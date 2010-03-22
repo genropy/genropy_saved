@@ -82,7 +82,7 @@ class SelectionHandler(BaseComponent):
             bc.dataController("""
                                  if(mainformId){
                                      var mainForm = genro.formById(mainformId);  
-                                     if (!mainForm.valid){
+                                     if (mainForm.getInvalidFields().len()>0){
                                             genro.dlg.alert(invalidFieldsMsg,invalidFieldsTitle);
                                             return;
                                      }
