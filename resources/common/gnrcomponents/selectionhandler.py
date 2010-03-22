@@ -52,7 +52,7 @@ class SelectionHandler(BaseComponent):
                          selectionPars=None,dialogPars=None,reloader=None,externalChanges=None,
                          hiddencolumns=None,custom_addCondition=None,custom_delCondition=None,
                          askBeforeDelete=True,checkMainRecord=True,onDeleting=None,dialogAddRecord=True,
-                         onDeleted=None,groupingColumn=None,groups=None,add_enable=None,del_enable=None,
+                         onDeleted=None,add_enable=None,del_enable=None,parentSave=False,parentId=None,
                          **kwargs):
         assert dialogPars,'dialogPars are Mandatory'
         assert not 'table' in dialogPars, 'take the table of the grid'
@@ -75,11 +75,44 @@ class SelectionHandler(BaseComponent):
         dialogPars['toolbarCb'] = self._ivrd_toolbar
 
         self.recordDialog(**dialogPars)
-
+        add_action='FIRE .dlg.pkey="*newrecord*";'
+        can_add='^.can_add'
+        if parentSave:
+            add_action = 'FIRE .checkForAdd;'
+            bc.dataController("""
+                                 if(mainformId){
+                                     var mainForm = genro.formById(mainformId);  
+                                     if (!mainForm.valid){
+                                            genro.dlg.alert(invalidFieldsMsg,invalidFieldsTitle);
+                                            return;
+                                     }
+                                     if(mainForm.changed){
+                                         if (parentSave!=true && action!="confirmed"){
+                                            genro.dlg.ask(title,msg,null,
+                                                        {confirm:"genro.fireEvent('%s.checkForAdd','confirmed')"});
+                                            return;
+                                         }
+                                         var onSavedCb = function(){
+                                            genro.fireEvent('%s.dlg.pkey','*newrecord*');
+                                         }
+                                         mainForm.save(false,onSavedCb);
+                                         return;
+                                     }
+                                }
+                                FIRE .dlg.pkey = "*newrecord*";
+                                
+                                """ %(datapath,datapath),action="^.checkForAdd",
+                                datapath=datapath,mainformId='==this.getInheritedAttributes().formId;',
+                                parentSave=parentSave,title='!!Unsaved changes',
+                                msg='!!The main record has some changes. Do you want to save them?',
+                                invalidFieldsMsg='!!The main record contains some invalid field. Please check before adding new sub-records',
+                                invalidFieldsTitle='!!Warning',newrecordTitle='!!Warning',
+                                newrecordMsg='!!You have to save the main record before. Do you want to save?')
+            
         connect_onRowDblClick='FIRE .dlg.pkey = GET .selectedId;'
         self.includedViewBox(bc,label=label,datapath=datapath,
-                             add_action='FIRE .dlg.pkey="*newrecord*";',
-                             add_enable='^.can_add',del_enable='^.can_del',
+                             add_action=add_action,
+                             add_enable=can_add,del_enable='^.can_del',
                              del_action='FIRE .delete_record;',
                              nodeId=nodeId,table=table,struct=struct,hiddencolumns=hiddencolumns,
                              reloader=reloader, externalChanges=externalChanges,
@@ -87,17 +120,24 @@ class SelectionHandler(BaseComponent):
                              selectionPars=selectionPars,askBeforeDelete=True,**kwargs)
                              
         controller = bc.dataController(datapath=datapath)
-        main_record_id = True
         if self.maintable and checkMainRecord:
-            main_record_id='^form.record.%s' %self.db.table(self.maintable).pkey
+            if parentId:
+                main_record_id = parentId
+            else:
+                main_record_id='^form.record.%s' %self.db.table(self.maintable).pkey
+        else:
+            main_record_id=True
         add_enable = add_enable or '^form.canWrite'
         del_enable = del_enable or '^form.canDelete'
+        
         controller.dataFormula(".can_add","add_enable?(main_record_id!=null)&&custom_condition:false",
                               add_enable=add_enable,main_record_id=main_record_id,
                               custom_condition=custom_addCondition or True)
+                              
         controller.dataFormula(".can_del","del_enable?(main_record_id!=null)&&custom_condition:false",
                               del_enable=del_enable,selectedId='^.selectedId',_if='selectedId',_else='false',
                               main_record_id=main_record_id or True,custom_condition=custom_addCondition or True)
+                              
         controller.dataController("genro.dlg.ask(title, msg, null, '#%s.confirm_delete')" %nodeId,
                                     _fired="^.delete_record",title='!!Warning',
                                     msg='!!You cannot undo this operation. Do you want to proceed?',
