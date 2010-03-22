@@ -91,13 +91,17 @@ dojo.declare("gnr.GnrDomHandler",null,{
             if ( typeof (where) == 'string'){
                     var where=genro.domById(where);
             }
+            if (!where){
+                return;
+            }
             if (where instanceof gnr.GnrDomSourceNode){
                 where = where.getDomNode();
             }
             var classes = cls.split(' ');
             for (var i=0;i<classes.length;i++){
                 dojo.removeClass(where, classes[i]);
-            }
+            } 
+
         }
         
     },
@@ -142,6 +146,9 @@ dojo.declare("gnr.GnrDomHandler",null,{
         var kw = kw || {};
         if ( typeof (where) == 'string'){
             var where=genro.domById(where);
+        }
+        if (!where){
+            return;
         }
         kw.node = where;
         kw.duration = kw.duration || 300;
