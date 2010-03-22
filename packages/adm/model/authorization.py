@@ -7,7 +7,7 @@ class Table(object):
         tbl =  pkg.table('authorization',  pkey='code',name_long='!!Authorization',
                       name_plural='!!Authorizations')
         self.sysFields(tbl, id=False)
-        tbl.column('code', size='8',validate_case='U', name_long='!!Code')
+        tbl.column('code', size=':8',validate_case='U', name_long='!!Code')
         tbl.column('user_id',size='22',name_long='!!Event').relation('user.id',mode='foreignkey')
         tbl.column('use_ts','DH',name_long='!!Used datetime')
         tbl.column('used_by',size=':32',name_long='!!Used by')
@@ -29,12 +29,11 @@ class Table(object):
         self.update(record)
     
     def check_auth(self,code):
-        code = code.upper()
         exists = self.query(where='$code=:code', code=code).fetch()
         if not exists:
             return False
         coupon= exists[0]
-        if coupon['expire_date'] and coupon['expiry_date']<datetime.today():
+        if coupon['expiry_date'] and coupon['expiry_date']<datetime.today():
             return False
         remaining_usages=coupon['remaining_usages']
         if remaining_usages <=0:
