@@ -696,7 +696,7 @@ dojo.declare("gnr.GnrDomSourceNode",gnr.GnrBagNode,{
                return;
            }
            else if ((attr_lower=='disabled') || (attr_lower=='readonly'))  {
-               this.widget.setAttribute(attr_lower,value? true:false);
+               this.widget.setAttribute(attr,value? true:false);
            }
            else if ((attr=='storepath') && (this.attr.storepath.indexOf('^') == 0)){
                this.rebuild();

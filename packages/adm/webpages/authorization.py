@@ -31,8 +31,11 @@ class GnrCustomWebPage(object):
         r.fieldcell('@user_id.username',width='15em',name='!!Created by')
         r.fieldcell('note',width='30em')
         r.fieldcell('code',width='6em')
+        
+        r.fieldcell('remaining_usages',name='Remaining',width='8em')
+        r.fieldcell('expiry_date',name='Exp date',width='8em')
         r.fieldcell('used_by',name='Used by',width='8em')
-        r.fieldcell('use_ts',name='Use date',width='8em')
+        r.fieldcell('use_ts',name='Used on',width='8em')
         return struct
                   
     def orderBase(self):
@@ -43,13 +46,19 @@ class GnrCustomWebPage(object):
  
 ############################## FORM METHODS ##################################
 
-    def formBase(self, parentBC,disabled=False, **kwargs):
+    def formBase(self, parentBC, disabled=False, **kwargs):
         pane = parentBC.contentPane(**kwargs)
+        pane.dataFormula('edit_disabled', '!newrecord', newrecord='^form.record?_newrecord')
         fb = pane.formbuilder(cols=1, border_spacing='4px',disabled=disabled)
-        fb.textbox(value='^.code',lbl='!!Code',readOnly=True,font_size='2em',ghost='!!To be created')
+        fb.textbox(value='^.code',lbl='!!Code',font_size='2em',readOnly='^edit_disabled')
         fb.simpleTextArea(value='^.note',lbl='!!Note',height='10ex',width='100%')
+        fb.field('adm.authorization.remaining_usages', lbl='Max usages')
+        fb.field('adm.authorization.expiry_date', lbl='Exp date')
+        
+    def onLoading(self,record,newrecord,loadingParameters,recInfo):
+        if newrecord:
+            record['code']= self.tblobj.generate_code()
         
     def onSaving(self, recordCluster, recordClusterAttr, resultAttr):
-        recordCluster['code'] = self.tblobj.generate_code()
         recordCluster['user_id'] = self.userRecord('id')
         

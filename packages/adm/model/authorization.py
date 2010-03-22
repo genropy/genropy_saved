@@ -11,7 +11,9 @@ class Table(object):
         tbl.column('user_id',size='22',name_long='!!Event').relation('user.id',mode='foreignkey')
         tbl.column('use_ts','DH',name_long='!!Used datetime')
         tbl.column('used_by',size=':32',name_long='!!Used by')
-        tbl.column('note',name_long='!!Note')     
+        tbl.column('note',name_long='!!Note')
+        tbl.column('remaining_usages','L',name_long='!!Remaining usages', default=1)
+        tbl.column('expiry_date','D',name_long='!!Expire Date')
         
     def generate_code(self):
         code = ''.join( random.Random().sample(string.letters+string.digits, 8)).upper()
@@ -20,25 +22,21 @@ class Table(object):
         return code
                 
     def use_auth(self,code,username):
-        if self.db.application.site.currentPage.isDeveloper() and code=='genro':
-            return
-            
         record = self.record(pkey=code,for_update=True).output('bag')
-        if record['use_ts']:
-            raise
         record['use_ts'] =  datetime.now()
         record['used_by'] =  username
+        record['remaining_usages']=record['remaining_usages']-1
         self.update(record)
     
     def check_auth(self,code):
-        if self.db.application.site.currentPage.isDeveloper() and code=='genro':
-            return True
-            
         code = code.upper()
         exists = self.query(where='$code=:code', code=code).fetch()
         if not exists:
             return False
         coupon= exists[0]
-        if coupon['use_ts']:
+        if coupon['expire_date'] and coupon['expiry_date']<datetime.today():
+            return False
+        remaining_usages=coupon['remaining_usages']
+        if remaining_usages <=0:
             return False
         return True
