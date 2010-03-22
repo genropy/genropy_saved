@@ -367,12 +367,12 @@ class SqlTable(GnrObject):
     def batchUpdate(self,updater=None,**kwargs):
         fetch = self.query(addPkeyColumn=False,for_update=True,**kwargs).fetch()
         for row in fetch:
-            old_row = dict(row)
+            new_row = dict(row)
             if callable(updater):
-                updater(row)
+                updater(new_row)
             elif isinstance(updater,dict):
-                row.update(updater)
-            self.update(row,old_row)
+                new_row.update(updater)
+            self.update(new_row,row)
             
     def readColumns(self,pkey,columns):
         fetch = self.query(columns=columns,limit=1,where='$%s=:pkey' %self.pkey,
