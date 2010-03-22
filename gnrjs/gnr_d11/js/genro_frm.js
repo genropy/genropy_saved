@@ -355,7 +355,7 @@ dojo.declare("gnr.GnrFrmHandler",null,{
     }});
 
 dojo.declare("gnr.GnrValidator",null,{
-    validationTags: ['dbselect','notnull', 'case', 'len','email','regex','call','nodup','exist','remote'],
+    validationTags: ['dbselect','notnull','empty','case','len','email','regex','call','nodup','exist','remote'],
     getCurrentValidations: function(sourceNode){
         return sourceNode.evaluateOnNode(objectExtract(sourceNode.attr, 'validate_*', true));
     },
@@ -378,7 +378,7 @@ dojo.declare("gnr.GnrValidator",null,{
         objectExtract(parameters, this.validationTags.join(',')); 
         for (var i=0; i < validationTags.length; i++) {
             validation = validationTags[i];
-            if((validation in validations) && (validations[validation])){                
+            if((validation in validations)&&((validations[validation])||(validations[validation]==0))){                
                 validreturn = this.callValidation(validation, result['value'], sourceNode, validations, parameters);
                 if(validreturn != true){
                     if(validreturn['required']){
@@ -423,7 +423,7 @@ dojo.declare("gnr.GnrValidator",null,{
             return true;
         } else if(typeof(validreturn) == 'object'){
             iswarning = validreturn['iswarning'] || iswarning;
-            if(('value' in validreturn) && (validreturn['value'] != value)){
+            if(('value' in validreturn) && !(validreturn['value'] === value)){
                 modified = true;
                 value = validreturn['value'];
             }
@@ -497,6 +497,11 @@ dojo.declare("gnr.GnrValidator",null,{
             }
             sourceNode.widget._lastValueReported = null;
             return result;
+        }
+    },
+    validate_empty: function(param, value){
+        if (value == null || value==''){
+            return {'value':param};
         }
     },
     validate_case: function(param, value){

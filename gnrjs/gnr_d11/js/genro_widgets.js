@@ -453,7 +453,7 @@ dojo.declare("gnr.widgets.baseDojo",gnr.widgets.baseHtml,{
         }
         var path = sourceNode.attrDatapath('value');
         var oldvalue=genro._data.getItem(path);
-        if (oldvalue==value){
+        if (oldvalue===value){
             return;
         }
         var validateresult;
