@@ -24,17 +24,22 @@ Component for thermo:
 from gnr.web.gnrwebpage import BaseComponent
 
 class RecordLinker(BaseComponent):
-    def recordLinker(self,fb,table=None,dialogPars=None,record_template=None,record_path=None,lbl=None,
+    def recordLinker(self,fb,table=None,field=None,dialogPars=None,record_template=None,record_path=None,lbl=None,
                     value=None,width=None,height=None,colspan=1,rowspan=1,disabled=False,
                     default_path=None, record_reloader=None,**kwargs):
         """docstring for recordLinker"""
         assert 'dlgId' in dialogPars, 'this param is mandatory'
-
         selectorBox = fb.div(lbl=lbl,lbl_vertical_align='top',
                             min_height=height,width=width,colspan=colspan,
                             rowspan=rowspan,position='relative')
-        selector = selectorBox.dbSelect(value=value,dbtable=table,position='absolute',
+        if field:
+            selector = selectorBox.field(field,position='absolute',
                                         left='0px',top='0px',width='100%',disabled=disabled,**kwargs)
+            fieldrelpath = '.%s' %field.split('.')[-1]
+        else:
+            selector = selectorBox.dbSelect(value=value,dbtable=table,position='absolute',
+                                        left='0px',top='0px',width='100%',disabled=disabled,**kwargs)
+            fieldrelpath = value[1:]
         
             
         selector.button('!!Add',position='absolute',right='2px',z_index='100',iconClass='icnBaseAdd',
@@ -50,14 +55,14 @@ class RecordLinker(BaseComponent):
                             _tpl=record_template)
         selectorViewer.button('!!Edit',baseClass='no_background',showLabel=False,
                     right='2px',z_index='100',bottom='2px',position='absolute',
-                    action='FIRE #%s.pkey = GET %s;' %(dialogPars['dlgId'], value[1:]),
+                    action='FIRE #%s.pkey = GET %s;' %(dialogPars['dlgId'], fieldrelpath),
                     visible=value,iconClass='icnBaseEdit')#disabled=disabled)
           
         assert not 'firedPkey' in dialogPars, 'firedPkey is used by the component'     
         assert not 'savedPath' in dialogPars, 'savedPath is used by the component'                  
         
         selectorBox.dataRecord(record_path,table,pkey=record_reloader or value, _if='pkey',_else='null')
-        selectorBox.dataController("SET %s = savedId;" %value[1:],
+        selectorBox.dataController("SET %s = savedId;" %fieldrelpath,
                                     savedId='=#%s.savedId' %dialogPars['dlgId'],
                                     _fired='^#%s.recordSaved' %dialogPars['dlgId'])
         onSaved = ''
