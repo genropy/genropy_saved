@@ -165,7 +165,7 @@ class GnrWebPage(GnrBaseWebPage):
         if not hasattr(self, '_db'):
             self._db = self.app.db
             self._db.updateEnv(storename= getattr(self,'storename', None),workdate=self.workdate, locale=self.locale,
-                               user=self.user, pagename=self.pagename)
+                               user=self.user, user_id=self.avatar.userid,user_tags=self.avatar.tags, pagename=self.pagename)
             for dbenv in [getattr(self,x) for x in dir(self) if x.startswith('dbenv_')]:
                 kwargs=dbenv() or {}
                 self._db.updateEnv( **kwargs)
@@ -599,6 +599,7 @@ class GnrWebPage(GnrBaseWebPage):
                     dbselect_cache = self.getUserPreference(path='cache.dbselect',pkg='sys') 
                 if dbselect_cache is None:
                     dbselect_cache = self.site.config['client_cache?dbselect']
+                    print 'dbselect_cache',dbselect_cache
                 if dbselect_cache:
                     page.script('genro.cache_dbselect = true')
                 page.data('gnr.windowTitle', self.windowTitle())
