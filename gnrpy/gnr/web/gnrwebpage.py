@@ -165,7 +165,7 @@ class GnrWebPage(GnrBaseWebPage):
         if not hasattr(self, '_db'):
             self._db = self.app.db
             self._db.updateEnv(storename= getattr(self,'storename', None),workdate=self.workdate, locale=self.locale,
-                               user=self.user, user_id=self.avatar.userid,user_tags=self.avatar.tags, pagename=self.pagename)
+                               user=self.user, pagename=self.pagename)
             for dbenv in [getattr(self,x) for x in dir(self) if x.startswith('dbenv_')]:
                 kwargs=dbenv() or {}
                 self._db.updateEnv( **kwargs)
