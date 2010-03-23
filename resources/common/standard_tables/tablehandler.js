@@ -124,9 +124,6 @@ dojo.declare("gnr.GnrQueryBuilder",null,{
         genro.setDataFromRemote('gnr.qb.fieldstree',"relationExplorer", {table:maintable, omit:'_'});
         this.treefield = genro.getData('gnr.qb.fieldstree');
         genro.setDataFromRemote('gnr.qb.fieldsmenu',"relationExplorer", {table:maintable, omit:'_*',quickquery:true});
-        
-        genro.setDataFromRemote('gnr.qb.quickview',"getQuickView", {table:maintable, omit:'_*'});
-
         genro.setDataFromRemote('gnr.qb.sqlop',"getSqlOperators");  
     },
 
@@ -145,15 +142,22 @@ dojo.declare("gnr.GnrQueryBuilder",null,{
         node._('menu', {modifiers:'*',_class:'smallmenu',storepath:'gnr.qb.sqlop.not',id:'qb_not_menu'});
         node._('menu', {modifiers:'*',_class:'smallmenu',storepath:'gnr.qb.fieldsmenu',id:'qb_fields_menu'});
         node._('menu', {modifiers:'*',_class:'smallmenu',storepath:'gnr.qb.sqlop.op',id:'qb_op_menu'});
+
         var opmenu_types = ['alpha','date','number','other','boolean','unselected_column'];
         for (var i=0; i < opmenu_types.length; i++) {
             node._('menu', {modifiers:'*',_class:'smallmenu',
                    storepath:'gnr.qb.sqlop.op_spec.'+opmenu_types[i],id:'qb_op_menu_'+opmenu_types[i]});
         }
         //aggiunta
-        node._('menu', {modifiers:'*',_class:'smallmenu',storepath:'gnr.qb.quickview',id:'qb_quickview_menu'});
-
+        node._('menu', {modifiers:'*',_class:'smallmenu',storepath:'list.view.menu',id:'list_viewmenu',
+                        action:'SET list.view.pyviews?baseview=$1.fullpath;FIRE list.runQuery;'});
         node.unfreeze();
+    },
+    createViewSelector: function(){
+        var menuNode = document.createElement("div");
+        menuNode.id='menuSelectorNode';
+        dojo.addClass(menuNode,'icnBaseView');
+        genro.wdgById('maingrid').domNode.appendChild(menuNode);
     },
     getOpMenuId: function(dtype){
         return dtype?"qb_op_menu_"+this.getDtypeGroup(dtype):'qb_op_menu_unselected_column';
@@ -185,7 +189,6 @@ dojo.declare("gnr.GnrQueryBuilder",null,{
         if (currentDtype!=column_attr.dtype){
             contextNode.setRelativeData(relpath+'?column_dtype',column_attr.dtype);
             var default_op = genro._('gnr.qb.sqlop.op_spec.'+this.getDtypeGroup(column_attr.dtype)+'.#0');
-            console.log(default_op)
             contextNode.setRelativeData(relpath+'?op',default_op);
             contextNode.setRelativeData(relpath+'?op_caption',
                                         genro.getDataNode('gnr.qb.sqlop.op.'+default_op).attr.caption);

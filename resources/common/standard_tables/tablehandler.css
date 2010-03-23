@@ -195,7 +195,15 @@
 /* @end */
 
 /* @group qb */
-
+#menuSelectorNode{
+    position:absolute;
+    top:0px;
+    right:0px;
+    height:16px;
+    width:16px;
+    z-index:10;
+    cursor:pointer;
+}
 /* @group helper */
 
 .helperIcon{

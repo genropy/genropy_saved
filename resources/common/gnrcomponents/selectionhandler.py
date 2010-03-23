@@ -120,7 +120,7 @@ class SelectionHandler(BaseComponent):
                              selectionPars=selectionPars,askBeforeDelete=True,**kwargs)
                              
         controller = bc.dataController(datapath=datapath)
-        if self.maintable and checkMainRecord:
+        if checkMainRecord:
             if parentId:
                 main_record_id = parentId
             else:
@@ -130,10 +130,11 @@ class SelectionHandler(BaseComponent):
         add_enable = add_enable or '^form.canWrite'
         del_enable = del_enable or '^form.canDelete'
         
+        
         controller.dataFormula(".can_add","add_enable?(main_record_id!=null)&&custom_condition:false",
                               add_enable=add_enable,main_record_id=main_record_id,
                               custom_condition=custom_addCondition or True)
-                              
+        #controller.data('.can_del',False)    
         controller.dataFormula(".can_del","del_enable?(main_record_id!=null)&&custom_condition:false",
                               del_enable=del_enable,selectedId='^.selectedId',_if='selectedId',_else='false',
                               main_record_id=main_record_id or True,custom_condition=custom_addCondition or True)

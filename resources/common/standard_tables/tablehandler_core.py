@@ -167,11 +167,13 @@ class ListViewHandler(BaseComponent):
         pane.dataRemote('list.view.saved_menu', 'list_view', tbl=self.maintable, cacheTime=10)
         pane.dataRpc('list.view.structure', 'load_view', id='^list.view.selectedId', _if='id',
                     _onResult='genro.viewEditor.colsFromBag();')
-        pane.dataRpc('list.view.structure', 'new_view', _reason='^list.view.new',
-                    _onResult="""
-                                //genro.viewEditor.colsFromBag(); 
-                                SET list.view.selectedId=null;
-                                """ ,filldefaults=True)
+        pane.dataController("""
+                              var st = genro._("list.view.pyviews."+viewName);
+                              SET list.view.structure = st; 
+                              genro.viewEditor.colsFromBag(); 
+                              SET list.view.selectedId=null;""",
+                            viewName='^list.view.pyviews?baseview',_fired='^list.view.new',
+                            _onStart=True)
 
     def toolboxViews(self, container):
         self.savedViewController(container)
@@ -369,5 +371,6 @@ class LstQueryHandler(BaseComponent):
             
             
     def rpc_getQuickView(self,**kwargs):
-        return Bag()
+        result = self.rpc_listUserObject(objtype='view', tbl=self.maintable,onlyQuicklist=True,**kwargs)
+        return result
         

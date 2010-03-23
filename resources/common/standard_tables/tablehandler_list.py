@@ -60,16 +60,39 @@ class TableHandlerForm(BaseComponent):
         self.gridPane(st)
         st.contentPane().div(_class='waiting')
         
+    def listViewStructures(self,pane):
+        """Prepare databag for"""
+        cblist = sorted([func_name for func_name in dir(self) if func_name.startswith('lstBase_') and func_name!='lstBase_'])
+        viewMenu = Bag()
+        baseView = self.lstBase(self.newGridStruct())
+        structures=Bag()
+        structures.setItem('_base',baseView,objtype='view', tbl=self.maintable)
+        #pane.data('list.view.pyviews._base',baseView,objtype='view', tbl=self.maintable)
+        #pane.data('list.view.structure',baseView,objtype='view', tbl=self.maintable)
+        viewMenu.setItem('base',None,caption=self.lstBase.__doc__ or 'Base',viewpath='list.view.structure_base')
+        for funcname in cblist:
+            name = funcname[8:]
+            handler = getattr(self,funcname)
+            structures.setItem(name,handler(self.newGridStruct()),objtype='view', tbl=self.maintable)
+            viewMenu.setItem(name,None,caption=handler.__doc__ or name.title)
+        viewMenu.addItem('-',None)
+        jsresolver = "genro.rpc.remoteResolver('getQuickView',null,{cacheTime:'5'})"
+        viewMenu.addItem('savedview',jsresolver,_T='JS',caption='!!Custom view',action='FIRE list.view_id = $1.pkey;')
+        pane.data('list.view.menu',viewMenu)
+        pane.data('list.view.pyviews',structures,baseview='_base')
+        
     def listController(self,pane):
         pane.data('list.excludeLogicalDeleted',True)
         pane.data('aux.showDeleted',False)
-        pane.data('list.view.structure',self.lstBase(self.newGridStruct()),objtype='view', tbl=self.maintable)
+        self.listViewStructures(pane)
         pane.dataController("""genro.querybuilder = new gnr.GnrQueryBuilder("query_root", "%s", "list.query.where");""" % self.maintable,_init=True)
         pane.dataController("""genro.queryanalyzer = new gnr.GnrQueryAnalyzer("translator_root","list.query.where","list.runQueryDo")""",_onStart=True)
         pane.dataController("""genro.viewEditor = new gnr.GnrViewEditor("view_root", "%s", "maingrid"); genro.viewEditor.colsFromBag();""" % self.maintable,_onStart=True)
         pane.dataController("""genro.querybuilder.createMenues();
+                               genro.querybuilder.createViewSelector();
                                   dijit.byId('qb_fields_menu').bindDomNode(genro.domById('fastQueryColumn'));
                                   dijit.byId('qb_not_menu').bindDomNode(genro.domById('fastQueryNot'));
+                                  dijit.byId('list_viewmenu').bindDomNode(genro.domById('menuSelectorNode'));
                                   genro.querybuilder.buildQueryPane();""" , _onStart=True)
         pane.data('usr.writePermission',self.userCanWrite())
         pane.data('usr.deletePermission',self.userCanDelete())
@@ -300,6 +323,8 @@ class TableHandlerForm(BaseComponent):
                               running='=list.queryRunning', _if='!running', fired='^list.runQuery')   
         pane.dataController('SET list.query.selectedId = query_id; genro.fireAfter("list.runQueryButton",true,300)',
                                 query_id="^list.query_id")
+        pane.dataController('SET list.view.selectedId = view_id; genro.fireAfter("list.runQueryButton",true,300)',
+                                view_id="^list.view_id")
         
         pane.dataController("""    
                                    SET selectedPage=1;
@@ -396,13 +421,11 @@ class TableHandlerForm(BaseComponent):
                              timeout=180000,
                              _onCalling=self.onQueryCalling(),
                              _onResult='FIRE list.queryEnd=true;',**condPars)
-                                     
         grid = gridpane.virtualGrid(nodeId='maingrid', structpath="list.view.structure", storepath=".data", autoWidth=False,
                                 selectedIndex='list.rowIndex', rowsPerPage=self.rowsPerPage(), sortedBy='^list.grid.sorted',
                                 connect_onSelectionChanged='SET list.noSelection = (genro.wdgById("maingrid").selection.getSelectedCount()==0)',
                                 connect_onRowDblClick='SET list.selectedIndex = GET list.rowIndex; SET selectedPage = 1;',
-                                connect_onRowContextMenu="FIRE list.onSelectionMenu = true;")
-        
+                                connect_onRowContextMenu="FIRE list.onSelectionMenu = true;")        
         pane.dataRpc('list.currentQueryCount','app.getRecordCount', condition=condition,fired='^list.updateCurrentQueryCount',
                       table=self.maintable, where='=list.query.where',excludeLogicalDeleted='=list.excludeLogicalDeleted',
                       **condPars)
