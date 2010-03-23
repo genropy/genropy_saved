@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # encoding: utf-8
-
+from __future__ import with_statement
 import os
 from gnr.core.gnrlang import getUuid
 from gnr.core.gnrbag import Bag
