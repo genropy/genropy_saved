@@ -52,7 +52,11 @@ class Table(object):
     
     def getPreference(self,path='', pkg='',dflt='',username=''):
         result = self.loadRecord(username)['preferences'] 
+<<<<<<< .mine
+        if path!='*' and result:
+=======
         if result and path!='*':
+>>>>>>> .r2190
             result = result['%s.%s' %(pkg,path)]           
         return result or dflt
             
