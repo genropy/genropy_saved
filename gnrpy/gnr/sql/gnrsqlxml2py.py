@@ -5,8 +5,8 @@ import os
 
 
 def structToPy(tables,path):
-    shutil.rmtree(path,True)
-    os.makedirs(path)
+    #shutil.rmtree(path,True)
+    #os.makedirs(path)
     header = """# encoding: utf-8
 from gnr.core.gnrbag import Bag,BagResolver
 class Table(object):
@@ -29,7 +29,7 @@ class Table(object):
 
 
 if __name__=='__main__':
-    xmlPath = '/Users/michele/svnrepos/progetti/writers/packages/writers/model/config_db.xml'
-    destPath = '/Users/michele/svnrepos/progetti/writers/packages/writers/model'
+    xmlPath = '/Users/ale/sviluppo/progetti/contract/packages_imported/zg/model/config_db.xml'
+    destPath = '/Users/ale/sviluppo/progetti/contract/packages_imported/zg/model/'
     struct = Bag(xmlPath)
-    structToPy(struct['packages.writers.tables'],destPath)
+    structToPy(struct['packages.zg.tables'],destPath)
