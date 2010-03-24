@@ -341,9 +341,10 @@ dojo.declare("gnr.GnrRpcHandler",null,{
         var result = genro.rpc.remoteCall('app.getRecordCount', {'field':field, 'value':value}, null, 'GET', null, cb);
         return result;
     },
-    pageIndexUrl:function(){
+    pageIndexUrl_OLD:function(){
         var url;
         var curloc=document.location.pathname;
+        
         if (stringEndsWith(curloc,'/')){
             curloc = curloc.slice(0, curloc.length-1);
         }
@@ -351,11 +352,13 @@ dojo.declare("gnr.GnrRpcHandler",null,{
             url= curloc;
         }else{
             
-            url=curloc+'/index.py';
+            url=curloc+'/index';
         }
         return url;
     },
-    
+    pageIndexUrl:function(){
+        return document.location.pathname;
+    },
 
     
     remoteResolver: function(methodname, params, kw /*readOnly, cacheTime*/){
