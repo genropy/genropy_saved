@@ -1770,41 +1770,40 @@ dojo.declare("gnr.widgets.Grid",gnr.widgets.baseDojo,{
                          cell = objectUpdate(cell, cellsnodes[j].attr);
                          dtype = cell.dtype;
                          cell.original_field = cell.field;
-                         if (!cell.field){
-                             console.log('line 1747');
+                         if (cell.field){
+                             cell.field = cell.field.replace(/\W/g,'_');
+                             if (dtype){
+                                 cell.cellClasses = (cell.cellClasses || '') + ' cell_' + dtype;
+                             }                        
+                             cell.cellStyles=objectAsStyle(genro.dom.getStyleDict(cell,[ 'width']));
+                             formats=objectExtract(cell,'format_*');
+                             format=objectExtract(cell,'format');
+                             var zoomPage=objectPop(cell,'zoomPage');
+                             var template=objectPop(cell,'template');
+                             var js=objectPop(cell,'js');
+                             if (template){
+                                 formats['template']=template;
+                             }
+                             formats['dtype']=dtype;
+                             if (js) {
+                                 formats['js'] = genro.evaluate(js);
+                             }
+                             if (zoomPage)
+                                formats['zoomPage']=zoomPage;
+                                formats['zoomPkey']=objectPop(cell,'zoomPkey');
+                             if (format){
+                                 formats['format']=format;
+                             }
+                             if (dtype){
+                                 formats = objectUpdate(objectUpdate({}, localTypes[dtype]), formats);
+                             }
+                             //formats = objectUpdate(formats, localTypes[dtype]);
+                             var cellClassCB=objectPop(cell,'cellClassCB');
+                             cell.formatter=_cellFormatter(formats, cellClassCB);
+                             delete cell.tag;
+                             row.push(cell);
+                             cellmap[cell.field] = cell;
                          }
-                         cell.field = cell.field.replace(/\W/g,'_');
-                         if (dtype){
-                             cell.cellClasses = (cell.cellClasses || '') + ' cell_' + dtype;
-                         }                        
-                         cell.cellStyles=objectAsStyle(genro.dom.getStyleDict(cell,[ 'width']));
-                         formats=objectExtract(cell,'format_*');
-                         format=objectExtract(cell,'format');
-                         var zoomPage=objectPop(cell,'zoomPage');
-                         var template=objectPop(cell,'template');
-                         var js=objectPop(cell,'js');
-                         if (template){
-                             formats['template']=template;
-                         }
-                         formats['dtype']=dtype;
-                         if (js) {
-                             formats['js'] = genro.evaluate(js);
-                         }
-                         if (zoomPage)
-                            formats['zoomPage']=zoomPage;
-                            formats['zoomPkey']=objectPop(cell,'zoomPkey');
-                         if (format){
-                             formats['format']=format;
-                         }
-                         if (dtype){
-                             formats = objectUpdate(objectUpdate({}, localTypes[dtype]), formats);
-                         }
-                         //formats = objectUpdate(formats, localTypes[dtype]);
-                         var cellClassCB=objectPop(cell,'cellClassCB');
-                         cell.formatter=_cellFormatter(formats, cellClassCB);
-                         delete cell.tag;
-                         row.push(cell);
-                         cellmap[cell.field] = cell;
                      }
               
                      rows.push(row);
