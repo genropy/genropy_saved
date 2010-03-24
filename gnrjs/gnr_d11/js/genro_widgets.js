@@ -1507,7 +1507,7 @@ dojo.declare("gnr.widgets.Grid",gnr.widgets.baseDojo,{
     mixin_setStructpath:function(val,kw){
         var structure = genro.getData(this.sourceNode.attrDatapath('structpath'));
         this.cellmap = {};
-        this.setStructure(this.gnr.structFromBag(structure, this.cellmap, this.gnreditors));
+        this.setStructure(this.gnr.structFromBag(structure, this.cellmap));
         this.onSetStructpath(structure);
     },
     
@@ -1699,7 +1699,7 @@ dojo.declare("gnr.widgets.Grid",gnr.widgets.baseDojo,{
         }
         return result;
     },
-    structFromBag: function(struct, cellmap, gnreditors){
+    structFromBag: function(struct, cellmap){
         var cellmap = cellmap || {};
         var result = [];
         var _cellFormatter=function(formatOptions, cellClassCB){
@@ -1769,10 +1769,6 @@ dojo.declare("gnr.widgets.Grid",gnr.widgets.baseDojo,{
                          cell = objectUpdate({}, rowattrs);
                          cell = objectUpdate(cell, cellsnodes[j].attr);
                          dtype = cell.dtype;
-                         
-                         if(gnreditors[cell.field]){
-                             this.setCellEditor(cell, gnreditors[cell.field]);
-                         }
                          cell.original_field = cell.field;
                          if (!cell.field){
                              console.log('line 1747');
@@ -1862,8 +1858,7 @@ dojo.declare("gnr.widgets.VirtualGrid",gnr.widgets.Grid,{
         structure = genro.getData(sourceNode.absDatapath(structpath));
         attributes._identifier=identifier;
         attributes.cellmap = {};
-        attributes.gnreditors = {};
-        attributes.structure=this.structFromBag(structure, attributes.cellmap, attributes.gnreditors);
+        attributes.structure=this.structFromBag(structure, attributes.cellmap);
         attributes.storebag=genro.getDataNode(storepath,true,new gnr.GnrBag());
         if (!(attributes.storebag.getValue() instanceof gnr.GnrBag)){
             attributes.storebag.setValue(new gnr.GnrBag());
@@ -2034,8 +2029,7 @@ dojo.declare("gnr.widgets.VirtualStaticGrid",gnr.widgets.Grid,{
         var structpath = sourceNode.attr.structpath;
         structure = genro.getData(sourceNode.absDatapath(structpath));
         attributes.cellmap = {};
-        attributes.gnreditors = {};
-        attributes.structure = this.structFromBag(structure, attributes.cellmap, attributes.gnreditors);
+        attributes.structure = this.structFromBag(structure, attributes.cellmap);
         attributes._identifier = identifier;
         attributes.sortedBy=sortedBy;
         attributes.datamode = datamode;
@@ -2909,7 +2903,7 @@ dojo.declare("gnr.widgets.IncludedView",gnr.widgets.VirtualStaticGrid,{
         var gridAttributes=objectExtract(attributes,'autoHeight,autoRender,autoWidth,defaultHeight,elasticView,fastScroll,keepRows,model,rowCount,rowsPerPage,singleClickEdit,structure,filterColumn,excludeCol,excludeListCb,editorEnabled');
         objectPopAll(attributes);
         objectUpdate(attributes,gridAttributes);
-        var structure, gnreditors, contents;
+        var structure, contents;
         var inAttrs= sourceNode.getInheritedAttributes();
         var ctxRoot = sourceNode.absDatapath(inAttrs.sqlContextRoot);
         var abs_storepath = sourceNode.absDatapath(sourceNode.attr.storepath);
@@ -2921,9 +2915,8 @@ dojo.declare("gnr.widgets.IncludedView",gnr.widgets.VirtualStaticGrid,{
         var structpath = sourceNode.attr.structpath;
         sourceNode.registerDynAttr('structpath');
         structure = genro.getData(sourceNode.absDatapath(sourceNode.attr.structpath));
-        attributes.gnreditors = {};
         attributes.cellmap = {};
-        attributes.structure = this.structFromBag(structure, attributes.cellmap, attributes.gnreditors);
+        attributes.structure = this.structFromBag(structure, attributes.cellmap);
         var columns = gnr.columnsFromStruct(structure);
         if(hiddencolumns){
             columns = columns+','+hiddencolumns;
@@ -2968,22 +2961,7 @@ dojo.declare("gnr.widgets.IncludedView",gnr.widgets.VirtualStaticGrid,{
          widget.rpcViewColumns();
          widget.updateRowCount('*');
     },
-    useGridContent_OLD: function(gridcontent){
-        var node, structure, attr, tag;
-        var nodes = gridcontent.getNodes();
-        var gnreditors = {};
-        for (var i=0; i < nodes.length; i++) {
-            node = nodes[i];
-            if(node.label=='struct'){
-                structure = node.getValue();
-            } else {
-                attr = objectUpdate({}, node.attr);
-                tag = objectPop(attr, 'tag');
-                gnreditors[attr.linkedCol] = genro.wdg.create(tag, null, attr);
-            }
-        };
-        return {'gnreditors':gnreditors, 'structure':structure};
-    },
+
     mixin_structbag:function(){
         //return genro.getData(this.sourceNode.absDatapath(structpath));
         return genro.getData(this.sourceNode.absDatapath(this.sourceNode.attr.structpath));
@@ -3094,7 +3072,8 @@ dojo.declare("gnr.widgets.BaseCombo",gnr.widgets.baseDojo,{
             val = row[sel];
             this.sourceNode.setRelativeData(path,val,null,false,'selected_');
         }
-    },    connectForUpdate: function(widget,sourceNode){
+    },    
+    connectForUpdate: function(widget,sourceNode){
         return;
     }
     
@@ -3509,20 +3488,20 @@ dojo.declare("gnr.widgets.Tree",gnr.widgets.baseDojo,{
         }
         if (this.sourceNode.attr.selectedLabel){
             var path=this.sourceNode.attrDatapath('selectedLabel');
-            genro.setData(path,item.label,attributes);
-        }
+            this.sourceNode.setRelativeData(path,item.label,attributes);
+        }        
         if (this.sourceNode.attr.selectedItem){
             var path=this.sourceNode.attrDatapath('selectedItem');
-            genro.setData(path,item,attributes);
+            this.sourceNode.setRelativeData(path,item,attributes);
         }
         if (this.sourceNode.attr.selectedPath){
             var path=this.sourceNode.attrDatapath('selectedPath');
-            genro.setData(path,item.getFullpath(),attributes);
+            this.sourceNode.setRelativeData(path,item.getFullpath(),attributes);
         }
         var selattr=objectExtract(this.sourceNode.attr,'selected_*',true);
         for (var sel in selattr){
             var path=this.sourceNode.attrDatapath('selected_'+sel);
-            genro.setData(path,item.attr[sel],attributes);
+            this.sourceNode.setRelativeData(path,item.attr[sel],attributes);
         }
     }
 });

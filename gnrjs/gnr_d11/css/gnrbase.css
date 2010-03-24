@@ -334,7 +334,11 @@ table.formbuilder {
     height: 16px;
 }
 /* @group base14 */
-
+.vieselectorIcn{
+	background: url(icons/viewselector.png) no-repeat center center;
+	height: 16px;
+	width: 30px;
+}
 
 .greenLight {
     background: url(icons/base14/greenLight.gif) no-repeat;

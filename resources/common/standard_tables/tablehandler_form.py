@@ -55,8 +55,6 @@ class TableHandlerForm(BaseComponent):
                                }
                                """,
                           logical_deleted='^form.logical_deleted',delete_ts='=form.record.__del_ts')
-
-
             
     def formController(self,pane):
         self.formTitleBase(pane)

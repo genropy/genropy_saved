@@ -69,7 +69,7 @@ class TableHandlerForm(BaseComponent):
         structures.setItem('_base',baseView,objtype='view', tbl=self.maintable)
         #pane.data('list.view.pyviews._base',baseView,objtype='view', tbl=self.maintable)
         #pane.data('list.view.structure',baseView,objtype='view', tbl=self.maintable)
-        viewMenu.setItem('base',None,caption=self.lstBase.__doc__ or 'Base',viewpath='list.view.structure_base')
+        viewMenu.setItem('_base',None,caption=self.lstBase.__doc__ or 'Base')
         for funcname in cblist:
             name = funcname[8:]
             handler = getattr(self,funcname)
@@ -89,7 +89,6 @@ class TableHandlerForm(BaseComponent):
         pane.dataController("""genro.queryanalyzer = new gnr.GnrQueryAnalyzer("translator_root","list.query.where","list.runQueryDo")""",_onStart=True)
         pane.dataController("""genro.viewEditor = new gnr.GnrViewEditor("view_root", "%s", "maingrid"); genro.viewEditor.colsFromBag();""" % self.maintable,_onStart=True)
         pane.dataController("""genro.querybuilder.createMenues();
-                               genro.querybuilder.createViewSelector();
                                   dijit.byId('qb_fields_menu').bindDomNode(genro.domById('fastQueryColumn'));
                                   dijit.byId('qb_not_menu').bindDomNode(genro.domById('fastQueryNot'));
                                   dijit.byId('list_viewmenu').bindDomNode(genro.domById('menuSelectorNode'));
@@ -272,6 +271,7 @@ class TableHandlerForm(BaseComponent):
         buttons = pane.div(_class='listbuttons_placeholder',float='right')
         buttons.button('!!Run query', fire='list.runQueryButton',
                     iconClass="tb_button db_query",showLabel=False)
+        buttons.button('!!Select view', showLabel=False, id='menuSelectorNode',iconClass='vieselectorIcn')
         if self.tblobj.hasRecordTags() and \
            self.application.checkResourcePermission(self.canLinkTag(), self.userTags):
             buttons.button('!!Tag',iconClass='icnTag',showLabel=False,
@@ -293,7 +293,8 @@ class TableHandlerForm(BaseComponent):
         
             
         if self.enableFilter():
-            self.th_filtermenu(queryfb)        
+            self.th_filtermenu(queryfb)    
+                
 
         
     def listToolbar_rightbuttons(self, pane):

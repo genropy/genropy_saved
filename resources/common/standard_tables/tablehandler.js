@@ -31,6 +31,7 @@ dojo.declare("gnr.GnrViewEditor",null,{
         startNode.clearValue();
     },
     buildCols: function(){
+        console.log('build cols');
         var startNode = genro.nodeById(this.nodeId);
         startNode.freeze();
         var cols=this.getStruct('#0','#0').getNodes();
@@ -152,12 +153,6 @@ dojo.declare("gnr.GnrQueryBuilder",null,{
         node._('menu', {modifiers:'*',_class:'smallmenu',storepath:'list.view.menu',id:'list_viewmenu',
                         action:'SET list.view.pyviews?baseview=$1.fullpath;FIRE list.runQuery;'});
         node.unfreeze();
-    },
-    createViewSelector: function(){
-        var menuNode = document.createElement("div");
-        menuNode.id='menuSelectorNode';
-        dojo.addClass(menuNode,'icnBaseView');
-        genro.wdgById('maingrid').domNode.appendChild(menuNode);
     },
     getOpMenuId: function(dtype){
         return dtype?"qb_op_menu_"+this.getDtypeGroup(dtype):'qb_op_menu_unselected_column';
