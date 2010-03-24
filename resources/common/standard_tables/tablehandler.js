@@ -31,7 +31,6 @@ dojo.declare("gnr.GnrViewEditor",null,{
         startNode.clearValue();
     },
     buildCols: function(){
-        console.log('build cols');
         var startNode = genro.nodeById(this.nodeId);
         startNode.freeze();
         var cols=this.getStruct('#0','#0').getNodes();

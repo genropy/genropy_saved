@@ -166,17 +166,15 @@ class ListViewHandler(BaseComponent):
     def savedViewController(self, pane):
         pane.dataRemote('list.view.saved_menu', 'list_view', tbl=self.maintable, cacheTime=10)
         pane.dataRpc('list.view.structure', 'load_view', id='^list.view.selectedId', _if='id',
-                    _onResult='console.log("onResult");genro.viewEditor.buildCols();',
+                    _onResult='genro.viewEditor.buildCols();',
                     _onCalling='genro.viewEditor.clearCols();')
         pane.dataController("""
                               genro.viewEditor.clearCols();
-                              SET list.view.structure = genro._("list.view.pyviews."+viewName);; 
+                              SET list.view.structure = genro._("list.view.pyviews."+viewName).deepCopy(); 
                               genro.viewEditor.buildCols();
-                              if(newview){
-                                SET list.view.selectedId=null;
-                              }
+                              SET list.view.selectedId=null;
                               """,
-                            viewName='^list.view.pyviews?baseview',newview='^list.view.new',
+                            viewName='^list.view.pyviews?baseview',_fired='^list.view.new',
                             _onStart=True)
 
     def toolboxViews(self, container):

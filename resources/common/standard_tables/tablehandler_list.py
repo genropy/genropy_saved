@@ -87,7 +87,7 @@ class TableHandlerForm(BaseComponent):
         self.listViewStructures(pane)
         pane.dataController("""genro.querybuilder = new gnr.GnrQueryBuilder("query_root", "%s", "list.query.where");""" % self.maintable,_init=True)
         pane.dataController("""genro.queryanalyzer = new gnr.GnrQueryAnalyzer("translator_root","list.query.where","list.runQueryDo")""",_onStart=True)
-        pane.dataController("""genro.viewEditor = new gnr.GnrViewEditor("view_root", "%s", "maingrid"); genro.viewEditor.colsFromBag();""" % self.maintable,_onStart=True)
+        pane.dataController("""genro.viewEditor = new gnr.GnrViewEditor("view_root", "%s", "maingrid");""" % self.maintable,_onStart=True)
         pane.dataController("""genro.querybuilder.createMenues();
                                   dijit.byId('qb_fields_menu').bindDomNode(genro.domById('fastQueryColumn'));
                                   dijit.byId('qb_not_menu').bindDomNode(genro.domById('fastQueryNot'));
