@@ -1,7 +1,7 @@
 # encoding: utf-8
 import random
 import string
-from datetime import datetime
+from datetime import datetime,date
 class Table(object):
     def config_db(self, pkg):
         tbl =  pkg.table('authorization',  pkey='code',name_long='!!Authorization',
@@ -33,7 +33,7 @@ class Table(object):
         if not exists:
             return False
         coupon= exists[0]
-        if coupon['expiry_date'] and coupon['expiry_date']<datetime.today():
+        if coupon['expiry_date'] and coupon['expiry_date']<date.today():
             return False
         remaining_usages=coupon['remaining_usages']
         if remaining_usages <=0:
