@@ -121,7 +121,7 @@ class SelectionToXls(GnrBatch):
             columns = data.columns
         self.colHeaders={}
         if('structure') in kwargs:
-            self.colHeaders=dict([(x.replace('.','_').replace('@','_').replace('$',''),y) for x,y in kwargs['structure']['#0.#0'].digest('#a.field,#a.name')])
+            self.colHeaders=dict([(x.replace('.','_').replace('@','_').replace('$',''),y) for x,y in kwargs['structure']['#0.#0'].digest('#a.field,#a.name')] if (x and y))
             columns=[c for c in columns if c in self.colHeaders ]
         self.columns = columns
         self.locale = locale
