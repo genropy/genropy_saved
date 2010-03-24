@@ -1505,7 +1505,6 @@ dojo.declare("gnr.widgets.Grid",gnr.widgets.baseDojo,{
     },
 
     mixin_setStructpath:function(val,kw){
-        console.log('aaa')
         var structure = genro.getData(this.sourceNode.attrDatapath('structpath'));
         this.cellmap = {};
         this.setStructure(this.gnr.structFromBag(structure, this.cellmap));
