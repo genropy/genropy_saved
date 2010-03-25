@@ -378,7 +378,7 @@ dojo.declare("gnr.GnrValidator",null,{
         objectExtract(parameters, this.validationTags.join(',')); 
         for (var i=0; i < validationTags.length; i++) {
             validation = validationTags[i];
-            if((validation in validations)&&((validations[validation])||(validations[validation]==0))){                
+            if((validation in validations)&&((validations[validation])||(validations[validation]===0))){
                 validreturn = this.callValidation(validation, result['value'], sourceNode, validations, parameters);
                 if(validreturn != true){
                     if(validreturn['required']){
