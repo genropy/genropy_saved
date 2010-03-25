@@ -439,8 +439,11 @@ class GnrWhereTranslator(object):
                 onecondition = ('\n'+'    '*level).join(self.innerFromBag(tblobj,value,sqlArgs,level+1))
                 onecondition = '(\n'+'    '*level+onecondition+'\n'+'    '*level+')'
             else:
-                op = attr['op']
-                column = attr['column']
+                op = attr.get('op')
+                column = attr.get('column')
+                if not op or not column:
+                    #ingnoring empty query lines
+                    continue
                 dtype = tblobj.column(column).dtype
                 if not column[0] in '@$':
                     column = '$%s' % column
