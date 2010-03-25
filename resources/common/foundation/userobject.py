@@ -73,6 +73,7 @@ class UserObject(BaseComponent):
         data, metadata = self.package.loadUserObject(userid=userid or self.user, **kwargs)
         return (data, metadata)
         
+    #old stuff maintained for compatibility reasons
     def rpc_saveUserObject(self, userobject, userobject_attr):
         userobject_attr = dict([(str(k),v) for k,v in userobject_attr.items()])
         userobject_attr['userid'] = userobject_attr.get('userid') or self.user

@@ -216,18 +216,20 @@ class LstUserObjects(BaseComponent):
         
     def editorPane(self, restype, pane, datapath):
         parentdatapath, resname = datapath.rsplit('.', 1)
-        top = pane.div(_class='st_editor_bar', datapath=parentdatapath)    
+        top = pane.div(_class='st_editor_bar', datapath=parentdatapath)   
+        save_action = """var currentId = GET list.%s.selectedId; 
+                         SET #userobject_dlg.pars.objtype = '%s';
+                         SET #userobject_dlg.pars.title = 'Edit %s';
+                         SET #userobject_dlg.pars.data = GET %s;
+                         FIRE #userobject_dlg.pkey = currentId?currentId:"*newrecord*";
+                       """%(restype,restype,restype,datapath)
+        if restype=='query':
+            save_action = 'genro.querybuilder.cleanQueryPane(); %s' %save_action                          
         top.div(_class='icnBase10_Doc buttonIcon',float='right',
                                 connect_onclick=" SET list.%s.selectedId = null ;FIRE .new=true;" %restype, 
                                 margin_right='5px', margin_top='2px', tooltip='!!New %s' % restype);
         top.div(_class='icnBase10_Save buttonIcon', float='right',margin_right='5px', margin_top='2px',
-                connect_onclick="""var currentId = GET list.%s.selectedId; 
-                                   SET #userobject_dlg.pars.objtype = '%s';
-                                   SET #userobject_dlg.pars.title = 'Edit %s';
-                                   SET #userobject_dlg.pars.data = GET %s;
-                                   FIRE #userobject_dlg.pkey = currentId?currentId:"*newrecord*";
-                                   """%(restype,restype,restype,datapath),
-                tooltip='!!Save %s' % restype);
+                connect_onclick=save_action,tooltip='!!Save %s' % restype);
         top.dataController("FIRE list.%s.reload; SET list.%s.selectedId = savedId;" %(restype,restype),
                             savedId="=#userobject_dlg.savedPkey",
                             objtype='=#userobject_dlg.pars.objtype',

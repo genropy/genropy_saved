@@ -311,9 +311,9 @@ class TableHandlerForm(BaseComponent):
         pane.dataController('SET list.noSelection=true;SET list.rowIndex=null;', fired='^list.runQuery', _init=True)
         pane.dataController("""genro.dom.disable("query_buttons");
                                SET list.gridpage = 1;
+                               genro.querybuilder.cleanQueryPane();
                                SET list.queryRunning = true;
                                var parslist = genro.queryanalyzer.translateQueryPars();
-                               
                                if (parslist.length>0){
                                   genro.queryanalyzer.buildParsDialog(parslist);
                                }else{
