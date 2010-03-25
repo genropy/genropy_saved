@@ -63,7 +63,7 @@ class TableHandler(BaseComponent):
         
     def enableFilter(self):
         #to deprecate
-        return False    
+        return True    
     
     def tableRecordCount(self):
         """redefine to avoid the count query"""

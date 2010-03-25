@@ -267,11 +267,12 @@ class TableHandlerForm(BaseComponent):
         value_textbox.div('^.c_0',hidden='==!(_op in genro.querybuilder.helper_op_dict)',
                           connect_onclick="if(GET .c_0?op in genro.querybuilder.helper_op_dict){FIRE list.helper.queryrow='c_0';}",
                           _op='^.c_0?op',_class='helperField')
-        if self.enableFilter():
-            self.th_filtermenu(queryfb)
-        buttons = pane.div(_class='listbuttons_placeholder',float='right')
+        
+        buttons = pane.div(_class='listbuttons_placeholder')
         buttons.button('!!Run query', fire='list.runQueryButton',
                     iconClass="tb_button db_query",showLabel=False)
+        if self.enableFilter():
+            self.th_filtermenu(buttons)
         buttons.button('!!Select view', showLabel=False, id='menuSelectorNode',iconClass='vieselectorIcn')
         if self.tblobj.hasRecordTags() and \
            self.application.checkResourcePermission(self.canLinkTag(), self.userTags):

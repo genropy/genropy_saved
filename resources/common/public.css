@@ -248,6 +248,14 @@
 /* @end */
 
 /* @group buttons */
+
+/* @group ddb */
+.dropDownNoArrow .dijitArrowButtonInner{
+	display: none;
+}
+
+
+/* @end */
 ._common_d11 .dijitComboBox .dijitArrowButton {
 	-moz-border-radius:0px;
     -webkit-border-radius:0px;

@@ -156,7 +156,7 @@ class FiltersHandler(BaseComponent):
         pane.button('bbb')
         
     def th_filtermenu(self,pane):
-        filterButton = pane.div(tip='!!Set Filter',_class='st_filterButton')
+        filterButton = pane.dropdownbutton(tip='!!Set Filter',iconClass='st_filterButton',_class='dropDownNoArrow')
         menu = filterButton.menu(_class='smallmenu',action='FIRE list.filterCommand = $1.command',modifiers='*')
         menu.menuline('!!Set new filter',command='new_filter')
         #menu.menuline('!!Add to current filter',command='add_to_filter')

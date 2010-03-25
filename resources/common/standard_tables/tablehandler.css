@@ -5,7 +5,7 @@
     width:25px;
 }
 .listbuttons_placeholder{
-    margin-top:2px;
+    float:right;
 }
 .th_toolbar{
     height:26px;
@@ -86,7 +86,6 @@
 	display:inline-block;
 	background: url(../icons/filter.png) center center no-repeat;
 }
-
 
 .tb_button {
 	height: 16px;
