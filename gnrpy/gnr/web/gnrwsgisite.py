@@ -20,6 +20,7 @@ import cPickle
 import inspect
 from gnr.core.gnrprinthandler import PrintHandler
 from gnr.core.gnrmailhandler import MailHandler
+from gnr.web.gnrwsgisite_proxy.gnrshareddata import GnrSharedData_dict, GnrSharedData_memcache
 mimetypes.init()
 site_cache = {}
 
@@ -138,6 +139,16 @@ class GnrWsgiSite(object):
     
     #cache = memoize()
     
+    def _get_shared_data(self):
+        if not hasattr(self, '_shared_data'):
+            memcache_config = self.site.config['memcache']
+            if memcache_config:
+                self._shared_data = GnrSharedData_memcache(self, memcache_config)
+            else:
+                self._shared_data = GnrSharedData_dict(self)
+        return self._shared_data
+    shared_data = property(_get_shared_data)
+        
     def log_print(self,str):
         if getattr(self,'debug',True):
             print str
@@ -422,6 +433,15 @@ class GnrWsgiSite(object):
              'session.type':self.session_type, 'session.auto':True}
         if self.session_type.startswith('ext:'):
             session_config['session.url']=self.session_url
+        #from repoze.profile.profiler import AccumulatingProfileMiddleware
+        #wsgiapp = AccumulatingProfileMiddleware(
+        #               wsgiapp,
+        #               log_filename='/bar.log',
+        #               cachegrind_filename='/cachegrind.out.bar',
+        #               discard_first_request=True,
+        #               flush_at_shutdown=True,
+        #               path='/__profile__'
+        #              )
         
         wsgiapp = SessionMiddleware(wsgiapp, config=session_config)
         return wsgiapp
