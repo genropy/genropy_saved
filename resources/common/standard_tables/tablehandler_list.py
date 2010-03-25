@@ -267,7 +267,8 @@ class TableHandlerForm(BaseComponent):
         value_textbox.div('^.c_0',hidden='==!(_op in genro.querybuilder.helper_op_dict)',
                           connect_onclick="if(GET .c_0?op in genro.querybuilder.helper_op_dict){FIRE list.helper.queryrow='c_0';}",
                           _op='^.c_0?op',_class='helperField')
-        
+        if self.enableFilter():
+            self.th_filtermenu(queryfb)
         buttons = pane.div(_class='listbuttons_placeholder',float='right')
         buttons.button('!!Run query', fire='list.runQueryButton',
                     iconClass="tb_button db_query",showLabel=False)
@@ -276,7 +277,6 @@ class TableHandlerForm(BaseComponent):
            self.application.checkResourcePermission(self.canLinkTag(), self.userTags):
             buttons.button('!!Tag',iconClass='icnTag',showLabel=False,
                             action='FIRE #linktag_dlg.open={call_mode:"list"};')
-
         queryfb.dataFormula('list.currentQueryCountAsString','msg.replace("_rec_",cnt)',
                             cnt='^list.currentQueryCount',_if='cnt',_else='',
                             msg='!!Current query will return _rec_ items')
@@ -292,8 +292,7 @@ class TableHandlerForm(BaseComponent):
                                                  dlgtitle='!!Current query record count')
         
             
-        if self.enableFilter():
-            self.th_filtermenu(queryfb)    
+
                 
 
         

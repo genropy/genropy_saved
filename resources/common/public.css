@@ -171,22 +171,6 @@
 
 /* @end */
 
-/* @group tablehandler */
-
-.st_filterOn .st_filterButton{
-	background-color: red;
-}
-.st_filterButton{
-	background: green;
-	-moz-border-radius-topright:7px;
-	-moz-border-radius-topleft:7px;
-    -webkit-border-top-right-radius:7px;
-    -webkit-border-top-left-radius:7px;}
-
-
-
-/* @end */
-
 /* @group includedview */
 
 .searchWidth{

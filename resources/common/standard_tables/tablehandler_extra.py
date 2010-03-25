@@ -155,14 +155,13 @@ class FiltersHandler(BaseComponent):
         #trial
         pane.button('bbb')
         
-    def th_filtermenu(self,queryfb):
-        ddb = queryfb.dropDownButton('!!Set Filter',showLabel=False,iconClass='icnBaseAction',
-                                        baseClass='st_filterButton')
-        menu = ddb.menu(_class='smallmenu',action='FIRE list.filterCommand = $1.command')
+    def th_filtermenu(self,pane):
+        filterButton = pane.div(tip='!!Set Filter',_class='st_filterButton')
+        menu = filterButton.menu(_class='smallmenu',action='FIRE list.filterCommand = $1.command',modifiers='*')
         menu.menuline('!!Set new filter',command='new_filter')
-        menu.menuline('!!Add to current filter',command='add_to_filter')
+        #menu.menuline('!!Add to current filter',command='add_to_filter')
         menu.menuline('!!Remove filter',command='remove_filter')
-        queryfb.dataController(""" var filter;
+        pane.dataController(""" var filter;
                                 if (command=='new_filter'){
                                     filter = query.deepCopy();
                                 }else if(command=='add_to_filter'){
@@ -176,7 +175,7 @@ class FiltersHandler(BaseComponent):
                                 query = '=list.query.where',
                                 pagename=self.pagename,
                              command="^list.filterCommand")
-        queryfb.dataController("if(current_filter){dojo.addClass(dojo.body(),'st_filterOn')}else{dojo.removeClass(dojo.body(),'st_filterOn')}",
+        pane.dataController("if(current_filter){dojo.addClass(dojo.body(),'st_filterOn')}else{dojo.removeClass(dojo.body(),'st_filterOn')}",
                             current_filter='^_clientCtx.filter.%s' %self.pagename,_onStart=True)
 
 class TagsHandler(BaseComponent):

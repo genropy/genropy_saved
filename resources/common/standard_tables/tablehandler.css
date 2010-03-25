@@ -76,6 +76,17 @@
 /* @end */
 
 /* @group toolbarbuttons */
+.st_filterOn .st_filterButton{
+	background: url(../icons/filter_active.png) center center no-repeat;
+}
+.st_filterButton{
+	height: 18px;
+	width: 20px;
+	cursor: pointer;
+	display:inline-block;
+	background: url(../icons/filter.png) center center no-repeat;
+}
+
 
 .tb_button {
 	height: 16px;
