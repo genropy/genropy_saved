@@ -564,8 +564,9 @@ dojo.declare("gnr.GnrStoreQuery",gnr.GnrStoreBag,{
                 value= genro.getFromStorage(this.storageMode,this.cachePrefix+request.identity);
                 if (value){
                     var scope =  request.scope?request.scope:dojo.global;
-                    result={attr:{}};
+                    var result = new gnr.GnrBagNode();
                     result.attr[this.searchAttr]=value;
+                    result.attr[this._identifier]=request.identity;
                     dojo.hitch(scope,request.onItem)(result);
                     return;
                 }
