@@ -158,9 +158,17 @@ class FiltersHandler(BaseComponent):
     def th_filtermenu(self,pane):
         filterButton = pane.dropdownbutton(tip='!!Set Filter',iconClass='st_filterButton',_class='dropDownNoArrow')
         menu = filterButton.menu(_class='smallmenu',action='FIRE list.filterCommand = $1.command',modifiers='*')
-        menu.menuline('!!Set new filter',command='new_filter')
+        menu.menuline('!!Set filter',command='new_filter')
         #menu.menuline('!!Add to current filter',command='add_to_filter')
         menu.menuline('!!Remove filter',command='remove_filter')
+        menu.menuline('-')
+        
+        menu.menuline('!!Custom filter').menu(action="""genro.rpc.remoteCall("load_query",{id:$1.pkey},null,null,null,
+                                                                                 function(result){
+                                                                                    genro.setData('_clientCtx.filter.%s',result);
+                                                                                    genro.saveContextCookie();
+                                                                                 })""" %self.pagename).remote('getQuickQuery',cacheTime=5)
+        
         pane.dataController(""" var filter;
                                 if (command=='new_filter'){
                                     filter = query.deepCopy();

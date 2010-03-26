@@ -148,9 +148,6 @@ dojo.declare("gnr.GnrQueryBuilder",null,{
             node._('menu', {modifiers:'*',_class:'smallmenu',
                    storepath:'gnr.qb.sqlop.op_spec.'+opmenu_types[i],id:'qb_op_menu_'+opmenu_types[i]});
         }
-        //aggiunta
-        node._('menu', {modifiers:'*',_class:'smallmenu',storepath:'list.view.menu',id:'list_viewmenu',
-                        action:'SET list.view.pyviews?baseview=$1.fullpath;FIRE list.runQuery;'});
         node.unfreeze();
     },
     getOpMenuId: function(dtype){

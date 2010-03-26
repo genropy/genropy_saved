@@ -78,6 +78,10 @@ class TableHandlerForm(BaseComponent):
         viewMenu.addItem('-',None)
         jsresolver = "genro.rpc.remoteResolver('getQuickView',null,{cacheTime:'5'})"
         viewMenu.addItem('savedview',jsresolver,_T='JS',caption='!!Custom view',action='FIRE list.view_id = $1.pkey;')
+        viewMenu.setItem('editview',None,caption='!!Edit view',action="""SET list.showToolbox = ! (GET list.showToolbox);
+                                                                    SET list.showExtendedQuery =! (GET list.showExtendedQuery);
+                                                                    SET list.selectedLeft = 1;
+                                                                    """)
         pane.data('list.view.menu',viewMenu)
         pane.data('list.view.pyviews',structures,baseview='_base')
         
@@ -91,7 +95,6 @@ class TableHandlerForm(BaseComponent):
         pane.dataController("""genro.querybuilder.createMenues();
                                   dijit.byId('qb_fields_menu').bindDomNode(genro.domById('fastQueryColumn'));
                                   dijit.byId('qb_not_menu').bindDomNode(genro.domById('fastQueryNot'));
-                                  dijit.byId('list_viewmenu').bindDomNode(genro.domById('menuSelectorNode'));
                                   genro.querybuilder.buildQueryPane();""" , _onStart=True)
         pane.data('usr.writePermission',self.userCanWrite())
         pane.data('usr.deletePermission',self.userCanDelete())
@@ -206,7 +209,7 @@ class TableHandlerForm(BaseComponent):
         self.listController(pane)
         tb = pane.toolbar(_class='th_toolbar')
         self.listToolbar_lefticons(tb.div(float='left',_class='th_toolbar_left'))
-        self.listToolbar_center(tb)
+        self.listToolbar_query(tb.div(float='left'))
         self.listToolbar_rightbuttons(tb)
         
     def listToolbar_lefticons(self, pane):
@@ -228,15 +231,7 @@ class TableHandlerForm(BaseComponent):
             pane.data('list.tbar.stacklabel','!!Query')
             pane.data('list.tbar.stackpage',0)
 
-    def listToolbar_center(self, pane):
-        sc = pane.stackContainer(float='left',selected='^list.tbar.stackpage')
-        self.listToolbar_query(sc.contentPane(_class='center_pane'))
-        tags_pane = sc.contentPane(_class='center_pane')
-        filter_pane = sc.contentPane(_class='center_pane')
-        #if self.tblobj.hasRecordTags():
-        #    self.lst_tags_main(tags_pane) #inside extra
-        #if self.enableFilter():
-        #    self.listToolbar_filters(filter_pane) #inside extra
+
         
     def listToolbar_query(self,pane):
         queryfb = pane.formbuilder(cols=5,datapath='list.query.where',_class='query_form',
@@ -273,7 +268,10 @@ class TableHandlerForm(BaseComponent):
                     iconClass="tb_button db_query",showLabel=False)
         if self.enableFilter():
             self.th_filtermenu(buttons)
-        buttons.button('!!Select view', showLabel=False, id='menuSelectorNode',iconClass='vieselectorIcn')
+        ddb = buttons.dropdownbutton('!!Select view', showLabel=False, id='menuSelectorNode',connectedMenu='list_viewmenu',
+                            iconClass='vieselectorIcn',_class='dropDownNoArrow')
+        ddb.menu(_class='smallmenu',storepath='list.view.menu',
+                  action='SET list.view.pyviews?baseview=$1.fullpath;FIRE list.runQuery;')
         if self.tblobj.hasRecordTags() and \
            self.application.checkResourcePermission(self.canLinkTag(), self.userTags):
             buttons.button('!!Tag',iconClass='icnTag',showLabel=False,
