@@ -63,10 +63,11 @@ class GnrSharedData_dict(object):
         return self._get(key)[0]
     
     def _get(self, key):
-        pickled_value, expiry, cas_id = self.storage[key]
-        if time.time()> expiry:
+        pickled_value, expiry, cas_id = self.storage.get(key, (None,None,None))
+        if expiry and time.time()> expiry:
             return None, None
-        return pickle.loads(pickled_value), cas_id
+        value = pickled_value and pickle.loads(pickled_value)
+        return value, cas_id
     
     def delete(self, key, time=0):
         if key in self.storage:
@@ -101,11 +102,11 @@ class GnrSharedData_dict(object):
     
 class GnrSharedData_memcache(object):
 
-    def __init__(self,site, memcache_config=None):
+    def __init__(self,site, memcache_config=None, debug=None):
         self.site = site
         self._namespace = site.site_name
         server_list = ['%(host)s:%(port)s'%attr for attr in memcache_config.digest('#a')]
-        self.storage = memcache.Client(server_list, debug=memcache_config.parentNode.attr.get('debug',False))
+        self.storage = memcache.Client(server_list, debug=debug)
         
     def key(self, key):
         return '%s_%s'%(self._namespace, key.encode('utf8'))

@@ -141,9 +141,9 @@ class GnrWsgiSite(object):
     
     def _get_shared_data(self):
         if not hasattr(self, '_shared_data'):
-            memcache_config = self.site.config['memcache']
+            memcache_config = self.config['memcache']
             if memcache_config:
-                self._shared_data = GnrSharedData_memcache(self, memcache_config)
+                self._shared_data = GnrSharedData_memcache(self, memcache_config, debug=self.config.getAttr('memcache').get('debug'))
             else:
                 self._shared_data = GnrSharedData_dict(self)
         return self._shared_data
