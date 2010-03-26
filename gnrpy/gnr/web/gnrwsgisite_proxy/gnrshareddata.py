@@ -24,9 +24,7 @@ def exp_to_epoch(exp):
     if isinstance(exp, timedelta):
         exp = exp.days*86400 + exp.seconds
     return int(time+exp)
-        
 
-        
 class GnrSharedData_dict(object):
     
     def __init__(self, site):
@@ -69,23 +67,82 @@ class GnrSharedData_dict(object):
         if time.time()> expiry:
             return None, None
         return pickle.loads(pickled_value), cas_id
-        
+    
+    def delete(self, key, time=0):
+        if key in self.storage:
+            del self.storage[key]
+    
+    def incr(self, key, delta=1):
+        if key in self.storage:
+            if not type(self.storage[key])==int:
+                self.storage[key]=0
+            self.storage[key] += delta
+            return self.storage[key]
+
+    def decr(self, key, delta=1):
+        if key in self.storage:
+            if not type(self.storage[key])==int:
+                self.storage[key]=0
+            else:
+                self.storage[key] -= delta
+                if self.storage[key] < 0:
+                    self.storage[key]=0
+            return self.storage[key]
+            
+    def add(self, key, value, expiry = 0):
+        if not key in self.storage:
+            self.set(key, value, expiry = expiry)
+            return value
+            
+    def replace (self, key, value, expiry = 0):
+        if key in self.storage:
+            self.set(key, value, expiry = expiry)
+            return value
+    
 class GnrSharedData_memcache(object):
 
     def __init__(self,site, memcache_config=None):
         self.site = site
-        self.namespace = site.site_name
+        self._namespace = site.site_name
         server_list = ['%(host)s:%(port)s'%attr for attr in memcache_config.digest('#a')]
         self.storage = memcache.Client(server_list, debug=memcache_config.parentNode.attr.get('debug',False))
         
     def key(self, key):
-        return '%s_%s'%(self.namespace, key.encode('utf8'))
+        return '%s_%s'%(self._namespace, key.encode('utf8'))
         
     def get(self, key):
         return self.storage.get(self.key(key))
+        
+    def gets(self, key):
+        result = self.storage.gets(self.key(key))
+        cas_id = self.storage.cas_ids.get(self.key(key))
+        return result, cas_id
 
-    def set(self, key, value,):
-        pass
+    def set(self, key, value, expiry=0, cas_id=None):
+        if not cas_id:
+            self.storage.set(self.key(key), value, time=exp_to_epoch(expiry))
+        else:
+            self.storage.cas_ids[self.key(key)]=cas_id
+            self.storage.cas(self.key(key), value, time=exp_to_epoch(expiry))
+    
+    def add(self, key, value, expiry = 0):
+        status = self.storage.add(key, value, time=exp_to_epoch(expiry))
+        if status:
+            return value
+    
+    def replace (self, key, value, expiry = 0):
+        status = self.storage.replace(key, value, time=exp_to_epoch(expiry))
+        if status:
+            return value
+    
+    def delete(self, key, value):
+        self.storage.delete(self.key(key))
+        
+    def incr(self, key, delta=1):
+        return self.storage.incr(key, delta=delta)
+        
+    def decr(self, key, delta=1):
+        return self.storage.decr(key, delta=delta)
 
 class Client(object):
 
