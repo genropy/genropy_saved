@@ -183,7 +183,22 @@ class SqlDbAdapter(object):
         if result:
             return True
         
-    
+    def rangeToSql(self, column, prefix, rangeStart=None, rangeEnd=None,includeStart=True,includeEnd=True):
+        """Get the sql condition for an interval, in query args add parameters prefix_start, prefix_end"""
+        #if rangeStart and rangeEnd:
+        #    return 'BETWEEN :%s_start AND :%s_end' %(prefix,prefix)
+        result=[]
+        if rangeStart:
+            cond = '%s >%s :%s_start'% (column, (includeStart and '=') or'', prefix)
+            result.append(cond)
+        if rangeEnd:
+            cond = '%s <%s :%s_end'% (column, (includeEnd and '=') or'',prefix)
+            result.append(cond)
+        result = ' AND '.join(result)
+        print '------- CONDITION %s'  %result
+        return result
+
+        
     def compileSql(self, maintable, columns, distinct='', joins=None, where=None,
                    group_by=None, having=None, order_by=None, limit=None, offset=None, for_update=None):
         def _smartappend(x, name, value):
