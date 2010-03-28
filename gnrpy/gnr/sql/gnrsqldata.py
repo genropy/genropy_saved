@@ -395,7 +395,7 @@ class SqlQueryCompiler(object):
         having = self.updateFieldDict(having or '')
         
         
-        col_list = [col for col in gnrstring.split(columns, ',') if col]
+        col_list = uniquify([col for col in gnrstring.split(columns, ',') if col])
         new_col_list = []
         for col in col_list:
             col = col.strip()
