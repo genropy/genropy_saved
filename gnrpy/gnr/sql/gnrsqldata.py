@@ -960,7 +960,8 @@ class SqlSelection(object):
                 else:
                     masterRow = datadict[d['pkey']]
                     for col in mixColumns:
-                        masterRow[col].append(d[col])
+                        if d[col] not in masterRow[col]:
+                            masterRow[col].append(d[col])
             data = newdata
         return data
             
