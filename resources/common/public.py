@@ -70,7 +70,7 @@ class Public(BaseComponent):
     def rootWidget(self, root, **kwargs):
         return root.borderContainer(_class='pbl_root',**kwargs)
         
-    def _pbl_tools(self,pane):
+    def _pbl_dialogs(self,pane):
         def cb_bottom(*args,**kwargs):
             pass
             
@@ -83,7 +83,7 @@ class Public(BaseComponent):
             
     def _pbl_root(self, rootbc, title=None, height=None, width=None, centered=None,flagsLocale=False):
         userTable=self.pbl_userTable()
-        self._pbl_tools(rootbc)
+        self._pbl_dialogs(rootbc)
         if self.user and userTable:
             rootbc.dataRecord('gnr.user_record',userTable, username=self.user, _init=True)
             rootbc.data('gnr.user_preference',self.getUserPreference('*'))
