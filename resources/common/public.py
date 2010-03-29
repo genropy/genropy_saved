@@ -70,8 +70,20 @@ class Public(BaseComponent):
     def rootWidget(self, root, **kwargs):
         return root.borderContainer(_class='pbl_root',**kwargs)
         
+    def _pbl_tools(self,pane):
+        def cb_bottom(*args,**kwargs):
+            pass
+            
+        def cb_center(parentBc,**kwargs):
+            parentBc.contentPane(**kwargs).div(_class='waiting')
+            
+        self.simpleDialog(pane,title='!!Waiting',dlgId='pbl_waiting',height='200px',width='300px',cb_center=cb_center,
+                        datapath='gnr.tools.waitingdialog',cb_bottom=cb_bottom)
+        
+            
     def _pbl_root(self, rootbc, title=None, height=None, width=None, centered=None,flagsLocale=False):
         userTable=self.pbl_userTable()
+        self._pbl_tools(rootbc)
         if self.user and userTable:
             rootbc.dataRecord('gnr.user_record',userTable, username=self.user, _init=True)
             rootbc.data('gnr.user_preference',self.getUserPreference('*'))
