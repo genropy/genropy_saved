@@ -722,7 +722,9 @@ class GnrWebAppHandler(GnrBaseProxy):
     # 
     def _getRecord_locked(self,tblobj,record,recInfo):
         print 'recordLock'
-        locked,aux=self.page.site.lockRecord(self.page,tblobj.fullname,record[tblobj.pkey])
+        #locked,aux=self.page.site.lockRecord(self.page,tblobj.fullname,record[tblobj.pkey])
+        locked=False
+        aux=[]
         if locked:
             recInfo['lockId']=aux
             return
@@ -769,7 +771,8 @@ class GnrWebAppHandler(GnrBaseProxy):
         recInfo = dict(_pkey=pkey,
                         caption=tblobj.recordCaption(record,newrecord),
                         _newrecord=newrecord, sqlContextName=sqlContextName)
-        if lock and not newrecord:
+        #if lock and not newrecord:
+        if not newrecord:
             self._getRecord_locked(tblobj,record,recInfo)            
         loadingParameters = loadingParameters or {}
         defaultParameters=dict([(k[8:],v) for k,v in kwargs.items() if k.startswith('default_')])
