@@ -376,7 +376,11 @@ class RecordToHtmlNew(TableScriptOnRecord):
             headers,lbl_height=headers.split(':')
             lbl_height=int(lbl_height)
         for k,lbl in enumerate(self.grid_col_headers.split(',')):
-            row.cell(lbl=lbl, lbl_height=lbl_height, width=self.grid_col_widths[k])
+            style=None
+            if lbl=='|':
+                lbl=''
+                style='border-top:0mm;border-bottom:0mm;'
+            row.cell(lbl=lbl, lbl_height=lbl_height, width=self.grid_col_widths[k],style=style)
 
     def gridFooter(self,row):
         """can be overridden"""
