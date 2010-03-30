@@ -162,6 +162,7 @@ class GnrPackage(object):
 
     def onAuthentication(self, avatar):
         """Hook after authentication: receive the avatar and can add information to it"""
+        pass
 
     def configure(self):
         """Build db structure in this order:
