@@ -987,6 +987,9 @@ dojo.declare('gnr.GenroClient', null, {
             genro.lockingElements[reason] = reason;
         }
         if (locking){
+            if (!reason){
+                return;
+            }
             document.createElement("div");
             var hider = document.createElement("div");
             hider.id = "mainWindow_hider";
