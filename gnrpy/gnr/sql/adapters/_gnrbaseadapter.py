@@ -195,7 +195,6 @@ class SqlDbAdapter(object):
             cond = '%s <%s :%s_end'% (column, (includeEnd and '=') or'',prefix)
             result.append(cond)
         result = ' AND '.join(result)
-        print '------- CONDITION %s'  %result
         return result
 
         

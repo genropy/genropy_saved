@@ -352,7 +352,6 @@ class GnrWebAppHandler(GnrBaseProxy):
         session = self.page.session
         session.loadSessionData()
         if command == 'init':
-            print 'initing'
             thermoBag = Bag()
         else:
             thermoBag = session.pagedata.getItem('thermo_%s' % thermoId) or Bag()
@@ -721,7 +720,6 @@ class GnrWebAppHandler(GnrBaseProxy):
     #@timer_call()
     # 
     def _getRecord_locked(self,tblobj,record,recInfo):
-        print 'recordLock'
         #locked,aux=self.page.site.lockRecord(self.page,tblobj.fullname,record[tblobj.pkey])
         locked=False
         aux=[]
