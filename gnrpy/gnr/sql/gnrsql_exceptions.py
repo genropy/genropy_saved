@@ -75,12 +75,10 @@ class GnrSqlSaveChangesException(GnrSqlException):
     
     
 class GnrSqlDeleteException(GnrSqlException): 
-        """Exception raised for sql errors.
-
-        Attributes:
-            code -- error code
-            message -- explanation of the error
-        """
+    """Exception raised for sql errors.
+        Attributes:code -- error code
+                   message -- explanation of the error
+    """
     pass
         
 class NotMatchingModelError(GnrSqlException):
