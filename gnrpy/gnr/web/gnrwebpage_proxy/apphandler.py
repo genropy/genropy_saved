@@ -770,8 +770,8 @@ class GnrWebAppHandler(GnrBaseProxy):
                         caption=tblobj.recordCaption(record,newrecord),
                         _newrecord=newrecord, sqlContextName=sqlContextName)
         #if lock and not newrecord:
-        if not newrecord:
-            self._getRecord_locked(tblobj,record,recInfo)            
+        #if not newrecord:
+        #    self._getRecord_locked(tblobj,record,recInfo)            
         loadingParameters = loadingParameters or {}
         defaultParameters=dict([(k[8:],v) for k,v in kwargs.items() if k.startswith('default_')])
         loadingParameters.update(defaultParameters)

@@ -496,12 +496,11 @@ class SqlTable(GnrObject):
                                             pid=record[ofld], for_update=True).fetch()
                 if sel:
                     if onDelete in ('r' ,'raise'):
-                        raise GnrSqlSaveChangesException ("saveRecordCluster_10","Cannot delete this record.(deleteRelated violates)")
-                    
+                        raise GnrSqlDeleteException ("saveRecordCluster_10","Cannot delete this record.(deleteRelated violates)")
                     elif onDelete in ('c' ,'cascade') :
                         for row in sel:
                             relatedTable.delete(relatedTable.record(row['pkey'], mode='bag'))
-    
+        
     def update(self, record, old_record=None, pkey=None):
         """This method updates a single record.
         @param record_data: a dictionary that represent the record that must be updated
@@ -653,7 +652,7 @@ class SqlTable(GnrObject):
         pass
         
     def protect_delete(self,record):
-        pass
+        return False
         
     def columnsFromString(self, columns):
         result = []

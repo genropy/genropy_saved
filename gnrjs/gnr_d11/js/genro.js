@@ -63,6 +63,7 @@ dojo.declare('gnr.GenroClient', null, {
         this.lastTime=this.startTime;
         this.dialogStack = [];
         this.sounds={};
+        this.pendingFireAfter={}
         this.compareDict={'==':function(a,b){return (a==b);},
                           '>':function(a,b){return (a>b);},
                           '>=':function(a,b){return (a>=b);},
@@ -240,7 +241,10 @@ dojo.declare('gnr.GenroClient', null, {
         var timeout=timeout || 1;
         var _path = path;
         var _msg = msg;
-        setTimeout(function(){genro.fireEvent(_path, _msg);}, timeout);
+        if (this.pendingFireAfter[path]){
+            clearTimeout(this.pendingFireAfter[path]);
+        }
+        this.pendingFireAfter[path]=setTimeout(function(){genro.fireEvent(_path, _msg);}, timeout);
     },
     setDataAfter: function(path, value,timeout){
         var timeout=timeout || 1;

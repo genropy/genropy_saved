@@ -34,7 +34,7 @@ from gnr.core.gnrbag import Bag
 from gnr.core.gnrclasses import GnrClassCatalog
 from gnr.sql.gnrsqlmodel import DbModel
 from gnr.sql.gnrsql_exceptions import GnrSqlException,GnrSqlExecutionException,\
-                                      GnrSqlSaveChangesException
+                                      GnrSqlSaveChangesException,GnrSqlDeleteException
 
 #from gnr.sql.adapters import *
 from datetime import datetime
@@ -287,6 +287,9 @@ class GnrSqlDb(GnrObject):
         @param tblobj: the table object
         @param record: an object implementing dict interface as colname, colvalue
         """
+        protection=tblobj.protect_delete(record)
+        if protection:
+            raise GnrSqlDeleteException(protection)
         tblobj._doFieldTriggers('onDeleting', record)
         tblobj.trigger_onDeleting(record)
         tblobj.deleteRelated(record)

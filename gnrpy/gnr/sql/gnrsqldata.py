@@ -801,13 +801,26 @@ class SqlQuery(object):
         key = key or self.dbtable.pkey
         return dict([(r[key],r) for r in fetch])
         
-    def fetchGrouped(self, key=None):
+    def fetchAsBag(self, key=None):
         """return the fetch as a dict on the given key"""
         fetch = self.fetch()
         key = key or self.dbtable.pkey
-        result = {}
+        return Bag([(r[key],r) for r in fetch])
+        
+    def fetchGrouped(self, key=None, asBag=False):
+        """return the fetch as a dict on the given key"""
+        fetch = self.fetch()
+        key = key or self.dbtable.pkey
+        if asBag:
+            result = Bag()
+        else:
+            result = {}
         for r in fetch:
-            result.setdefault(r[key], []).append(r)
+            k=r[key]
+            if not k in result:
+                result[k]=[r]
+            else:
+                result[k].append(r)
         return result
 
     def test(self):

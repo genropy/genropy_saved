@@ -130,7 +130,10 @@ dojo.declare("gnr.GnrDomSourceNode",gnr.GnrBagNode,{
                 }
             } else if (this._dataprovider && (kw.evt!='del')){ //VERIFICARE perché escusi gli eventi DEL
                 if (this.attr._delay>0){
-                    setTimeout(dojo.hitch(this,'setDataNodeValue',kw.node,kw,trigger_reason),this.attr._delay);
+                    if (this.pendingFire){
+                        clearTimeout(this.pendingFire);
+                        }
+                    this.pendingFire=setTimeout(dojo.hitch(this,'setDataNodeValue',kw.node,kw,trigger_reason),this.attr._delay);
                    
                 }else{
                     //console.log('136 '+mydpath+'   -   '+dpath);
@@ -201,9 +204,11 @@ dojo.declare("gnr.GnrDomSourceNode",gnr.GnrBagNode,{
             }
             if(tag=='dataRpc' && (expr != _else)){
                  var doCall = true;
+                 var domsource_id=this.getStringId();
                  var method=expr;
                  var httpMethod = objectPop(kwargs,'_POST')? 'POST' :'GET';
                  var _onResult = objectPop(kwargs,'_onResult');
+                 var _lockScreen = objectPop(kwargs,'_lockScreen');
                  objectPop(kwargs,'nodeId');
                  var _onCalling = objectPop(kwargs,'_onCalling');
                  var origKwargs = objectUpdate({},kwargs);
@@ -217,10 +222,16 @@ dojo.declare("gnr.GnrDomSourceNode",gnr.GnrBagNode,{
                                               if(_onResult){
                                                     _onResult(result,origKwargs);
                                               }
+                                              if(_lockScreen){
+                                                  genro.lockScreen(false,domsource_id);
+                                              }
                                         };
                 
                  if (_onCalling){
                      doCall = funcCreate(_onCalling, (['kwargs'].concat(argNames)).join(',')).apply(this, ([kwargs].concat(argValues)));
+                 }
+                 if (_lockScreen){
+                     genro.lockScreen(true, domsource_id);
                  }
                 if(doCall != false){
                     genro.rpc.remoteCall(method, kwargs, null, httpMethod, null, cb);

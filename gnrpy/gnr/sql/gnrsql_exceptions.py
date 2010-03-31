@@ -32,7 +32,9 @@ class GnrSqlException(GnrException):
         message -- explanation of the error
     """
 
-    def __init__(self,code,message):
+    def __init__(self,code,message=None):
+        if not message and ':' in code:
+            code,message=code.split(':',1)
         self.code = code
         self.message = message
         
@@ -71,6 +73,16 @@ class GnrSqlSaveChangesException(GnrSqlException):
     """
     pass
     
+    
+class GnrSqlDeleteException(GnrSqlException): 
+        """Exception raised for sql errors.
+
+        Attributes:
+            code -- error code
+            message -- explanation of the error
+        """
+    pass
+        
 class NotMatchingModelError(GnrSqlException):
     pass
 
