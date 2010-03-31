@@ -12,6 +12,7 @@ from gnr.core.gnrbag import Bag, BagCbResolver
 from gnr.core.gnrhtml import GnrHtmlBuilder
 from gnr.core.gnrstring import toText
 from gnr.core.gnrlang import NotImplementedException
+from gnr.core.gnrstring import slugify
 
 class TableScript(object):
     def __init__(self, page=None, resource_table = None,db=None,locale='en',tempFolder='',batch=None,**kwargs):
@@ -75,7 +76,7 @@ class TableScriptOnRecord(TableScript):
             ext = '.%s' % ext
         caption = ''
         if self.getData('record'):
-            caption= maintable_obj.recordCaption(self.getData('record'))
+            caption= slugify(maintable_obj.recordCaption(self.getData('record')))
         doc_name = '%s_%s%s' % (maintable_obj.name, caption, ext)
         return doc_name
     
