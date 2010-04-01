@@ -29,7 +29,7 @@ class RecordDialog(BaseComponent):
     it executes saving and loading in an independent way from the mainrecord of a standard table. 
     """
     def recordDialog(self,table=None,firedPkey=None,pane=None,height=None,width=None,_class=None,
-                    title=None,formCb=None,onSaved='',saveKwargs=None,loadKwargs=None,
+                    title=None,formCb=None,onSaving='',onSaved='',saveKwargs=None,loadKwargs=None,
                     savePath='',bottomCb=None,savingMethod=None,
                     loadingMethod=None, loadingParameters=None,onClosed='',onShow='',
                     validation_failed='alert',custom_table_id=None,centerOn=None,
@@ -47,7 +47,7 @@ class RecordDialog(BaseComponent):
         * `loadKwargs`: optional kwargs for the rpc loading method.
         * `validation_failed`: can be "alert" or "focus"
         """
-        saveKwargs = saveKwargs or {}
+        saveKwargs = saveKwargs or dict(onSaving=onSaving)
         loadKwargs = loadKwargs or {}
 
         assert not '_onResult' in saveKwargs,'You cannot put a _onResult here'
