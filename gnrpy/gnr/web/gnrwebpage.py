@@ -599,7 +599,6 @@ class GnrWebPage(GnrBaseWebPage):
                     dbselect_cache = self.getUserPreference(path='cache.dbselect',pkg='sys') 
                 if dbselect_cache is None:
                     dbselect_cache = self.site.config['client_cache?dbselect']
-                    print 'dbselect_cache',dbselect_cache
                 if dbselect_cache:
                     page.script('genro.cache_dbselect = true')
                 page.data('gnr.windowTitle', self.windowTitle())

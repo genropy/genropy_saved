@@ -416,11 +416,12 @@ class GnrBaseWebPage(GnrObject):
             return self.db.table(self.maintable)
     tblobj = property(_get_tblobj)
          
-    def formSaver(self,formId,table=None,method=None,_fired='',datapath=None,
+    def formSaver(self,formId,table=None,method=None,_fired='',datapath=None,onSaving=None,
                     resultPath='dummy',changesOnly=True,onSaved=None,saveAlways=False,**kwargs):
         method = method or 'saveRecordCluster'
         controller = self.pageController()
         data = '==genro.getFormCluster("%s");' 
+        _onCalling = '%s; %s' %(kwargs.get('_onCalling',''),onSaving or '')
         onSaved = onSaved or ''
         if changesOnly:
             data = '==genro.getFormChanges("%s");'
@@ -428,7 +429,7 @@ class GnrBaseWebPage(GnrObject):
                                  datapath=datapath,always=saveAlways)
         kwargs['fireModifiers'] = _fired.replace('^','=')
         controller.dataRpc(resultPath, method=method ,nodeId='%s_saver' %formId ,_POST=True,
-                           datapath=datapath,data=data %formId, 
+                           datapath=datapath,data=data %formId, _onCalling=_onCalling,
                            _onResult='genro.formById("%s").saved();%s;' %(formId,onSaved), 
                            table=table,**kwargs)
                        
