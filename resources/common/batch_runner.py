@@ -29,7 +29,7 @@ class BatchRunner(BaseComponent):
                          selectionName=None,selectedRowidx=None,recordId=None, thermoId=None,
                          fired=None, batch_class=None,selectionFilterCb=None,
                          thermoParams=None, _onResult=None,stopOnError=False,
-                         forUpdate=False, onRow=None, commitAfterPrint=None,**kwargs):
+                         forUpdate=False, onRow=None, commitAfterPrint=None, waitingDlg=None,**kwargs):
         """Prepare a batch action on the maintable with a thermometer
            @param resultpath: the path into the datastore where the result is stored.
            @param fired: the path where you fire the event that launch the dataRpc of selectionBatchRunner.
@@ -51,6 +51,10 @@ class BatchRunner(BaseComponent):
                               title=thermoParams.get('title', 'Batch Running'),**kwargs)
             thermofield = thermoParams.get('field')
             onBatchCalling = 'FIRE #%s_dlg.open;' %thermoId
+        #aggiunto da saverio
+        elif waitingDlg:
+            onBatchCalling = 'FIRE #pbl_waiting.open;'
+            _onResult = '%s %s' % (_onResult, 'FIRE #pbl_waiting.close;')
             
         pane.dataRpc('%s.result' % resultpath, 'runBatch', timeout=0, _POST=True,
                      table=kwargs.pop('table', self.maintable), selectionName=selectionName,

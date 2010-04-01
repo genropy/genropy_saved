@@ -21,7 +21,8 @@ class PrintUtils(BaseComponent):
                         gridId='maingrid',batch_class=None,
                         commitAfterPrint=None,
                         selectedRowidx=None,pdfOnly=False,
-                        _onResult='',data_method=None, **kwargs):
+                        _onResult='',data_method=None,
+                        waitingDlg=None,**kwargs):
         table = table or self.maintable
         if not batch_class:
             if recordId:
@@ -53,7 +54,7 @@ class PrintUtils(BaseComponent):
                             commitAfterPrint=commitAfterPrint,
                             docName=docName,selectedRowidx=selectedRowidx,
                             runKwargs='=.parameters.data',
-                            data_method=data_method,
+                            data_method=data_method,waitingDlg=waitingDlg,
                             **kwargs)    
         self.buildBatchRunner(pane,_onResult='if($1){genro.download($1)};%s'%_onResult,
                             pdfParams='=.pdf',fired='^.dlpdf',thermoId='%s_thermo_pdf'%name,**batchPars) 

@@ -513,7 +513,7 @@ dojo.declare("gnr.GnrValidator",null,{
             } else if(param=='lower' || param=='l'){
                 value = value.toLowerCase();
             } else if(param=='capitalize' || param=='c'){
-                value = stringCapitalize(value);
+                value = stringCapitalize(value.toLowerCase());
             } else if(param=='title' || param=='t'){
                 value = value[0].toUpperCase() + value.slice(1);
             }
