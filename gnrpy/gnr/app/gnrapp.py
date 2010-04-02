@@ -37,13 +37,13 @@ from gnr.utils import ssmtplib
 from gnr.core.gnrclasses import GnrClassCatalog
 from gnr.core.gnrbag import Bag
 
-from gnr.core.gnrlang import  gnrImport, instanceMixin, GnrGenericException
+from gnr.core.gnrlang import  gnrImport, instanceMixin, GnrException
 from gnr.core.gnrstring import makeSet, toText, splitAndStrip, like, boolean
 from gnr.core.gnrsys import expandpath
 from gnr.sql.gnrsql import GnrSqlDb
 from gnr.sql.gnrsqltable import SqlTablePlugin
 
-class GnrImportException(GnrGenericException):
+class GnrImportException(GnrException):
     pass
         
 class GnrMixinObj(object):
