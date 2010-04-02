@@ -102,6 +102,8 @@ class RecordToHtmlNew(TableScriptOnRecord):
     row_mode = 'value'
     page_header_height = 0 #
     page_footer_height = 0 
+    page_leftbar_width = 0
+    page_rightbar_width =0
     doc_header_height = 0 # eg 10
     doc_footer_height = 0 # eg 15
     grid_header_height = 0 # eg 6.2
@@ -134,6 +136,8 @@ class RecordToHtmlNew(TableScriptOnRecord):
             self.page_width = self.page_width or self.htmlTemplate['main.page.width'] or 200
             self.page_header_height = self.page_header_height or  self.htmlTemplate['layout.top?height'] or 0
             self.page_footer_height = self.page_footer_height or  self.htmlTemplate['layout.bottom?height'] or 0
+            self.page_leftbar_width = self.page_leftbar_width or  self.htmlTemplate['layout.left?width'] or 0
+            self.page_rightbar_width = self.page_leftbar_width or  self.htmlTemplate['layout.right?width'] or 0
             self.page_margin_top = self.page_margin_top or self.htmlTemplate['main.page.top'] or 0
             self.page_margin_left = self.page_margin_left or self.htmlTemplate['main.page.left'] or 0
             self.page_margin_right = self.page_margin_right or self.htmlTemplate['main.page.right'] or 0
@@ -225,6 +229,9 @@ class RecordToHtmlNew(TableScriptOnRecord):
         return (self.page_height-self.page_margin_top-self.page_margin_bottom-\
                 self.page_header_height - self.page_footer_height-\
                 self.copy_extra_height*(self.copies_per_page-1))/self.copies_per_page
+    def copyWidth(self):
+        return (self.page_width-self.page_margin_left-self.page_margin_right-\
+                self.page_leftbar_width - self.page_rightbar_width)
         
     def mainLoop(self):
         self.copies=[]
