@@ -196,7 +196,18 @@ class SqlDbAdapter(object):
             result.append(cond)
         result = ' AND '.join(result)
         return result
-
+        
+    def ageAtDate(self, dateColumn, dateArg=None, timeUnit='day'):
+        """Returns the sql clause to obtain the age of a dateColum measured as difference from the dateArg or the workdate
+           And expressed with given timeUnit.
+           @param dateColumn: a D or DH column
+           @dateArg: name of the parameter that contains the reference date
+           @timeUnit: year,month,week,day,hour,minute,second. Defaulted to day"""
+        dateArg = dateArg or 'env_workdate'
+        timeUnitDict= dict(year=365*24*60*60 , month= 365*24*60*60/12, week=7*24*60*60 ,day=24*60*60, hour=60*60, minute=60, second=1)
+        return """CAST((EXTRACT (EPOCH FROM(cast(:%s as date))) - 
+                        EXTRACT (EPOCH FROM(%s)))/%i as bigint)""" % (dateArg,dateColumn,
+                                                                      timeUnitDict.get(timeUnit,None) or timeUnitDict['day'])
         
     def compileSql(self, maintable, columns, distinct='', joins=None, where=None,
                    group_by=None, having=None, order_by=None, limit=None, offset=None, for_update=None):
