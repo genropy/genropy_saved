@@ -67,11 +67,13 @@ class DbModel(object):
             for pkg in self.mixins['tbl'].keys():
                 pkgsrc = self.src['packages.%s' % pkg]
                 for tblmix in self.mixins['tbl.%s' % pkg].values():
+                    tblmix.db=self.db
                     _doObjMixinConfig(tblmix, pkgsrc)
                     
         if 'pkg' in self.mixins:
             for pkg, pkgmix in self.mixins['pkg'].items():
                 pkgsrc = self.src['packages.%s' % pkg]
+                pkgmix.db=self.db
                 _doObjMixinConfig(pkgmix, pkgsrc)
 
         sqldict = moduleDict('gnr.sql.gnrsqlmodel','sqlclass,sqlresolver')
