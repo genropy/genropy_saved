@@ -728,18 +728,9 @@ class GnrWebAppHandler(GnrBaseProxy):
             return
         for f in aux:
             recInfo['locking_%s'%f]=aux[f]
-        protect_write=tblobj.protect_write(record)
-        if  protect_write:
-            if isinstance(protect_write,dict):
-                recInfo['protect_write']=protect_write.get('protect_write')
-                recInfo['protect_fields']=protect_write.get('protect_fields')
-                recInfo['unprotect_fields']=protect_write.get('unprotect_fields')
-            else:
-                recInfo['protect_write']=protect_write
-        recInfo['protect_delete']=tblobj.protect_delete(record)
             
     def rpc_getRecord(self, table=None, dbtable=None, pkg=None, pkey=None,
-                    ignoreMissing=True, ignoreDuplicate=True, lock=False,
+                    ignoreMissing=True, ignoreDuplicate=True, lock=False,readOnly=False,
                     from_fld=None, target_fld=None, sqlContextName=None, applymethod=None,
                     js_resolver_one='relOneResolver', js_resolver_many='relManyResolver', 
                     loadingParameters=None, eager=None,**kwargs):
@@ -770,8 +761,11 @@ class GnrWebAppHandler(GnrBaseProxy):
                         caption=tblobj.recordCaption(record,newrecord),
                         _newrecord=newrecord, sqlContextName=sqlContextName)
         #if lock and not newrecord:
-        #if not newrecord:
-        #    self._getRecord_locked(tblobj,record,recInfo)            
+        if not newrecord and not readOnly:
+            recInfo['updatable']=tblobj.check_updatable(record)
+            recInfo['deletable']=tblobj.check_deletable(record)
+            if lock:
+                self._getRecord_locked(tblobj,record,recInfo)            
         loadingParameters = loadingParameters or {}
         defaultParameters=dict([(k[8:],v) for k,v in kwargs.items() if k.startswith('default_')])
         loadingParameters.update(defaultParameters)
