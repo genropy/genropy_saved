@@ -63,6 +63,7 @@ class TableHandlerForm(BaseComponent):
         pane.dataFormula('form.unlocked','!locked',locked='^form.locked')
         pane.dataFormula('form.canWrite','(!locked ) && writePermission',locked='^form.locked',writePermission='=usr.writePermission',_init=True)
         pane.dataFormula('form.canDelete','(!locked) && deletePermission',locked='^form.locked',deletePermission='=usr.deletePermission',_init=True)
+        pane.dataFormula('form.readOnly','formLocked',formLocked='^status.locked')
         pane.dataFormula('form.lockAcquire','(!statusLocked) && lock',statusLocked='^status.locked',
                                      lock=self.recordLock or False)
         pane.dataController("""
@@ -80,6 +81,7 @@ class TableHandlerForm(BaseComponent):
                             _fired='^form.onRecordLoaded')
         
         self.formLoader('formPane', resultPath='form.record',_fired='^form.doLoad',lock='=form.lockAcquire',
+                        readOnly='=form.readOnly',
                         table=self.maintable, pkey='=list.selectedId',method='loadRecordCluster',
                         loadingParameters='=gnr.tables.maintable.loadingParameters',
                         onLoaded='FIRE form.onRecordLoaded;',sqlContextName='sql_record')
