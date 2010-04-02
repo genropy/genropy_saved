@@ -99,8 +99,8 @@ class TableHandlerForm(BaseComponent):
         pane.data('usr.writePermission',self.userCanWrite())
         pane.data('usr.deletePermission',self.userCanDelete())
         pane.data('usr.unlockPermission',self.userCanDelete() or self.userCanWrite())
-        pane.data('status.locked',True)
-        pane.dataFormula('status.unlocked','!locked',locked='^status.locked',_init=True)
+        pane.dataFormula('status.locked','true',_onStart=True)
+        pane.dataFormula('status.unlocked','!locked',locked='^status.locked')
         condition=self.conditionBase()
         condPars={}
         if condition:
