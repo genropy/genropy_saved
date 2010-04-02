@@ -78,8 +78,8 @@ class TableHandlerForm(BaseComponent):
         viewMenu.addItem('-',None)
         jsresolver = "genro.rpc.remoteResolver('getQuickView',null,{cacheTime:'5'})"
         viewMenu.addItem('savedview',jsresolver,_T='JS',caption='!!Custom view',action='FIRE list.view_id = $1.pkey;')
-        viewMenu.setItem('editview',None,caption='!!Edit view',action="""SET list.showToolbox = ! (GET list.showToolbox);
-                                                                    SET list.showExtendedQuery =! (GET list.showExtendedQuery);
+        viewMenu.setItem('editview',None,caption='!!Edit view',action="""SET list.showToolbox = true;
+                                                                    SET list.showExtendedQuery =true;
                                                                     SET list.selectedLeft = 1;
                                                                     """)
         pane.data('list.view.menu',viewMenu)
@@ -271,7 +271,15 @@ class TableHandlerForm(BaseComponent):
         ddb = buttons.dropdownbutton('!!Select view', showLabel=False, id='menuSelectorNode',connectedMenu='list_viewmenu',
                             iconClass='vieselectorIcn',_class='dropDownNoArrow')
         ddb.menu(_class='smallmenu',storepath='list.view.menu',
-                  action='SET list.view.pyviews?baseview=$1.fullpath;FIRE list.runQuery;')
+                  action="""
+                            SET list.view.pyviews?baseview = $1.fullpath;
+                            //to correct the path name
+                            FIRE list.view.new; 
+                            //end to correct
+                            if(GET list.selectionName){
+                                FIRE list.runQuery;
+                            }
+                           """)
         if self.tblobj.hasRecordTags() and \
            self.application.checkResourcePermission(self.canLinkTag(), self.userTags):
             buttons.button('!!Tag',iconClass='icnTag',showLabel=False,
@@ -322,8 +330,12 @@ class TableHandlerForm(BaseComponent):
                               running='=list.queryRunning', _if='!running', fired='^list.runQuery')   
         pane.dataController('SET list.query.selectedId = query_id; genro.fireAfter("list.runQueryButton",true,300)',
                                 query_id="^list.query_id")
-        pane.dataController('SET list.view.selectedId = view_id; genro.fireAfter("list.runQueryButton",true,300)',
-                                view_id="^list.view_id")
+        pane.dataController("""SET list.view.selectedId = view_id; 
+                                if(selectionName){
+                                    genro.fireAfter("list.runQueryButton",true,300);
+                                }
+                                """,
+                                view_id="^list.view_id",selectionName='=list.selectionName')
         
         pane.dataController("""    
                                    SET selectedPage=1;

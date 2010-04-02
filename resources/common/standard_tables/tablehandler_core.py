@@ -174,7 +174,7 @@ class ListViewHandler(BaseComponent):
                               genro.viewEditor.buildCols();
                               SET list.view.selectedId=null;
                               """,
-                            viewName='^list.view.pyviews?baseview',_fired='^list.view.new',
+                            viewName='=list.view.pyviews?baseview',_fired='^list.view.new',
                             _onStart=True)
 
     def toolboxViews(self, container):
