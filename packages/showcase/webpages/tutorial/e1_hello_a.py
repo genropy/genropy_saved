@@ -10,7 +10,6 @@
 import datetime
 
 class GnrCustomWebPage(object):
-    css_requires='csspaginadirino'
     def windowTitle(self):
          return '!!Hello world'
 
