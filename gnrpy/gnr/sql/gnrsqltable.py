@@ -648,11 +648,17 @@ class SqlTable(GnrObject):
     def trigger_onDeleted(self, record):
         pass
         
-    def protect_write(self,record):
-        pass
+    def protect_update(self,record):
+        return False
         
     def protect_delete(self,record):
         return False
+        
+    def check_updatable(self,record):
+        return not self.protect_update(record)
+
+    def check_deletable(self,record):
+        return not self.protect_delete(record)
         
     def columnsFromString(self, columns):
         result = []
