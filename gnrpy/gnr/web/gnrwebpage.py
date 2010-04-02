@@ -44,7 +44,7 @@ from gnr.web.gnrwebpage_proxy.utils import GnrWebUtils
 from gnr.web.gnrwebpage_proxy.pluginhandler import GnrWebPluginHandler
 from gnr.web.gnrwebpage_proxy.jstools import GnrWebJSTools
 from gnr.web.gnrwebstruct import GnrGridStruct
-from gnr.core.gnrlang import GnrGenericException, gnrImport
+from gnr.core.gnrlang import gnrImport, GnrException, GnrException
 from gnr.core.gnrbag import Bag
 from gnr.core.gnrlang import deprecated
 import datetime
@@ -56,7 +56,7 @@ AUTH_FORBIDDEN=-1
 ##### Prima di modificare le repositori Progetti
 from gnr.web.gnrbaseclasses import BaseComponent
 
-class GnrWebPageException(GnrGenericException):
+class GnrWebPageException(GnrException):
     pass
 
 
@@ -249,9 +249,11 @@ class GnrWebPage(GnrBaseWebPage):
         auth = AUTH_OK
         if not method in ('doLogin', 'jscompress'):
             auth = self._checkAuth(method=method, **parameters)
-        
-        result = self.rpc(method=method, _auth=auth, **parameters)
-            
+        try:
+            result = self.rpc(method=method, _auth=auth, **parameters)
+        except GnrException, e:
+            self.rpc.error = str(e)
+            result = None
         result_handler = getattr(self.rpc, 'result_%s' % mode.lower())
         return_result = result_handler(result)
         return return_result
