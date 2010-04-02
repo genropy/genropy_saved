@@ -330,9 +330,7 @@ dojo.declare("gnr.GnrRpcHandler",null,{
         if(resultAsNode){
             return envNode;
         } else {
-
             return envNode.getValue();
-
         }
         
     },
