@@ -22,7 +22,7 @@
 
 __version__='1.0b'
 
-from gnr.core.gnrlang import GnrException, GnrGenericException
+from gnr.core.gnrlang import GnrException
 
 class GnrSqlException(GnrException): 
     """Exception raised for sql errors.
@@ -85,26 +85,26 @@ class NotMatchingModelError(GnrSqlException):
     pass
 
     
-class SelectionExecutionError(GnrGenericException):
+class SelectionExecutionError(GnrException):
     pass
 
-class RecordDuplicateError(GnrGenericException):
+class RecordDuplicateError(GnrException):
     pass
 
-class RecordNotExistingError(GnrGenericException):
+class RecordNotExistingError(GnrException):
     pass
 
-class RecordSelectionError(GnrGenericException):
+class RecordSelectionError(GnrException):
     pass
 
-class GnrSqlMissingField(GnrGenericException):
+class GnrSqlMissingField(GnrException):
     pass
     
-class GnrSqlMissingTable(GnrGenericException): 
+class GnrSqlMissingTable(GnrException): 
     pass
 
-class GnrSqlMissingColumn(GnrGenericException):
+class GnrSqlMissingColumn(GnrException):
     pass
 
-class GnrSqlRelationError(GnrGenericException):
+class GnrSqlRelationError(GnrException):
     pass
