@@ -80,12 +80,6 @@ def timer_call(time_list=[],print_time=True):
     return decore
 
 
-class GnrGenericException(Exception): 
-    pass
-
-class NotImplementedException(GnrGenericException): 
-    pass
-
 def getUuid():
     return base64.urlsafe_b64encode(uuid.uuid3(uuid.uuid1(),str(thread.get_ident())).bytes)[0:22]
 
@@ -164,13 +158,17 @@ class GnrException(Exception):
         message -- explanation of the error
     """
 
-    def __init__(self, code, message=None, value=None):
+    def __init__(self, code=None, message=None, value=None):
         self.code = code
         self.message = message
         self.value = value
         
     def __str__(self):
-        return self.message
+        return 'Error:%s - %s' % (self.code, self.message)
+
+class NotImplementedException(GnrException): 
+    pass
+
 
 class GnrObject(object):
     def __init__(self):
