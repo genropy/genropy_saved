@@ -232,6 +232,21 @@ class GnrHtmlBuilder(object):
                             if innerHTML:
                                 innerHTML = "%s::HTML" %innerHTML
                             regions['%s_%s' %(region,subregion)] = row.cell(content=innerHTML,width=width,border=0)
+        elif self.htmlTemplate['main.design'] == 'sidebar':
+            mainrow = layout.row(height=0)
+            for region in ('left','center','right'):
+                width = self.htmlTemplate['layout.%s?width' %region] or 0
+                if region=='center' or width:
+                    col = mainrow.cell(width=width,border=0).layout()
+                    for subregion in ('top','center','bottom'):
+                        height = self.htmlTemplate['layout.%s.%s?height' %(region,subregion)] or 0
+                        if subregion=='center' or height:
+                            row = col.row(height=height)
+                            innerHTML = self.htmlTemplate['layout.%s.%s.html' %(region,subregion)] or None
+                            if innerHTML:
+                                innerHTML = "%s::HTML" %innerHTML
+                            regions['%s_%s' %(region,subregion)] = row.cell(content=innerHTML,border=0)
+                
         return regions['center_center']
                             
             
