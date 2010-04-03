@@ -29,13 +29,13 @@ import cPickle
 
 from gnr.core.gnrlang import getUuid
 from gnr.core.gnrlang import GnrObject
-from gnr.core.gnrlang import importModule
+from gnr.core.gnrlang import importModule,GnrException
 from gnr.core.gnrbag import Bag
 from gnr.core.gnrclasses import GnrClassCatalog
-from gnr.sql.gnrsqlmodel import DbModel
-from gnr.sql.gnrsql_exceptions import GnrSqlException,GnrSqlExecutionException,\
-                                      GnrSqlSaveChangesException,GnrSqlDeleteException
 
+#from gnr.sql.gnrsql_exceptions import GnrSqlException,GnrSqlExecutionException,\
+#                                      GnrSqlSaveException,GnrSqlDeleteException
+#
 #from gnr.sql.adapters import *
 from datetime import datetime
 import re
@@ -43,6 +43,18 @@ import thread
 import locale
 
 IN_OPERATOR_PATCH=re.compile(r'\s\S+\sIN\s\(\)')
+
+
+class GnrSqlException(GnrException): 
+    """Standard Gnr Sql Base Exception"""
+    code='GNRSQL-001'
+    description='!!Genro SQL base exception'
+    
+class GnrSqlExecException(GnrSqlException): 
+    """Standard Gnr Sql Base Exception"""
+    code='GNRSQL-002'
+    description='!!Genro SQL execution exception'
+
 
 class GnrSqlDb(GnrObject):
     """
@@ -52,6 +64,7 @@ class GnrSqlDb(GnrObject):
          -manage operations on db at high level, hiding adapter's layer and
          connections.
     """
+    
     def __init__(self, implementation='sqlite', dbname='mydb',
                  host=None, user=None, password=None, port=None,
                  main_schema=None,debugger=None,application=None,
@@ -76,13 +89,12 @@ class GnrSqlDb(GnrObject):
         self.typeConverter = GnrClassCatalog()
         self.debugger=debugger
         self.application=application
-        
+        self.model=self.createModel()
         self.adapter = importModule('gnr.sql.adapters.gnr%s' % implementation).SqlDbAdapter(self)
         self.whereTranslator = self.adapter.getWhereTranslator()
         if main_schema is None: 
             main_schema = self.adapter.defaultMainSchema()
         self.main_schema = main_schema
-        self.model = DbModel(self)
         self._connections = {}
         self.started = False
         self.dbstores={}
@@ -92,6 +104,12 @@ class GnrSqlDb(GnrObject):
         
 
     #------------------------Configure and Startup-----------------------------
+    # 
+
+    def createModel(self):
+        from gnr.sql.gnrsqlmodel import DbModel
+        return DbModel(self)
+    
     def startup(self):
         """Build the model.obj from the model.src"""
         self.model.build()
@@ -276,9 +294,7 @@ class GnrSqlDb(GnrObject):
         @param tblobj: the table object
         @param record: an object implementing dict interface as colname, colvalue
         """
-        protection=tblobj.protect_update(record)
-        if protection:
-            raise GnrSqlSaveChangesException(protection)
+        tblobj.protect_update(record)
         tblobj._doFieldTriggers('onUpdating', record)
         tblobj.trigger_onUpdating(record, old_record=old_record)
         self.adapter.update(tblobj, record, pkey=pkey)
@@ -290,9 +306,7 @@ class GnrSqlDb(GnrObject):
         @param tblobj: the table object
         @param record: an object implementing dict interface as colname, colvalue
         """
-        protection=tblobj.protect_delete(record)
-        if protection:
-            raise GnrSqlDeleteException(protection)
+        tblobj.protect_delete(record)
         tblobj._doFieldTriggers('onDeleting', record)
         tblobj.trigger_onDeleting(record)
         tblobj.deleteRelated(record)

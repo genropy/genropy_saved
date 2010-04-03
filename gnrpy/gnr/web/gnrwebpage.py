@@ -44,7 +44,7 @@ from gnr.web.gnrwebpage_proxy.utils import GnrWebUtils
 from gnr.web.gnrwebpage_proxy.pluginhandler import GnrWebPluginHandler
 from gnr.web.gnrwebpage_proxy.jstools import GnrWebJSTools
 from gnr.web.gnrwebstruct import GnrGridStruct
-from gnr.core.gnrlang import gnrImport, GnrException, GnrException
+from gnr.core.gnrlang import gnrImport, GnrException
 from gnr.core.gnrbag import Bag
 from gnr.core.gnrlang import deprecated
 import datetime
@@ -165,7 +165,7 @@ class GnrWebPage(GnrBaseWebPage):
         if not hasattr(self, '_db'):
             self._db = self.app.db
             self._db.updateEnv(storename= getattr(self,'storename', None),workdate=self.workdate, locale=self.locale,
-                               user=self.user, pagename=self.pagename)
+                               user=self.user, userTags=self.userTags, pagename=self.pagename)
             for dbenv in [getattr(self,x) for x in dir(self) if x.startswith('dbenv_')]:
                 kwargs=dbenv() or {}
                 self._db.updateEnv( **kwargs)

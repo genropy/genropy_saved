@@ -29,12 +29,40 @@ from gnr.core import gnrstring
 from gnr.core.gnrlang import GnrObject
 from gnr.core.gnrbag import Bag, BagCbResolver
 from gnr.core.gnrlog import gnrlogging
-from gnr.sql.gnrsql_exceptions import GnrSqlException,GnrSqlSaveChangesException, GnrSqlApplicationException
+#from gnr.sql.gnrsql_exceptions import GnrSqlException,GnrSqlSaveException, GnrSqlApplicationException
 from gnr.sql.gnrsqldata import SqlRecord, SqlQuery
+from gnr.sql.gnrsql import GnrSqlException
 from gnr.core.gnrlang import getUuid
 gnrlogger = gnrlogging.getLogger('gnr.sql.gnrsqltable')
 
+class GnrSqlSaveException(GnrSqlException): 
+    code='GNRSQL-03'
+    description='!!Genro SQL Save Exception'
+    caption="!!The record %(rowcaption)s in table %(tablename)s cannot be saved:%(msg)s" 
+    
+class GnrSqlDeleteException(GnrSqlException): 
+    code='GNRSQL-04'
+    description='!!Genro SQL Delete Exception'
+    caption="!!The record %(rowcaption)s in table %(tablename)s cannot be deleted:%(msg)s" 
+
+class GnrSqlProtectUpdateException(GnrSqlException):
+    code='GNRSQL-11'
+    description='!!Genro SQL Protect Update Exception'
+    caption="!!The record %(rowcaption)s in table %(tablename)s is not updatable:%(msg)s" 
+
+class GnrSqlProtectDeleteException(GnrSqlException):
+    code='GNRSQL-12'
+    description='!!Genro SQL Protect Update Exception'
+    caption="!!The record %(rowcaption)s in table %(tablename)s is not deletable:%(msg)s"  
+    
+EXCEPTIONS= {'save': GnrSqlSaveException,
+             'delete': GnrSqlDeleteException,
+             'protect_update':GnrSqlProtectUpdateException,
+             'protect_delete':GnrSqlProtectDeleteException}
+     
 class SqlTable(GnrObject):
+
+        
     def __init__(self, tblobj):
         self._model = tblobj
         self.name = tblobj.name
@@ -42,7 +70,19 @@ class SqlTable(GnrObject):
         self.name_long = tblobj.name_long
         self.name_plural = tblobj.name_plural
         
-
+    def exception(self,exception,record=None,msg=None,**kwargs):
+        if exception in EXCEPTIONS:
+            rowcaption=''
+            if record:  
+                rowcaption=self.recordCaption(record)
+            e= EXCEPTIONS[exception](tablename=self.fullname,
+                                         rowcaption=rowcaption,
+                                         msg=msg,**kwargs)
+            if self.db.application and self.db.application.site and self.db.application.site.currentPage:
+                e.setLocalizer(self.db.application.site.currentPage.localizer)
+            return e
+        raise
+         
     def __repr__(self):
         return "<SqlTable %s>" % repr(self.fullname)
     
@@ -64,9 +104,6 @@ class SqlTable(GnrObject):
         return self.model.db
     db = property(_get_db)
     dbroot = db
-    
-    def applicationError(self, message, code=None):
-        return GnrSqlApplicationException(code, message, table=self.fullname)
     
     def column(self,name):
         """Returns a column object.
@@ -359,9 +396,6 @@ class SqlTable(GnrObject):
                          addPkeyColumn=addPkeyColumn,locale=locale,
                          **kwargs)
         
-        if mode:
-            raise GnrSqlException ("Query_01","Validation error: %s" % str(mode) )
-        
         return query
     
     def batchUpdate(self,updater=None,**kwargs):
@@ -496,7 +530,7 @@ class SqlTable(GnrObject):
                                             pid=record[ofld], for_update=True).fetch()
                 if sel:
                     if onDelete in ('r' ,'raise'):
-                        raise GnrSqlDeleteException ("saveRecordCluster_10","Cannot delete this record.(deleteRelated violates)")
+                        raise self.exception('delete',record=record,msg='!!Record referenced in table %(reltable)s',reltable=relatedTable.fullname)
                     elif onDelete in ('c' ,'cascade') :
                         for row in sel:
                             relatedTable.delete(relatedTable.record(row['pkey'], mode='bag'))
@@ -527,7 +561,7 @@ class SqlTable(GnrObject):
             lastTs = recordClusterAttr.get('lastTS')
             changed_TS = lastTs and (lastTs != str(main_record[self.lastTS]))
             if changed_TS and (self.noChangeMerge or toDelete):
-                raise GnrSqlSaveChangesException ("saveRecordCluster_01","Another user modified the record: operation aborted")
+                raise self.exception ("save",record=main_record,msg="Another user modified the record.Operation aborted")
             if toDelete:
                 self.delete(old_record)
                 return
@@ -541,7 +575,11 @@ class SqlTable(GnrObject):
                     elif fnode.value != main_record[fname]:  # new value is different from value in db
                         incompatible = (fnode.getAttr('oldValue') != main_record[fname]) # value in db is different from oldvalue --> other user changed it
                     if incompatible:
-                        raise GnrSqlSaveChangesException("saveRecordCluster_02","Incompatible changes: another user modified field %s from %s to %s --- %s" % (fname, fnode.getAttr('oldValue'), main_record[fname],fnode.value))
+                        raise self.exception("save",record=main_record,
+                                      msg="Incompatible changes: another user modified field %(fldname)s from %(oldValue)s to %(newValue)s",
+                                      fldname=fname, 
+                                      oldValue=fnode.getAttr('oldValue'),
+                                      newValue= main_record[fname])
                 main_record[fname] = fnode.value
         for rel_name, rel_recordClusterNode in relatedOne.items():
             rel_recordCluster = rel_recordClusterNode.value
@@ -553,9 +591,7 @@ class SqlTable(GnrObject):
             from_fld = joiner['many_relation'].split('.')[2]
             to_fld = joiner['one_relation'].split('.')[2]
             main_record[from_fld] = rel_record[to_fld]
-        validationError = self.validateRecord(main_record)
-        if validationError:
-            raise GnrSqlSaveChangesException ("saveRecordCluster_03","Validation error: %s" % validationError )
+            
         if isNew:
             self.insert(main_record)
         else:
@@ -624,9 +660,7 @@ class SqlTable(GnrObject):
     
     def onInited(self):
         pass
-    
-    def validateRecord(self, record):
-        pass
+
     
     def trigger_onInserting(self,record):
         #self.trigger_onUpdating(record) Commented out Miki 2009/02/24
@@ -649,16 +683,22 @@ class SqlTable(GnrObject):
         pass
         
     def protect_update(self,record):
-        return False
+        pass
         
     def protect_delete(self,record):
-        return False
+        pass
         
     def check_updatable(self,record):
-        return not self.protect_update(record)
+        try :
+            self.protect_update(record)
+        except EXCEPTIONS['protect_update'],e:
+            return str(e)
 
     def check_deletable(self,record):
-        return not self.protect_delete(record)
+        try :
+            self.protect_delete(record)
+        except EXCEPTIONS['protect_delete'],e:
+            return str(e)
         
     def columnsFromString(self, columns):
         result = []
@@ -930,7 +970,7 @@ class SqlTableBatch(SqlTablePlugin):
             if self.thermofield=='*':
                 msg = self.tblobj.recordCaption(record[0])
             else:
-                msg = result[0][self.thermofield]
+                msg = record[0][self.thermofield]
             result = self.thermoCb(self.thermoId, i+1, msg)
             if result=='stop':
                 self.thermoCb(self.thermoId, command='stopped')
@@ -963,7 +1003,7 @@ class SqlTableBatch(SqlTablePlugin):
     def columns(self):
         return '*'
     
-    def createSelection(self):
+    def createSelection(self,**kwargs):
         self.tblobj.query(columns=self.columns(), pkeyList=self.pkeyList, forUpdate=self.forUpdate, **kwargs).selection()
                 
 

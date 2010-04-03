@@ -64,7 +64,7 @@ class GnrSqlExecutionException(GnrSqlException):
         self.sql = sql
         self.params = params
 
-class GnrSqlSaveChangesException(GnrSqlException): 
+class GnrSqlSaveException(GnrSqlException): 
     """Exception raised for sql errors.
 
     Attributes:
@@ -72,6 +72,8 @@ class GnrSqlSaveChangesException(GnrSqlException):
         message -- explanation of the error
     """
     pass
+
+    
     
     
 class GnrSqlDeleteException(GnrSqlException): 

@@ -53,7 +53,7 @@ from gnr.core.gnrlang import GnrObject
 from gnr.core.gnrstring import  toText, toJson
 from gnr.core import gnrdate
 
-from gnr.sql.gnrsql_exceptions import GnrSqlSaveChangesException
+from gnr.sql.gnrsql_exceptions import GnrSqlSaveException
 
 AUTH_OK=0
 AUTH_NOT_LOGGED=1
@@ -488,7 +488,7 @@ class GnrBaseWebPage(GnrObject):
             if not _nocommit:
                 self.db.commit()
             return (record[tblobj.pkey],resultAttr)
-       # except GnrSqlSaveChangesException, e:
+       # except GnrSqlSaveException, e:
        #     return ('validation_error',{ 'msg':e.message})
        # except Exception, e:
        #     raise e
@@ -508,7 +508,7 @@ class GnrBaseWebPage(GnrObject):
             self.onDeleted(record)
             self.db.commit()
             return 'ok'
-        except GnrSqlSaveChangesException, e:
+        except GnrSqlSaveException, e:
             return ('delete_error',{ 'msg':e.message})    
             
     def rpc_deleteRow(self,table,pkey=None,record=None,**kwargs):

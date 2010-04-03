@@ -21,6 +21,7 @@ import inspect
 from gnr.core.gnrprinthandler import PrintHandler
 from gnr.core.gnrmailhandler import MailHandler
 from gnr.web.gnrwsgisite_proxy.gnrshareddata import GnrSharedData_dict, GnrSharedData_memcache
+from gnr.web.gnrwsgisite_proxy.gnrmsg import  GnrMessageHandler
 mimetypes.init()
 site_cache = {}
 
