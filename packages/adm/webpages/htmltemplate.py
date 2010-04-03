@@ -185,7 +185,7 @@ class GnrCustomWebPage(object):
                 fb.dataController("if(_triggerpars.kw.reason!=true){SET .%s = dojo.number.round(parseFloat(val.slice(0,-2))/3.779527559,2);}" %data_path,
                                     val="^_temp.data.layout.%s" %temp_path)
     
-    def sideBarOpt(self,pane):
+    def sideBarOpt____(self,pane):
         fb = pane.formbuilder(cols=3, border_spacing='4px',datapath='.layout')
         for i in ('left','center','right'):
             if i != 'center':
@@ -209,3 +209,30 @@ class GnrCustomWebPage(object):
                                   val="^.%s" %data_path)
                 fb.dataController("if(_triggerpars.kw.reason!=true){SET .%s = dojo.number.round(parseFloat(val.slice(0,-2))/3.779527559,2);}" %data_path,
                                     val="^_temp.data.layout.%s" %temp_path)
+    def sideBarOpt(self,pane):
+        fb = pane.formbuilder(cols=3, border_spacing='4px',datapath='.data.layout')
+        for i in ('left','center','right'):
+            if i != 'center':
+                fb.numbertextBox(value='^.%s?width' %i,lbl='!!%s width' %i.title(),
+                                width='4em')
+                fb.dataController("""genro.setData("_temp.data.layout.regions.%s",
+                                                      parseInt((val||0)*3.779527559)+'px',
+                                                      {show:val!=0});"""%i,
+                                    val="^.%s?width" %i)
+                fb.dataController("if(_triggerpars.kw.reason!=true){SET .%s?width = dojo.number.round(parseFloat(heightpx.slice(0,-2))/3.779527559,2);}" %i,
+                                    heightpx="^_temp.data.layout.regions.%s" %i)
+            else:
+                fb.div()
+            for j in ('top','bottom'):
+                data_path = '%s.%s?height' %(i,j)
+                temp_path = '%s.regions.%s'  %(i,j)
+                fb.numberTextbox(value='^.%s' %data_path,
+                                lbl='!!%s' %j.title(),
+                                width='5em')
+                fb.dataController("""genro.setData('_temp.data.layout.%s',
+                                                    parseInt((val||0)*3.779527559)+'px',
+                                                    {show:val!=0});""" %temp_path ,
+                                  val="^.%s" %data_path)
+                fb.dataController("if(_triggerpars.kw.reason!=true){SET .%s = dojo.number.round(parseFloat(val.slice(0,-2))/3.779527559,2);}" %data_path,
+                                    val="^_temp.data.layout.%s" %temp_path)
+    

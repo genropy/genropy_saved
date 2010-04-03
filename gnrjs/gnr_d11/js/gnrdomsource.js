@@ -208,21 +208,28 @@ dojo.declare("gnr.GnrDomSourceNode",gnr.GnrBagNode,{
                  var method=expr;
                  var httpMethod = objectPop(kwargs,'_POST')? 'POST' :'GET';
                  var _onResult = objectPop(kwargs,'_onResult');
+                 var _onError = objectPop(kwargs,'_onError');
                  var _lockScreen = objectPop(kwargs,'_lockScreen');
                  objectPop(kwargs,'nodeId');
                  var _onCalling = objectPop(kwargs,'_onCalling');
                  var origKwargs = objectUpdate({},kwargs);
                  objectExtract(kwargs,'_*');
                  if (_onResult){
-                    //_onResult = dojo.hitch(this, funcCreate(_onResult));
                     _onResult = funcCreate(_onResult,'result,kwargs',this);
-
+                 }
+                 if (_onError){
+                    _onError = funcCreate(_onError,'error,kwargs',this);
                  }
                  var cb = function(result,error){if(_lockScreen){
                                                        genro.lockScreen(false,domsource_id);
                                                    }
                                                    if(error){
-                                                     genro.dlg.alert(error,'Server error');
+                                                     if (_onError){
+                                                         _onError(error,origKwargs);
+                                                     }
+                                                     else{
+                                                         genro.dlg.alert(error,'Server error');
+                                                     }
                                                     }
                                                  else{
                                                           dataNode.setValue(result); 

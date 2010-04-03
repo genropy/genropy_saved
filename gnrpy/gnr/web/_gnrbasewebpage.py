@@ -422,6 +422,9 @@ class GnrBaseWebPage(GnrObject):
         controller = self.pageController()
         data = '==genro.getFormCluster("%s");' 
         onSaved = onSaved or ''
+        _onError="""var cb = function(){genro.formById("%s").load();};
+                    genro.dlg.ask(kwargs._errorTitle,error,{"confirm":"Confirm"},
+                                  {"confirm":cb});""" %formId
         if changesOnly:
             data = '==genro.getFormChanges("%s");'
         controller.dataController('genro.formById("%s").save(always)' %formId,_fired=_fired,
@@ -430,6 +433,7 @@ class GnrBaseWebPage(GnrObject):
         controller.dataRpc(resultPath, method=method ,nodeId='%s_saver' %formId ,_POST=True,
                            datapath=datapath,data=data %formId, 
                            _onResult='genro.formById("%s").saved();%s;' %(formId,onSaved), 
+                           _onError=_onError,_errorTitle='!!Saving error',
                            table=table,**kwargs)
                        
     def formLoader(self,formId,resultPath,table=None,pkey=None,  datapath=None,

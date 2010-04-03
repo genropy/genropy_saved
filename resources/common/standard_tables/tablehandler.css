@@ -576,7 +576,12 @@
 	-webkit-border-top-right-radius:8px;
 	-webkit-border-bottom-right-radius:8px;
 }
-
+.protectedRecord .dijitInputField .input{
+	background: url(../icons/readonly.gif) no-repeat right;
+}
+.protectedRecord .gnrfield .input{
+	background: url(../icons/readonly.gif) no-repeat right;
+}
 
 
 /* @end */
