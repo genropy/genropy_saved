@@ -35,8 +35,8 @@ class MultiSelect(BaseComponent):
     js_requires='gnrcomponents/multiselect'
     def multiSelect(self,bc,nodeId=None,table=None,datapath=None,struct=None,label=None,values=None,readColumns=None,
                              reloader=None,filterOn=None,hiddencolumns=None,selectionPars=None,order_by=None,
-                             showSelected=False, readCol=None,hasToolbar=False,_onStart=False,**kwargs):
-        assert not 'footer' in kwargs, 'remove footer par'
+                             showSelected=False, readCol=None,hasToolbar=False,_onStart=False, showFooter=True,**kwargs):
+        #assert not 'footer' in kwargs, 'remove footer par'
 
         assert struct, 'struct is mandatory'
         if callable(struct):
@@ -81,7 +81,7 @@ class MultiSelect(BaseComponent):
                          hasToolbar=hasToolbar,_onStart=_onStart)
         checkboxGridBC = bc
         checkboxGridDatapath = datapath
-        if showSelected:
+        if showSelected and showFooter:
             footer = bc.contentPane(region='bottom',_class='pbl_roundedGroupBottom')
             footer.button('Back',action='SET %s.selectedGrid=0;' %datapath)
             footer.button('Next',action='FIRE #%s_result.reload; SET %s.selectedGrid=1;' %(nodeId,datapath))
@@ -113,8 +113,12 @@ class MultiSelect(BaseComponent):
                                           """ %values,
                                         selectrows="^.selectrows",selection='=.selection',_if='selection',
                                         readCol=readCol,datapath=checkboxGridDatapath)
+        if showFooter:
+            footer=self.ms_footer
+        else:
+            footer = None
         self.includedViewBox(checkboxGridBC,datapath=checkboxGridDatapath,
-                            selectionPars=selectionPars,nodeId=nodeId,footer=self.ms_footer,**viewpars)
+                            selectionPars=selectionPars,nodeId=nodeId,footer=footer,**viewpars)
         if showSelected:
             selectionPars_result = dict(where='$%s IN :checked' %self.db.table(table).pkey,
                                     checked='=%s' %values,_if='checked')
