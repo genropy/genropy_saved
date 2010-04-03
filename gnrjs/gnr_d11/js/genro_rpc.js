@@ -181,7 +181,7 @@ dojo.declare("gnr.GnrRpcHandler",null,{
         kw.url = kw.url || this.pageIndexUrl();
         if (this.application.debugopt){
             content.debugopt=this.application.debugopt;
-            content.callcounter=this.application.getCounter()
+            content.callcounter=this.application.getCounter();
         }
         kw.content=content;
          //kw.preventCache = kw.preventCache - just to remember that we can have it
@@ -263,9 +263,7 @@ dojo.declare("gnr.GnrRpcHandler",null,{
         if (async_cb) {
             cb = dojo.hitch(this,function(response, ioArgs){
                 var result = preprocessor(response, ioArgs);
-                //var innercb = dojo.hitch(this,function(){async_cb(result);});
-                //setTimeout(innercb,1);
-                async_cb(result);
+                async_cb(result,result.error);
             });
             //sync = false;
         } else {
@@ -325,7 +323,7 @@ dojo.declare("gnr.GnrRpcHandler",null,{
             }
         }else{
             setTimeout(dojo.hitch(genro.dev, 'handleRpcError', error, envNode));
-            return null;
+            return {'error':error};
         }
         if(resultAsNode){
             return envNode;
