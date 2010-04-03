@@ -218,14 +218,19 @@ dojo.declare("gnr.GnrDomSourceNode",gnr.GnrBagNode,{
                     _onResult = funcCreate(_onResult,'result,kwargs',this);
 
                  }
-                 var cb = function(result){   dataNode.setValue(result);
-                                              if(_onResult){
-                                                    _onResult(result,origKwargs);
-                                              }
-                                              if(_lockScreen){
-                                                  genro.lockScreen(false,domsource_id);
-                                              }
-                                        };
+                 var cb = function(result,error){if(_lockScreen){
+                                                       genro.lockScreen(false,domsource_id);
+                                                   }
+                                                   if(error){
+                                                     genro.dlg.alert(error,'Server error');
+                                                    }
+                                                 else{
+                                                          dataNode.setValue(result); 
+                                                          if(_onResult){
+                                                              _onResult(result,origKwargs);
+                                                          }
+                                                  } 
+                                               };
                 
                  if (_onCalling){
                      doCall = funcCreate(_onCalling, (['kwargs'].concat(argNames)).join(',')).apply(this, ([kwargs].concat(argValues)));
@@ -725,7 +730,7 @@ dojo.declare("gnr.GnrDomSourceNode",gnr.GnrBagNode,{
            else{
                 var setter='set'+stringCapitalize(attr);
                 if (setter in this.widget){
-                    var trgevt =kw.evt
+                    var trgevt =kw.evt;
                     if (attr=='value'){
                         this.resetValidationError();                // reset validationError when data from bag is set in widget
                         if('_lastValueReported' in this.widget){    // VERIFICARE DOJO 1.2
