@@ -151,20 +151,34 @@ def gnrImport(source, importAs=None, avoidDup=False):
     return module
 
 class GnrException(Exception): 
-    """Standard Gnr Exception.
+    """Standard Gnr Exception"""
+    code='GNR-001'
+    description='!!Genro base exception'
+    caption="""!!Error code %(code)s : %(description)s."""
+    localizer=None
+    
+    def __init__(self,**kwargs):
+        self.msgargs=kwargs
+        self.localizer=None
 
-    Attributes:
-        code -- error code
-        message -- explanation of the error
-    """
-
-    def __init__(self, code=None, message=None, value=None):
-        self.code = code
-        self.message = message
-        self.value = value
-        
     def __str__(self):
-        return 'Error:%s - %s' % (self.code, self.message)
+        msgargs=dict(code=self.code,description=self.description)
+        msgargs.update(self.msgargs)
+        return self.localizedMsg(self.caption,msgargs)
+        
+    def setLocalizer(self,localizer):
+        self.localizer=localizer
+        
+    def localize(self,v):
+        return self.localizer.translateText(v[2:])
+        
+    def localizedMsg(self,msg,msgargs):
+        if self.localizer:
+            msg=self.localize(msg)
+            for k,v in msgargs.items():
+                if isinstance(v,basestring) and v.startswith('!!'):
+                    msgargs[k]=self.localize(msgargs[k])
+        return msg % msgargs % msgargs # msgargs is use 2 times as we could have msgargs nested(max 1 level)
 
 class NotImplementedException(GnrException): 
     pass
