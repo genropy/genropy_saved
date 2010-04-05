@@ -263,7 +263,7 @@ dojo.declare("gnr.GnrRpcHandler",null,{
         if (async_cb) {
             cb = dojo.hitch(this,function(response, ioArgs){
                 var result = preprocessor(response, ioArgs);
-                var error = typeof(result)=='object'?result.error:null; 
+                var error = (result && typeof(result)=='object')?result.error:null; 
                 async_cb(result,error);
             });
             //sync = false;
