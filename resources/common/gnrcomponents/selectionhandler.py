@@ -57,8 +57,10 @@ class SelectionHandler(BaseComponent):
         assert dialogPars,'dialogPars are Mandatory'
         assert not 'table' in dialogPars, 'take the table of the grid'
         assert not 'firedPkey' in dialogPars, 'auto firedPkey'
+        assert not 'savePath' in dialogPars,'toolbarCb calculated'
+
         assert not 'toolbarCb' in dialogPars,'toolbarCb calculated'
-        assert not 'add_action' in kwargs, 'remove add_action par'
+        assert not 'toolbarPars' in kwargs, 'remove toolbarPars par'
         assert 'order_by' in selectionPars, 'add order_by to selectionPars'
         assert not 'del_action' in kwargs,'remove del_action par'
         assert not 'connect_onRowDblClick' in kwargs,'remove connect_onRowDblClick par'
@@ -70,9 +72,10 @@ class SelectionHandler(BaseComponent):
         dialogPars['datapath'] = dialogPars.get('datapath','#%s.dlg' %nodeId)
         dialogPars['onSaved'] = 'FIRE #%s.reload; %s' %(nodeId,dialogPars.get('onSaved',''))
         dialogPars['firedPkey'] = '^.pkey'
-        dialogPars['add_action'] = dialogPars.get('add_action',True)
-        dialogPars['lock_action'] = dialogPars.get('lock_action',True)
-        dialogPars['toolbarCb'] = self._ivrd_toolbar
+        dialogPars['toolbarCb'] = self._sh_toolbar
+        dialogPars['toolbarPars'] = dict(add_action=dialogPars.get('add_action',True),
+                                        del_action=dialogPars.get('del_action',True),
+                                        lock_action=dialogPars.get('lock_action',True))
 
         self.recordDialog(**dialogPars)
         add_action='FIRE .dlg.pkey="*newrecord*";'
@@ -139,14 +142,23 @@ class SelectionHandler(BaseComponent):
                               del_enable=del_enable,selectedId='^.selectedId',_if='selectedId',_else='false',
                               main_record_id=main_record_id or True,custom_condition=custom_addCondition or True)
                               
-        controller.dataController("genro.dlg.ask(title, msg, null, '#%s.confirm_delete')" %nodeId,
+        controller.dataController("""
+                                    genro.dlg.ask(title, msg, null, '#%s.confirm_delete')""" %nodeId,
                                     _fired="^.delete_record",title='!!Warning',
                                     msg='!!You cannot undo this operation. Do you want to proceed?',
                                     _if=askBeforeDelete)
         onDeleted = onDeleted or ''
+        onDeleting = onDeleting or ''
         controller.dataRpc('.deletedPkey','iv_delete_selected_record',record_id='=.selectedId',table=table,
-                            _confirmed='^.confirm_delete',_if='_confirmed=="confirm"',_onCalling=onDeleting,
-                            _onResult='FIRE .afterDeleting; FIRE .reload; %s' %onDeleted)
+                            _confirmed='^.confirm_delete',_if='_confirmed=="confirm"',
+                            _onResult='FIRE .afterDeleting;FIRE .reload; %s' %onDeleted,_openDlg='=.dlg.isOpen',
+                            _onCalling="""
+                                        if(_openDlg){
+                                            $1.record_id = GET .dlg.current_pkey;
+                                            FIRE .dlg.exitAction='deleted';
+                                        } %s
+                                        """ %onDeleting)
+                            
         controller.dataController("""
                                  var form = genro.formById(gridId+'_form');
                                  if(!form.changed){
@@ -198,7 +210,7 @@ class SelectionHandler(BaseComponent):
         self.db.commit()
         return record_id
                              
-    def _ivrd_toolbar(self,parentBC,add_action=None,lock_action=None,**kwargs):
+    def _sh_toolbar(self,parentBC,add_action=None,lock_action=None,del_action=None,**kwargs):
         pane = parentBC.contentPane(padding='2px',overflow='hidden',**kwargs)
         tb = pane.toolbar(datapath='.#parent') #referred to the grid
         tb.button('!!First', fire_first='.navbutton', iconClass="tb_button icnNavFirst", 
@@ -209,19 +221,30 @@ class SelectionHandler(BaseComponent):
                     disabled='^.atEnd', showLabel=False)
         tb.button('!!Last', fire_last='.navbutton', iconClass="tb_button icnNavLast", 
                     disabled='^.atEnd', showLabel=False)
+    
         if lock_action:
             spacer = tb.div(float='right',_class='button_placeholder')
             spacer.button('!!Unlock',fire='status.unlock',iconClass="tb_button icnBaseLocked",
                         showLabel=False,hidden='^status.unlocked')
             spacer.button('!!Lock',fire='status.lock',iconClass="tb_button icnBaseUnlocked", 
-                        showLabel=False,hidden='^status.locked')  
+                        showLabel=False,hidden='^status.locked')
+                        
+        spacer = tb.div(float='right',_class='button_placeholder')
+        spacer.button('!!Save changes',fire=".dlg.saveAndReload", 
+                        iconClass="tb_button db_save",showLabel=False,hidden='^status.locked')
+        spacer = tb.div(float='right',_class='button_placeholder')
+        spacer.button('!!Revert',fire=".dlg.load", iconClass="tb_button db_revert",
+                        showLabel=False,hidden='^status.locked')
+        
         if add_action:
             spacer = tb.div(float='right',_class='button_placeholder')
-            add_action = 'FIRE .navbutton="new";'
-            add_class =  'buttonIcon icnBaseAdd'
-            add_enable = '^form.canWrite'
-            spacer.button('!!Add',action=add_action,visible=add_enable,
-                            iconClass=add_class, showLabel=False)
+            spacer.button('!!Add',action='FIRE .navbutton="new";',hidden='^status.locked',
+                            iconClass='tb_button db_add', showLabel=False)
+        if del_action:
+            spacer = tb.div(float='right',_class='button_placeholder')
+            spacer.button('!!Delete',action='FIRE .delete_record;',hidden='^status.locked',
+                            iconClass='tb_button db_del', showLabel=False)
+
         
         
 
