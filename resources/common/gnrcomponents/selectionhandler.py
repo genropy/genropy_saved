@@ -74,7 +74,8 @@ class SelectionHandler(BaseComponent):
         dialogPars['firedPkey'] = '^.pkey'
         dialogPars['toolbarCb'] = self._sh_toolbar
         dialogPars['toolbarPars'] = dict(add_action=dialogPars.get('add_action',True),
-                                        del_action=dialogPars.get('del_action',True),
+                                        del_action=dialogPars.get('del_action',False),
+                                        save_action=dialogPars.get('del_action',False),
                                         lock_action=dialogPars.get('lock_action',True))
 
         self.recordDialog(**dialogPars)
@@ -210,7 +211,8 @@ class SelectionHandler(BaseComponent):
         self.db.commit()
         return record_id
                              
-    def _sh_toolbar(self,parentBC,add_action=None,lock_action=None,del_action=None,**kwargs):
+    def _sh_toolbar(self,parentBC,add_action=None,lock_action=None,
+                    save_action=None,del_action=None,**kwargs):
         pane = parentBC.contentPane(padding='2px',overflow='hidden',**kwargs)
         tb = pane.toolbar(datapath='.#parent') #referred to the grid
         tb.button('!!First', fire_first='.navbutton', iconClass="tb_button icnNavFirst", 
@@ -228,13 +230,13 @@ class SelectionHandler(BaseComponent):
                         showLabel=False,hidden='^status.unlocked')
             spacer.button('!!Lock',fire='status.lock',iconClass="tb_button icnBaseUnlocked", 
                         showLabel=False,hidden='^status.locked')
-                        
-        spacer = tb.div(float='right',_class='button_placeholder')
-        spacer.button('!!Save changes',fire=".dlg.saveAndReload", 
-                        iconClass="tb_button db_save",showLabel=False,hidden='^status.locked')
-        spacer = tb.div(float='right',_class='button_placeholder')
-        spacer.button('!!Revert',fire=".dlg.load", iconClass="tb_button db_revert",
-                        showLabel=False,hidden='^status.locked')
+        if save_action:
+            spacer = tb.div(float='right',_class='button_placeholder')
+            spacer.button('!!Save changes',fire=".dlg.saveAndReload", 
+                            iconClass="tb_button db_save",showLabel=False,hidden='^status.locked')
+            spacer = tb.div(float='right',_class='button_placeholder')
+            spacer.button('!!Revert',fire=".dlg.load", iconClass="tb_button db_revert",
+                            showLabel=False,hidden='^status.locked')
         
         if add_action:
             spacer = tb.div(float='right',_class='button_placeholder')
