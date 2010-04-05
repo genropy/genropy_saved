@@ -33,8 +33,8 @@ class RecordDialog(BaseComponent):
                     savePath='',bottomCb=None,savingMethod=None,
                     loadingMethod=None, loadingParameters=None,onClosed='',onShow='',
                     validation_failed='alert',custom_table_id=None,centerOn=None,
-                    dlgId=None,formId=None,datapath=None,dlgPars=None,toolbarCb=None,
-                    add_action=False,lock_action=False,record_datapath=None,**kwargs):
+                    dlgId=None,formId=None,datapath=None,dlgPars=None,toolbarCb=None,toolbarPars=None,
+                    record_datapath=None,**kwargs):
         """
         Allow to manage a form into a dialog for editing and saving a single RecordHandler.
         * `table`: The table where the record is saved.
@@ -86,14 +86,14 @@ class RecordDialog(BaseComponent):
                                     loadingParameters,validation_failed,record_datapath,**kwargs)
                                     
         self._recordDialogLayout(dlgBC,dlgId,formId,table,formCb,
-                                 bottomCb,toolbarCb,record_datapath,add_action,lock_action)
+                                 bottomCb,toolbarCb,record_datapath,toolbarPars)
 
     def _recordDialogController(self,pane,dlgId,formId,
                                 table,saveKwargs,loadKwargs,firedPkey,sqlContextName,
                                 onSaved,onClosed,savePath,savingMethod,loadingMethod,
                                 loadingParameters,validation_failed,record_datapath,**kwargs):
         onSaved = onSaved or ''
-        onSaved = 'FIRE #%s.afterSaving; %s' %(dlgId,onSaved)
+        onSaved = 'FIRE #%s.afterSaving = result; %s' %(dlgId,onSaved)
         pane.dataController("""if(saveAndAdd){
                                     SET .closeDlg = false;
                                     SET .addRecord = true;
@@ -107,19 +107,25 @@ class RecordDialog(BaseComponent):
                                     SET .addRecord = false;
                                     SET .changeRecordIn = saveAndChangeIn;
                                     FIRE .saveRecord;
+                                }else if(saveAndReload){
+                                    SET .closeDlg = false;
+                                    SET .addRecord = false;
+                                    SET .changeRecordIn = '*';
+                                    FIRE .saveRecord;
                                 }""",saveAndAdd="^.saveAndAdd",
                                 saveAndClose="^.saveAndClose",
-                                saveAndChangeIn='^.saveAndChangeIn')
+                                saveAndChangeIn='^.saveAndChangeIn',
+                                saveAndReload='^.saveAndReload')
                                 
         pane.dataController(""" if(closeDlg){
                                     FIRE .exitAction='saved';
                                 }else if(addRecord){
                                     FIRE .addNew;
                                 }else if(changeRecordIn){
-                                    SET .current_pkey = changeRecordIn;
+                                    SET .current_pkey = changeRecordIn=='*'?savedPkey:changeRecordIn;
                                     FIRE .load;
                                 }""",
-                            _fired="^.afterSaving",addRecord='=.addRecord',
+                            savedPkey="^.afterSaving",addRecord='=.addRecord',
                             changeRecordIn='=.changeRecordIn',
                             closeDlg='=.closeDlg')
         
@@ -127,13 +133,15 @@ class RecordDialog(BaseComponent):
                                FIRE .load""",_fired="^.addNew")
                             
         pane.dataController("""genro.wdgById("%s").show(); 
+                               SET .isOpen = true;
                                SET .current_pkey = (!firedPkey||firedPkey===true) ? "*newrecord*" : firedPkey;
                                FIRE .load;
                             """ %dlgId,firedPkey=firedPkey)
         pane.dataController('genro.formById("%s").load();' %formId,_fired="^.load")
                             
         pane.dataController("""var dlgNode=genro.nodeById("%s");
-                               dlgNode.widget.onCancel();
+                               dlgNode.widget.hide();
+                               SET .isOpen = false;
                                if (onClosed){
                                    funcCreate(onClosed, 'exitAction').call(dlgNode,exitAction);
                                }
@@ -170,9 +178,9 @@ class RecordDialog(BaseComponent):
             pane.dataController("genro.formById('%s').focusFirstInvalidField()" %formId,_fired="^.validation_failed")
         
     def _recordDialogLayout(self,bc,dlgId,formId,table,
-                            formCb,bottomCb,toolbarCb,record_datapath,add_action,lock_action):
+                            formCb,bottomCb,toolbarCb,record_datapath,toolbarPars):
         if callable(toolbarCb):
-            toolbarCb(bc,region='top',table=table,add_action=add_action,lock_action=lock_action)
+            toolbarCb(bc,region='top',table=table,**toolbarPars)
         bottom = bc.contentPane(region='bottom',_class='dialog_bottom')
         bottomCb = bottomCb or getattr(self,'recordDialog_bottom')
         bottomCb(bottom)
@@ -182,8 +190,8 @@ class RecordDialog(BaseComponent):
 
     #Jeff suggests that the margins be taken out of the code and put into the css
     def recordDialog_bottom(self,pane):
-        pane.button('!!Save',float='right',baseClass='bottom_btn',
-                    fire=".saveAndClose", margin_left='5px', width='5em',
+        pane.button('!!Save and close',float='right',baseClass='bottom_btn',
+                    fire=".saveAndClose", margin_left='5px', #width='5em',
                     disabled='^.saveDisabled' )
         pane.button('!!Cancel',float='right',baseClass='bottom_btn',
                     fire_cancel='.exitAction', margin_left='5px', width='5em')
