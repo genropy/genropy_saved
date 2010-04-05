@@ -54,11 +54,17 @@ class GnrSqlProtectDeleteException(GnrSqlException):
     code='GNRSQL-12'
     description='!!Genro SQL Protect Update Exception'
     caption="!!The record %(rowcaption)s in table %(tablename)s is not deletable:%(msg)s"  
+
+class GnrSqlProtectValidateException(GnrSqlException):
+    code='GNRSQL-13'
+    description='!!Genro SQL Protect Validate Exception'
+    caption="!!The record %(rowcaption)s in table %(tablename)s contains invalid data:%(msg)s"
     
 EXCEPTIONS= {'save': GnrSqlSaveException,
              'delete': GnrSqlDeleteException,
              'protect_update':GnrSqlProtectUpdateException,
-             'protect_delete':GnrSqlProtectDeleteException}
+             'protect_delete':GnrSqlProtectDeleteException,
+             'protect_validate':GnrSqlProtectValidateException}
      
 class SqlTable(GnrObject):
 
@@ -688,6 +694,9 @@ class SqlTable(GnrObject):
     def protect_delete(self,record):
         pass
         
+    def protect_validate(self,record):
+        pass
+            
     def check_updatable(self,record):
         try :
             self.protect_update(record)

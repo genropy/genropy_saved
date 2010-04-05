@@ -284,6 +284,7 @@ class GnrSqlDb(GnrObject):
         @param record: an object implementing dict interface as colname, colvalue
         """
         tblobj.checkPkey(record)
+        tblobj.protect_validate(record)
         tblobj._doFieldTriggers('onInserting', record)
         tblobj.trigger_onInserting(record)
         self.adapter.insert(tblobj, record)
@@ -295,6 +296,7 @@ class GnrSqlDb(GnrObject):
         @param record: an object implementing dict interface as colname, colvalue
         """
         tblobj.protect_update(record)
+        tblobj.protect_validate(record)
         tblobj._doFieldTriggers('onUpdating', record)
         tblobj.trigger_onUpdating(record, old_record=old_record)
         self.adapter.update(tblobj, record, pkey=pkey)

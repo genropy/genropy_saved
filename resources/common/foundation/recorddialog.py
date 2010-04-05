@@ -49,6 +49,7 @@ class RecordDialog(BaseComponent):
         """
         saveKwargs = saveKwargs or {}
         loadKwargs = loadKwargs or {}
+        toolbarPars= toolbarPars or {}
 
         assert not '_onResult' in saveKwargs,'You cannot put a _onResult here'
         assert not '_onResult' in loadKwargs,'You cannot put a _onResult here'
