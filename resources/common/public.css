@@ -142,6 +142,58 @@
 
 /* @group components */
 
+/* @group recordhandler&standard_table */
+/* @group database */
+
+.db_treebtn {
+	width: 18px;
+	height: 12px;
+	background: url(icons/fieldtree.gif) no-repeat center center;
+}
+
+.db_querybtn {
+	width: 18px;
+	height: 12px;
+	background: url(icons/querypane.gif) no-repeat center center;
+}
+
+.db_treebtn:hover {
+	background-color: #bbb
+}
+
+.db_querybtn:hover {
+	background-color: #bbb
+}
+
+.db_revert {
+	background: url(icons/db_revert_16x16.gif) no-repeat center center;
+}
+
+.db_save {
+	background: url(icons/db_save_16x16.gif) no-repeat center center;
+}
+
+.db_add {
+	background: url(icons/db_add_16x16.gif) no-repeat center center;
+}
+
+.db_del {
+	background: url(icons/db_del_16x16.gif) no-repeat center center;
+}
+
+.db_query {
+	background: url(icons/db_query_go_16x16.gif) no-repeat center center;
+}
+
+.tundra .dijitToolbar .dijitButtonNode {
+	font-size: inherit;
+}
+
+/* @end */
+
+
+/* @end */
+
 /* @group DynamicEditor */
 
 .formattedBox{
