@@ -676,7 +676,11 @@ class GnrBaseWebPage(GnrObject):
         
         
     def handleMessages(self):
+        t1=time.time()
         messages = self.site.getMessages(user=self.user, page_id=self.page_id, connection_id=self.connection.connection_id) or []
+        t2=time.time()-t1
+        if t2>1000:
+            print t2
         for message in messages:
             message_body = Bag(message['body'])
             message_type = message['message_type']
