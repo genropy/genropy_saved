@@ -191,8 +191,8 @@ class RecordDialog(BaseComponent):
 
     #Jeff suggests that the margins be taken out of the code and put into the css
     def recordDialog_bottom(self,pane):
-        pane.button('!!Save and close',float='right',baseClass='bottom_btn',
-                    fire=".saveAndClose", margin_left='5px', #width='5em',
+        pane.button('!!Save',float='right',baseClass='bottom_btn',
+                    fire=".saveAndClose", margin_left='5px', width='5em',
                     disabled='^.saveDisabled' )
         pane.button('!!Cancel',float='right',baseClass='bottom_btn',
                     fire_cancel='.exitAction', margin_left='5px', width='5em')
