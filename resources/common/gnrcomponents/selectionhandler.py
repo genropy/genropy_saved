@@ -73,10 +73,8 @@ class SelectionHandler(BaseComponent):
         dialogPars['onSaved'] = 'FIRE #%s.reload; %s' %(nodeId,dialogPars.get('onSaved',''))
         dialogPars['firedPkey'] = '^.pkey'
         dialogPars['toolbarCb'] = self._sh_toolbar
-        dialogPars['toolbarPars'] = dict(add_action=dialogPars.get('add_action',True),
-                                        del_action=dialogPars.get('del_action',False),
-                                        save_action=dialogPars.get('del_action',False),
-                                        lock_action=dialogPars.get('lock_action',True))
+        dialogPars['toolbarPars'] = dialogPars.get('toolbarPars') \
+                                    or dict(add_action=True,del_action=False,save_action=False,lock_action=True)
 
         self.recordDialog(**dialogPars)
         add_action='FIRE .dlg.pkey="*newrecord*";'
@@ -245,7 +243,8 @@ class SelectionHandler(BaseComponent):
         if del_action:
             spacer = tb.div(float='right',_class='button_placeholder')
             spacer.button('!!Delete',action='FIRE .delete_record;',hidden='^status.locked',
-                            iconClass='tb_button db_del', showLabel=False)
+                            iconClass='tb_button db_del', showLabel=False,disabled='==_curr_pkey=="*newrecord*"',
+                            _curr_pkey='^.dlg.current_pkey')
 
         
         

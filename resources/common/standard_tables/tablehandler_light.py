@@ -106,7 +106,8 @@ class TableHandlerLight(BaseComponent):
         if condition:
             condPars=condition[1] or {}
             condition=condition[0]
-        bc,top,bottom = self.pbl_rootBorderContainer(root,title='^list.title_bar',id='mainBC_center')
+        bc,top,bottom = self.pbl_rootBorderContainer(root,title=self.tblobj.attributes.get('name_plural','Records'),
+                                                    id='mainBC_center')
         bc.dataController("FIRE #maingrid.reload;",_onStart=True)
         dimension = self.formBaseDimension()
         struct = self.lstBase(self.newGridStruct())
@@ -119,9 +120,11 @@ class TableHandlerLight(BaseComponent):
                                box_class='tablehandler_light_body',
                                struct=struct,selectionPars=dict(where=condition,order_by=self.orderBase(),**condPars),
                                dialogPars=dict(height=dimension['height'],width=dimension['width'],
+                                               toolbarPars=dict(lock_action=True,add_action=self.userCanWrite(),
+                                                                del_action=self.userCanDelete(),save_action=self.userCanWrite()),
                                                record_datapath='form.record',title='^form.title',formCb=self.formBase,
-                                               dlgPars=dict(centerOn="mainBC_center"),**defaults),
-                                checkMainRecord=False,lock_action=True,hasToolbar=True,filterOn=filterOn)
+                                               dlgPars=dict(centerOn="mainBC_center"),**defaults),lock_action=True,
+                                checkMainRecord=False,hasToolbar=True,filterOn=filterOn)
         controller = bc.dataController(datapath="selection")
         controller.data('usr.writePermission',self.userCanWrite())
         controller.data('usr.deletePermission',self.userCanDelete())
