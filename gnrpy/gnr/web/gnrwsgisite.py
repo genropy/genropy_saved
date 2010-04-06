@@ -20,6 +20,7 @@ import cPickle
 import inspect
 from gnr.core.gnrprinthandler import PrintHandler
 from gnr.core.gnrmailhandler import MailHandler
+from gnr.app.gnrdeploy import PathResolver
 from gnr.web.gnrwsgisite_proxy.gnrshareddata import GnrSharedData_dict, GnrSharedData_memcache
 from gnr.web.gnrwsgisite_proxy.gnrmsg import  GnrMessageHandler
 mimetypes.init()
@@ -162,7 +163,11 @@ class GnrWsgiSite(object):
         GNRSITE = self
         counter = int(counter or '0')
         self._currentPages={}
-        self.site_path = os.path.dirname(os.path.abspath(script_path))
+        abs_script_path = os.path.abspath(script_path)
+        if os.path.isfile(abs_script_path):
+            self.site_path = os.path.dirname(abs_script_path)
+        else:
+            self.site_path=PathResolver().site_name_to_path(script_path)
         self.site_name = site_name or os.path.basename(self.site_path)
         if _gnrconfig:
             self.gnr_config = _gnrconfig
