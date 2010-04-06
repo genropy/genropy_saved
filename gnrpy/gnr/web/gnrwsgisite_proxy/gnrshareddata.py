@@ -14,22 +14,72 @@ try:
     import cPickle as pickle
 except:
     import pickle
+    
 from datetime import timedelta
 import time
-from threading import Lock
+from threading import RLock
 
-def exp_to_epoch(exp):
-    if hasattr(exp,'timetuple'):
-        return int(time.mktime(exp.timetuple()))
-    if isinstance(exp, timedelta):
-        exp = exp.days*86400 + exp.seconds
-    return int(time+exp)
+MAX_RETRY=20
+RETRY_TIME=0.01
+LOCK_TIME=2
 
-class GnrSharedData_dict(object):
+
+def exp_to_epoch(expiry):
+    if hasattr(expiry,'timetuple'):
+        return int(time.mktime(expiry.timetuple()))
+    if isinstance(expiry, timedelta):
+        expiry = expiry.days*86400 + expiry.seconds
+    return int(time.time()+expiry)
+    
+class SharedLocker(object):
+    def __init__(self, sd, key, max_retry=MAX_RETRY, 
+                                lock_time=LOCK_TIME, 
+                                retry_time=RETRY_TIME):
+        self.sd=sd
+        self.key=key
+        self.max_retry=max_retry
+        self.lock_time=lock_time
+        self.retry_time=retry_time
+
+    def __enter__(self):
+        self.sd.lock(self.key,lock_time=self.lock_time,
+                               max_retry=self.max_retry,
+                               retry_time=self.retry_time)
+        return self.sd
+        
+    def __exit__(self, type, value, traceback):
+        return self.sd.unlock(self.key)
+        
+ 
+            
+class GnrSharedData(object):
+    
+    def locked(self, key, max_retry=MAX_RETRY, lock_time=LOCK_TIME, retry_time=RETRY_TIME):
+        return SharedLocker(self, key, lock_time=lock_time,
+                                       max_retry=max_retry,
+                                       retry_time=retry_time)
+        
+    def unlock(self,key): 
+        return self.delete('%s_lock' % key)
+        
+    def lock(self, key, max_retry=MAX_RETRY, 
+                        lock_time=LOCK_TIME, 
+                        retry_time=RETRY_TIME):
+        k, ok = max_retry, False
+        while k and not ok:
+            print 'try add'
+            if self.add('%s_lock' % key, True, expiry=lock_time):
+                return True
+            k-=1
+            print 'retry'
+            time.sleep(retry_time)
+
+ 
+class GnrSharedData_dict(GnrSharedData):
     
     def __init__(self, site):
         self.storage = {}
-        self.storage_lock = Lock()
+        self.storage_lock = RLock()
         self.site = site
         self.cas_id = 0
         
@@ -63,44 +113,67 @@ class GnrSharedData_dict(object):
         return self._get(key)[0]
     
     def _get(self, key):
+        self.storage_lock.acquire()
         pickled_value, expiry, cas_id = self.storage.get(key, (None,None,None))
         if expiry and time.time()> expiry:
-            return None, None
-        value = pickled_value and pickle.loads(pickled_value)
+            self.delete(key)
+            value, cas_id= None, None
+        else:
+            value = pickled_value and pickle.loads(pickled_value)
+        self.storage_lock.release()
         return value, cas_id
-    
+        
     def delete(self, key, time=0):
-        if key in self.storage:
-            del self.storage[key]
+        self.storage.pop(key,None)
     
     def incr(self, key, delta=1):
-        if key in self.storage:
-            if not type(self.storage[key])==int:
-                self.storage[key]=0
-            self.storage[key] += delta
-            return self.storage[key]
+        self.storage_lock.acquire()
+        print key
+        value, cas_id = self.gets(key)
+        if cas_id :
+            if not type(value)==int:
+                value=int(value)
+            value=value+delta
+            print 'ddddd: ',self.set(self, key, value)#,cas_id=cas_id)
+        self.storage_lock.release()
+        return value
 
     def decr(self, key, delta=1):
-        if key in self.storage:
-            if not type(self.storage[key])==int:
-                self.storage[key]=0
-            else:
-                self.storage[key] -= delta
-                if self.storage[key] < 0:
-                    self.storage[key]=0
-            return self.storage[key]
+        self.storage_lock.acquire()
+        value, cas_id = self.gets(key)
+        if cas_id :
+            if not type(value)==int:
+                value=int(value)
+            value=value+delta
+            if value < 0:
+                value=0
+            self.set(self, key, value,cas_id=cas_id)
+        self.storage_lock.release()
+        return value
             
     def add(self, key, value, expiry = 0):
-        if not key in self.storage:
+        self.storage_lock.acquire()
+        if self.gets(key)==(None,None):
             self.set(key, value, expiry = expiry)
-            return value
-            
+        else:
+            value = None
+        self.storage_lock.release()
+        return value
+        
     def replace (self, key, value, expiry = 0):
         if key in self.storage:
             self.set(key, value, expiry = expiry)
-            return value
+            return value     
+            
+    def get_multi(self, keys, key_prefix=''):
+        result={}
+        for k in keys:
+            val, cas_id=self.gets('%s%s' % (key_prefix,str(k)))
+            if cas_id:
+                result[k]=val
+        return result
     
-class GnrSharedData_memcache(object):
+class GnrSharedData_memcache(GnrSharedData):
 
     def __init__(self,site, memcache_config=None, debug=None):
         self.site = site
@@ -144,6 +217,9 @@ class GnrSharedData_memcache(object):
         
     def decr(self, key, delta=1):
         return self.storage.decr(key, delta=delta)
+    
+    def get_multi(self, keys, key_prefix=''):
+        return self.storage.get_multi(keys, key_prefix)
 
 class Client(object):
 

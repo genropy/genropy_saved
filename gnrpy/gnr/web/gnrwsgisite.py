@@ -149,7 +149,7 @@ class GnrWsgiSite(object):
                 self._shared_data = GnrSharedData_dict(self)
         return self._shared_data
     shared_data = property(_get_shared_data)
-        
+
     def log_print(self,str):
         if getattr(self,'debug',True):
             print str
@@ -204,6 +204,7 @@ class GnrWsgiSite(object):
         self.webtools = self.find_webtools()
         self.print_handler=PrintHandler(parent = self)
         self.mail_handler=MailHandler(parent = self)
+        self.message_handler=GnrMessageHandler(self)
         if counter==0 and self.debug:
             self.onInited(clean = not noclean)
         
