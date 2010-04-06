@@ -74,6 +74,15 @@ class TableHandler(BaseComponent):
         
     def columnsBase(self):
         return ''
+    
+    def onSavingFormBase(self):
+        """JS ONCALLING OF RPCSAVING PROCESS
+           params inside js:
+           data: what you send
+           form: the formBase js object
+           if you return false the rpc is not called;
+        """
+        return None
         
     def lstBase(self, struct):
         r=struct.view().rows()

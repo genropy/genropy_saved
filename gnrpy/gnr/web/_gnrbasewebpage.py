@@ -417,12 +417,25 @@ class GnrBaseWebPage(GnrObject):
     tblobj = property(_get_tblobj)
          
     def formSaver(self,formId,table=None,method=None,_fired='',datapath=None,
-                    resultPath='dummy',changesOnly=True,onSaved=None,saveAlways=False,**kwargs):
+                    resultPath='dummy',changesOnly=True,onSaving=None,onSaved=None,saveAlways=False,**kwargs):
         method = method or 'saveRecordCluster'
         controller = self.pageController()
         data = '==genro.getFormCluster("%s");' 
         onSaved = onSaved or ''
-        _onError="""var cb = function(){genro.formById("%s").load();};
+        _onCalling = kwargs.pop('_onCalling',None)
+        if onSaving:
+            _onCalling = """var currform = genro.formById("%s");
+                            var onSavingCb = function(record,form){%s};
+                             %s
+                            var result = onSavingCb(data.getItem('record'),currform);
+                            if(result===false){
+                                currform.status = null;
+                                return false;
+                            }else if(result instanceof gnr.GnrBag){
+                                $1.data.setItem('record',result);
+                            }""" %(formId,onSaving,_onCalling or '')
+        
+        _onError="""var cb = function(){genro.formById("%s").status=null;};
                     genro.dlg.ask(kwargs._errorTitle,error,{"confirm":"Confirm"},
                                   {"confirm":cb});""" %formId
         if changesOnly:
@@ -431,7 +444,7 @@ class GnrBaseWebPage(GnrObject):
                                  datapath=datapath,always=saveAlways)
         kwargs['fireModifiers'] = _fired.replace('^','=')
         controller.dataRpc(resultPath, method=method ,nodeId='%s_saver' %formId ,_POST=True,
-                           datapath=datapath,data=data %formId, 
+                           datapath=datapath,data=data %formId, _onCalling=_onCalling,
                            _onResult='genro.formById("%s").saved();%s;' %(formId,onSaved), 
                            _onError=_onError,_errorTitle='!!Saving error',
                            table=table,**kwargs)

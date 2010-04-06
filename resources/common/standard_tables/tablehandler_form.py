@@ -88,6 +88,7 @@ class TableHandlerForm(BaseComponent):
                         
         self.formSaver('formPane',resultPath='form.save_result',method='saveRecordCluster',
                         table=self.maintable,_fired='^form.save',_onCalling='FIRE pbl.bottomMsg=msg;',
+                        onSaving=self.onSavingFormBase(),
                         msg ='!!Saving...',saveAlways=getattr(self,'saveAlways',False))
                         
         pane.dataController(""" var msg = '';
