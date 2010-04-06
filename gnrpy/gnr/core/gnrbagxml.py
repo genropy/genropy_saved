@@ -342,7 +342,7 @@ class BagToXml(object):
         if tagName[0].isdigit(): tagName = '_' + tagName
         
         if tagName != originalTag:
-            result = '<%s _tag=%s' % (tagName, saxutils.quoteattr(originalTag))
+            result = '<%s _tag=%s' % (tagName, saxutils.quoteattr(saxutils.escape(originalTag)))
         else:
             result = '<%s' % tagName;
         
