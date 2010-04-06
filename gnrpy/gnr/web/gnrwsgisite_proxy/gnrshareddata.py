@@ -25,6 +25,8 @@ LOCK_TIME=2
 
 
 def exp_to_epoch(expiry):
+    if not expiry:
+        return 0
     if hasattr(expiry,'timetuple'):
         return int(time.mktime(expiry.timetuple()))
     if isinstance(expiry, timedelta):
@@ -67,11 +69,9 @@ class GnrSharedData(object):
                         retry_time=RETRY_TIME):
         k, ok = max_retry, False
         while k and not ok:
-            print 'try add'
             if self.add('%s_lock' % key, True, expiry=lock_time):
                 return True
             k-=1
-            print 'retry'
             time.sleep(retry_time)
 
  
@@ -82,15 +82,17 @@ class GnrSharedData_dict(GnrSharedData):
         self.storage_lock = RLock()
         self.site = site
         self.cas_id = 0
-        
+    
+    def key(self, key):
+        return key
+
     def _get_next_cas_id(self):
         self.cas_id +=1
         return self.cas_id
     next_cas_id = property(_get_next_cas_id)
         
     def set(self, key, value, expiry=0, cas_id=None):
-        if expiry:
-            expiry = exp_to_epoch(expiry)
+        expiry = exp_to_epoch(expiry)
         pickled_value = pickle.dumps(value)
         if cas_id is None:
             self.storage[key] = (pickled_value, expiry, self.next_cas_id)
@@ -128,13 +130,12 @@ class GnrSharedData_dict(GnrSharedData):
     
     def incr(self, key, delta=1):
         self.storage_lock.acquire()
-        print key
         value, cas_id = self.gets(key)
         if cas_id :
             if not type(value)==int:
                 value=int(value)
             value=value+delta
-            print 'ddddd: ',self.set(self, key, value)#,cas_id=cas_id)
+            value,self.set(key, value,cas_id=cas_id)
         self.storage_lock.release()
         return value
 
@@ -160,10 +161,15 @@ class GnrSharedData_dict(GnrSharedData):
         self.storage_lock.release()
         return value
         
-    def replace (self, key, value, expiry = 0):
-        if key in self.storage:
+    def replace(self, key, value, expiry = 0):
+        self.storage_lock.acquire()
+        if not self.gets(key)==(None,None):
             self.set(key, value, expiry = expiry)
-            return value     
+        else:
+            value = None
+        self.storage_lock.release()
+        return value
+          
             
     def get_multi(self, keys, key_prefix=''):
         result={}
@@ -180,12 +186,20 @@ class GnrSharedData_memcache(GnrSharedData):
         self._namespace = site.site_name
         server_list = ['%(host)s:%(port)s'%attr for attr in memcache_config.digest('#a')]
         self.storage = memcache.Client(server_list, debug=debug)
+        self.visited_keys={}
         
     def key(self, key):
-        return '%s_%s'%(self._namespace, key.encode('utf8'))
+        prefixed_key=('%s_%s'%(self._namespace, key)).encode('utf8')
+        self.visited_keys[prefixed_key]=key
+        return prefixed_key
         
+    def debug_keys(self):
+        for key in self.visited_keys.values():
+            print self.get(key)
+    
     def get(self, key):
-        return self.storage.get(self.key(key))
+        prefixed_key=self.key(key).strip()
+        return self.storage.get(prefixed_key)
         
     def gets(self, key):
         result = self.storage.gets(self.key(key))
@@ -193,32 +207,35 @@ class GnrSharedData_memcache(GnrSharedData):
         return result, cas_id
 
     def set(self, key, value, expiry=0, cas_id=None):
+        prefixed_key=self.key(key).strip()
         if not cas_id:
-            self.storage.set(self.key(key), value, time=exp_to_epoch(expiry))
+            self.storage.set(prefixed_key, value, time=exp_to_epoch(expiry))
         else:
-            self.storage.cas_ids[self.key(key)]=cas_id
-            self.storage.cas(self.key(key), value, time=exp_to_epoch(expiry))
+            self.storage.cas_ids[prefixed_key]=cas_id
+            self.storage.cas(prefixed_key, value, time=exp_to_epoch(expiry))
     
     def add(self, key, value, expiry = 0):
-        status = self.storage.add(key, value, time=exp_to_epoch(expiry))
+        status = self.storage.add(self.key(key), value, time=exp_to_epoch(expiry))
         if status:
             return value
     
     def replace (self, key, value, expiry = 0):
-        status = self.storage.replace(key, value, time=exp_to_epoch(expiry))
+        status = self.storage.replace(self.key(key), value, time=exp_to_epoch(expiry))
         if status:
             return value
     
-    def delete(self, key, value):
+    def delete(self, key):
         self.storage.delete(self.key(key))
         
     def incr(self, key, delta=1):
-        return self.storage.incr(key, delta=delta)
+        return self.storage.incr(self.key(key), delta=delta)
         
     def decr(self, key, delta=1):
-        return self.storage.decr(key, delta=delta)
+        return self.storage.decr(self.key(key), delta=delta)
     
     def get_multi(self, keys, key_prefix=''):
+        key_prefix='%s_%s'%(self._namespace,key_prefix)
+        key_prefix=key_prefix.encode('utf8')
         return self.storage.get_multi(keys, key_prefix)
 
 class Client(object):

@@ -538,16 +538,31 @@ class GnrWsgiSite(object):
                 os.rmdir(os.path.join(root, name))
         if connection_id:
             os.rmdir(connectionFolder)
+
+    def getMessages(self, connection_id=None, user=None, page_id=None,**kwargs):
+        return self.message_handler.getMessages(connection_id=connection_id, user=user, page_id=page_id,**kwargs)
             
-    def getMessages(self,**kwargs):
+    def getMessages_OLD(self,**kwargs):
         if 'sys' in self.gnrapp.db.packages:
             return self.gnrapp.db.table('sys.message').getMessages(**kwargs)
+
+    def writeMessage(self,body=None, connection_id=None, user=None, page_id=None, expiry=None, message_type=None):
+        srcpage = self.db.application.site.currentPage
+        src_connection_id=srcpage.connection.connection_id
+        src_page_id=srcpage.page_id
+        src_user=srcpage.user
+        if page_id:
+            self.message_handler.postPageMessage(page_id, body=body, dst_page_id=page_id, dst_user=user, dst_connection_id=connection_id, expiry=expiry, message_type=message_type, src_page_id=src_page_id, src_connection_id=src_connection_id, src_user=src_user)
+        elif connection_id:
+            self.message_handler.postConnectionMessage(connection_id, body=body, dst_connection_id=connection_id, dst_user=user, dst_page_id=page_id, expiry=expiry, message_type=message_type,  src_page_id=src_page_id, src_connection_id=src_connection_id, src_user=src_user)
+        elif user:
+            self.message_handler.postUserMessage(user, body=body, dst_user=user, dst_connection_id=connection_id, dst_page_id=page_id, expiry=expiry, message_type=message_type,  src_page_id=src_page_id, src_connection_id=src_connection_id, src_user=src_user)
         
-    def writeMessage(self,**kwargs):
+    def writeMessage_OLD(self,**kwargs):
         if 'sys' in self.gnrapp.db.packages:
             return self.gnrapp.db.table('sys.message').writeMessage(**kwargs)
 
-    def deleteMessage(self,message_id):
+    def deleteMessage_OLD(self,message_id):
         if 'sys' in self.gnrapp.db.packages:
             return self.gnrapp.db.table('sys.message').deleteMessage(message_id)
             

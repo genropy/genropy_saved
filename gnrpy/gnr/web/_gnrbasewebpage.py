@@ -680,7 +680,7 @@ class GnrBaseWebPage(GnrObject):
         for message in messages:
             message_body = Bag(message['body'])
             message_type = message['message_type']
-            message_id = message['id']
+            #message_id = message['id']
             handler = getattr(self,'msg_%s'%message_type,self.msg_undefined)
             if message['dst_page_id']:
                 mode = 'page'
@@ -688,7 +688,7 @@ class GnrBaseWebPage(GnrObject):
                 mode = 'connection'
             elif message['dst_user']:
                 mode = 'user'
-            getattr(self, 'handleMessages_%s'%mode,lambda *a,**kw: None)(handler=handler, message_id=message_id, message_body=message_body,src_page_id=message['src_page_id'],
+            getattr(self, 'handleMessages_%s'%mode,lambda *a,**kw: None)(handler=handler, message_body=message_body,src_page_id=message['src_page_id'],
                                                                         src_connection_id=message['src_connection_id'],src_user=message['src_user'])
     
     def handleMessages_user(self,handler,**kwargs):
@@ -699,7 +699,7 @@ class GnrBaseWebPage(GnrObject):
             
     def handleMessages_page(self,handler,message_id=None, **kwargs):
         handler(message_id=message_id,**kwargs)
-        self.site.deleteMessage(message_id)
+        
         
     def msg_servermsg(self,message_id=None, message_body=None,src_page_id=None,src_user=None,src_connection_id=None):
         self.setInClientData('gnr.servermsg', message_body['servermsg'], fired=True, save=True,
