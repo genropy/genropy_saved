@@ -328,6 +328,7 @@ table.formbuilder {
     width: 20px;
     height: 16px;
 }
+
 .icnTag{
 	background: url(icons/iconTag.png) no-repeat;
     width: 18px;
@@ -625,7 +626,11 @@ table.formbuilder {
     height: 16px;
 }
 
-
+.icnRefresh{
+    width: 16px;
+    height: 16px;
+	background-image: url(icons/base16/refresh.png);
+}
 .icnBaseEmail {
     background: url(icons/base16/email.gif) no-repeat;
     width: 16px;
