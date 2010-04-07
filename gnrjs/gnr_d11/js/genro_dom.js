@@ -112,6 +112,9 @@ dojo.declare("gnr.GnrDomHandler",null,{
             this.removeClass(where,cls);
         }
     },
+    bodyClass:function(cls,set){
+        genro.dom.setClass(dojo.body(),cls,set);
+    },
     
     disable:function(where){
         this.addClass(where,'disabled');
