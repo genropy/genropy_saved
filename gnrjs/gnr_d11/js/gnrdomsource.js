@@ -580,20 +580,15 @@ dojo.declare("gnr.GnrDomSourceNode",gnr.GnrBagNode,{
         }
         var newobj = genro.wdg.create(tag, destination, attributes, ind, this);
         
+        if (bld_attrs.onCreated){
+            funcCreate(bld_attrs.onCreated,'widget,attributes').call(this, newobj, attributes);
+        }
         this._registerNodeId(bld_attrs.nodeId);
         
         if (bld_attrs.gnrId){
             this.setGnrId(bld_attrs.gnrId, newobj);
         }
         
-        //dojo.hitch(this,'_buildChildren',newobj)
-        this._buildChildren(newobj);
-        if('startup' in newobj){
-             newobj.startup();
-        }
-        if((typeof(this.attr.value) == 'string') && (this.isPointerPath(this.attr.value))){
-            newobj.gnr.connectChangeEvent(newobj);
-        }
         for(var eventname in connections){
             this.connect(newobj, eventname,connections[eventname]);
         }
@@ -601,8 +596,13 @@ dojo.declare("gnr.GnrDomSourceNode",gnr.GnrBagNode,{
             var handler=funcCreate(subscriptions[subscription]);
                 dojo.subscribe(subscription, newobj, handler);
         }
-        if (bld_attrs.onCreated){
-            funcCreate(bld_attrs.onCreated,'widget,attributes').call(this, newobj, attributes);
+        //dojo.hitch(this,'_buildChildren',newobj)
+        this._buildChildren(newobj);
+        if('startup' in newobj){
+             newobj.startup();
+        }
+        if((typeof(this.attr.value) == 'string') && (this.isPointerPath(this.attr.value))){
+            newobj.gnr.connectChangeEvent(newobj);
         }
 
         if(bld_attrs.tooltip){
