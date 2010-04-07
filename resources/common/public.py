@@ -152,6 +152,7 @@ class Public(BaseComponent):
     def pbl_topBar(self,top,title=None,flagsLocale=False):
         """docstring for publicTitleBar"""
         left = top.contentPane(region='left',width='250px')
+        top.data('_clientCtx.mainBC.left?show',self.pageOptions.get('openMenu',True))
         menubtn = left.div(_class='pbl_menu_icon buttonIcon', float='left',
                             connect_onclick="""SET _clientCtx.mainBC.left?show = !GET _clientCtx.mainBC.left?show;
                             """)
