@@ -996,13 +996,9 @@ dojo.declare("gnr.GnrDomSourceNode",gnr.GnrBagNode,{
    _ : function(tag,name,attributes){
            var content=this.getValue();
            var child;
-           if (!content){
+           if (!(content instanceof gnr.GnrDomSource)){
                content=new gnr.GnrDomSource();
                this.setValue(content,false);
-           }else{
-               if (!(content instanceof gnr.GnrDomSource)){
-                     this.setValue(content,false);
-               }
            }
            child = content._(tag,name,attributes);
            return child;

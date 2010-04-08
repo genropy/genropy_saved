@@ -239,7 +239,7 @@ class TableHandlerForm(BaseComponent):
         queryfb.div('^.c_0?column_caption',min_width='12em',_class='smallFakeTextBox floatingPopup',
                               dnd_onDrop="genro.querybuilder.onChangedQueryColumn(this,item.attr);",
                               dnd_allowDrop="return !(item.attr.one_relation);", nodeId='fastQueryColumn',
-                              action="genro.querybuilder.onChangedQueryColumn($2,$1);",
+                              
                               lbl='!!Search')
         optd = queryfb.div(_class='smallFakeTextBox',lbl='!!Op.',lbl_width='4em')
         

@@ -142,6 +142,16 @@
 
 /* @group components */
 
+/* @group MenuStack */
+.menuStackNavigator .dijitButtonNode, 
+.bottom_btn .dijitButtonNode{
+	background-color: transparent;
+	border-width: 0;
+}
+
+
+/* @end */
+
 /* @group recordhandler&standard_table */
 /* @group database */
 

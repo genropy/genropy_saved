@@ -309,7 +309,7 @@ class LstQueryHandler(BaseComponent):
         if quickquery:
             result.addItem('-',None)
             jsresolver = "genro.rpc.remoteResolver('getQuickQuery',null,{cacheTime:'5'})"
-            result.addItem('custquery',jsresolver,_T='JS',caption='!!Custom query',action='FIRE list.query_id = $1.pkey;')
+            result.addItem('custquery',jsresolver,_T='JS',caption='!!Custom query',action='console.log("aaa");FIRE list.query_id = $1.pkey;')
         return result
         
     def toolboxQueries(self, container):

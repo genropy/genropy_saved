@@ -444,6 +444,32 @@ class GnrWhereTranslator(object):
              return 'Not %s'% getattr(self, 'op_%s' % op[4:].lower()).__doc__
          return h.__doc__
          
+    def toText(self,tblobj,wherebag,level=0):
+        result = []
+        for k,node in enumerate(wherebag.getNodes()):
+            attr=node.getAttr()
+            value=node.getValue()
+            if k:
+                jc=attr.get('jc_caption', '')
+            else:
+                jc=''
+            negate=attr.get('not')=='not'
+            if isinstance(value, Bag):
+                onecondition = ('\n'+'    '*level).join(self.toText(tblobj,value,level+1))
+                onecondition = '(\n'+'    '*level+onecondition+'\n'+'    '*level+')'
+            else:
+                op = attr.get('op_caption')
+                column = attr.get('column_caption')
+                if not op or not column:
+                    continue
+                onecondition='%s %s %s' %(column,op,value)
+            if onecondition:
+                if negate:
+                    onecondition = ' %s %s  ' % (attr.get('not_caption',''),onecondition)
+                result.append(' %s %s' % (jc, onecondition ))
+        return result
+        
+        
     def innerFromBag(self, tblobj, wherebag, sqlArgs, level):
         """<condition column="fattura_num" op="ISNULL" rem='senza fattura' />
         <condition column="@anagrafica.provincia" op="IN" jc='AND'>MI,FI,TO</condition>

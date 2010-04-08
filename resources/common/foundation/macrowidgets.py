@@ -25,6 +25,37 @@ from gnr.web.gnrbaseclasses import BaseComponent
 import datetime
 from gnr.core.gnrlocale import DATEKEYWORDS
 
+
+class MenuStackContainer(BaseComponent):
+    def menuStackContainer(self,parent,nodeId=None,selectedPage=None,**kwargs):
+        capId = '%s_caption' %nodeId
+        menuId = '%s_menu' %nodeId
+        bc = parent.borderContainer(**kwargs)
+        top = bc.contentPane(region='top',height='40px')
+        top.dataController("""
+            var menuNode = genro.nodeById(menuId);
+            menuNode.freeze();
+            var children = genro.wdgById(stackId).getChildren();
+            for (var i=0; i<children.length;i++){
+                var attrs = children[i].sourceNode.attr;
+                menuNode._('menuline',{label:attrs.title,idx:i});
+                }
+            menuNode.unfreeze();
+        """,stackId=nodeId,_onStart=True,nodeId='%s_nav' %nodeId,menuId='%s_menu' %nodeId)
+        navigator = top.div(_class='menuStackNavigator',float='left')
+        navigator.button('!!Prev',iconClass='icnNavPrev',action='genro.wdgById("%s").back();' %nodeId,showLabel=False)
+        navigator.dropDownButton(nodeId=capId).menu(nodeId='%s_menu' %nodeId,_class='smallmenu',
+                                                            action='genro.wdgById("%s").setSelected($1.idx);' %nodeId)
+        navigator.button('!!Next',iconClass='icnNavNext',action='genro.wdgById("%s").forward();' %nodeId,showLabel=False)
+
+        
+        return bc.stackContainer(region='center',nodeId=nodeId,selectedPage=selectedPage,
+                                connect_addChild="""
+                                                    var cb = function(){genro.wdgById('%s').setLabel(this.sourceNode.attr.title);};
+                                                    dojo.connect($1,'_isShown',cb);
+                                                    """%(capId))
+
+
 class DynamicEditor(BaseComponent):
     
     css_requires = 'dyn_editor'

@@ -140,7 +140,7 @@ dojo.declare("gnr.GnrQueryBuilder",null,{
         node.freeze();
         node._('menu', {modifiers:'*',_class:'smallmenu',storepath:'gnr.qb.sqlop.jc',id:'qb_jc_menu'});
         node._('menu', {modifiers:'*',_class:'smallmenu',storepath:'gnr.qb.sqlop.not',id:'qb_not_menu'});
-        node._('menu', {modifiers:'*',_class:'smallmenu',storepath:'gnr.qb.fieldsmenu',id:'qb_fields_menu'});
+        node._('menu', {modifiers:'*',_class:'smallmenu',storepath:'gnr.qb.fieldsmenu',id:'qb_fields_menu',action:"genro.querybuilder.onChangedQueryColumn($2,$1);"});
         node._('menu', {modifiers:'*',_class:'smallmenu',storepath:'gnr.qb.sqlop.op',id:'qb_op_menu'});
 
         var opmenu_types = ['alpha','date','number','other','boolean','unselected_column'];
@@ -180,9 +180,12 @@ dojo.declare("gnr.GnrQueryBuilder",null,{
         if (currentDtype!=column_attr.dtype){
             contextNode.setRelativeData(relpath+'?column_dtype',column_attr.dtype);
             var default_op = genro._('gnr.qb.sqlop.op_spec.'+this.getDtypeGroup(column_attr.dtype)+'.#0');
-            contextNode.setRelativeData(relpath+'?op',default_op);
-            contextNode.setRelativeData(relpath+'?op_caption',
+            if (default_op){
+                contextNode.setRelativeData(relpath+'?op',default_op);
+                contextNode.setRelativeData(relpath+'?op_caption',
                                         genro.getDataNode('gnr.qb.sqlop.op.'+default_op).attr.caption);
+            }
+            
         }
         contextNode.setRelativeData(relpath,'');
     },
