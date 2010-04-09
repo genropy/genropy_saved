@@ -62,15 +62,12 @@ class MenuStackContainer(BaseComponent):
                          action='genro.wdgById("%s").forward();' %nodeId,showLabel=False)
         
         if label_cb:
-            label_cb(top.div(float='right'))
+            label_cb(top.div(float='left'))
         return bc.stackContainer(region='center',nodeId=nodeId,selectedPage=selectedPage,
                                 connect_addChild="""
                                                     var cb = function(){genro.wdgById('%s').setLabel($1.sourceNode.attr.title);};
                                                     dojo.connect(this.widget,'_showChild',cb);
                                                     """%(capId))
-    def _stackMenuLabel(self,pane):
-        pass
-
 
 class DynamicEditor(BaseComponent):
     
