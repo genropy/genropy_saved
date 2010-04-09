@@ -27,28 +27,38 @@ from gnr.core.gnrlocale import DATEKEYWORDS
 
 
 class MenuStackContainer(BaseComponent):
-    def menuStackContainer(self,parent,nodeId=None,selectedPage=None,**kwargs):
+    def menuStackContainer(self,parent,nodeId=None,selectedPage=None,hasToolbar=False,**kwargs):
         capId = '%s_caption' %nodeId
         menuId = '%s_menu' %nodeId
         bc = parent.borderContainer(**kwargs)
-        top = bc.contentPane(region='top',height='40px')
+        top = bc.contentPane(region='top')
+        if hasToolbar:
+            top = top.toolbar(height='20px')
+        else:
+            top = top.div(_class='pbl_roundedGroupLabel')
         top.dataController("""
             var menuNode = genro.nodeById(menuId);
             menuNode.freeze();
-            var children = genro.wdgById(stackId).getChildren();
+            var stack= genro.wdgById(stackId);
+            var children = stack.getChildren();
+            var maxLength = 0;
             for (var i=0; i<children.length;i++){
                 var attrs = children[i].sourceNode.attr;
+                maxLength = maxLength<=attrs.title.length?attrs.title.length:maxLength;
                 menuNode._('menuline',{label:attrs.title,idx:i});
                 }
             menuNode.unfreeze();
-        """,stackId=nodeId,_onStart=True,nodeId='%s_nav' %nodeId,menuId='%s_menu' %nodeId)
-        navigator = top.div(_class='menuStackNavigator',float='left')
-        navigator.button('!!Prev',iconClass='icnNavPrev',action='genro.wdgById("%s").back();' %nodeId,showLabel=False)
-        navigator.dropDownButton(nodeId=capId).menu(nodeId='%s_menu' %nodeId,_class='smallmenu',
+            stack.setSelected(0);
+            genro.dom.style(genro.domById(capId),{width:maxLength*.7+'em'});
+            
+        """,stackId=nodeId,_onStart=True,nodeId='%s_nav' %nodeId,menuId='%s_menu' %nodeId,capId=capId)
+        navigator = top.div(_class='menuStackNavigator')
+        navigator.button('!!Prev',iconClass='icnNavPrev',action='genro.wdgById("%s").back();' %nodeId,
+                        showLabel=False,baseClass='no_background',float='left')
+        navigator.dropDownButton(nodeId=capId,baseClass='no_background',float='left',padding_right='1em').menu(nodeId='%s_menu' %nodeId,_class='smallmenu',
                                                             action='genro.wdgById("%s").setSelected($1.idx);' %nodeId)
-        navigator.button('!!Next',iconClass='icnNavNext',action='genro.wdgById("%s").forward();' %nodeId,showLabel=False)
-
-        
+        navigator.button('!!Next',baseClass='no_background',iconClass='icnNavNext',float='left',
+                        action='genro.wdgById("%s").forward();' %nodeId,showLabel=False)
         return bc.stackContainer(region='center',nodeId=nodeId,selectedPage=selectedPage,
                                 connect_addChild="""
                                                     var cb = function(){genro.wdgById('%s').setLabel(this.sourceNode.attr.title);};

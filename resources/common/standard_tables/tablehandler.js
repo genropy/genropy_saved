@@ -290,7 +290,6 @@ dojo.declare("gnr.GnrQueryBuilder",null,{
             attr.op_caption = this.getCaption('op',attr) ;
             tr._('td')._('div',{_class:'qb_div qb_field floatingPopup',connectedMenu:'qb_fields_menu',
                                 dnd_onDrop:"genro.querybuilder.onChangedQueryColumn(this,item.attr,'"+node.label+"');",
-                                action:"genro.querybuilder.onChangedQueryColumn($2,$1,'"+node.label+"');",
                                 dnd_allowDrop:"return !(item.attr.one_relation);",
                                 innerHTML:'^'+relpath+'?column_caption'});
             tr._('td')._('div',{_class:'qb_div qb_op floatingPopup', 
