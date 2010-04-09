@@ -27,7 +27,8 @@ from gnr.core.gnrlocale import DATEKEYWORDS
 
 
 class MenuStackContainer(BaseComponent):
-    def menuStackContainer(self,parent,nodeId=None,selectedPage=None,hasToolbar=False,**kwargs):
+    def menuStackContainer(self,parent,nodeId=None,selectedPage=None,
+                          hasToolbar=False,label_cb=None,**kwargs):
         capId = '%s_caption' %nodeId
         menuId = '%s_menu' %nodeId
         bc = parent.borderContainer(**kwargs)
@@ -52,18 +53,23 @@ class MenuStackContainer(BaseComponent):
             genro.dom.style(genro.domById(capId),{width:maxLength*.7+'em'});
             
         """,stackId=nodeId,_onStart=True,nodeId='%s_nav' %nodeId,menuId='%s_menu' %nodeId,capId=capId)
-        navigator = top.div(_class='menuStackNavigator')
+        navigator = top.div(_class='menuStackNavigator',float='left')
         navigator.button('!!Prev',iconClass='icnNavPrev',action='genro.wdgById("%s").back();' %nodeId,
-                        showLabel=False,baseClass='no_background',float='left')
-        navigator.dropDownButton(nodeId=capId,baseClass='no_background',float='left',padding_right='1em').menu(nodeId='%s_menu' %nodeId,_class='smallmenu',
-                                                            action='genro.wdgById("%s").setSelected($1.idx);' %nodeId)
-        navigator.button('!!Next',baseClass='no_background',iconClass='icnNavNext',float='left',
-                        action='genro.wdgById("%s").forward();' %nodeId,showLabel=False)
+                        showLabel=False,baseClass='no_background')
+        navigator.dropDownButton(nodeId=capId,baseClass='no_background',padding_right='1.2em').menu(nodeId='%s_menu' %nodeId,_class='smallmenu',
+                                                          action='genro.wdgById("%s").setSelected($1.idx);' %nodeId)
+        navigator.button('!!Next',baseClass='no_background',iconClass='icnNavNext',
+                         action='genro.wdgById("%s").forward();' %nodeId,showLabel=False)
+        
+        if label_cb:
+            label_cb(top.div(float='right'))
         return bc.stackContainer(region='center',nodeId=nodeId,selectedPage=selectedPage,
                                 connect_addChild="""
                                                     var cb = function(){genro.wdgById('%s').setLabel($1.sourceNode.attr.title);};
                                                     dojo.connect(this.widget,'_showChild',cb);
                                                     """%(capId))
+    def _stackMenuLabel(self,pane):
+        pass
 
 
 class DynamicEditor(BaseComponent):

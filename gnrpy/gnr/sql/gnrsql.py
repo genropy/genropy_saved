@@ -219,7 +219,12 @@ class GnrSqlDb(GnrObject):
         else:
             return self.dbname
         
-    
+    def _get_localizer(self):
+        if self.application and self.application.site and self.application.site.currentPage:
+            return self.application.site.currentPage.localizer
+    localizer = property(_get_localizer)
+
+
     def _get_connection(self):
         """property .connection
         If there's not connection open and return connection to database"""

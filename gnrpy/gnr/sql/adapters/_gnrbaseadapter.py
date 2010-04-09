@@ -419,32 +419,30 @@ class SqlDbAdapter(object):
         pass
 
     def getWhereTranslator(self):
-        return GnrWhereTranslator()
+        return GnrWhereTranslator(self.dbroot)
 
 class GnrWhereTranslator(object):
-    def __init__(self):
+    def __init__(self,db):
+        self.db = db
         self.catalog = GnrClassCatalog()
         
     def __call__(self, tblobj, wherebag, sqlArgs, customOpCbDict=None):
         if sqlArgs is None:
             sqlArgs = {}
-        currentEnv=tblobj.db.currentEnv
-        self.locale = currentEnv.get('locale')
-        self.workdate = currentEnv.get('workdate')
         self.customOpCbDict=customOpCbDict
         result = self.innerFromBag(tblobj, wherebag, sqlArgs, 0)
-        self.locale = None
-        self.workdate = None
-        
         return '\n'.join(result)
         
-    def opCaption(self,op):
-         h = getattr(self, 'op_%s' % op.lower(),None)
-         if not h and op.startswith('not_'):
-             return 'Not %s'% getattr(self, 'op_%s' % op[4:].lower()).__doc__
-         return h.__doc__
+    def opCaption(self,op,localize=False):
+        h = getattr(self, 'op_%s' % op.lower(),None)
+        if not h and op.startswith('not_'):
+            return 'Not %s'% getattr(self, 'op_%s' % op[4:].lower()).__doc__
+        result = h.__doc__
+        if localize and self.db.localizer:
+            result = self.db.localizer.translateText(result)
+        return result
          
-    def toText(self,tblobj,wherebag,level=0):
+    def toText(self,tblobj,wherebag,level=0,decodeDate=False):
         result = []
         for k,node in enumerate(wherebag.getNodes()):
             attr=node.getAttr()
@@ -462,6 +460,10 @@ class GnrWhereTranslator(object):
                 column = attr.get('column_caption')
                 if not op or not column:
                     continue
+                if decodeDate:
+                    if tblobj.column(attr.get('column')).dtype in('D','DH'):
+                        value, op = self.decodeDates(value, op, 'D')
+                        op = self.opCaption(op,localize=True)
                 onecondition='%s %s %s' %(column,op,value)
             if onecondition:
                 if negate:
@@ -522,10 +524,10 @@ class GnrWhereTranslator(object):
         if op == 'isnull':
             return value, op
         if op == 'in' and ',' in value: # is a in search with multiple (single date) arguments: don't use periods!!!
-            value = ','.join([decodeDatePeriod(v, workdate=self.workdate, locale=self.locale,dtype=dtype) for v in value.split(',')])
+            value = ','.join([decodeDatePeriod(v, workdate=self.db.workdate, locale=self.db.locale,dtype=dtype) for v in value.split(',')])
             return value, op
             
-        value = decodeDatePeriod(value, workdate=self.workdate, locale=self.locale,dtype=dtype)
+        value = decodeDatePeriod(value, workdate=self.db.workdate, locale=self.db.locale,dtype=dtype)
         mode = None
         if value.startswith(';'):
             mode = 'to'
