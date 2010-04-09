@@ -61,8 +61,8 @@ class MenuStackContainer(BaseComponent):
                         action='genro.wdgById("%s").forward();' %nodeId,showLabel=False)
         return bc.stackContainer(region='center',nodeId=nodeId,selectedPage=selectedPage,
                                 connect_addChild="""
-                                                    var cb = function(){genro.wdgById('%s').setLabel(this.sourceNode.attr.title);};
-                                                    dojo.connect($1,'_isShown',cb);
+                                                    var cb = function(){genro.wdgById('%s').setLabel($1.sourceNode.attr.title);};
+                                                    dojo.connect(this.widget,'_showChild',cb);
                                                     """%(capId))
 
 

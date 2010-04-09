@@ -27,5 +27,7 @@ class GnrCustomWebPage(object):
     def main(self, rootBC, **kwargs):
         sc = self.menuStackContainer(rootBC,nodeId='foo',region='center',
                                     selectedPage='^bar',hasToolbar=True,**kwargs)
-        sc.contentPane(title='John',background='green',pageName='john')
-        sc.contentPane(title='Smith',background='red',pageName='smith')
+        sc.borderContainer(title='John',background='green',pageName='john')
+        sc.borderContainer(title='Smith',background='red',pageName='smith')
+        sc.borderContainer(title='Jeff',background='blu',pageName='jeff')
+        sc.borderContainer(title='Edw',background='purple',pageName='edw')
