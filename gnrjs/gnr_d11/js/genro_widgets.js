@@ -896,7 +896,6 @@ dojo.declare("gnr.widgets.Menuline",gnr.widgets.baseDojo,{
         }
     },
     patch_onClick:function(){
-        console.log(this);
         var originalTarget=this.getParent().originalContextTarget;
         var ctxSourceNode;
         var sourceNode=this.sourceNode;
@@ -920,7 +919,6 @@ dojo.declare("gnr.widgets.Menuline",gnr.widgets.baseDojo,{
         }
         f=funcCreate(action);
         if (f){
-            console.log(f.toSource());
             f.call(actionScope,sourceNode.getAttr(),ctxSourceNode);
         }
         var selattr=objectExtract(inAttr,'selected_*',true);

@@ -25,7 +25,7 @@ Component for referto:
 class GnrCustomWebPage(object):
     py_requires='public:Public,foundation/macrowidgets:MenuStackContainer'
     def main(self, rootBC, **kwargs):
-        sc = self.menuStackContainer(rootBC,nodeId='prova',region='center',
-                                    selectedPage='^pp',hasToolbar=True,**kwargs)
-        sc.contentPane(title='Prova',background='green',pageName='prova')
-        sc.contentPane(title='Mia',background='red',pageName='mia')
+        sc = self.menuStackContainer(rootBC,nodeId='foo',region='center',
+                                    selectedPage='^bar',hasToolbar=True,**kwargs)
+        sc.contentPane(title='John',background='green',pageName='john')
+        sc.contentPane(title='Smith',background='red',pageName='smith')
