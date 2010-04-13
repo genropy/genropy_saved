@@ -37,5 +37,5 @@ class GnrCustomWebPage(object):
         
     def rpc_sendMail(self, to_address=None, from_address=None, subject=None, body=None):
         self.site.mail_handler.sendmail(to_address, subject, body,from_address=from_address,
-                            host='relay.kpnqwest.it', html=True)
+                            host='smtp.gmail.com',tls=True, user='michele.bertoldi@gmail.com', password='rotring', html=True)
         
