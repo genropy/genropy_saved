@@ -25,7 +25,6 @@ from email.mime.text import MIMEText
 from email.MIMEMultipart import MIMEMultipart
 from email.mime.image import MIMEImage
 from email.mime.application import MIMEApplication
-from gnr.utils import ssmtplib
 import re, htmlentitydefs
 import mimetypes
 mimetypes.init() # Required for python 2.6 (fixes a multithread bug)
@@ -103,7 +102,7 @@ class MailHandler(object):
     def get_smtp_connection(self, account=None, host=None, port=None, 
                             user=None, password=None, ssl=False, tls=False, **kwargs):
         if ssl:
-            smtp=getattr(ssmtplib,'SMTP_SSL')
+            smtp=getattr(smtplib,'SMTP_SSL')
         else:
             smtp=getattr(smtplib,'SMTP')
         if port:
