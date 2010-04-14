@@ -108,8 +108,6 @@ dojo.declare("gnr.GnrFrmHandler",null,{
     },
     save: function(always,onSavedCb){
         if (!this.status){
-            this.status = 'saving';
-            console.log('saving');
             var always = always || genro._(this.controllerPath+'.is_newrecord');
             if (this.changed || always){
                 var invalidfields = this.getInvalidFields();
@@ -119,6 +117,7 @@ dojo.declare("gnr.GnrFrmHandler",null,{
                     genro.fireEvent(this.controllerPath+'.save_failed','invalid');
                     return 'invalid:'+invalid;
                 }
+                this.status = 'saving';
                 genro.fireEvent(this.controllerPath+'.saving');
                 this.onSavedCb = onSavedCb;
                 genro.nodeById(this.form_id+'_saver').fireNode();
