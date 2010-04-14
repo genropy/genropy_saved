@@ -793,8 +793,7 @@ class GnrFormBuilder(object):
                 #field['connect__onMouse'] = 'genro.dom.ghostOnEvent($1);' 
                 #field['connect__onKeyPress'] = 'genro.dom.ghostOnEvent($1);' 
                 #field['connect_setDisplayedValue'] = 'genro.dom.ghostOnEvent("setvalue");' 
-
-            obj= tagHandler(**field)
+            obj = td.child(tag,**field)
             return obj
 
 class GnrDomSrc_dojo_14(GnrDomSrc_dojo_11):
