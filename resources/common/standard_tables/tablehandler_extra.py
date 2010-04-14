@@ -602,3 +602,130 @@ class StatsHandler(BaseComponent):
         def cb(group,row,bagnode):
             return bagnode.label
         return cb
+        
+class HierarchicalViewHandler(BaseComponent):
+    py_requires='gnrcomponents/selectionhandler'
+    def hv_columns(self):
+        return None
+    
+    def hv_defaultConf(self):
+        return dict(parent_code='parent_code',code='code',child_code='child_code')
+        
+    def hv_main_form(self, bc):
+        bc.dataController("SET .form.pkey=pkey; FIRE .form.doLoad;",pkey="^.current.pkey")
+        left = bc.borderContainer(region='left', overflow='auto',width='40%',splitter=True)
+        leftTb = left.contentPane(region='top').toolbar(height='20px')
+        leftTb.button('!!Add child',float='right',action='FIRE .form.add ="child"', 
+                         visible='^list.canWrite')
+        leftTb.button('!!Add sibling',float='right',action='FIRE .form.add ="sibling"', 
+                        visible='^list.canWrite')
+        dfltConf = self.hv_defaultConf()
+        defaults = dict()
+        defaults['default_%s' %dfltConf['parent_code']] = '=.default_parent_code'
+        leftTb.dataController("""
+                                SET .default_parent_code = what=='child'? code:parent_code;
+                                SET .form.pkey="*newrecord*"; FIRE .form.doLoad;
+                                """,
+                            what="^.form.add",
+                            parent_code='=.current.parent_code',code='=.current.code')        
+        self.hv_tree_edit(left.contentPane(region='center'),)
+        self.formLoader('hv_formPane', resultPath='.form.record',_fired='^.form.doLoad',lock='=form.lockAcquire',
+                        readOnly='=form.readOnly',datapath='list.hv.edit',
+                        table=self.maintable, pkey='=.form.pkey',method='loadRecordCluster',
+                        loadingParameters='=gnr.tables.maintable.loadingParameters',
+                        sqlContextName='sql_record',**defaults)
+        self.formSaver('hv_formPane',resultPath='.form.save_result',method='saveRecordCluster',
+                        datapath='list.hv.edit',table=self.maintable,_fired='^.form.save',
+                        _onCalling='FIRE pbl.bottomMsg=msg;',
+                        msg ='!!Saving...',saveAlways=getattr(self,'saveAlways',False))
+        center = bc.borderContainer(region='center')
+        centerTb= center.contentPane(region='top').toolbar(height='20px')
+        if self.userCanWrite():
+            centerTb.div(_class='button_placeholder', float='right').button('!!Save',fire=".form.save", iconClass="tb_button db_save",showLabel=False,
+                                hidden='^status.locked')
+            centerTb.div(_class='button_placeholder', float='right').button('!!Revert',fire='.form.doLoad', iconClass="tb_button db_revert",
+                                        disabled='== !_changed', _changed='^gnr.forms.formPane.changed', 
+                         showLabel=False, hidden='^status.locked')
+        self.formBase(center.borderContainer(),datapath='.form.record',disabled='^form.locked',region='center',formId='hv_formPane')
+        
+    def hv_tree_edit(self,pane):
+        selected = dict()
+        dfltConf = self.hv_defaultConf()
+
+        selected['selected_%s' %dfltConf['parent_code']] = '.current.parent_code'
+        selected['selected_%s' %dfltConf['child_code']] = '.current.child_code'
+        selected['selected_%s' %dfltConf['code']] = '.current.code'
+        pane.dataRemote('.tree', 'hv_selectionAsTree', selectionName='^list.selectionName' ,_if='selectionName')
+        pane.tree(storepath ='.tree',
+                     isTree =False,
+                     hideValues=True,
+                     inspect ='shift',
+                     labelAttribute ='caption',
+                     fired ='^list.queryEnd',
+                     selected_pkey='.current.pkey',
+                     **selected)
+    
+    def hv_tree_view(self,pane):
+        pane.dataRemote('.tree', 'hv_selectionAsTree', selectionName='^list.selectionName' ,_if='selectionName')
+        pane.dataRecord('.current_record', self.maintable, pkey='^.selected_id')
+        pane.tree(storepath ='.tree',
+                     selected_pkey ='.selected_id',
+                     isTree =False,
+                     hideValues=True,
+                     selectedItem ='.selectedItem',
+                     selected_rec_type = '.current_rec_type',
+                     inspect ='shift',
+                     labelAttribute ='caption',
+                     fired ='^list.queryEnd')
+
+    def hv_main_view(self, bc):
+        bc.data('.conf', self.hierarchicalViewConf())
+        self.hv_tree_view(bc.contentPane(region = 'left', overflow='auto',width='60%',splitter=True))
+        infocontainer = bc.borderContainer(region = 'center')
+        infopane_top= infocontainer.contentPane(region ='top', height='50%',
+                                                splitter=True,_class='infoGrid',padding ='6px')
+        infopane_top.dataController(
+                            """var current_rec_type= current_record.getItem('rec_type');
+                               var result = new gnr.GnrBag();
+                               var fields = info_fields.getNodes()
+                               for (var i=0; i<fields.length; i++){
+                                   var fld_rec_types = fields[i].getAttr('rec_types',null);
+                                   var fld_label = fields[i].getAttr('label');
+                                   if (fld_rec_types){
+                                       fld_rec_types=fld_rec_types.split(',');
+                                   }
+                                   var fld_val_path = fields[i].getAttr('val_path');
+                                   var fld_show_path = fields[i].getAttr('show_path');
+                                   
+                                   var fld_value = current_record.getItem(fld_val_path);
+                                   var fld_show = current_record.getItem(fld_show_path);
+                                   if (!fld_rec_types || dojo.indexOf(fld_rec_types, current_rec_type)!=-1){
+                                       result.setItem('R_'+i,
+                                                       null,
+                                                      {'lbl':fld_label, 'val':fld_value,'show':fld_show})
+                                   }
+                               }
+                               SET .info_table = result
+                               """,
+                               info_fields = '=.conf',
+                               current_record='=.current_record',
+                               fired='^.current_record.id')
+        infopane_top.includedView(storepath='.info_table', struct=self._infoGridStruct())
+        infoStackContainer = infocontainer.stackContainer(region = 'center',
+                                                          selected='^.stack.selectedPage')
+        infoStackContainer.contentPane()
+        callbacks = [(x.split('_')[1],x) for x in dir(self) if x.startswith('hv_info_')]
+        infoStackContainer.data('.rec_types', ','.join([x[0] for x in callbacks]))
+        infoStackContainer.dataController("""rec_types = rec_types.split(',');
+                                             var n = dojo.indexOf(rec_types,rec_type);
+                                             if (n!=-1){SET list.hv.stack.selectedPage=n+1;};""",
+                                           rec_types = '=.rec_types',
+                                           rec_type = '^.current_rec_type')
+        for cb in callbacks:
+            getattr(self, cb[1])(infoStackContainer.contentPane(padding ='6px',
+                                                                _class='pbl_roundedGroup',
+                                                                datapath='.current_record'))
+    def rpc_hv_selectionAsTree(self,selectionName=None):
+        selection = self.getUserSelection(selectionName=selectionName,columns=self.hv_columns())
+        if hasattr(self.tblobj,'selectionAsTree'):
+            return self.tblobj.selectionAsTree(selection)

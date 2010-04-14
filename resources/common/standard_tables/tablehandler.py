@@ -30,6 +30,7 @@ class TableHandler(BaseComponent):
                      standard_tables/tablehandler_extra:TagsHandler,
                      standard_tables/tablehandler_extra:QueryHelper,
                      standard_tables/tablehandler_extra:FiltersHandler,
+                     standard_tables/tablehandler_extra:HierarchicalViewHandler,
                     foundation/userobject:UserObject,foundation/dialogs"""
     css_requires = 'standard_tables/tablehandler'
     js_requires = 'standard_tables/tablehandler'
@@ -57,7 +58,10 @@ class TableHandler(BaseComponent):
     
     def hierarchicalViewConf(self):
         return None
-    
+        
+    def hierarchicalEdit(self):
+        return None
+        
     def conditionBase(self):
         return (None,None)
         

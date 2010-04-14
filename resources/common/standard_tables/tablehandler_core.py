@@ -102,66 +102,7 @@ class ViewExporter(BaseComponent):
                         excludeLogicalDeleted=excludeLogicalDeleted,**kwargs)
         return query
         
-        
 class ListViewHandler(BaseComponent):
-    def treePane(self, pane):
-        client = pane.borderContainer(region = 'center')
-        client.data('hv_conf', self.hierarchicalViewConf())
-        client.dataRemote('.tree_view.tree', 'selectionAsTree', selectionName='^.selectionName' )
-        leftpane = client.contentPane(region = 'center', overflow='auto')
-        leftpane.dataRecord('.tree_view.current_record', self.maintable, pkey='^.tree_view.selected_id')
-        leftpane.tree(storepath ='.tree_view.tree',
-                     selected_pkey ='.tree_view.selected_id',
-                     isTree =False,
-                     hideValues=True,
-                     selected_rec_type = '.tree_view.current_rec_type',
-                     inspect ='shift',
-                     labelAttribute ='caption',
-                     fired ='^.queryEnd')
-        infocontainer = client.borderContainer(region = 'right', width='40%', splitter=True)
-        infopane_top= infocontainer.contentPane(region = 'top', height='50%',
-                                                          splitter=True,_class='infoGrid',padding ='6px')
-        infopane_top.dataScript('.tree_view.info_table',
-                            """var current_rec_type= current_record.getItem('rec_type');
-                               var result = new gnr.GnrBag();
-                               var fields = info_fields.getNodes()
-                               for (var i=0; i<fields.length; i++){
-                                   var fld_rec_types = fields[i].getAttr('rec_types',null);
-                                   var fld_label = fields[i].getAttr('label');
-                                   if (fld_rec_types){
-                                       fld_rec_types=fld_rec_types.split(',');
-                                   }
-                                   var fld_val_path = fields[i].getAttr('val_path');
-                                   var fld_show_path = fields[i].getAttr('show_path');
-                                   
-                                   var fld_value = current_record.getItem(fld_val_path);
-                                   var fld_show = current_record.getItem(fld_show_path);
-                                   if (!fld_rec_types || dojo.indexOf(fld_rec_types, current_rec_type)!=-1){
-                                       result.setItem('R_'+i,
-                                                       null,
-                                                      {'lbl':fld_label, 'val':fld_value,'show':fld_show})
-                                   }
-                               }
-                               return result""",
-                               info_fields = '=hv_conf',
-                               current_record='=.tree_view.current_record',
-                               fired='^.tree_view.current_record.id')
-        infopane_top.includedView(storepath='.tree_view.info_table', struct=self._infoGridStruct())
-        infoStackContainer = infocontainer.stackContainer(region = 'center',
-                                                          selected='^.tree_view.stack.selectedPage')
-        infoStackContainer.contentPane()
-        callbacks = [(x.split('_')[1],x) for x in dir(self) if x.startswith('infoPane_')]
-        infoStackContainer.data('rec_types', ','.join([x[0] for x in callbacks]))
-        infoStackContainer.dataController("""rec_types = rec_types.split(',');
-                                             var n = dojo.indexOf(rec_types,rec_type);
-                                             if (n!=-1){SET list.tree_view.stack.selectedPage=n+1;};""",
-                                           rec_types = '=rec_types',
-                                           rec_type = '^.tree_view.current_rec_type')
-        for cb in callbacks:
-            getattr(self, cb[1])(infoStackContainer.contentPane(padding ='6px',
-                                                                _class='pbl_roundedGroup',
-                                                                datapath='.tree_view.current_record'))
-
 
     def savedViewController(self, pane):
         pane.dataRemote('list.view.saved_menu', 'list_view', tbl=self.maintable, cacheTime=10)

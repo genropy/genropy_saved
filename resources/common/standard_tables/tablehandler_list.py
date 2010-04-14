@@ -298,11 +298,6 @@ class TableHandlerForm(BaseComponent):
                                   """,_fired="^list.showQueryCountDlg",waitmsg='!!Working.....',
                                                  dlgtitle='!!Current query record count')
         
-            
-
-                
-
-        
     def listToolbar_rightbuttons(self, pane):
         pane = pane.div(nodeId='query_buttons',float='right')
         if self.userCanDelete() or self.userCanWrite():
@@ -393,14 +388,16 @@ class TableHandlerForm(BaseComponent):
         
     def gridPane(self,pane):
         stats_main = getattr(self,'stats_main',None)
-        if self.hierarchicalViewConf() or stats_main:
+        if self.hierarchicalViewConf() or self.hierarchicalEdit() or stats_main:
             tc = pane.tabContainer(selected='^list.selectedTab')
             gridpane =  tc.contentPane(title='!!Standard view')
             if stats_main:
                 stats_main(tc,datapath='stats',title='!!Statistical view')
             if self.hierarchicalViewConf():
-                treepane =  tc.contentPane(title='!!Hierarchical view', datapath='list')
-                self.treePane(treepane)
+                self.hv_main_view(tc.borderContainer(title='!!Hierarchical view', datapath='list.hv.view'))
+            if self.hierarchicalEdit():
+                self.hv_main_form(tc.borderContainer(title='!!Hierarchical edit', datapath='list.hv.edit'))
+
         else:
             gridpane = pane
         pane.data('.sorted',self.orderBase())
