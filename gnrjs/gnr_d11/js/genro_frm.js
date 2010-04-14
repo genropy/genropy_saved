@@ -108,6 +108,8 @@ dojo.declare("gnr.GnrFrmHandler",null,{
     },
     save: function(always,onSavedCb){
         if (!this.status){
+            this.status = 'saving';
+            console.log('saving');
             var always = always || genro._(this.controllerPath+'.is_newrecord');
             if (this.changed || always){
                 var invalidfields = this.getInvalidFields();
@@ -118,22 +120,23 @@ dojo.declare("gnr.GnrFrmHandler",null,{
                     return 'invalid:'+invalid;
                 }
                 genro.fireEvent(this.controllerPath+'.saving');
-                this.status = 'saving';
                 this.onSavedCb = onSavedCb;
                 genro.nodeById(this.form_id+'_saver').fireNode();
             }else{
                 genro.fireEvent(this.controllerPath+'.save_failed','nochange');
             }
         }
+        else{
+            genro.playSound('Basso');
+        }
     },
     saved: function(){
-        this.status = null;
         var onSavedCb = objectPop(this,'onSavedCb');
         genro.fireEvent(this.controllerPath+'.saved');
         if (onSavedCb){
             onSavedCb();
         }
-
+        this.status = 'saved';
     },
     getFormData: function(){
         return genro._(this.formDatapath);
