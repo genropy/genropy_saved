@@ -197,6 +197,10 @@ class SqlDbAdapter(object):
         result = ' AND '.join(result)
         return result
         
+    def sqlFireEvent(self, link_txt, path, column):
+        result = """'<a href="#" onclick="genro.fireEvent(' ||quote_literal('%s')|| ',' ||quote_literal(%s)||')" >%s</a>' """ % (path,column,link_txt)
+        return result
+        
     def ageAtDate(self, dateColumn, dateArg=None, timeUnit='day'):
         """Returns the sql clause to obtain the age of a dateColum measured as difference from the dateArg or the workdate
            And expressed with given timeUnit.
