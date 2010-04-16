@@ -151,8 +151,8 @@ class TableHandlerForm(BaseComponent):
                                     if(idx == -2){}
                                     */""" ,
                              idx='^list.selectedIndex')
-        pane.dataController("SET status.locked=true;",fire='^status.lock')
-        pane.dataController("SET status.locked=false;",fire='^status.unlock',_if='unlockPermission',
+        pane.dataController("SET status.locked=true;",fired='^status.lock')
+        pane.dataController("SET status.locked=false;",fired='^status.unlock',_if='unlockPermission',
                                                                  unlockPermission='=usr.unlockPermission',
                                                                  forbiddenMsg = '==  unlockForbiddenMsg || dfltForbiddenMsg',
                                                                  unlockForbiddenMsg ='=usr.unlockForbiddenMsg',

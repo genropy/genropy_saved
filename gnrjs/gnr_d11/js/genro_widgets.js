@@ -162,9 +162,11 @@ dojo.declare("gnr.widgets.baseHtml",null,{
                 alert('formId '+formId+' will replace nodeId '+ sourceNode.attr.nodeId);
             }
             //for having form information inside the form datapath
-            var dlgId = objectPop(attributes,'dlgId');
+            var controllerPath = objectPop(attributes,'controllerPath');
+            var pkeyPath = objectPop(attributes,'pkeyPath');
+
             sourceNode.attr.nodeId = formId;
-            sourceNode.defineForm(formId,sourceNode.absDatapath(),dlgId);
+            sourceNode.defineForm(formId,sourceNode.absDatapath(),controllerPath,pkeyPath);
         }
         //Fix Colspan in Internet explorer
         if(dojo.isIE>0){
@@ -1159,6 +1161,7 @@ dojo.declare("gnr.widgets.Button",gnr.widgets.baseDojo,{
         }
     },
     onClick:function(e){
+        var modifier = eventToString(e);
         var action = this.getInheritedAttributes().action;
         if (action){
             //funcCreate(action).call(this,e);
@@ -1166,11 +1169,11 @@ dojo.declare("gnr.widgets.Button",gnr.widgets.baseDojo,{
         }
         if (this.attr.fire){
             var s=eventToString(e) || true;
-            this.setRelativeData(this.attr.fire, s, null, true);
+            this.setRelativeData(this.attr.fire, s, {modifier:modifier}, true);
         }
         var fire_list = objectExtract(this.attr, 'fire_*', true);
         for (var fire in fire_list){
-            this.setRelativeData(fire_list[fire], fire, null, true);
+            this.setRelativeData(fire_list[fire], fire, {modifier:modifier}, true);
         }
 
     }
@@ -3384,6 +3387,9 @@ dojo.declare("gnr.widgets.Tree",gnr.widgets.baseDojo,{
                 }
             };
         }
+        if (attributes.selectedPath){
+            sourceNode.registerDynAttr('selectedPath');
+        }
         var savedAttrs=objectExtract(attributes,'inspect,autoCollapse');
         return savedAttrs;
     },
@@ -3395,6 +3401,7 @@ dojo.declare("gnr.widgets.Tree",gnr.widgets.baseDojo,{
                                                        modifiers:modifiers
                                                        }).connectOneNode(widget.domNode)    ;                                        
         };
+
         //dojo.connect(widget,'onClick',widget,'_updateSelect');
         var storepath=widget.model.store.datapath;
         if ((storepath=='*D') || (storepath=='*S'))
@@ -3473,12 +3480,35 @@ dojo.declare("gnr.widgets.Tree",gnr.widgets.baseDojo,{
             //this.model.store._triggerDel(kw);
         }
     },
+
+    mixin_setSelectedPath:function(path,kw){
+        if (kw.reason==this){
+            return;
+        }
+        var abspath = this.sourceNode.absDatapath(path);
+        
+        var dataNode = genro.getDataNode(abspath);
+        var dataNodeId = dataNode._id;
+        
+    },
+    mixin_setSelected:function(node){
+        var selectedLabelClass = this.sourceNode.attr.selectedLabelClass;
+        if (selectedLabelClass) {
+            if (this.lastSelectedNode){
+                genro.dom.removeClass(node.domNode,selectedLabelClass)
+            }
+            genro.dom.addClass(node.domNode,selectedLabelClass);
+            this.lastSelectedNode = node;
+        }
+    },
+    
     mixin__updateSelect: function(item,node){
         var modifiers = objectPop(node,'__eventmodifier');
+        var reason=this;
         var attributes = {};
         if (modifiers){
             attributes._modifiers = modifiers;
-        };
+        }
         if(!item){
             return;
         }
@@ -3487,20 +3517,24 @@ dojo.declare("gnr.widgets.Tree",gnr.widgets.baseDojo,{
         }
         if (this.sourceNode.attr.selectedLabel){
             var path=this.sourceNode.attrDatapath('selectedLabel');
-            this.sourceNode.setRelativeData(path,item.label,attributes);
+            this.sourceNode.setRelativeData(path,item.label,attributes,null,reason);
         }        
         if (this.sourceNode.attr.selectedItem){
             var path=this.sourceNode.attrDatapath('selectedItem');
-            this.sourceNode.setRelativeData(path,item,attributes);
+            this.sourceNode.setRelativeData(path,item,attributes,null,reason);
         }
         if (this.sourceNode.attr.selectedPath){
-            var path=this.sourceNode.attrDatapath('selectedPath');
-            this.sourceNode.setRelativeData(path,item.getFullpath(),attributes);
+            var path=this.sourceNode.attrDatapath('selectedPath',reason);
+            var root=null;
+            if (this.sourceNode.attr.useRelPath){
+                root=this.model.store.rootData();
+            }
+            this.sourceNode.setRelativeData(path,item.getFullpath(null,root),attributes,null,reason);
         }
         var selattr=objectExtract(this.sourceNode.attr,'selected_*',true);
         for (var sel in selattr){
             var path=this.sourceNode.attrDatapath('selected_'+sel);
-            this.sourceNode.setRelativeData(path,item.attr[sel],attributes);
+            this.sourceNode.setRelativeData(path,item.attr[sel],attributes,null,reason);
         }
     }
 });

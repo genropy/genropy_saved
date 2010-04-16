@@ -54,7 +54,9 @@
 	background: yellow;
 }
 
-
+.button_placeholder{
+    width:25px;
+}
 .gnrmenulabel{
 	text-decoration: none;
 	padding-right:15px;
@@ -140,6 +142,15 @@
 
 /* @group Widgets&Components */
 
+/* @group Tree */
+.selectedTreeNode{
+	color: red;
+	font-weight: bold;
+}
+
+
+/* @end */
+
 /* @group components */
 
 /* @group MenuStack */
@@ -193,6 +204,11 @@
 
 .db_query {
 	background: url(icons/db_query_go_16x16.gif) no-repeat center center;
+}
+.tb_button {
+	height: 16px;
+	width: 16px;
+	cursor: pointer;
 }
 
 .tundra .dijitToolbar .dijitButtonNode {

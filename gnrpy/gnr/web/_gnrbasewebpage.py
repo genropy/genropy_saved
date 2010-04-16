@@ -461,8 +461,8 @@ class GnrBaseWebPage(GnrObject):
             onResultScripts.append(onLoaded)
         loadingParameters = loadingParameters or '=gnr.tables.maintable.loadingParameters'
         controller = self.pageController()
-        controller.dataController('genro.formById("%s").load();' %formId,
-                                _fired=_fired, _onStart=loadOnStart,_delay=1,
+        controller.dataController('genro.formById(frmId).load();',
+                                _fired=_fired, _onStart=loadOnStart,_delay=1,frmId=formId,
                                 datapath=datapath)
                     
         controller.dataRpc(resultPath, method=method, pkey=pkey, table=table,

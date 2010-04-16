@@ -26,14 +26,16 @@
 //######################## genro  #########################
 
 dojo.declare("gnr.GnrFrmHandler",null,{
-    constructor: function(form_id,formDatapath,controllerNodeId){
+    constructor: function(sourceNode,form_id,formDatapath,controllerPath,pkeyPath){
         this.form_id = form_id;
         this.changed = false;
         this.status = null;
         this.current_field = null;
-        this.controllerPath = controllerNodeId?genro.nodeById(controllerNodeId).absDatapath()+'.form':'gnr.forms.'+this.form_id;
+        this.controllerPath = controllerPath||'gnr.forms.'+this.form_id;
         this.invalidFieldsPath = this.controllerPath+'.invalidFields';
         this.formDatapath = formDatapath;
+        this.pkeyPath = pkeyPath;
+        this.sourceNode = sourceNode;
     },
     reset: function(){
         this.resetChanges();
@@ -70,9 +72,43 @@ dojo.declare("gnr.GnrFrmHandler",null,{
         sourceNode.updateValidationStatus();
         this.updateInvalidField(sourceNode, sourceNode.attrDatapath('value'));
     },
-    load: function(sync){
+    load: function(kw){
+        var kw = kw || {};
+        if ('destPkey' in kw){
+            var currentPkey = this.pkeyPath?this.sourceNode.getRelativeData(this.pkeyPath):null;
+            if (kw.destPkey!=currentPkey){
+                this.checkPendingChanges(kw);
+                return;
+            }
+        }
+        this.doload(kw);
+    },
+    checkPendingChanges: function(kw){
+        var kw = kw || {};
+        if (this.changed){
+            var currForm = this;
+            var saveCb = function(){
+                currForm.sourceNode.setRelativeData(currForm.pkeyPath,kw.destPkey);
+                currForm.save();
+            };
+            var continueCb = function(){
+                currForm.doload(kw);
+            };                                
+            var opener= {invalidData:(this.getInvalidFields().len()>0),saveCb:saveCb,continueCb:continueCb,cancelCb:kw.cancelCb};
+            this.sourceNode.fireEvent('#pbl_formPendingChangesAsk.open',opener);
+        }else{
+            this.doload(kw);
+        }
+    },
+    doload: function(kw){
+        var kw = kw || {};
+        var sync = kw.sync;
         genro.setData(this.controllerPath+'.loading', true);
         this.status = 'loading';
+        if('destPkey' in kw){
+            var destPkey = kw.destPkey || '*newrecord*';
+            this.sourceNode.setRelativeData(this.pkeyPath,destPkey);
+        }
         if (!sync){
             var formDomNode = genro.domById(this.form_id);
             genro.dom.addClass(formDomNode,'loadingForm');
@@ -327,7 +363,7 @@ dojo.declare("gnr.GnrFrmHandler",null,{
         };
     },
     getInvalidFields: function(){
-        return genro.getData(this.invalidFieldsPath) || new gnr.GnrBag();
+        return genro._(this.invalidFieldsPath) || new gnr.GnrBag();
     },
     focusFirstInvalidField: function(){
         if (dojo.isIE>0){
@@ -339,7 +375,7 @@ dojo.declare("gnr.GnrFrmHandler",null,{
         first[key].widget.focus();
     },
     getChangesLogger: function(){
-        return genro.getData(this.changesLogger);
+        return genro._(this.changesLogger);
     },
     _setChangeStatus:function(changed){
         genro.setData(this.controllerPath+'.changed', changed);

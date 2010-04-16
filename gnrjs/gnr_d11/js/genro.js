@@ -63,7 +63,7 @@ dojo.declare('gnr.GenroClient', null, {
         this.lastTime=this.startTime;
         this.dialogStack = [];
         this.sounds={};
-        this.pendingFireAfter={}
+        this.pendingFireAfter={};
         this.compareDict={'==':function(a,b){return (a==b);},
                           '>':function(a,b){return (a>b);},
                           '>=':function(a,b){return (a>=b);},
@@ -500,7 +500,10 @@ dojo.declare('gnr.GenroClient', null, {
     pathResolve: function(obj){
         if (typeof (obj)=='string'){
            // return (obj.indexOf('@') ==0) ? obj.slice(1) : obj;
-            return obj;
+           if (!genro.src.getNode()){
+               return obj;
+           }
+           return genro.src.getNode().absDatapath(obj);
         }
         if (obj instanceof gnr.GnrDomSourceNode){
                 return obj.absDatapath();

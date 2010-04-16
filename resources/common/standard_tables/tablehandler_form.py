@@ -108,18 +108,25 @@ class TableHandlerForm(BaseComponent):
                               
         pane.dataRpc('form.delete_result','deleteRecordCluster', data='=form.record?=genro.getFormChanges("formPane");', _POST=True,
                         table=self.maintable,toDelete='^form.doDeleteRecord')
-        pane.dataController("""genro.dlg.ask(askTitle,saveMessage,{save:saveButton,forget:cancelButton},'form.dlgAction');
-                              SET form.dlgidx = newidx;
+        pane.dataController("""genro.dlg.ask(askTitle,saveMessage,{save:saveButton,forget:cancelButton,review:reviewButton},'form.dlgAction');
+                              SET form.destidx = newidx;
                                    """,
                                 newidx='^form.newidx',changed='=gnr.forms.formPane.changed',
                                 askTitle="!!Unsaved changes",
                                 saveMessage='!!There are unsaved changes',saveButton='!!Save changes',
-                                cancelButton='!!Forget changes',
+                                cancelButton='!!Forget changes',reviewButton='!!Review changes',
                                 _if='changed',_else='SET list.selectedIndex=newidx')
         
-        pane.dataController("FIRE form.save;",newidx='=form.dlgidx',
-                            result='^form.dlgAction',_if="result=='save'",
-                            _else='SET list.selectedIndex=newidx')
+        pane.dataController("""
+                            if(result=='save'){
+                                FIRE form.save;
+                            }else if(result=='forget'){
+                                SET list.selectedIndex=newidx;
+                            }else{
+                                SET form.destidx = null;
+                            }
+                            """,newidx='=form.destidx',
+                            result='^form.dlgAction')
 
         pane.dataFormula('form.atBegin','(idx==0)',idx='^list.selectedIndex')
         pane.dataFormula('form.atEnd','(idx==rowcount-1)',idx='^list.selectedIndex',rowcount='=list.rowcount')
@@ -129,8 +136,15 @@ class TableHandlerForm(BaseComponent):
                                else if (btn == 'last'){newidx = rowcount-1;}
                                else if ((btn == 'prev') && (idx > 0)){newidx = idx-1;}
                                else if ((btn == 'next') && (idx < rowcount-1)){newidx = idx+1;}
-                               FIRE form.newidx = newidx;
-                            """,btn='^form.navbutton',idx='=list.selectedIndex',
+                               if (modifier=='Shift' && changed){
+                                    SET form.destidx = newidx;
+                                    FIRE form.save;
+                               }else{
+                                    FIRE form.newidx = newidx;
+                               }
+                               
+                            """,btn='^form.navbutton',modifier='=form.navbutton?modifier',idx='=list.selectedIndex',
+                                changed='=gnr.forms.formPane.changed',
                                 rowcount='=list.rowcount')
                                 
         pane.dataController(""" var currSet;
@@ -152,20 +166,27 @@ class TableHandlerForm(BaseComponent):
                                        }
                                    cs.push(pkey);
                                }
-                               SET list.selectedId = pkey;
                                FIRE pbl.bottomMsg = msg;
                                if (custom_sound){
                                     genro.playSound(custom_sound);
                                }
-                               FIRE form.doLoad;
+                               
+                               if (destidx&&destidx!=idx){
+                                    SET list.selectedIndex=destidx;
+                               }else{
+                                    SET list.selectedId = pkey;
+                                    FIRE form.doLoad;
+                               }
                             """, record='=form.record',
                                  msg='!!Record saved',
                                  custom_sound='=gnr.user_preference.sys.sounds.onsaved',
                                  idx='=list.selectedIndex',
                                  pkey='^form.save_result',
+                                 destidx = '=form.destidx',
                                  old_pkey='=list.selectedId',
                                  error='=form.save_result?msg',
                                  _if='!error',
+                        
                                  _else='genro.dlg.alert(error)')
           
         pane.dataController("""SET list.selectedId = null;

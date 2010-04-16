@@ -71,6 +71,10 @@ class Public(BaseComponent):
         return root.borderContainer(_class='pbl_root',**kwargs)
         
     def _pbl_dialogs(self,pane):
+        self._pbl_dialogs_waiting(pane)
+        self._pbl_dialogs_pendingChanges(pane)
+
+    def _pbl_dialogs_waiting(self,pane):
         def cb_bottom(*args,**kwargs):
             pass
             
@@ -79,6 +83,25 @@ class Public(BaseComponent):
             
         self.simpleDialog(pane,title='!!Waiting',dlgId='pbl_waiting',height='200px',width='300px',cb_center=cb_center,
                         datapath='gnr.tools.waitingdialog',cb_bottom=cb_bottom)
+        
+    def _pbl_dialogs_pendingChanges(self,pane):
+
+        def cb_bottom(bc,confirm_btn=None,**kwargs):
+            bottom = bc.contentPane(**kwargs)
+            bottom.button('!!Save changes',float='right',margin='1px',
+                        action="FIRE .close; (GET .opener.saveCb)();",
+                        disabled='^.opener.invalidData')
+            bottom.button('!!Cancel',baseClass='bottom_btn',float='right',margin='1px',
+                            action='FIRE .close; (GET .opener.cancelCb)();')
+            bottom.button('!!Discard changes',float='left',margin='1px',
+                        action="FIRE .close; (GET .opener.continueCb)();")
+            
+        def cb_center(parentBc,**kwargs):
+            parentBc.contentPane(**kwargs).div("!!Current record has been modified.",text_align='center',margin_top='20px')
+            
+        self.simpleDialog(pane,title='!!Warning',dlgId='pbl_formPendingChangesAsk',
+                         height='80px',width='300px',cb_center=cb_center,
+                        datapath='gnr.tools.formPendingChanges',cb_bottom=cb_bottom)
         
             
     def _pbl_root(self, rootbc, title=None, height=None, width=None, centered=None,flagsLocale=False):

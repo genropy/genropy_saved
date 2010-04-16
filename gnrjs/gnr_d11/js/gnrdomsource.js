@@ -286,8 +286,8 @@ dojo.declare("gnr.GnrDomSourceNode",gnr.GnrBagNode,{
             genro._data.setItem(path,value,attributes,{'doTrigger':doTrigger});
         }
     },
-    defineForm: function(form_id,formDatapath,controllerNodeId){
-        this.formHandler = new gnr.GnrFrmHandler(form_id,formDatapath,controllerNodeId);
+    defineForm: function(form_id,formDatapath,controllerPath,pkeyPath){
+        this.formHandler = new gnr.GnrFrmHandler(this,form_id,formDatapath,controllerPath,pkeyPath);
     },
     hasDynamicAttr: function(attr){
         return (this._dynattr && (attr in this._dynattr));
@@ -316,6 +316,9 @@ dojo.declare("gnr.GnrDomSourceNode",gnr.GnrBagNode,{
              }
         }
         return value;
+    },
+    fireEvent:function(path, value, attributes, reason,delay){
+        this.setRelativeData(path, value, attributes, true, reason,delay)
     },
     setRelativeData: function(path, value, attributes, fired, reason,delay){
        // var reason=reason || this

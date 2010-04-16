@@ -80,9 +80,8 @@ class FormDialog(BaseComponent):
     def dialog_form_bottom(self,*args,**kwargs):
         print 'deprecated use formDialog_bottom instead of'
         self.formDialog_bottom(*args,**kwargs)
-
         
-    def formDialog(self,parent,title='',formId='',height='',width='',datapath='',
+    def formDialog(self,parent,title='',formId='',height='',width='',datapath='',pkeyPath=None,
                 cb_center=None,cb_bottom='*',loadsync=False,confirm_btn=None,
                 allowNoChanges=True,**kwargs):
                 
@@ -94,8 +93,9 @@ class FormDialog(BaseComponent):
                         changed="^.form.changed",saving='^.form.saving',allowNoChanges=allowNoChanges,
                         formId=formId,_if='formId')
         if cb_center:
-            cb_center(bc,region='center',datapath='.data',_class='pbl_dialog_center',dlgId=dlgId,
-                     formId=formId)
+            cb_center(bc,region='center',datapath='.data',_class='pbl_dialog_center',
+                        controllerPath='#%s.form' %dlgId,pkeyPath=pkeyPath,
+                      formId=formId)
         #only in form mode
         bc.dataController("""
                              FIRE ._setOpener = opener;
@@ -103,7 +103,7 @@ class FormDialog(BaseComponent):
                              FIRE .load;
                              """ ,opener="^.open")
         bc.dataController("FIRE ._closeSimpleDialog;",_fired="^.close")
-        bc.dataController("genro.formById(formId).load(loadsync);",
+        bc.dataController("genro.formById(formId).load({sync:loadsync});",
                          _fired="^.load",_delay=1,formId=formId,_if='formId',
                          loadsync=loadsync)
         bc.dataController('genro.formById(formId).save(always=="always"?true:false);' ,
@@ -118,7 +118,7 @@ class FormDialog(BaseComponent):
                     cb_center=None,cb_bottom='*',confirm_btn=None,**kwargs):
         bc = self._simpleDialog(parent,title=title,dlgId=dlgId,height=height,width=width,datapath=datapath,
                                 cb_center=cb_center,cb_bottom=cb_bottom,confirm_btn=confirm_btn,**kwargs)
-        bc.dataController("""FIRE ._setOpener;
+        bc.dataController("""FIRE ._setOpener = opener;
                              FIRE ._openSimpleDialog; 
                              """ ,opener="^.open")
         bc.dataController("FIRE ._closeSimpleDialog;",_fired="^.close")
