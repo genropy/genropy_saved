@@ -68,9 +68,16 @@ class HTableHandler(BaseComponent):
                                 """ %nodeId,
                             selPkey='^.tree.pkey',currPkey='=.edit.pkey',_if='selPkey!=currPkey',
                             formId=formId)
-        bc.dataController("""
-                            console.log(treepath);
-                            treestore.getNode(treepath).getParentNode().refresh(true);
+        bc.dataController("""       
+                             var editNode=treestore.getNode(treepath);
+                             if (editNode){
+                                 console.log('edit node ' +  treepath)
+                                 console.log(editNode)
+                             }else{
+                                //treestore.getNode(treepath).getParentNode().refresh(true);
+                                console.log('newnode ' +  treepath)
+                             }
+                            
                             FIRE .load;
                          """,
                         _fired="^.edit.onSaved",
@@ -170,7 +177,7 @@ class HTableResolver(BagResolver):
                 value=HTableResolver(table=self.table,rootpath=row['code'])
             else:
                 value=None
-            children.setItem(row['child_code'], value,_attributes=dict(row),caption=caption)
+            children.setItem(row['child_code'], value,caption=caption,pkey=row['pkey'])#_attributes=dict(row),
         if not self.rootlabel:
             return children
         result = Bag()
@@ -183,7 +190,7 @@ class HTableResolver(BagResolver):
             caption=self.rootlabel
             rootlabel ='_root_'
             _attributes=dict()
-        result.setItem(rootlabel, children, caption=caption,_attributes=_attributes)
+        result.setItem(rootlabel, children, caption=caption,pkey=row['pkey'])#,_attributes=_attributes)
         return result
         
         
