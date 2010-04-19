@@ -3434,6 +3434,7 @@ dojo.declare("gnr.widgets.Tree",gnr.widgets.baseDojo,{
         nodeWidget.__eventmodifier = eventToString(e);
         this._onClick_replaced(e);
         this._updateSelect(nodeWidget.item, nodeWidget);
+        this.setSelected(nodeWidget);
     },
     mixin_getItemById: function(id){
         return this.model.store.rootData().findNodeById(id);
@@ -3485,19 +3486,34 @@ dojo.declare("gnr.widgets.Tree",gnr.widgets.baseDojo,{
         if (kw.reason==this){
             return;
         }
-        var abspath = this.sourceNode.absDatapath(path);
-        
-        var dataNode = genro.getDataNode(abspath);
-        var dataNodeId = dataNode._id;
+        var curr = this.model.store.rootData();
+        var currNode,treeNode;
+
+        var pathList = kw.value.split('.');
+        for (var i=0; i < pathList.length; i++) {
+            currNode = curr.getNode(pathList[i]);
+            treeNode = this._itemNodeMap[currNode._id];
+            if (i==pathList.length-1){
+                this.focusNode(treeNode);
+                this.setSelected(treeNode);
+                this._updateSelect(currNode);
+            }else{
+                curr = currNode.getValue();
+                if (!treeNode.isExpanded) {
+                    this._expandNode(treeNode);
+                };
+            }
+            
+        };
         
     },
     mixin_setSelected:function(node){
         var selectedLabelClass = this.sourceNode.attr.selectedLabelClass;
         if (selectedLabelClass) {
             if (this.lastSelectedNode){
-                genro.dom.removeClass(node.domNode,selectedLabelClass)
+                genro.dom.removeClass(this.lastSelectedNode.labelNode,selectedLabelClass);
             }
-            genro.dom.addClass(node.domNode,selectedLabelClass);
+            genro.dom.addClass(node.labelNode,selectedLabelClass);
             this.lastSelectedNode = node;
         }
     },

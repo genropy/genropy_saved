@@ -78,13 +78,16 @@ class GnrDomSrc(GnrStructData):
             t=kwargs.pop('tag',tag)
             if tag=='input':
                 tag=t
-        
+            
         if hasattr(self,'fbuilder'):
             if not tag in ('tr','data','script','func','connect','dataFormula','dataScript','dataRpc','dataRemote','dataRecord','dataSelection', 'dataController'):
                 if tag=='br':
                     return self.fbuilder.br()
                 if not 'disabled' in kwargs:
                     kwargs['disabled']=self.childrenDisabled
+                if 'unmodifiable' in kwargs and not 'readOnly' in kwargs:
+                    kwargs['readOnly'] = '==!_newrecord'
+                    kwargs['_newrecord'] = '^.?_newrecord'
                 return self.fbuilder.place(tag=tag,name=name,**kwargs)
         if envelope:
             obj = GnrStructData.child(self, 'div', name='*_#', **envelope)
@@ -277,7 +280,6 @@ class GnrDomSrc(GnrStructData):
         result['lbl']=fieldobj.name_long
         result['size']=20
         result.update(dict([(k,v) for k,v in fieldobj.attributes.items() if k.startswith('validate_')]))
-  
         relcol = fieldobj.relatedColumn()
         
         if relcol != None: 
@@ -481,6 +483,8 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
         else:
             size = 5
         result.update(dict([(k,v) for k,v in fieldobj.attributes.items() if k.startswith('validate_')]))
+        if 'unmodifiable' in fieldobj.attributes:
+            result['unmodifiable'] = fieldobj.attributes.get('unmodifiable')
         relcol = fieldobj.relatedColumn()
         if not relcol is None: 
             lnktblobj = relcol.table

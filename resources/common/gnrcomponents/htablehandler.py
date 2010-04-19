@@ -65,7 +65,7 @@ class HTableHandler(BaseComponent):
         bc = sc.contentPane(pageName='record_selected')
         bc.dataController("SET .edit.selectedPage=pkey?'record_selected':'no_record'",pkey="^.tree.pkey")
         toolbar = bc.contentPane(region='top',overflow='hidden',datapath='.edit').toolbar(height='20px')
-        self.ht_form_toolbar(toolbar,nodeId=nodeId)
+        self.ht_form_toolbar(toolbar,nodeId=nodeId,disabled=disabled)
         bc.dataController("""
                             var destPkey = selPkey;
                             var cancelCb = function(){genro.setData('#%s.tree.pkey',currPkey);};
@@ -75,46 +75,58 @@ class HTableHandler(BaseComponent):
                             formId=formId)
         bc.dataController("""       
                              var editNode=treestore.getNode(treepath);
-                             if (editNode){
-                                 console.log('edit node ' +  treepath)
-                                 console.log(editNode)
+                             console.log(treepath);
+                             if (destPkey!='*newrecord*'){
                                  var attr= editNode.attr;
                                  attr.caption = treeCaption;
                                  editNode.setAttr(attr);
                              }else{
-                                //treestore.getNode(treepath).getParentNode().refresh(true);
-                                treeCaption = treeCaption||editedRecord.getItem('child_code')+'-'+editedRecord.getItem('caption')
-                                console.log('newnode ' +  treepath)
+                                console.log('newnode')
+                                var nodeToRefresh = treestore.getNode(treepath).getParentNode()
+                                nodeToRefresh.refresh(true);
+                                
                              }
-                            FIRE .edit.load;
+                            
                          """,
-                        _fired="^.edit.onSaved",
+                        #//FIRE .edit.load;
+
+                        _fired="^.edit.onSaved",destPkey='=.tree.pkey',
+                        savedPkey='=.edit.savedPkey',
                         treepath='=.tree.path',treestore='=.tree.store',
                         treeCaption='=.edit.savedPkey?caption')
 
         getattr(self,formId)(bc,region='center',table=table,
                               datapath='.edit.record',controllerPath='#%s.edit.form' %nodeId,
                               formId=formId,
-                              disabled='^#%s.edit.status.locked'%nodeId,
+                              disabled= disabled or '^#%s.edit.status.locked'%nodeId,
                               pkeyPath='#%s.edit.pkey' %nodeId)
+        selected = dict()
+        dfltConf = dict(code='code',parent_code='parent_code',child_code='child_code')
+        tblobj = self.db.table(table)
+        defaults = dict()
+        if hasattr(tblobj,'htable_conf'):
+            dfltConf = tblobj.htable_conf()        
+        defaults['default_%s' %dfltConf['parent_code']] = '=.defaults.parent_code'
         self.formLoader(formId,datapath='#%s.edit' %nodeId,resultPath='.record',_fired='^.load',
-                        table=table, pkey='=.pkey')
+                        table=table, pkey='=.pkey',**defaults)
         self.formSaver(formId,datapath='#%s.edit' %nodeId,resultPath='.savedPkey',_fired='^.save',
                         table=table,onSaved='FIRE .onSaved;',
                         rowcaption=_getTreeRowCaption(self.db.table(table)))
 
-    def ht_form_toolbar(self,toolbar,nodeId=None):
+    def ht_form_toolbar(self,toolbar,nodeId=None,disabled=None):
         toolbar.dataController("SET .title =recordCaption",recordCaption="^.record?caption")
         toolbar.div('^.title',float='left')
         spacer = toolbar.div(float='right',_class='button_placeholder')
         spacer.data('.status.locked',True)
-        spacer.button('!!Unlock',fire='.status.unlock',iconClass="tb_button icnBaseLocked",
-                    showLabel=False,hidden='^.status.unlocked')
-        spacer.button('!!Lock',fire='.status.lock',iconClass="tb_button icnBaseUnlocked", 
-                    showLabel=False,hidden='^.status.locked')
-        toolbar.dataController("SET .status.locked=true;",fired='^.status.lock')
-        toolbar.dataController("SET .status.locked=false;",fired='^.status.unlock') 
-        toolbar.dataFormula(".status.unlocked", "!locked",locked="^.status.locked")
+        if not disabled:
+            disabled = '^.status.locked'
+            spacer.button('!!Unlock',fire='.status.unlock',iconClass="tb_button icnBaseLocked",
+                        showLabel=False,hidden='^.status.unlocked')
+            spacer.button('!!Lock',fire='.status.lock',iconClass="tb_button icnBaseUnlocked", 
+                        showLabel=False,hidden='^.status.locked')
+            toolbar.dataController("SET .status.locked=true;",fired='^.status.lock')
+            toolbar.dataController("SET .status.locked=false;",fired='^.status.unlock') 
+            toolbar.dataFormula(".status.unlocked", "!locked",locked="^.status.locked")
         spacer = toolbar.div(float='right',_class='button_placeholder')
         spacer.dataController("""genro.dom.removeClass(semaphoreId,"greenLight redLight yellowLight");
               if(isValid){
@@ -129,27 +141,21 @@ class HTableHandler(BaseComponent):
               """,isChanged="^.form.changed",semaphoreId='%s_semaphore' %nodeId,
             isValid='^.form.valid')
         spacer.div(nodeId='%s_semaphore' %nodeId,_class='semaphore',margin_top='3px',
-                  hidden='^.status.locked')  
+                  hidden=disabled)  
         toolbar.button('!!Save',fire=".save", float='right',
                         iconClass="tb_button db_save",showLabel=False,
-                        hidden='^.status.locked')
+                        hidden=disabled)
         toolbar.button('!!Revert',fire=".load", iconClass="tb_button db_revert",float='right',
-                        showLabel=False,hidden='^.status.locked')      
+                        showLabel=False,hidden=disabled)      
                                                                  
     def ht_tree(self,bc,table=None,nodeId=None,rootpath=None,disabled=None,editMode=None):
         toolbar = bc.contentPane(region='top').toolbar(height='20px')
-        toolbar.button('!!Add child')
-        toolbar.button('Set to varie',action='SET .tree.path="V";')
+        toolbar.button('!!Add child',action="""SET .edit.defaults.parent_code = GET .tree.code;
+                                               SET .tree.pkey = '*newrecord*';
+                                            """)
+        toolbar.textbox(value='^.tree.path')
         tblobj = self.db.table(table)
         center = bc.contentPane(region='center')
-        selected = dict()
-        dfltConf = dict(code='code',parent_code='parent_code',child_code='child_code')
-        if hasattr(tblobj,'htable_conf'):
-            dfltConf = tblobj.htable_conf()        
-        selected['selected_%s' %dfltConf['parent_code']] = '.tree.parent_code'
-        selected['selected_%s' %dfltConf['child_code']] = '.tree.child_code'
-        selected['selected_%s' %dfltConf['code']] = '.tree.code'
-
         center.data('.tree.store',HTableResolver(table=table,rootpath=rootpath,
                                                     rootlabel=tblobj.name_plural,_page=self)(),
                                                     rootpath=rootpath)
@@ -161,8 +167,9 @@ class HTableHandler(BaseComponent):
                      selected_pkey='.tree.pkey',
                      selectedPath='.tree.path',
                      getLabelClass='return node.attr.labelClass',
+                     selectedLabelClass='selectedTreeNode',
                      useRelPath=True,
-                     **selected)
+                     selected_code='.tree.code')
                      
 class HTableResolver(BagResolver):
     classKwargs={'cacheTime':300,
@@ -187,7 +194,7 @@ class HTableResolver(BagResolver):
                 value=HTableResolver(table=self.table,rootpath=row['code'])
             else:
                 value=None
-            children.setItem(row['child_code'], value,caption=tblobj.recordCaption(row,rowcaption=_getTreeRowCaption(tblobj)),pkey=row['pkey'])#_attributes=dict(row),
+            children.setItem(row['child_code'], value,caption=tblobj.recordCaption(row,rowcaption=_getTreeRowCaption(tblobj)),pkey=row['pkey'],code=row[dfltConf['code']])#_attributes=dict(row),
         if not self.rootlabel:
             return children
         result = Bag()
@@ -200,7 +207,7 @@ class HTableResolver(BagResolver):
             caption=self.rootlabel
             rootlabel ='_root_'
             _attributes=dict()
-        result.setItem(rootlabel, children, caption=caption,pkey=row['pkey'])#,_attributes=_attributes)
+        result.setItem(rootlabel, children, caption=caption,pkey=row['pkey'],code=row[dfltConf['code']])#,_attributes=_attributes)
         return result
         
         
