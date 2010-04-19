@@ -478,7 +478,7 @@ class GnrBaseWebPage(GnrObject):
         return record, recinfo
         
 
-    def rpc_saveRecordCluster(self, data,table=None,_nocommit=False, **kwargs):
+    def rpc_saveRecordCluster(self, data,table=None,_nocommit=False,rowcaption=None, **kwargs):
         #resultAttr = None #todo define what we put into resultAttr
         resultAttr = {}
         onSavingMethod='onSaving'
@@ -494,22 +494,18 @@ class GnrBaseWebPage(GnrObject):
         node = data.getNode('record')
         recordCluster = node.value
         recordClusterAttr = node.getAttr()
-        #try:
-        if True:
-            onSavedKwargs = dict()
-            if onSavingHandler:
-                onSavedKwargs = onSavingHandler(recordCluster, recordClusterAttr, resultAttr=resultAttr) or {}
-            record = tblobj.writeRecordCluster(recordCluster,recordClusterAttr)
-            if onSavedHandler:
-                onSavedHandler(record, resultAttr=resultAttr,  **onSavedKwargs)
-            if not _nocommit:
-                self.db.commit()
-            return (record[tblobj.pkey],resultAttr)
-       # except GnrSqlSaveException, e:
-       #     return ('validation_error',{ 'msg':e.message})
-       # except Exception, e:
-       #     raise e
-        
+        onSavedKwargs = dict()
+        if onSavingHandler:
+            onSavedKwargs = onSavingHandler(recordCluster, recordClusterAttr, resultAttr=resultAttr) or {}
+        record = tblobj.writeRecordCluster(recordCluster,recordClusterAttr)
+        if onSavedHandler:
+            onSavedHandler(record, resultAttr=resultAttr,  **onSavedKwargs)
+        if not _nocommit:
+            self.db.commit()
+        if not 'caption' in resultAttr:
+            resultAttr['caption'] = tblobj.recordCaption(record,rowcaption=rowcaption)
+        return (record[tblobj.pkey],resultAttr)
+
         
     def rpc_deleteRecordCluster(self, data, table=None, **kwargs):
         maintable=getattr(self,'maintable') 

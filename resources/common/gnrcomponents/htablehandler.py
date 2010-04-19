@@ -21,6 +21,11 @@
 from gnr.web.gnrwebpage import BaseComponent
 from gnr.core.gnrbag import Bag,BagResolver
 
+def _getTreeRowCaption(tblobj):
+    if hasattr(tblobj,'treeRowCaption'):
+        return tblobj.treeRowCaption()
+    return  '$child_code,$caption'
+
 class HTableHandler(BaseComponent):
     css_requires='public'
     def htableHandler(self,parentBC,nodeId=None,datapath=None,table=None,rootpath=None,
@@ -73,15 +78,19 @@ class HTableHandler(BaseComponent):
                              if (editNode){
                                  console.log('edit node ' +  treepath)
                                  console.log(editNode)
+                                 var attr= editNode.attr;
+                                 attr.caption = treeCaption;
+                                 editNode.setAttr(attr);
                              }else{
                                 //treestore.getNode(treepath).getParentNode().refresh(true);
+                                treeCaption = treeCaption||editedRecord.getItem('child_code')+'-'+editedRecord.getItem('caption')
                                 console.log('newnode ' +  treepath)
                              }
-                            
-                            FIRE .load;
+                            FIRE .edit.load;
                          """,
                         _fired="^.edit.onSaved",
-                        treepath='=.tree.path',treestore='=.tree.store')
+                        treepath='=.tree.path',treestore='=.tree.store',
+                        treeCaption='=.edit.savedPkey?caption')
 
         getattr(self,formId)(bc,region='center',table=table,
                               datapath='.edit.record',controllerPath='#%s.edit.form' %nodeId,
@@ -91,8 +100,9 @@ class HTableHandler(BaseComponent):
         self.formLoader(formId,datapath='#%s.edit' %nodeId,resultPath='.record',_fired='^.load',
                         table=table, pkey='=.pkey')
         self.formSaver(formId,datapath='#%s.edit' %nodeId,resultPath='.savedPkey',_fired='^.save',
-                        table=table,onSaved='FIRE .onSaved;')
-                
+                        table=table,onSaved='FIRE .onSaved;',
+                        rowcaption=_getTreeRowCaption(self.db.table(table)))
+
     def ht_form_toolbar(self,toolbar,nodeId=None):
         toolbar.dataController("SET .title =recordCaption",recordCaption="^.record?caption")
         toolbar.div('^.title',float='left')
@@ -162,6 +172,7 @@ class HTableResolver(BagResolver):
                  'rootlabel':False,
                  '_page':None}
     classArgs=['table','rootpath','rootlabel']
+            
     def load(self):
         db= self._page.db
         tblobj = db.table(self.table)
@@ -172,18 +183,17 @@ class HTableResolver(BagResolver):
                          rootpath=self.rootpath or '',order_by='$child_code').fetch()
         children = Bag()
         for row in rows:
-            caption='%s-%s'% (row['code'].split('.')[-1],row['caption'])
             if row['child_count']:
                 value=HTableResolver(table=self.table,rootpath=row['code'])
             else:
                 value=None
-            children.setItem(row['child_code'], value,caption=caption,pkey=row['pkey'])#_attributes=dict(row),
+            children.setItem(row['child_code'], value,caption=tblobj.recordCaption(row,rowcaption=_getTreeRowCaption(tblobj)),pkey=row['pkey'])#_attributes=dict(row),
         if not self.rootlabel:
             return children
         result = Bag()
         if self.rootpath:
             row=tblobj.query(columns='*',where='$code=:code',code=self.rootpath).fetch()[0]
-            caption='%s-%s'% (row['code'].split('.')[-1],row['caption'])
+            caption=tblobj.recordCaption(row,rowcaption=_getTreeRowCaption(tblobj))
             rootlabel = row['child_code']
             _attributes=dict(row)
         else:
