@@ -3493,19 +3493,19 @@ dojo.declare("gnr.widgets.Tree",gnr.widgets.baseDojo,{
         for (var i=0; i < pathList.length; i++) {
             currNode = curr.getNode(pathList[i]);
             treeNode = this._itemNodeMap[currNode._id];
-            if (i==pathList.length-1){
-                this.focusNode(treeNode);
-                this.setSelected(treeNode);
-                this._updateSelect(currNode);
-            }else{
-                curr = currNode.getValue();
+            curr = currNode.getValue();
+            if (i<pathList.length-1){
                 if (!treeNode.isExpanded) {
                     this._expandNode(treeNode);
                 };
             }
-            
         };
-        
+        var currTree = this;
+        setTimeout(function(){
+            currTree.focusNode(treeNode);
+            currTree.setSelected(treeNode);
+            currTree._updateSelect(currNode);
+        },100);  
     },
     mixin_setSelected:function(node){
         var selectedLabelClass = this.sourceNode.attr.selectedLabelClass;

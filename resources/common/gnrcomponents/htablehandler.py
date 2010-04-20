@@ -74,22 +74,17 @@ class HTableHandler(BaseComponent):
                             selPkey='^.tree.pkey',currPkey='=.edit.pkey',_if='selPkey!=currPkey',
                             formId=formId)
         bc.dataController("""       
-                             var editNode=treestore.getNode(treepath);
-                             console.log(treepath);
                              if (destPkey!='*newrecord*'){
                                  var attr= editNode.attr;
                                  attr.caption = treeCaption;
-                                 editNode.setAttr(attr);
+                                 editNode.setAttr(attr); //da sistemar
+                                 FIRE .edit.load;
                              }else{
-                                console.log('newnode')
-                                var nodeToRefresh = treestore.getNode(treepath).getParentNode()
-                                nodeToRefresh.refresh(true);
-                                
+                                treestore.getNode(treepath).refresh(true);
+                                SET .tree.path = treepath + nodeToRefresh.label;
                              }
                             
                          """,
-                        #//FIRE .edit.load;
-
                         _fired="^.edit.onSaved",destPkey='=.tree.pkey',
                         savedPkey='=.edit.savedPkey',
                         treepath='=.tree.path',treestore='=.tree.store',
