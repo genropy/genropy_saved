@@ -3472,6 +3472,8 @@ dojo.declare("gnr.widgets.Tree",gnr.widgets.baseDojo,{
                 }else{
                      this._onItemChange({id:kw.node._id+'c',label:kw.value});
                 }
+            }else if(kw.updattr){
+                this._onItemChange(kw.node);
             }
             //this.model.store._triggerUpd(kw);
         }else if (kw.evt=='ins'){
