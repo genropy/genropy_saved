@@ -497,12 +497,8 @@ class StatsHandler(BaseComponent):
         return struct
         
     def rpc_stats_get_detail(self, flt_path=None,selectionName=None, **kwargs):
-        if not flt_path:
-            return
-        fieldpath = flt_path.split('.')[5:]
-        fieldpath = '.'.join(fieldpath)
         selection = self.unfreezeSelection(self.tblobj, selectionName)
-        result = selection.output('grid', subtotal_rows=fieldpath, recordResolver=False)
+        result = selection.output('grid', subtotal_rows=flt_path, recordResolver=False)
         return result
 
     def stats_modes_dict(self):

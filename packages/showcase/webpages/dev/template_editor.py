@@ -41,7 +41,7 @@ class GnrCustomWebPage(object):
         bc.dataController("""
                           //PREPARE THE GRID
                           FIRE update_tree;
-                          var current_path = fullpath.slice(5)
+                          var current_path = fullpath;
                           SET current_path = current_path;
                           var current = genro._data.getNode(current_path);
                           var attrs = current.attr;
@@ -58,7 +58,7 @@ class GnrCustomWebPage(object):
                           """,fullpath="^tplbag_nodepath",_fired='=append_node')
         bc.dataController("""
                             FIRE update_tree;
-                            selected_nodepath = selected_nodepath.slice(5);
+                            selected_nodepath =selected_nodepath;
                             var newpath= selected_nodepath+'.'+node_type;
                             genro._data.addItem(newpath,new gnr.GnrBag());
                             """,node_type="^append_node",

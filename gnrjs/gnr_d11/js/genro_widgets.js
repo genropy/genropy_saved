@@ -3371,14 +3371,30 @@ dojo.declare("gnr.widgets.Tree",gnr.widgets.baseDojo,{
                }
             };
         }
-        if (attributes['getLabelClass']){
-            var labelClassGetter = funcCreate(attributes['getLabelClass'],'node,opened');
-            attributes.getLabelClass=function(node,opened){
-                if(node.attr){
-                    return labelClassGetter(node,opened);
+        if (!attributes['getLabelClass']){
+            attributes['getLabelClass'] = function(node,opened){
+                var labelClass;
+                if (opened){
+                    return node.attr.labelClassOpened || node.attr.labelClass;
+                }else{
+                    return node.attr.labelClassClosed || node.attr.labelClass;
                 }
             };
         }
+        var labelClassGetter = funcCreate(attributes['getLabelClass'],'node,opened');
+            
+        var selectedLabelClass=attributes['selectedLabelClass'];
+        attributes.getLabelClass=function(node,opened){
+            if(node.attr){
+                var labelClass=labelClassGetter.call(this,node,opened);
+                if(selectedLabelClass){
+                     return (this.currentSelectedNode && this.currentSelectedNode.item == node) ? labelClass+' '+selectedLabelClass:labelClass;
+                }else{
+                    return labelClass;
+                }
+            };
+        };
+
         if (attributes['getIconClass']){
             var iconGetter = funcCreate(attributes['getIconClass'],'node,opened');
             attributes.getIconClass=function(node,opened){
@@ -3423,7 +3439,7 @@ dojo.declare("gnr.widgets.Tree",gnr.widgets.baseDojo,{
          }
     },
 
-    patch__onClick:function(e){
+    patch__onClick:function(e){        
         var nodeWidget = dijit.getEnclosingWidget(e.target);
         if(!nodeWidget || !nodeWidget.isTreeNode){
             return;
@@ -3433,8 +3449,12 @@ dojo.declare("gnr.widgets.Tree",gnr.widgets.baseDojo,{
         }
         nodeWidget.__eventmodifier = eventToString(e);
         this._onClick_replaced(e);
-        this._updateSelect(nodeWidget.item, nodeWidget);
-        this.setSelected(nodeWidget);
+        if (genro.wdg.filterEvent(e,'*','dijitTreeLabel,dijitTreeContent')){
+            this.setSelected(nodeWidget);
+            this._updateSelect(nodeWidget.item, nodeWidget);
+        }
+        
+        
     },
     mixin_getItemById: function(id){
         return this.model.store.rootData().findNodeById(id);
@@ -3510,14 +3530,15 @@ dojo.declare("gnr.widgets.Tree",gnr.widgets.baseDojo,{
         },100);  
     },
     mixin_setSelected:function(node){
-        var selectedLabelClass = this.sourceNode.attr.selectedLabelClass;
-        if (selectedLabelClass) {
-            if (this.lastSelectedNode){
-                genro.dom.removeClass(this.lastSelectedNode.labelNode,selectedLabelClass);
-            }
-            genro.dom.addClass(node.labelNode,selectedLabelClass);
-            this.lastSelectedNode = node;
+        var prevSelectedNode = this.currentSelectedNode;
+        this.currentSelectedNode = node;
+        if (prevSelectedNode){
+            prevSelectedNode._updateItemClasses(prevSelectedNode.item);
         }
+        node._updateItemClasses(node.item);
+    },
+    mixin_isSelectedItem:function(item){
+        return this.currentSelectedNode?this.currentSelectedNode.item == item:false;
     },
     
     mixin__updateSelect: function(item,node){

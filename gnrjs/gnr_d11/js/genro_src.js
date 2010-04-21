@@ -46,7 +46,7 @@ dojo.declare("gnr.GnrSrcHandler",null,{
     },
     highlightNode:function(sourceNode){
         if (typeof(sourceNode) == 'string') {
-            sourceNode = this._main.getNode(sourceNode);
+            sourceNode = this.sourceRoot.getNode(sourceNode);
         };
         if(this.highlightedNode){
             domnode=this.highlightedNode.getDomNode();
@@ -210,6 +210,7 @@ dojo.declare("gnr.GnrSrcHandler",null,{
           
     startUp:function(source){//nome troppo generico?
         this._main.setItem('main', source);  
+        this.sourceRoot =source;  
 
     },
     setInRootContainer:function(label,item){

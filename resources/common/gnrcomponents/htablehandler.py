@@ -73,18 +73,19 @@ class HTableHandler(BaseComponent):
                                 """ %nodeId,
                             selPkey='^.tree.pkey',currPkey='=.edit.pkey',_if='selPkey!=currPkey',
                             formId=formId)
-        bc.dataController("""       
+        bc.dataController("""     
+                              var editNode = treestore.getNode(treepath);
                              if (destPkey!='*newrecord*'){
                                  var attr= editNode.attr;
                                  attr.caption = treeCaption;
-                                 editNode.setAttr(attr); //da sistemar
+                                 editNode.setAttr(attr);
                                  FIRE .edit.load;
                              }else{
                                 SET .edit.pkey = savedPkey;
                                 FIRE .edit.load;
-                                treestore.getNode(treepath).refresh(true);
-                                SET .tree.path = savedPkey.slice(rootpath.length-1);
+                                editNode.refresh(true);
                              }
+                             SET .tree.path = savedPkey.slice(rootpath.length-1);
                             
                          """,
                         _fired="^.edit.onSaved",destPkey='=.tree.pkey',
@@ -151,23 +152,17 @@ class HTableHandler(BaseComponent):
         toolbar.button('!!Add child',action="""SET .edit.defaults.parent_code = GET .tree.code;
                                                SET .tree.pkey = '*newrecord*';
                                             """)
-        toolbar.textbox(value='^.tree.path')
         tblobj = self.db.table(table)
         center = bc.contentPane(region='center')
         center.data('.tree.store',HTableResolver(table=table,rootpath=rootpath,
                                                     rootlabel=tblobj.name_plural,_page=self)(),
                                                     rootpath=rootpath)
         center.tree(storepath ='.tree.store',
-                     isTree =False,
-                     hideValues=True,
-                     inspect ='shift',
-                     labelAttribute ='caption',
-                     selected_pkey='.tree.pkey',
-                     selectedPath='.tree.path',
-                     getLabelClass='return node.attr.labelClass',
-                     selectedLabelClass='selectedTreeNode',
-                     useRelPath=True,
-                     selected_code='.tree.code')
+                    isTree =False,hideValues=True,
+                    inspect ='shift',labelAttribute ='caption',
+                    selected_pkey='.tree.pkey',selectedPath='.tree.path',  
+                    selectedLabelClass='selectedTreeNode',
+                    selected_code='.tree.code')
                      
 class HTableResolver(BagResolver):
     classKwargs={'cacheTime':300,
