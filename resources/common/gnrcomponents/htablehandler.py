@@ -57,9 +57,9 @@ class HTableHandler(BaseComponent):
             raise
         self.ht_tree(treepane,table=table,nodeId=nodeId,disabled=disabled,
                     rootpath=rootpath,editMode=editMode)
-        self.ht_edit(formpane,table=table,nodeId=nodeId,disabled=disabled)
+        self.ht_edit(formpane,table=table,nodeId=nodeId,disabled=disabled,rootpath=rootpath)
         
-    def ht_edit(self,sc,table=None,nodeId=None,disabled=None):
+    def ht_edit(self,sc,table=None,nodeId=None,disabled=None,rootpath=None):
         formId='%s_form' %nodeId
         norecord = sc.contentPane(pageName='no_record').div('No record selected')
         bc = sc.contentPane(pageName='record_selected')
@@ -80,15 +80,18 @@ class HTableHandler(BaseComponent):
                                  editNode.setAttr(attr); //da sistemar
                                  FIRE .edit.load;
                              }else{
+                                SET .edit.pkey = savedPkey;
+                                FIRE .edit.load;
                                 treestore.getNode(treepath).refresh(true);
-                                SET .tree.path = treepath + nodeToRefresh.label;
+                                SET .tree.path = savedPkey.slice(rootpath.length-1);
                              }
                             
                          """,
                         _fired="^.edit.onSaved",destPkey='=.tree.pkey',
-                        savedPkey='=.edit.savedPkey',
+                        savedPkey='=.edit.savedPkey',rootpath=rootpath,
                         treepath='=.tree.path',treestore='=.tree.store',
                         treeCaption='=.edit.savedPkey?caption')
+        
 
         getattr(self,formId)(bc,region='center',table=table,
                               datapath='.edit.record',controllerPath='#%s.edit.form' %nodeId,

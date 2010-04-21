@@ -510,8 +510,8 @@ class SqlQueryCompiler(object):
         fld=m.group(1)
         period_param = m.group(2)
         date_from,date_to = decodeDatePeriod(self.sqlparams[period_param],
-                                             workdate=self.db.currentEnv.get('workdate'),
-                                             returnDate=True, locale=self.locale)
+                                             workdate=self.db.workdate,
+                                             returnDate=True, locale=self.db.locale)
         from_param = '%s_from' % period_param
         to_param = '%s_to'%period_param
         if date_from is None and date_to is None:
