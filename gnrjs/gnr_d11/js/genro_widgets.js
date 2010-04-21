@@ -3543,10 +3543,7 @@ dojo.declare("gnr.widgets.Tree",gnr.widgets.baseDojo,{
         }
         if (this.sourceNode.attr.selectedPath){
             var path=this.sourceNode.attrDatapath('selectedPath',reason);
-            var root=null;
-            if (this.sourceNode.attr.useRelPath){
-                root=this.model.store.rootData();
-            }
+            root=this.model.store.rootData();
             this.sourceNode.setRelativeData(path,item.getFullpath(null,root),attributes,null,reason);
         }
         var selattr=objectExtract(this.sourceNode.attr,'selected_*',true);
