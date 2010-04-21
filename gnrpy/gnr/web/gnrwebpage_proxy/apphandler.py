@@ -516,7 +516,7 @@ class GnrWebAppHandler(GnrBaseProxy):
                                                totalrows=len(selection))
         else:
             selection = self.page.unfreezeSelection(tblobj, selectionName)
-            if ','.join( selection.sortedBy)!= sortedBy:
+            if ','.join( selection.sortedBy or [])!= sortedBy:
                 selection.sort(sortedBy)
                 selection.freezeUpdate()
             debug='fromPickle'
