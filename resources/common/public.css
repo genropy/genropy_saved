@@ -153,6 +153,10 @@
 
 /* @group components */
 
+.standard_toolbar{
+    height:26px;
+}
+
 /* @group MenuStack */
 .menuStackNavigator .dijitButtonNode, 
 .bottom_btn .dijitButtonNode{
