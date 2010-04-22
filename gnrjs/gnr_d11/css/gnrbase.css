@@ -1003,6 +1003,33 @@ table.formbuilder {
     background: url(icons/ajax-loader-1.gif) no-repeat center center;
 
 }
+
+/* @group Dojox */
+.dojoxScrollWindow {
+	position:relative;
+}
+.dojoxScrollHelper .helperInner {
+	visibility: hidden;
+}
+.dojoxScrollHelper {
+	border:1px solid #b7b7b7;
+	width:4px;
+	background:#ededed;
+	height:4px;
+	position:absolute;
+	top:4px;
+	left:4px;
+	border-radius: 3px;
+	-moz-border-radius: 3px;
+	-webkit-border-radius: 3px;
+}
+.dojoxScrollWrapper {
+    width:100%; 
+}
+
+
+/* @end */
+
 .notvisible{
 	visibility: hidden;
 }
@@ -1241,3 +1268,37 @@ margin-top:inherit;
 /* @end */
 
 
+/* @group Effects (css3) */
+
+.shadow_4{
+    -moz-box-shadow:4px 4px 4px #403b3b;
+	-webkit-box-shadow:4px 4px 4px #403b3b;
+}
+.shadow_2{
+    -moz-box-shadow:2px 2px 2px #403b3b;
+	-webkit-box-shadow:2px 2px 2px #403b3b;
+}
+
+.shadow_6{
+    -moz-box-shadow:6px 6px 5px #403b3b;
+	-webkit-box-shadow:6px 6px 5px #403b3b;
+}
+
+
+.rounded_min{
+    -moz-border-radius:6px;
+    -webkit-border-radius:6px;
+}
+.rounded_medium{
+    -moz-border-radius:8px;
+    -webkit-border-radius:8px;
+}
+
+.rounded_max{
+    -moz-border-radius:12px;
+    -webkit-border-radius:12px;
+}
+
+
+
+/* @end */
