@@ -86,6 +86,18 @@ dojo.declare("gnr.GnrDomHandler",null,{
             }
         }  
     },
+    getDomNode: function(where){
+        if (typeof (where) == 'string'){
+            var where=genro.domById(where);
+        }
+        if (!where){
+            return;
+        }
+        if (where instanceof gnr.GnrDomSourceNode){
+            where = where.getDomNode();
+        }
+        return where;
+    },
     removeClass: function(where, cls){
         if(typeof(cls)=='string'){
             if ( typeof (where) == 'string'){
@@ -106,6 +118,9 @@ dojo.declare("gnr.GnrDomHandler",null,{
         
     },
     setClass:function(where,cls,set){
+        if (set=='toggle'){
+            set = !dojo.hasClass(this.getDomNode(where),cls);
+        }
         if (set) {
             this.addClass(where,cls);
         }else{
