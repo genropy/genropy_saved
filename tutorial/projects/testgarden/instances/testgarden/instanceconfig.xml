@@ -1,7 +1,9 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <GenRoBag><db dbname="showcase"/>
 <packages >
-	<showcase/>
+	<showcase/>        
+	<rss/>
+	<adm/>
 </packages>
 <authentication pkg='adm'>
 	<py_auth defaultTags="user" pkg="adm" method="authenticate"/>
