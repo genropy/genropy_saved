@@ -429,6 +429,7 @@ class GnrWhereTranslator(object):
     def __init__(self,db):
         self.db = db
         self.catalog = GnrClassCatalog()
+        self.opDict = dict([(k[3:],None) for k in dir(self) if k.startswith('op_')])
         
     def __call__(self, tblobj, wherebag, sqlArgs, customOpCbDict=None):
         if sqlArgs is None:
@@ -501,29 +502,36 @@ class GnrWhereTranslator(object):
                 if not op or not column:
                     #ingnoring empty query lines
                     continue
+                
                 dtype = tblobj.column(column).dtype
-                if not column[0] in '@$':
-                    column = '$%s' % column
-                if dtype in('D','DH'):
-                    value, op = self.decodeDates(value, op, 'D')
-                    column = 'CAST (%s AS date)' %column
-                if not dtype in ('A','T') and op in ('contains','notcontains','startswith','endswith','regex','wordstart'):
-                    value=str(value)
-                    column='CAST (%s as text)'%column
-                    dtype='A'
-                ophandler = getattr(self, 'op_%s' % op,None)
-                if ophandler :
-                    onecondition = ophandler(column=column, value=value, dtype=dtype, sqlArgs=sqlArgs)
-                else:
-                    ophandler=self.customOpCbDict.get(op)
-                    assert ophandler,'undefined ophandler'
-                    onecondition = ophandler(column=column, value=value, dtype=dtype, sqlArgs=sqlArgs,whereTranslator=self)
+                onecondition = self.prepareCondition(column,op, value, dtype,sqlArgs)
+                
             if onecondition:
                 if negate:
                     onecondition = ' NOT %s  ' % onecondition
                 result.append(' %s %s' % (jc, onecondition ))
         return result
-
+        
+    def prepareCondition(self, column, op, value, dtype, sqlArgs):
+        if not column[0] in '@$':
+            column = '$%s' % column
+        if dtype in('D','DH'):
+            value, op = self.decodeDates(value, op, 'D')
+            column = 'CAST (%s AS date)' %column
+        if not dtype in ('A','T') and op in ('contains','notcontains','startswith','endswith','regex','wordstart'):
+            value=str(value)
+            column='CAST (%s as text)'%column
+            dtype='A'
+            
+        ophandler = getattr(self, 'op_%s' % op,None)
+        if ophandler :
+            result = ophandler(column=column, value=value, dtype=dtype, sqlArgs=sqlArgs)
+        else:
+            ophandler=self.customOpCbDict.get(op)
+            assert ophandler,'undefined ophandler'
+            result = ophandler(column=column, value=value, dtype=dtype, sqlArgs=sqlArgs,whereTranslator=self)
+        return result
+        
     def decodeDates(self, value, op, dtype):    
         if op == 'isnull':
             return value, op
@@ -585,10 +593,6 @@ class GnrWhereTranslator(object):
         "Starts with"
         return '%s ILIKE :%s'  % (column, self.storeArgs('%s%%' % value, dtype, sqlArgs))
         
-    def __op_not_startswith(self, column, value, dtype, sqlArgs):
-        "Not starts with"
-        return ' (NOT %s) '% self.op_startswith(column, value, dtype, sqlArgs)
-        
     def op_wordstart(self, column, value, dtype, sqlArgs):
         "Word start"
         value = value.replace('(','\(').replace(')','\)').replace('[','\[').replace(']','\]')
@@ -597,11 +601,7 @@ class GnrWhereTranslator(object):
     def op_contains(self, column, value, dtype, sqlArgs):
         "Contains"
         return '%s ILIKE :%s' % (column, self.storeArgs('%%%s%%' % value, dtype, sqlArgs))
-        
-    def __op_not_contains(self, column, value, dtype, sqlArgs):
-        "Doesn't contain"
-        return '%s NOT ILIKE :%s' % (column, self.storeArgs('%%%s%%' % value, dtype, sqlArgs))
-        
+          
     def op_greater(self, column, value, dtype, sqlArgs):
         "Greater than"
         return '%s > :%s' % (column, self.storeArgs(value,dtype,sqlArgs))
@@ -649,6 +649,39 @@ class GnrWhereTranslator(object):
     def op_regex(self, column, value, dtype, sqlArgs):
         "Regular expression"
         return '%s ~* :%s' % (column, self.storeArgs(value, dtype, sqlArgs))
+        
+    def whereFromDict(self, table, whereDict, customColumns=None):
+        result = []
+        sqlArgs = {}
+        for k,v in whereDict.items():
+            negate = ''
+            op='equal'
+            ksplit= k.split('_')
+            if ksplit[-1].lower() in opDict:
+                op = ksplit.pop().lower()
+            if ksplit[-1].lower()=='not':
+                negate = ' NOT '
+                ksplit.pop()
+            column = '_'.join(ksplit)
+            if column in customColumns:
+                custom = customColumns[column]
+                if callable(custom):
+                    condition = custom(column, sqlArgs)
+                if isinstance(custom, basestring):
+                    dtype=tblobj.column(column).dtype
+                elif isinstance(custom, tuple):
+                    column,dtype = custom
+                else:
+                    continue
+            else:
+                colobj = tblobj.column(column)
+                if not colobj:
+                    continue
+                dtype=colobj.dtype
+            condition = self.prepareCondition(column,op,v,dtype, sqlArgs)
+            result.append('%s%s' % (negate,condition))
+            return result,sqlArgs
+            
 
 class GnrDictRow(GnrNamedList):
     """A row object that allow by-column-name access to data, the capacity to add columns and alter data."""

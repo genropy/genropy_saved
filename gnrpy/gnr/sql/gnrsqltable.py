@@ -117,6 +117,7 @@ class SqlTable(GnrObject):
         Eg:@director_id.name
         """
         return self.model.column(name)
+        
     def fullRelationPath(self,name):
         return self.model.fullRelationPath(name)
     
