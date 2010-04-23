@@ -1739,7 +1739,8 @@ dojo.declare("gnr.widgets.Grid",gnr.widgets.baseDojo,{
                         zoomPkey = zoomPkey.replace(/\W/g,'_');
                     }
                     var key=this.grid.currRenderedRow[zoomPkey? zoomPkey : this.grid._identifier];
-                    v = "<a onclick='var ev = arguments[0]; if(!ev.metaKey){dojo.stopEvent(ev);}' class='gnrzoomcell' href='/"+zoomPage+"?pkey="+key+"&autoLinkFrom="+genro.page_id+"'>"+v+"</a>";
+                    // changed to support ctrl+click on non mac platforms v = "<a onclick='var ev = arguments[0]; if(!ev.metaKey){dojo.stopEvent(ev);}' class='gnrzoomcell' href='/"+zoomPage+"?pkey="+key+"&autoLinkFrom="+genro.page_id+"'>"+v+"</a>";
+                    v = "<a onclick='var ev = arguments[0]; if((genro.isMac&&!ev.metaKey)||(!genro.isMac&&!ev.ctrlKey)){dojo.stopEvent(ev);}' class='gnrzoomcell' href='/"+zoomPage+"?pkey="+key+"&autoLinkFrom="+genro.page_id+"'>"+v+"</a>";
                 }
                 return v;
                 
@@ -3087,7 +3088,7 @@ dojo.declare("gnr.widgets.dbBaseCombo",gnr.widgets.BaseCombo,{
         if (!attributes.hasDownArrow){
             attributes.hasDownArrow=false;
         }
-        var resolverAttrs = objectExtract(attributes,'method,dbtable,columns,limit,condition,alternatePkey,auxColumns,hiddenColumns,rowcaption,order_by,selectmethod,weakCondition');
+        var resolverAttrs = objectExtract(attributes,'method,dbtable,columns,limit,condition,alternatePkey,auxColumns,hiddenColumns,rowcaption,order_by,selectmethod,weakCondition,storename');
         var selectedColumns = objectExtract(attributes,'selected_*');
         if (objectNotEmpty(selectedColumns)){
             var hiddenColumns;

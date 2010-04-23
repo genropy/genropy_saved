@@ -195,6 +195,7 @@ dojo.declare('gnr.GenroClient', null, {
             genro.setData('debugger.pydebug',this.debugopt.indexOf('py')>=0);
             genro.dev.showBottomHelper();
         }
+        this.isMac = dojo.isMac !=undefined? dojo.isMac:navigator.appVersion.indexOf('Macintosh')>=0;
     },
     playSound:function(name,path,ext){
         if (!(name in genro.sounds)){
