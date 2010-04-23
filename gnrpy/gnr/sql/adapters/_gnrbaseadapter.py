@@ -653,11 +653,12 @@ class GnrWhereTranslator(object):
     def whereFromDict(self, table, whereDict, customColumns=None):
         result = []
         sqlArgs = {}
+        tblobj=self.db.table(table)
         for k,v in whereDict.items():
             negate = ''
             op='equal'
             ksplit= k.split('_')
-            if ksplit[-1].lower() in opDict:
+            if ksplit[-1].lower() in self.opDict:
                 op = ksplit.pop().lower()
             if ksplit[-1].lower()=='not':
                 negate = ' NOT '
@@ -672,15 +673,16 @@ class GnrWhereTranslator(object):
                 elif isinstance(custom, tuple):
                     column,dtype = custom
                 else:
-                    continue
+                    raise
             else:
-                colobj = tblobj.column(column)
-                if not colobj:
-                    continue
+                colobj = tblobj.column('$%s'%column)
+                if colobj is None:
+                    raise
                 dtype=colobj.dtype
+            
             condition = self.prepareCondition(column,op,v,dtype, sqlArgs)
             result.append('%s%s' % (negate,condition))
-            return result,sqlArgs
+        return result,sqlArgs
             
 
 class GnrDictRow(GnrNamedList):
