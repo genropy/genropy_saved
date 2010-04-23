@@ -906,6 +906,8 @@ class DbVirtualColumnObj(DbBaseColumnObj):
         return True
     readonly = property(_get_readonly)
 
+    def relatedColumn(self):
+        pass
 
 class DbTableAliasObj(DbModelObj):
     sqlclass='table_alias'
