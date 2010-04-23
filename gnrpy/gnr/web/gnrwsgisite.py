@@ -629,15 +629,15 @@ class GnrWsgiSite(object):
         self._currentPages[thread.get_ident()] = page
     currentPage = property(_get_currentPage,_set_currentPage)
         
-    def callTableScript(self, page=None, table=None, respath=None, class_name=None, runKwargs=None,**kwargs):
-        script=self.loadTableScript(page = page, table=table, respath=respath, class_name=class_name,**kwargs)
+    def callTableScript(self, page=None, table=None, respath=None, class_name=None, runKwargs=None,reload=None,**kwargs):
+        script=self.loadTableScript(page = page, table=table, respath=respath, class_name=class_name,reload=reload)
         if runKwargs:
             for k,v in runKwargs.items():
                 kwargs[str(k)] = v
         return script(**kwargs)
         
-    def loadTableScript(self, page, table, respath, class_name=None,**kwargs):
-        return self.resource_loader.loadTableScript( page, table, respath, class_name=class_name,**kwargs)
+    def loadTableScript(self, page, table, respath, class_name=None,reload=None):
+        return self.resource_loader.loadTableScript( page, table, respath, class_name=class_name,reload=reload)
   
     def _get_resources(self):
         if not hasattr (self,'_resources'):
