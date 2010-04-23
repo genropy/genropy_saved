@@ -630,7 +630,7 @@ class GnrWsgiSite(object):
     currentPage = property(_get_currentPage,_set_currentPage)
         
     def callTableScript(self, page=None, table=None, respath=None, class_name=None, runKwargs=None,**kwargs):
-        script=self.loadTableScript(page = page, table=table, respath=respath, class_name=class_name)
+        script=self.loadTableScript(page = page, table=table, respath=respath, class_name=class_name,**kwargs)
         if runKwargs:
             for k,v in runKwargs.items():
                 kwargs[str(k)] = v
