@@ -669,7 +669,8 @@ class GnrWhereTranslator(object):
                 if callable(custom):
                     condition = custom(column, sqlArgs)
                 if isinstance(custom, basestring):
-                    dtype=tblobj.column(column).dtype
+                    dtype=tblobj.column(custom).dtype
+                    column=custom
                 elif isinstance(custom, tuple):
                     column,dtype = custom
                 else:
