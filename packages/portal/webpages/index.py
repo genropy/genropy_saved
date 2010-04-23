@@ -30,9 +30,9 @@ class GnrCustomWebPage(object):
         tc = bc.tabContainer(region='center',margin='10px')
         self.page_0(tc.contentPane(title='Page 0',nodeId='tab0'))
         self.ajaxContent('page_1',tc.contentPane(title='Page 1',nodeId='tab1'))
-        #self.lazyContent('page_2',tc.contentPane(title='Page 2',onShow='this.updateRemoteContent(false);',
+        #self.lazyContent(tc.contentPane(title='Page 2',onShow='this.updateRemoteContent(false);','page_2',
         #                    nodeId='tab2'))
-        self.lazyContent('page_2',tc.contentPane(title='Page 2'))
+        self.lazyContent(tc.contentPane(title='Page 2'),'page_2')
         self.page_3(tc.contentPane(title='Page 3'))
 
     def page_0(self,pane):

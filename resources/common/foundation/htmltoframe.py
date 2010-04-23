@@ -30,7 +30,7 @@ class RecordToHtmlFrame(BaseComponent):
     def recordToHtmlFrame(self, bc, frameId='', table='', delay=None,
                           respath=None, pkeyPath='',background_color='white',
                           enableConditionPath='',condition_function=None, condition_value='',
-                          docNamePath='',runKwargsPath=None, customToolbarCb=None,**kwargs):
+                          docNamePath='',runKwargsPath=None, customToolbarCb=None,rebuild=True,**kwargs):
         
         table = table or self.maintable
         frameId = frameId or self.getUuid()
@@ -73,7 +73,7 @@ class RecordToHtmlFrame(BaseComponent):
                     runKwargs = runKwargs, #aggiunto
                     docName ='=%s' % docNamePath,
                     moreargs=kwargs,
-                    rebuild=True)
+                    rebuild=rebuild)
                     #rebuild='=%s.noCache' % controllerPath)
         rpc_args={}
         for k,v in kwargs.items():
@@ -103,7 +103,7 @@ class RecordToHtmlFrame(BaseComponent):
                               #rpc_rebuild='=%s.noCache' % controllerPath,
                               onUpdating='genro.setData("%s.selectedPane", 1);' %controllerPath,
                               onLoad='genro.setData("%s.selectedPane", 2);' %controllerPath,
-                              rpc_rebuild=True,
+                              rpc_rebuild=rebuild,
                               _print='^%s.print' % controllerPath,
                               _reloader='^%s.load' %controllerPath,
                               _if=enableCondition,

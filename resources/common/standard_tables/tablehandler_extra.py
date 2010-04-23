@@ -113,7 +113,7 @@ class QueryHelper(BaseComponent):
     def helper_tag_dlg(self,pane):
         def cb_center(parentBC,**kwargs):
             pane = parentBC.contentPane(**kwargs)
-            self.lazyContent('getFormTags_query',pane,queryColumn='=.#parent.queryColumn',
+            self.lazyContent(pane,'getFormTags_query',queryColumn='=.#parent.queryColumn',
                               queryValues='^.#parent.queryValues',call_mode='helper')                              
         dialogBc = self.formDialog(pane,title='!!Helper TAG',loadsync=False,
                                 datapath='list.helper.op_tag',centerOn='_pageRoot',
@@ -277,7 +277,7 @@ class TagsHandler(BaseComponent):
         selectedRowIdx="==genro.wdgById('maingrid').getSelectedRowidx();"
         def cb_center(parentBC,**kwargs):
             pane = parentBC.contentPane(**kwargs)
-            self.lazyContent('getFormTags',pane,selectedRowIdx='=.#parent.selectedRowIdx',
+            self.lazyContent(pane,'getFormTags',selectedRowIdx='=.#parent.selectedRowIdx',
                             pkey=pkey,call_mode='=.#parent.opener.call_mode',
                             selectionName=selectionName,_fired='^.#parent.loadContent') 
                                                     
