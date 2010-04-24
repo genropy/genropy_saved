@@ -24,15 +24,25 @@ class GnrCustomWebPage(object):
          
     def main(self, root, **kwargs):
         rect=root.div(_class='shadow_2 rounded_medium',border='1px solid green',
-                       margin_top='20px',margin_left='20px',width='50em',height='25ex')
+                       color='#152A32',background_color='#fefff6',position='relative',
+                       margin_top='20px',margin_left='20px',width='50em',height='30ex')
         
-        fb = rect.formbuilder(cols=1, border_spacing='8px',datapath='data',margin_top='20px',margin_left='20px')
+        rect.div('Diagnosi e Procedure',text_align='center',margin='5px',font_size='1.7em')
+        rect.div('Genropy',position='absolute',bottom='5px',left='10px',font_size='.8em')
+        
+        fb = rect.formbuilder(cols=1, border_spacing='8px',datapath='data',
+                              margin_top='20px',margin_left='20px')
+                              
         fb.dbSelect(dbtable='portal.diagnosi',columns='$codice,$descrizione',limit=30,
                     auxColumns='$codice,$descrizione',value='^.codice_diagnosi',
-                    _class='gnrfield',lbl='!!Diagnosi',width='36em',hasDownArrow=True)
+                    _class='gnrfield',lbl='!!Diagnosi',width='38em',hasDownArrow=True)
+                    
         fb.textbox(value='^.codice_diagnosi',lbl='!!Codice',readOnly=True)
+        
         fb.dbSelect(dbtable='portal.procedura',columns='$codice,$descrizione',limit=30,
                     auxColumns='$codice,$descrizione',value='^.codice_procedura',
-                    _class='gnrfield',lbl='!!Procedure',width='36em',hasDownArrow=True)
+                    _class='gnrfield',lbl='!!Procedura',width='38em',hasDownArrow=True)
+                    
         fb.textbox(value='^.codice_procedura',lbl='!!Codice',readOnly=True)
+        
         
