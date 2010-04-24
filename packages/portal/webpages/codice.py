@@ -30,9 +30,9 @@ class GnrCustomWebPage(object):
         fb.dbSelect(dbtable='portal.diagnosi',columns='$codice,$descrizione',limit=30,
                     auxColumns='$codice,$descrizione',value='^.codice_diagnosi',
                     _class='gnrfield',lbl='!!Diagnosi',width='40em',hasDownArrow=True)
-        fb.textbox('^.codice_diagnosi',lbl='!!Codice',readOnly=True)
+        fb.textbox(value='^.codice_diagnosi',lbl='!!Codice',readOnly=True)
         fb.dbSelect(dbtable='portal.procedura',columns='$codice,$descrizione',limit=30,
                     auxColumns='$codice,$descrizione',value='^.codice_procedura',
                     _class='gnrfield',lbl='!!Procedure',width='40em',hasDownArrow=True)
-        fb.textbox('^.codice_procedura',lbl='!!Codice',readOnly=True)
+        fb.textbox(value='^.codice_procedura',lbl='!!Codice',readOnly=True)
         
