@@ -24,11 +24,11 @@ class GnrCustomWebPage(object):
          
     def main(self, root, **kwargs):
         fb = root.formbuilder(cols=2, border_spacing='12px',datapath='data',margin_top='20px',margin_left='20px')
-        fb.dbSelect(dbtable='portal.diagnosi',columns='$codice,$descrizione',
+        fb.dbSelect(dbtable='portal.diagnosi',columns='$codice,$descrizione',limit=30,
                     auxColumns='$codice,$descrizione',value='^.codice_diagnosi',
                     _class='gnrfield',lbl='!!Diagnosi',width='40em',hasDownArrow=True)
         fb.div('^.codice_diagnosi',lbl='!!Codice')
-        fb.dbSelect(dbtable='portal.procedura',columns='$codice,$descrizione',
+        fb.dbSelect(dbtable='portal.procedura',columns='$codice,$descrizione',limit=30,
                     auxColumns='$codice,$descrizione',value='^.codice_procedura',
                     _class='gnrfield',lbl='!!Procedure',width='40em',hasDownArrow=True)
         fb.div('^.codice_procedura',lbl='!!Codice')
