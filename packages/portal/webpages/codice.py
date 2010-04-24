@@ -23,7 +23,8 @@ class GnrCustomWebPage(object):
         return 'Codici'
          
     def main(self, root, **kwargs):
-        rect=root.div(_class='shadow_2 rounded_medium',border='1px solid green',margin_top='20px',margin_left='20px')
+        rect=root.div(_class='shadow_2 rounded_medium',border='1px solid green',
+                       margin_top='20px',margin_left='20px',width='50em',height='20ex')
         
         fb = rect.formbuilder(cols=2, border_spacing='12px',datapath='data',margin_top='20px',margin_left='20px')
         fb.dbSelect(dbtable='portal.diagnosi',columns='$codice,$descrizione',limit=30,
