@@ -23,9 +23,9 @@ class GnrCustomWebPage(object):
         return 'Codici'
          
     def main(self, root, **kwargs):
-        root.div(_class='shadow_2 rounded_medium',border='1px solid green',margin_top='20px',margin_left='20px')
+         rect=root.div(_class='shadow_2 rounded_medium',border='1px solid green',margin_top='20px',margin_left='20px')
         
-        fb = root.formbuilder(cols=2, border_spacing='12px',datapath='data',margin_top='20px',margin_left='20px')
+        fb = rect.formbuilder(cols=2, border_spacing='12px',datapath='data',margin_top='20px',margin_left='20px')
         fb.dbSelect(dbtable='portal.diagnosi',columns='$codice,$descrizione',limit=30,
                     auxColumns='$codice,$descrizione',value='^.codice_diagnosi',
                     _class='gnrfield',lbl='!!Diagnosi',width='40em',hasDownArrow=True)
