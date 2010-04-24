@@ -18,23 +18,18 @@
 #License along with this library; if not, write to the Free Software
 #Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 
-"""
-Component for referto:
-"""
-
 class GnrCustomWebPage(object):
-    #py_requires='public:Public'
     def windowTitle(self):
          return 'Codici'
          
     def main(self, root, **kwargs):
-        fb = root.formbuilder(cols=2, border_spacing='4px',datapath='data')
+        fb = root.formbuilder(cols=2, border_spacing='12px',datapath='data',margin_top='20px',margin_left='20px')
         fb.dbSelect(dbtable='portal.diagnosi',columns='$codice,$descrizione',
-                    auxColumns='$descrizione',value='^.codice_diagnosi',
+                    auxColumns='$codice,$descrizione',value='^.codice_diagnosi',
                     _class='gnrfield',lbl='!!Diagnosi',width='40em',hasDownArrow=True)
         fb.div('^.codice_diagnosi',lbl='!!Codice')
         fb.dbSelect(dbtable='portal.procedura',columns='$codice,$descrizione',
-                    auxColumns='$descrizione',value='^.codice_procedura',
+                    auxColumns='$codice,$descrizione',value='^.codice_procedura',
                     _class='gnrfield',lbl='!!Procedure',width='40em',hasDownArrow=True)
         fb.div('^.codice_procedura',lbl='!!Codice')
         
