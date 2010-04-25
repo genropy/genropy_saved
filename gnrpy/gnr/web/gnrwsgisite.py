@@ -542,9 +542,7 @@ class GnrWsgiSite(object):
     def getMessages(self, connection_id=None, user=None, page_id=None,**kwargs):
         return self.message_handler.getMessages(connection_id=connection_id, user=user, page_id=page_id,**kwargs)
             
-    def getMessages_OLD(self,**kwargs):
-        if 'sys' in self.gnrapp.db.packages:
-            return self.gnrapp.db.table('sys.message').getMessages(**kwargs)
+
 
     def writeMessage(self,body=None, connection_id=None, user=None, page_id=None, expiry=None, message_type=None):
         srcpage = self.db.application.site.currentPage
@@ -557,14 +555,18 @@ class GnrWsgiSite(object):
             self.message_handler.postConnectionMessage(connection_id, body=body, dst_connection_id=connection_id, dst_user=user, dst_page_id=page_id, expiry=expiry, message_type=message_type,  src_page_id=src_page_id, src_connection_id=src_connection_id, src_user=src_user)
         elif user:
             self.message_handler.postUserMessage(user, body=body, dst_user=user, dst_connection_id=connection_id, dst_page_id=page_id, expiry=expiry, message_type=message_type,  src_page_id=src_page_id, src_connection_id=src_connection_id, src_user=src_user)
-        
-    def writeMessage_OLD(self,**kwargs):
-        if 'sys' in self.gnrapp.db.packages:
-            return self.gnrapp.db.table('sys.message').writeMessage(**kwargs)
-
-    def deleteMessage_OLD(self,message_id):
-        if 'sys' in self.gnrapp.db.packages:
-            return self.gnrapp.db.table('sys.message').deleteMessage(message_id)
+    
+    #def getMessages_OLD(self,**kwargs):
+    #    if 'sys' in self.gnrapp.db.packages:
+    #        return self.gnrapp.db.table('sys.message').getMessages(**kwargs)
+    #        
+    #def writeMessage_OLD(self,**kwargs):
+    #    if 'sys' in self.gnrapp.db.packages:
+    #        return self.gnrapp.db.table('sys.message').writeMessage(**kwargs)
+    #
+    #def deleteMessage_OLD(self,message_id):
+    #    if 'sys' in self.gnrapp.db.packages:
+    #        return self.gnrapp.db.table('sys.message').deleteMessage(message_id)
             
     def lockRecord(self,page,table,pkey):
         if 'sys' in self.gnrapp.db.packages:
