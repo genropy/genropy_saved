@@ -320,6 +320,7 @@ class GnrWebPage(GnrBaseWebPage):
     def rootPage(self,pagetemplate=None,**kwargs):
         #self.frontend
         #self.dojo_theme = dojo_theme or 'tundra'
+        # 
         self.charset='utf-8'
         tpl = pagetemplate or 'standard.tpl'
         if not isinstance(tpl, basestring):
