@@ -527,23 +527,3 @@
 
 
 /* @end */
-
-/* @group Effects (css3) */
-
-.shadow_4{
-    -moz-box-shadow:4px 4px 4px #403b3b;
-	-webkit-box-shadow:4px 4px 4px #403b3b;
-}
-.shadow_2{
-    -moz-box-shadow:2px 2px 2px #403b3b;
-	-webkit-box-shadow:2px 2px 2px #403b3b;
-}
-
-.shadow_6{
-    -moz-box-shadow:6px 6px 5px #403b3b;
-	-webkit-box-shadow:6px 6px 5px #403b3b;
-}
-
-
-
-/* @end */

@@ -714,11 +714,14 @@ dojo.declare("gnr.GnrDomSourceNode",gnr.GnrBagNode,{
               }
            genro.dom.addClass(domnode, value);
        }
-       else if (this.widget){
-           if(attr.indexOf('remote_')==0){
+       else if(attr.indexOf('remote_')==0){
                this.updateRemoteContent(this);
            }
-           else if(attr.indexOf('__')==0){
+       else if (this.widget){
+          /* if(attr.indexOf('remote_')==0){
+               this.updateRemoteContent(this);
+           }*/
+           if(attr.indexOf('__')==0){
                return;
            }
            else if ((attr_lower=='disabled') || (attr_lower=='readonly'))  {

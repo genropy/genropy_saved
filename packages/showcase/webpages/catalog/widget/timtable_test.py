@@ -22,16 +22,73 @@
 Component for referto:
 """
 import random
+from datetime import date,datetime,time,timedelta
+from gnr.core.gnrdate import dayIterator
+
 
 class GnrCustomWebPage(object):
-    #py_requires='public:Public'
+    py_requires='foundation/macrowidgets,gnrcomponents/timetable:Timetable'
     def pageAuthTags(self, method=None, **kwargs):
         return ''
         
     def windowTitle(self):
-         return 'Scrolltest'
-         
-    def main(self, root, **kwargs):
+         return 'Timetable'
+     
+    def main(self,root,**kwargs):
+        bc = root.borderContainer()
+        top = bc.contentPane(region='top',height='40px').toolbar()
+        fb = top.formbuilder(cols=6, border_spacing='2px',datapath='top',width='100%')
+        self.periodCombo(fb,lbl='!!Period')
+        fb.data('.tstart',datetime.now(),dtype='H')
+        fb.data('.tstop',datetime.now(),dtype='H')
+
+        fb.timeTextBox(value='^.tstart',width='10em',lbl='!!Start')
+        fb.timeTextBox(value='^.tstop',width='10em',lbl='!!Stop')
+        cbgroup = fb.formbuilder(cols=7, border_spacing='2px',width='100%',colspan=2)
+        cbgroup.checkbox(lbl='Sun',value='^.wkdlist.0')
+        cbgroup.checkbox(lbl='Mon',value='^.wkdlist.1')
+        cbgroup.checkbox(lbl='Tue',value='^.wkdlist.2')
+        cbgroup.checkbox(lbl='Wed',value='^.wkdlist.3')
+        cbgroup.checkbox(lbl='Thu',value='^.wkdlist.4')
+        cbgroup.checkbox(lbl='Fri',value='^.wkdlist.5')
+        cbgroup.checkbox(lbl='Sat',value='^.wkdlist.6')
+        fb.button('Create',fire='build')
+        center = bc.contentPane(region='center',margin='20px')
+        self.timetable_dh(center,nodeId='mytt',datapath='test',
+                        period='=top.period.period',
+                        tstart='=top.tstart',tstop='=top.tstop',
+                        wkdlist='=top.wkdlist',fired='^build')
+        
+           
+    def tt_mytt_loop(self,period=None,wkdlist=None,tstart=None,tstop=None):
+        tstart = time(12,30)
+        tstop =time(20,30)
+        wkdlist = [int(k) for k,v in wkdlist.items() if v] or None
+        for line,day in enumerate(dayIterator(period,locale=self.locale,workdate=self.workdate,wkdlist=wkdlist)):
+            timecurr = datetime.combine(day,tstart)
+            timestop = datetime.combine(day,tstop)
+            deltavisits = timedelta(minutes=(int(random.random()*3)+1)*60)
+            while timecurr+deltavisits <= timestop:
+                minutes=(int(random.random()*3)+1)*10
+                deltaminutes = timedelta(minutes=minutes)
+                if random.random()>.4:
+                    timeslot = timecurr
+                    while timeslot+deltaminutes<=timecurr+deltavisits:
+                        docName = ['Verdi','Bianchi','Rossi','Neri'][int(random.random()*3)]
+                        slot = dict(day=day,line=line,ts=timeslot,minutes=minutes,doctor=docName)
+                        z=random.random()
+                        if z<.25:
+                            slot['patient'] = None
+                        elif z<.9:
+                            slot['patient'] = ['Morelli','Bappini','Panzarotti','Baboden','Capatonda','Fufolo'][int(random.random()*5)]
+                        else:
+                            slot['patient'] = '-'
+                        yield slot
+                        timeslot += deltaminutes
+                timecurr+=deltavisits
+        
+        
+    def main_(self, root, **kwargs):
         root.data('zoomFactor',1)
         root.css('.zoommed',"""z-index:99; 
                                  -moz-transform-origin: center; 

@@ -29,7 +29,7 @@ def _getTreeRowCaption(tblobj):
 class HTableHandler(BaseComponent):
     css_requires='public'
     def htableHandler(self,parentBC,nodeId=None,datapath=None,table=None,rootpath=None,label=None,
-                    editMode='bc',disabled=None):
+                    editMode='bc',dialogPars=None,disabled=None):
         """
         .tree: tree data:
                         store
@@ -58,7 +58,11 @@ class HTableHandler(BaseComponent):
             formBC = sc.borderContainer(region='center')
             
         elif editMode=='dlg':
-            raise
+            assert dialogPars,'for editMode == "dlg" dialogPars are mandatory'
+            treepane = parentBC.borderContainer(region='center',datapath=datapath,nodeId=nodeId,margin='2px')
+            formBC = self.simpleDialog(treepane,dlgId='%s_dlg' %nodeId,
+                                    cb_bottom=self.ht_edit_dlg_bottom,**dialogPars)
+            formPanePars['region'] = 'center'
             
         recordlabel = formBC.contentPane(region='top',_class='pbl_roundedGroupLabel')
         recordlabel.div(nodeId='%s_nav' %nodeId)
@@ -83,14 +87,20 @@ class HTableHandler(BaseComponent):
         
         self.ht_tree(treepane,table=table,nodeId=nodeId,disabled=disabled,
                     rootpath=rootpath,editMode=editMode,label=label)
-        self.ht_edit(formpane,table=table,nodeId=nodeId,disabled=disabled,rootpath=rootpath)
-        
-    def ht_edit(self,sc,table=None,nodeId=None,disabled=None,rootpath=None):
+        self.ht_edit(formpane,table=table,nodeId=nodeId,disabled=disabled,
+                        rootpath=rootpath,editMode=editMode)
+                        
+    def ht_edit_dlg_bottom(self,bc,**kwargs):
+        bottom = bc.contentPane(**kwargs)
+        bottom.button('!!Back',baseClass='bottom_btn',float='right',margin='1px',fire='.close')
+        return bottom
+                
+    def ht_edit(self,sc,table=None,nodeId=None,disabled=None,rootpath=None,editMode=None):
         formId='%s_form' %nodeId
         norecord = sc.contentPane(pageName='no_record').div('No record selected')
         bc = sc.borderContainer(pageName='record_selected')
         toolbar = bc.contentPane(region='top',overflow='hidden').toolbar(_class='standard_toolbar')
-        self.ht_toolbar(toolbar,nodeId=nodeId,disabled=disabled)
+        self.ht_edit_toolbar(toolbar,nodeId=nodeId,disabled=disabled,editMode=None)
         bc.dataController("SET .edit.selectedPage=pkey?'record_selected':'no_record'",pkey="^.tree.pkey")
         bc.dataController("""
                             var destPkey = selPkey;
@@ -122,7 +132,10 @@ class HTableHandler(BaseComponent):
                         treepath='=.tree.path',treestore='=.tree.store',
                         treeCaption='=.edit.savedPkey?caption')
         
-
+       #bc.dataRpc('dummy','deleteRecordCluster',data='.edit.record',)
+       #bc.dataRpc('form.delete_result','deleteRecordCluster', data='=form.record?=genro.getFormChanges("formPane");', _POST=True,
+       #                table=self.maintable,toDelete='^form.doDeleteRecord')
+                        
         getattr(self,formId)(bc,region='center',table=table,
                               datapath='.edit.record',controllerPath='#%s.edit.form' %nodeId,
                               formId=formId,
@@ -135,17 +148,14 @@ class HTableHandler(BaseComponent):
         if hasattr(tblobj,'htable_conf'):
             dfltConf = tblobj.htable_conf()        
         defaults['default_%s' %dfltConf['parent_code']] = '=.defaults.parent_code'
+        
         self.formLoader(formId,datapath='#%s.edit' %nodeId,resultPath='.record',_fired='^.load',
                         table=table, pkey='=.pkey',**defaults)
         self.formSaver(formId,datapath='#%s.edit' %nodeId,resultPath='.savedPkey',_fired='^.save',
                         table=table,onSaved='FIRE .onSaved;',
                         rowcaption=_getTreeRowCaption(self.db.table(table)))
 
-    def ht_toolbar(self,toolbar,nodeId=None,disabled=None):
-        toolbar.button('!!Add child',action="""SET .edit.defaults.parent_code = GET .tree.code;
-                                               SET .tree.pkey = '*newrecord*';
-                                            """)
-        toolbar.dataController("SET .edit.title =recordCaption",recordCaption="^.edit.record?caption")
+    def ht_edit_toolbar(self,toolbar,nodeId=None,disabled=None,editMode=None):
         spacer = toolbar.div(float='right',_class='button_placeholder')
         spacer.data('.edit.status.locked',True)
         if not disabled:
@@ -172,11 +182,24 @@ class HTableHandler(BaseComponent):
             isValid='^.edit.form.valid')
         spacer.div(nodeId='%s_semaphore' %nodeId,_class='semaphore',margin_top='3px',
                   hidden=disabled)  
+        toolbar.dataController("SET .edit.title =recordCaption",recordCaption="^.edit.record?caption")
         toolbar.button('!!Save',fire=".edit.save", float='right',
                         iconClass="tb_button db_save",showLabel=False,
                         hidden=disabled)
         toolbar.button('!!Revert',fire=".edit.load", iconClass="tb_button db_revert",float='right',
                         showLabel=False,hidden=disabled)      
+        toolbar.button('!!Add',action="""SET .edit.defaults.parent_code = GET .tree.code;
+                                               SET .tree.pkey = '*newrecord*';
+                                            """,iconClass='db_add tb_button',
+                                            showLabel=False,hidden=disabled,float='right')
+        toolbar.button('!!Delete',fire=".edit.delete",iconClass='db_del tb_button',
+                                            showLabel=False,hidden=disabled,
+                                            visible='^.edit.enableDelete',
+                                            float='right')
+        toolbar.dataFormula('.edit.enableDelete','child_count==0',child_count='^.tree.child_count')
+        if editMode=='sc':
+            toolbar.button('!!Tree',action="SET .selectedPage = 'tree';")
+                                            
                                                                  
     def ht_tree(self,bc,table=None,nodeId=None,rootpath=None,disabled=None,editMode=None,label=None):
         labelbox = bc.contentPane(region='top',_class='pbl_roundedGroupLabel')
@@ -189,12 +212,15 @@ class HTableHandler(BaseComponent):
         connect_ondblclick=None
         if editMode=='sc':
             connect_ondblclick = 'SET .selectedPage = "edit";'
+        elif editMode=='dlg':
+            connect_ondblclick = 'FIRE #%s_dlg.open;' %nodeId
         center.tree(storepath ='.tree.store',
                     isTree =False,hideValues=True,
                     inspect ='shift',labelAttribute ='caption',
                     selected_pkey='.tree.pkey',selectedPath='.tree.path',  
                     selectedLabelClass='selectedTreeNode',
                     selected_code='.tree.code',
+                    selected_child_count='.tree.child_count',
                     connect_ondblclick=connect_ondblclick)
                     
     def ht_treeDataStore(self,table=None,rootpath=None,rootcaption=None):
@@ -237,11 +263,13 @@ class HTableResolver(BagResolver):
                      rootpath=self.rootpath or '',order_by='$child_code').fetch()
         children = Bag()
         for row in rows:
+            child_count= row['child_count']
             if row['child_count']:
-                value=HTableResolver(table=self.table,rootpath=row['code'])
+                value=HTableResolver(table=self.table,rootpath=row['code'],child_count=child_count)
             else:
                 value=None
-            children.setItem(row['child_code'], value,caption=tblobj.recordCaption(row,rowcaption=_getTreeRowCaption(tblobj)),pkey=row['pkey'],code=row[dfltConf['code']])#_attributes=dict(row),
+            children.setItem(row['child_code'], value,caption=tblobj.recordCaption(row,rowcaption=_getTreeRowCaption(tblobj)),pkey=row['pkey'],
+                                                                                    code=row[dfltConf['code']],child_count=child_count)#_attributes=dict(row),
         return children
         
             

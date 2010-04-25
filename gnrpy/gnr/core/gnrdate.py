@@ -28,6 +28,7 @@ import calendar
 from gnr.core import gnrlocale
 from gnr.core.gnrlocale import DEFAULT_LOCALE
 from gnr.core.gnrstring import splitAndStrip, anyWordIn, wordSplit, toText
+from dateutil import rrule
 
 logger= logging.getLogger('gnr.core.gnrdate')
 
@@ -325,6 +326,12 @@ def dateLastYear(d):
     else:
         result = datetime.date(d.year - 1 , d.month, d.day)
     return result
+
+def dayIterator(period,wkdlist=None,locale=None,workdate=None):
+    dstart,dstop = decodeDatePeriod(period,returnDate=True,locale=locale,workdate=workdate)
+    return rrule.rrule(rrule.DAILY,dtstart=dstart,until=dstop,byweekday=wkdlist)
+
+    
 
 if __name__=='__main__':
     workdate = datetime.date(2009,1,12)
