@@ -50,11 +50,13 @@ class Timetable(BaseComponent):
             return dict(left='%ipx' %x,top='%ipx' %y,height='%ipx' %h,width='%ipx' %w,position='absolute')
             
         currline=None
+        print tstart
         for slot in iterator(tstart=tstart,tstop=tstop,period=period,wkdlist=wkdlist):
+            print slot
             if currline != slot['line']:
                 currline = slot['line']
                 top = currline*100
                 daylabel = ttbox.div(background_color='pink',**rect(x=1,y=top,w=40,h=100))
-                textDay = toText(slot['day'],format='DD-M-YYYY')
+                textDay = toText(slot['day'])
                 daylabel.div(textDay)
     

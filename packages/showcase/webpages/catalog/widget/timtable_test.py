@@ -39,9 +39,6 @@ class GnrCustomWebPage(object):
         top = bc.contentPane(region='top',height='40px').toolbar()
         fb = top.formbuilder(cols=6, border_spacing='2px',datapath='top',width='100%')
         self.periodCombo(fb,lbl='!!Period')
-        fb.data('.tstart',datetime.now(),dtype='H')
-        fb.data('.tstop',datetime.now(),dtype='H')
-
         fb.timeTextBox(value='^.tstart',width='10em',lbl='!!Start')
         fb.timeTextBox(value='^.tstop',width='10em',lbl='!!Stop')
         cbgroup = fb.formbuilder(cols=7, border_spacing='2px',width='100%',colspan=2)
@@ -61,8 +58,6 @@ class GnrCustomWebPage(object):
         
            
     def tt_mytt_loop(self,period=None,wkdlist=None,tstart=None,tstop=None):
-        tstart = time(12,30)
-        tstop =time(20,30)
         wkdlist = [int(k) for k,v in wkdlist.items() if v] or None
         for line,day in enumerate(dayIterator(period,locale=self.locale,workdate=self.workdate,wkdlist=wkdlist)):
             timecurr = datetime.combine(day,tstart)

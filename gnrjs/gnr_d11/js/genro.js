@@ -566,8 +566,7 @@ dojo.declare('gnr.GenroClient', null, {
          }
     },
     _: function(path,dflt){
-        var path = genro.src.getNode().absDatapath(path);
-        return this._data.getItem(path,dflt);
+        return genro.src.getNode().getRelativeData(path);
     },
     
     resetData: function(path){

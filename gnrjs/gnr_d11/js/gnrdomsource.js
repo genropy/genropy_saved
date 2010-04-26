@@ -896,8 +896,15 @@ dojo.declare("gnr.GnrDomSourceNode",gnr.GnrBagNode,{
         }
         var kwargs={};
         for (var attrname in this.attr){
-            if(attrname.indexOf('remote_')==0){
-                kwargs[attrname.slice(7)]=this.getAttributeFromDatasource(attrname);
+            if(attrname.indexOf('remote_')==0){                
+                var value = this.getAttributeFromDatasource(attrname);
+                if (value instanceof Date) {
+                    var abspath = this.absDatapath(this.attr[attrname]);
+                    var node = genro._data.getNode(abspath);
+                    value = asTypedTxt(value,node.attr.dtype);
+                };
+                
+                kwargs[attrname.slice(7)] = value; 
             }
         }
         var method=this.attr.remote;
