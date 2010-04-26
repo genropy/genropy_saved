@@ -248,7 +248,7 @@ class BagToXml(object):
 
 #-------------------- toXml --------------------------------
     def build(self, bag, filename=None, encoding='UTF-8', catalog=None, typeattrs=True,typevalue=True, addBagTypeAttr=True,
-                  unresolved=False, autocreate=False, jsonmode=None, jsonkey=None, 
+                  unresolved=False, autocreate=False, jsonmode=None, jsonkey=None, docHeader=None,
                   translate_cb=None, omitUnknownTypes=False, omitRoot=False, forcedTagAttr=None):
         """
         This method returns a complete standard XML version of the Bag, including the encoding tag 
@@ -264,7 +264,7 @@ class BagToXml(object):
             >>> mybag.toXml()
             '<?xml version=\'1.0\' encoding=\'iso-8859-15\'?><GenRoBag><aa><bb T="L">4567</bb></aa></GenRoBag>'
         """
-        result = "<?xml version='1.0' encoding='"+encoding+"'?>\n"
+        result = docHeader or "<?xml version='1.0' encoding='"+encoding+"'?>\n"
         if not catalog:
             catalog = gnrclasses.GnrClassCatalog()
         self.translate_cb = translate_cb

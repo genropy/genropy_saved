@@ -28,7 +28,7 @@ def _getTreeRowCaption(tblobj):
 
 class HTableHandler(BaseComponent):
     css_requires='public'
-    def htableHandler(self,parentBC,nodeId=None,datapath=None,table=None,rootpath=None,label=None,
+    def htableHandler(self,parent,nodeId=None,datapath=None,table=None,rootpath=None,label=None,
                     editMode='bc',dialogPars=None,disabled=None):
         """
         .tree: tree data:
@@ -45,13 +45,13 @@ class HTableHandler(BaseComponent):
         
         formPanePars = dict(selectedPage='^.edit.selectedPage')
         if editMode=='bc':
-            bc = parentBC.borderContainer(region='center',datapath=datapath,nodeId=nodeId,margin='2px')
+            bc = parent.borderContainer(region='center',datapath=datapath,nodeId=nodeId,margin='2px')
             treepane = bc.borderContainer(region='left',width='40%',splitter=True)
             formPanePars['region'] = 'center'            
             formBC = bc.borderContainer(region='center')
             
         elif editMode=='sc':
-            sc = parentBC.stackContainer(region='center',datapath=datapath,nodeId=nodeId,
+            sc = parent.stackContainer(region='center',datapath=datapath,nodeId=nodeId,
                                         selectedPage='^.selectedPage',margin='2px')
             treepane = sc.borderContainer(pageName='tree')
             formPanePars['pageName'] = 'edit'
@@ -59,7 +59,7 @@ class HTableHandler(BaseComponent):
             
         elif editMode=='dlg':
             assert dialogPars,'for editMode == "dlg" dialogPars are mandatory'
-            treepane = parentBC.borderContainer(region='center',datapath=datapath,nodeId=nodeId,margin='2px')
+            treepane = parent.borderContainer(region='center',datapath=datapath,nodeId=nodeId,margin='2px')
             formBC = self.simpleDialog(treepane,dlgId='%s_dlg' %nodeId,
                                     cb_bottom=self.ht_edit_dlg_bottom,**dialogPars)
             formPanePars['region'] = 'center'
