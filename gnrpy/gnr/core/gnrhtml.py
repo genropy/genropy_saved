@@ -66,7 +66,9 @@ class GnrHtmlSrc(GnrStructData):
             
     def style(self,style='',**kwargs):
         self.root.builder.head.child('style',content=style,**kwargs)
-        
+    
+    def comment(self,content=None):
+        self.child(tag='__flatten__',content='<!--%s-->' %content)
                 
     def script(self,script='',_type="text/javascript",**kwargs):
         self.root.builder.head.child('script',content=script, _type=_type,**kwargs)
@@ -77,6 +79,13 @@ class GnrHtmlSrc(GnrStructData):
     def csslink(self,href='',media='screen',**kwargs ):
         self.root.builder.head.child('link',href=href,rel="stylesheet",_type="text/css",media=media,**kwargs)
         
+    def meta(self,name=None,content=None,http_equiv=None,**kwargs):   
+        _attributes = dict()
+        if http_equiv:
+            _attributes['http-equiv'] = http_equiv
+        self.root.builder.head.child('meta',_name=name,_content=content,_attributes=_attributes,**kwargs)
+        
+            
     def child(self,tag,*args, **kwargs):
         for lbl in ['_class','class_','_type','type_','_for','for_']:
             if lbl in kwargs:
@@ -172,6 +181,7 @@ class GnrHtmlBuilder(object):
                               'visibility', 'overflow', 'float', 'clear', 'display',
                               'z_index', 'border','position','padding','margin',
                               'color','white_space','vertical_align','background', 'text'];
+                              
                               
     def __init__(self,page_height=None,page_width=None,page_margin_top=None,
                     page_margin_left=None,page_margin_right=None,page_margin_bottom=None,
@@ -289,7 +299,7 @@ class GnrHtmlBuilder(object):
                                     omitRoot=True,
                                     autocreate=True,
                                     forcedTagAttr='tag',
-                                    addBagTypeAttr=False, typeattrs=False,
+                                    addBagTypeAttr=False, typeattrs=False,self_closed_tags=['meta','br','img'],
                                     docHeader='<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd"> \n')
         return self.html
         

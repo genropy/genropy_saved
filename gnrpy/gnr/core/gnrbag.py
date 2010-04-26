@@ -1504,7 +1504,7 @@ class Bag(GnrObject):
 
 #-------------------- toXml --------------------------------
     def toXml(self,filename=None,encoding='UTF-8',typeattrs=True,typevalue=True, unresolved=False, addBagTypeAttr=True,
-              autocreate=False, jsonmode=None, jsonkey=None, translate_cb=None,
+              autocreate=False, jsonmode=None, jsonkey=None, translate_cb=None,self_closed_tags=None,
               omitUnknownTypes=False, catalog=None, omitRoot=False, forcedTagAttr=None,docHeader=None):
         """
         This method returns a complete standard XML version of the Bag,
@@ -1533,7 +1533,7 @@ class Bag(GnrObject):
         from gnr.core.gnrbagxml import BagToXml
         return BagToXml().build(self, filename=filename, encoding=encoding,typeattrs=typeattrs,typevalue=typevalue, addBagTypeAttr=addBagTypeAttr,
                                     unresolved=unresolved,autocreate=autocreate, forcedTagAttr=forcedTagAttr,
-                                    jsonmode=jsonmode,jsonkey=jsonkey, translate_cb=translate_cb, 
+                                    jsonmode=jsonmode,jsonkey=jsonkey, translate_cb=translate_cb, self_closed_tags=self_closed_tags,
                                     omitUnknownTypes=omitUnknownTypes, catalog=catalog, omitRoot=omitRoot,docHeader=docHeader)
         
     def fillFrom(self, source):
