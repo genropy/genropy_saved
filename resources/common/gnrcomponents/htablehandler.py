@@ -106,14 +106,15 @@ class HTableHandler(BaseComponent):
                             var destPkey = selPkey;
                             var cancelCb = function(){
                                 genro.setData('#%s.tree.pkey',currPkey);
-                                genro.setData('#%s.tree.path',currPkey.slice(rootpath.length-1));
+                                genro.setData('#%s.tree.path',rootpath?currPkey.slice(rootpath.length-1):currPkey);
                                 };
                             genro.formById(formId).load({destPkey:destPkey,cancelCb:cancelCb});
                                 """ %(nodeId,nodeId),rootpath=rootpath,
                             selPkey='^.tree.pkey',currPkey='=.edit.pkey',_if='selPkey!=currPkey',
                             formId=formId)
-        bc.dataController("""     
+        bc.dataController("""
                               var editNode = treestore.getNode(treepath);
+                              var rootpath = rootpath || null;
                              if (destPkey!='*newrecord*'){
                                  var attr= editNode.attr;
                                  attr.caption = treeCaption;
@@ -124,7 +125,7 @@ class HTableHandler(BaseComponent):
                                 FIRE .edit.load;
                                 editNode.refresh(true);
                              }
-                             SET .tree.path = savedPkey.slice(rootpath.length-1);
+                             SET .tree.path = rootpath?savedPkey.slice(rootpath.length-1):savedPkey;
                             
                          """,
                         _fired="^.edit.onSaved",destPkey='=.tree.pkey',
@@ -188,8 +189,8 @@ class HTableHandler(BaseComponent):
                         hidden=disabled)
         toolbar.button('!!Revert',fire=".edit.load", iconClass="tb_button db_revert",float='right',
                         showLabel=False,hidden=disabled)      
-        toolbar.button('!!Add',action="""SET .edit.defaults.parent_code = GET .tree.code;
-                                               SET .tree.pkey = '*newrecord*';
+        toolbar.button('!!Add',action="""   SET .edit.defaults.parent_code = GET .tree.parent_code;
+                                            SET .tree.pkey = '*newrecord*';
                                             """,iconClass='db_add tb_button',
                                             showLabel=False,hidden=disabled,float='right')
         toolbar.button('!!Delete',fire=".edit.delete",iconClass='db_del tb_button',
@@ -204,6 +205,9 @@ class HTableHandler(BaseComponent):
     def ht_tree(self,bc,table=None,nodeId=None,rootpath=None,disabled=None,editMode=None,label=None):
         labelbox = bc.contentPane(region='top',_class='pbl_roundedGroupLabel')
         labelbox.div(label,float='left')
+        labelbox.div(float='right', _class='buttonIcon icnBaseAdd',connect_onclick="""SET .edit.defaults.parent_code = GET .tree.code;
+                                                                                      SET .tree.pkey = '*newrecord*';""",
+                        margin_right='2px')
         tblobj = self.db.table(table)
         center = bc.contentPane(region='center')
         center.data('.tree.store',self.ht_treeDataStore(table=table,rootpath=rootpath,rootcaption=tblobj.name_plural),
@@ -220,6 +224,7 @@ class HTableHandler(BaseComponent):
                     selected_pkey='.tree.pkey',selectedPath='.tree.path',  
                     selectedLabelClass='selectedTreeNode',
                     selected_code='.tree.code',
+                    selected_parent_code='.tree.parent_code',
                     selected_child_count='.tree.child_count',
                     connect_ondblclick=connect_ondblclick)
                     
@@ -269,7 +274,7 @@ class HTableResolver(BagResolver):
             else:
                 value=None
             children.setItem(row['child_code'], value,caption=tblobj.recordCaption(row,rowcaption=_getTreeRowCaption(tblobj)),pkey=row['pkey'],
-                                                                                    code=row[dfltConf['code']],child_count=child_count)#_attributes=dict(row),
+                                                                                    code=row[dfltConf['code']],child_count=child_count,parent_code=row['parent_code'])#_attributes=dict(row),
         return children
         
             
