@@ -293,7 +293,7 @@ class GnrHtmlBuilder(object):
 
 
 
-    def toHtml(self,filepath=None):
+    def toHtml_(self,filepath=None):
         if filepath:
             filepath=expandpath(filepath)
         self.finalize(self.body)
@@ -305,7 +305,7 @@ class GnrHtmlBuilder(object):
         return self.html
                                     
                                     
-    def toHtml_(self,filepath=None):
+    def toHtml(self,filepath=None):
         if filepath:
             filepath=expandpath(filepath)
         self.finalize(self.body)
