@@ -24,7 +24,7 @@ class GnrCustomWebPage(object):
          
     def main(self, root, **kwargs):
         bc=root.borderContainer()
-        top=bc.contentPane(height='30px',background_color='#2e0215',color='white')
+        top=bc.contentPane(height='30px',background_color='#940815')
         bc.iframe(src='http://www.inps.it',height='100%',width='100%',border='0px')
         fb = top.formbuilder(cols=2, border_spacing='3px',datapath='data',
                               margin_top='3px',margin_left='5px',float='left')
@@ -33,6 +33,6 @@ class GnrCustomWebPage(object):
                     auxColumns='$codice,$descrizione',value='^.codice_diagnosi',
                     _class='gnrfield',lbl='!!Diagnosi',width='50em',hasDownArrow=True,lbl_color='white')
         fb.textbox(value='^.codice_diagnosi',lbl='!!Codice',readOnly=True,width='5em',lbl_color='white',lbl_width='10em')
-        top.div('Genropy',margin_right='10px',margin_top='10px',font_size='.8em',float='right')
+        top.div('Genropy',margin_right='10px',margin_top='10px',font_size='.8em',float='right',color='white')
          
         
