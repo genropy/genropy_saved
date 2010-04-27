@@ -83,6 +83,35 @@ class TableBase(object):
         tbl.aliasColumn('_recordtag_tag',relation_path='%s.tag' %relation_path,name_long='!!Tagcode',group='_')
 
         
+class GnrHTable(TableBase):
+    def htableFields(self,tbl):
+        columns = tbl['columns'] or []
+        if not 'code' in columns:
+            tbl.column('code',name_long='!!Code')
+        if not 'description' in columns:
+            tbl.column('description',name_long='!!Description')
+        if not 'child_code' in columns:
+            tbl.column('child_code',name_long='!!Child code',unmodifiable=True)
+        tbl.column('parent_code',name_long='!!Parent code').relation('%s.code' %tbl.parentNode.label)
+        tbl.column('level',name_long='!!Level')
+        pkgname = tbl.getAttr()['pkg']
+        tblname = '%s.%s_%s'%(pkgname,pkgname,tbl.parentNode.label)
+        tbl.formulaColumn('child_count',
+                        '(SELECT count(*) FROM %s AS children WHERE children.parent_code=#THIS.code)' %tblname,
+                         dtype='L')
+        tbl.formulaColumn('hdescription',
+                        """
+                        CASE WHEN #THIS.parent_code IS NULL THEN #THIS.description
+                        ELSE ((SELECT description FROM  %s AS ptable WHERE ptable.code = #THIS.parent_code) || '-' || #THIS.description)
+                        END
+                        """%tblname)
+        
+                         
+    def trigger_onInserting(self, record_data):
+        code_list = [k for k in [record_data['parent_code'],record_data['child_code']] if k]
+        record_data['level'] = len(code_list)-1
+        record_data['code'] = '.'.join(code_list)
+    
 class GnrDboTable(TableBase):
     pass
 

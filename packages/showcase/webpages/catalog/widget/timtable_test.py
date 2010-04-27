@@ -28,6 +28,8 @@ from gnr.core.gnrdate import dayIterator
 
 class GnrCustomWebPage(object):
     py_requires='foundation/macrowidgets,gnrcomponents/timetable:Timetable'
+    css_requires='public'
+
     def pageAuthTags(self, method=None, **kwargs):
         return ''
         
@@ -38,6 +40,9 @@ class GnrCustomWebPage(object):
         bc = root.borderContainer()
         top = bc.contentPane(region='top',height='40px').toolbar()
         fb = top.formbuilder(cols=6, border_spacing='2px',datapath='top',width='100%')
+        fb.data('.period.period','mese scorso')
+        fb.data('.tstart',time(15,10))
+        fb.data('.tstop',time(19,20))
         self.periodCombo(fb,lbl='!!Period')
         fb.timeTextBox(value='^.tstart',width='10em',lbl='!!Start')
         fb.timeTextBox(value='^.tstop',width='10em',lbl='!!Stop')
@@ -59,10 +64,11 @@ class GnrCustomWebPage(object):
            
     def tt_mytt_loop(self,period=None,wkdlist=None,tstart=None,tstop=None):
         wkdlist = [int(k) for k,v in wkdlist.items() if v] or None
-        for line,day in enumerate(dayIterator(period,locale=self.locale,workdate=self.workdate,wkdlist=wkdlist)):
+        for day in dayIterator(period,locale=self.locale,workdate=self.workdate,wkdlist=wkdlist):
             timecurr = datetime.combine(day,tstart)
             timestop = datetime.combine(day,tstop)
             deltavisits = timedelta(minutes=(int(random.random()*3)+1)*60)
+            slots = []
             while timecurr+deltavisits <= timestop:
                 minutes=(int(random.random()*3)+1)*10
                 deltaminutes = timedelta(minutes=minutes)
@@ -70,7 +76,7 @@ class GnrCustomWebPage(object):
                     timeslot = timecurr
                     while timeslot+deltaminutes<=timecurr+deltavisits:
                         docName = ['Verdi','Bianchi','Rossi','Neri'][int(random.random()*3)]
-                        slot = dict(day=day,line=line,ts=timeslot,minutes=minutes,doctor=docName)
+                        slot = dict(day=day,ts=timeslot,minutes=minutes,doctor=docName)
                         z=random.random()
                         if z<.25:
                             slot['patient'] = None
@@ -78,9 +84,12 @@ class GnrCustomWebPage(object):
                             slot['patient'] = ['Morelli','Bappini','Panzarotti','Baboden','Capatonda','Fufolo'][int(random.random()*5)]
                         else:
                             slot['patient'] = '-'
-                        yield slot
+                        slots.append(slot)
                         timeslot += deltaminutes
                 timecurr+=deltavisits
+            yield dict(slots=slots,day=day)
+
+                
         
         
     def main_(self, root, **kwargs):

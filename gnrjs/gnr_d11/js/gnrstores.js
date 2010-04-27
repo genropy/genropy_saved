@@ -127,8 +127,9 @@ dojo.declare("gnr.GnrStoreBag",null,{
         if(this.isItem(item)){
             //genro.debug('hasAttribute: item='+item.label+' - attribute-name-string='+attribute);
             if (attribute=='#v'){
-                if (item.getResolver()){
-                    return true;
+                var resolver = item.getResolver();
+                if (resolver && !resolver.lastUpdate){
+                    return 'child_count' in item.attr?item.attr.child_count>0:true;
                 }else{
                     var result=item.getValue();
                     if (result instanceof gnr.GnrBag){

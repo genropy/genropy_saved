@@ -744,7 +744,7 @@ class SqlTable(GnrObject):
     
     def recordCaption(self, record, newrecord=False, rowcaption=None):
         if newrecord:
-            return 'New '+ self.name
+            return '!!New %s' %self.name_long.replace('!!','')
         else:
             fields, mask = self.rowcaptionDecode(rowcaption)
             if not fields:

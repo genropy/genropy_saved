@@ -26,6 +26,7 @@ from gnr.core.gnrstring import toText
 
 class Timetable(BaseComponent):
     py_requires='foundation/tools:RemoteBuilder'
+    css_requires='public'
     def timetable_dh(self,parent,nodeId=None,datapath=None,tstart=None,
                     tstop=None,period=None,wkdlist=None,fired=None):
         assert nodeId,'nodeId is mandatory'
@@ -37,26 +38,70 @@ class Timetable(BaseComponent):
                                 _class='pbl_roundedGroupBottom')
         bottom.horizontalSlider(value='^.zoom', minimum=.2, maximum=3,
                                 intermediateChanges=True,width='15em',float='right')
+        bottom.data('.zoom',1)
         center = bc.contentPane(region='center')
-        center.data('.zoom',1)
-        inner = center.div(position='absolute',top='3px',bottom='3px',left='3px',right='3px')
-        self.lazyContent(inner,'ttdh_main',nodeId=nodeId,tstart=tstart,tstop=tstop,period=period,wkdlist=wkdlist,fired=fired)
+        self.lazyContent(center,'ttdh_main',nodeId=nodeId,tstart=tstart,tstop=tstop,period=period,wkdlist=wkdlist,fired=fired)
     
     def remote_ttdh_main(self,pane,tstart=None,tstop=None,period=None,wkdlist=None,fired=None,nodeId=None):
-        ttbox = pane.div(zoomFactor='^.controller.zoom',
-                        border='1px solid navy')
+        
         iterator = getattr(self,'tt_%s_loop'%nodeId)
-        def rect(x=None,y=None,h=None,w=None):
-            return dict(left='%ipx' %x,top='%ipx' %y,height='%ipx' %h,width='%ipx' %w,position='absolute')
-            
+        def rect(**kwargs):
+            result = dict(position='absolute')
+            for k,v in kwargs.items():
+                if v is not None:
+                    result[k] = '%ipx' %v
+            return result
+        days = list(iterator(tstart=tstart,tstop=tstop,period=period,wkdlist=wkdlist))
+        day_h = 50
+        first_col_w = 80
+        minute_w = 6
+        first_margin = 3
+        margin = 1
+        hour_w = 60*minute_w
+        start_hour = tstart.hour
+        stop_hour = tstop.hour
+        if tstop.minute:
+            stop_hour+=1
+        start_minutes = start_hour*60 
+        stop_minutes = stop_hour*60 
+        
+        delta_minutes = (stop_hour-start_hour)*60
+        tot_w = delta_minutes*minute_w
+        tot_h = (len(days)+1)*day_h
+        ttbox = pane.div(zoomFactor='^.controller.zoom',
+                        position='relative')#,height='%ipx' %tot_h,width='%ipx' %tot_w)
+
+        first_col = ttbox.div(**rect(left=0,top=0,width=first_col_w-first_margin,height=tot_h))
+        time_col = ttbox.div(**rect(left=first_col_w,top=0))
+        for hour in range(start_hour,stop_hour):
+            left = (((hour-start_hour)*60)*minute_w)+first_col_w
+            if hour%2:
+                _class = 'hour_c1'
+            else:
+                _class = 'hour_c2'
+            r = rect(left=left,top=0,width=hour_w-margin,height=tot_h)
+            print r
+            ttbox.div(border_right='1px dotted lightgray',_class=_class,**r)
+        
         currline=None
-        print tstart
-        for slot in iterator(tstart=tstart,tstop=tstop,period=period,wkdlist=wkdlist):
-            print slot
-            if currline != slot['line']:
-                currline = slot['line']
-                top = currline*100
-                daylabel = ttbox.div(background_color='pink',**rect(x=1,y=top,w=40,h=100))
-                textDay = toText(slot['day'])
-                daylabel.div(textDay)
-    
+        for j,dayrow in enumerate(days):
+            day = dayrow['day']
+            slots = dayrow['slots']
+            top = j*day_h+1
+            daylabel = first_col.div(_class='dayLabel',**rect(left=1,top=top,width=first_col_w-first_margin-2,height=day_h-3))
+            daylabel.div(toText(day,format='eeee',locale=self.locale),_class='dayLabel_WD WD_%i' %day.weekday())
+            daylabel.div(toText(day,format='d',locale=self.locale),_class='dayLabel_D')
+            daylabel.div(toText(day,format='MMMM',locale=self.locale),_class='dayLabel_M')
+            for slot in slots:
+                left = ((slot['ts'].hour-start_hour)*60+slot['ts'].minute)*minute_w
+                width = slot['minutes'] *minute_w-3
+                patient =  slot['patient']
+                if patient is None:
+                    status = 'ttfree'
+                elif patient == '-':
+                    status = 'ttunavailable'
+                else:
+                    status = 'ttbusy'
+
+                slotdiv = time_col.div(_class='ttslot %s' %status,**rect(left=left,top=top,width=width,height=day_h-3))
+                slotdiv.div(_class='ttslot_T').span(toText(slot['ts'],format='HH:mm'),margin='5px')

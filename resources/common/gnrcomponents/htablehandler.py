@@ -24,7 +24,7 @@ from gnr.core.gnrbag import Bag,BagResolver
 def _getTreeRowCaption(tblobj):
     if hasattr(tblobj,'treeRowCaption'):
         return tblobj.treeRowCaption()
-    return  '$child_code,$caption'
+    return  '$child_code,$description'
 
 class HTableHandler(BaseComponent):
     css_requires='public'
@@ -43,31 +43,33 @@ class HTableHandler(BaseComponent):
         editMode:'bc','sc','dlg'
         """
         
-        formPanePars = dict(selectedPage='^.edit.selectedPage')
+        formPanePars = dict(selectedPage='^.edit.selectedPage',_class='pbl_roundedGroup')
         if editMode=='bc':
             bc = parent.borderContainer(region='center',datapath=datapath,nodeId=nodeId,margin='2px')
-            treepane = bc.borderContainer(region='left',width='40%',splitter=True)
+            treepane = bc.borderContainer(region='left',width='40%',splitter=True,_class='pbl_roundedGroup')
             formPanePars['region'] = 'center'            
             formBC = bc.borderContainer(region='center')
             
         elif editMode=='sc':
             sc = parent.stackContainer(region='center',datapath=datapath,nodeId=nodeId,
                                         selectedPage='^.selectedPage',margin='2px')
-            treepane = sc.borderContainer(pageName='tree')
+            treepane = sc.borderContainer(pageName='tree',_class='pbl_roundedGroup')
             formPanePars['pageName'] = 'edit'
             formBC = sc.borderContainer(region='center')
             
         elif editMode=='dlg':
             assert dialogPars,'for editMode == "dlg" dialogPars are mandatory'
-            treepane = parent.borderContainer(region='center',datapath=datapath,nodeId=nodeId,margin='2px')
+            treepane = parent.borderContainer(region='center',datapath=datapath,nodeId=nodeId,margin='2px',_class='pbl_roundedGroup')
             formBC = self.simpleDialog(treepane,dlgId='%s_dlg' %nodeId,
                                     cb_bottom=self.ht_edit_dlg_bottom,**dialogPars)
             formPanePars['region'] = 'center'
             
         recordlabel = formBC.contentPane(region='top',_class='pbl_roundedGroupLabel')
-        recordlabel.div(nodeId='%s_nav' %nodeId)
+        recordlabel.div('^.edit.record?caption')
+        footer = formBC.contentPane(region='bottom',_class='pbl_roundedGroupBottom')
+
         formpane = formBC.stackContainer(pageName='edit',**formPanePars)
-        recordlabel.dataController("""
+        footer.dataController("""
                             var pathlist = currpath.split('.');
                             var rootnode = genro.nodeById(labelNodeId).clearValue().freeze();
                             var label,path2set;
@@ -75,14 +77,12 @@ class HTableHandler(BaseComponent):
                                 label = pathlist[i];
                                 path2set = path2set?path2set+'.'+label:label;
                                 var action = "this.setRelativeData('.tree.path','"+path2set+"');";
-                                rootnode._('a',{content:label,connect_onclick:action,href:'#','float':'left'});
-                                rootnode._('div',{content:'-',float:'left'})
+                                rootnode._('div',{content:label,connect_onclick:action,'float':'left',_class:'breadCrumb'});
                             }
-                            rootnode._('div',{content:title,'float':'left'});
                             rootnode.unfreeze();
 
-                            """,title="^.edit.title",
-                             currpath='=.tree.path',
+                            """,
+                             currpath='=.tree.path',_fired='^.edit.record.code',
                              labelNodeId='%s_nav' %nodeId)
         
         self.ht_tree(treepane,table=table,nodeId=nodeId,disabled=disabled,
@@ -109,13 +109,14 @@ class HTableHandler(BaseComponent):
                                 genro.setData('#%s.tree.path',rootpath?currPkey.slice(rootpath.length-1):currPkey);
                                 };
                             genro.formById(formId).load({destPkey:destPkey,cancelCb:cancelCb});
-                                """ %(nodeId,nodeId),rootpath=rootpath,
+                                """ %(nodeId,nodeId),rootpath='=.tree.store?rootpath',
                             selPkey='^.tree.pkey',currPkey='=.edit.pkey',_if='selPkey!=currPkey',
                             formId=formId)
+
         bc.dataController("""
-                              var editNode = treestore.getNode(treepath);
-                              var rootpath = rootpath || null;
+                             var rootpath = rootpath || null;
                              if (destPkey!='*newrecord*'){
+                                 var editNode = treestore.getNode(treepath);
                                  var attr= editNode.attr;
                                  attr.caption = treeCaption;
                                  editNode.setAttr(attr);
@@ -123,15 +124,25 @@ class HTableHandler(BaseComponent):
                              }else{
                                 SET .edit.pkey = savedPkey;
                                 FIRE .edit.load;
-                                editNode.refresh(true);
+                                var parentPath = rootpath?parent_code.slice(rootpath.length):parent_code?'_root_.'+parent_code:'_root_'
+                                var parentNode = treestore.getNode(parentPath);
+                                console.log(parentNode);
+                                parentNode.refresh(true);
                              }
-                             SET .tree.path = rootpath?savedPkey.slice(rootpath.length-1):savedPkey;
-                            
                          """,
-                        _fired="^.edit.onSaved",destPkey='=.tree.pkey',
-                        savedPkey='=.edit.savedPkey',rootpath=rootpath,
+                        _fired="^.edit.onSaved",destPkey='=.tree.pkey',parent_code='=.edit.record.parent_code',
+                        savedPkey='=.edit.savedPkey',rootpath='=.tree.store?rootpath',
                         treepath='=.tree.path',treestore='=.tree.store',
                         treeCaption='=.edit.savedPkey?caption')
+        bc.dataController("""
+                            if (rootpath){
+                                path=code.slice(rootpath.length);
+                            }else{
+                                path = code?'_root_.'+code:'_root_';
+                            }
+                            SET .tree.path=path;""",code="^.edit.record.code",
+                            rootpath='=.tree.store?rootpath',_if='code')
+        
         
        #bc.dataRpc('dummy','deleteRecordCluster',data='.edit.record',)
        #bc.dataRpc('form.delete_result','deleteRecordCluster', data='=form.record?=genro.getFormChanges("formPane");', _POST=True,
@@ -142,13 +153,10 @@ class HTableHandler(BaseComponent):
                               formId=formId,
                               disabled= disabled or '^#%s.edit.status.locked'%nodeId,
                               pkeyPath='#%s.edit.pkey' %nodeId)
-        selected = dict()
-        dfltConf = dict(code='code',parent_code='parent_code',child_code='child_code')
         tblobj = self.db.table(table)
         defaults = dict()
-        if hasattr(tblobj,'htable_conf'):
-            dfltConf = tblobj.htable_conf()        
-        defaults['default_%s' %dfltConf['parent_code']] = '=.defaults.parent_code'
+       
+        defaults['default_parent_code'] = '=.defaults.parent_code'
         
         self.formLoader(formId,datapath='#%s.edit' %nodeId,resultPath='.record',_fired='^.load',
                         table=table, pkey='=.pkey',**defaults)
@@ -157,6 +165,7 @@ class HTableHandler(BaseComponent):
                         rowcaption=_getTreeRowCaption(self.db.table(table)))
 
     def ht_edit_toolbar(self,toolbar,nodeId=None,disabled=None,editMode=None):
+        nav = toolbar.div(float='left',nodeId='%s_nav' %nodeId)
         spacer = toolbar.div(float='right',_class='button_placeholder')
         spacer.data('.edit.status.locked',True)
         if not disabled:
@@ -183,13 +192,12 @@ class HTableHandler(BaseComponent):
             isValid='^.edit.form.valid')
         spacer.div(nodeId='%s_semaphore' %nodeId,_class='semaphore',margin_top='3px',
                   hidden=disabled)  
-        toolbar.dataController("SET .edit.title =recordCaption",recordCaption="^.edit.record?caption")
         toolbar.button('!!Save',fire=".edit.save", float='right',
                         iconClass="tb_button db_save",showLabel=False,
                         hidden=disabled)
         toolbar.button('!!Revert',fire=".edit.load", iconClass="tb_button db_revert",float='right',
                         showLabel=False,hidden=disabled)      
-        toolbar.button('!!Add',action="""   SET .edit.defaults.parent_code = GET .tree.parent_code;
+        toolbar.button('!!Add',action="""   SET .edit.defaults.parent_code = GET .edit.record.parent_code;
                                             SET .tree.pkey = '*newrecord*';
                                             """,iconClass='db_add tb_button',
                                             showLabel=False,hidden=disabled,float='right')
@@ -207,7 +215,7 @@ class HTableHandler(BaseComponent):
         labelbox.div(label,float='left')
         labelbox.div(float='right', _class='buttonIcon icnBaseAdd',connect_onclick="""SET .edit.defaults.parent_code = GET .tree.code;
                                                                                       SET .tree.pkey = '*newrecord*';""",
-                        margin_right='2px')
+                        margin_right='2px',visible='^.tree.path',default_visible=False)
         tblobj = self.db.table(table)
         center = bc.contentPane(region='center')
         center.data('.tree.store',self.ht_treeDataStore(table=table,rootpath=rootpath,rootcaption=tblobj.name_plural),
@@ -224,13 +232,11 @@ class HTableHandler(BaseComponent):
                     selected_pkey='.tree.pkey',selectedPath='.tree.path',  
                     selectedLabelClass='selectedTreeNode',
                     selected_code='.tree.code',
-                    selected_parent_code='.tree.parent_code',
                     selected_child_count='.tree.child_count',
                     connect_ondblclick=connect_ondblclick)
                     
     def ht_treeDataStore(self,table=None,rootpath=None,rootcaption=None):
         tblobj= self.db.table(table)
-        dfltConf = dict(code='code',parent_code='parent_code',child_code='child_code')
         result = Bag()
         if rootpath:
             row=tblobj.query(columns='*',where='$code=:code',code=rootpath).fetch()[0]
@@ -239,7 +245,9 @@ class HTableHandler(BaseComponent):
             pkey=row['pkey']
             _attributes=dict(row)
             rootpath=row['code']
-            code=row[dfltConf['code']]
+            code=row['code']
+            child_count = row['child_count']
+
         else:
             caption=rootcaption
             rootlabel ='_root_'
@@ -247,7 +255,8 @@ class HTableHandler(BaseComponent):
             pkey=None
             code=None
             rootpath=None
-        result.setItem(rootlabel, HTableResolver(table=table,rootpath=rootpath), caption=caption,pkey=pkey,code=code)#,_attributes=_attributes)
+            child_count = tblobj.query().count()
+        result.setItem(rootlabel, HTableResolver(table=table,rootpath=rootpath),child_count=child_count, caption=caption,pkey=pkey,code=code)#,_attributes=_attributes)
         return result
                      
 class HTableResolver(BagResolver):
@@ -260,21 +269,16 @@ class HTableResolver(BagResolver):
             
     def load(self):
         db= self._page.db
-        tblobj = db.table(self.table)
-        dfltConf = dict(code='code',parent_code='parent_code',child_code='child_code')
-        if hasattr(tblobj,'htable_conf'):
-            dfltConf = tblobj.htable_conf()  
-        rows = tblobj.query(columns='*,$child_count',where="COALESCE($parent_code,'')=:rootpath" ,
+        tblobj = db.table(self.table) 
+        rows = tblobj.query(columns='*,$child_count,$hdescription',where="COALESCE($parent_code,'')=:rootpath" ,
                      rootpath=self.rootpath or '',order_by='$child_code').fetch()
         children = Bag()
         for row in rows:
             child_count= row['child_count']
-            if row['child_count']:
-                value=HTableResolver(table=self.table,rootpath=row['code'],child_count=child_count)
-            else:
-                value=None
-            children.setItem(row['child_code'], value,caption=tblobj.recordCaption(row,rowcaption=_getTreeRowCaption(tblobj)),pkey=row['pkey'],
-                                                                                    code=row[dfltConf['code']],child_count=child_count,parent_code=row['parent_code'])#_attributes=dict(row),
+            value=HTableResolver(table=self.table,rootpath=row['code'],child_count=child_count)
+            children.setItem(row['child_code'], value,caption=tblobj.recordCaption(row,rowcaption=_getTreeRowCaption(tblobj)),
+                             pkey=row['pkey'],code=row['code'],child_count=child_count,
+                             parent_code=row['parent_code'],hdescription=row['hdescription'])#_attributes=dict(row),
         return children
         
             
