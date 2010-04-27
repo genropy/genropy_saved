@@ -20,7 +20,7 @@
 
 class GnrCustomWebPage(object):
     def windowTitle(self):
-        return 'Codici'
+        return 'Certificati INPS con Ricerca'
          
     def main(self, root, **kwargs):
         bc=root.borderContainer()
