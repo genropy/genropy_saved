@@ -302,6 +302,7 @@ class GnrHtmlBuilder(object):
                                     autocreate=True,
                                     forcedTagAttr='tag',
                                     addBagTypeAttr=False, typeattrs=False, self_closed_tags=['meta','br','img'])
+        return self.html
                                     
                                     
     def toHtml_(self,filepath=None):
