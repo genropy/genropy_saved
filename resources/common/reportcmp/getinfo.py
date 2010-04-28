@@ -47,7 +47,8 @@ class QuickQueryTool(object):
     def qqt_prepareConditions(self, table, customColumns=None, **kwargs):
         return self.db.whereTranslator.whereFromDict(table, whereDict=kwargs, customColumns=customColumns)
                              
-    def qqt_parametricQuery(self, table, columns='',group_by='',order_by='', columnsDict=None, **kwargs):
+    def qqt_parametricQuery(self, table, columns='',group_by='',order_by='',
+                            having=None, distinct=None, limit=None, columnsDict=None, **kwargs):
         columns_list = splitAndStrip(columns)
         group_list = [c for c in columns_list if not (c.startswith('COUNT(') or  c.startswith('SUM(') or c.startswith('AVERAGE('))]
         if len(columns_list)>len(group_list):
@@ -62,6 +63,9 @@ class QuickQueryTool(object):
         q= tblobj.query(columns=columns,
                        where=' AND '.join(wherelist),
                        group_by=group_by,
+                       distinct=distinct,
+                       limit=limit,
+                       having=having,
                        relationDict=self.columnsDict,
                       **sqlArgs)
         return q
