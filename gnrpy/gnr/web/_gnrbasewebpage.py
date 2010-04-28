@@ -53,7 +53,7 @@ from gnr.core.gnrlang import GnrObject
 from gnr.core.gnrstring import  toText, toJson
 from gnr.core import gnrdate
 
-from gnr.sql.gnrsql_exceptions import GnrSqlSaveException
+from gnr.sql.gnrsql_exceptions import GnrSqlSaveException,GnrSqlDeleteException
 
 AUTH_OK=0
 AUTH_NOT_LOGGED=1
@@ -521,24 +521,25 @@ class GnrBaseWebPage(GnrObject):
             self.onDeleted(record)
             self.db.commit()
             return 'ok'
-        except GnrSqlSaveException, e:
+        except GnrSqlDeleteException, e:
             return ('delete_error',{ 'msg':e.message})    
             
-    def rpc_deleteRow(self,table,pkey=None,record=None,**kwargs):
+    def rpc_deleteDbRow(self,table,pkey=None,**kwargs):
         """
             Method for deleting a single record from a given tablename 
             and from a record or its pkey.
         """
         try:
             tblobj = self.db.table(table)
-            recordToDelete = record or tblobj.record(pkey,for_update=True, mode='bag')
-            if recordToDelete:
-                tblobj.delete(recordToDelete)
-                self.db.commit()
-            else:
-                raise 'No record to delete'
-        except:
-            raise 'deleteRow failed'
+            record = tblobj.record(pkey,for_update=True, mode='bag')
+            deleteAttr = dict()
+            self.onDeleting(record,deleteAttr)
+            tblobj.delete(record)
+            self.onDeleted(record)
+            self.db.commit()
+            return pkey,deleteAttr
+        except GnrSqlDeleteException, e:
+            return ('delete_error',{ 'msg':e.message})
                 
     def setLoadingParameters(self, table,**kwargs):
         self.pageSource().dataFormula('gnr.tables.%s.loadingParameters' %table.replace('.','_'), 
