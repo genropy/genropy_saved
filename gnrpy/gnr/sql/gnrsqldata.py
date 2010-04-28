@@ -26,11 +26,12 @@ import re
 import cPickle
 import itertools
 import hashlib
+from xml.sax import saxutils
 
 from gnr.core.gnrlang import deprecated, uniquify
 from gnr.core.gnrdate import decodeDatePeriod
 from gnr.core.gnrlist import GnrNamedList
-
+from gnr.core import gnrclasses
 from gnr.core import gnrstring
 from gnr.core import gnrlist
 from gnr.core.gnrbag import Bag, BagResolver
@@ -1431,7 +1432,7 @@ class SqlSelection(object):
                                                            target_fld='%s.%s' % (self.dbtable.fullname, self.dbtable.pkey),
                                                            relation_value=pkey, joinConditions=self.joinConditions, sqlContextName=self.sqlContextName)
                 
-            result.setItem('%s' % spkey, content, _pkey=spkey, _attributes=dict(row), _removeNullAttributes=False)
+            result.addItem('%s' % spkey, content, _pkey=spkey, _attributes=dict(row), _removeNullAttributes=False)
         return result
     
     def out_fullgrid(self, outsource, recordResolver=True):
@@ -1440,19 +1441,41 @@ class SqlSelection(object):
         r = structure.child('view').child('row')
         for colname in self.columns:
             if colname != 'pkey':
-                kwargs=dict(self.colAttrs.get(colname, {}))
-                kwargs.pop('tag', None)
-                kwargs['name']=kwargs.pop('label', None)
-                size = kwargs.pop('size',None)
-                size = kwargs.pop('print_width',size)
-                if size:
-                    if isinstance(size,basestring):
-                        if ':' in size:
-                            size=size.split(':')[1]
-                    kwargs['width']='%iem' % int(int(size)*.7)
-                r.child('cell', childname=colname,field=colname,**kwargs)
+                r.child('cell', childname=colname,**self._cellStructFromCol(colname))
         result['structure'] = structure
         result['data'] = self.buildAsGrid(outsource, recordResolver)
+        return result
+        
+    def _cellStructFromCol(self, colname):
+        kwargs=dict(self.colAttrs.get(colname, {}))
+        kwargs.pop('tag', None)
+        kwargs['name']=kwargs.pop('label', None)
+        kwargs['field']=colname
+        size = kwargs.pop('size',None)
+        size = kwargs.pop('print_width',size)
+        if size:
+            if isinstance(size,basestring):
+                if ':' in size:
+                    size=size.split(':')[1]
+            kwargs['width']='%iem' % int(int(size)*.7)
+        return kwargs
+        
+    def out_xmlGrid(self, outsource):
+        dataXml=[]
+        catalog = gnrclasses.GnrClassCatalog()
+        xmlheader = "<?xml version='1.0' encoding='UTF-8'?>\n"
+        structCellTmpl='<%(field)s  name="%(name)s" field="%(field)s" dataType="%(dataType)s" width="%(width)s" tag="cell"/>'
+        dataCellTmpl='<r_%i  %s/>'
+        columns = [c for c in self.columns if not c in ('pkey','rowidx')]
+        structXml = '\n'.join([structCellTmpl % self._cellStructFromCol(colname) for colname in columns])
+        structure = '<structure><view_0 tag="view"><row_0 tag="row">%s</row_0></view_0></structure>' % structXml
+        for row in outsource:
+            row = dict(row)
+            rowstring = ' '.join(['%s=%s'%(colname, saxutils.quoteattr(catalog.asTypedText(row[colname]))) for colname in columns])
+            dataXml.append(dataCellTmpl % (row['rowidx'], rowstring))
+        dataXml='<data>%s</data>' % '\n'.join(dataXml)
+        result = '%s\n<GenRoBag><result>%s\n%s</result></GenRoBag>' % (xmlheader,structure,dataXml)
+        #result2 = '%s\n%s' % (structure,dataXml)
         return result
         
     def _prepareHeaders(self):

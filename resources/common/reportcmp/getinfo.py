@@ -40,7 +40,7 @@ class GetInfoPage(BaseComponent):
              
     def getinfo_base(self,mode='tabtext', columns='',group_by='',order_by='',filename='report.xls', **kwargs):
         query = self.qqt_parametricQuery(table=self.maintable, columnsDict=self.columnsDict, columns=columns, 
-                                        group_by=group_by, order_by=order_by, **kwargs)
+                                        group_by=group_by, order_by=order_by, addPkeyColumn=False, **kwargs)
         return self.gi_returnResultFromSelection(query.selection(), mode=mode,filename=filename,**kwargs)
             
 class QuickQueryTool(object):
@@ -50,7 +50,7 @@ class QuickQueryTool(object):
     def qqt_parametricQuery(self, table, columns='',group_by='',order_by='',
                             having=None, distinct=None, limit=None, columnsDict=None, **kwargs):
         columns_list = splitAndStrip(columns)
-        group_list = [c for c in columns_list if not (c.startswith('COUNT(') or  c.startswith('SUM(') or c.startswith('AVERAGE('))]
+        group_list = [c for c in columns_list if not (c.startswith('COUNT(') or  c.startswith('SUM(') or c.startswith('AVG('))]
         if len(columns_list)>len(group_list):
             group_by=splitAndStrip(group_by) or []
             for g in group_list:

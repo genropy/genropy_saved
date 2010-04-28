@@ -250,7 +250,7 @@ dojo.declare("gnr.GnrRpcHandler",null,{
         callKwargs.method = method;
         var mode = mode || 'bag';
         var preprocessor, handleAs, result;
-        if (mode == 'bag'){
+        if ((mode == 'bag') || (mode=='xml')){
             handleAs = 'xml';
             preprocessor = dojo.hitch(this, 'resultHandler');
         } 

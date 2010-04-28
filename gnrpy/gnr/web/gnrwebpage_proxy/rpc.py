@@ -80,7 +80,10 @@ class GnrWebRpc(GnrBaseProxy):
         
     def result_xml(self, result):
         self.page.response.content_type = "text/xml"
-        return result.toXml(unresolved=True, omitUnknownTypes=True)
+        if isinstance(result, Bag):
+            return result.toXml(unresolved=True, omitUnknownTypes=True)
+        print x
+        return result
         
     def result_json(self,  result):
         error = getattr(self,'error',None)
