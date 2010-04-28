@@ -23,7 +23,7 @@ Component for referto:
 """
 import random
 from datetime import date,datetime,time,timedelta
-from gnr.core.gnrdate import dayIterator
+from gnr.core.gnrstring import toText
 
 
 class GnrCustomWebPage(object):
@@ -61,37 +61,47 @@ class GnrCustomWebPage(object):
                         tstart='=top.tstart',tstop='=top.tstop',
                         wkdlist='=top.wkdlist',fired='^build')
         
-           
-    def tt_mytt_loop(self,period=None,wkdlist=None,tstart=None,tstop=None):
-        wkdlist = [int(k) for k,v in wkdlist.items() if v] or None
-        for day in dayIterator(period,locale=self.locale,workdate=self.workdate,wkdlist=wkdlist):
-            timecurr = datetime.combine(day,tstart)
-            timestop = datetime.combine(day,tstop)
-            deltavisits = timedelta(minutes=(int(random.random()*3)+1)*60)
-            slots = []
-            while timecurr+deltavisits <= timestop:
-                minutes=(int(random.random()*3)+1)*10
-                deltaminutes = timedelta(minutes=minutes)
-                if random.random()>.4:
-                    timeslot = timecurr
-                    while timeslot+deltaminutes<=timecurr+deltavisits:
-                        docName = ['Verdi','Bianchi','Rossi','Neri'][int(random.random()*3)]
-                        slot = dict(day=day,ts=timeslot,minutes=minutes,doctor=docName)
-                        z=random.random()
-                        if z<.25:
-                            slot['patient'] = None
-                        elif z<.9:
-                            slot['patient'] = ['Morelli','Bappini','Panzarotti','Baboden','Capatonda','Fufolo'][int(random.random()*5)]
-                        else:
-                            slot['patient'] = '-'
-                        slots.append(slot)
-                        timeslot += deltaminutes
-                timecurr+=deltavisits
-            yield dict(slots=slots,day=day)
-
-                
+    
+    def tt_mytt_dataProvider(self,day=None,serie=None,tstart=None,tstop=None,**kwargs):
+        timecurr = datetime.combine(day,tstart)
+        timestop = datetime.combine(day,tstop)
+        deltavisits = timedelta(minutes=(int(random.random()*3)+1)*60)
+        slots = []
+        while timecurr+deltavisits <= timestop:
+            minutes=(int(random.random()*3)+1)*10
+            deltaminutes = timedelta(minutes=minutes)
+            if random.random()>.4:
+                timeslot = timecurr
+                while timeslot+deltaminutes<=timecurr+deltavisits:
+                    docName = ['Verdi','Bianchi','Rossi','Neri'][int(random.random()*3)]
+                    slot = dict(day=day,ts=timeslot,minutes=minutes,doctor=docName)
+                    z=random.random()
+                    if z<.25:
+                        slot['patient'] = None
+                    elif z<.9:
+                        slot['patient'] = ['Morelli','Bappini','Panzarotti','Baboden','Capatonda','Fufolo'][int(random.random()*5)]
+                    else:
+                        slot['patient'] = '-'
+                    slots.append(slot)
+                    timeslot += deltaminutes
+            timecurr+=deltavisits
+        return slots
+    
+    def tt_mytt_slot(self,pane,slot=None,width=None,height=None):
+        patient =  slot['patient']
+        if patient is None:
+            status = 'ttfree'
+        elif patient == '-':
+            status = 'ttunavailable'
+        else:
+            status = 'ttbusy'
+        slotdiv = pane.div(_class='ttslot %s' %status,height='100%')
+        slotdiv.div(_class='ttslot_T').span(toText(slot['ts'],format='HH:mm'),margin='5px')
         
         
+    #def tt_mytt_daylabel(self,pane):
+    #    pass
+    #
     def main_(self, root, **kwargs):
         root.data('zoomFactor',1)
         root.css('.zoommed',"""z-index:99; 
