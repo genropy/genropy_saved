@@ -1454,7 +1454,23 @@ class SqlSelection(object):
         result['structure'] = structure
         result['data'] = self.buildAsGrid(outsource, recordResolver)
         return result
-
+        
+    def _prepareHeaders(self):
+        def translate(txt):
+            if txt.startswith('!!'):
+                txt = txt[2:]
+                
+                #app = getattr(self.dbtable.db, 'application', None)
+                #if app:
+                #    txt = app.localization.get(txt, txt)
+            return txt
+        columns = [c for c in self.columns if not c in ('pkey','rowidx')]
+        headers=[]
+        for colname in columns:
+            colattr = self.colAttrs.get(colname, dict())
+            headers.append(translate(colattr.get('label', colname)))
+        return headers
+        
     def out_tabtext(self, outsource):
         def translate(txt):
             if txt.startswith('!!'):
@@ -1474,6 +1490,38 @@ class SqlSelection(object):
             r = dict(row)
             result.append('\t'.join([r[col].replace('\n',' ').replace('\r',' ').replace('\t',' ') for col in columns]))
         return '\n'.join(result)
+        
+    def out_xls(self, outsource, filepath=None):
+        import xlwt
+        assert filepath,'required filepath'
+        workbook = xlwt.Workbook(encoding='latin-1')
+        sheet = workbook.add_sheet('report.xls')
+        float_style = xlwt.XFStyle()
+        float_style.num_format_str = '#,##0.00'
+        int_style = xlwt.XFStyle()
+        int_style.num_format_str = '#,##0'
+        font0 = xlwt.Font()
+        font0.name = 'Times New Roman'
+        font0.bold = True
+        hstyle = xlwt.XFStyle()
+        hstyle.font = font0
+        headers= self._prepareHeaders()
+        cols = [c for c in self.columns if not c in ('pkey','rowidx')]
+        for c,header in enumerate(headers):
+            sheet.write(0, c, header, hstyle)
+        current_row=1
+        for row in outsource:
+            row = dict(row)
+            for c,column in enumerate(cols):
+                value = row[column]
+                if isinstance(value, list):
+                    value=','.join([str(x != None and x or '') for x in value])
+                sheet.write(current_row, c, value)
+            current_row += 1
+        workbook.save(filepath)
+
+               
+               
 
 class SqlRelatedSelectionResolver(BagResolver):
     classKwargs={'cacheTime':0, 'readOnly':True, 'db':None,
