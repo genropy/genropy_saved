@@ -144,10 +144,16 @@ class HTableHandler(BaseComponent):
                             rootpath='=.tree.store?rootpath',_if='code')
         
         
-       #bc.dataRpc('dummy','deleteRecordCluster',data='.edit.record',)
-       #bc.dataRpc('form.delete_result','deleteRecordCluster', data='=form.record?=genro.getFormChanges("formPane");', _POST=True,
-       #                table=self.maintable,toDelete='^form.doDeleteRecord')
-                        
+        bc.dataRpc('.edit.del_result','deleteDbRow',pkey='=.edit.pkey',
+                    _POST=True,table=table,_delStatus='^.edit.delete',
+                    _if='_delStatus=="confirm"',_else='genro.dlg.ask(title,msg,null,"#%s.edit.delete")' %nodeId,
+                    title='!!Deleting record',msg='!!You cannot undo this operation. Do you want to proceed?',
+                    _onResult="""var path = $2.currpath.split('.');
+                                 path.pop();
+                                 var path = path.join('.');
+                                 $2.treestore.getNode(path).refresh(true)
+                                 SET .tree.path = path;""",currpath='=.tree.path',treestore='=.tree.store')
+                    
         getattr(self,formId)(bc,region='center',table=table,
                               datapath='.edit.record',controllerPath='#%s.edit.form' %nodeId,
                               formId=formId,
