@@ -148,12 +148,12 @@ class SelectionHandler(BaseComponent):
                                     _if=askBeforeDelete)
         onDeleted = onDeleted or ''
         onDeleting = onDeleting or ''
-        controller.dataRpc('.deletedPkey','iv_delete_selected_record',record_id='=.selectedId',table=table,
+        controller.dataRpc('.deletedPkey','deleteDbRow',pkey='=.selectedId',table=table,
                             _confirmed='^.confirm_delete',_if='_confirmed=="confirm"',
                             _onResult='FIRE .afterDeleting;FIRE .reload; %s' %onDeleted,_openDlg='=.dlg.isOpen',
                             _onCalling="""
                                         if(_openDlg){
-                                            $1.record_id = GET .dlg.current_pkey;
+                                            $1.pkey = GET .dlg.current_pkey;
                                             FIRE .dlg.exitAction='deleted';
                                         } %s
                                         """ %onDeleting)
@@ -201,13 +201,6 @@ class SelectionHandler(BaseComponent):
         controller.data('.atEnd',True)
         controller.dataFormula('.atBegin','(idx==0||idx==-1)',idx='^.selectedIndex')
         controller.dataFormula('.atEnd','(idx==genro.wdgById(gridId).rowCount-1)||idx==-1',idx='^.selectedIndex',gridId=nodeId)
-                            
-    def rpc_iv_delete_selected_record(self,record_id,table):
-        tblobj = self.db.table(table)
-        record = tblobj.record(pkey=record_id,for_update=True).output('dict')
-        tblobj.delete(record)
-        self.db.commit()
-        return record_id
                              
     def _sh_toolbar(self,parentBC,add_action=None,lock_action=None,
                     save_action=None,del_action=None,**kwargs):
