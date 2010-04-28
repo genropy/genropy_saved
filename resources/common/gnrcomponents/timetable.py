@@ -23,6 +23,15 @@ Component for thermo:
 """
 from gnr.web.gnrwebpage import BaseComponent
 from gnr.core.gnrstring import toText
+from gnr.core.gnrdate import dayIterator
+
+
+def rect(**kwargs):
+    result = dict(position='absolute')
+    for k,v in kwargs.items():
+        if v is not None:
+            result[k] = '%ipx' %v
+    return result
 
 class Timetable(BaseComponent):
     py_requires='foundation/tools:RemoteBuilder'
@@ -31,7 +40,7 @@ class Timetable(BaseComponent):
                     tstop=None,period=None,wkdlist=None,fired=None):
         assert nodeId,'nodeId is mandatory'
         assert datapath,'datapath is mandatory'
-        assert hasattr(self,'tt_%s_loop'%nodeId), 'you must define your own loop'
+        assert hasattr(self,'tt_%s_dataProvider'%nodeId), 'you must define your own loop'
         bc = parent.borderContainer(nodeId=nodeId,datapath=datapath,_class='pbl_roundedGroup',border='1px solid gray')
         top = bc.contentPane(region='top',background='gray',_class='pbl_roundedGroupLabel')
         bottom = bc.contentPane(region='bottom',datapath='.controller',
@@ -42,17 +51,12 @@ class Timetable(BaseComponent):
         center = bc.contentPane(region='center')
         self.lazyContent(center,'ttdh_main',nodeId=nodeId,tstart=tstart,tstop=tstop,period=period,wkdlist=wkdlist,fired=fired)
     
-    def remote_ttdh_main(self,pane,tstart=None,tstop=None,period=None,wkdlist=None,fired=None,nodeId=None):
-        
-        iterator = getattr(self,'tt_%s_loop'%nodeId)
-        def rect(**kwargs):
-            result = dict(position='absolute')
-            for k,v in kwargs.items():
-                if v is not None:
-                    result[k] = '%ipx' %v
-            return result
-        days = list(iterator(tstart=tstart,tstop=tstop,period=period,wkdlist=wkdlist))
+    def remote_ttdh_main(self,pane,tstart=None,tstop=None,period=None,wkdlist=None,fired=None,nodeId=None,series=None):
+        series=series or ['x','y']
+        days = self.tt_periodSlots(tstart=tstart,tstop=tstop,period=period,wkdlist=wkdlist,series=series,nodeId=nodeId)
         day_h = 50
+        sh = day_h/len(series)
+        day_h=sh*len(series)
         first_col_w = 80
         minute_w = 6
         first_margin = 3
@@ -67,41 +71,59 @@ class Timetable(BaseComponent):
         
         delta_minutes = (stop_hour-start_hour)*60
         tot_w = delta_minutes*minute_w
-        tot_h = (len(days)+1)*day_h
+        tot_h = len(days)*day_h
         ttbox = pane.div(zoomFactor='^.controller.zoom',
                         position='relative')#,height='%ipx' %tot_h,width='%ipx' %tot_w)
 
-        first_col = ttbox.div(**rect(left=0,top=0,width=first_col_w-first_margin,height=tot_h))
-        time_col = ttbox.div(**rect(left=first_col_w,top=0))
+        first_col = ttbox.div(**rect(left=0,top=0,width=first_col_w,height=tot_h))
+        time_col = ttbox.div(**rect(left=first_col_w,top=0,height=tot_h,width=delta_minutes*minute_w))
         for hour in range(start_hour,stop_hour):
-            left = (((hour-start_hour)*60)*minute_w)+first_col_w
+            left = ((hour-start_hour)*60)*minute_w
             if hour%2:
                 _class = 'hour_c1'
             else:
                 _class = 'hour_c2'
-            r = rect(left=left,top=0,width=hour_w-margin,height=tot_h)
-            print r
-            ttbox.div(border_right='1px dotted lightgray',_class=_class,**r)
-        
+            r = rect(left=left,top=0,height=tot_h,width=hour_w)
+            time_col.div(_class=_class,**r)
         currline=None
         for j,dayrow in enumerate(days):
             day = dayrow['day']
-            slots = dayrow['slots']
-            top = j*day_h+1
-            daylabel = first_col.div(_class='dayLabel',**rect(left=1,top=top,width=first_col_w-first_margin-2,height=day_h-3))
-            daylabel.div(toText(day,format='eeee',locale=self.locale),_class='dayLabel_WD WD_%i' %day.weekday())
-            daylabel.div(toText(day,format='d',locale=self.locale),_class='dayLabel_D')
-            daylabel.div(toText(day,format='MMMM',locale=self.locale),_class='dayLabel_M')
-            for slot in slots:
-                left = ((slot['ts'].hour-start_hour)*60+slot['ts'].minute)*minute_w
-                width = slot['minutes'] *minute_w-3
-                patient =  slot['patient']
-                if patient is None:
-                    status = 'ttfree'
-                elif patient == '-':
-                    status = 'ttunavailable'
-                else:
-                    status = 'ttbusy'
+            series = dayrow['series']
+            top = j*day_h
+            daycell = first_col.div(**rect(left=0,top=top,width=first_col_w,height=day_h))
+            timecell = time_col.div(z_index=100,_class='timerow',**rect(left=0,right=0,top=top,height=day_h))
+            self.tt_daylabel(nodeId=nodeId,cell=daycell,day=day)
+            sh = day_h/len(series)
+            for ns,ks in enumerate(series.items()):
+                s_top=ns*sh 
+                key,slots=ks
+                serierow = timecell.div(**rect(left=0,top=s_top,height=sh))
+                for slot in slots:
+                    left = ((slot['ts'].hour-start_hour)*60+slot['ts'].minute)*minute_w
+                    width = slot['minutes'] *minute_w
+                    slotcell = serierow.div(**rect(top=1,left=left+1,bottom=1,width=width-1))
+                    #_class='ttslot %s' %status,
+                    self.tt_slot(nodeId=nodeId,cell=slotcell,slot=slot,width=width,height=sh)
 
-                slotdiv = time_col.div(_class='ttslot %s' %status,**rect(left=left,top=top,width=width,height=day_h-3))
-                slotdiv.div(_class='ttslot_T').span(toText(slot['ts'],format='HH:mm'),margin='5px')
+    def tt_periodSlots(self,period=None,wkdlist=None,tstart=None,tstop=None,series=None,nodeId=None):
+        wkdlist = [int(k) for k,v in wkdlist.items() if v] or None
+        result = []
+        series = series or ['x']
+        provider_handler = getattr(self,'tt_%s_dataProvider' %nodeId)
+        for day in dayIterator(period,locale=self.locale,workdate=self.workdate,wkdlist=wkdlist):
+            serieData = dict()
+            for k in series:
+                serieData[k] = provider_handler(day=day,serie=k,tstart=tstart,tstop=tstop)
+            result.append(dict(series=serieData,day=day))
+        return result
+                
+    def tt_slot(self,nodeId=None,cell=None,**kwargs):
+        getattr(self,'tt_%s_slot' %nodeId)(cell,**kwargs)
+        
+    def tt_daylabel(self,nodeId=None,cell=None,day=None):
+        if hasattr(self,'tt_%s_daylabel' %nodeId):
+            return getattr(self,'tt_%s_daylabel' %nodeId)(cell,day=day)
+        pane = cell.div(_class='dayLabel',**rect(top=1,bottom=1,left=1,right=1))
+        pane.div(toText(day,format='eeee',locale=self.locale),_class='dayLabel_WD WD_%i' %day.weekday())
+        pane.div(toText(day,format='d',locale=self.locale),_class='dayLabel_D')
+        pane.div(toText(day,format='MMMM',locale=self.locale),_class='dayLabel_M')
