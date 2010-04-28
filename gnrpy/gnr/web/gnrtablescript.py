@@ -144,8 +144,7 @@ class RecordToHtmlNew(TableScriptOnRecord):
             self.page_margin_bottom = self.page_margin_bottom or self.htmlTemplate['main.page.bottom'] or 0
 
         self.builder = GnrHtmlBuilder(page_width=self.page_width,page_height=self.page_height,
-                                  page_margin_top=self.page_margin_top or self.page_header_height,
-                                  page_margin_bottom=self.page_margin_bottom or self.page_footer_height,
+                                  page_margin_top=self.page_margin_top,page_margin_bottom=self.page_margin_bottom,
                                   page_margin_left=self.page_margin_left,page_margin_right=self.page_margin_right,
                                   page_debug=self.page_debug,print_button=self.print_button,htmlTemplate=self.htmlTemplate)
         #if not (dontSave or pdf):
