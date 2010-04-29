@@ -37,7 +37,7 @@ class Timetable(BaseComponent):
     py_requires='foundation/tools:RemoteBuilder'
     css_requires='public'
     def timetable_dh(self,parent,nodeId=None,datapath=None,tstart=None,
-                    tstop=None,period=None,wkdlist=None,fired=None):
+                    tstop=None,period=None,wkdlist=None,series=None,fired=None):
         assert nodeId,'nodeId is mandatory'
         assert datapath,'datapath is mandatory'
         assert hasattr(self,'tt_%s_dataProvider'%nodeId), 'you must define your own loop'
@@ -49,10 +49,9 @@ class Timetable(BaseComponent):
                                 intermediateChanges=True,width='15em',float='right')
         bottom.data('.zoom',1)
         center = bc.contentPane(region='center')
-        self.lazyContent(center,'ttdh_main',nodeId=nodeId,tstart=tstart,tstop=tstop,period=period,wkdlist=wkdlist,fired=fired)
+        self.lazyContent(center,'ttdh_main',nodeId=nodeId,tstart=tstart,tstop=tstop,period=period,wkdlist=wkdlist,series=series,fired=fired)
     
     def remote_ttdh_main(self,pane,tstart=None,tstop=None,period=None,wkdlist=None,fired=None,nodeId=None,series=None):
-        series=series or ['x','y']
         days = self.tt_periodSlots(tstart=tstart,tstop=tstop,period=period,wkdlist=wkdlist,series=series,nodeId=nodeId)
         day_h = 50
         sh = day_h/len(series)
@@ -106,7 +105,7 @@ class Timetable(BaseComponent):
                     self.tt_slot(nodeId=nodeId,cell=slotcell,slot=slot,width=width,height=sh)
 
     def tt_periodSlots(self,period=None,wkdlist=None,tstart=None,tstop=None,series=None,nodeId=None):
-        wkdlist = [int(k) for k,v in wkdlist.items() if v] or None
+        #wkdlist = [int(k) for k,v in wkdlist.items() if v] or None
         result = []
         series = series or ['x']
         provider_handler = getattr(self,'tt_%s_dataProvider' %nodeId)

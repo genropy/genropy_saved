@@ -561,14 +561,14 @@
 	background-color: #ecffdc;
 	z-index: 10;
 	text-align: center;
-	-moz-border-radius:8px;
-    -webkit-border-radius:8px;
+	-moz-border-radius:6px;
+    -webkit-border-radius:6px;
 }
 .dayLabel_WD{
-	-moz-border-radius-topleft:8px;
-	-moz-border-radius-topright:8px;
-	-webkit-border-top-right-radius:8px;
-	-webkit-border-top-left-radius:8px;
+	-moz-border-radius-topleft:6px;
+	-moz-border-radius-topright:6px;
+	-webkit-border-top-right-radius:6px;
+	-webkit-border-top-left-radius:6px;
 	font-size: .9em;
 	font-weight: bold;
 	color: white;
@@ -580,36 +580,16 @@
 	font-size: .8em;
 }
 
-.ttfree{
-	background-image:-webkit-gradient(linear, left top, right bottom, from(rgba(151,174,169,99)), to(rgba(225,233,233,0.99)));
-    background-image:-moz-linear-gradient(180deg, rgba(225,233,233,0.99), rgba(151,174,169,99));
-}
-
-
-.ttunavaliable{
-	background-color: #ffe592;
-}
-.ttbusy{
-	background-image:-webkit-gradient(linear, left top, right bottom, from(rgba(10,124,133,92)), to(rgba(225,233,233,0.99)));
-    background-image:-moz-linear-gradient(180deg, rgba(10,124,133,92), rgba(151,174,169,99));
-}
-
-
 .ttslot{
 	z-index: 10;
-	-moz-border-radius:8px;
-    -webkit-border-radius:8px;
-    opacity: .7;
+	-moz-border-radius:6px;
+    -webkit-border-radius:6px;
+    opacity: .8;
 }
 .ttslot_T{
-	-moz-border-radius-topleft:8px;
-	-moz-border-radius-topright:8px;
-	-webkit-border-top-right-radius:8px;
-	-webkit-border-top-left-radius:8px;
-	font-size: .8em;
-	font-weight: bold;
-	color: white;
-	background-color: #873f4d;
-	
+	-moz-border-radius-topleft:6px;
+	-moz-border-radius-topright:6px;
+	-webkit-border-top-right-radius:6px;
+	-webkit-border-top-left-radius:6px;
 }
 /* @end */
