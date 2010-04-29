@@ -34,7 +34,7 @@ from gnr.core.gnrlist import GnrNamedList
 from gnr.core import gnrclasses
 from gnr.core import gnrstring
 from gnr.core import gnrlist
-from gnr.core.gnrbag import Bag, BagResolver
+from gnr.core.gnrbag import Bag, BagResolver, BagAsXml
 from gnr.core.gnranalyzingbag import AnalyzingBag
 from gnr.sql.gnrsql_exceptions import SelectionExecutionError,RecordDuplicateError,\
                                       RecordNotExistingError,RecordSelectionError, \
@@ -1453,6 +1453,8 @@ class SqlSelection(object):
         kwargs['field']=colname
         size = kwargs.pop('size',None)
         size = kwargs.pop('print_width',size)
+        kwargs['width']=None
+        kwargs['dataType']=None
         if size:
             if isinstance(size,basestring):
                 if ':' in size:
@@ -1460,7 +1462,7 @@ class SqlSelection(object):
             kwargs['width']='%iem' % int(int(size)*.7)
         return kwargs
         
-    def out_xmlGrid(self, outsource):
+    def out_xmlgrid(self, outsource):
         dataXml=[]
         catalog = gnrclasses.GnrClassCatalog()
         xmlheader = "<?xml version='1.0' encoding='UTF-8'?>\n"
@@ -1474,8 +1476,8 @@ class SqlSelection(object):
             rowstring = ' '.join(['%s=%s'%(colname, saxutils.quoteattr(catalog.asTypedText(row[colname]))) for colname in columns])
             dataXml.append(dataCellTmpl % (row['rowidx'], rowstring))
         dataXml='<data>%s</data>' % '\n'.join(dataXml)
-        result = '%s\n<GenRoBag><result>%s\n%s</result></GenRoBag>' % (xmlheader,structure,dataXml)
-        #result2 = '%s\n%s' % (structure,dataXml)
+       # result = '%s\n<GenRoBag><result>%s\n%s</result></GenRoBag>' % (xmlheader,structure,dataXml)
+        result = BagAsXml('%s\n%s' % (structure,dataXml))
         return result
         
     def _prepareHeaders(self):
