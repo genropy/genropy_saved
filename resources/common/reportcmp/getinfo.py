@@ -66,6 +66,7 @@ class QuickQueryTool(object):
                        distinct=distinct,
                        limit=limit,
                        having=having,
+                       addPkeyColumn=False,
                        relationDict=self.columnsDict,
                       **sqlArgs)
         return q
