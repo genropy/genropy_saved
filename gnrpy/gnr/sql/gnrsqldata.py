@@ -34,6 +34,7 @@ from gnr.core.gnrlist import GnrNamedList
 from gnr.core import gnrclasses
 from gnr.core import gnrstring
 from gnr.core import gnrlist
+from gnr.core.gnrclasses import GnrClassCatalog
 from gnr.core.gnrbag import Bag, BagResolver, BagAsXml
 from gnr.core.gnranalyzingbag import AnalyzingBag
 from gnr.sql.gnrsql_exceptions import SelectionExecutionError,RecordDuplicateError,\
@@ -1441,15 +1442,15 @@ class SqlSelection(object):
         result['data'] = self.buildAsGrid(outsource, recordResolver)
         return result
         
-    def _buildGridStruct(self):
+    def _buildGridStruct(self,examplerow=None):
         structure = Bag()
         r = structure.child('view').child('row')
         for colname in self.columns:
             if colname not in ('pkey','rowidx'):
-                r.child('cell', childname=colname,**self._cellStructFromCol(colname))
+                r.child('cell', childname=colname,**self._cellStructFromCol(colname,examplerow=examplerow))
         return structure
         
-    def _cellStructFromCol(self, colname):
+    def _cellStructFromCol(self, colname,examplerow=None):
         kwargs=dict(self.colAttrs.get(colname, {}))
         kwargs.pop('tag', None)
         kwargs['name']= kwargs.pop('label', None)
@@ -1457,7 +1458,9 @@ class SqlSelection(object):
         size = kwargs.pop('size',None)
         size = kwargs.pop('print_width',size)
         kwargs['width']=None
-        kwargs['dtype']=kwargs.pop('dataType')
+        kwargs['dtype']=kwargs.pop('dataType',None)
+        if not kwargs['dtype']:
+            kwargs['dtype']=GnrClassCatalog.convert().asTypedText(45)[-1]
         if size:
             if isinstance(size,basestring):
                 if ':' in size:
@@ -1467,7 +1470,7 @@ class SqlSelection(object):
         
     def out_xmlgrid(self, outsource):
         result = Bag()
-        result['structure'] = self._buildGridStruct()
+        
         dataXml=[]
         catalog = gnrclasses.GnrClassCatalog()
         #xmlheader = "<?xml version='1.0' encoding='UTF-8'?>\n"
@@ -1481,6 +1484,7 @@ class SqlSelection(object):
             rowstring = ' '.join(['%s=%s'%(colname, saxutils.quoteattr(catalog.asTypedText(row[colname]))) for colname in columns])
             dataXml.append(dataCellTmpl % (row['rowidx'], rowstring))
         result['data'] = BagAsXml('\n'.join(dataXml))
+        result['structure'] = self._buildGridStruct(row)
        #dataXml='<data>%s</data>' % 
        # result = '%s\n<GenRoBag><result>%s\n%s</result></GenRoBag>' % (xmlheader,structure,dataXml)
        #result = BagAsXml('%s\n%s' % (structure,dataXml))

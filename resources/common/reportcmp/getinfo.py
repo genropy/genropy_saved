@@ -49,9 +49,11 @@ class QuickQueryTool(object):
         return self.db.whereTranslator.whereFromDict(table, whereDict=kwargs, customColumns=customColumns)
         
     def _prepareColumnsAndGroupBy(self, columns,group_by):
+        columns=columns.replace(' (','(')
         columns_list = splitAndStrip(columns)
-        group_list = [c for c in columns_list if not (c.startswith('COUNT(') or  c.startswith('SUM(') or c.startswith('AVG('))]
-        
+        group_list = [c for c in columns_list if not (c.startswith('COUNT(') or  c.startswith('count(') or 
+                                                      c.startswith('SUM(') or c.startswith('sum(') or 
+                                                      c.startswith('AVG(') or c.startswith('avg('))]
         if len(columns_list)>len(group_list):
             group_by=splitAndStrip(group_by) or []
             for g in group_list:
@@ -60,10 +62,10 @@ class QuickQueryTool(object):
         
         group_by=','.join(group_by).strip(',')
         columns = ','.join(columns_list).strip(',')
-                             
+        return  group_by, columns
     def qqt_parametricQuery(self, table, columns='',group_by='',order_by='',
                             having=None, distinct=None, limit=None, columnsDict=None, **kwargs):
-        self._prepareColumnsAndGroupBy(columns, group_by)
+        group_by, columns=self._prepareColumnsAndGroupBy(columns, group_by)
         wherelist, sqlArgs = self.qqt_prepareConditions(table, customColumns=columnsDict, **kwargs)
         tblobj= self.db.table(table)
         q= tblobj.query(columns=columns,
@@ -77,18 +79,4 @@ class QuickQueryTool(object):
                       **sqlArgs)
         return q
         
-    def qqt_quickQuery(self, table, columns='',group_by='',order_by='',
-                        having=None, distinct=None, limit=None, columnsDict=None, where='',**kwargs):
-        where = re.sub(r'\s+',' ', where)
-        
-        self._prepareColumnsAndGroupBy(columns, group_by)
-        tblobj= self.db.table(table)
-        q= tblobj.query(columns=columns,
-                       where=where,
-                       group_by=group_by,
-                       distinct=distinct,
-                       limit=limit,
-                       having=having,
-                       addPkeyColumn=False,
-                       relationDict=self.columnsDict)
-        return q
+   
