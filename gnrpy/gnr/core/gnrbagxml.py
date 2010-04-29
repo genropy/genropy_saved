@@ -26,7 +26,7 @@ import datetime
 from xml import sax
 from xml.sax import saxutils
 
-from gnr.core.gnrbag import Bag, BagNode
+from gnr.core.gnrbag import Bag, BagNode,BagAsXml
 from decimal import Decimal
 
 from gnr.core import gnrstring
@@ -34,6 +34,9 @@ from gnr.core import gnrclasses
 REGEX_XML_ILLEGAL=re.compile(r'<|>|&')
 
 class _BagXmlException(Exception): pass 
+
+
+        
 class BagFromXml(object): 
     def build(self, source, fromFile, catalog = None,bagcls=Bag,empty=None):
         if not bagcls: bagcls = Bag
@@ -215,6 +218,10 @@ class BagToXml(object):
         if isinstance(nodeValue, Bag) and nodeValue: #<---Add the second condition in order to type the empty bag.
             result = self.buildTag(node.label,
                             self.bagToXmlBlock(nodeValue), node.attr, '', xmlMode=True)
+                            
+        elif isinstance(nodeValue, BagAsXml):
+            result = self.buildTag(node.label, nodeValue, node.attr,'', xmlMode=True)
+        
         elif (self.jsonmode and (isinstance(nodeValue, list) or isinstance(nodeValue, dict))):
             nodeValue = gnrstring.toJson(nodeValue)
             result = self.buildTag(node.label, nodeValue, node.attr)
@@ -303,6 +310,7 @@ class BagToXml(object):
         #if value == None:
         #    value = ''
         t = cls
+
         if not t:
             if value != '':
                 #if not isinstance(value, basestring):
@@ -311,14 +319,17 @@ class BagToXml(object):
                         value, t = '', 'BAG'
                     else:
                         value = ''
+                elif isinstance(value, BagAsXml):
+                     value=value.value
                 else:
                     value, t = self.catalog.asTextAndType(value, translate_cb=self.translate_cb)
+                if isinstance(value, BagAsXml):
+                     print x
                 try:
                     value = unicode(value)
                 except Exception,e:
                     raise e
                     #raise '%s: %s' % (str(tagName), value)
-                    
         if attributes:
             attributes=dict(attributes)
             if self.forcedTagAttr and self.forcedTagAttr in attributes:
@@ -349,7 +360,8 @@ class BagToXml(object):
         if self.typevalue and t != '' and t != 'T': 
             result= '%s _T="%s"' % (result, t)
         if attributes: result = "%s %s" % (result, attributes)
-
+        if isinstance(value, BagAsXml):
+            print x
         if not xmlMode:
             if not isinstance(value, unicode): value = unicode(value, 'UTF-8')
             #if REGEX_XML_ILLEGAL.search(value): value='<![CDATA[%s]]>' % value

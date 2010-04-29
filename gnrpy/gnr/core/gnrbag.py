@@ -85,7 +85,11 @@ class BagNodeException(Exception):
     pass
 class BagException(Exception): 
     pass
-
+    
+class BagAsXml(object): 
+    def __init__(self,value):
+        self.value=value
+        
 class BagValidationError(BagException):
     pass
    # def __init__(self, errcode, value, message):
