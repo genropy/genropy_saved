@@ -178,6 +178,12 @@ class IncludedView(BaseComponent):
             if struct and callable(struct) and not isinstance(struct,Bag):
                 viewPars['struct'] = struct(self.newGridStruct(table))
         viewPars['structpath'] = viewPars.get('structpath') or '.struct'  or 'grids.%s.struct' %nodeId
+        if filterOn is True:
+            gridcenter.dataController("""var colsMenu = new gnr.GnrBag();
+                                         struct.forEach(function(n){
+                                             colsMenu.setItem(n.label, null, {col:n.attr.field, caption:n.attr.name})
+                                          });
+                                          SET .flt.colsMenu = colsMenu;""", struct='^%s.view_0.row_0' % viewPars['structpath'])
         view = gridcenter.includedView(extension='includedViewPicker',table=table,
                                        editorEnabled=editorEnabled or '^form.canWrite',
                                        reloader=reloader, **viewPars)
@@ -338,7 +344,7 @@ class IncludedView(BaseComponent):
        #                             PUT .selectedLabel= null;""",
        #                          _fired="^gnr.forms.formPane.saving") 
         
-    def _iv_gridFilter(self, gridId, gridtop, controller, controllerPath, filterOn, kwargs):
+    def _iv_gridFilter_old(self, gridId, gridtop, controller, controllerPath, filterOn, kwargs):
         colsMenu = Bag()
         fltList = splitAndStrip(filterOn, ',')
         for col in fltList:
@@ -381,7 +387,52 @@ class IncludedView(BaseComponent):
         searchbox.input(value='^.currentFilter',_class='searchInput searchWidth', font_size='1.0em',
             connect_onkeyup='genro.wdgById("%s").applyFilter($1.target.value);' % gridId)
             
-
+    def _iv_gridFilter(self, gridId, gridtop, controller, controllerPath, filterOn, kwargs):
+        colsMenu = Bag()
+        if filterOn is True:
+            fltList = []
+            controller.dataController("""""", struct= '^.')
+        else:
+            fltList = splitAndStrip(filterOn, ',')
+        for col in fltList:
+            caption = None
+            if ':' in col:
+                caption, col = col.split(':')
+            if not caption: # ask the caption to the table: table has to be specified in kwargs and the col has to be a single real db column (not list of columns)
+                caption = self.db.table(kwargs['table']).column(col).name_long
+            colList = splitAndStrip(col, '+')
+            col = '+'.join([self.db.colToAs(c) for c in colList])
+            colsMenu.child('r', col=col, caption=caption,childcontent='')
+            
+        #controller.data('.flt.selected.col', colsMenu['#0?col'])
+        #controller.data('.flt.selected.caption', colsMenu['#0?caption'])
+        searchbox = gridtop.div(float='right', margin_right='5px',
+                            datapath=controllerPath)
+        searchlbl = searchbox.div(float='left',margin_top='2px')
+        searchlbl.span('!!Search ',float='left', margin_right='5px')
+        controller.dataController("""var grid = genro.wdgById(gridId);
+                                        SET .currentFilter = "";
+                                        grid.filterColumn = col;
+                                        grid.applyFilter("");""",
+                                        col='^.flt.selected.col', 
+                                        gridId=gridId, _onStart=True) 
+                                        
+        controller.dataController("""var grid = genro.wdgById(gridId); 
+                                     SET .currentFilter=''; 
+                                     grid.applyFilter("");""",
+                                     gridId=gridId,_fired='^.resetFilter',
+                                     nodeId='%s_filterReset' %gridId)
+                                     
+        controller.data('.flt.colsMenu', colsMenu, automenu=(filterOn is True))
+        searchlbl.span(':')
+        searchlbl.span(value='^.flt.selected.caption',_class='buttonIcon')
+        searchlbl.menu(modifiers='*', _class='smallmenu', storepath='.flt.colsMenu',
+                    selected_col='.flt.selected.col',
+                    selected_caption='.flt.selected.caption',
+                    position='absolute', right='0',width='6em')
+        
+        searchbox.input(value='^.currentFilter',_class='searchInput searchWidth', font_size='1.0em',
+            connect_onkeyup='genro.wdgById("%s").applyFilter($1.target.value);' % gridId)
                 
     def _includedViewForm(self, controller, controllerPath, view, formPars):
         viewPars = view.attributes

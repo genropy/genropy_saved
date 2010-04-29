@@ -2138,7 +2138,7 @@ dojo.declare("gnr.widgets.VirtualStaticGrid",gnr.widgets.Grid,{
                     if((op=='!') || (op=='#')){
                         op = '!=';
                     }
-                    if(colType in {'R':null,'L':null,'I':null}){
+                    if(colType in {'R':null,'L':null,'I':null,'N':null}){
                         val = dojo.number.parse(toSearch[4]);
                     } else if(colType == 'D'){
                         val = dojo.date.locale.parse(toSearch[4], {formatLength: "short",selector:'date'});

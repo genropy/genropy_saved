@@ -8,6 +8,7 @@
 #
 
 """ info """
+import re
 from gnr.core.gnrstring import toJson
 from collections import defaultdict
 from itertools import imap
@@ -46,18 +47,23 @@ class GetInfoPage(BaseComponent):
 class QuickQueryTool(object):
     def qqt_prepareConditions(self, table, customColumns=None, **kwargs):
         return self.db.whereTranslator.whereFromDict(table, whereDict=kwargs, customColumns=customColumns)
-                             
-    def qqt_parametricQuery(self, table, columns='',group_by='',order_by='',
-                            having=None, distinct=None, limit=None, columnsDict=None, **kwargs):
+        
+    def _prepareColumnsAndGroupBy(self, columns,group_by):
         columns_list = splitAndStrip(columns)
         group_list = [c for c in columns_list if not (c.startswith('COUNT(') or  c.startswith('SUM(') or c.startswith('AVG('))]
+        
         if len(columns_list)>len(group_list):
             group_by=splitAndStrip(group_by) or []
             for g in group_list:
                 if g and not g in group_by:
                     group_by.append(g)
+        
         group_by=','.join(group_by).strip(',')
         columns = ','.join(columns_list).strip(',')
+                             
+    def qqt_parametricQuery(self, table, columns='',group_by='',order_by='',
+                            having=None, distinct=None, limit=None, columnsDict=None, **kwargs):
+        self._prepareColumnsAndGroupBy(columns, group_by)
         wherelist, sqlArgs = self.qqt_prepareConditions(table, customColumns=columnsDict, **kwargs)
         tblobj= self.db.table(table)
         q= tblobj.query(columns=columns,
@@ -69,4 +75,20 @@ class QuickQueryTool(object):
                        addPkeyColumn=False,
                        relationDict=self.columnsDict,
                       **sqlArgs)
+        return q
+        
+    def qqt_quickQuery(self, table, columns='',group_by='',order_by='',
+                        having=None, distinct=None, limit=None, columnsDict=None, where='',**kwargs):
+        where = re.sub(r'\s+',' ', where)
+        
+        self._prepareColumnsAndGroupBy(columns, group_by)
+        tblobj= self.db.table(table)
+        q= tblobj.query(columns=columns,
+                       where=where,
+                       group_by=group_by,
+                       distinct=distinct,
+                       limit=limit,
+                       having=having,
+                       addPkeyColumn=False,
+                       relationDict=self.columnsDict)
         return q

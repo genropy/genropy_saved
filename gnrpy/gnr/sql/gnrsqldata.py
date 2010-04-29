@@ -1437,24 +1437,27 @@ class SqlSelection(object):
     
     def out_fullgrid(self, outsource, recordResolver=True):
         result = Bag()
+        result['structure'] = self._buildGridStruct()
+        result['data'] = self.buildAsGrid(outsource, recordResolver)
+        return result
+        
+    def _buildGridStruct(self):
         structure = Bag()
         r = structure.child('view').child('row')
         for colname in self.columns:
-            if colname != 'pkey':
+            if colname not in ('pkey','rowidx'):
                 r.child('cell', childname=colname,**self._cellStructFromCol(colname))
-        result['structure'] = structure
-        result['data'] = self.buildAsGrid(outsource, recordResolver)
-        return result
+        return structure
         
     def _cellStructFromCol(self, colname):
         kwargs=dict(self.colAttrs.get(colname, {}))
         kwargs.pop('tag', None)
-        kwargs['name']=kwargs.pop('label', None)
+        kwargs['name']= kwargs.pop('label', None)
         kwargs['field']=colname
         size = kwargs.pop('size',None)
         size = kwargs.pop('print_width',size)
         kwargs['width']=None
-        kwargs['dataType']=None
+        kwargs['dtype']=kwargs.pop('dataType')
         if size:
             if isinstance(size,basestring):
                 if ':' in size:
@@ -1463,21 +1466,24 @@ class SqlSelection(object):
         return kwargs
         
     def out_xmlgrid(self, outsource):
+        result = Bag()
+        result['structure'] = self._buildGridStruct()
         dataXml=[]
         catalog = gnrclasses.GnrClassCatalog()
-        xmlheader = "<?xml version='1.0' encoding='UTF-8'?>\n"
-        structCellTmpl='<%(field)s  name="%(name)s" field="%(field)s" dataType="%(dataType)s" width="%(width)s" tag="cell"/>'
+        #xmlheader = "<?xml version='1.0' encoding='UTF-8'?>\n"
+        #structCellTmpl='<%(field)s  name="%(name)s" field="%(field)s" dataType="%(dataType)s" width="%(width)s" tag="cell"/>'
         dataCellTmpl='<r_%i  %s/>'
         columns = [c for c in self.columns if not c in ('pkey','rowidx')]
-        structXml = '\n'.join([structCellTmpl % self._cellStructFromCol(colname) for colname in columns])
-        structure = '<structure><view_0 tag="view"><row_0 tag="row">%s</row_0></view_0></structure>' % structXml
+        #structXml = '\n'.join([structCellTmpl % self._cellStructFromCol(colname) for colname in columns])
+        #structure = '<structure><view_0 tag="view"><row_0 tag="row">%s</row_0></view_0></structure>' % structXml
         for row in outsource:
             row = dict(row)
             rowstring = ' '.join(['%s=%s'%(colname, saxutils.quoteattr(catalog.asTypedText(row[colname]))) for colname in columns])
             dataXml.append(dataCellTmpl % (row['rowidx'], rowstring))
-        dataXml='<data>%s</data>' % '\n'.join(dataXml)
+        result['data'] = BagAsXml('\n'.join(dataXml))
+       #dataXml='<data>%s</data>' % 
        # result = '%s\n<GenRoBag><result>%s\n%s</result></GenRoBag>' % (xmlheader,structure,dataXml)
-        result = BagAsXml('%s\n%s' % (structure,dataXml))
+       #result = BagAsXml('%s\n%s' % (structure,dataXml))
         return result
         
     def _prepareHeaders(self):
