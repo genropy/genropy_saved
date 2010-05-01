@@ -860,9 +860,25 @@ dojo.declare("gnr.widgets.FloatingPane",gnr.widgets.baseDojo,{
         this._domtag = 'div';
         this._dojotag = 'FloatingPane';
         genro.dom.loadCss("/_dojo/11/dojo/dojox/layout/resources/FloatingPane.css");
-        genro.dom.loadCss("/_dojo/11/dojo/dojox/layout/resources/ResizeHandle.css")
+        genro.dom.loadCss("/_dojo/11/dojo/dojox/layout/resources/ResizeHandle.css");
     }
 });   
+dojo.declare("gnr.widgets.ColorPicker",gnr.widgets.baseDojo,{
+   created: function(widget, savedAttrs, sourceNode){
+        dojo.connect(widget,'onChange',function(){console.log(arguments);});
+    }
+});   
+dojo.declare("gnr.widgets.ColorPalette",gnr.widgets.baseDojo,{
+   created: function(widget, savedAttrs, sourceNode){
+        dojo.connect(widget,'onChange',function(){console.log(arguments);});
+    },
+   mixin_setValue:function(value){
+       this.value=value;
+   },
+   mixin_getValue:function(){
+       return this.value;
+   }
+});  
 dojo.declare("gnr.widgets.Menuline",gnr.widgets.baseDojo,{
     constructor: function(application){
         this._domtag = '*';
