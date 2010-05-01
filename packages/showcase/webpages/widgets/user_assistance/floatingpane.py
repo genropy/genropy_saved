@@ -32,5 +32,22 @@ class GnrCustomWebPage(object):
          return ''
          
     def main(self, root, **kwargs):
-        floating = root.floatingPane(height='300px',width='400px',title='I am a floating')
-        floating.div('pippo')
+        floating = root.div().floatingPane(title='I am a floating', nodeId='ccc',top='100px',left='300px')
+        floating.div(title='pippo',
+                      width='200px',
+                      height='300px',
+                      closable=True,
+                      dockable=True,
+                      resizable=True,     #Allow resizing of pane true if true
+                      maxable=True ,      # Allow maximize 
+                    
+                      resizeAxis= 'xy',   #One of: x | xy | y to limit pane's sizing direction
+                    
+                      dockTo=None,        # DomNode.if empty, will create private layout.Dock that scrolls
+                                        # with viewport on bottom span of viewport.
+                                        	
+                      duration=400,      # Time is MS to spend toggling in/out node
+                    
+                      contentClass=''     # The className to give to the inner node which has the 
+                                        # content def: "dojoxFloatingPaneContent"
+                      )

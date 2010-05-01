@@ -72,6 +72,13 @@ dojo.declare("gnr.GnrDomHandler",null,{
             dojo.html.insertCssFile(css);
         }
     },
+    loadCss: function(url) {var e = document.createElement("link");
+                                                           e.href = url;
+                                                           e.type = "text/css";
+                                                           e.rel = "stylesheet";
+                                                           e.media = "screen";
+                                                           document.getElementsByTagName("head")[0].appendChild(e);
+    },
     addClass: function(where,cls){
         if(typeof(cls)=='string'){
             if ( typeof (where) == 'string'){
