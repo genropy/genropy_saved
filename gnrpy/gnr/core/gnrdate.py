@@ -327,11 +327,14 @@ def dateLastYear(d):
         result = datetime.date(d.year - 1 , d.month, d.day)
     return result
 
-def dayIterator(period,wkdlist=None,locale=None,workdate=None):
+def dayIterator(period,wkdlist=None,locale=None,workdate=None,asDate=True):
     dstart,dstop = decodeDatePeriod(period,returnDate=True,locale=locale,workdate=workdate)
-    return rrule.rrule(rrule.DAILY,dtstart=dstart,until=dstop,byweekday=wkdlist)
-
-    
+    itr= rrule.rrule(rrule.DAILY,dtstart=dstart,until=dstop,byweekday=wkdlist)
+    for d in itr:
+        if asDate:
+            yield d.date()
+        else:
+            yield d
 
 if __name__=='__main__':
     workdate = datetime.date(2009,1,12)
