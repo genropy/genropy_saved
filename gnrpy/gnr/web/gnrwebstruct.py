@@ -337,7 +337,7 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
              'Menu','Menubar','MenuItem','Toolbar','Dialog','ProgressBar','TooltipDialog',
              'TitlePane','Tooltip','ColorPalette','Editor','Tree','SimpleTextarea','MultiSelect']
     
-    dojoxNS=['FloatingPane','RadioGroup','ResizeHandle','SizingPane','BorderContainer',
+    dojoxNS=['FloatingPane','Dock','RadioGroup','ResizeHandle','SizingPane','BorderContainer',
              'FisheyeList','Loader','Toaster','FileInput','fileInputBlind','FileInputAuto','ColorPicker',
              'SortList','TimeSpinner','Iterator','ScrollPane',
              'Gallery','Lightbox','SlideShow','ThumbnailPicker',

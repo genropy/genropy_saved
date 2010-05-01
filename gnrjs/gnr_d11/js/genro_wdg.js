@@ -95,6 +95,7 @@ dojo.declare("gnr.GnrWdgHandler",null,{
                              'Editor':'dijit.Editor,dijit._editor.plugins.LinkDialog,dijit._editor.plugins.FontChoice,dijit._editor.plugins.TextColor',
                              'Tree':'dijit.Tree',
                              'FloatingPane':'dojox.layout.FloatingPane',
+                             'Dock':'dojox.layout.Dock',
                              'RadioGroup':'dojox.layout.RadioGroup',
                              'ResizeHandle':'dojox.layout.ResizeHandle',
                              'SizingPane':'dojox.layout.SizingPane',
