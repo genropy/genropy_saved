@@ -40,18 +40,19 @@ class Dialogs(BaseComponent):
                               connect_onClose=close_action)
         pane.dataController("""genro.wdgById(btnId)._openDropDown(genro._firingNode.getDomNode());""", 
                                 btnId=btnId, fired=fired) 
-        container=dlg.borderContainer(height=height,width=width,nodeId=bcId, onEnter=onEnter)
+        container=dlg.borderContainer(height=height,width=width,nodeId=bcId, onEnter=onEnter,_class='pbl_dialog_center')
         top = container.contentPane(region='top',_class='dijitDialogTitleBar',height='18px')
         if close_action:
             top.div(_class='icnTabClose',float='right',margin='2px',connect_onclick=close_action)
         top.div(title)        
-        bottom = container.contentPane(region='bottom',height='18px')
-        if bottom_left:
-            bottom.button(bottom_left,baseClass='bottom_btn',
-                       connect_onclick=bottom_left_action,float='right',margin_right='5px')
-        if bottom_right:
-            bottom.button(bottom_right,baseClass='bottom_btn',
-                       connect_onclick=bottom_right_action,float='right',margin_right='5px')
+        if bottom_left or bottom_right:
+            bottom = container.contentPane(region='bottom',height='18px',_class='pbl_roundedGroupBottom')
+            if bottom_left:
+                bottom.button(bottom_left,baseClass='bottom_btn',
+                           connect_onclick=bottom_left_action,float='right',margin_right='5px')
+            if bottom_right:
+                bottom.button(bottom_right,baseClass='bottom_btn',
+                           connect_onclick=bottom_right_action,float='right',margin_right='5px')
         center=container.borderContainer(region='center')
         return center
         
@@ -123,6 +124,7 @@ class FormDialog(BaseComponent):
                              """ ,opener="^.open")
         bc.dataController("FIRE ._closeSimpleDialog;",_fired="^.close")
         return bc
+        
     def formDialog_bottom(self,bc,confirm_btn=None,**kwargs):
         bottom = bc.contentPane(**kwargs)
         confirm_btn = confirm_btn or '!!Confirm'
@@ -142,7 +144,7 @@ class FormDialog(BaseComponent):
         if cb_center:
             cb_center(bc,region='center',_class='pbl_dialog_center',dlgId=dlgId)
         bc.dataController("""if(typeof(opener)=='object'){
-                                if ( opener.dialogPage){
+                                if (opener.dialogPage){
                                     SET .page = objectPop(opener,'dialogPage');
                                 }
                                 opener = new gnr.GnrBag(opener);
