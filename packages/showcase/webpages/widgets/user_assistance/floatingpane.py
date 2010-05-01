@@ -32,10 +32,10 @@ class GnrCustomWebPage(object):
          return ''
          
     def main(self, root, **kwargs):
-        floating = root.div().floatingPane(title='I am a floating', nodeId='ccc',top='100px',left='300px')
-        floating.div(title='pippo',
-                      width='200px',
-                      height='300px',
+        toolbar = root.toolbar(height='30px')
+        toolbar.dock(id='mydocker')
+        floating=toolbar.floatingPane(title='I am a floating', nodeId='ccc',top='100px',left='300px',
+                        _class='shadow_4 rounded_medium',width='200px',height='300px',
                       closable=True,
                       dockable=True,
                       resizable=True,     #Allow resizing of pane true if true
@@ -43,7 +43,7 @@ class GnrCustomWebPage(object):
                     
                       resizeAxis= 'xy',   #One of: x | xy | y to limit pane's sizing direction
                     
-                      dockTo=None,        # DomNode.if empty, will create private layout.Dock that scrolls
+                      dockTo='mydocker',        # DomNode.if empty, will create private layout.Dock that scrolls
                                         # with viewport on bottom span of viewport.
                                         	
                       duration=400,      # Time is MS to spend toggling in/out node
@@ -51,3 +51,20 @@ class GnrCustomWebPage(object):
                       contentClass=''     # The className to give to the inner node which has the 
                                         # content def: "dojoxFloatingPaneContent"
                       )
+        floating.div('pippo',margin='10px',background='^zz.color')
+        
+        
+        
+        colorpicker=toolbar.floatingPane(title='ColorPicker', top='300px',left='20px', dockTo='mydocker',
+                        _class='shadow_4',width='500px',height='500px',dockable=True,resizable=True)
+        colorpicker.colorPicker(value='^zz.color')
+        
+        root.colorPicker(value='^kk.color')
+        
+        root.div(background='^kk.color',height='80px',width='80px')
+        
+        
+
+
+        
+        
