@@ -843,6 +843,21 @@ table.formbuilder {
 
 /* @group Dijit custom */
 
+/* @group colorpalettemenu */
+
+.colorPaletteMenu .dijitMenuItemHover{
+	background-color:transparent;
+}
+	
+.colorPaletteMenu .dijitMenuItem td{
+	padding:0;
+}
+.colorPaletteMenu .dijitMenuItemIcon{
+	display:none;
+}
+
+/* @end */
+
 /* @group Editor */
 
 .RichTextEditable .dijitComboBox{

@@ -870,7 +870,9 @@ dojo.declare("gnr.widgets.ColorPicker",gnr.widgets.baseDojo,{
 });   
 dojo.declare("gnr.widgets.ColorPalette",gnr.widgets.baseDojo,{
    created: function(widget, savedAttrs, sourceNode){
-        dojo.connect(widget,'onChange',function(){console.log(arguments);});
+        dojo.connect(widget,'onChange',function(){
+            return
+        });
     },
    mixin_setValue:function(value){
        this.value=value;

@@ -15,7 +15,22 @@ from gnr.core.gnrbag import Bag, DirectoryResolver
 
 class GnrCustomWebPage(object):
     def main(self,root):
-        root.div(width='20px',height='20px',border='1px solid gray',background_color='^color').menu(modifiers='*').menuItem().colorPalette(value='^color')
+        root.css('.colorpalettemenu .dijitMenuItemHover','background-color:transparent;')
+        root.css('.colorpalettemenu .dijitMenuItem td','padding:0;')
+        root.css('.colorpalettemenu .dijitMenuItemIcon','display:none;')
+        root.data('tempcolor','emptypath')
+        root.div().menu(modifiers='*',id='colorPalettemenu',_class='colorpalettemenu',
+                            action='console.log(arguments)',
+                            connect_onOpen="""
+                                            var path= this.widget.originalContextTarget.sourceNode.absDatapath();
+                                             SET tempcolor=path;""",
+                        ).menuItem(datapath='^tempcolor').colorPalette(value='^.color')
+        root.dataController("sourceNode=dijit.byId('colorPalettemenu').originalContextTarget.sourceNode;",color="^temp.color")
+        root.div(width='20px',height='20px',border='1px solid gray',background_color='^.color',connectedMenu='colorPalettemenu',datapath='c1')
+        root.div(width='20px',height='20px',border='1px solid gray',background_color='^.color',connectedMenu='colorPalettemenu',datapath='c2')
+        root.div(width='20px',height='20px',border='1px solid gray',background_color='^.color',connectedMenu='colorPalettemenu',datapath='c3')
+        root.div(width='20px',height='20px',border='1px solid gray',background_color='^.color',connectedMenu='colorPalettemenu',datapath='c4')
+        
     def main_(self,root):
         root.data('values.states', self.tableData_states())
         fb = root.formbuilder(cols=1, border_spacing='4px')

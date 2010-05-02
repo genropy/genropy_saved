@@ -268,7 +268,7 @@ class TableHandlerForm(BaseComponent):
                     iconClass="tb_button db_query",showLabel=False)
         if self.enableFilter():
             self.th_filtermenu(buttons)
-        ddb = buttons.dropdownbutton('!!Select view', showLabel=False, id='menuSelectorNode',connectedMenu='list_viewmenu',
+        ddb = buttons.dropdownbutton('!!Select view', showLabel=False,
                             iconClass='vieselectorIcn',_class='dropDownNoArrow')
         ddb.menu(_class='smallmenu',storepath='list.view.menu',
                   action="""
