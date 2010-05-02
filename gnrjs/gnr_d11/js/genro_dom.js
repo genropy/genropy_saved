@@ -79,6 +79,12 @@ dojo.declare("gnr.GnrDomHandler",null,{
                                                            e.media = "screen";
                                                            document.getElementsByTagName("head")[0].appendChild(e);
     },
+    loadJs: function(url) {var e = document.createElement("script");
+                                                           e.src = url;
+                                                           e.type = "text/javascript";
+                                                           document.getElementsByTagName("head")[0].appendChild(e);
+    },
+    
     addClass: function(where,cls){
         if(typeof(cls)=='string'){
             if ( typeof (where) == 'string'){
@@ -92,6 +98,35 @@ dojo.declare("gnr.GnrDomHandler",null,{
                 dojo.addClass(where, classes[i]);
             }
         }  
+    },
+    style:function(where,attr,value){
+        var domnode=this.getDomNode(where)
+        if (domnode){
+            if (typeof (attr) == 'string'){
+                dojo.style(domnode,genro.dom.dojoStyleAttrName(attr),value)
+            }else{
+                var kw={}
+                for (k in attr){
+                    kw[genro.dom.dojoStyleAttrName(k)]=attr[k]
+                }
+                dojo.style(domnode,kw)
+            }
+            
+        }
+    },
+    dojoStyleAttrName:function(attr){
+        if(attr.indexOf('_')){
+            attr=attr.split('_');
+        }else if(attr.indexOf('-')){
+            attr=attr.split('-');
+        }else{
+            return attr
+        }
+        var r=attr.splice(0,1);
+        dojo.forEach(attr,function(n){
+            r=r+stringCapitalize(n);
+        })
+        return r
     },
     getDomNode: function(where){
         if (typeof (where) == 'string'){
@@ -157,14 +192,6 @@ dojo.declare("gnr.GnrDomHandler",null,{
             this.hide(where);
         }
     },
-    style:function(where,kw){
-            if ( typeof (where) == 'string'){
-                var where=genro.domById(where);
-            }
-    dojo.style(where,kw);
-    },
-    
-    
     effect:function(where,effect,kw){
         var anim;
         var effect = effect.toLowerCase();

@@ -784,8 +784,7 @@ dojo.declare("gnr.GnrDomSourceNode",gnr.GnrBagNode,{
                 domnode.innerHTML = value;
             }
            else if(genro.dom.isStyleAttr(attr)){
-                var attr=attr.replace('_','-');
-                dojo.style(domnode,attr,value);
+               genro.dom.style(domnode,attr,value)
            }
            else if(setter in domnode.gnr){
                dojo.hitch(domnode.gnr, setter)(domnode, value, kw);
