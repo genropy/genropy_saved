@@ -15,6 +15,8 @@ from gnr.core.gnrbag import Bag, DirectoryResolver
 
 class GnrCustomWebPage(object):
     def main(self,root):
+        root.div(width='20px',height='20px',border='1px solid gray',background_color='^color').menu(modifiers='*').menuItem().colorPalette(value='^color')
+    def main_(self,root):
         root.data('values.states', self.tableData_states())
         fb = root.formbuilder(cols=1, border_spacing='4px')
         x = fb.div(height='30px',width='50px',background='lime')
@@ -24,10 +26,11 @@ class GnrCustomWebPage(object):
         fb.button('addItem to menu',action='genro.setData("values.states.r6",null,{caption:"Washington",id:"WA"})')
         fb.button('delItem to menu',action='genro._data.pop("values.states.r6");')
         
-    def main_(self, root, **kwargs):
+    def main___(self, root, **kwargs):
         root.data('values.states', self.tableData_states())
         root.data('values.sex', self.tableData_sex(), id='#k', caption='#v')
         root.data('records', self.myRecords())
+        root.div(width='20px',height='20px',border='1px solid gray',background_color='^color').menu(modifiers='*').colorPalette()
         fb = root.formbuilder(cols='4', datapath='records',
                               cellspacing='10', background_color='silver', margin='30px')
         for r in range (4):
