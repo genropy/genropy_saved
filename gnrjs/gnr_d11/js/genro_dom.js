@@ -87,7 +87,7 @@ dojo.declare("gnr.GnrDomHandler",null,{
     
     addClass: function(where,cls){
         if(typeof(cls)=='string'){
-            var domnode=this.getDomNode(where)
+            var domnode=this.getDomNode(where);
             if (domnode){
                 var classes=cls.split(' ');
                 for (var i=0;i<classes.length;i++){
@@ -97,10 +97,10 @@ dojo.declare("gnr.GnrDomHandler",null,{
         }  
     },
     style:function(where,attr,value){
-        var domnode=this.getDomNode(where)
+        var domnode=this.getDomNode(where);
         if (domnode){
             if (typeof (attr) == 'string'){
-                dojo.style(domnode,genro.dom.dojoStyleAttrName(attr),value)
+                dojo.style(domnode,genro.dom.dojoStyleAttrName(attr),value);
             }else{
                 var kw={}
                 for (k in attr){
@@ -326,10 +326,76 @@ dojo.declare("gnr.GnrDomHandler",null,{
         }
         
     },
+    cssRulesToBag:function(rules){
+        var result = new gnr.GnrBag();
+        var _importRule = 3;
+        var _styleRule = 1;
+        var rule,label,value,attr;
+        for (var i=0; i < rules.length; i++) {
+            r = rules.item(i);
+            switch(r.type){
+                case _styleRule:
+                    attr = {selectorText:r.selectorText,_style:r.style};
+                    label ='r_'+i;
+                    value = genro.dom.styleToBag(r.style);
+                    result.setItem(label,value,attr);
+                    break;
+                case _importRule:
+                    attr = {href:r.href};
+                    label = r.title || 'r_'+i;
+                    result.setItem(label,genro.dom.cssRulesToBag(r.styleSheet.cssRules),attr);
+
+                    break;
+                default:
+                    console.log('no import no style');
+                    break;
+            }
+        };
+        
+        return result;
+    },
+    
+    styleSheetsToBag:function(){
+        var styleSheets=document.styleSheets;
+        var result = new gnr.GnrBag();
+        var label,value,attr;
+        var cnt = 0;
+        dojo.forEach(styleSheets,function(s){
+            label = s.title || 's_'+cnt;
+            attr = {'type':s.type,'title':s.title};
+            value = genro.dom.cssRulesToBag(s.cssRules);
+            result.setItem(label,value,attr);
+            cnt++;
+        })
+        return result;
+    },
+    styleToBag:function(s){
+        result = new gnr.GnrBag();
+        var rule;
+        for (var i=0; i < s.length; i++) {
+            st = s[i];
+            result.setItem(st, s.getPropertyValue(st)); 
+        };
+        return result;
+    },
     windowTitle:function(title){
         document.title=title;
     },
-    
+    styleTrigger:function(kw){
+        var parentNode = kw.node.getParentNode()
+        var st = parentNode.attr._style;
+        if (!st){
+            return;
+        }
+        if (kw.evt=='upd') {
+            st.setProperty(kw.node.label,kw.value,null);
+        }else if(kw.evt=='ins'){
+            st.setProperty(kw.node.label,kw.node.getValue(),null);
+        }else if(kw.evt=='del'){
+            console.log(kw);
+        }
+        parentNode.setValue(genro.dom.styleToBag(st));
+    },
     cursorWait:function(flag){
         if (flag){
             genro.dom.addClass(document.body, 'cursorWait');
