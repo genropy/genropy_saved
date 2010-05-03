@@ -60,13 +60,14 @@ class HTableHandler(BaseComponent):
         elif editMode=='dlg':
             assert dialogPars,'for editMode == "dlg" dialogPars are mandatory'
             treepane = parent.borderContainer(region='center',datapath=datapath,nodeId=nodeId,margin='2px',_class='pbl_roundedGroup')
-            formBC = self.simpleDialog(treepane,dlgId='%s_dlg' %nodeId,
-                                    cb_bottom=self.ht_edit_dlg_bottom,**dialogPars)
+            formBC = self.simpleDialog(treepane,dlgId='%s_dlg' %nodeId,**dialogPars)
             formPanePars['region'] = 'center'
             
         recordlabel = formBC.contentPane(region='top',_class='pbl_roundedGroupLabel')
         recordlabel.div('^.edit.record?caption')
         footer = formBC.contentPane(region='bottom',_class='pbl_roundedGroupBottom')
+        if editMode=='dlg':
+            footer.button('!!Close',fire='.close')
 
         formpane = formBC.stackContainer(pageName='edit',**formPanePars)
         footer.dataController("""
@@ -92,8 +93,7 @@ class HTableHandler(BaseComponent):
                         
     def ht_edit_dlg_bottom(self,bc,**kwargs):
         bottom = bc.contentPane(**kwargs)
-        bottom.button('!!Back',baseClass='bottom_btn',float='right',margin='1px',fire='.close')
-        return bottom
+        bottom.button('!!Close',fire='.close')
                 
     def ht_edit(self,sc,table=None,nodeId=None,disabled=None,rootpath=None,editMode=None):
         formId='%s_form' %nodeId
@@ -217,10 +217,13 @@ class HTableHandler(BaseComponent):
                                             
                                                                  
     def ht_tree(self,bc,table=None,nodeId=None,rootpath=None,disabled=None,editMode=None,label=None):
+        add_action="""SET .edit.defaults.parent_code = GET .tree.code;
+                      SET .tree.pkey = '*newrecord*';"""
+        if editMode=='dlg':
+            add_action = '%s FIRE #%s_dlg.open;' %(add_action,nodeId)
         labelbox = bc.contentPane(region='top',_class='pbl_roundedGroupLabel')
         labelbox.div(label,float='left')
-        labelbox.div(float='right', _class='buttonIcon icnBaseAdd',connect_onclick="""SET .edit.defaults.parent_code = GET .tree.code;
-                                                                                      SET .tree.pkey = '*newrecord*';""",
+        labelbox.div(float='right', _class='buttonIcon icnBaseAdd',connect_onclick=add_action,
                         margin_right='2px',visible='^.tree.path',default_visible=False)
         tblobj = self.db.table(table)
         center = bc.contentPane(region='center')
