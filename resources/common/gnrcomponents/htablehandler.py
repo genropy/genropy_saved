@@ -29,7 +29,7 @@ def _getTreeRowCaption(tblobj):
 class HTableHandler(BaseComponent):
     css_requires='public'
     def htableHandler(self,parent,nodeId=None,datapath=None,table=None,rootpath=None,label=None,
-                    editMode='bc',childTypes=None,dialogPars=None,disabled=None):
+                    editMode='bc',childTypes=None,dialogPars=None,loadKwargs=None,disabled=None):
         """
         .tree: tree data:
                         store
@@ -89,13 +89,13 @@ class HTableHandler(BaseComponent):
         self.ht_tree(treepane,table=table,nodeId=nodeId,disabled=disabled,
                     rootpath=rootpath,childTypes=childTypes,editMode=editMode,label=label)
         self.ht_edit(formpane,table=table,nodeId=nodeId,disabled=disabled,
-                        rootpath=rootpath,editMode=editMode)
+                        rootpath=rootpath,editMode=editMode,loadKwargs=loadKwargs)
                         
     def ht_edit_dlg_bottom(self,bc,**kwargs):
         bottom = bc.contentPane(**kwargs)
         bottom.button('!!Close',fire='.close')
                 
-    def ht_edit(self,sc,table=None,nodeId=None,disabled=None,rootpath=None,editMode=None):
+    def ht_edit(self,sc,table=None,nodeId=None,disabled=None,rootpath=None,editMode=None,loadKwargs=None):
         formId='%s_form' %nodeId
         norecord = sc.contentPane(pageName='no_record').div('No record selected')
         bc = sc.borderContainer(pageName='record_selected')
@@ -160,12 +160,12 @@ class HTableHandler(BaseComponent):
                               disabled= disabled or '^#%s.edit.status.locked'%nodeId,
                               pkeyPath='#%s.edit.pkey' %nodeId)
         tblobj = self.db.table(table)
-        defaults = dict()
+        loadKwargs =  loadKwargs or dict()
        
-        defaults['default_parent_code'] = '=.defaults.parent_code'
+        loadKwargs['default_parent_code'] = '=.defaults.parent_code'
         
         self.formLoader(formId,datapath='#%s.edit' %nodeId,resultPath='.record',_fired='^.load',
-                        table=table, pkey='=.pkey',**defaults)
+                        table=table, pkey='=.pkey',**loadKwargs)
         self.formSaver(formId,datapath='#%s.edit' %nodeId,resultPath='.savedPkey',_fired='^.save',
                         table=table,onSaved='FIRE .onSaved;',
                         rowcaption=_getTreeRowCaption(self.db.table(table)))
@@ -231,7 +231,7 @@ class HTableHandler(BaseComponent):
         if childTypes:
             childTypesMenu = Bag()
             for k,v in childTypes.items():
-                childTypesMenu.setItem(k,None,caption=v,action="%s SET .edit.childType = $1.fullpath;" %add_action)
+                childTypesMenu.setItem(k,None,caption=v,action="SET .edit.childType = $1.fullpath; %s" %add_action)
             labelbox.data('.childTypesMenu',childTypesMenu)
             btn_addChild.menu(storepath='.childTypesMenu',modifiers='*',_class='smallmenu')            
         tblobj = self.db.table(table)
