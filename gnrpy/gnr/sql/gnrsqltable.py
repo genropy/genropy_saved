@@ -415,9 +415,11 @@ class SqlTable(GnrObject):
                 new_row.update(updater)
             self.update(new_row,row)
             
-    def readColumns(self,pkey,columns):
-        fetch = self.query(columns=columns,limit=1,where='$%s=:pkey' %self.pkey,
-                           pkey=pkey,addPkeyColumn=False).fetch()
+    def readColumns(self,pkey=None,columns=None, where=None, **kwargs):
+        where = where or '$%s=:pkey' %self.pkey
+        kwargs.pop('limit',None)
+        fetch = self.query(columns=columns,limit=1,where=where,
+                           pkey=pkey,addPkeyColumn=False, **kwargs).fetch()
         if not fetch:
             row = [None for x in columns.split(',')]
         else:
