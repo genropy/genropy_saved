@@ -29,7 +29,7 @@ def _getTreeRowCaption(tblobj):
 class HTableHandler(BaseComponent):
     css_requires='public'
     def htableHandler(self,parent,nodeId=None,datapath=None,table=None,rootpath=None,label=None,
-                    editMode='bc',childrenTypes=None,dialogPars=None,disabled=None):
+                    editMode='bc',childTypes=None,dialogPars=None,disabled=None):
         """
         .tree: tree data:
                         store
@@ -87,7 +87,7 @@ class HTableHandler(BaseComponent):
                              labelNodeId='%s_nav' %nodeId)
         
         self.ht_tree(treepane,table=table,nodeId=nodeId,disabled=disabled,
-                    rootpath=rootpath,childrenTypes=childrenTypes,editMode=editMode,label=label)
+                    rootpath=rootpath,childTypes=childTypes,editMode=editMode,label=label)
         self.ht_edit(formpane,table=table,nodeId=nodeId,disabled=disabled,
                         rootpath=rootpath,editMode=editMode)
                         
@@ -216,7 +216,7 @@ class HTableHandler(BaseComponent):
             toolbar.button('!!Tree',action="SET .selectedPage = 'tree';")
                                             
                                                                  
-    def ht_tree(self,bc,table=None,nodeId=None,rootpath=None,disabled=None,childrenTypes=None,editMode=None,label=None):
+    def ht_tree(self,bc,table=None,nodeId=None,rootpath=None,disabled=None,childTypes=None,editMode=None,label=None):
         
         labelbox = bc.contentPane(region='top',_class='pbl_roundedGroupLabel')
         labelbox.div(label,float='left')
@@ -228,12 +228,12 @@ class HTableHandler(BaseComponent):
             add_action = None
         btn_addChild = labelbox.div(float='right', _class='buttonIcon icnBaseAdd',connect_onclick=add_action,
                         margin_right='2px',visible='^.tree.path',default_visible=False)
-        if childrenTypes:
-            childrenTypesMenu = Bag()
-            for k,v in childrenTypes.items():
-                childrenTypesMenu.setItem(k,None,caption=v,action="%s SET .edit.childType = $1.fullpath;" %add_action)
-            labelbox.data('.childrenTypesMenu',childrenTypesMenu)
-            btn_addChild.menu(storepath='.childrenTypesMenu',modifiers='*',_class='smallmenu')            
+        if childTypes:
+            childTypesMenu = Bag()
+            for k,v in childTypes.items():
+                childTypesMenu.setItem(k,None,caption=v,action="%s SET .edit.childType = $1.fullpath;" %add_action)
+            labelbox.data('.childTypesMenu',childTypesMenu)
+            btn_addChild.menu(storepath='.childTypesMenu',modifiers='*',_class='smallmenu')            
         tblobj = self.db.table(table)
         center = bc.contentPane(region='center')
         center.data('.tree.store',self.ht_treeDataStore(table=table,rootpath=rootpath,rootcaption=tblobj.name_plural),
