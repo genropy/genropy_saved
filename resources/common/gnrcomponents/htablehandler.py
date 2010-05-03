@@ -224,8 +224,6 @@ class HTableHandler(BaseComponent):
                       SET .tree.pkey = '*newrecord*';"""
         if editMode=='dlg':
             add_action = '%s FIRE #%s_dlg.open;' %(add_action,nodeId)
-        else:
-            add_action = None
         btn_addChild = labelbox.div(float='right', _class='buttonIcon icnBaseAdd',connect_onclick=add_action,
                         margin_right='2px',visible='^.tree.path',default_visible=False)
         if childTypes:
