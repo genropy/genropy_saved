@@ -1818,7 +1818,7 @@ class SqlRecord(object):
     
     
 class SqlRecordBag(Bag):    
-    def __init__(self, db, tablename):
+    def __init__(self, db=None, tablename=None):
         Bag.__init__(self)
         self.db = db
         self.tablename = tablename
