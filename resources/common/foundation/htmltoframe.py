@@ -87,7 +87,7 @@ class RecordToHtmlFrame(BaseComponent):
         if enableConditionPath:
             enableCondition = '=%s' % enableConditionPath
             center.dataController("FIRE %s.load;" %controllerPath, _fired='^%s' % enableConditionPath)
-        center.dataController("FIRE %s.load;" % controllerPath, _fired='^%s' % pkeyPath)
+        center.dataController("console.log('ricarico iframe');FIRE %s.load;" % controllerPath, _fired='^%s' % pkeyPath)
         frame = iframePane.iframe(nodeId=frameId,
                               border='0px',
                               height='100%',
