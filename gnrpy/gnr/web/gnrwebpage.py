@@ -645,6 +645,15 @@ class GnrWebPage(GnrBaseWebPage):
         else:
             return (self._errorPage(err), pageattr)
             
+    def onMain(self): #You CAN override this !
+        pass
+        
+    def onMainCalls(self):
+        calls = [m for m in dir(self) if m.startswith('onMain_')]
+        for m in calls:
+            getattr(self, m)()
+        self.onMain()
+    
     def rpc_callTableScript(self,table, respath, class_name='Main',downloadAs=None,**kwargs):
         if downloadAs:
             import mimetypes
