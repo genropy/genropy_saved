@@ -37,7 +37,7 @@ class RemoteBuilder(BaseComponent):
                 handler(pane,**kwargs)
             
     def ajaxContent(self,pane,method,**kwargs):
-        self.buildRemote(method,pane,False,**kwargs)
+        self.buildRemote(pane,method,False,**kwargs)
         
     def lazyContent(self,pane,method,**kwargs):
         self.buildRemote(pane,method,True,**kwargs)
@@ -48,3 +48,12 @@ class RemoteBuilder(BaseComponent):
             pane = self.newSourceRoot()
             handler(pane,**kwargs)
             return pane
+            
+class CSSHandler(BaseComponent):
+    def onMain_csshandler(self):
+        self.pageSource().dataController("""
+            var cssbag =  genro.dom.styleSheetsToBag();
+            genro.setData('gnr.stylesheet',cssbag);
+            cssbag.setBackRef();
+            cssbag.subscribe('styleTrigger',{'any':dojo.hitch(genro.dom, "styleTrigger")});
+        """,_onStart=True)
