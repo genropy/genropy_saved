@@ -102,11 +102,11 @@ dojo.declare("gnr.GnrDomHandler",null,{
             if (typeof (attr) == 'string'){
                 dojo.style(domnode,genro.dom.dojoStyleAttrName(attr),value);
             }else{
-                var kw={}
+                var kw={};
                 for (k in attr){
-                    kw[genro.dom.dojoStyleAttrName(k)]=attr[k]
+                    kw[genro.dom.dojoStyleAttrName(k)]=attr[k];
                 }
-                dojo.style(domnode,kw)
+                dojo.style(domnode,kw);
             }
             
         }
@@ -117,13 +117,13 @@ dojo.declare("gnr.GnrDomHandler",null,{
         }else if(attr.indexOf('-')){
             attr=attr.split('-');
         }else{
-            return attr
+            return attr;
         }
         var r=attr.splice(0,1);
         dojo.forEach(attr,function(n){
             r=r+stringCapitalize(n);
-        })
-        return r
+        });
+        return r;
     },
     getDomNode: function(where){
         if (typeof (where) == 'string'){
@@ -139,7 +139,7 @@ dojo.declare("gnr.GnrDomHandler",null,{
     },
     removeClass: function(where, cls){
         if(typeof(cls)=='string'){
-            var domnode=this.getDomNode(where)
+            var domnode=this.getDomNode(where);
             var classes = cls.split(' ');
             for (var i=0;i<classes.length;i++){
                 dojo.removeClass(domnode, classes[i]);
@@ -335,10 +335,10 @@ dojo.declare("gnr.GnrDomHandler",null,{
             r = rules.item(i);
             switch(r.type){
                 case _styleRule:
-                    attr = {selectorText:r.selectorText,_style:r.style};
                     label ='r_'+i;
                     value = genro.dom.styleToBag(r.style);
-                    result.setItem(label,value,attr);
+                    result.setItem(label,value,{selectorText:r.selectorText,_style:r.style});
+                    this.css_selectors[r.selectorText] = value;
                     break;
                 case _importRule:
                     attr = {href:r.href};
@@ -354,19 +354,27 @@ dojo.declare("gnr.GnrDomHandler",null,{
         
         return result;
     },
+    setSelectorStyle: function(selector,kw,path){
+        var path = path || 'gnr.stylesheet';
+        var selectorbag = this.css_selectors[selector];
+        for(st in kw){
+            selectorbag.setItem(st,kw[st]);
+        }
+    },
     
     styleSheetsToBag:function(){
         var styleSheets=document.styleSheets;
         var result = new gnr.GnrBag();
         var label,value,attr;
         var cnt = 0;
+        this.css_selectors = {};
         dojo.forEach(styleSheets,function(s){
             label = s.title || 's_'+cnt;
             attr = {'type':s.type,'title':s.title};
             value = genro.dom.cssRulesToBag(s.cssRules);
             result.setItem(label,value,attr);
             cnt++;
-        })
+        });
         return result;
     },
     styleToBag:function(s){
@@ -382,7 +390,7 @@ dojo.declare("gnr.GnrDomHandler",null,{
         document.title=title;
     },
     styleTrigger:function(kw){
-        var parentNode = kw.node.getParentNode()
+        var parentNode = kw.node.getParentNode();
         var st = parentNode.attr._style;
         if (!st){
             return;
@@ -394,7 +402,9 @@ dojo.declare("gnr.GnrDomHandler",null,{
         }else if(kw.evt=='del'){
             console.log(kw);
         }
-        parentNode.setValue(genro.dom.styleToBag(st));
+        var stylebag = genro.dom.styleToBag(st);
+        parentNode.setValue(stylebag);
+        this.css_selectors[parentNode.attr.selectorText] = stylebag;
     },
     cursorWait:function(flag){
         if (flag){
