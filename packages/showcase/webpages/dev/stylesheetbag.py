@@ -21,6 +21,7 @@
 from gnr.core.gnrbag import Bag
 
 class GnrCustomWebPage(object):
+    py_requires='foundation/tools:CSSHandler'
     css_requires='public'
 
     def pageAuthTags(self, method=None, **kwargs):
@@ -33,15 +34,15 @@ class GnrCustomWebPage(object):
         rootBC.css('.pieretto','height:100px;width:300px;margin:5px;background-color:red;border:1px solid green;')
         bc = rootBC.borderContainer(region='center')
         top = bc.contentPane(region='top',_class='pbl_roundedGroupLabel')
-        top.button('Create',action='SET gnr.stylesheet.root = genro.dom.styleSheetsToBag();')
+        #top.button('Create',action='SET gnr.stylesheet.root = genro.dom.styleSheetsToBag();')
         left = bc.contentPane(region='left',background_color='silver',width='300px')
-        left.data('gnr.stylesheet.root',Bag(),caption='Styles')
+        #left.data('gnr.stylesheet.root',Bag(),caption='Styles')
         #this._main.subscribe('sourceTriggers',{'any':dojo.hitch(this, "nodeTrigger")});
-        left.dataController("""var root=genro._('gnr.stylesheet');
-                                   root.setBackRef();
-                                   root.subscribe('styleTrigger',{'any':dojo.hitch(genro.dom, "styleTrigger")});""",
-                                    _onStart=True)
-        left.tree(storepath='gnr.stylesheet',inspect ='shift',labelAttribute='selectorText')
+       #left.dataController("""var root=genro._('gnr.stylesheet');
+       #                           root.setBackRef();
+       #                           root.subscribe('styleTrigger',{'any':dojo.hitch(genro.dom, "styleTrigger")});""",
+       #                            _onStart=True)
+        left.tree(storepath='gnr',inspect ='shift',labelAttribute='selectorText')
         center = bc.contentPane(region='center')
         center.div(_class='pieretto')
         
