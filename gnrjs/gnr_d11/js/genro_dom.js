@@ -65,11 +65,13 @@ dojo.declare("gnr.GnrDomHandler",null,{
 		return doc;	//	HTMLDocument
 	},
 	
-    insertCss:function(css){
-        if (stringContains(css,'{')){
-            dojo.html.insertCssText(css);
-        }else{
-            dojo.html.insertCssFile(css);
+    addCss:function(css){
+          var styles=document.styleSheets;
+        for (var i=0;i<styles.length;i++){
+            var stylesheet=styles[i];
+            if (stylesheet.title=='localcss'){
+                console.log('aa')
+            }
         }
     },
     loadCss: function(url) {var e = document.createElement("link");
@@ -319,7 +321,6 @@ dojo.declare("gnr.GnrDomHandler",null,{
                 {   
                     splittedrule = /(.*)\{(.*)\}/.exec(rule);
                     if (splittedrule[1] && splittedrule[2]) stylesheet.addRule(splittedrule[1], splittedrule[2]);
-                    
                 }
                 break;
             }
