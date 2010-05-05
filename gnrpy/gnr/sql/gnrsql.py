@@ -243,7 +243,6 @@ class GnrSqlDb(GnrObject):
             return dict(host=self.host, database=self.dbname, user=self.user, password=self.password, port=self.port)
     
     def execute(self, sql, sqlargs=None, cursor=None, cursorname=None, autocommit=False,dbtable=None):
-        
         """Execute the sql statement using given kwargs"""
         # transform list and tuple parameters in named values.
         # Eg.   WHERE foo IN:bar ----> WHERE foo in (:bar_1, :bar_2..., :bar_n)

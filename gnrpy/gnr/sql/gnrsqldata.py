@@ -27,7 +27,7 @@ import cPickle
 import itertools
 import hashlib
 from xml.sax import saxutils
-
+from gnr.core.gnrdict import GnrDict
 from gnr.core.gnrlang import deprecated, uniquify
 from gnr.core.gnrdate import decodeDatePeriod
 from gnr.core.gnrlist import GnrNamedList
@@ -777,19 +777,20 @@ class SqlQuery(object):
     
     def compileQuery(self, count=False):
         return SqlQueryCompiler(self.dbtable.model,
-                                              joinConditions=self.joinConditions,
-                                              sqlContextName=self.sqlContextName, 
-                                              sqlparams=self.sqlparams,locale=self.locale).compiledQuery(relationDict=self.relationDict,
-                                                                                count=count,
-                                                                                bagFields=self.bagFields,
-                                                                                excludeLogicalDeleted=self.excludeLogicalDeleted,
-                                                                                addPkeyColumn = self.addPkeyColumn,
-                                                                                 **self.querypars)
-    
+                                joinConditions=self.joinConditions,
+                                sqlContextName=self.sqlContextName, 
+                                sqlparams=self.sqlparams,
+                                locale=self.locale).compiledQuery(relationDict=self.relationDict,
+                                                                  count=count,
+                                                                  bagFields=self.bagFields,
+                                                                  excludeLogicalDeleted=self.excludeLogicalDeleted,
+                                                                  addPkeyColumn = self.addPkeyColumn,
+                                                                   **self.querypars)
+                                
     def cursor(self):
         """get a cursor of current selection"""
         return self.db.execute(self.sqltext, self.sqlparams, dbtable=self.dbtable.fullname)
-    
+        
     def fetch(self):
         """get a cursor of current selection and fetch it"""
         cursor = self.cursor()
@@ -797,17 +798,21 @@ class SqlQuery(object):
         cursor.close()
         return result
         
-    def fetchAsDict(self, key=None):
+    def fetchAsDict(self, key=None, ordered=False):
         """return the fetch as a dict on the given key"""
         fetch = self.fetch()
         key = key or self.dbtable.pkey
-        return dict([(r[key],r) for r in fetch])
+        if ordered:
+            factory=GnrDict
+        else:
+            factory = dict
+        return factory([(r[key],r) for r in fetch])
         
     def fetchAsBag(self, key=None):
-        """return the fetch as a dict on the given key"""
+        """return the fetch as a bag on the given key"""
         fetch = self.fetch()
         key = key or self.dbtable.pkey
-        return Bag([(r[key],r) for r in fetch])
+        return Bag([(r[key],None,dict(r)) for r in fetch])
         
     def fetchGrouped(self, key=None, asBag=False):
         """return the fetch as a dict on the given key"""
@@ -1430,8 +1435,8 @@ class SqlSelection(object):
                 spkey = gnrstring.toText(pkey)
             if pkey and recordResolver:
                 content = SqlRelatedRecordResolver(db=self.db, cacheTime=-1, mode='bag',
-                                                           target_fld='%s.%s' % (self.dbtable.fullname, self.dbtable.pkey),
-                                                           relation_value=pkey, joinConditions=self.joinConditions, sqlContextName=self.sqlContextName)
+                                                   target_fld='%s.%s' % (self.dbtable.fullname, self.dbtable.pkey),
+                                                    relation_value=pkey, joinConditions=self.joinConditions, sqlContextName=self.sqlContextName)
                 
             result.addItem('%s' % spkey, content, _pkey=spkey, _attributes=dict(row), _removeNullAttributes=False)
         return result
