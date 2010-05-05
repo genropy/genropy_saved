@@ -564,12 +564,6 @@ class GnrBaseWebPage(GnrObject):
     def mainLeftContent(self,parentBC,**kwargs):
         pass
         
-    def onMainCalls(self):
-        calls = [m for m in dir(self) if m.startswith('onMain_')]
-        for m in calls:
-            getattr(self, m)()
-        self.onMain()
-    
     def pageController(self,**kwargs):
         return self.pageSource().dataController(**kwargs)
 
@@ -584,9 +578,6 @@ class GnrBaseWebPage(GnrObject):
         
     def main(self, root,**kwargs): #You MUST override this !
         root.h1('You MUST override this main method !!!')
-        
-    def onMain(self): #You CAN override this !
-        pass
     
     def _createContext(self, root):
         if self._cliCtxData:
