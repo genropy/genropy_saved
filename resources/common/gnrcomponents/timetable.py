@@ -34,7 +34,7 @@ def rect(**kwargs):
     return result
 
 class Timetable(BaseComponent):
-    py_requires='foundation/tools:RemoteBuilder'
+    py_requires='foundation/tools:RemoteBuilder,foundation/tools:CSSHandler'
     css_requires='public'
     def tt_colorPaletteMenu(self,parent):
         parent.div().menu(modifiers='*',id='tt_colorPaletteMenu',_class='colorPaletteMenu',
@@ -49,6 +49,8 @@ class Timetable(BaseComponent):
         assert nodeId,'nodeId is mandatory'
         assert datapath,'datapath is mandatory'
         assert hasattr(self,'tt_%s_dataProvider'%nodeId), 'you must define your own loop'
+        parent.style(self.tt_localcss())
+        
         bc = parent.borderContainer(nodeId=nodeId,datapath=datapath,_class='pbl_roundedGroup',border='1px solid gray',
                                     regions='^.controller.layoutregions')
         bc.data('.controller.layoutregions.left','215px',show=False)
@@ -94,11 +96,9 @@ class Timetable(BaseComponent):
         for j,dayrow in enumerate(days):
             day = dayrow['day']
             dataserie = dayrow['dataserie']
-            row = ttbox.div(_class='dayrow',height='^.controller.dayrow.height',default_height='50px',
-                            position='relative',background_color='^.controller.dayrow.day.%i.bg' %day.weekday(),
-                            hidden='==!_checkeday',_checkeday='^.controller.dayrow.day.%i.show' %day.weekday())
+            row = ttbox.div(_class='dayrow dayrow_w%i' %day.weekday())
             self.tt_daylabel(row.div(width='^.controller.conf.weekday.width',default_width='70px',**rect(top=0,bottom=0,left=0)),day)
-            self.tt_daycontent(row.div(left='^.controller.conf.weekday.width',**rect(top=0,bottom=0,right=0)),dataserie)
+            #self.tt_daycontent(row.div(left='^.controller.conf.weekday.width',**rect(top=0,bottom=0,right=0)),dataserie)
             
     def tt_daylabel(self,cell=None,day=None):
         if hasattr(self,'tt_%s_daylabel' %self.tt_pars['nodeId']):
@@ -143,59 +143,43 @@ class Timetable(BaseComponent):
     def tt_slot(self,cell=None,**kwargs):
         getattr(self,'tt_%s_slot' %self.tt_pars['nodeId'])(cell,**kwargs)
         
-            
-    def remote_ttdh_main__(self,pane,tstart=None,tstop=None,period=None,wkdlist=None,fired=None,nodeId=None,series=None):
-        self.tt_pars = dict(tstart=tstart,tstop=tstop,period=period,wkdlist=wkdlist,nodeId=nodeId,series=series)
-        if hasattr(self,'tt_%s_onstart' %nodeId):
-            getattr(self,'tt_%s_onstart' %nodeId)()
-        days = self.tt_periodSlots()
-        day_h = 50
-        sh = day_h/len(series)
-        day_h=sh*len(series)
-        first_col_w = 80
-        minute_w = 6
-        first_margin = 3
-        margin = 1
-        hour_w = 60*minute_w
-        start_hour = tstart.hour
-        stop_hour = tstop.hour
-        
-        if tstop.minute:
-            stop_hour+=1
-        start_minutes = start_hour*60 
-        stop_minutes = stop_hour*60 
-        delta_minutes = (stop_hour-start_hour)*60
-        tot_w = delta_minutes*minute_w
-        tot_h = len(days)*day_h
-        ttbox = pane.div(zoomFactor='^.controller.zoom',
-                        position='relative')#,height='%ipx' %tot_h,width='%ipx' %tot_w)
+    def tt_localcss(self):
+        return """
+        .dayrow{
+            height: 50px;
+            position: relative;
+            border-bottom: 1px solid gray;
+        }
+        .dayrow_bg_0{
+            background-color: rgba(250,250,250,0.72);
+        }
 
-        first_col = ttbox.div(**rect(left=0,top=0,width=first_col_w,height=tot_h))
-        time_col = ttbox.div(**rect(left=first_col_w,top=0,height=tot_h,width=delta_minutes*minute_w))
-        for hour in range(start_hour,stop_hour):
-            left = ((hour-start_hour)*60)*minute_w
-            if hour%2:
-                _class = 'hour_c1'
-            else:
-                _class = 'hour_c2'
-            r = rect(left=left,top=0,height=tot_h,width=hour_w)
-            time_col.div(_class=_class,**r)
-        currline=None
-        for j,dayrow in enumerate(days):
-            day = dayrow['day']
-            dataserie = dayrow['dataserie']
-            top = j*day_h
-            daycell = first_col.div(**rect(left=0,top=top,width=first_col_w,height=day_h))
-            timecell = time_col.div(z_index=100,_class='timerow',**rect(left=0,right=0,top=top,height=day_h))
-            self.tt_daylabel(nodeId=nodeId,cell=daycell,day=day)
-            sh = day_h/len(dataserie)
-            for ns,ks in enumerate(dataserie.items()):
-                s_top=ns*sh 
-                key,slots=ks
-                serierow = timecell.div(**rect(left=0,top=s_top,height=sh))
-                for slot in slots:
-                    left = ((slot['ts'].hour-start_hour)*60+slot['ts'].minute)*minute_w
-                    width = slot['minutes'] *minute_w
-                    slotcell = serierow.div(**rect(top=1,left=left+1,bottom=1,width=width-1))
-                    #_class='ttslot %s' %status,
-                    self.tt_slot(nodeId=nodeId,cell=slotcell,slot=slot,width=width,height=sh)
+        .dayrow_bg_1{
+            background-color: rgba(240,240,240,0.72);
+        }
+        .dayrow_bg_2{
+            background-color: rgba(230,230,230,0.72);
+        }
+        .dayrow_bg_3{
+            background-color: rgba(220,220,220,0.72);
+        }
+        .dayrow_bg_4{
+            background-color: rgba(210,210,210,0.72);
+        }
+        
+        .dayrow_bg_5{
+            background-color: rgba(200,200,200,0.72);
+        }
+        .dayrow_bg_6{
+            background-color: rgba(190,190,190,0.72);
+        }
+        
+
+        
+        
+        
+        
+        
+        
+        
+        """
