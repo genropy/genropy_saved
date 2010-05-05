@@ -812,7 +812,7 @@ class SqlQuery(object):
         """return the fetch as a bag on the given key"""
         fetch = self.fetch()
         key = key or self.dbtable.pkey
-        return Bag([(r[key],None,dict(r)) for r in fetch])
+        return Bag(sorted([(r[key],None,dict(r)) for r in fetch]))
         
     def fetchGrouped(self, key=None, asBag=False):
         """return the fetch as a dict on the given key"""

@@ -318,7 +318,7 @@ dojo.declare("gnr.GnrDomSourceNode",gnr.GnrBagNode,{
         return value;
     },
     fireEvent:function(path, value, attributes, reason,delay){
-        this.setRelativeData(path, value, attributes, true, reason,delay)
+        this.setRelativeData(path, value, attributes, true, reason,delay);
     },
     setRelativeData: function(path, value, attributes, fired, reason,delay){
        // var reason=reason || this
@@ -477,6 +477,13 @@ dojo.declare("gnr.GnrDomSourceNode",gnr.GnrBagNode,{
     _bld_datarpc: function() {},
     _bld_script: function() {
         dojo.eval(this.getValue());
+    },
+    _bld_stylesheet:function(){
+        if (this.attr.href) {
+            genro.dom.loadCss(this.attr.href,this.attr.cssTitle);
+        }else{
+            genro.dom.addStyleSheet(this.getValue(),this.attr.cssTitle);
+        }
     },
     _bld_css:function() {
         genro.dom.addCssRule(this.getValue());
@@ -784,7 +791,7 @@ dojo.declare("gnr.GnrDomSourceNode",gnr.GnrBagNode,{
                 domnode.innerHTML = value;
             }
            else if(genro.dom.isStyleAttr(attr)){
-               genro.dom.style(domnode,attr,value)
+               genro.dom.style(domnode,attr,value);
            }
            else if(setter in domnode.gnr){
                dojo.hitch(domnode.gnr, setter)(domnode, value, kw);

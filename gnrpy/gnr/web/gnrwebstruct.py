@@ -242,6 +242,9 @@ class GnrDomSrc(GnrStructData):
                 styleRule=styleRule+';'
             styleRule='%s {%s}'% (rule,styleRule)
         return self.child('css',name=None,content=styleRule)
+    
+    def styleSheet(self,cssText=None,cssTitle=None,href=None):
+        self.child('stylesheet',name=None,content=cssText,href=href,cssTitle=cssTitle)
 
     def macro(self,name='',source='',**kwargs):
         return self.child('macro',name=name,content=source,**kwargs)

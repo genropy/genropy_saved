@@ -535,50 +535,9 @@
 .hour_c2{
 	background-color: #edeffa;
 }
-.WD_0{
-	background-color: #ff7b83;
-}
-.WD_1{
-	background-color: #bf5b63;
-}
-.WD_2{
-	background-color: #8f4348;
-}
-.WD_3{
-	background-color: #f0de88;
-}
-.WD_4{
-	background-color: #cebe74;
-}
-.WD_5{
-	background-color: #a6995d;
-}
-.WD_6{
-	background-color: #a4c9a5;
-}
-.dayLabel{
-	border: 1px solid #7a9186;
-	background-color: #ecffdc;
-	z-index: 10;
-	text-align: center;
-	-moz-border-radius:6px;
-    -webkit-border-radius:6px;
-}
-.dayLabel_WD{
-	-moz-border-radius-topleft:6px;
-	-moz-border-radius-topright:6px;
-	-webkit-border-top-right-radius:6px;
-	-webkit-border-top-left-radius:6px;
-	font-size: .9em;
-	font-weight: bold;
-	color: white;
-}
-.dayLabel_D{
-	font-size: 1.5em;
-}
-.dayLabel_M{
-	font-size: .8em;
-}
+
+
+
 
 .ttslot{
 	z-index: 10;

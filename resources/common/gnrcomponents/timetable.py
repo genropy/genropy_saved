@@ -49,14 +49,27 @@ class Timetable(BaseComponent):
         assert nodeId,'nodeId is mandatory'
         assert datapath,'datapath is mandatory'
         assert hasattr(self,'tt_%s_dataProvider'%nodeId), 'you must define your own loop'
-        parent.style(self.tt_localcss())
-        
+        parent.styleSheet(self.tt_localcss(),cssTitle='timetablecss')
         bc = parent.borderContainer(nodeId=nodeId,datapath=datapath,_class='pbl_roundedGroup',border='1px solid gray',
                                     regions='^.controller.layoutregions')
         bc.data('.controller.layoutregions.left','215px',show=False)
         top = bc.contentPane(region='top',background='gray',_class='pbl_roundedGroupLabel')
         self.tt_bottom(bc.contentPane(region='bottom',datapath='.controller',_class='pbl_roundedGroupBottom'),wkdlist)
         self.tt_left(bc.borderContainer(region='left',datapath='.controller.conf',border_right='1px solid gray'),wkdlist)
+        top.dataController("""
+                            var kw = $2.kw;
+                            console.log(arguments)
+                            if(kw.reason){
+                                var selectorText = kw.reason.attr._selectorText;
+                                var convertToPx = kw.reason.attr._convertToPx;
+                                var value = $1.getValue();
+                                var s={}
+                                s[$1.label]=convertToPx?value+'px':value;
+                                console.log(s);
+                                genro.dom.setSelectorStyle(selectorText,s);
+                            }
+                            """,
+                            conf="^.controller.conf")
         center = bc.contentPane(region='center')
         self.lazyContent(center,'ttdh_main',nodeId=nodeId,tstart=tstart,tstop=tstop,period=period,
                         wkdlist=wkdlist,series=series,fired=fired)
@@ -66,15 +79,23 @@ class Timetable(BaseComponent):
         center = bc.contentPane(region='center')
         self.tt_colorPaletteMenu(center)
 
-        fb = center.formbuilder(cols=1, border_spacing='2px',datapath='.dayrow.day')
+        fb = center.formbuilder(cols=2, border_spacing='2px',datapath='.dayrow.day')
         weekdays = dates.get_day_names(width='wide', locale=self.locale.replace('-','_'))
         for k in wkdlist:
             fb.div(background='^.color',lbl=weekdays[k],datapath='.%i'%k,border='1px solid black',baseClass='no_background',
                     height='12px',width='12px',connectedMenu='tt_colorPaletteMenu')
         
         fb = center.formbuilder(cols=1, border_spacing='2px',width='80%')
-        fb.textbox(value='^.day.height',lbl='!!Height',width='100%')
-        fb.textbox(value='^.day.background_color',lbl='!!Color',width='100%')
+        fb.horizontalSlider(value='^.dayrow.height',lbl='Height',minimum=30,
+                            maximum=100,intermediateChanges=True,_selectorText='.dayrow',_convertToPx=True)
+        
+        fb.horizontalSlider(value='^.daylabel.width',lbl='Daylabel',minimum=30,
+                            maximum=100,intermediateChanges=True,_selectorText='.daylabel',_convertToPx=True)
+        #fb.dataController("""var dayrowstyle = genro.dom.getSelectorBag('.dayrow');
+        #                        SET .dayrows.height = parsInt(dayrowstyle.getItem("height"));
+        #                    """,_onStart=100)
+        #fb.dataController("genro.dom.setSelectorStyle('.dayrow',{height:h+'px'});",
+        #                h="^.dayrow.height",)
         
     def tt_bottom(self,bottom,wkdlist):
         bottom.horizontalSlider(value='^.zoom', minimum=.2, maximum=3,
@@ -97,16 +118,16 @@ class Timetable(BaseComponent):
             day = dayrow['day']
             dataserie = dayrow['dataserie']
             row = ttbox.div(_class='dayrow dayrow_w%i' %day.weekday())
-            self.tt_daylabel(row.div(width='^.controller.conf.weekday.width',default_width='70px',**rect(top=0,bottom=0,left=0)),day)
+            self.tt_daylabel(row.div(**rect(top=0,bottom=0,left=0)),day)
             #self.tt_daycontent(row.div(left='^.controller.conf.weekday.width',**rect(top=0,bottom=0,right=0)),dataserie)
             
     def tt_daylabel(self,cell=None,day=None):
         if hasattr(self,'tt_%s_daylabel' %self.tt_pars['nodeId']):
             return getattr(self,'tt_%s_daylabel' %self.tt_pars['nodeId'])(cell,day=day)
-        pane = cell.div(_class='dayLabel',**rect(top=1,bottom=1,left=1,right=1))
-        pane.div(toText(day,format='eeee',locale=self.locale),_class='dayLabel_WD WD_%i' %day.weekday())
-        pane.div(toText(day,format='d',locale=self.locale),_class='dayLabel_D')
-        pane.div(toText(day,format='MMMM',locale=self.locale),_class='dayLabel_M')
+        pane = cell.div(_class='daylabel',**rect(top=1,bottom=1,left=1,right=1))
+        pane.div(toText(day,format='eeee',locale=self.locale),_class='daylabel_wd daylabel_wd%i' %day.weekday())
+        pane.div(toText(day,format='d',locale=self.locale),_class='daylabel_day')
+        pane.div(toText(day,format='MMMM',locale=self.locale),_class='daylabel_month')
     
     def tt_daycontent(self,cell,dataserie,**kwargs):
         pane = cell.div(_class='dayContent',**rect(top=1,bottom=1,left=1,right=1))
@@ -150,36 +171,43 @@ class Timetable(BaseComponent):
             position: relative;
             border-bottom: 1px solid gray;
         }
-        .dayrow_bg_0{
-            background-color: rgba(250,250,250,0.72);
-        }
-
-        .dayrow_bg_1{
-            background-color: rgba(240,240,240,0.72);
-        }
-        .dayrow_bg_2{
-            background-color: rgba(230,230,230,0.72);
-        }
-        .dayrow_bg_3{
-            background-color: rgba(220,220,220,0.72);
-        }
-        .dayrow_bg_4{
-            background-color: rgba(210,210,210,0.72);
+        .daylabel{
+            border: 1px solid #7a9186;
+            background-color: #ecffdc;
+            width:70px;
+            z-index: 10;
+            text-align: center;
+            -moz-border-radius:6px;
+            -webkit-border-radius:6px;
         }
         
-        .dayrow_bg_5{
-            background-color: rgba(200,200,200,0.72);
+        .daylabel_wd0{background-color: #ff7b83;}
+        .daylabel_wd1{background-color: #bf5b63;}
+        .daylabel_wd2{background-color: #8f4348;}
+        .daylabel_wd3{background-color: #f0de88;}
+        .daylabel_wd4{background-color: #cebe74;}
+        .daylabel_wd5{background-color: #a6995d;}
+        .daylabel_wd6{background-color: #a4c9a5;}
+        .daylabel_wd{-moz-border-radius-topleft:6px;
+                    -moz-border-radius-topright:6px;
+                    -webkit-border-top-right-radius:6px;
+                    -webkit-border-top-left-radius:6px;
+                    font-size: .9em;
+                    font-weight: bold;
+                    color: white;}
+     
+        .daylabel_day{
+            font-size: 1.5em;
         }
-        .dayrow_bg_6{
-            background-color: rgba(190,190,190,0.72);
+        .daylabel_month{
+            font-size: .8em;
         }
         
-
-        
-        
-        
-        
-        
-        
-        
+        .dayrow_wd0{background-color: rgba(250,250,250,0.72);}
+        .dayrow_wd1{background-color: rgba(240,240,240,0.72);}
+        .dayrow_wd2{background-color: rgba(230,230,230,0.72);}
+        .dayrow_wd3{background-color: rgba(220,220,220,0.72);}
+        .dayrow_wd4{background-color: rgba(210,210,210,0.72);}
+        .dayrow_wd5{background-color: rgba(200,200,200,0.72);}
+        .dayrow_wd6{background-color: rgba(190,190,190,0.72);}
         """

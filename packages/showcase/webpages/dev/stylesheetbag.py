@@ -31,7 +31,7 @@ class GnrCustomWebPage(object):
          return ''
          
     def main(self, rootBC, **kwargs):
-        rootBC.css('.pieretto','height:100px;width:300px;margin:5px;background-color:red;border:1px solid green;')
+        rootBC.styleSheet('.pieretto {height:100px;width:300px;margin:5px;background-color:red;border:1px solid green;}',cssTitle='test')
         bc = rootBC.borderContainer(region='center')
         top = bc.contentPane(region='top',_class='pbl_roundedGroupLabel')
         #top.button('Create',action='SET gnr.stylesheet.root = genro.dom.styleSheetsToBag();')
@@ -44,5 +44,5 @@ class GnrCustomWebPage(object):
        #                            _onStart=True)
         left.tree(storepath='gnr',inspect ='shift',labelAttribute='selectorText')
         center = bc.contentPane(region='center')
-        center.div(_class='pieretto')
+        center.div(_class='pieretto',_fired='^rigenera',nodeId='xx')
         

@@ -65,20 +65,32 @@ dojo.declare("gnr.GnrDomHandler",null,{
 		return doc;	//	HTMLDocument
 	},
 	
-    addCss:function(css){
-          var styles=document.styleSheets;
-        for (var i=0;i<styles.length;i++){
-            var stylesheet=styles[i];
-            if (stylesheet.title=='localcss'){
-                console.log('aa')
+    addStyleSheet:function(cssText,cssTitle){
+        var style = document.createElement("style");
+        style.setAttribute("type", "text/css");
+        style.setAttribute('title',cssTitle);
+        if(style.styleSheet){// IE
+            var setFunc = function(){
+                style.styleSheet.cssText = cssStr;
+            };
+            if(style.styleSheet.disabled){
+                setTimeout(setFunc, 10);
+            }else{
+                setFunc();
             }
+        }else{ // w3c
+            var cssText = document.createTextNode(cssText);
+            style.appendChild(cssText);
         }
+        document.getElementsByTagName("head")[0].appendChild(style);
+        style.disabled = false; //to control why appending child style change disable attr
     },
-    loadCss: function(url) {var e = document.createElement("link");
+    loadCss: function(url,cssTitle) {var e = document.createElement("link");
                                                            e.href = url;
                                                            e.type = "text/css";
                                                            e.rel = "stylesheet";
                                                            e.media = "screen";
+                                                           e.title = cssTitle;
                                                            document.getElementsByTagName("head")[0].appendChild(e);
     },
     loadJs: function(url) {var e = document.createElement("script");
@@ -361,6 +373,9 @@ dojo.declare("gnr.GnrDomHandler",null,{
         for(st in kw){
             selectorbag.setItem(st,kw[st]);
         }
+    },
+    getSelectorBag: function(selector){
+        return this.css_selectors[selector];
     },
     
     styleSheetsToBag:function(){
