@@ -661,6 +661,16 @@ class GnrWebPage(GnrBaseWebPage):
             self.response.add_header("Content-Disposition",str("attachment; filename=%s"%downloadAs))
         return self.site.callTableScript(page=self, table=table, respath=respath, class_name=class_name, **kwargs)
         
+    def rpc_remoteBuilder(self,handler=None,**kwargs):
+        handler = self.getPublicMethod('remote',handler)
+        if handler:
+            pane = self.newSourceRoot()
+            for k,v in kwargs.items():
+                if k.endswith('_path'):
+                    kwargs[k[0:-5]] = kwargs.pop(k)[1:]
+            handler(pane,**kwargs)
+            return pane
+    
     def getAuxInstance(self, name):
         return self.site.getAuxInstance(name)
         
