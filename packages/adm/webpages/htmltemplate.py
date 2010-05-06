@@ -80,8 +80,9 @@ class GnrCustomWebPage(object):
         #self.editorDialog(bc)
         self.controllers(bc)
         self.mainInfo(bc.borderContainer(region='left',width='50em',splitter=True,disabled=disabled))
-        editorBc = bc.borderContainer(region='center',overflow='auto',datapath='_temp.data')
-        self.ajaxContent('printLayout',editorBc ,design='^form.record.data.main.design')
+        bc.borderContainer(region='center',overflow='auto',datapath='_temp.data').remote('printLayout',
+                                                                                            design='^form.record.data.main.design',
+                                                                                            lazy=False)
 
     def remote_printLayout(self,parentBc,design=None,**kwargs):
         design = design or 'headline'
