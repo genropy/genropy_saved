@@ -19,27 +19,26 @@ class GnrWebDebugger(GnrBaseProxy):
         self.debug = getattr(self.page, 'debug', False)
         self._debug_calls=Bag()
     
-    def right_pane(self, pane):
-        pane.dataController("SET _clientCtx.mainBC.right?show=false;",_init=True)
-        pane.dataController("if(show){genro.nodeById('gnr_debugger').updateContent();}",show='^_clientCtx.mainBC.right?show')
-        debugAc = pane.accordionContainer(width='20%',region='right',splitter=True, nodeId='gnr_debugger',_class='gnrdebugger')
-        debugAc.remote('debugger.debuggerContent', cacheTime=-1)
+    def right_pane(self, parentBC):
+        parentBC.contentPane(width='20%',region='right',splitter=True,nodeId='gnr_debugger').remote('debugger.debuggerContent',cacheTime=-1)
+        parentBC.data("_clientCtx.mainBC.right?show",False)
+        parentBC.dataController("if(show){genro.nodeById('gnr_debugger').updateRemoteContent();}",show='^_clientCtx.mainBC.right?show')
     
-    def bottom_pane(self, pane):
-        pane.dataController("SET _clientCtx.mainBC.bottom?show=false;",_init=True)
-        pane.dataController("if(show){genro.nodeById('gnr_bottomHelper').updateContent();}",show='^_clientCtx.mainBC.bottom?show',_class='gnrdebugger')
-        bottomHelperTc = pane.stackContainer(height='30%',region='bottom',splitter=True, nodeId='gnr_bottomHelper')
-        bottomHelperTc.remote('bottomHelperContent', cacheTime=-1)
+    def bottom_pane(self, parentBC):
+        parentBC.data("_clientCtx.mainBC.bottom?show",False)
+        parentBC.dataController("if(show){genro.nodeById('gnr_bottomHelper').updateRemoteContent();}",show='^_clientCtx.mainBC.bottom?show',_class='gnrdebugger')
+        bottomHelperSC = parentBC.stackContainer(height='30%',region='bottom',splitter=True, nodeId='gnr_bottomHelper')
+        bottomHelperSC.remote('bottomHelperContent', cacheTime=-1)
         
-    def rpc_debuggerContent(self):
-        src = self.page.domSrcFactory.makeRoot(self)
-        src.dataRemote('_dev.dbstruct','app.dbStructure')
-        src.accordionPane(title='Datasource').tree(storepath='*D',persist=False,inspect='shift')
-        src.accordionPane(title='Database').tree(storepath='_dev.dbstruct',persist=False,inspect='shift')
-        src.accordionPane(title='Page source').tree(storepath='*S', label="Source inspector",
+    def remote_debuggerContent(self,pane,**kwargs):
+        ac = pane.accordionContainer(_class='gnrdebugger',position='absolute',top=0,right=0,left=0,bottom=0)
+        ac.dataRemote('_dev.dbstruct','app.dbStructure')
+        ac.accordionPane(title='Datasource').tree(storepath='*D',persist=False,inspect='shift')
+        ac.accordionPane(title='Database').tree(storepath='_dev.dbstruct',persist=False,inspect='shift')
+        ac.accordionPane(title='Page source').tree(storepath='*S', label="Source inspector",
                                                    inspect='shift',selectedPath='_dev.selectedSourceNode') 
-        src.dataController('genro.src.highlightNode(fpath)',fpath='^_dev.selectedSourceNode')
-        dbmnt=src.accordionPane(title='Db Maintenance')
+        ac.dataController('genro.src.highlightNode(fpath)',fpath='^_dev.selectedSourceNode')
+        dbmnt=ac.accordionPane(title='Db Maintenance')
         dbmnt.dataRpc('status', 'tableStatus', _fired='^aux.do_tableStatus')
         dbmnt.dataRpc('status', 'checkDb', _fired='^aux.do_checkDb')
         dbmnt.dataRpc('status', 'applyChangesToDb', _fired='^aux.do_applyChangesToDb')
@@ -56,7 +55,6 @@ class GnrWebDebugger(GnrBaseProxy):
             pkgname, pkg = x
             pane=center.contentPane(title=pkgname,height='100%')
             pane.button('test')
-        return src
        
     def output(self,debugtype,**kwargs):
         page=self.page
