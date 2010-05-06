@@ -42,12 +42,6 @@ class RemoteBuilder(BaseComponent):
     def lazyContent(self,pane,method,**kwargs):
         self.buildRemote(pane,method,True,**kwargs)
         
-    def rpc_remoteBuilder(self,handler=None,**kwargs):
-        handler = getattr(self,'remote_%s' %handler,None)
-        if handler:
-            pane = self.newSourceRoot()
-            handler(pane,**kwargs)
-            return pane
             
 class CSSHandler(BaseComponent):
     def onMain_csshandler(self):
