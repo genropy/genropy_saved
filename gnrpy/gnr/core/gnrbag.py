@@ -585,6 +585,7 @@ class Bag(GnrObject):
                     self._nodes.sort(lambda a, b: cmp(a.getAttr(attrname), b.getAttr(attrname)), reverse=reverse)
                 else:
                     self._nodes.sort(lambda a, b: cmp(a.value[what], b.value[what]), reverse=reverse)
+        return self
                 
     def sum(self, what='#v'):
         if ',' in what:
