@@ -112,9 +112,8 @@ class QueryHelper(BaseComponent):
 
     def helper_tag_dlg(self,pane):
         def cb_center(parentBC,**kwargs):
-            pane = parentBC.contentPane(**kwargs)
-            self.lazyContent(pane,'getFormTags_query',queryColumn='=.#parent.queryColumn',
-                              queryValues='^.#parent.queryValues',call_mode='helper')                              
+            parentBC.contentPane(**kwargs).remote('getFormTags_query',queryColumn='=.#parent.queryColumn',
+                                                        queryValues='^.#parent.queryValues',call_mode='helper')                              
         dialogBc = self.formDialog(pane,title='!!Helper TAG',loadsync=False,
                                 datapath='list.helper.op_tag',centerOn='_pageRoot',
                                 height='300px',width='510px',allowNoChanges=False,
@@ -163,11 +162,11 @@ class FiltersHandler(BaseComponent):
         menu.menuline('!!Remove filter',command='remove_filter')
         menu.menuline('-')
         
-        menu.menuline('!!Custom filter').menu(action="""genro.rpc.remoteCall("load_query",{id:$1.pkey},null,null,null,
-                                                                                 function(result){
-                                                                                    genro.setData('_clientCtx.filter.%s',result);
-                                                                                    genro.saveContextCookie();
-                                                                                 })""" %self.pagename).remote('getQuickQuery',cacheTime=5)
+       #menu.menuline('!!Custom filter').menu(storepath='list.',action="""genro.rpc.remoteCall("load_query",{id:$1.pkey},null,null,null,
+       #                                                                         function(result){
+       #                                                                            genro.setData('_clientCtx.filter.%s',result);
+       #                                                                            genro.saveContextCookie();
+       #                                                                         })""" %self.pagename).remote('getQuickQuery',cacheTime=5)
         
         pane.dataController(""" var filter;
                                 if (command=='new_filter'){
@@ -187,7 +186,6 @@ class FiltersHandler(BaseComponent):
                             current_filter='^_clientCtx.filter.%s' %self.pagename,_onStart=True)
 
 class TagsHandler(BaseComponent):
-    py_requires='foundation/tools:RemoteBuilder'
     def customSqlOp_tagged(self,column=None,value=None,dtype=None,sqlArgs=None,optype_dict=None,whereTranslator=None):
         if optype_dict:
             operation = 'tagged'
@@ -276,10 +274,9 @@ class TagsHandler(BaseComponent):
         selectionName='=list.selectionName'
         selectedRowIdx="==genro.wdgById('maingrid').getSelectedRowidx();"
         def cb_center(parentBC,**kwargs):
-            pane = parentBC.contentPane(**kwargs)
-            self.lazyContent(pane,'getFormTags',selectedRowIdx='=.#parent.selectedRowIdx',
-                            pkey=pkey,call_mode='=.#parent.opener.call_mode',
-                            selectionName=selectionName,_fired='^.#parent.loadContent') 
+            parentBC.contentPane(**kwargs).remote('getFormTags',selectedRowIdx='=.#parent.selectedRowIdx',
+                                                    pkey=pkey,call_mode='=.#parent.opener.call_mode',
+                                                    selectionName=selectionName,_fired='^.#parent.loadContent') 
                                                     
         dialogBc = self.formDialog(pane,title='!!Link tag',loadsync=False,
                                 datapath='gnr.recordtag.assign',allowNoChanges=False , 
