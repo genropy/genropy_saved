@@ -34,7 +34,7 @@ def rect(**kwargs):
     return result
 
 class Timetable(BaseComponent):
-    py_requires='foundation/tools:RemoteBuilder,foundation/tools:CSSHandler'
+    py_requires='foundation/tools:CSSHandler'
     css_requires='public'
     def tt_colorPaletteMenu(self,parent):
         parent.div().menu(modifiers='*',id='tt_colorPaletteMenu',_class='colorPaletteMenu',
@@ -58,22 +58,23 @@ class Timetable(BaseComponent):
         self.tt_left(bc.borderContainer(region='left',datapath='.controller.conf',border_right='1px solid gray'),wkdlist)
         top.dataController("""
                             var kw = $2.kw;
-                            console.log(arguments)
+                    
                             if(kw.reason){
-                                var selectorText = kw.reason.attr._selectorText;
-                                var convertToPx = kw.reason.attr._convertToPx;
-                                var value = $1.getValue();
-                                var s={}
-                                s[$1.label]=convertToPx?value+'px':value;
-                                console.log(s);
-                                genro.dom.setSelectorStyle(selectorText,s);
+                                var setters = objectExtract(kw.reason.attr,'_set_*',true);
+                                for (var setter in setters){
+                                    var setlist = setters[setter].split(':');
+                                    var s={};
+                                    
+                                    s[setter.replace('_','-')]=genro.evaluate(setlist[1].replace('#',$1.getValue()));
+                                    console.log(s);
+                                    genro.dom.setSelectorStyle(setlist[0],s);
+                                }                                           
                             }
                             """,
                             conf="^.controller.conf")
-        center = bc.contentPane(region='center')
-        self.lazyContent(center,'ttdh_main',nodeId=nodeId,tstart=tstart,tstop=tstop,period=period,
-                        wkdlist=wkdlist,series=series,fired=fired)
-
+        bc.contentPane(region='center').remote('ttdh_main',nodeId=nodeId,tstart=tstart,tstop=tstop,period=period,
+                                                wkdlist=wkdlist,series=series,fired=fired)
+      
 
     def tt_left(self,bc,wkdlist):
         center = bc.contentPane(region='center')
@@ -86,16 +87,12 @@ class Timetable(BaseComponent):
                     height='12px',width='12px',connectedMenu='tt_colorPaletteMenu')
         
         fb = center.formbuilder(cols=1, border_spacing='2px',width='80%')
-        fb.horizontalSlider(value='^.dayrow.height',lbl='Height',minimum=30,
-                            maximum=100,intermediateChanges=True,_selectorText='.dayrow',_convertToPx=True)
+        fb.horizontalSlider(value='^.dayrow.height',lbl='Height',minimum=50,
+                            maximum=100,intermediateChanges=True,_set_height='.dayrow:#+"px"',
+                            _set_font_size='.daylabel_day:#-30+"px"')
         
-        fb.horizontalSlider(value='^.daylabel.width',lbl='Daylabel',minimum=30,
-                            maximum=100,intermediateChanges=True,_selectorText='.daylabel',_convertToPx=True)
-        #fb.dataController("""var dayrowstyle = genro.dom.getSelectorBag('.dayrow');
-        #                        SET .dayrows.height = parsInt(dayrowstyle.getItem("height"));
-        #                    """,_onStart=100)
-        #fb.dataController("genro.dom.setSelectorStyle('.dayrow',{height:h+'px'});",
-        #                h="^.dayrow.height",)
+        fb.horizontalSlider(value='^.labelcolumn.width',lbl='Daylabel',minimum=30,
+                            maximum=100,intermediateChanges=True,_set_width='.labelcolumn:#+"px"',_set_left='.contentcolumn:#+"px"')
         
     def tt_bottom(self,bottom,wkdlist):
         bottom.horizontalSlider(value='^.zoom', minimum=.2, maximum=3,
@@ -117,34 +114,36 @@ class Timetable(BaseComponent):
         for j,dayrow in enumerate(days):
             day = dayrow['day']
             dataserie = dayrow['dataserie']
-            row = ttbox.div(_class='dayrow dayrow_w%i' %day.weekday())
-            self.tt_daylabel(row.div(**rect(top=0,bottom=0,left=0)),day)
-            #self.tt_daycontent(row.div(left='^.controller.conf.weekday.width',**rect(top=0,bottom=0,right=0)),dataserie)
+            row = ttbox.div(_class='dayrow dayrow_wd%i' %day.weekday())
+            labelcolumn = row.div(_class='labelcolumn')
+            contentcolumn =row.div(_class='contentcolumn')
+            self.tt_daylabel(labelcolumn,day)
+            self.tt_daycontent(contentcolumn,dataserie)
             
     def tt_daylabel(self,cell=None,day=None):
         if hasattr(self,'tt_%s_daylabel' %self.tt_pars['nodeId']):
             return getattr(self,'tt_%s_daylabel' %self.tt_pars['nodeId'])(cell,day=day)
-        pane = cell.div(_class='daylabel',**rect(top=1,bottom=1,left=1,right=1))
-        pane.div(toText(day,format='eeee',locale=self.locale),_class='daylabel_wd daylabel_wd%i' %day.weekday())
-        pane.div(toText(day,format='d',locale=self.locale),_class='daylabel_day')
-        pane.div(toText(day,format='MMMM',locale=self.locale),_class='daylabel_month')
+        daylabel = cell.div(_class='daylabel',**rect(top=1,bottom=1,left=1,right=1))
+        daylabel.div(toText(day,format='eeee',locale=self.locale),_class='daylabel_wd daylabel_wd%i' %day.weekday())
+        daylabel.div(toText(day,format='d',locale=self.locale),_class='daylabel_day')
+        daylabel.div(toText(day,format='MMMM',locale=self.locale),_class='daylabel_month')
     
     def tt_daycontent(self,cell,dataserie,**kwargs):
-        pane = cell.div(_class='dayContent',**rect(top=1,bottom=1,left=1,right=1))
+        pane = cell.div(_class='daycontent',**rect(top=1,bottom=1,left=1,right=1))
         #sh = day_h/len(dataserie)
         minute_w = 6
         sh = 30
         start_hour = self.tt_pars['tstart'].hour
-        for ns,ks in enumerate(dataserie.items()):
-            s_top=ns*sh 
-            key,slots=ks
-            serierow = pane.div(**rect(left=0,top=s_top,height=sh))
-            for slot in slots:
-                left = ((slot['ts'].hour-start_hour)*60+slot['ts'].minute)*minute_w
-                width = slot['minutes'] *minute_w
-                slotcell = serierow.div(**rect(top=1,left=left+1,bottom=1,width=width-1))
-                #_class='ttslot %s' %status,
-                self.tt_slot(slotcell,slot=slot,width=width,height=sh)
+       #for ns,ks in enumerate(dataserie.items()):
+       #    s_top=ns*sh 
+       #    key,slots=ks
+       #    serierow = pane.div(**rect(left=0,top=s_top,height=sh))
+       #    for slot in slots:
+       #        left = ((slot['ts'].hour-start_hour)*60+slot['ts'].minute)*minute_w
+       #        width = slot['minutes'] *minute_w
+       #        slotcell = serierow.div(**rect(top=1,left=left+1,bottom=1,width=width-1))
+       #        #_class='ttslot %s' %status,
+       #        self.tt_slot(slotcell,slot=slot,width=width,height=sh)
             
     def tt_periodSlots(self):
         #wkdlist = [int(k) for k,v in wkdlist.items() if v] or None
@@ -171,14 +170,32 @@ class Timetable(BaseComponent):
             position: relative;
             border-bottom: 1px solid gray;
         }
+        .labelcolumn{            
+            width:70px;
+            top:0;
+            left:0;
+            bottom:0;
+            position:absolute;
+        }
+        .contentcolumn{
+            left:70px;
+            top:0;
+            bottom:0;
+            right:0;
+            position:absolute;
+        }
         .daylabel{
             border: 1px solid #7a9186;
             background-color: #ecffdc;
-            width:70px;
             z-index: 10;
             text-align: center;
             -moz-border-radius:6px;
             -webkit-border-radius:6px;
+            position:absolute;
+            top:1px;
+            left:1px;
+            right:1px;
+            bottom:1px;
         }
         
         .daylabel_wd0{background-color: #ff7b83;}
@@ -188,18 +205,25 @@ class Timetable(BaseComponent):
         .daylabel_wd4{background-color: #cebe74;}
         .daylabel_wd5{background-color: #a6995d;}
         .daylabel_wd6{background-color: #a4c9a5;}
-        .daylabel_wd{-moz-border-radius-topleft:6px;
+        
+        .daylabel_wd{
+                    -moz-border-radius-topleft:6px;
                     -moz-border-radius-topright:6px;
                     -webkit-border-top-right-radius:6px;
                     -webkit-border-top-left-radius:6px;
                     font-size: .9em;
                     font-weight: bold;
-                    color: white;}
+                    color: white;
+        }
      
         .daylabel_day{
             font-size: 1.5em;
         }
         .daylabel_month{
+            position:absolute;
+            bottom:0;
+            left:0;
+            right:0;
             font-size: .8em;
         }
         
@@ -210,4 +234,10 @@ class Timetable(BaseComponent):
         .dayrow_wd4{background-color: rgba(210,210,210,0.72);}
         .dayrow_wd5{background-color: rgba(200,200,200,0.72);}
         .dayrow_wd6{background-color: rgba(190,190,190,0.72);}
+        
+        
+        .daycontent{
+            background-color:red;
+        }
+        
         """
