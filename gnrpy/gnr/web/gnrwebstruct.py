@@ -206,8 +206,19 @@ class GnrDomSrc(GnrStructData):
     def script(self, content='', **kwargs):
         return self.child('script',content=content, **kwargs)
         
-    def remote(self, method='', **kwargs):
-        return self.child('remote', method=method, **kwargs)
+    def remote(self, method,lazy=True, **kwargs):
+        handler = self.page.getPublicMethod('remote',method)
+        if handler:
+            parentAttr = self.parentNode.getAttr()
+            parentAttr['remote'] = 'remoteBuilder'
+            parentAttr['remote_handler'] = method
+            for k,v in kwargs.items():
+                if k.endswith('_path'):
+                    v = u'§%s' %v
+                parentAttr['remote_%s' %k] = v
+                kwargs.pop(k)
+            if not lazy:
+                handler(self,**kwargs)
         
     def func(self,name, pars='',funcbody=None, **kwargs):
         if not funcbody:
@@ -844,7 +855,32 @@ class GnrGridStruct(GnrStructData):
     def cell(self, field=None, name=None, width=None, dtype=None, classes=None, cellClasses=None, headerClasses=None, **kwargs):
         return self.child('cell', content= '', field=field, _name=name or field, width=width, dtype=dtype, 
                           classes=classes, cellClasses=cellClasses, headerClasses=headerClasses, **kwargs)
-    
+                          
+    def checkboxcell(self,field='_checked',falseclass='checkboxOff',
+                        trueclass='checkboxOn',classes='row_checker',action=None):
+        
+        action = """
+                    if (false){
+                        var idx = kw.rowIndex;
+                        var nodes = this.widget.storebag().getNodes();
+                        var row = nodes[idx];
+                        var rowattrs = row.getAttr();
+                        rowattrs['%s'] = !rowattrs['%s'];
+                    }
+                    """ %(field,field)
+                    
+        self.cell(field,name=' ',format_trueclass=trueclass,format_falseclass=falseclass,
+                 classes=classes,_calculated=True,format_onclick="""var idx = kw.rowIndex;
+                                                                    var path = '#'+idx+'?%s';
+                                                                    var storebag = this.widget.storebag();
+                                                                    var currval = storebag.getItem(path);
+                                                                    storebag.setItem(path,!currval);
+                                                                    console.log("fatto")
+                                                                    """ %field
+                                                                    ,dtype='B')
+                 
+                 
+                 
     def fieldcell(self, field, _as=None, name=None, width=None, dtype=None, 
                   classes=None, cellClasses=None, headerClasses=None, zoom=False, **kwargs):
         tableobj = self.tblobj
