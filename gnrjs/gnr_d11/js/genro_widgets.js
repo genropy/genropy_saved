@@ -2202,6 +2202,9 @@ dojo.declare("gnr.widgets.VirtualStaticGrid",gnr.widgets.Grid,{
         }
     },
     mixin_setStorepath:function(val,kw){
+        console.log(val)
+        console.log(kw)
+
         if((!this._updatingIncludedView)&& (! this._batchUpdating)){
             //this.filterToRebuild=true;
             if (kw.evt=='fired'){
@@ -2475,7 +2478,7 @@ dojo.declare("gnr.widgets.VirtualStaticGrid",gnr.widgets.Grid,{
         if (this.rpcViewColumns){
             this.rpcViewColumns.call();
         }
-        this.reload();
+        //this.reload(); test
     },
     
     mixin_absIndex: function(inRowIndex){
