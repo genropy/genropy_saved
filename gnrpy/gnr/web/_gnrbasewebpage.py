@@ -754,10 +754,10 @@ class GnrBaseWebPage(GnrObject):
     #def debugger(self,debugtype='py',**kwargs):
     #    self.site.debugger(debugtype,_frame=sys._getframe(1),**kwargs)
         
-    def rpc_bottomHelperContent(self):
-        src = self.domSrcFactory.makeRoot(self)
+    def remote_bottomHelperContent(self,parent,**kwargs):
+        #src = self.domSrcFactory.makeRoot(self)
         #src.data('debugger.main',Bang)
-        sc=src.stackContainer()
+        sc=parent.stackContainer()
         bc=sc.borderContainer()
         left=bc.contentPane(region='left',width='160px',background_color='silver',overflow='hidden').formbuilder(cols=1)
         left.checkBox(value='^debugger.sqldebug',label='Debug SQL')
@@ -765,10 +765,9 @@ class GnrBaseWebPage(GnrObject):
         left.button('Clear Debugger',action='genro.setData("debugger.main",null)')
         bc.contentPane(region='center').tree(storepath='debugger.main',isTree=False,fired='^debugger.tree_redraw',
                                              getIconClass="""return 'treeNoIcon';""",persist=False,inspect='shift')
-        src.dataController("genro.debugopt=sqldebug?(pydebug? 'sql,py' :'sql' ):(pydebug? 'py' :null )",
+        parent.dataController("genro.debugopt=sqldebug?(pydebug? 'sql,py' :'sql' ):(pydebug? 'py' :null )",
                             sqldebug='^debugger.sqldebug',pydebug='^debugger.pydebug')
-        src.dataController("FIRE debugger.tree_redraw;",sqldebug='^debugger.main',_delay=1)
-        return src
+        parent.dataController("FIRE debugger.tree_redraw;",sqldebug='^debugger.main',_delay=1)
         
     def rpc_resetApp(self, **kwargs):
         self.siteStatus['resetTime'] = time.time()
