@@ -1320,7 +1320,7 @@ class Bag(GnrObject):
        
     def setBackRef(self, node=None, parent=None):
         """
-         This method set a stricter hypotesis about the structure of a bag.
+         This method imposes a more strict structure to a bag.
          It make it more similar to a tree-leaf model: a Bag can have only one Parent
          and it knows has a reference to its Parent.
          
