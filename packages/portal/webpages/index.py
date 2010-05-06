@@ -11,7 +11,7 @@
 from gnr.core.gnrbag import Bag
 # --------------------------- GnrWebPage subclass ---------------------------
 class GnrCustomWebPage(object):
-    py_requires='publicsite:SiteLayout,foundation/tools:RemoteBuilder'
+    py_requires='publicsite:SiteLayout'
     css_requires='fonts/Nadia/stylesheet'
     def main(self, root,**kwargs):
         self.margin_default='7px'
@@ -29,10 +29,8 @@ class GnrCustomWebPage(object):
         bc = bc.borderContainer(region='center',_class='site_pane',margin=self.margin_default)
         tc = bc.tabContainer(region='center',margin='10px')
         self.page_0(tc.contentPane(title='Page 0',nodeId='tab0'))
-        self.ajaxContent('page_1',tc.contentPane(title='Page 1',nodeId='tab1'))
-        #self.lazyContent(tc.contentPane(title='Page 2',onShow='this.updateRemoteContent(false);','page_2',
-        #                    nodeId='tab2'))
-        self.lazyContent(tc.contentPane(title='Page 2'),'page_2')
+        tc.contentPane(title='Page 1',nodeId='tab1').remote('page_1',lazy=False)
+        tc.contentPane(title='Page 2').remote('page_2')
         self.page_3(tc.contentPane(title='Page 3'))
 
     def page_0(self,pane):
@@ -191,8 +189,8 @@ class GnrCustomWebPage(object):
         bc.contentPane(region='bottom',_class='site_pane',margin=self.margin_default,height='60px')
         center=bc.borderContainer(region='center',_class='site_pane',margin=self.margin_default)
         fb = pane.formbuilder(cols=1,border_spacing='4px',margin=self.margin_default)
-        fb.textbox(value='^tabs',lbl='Tabs',width='16em')        
-        self.ajaxContent('tabContent',center.tabContainer(region='center',margin='8px'),tabs='^tabs')
+        fb.textbox(value='^tabs',lbl='Tabs',width='16em') 
+        center.tabContainer(region='center',margin='8px').remote('tabContent',tabs='^tabs',lazy=False)       
 
     def remote_tabContent(self,tc,tabs='pippo,pluto'):
         tabs=tabs.split(',')
