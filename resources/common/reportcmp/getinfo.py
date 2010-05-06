@@ -34,7 +34,7 @@ class GetInfoPage(BaseComponent):
              filepath=self.temporaryDocument(filename)
              selection.output(mode, filepath=filepath)
              fileurl=self.temporaryDocumentUrl(filename)
-             return '<a href="%s">Download report</a>' % fileurl
+             return '<a href="%s">Click here to download the report</a>' % fileurl
          else:
              result = selection.output(mode)
              return result
