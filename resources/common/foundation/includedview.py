@@ -317,7 +317,10 @@ class IncludedView(BaseComponent):
         #assert 'where' in selectionPars
         selectionPars['nodeId'] = "%s_selection" %gridId
         selectionPars['columns'] = selectionPars.get('columns') or '=.columns'
-        pane.dataSelection(storepath,table,**selectionPars)
+        method = selectionPars.pop('method','app.getSelection')
+        selectionPars['table'] = table
+        destpath = selectionPars.pop('destpath',storepath)
+        pane.dataRpc(destpath,method,**selectionPars)
         
     def _iv_IncludedViewController(self, controller, gridId ,controllerPath,table=None):
         loadingParameters=None
