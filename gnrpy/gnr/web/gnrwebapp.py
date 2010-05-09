@@ -64,7 +64,6 @@ class GnrWsgiWebApp(GnrApp):
             menubag=Bag()
             print dir(self.site.automap.getIndex())
             for pathlist,node in self.site.automap.getIndex():
-                print pathlist,node
                 attr=dict(label=node.getAttr('name') or node.label.capitalize())
                 print attr
                 if isinstance(node.getValue(),Bag):

@@ -406,11 +406,9 @@ class IncludedView(BaseComponent):
             colList = splitAndStrip(col, '+')
             col = '+'.join([self.db.colToAs(c) for c in colList])
             colsMenu.child('r', col=col, caption=caption,childcontent='')
-            
-        #controller.data('.flt.selected.col', colsMenu['#0?col'])
-        #controller.data('.flt.selected.caption', colsMenu['#0?caption'])
-        searchbox = gridtop.div(float='right', margin_right='5px',
-                            datapath=controllerPath)
+        controller.data('.flt.selected.col', colsMenu['#0?col'])
+        controller.data('.flt.selected.caption', colsMenu['#0?caption'])
+        searchbox = gridtop.div(float='right', margin_right='5px')
         searchlbl = searchbox.div(float='left',margin_top='2px')
         searchlbl.span('!!Search ',float='left', margin_right='5px')
         controller.dataController("""var grid = genro.wdgById(gridId);
@@ -431,8 +429,7 @@ class IncludedView(BaseComponent):
         searchlbl.span(value='^.flt.selected.caption',_class='buttonIcon')
         searchlbl.menu(modifiers='*', _class='smallmenu', storepath='.flt.colsMenu',
                     selected_col='.flt.selected.col',
-                    selected_caption='.flt.selected.caption',
-                    position='absolute', right='0',width='6em')
+                    selected_caption='.flt.selected.caption')
         
         searchbox.input(value='^.currentFilter',_class='searchInput searchWidth', font_size='1.0em',
             connect_onkeyup='genro.wdgById("%s").applyFilter($1.target.value);' % gridId)
