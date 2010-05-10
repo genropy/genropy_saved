@@ -319,7 +319,9 @@ class IncludedView(BaseComponent):
         selectionPars['columns'] = selectionPars.get('columns') or '=.columns'
         method = selectionPars.pop('method','app.getSelection')
         selectionPars['table'] = table
-        destpath = selectionPars.pop('destpath',storepath)
+        destpath = None
+        if 'destpath' not in selectionPars:
+            destpath = storepath
         pane.dataRpc(destpath,method,**selectionPars)
         
     def _iv_IncludedViewController(self, controller, gridId ,controllerPath,table=None):
