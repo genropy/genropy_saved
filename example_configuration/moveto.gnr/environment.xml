@@ -1,22 +1,23 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <GenRoBag>
 	<environment>
-		<gnrhome value='/Users/michele/genro/trunk' />
+		<gnrhome value='/path/to/genro' /> <!-- change this -->
 	</environment>
     <projects>
-        <softwell path="~/clienti_softwell"/>
+        <your_company path="~/path/to/your/projects"/> <!-- change this -->
+		<tutorial path="$GNRHOME/tutorial/projects" /> <!-- change this -->
     </projects>
     <packages>
         <genro path="$GNRHOME/packages"/>
         <legacy path="$GNRHOME/legacy_packages"/>
-        <goodsoftware path="~/goodsoftware/packages"/>
+        <your_company path="~/path/to/your/packages"/> <!-- change this -->
     </packages>
     <sites>
-        <softwell path="~/newsites/sw_sites"/>
-        <jeff_sites path="~/newsites/jeff_sites" template='jeff'/>
+        <your_company path="~/path/to/your/sites"/> <!-- change this -->
+        <jeff_sites path="~/newsites/jeff_sites" template='jeff'/> <!-- you can also specify different templates -->
     </sites>
     <instances>
-        <softwell path="~/newsites/instances"/>
+        <your_company path="~/path/to/your/instances"/> <!-- change this -->
     </instances>
     <static>
         <js>

@@ -7,4 +7,5 @@
     <resources >
         <common/>
     </resources>
+	<gui css_theme="aqua" />
 </GenRoBag>
