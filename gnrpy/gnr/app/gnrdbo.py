@@ -55,7 +55,6 @@ class TableBase(object):
             tbl.column('__rec_md5', name_long='!!Update date', onUpdating='setRecordMd5', onInserting='setRecordMd5', group='_')
            
 
-
     def trigger_setTSNow(self, record, fldname):
         if not getattr(record,'_notUserChange',None):
             record[fldname]=datetime.datetime.today()
@@ -113,12 +112,17 @@ class GnrHTable(TableBase):
         record_data['code'] = '.'.join(code_list)
     
 class GnrDboTable(TableBase):
-    pass
+    
+    def use_dbstores(self):
+        return True
 
 class Table_counter(TableBase):
     """This table is automatically created for every package that inherit from
        GnrDboPackage."""
-   
+    
+    def use_dbstores(self):
+        return True
+    
     def config_db(self, pkg):
         tbl =  pkg.table('counter',  pkey='codekey', name_long='!!Counter', transaction=False)
         self.sysFields(tbl, id=False, ins=True, upd=True)
@@ -212,6 +216,9 @@ class Table_counter(TableBase):
 
 class Table_userobject(TableBase):
 
+    def use_dbstores(self):
+        return False
+
     def config_db(self, pkg):
         tbl =  pkg.table('userobject',  pkey='id', name_long='!!User Object', transaction=False)
         self.sysFields(tbl, id=True, ins=True, upd=True)
@@ -284,6 +291,10 @@ class Table_userobject(TableBase):
         return sel
     
 class Table_recordtag(TableBase):
+    
+    def use_dbstores(self):
+        return True
+        
     def config_db(self, pkg):
         tbl =  pkg.table('recordtag',  pkey='id', name_long='!!Record tags', transaction=False)
         self.sysFields(tbl, id=True, ins=False, upd=False)
@@ -347,6 +358,10 @@ class Table_recordtag(TableBase):
             
                
 class Table_recordtag_link(TableBase):
+    
+    def use_dbstores(self):
+        return True
+    
     def config_db(self, pkg):
         tbl =  pkg.table('recordtag_link',  pkey='id', name_long='!!Record tag link', transaction=False)
         self.sysFields(tbl, id=True, ins=False, upd=False)

@@ -76,6 +76,9 @@ class SqlTable(GnrObject):
         self.name_long = tblobj.name_long
         self.name_plural = tblobj.name_plural
         
+    def use_dbstores(self):
+        return False
+        
     def exception(self,exception,record=None,msg=None,**kwargs):
         if exception in EXCEPTIONS:
             rowcaption=''

@@ -3,6 +3,10 @@ from __future__ import with_statement
 from datetime import datetime
 
 class Table(object):
+    
+    def use_dbstores(self):
+        return False
+    
     def config_db(self, pkg):
         tbl =  pkg.table('served_page',  pkey='page_id',name_long='!!Served page',
                       name_plural='!!Served pages', broadcast=True)

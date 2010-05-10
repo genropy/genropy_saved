@@ -237,7 +237,7 @@ class GnrSqlDb(GnrObject):
     
     def get_connection_params(self):
         storename = self.currentEnv.get('storename')
-        if storename:
+        if storename and storename!='_main_db':
             return self.dbstores[storename]
         else:
             return dict(host=self.host, database=self.dbname, user=self.user, password=self.password, port=self.port)
@@ -249,37 +249,41 @@ class GnrSqlDb(GnrObject):
         envargs = dict([('env_%s'%k,v) for k,v in self.currentEnv.items()])
         envargs.update(sqlargs or {})
         sqlargs=envargs
-        for k, v in [(k, v) for k, v in sqlargs.items() if isinstance(v, list) or isinstance(v, tuple)]:
-            sqllist = '(%s) ' % ','.join([':%s%i' % (k, i) for i, ov in enumerate(v)])
-            sqlargs.pop(k)
-            sqlargs.update(dict([('%s%i' % (k, i), ov) for i, ov in enumerate(v)]))
-            sql = re.sub(':%s(\W|$)' % k, sqllist , sql)
-        sql = re.sub(IN_OPERATOR_PATCH,' FALSE', sql)
-
-        sql, sqlargs = self.adapter.prepareSqlText(sql, sqlargs)
-        #gnrlogger.info('Executing:%s - with kwargs:%s \n\n',sql,unicode(kwargs))
-        #print 'sql:\n',sql
-        try:
-            if not cursor:
-                if cursorname:
-                    if cursorname == '*':
-                        cursorname = 'c%s' % re.sub('\W', '_', getUuid())
-                    cursor = self.adapter.cursor(self.connection, cursorname)
-                else:
-                    cursor = self.adapter.cursor(self.connection)
-            cursor.execute(sql, sqlargs)
-            if self.debugger:
-                self.debugger(debugtype='sql',sql=sql, sqlargs=sqlargs,dbtable=dbtable)
-        except Exception, e:
-            #print sql
-            gnrlogger.warning('error executing:%s - with kwargs:%s \n\n', sql, unicode(sqlargs))
-            if self.debugger:
-                self.debugger(debugtype='sql',sql=sql, sqlargs=sqlargs,dbtable=dbtable, error=str(e))
-            print str('error %s executing:%s - with kwargs:%s \n\n' % (str(e), sql, unicode(sqlargs).encode('ascii', 'ignore')))
-            self.rollback()
-            raise
-        if autocommit:
-            self.commit()
+        if dbtable and self.table(dbtable).use_dbstores():
+            storename=sqlargs.pop('storename',self.currentEnv.get('storename','_main_db'))
+        else:
+            storename = '_main_db'
+        with self.tempEnv(storename=storename):
+            for k, v in [(k, v) for k, v in sqlargs.items() if isinstance(v, list) or isinstance(v, tuple)]:
+                sqllist = '(%s) ' % ','.join([':%s%i' % (k, i) for i, ov in enumerate(v)])
+                sqlargs.pop(k)
+                sqlargs.update(dict([('%s%i' % (k, i), ov) for i, ov in enumerate(v)]))
+                sql = re.sub(':%s(\W|$)' % k, sqllist , sql)
+            sql = re.sub(IN_OPERATOR_PATCH,' FALSE', sql)
+            sql, sqlargs = self.adapter.prepareSqlText(sql, sqlargs)
+            #gnrlogger.info('Executing:%s - with kwargs:%s \n\n',sql,unicode(kwargs))
+            #print 'sql:\n',sql
+            try:
+                if not cursor:
+                    if cursorname:
+                        if cursorname == '*':
+                            cursorname = 'c%s' % re.sub('\W', '_', getUuid())
+                        cursor = self.adapter.cursor(self.connection, cursorname)
+                    else:
+                        cursor = self.adapter.cursor(self.connection)
+                cursor.execute(sql, sqlargs)
+                if self.debugger:
+                    self.debugger(debugtype='sql',sql=sql, sqlargs=sqlargs,dbtable=dbtable)
+            except Exception, e:
+                #print sql
+                gnrlogger.warning('error executing:%s - with kwargs:%s \n\n', sql, unicode(sqlargs))
+                if self.debugger:
+                    self.debugger(debugtype='sql',sql=sql, sqlargs=sqlargs,dbtable=dbtable, error=str(e))
+                print str('error %s executing:%s - with kwargs:%s \n\n' % (str(e), sql, unicode(sqlargs).encode('ascii', 'ignore')))
+                self.rollback()
+                raise
+            if autocommit:
+                self.commit()
         return cursor
         
     def insert(self, tblobj, record):

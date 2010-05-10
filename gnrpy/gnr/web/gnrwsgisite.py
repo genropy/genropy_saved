@@ -346,9 +346,9 @@ class GnrWsgiSite(object):
         storename = None
         if path_list[0] in self.dbstores:
             storename = path_list.pop(0)
-        if path_list[0].startswith('_tools'):
+        if path_list and path_list[0].startswith('_tools'):
             return self.serve_tool(path_list,environ,start_response,**request_kwargs)
-        elif path_list[0].startswith('_'):
+        elif path_list and path_list[0].startswith('_'):
             return self.serve_staticfile(path_list,environ,start_response,**request_kwargs)
         else:
             if self.debug:

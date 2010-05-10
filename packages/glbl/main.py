@@ -1,7 +1,9 @@
 #!/usr/bin/env python
 # encoding: utf-8
+from gnr.app.gnrdbo import GnrDboTable, GnrDboPackage, Table_counter, Table_userobject
 
-class Package(object):
+
+class Package(GnrDboPackage):
     def config_attributes(self):
         return dict(sqlschema='glbl',
                     comment='glbl package',
@@ -14,7 +16,7 @@ class Package(object):
 
 
 
-class Table(object):
+class Table(GnrDboTable):
     pass
 
 

@@ -72,6 +72,7 @@ class GnrWebAppHandler(GnrBaseProxy):
                 self._appId=self.page.request.uri.split['/'][2]
                 if not self._appId in instances:
                     self._appId=instances[0]
+        print self._appId
         return self._appId
     appId = property(_getAppId) 
 

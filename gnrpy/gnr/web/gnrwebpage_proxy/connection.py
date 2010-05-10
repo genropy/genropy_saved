@@ -28,9 +28,10 @@ class GnrWebConnection(GnrBaseProxy):
     
     def initConnection(self):
         page = self.page
-        storename = getattr(page, 'storename', None)
+        #storename = getattr(page, 'storename', None)
         sitename = self.page.siteName
-        conn_name = storename and 'conn_%s_%s'%(sitename,storename) or 'conn_%s'%sitename
+        #conn_name = storename and 'conn_%s_%s'%(sitename,storename) or 'conn_%s'%sitename
+        conn_name = 'conn_%s'%sitename
         self.cookieName = conn_name
         self.secret = page.site.config['secret'] or self.page.siteName
         self.allConnectionsFolder = os.path.join(self.page.siteFolder, 'data', '_connections')
@@ -40,7 +41,7 @@ class GnrWebConnection(GnrBaseProxy):
             user, password = page._user_login.split(':')
             self.connection_id = getUuid()
             avatar = page.application.getAvatar(user, password, authenticate=True,connection=self)
-            self.cookie = self.page.newMarshalCookie(self.cookieName, {'connection_id': self.connection_id or getUuid(), 'slots':{}, 'locale':None, 'timestamp':None}, secret = self.secret)
+            self.cookie = self.page.newMarshalCookie(self.cookieName, {'connection_id': self.connection_id or getUuid(), 'cookie_data':{}, 'locale':None, 'timestamp':None}, secret = self.secret)
             if avatar:
                 self.updateAvatar(avatar)
         else:
@@ -54,7 +55,7 @@ class GnrWebConnection(GnrBaseProxy):
                         self.cookie = cookie
             if not self.cookie:
                 self.connection_id = getUuid()
-                self.cookie = self.page.newMarshalCookie(self.cookieName, {'connection_id': self.connection_id, 'slots':{}, 'locale':None, 'timestamp':None}, secret = self.secret)
+                self.cookie = self.page.newMarshalCookie(self.cookieName, {'connection_id': self.connection_id, 'cookie_data':{}, 'locale':None, 'timestamp':None}, secret = self.secret)
 
     def _get_data(self):
         if not hasattr(self, '_data'):
@@ -82,16 +83,16 @@ class GnrWebConnection(GnrBaseProxy):
         self.data.toXml(self.connectionFile, autocreate=True)
 
     def write(self):
-        self.cookie.path = self.page.siteUri
+        self.cookie.path = self.page.site.default_uri
         self.page.add_cookie(self.cookie)
         self.data['cookieData'] = Bag(self.cookie.value)
         self.data.toXml(self.connectionFile, autocreate=True)
 
-    def _get_appSlot(self):
+    def _get_cookie_data(self):
         if self.cookie:
-            return self.cookie.value['slots'].setdefault(self.page.app.appId, {})
+            return self.cookie.value.setdefault('cookie_data',{})
         return {}
-    appSlot = property(_get_appSlot)
+    cookie_data = property(_get_cookie_data)
     
     def _get_locale(self):
         if self.cookie:
@@ -103,9 +104,9 @@ class GnrWebConnection(GnrBaseProxy):
     
     def updateAvatar(self, avatar):
         self.cookie.value['timestamp'] = None
-        appSlot = self.appSlot
-        appSlot['user'] = avatar.id
-        appSlot['tags'] = avatar.tags
+        cookie_data = self.cookie_data
+        cookie_data['user'] = avatar.id
+        cookie_data['tags'] = avatar.tags
 
     def _get_connectionFolder(self):
         return os.path.join(self.allConnectionsFolder, self.connection_id)
@@ -116,7 +117,7 @@ class GnrWebConnection(GnrBaseProxy):
     connectionFile = property(_get_connectionFile)
     
     def rpc_logout(self,**kwargs):
-        #self.cookie = self.page.newMarshalCookie(self.cookieName, {'expire':True,'connection_id': None, 'slots':{}, 'locale':None, 'timestamp':None}, secret = self.secret)
+        #self.cookie = self.page.newMarshalCookie(self.cookieName, {'expire':True,'connection_id': None, 'cookie_data':{}, 'locale':None, 'timestamp':None}, secret = self.secret)
         self.close()
         
     def close(self):
@@ -149,14 +150,14 @@ class GnrWebConnection(GnrBaseProxy):
                 elif cookieAge < int(self.page.site.connection_timeout):
                     cookie = self.page.newMarshalCookie(self.cookieName, {'connection_id': cookie.value.get('connection_id') or getUuid(), 
                                                                 'locale':cookie.value.get('locale'),
-                                                                 'slots':cookie.value.get('slots'), 'timestamp':None}, 
+                                                                 'cookie_data':cookie.value.get('cookie_data'), 'timestamp':None}, 
                                                                  secret = self.secret)
                     return cookie
                 else:
                     expire=True
             if expire:
                 self.isExpired = True
-                #cookie = self.page.newMarshalCookie(self.cookieName, {'slots':cookie.value.get('slots'), 'timestamp':None}, secret = self.secret)
+                #cookie = self.page.newMarshalCookie(self.cookieName, {'cookie_data':cookie.value.get('cookie_data'), 'timestamp':None}, secret = self.secret)
                 self.close() # old cookie: destroy
                 return cookie        
            

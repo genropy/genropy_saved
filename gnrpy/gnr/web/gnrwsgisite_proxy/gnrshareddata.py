@@ -125,7 +125,7 @@ class GnrSharedData_dict(GnrSharedData):
         self.storage_lock.release()
         return value, cas_id
         
-    def delete(self, key, time=0):
+    def delete(self, key):
         self.storage.pop(key,None)
     
     def incr(self, key, delta=1):

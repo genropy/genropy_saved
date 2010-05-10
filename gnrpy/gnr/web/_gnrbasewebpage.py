@@ -97,7 +97,7 @@ class GnrBaseWebPage(GnrObject):
     
     def _set_clientContext(self,bag):
         value=urllib.quote(bag.toXml())
-        cookie=self.get_cookie('genroContext','simple', path=self.siteUri)
+        cookie=self.get_cookie('genroContext','simple', path=self.site.default_uri)
         cookie.value = value
         self.add_cookie(cookie)
         
@@ -178,27 +178,6 @@ class GnrBaseWebPage(GnrObject):
         if hasattr(self, '_siteStatus'):
             path = os.path.join(self.siteFolder, 'data', '_siteStatus.xml')
             self._siteStatus.toXml(path)
-            
-    def _get_user(self):
-        """Get the user from hidden _user attribute."""
-        if not self._user:
-            self._user = self.connection.appSlot.get('user')
-        return self._user
-    user = property(_get_user)
-        
-    def _get_userTags(self):
-        return self.connection.appSlot.get('tags')
-    userTags = property(_get_userTags)
-    
-    def _get_avatar(self):
-        if not hasattr(self, '_avatar'):
-            self._avatar = self.application.getAvatar(self.user)
-        return self._avatar
-    avatar = property(_get_avatar)
-    
-    def updateAvatar(self):
-        """Reload the avatar, recalculate tags, and save in cookie"""
-        self.connection.updateAvatar(self.avatar)
         
     def pageAuthTags(self, method=None, **kwargs):
         return ""

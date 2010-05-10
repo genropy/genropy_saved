@@ -499,6 +499,28 @@ class GnrWebPage(GnrBaseWebPage):
         return self._subscribedTablesDict
     subscribedTablesDict = property(_get_subscribedTablesDict)
     
+    def _get_user(self):
+        """Get the user from hidden _user attribute."""
+        if not self._user:
+            self._user = self.connection.cookie_data.get('user')
+        return self._user
+    user = property(_get_user)
+        
+    def _get_userTags(self):
+        return self.connection.cookie_data.get('tags')
+    userTags = property(_get_userTags)
+    
+    def _get_avatar(self):
+        if not hasattr(self, '_avatar'):
+            self._avatar = self.application.getAvatar(self.user)
+        return self._avatar
+    avatar = property(_get_avatar)
+    
+    def updateAvatar(self):
+        """Reload the avatar, recalculate tags, and save in cookie"""
+        self.connection.updateAvatar(self.avatar)
+    
+    
     def checkPermission(self, pagepath, relative=True):
         return self.application.checkResourcePermission(self.auth_tags, self.userTags)
 
