@@ -3,5 +3,5 @@
 <connection_timeout></connection_timeout>
 <connection_refresh></connection_refresh>
 <wsgi debug='true' reload='true' port='8090' mainpackage='devlang' session_type='memory' />
-
+<gui css_theme='aqua'/>
 <dojo version="11"></dojo></GenRoBag>
