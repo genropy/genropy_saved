@@ -232,10 +232,12 @@ dojo.declare("gnr.GnrDomSourceNode",gnr.GnrBagNode,{
                                                      }
                                                     }
                                                  else{
-                                                          dataNode.setValue(result); 
-                                                          if(_onResult){
-                                                              _onResult(result,origKwargs);
-                                                          }
+                                                     if(dataNode){
+                                                         dataNode.setValue(result); 
+                                                     }
+                                                     if(_onResult){
+                                                         _onResult(result,origKwargs);
+                                                     }
                                                   } 
                                                };
                 
