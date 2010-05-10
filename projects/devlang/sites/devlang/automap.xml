@@ -1,0 +1,27 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<GenRoBag><sys name="System"><dbstruct path="dbstruct.py" pkg="sys" name="!!Dbstruct"></dbstruct>
+<external_token path="external_token.py" pkg="sys" name="!!External_token"></external_token>
+<frameset path="frameset.py" pkg="sys" name="!!Frameset"></frameset>
+<locked_record path="locked_record.py" pkg="sys" name="!!Locked_record"></locked_record>
+<memcached_stats path="memcached_stats.py" pkg="sys" name="!!Memcached_stats"></memcached_stats>
+<message path="message.py" pkg="sys" name="!!Message"></message>
+<top path="top.py" pkg="sys" name="!!Top"></top></sys>
+<devlang name="Developers languages"><developer path="developer.py" pkg="devlang" name="!!Developer"></developer>
+<language path="language.py" pkg="devlang" name="!!Language"></language></devlang>
+<adm name="!!Administration"><app_preference path="app_preference.py" pkg="adm" name="!!App_preference"></app_preference>
+<authorization path="authorization.py" pkg="adm" name="!!Authorization"></authorization>
+<change_password path="change_password.py" pkg="adm" name="!!Change_password"></change_password>
+<connection path="connection.py" pkg="adm" name="!!Connection"></connection>
+<connection_explorer path="connection_explorer.py" pkg="adm" name="!!Connection_explorer"></connection_explorer>
+<htmltemplate path="htmltemplate.py" pkg="adm" name="!!Htmltemplate"></htmltemplate>
+<index path="index.py" pkg="adm" name="!!Index"></index>
+<login path="login.py" pkg="adm" name="!!Login"></login>
+<lost_password path="lost_password.py" pkg="adm" name="!!Lost_password"></lost_password>
+<manage_menu path="manage_menu.py" pkg="adm" name="!!Manage_menu"></manage_menu>
+<manage_tags path="manage_tags.py" pkg="adm" name="!!Manage_tags"></manage_tags>
+<manage_users path="manage_users.py" pkg="adm" name="!!Manage_users"></manage_users>
+<modify_user path="modify_user.py" pkg="adm" name="!!Modify_user"></modify_user>
+<monitor path="monitor.py" pkg="adm" name="!!Monitor"></monitor>
+<new_user path="new_user.py" pkg="adm" name="!!New_user"></new_user>
+<preference path="preference.py" pkg="adm" name="!!Preference"></preference>
+<user_preference path="user_preference.py" pkg="adm" name="!!User_preference"></user_preference></adm></GenRoBag>
