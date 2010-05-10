@@ -280,7 +280,7 @@ class TableHandlerForm(BaseComponent):
                                 FIRE list.runQuery;
                             }
                            """)
-        if self.tblobj.hasRecordTags() and \
+        if hasattr(self.tblobj,'hasRecordTags') and \
            self.application.checkResourcePermission(self.canLinkTag(), self.userTags):
             buttons.button('!!Tag',iconClass='icnTag',showLabel=False,
                             action='FIRE #linktag_dlg.open={call_mode:"list"};')

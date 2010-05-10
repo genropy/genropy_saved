@@ -98,7 +98,7 @@ class TableHandler(BaseComponent):
         root.data('gnr.maintable',self.maintable)
         self.userObjectDialog()
         self.deleteUserObjectDialog()
-        if self.tblobj.hasRecordTags():
+        if hasattr(self.tblobj,'hasRecordTags'):
             self.tags_main(root)
         self.setOnBeforeUnload(root, cb="genro.getData('gnr.forms.formPane.changed')",
                                msg="!!There are unsaved changes, do you want to close the page without saving?")
