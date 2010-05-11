@@ -14,7 +14,7 @@ class GnrCustomWebPage(object):
     py_requires = 'public:Public,public:StandardIndex'
     
     def windowTitle(self):
-         return '!!dev App'
+         return '!!Developer App'
 
 
     def main(self, root, **kwargs):
