@@ -1,0 +1,16 @@
+*:focus { outline:none }
+
+a{text-decoration:none;}
+a.aBtFooter{color:#36373B;} 
+ 
+
+body {
+	background:white;
+	margin: 0px;
+	font-family:Calibri,"Tw Cen MT",Arial,Verdana,Tahoma,"Stylus BT","Lucida Grande",Eurostile;
+}
+
+#header,#footer,#mainWindow{border-left:1px solid gray;border-right:1px solid gray;}
+#header{width:900px;height:150px;margin:0 auto;background:url(images/header.jpg)  no-repeat  top left;}
+#footer{width:900px;height:100px;margin:0 auto;background:url(images/footer.jpg)  no-repeat  top left;
+		text-align:center;color:#F4F4F4;}
