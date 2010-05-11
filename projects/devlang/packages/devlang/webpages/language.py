@@ -17,7 +17,7 @@ class GnrCustomWebPage(object):
         return struct
         
     def formBase(self, parentBC,disabled=False, **kwargs):
-        parentBC.data('gnr.polling',3)
+        #parentBC.data('gnr.polling',3)
         layout = parentBC.borderContainer(**kwargs)
         left = layout.contentPane(region='left',_class='pbl_roundedGroup',margin='10px',width='40%')
         left.div('!!Languages',_class='pbl_roundedGroupLabel')
