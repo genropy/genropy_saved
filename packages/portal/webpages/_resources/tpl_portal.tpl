@@ -4,15 +4,29 @@
     <head>
         <meta http-equiv="content-type" content="text/html; charset=${charset}" />
         <meta http-equiv="X-UA-Compatible" content="IE=7" />
+        <meta name="OWNER" content="Softwell s.a.s.">
+        <meta name="AUTHOR" content="Softwell s.a.s.">
+        <meta http-equiv="Content-Language" content="it,en">
+        <meta name="Description" content="">
+		<meta name="keywords" content="python,framework,open source,softwell,gestionale">
+		<!--<link rel="shortcut icon" href="favicon.ico">-->
+             
+		<title>Genropy.net - python framework</title>
+
         <%include file="gnr_header.tpl" />
         <style type="text/css" title="localcss">
-            html, body, #mainWindow{width: 100%;height: 100%;overflow: hidden;}
-        </style>
+		#mainWindow{width:900px;height:700px;overflow:hidden;margin:0 auto;background-color: #BCCFE0;}
+
+		</style>
     </head>
     <body class="${bodyclasses}" >
-        <div id="prova">
-            ciao
+        <div id="header">
+            header
         </div>
-        <div id="mainWindow" class='waiting'></div>
+        <div id="mainWindow" class='waiting'> </div>
+
+		<div id="footer">
+			footer
+		</div>
     </body>
 </html>
