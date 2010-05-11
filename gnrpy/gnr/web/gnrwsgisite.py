@@ -464,7 +464,7 @@ class GnrWsgiSite(object):
         self.config.setItem('instances.app', app, path=instance_path)
         return app
         
-    def onAutenticated  (self,avatar):
+    def onAuthenticated(self,avatar):
         if 'adm' in self.db.packages:
             self.db.packages['adm'].onAuthenticated(avatar)
               
