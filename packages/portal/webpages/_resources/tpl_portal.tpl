@@ -21,12 +21,14 @@
     </head>
     <body class="${bodyclasses}" >
         <div id="header">
-            header
+            <div id="headSlogan">
+				<i>"Wherever you go, you need a Bag* to carry out your data"</i>
+			</div>
         </div>
         <div id="mainWindow" class='waiting'> </div>
 
 		<div id="footer">
-			footer
+			<div id="footerCnt">Softwell S.a.s </div>
 		</div>
     </body>
 </html>
