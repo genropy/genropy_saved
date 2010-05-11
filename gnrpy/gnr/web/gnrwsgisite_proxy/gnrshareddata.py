@@ -156,19 +156,21 @@ class GnrSharedData_dict(GnrSharedData):
         self.storage_lock.acquire()
         if self.gets(key)==(None,None):
             self.set(key, value, expiry = expiry)
+            result = True
         else:
-            value = None
+            result = False
         self.storage_lock.release()
-        return value
+        return result
         
     def replace(self, key, value, expiry = 0):
         self.storage_lock.acquire()
         if not self.gets(key)==(None,None):
             self.set(key, value, expiry = expiry)
+            result = True
         else:
-            value = None
+            result = False
         self.storage_lock.release()
-        return value
+        return result 
           
             
     def get_multi(self, keys, key_prefix=''):

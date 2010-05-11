@@ -39,7 +39,13 @@ class GnrWebServerError(Exception):
     
 class PrintHandlerError(Exception):
     pass
-
+class LockInfo():
+    def __init__(self,val=False,**kwargs):
+        self._status=val
+        self.info=kwargs
+    def __getattr__(self,attr):
+        return getattr(self._status,attr)
+        
 class SiteLock(object):
     
     def __init__(self,site,locked_path, expiry=600):
@@ -54,7 +60,19 @@ class SiteLock(object):
         self.release()
 
     def acquire(self):
-        return self.site.shared_data.add(self.locked_path, expiry=self.expiry)
+        page=self.site.currentPage
+        lockinfo=dict(user=page.user,
+                      page_id=page.page_id,
+                      connection_id=page.connection.connection_id,
+                      currtime=time.time())
+        
+        result= self.site.shared_data.add(self.locked_path,lockinfo, expiry=self.expiry)
+        if result:
+            return LockInfo(True)
+        else:
+            info=self.site.shared_data.get(self.locked_path)
+            return LockInfo(False,**info)
+
     
     def release(self):
         self.site.shared_data.delete(self.locked_path)
