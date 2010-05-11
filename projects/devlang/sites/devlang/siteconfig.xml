@@ -1,7 +1,8 @@
-<?xml version='1.0' encoding='UTF-8'?>
-<GenRoBag><wsgi></wsgi>
-<connection_timeout></connection_timeout>
-<connection_refresh></connection_refresh>
-<wsgi debug='true' reload='true' port='8090' mainpackage='devlang' session_type='memory' />
-<gui css_theme='aqua'/>
-<dojo version="11"></dojo></GenRoBag>
+<?xml version="1.0" encoding="UTF-8"?>
+<GenRoBag>
+    <wsgi/>
+    <connection_timeout/>
+    <connection_refresh/>
+    <wsgi debug="true" reload="true" port="8095" mainpackage="devlang" session_type="memory"/>
+    <dojo version="11"/>
+</GenRoBag>
