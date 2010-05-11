@@ -24,6 +24,7 @@ Component for referto:
 
 class GnrCustomWebPage(object):
     pagetemplate='tpl_portal.tpl'
+    css_requires='genropynet.css'
     def windowTitle(self):
          return 'GenroPy'
          
