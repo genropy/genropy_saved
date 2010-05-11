@@ -40,6 +40,25 @@ class GnrWebServerError(Exception):
 class PrintHandlerError(Exception):
     pass
 
+class SiteLock(object):
+    
+    def __init__(self,site,locked_path, expiry=600):
+        self.site=site
+        self.locked_path=locked_path
+        self.expiry=expiry or None
+
+    def __enter__(self):
+        return self.acquire()
+
+    def __exit__(self, type, value, traceback):
+        self.release()
+
+    def acquire(self):
+        return self.site.shared_data.add(self.locked_path, expiry=self.expiry)
+    
+    def release(self):
+        self.site.shared_data.delete(self.locked_path)
+
 class memoize(object):
     class Node:
         __slots__ = ['key', 'value', 'older', 'newer']
@@ -140,6 +159,8 @@ cache = memoize()
 class GnrWsgiSite(object):
     
     #cache = memoize()
+    def siteLock(self, **kwargs):
+        return SiteLock(self, **kwargs)
     
     def _get_shared_data(self):
         if not hasattr(self, '_shared_data'):
