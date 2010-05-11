@@ -194,7 +194,7 @@ class GnrBaseWebPage(GnrObject):
             avatar = self.application.getAvatar(login['user'], password=login['password'], authenticate=True,page=self)
         if avatar:
             self.connection.updateAvatar(avatar)
-            self.site.onAutenticated(avatar)
+            self.site.onAuthenticated(avatar)
             login['message'] = ''
             loginPars=avatar.loginPars
         else:
