@@ -34,7 +34,12 @@ class GnrCustomWebPage(object):
     def main(self, root, **kwargs):
         toolbar = root.toolbar(height='30px')
         toolbar.dock(id='mydocker')
-        floating=toolbar.floatingPane(title='I am a floating', nodeId='ccc',top='100px',left='300px',
+        self.floating_one(toolbar)
+        self.floating_picker(toolbar)
+        self.floating_picker(toolbar)
+        
+    def floating_one(self,pane):
+        floating=pane.floatingPane(title='I am a floating', nodeId='ccc',top='100px',left='300px',
                         _class='shadow_4 rounded_medium',width='200px',height='300px',
                       closable=True,
                       dockable=True,
@@ -51,29 +56,24 @@ class GnrCustomWebPage(object):
                       contentClass=''     # The className to give to the inner node which has the 
                                         # content def: "dojoxFloatingPaneContent"
                       )
+                      
+                      
         bc=floating.borderContainer()
         top=bc.contentPane(region='top',height='30px',splitter=True)
         top.div('dddd')
         center=bc.contentPane(region='center',background='^zz.color')
         center.div('pippo',margin='10px')
-        colorpickerpane=toolbar.floatingPane(title='ColorPicker', top='300px',left='20px', dockTo='mydocker',
+        
+    def floating_picker(self,pane):
+        colorpickerpane=pane.floatingPane(title='ColorPicker', top='300px',left='20px', dockTo='mydocker',
                         _class='shadow_4',dockable=True,resizable=True)
         colorpickerpane.colorPicker(value='^zz.color')
         
-        colorpalettepane=toolbar.floatingPane(title='Color Palette', top='300px',left='20px', dockTo='mydocker',
+        
+    def floating_palette(self,pane):
+        colorpalettepane=pane.floatingPane(title='Color Palette', top='300px',left='20px', dockTo='mydocker',
                         _class='shadow_4',dockable=True)
         colorpalettepane.colorPalette(value='^zz.color')
-        
-        
-        
-        colorpickerpane=toolbar.floatingPane(title='ColorPicker', top='300px',left='20px', dockTo='mydocker',
-                        _class='shadow_4',dockable=True,resizable=True)
-        colorpickerpane.colorPicker(value='^zz.color')
-        
-        #root.colorPicker(value='^kk.color')
-        
-        #root.div(background='^kk.color',height='80px',width='80px')
-        
         
 
 
