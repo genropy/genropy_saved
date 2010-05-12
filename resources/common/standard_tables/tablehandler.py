@@ -98,9 +98,8 @@ class TableHandler(BaseComponent):
         root.data('gnr.maintable',self.maintable)
         self.userObjectDialog()
         self.deleteUserObjectDialog()
-        if hasattr(self.tblobj,'hasRecordTags'):
-            if self.tblobj.hasRecordTags():
-                self.tags_main(root)
+        if hasattr(self.tblobj,'hasRecordTags') and self.tblobj.hasRecordTags():
+            self.tags_main(root)
         self.setOnBeforeUnload(root, cb="genro.getData('gnr.forms.formPane.changed')",
                                msg="!!There are unsaved changes, do you want to close the page without saving?")
         pages,top,bottom = self.pbl_rootStackContainer(root,title='^list.title_bar', selected='^selectedPage',_class='pbl_mainstack',nodeId='tablehandler_mainstack')
