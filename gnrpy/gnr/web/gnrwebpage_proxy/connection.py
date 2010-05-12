@@ -121,6 +121,7 @@ class GnrWebConnection(GnrBaseProxy):
         self.close()
         
     def close(self):
+        self.cookie.expires=1
         self.dropConnection(self.connection_id)
         
     def dropConnection(self,connection_id):
