@@ -26,8 +26,7 @@ parser.add_option('-p','--path',
 (options,args)=parser.parse_args()
 
 def createInstance(name, *packages, **kwargs):
-    if options.path:
-        path=option.path
+    path = options.path or '.'
     instpath = os.path.join(path, name)
     mkdir(instpath)
     datapath = os.path.join(instpath,'data')
