@@ -52,7 +52,8 @@ class SelectionHandler(BaseComponent):
                          selectionPars=None,dialogPars=None,reloader=None,externalChanges=None,
                          hiddencolumns=None,custom_addCondition=None,custom_delCondition=None,
                          askBeforeDelete=True,checkMainRecord=True,onDeleting=None,dialogAddRecord=True,
-                         onDeleted=None,add_enable=None,del_enable=None,parentSave=False,parentId=None,
+                         onDeleted=None,add_enable=True,del_enable=True,
+                         parentSave=False,parentId=None,parentLock='^status.locked',
                          **kwargs):
         assert dialogPars,'dialogPars are Mandatory'
         assert not 'table' in dialogPars, 'take the table of the grid'
@@ -72,13 +73,13 @@ class SelectionHandler(BaseComponent):
         dialogPars['datapath'] = dialogPars.get('datapath','#%s.dlg' %nodeId)
         dialogPars['onSaved'] = 'FIRE #%s.reload; %s' %(nodeId,dialogPars.get('onSaved',''))
         dialogPars['firedPkey'] = '^.pkey'
+        dialogPars['disabled'] = '^#%s.status.locked' %nodeId
         dialogPars['toolbarCb'] = self._sh_toolbar
         dialogPars['toolbarPars'] = dialogPars.get('toolbarPars') \
-                                    or dict(add_action=True,del_action=False,save_action=False,lock_action=True)
+                                    or dict(add_action=True,del_action=False,save_action=False,lock_action=True,nodeId=nodeId)
 
         self.recordDialog(**dialogPars)
         add_action='FIRE .dlg.pkey="*newrecord*";'
-        can_add='^.can_add'
         if parentSave:
             add_action = 'FIRE .checkForAdd;'
             bc.dataController("""
@@ -114,7 +115,7 @@ class SelectionHandler(BaseComponent):
         connect_onRowDblClick='FIRE .dlg.pkey = GET .selectedId;'
         self.includedViewBox(bc,label=label,datapath=datapath,
                              add_action=add_action,
-                             add_enable=can_add,del_enable='^.can_del',
+                             add_enable='^.can_add',del_enable='^.can_del',
                              del_action='FIRE .delete_record;',
                              nodeId=nodeId,table=table,struct=struct,hiddencolumns=hiddencolumns,
                              reloader=reloader, externalChanges=externalChanges,
@@ -129,17 +130,34 @@ class SelectionHandler(BaseComponent):
                 main_record_id='^form.record.%s' %self.db.table(self.maintable).pkey
         else:
             main_record_id=True
-        add_enable = add_enable or '^form.canWrite'
-        del_enable = del_enable or '^form.canDelete'
-        
-        
+        if parentLock:
+            controller.dataController("""SET .status.locked=parentLock;""",
+                                        parentLock=parentLock)
+            controller.dataController("""
+                                        SET %s=isLocked;""" %parentLock[1:],
+                                        parentLock=parentLock,isLocked='^.status.locked',
+                                        _if='parentLock!=isLocked')
+        controller.dataController("""
+                                if(isLocked){
+                                //if not unlockable return
+                                    isLocked = isLocked //if unlocable 
+                                }
+                                SET .status.locked=!isLocked
+                                """,
+                                _fired='^.status.changelock',
+                                isLocked='=.status.locked')
+        controller.dataController("""
+                                SET .status.statusClass = isLocked?'tb_button icnBaseLocked':'tb_button icnBaseUnlocked';
+                                SET .status.lockLabel = isLocked?unlockLabel:lockLabel;
+                               """,isLocked="^.status.locked",lockLabel='!!Lock',
+                                unlockLabel='!!Unlock')
+                                    
         controller.dataFormula(".can_add","add_enable?(main_record_id!=null)&&custom_condition:false",
-                              add_enable=add_enable,main_record_id=main_record_id,
-                              custom_condition=custom_addCondition or True)
-        #controller.data('.can_del',False)    
+                              add_enable=add_enable,main_record_id=main_record_id,isLocked='^.status.locked',_if='!isLocked',
+                              _else='false;',custom_condition=custom_addCondition or True)
         controller.dataFormula(".can_del","del_enable?(main_record_id!=null)&&custom_condition:false",
-                              del_enable=del_enable,selectedId='^.selectedId',_if='selectedId',_else='false',
-                              main_record_id=main_record_id or True,custom_condition=custom_addCondition or True)
+                              del_enable=del_enable,selectedId='^.selectedId',_if='!isLocked&&selectedId',_else='false',
+                              isLocked='^.status.locked',main_record_id=main_record_id or True,custom_condition=custom_addCondition or True)
                               
         controller.dataController("""
                                     genro.dlg.ask(title, msg, null, '#%s.confirm_delete')""" %nodeId,
@@ -203,7 +221,7 @@ class SelectionHandler(BaseComponent):
         controller.dataFormula('.atEnd','(idx==genro.wdgById(gridId).rowCount-1)||idx==-1',idx='^.selectedIndex',gridId=nodeId)
                              
     def _sh_toolbar(self,parentBC,add_action=None,lock_action=None,
-                    save_action=None,del_action=None,**kwargs):
+                    save_action=None,del_action=None,nodeId=None,**kwargs):
         pane = parentBC.contentPane(padding='2px',overflow='hidden',**kwargs)
         tb = pane.toolbar(datapath='.#parent') #referred to the grid
         tb.button('!!First', fire_first='.navbutton', iconClass="tb_button icnNavFirst", 
@@ -217,10 +235,8 @@ class SelectionHandler(BaseComponent):
     
         if lock_action:
             spacer = tb.div(float='right',_class='button_placeholder')
-            spacer.button('!!Unlock',fire='status.unlock',iconClass="tb_button icnBaseLocked",
-                        showLabel=False,hidden='^status.unlocked')
-            spacer.button('!!Lock',fire='status.lock',iconClass="tb_button icnBaseUnlocked", 
-                        showLabel=False,hidden='^status.locked')
+            spacer.button(label='^.status.lockLabel', fire='.status.changelock',iconClass="^.status.statusClass",
+                        showLabel=False)
         if save_action:
             spacer = tb.div(float='right',_class='button_placeholder')
             spacer.button('!!Save changes',fire=".dlg.saveAndReload", 

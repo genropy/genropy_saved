@@ -60,7 +60,6 @@ class TableHandlerForm(BaseComponent):
         self.formTitleBase(pane)
         pane.dataFormula('form.locked','statusLocked || recordLocked',statusLocked='^status.locked',
                                      recordLocked='=form.recordLocked',fired='^gnr.forms.formPane.loaded')
-        pane.dataFormula('form.unlocked','!locked',locked='^form.locked')
         pane.dataFormula('form.canWrite','(!locked ) && writePermission',locked='^form.locked',writePermission='=usr.writePermission',_init=True)
         pane.dataFormula('form.canDelete','(!locked) && deletePermission',locked='^form.locked',deletePermission='=usr.deletePermission',_init=True)
         pane.dataFormula('form.readOnly','formLocked',formLocked='^status.locked')
@@ -79,6 +78,18 @@ class TableHandlerForm(BaseComponent):
                             lockId='=form.record?lockId',
                             username='=form.record?locking_username',
                             _fired='^form.onRecordLoaded')
+                            
+        pane.dataController("""if(isLocked){
+                                 //if not unlockable return
+                                 //placeholder 
+                                }
+                                SET status.locked=!isLocked
+                            """,_fired='^status.changelock',
+                                isLocked='=status.locked')
+        pane.dataController("""SET status.statusClass = isLocked?'tb_button icnBaseLocked':'tb_button icnBaseUnlocked';
+                               SET status.lockLabel = isLocked?unlockLabel:lockLabel;
+                                   """,isLocked="^status.locked",lockLabel='!!Lock',
+                                    unlockLabel='!!Unlock')
         
         self.formLoader('formPane', resultPath='form.record',_fired='^form.doLoad',lock='=form.lockAcquire',
                         readOnly='=form.readOnly',
@@ -216,10 +227,8 @@ class TableHandlerForm(BaseComponent):
     def formtoolbar_right(self,t_r):
         if self.userCanDelete() or self.userCanWrite():
             ph = t_r.div(_class='button_placeholder',float='right')
-            ph.button('!!Unlock', float='right',fire='status.unlock', 
-                        iconClass="tb_button icnBaseLocked", showLabel=False,hidden='^status.unlocked')
-            ph.button('!!Lock', float='right',fire='status.lock', 
-                        iconClass="tb_button icnBaseUnlocked", showLabel=False,hidden='^status.locked')
+            ph.button(label='^status.lockLabel', fire='status.changelock',iconClass="^status.statusClass",showLabel=False)
+            
                         
         if hasattr(self.tblobj,'hasRecordTags') and\
             self.application.checkResourcePermission(self.canLinkTag(), self.userTags):

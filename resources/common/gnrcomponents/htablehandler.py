@@ -29,7 +29,7 @@ def _getTreeRowCaption(tblobj):
 class HTableHandler(BaseComponent):
     css_requires='public'
     def htableHandler(self,parent,nodeId=None,datapath=None,table=None,rootpath=None,label=None,
-                    editMode='bc',childTypes=None,dialogPars=None,loadKwargs=None,disabled=None):
+                    editMode='bc',childTypes=None,dialogPars=None,loadKwargs=None,parentLock=None):
         """
         .tree: tree data:
                         store
@@ -42,7 +42,13 @@ class HTableHandler(BaseComponent):
         treeId:nodeId_tree
         editMode:'bc','sc','dlg'
         """
-        
+        disabled ='^#%s.edit.status.locked'%nodeId
+        if parentLock:
+            parent.dataController("SET .edit.status.locked=parentLock;",parentLock=parentLock,datapath=datapath)
+            parent.dataController("""SET %s=isLocked;""" %parentLock[1:],
+                                    parentLock=parentLock,isLocked='^.edit.status.locked',
+                                    _if='parentLock!=isLocked',datapath=datapath)
+                                        
         formPanePars = dict(selectedPage='^.edit.selectedPage',_class='pbl_roundedGroup')
         if editMode=='bc':
             bc = parent.borderContainer(region='center',datapath=datapath,nodeId=nodeId,margin='2px')
@@ -78,13 +84,21 @@ class HTableHandler(BaseComponent):
                                 label = pathlist[i];
                                 path2set = path2set?path2set+'.'+label:label;
                                 var action = "this.setRelativeData('.tree.path','"+path2set+"');";
-                                rootnode._('div',{content:label,connect_onclick:action,'float':'left',_class:'breadCrumb'});
+                                var showLabel = true;
+                                if(label=='_root_'){
+                                    label = rootName;
+                                }else{
+                                    label = label;
+                                }
+                                rootnode._('button',{label:label,action:action,'float':'left',font_size:'.9em',
+                                                    iconClass:'breadcrumbIcn',showLabel:showLabel});
+                                    
                             }
                             rootnode.unfreeze();
 
                             """,
                              currpath='=.tree.path',_fired='^.edit.record.code',
-                             labelNodeId='%s_nav' %nodeId)
+                             labelNodeId='%s_nav' %nodeId,rootName='!!Root:')
         
         self.ht_tree(treepane,table=table,nodeId=nodeId,disabled=disabled,
                     rootpath=rootpath,childTypes=childTypes,editMode=editMode,label=label)
@@ -100,6 +114,24 @@ class HTableHandler(BaseComponent):
         norecord = sc.contentPane(pageName='no_record').div('No record selected')
         bc = sc.borderContainer(pageName='record_selected')
         toolbar = bc.contentPane(region='top',overflow='hidden').toolbar(_class='standard_toolbar')
+        toolbar.dataFormula('.edit.status.locked',True,_onStart=True)
+        toolbar.dataController("""
+                            if(isLocked){
+                            //if not unlockable return
+                                isLocked = isLocked //if unlocable 
+                            }
+                            SET .edit.status.locked=!isLocked
+                            """,
+                            _fired='^.edit.status.changelock',
+                            isLocked='=.edit.status.locked')
+        toolbar.dataController("""
+                             SET .edit.status.statusClass = isLocked?'tb_button icnBaseLocked':'tb_button icnBaseUnlocked';
+                             SET .edit.status.lockLabel = isLocked?unlockLabel:lockLabel;
+                               """,isLocked="^.edit.status.locked",lockLabel='!!Lock',
+                                unlockLabel='!!Unlock')
+        
+        
+        
         self.ht_edit_toolbar(toolbar,nodeId=nodeId,disabled=disabled,editMode=None)
         bc.dataController("SET .edit.selectedPage=pkey?'record_selected':'no_record'",pkey="^.tree.pkey")
         bc.dataController("""
@@ -157,13 +189,12 @@ class HTableHandler(BaseComponent):
         getattr(self,formId)(bc,region='center',table=table,
                               datapath='.edit.record',controllerPath='#%s.edit.form' %nodeId,
                               formId=formId,
-                              disabled= disabled or '^#%s.edit.status.locked'%nodeId,
+                              disabled= disabled,
                               pkeyPath='#%s.edit.pkey' %nodeId)
         tblobj = self.db.table(table)
         loadKwargs =  loadKwargs or dict()
        
-        loadKwargs['default_parent_code'] = '=.defaults.parent_code'
-        
+        loadKwargs['default_parent_code'] = '=.defaults.parent_code'                                
         self.formLoader(formId,datapath='#%s.edit' %nodeId,resultPath='.record',_fired='^.load',
                         table=table, pkey='=.pkey',**loadKwargs)
         self.formSaver(formId,datapath='#%s.edit' %nodeId,resultPath='.savedPkey',_fired='^.save',
@@ -173,16 +204,8 @@ class HTableHandler(BaseComponent):
     def ht_edit_toolbar(self,toolbar,nodeId=None,disabled=None,editMode=None):
         nav = toolbar.div(float='left',nodeId='%s_nav' %nodeId)
         spacer = toolbar.div(float='right',_class='button_placeholder')
-        spacer.data('.edit.status.locked',True)
-        if not disabled:
-            disabled = '^.edit.status.locked'
-            spacer.button('!!Unlock',fire='.edit.status.unlock',iconClass="tb_button icnBaseLocked",
-                        showLabel=False,hidden='^.edit.status.unlocked')
-            spacer.button('!!Lock',fire='.edit.status.lock',iconClass="tb_button icnBaseUnlocked", 
-                        showLabel=False,hidden='^.edit.status.locked')
-            toolbar.dataController("SET .edit.status.locked=true;",fired='^.edit.status.lock')
-            toolbar.dataController("SET .edit.status.locked=false;",fired='^.edit.status.unlock') 
-            toolbar.dataFormula(".edit.status.unlocked", "!locked",locked="^.edit.status.locked")
+        spacer.button(label='^.edit.status.lockLabel', fire='.edit.status.changelock',
+                      iconClass="^.edit.status.statusClass",showLabel=False)
         spacer = toolbar.div(float='right',_class='button_placeholder')
         spacer.dataController("""genro.dom.removeClass(semaphoreId,"greenLight redLight yellowLight");
               if(isValid){

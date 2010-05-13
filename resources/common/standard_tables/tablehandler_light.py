@@ -128,26 +128,12 @@ class TableHandlerLight(BaseComponent):
         controller = bc.dataController(datapath="selection")
         controller.data('usr.writePermission',self.userCanWrite())
         controller.data('usr.deletePermission',self.userCanDelete())
-        controller.data('status.locked',True)
-        controller.dataFormula('form.locked','statusLocked || recordLocked',statusLocked='^status.locked',
-                                     recordLocked='=form.recordLocked',_onStart=True)
-        controller.dataFormula('form.unlocked','!locked',locked='^form.locked')
-        
         controller.data('usr.unlockPermission',self.userCanDelete() or self.userCanWrite())
-        controller.dataFormula('status.unlocked','!locked',locked='^status.locked',_init=True)
-
-        controller.dataFormula('status.unlocked','!locked',locked='^status.locked',_onStart=True)
+        controller.dataFormula('status.locked',True,_onStart=True)
         controller.dataFormula('form.canWrite','(!locked ) && writePermission',
-                        locked='^status.locked',writePermission='=usr.writePermission',_onStart=True)
+                        locked='^status.locked',writePermission='=usr.writePermission')
         controller.dataFormula('form.canDelete','(!locked) && deletePermission',
-                        locked='^status.locked',deletePermission='=usr.deletePermission',_onStart=True)
-        controller.dataController("SET status.locked=true;",fire='^status.lock')
-        controller.dataController("SET status.locked=false;",fire='^status.unlock',_if='unlockPermission',
-                            unlockPermission='=usr.unlockPermission',
-                            forbiddenMsg = '==  unlockForbiddenMsg || dfltForbiddenMsg',
-                            unlockForbiddenMsg ='=usr.unlockForbiddenMsg',
-                            dfltForbiddenMsg = "!!You cannot unlock this table",
-                            _else='FIRE gnr.alert = forbiddenMsg') 
+                        locked='^status.locked',deletePermission='=usr.deletePermission')
         
                             
     def listBottomPane(self,bc,**kwargs):

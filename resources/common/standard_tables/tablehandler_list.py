@@ -100,7 +100,6 @@ class TableHandlerForm(BaseComponent):
         pane.data('usr.deletePermission',self.userCanDelete())
         pane.data('usr.unlockPermission',self.userCanDelete() or self.userCanWrite())
         pane.dataFormula('status.locked','true',_onStart=True)
-        pane.dataFormula('status.unlocked','!locked',locked='^status.locked')
         condition=self.conditionBase()
         condPars={}
         if condition:
@@ -302,8 +301,8 @@ class TableHandlerForm(BaseComponent):
         pane = pane.div(nodeId='query_buttons',float='right')
         if self.userCanDelete() or self.userCanWrite():
             ph = pane.div(_class='button_placeholder',float='right')
-            ph.button('!!Unlock',float='right',fire='status.unlock', iconClass="tb_button icnBaseLocked", showLabel=False,hidden='^status.unlocked')
-            ph.button('!!Lock',float='right',fire='status.lock', iconClass="tb_button icnBaseUnlocked", showLabel=False,hidden='^status.locked')
+            ph.button(label='^status.lockLabel', fire='status.changelock',iconClass="^status.statusClass",showLabel=False)
+
         pane.button('!!Add',float='right',fire='list.newRecord', iconClass="tb_button db_add", visible='^list.canWrite', showLabel=False)
 
 
