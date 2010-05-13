@@ -859,23 +859,18 @@ class GnrGridStruct(GnrStructData):
     def checkboxcell(self,field='_checked',falseclass='checkboxOff',
                         trueclass='checkboxOn',classes='row_checker',action=None):
         
-        action = """
-                    if (false){
-                        var idx = kw.rowIndex;
-                        var nodes = this.widget.storebag().getNodes();
-                        var row = nodes[idx];
-                        var rowattrs = row.getAttr();
-                        rowattrs['%s'] = !rowattrs['%s'];
-                    }
-                    """ %(field,field)
-                    
+
         self.cell(field,name=' ',format_trueclass=trueclass,format_falseclass=falseclass,
                  classes=classes,_calculated=True,format_onclick="""var idx = kw.rowIndex;
-                                                                    var path = '#'+idx+'?%s';
+                                                                    var rowpath = '#'+idx;
+                                                                    var valuepath = rowpath+'?%s';
+                                                                    var disabledpath = rowpath+'?disabled';
                                                                     var storebag = this.widget.storebag();
-                                                                    var currval = storebag.getItem(path);
-                                                                    storebag.setItem(path,!currval);
-                                                                    console.log("fatto")
+                                                                    if (storebag.getItem(disabledpath)){
+                                                                        return;
+                                                                    }
+                                                                    var currval = storebag.getItem(valuepath);
+                                                                    storebag.setItem(valuepath,!currval);
                                                                     """ %field
                                                                     ,dtype='B')
                  

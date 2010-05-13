@@ -702,6 +702,10 @@ table.formbuilder {
     width: 17px;
     height: 17px;
 }
+.disabled_row {
+    opacity:.6;
+}
+
 .checkboxOn {
     background: url(icons/checkMarkOn.png) no-repeat;
     width: 15px;
