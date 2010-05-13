@@ -34,7 +34,7 @@ class RecordDialog(BaseComponent):
                     loadingMethod=None, loadingParameters=None,onClosed='',onShow='',
                     validation_failed='alert',custom_table_id=None,centerOn=None,
                     dlgId=None,formId=None,datapath=None,dlgPars=None,toolbarCb=None,toolbarPars=None,
-                    record_datapath=None,**kwargs):
+                    record_datapath=None,disabled=None,**kwargs):
         """
         Allow to manage a form into a dialog for editing and saving a single RecordHandler.
         * `table`: The table where the record is saved.
@@ -58,7 +58,7 @@ class RecordDialog(BaseComponent):
         tableId = custom_table_id or table.replace('.','_')
         dlgId = dlgId or  'dlg_%s' % tableId
         formId = formId or  '%s_form' % tableId
-        
+        disabled = disabled or '^form.locked'
         sqlContextName='sqlcontext_%s' %tableId
         mainDatapath = datapath or 'aux_forms.%s' % tableId
         sqlContextRoot= record_datapath or '#%s.record' %dlgId
@@ -87,7 +87,7 @@ class RecordDialog(BaseComponent):
                                     loadingParameters,validation_failed,record_datapath,**kwargs)
                                     
         self._recordDialogLayout(dlgBC,dlgId,formId,table,formCb,
-                                 bottomCb,toolbarCb,record_datapath,toolbarPars)
+                                 bottomCb,toolbarCb,record_datapath,toolbarPars,disabled)
 
     def _recordDialogController(self,pane,dlgId,formId,
                                 table,saveKwargs,loadKwargs,firedPkey,sqlContextName,
@@ -179,7 +179,7 @@ class RecordDialog(BaseComponent):
             pane.dataController("genro.formById('%s').focusFirstInvalidField()" %formId,_fired="^.validation_failed")
         
     def _recordDialogLayout(self,bc,dlgId,formId,table,
-                            formCb,bottomCb,toolbarCb,record_datapath,toolbarPars):
+                            formCb,bottomCb,toolbarCb,record_datapath,toolbarPars,disabled):
         if callable(toolbarCb):
             toolbarCb(bc,region='top',table=table,**toolbarPars)
         bottom = bc.contentPane(region='bottom',_class='dialog_bottom')
@@ -187,7 +187,7 @@ class RecordDialog(BaseComponent):
         bottomCb(bottom)
         stack = bc.stackContainer(region='center',_class='pbl_background' ,formId=formId,
                                   selected='^#%s.stackPane' %dlgId,datapath=record_datapath or '.record')
-        formCb(stack, disabled='^form.locked', table=table)
+        formCb(stack, disabled=disabled, table=table)
 
     #Jeff suggests that the margins be taken out of the code and put into the css
     def recordDialog_bottom(self,pane):

@@ -232,10 +232,8 @@ class IncludedView(BaseComponent):
     def _iv_gridLock(self,pane,lock_action=None):
         if lock_action is True:
             spacer = pane.div(float='right',width='30px',height='20px',position='relative')
-            spacer.button('!!Unlock', position='absolute',right='0px',fire='status.unlock', baseClass='no_background',
-                        iconClass="tb_button icnBaseLocked", showLabel=False,hidden='^status.unlocked')
-            spacer.button('!!Lock', position='absolute',right='0px',fire='status.lock',  baseClass='no_background',
-                        iconClass="tb_button icnBaseUnlocked", showLabel=False,hidden='^status.locked')
+            spacer.button(label='^.status.lockLabel', fire='.status.changelock',iconClass="^.status.statusClass",
+                        showLabel=False)
                         
     def _iv_gridAddDel(self,pane,add_action=None,del_action=None,upd_action=None, add_class=None,add_enable=None,
                         del_class=None, del_enable=None,pickerPars=None,formPars=None):
