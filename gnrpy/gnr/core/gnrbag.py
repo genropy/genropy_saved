@@ -2190,9 +2190,11 @@ class BagResolver(object):
         return self.resolverDescription()
         
 class GeoCoderBag(Bag):
+    def setGeocodeKey(self,gkey):
+        self.gkey=gkey # k="ABQIAAAAUwVfREP6FPJzAIxWuaT4_BQXq7bWTC04Ff1KKaIsErBhwE7B5xSKrucRzm000Ur7Cm-a9MmuppH4ag"
+        
     def setGeocode(self,key,address):
-        k="ABQIAAAAUwVfREP6FPJzAIxWuaT4_BQXq7bWTC04Ff1KKaIsErBhwE7B5xSKrucRzm000Ur7Cm-a9MmuppH4ag"
-        url="http://maps.google.com/maps/geo?%s" % urllib.urlencode(dict(key=k,q=address,output='xml'))
+        url="http://maps.google.com/maps/geo?%s" % urllib.urlencode(dict(key=self.gkey,q=address,output='xml'))
         result=Bag()
         def setData(n):
             v=n.getValue()
