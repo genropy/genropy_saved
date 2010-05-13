@@ -40,7 +40,7 @@ class GnrCustomWebPage(object):
         
     def floating_one(self,pane):
         floating=pane.floatingPane(title='I am a floating', nodeId='ccc',top='100px',left='300px',
-                        _class='shadow_4 rounded_medium',width='200px',height='300px',
+                        _class='shadow_4',width='200px',height='300px',
                       closable=True,
                       dockable=True,
                       resizable=True,     #Allow resizing of pane true if true
