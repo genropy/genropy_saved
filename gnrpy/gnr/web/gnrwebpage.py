@@ -247,7 +247,7 @@ class GnrWebPage(GnrBaseWebPage):
                 except Exception, e:
                     raise e
         auth = AUTH_OK
-        if not method in ('doLogin', 'jscompress'):
+        if not method in ('doLogin', 'jscompress', 'logout'):
             auth = self._checkAuth(method=method, **parameters)
         try:
             result = self.rpc(method=method, _auth=auth, **parameters)
