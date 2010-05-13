@@ -90,7 +90,6 @@ dojo.declare("gnr.GnrDomHandler",null,{
                                                            e.type = "text/css";
                                                            e.rel = "stylesheet";
                                                            e.media = "screen";
-                                                           e.title = cssTitle;
                                                            document.getElementsByTagName("head")[0].appendChild(e);
     },
     loadJs: function(url) {var e = document.createElement("script");
@@ -376,6 +375,15 @@ dojo.declare("gnr.GnrDomHandler",null,{
     },
     getSelectorBag: function(selector){
         return this.css_selectors[selector];
+    },
+    styleSheetBagSetter:function(value,kw){
+        var setters = objectExtract(kw,'_set_*',true);
+        for (var setter in setters){
+            var setlist = setters[setter].split(':');
+            var s={};
+            s[setter.replace('_','-')]=genro.evaluate(setlist.slice(1).join(':').replace('#',value));
+            genro.dom.setSelectorStyle(setlist[0],s);
+        }   
     },
     
     styleSheetsToBag:function(){
