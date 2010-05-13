@@ -3,6 +3,6 @@
     <wsgi/>
     <connection_timeout/>
     <connection_refresh/>
-    <wsgi debug="true" reload="true" port="8095" mainpackage="devlang" session_type="memory"/>
+    <wsgi debug="true" reload="true" port="8095" mainpackage="devlang" session_type="dbm"/>
     <dojo version="11"/>
 </GenRoBag>
