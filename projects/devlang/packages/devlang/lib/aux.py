@@ -6,10 +6,17 @@ aux.py
 Created by Jeff Edwards on 2010-05-13.
 Copyright (c) 2010 Goodsoftware Pty Ltd. All rights reserved.
 """
-
+import os
 from gnr.app.gnrapp import GnrApp  # ask to import the app
 from gnr.core.gnrbag import Bag
 from gnr.core.gnrlist import GnrNamedList, readXLS, readCSV
+
+def test2():
+    from gnr.core.gnrsys import resolvegenropypath
+
+    print resolvegenropypath('~/genropy/genro/projects/devlang/packages/devlang/lib/developers.txt')
+    print resolvegenropypath('/genropy/genro/projects/devlang/packages/devlang/lib/developers.txt')
+    print resolvegenropypath('genropy/genro/projects/devlang/packages/devlang/lib/developers.txt')
 
 
 def test():
@@ -45,8 +52,9 @@ def populateDevelopers():
             tbl_devlang.insert(record_devlang)
 
     print "... developer import"
-
-    f=file('/Users/jeffedwa/genropy/genro/projects/devlang/packages/lib/developers.txt')
+    path = '~/genropy/genro/projects/devlang/packages/devlang/lib/developers.txt'
+    path = os.path.expanduser(path)
+    f=file(path)
     rows = readCSV(f)
     
     for n, row in enumerate(rows):
@@ -84,5 +92,5 @@ def populateDevelopers():
 
 
 if __name__ == '__main__':
-    #test()
-    populateDevelopers()
+    test2()
+    #populateDevelopers()
