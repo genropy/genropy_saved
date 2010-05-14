@@ -48,10 +48,13 @@ def listdirs(path, invisible_files=False):
     return files
 
 def resolvegenropypath(path):
-    """resolvegenropypath (path)
-       Added by Jeff to make it easier to resolve document paths between different installations of Genropy
-       /Genropy/... or ~/Genropy/... so that file path given within genropy will work.
-       Of course I expect it to be rejected and / or refactored :)"""
+    """resolvegenropypath(path)
+       To make it easier to resolve document paths between different installations 
+       of genropy where sometimes it is installed in the user path and sometimes 
+       at root, ie. /genropy/... or ~/genropy/., so that file path given within 
+       genropy will be resolve to be valid if possibe and we do not have to edit 
+       for example our import files . 
+       Of course I expect it to be rejected and / or refactored"""
        
     if path.find('~') == 0:
         path = expandpath(path)
