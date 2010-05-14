@@ -6,24 +6,16 @@ aux.py
 Created by Jeff Edwards on 2010-05-13.
 Copyright (c) 2010 Goodsoftware Pty Ltd. All rights reserved.
 """
-import os
+
 from gnr.app.gnrapp import GnrApp  # ask to import the app
 from gnr.core.gnrbag import Bag
-from gnr.core.gnrlist import GnrNamedList, readXLS, readCSV
-
-def test2():
-    from gnr.core.gnrsys import resolvegenropypath
-
-    print resolvegenropypath('~/genropy/genro/projects/devlang/packages/devlang/lib/developers.txt')
-    print resolvegenropypath('/genropy/genro/projects/devlang/packages/devlang/lib/developers.txt')
-    print resolvegenropypath('genropy/genro/projects/devlang/packages/devlang/lib/developers.txt')
+from gnr.core.gnrlist import readCSV
+from gnr.core.gnrsys import resolvegenropypath
 
 
 def test():
     app=GnrApp('devlang') # create the app starting from the instance config
     db=app.db # app.db is the instance of the db
-    tbl_developer = db.table('devlang.developer')
-    tbl_devlang = db.table('devlang.dev_lang')
     tbl_lang = db.table('devlang.language')
     lang_dict = tbl_lang.query(columns='name').fetchAsDict(key='name')
     print dict(lang_dict['Python'])['pkey']
@@ -32,15 +24,16 @@ def test():
         x = dict(v)
         print '%s : %s' %(k,x)
 
-
-
 def populateDevelopers():
+    
+    
     app=GnrApp('devlang') # create the app starting from the instance config
     db=app.db # app.db is the instance of the db
     tbl_developer = db.table('devlang.developer')
     tbl_devlang = db.table('devlang.dev_lang')
     tbl_lang = db.table('devlang.language')
     lang_dict = tbl_lang.query(columns='name').fetchAsDict(key='name')
+
 
     def populatedevlang(frmSp,frmDb):
         if  temprecord[frmSp]:
@@ -52,8 +45,7 @@ def populateDevelopers():
             tbl_devlang.insert(record_devlang)
 
     print "... developer import"
-    path = '~/genropy/genro/projects/devlang/packages/devlang/lib/developers.txt'
-    path = os.path.expanduser(path)
+    path = resolvegenropypath('genropy/genro/projects/devlang/packages/devlang/lib/developers.txt')
     f=file(path)
     rows = readCSV(f)
     
@@ -84,7 +76,7 @@ def populateDevelopers():
         populatedevlang('html','html')
         populatedevlang('smalltalk','Smalltalk')
         populatedevlang('csharp','C#')
-        if n%200==0:
+        if n % 200==0:
             print '%s records' %(n,)
 
     db.commit()
@@ -92,5 +84,4 @@ def populateDevelopers():
 
 
 if __name__ == '__main__':
-    test2()
-    #populateDevelopers()
+    populateDevelopers()
