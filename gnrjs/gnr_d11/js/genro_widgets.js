@@ -858,6 +858,7 @@ dojo.declare("gnr.widgets.BorderContainer",gnr.widgets.baseDojo,{
 dojo.declare("gnr.widgets.FloatingPane",gnr.widgets.baseDojo,{
     constructor: function(application){
         this._domtag = 'div';
+        this._attachTo = 'mainWindow';
         this._dojotag = 'FloatingPane';
         genro.dom.loadCss("/_dojo/11/dojo/dojox/layout/resources/FloatingPane.css");
         genro.dom.loadCss("/_dojo/11/dojo/dojox/layout/resources/ResizeHandle.css");
