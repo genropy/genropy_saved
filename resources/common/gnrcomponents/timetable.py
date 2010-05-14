@@ -37,12 +37,51 @@ class Timetable(BaseComponent):
     py_requires='foundation/tools:CSSHandler'
     css_requires='public'
     def tt_colorPaletteMenu(self,parent):
-        parent.div().menu(modifiers='*',id='tt_colorPaletteMenu',_class='colorPaletteMenu',
+        menuitem= parent.div().menu(modifiers='*',id='tt_colorPaletteMenu',_class='colorPaletteMenu',
                             connect_onOpen="""
-                                            var path= this.widget.originalContextTarget.sourceNode.absDatapath();
-                                             SET _temp.ttcolor=path;""",
-                        ).menuItem(datapath='^_temp.ttcolor').colorPalette(value='^.color',connect_ondblclick='dijit.byId("tt_colorPaletteMenu").onCancel();')
+                                            var connectedNode = this.widget.originalContextTarget.sourceNode;
+                                            var paletteNode = genro.nodeById('tt_colorPalette');
+                                            objectExtract(paletteNode.attr,'_set_*'); 
+                                            for (var attr in connectedNode.attr){
+                                                if(stringStartsWith(attr,'_set_')){
+                                                    paletteNode.attr[attr] = connectedNode.attr[attr];
+                                                }
+                                            }
+                                            var path = connectedNode.absDatapath();
+                                            SET _temp.ttcolor=path;
+                                             """,
+                        ).menuItem(datapath='^_temp.ttcolor')
+        menuitem.colorPalette(value='^.color',nodeId='tt_colorPalette',connect_ondblclick='dijit.byId("tt_colorPaletteMenu").onCancel();')
+
+    def tt_left(self,bc,wkdlist):
+        center = bc.contentPane(region='center')
+        self.tt_colorPaletteMenu(center)
+
+        fb = center.formbuilder(cols=2, border_spacing='2px',datapath='.conf.dayrow.day')
+        weekdays = dates.get_day_names(width='wide', locale=self.locale.replace('-','_'))
+        for k in wkdlist:
+            fb.div(background='^.color',lbl=weekdays[k],datapath='.%i'%k,border='1px solid black',baseClass='no_background',
+                    height='12px',width='12px',connectedMenu='tt_colorPaletteMenu',_set_background_color='.dayrow_wd%i:"#"'%k)
+                            
+        fb = center.formbuilder(cols=1, border_spacing='2px',width='80%')
+        fb.horizontalSlider(value='^.conf.dayrow.height',lbl='Height',minimum=50,
+                            maximum=100,intermediateChanges=True,_set_height='.dayrow:#+"px"',
+                            _set_font_size='.daylabel_day:#-30+"px"')
         
+        fb.horizontalSlider(value='^.conf.labelcolumn.width',lbl='Daylabel',minimum=30,
+                            maximum=100,intermediateChanges=True,_set_width='.labelcolumn:#+"px"',_set_left='.contentcolumn:#+"px"')
+        
+    def tt_bottom(self,bottom,wkdlist):
+        bottom.horizontalSlider(value='^.zoom', minimum=.2, maximum=3,
+                                intermediateChanges=True,width='15em',float='right')
+        bottom.data('.zoom',1)         
+        btn = bottom.button('!!Configuration',action='SET .layoutregions.left?show=!GET .layoutregions.left?show',
+                            float='left')
+        fb = bottom.formbuilder(cols=7, border_spacing='2px',datapath='.conf.dayrow.day',float='left')
+        weekdays = dates.get_day_names(width='wide', locale=self.locale.replace('-','_'))
+        for k in wkdlist:
+            fb.checkbox(value='^.show', default_value=True,label=weekdays[k],datapath='.%i' %k, _set_display='.dayrow_wd%i:#?"block":"none"' %k)
+        bottom.div(float='left').dock(id='tt_footer',background='transparent')
         
     def timetable_dh(self,parent,nodeId=None,datapath=None,tstart=None,
                     tstop=None,period=None,wkdlist=None,series=None,fired=None):
@@ -55,66 +94,43 @@ class Timetable(BaseComponent):
         bc.data('.controller.layoutregions.left','215px',show=False)
         top = bc.contentPane(region='top',background='gray',_class='pbl_roundedGroupLabel')
         self.tt_bottom(bc.contentPane(region='bottom',datapath='.controller',_class='pbl_roundedGroupBottom'),wkdlist)
-        self.tt_left(bc.borderContainer(region='left',datapath='.controller.conf',border_right='1px solid gray'),wkdlist)
+        self.tt_left(bc.borderContainer(region='left',datapath='.controller',border_right='1px solid gray'),wkdlist)
         top.dataController("""
                             var kw = $2.kw;
-                    
                             if(kw.reason){
-                                var setters = objectExtract(kw.reason.attr,'_set_*',true);
-                                for (var setter in setters){
-                                    var setlist = setters[setter].split(':');
-                                    var s={};
-                                    
-                                    s[setter.replace('_','-')]=genro.evaluate(setlist[1].replace('#',$1.getValue()));
-                                    console.log(s);
-                                    genro.dom.setSelectorStyle(setlist[0],s);
-                                }                                           
+                                genro.dom.styleSheetBagSetter($1.getValue(),kw.reason.attr);                                   
                             }
                             """,
                             conf="^.controller.conf")
         bc.contentPane(region='center').remote('ttdh_main',nodeId=nodeId,tstart=tstart,tstop=tstop,period=period,
                                                 wkdlist=wkdlist,series=series,fired=fired)
       
-
-    def tt_left(self,bc,wkdlist):
-        center = bc.contentPane(region='center')
-        self.tt_colorPaletteMenu(center)
-
-        fb = center.formbuilder(cols=2, border_spacing='2px',datapath='.dayrow.day')
-        weekdays = dates.get_day_names(width='wide', locale=self.locale.replace('-','_'))
-        for k in wkdlist:
-            fb.div(background='^.color',lbl=weekdays[k],datapath='.%i'%k,border='1px solid black',baseClass='no_background',
-                    height='12px',width='12px',connectedMenu='tt_colorPaletteMenu')
+    def tt_prepareFloating(self,pane,cbname):
+        floatingPars = dict(_class='shadow_4',closable=True,dockable=True,dockTo='tt_footer',top='100px',left='300px',visible=False)
+        getattr(self,cbname)(pane,**floatingPars)
         
-        fb = center.formbuilder(cols=1, border_spacing='2px',width='80%')
-        fb.horizontalSlider(value='^.dayrow.height',lbl='Height',minimum=50,
-                            maximum=100,intermediateChanges=True,_set_height='.dayrow:#+"px"',
-                            _set_font_size='.daylabel_day:#-30+"px"')
         
-        fb.horizontalSlider(value='^.labelcolumn.width',lbl='Daylabel',minimum=30,
-                            maximum=100,intermediateChanges=True,_set_width='.labelcolumn:#+"px"',_set_left='.contentcolumn:#+"px"')
-        
-    def tt_bottom(self,bottom,wkdlist):
-        bottom.horizontalSlider(value='^.zoom', minimum=.2, maximum=3,
-                                intermediateChanges=True,width='15em',float='right')
-        bottom.data('.zoom',1)         
-        btn = bottom.button('!!Configuration',action='SET .layoutregions.left?show=!GET .layoutregions.left?show',
-                            float='left')
-        fb = bottom.formbuilder(cols=7, border_spacing='2px',datapath='.dayrow.day')
-        weekdays = dates.get_day_names(width='wide', locale=self.locale.replace('-','_'))
-        for k in wkdlist:
-            fb.checkbox(value='^.show', default_value=True,label=weekdays[k],datapath='.%i' %k)
-            
     def remote_ttdh_main(self,pane,tstart=None,tstop=None,period=None,wkdlist=None,fired=None,nodeId=None,series=None):
-        self.tt_pars = dict(tstart=tstart,tstop=tstop,period=period,wkdlist=wkdlist,nodeId=nodeId,series=series)
+        self.tt_pars = dict(tstart=tstart,tstop=tstop,period=period,wkdlist=wkdlist,nodeId=nodeId,series=series,minute_w=6,sh=30)
         if hasattr(self,'tt_%s_onstart' %nodeId):
             getattr(self,'tt_%s_onstart' %nodeId)()
         days = self.tt_periodSlots()
-        ttbox = pane.div(zoomFactor='^.controller.zoom')
+        slot_type = self.tt_pars['slot_type']
+        slot_height = getattr(self,'tt_%s_slot_%s' %(nodeId,slot_type))()
+        #cb_palette_list = sorted([func_name for func_name in dir(self) if func_name.startswith('tt_palette_')])
+        #for cbname in cb_palette_list:
+        #    self.tt_prepareFloating(pane,cbname)
+        self.tt_pars['slot_height'] = slot_height
+        day_height = slot_height*len(series)+1        
+        if day_height< 50:
+            day_height = 50
+        ttboxwidth='%ipx'%((tstop.hour+1-tstart.hour)*60*self.tt_pars['minute_w'])
+        ttbox = pane.div(zoomFactor='^.controller.zoom',width=ttboxwidth)
         for j,dayrow in enumerate(days):
             day = dayrow['day']
             dataserie = dayrow['dataserie']
-            row = ttbox.div(_class='dayrow dayrow_wd%i' %day.weekday())
+            row = ttbox.div(_class='dayrow dayrow_wd%i' %day.weekday(),
+                            height='%ipx' %day_height)
             labelcolumn = row.div(_class='labelcolumn')
             contentcolumn =row.div(_class='contentcolumn')
             self.tt_daylabel(labelcolumn,day)
@@ -130,43 +146,37 @@ class Timetable(BaseComponent):
     
     def tt_daycontent(self,cell,dataserie,**kwargs):
         pane = cell.div(_class='daycontent',**rect(top=1,bottom=1,left=1,right=1))
-        #sh = day_h/len(dataserie)
-        minute_w = 6
-        sh = 30
+        minute_w = self.tt_pars['minute_w']
+        sh = self.tt_pars['slot_height']
         start_hour = self.tt_pars['tstart'].hour
-       #for ns,ks in enumerate(dataserie.items()):
-       #    s_top=ns*sh 
-       #    key,slots=ks
-       #    serierow = pane.div(**rect(left=0,top=s_top,height=sh))
-       #    for slot in slots:
-       #        left = ((slot['ts'].hour-start_hour)*60+slot['ts'].minute)*minute_w
-       #        width = slot['minutes'] *minute_w
-       #        slotcell = serierow.div(**rect(top=1,left=left+1,bottom=1,width=width-1))
-       #        #_class='ttslot %s' %status,
-       #        self.tt_slot(slotcell,slot=slot,width=width,height=sh)
+        for ns,ks in enumerate(dataserie.items()):
+            s_top=ns*sh 
+            key,slots=ks
+            serierow = pane.div(_class='serierow_n%i' %ns, **rect(left=0,right=0,top=s_top,height=sh))
+            for slot in slots:
+                left = ((slot['ts'].hour-start_hour)*60+slot['ts'].minute)*minute_w
+                width = slot['minutes'] *minute_w
+                slotcell = serierow.div(_class='tt_slot',**rect(left=left+1,width=width-2))
+                self.tt_slot(slotcell,slot=slot,width=width)
             
     def tt_periodSlots(self):
-        #wkdlist = [int(k) for k,v in wkdlist.items() if v] or None
         result = []
         series = self.tt_pars['series']
         provider_handler = getattr(self,'tt_%s_dataProvider' %self.tt_pars['nodeId'])
         for day in dayIterator(self.tt_pars['period'],locale=self.locale,workdate=self.workdate,wkdlist=self.tt_pars['wkdlist']):
             dataserie = dict()
             for serie in series:
-                print serie
                 r =  provider_handler(day=day,serie=serie)
-                print r
                 dataserie[serie['code']] = r
             result.append(dict(dataserie=dataserie,day=day))
         return result
                 
-    def tt_slot(self,cell=None,**kwargs):
-        getattr(self,'tt_%s_slot' %self.tt_pars['nodeId'])(cell,**kwargs)
+    def tt_slot(self,cell,**kwargs):
+        getattr(self,'tt_%s_slot_%s' %(self.tt_pars['nodeId'],self.tt_pars['slot_type']))(pane=cell,**kwargs)
         
     def tt_localcss(self):
         return """
         .dayrow{
-            height: 50px;
             position: relative;
             border-bottom: 1px solid gray;
         }
@@ -227,17 +237,45 @@ class Timetable(BaseComponent):
             font-size: .8em;
         }
         
-        .dayrow_wd0{background-color: rgba(250,250,250,0.72);}
-        .dayrow_wd1{background-color: rgba(240,240,240,0.72);}
-        .dayrow_wd2{background-color: rgba(230,230,230,0.72);}
-        .dayrow_wd3{background-color: rgba(220,220,220,0.72);}
-        .dayrow_wd4{background-color: rgba(210,210,210,0.72);}
-        .dayrow_wd5{background-color: rgba(200,200,200,0.72);}
-        .dayrow_wd6{background-color: rgba(190,190,190,0.72);}
+        .dayrow_wd0{background-color: rgba(250,250,250,0.72);display:block;}
+        .dayrow_wd1{background-color: rgba(240,240,240,0.72);display:block;}
+        .dayrow_wd2{background-color: rgba(230,230,230,0.72);display:block;}
+        .dayrow_wd3{background-color: rgba(220,220,220,0.72);display:block;}
+        .dayrow_wd4{background-color: rgba(210,210,210,0.72);display:block;}
+        .dayrow_wd5{background-color: rgba(200,200,200,0.72);display:block;}
+        .dayrow_wd6{background-color: rgba(190,190,190,0.72);display:block;}
         
         
         .daycontent{
-            background-color:red;
         }
+        
+        .tt_slot{
+            /*embedded position absolute; left; width;*/
+            top:3px;
+            bottom:3px;
+            -moz-border-radius:6px;
+            -webkit-border-radius:6px;
+            -moz-box-shadow:1px 1px 1px #403b3b;
+            -webkit-box-shadow:1px 1px 1px #403b3b;
+            opacity: .8;
+            background-color:white;
+        }
+        .ttslot_T{
+            -moz-border-radius-topleft:6px;
+            -moz-border-radius-topright:6px;
+            -webkit-border-top-right-radius:6px;
+            -webkit-border-top-left-radius:6px;
+        }
+        .serierow_n0{
+        }
+        .serierow_n1{
+        }
+        .serierow_n2{
+        }
+        .serierow_n3{}
+        .serierow_n4{}
+        .serierow_n5{}
+        .serierow_n6{}
+        .serierow_n6{}
         
         """
