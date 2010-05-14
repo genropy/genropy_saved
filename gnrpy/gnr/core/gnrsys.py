@@ -46,4 +46,36 @@ def listdirs(path, invisible_files=False):
     files=[]
     os.path.walk(path,callb,files)
     return files
-        
+
+def resolvegenropypath(path):
+    """resolvegenropypath (path)
+       Added by Jeff to make it easier to resolve document paths between different installations of Genropy
+       /Genropy/... or ~/Genropy/... so that file path given within genropy will work.
+       Of course I expect it to be rejected and / or refactored :)"""
+       
+    if path.find('~') == 0:
+        path = expandpath(path)
+        if os.path.exists(path):
+            return path
+
+    if path.find('/') == 0:
+        if os.path.exists(path):
+            return path
+        else: #try making it into a user directory path
+            path = '%s%s' %('~', path)
+            path = expandpath(path)
+            if os.path.exists(path):
+                return path
+    else:
+        if os.path.exists(path):
+            return path
+        else:
+            path = '%s%s' %('~/', path)
+            path = expandpath(path)
+            if os.path.exists(path):
+                return path
+
+if __name__ == '__main__':
+    print resolvegenropypath('~/genropy/genro/projects/devlang/packages/devlang/lib/developers.txt')
+    print resolvegenropypath('/genropy/genro/projects/devlang/packages/devlang/lib/developers.txt')
+    print resolvegenropypath('genropy/genro/projects/devlang/packages/devlang/lib/developers.txt')
