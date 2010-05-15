@@ -5,7 +5,7 @@
         <adm/>
     </packages>
     <db dbname="devlang"/>
-    <authentication>
+    <authentication pkg="adm">
         <xml_auth>
             <developer pwd="dev" tags="_DEV_,admin,user,staff,amministrazione,_TRD_"/>
             <demo pwd="demo" tags="user"/>
