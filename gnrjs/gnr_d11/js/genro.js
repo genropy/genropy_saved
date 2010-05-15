@@ -196,6 +196,19 @@ dojo.declare('gnr.GenroClient', null, {
             genro.dev.showBottomHelper();
         }
         this.isMac = dojo.isMac !=undefined? dojo.isMac:navigator.appVersion.indexOf('Macintosh')>=0;
+        this.iPad =  navigator.appVersion.indexOf('iPad')>=0;
+        if( this.iPad ){ 
+            dojo.connect(document.body, 'ontouchstart', function(e){
+                 var touch = e.touches[0];
+                 if ( !touch ) return;
+                 var me = document.createEvent("MouseEvents");
+                 me.initMouseEvent('dblclick', true, true, window, 1, 
+                                    touch.screenX, touch.screenY, touch.clientX, touch.clientY, 
+                                    false, false, false, false,
+                                    0, null );
+                ;});
+                touch.target.dispatchEvent(me);
+        }
     },
     playSound:function(name,path,ext){
         if (!(name in genro.sounds)){
