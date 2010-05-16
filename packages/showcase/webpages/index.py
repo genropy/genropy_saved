@@ -14,10 +14,9 @@ from gnr.core.gnrlang import gnrImport
 from gnr.core.gnrbag import Bag
 import os
 
-
-
 class GnrCustomWebPage(object):    
     css_requires= 'index'
+    js_requires='ckeditor/ckeditor'
     def rootWidget(self,root,**kwargs):
         return root.borderContainer(_class='mainindex',**kwargs)
         
@@ -26,34 +25,45 @@ class GnrCustomWebPage(object):
         pane.tree(storepath='menubag',hideValues=True,inspect='shift',labelAttribute='name',isTree=False,
                     selected_path='tree.current_path')
         pane.dataFormula("iframe.selected_page", "current_path", current_path="^tree.current_path",_if='current_path')
+
+    def top(self,pane):
+        pane.span("TestGarden > ")
+        pane.span().a('^current_demo',href='^current_demo',color='#dfcfa4')
+        pane.dataFormula("current_demo", "page?page:'index'",_onStart=True,page='^iframe.selected_page')
+        
         
     def main(self,rootBC,**kwargs):
         self.pageController(rootBC)
         self.editorDialog(rootBC)
         self.left_menu(rootBC.contentPane(region='left',width='230px',splitter=True,_class='leftpane'))
-        top = rootBC.contentPane(region='top',height='20px',_class='header',padding='5px')
-        top.span("TestGarden > ")
-        top.span().a('^current_demo',href='^current_demo',color='#dfcfa4')
-        top.dataFormula("current_demo", "page?page:'index'",_onStart=True,page='^iframe.selected_page')
+        self.top(rootBC.contentPane(region='top',height='20px',_class='header',padding='5px'))
         center = rootBC.borderContainer(region='center')
         buttons = center.contentPane(region='bottom',height='30px',_class='centerfooter').div(position='absolute',right='15px',top='2px')
         buttons.button('Page',baseClass='indexbutton',action='SET stack.selected=0')
-        buttons.button('Source',baseClass='indexbutton',action='SET stack.selected=1',disabled=True) #to do
-        buttons.button('Documentation',baseClass='indexbutton',action='SET stack.selected=2',disabled=True) #to do
+        buttons.button('Source',baseClass='indexbutton',action='SET stack.selected=1',disabled=False) #to do
+        buttons.button('Documentation',baseClass='indexbutton',action='SET stack.selected=2',disabled=False) #to do
         sc = center.stackContainer(region='center',selected='^stack.selected')
         sc.contentPane(overflow='hidden').iframe(height='100%',width='100%',border='0',src='^iframe.selected_page')
-        self.docPane(sc.contentPane(overflow='auto',_class='docpane',datapath='demo.doc.description'))
-        sc.contentPane(overflow='auto',background_color='white').div(value='^demo.source',_class='linecode')
+        sc.contentPane(overflow='auto',background_color='white').div(value='^demo.source')
+        self.docPane(sc.borderContainer(region='center'))
         
-    def docPane(self,pane):
-        pane.div('Abstract',_class='doclabel')
-        pane.div('^.full',_class='demodoc abstract',connect_onclick='genro.wdgById("doc_edit").show()')
-        pane.div('Widget Children',_class='doclabel')
-        pane.div('^.children',_class='demodoc',connect_onclick='genro.wdgById("doc_edit").show()')
-        pane.div('Params',_class='doclabel')
-        pane.div('^.params',_class='demodoc',connect_onclick='genro.wdgById("doc_edit").show()')
-        pane.div('Link',_class='doclabel')
-        pane.div(_class='demodoc').a("On Dojo's documentation",href='^demo.doc.description.link')
+    def docPane(self,bc):
+        bc.contentPane(region='top',height='20px',_class='header',padding='5px',background_color='black')
+        center = bc.contentPane(region='center',height='100%')
+        center.data('editors.cked1.disabled',True)
+        toolbar="""[
+                   ['Source','-','Bold', 'Italic', '-', 'NumberedList', 'BulletedList', '-', 'Link', 'Unlink'],
+                   ['Image','Table','HorizontalRule','PageBreak'],
+                   '/',
+                   ['JustifyLeft','JustifyCenter','JustifyRight','JustifyBlock'],
+                   ['Styles','Format','Font','FontSize'],
+                   ['TextColor','BGColor'],['Maximize', 'ShowBlocks']
+                   ]"""
+        
+        cbc=center.borderContainer()
+        top=cbc.contentPane(height='100%',region='top',splitter=False)
+        top.ckeditor(value='^editors.cked1.data',nodeId='cked1',config_toolbar='Basic',
+        config_uiColor= '#9AB8F3',readOnly='^editors.cked1.disabled', toolbar=toolbar,height='700px')
 
     def pageController(self,root):
         """The data controller on the page"""
@@ -67,11 +77,11 @@ class GnrCustomWebPage(object):
                           doctitle='^demo.doc.description.short',
                           _else='doctitle',_init=True)        
         root.dataScript('selected.demopath',"if(p){return p;}else{return 'about.py';}",
-                         p='^selected.page',ext='^selected.ext',
+                         p='^iframe.selected_page',ext='^selected.ext',
                          _if='ext!="directory"',_fired='^gnr.onStart')
         root.dataScript('dummy','SET panel = 0', _fired='^selected.demopath')
         root.dataRpc('demo.source','getSourceFile',linenumbers=1,
-                     demopath='^selected.demopath',_if='demopath&&_ext=="py"',_ext='=selected.ext')
+                     demopath='^selected.demopath')
         root.dataRpc('demo.doc','getDocFile',abspage='^iframe.current_path')
     
     def editorDialog(self,pane):
@@ -128,10 +138,19 @@ class GnrCustomWebPage(object):
         
                      
     def rpc_getSourceFile(self,demopath='',linenumbers=0,**kwargs):
+        basedir = __file__.strip('/').split('/')[:-1]
+        basedir =u'/'+'/'.join(basedir)
+        demopath = os.path.join(basedir,demopath)
         try:
             result=self.utils.readFile(demopath)
+            from pygments import highlight
+            from pygments.lexers import PythonLexer
+            from pygments.formatters import HtmlFormatter
+            code = unicode(result)
+            parsed = highlight(code, PythonLexer(), HtmlFormatter())
+            return parsed
         except:
-            return '<div>error: %s</error>'  %demopath
+            return '<div>error: %s</div>'  %demopath
         if not linenumbers:
             return result
         lines=result.split('\n')
