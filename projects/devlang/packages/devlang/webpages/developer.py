@@ -20,8 +20,8 @@ class GnrCustomWebPage(object):
         
     def formBase(self, parentBC,disabled=False, **kwargs):
         layout = parentBC.borderContainer(**kwargs)
-        left = layout.contentPane(region='top',_class='pbl_roundedGroup',margin='10px')
-        self.developer_form(left,disabled=disabled)
+        top = layout.contentPane(region='top',_class='pbl_roundedGroup',margin='10px')
+        self.developer_form(top,disabled=disabled)
         center = layout.borderContainer(region='center',margin='10px',margin_top=0)
         self.developer_language_view(center)
     
@@ -39,14 +39,14 @@ class GnrCustomWebPage(object):
         pane.div('!!Developer',_class='pbl_roundedGroupLabel')
         fb = pane.formbuilder(cols=2, border_spacing='6px',width='600px',disabled=disabled)
         fb.field('first_name',autospan=1)
-        fb.field('last_name',autospan=1)
         fb.field('email',autospan=1)
+        fb.field('last_name',autospan=1)
         fb.field('website',autospan=1)
-        fb.field('address',validate_remote='geolocator',autospan=2)
+        fb.field('address',validate_remote='geolocator',autospan=2, margin_top='2em', label_margin_top='2em')
         fb.field('country_code',autospan=1)
         fb.field('country_name',autospan=1)
         fb.field('area',autospan=1)
-        fb.field('subarea',autospan=1)
+        fb.field('locality',autospan=1)
         fb.field('thoroughfare',autospan=1)
         fb.field('postal_code',autospan=1)
         pane.dataController("""
