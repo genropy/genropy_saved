@@ -42,13 +42,15 @@ class GnrCustomWebPage(object):
         fb.field('email',autospan=1)
         fb.field('last_name',autospan=1)
         fb.field('website',autospan=1)
-        fb.field('address',validate_remote='geolocator',autospan=2, margin_top='2em', label_margin_top='2em')
+        fb.div('&nbsp;', margin_top='1em', colspan=2)
+        fb.field('address',validate_remote='geolocator',autospan=2)#margin_top='2em', label_margin_top='2em'
         fb.field('country_code',autospan=1)
         fb.field('country_name',autospan=1)
         fb.field('area',autospan=1)
         fb.field('locality',autospan=1)
         fb.field('thoroughfare',autospan=1)
         fb.field('postal_code',autospan=1)
+        fb.div('&nbsp;', colspan=2)
         pane.dataController("""
                         SET .country_code = geocodebag.getItem('CountryNameCode');
                         SET .country_name = geocodebag.getItem('CountryName');
