@@ -489,7 +489,7 @@ class GnrWebAppHandler(GnrBaseProxy):
         
         if selectionName.startswith('*'):
             if selectionName=='*':
-                selectionName=getUuid()
+                selectionName=self.page.page_id
             else:
                 selectionName=selectionName[1:]
         elif selectionName:

@@ -193,6 +193,13 @@ class GnrBaseWebPage(GnrObject):
         else:
             avatar = self.application.getAvatar(login['user'], password=login['password'], authenticate=True,page=self)
         if avatar:
+            if not self.connection.cookie:
+                self.connection.initConnection()
+            #if not self.user:
+            #    connection=self.connection
+            #    self._user = self.connection.cookie_data.get('user')
+            self.avatar = avatar
+            self._user = avatar.id
             self.connection.updateAvatar(avatar)
             self.site.onAuthenticated(avatar)
             login['message'] = ''
@@ -207,6 +214,10 @@ class GnrBaseWebPage(GnrObject):
         auth = AUTH_OK
         pageTags = self.pageAuthTags(method=method, **parameters)
         if pageTags:
+            if not self.user:
+                if not self.connection.cookie:
+                    self.connection.initConnection()
+                self._user = self.connection.cookie_data.get('user')
             if not self.user:
                 auth = AUTH_NOT_LOGGED
             elif not self.application.checkResourcePermission(pageTags, self.userTags):
@@ -538,6 +549,7 @@ class GnrBaseWebPage(GnrObject):
     def rpc_onClosePage(self, **kwargs):
         self.site.onClosePage(self)
         self.session.removePageData()
+        self.connection.pageFolderRemove()
         self.connection.cookieToRefresh()
         
     def mainLeftContent(self,parentBC,**kwargs):

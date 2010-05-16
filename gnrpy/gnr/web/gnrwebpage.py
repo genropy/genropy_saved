@@ -68,6 +68,7 @@ class GnrWebPage(GnrBaseWebPage):
         self._event_subscribers = {}
         self._localClientDataChanges = Bag()
         self._user = None
+        self._connection = None
         self.forked = False # maybe redefine as _forked
         self.page_id = request_kwargs.pop('page_id',None) or getUuid()
         self.filepath = filepath
@@ -130,10 +131,10 @@ class GnrWebPage(GnrBaseWebPage):
     utils = property(_get_utils)
     
     def _get_connection(self):
-        if not hasattr(self, '_connection'):
+        if self._connection is None:
             connection = GnrWebConnection(self)
             self._connection = connection
-            connection.initConnection()
+            #connection.initConnection()
         return self._connection
     connection = property(_get_connection)
 
@@ -289,7 +290,8 @@ class GnrWebPage(GnrBaseWebPage):
         pass
 
     def _onEnd(self):
-        self.handleMessages()
+        if self.user:
+            self.handleMessages()
         self._publish_event('onEnd')
         self.onEnd()
     
@@ -501,20 +503,24 @@ class GnrWebPage(GnrBaseWebPage):
     
     def _get_user(self):
         """Get the user from hidden _user attribute."""
-        if not self._user:
-            self._user = self.connection.cookie_data.get('user')
+        #if not self._user:
+        #    self._user = self.connection.cookie_data.get('user')
         return self._user
     user = property(_get_user)
         
     def _get_userTags(self):
-        return self.connection.cookie_data.get('tags')
+        if self.user:
+            return self.connection.cookie_data.get('tags')
     userTags = property(_get_userTags)
     
+    def _set_avatar(self,avatar):
+        self._avatar=avatar
+
     def _get_avatar(self):
         if not hasattr(self, '_avatar'):
             self._avatar = self.application.getAvatar(self.user)
         return self._avatar
-    avatar = property(_get_avatar)
+    avatar = property(_get_avatar,_set_avatar)
     
     def updateAvatar(self):
         """Reload the avatar, recalculate tags, and save in cookie"""

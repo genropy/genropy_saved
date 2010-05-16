@@ -10,6 +10,7 @@ import os
 import datetime
 import random
 import time
+import shutil
 from gnr.core.gnrbag import Bag
 from gnr.core.gnrlang import getUuid
 from gnr.web.gnrwebpage_proxy.gnrbaseproxy import GnrBaseProxy
@@ -21,6 +22,10 @@ class GnrWebConnection(GnrBaseProxy):
     
     def init(self, **kwargs):
         self.expired = False
+        self.connection_id = '_anonymous'
+        self.cookie = None
+        self.allConnectionsFolder = os.path.join(self.page.siteFolder, 'data', '_connections')
+
         
     def event_onEnd(self):
         if self.page.user:
@@ -34,7 +39,6 @@ class GnrWebConnection(GnrBaseProxy):
         conn_name = 'conn_%s'%sitename
         self.cookieName = conn_name
         self.secret = page.site.config['secret'] or self.page.siteName
-        self.allConnectionsFolder = os.path.join(self.page.siteFolder, 'data', '_connections')
         self.cookie = None
         self.oldcookie=None
         if page._user_login:
@@ -68,7 +72,8 @@ class GnrWebConnection(GnrBaseProxy):
     data = property(_get_data)
     
     def cookieToRefresh(self):
-        self.cookie.value['timestamp'] = None
+        if self.cookie:
+            self.cookie.value['timestamp'] = None
         
     def _finalize(self):
         if not self.cookie.value.get('timestamp'):
@@ -129,15 +134,18 @@ class GnrWebConnection(GnrBaseProxy):
         site=page.site
         site.connectionLog('close',connection_id=connection_id)
         self.connFolderRemove(connection_id)
+    
+    def pageFolderRemove(self):
+        shutil.rmtree(os.path.join(self.connectionFolder, self.page.page_id),True)
         
-    def connFolderRemove(self, connection_id):
-        path= os.path.join(self.allConnectionsFolder, connection_id)
-        for root, dirs, files in os.walk(path, topdown=False):
-            for name in files:
-                os.remove(os.path.join(root, name))
-            for name in dirs:
-                os.rmdir(os.path.join(root, name))
-        os.rmdir(path)
+    def connFolderRemove(self, connection_id):        
+        shutil.rmtree(os.path.join(self.allConnectionsFolder, connection_id),True)
+       #for root, dirs, files in os.walk(path, topdown=False):
+       #    for name in files:
+       #        os.remove(os.path.join(root, name))
+       #    for name in dirs:
+       #        os.rmdir(os.path.join(root, name))
+       #os.rmdir(path)
         
     def verify(self, cookie):
         if os.path.isfile(self.connectionFile):
