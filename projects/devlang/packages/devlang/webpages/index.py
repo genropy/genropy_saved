@@ -14,9 +14,6 @@ class GnrCustomWebPage(object):
     def windowTitle(self):
          return '!!Developer App'
 
-    # def pageAuthTags(self, method=None, **kwargs):
-    #     return 'user'
-
     def main(self, root, **kwargs):
         center, top, bottom = self.pbl_rootBorderContainer(root, '',datapath='form')
         center.div('Developer Information', align='center', margin_top='20px', color='silver', font_size='16pt')
