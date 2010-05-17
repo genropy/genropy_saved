@@ -28,9 +28,7 @@ class GnrCustomWebPage(object):
 
     def top(self,pane):
         pane.span("TestGarden > ")
-        pane.span().a('^current_demo',href='^current_demo',color='#dfcfa4')
-        pane.dataFormula("current_demo", "page?page:'index'",_onStart=True,page='^iframe.selected_page')
-        
+        pane.span().a('^demo.current.relpath',href='^demo.current.relpath',color='#dfcfa4')        
         
     def main(self,rootBC,**kwargs):
         self.pageController(rootBC)
@@ -44,13 +42,10 @@ class GnrCustomWebPage(object):
         buttons.button('Documentation',baseClass='indexbutton',action='SET stack.selected=2',disabled=False) #to do
         sc = center.stackContainer(region='center',selected='^stack.selected')
         sc.contentPane(overflow='hidden').iframe(height='100%',width='100%',border='0',src='^iframe.selected_page')
-        sc.contentPane(overflow='auto',background_color='white').div(value='^demo.source')
+        sc.contentPane(overflow='auto',background_color='white').div(value='^demo.current.source')
         self.docPane(sc.borderContainer(region='center'))
         
     def docPane(self,bc):
-        bc.contentPane(region='top',height='20px',_class='header',padding='5px',background_color='black')
-        center = bc.contentPane(region='center',height='100%')
-        center.data('editors.cked1.disabled',True)
         toolbar="""[
                    ['Source','-','Bold', 'Italic', '-', 'NumberedList', 'BulletedList', '-', 'Link', 'Unlink'],
                    ['Image','Table','HorizontalRule','PageBreak'],
@@ -60,34 +55,33 @@ class GnrCustomWebPage(object):
                    ['TextColor','BGColor'],['Maximize', 'ShowBlocks']
                    ]"""
         
-        cbc=center.borderContainer()
-        top=cbc.contentPane(height='100%',region='top',splitter=False)
-        top.ckeditor(value='^editors.cked1.data',nodeId='cked1',config_toolbar='Basic',
-        config_uiColor= '#9AB8F3',readOnly='^editors.cked1.disabled', toolbar=toolbar,height='700px')
+        top=bc.contentPane(height='100%',region='top',splitter=False)
+        top.ckeditor(value='^demo.current.docdata',nodeId='editor',config_toolbar='Basic',
+        config_uiColor= '#9AB8F3', toolbar=toolbar,height='700px')
+        top.button('Save',fire='save.doc')
 
     def pageController(self,root):
         """The data controller on the page"""
-        #root.data('tree',self.diskDirectory())
-        root.dataRpc('result','saveDocumentation',_doSave='^aux.doSave',_if='_doSave',
-                      docbag='^demo.doc',
-                      currpath='^selected.abspage')
         root.data('panel',0)
         root.dataFormula('aux.title',"'Showcase'"
                           ,_if='doctitle==null',
-                          doctitle='^demo.doc.description.short',
-                          _else='doctitle',_init=True)        
-        root.dataScript('selected.demopath',"if(p){return p;}else{return 'about.py';}",
-                         p='^iframe.selected_page',ext='^selected.ext',
-                         _if='ext!="directory"',_fired='^gnr.onStart')
-        root.dataScript('dummy','SET panel = 0', _fired='^selected.demopath')
-        root.dataRpc('demo.source','getSourceFile',linenumbers=1,
-                     demopath='^selected.demopath')
-        root.dataRpc('demo.doc','getDocFile',abspage='^iframe.current_path')
-    
+                          doctitle='^demo.current.doc.description.short',
+                          _else='doctitle',_init=True)
+        root.dataFormula("demo.current.relpath", "page?page:'index.py'",_onStart=True,page='^iframe.selected_page')
+        root.dataRpc("demo.current.name", "currentDemoName",_onStart=True,relpath='^demo.current.relpath')
+        root.dataScript('demo.current.name',"if(p){return p;}else{return 'index.py';}",
+                         p='^iframe.selected_page',_fired='^gnr.onStart')
+        root.dataScript('dummy','SET panel = 0', _fired='^demo.current.name')
+        root.dataRpc('demo.current.syspath','fileSysPath',relpath='^demo.current.relpath')
+        root.dataRpc('demo.current.source','getSourceFile',syspath='^demo.current.syspath')
+        #root.dataRpc('demo.current.doc','getDocFile',abspage='^iframe.current_path')
+        root.dataRpc('demo.current.docdata','getDocData',syspath='^demo.current.syspath')
+        root.dataRpc('funcEdited','saveDocData',_fired='^save.doc',data='^demo.current.docdata',syspath="^demo.current.syspath",name='^demo.current.name')
+
     def editorDialog(self,pane):
         """docstring for categoryDialog"""
         dlg = pane.dialog(nodeId='doc_edit',title='Edit documentation',_class='edit_dlg')
-        fb = dlg.formbuilder(cols=1,border_spacing='3px',font_size='8pt',datapath='demo.doc.description')
+        fb = dlg.formbuilder(cols=1,border_spacing='3px',font_size='8pt',datapath='demo.current.doc.description')
         fb.textbox(value='^.short',lbl='Title')
         fb.simpleTextarea(value='^.full',lbl='Abstract',lbl_vertical_align='top')
         fb.simpleTextarea(value='^.children',lbl='Children',lbl_vertical_align='top')
@@ -135,14 +129,20 @@ class GnrCustomWebPage(object):
         if os.path.isfile(docpath):
             result=Bag(docpath)
         return result
-        
-                     
-    def rpc_getSourceFile(self,demopath='',linenumbers=0,**kwargs):
+
+    def rpc_fileSysPath(self,relpath=None):
+        if not relpath:
+            return ''
         basedir = __file__.strip('/').split('/')[:-1]
         basedir =u'/'+'/'.join(basedir)
-        demopath = os.path.join(basedir,demopath)
+        sys_path = os.path.join(basedir,relpath)
+        return sys_path
+                         
+    def rpc_getSourceFile(self,syspath=None,**kwargs):
+        if not syspath:
+            return '<div>error: relpath missing</div>'
         try:
-            result=self.utils.readFile(demopath)
+            result=self.utils.readFile(syspath)
             from pygments import highlight
             from pygments.lexers import PythonLexer
             from pygments.formatters import HtmlFormatter
@@ -150,14 +150,31 @@ class GnrCustomWebPage(object):
             parsed = highlight(code, PythonLexer(), HtmlFormatter())
             return parsed
         except:
-            return '<div>error: %s</div>'  %demopath
-        if not linenumbers:
-            return result
-        lines=result.split('\n')
-        result="<table border='0' cellspacing='0' cellpadding='0' >%s</table>"
-        rows=[]
-        for j,line in enumerate (lines):
-            rows.append("<tr><td class='linenum'>%i</td><td class='linecode r%i'>%s</td></tr>" % (j+1,j%2,line))
-        result = result  % '\n'.join(rows)
-        return result
+            return '<div>error: %s</div>'  %syspath
 
+    def rpc_currentDemoName(self,relpath=None):
+        name=relpath.split('/')[-1]
+        return name
+
+    def rpc_getDocData(self,syspath):
+        tbl = self.db.table('showcase.function')
+        func = tbl.query(where='path=:func_path',func_path=syspath).fetch()
+        if func:
+            return func[0]['data']
+        return ''
+
+    def rpc_saveDocData(self,data='',syspath='',name=''):
+        tbl = self.db.table('showcase.function')
+        func = tbl.query(where='path=:func_path',func_path=syspath).fetch()
+        pkey=None
+        if func:
+            func[0]['doc']=data
+            pkey = func[0]['id']
+        else:
+            try:
+                pkey = tbl.newPkeyValue()
+                tbl.insert(dict(id=pkey,name=name,doc=data,path=syspath))
+            except:
+                return None
+        self.db.commit()
+        return pkey
