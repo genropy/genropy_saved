@@ -1,15 +1,30 @@
-#!/usr/bin/env python
-# encoding: utf-8
-"""
-Created by Softwell on 2008-07-10.
-Copyright (c) 2008 Softwell. All rights reserved.
-"""
-MAX_RETRY=10
-RETRY_TIME=0.01
-LOCK_TIME=2
+#-*- coding: UTF-8 -*-
+#--------------------------------------------------------------------------
+# package           : GenroPy web - see LICENSE for details
+# module gnrwebcore : core module for genropy web framework
+# Copyright (c)     : 2004 - 2007 Softwell sas - Milano 
+# Written by    : Giovanni Porcari, Michele Bertoldi
+#                 Saverio Porcari, Francesco Porcari , Francesco Cavazzana
+#--------------------------------------------------------------------------
+#This library is free software; you can redistribute it and/or
+#modify it under the terms of the GNU Lesser General Public
+#License as published by the Free Software Foundation; either
+#version 2.1 of the License, or (at your option) any later version.
+
+#This library is distributed in the hope that it will be useful,
+#but WITHOUT ANY WARRANTY; without even the implied warranty of
+#MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+#Lesser General Public License for more details.
+
+#You should have received a copy of the GNU Lesser General Public
+#License along with this library; if not, write to the Free Software
+#Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
+# 
+
 MSG_DEFAULT_EXPIRY=10
 from datetime import datetime
 from gnr.core.gnrlist import sortByItem
+
 class GnrMessageHandler(object):
     """
     Message handler that uses gnrshareddata.
@@ -45,7 +60,7 @@ class GnrMessageHandler(object):
         message=self._buildMessageEnvelope(body=body, message_type=message_type, 
                                 src_connection_id=src_connection_id, 
                                 src_user=src_user, src_page_id=src_page_id, **kwargs)
-        with sd.locked(key=address,max_retry=MAX_RETRY, lock_time=LOCK_TIME, retry_time=RETRY_TIME):
+        with sd.locked(key=address):
             counter_w='%s_W' % address
             k=sd.incr(counter_w)
             if k is None:
@@ -58,7 +73,7 @@ class GnrMessageHandler(object):
         sd=self.site.shared_data
         address ='MSG-%s-%s'%(dest_type,address)
         result=[]
-        with sd.locked(key=address,max_retry=MAX_RETRY,lock_time=LOCK_TIME,retry_time=RETRY_TIME):
+        with sd.locked(key=address):
             cnt=sd.get_multi(['R','W'],'%s_' % address)
             r_msg=cnt.get('R',0)
             w_msg=cnt.get('W',0)
@@ -95,5 +110,4 @@ class GnrMessageHandler(object):
         if user:
             messages.extend(self.getUserMessages(user))
         return sortByItem(messages,'msg_ts')
-    
-    
+        
