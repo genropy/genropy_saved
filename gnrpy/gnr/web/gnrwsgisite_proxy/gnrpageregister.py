@@ -21,63 +21,155 @@
 #Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 # 
 
+from datetime import datetime
 
-MAX_RETRY=10
-RETRY_TIME=0.01
-LOCK_TIME=2
-MSG_DEFAULT_EXPIRY=10
 
-class PageRegister(object):
+
+
+class BaseRegister(object):
+    
+    DEFAULT_EXPIRY=60
     
     def __init__(self, site):
         self.site = site
         self.sd=self.site.shared_data
     
-    def register(self,page):
-        """Register page"""
+    def register(self,obj):
+        """Register object"""
+        sd=self.sd
+        address=self.prefix
+        with sd.locked(key=address):
+            self._add_object(obj)
+            
         
-        
-    def unregister(self,page):
-        """Unregister page"""
-        
-    def refresh(self,page):
-        """Register page"""
-        
-    def pages(self):
-        """Registered pages"""
-        address ='PAGE_REGISTER-%s-%s'%(dest_type,address)
-        result=[]
-        with self.sd.locked(key=address,max_retry=MAX_RETRY,lock_time=LOCK_TIME,retry_time=RETRY_TIME):
-            cnt=sd.get_multi(['R','W'],'%s_' % address)
-            r_msg=cnt.get('R',0)
-            w_msg=cnt.get('W',0)
-            if w_msg>r_msg:
-                messages=sd.get_multi([str(k+1) for k in range(r_msg,w_msg)],'%s_' % address)
-                result=[messages[str(k+1)] for k in range(r_msg,w_msg) if str(k+1) in messages]
-                sd.set('%s_R' % address,w_msg)
-        return result
-        
-        
-    def subscribe(self,topic,page):
-        self.message_handler.subscribe(topic,event)
-        
-    def publish(self,topic,cb):
-        self.message_handler.publish(topic,event,cb)
-        
-    def subscribe(self,topic,subscriber_page_id):
-        sd=self.site.shared_data
-        address ='SUB-%s'%(topic)
-        message=self._buildMessageEnvelope(body=body, message_type=message_type, 
-                                src_connection_id=src_connection_id, 
-                                src_user=src_user, src_page_id=src_page_id, **kwargs)
-        with sd.locked(key=address,max_retry=MAX_RETRY, lock_time=LOCK_TIME, retry_time=RETRY_TIME):
-            counter_w='%s_W' % address
-            k=sd.incr(counter_w)
-            if k is None:
-                k=1
-                sd.set(counter_w,k)
-            key='%s_%i' % (address,k) 
-            sd.set(key,message,expiry)
+    def unregister(self,obj):
+        """Unregister object"""
+        sd=self.sd
+        address=self.prefix
+        object_id=self._get_object_info(obj)['object_id']
+        with sd.locked(key=address):
+            self._remove_object(object_id)
     
+    def _get_object_info(self, obj):
+        pass
+    
+
+    
+    def _add_object(self, obj):
+        sd=self.sd
+        object_info=self._get_object_info(obj)
+        object_id=object_info['object_id']
+        self._add_index(object_id)
+        sd.set('%s_OBJECT_%s'%(self.prefix,object_id),object_info,0)
+        sd.set('%s_EXPIRY_%s'%(self.prefix,object_id),object_id,self.DEFAULT_EXPIRY)
+        self._on_add_object(object_info)
+        
+    def _on_add_object(self,object_info):
+        pass
+        
+    def _get_index_name(self,index_name=None):
+        if index_name:
+            ind_name='%s_INDEX_%s'%(self.prefix,index_name)
+        else:
+            ind_name='%s_INDEX'%self.prefix
+        return ind_name
+    
+    def _add_index(self,object_id,index_name=None):
+        sd=self.sd
+        ind_name=self._get_index_name(index_name)
+        index=sd.get(ind_name) or {}
+        index[object_id]=True
+        sd.set(ind_name,index,0)
+    
+    def _remove_index(self,object_id, name=None):
+        sd=self.sd
+        ind_name=self._get_index_name(name)
+        index=sd.get(ind_name) or {}
+        index.pop(object_id,None)
+        sd.set(ind_name,index,0)
+    
+    def _remove_object(self,object_id):
+        sd=self.sd
+        object_info=sd.get('%s_OBJECT_%s'%(self.prefix,object_id))
+        sd.delete('%s_OBJECT_%s'%(self.prefix,object_id))
+        sd.delete('%s_EXPIRY_%s'%(self.prefix,object_id))
+        self._remove_index(object_id)
+        self._on_remove_object(object_id,object_info)
+        
+    def _on_remove_object(self, object_id, object_info):
+        pass
         
         
+    def refresh(self,obj):
+        """Refresh object"""
+        sd=self.sd
+        address=self.prefix
+        object_id=self._get_object_info(obj)['object_id']
+        with sd.locked(key=address):
+            object_key='%s_EXPIRY_%s'%(self.prefix,object_id)
+            object_address = sd.get(object_key)
+            if object_address:
+                sd.set(object_key,object_id,self.DEFAULT_EXPIRY)
+            else:
+                self._add_object(obj)
+        
+    def get_object(self, object_id):
+        sd=self.sd
+        address=self.prefix
+        with sd.locked(key=address):
+            object_key='%s_EXPIRY_%s'%(self.prefix,object_id)
+            read_object_id = sd.get(object_key)
+            if read_object_id:
+                object_info=sd.get('%s_OBJECT_%s'%(self.prefix,object_id))
+                return object_info
+            else:
+                self._remove_object(object_id)
+        
+    def _objects(self,index_name=None):
+        """Registered objects"""
+        sd=self.sd
+        address=self.prefix
+        ind_name=self._get_index_name(index_name)
+        with sd.locked(key=address):
+            index=sd.get(ind_name) or {}
+            result=[]
+            live_index=[object_address for object_address in sd.get_multi(index.keys(),'%s_EXPIRY_'%self.prefix) if object_address]
+            new_index=dict([(object_id,True) for object_id in live_index])
+            sd.set(ind_name,new_index)
+            result=sd.get_multi(live_index,'%s_OBJECT_'%self.prefix)
+        return result
+     
+
+
+class PageRegister(BaseRegister):
+    
+    DEFAULT_EXPIRY=60
+    prefix='PREG_'
+    
+    def _get_object_info(self, page):
+        object_id=page.page_id
+        subscribed_tables=page.pageOptions.get('subscribed_tables',None)
+        if subscribed_tables:
+            subscribed_tables=subscribed_tables.split(',')
+        object_info=dict(
+                object_id=object_id,
+                pagename=page.basename,
+                connection_id=page.connection.connection_id,
+                start_ts=datetime.now(),
+                subscribed_tables=subscribed_tables or []
+                )
+        return object_info
+    
+    def _on_add_object(self,object_info):
+        for table in object_info['subscribed_tables']:
+            self._add_index(object_info['object_id'],index_name=table)
+     
+    def _on_remove_object(self, object_id, object_info):
+        for table in object_info and object_info['subscribed_tables'] or []:
+            self._remove_index(object_info, name=table)
+    
+    def pages(self, index_name=None):
+        return self._objects(index_name=index_name)
+        
+class ConnectionRegister(BaseRegister):
+    pass     

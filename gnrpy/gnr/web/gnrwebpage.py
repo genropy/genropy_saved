@@ -292,6 +292,7 @@ class GnrWebPage(GnrBaseWebPage):
         pass
 
     def _onEnd(self):
+        self.site.page_register.refresh(self)
         if self.user:
             self.handleMessages()
         self._publish_event('onEnd')
@@ -338,6 +339,7 @@ class GnrWebPage(GnrBaseWebPage):
         self.htmlHeaders()
         arg_dict = self.build_arg_dict(**kwargs)
         self.saveRootPageParams(kwargs)
+        
         return mytemplate.render(mainpage=self, **arg_dict)
     
     def saveRootPageParams(self,kwargs):
@@ -657,6 +659,7 @@ class GnrWebPage(GnrBaseWebPage):
                 self.main(rootwdg, **kwargs)
                 self.onMainCalls()
                 self._createContext(root)
+                self.site.page_register.register(self)
                 if self.user:
                     self.site.pageLog('open')
 

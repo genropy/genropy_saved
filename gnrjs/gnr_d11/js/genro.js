@@ -64,7 +64,6 @@ dojo.declare('gnr.GenroClient', null, {
         this.dialogStack = [];
         this.sounds={};
         this.pendingFireAfter={};
-        this.lastRpcTs= new Date() ;
         this.compareDict={'==':function(a,b){return (a==b);},
                           '>':function(a,b){return (a>b);},
                           '>=':function(a,b){return (a>=b);},
@@ -91,6 +90,7 @@ dojo.declare('gnr.GenroClient', null, {
         this.dlg= new gnr.GnrDlgHandler(this); //da implementare
         this.dom= new gnr.GnrDomHandler(this);
         this.vld = new gnr.GnrValidator(this);
+        
         genropatches.comboBox();
         genropatches.tree();
         genropatches.parseNumbers();
@@ -229,11 +229,8 @@ dojo.declare('gnr.GenroClient', null, {
         genro.rpc.remoteCall('setInServer', {path:path, value:value});
     },
     registerEvent:function(e){
-        var d=new Date()
-        var z=(  d - this.lastRpcTs)/1000
-       if (z >10){
-           this.lastRpcTs=new Date()
-           console.log('polling');
+       if ((  new Date() - this.lastRpc)/1000 >10){
+           genro.rpc.ping();
        }
         
     },

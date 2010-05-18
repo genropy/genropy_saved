@@ -23,6 +23,7 @@ from gnr.core.gnrmailhandler import MailHandler
 from gnr.app.gnrdeploy import PathResolver
 from gnr.web.gnrwsgisite_proxy.gnrshareddata import GnrSharedData_dict, GnrSharedData_memcache
 from gnr.web.gnrwsgisite_proxy.gnrmsg import  GnrMessageHandler
+from gnr.web.gnrwsgisite_proxy.gnrpageregister import PageRegister
 mimetypes.init()
 site_cache = {}
 
@@ -249,6 +250,7 @@ class GnrWsgiSite(object):
         self.print_handler=PrintHandler(parent = self)
         self.mail_handler=MailHandler(parent = self)
         self.message_handler=GnrMessageHandler(self)
+        self.page_register=PageRegister(self)
         if counter==0 and self.debug:
             self.onInited(clean = not noclean)
         
@@ -620,6 +622,7 @@ class GnrWsgiSite(object):
             return self.gnrapp.db.table('sys.locked_record').clearExistingLocks(**kwargs)
             
     def onClosePage(self,page):
+        self.page_register.unregister(page)
         self.pageLog('close',page_id=page.page_id)
         self.clearRecordLocks(page_id=page.page_id)
         
@@ -648,16 +651,17 @@ class GnrWsgiSite(object):
    #     
         
     def notifyDbEvent(self,tblobj,record,event,old_record=None):
-        if 'adm' in self.gnrapp.db.packages:
-            page = self.currentPage
-            if tblobj.attributes.get('broadcast') and page and page.subscribedTablesDict and tblobj.fullname in page.subscribedTablesDict:
-                for page_id, connection_id in page.subscribedTablesDict[tblobj.fullname]:
-                    self.setInClientPage(page_id=page_id,
-                                        connection_id=connection_id,
-                                        client_path='gnr.dbevent.%s'%tblobj.fullname.replace('.','_'),
-                                        value=Bag([(k,v) for k,v in record.items() if not k.startswith('@')]),
-                                        attributes=dict(dbevent=event))
-    
+        if tblobj.attributes.get('broadcast'):
+            subscribers = self.page_register.pages(index_name=tblobj.fullname)
+            value=Bag([(k,v) for k,v in record.items() if not k.startswith('@')])
+            for subscriber in subscribers:
+                sub=subscribers[subscriber]
+                self.setInClientPage(page_id=sub['object_id'],
+                                    connection_id=sub['connection_id'],
+                                    client_path='gnr.dbevent.%s'%tblobj.fullname.replace('.','_'),
+                                    value=value,
+                                    attributes=dict(dbevent=event))
+
     def setInClientPage(self, page_id=None, connection_id=None, client_path=None, value=None, attributes=None,  fired=False, saveSession=False):
         """@param save: remember to save on the last setInClientPage. The first call to setInClientPage implicitly lock the session util 
                         setInClientPage is called with save=True
