@@ -628,7 +628,25 @@ class GnrWsgiSite(object):
             page =self.currentPage
             if self.debug or page.isDeveloper():
                 page.debugger.output(debugtype,**kwargs)
-            
+                
+   # def subscribe(self,topic,cb):
+   #     self.message_handler.subscribe(topic,event)
+   #     
+   # def publish(self,topic,cb):
+   #     self.message_handler.publish(topic,event,cb)
+   #     
+   # def notifyDbEvent_NEW(self,tblobj,record,event,old_record=None):
+   #     if tblobj.attributes.get('broadcast'):
+   #         page = self.currentPage
+   #         value=Bag([(k,v) for k,v in record.items() if not k.startswith('@')])
+   #         attributes=dict(dbevent=event)
+   #         client_path='gnr.dbevent.%s'%tblobj.fullname.replace('.','_')
+   #         def cb(page_id,connection_id):
+   #             self.setInClientPage(page_id=page_id,connection_id=connection_id,
+   #                                 client_path=client_path,value=value,attributes=attributes)
+   #         self.publish(tblobj.fullname,event,cb)
+   #     
+        
     def notifyDbEvent(self,tblobj,record,event,old_record=None):
         if 'adm' in self.gnrapp.db.packages:
             page = self.currentPage
