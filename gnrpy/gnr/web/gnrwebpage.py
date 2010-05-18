@@ -65,6 +65,8 @@ class GnrWebPage(GnrBaseWebPage):
     
     def __init__(self, site=None, request=None, response=None, request_kwargs=None, request_args=None, filepath = None, packageId = None, basename = None):
         self.site = site
+        self.user_agent=request.user_agent
+        self.isTouchDevice = ('iPad' in self.user_agent or 'iPhone' in self.user_agent)
         self._event_subscribers = {}
         self._localClientDataChanges = Bag()
         self._user = None
@@ -322,6 +324,7 @@ class GnrWebPage(GnrBaseWebPage):
     def rootPage(self,pagetemplate=None,**kwargs):
         #self.frontend
         #self.dojo_theme = dojo_theme or 'tundra'
+        # 
         # 
         self.charset='utf-8'
         tpl = pagetemplate or 'standard.tpl'
