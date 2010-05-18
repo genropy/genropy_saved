@@ -30,7 +30,7 @@ class TableHandlerForm(BaseComponent):
                                 sqlContextTable=self.maintable)
         self.formController(bc)
         self.formToolbar(bc.contentPane(region='top',_class='sttbl_list_top'))
-        self.formBase(bc,datapath='form.record',disabled='^form.locked',region='center',formId='formPane')
+        self.formBase(bc,datapath='form.record',formId='formPane',disabled='^form.locked',region='center')
         if self.tblobj.logicalDeletionField:
             self.setLogicalDeletionCheckBox(bottom['left'])
     

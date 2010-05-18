@@ -428,11 +428,16 @@ class TableHandlerForm(BaseComponent):
                              timeout=180000,
                              _onCalling=self.onQueryCalling(),
                              _onResult='FIRE list.queryEnd=true;',**condPars)
+
         grid = gridpane.virtualGrid(nodeId='maingrid', structpath="list.view.structure", storepath=".data", autoWidth=False,
                                 selectedIndex='list.rowIndex', rowsPerPage=self.rowsPerPage(), sortedBy='^list.grid.sorted',
                                 connect_onSelectionChanged='SET list.noSelection = (genro.wdgById("maingrid").selection.getSelectedCount()==0)',
-                                connect_onRowDblClick='SET list.selectedIndex = GET list.rowIndex; SET selectedPage = 1;',
-                                connect_onRowContextMenu="FIRE list.onSelectionMenu = true;")        
+                                #connect_onRowDblClick='this.widget.editCurrentRow($1.rowIndex);',
+                                linkedForm='formPane',openFormEvent='onRowDblClick',
+                                connect_onRowContextMenu="FIRE list.onSelectionMenu = true;")    
+        #pane.dataController("SET list.selectedIndex = idx; SET selectedPage = 1;",nodeId="maingrid_record_opener") 
+        pane.dataController("SET list.selectedIndex = idx; SET selectedPage = 1;",idx="^gnr.forms.formPane.openFormIdx") 
+
         pane.dataRpc('list.currentQueryCount','app.getRecordCount', condition=condition,fired='^list.updateCurrentQueryCount',
                       table=self.maintable, where='=list.query.where',excludeLogicalDeleted='=list.excludeLogicalDeleted',
                       **condPars)
