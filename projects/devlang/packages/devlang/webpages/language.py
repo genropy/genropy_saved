@@ -28,7 +28,7 @@ class GnrCustomWebPage(object):
         self.includedViewBox(center,label='!!Developers',datapath='developers',
                              nodeId='developers',table='devlang.dev_lang',autoWidth=True,
                              struct=self.language_developer_struct,
-                             reloader='^form.record.id',
+                             reloader='^form.record.id',externalChanges='language_id=form.record.id',
                              selectionPars=dict(where='$language_id=:l_id', l_id='=form.record.id',_if='l_id'))
 
     def language_developer_struct(self,struct):
