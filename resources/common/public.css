@@ -11,6 +11,13 @@
 }
 
 
+.zoomIcon{
+	height: 14px;
+	width: 14px;
+	background: transparent url(icons/linkto.gif) no-repeat;
+}
+
+
 /* @end */
 
 /* @group dragDrop */

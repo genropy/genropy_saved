@@ -112,17 +112,20 @@ class SelectionHandler(BaseComponent):
                                 invalidFieldsTitle='!!Warning',newrecordTitle='!!Warning',
                                 newrecordMsg='!!You have to save the main record before. Do you want to save?')
             
-        connect_onRowDblClick='FIRE .dlg.pkey = GET .selectedId;'
+        
+        
         self.includedViewBox(bc,label=label,datapath=datapath,
                              add_action=add_action,
                              add_enable='^.can_add',del_enable='^.can_del',
                              del_action='FIRE .delete_record;',
                              nodeId=nodeId,table=table,struct=struct,hiddencolumns=hiddencolumns,
                              reloader=reloader, externalChanges=externalChanges,
-                             connect_onRowDblClick=connect_onRowDblClick,
+                             #connect_onRowDblClick='this.widget.editCurrentRow($1.rowIndex);',
+                             linkedForm='%s_form' %nodeId,openFormEvent='onRowDblClick',
                              selectionPars=selectionPars,askBeforeDelete=True,**kwargs)
                              
         controller = bc.dataController(datapath=datapath)
+        controller.dataController("FIRE .dlg.pkey = pkey;",pkey='^gnr.forms.%s_form.openFormPkey' %nodeId)
         if checkMainRecord:
             if parentId:
                 main_record_id = parentId

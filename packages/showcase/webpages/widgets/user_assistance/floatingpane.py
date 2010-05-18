@@ -32,11 +32,37 @@ class GnrCustomWebPage(object):
          return ''
          
     def main(self, root, **kwargs):
-        toolbar = root.toolbar(height='30px')
+        tc = root.tabContainer(selected='^selected')
+        tab1= tc.contentPane(title='tab1')
+        toolbar = tab1.toolbar(height='30px')
         toolbar.dock(id='mydocker')
         self.floating_one(toolbar)
         self.floating_picker(toolbar)
         self.floating_picker(toolbar)
+        tab2= tc.contentPane(title='tab2')
+        tab2.toolbar(height='300px').dock(id='mydocker2')
+
+        box = tab2.div()
+        box.remote('floating',_fired='^selected')
+        
+    def remote_floating(self,pane,**kwargs):
+        pane.floatingPane(title='I am a remote floating', nodeId='ccc',top='100px',left='300px',
+                        _class='shadow_4',width='200px',height='300px',
+                      closable=True,
+                      dockable=True,
+                      resizable=True,     #Allow resizing of pane true if true
+                      maxable=True ,      # Allow maximize 
+                    
+                      resizeAxis= 'xy',   #One of: x | xy | y to limit pane's sizing direction
+                    
+                      dockTo='mydocker2',        # DomNode.if empty, will create private layout.Dock that scrolls
+                                        # with viewport on bottom span of viewport.
+                                        	
+                      duration=400,      # Time is MS to spend toggling in/out node
+                    
+                      contentClass=''     # The className to give to the inner node which has the 
+                                        # content def: "dojoxFloatingPaneContent"
+                      )
         
     def floating_one(self,pane):
         floating=pane.floatingPane(title='I am a floating', nodeId='ccc',top='100px',left='300px',
