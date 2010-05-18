@@ -176,7 +176,9 @@ class IncludedView(BaseComponent):
         if not 'columns' in viewPars:
             struct =  viewPars.get('struct',None)
             if struct and callable(struct) and not isinstance(struct,Bag):
-                viewPars['struct'] = struct(self.newGridStruct(table))
+                gridStruct = self.newGridStruct(table)
+                struct = struct(gridStruct)
+                viewPars['struct'] = struct or gridStruct
         viewPars['structpath'] = viewPars.get('structpath') or '.struct'  or 'grids.%s.struct' %nodeId
         if filterOn is True:
             gridcenter.dataController("""var colsMenu = new gnr.GnrBag();
