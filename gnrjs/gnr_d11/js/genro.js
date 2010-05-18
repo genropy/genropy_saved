@@ -64,6 +64,7 @@ dojo.declare('gnr.GenroClient', null, {
         this.dialogStack = [];
         this.sounds={};
         this.pendingFireAfter={};
+        this.lastRpcTs= new Date() ;
         this.compareDict={'==':function(a,b){return (a==b);},
                           '>':function(a,b){return (a>b);},
                           '>=':function(a,b){return (a>=b);},
@@ -197,6 +198,12 @@ dojo.declare('gnr.GenroClient', null, {
         }
         this.isMac = dojo.isMac !=undefined? dojo.isMac:navigator.appVersion.indexOf('Macintosh')>=0;
         this.iPad =  navigator.appVersion.indexOf('iPad')>=0;
+        dojo.connect(window ,'onmousemove',function(e){
+            genro.registerEvent(e)
+        })
+        dojo.connect(window ,'onkeypress',function(e){
+            genro.registerEvent(e)
+        })
         if( this.iPad ){ 
             dojo.connect(document.body, 'ontouchstart', function(e){
                  var touch = e.touches[0];
@@ -220,6 +227,15 @@ dojo.declare('gnr.GenroClient', null, {
     },
     setInServer: function(path, value){
         genro.rpc.remoteCall('setInServer', {path:path, value:value});
+    },
+    registerEvent:function(e){
+        var d=new Date()
+        var z=(  d - this.lastRpcTs)/1000
+       if (z >10){
+           this.lastRpcTs=new Date()
+           console.log('polling');
+       }
+        
     },
     loadContext:function(){
         var contextBag = new gnr.GnrBag();
