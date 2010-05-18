@@ -872,7 +872,7 @@ dojo.declare("gnr.widgets.ColorPicker",gnr.widgets.baseDojo,{
 dojo.declare("gnr.widgets.ColorPalette",gnr.widgets.baseDojo,{
    created: function(widget, savedAttrs, sourceNode){
         dojo.connect(widget,'onChange',function(){
-            return
+            return;
         });
     },
    mixin_setValue:function(value){
@@ -1538,13 +1538,24 @@ dojo.declare("gnr.widgets.Grid",gnr.widgets.baseDojo,{
     mixin_onSetStructpath: function(structure){
         return;
     },
-
+    mixin_openLinkedForm: function(e){
+        var idx = e.rowIndex;
+        genro.formById(this.sourceNode.attr.linkedForm).openForm(idx,this.rowIdByIndex(idx));
+    },
+    
+    created_common:function(widget, savedAttrs, sourceNode){
+        if(sourceNode.attr.openFormEvent){
+            dojo.connect(widget, sourceNode.attr.openFormEvent, widget,'openLinkedForm');
+        }
+        objectFuncReplace(widget.selection,'clickSelectEvent',function(e){
+             this.clickSelect(e.rowIndex, e.ctrlKey || e.metaKey , e.shiftKey);
+        });
+    },
     created: function(widget, savedAttrs, sourceNode){
-         genro.src.afterBuildCalls.push(dojo.hitch(widget,'render'));
-         dojo.connect(widget, 'onSelected', widget,'_gnrUpdateSelect');
-         dojo.connect(widget, 'modelAllChange', dojo.hitch(sourceNode ,this.modelAllChange));
-         objectFuncReplace(widget.selection,'clickSelectEvent',function(e){
-             this.clickSelect(e.rowIndex, e.ctrlKey || e.metaKey , e.shiftKey);});
+        this.created_common(widget, savedAttrs, sourceNode);
+        dojo.connect(widget, 'onSelected', widget,'_gnrUpdateSelect');
+        genro.src.afterBuildCalls.push(dojo.hitch(widget,'render'));
+        dojo.connect(widget, 'modelAllChange', dojo.hitch(sourceNode ,this.modelAllChange));
     },
 
     modelAllChange:function(){
@@ -1787,8 +1798,16 @@ dojo.declare("gnr.widgets.Grid",gnr.widgets.baseDojo,{
                          rowBag = new gnr.GnrBag();
                          rowsnodes[k].setValue(rowBag, false);
                      }
-                     cellsnodes = rowBag.getNodes();
                      
+                     if(genro.iPad || true){
+                        var cellattr = {'format_isbutton':true,'format_buttonclass':'zoomIcon buttonIcon',
+                                    'format_onclick':'this.widget.openLinkedForm(kw);',
+                                   'width':'30px','calculated':true,
+                                    'field':'_edit_record','name':' '};
+                        rowBag.setItem('cell_editor',null,cellattr,{doTrigger:false});
+                     }
+                     
+                     cellsnodes = rowBag.getNodes();
                      row = [];
                      for (j=0; j < cellsnodes.length; j++){
                          cell = objectUpdate({}, rowattrs);
@@ -1830,9 +1849,10 @@ dojo.declare("gnr.widgets.Grid",gnr.widgets.baseDojo,{
                              cellmap[cell.field] = cell;
                          }
                      }
-              
+                     
                      rows.push(row);
                  }
+                 
                  view.rows = rows;
                  result.push(view);
              }
@@ -1900,9 +1920,8 @@ dojo.declare("gnr.widgets.VirtualGrid",gnr.widgets.Grid,{
         sourceNode.attr.nodeId = sourceNode.attr.nodeId || 'grid_' + sourceNode.getStringId();
     },
     created: function(widget, savedAttrs, sourceNode){
-         dojo.connect(widget, 'onSelected', widget,'_gnrUpdateSelect');
-         objectFuncReplace(widget.selection,'clickSelectEvent',function(e){
-             this.clickSelect(e.rowIndex, e.ctrlKey || e.metaKey , e.shiftKey);});
+        this.created_common(widget, savedAttrs, sourceNode);
+        dojo.connect(widget, 'onSelected', widget,'_gnrUpdateSelect');
     },
 
     mixin_canEdit: function(inCell, inRowIndex){
@@ -2059,17 +2078,12 @@ dojo.declare("gnr.widgets.VirtualStaticGrid",gnr.widgets.Grid,{
         attributes.datamode = datamode;
         sourceNode.attr.nodeId = sourceNode.attr.nodeId || 'grid_' + sourceNode.getStringId();
     },
+    
     created: function(widget, savedAttrs, sourceNode){
+        this.created_common(widget, savedAttrs, sourceNode);
          genro.src.afterBuildCalls.push(dojo.hitch(widget,'render'));
          dojo.connect(widget, 'onSelected', widget,'_gnrUpdateSelect');
-         objectFuncReplace(widget.selection,'clickSelectEvent',function(e){
-             this.clickSelect(e.rowIndex, e.ctrlKey || e.metaKey , e.shiftKey);});
 
-         //var storebag=genro.getData(widget.storepath);
-         //if (!(storebag instanceof gnr.GnrBag)){
-         //    storebag=new gnr.GnrBag();
-         //    genro.setData(widget.storepath,storebag);
-         //}
          widget.updateRowCount('*');
     },
 
@@ -2963,27 +2977,26 @@ dojo.declare("gnr.widgets.IncludedView",gnr.widgets.VirtualStaticGrid,{
             sourceNode.setRelativeData(controllerPath+'.columns', attributes.query_columns);
         }
     },    
+    
     created: function(widget, savedAttrs, sourceNode){
-         var selectionId = sourceNode.attr['selectionId'] || sourceNode.attr.nodeId+'_selection';
-         widget.autoSelect = sourceNode.attr['autoSelect'];
-         if (typeof(widget.autoSelect)=='string'){
-             widget.autoSelect = funcCreate(widget.autoSelect,null,widget);
-         }
-         widget.linkedSelection = genro.nodeById(selectionId);
-         genro.src.afterBuildCalls.push(dojo.hitch(widget,'render'));
-         //dojo.connect(widget, 'onSelected', widget,'_gnrUpdateSelect');
-         dojo.connect(widget, 'modelAllChange', dojo.hitch(sourceNode ,this.modelAllChange));
-         if (sourceNode.attr.editbuffer){
-             sourceNode.registerDynAttr('editbuffer');
-         }
-         objectFuncReplace(widget.selection,'clickSelectEvent',function(e){
-             this.clickSelect(e.rowIndex, e.ctrlKey || e.metaKey , e.shiftKey);
-         });
-         if(sourceNode.attr.multiSelect==false){
-             widget.selection.multiSelect = false;
-         }
-         widget.rpcViewColumns();
-         widget.updateRowCount('*');
+        this.created_common(widget, savedAttrs, sourceNode);
+        var selectionId = sourceNode.attr['selectionId'] || sourceNode.attr.nodeId+'_selection';
+        widget.autoSelect = sourceNode.attr['autoSelect'];
+        if (typeof(widget.autoSelect)=='string'){
+            widget.autoSelect = funcCreate(widget.autoSelect,null,widget);
+        }
+        widget.linkedSelection = genro.nodeById(selectionId);
+        genro.src.afterBuildCalls.push(dojo.hitch(widget,'render'));
+        //dojo.connect(widget, 'onSelected', widget,'_gnrUpdateSelect');
+        dojo.connect(widget, 'modelAllChange', dojo.hitch(sourceNode ,this.modelAllChange));
+        if (sourceNode.attr.editbuffer){
+            sourceNode.registerDynAttr('editbuffer');
+        }
+        if(sourceNode.attr.multiSelect==false){
+            widget.selection.multiSelect = false;
+        }
+        widget.rpcViewColumns();
+        widget.updateRowCount('*');
     },
 
     mixin_structbag:function(){

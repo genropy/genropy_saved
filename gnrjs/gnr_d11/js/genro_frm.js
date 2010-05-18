@@ -173,6 +173,11 @@ dojo.declare("gnr.GnrFrmHandler",null,{
         }
         this.status = 'saved';
     },
+    
+    openForm:function(idx,pkey){
+        genro.fireEvent(this.controllerPath+'.openFormPkey',pkey);
+        genro.fireEvent(this.controllerPath+'.openFormIdx',idx);
+    },
     getFormData: function(){
         return genro._(this.formDatapath);
     },
