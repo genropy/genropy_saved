@@ -200,10 +200,8 @@ class IncludedView(BaseComponent):
                     externalChanges,externalChangesTypes=externalChanges.split(':')
                     if externalChanges=='*':
                         externalChanges=True
-            subscribed_tables = [t for t in self.pageOptions.get('subscribed_tables','').split(',') if t]
-            if not table in subscribed_tables:
-                subscribed_tables.append(table)
-                self.pageOptions['subscribed_tables'] = ','.join(subscribed_tables)
+            subscribed_tables = [t for t in getattr(self,'subscribed_tables','').split(',') if t]
+            assert  table in subscribed_tables, "table %s must be subscribed to get externalChanges"%table
             event_path = 'gnr.dbevent.%s' %table.replace('.','_')
             pars = dict()
             conditions = list()

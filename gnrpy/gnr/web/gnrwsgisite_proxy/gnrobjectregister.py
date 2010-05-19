@@ -172,7 +172,7 @@ class PageRegister(BaseRegister):
     
     def _get_object_info(self, page):
         object_id=page.page_id
-        subscribed_tables=page.pageOptions.get('subscribed_tables',None)
+        subscribed_tables=getattr(page,'subscribed_tables',None)
         if subscribed_tables:
             subscribed_tables=subscribed_tables.split(',')
         object_info=dict(
@@ -190,7 +190,7 @@ class PageRegister(BaseRegister):
      
     def _on_remove_object(self, object_id, object_info):
         for table in object_info and object_info['subscribed_tables'] or []:
-            self._remove_index(object_info['object_id'], name=table)
+            self._remove_index(object_info['object_id'], index_name=table)
     
     def pages(self, index_name=None):
         return self._objects(index_name=index_name)

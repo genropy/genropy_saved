@@ -16,14 +16,11 @@ class Table(object):
         tbl.column('start_ts','DH',name_long='!!Start ts')
         tbl.column('end_ts','DH',name_long='!!Start ts')
         tbl.column('end_reason',size=':12',name_long='!!End Reason')
-        tbl.column('subscribed_tables',name_long='!!Subscribed tables')
         
-    def getLivePages(self,connection_id=None,topic=None,current_page_id=None):
+    def getLivePages(self,connection_id=None,current_page_id=None):
         where=['$end_ts is null']
         if connection_id:
             where.append('$connection_id=:connection_id')
-        if topic:
-            where.append('$subscribed_tables ILIKE :topic')
         if current_page_id:
             where.append('$page_id!=:current_page_id')
             
@@ -32,16 +29,6 @@ class Table(object):
                         topic="%%%s%%"%(topic or ''),
                         current_page_id=current_page_id).fetch()
                         
-    def subscribedTablesDict(self):
-        pages=self.query(columns='$page_id,$connection_id,$subscribed_tables',
-                        addPkeyColumn=False,
-                        where="""$end_ts is null AND 
-                                 $subscribed_tables IS NOT NULL""").fetch()
-        result=dict()
-        for page_id,connection_id,subscribed_tables in pages:
-            for table in subscribed_tables.split(','):
-                result.setdefault(table,[]).append((page_id,connection_id))
-        return result
         
     def pageLog(self,event,page_id=None):
         if event == 'open':
@@ -55,14 +42,9 @@ class Table(object):
             
     def openServedPage(self):
         page = self.db.application.site.currentPage
-        subscribed_tables=page.pageOptions.get('subscribed_tables',None)
-        if subscribed_tables:
-            for table in subscribed_tables.split(','):
-                assert self.db.table(table).attributes.get('broadcast')
         record_served_page = dict(page_id=page.page_id,end_reason=None,end_ts=None,
                                   connection_id=page.connection.connection_id,
-                                  start_ts=datetime.now(),pagename=page.basename,
-                                  subscribed_tables=subscribed_tables)
+                                  start_ts=datetime.now(),pagename=page.basename)
         with self.db.tempEnv(connectionName='system'):  
             self.insertOrUpdate(record_served_page)
             self.db.commit()

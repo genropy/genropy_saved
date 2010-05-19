@@ -205,20 +205,7 @@ dojo.declare('gnr.GenroClient', null, {
             genro.registerEvent(e)
         })
         if( this.isTouchDevice ){ 
-             dojo.connect(document.body, 'ontouchmove', function(e){
-                e.preventDefault()
-            })
-            dojo.connect(document.body, 'onorientationchange', function(e){
-                genro.setData('gnr.touch.orientation',window.orientation)
-            })
-             dojo.connect(document.body, 'gestureend', function(e){
-                 var b=new gnr.GnrBag();
-                 for (var k in e){
-                     b.setItem(k,e[k])
-                 }
-                 genro.setData('gnr.touch.gesture',b)
-                 
-             })
+            genro.dom.startTouchDevice()
           }             
     },
     playSound:function(name,path,ext){

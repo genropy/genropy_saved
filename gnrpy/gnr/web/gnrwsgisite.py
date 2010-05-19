@@ -654,8 +654,10 @@ class GnrWsgiSite(object):
         if tblobj.attributes.get('broadcast'):
             subscribers = self.page_register.pages(index_name=tblobj.fullname)
             value=Bag([(k,v) for k,v in record.items() if not k.startswith('@')])
+            print 'notifyDbEvent',subscribers
             for subscriber in subscribers:
                 sub=subscribers[subscriber]
+                print 'notifyDbEvent_do',sub['object_id'],value,event
                 self.setInClientPage(page_id=sub['object_id'],
                                     connection_id=sub['connection_id'],
                                     client_path='gnr.dbevent.%s'%tblobj.fullname.replace('.','_'),

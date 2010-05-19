@@ -9,7 +9,9 @@ Copyright (c) 2008 Softwell. All rights reserved.
 class GnrCustomWebPage(object):
     maintable='devlang.language'
     py_requires='public:Public,standard_tables:TableHandler,gnrcomponents/selectionhandler'
-
+    subscribed_tables='devlang.dev_lang'
+    polling=15
+    
     def lstBase(self,struct):
         r = struct.view().rows()
         r.fieldcell('name', name='Name', width='20em')

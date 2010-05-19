@@ -492,7 +492,46 @@ dojo.declare("gnr.GnrDomHandler",null,{
         e.initKeyEvent('keydown', true, true, window, false, false, false, false, keycode, 0);
         // Dispatch event into document
         domnode.dispatchEvent(e);
-    }
+    },
+    
+    startTouchDevice:function(){
+        dojo.connect(document.body, 'ontouchmove', function(e){
+            
+            e.preventDefault();
+        });
+        dojo.connect(document.body, 'ontouchstart', function(e){
+            alert(e.touches.length)
+            for (var i=0; i < e.touches.length; i++) {
+                var touch=e.touches[i]
+                var t=''
+                for (var k in touch){
+                     t=t+'\n'+k+' : '+e[k]
+                 }
+                alert (t)
+            };
 
+        });
+    /*    dojo.connect(document.body, 'touchend', function(e){
+
+            var dx=e.screenX-this.startTouch_x
+            var dy=e.screenY-this.startTouch_y
+            //alert(dx+'  ,  '+dy)
+            this.startTouch_x=null
+            this.startTouch_y=null
+        });*/
+
+        dojo.connect(document.body, 'onorientationchange', function(e){
+            genro.setData('gnr.touch.orientation',window.orientation);
+        });
+        dojo.connect(document.body, 'gestureend', function(e){
+                 var b=new gnr.GnrBag();
+                 for (var k in e){
+                     b.setItem(k,e[k]);
+                 }
+                 genro.setData('gnr.touch.gesture',b);
+                 
+        });
+    
+    }
 
 });
