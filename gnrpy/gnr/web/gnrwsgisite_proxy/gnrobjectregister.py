@@ -68,7 +68,9 @@ class BaseRegister(object):
         pass
         
     def _get_index_name(self,index_name=None):
-        if index_name:
+        if index_name=='*':
+            ind_name='%s_MASTERINDEX'%self.prefix
+        elif index_name:
             ind_name='%s_INDEX_%s'%(self.prefix,index_name)
         else:
             ind_name='%s_INDEX'%self.prefix
@@ -77,7 +79,11 @@ class BaseRegister(object):
     def _add_index(self,object_id,index_name=None):
         sd=self.sd
         ind_name=self._get_index_name(index_name)
-        index=sd.get(ind_name) or {}
+        index=sd.get(ind_name)
+        if not index:
+            index={}
+            if index_name and index_name!='*':
+                self._add_index(self,index_name,index_name='*')
         index[object_id]=True
         sd.set(ind_name,index,0)
     
@@ -166,7 +172,7 @@ class PageRegister(BaseRegister):
      
     def _on_remove_object(self, object_id, object_info):
         for table in object_info and object_info['subscribed_tables'] or []:
-            self._remove_index(object_info, name=table)
+            self._remove_index(object_info['object_id'], name=table)
     
     def pages(self, index_name=None):
         return self._objects(index_name=index_name)
