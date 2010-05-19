@@ -116,6 +116,7 @@ class ResourceLoader(object):
         page_class.maintable = getattr(custom_class, 'maintable', None)
         page_class.recordLock = getattr(custom_class, 'recordLock', None)
         page_class.polling = getattr(custom_class, 'polling', None)
+        page_class.autopolling = getattr(custom_class, 'autopolling', 30)
         page_class.eagers = getattr(custom_class, 'eagers', {})
         page_class.css_requires = []
         page_class.js_requires = splitAndStrip(getattr(custom_class, 'js_requires', ''),',')
