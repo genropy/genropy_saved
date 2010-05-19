@@ -198,6 +198,12 @@ dojo.declare('gnr.GenroClient', null, {
         }
         this.isMac = dojo.isMac !=undefined? dojo.isMac:navigator.appVersion.indexOf('Macintosh')>=0;
         this.isTouchDevice = ( (navigator.appVersion.indexOf('iPad')>=0 )|| (navigator.appVersion.indexOf('iPhone')>=0));
+
+ 
+        if( this.isTouchDevice ){ 
+            genro.dom.startTouchDevice()
+          }   
+        genro.autopolling=genro.getData('gnr.autopolling')
         if(genro.autopolling>0){
             dojo.connect(window ,'onmousemove',function(e){
             genro.registerEvent(e)
@@ -205,12 +211,7 @@ dojo.declare('gnr.GenroClient', null, {
         dojo.connect(window ,'onkeypress',function(e){
             genro.registerEvent(e)
         })
-        }
- 
-        if( this.isTouchDevice ){ 
-            genro.dom.startTouchDevice()
-          }   
-        genro.autopolling=genro.getData('gnr.autopolling')          
+        }          
     },
     playSound:function(name,path,ext){
         if (!(name in genro.sounds)){
