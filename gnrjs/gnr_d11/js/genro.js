@@ -206,11 +206,11 @@ dojo.declare('gnr.GenroClient', null, {
         genro.autopolling=genro.getData('gnr.autopolling')
         if(genro.autopolling>0){
             dojo.connect(window ,'onmousemove',function(e){
-            genro.registerEvent(e)
-        })
-        dojo.connect(window ,'onkeypress',function(e){
-            genro.registerEvent(e)
-        })
+                genro.registerEvent(e)
+            })
+            dojo.connect(window ,'onkeypress',function(e){
+                genro.registerEvent(e)
+            })
         }          
     },
     playSound:function(name,path,ext){
