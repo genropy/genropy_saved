@@ -883,8 +883,7 @@ dojo.declare("gnr.GnrDomSourceNode",gnr.GnrBagNode,{
             var timing = objectPop(attributes,'_timing');
             
             if(timing){
-                var timerFunc = dojo.hitch(this, 'setDataNodeValue');
-                setInterval(timerFunc, timing*1000);
+                this.setTiming=(timing);
             }
             var onStart = objectPop(attributes,'_onStart');
             if (onStart){
@@ -896,6 +895,16 @@ dojo.declare("gnr.GnrDomSourceNode",gnr.GnrBagNode,{
             }
         }     
         this._setDynAttributes();
+    },
+    setTiming:function(timing){
+        if(this._timing){
+            clearInterval(this._timing)
+        }
+        if(timing>=1){
+             var timerFunc = dojo.hitch(this, 'setDataNodeValue');
+             this._timing=setInterval(timerFunc, timing*1000);
+        }
+       
     },
     updateRemoteContent:function(forceUpdate){
         var currentValue = this.getValue('static');

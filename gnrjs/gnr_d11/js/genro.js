@@ -197,24 +197,31 @@ dojo.declare('gnr.GenroClient', null, {
             genro.dev.showBottomHelper();
         }
         this.isMac = dojo.isMac !=undefined? dojo.isMac:navigator.appVersion.indexOf('Macintosh')>=0;
-        this.iPad =  navigator.appVersion.indexOf('iPad')>=0;
+        this.isTouchDevice = ( (navigator.appVersion.indexOf('iPad')>=0 )|| (navigator.appVersion.indexOf('iPhone')>=0));
         dojo.connect(window ,'onmousemove',function(e){
             genro.registerEvent(e)
         })
         dojo.connect(window ,'onkeypress',function(e){
             genro.registerEvent(e)
         })
-        if( this.iPad ){ 
+        if( this.isTouchDevice ){ 
             dojo.connect(document.body, 'ontouchstart', function(e){
-                 var touch = e.touches[0];
-                 if ( !touch ) return;
-                 var me = document.createEvent("MouseEvents");
-                 me.initMouseEvent('dblclick', true, true, window, 1, 
-                                    touch.screenX, touch.screenY, touch.clientX, touch.clientY, 
-                                    false, false, false, false,
-                                    0, null );
-                ;});
-                touch.target.dispatchEvent(me);
+                if (genro.inTouch){
+                    clearTimeout(genro.inTouch)
+                }
+                var wdg=dijit.getEnclosingWidget(e.target)
+                if (wdg){
+                    if ('longTouch' in wdg)
+                       genro.inTouch=setTimeout(function(){wdg.longTouch(e);},2000) ;
+                }
+                
+              });
+              dojo.connect(document.body, 'ontouchend', function(e){
+                if (genro.inTouch){
+                    clearTimeout(genro.inTouch)
+                }
+                  genro.inTouch=null;
+              });
         }
     },
     playSound:function(name,path,ext){

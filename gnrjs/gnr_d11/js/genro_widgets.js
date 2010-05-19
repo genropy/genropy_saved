@@ -1546,6 +1546,9 @@ dojo.declare("gnr.widgets.Grid",gnr.widgets.baseDojo,{
     created_common:function(widget, savedAttrs, sourceNode){
         if(sourceNode.attr.openFormEvent){
             dojo.connect(widget, sourceNode.attr.openFormEvent, widget,'openLinkedForm');
+            if(genro.isTouchDevice ){
+                dojo.connect(widget,'longTouch', widget,'openLinkedForm')
+            }
         }
         objectFuncReplace(widget.selection,'clickSelectEvent',function(e){
              this.clickSelect(e.rowIndex, e.ctrlKey || e.metaKey , e.shiftKey);
@@ -1724,7 +1727,9 @@ dojo.declare("gnr.widgets.Grid",gnr.widgets.baseDojo,{
     mixin_getSelectedRow: function(){
         return  this.rowByIndex(this.selection.selectedIndex);
     },
-    
+    mixin_longTouch:function(e){
+        alert('longtouch');
+    },
     mixin_getSelectedRowidx: function(){
         var sel = this.selection.getSelected();
         var result = [];
@@ -1799,7 +1804,7 @@ dojo.declare("gnr.widgets.Grid",gnr.widgets.baseDojo,{
                          rowsnodes[k].setValue(rowBag, false);
                      }
                      
-                     if(genro.iPad || true){
+                     if(genro.isTouchDevice ){
                         var cellattr = {'format_isbutton':true,'format_buttonclass':'zoomIcon buttonIcon',
                                     'format_onclick':'this.widget.openLinkedForm(kw);',
                                    'width':'30px','calculated':true,
@@ -2914,6 +2919,9 @@ dojo.declare("gnr.widgets.GridEditor",gnr.widgets.baseHtml,{
         var editOn = sourceNode.attr.editOn || 'onCellDblClick';
         editOn = stringSplit(editOn, ',', 2);
         var modifier = editOn[1];
+        //if(genro.isTouchDevice ){
+         //   dojo.connect(widget,'longTouch',function(){alert("opening")})
+       // }
         dojo.connect(grid, editOn[0], function(e){
             if(genro.wdg.filterEvent(e, modifier)){
                 if (grid.editorEnabled){

@@ -187,6 +187,7 @@ dojo.declare("gnr.GnrRpcHandler",null,{
          //kw.preventCache = kw.preventCache - just to remember that we can have it
         kw.handleAs = kw.handleAs || 'xml';
         var xhrResult;
+        genro.lastRpc = new Date();
         if(httpMethod=='GET'){
             xhrResult=dojo.xhrGet(kw);
         }
@@ -293,7 +294,7 @@ dojo.declare("gnr.GnrRpcHandler",null,{
         var envNode = envelope.getNode('result');
         var resultAsNode=(envelope.getItem('resultType')=='node') || currentAttr;
         
-        genro.lastRpc = new Date();
+        
         var changenode, _client_path, fired;
         var dataChanges = envelope.getItem('dataChanges');
         if(dataChanges){
