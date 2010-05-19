@@ -1212,7 +1212,7 @@ class Bag(GnrObject):
                        behaves like addItem(). Default is 'None'.
         * `_duplicate`: specifies if a node with an existing path overwrite
                         the value or append it.
-        * `_validators`: an optional parameter, it specified the validarors of
+        * `_validators`: an optional parameter, it specified the validators of
                          the value to set. Default is 'None'.
         * `kwargs`: all remaining kwargs can be attributes AND/OR validators .
         
