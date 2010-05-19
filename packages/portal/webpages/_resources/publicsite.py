@@ -38,6 +38,7 @@ class SiteLayout(BaseComponent):
         fb = box.formbuilder(cols=3,border_spacing='4px',_class='loginfb')
         fb.div(self.user)
         fb.button('!!Logout',baseClass='loginbutton',fire='.enter')
+        
     def site_login_unlogged(self,box):
         fb = box.formbuilder(cols=3,border_spacing='4px',_class='loginfb',
                             datapath='login',onEnter='FIRE .enter')
