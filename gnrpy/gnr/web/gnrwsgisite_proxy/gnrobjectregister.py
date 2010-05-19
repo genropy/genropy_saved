@@ -87,11 +87,22 @@ class BaseRegister(object):
         index[object_id]=True
         sd.set(ind_name,index,0)
     
-    def _remove_index(self,object_id, name=None):
+    def _remove_index(self,object_id, index_name=None):
         sd=self.sd
-        ind_name=self._get_index_name(name)
-        index=sd.get(ind_name) or {}
-        index.pop(object_id,None)
+        ind_name=self._get_index_name(index_name)
+        index=sd.get(ind_name)
+        if index:
+            index.pop(object_id,None)
+            self._index_rewrite(index_name,index)
+            
+    
+    def _index_rewrite(self, index_name, index):
+        sd=self.sd
+        ind_name=self._get_index_name(index_name)
+        if index=={}:
+            if index_name and index_name!='*':
+                self._remove_index(object_id=index_name,index_name='*')
+            sd.delete(ind_name)
         sd.set(ind_name,index,0)
     
     def _remove_object(self,object_id):
@@ -130,18 +141,25 @@ class BaseRegister(object):
                 return object_info
             else:
                 self._remove_object(object_id)
-        
+    
+    def get_index(self, index_name=None):
+        sd=self.sd
+        ind_name=self._get_index_name(index_name)
+        address=self.prefix
+        with sd.locked(key=address):
+            index=sd.get(ind_name) or {}
+        return index.keys()
+    
     def _objects(self,index_name=None):
         """Registered objects"""
         sd=self.sd
         address=self.prefix
-        ind_name=self._get_index_name(index_name)
         with sd.locked(key=address):
-            index=sd.get(ind_name) or {}
+            index=self.get_index(index_name)
             result=[]
-            live_index=[object_address for object_address in sd.get_multi(index.keys(),'%s_EXPIRY_'%self.prefix) if object_address]
+            live_index=[object_address for object_address in sd.get_multi(index,'%s_EXPIRY_'%self.prefix) if object_address]
             new_index=dict([(object_id,True) for object_id in live_index])
-            sd.set(ind_name,new_index)
+            self._index_rewrite(index_name,new_index)
             result=sd.get_multi(live_index,'%s_OBJECT_'%self.prefix)
         return result
      
