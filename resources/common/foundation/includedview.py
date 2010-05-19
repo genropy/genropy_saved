@@ -218,7 +218,7 @@ class IncludedView(BaseComponent):
                 pars['evtypes'] = externalChangesTypes
                 pars['evtype'] = '=%s?dbevent' %event_path
             gridcenter.dataController("FIRE .reload;" ,_if=' && '.join(conditions),
-                                     _fired='^%s' %event_path,_else='console.log("not ok")',**pars)
+                                     _fired='^%s' %event_path,**pars)
             
         if selectionPars:
             self._iv_includedViewSelection(gridcenter,gridId,table,storepath,selectionPars,controllerPath)
