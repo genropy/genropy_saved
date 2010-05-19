@@ -19,6 +19,9 @@
 .site_right{
 	width:200px;
 }
+.site_center{
+    margin:30px;
+}
 .loginbutton .dijitButtonNode{
 	background: #ba9b65;
 	color: #f4efdc;
@@ -27,6 +30,10 @@
 	font-size: .7em;
 	-moz-border-radius:4px;
 	-webkit-border-radius:4px;
+}
+.disclaimer{
+    font-size:.8em;
+    line-height:.8em;
 }
 
 /* @group train theme */
