@@ -17,8 +17,10 @@ class GnrCustomWebPage(object):
 
     def main(self, root, **kwargs):
         root.button('Refresh', fire='refresh')
+        root.horizontalslider(lbl='!!Refresh', value = '^timing', width='200px', 
+                                         minimum=0, maximum=60, discreteValues=61)
         root.data('pages',Bag())
-        root.dataRpc('pages.served', 'refresh_current_pages',_fired='^refresh')
+        root.dataRpc('pages.served', 'refresh_current_pages',_fired='^refresh',_timing='=timing')
         root.tree(storepath='pages')
         
         
