@@ -23,7 +23,7 @@ from gnr.core.gnrmailhandler import MailHandler
 from gnr.app.gnrdeploy import PathResolver
 from gnr.web.gnrwsgisite_proxy.gnrshareddata import GnrSharedData_dict, GnrSharedData_memcache
 from gnr.web.gnrwsgisite_proxy.gnrmsg import  GnrMessageHandler
-from gnr.web.gnrwsgisite_proxy.gnrpageregister import PageRegister
+from gnr.web.gnrwsgisite_proxy.gnrobjectregister import PageRegister
 mimetypes.init()
 site_cache = {}
 
