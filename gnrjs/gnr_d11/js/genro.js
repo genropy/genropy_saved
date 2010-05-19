@@ -205,7 +205,9 @@ dojo.declare('gnr.GenroClient', null, {
             genro.registerEvent(e)
         })
         if( this.isTouchDevice ){ 
-            
+             dojo.connect(document.body, 'ontouchmove', function(e){
+                e.preventDefault()
+            })
             dojo.connect(document.body, 'onorientationchange', function(e){
                 genro.setData('gnr.touch.orientation',window.orientation)
             })
@@ -215,6 +217,7 @@ dojo.declare('gnr.GenroClient', null, {
                      b.setItem(k,e[k])
                  }
                  genro.setData('gnr.touch.gesture',b)
+                 
              })
           }             
     },

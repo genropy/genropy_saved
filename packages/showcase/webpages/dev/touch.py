@@ -17,7 +17,7 @@ class GnrCustomWebPage(object):
 
     def main(self, root, **kwargs):
         #root.tree(storepath='gnr',margin_top='30px',margin_left='30px')
-        fb=root.formbuilder(cols=1,margin_top='30px',margin_left='30px')
+        fb=root.div(font_size='20px').formbuilder(cols=1,margin_top='30px',margin_left='30px')
         fb.div('^gnr.touch.orientation',lbl='Orientation')
         fb.div('^gnr.touch.gesture.scale',lbl='Gesture Scale')
         fb.div('^gnr.touch.gesture.rotation',lbl='Gesture rotation')
