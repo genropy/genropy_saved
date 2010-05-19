@@ -27,6 +27,8 @@ from gnr.core.gnrbag import Bag
 from gnr.core.gnrstructures import GnrStructData
 from gnr.core import gnrstring
 
+from copy import copy
+
 class GnrDomSrcError(Exception):
     pass
 
@@ -266,10 +268,18 @@ class GnrDomSrc(GnrStructData):
                          fldalign=None, fldvalign='middle', disabled=False,
                          rowdatapath=None, head_rows=None, **kwargs):
       
+        fieldPars = {}
+        for k, v in kwargs.items():
+            if k.startswith('lbl_'):
+                fieldPars[k] = v
+                del kwargs[k]
+            if k.startswith('fld_'):
+                fieldPars[k[4:]] = v
+                del kwargs[k]
         tbl = self.child('table', _class='%s %s' % (tblclass, _class), **kwargs).child('tbody')
         tbl.fbuilder = GnrFormBuilder(tbl, cols=int(cols), dbtable=dbtable,
                 lblclass=lblclass,lblpos=lblpos,lblalign=lblalign,fldalign=fldalign,fieldclass=fieldclass,
-                lblvalign=lblvalign,fldvalign=fldvalign, rowdatapath=rowdatapath, head_rows=head_rows)
+                lblvalign=lblvalign,fldvalign=fldvalign, rowdatapath=rowdatapath, head_rows=head_rows, fieldPars=fieldPars)
         tbl.childrenDisabled=disabled
         return tbl
         
@@ -480,7 +490,10 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
         fieldobj=tblobj.column(fld)
         if fieldobj is None:
             raise GnrDomSrcError('Not existing field %s' % fld)
-        wdgattr = self.wdgAttributesFromColumn(fieldobj, **kwargs)  
+        if parentfb:
+            args = copy(parentfb.fieldPars)
+            args.update(kwargs)
+        wdgattr = self.wdgAttributesFromColumn(fieldobj, **args)
         wdgattr['value']='^.%s' % fld
         return wdgattr
 
@@ -539,8 +552,17 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
             result['tag']='textBox'
             result['_type']='text'
             result['width']='%iem' % (int(size*.7)+2)
+            
+            values=fieldobj.attributes.get('values',None)
+            if values is not None:
+                result['tag'] = 'filteringselect'
+                result['values'] = values
         elif dtype == 'B':
             result['tag']='checkBox'
+            if 'width' in kwargs: del kwargs['width']
+            if 'autospan' in kwargs:
+                kwargs['colspan'] = kwargs['autospan']
+                del kwargs['autospan']
         elif dtype == 'T':
             result['tag']='textBox'
             result['width']='%iem' % int(size*.5)
@@ -562,7 +584,7 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
         else:
             result['tag']='textBox'
         if kwargs:
-            if 'autospan' in kwargs:
+            if kwargs.get('autospan',False):
                 kwargs['colspan'] = kwargs.pop('autospan')
                 kwargs['width'] = '100%'
             result.update(kwargs)
@@ -572,7 +594,8 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
 class GnrFormBuilder(object):
     def __init__(self, tbl, cols=None, dbtable=None,fieldclass=None,
                 lblclass='gnrfieldlabel',lblpos='L',lblalign=None,fldalign=None,
-                lblvalign='middle',fldvalign='middle', rowdatapath=None, head_rows=None):
+                lblvalign='middle',fldvalign='middle', rowdatapath=None, head_rows=None, fieldPars=None):
+        self.fieldPars = fieldPars or {}
         self.lblalign=lblalign or {'L':'right','T':'center'}[lblpos] # jbe?  why is this right and not left?
         self.fldalign=fldalign or {'L':'left','T':'center'}[lblpos]
         self.lblvalign=lblvalign
