@@ -248,7 +248,7 @@ dojo.declare('gnr.GenroClient', null, {
         genro.setData('_clientCtx', contextBag);    
     },
     fireEvent: function(path, msg){
-        msg = msg || true;
+        msg =(msg!=null)?msg:true;
         var path = genro.src.getNode().absDatapath(path);
         genro._data.setItem(path, msg);
         genro._data.setItem(path, null, null, {'doTrigger':false});
