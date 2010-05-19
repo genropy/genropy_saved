@@ -23,10 +23,8 @@ class Table(object):
             where.append('$connection_id=:connection_id')
         if current_page_id:
             where.append('$page_id!=:current_page_id')
-            
         return self.query(where=' AND '.join(where),
                         connection_id=connection_id,
-                        topic="%%%s%%"%(topic or ''),
                         current_page_id=current_page_id).fetch()
                         
         
