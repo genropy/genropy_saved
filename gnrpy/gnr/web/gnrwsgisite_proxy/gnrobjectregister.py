@@ -83,7 +83,7 @@ class BaseRegister(object):
         if not index:
             index={}
             if index_name and index_name!='*':
-                self._add_index(self,index_name,index_name='*')
+                self._add_index(self,object_id=index_name,index_name='*')
         index[object_id]=True
         sd.set(ind_name,index,0)
     
