@@ -3,6 +3,7 @@
     <packages>
         <devlang/>
         <adm/>
+        <showcase/>
     </packages>
     <db dbname="devlang"/>
     <authentication pkg="adm">
