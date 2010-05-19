@@ -12,7 +12,7 @@ from gnr.core.gnrbag import Bag
 class GnrCustomWebPage(object):
     maintable='adm.connection'
     py_requires='public:Public,public:IncludedView'
-        
+    subscribed_tables='adm.connection,adm.served_page'
     def pageAuthTags(self, method=None, **kwargs):
         return 'user'
         
@@ -95,7 +95,6 @@ class GnrCustomWebPage(object):
         r.cell('start_ts',name='Start',dtype='DH',width='10em')
         r.cell('end_ts',name='End',dtype='DH',width='10em')
         r.cell('end_reason',name='End reason',width='10em')
-        r.cell('subscribed_tables',name='Subscribed table',width='20em')
         return struct       
                 
         
@@ -196,7 +195,6 @@ class GnrCustomWebPage(object):
         r.cell('end_ts',name='End',dtype='DH',width='10em')
         r.cell('end_reason',name='End reason',width='10em')
         r.cell('pagename',name='Page name',width='15em')
-        r.cell('subscribed_tables',name='Subscribed table',width='20em')
         return struct
         
     def rpc_sendMessage(self,msg=None, dest_user=None, dest_connection=None, dest_page=None):
