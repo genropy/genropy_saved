@@ -205,24 +205,18 @@ dojo.declare('gnr.GenroClient', null, {
             genro.registerEvent(e)
         })
         if( this.isTouchDevice ){ 
-            dojo.connect(document.body, 'ontouchstart', function(e){
-                if (genro.inTouch){
-                    clearTimeout(genro.inTouch)
-                }
-                var wdg=dijit.getEnclosingWidget(e.target)
-                if (wdg){
-                    if ('longTouch' in wdg)
-                       genro.inTouch=setTimeout(function(){wdg.longTouch(e);},2000) ;
-                }
-                
-              });
-              dojo.connect(document.body, 'ontouchend', function(e){
-                if (genro.inTouch){
-                    clearTimeout(genro.inTouch)
-                }
-                  genro.inTouch=null;
-              });
-        }
+            
+            dojo.connect(document.body, 'onorientationchange', function(e){
+                genro.setData('gnr.touch.orientation',window.orientation)
+            })
+             dojo.connect(document.body, 'gestureend', function(e){
+                 var b=new gnr.GnrBag();
+                 for (var k in e){
+                     b.setItem(k,e[k])
+                 }
+                 genro.setData('gnr.touch.gesture',b)
+             })
+          }             
     },
     playSound:function(name,path,ext){
         if (!(name in genro.sounds)){
