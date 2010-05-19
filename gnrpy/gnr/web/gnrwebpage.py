@@ -645,6 +645,7 @@ class GnrWebPage(GnrBaseWebPage):
                 page.data('gnr.locale',self.locale)
                 page.data('gnr.pagename',self.pagename)
                 page.data('gnr.polling',self.polling)
+                page.data('gnr.autopolling',self.autopolling)
                 page.data('_server', None, context='_server')
                 page.dataController('genro.dlg.serverMessage(msg);', msg='^gnr.servermsg')
                 page.dataController('console.log(msg);funcCreate(msg)();', msg='^gnr.servercode')

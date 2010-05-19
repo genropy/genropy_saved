@@ -198,15 +198,19 @@ dojo.declare('gnr.GenroClient', null, {
         }
         this.isMac = dojo.isMac !=undefined? dojo.isMac:navigator.appVersion.indexOf('Macintosh')>=0;
         this.isTouchDevice = ( (navigator.appVersion.indexOf('iPad')>=0 )|| (navigator.appVersion.indexOf('iPhone')>=0));
-        dojo.connect(window ,'onmousemove',function(e){
+        if(genro.autopolling>0){
+            dojo.connect(window ,'onmousemove',function(e){
             genro.registerEvent(e)
         })
         dojo.connect(window ,'onkeypress',function(e){
             genro.registerEvent(e)
         })
+        }
+ 
         if( this.isTouchDevice ){ 
             genro.dom.startTouchDevice()
-          }             
+          }   
+        genro.autopolling=genro.getData('gnr.autopolling')          
     },
     playSound:function(name,path,ext){
         if (!(name in genro.sounds)){
@@ -220,7 +224,7 @@ dojo.declare('gnr.GenroClient', null, {
         genro.rpc.remoteCall('setInServer', {path:path, value:value});
     },
     registerEvent:function(e){
-       if ((  new Date() - this.lastRpc)/1000 >10){
+       if ((  new Date() - this.lastRpc)/1000 >genro.autopolling){
            genro.rpc.ping();
        }
         
