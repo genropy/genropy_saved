@@ -30,9 +30,17 @@ class BaseRegister(object):
     
     DEFAULT_EXPIRY=60
     
-    def __init__(self, site):
+    def _get_expiry(self):
+        return self.DEFAULT_EXPIRY
+    
+    
+    def __init__(self, site, **kwargs):
         self.site = site
         self.sd=self.site.shared_data
+        self.init(**kwargs)
+    
+    def init(self, **kwargs):
+        pass
     
     def register(self,obj):
         """Register object"""
@@ -61,7 +69,7 @@ class BaseRegister(object):
         object_id=object_info['object_id']
         self._add_index(object_id)
         sd.set('%s_OBJECT_%s'%(self.prefix,object_id),object_info,0)
-        sd.set('%s_EXPIRY_%s'%(self.prefix,object_id),object_id,self.DEFAULT_EXPIRY)
+        sd.set('%s_EXPIRY_%s'%(self.prefix,object_id),object_id,self._get_expiry())
         self._on_add_object(object_info)
         
     def _on_add_object(self,object_info):
@@ -117,7 +125,7 @@ class BaseRegister(object):
         pass
         
         
-    def refresh(self,obj):
+    def refresh(self,obj, renew=False):
         """Refresh object"""
         sd=self.sd
         address=self.prefix
@@ -126,10 +134,11 @@ class BaseRegister(object):
             object_key='%s_EXPIRY_%s'%(self.prefix,object_id)
             object_address = sd.get(object_key)
             if object_address:
-                sd.set(object_key,object_id,self.DEFAULT_EXPIRY)
-            else:
+                sd.set(object_key,object_id,self._get_expiry())
+            elif renew:
                 self._add_object(obj)
-        
+    
+    
     def get_object(self, object_id):
         sd=self.sd
         address=self.prefix
@@ -196,4 +205,69 @@ class PageRegister(BaseRegister):
         return self._objects(index_name=index_name)
         
 class ConnectionRegister(BaseRegister):
-    pass     
+    DEFAULT_EXPIRY=3600
+    prefix='CREG_'
+    
+    def init(self,onAddConnection=None, onRemoveConnection=None):
+        self.onAddConnection=onAddConnection
+        self.onRemoveConnection=onRemoveConnection
+    
+    def _get_expiry(self):
+        return int(self.site.connection_timeout)
+    
+    def _get_object_info(self, connection):
+        object_id=connection.connection_id
+        object_info=dict(
+                object_id=object_id,
+                start_ts=datetime.now(),
+                connection_name=connection.connection_name,
+                user=connection.user,
+                ip=connection.ip,
+                user_agent=connection.user_agent,
+                pages=connection.pages
+                )
+        return object_info
+    
+    def _on_add_object(self,object_info):
+        pass
+     
+    def _on_remove_object(self, object_id, object_info):
+        if hasattr(self.onRemoveConnection,'__call__'):
+            self.onRemoveConnection(object_id)
+        
+    def connections(self, index_name=None):
+        return self._objects(index_name=index_name)     
+        
+        
+
+class UserRegister(BaseRegister):
+    DEFAULT_EXPIRY=3600
+    prefix='CREG_'
+    
+    
+    
+    def _get_object_info(self, user):
+        page = self.db.application.site.currentPage
+        avatar=page.avatar
+        
+        new_connection_record = dict(username=page.user,
+                                        userid=avatar.userid,start_ts=datetime.now(),
+                                        ip=page.request.remote_addr,
+                                         user_agent=page.request.get_header('User-Agent'))
+        object_id=connection.connection_id
+        
+        object_info=dict(
+                object_id=object_id,
+                start_ts=datetime.now(),
+                cookieName=connection.cookieName,
+                )
+        return object_info
+
+    def _on_add_object(self,object_info):
+        pass
+
+    def _on_remove_object(self, object_id, object_info):
+        pass
+
+    def users(self, index_name=None):
+        return self._objects(index_name=index_name)

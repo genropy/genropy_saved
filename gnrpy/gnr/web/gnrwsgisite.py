@@ -23,7 +23,9 @@ from gnr.core.gnrmailhandler import MailHandler
 from gnr.app.gnrdeploy import PathResolver
 from gnr.web.gnrwsgisite_proxy.gnrshareddata import GnrSharedData_dict, GnrSharedData_memcache
 from gnr.web.gnrwsgisite_proxy.gnrmsg import  GnrMessageHandler
-from gnr.web.gnrwsgisite_proxy.gnrobjectregister import PageRegister
+from gnr.web.gnrwsgisite_proxy.gnrobjectregister import PageRegister, ConnectionRegister
+import random
+import shutil
 mimetypes.init()
 site_cache = {}
 
@@ -226,6 +228,7 @@ class GnrWsgiSite(object):
         if self.default_uri[-1]!='/':
             self.default_uri+='/'
         self.mainpackage = self.config['wsgi?mainpackage']
+        self.allConnectionsFolder = os.path.join(self.site_path, 'data', '_connections')
         self.homepage = self.config['wsgi?homepage'] or self.default_uri+'index'
         self.indexpage = self.config['wsgi?homepage'] or '/index'
         if not self.homepage.startswith('/'):
@@ -251,8 +254,17 @@ class GnrWsgiSite(object):
         self.mail_handler=MailHandler(parent = self)
         self.message_handler=GnrMessageHandler(self)
         self.page_register=PageRegister(self)
+        self.connection_register=ConnectionRegister(self,onRemoveConnection=self.connFolderRemove)
         if counter==0 and self.debug:
             self.onInited(clean = not noclean)
+        
+    def connFolderRemove(self, connection_id, rnd=True):        
+        shutil.rmtree(os.path.join(self.allConnectionsFolder, connection_id),True)
+        if rnd and random.random() > 0.9:
+            live_connections=self.connection_register.connections()
+            connection_to_remove=[connection_id for connection_id in os.listdir(self.allConnectionsFolder) if connection_id not in live_connections and os.path.isdir(connection_id)]
+            for connection_id in connection_to_remove:
+                self.connFolderRemove(connection_id, rnd=False)
         
     def _get_automap(self):
         return self.resource_loader.automap

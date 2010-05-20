@@ -20,47 +20,45 @@ from gnr.web.gnrwebpage_proxy.gnrbaseproxy import GnrBaseProxy
 
 class GnrWebConnection(GnrBaseProxy):
     
+    
     def init(self, **kwargs):
         self.expired = False
         self.connection_id = '_anonymous'
         self.cookie = None
-        self.allConnectionsFolder = os.path.join(self.page.siteFolder, 'data', '_connections')
-
+        self.allConnectionsFolder = self.page.site.allConnectionsFolder
+        self.user = None
+        self.pages = Bag()
+        self.inited=False
         
     def event_onEnd(self):
         if self.page.user:
             self._finalize()
-    
-    def initConnection(self):
+            
+    def getConnection(self, user=None):
         page = self.page
-        #storename = getattr(page, 'storename', None)
+        self.ip=page.request.remote_addr
+        self.user_agent=page.request.get_header('User-Agent')
         sitename = self.page.siteName
-        #conn_name = storename and 'conn_%s_%s'%(sitename,storename) or 'conn_%s'%sitename
-        conn_name = 'conn_%s'%sitename
-        self.cookieName = conn_name
+        self.connection_name = 'conn_%s'%sitename
         self.secret = page.site.config['secret'] or self.page.siteName
-        self.cookie = None
-        self.oldcookie=None
-        if page._user_login:
-            user, password = page._user_login.split(':')
+        self.cookie = self.page.get_cookie(self.connection_name,'marshal', secret = self.secret)
+        connection_info=None
+        if self.cookie:
+            self.connection_id = self.cookie.value.get('connection_id')
+            connection_info = page.site.connection_register.get_object(self.connection_id)
+            if connection_info:
+                self.user = connection_info['user']
+            elif page.site.debug:
+                self.user=self.cookie.value.get('user')
+                page.site.connection_register.refresh(self,renew=True)
+                connection_info = page.site.connection_register.get_object(self.connection_id)
+        if not connection_info:
+            self.user = user
             self.connection_id = getUuid()
-            avatar = page.application.getAvatar(user, password, authenticate=True,connection=self)
-            self.cookie = self.page.newMarshalCookie(self.cookieName, {'connection_id': self.connection_id or getUuid(), 'cookie_data':{}, 'locale':None, 'timestamp':None}, secret = self.secret)
-            if avatar:
-                self.updateAvatar(avatar)
-        else:
-            cookie = self.page.get_cookie(self.cookieName,'marshal', secret = self.secret)
-            if cookie: #Cookie is OK
-                self.oldcookie=cookie
-                self.connection_id = cookie.value.get('connection_id')
-                if self.connection_id:
-                    cookie = self.verify(cookie)
-                    if cookie:
-                        self.cookie = cookie
-            if not self.cookie:
-                self.connection_id = getUuid()
-                self.cookie = self.page.newMarshalCookie(self.cookieName, {'connection_id': self.connection_id, 'cookie_data':{}, 'locale':None, 'timestamp':None}, secret = self.secret)
-
+            page.site.connection_register.register(self)
+            self.cookie = self.page.newMarshalCookie(self.connection_name, {'user':self.user,'connection_id': self.connection_id, 'cookie_data':{}, 'locale':None}, secret = self.secret)
+        self.inited=True
+        
     def _get_data(self):
         if not hasattr(self, '_data'):
             if os.path.isfile(self.connectionFile):
@@ -71,17 +69,15 @@ class GnrWebConnection(GnrBaseProxy):
         return self._data
     data = property(_get_data)
     
-    def cookieToRefresh(self):
-        if self.cookie:
-            self.cookie.value['timestamp'] = None
         
     def _finalize(self):
-        if not self.cookie.value.get('timestamp'):
-            self.cookie.value['timestamp'] = time.time()
-            self.data['ip'] = self.page.request.remote_addr
-            self.data['pages'] = Bag(self.page.session.getActivePages(self.connection_id))
-            self.write()
-        self.cleanExpiredConnections(rnd=0.9)
+        #if not self.cookie.value.get('timestamp'):
+        #    self.cookie.value['timestamp'] = time.time()
+        self.ip = self.page.request.remote_addr
+        self.pages = Bag(self.page.session.getActivePages(self.connection_id))
+        self.page.site.connection_register.refresh(self,renew=False)
+        self.write()
+        #self.cleanExpiredConnections(rnd=0.9)
         
     def writedata(self):
         """Write immediatly the disk file, not the cookie: use it for update data during a long process"""
@@ -90,8 +86,8 @@ class GnrWebConnection(GnrBaseProxy):
     def write(self):
         self.cookie.path = self.page.site.default_uri
         self.page.add_cookie(self.cookie)
-        self.data['cookieData'] = Bag(self.cookie.value)
-        self.data.toXml(self.connectionFile, autocreate=True)
+        #self.data['cookieData'] = Bag(self.cookie.value)
+        #self.data.toXml(self.connectionFile, autocreate=True)
 
     def _get_cookie_data(self):
         if self.cookie:
@@ -102,12 +98,13 @@ class GnrWebConnection(GnrBaseProxy):
     def _get_locale(self):
         if self.cookie:
             return self.cookie.value.get('locale')
+            
     def _set_locale(self, v):
         self.cookie.value['timestamp'] = None
         self.cookie.value['locale'] = v
     locale = property(_get_locale, _set_locale)
     
-    def updateAvatar(self, avatar):
+    def makeAvatar(self, avatar):
         self.cookie.value['timestamp'] = None
         cookie_data = self.cookie_data
         cookie_data['user'] = avatar.id
@@ -122,7 +119,6 @@ class GnrWebConnection(GnrBaseProxy):
     connectionFile = property(_get_connectionFile)
     
     def rpc_logout(self,**kwargs):
-        #self.cookie = self.page.newMarshalCookie(self.cookieName, {'expire':True,'connection_id': None, 'cookie_data':{}, 'locale':None, 'timestamp':None}, secret = self.secret)
         self.close()
         
     def close(self):
@@ -133,61 +129,8 @@ class GnrWebConnection(GnrBaseProxy):
         page=self.page
         site=page.site
         site.connectionLog('close',connection_id=connection_id)
-        self.connFolderRemove(connection_id)
-    
+        site.connection_register.unregister(self)
+        
     def pageFolderRemove(self):
         shutil.rmtree(os.path.join(self.connectionFolder, self.page.page_id),True)
-        
-    def connFolderRemove(self, connection_id):        
-        shutil.rmtree(os.path.join(self.allConnectionsFolder, connection_id),True)
-       #for root, dirs, files in os.walk(path, topdown=False):
-       #    for name in files:
-       #        os.remove(os.path.join(root, name))
-       #    for name in dirs:
-       #        os.rmdir(os.path.join(root, name))
-       #os.rmdir(path)
-        
-    def verify(self, cookie):
-        if os.path.isfile(self.connectionFile):
-            expire=False
-            if cookie.value.get('expire'):
-                expire=True
-            elif cookie.value.get('timestamp'):
-                cookieAge = time.time() - cookie.value['timestamp']
-                if cookieAge < int(self.page.site.connection_refresh):
-                    return cookie # fresh cookie
-                elif cookieAge < int(self.page.site.connection_timeout):
-                    cookie = self.page.newMarshalCookie(self.cookieName, {'connection_id': cookie.value.get('connection_id') or getUuid(), 
-                                                                'locale':cookie.value.get('locale'),
-                                                                 'cookie_data':cookie.value.get('cookie_data'), 'timestamp':None}, 
-                                                                 secret = self.secret)
-                    return cookie
-                else:
-                    expire=True
-            if expire:
-                self.isExpired = True
-                #cookie = self.page.newMarshalCookie(self.cookieName, {'cookie_data':cookie.value.get('cookie_data'), 'timestamp':None}, secret = self.secret)
-                self.close() # old cookie: destroy
-                return cookie        
-           
-    def cleanExpiredConnections(self, rnd=None):
-        if (not rnd) or (random.random() > rnd):
-            dirbag = self.connectionsBag()
-            t = time.time()
-            for conn_id, conn_files in dirbag.digest('#k,#v'):
-                try:
-                    cookieAge = t - (conn_files['connection_xml.cookieData.timestamp'] or 0)
-                except:
-                    cookieAge = t
-                if cookieAge > int(self.page.site.connection_timeout):
-                    self.dropConnection(conn_id)
-        
-    def connectionsBag(self):
-        if os.path.isdir(self.allConnectionsFolder):
-            dirbag = Bag(self.allConnectionsFolder)['_connections']
-        else:
-            dirbag = Bag()
-        return dirbag
-            
-
-
+    

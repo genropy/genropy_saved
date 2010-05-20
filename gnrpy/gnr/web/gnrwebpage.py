@@ -69,7 +69,7 @@ class GnrWebPage(GnrBaseWebPage):
         self.isTouchDevice = ('iPad' in self.user_agent or 'iPhone' in self.user_agent)
         self._event_subscribers = {}
         self._localClientDataChanges = Bag()
-        self._user = None
+        self.user = None
         self._connection = None
         self.forked = False # maybe redefine as _forked
         self.page_id = request_kwargs.pop('page_id',None) or getUuid()
@@ -222,7 +222,7 @@ class GnrWebPage(GnrBaseWebPage):
             external_token = request_kwargs.pop('gnrtoken')
             method,token_args,token_kwargs,user = self.db.table('sys.external_token').use_token(external_token, commit=True)
             if user:
-                self._user=user # TODO: refactor and cleanup
+                self.user=user # TODO: refactor and cleanup
             if method:
                 if method=='root':
                     self._call_handler=self.rootPage
@@ -236,9 +236,9 @@ class GnrWebPage(GnrBaseWebPage):
             request_kwargs['pagetemplate']=self.pagetemplate
 
     def _rpcDispatcher(self, method=None, xxcnt='', mode='bag',**kwargs):
-        if False and method!= 'main':
-            if self.session.pagedata['page_id']!=self.page_id :
-                self.raiseUnauthorized()
+        #if False and method!= 'main':
+        #    if self.session.pagedata['page_id']!=self.page_id :
+        #        self.raiseUnauthorized()
         parameters = dict(kwargs)
         for k,v in kwargs.items():
             if isinstance(v, basestring):
@@ -260,6 +260,77 @@ class GnrWebPage(GnrBaseWebPage):
         result_handler = getattr(self.rpc, 'result_%s' % mode.lower())
         return_result = result_handler(result)
         return return_result
+
+    def _checkAuth(self, method=None, **parameters):
+        auth = AUTH_OK
+        pageTags = self.pageAuthTags(method=method, **parameters)
+        if pageTags:
+            if not self.user:
+                if not self.connection.inited:
+                    self.connection.getConnection()
+                self.user = self.connection.user
+            if not self.user:
+                auth = AUTH_NOT_LOGGED
+            elif not self.application.checkResourcePermission(pageTags, self.userTags):
+                auth = AUTH_FORBIDDEN
+
+            if auth == AUTH_NOT_LOGGED and method != 'main':
+                auth = 'EXPIRED'
+
+        elif parameters.get('_loginRequired') == 'y':
+            auth = AUTH_NOT_LOGGED
+        return auth
+
+
+    def _checkAuth_(self, method=None, **parameters):
+        auth = AUTH_OK
+        pageTags = self.pageAuthTags(method=method, **parameters)
+        if pageTags:
+            if not self.user:
+                if not self.connection.cookie:
+                    self.connection.initConnection()
+                self.user = self.connection.user
+            if not self.user:
+                auth = AUTH_NOT_LOGGED
+            elif not self.application.checkResourcePermission(pageTags, self.userTags):
+                auth = AUTH_FORBIDDEN
+
+            if auth == AUTH_NOT_LOGGED and method != 'main':# and method!='onClosePage':
+                if not self.connection.oldcookie:
+                    pass
+                    #self.raiseUnauthorized()
+                auth = 'EXPIRED'
+
+        elif parameters.get('_loginRequired') == 'y':
+            auth = AUTH_NOT_LOGGED
+        return auth
+
+    def rpc_doLogin(self, login=None, guestName=None, **kwargs):
+        """Service method that set user's avatar into its connection if
+        - The user exists and his password is correct.
+        - The user is guest
+        """
+        loginPars={}
+        if guestName:
+            avatar = self.application.getAvatar(guestName)
+        else:
+            avatar = self.application.getAvatar(login['user'], password=login['password'], authenticate=True,page=self)
+        if avatar:
+            if not self.connection.user:
+                self.connection.getConnection(user=login['user'])
+            #if not self.user:
+            #    connection=self.connection
+            #    self._user = self.connection.cookie_data.get('user')
+            self.avatar = avatar
+            self.user = avatar.id
+            self.connection.makeAvatar(avatar)
+            self.site.onAuthenticated(avatar)
+            login['message'] = ''
+            loginPars=avatar.loginPars
+        else:
+            login['message'] = 'invalid login'
+        return (login,loginPars)
+
 
     def onInit(self):
         # subclass hook
@@ -292,7 +363,7 @@ class GnrWebPage(GnrBaseWebPage):
         pass
 
     def _onEnd(self):
-        self.site.page_register.refresh(self)
+        self.site.page_register.refresh(self, renew=True)
         if self.user:
             self.handleMessages()
         self._publish_event('onEnd')
@@ -506,12 +577,6 @@ class GnrWebPage(GnrBaseWebPage):
         return self._subscribedTablesDict
     subscribedTablesDict = property(_get_subscribedTablesDict)
     
-    def _get_user(self):
-        """Get the user from hidden _user attribute."""
-        #if not self._user:
-        #    self._user = self.connection.cookie_data.get('user')
-        return self._user
-    user = property(_get_user)
         
     def _get_userTags(self):
         if self.user:
@@ -527,9 +592,9 @@ class GnrWebPage(GnrBaseWebPage):
         return self._avatar
     avatar = property(_get_avatar,_set_avatar)
     
-    def updateAvatar(self):
-        """Reload the avatar, recalculate tags, and save in cookie"""
-        self.connection.updateAvatar(self.avatar)
+    #def updateAvatar(self):
+    #    """Reload the avatar, recalculate tags, and save in cookie"""
+    #    self.connection.updateAvatar(self.avatar)
     
     
     def checkPermission(self, pagepath, relative=True):
@@ -619,7 +684,6 @@ class GnrWebPage(GnrBaseWebPage):
     package_folder = property(_get_package_folder)
     
     def rpc_main(self, _auth=AUTH_OK, debugger=None, **kwargs):
-        self.connection.cookieToRefresh()
         page = self.domSrcFactory.makeRoot(self)
         self._root = page
         pageattr = {}

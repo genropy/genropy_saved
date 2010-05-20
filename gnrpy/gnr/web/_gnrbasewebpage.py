@@ -182,56 +182,10 @@ class GnrBaseWebPage(GnrObject):
     def pageAuthTags(self, method=None, **kwargs):
         return ""
     
-    def rpc_doLogin(self, login=None, guestName=None, **kwargs):
-        """Service method that set user's avatar into its connection if
-        - The user exists and his password is correct.
-        - The user is guest
-        """
-        loginPars={}
-        if guestName:
-            avatar = self.application.getAvatar(guestName)
-        else:
-            avatar = self.application.getAvatar(login['user'], password=login['password'], authenticate=True,page=self)
-        if avatar:
-            if not self.connection.cookie:
-                self.connection.initConnection()
-            #if not self.user:
-            #    connection=self.connection
-            #    self._user = self.connection.cookie_data.get('user')
-            self.avatar = avatar
-            self._user = avatar.id
-            self.connection.updateAvatar(avatar)
-            self.site.onAuthenticated(avatar)
-            login['message'] = ''
-            loginPars=avatar.loginPars
-        else:
-            login['message'] = 'invalid login'
-        return (login,loginPars)
 
 
         
-    def _checkAuth(self, method=None, **parameters):
-        auth = AUTH_OK
-        pageTags = self.pageAuthTags(method=method, **parameters)
-        if pageTags:
-            if not self.user:
-                if not self.connection.cookie:
-                    self.connection.initConnection()
-                self._user = self.connection.cookie_data.get('user')
-            if not self.user:
-                auth = AUTH_NOT_LOGGED
-            elif not self.application.checkResourcePermission(pageTags, self.userTags):
-                auth = AUTH_FORBIDDEN
-                
-            if auth == AUTH_NOT_LOGGED and method != 'main':# and method!='onClosePage':
-                if not self.connection.oldcookie:
-                    pass
-                    #self.raiseUnauthorized()
-                auth = 'EXPIRED'
-                
-        elif parameters.get('_loginRequired') == 'y':
-            auth = AUTH_NOT_LOGGED
-        return auth
+
         
     def pageLocalDocument(self, docname):
         folder = os.path.join(self.connectionFolder, self.page_id)
@@ -550,7 +504,6 @@ class GnrBaseWebPage(GnrObject):
         self.site.onClosePage(self)
         self.session.removePageData()
         self.connection.pageFolderRemove()
-        self.connection.cookieToRefresh()
         
     def mainLeftContent(self,parentBC,**kwargs):
         pass
