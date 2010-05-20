@@ -2606,7 +2606,7 @@ dojo.declare("gnr.widgets.VirtualStaticGrid",gnr.widgets.Grid,{
         var r = r || this.selection.selectedIndex;
         var rc = this.findNextEditableCell({row: r, col: -1}, {r:0, c:1});
         if(rc){
-            this.fireEditCell(rc);
+            this.startEditCell(rc.row,rc.col);
         }
     },
     mixin_newBagRow: function(defaultArgs){
@@ -2788,14 +2788,16 @@ dojo.declare("gnr.widgets.VirtualStaticGrid",gnr.widgets.Grid,{
         editWidget.replacedNode = editWidget.cellNode.childNodes[0];
         
         if(editWidget.replacedNode){
+            console.log('a')
             editWidget.cellNode.replaceChild(editWidget.domNode, editWidget.replacedNode);
         } else {
+            console.log('b')
             editWidget.cellNode.appendChild(editWidget.domNode, editWidget.replacedNode);
         }
         editWidget.focus();
-        /*if(editWidget.selectAllInputText){
+        if(editWidget.selectAllInputText){
             editWidget.selectAllInputText();
-        }*/
+        }
     },
     mixin_endEditCell:function(editWidget, delta){
         if (editWidget.cellNode){
@@ -2820,7 +2822,7 @@ dojo.declare("gnr.widgets.VirtualStaticGrid",gnr.widgets.Grid,{
         if(delta){
             var rc = this.findNextEditableCell({row: editWidget.cellRow, col: editWidget.cellCol}, delta);
             if(rc){
-                this.fireEditCell(rc);
+                this.startEditCell(rc.row,rc.col);
             }
         }
         //this.edit.info = {};
@@ -2852,12 +2854,7 @@ dojo.declare("gnr.widgets.VirtualStaticGrid",gnr.widgets.Grid,{
         rc.row = row;
         return rc;
     },
-    mixin_fireEditCell: function(rc){
-        if(this.startEditTimeout){
-            clearTimeout(this.startEditTimeout);
-        }
-        this.startEditTimeout = setTimeout(dojo.hitch(this, 'startEditCell', rc.row, rc.col), 1);
-    },
+
     patch_dokeydown:function(e){
         if(this.gnrediting){
             
@@ -2925,7 +2922,7 @@ dojo.declare("gnr.widgets.GridEditor",gnr.widgets.baseHtml,{
         dojo.connect(grid, editOn[0], function(e){
             if(genro.wdg.filterEvent(e, modifier)){
                 if (grid.editorEnabled){
-                    grid.fireEditCell({row:e.rowIndex, col: e.cellIndex});
+                    grid.startEditCell(e.rowIndex, e.cellIndex);
                 }
             }
         });

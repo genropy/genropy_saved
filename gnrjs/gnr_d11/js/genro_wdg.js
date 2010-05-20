@@ -242,23 +242,29 @@ dojo.declare("gnr.GnrWdgHandler",null,{
                 }
             }
             if (attributes.gridcell){
-                dojo.connect(newobj.focusNode, 'keydown', dojo.hitch(newobj, function(e){
-                    if((e.keyCode == genro.PATCHED_KEYS.SHIFT) || 
-                        (e.keyCode == genro.PATCHED_KEYS.CTRL) || 
-                        (e.keyCode == genro.PATCHED_KEYS.ALT)){
-                        return;
-                    }
-                    if (e.keyCode == genro.PATCHED_KEYS.TAB){
-                        if(e.shiftKey){
-                            this.cellNext = 'LEFT';
-                        } else {
-                            this.cellNext = 'RIGHT';
-                        }
-                    }
-                    if ((e.shiftKey) && ((e.keyCode == genro.PATCHED_KEYS.UP_ARROW) || 
+                this.cellEditorConnect(newobj,sourceNode)
+            }
+
+        }
+        handler._created(newobj, kw.postCreation, sourceNode, ind);
+        return newobj;
+        
+    },
+    cellEditorConnect:function(newobj,sourceNode){
+        dojo.connect(newobj.focusNode, 'keydown', dojo.hitch(newobj, function(e){
+            if((e.keyCode == genro.PATCHED_KEYS.SHIFT) || 
+                (e.keyCode == genro.PATCHED_KEYS.CTRL) || 
+                (e.keyCode == genro.PATCHED_KEYS.ALT)){
+                    return;
+                }
+            if (e.keyCode == genro.PATCHED_KEYS.TAB){
+                this.cellNext = e.altKey ? 'LEFT':'RIGHT';
+            }
+            if ((e.altKey) && ((e.keyCode == genro.PATCHED_KEYS.UP_ARROW) || 
                                          (e.keyCode == genro.PATCHED_KEYS.DOWN_ARROW) || 
                                          (e.keyCode == genro.PATCHED_KEYS.LEFT_ARROW) || 
                                          (e.keyCode == genro.PATCHED_KEYS.RIGHT_ARROW))){
+                            
                         if(e.keyCode == genro.PATCHED_KEYS.UP_ARROW){
                             this.cellNext = 'UP';
                         } else if(e.keyCode == genro.PATCHED_KEYS.DOWN_ARROW){
@@ -286,11 +292,7 @@ dojo.declare("gnr.GnrWdgHandler",null,{
                     //console.log('DELTA DICT');
                     setTimeout(dojo.hitch(grid, 'endEditCell', this, deltaDict[cellNext]), 1);
                 }));
-            }
-
-        }
-        handler._created(newobj, kw.postCreation, sourceNode, ind);
-        return newobj;
+        
         
     },
     linkSourceNode:function(newobj,sourceNode,kw){
