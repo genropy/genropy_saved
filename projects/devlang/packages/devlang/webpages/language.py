@@ -9,8 +9,10 @@ Copyright (c) 2008 Softwell. All rights reserved.
 class GnrCustomWebPage(object):
     maintable='devlang.language'
     py_requires='public:Public,standard_tables:TableHandler,gnrcomponents/selectionhandler'
-    subscribed_tables='devlang.dev_lang'
-    polling=15
+    subscribed_tables='devlang.dev_lang' # ask to be notified for changes in this table (s)
+    # 
+    polling=15 # polling interval for not operating times
+    autopolling=2 # polling interval foractivity times
     
     def lstBase(self,struct):
         r = struct.view().rows()
@@ -30,7 +32,9 @@ class GnrCustomWebPage(object):
         self.includedViewBox(center,label='!!Developers',datapath='developers',
                              nodeId='developers',table='devlang.dev_lang',autoWidth=True,
                              struct=self.language_developer_struct,
-                             reloader='^form.record.id',externalChanges='language_id=form.record.id',
+                             reloader='^form.record.id',
+                             externalChanges='language_id=form.record.id',# ask to reload the view when there is 
+                             # a change at this table and the record involved has language_id  == to current language.id    
                              selectionPars=dict(where='$language_id=:l_id', l_id='=form.record.id',_if='l_id'))
 
     def language_developer_struct(self,struct):
