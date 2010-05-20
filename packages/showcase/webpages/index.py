@@ -24,7 +24,7 @@ class GnrCustomWebPage(object):
         pane.data('menubag',self.diskDirectory())
         pane.tree(storepath='menubag',hideValues=True,inspect='shift',labelAttribute='name',isTree=False,
                     selected_path='tree.current_path')
-        pane.dataFormula("iframe.selected_page", "current_path", current_path="^tree.current_path",_if='current_path')
+        pane.dataFormula("iframe.selected_page", "'showcase/'+current_path", current_path="^tree.current_path",_if='current_path')
 
     def top(self,pane):
         pane.span("TestGarden > ")
