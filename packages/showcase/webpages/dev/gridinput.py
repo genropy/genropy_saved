@@ -22,16 +22,14 @@ class GnrCustomWebPage(object):
         grid = box.IncludedView(nodeId='inputgrid',struct=self._gridStruct(),storepath='grid.data',
                                 datamode='bag',editorEnabled=True)
         gridEditor = grid.gridEditor(datapath='dummy') #editOn='onCellClick')
-        gridEditor.numbertextbox(gridcell='c')
+        gridEditor.filteringSelect(gridcell='filter',values='A:Alberto,B:Bonifacio,C:Carlo')
+        gridEditor.dbSelect(dbtable='devlang.language',gridcell='language',hasDownArrow=True)
         gridEditor.textbox(gridcell='name',validate_len=':4',validate_len_max='!!Too long',
                             validate_len_min='!!Too short')
         gridEditor.numbertextbox(gridcell='qt')
         gridEditor.checkbox(gridcell='new')
         gridEditor.datetextbox(gridcell='date')
-        gridEditor.dbSelect(dbtable='showcase.person', gridcell='person', 
-                            value='^.person_id', 
-                            editorEnabled=True,
-                            validate_notnull=True,validate_notnull_error='!!Required')
+        
        #gridEditor.textbox(gridcell='size')
        #paneOpt = gridEditor.contentPane(gridcell='options')
        #paneOpt.checkbox('alpha',value='^.alpha')
@@ -50,13 +48,13 @@ class GnrCustomWebPage(object):
     def _gridStruct(self):
         struct = self.newGridStruct()
         r = struct.view().rows()
-        r.cell('c', name='Range',width='3em', dtype='L')
+        r.cell('filter', name='FS',width='10em')
+        r.cell('language', name='Lang',width='10em', dtype='T')
         r.cell('name', name='Name',width='10em', dtype='T')
         r.cell('qt', name='Qty',width='10em', dtype='R')
         r.cell('new', name='New',width='10em', dtype='B')
         r.cell('size', name='Size',width='10em', dtype='T')
         r.cell('date', name='Date',width='10em', dtype='D')
-        r.cell('person', name='Person',width='10em', dtype='T')
        # r.cell('options', name='Options',width='10em', dtype='T')
 
         return struct
