@@ -71,13 +71,10 @@ class GnrWebConnection(GnrBaseProxy):
     
         
     def _finalize(self):
-        #if not self.cookie.value.get('timestamp'):
-        #    self.cookie.value['timestamp'] = time.time()
         self.ip = self.page.request.remote_addr
         self.pages = Bag(self.page.session.getActivePages(self.connection_id))
         self.page.site.connection_register.refresh(self,renew=False)
         self.write()
-        #self.cleanExpiredConnections(rnd=0.9)
         
     def writedata(self):
         """Write immediatly the disk file, not the cookie: use it for update data during a long process"""
@@ -86,8 +83,6 @@ class GnrWebConnection(GnrBaseProxy):
     def write(self):
         self.cookie.path = self.page.site.default_uri
         self.page.add_cookie(self.cookie)
-        #self.data['cookieData'] = Bag(self.cookie.value)
-        #self.data.toXml(self.connectionFile, autocreate=True)
 
     def _get_cookie_data(self):
         if self.cookie:
