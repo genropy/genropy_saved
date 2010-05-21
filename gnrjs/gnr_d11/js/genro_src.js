@@ -75,16 +75,20 @@ dojo.declare("gnr.GnrSrcHandler",null,{
     },
     _trigger_ins:function(kw){//da rivedere
         var node=kw.node;
-        var wherenode=kw.where.getParentNode();
-        if(wherenode){
-            var where=wherenode.widget || wherenode.domNode;
-            if(!where){
-                alert('_trigger_ins error????');//|| dojo.byId(genro.domRootName);
+        var where = objectPop(node.attr,'_parentDomNode');
+        if (!where){
+            var wherenode=kw.where.getParentNode();
+            if(wherenode){
+                var where=wherenode.widget || wherenode.domNode;
+                if(!where){
+                    alert('_trigger_ins error????');//|| dojo.byId(genro.domRootName);
+                }
+            }else{
+                var where=dojo.byId(genro.domRootName);
+                node.domNode=where;
             }
-        }else{
-            var where=dojo.byId(genro.domRootName);
-            node.domNode=where;
         }
+        
         var ind=kw.ind;
         this.buildNode(node, where, ind);  
     },
@@ -103,6 +107,9 @@ dojo.declare("gnr.GnrSrcHandler",null,{
     },
     _trigger_upd:function(kw){//da rivedere
         var destination=kw.node.getParentBuiltObj();
+        if (!destination) {
+            console.log('sono cazzi');
+        };
         var domNode =  kw.node.getDomNode();
         var newNode = document.createElement('div');
         var widget=kw.node.widget;

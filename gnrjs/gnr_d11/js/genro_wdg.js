@@ -171,9 +171,9 @@ dojo.declare("gnr.GnrWdgHandler",null,{
         var newobj, domnode;
         var handler = this.getHandler(tag);
         var domtag = handler._domtag || tag ;
-        if (attributes.gridcell){
-            attributes._class = attributes._class || 'widgetInCell';
-        }
+       //if (attributes.gridcell){
+       //    attributes._class = attributes._class || 'widgetInCell';
+       //}
         //    sourceNode.attr.nodeId = sourceNode.getParentNode().attr.nodeId + '_' + attributes.gridcell;
         //    sourceNode.attr.value = '^.' + attributes.gridcell
         //    var dflt = sourceNode.attr['default'] || sourceNode.attr['default_value'] || '';
@@ -241,16 +241,17 @@ dojo.declare("gnr.GnrWdgHandler",null,{
                     destination.addChild(newobj,ind);
                 }
             }
+            /*
             if (attributes.gridcell){
                 this.cellEditorConnect(newobj,sourceNode)
-            }
+            }*/
 
         }
         handler._created(newobj, kw.postCreation, sourceNode, ind);
         return newobj;
         
     },
-    cellEditorConnect:function(newobj,sourceNode){
+    old_cellEditorConnect:function(newobj,sourceNode){
         dojo.connect(newobj.focusNode, 'keydown', dojo.hitch(newobj, function(e){
             if((e.keyCode == genro.PATCHED_KEYS.SHIFT) || 
                 (e.keyCode == genro.PATCHED_KEYS.CTRL) || 

@@ -1032,7 +1032,10 @@ dojo.declare("gnr.GnrDomSourceNode",gnr.GnrBagNode,{
            }
            child = content._(tag,name,attributes);
            return child;
-       }
+       },
+    _destroy: function(){
+        this.getParentBag().delItem(this.label);
+    }
 });
 
 dojo.declare("gnr.GnrStructData",gnr.GnrBag,{    
