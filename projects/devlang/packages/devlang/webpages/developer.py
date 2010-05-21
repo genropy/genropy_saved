@@ -32,7 +32,7 @@ class GnrCustomWebPage(object):
                                 autoWidth=True,add_action=True,del_action=True)
         gridEditor = iv.gridEditor()
         gridEditor.dbSelect(dbtable='devlang.language',value='^.language_id',
-                            gridcell='@language_id.name',hasDownArrow=True)
+                            gridcell='@language_id.name',hasDownArrow=True,exclude=True)
         gridEditor.filteringSelect(gridcell='level',values='!!1:Low,2:Good,3:Great,4:Specialist,5:Guru')
         
     def developer_form(self,pane,disabled=None):
@@ -75,7 +75,7 @@ class GnrCustomWebPage(object):
         
     def developer_language_struct(self,struct):
         r = struct.view().rows()
-        r.fieldcell('@language_id.name', name='!!Language', width='20em',zoom=True)
+        r.fieldcell('@language_id.name', name='!!Language', width='20em')
         r.fieldcell('level',width='10em')
         return struct
         
