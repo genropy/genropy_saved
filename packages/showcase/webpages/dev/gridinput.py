@@ -25,7 +25,7 @@ class GnrCustomWebPage(object):
         gridEditor.filteringSelect(gridcell='filter',values='A:Alberto,B:Bonifacio,C:Carlo')
         gridEditor.dbSelect(dbtable='devlang.language',gridcell='language',hasDownArrow=True)
         gridEditor.textbox(gridcell='name',validate_len=':4',validate_len_max='!!Too long',
-                            validate_len_min='!!Too short')
+                            validate_len_min='!!Too short',connect_focus='console.log("focus")',connect_onBlur='console.log("blur")')
         gridEditor.numbertextbox(gridcell='qt')
         gridEditor.checkbox(gridcell='new')
         gridEditor.datetextbox(gridcell='date')
@@ -41,7 +41,7 @@ class GnrCustomWebPage(object):
         root.button('Copy', fire='docopy')
         #root.div(datapath='test').dbSelect(dbtable='glbl.provincia', auxColumns='nome,regione', value='^.prov', selected_nome='.prov_dsc')
         
-        root.textbox(connect_onBlur="console.log('onBlur')")
+        root.textbox(connect_focus='console.log("focus")',connect_onBlur='console.log("blur")')
                     
         root.dataFormula('grid.copy', 'b.deepCopy()', b='=grid.data', _fired='^docopy')
         
@@ -63,6 +63,7 @@ class GnrCustomWebPage(object):
         result = Bag()
         date = datetime.date.today()
         for i in range(100):
-            result['r_%i' % i] = Bag({'c':i, 'name':'Dsc %i' % i, 'qt':None, 'new':bool(i%2), 'size':'big', 'date':date + datetime.timedelta(i)})
+            pkey = 'r_%i' % i
+            result[pkey] = Bag({'_pkey':pkey,'c':i, 'name':'Dsc %i' % i, 'qt':None, 'new':bool(i%2), 'size':'big', 'date':date + datetime.timedelta(i)})
         return result
             
