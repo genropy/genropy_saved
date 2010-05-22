@@ -11,6 +11,7 @@ import os
 import glob
 from time import time
 from gnr.core.gnrlang import gnrImport,boolean
+from gnr.core.gnrlang import GnrException
 from threading import RLock
 import thread
 import mimetypes
@@ -37,11 +38,19 @@ def currentSite():
     global GNRSITE
     return GNRSITE
 
+class GnrSiteException(GnrException): 
+    """Gnr Site Exception"""
+    code='GNRSITE-001'
+    description='!!Genro Site exception'
+    caption="!! Site Error : %(message)s" 
+
 class GnrWebServerError(Exception):
     pass
     
 class PrintHandlerError(Exception):
     pass
+    
+
 class LockInfo():
     def __init__(self,val=False,**kwargs):
         self._status=val
@@ -257,6 +266,14 @@ class GnrWsgiSite(object):
         self.connection_register=ConnectionRegister(self,onRemoveConnection=self.connFolderRemove)
         if counter==0 and self.debug:
             self.onInited(clean = not noclean)
+            
+    def exception(self,message):
+        
+        e= GnrSiteException(message=message)
+        if self.currentPage:
+            e.setLocalizer(self.currentPage.localizer)
+        return e
+        
         
     def connFolderRemove(self, connection_id, rnd=True):        
         shutil.rmtree(os.path.join(self.allConnectionsFolder, connection_id),True)
