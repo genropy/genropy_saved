@@ -21,12 +21,12 @@ class GetInfoPage(BaseComponent):
         if 'pagetemplate' in kwargs:
             kwargs.pop('pagetemplate')
         if args:
-            method = getattr(self,'getinfo_%s'%args[0],self.getinfo_default)
+            method = getattr(self,'getinfo_%s'%args[0],self.getinfo_index)
         else:
-            method = self.getinfo_default
+            method = self.getinfo_index
         return method(**kwargs)
     
-    def getinfo_default(self,*args,**kwargs):
+    def getinfo_index(self,*args,**kwargs):
         return 'You need to enter parameters to generate a query . . in the url'
     
     def gi_returnResultFromSelection(self, selection, mode='tabtext', filename='report.xls',**kwargs):
