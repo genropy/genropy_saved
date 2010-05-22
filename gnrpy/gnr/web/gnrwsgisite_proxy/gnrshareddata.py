@@ -205,7 +205,15 @@ class GnrSharedData_memcache(GnrSharedData):
         server_list = ['%(host)s:%(port)s'%attr for attr in memcache_config.digest('#a')]
         self.storage = memcache.Client(server_list, debug=debug)
         self.visited_keys={}
+        self._test(False)
         
+    def _test(self,doraise=True):
+        if not self.storage.get_stats():
+            if doraise:
+                raise self.site.exception( 'memcached not started')
+            else:
+                print '****** memcached not started ********'
+
     def key(self, key):
         prefixed_key=('%s_%s'%(self._namespace, key)).encode('utf8')
         self.visited_keys[prefixed_key]=key
@@ -227,7 +235,8 @@ class GnrSharedData_memcache(GnrSharedData):
     def set(self, key, value, expiry=0, cas_id=None):
         prefixed_key=self.key(key).strip()
         if not cas_id:
-            self.storage.set(prefixed_key, value, time=exp_to_epoch(expiry))
+            if not self.storage.set(prefixed_key, value, time=exp_to_epoch(expiry)):
+                self._test()
         else:
             self.storage.cas_ids[prefixed_key]=cas_id
             self.storage.cas(prefixed_key, value, time=exp_to_epoch(expiry))
