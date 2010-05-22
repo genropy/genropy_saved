@@ -112,7 +112,7 @@ class BagNode(object):
     object that gather within itself, three main things:
     
         -label: can be only a string.
-        -value: can be anything, but a BagNode. Often value is a Bag.
+        -value: can be anything, except a BagNode. Often value is a Bag.
         -attributes: dictionary that contains node's metadata   
         
     """
@@ -142,6 +142,7 @@ class BagNode(object):
         self.setValue(value, trigger=False)
         
     def __eq__(self, other):
+        """one bagnode is equal to another is its key, value, attributes and resolvers are the same"""
         try:
             if isinstance(other, self.__class__) and (self.attr == other.attr):
                 if self._resolver == None:
@@ -295,7 +296,7 @@ class BagNode(object):
     def getAttr(self, label=None, default=None):
         """
         this method returns the value of an attribute given it's label.
-        If it doesn't exists returns a default value.
+        If it doesn't exist then it returns a default value.
         * `label`: the label of the attribute to get.
         """
         if not label or label=='#': 
@@ -313,8 +314,8 @@ class BagNode(object):
     
     def hasAttr(self, label=None, value=None):
         """
-        this method check if the node has the given pair label-value
-        in its attributes
+        this method checks if a node has the given pair label-value
+        in its attributes dictionary
         """
         if not label in self.attr: return False
         if value: return (self.attr[label] == value)
@@ -889,11 +890,13 @@ class Bag(GnrObject):
             if n:
                 result = n.value
         return result
-        
+    
+    # the following means __delitem__ is the same as pop
     delItem = pop
     __delitem__=pop
     
     def _pop(self, label):
+        """bag.pop(key)"""
         p = self._index(label)
         if p >= 0:
             node = self._nodes.pop(p)
