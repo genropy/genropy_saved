@@ -2373,7 +2373,7 @@ dojo.declare("gnr.widgets.VirtualStaticGrid",gnr.widgets.Grid,{
         return false;
     },
     
-    
+
     patch_onStartEdit: function(inCell, inRowIndex){
         // summary:
         //      Event fired when editing is started for a given grid cell
@@ -2796,6 +2796,11 @@ dojo.declare("gnr.widgets.VirtualStaticGrid",gnr.widgets.Grid,{
         }
         return editWidget;
     },
+    patch_onCanSelect:function(){
+        return false;
+        //return ! this.gnrediting;
+    },
+
      mixin_startEditCell:function(row, col){
         var rowId = this.rowIdByIndex(row);
         var dataNode = this.storebag().getNode(rowId);
@@ -2805,6 +2810,8 @@ dojo.declare("gnr.widgets.VirtualStaticGrid",gnr.widgets.Grid,{
             setTimeout(dojo.hitch(this, 'startEditCell', row, col), 1);
             return;
         };
+        this.gnrediting = true;
+        dojo.setSelectable(this.domNode, this.gnrediting);
         var cell = this.getCell(col);
         var cellNode = cell.getNode(row);
         
@@ -2834,7 +2841,7 @@ dojo.declare("gnr.widgets.VirtualStaticGrid",gnr.widgets.Grid,{
         */
         
         
-        this.gnrediting = true;
+        
         var editingInfo={'cellNode':cellNode,'contentText':cellNode.innerHTML,'row':row,'col':col};
         cellNode.innerHTML = null;
         var cbKeys = function(e){
@@ -2943,10 +2950,10 @@ dojo.declare("gnr.widgets.VirtualStaticGrid",gnr.widgets.Grid,{
         editWidget.sourceNode._destroy();
         editingInfo.cellNode.innerHTML = contentText;
         this.gnrediting = false;
+        dojo.setSelectable(this.domNode, this.gnrediting);
         if(delta){
             var rc = this.findNextEditableCell({row:editingInfo.row, col:editingInfo.col}, delta);
             if(rc){
-                console.log('start edit');
                 this.startEditCell(rc.row,rc.col);
             }
         }

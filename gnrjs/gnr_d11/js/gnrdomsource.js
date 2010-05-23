@@ -478,7 +478,12 @@ dojo.declare("gnr.GnrDomSourceNode",gnr.GnrBagNode,{
     _bld_datacontroller: function() {},
     _bld_datarpc: function() {},
     _bld_script: function() {
-        dojo.eval(this.getValue());
+        if (this.attr.src){
+            genro.dom.loadJs(this.attr.src)
+        }else{
+            dojo.eval(this.getValue());
+        }
+  
     },
     _bld_stylesheet:function(){
         if (this.attr.href) {
@@ -487,6 +492,7 @@ dojo.declare("gnr.GnrDomSourceNode",gnr.GnrBagNode,{
             genro.dom.addStyleSheet(this.getValue(),this.attr.cssTitle);
         }
     },
+    
     _bld_css:function() {
         genro.dom.addCssRule(this.getValue());
     },

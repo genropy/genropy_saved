@@ -203,13 +203,13 @@
 ._common_d11 .widgetInCell {
 }
 ._common_d11 .widgetInCell {
-	background-color: lightgoldenrodyellow;
+	background-color: red;
     color: black;
 	display: block;
-	border: 1px inset grey;
-	margin-top: -1px;
-	margin-bottom: -1px;
-	margin-right: 4px;
+	border: 0px grey;
+	margin-top: 0px;
+	margin-bottom: 0px;
+	margin-right: 0px;
 	width: 100%;
 }
 ._common_d11 .dojoxGrid-row .dojoxGrid-cell{
