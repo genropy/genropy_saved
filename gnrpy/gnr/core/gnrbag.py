@@ -112,7 +112,8 @@ class BagNode(object):
     object that gather within itself, three main things:
     
         -label: can be only a string.
-        -value: can be anything, except a BagNode. Often value is a Bag.
+        -value: can be anything even a BagNode. If you have get the xml of the
+                bag it should be serializable.
         -attributes: dictionary that contains node's metadata   
         
     """
