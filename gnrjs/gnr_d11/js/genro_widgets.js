@@ -120,8 +120,9 @@ dojo.declare("gnr.GridEditor",null,{
         grid.gnrediting = start;
         dojo.setSelectable(grid.domNode, grid.gnrediting);
     },
+
     invalidCell:function(cell,row){
-        var rowData = this.grid.storebag().getNode(this.grid.rowIdByIndex(row)).getValue('static');
+        var rowData =  this.grid.dataNodeByIndex(row).getValue('static')
         if (rowData) {
              var datanode =  rowData.getNode(cell.field);
              return datanode?datanode.attr._validationError:false;  
@@ -132,24 +133,20 @@ dojo.declare("gnr.GridEditor",null,{
     },
     startEdit:function(row, col){
         var grid = this.grid;
-        var rowId = grid.rowIdByIndex(row);
         var cell = grid.getCell(col);
         var colname=cell.field;
-        var cellId=rowId+'_'+colname
-        var dataNode = grid.storebag().getNode(rowId);
-        
-        if (dataNode && dataNode._resolver && dataNode._resolver.expired()) {
-            dataNode.getValue();
+        var rowDataNode = grid.dataNodeByIndex(row)
+        if (rowDataNode && rowDataNode._resolver && rowDataNode._resolver.expired()) {
+            rowDataNode.getValue();
             setTimeout(dojo.hitch(this, 'startEdit', row, col), 1);
             return;
-        }else{
-            var cellDataNode = dataNode.getValue().getNode(colname);
         }
- 
+        var cellDataNode = rowDataNode.getValue().getNode(colname);
+        var rowLabel = rowDataNode.label;
         var cellNode = cell.getNode(row);
         var fldDict = this.columns[colname];
         var attr = objectUpdate({},fldDict.attr);
-        attr.datapath = '.'+rowId;   
+        attr.datapath = '.'+rowLabel;   
         //attr.preventChangeIfIvalid = true;     
         if ('value' in attr){
             if(attr.tag.toLowerCase() == 'dbselect'){
@@ -174,7 +171,7 @@ dojo.declare("gnr.GridEditor",null,{
         
         
         var editingInfo={'cellNode':cellNode,'contentText':cellNode.innerHTML,
-                         'row':row,'col':col,'cellId':cellId};
+                         'row':row,'col':col};
         cellNode.innerHTML = null;
         var cbKeys = function(e){
             var keyCode=e.keyCode;
@@ -2871,6 +2868,7 @@ dojo.declare("gnr.widgets.VirtualStaticGrid",gnr.widgets.Grid,{
             } 
         }
         var kw = {'_position':pos};
+
         storebag.setItem(label, newnode, null, kw); //questa provoca la chiamata della setStorePath che ha trigger di ins.
         // ATTENZIONE: Commentato questo perchè il trigger di insert già ridisegna ed aggiorna l'indice, ma non fa apply filter.
         // Cambiare l'indice di selezione corrente nelle includedview con form significa cambiare datapath a tutti i widget. PROCESSO LENTO.
