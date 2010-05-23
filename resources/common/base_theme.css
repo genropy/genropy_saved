@@ -200,6 +200,10 @@
 	width: 16px;	
 	margin: auto;
 }
+._common_d11 .invalidCell  {
+    background-color: red ;
+}
+
 ._common_d11 .widgetInCell {
 }
 ._common_d11 .widgetInCell {

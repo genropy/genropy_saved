@@ -489,6 +489,17 @@
 	width: 100%;
 	z-index: 10;
 }
+
+._common_d11 .invalidCell_  {
+	background: url(icons/redLight.gif) no-repeat right;
+}
+._common_d11 .invalidCell_  {
+	background: url(icons/redLight.gif) no-repeat left;
+	padding-left:16px;
+}
+._common_d11 .invalidCell {
+	border: 1px solid red;
+}
 ._common_d11 .dojoxGrid-row .dojoxGrid-cell{
 	background-color: whitesmoke;
 }
