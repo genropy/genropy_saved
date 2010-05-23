@@ -158,7 +158,8 @@ class TableHandlerForm(BaseComponent):
                                 changed='=gnr.forms.formPane.changed',
                                 rowcount='=list.rowcount')
                                 
-        pane.dataController(""" var currSet;
+        pane.dataController(""" 
+                                var currSet;
                                 if (old_pkey != '*newrecord*'){
                                     var newrecords = GET list.newrecords || [];
                                     if(dojo.indexOf(newrecords,pkey)<0){
@@ -184,6 +185,7 @@ class TableHandlerForm(BaseComponent):
                                
                                if (destidx&&destidx!=idx){
                                     SET list.selectedIndex=destidx;
+                                    SET form.destidx = null;
                                }else{
                                     SET list.selectedId = pkey;
                                     FIRE form.doLoad;
