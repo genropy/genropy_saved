@@ -15,11 +15,12 @@ from gnr.core.gnrbag import Bag
 class GnrCustomWebPage(object):
     py_requires = 'public:Public'
     def main(self, root, **kwargs):
-        root, top, bottom = self.pbl_rootContentPane(root)
+        root, top, bottom = self.pbl_rootContentPane(root,formId='gridform',datapath='gridform')
         #root.data('grid.struct', self._gridStruct())
-        root.dataRpc('grid.data', 'gridData', _fired='^gnr.onStart')
+        root.dataController("genro.formById('gridform').load()",_fired='^gnr.onStart')
+        root.dataRpc('.data', 'gridData',nodeId='gridform_loader',_onResult="genro.formById('gridform').loaded()")
         box = root.div(width='100%', height='300px')
-        grid = box.IncludedView(nodeId='inputgrid',struct=self._gridStruct(),storepath='grid.data',
+        grid = box.IncludedView(nodeId='inputgrid',struct=self._gridStruct(),storepath='.data',
                                 datamode='bag',editorEnabled=True)
         gridEditor = grid.gridEditor(datapath='dummy') #editOn='onCellClick')
         gridEditor.filteringSelect(gridcell='filter',values='A:Alberto,B:Bonifacio,C:Carlo')
