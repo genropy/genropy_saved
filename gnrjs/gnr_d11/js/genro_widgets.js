@@ -121,9 +121,11 @@ dojo.declare("gnr.GridEditor",null,{
         dojo.setSelectable(grid.domNode, grid.gnrediting);
     },
     invalidCell:function(cell,row){
-        var cellId=this.grid.rowIdByIndex(row)+'.'+cell.field;
-        var datanode =  this.grid.storebag().getNode(cellId)
-        return datanode?datanode.attr._validationError:false;        
+        var rowData = this.grid.storebag().getNode(this.grid.rowIdByIndex(row)).getValue('static');
+        if (rowData) {
+             var datanode =  rowData.getNode(cell.field);
+             return datanode?datanode.attr._validationError:false;  
+        }              
     },
     onCellMouseOver:function(e){
         console.log(e)
@@ -2811,9 +2813,9 @@ dojo.declare("gnr.widgets.VirtualStaticGrid",gnr.widgets.Grid,{
     },
     mixin_editBagRow: function(r){
         var r = r || this.selection.selectedIndex;
-        var rc = this.findNextEditableCell({row: r, col: -1}, {r:0, c:1});
+        var rc = this.gridEditor.findNextEditableCell({row: r, col: -1}, {r:0, c:1});
         if(rc){
-            this.startEditCell(rc.row,rc.col);
+            this.gridEditor.startEdit(rc.row,rc.col);
         }
     },
     mixin_newBagRow: function(defaultArgs){
