@@ -87,9 +87,10 @@ dojo.declare("gnr.GridEditor",null,{
         var gridEditorColumns = gridEditorNode.getValue();
         this.grid = widget;
         this.viewId = sourceNode.attr.nodeId;
+        this.formId = sourceNode.getInheritedAttributes()['formId'];
         var columns = {};
         var attr;
-        dojo.connect(widget,'onCellMouseOver',this,'onCellMouseOver')
+       // dojo.connect(widget,'onCellMouseOver',this,'onCellMouseOver')
         this.widgetRootNode = gridEditorNode;
         gridEditorColumns.forEach(function(node){
             attr = node.attr;
@@ -120,8 +121,9 @@ dojo.declare("gnr.GridEditor",null,{
         dojo.setSelectable(grid.domNode, grid.gnrediting);
     },
     invalidCell:function(cell,row){
-        var cellId=this.grid.rowIdByIndex(row)+'_'+cell.field
-        
+        var cellId=this.grid.rowIdByIndex(row)+'.'+cell.field;
+        var datanode =  this.grid.storebag().getNode(cellId)
+        return datanode?datanode.attr._validationError:false;        
     },
     onCellMouseOver:function(e){
         console.log(e)
@@ -138,11 +140,11 @@ dojo.declare("gnr.GridEditor",null,{
             dataNode.getValue();
             setTimeout(dojo.hitch(this, 'startEdit', row, col), 1);
             return;
-        };
+        }else{
+            var cellDataNode = dataNode.getValue().getNode(colname);
+        }
  
         var cellNode = cell.getNode(row);
-        console.log('startEdit_cellnode:')
-        console.log(cellNode)
         var fldDict = this.columns[colname];
         var attr = objectUpdate({},fldDict.attr);
         attr.datapath = '.'+rowId;   
@@ -219,27 +221,18 @@ dojo.declare("gnr.GridEditor",null,{
         attr.connect_keydown = cbKeys;
         attr.connect_onBlur = cbBlur;
         attr._autoselect = true;
-        var editWidget = this.widgetRootNode._(fldDict.tag,attr).getParentNode().widget;
+        var editWidgetNode = this.widgetRootNode._(fldDict.tag,attr).getParentNode();
         this.onEditCell(true);
-
-        editWidget.focus();
-        /*
-        if(widget.selectAllInputText){
-            widget.selectAllInputText();
-        }*/
+        if(cellDataNode.attr._validationError || cellDataNode.attr._validationWarnings){
+            editWidgetNode._validations = {'error':cellDataNode.attr._validationError,'warnings':cellDataNode.attr._validationWarnings};
+            editWidgetNode.updateValidationStatus();
+        }
+        editWidgetNode.widget.focus();
+        
     },
 
     endEdit:function(editWidget, delta, editingInfo){
         var cellNode = editingInfo.cellNode;
-        if(editWidget.sourceNode.hasValidationError()){
-            console.log('invalid:'+editingInfo.cellId+' - ');
-            genro.dom.addClass(cellNode,'invalidCell');
-            cellNode.title='invalidissimo'
-        }else{
-             console.log('valid:'+editingInfo.cellId);
-            genro.dom.removeClass(cellNode,'invalidCell');
-              
-        }
         var contentText = editingInfo.contentText;
         editWidget.sourceNode._destroy();
         editingInfo.cellNode.innerHTML = contentText;
@@ -250,8 +243,6 @@ dojo.declare("gnr.GridEditor",null,{
                 this.startEdit(rc.row,rc.col);
             }
         }
-        console.log('endEdit_cellnode:')
-        console.log(cellNode)
     },
     editableCell:function(col){
         return (this.grid.getCell(col).field in this.columns);
@@ -654,24 +645,23 @@ dojo.declare("gnr.widgets.baseDojo",gnr.widgets.baseHtml,{
             return;
         }
         var path = sourceNode.attrDatapath('value');
-        var oldvalue=genro._data.getItem(path);
-        if (oldvalue===value){
+        var datanode=genro._data.getNode(path);
+        if (datanode.getValue()===value){
             return;
         }
         var validateresult;
-        var valueAttr=valueAttr || null;
+        valueAttr=objectUpdate(objectUpdate({},datanode.attr),valueAttr);
         if(sourceNode.hasValidations()){
             validateresult = sourceNode.validationsOnChange(sourceNode, value);
             value = validateresult['value'];
-            /*if((validateresult['error']) || (objectNotEmpty(validateresult['warnings']))){
-                if (sourceNode.attr.preventChangeIfIvalid) {
-                    return;
-                }
-                else if (sourceNode.attr.stayIfInvalid) {
-                    setTimeout(function(){sourceNode.widget.focus();}, 1);
-                    return;
-                }
-            } */
+            objectExtract(valueAttr,'_validation*');
+            if(validateresult['error']){
+                valueAttr._validationError = validateresult['error'];
+            }
+            if(validateresult['warnings'].length){
+                valueAttr._validationWarnings = validateresult['warnings'];
+            }
+             
         }
         
         value = this.convertValueOnBagSetItem(sourceNode,value);
@@ -1755,7 +1745,7 @@ dojo.declare("gnr.widgets.Grid",gnr.widgets.baseDojo,{
         if (gridContent instanceof gnr.GnrBag) {
             var gridEditorNode = gridContent.getNodeByAttr('tag','gridEditor');
             if (gridEditorNode) {
-                this.gridEditor= new gnr.GridEditor(widget,sourceNode,gridEditorNode);
+                widget.gridEditor= new gnr.GridEditor(widget,sourceNode,gridEditorNode);
             };
         };
         if(sourceNode.attr.openFormEvent){
@@ -1973,7 +1963,7 @@ dojo.declare("gnr.widgets.Grid",gnr.widgets.baseDojo,{
                 if(typeof(v)=='number' && v<0){
                     this.customClasses.push('negative_number');
                 }
-                if(this.grid.GridEditor && this.grid.gridEditor.invalidCell(this,inRowIndex)){
+                if(this.grid.gridEditor && this.grid.gridEditor.invalidCell(this,inRowIndex)){
                     this.customClasses.push('invalidCell');
                 }
                 v = genro.format(v,opt);

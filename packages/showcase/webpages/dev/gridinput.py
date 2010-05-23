@@ -15,7 +15,7 @@ from gnr.core.gnrbag import Bag
 class GnrCustomWebPage(object):
     py_requires = 'public:Public'
     def main(self, root, **kwargs):
-        root, top, bottom = self.pbl_rootContentPane(root,formId='gridform',datapath='gridform')
+        root, top, bottom = self.pbl_rootContentPane(root,formId='gridform',datapath='mygrid')
         #root.data('grid.struct', self._gridStruct())
         root.dataController("genro.formById('gridform').load()",_fired='^gnr.onStart')
         root.dataRpc('.data', 'gridData',nodeId='gridform_loader',_onResult="genro.formById('gridform').loaded()")
@@ -25,8 +25,8 @@ class GnrCustomWebPage(object):
         gridEditor = grid.gridEditor(datapath='dummy') #editOn='onCellClick')
         gridEditor.filteringSelect(gridcell='filter',values='A:Alberto,B:Bonifacio,C:Carlo')
         gridEditor.dbSelect(dbtable='devlang.language',gridcell='language',hasDownArrow=True)
-        gridEditor.textbox(gridcell='name',validate_len=':4',validate_len_max='!!Too long',
-                            validate_len_min='!!Too short',connect_focus='console.log("focus")',connect_onBlur='console.log("blur")')
+        gridEditor.textbox(gridcell='name',validate_len='4:7',validate_len_max='!!Too long',
+                            validate_len_min='!!Too short')
         gridEditor.numbertextbox(gridcell='qt')
         gridEditor.checkbox(gridcell='new')
         gridEditor.datetextbox(gridcell='date')

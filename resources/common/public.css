@@ -438,6 +438,9 @@
 
 /* @end */
 
+
+
+
 /* @group Grid */
 .logicalDeleted .dojoxGrid-cell{
 	color: #b50000;
@@ -459,11 +462,11 @@
 }
 
 ._common_d11 .dojoxGrid-cell {
-	padding: 1px 4px;
 	border: 0px;
 	border-right: 1px dotted gray;
 	border-bottom: 1px dotted gray;
 	height: 16px;
+	padding: 1px 6px 1px 3px;
 }
 ._common_d11 nopadding .dojoxGrid-cell {
 	padding: 0px 0px;
@@ -479,26 +482,17 @@
 	margin: auto;
 }
 ._common_d11 .widgetInCell {
-	background-color: lightgoldenrodyellow;
     color: black;
-	display: block;
-	border: 0px;
-	margin-top: -1px;
-	margin-bottom: -1px;
-	margin-right: 4px;
+	margin-top: 1px;
+	margin-bottom: 0px;
+	margin-right: 5px;
 	width: 100%;
-	z-index: 10;
+	-moz-border-radius:3px;
+	-webkit-border-radius:3px;
 }
 
-._common_d11 .invalidCell_  {
-	background: url(icons/redLight.gif) no-repeat right;
-}
-._common_d11 .invalidCell_  {
-	background: url(icons/redLight.gif) no-repeat left;
-	padding-left:16px;
-}
 ._common_d11 .invalidCell {
-	border: 1px solid red;
+	background-color: #ffd2cb !important;
 }
 ._common_d11 .dojoxGrid-row .dojoxGrid-cell{
 	background-color: whitesmoke;
