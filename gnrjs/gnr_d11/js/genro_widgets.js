@@ -82,6 +82,192 @@ gnr.menuFromBag = function (bag, appendTo,menuclass,basepath){
         }
     }
 };
+dojo.declare("gnr.GridEditor",null,{
+    constructor:function(widget,sourceNode,gridEditorNode){
+        var gridEditorColumns = gridEditorNode.getValue();
+        this.grid = widget;
+        this.viewId = sourceNode.attr.nodeId;
+        var columns = {};
+        var attr;
+        this.widgetRootNode = gridEditorNode;
+        gridEditorColumns.forEach(function(node){
+            attr = node.attr;
+            columns[objectPop(attr,'gridcell').replace(/\W/g,'_')] = {'tag':attr.tag,'attr':attr};
+        });
+        this.columns = columns;
+        gridEditorNode.setValue(null,false);
+        gridEditorNode.attr.tag = null;
+        gridEditorNode.attr.datapath = sourceNode.absDatapath(sourceNode.attr.storepath);
+       
+        var editOn = gridEditorNode.attr.editOn || 'onCellDblClick';
+        editOn = stringSplit(editOn, ',', 2);
+        var modifier = editOn[1];
+        var _this = this;
+        var grid = this.grid;
+        dojo.connect(widget, editOn[0], function(e){
+            if(genro.wdg.filterEvent(e, modifier)){
+                if (grid.editorEnabled && _this.editableCell(e.cellIndex) && !_this.gnrediting){
+                    _this.startEdit(e.rowIndex,e.cellIndex);
+                    dojo.stopEvent(e);
+                }
+            }
+        });
+    },
+    onEditCell:function(start){
+        var grid = this.grid;
+        grid.gnrediting = start;
+        dojo.setSelectable(grid.domNode, grid.gnrediting);
+    },
+
+    startEdit:function(row, col){
+        var grid = this.grid;
+        var rowId = grid.rowIdByIndex(row);
+        var cell = grid.getCell(col);
+        var colname=cell.field;
+        var cellId=rowId+'_'+colname
+        var dataNode = grid.storebag().getNode(rowId);
+        
+        if (dataNode && dataNode._resolver && dataNode._resolver.expired()) {
+            dataNode.getValue();
+            setTimeout(dojo.hitch(this, 'startEdit', row, col), 1);
+            return;
+        };
+ 
+        var cellNode = cell.getNode(row);
+        var fldDict = this.columns[colname];
+        var attr = objectUpdate({},fldDict.attr);
+        attr.datapath = '.'+rowId;   
+        //attr.preventChangeIfIvalid = true;     
+        if ('value' in attr){
+            if(attr.tag.toLowerCase() == 'dbselect'){
+                attr.selectedCaption = '.'+ colname;
+            }
+        }
+        else{
+            attr['value'] = '^.' + colname;
+        }
+        
+        
+        if (this.viewId) {
+            if(attr.exclude == true){
+                attr.exclude = '==genro.wdgById("'+this.viewId+'").getColumnValues("'+attr['value']+'")';
+            }
+        };
+        /*
+            var dflt = attr['default'] || attr['default_value'] || '';
+            node.getAttributeFromDatasource('value', true, dflt);
+        */
+        
+        
+        
+        var editingInfo={'cellNode':cellNode,'contentText':cellNode.innerHTML,'row':row,'col':col,'cellId':cellId};
+        cellNode.innerHTML = null;
+        var cbKeys = function(e){
+            var keyCode=e.keyCode;
+            var keys=genro.PATCHED_KEYS;
+            var widget=this.widget;
+            if ((keyCode == keys.SHIFT) || (keyCode == keys.CTRL) || (keyCode == keys.ALT)){
+                    return;
+                }
+            if (keyCode == keys.TAB){
+                widget.cellNext = e.shiftKey ? 'LEFT':'RIGHT';
+                //console.log('tabkey '+widget.cellNext);
+            }
+            if ((e.shiftKey) && ((keyCode == keys.UP_ARROW) || 
+                                (keyCode == keys.DOWN_ARROW) || 
+                                (keyCode == keys.LEFT_ARROW) || 
+                                (keyCode == keys.RIGHT_ARROW))){
+                            
+                        if(keyCode == keys.UP_ARROW){
+                            widget.cellNext = 'UP';
+                        } else if(keyCode == keys.DOWN_ARROW){
+                            widget.cellNext = 'DOWN';
+                        } else if(keyCode == keys.LEFT_ARROW){
+                            widget.cellNext = 'LEFT';
+                        } else if(keyCode == keys.RIGHT_ARROW){
+                            widget.cellNext = 'RIGHT';
+                        }
+                        widget.focusNode.blur();
+                        //widget._onBlur();
+                        //setTimeout(dojo.hitch(this.focusNode, 'blur'), 1);
+                    }
+                    
+                };
+        var gridEditor = this;
+        var cbBlur = function(e){
+                    var cellNext = this.widget.cellNext;
+                    this.widget.cellNext = null;
+                    deltaDict = {'UP': {'r': -1, 'c': 0},
+                                 'DOWN': {'r': 1, 'c': 0},
+                                 'LEFT': {'r': 0, 'c': -1},
+                                 'RIGHT': {'r': 0, 'c': 1}
+                                };
+                    setTimeout(dojo.hitch(gridEditor, 'endEdit', this.widget, deltaDict[cellNext], editingInfo), 1);
+                };
+        attr._parentDomNode = cellNode;
+        attr._class = attr._class? attr._class+' widgetInCell':'widgetInCell';
+        attr.connect_keydown = cbKeys;
+        attr.connect_onBlur = cbBlur;
+        attr._autoselect = true;
+        var editWidget = this.widgetRootNode._(fldDict.tag,attr).getParentNode().widget;
+        this.onEditCell(true);
+
+        editWidget.focus();
+        /*
+        if(widget.selectAllInputText){
+            widget.selectAllInputText();
+        }*/
+    },
+
+    endEdit:function(editWidget, delta, editingInfo){
+        var cellNode = editingInfo.cellNode;
+        if(editWidget.sourceNode.hasValidationError()){
+            console.log('invalid');
+            genro.dom.addClass(cellNode,'invalidCell');
+        }else{
+            genro.dom.removeClass(cellNode,'invalidCell');
+              
+        }
+        var contentText = editingInfo.contentText;
+        editWidget.sourceNode._destroy();
+        editingInfo.cellNode.innerHTML = contentText;
+        this.onEditCell(false);
+        if(delta){
+            var rc = this.findNextEditableCell({row:editingInfo.row, col:editingInfo.col}, delta);
+            if(rc){
+                this.startEdit(rc.row,rc.col);
+            }
+        }
+    },
+    editableCell:function(col){
+        return (this.grid.getCell(col).field in this.columns);
+    },
+    findNextEditableCell: function(rc, delta){
+        var row = rc.row;
+        var col = rc.col;
+        var grid = this.grid;
+        do{
+            col = col + delta.c;
+            if(col >= grid.layout.cellCount){
+                col = 0;
+                row = row + 1;
+            }
+            if(col < 0){
+                col = grid.layout.cellCount - 1;
+                row = row - 1;
+            }
+            
+            row = row + delta.r;
+            if ((row >= grid.rowCount) || (row < 0)){
+                return;
+            }
+        } while (!this.editableCell(col));
+        rc.col = col;
+        rc.row = row;
+        return rc;
+    },
+    
+});
 dojo.declare("gnr.widgets.baseHtml",null,{
     _defaultValue:'',
     _defaultEvent:'onclick',
@@ -464,10 +650,18 @@ dojo.declare("gnr.widgets.baseDojo",gnr.widgets.baseHtml,{
             validateresult = sourceNode.validationsOnChange(sourceNode, value);
             value = validateresult['value'];
             /*if((validateresult['error']) || (objectNotEmpty(validateresult['warnings']))){
-                setTimeout(function(){sourceNode.widget.focus();}, 1);
-            }*/ 
+                if (sourceNode.attr.preventChangeIfIvalid) {
+                    return;
+                }
+                else if (sourceNode.attr.stayIfInvalid) {
+                    setTimeout(function(){sourceNode.widget.focus();}, 1);
+                    return;
+                }
+            } */
         }
+        
         value = this.convertValueOnBagSetItem(sourceNode,value);
+        
         genro._data.setItem(path, value, valueAttr, {'doTrigger':sourceNode});
     },
     mixin_setTip: function (tip) {
@@ -1542,35 +1736,12 @@ dojo.declare("gnr.widgets.Grid",gnr.widgets.baseDojo,{
         genro.formById(this.sourceNode.attr.linkedForm).openForm(idx,this.rowIdByIndex(idx));
     },
     
-    _initGridEditor:function(widget,sourceNode,gridEditorNode){
-        var gridEditor = gridEditorNode.getValue();
-        widget.gridEditorCols = {};
-        gridEditor.forEach(function(node){
-            var attr = node.attr;
-            widget.gridEditorCols[objectPop(attr,'gridcell').replace(/\W/g,'_')] = {'tag':attr.tag,'attr':attr};
-        });
-        gridEditorNode.setValue(null,false);
-        gridEditorNode.attr.tag = null;
-        gridEditorNode.attr.datapath = sourceNode.absDatapath(sourceNode.attr.storepath);
-        widget.gridEditorNode = gridEditorNode;
-        var editOn = gridEditorNode.attr.editOn || 'onCellDblClick';
-        editOn = stringSplit(editOn, ',', 2);
-        var modifier = editOn[1];
-        dojo.connect(widget, editOn[0], function(e){
-            if(genro.wdg.filterEvent(e, modifier)){
-                if (this.editorEnabled && ! this.gnrediting){
-                    this.startEditCell(e.rowIndex, e.cellIndex);
-                    dojo.stopEvent(e);
-                }
-            }
-        });
-    },
     created_common:function(widget, savedAttrs, sourceNode){
         var gridContent = sourceNode.getValue();
         if (gridContent instanceof gnr.GnrBag) {
             var gridEditorNode = gridContent.getNodeByAttr('tag','gridEditor');
             if (gridEditorNode) {
-                this._initGridEditor(widget,sourceNode,gridEditorNode);
+                this.gridEditor= new gnr.GridEditor(widget,sourceNode,gridEditorNode);
             };
         };
         if(sourceNode.attr.openFormEvent){
@@ -2783,231 +2954,6 @@ dojo.declare("gnr.widgets.VirtualStaticGrid",gnr.widgets.Grid,{
     mixin_structbag:function(){
         return genro.getData(this.sourceNode.absDatapath(structpath));
     },
-    
-    mixin_getCellEditor:function(row, col){
-        var cell = this.getCell(col);
-        var editWidget = genro.wdgById(this.editorId + '_' + cell.field);
-        if (editWidget){
-            var cellNode = cell.getNode(row);
-            editWidget.cellNode = cellNode;
-            editWidget.cellRow = row;
-            editWidget.cellCol = col;
-            editWidget.cell = cell;
-        }
-        return editWidget;
-    },
-    patch_onCanSelect:function(){
-        return false;
-        //return ! this.gnrediting;
-    },
-
-     mixin_startEditCell:function(row, col){
-        var rowId = this.rowIdByIndex(row);
-        var dataNode = this.storebag().getNode(rowId);
-        
-        if (dataNode && dataNode._resolver && dataNode._resolver.expired()) {
-            dataNode.getValue();
-            setTimeout(dojo.hitch(this, 'startEditCell', row, col), 1);
-            return;
-        };
-        this.gnrediting = true;
-        dojo.setSelectable(this.domNode, this.gnrediting);
-        var cell = this.getCell(col);
-        var cellNode = cell.getNode(row);
-        
-        var colname=cell.field;
-        var fldDict = this.gridEditorCols[colname];
-        var attr = objectUpdate({},fldDict.attr);
-        attr.datapath = '.'+rowId;        
-        if ('value' in attr){
-            if(attr.tag.toLowerCase() == 'dbselect'){
-                attr.selectedCaption = '.'+ colname;
-            }
-        }
-        else{
-            attr['value'] = '^.' + colname;
-        }
-        
-        
-        var viewId = this.sourceNode.attr.nodeId;
-        if (viewId) {
-            if(attr.exclude == true){
-                attr.exclude = '==genro.wdgById("'+viewId+'").getColumnValues("'+attr['value']+'")';
-            }
-        };
-        /*
-            var dflt = attr['default'] || attr['default_value'] || '';
-            node.getAttributeFromDatasource('value', true, dflt);
-        */
-        
-        
-        
-        var editingInfo={'cellNode':cellNode,'contentText':cellNode.innerHTML,'row':row,'col':col};
-        cellNode.innerHTML = null;
-        var cbKeys = function(e){
-            var keyCode=e.keyCode;
-            var keys=genro.PATCHED_KEYS;
-            var widget=this.widget;
-            if ((keyCode == keys.SHIFT) || (keyCode == keys.CTRL) || (keyCode == keys.ALT)){
-                    return;
-                }
-            if (keyCode == keys.TAB){
-                widget.cellNext = e.shiftKey ? 'LEFT':'RIGHT';
-                console.log('tabkey '+widget.cellNext);
-            }
-            if ((e.shiftKey) && ((keyCode == keys.UP_ARROW) || 
-                                (keyCode == keys.DOWN_ARROW) || 
-                                (keyCode == keys.LEFT_ARROW) || 
-                                (keyCode == keys.RIGHT_ARROW))){
-                            
-                        if(keyCode == keys.UP_ARROW){
-                            widget.cellNext = 'UP';
-                        } else if(keyCode == keys.DOWN_ARROW){
-                            widget.cellNext = 'DOWN';
-                        } else if(keyCode == keys.LEFT_ARROW){
-                            widget.cellNext = 'LEFT';
-                        } else if(keyCode == keys.RIGHT_ARROW){
-                            widget.cellNext = 'RIGHT';
-                        }
-                        widget.focusNode.blur();
-                        //widget._onBlur();
-                        //setTimeout(dojo.hitch(this.focusNode, 'blur'), 1);
-                    }
-                    
-                };
-        var grid=this;
-        var cbBlur = function(e){
-                    var cellNext = this.widget.cellNext;
-                    this.widget.cellNext = null;
-                    deltaDict = {'UP': {'r': -1, 'c': 0},
-                                 'DOWN': {'r': 1, 'c': 0},
-                                 'LEFT': {'r': 0, 'c': -1},
-                                 'RIGHT': {'r': 0, 'c': 1}
-                                };
-                    //console.log('DELTA DICT');
-                    
-                    setTimeout(dojo.hitch(grid, 'endEditCell', this.widget, deltaDict[cellNext], editingInfo), 1);
-                };
-        attr._parentDomNode = cellNode;
-        attr._class = attr._class? attr._class+' widgetInCell':'widgetInCell';
-        attr.connect_keydown = cbKeys;
-        attr.connect_onBlur = cbBlur;
-        attr._autoselect = true;
-        var curr = this.gridEditorNode._(fldDict.tag,attr);
-        var widget = curr.getParentNode().widget;
-        widget.focus();
-        /*
-        if(widget.selectAllInputText){
-            widget.selectAllInputText();
-        }*/
-    },
-
-    OLD_mixin_startEditCell:function(row, col){
-        console.log('startEditCell');
-        var editWidget = this.getCellEditor(row, col);
-        if(!editWidget){
-            return;
-        }
-        this.gnrediting = true;
-        var currentEditedRow = genro._('_temp.grids.'+this.sourceNode.attr.nodeId+'.currentRow');
-        if (currentEditedRow != row){
-            var selectedDataPath = this.dataNodeByIndex(row).getFullpath(null, true);
-            //this.sourceNode.setRelativeData('.edit_datapath',selectedDataPath);
-            this.sourceNode.setRelativeData('_temp.grids.'+this.sourceNode.attr.nodeId+'.edit_datapath',
-                                            selectedDataPath);
-            this.sourceNode.setRelativeData('_temp.grids.'+this.sourceNode.attr.nodeId+'.currentRow',
-                                            row);
-            setTimeout(dojo.hitch(this, 'startEditCell', row, col), 1);
-            return;
-        }
-        editWidget.sourceNode.editedRowIndex = row;
-        editWidget.replacedNode = editWidget.cellNode.childNodes[0];
-        
-        if(editWidget.replacedNode){
-            console.log('a');
-            editWidget.cellNode.replaceChild(editWidget.domNode, editWidget.replacedNode);
-        } else {
-            console.log('b');
-            editWidget.cellNode.appendChild(editWidget.domNode, editWidget.replacedNode);
-        }
-        editWidget.focus();
-        /*if(editWidget.selectAllInputText){
-            editWidget.selectAllInputText();
-        }*/
-    },
-    mixin_endEditCell:function(editWidget, delta, editingInfo){
-         if(editWidget.sourceNode.hasValidationError()){
-                 //var cellNode = editWidget.cellNode;
-                 //dojo.style(cellNode,'color','red');
-                 //genro.dlg.alert(editWidget.sourceNode.getValidationError(),"Warning");
-             }else{
-                 //genro.dom.removeClass(editWidget.cellNode,'notValidCell');
-             }
-              var nextEditWidget;
-    
-        var contentText = editingInfo.contentText;
-        //this.edit.info = {};
-        editWidget.sourceNode._destroy();
-        editingInfo.cellNode.innerHTML = contentText;
-        this.gnrediting = false;
-        dojo.setSelectable(this.domNode, this.gnrediting);
-        if(delta){
-            var rc = this.findNextEditableCell({row:editingInfo.row, col:editingInfo.col}, delta);
-            if(rc){
-                this.startEditCell(rc.row,rc.col);
-            }
-        }
-    },
-    OLD_mixin_endEditCell:function(editWidget, delta){
-        if (editWidget.cellNode){
-             if (editWidget.cellNode.childNodes[0]==editWidget.domNode){
-                if(editWidget.replacedNode){
-                    editWidget.cellNode.replaceChild(editWidget.replacedNode, editWidget.domNode);
-                }
-                else {
-                    editWidget.cellNode.removeChild(editWidget.domNode);
-                }
-             }
-            
-        }
-       
-        var nextEditWidget;
-        if(delta){
-            var rc = this.findNextEditableCell({row: editWidget.cellRow, col: editWidget.cellCol}, delta);
-            if(rc){
-                this.startEditCell(rc.row,rc.col);
-            }
-        }
-        //this.edit.info = {};
-        this.gnrediting = false;
-        editWidget.sourceNode.editedRowIndex = null;
-    },
-    mixin_findNextEditableCell: function(rc, delta){
-        var row = rc.row;
-        var col = rc.col;
-        var nextEditWidget;
-        do{
-            col = col + delta.c;
-            if(col >= this.layout.cellCount){
-                col = 0;
-                row = row + 1;
-            }
-            if(col < 0){
-                col = this.layout.cellCount - 1;
-                row = row - 1;
-            }
-            
-            row = row + delta.r;
-            if ((row >= this.rowCount) || (row < 0)){
-                return;
-            }
-            colname=
-            nextEditWidget = this.getCellEditor(row, col);
-        } while (!(this.getCell(col).field in this.gridEditorCols));
-        rc.col = col;
-        rc.row = row;
-        return rc;
-    },
 
     patch_dokeydown:function(e){
         if(this.gnrediting){
@@ -3028,62 +2974,6 @@ dojo.declare("gnr.widgets.VirtualStaticGrid",gnr.widgets.Grid,{
         }
     }
 
-});
-
-dojo.declare("gnr.widgets.GridEditor_old",gnr.widgets.baseHtml,{
-    constructor: function(application){
-        this._domtag = 'div';
-    },
-    creating: function(attributes, sourceNode){
-        var viewId = sourceNode.getParentNode().attr.nodeId;
-        attributes.display='none';
-        sourceNode.attr.nodeId='grided_' + sourceNode.getStringId();
-        sourceNode.attr.datapath = '^_temp.grids.'+viewId+'.edit_datapath';
-        //sourceNode.attr.datapath = '^'+sourceNode.getParentNode().absDatapath('.edit_datapath');
-        sourceNode.registerDynAttr('datapath');
-        
-        
-        var childnodes = sourceNode.getValue().getNodes();
-        var node;
-        for (var i=0; i < childnodes.length; i++) {
-            node = childnodes[i];
-            node.attr.nodeId = sourceNode.attr.nodeId + '_' + node.attr.gridcell.replace(/\W/g,'_');
-            if ('value' in node.attr){
-                if(node.attr.tag.toLowerCase() == 'dbselect'){
-                    node.attr.selectedCaption = '.'+ node.attr.gridcell;
-                }
-            }
-            else{
-                node.attr['value'] = '^.' + node.attr.gridcell;
-            }
-            if(node.attr.exclude == true){
-                node.attr.exclude = '==genro.wdgById("'+viewId+'").getColumnValues("'+node.attr['value']+'")';
-            }
-            var dflt = node.attr['default'] || node.attr['default_value'] || '';
-            node.getAttributeFromDatasource('value', true, dflt);
-        };
-    },
-    created: function(widget, savedAttrs, sourceNode){
-        var gridnode = sourceNode.getParentNode();
-        var grid = gridnode.widget;
-        grid.editorId = 'grided_' + sourceNode.getStringId();
-        var editOn = sourceNode.attr.editOn || 'onCellDblClick';
-        editOn = stringSplit(editOn, ',', 2);
-        var modifier = editOn[1];
-        //if(genro.isTouchDevice ){
-         //   dojo.connect(widget,'longTouch',function(){alert("opening")})
-       // }
-        dojo.connect(grid, editOn[0], function(e){
-            if(genro.wdg.filterEvent(e, modifier)){
-                if (grid.editorEnabled && ! this.gnrediting){
-                    console.log('dblclick');
-                    grid.startEditCell(e.rowIndex, e.cellIndex);
-                    dojo.stopEvent(e);
-                }
-            }
-        });
-    }
-    
 });
 
 dojo.declare("gnr.widgets.IncludedView",gnr.widgets.VirtualStaticGrid,{

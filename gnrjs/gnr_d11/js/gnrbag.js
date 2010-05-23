@@ -176,7 +176,7 @@ dojo.declare("gnr.GnrBagNode",null,{
             var result = this._resolver.resolve(optkwargs, this);
             var finalize = dojo.hitch(this, function(result){
                 this._status = 'loading';
-                this.setValue(result,(mode!='notrigger'));
+                this.setValue(result,(mode=='notrigger'?false:'resolver'));
                 this._status = 'loaded';
                 if (this._resolver._pendingDeferred.length>0){
                     var pendingDeferred = this._resolver._pendingDeferred;

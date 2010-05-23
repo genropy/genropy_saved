@@ -171,14 +171,6 @@ dojo.declare("gnr.GnrWdgHandler",null,{
         var newobj, domnode;
         var handler = this.getHandler(tag);
         var domtag = handler._domtag || tag ;
-       //if (attributes.gridcell){
-       //    attributes._class = attributes._class || 'widgetInCell';
-       //}
-        //    sourceNode.attr.nodeId = sourceNode.getParentNode().attr.nodeId + '_' + attributes.gridcell;
-        //    sourceNode.attr.value = '^.' + attributes.gridcell
-        //    var dflt = sourceNode.attr['default'] || sourceNode.attr['default_value'] || '';
-        //    sourceNode.getAttributeFromDatasource('value', true, dflt);
-        //}
         if (ind=='replace'){
             domnode=destination;
         } else if (domtag == '*'){
@@ -241,61 +233,12 @@ dojo.declare("gnr.GnrWdgHandler",null,{
                     destination.addChild(newobj,ind);
                 }
             }
-            /*
-            if (attributes.gridcell){
-                this.cellEditorConnect(newobj,sourceNode)
-            }*/
-
         }
         handler._created(newobj, kw.postCreation, sourceNode, ind);
         return newobj;
         
     },
-    old_cellEditorConnect:function(newobj,sourceNode){
-        dojo.connect(newobj.focusNode, 'keydown', dojo.hitch(newobj, function(e){
-            if((e.keyCode == genro.PATCHED_KEYS.SHIFT) || 
-                (e.keyCode == genro.PATCHED_KEYS.CTRL) || 
-                (e.keyCode == genro.PATCHED_KEYS.ALT)){
-                    return;
-                }
-            if (e.keyCode == genro.PATCHED_KEYS.TAB){
-                this.cellNext = e.altKey ? 'LEFT':'RIGHT';
-            }
-            if ((e.altKey) && ((e.keyCode == genro.PATCHED_KEYS.UP_ARROW) || 
-                                         (e.keyCode == genro.PATCHED_KEYS.DOWN_ARROW) || 
-                                         (e.keyCode == genro.PATCHED_KEYS.LEFT_ARROW) || 
-                                         (e.keyCode == genro.PATCHED_KEYS.RIGHT_ARROW))){
-                            
-                        if(e.keyCode == genro.PATCHED_KEYS.UP_ARROW){
-                            this.cellNext = 'UP';
-                        } else if(e.keyCode == genro.PATCHED_KEYS.DOWN_ARROW){
-                            this.cellNext = 'DOWN';
-                        } else if(e.keyCode == genro.PATCHED_KEYS.LEFT_ARROW){
-                            this.cellNext = 'LEFT';
-                        } else if(e.keyCode == genro.PATCHED_KEYS.RIGHT_ARROW){
-                            this.cellNext = 'RIGHT';
-                        }
-                        this.focusNode.blur();
-                        this._onBlur();
-                        //setTimeout(dojo.hitch(this.focusNode, 'blur'), 1);
-                    }
-                    
-                }));
-                var grid = sourceNode.getParentNode().getParentNode().widget;
-                dojo.connect(newobj, 'onBlur', dojo.hitch(newobj, function(e){
-                    var cellNext = this.cellNext;
-                    this.cellNext = null;
-                    deltaDict = {'UP': {'r': -1, 'c': 0},
-                                 'DOWN': {'r': 1, 'c': 0},
-                                 'LEFT': {'r': 0, 'c': -1},
-                                 'RIGHT': {'r': 0, 'c': 1}
-                                };
-                    //console.log('DELTA DICT');
-                    setTimeout(dojo.hitch(grid, 'endEditCell', this, deltaDict[cellNext]), 1);
-                }));
-        
-        
-    },
+
     linkSourceNode:function(newobj,sourceNode,kw){
          if(sourceNode){
             if(newobj.domNode){
