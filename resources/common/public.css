@@ -465,8 +465,8 @@
 	border: 0px;
 	border-right: 1px dotted gray;
 	border-bottom: 1px dotted gray;
-	height: 16px;
-	padding: 1px 6px 1px 3px;
+	height: 21px;
+	padding: 0 6px 0 3px;
 }
 ._common_d11 nopadding .dojoxGrid-cell {
 	padding: 0px 0px;
@@ -490,10 +490,11 @@
 	-moz-border-radius:3px;
 	-webkit-border-radius:3px;
 }
-
+.cellContent{
+	line-height: 100%;
+}
 ._common_d11 .invalidCell .cellContent {
 	border:1px solid red;
-	line-height:100%;
 	margin-bottom:1px;
 	padding:1px;
 }
@@ -522,6 +523,11 @@
 	color:black !important;
 	
 }
+._common_d11 .dojoxGrid-row-over .dojoxGrid-cell-focus  {
+	border-top: 0;
+}
+
+
 
 /* @group No-over and no-selected */
 
