@@ -29,22 +29,22 @@ class GnrCustomWebPage(object):
                             validate_len_min='!!Too short')
         gridEditor.numbertextbox(gridcell='qt')
         gridEditor.checkbox(gridcell='new')
-        gridEditor.datetextbox(gridcell='date')
+        #gridEditor.datetextbox(gridcell='date',format_date='short')
         
        #gridEditor.textbox(gridcell='size')
        #paneOpt = gridEditor.contentPane(gridcell='options')
        #paneOpt.checkbox('alpha',value='^.alpha')
        #paneOpt.checkbox('beta',value='^.beta')
        #paneOpt.checkbox('gamma',value='^.gamma')
-        root.button('Edit', action='genro.wdgById("inputgrid").editBagRow(3);')
+       # root.button('Edit', action='genro.wdgById("inputgrid").editBagRow(3);')
         
         
-        root.button('Copy', fire='docopy')
-        #root.div(datapath='test').dbSelect(dbtable='glbl.provincia', auxColumns='nome,regione', value='^.prov', selected_nome='.prov_dsc')
-        
-        root.textbox(connect_focus='console.log("focus")',connect_onBlur='console.log("blur")')
-                    
-        root.dataFormula('grid.copy', 'b.deepCopy()', b='=grid.data', _fired='^docopy')
+       # root.button('Copy', fire='docopy')
+       # #root.div(datapath='test').dbSelect(dbtable='glbl.provincia', auxColumns='nome,regione', value='^.prov', selected_nome='.prov_dsc')
+       # 
+       # root.textbox(connect_focus='console.log("focus")',connect_onBlur='console.log("blur")')
+       #             
+       # root.dataFormula('grid.copy', 'b.deepCopy()', b='=grid.data', _fired='^docopy')
         
     def _gridStruct(self):
         struct = self.newGridStruct()
@@ -55,7 +55,7 @@ class GnrCustomWebPage(object):
         r.cell('qt', name='Qty',width='10em', dtype='R')
         r.cell('new', name='New',width='10em', dtype='B')
         r.cell('size', name='Size',width='10em', dtype='T')
-        r.cell('date', name='Date',width='10em', dtype='D')
+       # r.cell('date', name='Date',width='10em', dtype='D')
        # r.cell('options', name='Options',width='10em', dtype='T')
 
         return struct
