@@ -213,7 +213,6 @@ dojo.declare("gnr.GridEditor",null,{
                                  'LEFT': {'r': 0, 'c': -1},
                                  'RIGHT': {'r': 0, 'c': 1}
                                 };
-                    console.log('blurred')
                     setTimeout(dojo.hitch(gridEditor, 'endEdit', this.widget, deltaDict[cellNext], editingInfo), 1);
                 };
         attr._parentDomNode = cellNode;
@@ -2300,7 +2299,7 @@ dojo.declare("gnr.widgets.VirtualStaticGrid",gnr.widgets.Grid,{
     },
 
     attributes_mixin_get: function(inRowIndex){
-        return this.grid.rowCached(inRowIndex)[this.field];
+        return '<span>'+this.grid.rowCached(inRowIndex)[this.field]+'</span>';
     },
     
     mixin_rowCached:function(inRowIndex){
