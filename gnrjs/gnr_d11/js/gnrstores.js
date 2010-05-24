@@ -621,7 +621,12 @@ dojo.declare("gnr.GnrStoreQuery",gnr.GnrStoreBag,{
                     findCallback(result, request);
                 });
                 var result = this.rootDataNode().getValue('', kwargs);
-                return  result.addCallback(cb);
+                if (result instanceof dojo.Deferred) {
+                    return  result.addCallback(cb);
+                }else{
+                    return cb(result);
+                }
+                
             }
         }
     }

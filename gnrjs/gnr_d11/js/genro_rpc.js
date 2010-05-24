@@ -188,6 +188,9 @@ dojo.declare("gnr.GnrRpcHandler",null,{
         kw.handleAs = kw.handleAs || 'xml';
         var xhrResult;
         genro.lastRpc = new Date();
+        if (genro.debugRpc) {
+            this.debugRpc(kw);
+        };
         if(httpMethod=='GET'){
             xhrResult=dojo.xhrGet(kw);
         }
@@ -210,7 +213,12 @@ dojo.declare("gnr.GnrRpcHandler",null,{
          }     
          return xhrResult;
     },
-    
+    debugRpc:function(kw){
+        var method = kw.content? kw.content.method:'';
+        method = method=='resolverRecall'? method +' : '+kw.content.resolverPars:method;
+        console.log('method:'+method+' sync:'+kw.sync);
+        console.log(kw);
+    },
     errorCallback:function(type,errObj){
         alert("errorCallback");
         

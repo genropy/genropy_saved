@@ -27,9 +27,10 @@ class GnrCustomWebPage(object):
     
     def developer_language_view(self,bc):
         iv = self.includedViewBox(bc,label='!!Languages',table='devlang.dev_lang',nodeId='dev_lang',
-                                storepath='.@devlang_dev_lang_developer_id', 
-                                struct=self.developer_language_struct,
+                                storepath='.@devlang_dev_lang_developer_id',
+                                struct=self.developer_language_struct,hiddencolumns='$language_id',
                                 autoWidth=True,add_action=True,del_action=True)
+                            
         gridEditor = iv.gridEditor()
         gridEditor.dbSelect(dbtable='devlang.language',value='^.language_id',
                             gridcell='@language_id.name',hasDownArrow=True,exclude=True)

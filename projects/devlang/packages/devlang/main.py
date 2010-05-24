@@ -3,7 +3,7 @@
 
 import os
 from gnr.core.gnrbag import Bag
-from gnr.app.gnrdbo import GnrDboTable,GnrDboPackage, Table_counter,Table_userobject,Table_recordtag,Table_recordtag_link
+from gnr.app.gnrdbo import GnrDboTable,GnrDboPackage, Table_counter,Table_userobject
 from gnr.core.gnrstring import templateReplace,splitAndStrip
 
 class Package(object):

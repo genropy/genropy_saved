@@ -24,12 +24,12 @@ class GnrCustomWebPage(object):
                                 datamode='bag',editorEnabled=True)
         gridEditor = grid.gridEditor(datapath='dummy') #editOn='onCellClick')
         gridEditor.filteringSelect(gridcell='filter',values='A:Alberto,B:Bonifacio,C:Carlo')
-        gridEditor.dbSelect(dbtable='devlang.language',gridcell='language',hasDownArrow=True)
+        gridEditor.dbSelect(dbtable='devlang.language',gridcell='language',hasDownArrow=True,value='^.language_id')
         gridEditor.textbox(gridcell='name',validate_len='4:7',validate_len_max='!!Too long',
                             validate_len_min='!!Too short')
         gridEditor.numbertextbox(gridcell='qt')
         gridEditor.checkbox(gridcell='new')
-        #gridEditor.datetextbox(gridcell='date',format_date='short')
+        gridEditor.datetextbox(gridcell='date',format_date='short')
         
        #gridEditor.textbox(gridcell='size')
        #paneOpt = gridEditor.contentPane(gridcell='options')
@@ -55,7 +55,7 @@ class GnrCustomWebPage(object):
         r.cell('qt', name='Qty',width='10em', dtype='R')
         r.cell('new', name='New',width='10em', dtype='B')
         r.cell('size', name='Size',width='10em', dtype='T')
-       # r.cell('date', name='Date',width='10em', dtype='D')
+        r.cell('date', name='Date',width='10em', dtype='D')
        # r.cell('options', name='Options',width='10em', dtype='T')
 
         return struct
@@ -65,6 +65,6 @@ class GnrCustomWebPage(object):
         date = datetime.date.today()
         for i in range(100):
             pkey = 'r_%i' % i
-            result[pkey] = Bag({'_pkey':pkey,'filter':'A','language':'Python', 'name':'Dsc %i' % i, 'qt':None, 'new':bool(i%2), 'size':'big', 'date':date + datetime.timedelta(i)})
+            result[pkey] = Bag({'_pkey':pkey,'filter':'A','language':'Python','language_id':'6c75RL4uPJiMu5oEcfrx1w', 'name':'Dsc %i' % i, 'qt':None, 'new':bool(i%2), 'size':'big', 'date':date + datetime.timedelta(i)})
         return result
             

@@ -94,7 +94,7 @@ dojo.declare("gnr.GridEditor",null,{
         this.widgetRootNode = gridEditorNode;
         gridEditorColumns.forEach(function(node){
             attr = node.attr;
-            columns[objectPop(attr,'gridcell').replace(/\W/g,'_')] = {'tag':attr.tag,'attr':attr};
+            columns[attr.gridcell.replace(/\W/g,'_')] = {'tag':attr.tag,'attr':attr};
         });
         this.columns = columns;
         gridEditorNode.setValue(null,false);
@@ -141,20 +141,27 @@ dojo.declare("gnr.GridEditor",null,{
             setTimeout(dojo.hitch(this, 'startEdit', row, col), 1);
             return;
         }
-        var cellDataNode = rowDataNode.getValue().getNode(colname);
+        var fldDict = this.columns[colname];
+        var gridcell = fldDict.attr.gridcell;
+        
+        console.log(gridcell);
+        console.log(colname);
+
+        var cellDataNode = rowDataNode.getValue().getNode(gridcell);
+        console.log(cellDataNode)
         var rowLabel = rowDataNode.label;
         var cellNode = cell.getNode(row);
-        var fldDict = this.columns[colname];
+        
         var attr = objectUpdate({},fldDict.attr);
         attr.datapath = '.'+rowLabel;   
         //attr.preventChangeIfIvalid = true;     
         if ('value' in attr){
             if(attr.tag.toLowerCase() == 'dbselect'){
-                attr.selectedCaption = '.'+ colname;
+                attr.selectedCaption = '.'+ gridcell;
             }
         }
         else{
-            attr['value'] = '^.' + colname;
+            attr['value'] = '^.' + gridcell;
         }
         
         
@@ -219,7 +226,7 @@ dojo.declare("gnr.GridEditor",null,{
         attr._class = attr._class? attr._class+' widgetInCell':'widgetInCell';
         attr.connect_keydown = cbKeys;
         attr.connect_onBlur = cbBlur;
-        attr._autoselect = true;
+       // attr._autoselect = true;
         var editWidgetNode = this.widgetRootNode._(fldDict.tag,attr).getParentNode();
         this.onEditCell(true);
         if(cellDataNode.attr._validationError || cellDataNode.attr._validationWarnings){
@@ -1946,7 +1953,6 @@ dojo.declare("gnr.widgets.Grid",gnr.widgets.baseDojo,{
         var cellmap = cellmap || {};
         var result = [];
         var _cellFormatter=function(formatOptions, cellClassCB){
-            console.log('_cellFormatter')
             var opt=objectUpdate({}, formatOptions);
             var cellClassFunc;
             if(cellClassCB){
@@ -1985,7 +1991,7 @@ dojo.declare("gnr.widgets.Grid",gnr.widgets.baseDojo,{
                     // changed to support ctrl+click on non mac platforms v = "<a onclick='var ev = arguments[0]; if(!ev.metaKey){dojo.stopEvent(ev);}' class='gnrzoomcell' href='/"+zoomPage+"?pkey="+key+"&autoLinkFrom="+genro.page_id+"'>"+v+"</a>";
                     v = "<a onclick='var ev = arguments[0]; if((genro.isMac&&!ev.metaKey)||(!genro.isMac&&!ev.ctrlKey)){dojo.stopEvent(ev);}' class='gnrzoomcell' href='/"+zoomPage+"?pkey="+key+"&autoLinkFrom="+genro.page_id+"'>"+v+"</a>";
                 }
-                return v;
+                return '<div class="cellContent">'+v+'</div>';
                 
                 };
             };
@@ -2299,7 +2305,7 @@ dojo.declare("gnr.widgets.VirtualStaticGrid",gnr.widgets.Grid,{
     },
 
     attributes_mixin_get: function(inRowIndex){
-        return '<span>'+this.grid.rowCached(inRowIndex)[this.field]+'</span>';
+        return this.grid.rowCached(inRowIndex)[this.field];
     },
     
     mixin_rowCached:function(inRowIndex){
@@ -3140,21 +3146,14 @@ dojo.declare("gnr.widgets.BaseCombo",gnr.widgets.baseDojo,{
         this.connectForUpdate(widget,sourceNode);
     },
     connectFocus: function(widget, savedAttrs, sourceNode){
-        dojo.connect(widget,'onFocus', widget, function(e){
+        /*dojo.connect(widget,'onFocus', widget, function(e){
                                         setTimeout(dojo.hitch(this, 'selectAllInputText'), 1);
-                                    });
+                                    });*/
         dojo.connect(widget,'onBlur', widget, 'validate');
     },
     
     mixin_selectAllInputText: function(){
-        var element = this.focusNode;
-        var _window = dojo.global;
-        var _document = dojo.doc;
-        element = dojo.byId(element);
-        var start = 0; 
-        var stop = element.value ? element.value.length : 0; 
-        element.focus();
-        dijit.selectInputText(element);
+        dijit.selectInputText(this.focusNode);
     },
     mixin__updateSelect: function(item){
         //var item=this.lastSelectedItem;
@@ -3231,6 +3230,7 @@ dojo.declare("gnr.widgets.dbBaseCombo",gnr.widgets.BaseCombo,{
             }
         }
         resolverAttrs._sourceNode = sourceNode;
+        resolverAttrs.sync = true
         var resolver = new gnr.GnrRemoteResolver(resolverAttrs, true ,0);
         
         resolver.sourceNode=sourceNode;
