@@ -65,6 +65,6 @@ class GnrCustomWebPage(object):
         date = datetime.date.today()
         for i in range(100):
             pkey = 'r_%i' % i
-            result[pkey] = Bag({'_pkey':pkey,'c':i, 'name':'Dsc %i' % i, 'qt':None, 'new':bool(i%2), 'size':'big', 'date':date + datetime.timedelta(i)})
+            result[pkey] = Bag({'_pkey':pkey,'filter':'A','language':'Python', 'name':'Dsc %i' % i, 'qt':None, 'new':bool(i%2), 'size':'big', 'date':date + datetime.timedelta(i)})
         return result
             
