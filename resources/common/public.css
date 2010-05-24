@@ -491,8 +491,11 @@
 	-webkit-border-radius:3px;
 }
 
-._common_d11 .invalidCell {
-	background-color: #ffd2cb !important;
+._common_d11 .invalidCell span {
+	border: 1px solid red;
+	padding: 1px ;
+	-moz-border-radius:5px;
+	-webkit-border-radius:5px;
 }
 ._common_d11 .dojoxGrid-row .dojoxGrid-cell{
 	background-color: whitesmoke;
