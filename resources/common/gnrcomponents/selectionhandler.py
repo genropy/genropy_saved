@@ -120,7 +120,6 @@ class SelectionHandler(BaseComponent):
                              del_action='FIRE .delete_record;',
                              nodeId=nodeId,table=table,struct=struct,hiddencolumns=hiddencolumns,
                              reloader=reloader, externalChanges=externalChanges,
-                             editorEnabled='==!_locked',_locked='^.status.locked',
                              #connect_onRowDblClick='this.widget.editCurrentRow($1.rowIndex);',
                              linkedForm='%s_form' %nodeId,openFormEvent='onRowDblClick',
                              selectionPars=selectionPars,askBeforeDelete=True,**kwargs)
@@ -244,18 +243,18 @@ class SelectionHandler(BaseComponent):
         if save_action:
             spacer = tb.div(float='right',_class='button_placeholder')
             spacer.button('!!Save changes',fire=".dlg.saveAndReload", 
-                            iconClass="tb_button db_save",showLabel=False,hidden='^status.locked')
+                            iconClass="tb_button db_save",showLabel=False,hidden='^.status.locked')
             spacer = tb.div(float='right',_class='button_placeholder')
             spacer.button('!!Revert',fire=".dlg.load", iconClass="tb_button db_revert",
-                            showLabel=False,hidden='^status.locked')
+                            showLabel=False,hidden='^.status.locked')
         
         if add_action:
             spacer = tb.div(float='right',_class='button_placeholder')
-            spacer.button('!!Add',action='FIRE .navbutton="new";',hidden='^status.locked',
+            spacer.button('!!Add',action='FIRE .navbutton="new";',hidden='^.status.locked',
                             iconClass='tb_button db_add', showLabel=False)
         if del_action:
             spacer = tb.div(float='right',_class='button_placeholder')
-            spacer.button('!!Delete',action='FIRE .delete_record;',hidden='^status.locked',
+            spacer.button('!!Delete',action='FIRE .delete_record;',hidden='^.status.locked',
                             iconClass='tb_button db_del', showLabel=False,disabled='==_curr_pkey=="*newrecord*"',
                             _curr_pkey='^.dlg.current_pkey')
 
