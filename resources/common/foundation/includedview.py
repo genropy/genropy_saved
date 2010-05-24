@@ -41,7 +41,7 @@ class IncludedView(BaseComponent):
                         tools_action=None, tools_class='buttonIcon icnBaseAction',tools_enable='^form.canWrite',tools_lbl=None,
                         lock_action=False,tools_menu=None,upd_action=False,_onStart=False,
                         filterOn=None,  pickerPars=None,centerPaneCb=None,
-                        editorEnabled=None,reloader=None,externalChanges=None,
+                        editorEnabled=None,parentLock='^status.locked',reloader=None,externalChanges=None,
                         addOnCb = None, zoom=True,hasToolbar=False,**kwargs):
         """
         This method returns a grid (includedView) for, viewing and selecting
@@ -186,8 +186,10 @@ class IncludedView(BaseComponent):
                                              colsMenu.setItem(n.label, null, {col:n.attr.field, caption:n.attr.name})
                                           });
                                           SET .flt.colsMenu = colsMenu;""", struct='^%s.view_0.row_0' % viewPars['structpath'])
+        if parentLock:
+            gridcenter.dataFormula(".editorEnabled", "!parentLock",parentLock=parentLock)
         view = gridcenter.includedView(extension='includedViewPicker',table=table,
-                                       editorEnabled=editorEnabled or '^form.canWrite',
+                                       editorEnabled='^.editorEnabled',
                                        reloader=reloader, **viewPars)
         if addOnCb:
             addOnCb(gridcenter)
