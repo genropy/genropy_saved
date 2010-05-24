@@ -24,7 +24,7 @@ class GnrCustomWebPage(object):
                                 datamode='bag',editorEnabled=True)
         gridEditor = grid.gridEditor(datapath='dummy') #editOn='onCellClick')
         gridEditor.filteringSelect(gridcell='filter',values='A:Alberto,B:Bonifacio,C:Carlo')
-        gridEditor.dbSelect(dbtable='devlang.language',gridcell='language',hasDownArrow=True,value='^.language_id')
+        gridEditor.dbSelect(dbtable='devlang.language',gridcell='language',hasDownArrow=True,value='^.language_id',sync=True)
         gridEditor.textbox(gridcell='name',validate_len='4:7',validate_len_max='!!Too long',
                             validate_len_min='!!Too short')
         gridEditor.numbertextbox(gridcell='qt')

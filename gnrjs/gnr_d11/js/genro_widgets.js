@@ -226,7 +226,7 @@ dojo.declare("gnr.GridEditor",null,{
         attr._class = attr._class? attr._class+' widgetInCell':'widgetInCell';
         attr.connect_keydown = cbKeys;
         attr.connect_onBlur = cbBlur;
-       // attr._autoselect = true;
+        attr._autoselect = true;
         var editWidgetNode = this.widgetRootNode._(fldDict.tag,attr).getParentNode();
         this.onEditCell(true);
         if(cellDataNode.attr._validationError || cellDataNode.attr._validationWarnings){
@@ -3146,9 +3146,9 @@ dojo.declare("gnr.widgets.BaseCombo",gnr.widgets.baseDojo,{
         this.connectForUpdate(widget,sourceNode);
     },
     connectFocus: function(widget, savedAttrs, sourceNode){
-        /*dojo.connect(widget,'onFocus', widget, function(e){
+        dojo.connect(widget,'onFocus', widget, function(e){
                                         setTimeout(dojo.hitch(this, 'selectAllInputText'), 1);
-                                    });*/
+                                    });
         dojo.connect(widget,'onBlur', widget, 'validate');
     },
     
@@ -3230,7 +3230,7 @@ dojo.declare("gnr.widgets.dbBaseCombo",gnr.widgets.BaseCombo,{
             }
         }
         resolverAttrs._sourceNode = sourceNode;
-        resolverAttrs.sync = true
+        //resolverAttrs.sync = true
         var resolver = new gnr.GnrRemoteResolver(resolverAttrs, true ,0);
         
         resolver.sourceNode=sourceNode;
@@ -3251,7 +3251,7 @@ dojo.declare("gnr.widgets.dbBaseCombo",gnr.widgets.BaseCombo,{
         this.store._lastSelectedCaption = this.labelFunc(item, this.store);
         if (this.sourceNode.attr.gridcell){
             this._updateSelect(item);
-            this.onBlur();
+            //this.onBlur();
         }
         else {
             if (this._hasBeenBlurred){
