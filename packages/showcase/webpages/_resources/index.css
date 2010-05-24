@@ -28,7 +28,7 @@
 	opacity: 0.4;
 	cursor: not-allowed;
 }
-
+.highlighttable tr td{margin:0;}
 .highlight .hll { background-color: #ffffcc }
 .highlight  { background: #FBFBFB; }
 .highlight .c { color: #408080; font-style: italic } 

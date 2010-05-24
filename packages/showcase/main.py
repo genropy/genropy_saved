@@ -5,7 +5,7 @@ from gnr.app.gnrdbo import GnrDboTable, GnrDboPackage, Table_counter, Table_user
 class Package(GnrDboPackage):
     def config_attributes(self):
         return dict(sqlschema='showcase',
-                    comment='Showcase video',
+                    comment='Showcase',
                     name_short='showcase',
                     name_long='showcase',
                     name_full='showcase')
@@ -20,7 +20,7 @@ class Package(GnrDboPackage):
         return 'adm/modify_user'
 
     def loginUrl(self):
-        return 'showcase/_adm/login'
+        return 'adm/login'
         
         
 class Table(GnrDboTable):
