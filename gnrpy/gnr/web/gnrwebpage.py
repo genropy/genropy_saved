@@ -250,7 +250,7 @@ class GnrWebPage(GnrBaseWebPage):
                 except Exception, e:
                     raise e
         auth = AUTH_OK
-        if not method in ('doLogin', 'jscompress', 'logout'):
+        if not method in ('doLogin', 'jscompress'):
             auth = self._checkAuth(method=method, **parameters)
         try:
             result = self.rpc(method=method, _auth=auth, **parameters)
@@ -264,11 +264,15 @@ class GnrWebPage(GnrBaseWebPage):
     def _checkAuth(self, method=None, **parameters):
         auth = AUTH_OK
         pageTags = self.pageAuthTags(method=method, **parameters)
-        if pageTags:
-            if not self.user:
-                if not self.connection.inited:
+        if not self.user:
+            if not self.connection.inited:
+                try:
                     self.connection.getConnection()
-                self.user = self.connection.user
+                    self.user = self.connection.user
+                    self.setInClientData('gnr.user' , self.user, fired=True, save=True)
+                except:
+                    self.user = None
+        if pageTags:
             if not self.user:
                 auth = AUTH_NOT_LOGGED
             elif not self.application.checkResourcePermission(pageTags, self.userTags):
@@ -316,7 +320,7 @@ class GnrWebPage(GnrBaseWebPage):
         else:
             avatar = self.application.getAvatar(login['user'], password=login['password'], authenticate=True,page=self)
         if avatar:
-            if not self.connection.user:
+            if not self.connection.inited:
                 self.connection.getConnection(user=login['user'])
             #if not self.user:
             #    connection=self.connection
