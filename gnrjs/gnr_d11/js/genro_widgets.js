@@ -135,20 +135,16 @@ dojo.declare("gnr.GridEditor",null,{
         var grid = this.grid;
         var cell = grid.getCell(col);
         var colname=cell.field;
+        var fldDict = this.columns[colname];
+        var gridcell = fldDict.attr.gridcell;
         var rowDataNode = grid.dataNodeByIndex(row)
         if (rowDataNode && rowDataNode._resolver && rowDataNode._resolver.expired()) {
-            rowDataNode.getValue();
+            var rowdata = rowDataNode.getValue();
+            rowdata.getItem(gridcell);
             setTimeout(dojo.hitch(this, 'startEdit', row, col), 1);
             return;
         }
-        var fldDict = this.columns[colname];
-        var gridcell = fldDict.attr.gridcell;
-        
-        console.log(gridcell);
-        console.log(colname);
-
         var cellDataNode = rowDataNode.getValue().getNode(gridcell);
-        console.log(cellDataNode)
         var rowLabel = rowDataNode.label;
         var cellNode = cell.getNode(row);
         
@@ -2575,7 +2571,7 @@ dojo.declare("gnr.widgets.VirtualStaticGrid",gnr.widgets.Grid,{
         //      Index of the grid row
         // inFieldIndex: Integer
         //      Index in the grid's data model
-        
+        console.log('patch_onApplyCellEdit');
         var dtype = this.cellmap[inFieldIndex].dtype;
         if ((dtype) && (dtype!='T') && (typeof(inValue)=='string')){
             inValue = convertFromText(inValue, this.cellmap[inFieldIndex].dtype, true);
@@ -3147,13 +3143,16 @@ dojo.declare("gnr.widgets.BaseCombo",gnr.widgets.baseDojo,{
     },
     connectFocus: function(widget, savedAttrs, sourceNode){
         dojo.connect(widget,'onFocus', widget, function(e){
+                                        console.log('setting onfocus 3143');
                                         setTimeout(dojo.hitch(this, 'selectAllInputText'), 1);
                                     });
         dojo.connect(widget,'onBlur', widget, 'validate');
     },
     
     mixin_selectAllInputText: function(){
+        console.log('selectAllInput')
         dijit.selectInputText(this.focusNode);
+        console.log('selectedAllInput')
     },
     mixin__updateSelect: function(item){
         //var item=this.lastSelectedItem;
