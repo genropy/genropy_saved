@@ -213,6 +213,7 @@ dojo.declare("gnr.GridEditor",null,{
                                  'LEFT': {'r': 0, 'c': -1},
                                  'RIGHT': {'r': 0, 'c': 1}
                                 };
+                    console.log('blurred')
                     setTimeout(dojo.hitch(gridEditor, 'endEdit', this.widget, deltaDict[cellNext], editingInfo), 1);
                 };
         attr._parentDomNode = cellNode;
@@ -3154,15 +3155,7 @@ dojo.declare("gnr.widgets.BaseCombo",gnr.widgets.baseDojo,{
         var start = 0; 
         var stop = element.value ? element.value.length : 0; 
         element.focus();
-        
-        //dijit.selectInputText(this.focusNode);
-
-        var selection = _window.getSelection();
-        // FIXME: does this work on Safari?
-        if(element.setSelectionRange){
-            element.setSelectionRange(start, stop);
-        }
-         console.log('selected');
+        dijit.selectInputText(element);
     },
     mixin__updateSelect: function(item){
         //var item=this.lastSelectedItem;
