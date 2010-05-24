@@ -137,17 +137,27 @@ dojo.declare("gnr.GridEditor",null,{
         var colname=cell.field;
         var fldDict = this.columns[colname];
         var gridcell = fldDict.attr.gridcell;
-        var rowDataNode = grid.dataNodeByIndex(row)
+        var rowDataNode = grid.dataNodeByIndex(row);
+        var datachanged=false
         if (rowDataNode && rowDataNode._resolver && rowDataNode._resolver.expired()) {
-            var rowdata = rowDataNode.getValue();
-            rowdata.getItem(gridcell);
+            datachanged=true; 
+        }
+        var rowData = rowDataNode.getValue();
+        var cellDataNode = rowData.getNode(gridcell);
+        if (!cellDataNode){
+            datachanged=true; 
+            cellDataNode = rowData.getNode(gridcell,null,true);
+        }
+        else if (cellDataNode._resolver && cellDataNode._resolver.expired()){
+            datachanged=true; 
+            cellDataNode.getValue();
+        }
+        if (datachanged){
             setTimeout(dojo.hitch(this, 'startEdit', row, col), 1);
             return;
         }
-        var cellDataNode = rowDataNode.getValue().getNode(gridcell);
         var rowLabel = rowDataNode.label;
         var cellNode = cell.getNode(row);
-        
         var attr = objectUpdate({},fldDict.attr);
         attr.datapath = '.'+rowLabel;   
         //attr.preventChangeIfIvalid = true;     
@@ -159,8 +169,6 @@ dojo.declare("gnr.GridEditor",null,{
         else{
             attr['value'] = '^.' + gridcell;
         }
-        
-        
         if (this.viewId) {
             if(attr.exclude == true){
                 attr.exclude = '==genro.wdgById("'+this.viewId+'").getColumnValues("'+attr['value']+'")';
@@ -229,8 +237,7 @@ dojo.declare("gnr.GridEditor",null,{
             editWidgetNode._validations = {'error':cellDataNode.attr._validationError,'warnings':cellDataNode.attr._validationWarnings};
             editWidgetNode.updateValidationStatus();
         }
-        editWidgetNode.widget.focus();
-        
+        editWidgetNode.widget.focus();        
     },
 
     endEdit:function(editWidget, delta, editingInfo){
