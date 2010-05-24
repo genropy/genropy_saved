@@ -100,9 +100,9 @@ class GnrCustomWebPage(object):
         pane.span('^.error_msg',nodeId='bottomMsg',_class='disclaimer',style="float:right;margin:10px;")
 
     def logoutbox(self,pane):
-        pane.dataRecord('user','showcase.user',username='^login.result.user')
+        #pane.dataRecord('user','showcase.user',username='^login.result.user')
         pane.button('logout',float='right',action='genro.logout();')
-        pane.div('^login.result.user',float='right',margin='10px')
+        pane.div('^gnr.user',float='right',margin='10px')
 
     def pageController(self,root):
         """The data controller on the page"""
