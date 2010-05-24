@@ -120,6 +120,7 @@ class SelectionHandler(BaseComponent):
                              del_action='FIRE .delete_record;',
                              nodeId=nodeId,table=table,struct=struct,hiddencolumns=hiddencolumns,
                              reloader=reloader, externalChanges=externalChanges,
+                             editorEnabled='==!_locked',_locked='^.status.locked',
                              #connect_onRowDblClick='this.widget.editCurrentRow($1.rowIndex);',
                              linkedForm='%s_form' %nodeId,openFormEvent='onRowDblClick',
                              selectionPars=selectionPars,askBeforeDelete=True,**kwargs)
