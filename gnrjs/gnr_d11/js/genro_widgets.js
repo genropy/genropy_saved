@@ -109,7 +109,6 @@ dojo.declare("gnr.GridEditor",null,{
         dojo.connect(widget, editOn[0], function(e){
             if(genro.wdg.filterEvent(e, modifier)){
                 if (grid.editorEnabled && _this.editableCell(e.cellIndex) && !grid.gnrediting){
-                    console.log('startedit')
                     _this.startEdit(e.rowIndex,e.cellIndex);
                     dojo.stopEvent(e);
                 }
@@ -123,15 +122,13 @@ dojo.declare("gnr.GridEditor",null,{
     },
 
     invalidCell:function(cell,row){
-        var rowData =  this.grid.dataNodeByIndex(row).getValue('static')
+        var rowData =  this.grid.dataNodeByIndex(row).getValue('static');
         if (rowData) {
              var datanode =  rowData.getNode(cell.field);
              return datanode?datanode.attr._validationError:false;  
         }              
     },
-    onCellMouseOver:function(e){
-        console.log(e)
-    },
+
     startEdit:function(row, col){
         var grid = this.grid;
         var cell = grid.getCell(col);
@@ -218,7 +215,7 @@ dojo.declare("gnr.GridEditor",null,{
                 };
         var gridEditor = this;
         var cbBlur = function(e){
-                    var cellNext = this.widget.cellNext;
+                    var cellNext = this.widget.cellNext || 'RIGHT';
                     this.widget.cellNext = null;
                     deltaDict = {'UP': {'r': -1, 'c': 0},
                                  'DOWN': {'r': 1, 'c': 0},
@@ -237,8 +234,9 @@ dojo.declare("gnr.GridEditor",null,{
         if(cellDataNode.attr._validationError || cellDataNode.attr._validationWarnings){
             editWidgetNode._validations = {'error':cellDataNode.attr._validationError,'warnings':cellDataNode.attr._validationWarnings};
             editWidgetNode.updateValidationStatus();
-        }
-        editWidgetNode.widget.focus();        
+        };
+        editWidgetNode.widget.focus();
+               
     },
 
     endEdit:function(editWidget, delta, editingInfo){
@@ -280,7 +278,7 @@ dojo.declare("gnr.GridEditor",null,{
         rc.col = col;
         rc.row = row;
         return rc;
-    },
+    }
     
 });
 dojo.declare("gnr.widgets.baseHtml",null,{
@@ -3151,16 +3149,13 @@ dojo.declare("gnr.widgets.BaseCombo",gnr.widgets.baseDojo,{
     },
     connectFocus: function(widget, savedAttrs, sourceNode){
         dojo.connect(widget,'onFocus', widget, function(e){
-                                        console.log('setting onfocus 3143');
-                                        setTimeout(dojo.hitch(this, 'selectAllInputText'), 1);
+                                        setTimeout(dojo.hitch(this, 'selectAllInputText'), 300);
                                     });
         dojo.connect(widget,'onBlur', widget, 'validate');
     },
     
     mixin_selectAllInputText: function(){
-        console.log('selectAllInput')
         dijit.selectInputText(this.focusNode);
-        console.log('selectedAllInput')
     },
     mixin__updateSelect: function(item){
         //var item=this.lastSelectedItem;
@@ -3251,14 +3246,17 @@ dojo.declare("gnr.widgets.dbBaseCombo",gnr.widgets.BaseCombo,{
         return savedAttrs;      
     },
     mixin_onSetValueFromItem: function(item, priorityChange){
-        if (!item.attr.caption){
+        if (!item.attr.caption ){
             return;
         }
         this.store._lastSelectedItem = item;
         this.store._lastSelectedCaption = this.labelFunc(item, this.store);
+        
         if (this.sourceNode.attr.gridcell){
             this._updateSelect(item);
-            //this.onBlur();
+            if (priorityChange){
+                this.onBlur();
+            }
         }
         else {
             if (this._hasBeenBlurred){
