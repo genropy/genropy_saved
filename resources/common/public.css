@@ -462,7 +462,8 @@
 }
 
 ._common_d11 .dojoxGrid-cell {
-	border: 0px;
+	border-left: 0px !important;
+	border-top: 0 !important;
 	border-right: 1px dotted gray;
 	border-bottom: 1px dotted gray;
 	height: 21px;
