@@ -226,7 +226,7 @@ dojo.declare("gnr.GridEditor",null,{
                                  'RIGHT': {'r': 0, 'c': 1},
                                  'STAY':{'r': 0, 'c': 0}
                                 };
-                    setTimeout(dojo.hitch(gridEditor, 'endEdit', this.widget, deltaDict[cellNext], editingInfo), 1);
+                    setTimeout(dojo.hitch(gridEditor, 'endEdit', this.widget, deltaDict[cellNext], editingInfo), 300);
                 };
         attr._parentDomNode = cellNode;
         attr._class = attr._class? attr._class+' widgetInCell':'widgetInCell';
