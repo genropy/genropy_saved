@@ -215,7 +215,7 @@ dojo.declare("gnr.GridEditor",null,{
                 };
         var gridEditor = this;
         var cbBlur = function(e){
-                    var cellNext = this.widget.cellNext || 'RIGHT';
+                    var cellNext = this.widget.cellNext; //|| 'RIGHT'; dannoso
                     this.widget.cellNext = null;
                     deltaDict = {'UP': {'r': -1, 'c': 0},
                                  'DOWN': {'r': 1, 'c': 0},
