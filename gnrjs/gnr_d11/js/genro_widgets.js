@@ -86,8 +86,11 @@ dojo.declare("gnr.GridEditor",null,{
     constructor:function(widget,sourceNode,gridEditorNode){
         var gridEditorColumns = gridEditorNode.getValue();
         this.grid = widget;
+        var grid = this.grid;
         this.viewId = sourceNode.attr.nodeId;
         this.formId = sourceNode.getInheritedAttributes()['formId'];
+        this.grid.rows.isOver = function(inRowIndex){return ((this.overRow == inRowIndex) && !grid.gnrediting);};
+        this.grid.selection.isSelected = function(inRowIndex){return this.selected[inRowIndex]&& !grid.gnrediting;};
         var columns = {};
         var attr;
        // dojo.connect(widget,'onCellMouseOver',this,'onCellMouseOver')
@@ -100,12 +103,11 @@ dojo.declare("gnr.GridEditor",null,{
         gridEditorNode.setValue(null,false);
         gridEditorNode.attr.tag = null;
         gridEditorNode.attr.datapath = sourceNode.absDatapath(sourceNode.attr.storepath);
-       
         var editOn = gridEditorNode.attr.editOn || 'onCellDblClick';
         editOn = stringSplit(editOn, ',', 2);
         var modifier = editOn[1];
         var _this = this;
-        var grid = this.grid;
+        
         dojo.connect(widget, editOn[0], function(e){
             if(genro.wdg.filterEvent(e, modifier)){
                 if (grid.editorEnabled && _this.editableCell(e.cellIndex) && !grid.gnrediting){
@@ -207,6 +209,7 @@ dojo.declare("gnr.GridEditor",null,{
                         } else if(keyCode == keys.RIGHT_ARROW){
                             widget.cellNext = 'RIGHT';
                         }
+                        dojo.stopEvent(e);
                         widget.focusNode.blur();
                         //widget._onBlur();
                         //setTimeout(dojo.hitch(this.focusNode, 'blur'), 1);
@@ -220,7 +223,8 @@ dojo.declare("gnr.GridEditor",null,{
                     deltaDict = {'UP': {'r': -1, 'c': 0},
                                  'DOWN': {'r': 1, 'c': 0},
                                  'LEFT': {'r': 0, 'c': -1},
-                                 'RIGHT': {'r': 0, 'c': 1}
+                                 'RIGHT': {'r': 0, 'c': 1},
+                                 'STAY':{'r': 0, 'c': 0}
                                 };
                     setTimeout(dojo.hitch(gridEditor, 'endEdit', this.widget, deltaDict[cellNext], editingInfo), 1);
                 };
@@ -3255,6 +3259,7 @@ dojo.declare("gnr.widgets.dbBaseCombo",gnr.widgets.BaseCombo,{
         if (this.sourceNode.attr.gridcell){
             this._updateSelect(item);
             if (priorityChange){
+                this.cellNext = 'RIGHT';
                 this.onBlur();
             }
         }
