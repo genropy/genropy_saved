@@ -4,7 +4,7 @@ import socket, os
 
 
 def setup_module(module):
-    module.BAG_DATA = 'data/testbag.xml'
+    module.BAG_DATA = os.path.join(os.path.dirname(__file__), 'data/testbag.xml')
 
 class TestBasicBag:  
     def setup_class(cls):

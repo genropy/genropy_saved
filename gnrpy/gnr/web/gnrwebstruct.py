@@ -880,10 +880,10 @@ class GnrGridStruct(GnrStructData):
                           classes=classes, cellClasses=cellClasses, headerClasses=headerClasses, **kwargs)
                           
     def checkboxcell(self,field='_checked',falseclass='checkboxOff',
-                        trueclass='checkboxOn',classes='row_checker',action=None):
+                        trueclass='checkboxOn',classes='row_checker',action=None,name=' '):
         
 
-        self.cell(field,name=' ',format_trueclass=trueclass,format_falseclass=falseclass,
+        self.cell(field,name=name,format_trueclass=trueclass,format_falseclass=falseclass,
                  classes=classes,_calculated=True,format_onclick="""var idx = kw.rowIndex;
                                                                     var rowpath = '#'+idx;
                                                                     var valuepath = rowpath+'?%s';

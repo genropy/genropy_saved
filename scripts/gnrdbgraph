@@ -14,15 +14,13 @@ def loadRelations(app, tables):
     for full in tables:
         pkg,tbl = full.split('.',2)
         relCols = app.db.packages['%(pkg)s.tables.%(tbl)s' % {'pkg':pkg,'tbl':tbl}].relatingColumns
+        b[full] = bb = {}
         if relCols:
-            bb = {}
             for c in relCols:
                 pkg_r,tbl_r,fld_r = c.split('.',3)
                 full_r = "%s.%s" % (pkg_r, tbl_r)
                 if full_r in tables:
                     bb[full_r] = None
-            if bb:
-                b[full] = bb
     return b
 
 def quote(s):
@@ -35,7 +33,8 @@ def remove_package(full):
 def writeDigraph(title, relations, remove_package_prefix, out):
     print>> out, "digraph", title, "{"
     for tbl1, tables in relations.items():
-        if remove_package_prefix: tbl1=remove_package(tbl1)        
+        if remove_package_prefix: tbl1=remove_package(tbl1)
+        print>> out, quote(tbl1)
         for tbl2 in tables.keys():
             if remove_package_prefix: tbl2=remove_package(tbl2)
             print>> out, "  ", quote(tbl2), "->", quote(tbl1)
@@ -49,6 +48,7 @@ def main():
     p.add_option('-o','--output-file',dest='output_file', help='Output file (defaults to <instance name>.<output type>)', default=None)
     p.add_option('-O','--auto-open',dest='auto_open',default=False,help="Auto call 'open' on output file (works on MacOSX)", action="store_true")
     p.add_option('-P','--remove-package-prefix', dest='remove_package_prefix',default=False,help="Remove package prefixes", action="store_true")
+    p.add_option('-D','--digraph', dest="dump_digraph", default=False, action="store_true", help="Output digraph to stdout")
     
     options, params = p.parse_args()
     if not params:
@@ -93,6 +93,8 @@ def main():
     graphviz = subprocess.Popen(cmdline, stdin=subprocess.PIPE, shell=True)
     buf = StringIO()
     writeDigraph(instance, relations, options.remove_package_prefix, buf)
+    if options.dump_digraph:
+        print buf.getvalue()
     graphviz.communicate(buf.getvalue())
     if options.auto_open:
         subprocess.call(["open %s" % output], shell=True)
