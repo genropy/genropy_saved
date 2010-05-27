@@ -122,7 +122,7 @@ class MailHandler(object):
         multiple_mode = (multiple_mode or '').lower().strip()
         if multiple_mode=='to':
             to = [','.join(to_address)]
-        elif multiple_mode=='bcc': #jbe changed this from ccn to bcc
+        elif multiple_mode=='bcc': # jbe changed this from ccn to bcc
             to = [from_address]
             bcc = ','.join(to_address)
         elif multiple_mode=='cc':
