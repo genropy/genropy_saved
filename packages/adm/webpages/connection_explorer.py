@@ -51,9 +51,9 @@ class GnrCustomWebPage(object):
         tools_menu.setItem('reload',None,caption='Reload',action='FIRE .reload')
         tools_menu.setItem('send_message',None,caption='Send Message',action='FIRE .send_message')
         tools_menu.setItem('-',None,caption='-')
-        tools_menu.setItem('clear',None,caption='Clear expired',action='FIRE .clear_expired')
+        #tools_menu.setItem('clear',None,caption='Clear expired',action='FIRE .clear_expired')
         bc.data(".connections.tools_menu", tools_menu)
-        bc.dataRpc('dummy','clearExpiredConnections',_fired='^.connections.clear_expired')
+        #bc.dataRpc('dummy','clearExpiredConnections',_fired='^.connections.clear_expired')
         
         self.includedViewBox(bc,label=label,datapath='.connections',
                              nodeId='connectionMainGrid',table='adm.connection',autoWidth=True,
@@ -63,8 +63,8 @@ class GnrCustomWebPage(object):
                              activeOnly='=.activeOnly',order_by='$start_ts DESC'))
                              
                              
-    def rpc_clearExpiredConnections(self):
-        self.site.clearExpiredConnections()
+    #def rpc_clearExpiredConnections(self):
+    #    self.site.clearExpiredConnections()
         
     def connectionMainGrid_struct(self,struct):
         r = struct.view().rows()
