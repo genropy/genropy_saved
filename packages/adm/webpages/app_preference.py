@@ -43,7 +43,7 @@ class GnrCustomWebPage(object):
                 auth = self.application.checkResourcePermission(permmissioncb(), self.userTags)
             panecb = getattr(self,'prefpane_%s' %pkg.name,None)
             if panecb and auth:
-                panecb(tc,title=pkg.name_full,datapath='.%s' %pkg.name,nodeId=pkg.name)
+                panecb(tc,title=pkg.name_full,datapath='.%s' %pkg.name,nodeId=pkg.name,sqlContextRoot='preference.%s' %pkg.name)
 
     def bottom(self,bottom):
         #bottom.a('!!Zoom',float='left',href='/adm/app_preference')
