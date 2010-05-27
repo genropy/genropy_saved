@@ -2820,11 +2820,21 @@ dojo.declare("gnr.widgets.VirtualStaticGrid",gnr.widgets.Grid,{
         }
         return storebag.index(rowLabel);
     },
-    mixin_editBagRow: function(r){
+    mixin_editBagRow: function(r,delay){
         var r = r || this.selection.selectedIndex;
         var rc = this.gridEditor.findNextEditableCell({row: r, col: -1}, {r:0, c:1});
+        var grid = this;
         if(rc){
-            this.gridEditor.startEdit(rc.row,rc.col);
+            if (delay){
+                if (this._delayedEditing){
+                    clearTimeout(this._delayedEditing)
+                }
+                this._delayedEditing=setTimeout(function(){grid.gridEditor.startEdit(rc.row,rc.col)},delay)
+            }else
+            {
+                this.gridEditor.startEdit(rc.row,rc.col);
+            }
+            
         }
     },
     mixin_newBagRow: function(defaultArgs){
