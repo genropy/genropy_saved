@@ -1,14 +1,16 @@
-
 #!/usr/bin/env python
 # encoding: utf-8
 
 class Table(object):
 
     def config_db(self, pkg):
-        tbl =  pkg.table('example', rowcaption='hello_code')
-        tbl.column('hello_code',size='4',name_long='!!Hello code') # char(4)
-        tbl.column('hello_value',size=':4',name_long='!!Hello value') # varchar(40)
-        tbl.column('hello_date', dtype='D',name_long='!!Hello date') # date
+        tbl =  pkg.table('client', rowcaption='')
+        self.sysFields(tbl)
+        
+        tbl.column('anagrafica_id',size=':22',name_long='!!').relation('sw_base.anagrafica.id',
+                    mode='foreignkey', onDelete='raise')
+        tbl.column('user_id',size=':22',name_long='!!User ID').relation('adm.user.id', mode='foreignkey', onDelete='raise')
+        tbl.column('codice',size=':8',name_long='!!Codice')
         # dtype -> sql
         #   I       int
         #   R       float
