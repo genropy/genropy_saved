@@ -16,8 +16,8 @@ class GnrCustomWebPage(object):
          return '!! test font'
 
     def main(self, root, **kwargs):
-        root.script(src="http://use.typekit.com/tji2xhd.js")
-        root.script("try{Typekit.load();}catch(e){}")
-        #root.tree(storepath='gnr',margin_top='30px',margin_left='30px')
+        root.script(src="http://use.typekit.com/nrc3upi.js")
+        root.dataController("try{Typekit.load();console.log('okkkkkkkkkkk')}catch(e){}",_onStart=True)
         fb=root.div(font_size='20px').formbuilder(cols=1,margin_top='30px',margin_left='30px')
-        fb.div('ssssss')
+        fb.div('Abcde effe',_class='tk-ff-cocon-web-pro',font_size='48px')
+        fb.div('Abcde effe',_class='tk-museo',font_size='48px')
