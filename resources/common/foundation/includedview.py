@@ -57,7 +57,8 @@ class IncludedView(BaseComponent):
                          to includedViewBox for containing the the includedView
                          and its label.
         @param table:
-        @param storepath:
+        @param storepath: if it is relative what is the datapath ?
+        
         @param selectionPars:
         @param datapath:
         @param formPars:(dict) contains all the param of the widget that host the form:
@@ -107,8 +108,7 @@ class IncludedView(BaseComponent):
         """
         if not datapath:
             if storepath.startswith('.'): 
-                if table:
-                    storepath = '%s%s' % (parentBC.parentNode.getInheritedAttributes()['sqlContextRoot'], storepath)
+                storepath = '%s%s' % (parentBC.parentNode.getInheritedAttributes()['sqlContextRoot'], storepath)
         viewPars = dict(kwargs)
         gridId = nodeId or self.getUuid()
         viewPars['nodeId'] = gridId    
@@ -152,7 +152,7 @@ class IncludedView(BaseComponent):
             self._iv_gridAddDel(gridtop_add_del,add_action=add_action,del_action=del_action,
                                  add_class=add_class,add_enable=add_enable,
                                  del_class=del_class, del_enable=del_enable,pickerPars=pickerPars,
-                                 formPars=formPars) 
+                                 formPars=formPars,gridId=gridId) 
                              
         if lock_action:
             gridtop_lock = gridtop_right.div(float='left',margin_right='5px')
@@ -239,7 +239,7 @@ class IncludedView(BaseComponent):
                         showLabel=False)
                         
     def _iv_gridAddDel(self,pane,add_action=None,del_action=None,upd_action=None, add_class=None,add_enable=None,
-                        del_class=None, del_enable=None,pickerPars=None,formPars=None):
+                        del_class=None, del_enable=None,pickerPars=None,formPars=None,gridId=None):
         if del_action:
             if del_action is True:
                 del_action = 'FIRE .delSelection' 
@@ -252,7 +252,7 @@ class IncludedView(BaseComponent):
                 elif formPars:
                     add_action = ' FIRE .showRecord; FIRE .addRecord =$1;'
                 else:
-                    add_action = 'FIRE .addRecord =$1;FIRE .editRow;'   
+                    add_action = 'FIRE .addRecord =$1;FIRE .editRow=1000;' 
             pane.div(float='right', _class=add_class,connect_onclick=add_action,
                         margin_right='2px',visible=add_enable)
         if upd_action:
@@ -341,7 +341,7 @@ class IncludedView(BaseComponent):
                        
         controller.dataController(delScript, _fired='^.delRecord', delSelection='^.delSelection',
                                 idx='=.selectedIndex', gridId=gridId)
-        controller.dataController("""genro.wdgById(gridId).editBagRow();""",fired='^.editRow',gridId=gridId)
+        controller.dataController("""genro.wdgById(gridId).editBagRow(null,fired);""",fired='^.editRow',gridId=gridId)
         controller.dataController("genro.wdgById(gridId).printData();" ,fired='^.print',gridId=gridId)
         controller.dataController("genro.wdgById(gridId).exportData(mode, export_method);" ,
                                    mode='^.export', export_method='=.export_method', gridId=gridId)
