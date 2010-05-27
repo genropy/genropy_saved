@@ -190,7 +190,7 @@ class IncludedView(BaseComponent):
         if parentLock:
             gridcenter.dataFormula(".editorEnabled", "!parentLock",parentLock=parentLock)
         view = gridcenter.includedView(extension='includedViewPicker',table=table,
-                                       editorEnabled='^.editorEnabled',
+                                       editorEnabled=editorEnabled or '^.editorEnabled',
                                        reloader=reloader, **viewPars)
         if addOnCb:
             addOnCb(gridcenter)
