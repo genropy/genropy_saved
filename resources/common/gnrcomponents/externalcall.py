@@ -22,6 +22,10 @@ from gnr.web.gnrwebpage import BaseComponent
 
 class BaseRpc(BaseComponent):
     def rootPage(self,*args, **kwargs):
+        
+        if self.VALID_IP_LIST and not self.request.remote_addr in self.VALID_IP_LIST:
+            self.raiseUnauthorized()
+            
         if 'pagetemplate' in kwargs:
             kwargs.pop('pagetemplate')
         if args:
