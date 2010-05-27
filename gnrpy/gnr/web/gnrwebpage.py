@@ -269,7 +269,10 @@ class GnrWebPage(GnrBaseWebPage):
                 try:
                     self.connection.getConnection()
                     self.user = self.connection.user
-                    self.setInClientData('gnr.user' , self.user, fired=True, save=True)
+                    if self.connection.user:
+                        self.user = self.connection.user
+                        self.setInClientData('gnr.user' , self.user, fired=True, save=True)
+                        self.setInClientData('gnr.userTags', self.userTags, fired=True, save=True)
                 except:
                     self.user = None
         if pageTags:
@@ -328,6 +331,8 @@ class GnrWebPage(GnrBaseWebPage):
             self.avatar = avatar
             self.user = avatar.id
             self.connection.makeAvatar(avatar)
+            self.setInClientData('gnr.user' , self.user, fired=True, save=True)
+            self.setInClientData('gnr.userTags', self.userTags, fired=True, save=True)
             self.site.onAuthenticated(avatar)
             login['message'] = ''
             loginPars=avatar.loginPars
@@ -709,7 +714,7 @@ class GnrWebPage(GnrBaseWebPage):
                 page.data('gnr.homepage', self.externalUrl(self.site.homepage))
                 page.data('gnr.homeFolder', self.externalUrl(self.site.home_uri).rstrip('/'))
                 page.data('gnr.homeUrl', self.site.home_uri)
-                page.data('gnr.userTags', self.userTags)
+                #page.data('gnr.userTags', self.userTags)
                 page.data('gnr.locale',self.locale)
                 page.data('gnr.pagename',self.pagename)
                 page.data('gnr.polling',self.polling)

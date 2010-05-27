@@ -218,6 +218,11 @@ class ResourceLoader(object):
         
     def site_resources(self):
         resources=Bag()
+        for pkg in self.site.gnrapp.packages.values():
+            rsrc_path=os.path.join(pkg.packageFolder, 'resources')
+            label= 'pkg_%s'%(pkg.id)
+            if os.path.isdir(rsrc_path):
+                resources[label] = rsrc_path
         resources_list = [(resource.label,resource.attr.get('path')) for resource in self.site.config['resources'] or []]
         for label,rsrc_path in resources_list:
             if rsrc_path:
