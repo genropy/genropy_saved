@@ -107,7 +107,8 @@ class IncludedView(BaseComponent):
         """
         if not datapath:
             if storepath.startswith('.'): 
-                storepath = '%s%s' % (parentBC.parentNode.getInheritedAttributes()['sqlContextRoot'], storepath)
+                if table:
+                    storepath = '%s%s' % (parentBC.parentNode.getInheritedAttributes()['sqlContextRoot'], storepath)
         viewPars = dict(kwargs)
         gridId = nodeId or self.getUuid()
         viewPars['nodeId'] = gridId    
