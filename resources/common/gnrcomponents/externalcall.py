@@ -24,7 +24,7 @@ class BaseRpc(BaseComponent):
     def rootPage(self,*args, **kwargs):
         
         if self.VALID_IP_LIST and not self.request.remote_addr in self.VALID_IP_LIST:
-            self.raiseUnauthorized()
+            self.site.raiseUnauthorized()
             
         if 'pagetemplate' in kwargs:
             kwargs.pop('pagetemplate')
