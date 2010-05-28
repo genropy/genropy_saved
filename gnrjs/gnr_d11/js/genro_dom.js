@@ -499,18 +499,18 @@ dojo.declare("gnr.GnrDomHandler",null,{
             
             e.preventDefault();
         });
-        dojo.connect(document.body, 'ontouchstart', function(e){
-            alert(e.touches.length)
-            for (var i=0; i < e.touches.length; i++) {
-                var touch=e.touches[i]
-                var t=''
-                for (var k in touch){
-                     t=t+'\n'+k+' : '+e[k]
-                 }
-                alert (t)
-            };
-
-        });
+        // dojo.connect(document.body, 'ontouchstart', function(e){
+        //     alert(e.touches.length)
+        //     for (var i=0; i < e.touches.length; i++) {
+        //         var touch=e.touches[i]
+        //         var t=''
+        //         for (var k in touch){
+        //              t=t+'\n'+k+' : '+e[k]
+        //          }
+        //         alert (t)
+        //     };
+        // 
+        // });
     /*    dojo.connect(document.body, 'touchend', function(e){
 
             var dx=e.screenX-this.startTouch_x

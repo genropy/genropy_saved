@@ -157,14 +157,15 @@ class GnrException(Exception):
     caption="""!!Error code %(code)s : %(description)s."""
     localizer=None
     
-    def __init__(self,**kwargs):
+    def __init__(self, message, **kwargs):
+        self.message = message
         self.msgargs=kwargs
         self.localizer=None
 
     def __str__(self):
         msgargs=dict(code=self.code,description=self.description)
         msgargs.update(self.msgargs)
-        return self.localizedMsg(self.caption,msgargs)
+        return self.localizedMsg(self.caption, msgargs)
         
     def setLocalizer(self,localizer):
         self.localizer=localizer
