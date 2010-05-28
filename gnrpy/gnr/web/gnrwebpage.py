@@ -726,6 +726,10 @@ class GnrWebPage(GnrBaseWebPage):
                 page.dataController('genro.rpc.managePolling(freq);', freq='^gnr.polling', _onStart=True)
                 root=page.borderContainer(design='sidebar', height='100%', nodeId='_gnrRoot',_class='hideSplitter notvisible', 
                                             regions='^_clientCtx.mainBC')
+                typekit_code=self.site.config['gui?typekit']
+                if typekit_code:
+                    page.script(src="http://use.typekit.com/%s.js" % typekit_code)
+                    page.dataController("try{Typekit.load();}catch(e){}",_onStart=True)
                 self.debugger.right_pane(root)
                 self.debugger.bottom_pane(root)
                 self.mainLeftContent(root,region='left',splitter=True, nodeId='gnr_main_left')
