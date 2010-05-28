@@ -27,6 +27,8 @@ from email.mime.image import MIMEImage
 from email.mime.application import MIMEApplication
 import re, htmlentitydefs
 import mimetypes
+from gnr.core.gnrstring import templateReplace
+import thread
 mimetypes.init() # Required for python 2.6 (fixes a multithread bug)
 TAG_SELECTOR='<[^>]*>'
 
@@ -157,10 +159,50 @@ class MailHandler(object):
         else:
             msg.attach(MIMEText(body,'text',charset))
         return msg
-            
-    def sendmail(self, to_address, subject, body, attachments=None, account=None,
+    
+    def sendmail_template(self, datasource, to_address=None, cc_address=None, bcc_address=None, subject=None, from_address=None, body=None, attachments=None, account=None,
+                            host=None, port=None, user=None, password=None, 
+                            ssl=False, tls=False, html=False,  charset='utf-8',async=False):
+        def get_templated(field):
+            value = datasource.get('to_address')
+            if value:
+                return templateReplace(value,datasource)
+        to_address = to_address or get_templated('to_address')
+        cc_address = cc_address or get_templated('cc_address')
+        bcc_address = bcc_address or get_templated('bcc_address')
+        from_address = from_address or get_templated('from_address')
+        subject = subject or get_templated('subject')
+        body = body or get_templated('body')
+        self.sendmail(to_address, subject=subject, body=body,cc_address=cc_address,bcc_address=bcc_address, attachments=attachments, account=account,
+                            from_address=from_address, host=host, port=port, user=user, password=password, 
+                            ssl=ssl, tls=tls, html=html, charset=charset,async=async)
+    
+    def sendmail(self, to_address, subject, body, cc_address=None,bcc_address=None, attachments=None, account=None,
                         from_address=None, host=None, port=None, user=None, password=None, 
-                        ssl=False, tls=False, html=False, multiple_mode=False, progress_cb=None, charset='utf-8'):
+                        ssl=False, tls=False, html=False, charset='utf-8', async=False):
+        
+        account_params = self.get_account_params(account=account, from_address=from_address, 
+                            host=host, port=port, user=user, password=password, ssl=ssl, tls=tls)
+        from_address=account_params['from_address']
+        msg = self.build_base_message(subject, body, attachments=attachments, html=html, charset=charset)
+        msg['From'] = from_address
+        msg['To'] = to_address
+        msg['Cc'] = cc_address and ','.join(cc_address)
+        msg['Bcc'] = bcc_address and ','.join(bcc_address)
+        msg_string = msg.as_string()
+        if not async:
+            self._sendmail(account_params,from_address, to_address, cc_address, bcc_address,msg_string)
+        else:
+            thread.start_new_thread(self._sendmail, (account_params, from_address, to_address, cc_address, bcc_address, msg_string))
+        
+    def _sendmail(self, account_params, from_address, to_address, cc_address, bcc_address, msg_string):
+        smtp_connection = self.get_smtp_connection(**account_params)
+        smtp_connection.sendmail(from_address, (to_address,cc_address,bcc_address), msg_string)
+        smtp_connection.close()
+    
+    def sendmail_many(self, to_address, subject, body, attachments=None, account=None,
+                        from_address=None, host=None, port=None, user=None, password=None, 
+                        ssl=False, tls=False, html=False, multiple_mode=False, progress_cb=None, charset='utf-8', async=False):
         """
         multiple_mode can be:
                 False - single mail for recipient
