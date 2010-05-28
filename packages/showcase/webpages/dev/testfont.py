@@ -7,7 +7,6 @@
 #  Copyright (c) 2007 Softwell. All rights reserved.
 #
 
-from gnr.core.gnrbag import Bag
 class GnrCustomWebPage(object):
     def pageAuthTags(self, method=None, **kwargs):
         return ''
@@ -16,8 +15,13 @@ class GnrCustomWebPage(object):
          return '!! test font'
 
     def main(self, root, **kwargs):
-        root.script(src="http://use.typekit.com/nrc3upi.js")
-        root.dataController("try{Typekit.load();console.log('okkkkkkkkkkk')}catch(e){}",_onStart=True)
-        fb=root.div(font_size='20px').formbuilder(cols=1,margin_top='30px',margin_left='30px')
-        fb.div('Abcde effe',_class='tk-ff-cocon-web-pro',font_size='48px')
-        fb.div('Abcde effe',_class='tk-museo',font_size='48px')
+        pane=root.div(font_size='20px')
+
+        for k in range (7,48):
+            pane.div('This is museo font %ipx'%k,_class='tk-museo',font_size='%ipx' %k)
+            
+        for k in range (7,48):
+            pane.div('This is cocon font %ipx'%k,_class='tk-ff-cocon-web-pro',font_size='%ipx' %k)
+            
+            
+            
