@@ -164,7 +164,7 @@ class MailHandler(object):
                             host=None, port=None, user=None, password=None, 
                             ssl=False, tls=False, html=False,  charset='utf-8',async=False):
         def get_templated(field):
-            value = datasource.get('to_address')
+            value = datasource.get(field)
             if value:
                 return templateReplace(value,datasource)
         to_address = to_address or get_templated('to_address')
