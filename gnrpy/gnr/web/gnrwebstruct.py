@@ -215,8 +215,11 @@ class GnrDomSrc(GnrStructData):
             parentAttr['remote'] = 'remoteBuilder'
             parentAttr['remote_handler'] = method
             for k,v in kwargs.items():
+                if k.startswith('_'):
+                    continue
                 if k.endswith('_path'):
                     v = u'§%s' %v
+                
                 parentAttr['remote_%s' %k] = v
                 kwargs.pop(k)
             if not lazy:
