@@ -197,7 +197,10 @@ class MailHandler(object):
             @user        If a username is required for authentication - default-None
             @password    If a username is required for authentication - default-None
             @ssl         If True then will attempt to use the ssl port else standard smtp port is used - default=False
-            @tls         - default=False
+            @tls         to communicate with an smtp server you may choose three ways. 1. no encryption  2. ssl -> all data is encrypted on a ssl layer
+                         3. tls -> server and client begin communitation in a unsecure way and after a starttls command they start to encrypt data
+                         this is the way you use to connect to gmail smtp
+                         - default=False
             @html        if True then html tas can be used in the body of the email. Appropriate headers are attached - default=False
             @charset     a different charser may be defined by its standard name. - default = 'utf-8'
             @async       if set to true, then a separate process is spawned to send the email and control is returned immediately to the calling function - default=False
