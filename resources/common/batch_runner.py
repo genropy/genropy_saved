@@ -95,10 +95,12 @@ class BatchRunner(BaseComponent):
             batch_class = 'PrintRecord'
         elif recordId:
             data = self.db.table(table).record(pkey=recordId,ignoreMissing=True).output('bag')
-        else:   
+        elif selectionName:   
             data = self.getUserSelection(selectionName=selectionName,
                                          selectedRowidx=selectedRowidx,
                                          filterCb=selectionFilterCb)
+        else:
+            data=None
         batch_class = self.batch_loader(batch_class)
         if batch_class:
             batch = batch_class(data=data, table=table, page=self, thermocb=self.app.setThermo,
