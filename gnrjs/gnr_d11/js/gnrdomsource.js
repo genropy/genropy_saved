@@ -470,7 +470,6 @@ dojo.declare("gnr.GnrDomSourceNode",gnr.GnrBagNode,{
          resolver.updateAttr=true;
          this.setResolver(resolver);
      },
-    
     _bld_data: function() {},
     _bld_dataremote: function() {},
     _bld_dataformula: function() {},
@@ -1058,20 +1057,32 @@ dojo.declare("gnr.GnrDomSource",gnr.GnrStructData,{
             var tag_UpperLower = null;
             var name, content;
             tag=tag.toLowerCase();
+            console.log('tag:'+tag);
+            console.log(attributes);
             if(tag){
+        
                 if (name instanceof Object){
                     var attributes =  name;
                     var name='';
                 }
                 var attributes=attributes || {};
+                if(attributes && ('remote' in attributes)){
+                    var remattr = objectUpdate({},objectPop(attributes,'remote'));
+                    remattr['handler'] = objectPop(remattr,'method')
+                    remattr['method']='remoteBuilder';
+                    var cacheTime=objectPop(remattr,'cacheTime');
+                    content = new gnr.GnrRemoteResolver(remattr, false, cacheTime);
+                    content.updateAttr=true;
+                }
                 name = name || '*_?';
                 name = name.replace('*', tag).replace('?', this.len());
+                
                 if (attributes.content){
                     content = attributes.content;
                     delete attributes.content;
                 }
                 if (content == null){ 
-                        content = new gnr.GnrDomSource();
+                    content = new gnr.GnrDomSource();
                 }
                 attributes.tag = tag;
                 this.setItem(name, content, attributes);
