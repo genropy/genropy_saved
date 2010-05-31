@@ -180,17 +180,24 @@ class MailHandler(object):
     def sendmail(self, to_address, subject, body, cc_address=None,bcc_address=None, attachments=None, account=None,
                         from_address=None, host=None, port=None, user=None, password=None, 
                         ssl=False, tls=False, html=False, charset='utf-8', async=False):
+        """send mail is a function called from the postoffice object to send an email.
+           cc_address and bcc_address can be a str or a list or a tuple
+           """
         account_params = self.get_account_params(account=account, from_address=from_address, 
                             host=host, port=port, user=user, password=password, ssl=ssl, tls=tls)
         from_address=account_params['from_address']
         msg = self.build_base_message(subject, body, attachments=attachments, html=html, charset=charset)
         msg['From'] = from_address
         msg['To'] = to_address
-        msg['Cc'] = cc_address# and ','.join(cc_address) #JBE found this code was splitting on each character assuming cc_address was a list I think
-        msg['Bcc'] = bcc_address# and ','.join(bcc_address)
+        if  type(cc_address).__name__ in ['list','tuple']:
+            msg['Cc'] = cc_address and ','.join(cc_address)
+        else:
+            msg['Cc'] = cc_address
+        if  type(bcc_address).__name__ in ['list','tuple']:
+            msg['Bcc'] = bcc_address and ','.join(bcc_address)
+        else:
+            msg['Bcc'] = bcc_address
         msg_string = msg.as_string()
-        print 'CC: ', msg['Cc']
-        print 'msg: ', msg_string
         if not async:
             self._sendmail(account_params,from_address, to_address, cc_address, bcc_address,msg_string)
         else:
