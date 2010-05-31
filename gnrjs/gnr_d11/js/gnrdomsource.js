@@ -925,8 +925,10 @@ dojo.declare("gnr.GnrDomSourceNode",gnr.GnrBagNode,{
                     var node = genro._data.getNode(abspath);
                     value = asTypedTxt(value,node.attr.dtype);
                 };
-                
-                kwargs[attrname.slice(7)] = value; 
+                var sendattr = attrname.slice(7);
+                if (sendattr.indexOf('_')!=0){
+                    kwargs[sendattr] = value; 
+                }
             }
         }
         var method=this.attr.remote;
