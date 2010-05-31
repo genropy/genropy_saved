@@ -180,9 +180,28 @@ class MailHandler(object):
     def sendmail(self, to_address, subject, body, cc_address=None,bcc_address=None, attachments=None, account=None,
                         from_address=None, host=None, port=None, user=None, password=None, 
                         ssl=False, tls=False, html=False, charset='utf-8', async=False):
-        """send mail is a function called from the postoffice object to send an email.
-           cc_address and bcc_address can be a str or a list or a tuple
-           """
+        """
+            send mail is a function called from the postoffice object to send an email.
+            parameters:
+            @to_address  address where the email will be sent
+            @subject     subject of the email
+            @body        body of the email.  If you pass html=true, you can pass html tags
+            @cc_address  can be a comma deliminated str of email addresses or a list or tuple - default=None
+            @bcc_address can be a comma deliminated str of email addresses or a list or tuple - default=None
+            @attachments path of the attachment to be sent with the email - default=None
+            @account     if an account has been defined previously with set_smtp_account then this account can be used
+                         instead of having to repeat all the mail parameters is contains
+            @from_address  the address that will appear in the recipients from field - default=None
+            @host        the smtp host to send this email
+            @port        If a non standard port is used then it can be overridden. default=None
+            @user        If a username is required for authentication - default-None
+            @password    If a username is required for authentication - default-None
+            @ssl         If True then will attempt to use the ssl port else standard smtp port is used - default=False
+            @tls         - default=False
+            @html        if True then html tas can be used in the body of the email. Appropriate headers are attached - default=False
+            @charset     a different charser may be defined by its standard name. - default = 'utf-8'
+            @async       if set to true, then a separate process is spawned to send the email and control is returned immediately to the calling function - default=False
+        """
         account_params = self.get_account_params(account=account, from_address=from_address, 
                             host=host, port=port, user=user, password=password, ssl=ssl, tls=tls)
         from_address=account_params['from_address']
