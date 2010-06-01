@@ -148,6 +148,8 @@ class FormDialog(BaseComponent):
                                     SET .page = objectPop(opener,'dialogPage');
                                 }
                                 opener = new gnr.GnrBag(opener);
+                             }else if(opener==true){
+                                 opener = new gnr.GnrBag();
                              }
                              SET .opener = opener;""",opener="^._setOpener")
         bc.dataController('genro.wdgById(dlgId).show();SET .isOpen=true;',dlgId=dlgId,_fired="^._openSimpleDialog" )
