@@ -10,6 +10,11 @@ class GnrDboPackage(object):
                    date=None, phyear=False,lastAssigned=0):
         return self.dbtable('counter').getCounter(name=name, pkg=self.name, code=code, codekey=codekey, output=output, 
                                                 date=date, phyear=phyear,lastAssigned=lastAssigned)
+                                                
+    def getLastCounterDate(self, name, code, codekey, output, 
+                   date=None, phyear=False,lastAssigned=0):
+        return self.dbtable('counter').getLastCounterDate(name=name, pkg=self.name, code=code, codekey=codekey, output=output, 
+                                                date=date, phyear=phyear,lastAssigned=lastAssigned)
     def setCounter(self, name, code, codekey, output, 
                    date=None, phyear=False,value=0):
         return self.dbtable('counter').setCounter(name=name, pkg=self.name, code=code, codekey=codekey, output=output, 
