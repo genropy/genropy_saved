@@ -136,14 +136,12 @@ dojo.declare("gnr.GnrDomSourceNode",gnr.GnrBagNode,{
                     this.pendingFire=setTimeout(dojo.hitch(this,'setDataNodeValue',kw.node,kw,trigger_reason),this.attr._delay);
                    
                 }else{
-                    //console.log('136 '+mydpath+'   -   '+dpath);
                     this.setDataNodeValue(kw.node,kw,trigger_reason);
                 }
                 
             }
             else{
                 if (kw.reason != this){
-                    //console.log('143 '+mydpath+'   -   '+dpath);
                     this.updateAttrBuiltObj(prop,kw, trigger_reason);
                 }
             }
@@ -1059,8 +1057,6 @@ dojo.declare("gnr.GnrDomSource",gnr.GnrStructData,{
             var tag_UpperLower = null;
             var name, content;
             tag=tag.toLowerCase();
-            console.log('tag:'+tag);
-            console.log(attributes);
             if(tag){
         
                 if (name instanceof Object){
