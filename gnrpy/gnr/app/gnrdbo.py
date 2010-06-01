@@ -170,6 +170,17 @@ class Table_counter(TableBase):
         self.update(record)
         return self.formatCode(code, output, ymd, counter)
     
+    def getLastCounterDate(self, name, pkg, code, 
+                       codekey='$YYYY_$MM_$K', output='$K/$YY$MM.$NNNN', 
+                       date=None, phyear=False, lastAssigned=0):
+        ymd = self.getYmd(date, phyear=phyear)
+        codekey = '%s_%s' % (pkg, self.counterCode(code, codekey, ymd))
+        record = self.record(codekey, mode='record', for_update=True, ignoreMissing=True)
+        if record:
+            return record['last_used']
+
+       
+    
     def createCounter(self,codekey,code,pkg,name,lastAssigned):
         record = Bag()
         record['name'] = '%s-%s' % (pkg, name)
