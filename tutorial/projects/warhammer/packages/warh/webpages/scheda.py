@@ -24,10 +24,10 @@ class GnrCustomWebPage(object):
     def lstBase(self,struct):
         """!!Vista base"""
         r = struct.view().rows()
-	r.fieldcell('sigla',width='4em')
-	r.fieldcell('nome',width='20em')
-	r.fieldcell('razza_codice',width='6em')
-	r.fieldcell('@razza_codice.nome',width='10em')
+        r.fieldcell('sigla',width='4em')
+        r.fieldcell('nome',width='20em')
+        r.fieldcell('razza_codice',width='6em')
+        r.fieldcell('@razza_codice.nome',width='10em')
         return struct
     
     def printActionBase(self):
@@ -50,19 +50,24 @@ class GnrCustomWebPage(object):
         
 ############################## FORM METHODS ##################################
 
-    def formBase(self, parentBC,disabled=False, **kwargs):
+    def formBase(self, parentBC, disabled=False, **kwargs):
         pane = parentBC.contentPane(**kwargs)
-        fb = pane.formbuilder(cols=2, border_spacing='4px',disabled=disabled,width='500px',background='^.@razza_codice.colore')
-        fb.field('sigla',width='2em')
-        fb.field('nome',width='100%')
-        fb.field('razza_codice',width='100%')
-        fb.button('Genera valori',fire='call_generavalori')
+        fb = pane.formbuilder(cols=2, border_spacing='4px', disabled=disabled, width='500px', background='^.@razza_codice.colore')
+        fb.field('sigla', width='2em')
+        fb.field('nome', width='100%')
+        fb.field('razza_codice', width='100%')
+        fb.button('Genera valori', fire='call_generavalori')
         #rpc_caller
         fb.dataRpc('valori',"generaValori",_fired="^call_generavalori",razza='=.razza_codice')
-        fb.dataFormula(".ac", "x",x="^valori.ac")
-        fb.dataFormula(".ab", "x",x="^valori.ab")
-        fb.dataFormula(".forza", "valore",valore="^valori.f")
-        fb.dataFormula(".resistenza", "valore",valore="^valori.r")     
+        fb.dataFormula(".ac", "x", x="^valori.ac")
+        fb.dataFormula(".ab", "x", x="^valori.ab")
+        fb.dataFormula(".forza", "x", x="^valori.f")
+        fb.dataFormula(".resistenza", "x", x="^valori.r")
+       #fb.dataFormula(".agil", "x", x="^valori.???")
+       #fb.dataFormula(".int", "x", x="^valori.???")
+       #fb.dataFormula(".vol", "x", x="^valori.???")
+       #fb.dataFormula(".simp", "x", x="^valori.???")
+        
         #fine rpc_caller
         fb.br()
         fb.field('ac',width='2em',readOnly=True)
@@ -109,19 +114,19 @@ class GnrCustomWebPage(object):
         fb.horizontalSlider(value='^.bonus_forza',minimum='^.@razza_codice.bonus_forza',maximum=100,width='100%',
         discreteValues='==101-minimum',intermediateChanges=True)
 
-	fb.field('bonus_res',width='2em',readOnly=True)
+        fb.field('bonus_res',width='2em',readOnly=True)
         fb.horizontalSlider(value='^.bonus_res',minimum='^.@razza_codice.bonus_res',maximum=100,width='100%',
         discreteValues='==101-minimum',intermediateChanges=True)
 
-	fb.field('mov',width='2em',readOnly=True)
+        fb.field('mov',width='2em',readOnly=True)
         fb.horizontalSlider(value='^.mov',minimum='^.@razza_codice.mov',maximum=100,width='100%',
         discreteValues='==101-minimum',intermediateChanges=True)
-	
-	fb.field('magia',width='2em',readOnly=True)
+    
+        fb.field('magia',width='2em',readOnly=True)
         fb.horizontalSlider(value='^.magia',minimum='^.@razza_codice.magia',maximum=100,width='100%',
         discreteValues='==101-minimum',intermediateChanges=True)
 
-	fb.field('follia',width='2em',readOnly=True)
+        fb.field('follia',width='2em',readOnly=True)
         fb.horizontalSlider(value='^.follia',minimum='^.@razza_codice.follia',maximum=100,width='100%',
         discreteValues='==101-minimum',intermediateChanges=True)
 
@@ -134,5 +139,5 @@ class GnrCustomWebPage(object):
         record = tblrazza.record(pkey=razza).output('dict')
         risultato = Bag()
         for x in ('ac','ab','f','r'):
-            risultato[x] = record['%s_base' % x]+randint(1,10)+randint(1,10)+randint(1,10)
+            risultato[x] = record['%s_base' % x]+randint(1,10)+randint(1,10)
         return risultato
