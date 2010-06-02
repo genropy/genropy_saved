@@ -20,6 +20,8 @@
 #License along with this library; if not, write to the Free Software
 #Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 
+import re
+
 from gnr.core.gnrbag import Bag
 from gnr.core.gnrlist import GnrNamedList
 from gnr.core.gnrclasses import GnrClassCatalog
@@ -273,8 +275,9 @@ class SqlDbAdapter(object):
         sql_flds = []
         data_keys = []
         for k in record_data.keys():
-            sql_flds.append(tblobj.sqlnamemapper[k])
-            data_keys.append(':%s' % k)
+            if k in tblobj.sqlnamemapper: # skip aliasColumns
+                sql_flds.append(tblobj.sqlnamemapper[k])
+                data_keys.append(':%s' % k)
         sql = 'INSERT INTO %s(%s) VALUES (%s);' % (tblobj.sqlfullname, ','.join(sql_flds), ','.join(data_keys))
         return self.dbroot.execute(sql, record_data,dbtable=dbtable.fullname)
     
