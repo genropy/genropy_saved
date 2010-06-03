@@ -111,8 +111,9 @@ dojo.declare("gnr.GridEditor",null,{
         dojo.connect(widget, editOn[0], function(e){
             if(genro.wdg.filterEvent(e, modifier)){
                 if (grid.editorEnabled && _this.editableCell(e.cellIndex) && !grid.gnrediting){
-                    _this.startEdit(e.rowIndex,e.cellIndex);
                     dojo.stopEvent(e);
+                    _this.startEdit(e.rowIndex,e.cellIndex);
+                    
                 }
             }
         });

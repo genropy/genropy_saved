@@ -658,6 +658,10 @@ class HierarchicalViewHandler(BaseComponent):
                      selected_pkey='.current.pkey',
                      **selected)
     
+    def hv_main_view(self, bc):
+        self.hv_tree_view(bc.contentPane(region = 'left', overflow='auto',width='300px',splitter=True))
+        self.hv_right_view(bc.borderContainer(region = 'center'))
+        
     def hv_tree_view(self,pane):
         pane.dataRemote('.tree', 'hv_selectionAsTree', selectionName='^list.selectionName' ,_if='selectionName')
         pane.dataRecord('.current_record', self.maintable, pkey='^.selected_id')
@@ -670,11 +674,9 @@ class HierarchicalViewHandler(BaseComponent):
                      inspect ='shift',
                      labelAttribute ='caption',
                      fired ='^list.queryEnd')
-
-    def hv_main_view(self, bc):
-        bc.data('.conf', self.hierarchicalViewConf())
-        self.hv_tree_view(bc.contentPane(region = 'left', overflow='auto',width='60%',splitter=True))
-        infocontainer = bc.borderContainer(region = 'center')
+    
+    def hv_right_view(self, infocontainer):
+        infocontainer.data('.conf', self.hierarchicalViewConf())
         infopane_top= infocontainer.contentPane(region ='top', height='50%',
                                                 splitter=True,_class='infoGrid',padding ='6px')
         infopane_top.dataController(
@@ -705,17 +707,17 @@ class HierarchicalViewHandler(BaseComponent):
                                fired='^.current_record.id')
         infopane_top.includedView(storepath='.info_table', struct=self._infoGridStruct())
         infoStackContainer = infocontainer.stackContainer(region = 'center',
-                                                          selected='^.stack.selectedPage')
+                                                          selectedPage='^list.hv.stack.selectedPage')
         infoStackContainer.contentPane()
         callbacks = [(x.split('_')[1],x) for x in dir(self) if x.startswith('hv_info_')]
         infoStackContainer.data('.rec_types', ','.join([x[0] for x in callbacks]))
-        infoStackContainer.dataController("""rec_types = rec_types.split(',');
-                                             var n = dojo.indexOf(rec_types,rec_type);
-                                             if (n!=-1){SET list.hv.stack.selectedPage=n+1;};""",
-                                           rec_types = '=.rec_types',
-                                           rec_type = '^.current_rec_type')
+        infoStackContainer.dataController("""SET list.hv.stack.selectedPage='hv_info_'+rec_type;""",
+                                           rec_type = '^.current_rec_type', 
+                                           _if='rec_type')
         for cb in callbacks:
+            print cb
             getattr(self, cb[1])(infoStackContainer.contentPane(padding ='6px',
+                                                                pageName=cb[1],
                                                                 _class='pbl_roundedGroup',
                                                                 datapath='.current_record'))
     def rpc_hv_selectionAsTree(self,selectionName=None):

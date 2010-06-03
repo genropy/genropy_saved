@@ -444,7 +444,7 @@ class IncludedView(BaseComponent):
         assert not 'connect_onCellDblClick' in viewPars
         viewPars['connect_onCellDblClick'] = """var grid = this.widget;
                                                 var cell = grid.getCell($1.cellIndex);
-                                                if (!genro.nodeById(grid.editorId + '_' + cell.field)){
+                                                if (!(cell.field in grid.gridEditor.columns)){
                                                     FIRE .showRecord = true;
                                                 }
                                                 """ 
