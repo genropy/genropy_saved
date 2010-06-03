@@ -672,6 +672,7 @@ class HierarchicalViewHandler(BaseComponent):
                      selectedItem ='.selectedItem',
                      selected_rec_type = '.current_rec_type',
                      inspect ='shift',
+                     selectedLabelClass='selectedTreeNode',
                      labelAttribute ='caption',
                      fired ='^list.queryEnd')
     
