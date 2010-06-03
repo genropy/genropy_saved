@@ -24,7 +24,7 @@ class Table(object):
         tbl =  pkg.table('htmltemplate',  pkey='id',name_long='!!Html Template',
                       name_plural='!!Html Template')
         self.sysFields(tbl)
-        tbl.column('name',name_long='!!Name',validate_nodup=True,
+        tbl.column('name',name_long='!!Name',validate_nodup=True,unique=True,
                     validate_notnull=True,validate_notnull_error='!!Name is mandatory',
                     validate_nodup_error='!!This name is already taken')
         tbl.column('username',name_long='!!Username')
