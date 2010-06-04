@@ -14,13 +14,13 @@ class GnrCustomWebPage(object):
 ######################## STANDARD TABLE OVERRIDDEN METHODS ################ 
     def windowTitle(self):
         return '!!Scheda Personaggio'
-        
+
     def barTitle(self):
         return '!!Scheda Personaggio'
-    
+
 #    def columnsBase(self):
 #        return """sigla:4,nome:20,razza_codice/RC:3,@razza_codice.nome/Razza:10"""
-    
+
     def lstBase(self,struct):
         """!!Vista base"""
         r = struct.view().rows()
@@ -29,27 +29,27 @@ class GnrCustomWebPage(object):
         r.fieldcell('razza_codice',width='6em')
         r.fieldcell('@razza_codice.nome',width='10em')
         return struct
-    
+
     def printActionBase(self):
         return True
 
     def exportActionBase(self):
         return True
-  
+
     def orderBase(self):
         return 'nome'
-    
+
     def queryBase(self):
         return dict(column='nome',op='contains', val='')
 
     def userCanWrite(self):
         return True
-    
+
     def userCanDelete(self):
         return True
-        
-############################## FORM METHODS ##################################
 
+############################## FORM METHODS ##################################
+        
     def formBase(self, parentBC, disabled=False, **kwargs):
         pane = parentBC.contentPane(**kwargs)
         fb = pane.formbuilder(cols=2, border_spacing='4px', disabled=disabled, width='500px', background='^.@razza_codice.colore')
@@ -64,32 +64,40 @@ class GnrCustomWebPage(object):
         fb.dataFormula(".forza", "x", x="^valori.f")
         fb.dataFormula(".resistenza", "x", x="^valori.r")
         fb.dataFormula(".agilita", "x", x="^valori.ag")
-#        fb.dataFormula(".intelligenza", "x", x="^valori.int")
-#        fb.dataFormula(".volonta", "x", x="^valori.vol")
-#        fb.dataFormula(".simpatia", "x", x="^valori.simp")
-#        fb.dataFormula(".attacchi", "x", x="^valori.att")
-#        fb.dataFormula(".ferite", "x", x="^valori.fer")
-#        fb.dataFormula(".bonus_forza", "x", x="^valori.b_forza")
-#        fb.dataFormula(".bonus_res", "x", x="^valori.b_res")
-#        fb.dataFormula(".mov", "x", x="^valori.mov")
-#        fb.dataFormula(".magia", "x", x="^valori.magia")
-#        fb.dataFormula(".follia", "x", x="^valori.fol")
-#        fb.dataFormula(".fato", "x", x="^valori.pf_base")
-        
+        fb.dataFormula(".intelligenza", "x", x="^valori.int")
+        fb.dataFormula(".volonta", "x", x="^valori.vol")
+        fb.dataFormula(".simpatia", "x", x="^valori.simp")
         #fine rpc_caller
+        fb.dataController("""SET .ac = razza.getItem('ac_base');
+                             SET .ab = razza.getItem('ab_base');
+                             SET .forza = razza.getItem('f_base');
+                             SET .resistenza = razza.getItem('r_base');
+                             SET .agilita = razza.getItem('ag_base');
+                             SET .intelligenza = razza.getItem('int_base');
+                             SET .volonta = razza.getItem('vol_base');
+                             SET .simpatia = razza.getItem('simp_base');
+                             SET .attacchi = razza.getItem('att_base');
+                             SET .ferite = razza.getItem('fer_base');
+                             SET .bonus_forza = razza.getItem('b_forza_base');
+                             SET .bonus_res = razza.getItem('b_res_base');
+                             SET .mov = razza.getItem('mov_base');
+                             SET .magia = razza.getItem('magia_base');
+                             SET .follia = razza.getItem('fol_base');
+                             SET .fato = razza.getItem('pf_base');
+        """,_fired="^.razza_codice",razza='=.@razza_codice') # sintassi: SET .nome_tblColumn = nome_table.getItem('nome_di_una_colonna');
         fb.br()
         fb.field('ac',width='2em',readOnly=True)
         fb.horizontalSlider(value='^.ac',minimum='^.@razza_codice.ac_base',maximum=100,width='100%',
                             discreteValues='==101-minimum',intermediateChanges=True)
-                                                
+
         fb.field('ab',width='2em',readOnly=True)
         fb.horizontalSlider(value='^.ab',minimum='^.@razza_codice.ab_base',maximum=100,width='100%',
                             discreteValues='==101-minimum', intermediateChanges=True)
-                            
+
         fb.field('forza',width='2em',readOnly=True)
         fb.horizontalSlider(value='^.forza',minimum='^.@razza_codice.f_base',maximum=100,width='100%',
                             discreteValues='==101-minimum', intermediateChanges=True)
-        
+
         fb.field('resistenza',width='2em',readOnly=True)
         fb.horizontalSlider(value='^.resistenza',minimum='^.@razza_codice.r_base',maximum=100,width='100%',
                             discreteValues='==101-minimum', intermediateChanges=True)
@@ -129,7 +137,7 @@ class GnrCustomWebPage(object):
         fb.field('mov',width='2em',readOnly=True)
         fb.horizontalSlider(value='^.mov',minimum='^.@razza_codice.mov',maximum=100,width='100%',
         discreteValues='==101-minimum',intermediateChanges=True)
-    
+
         fb.field('magia',width='2em',readOnly=True)
         fb.horizontalSlider(value='^.magia',minimum='^.@razza_codice.magia',maximum=100,width='100%',
         discreteValues='==101-minimum',intermediateChanges=True)
@@ -146,6 +154,6 @@ class GnrCustomWebPage(object):
         tblrazza = self.db.table('warh.razza')
         record = tblrazza.record(pkey=razza).output('dict')
         risultato = Bag()
-        for x in ('ac','ab','f','r','ag'): # 'int','vol','simp','att','fer','b_forza','b_res','mov','magia','fol','pf_base'):
+        for x in ('ac','ab','f','r','ag','int','vol','simp'):
             risultato[x] = record['%s_base' % x]+randint(1,10)+randint(1,10)
         return risultato
