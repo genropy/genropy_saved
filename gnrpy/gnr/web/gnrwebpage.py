@@ -252,11 +252,14 @@ class GnrWebPage(GnrBaseWebPage):
         auth = AUTH_OK
         if not method in ('doLogin', 'jscompress'):
             auth = self._checkAuth(method=method, **parameters)
-        try:
+        if self.isDeveloper:
             result = self.rpc(method=method, _auth=auth, **parameters)
-        except GnrException, e:
-            self.rpc.error = str(e)
-            result = None
+        else:
+            try:
+                result = self.rpc(method=method, _auth=auth, **parameters)
+            except GnrException, e:
+                self.rpc.error = str(e)
+                result = None
         result_handler = getattr(self.rpc, 'result_%s' % mode.lower())
         return_result = result_handler(result)
         return return_result
