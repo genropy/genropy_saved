@@ -189,6 +189,8 @@ class IncludedView(BaseComponent):
                                           SET .flt.colsMenu = colsMenu;""", struct='^%s.view_0.row_0' % viewPars['structpath'])
         if parentLock:
             gridcenter.dataFormula(".editorEnabled", "!parentLock",parentLock=parentLock)
+        elif parentLock is False:
+            editorEnabled=True
         view = gridcenter.includedView(extension='includedViewPicker',table=table,
                                        editorEnabled=editorEnabled or '^.editorEnabled',
                                        reloader=reloader, **viewPars)
