@@ -2,8 +2,7 @@
 
 class Table(object):
     def config_db(self, pkg):
-        tbl =  pkg.table('personaggio',pkey='id',name_long='!!Personaggio',
-                      name_plural='!!Personaggi')
+        tbl =  pkg.table('personaggio',pkey='id',name_long='!!Personaggio',name_plural='!!Personaggi')
         self.sysFields(tbl) # aggiunge i campi ID, data inserimento, INS, MOD, DEL
         tbl.column('sigla',name_long='!!Sigla') # creo una casella; sintassi: tbl.column('nome_casella',name_long='nome visualizzato')
         tbl.column('nome',name_long='!!Nome')

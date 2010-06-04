@@ -63,10 +63,18 @@ class GnrCustomWebPage(object):
         fb.dataFormula(".ab", "x", x="^valori.ab")
         fb.dataFormula(".forza", "x", x="^valori.f")
         fb.dataFormula(".resistenza", "x", x="^valori.r")
-       #fb.dataFormula(".agil", "x", x="^valori.???")
-       #fb.dataFormula(".int", "x", x="^valori.???")
-       #fb.dataFormula(".vol", "x", x="^valori.???")
-       #fb.dataFormula(".simp", "x", x="^valori.???")
+        fb.dataFormula(".agilita", "x", x="^valori.ag")
+#        fb.dataFormula(".intelligenza", "x", x="^valori.int")
+#        fb.dataFormula(".volonta", "x", x="^valori.vol")
+#        fb.dataFormula(".simpatia", "x", x="^valori.simp")
+#        fb.dataFormula(".attacchi", "x", x="^valori.att")
+#        fb.dataFormula(".ferite", "x", x="^valori.fer")
+#        fb.dataFormula(".bonus_forza", "x", x="^valori.b_forza")
+#        fb.dataFormula(".bonus_res", "x", x="^valori.b_res")
+#        fb.dataFormula(".mov", "x", x="^valori.mov")
+#        fb.dataFormula(".magia", "x", x="^valori.magia")
+#        fb.dataFormula(".follia", "x", x="^valori.fol")
+#        fb.dataFormula(".fato", "x", x="^valori.pf_base")
         
         #fine rpc_caller
         fb.br()
@@ -138,6 +146,6 @@ class GnrCustomWebPage(object):
         tblrazza = self.db.table('warh.razza')
         record = tblrazza.record(pkey=razza).output('dict')
         risultato = Bag()
-        for x in ('ac','ab','f','r'):
+        for x in ('ac','ab','f','r','ag'): # 'int','vol','simp','att','fer','b_forza','b_res','mov','magia','fol','pf_base'):
             risultato[x] = record['%s_base' % x]+randint(1,10)+randint(1,10)
         return risultato
