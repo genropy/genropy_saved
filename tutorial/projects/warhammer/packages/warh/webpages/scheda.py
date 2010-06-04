@@ -156,4 +156,5 @@ class GnrCustomWebPage(object):
         risultato = Bag()
         for x in ('ac','ab','f','r','ag','int','vol','simp'):
             risultato[x] = record['%s_base' % x]+randint(1,10)+randint(1,10)
+        risultato['ferite'] = self.db.table('warh.ferite_iniziali').get_ferite(razza_codice=razza,tiro=randint(1,10))
         return risultato

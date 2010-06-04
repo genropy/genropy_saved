@@ -53,13 +53,20 @@ class GnrCustomWebPage(object):
         return 'nome'
 
     def formBaseDimension(self): 
-        return dict(height='350px',width='400px') # specifica la dimensione del dialog (=casella di inserimento dati)
+        return dict(height='350px',width='600px') # specifica la dimensione del dialog (=casella di inserimento dati)
 
 ############################## FORM METHODS #################################
 
-    def formBase(self, parentBC,disabled=False, **kwargs):
-        pane = parentBC.contentPane(**kwargs)
-        fb = pane.formbuilder(cols=2, border_spacing='4px',disabled=disabled,width='290px')
+    def formBase(self, parentBC, disabled=False, **kwargs):
+        bc = parentBC.borderContainer(**kwargs)
+        # pane = parentBC.div('ciao')
+        pane = bc.contentPane(region='left',width='50%')
+        center = bc.contentPane(region='center')
+        self.form_razza(pane)
+        self.griglia_ferite(center)
+        
+    def form_razza(self,pane):
+        fb = pane.formbuilder(cols=2, border_spacing='4px',disabled=False,width='290px')
         fb.field('codice',width='100%')
         fb.field('nome',width='100%')
         fb.field('descrizione',width='100%')
@@ -80,3 +87,26 @@ class GnrCustomWebPage(object):
         fb.field('magia_base',width='100%')
         fb.field('fol_base',width='100%')
         fb.field('pf_base',width='100%')
+    # vogliamo collegare ad una Bag lato Client
+    # 1. selezione --> selection pars 2. griglia con Bag 3. griglia collegata ad un path chiocciolinato 
+    def griglia_ferite(self,bc):
+        iv = self.includedViewBox(bc,label='!!Ferite', 
+                                  add_action=True,del_action=True,
+                                  nodeId='FeriteTypeGrid',
+                                  storepath='.fer_base',
+                                  struct=self.ferite_struct(),
+                                  #table='warh.razza',
+                                  columns="")
+        # datapath.a --> lo usi se usi selection handler
+        # storepath  --> 
+        gridEditor = iv.gridEditor()              
+        gridEditor.textBox(gridcell='tiro')
+        gridEditor.Textbox(gridcell='valore')
+        
+    def ferite_struct(self):
+        struct = self.newGridStruct()
+        r = struct.view().rows()
+        r.cell('tiro', name='Code', width='5em')
+        r.cell('valore', name='Date', width='8em')
+        return struct 
+        

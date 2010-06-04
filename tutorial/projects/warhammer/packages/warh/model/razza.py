@@ -18,7 +18,7 @@ class Table(object):
         tbl.column('vol_base','L',default=0,name_long='!!Volonta')
         tbl.column('simp_base','L',default=0,name_long='!!Simpatia')
         tbl.column('att_base','L',default=0,name_long='!!Attacchi')
-        tbl.column('fer_base','L',default=0,name_long='!!Ferite')
+        tbl.column('fer_base','L',name_long='!!Ferite')
         tbl.column('b_forza_base','L',default=0,name_long='!!Bonus Forza')
         tbl.column('b_res_base','L',default=0,name_long='!!Bonus Resistenza')
         tbl.column('mov_base','L',default=0,name_long='!!Movimento')
