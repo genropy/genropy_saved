@@ -1,3 +1,7 @@
+.tpl_nocontent .tpl_content{
+    visibility:hidden;
+}
+
 *:focus { outline:none }
 
 .gnrdebugger{
