@@ -658,7 +658,7 @@ dojo.declare("gnr.widgets.baseDojo",gnr.widgets.baseHtml,{
             return;
         }
         var path = sourceNode.attrDatapath('value');
-        var datanode=genro._data.getNode(path);
+        var datanode=genro._data.getNode(path) || new gnr.GnrBagNode();
         if (datanode.getValue()===value){
             return;
         }
