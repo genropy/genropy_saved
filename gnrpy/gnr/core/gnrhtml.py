@@ -185,6 +185,7 @@ class GnrHtmlBuilder(object):
                               
     def __init__(self,page_height=None,page_width=None,page_margin_top=None,
                     page_margin_left=None,page_margin_right=None,page_margin_bottom=None,
+                    showTemplateContent = None,
                     htmlTemplate=None,page_debug=False,srcfactory=None,
                     print_button=None,bodyAttributes=None):
         self.srcfactory=srcfactory or GnrHtmlSrc
@@ -197,6 +198,7 @@ class GnrHtmlBuilder(object):
         self.page_margin_bottom = page_margin_bottom or self.htmlTemplate['main.page.bottom'] or 0
         self.page_debug = page_debug 
         self.print_button = print_button
+        self.showTemplateContent = showTemplateContent
         
     def initializeSrc(self, **bodyAttributes):
         bodyAttributes=bodyAttributes or {}
@@ -240,7 +242,11 @@ class GnrHtmlBuilder(object):
                         if subregion=='center' or width:
                             innerHTML = self.htmlTemplate['layout.%s.%s.html' %(region,subregion)] or None
                             if innerHTML:
-                                innerHTML = "%s::HTML" %innerHTML
+                                if self.showTemplateContent:
+                                    print 'aaa'
+                                    innerHTML = "%s::HTML" %innerHTML
+                                else:
+                                    innerHTML = ''
                             regions['%s_%s' %(region,subregion)] = row.cell(content=innerHTML,width=width,border=0)
         elif self.htmlTemplate['main.design'] == 'sidebar':
             mainrow = layout.row(height=0)

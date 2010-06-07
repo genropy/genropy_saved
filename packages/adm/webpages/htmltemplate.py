@@ -110,7 +110,7 @@ class GnrCustomWebPage(object):
                           )
         regions=dict(headline=('top','bottom','center'),sidebar=('left','right','center'))
         for region in regions[design]:
-            self._subRegions(bc,region=region,design=design)
+            self._subRegions(bc,region=region,design=design,)
 
     def _subRegions(self,parentBc,region=None,design=None):
         subregions=dict(sidebar=('top','bottom','center'),headline=('left','right','center'))
@@ -119,7 +119,7 @@ class GnrCustomWebPage(object):
                             regions='^.regions')
         for subregion in subregions[design]:
             bc.contentPane(region=subregion,_class='printRegion',splitter=(subregion!='center'),
-                            datapath='form.record.data.layout.%s.%s'%(region,subregion)).div(innerHTML='^.html' )
+                            datapath='form.record.data.layout.%s.%s'%(region,subregion)).div(innerHTML='^.html')
 
     def controllers(self,pane):
         for part in ('height','width','top','bottom','left','right'):

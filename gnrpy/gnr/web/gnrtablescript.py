@@ -120,12 +120,14 @@ class RecordToHtmlNew(TableScriptOnRecord):
         self.stopped = False
 
     def __call__(self, record=None, filepath=None,
-                       rebuild=False, dontSave=False, pdf=False, runKwargs=None,**kwargs):
+                 rebuild=False, dontSave=False, pdf=False, runKwargs=None,
+                 showTemplateContent=None,**kwargs):
         """This method returns the html corresponding to a given record.
            the html can be loaded from a cached document or created if still doesn't exist.
         """
         if not record:
             return False
+        self.showTemplateContent = showTemplateContent or True
         loadResult=self.loadRecord(record, **kwargs)
         if loadResult==False:
             return False
@@ -146,7 +148,8 @@ class RecordToHtmlNew(TableScriptOnRecord):
         self.builder = GnrHtmlBuilder(page_width=self.page_width,page_height=self.page_height,
                                   page_margin_top=self.page_margin_top,page_margin_bottom=self.page_margin_bottom,
                                   page_margin_left=self.page_margin_left,page_margin_right=self.page_margin_right,
-                                  page_debug=self.page_debug,print_button=self.print_button,htmlTemplate=self.htmlTemplate)
+                                  page_debug=self.page_debug,print_button=self.print_button,htmlTemplate=self.htmlTemplate,
+                                  showTemplateContent=self.showTemplateContent)
         #if not (dontSave or pdf):
         self.filepath=filepath or os.path.join(self.hmtlFolderPath(),self.outputDocName(ext='html'))
         #else:
@@ -486,6 +489,7 @@ class RecordToHtml(TableScriptOnRecord):
     page_margin_right = 0
     page_margin_bottom = 0
     htmlTemplate = None
+
         
     def init(self,**kwargs):
         self.maintable=self.maintable or self.resource_table
