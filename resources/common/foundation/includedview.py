@@ -339,7 +339,8 @@ class IncludedView(BaseComponent):
                                      #loadingParameters=loadingParameters)
         delScript = """PUT .selectedLabel= null;
                        var grid = genro.wdgById(gridId);
-                       var nodesToDel = grid.delBagRow('*', delSelection);"""
+                       var nodesToDel = grid.delBagRow('*', delSelection);
+                       FIRE .onDeletedRow;"""
                        
         controller.dataController(delScript, _fired='^.delRecord', delSelection='^.delSelection',
                                 idx='=.selectedIndex', gridId=gridId)
