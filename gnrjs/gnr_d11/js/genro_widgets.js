@@ -108,12 +108,14 @@ dojo.declare("gnr.GridEditor",null,{
         var modifier = editOn[1];
         var _this = this;
         
-        dojo.connect(widget, editOn[0], function(e){
+        dojo.connect(widget, editOn[0], function(e){            
             if(genro.wdg.filterEvent(e, modifier)){
                 if (grid.editorEnabled && _this.editableCell(e.cellIndex) && !grid.gnrediting){
                     dojo.stopEvent(e);
-                    _this.startEdit(e.rowIndex,e.cellIndex);
-                    
+                    if (_this.grid._delayedEditing){
+                        clearTimeout(_this.grid._delayedEditing);
+                    }
+                    _this.grid._delayedEditing=setTimeout(function(){_this.startEdit(e.rowIndex,e.cellIndex);},1);                    
                 }
             }
         });
@@ -139,7 +141,7 @@ dojo.declare("gnr.GridEditor",null,{
         var fldDict = this.columns[colname];
         var gridcell = fldDict.attr.gridcell;
         var rowDataNode = grid.dataNodeByIndex(row);
-        var datachanged=false
+        var datachanged=false;
         if (rowDataNode && rowDataNode._resolver && rowDataNode._resolver.expired()) {
             datachanged=true; 
         }
@@ -658,7 +660,7 @@ dojo.declare("gnr.widgets.baseDojo",gnr.widgets.baseHtml,{
             return;
         }
         var path = sourceNode.attrDatapath('value');
-        var datanode=genro._data.getNode(path) || new gnr.GnrBagNode();
+        var datanode=genro._data.getNode(path,null,true); //7/06/2006
         if (datanode.getValue()===value){
             return;
         }
@@ -2828,9 +2830,9 @@ dojo.declare("gnr.widgets.VirtualStaticGrid",gnr.widgets.Grid,{
         if(rc){
             if (delay){
                 if (this._delayedEditing){
-                    clearTimeout(this._delayedEditing)
+                    clearTimeout(this._delayedEditing);
                 }
-                this._delayedEditing=setTimeout(function(){grid.gridEditor.startEdit(rc.row,rc.col)},delay)
+                this._delayedEditing=setTimeout(function(){grid.gridEditor.startEdit(rc.row,rc.col);},delay);
             }else
             {
                 this.gridEditor.startEdit(rc.row,rc.col);
