@@ -287,7 +287,11 @@ class GnrApp(object):
                 attrs['path'] = self.realPath(attrs['path'])
             apppkg = GnrPackage(pkgid, self, **attrs)
             if apppkg.pkgMenu and (not pkgMenues or pkgid in pkgMenues):
-                self.config['menu.%s' %pkgid] = apppkg.pkgMenu
+                #self.config['menu.%s' %pkgid] = apppkg.pkgMenu
+                if len(apppkg.pkgMenu)==1:
+                    self.config['menu.%s' %pkgid]=apppkg.pkgMenu.getNode('#0')
+                else:
+                    self.config.setItem('menu.%s' %pkgid,apppkg.pkgMenu, {'label':apppkg.config_attributes().get('name_long',pkgid)})
             self.packagesIdByPath[os.path.realpath(apppkg.packageFolder)] = pkgid
             self.packages[pkgid] = apppkg
             self.db.packageMixin('%s' % (pkgid), apppkg.pkgMixin)
