@@ -37,10 +37,10 @@ class TableHandlerLight(BaseComponent):
         return self.application.checkResourcePermission(self.tableDeleteTags(), self.userTags)
 
     def tableWriteTags(self):
-         return 'superadmin'
+        return 'superadmin'
 
     def tableDeleteTags(self):
-         return 'superadmin'
+        return 'superadmin'
 
     def rpc_onLoadingSelection(self,selection):
         """ovverride if you need"""
@@ -77,6 +77,10 @@ class TableHandlerLight(BaseComponent):
         return dict(height='400px',width='600px')
 
     def filterOnBase(self,struct):
+        try: 
+            default_field = self.queryBase().get('column',None) # default to the standard_table's queryBase()
+        except KeyError:
+            default_field = None
         filterOn = []
         for k,cell in enumerate(struct['#0']['#0']):
             if cell.attr['dtype']=='A' or cell.attr['dtype']=='T':
@@ -85,7 +89,11 @@ class TableHandlerLight(BaseComponent):
                 if k>0:
                     if name.startswith('!!'):
                         name = name[2:]
-                filterOn.append('%s:%s' %(name,field))
+                filter_ = '%s:%s' % (name,field)
+                if field == default_field:
+                    filterOn.insert(0,filter_)
+                else:
+                    filterOn.append(filter_)
         return ','.join(filterOn)
 
     def printActionBase(self):
@@ -96,7 +104,7 @@ class TableHandlerLight(BaseComponent):
 
     def gridLabel(self):
         return None
-    
+
     def defaultsBase(self):
         return dict()
 
@@ -107,35 +115,35 @@ class TableHandlerLight(BaseComponent):
             condPars=condition[1] or {}
             condition=condition[0]
         bc,top,bottom = self.pbl_rootBorderContainer(root,title=self.tblobj.attributes.get('name_plural','Records'),
-                                                    id='mainBC_center')
+                                                     id='mainBC_center')
         bc.dataController("FIRE #maingrid.reload;",_onStart=True)
         dimension = self.formBaseDimension()
         struct = self.lstBase(self.newGridStruct())
         filterOn = self.filterOnBase(struct)
         defaults = self.defaultsBase()
         self.selectionHandler(bc,label=self.gridLabel(),datapath="list",
-                               nodeId='maingrid',table=self.maintable,
-                               print_action=self.printActionBase(),
-                               export_action=self.exportActionBase(),
-                               box_class='tablehandler_light_body',
-                               struct=struct,selectionPars=dict(where=condition,order_by=self.orderBase(),**condPars),
-                               dialogPars=dict(height=dimension['height'],width=dimension['width'],
-                                               toolbarPars=dict(lock_action=True,add_action=self.userCanWrite(),
-                                                                del_action=self.userCanDelete(),save_action=self.userCanWrite()),
-                                               record_datapath='form.record',title='^form.title',formCb=self.formBase,
-                                               dlgPars=dict(centerOn="mainBC_center"),**defaults),lock_action=True,
-                                checkMainRecord=False,hasToolbar=True,filterOn=filterOn)
+                              nodeId='maingrid',table=self.maintable,
+                              print_action=self.printActionBase(),
+                              export_action=self.exportActionBase(),
+                              box_class='tablehandler_light_body',
+                              struct=struct,selectionPars=dict(where=condition,order_by=self.orderBase(),**condPars),
+                              dialogPars=dict(height=dimension['height'],width=dimension['width'],
+                                              toolbarPars=dict(lock_action=True,add_action=self.userCanWrite(),
+                                                               del_action=self.userCanDelete(),save_action=self.userCanWrite()),
+                                              record_datapath='form.record',title='^form.title',formCb=self.formBase,
+                                              dlgPars=dict(centerOn="mainBC_center"),**defaults),lock_action=True,
+                              checkMainRecord=False,hasToolbar=True,filterOn=filterOn)
         controller = bc.dataController(datapath="selection")
         controller.data('usr.writePermission',self.userCanWrite())
         controller.data('usr.deletePermission',self.userCanDelete())
         controller.data('usr.unlockPermission',self.userCanDelete() or self.userCanWrite())
         controller.dataFormula('status.locked',True,_onStart=True)
         controller.dataFormula('form.canWrite','(!locked ) && writePermission',
-                        locked='^status.locked',writePermission='=usr.writePermission')
+                               locked='^status.locked',writePermission='=usr.writePermission')
         controller.dataFormula('form.canDelete','(!locked) && deletePermission',
-                        locked='^status.locked',deletePermission='=usr.deletePermission')
-        
-                            
+                               locked='^status.locked',deletePermission='=usr.deletePermission')
+
+
     def listBottomPane(self,bc,**kwargs):
         """
         CALLBACK of standardTable
