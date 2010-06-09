@@ -57,7 +57,7 @@ class GnrCustomWebPage(object):
         fb.field('nome', width='100%')
         fb.field('razza_codice', width='100%')
         fb.button('Genera valori', fire='call_generavalori')
-        #rpc_caller
+     #inizio rpc_caller
         fb.dataRpc('valori',"generaValori",_fired="^call_generavalori",razza='=.razza_codice')
         fb.dataFormula(".ac", "x", x="^valori.ac")
         fb.dataFormula(".ab", "x", x="^valori.ab")
@@ -67,7 +67,9 @@ class GnrCustomWebPage(object):
         fb.dataFormula(".intelligenza", "x", x="^valori.int")
         fb.dataFormula(".volonta", "x", x="^valori.vol")
         fb.dataFormula(".simpatia", "x", x="^valori.simp")
-        #fine rpc_caller
+        fb.dataFormula(".ferite", "x", x="^valori.fer_base")
+        # un'alternativa alla dataFormula --> fb.dataController("""SET .simpatia = x""", x = "^valori.simp")
+     #fine rpc_caller
         fb.dataController("""SET .ac = razza.getItem('ac_base');
                              SET .ab = razza.getItem('ab_base');
                              SET .forza = razza.getItem('f_base');
@@ -77,7 +79,6 @@ class GnrCustomWebPage(object):
                              SET .volonta = razza.getItem('vol_base');
                              SET .simpatia = razza.getItem('simp_base');
                              SET .attacchi = razza.getItem('att_base');
-                             SET .ferite = razza.getItem('fer_base');
                              SET .bonus_forza = razza.getItem('b_forza_base');
                              SET .bonus_res = razza.getItem('b_res_base');
                              SET .mov = razza.getItem('mov_base');
@@ -156,5 +157,11 @@ class GnrCustomWebPage(object):
         risultato = Bag()
         for x in ('ac','ab','f','r','ag','int','vol','simp'):
             risultato[x] = record['%s_base' % x]+randint(1,10)+randint(1,10)
-        risultato['ferite'] = self.db.table('warh.ferite_iniziali').get_ferite(razza_codice=razza,tiro=randint(1,10))
+        tiro_ferite = randint(1,10)
+        griglia_ferite = record['fer_base']
+        for riga in griglia_ferite.values():
+            if tiro_ferite > riga['da'] and tiro_ferite < riga['a']:
+                risultato['fer_base'] = riga['valore']
+        
+            
         return risultato

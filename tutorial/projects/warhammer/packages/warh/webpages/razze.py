@@ -24,24 +24,26 @@ class GnrCustomWebPage(object):
         r = struct.view().rows()
         r.cell('codice', dtype='T', name='!!Codice', width='4em') # specifico una riga
         r.fieldcell('nome', width='12em') # specifico una riga ma senza dover richiamare il name (cioè la parte visualizzata dell'attributo)
-        r.fieldcell('descrizione', width='6em')
+        r.fieldcell('descrizione', width='7em')
         r.fieldcell('ac_base',width='3em')
         r.fieldcell('ab_base',width='3em')
         r.fieldcell('f_base',width='3em')
         r.fieldcell('r_base',width='5em')
         r.fieldcell('ag_base',width='4em')
-        r.fieldcell('int_base',width='5em')
+        r.fieldcell('int_base',width='6em')
         r.fieldcell('vol_base',width='4em')
-        r.fieldcell('simp_base',width='4em')
-        r.fieldcell('att_base',width='4em')
-        r.fieldcell('fer_base',width='4em')
+        r.fieldcell('simp_base',width='5em')
+        r.fieldcell('att_base',width='5em')
         r.fieldcell('b_forza_base',width='4em')
-        r.fieldcell('b_res_base',width='5em')
-        r.fieldcell('mov_base',width='5em')
+        r.fieldcell('b_res_base',width='6em')
+        r.fieldcell('mov_base',width='6em')
         r.fieldcell('magia_base',width='4em')
         r.fieldcell('fol_base',width='4em')
         r.fieldcell('pf_base',width='5em')
         return struct
+
+    def tableWriteTags(self):
+        return None
     
     def printActionBase(self):
         return True
@@ -60,13 +62,13 @@ class GnrCustomWebPage(object):
     def formBase(self, parentBC, disabled=False, **kwargs):
         bc = parentBC.borderContainer(**kwargs)
         # pane = parentBC.div('ciao')
-        pane = bc.contentPane(region='left',width='50%')
-        center = bc.contentPane(region='center')
+        pane = bc.contentPane(region='left',width='60%')
+        center = bc.borderContainer(region='center') # Attenzione! L'includedViewBox e i suoi derivati (es. selectionHandler) accettano solo BorderContainer, non accettano i contentPane; nei contentPane NON posso mettere altri contenitori, posso mettere solo oggetti
         self.form_razza(pane)
         self.griglia_ferite(center)
         
     def form_razza(self,pane):
-        fb = pane.formbuilder(cols=2, border_spacing='4px',disabled=False,width='290px')
+        fb = pane.formbuilder(cols=2, border_spacing='4px',disabled=False,width='300px')
         fb.field('codice',width='100%')
         fb.field('nome',width='100%')
         fb.field('descrizione',width='100%')
@@ -80,33 +82,32 @@ class GnrCustomWebPage(object):
         fb.field('vol_base',width='100%')
         fb.field('simp_base',width='100%')
         fb.field('att_base',width='100%')
-        fb.field('fer_base',width='100%')
         fb.field('b_forza_base',width='100%')
         fb.field('b_res_base',width='100%')
         fb.field('mov_base',width='100%')
         fb.field('magia_base',width='100%')
         fb.field('fol_base',width='100%')
         fb.field('pf_base',width='100%')
-    # vogliamo collegare ad una Bag lato Client
-    # 1. selezione --> selection pars 2. griglia con Bag 3. griglia collegata ad un path chiocciolinato 
+
     def griglia_ferite(self,bc):
         iv = self.includedViewBox(bc,label='!!Ferite', 
-                                  add_action=True,del_action=True,
-                                  nodeId='FeriteTypeGrid',
-                                  storepath='.fer_base',
-                                  struct=self.ferite_struct(),
-                                  #table='warh.razza',
-                                  columns="")
+                                  add_action=True, # tasto "+"
+                                  del_action=True, # tasto "-"
+                                  nodeId='FeriteGrid',
+				  editorEnabled=True,
+                                  storepath='.fer_base', # dove legge e scrive i dati
+                                  struct=self.ferite_struct, # in "struct" passo il metodo che mi dirà come sono fatte le colonne della griglia
+                                  datamode='bag') 
         # datapath.a --> lo usi se usi selection handler
         # storepath  --> 
         gridEditor = iv.gridEditor()              
-        gridEditor.textBox(gridcell='tiro')
-        gridEditor.Textbox(gridcell='valore')
+        gridEditor.textBox(gridcell='da')
+        gridEditor.textBox(gridcell='a')
+        gridEditor.numberTextbox(gridcell='valore')
         
-    def ferite_struct(self):
-        struct = self.newGridStruct()
+    def ferite_struct(self, struct):
         r = struct.view().rows()
-        r.cell('tiro', name='Code', width='5em')
-        r.cell('valore', name='Date', width='8em')
-        return struct 
-        
+        r.cell('da', name='Tiro da', width='3em')
+        r.cell('a', name='Tiro a', width='3em')
+        r.cell('valore', name='Valore', dtype='L', width='7em')
+
