@@ -127,7 +127,11 @@ dojo.declare("gnr.GridEditor",null,{
     },
 
     invalidCell:function(cell,row){
-        var rowData =  this.grid.dataNodeByIndex(row).getValue('static');
+        var rowNode = this.grid.dataNodeByIndex(row);
+        if (!rowNode){
+            console.log('missing rowNode');
+        }
+        var rowData =  rowNode.getValue('static');
         if (rowData) {
              var datanode =  rowData.getNode(cell.field);
              return datanode?datanode.attr._validationError:false;  

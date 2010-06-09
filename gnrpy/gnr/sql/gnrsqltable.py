@@ -706,14 +706,16 @@ class SqlTable(GnrObject):
     def check_updatable(self,record):
         try :
             self.protect_update(record)
+            return True
         except EXCEPTIONS['protect_update'],e:
-            return str(e)
+            return False
 
     def check_deletable(self,record):
         try :
             self.protect_delete(record)
+            return True
         except EXCEPTIONS['protect_delete'],e:
-            return str(e)
+            return False
         
     def columnsFromString(self, columns):
         result = []
