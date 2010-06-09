@@ -72,7 +72,10 @@ class TableHandlerLight(BaseComponent):
         r=struct.view().rows()
         r.fields(self.columnsBase())
         return struct
-
+    
+    def queryBase(self):
+        return dict()
+    
     def formBaseDimension(self):
         return dict(height='400px',width='600px')
 
