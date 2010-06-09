@@ -57,7 +57,7 @@ class GnrCustomWebPage(object):
         fb.TextBox(lbl="Name up",value='^.nameup', validate_case='upper')
         fb.TextBox(lbl="Name low",value='^.namelow', validate_case='lower')
         fb.TextBox(lbl="Name case",value='^.namecap', validate_case='^.case')
-        fb.TextBox(lbl="Name 4",value='^.name4', validate_len='^.len', validate_len_max='too much long!', validate_len_min='Short !')
+        fb.TextBox(lbl="Name 4",value='^.name4', validate_len='^.len', validate_len_max='much too long!', validate_len_min='too short !')
         
         fb.checkbox(lbl="notnull",value='^.notnull') 
         fb.TextBox(lbl="Name notrim notnull",value='^.namenotrim', trim=False, 
@@ -69,8 +69,8 @@ class GnrCustomWebPage(object):
         fb.TextBox(lbl="contains abc", value='^.nameregex', colspan=2, 
                         validate_regex='abc', 
                         validate_regex_iswarning='^.iswarning', 
-                        validate_regex_error='DEVE contenere "abc"',
-                        validate_regex_warning='dovrebbe contenere "abc"')
+                        validate_regex_error='MUST contain "abc"',
+                        validate_regex_warning='SHOULD contain "abc"')
         fb.span('Validation using Callback and Remote function',colspan=2, color='== _email ? "red" : "green"', _email='^.email')
         
         fb.NumberTextBox(lbl="Min",value='^.min') 
@@ -89,7 +89,7 @@ class GnrCustomWebPage(object):
                     
         fb.TextBox(lbl="remote Name up", value='^.nameremote', 
                     validate_remote="nameremote", validate_name='^.name', 
-                    validate_remote_error='valore inserito diverso dal campo nome')
+                    validate_remote_error='different from the name field value entered')
     
     def rpc_nameremote(self, value=None, name=None, **kwargs):
         if not value:

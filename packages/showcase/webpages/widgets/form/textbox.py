@@ -22,7 +22,7 @@ class GnrCustomWebPage(object):
                                                         var pos = dojo.indexOf(form.elements,$1.target)
                                                         form.elements[pos+1].focus();
                                                     }""")
-        root.dataController("console.log('carico il record '+code)",code="^code")
+        root.dataController("console.log('load record '+code)",code="^code")
         fb.numberTextBox(value='^.r0.age',lbl='age')
         fb.dateTextBox(value='^.r0.birthday',lbl='Birthday')        
         fb.dateTextBox(value='^.r0.date',lbl='date')
