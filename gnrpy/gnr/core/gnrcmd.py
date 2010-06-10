@@ -22,6 +22,8 @@ Coming soon:
 
 """
 
+from __future__ import with_statement
+
 import math
 import sys
 from os import environ, getcwd, listdir
@@ -36,7 +38,6 @@ from gnr.core.gnrbag import Bag
 
 log = logging.getLogger('gnrcmd')
 
-#----------------------------------------------------------------------
 def expandpath(path, full=False):
     """Expand user home directory (~) and envioronment variables."""
     result = expanduser(expandvars(path))
@@ -69,7 +70,6 @@ class AutoDiscovery(object):
     
     """
 
-    #----------------------------------------------------------------------
     def __init__(self, config_file='~/.gnr/environment.xml'):
         """Constructor"""
         self.current_project = None
@@ -93,7 +93,6 @@ class AutoDiscovery(object):
         self.load_configuration()
         self.auto_discovery()
     
-    #----------------------------------------------------------------------
     def report(self, all=False):
         """Print a summary of what AutoDiscovery found."""
         print "Current Project:", repr(self.current_project)
@@ -110,7 +109,6 @@ class AutoDiscovery(object):
                 print "  ", repr(i)
         
         
-    #----------------------------------------------------------------------
     def load_configuration(self):
         """Load GenroPy configuration"""
         cfg = Bag(expanduser(self.config_file))
@@ -139,10 +137,10 @@ class AutoDiscovery(object):
                 self.all_commands.update(p.commands())
         
         for name, path in get_section('instances'):
-            self.all_instances.update(Instance.all(path))
+            self.all_instances.update(AutoDiscovery.Instance.all(path))
         
         for name, path in get_section('sites'):
-            self.all_sites.update(Site.all(path))
+            self.all_sites.update(AutoDiscovery.Site.all(path))
         
         for name, path in get_section('commands'):
             self.all_commands.update(AutoDiscovery.Command.all(path))
@@ -151,7 +149,6 @@ class AutoDiscovery(object):
             self.all_packages.update(AutoDiscovery.Package.all(path))
             
     
-    #----------------------------------------------------------------------
     def auto_discovery(self):
         """Guess current project, package, instance and site."""
         self.current_project = self.guess_current('PROJECT',self.all_projects)
@@ -164,7 +161,6 @@ class AutoDiscovery(object):
         self.current_package = self.guess_current('PACKAGE', self.all_packages, self.project_packages)
         self.current_site = self.guess_current('SITE', self.all_sites, self.project_sites)
     
-    #----------------------------------------------------------------------
     def guess_current(self, name, all_items, project_items=None):
         """Guess the current PROJECT/INSTANCE/PACKAGE/SITE"""
         current_name = environ.get(name, None)
@@ -266,12 +262,10 @@ class GnrCommand(object):
     NOT YET COMPLETE. DO NOT USE.
     """
 
-    #----------------------------------------------------------------------
     def __init__(self, auto_discovery=None):
         """Constructor"""
         self.auto_discovery = auto_discovery or AutoDiscovery()
     
-    #----------------------------------------------------------------------
     def main(self):
         """main entry point."""
         raise NotImplementedError, "Subclasses should override main()."            
@@ -280,9 +274,17 @@ class GnrCommand(object):
 class ProgressBar(object):
     """Provides a text-based progress bar.
     
-    See test_ProgressBar() for an example."""
+    Sample usage:
+    
+    import time
+    with ProgressBar('ProgressBar test') as pg:
+        for n in xrange(333):
+            time.sleep(0.01)
+            pg.update(n/3.33)
+            if n > 233:
+                raise Exception, "Something bad happened."
+    """
 
-    #----------------------------------------------------------------------
     def __init__(self, label, label_width=20, bar_width=40,
                  min_value=0, max_value=100, fd=sys.stdout, progress_label=''):
         """Constructor"""
@@ -297,8 +299,6 @@ class ProgressBar(object):
         print >> self.fd, self.label, "...",
         self.update(self.min_value)
 
-    #----------------------------------------------------------------------
-    
     def __enter__(self):
         return self
     
@@ -309,7 +309,6 @@ class ProgressBar(object):
         else:
             print >> self.fd, "ERROR (%s%s)" % (self.progress_label, str(self.progress_value))
         
-    #----------------------------------------------------------------------
     def update(self, value, progress_value=None):
         """Draws the progress bar.
 
