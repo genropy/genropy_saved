@@ -30,7 +30,7 @@ class RecordToHtmlFrame(BaseComponent):
     def recordToHtmlFrame(self, bc, frameId='', table='', delay=None,
                           respath=None, pkeyPath='',background_color='white',
                           enableConditionPath='',condition_function=None, condition_value='',
-                          docNamePath='',runKwargsPath=None, customToolbarCb=None,rebuild=True,**kwargs):
+                          docNamePath='',runKwargsPath=None, customToolbarCb=None,rebuild=True, reloadOnPath=None, **kwargs):
         
         table = table or self.maintable
         frameId = frameId or self.getUuid()
@@ -87,7 +87,9 @@ class RecordToHtmlFrame(BaseComponent):
         if enableConditionPath:
             enableCondition = '=%s' % enableConditionPath
             center.dataController("FIRE %s.load;" %controllerPath, _fired='^%s' % enableConditionPath)
-        center.dataController("console.log('ricarico iframe');FIRE %s.load;" % controllerPath, _fired='^%s' % pkeyPath)
+        center.dataController("console.log('ricarico iframe');FIRE %s.load;" % controllerPath,
+                               _fired='^%s' % pkeyPath,
+                               _aux_fired='^%s' % reloadOnPath or pkeyPath)
         frame = iframePane.iframe(nodeId=frameId,
                               border='0px',
                               height='100%',
