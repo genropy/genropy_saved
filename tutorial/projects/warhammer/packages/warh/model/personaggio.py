@@ -7,7 +7,7 @@ class Table(object):
         tbl.column('sigla',name_long='!!Sigla') # creo una casella; sintassi: tbl.column('nome_casella',name_long='nome visualizzato')
         tbl.column('nome',name_long='!!Nome')
         tbl.column('razza_codice',size=':2',name_long='!!Razza').relation('warh.razza.codice',mode='foreignkey')
-                                                               #.relation('nome_del_packages.nome_della_table.nome_di_una_tblColumn)
+                                                            #.relation('nome_del_packages.nome_della_table.nome_di_una_tblColumn)
         tbl.column('ac','L',name_long='!!AC')
         tbl.column('ab','L',name_long='!!AB')
         tbl.column('forza','L',name_long='!!Forza')
