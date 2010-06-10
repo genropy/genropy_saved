@@ -30,7 +30,8 @@ class RecordToHtmlFrame(BaseComponent):
     def recordToHtmlFrame(self, bc, frameId='', table='', delay=None,
                           respath=None, pkeyPath='',background_color='white',
                           enableConditionPath='',condition_function=None, condition_value='',
-                          docNamePath='',runKwargsPath=None, customToolbarCb=None,rebuild=True, reloadOnPath=None, **kwargs):
+                          docNamePath='',runKwargsPath=None, customToolbarCb=None,rebuild=True,
+                          reloadOnPath=None, **kwargs):
         
         table = table or self.maintable
         frameId = frameId or self.getUuid()
