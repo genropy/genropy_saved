@@ -56,7 +56,7 @@ class MenuStackContainer(BaseComponent):
         navigator = top.div(_class='menuStackNavigator',float='left')
         navigator.button('!!Prev',iconClass='icnNavPrev',action='genro.wdgById("%s").back();' %nodeId,
                         showLabel=False,baseClass='no_background')
-        navigator.dropDownButton(nodeId=capId,baseClass='no_background',padding_right='1.2em').menu(nodeId='%s_menu' %nodeId,_class='smallmenu',
+        navigator.dropDownButton(nodeId=capId,baseClass='no_background',padding_right='1.2em',text_align='center').menu(nodeId='%s_menu' %nodeId,_class='smallmenu',
                                                           action='genro.wdgById("%s").setSelected($1.idx);' %nodeId)
         navigator.button('!!Next',baseClass='no_background',iconClass='icnNavNext',
                          action='genro.wdgById("%s").forward();' %nodeId,showLabel=False)
