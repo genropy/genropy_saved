@@ -13,17 +13,9 @@ class GnrCustomWebPage(object):
     def windowTitle(self):
          return '!!Hello world'
     def main(self, root, **kwargs):
-        root.meta(_name='pippo')
-        root.br()
-        root.br()
-        root.div('hello')
-
-    def main_(self, root, **kwargs):
-        tabber = root.tabContainer()
-        tab = tabber.contentPane(title='Tab')
-        tab.button('Che ore sono?',action='FIRE chiedi_ora;')
+        root.button('Che ore sono?',action='FIRE chiedi_ora;')
         root.dataRpc('risultato','dammi_ora',_fired='^chiedi_ora')
-        tab.div('^risultato')
+        root.div('^risultato')
         
     def rpc_dammi_ora(self):
         return datetime.datetime.now()

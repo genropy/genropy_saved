@@ -20,6 +20,7 @@ class GnrCustomWebPage(object):
         fb.dataFormula('lunghezza', "campo.length", campo='^form.record.campo')
         fb.dataFormula('width_cell', "Math.ceil(base)*2+'px'", base='^base')
         d=fb.div(width='^width_cell', height='^height_cell',background='^bgcolor')
+        
         fb.checkbox(value='^do_rpc', label='Calculate server side')
         fb.horizontalslider(lbl='!!Red', value = '^red', width='200px', minimum=0, maximum=255, 
                             discreteValues='256', default_value=128,intermediateChanges=True)
