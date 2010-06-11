@@ -15,7 +15,12 @@ Coming soon:
   and options auto-discovery (much like Michele Simionato's plac).
 - 'gnr' utility, a single entry point for all command-line utilities so we don't
   clutter /usr/local/bin with many scripts:
-  
+    
+    Three scripts for the genro-kings under softwell sky,
+    Seven for goodsoftware-lords in their halls of stone,
+    Nine for mortal customers with money they will buy,
+    One for the Dark Lord Gio on his dark throne,
+    In the Land of GenroPy where the Commands lie.
     One Script to rule them all, One Script to find them,
     One Script to bring them all and in the darkness bind them
     In the Land of GenroPy where the Commands lie.
