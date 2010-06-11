@@ -17,20 +17,20 @@ class GnrCustomWebPage(object):
     def main(self, root, **kwargs):
         root.data('tree.data',self.treedata())
         root.h1('A simple tree')
-        root.tree(storepath='tree.data')
+        root.tree(storepath='tree.data',onChecked=True)
         root.h1('See the attributes with shift mouseover')
         #root.tree(storepath='tree.data',inspect='shift')
-        root.tree(storepath='pages',hideValues=True,inspect='shift')
+        root.tree(storepath='pages',hideValues=True,inspect='shift',onChecked='console.log(node);console.log(event);')
         root.data('pages',Bag(dict(root=DirectoryResolver('/'))))
         
         
     def treedata(self):
         b = Bag()
-        b.setItem('person.name','John', job='superhero')
-        b.setItem('person.age' , 22)
-        b.setItem('person.sport.tennis' , 'good')
-        b.setItem('person.sport.footbal' , 'poor')
-        b.setItem('person.sport.golf' , 'medium')
+        b.setItem('person.name','John', job='superhero',checked=True)
+        b.setItem('person.age' , 22, checked=False)
+        b.setItem('person.sport.tennis' , 'good', checked=False)
+        b.setItem('person.sport.footbal' , 'poor', checked=True)
+        b.setItem('person.sport.golf' , 'medium', checked=True)
         b.setItem('pet.animal', 'Dog',race='Doberman')
         return b
 

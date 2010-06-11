@@ -726,8 +726,9 @@ genropatches.tree=function(){
         this.labelNode.innerHTML = "";
         if ((typeof(label)=='string') &&(label.indexOf('innerHTML:')>=0)){
             this.labelNode.innerHTML =label.replace('innerHTML:','');
-            this.isTreeNode=false;
-        }else{
+            this.htmlLabel=true;
+        }
+        else{
             this.labelNode.appendChild(dojo.doc.createTextNode(label));
         };
     };
