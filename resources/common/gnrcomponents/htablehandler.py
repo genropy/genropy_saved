@@ -319,7 +319,3 @@ class HTableResolver(BagResolver):
                              pkey=row['pkey'],code=row['code'],child_count=child_count,
                              parent_code=row['parent_code'],hdescription=row['hdescription'])#_attributes=dict(row),
         return children
-        
-            
-        
-        
