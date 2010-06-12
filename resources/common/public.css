@@ -399,12 +399,6 @@
 
     opacity: 1;
 }
-.no_background .dijitButtonNode{
-    padding:0;
-    background:none;
-    border-width:0px;
-    border-color:transparent;
-}
 
 /* @end */
 

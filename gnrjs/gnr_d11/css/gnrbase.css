@@ -45,6 +45,13 @@ label.ghostlabel span{
     opacity: 0.60; 
 }
 
+.no_background .dijitButtonNode{
+    padding:0;
+    background:none;
+    border-width:0px;
+    border-color:transparent;
+}
+
 
 
 /* @end */
