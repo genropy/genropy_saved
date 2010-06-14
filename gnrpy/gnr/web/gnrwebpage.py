@@ -376,7 +376,7 @@ class GnrWebPage(GnrBaseWebPage):
 
     def _onEnd(self):
         self.site.page_register.refresh(self, renew=True)
-        if self.user:
+        if self.user or True: ## self.user is really needed for message handling?????
             self.handleMessages()
         self._publish_event('onEnd')
         self.onEnd()
