@@ -25,8 +25,7 @@ def test():
         print '%s : %s' %(k,x)
 
 def populateDevelopers():
-    
-    
+
     app=GnrApp('devlang') # create the app starting from the instance config
     db=app.db # app.db is the instance of the db
     tbl_developer = db.table('devlang.developer')
@@ -45,7 +44,8 @@ def populateDevelopers():
             tbl_devlang.insert(record_devlang)
 
     print "... developer import"
-    path = resolvegenropypath('genropy/genro/projects/devlang/packages/devlang/lib/developers.txt')
+    #path = resolvegenropypath('genropy/genro/projects/devlang/packages/devlang/lib/developers.txt')
+    path = 'developers.txt'
     f=file(path)
     rows = readCSV(f)
     
@@ -68,6 +68,7 @@ def populateDevelopers():
         tbl_developer.insert(record_dev)
         
         if n==30:
+            db.commit()
             return
         if False:
             # python	java	javascript	csharp	cplus	objectivec	smalltalk	html
@@ -97,5 +98,5 @@ def cast_level():
 
 
 if __name__ == '__main__':
-    #populateDevelopers()
-    cast_level()
+    populateDevelopers()
+    #cast_level()
