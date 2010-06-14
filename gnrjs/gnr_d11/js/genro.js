@@ -338,6 +338,10 @@ dojo.declare('gnr.GenroClient', null, {
             v="<div "+ event_attrs +" style='margin:auto;' "+divclass+">"+divcontent+"</div>";
         }
         // area passibile di modifiche
+        if (f['apply']){
+            var cb = funcCreate(f['apply'],'value');
+            v = cb.apply(window,[v]);
+        }
         else if(!v){
             if( f['isbutton']===true){
                 var divclass= f['buttonclass'];
