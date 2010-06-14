@@ -33,7 +33,7 @@ class GnrCustomWebPage(object):
         gridEditor = iv.gridEditor()
         gridEditor.dbSelect(dbtable='devlang.language',value='^.language_id',
                             gridcell='@language_id.name',hasDownArrow=True,exclude=True)
-        gridEditor.filteringSelect(gridcell='level',values='!!1:Low,2:Good,3:Great,4:Specialist,5:Guru')
+        gridEditor.filteringSelect(gridcell='level',values='!!1:Low,2:Good,3:Expert,4:Specialist,5:Guru')
     
     def developer_language_struct(self,struct):
         r = struct.view().rows()
