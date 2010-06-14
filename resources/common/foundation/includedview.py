@@ -139,7 +139,7 @@ class IncludedView(BaseComponent):
         if filterOn:
             gridtop_filter = gridtop_right.div(float='left',margin_right='5px')
             self._iv_gridFilter(gridId, gridtop_filter, 
-                                controller, controllerPath, filterOn, kwargs) 
+                                controller, controllerPath, filterOn,table, kwargs) 
         if print_action or export_action or tools_menu or tools_action or pdf_action:
             gridtop_actions = gridtop_right.div(float='left',margin_right='5px')
             self._iv_gridAction(gridtop_actions,print_action=print_action,export_action=export_action,
@@ -353,50 +353,8 @@ class IncludedView(BaseComponent):
        #                             PUT .selectedLabel= null;""",
        #                          _fired="^gnr.forms.formPane.saving") 
         
-    def _iv_gridFilter_old(self, gridId, gridtop, controller, controllerPath, filterOn, kwargs):
-        colsMenu = Bag()
-        fltList = splitAndStrip(filterOn, ',')
-        for col in fltList:
-            caption = None
-            if ':' in col:
-                caption, col = col.split(':')
-            if not caption: # ask the caption to the table: table has to be specified in kwargs and the col has to be a single real db column (not list of columns)
-                caption = self.db.table(kwargs['table']).column(col).name_long
-            colList = splitAndStrip(col, '+')
-            col = '+'.join([self.db.colToAs(c) for c in colList])
-            colsMenu.child('r', col=col, caption=caption,childcontent='')
             
-        controller.data('.flt.selected.col', colsMenu['#0?col'])
-        controller.data('.flt.selected.caption', colsMenu['#0?caption'])
-        searchbox = gridtop.div(float='right', margin_right='5px',
-                            datapath=controllerPath)
-        searchlbl = searchbox.div(float='left',margin_top='2px')
-        searchlbl.span('!!Search ',float='left', margin_right='5px')
-        controller.dataController("""var grid = genro.wdgById(gridId);
-                                        SET .currentFilter = "";
-                                        grid.filterColumn = col;
-                                        grid.applyFilter("");""",
-                                        col='^.flt.selected.col', 
-                                        gridId=gridId, _onStart=True) 
-                                        
-        controller.dataController("""var grid = genro.wdgById(gridId); 
-                                     SET .currentFilter=''; 
-                                     grid.applyFilter("");""",
-                                     gridId=gridId,_fired='^.resetFilter',
-                                     nodeId='%s_filterReset' %gridId)
-        if len(colsMenu) > 1:
-            controller.data('.flt.colsMenu', colsMenu)
-            searchlbl.span(':')
-            searchlbl.span(value='^.flt.selected.caption',_class='buttonIcon')
-            searchlbl.menu(modifiers='*', _class='smallmenu', storepath='.flt.colsMenu',
-                        selected_col='.flt.selected.col',
-                        selected_caption='.flt.selected.caption',
-                        position='absolute', right='0',width='6em')
-        
-        searchbox.input(value='^.currentFilter',_class='searchInput searchWidth', font_size='1.0em',
-            connect_onkeyup='genro.wdgById("%s").applyFilter($1.target.value);' % gridId)
-            
-    def _iv_gridFilter(self, gridId, gridtop, controller, controllerPath, filterOn, kwargs):
+    def _iv_gridFilter(self, gridId, gridtop, controller, controllerPath, filterOn, table,kwargs):
         colsMenu = Bag()
         if filterOn is True:
             fltList = []
@@ -408,7 +366,7 @@ class IncludedView(BaseComponent):
             if ':' in col:
                 caption, col = col.split(':')
             if not caption: # ask the caption to the table: table has to be specified in kwargs and the col has to be a single real db column (not list of columns)
-                caption = self.db.table(kwargs['table']).column(col).name_long
+                caption = self.db.table(table).column(col).name_long
             colList = splitAndStrip(col, '+')
             col = '+'.join([self.db.colToAs(c) for c in colList])
             colsMenu.child('r', col=col, caption=caption,childcontent='')
