@@ -2,11 +2,9 @@
 
 class Table(object):
     def config_db(self, pkg):
-        tbl =  pkg.table('carriera',pkey='id',name_long='!!Carriera',name_plural='!!Carriere')
+        tbl =  pkg.table('carriera',pkey='id',name_long='!!Carriera',name_plural='!!Carriere',rowcaption='$nome')
         self.sysFields(tbl)
-        tbl.column('sigla',name_long='!!Sigla Carriera')
         tbl.column('nome',name_long='!!Nome Carriera')
-        tbl.column('razza_codice',size=':2',name_long='!!Razza').relation('warh.razza.codice',mode='foreignkey')
         tbl.column('ac','L',default=0,name_long='!!AC')
         tbl.column('ab','L',default=0,name_long='!!AB')
         tbl.column('forza','L',default=0,name_long='!!Forza')
