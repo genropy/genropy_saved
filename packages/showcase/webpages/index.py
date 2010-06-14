@@ -16,7 +16,7 @@ import os
 
 class GnrCustomWebPage(object):    
     css_requires= 'index'
-    js_requires='ckeditor/ckeditor'
+    # js_requires='ckeditor/ckeditor'
     def rootWidget(self,root,**kwargs):
         return root.borderContainer(_class='mainindex',**kwargs)
         
@@ -77,8 +77,8 @@ class GnrCustomWebPage(object):
                    ['Styles','Format','Font','FontSize'],
                    ['TextColor','BGColor'],['Maximize', 'ShowBlocks']
                    ]"""
-        top.ckeditor(value='^demo.current.docdata',nodeId='editor',config_toolbar='Basic',
-        config_uiColor= '#D1DBE4', toolbar=toolbar,height='700px')
+        # top.ckeditor(value='^demo.current.docdata',nodeId='editor',config_toolbar='Basic',
+        # config_uiColor= '#D1DBE4', toolbar=toolbar,height='700px')
         top.button('Save',action="FIRE pippo.doc;")
 
     def loadRecord(self,kwargs):
