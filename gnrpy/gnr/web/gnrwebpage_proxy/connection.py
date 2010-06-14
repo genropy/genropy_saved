@@ -52,7 +52,7 @@ class GnrWebConnection(GnrBaseProxy):
                 self.user=self.cookie.value.get('user')
                 page.site.connection_register.refresh(self,renew=True)
                 connection_info = page.site.connection_register.get_object(self.connection_id)
-        if not connection_info:
+        if not connection_info and user:
             self.user = user
             self.connection_id = getUuid()
             page.site.connection_register.register(self)
