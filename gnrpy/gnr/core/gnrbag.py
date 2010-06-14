@@ -558,7 +558,32 @@ class Bag(GnrObject):
         else:
             return default
     __getitem__ = getItem
-    
+
+    def toTree(self, group_by, caption=None, attributes="*"):
+        """Transforms a (flat) bag of items into a tree-like structure.
+        
+        Parameters:
+        group_by    -- list of subvalues or attributes to group by.
+        caption     -- the attribute to use for the leaf key.
+                       if not specified, the original key of the item will be used.
+        attributes  -- keys to copy as attributes of the leaves.
+                       ('*' = all attributes)
+        """
+        result = Bag()
+        for key, item in self.iteritems():
+            path = []
+            for g in group_by:
+                path.append(unicode(item[g])) # this makes possible to group both by subitems and attributes
+            if caption is None:
+                val = key
+            else:
+                val = item[caption]
+            path.append(val.replace('.','_'))
+            if attributes == '*':
+                attributes = item.keys()
+            attrs = dict([ (k,item[k]) for k in attributes])
+            result.addItem('.'.join(path), None, attrs)
+        return result
     
     def sort(self, pars='#k:a'):
         """
