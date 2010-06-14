@@ -81,7 +81,18 @@ def populateDevelopers():
 
     db.commit()
     print "... developer import complete"
+    
+def cast_level():
+    app=GnrApp('devlang') # create the app starting from the instance config
+    db=app.db # app.db is the instance of the db
+    tbl_devlang = db.table('devlang.dev_lang')
+    f = tbl_devlang.query(addPkeyColumn=False).fetch()
+    for r in f:
+        r['level'] = int(r['level_old'])
+        tbl_devlang.update(r)
+    db.commit()
 
 
 if __name__ == '__main__':
-    populateDevelopers()
+    #populateDevelopers()
+    cast_level()
