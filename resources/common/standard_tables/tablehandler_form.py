@@ -231,8 +231,9 @@ class TableHandlerForm(BaseComponent):
             ph = t_r.div(_class='button_placeholder',float='right')
             ph.button(label='^status.lockLabel', fire='status.changelock',iconClass="^status.statusClass",showLabel=False)
             
-                        
+        
         if hasattr(self.tblobj,'hasRecordTags') and\
+            self.tblobj.hasRecordTags() and\
             self.application.checkResourcePermission(self.canLinkTag(), self.userTags):
             ph = t_r.div(_class='button_placeholder',float='right')
             ph.button('!!Tags', float='right',action='FIRE #linktag_dlg.open={call_mode:"form"};', 
