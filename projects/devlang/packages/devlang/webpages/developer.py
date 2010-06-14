@@ -7,6 +7,7 @@ Copyright (c) 2008 Softwell. All rights reserved.
 from gnr.core.gnrbag import Bag,GeoCoderBag
 class GnrCustomWebPage(object):
     maintable='devlang.developer'
+    js_requires = 'devlang'
     py_requires='public:Public,standard_tables:TableHandler,gnrcomponents/selectionhandler'
     
     def lstBase(self,struct):
@@ -38,7 +39,10 @@ class GnrCustomWebPage(object):
     def developer_language_struct(self,struct):
         r = struct.view().rows()
         r.fieldcell('@language_id.name', name='!!Language', width='20em')
-        r.fieldcell('level',width='10em')
+        r.fieldcell('level',width='10em',format_apply="return formatLevel(value);") #format_apply allows you to change the visual value
+                                                        # of a cell using a callback that receive the value itself.
+                                                        # in this case I receive a number and add as result a number of color div
+                                                        # equal to the value
         return struct
         
     def developer_form(self,pane,disabled=None):
