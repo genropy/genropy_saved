@@ -21,7 +21,6 @@ class GnrCustomWebPage(object):
         return struct
         
     def formBase(self, parentBC,disabled=False, **kwargs):
-        #parentBC.data('gnr.polling',3)
         layout = parentBC.borderContainer(**kwargs)
         left = layout.contentPane(region='left',_class='pbl_roundedGroup',margin='10px',width='40%')
         left.div('!!Languages',_class='pbl_roundedGroupLabel')
@@ -32,10 +31,10 @@ class GnrCustomWebPage(object):
         self.includedViewBox(center,label='!!Developers',datapath='developers',
                              nodeId='developers',table='devlang.dev_lang',autoWidth=True,
                              struct=self.language_developer_struct,
-                             reloader='^form.record.id',
+                             reloader='^form.record.id',filterOn='@developer_id.last_name',
                              externalChanges='language_id=form.record.id',# ask to reload the view when there is 
                              # a change at this table and the record involved has language_id  == to current language.id    
-                             selectionPars=dict(where='$language_id=:l_id', l_id='=form.record.id',_if='l_id'))
+                             selectionPars=dict(where='$language_id=:l_id', l_id='=form.record.id',_if='l_id',_else='null'))
 
     def language_developer_struct(self,struct):
         r = struct.view().rows()

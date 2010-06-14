@@ -12,7 +12,7 @@ class GnrCustomWebPage(object):
     py_requires = 'public:Public' # ,public:StandardIndex
     
     def windowTitle(self):
-         return '!!Developer App'
+         return '!!Developer Application'
 
     def main(self, root, **kwargs):
         center, top, bottom = self.pbl_rootBorderContainer(root, '',datapath='form')

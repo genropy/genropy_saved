@@ -5,7 +5,6 @@ Created by Softwell on 2008-07-10.
 Copyright (c) 2008 Softwell. All rights reserved.
 """
 from gnr.core.gnrbag import Bag,GeoCoderBag
-
 class GnrCustomWebPage(object):
     maintable='devlang.developer'
     py_requires='public:Public,standard_tables:TableHandler,gnrcomponents/selectionhandler'
@@ -35,23 +34,30 @@ class GnrCustomWebPage(object):
         gridEditor.dbSelect(dbtable='devlang.language',value='^.language_id',
                             gridcell='@language_id.name',hasDownArrow=True,exclude=True)
         gridEditor.filteringSelect(gridcell='level',values='!!1:Low,2:Good,3:Great,4:Specialist,5:Guru')
+    
+    def developer_language_struct(self,struct):
+        r = struct.view().rows()
+        r.fieldcell('@language_id.name', name='!!Language', width='20em')
+        r.fieldcell('level',width='10em')
+        return struct
         
     def developer_form(self,pane,disabled=None):
         pane.div('!!Developer',_class='pbl_roundedGroupLabel')
         fb = pane.formbuilder(cols=2, border_spacing='6px',width='600px',disabled=disabled)
         fb.field('first_name',autospan=1)
+        fb.field('last_name',autospan=1)
         fb.field('email',autospan=1)
-       #fb.field('last_name',autospan=1)
-       #fb.field('website',autospan=1)
-       #fb.div(colspan=2, height='1em')
-       #fb.field('address',validate_remote='geolocator',autospan=2)
-       #fb.field('country_code',autospan=1)
-       #fb.field('country_name',autospan=1)
-       #fb.field('area',autospan=1)
-       #fb.field('locality',autospan=1)
-       #fb.field('thoroughfare',autospan=1)
-       #fb.field('postal_code',autospan=1)
-       #fb.div('&nbsp;', colspan=2)
+        fb.field('website',autospan=1)
+        fb.div(colspan=2, height='1em')
+        fb.field('address',validate_remote='geolocator',autospan=2)
+        fb.field('country_code',autospan=1)
+        fb.field('country_name',autospan=1)
+        fb.field('area',autospan=1)
+        fb.field('locality',autospan=1)
+        fb.field('thoroughfare',autospan=1)
+        fb.field('postal_code',autospan=1)
+        fb.div('&nbsp;', colspan=2)
+         
         pane.dataController("""
                         SET .country_code = geocodebag.getItem('CountryNameCode');
                         SET .country_name = geocodebag.getItem('CountryName');
@@ -64,22 +70,16 @@ class GnrCustomWebPage(object):
                             """,geocodebag="^geocodebag")
         
     def rpc_geolocator(self,value,**kwargs):
-        b = GeoCoderBag()
+        b = GeoCoderBag() #google geocoder api integrated with bag
         result = Bag()
-        b.setGeocode('geolocator',value)
+        b.setGeocode('geolocator',value) 
         self.setInClientData('geocodebag',b['geolocator'])
         if b['geolocator.address']:
             result['value'] = b['geolocator.address']
         else:
             result['errorcode'] = '!!Wrong location'
         return result
-        
-    def developer_language_struct(self,struct):
-        r = struct.view().rows()
-        r.fieldcell('@language_id.name', name='!!Language', width='20em')
-        r.fieldcell('level',width='10em')
-        return struct
-        
+                
 ######################## STANDARD TABLE OVERRIDDEN METHODS ###############
     def windowTitle(self):
         return '!!Developer'

@@ -1,12 +1,9 @@
 #!/usr/bin/env python
 # encoding: utf-8
 
-import os
-from gnr.core.gnrbag import Bag
-from gnr.app.gnrdbo import GnrDboTable,GnrDboPackage, Table_counter,Table_userobject
-from gnr.core.gnrstring import templateReplace,splitAndStrip
+from gnr.app.gnrdbo import GnrDboTable,GnrDboPackage,Table_userobject
 
-class Package(object):
+class Package(GnrDboPackage):
     def config_attributes(self):
         return dict(comment='devlang package',
                     sqlschema='devlang',
