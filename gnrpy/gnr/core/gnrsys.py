@@ -49,6 +49,10 @@ def listdirs(path, invisible_files=False):
 
 def resolvegenropypath(path):
     """resolvegenropypath(path)
+       added by Jeff.
+       Relative path may be more appropriate in most cases, but in some cases it may be
+       useful to have this construction.
+       
        To make it easier to resolve document paths between different installations 
        of genropy where sometimes it is installed in the user path and sometimes 
        at root, ie. /genropy/... or ~/genropy/., so that file path given within 
@@ -79,6 +83,7 @@ def resolvegenropypath(path):
                 return path
 
 if __name__ == '__main__':
+    # test for resolvegenropypath
     print resolvegenropypath('~/genropy/genro/projects/devlang/packages/devlang/lib/developers.txt')
     print resolvegenropypath('/genropy/genro/projects/devlang/packages/devlang/lib/developers.txt')
     print resolvegenropypath('genropy/genro/projects/devlang/packages/devlang/lib/developers.txt')

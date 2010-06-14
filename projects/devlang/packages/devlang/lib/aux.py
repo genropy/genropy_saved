@@ -67,17 +67,20 @@ def populateDevelopers():
         record_dev['postal_code'] = temprecord['postcode']
         tbl_developer.insert(record_dev)
         
-        # python	java	javascript	csharp	cplus	objectivec	smalltalk	html
-        populatedevlang('java','Java')
-        populatedevlang('python','Python')
-        populatedevlang('javascript','Javascript')
-        populatedevlang('cplus','C++')
-        populatedevlang('objectivec','Objective C')
-        populatedevlang('html','html')
-        populatedevlang('smalltalk','Smalltalk')
-        populatedevlang('csharp','C#')
-        if n % 200==0:
-            print '%s records' %(n,)
+        if n==30:
+            return
+        if False:
+            # python	java	javascript	csharp	cplus	objectivec	smalltalk	html
+            populatedevlang('java','Java')
+            populatedevlang('python','Python')
+            populatedevlang('javascript','Javascript')
+            populatedevlang('cplus','C++')
+            populatedevlang('objectivec','Objective C')
+            populatedevlang('html','html')
+            populatedevlang('smalltalk','Smalltalk')
+            populatedevlang('csharp','C#')
+            if n % 200==0:
+                print '%s records' %(n,)
 
     db.commit()
     print "... developer import complete"
