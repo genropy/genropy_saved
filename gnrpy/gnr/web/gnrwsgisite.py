@@ -611,6 +611,7 @@ class GnrWsgiSite(object):
 
     def getMessages(self, connection_id=None, user=None, page_id=None,**kwargs):
         return self.message_handler.getMessages(connection_id=connection_id, user=user, page_id=page_id,**kwargs)
+        
             
     def writeMessage(self,body=None, connection_id=None, user=None, page_id=None, expiry=None, message_type=None):
         srcpage = self.db.application.site.currentPage
@@ -648,7 +649,7 @@ class GnrWsgiSite(object):
                 page.debugger.output(debugtype,**kwargs)
         
     def notifyDbEvent(self,tblobj,record,event,old_record=None):
-        if tblobj.attributes.get('broadcast'):
+        if tblobj.attributes.get('broadcast'): 
             subscribers = self.page_register.pages(index_name=tblobj.fullname)
             value=Bag([(k,v) for k,v in record.items() if not k.startswith('@')])
             for subscriber in subscribers:
@@ -667,7 +668,7 @@ class GnrWsgiSite(object):
         page_id = page_id or currentPage.page_id
         attributes = dict(attributes or {})
         attributes['_client_path'] = client_path    
-        if not connection_id or  connection_id==currentPage.connection.connection_id and not currentPage.forked:
+        if not connection_id or  (connection_id==currentPage.connection.connection_id and not connection_id=='_anonymous') and not currentPage.forked:
             currentPage.session.setInPageData('_clientDataChanges.%s' % client_path.replace('.','_'), 
                                         value, _attributes=attributes, page_id=page_id)
             if saveSession: 
