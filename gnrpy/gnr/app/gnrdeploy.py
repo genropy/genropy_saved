@@ -123,19 +123,19 @@ class SiteMaker(object):
         if not os.path.isfile(root_py_path):
             root_py = open(root_py_path,'w')
             root_py.write("""
-import sys
-sys.stdout = sys.stderr
-from gnr.web.gnrwsgisite import GnrWsgiSite
-site = GnrWsgiSite(__file__)
+                            import sys
+                            sys.stdout = sys.stderr
+                            from gnr.web.gnrwsgisite import GnrWsgiSite
+                            site = GnrWsgiSite(__file__)
 
-def application(environ,start_response):
-    return site(environ,start_response)
+                            def application(environ,start_response):
+                                return site(environ,start_response)
 
-if __name__ == '__main__':
-    from gnr.web.server import NewServer
-    server=NewServer(__file__)
-    server.run()
-""")
+                            if __name__ == '__main__':
+                                from gnr.web.server import NewServer
+                                server=NewServer(__file__)
+                                server.run()
+                            """)
             root_py.close()
         if not os.path.isfile(siteconfig_xml_path):
             if not self.config:
@@ -247,10 +247,10 @@ class PackageMaker(object):
         if not os.path.exists(self.menu_xml_path):
             menu_xml = open(self.menu_xml_path, 'w')
             menu_xml.write("""
-<?xml version="1.0" encoding="UTF-8"?>
-<GenRoBag>
-</GenRoBag>            
-""")
+                              <?xml version="1.0" encoding="UTF-8"?>
+                              <GenRoBag>
+                              </GenRoBag>            
+                              """)
             menu_xml.close()
         if not os.path.exists(self.main_py_path):
             main_py_options = dict(comment=self.comment, sqlschema=self.sqlschema, name_short=self.name_short,
