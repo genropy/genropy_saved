@@ -530,6 +530,7 @@ class GnrWsgiSite(object):
             instance_path = os.path.join(self.site_path,'..','..','instances',self.site_name)
         if not os.path.isdir(instance_path):
             instance_path = self.config['instance?path'] or self.config['instances.#0?path']
+        self.instance_path=instance_path
         app = GnrWsgiWebApp(instance_path, site=self)
         self.config.setItem('instances.app', app, path=instance_path)
         return app
