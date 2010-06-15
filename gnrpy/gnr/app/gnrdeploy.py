@@ -99,7 +99,7 @@ class ProjectMaker(object):
 
 class SiteMaker(object):
     def __init__(self, site_name, base_path=None, resources=None, instance=None, dojo_version='11',
-                wsgi_port=None, wsgi_reload=None, wsgi_mainpackage=None, wsgi_debug=None):
+                wsgi_port=None, wsgi_reload=None, wsgi_mainpackage=None, wsgi_debug=None, config=None):
         self.site_name = site_name
         self.base_path = base_path or '.'
         self.resources = resources or []
@@ -109,6 +109,7 @@ class SiteMaker(object):
         self.wsgi_mainpackage = wsgi_mainpackage
         self.wsgi_debug = wsgi_debug
         self.dojo_version = dojo_version
+        self.config=config
     
     def do(self):
         self.site_path = os.path.join(self.base_path, self.site_name)
@@ -137,30 +138,33 @@ if __name__ == '__main__':
 """)
             root_py.close()
         if not os.path.isfile(siteconfig_xml_path):
-            siteconfig = Bag()
-            if self.instance:
-                siteconfig.setItem('instances.%s' % self.instance, None)
-            for resource in self.resources:
-                if isinstance(resource,tuple) or isinstance(resource,list):
-                    resource, resource_path = resource
-                    siteconfig.setItem('resources.%s' % resource, None, path=resource_path)
-                else:
-                    siteconfig.setItem('resources.%s' % resource, None)
-            wsgi_options = dict()
-            for option in ('reload', 'debug', 'port', 'mainpackage'):
-                value = getattr(self, 'wsgi_%s'%option, None)
-                if value:
-                    wsgi_options[option] = value
-            siteconfig.setItem('wsgi', None, **wsgi_options)
-            siteconfig['connection_timeout'] = None
-            siteconfig['connection_refresh'] = None
-            siteconfig.setItem('dojo', None, version=self.dojo_version)
+            if not self.config:
+                siteconfig = Bag()
+                if self.instance:
+                    siteconfig.setItem('instances.%s' % self.instance, None)
+                for resource in self.resources:
+                    if isinstance(resource,tuple) or isinstance(resource,list):
+                        resource, resource_path = resource
+                        siteconfig.setItem('resources.%s' % resource, None, path=resource_path)
+                    else:
+                        siteconfig.setItem('resources.%s' % resource, None)
+                wsgi_options = dict()
+                for option in ('reload', 'debug', 'port', 'mainpackage'):
+                    value = getattr(self, 'wsgi_%s'%option, None)
+                    if value:
+                        wsgi_options[option] = value
+                siteconfig.setItem('wsgi', None, **wsgi_options)
+                siteconfig['connection_timeout'] = None
+                siteconfig['connection_refresh'] = None
+                siteconfig.setItem('dojo', None, version=self.dojo_version)
+            else:
+                siteconfig = self.config
             siteconfig.toXml(siteconfig_xml_path)
         
 class InstanceMaker(object):
     def __init__(self, instance_name, base_path=None, packages=None, authentication=True, authentication_pkg=None,
                 db_dbname=None, db_implementation=None, db_host=None, db_port=None, 
-                db_user=None, db_password=None):
+                db_user=None, db_password=None, config=None):
         self.instance_name = instance_name
         self.base_path = base_path or '.'
         self.packages = packages or []
@@ -180,6 +184,7 @@ class InstanceMaker(object):
         self.db_port = db_port
         self.db_user = db_user
         self.db_password = db_password
+        self.config=config
 
     def do(self):
         self.instance_path = os.path.join(self.base_path, self.instance_name)
@@ -190,24 +195,28 @@ class InstanceMaker(object):
             if not os.path.isdir(path):
                 os.mkdir(path)
         if not os.path.isfile(instanceconfig_xml_path):
-            instanceconfig = Bag()
-            instanceconfig.setItem('packages', None)
-            for package in self.packages:
-                if isinstance(package,tuple) or isinstance(package,list):
-                    package, package_path = package
-                    instanceconfig.setItem('packages.%s' % package, None, path=package_path)
-                else:
-                    instanceconfig.setItem('packages.%s' % package, None)
-            db_options = dict()
-            for option in ('dbname', 'implementation', 'host', 'port', 'username', 'password'):
-                value = getattr(self, 'db_%s'%option, None)
-                if value:
-                    db_options[option] = value
-            instanceconfig.setItem('db', None, **db_options)
-            if self.authentication:
-                instanceconfig.setItem('authentication', None, pkg=self.authentication_pkg)
-                instanceconfig.setItem('authentication.py_auth', None, defaultTags="user", pkg="adm", method="authenticate")
+            if not self.config:
+                instanceconfig = Bag()
+                instanceconfig.setItem('packages', None)
+                for package in self.packages:
+                    if isinstance(package,tuple) or isinstance(package,list):
+                        package, package_path = package
+                        instanceconfig.setItem('packages.%s' % package, None, path=package_path)
+                    else:
+                        instanceconfig.setItem('packages.%s' % package, None)
+                db_options = dict()
+                for option in ('dbname', 'implementation', 'host', 'port', 'username', 'password'):
+                    value = getattr(self, 'db_%s'%option, None)
+                    if value:
+                        db_options[option] = value
+                instanceconfig.setItem('db', None, **db_options)
+                if self.authentication:
+                    instanceconfig.setItem('authentication', None, pkg=self.authentication_pkg)
+                    instanceconfig.setItem('authentication.py_auth', None, defaultTags="user", pkg="adm", method="authenticate")
+            else:
+                instanceconfig=self.config
             instanceconfig.toXml(instanceconfig_xml_path)
+        
 
 class PackageMaker(object):
     def __init__(self, package_name, base_path=None, sqlschema=None, 
