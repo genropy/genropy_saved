@@ -9,6 +9,7 @@ Copyright (c) 2008 Softwell. All rights reserved.
 class GnrCustomWebPage(object):
     maintable='devlang.language'
     py_requires='public:Public,standard_tables:TableHandler,gnrcomponents/selectionhandler'
+    js_requires = 'devlang'
     subscribed_tables='devlang.dev_lang' # ask to be notified for changes in this table (s)
     # 
     polling=15 # polling interval for not operating times
@@ -40,7 +41,7 @@ class GnrCustomWebPage(object):
         r = struct.view().rows()
         r.fieldcell('@developer_id.first_name',width='20em',zoom=True)
         r.fieldcell('@developer_id.last_name',width='20em')
-        r.fieldcell('level',width='10em')
+        r.fieldcell('level',width='10em',format_apply="return formatLevel(value);")
         return struct
         
 
