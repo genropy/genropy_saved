@@ -3,7 +3,8 @@
 class Table(object):
     def config_db(self, pkg):
         tbl =  pkg.table('razza',pkey='codice',name_long='!!Razza',
-                      name_plural='!!Razze',rowcaption='$codice,$nome') # pkg.table('nome_della_table',pkey='nome_di_una_tbl.column') rowcaption ...
+                      name_plural='!!Razze',rowcaption='$codice,$nome')
+               # pkg.table('nome_della_table',pkey='nome_di_una_tbl.column')
         self.sysFields(tbl,id=False)
         tbl.column('codice',size=':2',name_long='!!Codice')
         tbl.column('nome',name_long='!!Nome')
@@ -13,7 +14,7 @@ class Table(object):
         tbl.column('ab_base','L',default=0,name_long='!!Ab. Balistica')
         tbl.column('f_base','L',default=0,name_long='!!Forza')
         tbl.column('r_base','L',default=0,name_long='!!Resistenza')
-        tbl.column('ag_base','L',default=0,name_long='!!Agilita')
+        tbl.column('ag_base','L',default=0,name_long='!!Agilità')
         tbl.column('int_base','L',default=0,name_long='!!Intelligenza')
         tbl.column('vol_base','L',default=0,name_long='!!Volontà')
         tbl.column('simp_base','L',default=0,name_long='!!Simpatia')

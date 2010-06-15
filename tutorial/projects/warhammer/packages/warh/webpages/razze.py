@@ -6,7 +6,8 @@ Copyright (c) 2008 Softwell. All rights reserved.
 """
 # --------------------------- GnrWebPage Standard header ---------------------------
 class GnrCustomWebPage(object):
-    maintable='warh.razza' # sintassi: maintable='nomeCartella_Packages.nomeFile_Model'
+    maintable='warh.razza'
+               # sintassi: maintable='nomeCartella_Packages.nomeFile_Model'
     py_requires='public:Public,standard_tables:TableHandlerLight,public:IncludedView'
 
 ######################## STANDARD TABLE OVERRIDDEN METHODS ##################
@@ -22,8 +23,12 @@ class GnrCustomWebPage(object):
     def lstBase(self,struct): # ??? ci sono alternative alla lstBase?
         """!!Vista base"""
         r = struct.view().rows()
-        r.cell('codice', dtype='T', name='!!Codice', width='4em') # specifico una riga
-        r.fieldcell('nome', width='12em') # specifico una riga ma senza dover richiamare il name (cioè la parte visualizzata dell'attributo) ATTENZIONE: 							per usarlo devo avere creato la cell nella table di riferimento (in questo caso in razza.py ci deve essere 							una column di nome 'nome')
+        r.cell('codice', dtype='T', name='!!Codice', width='4em')
+               # specifico una riga
+        r.fieldcell('nome', width='12em')
+               # specifico una riga ma senza dover richiamare il name (cioè la parte visualizzata dell'attributo)
+               # ATTENZIONE: per usarlo devo avere creato la cell nella table di riferimento; in questo caso in
+               # "razza.py" ci deve essere una column di nome 'nome')
         r.fieldcell('ac_base',width='8em')
         r.fieldcell('ab_base',width='5em')
         r.fieldcell('f_base',width='4em')
@@ -57,9 +62,10 @@ class GnrCustomWebPage(object):
 
     def formBase(self, parentBC, disabled=False, **kwargs):
         bc = parentBC.borderContainer(**kwargs)
-        # pane = parentBC.div('ciao')
+#       pane = parentBC.div('ciao')
         pane = bc.contentPane(region='left',width='60%')
-        tc = bc.tabContainer(region='center') # la tabContainer genera una struttura con Tab uguale a quella delle tab di internet...
+        tc = bc.tabContainer(region='center')
+               # la tabContainer genera una struttura con Tab uguale a quella delle tab di internet...
         self.form_razza(pane)
         self.griglia_ferite(tc.borderContainer(title='!!Ferite'))
         self.griglia_fato(tc.borderContainer(title='!!Punti Fato'))
@@ -84,14 +90,17 @@ class GnrCustomWebPage(object):
         fb.field('fol_base',width='100%')
                                   
     def griglia_ferite(self,bc):
-        # Attenzione! L'includedViewBox e i suoi derivati (es. selectionHandler) accettano solo BorderContainer, non accettano i contentPane; nei contentPane NON posso mettere altri contenitori, posso mettere solo oggetti
+               # Attenzione! L'includedViewBox e i suoi derivati (es. selectionHandler) accettano solo BorderContainer
+               # e non accettano i contentPane; nei contentPane NON posso mettere altri contenitori,
+               # posso mettere solo oggetti
         iv = self.includedViewBox(bc,label='!!Punti Ferita',
                                   add_action=True, # tasto "+"
                                   del_action=True, # tasto "-"
                                   nodeId='FeriteGrid',
                 				  editorEnabled=True,
                                   storepath='.fer_base', # dove legge e scrive i dati
-                                  struct=self.ferite_struct, # in "struct" passo il metodo che mi dirà come sono fatte le colonne della griglia
+                                  struct=self.ferite_struct,
+               # in "struct" passo il metodo che mi dirà come sono fatte le colonne della griglia
                                   datamode='bag')
 
         gridEditor = iv.gridEditor()              
@@ -101,7 +110,8 @@ class GnrCustomWebPage(object):
         
     def ferite_struct(self, struct):
         r = struct.view().rows()
-        r.cell('da',name='Tiro da',dtype='L',width='3em') # se non dichiarato si ha una cella standard di tipo testo (dtype='T')
+        r.cell('da',name='Tiro da',dtype='L',width='3em')
+               # se non dichiarato si ha una cella standard di tipo testo (dtype='T')
         r.cell('a',name='Tiro a',dtype='L',width='3em')
         r.cell('valore',name='Valore',dtype='L',width='7em')
 

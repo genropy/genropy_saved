@@ -1,3 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <GenRoBag>
-</GenRoBag>            
+    <statiche label="!!Gestione Razze e Carriere">
+        <razze label="!!Razze" file="razze"/>
+        <carriere label="!!Carriere" file="carriere"/>
+    </statiche>
+    <dinamiche label="!!Gestione Personaggi">
+        <personaggi label="!!Schede personaggi" file="personaggi"/>
+    </dinamiche>
+</GenRoBag>
