@@ -274,4 +274,6 @@ def test_addToMonth():
     
     res = gnrdate.decodeDatePeriod(u"from this month - 12 to this month + 12", workdate=workdate)
     assert res == '2007-04-01;2009-04-30'
-    
+
+if __name__ == "__main__":
+    test_periodFrom()

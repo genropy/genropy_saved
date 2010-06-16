@@ -34,7 +34,18 @@ logger= logging.getLogger('gnr.core.gnrdate')
 
 
 def yearDecode(datestr):
-    "returns the year number as an int from a string of 2 or 4 digits: if 2 digits is given century is added."
+    """returns the year number as an int from a string of 2 or 4 digits.
+    
+    :param datestr: a string of 2 or 4 digits, specifies a year.
+    :return: an int
+    
+    1970 is used as a pivot point.
+    
+    >>> yearDecode('69')
+    2069
+    >>> yearDecode('70')
+    1970
+    """
     year = None
     datestr = datestr.strip()
     if datestr and datestr.isdigit():
@@ -48,8 +59,19 @@ def yearDecode(datestr):
 
 def decodeOneDate(datestr, workdate=None, months=None, days=None, quarters=None, locale=None, isEndPeriod=False):
     """Parse a string representing a date or a period and returns a datetime.date or a tuple (year, month) or None.
+    
+    :param datestr: the string to be interpreted
+    :param workdate: a date of reference for calculate relative periods (eg. tomorrow or this week)
+    :param months: names of months according to locale (just for caching)
+    :param days: names of weekdays according to locale (just for caching)
+    :param quarters: names of quarters according to locale (just for caching)
+    :param locale: the current locale strig (eg. en, en_us, it)
+    :param isEndPeriod: if the string represents a period, return the end date (default return the start date)
+    :return: a :class:`datetime.date` or a tuple ``(year,month)`` or ``None``.
+    
        Special keywords like 'today' or the name of a month can be translated in all languages and support synonimous,
        eg. 'this month' or 'month'
+       
        The input string can be:
         - a year: eg. 2007 or 07
         - today, yesterday, tomorrow (can be translated in all languages)
@@ -66,13 +88,6 @@ def decodeOneDate(datestr, workdate=None, months=None, days=None, quarters=None,
         - an iso date: eg. 2008-04-28
         - a date formatted according to locale (see babel doc): eg. 4 28, 2008 (en_us) or 28-4-08 (it)
                                various separators are admitted: 28-4-08, 28/4/08, 28 4 08
-       @param datestr: the string to be interpreted
-       @param workdate: a date of reference for calculate relative periods (eg. tomorrow or this week)
-       @param months: names of months according to locale (just for caching)
-       @param days: names of weekdays according to locale (just for caching)
-       @param quarters: names of quarters according to locale (just for caching)
-       @locale: the current locale strig (eg. en, en_us, it)
-       @isEndPeriod: if the string represents a period, return the end date (default return the start date)
     """
     def addToDay(datestr, date):
         if '+' in datestr:
@@ -256,8 +271,8 @@ def decodeDatePeriod(datestr, workdate=None, locale=None, returnDate=False, dtyp
         year, month = dateStart
         if year is None:                      # no year info is given, try to calculate
             year = workdate.year              # default year is this year
-            #if month > workdate.month:        # if the starting month is in the future, change to last year
-            #    year = year - 1
+            if month > workdate.month:        # if the starting month is in the future, change to last year
+                year = year - 1
         endyear = None
         endmonth = None
         if isinstance(dateEnd, datetime.date):# dateend is yet decoded
@@ -318,6 +333,11 @@ def monthEnd(year=None, month=None, date=None):
     return datetime.date(year, month, 1) - datetime.timedelta(1)
     
 def dateLastYear(d):
+    """Returns d a year earlier, taking care of leap years.
+    
+    :param d: a ``datetime.date``
+    :returns: a ``datetime.date``
+    """
     if not d: return
     if d.month == 2 and d.day==29:
         result = datetime.date(d.year - 1 , 2, 28)
@@ -335,10 +355,3 @@ def dayIterator(period,wkdlist=None,locale=None,workdate=None,asDate=True):
             yield d.date()
         else:
             yield d
-
-if __name__=='__main__':
-    workdate = datetime.date(2009,1,12)
-    res = decodeDatePeriod(u"10 giugno,30 giugno", workdate=workdate, locale='it')
-    print res
-
-    
