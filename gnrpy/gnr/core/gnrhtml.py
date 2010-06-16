@@ -8,16 +8,12 @@
 #
 
 
-from gnr.core.gnrbag import Bag,BagNode
+from gnr.core.gnrbag import Bag
 from gnr.core.gnrstring import splitAndStrip
 from gnr.core.gnrstructures import GnrStructData
-#from gnr.core import gnrstring
 from gnr.core.gnrsys import expandpath
 
 import sys
-#import cStringIO
-import os
-#from gnr.core.gnrlang import optArgs
 
 class GnrHtmlSrcError(Exception):
     pass
@@ -36,7 +32,6 @@ class GnrHtmlElem(object):
     
 
 class GnrHtmlSrc(GnrStructData):
-
     html_base_NS=['a', 'abbr', 'acronym', 'address', 'area',  'base', 'bdo', 'big', 'blockquote',
             'body', 'br', 'button', 'caption', 'cite', 'code', 'col', 'colgroup', 'dd', 'del',
             'dfn', 'dl', 'dt', 'em', 'fieldset', 'form', 'frame', 'frameset', 'head', 'hr', 'html',
@@ -65,21 +60,33 @@ class GnrHtmlSrc(GnrStructData):
             raise AttributeError, func_name
             
     def style(self,style='',**kwargs):
+        """Creates a ``<style>`` tag.
+        """
         self.root.builder.head.child('style',content=style,**kwargs)
     
     def comment(self,content=None):
+        """Creates an HTML comment.
+        """
         self.child(tag='__flatten__',content='<!--%s-->' %content)
                 
     def script(self,script='',_type="text/javascript",**kwargs):
+        """Creates a ``<script>`` tag.
+        """
         self.root.builder.head.child('script',content=script, _type=_type,**kwargs)
         
     def link(self,href='',**kwargs ):
+        """Creates a ``<link>`` tag.
+        """
         self.root.builder.head.child('link',href=href,**kwargs)
         
     def csslink(self,href='',media='screen',**kwargs ):
+        """Shortcut to create a ``<link rel="stylesheet" type="text/css"">`` tag.
+        """
         self.root.builder.head.child('link',href=href,rel="stylesheet",_type="text/css",media=media,**kwargs)
         
-    def meta(self,name=None,content=None,http_equiv=None,**kwargs):   
+    def meta(self,name=None,content=None,http_equiv=None,**kwargs):
+        """Creates a ``<meta>`` tag.
+        """
         _attributes = dict()
         if http_equiv:
             _attributes['http-equiv'] = http_equiv
@@ -87,6 +94,8 @@ class GnrHtmlSrc(GnrStructData):
         
             
     def child(self,tag,*args, **kwargs):
+        """Creates a tag.
+        """
         for lbl in ['_class','class_','_type','type_','_for','for_']:
             if lbl in kwargs:
                 kwargs[lbl.replace('_','')]=kwargs.pop(lbl)
@@ -430,7 +439,6 @@ class GnrHtmlBuilder(object):
     def finalize_cell(self, row, attr, cell):
         cell.height = row.height
         width = cell.width
-        um = row.layout.um
         if cell.lbl:
             self.setLabel(cell, attr)
         bottom_border_width = row.layout.border_width if row.row_border else 0

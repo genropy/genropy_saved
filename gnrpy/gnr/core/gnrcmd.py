@@ -1,30 +1,30 @@
 #!/usr/bin/env python
 # encoding: utf-8
-
 """
-A subframework to write command-line utilities for Genro.
+==========================================================
+ A subframework to write command-line utilities for Genro.
+==========================================================
 
 Available functionality:
-- ProgressBar, a class to draw text-based progressbars. see test_ProgressBar().
-- AutoDiscovery, a class to auto-detect current instance, site, package and
-  project from GENROPY_xxx environment variables and/or the current working
-  directory.
+    - :class:`ProgressBar`, a class to draw text-based progressbars. see test_ProgressBar().
+    - :class:`AutoDiscovery`, a class to auto-detect current instance, site, package and
+      project from ``GENROPY_xxx`` environment variables and/or the current working
+      directory.
 
 Coming soon:
-- GnrCommand, base class for command-line utilities, will provide parameters
-  and options auto-discovery (much like Michele Simionato's plac).
-- 'gnr' utility, a single entry point for all command-line utilities so we don't
-  clutter /usr/local/bin with many scripts:
+    - GnrCommand, base class for command-line utilities, will provide parameters
+      and options auto-discovery (much like Michele Simionato's plac).
+    - ``gnr`` utility, a single entry point for all command-line utilities so we don't
+      clutter /usr/local/bin with many scripts:
     
-    Three scripts for the genro-kings under softwell sky,
-    Seven for goodsoftware-lords in their halls of stone,
-    Nine for mortal customers with money they will buy,
-    One for the Dark Lord Gio on his dark throne,
-    In the Land of GenroPy where the Commands lie.
-    One Script to rule them all, One Script to find them,
-    One Script to bring them all and in the darkness bind them
-    In the Land of GenroPy where the Commands lie.
-
+            Three scripts for the genro-kings under softwell sky,
+            Seven for goodsoftware-lords in their halls of stone,
+            Nine for mortal customers with money they will buy,
+            One for the Dark Lord Gio on his dark throne,
+            In the Land of GenroPy where the Commands lie.
+            One Script to rule them all, One Script to find them,
+            One Script to bring them all and in the darkness bind them
+            In the Land of GenroPy where the Commands lie.
 """
 
 from __future__ import with_statement
@@ -54,24 +54,30 @@ def expandpath(path, full=False):
 class AutoDiscovery(object):
     """Try to guess the current project, package, site and instance.
     
-    We apply the current rules:
-    1. look in the environment for a GENROPY_PROJECT, GENROPY_SITE,
-       GENROPY_INSTANCE and GENROPY_PACKAGE variables. If any are present,
-       we cross-check that they point to the right places by looking at the
-       declared places in the configuration (.gnr/environment.xml) and
-       complain if they don't.
-    2. if GENROPY_PROJECT is missing, we look if the current path is inside
-       one of the declared projects in the configuration. If yes, we assume
-       that is the current project. If no, we don't have a current project.
-    3. if GENROPY_INSTANCE is missing, we look if the current path is inside
-       one of the instances of the current project or if we are inside one
-       of the declared instances in the configuration. If yes, we assume
-       that is the current instance. If no, we don't have a current instance.
-    4. if GENROPY_SITE is missing ... (same as the previous step)
-    5. if GENRO_PACKAGE is missing ... (same as the previous step)
-    6. If we have a project, but we don't have an instance/site/package
-       -and- the project has only one instance/site/package, then we
-       assume that's the current one.
+    We apply these rules:
+    
+        1. look in the environment for a ``GENROPY_PROJECT``, ``GENROPY_SITE``,
+           ``GENROPY_INSTANCE`` and ``GENROPY_PACKAGE`` variables. If any are present,
+           we cross-check that they point to the right places by looking at the
+           declared places in the configuration (.gnr/environment.xml) and
+           complain if they don't.
+
+        2. if ``GENROPY_PROJECT`` is missing, we look if the current path is inside
+           one of the declared projects in the configuration. If yes, we assume
+           that is the current project. If no, we don't have a current project.
+
+        3. if ``GENROPY_INSTANCE`` is missing, we look if the current path is inside
+           one of the instances of the current project or if we are inside one
+           of the declared instances in the configuration. If yes, we assume
+           that is the current instance. If no, we don't have a current instance.
+
+        4. if ``GENROPY_SITE`` is missing... (same as the previous step)
+
+        5. if ``GENRO_PACKAGE`` is missing... (same as the previous step)
+
+        6. If we have a project, but we don't have an instance/site/package
+           -and- the project has only one instance/site/package, then we
+           assume that's the current one.
     
     """
 
@@ -279,15 +285,15 @@ class GnrCommand(object):
 class ProgressBar(object):
     """Provides a text-based progress bar.
     
-    Sample usage:
+    Sample usage::
     
-    import time
-    with ProgressBar('ProgressBar test') as pg:
-        for n in xrange(333):
-            time.sleep(0.01)
-            pg.update(n/3.33)
-            if n > 233:
-                raise Exception, "Something bad happened."
+        import time
+        with ProgressBar('ProgressBar test') as pg:
+            for n in xrange(333):
+                time.sleep(0.01)
+                pg.update(n/3.33)
+                if n > 233:
+                    raise Exception, "Something bad happened."
     """
 
     def __init__(self, label, label_width=20, bar_width=40,
@@ -317,9 +323,9 @@ class ProgressBar(object):
     def update(self, value, progress_value=None):
         """Draws the progress bar.
 
-        Example:
+        Example::
         
-        Label padded to length     [**********----------------------]  45.12%
+            Label padded to length     [**********----------------------]  45.12%
         """
         self.progress_value = progress_value or value
         progress = float(value - self.min_value) / float(self.max_value - self.min_value)

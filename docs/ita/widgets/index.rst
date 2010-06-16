@@ -8,3 +8,4 @@
 .. toctree::
 
 	button
+	selectionhandler

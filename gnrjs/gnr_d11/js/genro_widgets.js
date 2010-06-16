@@ -2795,11 +2795,10 @@ dojo.declare("gnr.widgets.VirtualStaticGrid",gnr.widgets.Grid,{
         if(this.datamode=='bag'){
             var value = node.getValue();
             if(value){
-                var node;
-                for (var i=0; i < value._nodes.length; i++) {
-                    node = value._nodes[i]; 
-                    result[node.label] = node.attr.caption ? node.attr.caption : node.getValue();
-                };
+                for(var cellname in this.cellmap) {
+                    var cell = this.cellmap[cellname];
+                    result[cell.field] = value.getItem(cell.original_field);
+                }
             };
         }
         return result;

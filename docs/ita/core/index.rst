@@ -5,3 +5,5 @@
 .. toctree::
 
 	bags
+	gnrcmd
+	miscellanea
