@@ -142,33 +142,33 @@ class TestLocalize:
     
     def test_datetimeLocale(self):
         assert localize(self.datetime, locale='en',format='short') == '12/10/07 10:15 PM'
-        assert localize(self.datetime, locale='it',format='short') == '10/12/07 22:15'
+        assert localize(self.datetime, locale='it',format='short') == '10/12/07 22.15'
         assert localize(self.datetime, locale='de',format='short') == '10.12.07 22:15'
         
         assert localize(self.datetime, locale='en',format='medium') == 'Dec 10, 2007 10:15:36 PM'
-        assert localize(self.datetime, locale='it',format='medium') == '10/dic/2007 22:15:36' 
+        assert localize(self.datetime, locale='it',format='medium') == '10/dic/2007 22.15.36' 
         assert localize(self.datetime, locale='de',format='medium') == '10.12.2007 22:15:36'
         
         assert localize(self.datetime, locale='en',format='long') == 'December 10, 2007 10:15:36 PM +0000' 
-        assert localize(self.datetime, locale='it',format='long') == '10 dicembre 2007 22:15:36 +0000'
+        assert localize(self.datetime, locale='it',format='long') == '10 dicembre 2007 22.15.36 +0000'
         assert localize(self.datetime, locale='de',format='long') == '10. Dezember 2007 22:15:36 +0000'
         
         assert localize(self.datetime, locale='en',format='full') == 'Monday, December 10, 2007 10:15:36 PM World (GMT) Time' 
-        assert localize(self.datetime, locale='it',format='full') == u'lunedì 10 dicembre 2007 22:15:36 Mondo (GMT)' 
+        assert localize(self.datetime, locale='it',format='full') == u'lunedì 10 dicembre 2007 22.15.36 Mondo (GMT)' 
         assert localize(self.datetime, locale='de',format='full') ==  u'Montag, 10. Dezember 2007 22:15:36 Welt (GMT)' 
     
 
     def test_timeLocale(self):
         assert localize(self.time, locale='en',format='short') == '12:23 PM'
-        assert localize(self.time, locale='it',format='short') == '12:23'
+        assert localize(self.time, locale='it',format='short') == '12.23'
         assert localize(self.time, locale='de',format='short') == '12:23'
                              
         assert localize(self.time, locale='en',format='medium') == '12:23:44 PM' 
-        assert localize(self.time, locale='it',format='medium') == '12:23:44'
+        assert localize(self.time, locale='it',format='medium') == '12.23.44'
         assert localize(self.time, locale='de',format='medium') == '12:23:44' 
                              
         assert localize(self.time, locale='en',format='long') == '12:23:44 PM +0000' 
-        assert localize(self.time, locale='it',format='long') == '12:23:44 +0000'
+        assert localize(self.time, locale='it',format='long') == '12.23.44 +0000'
         assert localize(self.time, locale='de',format='long') == '12:23:44 +0000'
         
     def test_timeLocaleFormat(self):
