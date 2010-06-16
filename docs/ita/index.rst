@@ -15,6 +15,7 @@ Contents:
 	
 	installazione
 	widgets/index
+	core/index
 	da-sistemare
 
 Indici e tabelle

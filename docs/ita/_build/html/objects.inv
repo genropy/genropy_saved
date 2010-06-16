@@ -1,5 +1,0 @@
-# Sphinx inventory version 1
-# Project: GenroPy
-# Version: 0.7
-parent.button function widgets/button.html
-parent.dropdownbutton function widgets/button.html
