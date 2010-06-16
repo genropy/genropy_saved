@@ -2,7 +2,7 @@
 
 class Table(object):
     def config_db(self, pkg):
-        tbl =  pkg.table('personaggio',pkey='id',name_long='!!Personaggio',name_plural='!!Personaggi')
+        tbl =  pkg.table('personaggio',pkey='id',name_long='!!Personaggio',name_plural='!!Personaggi',rowcaption='$nome')
         self.sysFields(tbl)
                    # aggiunge i campi ID, data inserimento, INS, MOD, DEL
         tbl.column('sigla',name_long='!!Sigla')
@@ -11,6 +11,7 @@ class Table(object):
         tbl.column('razza_codice',size=':2',name_long='!!Razza').relation('warh.razza.codice',mode='foreignkey')
                    #.relation('nome_del_packages.nome_della_table.nome_di_una_tblColumn)
                    # con "mode='foreignkey'" il vincolo di integrità referenziale ".relation" esiste VERAMENTE nel DB
+        tbl.column('carriera_id').relation('warh.carriera.id',mode='foreignkey',one_name='Carriera Attuale')
         tbl.column('ac','L',name_long='!!Ab.Combatt.')
         tbl.column('ab','L',name_long='!!Ab.Balistica')
         tbl.column('forza','L',name_long='!!Forza')
@@ -45,6 +46,5 @@ class Table(object):
         tbl.column('mag_incr','L',name_long='!!Incr')
         tbl.column('fol_incr','L',name_long='!!Incr')
         tbl.column('fato_incr','L',name_long='!!Incr')
-        tbl.column('carriera_id').relation('warh.carriera.id',mode='foreignkey',one_name='Carriera Attuale')
 #       tbl.aliasColumn('razza',relation_path='@razza_codice.nome') # relation_path --> path di relazione
 
