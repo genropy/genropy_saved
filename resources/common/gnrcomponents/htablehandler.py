@@ -24,7 +24,12 @@ from gnr.core.gnrbag import Bag,BagResolver
 def _getTreeRowCaption(tblobj):
     if hasattr(tblobj,'treeRowCaption'):
         return tblobj.treeRowCaption()
-    return  '$child_code,$description'
+    return  '$child_code,$description:%s - %s'
+
+def _getTreeRowCaption2(tblobj):
+    if hasattr(tblobj,'treeRowCaption'):
+        return tblobj.treeRowCaption()
+    return  '$child_code'
 
 class HTableHandler(BaseComponent):
     css_requires='public'
@@ -279,7 +284,13 @@ class HTableHandler(BaseComponent):
         result = Bag()
         if rootpath:
             row=tblobj.query(columns='*',where='$code=:code',code=rootpath).fetch()[0]
-            caption=tblobj.recordCaption(row,rowcaption=_getTreeRowCaption(tblobj))
+            description = row['description']
+            description = row['description']
+            if description:
+                get_tree_row_caption = _getTreeRowCaption
+            else:
+                get_tree_row_caption = _getTreeRowCaption2
+            caption=tblobj.recordCaption(row,rowcaption=get_tree_row_caption(tblobj))
             rootlabel = row['child_code']
             pkey=row['pkey']
             _attributes=dict(row)
@@ -315,7 +326,12 @@ class HTableResolver(BagResolver):
         for row in rows:
             child_count= row['child_count']
             value=HTableResolver(table=self.table,rootpath=row['code'],child_count=child_count)
-            children.setItem(row['child_code'], value,caption=tblobj.recordCaption(row,rowcaption=_getTreeRowCaption(tblobj)),
+            description = row['description']
+            if description:
+                get_tree_row_caption = _getTreeRowCaption
+            else:
+                get_tree_row_caption = _getTreeRowCaption2
+            children.setItem(row['child_code'], value,caption=tblobj.recordCaption(row,rowcaption=get_tree_row_caption(tblobj)),
                              pkey=row['pkey'],code=row['code'],child_count=child_count,
                              parent_code=row['parent_code'],hdescription=row['hdescription'])#_attributes=dict(row),
         return children
