@@ -34,7 +34,7 @@ def _getTreeRowCaption2(tblobj):
 class HTableHandler(BaseComponent):
     css_requires='public'
     def htableHandler(self,parent,nodeId=None,datapath=None,table=None,rootpath=None,label=None,
-                    editMode='bc',childTypes=None,dialogPars=None,loadKwargs=None,parentLock=None):
+                    editMode='bc',childTypes=None,dialogPars=None,loadKwargs=None,parentLock=None,where=None):
         """
         .tree: tree data:
                         store
@@ -284,7 +284,6 @@ class HTableHandler(BaseComponent):
         result = Bag()
         if rootpath:
             row=tblobj.query(columns='*',where='$code=:code',code=rootpath).fetch()[0]
-            description = row['description']
             description = row['description']
             if description:
                 get_tree_row_caption = _getTreeRowCaption

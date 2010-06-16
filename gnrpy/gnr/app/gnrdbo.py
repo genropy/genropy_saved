@@ -109,12 +109,19 @@ class GnrHTable(TableBase):
                         ELSE ((SELECT description FROM  %s AS ptable WHERE ptable.code = #THIS.parent_code) || '-' || #THIS.description)
                         END
                         """%tblname)
-        
-                         
+
+
     def trigger_onInserting(self, record_data):
-        code_list = [k for k in [record_data['parent_code'],record_data['child_code']] if k]
-        record_data['level'] = len(code_list)-1
-        record_data['code'] = '.'.join(code_list)
+        if 'child_code' in record_data:
+            code_list = [k for k in [record_data['parent_code'],record_data['child_code']] if k]
+            record_data['level'] = len(code_list)-1
+            record_data['code'] = '.'.join(code_list)
+
+    def trigger_onUpdating(self, record_data, old_record):
+        if 'child_code' in record_data:
+            code_list = [k for k in [record_data['parent_code'],record_data['child_code']] if k]
+            record_data['level'] = len(code_list)-1
+            record_data['code'] = '.'.join(code_list)
     
 class GnrDboTable(TableBase):
     
