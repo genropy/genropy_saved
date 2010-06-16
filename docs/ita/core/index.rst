@@ -4,6 +4,14 @@
 
 .. toctree::
 
-	bags
+	gnrbags
+	gnrdate
+	gnrdict
+	gnrclasses
+	gnrlang
+	gnrenv
+	gnrlist
+	gnrlocale
+	gnrstring
 	gnrcmd
 	miscellanea

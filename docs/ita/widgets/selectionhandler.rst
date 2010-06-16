@@ -36,6 +36,6 @@ Nomi
 
 Dato un ``nodeId`` uguale a ``foo``, i vari componenti vengono nominati nel modo seguente:
 
-# ``foo_frm`` per la form
-# ``foo_dlg`` nodeId della finestra di dialogo
+	* ``foo_frm`` per la form	
+	* ``foo_dlg`` nodeId della finestra di dialogo
 

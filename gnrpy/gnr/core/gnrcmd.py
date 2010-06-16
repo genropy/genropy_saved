@@ -11,11 +11,11 @@ Available functionality:
       project from ``GENROPY_xxx`` environment variables and/or the current working
       directory.
 
-Coming soon:
+Future plans:
     - GnrCommand, base class for command-line utilities, will provide parameters
       and options auto-discovery (much like Michele Simionato's plac).
     - ``gnr`` utility, a single entry point for all command-line utilities so we don't
-      clutter /usr/local/bin with many scripts:
+      clutter ``/usr/local/bin`` with many scripts::
     
             Three scripts for the genro-kings under softwell sky,
             Seven for goodsoftware-lords in their halls of stone,
@@ -54,35 +54,112 @@ def expandpath(path, full=False):
 class AutoDiscovery(object):
     """Try to guess the current project, package, site and instance.
     
+    Environment variables:
+    
+    .. envvar:: GENROPY_PROJECT
+
+        The name of the current project.
+
+    .. envvar:: GENROPY_INSTANCE
+
+        The name of the current instance.
+    
+    .. envvar:: GENROPY_SITE
+
+        The name of the current site.
+    
+    .. envvar:: GENROPY_PACKAGE
+
+        The name of the current package.
+
     We apply these rules:
     
-        1. look in the environment for a ``GENROPY_PROJECT``, ``GENROPY_SITE``,
-           ``GENROPY_INSTANCE`` and ``GENROPY_PACKAGE`` variables. If any are present,
+        1. look in the environment for a :envvar:`GENROPY_PROJECT`, :envvar:`GENROPY_SITE`,
+           :envvar:`GENROPY_INSTANCE` and :envvar:`GENROPY_PACKAGE` variables. If any are present,
            we cross-check that they point to the right places by looking at the
            declared places in the configuration (.gnr/environment.xml) and
            complain if they don't.
 
-        2. if ``GENROPY_PROJECT`` is missing, we look if the current path is inside
+        2. if :envvar:`GENROPY_PROJECT` is missing, we look if the current path is inside
            one of the declared projects in the configuration. If yes, we assume
            that is the current project. If no, we don't have a current project.
 
-        3. if ``GENROPY_INSTANCE`` is missing, we look if the current path is inside
+        3. if :envvar:`GENROPY_INSTANCE` is missing, we look if the current path is inside
            one of the instances of the current project or if we are inside one
            of the declared instances in the configuration. If yes, we assume
            that is the current instance. If no, we don't have a current instance.
 
-        4. if ``GENROPY_SITE`` is missing... (same as the previous step)
+        4. if :envvar:`GENROPY_SITE` is missing... (same as the previous step)
 
-        5. if ``GENRO_PACKAGE`` is missing... (same as the previous step)
+        5. if :envvar:`GENROPY_PACKAGE` is missing... (same as the previous step)
 
         6. If we have a project, but we don't have an instance/site/package
            -and- the project has only one instance/site/package, then we
            assume that's the current one.
     
+    Attributes:
+    
+    .. attribute:: current_project
+    
+        the current project, if found
+    
+    .. attribute:: current_package
+    
+        the current package, if found
+    
+    .. attribute:: current_instance
+    
+        the current instance, if found
+    
+    .. attribute:: current_site
+    
+        the current site, if found
+    
+    .. attribute:: project_packages
+    
+        all packages in the current project, if a project has been found
+    
+    .. attribute:: project_instances
+    
+        all instances in the current project, if a project has been found
+    
+    .. attribute:: project_sites
+    
+        all sites in the current project, if a project has been found
+        
+    .. attribute:: project_commands
+    
+        all commands in the current project, if a project has been found
+    
+    .. attribute:: all_projects
+    
+        all projects in this GenroPy installation
+        
+    .. attribute:: all_instances
+    
+        all instances in this GenroPy installation
+    
+    .. attribute:: all_packages
+    
+        all packages in this GenroPy installation
+    
+    .. attribute:: all_sites
+    
+        all sites in this GenroPy installation
+    
+    .. attribute:: all_commands
+    
+        all commands in this GenroPy installation
+    
+    .. attribute:: config_file
+    
+        path to the configuration file (e.g. ``~/gnr/environment.xml``)
+    
     """
 
     def __init__(self, config_file='~/.gnr/environment.xml'):
-        """Constructor"""
+        """Constructor.
+        """
         self.current_project = None
         self.current_package = None
         self.current_instance = None
@@ -101,11 +178,15 @@ class AutoDiscovery(object):
         
         self.config_file=config_file
         
-        self.load_configuration()
-        self.auto_discovery()
+        self._load_configuration()
+        self._auto_discovery()
     
     def report(self, all=False):
-        """Print a summary of what AutoDiscovery found."""
+        """Print a summary of what AutoDiscovery found.
+
+        If ``all`` is False, it will print only the current project, instance, packages and site.
+        If ``all`` is True, will print a full report including all available items in this GenroPy installation.
+        """
         print "Current Project:", repr(self.current_project)
         print "Current Instance:", repr(self.current_instance)
         print "Current Package:", repr(self.current_package)
@@ -120,7 +201,7 @@ class AutoDiscovery(object):
                 print "  ", repr(i)
         
         
-    def load_configuration(self):
+    def _load_configuration(self):
         """Load GenroPy configuration"""
         cfg = Bag(expanduser(self.config_file))
 
@@ -132,13 +213,7 @@ class AutoDiscovery(object):
         # Change os.environ, so expandvars() will expand our vars too
         for k,v in get_section('environment', attr_name='value'):
             environ[k.upper()] = v
-        
-##        gnrhome = Bag(expandpath('$GNRHOME'))['#0']
-##        if 'packages' in gnrhome:
-##            self.all_packages.update(gnrhome['packages'])
-##        if 'commands' in gnrhome:
-##            self.all_commands.update(gnrhome['commands'])
-        
+
         for name, path in get_section('projects'):
             for p_name, p in AutoDiscovery.Project.all(path):
                 self.all_projects[p_name] = p
@@ -160,19 +235,19 @@ class AutoDiscovery(object):
             self.all_packages.update(AutoDiscovery.Package.all(path))
             
     
-    def auto_discovery(self):
+    def _auto_discovery(self):
         """Guess current project, package, instance and site."""
-        self.current_project = self.guess_current('PROJECT',self.all_projects)
+        self.current_project = self._guess_current('PROJECT',self.all_projects)
         if self.current_project:
             self.project_instances = dict(self.current_project.instances())
             self.project_packages = dict(self.current_project.packages())
             self.project_sites = dict(self.current_project.sites())
             self.project_commands = dict(self.current_project.commands())
-        self.current_instance = self.guess_current('INSTANCE',self.all_instances, self.project_instances)
-        self.current_package = self.guess_current('PACKAGE', self.all_packages, self.project_packages)
-        self.current_site = self.guess_current('SITE', self.all_sites, self.project_sites)
+        self.current_instance = self._guess_current('INSTANCE',self.all_instances, self.project_instances)
+        self.current_package = self._guess_current('PACKAGE', self.all_packages, self.project_packages)
+        self.current_site = self._guess_current('SITE', self.all_sites, self.project_sites)
     
-    def guess_current(self, name, all_items, project_items=None):
+    def _guess_current(self, name, all_items, project_items=None):
         """Guess the current PROJECT/INSTANCE/PACKAGE/SITE"""
         current_name = environ.get(name, None)
         if current_name and (current_name in all_items):
@@ -199,11 +274,24 @@ class AutoDiscovery(object):
         log.warn(msg)
     
     class Item(object):
+        """
+        :class:`AutoDiscovery`'s attributes contain instances of this class and its subclasses.
+        
+        They have the following public attributes:
+        
+        .. attribute:: name
+        
+            the name of this item
+        
+        .. attribute:: path
+        
+            the absolute path to this item
+        """
         def __init__(self, path):
             self.path = expandpath(path, full=True)
             self.name = basename(path)
         
-        def is_valid(self):
+        def _is_valid(self):
             """Returns if this is a valid item.
             Subclasses override it."""
             return True
@@ -218,32 +306,40 @@ class AutoDiscovery(object):
                     if name.startswith('.'): continue
                     path = path_join(base_path, name)
                     item = cls(path)
-                    if item.is_valid():
+                    if item._is_valid():
                         yield item.name, item
         
     class Project(Item):
+        """
+        Project have these additional methods:
+        """
+        
         common_project_dirs = 'instances sites packages commands'.split()
-        def is_valid(self):
+        def _is_valid(self):
             return any([isdir(path_join(self.path,d)) for d in self.common_project_dirs])
     
         def instances(self):
+            """all instances in this project"""
             return AutoDiscovery.Instance.all(path_join(self.path,'instances'))
         
         def sites(self):
+            """all sites in this project"""
             return AutoDiscovery.Site.all(path_join(self.path,'sites'))
         
         def commands(self):
+            """all commands in this project"""
             return AutoDiscovery.Command.all(path_join(self.path,'commands'))
         
         def packages(self):
+            """all packages in this project"""
             return AutoDiscovery.Package.all(path_join(self.path,'packages'))
     
     class Instance(Item):
-        def is_valid(self):
+        def _is_valid(self):
             return isfile(path_join(self.path,'instanceconfig.xml'))
     
     class Site(Item):
-        def is_valid(self):
+        def _is_valid(self):
             return isfile(path_join(self.path,'siteconfig.xml')) and \
                    isfile(path_join(self.path,'root.py'))
     
@@ -252,13 +348,13 @@ class AutoDiscovery(object):
             AutoDiscovery.Item.__init__(self, path)
             self.name = splitext(self.name)[0] #remove extension
             
-        def is_valid(self):
+        def _is_valid(self):
             p = path_join(self.path)
             return isfile(p)
         
     class Package(Item):
         common_package_dirs = 'models webpages'.split()
-        def is_valid(self):
+        def _is_valid(self):
             return any([isdir(path_join(self.path,d)) for d in self.common_package_dirs])
 
 def test_AutoDiscovery():
@@ -285,7 +381,7 @@ class GnrCommand(object):
 class ProgressBar(object):
     """Provides a text-based progress bar.
     
-    Sample usage::
+    Example::
     
         import time
         with ProgressBar('ProgressBar test') as pg:
@@ -323,7 +419,7 @@ class ProgressBar(object):
     def update(self, value, progress_value=None):
         """Draws the progress bar.
 
-        Example::
+        Here's how it looks::
         
             Label padded to length     [**********----------------------]  45.12%
         """
@@ -343,3 +439,7 @@ def test_ProgressBar(testError=False):
             pg.update(n/3.33)
             if testError and (n > 233):
                 raise Exception, "Something bad happened."
+
+if __name__ == '__main__':
+    # test_ProgressBar()
+    test_AutoDiscovery()
