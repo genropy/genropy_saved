@@ -8,10 +8,11 @@
 	gnrdate
 	gnrdict
 	gnrclasses
+	gnrcmd
 	gnrlang
 	gnrenv
 	gnrlist
 	gnrlocale
 	gnrstring
-	gnrcmd
+	gnrsys
 	miscellanea
