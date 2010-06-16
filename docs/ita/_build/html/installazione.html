@@ -1,0 +1,181 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Installazione &mdash; GenroPy v0.7dev documentation</title>
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '0.7dev',
+        COLLAPSE_MODINDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="GenroPy v0.7dev documentation" href="index.html" />
+    <link rel="next" title="Appunti vari su GenroPy" href="appunti.html" />
+    <link rel="prev" title="GenroPy" href="index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="appunti.html" title="Appunti vari su GenroPy"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="index.html" title="GenroPy"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">GenroPy v0.7dev documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="installazione">
+<h1>Installazione<a class="headerlink" href="#installazione" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="prerequisiti">
+<h2>Prerequisiti<a class="headerlink" href="#prerequisiti" title="Permalink to this headline">¶</a></h2>
+<p>Per utilizare GenroPy, avrete bisogno almeno di:</p>
+<ul class="simple">
+<li>sistema operativo Mac o Linux (non ho esperienza con Windows)</li>
+<li>Python 2.6</li>
+<li>Postgres 8</li>
+<li>subversion (e magari git)</li>
+</ul>
+<p>Se non l&#8217;avete già, installate <strong>easy_install</strong> così:</p>
+<div class="highlight-python"><pre>curl -O http://peak.telecommunity.com/dist/ez_setup.py
+sudo python ez_setup.py
+# oppure in Ubuntu
+sudo apt-get install python-setuptools</pre>
+</div>
+<p>Serviranno anche <strong>psycopg2</strong> e <strong>paver</strong>, installabili con <em>easy_install</em>:</p>
+<div class="highlight-python"><pre>sudo easy_install -U -Z psycopg2
+# oppure in Ubuntu
+sudo apt-get install python-psycopg2</pre>
+</div>
+<p>Per installare <em>paver</em>:</p>
+<div class="highlight-python"><pre>sudo easy_install -U -Z paver</pre>
+</div>
+<p>(<tt class="docutils literal"><span class="pre">-U</span></tt> = upgrade, <tt class="docutils literal"><span class="pre">-Z</span></tt> = always unzip)</p>
+</div>
+<div class="section" id="ottenere-genropy">
+<h2>Ottenere GenroPy<a class="headerlink" href="#ottenere-genropy" title="Permalink to this headline">¶</a></h2>
+<p>Il repository di GenroPy è basato su subversion, però vi consiglio di usare git così da poter tener traccia delle modifiche fatte localmente. Per ottenere genropy, scrivete:</p>
+<div class="highlight-python"><pre>svn co http://svn.genropy.org/genro/trunk genro</pre>
+</div>
+<p>In alternativa, usando git (se avete tanto tempo a disposizione):</p>
+<div class="highlight-python"><pre>git svn clone http://robertolupi@svn.genropy.org/genro/trunk genro</pre>
+</div>
+</div>
+<div class="section" id="installare-genropy">
+<h2>Installare GenroPy<a class="headerlink" href="#installare-genropy" title="Permalink to this headline">¶</a></h2>
+<p>Il grosso è fatto, ora meglio lasciar il campo libero a <em>paver</em>:</p>
+<div class="highlight-python"><pre>cd genro
+cd gnrpy
+sudo paver develop</pre>
+</div>
+</div>
+<div class="section" id="configurare-genropy">
+<h2>Configurare GenroPy<a class="headerlink" href="#configurare-genropy" title="Permalink to this headline">¶</a></h2>
+<p>GenroPy utilizza <tt class="docutils literal"><span class="pre">.gnr</span></tt> per la configurazione:</p>
+<div class="highlight-python"><pre>cd ../example_configuration/
+cp -a moveto.gnr $HOME/.gnr</pre>
+</div>
+<p>Utilizzate poi il vostro editor preferito per modificare <tt class="docutils literal"><span class="pre">environment.xml</span></tt>, <tt class="docutils literal"><span class="pre">siteconfig/default.xml</span></tt> e <tt class="docutils literal"><span class="pre">instanceconfig/default.xml</span></tt>.</p>
+</div>
+<div class="section" id="provare-l-installazione">
+<h2>Provare l&#8217;installazione<a class="headerlink" href="#provare-l-installazione" title="Permalink to this headline">¶</a></h2>
+<p>GenroPy include alcuni progetti di prova:</p>
+<ul class="simple">
+<li>Una raccolta un po&#8217; disorganizzata ma completa di esempi (package: <strong>showcase</strong>, istanza: <strong>showcase</strong>, sito: <strong>testgarden</strong>)</li>
+<li>Un semplice programma di fatturazione (package: <strong>invoices</strong>, istanza e sito: <strong>fatture1</strong>)</li>
+</ul>
+<p>Il primo è stato un po&#8217; trascurato, il codice ha bisogno di essere sistemato (per quanto, vi consiglio di dare un&#8217;occhaita alla sezione tutorial).</p>
+<p>Ad esempio, per provare il secondo potete procedere così per creare il database e poi lanciare un webserver di sviluppo:</p>
+<div class="highlight-python"><pre>gnrdbsetup -i fatture1
+gnrwsgiserve -s fatture1</pre>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+            <h3><a href="index.html">Table Of Contents</a></h3>
+            <ul>
+<li><a class="reference external" href="">Installazione</a><ul>
+<li><a class="reference external" href="#prerequisiti">Prerequisiti</a></li>
+<li><a class="reference external" href="#ottenere-genropy">Ottenere GenroPy</a></li>
+<li><a class="reference external" href="#installare-genropy">Installare GenroPy</a></li>
+<li><a class="reference external" href="#configurare-genropy">Configurare GenroPy</a></li>
+<li><a class="reference external" href="#provare-l-installazione">Provare l&#8217;installazione</a></li>
+</ul>
+</li>
+</ul>
+
+            <h4>Previous topic</h4>
+            <p class="topless"><a href="index.html"
+                                  title="previous chapter">GenroPy</a></p>
+            <h4>Next topic</h4>
+            <p class="topless"><a href="appunti.html"
+                                  title="next chapter">Appunti vari su GenroPy</a></p>
+            <h3>This Page</h3>
+            <ul class="this-page-menu">
+              <li><a href="_sources/installazione.txt"
+                     rel="nofollow">Show Source</a></li>
+            </ul>
+          <div id="searchbox" style="display: none">
+            <h3>Quick search</h3>
+              <form class="search" action="search.html" method="get">
+                <input type="text" name="q" size="18" />
+                <input type="submit" value="Go" />
+                <input type="hidden" name="check_keywords" value="yes" />
+                <input type="hidden" name="area" value="default" />
+              </form>
+              <p class="searchtip" style="font-size: 90%">
+              Enter search terms or a module, class or function name.
+              </p>
+          </div>
+          <script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="appunti.html" title="Appunti vari su GenroPy"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="index.html" title="GenroPy"
+             >previous</a> |</li>
+        <li><a href="index.html">GenroPy v0.7dev documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+      &copy; Copyright 2010, The GenroPy Team.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 0.6.3.
+    </div>
+  </body>
+</html>

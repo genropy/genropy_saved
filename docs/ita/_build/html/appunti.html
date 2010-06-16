@@ -1,0 +1,524 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Appunti vari su GenroPy &mdash; GenroPy v0.7dev documentation</title>
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '0.7dev',
+        COLLAPSE_MODINDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="GenroPy v0.7dev documentation" href="index.html" />
+    <link rel="prev" title="Installazione" href="installazione.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="installazione.html" title="Installazione"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">GenroPy v0.7dev documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="appunti-vari-su-genropy">
+<h1>Appunti vari su GenroPy<a class="headerlink" href="#appunti-vari-su-genropy" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="costruzione-delle-bags">
+<h2>Costruzione delle bags<a class="headerlink" href="#costruzione-delle-bags" title="Permalink to this headline">¶</a></h2>
+<p>Esistono vari modi per costruire bags in GenRo:</p>
+<ul class="simple">
+<li>da un file XML;</li>
+<li>utilizzando le istruzioni python del modulo <tt class="docutils literal"><span class="pre">gnr.core.gnrbag</span></tt>, in questo caso il codice è simile alla costruzione di un dizionario;</li>
+<li>utilizzando il modulo <tt class="docutils literal"><span class="pre">gnr.core.gnrstructures</span></tt>, in questo caso il codice è costituito da una serie di chiamate di metodi python. Il codice per la costruzione dei modelli di database e delle webpages costruisce in realtà delle bags, appoggiandosi a questo modulo.</li>
+</ul>
+</div>
+<div class="section" id="mappatura-da-modelli-a-struttura-del-database">
+<h2>Mappatura da modelli a struttura del database<a class="headerlink" href="#mappatura-da-modelli-a-struttura-del-database" title="Permalink to this headline">¶</a></h2>
+<p>In GenroPy, il passaggio dalle classi di modello al database avviene in questo modo:</p>
+<ol class="arabic simple">
+<li>Il codice nei files in <tt class="docutils literal"><span class="pre">&lt;nome</span> <span class="pre">package&gt;/models/&lt;nome</span> <span class="pre">modello&gt;.py</span></tt>, in realtà costruisce una Structure di GenRo (cioé una Bag costruita con codice Python).</li>
+<li>La bag così costruita viene tradotta in oggetti Python.</li>
+<li>Genro confronta questi oggetti con la struttura del database ed apporta gli eventuali aggiornamenti</li>
+</ol>
+<p>Il programma <tt class="docutils literal"><span class="pre">gnrdbsetup</span></tt> viene usato per questo scopo.</p>
+</div>
+<div class="section" id="siti-istanze-packages-e-componenti">
+<h2>Siti, Istanze, packages e componenti<a class="headerlink" href="#siti-istanze-packages-e-componenti" title="Permalink to this headline">¶</a></h2>
+<p>Le applicazioni GenroPy sono suddivise in vari strati, che consentono la personalizzazione (garantendo un facile aggiornamento anche in presenza di customizzazioni) e il riuso di codice e risorse fra vari progetti.</p>
+<p>Un progetto GenroPy è costituito da:</p>
+<dl class="docutils">
+<dt>il sito:</dt>
+<dd>si occupa di tutto ciò che riguarda la configurazione dell&#8217;applicazione per una particolare installazione <strong>Web</strong>. Include cioé i componenti e le configurazioni necessari all&#8217;esecuzione via Web. In genere, contiene la configurazione WSGI e lo script <tt class="docutils literal"><span class="pre">root.py</span></tt> (quest&#8217;ultimo viene usato anche come eseguibile se si vuole usare un debugger, come WingIDE).</dd>
+<dt>l&#8217;istanza:</dt>
+<dd><p class="first">contiene le personalizzazioni per il particolare cliente. In genere contiene i parametri di accesso al database. Dispone di una sottocartella <tt class="docutils literal"><span class="pre">data</span></tt> che si può usare per memorizzare dati nel filesystem. Quando si lavora con l&#8217;interprete python o con strumenti a linea di comando, in genere si lavora a livello d&#8217;istanza:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="c">#!python</span>
+<span class="kn">from</span> <span class="nn">gnr.app.gnrapp</span> <span class="kn">import</span> <span class="n">GnrApp</span>
+<span class="n">istanza</span> <span class="o">=</span> <span class="n">GnrApp</span><span class="p">(</span><span class="s">&#39;elezioni&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p class="last">Giovanni ha accennato al concetto di sottoistanza, utilizato per modificare la configurazione di un&#8217;applicazione a runtime (ad esempio, per poter accedere a dati storici ormai eliminati dal database corrente dell&#8217;istanza principale).</p>
+</dd>
+<dt>i packages:</dt>
+<dd><p class="first">sono i vari moduli che compongono il codice applicativo di Genro, compreso il package principale che costituisce l&#8217;applicazione sviluppata. Genro fornisce moduli aggiuntivi che implementano funzioni comuni a tutte le applicazioni (gestione utenti, tabella dei comuni italiani, etc.). E&#8217; dentro al package dell&#8217;applicazione (o dei packages accessori) che si concentra la maggior parte del codice Python (a parte quello del core del framework che è nel package python <tt class="docutils literal"><span class="pre">gnr</span></tt> e nei suoi figli).</p>
+<p>Il package <tt class="docutils literal"><span class="pre">glbl</span></tt> contiene già una tabella delle località e comuni italiani. (<strong>TODO</strong>: chiedere a Giovanni i dati della tabella, perché non mi sembra siano presenti in SVN).</p>
+<p class="last"><strong>Nota</strong>: i packages di Genro non sono packages Python (=insieme di moduli collegati, contenente un file <tt class="docutils literal"><span class="pre">__init__.py</span></tt>), perché non si possono importare con l&#8217;istruzione <tt class="docutils literal"><span class="pre">import</span> <span class="pre">&lt;modulo&gt;</span></tt> o <tt class="docutils literal"><span class="pre">from</span> <span class="pre">&lt;package&gt;</span> <span class="pre">import</span> <span class="pre">&lt;modulo</span> <span class="pre">o</span> <span class="pre">classe&gt;</span></tt>.</p>
+</dd>
+<dt>i componenti e le risorse:</dt>
+<dd>sono elementi comuni e riusabili. Comprendono sia il codice Javascript e CSS che quello Python (es. <tt class="docutils literal"><span class="pre">includedView</span></tt>, tabelle standard). E&#8217; inserito nela sottocartella <tt class="docutils literal"><span class="pre">webpages/_resources</span></tt> di packages, istanze (e -credo- siti). Viene usato nelle webpages attraverso <tt class="docutils literal"><span class="pre">py_requires</span></tt>, <tt class="docutils literal"><span class="pre">css_requires</span></tt> e <tt class="docutils literal"><span class="pre">js_requires</span></tt>. Il codice in <tt class="docutils literal"><span class="pre">gnr.web.gnrwsgisite</span></tt> si occupa di fare il mixin delle risorse.</dd>
+</dl>
+<div class="section" id="mixin-delle-classi-a-runtime">
+<h3>Mixin delle classi a runtime<a class="headerlink" href="#mixin-delle-classi-a-runtime" title="Permalink to this headline">¶</a></h3>
+<p>GenroPy costruisce le classi dell&#8217;applicazione facendo <em>mixin</em> delle classi a runtime. I metodi e le risorse (CSS, JS, ma anche componenti Python) vengono aggregati a runtime secondo regole precise che consentono di personalizzare il funzionamento per la singola installazione e di mantenere queste customizzazioni, con il minimo impatto, anche per i futuri aggiornamenti.</p>
+<p>La costruzione avviene all&#8217;avvio dell&#8217;applicazione wsgi (e non per ogni richiesta).</p>
+<p>E&#8217; possibile fare mixin sia per l&#8217;interfaccia (webpages, componenti, CSS, JS, etc.) che per la struttura del database (models).</p>
+<p><strong>TODO:</strong> Si veda sul wiki del sito <a class="reference external" href="http://projects.softwell.it/">http://projects.softwell.it/</a> alla pagina <em>Customization</em> per una spiegazione delle regole di mixin e personalizzazione degli applicativi.</p>
+</div>
+</div>
+<div class="section" id="funzionamento-web-di-genropy">
+<h2>Funzionamento web di GenroPy<a class="headerlink" href="#funzionamento-web-di-genropy" title="Permalink to this headline">¶</a></h2>
+<p>Nella costruzione delle pagine, GenroPy prima di tutto fa caricare al browser la sua componente javascript. Una volta caricato il motore JS, viene inviata al client la descrizione della pagina e del contenuto iniziale del datastore sotto forma di bags. A questo punto, il codice JS può fare chiamate al codice python.</p>
+<p>In pratica, GenroPy si comporta in questo modo:</p>
+<ol class="arabic">
+<li><p class="first">Il client fa la richiesta HTTP per la pagina <tt class="docutils literal"><span class="pre">foo</span></tt>:</p>
+<div class="highlight-python"><pre>client ----------- HTTP ----------&gt; server (wsgisite)</pre>
+</div>
+</li>
+<li><p class="first">GenroPy manda una pagina standard vuota, contenente in pratica solo il motore <tt class="docutils literal"><span class="pre">gnrjs</span></tt>:</p>
+<div class="highlight-python"><pre>client &lt;----- motore javascript --- server (wsgisite)</pre>
+</div>
+</li>
+<li><p class="first">Il motore javascript chiede al server il contenuto della pagina, lato Python viene chiamata la funzione <tt class="docutils literal"><span class="pre">main</span></tt> della <tt class="docutils literal"><span class="pre">WebPage</span></tt>:</p>
+<div class="highlight-python"><pre>motore js ------- ready -----------&gt; server (pagina ``main.py``)</pre>
+</div>
+</li>
+<li><p class="first">Il server invia una descrizione del contenuto della pagina di alto livello, in termini di widgets e contenuto del datastore, sotto forma di bags:</p>
+<div class="highlight-python"><pre>pagina js &lt;------ bags ------------- pagina python</pre>
+</div>
+</li>
+<li><p class="first">Da qui in poi, la comunicazione procede principalmente facendo aggiornamenti al datastore (o all&#8217;interfaccia utente) utilizzando le funzioni di rpc:</p>
+<div class="highlight-python"><pre>pagina js &lt;- dataRpc() o remote() -&gt; pagina python</pre>
+</div>
+</li>
+</ol>
+</div>
+<div class="section" id="wsgi">
+<h2>WSGI<a class="headerlink" href="#wsgi" title="Permalink to this headline">¶</a></h2>
+<p>WSGI è lo standard per interfacciare frameworks Web Python con i webserver. Consente anche di comporre vari componenti web fra loro, attraverso un sistema di middlewares (concetto simile, ma non compatibile, con gli analoghi componenti in Django). Sul sito <a class="reference external" href="http://wsgi.org/wsgi">WSGI</a> sono presenti link a moltissime utili risorse (frameworks, middlewares, servers).</p>
+<p>Un&#8217;applicazione WSGI definisce una funzione che accetta la richiesta web e restituisce la risposta. Un middleware WSGI è semplicemente un&#8217;applicazione che ne richiama un&#8217;altra, come nel pattern <a class="reference external" href="http://en.wikipedia.org/wiki/Decorator_pattern">Decorator</a>.
+Lo standard WSGI definisce un formato standard per la richiesta (che può essere decorata con altre informazioni durante l&#8217;elaborazione nei vari middlewares) e per la risposta (che può anche essere asincrona).</p>
+<p>GenroPy utilizza il middleware <a class="reference external" href="http://beaker.groovie.org/">Beaker</a> per la gestione delle sessioni e weberror per la gestione dei traceback (compresa l&#8217;utilissima capacità di aprire un interprete python nel punto dove si verifica l&#8217;errore). GenroPy utilizza <a class="reference external" href="http://pythonpaste.org/">Paste</a> e <a class="reference external" href="http://pythonpaste.org/webob/reference.html">WebOb</a> durante lo sviluppo con server standalone (credo che la funzione weberror sia fornita da Paste).</p>
+<p>Per un esempio di middleware, vedi <tt class="docutils literal"><span class="pre">gnrpy/gnr/web/gzipmiddleware.py</span></tt> (lo script non funziona attualmente in genro, ma per altri motivi secondo Michele Bertoldi che se ne sta occupando). Il file <tt class="docutils literal"><span class="pre">root.py</span></tt> all&#8217;interno dei siti Genro è un&#8217;applicazione WSGI.</p>
+<div class="section" id="apache-e-wsgi">
+<h3>Apache e WSGI<a class="headerlink" href="#apache-e-wsgi" title="Permalink to this headline">¶</a></h3>
+<p>Per utilizzare WSGI con apache, è necessario installare il modulo <tt class="docutils literal"><span class="pre">mod_wsgi</span></tt> e configurarlo:</p>
+<div class="highlight-python"><pre>&lt;VirtualHost *:80&gt;
+ServerAdmin webmaster@localhost
+DocumentRoot /var/www
+WSGIDaemonProcess gnr user=genro group=genro python-eggs=/tmp threads=25
+SetEnv PROCESS_GROUP gnr
+WSGIProcessGroup %{ENV:PROCESS_GROUP}
+# modify the following line to point your site
+WSGIScriptAlias / /home/genro/progetti/mmusic/sites/provarci/root.py
+#WSGIRestrictProcess gnr
+&lt;Directory /home/genro/progetti/mmusic/sites/provarci&gt;
+Options Indexes FollowSymLinks
+AllowOverride All
+Order allow,deny
+Allow from all
+&lt;/Directory&gt;
+&lt;/VirtualHost&gt;</pre>
+</div>
+</div>
+</div>
+<div class="section" id="tipo-di-dati-aggiuntivi-non-presenti-nel-bundle-textmate">
+<h2>Tipo di dati aggiuntivi, non presenti nel bundle TextMate<a class="headerlink" href="#tipo-di-dati-aggiuntivi-non-presenti-nel-bundle-textmate" title="Permalink to this headline">¶</a></h2>
+<dl class="docutils">
+<dt>Tipo <tt class="docutils literal"><span class="pre">DH</span></tt>:</dt>
+<dd>TimeStamp</dd>
+</dl>
+</div>
+<div class="section" id="gnrapp">
+<h2>GnrApp<a class="headerlink" href="#gnrapp" title="Permalink to this headline">¶</a></h2>
+<p>Il codice per creare un&#8217;istanza è:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="c">#!python</span>
+<span class="kn">from</span> <span class="nn">gnr.app.gnrapp</span> <span class="kn">import</span> <span class="n">GnrApp</span>
+<span class="n">istanza</span> <span class="o">=</span> <span class="n">GnrApp</span><span class="p">(</span><span class="s">&#39;elezioni&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<ol class="arabic">
+<li><p class="first"><tt class="docutils literal"><span class="pre">GnrApp.__init__</span></tt> carica la configurazione dell&#8217;istanza da <tt class="docutils literal"><span class="pre">instanceconfig.xml</span></tt>.</p>
+</li>
+<li><dl class="first docutils">
+<dt><tt class="docutils literal"><span class="pre">GnrApp.init</span></tt> esegue:</dt>
+<dd><ul class="first last simple">
+<li>l&#8217;hook <tt class="docutils literal"><span class="pre">onIniting</span></tt></li>
+<li>crea gli oggetti package necessari</li>
+<li>l&#8217;hook <tt class="docutils literal"><span class="pre">onInited</span></tt></li>
+</ul>
+</dd>
+</dl>
+</li>
+</ol>
+</div>
+<div class="section" id="gnrpackage">
+<h2>GnrPackage<a class="headerlink" href="#gnrpackage" title="Permalink to this headline">¶</a></h2>
+<p>Nel file <tt class="docutils literal"><span class="pre">main.py</span></tt> di un package, si definiscono le classi <tt class="docutils literal"><span class="pre">Package</span></tt> e <tt class="docutils literal"><span class="pre">Table</span></tt>. I metodi di queste classi sono rispettivamente disponibili alle pagine web come <tt class="docutils literal"><span class="pre">self.package.&lt;nome</span> <span class="pre">metodo&gt;</span></tt> e come <tt class="docutils literal"><span class="pre">self.db.table('nome</span> <span class="pre">tabella').&lt;nome</span> <span class="pre">metodo&gt;</span></tt>.</p>
+</div>
+<div class="section" id="pagine">
+<h2>Pagine<a class="headerlink" href="#pagine" title="Permalink to this headline">¶</a></h2>
+<p>Gli oggetti pagina posso accedere ai vari componenti di un&#8217;applicazione Genro usando variabili d&#8217;istanza:</p>
+<ul class="simple">
+<li><tt class="docutils literal"><span class="pre">self.package</span></tt></li>
+<li><tt class="docutils literal"><span class="pre">self.db</span></tt></li>
+<li><tt class="docutils literal"><span class="pre">self.application</span></tt> (es. <tt class="docutils literal"><span class="pre">self.application.config</span></tt>)</li>
+<li><tt class="docutils literal"><span class="pre">self.site</span></tt> (es. <tt class="docutils literal"><span class="pre">self.site.config</span></tt>)</li>
+</ul>
+</div>
+<div class="section" id="oggetti-tabella">
+<h2>Oggetti Tabella<a class="headerlink" href="#oggetti-tabella" title="Permalink to this headline">¶</a></h2>
+<p>Gli oggetti tabella sono accessibili dalle pagine con <tt class="docutils literal"><span class="pre">self.db.table('ppackage.tabella')</span></tt>. Il metodo <tt class="docutils literal"><span class="pre">query</span></tt> degli oggetti tabella restituisce un oggetto di ricerca nel db configurato secondo i parametri specificati, ma non esegue la query sul db. Su questo oggetto ricerca, possono essere usati il metodo <tt class="docutils literal"><span class="pre">selection</span></tt> per avere i risultati in vari formati oppure il metodo <tt class="docutils literal"><span class="pre">fetch</span></tt> per ottenerli semplicemente (come lista/dizionari/iteratore/bag? boh, <strong>TODO:</strong> controllare).</p>
+<p>Esempio:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="c">#!python</span>
+
+<span class="n">db</span> <span class="o">=</span> <span class="o">...</span>
+<span class="n">tbl</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">table</span><span class="p">(</span><span class="s">&#39;comuni&#39;</span><span class="p">)</span>
+<span class="n">qry</span> <span class="o">=</span> <span class="n">tbl</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>
+<span class="n">sel</span> <span class="o">=</span> <span class="n">qry</span><span class="o">.</span><span class="n">selection</span><span class="p">()</span>
+
+<span class="c"># modifica in memoria dei record, anche aggiungendo nuovi campi (es. per i campi calcolati da mandare al client)</span>
+<span class="n">sel</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">r</span><span class="p">:</span> <span class="nb">dict</span><span class="p">(</span><span class="n">area</span><span class="o">=</span><span class="n">r</span><span class="o">.</span><span class="n">base</span><span class="o">*</span><span class="n">r</span><span class="o">.</span><span class="n">altezza</span><span class="p">))</span>
+
+<span class="n">sel</span><span class="o">.</span><span class="n">output</span><span class="p">(</span><span class="n">formato</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Le selezioni supportano vari formati:</p>
+<dl class="docutils">
+<dt>bag:</dt>
+<dd>Bag di Genro (vedi <tt class="docutils literal"><span class="pre">gnr.core.gnrbag</span></tt>)</dd>
+<dt>json:</dt>
+<dd>Serializzazione in formato JSON</dd>
+<dt><em>altro</em>:</dt>
+<dd>per gli altri formati, guardare i metodi con prefisso <tt class="docutils literal"><span class="pre">out_</span></tt> degli oggetti selection</dd>
+</dl>
+<p>Le selezioni hanno metodi per fare totali o analisi statistiche (medie, somme, etc.) aggregate per vari campi, vedere i metodi <tt class="docutils literal"><span class="pre">analyze</span></tt> e <tt class="docutils literal"><span class="pre">totalize</span></tt>.</p>
+<p><strong>NOTA</strong>: le selezioni sono implementate a livello di bags (e non di database), quindi possono essere utilizzate anche con sorgenti dati diverse dai db.</p>
+<p>Vedi anche <tt class="docutils literal"><span class="pre">gnr.gnrsql.gnrsqldata</span></tt> per info su selection/query/record.</p>
+</div>
+<div class="section" id="tools-utili">
+<h2>Tools utili<a class="headerlink" href="#tools-utili" title="Permalink to this headline">¶</a></h2>
+<dl class="docutils">
+<dt>BonjourFoxy:</dt>
+<dd>plugin di Firefox per vedere i siti web registrati nella rete locale con Bonjour (utile nella fase di sviluppo)</dd>
+<dt>Navicat:</dt>
+<dd>editor di database con buon supporto per Postgres</dd>
+</dl>
+</div>
+<div class="section" id="pycallgraph">
+<h2>pycallgraph<a class="headerlink" href="#pycallgraph" title="Permalink to this headline">¶</a></h2>
+<p>Utilizza il profiler di python e mostra le chiamate come grafico utilizzando graphviz. Per installarlo, usare <tt class="docutils literal"><span class="pre">easy_install</span></tt> o <tt class="docutils literal"><span class="pre">pip</span></tt>:</p>
+<div class="highlight-python"><pre>easy_install pycallgraph</pre>
+</div>
+</div>
+<div class="section" id="bags">
+<h2>Bags<a class="headerlink" href="#bags" title="Permalink to this headline">¶</a></h2>
+<p>Le bag di GenroPy sono molto potenti e sono pervasive nel design del framework. (Questa è una gran cosa, ma può avere risvolti negativi dal punto di vista della sicurezza).</p>
+<p>Al costruttore delle bags, si possono passare:</p>
+<ul class="simple">
+<li>un dizionario</li>
+<li>una lista chiave/valore</li>
+<li>un&#8217;altra bag</li>
+<li>il nome di un file xml</li>
+<li>il nome di una directory, in questo caso si può percorrere l&#8217;albero ed anche leggere il contenuto dei files XML (come se facessero parte dello stesso albero)</li>
+</ul>
+<p>La potenza delle bags risiede nei resolvers, che lavorano come i mount points di un filesystem. Sono la promessa di restituire una bag. I resolver possono fare cache della bag restituita oppure fornire nuovi dati ad ogni chiamata.</p>
+</div>
+<div class="section" id="video-interessante-sul-design-dei-frameworks-web-in-python">
+<h2>Video interessante sul design dei frameworks web in Python<a class="headerlink" href="#video-interessante-sul-design-dei-frameworks-web-in-python" title="Permalink to this headline">¶</a></h2>
+<p>Djangocon 2008, <a class="reference external" href="http://www.youtube.com/watch?v=fipFKyW2FA4&amp;feature=related">Building a better framework</a></p>
+</div>
+<div class="section" id="dojo">
+<h2>DOJO<a class="headerlink" href="#dojo" title="Permalink to this headline">¶</a></h2>
+<p>La documentazione di DOJO è disponibile come applicazione AIR (cercare <em>DOJO Toolbox</em>), ma non è particolarmente aggiornata. In ogni caso, Genro utilizza la versione 1.1 di Dojo (mentre ora siamo alla 1.4).</p>
+</div>
+<div class="section" id="il-datastore-e-il-codice-javascript-di-genro">
+<h2>Il datastore e il codice Javascript di Genro<a class="headerlink" href="#il-datastore-e-il-codice-javascript-di-genro" title="Permalink to this headline">¶</a></h2>
+<p>Attraverso vari comandi python, si può collegare il codice javascript agli eventi dei componenti d&#8217;interfaccia oppure agli eventi generati dal datastore.</p>
+<p>Il datastore è una bag di genro.</p>
+<div class="section" id="sintassi-per-i-datapath">
+<h3>Sintassi per i datapath<a class="headerlink" href="#sintassi-per-i-datapath" title="Permalink to this headline">¶</a></h3>
+<p>I path nel datastore seguono la sintassi:</p>
+<ul class="simple">
+<li><tt class="docutils literal"><span class="pre">path.assoluto.nel.datastore</span></tt></li>
+<li><tt class="docutils literal"><span class="pre">.path.relativo.nel.datastore</span></tt></li>
+<li><tt class="docutils literal"><span class="pre">#ID.path.relativo.da.un.ID</span></tt></li>
+</ul>
+<p>E&#8217; possibile indicare di recuperare i dati dal datastore praticamente in ogni elemento dell&#8217;interfaccia (viene implementato nella lettura della Bag dell&#8217;interfaccia, e quindi comprende moltissime cose: ad esempio, è possibile anche specificare le classi CSS di un elemento HTML legandole ad un elemento del datastore), usando i prefissi:</p>
+<ul class="simple">
+<li>&#8220;tegolino&#8221; (accento circonflesso): <tt class="docutils literal"><span class="pre">^accesso.con.resolver</span></tt>, imposta una sorta di observer. Il componente verrà informato delle modifiche al datastore.</li>
+<li>uguale: <tt class="docutils literal"><span class="pre">=accesso.senza.resolver</span></tt>, legge il contenuto del datastore.</li>
+</ul>
+</div>
+<div class="section" id="accesso-al-datastore-da-javascript">
+<h3>Accesso al datastore da Javascript<a class="headerlink" href="#accesso-al-datastore-da-javascript" title="Permalink to this headline">¶</a></h3>
+<p>Le operazioni possibili sul datastore sono:</p>
+<dl class="docutils">
+<dt><strong>SET</strong>:</dt>
+<dd>imposta un valore e scatena gli eventi associati (cioé eventuali osservatori o resolver collegati tramite &#8220;^&#8221;)</dd>
+<dt><strong>PUT</strong>:</dt>
+<dd>imposta un valore, ma NON scatenare gli eventi associati</dd>
+<dt><strong>GET</strong>:</dt>
+<dd>legge il contenuto di un valore nel datastore.</dd>
+<dt><strong>FIRE</strong>:</dt>
+<dd>imposta un valore nel datastore, scatena gli eventi associati e poi reimposta il valore a nullo (senza scatenare eventi). Viene usato quando interessa più di tutti lo scatenare eventi passando un dato temporaneo agli observers.</dd>
+</dl>
+<p>Queste operazioni possono essere specificate nel codice javascript degli eventi associati all&#8217;interfaccia, il framework gnrjs si occupa di fare l&#8217;espansione di queste macro. E&#8217; possibile accedere al datastore dal propri codice javascript (i.e. da codice scritto in file .JS e quindi letto senza l&#8217;espansione delle macro) utilizzando semplici funzioni javascript.</p>
+</div>
+</div>
+<div class="section" id="componenti-utili-definiti-come-risorse">
+<h2>Componenti utili (definiti come risorse)<a class="headerlink" href="#componenti-utili-definiti-come-risorse" title="Permalink to this headline">¶</a></h2>
+<dl class="docutils">
+<dt>includedViewBox:</dt>
+<dd>lista di record, utile per implementare viste master/detail</dd>
+<dt>recordDialog:</dt>
+<dd>finestra popup di modifica di un singolo record. Di solito, utilizzata per la modifica dei record della includedViewBox.</dd>
+</dl>
+<p>Studiare questi due componenti per maggiori informazioni su come definire componenti complessi tramite le risorse.</p>
+</div>
+<div class="section" id="idea-per-un-tool-utile-allo-sviluppo-in-genro">
+<h2>Idea per un tool utile allo sviluppo in Genro<a class="headerlink" href="#idea-per-un-tool-utile-allo-sviluppo-in-genro" title="Permalink to this headline">¶</a></h2>
+<p>Estratte relazioni (leggendo gli observers) fra l&#8217;interfaccia ed il datastore e mostrarle in forma grafica con graphviz.</p>
+</div>
+<div class="section" id="politica-opensource-della-softwell">
+<h2>Politica opensource della Softwell<a class="headerlink" href="#politica-opensource-della-softwell" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li>La shell (packages in <tt class="docutils literal"><span class="pre">gnr.*</span></tt>) rimarrà sempre opensource.</li>
+<li>In futuro, Softwell potrebbe decidere di continuare lo sviluppo delle risorse (<tt class="docutils literal"><span class="pre">_resources</span></tt>) come software chiuso.</li>
+</ul>
+</div>
+<div class="section" id="sicurezza-nei-files-pdf">
+<h2>Sicurezza nei files PDF<a class="headerlink" href="#sicurezza-nei-files-pdf" title="Permalink to this headline">¶</a></h2>
+<p>Per leggere dati in locale o i parametri dell&#8217;URL, potrebbe essere necessario un certificato al fine di evitare il security alert (ma forse utilizzandolo da browser e caricando il PDF dal server, questo non è necessario).</p>
+</div>
+<div class="section" id="testgarden">
+<h2>Testgarden<a class="headerlink" href="#testgarden" title="Permalink to this headline">¶</a></h2>
+<p>Il progetto testgarden contiene demo per tutti gli widgets inclusi in genro. Può essere usato per le prove e per verificare di non rompere nulla.</p>
+<p><strong>NOTA</strong>: tuttavia non mi sembra che sia mantenuto attivamente e credo che sia già mezzo rotto allo stato attuale.</p>
+</div>
+<div class="section" id="id2">
+<h2>DOJO<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h2>
+<p>Genro utilizza <a class="reference external" href="http://www.dojotoolkit.org/">Dojo</a> versione 1.1, per la documentazione vedere anche il <a class="reference external" href="http://dojocampus.org/">Dojo Campus</a>.</p>
+<p>In Dojo, gli widget possono essere di due tipi: Container, ContentPanes.</p>
+<ul class="simple">
+<li>I Container possono contenere altri Containers o ContentPanes.</li>
+<li>I ContentPanes possono contenere widgets o elementi HTML.</li>
+</ul>
+<p>In pratica, seguono il pattern <em>Composite</em>.</p>
+<p>Nelle versioni precedenti di Dojo, nel <tt class="docutils literal"><span class="pre">borderContainer</span></tt> era necessario specificare per ultimo l&#8217;oggetto inserito al centro. E&#8217; buona norma farlo anche ora, seppur non necessario, perché così si velocizza il caricamento della pagina (non si può calcolare l&#8217;occupazione dell&#8217;elemento centrale senza aver prima caricato e calcolato quella degli elementi ai bordi).</p>
+</div>
+<div class="section" id="risorsa-public">
+<h2>Risorsa <tt class="docutils literal"><span class="pre">public</span></tt><a class="headerlink" href="#risorsa-public" title="Permalink to this headline">¶</a></h2>
+<p>La risorsa <tt class="docutils literal"><span class="pre">public</span></tt> implementa gli elementi base dell&#8217;interfaccia in Genro.</p>
+<p>Fornisce anche le classi CSS:</p>
+<dl class="docutils">
+<dt>pbl_RoundedGroup:</dt>
+<dd>utilizzata per dividere la pagina in due gruppi logicamente separati.</dd>
+<dt>pbl_RoundedGroupLabel:</dt>
+<dd>lavora con il precedente, per dare un titolo al gruppo.</dd>
+</dl>
+<p>Questi elementi vengono spesso usati all&#8217;interno di borderContainers.</p>
+</div>
+<div class="section" id="eventi-ed-azioni">
+<h2>Eventi ed azioni<a class="headerlink" href="#eventi-ed-azioni" title="Permalink to this headline">¶</a></h2>
+<p>Ogni elemento d&#8217;intefaccia (widget o tag HTML) permette di agganciare eventi javascript utilizzando la sintassi <tt class="docutils literal"><span class="pre">connect_&lt;nome</span> <span class="pre">evento&gt;</span></tt>.
+Esempio:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="k">def</span> <span class="nf">divProva</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parentContainer</span><span class="p">):</span>
+        <span class="n">cp</span> <span class="o">=</span> <span class="n">parentContainer</span><span class="o">.</span><span class="n">contentPane</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>
+        <span class="n">cp</span><span class="o">.</span><span class="n">div</span><span class="p">(</span><span class="n">connect_onDoubleClick</span><span class="o">=</span><span class="s">&#39;codice JS&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Come convenzione, la sintassi <tt class="docutils literal"><span class="pre">connect_&lt;nome</span> <span class="pre">evento&gt;</span></tt> viene usata per gli eventi di Javascript o di DOJO, mentre la sintassi <tt class="docutils literal"><span class="pre">&lt;evento&gt;_action</span></tt> viene usata per gli eventi e le azioni di genropy.</p>
+</div>
+<div class="section" id="includedview">
+<h2>includedView<a class="headerlink" href="#includedview" title="Permalink to this headline">¶</a></h2>
+<p>Le includedView sonoben documentate. Alcuni parametri come <tt class="docutils literal"><span class="pre">formPars</span></tt> e <tt class="docutils literal"><span class="pre">pickerPars</span></tt> sono però deprecati (ora esiste un altro modo per fare la stessa cosa.)</p>
+<p>E&#8217; possibile specificare <tt class="docutils literal"><span class="pre">addAction=True</span></tt> e <tt class="docutils literal"><span class="pre">delAction=True</span></tt> per scatenare gli eventi standard (modifica del record in una recordDialog). In questo caso, i record vengono aggiornati nel datastore (i.e. vengono trattati come logicamente facenti parte del record della tabella master, e le modifiche verranno applicate al salvataggio del record master).</p>
+<p>Con il metodo <tt class="docutils literal"><span class="pre">iv.gridEditor()</span></tt> si possono definire gli widgets utilizzati per l&#8217;editing delle righe. (Gli widgets di gridEditor vengono riutilizzati, spostandoli nel DOM della pagina, man mano che ci si muove fra le righe.)</p>
+</div>
+<div class="section" id="componenti-per-operare-sul-datastore">
+<h2>Componenti per operare sul datastore<a class="headerlink" href="#componenti-per-operare-sul-datastore" title="Permalink to this headline">¶</a></h2>
+<dl class="docutils">
+<dt><tt class="docutils literal"><span class="pre">data()</span></tt>:</dt>
+<dd>memorizza un valore nel datastore</dd>
+<dt><tt class="docutils literal"><span class="pre">dataFormula()</span></tt>:</dt>
+<dd>Calcola una cella del datastore a partire da altri valori (come in un foglio elettronico)</dd>
+<dt><tt class="docutils literal"><span class="pre">dataController()</span></tt>:</dt>
+<dd>Esegue del codice JS, legandolo ad un evento nel datastore (tramite un resolver).</dd>
+</dl>
+<p>I parametri di dataController o dataFormula diventano dichiarzioni di variabili locali, utilizzabili nella formula o nel codice JS stesso.</p>
+<div class="section" id="operazioni-remote">
+<h3>Operazioni remote<a class="headerlink" href="#operazioni-remote" title="Permalink to this headline">¶</a></h3>
+<dl class="docutils">
+<dt><tt class="docutils literal"><span class="pre">dataRecord()</span></tt>:</dt>
+<dd><strong>TODO</strong>: da approfondire - credo serva per memorizzare un record di database nel datastore</dd>
+<dt><tt class="docutils literal"><span class="pre">dataRemote()</span></tt>:</dt>
+<dd>Imposta un resolver nel datastore. All&#8217;accesso a questo elemento nel datastore, verrà chiamato codice Python (definito in una funzione con prefisso <tt class="docutils literal"><span class="pre">rpc_</span></tt>) dovrà restituire una bag.</dd>
+<dt><tt class="docutils literal"><span class="pre">dataRpc()</span></tt>:</dt>
+<dd>come sopra, dataRpc è la funzione di basso livello su cui si basano le funzionalità precedenti. Può essere usata per fare chiamate a codice python (scatenandole passando dei resolver come parametri).
+E&#8217; possibile specificare codice JS da chiamare prima della chiamata (con il parametro <tt class="docutils literal"><span class="pre">onCalling='codice</span> <span class="pre">JS'</span></tt>) oppure con i risultati ricevuti dal server (<tt class="docutils literal"><span class="pre">onresult='codice</span> <span class="pre">JS'</span></tt>).</dd>
+</dl>
+<p>I parametri di queste funzioni che non iniziano con &#8220;_&#8221; vengono passati al server e sono quindi disponibili al codice Python chiamato.</p>
+<p>Gli entry point nella pagina web chiamati da queste funzioni hanno il prefisso <tt class="docutils literal"><span class="pre">rpc_</span></tt>.</p>
+<p><strong>NOTA:</strong> Si può usare <tt class="docutils literal"><span class="pre">page.externalUrl(...)</span></tt> per avere l&#8217;URL di una chiamata RPC (utile per passare gli URL di caricamento/salvataggio XML al documento PDF nel progetto <em>elezioni</em>).</p>
+<p>Le funzioni possono restituire:</p>
+<ul class="simple">
+<li>una bag</li>
+<li>una tupla (bag, dizionario) &#8211; il dizionario contiene gli attributi/metadati della bag, visibili nell&#8217;explorer del datastore facendo click tenendo premuto SHIFT</li>
+</ul>
+<p>C&#8217;è inoltre un&#8217;API per effettuare modifiche al datastore nelle chiamate RPC.</p>
+</div>
+</div>
+<div class="section" id="formbuilder">
+<h2>FormBuilder<a class="headerlink" href="#formbuilder" title="Permalink to this headline">¶</a></h2>
+<p>Componente per semplificare la creazione delle forms.</p>
+<p>Utilizzando il metodo <tt class="docutils literal"><span class="pre">field</span></tt>, si possono definire i campi specificando semplicemente il nome. Il widget corretto verrà costruito in base al tipo di campo del database. Il metodo <tt class="docutils literal"><span class="pre">field</span></tt> accetta il parametro <tt class="docutils literal"><span class="pre">autospan=N</span></tt>, corrispondente a <tt class="docutils literal"><span class="pre">colspan=N</span></tt> più <tt class="docutils literal"><span class="pre">width='100%'</span></tt>.</p>
+</div>
+<div class="section" id="triggers">
+<h2>Triggers<a class="headerlink" href="#triggers" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="triggers-definiti-sulla-pagina">
+<h3>Triggers definiti sulla pagina<a class="headerlink" href="#triggers-definiti-sulla-pagina" title="Permalink to this headline">¶</a></h3>
+<p>E&#8217; possibile definire metodi python a livello di pagina web che vengono chiamati quando i record di una data tabella vengono caricati o salvati. I nomi dei metodi devono seguire questa sintassi:</p>
+<div class="highlight-python"><pre>on&lt;Operazione&gt;
+on&lt;Operazione&gt;_&lt;Nome Package&gt;_&lt;Nome Tabella&gt;</pre>
+</div>
+<p>dove <em>Operazione</em> è <tt class="docutils literal"><span class="pre">Loading</span></tt>, <tt class="docutils literal"><span class="pre">Saving</span></tt> oppure <tt class="docutils literal"><span class="pre">Saved</span></tt>.</p>
+<p>Questo è implementato a livello di layer rpc/web.</p>
+</div>
+<div class="section" id="triggers-sulla-tabella">
+<h3>Triggers sulla tabella<a class="headerlink" href="#triggers-sulla-tabella" title="Permalink to this headline">¶</a></h3>
+<p>A livello di tabella, sono analogamente disponibili gli eventi <tt class="docutils literal"><span class="pre">Inserting</span></tt>/<tt class="docutils literal"><span class="pre">Inserted</span></tt>, <tt class="docutils literal"><span class="pre">Updating</span></tt>/<tt class="docutils literal"><span class="pre">Updated</span></tt> e <tt class="docutils literal"><span class="pre">Deleting</span></tt>/<tt class="docutils literal"><span class="pre">Deleted</span></tt>.</p>
+<p><strong>NOTA</strong>: è possibile specificare se il database deve cancellare più record usando una istruzione SQL unica oppure istruzioni singole per ogni record. Sono presenti triggers differenti per i due casi.</p>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+            <h3><a href="index.html">Table Of Contents</a></h3>
+            <ul>
+<li><a class="reference external" href="">Appunti vari su GenroPy</a><ul>
+<li><a class="reference external" href="#costruzione-delle-bags">Costruzione delle bags</a></li>
+<li><a class="reference external" href="#mappatura-da-modelli-a-struttura-del-database">Mappatura da modelli a struttura del database</a></li>
+<li><a class="reference external" href="#siti-istanze-packages-e-componenti">Siti, Istanze, packages e componenti</a><ul>
+<li><a class="reference external" href="#mixin-delle-classi-a-runtime">Mixin delle classi a runtime</a></li>
+</ul>
+</li>
+<li><a class="reference external" href="#funzionamento-web-di-genropy">Funzionamento web di GenroPy</a></li>
+<li><a class="reference external" href="#wsgi">WSGI</a><ul>
+<li><a class="reference external" href="#apache-e-wsgi">Apache e WSGI</a></li>
+</ul>
+</li>
+<li><a class="reference external" href="#tipo-di-dati-aggiuntivi-non-presenti-nel-bundle-textmate">Tipo di dati aggiuntivi, non presenti nel bundle TextMate</a></li>
+<li><a class="reference external" href="#gnrapp">GnrApp</a></li>
+<li><a class="reference external" href="#gnrpackage">GnrPackage</a></li>
+<li><a class="reference external" href="#pagine">Pagine</a></li>
+<li><a class="reference external" href="#oggetti-tabella">Oggetti Tabella</a></li>
+<li><a class="reference external" href="#tools-utili">Tools utili</a></li>
+<li><a class="reference external" href="#pycallgraph">pycallgraph</a></li>
+<li><a class="reference external" href="#bags">Bags</a></li>
+<li><a class="reference external" href="#video-interessante-sul-design-dei-frameworks-web-in-python">Video interessante sul design dei frameworks web in Python</a></li>
+<li><a class="reference external" href="#dojo">DOJO</a></li>
+<li><a class="reference external" href="#il-datastore-e-il-codice-javascript-di-genro">Il datastore e il codice Javascript di Genro</a><ul>
+<li><a class="reference external" href="#sintassi-per-i-datapath">Sintassi per i datapath</a></li>
+<li><a class="reference external" href="#accesso-al-datastore-da-javascript">Accesso al datastore da Javascript</a></li>
+</ul>
+</li>
+<li><a class="reference external" href="#componenti-utili-definiti-come-risorse">Componenti utili (definiti come risorse)</a></li>
+<li><a class="reference external" href="#idea-per-un-tool-utile-allo-sviluppo-in-genro">Idea per un tool utile allo sviluppo in Genro</a></li>
+<li><a class="reference external" href="#politica-opensource-della-softwell">Politica opensource della Softwell</a></li>
+<li><a class="reference external" href="#sicurezza-nei-files-pdf">Sicurezza nei files PDF</a></li>
+<li><a class="reference external" href="#testgarden">Testgarden</a></li>
+<li><a class="reference external" href="#id2">DOJO</a></li>
+<li><a class="reference external" href="#risorsa-public">Risorsa <tt class="docutils literal"><span class="pre">public</span></tt></a></li>
+<li><a class="reference external" href="#eventi-ed-azioni">Eventi ed azioni</a></li>
+<li><a class="reference external" href="#includedview">includedView</a></li>
+<li><a class="reference external" href="#componenti-per-operare-sul-datastore">Componenti per operare sul datastore</a><ul>
+<li><a class="reference external" href="#operazioni-remote">Operazioni remote</a></li>
+</ul>
+</li>
+<li><a class="reference external" href="#formbuilder">FormBuilder</a></li>
+<li><a class="reference external" href="#triggers">Triggers</a><ul>
+<li><a class="reference external" href="#triggers-definiti-sulla-pagina">Triggers definiti sulla pagina</a></li>
+<li><a class="reference external" href="#triggers-sulla-tabella">Triggers sulla tabella</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+            <h4>Previous topic</h4>
+            <p class="topless"><a href="installazione.html"
+                                  title="previous chapter">Installazione</a></p>
+            <h3>This Page</h3>
+            <ul class="this-page-menu">
+              <li><a href="_sources/appunti.txt"
+                     rel="nofollow">Show Source</a></li>
+            </ul>
+          <div id="searchbox" style="display: none">
+            <h3>Quick search</h3>
+              <form class="search" action="search.html" method="get">
+                <input type="text" name="q" size="18" />
+                <input type="submit" value="Go" />
+                <input type="hidden" name="check_keywords" value="yes" />
+                <input type="hidden" name="area" value="default" />
+              </form>
+              <p class="searchtip" style="font-size: 90%">
+              Enter search terms or a module, class or function name.
+              </p>
+          </div>
+          <script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="installazione.html" title="Installazione"
+             >previous</a> |</li>
+        <li><a href="index.html">GenroPy v0.7dev documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+      &copy; Copyright 2010, The GenroPy Team.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 0.6.3.
+    </div>
+  </body>
+</html>
