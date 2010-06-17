@@ -10,12 +10,13 @@ class Table(object):
     def config_db(self, pkg):
         tbl =  pkg.table('instance', rowcaption='')
         self.sysFields(tbl)
-        tbl.column('name',size=':10',name_long='!!Instance Name')
+        tbl.column('code',size=':10',name_long='!!Instance Code')
+        tbl.column('description',name_long='!!Instance Description')
         tbl.column('repository_name', dtype='T', name_long='!!Repository Name') # Optional
         tbl.column('path',dtype='T',name_long='!!Instance Path')
         tbl.column('site_path',dtype='T',name_long='!!Site Path')
         
-        tbl.column('client_id',size=':22',name_long='!!Client id')
+        tbl.column('client_id',size=':22',name_long='!!Client id').relation('client.id',mode='foreignkey')
         # dtype -> sql
         #   I       int
         #   R       float

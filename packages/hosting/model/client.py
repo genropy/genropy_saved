@@ -10,7 +10,8 @@ class Table(object):
         tbl.column('anagrafica_id',size=':22',name_long='!!').relation('sw_base.anagrafica.id',
                     mode='foreignkey', onDelete='raise')
         tbl.column('user_id',size=':22',name_long='!!User ID').relation('adm.user.id', mode='foreignkey', onDelete='raise')
-        tbl.column('codice',size=':8',name_long='!!Codice')
+        tbl.column('code',size=':8',name_long='!!Code')
+        tbl.column('hosted_data','X',name_long='!!Hosted data')
         # dtype -> sql
         #   I       int
         #   R       float
