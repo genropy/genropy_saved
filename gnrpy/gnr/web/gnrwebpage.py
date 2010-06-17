@@ -770,6 +770,10 @@ class GnrWebPage(GnrBaseWebPage):
         self.onMain()
     
     def rpc_callTableScript(self,table, respath, class_name='Main',downloadAs=None,**kwargs):
+        """Call a script from a table's resources (i.e. ``_resources/tables/<table>/<respath>``).
+        
+        This is typically used to customize prints and batch jobs for a particular installation.
+        """
         if downloadAs:
             import mimetypes
             self.response.content_type = mimetypes.guess_type(downloadAs)[0]
