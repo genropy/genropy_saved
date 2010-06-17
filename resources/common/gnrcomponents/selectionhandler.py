@@ -66,18 +66,18 @@ class SelectionHandler(BaseComponent):
         assert not 'del_action' in kwargs,'remove del_action par'
         assert not 'connect_onRowDblClick' in kwargs,'remove connect_onRowDblClick par'
         
-        if selectionPars:
-            for p in selectionPars.values():
-                if isinstance(p, basestring):
-                    assert not p.startswith('^'), "Parameters in selectionPars should use '=' and not '^'"
-        
-        if dialogPars:
-            for p in dialogPars.values():
-                if isinstance(p, basestring):
-                    assert not p.startswith('^'), "Parameters in dialogPars should use '=' and not '^'"
-        
-        if reloader and isinstance(reloader, basestring):
-            assert reloader.startswith('^'), "reloader should be a resolver (i.e. it should start with '^')"
+        # if selectionPars:
+        #     for p in selectionPars.values():
+        #         if isinstance(p, basestring):
+        #             assert not p.startswith('^'), "Parameters in selectionPars should use '=' and not '^'"
+        # 
+        # if dialogPars:
+        #     for p in dialogPars.values():
+        #         if isinstance(p, basestring):
+        #             assert not p.startswith('^'), "Parameters in dialogPars should use '=' and not '^'"
+        # 
+        # if reloader and isinstance(reloader, basestring):
+        #     assert reloader.startswith('^'), "reloader should be a resolver (i.e. it should start with '^')"
         
         dialogPars['table'] = table
         dlgId = dialogPars.get('dlgId',"%s_dlg" %nodeId)
