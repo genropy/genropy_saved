@@ -17,6 +17,7 @@ Contents:
 	widgets/index
 	core/index
 	da-sistemare
+	ui/events
 
 Indici e tabelle
 ==================
