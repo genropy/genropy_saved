@@ -1,7 +1,47 @@
 Selection Handler
 =================
 
-**TODO:** inserire la documentazione autogenerata di selectionhandler()
+
+.. method:: selectionHandler(self, bc, nodeId, table, datapath, struct, label, selectionPars, dialogPars, ...)
+
+	Un componente che mostra records in una griglia e ne consente la modifica tramite una finestra di dialogo.
+
+	:param bc:			borderContainer -- parent
+	:param nodeId:		string
+	
+		- the dialog ID will be *nodeId* + ``_dlg``
+		- the form ID will be *nodeId* + ``_form``
+		
+	:param table:		table name
+	:param datapath:	datapath
+	:param struct:		struct or callable
+	:param label:		string or callable
+	:param selectionPars:		dict -- selection parameters
+	:param dialogPars:			dict -- dialog parameters
+	:param reloader:			datapath
+	:param externalChanges:
+	:param hiddencolumns:
+	:param custom_addCondition:
+	:param custom_delCondition:
+	:param askBeforeDelete:
+	:param checkMainRecord:
+	:param onDeleting:
+	:param dialogAddRecord:
+	:param onDeleted:
+	:param add_enable:
+	:param del_enable:
+	:param parentSave:
+	:param parentId:
+	:param parentLock:
+	:param **kwargs:
+
+..  def selectionHandler(self,bc,nodeId=None,table=None,datapath=None,struct=None,label=None,
+                         selectionPars=None,dialogPars=None,reloader=None,externalChanges=None,
+                         hiddencolumns=None,custom_addCondition=None,custom_delCondition=None,
+                         askBeforeDelete=True,checkMainRecord=True,onDeleting=None,dialogAddRecord=True,
+                         onDeleted=None,add_enable=True,del_enable=True,
+                         parentSave=False,parentId=None,parentLock='^status.locked',
+                         **kwargs):
 
 Datastore
 *********
