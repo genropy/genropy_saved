@@ -2,6 +2,7 @@
 <GenRoBag>
     <packages>
         <warh/>
+        <showcase/>
     </packages>
     <db dbname='warhammer'/>
 </GenRoBag>

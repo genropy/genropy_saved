@@ -20,7 +20,7 @@ class GnrCustomWebPage(object):
 #    def columnsBase(self): # definisce la dimensione della colonna... però è una sintassi sbrigativa
 #        return """codice:4,nome:15,descrizione:10,ac_base:4,ab_base:4,f_base/For.Base:4,r_base/					Res.Base:4,agilita:4,intelligenza:4,volonta:4,simpatia:4,attacchi:4,ferite:4,bonus_forza/bonusForza:4,bonus_res/bonus/Res:4,mov:4,magia:4,follia:4,pf_base/PF.Base:4"""
 
-    def lstBase(self,struct): # ??? ci sono alternative alla lstBase?
+    def lstBase(self,struct): # ci sono alternative alla lstBase?
         """!!Vista base"""
         r = struct.view().rows()
         r.cell('codice', dtype='T', name='!!Codice', width='4em')
