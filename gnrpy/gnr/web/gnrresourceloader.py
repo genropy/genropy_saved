@@ -300,6 +300,7 @@ class ResourceLoader(object):
     def loadResource(self,pkg, *path):
         resourceDirs = self.package_resourceDirs(pkg)
         resource_class = cloneClass('CustomResource',BaseResource)
+        resource_class.resourceDirs=resourceDirs
         self.mixinResource(resource_class, resourceDirs, *path)
         return resource_class()
         
