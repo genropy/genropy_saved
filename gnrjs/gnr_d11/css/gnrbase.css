@@ -16,6 +16,7 @@
     opacity:0;
     z-index:0;
 }
+
 label.ghostlabel span{
     opacity:1;
     z-index:5;
@@ -566,6 +567,9 @@ table.formbuilder {
     background: url(icons/base12/tabClose.gif) no-repeat center center;
     width: 12px;
     height: 12px;
+}
+.fakeTabContainer .dijitTabPaneWrapper{
+    display:none !important;
 }
 
 .icnTabCloseHover {
