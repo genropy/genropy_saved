@@ -79,6 +79,9 @@ class TableHandler(BaseComponent):
     def columnsBase(self):
         return ''
     
+    def orderBase(self):
+        return ''
+    
     def onSavingFormBase(self):
         """JS ONCALLING OF RPCSAVING PROCESS
            params inside js:
