@@ -257,7 +257,6 @@ class GnrHtmlBuilder(object):
                             innerHTML = self.htmlTemplate['layout.%s.%s.html' %(region,subregion)] or None
                             if innerHTML:
                                 if self.showTemplateContent:
-                                    print 'aaa'
                                     innerHTML = "%s::HTML" %innerHTML
                                 else:
                                     innerHTML = ''
