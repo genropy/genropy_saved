@@ -15,7 +15,7 @@ class Table(object):
         tbl.column('repository_name', dtype='T', name_long='!!Repository Name') # Optional
         tbl.column('path',dtype='T',name_long='!!Instance Path')
         tbl.column('site_path',dtype='T',name_long='!!Site Path')
-        
+        tbl.column('hosted_data','X',name_long='!!Hosted data')  
         tbl.column('client_id',size=':22',name_long='!!Client id').relation('client.id',mode='foreignkey')
         # dtype -> sql
         #   I       int
@@ -41,3 +41,6 @@ class Table(object):
         sm=SiteMaker(name, base_path=base_path, config=siteconfig)
         sm.do()
         return sm.site_path
+
+    def trigger_onInserting(self, record_data):
+        pass
