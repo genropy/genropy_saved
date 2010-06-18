@@ -11,8 +11,6 @@ import sys
 import os
 from logging.handlers import SMTPHandler
 
-from gnr.core.gnrlog import gnrlogging
-
 from gnr.core import gnrstring
 
 class Package(object):
@@ -56,6 +54,6 @@ class Package(object):
             if ':' in mailhost:
                 mailhost = mailhost.split(':')
             mailhandler = SMTPHandler(mailhost, fromaddr, toaddrs, subject)
-            mailhandler.setLevel(gnrlogging.ERROR)
-            gnrlogging.getLogger('').addHandler(mailhandler)
+            mailhandler.setLevel(logging.ERROR)
+            logging.getLogger('').addHandler(mailhandler)
         

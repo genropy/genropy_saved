@@ -7,8 +7,7 @@ import time, datetime
 from logging.handlers import TimedRotatingFileHandler
 from logging import Formatter
 
-from gnr.core.gnrlog import gnrlogging
-gnrlogger = gnrlogging.getLogger('gnr.xtnd.sync4Dapp')
+gnrlogger = logging.getLogger('gnr.xtnd.sync4Dapp')
 
 from gnr.core.gnrlang import errorLog
 from gnr.core.gnrbag import Bag, DirectoryResolver
@@ -202,12 +201,12 @@ class GnrAppSync4D(GnrApp):
             os.makedirs(logdir)
         logfile = os.path.join(logdir,'gnrsync4d.log')
         loghandler = TimedRotatingFileHandler(logfile, 'MIDNIGHT', 1, 28)
-        loghandler.setLevel(gnrlogging.DEBUG)
+        loghandler.setLevel(logging.DEBUG)
         formatter = Formatter('%(asctime)s - %(name)-12s: %(levelname)-8s %(message)s')
         loghandler.setFormatter(formatter)
         
-        rootlogger = gnrlogging.getLogger('')
-        rootlogger.setLevel(gnrlogging.DEBUG)
+        rootlogger = logging.getLogger('')
+        rootlogger.setLevel(logging.DEBUG)
         rootlogger.addHandler(loghandler)
         
         self.db.package('admin').mailLog(self.processName)

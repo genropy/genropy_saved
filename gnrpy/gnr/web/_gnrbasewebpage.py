@@ -34,14 +34,9 @@ import traceback
 import urllib
 
 
-#from decimal import Decimal
+import logging
+gnrlogger = logging.getLogger('gnr.web.gnrwebcore')
 
-from gnr.core.gnrlog import gnrlogging
-
-gnrlogger = gnrlogging.getLogger('gnr.web.gnrwebcore')
-
-
-#from mako.template import Template
 try:
     import json
 except:

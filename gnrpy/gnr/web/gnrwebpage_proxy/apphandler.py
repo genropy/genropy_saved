@@ -31,10 +31,10 @@ import os
 import re
 import time
 
-from gnr.core.gnrlog import gnrlogging
 from gnr.core.gnrlang import gnrImport
 
-gnrlogger = gnrlogging.getLogger('gnr.web.gnrwebcore')
+import logging
+gnrlogger = logging.getLogger('gnr.web.gnrwebcore')
 
 from gnr.core.gnrbag import Bag
 from gnr.core import gnrlist

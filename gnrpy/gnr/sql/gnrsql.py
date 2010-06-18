@@ -23,8 +23,8 @@
 __version__='1.0b'
 
 
-from gnr.core.gnrlog import gnrlogging
-gnrlogger = gnrlogging.getLogger('gnr.sql.gnrsql')
+import logging
+gnrlogger = logging.getLogger('gnr.sql.gnrsql')
 import cPickle
 
 from gnr.core.gnrlang import getUuid

@@ -28,12 +28,12 @@ import os
 from gnr.core import gnrstring
 from gnr.core.gnrlang import GnrObject
 from gnr.core.gnrbag import Bag, BagCbResolver
-from gnr.core.gnrlog import gnrlogging
 #from gnr.sql.gnrsql_exceptions import GnrSqlException,GnrSqlSaveException, GnrSqlApplicationException
 from gnr.sql.gnrsqldata import SqlRecord, SqlQuery
 from gnr.sql.gnrsql import GnrSqlException
 from gnr.core.gnrlang import getUuid
-gnrlogger = gnrlogging.getLogger('gnr.sql.gnrsqltable')
+import logging
+gnrlogger = logging.getLogger('gnr.sql.gnrsqltable')
 
 class GnrSqlSaveException(GnrSqlException): 
     code='GNRSQL-03'
