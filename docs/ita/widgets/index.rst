@@ -1,6 +1,6 @@
-#########
+###################
  Interfaccia utente
-#########
+###################
 
 .. module:: ui
 	:synopsis: (package inesistente, usato qui per raggruppare la documentazione della UI)

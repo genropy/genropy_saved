@@ -6,8 +6,18 @@ from gnr.core.gnrbag import Bag
 from gnr.core.gnrstring import splitAndStrip
 
 class GnrDboPackage(object):
-    def getCounter(self, name, code, codekey, output, 
-                   date=None, phyear=False,lastAssigned=0):
+    """Base class for packages.
+    """
+    def getCounter(self, name, code, codekey, output, date=None, phyear=False,lastAssigned=0):
+        """Generate a new number from the specified counter.
+        
+        :param name: counter name
+        :param code: counter code
+        :param codekey: codekey format (e.g. ``$YY`` for year)
+        :param output: output format (e.g. ``$YY.$NNNN`` for year)
+        :param date: current date
+        :returns: string
+        """
         return self.dbtable('counter').getCounter(name=name, pkg=self.name, code=code, codekey=codekey, output=output, 
                                                 date=date, phyear=phyear,lastAssigned=lastAssigned)
                                                 
@@ -150,14 +160,18 @@ class Table_counter(TableBase):
     def getCounter(self, name, pkg, code, 
                    codekey='$YYYY_$MM_$K', output='$K/$YY$MM.$NNNN', 
                    date=None, phyear=False, lastAssigned=0):
-        """
-        @param name: counter name
-        @param pkg: package: the package involved.
-        @param code: counter code.
-        @param codekey: formatting string for the key.
-        @param output: formatting output for the key.
-        @param date: the date of counter attribution.
-        @param phyear: phiscal year.
+        """Generate a new number from the specified counter.
+        
+        (you can also use the :meth:`GnrDboPackage.getCounter` convenience method)
+        
+        :param name: counter name
+        :param pkg: package: the package involved.
+        :param code: counter code.
+        :param codekey: formatting string for the key.
+        :param output: formatting output for the key.
+        :param date: the date of counter attribution.
+        :param phyear: phiscal year.
+        :returns: string
         """
         ymd = self.getYmd(date, phyear=phyear)
         codekey = '%s_%s' % (pkg, self.counterCode(code, codekey, ymd))
@@ -219,9 +233,11 @@ class Table_counter(TableBase):
         return output
     
     def getYmd(self, date, phyear=False):
-        """
-        it returns a tuple (y,m,d) of strings from a date. It should take in
-        account the phiscal year flag.
+        """Returns a tuple (y,m,d) of strings from a date.
+        
+        :param date: datetime
+        :param phyear: physical year (not yet implemented)
+        :returns: a tuple of strings (y,m,d)
         """
         if not date:
             return ('0000','00','00')
