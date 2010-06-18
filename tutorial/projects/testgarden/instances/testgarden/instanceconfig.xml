@@ -2,7 +2,6 @@
 <GenRoBag><db dbname="showcase"/>
 <packages >
 	<showcase/>        
-	<rss/>
 	<adm/>
 </packages>
 <authentication pkg='adm'>
