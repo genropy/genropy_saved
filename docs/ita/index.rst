@@ -15,9 +15,10 @@ Contents:
 	
 	installazione
 	widgets/index
-	ui/events
+	ui/index
 	core/index
 	app/index
+	print/index
 	da-sistemare
 
 Indici e tabelle

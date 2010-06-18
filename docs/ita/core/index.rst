@@ -5,12 +5,13 @@
 .. toctree::
 
 	gnrbags
-	gnrdate
-	gnrdict
 	gnrclasses
 	gnrcmd
-	gnrlang
+	gnrdate
+	gnrdict
 	gnrenv
+	gnrhtml
+	gnrlang
 	gnrlist
 	gnrlocale
 	gnrstring

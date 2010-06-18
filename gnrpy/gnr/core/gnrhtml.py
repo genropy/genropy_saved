@@ -32,6 +32,11 @@ class GnrHtmlElem(object):
     
 
 class GnrHtmlSrc(GnrStructData):
+    """Structure used to build server-side HTML pages.
+    
+    Prints and reports are based on this class.
+    """
+    
     html_base_NS=['a', 'abbr', 'acronym', 'address', 'area',  'base', 'bdo', 'big', 'blockquote',
             'body', 'br', 'button', 'caption', 'cite', 'code', 'col', 'colgroup', 'dd', 'del',
             'dfn', 'dl', 'dt', 'em', 'fieldset', 'form', 'frame', 'frameset', 'head', 'hr', 'html',
