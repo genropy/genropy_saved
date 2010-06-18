@@ -47,7 +47,7 @@ class ColoredLogger(logging.Logger):
     COLOR_FORMAT = formatter_message(FORMAT, True)
     
     def __init__(self, name):
-        logging.Logger.__init__(self, name, logging.INFO)
+        logging.Logger.__init__(self, name, logging.INFO) # eventually, logging level should be configurable in siteconfig.xml
 
         color_formatter = ColoredFormatter(self.COLOR_FORMAT)
 
@@ -59,5 +59,5 @@ class ColoredLogger(logging.Logger):
 
 def enable_colored_logging():
     """Enable colored logging."""
-    if hasattr(sys.stdout, 'isatty') and sys.stdout.isatty():
+    if hasattr(sys.stdout, 'isatty') and sys.stdout.isatty(): # stdout or stderr?
         logging.setLoggerClass(ColoredLogger)
