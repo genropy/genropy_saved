@@ -42,7 +42,9 @@ class IncludedView(BaseComponent):
                         lock_action=False,tools_menu=None,upd_action=False,_onStart=False,
                         filterOn=None,  pickerPars=None,centerPaneCb=None,
                         editorEnabled=None,parentLock='^status.locked',reloader=None,externalChanges=None,
-                        addOnCb = None, zoom=True,hasToolbar=False,**kwargs):
+                        addOnCb = None, zoom=True,hasToolbar=False,
+                        canSort=True,
+                        **kwargs):
         """
         This method returns a grid (includedView) for, viewing and selecting
         rows from a many to many table related to the main table,
