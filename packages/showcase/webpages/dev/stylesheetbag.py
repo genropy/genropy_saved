@@ -31,18 +31,21 @@ class GnrCustomWebPage(object):
          return ''
          
     def main(self, rootBC, **kwargs):
-        rootBC.styleSheet('.pieretto {height:100px;width:300px;margin:5px;background-color:red;border:1px solid green;}',cssTitle='test')
+        rootBC.styleSheet('.myrect {height:100px;width:100px;float:right;margin:5px;background-color:red;border:1px solid green;}',cssTitle='test')
         bc = rootBC.borderContainer(region='center')
-        top = bc.contentPane(region='top',_class='pbl_roundedGroupLabel')
-        #top.button('Create',action='SET gnr.stylesheet.root = genro.dom.styleSheetsToBag();')
-        left = bc.contentPane(region='left',background_color='silver',width='300px')
-        #left.data('gnr.stylesheet.root',Bag(),caption='Styles')
-        #this._main.subscribe('sourceTriggers',{'any':dojo.hitch(this, "nodeTrigger")});
-       #left.dataController("""var root=genro._('gnr.stylesheet');
-       #                           root.setBackRef();
-       #                           root.subscribe('styleTrigger',{'any':dojo.hitch(genro.dom, "styleTrigger")});""",
-       #                            _onStart=True)
-        left.tree(storepath='gnr',inspect ='shift',labelAttribute='selectorText')
+        left = bc.contentPane(region='left',width='200px',splitter=True)
+        left.dataController("""var kw = $2.kw;
+                            if(kw.reason){
+                                genro.dom.styleSheetBagSetter($1.getValue(),kw.reason.attr);                                   
+                            }
+                            """,_fired="^csshandler")
+                            
+        fb=left.formbuilder(cols=1)
+        fb.horizontalSlider(value='^csshandler.rect.size',lbl='Height',minimum=50,width='120px',
+                            maximum=300,intermediateChanges=True,_set_height='.myrect:#+"px"',
+                            _set_font_size='.myrect:#-30+"px"')
         center = bc.contentPane(region='center')
-        center.div(_class='pieretto',_fired='^rigenera',nodeId='xx')
+        for k in range(100):
+            x=center.div(_class='myrect')
+            x.span('%i'%k)
         
