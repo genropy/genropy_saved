@@ -104,7 +104,7 @@ def test_periodFrom():
     assert res == '2007-12-01;'
 
     res = gnrdate.decodeDatePeriod("from december", workdate=workdate)
-    assert res == '2007-12-01;'
+    assert res == '2008-12-01;'
 
     res = gnrdate.decodeDatePeriod("from february", workdate=workdate)
     assert res == '2008-02-01;'
@@ -144,7 +144,7 @@ def test_periodLocal():
     assert res == '2008-04-14;2008-05-31'
     
     res = gnrdate.decodeDatePeriod(u"da dicembre", workdate=workdate, locale='it')
-    assert res == '2007-12-01;'
+    assert res == '2008-12-01;'
 
     res = gnrdate.decodeDatePeriod(u"a dicembre", workdate=workdate, locale='it')
     assert res == ';2007-12-31'
