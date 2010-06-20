@@ -3167,12 +3167,12 @@ dojo.declare("gnr.widgets.BaseCombo",gnr.widgets.baseDojo,{
         this.connectFocus(widget);
         this.connectForUpdate(widget,sourceNode);
     },
-    //__patch__onBlur: function(){
-			// summary: called magically when focus has shifted away from this widget and it's dropdown
-		//	this._hideResultList();
-		//	this._arrowIdle();
-		//	this.inherited(arguments);
-		},
+    /*__patch__onBlur: function(){
+        summary: called magically when focus has shifted away from this widget and it's dropdown
+        this._hideResultList();
+        this._arrowIdle();
+        this.inherited(arguments);
+		},*/
     connectFocus: function(widget, savedAttrs, sourceNode){
         dojo.connect(widget,'onFocus', widget, function(e){
                                         setTimeout(dojo.hitch(this, 'selectAllInputText'), 300);
