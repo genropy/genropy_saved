@@ -109,7 +109,7 @@ def test_periodFrom():
     res = gnrdate.decodeDatePeriod("from february", workdate=workdate)
     assert res == '2008-02-01;'
 
-def test_periodFUll():
+def test_periodFull():
     workdate = datetime.date(2008,4,25)
     res = gnrdate.decodeDatePeriod("from february to today", workdate=workdate)
     assert res == '2008-02-01;2008-04-25'
@@ -276,4 +276,24 @@ def test_addToMonth():
     assert res == '2007-04-01;2009-04-30'
 
 if __name__ == "__main__":
-    test_periodFrom()
+    if True:
+        test_relativeDay()
+        test_relativeDayLocal()
+        test_week()
+        test_month()
+        test_monthLocal()
+        test_year()
+        test_monthName()
+        test_periodTo()
+        test_periodFrom()
+        test_periodFull()
+        test_periodLocal()
+        test_weekDay()
+        test_localDate()
+        test_isoDate()
+        test_localDateNoSep()
+        test_localPeriodNoSep()
+        test_quarter()
+        test_addToDay()
+        test_addToMonth()
+    
