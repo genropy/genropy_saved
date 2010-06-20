@@ -73,16 +73,13 @@ class TableHandlerLight(BaseComponent):
         r.fields(self.columnsBase())
         return struct
     
-    def queryBase(self):
-        return dict()
-    
     def formBaseDimension(self):
         return dict(height='400px',width='600px')
 
     def filterOnBase(self,struct):
         try: 
             default_field = self.queryBase().get('column',None) # default to the standard_table's queryBase()
-        except KeyError:
+        except:
             default_field = None
         filterOn = []
         for k,cell in enumerate(struct['#0']['#0']):
