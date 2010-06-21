@@ -117,27 +117,3 @@ def test_fromIsoDate():
 def test_toJson():
     res = gnrstring.toJson([{'a':2},{'b':3,'c':6},{'z':9}])
     assert res == '[{"a": 2}, {"c": 6, "b": 3}, {"z": 9}]'
-
-if __name__ == "__main__":
-    test_getUntil()
-    test_getUntilLast()
-    test_getFrom()
-    test_getFromLast()
-    test_wordSplit()
-    splitLast()
-    getBetween()
-    test_like()
-    test_filter()    
-    test_regexDelete()
-    test_templateReplace()
-    test_asDict()
-    test_stringDict()
-    test_updateString()
-    test_makeSet()
-    test_splitAndStrip()
-    test_countOf()
-    test_split()
-    test_smartjoin()
-    test_smartsplit()
-    test_fromIsoDate()
-    test_toJson()
