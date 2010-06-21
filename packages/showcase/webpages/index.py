@@ -26,10 +26,6 @@ class GnrCustomWebPage(object):
                     selected_path='tree.current_path')
         pane.dataFormula("iframe.selected_page", "'/showcase/'+current_path", current_path="^tree.current_path",_if='current_path')
 
-    def top(self,pane):
-        pane.span("TestGarden > ")
-        pane.span().a('^demo.current.relpath',href='^demo.current.relpath',color='#dfcfa4')        
-        
     def main(self,rootBC,**kwargs):
         self.pageController(rootBC)
         self.left_menu(rootBC.contentPane(region='left',width='230px',splitter=True,_class='leftpane'))
