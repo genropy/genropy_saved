@@ -115,7 +115,12 @@ class GnrCustomWebPage(object):
     #----------  Rpc custom Calls ------------    
     def diskDirectory(self):         
         pages = self.site.sitemap['showcase']
-        return pages.sort()
+        for k in pages.keys():
+            if hasattr(pages[k],'_htraverse'):
+                pages[k].sort()
+        return pages
+
+
 
     def getUserMenu(self):
         result=self.application.config['menu']
