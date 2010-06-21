@@ -24,7 +24,7 @@ class GnrCustomWebPage(object):
         pane.data('menubag',self.diskDirectory())
         pane.tree(storepath='menubag',hideValues=True,inspect='shift',labelAttribute='name',isTree=False,
                     selected_path='tree.current_path')
-        pane.dataFormula("iframe.selected_page", "'showcase/'+current_path", current_path="^tree.current_path",_if='current_path')
+        pane.dataFormula("iframe.selected_page", "'/showcase/'+current_path", current_path="^tree.current_path",_if='current_path')
 
     def top(self,pane):
         pane.span("TestGarden > ")
@@ -45,12 +45,6 @@ class GnrCustomWebPage(object):
         sc.contentPane(overflow='auto',background_color='white').div(value='^demo.current.source')
         self.docPane(sc.contentPane(overflow='auto',background_color='white'))
         self.docPaneEdit(sc.borderContainer(region='center'))
-
-    def left_menu(self,pane):
-        pane.data('menubag',self.diskDirectory())
-        pane.tree(storepath='menubag',hideValues=True,inspect='shift',labelAttribute='name',isTree=False,
-                    selected_path='tree.current_path')
-        pane.dataFormula("iframe.selected_page", "current_path", current_path="^tree.current_path",_if='current_path')
 
     def top(self,bc):
         leftpane = bc.contentPane(overflow='hidden',region='left',style='font-size:20px;')
@@ -125,7 +119,7 @@ class GnrCustomWebPage(object):
     #----------  Rpc custom Calls ------------    
     def diskDirectory(self):         
         pages = self.site.sitemap['showcase']
-        return pages
+        return pages.sort()
 
     def getUserMenu(self):
         result=self.application.config['menu']
