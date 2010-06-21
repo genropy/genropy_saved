@@ -532,6 +532,55 @@ dojo.declare("gnr.GnrDomHandler",null,{
                  
         });
     
+    },
+    scrollableTable:function(domnode,gridbag,kw){
+        var columns = kw.columns;
+        var headers = kw.headers;
+        var tblclass = kw.tblclass;
+        var thead='<thead><tr>';
+        for(var k=0; k< columns.length; k++){
+             thead=thead+"<th>"+headers[k]+"</th>";
+        }
+        thead = thead+"<th style='width:10px; background-color:transparent;'>&nbsp</th></thead>";
+        var nodes = gridbag.getNodes();
+        var item,r, value;
+        var tbl=["<tbody>"];
+        for(var i=0; i< nodes.length; i++){
+            r="";
+            item=nodes[i].attr;
+             for(var k=0; k< columns.length; k++){
+                 value = item[columns[k]] || '&nbsp';
+                 r=r+"<td>"+genro.format(value,{date:'short'});+"</td>";
+             }
+            tbl.push("<tr id='"+nodes[i].label+"'>"+r+"</tr>");
+        }
+        tbl.push("</tbody>"); 
+        var tbody=tbl.join('');
+        var cbf = function(cgr){
+            
+            var cgr_h = cgr?'<colgroup>'+cgr+'<col width=10 /></colgroup>':'';
+            var cgr_b = cgr?'<colgroup>'+cgr+'</colgroup>':'';
+            return '<div class="'+tblclass+'"><div><table>'+cgr_h+''+thead+'</table></div><div style="overflow-y:auto;max-height:180px;"><table>'+cgr_b+tbody+'</table></div></div>';
+        };
+        domnode.innerHTML=cbf('');
+        var cb = function(){
+            var hdrtr = dojo.query('thead tr',domnode)[0].children;
+            var bodytr = dojo.query('tbody tr',domnode);
+            var bodytr_first = bodytr[0].children;
+            var colgroup = "";
+            for (var i=0; i < bodytr_first.length; i++) {
+                var wh = hdrtr[i].clientWidth;
+                var wb = bodytr_first[i].clientWidth;
+                var wt = wh>wb?wh:wb;
+                colgroup=colgroup+'<col width="'+wt+'"/>';
+            };  
+            domnode.innerHTML=cbf(colgroup);
+            dojo.style(domnode,{width:'auto'});
+            var rows = dojo.query('tbody tr',domnode);
+            for (var i=0; i < rows.length; i++) {
+                rows[i].item = nodes[i];
+            };
+        };
+        setTimeout(cb,1); 
     }
-
 });

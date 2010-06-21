@@ -3167,12 +3167,12 @@ dojo.declare("gnr.widgets.BaseCombo",gnr.widgets.baseDojo,{
         this.connectFocus(widget);
         this.connectForUpdate(widget,sourceNode);
     },
-    /*__patch__onBlur: function(){
-        summary: called magically when focus has shifted away from this widget and it's dropdown
-        this._hideResultList();
+    patch__onBlur: function(){
+        /*this._hideResultList();
         this._arrowIdle();
-        this.inherited(arguments);
-		},*/
+        this.inherited(arguments);*/
+    },
+    
     connectFocus: function(widget, savedAttrs, sourceNode){
         dojo.connect(widget,'onFocus', widget, function(e){
                                         setTimeout(dojo.hitch(this, 'selectAllInputText'), 300);
@@ -3204,8 +3204,7 @@ dojo.declare("gnr.widgets.BaseCombo",gnr.widgets.baseDojo,{
     },    
     connectForUpdate: function(widget,sourceNode){
         return;
-    }
-    
+    }    
 });
 dojo.declare("gnr.widgets.dbBaseCombo",gnr.widgets.BaseCombo,{
     creating: function(attributes, sourceNode){
@@ -3303,6 +3302,11 @@ dojo.declare("gnr.widgets.dbBaseCombo",gnr.widgets.BaseCombo,{
         var tag = 'cls_'+sourceNode.attr.tag;        
         dojo.addClass(widget.domNode.childNodes[0],tag);
         this.connectFocus(widget, savedAttrs, sourceNode);
+        if (dojoversion=='1.1'){
+            if(dojo.isSafari){
+                dojo.connect(widget.focusNode,'onkeydown',widget,'_onKeyPress');            
+            }
+        }
         //dojo.connect(widget, '_doSelect', widget,'_onDoSelect');                 
     }
 });
@@ -3594,8 +3598,8 @@ dojo.declare("gnr.widgets.Tree",gnr.widgets.baseDojo,{
         }else if(bagnode._value instanceof gnr.GnrBag){
             var ck=null;
             bagnode._value.forEach(function(node){
-                              var checked=('checked' in node.attr)?node.attr.checked:-1
-                              ck=(ck==null)?checked: (ck!=checked)? -1 : ck
+                              var checked=('checked' in node.attr)?node.attr.checked:-1;
+                              ck=(ck==null)?checked: (ck!=checked)? -1 : ck;
                             },'static' );
         }
         return ck;

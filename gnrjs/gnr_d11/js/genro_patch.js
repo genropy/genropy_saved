@@ -11,35 +11,17 @@ genropatches.comboBox=function(){
                     +"</ul>",
     createOptions:function(results, dataObject, labelFunc){
         var lfa=dataObject.store.lastFetchAttrs;
+        var columns=lfa.columns.split(',');
+        var headers=lfa.headers.split(',');
         var tblclass='multiColumnSelect'+' '+lfa['resultClass'];
-        var cols=lfa.columns.split(',');
-        var hdr=lfa.headers.split(',');
-        var thead='<thead><tr>';
-        for(var k=0; k< cols.length; k++){
-             thead=thead+"<th>"+hdr[k]+"</th>";
-             }
-        var item,r, value;
-        var tbl=["<table class='"+tblclass+"'>"+thead+"</tr></thead><tbody>"];
-        for(var i=0; i< results.length; i++){
-            r="";
-            item=results[i].attr;
-             for(var k=0; k< cols.length; k++){
-                 value = item[cols[k]] || '';
-                 r=r+"<td>"+genro.format(value,{date:'short'});+"</td>";
-             }
-            tbl.push("<tr id='"+results[i].label+"'>"+r+"</tr>");
-        }
-        tbl.push("</tbody></table>");
-        this.domNode.innerHTML=tbl.join('');
-        var rows=this.domNode.firstChild.lastChild.childNodes;
-        for(var i=0; i< rows.length; i++){
-            rows[i].item=results[i];
-        }
-        this.tblrows=rows;
+        genro.dom.scrollableTable(this.domNode,results[0].getParentBag(),{'columns':columns,'headers':headers,'tblclass':tblclass});
         this.domNode.onmouseover=dojo.hitch(this,'onmouseover');
        // this.nextButton.style.display='none';
       //  this.previousButton.style.display='none';
         //genro.debug("this.domNode.innerHTML=tbl.join('\n');");
+    },
+    tblrows:function(){
+        return dojo.query('tbody tr',this.domNode);
     },
     
     clearResultList:function(){
@@ -49,11 +31,11 @@ genropatches.comboBox=function(){
         }
     },
     getItems:function(){
-        return this.tblrows;
+        return this.tblrows();
     },
 
     getListLength:function(){
-        return this.tblrows.length;
+        return this.tblrows().length;
     },
     
     onmouseup:function(/*Event*/ evt){
@@ -61,7 +43,9 @@ genropatches.comboBox=function(){
             return;
         }else{
             var tgt=this.getHighlightedOption();
-            this.setValue({target:tgt}, true);
+            if (tgt) {
+                this.setValue({target:tgt}, true);
+            };
         }
     },
 
@@ -71,13 +55,15 @@ genropatches.comboBox=function(){
         }
         if(evt.target === this.domNode){ return; }
         var tgt=evt.target;
-        if (tgt.getAttribute('id')){
-            this._focusOptionNode(tgt);
-        }else if(tgt.parentNode.getAttribute('id')) {
-            this._focusOptionNode(tgt.parentNode);
-        }
+        if (tgt) {
+            if (tgt.getAttribute('id')){
+                this._focusOptionNode(tgt);
+            }else if(tgt.parentNode.getAttribute('id')) {
+                this._focusOptionNode(tgt.parentNode);
+            }
+        };
+        
     },
-
     _page:function(/*Boolean*/ up){
         return;
     },
@@ -107,12 +93,26 @@ genropatches.comboBox=function(){
         // because each press of a button clears the menu,
         // the highlighted option sometimes becomes detached from the menu!
         // test to see if the option has a parent to see if this is the case.
+        var domnode_bottom =this.domNode.getBoundingClientRect().bottom;
+        var nextNode;
+        var hop=this.getHighlightedOption();
         if(!this.getHighlightedOption()){
-            var n=this.tblrows[0];
-            this._focusOptionNode(n);
-        }else if(this._highlighted_option.nextSibling&&this._highlighted_option.nextSibling.style.display!="none"){
-            this._focusOptionNode(this._highlighted_option.nextSibling);
+            nextNode=this.tblrows()[0];
+        }else if(hop.nextSibling&&hop.style.display!="none"){
+            nextNode=hop.nextSibling;
         }
+        if (nextNode){
+            brect = nextNode.getBoundingClientRect();
+            this._focusOptionNode(nextNode);
+            
+            if(brect.bottom>domnode_bottom){
+                var delta=brect.bottom-brect.top;
+                var scrollTop = this.domNode.children[0].children[1].scrollTop;
+                this.domNode.children[0].children[1].scrollTop = scrollTop+20;
+                console.log(scrollTop);
+            }
+        }
+         
         // scrollIntoView is called outside of _focusOptionNode because in IE putting it inside causes the menu to scroll up on mouseover
     //  dijit.scrollIntoView(this._highlighted_option);
     },
@@ -120,13 +120,14 @@ genropatches.comboBox=function(){
     highlightFirstOption:function(){
 
         // highlight the non-Previous choices option
-        this._focusOptionNode(this.tblrows[0]);
+        this._focusOptionNode(this.tblrows()[0]);
     //  dijit.scrollIntoView(this._highlighted_option);
     },
 
     highlightLastOption:function(){
         // highlight the noon-More choices option
-        this._focusOptionNode(this.tblrows[this.tblrows.length-1]);
+        var rows = this.tblrows();
+        this._focusOptionNode(rows[rows.length-1]);
     //  dijit.scrollIntoView(this._highlighted_option);
     },
 
@@ -135,7 +136,8 @@ genropatches.comboBox=function(){
         // if nothing selected, highlight last option
         // makes sense if you select Previous and try to keep scrolling up the list
         if(!this.getHighlightedOption()){
-            this._focusOptionNode(this.tblrows[this.tblrows.length-1]);
+            var rows = this.tblrows();
+            this._focusOptionNode(rows[rows.length-1]);
         }else if(this._highlighted_option.previousSibling&&this._highlighted_option.previousSibling.style.display!="none"){
             this._focusOptionNode(this._highlighted_option.previousSibling);
         }
@@ -158,6 +160,7 @@ genropatches.comboBox=function(){
                 break;  
         }
     }
+
 });
 };
 genropatches.borderContainer=function(){

@@ -95,7 +95,12 @@ dojo.declare('gnr.GenroClient', null, {
         genropatches.comboBox();
         genropatches.tree();
         genropatches.parseNumbers();
+     
         if (dojoversion=='1.1'){
+            if(dojo.isSafari){
+                dojo.keys.DOWN_ARROW = 40;
+                dojo.keys.UP_ARROW = 38;
+            }
             genropatches.borderContainer();
         }
         this.clsdict = {domsource:gnr.GnrDomSource, bag:gnr.GnrBag};
