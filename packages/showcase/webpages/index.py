@@ -120,8 +120,6 @@ class GnrCustomWebPage(object):
                 pages[k].sort()
         return pages
 
-
-
     def getUserMenu(self):
         result=self.application.config['menu']
         return result
