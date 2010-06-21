@@ -262,30 +262,34 @@ table.formbuilder {
 
 /* @group MultiColumnSelect */
 
-.multiColumnSelect {
+.multiColumnSelect table {
     border-collapse: collapse;
-    font-size: x-small;
-    width: 100%;
+    font-size: 10px;
+    background-color: #f3f3f3;
+    /*width: 100%;*/
+}
+.multiColumnSelect{
+    background-color: #f3f3f3;
 }
 
 .multiColumnSelect th {
     padding: 2px;
-    border: thin solid #c8c8c8;
+    border: 1px solid #c8c8c8;
     background-color: #6b6b6b;
-    font-weight: bold;
+    /*font-weight: bold;*/
     text-align: center;
     color: white;
+    white-space:nowrap;
 }
 
 .multiColumnSelect tr {
     padding: 2px;
-    border: thin solid #c8c8c8;
-    background-color: #f3f3f3;
+    /*border: 1px solid #c8c8c8;*/
 }
 
 .multiColumnSelect td {
     padding: 2px;
-    border: thin solid #c8c8c8;
+    border: 1px solid #c8c8c8;
     white-space:nowrap;
 }
 
