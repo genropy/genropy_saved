@@ -34,7 +34,7 @@ def _getTreeRowCaption2(tblobj):
 class HTableHandler(BaseComponent):
     css_requires='public'
     def htableHandler(self,parent,nodeId=None,datapath=None,table=None,rootpath=None,label=None,
-                    editMode='bc',childTypes=None,dialogPars=None,loadKwargs=None,parentLock=None,where=None):
+                    editMode='bc',childTypes=None,dialogPars=None,loadKwargs=None,parentLock=None,where=None,onChecked=None):
         """
         .tree: tree data:
                         store
@@ -106,7 +106,7 @@ class HTableHandler(BaseComponent):
                              labelNodeId='%s_nav' %nodeId,rootName='!!Root:')
         
         self.ht_tree(treepane,table=table,nodeId=nodeId,disabled=disabled,
-                    rootpath=rootpath,childTypes=childTypes,editMode=editMode,label=label)
+                    rootpath=rootpath,childTypes=childTypes,editMode=editMode,label=label,onChecked=onChecked)
         self.ht_edit(formpane,table=table,nodeId=nodeId,disabled=disabled,
                         rootpath=rootpath,editMode=editMode,loadKwargs=loadKwargs)
                         
@@ -244,7 +244,7 @@ class HTableHandler(BaseComponent):
             toolbar.button('!!Tree',action="SET .selectedPage = 'tree';")
                                             
                                                                  
-    def ht_tree(self,bc,table=None,nodeId=None,rootpath=None,disabled=None,childTypes=None,editMode=None,label=None):
+    def ht_tree(self,bc,table=None,nodeId=None,rootpath=None,disabled=None,childTypes=None,editMode=None,label=None,onChecked=None):
         
         labelbox = bc.contentPane(region='top',_class='pbl_roundedGroupLabel')
         labelbox.div(label,float='left')
@@ -277,7 +277,8 @@ class HTableHandler(BaseComponent):
                     selectedLabelClass='selectedTreeNode',
                     selected_code='.tree.code',
                     selected_child_count='.tree.child_count',
-                    connect_ondblclick=connect_ondblclick)
+                    connect_ondblclick=connect_ondblclick,
+                    onChecked=onChecked)
                     
     def ht_treeDataStore(self,table=None,rootpath=None,rootcaption=None):
         tblobj= self.db.table(table)
