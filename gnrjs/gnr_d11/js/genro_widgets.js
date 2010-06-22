@@ -3167,11 +3167,11 @@ dojo.declare("gnr.widgets.BaseCombo",gnr.widgets.baseDojo,{
         this.connectFocus(widget);
         this.connectForUpdate(widget,sourceNode);
     },
-    patch__onBlur: function(){
-        /*this._hideResultList();
+    /*patch__onBlur: function(){
+        this._hideResultList();
         this._arrowIdle();
-        this.inherited(arguments);*/
-    },
+        this.inherited(arguments);
+    }*/
     
     connectFocus: function(widget, savedAttrs, sourceNode){
         dojo.connect(widget,'onFocus', widget, function(e){
