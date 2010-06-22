@@ -363,7 +363,19 @@ dojo.declare("gnr.GnrDomSourceNode",gnr.GnrBagNode,{
                             argValues.push(this.getAttributeFromDatasource(attr));
                         }
                     }
-                    value = funcCreate('return ' + value.slice(2), argNames.join(',')).apply(this, argValues);
+                    try {
+                        value = funcCreate('return ' + value.slice(2), argNames.join(',')).apply(this, argValues);
+                    } catch(e) {
+                        if (console != undefined) {
+                            console.log('ERROR in ' + value);
+                            console.log(e);
+                            for(var i = 0; i < argNames.length; i++) {
+                                console.log('argument: ' + argNames[i]);
+                                console.log(argValues[i]);
+                            }
+                        }
+                        throw e;
+                    }
                 } else {
                     value=this.getRelativeData(value,autocreate,dflt);
                 }

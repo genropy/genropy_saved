@@ -873,13 +873,18 @@ dojo.declare('gnr.GenroClient', null, {
         dataNode.setAttr({'selectedValue':value});
     },
     evaluate:function(expr){
-        //console.log(expr)
-        if (genro._lastEvaluated) {console.warn('there was an error during evaluation:'+genro._lastEvaluated);};
-        var toEval = 'genro.auxresult=('+expr+')';
-        genro._lastEvaluated = toEval;
-        dojo.eval(toEval);
-        genro._lastEvaluated = null;
-        return genro.auxresult;
+        try {
+            var toEval = 'genro.auxresult=('+expr+')';
+            dojo.eval(toEval);
+            return genro.auxresult;
+        } catch(e) {
+            if (console != undefined) {
+                console.log('genro.evaluate() failed:');
+                console.log(expr);
+                console.log(e);
+            }
+            throw e;
+        }
     },
     isEqual:function(a,b){
       var a = a instanceof Date? a.valueOf():a;

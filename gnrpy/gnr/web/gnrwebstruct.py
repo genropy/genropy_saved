@@ -742,7 +742,8 @@ class GnrFormBuilder(object):
             
     def _formCell(self, r, c, field=None):
         row=self.getRow(r)
-        row_class = None
+        row_attributes = dict()
+        print field
         lbl=''
         tag=None
         rowspan,colspan=1,1
@@ -756,7 +757,12 @@ class GnrFormBuilder(object):
                 lblhref=field.pop('lbl_href')
                 lblvalue=lbl
                 lbl=None
-            row_class = field.pop('row_class',None)
+            for k,v in field.items():
+                if k.startswith('row_'):
+                    field.pop(k)
+                    row_attributes[k[4:]] = v
+            if 'class' in row_attributes:
+                row_attributes['_class'] = row_attributes.pop('class')
             for k in field.keys():
                 if k.startswith('lbl_'):
                     lbl_kwargs[k[4:]]=field.pop(k)
@@ -791,9 +797,10 @@ class GnrFormBuilder(object):
                 
                 cell=row.td(name='c_%i_l' % c,align=lblalign,vertical_align=lblvalign)
                 if lbl:
-                    cell.div(content=lbl, _class=self.lblclass,**lbl_kwargs)         
-            if row_class:
-                row.parentNode.attr['_class'] = row_class
+                    cell.div(content=lbl, _class=self.lblclass,**lbl_kwargs)
+            for k,v in row_attributes.items():
+                # TODO: warn if row_attributes already contains the attribute k (and it has a different value)
+                row.parentNode.attr[k] = v
             if colspan>1:
                 kwargs['colspan']=str(colspan*2-1)
             td=row.td(name='c_%i_f' % c, align=fldalign,vertical_align=fldvalign,_class=self.fieldclass,**kwargs)
@@ -813,9 +820,10 @@ class GnrFormBuilder(object):
             lbl_kwargs.update(kwargs)
             row[0].td(name='c_%i' %c, content=lbl, align=lblalign, vertical_align=lblvalign, _class=self.lblclass,**lbl_kwargs)
             td=row[1].td(name='c_%i' %c,align=fldalign, vertical_align=fldvalign,**kwargs)
-            if row_class:
-                row[0].parentNode.attr['_class'] = row_class
-                row[1].parentNode.attr['_class'] = row_class
+            for k,v in row_attributes.items():
+                # TODO: warn if row_attributes already contains the attribute k (and it has a different value)
+                row[0].parentNode.attr[k] = v
+                row[1].parentNode.attr[k] = v
                 
             if colspan>1:
                 for cs in range(c+1,c+colspan):
@@ -897,16 +905,22 @@ class GnrGridStruct(GnrStructData):
                                                                     """ %field
                                                                     ,dtype='B')
                  
-                 
+    def defaultArgsForDType(self, dtype):
+        if dtype == 'B':
+            return dict(format_trueclass="checkboxOn", format_falseclass="checkboxOff")
+        else:
+            return dict()
                  
     def fieldcell(self, field, _as=None, name=None, width=None, dtype=None, 
-                  classes=None, cellClasses=None, headerClasses=None, zoom=False, **kwargs):
+                  classes=None, cellClasses=None, headerClasses=None, zoom=False, **user_kwargs):
         tableobj = self.tblobj
         fldobj = tableobj.column(field)
         
         name = name or fldobj.name_long
         dtype = dtype or fldobj.dtype
         width = width or '%iem' % fldobj.print_width
+        kwargs = self.defaultArgsForDType(dtype)
+        kwargs.update(user_kwargs)
         if zoom:
             zoomtbl=fldobj.table
             relfldlst=tableobj.fullRelationPath(field).split('.')
@@ -955,6 +969,7 @@ class GnrGridStruct(GnrStructData):
         names=[]
         widths=[]
         dtypes=[]
+        fld_kwargs = []
         wtot=0
         for field in columns:
             field,width=gnrstring.splitAndStrip(field, sep=':', n=2, fixed=2)
@@ -968,13 +983,14 @@ class GnrGridStruct(GnrStructData):
             widths.append(width)
             wtot=wtot+width
             dtypes.append(fldobj.dtype)
+            fld_kwargs.append(self.defaultArgsForDType(fldobj.dtype))
 
         if totalWidth:
             for j,w in enumerate(widths):
                 widths[j]=int(w*totalWidth/wtot)
         for j,field in enumerate(fields):
             #self.child('cell', field=field, _name=names[j], width='%i%s'%(widths[j],unit), dtype=dtypes[j])
-            self.cell(field=field, name=names[j], width='%i%s'%(widths[j],unit), dtype=dtypes[j])
+            self.cell(field=field, name=names[j], width='%i%s'%(widths[j],unit), dtype=dtypes[j], **fld_kwargs[j])
             
     def getFieldNames(self, columns=None):
         if columns is None:
