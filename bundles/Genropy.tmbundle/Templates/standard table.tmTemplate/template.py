@@ -1,10 +1,10 @@
 #!/usr/bin/env python
 # encoding: utf-8
-"""
-Created by Softwell on 2008-07-10.
-Copyright (c) 2008 Softwell. All rights reserved.
-"""
--- GnrWebPage Standard header ---------------------------
+
+# ${TM_NEW_FILE_BASENAME}.py
+# Created by ${TM_FULLNAME} on ${TM_DATE}.
+# Copyright (c) ${TM_YEAR} ${TM_ORGANIZATION_NAME}. All rights reserved.
+
 class GnrCustomWebPage(object):
     maintable=''
     py_requires='public:Public,standard_tables:TableHandler,public:IncludedView'
@@ -37,8 +37,3 @@ class GnrCustomWebPage(object):
     
     def queryBase(self):
         return dict(column='',op='contains', val='%')
-
-############################## FORM METHODS ##################################
-
-    def formBase(self, parentBC,disabled=False, **kwargs):
-        pass
