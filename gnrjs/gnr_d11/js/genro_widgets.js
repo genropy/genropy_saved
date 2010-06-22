@@ -3174,10 +3174,16 @@ dojo.declare("gnr.widgets.BaseCombo",gnr.widgets.baseDojo,{
     }*/
     
     connectFocus: function(widget, savedAttrs, sourceNode){
+        var timeoutId = null;
+        
         dojo.connect(widget,'onFocus', widget, function(e){
-                                        setTimeout(dojo.hitch(this, 'selectAllInputText'), 300);
+                                        // select all text in the current field -- (TODO: reason for the delay)
+                                        timeoutId = setTimeout(dojo.hitch(this, 'selectAllInputText'), 300);
                                     });
-        dojo.connect(widget,'onBlur', widget, 'validate');
+        dojo.connect(widget,'onBlur', widget, function(e) {
+            clearTimeout(timeoutId); // prevent selecting all text (and thus messing with focus) if we're moving to another field before the timeout fires
+            this.validate(e);
+        });
     },
     
     mixin_selectAllInputText: function(){
