@@ -24,8 +24,8 @@ class GnrCustomWebPage(object):
         pane.data('menubag',self.diskDirectory())
         pane.tree(storepath='menubag',hideValues=True,inspect='shift',labelAttribute='name',isTree=False,
                     selected_path='tree.current_path')
-        pane.dataFormula("iframe.selected_page", "'/showcase/'+current_path", current_path="^tree.current_path",_if='current_path')
-
+        pane.dataFormula("iframe.selected_page", "current_path", current_path="^tree.current_path",_if='current_path')     
+        
     def main(self,rootBC,**kwargs):
         self.pageController(rootBC)
         self.left_menu(rootBC.contentPane(region='left',width='230px',splitter=True,_class='leftpane'))
@@ -182,16 +182,14 @@ class GnrCustomWebPage(object):
     def rpc_getSourceFile(self,syspath=None,**kwargs):
         if not syspath:
             return '<div>error: relpath missing</div>'
-        try:
-            result=self.utils.readFile(syspath)
-            from pygments import highlight
-            from pygments.lexers import PythonLexer
-            from pygments.formatters import HtmlFormatter
-            code = unicode(result)
-            parsed = highlight(code, PythonLexer(), HtmlFormatter(linenos='table'))
-            return parsed
-        except:
-            return '<div>error: %s</div>'  %syspath
+        result=self.utils.readFile(syspath)
+        from pygments import highlight
+        from pygments.lexers import PythonLexer
+        from pygments.formatters import HtmlFormatter
+        code = unicode(result)
+        parsed = highlight(code, PythonLexer(), HtmlFormatter(linenos='table'))
+        return parsed
+
 
     def rpc_currentDemoName(self,relpath=None):
         name=relpath.split('/')[-1]
