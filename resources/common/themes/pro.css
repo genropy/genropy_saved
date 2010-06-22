@@ -46,8 +46,8 @@
     -webkit-border-top-left-radius:5px;
 	-webkit-border-top-right-radius:5px;
 	background-color: rgba(226,224,224,1);
-	background-image:-webkit-gradient(linear, 0% 0%, 0% 90%,from(rgba(226,224,224,1)), to(rgba(201,201,201,1)));
-    background-image:-moz-linear-gradient(-90deg,rgba(226,224,224,1), rgba(201,201,201,1));
+	background-image:-webkit-gradient(linear, 0% 0%, 0% 90%,from(#D3D3D3), to(#ABABAB));
+    background-image:-moz-linear-gradient(-90deg,#D3D3D3, rgba(201,201,201,1));
 	color: #383838;
 }
 
@@ -119,7 +119,7 @@
     -webkit-border-bottom-left-radius:5px;
 	-webkit-border-bottom-right-radius:5px;
 	background-color: rgba(126,126,126,1);
-	background-image:-webkit-gradient(linear, 0% 0%, 0% 90%,from(rgb(126,126,126)),to(rgb(211,211,211)));
+	background-image:-webkit-gradient(linear, 0% 30%, 0% 90%,from(rgb(126,126,126)),to(rgb(211,211,211)));
     background-image:-moz-linear-gradient(-90deg,rgb(126,126,126), rgb(211,211,211));
 	color: #383838;
 }
@@ -672,6 +672,133 @@
 
 /* @end */
 
+
+
+
+/* @end */
+
+
+.logicalDeleted .dojoxGrid-cell{
+	color: #b50000;
+}
+.logicalDeleted .dojoxGrid-row-selected .dojoxGrid-cell{
+	color: #b50000;
+}
+._common_d11 .dojoxGrid {
+	background-color: transparent;
+}
+
+._common_d11 .dojoxGrid-scrollbox {
+	overflow: auto;
+	background-color: transparent;
+}
+
+._common_d11 .dojoxGrid-header {
+	-moz-border-radius-topleft:6px;
+	-moz-border-radius-topright:6px;
+	-webkit-border-top-left-radius:6px;
+	-webkit-border-top-right-radius:6px;
+	border:0px solid red;
+	background-color: transparent;
+	background-image:-webkit-gradient(linear, 0% 0%, 0% 90%,from(#96ADDE), to(#BFD5FF));
+    background-image:-moz-linear-gradient(-90deg,#96ADDE, #BFD5FF);
+}
+
+._common_d11 .dojoxGrid-cell {
+	padding: 1px 4px;
+	border: 0px;
+	border-right: 1px dotted gray;
+	border-bottom: 1px dotted gray;
+	height: 16px;
+}
+._common_d11 nopadding .dojoxGrid-cell {
+	padding: 0px 0px;
+}
+
+/*
+._common_d11 .dojoxGrid-row-table {
+	border-collapse: separate;
+}
+*/
+._common_d11 .cell_B .widgetInCell {
+	width: 16px;	
+	margin: auto;
+}
+._common_d11 .invalidCell  {
+    background-color: red ;
+}
+
+._common_d11 .widgetInCell {
+}
+._common_d11 .widgetInCell {
+	background-color: red;
+    color: black;
+	display: block;
+	border: 0px grey;
+	margin-top: 0px;
+	margin-bottom: 0px;
+	margin-right: 0px;
+	width: 100%;
+}
+._common_d11 .dojoxGrid-row .dojoxGrid-cell{
+	background-color: transparent;
+}
+.tundra .dojoxGrid-header .dojoxGrid-cell {
+-moz-box-shadow: inset 1px 1px 10px #888;
+-moz-background-clip:border;
+-moz-background-inline-policy:continuous;
+-moz-background-origin:padding;
+background:transparent;
+border-color:white #F4EFD8 #F4EFD8 white;
+border-style:solid;
+border-width:0px 1px 0px 1px;
+color:#000000 !important;
+padding-bottom:2px;
+}
+
+._common_d11 .dojoxGrid-row-odd .dojoxGrid-cell{
+	background-color: #e4e4e4;
+}
+._common_d11 .dojoxGrid-row-odd{
+	background-color: transparent;
+}
+._common_d11 .dojoxGrid-row{
+	background-color: transparent;
+}
+._common_d11 .dojoxGrid-row-selected{
+	background-color: transparent;
+}
+._common_d11 .dojoxGrid-row-selected .dojoxGrid-cell{
+	background-color: #AEC7E3;
+}
+
+._common_d11 .dojoxGrid-row-over .dojoxGrid-cell  {
+	background-color: #60a1ea; 
+	color:black !important;
+	
+}
+
+/* @group No-over and no-selected */
+
+._common_d11 .no_over .dojoxGrid-row .dojoxGrid-cell{
+	background-color:  whitesmoke;
+}
+
+._common_d11 .no_selected .dojoxGrid-row .dojoxGrid-cell{
+	background-color:  whitesmoke;
+}
+
+._common_d11 .no_over .dojoxGrid-row-over .dojoxGrid-cell {
+	background-color:  whitesmoke;
+}
+
+._common_d11 .no_selected .dojoxGrid-row-selected .dojoxGrid-cell{
+	background-color:  whitesmoke;
+}
+
+
+
+/* @end */
 
 
 
