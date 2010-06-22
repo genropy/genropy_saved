@@ -4,17 +4,17 @@ from gnr.core.gnrbag import Bag
 from gnr.core.gnrsys import expandpath
 
 class PathResolver(object):
-    
+
     entities = dict(
         instance='instances',
         site='sites',
         resource='resources',
         package='packages',
         project='projects')
-    
+
     def __init__(self, gnr_config=None):
         self.gnr_config=gnr_config or self.load_gnr_config()
-    
+
     def load_gnr_config(self):
         home_config_path = expandpath('~/.gnr')
         global_config_path = expandpath(os.path.join('/etc/gnr'))
@@ -31,7 +31,7 @@ class PathResolver(object):
         for var,value in config['gnr.environment_xml'].digest('environment:#k,#a.value'):
             var=var.upper()
             if not os.getenv(var):
-                os.environ[var]=str(value)    
+                os.environ[var]=str(value)
 
     def js_path(self, lib_type='gnr', version='11'):
         path = self.gnr_config['gnr.environment_xml.static.js.%s_%s?path'%(lib_type,version)]
@@ -39,7 +39,7 @@ class PathResolver(object):
             path = os.path.join(expandpath(path),'js')
         return path
 
-    
+
     def entity_name_to_path(self, entity_name, entity_type, look_in_projects=True):
         entity = self.entities.get(entity_type)
         if not entity:
@@ -57,22 +57,22 @@ class PathResolver(object):
                     if os.path.isdir(entity_path):
                         return expandpath(entity_path)
         raise Exception('Error: %s %s not found' % (entity_type, entity_name))
-    
+
     def site_name_to_path(self, site_name):
         return self.entity_name_to_path(site_name, 'site')
-    
+
     def instance_name_to_path(self, instance_name):
         return self.entity_name_to_path(instance_name, 'instance')
-    
+
     def package_name_to_path(self, package_name):
         return self.entity_name_to_path(package_name, 'package')
-    
+
     def resource_name_to_path(self, resource_name):
         return self.entity_name_to_path(resource_name, 'resource')
-    
+
     def project_name_to_path(self, project_name):
         return self.entity_name_to_path(project_name, 'project', look_in_projects=False)
-    
+
     def project_repository_name_to_path(self, project_repository_name, strict=True):
         if not strict or 'gnr.environment_xml.projects.%s'%project_repository_name in self.gnr_config:
             path = self.gnr_config['gnr.environment_xml.projects.%s?path'%project_repository_name]
@@ -85,8 +85,8 @@ class ProjectMaker(object):
     def __init__(self, project_name, base_path=None):
         self.project_name = project_name
         self.base_path = base_path or '.'
-            
-        
+
+
     def do(self):
         self.project_path = os.path.join(self.base_path, self.project_name)
         self.packages_path = os.path.join(self.project_path, 'packages')
@@ -123,19 +123,19 @@ class SiteMaker(object):
         if not os.path.isfile(root_py_path):
             root_py = open(root_py_path,'w')
             root_py.write("""
-                            import sys
-                            sys.stdout = sys.stderr
-                            from gnr.web.gnrwsgisite import GnrWsgiSite
-                            site = GnrWsgiSite(__file__)
+import sys
+sys.stdout = sys.stderr
+from gnr.web.gnrwsgisite import GnrWsgiSite
+site = GnrWsgiSite(__file__)
 
-                            def application(environ,start_response):
-                                return site(environ,start_response)
+def application(environ,start_response):
+    return site(environ,start_response)
 
-                            if __name__ == '__main__':
-                                from gnr.web.server import NewServer
-                                server=NewServer(__file__)
-                                server.run()
-                            """)
+if __name__ == '__main__':
+    from gnr.web.server import NewServer
+    server=NewServer(__file__)
+    server.run()
+""")
             root_py.close()
         if not os.path.isfile(siteconfig_xml_path):
             if not self.config:
@@ -247,10 +247,10 @@ class PackageMaker(object):
         if not os.path.exists(self.menu_xml_path):
             menu_xml = open(self.menu_xml_path, 'w')
             menu_xml.write("""
-                              <?xml version="1.0" encoding="UTF-8"?>
-                              <GenRoBag>
-                              </GenRoBag>            
-                              """)
+<?xml version="1.0" encoding="UTF-8"?>
+<GenRoBag>
+</GenRoBag>            
+""")
             menu_xml.close()
         if not os.path.exists(self.main_py_path):
             main_py_options = dict(comment=self.comment, sqlschema=self.sqlschema, name_short=self.name_short,
@@ -320,17 +320,16 @@ class ResourceMaker(object):
     def __init__(self, resource_name, base_path=None):
         self.resource_name = resource_name
         self.base_path = base_path or '.'
-            
-        
+
     def do(self):
         self.resource_path = os.path.join(self.base_path, self.resource_name)
         for path in (self.resource_path, ):
             if not os.path.isdir(path):
                 os.mkdir(path)
-    
+
 class ModWsgiMaker(object):
     pass
-    
+
 if __name__=='__main__':
     pather = PathResolver()
     print pather.package_name_to_path('edicon')
