@@ -65,7 +65,7 @@ class GnrCustomWebPage(object):
         doc.div('Link',_class='doclabel')
         doc.div(_class='demodoc').a("On Dojo's documentation",href='^demo.doc.description.link')
         parent.dataRpc('result','saveDocumentation',_doSave='^aux.doSave',
-                      docbag='=demo.doc',currpath='=demo.current.syspath')
+                      docbag='=demo.doc',currpath='=demo.current.syspath',_onResult='genro.wdgById("doc_edit").hide();')
         parent.dataRpc('demo.doc','getDocFile',currpath='^demo.current.syspath',
                         _if='currpath',_ext='=selected.ext')
         self.editorDialog(parent)
