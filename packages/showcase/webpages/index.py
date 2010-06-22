@@ -24,8 +24,8 @@ class GnrCustomWebPage(object):
         pane.data('menubag',self.diskDirectory())
         pane.tree(storepath='menubag',hideValues=True,inspect='shift',labelAttribute='name',isTree=False,
                     selected_path='tree.current_path')
-        pane.dataFormula("iframe.selected_page", "current_path", current_path="^tree.current_path",_if='current_path')     
-        
+        pane.dataFormula("iframe.selected_page", "current_path", current_path="^tree.current_path",_if='current_path')
+
     def main(self,rootBC,**kwargs):
         self.pageController(rootBC)
         self.left_menu(rootBC.contentPane(region='left',width='230px',splitter=True,_class='leftpane'))
