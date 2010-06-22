@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>content</key>
+	<string>def trigger_onUpdating(self, record_data, old_record):
+    $1</string>
+	<key>name</key>
+	<string>gnrsql: trigger(upd)</string>
+	<key>tabTrigger</key>
+	<string>trig</string>
+	<key>uuid</key>
+	<string>C709AB46-2479-496D-B09F-4834C2359C03</string>
+</dict>
+</plist>

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>content</key>
+	<string>relation('$1',${2:mode='foreignkey'})</string>
+	<key>name</key>
+	<string>gnrsql: add relation</string>
+	<key>tabTrigger</key>
+	<string>rel</string>
+	<key>uuid</key>
+	<string>1F0B5EE3-7F66-4695-94BF-FFFE0643D0E0</string>
+</dict>
+</plist>

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>content</key>
+	<string>fieldcell('$1',name='$2',width='$3')</string>
+	<key>name</key>
+	<string>gnrweb: widget Field cell for incview</string>
+	<key>tabTrigger</key>
+	<string>fc</string>
+	<key>uuid</key>
+	<string>84EB2FFF-E2D5-4E3D-9318-F01E12A9C1CE</string>
+</dict>
+</plist>

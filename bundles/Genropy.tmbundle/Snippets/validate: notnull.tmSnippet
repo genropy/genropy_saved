@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>content</key>
+	<string>validate_notnull=True,validate_notnull_error='!!${1:Required}'</string>
+	<key>name</key>
+	<string>validate: notnull</string>
+	<key>tabTrigger</key>
+	<string>val</string>
+	<key>uuid</key>
+	<string>07032623-B03F-4565-889D-1081F27DC0C6</string>
+</dict>
+</plist>

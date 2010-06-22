@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>content</key>
+	<string>validate_len='$1:$2',validate_len_max='!!${1:Too long}',validate_len_min='!!${1:Too short}'</string>
+	<key>name</key>
+	<string>validate: len</string>
+	<key>tabTrigger</key>
+	<string>val</string>
+	<key>uuid</key>
+	<string>FF7BFFBD-581D-41EB-A934-0BF90F684931</string>
+</dict>
+</plist>

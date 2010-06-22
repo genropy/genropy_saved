@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>content</key>
+	<string>def trigger_onInserting(self, record_data):
+    $1</string>
+	<key>name</key>
+	<string>gnrsql: trigger(ins)</string>
+	<key>tabTrigger</key>
+	<string>trig</string>
+	<key>uuid</key>
+	<string>E31A0E88-4BB9-4489-8143-5363DDB18A57</string>
+</dict>
+</plist>

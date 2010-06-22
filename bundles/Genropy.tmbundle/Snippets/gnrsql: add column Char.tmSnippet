@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>content</key>
+	<string>tbl.column('$1',size='$2',name_long='!!$4')</string>
+	<key>name</key>
+	<string>gnrsql: add column Char</string>
+	<key>tabTrigger</key>
+	<string>col</string>
+	<key>uuid</key>
+	<string>10AE8404-9F3D-4B75-8355-14A792EC0B81</string>
+</dict>
+</plist>

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>content</key>
+	<string>validate_email=True, validate_email_error='!!${1:Wrong email}'</string>
+	<key>name</key>
+	<string>validate: email</string>
+	<key>tabTrigger</key>
+	<string>val</string>
+	<key>uuid</key>
+	<string>5C9F4075-F1B7-4E4F-90A9-5DAA56B7DC38</string>
+</dict>
+</plist>

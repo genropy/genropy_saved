@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>content</key>
+	<string>field('$1')</string>
+	<key>name</key>
+	<string>gnrweb: widget auto Field</string>
+	<key>tabTrigger</key>
+	<string>fi</string>
+	<key>uuid</key>
+	<string>185894DB-40EA-4D3B-B8BD-94CCEDF61FCD</string>
+</dict>
+</plist>

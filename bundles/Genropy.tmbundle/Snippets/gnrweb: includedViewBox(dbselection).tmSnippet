@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>content</key>
+	<string>self.includedViewBox(${1:bc},label=${2:'$3'},${4:datapath='$5'},
+                     nodeId='$6',table='$7',${8:autoWidth=True,}
+                     ${9:struct=self.$10,}${11:columns='$12',}${13:hiddencolumns='$14',}
+                     ${15:reloader='^$16',} ${17:externalChanges='$18',}
+                     selectionPars=dict(where='$19',$20='=$21')
+                     ${22:,add_action=$23,del_action=$24})</string>
+	<key>name</key>
+	<string>gnrweb: includedViewBox(dbselection)</string>
+	<key>tabTrigger</key>
+	<string>iv</string>
+	<key>uuid</key>
+	<string>DBAA3526-2CAA-46E9-B44B-C111D7123CCB</string>
+</dict>
+</plist>

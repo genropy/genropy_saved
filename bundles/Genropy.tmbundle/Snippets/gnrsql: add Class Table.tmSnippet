@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>content</key>
+	<string># encoding: utf-8
+
+class Table(object):
+    def config_db(self, pkg):
+        tbl =  pkg.table('$1',pkey='${2:id}',name_long='!!$3',
+					  name_plural='!!$4')
+        self.sysFields(tbl${5:,id=False})
+</string>
+	<key>name</key>
+	<string>gnrsql: add Class Table</string>
+	<key>tabTrigger</key>
+	<string>table</string>
+	<key>uuid</key>
+	<string>A2CBB8A8-B59E-4209-BB04-2A43071890CB</string>
+</dict>
+</plist>

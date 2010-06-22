@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>content</key>
+	<string>includedView(struct=$1,autoWidth=True,storepath='$2')
+</string>
+	<key>name</key>
+	<string>gnrweb: includedview</string>
+	<key>tabTrigger</key>
+	<string>inc</string>
+	<key>uuid</key>
+	<string>968F0446-AD18-4939-B088-7812BAEBA5E8</string>
+</dict>
+</plist>

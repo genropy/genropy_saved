@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>content</key>
+	<string>self.selectionHandler(${1:bc},label=$2,datapath="$3",
+                        nodeId='$4',table='$5',
+                        struct=$6,reloader=$7,
+                        selectionPars=dict($8),
+                        dialogPars=dict($9))</string>
+	<key>name</key>
+	<string>gnrcomponent:selectionHandler</string>
+	<key>tabTrigger</key>
+	<string>sh</string>
+	<key>uuid</key>
+	<string>56C6186D-7FB7-41FB-A2CC-7F424D9A38D4</string>
+</dict>
+</plist>

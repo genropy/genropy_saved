@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>content</key>
+	<string>def onSaving(self, recordCluster, recordClusterAttr, resultAttr):
+    ${1:pass}</string>
+	<key>name</key>
+	<string>page: handler onSaving</string>
+	<key>tabTrigger</key>
+	<string>on</string>
+	<key>uuid</key>
+	<string>96C9D2F4-034B-4838-8229-2E08F68BFD6B</string>
+</dict>
+</plist>
