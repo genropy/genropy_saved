@@ -898,7 +898,7 @@ dojo.declare("gnr.GnrDomSourceNode",gnr.GnrBagNode,{
             var timing = objectPop(attributes,'_timing');
             
             if(timing){
-                this.setTiming=(timing);
+                this.setTiming(timing);
             }
             var onStart = objectPop(attributes,'_onStart');
             if (onStart){
