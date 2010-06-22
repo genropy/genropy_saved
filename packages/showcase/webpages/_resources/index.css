@@ -1,3 +1,42 @@
+
+
+/* @group Documentation */
+
+.docpane{
+	background-color: silver;
+	padding: 1em;
+}
+.doclabel{
+	margin-left: 20px;
+	margin-top:10px;
+	font-size: small;
+	font-weight: bold;
+}
+.demodoc{
+	background-color: #fffdc0;
+	margin-left: 20px;
+	margin-right: 20px;
+	margin-top: 5px;
+	padding: 10px;
+	-moz-border-radius:12px;
+	-webkit-border-radius:12px;
+	border-radius:12px;
+}
+.abstract{
+	min-height: 10ex;
+}
+.edit_dlg{
+	min-height: 20ex;
+	min-width: 40em;
+}
+.edit_dlg textarea{
+	height: 8ex;
+	width: 35em;
+}
+
+/* @end */
+
+
 .mainindex{
 	color: #32353d;
 }

@@ -39,7 +39,7 @@ class GnrCustomWebPage(object):
         sc = center.stackContainer(region='center',selected='^stack.selected')
         sc.contentPane(overflow='hidden').iframe(height='100%',width='100%',border='0',src='^iframe.selected_page')
         sc.contentPane(overflow='auto',background_color='white').div(value='^demo.current.source')
-        self.docPane(sc.contentPane(overflow='auto',background_color='white'))
+        self.docPane(sc)
         self.docPaneEdit(sc.borderContainer(region='center'))
 
     def top(self,bc):
@@ -54,8 +54,58 @@ class GnrCustomWebPage(object):
         self.loginbox(rightpane.contentPane(pageName='login',datapath='login',width="600px"))
         self.logoutbox(rightpane.contentPane(pageName='logout'))
         
-    def docPane(self,pane):
-        pane.div(value='^demo.current.docdata')
+    def docPane(self,parent):
+        doc=parent.contentPane(overflow='auto',_class='docpane',datapath='demo.doc.description')
+        doc.div('Abstract',_class='doclabel')
+        doc.div('^.full',_class='demodoc abstract',connect_onclick='genro.wdgById("doc_edit").show()')
+        doc.div('Widget Children',_class='doclabel')
+        doc.div('^.children',_class='demodoc',connect_onclick='genro.wdgById("doc_edit").show()')
+        doc.div('Params',_class='doclabel')
+        doc.div('^.params',_class='demodoc',connect_onclick='genro.wdgById("doc_edit").show()')
+        doc.div('Link',_class='doclabel')
+        doc.div(_class='demodoc').a("On Dojo's documentation",href='^demo.doc.description.link')
+        parent.dataRpc('result','saveDocumentation',_doSave='^aux.doSave',
+                      docbag='=demo.doc',currpath='=demo.current.syspath')
+        parent.dataRpc('demo.doc','getDocFile',currpath='^demo.current.syspath',
+                        _if='currpath',_ext='=selected.ext')
+        self.editorDialog(parent)
+                      
+    def rpc_saveDocumentation(self, docbag, currpath):
+        """docstring for rpc_saveDocumentation"""
+        if docbag and currpath:
+            docpath, ext = os.path.splitext(currpath)
+            docpath = '%s.xdoc' %docpath
+            docpath = docpath.split('/')
+            filename = docpath.pop()
+            docpath.append('_doc')
+            docpath.append(filename.replace('.py','.xdoc'))
+            docpath = '/'.join(docpath)   
+            docbag.toXml(docpath,autocreate=True)
+            return 'ok'
+        else:
+            return 'error'
+            
+    def rpc_getDocFile(self,currpath):
+        """docstring for rpc_getDocFile"""
+        docpath = currpath.split('/')
+        filename = docpath.pop()
+        docpath.append('_doc')
+        docpath.append(filename.replace('.py','.xdoc'))
+        docpath = '/'.join(docpath)
+        result = Bag()
+        if os.path.isfile(docpath):
+            result=Bag(docpath)
+        return result
+        
+    def editorDialog(self,pane):
+        """docstring for categoryDialog"""
+        dlg = pane.dialog(nodeId='doc_edit',title='Edit documentation',_class='edit_dlg')
+        fb = dlg.formbuilder(cols=1,border_spacing='3px',font_size='8pt',datapath='demo.doc.description')
+        fb.textbox(value='^.short',lbl='Title')
+        fb.simpleTextarea(value='^.full',lbl='Abstract',lbl_vertical_align='top')
+        fb.simpleTextarea(value='^.children',lbl='Children',lbl_vertical_align='top')
+        fb.simpleTextarea(value='^.params',lbl='Params',lbl_vertical_align='top')
+        fb.button('Save',action='FIRE aux.doSave=true')
 
     def docPaneEdit(self,bc):
         top=bc.contentPane(height='100%',region='top',splitter=False)
@@ -70,9 +120,6 @@ class GnrCustomWebPage(object):
         # top.ckeditor(value='^demo.current.docdata',nodeId='editor',config_toolbar='Basic',
         # config_uiColor= '#D1DBE4', toolbar=toolbar,height='700px')
         top.button('Save',action="FIRE pippo.doc;")
-
-    def loadRecord(self,kwargs):
-        print x
         
     def loginbox(self,pane):
         pane.dataRpc('.result', 'doLogin', login='=.form', btn='^.enter',_onResult='FIRE .afterLogin')
@@ -151,11 +198,7 @@ class GnrCustomWebPage(object):
         return name
 
     def rpc_getDocData(self,syspath):
-        tbl = self.db.table('showcase.document')
-        func = tbl.query(where='path=:func_path',func_path=syspath).fetch()
-        if func:
-            return func[0]['data']
-        return ''
+        pass
 
     def rpc_saveDocData(self,data='',syspath='',title=''):
         tbl = self.db.table('showcase.document')
