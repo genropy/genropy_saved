@@ -5,7 +5,7 @@
 Prerequisiti
 ============
 
-Per utilizare GenroPy, avrete bisogno almeno di:
+Per utilizzare GenroPy, avrete bisogno almeno di:
 
 - sistema operativo Mac o Linux (non ho esperienza con Windows)
 - Python 2.6
