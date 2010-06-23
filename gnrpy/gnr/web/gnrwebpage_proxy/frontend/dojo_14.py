@@ -11,7 +11,7 @@
 from gnr.web.gnrwebpage_proxy.gnrbaseproxy import GnrBaseProxy
 from gnr.web.gnrwebstruct import  GnrDomSrc_dojo_14
 
-class GnrWebFrontend(GnrBaseProxy):
+class GnrWebFrontend(GnrBaseDojoFrontend):
     
     version = 'd14'
     domSrcFactory = GnrDomSrc_dojo_14
