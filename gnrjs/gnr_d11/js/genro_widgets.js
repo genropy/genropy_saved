@@ -1083,8 +1083,14 @@ dojo.declare("gnr.widgets.FloatingPane",gnr.widgets.baseDojo,{
 });   
 dojo.declare("gnr.widgets.ColorPicker",gnr.widgets.baseDojo,{
    created: function(widget, savedAttrs, sourceNode){
-        dojo.connect(widget,'onChange',function(){console.log(arguments);});
-    }
+        dojo.connect(widget,'onChange',function(){return;});
+    },
+   mixin_setValue:function(value){
+       this.value=value;
+   },
+   mixin_getValue:function(){
+       return this.value;
+   }
 });   
 dojo.declare("gnr.widgets.ColorPalette",gnr.widgets.baseDojo,{
    created: function(widget, savedAttrs, sourceNode){
@@ -1334,7 +1340,8 @@ dojo.declare("gnr.widgets.Tooltip",gnr.widgets.baseDojo,{
          if (genro.wdg.filterEvent(e, this.modifiers, this.validclass)){
              this._onHover_replaced.call(this,e);
          }
-    },
+    }
+    ,
     patch_postCreate: function(){
         if (dojoversion=='1.1'){
             if(this.srcNodeRef){this.srcNodeRef.style.display = "none";}
@@ -1355,11 +1362,19 @@ dojo.declare("gnr.widgets.Tooltip",gnr.widgets.baseDojo,{
         });
     },
     mixin_connectOneNode:function(node){
+        if (this._connectNodes ==undefined){
+            this._connectNodes = [];
+        }
         this._connectNodes.push(node);
         var eventlist;
         if (dojoversion=='1.1'){
             eventlist = ["onMouseOver", "onMouseOut", "onFocus", "onBlur", "onHover", "onUnHover"];
-        }else{
+        }
+        else if (dojoversion=='1.5'){
+            
+            eventlist = ["onTargetMouseEnter", "onTargetMouseLeave", "onTargetFocus", "onTargetBlur", "onHover", "onUnHover"];
+        }
+        else{
             eventlist = ["onMouseEnter", "onMouseLeave", "onFocus", "onBlur"];
         }
 
