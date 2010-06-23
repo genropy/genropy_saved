@@ -1,7 +1,7 @@
+# Sencha frontend for GenroPy
 #
-#  Created by Giovanni Porcari on 2007-03-24.
-#  Copyright (c) 2007 Softwell. All rights reserved.
-#
+# Created by Roberto Lupi on 2010-06-23.
+# Copyright (c) 2010 MedMedia. All rights reserved.
 
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -17,25 +17,20 @@
 # License along with this library; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 
-from gnr.web.gnrwebpage_proxy.gnrbaseproxy import GnrBaseProxy
+from gnr.web.gnrwebpage_proxy.frontend.gnrbasefrontend import GnrBaseFrontend
 
-class GnrBaseFrontend(GnrBaseProxy):
-    """Base class for GnrWebPage frontends.
-    
-    Frontends define the details to load different UI toolkits (e.g. different versions of Dojo).
+class SenchaFrontend(GnrBaseFrontend):
+    """Eventually, this will be a frontend based on Sencha Touch.
     """
     
     def init(self, **kwargs):
-        """Initialize this frontend."""
         pass
         
     def importer(self):
-        """Returns the HTML code used to load any client-side resource (e.g. a specific dojo library) specific to this frontend."""
         return ''
     
     def event_onBegin(self):
         pass
         
     def frontend_arg_dict(self):
-        """Parameters to be passed to the page template."""
-        pass
+        pass    
