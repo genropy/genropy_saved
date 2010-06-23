@@ -2039,7 +2039,7 @@ class BagValidationList(object):
         value=converter.fromText(value, self.gnrtype)
         
     def validate_db(self,value, oldvalue, parameterString):
-        print value
+        # print value
         return value
         
     def defaultExt (self,value, oldvalue, parameterString):

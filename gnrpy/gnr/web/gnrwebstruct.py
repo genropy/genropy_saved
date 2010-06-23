@@ -743,7 +743,6 @@ class GnrFormBuilder(object):
     def _formCell(self, r, c, field=None):
         row=self.getRow(r)
         row_attributes = dict()
-        print field
         lbl=''
         tag=None
         rowspan,colspan=1,1
