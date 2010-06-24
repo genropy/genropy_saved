@@ -17,17 +17,19 @@ class Table(object):
         tbl.column('site_path',dtype='T',name_long='!!Site Path')
         tbl.column('hosted_data','X',name_long='!!Hosted data')  
         tbl.column('client_id',size=':22',name_long='!!Client id').relation('client.id',mode='foreignkey')
+        tbl.column('db_name',size=':15',name_long='!!Database Name')
         # dtype -> sql
         #   I       int
         #   R       float
         #   DH      datetime
         #   H       time
         # 
-    def create_instance(self, name, path, instanceconfig):
+    def create_instance(self, name, path, instanceconfig, dbname):
         instanceconfig=Bag(instanceconfig)
         instanceconfig.pop('application')
         instanceconfig.pop('menu')
         instanceconfig.pop('packages.hosting')
+        instanceconfig.setAttr('db',dbname=dbname)
         base_path=os.path.dirname(os.path.realpath(path))
         im=InstanceMaker(name, base_path=base_path, config=instanceconfig)
         im.do()
@@ -41,6 +43,7 @@ class Table(object):
         sm=SiteMaker(name, base_path=base_path, config=siteconfig)
         sm.do()
         return sm.site_path
+
 
     def trigger_onInserting(self, record_data):
         pass
