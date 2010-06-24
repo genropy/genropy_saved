@@ -16,6 +16,12 @@
     opacity:0;
     z-index:0;
 }
+.no_background .dijitButtonNode{
+    padding:0;
+    background:none;
+    border-width:0 !important;
+    border-color:transparent;
+}
 
 label.ghostlabel span{
     opacity:1;
@@ -45,14 +51,6 @@ label.ghostlabel span{
     background:#e4e4e4 url(images/buttonDisabled.png) top repeat-x;
     opacity: 0.60; 
 }
-
-.no_background .dijitButtonNode{
-    padding:0;
-    background:none;
-    border-width:0px;
-    border-color:transparent;
-}
-
 
 
 /* @end */
