@@ -192,7 +192,9 @@ class GnrWsgiSite(object):
     def siteLock(self, **kwargs):
         return SiteLock(self, **kwargs)
     
-    def _get_shared_data(self):
+    
+    @property
+    def shared_data(self):
         if not hasattr(self, '_shared_data'):
             memcache_config = self.config['memcache']
             if memcache_config:
@@ -200,8 +202,7 @@ class GnrWsgiSite(object):
             else:
                 self._shared_data = GnrSharedData_dict(self)
         return self._shared_data
-    shared_data = property(_get_shared_data)
-
+    
     def log_print(self,str):
         if getattr(self,'debug',True):
             print str
