@@ -1083,14 +1083,9 @@ dojo.declare("gnr.widgets.FloatingPane",gnr.widgets.baseDojo,{
 });   
 dojo.declare("gnr.widgets.ColorPicker",gnr.widgets.baseDojo,{
    created: function(widget, savedAttrs, sourceNode){
-        dojo.connect(widget,'onChange',function(){return;});
+        dojo.connect(widget,'onChange',function(){console.log(arguments);});
     },
-   mixin_setValue:function(value){
-       this.value=value;
-   },
-   mixin_getValue:function(){
-       return this.value;
-   }
+    
 });   
 dojo.declare("gnr.widgets.ColorPalette",gnr.widgets.baseDojo,{
    created: function(widget, savedAttrs, sourceNode){
@@ -1342,16 +1337,16 @@ dojo.declare("gnr.widgets.Tooltip",gnr.widgets.baseDojo,{
          }
     }
     ,
-    patch_postCreate: function(){
+    attributes_mixin_postCreate: function(){
         if (dojoversion=='1.1'){
             if(this.srcNodeRef){this.srcNodeRef.style.display = "none";}
         }else{
             dojo.addClass(this.domNode,"dijitTooltipData");
         }
-        
+        console.log('peee');
         this.connectAllNodes(this.connectId);
     },
-    mixin_connectAllNodes:function(nodes){
+    attributes_mixin_connectAllNodes:function(nodes){
         var node;
         this._connectNodes = [];
         dojo.forEach(nodes, function(node) {
@@ -1362,16 +1357,12 @@ dojo.declare("gnr.widgets.Tooltip",gnr.widgets.baseDojo,{
         });
     },
     mixin_connectOneNode:function(node){
-        if (this._connectNodes ==undefined){
-            this._connectNodes = [];
-        }
         this._connectNodes.push(node);
         var eventlist;
         if (dojoversion=='1.1'){
             eventlist = ["onMouseOver", "onMouseOut", "onFocus", "onBlur", "onHover", "onUnHover"];
         }
         else if (dojoversion=='1.5'){
-            
             eventlist = ["onTargetMouseEnter", "onTargetMouseLeave", "onTargetFocus", "onTargetBlur", "onHover", "onUnHover"];
         }
         else{

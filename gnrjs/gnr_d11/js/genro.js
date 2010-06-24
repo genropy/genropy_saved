@@ -1059,7 +1059,7 @@ dojo.declare('gnr.GenroClient', null, {
     }
 });
 
-dojo.declare("gnr.GnrClientCaller",gnr.GnrBagsResolver,{
+dojo.declare("gnr.GnrClientCaller",gnr.GnrBagResolver,{
     constructor: function(kwargs/*callback, params*/){
         if (typeof kwargs.callback =='string'){
             this.callback=genro.evaluate(kwargs.callback);
