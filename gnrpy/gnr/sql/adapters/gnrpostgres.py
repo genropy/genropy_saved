@@ -398,6 +398,8 @@ class GnrDictCursor(_cursor):
     def execute(self, query, vars=None, async=0):
         self.index = {}
         self._query_executed = 1
+        if psycopg2.__version__.startswith('2.2'):
+            return super(GnrDictCursor,self).execute(query, vars)    
         return super(GnrDictCursor,self).execute(query, vars, async)
         
     def callproc(self, procname, vars=None):
