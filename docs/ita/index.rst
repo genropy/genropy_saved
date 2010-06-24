@@ -20,6 +20,7 @@ Contents:
 	app/index
 	print/index
 	da-sistemare
+	howto/logging
 
 Indici e tabelle
 ==================

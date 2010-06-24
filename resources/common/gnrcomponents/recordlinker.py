@@ -24,6 +24,7 @@ Component for thermo:
 from gnr.web.gnrwebpage import BaseComponent
 
 class RecordLinker(BaseComponent):
+    py_requires="foundation/recorddialog"
     def recordLinker(self,fb,table=None,field=None,dialogPars=None,record_template=None,record_path=None,lbl=None,
                     value=None,width=None,height=None,colspan=1,rowspan=1,disabled=False,
                     default_path=None, record_reloader=None,**kwargs):

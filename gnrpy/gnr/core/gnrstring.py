@@ -267,10 +267,10 @@ def templateReplace(myString,symbolDict=None,safeMode=False):
     
 def asDict(myString,itemSep=',',argSep='=',symbols=None):
     """
-    @param myString: a string that represent a list of key-value pairs
-    @param itemSep: the separator char between each key-value pair
-    @param argSep: the separator key and value
-    @param symbols: a dictionary that eventually contains value for templates in myString
+    :param myString: a string that represent a list of key-value pairs
+    :param itemSep: the separator char between each key-value pair
+    :param argSep: the separator key and value
+    :param symbols: a dictionary that eventually contains value for templates in myString
     
     >>> asDict('height=22, weight=73')
     {'weight': '73', 'height': '22'}

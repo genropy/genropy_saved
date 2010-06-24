@@ -4,6 +4,11 @@
     <head>
         <meta http-equiv="content-type" content="text/html; charset=${charset}" />
         <meta http-equiv="X-UA-Compatible" content="IE=7" />
+
+		<!-- Prevent iPad/iPhone resize -->
+        <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0;" />
+
+
         <%include file="gnr_header.tpl" />
         <style type="text/css" title="localcss">
             html, body, #mainWindow{width: 100%;height: 100%;overflow: hidden;}
