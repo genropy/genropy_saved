@@ -495,22 +495,23 @@ dojo.declare("gnr.GnrDomHandler",null,{
     },
     
     startTouchDevice:function(){
-        dojo.connect(document.body, 'ontouchmove', function(e){
-            
+       document.body.ontouchmove= function(e){
             e.preventDefault();
+        };
+        /* 
+        dojo.connect(document.body, 'ontouchstart', function(e){
+            genro.setData('gnr.touch.orientation',window.orientation);
+            for (var i=0; i < e.touches.length; i++) {
+                var touch=e.touches[i]
+                var t=''
+                for (var k in touch){
+                    genro.setData('touch.tc_'+i+'.'+k,e[k]);
+
+                 }
+            };
+        
         });
-        // dojo.connect(document.body, 'ontouchstart', function(e){
-        //     alert(e.touches.length)
-        //     for (var i=0; i < e.touches.length; i++) {
-        //         var touch=e.touches[i]
-        //         var t=''
-        //         for (var k in touch){
-        //              t=t+'\n'+k+' : '+e[k]
-        //          }
-        //         alert (t)
-        //     };
-        // 
-        // });
+        
     /*    dojo.connect(document.body, 'touchend', function(e){
 
             var dx=e.screenX-this.startTouch_x
@@ -520,18 +521,21 @@ dojo.declare("gnr.GnrDomHandler",null,{
             this.startTouch_y=null
         });*/
 
-        dojo.connect(document.body, 'onorientationchange', function(e){
-            genro.setData('gnr.touch.orientation',window.orientation);
-        });
-        dojo.connect(document.body, 'gestureend', function(e){
-                 var b=new gnr.GnrBag();
-                 for (var k in e){
-                     b.setItem(k,e[k]);
-                 }
-                 genro.setData('gnr.touch.gesture',b);
-                 
+        document.body.onorientationchange= function(e){
+            genro.setData('touch.orientation',window.orientation);
+        }
+        dojo.connect(document.body,'gestureend',  function(e){
+            genro.dom.logTouchEvent('gesture',e)
         });
     
+    },
+    logTouchEvent:function(path,e){
+        
+        var b=''
+        for (var k in e){
+            b=b+k+':'+e[k]+'<br/>';
+        }
+        genro.setData('touch.event.'+path,b);
     },
     scrollableTable:function(domnode,gridbag,kw){
         var columns = kw.columns;
