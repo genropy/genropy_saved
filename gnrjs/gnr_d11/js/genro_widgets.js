@@ -1252,7 +1252,7 @@ dojo.declare("gnr.widgets.Menu",gnr.widgets.baseDojo,{
         }
         this.destroy_replaced.call(this);
     },
-    patch__contextMouse: function (e){
+    patch_d11__contextMouse: function (e){
         this.originalContextTarget=e.target;
         var sourceNode=this.sourceNode;
         if (sourceNode){
@@ -1276,7 +1276,30 @@ dojo.declare("gnr.widgets.Menu",gnr.widgets.baseDojo,{
             this._openMyself_replaced.call(this,e);
         }
     },
-    patch__openMyself: function (e){
+    patch_d15__openMyself: function (e){
+        this.originalContextTarget=e.target;
+        var sourceNode=this.sourceNode;
+        if (sourceNode){
+            var resolver=sourceNode.getResolver();
+            if (resolver && resolver.expired()){
+                var result=sourceNode.getValue('notrigger');
+                if ( result instanceof gnr.GnrBag){
+                    var menubag=new gnr.GnrDomSource();
+                    gnr.menuFromBag(result,menubag,sourceNode.attr._class,sourceNode.attr.fullpath);
+                    sourceNode.setValue(menubag);
+                }else{
+                    sourceNode.setValue(result);
+                }
+            }
+        }
+        if((e.button==2)&&(!this.modifiers)){
+            this._openMyself_replaced.call(this,e);
+        }
+        else if(this.modifiers && genro.wdg.filterEvent(e, this.modifiers, this.validclass)){
+            this._openMyself_replaced.call(this,e);
+        }
+   },
+    patch_d11__openMyself: function (e){
         if((e.button==2)&&(!this.modifiers)){
             this._openMyself_replaced.call(this,e);
         }
@@ -3422,7 +3445,16 @@ dojo.declare("gnr.widgets.DropDownButton",gnr.widgets.baseDojo,{
         }
         this.destroy_replaced.call(this);
     },
-    patch__openDropDown: function(evtDomNode){
+    patch_d15_openDropDown: function(){
+        var sourceNode=this.dropDown.sourceNode;
+        if (sourceNode){
+            sourceNode.refresh();
+            this.dropDown=sourceNode.widget;
+        }
+        this.openDropDown_replaced();
+    }
+    ,
+    patch_d11__openDropDown: function(evtDomNode){
         var sourceNode=this.dropDown.sourceNode;
         if (sourceNode){
             sourceNode.refresh();
