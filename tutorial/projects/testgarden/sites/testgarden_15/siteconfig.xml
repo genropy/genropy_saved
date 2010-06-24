@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<GenRoBag>
+    <wsgi homepage='showcase/index' mainpackage='showcase' port='8086' debug='true'/>
+   <!-- <memcache>
+        <local host='localhost' port='11211' />
+    </memcache>-->
+    <defaults country='IT' vat_rate='20'/>
+</GenRoBag>
