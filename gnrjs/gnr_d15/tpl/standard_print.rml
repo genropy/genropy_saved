@@ -1,0 +1,48 @@
+<!DOCTYPE document SYSTEM "rml.dtd">
+<%
+_ = mainpage._
+fmt = mainpage.toText
+
+%>
+<document
+    filename="tag-blockTableStyle.pdf"
+    xmlns:doc="http://namespaces.zope.org/rml/doc">
+
+
+  <template pageSize="A4" leftMargin="72" showBoundary="1">
+  	<pageTemplate id="main">
+  	    <frame id="first" x1="1in" y1="1in" width="6.27in" height="9.69in"/>
+  	</pageTemplate>
+  </template>
+  <stylesheet>
+      <blockTableStyle id="custom-table"> 
+          <blockAlignment start="0,0" stop="-1,-1" value="center"/>
+          <blockColBackground start="1,1" stop="1,-1" colorNames="green"/>
+      </blockTableStyle>
+  </stylesheet>
+
+  <story>
+    <title><font face="Courier">Export Selection</font></title>
+
+    <blockTable style="custom-table" colWidths="20% 50% 30%" repeatRows="1">
+        <tr>
+        %for colname in columns:
+        <%colattr = colAttrs.get(colname, dict())%>
+        <td>${_(colattr.get('label', colname))}</td>
+        %endfor
+        </tr>
+        %for r in outdata:
+        <tr>
+            %for colname in columns:
+                <td>${r[colname]}</td> 
+            %endfor 
+        </tr>
+        %endfor
+    </blockTable>
+
+    <spacer length="1cm" />
+
+    
+  </story>
+
+</document>
