@@ -1366,7 +1366,6 @@ dojo.declare("gnr.widgets.Tooltip",gnr.widgets.baseDojo,{
         }else{
             dojo.addClass(this.domNode,"dijitTooltipData");
         }
-        console.log('peee');
         this.connectAllNodes(this.connectId);
     },
     attributes_mixin_connectAllNodes:function(nodes){
