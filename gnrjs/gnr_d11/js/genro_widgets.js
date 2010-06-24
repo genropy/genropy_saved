@@ -3668,7 +3668,7 @@ dojo.declare("gnr.widgets.Tree",gnr.widgets.baseDojo,{
            var parentNode=parentNode.getParentNode();
        }
     },
-    patch__onClick:function(e){  
+    patch_d11__onClick:function(e){  
         var nodeWidget = dijit.getEnclosingWidget(e.target);
         if(dojo.hasClass(e.target,'dijitTreeIcon') && this.tree.checkBoxTree){
             var bagnode=nodeWidget.item;
@@ -3694,6 +3694,33 @@ dojo.declare("gnr.widgets.Tree",gnr.widgets.baseDojo,{
             this.setSelected(nodeWidget);
             this._updateSelect(nodeWidget.item, nodeWidget);
         }     
+    },
+    patch_d15__onClick:function(nodeWidget,e){  
+		// summary:
+		//		Translates click events into commands for the controller to process
+        if(dojo.hasClass(e.target,'dijitTreeIcon') && this.tree.checkBoxTree){
+            var bagnode=nodeWidget.item;
+            if (bagnode instanceof gnr.GnrBagNode){
+                var onCheck=this.onChecked?this.onChecked(bagnode,e):true;
+                if (onCheck!=false){
+                    this.tree.clickOnCheckbox(bagnode,e);
+                }
+            }
+            dojo.stopEvent(e);
+            return;
+        }
+		if(nodeWidget.htmlLabel && (!dojo.hasClass(e.target,'dijitTreeExpando'))){
+            return;
+        }
+        if(nodeWidget==nodeWidget.tree.rootNode){
+            return;
+        }
+        nodeWidget.__eventmodifier = eventToString(e);
+        this._onClick_replaced(nodeWidget, e);
+        if (genro.wdg.filterEvent(e,'*','dijitTreeLabel,dijitTreeContent')){
+            this.setSelected(nodeWidget);
+            this._updateSelect(nodeWidget.item, nodeWidget);
+        }   
     },
     mixin_getItemById: function(id){
         return this.model.store.rootData().findNodeById(id);
