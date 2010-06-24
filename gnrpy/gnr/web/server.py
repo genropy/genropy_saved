@@ -198,15 +198,16 @@ class NewServer(object):
         (self.options,self.args)=self.parser.parse_args()
         self.load_gnr_config()
         self.set_environment()
-        if hasattr(self.options, 'site_name') and self.options.site_name:
+        site_name = hasattr(self.options, 'site_name') and self.options.site_name or self.args[0]
+        if site_name:
             if not self.gnr_config:
                 raise ServerException(
                     'Error: no ~/.gnr/ or /etc/gnr/ found')
-            self.site_path, self.site_template = self.site_name_to_path(self.options.site_name)
+            self.site_path, self.site_template = self.site_name_to_path(site_name)
             self.site_script=os.path.join(self.site_path,'root.py')
             if not os.path.isfile(self.site_script):
                 raise ServerException(
-                    'Error: no root.py in the site provided (%s)' % self.options.site_name)
+                    'Error: no root.py in the site provided (%s)' % site_name)
         else:
             self.site_path = os.path.dirname(os.path.realpath(site_script))
         self.init_options()
