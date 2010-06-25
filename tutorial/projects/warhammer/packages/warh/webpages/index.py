@@ -4,7 +4,7 @@
 class GnrCustomWebPage(object):
     css_requires='warh'
     def windowTitle(self):
-         return 'Welcome to Warhammer RPG'
+         return 'Warhammer RPG'
          
     def main(self, root, **kwargs):
         bc = root.borderContainer()
@@ -13,7 +13,7 @@ class GnrCustomWebPage(object):
         center = bc.contentPane(region='center',_class='immaginona') # 'center' va sempre inserito per ultimo!!
         box = center.div(nodeId='myMenu',_class='boxscelte')
         box.dataController("genro.dom.effect('myMenu','fadeIn',{duration:1000})",_onStart=True)
-        box.a('Scheda',href='warh/personaggi')
+        box.a('Schede Personaggi',href='warh/personaggi')
         box.br()
         box.a('Razze',href='warh/razze')
         box.br()
