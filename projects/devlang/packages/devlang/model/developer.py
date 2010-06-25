@@ -19,13 +19,3 @@ class Table(object):
         tbl.column('postal_code',name_long='!!Postcode')
         tbl.column('latlonbox',name_long='!!Lat lon box')
         tbl.column('coordinates',name_long='!!Coordinates')
-
-
-
-        
-
-
-
-
-        
-
