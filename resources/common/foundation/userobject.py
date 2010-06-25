@@ -26,7 +26,7 @@ from gnr.core.gnrbag import Bag
 
 
 class UserObject(BaseComponent):
-    py_requires='foundation/recorddialog,foundation/dialogs:FormDialog'
+    py_requires='foundation/recorddialog,foundation/dialogs:Dialogs'
     def deleteUserObjectDialog(self):
         page = self.pageSource()
         def cb_center(parentBc,**kwargs):
