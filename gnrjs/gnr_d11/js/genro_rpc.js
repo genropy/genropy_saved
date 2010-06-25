@@ -282,7 +282,7 @@ dojo.declare("gnr.GnrRpcHandler",null,{
             });
             sync = true;
         }
-        var timeout = objectPop(callKwargs, 'timeout', 50000);
+        var timeout = objectPop(params, 'timeout', 50000);
         var xhrKwargs = {'handleAs': handleAs,
                             'timeout': timeout,
                             'load': cb,

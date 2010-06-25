@@ -1252,7 +1252,7 @@ dojo.declare("gnr.widgets.Menu",gnr.widgets.baseDojo,{
         }
         this.destroy_replaced.call(this);
     },
-    patch_d11__contextMouse: function (e){
+    patch__contextMouse: function (e){
         this.originalContextTarget=e.target;
         var sourceNode=this.sourceNode;
         if (sourceNode){
@@ -1276,30 +1276,7 @@ dojo.declare("gnr.widgets.Menu",gnr.widgets.baseDojo,{
             this._openMyself_replaced.call(this,e);
         }
     },
-    patch_d15__openMyself: function (e){
-        this.originalContextTarget=e.target;
-        var sourceNode=this.sourceNode;
-        if (sourceNode){
-            var resolver=sourceNode.getResolver();
-            if (resolver && resolver.expired()){
-                var result=sourceNode.getValue('notrigger');
-                if ( result instanceof gnr.GnrBag){
-                    var menubag=new gnr.GnrDomSource();
-                    gnr.menuFromBag(result,menubag,sourceNode.attr._class,sourceNode.attr.fullpath);
-                    sourceNode.setValue(menubag);
-                }else{
-                    sourceNode.setValue(result);
-                }
-            }
-        }
-        if((e.button==2)&&(!this.modifiers)){
-            this._openMyself_replaced.call(this,e);
-        }
-        else if(this.modifiers && genro.wdg.filterEvent(e, this.modifiers, this.validclass)){
-            this._openMyself_replaced.call(this,e);
-        }
-   },
-    patch_d11__openMyself: function (e){
+    patch__openMyself: function (e){
         if((e.button==2)&&(!this.modifiers)){
             this._openMyself_replaced.call(this,e);
         }
@@ -3444,16 +3421,7 @@ dojo.declare("gnr.widgets.DropDownButton",gnr.widgets.baseDojo,{
         }
         this.destroy_replaced.call(this);
     },
-    patch_d15_openDropDown: function(){
-        var sourceNode=this.dropDown.sourceNode;
-        if (sourceNode){
-            sourceNode.refresh();
-            this.dropDown=sourceNode.widget;
-        }
-        this.openDropDown_replaced();
-    }
-    ,
-    patch_d11__openDropDown: function(evtDomNode){
+    patch__openDropDown: function(evtDomNode){
         var sourceNode=this.dropDown.sourceNode;
         if (sourceNode){
             sourceNode.refresh();
@@ -3668,7 +3636,7 @@ dojo.declare("gnr.widgets.Tree",gnr.widgets.baseDojo,{
            var parentNode=parentNode.getParentNode();
        }
     },
-    patch_d11__onClick:function(e){  
+    patch__onClick:function(e){  
         var nodeWidget = dijit.getEnclosingWidget(e.target);
         if(dojo.hasClass(e.target,'dijitTreeIcon') && this.tree.checkBoxTree){
             var bagnode=nodeWidget.item;
@@ -3694,33 +3662,6 @@ dojo.declare("gnr.widgets.Tree",gnr.widgets.baseDojo,{
             this.setSelected(nodeWidget);
             this._updateSelect(nodeWidget.item, nodeWidget);
         }     
-    },
-    patch_d15__onClick:function(nodeWidget,e){  
-		// summary:
-		//		Translates click events into commands for the controller to process
-        if(dojo.hasClass(e.target,'dijitTreeIcon') && this.tree.checkBoxTree){
-            var bagnode=nodeWidget.item;
-            if (bagnode instanceof gnr.GnrBagNode){
-                var onCheck=this.onChecked?this.onChecked(bagnode,e):true;
-                if (onCheck!=false){
-                    this.tree.clickOnCheckbox(bagnode,e);
-                }
-            }
-            dojo.stopEvent(e);
-            return;
-        }
-		if(nodeWidget.htmlLabel && (!dojo.hasClass(e.target,'dijitTreeExpando'))){
-            return;
-        }
-        if(nodeWidget==nodeWidget.tree.rootNode){
-            return;
-        }
-        nodeWidget.__eventmodifier = eventToString(e);
-        this._onClick_replaced(nodeWidget, e);
-        if (genro.wdg.filterEvent(e,'*','dijitTreeLabel,dijitTreeContent')){
-            this.setSelected(nodeWidget);
-            this._updateSelect(nodeWidget.item, nodeWidget);
-        }   
     },
     mixin_getItemById: function(id){
         return this.model.store.rootData().findNodeById(id);

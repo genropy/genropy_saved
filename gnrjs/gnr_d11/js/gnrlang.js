@@ -94,8 +94,7 @@ function stringEndsWith (s,v) {
 }
 
 function stringStartsWith (s,v) {
-    if (s.slice(0,v.length)==v){return true;}
-    else{return false;};
+    return (s.indexOf(v)==0);
 }
 function stringContains(s,v) {
     return (s.indexOf(v)>=0);
