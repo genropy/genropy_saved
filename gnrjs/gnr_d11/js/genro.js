@@ -43,6 +43,16 @@ dijit.showTooltip = function(/*String*/ innerHTML, /*DomNode*/ aroundNode){
     }
     return dijit._masterTT.show(tooltip_text, aroundNode);
 };
+/*String.prototype.startswith=function(start_string){
+    len=start_string.length;
+    if (this.slice(0,len)==start_string){
+        return true
+    }
+    else
+    {
+        return false;
+    }
+};*/
 
 /* ----------- Class gnr.GenroClient ----------------*/  
 dojo.declare('gnr.GenroClient', null, {
