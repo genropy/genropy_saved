@@ -8,3 +8,4 @@ class Table(object):
         tbl.column('developer_id',size='22',group='_',name_long='!!Developer').relation('developer.id',mode='foreignkey',onDelete='cascade')
         tbl.column('language_id',size='22',group='_',name_long='!!Language').relation('language.id',mode='foreignkey',onDelete='cascade')
         tbl.column('level',dtype='L',name_long='!!Level')
+        
