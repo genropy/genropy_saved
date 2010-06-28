@@ -437,7 +437,7 @@ class StatsHandler(BaseComponent):
         pane.tree(storepath='.root',inspect='shift',selectedPath='.currentTreePath',labelAttribute='caption',
                  selectedItem='#_grid_total.data',isTree=True,margin='10px',_fired='^.reload_tree',hideValues=True)
         pane.dataRpc('.root','stats_totalize',selectionName='=list.selectionName',
-                        tot_mode='^.tot_mode',_if='tot_mode&&(selectedTab==1)',timeout=300000,
+                        tot_mode='^.tot_mode',_if='tot_mode&&(selectedTab==1) && selectionName',timeout=300000,
                         totalrecords='=list.rowcount',selectedTab='=list.selectedTab',
                         _onCalling="""genro.wdgById("_stats_load_dlg").show();
                                      SET #_grid_total.data = null;SET #_grid_detail.data = null;""",
@@ -485,6 +485,7 @@ class StatsHandler(BaseComponent):
                     cellargs['dtype'] = 'L' 
             r.cell(**cellargs)
         return struct
+
     def rpc_stats_get_struct_detail(self,tot_mode='*'):
         struct = self.newGridStruct()
         r = struct.view().rows()
@@ -550,9 +551,10 @@ class StatsHandler(BaseComponent):
     def rpc_stats_totalize(self,selectionName=None,group_by=None,sum_cols=None,keep_cols=None,
                             collect_cols=None,distinct_cols=None,key_col=None,captionCb=None,
                             tot_mode=None,**kwargs):
+
         selection = self.stats_get_selection(selectionName)
         selection.totalize()
-        
+    
         group_by = group_by or self.stats_group_by(tot_mode)
         sum_cols = sum_cols or self.stats_sum_cols(tot_mode)
         keep_cols = keep_cols or self.stats_keep_cols(tot_mode)
