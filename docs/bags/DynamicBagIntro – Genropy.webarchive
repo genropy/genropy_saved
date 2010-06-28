@@ -1,0 +1,4793 @@
+bplist00ÒD_WebSubresources_WebMainResource­#(,04;?Ô	
+_WebResourceMIMEType_WebResourceData^WebResourceURL_WebResourceResponseXtext/cssO@Nbody { background: #fff; color: #000; margin: 10px; padding: 0; }
+body, th, td {
+ font: normal 13px Verdana,Arial,'Bitstream Vera Sans',Helvetica,sans-serif;
+}
+h1, h2, h3, h4 {
+ font-family: Arial,Verdana,'Bitstream Vera Sans',Helvetica,sans-serif;
+ font-weight: bold;
+ letter-spacing: -0.018em;
+ page-break-after: avoid;
+}
+h1 { font-size: 19px; margin: .15em 1em 0.5em 0 }
+h2 { font-size: 16px }
+h3 { font-size: 14px }
+hr { border: none;  border-top: 1px solid #ccb; margin: 2em 0 }
+address { font-style: normal }
+img { border: none }
+
+.underline { text-decoration: underline }
+ol.loweralpha { list-style-type: lower-alpha }
+ol.upperalpha { list-style-type: upper-alpha }
+ol.lowerroman { list-style-type: lower-roman }
+ol.upperroman { list-style-type: upper-roman }
+ol.arabic     { list-style-type: decimal }
+
+/* Link styles */
+:link, :visited {
+ text-decoration: none;
+ color: #b00;
+ border-bottom: 1px dotted #bbb;
+}
+:link:hover, :visited:hover { background-color: #eee; color: #555 }
+h1 :link, h1 :visited ,h2 :link, h2 :visited, h3 :link, h3 :visited,
+h4 :link, h4 :visited, h5 :link, h5 :visited, h6 :link, h6 :visited {
+ color: inherit;
+}
+
+/* Heading anchors */
+.anchor:link, .anchor:visited {
+ border: none;
+ color: #d7d7d7;
+ font-size: .8em;
+ vertical-align: text-top;
+}
+* > .anchor:link, * > .anchor:visited {
+ visibility: hidden;
+}
+h1:hover .anchor, h2:hover .anchor, h3:hover .anchor,
+h4:hover .anchor, h5:hover .anchor, h6:hover .anchor {
+ visibility: visible;
+}
+
+@media screen {
+ a.ext-link .icon {
+  background: url(../extlink.gif) left center no-repeat;
+  padding-left: 16px;
+ }
+ a.mail-link .icon {
+  background: url(../envelope.png) left center no-repeat;
+  padding-left: 16px;
+ }
+}
+
+/* Forms */
+input, textarea, select { margin: 2px }
+input, select { vertical-align: middle }
+input[type=button], input[type=submit], input[type=reset] {
+ background: #eee;
+ color: #222;
+ border: 1px outset #ccc;
+ padding: .1em .5em;
+}
+input[type=button]:hover, input[type=submit]:hover, input[type=reset]:hover {
+ background: #ccb;
+}
+input[type=button][disabled], input[type=submit][disabled],
+input[type=reset][disabled] {
+ background: #f6f6f6;
+ border-style: solid;
+ color: #999;
+}
+input[type=text], input.textwidget, textarea { border: 1px solid #d7d7d7 }
+input[type=text], input.textwidget { padding: .25em .5em }
+input[type=text]:focus, input.textwidget:focus, textarea:focus {
+ border: 1px solid #886;
+}
+option { border-bottom: 1px dotted #d7d7d7 }
+fieldset { border: 1px solid #d7d7d7; padding: .5em; margin: 1em 0 }
+form p.hint, form span.hint { color: #666; font-size: 85%; font-style: italic; margin: .5em 0;
+  padding-left: 1em;
+}
+fieldset.iefix {
+  background: transparent;
+  border: none;
+  padding: 0;
+  margin: 0;
+}
+* html fieldset.iefix { width: 98% }
+fieldset.iefix p { margin: 0 }
+legend { color: #999; padding: 0 .25em; font-size: 90%; font-weight: bold }
+label.disabled { color: #d7d7d7 }
+.buttons { margin: .5em .5em .5em 0 }
+.buttons form, .buttons form div { display: inline }
+.buttons input { margin: 1em .5em .1em 0 }
+.inlinebuttons input { 
+ font-size: 70%;
+ border-width: 1px;
+ border-style: dotted;
+ margin: 0 .1em;
+ padding: 0.1em;
+ background: none;
+}
+
+/* Header */
+#header hr { display: none }
+#header h1 { margin: 1.5em 0 -1.5em; }
+#header img { border: none; margin: 0 0 -3em }
+#header :link, #header :visited, #header :link:hover, #header :visited:hover {
+ background: transparent;
+ color: #555;
+ margin-bottom: 2px;
+ border: none;
+}
+#header h1 :link:hover, #header h1 :visited:hover { color: #000 }
+
+/* Quick search */
+#search {
+ clear: both;
+ font-size: 10px;
+ height: 2.2em;
+ margin: 0 0 1em;
+ text-align: right;
+}
+#search input { font-size: 10px }
+#search label { display: none }
+
+/* Navigation */
+.nav h2, .nav hr { display: none }
+.nav ul { font-size: 10px; list-style: none; margin: 0; text-align: right }
+.nav li {
+ border-right: 1px solid #d7d7d7;
+ display: inline;
+ padding: 0 .75em;
+ white-space: nowrap;
+}
+.nav li.last { border-right: none }
+
+/* Main navigation bar */
+#mainnav {
+ background: #f7f7f7 url(../topbar_gradient.png) 0 0;
+ border: 1px solid #000;
+ font: normal 10px verdana,'Bitstream Vera Sans',helvetica,arial,sans-serif;
+ margin: .66em 0 .33em;
+ padding: .2em 0;
+}
+#mainnav li { border-right: none; padding: .25em 0 }
+#mainnav :link, #mainnav :visited {
+ background: url(../dots.gif) 0 0 no-repeat;
+ border-right: 1px solid #fff;
+ border-bottom: none;
+ border-left: 1px solid #555;
+ color: #000;
+ padding: .2em 20px;
+}
+* html #mainnav :link, * html #mainnav :visited { background-position: 1px 0 }
+#mainnav :link:hover, #mainnav :visited:hover {
+ background-color: #ccc;
+ border-right: 1px solid #ddd;
+}
+#mainnav .active :link, #mainnav .active :visited {
+ background: #333 url(../topbar_gradient2.png) 0 0 repeat-x;
+ border-top: none;
+ border-right: 1px solid #000;
+ color: #eee;
+ font-weight: bold;
+}
+#mainnav .active :link:hover, #mainnav .active :visited:hover {
+ border-right: 1px solid #000;
+}
+
+/* Context-dependent navigation links */
+#ctxtnav { height: 1em }
+#ctxtnav li ul {
+ background: #f7f7f7;
+ color: #ccc;
+ border: 1px solid;
+ padding: 0;
+ display: inline;
+ margin: 0;
+}
+#ctxtnav li li { padding: 0; }
+#ctxtnav li li :link, #ctxtnav li li :visited { padding: 0 1em }
+#ctxtnav li li :link:hover, #ctxtnav li li :visited:hover {
+ background: #bba;
+ color: #fff;
+}
+
+/* Alternate links */
+#altlinks { clear: both; text-align: center }
+#altlinks h3 { font-size: 12px; letter-spacing: normal; margin: 0 }
+#altlinks ul { list-style: none; margin: 0; padding: 0 0 1em }
+#altlinks li {
+ border-right: 1px solid #d7d7d7;
+ display: inline;
+ font-size: 11px;
+ line-height: 1.5;
+ padding: 0 1em;
+ white-space: nowrap;
+}
+#altlinks li.last { border-right: none }
+#altlinks li :link, #altlinks li :visited {
+ background-repeat: no-repeat;
+ color: #666;
+ border: none;
+ padding: 0 0 2px;
+}
+#altlinks li a.ics { background-image: url(../ics.png); padding-left: 22px }
+#altlinks li a.rss { background-image: url(../feed.png); padding-left: 20px }
+
+/* Footer */
+#footer {
+  clear: both;
+  color: #bbb;
+  font-size: 10px;
+  border-top: 1px solid;
+  height: 31px;
+  padding: .25em 0;
+}
+#footer :link, #footer :visited { color: #bbb; }
+#footer hr { display: none }
+#footer #tracpowered { border: 0; float: left }
+#footer #tracpowered:hover { background: transparent }
+#footer p { margin: 0 }
+#footer p.left {
+  float: left;
+  margin-left: 1em;
+  padding: 0 1em;
+  border-left: 1px solid #d7d7d7;
+  border-right: 1px solid #d7d7d7;
+}
+#footer p.right {
+  float: right;
+  text-align: right;
+}
+
+#content { padding-bottom: 2em; position: relative }
+
+#help {
+ clear: both;
+ color: #999;
+ font-size: 90%;
+ margin: 1em;
+ text-align: right;
+}
+#help :link, #help :visited { cursor: help }
+#help hr { display: none }
+
+/* Page preferences form */
+#prefs {
+ background: #f7f7f0;
+ border: 1px outset #998;
+ float: right;
+ font-size: 9px;
+ padding: .8em;
+ position: relative;
+ margin: 0 1em 1em;
+}
+* html #prefs { width: 26em } /* Set width only for IE */
+#prefs input, #prefs select { font-size: 9px; vertical-align: middle }
+#prefs fieldset {
+ background: transparent;
+ border: none;
+ margin: .5em;
+ padding: 0;
+}
+#prefs fieldset legend {
+ background: transparent;
+ color: #000;
+ font-size: 9px;
+ font-weight: normal;
+ margin: 0 0 0 -1.5em;
+ padding: 0;
+}
+#prefs .buttons { text-align: right }
+
+/* Version information (browser, wiki, attachments) */
+#info {
+ margin: 1em 0 0 0;
+ background: #f7f7f0;
+ border: 1px solid #d7d7d7;
+ border-collapse: collapse;
+ border-spacing: 0;
+ clear: both;
+ width: 100%;
+}
+#info th, #info td { font-size: 85%; padding: 2px .5em; vertical-align: top }
+#info th { font-weight: bold; text-align: left; white-space: nowrap }
+#info td.message { width: 100% }
+#info .message ul { padding: 0; margin: 0 2em }
+#info .message p { margin: 0; padding: 0 }
+
+/* Wiki */
+.wikipage { padding-left: 18px }
+.wikipage h1, .wikipage h2, .wikipage h3 { margin-left: -18px }
+
+a.missing:link, a.missing:visited, span.missing { color: #998 }
+a.missing:link, a.missing:visited { background: #fafaf0 }
+a.missing:hover { color: #000 }
+a.closed:link, a.closed:visited { text-decoration: line-through }
+span.closed { text-decoration: line-through }
+span.forbidden, a.forbidden { background: #fafaf0; color: #998; }
+
+/* User-selectable styles for blocks */
+.important {
+ background: #fcb;
+ border: 1px dotted #d00;
+ color: #500;
+ padding: 0 .5em 0 .5em;
+ margin: .5em;
+}
+
+dl.wiki dt { font-weight: bold }
+dl.compact dt { float: left; padding-right: .5em }
+dl.compact dd { margin: 0; padding: 0 }
+
+pre.wiki, pre.literal-block {
+ background: #f7f7f7;
+ border: 1px solid #d7d7d7;
+ margin: 1em 1.75em;
+ padding: .25em;
+ overflow: auto;
+}
+
+blockquote.citation { 
+ margin: -0.6em 0;
+ border-style: solid; 
+ border-width: 0 0 0 2px; 
+ padding-left: .5em;
+ border-color: #b44; 
+}
+.citation blockquote.citation { border-color: #4b4; }
+.citation .citation blockquote.citation { border-color: #44b; }
+.citation .citation .citation blockquote.citation { border-color: #c55; }
+
+table.wiki {
+ border: 2px solid #ccc;
+ border-collapse: collapse;
+ border-spacing: 0;
+}
+table.wiki td { border: 1px solid #ccc;  padding: .1em .25em; }
+
+.wikitoolbar {
+ border: solid #d7d7d7;
+ border-width: 1px 1px 1px 0;
+ height: 18px;
+ width: 234px;
+}
+.wikitoolbar :link, .wikitoolbar :visited {
+ background: transparent url(../edit_toolbar.png) no-repeat;
+ border: 1px solid #fff;
+ border-left-color: #d7d7d7;
+ cursor: default;
+ display: block;
+ float: left;
+ width: 24px;
+ height: 16px;
+}
+.wikitoolbar :link:hover, .wikitoolbar :visited:hover {
+ background-color: transparent;
+ border: 1px solid #fb2;
+}
+.wikitoolbar a#em { background-position: 0 0 }
+.wikitoolbar a#strong { background-position: 0 -16px }
+.wikitoolbar a#heading { background-position: 0 -32px }
+.wikitoolbar a#link { background-position: 0 -48px }
+.wikitoolbar a#code { background-position: 0 -64px }
+.wikitoolbar a#hr { background-position: 0 -80px }
+.wikitoolbar a#np { background-position: 0 -96px }
+.wikitoolbar a#br { background-position: 0 -112px }
+.wikitoolbar a#img { background-position: 0 -128px }
+
+/* Styles for the form for adding attachments. */
+#attachment .field { margin-top: 1.3em }
+#attachment label { padding-left: .2em }
+#attachment fieldset { margin-top: 2em }
+#attachment fieldset .field { float: left; margin: 0 1em .5em 0 }
+#attachment .options { float: left; padding: 0 0 1em 1em }
+#attachment br { clear: left }
+.attachment #preview { margin-top: 1em }
+
+/* Styles for the list of attachments. */
+#attachments { border: 1px outset #996; padding: 1em }
+#attachments .attachments { margin-left: 2em; padding: 0 }
+#attachments dt { display: list-item; list-style: square; }
+#attachments dd { font-style: italic; margin-left: 0; padding-left: 0; }
+
+/* Styles for tabular listings such as those used for displaying directory
+   contents and report results. */
+table.listing {
+ clear: both;
+ border-bottom: 1px solid #d7d7d7;
+ border-collapse: collapse;
+ border-spacing: 0;
+ margin-top: 1em;
+ width: 100%;
+}
+table.listing th { text-align: left; padding: 0 1em .1em 0; font-size: 12px }
+table.listing thead { background: #f7f7f0 }
+table.listing thead th {
+ border: 1px solid #d7d7d7;
+ border-bottom-color: #999;
+ font-size: 11px;
+ font-weight: bold;
+ padding: 2px .5em;
+ vertical-align: bottom;
+}
+table.listing thead th :link:hover, table.listing thead th :visited:hover {
+ background-color: transparent;
+}
+table.listing thead th a { border: none; padding-right: 12px }
+table.listing th.asc a, table.listing th.desc a { font-weight: bold }
+table.listing th.asc a, table.listing th.desc a {
+ background-position: 100% 50%;
+ background-repeat: no-repeat;
+}
+table.listing th.asc a { background-image: url(../asc.png) }
+table.listing th.desc a { background-image: url(../desc.png) }
+table.listing tbody td, table.listing tbody th {
+ border: 1px dotted #ddd;
+ padding: .3em .5em;
+ vertical-align: top;
+}
+table.listing tbody td a:hover, table.listing tbody th a:hover {
+ background-color: transparent;
+}
+table.listing tbody tr { border-top: 1px solid #ddd }
+table.listing tbody tr.even { background-color: #fcfcfc }
+table.listing tbody tr.odd { background-color: #f7f7f7 }
+table.listing tbody tr:hover { background: #eed !important }
+table.listing tbody tr.focus { background: #ddf !important }
+
+/* Styles for the page history table
+   (extends the styles for "table.listing") */
+#fieldhist td { padding: 0 .5em }
+#fieldhist td.date, #fieldhist td.diff, #fieldhist td.version,
+#fieldhist td.author {
+ white-space: nowrap;
+}
+#fieldhist td.version { text-align: center }
+#fieldhist td.comment { width: 100% }
+
+/* Auto-completion interface */
+.suggestions { background: #fff; border: 1px solid #886; color: #222; }
+.suggestions ul {
+  font-family: sans-serif;
+  max-height: 20em;
+  min-height: 3em;
+  list-style: none;
+  margin: 0;
+  overflow: auto;
+  padding: 0;
+  width: 440px;
+}
+* html .suggestions ul { height: 10em; }
+.suggestions li { background: #fff; cursor: pointer; padding: 2px 5px }
+.suggestions li.selected { background: #b9b9b9 }
+
+/* Styles for the error page (and rst errors) */
+#content.error .message, div.system-message {
+ background: #fdc;
+ border: 2px solid #d00;
+ color: #500;
+ padding: .5em;
+ margin: 1em 0;
+}
+#content.error div.message pre, div.system-message pre {
+  margin-left: 1em;
+  overflow: hidden;
+  white-space: normal;
+}
+div.system-message p { margin: 0; }
+div.system-message p.system-message-title { font-weight: bold; }
+
+#warning.system-message { background: #ffa; border: 2px solid #886; }
+#warning.system-message li { list-style-type: square; }
+
+#notice.system-message { background: #bfb; border: 2px solid #484; }
+#notice.system-message li { list-style-type: square; }
+
+#content.error form.newticket { display: inline; }
+#content.error form.newticket textarea { display: none; }
+
+#content.error #systeminfo { margin: 1em; width: auto; }
+#content.error #systeminfo th { font-weight: bold; text-align: right; }
+
+#content.error #traceback { margin-left: 1em; }
+#content.error #traceback :link, #content.error #traceback :visited {
+  border: none;
+}
+#content.error #tbtoggle { font-size: 80%; }
+#content.error #traceback div { margin-left: 1em; }
+#content.error #traceback h3 { font-size: 95%; margin: .5em 0 0; }
+#content.error #traceback :link var, #content.error #traceback :visited var {
+  font-family: monospace;
+  font-style: normal;
+  font-weight: bold;
+}
+#content.error #traceback span.file { color: #666; font-size: 85%; }
+#content.error #traceback ul { list-style: none; margin: .5em 0; padding: 0; }
+#content.error #traceback ol {
+  border: 1px dotted #d7d7d7;
+  color: #999;
+  font-size: 85%;
+  line-height: 1;
+  margin: .5em 0;
+}
+#content.error #traceback ol li { white-space: pre; }
+#content.error #traceback ol li.current { background: #e6e6e6; color: #333; }
+#content.error #traceback ol li code { color: #666; }
+#content.error #traceback ol li.current code { color: #000; }
+#content.error #traceback table { margin: .5em 0 1em;  }
+#content.error #traceback th, #content.error #traceback td {
+  font-size: 85%; padding: 1px;
+}
+#content.error #traceback th var {
+  font-family: monospace;
+  font-style: normal;
+}
+#content.error #traceback td code { white-space: pre; }
+#content.error #traceback pre { font-size: 95%; }
+
+#content .paging { margin: 0 0 2em; padding: .5em 0 0;
+  font-size: 85%; line-height: 2em; text-align: center;
+}
+#content .paging .current { 
+  padding: .1em .3em;
+  border: 1px solid #333;
+  background: #999; color: #fff; 
+}
+
+#content .paging :link, #content .paging :visited {
+  padding: .1em .3em;
+  border: 1px solid #666;
+  background: transparent; color: #666;
+}
+#content .paging :link:hover, #content .paging :visited:hover {
+  background: #999; color: #fff;  border-color: #333;
+}
+#content .paging .previous a, 
+#content .paging .next a {
+  font-size: 150%; font-weight: bold; border: none;
+}
+#content .paging .previous a:hover,
+#content .paging .next a:hover {
+  background: transparent; color: #666;
+}
+
+#content h2 .numresults { color: #666; font-size: 90%; }
+
+/* Styles for search word highlighting */
+@media screen {
+ .searchword0 { background: #ff9 }
+ .searchword1 { background: #cfc }
+ .searchword2 { background: #cff }
+ .searchword3 { background: #ccf }
+ .searchword4 { background: #fcf }
+}
+
+@media print {
+ #header, #altlinks, #footer, #help { display: none }
+ .nav, form, .buttons form, form .buttons, form .inlinebuttons {
+   display: none;
+ }
+ form.printableform { display: block }
+}
+_2http://trac.genropy.org/chrome/common/css/trac.cssO.bplist00Ô	
+X$versionT$topY$archiverX$objects † Ñ_WebResourceResponse€_NSKeyedArchiver¯&,-345IJKLMNOPQRSTIUVZ[U$nullİ !"#$%V$classR$3R$8S$10S$11R$5R$6R$4R$7R$2R$9R$0R$1€€€ €€€€€ Ó'()$+WNS.base[NS.relative€€ €_2http://trac.genropy.org/chrome/common/css/trac.cssÒ./01X$classesZ$classname¢12UNSURLXNSObject#A¯ÃòÆV¬ÈÓ6789AWNS.keysZNS.objects€§:;<=>?@€	€
+€€€€€§BCDEFGH€€€€€€€ZKeep-AliveVServer\Content-Type^Content-LengthTDateZConnection]Last-Modified_timeout=15, max=100_‡Apache/2.2.11 (Ubuntu) DAV/2 SVN/1.5.4 mod_python/3.3.1 Python/2.6.2 mod_wsgi/2.3 Phusion_Passenger/2.0.3 mod_ssl/2.2.11 OpenSSL/0.9.8gXtext/cssU16462_Fri, 12 Jun 2009 02:46:18 GMT_Thu, 07 Aug 2008 01:00:20 GMTÒ./WX£XY2_NSMutableDictionary\NSDictionary@NÒ./\]£]^2_NSHTTPURLResponse]NSURLResponse     ) 2 7 : P R d  ‡ ¢ © ¬ ¯ ³ · º ½ À Ã Æ É Ì Ï Ñ Ó Õ × Ù Û İ ß á ã å ç î ö=BKVY_hqsz‚—™›Ÿ¡£¥­¯±³µ·¹»ÆÍÚéîù§°¶Ööûÿ"%*.B             _              PÔYimage/pngO^‰PNG
+
+   IHDR   €       U@çr   	pHYs    Òİ~ü   tIMEÔ!:.m{
+   ıIDATxÚíšAƒ E‰¢÷?*{Qºp†¡€Õ¶‹¿àeÑqä¿†DZK)9Lg>„€
+J Ş{T ÀÀ æyF%€išPAhv*(Ğ†Š·  h  j *(k ] Æ°ï;*tA İ‚Ì 00 ~àMxìØ¶” bŒ¨ €p!ÀQ„ ]Öî"ÌìáËZ9¬u9ïüêŸ1O›ñ÷P·‘¿š:îzùu]ù*· eYPA	 úoh.	9_RJfv~¶cÎëò"»”1«ì+½²ËçìÎÑÎ[MZ…ª\ÚYª*Ø}€+Yºkl×{µçÜ¯w~YÅ2G    IEND®B`‚_9http://trac.genropy.org/chrome/common/topbar_gradient.pngO3bplist00Ô	
+X$versionT$topY$archiverX$objects † Ñ_WebResourceResponse€_NSKeyedArchiver¯&,-345IJKLMNOPQRSTIUVZ[U$nullİ !"#$%V$classR$3R$8S$10S$11R$5R$6R$4R$7R$2R$9R$0R$1€€€ €€€€€ Ó'()$+WNS.base[NS.relative€€ €_9http://trac.genropy.org/chrome/common/topbar_gradient.pngÒ./01X$classesZ$classname¢12UNSURLXNSObject#A¯Ãò	 ›0ÈÓ6789AWNS.keysZNS.objects€§:;<=>?@€	€
+€€€€€§BCDEFGH€€€€€€€ZKeep-AliveVServer\Content-Type^Content-LengthTDateZConnection]Last-Modified_timeout=15, max=98_‡Apache/2.2.11 (Ubuntu) DAV/2 SVN/1.5.4 mod_python/3.3.1 Python/2.6.2 mod_wsgi/2.3 Phusion_Passenger/2.0.3 mod_ssl/2.2.11 OpenSSL/0.9.8gYimage/pngS350_Fri, 12 Jun 2009 02:46:21 GMT_Thu, 07 Aug 2008 01:00:20 GMTÒ./WX£XY2_NSMutableDictionary\NSDictionary^Ò./\]£]^2_NSHTTPURLResponse]NSURLResponse     ) 2 7 : P R d  ‡ ¢ © ¬ ¯ ³ · º ½ À Ã Æ É Ì Ï Ñ Ó Õ × Ù Û İ ß á ã å ç î öDIR]`foxz‰”– ¢¤¦¨ª¬´¶¸º¼¾ÀÂÍÔáğõ #­·»Ûû '*/3G             _              UÔYimage/gifO2GIF89a  €  LLLLLL!ù
+  ,       	Œ `{Šš ;_.http://trac.genropy.org/chrome/common/dots.gifO&bplist00Ô	
+X$versionT$topY$archiverX$objects † Ñ_WebResourceResponse€_NSKeyedArchiver¯&,-345IJKLMNOPQRSTIUVZ[U$nullİ !"#$%V$classR$3R$8S$10S$11R$5R$6R$4R$7R$2R$9R$0R$1€€€ €€€€€ Ó'()$+WNS.base[NS.relative€€ €_.http://trac.genropy.org/chrome/common/dots.gifÒ./01X$classesZ$classname¢12UNSURLXNSObject#A¯Ãò
+ïÈÓ6789AWNS.keysZNS.objects€§:;<=>?@€	€
+€€€€€§BCDEFGH€€€€€€€ZKeep-AliveVServer\Content-Type^Content-LengthTDateZConnection]Last-Modified_timeout=15, max=97_‡Apache/2.2.11 (Ubuntu) DAV/2 SVN/1.5.4 mod_python/3.3.1 Python/2.6.2 mod_wsgi/2.3 Phusion_Passenger/2.0.3 mod_ssl/2.2.11 OpenSSL/0.9.8gYimage/gifR50_Fri, 12 Jun 2009 02:46:22 GMT_Thu, 07 Aug 2008 01:00:20 GMTÒ./WX£XY2_NSMutableDictionary\NSDictionary2Ò./\]£]^2_NSHTTPURLResponse]NSURLResponse     ) 2 7 : P R d  ‡ ¢ © ¬ ¯ ³ · º ½ À Ã Æ É Ì Ï Ñ Ó Õ × Ù Û İ ß á ã å ç î ö9>GRU[dmov~‰‹“•—™›Ÿ¡©«­¯±³µ·ÂÉÖåêõ¢¬¯Ïïôø"&:             _              HÔO5‰PNG
+
+   IHDR   €       (m   0PLTE "$!&(%02/231342685?@>DFCJLIOPNWYV^`]ghfnpmxzwÍÈñ¼   ÀIDATHÇÕÓ1QàÿÜ@öWp7ÉÌfz½. PFÄ¶
+…fß–Ê¿ÀW¼læ½üÉ›y‹¢t­¼><«t¨8í’í2™‡Yã2çü@Àãÿî97çà<à`ßâ`õõ€u›ƒÛÄ;Æ#ûÂÁ˜Â0ã Sç 	Rƒ¨±ÛÄ>û/LÜÄÍb5W7wSZP)?]4¶¢ ¢QŒ¥<eé!›cÊŒØ+ôØ&vÙ1²oŞ©êR	e>    IEND®B`‚_:http://trac.genropy.org/chrome/common/topbar_gradient2.pngO4bplist00Ô	
+X$versionT$topY$archiverX$objects † Ñ_WebResourceResponse€_NSKeyedArchiver¯&,-345IJKLMNOPQRSTIUVZ[U$nullİ !"#$%V$classR$3R$8S$10S$11R$5R$6R$4R$7R$2R$9R$0R$1€€€ €€€€€ Ó'()$+WNS.base[NS.relative€€ €_:http://trac.genropy.org/chrome/common/topbar_gradient2.pngÒ./01X$classesZ$classname¢12UNSURLXNSObject#A¯Ãò	e“ÈÓ6789AWNS.keysZNS.objects€§:;<=>?@€	€
+€€€€€§BCDEFGH€€€€€€€ZKeep-AliveVServer\Content-Type^Content-LengthTDateZConnection]Last-Modified_timeout=15, max=99_‡Apache/2.2.11 (Ubuntu) DAV/2 SVN/1.5.4 mod_python/3.3.1 Python/2.6.2 mod_wsgi/2.3 Phusion_Passenger/2.0.3 mod_ssl/2.2.11 OpenSSL/0.9.8gYimage/pngS309_Fri, 12 Jun 2009 02:46:21 GMT_Thu, 07 Aug 2008 01:00:20 GMTÒ./WX£XY2_NSMutableDictionary\NSDictionary5Ò./\]£]^2_NSHTTPURLResponse]NSURLResponse     ) 2 7 : P R d  ‡ ¢ © ¬ ¯ ³ · º ½ À Ã Æ É Ì Ï Ñ Ó Õ × Ù Û İ ß á ã å ç î öEJS^agpy{‚Š•—Ÿ¡£¥§©«­µ·¹»½¿ÁÃÎÕâñö$®¸¼Üü(+04H             _              VÔ	O@import url(code.css);
+
+/* Styles for the page editing form */
+#edit #rows { float: right; font-size: 80% }
+#edit #rows select { font-size: 90% }
+#edit #text { clear: both; width: 100% }
+#edit .wikitoolbar { float: left; }
+#changeinfo { padding: .5em }
+#changeinfo .field { float: left; margin: 0 1em .5em 0 }
+#changeinfo br { clear: left }
+#changeinfo .options { padding: 0 0 1em 1em }
+#changeinfo .options, #changeinfo .buttons { clear: left }
+#delete, #save { margin-left: 6em }
+#preview {
+ background: #f4f4f4 url(../draft.png);
+ margin: 1em 0 2em;
+ overflow: auto;
+}
+#template { vertical-align: middle; padding-top: 1em; }
+
+/* Diff view */
+#overview .multi { color: #999 }
+#overview .ipnr { color: #999; font-size: 80% }
+#overview .comment { padding: 1em 0 0 }
+
+@media print { 
+ th.diff, td.diff { display: none }
+}
+
+/* Styles for the TracGuideToc wikimacro */
+.wiki-toc {
+ padding: .5em 1em;
+ margin: 0 0 2em 1em;
+ float: right;
+ border: 1px outset #ddc;
+ background: #ffd;
+ font-size: 85%;
+ position: relative;
+}
+.wiki-toc h4 { font-size: 12px; margin: 0 }
+.wiki-toc ul, .wiki-toc ol { list-style: none; padding: 0; margin: 0 }
+.wiki-toc ul ul, .wiki-toc ol ol { padding-left: 1.2em }
+.wiki-toc li { margin: 0; padding: 0 }
+.wiki-toc .active { background: #ff9; position: relative; }
+_2http://trac.genropy.org/chrome/common/css/wiki.cssO-bplist00Ô	
+X$versionT$topY$archiverX$objects † Ñ_WebResourceResponse€_NSKeyedArchiver¯&,-345IJKLMNOPQRSTIUVZ[U$nullİ !"#$%V$classR$3R$8S$10S$11R$5R$6R$4R$7R$2R$9R$0R$1€€€ €€€€€ Ó'()$+WNS.base[NS.relative€€ €_2http://trac.genropy.org/chrome/common/css/wiki.cssÒ./01X$classesZ$classname¢12UNSURLXNSObject#A¯Ãò–·ÈÓ6789AWNS.keysZNS.objects€§:;<=>?@€	€
+€€€€€§BCDEFGH€€€€€€€ZKeep-AliveVServer\Content-Type^Content-LengthTDateZConnection]Last-Modified_timeout=15, max=100_‡Apache/2.2.11 (Ubuntu) DAV/2 SVN/1.5.4 mod_python/3.3.1 Python/2.6.2 mod_wsgi/2.3 Phusion_Passenger/2.0.3 mod_ssl/2.2.11 OpenSSL/0.9.8gXtext/cssT1291_Fri, 12 Jun 2009 02:46:18 GMT_Thu, 07 Aug 2008 01:00:20 GMTÒ./WX£XY2_NSMutableDictionary\NSDictionaryÒ./\]£]^2_NSHTTPURLResponse]NSURLResponse     ) 2 7 : P R d  ‡ ¢ © ¬ ¯ ³ · º ½ À Ã Æ É Ì Ï Ñ Ó Õ × Ù Û İ ß á ã å ç î ö=BKVY_hqsz‚—™›Ÿ¡£¥­¯±³µ·¹»ÆÍÚéîù§°µÕõúş!$)-A             _              OÔ	 !"O_div.code {
+ background: #f7f7f7;
+ border: 1px solid #d7d7d7;
+ margin: 1em 1.75em;
+ padding: .25em;
+ overflow: auto
+}
+
+div.code pre { margin: 0; }
+
+table.code {
+ border: 1px solid #ddd;
+ border-spacing: 0;
+ border-top: 0;
+ border-collapse: collapse; 
+ empty-cells: show;
+ font-size: 12px;
+ line-height: 130%;
+ padding: 0;
+ margin: 0 auto;
+ table-layout: fixed;
+ width: 100%;
+}
+table.code th {
+ border-right: 1px solid #d7d7d7;
+ border-bottom: 1px solid #998;
+ font-size: 11px;
+}
+table.code th.lineno { width: 4em }
+table.code thead th {
+ background: #eee;
+ border-top: 1px solid #d7d7d7;
+ color: #999;
+ padding: 0 .25em;
+ text-align: center;
+ white-space: nowrap;
+}
+table.code tbody th {
+ background: #eed;
+ color: #886;
+ font-weight: normal;
+ padding: 0 .5em;
+ text-align: right;
+ vertical-align: top;
+}
+table.code tbody th :link, table.code tbody th :visited {
+ border: none;
+ color: #886;
+ text-decoration: none;
+}
+table.code tbody th :link:hover, table.code tbody th :visited:hover {
+ color: #000;
+}
+table.code td {
+ font: normal 11px monospace;
+ overflow: hidden;
+ padding: 1px 2px;
+ vertical-align: top;
+}
+table.code tr.hilite th {
+ background: #ccf;
+}
+table.code tr.hilite td {
+ background: #ddf;
+}
+.image-file { background: #eee; padding: .3em }
+.image-file img { background: url(../imggrid.png) }
+
+/* Default */
+.code-block span { font-family: monospace; }
+
+/* Comments */
+.code-comment, .css_comment, .c_comment, .c_commentdoc, .c_commentline,
+.c_commentlinedoc, .h_comment,.pl_commentline, .p_commentblock,
+.p_commentline, .hphp_comment, .hphp_commentblock, .hphp_commentline,
+.yaml_comment {
+ color: #998; 
+ font-style: italic;
+}
+
+/* Language keyword */
+.code-keyword, .pl_word  { color: #789; font-weight: bold }
+
+/* Type */
+.code-type, .c_word, .c_word2, .p_classname, .hphp_classname{
+ color: #468;
+ font-weight: bold;
+}
+
+/* Function */
+.code-func, .p_defname {
+ color: #900;
+ font-weight: bold;
+ border-bottom: none;
+}
+
+/* Pre-processor */
+.code-prep, .c_preprocessor, .pl_preprocessor, .yaml_identifier {
+ color: #999;
+ font-weight: bold;
+}
+
+/* Language construct */
+.code-lang, .p_word { color: #000; font-weight: bold }
+
+/* String */
+.code-string, .c_string, .c_stringeol, .css_doublestring, .css_singlestring,
+.h_singlestring, .h_doublestring, .pl_string, .pl_string_q, .pl_string_qq,
+.pl_string_qr, .pl_string_qw, .pl_string_qx, .pl_backticks, .pl_character,
+.p_string, .p_stringeol, .hphp_string, .hphp_stringeol, .hphp_triple,
+.hphp_tripledouble, .p_character, .p_triple, .p_tripledouble {
+ color: #b84;
+ font-weight: normal;
+}
+
+/* Variable name */
+.code-var { color: #f9f }
+
+/* SilverCity-specific styles */
+.css_id, .css_class, .css_pseudoclass, .css_tag { color: #900000 }
+.css_directive { color: #009000; font-weight: bold }
+.css_important { color: blue }
+.css_operator { color: #000090; font-weight: bold }
+.css_tag { font-weight: bold }
+.css_unknown_identifier, .css_unknown_pseudoclass { color: red }
+.css_value { color: navy }
+.c_commentdockeyword { color: navy; font-weight: bold }
+.c_commentdockeyworderror { color: red; font-weight: bold }
+.c_character, .c_regex, .c_uuid, .c_verbatim { color: olive }
+.c_number { color: #099 }
+.h_asp { color: #ff0 }
+.h_aspat { color: #ffdf00 }
+.h_attribute { color: teal }
+.h_attributeunknown { color: red }
+.h_cdata { color: #373 }
+.h_entity { color: purple }
+.h_number { color: #099 }
+.h_other { color: purple }
+.h_script, .h_tag, .h_tagend { color: navy }
+.h_tagunknown { color: red }
+.h_xmlend, .h_xmlstart { color: blue }
+.pl_datasection { color: olive }
+.pl_error { color: red; font-weight: bold }
+.pl_hash { color: #000 }
+.pl_here_delim, .pl_here_q, .pl_here_qq, .pl_here_qx, .pl_longquote { color: olive }
+.pl_number { color: #099 }
+.pl_pod { font-style: italic }
+.pl_regex, .pl_regsubst { color: olive }
+.p_number { color: #099 }
+.hphp_character { color: olive }
+.hphp_defname { color: #099; font-weight: bold }
+.hphp_number { color: #099 }
+.hphp_word { color: navy; font-weight: bold }
+.yaml_document { color: gray; font-style: italic }
+.yaml_keyword { color: #808 }
+.yaml_number { color: #800 }
+.yaml_reference { color: #088 }
+.v_comment { color: gray; font-style: italic }
+.v_commentline, .v_commentlinebang { color: red; font-style: italic }
+.v_number, .v_preprocessor { color: #099 }
+.v_string, .v_stringeol { color: olive }
+.v_user{ color: blue; font-weight: bold }
+.v_word, .v_word3 { color: navy; font-weight: bold }
+.v_word2 { color: green; font-weight: bold }
+_2http://trac.genropy.org/chrome/common/css/code.cssO,bplist00Ô	
+X$versionT$topY$archiverX$objects † Ñ_WebResourceResponse€_NSKeyedArchiver¯&,-345IJKLMNOPQRSTIUVZ[U$nullİ !"#$%V$classR$3R$8S$10S$11R$5R$6R$4R$7R$2R$9R$0R$1€€€ €€€€€ Ó'()$+WNS.base[NS.relative€€ €_2http://trac.genropy.org/chrome/common/css/code.cssÒ./01X$classesZ$classname¢12UNSURLXNSObject#A¯Ãò!™şÈÓ6789AWNS.keysZNS.objects€§:;<=>?@€	€
+€€€€€§BCDEFGH€€€€€€€ZKeep-AliveVServer\Content-Type^Content-LengthTDateZConnection]Last-Modified_timeout=15, max=99_‡Apache/2.2.11 (Ubuntu) DAV/2 SVN/1.5.4 mod_python/3.3.1 Python/2.6.2 mod_wsgi/2.3 Phusion_Passenger/2.0.3 mod_ssl/2.2.11 OpenSSL/0.9.8gXtext/cssT4447_Fri, 12 Jun 2009 02:46:19 GMT_Thu, 07 Aug 2008 01:00:20 GMTÒ./WX£XY2_NSMutableDictionary\NSDictionary_Ò./\]£]^2_NSHTTPURLResponse]NSURLResponse     ) 2 7 : P R d  ‡ ¢ © ¬ ¯ ³ · º ½ À Ã Æ É Ì Ï Ñ Ó Õ × Ù Û İ ß á ã å ç î ö=BKVY_hqsz‚—™›Ÿ¡£¥­¯±³µ·¹»ÆÍÚéîù¦¯´Ôôùı #(,@             _              NÔ$%&'_text/x-javascriptO ‡d(function(){
+/*
+ * jQuery 1.2.6 - New Wave Javascript
+ *
+ * Copyright (c) 2008 John Resig (jquery.com)
+ * Dual licensed under the MIT (MIT-LICENSE.txt)
+ * and GPL (GPL-LICENSE.txt) licenses.
+ *
+ * $Date: 2008-05-24 14:22:17 -0400 (Sat, 24 May 2008) $
+ * $Rev: 5685 $
+ */
+
+// Map over jQuery in case of overwrite
+var _jQuery = window.jQuery,
+// Map over the $ in case of overwrite
+	_$ = window.$;
+
+var jQuery = window.jQuery = window.$ = function( selector, context ) {
+	// The jQuery object is actually just the init constructor 'enhanced'
+	return new jQuery.fn.init( selector, context );
+};
+
+// A simple way to check for HTML strings or ID strings
+// (both of which we optimize for)
+var quickExpr = /^[^<]*(<(.|\s)+>)[^>]*$|^#(\w+)$/,
+
+// Is it a simple selector
+	isSimple = /^.[^:#\[\.]*$/,
+
+// Will speed up references to undefined, and allows munging its name.
+	undefined;
+
+jQuery.fn = jQuery.prototype = {
+	init: function( selector, context ) {
+		// Make sure that a selection was provided
+		selector = selector || document;
+
+		// Handle $(DOMElement)
+		if ( selector.nodeType ) {
+			this[0] = selector;
+			this.length = 1;
+			return this;
+		}
+		// Handle HTML strings
+		if ( typeof selector == "string" ) {
+			// Are we dealing with HTML string or an ID?
+			var match = quickExpr.exec( selector );
+
+			// Verify a match, and that no context was specified for #id
+			if ( match && (match[1] || !context) ) {
+
+				// HANDLE: $(html) -> $(array)
+				if ( match[1] )
+					selector = jQuery.clean( [ match[1] ], context );
+
+				// HANDLE: $("#id")
+				else {
+					var elem = document.getElementById( match[3] );
+
+					// Make sure an element was located
+					if ( elem ){
+						// Handle the case where IE and Opera return items
+						// by name instead of ID
+						if ( elem.id != match[3] )
+							return jQuery().find( selector );
+
+						// Otherwise, we inject the element directly into the jQuery object
+						return jQuery( elem );
+					}
+					selector = [];
+				}
+
+			// HANDLE: $(expr, [context])
+			// (which is just equivalent to: $(content).find(expr)
+			} else
+				return jQuery( context ).find( selector );
+
+		// HANDLE: $(function)
+		// Shortcut for document ready
+		} else if ( jQuery.isFunction( selector ) )
+			return jQuery( document )[ jQuery.fn.ready ? "ready" : "load" ]( selector );
+
+		return this.setArray(jQuery.makeArray(selector));
+	},
+
+	// The current version of jQuery being used
+	jquery: "1.2.6",
+
+	// The number of elements contained in the matched element set
+	size: function() {
+		return this.length;
+	},
+
+	// The number of elements contained in the matched element set
+	length: 0,
+
+	// Get the Nth element in the matched element set OR
+	// Get the whole matched element set as a clean array
+	get: function( num ) {
+		return num == undefined ?
+
+			// Return a 'clean' array
+			jQuery.makeArray( this ) :
+
+			// Return just the object
+			this[ num ];
+	},
+
+	// Take an array of elements and push it onto the stack
+	// (returning the new matched element set)
+	pushStack: function( elems ) {
+		// Build a new jQuery matched element set
+		var ret = jQuery( elems );
+
+		// Add the old object onto the stack (as a reference)
+		ret.prevObject = this;
+
+		// Return the newly-formed element set
+		return ret;
+	},
+
+	// Force the current matched set of elements to become
+	// the specified array of elements (destroying the stack in the process)
+	// You should use pushStack() in order to do this, but maintain the stack
+	setArray: function( elems ) {
+		// Resetting the length to 0, then using the native Array push
+		// is a super-fast way to populate an object with array-like properties
+		this.length = 0;
+		Array.prototype.push.apply( this, elems );
+
+		return this;
+	},
+
+	// Execute a callback for every element in the matched set.
+	// (You can seed the arguments with an array of args, but this is
+	// only used internally.)
+	each: function( callback, args ) {
+		return jQuery.each( this, callback, args );
+	},
+
+	// Determine the position of an element within
+	// the matched set of elements
+	index: function( elem ) {
+		var ret = -1;
+
+		// Locate the position of the desired element
+		return jQuery.inArray(
+			// If it receives a jQuery object, the first element is used
+			elem && elem.jquery ? elem[0] : elem
+		, this );
+	},
+
+	attr: function( name, value, type ) {
+		var options = name;
+
+		// Look for the case where we're accessing a style value
+		if ( name.constructor == String )
+			if ( value === undefined )
+				return this[0] && jQuery[ type || "attr" ]( this[0], name );
+
+			else {
+				options = {};
+				options[ name ] = value;
+			}
+
+		// Check to see if we're setting style values
+		return this.each(function(i){
+			// Set all the styles
+			for ( name in options )
+				jQuery.attr(
+					type ?
+						this.style :
+						this,
+					name, jQuery.prop( this, options[ name ], type, i, name )
+				);
+		});
+	},
+
+	css: function( key, value ) {
+		// ignore negative width and height values
+		if ( (key == 'width' || key == 'height') && parseFloat(value) < 0 )
+			value = undefined;
+		return this.attr( key, value, "curCSS" );
+	},
+
+	text: function( text ) {
+		if ( typeof text != "object" && text != null )
+			return this.empty().append( (this[0] && this[0].ownerDocument || document).createTextNode( text ) );
+
+		var ret = "";
+
+		jQuery.each( text || this, function(){
+			jQuery.each( this.childNodes, function(){
+				if ( this.nodeType != 8 )
+					ret += this.nodeType != 1 ?
+						this.nodeValue :
+						jQuery.fn.text( [ this ] );
+			});
+		});
+
+		return ret;
+	},
+
+	wrapAll: function( html ) {
+		if ( this[0] )
+			// The elements to wrap the target around
+			jQuery( html, this[0].ownerDocument )
+				.clone()
+				.insertBefore( this[0] )
+				.map(function(){
+					var elem = this;
+
+					while ( elem.firstChild )
+						elem = elem.firstChild;
+
+					return elem;
+				})
+				.append(this);
+
+		return this;
+	},
+
+	wrapInner: function( html ) {
+		return this.each(function(){
+			jQuery( this ).contents().wrapAll( html );
+		});
+	},
+
+	wrap: function( html ) {
+		return this.each(function(){
+			jQuery( this ).wrapAll( html );
+		});
+	},
+
+	append: function() {
+		return this.domManip(arguments, true, false, function(elem){
+			if (this.nodeType == 1)
+				this.appendChild( elem );
+		});
+	},
+
+	prepend: function() {
+		return this.domManip(arguments, true, true, function(elem){
+			if (this.nodeType == 1)
+				this.insertBefore( elem, this.firstChild );
+		});
+	},
+
+	before: function() {
+		return this.domManip(arguments, false, false, function(elem){
+			this.parentNode.insertBefore( elem, this );
+		});
+	},
+
+	after: function() {
+		return this.domManip(arguments, false, true, function(elem){
+			this.parentNode.insertBefore( elem, this.nextSibling );
+		});
+	},
+
+	end: function() {
+		return this.prevObject || jQuery( [] );
+	},
+
+	find: function( selector ) {
+		var elems = jQuery.map(this, function(elem){
+			return jQuery.find( selector, elem );
+		});
+
+		return this.pushStack( /[^+>] [^+>]/.test( selector ) || selector.indexOf("..") > -1 ?
+			jQuery.unique( elems ) :
+			elems );
+	},
+
+	clone: function( events ) {
+		// Do the clone
+		var ret = this.map(function(){
+			if ( jQuery.browser.msie && !jQuery.isXMLDoc(this) ) {
+				// IE copies events bound via attachEvent when
+				// using cloneNode. Calling detachEvent on the
+				// clone will also remove the events from the orignal
+				// In order to get around this, we use innerHTML.
+				// Unfortunately, this means some modifications to
+				// attributes in IE that are actually only stored
+				// as properties will not be copied (such as the
+				// the name attribute on an input).
+				var clone = this.cloneNode(true),
+					container = document.createElement("div");
+				container.appendChild(clone);
+				return jQuery.clean([container.innerHTML])[0];
+			} else
+				return this.cloneNode(true);
+		});
+
+		// Need to set the expando to null on the cloned set if it exists
+		// removeData doesn't work here, IE removes it from the original as well
+		// this is primarily for IE but the data expando shouldn't be copied over in any browser
+		var clone = ret.find("*").andSelf().each(function(){
+			if ( this[ expando ] != undefined )
+				this[ expando ] = null;
+		});
+
+		// Copy the events from the original to the clone
+		if ( events === true )
+			this.find("*").andSelf().each(function(i){
+				if (this.nodeType == 3)
+					return;
+				var events = jQuery.data( this, "events" );
+
+				for ( var type in events )
+					for ( var handler in events[ type ] )
+						jQuery.event.add( clone[ i ], type, events[ type ][ handler ], events[ type ][ handler ].data );
+			});
+
+		// Return the cloned set
+		return ret;
+	},
+
+	filter: function( selector ) {
+		return this.pushStack(
+			jQuery.isFunction( selector ) &&
+			jQuery.grep(this, function(elem, i){
+				return selector.call( elem, i );
+			}) ||
+
+			jQuery.multiFilter( selector, this ) );
+	},
+
+	not: function( selector ) {
+		if ( selector.constructor == String )
+			// test special case where just one selector is passed in
+			if ( isSimple.test( selector ) )
+				return this.pushStack( jQuery.multiFilter( selector, this, true ) );
+			else
+				selector = jQuery.multiFilter( selector, this );
+
+		var isArrayLike = selector.length && selector[selector.length - 1] !== undefined && !selector.nodeType;
+		return this.filter(function() {
+			return isArrayLike ? jQuery.inArray( this, selector ) < 0 : this != selector;
+		});
+	},
+
+	add: function( selector ) {
+		return this.pushStack( jQuery.unique( jQuery.merge(
+			this.get(),
+			typeof selector == 'string' ?
+				jQuery( selector ) :
+				jQuery.makeArray( selector )
+		)));
+	},
+
+	is: function( selector ) {
+		return !!selector && jQuery.multiFilter( selector, this ).length > 0;
+	},
+
+	hasClass: function( selector ) {
+		return this.is( "." + selector );
+	},
+
+	val: function( value ) {
+		if ( value == undefined ) {
+
+			if ( this.length ) {
+				var elem = this[0];
+
+				// We need to handle select boxes special
+				if ( jQuery.nodeName( elem, "select" ) ) {
+					var index = elem.selectedIndex,
+						values = [],
+						options = elem.options,
+						one = elem.type == "select-one";
+
+					// Nothing was selected
+					if ( index < 0 )
+						return null;
+
+					// Loop through all the selected options
+					for ( var i = one ? index : 0, max = one ? index + 1 : options.length; i < max; i++ ) {
+						var option = options[ i ];
+
+						if ( option.selected ) {
+							// Get the specifc value for the option
+							value = jQuery.browser.msie && !option.attributes.value.specified ? option.text : option.value;
+
+							// We don't need an array for one selects
+							if ( one )
+								return value;
+
+							// Multi-Selects return an array
+							values.push( value );
+						}
+					}
+
+					return values;
+
+				// Everything else, we just grab the value
+				} else
+					return (this[0].value || "").replace(/\r/g, "");
+
+			}
+
+			return undefined;
+		}
+
+		if( value.constructor == Number )
+			value += '';
+
+		return this.each(function(){
+			if ( this.nodeType != 1 )
+				return;
+
+			if ( value.constructor == Array && /radio|checkbox/.test( this.type ) )
+				this.checked = (jQuery.inArray(this.value, value) >= 0 ||
+					jQuery.inArray(this.name, value) >= 0);
+
+			else if ( jQuery.nodeName( this, "select" ) ) {
+				var values = jQuery.makeArray(value);
+
+				jQuery( "option", this ).each(function(){
+					this.selected = (jQuery.inArray( this.value, values ) >= 0 ||
+						jQuery.inArray( this.text, values ) >= 0);
+				});
+
+				if ( !values.length )
+					this.selectedIndex = -1;
+
+			} else
+				this.value = value;
+		});
+	},
+
+	html: function( value ) {
+		return value == undefined ?
+			(this[0] ?
+				this[0].innerHTML :
+				null) :
+			this.empty().append( value );
+	},
+
+	replaceWith: function( value ) {
+		return this.after( value ).remove();
+	},
+
+	eq: function( i ) {
+		return this.slice( i, i + 1 );
+	},
+
+	slice: function() {
+		return this.pushStack( Array.prototype.slice.apply( this, arguments ) );
+	},
+
+	map: function( callback ) {
+		return this.pushStack( jQuery.map(this, function(elem, i){
+			return callback.call( elem, i, elem );
+		}));
+	},
+
+	andSelf: function() {
+		return this.add( this.prevObject );
+	},
+
+	data: function( key, value ){
+		var parts = key.split(".");
+		parts[1] = parts[1] ? "." + parts[1] : "";
+
+		if ( value === undefined ) {
+			var data = this.triggerHandler("getData" + parts[1] + "!", [parts[0]]);
+
+			if ( data === undefined && this.length )
+				data = jQuery.data( this[0], key );
+
+			return data === undefined && parts[1] ?
+				this.data( parts[0] ) :
+				data;
+		} else
+			return this.trigger("setData" + parts[1] + "!", [parts[0], value]).each(function(){
+				jQuery.data( this, key, value );
+			});
+	},
+
+	removeData: function( key ){
+		return this.each(function(){
+			jQuery.removeData( this, key );
+		});
+	},
+
+	domManip: function( args, table, reverse, callback ) {
+		var clone = this.length > 1, elems;
+
+		return this.each(function(){
+			if ( !elems ) {
+				elems = jQuery.clean( args, this.ownerDocument );
+
+				if ( reverse )
+					elems.reverse();
+			}
+
+			var obj = this;
+
+			if ( table && jQuery.nodeName( this, "table" ) && jQuery.nodeName( elems[0], "tr" ) )
+				obj = this.getElementsByTagName("tbody")[0] || this.appendChild( this.ownerDocument.createElement("tbody") );
+
+			var scripts = jQuery( [] );
+
+			jQuery.each(elems, function(){
+				var elem = clone ?
+					jQuery( this ).clone( true )[0] :
+					this;
+
+				// execute all scripts after the elements have been injected
+				if ( jQuery.nodeName( elem, "script" ) )
+					scripts = scripts.add( elem );
+				else {
+					// Remove any inner scripts for later evaluation
+					if ( elem.nodeType == 1 )
+						scripts = scripts.add( jQuery( "script", elem ).remove() );
+
+					// Inject the elements into the document
+					callback.call( obj, elem );
+				}
+			});
+
+			scripts.each( evalScript );
+		});
+	}
+};
+
+// Give the init function the jQuery prototype for later instantiation
+jQuery.fn.init.prototype = jQuery.fn;
+
+function evalScript( i, elem ) {
+	if ( elem.src )
+		jQuery.ajax({
+			url: elem.src,
+			async: false,
+			dataType: "script"
+		});
+
+	else
+		jQuery.globalEval( elem.text || elem.textContent || elem.innerHTML || "" );
+
+	if ( elem.parentNode )
+		elem.parentNode.removeChild( elem );
+}
+
+function now(){
+	return +new Date;
+}
+
+jQuery.extend = jQuery.fn.extend = function() {
+	// copy reference to target object
+	var target = arguments[0] || {}, i = 1, length = arguments.length, deep = false, options;
+
+	// Handle a deep copy situation
+	if ( target.constructor == Boolean ) {
+		deep = target;
+		target = arguments[1] || {};
+		// skip the boolean and the target
+		i = 2;
+	}
+
+	// Handle case when target is a string or something (possible in deep copy)
+	if ( typeof target != "object" && typeof target != "function" )
+		target = {};
+
+	// extend jQuery itself if only one argument is passed
+	if ( length == i ) {
+		target = this;
+		--i;
+	}
+
+	for ( ; i < length; i++ )
+		// Only deal with non-null/undefined values
+		if ( (options = arguments[ i ]) != null )
+			// Extend the base object
+			for ( var name in options ) {
+				var src = target[ name ], copy = options[ name ];
+
+				// Prevent never-ending loop
+				if ( target === copy )
+					continue;
+
+				// Recurse if we're merging object values
+				if ( deep && copy && typeof copy == "object" && !copy.nodeType )
+					target[ name ] = jQuery.extend( deep, 
+						// Never move original objects, clone them
+						src || ( copy.length != null ? [ ] : { } )
+					, copy );
+
+				// Don't bring in undefined values
+				else if ( copy !== undefined )
+					target[ name ] = copy;
+
+			}
+
+	// Return the modified object
+	return target;
+};
+
+var expando = "jQuery" + now(), uuid = 0, windowData = {},
+	// exclude the following css properties to add px
+	exclude = /z-?index|font-?weight|opacity|zoom|line-?height/i,
+	// cache defaultView
+	defaultView = document.defaultView || {};
+
+jQuery.extend({
+	noConflict: function( deep ) {
+		window.$ = _$;
+
+		if ( deep )
+			window.jQuery = _jQuery;
+
+		return jQuery;
+	},
+
+	// See test/unit/core.js for details concerning this function.
+	isFunction: function( fn ) {
+		return !!fn && typeof fn != "string" && !fn.nodeName &&
+			fn.constructor != Array && /^[\s[]?function/.test( fn + "" );
+	},
+
+	// check if an element is in a (or is an) XML document
+	isXMLDoc: function( elem ) {
+		return elem.documentElement && !elem.body ||
+			elem.tagName && elem.ownerDocument && !elem.ownerDocument.body;
+	},
+
+	// Evalulates a script in a global context
+	globalEval: function( data ) {
+		data = jQuery.trim( data );
+
+		if ( data ) {
+			// Inspired by code by Andrea Giammarchi
+			// http://webreflection.blogspot.com/2007/08/global-scope-evaluation-and-dom.html
+			var head = document.getElementsByTagName("head")[0] || document.documentElement,
+				script = document.createElement("script");
+
+			script.type = "text/javascript";
+			if ( jQuery.browser.msie )
+				script.text = data;
+			else
+				script.appendChild( document.createTextNode( data ) );
+
+			// Use insertBefore instead of appendChild  to circumvent an IE6 bug.
+			// This arises when a base node is used (#2709).
+			head.insertBefore( script, head.firstChild );
+			head.removeChild( script );
+		}
+	},
+
+	nodeName: function( elem, name ) {
+		return elem.nodeName && elem.nodeName.toUpperCase() == name.toUpperCase();
+	},
+
+	cache: {},
+
+	data: function( elem, name, data ) {
+		elem = elem == window ?
+			windowData :
+			elem;
+
+		var id = elem[ expando ];
+
+		// Compute a unique ID for the element
+		if ( !id )
+			id = elem[ expando ] = ++uuid;
+
+		// Only generate the data cache if we're
+		// trying to access or manipulate it
+		if ( name && !jQuery.cache[ id ] )
+			jQuery.cache[ id ] = {};
+
+		// Prevent overriding the named cache with undefined values
+		if ( data !== undefined )
+			jQuery.cache[ id ][ name ] = data;
+
+		// Return the named cache data, or the ID for the element
+		return name ?
+			jQuery.cache[ id ][ name ] :
+			id;
+	},
+
+	removeData: function( elem, name ) {
+		elem = elem == window ?
+			windowData :
+			elem;
+
+		var id = elem[ expando ];
+
+		// If we want to remove a specific section of the element's data
+		if ( name ) {
+			if ( jQuery.cache[ id ] ) {
+				// Remove the section of cache data
+				delete jQuery.cache[ id ][ name ];
+
+				// If we've removed all the data, remove the element's cache
+				name = "";
+
+				for ( name in jQuery.cache[ id ] )
+					break;
+
+				if ( !name )
+					jQuery.removeData( elem );
+			}
+
+		// Otherwise, we want to remove all of the element's data
+		} else {
+			// Clean up the element expando
+			try {
+				delete elem[ expando ];
+			} catch(e){
+				// IE has trouble directly removing the expando
+				// but it's ok with using removeAttribute
+				if ( elem.removeAttribute )
+					elem.removeAttribute( expando );
+			}
+
+			// Completely remove the data cache
+			delete jQuery.cache[ id ];
+		}
+	},
+
+	// args is for internal usage only
+	each: function( object, callback, args ) {
+		var name, i = 0, length = object.length;
+
+		if ( args ) {
+			if ( length == undefined ) {
+				for ( name in object )
+					if ( callback.apply( object[ name ], args ) === false )
+						break;
+			} else
+				for ( ; i < length; )
+					if ( callback.apply( object[ i++ ], args ) === false )
+						break;
+
+		// A special, fast, case for the most common use of each
+		} else {
+			if ( length == undefined ) {
+				for ( name in object )
+					if ( callback.call( object[ name ], name, object[ name ] ) === false )
+						break;
+			} else
+				for ( var value = object[0];
+					i < length && callback.call( value, i, value ) !== false; value = object[++i] ){}
+		}
+
+		return object;
+	},
+
+	prop: function( elem, value, type, i, name ) {
+		// Handle executable functions
+		if ( jQuery.isFunction( value ) )
+			value = value.call( elem, i );
+
+		// Handle passing in a number to a CSS property
+		return value && value.constructor == Number && type == "curCSS" && !exclude.test( name ) ?
+			value + "px" :
+			value;
+	},
+
+	className: {
+		// internal only, use addClass("class")
+		add: function( elem, classNames ) {
+			jQuery.each((classNames || "").split(/\s+/), function(i, className){
+				if ( elem.nodeType == 1 && !jQuery.className.has( elem.className, className ) )
+					elem.className += (elem.className ? " " : "") + className;
+			});
+		},
+
+		// internal only, use removeClass("class")
+		remove: function( elem, classNames ) {
+			if (elem.nodeType == 1)
+				elem.className = classNames != undefined ?
+					jQuery.grep(elem.className.split(/\s+/), function(className){
+						return !jQuery.className.has( classNames, className );
+					}).join(" ") :
+					"";
+		},
+
+		// internal only, use hasClass("class")
+		has: function( elem, className ) {
+			return jQuery.inArray( className, (elem.className || elem).toString().split(/\s+/) ) > -1;
+		}
+	},
+
+	// A method for quickly swapping in/out CSS properties to get correct calculations
+	swap: function( elem, options, callback ) {
+		var old = {};
+		// Remember the old values, and insert the new ones
+		for ( var name in options ) {
+			old[ name ] = elem.style[ name ];
+			elem.style[ name ] = options[ name ];
+		}
+
+		callback.call( elem );
+
+		// Revert the old values
+		for ( var name in options )
+			elem.style[ name ] = old[ name ];
+	},
+
+	css: function( elem, name, force ) {
+		if ( name == "width" || name == "height" ) {
+			var val, props = { position: "absolute", visibility: "hidden", display:"block" }, which = name == "width" ? [ "Left", "Right" ] : [ "Top", "Bottom" ];
+
+			function getWH() {
+				val = name == "width" ? elem.offsetWidth : elem.offsetHeight;
+				var padding = 0, border = 0;
+				jQuery.each( which, function() {
+					padding += parseFloat(jQuery.curCSS( elem, "padding" + this, true)) || 0;
+					border += parseFloat(jQuery.curCSS( elem, "border" + this + "Width", true)) || 0;
+				});
+				val -= Math.round(padding + border);
+			}
+
+			if ( jQuery(elem).is(":visible") )
+				getWH();
+			else
+				jQuery.swap( elem, props, getWH );
+
+			return Math.max(0, val);
+		}
+
+		return jQuery.curCSS( elem, name, force );
+	},
+
+	curCSS: function( elem, name, force ) {
+		var ret, style = elem.style;
+
+		// A helper method for determining if an element's values are broken
+		function color( elem ) {
+			if ( !jQuery.browser.safari )
+				return false;
+
+			// defaultView is cached
+			var ret = defaultView.getComputedStyle( elem, null );
+			return !ret || ret.getPropertyValue("color") == "";
+		}
+
+		// We need to handle opacity special in IE
+		if ( name == "opacity" && jQuery.browser.msie ) {
+			ret = jQuery.attr( style, "opacity" );
+
+			return ret == "" ?
+				"1" :
+				ret;
+		}
+		// Opera sometimes will give the wrong display answer, this fixes it, see #2037
+		if ( jQuery.browser.opera && name == "display" ) {
+			var save = style.outline;
+			style.outline = "0 solid black";
+			style.outline = save;
+		}
+
+		// Make sure we're using the right name for getting the float value
+		if ( name.match( /float/i ) )
+			name = styleFloat;
+
+		if ( !force && style && style[ name ] )
+			ret = style[ name ];
+
+		else if ( defaultView.getComputedStyle ) {
+
+			// Only "float" is needed here
+			if ( name.match( /float/i ) )
+				name = "float";
+
+			name = name.replace( /([A-Z])/g, "-$1" ).toLowerCase();
+
+			var computedStyle = defaultView.getComputedStyle( elem, null );
+
+			if ( computedStyle && !color( elem ) )
+				ret = computedStyle.getPropertyValue( name );
+
+			// If the element isn't reporting its values properly in Safari
+			// then some display: none elements are involved
+			else {
+				var swap = [], stack = [], a = elem, i = 0;
+
+				// Locate all of the parent display: none elements
+				for ( ; a && color(a); a = a.parentNode )
+					stack.unshift(a);
+
+				// Go through and make them visible, but in reverse
+				// (It would be better if we knew the exact display type that they had)
+				for ( ; i < stack.length; i++ )
+					if ( color( stack[ i ] ) ) {
+						swap[ i ] = stack[ i ].style.display;
+						stack[ i ].style.display = "block";
+					}
+
+				// Since we flip the display style, we have to handle that
+				// one special, otherwise get the value
+				ret = name == "display" && swap[ stack.length - 1 ] != null ?
+					"none" :
+					( computedStyle && computedStyle.getPropertyValue( name ) ) || "";
+
+				// Finally, revert the display styles back
+				for ( i = 0; i < swap.length; i++ )
+					if ( swap[ i ] != null )
+						stack[ i ].style.display = swap[ i ];
+			}
+
+			// We should always get a number back from opacity
+			if ( name == "opacity" && ret == "" )
+				ret = "1";
+
+		} else if ( elem.currentStyle ) {
+			var camelCase = name.replace(/\-(\w)/g, function(all, letter){
+				return letter.toUpperCase();
+			});
+
+			ret = elem.currentStyle[ name ] || elem.currentStyle[ camelCase ];
+
+			// From the awesome hack by Dean Edwards
+			// http://erik.eae.net/archives/2007/07/27/18.54.15/#comment-102291
+
+			// If we're not dealing with a regular pixel number
+			// but a number that has a weird ending, we need to convert it to pixels
+			if ( !/^\d+(px)?$/i.test( ret ) && /^\d/.test( ret ) ) {
+				// Remember the original values
+				var left = style.left, rsLeft = elem.runtimeStyle.left;
+
+				// Put in the new values to get a computed value out
+				elem.runtimeStyle.left = elem.currentStyle.left;
+				style.left = ret || 0;
+				ret = style.pixelLeft + "px";
+
+				// Revert the changed values
+				style.left = left;
+				elem.runtimeStyle.left = rsLeft;
+			}
+		}
+
+		return ret;
+	},
+
+	clean: function( elems, context ) {
+		var ret = [];
+		context = context || document;
+		// !context.createElement fails in IE with an error but returns typeof 'object'
+		if (typeof context.createElement == 'undefined')
+			context = context.ownerDocument || context[0] && context[0].ownerDocument || document;
+
+		jQuery.each(elems, function(i, elem){
+			if ( !elem )
+				return;
+
+			if ( elem.constructor == Number )
+				elem += '';
+
+			// Convert html string into DOM nodes
+			if ( typeof elem == "string" ) {
+				// Fix "XHTML"-style tags in all browsers
+				elem = elem.replace(/(<(\w+)[^>]*?)\/>/g, function(all, front, tag){
+					return tag.match(/^(abbr|br|col|img|input|link|meta|param|hr|area|embed)$/i) ?
+						all :
+						front + "></" + tag + ">";
+				});
+
+				// Trim whitespace, otherwise indexOf won't work as expected
+				var tags = jQuery.trim( elem ).toLowerCase(), div = context.createElement("div");
+
+				var wrap =
+					// option or optgroup
+					!tags.indexOf("<opt") &&
+					[ 1, "<select multiple='multiple'>", "</select>" ] ||
+
+					!tags.indexOf("<leg") &&
+					[ 1, "<fieldset>", "</fieldset>" ] ||
+
+					tags.match(/^<(thead|tbody|tfoot|colg|cap)/) &&
+					[ 1, "<table>", "</table>" ] ||
+
+					!tags.indexOf("<tr") &&
+					[ 2, "<table><tbody>", "</tbody></table>" ] ||
+
+				 	// <thead> matched above
+					(!tags.indexOf("<td") || !tags.indexOf("<th")) &&
+					[ 3, "<table><tbody><tr>", "</tr></tbody></table>" ] ||
+
+					!tags.indexOf("<col") &&
+					[ 2, "<table><tbody></tbody><colgroup>", "</colgroup></table>" ] ||
+
+					// IE can't serialize <link> and <script> tags normally
+					jQuery.browser.msie &&
+					[ 1, "div<div>", "</div>" ] ||
+
+					[ 0, "", "" ];
+
+				// Go to html and back, then peel off extra wrappers
+				div.innerHTML = wrap[1] + elem + wrap[2];
+
+				// Move to the right depth
+				while ( wrap[0]-- )
+					div = div.lastChild;
+
+				// Remove IE's autoinserted <tbody> from table fragments
+				if ( jQuery.browser.msie ) {
+
+					// String was a <table>, *may* have spurious <tbody>
+					var tbody = !tags.indexOf("<table") && tags.indexOf("<tbody") < 0 ?
+						div.firstChild && div.firstChild.childNodes :
+
+						// String was a bare <thead> or <tfoot>
+						wrap[1] == "<table>" && tags.indexOf("<tbody") < 0 ?
+							div.childNodes :
+							[];
+
+					for ( var j = tbody.length - 1; j >= 0 ; --j )
+						if ( jQuery.nodeName( tbody[ j ], "tbody" ) && !tbody[ j ].childNodes.length )
+							tbody[ j ].parentNode.removeChild( tbody[ j ] );
+
+					// IE completely kills leading whitespace when innerHTML is used
+					if ( /^\s/.test( elem ) )
+						div.insertBefore( context.createTextNode( elem.match(/^\s*/)[0] ), div.firstChild );
+
+				}
+
+				elem = jQuery.makeArray( div.childNodes );
+			}
+
+			if ( elem.length === 0 && (!jQuery.nodeName( elem, "form" ) && !jQuery.nodeName( elem, "select" )) )
+				return;
+
+			if ( elem[0] == undefined || jQuery.nodeName( elem, "form" ) || elem.options )
+				ret.push( elem );
+
+			else
+				ret = jQuery.merge( ret, elem );
+
+		});
+
+		return ret;
+	},
+
+	attr: function( elem, name, value ) {
+		// don't set attributes on text and comment nodes
+		if (!elem || elem.nodeType == 3 || elem.nodeType == 8)
+			return undefined;
+
+		var notxml = !jQuery.isXMLDoc( elem ),
+			// Whether we are setting (or getting)
+			set = value !== undefined,
+			msie = jQuery.browser.msie;
+
+		// Try to normalize/fix the name
+		name = notxml && jQuery.props[ name ] || name;
+
+		// Only do all the following if this is a node (faster for style)
+		// IE elem.getAttribute passes even for style
+		if ( elem.tagName ) {
+
+			// These attributes require special treatment
+			var special = /href|src|style/.test( name );
+
+			// Safari mis-reports the default selected property of a hidden option
+			// Accessing the parent's selectedIndex property fixes it
+			if ( name == "selected" && jQuery.browser.safari )
+				elem.parentNode.selectedIndex;
+
+			// If applicable, access the attribute via the DOM 0 way
+			if ( name in elem && notxml && !special ) {
+				if ( set ){
+					// We can't allow the type property to be changed (since it causes problems in IE)
+					if ( name == "type" && jQuery.nodeName( elem, "input" ) && elem.parentNode )
+						throw "type property can't be changed";
+
+					elem[ name ] = value;
+				}
+
+				// browsers index elements by id/name on forms, give priority to attributes.
+				if( jQuery.nodeName( elem, "form" ) && elem.getAttributeNode(name) )
+					return elem.getAttributeNode( name ).nodeValue;
+
+				return elem[ name ];
+			}
+
+			if ( msie && notxml &&  name == "style" )
+				return jQuery.attr( elem.style, "cssText", value );
+
+			if ( set )
+				// convert the value to a string (all browsers do this but IE) see #1070
+				elem.setAttribute( name, "" + value );
+
+			var attr = msie && notxml && special
+					// Some attributes require a special call on IE
+					? elem.getAttribute( name, 2 )
+					: elem.getAttribute( name );
+
+			// Non-existent attributes return null, we normalize to undefined
+			return attr === null ? undefined : attr;
+		}
+
+		// elem is actually elem.style ... set the style
+
+		// IE uses filters for opacity
+		if ( msie && name == "opacity" ) {
+			if ( set ) {
+				// IE has trouble with opacity if it does not have layout
+				// Force it by setting the zoom level
+				elem.zoom = 1;
+
+				// Set the alpha filter to set the opacity
+				elem.filter = (elem.filter || "").replace( /alpha\([^)]*\)/, "" ) +
+					(parseInt( value ) + '' == "NaN" ? "" : "alpha(opacity=" + value * 100 + ")");
+			}
+
+			return elem.filter && elem.filter.indexOf("opacity=") >= 0 ?
+				(parseFloat( elem.filter.match(/opacity=([^)]*)/)[1] ) / 100) + '':
+				"";
+		}
+
+		name = name.replace(/-([a-z])/ig, function(all, letter){
+			return letter.toUpperCase();
+		});
+
+		if ( set )
+			elem[ name ] = value;
+
+		return elem[ name ];
+	},
+
+	trim: function( text ) {
+		return (text || "").replace( /^\s+|\s+$/g, "" );
+	},
+
+	makeArray: function( array ) {
+		var ret = [];
+
+		if( array != null ){
+			var i = array.length;
+			//the window, strings and functions also have 'length'
+			if( i == null || array.split || array.setInterval || array.call )
+				ret[0] = array;
+			else
+				while( i )
+					ret[--i] = array[i];
+		}
+
+		return ret;
+	},
+
+	inArray: function( elem, array ) {
+		for ( var i = 0, length = array.length; i < length; i++ )
+		// Use === because on IE, window == document
+			if ( array[ i ] === elem )
+				return i;
+
+		return -1;
+	},
+
+	merge: function( first, second ) {
+		// We have to loop this way because IE & Opera overwrite the length
+		// expando of getElementsByTagName
+		var i = 0, elem, pos = first.length;
+		// Also, we need to make sure that the correct elements are being returned
+		// (IE returns comment nodes in a '*' query)
+		if ( jQuery.browser.msie ) {
+			while ( elem = second[ i++ ] )
+				if ( elem.nodeType != 8 )
+					first[ pos++ ] = elem;
+
+		} else
+			while ( elem = second[ i++ ] )
+				first[ pos++ ] = elem;
+
+		return first;
+	},
+
+	unique: function( array ) {
+		var ret = [], done = {};
+
+		try {
+
+			for ( var i = 0, length = array.length; i < length; i++ ) {
+				var id = jQuery.data( array[ i ] );
+
+				if ( !done[ id ] ) {
+					done[ id ] = true;
+					ret.push( array[ i ] );
+				}
+			}
+
+		} catch( e ) {
+			ret = array;
+		}
+
+		return ret;
+	},
+
+	grep: function( elems, callback, inv ) {
+		var ret = [];
+
+		// Go through the array, only saving the items
+		// that pass the validator function
+		for ( var i = 0, length = elems.length; i < length; i++ )
+			if ( !inv != !callback( elems[ i ], i ) )
+				ret.push( elems[ i ] );
+
+		return ret;
+	},
+
+	map: function( elems, callback ) {
+		var ret = [];
+
+		// Go through the array, translating each of the items to their
+		// new value (or values).
+		for ( var i = 0, length = elems.length; i < length; i++ ) {
+			var value = callback( elems[ i ], i );
+
+			if ( value != null )
+				ret[ ret.length ] = value;
+		}
+
+		return ret.concat.apply( [], ret );
+	}
+});
+
+var userAgent = navigator.userAgent.toLowerCase();
+
+// Figure out what browser is being used
+jQuery.browser = {
+	version: (userAgent.match( /.+(?:rv|it|ra|ie)[\/: ]([\d.]+)/ ) || [])[1],
+	safari: /webkit/.test( userAgent ),
+	opera: /opera/.test( userAgent ),
+	msie: /msie/.test( userAgent ) && !/opera/.test( userAgent ),
+	mozilla: /mozilla/.test( userAgent ) && !/(compatible|webkit)/.test( userAgent )
+};
+
+var styleFloat = jQuery.browser.msie ?
+	"styleFloat" :
+	"cssFloat";
+
+jQuery.extend({
+	// Check to see if the W3C box model is being used
+	boxModel: !jQuery.browser.msie || document.compatMode == "CSS1Compat",
+
+	props: {
+		"for": "htmlFor",
+		"class": "className",
+		"float": styleFloat,
+		cssFloat: styleFloat,
+		styleFloat: styleFloat,
+		readonly: "readOnly",
+		maxlength: "maxLength",
+		cellspacing: "cellSpacing"
+	}
+});
+
+jQuery.each({
+	parent: function(elem){return elem.parentNode;},
+	parents: function(elem){return jQuery.dir(elem,"parentNode");},
+	next: function(elem){return jQuery.nth(elem,2,"nextSibling");},
+	prev: function(elem){return jQuery.nth(elem,2,"previousSibling");},
+	nextAll: function(elem){return jQuery.dir(elem,"nextSibling");},
+	prevAll: function(elem){return jQuery.dir(elem,"previousSibling");},
+	siblings: function(elem){return jQuery.sibling(elem.parentNode.firstChild,elem);},
+	children: function(elem){return jQuery.sibling(elem.firstChild);},
+	contents: function(elem){return jQuery.nodeName(elem,"iframe")?elem.contentDocument||elem.contentWindow.document:jQuery.makeArray(elem.childNodes);}
+}, function(name, fn){
+	jQuery.fn[ name ] = function( selector ) {
+		var ret = jQuery.map( this, fn );
+
+		if ( selector && typeof selector == "string" )
+			ret = jQuery.multiFilter( selector, ret );
+
+		return this.pushStack( jQuery.unique( ret ) );
+	};
+});
+
+jQuery.each({
+	appendTo: "append",
+	prependTo: "prepend",
+	insertBefore: "before",
+	insertAfter: "after",
+	replaceAll: "replaceWith"
+}, function(name, original){
+	jQuery.fn[ name ] = function() {
+		var args = arguments;
+
+		return this.each(function(){
+			for ( var i = 0, length = args.length; i < length; i++ )
+				jQuery( args[ i ] )[ original ]( this );
+		});
+	};
+});
+
+jQuery.each({
+	removeAttr: function( name ) {
+		jQuery.attr( this, name, "" );
+		if (this.nodeType == 1)
+			this.removeAttribute( name );
+	},
+
+	addClass: function( classNames ) {
+		jQuery.className.add( this, classNames );
+	},
+
+	removeClass: function( classNames ) {
+		jQuery.className.remove( this, classNames );
+	},
+
+	toggleClass: function( classNames ) {
+		jQuery.className[ jQuery.className.has( this, classNames ) ? "remove" : "add" ]( this, classNames );
+	},
+
+	remove: function( selector ) {
+		if ( !selector || jQuery.filter( selector, [ this ] ).r.length ) {
+			// Prevent memory leaks
+			jQuery( "*", this ).add(this).each(function(){
+				jQuery.event.remove(this);
+				jQuery.removeData(this);
+			});
+			if (this.parentNode)
+				this.parentNode.removeChild( this );
+		}
+	},
+
+	empty: function() {
+		// Remove element nodes and prevent memory leaks
+		jQuery( ">*", this ).remove();
+
+		// Remove any remaining nodes
+		while ( this.firstChild )
+			this.removeChild( this.firstChild );
+	}
+}, function(name, fn){
+	jQuery.fn[ name ] = function(){
+		return this.each( fn, arguments );
+	};
+});
+
+jQuery.each([ "Height", "Width" ], function(i, name){
+	var type = name.toLowerCase();
+
+	jQuery.fn[ type ] = function( size ) {
+		// Get window width or height
+		return this[0] == window ?
+			// Opera reports document.body.client[Width/Height] properly in both quirks and standards
+			jQuery.browser.opera && document.body[ "client" + name ] ||
+
+			// Safari reports inner[Width/Height] just fine (Mozilla and Opera include scroll bar widths)
+			jQuery.browser.safari && window[ "inner" + name ] ||
+
+			// Everyone else use document.documentElement or document.body depending on Quirks vs Standards mode
+			document.compatMode == "CSS1Compat" && document.documentElement[ "client" + name ] || document.body[ "client" + name ] :
+
+			// Get document width or height
+			this[0] == document ?
+				// Either scroll[Width/Height] or offset[Width/Height], whichever is greater
+				Math.max(
+					Math.max(document.body["scroll" + name], document.documentElement["scroll" + name]),
+					Math.max(document.body["offset" + name], document.documentElement["offset" + name])
+				) :
+
+				// Get or set width or height on the element
+				size == undefined ?
+					// Get width or height on the element
+					(this.length ? jQuery.css( this[0], type ) : null) :
+
+					// Set the width or height on the element (default to pixels if value is unitless)
+					this.css( type, size.constructor == String ? size : size + "px" );
+	};
+});
+
+// Helper function used by the dimensions and offset modules
+function num(elem, prop) {
+	return elem[0] && parseInt( jQuery.curCSS(elem[0], prop, true), 10 ) || 0;
+}var chars = jQuery.browser.safari && parseInt(jQuery.browser.version) < 417 ?
+		"(?:[\\w*_-]|\\\\.)" :
+		"(?:[\\w\u0128-\uFFFF*_-]|\\\\.)",
+	quickChild = new RegExp("^>\\s*(" + chars + "+)"),
+	quickID = new RegExp("^(" + chars + "+)(#)(" + chars + "+)"),
+	quickClass = new RegExp("^([#.]?)(" + chars + "*)");
+
+jQuery.extend({
+	expr: {
+		"": function(a,i,m){return m[2]=="*"||jQuery.nodeName(a,m[2]);},
+		"#": function(a,i,m){return a.getAttribute("id")==m[2];},
+		":": {
+			// Position Checks
+			lt: function(a,i,m){return i<m[3]-0;},
+			gt: function(a,i,m){return i>m[3]-0;},
+			nth: function(a,i,m){return m[3]-0==i;},
+			eq: function(a,i,m){return m[3]-0==i;},
+			first: function(a,i){return i==0;},
+			last: function(a,i,m,r){return i==r.length-1;},
+			even: function(a,i){return i%2==0;},
+			odd: function(a,i){return i%2;},
+
+			// Child Checks
+			"first-child": function(a){return a.parentNode.getElementsByTagName("*")[0]==a;},
+			"last-child": function(a){return jQuery.nth(a.parentNode.lastChild,1,"previousSibling")==a;},
+			"only-child": function(a){return !jQuery.nth(a.parentNode.lastChild,2,"previousSibling");},
+
+			// Parent Checks
+			parent: function(a){return a.firstChild;},
+			empty: function(a){return !a.firstChild;},
+
+			// Text Check
+			contains: function(a,i,m){return (a.textContent||a.innerText||jQuery(a).text()||"").indexOf(m[3])>=0;},
+
+			// Visibility
+			visible: function(a){return "hidden"!=a.type&&jQuery.css(a,"display")!="none"&&jQuery.css(a,"visibility")!="hidden";},
+			hidden: function(a){return "hidden"==a.type||jQuery.css(a,"display")=="none"||jQuery.css(a,"visibility")=="hidden";},
+
+			// Form attributes
+			enabled: function(a){return !a.disabled;},
+			disabled: function(a){return a.disabled;},
+			checked: function(a){return a.checked;},
+			selected: function(a){return a.selected||jQuery.attr(a,"selected");},
+
+			// Form elements
+			text: function(a){return "text"==a.type;},
+			radio: function(a){return "radio"==a.type;},
+			checkbox: function(a){return "checkbox"==a.type;},
+			file: function(a){return "file"==a.type;},
+			password: function(a){return "password"==a.type;},
+			submit: function(a){return "submit"==a.type;},
+			image: function(a){return "image"==a.type;},
+			reset: function(a){return "reset"==a.type;},
+			button: function(a){return "button"==a.type||jQuery.nodeName(a,"button");},
+			input: function(a){return /input|select|textarea|button/i.test(a.nodeName);},
+
+			// :has()
+			has: function(a,i,m){return jQuery.find(m[3],a).length;},
+
+			// :header
+			header: function(a){return /h\d/i.test(a.nodeName);},
+
+			// :animated
+			animated: function(a){return jQuery.grep(jQuery.timers,function(fn){return a==fn.elem;}).length;}
+		}
+	},
+
+	// The regular expressions that power the parsing engine
+	parse: [
+		// Match: [@value='test'], [@foo]
+		/^(\[) *@?([\w-]+) *([!*$^~=]*) *('?"?)(.*?)\4 *\]/,
+
+		// Match: :contains('foo')
+		/^(:)([\w-]+)\("?'?(.*?(\(.*?\))?[^(]*?)"?'?\)/,
+
+		// Match: :even, :last-child, #id, .class
+		new RegExp("^([:.#]*)(" + chars + "+)")
+	],
+
+	multiFilter: function( expr, elems, not ) {
+		var old, cur = [];
+
+		while ( expr && expr != old ) {
+			old = expr;
+			var f = jQuery.filter( expr, elems, not );
+			expr = f.t.replace(/^\s*,\s*/, "" );
+			cur = not ? elems = f.r : jQuery.merge( cur, f.r );
+		}
+
+		return cur;
+	},
+
+	find: function( t, context ) {
+		// Quickly handle non-string expressions
+		if ( typeof t != "string" )
+			return [ t ];
+
+		// check to make sure context is a DOM element or a document
+		if ( context && context.nodeType != 1 && context.nodeType != 9)
+			return [ ];
+
+		// Set the correct context (if none is provided)
+		context = context || document;
+
+		// Initialize the search
+		var ret = [context], done = [], last, nodeName;
+
+		// Continue while a selector expression exists, and while
+		// we're no longer looping upon ourselves
+		while ( t && last != t ) {
+			var r = [];
+			last = t;
+
+			t = jQuery.trim(t);
+
+			var foundToken = false,
+
+			// An attempt at speeding up child selectors that
+			// point to a specific element tag
+				re = quickChild,
+
+				m = re.exec(t);
+
+			if ( m ) {
+				nodeName = m[1].toUpperCase();
+
+				// Perform our own iteration and filter
+				for ( var i = 0; ret[i]; i++ )
+					for ( var c = ret[i].firstChild; c; c = c.nextSibling )
+						if ( c.nodeType == 1 && (nodeName == "*" || c.nodeName.toUpperCase() == nodeName) )
+							r.push( c );
+
+				ret = r;
+				t = t.replace( re, "" );
+				if ( t.indexOf(" ") == 0 ) continue;
+				foundToken = true;
+			} else {
+				re = /^([>+~])\s*(\w*)/i;
+
+				if ( (m = re.exec(t)) != null ) {
+					r = [];
+
+					var merge = {};
+					nodeName = m[2].toUpperCase();
+					m = m[1];
+
+					for ( var j = 0, rl = ret.length; j < rl; j++ ) {
+						var n = m == "~" || m == "+" ? ret[j].nextSibling : ret[j].firstChild;
+						for ( ; n; n = n.nextSibling )
+							if ( n.nodeType == 1 ) {
+								var id = jQuery.data(n);
+
+								if ( m == "~" && merge[id] ) break;
+
+								if (!nodeName || n.nodeName.toUpperCase() == nodeName ) {
+									if ( m == "~" ) merge[id] = true;
+									r.push( n );
+								}
+
+								if ( m == "+" ) break;
+							}
+					}
+
+					ret = r;
+
+					// And remove the token
+					t = jQuery.trim( t.replace( re, "" ) );
+					foundToken = true;
+				}
+			}
+
+			// See if there's still an expression, and that we haven't already
+			// matched a token
+			if ( t && !foundToken ) {
+				// Handle multiple expressions
+				if ( !t.indexOf(",") ) {
+					// Clean the result set
+					if ( context == ret[0] ) ret.shift();
+
+					// Merge the result sets
+					done = jQuery.merge( done, ret );
+
+					// Reset the context
+					r = ret = [context];
+
+					// Touch up the selector string
+					t = " " + t.substr(1,t.length);
+
+				} else {
+					// Optimize for the case nodeName#idName
+					var re2 = quickID;
+					var m = re2.exec(t);
+
+					// Re-organize the results, so that they're consistent
+					if ( m ) {
+						m = [ 0, m[2], m[3], m[1] ];
+
+					} else {
+						// Otherwise, do a traditional filter check for
+						// ID, class, and element selectors
+						re2 = quickClass;
+						m = re2.exec(t);
+					}
+
+					m[2] = m[2].replace(/\\/g, "");
+
+					var elem = ret[ret.length-1];
+
+					// Try to do a global search by ID, where we can
+					if ( m[1] == "#" && elem && elem.getElementById && !jQuery.isXMLDoc(elem) ) {
+						// Optimization for HTML document case
+						var oid = elem.getElementById(m[2]);
+
+						// Do a quick check for the existence of the actual ID attribute
+						// to avoid selecting by the name attribute in IE
+						// also check to insure id is a string to avoid selecting an element with the name of 'id' inside a form
+						if ( (jQuery.browser.msie||jQuery.browser.opera) && oid && typeof oid.id == "string" && oid.id != m[2] )
+							oid = jQuery('[@id="'+m[2]+'"]', elem)[0];
+
+						// Do a quick check for node name (where applicable) so
+						// that div#foo searches will be really fast
+						ret = r = oid && (!m[3] || jQuery.nodeName(oid, m[3])) ? [oid] : [];
+					} else {
+						// We need to find all descendant elements
+						for ( var i = 0; ret[i]; i++ ) {
+							// Grab the tag name being searched for
+							var tag = m[1] == "#" && m[3] ? m[3] : m[1] != "" || m[0] == "" ? "*" : m[2];
+
+							// Handle IE7 being really dumb about <object>s
+							if ( tag == "*" && ret[i].nodeName.toLowerCase() == "object" )
+								tag = "param";
+
+							r = jQuery.merge( r, ret[i].getElementsByTagName( tag ));
+						}
+
+						// It's faster to filter by class and be done with it
+						if ( m[1] == "." )
+							r = jQuery.classFilter( r, m[2] );
+
+						// Same with ID filtering
+						if ( m[1] == "#" ) {
+							var tmp = [];
+
+							// Try to find the element with the ID
+							for ( var i = 0; r[i]; i++ )
+								if ( r[i].getAttribute("id") == m[2] ) {
+									tmp = [ r[i] ];
+									break;
+								}
+
+							r = tmp;
+						}
+
+						ret = r;
+					}
+
+					t = t.replace( re2, "" );
+				}
+
+			}
+
+			// If a selector string still exists
+			if ( t ) {
+				// Attempt to filter it
+				var val = jQuery.filter(t,r);
+				ret = r = val.r;
+				t = jQuery.trim(val.t);
+			}
+		}
+
+		// An error occurred with the selector;
+		// just return an empty set instead
+		if ( t )
+			ret = [];
+
+		// Remove the root context
+		if ( ret && context == ret[0] )
+			ret.shift();
+
+		// And combine the results
+		done = jQuery.merge( done, ret );
+
+		return done;
+	},
+
+	classFilter: function(r,m,not){
+		m = " " + m + " ";
+		var tmp = [];
+		for ( var i = 0; r[i]; i++ ) {
+			var pass = (" " + r[i].className + " ").indexOf( m ) >= 0;
+			if ( !not && pass || not && !pass )
+				tmp.push( r[i] );
+		}
+		return tmp;
+	},
+
+	filter: function(t,r,not) {
+		var last;
+
+		// Look for common filter expressions
+		while ( t && t != last ) {
+			last = t;
+
+			var p = jQuery.parse, m;
+
+			for ( var i = 0; p[i]; i++ ) {
+				m = p[i].exec( t );
+
+				if ( m ) {
+					// Remove what we just matched
+					t = t.substring( m[0].length );
+
+					m[2] = m[2].replace(/\\/g, "");
+					break;
+				}
+			}
+
+			if ( !m )
+				break;
+
+			// :not() is a special case that can be optimized by
+			// keeping it out of the expression list
+			if ( m[1] == ":" && m[2] == "not" )
+				// optimize if only one selector found (most common case)
+				r = isSimple.test( m[3] ) ?
+					jQuery.filter(m[3], r, true).r :
+					jQuery( r ).not( m[3] );
+
+			// We can get a big speed boost by filtering by class here
+			else if ( m[1] == "." )
+				r = jQuery.classFilter(r, m[2], not);
+
+			else if ( m[1] == "[" ) {
+				var tmp = [], type = m[3];
+
+				for ( var i = 0, rl = r.length; i < rl; i++ ) {
+					var a = r[i], z = a[ jQuery.props[m[2]] || m[2] ];
+
+					if ( z == null || /href|src|selected/.test(m[2]) )
+						z = jQuery.attr(a,m[2]) || '';
+
+					if ( (type == "" && !!z ||
+						 type == "=" && z == m[5] ||
+						 type == "!=" && z != m[5] ||
+						 type == "^=" && z && !z.indexOf(m[5]) ||
+						 type == "$=" && z.substr(z.length - m[5].length) == m[5] ||
+						 (type == "*=" || type == "~=") && z.indexOf(m[5]) >= 0) ^ not )
+							tmp.push( a );
+				}
+
+				r = tmp;
+
+			// We can get a speed boost by handling nth-child here
+			} else if ( m[1] == ":" && m[2] == "nth-child" ) {
+				var merge = {}, tmp = [],
+					// parse equations like 'even', 'odd', '5', '2n', '3n+2', '4n-1', '-n+6'
+					test = /(-?)(\d*)n((?:\+|-)?\d*)/.exec(
+						m[3] == "even" && "2n" || m[3] == "odd" && "2n+1" ||
+						!/\D/.test(m[3]) && "0n+" + m[3] || m[3]),
+					// calculate the numbers (first)n+(last) including if they are negative
+					first = (test[1] + (test[2] || 1)) - 0, last = test[3] - 0;
+
+				// loop through all the elements left in the jQuery object
+				for ( var i = 0, rl = r.length; i < rl; i++ ) {
+					var node = r[i], parentNode = node.parentNode, id = jQuery.data(parentNode);
+
+					if ( !merge[id] ) {
+						var c = 1;
+
+						for ( var n = parentNode.firstChild; n; n = n.nextSibling )
+							if ( n.nodeType == 1 )
+								n.nodeIndex = c++;
+
+						merge[id] = true;
+					}
+
+					var add = false;
+
+					if ( first == 0 ) {
+						if ( node.nodeIndex == last )
+							add = true;
+					} else if ( (node.nodeIndex - last) % first == 0 && (node.nodeIndex - last) / first >= 0 )
+						add = true;
+
+					if ( add ^ not )
+						tmp.push( node );
+				}
+
+				r = tmp;
+
+			// Otherwise, find the expression to execute
+			} else {
+				var fn = jQuery.expr[ m[1] ];
+				if ( typeof fn == "object" )
+					fn = fn[ m[2] ];
+
+				if ( typeof fn == "string" )
+					fn = eval("false||function(a,i){return " + fn + ";}");
+
+				// Execute it against the current filter
+				r = jQuery.grep( r, function(elem, i){
+					return fn(elem, i, m, r);
+				}, not );
+			}
+		}
+
+		// Return an array of filtered elements (r)
+		// and the modified expression string (t)
+		return { r: r, t: t };
+	},
+
+	dir: function( elem, dir ){
+		var matched = [],
+			cur = elem[dir];
+		while ( cur && cur != document ) {
+			if ( cur.nodeType == 1 )
+				matched.push( cur );
+			cur = cur[dir];
+		}
+		return matched;
+	},
+
+	nth: function(cur,result,dir,elem){
+		result = result || 1;
+		var num = 0;
+
+		for ( ; cur; cur = cur[dir] )
+			if ( cur.nodeType == 1 && ++num == result )
+				break;
+
+		return cur;
+	},
+
+	sibling: function( n, elem ) {
+		var r = [];
+
+		for ( ; n; n = n.nextSibling ) {
+			if ( n.nodeType == 1 && n != elem )
+				r.push( n );
+		}
+
+		return r;
+	}
+});
+/*
+ * A number of helper functions used for managing events.
+ * Many of the ideas behind this code orignated from
+ * Dean Edwards' addEvent library.
+ */
+jQuery.event = {
+
+	// Bind an event to an element
+	// Original by Dean Edwards
+	add: function(elem, types, handler, data) {
+		if ( elem.nodeType == 3 || elem.nodeType == 8 )
+			return;
+
+		// For whatever reason, IE has trouble passing the window object
+		// around, causing it to be cloned in the process
+		if ( jQuery.browser.msie && elem.setInterval )
+			elem = window;
+
+		// Make sure that the function being executed has a unique ID
+		if ( !handler.guid )
+			handler.guid = this.guid++;
+
+		// if data is passed, bind to handler
+		if( data != undefined ) {
+			// Create temporary function pointer to original handler
+			var fn = handler;
+
+			// Create unique handler function, wrapped around original handler
+			handler = this.proxy( fn, function() {
+				// Pass arguments and context to original handler
+				return fn.apply(this, arguments);
+			});
+
+			// Store data in unique handler
+			handler.data = data;
+		}
+
+		// Init the element's event structure
+		var events = jQuery.data(elem, "events") || jQuery.data(elem, "events", {}),
+			handle = jQuery.data(elem, "handle") || jQuery.data(elem, "handle", function(){
+				// Handle the second event of a trigger and when
+				// an event is called after a page has unloaded
+				if ( typeof jQuery != "undefined" && !jQuery.event.triggered )
+					return jQuery.event.handle.apply(arguments.callee.elem, arguments);
+			});
+		// Add elem as a property of the handle function
+		// This is to prevent a memory leak with non-native
+		// event in IE.
+		handle.elem = elem;
+
+		// Handle multiple events separated by a space
+		// jQuery(...).bind("mouseover mouseout", fn);
+		jQuery.each(types.split(/\s+/), function(index, type) {
+			// Namespaced event handlers
+			var parts = type.split(".");
+			type = parts[0];
+			handler.type = parts[1];
+
+			// Get the current list of functions bound to this event
+			var handlers = events[type];
+
+			// Init the event handler queue
+			if (!handlers) {
+				handlers = events[type] = {};
+
+				// Check for a special event handler
+				// Only use addEventListener/attachEvent if the special
+				// events handler returns false
+				if ( !jQuery.event.special[type] || jQuery.event.special[type].setup.call(elem) === false ) {
+					// Bind the global event handler to the element
+					if (elem.addEventListener)
+						elem.addEventListener(type, handle, false);
+					else if (elem.attachEvent)
+						elem.attachEvent("on" + type, handle);
+				}
+			}
+
+			// Add the function to the element's handler list
+			handlers[handler.guid] = handler;
+
+			// Keep track of which events have been used, for global triggering
+			jQuery.event.global[type] = true;
+		});
+
+		// Nullify elem to prevent memory leaks in IE
+		elem = null;
+	},
+
+	guid: 1,
+	global: {},
+
+	// Detach an event or set of events from an element
+	remove: function(elem, types, handler) {
+		// don't do events on text and comment nodes
+		if ( elem.nodeType == 3 || elem.nodeType == 8 )
+			return;
+
+		var events = jQuery.data(elem, "events"), ret, index;
+
+		if ( events ) {
+			// Unbind all events for the element
+			if ( types == undefined || (typeof types == "string" && types.charAt(0) == ".") )
+				for ( var type in events )
+					this.remove( elem, type + (types || "") );
+			else {
+				// types is actually an event object here
+				if ( types.type ) {
+					handler = types.handler;
+					types = types.type;
+				}
+
+				// Handle multiple events seperated by a space
+				// jQuery(...).unbind("mouseover mouseout", fn);
+				jQuery.each(types.split(/\s+/), function(index, type){
+					// Namespaced event handlers
+					var parts = type.split(".");
+					type = parts[0];
+
+					if ( events[type] ) {
+						// remove the given handler for the given type
+						if ( handler )
+							delete events[type][handler.guid];
+
+						// remove all handlers for the given type
+						else
+							for ( handler in events[type] )
+								// Handle the removal of namespaced events
+								if ( !parts[1] || events[type][handler].type == parts[1] )
+									delete events[type][handler];
+
+						// remove generic event handler if no more handlers exist
+						for ( ret in events[type] ) break;
+						if ( !ret ) {
+							if ( !jQuery.event.special[type] || jQuery.event.special[type].teardown.call(elem) === false ) {
+								if (elem.removeEventListener)
+									elem.removeEventListener(type, jQuery.data(elem, "handle"), false);
+								else if (elem.detachEvent)
+									elem.detachEvent("on" + type, jQuery.data(elem, "handle"));
+							}
+							ret = null;
+							delete events[type];
+						}
+					}
+				});
+			}
+
+			// Remove the expando if it's no longer used
+			for ( ret in events ) break;
+			if ( !ret ) {
+				var handle = jQuery.data( elem, "handle" );
+				if ( handle ) handle.elem = null;
+				jQuery.removeData( elem, "events" );
+				jQuery.removeData( elem, "handle" );
+			}
+		}
+	},
+
+	trigger: function(type, data, elem, donative, extra) {
+		// Clone the incoming data, if any
+		data = jQuery.makeArray(data);
+
+		if ( type.indexOf("!") >= 0 ) {
+			type = type.slice(0, -1);
+			var exclusive = true;
+		}
+
+		// Handle a global trigger
+		if ( !elem ) {
+			// Only trigger if we've ever bound an event for it
+			if ( this.global[type] )
+				jQuery("*").add([window, document]).trigger(type, data);
+
+		// Handle triggering a single element
+		} else {
+			// don't do events on text and comment nodes
+			if ( elem.nodeType == 3 || elem.nodeType == 8 )
+				return undefined;
+
+			var val, ret, fn = jQuery.isFunction( elem[ type ] || null ),
+				// Check to see if we need to provide a fake event, or not
+				event = !data[0] || !data[0].preventDefault;
+
+			// Pass along a fake event
+			if ( event ) {
+				data.unshift({
+					type: type,
+					target: elem,
+					preventDefault: function(){},
+					stopPropagation: function(){},
+					timeStamp: now()
+				});
+				data[0][expando] = true; // no need to fix fake event
+			}
+
+			// Enforce the right trigger type
+			data[0].type = type;
+			if ( exclusive )
+				data[0].exclusive = true;
+
+			// Trigger the event, it is assumed that "handle" is a function
+			var handle = jQuery.data(elem, "handle");
+			if ( handle )
+				val = handle.apply( elem, data );
+
+			// Handle triggering native .onfoo handlers (and on links since we don't call .click() for links)
+			if ( (!fn || (jQuery.nodeName(elem, 'a') && type == "click")) && elem["on"+type] && elem["on"+type].apply( elem, data ) === false )
+				val = false;
+
+			// Extra functions don't get the custom event object
+			if ( event )
+				data.shift();
+
+			// Handle triggering of extra function
+			if ( extra && jQuery.isFunction( extra ) ) {
+				// call the extra function and tack the current return value on the end for possible inspection
+				ret = extra.apply( elem, val == null ? data : data.concat( val ) );
+				// if anything is returned, give it precedence and have it overwrite the previous value
+				if (ret !== undefined)
+					val = ret;
+			}
+
+			// Trigger the native events (except for clicks on links)
+			if ( fn && donative !== false && val !== false && !(jQuery.nodeName(elem, 'a') && type == "click") ) {
+				this.triggered = true;
+				try {
+					elem[ type ]();
+				// prevent IE from throwing an error for some hidden elements
+				} catch (e) {}
+			}
+
+			this.triggered = false;
+		}
+
+		return val;
+	},
+
+	handle: function(event) {
+		// returned undefined or false
+		var val, ret, namespace, all, handlers;
+
+		event = arguments[0] = jQuery.event.fix( event || window.event );
+
+		// Namespaced event handlers
+		namespace = event.type.split(".");
+		event.type = namespace[0];
+		namespace = namespace[1];
+		// Cache this now, all = true means, any handler
+		all = !namespace && !event.exclusive;
+
+		handlers = ( jQuery.data(this, "events") || {} )[event.type];
+
+		for ( var j in handlers ) {
+			var handler = handlers[j];
+
+			// Filter the functions by class
+			if ( all || handler.type == namespace ) {
+				// Pass in a reference to the handler function itself
+				// So that we can later remove it
+				event.handler = handler;
+				event.data = handler.data;
+
+				ret = handler.apply( this, arguments );
+
+				if ( val !== false )
+					val = ret;
+
+				if ( ret === false ) {
+					event.preventDefault();
+					event.stopPropagation();
+				}
+			}
+		}
+
+		return val;
+	},
+
+	fix: function(event) {
+		if ( event[expando] == true )
+			return event;
+
+		// store a copy of the original event object
+		// and "clone" to set read-only properties
+		var originalEvent = event;
+		event = { originalEvent: originalEvent };
+		var props = "altKey attrChange attrName bubbles button cancelable charCode clientX clientY ctrlKey currentTarget data detail eventPhase fromElement handler keyCode metaKey newValue originalTarget pageX pageY prevValue relatedNode relatedTarget screenX screenY shiftKey srcElement target timeStamp toElement type view wheelDelta which".split(" ");
+		for ( var i=props.length; i; i-- )
+			event[ props[i] ] = originalEvent[ props[i] ];
+
+		// Mark it as fixed
+		event[expando] = true;
+
+		// add preventDefault and stopPropagation since
+		// they will not work on the clone
+		event.preventDefault = function() {
+			// if preventDefault exists run it on the original event
+			if (originalEvent.preventDefault)
+				originalEvent.preventDefault();
+			// otherwise set the returnValue property of the original event to false (IE)
+			originalEvent.returnValue = false;
+		};
+		event.stopPropagation = function() {
+			// if stopPropagation exists run it on the original event
+			if (originalEvent.stopPropagation)
+				originalEvent.stopPropagation();
+			// otherwise set the cancelBubble property of the original event to true (IE)
+			originalEvent.cancelBubble = true;
+		};
+
+		// Fix timeStamp
+		event.timeStamp = event.timeStamp || now();
+
+		// Fix target property, if necessary
+		if ( !event.target )
+			event.target = event.srcElement || document; // Fixes #1925 where srcElement might not be defined either
+
+		// check if target is a textnode (safari)
+		if ( event.target.nodeType == 3 )
+			event.target = event.target.parentNode;
+
+		// Add relatedTarget, if necessary
+		if ( !event.relatedTarget && event.fromElement )
+			event.relatedTarget = event.fromElement == event.target ? event.toElement : event.fromElement;
+
+		// Calculate pageX/Y if missing and clientX/Y available
+		if ( event.pageX == null && event.clientX != null ) {
+			var doc = document.documentElement, body = document.body;
+			event.pageX = event.clientX + (doc && doc.scrollLeft || body && body.scrollLeft || 0) - (doc.clientLeft || 0);
+			event.pageY = event.clientY + (doc && doc.scrollTop || body && body.scrollTop || 0) - (doc.clientTop || 0);
+		}
+
+		// Add which for key events
+		if ( !event.which && ((event.charCode || event.charCode === 0) ? event.charCode : event.keyCode) )
+			event.which = event.charCode || event.keyCode;
+
+		// Add metaKey to non-Mac browsers (use ctrl for PC's and Meta for Macs)
+		if ( !event.metaKey && event.ctrlKey )
+			event.metaKey = event.ctrlKey;
+
+		// Add which for click: 1 == left; 2 == middle; 3 == right
+		// Note: button is not normalized, so don't use it
+		if ( !event.which && event.button )
+			event.which = (event.button & 1 ? 1 : ( event.button & 2 ? 3 : ( event.button & 4 ? 2 : 0 ) ));
+
+		return event;
+	},
+
+	proxy: function( fn, proxy ){
+		// Set the guid of unique handler to the same of original handler, so it can be removed
+		proxy.guid = fn.guid = fn.guid || proxy.guid || this.guid++;
+		// So proxy can be declared as an argument
+		return proxy;
+	},
+
+	special: {
+		ready: {
+			setup: function() {
+				// Make sure the ready event is setup
+				bindReady();
+				return;
+			},
+
+			teardown: function() { return; }
+		},
+
+		mouseenter: {
+			setup: function() {
+				if ( jQuery.browser.msie ) return false;
+				jQuery(this).bind("mouseover", jQuery.event.special.mouseenter.handler);
+				return true;
+			},
+
+			teardown: function() {
+				if ( jQuery.browser.msie ) return false;
+				jQuery(this).unbind("mouseover", jQuery.event.special.mouseenter.handler);
+				return true;
+			},
+
+			handler: function(event) {
+				// If we actually just moused on to a sub-element, ignore it
+				if ( withinElement(event, this) ) return true;
+				// Execute the right handlers by setting the event type to mouseenter
+				event.type = "mouseenter";
+				return jQuery.event.handle.apply(this, arguments);
+			}
+		},
+
+		mouseleave: {
+			setup: function() {
+				if ( jQuery.browser.msie ) return false;
+				jQuery(this).bind("mouseout", jQuery.event.special.mouseleave.handler);
+				return true;
+			},
+
+			teardown: function() {
+				if ( jQuery.browser.msie ) return false;
+				jQuery(this).unbind("mouseout", jQuery.event.special.mouseleave.handler);
+				return true;
+			},
+
+			handler: function(event) {
+				// If we actually just moused on to a sub-element, ignore it
+				if ( withinElement(event, this) ) return true;
+				// Execute the right handlers by setting the event type to mouseleave
+				event.type = "mouseleave";
+				return jQuery.event.handle.apply(this, arguments);
+			}
+		}
+	}
+};
+
+jQuery.fn.extend({
+	bind: function( type, data, fn ) {
+		return type == "unload" ? this.one(type, data, fn) : this.each(function(){
+			jQuery.event.add( this, type, fn || data, fn && data );
+		});
+	},
+
+	one: function( type, data, fn ) {
+		var one = jQuery.event.proxy( fn || data, function(event) {
+			jQuery(this).unbind(event, one);
+			return (fn || data).apply( this, arguments );
+		});
+		return this.each(function(){
+			jQuery.event.add( this, type, one, fn && data);
+		});
+	},
+
+	unbind: function( type, fn ) {
+		return this.each(function(){
+			jQuery.event.remove( this, type, fn );
+		});
+	},
+
+	trigger: function( type, data, fn ) {
+		return this.each(function(){
+			jQuery.event.trigger( type, data, this, true, fn );
+		});
+	},
+
+	triggerHandler: function( type, data, fn ) {
+		return this[0] && jQuery.event.trigger( type, data, this[0], false, fn );
+	},
+
+	toggle: function( fn ) {
+		// Save reference to arguments for access in closure
+		var args = arguments, i = 1;
+
+		// link all the functions, so any of them can unbind this click handler
+		while( i < args.length )
+			jQuery.event.proxy( fn, args[i++] );
+
+		return this.click( jQuery.event.proxy( fn, function(event) {
+			// Figure out which function to execute
+			this.lastToggle = ( this.lastToggle || 0 ) % i;
+
+			// Make sure that clicks stop
+			event.preventDefault();
+
+			// and execute the function
+			return args[ this.lastToggle++ ].apply( this, arguments ) || false;
+		}));
+	},
+
+	hover: function(fnOver, fnOut) {
+		return this.bind('mouseenter', fnOver).bind('mouseleave', fnOut);
+	},
+
+	ready: function(fn) {
+		// Attach the listeners
+		bindReady();
+
+		// If the DOM is already ready
+		if ( jQuery.isReady )
+			// Execute the function immediately
+			fn.call( document, jQuery );
+
+		// Otherwise, remember the function for later
+		else
+			// Add the function to the wait list
+			jQuery.readyList.push( function() { return fn.call(this, jQuery); } );
+
+		return this;
+	}
+});
+
+jQuery.extend({
+	isReady: false,
+	readyList: [],
+	// Handle when the DOM is ready
+	ready: function() {
+		// Make sure that the DOM is not already loaded
+		if ( !jQuery.isReady ) {
+			// Remember that the DOM is ready
+			jQuery.isReady = true;
+
+			// If there are functions bound, to execute
+			if ( jQuery.readyList ) {
+				// Execute all of them
+				jQuery.each( jQuery.readyList, function(){
+					this.call( document );
+				});
+
+				// Reset the list of functions
+				jQuery.readyList = null;
+			}
+
+			// Trigger any bound ready events
+			jQuery(document).triggerHandler("ready");
+		}
+	}
+});
+
+var readyBound = false;
+
+function bindReady(){
+	if ( readyBound ) return;
+	readyBound = true;
+
+	// Mozilla, Opera (see further below for it) and webkit nightlies currently support this event
+	if ( document.addEventListener && !jQuery.browser.opera)
+		// Use the handy event callback
+		document.addEventListener( "DOMContentLoaded", jQuery.ready, false );
+
+	// If IE is used and is not in a frame
+	// Continually check to see if the document is ready
+	if ( jQuery.browser.msie && window == top ) (function(){
+		if (jQuery.isReady) return;
+		try {
+			// If IE is used, use the trick by Diego Perini
+			// http://javascript.nwbox.com/IEContentLoaded/
+			document.documentElement.doScroll("left");
+		} catch( error ) {
+			setTimeout( arguments.callee, 0 );
+			return;
+		}
+		// and execute any waiting functions
+		jQuery.ready();
+	})();
+
+	if ( jQuery.browser.opera )
+		document.addEventListener( "DOMContentLoaded", function () {
+			if (jQuery.isReady) return;
+			for (var i = 0; i < document.styleSheets.length; i++)
+				if (document.styleSheets[i].disabled) {
+					setTimeout( arguments.callee, 0 );
+					return;
+				}
+			// and execute any waiting functions
+			jQuery.ready();
+		}, false);
+
+	if ( jQuery.browser.safari ) {
+		var numStyles;
+		(function(){
+			if (jQuery.isReady) return;
+			if ( document.readyState != "loaded" && document.readyState != "complete" ) {
+				setTimeout( arguments.callee, 0 );
+				return;
+			}
+			if ( numStyles === undefined )
+				numStyles = jQuery("style, link[rel=stylesheet]").length;
+			if ( document.styleSheets.length != numStyles ) {
+				setTimeout( arguments.callee, 0 );
+				return;
+			}
+			// and execute any waiting functions
+			jQuery.ready();
+		})();
+	}
+
+	// A fallback to window.onload, that will always work
+	jQuery.event.add( window, "load", jQuery.ready );
+}
+
+jQuery.each( ("blur,focus,load,resize,scroll,unload,click,dblclick," +
+	"mousedown,mouseup,mousemove,mouseover,mouseout,change,select," +
+	"submit,keydown,keypress,keyup,error").split(","), function(i, name){
+
+	// Handle event binding
+	jQuery.fn[name] = function(fn){
+		return fn ? this.bind(name, fn) : this.trigger(name);
+	};
+});
+
+// Checks if an event happened on an element within another element
+// Used in jQuery.event.special.mouseenter and mouseleave handlers
+var withinElement = function(event, elem) {
+	// Check if mouse(over|out) are still within the same parent element
+	var parent = event.relatedTarget;
+	// Traverse up the tree
+	while ( parent && parent != elem ) try { parent = parent.parentNode; } catch(error) { parent = elem; }
+	// Return true if we actually just moused on to a sub-element
+	return parent == elem;
+};
+
+// Prevent memory leaks in IE
+// And prevent errors on refresh with events like mouseover in other browsers
+// Window isn't included so as not to unbind existing unload events
+jQuery(window).bind("unload", function() {
+	jQuery("*").add(document).unbind();
+});
+jQuery.fn.extend({
+	// Keep a copy of the old load
+	_load: jQuery.fn.load,
+
+	load: function( url, params, callback ) {
+		if ( typeof url != 'string' )
+			return this._load( url );
+
+		var off = url.indexOf(" ");
+		if ( off >= 0 ) {
+			var selector = url.slice(off, url.length);
+			url = url.slice(0, off);
+		}
+
+		callback = callback || function(){};
+
+		// Default to a GET request
+		var type = "GET";
+
+		// If the second parameter was provided
+		if ( params )
+			// If it's a function
+			if ( jQuery.isFunction( params ) ) {
+				// We assume that it's the callback
+				callback = params;
+				params = null;
+
+			// Otherwise, build a param string
+			} else {
+				params = jQuery.param( params );
+				type = "POST";
+			}
+
+		var self = this;
+
+		// Request the remote document
+		jQuery.ajax({
+			url: url,
+			type: type,
+			dataType: "html",
+			data: params,
+			complete: function(res, status){
+				// If successful, inject the HTML into all the matched elements
+				if ( status == "success" || status == "notmodified" )
+					// See if a selector was specified
+					self.html( selector ?
+						// Create a dummy div to hold the results
+						jQuery("<div/>")
+							// inject the contents of the document in, removing the scripts
+							// to avoid any 'Permission Denied' errors in IE
+							.append(res.responseText.replace(/<script(.|\s)*?\/script>/g, ""))
+
+							// Locate the specified elements
+							.find(selector) :
+
+						// If not, just inject the full result
+						res.responseText );
+
+				self.each( callback, [res.responseText, status, res] );
+			}
+		});
+		return this;
+	},
+
+	serialize: function() {
+		return jQuery.param(this.serializeArray());
+	},
+	serializeArray: function() {
+		return this.map(function(){
+			return jQuery.nodeName(this, "form") ?
+				jQuery.makeArray(this.elements) : this;
+		})
+		.filter(function(){
+			return this.name && !this.disabled &&
+				(this.checked || /select|textarea/i.test(this.nodeName) ||
+					/text|hidden|password/i.test(this.type));
+		})
+		.map(function(i, elem){
+			var val = jQuery(this).val();
+			return val == null ? null :
+				val.constructor == Array ?
+					jQuery.map( val, function(val, i){
+						return {name: elem.name, value: val};
+					}) :
+					{name: elem.name, value: val};
+		}).get();
+	}
+});
+
+// Attach a bunch of functions for handling common AJAX events
+jQuery.each( "ajaxStart,ajaxStop,ajaxComplete,ajaxError,ajaxSuccess,ajaxSend".split(","), function(i,o){
+	jQuery.fn[o] = function(f){
+		return this.bind(o, f);
+	};
+});
+
+var jsc = now();
+
+jQuery.extend({
+	get: function( url, data, callback, type ) {
+		// shift arguments if data argument was ommited
+		if ( jQuery.isFunction( data ) ) {
+			callback = data;
+			data = null;
+		}
+
+		return jQuery.ajax({
+			type: "GET",
+			url: url,
+			data: data,
+			success: callback,
+			dataType: type
+		});
+	},
+
+	getScript: function( url, callback ) {
+		return jQuery.get(url, null, callback, "script");
+	},
+
+	getJSON: function( url, data, callback ) {
+		return jQuery.get(url, data, callback, "json");
+	},
+
+	post: function( url, data, callback, type ) {
+		if ( jQuery.isFunction( data ) ) {
+			callback = data;
+			data = {};
+		}
+
+		return jQuery.ajax({
+			type: "POST",
+			url: url,
+			data: data,
+			success: callback,
+			dataType: type
+		});
+	},
+
+	ajaxSetup: function( settings ) {
+		jQuery.extend( jQuery.ajaxSettings, settings );
+	},
+
+	ajaxSettings: {
+		url: location.href,
+		global: true,
+		type: "GET",
+		timeout: 0,
+		contentType: "application/x-www-form-urlencoded",
+		processData: true,
+		async: true,
+		data: null,
+		username: null,
+		password: null,
+		accepts: {
+			xml: "application/xml, text/xml",
+			html: "text/html",
+			script: "text/javascript, application/javascript",
+			json: "application/json, text/javascript",
+			text: "text/plain",
+			_default: "*/*"
+		}
+	},
+
+	// Last-Modified header cache for next request
+	lastModified: {},
+
+	ajax: function( s ) {
+		// Extend the settings, but re-extend 's' so that it can be
+		// checked again later (in the test suite, specifically)
+		s = jQuery.extend(true, s, jQuery.extend(true, {}, jQuery.ajaxSettings, s));
+
+		var jsonp, jsre = /=\?(&|$)/g, status, data,
+			type = s.type.toUpperCase();
+
+		// convert data if not already a string
+		if ( s.data && s.processData && typeof s.data != "string" )
+			s.data = jQuery.param(s.data);
+
+		// Handle JSONP Parameter Callbacks
+		if ( s.dataType == "jsonp" ) {
+			if ( type == "GET" ) {
+				if ( !s.url.match(jsre) )
+					s.url += (s.url.match(/\?/) ? "&" : "?") + (s.jsonp || "callback") + "=?";
+			} else if ( !s.data || !s.data.match(jsre) )
+				s.data = (s.data ? s.data + "&" : "") + (s.jsonp || "callback") + "=?";
+			s.dataType = "json";
+		}
+
+		// Build temporary JSONP function
+		if ( s.dataType == "json" && (s.data && s.data.match(jsre) || s.url.match(jsre)) ) {
+			jsonp = "jsonp" + jsc++;
+
+			// Replace the =? sequence both in the query string and the data
+			if ( s.data )
+				s.data = (s.data + "").replace(jsre, "=" + jsonp + "$1");
+			s.url = s.url.replace(jsre, "=" + jsonp + "$1");
+
+			// We need to make sure
+			// that a JSONP style response is executed properly
+			s.dataType = "script";
+
+			// Handle JSONP-style loading
+			window[ jsonp ] = function(tmp){
+				data = tmp;
+				success();
+				complete();
+				// Garbage collect
+				window[ jsonp ] = undefined;
+				try{ delete window[ jsonp ]; } catch(e){}
+				if ( head )
+					head.removeChild( script );
+			};
+		}
+
+		if ( s.dataType == "script" && s.cache == null )
+			s.cache = false;
+
+		if ( s.cache === false && type == "GET" ) {
+			var ts = now();
+			// try replacing _= if it is there
+			var ret = s.url.replace(/(\?|&)_=.*?(&|$)/, "$1_=" + ts + "$2");
+			// if nothing was replaced, add timestamp to the end
+			s.url = ret + ((ret == s.url) ? (s.url.match(/\?/) ? "&" : "?") + "_=" + ts : "");
+		}
+
+		// If data is available, append data to url for get requests
+		if ( s.data && type == "GET" ) {
+			s.url += (s.url.match(/\?/) ? "&" : "?") + s.data;
+
+			// IE likes to send both get and post data, prevent this
+			s.data = null;
+		}
+
+		// Watch for a new set of requests
+		if ( s.global && ! jQuery.active++ )
+			jQuery.event.trigger( "ajaxStart" );
+
+		// Matches an absolute URL, and saves the domain
+		var remote = /^(?:\w+:)?\/\/([^\/?#]+)/;
+
+		// If we're requesting a remote document
+		// and trying to load JSON or Script with a GET
+		if ( s.dataType == "script" && type == "GET"
+				&& remote.test(s.url) && remote.exec(s.url)[1] != location.host ){
+			var head = document.getElementsByTagName("head")[0];
+			var script = document.createElement("script");
+			script.src = s.url;
+			if (s.scriptCharset)
+				script.charset = s.scriptCharset;
+
+			// Handle Script loading
+			if ( !jsonp ) {
+				var done = false;
+
+				// Attach handlers for all browsers
+				script.onload = script.onreadystatechange = function(){
+					if ( !done && (!this.readyState ||
+							this.readyState == "loaded" || this.readyState == "complete") ) {
+						done = true;
+						success();
+						complete();
+						head.removeChild( script );
+					}
+				};
+			}
+
+			head.appendChild(script);
+
+			// We handle everything using the script element injection
+			return undefined;
+		}
+
+		var requestDone = false;
+
+		// Create the request object; Microsoft failed to properly
+		// implement the XMLHttpRequest in IE7, so we use the ActiveXObject when it is available
+		var xhr = window.ActiveXObject ? new ActiveXObject("Microsoft.XMLHTTP") : new XMLHttpRequest();
+
+		// Open the socket
+		// Passing null username, generates a login popup on Opera (#2865)
+		if( s.username )
+			xhr.open(type, s.url, s.async, s.username, s.password);
+		else
+			xhr.open(type, s.url, s.async);
+
+		// Need an extra try/catch for cross domain requests in Firefox 3
+		try {
+			// Set the correct header, if data is being sent
+			if ( s.data )
+				xhr.setRequestHeader("Content-Type", s.contentType);
+
+			// Set the If-Modified-Since header, if ifModified mode.
+			if ( s.ifModified )
+				xhr.setRequestHeader("If-Modified-Since",
+					jQuery.lastModified[s.url] || "Thu, 01 Jan 1970 00:00:00 GMT" );
+
+			// Set header so the called script knows that it's an XMLHttpRequest
+			xhr.setRequestHeader("X-Requested-With", "XMLHttpRequest");
+
+			// Set the Accepts header for the server, depending on the dataType
+			xhr.setRequestHeader("Accept", s.dataType && s.accepts[ s.dataType ] ?
+				s.accepts[ s.dataType ] + ", */*" :
+				s.accepts._default );
+		} catch(e){}
+
+		// Allow custom headers/mimetypes
+		if ( s.beforeSend && s.beforeSend(xhr, s) === false ) {
+			// cleanup active request counter
+			s.global && jQuery.active--;
+			// close opended socket
+			xhr.abort();
+			return false;
+		}
+
+		if ( s.global )
+			jQuery.event.trigger("ajaxSend", [xhr, s]);
+
+		// Wait for a response to come back
+		var onreadystatechange = function(isTimeout){
+			// The transfer is complete and the data is available, or the request timed out
+			if ( !requestDone && xhr && (xhr.readyState == 4 || isTimeout == "timeout") ) {
+				requestDone = true;
+
+				// clear poll interval
+				if (ival) {
+					clearInterval(ival);
+					ival = null;
+				}
+
+				status = isTimeout == "timeout" && "timeout" ||
+					!jQuery.httpSuccess( xhr ) && "error" ||
+					s.ifModified && jQuery.httpNotModified( xhr, s.url ) && "notmodified" ||
+					"success";
+
+				if ( status == "success" ) {
+					// Watch for, and catch, XML document parse errors
+					try {
+						// process the data (runs the xml through httpData regardless of callback)
+						data = jQuery.httpData( xhr, s.dataType, s.dataFilter );
+					} catch(e) {
+						status = "parsererror";
+					}
+				}
+
+				// Make sure that the request was successful or notmodified
+				if ( status == "success" ) {
+					// Cache Last-Modified header, if ifModified mode.
+					var modRes;
+					try {
+						modRes = xhr.getResponseHeader("Last-Modified");
+					} catch(e) {} // swallow exception thrown by FF if header is not available
+
+					if ( s.ifModified && modRes )
+						jQuery.lastModified[s.url] = modRes;
+
+					// JSONP handles its own success callback
+					if ( !jsonp )
+						success();
+				} else
+					jQuery.handleError(s, xhr, status);
+
+				// Fire the complete handlers
+				complete();
+
+				// Stop memory leaks
+				if ( s.async )
+					xhr = null;
+			}
+		};
+
+		if ( s.async ) {
+			// don't attach the handler to the request, just poll it instead
+			var ival = setInterval(onreadystatechange, 13);
+
+			// Timeout checker
+			if ( s.timeout > 0 )
+				setTimeout(function(){
+					// Check to see if the request is still happening
+					if ( xhr ) {
+						// Cancel the request
+						xhr.abort();
+
+						if( !requestDone )
+							onreadystatechange( "timeout" );
+					}
+				}, s.timeout);
+		}
+
+		// Send the data
+		try {
+			xhr.send(s.data);
+		} catch(e) {
+			jQuery.handleError(s, xhr, null, e);
+		}
+
+		// firefox 1.5 doesn't fire statechange for sync requests
+		if ( !s.async )
+			onreadystatechange();
+
+		function success(){
+			// If a local callback was specified, fire it and pass it the data
+			if ( s.success )
+				s.success( data, status );
+
+			// Fire the global callback
+			if ( s.global )
+				jQuery.event.trigger( "ajaxSuccess", [xhr, s] );
+		}
+
+		function complete(){
+			// Process result
+			if ( s.complete )
+				s.complete(xhr, status);
+
+			// The request was completed
+			if ( s.global )
+				jQuery.event.trigger( "ajaxComplete", [xhr, s] );
+
+			// Handle the global AJAX counter
+			if ( s.global && ! --jQuery.active )
+				jQuery.event.trigger( "ajaxStop" );
+		}
+
+		// return XMLHttpRequest to allow aborting the request etc.
+		return xhr;
+	},
+
+	handleError: function( s, xhr, status, e ) {
+		// If a local callback was specified, fire it
+		if ( s.error ) s.error( xhr, status, e );
+
+		// Fire the global callback
+		if ( s.global )
+			jQuery.event.trigger( "ajaxError", [xhr, s, e] );
+	},
+
+	// Counter for holding the number of active queries
+	active: 0,
+
+	// Determines if an XMLHttpRequest was successful or not
+	httpSuccess: function( xhr ) {
+		try {
+			// IE error sometimes returns 1223 when it should be 204 so treat it as success, see #1450
+			return !xhr.status && location.protocol == "file:" ||
+				( xhr.status >= 200 && xhr.status < 300 ) || xhr.status == 304 || xhr.status == 1223 ||
+				jQuery.browser.safari && xhr.status == undefined;
+		} catch(e){}
+		return false;
+	},
+
+	// Determines if an XMLHttpRequest returns NotModified
+	httpNotModified: function( xhr, url ) {
+		try {
+			var xhrRes = xhr.getResponseHeader("Last-Modified");
+
+			// Firefox always returns 200. check Last-Modified date
+			return xhr.status == 304 || xhrRes == jQuery.lastModified[url] ||
+				jQuery.browser.safari && xhr.status == undefined;
+		} catch(e){}
+		return false;
+	},
+
+	httpData: function( xhr, type, filter ) {
+		var ct = xhr.getResponseHeader("content-type"),
+			xml = type == "xml" || !type && ct && ct.indexOf("xml") >= 0,
+			data = xml ? xhr.responseXML : xhr.responseText;
+
+		if ( xml && data.documentElement.tagName == "parsererror" )
+			throw "parsererror";
+			
+		// Allow a pre-filtering function to sanitize the response
+		if( filter )
+			data = filter( data, type );
+
+		// If the type is "script", eval it in global context
+		if ( type == "script" )
+			jQuery.globalEval( data );
+
+		// Get the JavaScript object, if JSON is used.
+		if ( type == "json" )
+			data = eval("(" + data + ")");
+
+		return data;
+	},
+
+	// Serialize an array of form elements or a set of
+	// key/values into a query string
+	param: function( a ) {
+		var s = [];
+
+		// If an array was passed in, assume that it is an array
+		// of form elements
+		if ( a.constructor == Array || a.jquery )
+			// Serialize the form elements
+			jQuery.each( a, function(){
+				s.push( encodeURIComponent(this.name) + "=" + encodeURIComponent( this.value ) );
+			});
+
+		// Otherwise, assume that it's an object of key/value pairs
+		else
+			// Serialize the key/values
+			for ( var j in a )
+				// If the value is an array then the key names need to be repeated
+				if ( a[j] && a[j].constructor == Array )
+					jQuery.each( a[j], function(){
+						s.push( encodeURIComponent(j) + "=" + encodeURIComponent( this ) );
+					});
+				else
+					s.push( encodeURIComponent(j) + "=" + encodeURIComponent( jQuery.isFunction(a[j]) ? a[j]() : a[j] ) );
+
+		// Return the resulting serialization
+		return s.join("&").replace(/%20/g, "+");
+	}
+
+});
+jQuery.fn.extend({
+	show: function(speed,callback){
+		return speed ?
+			this.animate({
+				height: "show", width: "show", opacity: "show"
+			}, speed, callback) :
+
+			this.filter(":hidden").each(function(){
+				this.style.display = this.oldblock || "";
+				if ( jQuery.css(this,"display") == "none" ) {
+					var elem = jQuery("<" + this.tagName + " />").appendTo("body");
+					this.style.display = elem.css("display");
+					// handle an edge condition where css is - div { display:none; } or similar
+					if (this.style.display == "none")
+						this.style.display = "block";
+					elem.remove();
+				}
+			}).end();
+	},
+
+	hide: function(speed,callback){
+		return speed ?
+			this.animate({
+				height: "hide", width: "hide", opacity: "hide"
+			}, speed, callback) :
+
+			this.filter(":visible").each(function(){
+				this.oldblock = this.oldblock || jQuery.css(this,"display");
+				this.style.display = "none";
+			}).end();
+	},
+
+	// Save the old toggle function
+	_toggle: jQuery.fn.toggle,
+
+	toggle: function( fn, fn2 ){
+		return jQuery.isFunction(fn) && jQuery.isFunction(fn2) ?
+			this._toggle.apply( this, arguments ) :
+			fn ?
+				this.animate({
+					height: "toggle", width: "toggle", opacity: "toggle"
+				}, fn, fn2) :
+				this.each(function(){
+					jQuery(this)[ jQuery(this).is(":hidden") ? "show" : "hide" ]();
+				});
+	},
+
+	slideDown: function(speed,callback){
+		return this.animate({height: "show"}, speed, callback);
+	},
+
+	slideUp: function(speed,callback){
+		return this.animate({height: "hide"}, speed, callback);
+	},
+
+	slideToggle: function(speed, callback){
+		return this.animate({height: "toggle"}, speed, callback);
+	},
+
+	fadeIn: function(speed, callback){
+		return this.animate({opacity: "show"}, speed, callback);
+	},
+
+	fadeOut: function(speed, callback){
+		return this.animate({opacity: "hide"}, speed, callback);
+	},
+
+	fadeTo: function(speed,to,callback){
+		return this.animate({opacity: to}, speed, callback);
+	},
+
+	animate: function( prop, speed, easing, callback ) {
+		var optall = jQuery.speed(speed, easing, callback);
+
+		return this[ optall.queue === false ? "each" : "queue" ](function(){
+			if ( this.nodeType != 1)
+				return false;
+
+			var opt = jQuery.extend({}, optall), p,
+				hidden = jQuery(this).is(":hidden"), self = this;
+
+			for ( p in prop ) {
+				if ( prop[p] == "hide" && hidden || prop[p] == "show" && !hidden )
+					return opt.complete.call(this);
+
+				if ( p == "height" || p == "width" ) {
+					// Store display property
+					opt.display = jQuery.css(this, "display");
+
+					// Make sure that nothing sneaks out
+					opt.overflow = this.style.overflow;
+				}
+			}
+
+			if ( opt.overflow != null )
+				this.style.overflow = "hidden";
+
+			opt.curAnim = jQuery.extend({}, prop);
+
+			jQuery.each( prop, function(name, val){
+				var e = new jQuery.fx( self, opt, name );
+
+				if ( /toggle|show|hide/.test(val) )
+					e[ val == "toggle" ? hidden ? "show" : "hide" : val ]( prop );
+				else {
+					var parts = val.toString().match(/^([+-]=)?([\d+-.]+)(.*)$/),
+						start = e.cur(true) || 0;
+
+					if ( parts ) {
+						var end = parseFloat(parts[2]),
+							unit = parts[3] || "px";
+
+						// We need to compute starting value
+						if ( unit != "px" ) {
+							self.style[ name ] = (end || 1) + unit;
+							start = ((end || 1) / e.cur(true)) * start;
+							self.style[ name ] = start + unit;
+						}
+
+						// If a +=/-= token was provided, we're doing a relative animation
+						if ( parts[1] )
+							end = ((parts[1] == "-=" ? -1 : 1) * end) + start;
+
+						e.custom( start, end, unit );
+					} else
+						e.custom( start, val, "" );
+				}
+			});
+
+			// For JS strict compliance
+			return true;
+		});
+	},
+
+	queue: function(type, fn){
+		if ( jQuery.isFunction(type) || ( type && type.constructor == Array )) {
+			fn = type;
+			type = "fx";
+		}
+
+		if ( !type || (typeof type == "string" && !fn) )
+			return queue( this[0], type );
+
+		return this.each(function(){
+			if ( fn.constructor == Array )
+				queue(this, type, fn);
+			else {
+				queue(this, type).push( fn );
+
+				if ( queue(this, type).length == 1 )
+					fn.call(this);
+			}
+		});
+	},
+
+	stop: function(clearQueue, gotoEnd){
+		var timers = jQuery.timers;
+
+		if (clearQueue)
+			this.queue([]);
+
+		this.each(function(){
+			// go in reverse order so anything added to the queue during the loop is ignored
+			for ( var i = timers.length - 1; i >= 0; i-- )
+				if ( timers[i].elem == this ) {
+					if (gotoEnd)
+						// force the next step to be the last
+						timers[i](true);
+					timers.splice(i, 1);
+				}
+		});
+
+		// start the next in the queue if the last step wasn't forced
+		if (!gotoEnd)
+			this.dequeue();
+
+		return this;
+	}
+
+});
+
+var queue = function( elem, type, array ) {
+	if ( elem ){
+
+		type = type || "fx";
+
+		var q = jQuery.data( elem, type + "queue" );
+
+		if ( !q || array )
+			q = jQuery.data( elem, type + "queue", jQuery.makeArray(array) );
+
+	}
+	return q;
+};
+
+jQuery.fn.dequeue = function(type){
+	type = type || "fx";
+
+	return this.each(function(){
+		var q = queue(this, type);
+
+		q.shift();
+
+		if ( q.length )
+			q[0].call( this );
+	});
+};
+
+jQuery.extend({
+
+	speed: function(speed, easing, fn) {
+		var opt = speed && speed.constructor == Object ? speed : {
+			complete: fn || !fn && easing ||
+				jQuery.isFunction( speed ) && speed,
+			duration: speed,
+			easing: fn && easing || easing && easing.constructor != Function && easing
+		};
+
+		opt.duration = (opt.duration && opt.duration.constructor == Number ?
+			opt.duration :
+			jQuery.fx.speeds[opt.duration]) || jQuery.fx.speeds.def;
+
+		// Queueing
+		opt.old = opt.complete;
+		opt.complete = function(){
+			if ( opt.queue !== false )
+				jQuery(this).dequeue();
+			if ( jQuery.isFunction( opt.old ) )
+				opt.old.call( this );
+		};
+
+		return opt;
+	},
+
+	easing: {
+		linear: function( p, n, firstNum, diff ) {
+			return firstNum + diff * p;
+		},
+		swing: function( p, n, firstNum, diff ) {
+			return ((-Math.cos(p*Math.PI)/2) + 0.5) * diff + firstNum;
+		}
+	},
+
+	timers: [],
+	timerId: null,
+
+	fx: function( elem, options, prop ){
+		this.options = options;
+		this.elem = elem;
+		this.prop = prop;
+
+		if ( !options.orig )
+			options.orig = {};
+	}
+
+});
+
+jQuery.fx.prototype = {
+
+	// Simple function for setting a style value
+	update: function(){
+		if ( this.options.step )
+			this.options.step.call( this.elem, this.now, this );
+
+		(jQuery.fx.step[this.prop] || jQuery.fx.step._default)( this );
+
+		// Set display property to block for height/width animations
+		if ( this.prop == "height" || this.prop == "width" )
+			this.elem.style.display = "block";
+	},
+
+	// Get the current size
+	cur: function(force){
+		if ( this.elem[this.prop] != null && this.elem.style[this.prop] == null )
+			return this.elem[ this.prop ];
+
+		var r = parseFloat(jQuery.css(this.elem, this.prop, force));
+		return r && r > -10000 ? r : parseFloat(jQuery.curCSS(this.elem, this.prop)) || 0;
+	},
+
+	// Start an animation from one number to another
+	custom: function(from, to, unit){
+		this.startTime = now();
+		this.start = from;
+		this.end = to;
+		this.unit = unit || this.unit || "px";
+		this.now = this.start;
+		this.pos = this.state = 0;
+		this.update();
+
+		var self = this;
+		function t(gotoEnd){
+			return self.step(gotoEnd);
+		}
+
+		t.elem = this.elem;
+
+		jQuery.timers.push(t);
+
+		if ( jQuery.timerId == null ) {
+			jQuery.timerId = setInterval(function(){
+				var timers = jQuery.timers;
+
+				for ( var i = 0; i < timers.length; i++ )
+					if ( !timers[i]() )
+						timers.splice(i--, 1);
+
+				if ( !timers.length ) {
+					clearInterval( jQuery.timerId );
+					jQuery.timerId = null;
+				}
+			}, 13);
+		}
+	},
+
+	// Simple 'show' function
+	show: function(){
+		// Remember where we started, so that we can go back to it later
+		this.options.orig[this.prop] = jQuery.attr( this.elem.style, this.prop );
+		this.options.show = true;
+
+		// Begin the animation
+		this.custom(0, this.cur());
+
+		// Make sure that we start at a small width/height to avoid any
+		// flash of content
+		if ( this.prop == "width" || this.prop == "height" )
+			this.elem.style[this.prop] = "1px";
+
+		// Start by showing the element
+		jQuery(this.elem).show();
+	},
+
+	// Simple 'hide' function
+	hide: function(){
+		// Remember where we started, so that we can go back to it later
+		this.options.orig[this.prop] = jQuery.attr( this.elem.style, this.prop );
+		this.options.hide = true;
+
+		// Begin the animation
+		this.custom(this.cur(), 0);
+	},
+
+	// Each step of an animation
+	step: function(gotoEnd){
+		var t = now();
+
+		if ( gotoEnd || t > this.options.duration + this.startTime ) {
+			this.now = this.end;
+			this.pos = this.state = 1;
+			this.update();
+
+			this.options.curAnim[ this.prop ] = true;
+
+			var done = true;
+			for ( var i in this.options.curAnim )
+				if ( this.options.curAnim[i] !== true )
+					done = false;
+
+			if ( done ) {
+				if ( this.options.display != null ) {
+					// Reset the overflow
+					this.elem.style.overflow = this.options.overflow;
+
+					// Reset the display
+					this.elem.style.display = this.options.display;
+					if ( jQuery.css(this.elem, "display") == "none" )
+						this.elem.style.display = "block";
+				}
+
+				// Hide the element if the "hide" operation was done
+				if ( this.options.hide )
+					this.elem.style.display = "none";
+
+				// Reset the properties, if the item has been hidden or shown
+				if ( this.options.hide || this.options.show )
+					for ( var p in this.options.curAnim )
+						jQuery.attr(this.elem.style, p, this.options.orig[p]);
+			}
+
+			if ( done )
+				// Execute the complete function
+				this.options.complete.call( this.elem );
+
+			return false;
+		} else {
+			var n = t - this.startTime;
+			this.state = n / this.options.duration;
+
+			// Perform the easing function, defaults to swing
+			this.pos = jQuery.easing[this.options.easing || (jQuery.easing.swing ? "swing" : "linear")](this.state, n, 0, 1, this.options.duration);
+			this.now = this.start + ((this.end - this.start) * this.pos);
+
+			// Perform the next step of the animation
+			this.update();
+		}
+
+		return true;
+	}
+
+};
+
+jQuery.extend( jQuery.fx, {
+	speeds:{
+		slow: 600,
+ 		fast: 200,
+ 		// Default speed
+ 		def: 400
+	},
+	step: {
+		scrollLeft: function(fx){
+			fx.elem.scrollLeft = fx.now;
+		},
+
+		scrollTop: function(fx){
+			fx.elem.scrollTop = fx.now;
+		},
+
+		opacity: function(fx){
+			jQuery.attr(fx.elem.style, "opacity", fx.now);
+		},
+
+		_default: function(fx){
+			fx.elem.style[ fx.prop ] = fx.now + fx.unit;
+		}
+	}
+});
+// The Offset Method
+// Originally By Brandon Aaron, part of the Dimension Plugin
+// http://jquery.com/plugins/project/dimensions
+jQuery.fn.offset = function() {
+	var left = 0, top = 0, elem = this[0], results;
+
+	if ( elem ) with ( jQuery.browser ) {
+		var parent       = elem.parentNode,
+		    offsetChild  = elem,
+		    offsetParent = elem.offsetParent,
+		    doc          = elem.ownerDocument,
+		    safari2      = safari && parseInt(version) < 522 && !/adobeair/i.test(userAgent),
+		    css          = jQuery.curCSS,
+		    fixed        = css(elem, "position") == "fixed";
+
+		// Use getBoundingClientRect if available
+		if ( elem.getBoundingClientRect ) {
+			var box = elem.getBoundingClientRect();
+
+			// Add the document scroll offsets
+			add(box.left + Math.max(doc.documentElement.scrollLeft, doc.body.scrollLeft),
+				box.top  + Math.max(doc.documentElement.scrollTop,  doc.body.scrollTop));
+
+			// IE adds the HTML element's border, by default it is medium which is 2px
+			// IE 6 and 7 quirks mode the border width is overwritable by the following css html { border: 0; }
+			// IE 7 standards mode, the border is always 2px
+			// This border/offset is typically represented by the clientLeft and clientTop properties
+			// However, in IE6 and 7 quirks mode the clientLeft and clientTop properties are not updated when overwriting it via CSS
+			// Therefore this method will be off by 2px in IE while in quirksmode
+			add( -doc.documentElement.clientLeft, -doc.documentElement.clientTop );
+
+		// Otherwise loop through the offsetParents and parentNodes
+		} else {
+
+			// Initial element offsets
+			add( elem.offsetLeft, elem.offsetTop );
+
+			// Get parent offsets
+			while ( offsetParent ) {
+				// Add offsetParent offsets
+				add( offsetParent.offsetLeft, offsetParent.offsetTop );
+
+				// Mozilla and Safari > 2 does not include the border on offset parents
+				// However Mozilla adds the border for table or table cells
+				if ( mozilla && !/^t(able|d|h)$/i.test(offsetParent.tagName) || safari && !safari2 )
+					border( offsetParent );
+
+				// Add the document scroll offsets if position is fixed on any offsetParent
+				if ( !fixed && css(offsetParent, "position") == "fixed" )
+					fixed = true;
+
+				// Set offsetChild to previous offsetParent unless it is the body element
+				offsetChild  = /^body$/i.test(offsetParent.tagName) ? offsetChild : offsetParent;
+				// Get next offsetParent
+				offsetParent = offsetParent.offsetParent;
+			}
+
+			// Get parent scroll offsets
+			while ( parent && parent.tagName && !/^body|html$/i.test(parent.tagName) ) {
+				// Remove parent scroll UNLESS that parent is inline or a table to work around Opera inline/table scrollLeft/Top bug
+				if ( !/^inline|table.*$/i.test(css(parent, "display")) )
+					// Subtract parent scroll offsets
+					add( -parent.scrollLeft, -parent.scrollTop );
+
+				// Mozilla does not add the border for a parent that has overflow != visible
+				if ( mozilla && css(parent, "overflow") != "visible" )
+					border( parent );
+
+				// Get next parent
+				parent = parent.parentNode;
+			}
+
+			// Safari <= 2 doubles body offsets with a fixed position element/offsetParent or absolutely positioned offsetChild
+			// Mozilla doubles body offsets with a non-absolutely positioned offsetChild
+			if ( (safari2 && (fixed || css(offsetChild, "position") == "absolute")) ||
+				(mozilla && css(offsetChild, "position") != "absolute") )
+					add( -doc.body.offsetLeft, -doc.body.offsetTop );
+
+			// Add the document scroll offsets if position is fixed
+			if ( fixed )
+				add(Math.max(doc.documentElement.scrollLeft, doc.body.scrollLeft),
+					Math.max(doc.documentElement.scrollTop,  doc.body.scrollTop));
+		}
+
+		// Return an object with top and left properties
+		results = { top: top, left: left };
+	}
+
+	function border(elem) {
+		add( jQuery.curCSS(elem, "borderLeftWidth", true), jQuery.curCSS(elem, "borderTopWidth", true) );
+	}
+
+	function add(l, t) {
+		left += parseInt(l, 10) || 0;
+		top += parseInt(t, 10) || 0;
+	}
+
+	return results;
+};
+
+
+jQuery.fn.extend({
+	position: function() {
+		var left = 0, top = 0, results;
+
+		if ( this[0] ) {
+			// Get *real* offsetParent
+			var offsetParent = this.offsetParent(),
+
+			// Get correct offsets
+			offset       = this.offset(),
+			parentOffset = /^body|html$/i.test(offsetParent[0].tagName) ? { top: 0, left: 0 } : offsetParent.offset();
+
+			// Subtract element margins
+			// note: when an element has margin: auto the offsetLeft and marginLeft 
+			// are the same in Safari causing offset.left to incorrectly be 0
+			offset.top  -= num( this, 'marginTop' );
+			offset.left -= num( this, 'marginLeft' );
+
+			// Add offsetParent borders
+			parentOffset.top  += num( offsetParent, 'borderTopWidth' );
+			parentOffset.left += num( offsetParent, 'borderLeftWidth' );
+
+			// Subtract the two offsets
+			results = {
+				top:  offset.top  - parentOffset.top,
+				left: offset.left - parentOffset.left
+			};
+		}
+
+		return results;
+	},
+
+	offsetParent: function() {
+		var offsetParent = this[0].offsetParent;
+		while ( offsetParent && (!/^body|html$/i.test(offsetParent.tagName) && jQuery.css(offsetParent, 'position') == 'static') )
+			offsetParent = offsetParent.offsetParent;
+		return jQuery(offsetParent);
+	}
+});
+
+
+// Create scrollLeft and scrollTop methods
+jQuery.each( ['Left', 'Top'], function(i, name) {
+	var method = 'scroll' + name;
+	
+	jQuery.fn[ method ] = function(val) {
+		if (!this[0]) return;
+
+		return val != undefined ?
+
+			// Set the scroll offset
+			this.each(function() {
+				this == window || this == document ?
+					window.scrollTo(
+						!i ? val : jQuery(window).scrollLeft(),
+						 i ? val : jQuery(window).scrollTop()
+					) :
+					this[ method ] = val;
+			}) :
+
+			// Return the scroll offset
+			this[0] == window || this[0] == document ?
+				self[ i ? 'pageYOffset' : 'pageXOffset' ] ||
+					jQuery.boxModel && document.documentElement[ method ] ||
+					document.body[ method ] :
+				this[0][ method ];
+	};
+});
+// Create innerHeight, innerWidth, outerHeight and outerWidth methods
+jQuery.each([ "Height", "Width" ], function(i, name){
+
+	var tl = i ? "Left"  : "Top",  // top or left
+		br = i ? "Right" : "Bottom"; // bottom or right
+
+	// innerHeight and innerWidth
+	jQuery.fn["inner" + name] = function(){
+		return this[ name.toLowerCase() ]() +
+			num(this, "padding" + tl) +
+			num(this, "padding" + br);
+	};
+
+	// outerHeight and outerWidth
+	jQuery.fn["outer" + name] = function(margin) {
+		return this["inner" + name]() +
+			num(this, "border" + tl + "Width") +
+			num(this, "border" + br + "Width") +
+			(margin ?
+				num(this, "margin" + tl) + num(this, "margin" + br) : 0);
+	};
+
+});})();
+_2http://trac.genropy.org/chrome/common/js/jquery.jsO;bplist00Ô	
+X$versionT$topY$archiverX$objects † Ñ_WebResourceResponse€_NSKeyedArchiver¯&,-345IJKLMNOPQRSTIUVZ[U$nullİ !"#$%V$classR$3R$8S$10S$11R$5R$6R$4R$7R$2R$9R$0R$1€€€ €€€€€ Ó'()$+WNS.base[NS.relative€€ €_2http://trac.genropy.org/chrome/common/js/jquery.jsÒ./01X$classesZ$classname¢12UNSURLXNSObject#A¯ÃòÔ3ÈÓ6789AWNS.keysZNS.objects€§:;<=>?@€	€
+€€€€€§BCDEFGH€€€€€€€ZKeep-AliveVServer\Content-Type^Content-LengthTDateZConnection]Last-Modified_timeout=15, max=99_‡Apache/2.2.11 (Ubuntu) DAV/2 SVN/1.5.4 mod_python/3.3.1 Python/2.6.2 mod_wsgi/2.3 Phusion_Passenger/2.0.3 mod_ssl/2.2.11 OpenSSL/0.9.8g_text/x-javascriptV100196_Fri, 12 Jun 2009 02:46:18 GMT_Tue, 23 Sep 2008 11:27:24 GMTÒ./WX£XY2_NSMutableDictionary\NSDictionary ‡dÒ./\]£]^2_NSHTTPURLResponse]NSURLResponse     ) 2 7 : P R d  ‡ ¢ © ¬ ¯ ³ · º ½ À Ã Æ É Ì Ï Ñ Ó Õ × Ù Û İ ß á ã å ç î ö=BKVY_hqsz‚—™›Ÿ¡£¥­¯±³µ·¹»ÆÍÚéîù¦ºÁá
+ -27;O             _              ]Ô$)*+O4(function($){
+  
+  $.fn.addAnchor = function(title) {
+    title = title || "Link here";
+    return this.filter("*[@id]").each(function() {
+      $("<a class='anchor'> \u00B6</a>").attr("href", "#" + this.id)
+        .attr("title", title).appendTo(this);
+    });
+  }
+  
+  $.fn.checked = function(checked) {
+    if (checked == undefined) { // getter
+      if (!this.length) return false;
+      return this.get(0).checked;
+    } else { // setter
+      return this.each(function() {
+        this.checked = checked;
+      });
+    }
+  }
+  
+  $.fn.enable = function(enabled) {
+    if (enabled == undefined) enabled = true;
+    return this.each(function() {
+      this.disabled = !enabled;
+      var label = $(this).parents("label");
+      if (!label.length && this.id) {
+        label = $("label[@for='" + this.id + "']");
+      }
+      if (!enabled) {
+        label.addClass("disabled");
+      } else {
+        label.removeClass("disabled");
+      }
+    });
+  }
+  
+  $.loadStyleSheet = function(href, type) {
+    type = type || "text/css";
+    $(document).ready(function() {
+      if (document.createStyleSheet) { // MSIE
+        document.createStyleSheet(href);
+      } else {
+        $("<link rel='stylesheet' type='" + type + "' href='" + href + "' />")
+          .appendTo("head");
+      }
+    });
+  }
+  
+  // Used for dynamically updating the height of a textarea
+  window.resizeTextArea = function (id, rows) {
+    var textarea = $("#" + id).get(0);
+    if (!textarea || textarea.rows == undefined) return;
+    textarea.rows = rows;
+  }
+  
+  // The following are defined for backwards compatibility with releases prior
+  // to Trac 0.11
+  
+  window.addEvent = function(elem, type, func) {
+    $(elem).bind(type, func);
+  }
+  window.addHeadingLinks = function(container, title) {
+    $.each(["h1", "h2", "h3", "h4", "h5", "h6"], function() {
+      $(this, container).addAnchor(title);
+    });
+  }
+  window.enableControl = function(id, enabled) {
+    $("#" + id).enable(enabled);
+  }
+  window.getAncestorByTagName = function(elem, tagName) {
+    return $(elem).parents(tagName).get(0);
+  }
+
+})(jQuery);_0http://trac.genropy.org/chrome/common/js/trac.jsO6bplist00Ô	
+X$versionT$topY$archiverX$objects † Ñ_WebResourceResponse€_NSKeyedArchiver¯&,-345IJKLMNOPQRSTIUVZ[U$nullİ !"#$%V$classR$3R$8S$10S$11R$5R$6R$4R$7R$2R$9R$0R$1€€€ €€€€€ Ó'()$+WNS.base[NS.relative€€ €_0http://trac.genropy.org/chrome/common/js/trac.jsÒ./01X$classesZ$classname¢12UNSURLXNSObject#A¯ÃòÆ ÈÓ6789AWNS.keysZNS.objects€§:;<=>?@€	€
+€€€€€§BCDEFGH€€€€€€€ZKeep-AliveVServer\Content-Type^Content-LengthTDateZConnection]Last-Modified_timeout=15, max=100_‡Apache/2.2.11 (Ubuntu) DAV/2 SVN/1.5.4 mod_python/3.3.1 Python/2.6.2 mod_wsgi/2.3 Phusion_Passenger/2.0.3 mod_ssl/2.2.11 OpenSSL/0.9.8g_text/x-javascriptT2100_Fri, 12 Jun 2009 02:46:18 GMT_Thu, 07 Aug 2008 01:00:20 GMTÒ./WX£XY2_NSMutableDictionary\NSDictionary4Ò./\]£]^2_NSHTTPURLResponse]NSURLResponse     ) 2 7 : P R d  ‡ ¢ © ¬ ¯ ³ · º ½ À Ã Æ É Ì Ï Ñ Ó Õ × Ù Û İ ß á ã å ç î ö;@ITW]foqx€‹•—™›Ÿ¡£«­¯±³µ·¹ÄËØçì÷¥¹¾Şş*-26J             _              XÔ$-./OW
+(function($){
+  
+  /* Adapted from http://www.kryogenix.org/code/browser/searchhi/ */
+  $.fn.highlightText = function(text, className) {
+    function highlight(node) {
+      if (node.nodeType == 3) { // Node.TEXT_NODE
+        var val = node.nodeValue;
+        var pos = val.toLowerCase().indexOf(text);
+        if (pos >= 0 && !$.className.has(node.parentNode, className)) {
+          var span = document.createElement("span");
+          span.className = className;
+          span.appendChild(document.createTextNode(val.substr(pos, text.length)));
+          node.parentNode.insertBefore(span, node.parentNode.insertBefore(
+            document.createTextNode(val.substr(pos + text.length)),
+              node.nextSibling));
+          node.nodeValue = val.substr(0, pos);
+        }
+      } else if (!$(node).is("button, select, textarea")) {
+        $.each(node.childNodes, function() { highlight(this) });
+      }
+    }
+    return this.each(function() { highlight(this) });
+  }
+  
+  $(document).ready(function() {
+    var elems = $(".searchable");
+    if (!elems.length) return;
+  
+    function getSearchTerms(url) {
+      if (url.indexOf("?") == -1) return [];
+      var params = url.substr(url.indexOf("?") + 1).split("&");
+      for (var p in params) {
+        var param = params[p].split("=");
+        if (param.length < 2) continue;
+        if (param[0] == "q" || param[0] == "p") { // q= for Google, p= for Yahoo
+          var query = decodeURIComponent(param[1].replace(/\+/g, " "));
+          if (query[0] == "!") query = query.slice(1);
+          var terms = [];
+          $.each(query.split(/(".*?")|('.*?')|(\s+)/), function() {
+            term = this.replace(/^\s+$/, "");
+            if (term.length) {
+              terms.push(term.replace(/^['"]/, "").replace(/['"]$/, ""));
+            }
+          });
+          return terms;
+        }
+      }
+      return [];
+    }
+  
+    var terms = getSearchTerms(document.URL);
+    if (!terms.length) terms = getSearchTerms(document.referrer);
+    $.each(terms, function(idx) {
+      elems.highlightText(this.toLowerCase(), "searchword" + (idx % 5));
+    });
+  });
+
+})(jQuery);_2http://trac.genropy.org/chrome/common/js/search.jsO7bplist00Ô	
+X$versionT$topY$archiverX$objects † Ñ_WebResourceResponse€_NSKeyedArchiver¯&,-345IJKLMNOPQRSTIUVZ[U$nullİ !"#$%V$classR$3R$8S$10S$11R$5R$6R$4R$7R$2R$9R$0R$1€€€ €€€€€ Ó'()$+WNS.base[NS.relative€€ €_2http://trac.genropy.org/chrome/common/js/search.jsÒ./01X$classesZ$classname¢12UNSURLXNSObject#A¯ÃòWæÈÓ6789AWNS.keysZNS.objects€§:;<=>?@€	€
+€€€€€§BCDEFGH€€€€€€€ZKeep-AliveVServer\Content-Type^Content-LengthTDateZConnection]Last-Modified_timeout=15, max=99_‡Apache/2.2.11 (Ubuntu) DAV/2 SVN/1.5.4 mod_python/3.3.1 Python/2.6.2 mod_wsgi/2.3 Phusion_Passenger/2.0.3 mod_ssl/2.2.11 OpenSSL/0.9.8g_text/x-javascriptT2135_Fri, 12 Jun 2009 02:46:19 GMT_Thu, 07 Aug 2008 01:00:20 GMTÒ./WX£XY2_NSMutableDictionary\NSDictionaryWÒ./\]£]^2_NSHTTPURLResponse]NSURLResponse     ) 2 7 : P R d  ‡ ¢ © ¬ ¯ ³ · º ½ À Ã Æ É Ì Ï Ñ Ó Õ × Ù Û İ ß á ã å ç î ö=BKVY_hqsz‚—™›Ÿ¡£¥­¯±³µ·¹»ÆÍÚéîù¦º¿ßÿ+.37K             _              YÔ123O&ÍGIF89a,g ÷ÿ   ø¡†ËËËqqqlllÙWÙÙÙƒƒƒŒŒŒæææøÄµİİİø³´ø¡áàà±{ICBB¬¬¬•••<::ôŒZø­£ššš422Ö£‰²±±ø–iä‡ZÓwFÖÖÖíííıııÆTËxEø«œèr:¹]°g.Î]"ÕƒVÖÃ¸ø }ø¡„éééåšxøøøûûûØ™xĞĞĞø¾©âh*Í„ø”dÊl9Öµ¤øº¥,++^^^dddÂÂÂìzCø‚ø˜lÖª“ôôô¹La``ø¬ªåm2ñ…QZZZUUUÓÈÂIIIæÜÕöööøy¸UøŸ|È¼¶ø«‹öéãğğğßb$ø¥“ÅNÆg,Ö‹dø©‘   yxx÷’aMMM$""ø z¹¹¹ø´œ¾¾¾òòòÆÆÆä»¥Õ±™RQQá¤…ø¦çÒÆÉµ«øuøº»èÇµø¢ˆ¦¥¥¶N¿\%ğãÛ~~è¡}½¬£øšpø¢„ã´šå•lî}HÔi4øÅ¸ø§¢ø¥›ÓÓÓø¬–Åt3øœsğƒN×‘mòˆVÄ¥y×ĞËÇ“xöïëø•qâcËŒdñ®Ë¬‡Ê¥•­Lî€K¨Yø¢…ÊPøÀ¯ø¦„ø©•ø¤€ó±“úöôø­ø›{ğ×ÉçÀ­ğ¬–ø±–Ë‘mÃqàª?>> ÁOø›}ø£Šô¹™ø· ø[ñ~G(&&Ğ¼²ßwCÖq>ø˜uÇ…Uö^ô²™
+ø¨¨ÎÈÅò°POOø³«Ş\ø …üø÷êv?‡‡‡ø¡ˆø°±7660//î›sGFFvuu×ÓÒø¶·ø SSSó¨„ø»àÌÁº¢•ÖÒĞcbb°P¯Ohhhø—z{{{»»»ø vşúø···¿“n\[[XXXLKKñaÏRô¥ò®˜ãããíéèÑ}Nø¨‡ïİÔ£££×ÕÓ×ÖÔ©¨¨ï¬¢öñğØÖÔğèåíĞÀîêâûùøÙ^!÷²¦ï zîÌ»øÈ¾òŸvÿÿÿ!ù  ÿ ,    ,g  ÿ ÿ	H° Áƒ*\È°¡Ã‡#JœH±¢Å‹3jÜÈ±£Ç CŠI²¤É“(Sª\É²¥Ë—0cÊœI³¦Í›8sêÜÉ³§ÏŸ@ƒ
+J´(OFF“*i¯Ì2l ]JµjÅ9B`éäRG5Ì˜jµ¬ÙƒŒ•¨±GÎ¡–¢œ8ieç„µ§œİ[õ#4•œl°íÊ$4+İÈ	2+FHvJÜÕÃ•¯e¢RNUº’ãªâèI9%„+D¢(À—#k“B¸‰w¹vO)ej\û&&Ÿ†]²rEÅ™ºt©€!n7(ğÄ¤kéö!·Íf‹S5‚ÿ1¡Óo7¸!¢BÎŠœuCé™ñ„ıûö¿}‹T&TÂX¨bE# âÃ'ç±VÎ,ªˆgËhİEè’!Ä„*³@ã›t˜|‚<ürI5Ha#z<ò@	•\sÅ‹ƒÄã‹W\SI	”¢m½ EpAH
+¤D×Û¤$Ã`Nœ`œ„Pš$MNaÅ,úr’˜¸BJ
+„h€È04˜Ne-”‘d×°Çv°`ÇœtÆiÇ›'\3É]¶ˆ‚Ü)^B"4à‘B›dF
+êD)êhĞ‡AÈq|QfÚQ0KPy!Éd©:™|AÊ&›|ñP@&q`ÿaÏW8a5&ÖŠc¼öêkÑĞ™ƒ”@B„ÅàÊ&M4@)|±	´_|m
+›Œ#Ã%ª8ÅÛi*îD÷¬sÂ… 1Î&‡V›B
+ÔÂ€
+Òºâ&œ¤sc:v@â™cÒ,ğÀóê¯éğƒ~|ò…³ÌmoTÜ ´xà!æ0ä€ 
+à+²C¡¼ 9øc !x4G¬ÄœF
+*äñ¼M¨£À½¸É‰oçíÌğĞDÍpÀæÅÀÉÏ;ßÀîÍ7« IYBu¬¤‘FMpA	ø˜ ÊÈd'T†	DC*4@uVk"ÈÜ‚¼uÄm“²3&ÑÜÿğ›Ç°åà„~Cnt®d’Âİ7W ù“K^&U “M#ÉlàgÙ Ê,°ÑHUh2å”WĞúvßı´aì½sÀ®¸rÃ'™¨ãûïÀÿÉ'7äğĞa3ä0À@3m4ÓCüáL™”ƒ†ëHnè¡w2§Ø¡Ï*Å ¢‹1ÒG/=+Ìƒmí€£—{&øG[íşü÷Ÿş™È]tĞS*ˆ1zÍ‚. QŒl°!N’@"ÀğYP -˜Â9ä±‹5 ú¨Eœ¡>c´¡ğc%¤Ö„A¨Ú¼.FÃÚPÒÚ„:Â†2ïf Dæÿ@; Á» F ÀD$`ß»à¸€ptàŠW„,~€n4$„İ*9zm‚ŸÀ!ÈFÊ0Z¼™%ÚöBô şÀÀl°,úñŠğ€¤8²LÁ¼¢ E`À_ š@³ Xân*xU 6zjœl@µâh5Á¯0%0`t`Hd™ T#Ëà
+Î± +şq0€,lğƒğ R:µw-ï“Ğ„Z˜±<
+\@Ä¨P8 –d¢j	„D—ãú@€àÓ—X¦j€ÉÍzf4÷ÿMk²Á· ğñxÎrœ(ç9Ñ	º¸€	SØe/±h€GÔ“·ğäõÉ7¤pŸf&OyCŒ ¥€%BÊĞ–
+ä¡cğÀ9pEÄ†ÈèFõÉ<­¥!Zƒ¦OšhúS%í–ZÀ,Ô¥Ug’p+Ø“ø\¦'š¹Y­¨läªWúÉ¶’EhOxÕ¶¤¦¹%°JIŞY$§×,°¯zå«üúIkUDVxA0F"€wƒˆld™Ğ§Jq}ì6ëo¬àOÍ‰T 
+à3v…œ&\7c¸N±cŞjWçÚ!ÿÀš¨£ˆP +¨ÂY 1€ ÷¸ÇçÌyAb ÷¹ @B/è‘ æîd+ h@ˆ'4à’MÃÚç¾!d†xÉ+=ó¢×“†ÅxKmdG€®~àÍ)|8€~¡ë	m$ô¿7	Æ	¬@ğá´©…^pÂè°çMo(|ág¸°‡¢ ¶¥ŠCt##€À€ST(#²Ê¨Ã;p[†îu8.‹½:è0°eh]¢+\â*Ãƒw©ùC`hbz0Æœ×ÄïÉÎ“2•­lÔÜú`L½U¦,âÜçâ@: 6t !ä ÿØĞ†Ä°  XĞ96®8Â¡â@F.‹$ 	¬ğœj Ÿ€.š¡]üA•¦^ b{³IWúÒ™Â¦»Ü‚¾'°ˆT|\:ô‚ ‚Âq„páÍB @,@g;ƒ¯Ú8î& ^„³î…;28`‰†‰NF>pAÉZıá%3	!fá’ÈB ñ‡U0YOb¾îqÿá	ïéˆM°cˆ.€Ü,F8B­s @u8 ,Ú‚-ØÂqqp%äÀàjB8p€Ü-á@rJü‹c–É ÿ„Ö?)ğ
+ÌÀ²€‚#5@î>îY¥¦^sGÒà+{ÊAy¨/àVxËDò{Üg ½8ƒt°ŒĞÃpˆ@¼±ÀÀËeˆ ¶±€ö" »DÎx !dßÆÚÙşˆOB8 Öµ`lAÂ6°½À¤r 2Ù°dæå–U"&Â/áMqbøàK<Á†åßÉÈÀÁà®wç]ô€}ğ5DÊlÜ.¡â86ê wxcX"0:ëäLGîtYz-H¶•ı€ –±l×¡øÑˆó#}Ëşù 8@ÿ÷£èbğû¹½Ğóbwã^ [€ƒ×a  1D€à8n.L¡üàŞ§ÛpÄ°x/p	TÀUW*”[„@ "} e »@ÃÀÊãy ˜»ĞTpL…Ò,C1*×*|@  !áÅe\`J à°;PKS ”5~	‘bf\ĞËuN¬ ç ğ„Ğ5 dñ„ç°S ÄP}  [vA58`8 MÈ~ç~á@`Hÿw 0hÆ@ÚPƒàÅ7d:p\ˆhñ ]9aØxÿ@ˆÀ2€ÔĞDLÔíğ#pM3O‚‡ –hE™x‚„2I•Ä<†…T§V ©Ëp\H`Ê`quÀ;Ğ	0MEw! g ±€Ghdph‰öOHÇ„Çeºr¡ŒÇµb°Á …àuç E1ˆÈåÄècÇå	ôpdHí Ç ô`hƒ¤N‡´Å PŞ@Mà†gPÙ¡`xÀxfMaâz¿`
+üXKí„H3@ˆĞ?õ·@‰PÙ¦WmLŞ%oDwVEpt5ğvñg8/0cèh|ÿŒÆå	9€ °@ Jà	Ç54mÑ¨ _€Ä€ Úğ©€\àpÒXwKi\g@Çu½°køà PË”J0•Ç¥„“ëØï˜ ö@° ç @ ƒç–  ;° SğT–‡pàbù!
+Ú…QÉyÚ&­ÂDPŠˆÿà‡Ä<à¬ 7¬ÀE@™É\œé  <z“”mª¸* %P— \áå¨¨pÚ0x‡æ‹áÕç		7 :PÕàfÄu\rÛ¡”ÏuÚ@Ä° 9pg\ÊA¦Ğ	]Âÿp[°w ìàp-@{t°[€nÖfn­Öş¨mÈîñ+@ŸÆuÕÀkp\ÊÀÇÈ˜Q}í¹k;à ²7§Ğh|P’9™uD’HÒ`K`<Pi 9U 
+ˆÀ¡Š(øš+XM«‚TU 2È‡	 ^àbØ`ÇÈÀY´wpØY·–ØpÇåƒWxp\Â€
+à€”°†ÕĞŒÆå‡¾Æ¤fj‰oF à›Ğj°6kp6 kI Õ † ş‡`s¹ŸvY€\¨ @À0Çw\È g[ê 6&Rÿp2 2…Òx*”Iÿt+Y 5°!ğ\Ğ€` ÀàÜ¤©Á©ä€S:…Zğõ¢‘÷3@w`¤Æ…¨ğàuÖ£AƒÆ…
+[àfºFZÀZ uPËLˆ^j\È€Ê`°
+'@j\H@ ZdĞÚ¤Æ•
+È F€œBPpz'§PªÏp:0ÇÊp ØÀ• úœùI—üI5ú¤à ]×Z•c™…ÇÕ¶‡ bp
+ú¡Ğ$i’q4oàˆ»¥
+%ğe XP—@é3^	d=4P !;²%Û…Š-
+5–ÿĞ±S0áY	 È :À°ép\±f­Äğb|0°€Ç…
+`hN­ €È Ø wï ;@;ğ²`µÿ€µÄ¸›¹¶Ä`‹»Ôj:uNÉ´NK`ÊĞ•Z@xà°všh:é~xgÀ§:¶«uV`¨K D[û°ªª±üô3ã
+}ƒ¶ ,Ü Æ ªÎSºÀû¹}óYÀi¸¥[ P&à@«Ë@¨x\PN¯Ñ%.&¼—up`y´uĞ„ŠµÃ&Kûƒã´K ‹g€pµäšµ[ÿ«ÇëdĞçPì l½ Õ@ ç;e ;p´Ş*¨ŞX§u‰`… © Êà—0` €¥  ì ®‹Ü¹gÏk W9™±İµ±lôUÃ
+Äã
+a@
+lĞ"À Pi$liP‡¢ô	–`5üô,°;_°Ñß‹_éİ»`p\Ëà +€”€Î˜„…£àxù½ Ú0c»}-p²ØÍ
+Áiû½€
+íû^· \}5:JpOüÛá@à b ˜’Kxƒ¤¿ü¹ e]J ÏğÀ+` 5zK±¬6z] {X]¡Úÿu¹¼O¬  ìÒ 1³:Íà¸0
+æ°Éæ ÉùĞ”£	.ƒ-«%õºay06áp¤Ï@[±›Æ¥^÷›-PÄIˆƒ‹µ7øû=é­â0 €ÅX‹
+] c4v`Ûñ?[‹†œ ñc` }kƒp¸Ãë°{@¹—ÆJPÍ‡– dà–¹°º[˜a¿  ]`Æïì«ñ‹\’MYP®u5ÎPÆÓpk 
+½ĞkpÓ ¾ Å°nÿĞ®ÛF1Ì[3š@ÀÀÚx\´ñp\ØĞƒWøPNš
+^€¨ Qw2}½ÿ ›ÈÀco¸‹µÊ0 IUŒÌÊü½p°VE>k ğ§»ŞX. R«„¹‹ÅëXÄ8 JP­‚ê_SĞQ TK{~³Ø: Ì´ü’°Ï˜Mo 	zU=Ğ> / (0À°×*Å×€²€{à°
+¬ "P7ûD™ªlŠk\¹Ë³¬»:Š€@p\±p`qCº¤İ¦Bpæ,¼Nß{Îá:1AÌv†µJPáê’a»ÊÓ€|S0 ]‰¯]wù™„ÈĞgâ á°é‰ÈS¼äXü×¸=lƒg@ïğ\-ÿ0’Œ¼z…Õ iÀ
+=P\À/ 4Q²¤H°Iğ,@…5.MŒ-Ã?PÃÀ•ÇÀ½iı—}\B»¿cà–ÂpÇ`{7¥N ğ	õª	jÛ:PÜ!ÛŞÚB]Û­á0 ÛÁß«|*ÖOÕÑ])U©ÄU-Ù<¦Ï`¥„Ü;ˆ¸ÿJà¯l\Fğ·‚$¼tgP«}Œ€¬yŠƒ’eÔ±„°
+è½X°Ìp‰áÔD‰ÄDÌ ‡°¯P«@æIûÍ[ÀvSüãf‰Ì»«.@¶j¶b`—S°Í¹p=­Ä@€èô€ ğXÆ
+ÿ H®áÁáÑåá´ÅÇåÚ#~, .şÓaâ“âŸµâxèÚf9@kG`]‹‹„‰`Là ‘-Œ°Œ4µ7 	¬ÄñİlİÏøØÙtI…	°È¾	 ¼D‚/°·Ğ)˜Š?”æğlç+€Ù†:¹1çEÙ“ğÜu  ê¾îì¶` +r‹^é>ÛC=é"Nâ5™®Û%N” @·‡ŸŸ<v uààgiÆ{v‰æ€„ÆE ÛgEşÔŠŠºNÁâ97ûÈrˆ ìàd AˆÑZ0ïëÿÔNîm Šğì¯@×væ—Ñ×Îv†äãÊÇ«ìÔtn9°¿@  äHÕ@`À{=õTOS+p`’n\”®ïáèH é÷®õù~L½;ééO•¾ÆJ Äê”ŸÃˆ
+ô: [PÄ è‹ÈhyY£ÇPµnyà ä"ı!Ş,1`B|`X ˆôJQô-0+0Q ‡‰§(©cíØşØà…€\Ï°£îJ˜ôğÈ ]µ }¸Ÿûİç}óÎõáõ`âøÎèêè ?{§ñ„¨ ÄdÆ=q¨`rÆZ¶|ù¡íëÿl\tP_yGôáú,òÜ6¾‰Ã °±„†x¹ù¯é W…Š©Ò@‘6ş-dØ°¡‹ˆåP 		€¸pøÏÅ;‹rĞÛ‘ÀE‹sX<–ÁÀ˜e.2Á¢Z`Lé8Å"’." ò¯æÍœ;eºH@ïç2—E;³XHI/¡Æük±Å"2qË´ˆÑÁ€ƒ€´ˆ9óÃ˜Ø,*‹Uñ‚p,XÁqæß™6
+áCA¡',f¬"E\ òÂAZ æìÑÃed1tËG“y¯HĞ BQ~ ²Àÿ•“àIÛ…C,éâƒ(VLEÏÁFÙFmVÄ©“§CŸ
+%*©u™Ça³ˆQ€¿·éV¦$Ü06wµx!1oÔ®5.å:*
+°¢.Œâ€¨€‹î/Q+ì°ÄV ¾ÀƒD†¡(X ½†ºYÂŒ%ºéèƒ9ÌPÃD†>˜âv0Š¡ÔT0€Ö
+:ˆ5t98HE·Š<Z0N¸Š!Î$£ ƒ€å**›v`k!¶‘é(ê’º®¡ì Øn¨¢È :¥Æ4 Ü (ä ¦ğËª,‚ q°‘€Œ¾¸ò*JpH¢ÿrÁÙ¦Ä$9"M`3FSƒÂCL±Õ(lâÂ©0!üZ)êiurÑj ±.NKAÇÕ,i`Ô‚x ‹%¤í2,à‚‘´Tp(oJ†„
+‘VZ$¦à!7á<“¡4×ì®\3gj!¶È€Xt¨ã€gê@œpÜ«#‚¦ˆ‰>DMQ&`ÉX” çß€UÍÔ!° bDnLØÅD%UCZXS†â¡¥RŠ e†˜xRÆéc[=8'|FàÕW;~‚‰øÅ”}k,X&<ùöÛX–,îŸe“^ÿa®hÌ|k‹]ğ°û)(6½+3ì§è ƒ-¼Õ :Â¢‹3°€ŒK"x·D§xH °(d ĞA‚Î!yâ˜á—N5`ã	ÕóCOH€‰æ§–<j§†¤H¦‘<š ÀZğàœwÎQÂ<~ÖàJˆá‡Åesa
+¤µ¨£š^P‰¥h¿õâ>1Îñë÷Ä°`‹Ä9&–T’ÆˆvøĞ/°ãDslîÚœîÍvİM@ v¶€Àm$éÀªš3 €0òlkïcú^tâÚà'8PÂ2Ş1î/.0Ãh(qÉQ.TÃúNà‰1ÁÙ¨@6Áÿˆ†´à¨@6À2[1v:ëÕìBõ3àn³@ÁÁ¢ó; ô@Î qÇ8Æqà F@@âÒã:ˆA @À‘ƒj`ƒ À ´AÀ oF1@´ûÁ=	·&¥¨ÑŒh$€Ïe+ 8 i[B/†ˆ
+ô[¨âŒ@ &B3A‰ „#P»aÈ€~xG@À6À9ÎÄÒ˜JÁÊuŒ‚˜£-@Ù=`€ĞCGÔ ËSœâ/'ˆ]µÇ@†EjĞŞİ	„Ø€eè G8Â3AÍ#ÿt¨”¥Öà‘!¨Ã °Q!¤SÕ 1à €1&lØ"‚ºã ”‘Šˆô$çäIOØS*¢ŞØAE!ä@:`h5rlAŞÄÈ€ó®f-ƒ Ú`0¨ÀdÀ"šDt¢PÊ¤ÁÅJã«T^®T&èCÎ…5@AqYÁ.rúÉ™ĞbW¾ìYs»Ékd u` †wX€Ú t€N+†ÃØ8@QÊŒ!ØA´@hc]\F$Ebê]x= …Ä½’!L8Ç´€ z¼óY_]ïšWÎàP À4J -rQÿ`‡: )ŒE€ò—@
+®"Ô:|PÓ”†p
+/aÔÄt•àL ™$¬»}NÇºÛ€¶!j˜Ñ0Šp£&4 gHĞnaˆaĞÂc°a¦\ ›u@ bÈ@T%@b„— #±€3À¼w°Cìˆ `p˜g
+9Ã6Èğ½idØ†à =yd¿Ûõ/€»L²f€°+=$`wl™ùRCh“ ì`;èÀ
+ôš)0”G	â°Ûyª›ZªM³€"(àƒOq,˜‘!&Ò¡ÒËğ¶¦ïÚm°•`!g/ÿ-0Ã¡;¡¤uÁ¹B dØAÁ 1!ç˜B2[Ô‚1Ølè@ `#¯`$Kï°€œ³'rİ9ğœ€2Ç¤ÎwÎó;3hÀ€ËbÃˆÌ@g)cX®°I3N´ xFtZÏdç8Ä0a<°á—‹Qs]Ã¨B—Èâ¼¸ãØÚ clH@@d,ÇN&Ö-Š0Œh$Ô`m¦à$àçp€Î‘–µTÙÃ-hö¦ğí1ŒËÃ'˜ĞŸğ¸€	åvp>@ns£;:éÅn´§–)œ[Ûi6»÷Í™WÄGè…ÿİõâP¿K´054€‡1FX)–äÀ:‡0Ái91W6nâHá
+VAÆ Ş K S xĞ ÁZ$×Ë÷I¸İîÓ\çŒ{·Íå½sÀlZ	]G\’_ Sm½¥>.‘ÜT.¦54(9‚ ‡uØI¢ÜºC¤‚ \‚7úÊi7,B|ìXAÎ“şv¸Ç=îWÓ3Äq¸’˜™æÀ[Ã_AƒZ°!¹=›8!¸@+á
+¤Kíj+àƒ8RîÙ›À†ZĞÀ ´EoåşyĞ‡è›€Î°…wD,î|mÇxğ
+Ôb«h@ÔĞêğ—‚lÿ 2r€<>x€‡Tşì³¯…´cæ¢§~õ­ C;gPÂHš§wšX0Ä+ŠôÀ=ÀúSğ…(l “ˆCÜ üÅ£`Ÿf¡/ 	Y¿XPÈ¼Á‚]È·»>|À¤ƒˆx†	è…g 8ğ¨L)¾ê Ø 
+ P `(†7H9	†M¸Lø„=¸‚ ¸†x=@¡™ğ€2(…˜„kGˆL¸L •|`èU¨…çJ‡5X€éƒ@(ŒÂ¤Ã(g‚ûé'ĞË58C(È`€7xVHÁø„à?àÀ‚ÿ¨x€ Dˆ30ƒHH„oÃ€ÃC`HP ~P€OP¾Õ`…1$APp¾"À f`@)ŒDI¤¹ˆˆw †:@€P$„:¾2 (H‡`Ó€€bHƒ2d/øLğ?P Lˆ;€†t[t¨Å[;°^ÀP ?ÀR(»7VHƒb¸½E|¹t '¿IœFjè)«È 8ÔŠ»\[ 3 AR†dÔ„,@ÅÕx?VtÅ`ŒàHà^€„xŒÇy„wFW$ÆHdLƒ,ĞT†E¤ G°<»£j\H†ä³Ïh³]£.ê{0 ÇÿLƒ*0Ç,CÆPÇhEWFL(I“<I}ÜG~LC€È*H‚,ˆø5+”†ÌIœf{6qéD¸Ë£İºH
+8?` HM„s\Œc|‚/ÈR¸`Ç‘¬J«|Å …OèG9Æ ÈAs”É‚Ü `3nÜIµÜÉhËÔ¹\k3¢Ç4ĞË,8Ç2|¿/HLWI”DIWp…bü‚¾\ŒdÌKAÈ™D„šä-…\KË¼L¹«ÄŠ„¹ÌHÇ¬€°KVP§lÄŒ‚OHMÕ\Í­DÌ¾LVXÌ¤lÌ
+²¤É„ŠÄIÌìMßL:3€ÿ@ J£¬¨ ä¼Ë¼DÅVsMç|NçôG2ÌK°<Î
+‚?¨‚l
+Ø 3ĞÍ]ë¸ßOòT eªÈ@øà‚âüƒ!0†!¨M±¤Îl û¼Oü´OK°V Î°<Î÷ÄN@èPhp3¨È]ëÆòlP=´Ù-°à‚ØMøc` øDÎĞ\Î4QÑ—KÚ¼Î5†ì†æ»6ë e{P­QÀp‘s ®]xGĞ€ó+ĞRc@NĞK$MR%=Ñ
+ØĞ!Õ(†õG˜]`3À¯·´Q.íÍeÁÒ@…ÀëgpOhƒfÒÿø4R7}Säh†fhÍÎhğ‡5³Øœ.TA5Šõ2ØxøÑ?ĞchH]Sc˜TJ­ÔIÒ:µSì¬‚¨.,XEp ,ÔA=Ue‚°5³`†$8ğ‡F0S@ÓL…T\ÍU]UScĞ@(†Uh„dxH‚Š®¥BUe¥Ñ>‹Q`†]„Ø@?g !¥SmİVm}R@pÕ€=xI€wpV=Êe]×Ëü0V•Ğ@°@Ä€k„FÕ}İW}ı@øÖ74øĞÍ"‹3 ØRv]X†'9Ø³Ø0ƒĞªhÈ„*K}LA¨‚M€}À °‹Q	%3idX–µÌ>{W³X \I‚$@…5Xƒ;ØÙ5°Y°Yš=‹5;ØB[Ù–=Zµü ó3”•P™Å•…³˜­¶¡…X'44¤ÍÚñTZ;#Õ¦=X	[°õ´(3­=Û}7ìJ ¨ıZ±•P²´sC[º­[»½[¼Í[½İ[¾í[¿ı[À\Á\Â¥Û€  ;_,http://trac.genropy.org/chrome/site/logo.gifO'bplist00Ô	
+X$versionT$topY$archiverX$objects † Ñ_WebResourceResponse€_NSKeyedArchiver¯&,-345IJKLMNOPQRSTIUVZ[U$nullİ !"#$%V$classR$3R$8S$10S$11R$5R$6R$4R$7R$2R$9R$0R$1€€€ €€€€€ Ó'()$+WNS.base[NS.relative€€ €_,http://trac.genropy.org/chrome/site/logo.gifÒ./01X$classesZ$classname¢12UNSURLXNSObject#A¯Ãò
+ïY%ÈÓ6789AWNS.keysZNS.objects€§:;<=>?@€	€
+€€€€€§BCDEFGH€€€€€€€ZKeep-AliveVServer\Content-Type^Content-LengthTDateZConnection]Last-Modified_timeout=15, max=98_‡Apache/2.2.11 (Ubuntu) DAV/2 SVN/1.5.4 mod_python/3.3.1 Python/2.6.2 mod_wsgi/2.3 Phusion_Passenger/2.0.3 mod_ssl/2.2.11 OpenSSL/0.9.8gYimage/gifT9933_Fri, 12 Jun 2009 02:46:21 GMT_Tue, 11 Nov 2008 17:12:05 GMTÒ./WX£XY2_NSMutableDictionary\NSDictionary&ÍÒ./\]£]^2_NSHTTPURLResponse]NSURLResponse     ) 2 7 : P R d  ‡ ¢ © ¬ ¯ ³ · º ½ À Ã Æ É Ì Ï Ñ Ó Õ × Ù Û İ ß á ã å ç î ö7<EPSYbkmt|‡‰‘“•—™›Ÿ§©«­¯±³µÀÇÔãèó ª¯Ïïôø#';             _              IÕ56789:_WebResourceTextEncodingNameZimage/jpegOtÖÿØÿà JFIF      ÿí Photoshop 3.0 8BIM      ÿâÌICC_PROFILE   ¼appl   mntrRGB XYZ Ğ      *acspAPPL                          öÖ     Ó-appl…dêxKUAïO0ê•v                               rXYZ  ,   gXYZ  @   bXYZ  T   wtpt  h   chad  |   ,rTRC  ¨   gTRC  ¸   bTRC  È   vcgt  Ø  ndin  ì  >desc  ,   _dscm  Œ   Ømmod  d   (cprt  Œ   -XYZ       t6  <)  ¢XYZ       \ÿ  ¯Y  ßXYZ       %   ™  ·¤XYZ       óR    Ïsf32     B  Şÿÿó&  ’  ı‘ÿÿû¢ÿÿı£  Ü  Àlcurv       Í  curv       Í  curv       Í  vcgt              	  > g › ×ZvÙ1öê
+Mø;xŒ}?à~!"ª$=%Î'e)*Ÿ,A-ç/€12›45w6Î89U:‰;¶<à>?+@QA|B°CïE8F’GëI,JTKuL‹MšNŸOœP•Q‹RS{TŸUÄVâWöYZ[[÷\ë]Ş^Ğ_Â`¶a®b©c¬d¸eËfèhi,j/k#lmmönçoÙpÊq»r­sŸt™u™vŸw©x³y³z§{|b},~~ğâ€ÓÄ‚¶ƒ§„˜…Š†z‡kˆ]‰OŠB‹3Œ%÷é×‘¶’w“:””Ş•Ä–½—Æ˜Û™û››ûœÅ†QŸ#Ÿş á¡Ê¢¸£©¤˜¥‰¦z§h¨Q©4ªªã«¯¬q­2®®é¯Ù°Ë±½²¯³ ´’µƒ¶u·[¸+¸í¹¯ºz»N¼)½½ô¾â¿ÓÀÃÁ¶Â¤Ã“Ä|Å_Æ:ÇÇØÈ™É[Ê+ËÌÌöÍèÎÙÏËĞ¼Ñ®ÒŸÓÔ|ÕaÖ>××ßØ¨ÙuÚFÛ ÜÜïİàŞÑßÄàµá¦â—ã‰äzålæNççœè0èÉépêê×ë”ìQííÌî­ï›ğŠñtòXó6ôôÖõ™öV÷÷Éø‰ùOúúóûÔüºı¥ş“ÿYÿÿ   	  > g › ×ZvÙ1öê
+Mø;xŒ}?à~!"ª$=%Î'e)*Ÿ,A-ç/€12›45w6Î89U:‰;¶<à>?+@QA|B°CïE8F’GëI,JTKuL‹MšNŸOœP•Q‹RS{TŸUÄVâWöYZ[[÷\ë]Ş^Ğ_Â`¶a®b©c¬d¸eËfèhi,j/k#lmmönçoÙpÊq»r­sŸt™u™vŸw©x³y³z§{|b},~~ğâ€ÓÄ‚¶ƒ§„˜…Š†z‡kˆ]‰OŠB‹3Œ%÷é×‘¶’w“:””Ş•Ä–½—Æ˜Û™û››ûœÅ†QŸ#Ÿş á¡Ê¢¸£©¤˜¥‰¦z§h¨Q©4ªªã«¯¬q­2®®é¯Ù°Ë±½²¯³ ´’µƒ¶u·[¸+¸í¹¯ºz»N¼)½½ô¾â¿ÓÀÃÁ¶Â¤Ã“Ä|Å_Æ:ÇÇØÈ™É[Ê+ËÌÌöÍèÎÙÏËĞ¼Ñ®ÒŸÓÔ|ÕaÖ>××ßØ¨ÙuÚFÛ ÜÜïİàŞÑßÄàµá¦â—ã‰äzålæNççœè0èÉépêê×ë”ìQííÌî­ï›ğŠñtòXó6ôôÖõ™öV÷÷Éø‰ùOúúóûÔüºı¥ş“ÿYÿÿ   	  > g › ×ZvÙ1öê
+Mø;xŒ}?à~!"ª$=%Î'e)*Ÿ,A-ç/€12›45w6Î89U:‰;¶<à>?+@QA|B°CïE8F’GëI,JTKuL‹MšNŸOœP•Q‹RS{TŸUÄVâWöYZ[[÷\ë]Ş^Ğ_Â`¶a®b©c¬d¸eËfèhi,j/k#lmmönçoÙpÊq»r­sŸt™u™vŸw©x³y³z§{|b},~~ğâ€ÓÄ‚¶ƒ§„˜…Š†z‡kˆ]‰OŠB‹3Œ%÷é×‘¶’w“:””Ş•Ä–½—Æ˜Û™û››ûœÅ†QŸ#Ÿş á¡Ê¢¸£©¤˜¥‰¦z§h¨Q©4ªªã«¯¬q­2®®é¯Ù°Ë±½²¯³ ´’µƒ¶u·[¸+¸í¹¯ºz»N¼)½½ô¾â¿ÓÀÃÁ¶Â¤Ã“Ä|Å_Æ:ÇÇØÈ™É[Ê+ËÌÌöÍèÎÙÏËĞ¼Ñ®ÒŸÓÔ|ÕaÖ>××ßØ¨ÙuÚFÛ ÜÜïİàŞÑßÄàµá¦â—ã‰äzålæNççœè0èÉépêê×ë”ìQííÌî­ï›ğŠñtòXó6ôôÖõ™öV÷÷Éø‰ùOúúóûÔüºı¥ş“ÿYÿÿ  ndin      6  ¤‡  Uã  KÆ  ™J  &<  d  P  T9 33 33 33      \ w  £ ½ Ò æ ù!5H\p„™®ÃÚñ	!;Ws’³×ş&Oy¥Ò /_Áó%XŒÀô*b›ÕR•Û$qÂ		n	É
+'
+‡
+êOµ€äF§cÅ0¤˜¢1Å]ù–¡+ºPì7å—Kºr)İ : ã!‰"."Ø#œ$j%:&&á'·()j*E+$+ş,Ô-¦.w/H0!11ı340526(7 89:;<=> ?&@/A9BFCUDgE{FG¦HÌJ/KL×NO*P7Q:R5S*T?U¥W X‹Yæ[2\x]·^ô`5aub¶cÿeRf³h%i­kLlğnSo©pşrUs­uvdwÃy#zœ|V~¿W‚ß„^…Õ‡Hˆ½Š1‹­+¶N‘ı“Å•©—Œ™+š´œ?ÉŸY è¢y¤¥¢§:¨İª”¬c®K°=²)´µÈ·z¹#ºÏ¼z¾)¿ÚÁÃ@ÄöÆ«È¦Ë”ÎUĞÍÓÕ_×¦ÙéÛÈİ•ßmáPãEåRç‚éÎì9î¦ğøó3õP÷XùSûCı5ÿÿ   \ w  £ ½ Ò æ ù!5H\p„™®ÃÚñ	!;Ws’³×ş&Oy¥Ò /_Áó%XŒÀô*b›ÕR•Û$qÂ		n	É
+'
+‡
+êOµ€äF§cÅ0¤˜¢1Å]ù–¡+ºPì7å—Kºr)İ : ã!‰"."Ø#œ$j%:&&á'·()j*E+$+ş,Ô-¦.w/H0!11ı340526(7 89:;<=> ?&@/A9BFCUDgE{FG¦HÌJ/KL×NO*P7Q:R5S*T?U¥W X‹Yæ[2\x]·^ô`5aub¶cÿeRf³h%i­kLlğnSo©pşrUs­uvdwÃy#zœ|V~¿W‚ß„^…Õ‡Hˆ½Š1‹­+¶N‘ı“Å•©—Œ™+š´œ?ÉŸY è¢y¤¥¢§:¨İª”¬c®K°=²)´µÈ·z¹#ºÏ¼z¾)¿ÚÁÃ@ÄöÆ«È¦Ë”ÎUĞÍÓÕ_×¦ÙéÛÈİ•ßmáPãEåRç‚éÎì9î¦ğøó3õP÷XùSûCı5ÿÿ   \ w  £ ½ Ò æ ù!5H\p„™®ÃÚñ	!;Ws’³×ş&Oy¥Ò /_Áó%XŒÀô*b›ÕR•Û$qÂ		n	É
+'
+‡
+êOµ€äF§cÅ0¤˜¢1Å]ù–¡+ºPì7å—Kºr)İ : ã!‰"."Ø#œ$j%:&&á'·()j*E+$+ş,Ô-¦.w/H0!11ı340526(7 89:;<=> ?&@/A9BFCUDgE{FG¦HÌJ/KL×NO*P7Q:R5S*T?U¥W X‹Yæ[2\x]·^ô`5aub¶cÿeRf³h%i­kLlğnSo©pşrUs­uvdwÃy#zœ|V~¿W‚ß„^…Õ‡Hˆ½Š1‹­+¶N‘ı“Å•©—Œ™+š´œ?ÉŸY è¢y¤¥¢§:¨İª”¬c®K°=²)´µÈ·z¹#ºÏ¼z¾)¿ÚÁÃ@ÄöÆ«È¦Ë”ÎUĞÍÓÕ_×¦ÙéÛÈİ•ßmáPãEåRç‚éÎì9î¦ğøó3õP÷XùSûCı5ÿÿ  desc       iMac                                                                                mluc          itIT      ĞfrFR      ĞnbNO      ĞesES      ĞfiFI      ĞptPT      ĞzhTW      ĞjaJP      ĞnlNL      ĞdeDE      ĞruRU      ĞkoKR      ĞenUS      ĞsvSE      ĞdaDK      ĞzhCN      Ğ i M a cmmod        œZ    ½ò^                 text    Copyright Apple Computer, Inc., 2005    ÿÛ C 	
+		
+	ÿÛ C		ÿÀ 8û" ÿÄ           	
+ÿÄ µ   } !1AQa"q2‘¡#B±ÁRÑğ$3br‚	
+%&'()*456789:CDEFGHIJSTUVWXYZcdefghijstuvwxyzƒ„…†‡ˆ‰Š’“”•–—˜™š¢£¤¥¦§¨©ª²³´µ¶·¸¹ºÂÃÄÅÆÇÈÉÊÒÓÔÕÖ×ØÙÚáâãäåæçèéêñòóôõö÷øùúÿÄ        	
+ÿÄ µ  w !1AQaq"2B‘¡±Á	#3RğbrÑ
+$4á%ñ&'()*56789:CDEFGHIJSTUVWXYZcdefghijstuvwxyz‚ƒ„…†‡ˆ‰Š’“”•–—˜™š¢£¤¥¦§¨©ª²³´µ¶·¸¹ºÂÃÄÅÆÇÈÉÊÒÓÔÕÖ×ØÙÚâãäåæçèéêòóôõö÷øùúÿÚ   ? ıü¢Š( ¢˜Ò*õ5	ºˆ¹ 4U_µÇGÚã TU_µÇGÚã TU_µÇGÚã TU_µÇGÚã TU_µÇGÚã TU_µÇGÚã TU_µÇGÚã TU_µÇGÚã TU_µÇGÚã TU_µÇGÚã TU_µÇGÚã TU_µÇGÚã TU_µÇKö¸³Ö€,ÑQ,ÈıK@Q@Q@Q@Q@Q@Q@Q@Q@Q@Q@Q@Q@Q@Q@Q@Q@2FÙj}U¼$ZœPÊÿ å¹ñ·í'ğËàíÖ¡¨Xø7XÑõŸx’ŞÆá “UƒO“M·K•uäÔÒIJ™ ŒÛDzëû/~ÍOÉıœ¾Ìİä›ÀštÇÕ™¡%©$“Rx•|ßø*?Â0è˜ø»ÿ N^¯¦l¬PÃ“Š ù“şköjÿ £nøÿ †ÿ Lÿ ãÃ-~Í_ômß¿ğßéŸüb¾©û~ß•`Ûò •¿á–¿f¯ú6ï€ßøoôÏş1Gü2×ìÕÿ Fİğÿ ş™ÿ Æ+êŸ°GíùQöı¿* ù[şköjÿ £nøÿ †ÿ Lÿ ãÃ-~Í_ômß¿ğßéŸüb¾©û~ß•`Ûò •¿á–¿f¯ú6ï€ßøoôÏş1Gü2×ìÕÿ Fİğÿ ş™ÿ Æ+êŸ°GíùQöı¿* ù[şköjÿ £nøÿ †ÿ Lÿ ãÃ-~Í_ômß¿ğßéŸüb¾©û~ß•`Ûò •¿á–¿f¯ú6ï€ßøoôÏş1Gü2×ìÕÿ Fİğÿ ş™ÿ Æ+êŸ°GíùQöı¿* ù_şköjÿ £nøÿ „™ÿ Æ)?á–¿f¯ú6ï€¿ø@iŸüb¾©û~ß•`Ûò •¿á–¿f¯ú6ï€ßøoôÏş1Iÿ ·û5gğÍÿ sÿ dÿ Lÿ ãõWØ#öü«ğFĞ?exKö…ø·ûNü\ñ?h=ãMõ‡ööâk˜üOá…·¾iÖše¢	KAåïPR	†ß8î@h@?Mÿ á–¿f¯ú6ï€ßøoôÏş1Gü2×ìÕÿ Fİğÿ ş™ÿ Æ+â]oöŸøÖ¿´ÄOZ|UğV‡¡x7ã½·ÃK?×š»_ø–Íî`¶:Š].ÅÄË<—¬iå*Ú· àßÖ>7~ÒgÀ_‰ÿ oş5øÃ^ãáğ‡ÓTğ­¸µĞtøõö´–úúàºyˆ°’¬¿.Øâæ‡f ì¿øe¯Ù«ş»à7şı3ÿ ŒQÿ µû5Ñ·|ÿ Ã¦ñŠørÚ?ã»êƒàlŸ¾6£'ÆcàÏø_ğxvÈY,Ù?Ú_f!³û{Mş†YAJ0ç3Á?´wí;ñWâ—Áƒ¾ø©àİ/TÔ|yã¿	j_×Â÷¶¾%´Ğmì'¶Ö-íCˆ”Ê'•6Å!ˆ¶O m {Ã-~Í_ômß¿ğßéŸübøe¯Ù«ş»à7şı3ÿ ŒWÀşı§?hşßşğ‡‡¾&ÛGğßâ…ß´¿
+ßÜx+MK]t›9Í¥í’³}pË4 Ëöèá÷2Æ¿Å#á/‹Ş:ømğàïÅí#ã7´ÏÙ;\×lõK‹LË­ş”Úåã”™…©$LÅ–I<™rpúMÿ µû5Ñ·|ÿ Ã¦ñŠ?á–¿f¯ú6ï€ßøoôÏş1_œş=ıª?h_„^ø¿á]+ã·ÿ h-ZÏá¯‡¼k¢xÿ OğİŒÚ-Åş¿c¦¾™$v¥á•%‚á®#wÄ»#pÃºf_|b¸ı³¿iß‚_üu¡üK“áü¾¼ÑüCgáÈôy$U³y-Úİ”GB	frvÈ
+×ÿ Ã-~Í_ômß¿ğßéŸüb‘¿eÏÙ¥W'önøÿ †ÿ Lÿ ãõWØ#öüªì#û;t m¼5¡üıª>Ãğ×OƒÂ>ñÖ³uáıkÂºx1éK4z]ö¥o{ol1´Ê,$…ŒAD‰*‡V1ÆÉö•´¾l ×Ê_¡~Ñ²Ö?è¨]ÿ ê'â:úLbbJ ×¢Š( ¢Š( ¢Š( ¢Š( ¢Š( ¢Š( ¢Š( ¢Š( ¢Š( ¢Š( ¢Š( ¢Š( ¢Š( ¢Š( ¢Š( ¢Š( ªw¿ñïW*ïúŠ ù_Äò”Ÿ„_öL|]ÿ §/WÔÖ_ê?
+ùgÄò”Ÿ„_öL|_ÿ §/WÔÖ_ê?
+ ½EPEPEPEPEPEPEP^m¨üøC«üi¶ø‘«|,øs©üC·’)müOwá»Yu8 '[–ŒÊ Hl¨ÅzFG¨£#Ô~tç×_şŞüoƒâeçÃ?‡÷àÚañTŞµ}V=©å©[¢h!>A†áxéÅr?gß‡>é¾ºÑt­ÃpxŞËÅ—úv¥Û­¶«uêŞJ·1)*Ü8a1#sïbI$×¸dzÎŒQùĞ˜‚_Wà³ü6_„Ÿ—áÛÜı¥ü.</f4¶›po4Úù~VıÀÛs‘œÖ¶•ğÇá®„| tO‡¾ÑÏ…"¸‡ÂæËB¶„è‰r ¸KM¨>Î²€7ˆö‡ÇÍšî2=GçFG¨üèË´¯ßt?Š’øëDøAğ»Gñ´·’ŞIâ/
+ÙÃ¨½Ä«"Ë1¸XÄ†GÊ·e„’wÛğçÁß„~ğÂÏ‡>H¬®,¢]#ÃV–-î^âåÆ1¬ˆÎƒ‡(¤‚@¯FÈõ£ó 'Ò¾|Ğ¾ëÑ~|(Ò<+­MÚÆgá+(¬µ	 q$/<+IZ7°;X0k¼°ğ¿†t¿kŞ'Ó<;¡iŞ%×Öõk[¢»Ô…º²@.&U(Y•7“´1 šÜÈõ- ÿ ñîÕ-E?ü{µ |«ñ³şN+öZÿ ²£wÿ ¨Ÿˆëé]3ıZı+æ¯Ÿòq_²×ı•¿ıDüG_JéŸê×é@TQE QE QE QE QE QE QE QE QE QE QE QE QE QE QE QE N÷ıE\ªw¿ê(åÊR~Ù1ñşœ¼-_SY¨ü+åŸÊR~Ù1ñşœ¼-_SY¨ü(õQ@Q@Q@Q@Q@Q@ç‰üK¥ø[ÁÚ¹¬^Ea¥éö’]^\É÷aŠ5.îqØ('ğ¯¼;©~ÒŸü!gãMRøiğwÃ¤bçEÒ¼Má[½V–ÑÀ0Íuäj6qÛI"şB™JŸvå^köÚÕÛş	ÙñÖb¾gÃıe8>¶Šû@    @(æÃàÚ”Ÿù._¿ğÎê?üÑQÿ ?íKÿ EËàşİGÿ š*úRŠ ù¯şÚ—ş‹—Àÿ ü3ºÿ 4TÂûRÿ Ñrøÿ †wQÿ æŠ¾”¢€>kÿ „ö¥ÿ ¢åğ?ÿ î£ÿ ÍğƒşÔ¿ô\¾ÿ áÔù¢¯¥( šÿ áı©è¹|ÿ Ã;¨ÿ óEGü ÿ µ/ı/ÿ øguşh«éJ(æ¿øAÿ j\ÿ Érøÿ †wQÿ æŠ¹ÏøÃã·Áhôÿ |M¾øoñáÚRk~Ñ®ô;İdeH®šÒk«Å¹·Áeeš7‰Nğ’(m¿[×Ïÿ µü¢Ëö•öøWâ?ğYs@×¦jQ_Ú,ˆÁ²;V„ÿ ñîÕáß	u¹5/Û;±bPW¸Ïÿ í@*ülÿ “Šı–¿ì¨]ÿ ê'â:úWLÿ V¿Jù«ãgüœWìµÿ eBïÿ Q?×ÒºgúµúPÕQ@Q@Q@Q@Q@Q@Q@Q@Q@Q@Q@Q@Q@Q@Q@Q@S½ÿ QW*ïúŠ ù_Äò”Ÿ„_öL|_ÿ §/WÔÖ_ê?
+ùgÄò”Ÿ„_öL|_ÿ §/WÔÖ_ê?
+ ½EPEPExÇ¯|EğiøG¡ü/³ğeÇ‰üoã¥ğé¸ñ:Îö–0eê7Ò\l•ät ˆ÷(“”İá"üÉâ_Ú«âÆŸğ_ÃñY‡6¿`¹ñe¾¹geàİ{ÄƒP}R}8=®Ÿ§=­­ÄŠ®®&d·Ü¨DÌÙPÑŠ+óŸXıª¾9jş³ñ÷Ãï|-‡Â‡LğDí¤ø‚òí®îî|O%¼)n·0üÇo%ÜÓ$Ş¡ÀŒD:ïíañwÃ~+?u]+ÂSü\ƒÆ¦“wâø^×´cc§iÚWG±io|Ç]nÎÜ¡ŸËFIe2ãd,ú=EyWÁ/kŸÿ eÏ	øßÄŞÔ¼âB)“QÑo­§‚Ky¡H•.#eŠC™–4-Ór©È¯U ƒĞÑAèhàßÛ™³ûükëÿ "6­ÿ ¤SWŞUğ_íËÿ &ñ¯şÄm[ÿ H¦¯½( ¯Ÿ¾?ø¿Æz.ŸğÏÁ^Õí¼-â_ˆ1O'ˆæ³K££B,¯/§¸Š)ŠIü»7%ß"±W
+Q¾¯2ø¥ğÇÃ_>Cá½nÿ WÑïôıFSFÖ´;µ·Ô´[èså]ÛÈU‚È2áÕ‘ÕÙYYX©Ouê¯é}øu¹Kgèíëggòvÿ '±âÚ¯ˆ>$şÏ^ø¬ø¯âMŸÆï[XY]h‘x²ÿ JĞ5=:Y.¼ï{w0Z®š»£—Ï1SlÃl§b×£şÙ·^*øIá}CÀßt¯øÏ[øƒuà›m?ÃŞ8¶¸Ñå¼ƒN“Q70ê†%Ylü˜şi"A‡'e
+İ¥û!øk_Ñ|Awâ¯‰¿üSñTÔ4‹ÅñÎ¡6œu¥]}ªÆ{t³[&2;FmˆÈåË¥vüû.øoÂ~;ÒüIwñâoŒu{/Íã5Ÿ^»²s6¥>“.•3?“kòKˆ—jÆÈ‚0‘¯—ZÑQ»öÓï‹ü¹“Óµ›¾‘WeÉı{¯Ïù¬Õ·W½¶>tµıºuÿ |'ğÒ|Kğ§Ã=â&±ªø™Ò×Røk¢i+a¤jÒX”KÛ¨ÂËzÍˆ£„(˜Wku;Wß¾şÓ/ñsã—„¼?à‡š•ÿ ƒõ?é^0ÔüO¨jğÚ.ÓRKÏ³@m€i%¹2Z*¤ ]ìdQ$ªd½Êq}áo‹?ü¯%ş¹$¾—.–÷Yë¿o»ÓÔOc$fs™c‘‘®#b@›oË^¿à¿„>ğÄİGÅZ-ïˆîoï<)¤xnDÔµv®˜×m™$W™ä¾d’HÅ¶©àî,Ó…Û×ÅúrßûÉÛİµÊ·oİşµ_ıµ¼­}OŒş=şÓ¾&ğüûÁÓ|w†şÚ&œ|Ewq§ZÑØİŞjPjú„é¾Şäé$ÖPÛH®Òe-~A<WV0ÜÀâX%Œ<n:2‘*ùGâ—ì{à?‹zÏ`ñ'Œ~"Ùx#Æ×–Ú‡‹<¦İYÇ§jwÖğCcÛ5Ô2ªÛ[!4cnVÃıA¢iÓiÒt«[R×î,ìã·—SÔ|¯´Ş2 S4¾RG˜änmˆ‹’pª0tİ¨ò½Ó¿ßÓÑ=–½ZUVÎ¢qÚß—_Ÿ_3N¼ö±ÿ ”Y~ÒßöJ¼Cÿ ¦»š÷úğÚÇşQeûKÙ*ñşšîiç~¶|-g×î
+únoøö?Jù‡àOüŠöî
+úzoøõ?J ù[ãgüœWìµÿ eBïÿ Q?×ÒºgúµúWÍ_?äâ¿e¯û*ú‰ø¾•Ó?Õ¯Ò€6¨¢Š (¢Š (¢Š (¢Š (¢Š (¢Š (¢Š (¢Š (¢Š (¢Š (¢Š (¢Š (¢Š (¢Š (¢Š (¢Š *ïúŠ¹TïÔPÊş ÿ ”¤ü"ÿ ²câÿ ı9xZ¾¦²ÿ QøWË> ÿ ”¤ü"ÿ ²câÿ ı9xZ¾¦²ÿ QøPê(¢€
+(¢€9½wÂ>ñ6¿á-S[Óşİ}á`êú¾|‰ö[³isfeÂ°û‹»„Úá—çÎ7*‘ãş$ı–>ø²å%Ö<'ª'W?Ùş(ÔìEôZ½çÛu+k¡orŸiµã÷m6øGİ•¯¡( Ò?g¿„zÃh¼#§x^åtßEd·¸Öï®h§Ó™$Í& x" nÃ
+á—ŠÄÿ ³¿ÂOø‚ïYÕ<?«Yø‚ãÄmâ­h¾%Ôt­J+÷ÓáÓd’+«Kˆæ…ÒŞ(İcq,…¾jöÊ(•ğ?‚<'ğÛá‡¼àmÏÃ~Ğì’ÏKÓ­rR”qó1,ìNY‰gbÌÄ±$õTQ@¡¢ƒĞĞÁ·/ü˜/Æ¿ûµoı"š¾ô¯‚ÿ n_ù0_ö#jßúE5}é@WÄ›Ïiß³·µ	Ç<Ş)¶ğåôÚ2C’Fº[yªxf. õ5ğÂß~Éşøû1|VÑîb‹â‰.ìÃÆzşwˆ<Q¨Ü@^ù5À2İÄÇÏ{”˜m‹a8ŒÆ»HëÍtƒ_|+ñgSñï†>ü<ğï53íş Ó<;kosæ¶éwÎˆ·°Ù?1950¼e&ºòü¹\¯ÿ __Etú9ÚPQ}9¾wJ×ÿ ´õz£óFÚ£ã•€<oâ¤ñ.·«išŸÁxóÂ÷Úÿ ‡´k+&–Ê[?±O¦ÚÚÜKz¶oË]K÷¬UJíÄˆ½/¼kñçà‡Å_‹ ¸ø½«|Pñ1ğƒ-­té´->ÏOµ¹ÕüC¨Y5ÔÅâEû:’#ó®>èÖâw£¯Ş³·À>KÇ±øğŠÑ®Úäİ¼b¾Úc1\oÄ_0–6dpxe$ƒŠì5¿‡?¼K­Şj^"ğ/ƒµıFïD“C»ºÔth.%ŸN‘ƒÉdîèK[3 Æ"v2Ehä¹ ­ªßÿ &ëŞÍ+ù^×I³r¿_ÁŞ=;hôÛ[l~zÙ|[ı¥u¦|2^x3Äw?-<-‰|G¥húì:|ÚÖ¥*]Úi—YEv’BMò<DnôoÆùn´ÿ Ú×öS\¼÷vúÎ¼Lì€|;|w‘œcî~øWğÇÂÑt/
+|;ğ?†ô]PmGI±Ó4+{xlnÙ6¹… b’H¦EÃvÁ5Ôj‡«jÚeş©£iZ•öšò>Ÿsuh’ÉhÒFÑHbf¡hÙ‘Šã*Ä	.éÉEÙ¾¿öê_ßÌ"Ò”[Z%ÿ ·7óÑ¥òĞü®ö†ı¡¼ğOá·Š¼Iñ+Dñu÷Äï„v^$‡íŞ¶´°ğ}Üº‡dnSÉØó[¤:ËM*Ï!­r­1Eû»á­¬izÏ<ã'ÅWJ×ã³±¾–ÒÖËT„ÉeÑ´»Ù#çUf•|¨Ôù,›†Afô‰şxëF´Ó®|àû>×C—Bµµ—F¢‡L”F²Ø¢”ÂÛ8† Ğ±„i•;F(øoáOÂÿ h•á/‡>ğÎ™£_É¤Zézµ´VRFñIq
+¢­’#:áŠ»)8$WMj”äâ¬µ·£“i|¢Ò¾ïĞÍE¨­uÿ íRü^¶ùîwÕàµü¢Ëö–ÿ ²Uâı5Ü×¿×€~Ö?ò‹/Ú[şÉWˆô×s\åœ×ÀŸùìÿ Üôôßñê~•óÀŸùìÿ Üôôßñê~”ò·ÆÏù8¯ÙkşÊ…ßş¢~#¯¥tÏõkô¯š¾6ÉÅ~Ë_öT.ÿ õñ}+¦«_¥ mQE QE QE QE QE QE QE QE QE QE QE QE QE QE QE QE U;ßõr©Şÿ ¨ •üAÿ )IøEÿ dÇÅÿ úrğµ}Meş£ğ¯–|Aÿ )IøEÿ dÇÅÿ úrğµ}Meş£ğ ÔQE QE QE QE QE †Š(âÛ@Ô¼KûüSĞ4ˆÆ§©øOQ³³ˆ^YmdD_Å˜
+ú¯À~7ğïÄŸƒñß„ïãÔ|?­Ø¥İœªÀ•>hÜvÈ¹*êÊpAÎøÿ ÃßÛÑ„İ¹M~cx·öÖü?â­nûÀZ÷~¾©x÷zŠxCÅz‹äì i¥K9ãY$!W.À±ÀÉ ØŠ+ğÉ¾ülGü.oÚÿ ®½ÿ É”ßøV_?è³~Ğÿ øuuïşL Üú+ğÃş—ÆÏú,ß´?ş]{ÿ “(ÿ …eñ¬uøÏûCÿ áÕ×¿ù2€?sè¯ÂïøV¿è´şĞßøuµïşL¥>5Ÿ?hcÿ u[^ÿ äÊ ıĞ¢¿?áY|lÿ ¢ÏûCÿ áÕ×¿ù2øV_?è³~Ğÿ øuuïşL Üúù‹öÊñ&‘ ÿ Á2ş2éº•ÜPê)ğµ÷…ôRãÍ¾Ôuy--¡s—;åÜÁrB#¶0¦¿3×áÆ²ã?¿h|ÙU×¿ù2½+À¿5»ïˆ:_ˆ<]¬xÇÆzÍˆe²¾ñOˆ¯u‰íà8‰îåÇ¸ Ò2 }Ñğ6ÂÖ{†>A_JÏÿ Í^màcèÆSnÕ«Ò§ÿ v •~6ÉÅ~Ë_öT.ÿ õñ}+¦«_¥|Õñ³şN+öZÿ ²¡wÿ ¨Ÿˆëé]3ıZı(jŠ( Š( Š( Š( Š( Š( Š( Š( Š( Š( Š( Š( Š( Š( Š( Š( ©Şÿ ¨«•N÷ıE |¯âùJOÂ/û&>/ÿ Ó—…«êk/õ…|³âùJOÂ/û&>/ÿ Ó—…«êk/õ… ^¢Š( ¢Š( ¢Š( ¢Š( ¢Š( ¢Š()aI£*àk›¼ğ¦vä¼HIõÔÑ@ğ’[ıL÷Í4øHUÉ†0>‚½ '¥x—Åÿ ŠÖ¿<—i÷~ ñ¡y hVL¢çV¾˜âxóÀ$‚ÌçåİˆTb 0>!jÿ şø]5OêöÍ:ÛY[ÇÏu};}Ø-­ãV–y›Æ¬ÇŠó+Oütø‰ş“ xCÂ¿<;'0ßxÙSÕä^Íı›i,qÄäy—›ÇñD¤^µğŸàÕÏ‡ü@ß¾'İéş.øÓ¨BËq¨Äìôçû;L1U–á†ù06GĞò²÷Šn£jß´oÄ»{“÷—Ağşƒk}–æÂåÀú¹ú÷ª÷?³¯ÅMyŞøåm¯ºsö_x6Úáfÿ gÍÓÚÌÆO÷¶8İjûŠ øq¼e¨|:Ôa²ø÷à8ü§É"ÅŒt«ïí/Hì@Q-Ï—¶d“ÖêãÉ
+²¹#?IØøGÃ÷ö‰5ºÛÈ¡•—{ƒ^“smm{¦ÜYŞ[Áwi<MğMxåFee< AàŠøßZÒ.ÿ eŸG®xt¿³¥õÜQjQf-àY¥m¢âIÿ ‰S¹@ñqöF%Ô˜, H i ÿ ©ò­k?
+iÖŒ
+D€AZzV§£§¤±¸lŒ‚kPQBÆÿ Ç»Tµÿ ñîÔò¯ÆÏù8¯ÙkşÊ…ßş¢~#¯¥tÏõkô¯š¾6ÉÅ~Ë_öT.ÿ õñ}+¦«_¥ mQE QE QE QE QE QE QE QE QE QE QE QE QE QE QE QE U;ßõr©Şÿ ¨ •üAÿ )IøEÿ dÇÅÿ úrğµ}Meş£ğ¯–|Aÿ )IøEÿ dÇÅÿ úrğµ}%}­i>ğ&¯â=PµÒt-*Æ[İFúåÂEkHd’WcÑUU˜À è¨¯îlï‡:_‚5kÄ^
+ø½á™m¬tıOIÒoü6­¨øƒN¿Ô-ôë{Ûx¥wu7P+A'—s›øºÑğÏíkáoüWÓ|!{ğËãG„oåñ/ü#:¥Ş¹ @–š.¬öís•Ì±\HM T’6 ³ÀHÚERõ]ğv¿ûqørûöMñ<áxV“á~©ãO‡·8ÑE¶ŸâxìmÄ“’;8ˆHC¬‚"8’’"%¯a¸ı§|oñ^O|A¸ğøñ+xZ/E¥Åı‡>¸¤§öbHfLÀÛùÆmö€aó¼Ñ²€>¢¾\¼ı¯¾Ú|=ğ—‰VOêV~"ğ%¿‹ì-ôÍ!¯.…½İİ•£CgûeÕÍâÃJg‚ã,¢2iá«üı‚mƒ~$‰ÃÅ#Ã#á—Øm?á":³û~Ì}§ìOØ¿Ò¾ÑöŸ#ËãÌßòPÔTWÈ«ûg|5¿›Ã–şğÅßêwÚ4ÚÎµ¥i>oíÙÁ¨¾™s%õ¤¯ìğİÃqÁj—fŞFXÙv³}uÚ€
++ão~Ûßµÿ …÷Ş5¸ğ_Å¿øY|ã}#P×4 ]wL°ò~ØöŠ³³—ˆÜ@1*Æ$£ÆÒ!ß^£ñö‡ğWÃŸë^Ô´Ÿkzşœ41öM[‰näÖn/m¬£„]Ìd°œ6p$à’ ñE|3­şÛ¾“á/‹uáçÄÏkVº/ˆ£Ñïü_áõ‡I}F²»º¹Ñå’+†fš5³¸f’<Û¸‚dK†‘
+¿~Ú>	¹øG³ãï|Qø{¯¿…4ızÃFÔü6ZëÄQ^OœÙ°ÛË;JÆòæÚ&B’«\B]B8rö]òßísà«/D·ø¶|v|]ÿ œş ·Ñ!¸×­µ6ÓäÔ¢‰Ò)Ú*KT­ÂÎĞmÏ"§Õ”­_­‘$„ã5ò§Â#ñCöÊñÇÅML}£AğDÏáFù(/^4—T½^Å±$6ŠİSÊºQÄ†½›â~ªl¼/rCmÂŸå\gì‰d¶ÿ ğN/…zwOâ-1üKrç«ËªO&£#}×'ùt ¤(¯øùñ;Å_	¾7Š|+à¿N·°CxãP·¶¶Ò yQê2E’DUbB@®ìØPK2ı¢>7|UøAcãiøoğßÂz„×Ş(Õ¥‚çÅ7²É(Vœ"Ê¸4
+ò,d—"ÇÃ0?¯ëúÕèµ¿¯Ãúìµzj}uEx7Å‰5Ğµ…Şøs¢èSxïÇZŒĞÛÏâF“ìZ=µ½¤—WÅ	JFÔ‰QY’eİ"¾'¤~Ñÿ ¾!ŞèøqàŸ ØüI´°×.|fºş§s.—i6“©1­mµ\,Ò(ÄŒÆ9Àİºëø+·è’ıØ%x©tvü]’òmì¿CîZ£ªišv·á­GFÕì­µ-&şÖK[Û;˜ÃÅqŠQãu<2²’=A¯‚m¿l_x¯á6¿ñÀŞ
+ğïü*oè>©ã+m^ò_íyZöÎû˜mcÊCikq–™Ë 12Wè9PGCTàÖä¦|mğRÔ|â¿üÖïnonü	ª‹.îæBòŞiF³éÒ³7.Ë‹wsËKm)ï_cÆâH•‡q_|Q#ÃğUOjp7–|Wğêâ:9ÒµLdû«È3ïì+ëıãí$Oœü¢¤f½E?ü{µKQOÿ í@*ülÿ “Šı–¿ì¨]ÿ ê'â:úWLÿ V¿Jù«ãgüœWìµÿ eBïÿ Q?×ÒºgúµúPÕQ@Q@Q@Q@Q@Q@Q@Q@Q@Q@Q@Q@Q@Q@Q@Q@S½ÿ QW*ïúŠ ù_Äò”Ÿ„_öL|_ÿ §/W½ø»ÁºGÄ_€ş2ø}âvº‰ô+½R6²æ÷P<ìbVÚíƒƒƒx'ˆ?å)?¿ì˜ø¿ÿ N^¯©¬¿Ô~ğ?ƒ?auğæšë{â„º}ôiá¸­î<ğvÃÃ†äi:İ¦­<÷òMqqtl ˆ•–("ÁqnÍÅ}ÿ ÷xïÅZßü%XşÙø¯aã¿'û3ıOÙt»?ì{¼ß›wØ|Ï7fİ‡næúŠ üÕğì‡ñWÆğOï‡ŞøÃñNÒÊçNø)wáG³ğ™·›@ŸSÓííåkç[çşKHã6ñ”HRìÅ™·W¶Áû3ø®/ˆ+¥ËñbÚo‚©ñAş!'…G…‚j­|×©‹GÔ…ÆÆ²]M¾Öì¢l*Df(	?^Ñ@›_dUñ·ìãñê?Øk~ÿ …ãHµ?	è¾*²µÔNƒ¦Xê²jöVWvÆİí›Q¹Ôe{Q!/mt‘´ˆãäèîÿ a=
+÷áö“Éğ?iŞ0“Äi¶ÿ mağ„ˆúq°6³hétpŒë,·m"Ï†R‡èùñâÏØjã_øá_ØøËá]¥–™¢İZ›Ÿƒö).‰{uw-Üº–€ÖSÚ¾•8yUUKÜ.-­™ÃÈ²É7Ùëş3^Oÿ …}&œ·Bí'ÖíèƒíóÊgqù~}¸ÏnµßÑ@ßşÈpj_²Ÿ€~Üøşqoá¿‚zÇÃY5´`ìjúl?nf"?/û;>N[w›1vå¯è³ÄzçÄ‰4Oø‡PÕü9w7‚›J´²¶Ñ¾ŞVÖ5kÙÜ‰şYİØ«3à*‰õíñ×‹ÿ d´ñgÀ‘à‰<x-#ÿ „ÇÆ~!{£¡ù‡ˆíuëso³Ïñïı¹»~ïŞıŸcó2œ–½ûx§â/€ÛNøÃñHñö§¤øJÇÃşš?Goe ¶Ôlµnu+In¦]Eî¦Ó4ô0ĞDb†EDˆÊÎ>ò¢€>Aøuû)ÚøÄŞ×Qøo£ßè~=ŸÅ¾ÛøsK™dĞ¯4tµŠæ‘ÓoÚÚàÍ4³»6õ”GõõPÎ¿ÙÇ…¯6çîŸåPşÈ„7ßğL_‚0BÛ¿²|-o¡Ì3÷eÓÁ±•O¡nÀØÅu_4¶¼ğ½Ö9Sü«æØëÅëá¿Š¿>êÒù2®¡/Šü*²6Ö—N¢şÌWdÌŞ×Éèhì?‰¾	ÿ …ğ+Ä>
+şÓşÇşÔ…#ûgÙüÿ +lˆùÙ¹w}Ü}áÖ¼â?ìõñÅ¿¶µŸÆOüKø}g>™£ÃaáÍ/Æ¥××Ãò«JÓİY:êVËÓïE’O,¾Ø‘CíWÖôR¶©öÿ †v¿ó>_ñgÂÏ‹4ñ¬^)OøwÂŞ-ğwŒÚÿ áõôÚ^YË§M¤ÅiwmkÄO"É4—n»fVM6NÒ§·ı—<sáMÂº¿Ã_Œ¶ºÄË}+Z°ñ7ˆ5¯
+BÓXm^ûûFêå,ãº‡Èš;²òA™$TGhØHêûJŠO§õnW÷«ß£»ÿ ¯Gu÷=†Ûö5¸Ñ¼/yğÿ Àß$Ğ>ø‡GÑ´ßhWÚ¼ÔµÓ-¡³ßmz&mšæÖŞ'İ£Z?-˜šû AE5İ"…ä‘Ö8ÑK;±ÀP:’{
+·6÷ï¿úÑlº
+ÚßÉ/»úßwÔøCãÆ£÷üáN—n¸Ğ¼ª\\(?quû>™:\¸õÚ}+ì
+|7º?•~pü7ñ|eı³ş"üb·/6ƒ¬_Å§x]ÉÈm"Ä4Vò)şäò5ÕÒÿ ³t£µ~–èVÿ gĞ¢\cåÊ¤fÕE?ü{µKQOÿ í@*ülÿ “Šı–¿ì¨]ÿ ê'â:úWLÿ V¿Jù«ãgüœWìµÿ eBïÿ Q?×ÒºgúµúPÕQ@Q@Q@Q@Q@Q@Q@Q@„€2HYï-£?4ª? µTîoímcgšTUQ’IÆ+’ñO4¯øj÷PººH­í¡ie|ç
+£$şUá°é—Ş3TÖ|t“Iÿ ¼´ğäşh‡î‰Ó¤ÓcïnÊ)8QÆæìÂ`å]öHåÄâãEk«=bïã'€m¯d¶Ä7÷pñØºe>„Dƒìjºükğaö½_û5?ç¥ı¬Ö¨=ËJŠ ÷Íc@°ZÚ$ĞÅo$q(UQì¥ó½ëÔşÉ¥mÙæjT¾Èõ-/Äš6µ§Çw¦jwö²’ky–Do¡ƒ[ƒƒ‘_1ßøKL“P“SÑYü/âó.£¦;vó|“/û.±šÚğ÷Å˜tí&şÓÆ—Z~—«ér¯Ü9HdÈ’G»® dr¹%Mpb²ùRW‹º;°ØøÕÑèÏ è¯‹·—ƒvƒà¿ê¶çîÜÌ‘YFŞàNé!û1ïNâõÍ£×¼â½&ßø®#†+Ô…´’H¹@+¨×µùM¾¹Föæ=¾Šæ4è~$Ñã¾Ò5MBÕşì°JsÜt#¸<ŠédŠåi§ft&˜´QE!…Q@S½ÿ QW*ïúŠ ù_Äò”Ÿ„_öL|_ÿ §/WÔÖ_ê?
+ùgÄò”Ÿ„_öL|_ÿ §/WÔÖ_ê?
+ ½EPEPEPEPEPEPEPˆ4õ¿ÑeŒ®r¤WæGÇ/x£Ãt_ˆ^»MÇ½ûvzñ—~
+ÉÊ/Ñ³E"‚	W$ÁHıUe…OC^Mã¿[kš\ÊbV%Oj ç¾~Ğ>øóğŞ{Í:&ğït¢°ø£Âw“+]é3‘ÁÈÇ›nø&)Ôm‘Aû®®‰ïuø÷ñ/à–¿áß‰v¾6ğF«¬ø;ÆZqoìıwG“Ê¹…IËFr
+É`nŠEhÛø”×oáÛ›â—‚¢JøÏğ»şˆ!>!ğT±ÚİÊ1æX\ºÅ»©.— Ò%àPêmñ5üöošÅ$Õuˆ¾¸#›k¿ j·§Ğ›[y“òb+_ÿ ‚†ü¶„ÇàÏ|WøxÃ÷B×Ã§M„p]ïŞUõÚŒ}ĞŞÕù§ûOü“âWˆõ_Ùßáé»ÒÍ§ÄOÙM˜¢8“HµuûóÈ2—ˆP˜Æevò|wÆŸÿ h¯Ú%ĞœÁğ‡À7#mÆá‹É%Ôoc#˜î5±°Cİ #ÕKº’½|øaá­ÂÚÛL·²´Å1D°@¥ğ'áôZ…ìcÕ-âŠ5TDM¡@ Ğ__CİPv‡¡hğéšdq¢ÀÇº
+ *)ÿ ãİªZŠø÷j ùWãgüœWìµÿ eBïÿ Q?×ÒºgúµúWÍ_?äâ¿e¯û*ú‰ø¾•Ó?Õ¯Ò€6¨¢¼ëÂ_|9ñşQàI.õË}$ˆWU–Ê{}.úsæ–÷MË…B€<ùˆ»€Él¨ ôZ+Î|+£üF¹ğ.¹mñ3ÄŸTÔƒ%ºxFÂ{ô¸™6íI¥–I%”[ÎÄc;qã™<7ğÃÂ^øm­øM#×¼I£k>`ÕÓÅzõæ»%òËŠD‘ïe•Œlƒiˆ	ÂŒš ï„±‰c"3‡;‡ËßŸJ“9Šàü=ğ³á„~êŞğ§ÃŸøcÂ¯™ı§¡é:µ­ï›ŠO:ĞG&øÀFÜ§r€G‡¾ü4ğÃ=oÁ¾ğ/…¼ám_Í:™á­:=.šXÄR>-ÂmrŠ«½pÃhÁèWŸh4¿ü+Öü+á-{Æú<WşsA¨ŞøŠçZ¼Óe’!{gÔä Mªé+B$Æw0-Ñtˆ^øG¬YÜx¶ÓâO‹PË&‘y­ÙÇ¥¤Ÿ"ùpÜ5¤e@Ü2Çá¸ŒíäĞè¯;Ó|_âM?àÎ£âoˆ¾ŸÃš\İé¸›Ä&H×¼·Û¤ó‚	ùO”ü‡ŒîøCÆ^ñç‚ ñ…u©i2Èñ‰ŞH$Dm¯‘J«$nÁWPG¥ tôQE QE Vîî;[vw`0;Õ‡`‘³€WÎß¼[}›?h—¯ªÏöx¥Q“o7K7§È€‘ëJTåRj+vEJŠr}	<CñZÖ¼Gy¡x3ì±­³yz†³r…á¶ùçy²€rFB¯$üµË7„ìo™®ê~!ñÉûÒ_j’„'ÚÊÄ¿ğgJ°±Ñ<=k¥é°‹{;tÚˆI$’X¥˜’Å$’O&´|ïsù×Õağ”è«%¯sæ«âªUwoNÇ3?ÃïÎñ–²½EszÂÅ&ÖÇ¿kA®ëÎ÷?eùŞçó£Î÷?tr˜6jyŞçó£Î÷?eùŞçó£Î÷?©ç{ŸÎ¹é<7 Ëãñâ‰´ègÖÖ†;‰	o,)b
+©á[æ#pÇÅ]ó½ÏçGî:i©ç{ŸÎ;Üşu—ç{ŸÎ;Üşt¬>§¢O´Ş ğ­Ìz'‰FıPşYÜ ûÃ°qó§cŒ©õŸ xö/éRGqéú¥´¦ûX·”`•$pAaÃ)u¯>ó½Ïç\Vµw'†|£øÂĞùpË,z~® àIŒûI!ŸîÈŞ‚¸1ø5VKâG~éÍEìÏ² A¥¬êI¨hÑÈ¬Tß¯˜>„(¢Š *ïúŠ¹TïÔPÊş ÿ ”¤ü"ÿ ²câÿ ı9xZ¾¦²ÿ QøWË> ÿ ”¤ü"ÿ ²câÿ ı9xZ¾¦²ÿ QøPê(¢€
+(¢€
+(¢€
+(¢€
+(¢€
+(¢€
++ø—ñHø_ğ#ÆŸuØo®´hWzÅô(¯q,6Ğ<ò,jìª\ª¡™A$dÍycücøµ“³öOøé}oÂ?ü¼ ¤i®ŠèU†E|Ùÿ ‹â÷ıÇ/üxGÿ —”Ââø½ÿ FŸñËÿ ÿ åå zş»àûV
+6}«çŸüÓu‘…¢Ù®ŸşÅïú4ÿ _ø<ğÿ /)ñâÛ}ïÙ7ãúë~ÿ åå |õwû3Y=É"ÌcÙkcFı›, ¸RÖjp{­{Aø±ñXœŸÙ+ãşü#ÿ ËÊrüZø®¿wöJøŞ?î7áş^P·…~éºRÆE¬cì×¶éº=¶Ÿn©j0;
+ğñ‡âè~ÉßGıÇ<#ÿ ËÊ_ø\_¿èÓş9àóÂ?ü¼ ¥h¯š¿áq|^ÿ £Oøåÿ ƒÏÿ òò°üSûEøóÀß|Kã_~Ë¿4¿xJ¸Õ5{ÑªxRo³ÚÛÄÓM&Èõ¶wÚˆÇj©cŒ OõE?ü{µR°Ô¢¾„209«/Æ+ğ×‚>ê^(ñ~¹¦xsÃö1ïº¿¿œE`œ“Õ˜ª£%‰ Hó·ÆÏù8¯ÙkşÊ…ßş¢~#¯YµøáØ>;i­†««x¦âÔİŞÇ§Ù<Ği6û$dšòaò@$hÊF„ï‘UJ«²üãñòsÅ´ì.‘¬Ïáï]|EîæhíZ-MœxoYš8€•HŠ'…nb™Y<Ñæ®Æ”šûI4Èˆ!Üä8'Ôàô€9ÍÂõ—Åïx»_ñÖ»¯‹µkm'CDK]/JµŞ¬Â¹i®Õİ<®Ç¨bVe=úª¢*ª…P0  RÑ@Q@Q@Q@`øŸÂşñ§ux¯G°×ôåUº±¼ˆ<rm`êqÙ•ÕYXr¬ ‚·¨ 9ê^øƒşø–
+ŞÙ¶í/P×ÅÇˆ Ìehåib!™ùêQ6ª
+ ş#ñ‡„>
+XjŞ!ğ½ç¼K,z­¯‚-‘wH3ÃÔêÅ ÚLbGd…óçÑ¨ jËÅÚ×„|?¬İ]I A­ÓO¶×!m:éætgg
+ë6ÉŒß+qÁ®–¹ïøKÂ¾7ğ…Ç‡ügá­Åºç3iºÎŸå´„g£‘YIäöï^qñSÂ&³ı—¯-şë^(ğˆ|/£K7†´ÏÅbÿ Ú«­¾ñŞÅ$F'*ˆ>ã‚$NM zv³zhJ¬á•9ädõøWÇv·­şĞ#Õ%%£Ó-c³¶Ï@ò“$¿Ö¾z±Ò~1üø%á‘ğ_à¯ÆF¼´Ñ­âñn‰âKEµĞüKxªÜ_G¿Rk‹Ù¤#L˜ågf–&vóÙ<sæÜøÎf9‘¼@Àıµ¸çŞ½\	×o²ÿ #ÎÍ$Õ»³Õ<ßqG›î+/ÎôyÃŞ¾–ÇÏšo¸£Í÷—çz<áïE€Ôó}Åo¸¬¿8{Ñçz,§›î(ó}ÅeùÃŞ8{Ñ`5<ßqG›î+/ÎôyÃŞ‹©æûŠåün«qğwÅ³(#KÑˆû¬±–Vüğ­O8{×ñ/YM;àş«aöE>Án‡«´¿+cè›Ûğ£mXÒmÙEü Ö_QğuŒ^%lg¦E{|éğNÚH|)f
+cğ¯¢ëáO°
+(¢€
+§{ş¢®U;ßõò¿ˆ?å)?¿ì˜ø¿ÿ N^¯©¬¿Ô~òÏˆ?å)?¿ì˜ø¿ÿ N^¯©¬¿Ô~zŠ( Š( Š( Š( Š( ƒÒŠC@şÛ:£ÛÁ;¾;@/ÃıeúØN?­}©_şÜ¤ÿ Ã|käÿ È«éÕ÷¥ QE QE QE QE àµü¢Ëö–ÿ ²Uâı5Ü×¿×€~Ö?ò‹/Ú[şÉWˆô×s@oÂÿ ‰RøËàş¹}ğÎïÃ~3×ì&k£—S1Ù-àT&9¦€‚E/±Y†
+ãwİt¿ßİü:ğä_¥ğç<W¦]CíğhâŞÚ¼É²Kh]äh¼´”ÆŒ]ŸhÉbI¯ıì¬ôß iz~ik§Ø[À©µ´B8¢P8UU  =}Q7üzŸ¥ |­ñ³şN+öZÿ ²¡wÿ ¨Ÿˆëé]3ıZı+æ¯Ÿòq_²×ı•¿ıDüG_JéŸê×é@TQE æw¾ZxëÅ7_¾ÛxbÚö+^_Y¥œ72Ä“EÌdØ²<rG"¡;™]X5é‡¡¯Ê;oÙkÇıd'Ñ>ø‚ÇPğgÃíCIñ‰à¼+&«o¬j6úpìÿ mG%„ÊæÖêåÄçÏ]Œñ´«@¥ïÄ‡~ñ‡†¼=â_ø/Ãºÿ ˆ¤òü?¦jzİ½µÖ¬û•vÛDîc—A„–¸ª:_Äÿ 	ßøGÇºıåçü#ºƒµKËsPÖ$ŠŞŞ²"É4æMåV­îW Šü§ø™û4~Ñ+û3Ïğ¯Â¼]©Ø¯ÁßøG“J×</2Ëqi5Ü×:¾£
+^:[‡ì¿aŠÜ±ÜğäÉé/Âïk¶>	øµ‰ü?ıœ<KãKQµ°½–	üÛ[˜¢
+$¼‰ÎJ’z ‚@/ø[ãïÂÿ x.?é&Òí¼	>§k6^'Ô5k[˜oMÈHşyD±Mµq"M{K™%Xú|Vø_âïÙè~ø‘àëwz@Ö-4ı'Ä·WØ.Ò8Ü³[—!|Ğ6dã9¯Ïo†Ÿ³ŸÄ¹ü/ğ®ÓÇ›a¤øOá•¬éz¡§N¿hğüúçÛ¤+Äˆñ«\ZN˜$ºÌ¿.õ‘OZı”üqsğ~ËKğ_…4xÚ÷â¯Ä}RoÚImÚ}±§x–ÓL½yao1ûV6GºDTˆ2/’v ~„ø_Çñ¼ºÒx/Æ~ñ{è÷Íc«®‰«Ázl.WïA?”ÍåJ0r†•Õ×ç¿ìŸğsâ„~?[ø³Æø“àËM'á}—…â‹ÄúÇ…ŒRJ.­mkm ÚF%¶¶ò—sw*É‹§UwHÕú@Q@Q@bi<)>?¸•|7à»ágñ;Æ:¬ä•/aCÕ†<·?†Øÿ 1_ úõ˜¼Ğ¥Êšüàø³¦jŞø—Šô˜ËMlçÌ‹¢ÍûÈ}ˆüjîËñ
+då³ĞäÇPui4·=ŸÎß•pöü«Ï|+ãÿ x¾À>•}¼TÌönq,GŒ‚;‘Èõ+¯óıëë•šº>]İ;3Ï4¿^Õ?jïü[Ë_hU¾§4W¢Åyo0ÉhrÍåå†UÁuÆá’4t/‹Ö¼àzi^>3°†óÃúvµ}µåØ–5‘cHËòa•BØ=Í|ùã/„¾2Ö¾)üTñ·‡¡²Ò¼gg«iºÏÃİJêUh§;ì÷ò…mËêd·pØáÃ€J)¯õOÙûâ¤şÒô[ïø¾õµŸ…z†nm´MGA[}:æÑ%Åy=ôSÍJò‰V[ìJ±ÚYc5Å
+µ”_4u¿áï?Ñ'çgÕ#»ÙQ’º•´_~‰ÿ ŸŞº\ûş_	d´ñ…Ôßü§Yx[YF»wªÃm¥ÙDqI#Éß·¯ßWO¼ŒYã¯iZ–ƒgªx³Ã:mæ¸ÛtX.µ8¢“R8+02œ~Lğkáï|5ñ¼>>ñ]í—Ãÿ \¾!oGñ…µí¦)tlšU¶¾o&ày±Ï©:ÆÀL2ß6<ßZøñkRğóÙjÖñ€tÍì<%/‡ìì4§‚[’Ñ]È§’Ò5ó£”6¿¯´±Òug.[¿w§xİıÏO'Ü…F›×šÛõó·å¯Ÿ’Ôı)—Ç^ƒÆÖşŸÅ‡Ä“³,TšœKw#(BÁb-¼$B@o_QP¿4Eñìš
+ÜC)·±¸º¿¾K¨>Ïb`0ŠoŞoI
+Î¯÷6…³.P7Ê—ÁMnãLø÷¯Úx{Mÿ …yâı?^ğ^«4‹öÓ¬tæ¶I‡Ì‘=Í½ÄL¯·I 6Oâ/€ÿ oşè×B³ÔüAyá­KQñm“ê¬wú•æ»¤ê“éeÉÃG$V·Šì{œn2Ÿ2Mtoÿ %º_ziõO—ù¬D)ÓvÖÚÛñÕşV¾úö>Ú_ŠßÛáyñÂüDğ#x(KäŸzØéâMÛv}£—»wİœñ]­½õ½İŒ7V³Ãsm2	"š&Ü’)¤pA‚+óçÆ_¾ x—â6ƒñGø[âO XÚk·s\è>¸Ğg×.š[{hµc½3iÁ×Ê–©'˜"6ì–JúwàW…µ~ÉŞğ®­g6™¨YÚÈÓXÍ{ÓZ&’Q™QDv	ˆ£X×nÔÊ€K£9OšêÖ·â¯ıvÙêEHF1‹N÷¿Ë_ëÔöï8{~Uà~7°ñ%ÏÆ/S×ØxBXìv@ì@&lôf8¾ïAœšöŸ?Ş¡ŸÉº²šÚâ8ç·•
+I®UÔŒGqNµR¨¨Õtæ¤ºLü6²†ÛÃá00‚½N¾Wø#âI¡Óï<5y;Í6‘tmRGl³Åµ^"}NÇPOr	¯©‘ƒÄ¬;ŠøºÔ9¸>‡ÖR¨§%ÔuQY–N÷ıE\ªw¿ê(åÊR~Ù1ñşœ¼-_SY¨ü+åŸÊR~Ù1ñşœ¼-_SY¨ü(õQ@ò×í7ñgâÂí7Ágáç‡m$Ó59o½â»ß	ê%µĞDÆ[u—NÒÈ»dOÜƒåÀ—]øŸ´‡Æuı õˆ´Wáˆ4ßø_À±ü<Òí"¸¹Ó4ÛıqµC5ä÷ Ä÷Vèš}Ü˜		#´¼#HúCE|§üwøÿ ®|p½ø§éßl>1izæ­£âÉìïçĞ&Ó¬¬4kè®#°$éq0×¬ahÓ,F9ÜK(	rÚíñ)oÍ/á=Æ…—Šügoáë««ëëÙ/¼) ¨Óî.u;9ãqçßL¶Óy-YTÎÌÂ#€~ŒÑ\Å-gÅşı›¼wâ/ hÖ#ñ®• İ_hšEÊ³&¡sM$vøVS™
+„‚À×Èçís­øD×<Cğ_ŸÉ¬ø{Bğö¿ªi:±uyy{¦>±|mô½45ÍûEg>Ù<–öÇ’UH }Ñ_™ö?´ÇõMSá¿Ä[‹smxŸük§áÿ &úÃO½½Ó|[¡èëvö7f‚BŸhuŠ`eƒí1;Ëz‡ÆoÚ—Äøµ®øÂ:6‘¨ë£Æ:W‡-/‰©ëGM7:EÖ­q<Ú~œuxÉ°Ù>^|åg–4Vp÷¡¯øñÅ¿g;øÏÂzƒüKoª^é·–÷:=æ›çÙ®$½‚ÚñâgEIV9—|{Ê1b…µ†€>ı¹äÁ~5ÿ Ø«éÕ÷¥|ûrÿ É‚ükÿ ±Vÿ Ò)«ïJ (¯Æÿ x£â¾‡ªügø§§[şĞkgáOŒó-Ï¢ø˜ÒøoFĞíï­Åâ6€÷˜¸;=KjX–¬~Œ¼ı¯|Q£şÖ³h÷¶^×~ÿ ÂG­hÄè~Ö¤{A¦é××­3k2Fº}ÅÃ"{TÉÌcp"NŒj½7¢åŒ¿öä¿àj[„¹å¯i8ú´Ú•şëêÒ ”Wæ—~>üy?<g§ø²×À>Å³·ˆüyá½SÁ÷×±ê$öĞZùví+œ;Æ/cqsBÎ§ÆátÏˆ^!ø7ñ‹á—ŠnôÚ›Áo
+ëš¿‰ ø—ñ x’ÇÄ±XèòŞk4şĞ¾6×[ĞN®M¸1Å"ä…T^ÍËŸNUw×g$Öœü®E?ŞÆ¼ÏO="×Ş¦­øØıg¢¿6<=ûZ|{Ôşø®øU‡]ÖÛÃzî‰-ÃÏéĞi¦kÛ{{‹9!¾†)5i †ãí*öEÈ†DX¡%º¿şÑß>&ë^øyàK¯ƒRøşá5Ë½[ÄúF¯•½¶›&œ‰š<íå¥äÇS€´2ÌÂS iÃªÕªSnÉkfşJ÷û¬ı~ÍÉS‹2}mø&¾ûüÌûòŠüÆğ‡íIã[ÿ Úˆ·ÖqØøTğÿ ­¼S¢\ê’ÜZè¨ê^ Ó¦»´9Tÿ Ä±W•orÀ]¶5ïÛCâ…äú}·‚¼¤‹‹ÍûÅš|à¿x…5ûBæÓI‹TR›Yo"µyÍÜ¹%xÀ†S»nR”W^­}Êïğ×ÎÍ-t4P“MÛk?¿EøÙ>×MÙ;Ÿ¦5àµü¢Ëö–ÿ ²Uâı5Ü×#ğKã/Å‹ß´’ëÃğ‡ÃOÙéˆÖ—‚áµö½¾Ò,5/*@HŠ%ƒíOpÌä„ØKõßµü¢Ëö–ÿ ²Uâı5ÜÕÎ.ÌˆÉI&kàOüŠöî
+úzoøõ?Jù‡àOüŠöî
+úzoøõ?J‘Ÿ+|lÿ “Šı–¿ì¨]ÿ ê'â:úWLÿ V¿Jù«ãgüœWìµÿ eBïÿ Q?×ÒºgúµúPÕ|‡}ûTA©şÔ|	àÏøÆjßµ	ê>1ÕtG¼’ÃMÔæ¼ŠÂo4;Mİ’B^H¼©<»‘—ËgO¯+ãˆ¿f/Cñ7ÃQAñ†Ê×ág‡üw®xÃJĞíü&É¬Åw«Cª,±L^l1Å6¯u,DZ†b³1]ôãÛSHğïÁoˆúı§Áÿ ‹iâ_ø_èz¹§ÛØIâ*9Ä{HÖğÆÏÊ—	ÊG ançä¯NÔÿ iAøÁ øWÄ?~*h~¥¬iÚøš÷I·]*ÏV¿…e¶Óİ–àÍ$„Ém4Kl²H¦6ß•ü/ÿ öÔtøŸK‰lä×>ê?uÏü*M2ãPI5‹ÙEü’^_—„<­#íafw~§Ä±/‰üKûJ'ÄíSâgÃ[¿èş0½ÏÂ¿´jñOa’¾›ôš‹Io¥;ÚÉ*[G¶HÌÛZiTH% úŸÇÿ ü9ğóãG|¨h~0ÖõßÁswlÚ>œ³[iöv³ZÇuy{3:¥µ¼"î7ià€UwHÑÆşâ_Û‹ÂÚìïãoøsáwÅmVêÃÀ³øÓÂ6š–’–0x¿GŠX¢}BÒs#yvñ™íå‘&XîR’Aná”¢|QğªÓÅ´fã›ıVD±³ğ.·á[*80×êwlÍ0˜?ÈPiåvì;¼ìî]˜o’|'ûéøãïEâ†XÖ~^xLÕü1ğ¢ÏJÔW1¬m¨j—"y&Ô.ñDì’Ú'>k4e0bÕ¿iı.Oˆ—„ôŸxß@Ô´Ox{Fñ­®xkÎÒí.uK½%MEr¡ï^-Mpc2$Ê
+˜–zŸ¶—ÂÍ?CÕµëÍâ,M'SÕ<;âfÒbşÏñ]¾™M|Ús	·¿—rÊ¾rB&Š'’*)jß?³Ö¥á¿Å®øâÆëYñÅOxúşêÇ@k{tŸIM=´p½ÌŒ±ÌÚ1!šF1€˜cİ'”|ı†|5ğâ§‡ïEÇÂSÂ>ÓõK2ŞËá>Ÿe¯jPŞf(×UÕËÉ%Ù†Ùå‡0Çlfßºbü© öŸşĞ^´ı§¼7ğ×D¿^rÆÏZº:iº¶^éÆ£¬3$Ëå\ˆôÄË£¨ŠhFÒgW…ğÿ í·ğ¯Yğ„ Ôü-ñgÁº5Ï„`ñO†îußÿ „¢Ê[›{@4ô…äy&ûMİœ"'XŞCwÄ$E’«|5ı¬ş|'ø_áÈş!êŞ#Ô<'ãÉ|My¬êV§Õ‘t;½ÊÕ€—}Æ[(¼Áÿ c'b™I^[âGìµ©X~É¿ì4Ä¾#×şü-¶ğÆ‹ƒ¤Ú-ö¡{i¨x~úÛPHîîåË ÆíhîË# ™@>šø]ñƒJø£¨ø»K‡Â¾7ğOˆü1u®¹¢ø¢Æ(.mdš<`42ËŠce;ã‘—	æ½r¾Eı—ô‹x÷ãwÄ?Š«:ÍâvÉtCqá¿ì'{[K$„ºØ5ÕÔDd2ó§2¹åQ0~º Š( H¡¡`y¯“¾<Á¦Áá™eˆO;‘®7K#ªƒÜ’ë^ñmñÁ×<EáMÅ:&¹âMÖ¬tû¥ôæ$€“”ÈŠCƒˆÜ‡ Œs_	k-ñßŒ¾8È¾2ğÆ•á-7Mˆİiº|:ÇÛ®‹9hÃÜ•b¶ïÂFòœï=V
+‡¶­=|UoeIÈÁ~°ğ‡8b„êW-æ_\ åÜÿ =vƒóï]Ÿî:Êó­qõ¯µŒRVGÉ¹]İ³WÎ÷?w¹üë+Î>´yÇÖ˜®_;ÜştyŞçó¬¯8úÑçZèÕó½ÏçGî:Êó­qõ ._;ÜştyŞçó¬¯8úÑçZèÕó½ÏçGî:Êó­!Ÿj–f ’Ié@]ïÙ?hÇ»íÃ½ä©şEkï/¦DÇÒ¿=ş,šÏµmpnd¼¾i"$`ùcåOüuV¿BlSf™Ÿî×Åcæ¥ˆ›]Ï¬ÁÅÆŒS-ÑEÈt…S½ÿ QW*ïúŠ ù_Äò”Ÿ„_öL|_ÿ §/WÔÖ_ê?
+ùgÄò”Ÿ„_öL|_ÿ §/WÔÖ_ê?
+ ½EP™üBøCào‰ú‡‡ïüSkâu}Ïı“«h%Ô4MBÕ''‰n¬g†o*A{ã.QŒhH%2óö^ø{§Ch|!{ek†t¿ÛC§ø‹Q³K{=*àÜé¦1Âˆî-¥,Ñ]..{ Àûıó´Ÿ²ŸÀçğf“£§†uëIôínïZ·×¬ü_«[kÏ{w†êyuhî–úfš-±¸’v‘Ä¤b(ÂïKû;|Úxz?ÙZévsè×|v×wµŒº>ÏìÙ t<-– Ê–]Êûƒ0>×E pºF‡ã«M~ÒãWñå®±a?h´M8ß)ç¸bCÓëÏãı™~
+ÙüğßÃ½ÂwŞğ·‡õëwC‹Ã~"Ô4›:úãí>t°İZÏÂn[Ë”Ø$Ø#“`PŠª=êŠ ùÊÃöKø¦ü>Ô¼+îçğõö•«ésY^ø“RºDµÕ¦¶¸Ô"‹Í¸c–kH&ÌeJHĞ£I!gÛ~Ê-|1®i© x¦k[]¶×o5«Ÿk3ë#Q·„ÁÜZ”—mwË	hwE2“2£?EQ@Ÿ‚<á‡_m<)á:M7E·šiÂMy5ÔÓM<¯4ÓM<ÎòÍ,’Èò<’;;³I&ºÃĞÑAèhà¿Û—şLã_ıˆÚ·ş‘M_zWÁ·/ü˜/Æ¿ûµoı"š¾ô œï¿dïŸÄ][ÄºŸ„õ½FãU×N¹©é—^/Õ¥Ñ¯/‹¬†ytÆº6Nw¢6¹U8Èéeoƒ'ÇçÅ6Ú½m­Å®\kºzÂUª5†Ÿ¨\Zâx,~ÓöxÄæi|èÒ0“	dVE}EO$yR[-–ÛvÙmÙvİÛê÷óß~û¿½÷>øSûé¾ø¯êÿ ŸÃz¶—}ğâçÀo¤èwºÀ‚ëOº–7¸À»¼˜ØB ÙÙ”$Ä3nA×ºÿ Ã/x¦çÂøƒ@‹S>y›EYn%	šÒ[9QÔ0Y‘àšDd”:œäŒ€GyE\ß<ye·üÿ 97óÓ@»½ïıY/É%òGÍ–²?À]?ÃÎ•…5»Èµ+K¹Ô<[ª^]éÖÖwæÒ‰®Z[á˜,±­³ÆÑHåWÍû(ü›ÃvÙ~3·¿·¿¹¾>!¶ñÖ±»q-ÌqEqçêit.çI#‚hä•¬¸6ıE&ï¸ºßúíùhx¼Ÿ³ÇÁ‰<âoÿ Â¦ÃáßxBÓÂZ®ÄñA.“h.½ªª¸ûTøxöÉ—±*¤Tñ§ìßğ{ÇÚ.§ë¾Ômm4}´DĞ¼C¤ÒÙQ[O™¬çˆÏhB.a”²pxäçÜè¦Ûnïøó{î÷mm-ÿ ü—Ü»o…>x7ÀÚŸˆ.ü% Úè2ksÛÍ¨¥³8ŠF·´†Î‘’R%K{xcUÂŒ’O™~Ö?ò‹/Ú[şÉWˆô×s^ÿ ^ûXÿ Ê,¿ioû%^!ÿ Ó]Í¶îÄ’JÈù÷á_Çß‚>³M+_ø¯àjh¦ÒÆ··¨èJ²tc.àÀ‚6äµög‚ü{á/‰_¢ñ_‚u„×4	nn-Vé`’ß[ÌğMI]Y%Ğ‚*kâ†Ÿ
+uKi_Ç?õëoxêçjV—æmÄ,Këe ‰0.¡+2ñ¸Ê«åŸ¤~ü0ñÃŸØ¢ÛÂIâ›8~#^,ú®¥©İBúŸk«^H×WTE¡y-Ì“0RÑ³'(NÉ|lÿ “Šı–¿ì¨]ÿ ê'â:úWLÿ V¿Jø£ã©ãÿ øƒödÔ¼]¢XøÓÅ–¯Yx*1Ûãÿ „[Ä@4QŞL¢7ÚKÚfû¤b@¯¨|7ãÿ \|"µñ¶÷ÒAËâØ•-´†o!RE›h¤Â¡«îR…ƒ) ¡E29#š–'Ibu•`yâŸ@Q@Q@Q@Wã?ˆ¾øw§Ø\øÛÅz'†…üÿ gÓa¼¹=üÜ~êŞ!óÏ'#äY¹é@¥!!FI gšà<O¨|J_ˆ>Ò¼áÏË É"K®ëÚÖ¨éöhD€<VÖ±#4ó²ÁwŠ5È9s”¥ÔşøW[ø×¥x÷[‹TÖ5­*%]"ÚïS´ı=ÆüÏ¦ï#íys!  `(Ç­sñîOiŞñ¥òÚG¿VñißgÒl‹D$5fCs#nA‹e”!'{!R(Ñü+â«ŒºÏŠµïˆZ®±¥ÍÛé>¶°‚×N°ˆ²#­<÷?&(@¶Ä™&½Š ãõ=3MÑ<qi£i¶U«I$ÍºÄ†GbÎåT¹˜’ORI&¿?µ›ÂŸ´>±¤†Á<¼÷òälüˆ+ôwX·ûF‹,`dà×æ÷ÆÍ*ûÃş:¶ñ%œ&I-e,É¾„a—ñş•İ—WT«ÆRØäÇQuh¸­Í?;ÜştyŞçó®wNÕ­5]ë)DÖò®U‡oP}«¾m}¥’5|ïsùÑç{ŸÎ²¼Ú<Ú| jùŞçó£Î÷?ey´y´r«ç{ŸÎ;Üşu•æÑæÑÊ¯î:<ïsùÖW›G›G(¾w¹üë…ñÎ¸öÚz-““©êgÉ@½R3÷ßòà{ŸjŸÄ(Ó¼;¤›ÉLÜAl¬<É›ĞOSÚª|,ğ†±ãÿ ÂG­¡i¤aå¦Ü,H:*Ãüó^vcŒ
+vOŞ{™ßÂ:Ó»ÙU|	ğŸöo†­	‹nv¯­vÄª;
+ä<%¢G¥èp @¸^˜®Æ¾4ú¢Š( ªw¿ê*åS½ÿ Q@+øƒşR“ğ‹şÉ‹ÿ ôåájúšËıGá_,øƒşR“ğ‹şÉ‹ÿ ôåájúšËıGá@¨¢Š (¢Š (¢Š (¢Š (¢Š (=†€>ı¹äÁ~5ÿ Ø«éÕ÷¥|ûrDÇöøØÃ<«“ÿ €SW¸ÿ ÃXşËôrß ?ğáéü~€=şŠğøkÙcş[àş=/ÿ Ñÿ cû,ÑË| ÿ Ã‡¥ÿ ñú ÷ú+À?á¬eú9o€øpô¿ş?Gü5ì±ÿ G-ğÿ —ÿ Çèßè¯ ÿ †±ı–?èå¾ áÃÒÿ øığÖ?²Çı·Àü8z_ÿ  ¢¼şÇöXÿ £–øÿ ‡Kÿ ãôÃXşËôrß ?ğáéü~€=ş¼ö±ÿ ”Y~ÒßöJ¼Cÿ ¦»š?á¬eú9o€øpô¿ş?^ûMşÓ³n¿ÿ Ûı ô-öƒø­kzÃ]vÓOÓì<u§Oqw<šuÂGQ¤ÅFf
+ª ’H dĞ¥ü	ÿ ‘^ÏıÁ_OMÿ §é_3üãğÅ qWÓÇ±úPÊß?äâ¿e¯û*ú‰ø¾ˆ]3MÖ|=>—«éöZ®™sË‹KÈhf_î²0!‡±ó¿ÆÏù8¯ÙkşÊ…ßş¢~#¯¥tÏõkô ^÷á¶„Ÿ¡ğ/ƒn5…š=³ïÓ›Á‚°>aˆ£òÚ¥™‰Fî9ZMFÃâF‰ğgO±ğ¦±¢øÛÆ6e[ï±®¤ƒ;ŒeH¥#oÍ2îÆxô:(ÏuxÃt­{Yø}®ëºì†4ÕtoO¤l™”—tyÍ³O
+‘Œ¬bC¹O”>m«®|Oğ…~èş4ñuŞ¡áMQò•?µ4Ùãšİä¤	<aBÀ+Ş R0NHÏ Ñ@.¯ñCá·‡¾è¾5ñ¼áÏjâì½kWÖ ³´¼3FeˆG,¬ªÌÑ«8 ä…'oˆ¾)ü2ğÃ+ÆŞ*ø‰àox;T13]Õ5Û{kã,fX„3»„”º+:…'r‚F@®Ú{{{¨<«˜!¸‹9Ù*úrEpEqGq€#EP 0 ¸â€8/|Oğ¯‡şh2_øH¼O¡k>IÒ$ğ§‡ïuÉ/hŒ±H‘ÙÅ+™wšÀF22Ã#,ñ'ˆüvß´=SáßìuıgS»XøŸX}=>7Œ¾ë‚°O u;TÆ±1É9#¯D¢€<çÅñ¼¡é÷><ñ?€İ>¶¾šùŠ Ğ­ÄĞ¼±Dq—)ù~uäØi:h¿ÓïÊŞâşÆ‚Òòtón!GÙ½VFËŞZnçæÚ3œ
+Ğ¢€
+(¢€
+(¢€Ê6SĞŠğ‰ş‹]Ñn’•=«Şª‹xî (ê}hñ¿_ğïŠ~ø²êëJ…îtÇ}ÓÙ¾v7©†¯é?ü;¨”†êàéÇïAv6à÷Ãt#ßŠı"ñÃ[jŞ]ÖèÅ‡÷käŸşÍÖ·w2<vƒ“ÙkÔÂfÕh®Wª<üN]N«æZ3Ïˆ4r›†¯¥•õûRcù×-®üKğŞ‹k&Ë¡ª]òÛÚ|äÙ#€=ë_ş……ÖÑ„Ï@+Ñ|?û5[Cn7Úÿ ®ÙçÍ¯vúœÉ•ıé?ü7øâ{[´Ö¡ÂãÍX[ãºÆÏs‘œ}kØ<ÓíPxëà=Æ™½Ò£–Öî/š9"á”õãòxÇÅ”Úëºê8ÛŒ}È<~UÓÍéÊ6ªìÿ 3^Y8ÊôÕÑìşiö£Í>Õãgâ¾œ"ÿ >°eÇÜò‡_­U>;ñF²ÂÃ­hÏÇrw•ô ?:ô'˜ab®æ¿38*òvåg}ãoŸø*æKgS«L…,¢,\÷Ç ¯4Ñu¿‹ºÅ”qŸ²Fì9•lÆkØ¾|Ö<Câõ_´×·NA- áG …}Éá„Zm–ŸkhÁ |ö37©9şéÙÖ,„cûÅv|/àO‚ºÎ³âDÕ<A-Î¡tÄ$ä’>•úà/ZèZdAaT*=+ºÓ</a§(òâ@G ®Q6¨ W‘9ÊNòwg¥¨«$#
+£ S¨¢¤ ¢Š( ªw¿ê*åS½ÿ Q@+øƒşR“ğ‹şÉ‹ÿ ôåájúšËıGá_,øƒşR“ğ‹şÉ‹ÿ ôåájúšËıGá@¨¢Š (¢Š (¢Š (¢Š (¢Š (¢Š óøsûgJš=¹Ü¤t¯„¼cû;jj²Ëägq'î×éÃÆ’.f¨¾“e!%¡R~”ù1ÿ »ÿ NßøåğË¿ôíÿ Wëö.Ÿÿ <ò£ûOÿ 	ùPäçü2ïı;ã”Ã.ÿ Ó·ş9_¬ØºüğOÊì]?şx'å@“ŸğË¿ôíÿ Qÿ »ÿ Nßøå~±ÿ béÿ óÁ?*?±tÿ ùàŸ• ~NÃ.ÿ Ó·ş9Gü2ïı;ã•úÇı‹§ÿ Ïü¨şÅÓÿ ç‚~Tù9ÿ »ÿ Nßøåw¾ı†•ªÅ/‘Œ6~í~“béÿ óÁ?*‘4›(ÎVé@<7ı¥C\mQÚ½*ø÷jrF‘Œ"€)³ÿ Ç»PÊ¿?äâ¿e¯û*ú‰ø¾•Ó?Õ¯Ò¾jøÙÿ 'û-ÙP»ÿ ÔOÄuô®™ş­~”µEPEPEPEPEPEPEPEPÁªÒÙ[M÷âSøUª('ûÃ~|”ÏÒ­%…¬k…‰GáW( kVğå¥nÈñ+g¶+Ã¼EğSKÔewû$mŸökéj0Qš ø¯şãLûVï±'_î×o¡|ÒìeFû$`ƒ×m}7µs÷Wò§`‚€8ıÂv:T($\ÂºåPˆF §Q@Q@Q@Q@S½ÿ QW*¥çüz ù[Äò”Ÿ„_öL|_ÿ §/WÔÖ_ê?
+ùâ~­càÛà÷ÄOÜG¥ø8hZç…®õk†	mew¨ÜéÚyÎx$m6HU›æInÜèê½7P¶šÂ9¡’9btŒ
+°=#¨ º*¯Úã£íqĞª*¯Úã£íqĞª*¯Úã£íqĞª*¯Úã£íqĞª*¯Úã£íqĞª*¯Úã£íqĞª*¯Úã£íqĞª*¯Úã£íqĞª*¯Úã£íqĞª*¯Úã£íqĞª*¯Úã£íqĞª*¯Úã£íqĞªŠø÷j‹íqÔ3İÅövçõ ˜>6ÉÅ~Ë_öT.ÿ õñ}+¦«_¥|£ñ^Ó|eûoüğ‡‡.cÕõ_k÷(ñ/ÙHš]±Ñõ=2‡É,Ú‚ùq“½Ö˜)Tb¿Xé€ˆ‡Ò€5è¢Š (¢Š (¢Š (¢Š (¢Š (¢Š (¢Š (¢Š (¢Š (¢Š (¢Š (¢Š (¢Š (¢Š (¢Š (¢Š *9S|$T”P¯hVº¦™y§ê66šŸuEsku
+ËÑ°Ã#£H$Fx3~Ë³|—2K7ìéğ&y]‹;Éà-5™‰êI0rkë'…r*±±ˆ1ùPÊ¿ğË_³WıwÀ_ü7úgÿ £şköjÿ £nøÿ †ÿ Lÿ ãõOØ#öü¨û~ß• |­ÿ µû5Ñ·|ÿ Ã¦ñŠ?á–¿f¯ú6ï€ßøoôÏş1_Tı‚?oÊ°GíùPÊßğË_³WıwÀoü7úgÿ £şköjÿ £nøÿ †ÿ Lÿ ãõOØ#öü¨û~ß• |­ÿ µû5Ñ·|ÿ Ã¦ñŠ?á–¿f¯ú6ï€ßøoôÏş1_Tı‚?oÊ°GíùPÊßğË_³WıwÀoü7úgÿ £şköjÿ £nøÿ †ÿ Lÿ ãõOØ#öü¨û~ß• |­ÿ µû5Ñ·|ÿ Ã¦ñŠ?á–¿f¯ú6ï€ßøoôÏş1_Tı‚?oÊ°GíùPÊßğË_³WıwÀoü7úgÿ £şköjÿ £nøÿ †ÿ Lÿ ãõOØ#öü¨û~ß• |­ÿ µû5Ñ·|ÿ Ã¦ñŠ?á–¿f¯ú6ï€ßøoôÏş1_Tı‚?oÊ°GíùPÊßğË_³WıwÀoü7úgÿ £şköjÿ £nøÿ †ÿ Lÿ ãõOØ#öü¨û~ß• |­ÿ µû5Ñ·|ÿ Ã¦ñŠ?á–¿f¯ú6ï€ßøoôÏş1_Tı‚?oÊ°GíùPÊßğË_³WıwÀoü7úgÿ £şköjÿ £nøÿ †ÿ Lÿ ãõOØ#öü¨û~ß• |­ÿ µû5Ñ·|ÿ Ã¦ñŠ?á–¿f¯ú6ï€ßøoôÏş1_Tı‚?oÊ°GíùPÊßğË_³WıwÀoü7úgÿ ¤oÙgök+ÿ &ßğ}<¦ñŠú«ìû~TóÛò ,ğoÃÿ 
+x'A]Á~ğ×ƒ´o3Ìû‡¦Ceo¿ nòâU\àœtÒ½^Ò/.šz[F‡V:
+ (¢Š (¢Š (¢Š (¢Š (¢Š (¢Š (¢Š (¢Š (¢Š (¢Š (¢Š (¢Š (¢Š (¢Š (¢Š (¢Š (¢Š (¢Š (¢Š (¢Š (¢Š (¢Š (¢Š (¢Š (¢Š (¢Š (¢Š (¢Š (¢Š (¢Š (¢Š (¢Š (¢Š (¢Š (¢Š (¢Š (¢Š (¢Š (¢Š (¢Š (¢Š (¢Š (¢Š (¢Š (¢Š (¢Š (¢Š (¢Š ÿÙ[iso-8859-15_Lhttp://trac.genropy.org/raw-attachment/wiki/DynamicBagIntro/Bag_Resolver.jpgOÛbplist00Ô	
+X$versionT$topY$archiverX$objects † Ñ_WebResourceResponse€_NSKeyedArchiver¯&,-345MNOPQRSTUVWXYZ[\M]^bcU$nullİ !"#$%V$classR$3R$8S$10S$11R$5R$6R$4R$7R$2R$9R$0R$1€€€ €€€€€ Ó'()$+WNS.base[NS.relative€€ €_Lhttp://trac.genropy.org/raw-attachment/wiki/DynamicBagIntro/Bag_Resolver.jpgÒ./01X$classesZ$classname¢12UNSURLXNSObject#A¯Ä
+£ù€
+ÈÓ6789CWNS.keysZNS.objects€©:;<=>?@AB€	€
+€€€€€€€©DEFGHIJKL€€€€€€€€€ZKeep-Alive_Content-DispositionVServer\Content-TypeTDate^Content-LengthTEtagZConnection]Last-Modified_timeout=15, max=100Zattachment_‡Apache/2.2.11 (Ubuntu) DAV/2 SVN/1.5.4 mod_python/3.3.1 Python/2.6.2 mod_wsgi/2.3 Phusion_Passenger/2.0.3 mod_ssl/2.2.11 OpenSSL/0.9.8g_image/jpeg; charset=iso-8859-15_Fri, 12 Jun 2009 03:38:51 GMTU29910_1W/"anonymous/Thu, 21 Dec 2006 14:32:45 GMT/False"_Tue, 11 Nov 2008 17:12:04 GMTÒ./_`£`a2_NSMutableDictionary\NSDictionarytÖÒ./de£ef2_NSHTTPURLResponse]NSURLResponse     ) 2 7 : P R d … ‹ ¦ ­ ° ³ · » ¾ Á Ä Ç Ê Í Ğ Ó Õ × Ù Û İ ß á ã å ç é ë ò ú
+[`itw}†‘˜ «­·¹»½¿ÁÃÅÇÉÓÕ×ÙÛİßáãåğ.3>Lbm÷9?s“˜œ²¿ÂÇËß             g              íÔ<=>O±‰PNG
+
+   IHDR   k      L   <PLTE  )*(130>?=­%$]_]Ædd‡‡‡—™–ÔŒŠ«««Ü¤¥ä¸·ÑÊÇÎÎÎïåäıÿüÿÿÿô
+  0IDATxÚµ–‹’ƒ Eñ4T²‘ÿÿ×E ˆ¨hgZfª[7¹„ŠårÌ´|wˆë[R	ü„eëBõÖ,IñUéF™¾Ì²Rg]ÒìIjZYƒR
+ıÇ`ê Üº~**é#}7*À¶.fyTS"X8
+GèrxŠ9Ğ®—µ&xB¯¬µd–®X! `‹¡úµYFF”œıÄœ°Fˆo¯HŸ-P,„Ùşvwã€È,S¬3ÂèD¤)=ĞS–T€xıš=Ä6Ë°œ˜C¯PëNIÓ²½GÔÕ÷ôÄ‡‘¥y
+xÅx‰«ÍØ<Ñğ|ÒCS_°àPGÏ:zâ‚åû­fas@Ú”ÉkVBuCYAš“7k›Ri¬ ¤J±¨°´L×[¤f{–Ê³1¯<1=©—]f»³ƒN¶Ül´±ò,)R•CÛ>L*ìl(±ø‡+3XéêScBŠì|ÃnúF–‘ v×GvÛÆ*[Tˆ•fï%^ÁÉû´Ğ\l™xd-ÜB:ÍîYy)ûé~sæL××ˆÈ1âµİÃmW––<Lõ?  «Âûu‚ª^ôÃ­——Zîïıúl¼ÿœkî_¡JæŒåQÎ¹ğ”xrüqÛqwñn³Âê²ÊîXO.óÊ{ùâ–•7e©)ş‘ºjÖ‰®Ç,Yv‹J×ëZWNì'¬u#9t™‚õrûÇ»2±ŸÔ+xö¤Ÿ}ß‡¿ÿíQ¦ƒÔEs4    IEND®B`‚_8http://trac.genropy.org/chrome/common/trac_logo_mini.pngO2bplist00Ô	
+X$versionT$topY$archiverX$objects † Ñ_WebResourceResponse€_NSKeyedArchiver¯&,-345IJKLMNOPQRSTIUVZ[U$nullİ !"#$%V$classR$3R$8S$10S$11R$5R$6R$4R$7R$2R$9R$0R$1€€€ €€€€€ Ó'()$+WNS.base[NS.relative€€ €_8http://trac.genropy.org/chrome/common/trac_logo_mini.pngÒ./01X$classesZ$classname¢12UNSURLXNSObject#A¯Ãò	'[ÈÓ6789AWNS.keysZNS.objects€§:;<=>?@€	€
+€€€€€§BCDEFGH€€€€€€€ZKeep-AliveVServer\Content-Type^Content-LengthTDateZConnection]Last-Modified_timeout=15, max=98_‡Apache/2.2.11 (Ubuntu) DAV/2 SVN/1.5.4 mod_python/3.3.1 Python/2.6.2 mod_wsgi/2.3 Phusion_Passenger/2.0.3 mod_ssl/2.2.11 OpenSSL/0.9.8gYimage/pngS689_Fri, 12 Jun 2009 02:46:21 GMT_Thu, 07 Aug 2008 01:00:20 GMTÒ./WX£XY2_NSMutableDictionary\NSDictionary±Ò./\]£]^2_NSHTTPURLResponse]NSURLResponse     ) 2 7 : P R d  ‡ ¢ © ¬ ¯ ³ · º ½ À Ã Æ É Ì Ï Ñ Ó Õ × Ù Û İ ß á ã å ç î öCHQ\_enwy€ˆ“•Ÿ¡£¥§©«³µ·¹»½¿ÁÌÓàïôÿ"¬¶ºÚúÿ&).2F             _              TÔ@ABC\image/x-iconO6          h  &           ¨    (                @                      ÿÿÿ ZZÁ «¬Ş ª ××ğ „„Ğ 88´ ppÉ ½½æ ››Ù KK¼ ääõ ÉÉë ((® BB¸ ’’Ö {{Î µµã hiÅ aaÄ ¥¥İ İİò 22² QQ¾ ŒÔ ÎÏì !!¬ ²²â ÇÇê                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       	                   	 
+                             
+               	        	    	                            
+       üÿ  ü?  ô  â  Â  Â  Ç!  ‘¡    À  â  â  ç  ï?  ÿ?  ÿ  (       @         €                      ÿÿÿ [[Á ®®ß ª „„Ğ ÖÖï 99µ rrÉ œÙ îî÷ ÅÅè KK» ((® ffÌ Ô BB¸ zzÍ 11² ÎÎí ½½æ ææö ¤¤İ ••× İİò !!¬ bbÄ ´´ã QQ½ lmÇ ÉÉë wxÈ ËÌê //° ttË ³³á Û                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     #                                                     	                 
+ "             "                                       
+           
+                                
+ 
+#                                     "!        !        $                             #
+              ! 
+
+         
+                                                             	                 !                              
+                                           
+                                      !                            $                                                                          ÿñÿÿÿàÿÿÿà?ÿÿà ÿÿ  ü ?ø ?ø ?ğ ğÿğğ<øàÏüÃüÆŒÄøøø¿øøüü<?øşÿøşÿøÿŸÿùÿ?ÿÿşÿÿşÿÿş?ÿÿÿÿ_.http://trac.genropy.org/chrome/common/trac.icoO	bplist00Ô	
+X$versionT$topY$archiverX$objects † Ñ_WebResourceResponse€_NSKeyedArchiver«#)*0"1234U$nullÛ !"V$classR$3R$8R$5R$6R$4R$7R$2R$9R$0R$1€
+€€€€€€€	 Ó$%&'(WNS.base[NS.relative€€ €_.http://trac.genropy.org/chrome/common/trac.icoÒ+,-.X$classesZ$classname¢./UNSURLXNSObject#A¯Ä
+µx#§\image/x-iconP#ïÿÿÿÿÿÿÒ+,56¢6/]NSURLResponse     ) 2 7 : P R d p v  ” — š    £ ¦ © ¬ ¯ ² ´ ¶ ¸ º ¼ ¾ À Â Ä Æ È Ï × ã å ç é(36<EN[\ejm             7              {ÕE5FGHIJ_WebResourceFrameNamePYtext/htmlO¦<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head>
+    <title>
+      DynamicBagIntro â€“
+      Genropy
+    </title>
+        <link rel="search" href="/search">
+        <link rel="help" href="/wiki/TracGuide">
+        <link rel="alternate" href="/wiki/DynamicBagIntro?format=txt" type="text/x-trac-wiki" title="Plain Text">
+        <link rel="up" href="/wiki/DynamicBagIntro" title="View Latest Version">
+        <link rel="start" href="/wiki">
+        <link rel="stylesheet" href="/chrome/common/css/trac.css" type="text/css"><link rel="stylesheet" href="/chrome/common/css/wiki.css" type="text/css">
+        <link rel="shortcut icon" href="/chrome/common/trac.ico" type="image/x-icon">
+        <link rel="icon" href="/chrome/common/trac.ico" type="image/x-icon">
+      <link type="application/opensearchdescription+xml" rel="search" href="/search/opensearch" title="Search Genropy">
+    <script type="text/javascript" src="/chrome/common/js/jquery.js"></script><script type="text/javascript" src="/chrome/common/js/trac.js"></script><script type="text/javascript" src="/chrome/common/js/search.js"></script>
+    <!--[if lt IE 7]>
+    <script type="text/javascript" src="/chrome/common/js/ie_pre7_hacks.js"></script>
+    <![endif]-->
+    <script type="text/javascript">
+      jQuery(document).ready(function($) {
+        $("#content").find("h1,h2,h3,h4,h5,h6").addAnchor("Link to this section");
+      });
+    </script>
+  </head><body>
+    <div id="banner">
+      <div id="header">
+        <a id="logo" href="./"><img src="/chrome/site/logo.gif" alt="" height="103" width="300"></a>
+      </div>
+      <form id="search" action="/search" method="get">
+        <div>
+          <label for="proj-search">Search:</label>
+          <input type="text" id="proj-search" name="q" size="18" value="">
+          <input type="submit" value="Search">
+        </div>
+      </form>
+      <div id="metanav" class="nav">
+    <ul>
+      <li class="first"><a href="/login">Login</a></li><li><a href="/wiki/TracGuide">Help/Guide</a></li><li><a href="/about">About Trac</a></li><li class="last"><a href="/prefs">Preferences</a></li>
+    </ul>
+  </div>
+    </div>
+    <div id="mainnav" class="nav">
+    <ul>
+      <li class="first active"><a href="/wiki">Wiki</a></li><li><a href="/timeline">Timeline</a></li><li><a href="/roadmap">Roadmap</a></li><li><a href="/browser">Browse Source</a></li><li><a href="/report">View Tickets</a></li><li class="last"><a href="/search">Search</a></li>
+    </ul>
+  </div>
+    <div id="main">
+      <div id="ctxtnav" class="nav">
+        <h2>Context Navigation</h2>
+          <ul>
+            <li class="first "><a href="/wiki/WikiStart">Start Page</a></li><li><a href="/wiki/TitleIndex">Index</a></li><li><a href="/wiki/DynamicBagIntro?action=history">History</a></li><li class="last"><a href="/wiki/DynamicBagIntro?action=diff&amp;version=8">Last Change</a></li>
+          </ul>
+        <hr>
+      </div>
+    <div id="content" class="wiki">
+      <div class="wikipage searchable">
+        
+          <h1 id="a3-DynamicBag">3 - Dynamic Bag<a class="anchor" href="#a3-DynamicBag" title="Link to this section"> Â¶</a></h1>
+<p>
+A Bag item can be something more than a static value. A Bag item may contain a call to a function that retrieves dynamically a value or a cached copy of it, so a likely-static value can be the result of a realtime elaboration or data retrieving.
+This is what we call Dynamic Items, some possible use cases are:
+</p>
+<ul><li>get values from a database server
+</li><li>get values from webservices
+</li><li>calculate values in real-time
+</li><li>etc.
+</li></ul><p>
+<a style="padding:0; border:none" href="/attachment/wiki/DynamicBagIntro/Bag_Resolver.jpg"><img src="/raw-attachment/wiki/DynamicBagIntro/Bag_Resolver.jpg"></a> 
+</p>
+
+        
+        
+      </div>
+          <h3>Attachments</h3>
+          <ul>
+              <li>
+      <a href="/attachment/wiki/DynamicBagIntro/BagResolver.jpg" title="View attachment">BagResolver.jpg</a>
+      (<span title="29292 bytes">28.6 kB</span>) - added by <em>anonymous</em>
+      <a class="timeline" href="/timeline?from=2006-12-21T12%3A47%3A18Z%2B0100&amp;precision=second" title="2006-12-21T12:47:18Z+0100 in Timeline">2 years</a> ago.
+              </li>
+              <li>
+      <a href="/attachment/wiki/DynamicBagIntro/Bag_Resolver.jpg" title="View attachment">Bag_Resolver.jpg</a>
+      (<span title="29910 bytes">29.2 kB</span>) - added by <em>anonymous</em>
+      <a class="timeline" href="/timeline?from=2006-12-21T15%3A32%3A45Z%2B0100&amp;precision=second" title="2006-12-21T15:32:45Z+0100 in Timeline">2 years</a> ago.
+              </li>
+          </ul>
+    </div>
+    <div id="altlinks">
+      <h3>Download in other formats:</h3>
+      <ul>
+        <li class="last first">
+          <a rel="nofollow" href="/wiki/DynamicBagIntro?format=txt">Plain Text</a>
+        </li>
+      </ul>
+    </div>
+    </div>
+    <div id="footer" lang="en" xml:lang="en"><hr>
+      <a id="tracpowered" href="http://trac.edgewall.org/"><img src="/chrome/common/trac_logo_mini.png" height="30" width="107" alt="Trac Powered"></a>
+      <p class="left">
+        Powered by <a href="/about"><strong>Trac 0.11.1</strong></a><br>
+        By <a href="http://www.edgewall.org/">Edgewall Software</a>.
+      </p>
+      <p class="right">Visit the Trac open source project at<br><a href="http://trac.edgewall.org/">http://trac.edgewall.org/</a></p>
+    </div>
+  
+</body></html>UUTF-8_,http://trac.genropy.org/wiki/DynamicBagIntro        1  ?  H  ^  p    •   @ğ A% EW E` Ej FÌ G K? KH KR K‡ K¸ Oâ Oë Q$ Qa U™ U¢ Z± Zæ _ _  pƒ p¸ tè tñ uüoü¤ ã ì	$	W‘šõ*enA?AnE™E¤EÂEÍº§º³»¿á¿êÂŸÂÚÇÇÇ&Õ`Õ‘××©×À×Á×Ëíuí{             K             íª
