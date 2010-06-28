@@ -18,12 +18,7 @@ class Table(object):
         tbl.column('hosted_data','X',name_long='!!Hosted data')  
         tbl.column('client_id',size=':22',name_long='!!Client id').relation('client.id',mode='foreignkey')
         tbl.column('db_name',size=':15',name_long='!!Database Name')
-        # dtype -> sql
-        #   I       int
-        #   R       float
-        #   DH      datetime
-        #   H       time
-        # 
+
     def create_instance(self, name, path, instanceconfig, dbname):
         instanceconfig=Bag(instanceconfig)
         instanceconfig.pop('application')
@@ -43,7 +38,6 @@ class Table(object):
         sm=SiteMaker(name, base_path=base_path, config=siteconfig)
         sm.do()
         return sm.site_path
-
 
     def trigger_onInserting(self, record_data):
         pass
