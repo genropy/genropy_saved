@@ -38,26 +38,18 @@ class ColoredFormatter(logging.Formatter):
             record.levelname = levelname_color
         return logging.Formatter.format(self, record)
 
-class ColoredLogger(logging.Logger):
-    """A logger that colorize log messages based on their severity.
-    """
-    
-    FORMAT = "[$BOLD%(name)-20s$RESET][%(levelname)-18s]  %(message)s ($BOLD%(filename)s$RESET:%(lineno)d)"
-    
-    COLOR_FORMAT = formatter_message(FORMAT, True)
-    
-    def __init__(self, name):
-        logging.Logger.__init__(self, name, logging.INFO) # eventually, logging level should be configurable in siteconfig.xml
 
-        color_formatter = ColoredFormatter(self.COLOR_FORMAT)
+FORMAT = "[$BOLD%(name)-20s$RESET][%(levelname)-18s]  %(message)s ($BOLD%(filename)s$RESET:%(lineno)d)"
+COLOR_FORMAT = formatter_message(FORMAT, True)
 
-        console = logging.StreamHandler()
-        console.setFormatter(color_formatter)
-
-        self.addHandler(console)
-
-
-def enable_colored_logging():
+def enable_colored_logging(stream=sys.stderr, **kwargs):
     """Enable colored logging."""
-    if hasattr(sys.stdout, 'isatty') and sys.stdout.isatty(): # stdout or stderr?
-        logging.setLoggerClass(ColoredLogger)
+    root = logging.getLogger()
+    if len(root.handlers) == 0:
+        hdlr = logging.StreamHandler(stream)
+        if hasattr(stream, 'isatty') and stream.isatty():
+            hdlr.setFormatter(ColoredFormatter(COLOR_FORMAT))
+        level = kwargs.get("level")
+        if level is not None:
+            root.setLevel(level)
+        root.addHandler(hdlr)
