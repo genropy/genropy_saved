@@ -24,6 +24,11 @@
 gnrapp
 """
 
+import tempfile
+import atexit
+import logging
+import shutil
+
 import sys
 import os
 import hashlib
@@ -191,7 +196,15 @@ class GnrPackage(object):
         pass
 
 class GnrApp(object):
-    def __init__(self, instanceFolder, custom_config=None, **kwargs):
+    def __init__(self, instanceFolder, custom_config=None, forTesting=False, **kwargs):
+        """Open a GenroPy application.
+        
+        :param instanceFolder: instance folder or name
+        :param custom_config:  a bag or dictionary that will override configuration value
+        :param forTesting:  if False, setup the application normally.
+                            if True, setup the application for testing with a temporary sqlite database.
+                            if it's a bag, setup the application for testing and import test data from this bag. (see loadTestingData)
+        """
         self.aux_instances= {}
         self.gnr_config=self.load_gnr_config()
         self.set_environment()
@@ -220,7 +233,7 @@ class GnrApp(object):
             self.main_module = gnrImport(os.path.join(self.customFolder, 'custom.py'),'custom_application')
             instanceMixin(self, getattr(self.main_module, 'Application', None))
             self.webPageCustom = getattr(self.main_module, 'WebPage', None)
-        self.init()
+        self.init(forTesting=forTesting)
         self.creationTime=time.time()
         
     
@@ -264,14 +277,29 @@ class GnrApp(object):
         instance_config.update(base_instance_config)
         return instance_config
         
-    def init(self):
+    def init(self, forTesting=False):
         self.onIniting()
-        self.base_lang = self.config['i18n?base_lang'] or 'en'       
+        self.base_lang = self.config['i18n?base_lang'] or 'en'
         self.catalog = GnrClassCatalog()
-        dbattrs = self.config.getAttr('db')
         self.localization = {}
-        if dbattrs.get('implementation') =='sqlite':
-            dbattrs['dbname'] = self.realPath(dbattrs.pop('filename'))
+        if not forTesting: 
+            dbattrs = self.config.getAttr('db')
+            if dbattrs.get('implementation') =='sqlite':
+                dbattrs['dbname'] = self.realPath(dbattrs.pop('filename'))
+        else:
+            # Setup for testing with a temporary sqlite database
+            tempdir = tempfile.mkdtemp()            
+            dbattrs = {}
+            dbattrs['implementation'] = 'sqlite'
+            dbattrs['dbname'] = os.path.join(tempdir,'testing')
+            # We have to use a directory, because genro sqlite adapter will creare a sqlite file for each package
+            
+            logging.info('Testing database dir: %s', tempdir)
+            
+            @atexit.register
+            def removeTemporaryDirectory():
+                shutil.rmtree(tempdir)
+            
         dbattrs['application'] = self
         dbattrs['allow_eager_one'] = ((self.config['eager?one'] or '').lower() =="true")
         dbattrs['allow_eager_many'] = ((self.config['eager?many'] or '').lower() =="true")
@@ -306,7 +334,37 @@ class GnrApp(object):
             self.config['menu'] = self.config['menu']['#0']
         self.buildLocalization()
         
+        if forTesting:
+            # Create tables in temporary database
+            self.db.model.check(applyChanges=True)
+            
+            if isinstance(forTesting, Bag):
+                self.loadTestingData(forTesting)
+
         self.onInited()
+
+    def loadTestingData(self, bag):
+        """Load data used for testing in the database.
+        
+        Bag should have this format:
+        <?xml version="1.0" encoding="UTF-8"?>
+        <GenRoBag>
+            <table name="package.table">
+                <some_name>
+                    <field1>ABCDEFG</field2>
+                    <field2>1235</field2>
+                    <!-- ... more fields ... -->
+                </some_name>
+                <!-- ... more records ... -->
+            </table>
+            <!-- ... more tables ... -->
+        </GenRoBag>
+        """
+        for table_name, records in bag.digest('#a.name,#v'):
+            tbl = self.db.table(table_name)
+            for r in records.values():
+                tbl.insert(r)
+        self.db.commit()
 
     def instance_name_to_path(self,instance_name):
         if 'instances' in self.gnr_config['gnr.environment_xml']:
