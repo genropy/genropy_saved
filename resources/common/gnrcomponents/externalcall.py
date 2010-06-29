@@ -22,9 +22,7 @@ from gnr.web.gnrwebpage import BaseComponent
 
 class BaseRpc(BaseComponent):
     def rootPage(self,*args, **kwargs):
-        valid_ip_list=self.validIpList()
-        if valid_ip_list and not self.request.remote_addr in valid_ip_list:
-            self.site.raiseUnauthorized()
+
             
         if 'pagetemplate' in kwargs:
             kwargs.pop('pagetemplate')
@@ -45,4 +43,3 @@ class BaseRpc(BaseComponent):
         
     def rpc_error(self,method, *args,**kwargs):
         return 'Not existing method %s' % method
-    
