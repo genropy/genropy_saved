@@ -1252,7 +1252,7 @@ dojo.declare("gnr.widgets.Menu",gnr.widgets.baseDojo,{
         }
         this.destroy_replaced.call(this);
     },
-    patch_d11__contextMouse: function (e){
+    versionpatch_11__contextMouse: function (e){
         this.originalContextTarget=e.target;
         var sourceNode=this.sourceNode;
         if (sourceNode){
@@ -1276,7 +1276,7 @@ dojo.declare("gnr.widgets.Menu",gnr.widgets.baseDojo,{
             this._openMyself_replaced.call(this,e);
         }
     },
-    patch_d15__openMyself: function (e){
+    versionpatch_15__openMyself: function (e){
         this.originalContextTarget=e.target;
         var sourceNode=this.sourceNode;
         if (sourceNode){
@@ -1299,7 +1299,7 @@ dojo.declare("gnr.widgets.Menu",gnr.widgets.baseDojo,{
             this._openMyself_replaced.call(this,e);
         }
    },
-    patch_d11__openMyself: function (e){
+    versionpatch_11__openMyself: function (e){
         if((e.button==2)&&(!this.modifiers)){
             this._openMyself_replaced.call(this,e);
         }
@@ -3444,7 +3444,7 @@ dojo.declare("gnr.widgets.DropDownButton",gnr.widgets.baseDojo,{
         }
         this.destroy_replaced.call(this);
     },
-    patch_d15_openDropDown: function(){
+    versionpatch_15_openDropDown: function(){
         var sourceNode=this.dropDown.sourceNode;
         if (sourceNode){
             sourceNode.refresh();
@@ -3453,7 +3453,7 @@ dojo.declare("gnr.widgets.DropDownButton",gnr.widgets.baseDojo,{
         this.openDropDown_replaced();
     }
     ,
-    patch_d11__openDropDown: function(evtDomNode){
+    versionpatch_11__openDropDown: function(evtDomNode){
         var sourceNode=this.dropDown.sourceNode;
         if (sourceNode){
             sourceNode.refresh();
@@ -3668,7 +3668,7 @@ dojo.declare("gnr.widgets.Tree",gnr.widgets.baseDojo,{
            var parentNode=parentNode.getParentNode();
        }
     },
-    patch_d11__onClick:function(e){  
+    versionpatch_11__onClick:function(e){  
         var nodeWidget = dijit.getEnclosingWidget(e.target);
         if(dojo.hasClass(e.target,'dijitTreeIcon') && this.tree.checkBoxTree){
             var bagnode=nodeWidget.item;
@@ -3695,7 +3695,7 @@ dojo.declare("gnr.widgets.Tree",gnr.widgets.baseDojo,{
             this._updateSelect(nodeWidget.item, nodeWidget);
         }     
     },
-    patch_d15__onClick:function(nodeWidget,e){  
+    versionpatch_15__onClick:function(nodeWidget,e){  
 		// summary:
 		//		Translates click events into commands for the controller to process
         if(dojo.hasClass(e.target,'dijitTreeIcon') && this.tree.checkBoxTree){

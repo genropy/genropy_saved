@@ -393,7 +393,7 @@ dojo.declare("gnr.GnrWdgHandler",null,{
     },
     doMixin:function(obj, handler,tag,sourceNode){
         var oldfunc, funcname, prefix,newfunc;
-        var versionpatch='patch_d'+dojo.version.major+dojo.version.minor+'_';
+        var versionpatch='versionpatch_'+dojo.version.major+dojo.version.minor+'_';
         var ispatch;
         for (var prop in handler){
             funcname=null;
@@ -401,17 +401,15 @@ dojo.declare("gnr.GnrWdgHandler",null,{
                 ispatch=false;
                 funcname = prop.replace('mixin_','');
             }
+            else if (stringStartsWith(prop,'versionpatch_')){
+                ispatch=true;
+                if (stringStartsWith(prop,versionpatch)){
+                    funcname = prop.replace(versionpatch,'');
+                }
+            }
             else if (stringStartsWith(prop,'patch_')){
                 ispatch=true;
-                if (stringStartsWith(prop,'patch_d')){
-                    if (stringStartsWith(prop,versionpatch)){
-                        funcname = prop.replace(versionpatch,'');
-                    }
-                }
-                else{
-                    funcname = prop.replace('patch_','');
-                }
-                
+                funcname = prop.replace('patch_','');
             }else if (stringStartsWith(prop,'nodemixin_')){
                 sourceNode[prop.replace('nodemixin_','')]=handler[prop];
             }else if (stringStartsWith(prop,'validatemixin_')){
