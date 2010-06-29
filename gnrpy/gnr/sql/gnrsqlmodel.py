@@ -93,7 +93,7 @@ class DbModel(object):
     
     def addRelation(self, many_relation_tuple, oneColumn,  mode=None,  one_one=None, onDelete=None, onDelete_sql=None,
                             onUpdate=None, onUpdate_sql=None, deferred=None, eager_one=None, eager_many=None,
-                            one_name=None,  many_name=None, one_group=None, many_group=None):
+                            one_name=None,  many_name=None, one_group=None, many_group=None, our_role=None, its_role=None):
         """ This method adds a relation in the current model.
             @param many_relation_tuple: the column of the "many table" as tuple. Eg. ('video','movie','director_id')
             @param oneColumn: the column of the "one table" as string. Eg. 'video.director.id'
@@ -103,6 +103,9 @@ class DbModel(object):
             @param eager_one: if True ('Y') the one_to_many relation is eager
             @param eager_many: if True ('Y') the many_to_one relation is eager
             @param onDelete: 'C:cascade' | 'I:ignore' | 'R:raise'
+            
+            @param our_role: @our_role will lead from the one table to the many table (e.g. @rows)
+            @param its_role: @its_role will lead from the many table to the one table (e.g. @header)
         """
         try:
             many_pkg, many_table, many_field = many_relation_tuple
@@ -113,8 +116,8 @@ class DbModel(object):
             if not (many_field and one_field):
                 logger.warning("pkg, table or field involved in the relation %s -> %s doesn't exist" % (many_relation, one_relation))
                 return
-            link_many_name = many_field
-            link_one_name = '_'.join(many_relation_tuple)
+            link_many_name = its_role or many_field
+            link_one_name = our_role or '_'.join(many_relation_tuple)
             #if not  many_name:
             #     many_name = link_one_name
             #if not  one_name:
@@ -135,8 +138,8 @@ class DbModel(object):
             #print 'The relation %s - %s was added'%(str('.'.join(many_relation_tuple)), str(oneColumn))
             self.checkRelationIndex(many_pkg, many_table, many_field)
             self.checkRelationIndex(one_pkg, one_table, one_field)
-        except:
-            logger.warning('The relation %s - %s cannot be added',str('.'.join(many_relation_tuple)), str(oneColumn))
+        except Exception, e:
+            logger.warning("Cannot add relation.\nOne : %s\nMany: %s\nErr : %s", str(oneColumn), str('.'.join(many_relation_tuple)), str(e))
             #print 'The relation %s - %s cannot be added'%(str('.'.join(many_relation_tuple)), str(oneColumn))
             
     def checkRelationIndex(self, pkg, table, column):
@@ -363,7 +366,7 @@ class DbModelSrc(GnrStructData):
     def relation(self, related_column, mode='relation',  one_name=None,
                   many_name=None, eager_one=None, eager_many=None, one_one=None, child=None,
                   one_group=None, many_group=None, onUpdate=None, onUpdate_sql=None, onDelete=None,
-                  onDelete_sql=None, deferred=None, **kwargs):
+                  onDelete_sql=None, deferred=None, our_role=None, its_role=None, **kwargs):
         """ This method adds a relation in the current model.
             @param many_relation_tuple: the column of the "many table" as tuple. Eg. ('video','movie','director_id')
             @param oneColumn: the column of the "one table" as string. Eg. 'video.director.id'
@@ -378,12 +381,15 @@ class DbModelSrc(GnrStructData):
             @param onDelete:
             @param onDelete_sql:
             @param deferred:
+
+            @param our_role: @our_role will lead from the one table to the many table (e.g. @rows)
+            @param its_role: @its_role will lead from the many table to the one table (e.g. @header)
         """
         return self.setItem('relation', self.__class__(), related_column=related_column, mode=mode, 
                               one_name= one_name,  many_name= many_name, one_one=one_one, child=child,
                              one_group=one_group, many_group=many_group, deferred=deferred, onUpdate=onUpdate, onDelete=onDelete,
                              eager_one=eager_one, eager_many=eager_many, onUpdate_sql=onUpdate_sql, onDelete_sql=onDelete_sql,
-                             **kwargs)
+                             our_role=our_role, its_role=its_role, **kwargs)
 
 class DbModelObj(GnrStructObj):
     """Base class for all the StructObj in this module"""
