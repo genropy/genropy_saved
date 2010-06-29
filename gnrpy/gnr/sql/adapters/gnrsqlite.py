@@ -34,13 +34,13 @@ from gnr.core.gnrbag import Bag
 class SqlDbAdapter(SqlDbBaseAdapter):
     typesDict = {'charactervarying':'A', 'character varying':'A', 'character':'C', 'text':'T', 'blob':'X',
                  'boolean':'B', 'date':'D', 'time without time zone':'H', 'timestamp without time zone':'DH',
-                 'timestamp with time zone':'DH',
+                 'timestamp with time zone':'DH','numeric':'N',
                  'integer':'I', 'bigint':'L','smallint':'I', 'double precision':'R', 'real':'R', 'serial8':'L'}
     
     revTypesDict = {'A':'character varying', 'T':'text', 'C':'character',
                     'X':'blob','P':'text','Z':'text',
                  'B':'boolean', 'D':'date', 'H':'time without time zone', 'DH':'timestamp without time zone',
-                 'I':'integer', 'L':'bigint', 'R':'real',
+                 'I':'integer', 'L':'bigint', 'R':'real','N':'numeric',
                  'serial':'serial8'}
     
     def defaultMainSchema(self):
