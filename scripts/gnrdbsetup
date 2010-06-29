@@ -6,6 +6,12 @@ from gnr.core.gnrbag import Bag
 import optparse
 import glob
 from gnr.core.gnrsys import expandpath
+
+import logging
+from gnr.core.gnrlog import enable_colored_logging
+
+enable_colored_logging()
+
 S_GNRHOME=os.path.split(os.environ.get('GNRHOME','/usr/local/genro'))
 GNRHOME=os.path.join(*S_GNRHOME)
 S_GNRINSTANCES=(os.environ.get('GNRINSTANCES') and os.path.split(os.environ.get('GNRINSTANCES'))) or (S_GNRHOME+('data','instances'))
