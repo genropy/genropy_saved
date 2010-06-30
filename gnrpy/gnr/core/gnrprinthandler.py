@@ -6,6 +6,8 @@ except ImportError:
 import os.path
 from subprocess import call
 try:
+    import warnings
+    warnings.filterwarnings(category=DeprecationWarning, module='pyPdf', action='ignore')
     from pyPdf import PdfFileWriter, PdfFileReader
     from cStringIO import StringIO
     HAS_PYPDF = True
