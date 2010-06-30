@@ -322,4 +322,6 @@ class TimeTableHooks(object):
         :param height: avaiable vertical space
         
         If your content is larger than (width x height), the layout may look bad.
+        
+        It will be called once with all parameters set to None, to get the height for this slot type.
         """
