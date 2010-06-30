@@ -13,6 +13,7 @@ from gnr.core.gnrstring import splitAndStrip
 from gnr.core.gnrsys import expandpath
 
 from gnr.web.gnrwebpage import GnrWebPage
+from gnr.web._gnrbasewebpage import GnrWebServerError
 from gnr.web.gnrbaseclasses import BaseResource
 
 
