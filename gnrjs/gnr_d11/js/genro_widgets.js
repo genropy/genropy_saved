@@ -3654,17 +3654,17 @@ dojo.declare("gnr.widgets.Tree",gnr.widgets.baseDojo,{
            if (value instanceof gnr.GnrBag){
                value.walk(function(node){
                    if(node._resolver && node._resolver.expired()){
-                       node.setAttr({'checked':-1});
+                       node.setAttr({'checked':-1},true,true);
                    }else{
-                       node.setAttr({'checked':checked});
+                       node.setAttr({'checked':checked},true,true);
                    }
                    },'static');
            }
        } 
-       bagnode.setAttr({'checked':checked});
+       bagnode.setAttr({'checked':checked},true,true);
        var parentNode=bagnode.getParentNode();
        while(parentNode){
-           parentNode.setAttr({'checked':this.checkBoxCalcStatus(parentNode)});
+           parentNode.setAttr({'checked':this.checkBoxCalcStatus(parentNode)},true,true);
            var parentNode=parentNode.getParentNode();
        }
     },
