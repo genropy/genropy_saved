@@ -9,7 +9,8 @@ from gnr.core.gnrbag import Bag
 
 class GnrCustomWebPage(object):
     maintable='hosting.client'
-    py_requires='public:Public,standard_tables:TableHandler,gnrcomponents/selectionhandler,hosted:HostedClient,hosted:HostedInstance'
+    py_requires="""public:Public,standard_tables:TableHandler,utilita_component:UtilitaAnagrafica,
+                   gnrcomponents/selectionhandler,hosted:HostedClient,hosted:HostedInstance"""
 
 ######################## STANDARD TABLE OVERRIDDEN METHODS ###############
     def windowTitle(self):
@@ -45,17 +46,28 @@ class GnrCustomWebPage(object):
 ############################## FORM METHODS ##################################
 
     def formBase(self, parentBC,disabled=False, **kwargs):
-        tc = parentBC.tabContainer(**kwargs)
+        bc = parentBC.borderContainer(**kwargs)
+        top = bc.borderContainer(region='top',height='120px')
+        right = top.contentPane(region='right',width='350px')
+        fb = right.formbuilder(cols=1,border_spacing='3px',disabled=disabled)
+        self.anagrafica_linker(fb,width='20em',height='8ex',lbl='!!Anagrafica') 
+        center = top.contentPane(region='center')
+        fb = center.formbuilder(cols=1, border_spacing='3px',fld_width='100%',
+                                width='350px',disabled=disabled)
+        fb.field('code')
+        fb.field('user_id')
+        #fb.field('anagrafica_id',colspan=2)
+       
+              
+        tc = bc.tabContainer(region='center')
+        
         self.main_clienttab(tc.borderContainer(title='Info'),disabled)
         for pkgname,handler in [(c.split('_')[1],getattr(self,c)) for c in dir(self) if c.startswith('hostedclient_')]:
             handler(tc.contentPane(datapath='.hosted_data.%s' %pkgname,title=self.db.packages[pkgname].name_long))
         
     
     def main_clienttab(self,bc,disabled):
-        fb = bc.contentPane(region='top').formbuilder(cols=2, border_spacing='3px',fld_width='100%',width='350px',disabled=disabled)
-        fb.field('code')
-        fb.field('user_id')
-        fb.field('anagrafica_id',colspan=2)
+        
         self.selectionHandler(bc.borderContainer(region='center'),label='!!Instances',
                                 datapath="instances",nodeId='instances',table='hosting.instance',
                                 struct=self.struct_instances,reloader='^form.record.id',
@@ -64,7 +76,7 @@ class GnrCustomWebPage(object):
                                                     applymethod='apply_instances_selection',order_by='$code'),
                                 dialogPars=dict(height='400px',width='600px',formCb=self.instance_form,
                                                 toolbarPars=dict(lock_action=True,add_action=True,del_action=True,save_action=True),
-                                                default_client_id='=form.record.id'))
+                                                default_client_id='=form.record.id',saveKwargs=dict(_lockScreen=True,saveAlways=True)))
                                                 
     def instance_form(self,parentBC,disabled=None,table=None,**kwargs):
         tc = parentBC.tabContainer(**kwargs)

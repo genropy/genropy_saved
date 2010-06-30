@@ -12,9 +12,18 @@ class Package(GnrDboPackage):
 
     def config_db(self, pkg):
         pass
-
+        
     def hosting_folder(self):
         return os.path.realpath(os.path.join(self.db.application.instanceFolder,self.attributes['hostingFolder']))
+
+    def instance_template(self):
+        """return """
+        return os.path.join(self.hosting_folder(),'instances','_template','instanceconfig.xml')
+        
+    def site_template(self):
+        """return """
+        return os.path.join(self.hosting_folder(),'sites','_template','siteconfig.xml')
+        
 
     def instance_folder(self,instance_name):
         return os.path.join(self.hosting_folder(),'instances',instance_name)
@@ -54,7 +63,7 @@ class Package(GnrDboPackage):
             
     def db_setup(self, instance_name, storename=None):
         if self.instance_exists(instance_name):
-            app=GnrApp(os.path.join(self.instance_folder(instance_name),'instanceconfig.xml'))
+            app=GnrApp(self.instance_folder(instance_name))
             if storename=='*':
                 stores = [None]+app.db.dbstores.keys()
             else:

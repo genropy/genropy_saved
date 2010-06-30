@@ -2,8 +2,8 @@
 # encoding: utf-8
 
 from gnr.app.gnrdeploy import InstanceMaker, SiteMaker
-import os.path
 from gnr.core.gnrbag import Bag
+import os
 
 class Table(object):
 
@@ -15,29 +15,34 @@ class Table(object):
         tbl.column('repository_name', dtype='T', name_long='!!Repository Name') # Optional
         tbl.column('path',dtype='T',name_long='!!Instance Path')
         tbl.column('site_path',dtype='T',name_long='!!Site Path')
-        tbl.column('hosted_data','X',name_long='!!Hosted data')  
+        tbl.column('hosted_data','X',name_long='!!Hosted data',_sendback=True)  
         tbl.column('client_id',size=':22',name_long='!!Client id').relation('client.id',mode='foreignkey')
-        tbl.column('db_name',size=':15',name_long='!!Database Name')
 
-    def create_instance(self, name, path, instanceconfig, dbname):
-        instanceconfig=Bag(instanceconfig)
-        instanceconfig.pop('application')
-        instanceconfig.pop('menu')
-        instanceconfig.pop('packages.hosting')
-        instanceconfig.setAttr('db',dbname=dbname)
-        base_path=os.path.dirname(os.path.realpath(path))
-        im=InstanceMaker(name, base_path=base_path, config=instanceconfig)
+    def create_instance(self, code):
+        instanceconfig=Bag(self.pkg.instance_template())
+        instanceconfig.setAttr('db',dbname=code)
+        base_path=os.path.dirname(self.pkg.instance_folder(code))
+        im=InstanceMaker(code, base_path=base_path, config=instanceconfig)
         im.do()
         return im.instance_path
         
-    def create_site(self, name, path, siteconfig):
-        siteconfig=Bag(siteconfig)
-        siteconfig.pop('secret')
-        siteconfig.pop('instances')
-        base_path=os.path.dirname(os.path.realpath(path))
-        sm=SiteMaker(name, base_path=base_path, config=siteconfig)
+    def create_site(self, code):
+        siteconfig=Bag(self.pkg.site_template())
+        base_path=os.path.dirname(self.pkg.site_folder(code))
+        sm=SiteMaker(code, base_path=base_path, config=siteconfig)
         sm.do()
         return sm.site_path
 
     def trigger_onInserting(self, record_data):
-        pass
+        self.create_instance(record_data['code'])
+        self.create_site(record_data['code'])
+        self.pkg.db_setup(record_data['code'])
+        for pkg in self.db.application.packages.values():
+            if hasattr(pkg,'onInstanceCreated'):
+                getattr(pkg,'onInstanceCreated')(record_data)
+    
+    def trigger_onUpdating(self, record_data, old_record):
+        for pkg in self.db.application.packages.values():
+            if hasattr(pkg,'onInstanceUpdated'):
+                getattr(pkg,'onInstanceUpdated')(record_data)
+                
