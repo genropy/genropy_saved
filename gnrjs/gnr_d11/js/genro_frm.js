@@ -527,7 +527,7 @@ dojo.declare("gnr.GnrValidator",null,{
         }
     },
     validate_notnull: function(param, value){
-        if((value=='') || (value == null)){
+        if((value==='') || (value == null)){
             return {'errorcode':'notnull', 'required':true};
         }
     },
@@ -547,7 +547,7 @@ dojo.declare("gnr.GnrValidator",null,{
         }
     },
     validate_empty: function(param, value){
-        if (value == null || value==''){
+        if (value == null || value===''){
             return {'value':param};
         }
     },

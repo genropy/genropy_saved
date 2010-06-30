@@ -303,8 +303,8 @@ class GnrSqlDb(GnrObject):
         @param tblobj: the table object
         @param record: an object implementing dict interface as colname, colvalue
         """
-        tblobj.protect_update(record)
-        tblobj.protect_validate(record)
+        tblobj.protect_update(record, old_record=old_record)
+        tblobj.protect_validate(record, old_record=old_record)
         tblobj._doFieldTriggers('onUpdating', record)
         tblobj.trigger_onUpdating(record, old_record=old_record)
         self.adapter.update(tblobj, record, pkey=pkey)

@@ -694,13 +694,13 @@ class SqlTable(GnrObject):
     def trigger_onDeleted(self, record):
         pass
         
-    def protect_update(self,record):
+    def protect_update(self,record, old_record=None):
         pass
         
     def protect_delete(self,record):
         pass
         
-    def protect_validate(self,record):
+    def protect_validate(self,record, old_record=None):
         pass
             
     def check_updatable(self,record):
