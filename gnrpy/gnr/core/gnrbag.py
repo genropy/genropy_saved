@@ -568,6 +568,10 @@ class Bag(GnrObject):
         :param attributes:  keys to copy as attributes of the leaves. (default: `'*'` = all attributes)
         :returns: |Bag|
         """
+        
+        if isinstance(group_by, str) or isinstance(group_by, unicode):
+            group_by = group_by.split(',')
+        
         result = Bag()
         for key, item in self.iteritems():
             path = []
@@ -577,7 +581,7 @@ class Bag(GnrObject):
                 val = key
             else:
                 val = item[caption]
-            path.append(val.replace('.','_'))
+            path.append(unicode(val).replace(u'.',u'_'))
             if attributes == '*':
                 attributes = item.keys()
             attrs = dict([ (k,item[k]) for k in attributes])
