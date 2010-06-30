@@ -22,6 +22,8 @@
 #import weakref
 import os, re, time
 
+import datetime
+
 try:
     import sqlite3 as pysqlite
 except:
@@ -31,15 +33,18 @@ from gnr.sql.adapters._gnrbaseadapter import GnrDictRow, GnrWhereTranslator
 from gnr.sql.adapters._gnrbaseadapter import SqlDbAdapter as SqlDbBaseAdapter
 from gnr.core.gnrbag import Bag
 
+import logging
+
+logger = logging.getLogger('gnrsqlite')
+
 class SqlDbAdapter(SqlDbBaseAdapter):
     typesDict = {'charactervarying':'A', 'character varying':'A', 'character':'C', 'text':'T', 'blob':'X',
-                 'boolean':'B', 'date':'D', 'time without time zone':'H', 'timestamp without time zone':'DH',
-                 'timestamp with time zone':'DH','numeric':'N',
+                 'boolean':'B', 'date':'D', 'time':'H', 'timestamp':'DH', 'numeric':'N',
                  'integer':'I', 'bigint':'L','smallint':'I', 'double precision':'R', 'real':'R', 'serial8':'L'}
     
     revTypesDict = {'A':'character varying', 'T':'text', 'C':'character',
                     'X':'blob','P':'text','Z':'text',
-                 'B':'boolean', 'D':'date', 'H':'time without time zone', 'DH':'timestamp without time zone',
+                 'B':'boolean', 'D':'date', 'H':'time', 'DH':'timestamp',
                  'I':'integer', 'L':'bigint', 'R':'real','N':'numeric',
                  'serial':'serial8'}
     
@@ -264,6 +269,11 @@ class SqlDbAdapter(SqlDbBaseAdapter):
             unique = ''
         return "CREATE %sINDEX %s ON %s (%s);" % (unique, index_name, table_sql, columns)
 
+    def lockTable(self, dbtable, mode, nowait):
+        """We use sqlite just for tests, so we don't care about locking at the moment."""
+        pass
+
+
 class GnrSqliteCursor(pysqlite.Cursor):
     def _get_index(self):
         if not hasattr(self, '_index') or self._index is None:
@@ -273,7 +283,35 @@ class GnrSqliteCursor(pysqlite.Cursor):
         return self._index
     index = property(_get_index)
     
-    def execute(self, *args, **kwargs):
+    def execute(self, sql, *args, **kwargs):
+        global logger
+        if not sql.startswith('ATTACH'):
+            logger.debug("%s" % sql)
+            if args: logger.debug("-- args  : %s", args)
+            if kwargs: logger.debug("-- kwargs: %s", kwargs)
+            logger.debug("\n")
         self._index = None
-        return pysqlite.Cursor.execute(self, *args, **kwargs)
-    
+        try:
+            return pysqlite.Cursor.execute(self, sql, *args, **kwargs)
+        except:
+            logger.exception("Error from sqlite")
+            raise
+
+# ------------------------------------------------------------------------------------------------------- Add support for time fields to sqlite3 module
+
+def adapt_time(val):
+    return val.isoformat()
+
+def convert_time(val):
+    return datetime.time(*map(int,val.split(':')))
+
+pysqlite.register_adapter(datetime.time, adapt_time)
+pysqlite.register_converter("time",convert_time)
+
+# ------------------------------------------------------------------------------------------------------- Fix issues with datetimes and dates
+
+def convert_date(val):
+    val = val.partition(' ')[0] # take just the date part, if we received a datetime string
+    return datetime.date(*map(int, val.split("-")))
+
+pysqlite.register_converter("date",convert_date)
