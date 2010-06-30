@@ -336,6 +336,34 @@ def dayIterator(period,wkdlist=None,locale=None,workdate=None,asDate=True):
         else:
             yield d
 
+def toTime(time_or_datetime):
+    """Convert a time or datetime to a time.
+    """
+    if isinstance(time_or_datetime, datetime.datetime):
+        return time_or_datetime.time
+    elif isinstance(time_or_datetime, datetime.time):
+        return time_or_datetime
+    else:
+        raise ValueError, "toTime(%s) accepts only times or datetimes" % repr(time_or_datetime)
+
+def toDate(date_or_datetime):
+    """Convert a date or datetime to a date.
+    """
+    if isinstance(date_or_datetime, datetime.datetime):
+        return date_or_datetime.date
+    elif isinstance(date_or_datetime, datetime.date):
+        return date_or_datetime
+    else:
+        raise ValueError, "toDate(%s) accepts only dates or datetimes" % repr(date_or_datetime)
+
+def dateRange(dstart, dstop):
+    """Iterates over a range of dates.
+    """
+    dt = dstart
+    while dt < dstop:
+        yield dt
+        dt = dt + datetime.timedelta(days=1)
+
 if __name__=='__main__':
     workdate = datetime.date(2009,1,12)
     res = decodeDatePeriod(u"10 giugno,30 giugno", workdate=workdate, locale='it')
