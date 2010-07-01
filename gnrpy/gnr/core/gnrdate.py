@@ -340,7 +340,7 @@ def toTime(time_or_datetime):
     """Convert a time or datetime to a time.
     """
     if isinstance(time_or_datetime, datetime.datetime):
-        return time_or_datetime.time
+        return time_or_datetime.time()
     elif isinstance(time_or_datetime, datetime.time):
         return time_or_datetime
     else:
@@ -350,7 +350,7 @@ def toDate(date_or_datetime):
     """Convert a date or datetime to a date.
     """
     if isinstance(date_or_datetime, datetime.datetime):
-        return date_or_datetime.date
+        return date_or_datetime.date()
     elif isinstance(date_or_datetime, datetime.date):
         return date_or_datetime
     else:

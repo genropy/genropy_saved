@@ -275,5 +275,23 @@ def test_addToMonth():
     res = gnrdate.decodeDatePeriod(u"from this month - 12 to this month + 12", workdate=workdate)
     assert res == '2007-04-01;2009-04-30'
 
+def test_toTime():
+    dt = datetime.datetime(2010,4,8,10,30)
+    t = datetime.time(10,30)
+    assert isinstance(gnrdate.toTime(dt), datetime.time)
+    assert isinstance(gnrdate.toTime(t), datetime.time)
+    assert gnrdate.toTime(dt) == t
 
+def test_toDate():
+    dt = datetime.datetime(2010,4,8,10,30)
+    d = datetime.date(2010,4,8)
+    assert isinstance(gnrdate.toDate(dt), datetime.date)
+    assert isinstance(gnrdate.toDate(d), datetime.date)
+    assert gnrdate.toDate(dt) == d
+
+def test_dateRange():
+    dtstart = datetime.datetime(2010,4,1)
+    dtstop = datetime.datetime(2010,4,10)
+    expected = [datetime.datetime(2010,4,d) for d in range(1,10)]
+    assert list(gnrdate.dateRange(dtstart,dtstop)) == expected
     
