@@ -15,7 +15,7 @@ Contents:
 .. toctree::
     :maxdepth: 2
 
-    installazione
+    Installation
     widgets/index
     ui/index
     core/index
@@ -34,7 +34,7 @@ Indici e tabelle
 
 
 
-Miscellanea
+Miscellaneous
 ==================
 
 Contents:
