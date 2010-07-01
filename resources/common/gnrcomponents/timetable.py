@@ -293,7 +293,7 @@ class Timetable(BaseComponent):
         .serierow_n6{}
         
         """
-
+    
 class TimeTableHooks(object):
     """Hooks for TimeTable component.
     """
@@ -301,6 +301,8 @@ class TimeTableHooks(object):
     def tt_NODEID_onstart(self):
         """Called before the timetable is drawn.
         You can use self.tt_pars to cache stuff.
+        You must set self.tt_pars to a list of dictionaries (they are a list of whatever you passed in the timetable_dh,
+        generally strings).
         (tt_pars won't conflict with more than one timetable, because they'd be called in multiple remote calls)
         """
         
