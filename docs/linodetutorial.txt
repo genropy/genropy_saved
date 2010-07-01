@@ -44,6 +44,9 @@ CONSIGLIATO
 adduser genro
 visudo (copio root e gli metto il nome genro) - visudo (copied root and put the name Genro)
 
+http://www.kelvinwong.ca/2010/05/22/installing-webmin-on-ubuntu-server-10-04-lts-lucid/
+to install webmin
+
 mettergli una password molto sicura - put a very safe password
 
 loggati nuovamente via ssh come utente genro - log in again via ssh as user Genro
