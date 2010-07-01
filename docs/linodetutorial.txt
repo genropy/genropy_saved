@@ -6,8 +6,8 @@ ssh ipdelsito -l root
 
 apt-get update
 apt-get upgrade
-apt-cache search string elenca i pacchetti che hanno una relazione con quella stringa
-apt-get install nomepacchetto installa il pacchetto
+apt-cache search - string lists the packages that have a relationship with that string
+apt-get install packagename - install the package
 
 PER NOI 
 
@@ -42,30 +42,30 @@ easy_install -U -Z paver babel pytz vobject paste webob weberror mako pypdf z3c.
 
 CONSIGLIATO
 adduser genro
-visudo (copio root e gli metto il nome genro)
+visudo (copio root e gli metto il nome genro) - visudo (copied root and put the name Genro)
 
-mettergli una password molto sicura
+mettergli una password molto sicura - put a very safe password
 
-loggati nuovamente via ssh come utente genro
+loggati nuovamente via ssh come utente genro - logged in again via ssh as user Genro
 
 [genro]
 svn co http://svn.genropy.org/genro/trunk genro
 cd genro/gnrpy
 sudo paver develop
 
-mkdir ~/progetti
-cd ~/progetti
-svn co http://...../progetto
+mkdir ~/projects
+cd ~/projects
+svn co http://...../project
 
 sudo -u postgres psql
 postgres=# \password
 
-(nuova pass dell'utente postgres solitamente postgres o postgnr)
+(nuova pass dell'utente postgres solitamente postgres o postgnr) - new postgres password is usually 'postgres'
 
 postgres=# \q
 
-copio nella home di genro la cartella .gnr
-edito i path
+copio nella home di genro la cartella .gnr  (I copy the home folder id Genro)
+edito i path - edited paths
 
 [pycups]
 wget http://cyberelk.net/tim/data/pycups/pycups-1.9.46.tar.bz2
@@ -76,8 +76,8 @@ sudo make install
 
 [screen]
 apt-get install screen
-con il comando screen si effettua un fork della sessione corrente, i comandi lanciati in quasta nuova sessione 
-sopravvivono alla chiusura della sessione ssh.
+con il comando screen si effettua un fork della sessione corrente, i comandi lanciati in quasta nuova sessione sopravvivono alla chiusura della sessione ssh. - with the screen command is made a fork of the current session, the command launched in totally abandons new session survive the closing ssh session . . To return to the normal Ctrl-A followed by d
+
 Per tornare alla vista normale ctrl-a seguito da d.
 per riaprire lo schermo con i processi in esecuzione: screen -r
 man screen è amico.
