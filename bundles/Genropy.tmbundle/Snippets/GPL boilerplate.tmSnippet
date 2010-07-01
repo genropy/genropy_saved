@@ -17,9 +17,9 @@
 # License along with this library; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA</string>
 	<key>name</key>
-	<string>GPL boilerplate</string>
+	<string>LGPL boilerplate</string>
 	<key>tabTrigger</key>
-	<string>GPL</string>
+	<string>LGPL</string>
 	<key>uuid</key>
 	<string>E663BDB5-D286-4C30-A290-C7E5F26CB6C0</string>
 </dict>
