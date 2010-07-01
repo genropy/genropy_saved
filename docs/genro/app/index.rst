@@ -4,4 +4,5 @@
 
 .. toctree::
 
-	dbo
+    app
+    dbo

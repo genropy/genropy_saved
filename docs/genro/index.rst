@@ -8,6 +8,8 @@
 GenroPy
 =======
 
+**Last update:** |today|
+
 Contents:
 
 .. toctree::

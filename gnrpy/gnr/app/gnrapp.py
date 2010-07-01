@@ -195,15 +195,27 @@ class GnrPackage(object):
         pass
 
 class GnrApp(object):
-    def __init__(self, instanceFolder, custom_config=None, forTesting=False, **kwargs):
-        """Open a GenroPy application.
+    """Opens a GenroPy application instance.
+
+    Constructor parameters:
         
-        :param instanceFolder: instance folder or name
-        :param custom_config:  a bag or dictionary that will override configuration value
-        :param forTesting:  if False, setup the application normally.
-                            if True, setup the application for testing with a temporary sqlite database.
-                            if it's a bag, setup the application for testing and import test data from this bag. (see loadTestingData)
-        """
+    :param instanceFolder: instance folder or name
+    :param custom_config:  a bag or dictionary that will override configuration value
+    :param forTesting:  if False, setup the application normally.
+                        if True, setup the application for testing with a temporary sqlite database.
+                        if it's a bag, setup the application for testing and import test data from this bag.
+                        (see :meth:`loadTestingData`)
+    
+    If you want to interact with a Genro instance from your own python script, you can use this class directly.
+    
+    Example:
+    
+    >>> testgarden = GnrApp('testgarden')
+    >>> testgarden.db.table('showcase.person').query().count()
+    12
+    """
+    
+    def __init__(self, instanceFolder, custom_config=None, forTesting=False, **kwargs):
         self.aux_instances= {}
         self.gnr_config=self.load_gnr_config()
         self.set_environment()
@@ -370,19 +382,24 @@ class GnrApp(object):
     def loadTestingData(self, bag):
         """Load data used for testing in the database.
         
-        Bag should have this format:
-        <?xml version="1.0" encoding="UTF-8"?>
-        <GenRoBag>
-            <table name="package.table">
-                <some_name>
-                    <field1>ABCDEFG</field2>
-                    <field2>1235</field2>
-                    <!-- ... more fields ... -->
-                </some_name>
-                <!-- ... more records ... -->
-            </table>
-            <!-- ... more tables ... -->
-        </GenRoBag>
+        Called by the constructor when you pass a Bag in the `forTesting` parameter.
+        
+        :param bag: your test data
+        
+        Use this format in your test data::
+        
+            <?xml version="1.0" encoding="UTF-8"?>
+            <GenRoBag>
+                <table name="package.table">
+                    <some_name>
+                        <field1>ABCDEFG</field2>
+                        <field2>1235</field2>
+                        <!-- ... more fields ... -->
+                    </some_name>
+                    <!-- ... more records ... -->
+                </table>
+                <!-- ... more tables ... -->
+            </GenRoBag>
         """
         for table_name, records in bag.digest('#a.name,#v'):
             tbl = self.db.table(table_name)
@@ -429,9 +446,15 @@ class GnrApp(object):
                 'Error: package %s not found' % pkgid)
     
     def onIniting(self):
+        """Event called before the instance initialization.
+        """
         pass
     
     def onInited(self):
+        """Event called after the instance initialization is complete.
+        
+        By default, it will call the ``onApplicationInited()`` method of each package.
+        """
         for pkg in self.packages.values():
             pkg.onApplicationInited()
 
@@ -499,10 +522,13 @@ class GnrApp(object):
                         return avatar
                 
     def auth_xml(self, node, username, password=None, authenticate=False):
-        """In file instanceconfig.xml insert a tag like:
-                <xml_auth defaultTags='myusers'>
-            <john pwd='mydog' tags='admin' />
-        </xml_auth>
+        """Authentication from instanceconfig.xml, use it during development or for sysadmin tasks.
+        
+        In file instanceconfig.xml insert a tag like::
+        
+            <xml_auth defaultTags='myusers'>
+                <john pwd='mydog' tags='admin' />
+            </xml_auth>
 
         """
         defaultTags = node.getAttr('defaultTags')
@@ -517,13 +543,20 @@ class GnrApp(object):
                                           id=userid, username=userid, userid=userid, **attrs)
 
     def auth_py(self, node, username, password=None, authenticate=False):
-        """In file instanceconfig.xml insert a tag like:
-           <py_auth  defaultTags='myusers' pkg='mypkg' method='myauthmethod' />
+        """Python authentication. This is mostly used to register new users for the first time. (see ``adm`` package).
+        
+        In file instanceconfig.xml insert a tag like::
+        
+               <py_auth  defaultTags='myusers' pkg='mypkg' method='myauthmethod' />
            
-           mypkg.myauthmethod will be called with username as the only parameter
-           Must return None if user doesn't exists or a dict containing every attribute to add to the avatar
-           Mandatory attributes: username, pwd
-           """
+           ``mypkg.myauthmethod`` will be called with a single parameter, the username. It should return:
+           -  ``None``, if the user doesn't exists
+           - a dict containing every attribute to add to the avatar, if the user is valid.
+           - Mandatory attributes: username, pwd
+
+        **TODO:** it seems odd that we don't pass the password to the authentication method. It limits the appicability
+                  of this authentication method soo much!
+        """
         defaultTags = node.getAttr('defaultTags')
         attrs = dict(node.getAttr())
         pkg = attrs.get('pkg')
@@ -538,11 +571,16 @@ class GnrApp(object):
             return self.makeAvatar(login_pwd=password, authenticate=authenticate, defaultTags=defaultTags, **result)
     
     def auth_sql(self, node, username, password=None, authenticate=False):
-        """In file instanceconfig.xml insert a tag like:
-           <sql_auth  defaultTags='myusers' dbtable='mypkg.users' username='username_fld' pwd='pwd_fld' userid='optional_id_fld' />
-           Mandatory attributes: dbtable, username, pwd
-           Optional attributes: defaultTags, userid (the primary key of the db table if it is not the username field)
-           Other attributes are aliases of dbfield names: myavatarfield='mydbfield'
+        """Authenticate from database.
+        
+        In file instanceconfig.xml insert a tag like::
+        
+           <sql_auth  defaultTags='myusers' dbtable='mypkg.users' 
+                      username='username_fld' pwd='pwd_fld' userid='optional_id_fld' />
+        
+       - Mandatory attributes: dbtable, username, pwd
+       - Optional attributes: defaultTags, userid (the primary key of the db table if it is not the username field)
+         Other attributes are aliases of dbfield names: myavatarfield='mydbfield'
         """
         attrs = dict(node.getAttr())
         defaultTags = attrs.pop('defaultTags', None)
