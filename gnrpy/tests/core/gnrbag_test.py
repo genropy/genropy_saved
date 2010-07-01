@@ -251,4 +251,29 @@ class MyResolver(BagResolver):
         result['user']=os.getenv('USER')
         result['ID']=result['ip']+'-'+str(result['pid'])+'-'+result['user']
         return result
-        
+
+def testToTree():
+    b = Bag()
+    b['alfa'] = Bag(dict(number=1,text='group1',title='alfa', date=datetime.date(2010,05,10)))
+    b['beta'] = Bag(dict(number=1,text='group2',title='beta', date=datetime.date(2010,05,05)))
+    b['gamma'] = Bag(dict(number=2,text='group1',title='gamma', date=datetime.date(2010,05,10)))
+    b['delta'] = Bag(dict(number=2,text='group2', title='delta', date=datetime.date(2010,05,05)))
+    treeBag = b.toTree(group_by=('number','text'),caption='title', attributes=('date','text'))
+    
+    expectedStr = \
+"""0 - (Bag) 1: 
+    0 - (Bag) group1: 
+        0 - (None) alfa: None  <date='2010-05-10' text='group1'>
+    1 - (Bag) group2: 
+        0 - (None) beta: None  <date='2010-05-05' text='group2'>
+1 - (Bag) 2: 
+    0 - (Bag) group1: 
+        0 - (None) gamma: None  <date='2010-05-10' text='group1'>
+    1 - (Bag) group2: 
+        0 - (None) delta: None  <date='2010-05-05' text='group2'>"""
+    
+    assert str(treeBag) == expectedStr
+    
+    treeBag2 = b.toTree(group_by='number,text',caption='alfa', attributes=('date','text'))
+    assert treeBag == treeBag2
+    
