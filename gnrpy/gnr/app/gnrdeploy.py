@@ -164,7 +164,7 @@ if __name__ == '__main__':
 class InstanceMaker(object):
     def __init__(self, instance_name, base_path=None, packages=None, authentication=True, authentication_pkg=None,
                 db_dbname=None, db_implementation=None, db_host=None, db_port=None, 
-                db_user=None, db_password=None, config=None):
+                db_user=None, db_password=None, use_dbstores=False, config=None):
         self.instance_name = instance_name
         self.base_path = base_path or '.'
         self.packages = packages or []
@@ -184,6 +184,7 @@ class InstanceMaker(object):
         self.db_port = db_port
         self.db_user = db_user
         self.db_password = db_password
+        self.use_dbstores = use_dbstores
         self.config=config
 
     def do(self):
@@ -191,7 +192,11 @@ class InstanceMaker(object):
         custom_path = os.path.join(self.instance_path, 'custom')
         data_path = os.path.join(self.instance_path, 'data')
         instanceconfig_xml_path = os.path.join(self.instance_path, 'instanceconfig.xml')
-        for path in (self.instance_path, custom_path, data_path):
+        folders_to_make = [self.instance_path, custom_path, data_path]
+        if self.use_dbstores:
+            dbstores_path = os.path.join(self.instance_path, 'dbstores')
+            folders_to_make.append(dbstores_path)
+        for path in folders_to_make:
             if not os.path.isdir(path):
                 os.mkdir(path)
         if not os.path.isfile(instanceconfig_xml_path):
