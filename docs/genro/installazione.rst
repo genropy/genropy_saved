@@ -1,8 +1,8 @@
 ***************
- Installazione
+ Install
 ***************
 
-Prerequisiti
+Requirements
 ============
 
 Per utilizzare GenroPy, avrete bisogno almeno di:
