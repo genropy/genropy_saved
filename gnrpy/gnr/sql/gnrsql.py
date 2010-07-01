@@ -177,6 +177,9 @@ class GnrSqlDb(GnrObject):
                             
     def dropDbstore(self,storename):
         self.dbstores.pop(storename,None)
+    
+    def dropAllDbStores(self):
+        self.dbstores=dict()
         
     def tempEnv(self, **kwargs):
         return TempEnv(self, **kwargs)
