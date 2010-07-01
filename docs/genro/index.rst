@@ -30,3 +30,14 @@ Indici e tabelle
 * :ref:`modindex`
 * :ref:`search`
 
+
+
+Miscellanea
+==================
+
+Contents:
+
+.. toctree::
+    :maxdepth: 2
+
+    linode_install
