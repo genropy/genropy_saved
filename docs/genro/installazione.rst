@@ -5,56 +5,57 @@
 Requirements
 ============
 
-Per utilizzare GenroPy, avrete bisogno almeno di:
+To use GenroPy, you'll need at least:
 
-- sistema operativo Mac o Linux (non ho esperienza con Windows)
+- Mac OS or Linux (Windows is possible but not preferred or covered here)
 - Python 2.6
 - Postgres 8
-- subversion (e magari git)
+- subversion
+- git (optional)
 
-Se non l'avete già, installate **easy_install** così::
+Install **easy_install**::
 
 	curl -O http://peak.telecommunity.com/dist/ez_setup.py
 	sudo python ez_setup.py
-	# oppure in Ubuntu
+	# for Ubuntu
 	sudo apt-get install python-setuptools
 
-Serviranno anche **psycopg2** e **paver**, installabili con *easy_install*::
+Install **psycopg2** and **paver**, with *easy_install*::
 
 	sudo easy_install -U -Z psycopg2
-	# oppure in Ubuntu
+	# for Ubuntu
 	sudo apt-get install python-psycopg2
 
-Per installare *paver*::
+To install *paver*::
 
 	sudo easy_install -U -Z paver
 
 (``-U`` = upgrade, ``-Z`` = always unzip)
 
-Ottenere GenroPy
+How to obtain GenroPy
 ================
 
-Il repository di GenroPy è basato su subversion, però vi consiglio di usare git così da poter tener traccia delle modifiche fatte localmente. Per ottenere genropy, scrivete::
+Genropy is in a subversion respository.  If you use git then you can track local changes.  To obtain genropy, type:
 
 	svn co http://svn.genropy.org/genro/trunk genro
 
-In alternativa, usando git (se avete tanto tempo a disposizione)::
+If you have the time here is the git alternative::
 
 	git svn clone http://robertolupi@svn.genropy.org/genro/trunk genro
 
-Installare GenroPy
+Installing GenroPy
 ==================
 
-Il grosso è fatto, ora meglio lasciar il campo libero a *paver*::
+The bulk of the work is done thanks to *paver*::
 
 	cd genro
 	cd gnrpy
 	sudo paver develop
 
-Configurare GenroPy
+Configuring GenroPy
 ===================
 
-GenroPy utilizza ``.gnr`` per la configurazione::
+GenroPy using the ``.gnr`` configuration::
 
 	cd ../example_configuration/
 	cp -a moveto.gnr $HOME/.gnr
