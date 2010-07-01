@@ -38,7 +38,7 @@ import time
 import glob
 from email.MIMEText import MIMEText
 from gnr.utils import ssmtplib
-
+from gnr.app.gnrdeploy import PathResolver
 from gnr.core.gnrclasses import GnrClassCatalog
 from gnr.core.gnrbag import Bag
 
@@ -66,7 +66,6 @@ class GnrSqlAppDb(GnrSqlDb):
         self.checkTransactionWritable(tblobj)
         GnrSqlDb.delete(self, tblobj, record)
         self.application.notifyDbEvent(tblobj,record,'D')
-
             
     def update(self, tblobj, record, old_record=None, pkey=None):
         self.checkTransactionWritable(tblobj)
@@ -252,12 +251,32 @@ class GnrApp(object):
             return Bag(config_path)
         return Bag()
         
+    def dbstores_folder(self):
+        return os.path.join(self.instanceFolder,'dbstores')
+        
+    def dbstore_config_path(self,storename):
+        return os.path.join(self.dbstores_folder(),'%s.xml'%storename)
+        
+    def add_dbstore_config(self, storename, dbname=None, host=None, user=None, password=None, port=None):
+        dbstore_config = Bag()
+        dbstore_dict = dict(dbname=dbname,host=host,user=user,password=password,port=port)
+        for key,value in dbstore_dict.items():
+            if value==None:
+                dbstore_dict.pop(key)
+        dbstore_config['db']=Bag(dbstore_dict)
+        dbstore_config.toXml(self.dbstore_config_path(storename))
+        
+    def delete_dbstore_config(self, storename):
+        dbstore_config_path = self.dbstore_config_path(storename)
+        if os.path.isfile(dbstore_config_path):
+            os.remove(dbstore_config_path)
+    
     def load_dbstores_config(self):
         dbstores={}
-        dbstores_path =os.path.join(self.instanceFolder,'dbstores')
-        if not os.path.isdir(dbstores_path):
+        dbstores_folder = self.dbstores_folder()
+        if not os.path.isdir(dbstores_folder):
             return dbstores
-        dbstoresConfig=Bag(os.path.join(self.instanceFolder,'dbstores'))
+        dbstoresConfig=Bag(dbstores_folder)
         if dbstoresConfig:
             for name,parameters in dbstoresConfig['#0'].digest('#a.file_name,#v.#0?#'):
                 dbstores[name]=parameters
@@ -328,8 +347,7 @@ class GnrApp(object):
             sys.path.append(apppkg.libPath)
         self.db.inTransactionDaemon = False
         self.db.startup()
-        for storename,store in self.dbstores.items():
-            self.addDbstore(storename,store)
+        self.init_dbstores()
         if len(self.config['menu'])==1:
             self.config['menu'] = self.config['menu']['#0']
         self.buildLocalization()
@@ -342,6 +360,12 @@ class GnrApp(object):
                 self.loadTestingData(forTesting)
 
         self.onInited()
+    
+    def init_dbstores(self):
+        self.dropAllDbStores()
+        for storename,store in self.dbstores.items():
+            self.addDbstore(storename,store)
+    
 
     def loadTestingData(self, bag):
         """Load data used for testing in the database.
@@ -367,6 +391,7 @@ class GnrApp(object):
         self.db.commit()
 
     def instance_name_to_path(self,instance_name):
+        return PathResolver(gnr_config=self.gnr_config).instance_name_to_path(instance_name)
         if 'instances' in self.gnr_config['gnr.environment_xml']:
             for path in [expandpath(path) for path in self.gnr_config['gnr.environment_xml'].digest('instances:#a.path') if os.path.isdir(expandpath(path))]:
                 instance_path=os.path.join(path,instance_name)
@@ -390,10 +415,6 @@ class GnrApp(object):
             path_list.append(project_packages_path)
         if 'packages' in self.gnr_config['gnr.environment_xml']:
             path_list.extend([expandpath(path) for path in self.gnr_config['gnr.environment_xml'].digest('packages:#a.path') if os.path.isdir(expandpath(path))])
-#        if 'projects' in self.gnr_config['gnr.environment_xml']:
-#            projects = [expandpath(path) for path in self.gnr_config['gnr.environment_xml'].digest('projects:#a.path') if os.path.isdir(expandpath(path))]
-#            for project_path in projects:
-#                path_list.extend(glob.glob(os.path.join(project_path,'*/packages')))
         for path in path_list:
             for package in os.listdir(path):
                 if package not in self.package_path and os.path.isdir(os.path.join(path,package)):
@@ -622,11 +643,8 @@ class GnrApp(object):
     def dropDbstore(self,storename):
         self.db.dropDbstore(storename=storename)
         
-    #def checkDb(self, storename=None):
-    #    return self.get_store_db(storename=storename).checkDb()
-        
-    #def applyChangesToDb(self):
-    #    return self.db.model.applyModelChanges()
+    def dropAllDbStores(self):
+        self.db.dropAllDbStores()
     
     def realPath(self, path):
         path=os.path.expandvars(str(path))
@@ -668,7 +686,7 @@ class GnrApp(object):
         
     def getAuxInstance(self, name):
         if not name in self.aux_instances:
-            instance_name=self.config['aux_instances.%s?name' % name]
+            instance_name=self.config['aux_instances.%s?name' % name] or name
             self.aux_instances[name] = GnrApp(instance_name)
         return self.aux_instances[name]
             
