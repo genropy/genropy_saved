@@ -161,10 +161,11 @@ class MailHandler(object):
         return msg
     
     def sendmail_template(self, datasource, to_address=None, cc_address=None, bcc_address=None, subject=None, from_address=None, body=None, attachments=None, account=None,
-                            host=None, port=None, user=None, password=None, 
+                            host=None, port=None, user=None, password=None,
                             ssl=False, tls=False, html=False,  charset='utf-8',async=False):
         def get_templated(field):
             value = datasource.get(field)
+            
             if value:
                 return templateReplace(value,datasource)
         to_address = to_address or get_templated('to_address')
@@ -173,6 +174,7 @@ class MailHandler(object):
         from_address = from_address or get_templated('from_address')
         subject = subject or get_templated('subject')
         body = body or get_templated('body')
+        body = templateReplace(body,datasource)
         self.sendmail(to_address, subject=subject, body=body,cc_address=cc_address,bcc_address=bcc_address, attachments=attachments, account=account,
                             from_address=from_address, host=host, port=port, user=user, password=password, 
                             ssl=ssl, tls=tls, html=html, charset=charset,async=async)

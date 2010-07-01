@@ -3050,6 +3050,7 @@ dojo.declare("gnr.widgets.IncludedView",gnr.widgets.VirtualStaticGrid,{
         var sortedBy = objectPop(attributes,'sortedBy');
         var multiSelect = objectPop(attributes,'multiselect');
         var datamode=objectPop(attributes,'datamode','attr');
+        var identifier=objectPop(attributes,'identifier','_pkey');
         var savedAttrs = objectExtract(attributes,'selected*');
         var hiddencolumns = objectPop(attributes,'hiddencolumns');
         var gridAttributes=objectExtract(attributes,'autoHeight,autoRender,autoWidth,defaultHeight,elasticView,fastScroll,keepRows,model,rowCount,rowsPerPage,singleClickEdit,structure,filterColumn,excludeCol,excludeListCb,editorEnabled');
@@ -3081,7 +3082,7 @@ dojo.declare("gnr.widgets.IncludedView",gnr.widgets.VirtualStaticGrid,{
         if(attributes.excludeListCb){
             attributes.excludeListCb = funcCreate(attributes.excludeListCb);
         }
-        attributes._identifier='_pkey';
+        attributes._identifier=identifier;
         attributes.sortedBy=sortedBy;
         attributes.rowCount=0;
         attributes.datamode = datamode;
