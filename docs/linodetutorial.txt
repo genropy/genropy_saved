@@ -46,7 +46,7 @@ visudo (copio root e gli metto il nome genro) - visudo (copied root and put the 
 
 mettergli una password molto sicura - put a very safe password
 
-loggati nuovamente via ssh come utente genro - logged in again via ssh as user Genro
+loggati nuovamente via ssh come utente genro - log in again via ssh as user Genro
 
 [genro]
 svn co http://svn.genropy.org/genro/trunk genro
