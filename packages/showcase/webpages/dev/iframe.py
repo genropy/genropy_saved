@@ -13,14 +13,13 @@ import os, datetime
 from gnr.core.gnrbag import Bag
 
 class GnrCustomWebPage(object):
-    py_requires = 'public:Public,public:IncludedView'
-    def rootWidget(self,root,**kwargs):
-        return root.borderContainer(**kwargs)    
-        
+    py_requires = 'public:Public,public:IncludedView'    
+    
     def mainLeftContent(self,parentBC,**kwargs):
         pass
         
-    def main(self, rootBC, **kwargs):
+    def main(self, root, **kwargs):
+        rootBC = root.borderContainer(**kwargs)
         bottom = rootBC.contentPane(height='4ex',background_color='red',region='bottom')
         center = rootBC.contentPane(region='center')
         iframe = center.iframe(src='^iframeurl',width='100%',height='100%',border='0')

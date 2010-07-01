@@ -8,7 +8,7 @@
 }
 .doclabel{
 	margin-left: 20px;
-	margin-top:10px;
+	margin-top: 10px;
 	font-size: small;
 	font-weight: bold;
 }
@@ -18,12 +18,15 @@
 	margin-right: 20px;
 	margin-top: 5px;
 	padding: 10px;
-	-moz-border-radius:12px;
-	-webkit-border-radius:12px;
-	border-radius:12px;
+	-moz-border-radius: 12px;
+	-webkit-border-radius: 12px;
+	border-radius: 12px;
 }
 .abstract{
-	min-height: 10ex;
+	min-height: 15ex;
+}
+.intro{
+    min-height: 10ex;
 }
 .edit_dlg{
 	min-height: 20ex;
@@ -48,25 +51,19 @@
 }
 
 .mainindex .leftpane{
-	background-color: #bbb59f;
-	padding: 5px;
+	background-color: #56c2cc;
+	padding: 10px;
 	overflow: auto;
 }
+.mainindex .top_pane{
+    background-color: #0d8691;
+    padding: 5px;
+}
+
 .mainindex .centerfooter{
 	background-color: #32353d;
 }
-.indexbutton .dijitButtonNode{
-	background: #dfcfbe;
-}
-.indexbuttonHover .dijitButtonNode{
-	background: #bbb59f;
-}
 
-.indexbuttonDisabled .dijitButtonNode{
-	background: #dfcfbe;
-	opacity: 0.4;
-	cursor: not-allowed;
-}
 .highlighttable tr td{margin:0;}
 .highlight .hll { background-color: #ffffcc }
 .highlight  { background: #FBFBFB; }
