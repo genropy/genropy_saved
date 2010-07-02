@@ -1,0 +1,6 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<GenRoBag><description>
+<full>You have to distinguish container and pane. ContentPane (accordioPane for the accordionContainer) are the last element you have to put into a layout hiearchy</full>
+<children _T="NN"></children>
+<params _T="NN"></params>
+<link _T="NN"></link></description></GenRoBag>
