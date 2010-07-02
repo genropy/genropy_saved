@@ -40,6 +40,7 @@ GenroPy
 
             core/index
             app/index
+            sql/index
 
     *   Miscellanea:
 

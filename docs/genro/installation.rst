@@ -15,50 +15,50 @@ To use GenroPy, you'll need at least:
 
 Install **easy_install**::
 
-	curl -O http://peak.telecommunity.com/dist/ez_setup.py
-	sudo python ez_setup.py
-	# for Ubuntu
-	sudo apt-get install python-setuptools
+    curl -O http://peak.telecommunity.com/dist/ez_setup.py
+    sudo python ez_setup.py
+    # for Ubuntu
+    sudo apt-get install python-setuptools
 
 Install **psycopg2** and **paver**, with *easy_install*::
 
-	sudo easy_install -U -Z psycopg2
-	# for Ubuntu
-	sudo apt-get install python-psycopg2
+    sudo easy_install -U -Z psycopg2
+    # for Ubuntu
+    sudo apt-get install python-psycopg2
 
 To install *paver*::
 
-	sudo easy_install -U -Z paver
+    sudo easy_install -U -Z paver
 
 (``-U`` = upgrade, ``-Z`` = always unzip)
 
 How to obtain GenroPy
-================
+=====================
 
 Genropy is in a subversion respository.  If you use git then you can track local changes.  To obtain genropy, type::
 
-	svn co http://svn.genropy.org/genro/trunk genro
+    svn co http://svn.genropy.org/genro/trunk genro
 
 If you have the time here is the git alternative::
 
-	git svn clone http://robertolupi@svn.genropy.org/genro/trunk genro
+    git svn clone http://robertolupi@svn.genropy.org/genro/trunk genro
 
 Installing GenroPy
 ==================
 
 The bulk of the work is done thanks to *paver*::
 
-	cd genro
-	cd gnrpy
-	sudo paver develop
+    cd genro
+    cd gnrpy
+    sudo paver develop
 
 Configuring GenroPy
 ===================
 
 GenroPy using the ``.gnr`` configuration::
 
-	cd ../example_configuration/
-	cp -a moveto.gnr $HOME/.gnr
+    cd ../example_configuration/
+    cp -a moveto.gnr $HOME/.gnr
 
 Edit ``environment.xml``, ``siteconfig/default.xml`` and ``instanceconfig/default.xml`` as needed.
 
@@ -74,5 +74,5 @@ Il primo è stato un po' trascurato, il codice ha bisogno di essere sistemato (p
 
 Ad esempio, per provare il secondo potete procedere così per creare il database e poi lanciare un webserver di sviluppo::
 
-	gnrdbsetup -i fatture1
-	gnrwsgiserve -s fatture1
+    gnrdbsetup -i fatture1
+    gnrwsgiserve -s fatture1
