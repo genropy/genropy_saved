@@ -1,8 +1,0 @@
-<?xml version='1.0' encoding='UTF-8'?>
-<GenRoBag><description><full>Like StackContainer  and TabContainer, an AccordionContainer holds a set of panes whose titles are all visible, but only one pane’s content is visible at a time. Clicking on a pane title slides the currently-displayed one away, similar to a garage door. Users can explicitly select the pane that is to be made visible when the widget is loaded. If it is not specified, then the first pane is taken by default.</full>
-<children>The Accordion Container is populated by some paneContainer(s).</children>
-<params></params>
-<link>http://dojotoolkit.org/reference-guide/dijit/layout/AccordionContainer.html</link>
-<introduction>In this sample is introduced the "Accordion Container", a layout widget.
-GenroTeam doesn't appreciate this widget, and use it only for the debugger (you can open it on Mac with the combination of "ctrl+shift+D").</introduction>
-<abstract>Like StackContainer  and TabContainer, an AccordionContainer holds a set of panes whose titles are all visible, but only one pane’s content is visible at a time. Clicking on a pane title slides the currently-displayed one away, similar to a garage door. Users can explicitly select the pane that is to be made visible when the widget is loaded. If it is not specified, then the first pane is taken by default.</abstract></description></GenRoBag>
