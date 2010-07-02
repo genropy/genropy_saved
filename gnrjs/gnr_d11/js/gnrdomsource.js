@@ -369,9 +369,9 @@ dojo.declare("gnr.GnrDomSourceNode",gnr.GnrBagNode,{
                         if (console != undefined) {
                             console.log('ERROR in ' + value);
                             console.log(e);
+                            console.log('arguments: ');
                             for(var i = 0; i < argNames.length; i++) {
-                                console.log('argument: ' + argNames[i]);
-                                console.log(argValues[i]);
+                                console.log(argNames[i] + " = " + argValues[i]);
                             }
                         }
                         throw e;
