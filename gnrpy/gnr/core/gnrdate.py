@@ -357,7 +357,8 @@ def toDate(date_or_datetime):
         raise ValueError, "toDate(%s) accepts only dates or datetimes" % repr(date_or_datetime)
 
 def dateRange(dstart, dstop):
-    """Iterates over a range of dates.
+    """Returns an iterator over a range of dates.
+    It works like the range() builtin, so it will return [dstart,dstart+1,...,dstop-1]
     """
     dt = dstart
     while dt < dstop:
