@@ -44,7 +44,10 @@ from gnr.core.gnrbag import Bag
 log = logging.getLogger('gnrcmd')
 
 def expandpath(path, full=False):
-    """Expand user home directory (~) and envioronment variables."""
+    """Expand user home directory (~) and envioronment variables.
+    
+    :param full: if True, returns a normalized path (see os.path.normpath).    
+    """
     result = expanduser(expandvars(path))
     if full:
         result = normpath(result)
