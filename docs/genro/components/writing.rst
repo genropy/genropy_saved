@@ -11,6 +11,12 @@ E' tuttavia opportuno seguire alcune norme di comportamento che vi permetteranno
 Principi per ottenere buoni componenti riusabili
 ************************************************
 
+- **Documentate l'API pubblica dei vostri componenti**. Durante lo sviluppo, scrivete e mantenete la documentazione dell'API del
+  vostro componente. Ricordate che questa comprende, oltre al metodo per creare il componente, anche i callbacks (compresa la loro
+  signature e i relativi parametri), la struttura di eventuali bags (o altri oggetti complessi) usate o prodotte dal componente, gli
+  elementi nel datastore ed il loro ruolo, il ciclo di vita del componente (per quelli checambiano comportamento nel tempo o segnalano
+  eventi, es. le finestre di dialogo).
+
 - **Verificate subito la validità dei parametri**. Il vostro componente dovrebbe sempre verificare che i
   parametri che riceve siano del tipo corretto e altri obblighi che vogliate imporre sull'utilizzatore del
   vostro componente (e.s. che il parametro _fired inizi con un tegolino "^").
