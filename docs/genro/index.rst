@@ -10,20 +10,45 @@ GenroPy
 
 **Last update:** |today|
 
-Contents:
+.. Be careful with the code below. If you screw the indentation, the doc contents page will appear messed up!
 
-.. toctree::
-    :maxdepth: 2
+.. hlist::
+    :columns: 2
 
-    installation
-    widgets/index
-    ui/index
-    core/index
-    app/index
-    print/index
-    da-sistemare
-    howto/logging
-    writing_components
+    *   Getting Started:
+
+        .. toctree::
+            :maxdepth: 2
+
+            installation
+            widgets/index
+            ui/index
+
+    *   How to:
+
+        .. toctree::
+            :maxdepth: 2
+
+            print/index
+            howto/logging
+            writing_components
+
+    *   Library Reference:
+
+        .. toctree::
+            :maxdepth: 2
+
+            core/index
+            app/index
+
+    *   Miscellanea:
+
+        .. toctree::
+            :maxdepth: 2
+
+            linode_install
+            da-sistemare
+
 
 Indici e tabelle
 ==================
@@ -31,15 +56,3 @@ Indici e tabelle
 * :ref:`genindex`
 * :ref:`modindex`
 * :ref:`search`
-
-
-
-Miscellaneous
-==================
-
-Contents:
-
-.. toctree::
-    :maxdepth: 2
-
-    linode_install
