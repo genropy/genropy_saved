@@ -358,7 +358,8 @@ def toDate(date_or_datetime):
 
 def dateRange(dstart, dstop):
     """Returns an iterator over a range of dates.
-    It works like the range() builtin, so it will return [dstart,dstart+1,...,dstop-1]
+    
+    It works like the range() builtin, so it will return ``[dstart,dstart+1,...,dstop-1]``
     """
     dt = dstart
     while dt < dstop:
