@@ -36,7 +36,7 @@ il sito:
 
 l'istanza:
 	contiene le personalizzazioni per il particolare cliente. In genere contiene i parametri di accesso al database. Dispone di una sottocartella ``data`` che si può usare per memorizzare dati nel filesystem. Quando si lavora con l'interprete python o con strumenti a linea di comando, in genere si lavora a livello d'istanza::
-	
+
 		#!python
 		from gnr.app.gnrapp import GnrApp
 		istanza = GnrApp('elezioni')
@@ -45,7 +45,7 @@ l'istanza:
 
 i packages:
 	sono i vari moduli che compongono il codice applicativo di Genro, compreso il package principale che costituisce l'applicazione sviluppata. Genro fornisce moduli aggiuntivi che implementano funzioni comuni a tutte le applicazioni (gestione utenti, tabella dei comuni italiani, etc.). E' dentro al package dell'applicazione (o dei packages accessori) che si concentra la maggior parte del codice Python (a parte quello del core del framework che è nel package python ``gnr`` e nei suoi figli).
-	
+
 	Il package ``glbl`` contiene già una tabella delle località e comuni italiani. (**TODO**: chiedere a Giovanni i dati della tabella, perché non mi sembra siano presenti in SVN).
 
 	**Nota**: i packages di Genro non sono packages Python (=insieme di moduli collegati, contenente un file ``__init__.py``), perché non si possono importare con l'istruzione ``import <modulo>`` o ``from <package> import <modulo o classe>``.
@@ -53,7 +53,7 @@ i packages:
 i componenti e le risorse:
 	sono elementi comuni e riusabili. Comprendono sia il codice Javascript e CSS che quello Python (es. ``includedView``, tabelle standard). E' inserito nela sottocartella ``webpages/_resources`` di packages, istanze (e -credo- siti). Viene usato nelle webpages attraverso ``py_requires``, ``css_requires`` e ``js_requires``. Il codice in ``gnr.web.gnrwsgisite`` si occupa di fare il mixin delle risorse.
 
-	
+
 Mixin delle classi a runtime
 ****************************
 
@@ -178,15 +178,15 @@ Gli oggetti tabella sono accessibili dalle pagine con ``self.db.table('ppackage.
 Esempio::
 
 	#!python
-	
+
 	db = ...
 	tbl = db.table('comuni')
 	qry = tbl.query(...)
 	sel = qry.selection()
-	
+
 	# modifica in memoria dei record, anche aggiungendo nuovi campi (es. per i campi calcolati da mandare al client)
 	sel.apply(lambda r: dict(area=r.base*r.altezza))
-	
+
 	sel.output(formato)
 
 Le selezioni supportano vari formati:
@@ -303,6 +303,8 @@ Idea per un tool utile allo sviluppo in Genro
 
 Estratte relazioni (leggendo gli observers) fra l'interfaccia ed il datastore e mostrarle in forma grafica con graphviz.
 
+**NOTA:** è stato implementato in ``gnrdbgraph``.
+
 Politica opensource della Softwell
 ==================================
 
@@ -379,7 +381,7 @@ Componenti per operare sul datastore
 
 ``data()``:
 	memorizza un valore nel datastore
-	
+
 ``dataFormula()``:
 	Calcola una cella del datastore a partire da altri valori (come in un foglio elettronico)
 
