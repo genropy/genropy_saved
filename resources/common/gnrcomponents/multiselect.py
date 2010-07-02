@@ -22,13 +22,11 @@
 multiselect.py
 
 Created by Saverio Porcari on 2010-01-25.
-Copyright (c) 2010 __MyCompanyName__. All rights reserved.
+Copyright (c) 2010 Softwell. All rights reserved.
 """
 
-
+from gnr.core.gnrbag import Bag
 from gnr.web.gnrbaseclasses import BaseComponent
-
-
 
 class MultiSelect(BaseComponent):
     py_requires='foundation/includedview:IncludedView'
@@ -36,16 +34,15 @@ class MultiSelect(BaseComponent):
     def multiSelect(self,bc,nodeId=None,table=None,datapath=None,struct=None,label=None,values=None,readColumns=None,
                              reloader=None,filterOn=None,hiddencolumns=None,selectionPars=None,order_by=None,
                              showSelected=False, readCol=None,hasToolbar=False,_onStart=False, showFooter=True,**kwargs):
-        #assert not 'footer' in kwargs, 'remove footer par'
-
         assert struct, 'struct is mandatory'
-        if callable(struct):
+        if callable(struct) and not isinstance(struct, Bag):
             struct = struct(self.newGridStruct(table))
-        values= values or '=.checkedList'           
+        values= values or '=.checkedList'
         readCol = readCol or '_pkey' 
         if readCol != '_pkey':
             assert showSelected==False, 'to use this mode readCol must be "_pkey"'
-        struct['#0']['#0'].cell('_checkedrow',name=' ',width='2em',
+        r = struct['#0']['#0'] # view.rows
+        r.cell('_checkedrow',name=' ',width='2em',
                     format_trueclass='checkboxOn',
                    # styles='background:none!important;border:0;',
                     format_falseclass='checkboxOff',classes='row_checker',
@@ -121,7 +118,7 @@ class MultiSelect(BaseComponent):
                             selectionPars=selectionPars,nodeId=nodeId,footer=footer,**viewpars)
         if showSelected:
             selectionPars_result = dict(where='$%s IN :checked' %self.db.table(table).pkey,
-                                    checked='=%s' %values,_if='checked')
+                                    checked='=%s' %values.strip('^='),_if='checked')
 
             self.includedViewBox(stack.borderContainer(_class='hide_row_checker'),nodeId='%s_result' %nodeId,
                                     datapath='.resultgrid',selectionPars=selectionPars_result,
