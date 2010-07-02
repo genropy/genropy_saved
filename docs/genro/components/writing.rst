@@ -17,6 +17,11 @@ Principi per ottenere buoni componenti riusabili
   elementi nel datastore ed il loro ruolo, il ciclo di vita del componente (per quelli checambiano comportamento nel tempo o segnalano
   eventi, es. le finestre di dialogo).
 
+- **Non rendere i componenti più complessi del necessario**. Non cercate di immaginare e soddisfare tutti i casi in cui il vostro
+  componente verrà utilizzato, ciò lo renderà solo inutilmente complesso rendendone difficile l'adozione. Piuttosto, costruire una
+  buona API pubblica che permetta di interagirvi e - quando se ne presenta l'opportunità - scrivete un altro componente che coopera (o
+  ingloba) il primo per soddisfare nuovi scenari.
+
 - **Verificate subito la validità dei parametri**. Il vostro componente dovrebbe sempre verificare che i
   parametri che riceve siano del tipo corretto e altri obblighi che vogliate imporre sull'utilizzatore del
   vostro componente (e.s. che il parametro _fired inizi con un tegolino "^").
