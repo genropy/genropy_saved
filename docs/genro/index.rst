@@ -31,7 +31,14 @@ GenroPy
 
             print/index
             howto/logging
-            components/index
+
+    *   Miscellanea:
+
+        .. toctree::
+            :maxdepth: 2
+
+            linode_install
+            da-sistemare
 
     *   Library Reference:
 
@@ -42,14 +49,14 @@ GenroPy
             app/index
             sql/index
 
-    *   Miscellanea:
+    *   Component Reference:
 
         .. toctree::
             :maxdepth: 2
 
-            linode_install
-            da-sistemare
-
+            components/maturity-matrix
+            components/writing
+            components/index
 
 Indici e tabelle
 ==================
