@@ -84,7 +84,7 @@ class Timetable(BaseComponent):
         bottom.div(float='left').dock(id='tt_footer',background='transparent')
         
     def timetable_dh(self,parent,nodeId=None,datapath=None,tstart=None,
-                    tstop=None,period=None,wkdlist=None,series=None,fired=None):
+                    tstop=None,period=None,wkdlist=None,series=None,fired=None, **kwargs):
         """Builds a timetable, that shows appointments/events in a given range eventually from multiple series
         (e.g. multiple calendars or operators).
         
@@ -96,6 +96,7 @@ class Timetable(BaseComponent):
         :param period: a date period (see decodeDatePeriod in :mod:`gnr.core.gnrdate`)
         :param wkdlist: weekdays, a list of integers (0..6)
         :param series: series (a list of strings)
+        :param kwargs: additional parameters will go in self.tt_pars in your callbacks
         
         See :cls:`TimeTableHook` below for callbacks that you can define.
         """
@@ -117,15 +118,16 @@ class Timetable(BaseComponent):
                             """,
                             conf="^.controller.conf")
         bc.contentPane(region='center').remote('ttdh_main',nodeId=nodeId,tstart=tstart,tstop=tstop,period=period,
-                                                wkdlist=wkdlist,series=series,fired=fired)
+                                                wkdlist=wkdlist,series=series,fired=fired, **kwargs)
       
     def tt_prepareFloating(self,pane,cbname):
         floatingPars = dict(_class='shadow_4',closable=True,dockable=True,dockTo='tt_footer',top='100px',left='300px',visible=False)
         getattr(self,cbname)(pane,**floatingPars)
         
         
-    def remote_ttdh_main(self,pane,tstart=None,tstop=None,period=None,wkdlist=None,fired=None,nodeId=None,series=None):
+    def remote_ttdh_main(self,pane,tstart=None,tstop=None,period=None,wkdlist=None,fired=None,nodeId=None,series=None, **kwargs):
         self.tt_pars = dict(tstart=tstart,tstop=tstop,period=period,wkdlist=wkdlist,nodeId=nodeId,series=series,minute_w=6,sh=30)
+        self.tt_pars.update(kwargs)
         if hasattr(self,'tt_%s_onstart' %nodeId):
             getattr(self,'tt_%s_onstart' %nodeId)()
         days = self.tt_periodSlots()
