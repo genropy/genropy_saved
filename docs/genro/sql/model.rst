@@ -1,6 +1,6 @@
-=======================================
-:mod:`gnr.sql.gnrsqlmodel` -- SQL Model
-=======================================
+============================================
+:mod:`gnr.sql.gnrsqlmodel` -- Database Model
+============================================
 
 .. automodule:: gnr.sql.gnrsqlmodel
     :members:
