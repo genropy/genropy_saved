@@ -13,7 +13,7 @@ standardtable                                                 Mature            
 standardtable_light                                           Mature                      Documentation needed
 ------------------------------------------------------------- --------------------------- -----------------------------
 includedview
-selectionhandler
+:doc:`selectionhandler`
 multiselect
 ------------------------------------------------------------- --------------------------- -----------------------------
 iframedialog
