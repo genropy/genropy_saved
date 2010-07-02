@@ -31,7 +31,7 @@ GenroPy
 
             print/index
             howto/logging
-            writing_components
+            components/index
 
     *   Library Reference:
 
