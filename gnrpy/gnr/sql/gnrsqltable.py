@@ -67,15 +67,15 @@ EXCEPTIONS= {'save': GnrSqlSaveException,
              'protect_validate':GnrSqlProtectValidateException}
      
 class SqlTable(GnrObject):
-    """Database tables.
+    """This is the base classe for database tables.
     
-    In your webpages or tables, you can get tables in this way::
+    Your tables will inherit from it (altough it won't be explicit in your code, since it's done by GenroPy mixin machinery).
+    
+    In your webpage, package or table methods, you can get a reference to a table by name in this way::
 
         self.db.table('packagename.tablename')
     
-    where self is your webpage or table.
-    
-    In tests and interactive sessions, you can get them from the application instance itself. For example::
+    You can also get them from the application instance::
     
         app = GnrApp('instancename')
         app.db.table('packagename.tablename')
@@ -107,30 +107,33 @@ class SqlTable(GnrObject):
          
     def __repr__(self):
         return "<SqlTable %s>" % repr(self.fullname)
-    
-    def _get_model(self):
+
+    @property
+    def model(self):
         """property model.
+
         Return the corresponding DbTableObj object"""
         return self._model
-    model = property(_get_model)
-    
-    def _get_pkg(self):
+
+    @property
+    def pkg(self):
         """property pkg.
+
         Return the DbPackageObj object that contains the current table"""
         return self.model.pkg
-    pkg = property(_get_pkg)
     
-    def _get_db(self):
+    @property
+    def db(self):
         """property db
+
         Return the GnrSqlDb object"""
         return self.model.db
-    db = property(_get_db)
     dbroot = db
     
     def column(self,name):
         """Returns a column object.
-        @param name: A column's name or a relation path starting from the current table.
-        Eg:@director_id.name
+
+        :param name: A column's name or a relation path starting from the current table. (eg. ``@director_id.name``)
         """
         return self.model.column(name)
         
@@ -174,74 +177,84 @@ class SqlTable(GnrObject):
         return max(result, headerlen)
 
     
-    def _get_attributes(self):
+    @property
+    def attributes(self):
         return self.model.attributes
-    attributes = property(_get_attributes)
     
-    def _get_pkey(self):
+    @property
+    def pkey(self):
         """property db
+
         Return the DbColumnObj object"""
         return self.model.pkey
-    pkey = property(_get_pkey)
-    
-    def _get_lastTS(self):
+
+    @property
+    def lastTS(self):
         """property db
+
         Return the DbColumnObj object"""
         return self.model.lastTS
-    lastTS = property(_get_lastTS)
     
-    def _get_logicalDeletionField(self):
+    @property
+    def logicalDeletionField(self):
         """property db
+
         Return the DbColumnObj object"""
         return self.model.logicalDeletionField
-    logicalDeletionField = property(_get_logicalDeletionField)
-    
-    def _get_noChangeMerge(self):
+
+    @property
+    def noChangeMerge(self):
            """property db
+
            Return the DbColumnObj object"""
            return self.model.noChangeMerge
-    noChangeMerge = property(_get_noChangeMerge)
     
-    
-    def _get_rowcaption(self):
+    @property
+    def rowcaption(self):
         """property rowcaption.
+
         Returns the table's rowcaption"""
         return self.model.rowcaption
-    rowcaption = property(_get_rowcaption)
     
-    def _get_columns(self):
+    @property
+    def columns(self):
         """property columns
+
         Returns the DbColumnListObj object"""
         return self.model.columns
-    columns = property(_get_columns)
     
-    def _get_relations(self):
+    @property
+    def relations(self):
         """property columns
+        
         Returns the DbColumnListObj object"""
         return self.model.relations
-    relations = property(_get_relations)
     
-    def _get_indexes(self):
+    @property
+    def indexes(self):
         """property indexes
+        
         Returns the DbIndexListObj object"""
         return self.model.indexes
-    indexes = property(_get_indexes)
-    
-    def _get_relations_one(self):
+
+    @property
+    def relations_one(self):
         """property relations_one
+        
         Return a bag of relations that start from the current table"""
         return self.model.relations_one
-    relations_one = property(_get_relations_one)
     
-    def _get_relations_many(self):
+    @property
+    def relations_many(self):
         """property relations_many
+        
         Return a bag of relations that point to the current table"""
         return self.model.relations_many
-    relations_many = property(_get_relations_many)
     
     def recordCoerceTypes(self,record,null='NULL'):
-        """Check and coerce types in record
-        @param record: an object implementing dict interface as colname, colvalue
+        """Check and coerce types in record.
+        
+        :param record: an object implementing dict interface as colname, colvalue
         """
         converter=self.db.typeConverter
         for k in record.keys():
@@ -333,18 +346,19 @@ class SqlTable(GnrObject):
         """
         This method is used to get a single record of the table. It returns a SqlRecordResolver.
         The record can be identified by
-         - its primary key
-         - one or more conditions passed as kwargs (e.g. username='foo')
-         - a where condition
-         @param pkey: record primary key.
-         @param where(optional):This is the sql "WHERE" clause. We suggest not to use hardcoded values into the where clause, but
-             refer to variables passed to the selection method as kwargs
-             e.g. where="$date BETWEEN :mybirthday AND :christmas", mybirthday=mbd, christmas=xmas
-         @param lazy:
-         @param eager:
-         @param mode: bag, dict, json
-         @param relationDict(optional): this is a dictionary that contains couples composed by fieldName and relationPath
-             e.g. {'$member_name':'@member_id.name'}
+        - its primary key
+        - one or more conditions passed as kwargs (e.g. username='foo')
+        - a where condition
+         
+        :param pkey: record primary key.
+        :param where: (optional) This is the sql "WHERE" clause. We suggest not to use hardcoded values into the where clause, but
+            refer to variables passed to the selection method as kwargs
+            e.g. where="$date BETWEEN :mybirthday AND :christmas", mybirthday=mbd, christmas=xmas
+        :param lazy:
+        :param eager:
+        :param mode: bag, dict, json
+        :param relationDict: (optional) this is a dictionary that contains couples composed by fieldName and relationPath
+            e.g. {'$member_name':'@member_id.name'}
         
         """
         record = SqlRecord(self, pkey=pkey, where=where,
@@ -386,30 +400,31 @@ class SqlTable(GnrObject):
         """This method return an object SqlQuery object which represents a query that
         can be executed with different modes.
            
-           @param columns: it represents what the 'SELECT' clause in the traditional SQL query.
-                It is a string of column names and related fields separated by comma.
-                Each column's name is prefixed with '$'. Related fields uses a syntax based on the char '@'
-                and 'dot notation'.
-                e.g. "@member_id.name".For selecting all columns use the char '*'.
-                columns parameter accepts also special statements such as 'COUNT','DISTINCT' and 'SUM'.
-           
-           @param where (optional):This is the sql "WHERE" clause. We suggest not
-                      to use hardcoded values into the where clause, but
-                      refer to variables passed to the query method as kwargs
-                      because using this way will look after all data conversion and string quoting automatically
-                      e.g. where="$date BETWEEN :mybirthday AND :christmas", mybirthday=mbd, christmas=xmas
-           
-           @param order_by (optional): this param corresponds to sql ORDER BY operator
-           @param distinct (optional): this param corresponds to sql DISTINCT operator
-           @param limit (optional): number of result's rows.
-           @param offset (optional): this param corresponds to sql OFFSET operator
-           @param group_by (optional): this param corresponds to sql GROUP BY operator
-           @param having (optional): this param corresponds to sql HAVING operator
-           @param relationDict (optional):a dictionary which associates relationPath names
-                                        with an alias name. eg: {'$member_name':'@member_id.name'}
-           @param sqlparams (optional): an optional dictionary for sql query parameters.
-           
-           @param **kwargs : another way to pass sql query parameters
+       :param columns:  it represents what the 'SELECT' clause in the traditional SQL query.
+          
+                        It is a string of column names and related fields separated by comma.
+                        Each column's name is prefixed with '$'. Related fields uses a syntax based on the char '@'
+                        and 'dot notation'.
+                        e.g. "@member_id.name".For selecting all columns use the char '*'.
+                        columns parameter accepts also special statements such as 'COUNT','DISTINCT' and 'SUM'.
+       
+       :param where:    (optional) This is the sql "WHERE" clause. We suggest not
+                        to use hardcoded values into the where clause, but
+                        refer to variables passed to the query method as kwargs
+                        because using this way will look after all data conversion and string quoting automatically
+                        e.g. where="$date BETWEEN :mybirthday AND :christmas", mybirthday=mbd, christmas=xmas
+       
+       :param order_by: (optional)  this param corresponds to sql ORDER BY operator
+       :param distinct: (optional)  this param corresponds to sql DISTINCT operator
+       :param limit: (optional)  number of result's rows.
+       :param offset: (optional)  this param corresponds to sql OFFSET operator
+       :param group_by: (optional)  this param corresponds to sql GROUP BY operator
+       :param having: (optional)  this param corresponds to sql HAVING operator
+       :param relationDict: (optional) a dictionary which associates relationPath names
+                                    with an alias name. eg: {'$member_name':'@member_id.name'}
+       :param sqlparams: (optional)  an optional dictionary for sql query parameters.
+       
+       :param kwargs: another way to pass sql query parameters
         """
         query = SqlQuery(self, columns=columns, where=where, order_by=order_by,
                          distinct=distinct, limit=limit, offset=offset,
@@ -445,7 +460,10 @@ class SqlTable(GnrObject):
         return row
     
     def sqlWhereFromBag(self, wherebag, sqlArgs=None,**kwargs):
-        """
+        """**TODO:** Documentation?
+
+        Not sure what this is, but here is the existing docstring in all its glory::
+        
             <c_0 column="invoice_num" op="ISNULL" rem='without invoice' />
             <c_1 column="@anagrafica.provincia" op="IN" jc='AND'>MI,FI,TO</condition>
             <c_2 not="true::B" jc='AND'>
@@ -479,9 +497,9 @@ class SqlTable(GnrObject):
     def sql_deleteSelection(self, where,**kwargs):
         """Delete a selection from the table. It works only in SQL so
         no python trigger is executed.
-        @param tblobj: the table object
-        @param where: the where condition
-        @param **kwargs : arguments for where
+        :param tblobj: the table object
+        :param where: the where condition
+        :param kwargs : arguments for where
         """
         todelete=self.query('$%s'%self.pkey, where=where,addPkeyColumn=False,for_update=True, **kwargs).fetch()
         if todelete:
@@ -520,7 +538,7 @@ class SqlTable(GnrObject):
     def insertOrUpdate(self, record):
         """This method inserts or updates a single record.
         If the record doesn't exist it inserts, else it updates.
-        @param record_data: a dictionary that represent the record that must be updated
+        :param record_data: a dictionary that represent the record that must be updated
         """
         pkey = record.get(self.pkey)
         if (not pkey in (None,'')) and self.existsRecord(record):
@@ -534,13 +552,13 @@ class SqlTable(GnrObject):
         
     def insert(self, record):
         """This method inserts a single record.
-        @param record_data: a dictionary that represent the record that must be inserted
+        :param record_data: a dictionary that represent the record that must be inserted
         """
         self.db.insert(self, record)
     
     def delete(self, record):
         """This method deletes a single record.
-        @param record_data: a dictionary that represent the record that must be deleted
+        :param record_data: a dictionary that represent the record that must be deleted
         """
         self.db.delete(self, record)
     
@@ -562,13 +580,13 @@ class SqlTable(GnrObject):
         
     def update(self, record, old_record=None, pkey=None):
         """This method updates a single record.
-        @param record_data: a dictionary that represent the record that must be updated
+        :param record_data: a dictionary that represent the record that must be updated
         """
         self.db.update(self, record, old_record=old_record, pkey=pkey)
 
     def writeRecordCluster(self, recordCluster,recordClusterAttr, debugPath=None):
         """This method receives a changeSet and executes insert, delete or update
-        @param record_data: a dictionary that represent the record that must be updated
+        :param record_data: a dictionary that represent the record that must be updated
         """
         main_changeSet, relatedOne, relatedMany = self._splitRecordCluster(recordCluster, debugPath=debugPath)
         isNew = recordClusterAttr.get('_newrecord')
