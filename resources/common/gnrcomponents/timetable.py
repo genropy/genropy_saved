@@ -130,6 +130,8 @@ class Timetable(BaseComponent):
         self.tt_pars.update(kwargs)
         if hasattr(self,'tt_%s_onstart' %nodeId):
             getattr(self,'tt_%s_onstart' %nodeId)()
+        
+        tstart,tstop,period,wkdlist,nodeId,series,minute_w,sh = [self.tt_pars[key] for key in 'tstart,tstop,period,wkdlist,nodeId,series,minute_w,sh'.split(',')]
         days = self.tt_periodSlots()
         slot_type = self.tt_pars['slot_type']
         slot_height = getattr(self,'tt_%s_slot_%s' %(nodeId,slot_type))()
