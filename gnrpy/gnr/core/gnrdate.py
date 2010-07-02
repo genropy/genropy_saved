@@ -47,32 +47,36 @@ def yearDecode(datestr):
     return year
 
 def decodeOneDate(datestr, workdate=None, months=None, days=None, quarters=None, locale=None, isEndPeriod=False):
-    """Parse a string representing a date or a period and returns a datetime.date or a tuple (year, month) or None.
-       Special keywords like 'today' or the name of a month can be translated in all languages and support synonimous,
-       eg. 'this month' or 'month'
-       The input string can be:
-        - a year: eg. 2007 or 07
-        - today, yesterday, tomorrow (can be translated in all languages)
-            - can be specified a number of days to add to today: eg. 'today + 3' or 'today - 15'
-        - this week, next week, last week (can be translated in all languages)
-        - this month, next month, last month (can be translated in all languages )
-            - can be specified a number of months to add to current month: eg. 'this month + 3' or 'this month - 24'
-        - the name of a quarter: eg. Q1 or 1st quarter
-        - the name of a month: eg. april or apr
-            - can be specified a year after the month: eg. apr 07 or april 2007
-            - returns a tuple (year, month): if year is not specified in datestr, year is returned None
-        - the name of a weekday: eg. monday or mon
-            - the date returned is the date of the given weekday in this week (relative to workdate)
-        - an iso date: eg. 2008-04-28
-        - a date formatted according to locale (see babel doc): eg. 4 28, 2008 (en_us) or 28-4-08 (it)
-                               various separators are admitted: 28-4-08, 28/4/08, 28 4 08
-       @param datestr: the string to be interpreted
-       @param workdate: a date of reference for calculate relative periods (eg. tomorrow or this week)
-       @param months: names of months according to locale (just for caching)
-       @param days: names of weekdays according to locale (just for caching)
-       @param quarters: names of quarters according to locale (just for caching)
-       @locale: the current locale strig (eg. en, en_us, it)
-       @isEndPeriod: if the string represents a period, return the end date (default return the start date)
+    """Parse a string representing a date or a period.
+
+    :param datestr: the string to be interpreted
+    :param workdate: a date of reference for calculate relative periods (eg. tomorrow or this week)
+    :param months: names of months according to locale (just for caching)
+    :param days: names of weekdays according to locale (just for caching)
+    :param quarters: names of quarters according to locale (just for caching)
+    :param locale: the current locale strig (eg. en, en_us, it)
+    :param isEndPeriod: if the string represents a period, return the end date (default return the start date)
+    :returns: datetime.date or tuple(year,month) or None
+
+    Special keywords like ``today`` or the name of a month can be translated in all languages and support synonimous,
+    eg. ``this month`` or ``month``.
+
+    The input string can be:
+    - a year: eg. 2007 or 07
+    - today, yesterday, tomorrow (can be translated in all languages)
+        - can be specified a number of days to add to today: eg. 'today + 3' or 'today - 15'
+    - this week, next week, last week (can be translated in all languages)
+    - this month, next month, last month (can be translated in all languages )
+        - can be specified a number of months to add to current month: eg. 'this month + 3' or 'this month - 24'
+    - the name of a quarter: eg. Q1 or 1st quarter
+    - the name of a month: eg. april or apr
+        - can be specified a year after the month: eg. apr 07 or april 2007
+        - returns a tuple (year, month): if year is not specified in datestr, year is returned None
+    - the name of a weekday: eg. monday or mon
+        - the date returned is the date of the given weekday in this week (relative to workdate)
+    - an iso date: eg. 2008-04-28
+    - a date formatted according to locale (see babel doc): eg. 4 28, 2008 (en_us) or 28-4-08 (it)
+                           various separators are admitted: 28-4-08, 28/4/08, 28 4 08
     """
     def addToDay(datestr, date):
         if '+' in datestr:
@@ -201,21 +205,22 @@ def periodCaption(dateFrom=None, dateTo=None, locale=None):
     
 def decodeDatePeriod(datestr, workdate=None, locale=None, returnDate=False, dtype='D'):
     """Parse a string representing a date or a period and returns a string of one or two dates in iso format separated by ';'
-       See doc of decodeOneDate for details on possible formats of a single date.
+    
+       See doc of :meth:`decodeOneDate` for details on possible formats of a single date.
        The input string can be:
-        - two dates separated by ';': eg. 22 4, 2008;28 4, 2008
-        - two dates separated by ' to '
-        - two dates in form 'from date to date' (can be translated and supports synonimous, eg. 'between date and date')
+        - two dates separated by ``;``: eg. ``22 4, 2008;28 4, 2008``
+        - two dates separated by `` to ``
+        - two dates in form ``from date to date`` (can be translated and supports synonimous, eg. ``between date and date``)
             - if a period is given as starting date, the start date of period is keep
             - if a period is given as end date, the end date of period is keep
             - if no year is specified, the year is relative to working date, keeping all periods in the past
                   eg. if working date is 2008-04-28, december is interpreted as december 2007
             - if a year is specified for the end date (or period) a relative year is calculated for the starting period
-                  eg. from december to march 06: returns '2005-12-01;2006-03-31'
-        - a starting date in form 'from date', if date is a period starting date is keep: eg. april returns '2008-04-01;'
-        - an end date in form 'to date', if date is a period end date is keep: eg. april returns ';2008-04-30'
-        - a single expression representing a period: eg. 2007 returns '2007-01-01;2007-12-31'
-        - a single expression representing a single date: eg. today returns '2008-04-28'
+                  eg. from december to march 06: returns ``'2005-12-01;2006-03-31'``
+        - a starting date in form ``from date``, if date is a period starting date is keep: eg. april returns ``'2008-04-01;'``
+        - an end date in form ``to date``, if date is a period end date is keep: eg. april returns ``';2008-04-30'``
+        - a single expression representing a period: eg. 2007 returns ``'2007-01-01;2007-12-31'``
+        - a single expression representing a single date: eg. today returns ``'2008-04-28'``
     """
     workdate = workdate or datetime.date.today()
     months = gnrlocale.getMonthNames(locale)
