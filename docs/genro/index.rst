@@ -15,7 +15,7 @@ Contents:
 .. toctree::
     :maxdepth: 2
 
-    Installation
+    installation
     widgets/index
     ui/index
     core/index
