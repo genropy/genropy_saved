@@ -182,6 +182,8 @@ def decodeOneDate(datestr, workdate=None, months=None, days=None, quarters=None,
             return dateStart
     
 def periodCaption(dateFrom=None, dateTo=None, locale=None):
+    """Convert two dates to a string in the specified locale that decodeDatePeriod will understand.
+    """
     localNoPeriod = gnrlocale.getDateKeywords('no period', locale)[0]
     localTo = gnrlocale.getDateKeywords('to', locale)[0]
     localFrom = gnrlocale.getDateKeywords('from', locale)[0]
