@@ -20,8 +20,9 @@
 #License along with this library; if not, write to the Free Software
 #Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 
-__version__='1.0b'
+from __future__ import with_statement
 
+__version__='1.0b'
 
 import logging
 gnrlogger = logging.getLogger('gnr.sql.gnrsql')
@@ -437,9 +438,12 @@ class GnrSqlDb(GnrObject):
                 
 class TempEnv(object):
     """
-    with db.tempEnv(foo=7) as db:
-        .......
-        ....
+    
+    Example::
+    
+        with db.tempEnv(foo=7) as db:
+            # do something
+            pass
 
     """
     def __init__(self,db,**kwargs):

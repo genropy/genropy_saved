@@ -67,7 +67,20 @@ EXCEPTIONS= {'save': GnrSqlSaveException,
              'protect_validate':GnrSqlProtectValidateException}
      
 class SqlTable(GnrObject):
+    """Database tables.
+    
+    In your webpages or tables, you can get tables in this way::
 
+        self.db.table('packagename.tablename')
+    
+    where self is your webpage or table.
+    
+    In tests and interactive sessions, you can get them from the application instance itself. For example::
+    
+        app = GnrApp('instancename')
+        app.db.table('packagename.tablename')
+    
+    """
         
     def __init__(self, tblobj):
         self._model = tblobj
