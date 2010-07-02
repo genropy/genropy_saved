@@ -1,15 +1,11 @@
 #!/usr/bin/env pythonw
 # -*- coding: UTF-8 -*-
 #
-#  untitled
-#
 #  Created by Giovanni Porcari on 2007-03-24.
 #  Copyright (c) 2007 Softwell. All rights reserved.
-#
 
 """ GnrDojo Hello World """
 import os
-
 
 class GnrCustomWebPage(object):
     def main(self, root, **kwargs):
@@ -20,9 +16,4 @@ class GnrCustomWebPage(object):
         tab1 = center.contentPane(title='tab1')
         tab2 = center.accordionContainer(title='Accordion')
         acc1 = tab2.accordionPane(title='acc1')
-        acc2 = tab2.accordionPane(title='acc1')
-
-
-            
-                
-            
+        acc2 = tab2.accordionPane(title='acc2')
