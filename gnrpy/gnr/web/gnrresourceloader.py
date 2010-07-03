@@ -328,3 +328,16 @@ class ResourceLoader(object):
             return resource_obj
         else:
             raise GnrWebServerError('Cannot import component %s' % modName)
+    
+    
+    def resourcesAtPath(self,pkg,path,ext):
+        result = Bag()
+        locations = list(self.package_resourceDirs(pkg))
+        for dpath in locations:
+            dirpath = os.path.join(dpath,path)
+            if os.path.isdir(dirpath):
+                b = DirectoryResolver(dirpath,include='*.py',dropext=True)                
+                result.update(b,resolved=True)
+        return result
+
+        
