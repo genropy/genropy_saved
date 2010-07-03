@@ -175,15 +175,7 @@ class TableHandler(BaseComponent):
             bottom='4px', left='4px').includedView(storepath='%s.errors' % resultpath, struct=struct)
   
     
-    def rpc_list_actions(self, tbl, **kwargs):
-        #pkg, tbl = tbl.split('.')
-        #actionFolders = self.getResourceList(os.path.join('addOn', tbl))
-        #result = Bag()
-        #for r in objectsel.data:
-        #    attrs = dict([(str(k), v) for k,v in r.items()])
-        #    result.setItem(r['code'], None, **attrs)
-        #return result
-        return
+
     
     #def rpc_setViewColumns(self, gridId=None, relation_path=None, query_columns=None, **kwargs):
     #    self.app.setContextJoinColumns(self.maintable, contextName='sql_record', reason=gridId,
