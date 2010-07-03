@@ -35,7 +35,7 @@ To install *paver*::
 How to obtain GenroPy
 =====================
 
-Genropy is in a subversion respository.  If you use git then you can track local changes.  To obtain genropy, type::
+Genropy is in a subversion repository.  If you use git then you can track local changes.  To obtain genropy, type::
 
     svn co http://svn.genropy.org/genro/trunk genro
 
@@ -62,17 +62,19 @@ GenroPy using the ``.gnr`` configuration::
 
 Edit ``environment.xml``, ``siteconfig/default.xml`` and ``instanceconfig/default.xml`` as needed.
 
-Provare l'installazione
+Installation Examples
 =======================
 
-GenroPy include alcuni progetti di prova:
+GenroPy includes some test projects:
 
-- Una raccolta un po' disorganizzata ma completa di esempi (package: **showcase**, istanza: **showcase**, sito: **testgarden**)
-- Un semplice programma di fatturazione (package: **invoices**, istanza e sito: **fatture1**)
+Showcase - is an incomplete but useful collection of examples.
+(package: **showcase**, application:**showcase**, site **testgarden**)
 
-Il primo è stato un po' trascurato, il codice ha bisogno di essere sistemato (per quanto, vi consiglio di dare un'occhaita alla sezione tutorial).
 
-Ad esempio, per provare il secondo potete procedere così per creare il database e poi lanciare un webserver di sviluppo::
+Fatture1 - is a simple invoice application
+(package: **invoices**, application and site: **fatture1**)
+
+To create the database in postgres and start the paste wsgi development webserver:
 
     gnrdbsetup -i fatture1
     gnrwsgiserve -s fatture1
