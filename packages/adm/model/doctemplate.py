@@ -2,9 +2,9 @@
 
 class Table(object):
     def config_db(self, pkg):
-        tbl =  pkg.table('doctemplate',pkey='id',name_long='!!Document template',
+        tbl =  pkg.table('doctemplate',pkey='name',name_long='!!Document template',
                       name_plural='!!Document templates')
-        self.sysFields(tbl)
+        self.sysFields(tbl,id=False)
         tbl.column('name',name_long='!!Name',validate_nodup=True,unique=True,
                     validate_notnull=True,validate_notnull_error='!!Name is mandatory',
                     validate_nodup_error='!!This name is already taken')

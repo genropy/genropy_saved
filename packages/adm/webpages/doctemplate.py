@@ -43,10 +43,21 @@ class GnrCustomWebPage(object):
         return dict(column='name',op='contains', val='%')
 
 ############################## FORM METHODS ##################################
-
+        
+    
+    def tableData_states(self):
+        mytable=Bag()
+        mytable.setItem('r1',None,id='CA',caption='California')
+        mytable.setItem('r2',None,id='IL',caption='Illinois')
+        mytable.setItem('r3',None,id='NY',caption='New York')
+        mytable.setItem('r4',None,id='TX',caption='Texas')
+        mytable.setItem('r5',None,id='AL',caption='Alabama')        
+        return mytable
+        
     def formBase(self, parentBC,disabled=False, **kwargs):
         bc = parentBC.borderContainer(regions='^mainbc.regions',**kwargs)
         bc.data('mainbc.regions.left?show',False)
+        bc.data('tableTree',self.db.tableTreeBag(['sys'],omit=True))
         bc.dataController('SET mainbc.regions.left?show = maintable?true:false',maintable='^.maintable')
         left = bc.tabContainer(region='left',width='200px',splitter=True,datapath='table',selectedPage='^statusedit')
         self.left(left)
@@ -54,8 +65,10 @@ class GnrCustomWebPage(object):
         fb = top.formbuilder(cols=6, border_spacing='4px',disabled=disabled)
         fb.field('name',width='10em')
         fb.field('version',width='4em')
-        fb.field('maintable',width='100%',colspan=2)
-        fb.checkbox(value='^mainbc.regions.left?show',label='Helps')        
+        box = fb.div(_class='fakeTextBox floatingPopup',width='15em',lbl='Table',colspan=2)
+        box.span('^.maintable')
+        box.menu(storepath='tableTree',modifiers='*',_class='smallmenu',action='SET .maintable = $1.fullpath')
+        fb.checkbox(value='^mainbc.regions.left?show',label='!!Show fields')        
         tc = bc.tabContainer(region='center',selectedPage='^statusedit')
         editorPane = tc.borderContainer(title='Edit',pageName='edit')
         previewPane = tc.borderContainer(title='Preview',pageName='view')
@@ -82,29 +95,5 @@ class GnrCustomWebPage(object):
         t2 = tc.contentPane(title='Sample Record',pageName='view')
         fb = t2.formbuilder(cols=1, border_spacing='2px')
         fb.dbSelect(dbtable='^form.record.maintable',value='^test_id',lbl='Test')
-        fb.dataRecord('test_record.record','=form.record.maintable',pkey='^test_id')
+        fb.dataRecord('test_record.record','=form.record.maintable',pkey='^test_id',_if='pkey')
         t2.tree(storepath='test_record')
-
-    def rpc_relationExplorer(self, table=None, prevRelation='', prevCaption='', omit='',quickquery=False, **kwargs):
-        if not table:
-            return Bag()
-        def buildLinkResolver(node, prevRelation, prevCaption):
-            nodeattr = node.getAttr()
-            if not 'name_long' in nodeattr:
-                raise Exception(nodeattr) # FIXME: use a specific exception class
-            nodeattr['caption'] = nodeattr.pop('name_long')
-            nodeattr['fullcaption'] = concat(prevCaption, self._(nodeattr['caption']), ':')
-            if nodeattr.get('one_relation'):
-                nodeattr['_T'] = 'JS'
-                if nodeattr['mode']=='O':
-                    relpkg, reltbl, relfld = nodeattr['one_relation'].split('.')
-                else:
-                    relpkg, reltbl, relfld = nodeattr['many_relation'].split('.')
-                jsresolver = "genro.rpc.remoteResolver('relationExplorer',{table:%s, prevRelation:%s, prevCaption:%s, omit:%s})"
-                node.setValue(jsresolver % (jsquote("%s.%s" % (relpkg, reltbl)), jsquote(concat(prevRelation, node.label)), jsquote(nodeattr['fullcaption']),jsquote(omit)))
-        result = self.db.relationExplorer(table=table, 
-                                         prevRelation=prevRelation,
-                                         omit=omit,
-                                        **kwargs)
-        result.walk(buildLinkResolver, prevRelation=prevRelation, prevCaption=prevCaption)
-        return result
