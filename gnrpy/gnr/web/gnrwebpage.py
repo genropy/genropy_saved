@@ -30,7 +30,8 @@ Copyright (c) 2007 Softwell. All rights reserved.
 import urllib
 from gnr.web._gnrbasewebpage import GnrBaseWebPage
 import os
-from gnr.core.gnrstring import toJson
+from gnr.core.gnrstring import toJson,concat, jsquote
+
 from gnr.core.gnrlang import getUuid
 from mako.lookup import TemplateLookup
 from gnr.web.gnrwebreqresp import GnrWebRequest,GnrWebResponse
@@ -789,6 +790,31 @@ class GnrWebPage(GnrBaseWebPage):
                     kwargs[k[0:-5]] = kwargs.pop(k)[1:]
             handler(pane,**kwargs)
             return pane
+            
+    def rpc_relationExplorer(self, table=None, prevRelation='', prevCaption='', 
+                            omit='',**kwargs):
+        if not table:
+            return Bag()
+        def buildLinkResolver(node, prevRelation, prevCaption):
+            nodeattr = node.getAttr()
+            if not 'name_long' in nodeattr:
+                raise Exception(nodeattr) # FIXME: use a specific exception class
+            nodeattr['caption'] = nodeattr.pop('name_long')
+            nodeattr['fullcaption'] = concat(prevCaption, self._(nodeattr['caption']), ':')
+            if nodeattr.get('one_relation'):
+                nodeattr['_T'] = 'JS'
+                if nodeattr['mode']=='O':
+                    relpkg, reltbl, relfld = nodeattr['one_relation'].split('.')
+                else:
+                    relpkg, reltbl, relfld = nodeattr['many_relation'].split('.')
+                jsresolver = "genro.rpc.remoteResolver('relationExplorer',{table:%s, prevRelation:%s, prevCaption:%s, omit:%s})"
+                node.setValue(jsresolver % (jsquote("%s.%s" % (relpkg, reltbl)), jsquote(concat(prevRelation, node.label)), jsquote(nodeattr['fullcaption']),jsquote(omit)))
+        result = self.db.relationExplorer(table=table, 
+                                         prevRelation=prevRelation,
+                                         omit=omit,
+                                        **kwargs)
+        result.walk(buildLinkResolver, prevRelation=prevRelation, prevCaption=prevCaption)
+        return result
     
     def getAuxInstance(self, name):
         return self.site.getAuxInstance(name)
