@@ -1,10 +1,10 @@
 =========
- Bottoni
+ Buttons
 =========
 
 .. currentmodule:: widgets
 
-.. class:: Buttons -  Genropy buttones
+.. class:: Buttons -  Genropy buttons
 
 	This is not a real class, but only one way to combine the methods of the struct that implements interface **buttons**
 
