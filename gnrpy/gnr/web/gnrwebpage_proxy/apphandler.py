@@ -472,7 +472,7 @@ class GnrWebAppHandler(GnrBaseProxy):
                             relationDict=None, sqlparams=None, row_start='0', row_count='0',
                             recordResolver=True, selectionName='', structure=False, numberedRows=True,
                             pkeys=None, fromSelection=None, applymethod=None, totalRowCount=False,
-                            selectmethod=None, expressions=None,sum_columns=None,
+                            selectmethod=None,selectmethod_prefix='rpc', expressions=None,sum_columns=None,
                             sortedBy=None,excludeLogicalDeleted=True, **kwargs):
         t = time.time()
         #if 'sqlContextName' in kwargs:
@@ -497,15 +497,16 @@ class GnrWebAppHandler(GnrBaseProxy):
         if newSelection:
             debug='fromDb'
             if selectmethod:
-                selectmethod = self.page.getPublicMethod('rpc', selectmethod)
+                
+                selecthandler = self.page.getPublicMethod(selectmethod_prefix, selectmethod)
             else:
-                selectmethod = self._default_getSelection   
-            selection = selectmethod(tblobj=tblobj, table=table,distinct=distinct, columns=columns,where=where,condition=condition,
+                selecthandler = self._default_getSelection   
+            columns = self._getSelection_columns(tblobj,columns,expressions=expressions)
+            selection = selecthandler(tblobj=tblobj, table=table,distinct=distinct, columns=columns,where=where,condition=condition,
                                order_by=order_by,limit=limit, offset=offset, group_by=group_by,having=having,
                                relationDict=relationDict, sqlparams=sqlparams, row_start=row_start,row_count=row_count,
                                recordResolver=recordResolver,selectionName=selectionName, structure=structure,pkeys=pkeys, fromSelection=fromSelection,
-                               expressions=expressions,sortedBy=sortedBy,
-                               excludeLogicalDeleted=excludeLogicalDeleted, **kwargs)
+                               sortedBy=sortedBy,excludeLogicalDeleted=excludeLogicalDeleted, **kwargs)
             if applymethod:
                 applyPars = self._getApplyMethodPars(kwargs)
                 self.page.getPublicMethod('rpc', applymethod)(selection,**applyPars)
@@ -543,6 +544,70 @@ class GnrWebAppHandler(GnrBaseProxy):
                 resultAttributes['sum_%s' % col]=data.sum('#a.%s'%col)
             
         return (result,resultAttributes)
+             
+             
+    def _getSelection_columns(self,tblobj,columns,expressions=None):
+        if isinstance(columns, Bag):
+            columns = self._columnsFromStruct(columns)
+        if not columns:
+            columns = tblobj.attributes.get('baseview') or '*'
+        if '[' in columns:
+            columns=columns.replace(' ','').replace('\n','').replace('\t','')
+            maintable=[]
+            colaux=columns.split(',')
+            columns=[]
+            for col in colaux:
+                if '[' in col:
+                    tbl,col=col.split('[')
+                    maintable=[tbl]
+                if col.endswith(']'):
+                    col=col[:-1]
+                columns.append('.'.join(maintable+[col.rstrip(']')]))
+                if col.endswith(']'):
+                    maintable=[]
+            columns=','.join(columns)
+        if expressions:
+            expr_dict = getattr(self.page, 'expr_%s' %expressions)()
+            expr_dict = dict([(k, '%s AS %s' % (v,k)) for k,v in expr_dict.items()])
+            columns = templateReplace(columns, expr_dict, safeMode=True)
+        return columns
+        
+        
+    def _default_getSelection(self,tblobj=None, table=None,distinct=None, columns=None,where=None,condition=None,
+                            order_by=None,limit=None, offset=None, group_by=None,having=None,
+                            relationDict=None, sqlparams=None, row_start=None,row_count=None,
+                            recordResolver=None, selectionName=None, pkeys=None, fromSelection=None,
+                            sortedBy=None, sqlContextName=None,
+                            excludeLogicalDeleted=True, **kwargs):
+
+        if fromSelection:
+            fromSelection = self.page.unfreezeSelection(tblobj, fromSelection)
+            pkeys = fromSelection.output('pkeylist')
+        if pkeys:
+            where='t0.%s in :pkeys' % tblobj.pkey
+            if isinstance(pkeys, basestring):
+                pkeys = pkeys.split(',')
+            kwargs['pkeys'] = pkeys
+        elif isinstance(where, Bag):
+            where, kwargs = self._decodeWhereBag(tblobj, where, kwargs)
+        if condition and not pkeys:
+            where = '( %s ) AND ( %s )' % (where, condition)
+        query=tblobj.query(columns=columns,distinct=distinct, where=where,
+                        order_by=order_by,limit=limit, offset=offset, group_by=group_by,having=having,
+                        relationDict=relationDict, sqlparams=sqlparams,locale=self.page.locale,
+                        excludeLogicalDeleted=excludeLogicalDeleted,**kwargs)
+        if sqlContextName: 
+            self._joinConditionsFromContext(query, sqlContextName)
+        selection = query.selection(sortedBy=sortedBy, _aggregateRows=True)
+        if sqlContextName:
+            ctx = self.page.session.pagedata['context.%s' % sqlContextName]
+            if ctx and False:
+                joinDict = ctx['%s_%s' % (target_fld.replace('.','_'), from_fld.replace('.','_'))]
+                if joinDict and joinDict.get('applymethod'):
+                    applyPars = self._getApplyMethodPars(kwargs)
+                    self.page.getPublicMethod('rpc', joinDict['applymethod'])(selection,**applyPars)
+                    
+        return selection
         
     def rpc_createSelection(self, table='', selectionName='', distinct=False, columns='', where='', condition=None,
                             order_by=None, limit=None, offset=None, group_by=None, having=None,
@@ -584,65 +649,6 @@ class GnrWebAppHandler(GnrBaseProxy):
         resultAttributes = dict(table=table, selectionName=selectionName, 
                                 servertime=int((time.time() - t)*1000), newproc=getattr(self, 'self.newprocess', 'no'))
         return (len(selection), resultAttributes)
-        
-    def _default_getSelection(self,tblobj=None, table=None,distinct=None, columns=None,where=None,condition=None,
-                            order_by=None,limit=None, offset=None, group_by=None,having=None,
-                            relationDict=None, sqlparams=None, row_start=None,row_count=None,
-                            recordResolver=None, selectionName=None, pkeys=None, fromSelection=None,
-                            expressions=None,sortedBy=None, sqlContextName=None,
-                            excludeLogicalDeleted=True, **kwargs):
-        if isinstance(columns, Bag):
-            columns = self._columnsFromStruct(columns)
-        if not columns:
-            columns = tblobj.attributes.get('baseview') or '*'
-        if '[' in columns:
-            columns=columns.replace(' ','').replace('\n','').replace('\t','')
-            maintable=[]
-            colaux=columns.split(',')
-            columns=[]
-            for col in colaux:
-                if '[' in col:
-                    tbl,col=col.split('[')
-                    maintable=[tbl]
-                if col.endswith(']'):
-                    col=col[:-1]
-                columns.append('.'.join(maintable+[col.rstrip(']')]))
-                if col.endswith(']'):
-                    maintable=[]
-            columns=','.join(columns)
-        if expressions:
-            expr_dict = getattr(self.page, 'expr_%s' %expressions)()
-            expr_dict = dict([(k, '%s AS %s' % (v,k)) for k,v in expr_dict.items()])
-            columns = templateReplace(columns, expr_dict, safeMode=True)
-        if fromSelection:
-            fromSelection = self.page.unfreezeSelection(tblobj, fromSelection)
-            pkeys = fromSelection.output('pkeylist')
-        if pkeys:
-            where='t0.%s in :pkeys' % tblobj.pkey
-            if isinstance(pkeys, basestring):
-                pkeys = pkeys.split(',')
-            kwargs['pkeys'] = pkeys
-        elif isinstance(where, Bag):
-            where, kwargs = self._decodeWhereBag(tblobj, where, kwargs)
-        if condition and not pkeys:
-            where = '( %s ) AND ( %s )' % (where, condition)
-        query=tblobj.query(columns=columns,distinct=distinct, where=where,
-                        order_by=order_by,limit=limit, offset=offset, group_by=group_by,having=having,
-                        relationDict=relationDict, sqlparams=sqlparams,locale=self.page.locale,
-                        excludeLogicalDeleted=excludeLogicalDeleted,**kwargs)
-        if sqlContextName: 
-            self._joinConditionsFromContext(query, sqlContextName)
-        selection = query.selection(sortedBy=sortedBy, _aggregateRows=True)
-        if sqlContextName:
-            ctx = self.page.session.pagedata['context.%s' % sqlContextName]
-            if ctx and False:
-                joinDict = ctx['%s_%s' % (target_fld.replace('.','_'), from_fld.replace('.','_'))]
-                if joinDict and joinDict.get('applymethod'):
-                    applyPars = self._getApplyMethodPars(kwargs)
-                    self.page.getPublicMethod('rpc', joinDict['applymethod'])(selection,**applyPars)
-                    
-        return selection
-        
     def _decodeWhereBag(self, tblobj, where, kwargs):
         if hasattr(self.page,'getSelection_filters'):
             selection_filters = self.page.getSelection_filters()
