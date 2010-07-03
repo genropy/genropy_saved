@@ -1,12 +1,12 @@
 ###################
- Interfaccia utente
+ User Interface
 ###################
 
 .. module:: ui
-    :synopsis: (package inesistente, usato qui per raggruppare la documentazione della UI)
+    :synopsis: (the packages is not yet existing and this is a stub to gather the information for the ui)
 
 .. module:: ui.widgets
-    :synopsis:  elementi dell'interfaccia utente di GenroPy
+    :synopsis:  Genropy user interface elements
 
 .. toctree::
 

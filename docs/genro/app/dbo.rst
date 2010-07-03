@@ -1,5 +1,5 @@
 ========================================================================================
-:mod:`gnr.app.gnrdbo` -- Contatori, tabelle gerarchiche ed altri servizi per il database
+:mod:`gnr.app.gnrdbo` -- Counters, tables and other services for the hierarchical database
 ========================================================================================
 
 .. automodule:: gnr.app.gnrdbo

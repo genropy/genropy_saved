@@ -1,5 +1,5 @@
 #####################################
-:mod:`gnr.app` -- Servizi applicativi
+:mod:`gnr.app` -- Application Services
 #####################################
 
 .. toctree::

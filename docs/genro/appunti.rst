@@ -1,13 +1,13 @@
 *************************
- Appunti vari su GenroPy
+ Miscellaneous notes about GenroPy
 *************************
 
-Costruzione delle bags
+Construction of Bags
 ======================
 
-Esistono vari modi per costruire bags in GenRo:
+There are several ways to build bags in genropy:
 
-* da un file XML;
+* from an XML file;
 * utilizzando le istruzioni python del modulo ``gnr.core.gnrbag``, in questo caso il codice è simile alla costruzione di un dizionario;
 * utilizzando il modulo ``gnr.core.gnrstructures``, in questo caso il codice è costituito da una serie di chiamate di metodi python. Il codice per la costruzione dei modelli di database e delle webpages costruisce in realtà delle bags, appoggiandosi a questo modulo.
 

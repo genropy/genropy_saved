@@ -1,7 +1,7 @@
-Eventi
+Events
 ======
 
-Caricamento dei record
+Load record
 **********************
 
 .. method:: page.onLoading(self, record, newrecord, loadingParameters, recInfo)
@@ -12,13 +12,11 @@ Caricamento dei record
 	:param loadingParameters: |Bag| or dict
 	:param recInfo: dict
 
-	La bag ``record`` può essere manipolata per alterare i dati che vengono forniti al client.
+	The bag ``record`` can be manipulated to alter the data being supplied to the client.
 
- 	``recInfo`` contiene i metadati del record, è utilizzata dal framework per determinare quale comportamento
-	adottare in varie situazioni. ``recInfo`` può contenere i seguenti valori:
+ 	The ``Recinfo`` record contains metadata that is used by the framework to determine which behaviour is determined in various situations.  ``RecInfo`` may contain the following values:
 	
-		``_alwaysSaveRecord`` -- controlla il comportamento durante il salvataggio.
-			* ``False`` (default) -- quando l'utente inserice un nuovo record e subito dopo salva (senza fare modifiche),
-			  non viene salvato alcun record nel database.
-			* ``True`` -- se l'utente inserisce un nuovo record poi salva senza apportare modifiche, viene sempre
-			  creato un nuovo record.
+		``_alwaysSaveRecord`` -- controls the behavior during the rescue.
+			* ``False`` (default) -- When a user inserts a new record and immediately saves (without change),
+			  then there is no record saved or stored in the database.
+			* ``True`` -- if the user inserts a new record then save without making changes, always created a new record.

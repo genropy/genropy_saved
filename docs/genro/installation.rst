@@ -1,5 +1,5 @@
 ***************
- Install
+ Installation
 ***************
 
 Requirements
@@ -62,7 +62,7 @@ GenroPy using the ``.gnr`` configuration::
 
 Edit ``environment.xml``, ``siteconfig/default.xml`` and ``instanceconfig/default.xml`` as needed.
 
-Installation Examples
+Project Examples
 =======================
 
 GenroPy includes some test projects:

@@ -4,20 +4,20 @@
 
 .. currentmodule:: widgets
 
-.. class:: Buttons -  I bottoni in GenroPy
+.. class:: Buttons -  Genropy buttones
 
-	Non si tratta di una vera e propria classe, ma solo di un modo per raggruppare i metodi della struct dell'interfaccia che implementano i bottoni.
+	This is not a real class, but only one way to combine the methods of the struct that implements interface **buttons**
 
 .. method:: button(label[, fire=datapath][, action=javascript][, hidden=boolean or resolver])
 
-	Costruisce un bottone usando il tag HTML ``button``.
+	Construct a button using the HTML tag ``button``.
 
 .. method:: dropdownbutton(label)
 
-	Costruisce un bottone che apre un ``menu`` o un ``tooltipdialog``.
+	Constructs a button that opens a ``menu`` or a ``tooltipdialog``.
 	
-	Esempio::
+	Example::
 	
 		def ddButtonPane(self, cp):
-			dd = cp.dropdownbutton('prova')
+			dd = cp.dropdownbutton('test')
 			dd.tooltipdialog().div('Hello, world!')

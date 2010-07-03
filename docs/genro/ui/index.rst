@@ -1,12 +1,12 @@
-Interfaccia utente
+User interface
 ==================
 
-Costruzione pagine lato server
+Building Server-side pages
 ******************************
 
-Per la costruzione di pagine lato server vedi :mod:`gnr.core.gnrhtml`.
+For building server-side pages, plsease see :mod:`gnr.core.gnrhtml`.
 
-Costruzione pagine lato client
+Building Client-side pages
 ******************************
 
 .. toctree::
