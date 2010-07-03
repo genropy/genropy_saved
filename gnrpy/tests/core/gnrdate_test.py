@@ -346,7 +346,7 @@ def test_TimePeriod():
     p.remove(gnrdate.TimeInterval('14:00-16:00')) # fully overlapping => remove
     assert str(p) == '8:30-10:30'
 
-def test_TimePeriod_RealWorldUsage():
+def test_TimePeriod_complex():
     p = gnrdate.TimePeriod('8:00-12:00','16:00-20:00')
     print "p=",p
     for i in ('8:00-9:00','9:30-10:00','10:00-11:30','16:00-16:30','17:00-18:00','18:00-19:00','19:00-20:00'):
@@ -355,7 +355,7 @@ def test_TimePeriod_RealWorldUsage():
         print "p=", p
     assert str(p) == '9:00-9:30, 11:30-12:00, 16:30-17:00'
 
-def test_TimePeriod_RealWorldUsage_attributes():
+def test_TimePeriod_complex_attributes():
     iv1 = gnrdate.TimeInterval('8:00-12:00')
     iv1.name = 'morning'
     iv2 = gnrdate.TimeInterval('16:00-20:00')
