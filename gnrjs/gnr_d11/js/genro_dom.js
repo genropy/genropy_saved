@@ -101,11 +101,10 @@ dojo.declare("gnr.GnrDomHandler",null,{
     addClass: function(where,cls){
         if(typeof(cls)=='string'){
             var domnode=this.getDomNode(where);
-            if (domnode){
-                var classes=cls.split(' ');
-                for (var i=0;i<classes.length;i++){
-                    dojo.addClass(domnode, classes[i]);
-                }
+            if (!domnode) return;
+            var classes=cls.split(' ');
+            for (var i=0;i<classes.length;i++){
+                dojo.addClass(domnode, classes[i]);
             }
         }  
     },
@@ -153,6 +152,7 @@ dojo.declare("gnr.GnrDomHandler",null,{
     removeClass: function(where, cls){
         if(typeof(cls)=='string'){
             var domnode=this.getDomNode(where);
+            if (!domnode) return;
             var classes = cls.split(' ');
             for (var i=0;i<classes.length;i++){
                 dojo.removeClass(domnode, classes[i]);
@@ -163,7 +163,9 @@ dojo.declare("gnr.GnrDomHandler",null,{
     },
     setClass:function(where,cls,set){
         if (set=='toggle'){
-            set = !dojo.hasClass(this.getDomNode(where),cls);
+            var domnode=this.getDomNode(where);
+            if (!domnode) return;
+            set = !dojo.hasClass(domnode,cls);
         }
         if (set) {
             this.addClass(where,cls);
