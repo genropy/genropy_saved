@@ -1,7 +1,7 @@
 ###################################
- Documenti da rivedere o sistemare
+ Documents to revise or adjust
 ###################################
 
 .. toctree::
 
-	appunti
+	clipboard
