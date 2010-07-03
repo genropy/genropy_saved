@@ -24,6 +24,7 @@ import re
 import logging
 import datetime
 import calendar
+import copy
 import bisect
 
 from gnr.core import gnrlocale
@@ -380,7 +381,53 @@ def dateRange(dstart, dstop):
         dt = dt + datetime.timedelta(days=1)
 
 class TimeInterval(object):
-    """A span of time (start, end)."""
+    """A span of time (start, end).
+    
+    You can create TimeIntervals from ``datetime.time`` objects or strings:
+    
+    >>> from datetime import time
+    >>> TimeInterval(time(8,30),time(10,30))
+    TimeInterval('8:30-10:30')
+    >>> TimeInterval('8:30-10:30')
+    TimeInterval('8:30-10:30')
+    >>> start = time(8,30)
+    >>> stop = time(10,30)
+    >>> tup = (start,stop)
+    >>> TimeInterval(start,stop) == TimeInterval( tup )
+    True
+    >>> TimeInterval((start, '10:30'))
+    TimeInterval('8:30-10:30')
+    
+    As you can see, str() and repr() are both implemented in a sensible way.
+    
+    Several operators are available.
+    
+    ============ ==================================================
+      Operator    Meaning
+    ============ ==================================================
+      a < b       a ends before b starts
+      a <= b      a starts before or when b starts
+      a > b       b ends before a starts
+      a >= b      b starts before or when a ends        
+      a == b      a.start == b.start and a.stop == b.stop
+      a in b      a overlaps b
+    ============ ==================================================
+    
+    All of these operators accept as their second parameter a TimeInterval or a string (or a tuple of datetime.time or strings).
+    
+    >>> a = TimeInterval('8:30-10:30')
+    >>> b = TimeInterval('10:00-12:00')
+    >>> a < b
+    False
+    >>> a <= b
+    True
+    >>> a == b
+    False
+    >>> a == a
+    True
+    >>> a in b
+    True
+    """
     def __init__(self, start, stop=None):
         if not stop:
             if isinstance(start, TimeInterval):
@@ -456,9 +503,14 @@ class TimeInterval(object):
     COVER_RIGHT = 2
     
     def overlaps(self, other):
-        """Checks if other overlaps with this interval.
+        """Checks if ``other`` overlaps with this interval.
         
-        Returns a constant describing the relationship between self and other."""
+        Returns a constant describing the relationship between ``self`` and ``other``.
+        
+        :param other: a TimeInterval or a string represting it
+        :returns: TimeInterval.xxx where xxx is ``NO_OVERLAP``, ``FULLY_CONTAINED``, ``FULLY_CONTAINS``, 
+                  ``COVER_RIGHT`` or ``COVER_LEFT``.
+        """
         if not isinstance(other, TimeInterval):
             other = TimeInterval(other)
         if self < other or self > other:
@@ -476,7 +528,34 @@ class TimeInterval(object):
                 return TimeInterval.FULLY_CONTAINED
     
 class TimePeriod(object):
-    """A non-overlapping set of TimeIntervals."""
+    """A non-overlapping set of TimeIntervals.
+    
+    You can create a TimePeriod by calling the constructor with:
+    
+        - zero or more TimeIntervals, or their string representations;
+        - a comma separated string of TimeInterval's string representations.
+        
+    You can add or remove intervals to a TimePeriod.
+
+    >>> p = TimePeriod('8:00-12:00','16:00-20:00')
+    >>> for i in ('8:00-9:00','9:30-10:00','10:00-11:30','16:00-16:30','17:00-18:00','18:00-19:00','19:00-20:00'): p.remove(i)
+    >>> str(p)
+    '9:00-9:30, 11:30-12:00, 16:30-17:00'
+    
+    If you attach custom attributes to your TimeIntervals (or if you derive your own subclasses), they are preserved when
+    intervals are sliced:
+    
+    >>> iv1 = TimeInterval('8:00-12:00')
+    >>> iv1.name = 'morning'
+    >>> iv2 = TimeInterval('16:00-20:00')
+    >>> iv2.name = 'afternoon'
+    >>> p = TimePeriod(iv1,iv2)
+    >>> for i in ('8:00-9:00','9:30-10:00','10:00-11:30','16:00-16:30','17:00-18:00','18:00-19:00','19:00-20:00'): p.remove(i)
+    >>> str(p)
+    '9:00-9:30, 11:30-12:00, 16:30-17:00'
+    >>> [i.name for i in p.intervals]
+    ['morning', 'morning', 'afternoon']
+    """
     def __init__(self, *intervals):
         self.intervals = []
         if len(intervals) == 1:
@@ -522,7 +601,10 @@ class TimePeriod(object):
             if (o == TimeInterval.FULLY_CONTAINS):
                 del self.intervals[right]
             elif o == TimeInterval.FULLY_CONTAINED:
-                self.intervals[right:right+1] = [TimeInterval(existing.start,removed.start),TimeInterval(removed.stop,existing.stop)]
+                second_half = copy.copy(existing)
+                existing.stop = removed.start
+                second_half.start = removed.stop
+                self.intervals.insert(right+1,second_half)
                 right += 2
             elif o == TimeInterval.COVER_LEFT:
                 existing.start = removed.stop
@@ -540,6 +622,5 @@ class TimePeriod(object):
         return "TimePeriod(%s)" % repr(str(self))
 
 if __name__=='__main__':
-    workdate = datetime.date(2009,1,12)
-    res = decodeDatePeriod(u"10 giugno,30 giugno", workdate=workdate, locale='it')
-    print res
+    import doctest
+    doctest.testmod()
