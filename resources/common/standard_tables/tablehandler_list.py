@@ -60,21 +60,13 @@ class TableHandlerForm(BaseComponent):
         self.gridPane(st)
         st.contentPane().div(_class='waiting')
         
+
     def listViewStructures(self,pane):
         """Prepare databag for"""
-        cblist = sorted([func_name for func_name in dir(self) if func_name.startswith('lstBase_') and func_name!='lstBase_'])
-        viewMenu = Bag()
-        baseView = self.lstBase(self.newGridStruct())
         structures=Bag()
-        structures.setItem('_base',baseView,objtype='view', tbl=self.maintable)
-        #pane.data('list.view.pyviews._base',baseView,objtype='view', tbl=self.maintable)
-        #pane.data('list.view.structure',baseView,objtype='view', tbl=self.maintable)
-        viewMenu.setItem('_base',None,caption=self.lstBase.__doc__ or 'Base')
-        for funcname in cblist:
-            name = funcname[8:]
-            handler = getattr(self,funcname)
-            structures.setItem(name,handler(self.newGridStruct()),objtype='view', tbl=self.maintable)
-            viewMenu.setItem(name,None,caption=handler.__doc__ or name.title)
+        def setInStructureCb(label,handler):
+            structures.setItem(label,handler(self.newGridStruct()),objtype='view', tbl=self.maintable)
+        viewMenu=self.listCustomCbBag('lstBase_','lstBase',cb=setInStructureCb)
         viewMenu.addItem('-',None)
         jsresolver = "genro.rpc.remoteResolver('getQuickView',null,{cacheTime:'5'})"
         viewMenu.addItem('savedview',jsresolver,_T='JS',caption='!!Custom view',action='FIRE list.view_id = $1.pkey;')
@@ -84,6 +76,20 @@ class TableHandlerForm(BaseComponent):
                                                                     """)
         pane.data('list.view.menu',viewMenu)
         pane.data('list.view.pyviews',structures,baseview='_base')
+
+    def listCustomCbBag(self,prefix=None,basename=None,cb=None):
+        cblist = sorted([func_name for func_name in dir(self) if func_name.startswith(prefix) and func_name!=prefix]) or []
+        if basename:
+            cblist=[basename]+cblist
+        menuBag = Bag()
+        for funcname in cblist:
+            name = funcname[len(prefix):] 
+            handler = getattr(self,funcname)
+            label=name or '_base'
+            if cb:
+                cb(label,handler)
+            menuBag.setItem(label,None,caption=handler.__doc__ or name.title() or 'Base')
+        return menuBag
         
     def listController(self,pane):
         pane.data('list.excludeLogicalDeleted',True)
@@ -425,9 +431,11 @@ class TableHandlerForm(BaseComponent):
                              row_start='0', row_count=self.rowsPerPage(),
                              excludeLogicalDeleted='^list.excludeLogicalDeleted',
                              applymethod='onLoadingSelection',
-                             timeout=180000,
+                             timeout=180000,selectmethod='=list.selectmethod',
+                             selectmethod_prefix='customQuery',
                              _onCalling=self.onQueryCalling(),
-                             _onResult='FIRE list.queryEnd=true;',**condPars)
+                             _onResult='FIRE list.queryEnd=true; SET list.selectmethod=null;',
+                             **condPars)
 
         grid = gridpane.virtualGrid(nodeId='maingrid', structpath="list.view.structure", storepath=".data", autoWidth=False,
                                 selectedIndex='list.rowIndex', rowsPerPage=self.rowsPerPage(), sortedBy='^list.grid.sorted',
