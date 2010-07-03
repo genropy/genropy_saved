@@ -397,6 +397,9 @@ dojo.declare("gnr.widgets.baseHtml",null,{
             if (attributes['title']) {
                 attributes['title'] = '<span class="'+iconClass+'"/><span style="padding-left:20px;">'+attributes['title']+'</span>';
             }
+            else if(attributes['title_tip']){
+                attributes['title'] = '<div class="'+iconClass+'" title="'+attributes['title_tip']+'"/>';
+            }
             else{
                 attributes['title'] = '<div class="'+iconClass+'"/>';
             }
@@ -3598,16 +3601,33 @@ dojo.declare("gnr.widgets.Tree",gnr.widgets.baseDojo,{
         if (attributes.selectedPath){
             sourceNode.registerDynAttr('selectedPath');
         }
+        var tooltipAttrs =objectExtract(attributes,'tooltip_*');
         var savedAttrs=objectExtract(attributes,'inspect,autoCollapse,onChecked');
+        if (objectNotEmpty(tooltipAttrs)) {
+            savedAttrs['tooltipAttrs'] = tooltipAttrs;
+        };
         return savedAttrs;
     },
     created: function(widget, savedAttrs, sourceNode){
+        if (savedAttrs.tooltipAttrs) {
+            
+            var funcToCall = funcCreate(savedAttrs.tooltipAttrs.callback,'sourceNode,treeNode',widget);
+            var cb = function(n){
+                var item = dijit.getEnclosingWidget(n).item;
+                return funcToCall(item,n);
+            };
+            
+            genro.wdg.create('tooltip',null,{label:cb,
+                                                       validclass:'dijitTreeLabel',
+                                                       modifiers:savedAttrs.tooltipAttrs.modifiers
+                                                       }).connectOneNode(widget.domNode);   
+        };
         if(savedAttrs.inspect){
             var modifiers = (savedAttrs.inspect==true) ? '' : savedAttrs.inspect;
             genro.wdg.create('tooltip',null,{label:function(n){return genro.dev.bagAttributesTable(n);},
                                                        validclass:'dijitTreeLabel',
                                                        modifiers:modifiers
-                                                       }).connectOneNode(widget.domNode)    ;                                        
+                                                       }).connectOneNode(widget.domNode);                                        
         };
 
         //dojo.connect(widget,'onClick',widget,'_updateSelect');
