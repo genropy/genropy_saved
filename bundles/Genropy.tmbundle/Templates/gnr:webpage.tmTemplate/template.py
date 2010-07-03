@@ -11,7 +11,7 @@ class GnrCustomWebPage(object):
         return ''
         
     def windowTitle(self):
-         return ''
+        return ''
          
     def main(self, rootBC, **kwargs):
         pass
