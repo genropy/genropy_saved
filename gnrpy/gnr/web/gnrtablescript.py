@@ -12,7 +12,7 @@ from gnr.core.gnrbag import Bag, BagCbResolver
 from gnr.core.gnrhtml import GnrHtmlBuilder
 from gnr.core.gnrstring import toText
 from gnr.core.gnrlang import NotImplementedException
-from gnr.core.gnrstring import slugify
+from gnr.core.gnrstring import slugify, templateReplace
 
 class TableScript(object):
     def __init__(self, page=None, resource_table = None,db=None,locale='en',tempFolder='',batch=None,**kwargs):
@@ -79,8 +79,9 @@ class TableScriptOnRecord(TableScript):
             caption= slugify(maintable_obj.recordCaption(self.getData('record')))
         doc_name = '%s_%s%s' % (maintable_obj.name, caption, ext)
         return doc_name
-    
-class RecordToHtmlNew(TableScriptOnRecord):
+
+
+class RecordToHtmlPage(TableScriptOnRecord):
     maintable=''
     templates = ''
     rows_path = 'rows'
@@ -97,7 +98,6 @@ class RecordToHtmlNew(TableScriptOnRecord):
     print_button = None
     currencyFormat=u'#,###.00'
     row_mode='bag'
-    
     #override these lines
     row_mode = 'value'
     page_header_height = 0 #
@@ -168,9 +168,11 @@ class RecordToHtmlNew(TableScriptOnRecord):
         self.onRecordExit(self.getData('record'))
         return html
         
-    def onRecordExit(self, recordBag):
-        return
-        
+    def toText(self, obj, locale=None, format=None, mask=None, encoding=None,**kwargs):
+        locale = locale or self.locale
+        encoding = locale or self.encoding
+        return toText(obj, locale=locale, format=format, mask=mask, encoding=encoding,**kwargs)
+
     def createHtml(self, filepath=None, **kwargs):
         #filepath = filepath or self.filepath
         self.initializeBuilder()
@@ -184,6 +186,14 @@ class RecordToHtmlNew(TableScriptOnRecord):
         self.body = self.builder.body
         self.getNewPage = self.builder.newPage
         self.builder.styleForLayout()
+
+class RecordToHtmlMail(RecordToHtmlPage):
+    pass
+    
+class RecordToHtmlNew(RecordToHtmlPage):
+        
+    def onRecordExit(self, recordBag):
+        return
         
     def hmtlFolderPath(self):
         return self.getFolderPath(*self.html_folder.split('/'))
@@ -210,12 +220,7 @@ class RecordToHtmlNew(TableScriptOnRecord):
         format= format or attr.get('format')
         mask= mask or attr.get('mask')
         return self.toText(value,locale,format, mask, self.encoding,**kwargs)
-
-    def toText(self, obj, locale=None, format=None, mask=None, encoding=None,**kwargs):
-        locale = locale or self.locale
-        encoding = locale or self.encoding
-        return toText(obj, locale=locale, format=format, mask=mask, encoding=encoding,**kwargs)
-
+        
     def main(self):
         """can be overridden"""
         self.mainLoop()
@@ -275,7 +280,6 @@ class RecordToHtmlNew(TableScriptOnRecord):
                 self.copy=copy
                 self._closePage(True)
     
-
     def thermo_init(self):
         if hasattr(self,'thermoCb'):
             self.thermoCb(row=2,max_value=self.totalRowCount)
@@ -294,9 +298,7 @@ class RecordToHtmlNew(TableScriptOnRecord):
         self.copies[self.copy]['grid_body_used']=0
         self._createPage()
         self._openPage()
-           
-
-        
+                  
     def _get_rowData(self):
         if self.row_mode=='attribute':
             return self.currRowDataNode.attr
@@ -474,6 +476,8 @@ class RecordToHtmlNew(TableScriptOnRecord):
                             text-align:center;
                         }
                          """)
+                         
+                         
 class RecordToHtml(TableScriptOnRecord):
     maintable=''
     templates = ''
