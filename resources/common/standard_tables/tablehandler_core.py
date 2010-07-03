@@ -26,8 +26,8 @@ Copyright (c) 2009 __MyCompanyName__. All rights reserved.
 
 from gnr.web.gnrbaseclasses import BaseComponent
 from gnr.core.gnrbag import Bag
-from gnr.core.gnrstring import concat, jsquote
-        
+from gnr.core.gnrlang import gnrImport
+
 class ListToolbarOptions(BaseComponent):
     py_requires = 'gnrcomponents/selectionhandler'
 
@@ -40,12 +40,12 @@ class TableHandlerToolbox(BaseComponent):
             delprefpane.dataController("""SET list.excludeLogicalDeleted = showDeleted? 'mark':true;""",showDeleted='^aux.showDeleted')
         self.toolboxFields(bc.contentPane(region='top',height='50%',splitter=True))
         tc = bc.tabContainer(region='center', selected='^list.selectedLeft',margin='5px',margin_top='10px')
-        self.toolboxQueries(tc.borderContainer(title='',tip='!!Queries',iconClass='icnBaseLens'))
-        self.toolboxViews(tc.borderContainer(title='',tip='!!Views',iconClass='icnBaseView'))
-        self.toolboxActions(tc.borderContainer(title='',tip='!!Actions',iconClass='icnBaseAction'))
-        tc.contentPane(title='',tip='!!Mail',iconClass='icnBaseEmail')
-        tc.contentPane(title='',tip='!!Print',iconClass='icnBasePrinter')
-        
+        self.toolboxQueries(tc.borderContainer(title_tip='!!Queries',iconClass='icnBaseLens',showLabel=False))
+        self.toolboxViews(tc.borderContainer(title_tip='!!Views',iconClass='icnBaseView'))
+        self.toolboxFromResources(tc.borderContainer(title_tip='!!Actions',iconClass='icnBaseAction'),res_type='actions')
+        self.toolboxFromResources(tc.borderContainer(title_tip='Mails',iconClass='icnBaseEmail'),res_type='mail')
+        self.toolboxFromResources(tc.borderContainer(title_tip='Print',iconClass='icnBasePrinter'),res_type='print')
+
     def toolboxFields(self,pane):
         treediv=pane.div(_class='treeContainer')
         treediv.tree(storepath='gnr.qb.fieldstree',persist=False,
@@ -57,20 +57,42 @@ class TableHandlerToolbox(BaseComponent):
                      onDndDrop="function(){this.onDndCancel();}::JS",
                      checkAcceptance='function(){return false;}::JS',
                      checkItemAcceptance='function(){return false;}::JS')
-        
-        #left.accordionPane(title='!!Campi collegati')
-         #action="""FIRE list.query.loadQuery=$1.pkey;
-             
-    def toolboxActions(self, container):
-        self.actionsController(container)
-        trpane = container.contentPane(region='center')
-        treepane = trpane.div(_class='treeContainer')
-        treepane.tree(storepath='list.actions.actions_menu', persist=False, inspect='shift',
-                          labelAttribute='caption',hideValues=True,
-                          _class='queryTree')
     
-    def actionsController(self, pane):
-        pane.dataRemote('list.actions.actions_menu', 'list_actions', tbl=self.maintable, cacheTime=10)
+    def toolboxFromResources(self, container,res_type=None):
+        trpane = container.contentPane(region='center')
+        treepath = 'list.toolbox.%s.tree' %res_type
+        trpane.dataRemote(treepath, 'tableResourceTree', tbl=self.maintable, cacheTime=10,res_type=res_type)
+        treepane = trpane.div(_class='treeContainer')
+        treepane.tree(storepath=treepath, persist=False, 
+                          labelAttribute='caption',hideValues=True,
+                          _class='toolboxResourceTree',
+                          tooltip_callback="return sourceNode.attr.description || sourceNode.label;")
+    
+    
+    
+    def rpc_tableResourceTree(self,tbl,res_type):
+        pkg,tblname = tbl.split('.')
+        result = Bag()
+        resources = self.site.resource_loader.resourcesAtPath(pkg,'tables/%s/%s' %(tblname,res_type),'py')
+        forbiddenNodes = []
+        def cb(node,_pathlist=None):
+            if node.attr['file_ext'] == 'py':
+                resmodule = gnrImport(node.attr['abs_path'])
+                tags = getattr(resmodule,'tags','') 
+                if tags and not self.application.checkResourcePermission(tags, self.userTags):
+                    if node.label=='_doc':
+                        forbiddenNodes.append('.'.join(_pathlist))
+                    return
+                caption = getattr(resmodule,'caption',node.label)
+                description = getattr(resmodule,'description','')
+                if  node.label=='_doc':
+                    result.setAttr('.'.join(_pathlist),dict(caption=caption,description=description,tags=tags))
+                else:
+                    result.setItem('.'.join(_pathlist+[node.label]),None,caption=caption,description=description,tags=tags,_attributes=node.attr)            
+        resources.walk(cb,_pathlist=[])
+        for forbidden in forbiddenNodes:
+            result.pop(forbidden)
+        return result
         
 
 class ViewExporter(BaseComponent):
@@ -227,32 +249,6 @@ class LstQueryHandler(BaseComponent):
         
         return result
         
-    def rpc_relationExplorer(self, table, prevRelation='', prevCaption='', omit='',quickquery=False, **kwargs):
-        def buildLinkResolver(node, prevRelation, prevCaption):
-            nodeattr = node.getAttr()
-            if not 'name_long' in nodeattr:
-                raise Exception(nodeattr) # FIXME: use a specific exception class
-            nodeattr['caption'] = nodeattr.pop('name_long')
-            nodeattr['fullcaption'] = concat(prevCaption, self._(nodeattr['caption']), ':')
-            if nodeattr.get('one_relation'):
-                nodeattr['_T'] = 'JS'
-                if nodeattr['mode']=='O':
-                    relpkg, reltbl, relfld = nodeattr['one_relation'].split('.')
-                else:
-                    relpkg, reltbl, relfld = nodeattr['many_relation'].split('.')
-                jsresolver = "genro.rpc.remoteResolver('relationExplorer',{table:%s, prevRelation:%s, prevCaption:%s, omit:%s})"
-                node.setValue(jsresolver % (jsquote("%s.%s" % (relpkg, reltbl)), jsquote(concat(prevRelation, node.label)), jsquote(nodeattr['fullcaption']), jsquote(omit)))
-        result = self.db.relationExplorer(table=table, 
-                                         prevRelation=prevRelation,
-                                         omit=omit,
-                                        **kwargs)
-        result.walk(buildLinkResolver, prevRelation=prevRelation, prevCaption=prevCaption)
-        if quickquery:
-            result.addItem('-',None)
-            jsresolver = "genro.rpc.remoteResolver('getQuickQuery',null,{cacheTime:'5'})"
-            result.addItem('custquery',jsresolver,_T='JS',caption='!!Custom query',action='FIRE list.query_id = $1.pkey;')
-        return result
-        
     def toolboxQueries(self, container):
         self.savedQueryController(container)
         trpane = container.contentPane(region='center')
@@ -314,6 +310,21 @@ class LstQueryHandler(BaseComponent):
         result = self.rpc_listUserObject(objtype='query', tbl=self.maintable,onlyQuicklist=True,**kwargs)
         return result
             
+    def rpc_fieldExplorer(self,table=None,omit=None):
+        result = self.rpc_relationExplorer(table=table,omit=omit)
+        customQuery = self.listCustomCbBag('customQuery_')       
+        if customQuery:
+            result.addItem('-',None) 
+            #mettere customQuery dentro result in modo opportuno
+            for cq in customQuery:
+                result.addItem(cq.label,None,caption=cq.attr['caption'],
+                                action='SET list.selectmethod= $1.fullpath; FIRE list.runQuery;')
+
+        result.addItem('-',None)
+        jsresolver = "genro.rpc.remoteResolver('getQuickQuery',null,{cacheTime:'5'})"
+        result.addItem('custquery',jsresolver,_T='JS',caption='!!Custom query',action='FIRE list.query_id = $1.pkey;')
+        return result
+    
             
     def rpc_getQuickView(self,**kwargs):
         result = self.rpc_listUserObject(objtype='view', tbl=self.maintable,onlyQuicklist=True,**kwargs)
