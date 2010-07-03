@@ -7,11 +7,8 @@
 
 GenroPy
 =======
-
 **Last update:** |today|
-
 .. Be careful with the code below. If you screw the indentation, the doc contents page will appear messed up!
-
 .. hlist::
     :columns: 2
 
