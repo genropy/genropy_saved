@@ -1050,10 +1050,11 @@ class SqlTableBatch(SqlTablePlugin):
     
     def columns(self):
         return '*'
-    
-    def createSelection(self,**kwargs):
-        self.tblobj.query(columns=self.columns(), pkeyList=self.pkeyList, forUpdate=self.forUpdate, **kwargs).selection()
-                
+        
+   #unused method: to be deleted
+   #def createSelection(self,**kwargs):
+   #    self.tblobj.query(columns=self.columns(), pkeyList=self.pkeyList, forUpdate=self.forUpdate, **kwargs).selection()
+   #            
 
 if __name__=='__main__':
     pass
