@@ -280,7 +280,9 @@ def test_toTime():
     t = datetime.time(10,30)
     assert isinstance(gnrdate.toTime(dt), datetime.time)
     assert isinstance(gnrdate.toTime(t), datetime.time)
+    assert isinstance(gnrdate.toTime('10:30'), datetime.time)
     assert gnrdate.toTime(dt) == t
+    assert gnrdate.toTime('10:30') == t
 
 def test_toDate():
     dt = datetime.datetime(2010,4,8,10,30)
@@ -294,4 +296,61 @@ def test_dateRange():
     dtstop = datetime.datetime(2010,4,10)
     expected = [datetime.datetime(2010,4,d) for d in range(1,10)]
     assert list(gnrdate.dateRange(dtstart,dtstop)) == expected
+
+def test_TimeInterval():
+    i = gnrdate.TimeInterval('8:30-10:30')
+    assert str(i) == '8:30-10:30'
+    assert i.start == datetime.time(8,30)
+    assert i.stop == datetime.time(10,30)
+    assert str(gnrdate.TimeInterval(datetime.time(8,30),datetime.time(10,30))) == str(i)
+    assert str(gnrdate.TimeInterval( (datetime.time(8,30),datetime.time(10,30)) )) == str(i)
+
+def test_TimeInterval_operators():
+    ti = gnrdate.TimeInterval
+    assert ti('8:30-10:30') == '8:30-10:30'
+    assert ti('8:30-10:30') == ti('8:30-10:30')
+    assert ti('8:30-10:30') < ti('11:00-12:00')
+    assert ti('8:30-10:30') <= ti('11:00-12:00')
+    assert not (ti('8:30-10:30') <  ti('10:00-12:00'))
+    assert      ti('8:30-10:30') <=  ti('10:00-12:00')
+    assert ti('11:00-12:00') > ti('8:30-10:30')
+    assert ti('11:00-12:00') >= ti('8:30-10:30')
+    assert not (ti('10:00-12:00') > ti('8:30-10:30'))
+    assert      ti('10:00-12:00') >= ti('8:30-10:30')
     
+    assert ti('8:30-10:30') in ti('10:00-12:00')
+    assert ti('8:30-10:30') not in ti('11:00-12:00')
+    assert ti('8:30-9:30') in ti('8:00-12:00')
+    
+def test_TimeInterval_overlaps():
+    ti = gnrdate.TimeInterval
+    assert ti('8:00-10:00').overlaps(ti('14:00-16:00')) == ti.NO_OVERLAP
+    assert ti('8:30-10:30').overlaps(ti('9:00-9:30')) == ti.FULLY_CONTAINS
+    assert ti('9:00-9:30').overlaps(ti('8:30-10:30')) ==  ti.FULLY_CONTAINED
+    assert ti('8:00-10:00').overlaps(ti('9:00-12:00')) == ti.COVER_LEFT
+    assert ti('9:00-12:00').overlaps(ti('8:00-10:00')) == ti.COVER_RIGHT
+    
+    t = ti('8:00-10:00')
+    assert t.overlaps(t) == ti.FULLY_CONTAINS
+
+def test_TimePeriod():
+    p = gnrdate.TimePeriod('8:30-10:30', '9:30-11:00')
+    assert p.intervals == [gnrdate.TimeInterval('8:30-11:00')]
+    assert str(p) == '8:30-11:00'
+    p.add(gnrdate.TimeInterval('14:00-16:00')) # non-overlapping => add
+    assert str(p) == '8:30-11:00, 14:00-16:00'
+    p.remove(gnrdate.TimeInterval('10:30-12:00')) # overlapping => reduce existing interval
+    assert str(p) == '8:30-10:30, 14:00-16:00'
+    p.remove(gnrdate.TimeInterval('12:00-13:00')) # non-overlapping => noop
+    assert str(p) == '8:30-10:30, 14:00-16:00'
+    p.remove(gnrdate.TimeInterval('14:00-16:00')) # fully overlapping => remove
+    assert str(p) == '8:30-10:30'
+
+def test_TimePeriod_RealWorldUsage():
+    p = gnrdate.TimePeriod('8:00-12:00','16:00-20:00')
+    print "p=",p
+    for i in ('8:00-9:00','9:30-10:00','10:00-11:30','16:00-16:30','17:00-18:00','18:00-19:00','19:00-20:00'):
+        print "removing",i
+        p.remove(i)
+        print "p=", p
+    assert str(p) == '9:00-9:30, 11:30-12:00, 16:30-17:00'

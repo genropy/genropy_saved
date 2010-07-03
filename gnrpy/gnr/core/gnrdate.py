@@ -24,6 +24,7 @@ import re
 import logging
 import datetime
 import calendar
+import bisect
 
 from gnr.core import gnrlocale
 from gnr.core.gnrlocale import DEFAULT_LOCALE
@@ -343,15 +344,20 @@ def dayIterator(period,wkdlist=None,locale=None,workdate=None,asDate=True):
         else:
             yield d
 
-def toTime(time_or_datetime):
-    """Convert a time or datetime to a time.
+def toTime(t):
+    """Convert a time, datetime or a string (HH:MM:SS or HH:MM) to a time.
     """
-    if isinstance(time_or_datetime, datetime.datetime):
-        return time_or_datetime.time()
-    elif isinstance(time_or_datetime, datetime.time):
-        return time_or_datetime
+    if isinstance(t, datetime.datetime):
+        return t.time()
+    elif isinstance(t, datetime.time):
+        return t
+    elif isinstance(t, str) or isinstance(t, unicode):
+        try:
+            return datetime.time(*map(int,t.split(':')))
+        except ValueError:
+            raise ValueError, "toTime(%s) unrecognized string format" % repr(t)
     else:
-        raise ValueError, "toTime(%s) accepts only times or datetimes" % repr(time_or_datetime)
+        raise ValueError, "toTime(%s) accepts only times, datetimes or strings" % repr(t)
 
 def toDate(date_or_datetime):
     """Convert a date or datetime to a date.
@@ -373,9 +379,167 @@ def dateRange(dstart, dstop):
         yield dt
         dt = dt + datetime.timedelta(days=1)
 
+class TimeInterval(object):
+    """A span of time (start, end)."""
+    def __init__(self, start, stop=None):
+        if not stop:
+            if isinstance(start, TimeInterval):
+                other = start
+                start = other.start
+                stop = other.stop
+            elif isinstance(start, str) or isinstance(start, unicode):
+                (start,sep,stop) = start.partition('-')
+            else:
+                start, stop = start
+        self.start = toTime(start)
+        self.stop = toTime(stop)
+        if self.start >= self.stop:
+            raise ValueError, "TimeInterval(start=%s,stop=%s): start must be earlier than stop" % (repr(start),repr(stop))
+    
+    def __str__(self):
+        return "%d:%02d-%d:%02d" % (self.start.hour,self.start.minute,self.stop.hour,self.stop.minute)
+    
+    def __repr__(self):
+        return "TimeInterval(%s)" % repr(str(self))
+    
+    def __eq__(self, other):
+        if not isinstance(other, TimeInterval):
+            try:
+                other = TimeInterval(other)
+            except ValueError:
+                return NotImplemented
+        return (self.start == other.start) and (self.stop == other.stop)
+    
+    def __lt__(self, other):
+        """Test if 'self' ends earlier than 'other' starts.
+        
+        This is, test the following condition::
+        
+            [self]
+                    [other]
+        """
+        if not isinstance(other, TimeInterval):
+            try:
+                other = TimeInterval(other)
+            except ValueError:
+                return NotImplemented
+        return self.stop < other.start
+    
+    def __le__(self, other):
+        """Test if 'self' starts earlier than or when 'other' starts.
+        
+        This is, test the following condition::
+        
+            [self]
+              [other]
+        """
+        if not isinstance(other, TimeInterval):
+            try:
+                other = TimeInterval(other)
+            except ValueError:
+                return NotImplemented
+        return self.start <= other.start
+    
+    def __contains__(self, other):
+        """Test if 'other' overlaps with us."""
+        if not isinstance(other, TimeInterval):
+            try:
+                other = TimeInterval(other)
+            except ValueError:
+                return NotImplemented
+        return (self.start <= other.stop) and (other.start <= self.stop)
+    
+    NO_OVERLAP = 0
+    FULLY_CONTAINS = -1
+    FULLY_CONTAINED = 1
+    COVER_LEFT = -2
+    COVER_RIGHT = 2
+    
+    def overlaps(self, other):
+        """Checks if other overlaps with this interval.
+        
+        Returns a constant describing the relationship between self and other."""
+        if not isinstance(other, TimeInterval):
+            other = TimeInterval(other)
+        if self < other or self > other:
+            return TimeInterval.NO_OVERLAP
+        
+        if (self.start <= other.start):
+            if self.stop < other.stop:
+                return TimeInterval.COVER_LEFT
+            else:
+                return TimeInterval.FULLY_CONTAINS
+        else:
+            if self.stop > other.stop:
+                return TimeInterval.COVER_RIGHT
+            else:
+                return TimeInterval.FULLY_CONTAINED
+    
+class TimePeriod(object):
+    """A non-overlapping set of TimeIntervals."""
+    def __init__(self, *intervals):
+        self.intervals = []
+        if len(intervals) == 1:
+            iv = intervals[0]
+            if isinstance(iv, str) or isinstance(iv, unicode):
+                intervals = iv.split('-')
+        map(self.add, intervals)
+    
+    def add(self, interval):
+        """Add the new TimeInterval.
+        
+        If it overlaps with any existing interval in this TimePeriod, they'll be merged."""
+        if not isinstance(interval, TimeInterval):
+            new = TimeInterval(interval)
+        else:
+            new = interval
+        left = bisect.bisect_left(self.intervals, new)
+        merged = new
+        right = left
+        while right < len(self.intervals):
+            existing = self.intervals[right]
+            if merged in existing:
+                merged.start = min(merged.start, existing.start)
+                merged.stop = max(merged.stop, existing.stop)
+                right += 1
+            else:
+                break
+        self.intervals[left:right] = [merged]
+    
+    def remove(self, interval):
+        """Remove a TimeInterval.
+        
+        Overlapping intervals will be adjusted."""
+        if not isinstance(interval, TimeInterval):
+            removed = TimeInterval(interval)
+        else:
+            removed = interval
+        left = bisect.bisect_left(self.intervals, removed)
+        right = left
+        while right < len(self.intervals):
+            existing = self.intervals[right]
+            o = removed.overlaps(existing)
+            if (o == TimeInterval.FULLY_CONTAINS):
+                del self.intervals[right]
+            elif o == TimeInterval.FULLY_CONTAINED:
+                self.intervals[right:right+1] = [TimeInterval(existing.start,removed.start),TimeInterval(removed.stop,existing.stop)]
+                right += 2
+            elif o == TimeInterval.COVER_LEFT:
+                existing.start = removed.stop
+                right += 1
+            elif o == TimeInterval.COVER_RIGHT:
+                existing.stop = removed.start
+                right += 1
+            else:
+                break # NO_OVERLAP, we're done
+                
+    def __str__(self):
+        return ", ".join(map(str,self.intervals))
+    
+    def __repr__(self):
+        return "TimePeriod(%s)" % repr(str(self))
+
 if __name__=='__main__':
     workdate = datetime.date(2009,1,12)
     res = decodeDatePeriod(u"10 giugno,30 giugno", workdate=workdate, locale='it')
     print res
-
-    
