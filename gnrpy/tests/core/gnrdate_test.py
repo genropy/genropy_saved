@@ -1,4 +1,6 @@
 # -*- coding: UTF-8 -*-
+from __future__ import with_statement
+
 from gnr.core import gnrdate
 import datetime
 
@@ -370,3 +372,13 @@ def test_TimePeriod_complex_attributes():
     assert p.intervals[0].name == 'morning'
     assert p.intervals[1].name == 'morning'
     assert p.intervals[2].name == 'afternoon'
+
+def test_TimePeriod_sequence():
+    p = gnrdate.TimePeriod('8:30-10:30', '16:00-20:00')
+    assert len(p) == 2
+    assert str(p[0]) == '8:30-10:30'
+    assert str(p[1]) == '16:00-20:00'
+    it = iter(p)
+    assert str(it.next()) == '8:30-10:30'
+    assert str(it.next()) == '16:00-20:00'
+    

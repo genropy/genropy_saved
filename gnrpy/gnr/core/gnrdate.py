@@ -555,6 +555,9 @@ class TimePeriod(object):
     '9:00-9:30, 11:30-12:00, 16:30-17:00'
     >>> [i.name for i in p.intervals]
     ['morning', 'morning', 'afternoon']
+    
+    TimePeriod also supports ``len()``, ``iter()`` and getitem operations.
+    
     """
     def __init__(self, *intervals):
         self.intervals = []
@@ -620,6 +623,12 @@ class TimePeriod(object):
     
     def __repr__(self):
         return "TimePeriod(%s)" % repr(str(self))
+    
+    def __len__(self):
+        return len(self.intervals)
+        
+    def __getitem__(self, key):
+        return self.intervals[key]
 
 if __name__=='__main__':
     import doctest
