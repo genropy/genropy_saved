@@ -123,7 +123,7 @@ dojo.declare("gnr.GnrQueryBuilder",null,{
         this.helper_op_dict = {'in':'in','tagged':'tagged'};
         genro.setDataFromRemote('gnr.qb.fieldstree',"relationExplorer", {table:maintable, omit:'_'});
         this.treefield = genro.getData('gnr.qb.fieldstree');
-        genro.setDataFromRemote('gnr.qb.fieldsmenu',"relationExplorer", {table:maintable, omit:'_*',quickquery:true});
+        genro.setDataFromRemote('gnr.qb.fieldsmenu',"fieldExplorer", {table:maintable, omit:'_*'});
         genro.setDataFromRemote('gnr.qb.sqlop',"getSqlOperators");  
     },
 
