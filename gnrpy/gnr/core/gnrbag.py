@@ -944,7 +944,7 @@ class Bag(GnrObject):
             self._onNodeDeleted(oldnodes,-1)
             
 
-    def update(self, otherbag):
+    def update(self, otherbag,resolved=False):
         """
         this method merge a Bag into the current one.
         * `otherbag`: a Bag to merge into.
@@ -959,23 +959,22 @@ class Bag(GnrObject):
             b.fromXml(otherbag, bagcls=cls, empty=cls)
             otherbag=b
         for n in otherbag:
+            node_resolver=n.resolver
+            node_value = None
+            if not node_resolver or resolved:
+                node_value = n.value
+                node_resolver=None
             if n.label in self.keys():
                 currNode=self.getNode(n.label)
                 currNode.attr.update(n.attr)
-                if n.resolver:
-                    currNode.resolver=n.resolver
-                    currNode.value=None
+                if node_resolver:
+                    currNode.resolver=node_resolver
+                if isinstance(node_value, Bag) and  isinstance(currNode.value,Bag):
+                    currNode.value.update(node_value)
                 else:
-                    currNode.resolver=None
-                    if isinstance(n.value, Bag):
-                        if isinstance(currNode.value,Bag):
-                            currNode.value.update(n.value)
-                        else:
-                            currNode.value=n.value
-                    else:
-                        currNode.value=n.value
+                    currNode.value=node_value
             else:
-                self.setItem(n.label, n.resolver or n.value, n.attr)
+                self.setItem(n.label,node_value, n.attr)
                 
     def __eq__(self, other):
         try:
@@ -1842,7 +1841,7 @@ class Bag(GnrObject):
                 return node
         return self.walk(f)
         
-    def walk(self, callback, _mode='static', **kwargs):
+    def walk(self, callback, _mode='static',**kwargs):
         """
         Calls a function for each node of the Bag.
         * `callback`: the function which is called. 
@@ -1853,7 +1852,9 @@ class Bag(GnrObject):
             if result is None:
                 value=node.getValue(mode=_mode)
                 if isinstance(value,Bag):
-                     result=value.walk(callback, _mode=_mode, **kwargs) 
+                    if '_pathlist' in kwargs:
+                        kwargs['_pathlist'] = kwargs['_pathlist'] +[node.label]
+                    result=value.walk(callback, _mode=_mode,**kwargs) 
             if result:
                 return result
                 
