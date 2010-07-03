@@ -58,7 +58,7 @@ GenroPy
             components/writing
             components/index
 
-Indici e tabelle
+Indices and Tables
 ==================
 
 * :ref:`genindex`
