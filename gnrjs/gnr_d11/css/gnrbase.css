@@ -172,9 +172,10 @@ label.ghostlabel span{
 .fakeTextBox {
     border: 1px solid silver;
     background: white;
-    height: 17px;
+    height: 15px;
     margin-left: 1px;
     padding-left:2px;
+    margin-bottom:1px;
 }
 .fakeNumberTextBox {
     border: 1px solid silver;
@@ -610,6 +611,7 @@ table.formbuilder {
 .floatingPopup:hover {
     background: #feffb4 url(icons/base12/smallpopup.gif) no-repeat right;
 }
+
 .helperField{
 	position: absolute;
 	top: 0;
