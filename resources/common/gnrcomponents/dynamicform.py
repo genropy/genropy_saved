@@ -54,7 +54,6 @@ class DynamicForm(BaseComponent):
                             if(del_row){
                                 var nodeToDel = genro._firingNode;
                                 var del_path = nodeToDel.absDatapath();
-                                console.log(del_path);
                                 genro._data.popNode(del_path);
                                 
                             }
