@@ -136,6 +136,7 @@ dojo.declare('gnr.GenroClient', null, {
         genro.rpc.ping();
     },
     bp:function(aux){
+        debugger;
         console.log('bp '+aux);
     },
     onWindowUnload:function(e){
