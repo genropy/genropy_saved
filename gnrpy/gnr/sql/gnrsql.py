@@ -365,6 +365,16 @@ class GnrSqlDb(GnrObject):
         return self.model.obj
     packages = property(_get_packages)
     
+    def tableTreeBag(self,packages=None,omit=None):
+        result = Bag()
+        for pkg,pkgobj in self.packages.items():
+            if (pkg in packages and omit) or (not pkg in packages and not omit):
+                continue                
+            result.setItem(pkg,Bag(),caption=pkgobj.attributes.get('name_long',pkg),**pkgobj.attributes)
+            for tbl, tblobj in pkgobj.tables.items():
+                result[pkg].setItem(tbl,None,caption=tblobj.attributes.get('name_long',tbl),**tblobj.attributes)
+        return result
+    
     def table(self, tblname, pkg=None):
         """returns a table object
         @param table: table name
