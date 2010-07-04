@@ -375,12 +375,26 @@ class SqlTable(GnrObject):
             return record
         
     def recordAs(self, record, mode='bag'):
+        """Returns a record in the specified mode.
+        
+        It accepts and return a record as a bag, dict or primary pkey (as a string).
+        
+        :param record:      a bag, a dict or a string (i.e. the record's pkey)
+        :param mode:        'dict' or 'bag' or 'pkey'
+        :returns:           a bag, a dict or a string (i.e. the record's pkey)
+        """
         if isinstance(record, basestring):
-            return self.record(pkey = record, mode=mode)
+            if mode == 'pkey':
+                return record
+            else:
+                return self.record(pkey = record, mode=mode)
+        if mode=='pkey':
+            # The record is either a dict or a bag, so it accepts indexing operations
+            return record[self.pkey]
         if mode=='dict' and not isinstance(record, dict):
             return dict([(k, v) for k,v in record.items() if not k.startswith('@')])
         if mode=='bag' and not isinstance(record, Bag):
-            return self.record(pkey = record['pkey'], mode=mode)
+            return self.record(pkey = record[self.pkey], mode=mode)
         return record
             
         
