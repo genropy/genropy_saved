@@ -621,7 +621,7 @@ dojo.declare("gnr.GnrDomSourceNode",gnr.GnrBagNode,{
         }
         for(var subscription in subscriptions){
             var handler=funcCreate(subscriptions[subscription]);
-                dojo.subscribe(subscription, newobj, handler);
+                dojo.subscribe(subscription, this, handler);
         }
         //dojo.hitch(this,'_buildChildren',newobj)
         this._buildChildren(newobj);
