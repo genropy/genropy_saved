@@ -352,7 +352,7 @@ def toTime(t):
         return t.time()
     elif isinstance(t, datetime.time):
         return t
-    elif isinstance(t, str) or isinstance(t, unicode):
+    elif isinstance(t, basestring):
         try:
             return datetime.time(*map(int,t.split(':')))
         except ValueError:
@@ -434,7 +434,7 @@ class TimeInterval(object):
                 other = start
                 start = other.start
                 stop = other.stop
-            elif isinstance(start, str) or isinstance(start, unicode):
+            elif isinstance(start, basestring):
                 (start,sep,stop) = start.partition('-')
             else:
                 start, stop = start
@@ -563,7 +563,7 @@ class TimePeriod(object):
         self.intervals = []
         if len(intervals) == 1:
             iv = intervals[0]
-            if isinstance(iv, str) or isinstance(iv, unicode):
+            if isinstance(iv, basestring):
                 intervals = [s.strip() for s in iv.split(',')]
         map(self.add, intervals)
     
