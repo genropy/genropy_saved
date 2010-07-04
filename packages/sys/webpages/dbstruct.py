@@ -1,5 +1,3 @@
-from gnr.core.gnrstring import  concat, jsquote
-
 class GnrCustomWebPage(object):   
     css_theme='textmate'
 
@@ -45,27 +43,3 @@ class GnrCustomWebPage(object):
         pane.css('.tm_top','background-color:#801f78;')
         pane.css('#mainWindow','background-color:white;')
         
-    def rpc_relationExplorer(self, table, prevRelation='', prevCaption='', omit='',quickquery=False, **kwargs):
-        def buildLinkResolver(node, prevRelation, prevCaption):
-            nodeattr = node.getAttr()
-            if not 'name_long' in nodeattr:
-                raise Exception(nodeattr) # FIXME: use a specific exception class
-            nodeattr['caption'] = nodeattr.pop('name_long')
-            nodeattr['fullcaption'] = concat(prevCaption, self._(nodeattr['caption']), ':')
-            if nodeattr.get('one_relation'):
-                nodeattr['_T'] = 'JS'
-                if nodeattr['mode']=='O':
-                    relpkg, reltbl, relfld = nodeattr['one_relation'].split('.')
-                else:
-                    relpkg, reltbl, relfld = nodeattr['many_relation'].split('.')
-                jsresolver = "genro.rpc.remoteResolver('relationExplorer',{table:%s, prevRelation:%s, prevCaption:%s, omit:%s})"
-                node.setValue(jsresolver % (jsquote("%s.%s" % (relpkg, reltbl)), jsquote(concat(prevRelation, node.label)), jsquote(nodeattr['fullcaption']),jsquote(omit)))
-        result = self.db.relationExplorer(table=table, 
-                                         prevRelation=prevRelation,
-                                         omit=omit,
-                                        **kwargs)
-        result.walk(buildLinkResolver, prevRelation=prevRelation, prevCaption=prevCaption)
-        return result
-    
-  
-  
