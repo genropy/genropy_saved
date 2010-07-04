@@ -381,4 +381,12 @@ def test_TimePeriod_sequence():
     it = iter(p)
     assert str(it.next()) == '8:30-10:30'
     assert str(it.next()) == '16:00-20:00'
+
+def test_TimePeriod_TimePeriod():
+    tp = gnrdate.TimePeriod
+    p = tp('8:30-10:30', '16:00-20:00')
+    p.add(tp('10:00-12:00','13:00-16:00'))
+    assert str(p) == '8:30-12:00, 13:00-20:00'
+    p.remove(tp('10:00-16:00'))
+    assert str(p) == '8:30-10:00, 16:00-20:00'
     
