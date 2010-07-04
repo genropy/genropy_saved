@@ -1769,7 +1769,7 @@ dojo.declare("gnr.GnrBag",null,{
         var fullpath='';
         var segment;
         var parentbag=this.getParent();
-        if((parentbag != null) && (this != root)){
+        if((parentbag != null) && (!this.isEqual(root))){
             var parentNode=this.getParentNode();
             if (mode=='#' || mode=='##'){
                 segment=parentbag.getNodes().indexOf(parentNode)+'';
@@ -1794,6 +1794,18 @@ dojo.declare("gnr.GnrBag",null,{
         var exploredNodes = [this];
         this._deepIndex(path, resList, exploredNodes);
         return resList;
+    },
+    isEqual: function(otherbag){
+        if(!otherbag){
+            return false;
+        }
+        if (this==otherbag) {
+            return true;
+        };
+        if(this._parentnode && otherbag._parentnode) {
+            return this._parentnode._id==otherbag._parentnode._id;
+        };
+        return false;
     },
     
     _deepIndex: function(path, resList, exploredNodes){
