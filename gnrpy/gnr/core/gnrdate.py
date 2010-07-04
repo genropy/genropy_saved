@@ -564,59 +564,75 @@ class TimePeriod(object):
         if len(intervals) == 1:
             iv = intervals[0]
             if isinstance(iv, str) or isinstance(iv, unicode):
-                intervals = iv.split('-')
+                intervals = [s.strip() for s in iv.split(',')]
         map(self.add, intervals)
     
-    def add(self, interval):
-        """Add the new TimeInterval.
+    def add(self, item):
+        """Add the new TimeInterval or a TimePeriod.
         
-        If it overlaps with any existing interval in this TimePeriod, they'll be merged."""
-        if not isinstance(interval, TimeInterval):
-            new = TimeInterval(interval)
+        If it overlaps with any existing interval in this TimePeriod, they'll be merged.
+        
+        :param item:    TimeInterval or TimePeriod
+        """
+        if isinstance(item, TimePeriod):
+            intervals = item.intervals
         else:
-            new = interval
-        left = bisect.bisect_left(self.intervals, new)
-        merged = new
-        right = left
-        while right < len(self.intervals):
-            existing = self.intervals[right]
-            if merged in existing:
-                merged.start = min(merged.start, existing.start)
-                merged.stop = max(merged.stop, existing.stop)
-                right += 1
+            intervals = [item]
+        for interval in intervals:
+            if not isinstance(interval, TimeInterval):
+                new = TimeInterval(interval)
             else:
-                break
-        self.intervals[left:right] = [merged]
+                new = interval
+            left = bisect.bisect_left(self.intervals, new)
+            merged = new
+            right = left
+            while right < len(self.intervals):
+                existing = self.intervals[right]
+                if merged in existing:
+                    merged.start = min(merged.start, existing.start)
+                    merged.stop = max(merged.stop, existing.stop)
+                    right += 1
+                else:
+                    break
+            self.intervals[left:right] = [merged]
     
-    def remove(self, interval):
-        """Remove a TimeInterval.
+    def remove(self, item):
+        """Remove a TimeInterval or a TimePeriod.
         
-        Overlapping intervals will be adjusted."""
-        if not isinstance(interval, TimeInterval):
-            removed = TimeInterval(interval)
+        Overlapping intervals will be adjusted.
+        
+        :param item: TimeInterval or TimePeriod
+        """
+        if isinstance(item, TimePeriod):
+            intervals = item.intervals
         else:
-            removed = interval
-        left = bisect.bisect_left(self.intervals, removed)
-        right = left
-        while right < len(self.intervals):
-            existing = self.intervals[right]
-            o = removed.overlaps(existing)
-            if (o == TimeInterval.FULLY_CONTAINS):
-                del self.intervals[right]
-            elif o == TimeInterval.FULLY_CONTAINED:
-                second_half = copy.copy(existing)
-                existing.stop = removed.start
-                second_half.start = removed.stop
-                self.intervals.insert(right+1,second_half)
-                right += 2
-            elif o == TimeInterval.COVER_LEFT:
-                existing.start = removed.stop
-                right += 1
-            elif o == TimeInterval.COVER_RIGHT:
-                existing.stop = removed.start
-                right += 1
+            intervals = [item]
+        for interval in intervals:
+            if not isinstance(interval, TimeInterval):
+                removed = TimeInterval(interval)
             else:
-                break # NO_OVERLAP, we're done
+                removed = interval
+            left = bisect.bisect_left(self.intervals, removed)
+            right = left
+            while right < len(self.intervals):
+                existing = self.intervals[right]
+                o = removed.overlaps(existing)
+                if (o == TimeInterval.FULLY_CONTAINS):
+                    del self.intervals[right]
+                elif o == TimeInterval.FULLY_CONTAINED:
+                    second_half = copy.copy(existing)
+                    existing.stop = removed.start
+                    second_half.start = removed.stop
+                    self.intervals.insert(right+1,second_half)
+                    right += 2
+                elif o == TimeInterval.COVER_LEFT:
+                    existing.start = removed.stop
+                    right += 1
+                elif o == TimeInterval.COVER_RIGHT:
+                    existing.stop = removed.start
+                    right += 1
+                else:
+                    break # NO_OVERLAP, we're done
                 
     def __str__(self):
         return ", ".join(map(str,self.intervals))
