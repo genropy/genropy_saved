@@ -3797,8 +3797,12 @@ dojo.declare("gnr.widgets.Tree",gnr.widgets.baseDojo,{
         }
         var curr = this.model.store.rootData();
         var currNode,treeNode;
-
-        var pathList = kw.value.split('.');
+        if (!kw.value) {
+            this.setSelected(null);
+            this._updateSelect(null);
+            return;
+        }
+        var pathList =kw.value.split('.');
         for (var i=0; i < pathList.length; i++) {
             currNode = curr.getNode(pathList[i]);
             treeNode = this._itemNodeMap[currNode._id];
@@ -3809,9 +3813,11 @@ dojo.declare("gnr.widgets.Tree",gnr.widgets.baseDojo,{
                 };
             }
         };
+
+        
         var currTree = this;
         setTimeout(function(){
-            currTree.focusNode(treeNode);
+            currTree.focusNode(treeNode);            
             currTree.setSelected(treeNode);
             currTree._updateSelect(currNode);
         },100);  
@@ -3822,7 +3828,9 @@ dojo.declare("gnr.widgets.Tree",gnr.widgets.baseDojo,{
         if (prevSelectedNode){
             prevSelectedNode._updateItemClasses(prevSelectedNode.item);
         }
-        node._updateItemClasses(node.item);
+        if (node) {
+            node._updateItemClasses(node.item);
+        };
     },
     mixin_isSelectedItem:function(item){
         return this.currentSelectedNode?this.currentSelectedNode.item == item:false;
@@ -3836,9 +3844,9 @@ dojo.declare("gnr.widgets.Tree",gnr.widgets.baseDojo,{
             attributes._modifiers = modifiers;
         }
         if(!item){
-            return;
+            var item = new gnr.GnrBagNode();
         }
-        if (!item._id){
+        else if (!item._id){
             item=node.getParent().item;
         }
         if (this.sourceNode.attr.selectedLabel){
@@ -3851,8 +3859,8 @@ dojo.declare("gnr.widgets.Tree",gnr.widgets.baseDojo,{
         }
         if (this.sourceNode.attr.selectedPath){
             var path=this.sourceNode.attrDatapath('selectedPath',reason);
-            root=this.model.store.rootData();
-            this.sourceNode.setRelativeData(path,item.getFullpath(null,root),attributes,null,reason);
+            var root=this.model.store.rootData();
+            this.sourceNode.setRelativeData(path,item.getFullpath(null,root),objectUpdate(attributes,item.attr),null,reason);
         }
         var selattr=objectExtract(this.sourceNode.attr,'selected_*',true);
         for (var sel in selattr){
