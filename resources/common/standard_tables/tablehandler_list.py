@@ -41,7 +41,8 @@ class TableHandlerForm(BaseComponent):
                                    else if(page==0){SET list.selectedTop=0;}
                                 """, page='^list.selectedLeft')
         
-        pane.dataController("""genro.wdgById("gridbc").showHideRegion("left",show);genro.resizeAll();""",
+        pane.dataController("""genro.wdgById("gridbc").showHideRegion("left",show);genro.resizeAll();
+                               genro.publish('pbl_mainMenu',!show);""",
                         show='^list.showToolbox',_fired='^gnr.onStart')
         pane.dataFormula('list.showExtendedQuery', "true", _if='where.len()>1', where='^list.query.where')
         self.pageListController(pane)

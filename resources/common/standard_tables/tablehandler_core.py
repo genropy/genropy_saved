@@ -42,9 +42,9 @@ class TableHandlerToolbox(BaseComponent):
         tc = bc.tabContainer(region='center', selected='^list.selectedLeft',margin='5px',margin_top='10px')
         self.toolboxQueries(tc.borderContainer(title_tip='!!Queries',iconClass='icnBaseLens',showLabel=False))
         self.toolboxViews(tc.borderContainer(title_tip='!!Views',iconClass='icnBaseView'))
-        self.toolboxFromResources(tc.borderContainer(title_tip='!!Actions',iconClass='icnBaseAction'),res_type='actions')
-        self.toolboxFromResources(tc.borderContainer(title_tip='Mails',iconClass='icnBaseEmail'),res_type='mail')
-        self.toolboxFromResources(tc.borderContainer(title_tip='Print',iconClass='icnBasePrinter'),res_type='print')
+        self.toolboxFromResources(tc.contentPane(title_tip='!!Actions',iconClass='icnBaseAction'),res_type='actions')
+        self.toolboxFromResources(tc.contentPane(title_tip='Mails',iconClass='icnBaseEmail'),res_type='mail')
+        self.toolboxFromResources(tc.contentPane(title_tip='Print',iconClass='icnBasePrinter'),res_type='print')
 
     def toolboxFields(self,pane):
         treediv=pane.div(_class='treeContainer')
@@ -58,18 +58,46 @@ class TableHandlerToolbox(BaseComponent):
                      checkAcceptance='function(){return false;}::JS',
                      checkItemAcceptance='function(){return false;}::JS')
     
-    def toolboxFromResources(self, container,res_type=None):
-        trpane = container.contentPane(region='center')
-        treepath = 'list.toolbox.%s.tree' %res_type
-        trpane.dataRemote(treepath, 'tableResourceTree', tbl=self.maintable, cacheTime=10,res_type=res_type)
-        treepane = trpane.div(_class='treeContainer')
-        treepane.tree(storepath=treepath, persist=False, 
+    def toolboxFromResources(self, parent,res_type=None):
+        datapath = 'list.toolbox.%s' %res_type
+        sc = parent.stackContainer(datapath=datapath,selectedPage='^.currentPage')
+        sc.dataFormula(".currentPage","resource?'pars':'tree';",
+                        resource="^.tree.path?resource")
+        treestack = sc.contentPane(pageName='tree')
+        treestack.dataRemote('.tree.store', 'tableResourceTree', tbl=self.maintable, cacheTime=10,res_type=res_type)
+        treestack.tree(storepath='.tree.store', persist=False, 
                           labelAttribute='caption',hideValues=True,
                           _class='toolboxResourceTree',
+                          selectedPath='.tree.path',
+                          selectedLabelClass='selectedTreeNode',
                           tooltip_callback="return sourceNode.attr.description || sourceNode.label;")
+        parsstack = sc.borderContainer(pageName='pars')
+        top = parsstack.contentPane(region='top',_class='pbl_roundedGroupLabel').div('^.tree.path?caption')
+        bottom = parsstack.contentPane(region='bottom',_class='pbl_roundedGroupBottom')
+        bottom.button('!!Confirm',
+                     action='var selectedPath = GET .tree.path; console.log(selectedPath); SET .tree.path=null;',
+                     float='right')
+        bottom.button('!!Cancel',action='SET .tree.path=null;',float='right')
+
+        parsstack.contentPane(region='center').remote('toolboxParsPane',
+                                                              resource='^.tree.path?resource',
+                                                              resultpath='.pars',
+                                                            res_type=res_type)
     
-    
-    
+    def remote_toolboxParsPane(self,pane,resource='',res_type=None,resultpath=None,**kwargs):
+        pkgname,tblname = self.maintable.split('.')
+        resource = resource.replace('.py','')
+        cl=self.site.loadResource(pkgname,'tables',tblname,res_type,"%s:WebPage" %resource)
+        self.mixin(cl)
+  
+        self.toolbox_askParameters(pane,resultpath=resultpath)
+
+        #self.site.resource_loader.loadTableResource(resource,table=self.maintable)
+        
+        #center.div('^.tree.path?description')
+
+        
+        
     def rpc_tableResourceTree(self,tbl,res_type):
         pkg,tblname = tbl.split('.')
         result = Bag()
@@ -88,7 +116,9 @@ class TableHandlerToolbox(BaseComponent):
                 if  node.label=='_doc':
                     result.setAttr('.'.join(_pathlist),dict(caption=caption,description=description,tags=tags))
                 else:
-                    result.setItem('.'.join(_pathlist+[node.label]),None,caption=caption,description=description,tags=tags,_attributes=node.attr)            
+                
+                    result.setItem('.'.join(_pathlist+[node.label]),None,caption=caption,description=description,
+                                    resource=node.attr['rel_path'][:-3])            
         resources.walk(cb,_pathlist=[])
         for forbidden in forbiddenNodes:
             result.pop(forbidden)
