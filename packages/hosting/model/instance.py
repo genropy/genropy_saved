@@ -4,6 +4,8 @@
 from gnr.app.gnrdeploy import InstanceMaker, SiteMaker
 from gnr.core.gnrbag import Bag
 import os
+from subprocess import Popen, PIPE
+from  tempfile import NamedTemporaryFile
 
 class Table(object):
 
@@ -32,6 +34,51 @@ class Table(object):
         sm=SiteMaker(code, base_path=base_path, config=siteconfig)
         sm.do()
         return sm.site_path
+
+    def build_apache_site(self, instance_code, apache_path='/etc/apache/sites-available/',process_name=None,user='genro',
+                    group='genro', tmp_path='/tmp', threads=25,
+                    admin_mail='webmaster@localhost', port=80,
+                    processes=1, base_url='/', sudo_password=None):
+        params=dict(process_name=process_name or 'gnr_%s'%instance_code,
+                    user=user,
+                    group=group,
+                    tmp_path=tmp_path or '/tmp',
+                    threads=str(threads),
+                    processes=str(processes),
+                    base_url=base_url,
+                    site_path=self.pkg.site_folder(instance_code),
+                    port=str(port)
+                    )
+        params['process_env']='ENV_%s'%params['process_name'].upper()
+        apache_file_content="""<VirtualHost *:80>
+                ServerName  %(domain)s
+                ServerAdmin %(admin_mail)s
+                DocumentRoot /var/www
+                WSGIDaemonProcess %(process_name)s user=%(user)s group=%(group)s python-eggs=%(tmp_path)s threads=%(threads)s processes=%(processes)s
+                SetEnv %(process_env)s %(process_name)s
+                WSGIProcessGroup %%{ENV:%(process_env)s}
+                # modify the following line to point your site
+                WSGIScriptAlias %(base_url)s %(site_path)s/root.py
+                <Directory %(site_path)s>
+                    Options Indexes FollowSymLinks
+                    AllowOverride All
+                    Order allow,deny
+                    Allow from all
+                </Directory>
+        </VirtualHost>
+        """%params
+        tmp_file = NamedTemporaryFile()
+        tmp_file.write(apache_file_content)
+        pass_pipe=Popen(['/bin/echo',sudo_password], stdout=PIPE)
+        cm=Popen(['sudo -S cp %s %s/%s'%(tmp_file.name,apache_path,instance_code)],stdin=pass_pipe.stdout,shell=True)
+        cm.wait()
+        pass_pipe=Popen(['/bin/echo',sudo_password], stdout=PIPE)
+        cm=Popen(['sudo -S /usr/sbin/a2ensite %s '%instance_code],stdin=pass_pipe.stdout,shell=True)
+        cm.wait()
+        pass_pipe=Popen(['/bin/echo',sudo_password], stdout=PIPE)
+        
+        Popen(['sudo -S /usr/sbin/apache2ctl reload'],stdin=pass_pipe.stdout,stdout=None,shell=True,).communicate(sudo_password)
+        tmp_file.close()
 
     def trigger_onInserting(self, record_data):
         self.create_instance(record_data['code'])
