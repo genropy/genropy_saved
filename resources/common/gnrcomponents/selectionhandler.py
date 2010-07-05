@@ -19,7 +19,7 @@
 #Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 
 from gnr.web.gnrbaseclasses import BaseComponent
-
+import warnings
 
 class SelectionHandler(BaseComponent):
     """
@@ -55,6 +55,9 @@ class SelectionHandler(BaseComponent):
                          onDeleted=None,add_enable=True,del_enable=True,
                          parentSave=False,parentId=None,parentLock='^status.locked',
                          **kwargs):
+        
+        # --------------------------------------------------------------------------------------------- Mandatory param checks
+        
         assert dialogPars,'dialogPars are Mandatory'
         assert not 'table' in dialogPars, 'take the table of the grid'
         assert not 'firedPkey' in dialogPars, 'auto firedPkey'
@@ -66,18 +69,26 @@ class SelectionHandler(BaseComponent):
         assert not 'del_action' in kwargs,'remove del_action par'
         assert not 'connect_onRowDblClick' in kwargs,'remove connect_onRowDblClick par'
         
-        # if selectionPars:
-        #     for p in selectionPars.values():
-        #         if isinstance(p, basestring):
-        #             assert not p.startswith('^'), "Parameters in selectionPars should use '=' and not '^'"
+        # --------------------------------------------------------------------------------------------- Suggested param checks
         # 
-        # if dialogPars:
-        #     for p in dialogPars.values():
-        #         if isinstance(p, basestring):
-        #             assert not p.startswith('^'), "Parameters in dialogPars should use '=' and not '^'"
-        # 
-        # if reloader and isinstance(reloader, basestring):
-        #     assert reloader.startswith('^'), "reloader should be a resolver (i.e. it should start with '^')"
+        # These warnings can be disabled by the calling code (see the 'warnings' module in Python Standard Library Reference)
+        
+        if selectionPars:
+            for k, p in selectionPars.items():
+                if isinstance(p, basestring):
+                    if p.startswith('^'):
+                        warnings.warn("[selectionhandler] use '=' and not '^' in selectionPars: %s=%s" % (k,repr(p)), stacklevel=2)
+        
+        if dialogPars:
+            for k, p in dialogPars.items():
+                if isinstance(p, basestring):
+                    if p.startswith('^'):
+                        warnings.warn("[selectionhandler] use '=' and not '^' in dialogPars: %s=%s" % (k, repr(p)), stacklevel=2)
+        
+        if reloader and isinstance(reloader, basestring) and not reloader.startswith('^'):
+            wwarnings.warn("[selectionhandler] reloader should start with '^': %s" % repr(reloader), stacklevel=2)
+        
+        # --------------------------------------------------------------------------------------------- Implementation
         
         dialogPars['table'] = table
         dlgId = dialogPars.get('dlgId',"%s_dlg" %nodeId)
