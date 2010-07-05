@@ -531,7 +531,7 @@ class TimeInterval(object):
     def minutes(self):
         """The duration of this TimeInterval in minutes from the start.
         
-        :returns: int
+        :type: int
         """
         return (self.stop.hour*60+self.stop.minute) - (self.start.hour*60+self.start.minute)
     
