@@ -640,7 +640,7 @@ class TimePeriod(object):
     
     """
     def __init__(self, *intervals):
-        self.intervals = []
+        self._intervals = []
         if len(intervals) == 1:
             iv = intervals[0]
             if isinstance(iv, basestring):
@@ -663,18 +663,18 @@ class TimePeriod(object):
                 new = TimeInterval(interval)
             else:
                 new = interval
-            left = bisect.bisect_left(self.intervals, new)
+            left = bisect.bisect_left(self._intervals, new)
             merged = new
             right = left
-            while right < len(self.intervals):
-                existing = self.intervals[right]
+            while right < len(self._intervals):
+                existing = self._intervals[right]
                 if merged in existing:
                     merged.start = min(merged.start, existing.start)
                     merged.stop = max(merged.stop, existing.stop)
                     right += 1
                 else:
                     break
-            self.intervals[left:right] = [merged]
+            self._intervals[left:right] = [merged]
     
     def remove(self, item):
         """Remove a TimeInterval or a TimePeriod.
@@ -692,18 +692,18 @@ class TimePeriod(object):
                 removed = TimeInterval(interval)
             else:
                 removed = interval
-            left = bisect.bisect_left(self.intervals, removed)
+            left = bisect.bisect_left(self._intervals, removed)
             right = left
-            while right < len(self.intervals):
-                existing = self.intervals[right]
+            while right < len(self._intervals):
+                existing = self._intervals[right]
                 o = removed.overlaps(existing)
                 if (o == TimeInterval.FULLY_CONTAINS):
-                    del self.intervals[right]
+                    del self._intervals[right]
                 elif o == TimeInterval.FULLY_CONTAINED:
                     second_half = copy.copy(existing)
                     existing.stop = removed.start
                     second_half.start = removed.stop
-                    self.intervals.insert(right+1,second_half)
+                    self._intervals.insert(right+1,second_half)
                     right += 2
                 elif o == TimeInterval.COVER_LEFT:
                     existing.start = removed.stop
@@ -715,22 +715,30 @@ class TimePeriod(object):
                     break # NO_OVERLAP, we're done
                 
     def __str__(self):
-        return ", ".join(map(str,self.intervals))
+        return ", ".join(map(str,self._intervals))
     
     def __repr__(self):
         return "TimePeriod(%s)" % repr(str(self))
     
     def __len__(self):
-        return len(self.intervals)
+        return len(self._intervals)
         
     def __getitem__(self, key):
-        return self.intervals[key]
+        return self._intervals[key]
     
     def __eq__(self, other):
         """Check if a TimePeriod is equal to another."""
         if not isinstance(other, TimePeriod):
             other = TimePeriod(other)
-        return self.intervals == other.intervals
+        return self._intervals == other.intervals
+    
+    @property
+    def intervals(self):
+        """Returns the intervals in this TimePeriod.
+        
+        :type: list
+        """
+        return copy.copy(self._intervals) # make a shallow copy, so they can't mess with the ordering of intervals
 
 if __name__=='__main__':
     import doctest
