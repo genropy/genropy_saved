@@ -324,7 +324,7 @@ The project testgarden contains demos for all widgets included in the genre. Can
 DOJO
 ====
 
-Genro utilizza Dojo_ using version 1.1, see also documentation `Dojo Campus`_.
+Genro utilises Dojo_ using version 1.1, see also documentation `Dojo Campus`_.
 
 .. _Dojo: http://www.dojotoolkit.org/
 .. _Dojo Campus: http://dojocampus.org/
@@ -363,7 +363,7 @@ Example::
 		cp = parentContainer.contentPane(...)
 		cp.div(connect_onDoubleClick='JS code')
 
-As convention, the syntax ``connect_<event_name>`` is used for events or JavaScript dojo, while the syntax ``<event>_action`` is used for events and actions genropy.
+As a convention, the syntax ``connect_<event_name>`` is used for events or JavaScript dojo, while the syntax ``<event>_action`` is used for events and actions genropy.
 
 includedView
 ============
@@ -372,73 +372,72 @@ The includedView is well documented. Some parameters such as ``formPars`` and ``
 
 The possible specifiers are ``addAction=True`` or ``delAction=True`` to unleash the standard events (modification of records in a recordDialog). In this case, the records are updated in the datastore (ie are treated as logically part of the record in the master table, and the changes will be applied to save the master record).
 
-Con il metodo ``iv.gridEditor()`` si possono definire gli widgets utilizzati per l'editing delle righe. (Gli widgets di gridEditor vengono riutilizzati, spostandoli nel DOM della pagina, man mano che ci si muove fra le righe.)
+Using the method ``iv.gridEditor()`` can define the widgets used for editing lines. (The widgets are reused gridEditor, moving them into the DOM of the page, as you move between the lines.)
 
 Componenti per operare sul datastore
 ====================================
 
 ``data()``:
-	memorizza un valore nel datastore
+	stores a value in the datastore
 
 ``dataFormula()``:
-	Calcola una cella del datastore a partire da altri valori (come in un foglio elettronico)
+	Calculate a cell of the datastore from other values (like a spreadsheet)
 
 ``dataController()``:
-	Esegue del codice JS, legandolo ad un evento nel datastore (tramite un resolver).
+	Running JS code, linking it to an event in the datastore (via a resolver).
 
-I parametri di dataController o dataFormula diventano dichiarzioni di variabili locali, utilizzabili nella formula o nel codice JS stesso.
+Parameters of dataController or dataFormula become delcarations of local variables used in the formula or the same JS.
 
-Operazioni remote
-*****************
+Remote Operation
+****************
 
 ``dataRecord()``:
-	**TODO**: da approfondire - credo serva per memorizzare un record di database nel datastore
+	**TODO**: to be explored - I question the need to store a database record in the datastore
 
 ``dataRemote()``:
-	Imposta un resolver nel datastore. All'accesso a questo elemento nel datastore, verrà chiamato codice Python (definito in una funzione con prefisso ``rpc_``) dovrà restituire una bag.
+	Set a resolver in the datastore. Access to this item in the datastore will be called Python code (defined in a function with the prefix ``rpc_`` ) will return a bag.
 
 ``dataRpc()``:
-	come sopra, dataRpc è la funzione di basso livello su cui si basano le funzionalità precedenti. Può essere usata per fare chiamate a codice python (scatenandole passando dei resolver come parametri).
-	E' possibile specificare codice JS da chiamare prima della chiamata (con il parametro ``onCalling='codice JS'``) oppure con i risultati ricevuti dal server (``onresult='codice JS'``).
+	as above, dataRpc is the function of low-level underlying the previous functionalityi. Can be used to make calls to python code (via triggering resolver as parameters).
+	It is possible to specify js code to call before the call(with the parameter ``onCalling='codice JS'``) or with the results received from the server (``onresult='codice JS'``).
 
-I parametri di queste funzioni che non iniziano con "_" vengono passati al server e sono quindi disponibili al codice Python chiamato.
+The parameters of these functions that do not begin with an underscore "_" are passed to the server and are available to Python code called.
 
-Gli entry point nella pagina web chiamati da queste funzioni hanno il prefisso ``rpc_``.
+The entry point into the web page called by these functions have the prefix ``rpc_``.
 
-**NOTA:** Si può usare ``page.externalUrl(...)`` per avere l'URL di una chiamata RPC (utile per passare gli URL di caricamento/salvataggio XML al documento PDF nel progetto *elezioni*).
+**NOTE:** You can use ``page.externalUrl(...)`` to get the URL of an RPC call (useful for passing URLs loading / saving XML to PDF document in the project *myproject*).
 
-Le funzioni possono restituire:
+Functions can return:
 
-* una bag
-* una tupla (bag, dizionario) -- il dizionario contiene gli attributi/metadati della bag, visibili nell'explorer del datastore facendo click tenendo premuto SHIFT
+* a bag
+* a tuple (bag, dictionary) -- dictionary contains the attributes / metadata bag, visible in the explorer of the datastore by clicking while holding down SHIFT
 
-C'è inoltre un'API per effettuare modifiche al datastore nelle chiamate RPC.
+There is also an API to make changes to the datastore in RPCs.
 
 FormBuilder
 ===========
 
-Componente per semplificare la creazione delle forms.
+Component to simplify the creation of forms.
 
-Utilizzando il metodo ``field``, si possono definire i campi specificando semplicemente il nome. Il widget corretto verrà costruito in base al tipo di campo del database. Il metodo ``field`` accetta il parametro ``autospan=N``, corrispondente a ``colspan=N`` più ``width='100%'``.
+Using the method ``field``, You can define fields simply by specifying the name. The widget will be built under the correct type of database field. The method ``field`` accepts the parameter  ``autospan=N``, corresponding to ``colspan = N`` or ``width = '100%'``.
 
 Triggers
 ========
 
-Triggers definiti sulla pagina
-******************************
+Triggers defined on page
+************************
 
-E' possibile definire metodi python a livello di pagina web che vengono chiamati quando i record di una data tabella vengono caricati o salvati. I nomi dei metodi devono seguire questa sintassi::
+It is possible to define methods at the python-level of a web page that are called when the records in a given table are loaded or saved. The names of methods should follow this syntax::
+	on<Operation>
+	on<Operation>_<name_of_package>_<name_of_table>
 
-	on<Operazione>
-	on<Operazione>_<Nome Package>_<Nome Tabella>
+possible *Operation* is ``Loading``, ``Saving`` or ``Saved``.
 
-dove *Operazione* è ``Loading``, ``Saving`` oppure ``Saved``.
+This is implemented at rpc/web layer.
 
-Questo è implementato a livello di layer rpc/web.
+Triggers on table
+*****************
 
-Triggers sulla tabella
-**********************
+At the table level, events are similarly available ``Inserting``/``Inserted``, ``Updating``/``Updated`` e ``Deleting``/``Deleted``.
 
-A livello di tabella, sono analogamente disponibili gli eventi ``Inserting``/``Inserted``, ``Updating``/``Updated`` e ``Deleting``/``Deleted``.
-
-**NOTA**: è possibile specificare se il database deve cancellare più record usando una istruzione SQL unica oppure istruzioni singole per ogni record. Sono presenti triggers differenti per i due casi.
+**NOTE**: you can specify whether the database should delete multiple records using a single SQL statement or individual statements for each record. There are different triggers for the two cases.
