@@ -9,7 +9,7 @@ from gnr.core.gnrbag import Bag
 
 class GnrCustomWebPage(object):
     maintable='hosting.client'
-    py_requires="""public:Public,standard_tables:TableHandler,utilita_component:UtilitaAnagrafica,
+    py_requires="""public:Public,standard_tables:TableHandler,sw_base_component:UtilitaAnagrafica,
                    gnrcomponents/selectionhandler,hosted:HostedClient,hosted:HostedInstance"""
 
 ######################## STANDARD TABLE OVERRIDDEN METHODS ###############
@@ -50,7 +50,7 @@ class GnrCustomWebPage(object):
         top = bc.borderContainer(region='top',height='120px')
         right = top.contentPane(region='right',width='350px')
         fb = right.formbuilder(cols=1,border_spacing='3px',disabled=disabled)
-        self.anagrafica_linker(fb,width='20em',height='8ex',lbl='!!Anagrafica') 
+        self.anagrafica_linker(fb,field='anagrafica_id',width='20em',height='8ex',lbl='!!Anagrafica') 
         center = top.contentPane(region='center')
         fb = center.formbuilder(cols=1, border_spacing='3px',fld_width='100%',
                                 width='350px',disabled=disabled)
@@ -63,7 +63,11 @@ class GnrCustomWebPage(object):
         
         self.main_clienttab(tc.borderContainer(title='Info'),disabled)
         for pkgname,handler in [(c.split('_')[1],getattr(self,c)) for c in dir(self) if c.startswith('hostedclient_')]:
-            handler(tc.contentPane(datapath='.hosted_data.%s' %pkgname,title=self.db.packages[pkgname].name_long))
+            handler(tc.contentPane(datapath='.hosted_data.%s' %pkgname,
+                                title=self.db.packages[pkgname].name_long,
+                                nodeId='hosted_client_data_%s' %pkgname,
+                                sqlContextName='sql_record_hosted_client_%s' %pkgname,
+                                sqlContextRoot='form.record.hosted_client_data'))
         
     
     def main_clienttab(self,bc,disabled):
@@ -82,7 +86,10 @@ class GnrCustomWebPage(object):
         tc = parentBC.tabContainer(**kwargs)
         self.main_instancetab(tc.contentPane(title='Info',_class='pbl_roundedGroup',margin='5px'),table=table,disabled=disabled)
         for pkgname,handler in [(c.split('_')[1],getattr(self,c)) for c in dir(self) if c.startswith('hostedinstance_')]:
-            handler(tc.contentPane(datapath='.hosted_data.%s' %pkgname,title=self.db.packages[pkgname].name_long))
+            handler(tc.contentPane(datapath='.hosted_data.%s' %pkgname,title=self.db.packages[pkgname].name_long,
+                                  nodeId='hosted_instance_data_%s' %pkgname,
+                                sqlContextName='sql_record_hosted_instance_%s' %pkgname,
+                                sqlContextRoot='instances.dlg.record.hosted_data.%s' %pkgname))
         
     def main_instancetab(self,pane,disabled=None,table=None):
         pane.div('!!Manage instances', _class='pbl_roundedGroupLabel')
