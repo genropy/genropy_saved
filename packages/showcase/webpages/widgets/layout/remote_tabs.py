@@ -18,6 +18,6 @@ class GnrCustomWebPage(object):
         tc.remote('tabs', numtabs='^numtabs')
         
     def remote_tabs(self, tc, numtabs):
-        for i in range(1, numtabs+1):
-            tab = tc.contentPane(title='Tab %d' % i, margin='40px')
-            tab.div('This is tab %d' % i)
+        for i in xrange(numtabs):
+            tab = tc.contentPane(title='Tab #%d' % i, margin='40px')
+            tab.div('This is tab #%d' % i)
