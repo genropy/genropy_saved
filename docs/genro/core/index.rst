@@ -16,4 +16,4 @@
 	gnrlocale
 	gnrstring
 	gnrsys
-	miscellanea
+	miscellaneous

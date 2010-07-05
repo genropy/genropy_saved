@@ -32,7 +32,7 @@ GenroPy
             print/index
             howto/logging
 
-    *   Miscellanea:
+    *   Miscellaneous:
 
         .. toctree::
             :maxdepth: 2
