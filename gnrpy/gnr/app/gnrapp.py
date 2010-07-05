@@ -226,7 +226,6 @@ class GnrApp(object):
         self.packages = Bag()
         self.packagesIdByPath = {}
         self.config = self.load_instance_config()
-        self.dbstores=self.load_dbstores_config()
         self.build_package_path()
         db_settings_path = os.path.join(self.instanceFolder, 'dbsettings.xml')
         if os.path.isfile(db_settings_path):
@@ -263,37 +262,6 @@ class GnrApp(object):
             return Bag(config_path)
         return Bag()
         
-    def dbstores_folder(self):
-        return os.path.join(self.instanceFolder,'dbstores')
-        
-    def dbstore_config_path(self,storename):
-        return os.path.join(self.dbstores_folder(),'%s.xml'%storename)
-        
-    def add_dbstore_config(self, storename, dbname=None, host=None, user=None, password=None, port=None):
-        dbstore_config = Bag()
-        dbstore_dict = dict(dbname=dbname,host=host,user=user,password=password,port=port)
-        for key,value in dbstore_dict.items():
-            if value==None:
-                dbstore_dict.pop(key)
-        dbstore_config['db']=Bag(dbstore_dict)
-        dbstore_config.toXml(self.dbstore_config_path(storename))
-        
-    def delete_dbstore_config(self, storename):
-        dbstore_config_path = self.dbstore_config_path(storename)
-        if os.path.isfile(dbstore_config_path):
-            os.remove(dbstore_config_path)
-    
-    def load_dbstores_config(self):
-        dbstores={}
-        dbstores_folder = self.dbstores_folder()
-        if not os.path.isdir(dbstores_folder):
-            return dbstores
-        dbstoresConfig=Bag(dbstores_folder)
-        if dbstoresConfig:
-            for name,parameters in dbstoresConfig['#0'].digest('#a.file_name,#v.#0?#'):
-                dbstores[name]=parameters
-        return dbstores
-                
     def load_instance_config(self):
         instance_config_path = os.path.join(self.instanceFolder,'instanceconfig.xml')
         base_instance_config = Bag(instance_config_path)
@@ -359,7 +327,6 @@ class GnrApp(object):
             sys.path.append(apppkg.libPath)
         self.db.inTransactionDaemon = False
         self.db.startup()
-        self.init_dbstores()
         if len(self.config['menu'])==1:
             self.config['menu'] = self.config['menu']['#0']
         self.buildLocalization()
@@ -372,12 +339,6 @@ class GnrApp(object):
                 self.loadTestingData(forTesting)
 
         self.onInited()
-    
-    def init_dbstores(self):
-        self.dropAllDbStores()
-        for storename,store in self.dbstores.items():
-            self.addDbstore(storename,store)
-    
 
     def loadTestingData(self, bag):
         """Load data used for testing in the database.

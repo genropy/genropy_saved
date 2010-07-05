@@ -27,7 +27,8 @@ __version__='1.0b'
 import logging
 gnrlogger = logging.getLogger('gnr.sql.gnrsql')
 import cPickle
-
+import os
+import shutil
 from gnr.core.gnrlang import getUuid
 from gnr.core.gnrlang import GnrObject
 from gnr.core.gnrlang import importModule,GnrException
@@ -98,15 +99,18 @@ class GnrSqlDb(GnrObject):
         self.main_schema = main_schema
         self._connections = {}
         self.started = False
-        self.dbstores={}
         self._currentEnv={}
         self.allow_eager_one = allow_eager_one
         self.allow_eager_many = allow_eager_many
-        
+        self.stores_handler = DbStoresHandler(self)
+
 
     #------------------------Configure and Startup-----------------------------
     # 
-
+    @property
+    def dbstores(self):
+        return self.stores_handler.dbstores
+        
     def createModel(self):
         from gnr.sql.gnrsqlmodel import DbModel
         return DbModel(self)
@@ -170,17 +174,6 @@ class GnrSqlDb(GnrObject):
                     conn.close()
                 except Exception:
                     conn = None
-    
-    def addDbstore(self,storename, dbname=None, host=None, user=None, password=None, port=None):
-        self.dbstores[storename]=dict(database=dbname or storename,
-                            host=host or self.host,user=user or self.user,
-                            password=password or self.password,port=port or self.port)
-                            
-    def dropDbstore(self,storename):
-        self.dbstores.pop(storename,None)
-    
-    def dropAllDbStores(self):
-        self.dbstores=dict()
         
     def tempEnv(self, **kwargs):
         return TempEnv(self, **kwargs)
@@ -468,6 +461,45 @@ class TempEnv(object):
         
     def __exit__(self, type, value, traceback):
         self.db.currentEnv=self.savedEnv
+    
+class DbStoresHandler(object):
+    """Handler for using multi-db"""
+    def __init__(self, db):
+        self.db = db
+        self.config_folder = os.path.join(db.application.instanceFolder,'dbstores')
+        self.dbstores = {}
+        self.load_config()
+        self.create_stores()
+        
+    def load_config(self):
+        self.config = Bag()
+        if os.path.isdir(self.config_folder):
+            self.config=Bag(self.config_folder)['#0'] or Bag()
+            
+    def save_config(self):
+        try:
+            shutil.rmtree(self.config_folder,True)
+        except OSError:
+            pass            
+        for name,params in self.config.digest('#a.file_name,#v.#0?#'):
+            dbstore_config = Bag()
+            dbstore_config.setItem('db',None,**params)
+            dbstore_config.toXml(os.path.join(self.config_folder,'%s.xml'%name),autocreate=True)
+
+    def create_stores(self):
+        for name,parameters in self.config.digest('#a.file_name,#v.#0?#'):
+            self.add_store(name,**parameters)
+
+    def add_store(self,storename, dbname=None, host=None, user=None, password=None, port=None):
+        self.dbstores[storename]=dict(database=dbname or storename,
+                            host=host or self.host,user=user or self.user,
+                            password=password or self.password,port=port or self.port)
+                                
+    def drop_dbstore_config(self,storename):
+        self.config.pop('%s_xml' %storename)
+
+    def add_dbstore_config(self, storename, dbname=None, host=None, user=None, password=None, port=None):
+        self.config.setItem('%s_xml.db' %storename,None,dbname=dbname,host=host,user=user,password=password,port=port)
     
 if __name__=='__main__':
     pass
