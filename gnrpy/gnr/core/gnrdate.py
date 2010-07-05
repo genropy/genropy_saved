@@ -645,6 +645,12 @@ class TimePeriod(object):
         
     def __getitem__(self, key):
         return self.intervals[key]
+    
+    def __eq__(self, other):
+        """Check if a TimePeriod is equal to another."""
+        if not isinstance(other, TimePeriod):
+            other = TimePeriod(other)
+        return self.intervals == other.intervals
 
 if __name__=='__main__':
     import doctest
