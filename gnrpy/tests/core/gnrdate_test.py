@@ -307,10 +307,16 @@ def test_TimeInterval():
     assert str(gnrdate.TimeInterval(datetime.time(8,30),datetime.time(10,30))) == str(i)
     assert str(gnrdate.TimeInterval( (datetime.time(8,30),datetime.time(10,30)) )) == str(i)
 
+def test_TimeInterval_alt_construction():
+    i = gnrdate.TimeInterval('8:30-10:30')
+    i2 = gnrdate.TimeInterval(stop='10:30',minutes=120)
+    assert i == i2
+
 def test_TimeInterval_operators():
     ti = gnrdate.TimeInterval
     assert ti('8:30-10:30') == '8:30-10:30'
     assert ti('8:30-10:30') == ti('8:30-10:30')
+    assert not (ti('8:30-10:30') != ti('8:30-10:30'))
     assert ti('8:30-10:30') < ti('11:00-12:00')
     assert ti('8:30-10:30') <= ti('11:00-12:00')
     assert not (ti('8:30-10:30') <  ti('10:00-12:00'))

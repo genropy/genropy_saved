@@ -380,6 +380,24 @@ def dateRange(dstart, dstop):
         yield dt
         dt = dt + datetime.timedelta(days=1)
 
+def time_to_minutes(t):
+    """Returns the number of minutes since midnight.
+    
+    :param t:   datetime.time
+    :returns:   int
+    """
+    return t.hour*60+t.minute
+
+def minutes_to_time(mins):
+    """Returns a datetime.time given the number of minutes since midnight.
+    
+    :param mins:    int
+    :returns:       datetime.time
+    """
+    hours = mins / 60
+    mins = mins % 60
+    return datetime.time(hours,mins)
+
 class TimeInterval(object):
     """A span of time (start, end).
     
@@ -397,6 +415,13 @@ class TimeInterval(object):
     True
     >>> TimeInterval((start, '10:30'))
     TimeInterval('8:30-10:30')
+    
+    You can also create them supplying their length and their start or stop time:
+    
+    >>> TimeInterval(start='8:30',minutes=60)
+    TimeInterval('8:30-9:30')
+    >>> TimeInterval(stop='9:30',minutes=60)
+    TimeInterval('8:30-9:30')
     
     As you can see, str() and repr() are both implemented in a sensible way.
     
@@ -428,7 +453,14 @@ class TimeInterval(object):
     >>> a in b
     True
     """
-    def __init__(self, start, stop=None):
+    def __init__(self, start=None, stop=None, minutes=None):
+        if minutes:
+            if not stop:
+                stop = minutes_to_time(time_to_minutes(toTime(start)) + minutes)
+            elif not start:
+                start = minutes_to_time(time_to_minutes(toTime(stop)) - minutes)
+            else:
+                raise ValueError, "TimeInterval() constructor: please specify either 'start' or 'stop' when specifying 'minutes'"
         if not stop:
             if isinstance(start, TimeInterval):
                 other = start
@@ -456,6 +488,9 @@ class TimeInterval(object):
             except ValueError:
                 return NotImplemented
         return (self.start == other.start) and (self.stop == other.stop)
+    
+    def __ne__(self, other):
+        return not (self == other)    
     
     def __lt__(self, other):
         """Test if 'self' ends earlier than 'other' starts.
