@@ -1,9 +1,9 @@
-***********************************
- Miscellaneous notes about GenroPy
-***********************************
+*********************************
+Miscellaneous notes about GenroPy
+*********************************
 
 Construction of Bags
-====================
+======================
 
 There are several ways to build bags in genropy:
 
@@ -159,7 +159,7 @@ GnrPackage
 The file ``main.py`` of a package, you define ``class``  ``package`` and ``table``. The methods of these classes are available at the respective web pages as ``self.package.name_of_method`` and ``as self.db.table('table name').name_of_method``.
 
 Page
-======
+====
 
 Page objects can access the various application components using Genro instance variables:
 
