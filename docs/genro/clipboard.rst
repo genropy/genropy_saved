@@ -3,7 +3,7 @@ Miscellaneous notes about GenroPy
 *********************************
 
 Construction of Bags
-======================
+====================
 
 There are several ways to build bags in genropy:
 
