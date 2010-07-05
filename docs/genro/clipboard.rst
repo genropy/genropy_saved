@@ -8,114 +8,112 @@ Construction of Bags
 There are several ways to build bags in genropy:
 
 * from an XML file;
-* utilizzando le istruzioni python del modulo ``gnr.core.gnrbag``, in questo caso il codice è simile alla costruzione di un dizionario;
-* utilizzando il modulo ``gnr.core.gnrstructures``, in questo caso il codice è costituito da una serie di chiamate di metodi python. Il codice per la costruzione dei modelli di database e delle webpages costruisce in realtà delle bags, appoggiandosi a questo modulo.
+* using the instructions from the python module ``gnr.core.gnrbag``, in this case the code is similar to the construction of a dictionary
+* using module ``gnr.core.gnrstructures``  In this case, the code consists of a set of python method calls. This subsequently supports the definition of the database model, in addition to the construction of webpages.
 
 
-Mappatura da modelli a struttura del database
+Mapping models the database structure
 =============================================
 
-In GenroPy, il passaggio dalle classi di modello al database avviene in questo modo:
+In GenroPy, the transition from model classes to the database is in this way:
 
-1. Il codice nei files in ``<nome package>/models/<nome modello>.py``, in realtà costruisce una Structure di GenRo (cioé una Bag costruita con codice Python).
-2. La bag così costruita viene tradotta in oggetti Python.
-3. Genro confronta questi oggetti con la struttura del database ed apporta gli eventuali aggiornamenti
+1. The code in files in ``<name of package> / models / <table_name>. py`` builds a bag in python which builds the structure of the table.
+2. The constructed bag is translated into python objects.
+3. Genro script ``gnrdbsetup <project>`` compares these objects with the database structure and performs any updates required.
 
-Il programma ``gnrdbsetup`` viene usato per questo scopo.
-
-Siti, Istanze, packages e componenti
+Site, Instance, Packages and Components
 ====================================
 
-Le applicazioni GenroPy sono suddivise in vari strati, che consentono la personalizzazione (garantendo un facile aggiornamento anche in presenza di customizzazioni) e il riuso di codice e risorse fra vari progetti.
+GenroPy applications are divided into several layers, allowing customisation (ensuring an easy upgrade even with customisation) and reuse of code and resources among various projects.
 
-Un progetto GenroPy è costituito da:
+A Project of Genropy consists of:
 
 
-il sito:
-	si occupa di tutto ciò che riguarda la configurazione dell'applicazione per una particolare installazione **Web**. Include cioé i componenti e le configurazioni necessari all'esecuzione via Web. In genere, contiene la configurazione WSGI e lo script ``root.py`` (quest'ultimo viene usato anche come eseguibile se si vuole usare un debugger, come WingIDE).
+A site:
+	deals with everything related to the configuration for a particular installation includes Web components and configurations that are necessary for the execution over the **Web** typically contains the configuration and WSGI script ``root.py`` ( it is used as the executable if you want to use a debugger, like WingIDE).
 
-l'istanza:
-	contiene le personalizzazioni per il particolare cliente. In genere contiene i parametri di accesso al database. Dispone di una sottocartella ``data`` che si può usare per memorizzare dati nel filesystem. Quando si lavora con l'interprete python o con strumenti a linea di comando, in genere si lavora a livello d'istanza::
+An instance:
+	contains customisations for the particular customer. Usually contains parameters for database access. Has a ``data`` subfolder that you can use to store data in filesystems. When working with the Python interpreter or command line tools, usually working at the instance::
 
 		#!python
 		from gnr.app.gnrapp import GnrApp
-		istanza = GnrApp('elezioni')
+		instance = GnrApp('name_of_project')
 
-	Giovanni ha accennato al concetto di sottoistanza, utilizato per modificare la configurazione di un'applicazione a runtime (ad esempio, per poter accedere a dati storici ormai eliminati dal database corrente dell'istanza principale).
+	Gio mentioned the concept of sub instance, used to change the application configuration at runtime (eg, for access to historical data already eliminated from the main current database instance).
 
-i packages:
-	sono i vari moduli che compongono il codice applicativo di Genro, compreso il package principale che costituisce l'applicazione sviluppata. Genro fornisce moduli aggiuntivi che implementano funzioni comuni a tutte le applicazioni (gestione utenti, tabella dei comuni italiani, etc.). E' dentro al package dell'applicazione (o dei packages accessori) che si concentra la maggior parte del codice Python (a parte quello del core del framework che è nel package python ``gnr`` e nei suoi figli).
+A package:
+	are the various modules that make up the application code to Genro, including the main package, which is the application developed. Genro provides additional modules that implement common functions for all applications (user management, table of Italian municipalities, etc.).. E 'in the application package (or packages of options), which concentrates most of the Python code (a part of the core framework that is in the package python ``gnr`` and its children).
 
-	Il package ``glbl`` contiene già una tabella delle località e comuni italiani. (**TODO**: chiedere a Giovanni i dati della tabella, perché non mi sembra siano presenti in SVN).
+	The package ``glbl`` already contains a table of locations and Italian municipalities. (**TODO**: ask Giovanni for the table data, as it does not seem to be present in SVN).
 
-	**Nota**: i packages di Genro non sono packages Python (=insieme di moduli collegati, contenente un file ``__init__.py``), perché non si possono importare con l'istruzione ``import <modulo>`` o ``from <package> import <modulo o classe>``.
+	**Note**: the packages of Genro are not Python packages (not a set of linked modules, containing a file `` __init__.py ``), and genre packages can not be imported with the statement ``import <module>`` or ``import from <package> <module or ` class>``.
 
-i componenti e le risorse:
-	sono elementi comuni e riusabili. Comprendono sia il codice Javascript e CSS che quello Python (es. ``includedView``, tabelle standard). E' inserito nela sottocartella ``webpages/_resources`` di packages, istanze (e -credo- siti). Viene usato nelle webpages attraverso ``py_requires``, ``css_requires`` e ``js_requires``. Il codice in ``gnr.web.gnrwsgisite`` si occupa di fare il mixin delle risorse.
+Components and Resource:
+	These are common and reusable to a project. They Include both the Javascript and CSS to Python (eg ``includedView``, standard tables). These components are resources should be located in the ``_resources`` folder of the package and sub directories may be used within the ``_resources folder``.  They are used in webpages through ``py_requires``, ``js_requires`` and ``css_requires``. The ``code`` in module gnr.web.gnrwsgisite, manages the mixin resources.
 
 
-Mixin delle classi a runtime
+Mixin classes at runtime
 ****************************
 
-GenroPy costruisce le classi dell'applicazione facendo *mixin* delle classi a runtime. I metodi e le risorse (CSS, JS, ma anche componenti Python) vengono aggregati a runtime secondo regole precise che consentono di personalizzare il funzionamento per la singola installazione e di mantenere queste customizzazioni, con il minimo impatto, anche per i futuri aggiornamenti.
+GenroPy's application class builds *mixin* classes at runtime. The methods and resources (CSS, JS, and Python components) are aggregated at runtime according to specific rules that allow you to customize the behaviour for a single install and maintain these customizations, with minimal impact, even for future updates.
 
-La costruzione avviene all'avvio dell'applicazione wsgi (e non per ogni richiesta).
+When code changes are made the WSGI application restarts.
 
-E' possibile fare mixin sia per l'interfaccia (webpages, componenti, CSS, JS, etc.) che per la struttura del database (models).
+It can perform the mixin of the interface (webpages, components, CSS, JS, etc.) and for the database structure (models).
 
-**TODO:** Si veda sul wiki del sito http://projects.softwell.it/ alla pagina *Customization* per una spiegazione delle regole di mixin e personalizzazione degli applicativi.
+**TODO:** See the wiki site http://projects.softwell.it/ the page *Customization* for an explanation of the rules of mixin and customization of applications.
 
-Funzionamento web di GenroPy
+GenroPy web operations
 ============================
 
-Nella costruzione delle pagine, GenroPy prima di tutto fa caricare al browser la sua componente javascript. Una volta caricato il motore JS, viene inviata al client la descrizione della pagina e del contenuto iniziale del datastore sotto forma di bags. A questo punto, il codice JS può fare chiamate al codice python.
+In the construction of the pages, GenroPy first loads the browser (client) with its JavaScript engine (the Genro engine). The the JS engine immediately requests the server to build the recipe for the DOM.  This recipe is returned to the client in a bag.   This is the page description and content of the original datastore form of bags. At this point, the JS can make calls to the python code to further build the page.
 
-In pratica, GenroPy si comporta in questo modo:
+In practice, GenroPy behaves in this way:
 
-1. Il client fa la richiesta HTTP per la pagina ``foo``::
+1. The client makes the HTTP request page ``foo``::
 
 	client ----------- HTTP ----------> server (wsgisite)
 
-2. GenroPy manda una pagina standard vuota, contenente in pratica solo il motore ``gnrjs``::
+2. GenroPy sends a standard blank page, which contains practically only the engine ``gnrjs``::
 
-	client <----- motore javascript --- server (wsgisite)
+	client <----- javascript engine --- server (wsgisite)
 
-3. Il motore javascript chiede al server il contenuto della pagina, lato Python viene chiamata la funzione ``main`` della ``WebPage``::
+3. The JavaScript engine calls the server page content, a server side Python function called the ``main`` of ``WebPage`` ::
 
-    motore js ------- ready -----------> server (pagina ``main.py``)
+    js engine ------- ready -----------> server (page ``main.py``)
 
-4. Il server invia una descrizione del contenuto della pagina di alto livello, in termini di widgets e contenuto del datastore, sotto forma di bags::
+4. The server sends a description of the page content in high level in terms of widgets, and content of the datastore in the form of bags::
 
-    pagina js <------ bags ------------- pagina python
+    page js <------ bags ------------- page python
 
-5. Da qui in poi, la comunicazione procede principalmente facendo aggiornamenti al datastore (o all'interfaccia utente) utilizzando le funzioni di rpc::
+5. From then on, the communication proceeds primarily doing updates to the datastore (or user interface) using the functions rpc::
 
-    pagina js <- dataRpc() o remote() -> pagina python
+    page js <- dataRpc() or remote() -> page python
 
 WSGI
 ====
 
-WSGI è lo standard per interfacciare frameworks Web Python con i webserver. Consente anche di comporre vari componenti web fra loro, attraverso un sistema di middlewares (concetto simile, ma non compatibile, con gli analoghi componenti in Django). Sul sito WSGI_ sono presenti link a moltissime utili risorse (frameworks, middlewares, servers).
+WSGI is a standard for interfacing with Python web frameworks webservers. It also allows you to compose various web components together through a system of middlewares (similar concept, but not compatible with similar components in Django). A WSGI_ site contains links to many useful resources (frameworks, middlewares, servers).
 
 .. _WSGI: http://wsgi.org/wsgi
 
-Un'applicazione WSGI definisce una funzione che accetta la richiesta web e restituisce la risposta. Un middleware WSGI è semplicemente un'applicazione che ne richiama un'altra, come nel pattern Decorator_.
-Lo standard WSGI definisce un formato standard per la richiesta (che può essere decorata con altre informazioni durante l'elaborazione nei vari middlewares) e per la risposta (che può anche essere asincrona).
+WSGI application defines a function that takes a Web request and returns the answer. WSGI middleware is simply an application that calls another, as in the pattern Decorator_.
+WSGI standard defines a standard format for the request (which can be decorated with additional information when processing the various middlewares) and response (which can also be asynchronous).
 
 .. _Decorator: http://en.wikipedia.org/wiki/Decorator_pattern
 
-GenroPy utilizza il middleware Beaker_ per la gestione delle sessioni e weberror per la gestione dei traceback (compresa l'utilissima capacità di aprire un interprete python nel punto dove si verifica l'errore). GenroPy utilizza Paste_ e WebOb_ durante lo sviluppo con server standalone (credo che la funzione weberror sia fornita da Paste).
+GenroPy Beaker_ using middleware for session management and weberror management Traceback (including the useful ability to open a python interpreter at the point where the error occurs). GenroPy uses Paste_ WebOb_ during development and with standalone servers (I think the function is provided by weberror Paste).
 
 .. _Beaker: http://beaker.groovie.org/
 .. _Paste: http://pythonpaste.org/
 .. _WebOb: http://pythonpaste.org/webob/reference.html
 
-Per un esempio di middleware, vedi ``gnrpy/gnr/web/gzipmiddleware.py`` (lo script non funziona attualmente in genro, ma per altri motivi secondo Michele Bertoldi che se ne sta occupando). Il file ``root.py`` all'interno dei siti Genro è un'applicazione WSGI.
+For an example of middleware, see ``gnrpy/gnr/web/gzipmiddleware.py `` (the script does not work currently Genro, but for other reasons, Michele Bertoldi indicates that it is working)). The file ``root.py`` within the site directory of the genro project (WSGI application) is where is is defined.
 
-Apache e WSGI
+Apache WSGI
 *************
 
-Per utilizzare WSGI con apache, è necessario installare il modulo ``mod_wsgi`` e configurarlo::
+To use WSGI with apache, you must install the module and configure ``mod_wsgi``::
 
 	<VirtualHost *:80>
 	ServerAdmin webmaster@localhost
@@ -134,7 +132,7 @@ Per utilizzare WSGI con apache, è necessario installare il modulo ``mod_wsgi`` 
 	</Directory>
 	</VirtualHost>
 
-Tipo di dati aggiuntivi, non presenti nel bundle TextMate
+Additional data types, not in the TextMate bundle
 =========================================================
 
 Tipo ``DH``:
@@ -143,102 +141,102 @@ Tipo ``DH``:
 GnrApp
 ======
 
-Il codice per creare un'istanza è::
+The code to create an instance is as follows::
 
 	#!python
 	from gnr.app.gnrapp import GnrApp
-	istanza = GnrApp('elezioni')
+	instance = GnrApp('my_project')
 
-1. ``GnrApp.__init__`` carica la configurazione dell'istanza da ``instanceconfig.xml``.
-2. ``GnrApp.init`` esegue:
-	* l'hook ``onIniting``
-	* crea gli oggetti package necessari
-	* l'hook ``onInited``
+1. ``GnrApp.__init__`` loads the configuration of the instance from ``instanceconfig.xml``.
+2. ``GnrApp.init`` running:
+	* the hook ``onIniting``
+	* creates necessary objects from packages
+	* the hook ``onInited``
 
 GnrPackage
 ==========
 
-Nel file ``main.py`` di un package, si definiscono le classi ``Package`` e ``Table``. I metodi di queste classi sono rispettivamente disponibili alle pagine web come ``self.package.<nome metodo>`` e come ``self.db.table('nome tabella').<nome metodo>``.
+The file ``main.py`` of a package, you define ``class``  ``package`` and ``table``. The methods of these classes are available at the respective web pages as ``self.package.name_of_method`` and ``as self.db.table('table name').name_of_method``.
 
-Pagine
+Page
 ======
 
-Gli oggetti pagina posso accedere ai vari componenti di un'applicazione Genro usando variabili d'istanza:
+Page objects can access the various application components using Genro instance variables:
 
 * ``self.package``
 * ``self.db``
 * ``self.application`` (es. ``self.application.config``)
 * ``self.site`` (es. ``self.site.config``)
 
-Oggetti Tabella
+Table Objects
 ===============
 
-Gli oggetti tabella sono accessibili dalle pagine con ``self.db.table('ppackage.tabella')``. Il metodo ``query`` degli oggetti tabella restituisce un oggetto di ricerca nel db configurato secondo i parametri specificati, ma non esegue la query sul db. Su questo oggetto ricerca, possono essere usati il metodo ``selection`` per avere i risultati in vari formati oppure il metodo ``fetch`` per ottenerli semplicemente (come lista/dizionari/iteratore/bag? boh, **TODO:** controllare).
+The table objects are accessible from pages ``self.db.table('package.table')``. The method ``query `` returns an object of type table. This object representing a table from the db may be configured according to the specified parameters.  The query on the db is not performed, until a further method is called. The methods that can be used include ``selection`` and variants of the ``fetch`` method to return data as list, dictionary, iterator or bag.
 
-Esempio::
+Example::
 
 	#!python
 
 	db = ...
-	tbl = db.table('comuni')
+	tbl = db.table('common')
 	qry = tbl.query(...)
 	sel = qry.selection()
 
-	# modifica in memoria dei record, anche aggiungendo nuovi campi (es. per i campi calcolati da mandare al client)
-	sel.apply(lambda r: dict(area=r.base*r.altezza))
+	# edit records in memory, even adding new fields (eg for calculated fields to send to client)
+	sel.apply(lambda r: dict(area=r.base*r.height))
 
-	sel.output(formato)
+	sel.output(format)
 
-Le selezioni supportano vari formati:
+The selections support various formats:
 
 bag:
-	Bag di Genro (vedi ``gnr.core.gnrbag``)
+	genro Bag (refer to  ``gnr.core.gnrbag``)
 
 json:
-	Serializzazione in formato JSON
+	JSON serialization format
 
-*altro*:
-	per gli altri formati, guardare i metodi con prefisso ``out_`` degli oggetti selection
+*more*:
+	for other formats, see the methods with the prefix ``out_``  object selection
 
-Le selezioni hanno metodi per fare totali o analisi statistiche (medie, somme, etc.) aggregate per vari campi, vedere i metodi ``analyze`` e ``totalize``.
+The selections have methods to make totals or statistical analysis (averages, sums, etc..) aggregated into various fields. See the methods ``analyze`` or ``totalize``.
 
-**NOTA**: le selezioni sono implementate a livello di bags (e non di database), quindi possono essere utilizzate anche con sorgenti dati diverse dai db.
+**NOTE**: selections are implemented in terms of bags (not database) and can also be used with data sources from different db.
 
-Vedi anche ``gnr.gnrsql.gnrsqldata`` per info su selection/query/record.
+See also ``gnr.gnrsql.gnrsqldata`` for information on selection/query/record.
 
-Tools utili
+Useful Tools
 ===========
 
 BonjourFoxy:
-	plugin di Firefox per vedere i siti web registrati nella rete locale con Bonjour (utile nella fase di sviluppo)
+	Firefox plugins to see the websites registered in the local network with Bonjour (useful in development)
 
 Navicat:
-	editor di database con buon supporto per Postgres
+	database editor with good support for Postgres
 
 
 pycallgraph
 ===========
 
-Utilizza il profiler di python e mostra le chiamate come grafico utilizzando graphviz. Per installarlo, usare ``easy_install`` o ``pip``::
+Use the profiler python calls and shows how to graph using graphviz. To install it, use ``easy_install`` or ``pip``::
 
-	easy_install pycallgraph
+	sudo easy_install  -U -Z pycallgraph
 
 Bags
 ====
 
-Le bag di GenroPy sono molto potenti e sono pervasive nel design del framework. (Questa è una gran cosa, ma può avere risvolti negativi dal punto di vista della sicurezza).
+The bag of GenroPy is very powerful and pervasive in the design of the framework. (This is a great thing, but a possible downside in terms of security).
 
-Al costruttore delle bags, si possono passare:
+You can create a bag with data from:
 
-* un dizionario
-* una lista chiave/valore
-* un'altra bag
-* il nome di un file xml
-* il nome di una directory, in questo caso si può percorrere l'albero ed anche leggere il contenuto dei files XML (come se facessero parte dello stesso albero)
+* Dictionary
+* A list of key / value
+* Another bag
+* The name of an xml file
+* The name of a directory, in this case you can take the tree and also read the contents of XML files (as if they were part of the same tree)
 
-La potenza delle bags risiede nei resolvers, che lavorano come i mount points di un filesystem. Sono la promessa di restituire una bag. I resolver possono fare cache della bag restituita oppure fornire nuovi dati ad ogni chiamata.
+The power of bags lies in the concept of a resolver. They are a callable with a cache time, so they are lazy. They promise to return a bag. The resolver can cache the returned bag or provide new data for each call.
 
-Video interessante sul design dei frameworks web in Python
+Interesting video on the design of web frameworks
 ==========================================================
 
 Djangocon 2008, `Building a better framework`_
@@ -248,129 +246,129 @@ Djangocon 2008, `Building a better framework`_
 DOJO
 ====
 
-La documentazione di DOJO è disponibile come applicazione AIR (cercare *DOJO Toolbox*), ma non è particolarmente aggiornata. In ogni caso, Genro utilizza la versione 1.1 di Dojo (mentre ora siamo alla 1.4).
+The documentation is available as an AIR application DOJO (search DOJO * Toolbox *), but not kept up to date. Currently Genro using version 1.1 of the Dojo (and now we are at 1.4).
 
-Il datastore e il codice Javascript di Genro
+The datastore and the Javascript code of Genro
 ============================================
 
-Attraverso vari comandi python, si può collegare il codice javascript agli eventi dei componenti d'interfaccia oppure agli eventi generati dal datastore.
+Through various commands python, you can attach the javascript code to the events of the components interface or events generated by the datastore
 
-Il datastore è una bag di genro.
+The datastore is a Genro bag.
 
-Sintassi per i datapath
+Syntax for datapath
 ***********************
 
-I path nel datastore seguono la sintassi:
+The path followed by the syntax in the datastore:
 
-* ``path.assoluto.nel.datastore``
-* ``.path.relativo.nel.datastore``
-* ``#ID.path.relativo.da.un.ID``
+* ``path.absolute.in.datastore``
+* ``.path.relative.in.datastore``
+* ``#ID.path.relative.to.the.ID``
 
-E' possibile indicare di recuperare i dati dal datastore praticamente in ogni elemento dell'interfaccia (viene implementato nella lettura della Bag dell'interfaccia, e quindi comprende moltissime cose: ad esempio, è possibile anche specificare le classi CSS di un elemento HTML legandole ad un elemento del datastore), usando i prefissi:
+The path indicates the access path to data to virtually every element of the datastore (it is implemented by reading the Bag interface, and thus includes many things: for example, you can also specify the CSS classes of an HTML element linking them to an element of the datastore), using the prefixes:
 
-* "tegolino" (accento circonflesso): ``^accesso.con.resolver``, imposta una sorta di observer. Il componente verrà informato delle modifiche al datastore.
-* uguale: ``=accesso.senza.resolver``, legge il contenuto del datastore.
+* "^" (circumflex accent): ``^access.to.resolver``, setting an observer at this node. The component will be informed of changes to the datastore
+* equal: ``=accessed.from.resolver``, reads the contents of the datastore.
 
-Accesso al datastore da Javascript
+Access to the datastore from javascript
 **********************************
 
-Le operazioni possibili sul datastore sono:
+The possible operations on the datastore include:
 
 **SET**:
-	imposta un valore e scatena gli eventi associati (cioé eventuali osservatori o resolver collegati tramite "^")
+	sets a value and triggers any associated events (ie any observers or resolver connected by "^")
 **PUT**:
-	imposta un valore, ma NON scatenare gli eventi associati
+	sets a value, but does not trigger the events associated
 **GET**:
-	legge il contenuto di un valore nel datastore.
+	reads the contents of a value in the datastore
 **FIRE**:
-	imposta un valore nel datastore, scatena gli eventi associati e poi reimposta il valore a nullo (senza scatenare eventi). Viene usato quando interessa più di tutti lo scatenare eventi passando un dato temporaneo agli observers.
+	sets a value in the datastore, and then triggers the events associated, and then resets the value to zero (without triggering events). It is used when you need to trigger events via a temporary parameter to the Observers.
 
-Queste operazioni possono essere specificate nel codice javascript degli eventi associati all'interfaccia, il framework gnrjs si occupa di fare l'espansione di queste macro. E' possibile accedere al datastore dal propri codice javascript (i.e. da codice scritto in file .JS e quindi letto senza l'espansione delle macro) utilizzando semplici funzioni javascript.
+These operations can be specified in the javascript events associated with an interface, the framework deals gnrjs to the expansion of these macros. It 'can be accessed from its datastore javascript code (ie from code written in .JS file and then read without macro-expansion) using simple javascript functions.
 
-Componenti utili (definiti come risorse)
+Useful components (defined as resources)
 ========================================
 
 includedViewBox:
-	lista di record, utile per implementare viste master/detail
+	list of records useful for implementing views master / detail
 
 recordDialog:
-	finestra popup di modifica di un singolo record. Di solito, utilizzata per la modifica dei record della includedViewBox.
+	popup window to edit a single record. Usually used for editing records includedViewBox.
 
-Studiare questi due componenti per maggiori informazioni su come definire componenti complessi tramite le risorse.
+Studying these two components for more information on how to define complex components using resources.
 
-Idea per un tool utile allo sviluppo in Genro
+Idea for a useful tool for development in Genro
 =============================================
 
-Estratte relazioni (leggendo gli observers) fra l'interfaccia ed il datastore e mostrarle in forma grafica con graphviz.
+Extracted relations (reading the Observer) between the interface and the datastore and display them in graphical form with graphviz.
 
-**NOTA:** è stato implementato in ``gnrdbgraph``.
+**NOTE:** has been implemented in ``gnrdbgraph``.
 
-Politica opensource della Softwell
+Opensource policies of Softwell
 ==================================
 
-* La shell (packages in ``gnr.*``) rimarrà sempre opensource.
-* In futuro, Softwell potrebbe decidere di continuare lo sviluppo delle risorse (``_resources``) come software chiuso.
+* The shell (packages in `` gnr .*``) will always remain open source.
+* In the future, Softwell could decide to continue the development of resources (``_resources`` ) as closed source software.
 
-Sicurezza nei files PDF
+Security in PDF files
 =======================
 
-Per leggere dati in locale o i parametri dell'URL, potrebbe essere necessario un certificato al fine di evitare il security alert (ma forse utilizzandolo da browser e caricando il PDF dal server, questo non è necessario).
+To read local data or parameters of the URL may need a certificate to avoid the security alert (but maybe used by browsers and upload the PDF from the server, this is not needed).
 
 Testgarden
 ==========
 
-Il progetto testgarden contiene demo per tutti gli widgets inclusi in genro. Può essere usato per le prove e per verificare di non rompere nulla.
+The project testgarden contains demos for all widgets included in the genre. Can be used for testing and verifying without breaking anything.
 
-**NOTA**: tuttavia non mi sembra che sia mantenuto attivamente e credo che sia già mezzo rotto allo stato attuale.
+**NOTE**: However, I do not think that is actively maintained, and I believe it is already half-broken at present.
 
 DOJO
 ====
 
-Genro utilizza Dojo_ versione 1.1, per la documentazione vedere anche il `Dojo Campus`_.
+Genro utilizza Dojo_ using version 1.1, see also documentation `Dojo Campus`_.
 
 .. _Dojo: http://www.dojotoolkit.org/
 .. _Dojo Campus: http://dojocampus.org/
 
-In Dojo, gli widget possono essere di due tipi: Container, ContentPanes.
+In Dojo, widgets can be of two types: Container, ContentPanes.
 
-* I Container possono contenere altri Containers o ContentPanes.
-* I ContentPanes possono contenere widgets o elementi HTML.
+* The container can contain other Containers or ContentPanes.
+* The ContentPanes can contain widgets or HTML elements.
 
-In pratica, seguono il pattern *Composite*.
+In practice, following the pattern *Composite*.
 
-Nelle versioni precedenti di Dojo, nel ``borderContainer`` era necessario specificare per ultimo l'oggetto inserito al centro. E' buona norma farlo anche ora, seppur non necessario, perché così si velocizza il caricamento della pagina (non si può calcolare l'occupazione dell'elemento centrale senza aver prima caricato e calcolato quella degli elementi ai bordi).
+In previous versions of Dojo, ``borderContainer`` was necessary to specify the center as last item inserted. It is better to do it now, though not necessary, because this speeds up page loading (you can calculate the occupation of the central without first loaded and calculated that the elements at the edges).
 
-Risorsa ``public``
+Resource ``public``
 ==================
 
-La risorsa ``public`` implementa gli elementi base dell'interfaccia in Genro.
+The resource ``public`` implements the basic elements of the interface Genro.
 
-Fornisce anche le classi CSS:
+It also provides CSS classes:
 
 pbl_RoundedGroup:
-	utilizzata per dividere la pagina in due gruppi logicamente separati.
+	used to divide the page into two logically separated areas.
 
 pbl_RoundedGroupLabel:
-	lavora con il precedente, per dare un titolo al gruppo.
+	to give a title to a group (a pbl_RoundedGroup).
 
-Questi elementi vengono spesso usati all'interno di borderContainers.
+These elements are often used within borderContainers.
 
-Eventi ed azioni
+Events and activities
 ================
 
-Ogni elemento d'intefaccia (widget o tag HTML) permette di agganciare eventi javascript utilizzando la sintassi ``connect_<nome evento>``.
-Esempio::
+Each interface element (widget or HTML tags) can attach javascript events using the syntax ``connect_<event_name>``.
+Example::
 
-	def divProva(self, parentContainer):
+	def divTest(self, parentContainer):
 		cp = parentContainer.contentPane(...)
-		cp.div(connect_onDoubleClick='codice JS')
+		cp.div(connect_onDoubleClick='JS code')
 
-Come convenzione, la sintassi ``connect_<nome evento>`` viene usata per gli eventi di Javascript o di DOJO, mentre la sintassi ``<evento>_action`` viene usata per gli eventi e le azioni di genropy.
+As convention, the syntax ``connect_<event_name>`` is used for events or JavaScript dojo, while the syntax ``<event>_action`` is used for events and actions genropy.
 
 includedView
 ============
 
-Le includedView sonoben documentate. Alcuni parametri come ``formPars`` e ``pickerPars`` sono però deprecati (ora esiste un altro modo per fare la stessa cosa.)
+The includedView is well documented. Some parameters such as ``formPars`` and ``pickerPars`` are deprecated but (now there is another way to do the same thing.)
 
 E' possibile specificare ``addAction=True`` e ``delAction=True`` per scatenare gli eventi standard (modifica del record in una recordDialog). In questo caso, i record vengono aggiornati nel datastore (i.e. vengono trattati come logicamente facenti parte del record della tabella master, e le modifiche verranno applicate al salvataggio del record master).
 
