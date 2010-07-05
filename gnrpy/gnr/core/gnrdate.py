@@ -524,7 +524,10 @@ class TimeInterval(object):
     
     @staticmethod
     def cmp(one, other):
-        """Compare two TimeIntervals. It is useful for the sorted() built-in.
+        """Compare two TimeIntervals.
+        
+        It guarantees total order (while the other TimeInterval's comparison operators do not), 
+        it's ideal for the ``sorted()`` builtin:
         
         >>> ti = TimeInterval('9:00-10:00')
         >>> tp = TimePeriod('8:00-12:00')
