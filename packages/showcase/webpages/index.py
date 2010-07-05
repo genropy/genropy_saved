@@ -26,12 +26,12 @@ class GnrCustomWebPage(object):
         buttons = center.contentPane(region='bottom',height='36px',_class='centerfooter').div(position='absolute',right='20px',top='2px')
         
         buttons.button('Page',action='SET stack_selected=0')
-        buttons.button('Source',action='SET stack_selected=1',disabled=False) #to do
-        buttons.button('Documentation',action='SET stack_selected=2',disabled=False) #to do
+        buttons.button('Source',action='SET stack_selected=1',disabled=False)
+        buttons.button('Documentation',action='SET stack_selected=2',disabled=False)
         
         sc = center.stackContainer(region='center',selected='^stack_selected')
         sc.contentPane(overflow='hidden').iframe(height='100%',width='100%',border='0',src='^iframe.selected_page')
-        sc.contentPane(overflow='auto',background_color='white').div(value='^demo.current.source')
+        sc.contentPane(overflow='auto',background_color='#ededed').div(value='^demo.current.source')
         self.docPane(sc)
         
     def pageController(self, root):

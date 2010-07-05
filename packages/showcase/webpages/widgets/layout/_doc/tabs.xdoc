@@ -1,0 +1,6 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<GenRoBag><description><introduction>In this sample we introduce a tabContainer with two childrens (pane containers): in the first tab there's the HTML's attribute called "tip" applied to the content pane, while in the second tab there's the Dojo's attribute called "tooltip" applied onto "dummy button". In the second tab there's an iconClass (CSS attribute). Last thing: with the attribute "selected" you can control on the debugger which table is chosen (on Mac press ctrl+shift+D to activate it).</introduction>
+<abstract>A TabContainer is a container that has multiple panes, but shows only one pane at a time. There are a set of tabs corresponding to each pane, where each tab has the title (aka label) of the pane, and optionally a close button. Tips and tooltips are window control objects used to add extra information in the form of descriptive text displayed in a pop-up window. Just hovering over the element pops up this extra information. The only difference between tip and tooltip is graphical.</abstract>
+<children>two paneContainer(s) [attribute: title, tip, tooltip, iconClass]</children>
+<params _T="NN"></params>
+<link>http://dojotoolkit.org/reference-guide/dijit/layout/TabContainer.html</link></description></GenRoBag>

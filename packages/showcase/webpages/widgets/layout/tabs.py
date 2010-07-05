@@ -1,24 +1,15 @@
 #!/usr/bin/env pythonw
 # -*- coding: UTF-8 -*-
 #
-#  untitled
-#
 #  Created by Giovanni Porcari on 2007-03-24.
 #  Copyright (c) 2007 Softwell. All rights reserved.
-#
 
 """ GnrDojo Hello World """
 import os
 
-
 class GnrCustomWebPage(object):
     def main(self, root, **kwargs):
-        tc = root.tabContainer(height='100%',nodeId='ppp',selected='^aux.selected')
-        tc.contentPane(title='one').button('jj',action='genro.test()')
-        tc.contentPane(title='two',url='border')
-        tc.contentPane(title='three',iconClass='icnBaseAction',tip='Action').button('pp',tooltip='aaa')
-        tc.contentPane(title='aaa',nodeId='panex')
-
-            
-                
-            
+        tc = root.tabContainer(selected='^selected.tab', margin='1em')
+        tc.contentPane(title='First tab', tip='I appear during cursor passage on content pane')
+        tc.contentPane(title='Second tab', iconClass='icnBaseAction').button('Dummy button (no action)',
+                       tooltip='I appear during cursor passage on the button')
