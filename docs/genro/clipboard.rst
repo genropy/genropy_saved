@@ -370,7 +370,7 @@ includedView
 
 The includedView is well documented. Some parameters such as ``formPars`` and ``pickerPars`` are deprecated but (now there is another way to do the same thing.)
 
-E' possibile specificare ``addAction=True`` e ``delAction=True`` per scatenare gli eventi standard (modifica del record in una recordDialog). In questo caso, i record vengono aggiornati nel datastore (i.e. vengono trattati come logicamente facenti parte del record della tabella master, e le modifiche verranno applicate al salvataggio del record master).
+The possible specifiers are ``addAction=True`` or ``delAction=True`` to unleash the standard events (modification of records in a recordDialog). In this case, the records are updated in the datastore (ie are treated as logically part of the record in the master table, and the changes will be applied to save the master record).
 
 Con il metodo ``iv.gridEditor()`` si possono definire gli widgets utilizzati per l'editing delle righe. (Gli widgets di gridEditor vengono riutilizzati, spostandoli nel DOM della pagina, man mano che ci si muove fra le righe.)
 
