@@ -390,11 +390,11 @@ class SqlTable(GnrObject):
                 return self.record(pkey = record, mode=mode)
         if mode=='pkey':
             # The record is either a dict or a bag, so it accepts indexing operations
-            return record[self.pkey]
+            return record.get('pkey', None) or record.get(self.pkey)
         if mode=='dict' and not isinstance(record, dict):
             return dict([(k, v) for k,v in record.items() if not k.startswith('@')])
         if mode=='bag' and not isinstance(record, Bag):
-            return self.record(pkey = record[self.pkey], mode=mode)
+            return self.record(pkey = record.get('pkey', None) or record.get(self.pkey), mode=mode)
         return record
             
         
