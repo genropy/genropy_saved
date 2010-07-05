@@ -508,7 +508,7 @@ class TimeInterval(object):
         return self.stop < other.start
     
     def __le__(self, other):
-        """Test if 'self' starts earlier than or when 'other' starts.
+        """Test if 'self' starts earlier than or when 'other' starts *and* 'self' ends earlier than or when 'other' ends.
         
         This is, test the following condition::
         
@@ -520,14 +520,25 @@ class TimeInterval(object):
                 other = TimeInterval(other)
             except ValueError:
                 return NotImplemented
-        return self.start <= other.start
+        return (self.start <= other.start) and (self.stop <= other.stop)
     
     @staticmethod
     def cmp(one, other):
         """Compare two TimeIntervals.
         
-        It guarantees total order (while the other TimeInterval's comparison operators do not), 
-        it's ideal for the ``sorted()`` builtin:
+        It guarantees total order (while the other TimeInterval's comparison operators do not).
+        """
+        if not isinstance(one, TimeInterval):
+            one = TimeInterval(one)
+        if not isinstance(other, TimeInterval):
+            other = TimeInterval(other)
+        return cmp(one.start,other.start) and cmp(one.stop,other.stop)
+    
+    @staticmethod
+    def sorted(iterable):
+        """Sort TimeIntervals.
+        
+        Guarantees total order.
         
         >>> ti = TimeInterval('9:00-10:00')
         >>> tp = TimePeriod('8:00-12:00')
@@ -535,14 +546,10 @@ class TimeInterval(object):
         >>> tp
         TimePeriod('8:00-9:00, 10:00-12:00')
         >>> lst = [ti] + tp.intervals
-        >>> map(str, sorted(lst,cmp=TimeInterval.cmp))
+        >>> TimeInterval.sorted(lst)
         ['8:00-9:00', '9:00-10:00', '10:00-12:00']
         """
-        if not isinstance(one, TimeInterval):
-            one = TimeInterval(one)
-        if not isinstance(other, TimeInterval):
-            other = TimeInterval(other)
-        return cmp(one.start,other.start) and cmp(one.stop,other.stop)
+        return sorted(iterable,cmp=TimeInterval.cmp)
     
     
     def __contains__(self, other):

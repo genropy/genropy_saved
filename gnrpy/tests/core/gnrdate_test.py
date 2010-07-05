@@ -348,6 +348,14 @@ def test_TimeInterval_overlaps():
     t = ti('8:00-10:00')
     assert t.overlaps(t) == ti.FULLY_CONTAINS
 
+def test_TimeInterval_sorted():
+    ti = gnrdate.TimeInterval('9:00-10:00')
+    tp = gnrdate.TimePeriod('8:00-12:00')
+    tp.remove(ti)
+    assert tp == gnrdate.TimePeriod('8:00-9:00, 10:00-12:00')
+    lst = [ti] + tp.intervals
+    assert gnrdate.TimeInterval.sorted(lst) == ['8:00-9:00', '9:00-10:00', '10:00-12:00']    
+
 def test_TimePeriod():
     p = gnrdate.TimePeriod('8:30-10:30', '9:30-11:00')
     assert p.intervals == [gnrdate.TimeInterval('8:30-11:00')]
