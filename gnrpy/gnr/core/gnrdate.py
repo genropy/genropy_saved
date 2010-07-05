@@ -487,6 +487,26 @@ class TimeInterval(object):
                 return NotImplemented
         return self.start <= other.start
     
+    @staticmethod
+    def cmp(one, other):
+        """Compare two TimeIntervals. It is useful for the sorted() built-in.
+        
+        >>> ti = TimeInterval('9:00-10:00')
+        >>> tp = TimePeriod('8:00-12:00')
+        >>> tp.remove(ti)
+        >>> tp
+        TimePeriod('8:00-9:00, 10:00-12:00')
+        >>> lst = [ti] + tp.intervals
+        >>> map(str, sorted(lst,cmp=TimeInterval.cmp))
+        ['8:00-9:00', '9:00-10:00', '10:00-12:00']
+        """
+        if not isinstance(one, TimeInterval):
+            one = TimeInterval(one)
+        if not isinstance(other, TimeInterval):
+            other = TimeInterval(other)
+        return cmp(one.start,other.start) and cmp(one.stop,other.stop)
+    
+    
     def __contains__(self, other):
         """Test if 'other' overlaps with us."""
         if not isinstance(other, TimeInterval):
