@@ -527,6 +527,21 @@ class TimeInterval(object):
             else:
                 return TimeInterval.FULLY_CONTAINED
     
+    @property
+    def minutes(self):
+        """The duration of this TimeInterval in minutes from the start.
+        
+        :returns: int
+        """
+        return (self.stop.hour*60+self.stop.minute) - (self.start.hour*60+self.start.minute)
+    
+    @minutes.setter
+    def minutes(self, value):
+        mins = self.start.hour*60+self.start.minute+value
+        hours = mins / 60
+        mins = mins % 60
+        self.stop = datetime.time(hours,mins)
+    
 class TimePeriod(object):
     """A non-overlapping set of TimeIntervals.
     

@@ -323,7 +323,14 @@ def test_TimeInterval_operators():
     assert ti('8:30-10:30') in ti('10:00-12:00')
     assert ti('8:30-10:30') not in ti('11:00-12:00')
     assert ti('8:30-9:30') in ti('8:00-12:00')
-    
+
+def test_TimeInterval_minutes():
+    ti = gnrdate.TimeInterval
+    i = ti('8:30-9:30')
+    assert i.minutes == 60
+    i.minutes = 30
+    assert ti('8:30-9:00') == i
+
 def test_TimeInterval_overlaps():
     ti = gnrdate.TimeInterval
     assert ti('8:00-10:00').overlaps(ti('14:00-16:00')) == ti.NO_OVERLAP
