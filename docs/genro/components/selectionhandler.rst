@@ -4,7 +4,7 @@ Selection Handler
 
 .. method:: selectionHandler(self, bc, nodeId, table, datapath, struct, label, selectionPars, dialogPars, ...)
 
-    Un componente che mostra records in una griglia e ne consente la modifica tramite una finestra di dialogo.
+    A component that displays records in a grid and allows for modification via a dialog.
 
     :param bc:          borderContainer -- parent
     :param nodeId:      string
@@ -45,37 +45,37 @@ Selection Handler
 
 Datastore
 *********
-Relativi al ``datapath``.
+Relative to the ``datapath``.
 
 ``.reload``
-    usare FIRE per ricaricare i dati dal server
+    Use FIRE to reload data from the server (internally uses FIRE to reload data from the server?? #JBE)
 
 ``.status.locked``
-    stato del lucchetto (vedi anche parametro ``parentLock``)
+    state of the lock (see parameter ``parentLock`` )
 
 ``.selection``
-    selezione corrente, le varie righe della griglia
+    current selection, the various rows of the grid
 
 ``.dlg``
-    I dati relativi al ``recordDialog``
+    data for the ``recordDialog``
 
 ``.dlg.record``
-    il record corrente
+    the current record
 
 ``.selectedId``
-    elemento selezionato correntemente. Negli attributi ha tutte le colonne del record corrente (è possibile passare ``hiddenColumns`` a ``selectionhandler()`` per aggiungere altre colonne).
+    currently selected item. Has all the attributes in the columns of the current record (you can switch to ``hiddenColumns`` ``selectionhandler ()`` to add other columns).
 
 ``.struct``
-    Struttura della griglia. Può essere cambiata a run-time per aggiungere, togliere o modificare colonne.
+    Structure of the grid. Can be changed at run-time to add, remove or edit columns.
 
 ``.can_add`` e ``.can_del``
-    flag booleani (trattare come sola lettura, leggere il codice del component per vedere come modificarli).
+    Boolean flag (treat as read-only, read the code of the component to see how to edit).
 
-Nomi
+Names
 ****
 
-Dato un ``nodeId`` uguale a ``foo``, i vari componenti vengono nominati nel modo seguente:
+Given a ``NodeID`` equal to ``foo``, the various components are named as follows:
 
-    * ``foo_frm`` per la form
-    * ``foo_dlg`` nodeId della finestra di dialogo
+    * ``foo_frm`` for the form
+    * ``foo_dlg`` nodeId of the dialog box
 
