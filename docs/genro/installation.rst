@@ -35,7 +35,8 @@ To install *paver*::
 How to obtain GenroPy
 =====================
 
-Genropy is in a subversion repository.  If you use git then you can track local changes.  To obtain genropy, type::
+Genropy is in a subversion repository.  If you use git then you can
+track local changes. To obtain genropy, type::
 
     svn co http://svn.genropy.org/genro/trunk genro
 
@@ -63,7 +64,7 @@ GenroPy using the ``.gnr`` configuration::
 Edit ``environment.xml``, ``siteconfig/default.xml`` and ``instanceconfig/default.xml`` as needed.
 
 Project Examples
-=======================
+================
 
 GenroPy includes some test projects:
 

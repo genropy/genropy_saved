@@ -1,24 +1,24 @@
-===================================================
-:mod:`gnr.core.gnrbag` e correlati -- Bags e Struct
-===================================================
+===========================================================
+:mod:`gnr.core.gnrbag` and related stuff -- Bags and Struct
+===========================================================
 
 Bags
 ****
 
 .. automodule:: gnr.core.gnrbag
 	:members:
-	:synopsis: la struttura dati fondamentale su cui si basa tutto GenroPy
+	:synopsis: the foundamental data structure in GenroPy
 
 XML
 ***
 
 .. automodule:: gnr.core.gnrbagxml
 	:members:
-	:synopsis: strumenti per la serializzazione di Bags da e verso il formato XML
+	:synopsis: Bag serialization to and from XML
 
 Structures
 **********
 
 .. automodule:: gnr.core.gnrstructures
 	:members:
-	:synopsis: fornisce una sintassi alternativa per costruire bags nel codice Python
+	:synopsis: Structs -- an alternative attribute-oriented way to build Bags

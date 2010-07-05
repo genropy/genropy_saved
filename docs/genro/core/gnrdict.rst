@@ -1,5 +1,5 @@
-:mod:`gnr.core.gnrdict` -- Dizionari
-************************************
+:mod:`gnr.core.gnrdict` -- Dictionaries
+***************************************
 	
 .. automodule:: gnr.core.gnrdict
 	:members:

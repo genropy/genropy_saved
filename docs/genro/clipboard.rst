@@ -1,9 +1,9 @@
-*************************
+***********************************
  Miscellaneous notes about GenroPy
-*************************
+***********************************
 
 Construction of Bags
-======================
+====================
 
 There are several ways to build bags in genropy:
 
@@ -13,7 +13,7 @@ There are several ways to build bags in genropy:
 
 
 Mapping models the database structure
-=============================================
+=====================================
 
 In GenroPy, the transition from model classes to the database is in this way:
 
@@ -22,7 +22,7 @@ In GenroPy, the transition from model classes to the database is in this way:
 3. Genro script ``gnrdbsetup <project>`` compares these objects with the database structure and performs any updates required.
 
 Site, Instance, Packages and Components
-====================================
+=======================================
 
 GenroPy applications are divided into several layers, allowing customisation (ensuring an easy upgrade even with customisation) and reuse of code and resources among various projects.
 
@@ -53,7 +53,7 @@ Components and Resource:
 
 
 Mixin classes at runtime
-****************************
+************************
 
 GenroPy's application class builds *mixin* classes at runtime. The methods and resources (CSS, JS, and Python components) are aggregated at runtime according to specific rules that allow you to customize the behaviour for a single install and maintain these customizations, with minimal impact, even for future updates.
 
@@ -64,7 +64,7 @@ It can perform the mixin of the interface (webpages, components, CSS, JS, etc.) 
 **TODO:** See the wiki site http://projects.softwell.it/ the page *Customization* for an explanation of the rules of mixin and customization of applications.
 
 GenroPy web operations
-============================
+======================
 
 In the construction of the pages, GenroPy first loads the browser (client) with its JavaScript engine (the Genro engine). The the JS engine immediately requests the server to build the recipe for the DOM.  This recipe is returned to the client in a bag.   This is the page description and content of the original datastore form of bags. At this point, the JS can make calls to the python code to further build the page.
 
@@ -111,7 +111,7 @@ GenroPy Beaker_ using middleware for session management and weberror management 
 For an example of middleware, see ``gnrpy/gnr/web/gzipmiddleware.py `` (the script does not work currently Genro, but for other reasons, Michele Bertoldi indicates that it is working)). The file ``root.py`` within the site directory of the genro project (WSGI application) is where is is defined.
 
 Apache WSGI
-*************
+***********
 
 To use WSGI with apache, you must install the module and configure ``mod_wsgi``::
 
@@ -133,7 +133,7 @@ To use WSGI with apache, you must install the module and configure ``mod_wsgi``:
 	</VirtualHost>
 
 Additional data types, not in the TextMate bundle
-=========================================================
+=================================================
 
 Tipo ``DH``:
 	TimeStamp
@@ -169,7 +169,7 @@ Page objects can access the various application components using Genro instance 
 * ``self.site`` (es. ``self.site.config``)
 
 Table Objects
-===============
+=============
 
 The table objects are accessible from pages ``self.db.table('package.table')``. The method ``query `` returns an object of type table. This object representing a table from the db may be configured according to the specified parameters.  The query on the db is not performed, until a further method is called. The methods that can be used include ``selection`` and variants of the ``fetch`` method to return data as list, dictionary, iterator or bag.
 
@@ -205,7 +205,7 @@ The selections have methods to make totals or statistical analysis (averages, su
 See also ``gnr.gnrsql.gnrsqldata`` for information on selection/query/record.
 
 Useful Tools
-===========
+============
 
 BonjourFoxy:
 	Firefox plugins to see the websites registered in the local network with Bonjour (useful in development)
@@ -237,7 +237,7 @@ You can create a bag with data from:
 The power of bags lies in the concept of a resolver. They are a callable with a cache time, so they are lazy. They promise to return a bag. The resolver can cache the returned bag or provide new data for each call.
 
 Interesting video on the design of web frameworks
-==========================================================
+=================================================
 
 Djangocon 2008, `Building a better framework`_
 
@@ -249,14 +249,14 @@ DOJO
 The documentation is available as an AIR application DOJO (search DOJO * Toolbox *), but not kept up to date. Currently Genro using version 1.1 of the Dojo (and now we are at 1.4).
 
 The datastore and the Javascript code of Genro
-============================================
+==============================================
 
 Through various commands python, you can attach the javascript code to the events of the components interface or events generated by the datastore
 
 The datastore is a Genro bag.
 
 Syntax for datapath
-***********************
+*******************
 
 The path followed by the syntax in the datastore:
 
@@ -270,7 +270,7 @@ The path indicates the access path to data to virtually every element of the dat
 * equal: ``=accessed.from.resolver``, reads the contents of the datastore.
 
 Access to the datastore from javascript
-**********************************
+***************************************
 
 The possible operations on the datastore include:
 
@@ -297,20 +297,20 @@ recordDialog:
 Studying these two components for more information on how to define complex components using resources.
 
 Idea for a useful tool for development in Genro
-=============================================
+===============================================
 
 Extracted relations (reading the Observer) between the interface and the datastore and display them in graphical form with graphviz.
 
 **NOTE:** has been implemented in ``gnrdbgraph``.
 
 Opensource policies of Softwell
-==================================
+===============================
 
 * The shell (packages in `` gnr .*``) will always remain open source.
 * In the future, Softwell could decide to continue the development of resources (``_resources`` ) as closed source software.
 
 Security in PDF files
-=======================
+=====================
 
 To read local data or parameters of the URL may need a certificate to avoid the security alert (but maybe used by browsers and upload the PDF from the server, this is not needed).
 
@@ -339,7 +339,7 @@ In practice, following the pattern *Composite*.
 In previous versions of Dojo, ``borderContainer`` was necessary to specify the center as last item inserted. It is better to do it now, though not necessary, because this speeds up page loading (you can calculate the occupation of the central without first loaded and calculated that the elements at the edges).
 
 Resource ``public``
-==================
+===================
 
 The resource ``public`` implements the basic elements of the interface Genro.
 
@@ -354,7 +354,7 @@ pbl_RoundedGroupLabel:
 These elements are often used within borderContainers.
 
 Events and activities
-================
+=====================
 
 Each interface element (widget or HTML tags) can attach javascript events using the syntax ``connect_<event_name>``.
 Example::

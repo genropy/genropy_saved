@@ -1,23 +1,23 @@
 Logging in GenroPy
 ==================
 
-**NOTA:** questa funzione è in fase d'implementazione.
+**NOTA:** This function is being implemented, it is not yet available.
 
 Logging in Python
 *****************
 
-Per scrivere nel log, importare il modulo :mod:`logging`::
+To write in the log, you have to import the :mod:`logging` module::
 
     import logging
 
-Ottenere il logger che interessa::
+And obtain the logger you're interesed in::
 
-    log = logging.getLogger('gnr.core.gnrdate') # siamo nel modulo gnrdate
+    log = logging.getLogger('gnr.core.gnrdate') # we're in gnr.core.gnrdate
     log.warn('messaggio')
 
 
-Configurazione in envinronment, site_config o instance_config
-*************************************************************
+Configurting logging in GenroPy
+*******************************
 
 Formato::
 

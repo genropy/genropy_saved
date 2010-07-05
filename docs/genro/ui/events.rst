@@ -2,7 +2,7 @@ Events
 ======
 
 Load record
-**********************
+***********
 
 .. method:: page.onLoading(self, record, newrecord, loadingParameters, recInfo)
 .. method:: page.onLoading_package_table(self, record, newrecord, loadingParameters, recInfo)

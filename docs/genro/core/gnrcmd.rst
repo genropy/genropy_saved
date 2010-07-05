@@ -1,17 +1,17 @@
-####################################################################
-:mod:`gnr.core.gnrcmd` -- Strumenti per costruire command-line tools
-####################################################################
+###########################################################
+:mod:`gnr.core.gnrcmd` -- Tools to build command-line tools
+###########################################################
 
 .. automodule:: gnr.core.gnrcmd
 
 Autodiscovery
 *************
 
-E' uno strumento per avere informazioni sui progetti, istanze, siti, packages
-e comandi disponibili nell'ambiente run-time di GenroPy.
+It is a tool to gather information about projects, instances, sites,
+packages and commands available in a given GenroPy installation.
 
-I risultati sono sensibili alla cartella corrente, rendendo semplice scrivere
-intuitivi strumenti per l'esecuzione da linea di comando.
+It tries to guess the current project, instance, site and package
+based on the current working directory.
 
 .. autoclass:: AutoDiscovery
 	:members:

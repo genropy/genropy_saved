@@ -1,8 +1,8 @@
 **TODO:** Need to rewrite and re-organise this page.
 
-################
+###################
 Posters and Reports
-################
+###################
 
 In GenroPy, le stampe sono gestite come *resource script* delle tabelle. In questo modo possono essere facilmente personalizzate per ogni installazione.
 

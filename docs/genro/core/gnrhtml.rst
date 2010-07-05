@@ -1,5 +1,5 @@
-:mod:`gnr.core.gnrhtml` -- Generazione di pagine lato server (es. stampe e reports)
-***********************************************************************************
+:mod:`gnr.core.gnrhtml` -- Server-side HTML generations (web pages and printable reports)
+*****************************************************************************************
 
 In GenroPy le pagine vengono generalmente costruite lato client: la struttura della pagina viene trasferita come |Bag| e poi la parte Javascript del framework si occupa di costruire il DOM ed i widgets necessari. In questo modo è possibile modificare completamente la pagina semplicemente alterando la |Bag| che la descrive.
 
