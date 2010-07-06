@@ -41,16 +41,13 @@ class NotExistingTableError(Exception):
 class DbModel(object):
     def __init__(self,db):
         #self._db = weakref.ref(db)
-        self._db = db
+        self.db = db
         self.src = DbModelSrc.makeRoot()
         self.obj = None
         self.relations = Bag()
         self._columnsWithRelations = {}
         self.mixins = Bag()
         
-    def _get_db(self):
-        return self._db
-    db = property(_get_db)
     
     def build(self):
         """Db startup operations:
