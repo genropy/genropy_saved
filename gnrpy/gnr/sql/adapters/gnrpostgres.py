@@ -201,6 +201,20 @@ class SqlDbAdapter(SqlDbBaseAdapter):
             raise GnrNonExistingDbException(self.dbroot.dbname)
         return [r[0] for r in result]
     
+    def dbExists(self,dbname):
+        conn = self._managerConnection()
+        curs = conn.cursor()
+        curs.execute(self._list_databases())
+        dbnames=[dbn[0] for dbn in curs.fetchall()]
+        curs.close()
+        conn.close()
+        curs = None
+        conn = None
+        return dbname in dbnames
+        
+    def _list_databases(self):
+        return 'SELECT datname FROM pg_catalog.pg_database;'
+    
     def _list_schemata(self):
         return """SELECT schema_name FROM information_schema.schemata 
               WHERE schema_name != 'information_schema' AND schema_name NOT LIKE 'pg_%%'"""

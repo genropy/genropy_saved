@@ -501,6 +501,23 @@ class DbStoresHandler(object):
     def add_dbstore_config(self, storename, dbname=None, host=None, user=None, password=None, port=None):
         self.config.setItem('%s_xml.db' %storename,None,dbname=dbname,host=host,user=user,password=password,port=port)
     
+    def dbstore_check(self, storename, verbose=False):
+        """checks if dbstore exists and needs to be aligned"""
+        self.db.use_store(storename)
+        changes = self.db.model.check()
+        if changes and not verbose:
+            return False
+        elif changes and verbose:
+            return changes
+        else: #not changes
+            return True
+            
+    def dbstore_align(self, storename,changes=None):
+        self.db.use_store(storename)
+        changes = changes or self.db.model.check()
+        if changes:
+            self.db.model.applyModelChanges()
+
 if __name__=='__main__':
     pass
     
