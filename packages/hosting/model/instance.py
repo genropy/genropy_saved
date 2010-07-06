@@ -35,23 +35,25 @@ class Table(object):
         sm.do()
         return sm.site_path
 
-    def build_apache_site(self, instance_code, apache_path='/etc/apache/sites-available/',process_name=None,user='genro',
+    def build_apache_site(self, instance_code, apache_path='/etc/apache2/sites-available/',process_name=None,user='genro',
                     group='genro', tmp_path='/tmp', threads=25,
-                    admin_mail='webmaster@localhost', port=80,
+                    admin_mail=None, port=80, domain=None,
                     processes=1, base_url='/', sudo_password=None):
         params=dict(process_name=process_name or 'gnr_%s'%instance_code,
+                    domain='%s.%s'%(instance_code,domain),
                     user=user,
                     group=group,
                     tmp_path=tmp_path or '/tmp',
                     threads=str(threads),
                     processes=str(processes),
                     base_url=base_url,
+                    admin_mail=admin_mail or 'genro@%s'%domain,
                     site_path=self.pkg.site_folder(instance_code),
                     port=str(port)
                     )
         params['process_env']='ENV_%s'%params['process_name'].upper()
         apache_file_content="""<VirtualHost *:80>
-                ServerName  %(domain)s
+                ServerName %(domain)s
                 ServerAdmin %(admin_mail)s
                 DocumentRoot /var/www
                 WSGIDaemonProcess %(process_name)s user=%(user)s group=%(group)s python-eggs=%(tmp_path)s threads=%(threads)s processes=%(processes)s
@@ -83,6 +85,7 @@ class Table(object):
     def trigger_onInserting(self, record_data):
         self.create_instance(record_data['code'])
         self.create_site(record_data['code'])
+        self.build_apache_site(record_data['code'],domain=self.db.application.config['hosting?domain'], sudo_password=self.db.application.config['hosting?sudo_password'])
         self.pkg.db_setup(record_data['code'])
         for pkg in self.db.application.packages.values():
             if hasattr(pkg,'onInstanceCreated'):
