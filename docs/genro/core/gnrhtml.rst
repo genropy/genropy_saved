@@ -5,7 +5,7 @@ In GenroPy le pagine vengono generalmente costruite lato client: la struttura de
 
 E' però possibile costruire completamente la pagina lato server. Risulta utile per far indicizzare le pagine dai motori di ricerca e, soprattutto, per implementare :doc:`/print/index`.
 
-E' ancora possibile utilizzare nelle pagine costruite lato server gli widgets di Dojo, ma in modalità nativa e senza le estenzioni di GenroPy (e.g. le ``dbselect`` non funzionano).
+E' ancora possibile utilizzare nelle pagine costruite lato server i widgets di Dojo, ma in modalità nativa e senza le estensioni di GenroPy (e.g. le ``dbselect`` non funzionano).
 
 .. automodule:: gnr.core.gnrhtml
 	:members:
