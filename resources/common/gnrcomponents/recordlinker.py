@@ -25,10 +25,18 @@ from gnr.web.gnrwebpage import BaseComponent
 
 class RecordLinker(BaseComponent):
     py_requires="foundation/recorddialog"
-    def recordLinker(self,fb,table=None,field=None,dialogPars=None,record_template=None,record_path=None,lbl=None,
+    def recordLinker(self,*args,**kwargs):
+        print 'deprecated'
+        self.linkerCell(*args,**kwargs)        
+    
+    def linkerCell(self,fb,table=None,field=None,dialogPars=None,record_template=None,record_path=None,lbl=None,
                     value=None,width=None,height=None,colspan=1,rowspan=1,disabled=False,
                     default_path=None, record_reloader=None,**kwargs):
-        """docstring for recordLinker"""
+        """create a cell inside a formbuilder that contains a dbselect for setting an ID,
+           a formatted div for viewing a preview of the selected record, one botton for editing
+           the selected record, one for adding a new one.
+           
+        """
         assert 'dlgId' in dialogPars, 'this param is mandatory'
         selectorBox = fb.div(lbl=lbl,lbl_vertical_align='top',
                             min_height=height,width=width,colspan=colspan,
@@ -42,7 +50,6 @@ class RecordLinker(BaseComponent):
                                         left='0px',top='0px',width='100%',disabled=disabled,**kwargs)
             fieldrelpath = value[1:]
         
-            
         selector.button('!!Add',position='absolute',right='2px',z_index='100',iconClass='icnBaseAdd',
                         baseClass='no_background', showLabel=False,disabled=disabled,
                         connect_onclick='FIRE #%s.pkey;' %dialogPars['dlgId'],top='-2px')
@@ -72,5 +79,10 @@ class RecordLinker(BaseComponent):
         self.recordDialog(table,firedPkey='^#%s.pkey' %dialogPars['dlgId'],
                          onSaved='FIRE #%s.recordSaved; %s' %(dialogPars['dlgId'],onSaved),
                          savePath='#%s.savedId' %dialogPars['dlgId'],**dialogPars)
-
+    
+    def linkerPane(self,parent,table=None,field=None,dialogPars=None,record_template=None,record_path=None,label=None,
+                    value=None,width=None,height=None,colspan=1,rowspan=1,disabled=False,
+                    default_path=None, record_reloader=None,**kwargs):
+        pane = parent.contentPane(**kwargs)
+        pass
     

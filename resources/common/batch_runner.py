@@ -80,7 +80,7 @@ class BatchRunner(BaseComponent):
             bottom='4px', left='4px').includedView(storepath='%s.errors' % resultpath, struct=struct)
             
     def rpc_runBatch(self, table, selectionName=None,selectionFilterCb=None,recordId=None ,batch_class=None, 
-                    selectedRowidx=None, forUpdate=False, commitAfterPrint=None, data_method=None, **kwargs):
+                   selectedRowidx=None, forUpdate=False, commitAfterPrint=None, data_method=None, **kwargs):
         """batchFactory: name of the Class, plugin of table, which executes the batch action
             thermoId:
             thermofield: the field of the main table to use for thermo display or * for record caption

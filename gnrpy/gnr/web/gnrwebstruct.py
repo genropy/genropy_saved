@@ -258,6 +258,10 @@ class GnrDomSrc(GnrStructData):
     
     def styleSheet(self,cssText=None,cssTitle=None,href=None):
         self.child('stylesheet',name=None,content=cssText,href=href,cssTitle=cssTitle)
+    
+    def cssrule(self,selector=None,**kwargs):
+        selector_replaced = selector.replace('.','_').replace('#','_').replace(' ','_')
+        self.child('cssrule',name=selector_replaced,selector=selector,**kwargs)
 
     def macro(self,name='',source='',**kwargs):
         return self.child('macro',name=name,content=source,**kwargs)

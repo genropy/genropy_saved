@@ -22,6 +22,7 @@ class Table(object):
 
     def create_instance(self, code):
         instanceconfig=Bag(self.pkg.instance_template())
+        instanceconfig.setAttr('hosted',instance=code)
         instanceconfig.setAttr('db',dbname=code)
         base_path=os.path.dirname(self.pkg.instance_folder(code))
         im=InstanceMaker(code, base_path=base_path, config=instanceconfig)

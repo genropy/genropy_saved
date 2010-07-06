@@ -177,8 +177,10 @@ class Public(BaseComponent):
         left = top.contentPane(region='left',width='250px')
         top.data('_clientCtx.mainBC.left?show',self.pageOptions.get('openMenu',True))
         menubtn = left.div(_class='pbl_menu_icon buttonIcon', float='left',
-                            connect_onclick="""SET _clientCtx.mainBC.left?show = !GET _clientCtx.mainBC.left?show;
-                            """)
+                            connect_onclick=""" var newStatus = !GET _clientCtx.mainBC.left?show
+                                                SET _clientCtx.mainBC.left?show = newStatus;
+                                                genro.publish('pbl_mainMenuStatus',newStatus);""",
+                            subscribe_pbl_mainMenu='SET _clientCtx.mainBC.left?show=$1;')
         self.pbl_topBarLeft(left)
         right = top.contentPane(region='right', width='250px', padding_top='5px', padding_right='8px')
         right.div(connect_onclick='genro.pageBack()', _class='goback',tooltip='!!Torna alla pagina precedente')

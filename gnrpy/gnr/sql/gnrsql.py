@@ -452,7 +452,7 @@ class TempEnv(object):
     def __init__(self,db,**kwargs):
         self.db=db
         self.kwargs=kwargs
-
+        
     def __enter__(self):
         currentEnv=self.db.currentEnv
         self.savedEnv=dict(currentEnv)
@@ -487,36 +487,50 @@ class DbStoresHandler(object):
             dbstore_config.toXml(os.path.join(self.config_folder,'%s.xml'%name),autocreate=True)
 
     def create_stores(self):
-        for name,parameters in self.config.digest('#a.file_name,#v.#0?#'):
-            self.add_store(name,**parameters)
+        for name in self.config.digest('#a.file_name'):
+            print name
+            self.add_store(name)
+            
 
-    def add_store(self,storename, dbname=None, host=None, user=None, password=None, port=None):
-        self.dbstores[storename]=dict(database=dbname or storename,
-                            host=host or self.host,user=user or self.user,
-                            password=password or self.password,port=port or self.port)
+    def add_store(self,storename,check=False):
+        attr = self.config.getAttr('%s_xml.db' %storename)
+        self.dbstores[storename]=dict(database=attr.get('dbname',storename),
+                            host=attr.get('host',self.db.host),user=attr.get('user', self.db.user),
+                            password=attr.get('password',self.db.password),port=attr.get('port', self.db.port))
+        if check:
+            self.dbstore_align(storename)
                                 
     def drop_dbstore_config(self,storename):
         self.config.pop('%s_xml' %storename)
 
-    def add_dbstore_config(self, storename, dbname=None, host=None, user=None, password=None, port=None):
+    def add_dbstore_config(self, storename, dbname=None, host=None, user=None, password=None, port=None,save=True):
+        self.config.setItem('%s_xml' %storename,None,file_name=storename)
         self.config.setItem('%s_xml.db' %storename,None,dbname=dbname,host=host,user=user,password=password,port=port)
+        if save:
+            self.save_config()
+            self.load_config()
+            self.add_store(storename,check=True)
     
     def dbstore_check(self, storename, verbose=False):
         """checks if dbstore exists and needs to be aligned"""
-        self.db.use_store(storename)
-        changes = self.db.model.check()
-        if changes and not verbose:
-            return False
-        elif changes and verbose:
-            return changes
-        else: #not changes
-            return True
+        with self.db.tempEnv(storename=storename): 
+            self.db.use_store(storename)
+            changes = self.db.model.check()
+            if changes and not verbose:
+                return False
+            elif changes and verbose:
+                return changes
+            else: #not changes
+                return True
             
     def dbstore_align(self, storename,changes=None):
-        self.db.use_store(storename)
-        changes = changes or self.db.model.check()
-        if changes:
-            self.db.model.applyModelChanges()
+        with self.db.tempEnv(storename=storename): 
+            self.db.use_store(storename)
+            changes = changes or self.db.model.check()
+            if changes:
+                self.db.model.applyModelChanges()
+            self.db.use_store('_main_db')
+            
 
 if __name__=='__main__':
     pass

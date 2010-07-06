@@ -80,4 +80,5 @@ class Package(GnrDboPackage):
                 app.db.use_store(storename)
 
 class Table(GnrDboTable):
-    pass
+    def use_dbstores(self):
+        return True

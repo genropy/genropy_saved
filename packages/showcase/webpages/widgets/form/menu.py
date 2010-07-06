@@ -14,7 +14,7 @@ import datetime
 from gnr.core.gnrbag import Bag, DirectoryResolver
 
 class GnrCustomWebPage(object):
-    def main(self,root):
+    def main_(self,root):
         root.css('.colorpalettemenu .dijitMenuItemHover','background-color:transparent;')
         root.css('.colorpalettemenu .dijitMenuItem td','padding:0;')
         root.css('.colorpalettemenu .dijitMenuItemIcon','display:none;')
@@ -31,9 +31,9 @@ class GnrCustomWebPage(object):
         root.div(width='20px',height='20px',border='1px solid gray',background_color='^.color',connectedMenu='colorPalettemenu',datapath='c3')
         root.div(width='20px',height='20px',border='1px solid gray',background_color='^.color',connectedMenu='colorPalettemenu',datapath='c4')
         tb=root.textbox(background_color='^pippo',color='^pluto',nodeId='pier')
-        self.colorPaletteMenu('pier','pippo')
+       # self.colorPaletteMenu('pier','pippo')
         
-    def main_(self,root):
+    def main(self,root):
         root.data('values.states', self.tableData_states())
         fb = root.formbuilder(cols=1, border_spacing='4px')
         x = fb.div(height='30px',width='50px',background='lime')

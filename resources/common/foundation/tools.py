@@ -44,10 +44,52 @@ class RemoteBuilder(BaseComponent):
         
             
 class CSSHandler(BaseComponent):
-    def onMain_csshandler(self):
-        self.pageSource().dataController("""
-            var cssbag =  genro.dom.styleSheetsToBag();
-            genro.setData('gnr.stylesheet',cssbag);
-            cssbag.setBackRef();
-            cssbag.subscribe('styleTrigger',{'any':dojo.hitch(genro.dom, "styleTrigger")});
-        """,_onStart=True)
+    def cssh_main(self,pane,storepath):
+       #pane.dataController("""
+       #    var cssbag =  genro.dom.styleSheetsToBag();
+       #    genro.setData('gnr.stylesheet',cssbag);
+       #    cssbag.setBackRef();
+       #    cssbag.subscribe('styleTrigger',{'any':dojo.hitch(genro.dom, "styleTrigger")});
+       #""",_onStart=True)
+        pane.dataController("""var kw = $2.kw;
+                            if(kw.reason){
+                                genro.dom.styleSheetBagSetter($1.getValue(),kw.reason.attr);                                   
+                            }
+                            """,_fired="^%s" %storepath)
+                            
+        pane.dataController("""
+           var cssbag =  genro.dom.styleSheetsToBag();
+           genro.setData('gnr.stylesheet',cssbag);
+           var storeTrigger = function(){
+               console.log(arguments);
+           };
+           cssbag.setBackRef();
+           cssbag.subscribe('styleTrigger',{'any':dojo.hitch(genro.dom, "styleTrigger")});
+           store.subscribe('storeTrigger',{'any':storeTrigger});
+           """,_onStart=True,store='=%s' %storepath)    
+        self._cssh_colorPaletteMenu(pane)
+    
+    def _cssh_colorPaletteMenu(self,pane):
+        menuitem= pane.div().menu(modifiers='*',id='cssh_colorPaletteMenu',_class='colorPaletteMenu',
+                            connect_onOpen="""
+                                            var connectedNode = this.widget.originalContextTarget.sourceNode;
+                                            var paletteNode = genro.nodeById('cssh_colorPalette');
+                                            objectExtract(paletteNode.attr,'_set_*'); 
+                                            for (var attr in connectedNode.attr){
+                                                if(stringStartsWith(attr,'_set_')){
+                                                    paletteNode.attr[attr] = connectedNode.attr[attr];
+                                                }
+                                            }
+                                            var path = connectedNode.absDatapath();
+                                            SET _temp.csshcolor=path;
+                                             """,
+                        ).menuItem(datapath='^_temp.csshcolor')
+        menuitem.colorPalette(value='^.color',nodeId='cssh_colorPalette',connect_ondblclick='dijit.byId("cssh_colorPaletteMenu").onCancel();')
+
+    def cssh_colorSample(self,parent,selector=None,cssproperty=None,**kwargs):
+        kwargs['width'] = '12px'
+        if 'value' in kwargs:
+            kwargs['width'] = '8em'
+        kwargs['_set_%s' %cssproperty] = '%s:"#"' %selector
+        parent.div(border='1px solid black',
+            height='12px',connectedMenu='cssh_colorPaletteMenu',**kwargs)

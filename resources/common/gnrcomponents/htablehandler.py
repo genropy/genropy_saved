@@ -335,3 +335,21 @@ class HTableResolver(BagResolver):
                              pkey=row['pkey'],code=row['code'],child_count=child_count,
                              parent_code=row['parent_code'],hdescription=row['hdescription'])#_attributes=dict(row),
         return children
+        
+class HTablePicker(BaseComponent):
+    def htablePicker(self,parent,nodeId=None,datapath=None,table=None,**kwargs):
+        bc = parent.borderContainer(datapath=datapath,nodeId=nodeId,**kwargs)
+        left = bc.borderContainer(region='left',width='50%',splitter=True)
+        center = bc.contentPane(region='center')
+        self.htp_tree(left)
+        self.htp_edit(center)
+    
+    def htp_tree(self,pane):
+        pane.div('will be tree')
+    
+    def htp_edit(self,pane):
+        pane.div('will be something else')
+        
+        
+        
+
