@@ -106,11 +106,16 @@ class SqlDbAdapter(SqlDbBaseAdapter):
             dbname = self.dbroot.get_dbname()
         conn = self._managerConnection()
         curs = conn.cursor()
-        curs.execute("""CREATE DATABASE "%s" ENCODING '%s';""" % (dbname, encoding))
-        curs.close()
-        conn.close()
-        curs = None
-        conn = None
+        try:
+            curs.execute("""CREATE DATABASE "%s" ENCODING '%s';""" % (dbname, encoding))
+            curs.commit()
+        except:
+            pass
+        finally:
+            curs.close()
+            conn.close()
+            curs = None
+            conn = None
         
     def lockTable(self, dbtable, mode='ACCESS EXCLUSIVE', nowait=False):
         if nowait:
