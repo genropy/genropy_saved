@@ -246,10 +246,10 @@ class GnrSqlDb(GnrObject):
         envargs = dict([('env_%s'%k,v) for k,v in self.currentEnv.items()])
         envargs.update(sqlargs or {})
         sqlargs=envargs
-        if dbtable and self.table(dbtable).use_dbstores():
-            storename=sqlargs.pop('storename',self.currentEnv.get('storename','_main_db'))
-        else:
+        if dbtable and not self.table(dbtable).use_dbstores():
             storename = '_main_db'
+        else:
+            storename=sqlargs.pop('storename',self.currentEnv.get('storename','_main_db'))
         with self.tempEnv(storename=storename):
             for k, v in [(k, v) for k, v in sqlargs.items() if isinstance(v, list) or isinstance(v, tuple)]:
                 sqllist = '(%s) ' % ','.join([':%s%i' % (k, i) for i, ov in enumerate(v)])
@@ -488,7 +488,6 @@ class DbStoresHandler(object):
 
     def create_stores(self):
         for name in self.config.digest('#a.file_name'):
-            print name
             self.add_store(name)
             
 
