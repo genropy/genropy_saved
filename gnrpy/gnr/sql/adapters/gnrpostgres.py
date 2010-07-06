@@ -108,7 +108,7 @@ class SqlDbAdapter(SqlDbBaseAdapter):
         curs = conn.cursor()
         try:
             curs.execute("""CREATE DATABASE "%s" ENCODING '%s';""" % (dbname, encoding))
-            curs.commit()
+            conn.commit()
         except:
             pass
         finally:
