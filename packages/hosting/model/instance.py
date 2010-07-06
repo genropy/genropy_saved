@@ -6,6 +6,7 @@ from gnr.core.gnrbag import Bag
 import os
 from subprocess import Popen, PIPE
 from  tempfile import NamedTemporaryFile
+import sys
 
 class Table(object):
 
@@ -86,7 +87,8 @@ class Table(object):
     def trigger_onInserting(self, record_data):
         self.create_instance(record_data['code'])
         self.create_site(record_data['code'])
-        self.build_apache_site(record_data['code'],domain=self.db.application.config['hosting?domain'], sudo_password=self.db.application.config['hosting?sudo_password'])
+        if sys.platform.startswith('linux'):
+            self.build_apache_site(record_data['code'],domain=self.db.application.config['hosting?domain'], sudo_password=self.db.application.config['hosting?sudo_password'])
         self.pkg.db_setup(record_data['code'])
         for pkg in self.db.application.packages.values():
             if hasattr(pkg,'onInstanceCreated'):
