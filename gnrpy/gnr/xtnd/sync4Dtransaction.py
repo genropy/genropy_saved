@@ -26,7 +26,8 @@ from datetime import datetime
 from gnr.core.gnrbag import Bag
 from gnr.core.gnrstring import boolean
 
-from gnr.core.gnrlog import logging
+#from gnr.core.gnrlog import logging
+import logging
 gnrlogger = logging.getLogger('gnr.xtnd.sync4Dtransaction')
 
 class TransactionManager4D(object):

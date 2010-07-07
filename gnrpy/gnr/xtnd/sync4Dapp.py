@@ -6,7 +6,7 @@ import os
 import time, datetime
 from logging.handlers import TimedRotatingFileHandler
 from logging import Formatter
-
+import logging
 gnrlogger = logging.getLogger('gnr.xtnd.sync4Dapp')
 
 from gnr.core.gnrlang import errorLog
