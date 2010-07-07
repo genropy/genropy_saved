@@ -287,10 +287,7 @@ dojo.declare('gnr.GenroClient', null, {
         this.pendingFireAfter[path]=setTimeout(function(){genro.fireEvent(_path, _msg);}, timeout);
     },
     setDataAfter: function(path, value,timeout){
-        var timeout=timeout || 1;
-        var _path = path;
-        var _msg = msg;
-        setTimeout(function(){genro.setData(_path,_msg);}, timeout);
+        setTimeout(function(){genro.setData(path,value);}, timeout||1);
     },
     
     sendMouseEvent:function(target,evtstr,delay){
