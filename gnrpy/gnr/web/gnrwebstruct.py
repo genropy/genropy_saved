@@ -208,9 +208,10 @@ class GnrDomSrc(GnrStructData):
     def script(self, content='', **kwargs):
         return self.child('script',content=content, **kwargs)
         
-    def remote(self, method,lazy=True, **kwargs):
+    def remote(self, method, lazy=True, **kwargs):
         handler = self.page.getPublicMethod('remote',method)
         if handler:
+            kwargs_copy = copy(kwargs)
             parentAttr = self.parentNode.getAttr()
             parentAttr['remote'] = 'remoteBuilder'
             parentAttr['remote_handler'] = method
@@ -220,7 +221,7 @@ class GnrDomSrc(GnrStructData):
                 parentAttr['remote_%s' %k] = v
                 kwargs.pop(k)
             if not lazy:
-                handler(self,**kwargs)
+                handler(self, **kwargs_copy)
         
     def func(self,name, pars='',funcbody=None, **kwargs):
         if not funcbody:
