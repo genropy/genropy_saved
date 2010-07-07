@@ -700,11 +700,18 @@ class TimePeriod(object):
                 if (o == TimeInterval.FULLY_CONTAINS):
                     del self._intervals[right]
                 elif o == TimeInterval.FULLY_CONTAINED:
-                    second_half = copy.copy(existing)
-                    existing.stop = removed.start
-                    second_half.start = removed.stop
-                    self._intervals.insert(right+1,second_half)
-                    right += 2
+                    if removed.start == existing.start:
+                        existing.start = removed.stop
+                        right += 1
+                    elif removed.stop == existing.stop:
+                        existing.stop = removed.start
+                        right += 1
+                    else:
+                        second_half = copy.copy(existing)
+                        existing.stop = removed.start
+                        second_half.start = removed.stop
+                        self._intervals.insert(right+1,second_half)
+                        right += 2
                 elif o == TimeInterval.COVER_LEFT:
                     existing.start = removed.stop
                     right += 1

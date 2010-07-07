@@ -415,3 +415,12 @@ def test_TimePeriod_TimePeriod():
     assert p1 == p2
     p3 = tp('8:30-10:30', '16:00-18:00')
     assert p1 != p3
+
+def test_TimePeriod_BugAtEnd():
+    tp = gnrdate.TimePeriod
+    p = tp('8:00-12:00')
+    p.remove('10:00-12:00')
+    assert str(p) == '8:00-10:00'
+
+if __name__ == "__main__":
+    test_TimePeriod_BugAtEnd()
