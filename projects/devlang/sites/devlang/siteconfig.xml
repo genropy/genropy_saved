@@ -4,6 +4,6 @@
     <connection_refresh/>
     <wsgi debug="true" reload="true" port="8096" mainpackage="devlang" session_type="memory"/>
     <dojo version="11"/>
-    <gui css_theme='aqua'/>
+    <gui css_theme='blue'/>
     <!--  typekit='nrc3upi' -->
 </GenRoBag>
