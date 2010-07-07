@@ -153,6 +153,8 @@ dojo.declare("gnr.GnrDomSourceNode",gnr.GnrBagNode,{
     setDataNodeValue:function(node, kw, trigger_reason){
         var attributes=objectUpdate({}, this.attr);
         var _userChanges=objectPop(attributes,'_userChanges');
+        var _trace=objectPop(attributes,'_trace');
+        var _trace_level=objectPop(attributes,'_trace_level') || 0;
         if ((kw && kw.reason == 'autocreate' )||( _userChanges && trigger_reason!='node')){
             return;
         }
@@ -178,19 +180,41 @@ dojo.declare("gnr.GnrDomSourceNode",gnr.GnrBagNode,{
         }else {
             expr=objectPop(attributes,'method');
         }
+        if(_trace) {
+            console.log("TRACE " + tag + "("+_trace+")");
+            if(_trace_level >= 2) {
+                console.log("trigger_reason=" + trigger_reason);
+                console.log("kw=");
+                console.log(kw);
+            }
+            if(_trace_level >= 3) {
+                console.log("expr=");
+                console.log(expr);
+            }
+        }
         var argValues=[node, {'kw':kw, 'trigger_reason':trigger_reason}];
         var argNames=['_node', '_triggerpars']; //_node is also in _triggerpars.kw.node: todo remove (could be used as $1)
         var kwargs={};
         var val;
+        if(_trace && (_trace_level > 0)) {
+            console.log('Arguments:');
+        }
         for (var attrname in attributes){
             argNames.push(attrname);
             val= this.getAttributeFromDatasource(attrname);
             argValues.push(val);
             kwargs[attrname]=val;
+            if(_trace && (_trace_level > 0)) {
+                console.log("--- " + attrname + " ---");
+                console.log(val);
+            }
         }
         var if_result=true;
         if(_if){
             if_result = funcCreate('return (' + _if +')', argNames.join(',')).apply(this,argValues);
+            if(_trace && (_trace_level > 0)) {
+                console.log("_if="+_if_result);
+            }
         }
         if(tag=='dataFormula' || tag=='dataScript' || tag=='dataController' || tag=='dataRpc'){
             var val;
