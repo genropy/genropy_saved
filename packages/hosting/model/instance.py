@@ -73,6 +73,7 @@ class Table(object):
         """%params
         tmp_file = NamedTemporaryFile()
         tmp_file.write(apache_file_content)
+        tmp_file.flush()
         pass_pipe=Popen(['/bin/echo',sudo_password], stdout=PIPE)
         cm=Popen(['sudo -S cp %s %s/%s'%(tmp_file.name,apache_path,instance_code)],stdin=pass_pipe.stdout,shell=True)
         cm.wait()
