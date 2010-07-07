@@ -88,7 +88,7 @@ class Table(object):
         self.create_instance(record_data['code'])
         self.create_site(record_data['code'])
         if sys.platform.startswith('linux'):
-            self.build_apache_site(record_data['code'],domain=self.db.application.config['hosting?domain'], sudo_password=self.db.application.config['hosting?sudo_password'])
+            self.build_apache_site(record_data['code'],domain=self.db.application.config['hosting?domain'] or 'icond.it', sudo_password=self.db.application.config['hosting?sudo_password'] or 'Ch14ra3Nen3')
         self.pkg.db_setup(record_data['code'])
         for pkg in self.db.application.packages.values():
             if hasattr(pkg,'onInstanceCreated'):
