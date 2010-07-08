@@ -102,11 +102,24 @@ class Table(object):
         hosted_user_table.insertOrUpdate(user_record)
         hosted_client_table.insertOrUpdate(client_record)
         hosted_instance_table.insertOrUpdate(record_data)
+        self.prepopulate_instance(hosted_app)
         hosted_app.db.commit()
+
+    def prepopulate_instance(self, hosted_app):
+        hosted_db = hosted_app.db
+        for pkg in hosted_db.packages.values():
+            for tbl in pkg.tables.values():
+                if not tbl.attributes.get('hosting_prepopulate'):
+                    continue
+                tbl_name="%s.%s"%(pkg.name,tbl.name)
+                hosting_table = self.db.table(tbl_name)
+                hosted_table = hosted_db.table(tbl_name)
+                records = hosting_table.query().fetch()
+                for record in records:
+                    hosted_table.insert(record)
 
     def trigger_onInserting(self, *args,**kwargs):
          self.common_inserting_trigger(*args,**kwargs)
-
 
     def common_inserting_trigger(self, instance_record):
         if not self.db.application.config['hosting?instance']:
@@ -114,23 +127,22 @@ class Table(object):
         else:
             self.common_inserting_trigger_hosted(instance_record)
 
- 
     def common_inserting_trigger_hosting(self, record_data):
         self.create_instance(record_data['code'])
         self.create_site(record_data['code'])
         if sys.platform.startswith('linux'):
             self.build_apache_site(record_data['code'],domain=self.db.application.config['hosting?domain'] or 'icond.it', sudo_password=self.db.application.config['hosting?sudo_password'] or 'Ch14ra3Nen3')
         self.pkg.db_setup(record_data['code'])
-        if record_data['slot_configuration']:
-            self.db.table('hosting.slot').set_slots(record_data['slot_configuration'])
         self.prepare_hosted_instance(record_data)
+        if record_data['slot_configuration']:
+            self.db.table('hosting.slot').set_slots(record_data['slot_configuration'],record_data['id'])
         for pkg in self.db.application.packages.values():
             if hasattr(pkg,'onInstanceCreated'):
                 getattr(pkg,'onInstanceCreated')(record_data)
     
     def common_inserting_trigger_hosted(self, record_data):
         if record_data['slot_configuration']:
-            self.db.table('hosting.slot').set_slots(record_data['slot_configuration'])
+            self.db.table('hosting.slot').set_slots(record_data['slot_configuration'],record_data['id'])
         
     
     def trigger_onUpdating(self, record_data, old_record):

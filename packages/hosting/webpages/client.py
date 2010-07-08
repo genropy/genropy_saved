@@ -57,7 +57,6 @@ class GnrCustomWebPage(object):
         fb.field('code')
         fb.field('user_id')
         #fb.field('anagrafica_id',colspan=2)
-       
               
         tc = bc.tabContainer(region='center')
         

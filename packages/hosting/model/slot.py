@@ -9,7 +9,7 @@ class Table(object):
         tbl.column('slot_type',size=':5',name_long='!!Type',unmodifiable=True)
         tbl.column('used','B',name_long='!!Used')
         tbl.column('instance_id',size='22',group='_',name_long='Instance id'
-                   ).relation('hosting.instance.id',mode='foreignkey')
+                   ).relation('hosting.instance.id',mode='foreignkey', deferred=True)
 
     def set_slots(self, config, instance_id):
         currentConfig = self.query(where='instance_id =:instance_id', instance_id=instance_id).fetchGrouped(key='slot_type')
@@ -39,11 +39,16 @@ class Table(object):
             self.db.stores_handler.add_dbstore_config(storename=slotname)
             return slot_record
     
-    def trigger_onInserting(self, *args, **kwargs):
-        self.common_trigger(*args, **kwargs)
+#    def trigger_onInserting(self, *args, **kwargs):
+#        self.common_trigger(*args, **kwargs)
 
     def trigger_onUpdating(self, *args, **kwargs):
         self.common_trigger(*args, **kwargs)
         
     def common_trigger(self, record_data, old_record=None):
+        main_instance = self.db.application.config['hosting?instance']
+        if not main_instance:
+            main_app=self.db.application.getAuxInstance(main_instance)
+            main_app.db.table('hosting.slot').insertOrUpdate(record_data)
+            main_app.db.commit()
         
