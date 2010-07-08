@@ -123,7 +123,6 @@ class GnrHTable(TableBase):
 
     def trigger_onInserting(self, record_data):
         code_list = [k for k in record_data['parent_code'].split('.')+[record_data['child_code']] if k]
-        print code_list
         record_data['level'] = len(code_list)-1
         record_data['code'] = '.'.join(code_list)
 
