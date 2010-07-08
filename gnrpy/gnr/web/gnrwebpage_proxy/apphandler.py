@@ -524,8 +524,9 @@ class GnrWebAppHandler(GnrBaseProxy):
             debug='fromPickle'
             resultAttributes={}
         generator = selection.output(mode='generator',offset=row_start,limit=row_count, formats=formats)
+        _addClassesDict = dict([(k,v['_addClass']) for k,v in selection.colAttrs.items() if '_addClass' in v])
         data = self.gridSelectionData(selection, generator, logicalDeletionField=tblobj.logicalDeletionField,
-                                      recordResolver=recordResolver, numberedRows=numberedRows)
+                                      recordResolver=recordResolver, numberedRows=numberedRows,_addClassesDict=_addClassesDict)
         if not structure:
             result = data
         else:
@@ -677,15 +678,20 @@ class GnrWebAppHandler(GnrBaseProxy):
                 self._columnsFromStruct(node.value, columns)
         return ','.join(columns)
     
-    def gridSelectionData(self, selection, outsource, recordResolver, numberedRows, logicalDeletionField):
+    def gridSelectionData(self, selection, outsource, recordResolver, numberedRows, logicalDeletionField,_addClassesDict=None):
         result = Bag()  
         for j,row in enumerate(outsource) :
             row = dict(row)
-            _customClasses = row.get('_customClasses','')
+            _customClasses = row.get('_customClasses','').split(' ')
             pkey = row.pop('pkey', None)
             isDeleted=row.pop('_isdeleted',None)
             if isDeleted:
-                _customClasses=_customClasses+' logicalDeleted'
+                _customClasses.append('logicalDeleted')
+            if _addClassesDict:
+                for fld,_class in _addClassesDict.items():
+                    if row[fld]:
+                        _customClasses.append(_class)
+                        
             if numberedRows or not pkey:
                 row_key='r_%i'%j
             else:
@@ -693,7 +699,7 @@ class GnrWebAppHandler(GnrBaseProxy):
             result.setItem(row_key, None, _pkey=pkey or row_key,
                            _target_fld = '%s.%s' % (selection.dbtable.fullname, selection.dbtable.pkey),
                            _relation_value=pkey, _resolver_name='relOneResolver',
-                           _attributes=row, _removeNullAttributes=False, _customClasses=_customClasses)
+                           _attributes=row, _removeNullAttributes=False, _customClasses=' '.join(_customClasses))
         return result
                 
         
