@@ -91,15 +91,17 @@ class GnrCustomWebPage(object):
                                 sqlContextName='sql_record_hosted_instance_%s' %pkgname,
                                 sqlContextRoot='instances.dlg.record.hosted_data.%s' %pkgname))
         
-    def main_instancetab(self,pane,disabled=None,table=None):
+    def main_instancetab(self,parent,disabled=None,table=None):
+        bc = parent.borderContainer()
+        pane = bc.contentPane(region='top')
         pane.div('!!Manage instances', _class='pbl_roundedGroupLabel')
         fb = pane.formbuilder(cols=1, border_spacing='6px',dbtable=table,disabled=disabled)
         fb.field('code',width='15em',lbl='!!Instance Name')
-        fb.field('path',width='15em',lbl='!!Path')
-        fb.field('site_path',width='15em',lbl='!!Site path')
-        fb.button('Create', disabled='==_instance_exists&&_site_exists',
-                    _instance_exists='=.$instance_exists',
-                    _site_exists='^.$site_exists', action='FIRE .$create;')
+        #fb.field('path',width='15em',lbl='!!Path')
+        #fb.field('site_path',width='15em',lbl='!!Site path')
+        #fb.button('Create', disabled='==_instance_exists&&_site_exists',
+        #            _instance_exists='=.$instance_exists',
+        #            _site_exists='^.$site_exists', action='FIRE .$create;')
 
         pane.dataRpc('.$creation_result', 'createInst', instance_code='=.code', instance_exists='=.$instance_exists', site_exists='=.$site_exists', 
                     _fired='^.$create',_onResult='FIRE .$created',_userChanges=True)
@@ -115,6 +117,20 @@ class GnrCustomWebPage(object):
                 """,site_path='=.$creation_result.site_path',
                  instance_path='=.$creation_result.instance_path', 
                  _fired='^.$created',_userChanges=True)
+        def struct(struct):
+            r = struct.view().rows()
+            r.cell('type', name='Slot type', width='15em')
+            r.cell('qty', name='Q.ty', width='4em',dtype='I')
+            return struct
+        iv = self.includedViewBox(bc.borderContainer(region='center'),label='!!Slot configuration',
+                         storepath='.slot_configuration', struct=struct,
+                         datamode='bag',autoWidth=True,
+                         add_action=True,del_action=True)
+        gridEditor = iv.gridEditor()
+        gridEditor.dbSelect(gridcell='type',dbtable='hosting.slot_type',
+                         columns='$code,$description',rowcaption='$code',
+                         exclude=True,hasDownArrow=True)
+        gridEditor.numberTextBox(gridcell='qty')
 
     def onLoading_hosting_instance(self, record, newrecord, loadingParameters, recInfo):
         tblinstance = self.db.table('hosting.instance')           

@@ -18,6 +18,7 @@ class Table(object):
         tbl.column('repository_name', dtype='T', name_long='!!Repository Name') # Optional
         tbl.column('path',dtype='T',name_long='!!Instance Path')
         tbl.column('site_path',dtype='T',name_long='!!Site Path')
+        tbl.column('slot_configuration','X',name_long='!!Slot configuration',_sendback=True)  
         tbl.column('hosted_data','X',name_long='!!Hosted data',_sendback=True)  
         tbl.column('client_id',size=':22',name_long='!!Client id').relation('client.id',mode='foreignkey')
 
@@ -85,15 +86,52 @@ class Table(object):
         Popen(['sudo -S /usr/sbin/apache2ctl reload'],stdin=pass_pipe.stdout,stdout=None,shell=True,)
         tmp_file.close()
 
-    def trigger_onInserting(self, record_data):
+
+    def prepare_hosted_instance(self, record_data):
+        hosted_app=self.db.application.getAuxInstance(record_data['code'])
+        hosted_anag_table=hosted_app.db.table('sw_base.anagrafica')
+        hosted_user_table=hosted_app.db.table('adm.user')
+        hosted_client_table=hosted_app.db.table('hosting.client')
+        hosted_instance_table=hosted_app.db.table('hosting.instance')
+        client_id = record_data['client_id']
+        anagrafica_id,user_id=self.db.table('hosting.client').readColumns(record_data['client_id'],'$anagrafica_id,$user_id')
+        user_record = self.db.table('adm.user').record(pkey=user_id).output('dict')
+        anagrafica_record = self.db.table('sw_base.anagrafica').record(pkey=anagrafica_id).output('dict')
+        client_record = self.db.table('hosting.client').record(pkey=client_id).output('dict')
+        hosted_anag_table.insertOrUpdate(anagrafica_record)
+        hosted_user_table.insertOrUpdate(user_record)
+        hosted_client_table.insertOrUpdate(client_record)
+        hosted_instance_table.insertOrUpdate(record_data)
+        hosted_app.db.commit()
+
+    def trigger_onInserting(self, *args,**kwargs):
+         self.common_inserting_trigger(*args,**kwargs)
+
+
+    def common_inserting_trigger(self, instance_record):
+        if not self.db.application.config['hosting?instance']:
+            self.common_inserting_trigger_hosting(instance_record)
+        else:
+            self.common_inserting_trigger_hosted(instance_record)
+
+ 
+    def common_inserting_trigger_hosting(self, record_data):
         self.create_instance(record_data['code'])
         self.create_site(record_data['code'])
         if sys.platform.startswith('linux'):
             self.build_apache_site(record_data['code'],domain=self.db.application.config['hosting?domain'] or 'icond.it', sudo_password=self.db.application.config['hosting?sudo_password'] or 'Ch14ra3Nen3')
         self.pkg.db_setup(record_data['code'])
+        if record_data['slot_configuration']:
+            self.db.table('hosting.slot').set_slots(record_data['slot_configuration'])
+        self.prepare_hosted_instance(record_data)
         for pkg in self.db.application.packages.values():
             if hasattr(pkg,'onInstanceCreated'):
                 getattr(pkg,'onInstanceCreated')(record_data)
+    
+    def common_inserting_trigger_hosted(self, record_data):
+        if record_data['slot_configuration']:
+            self.db.table('hosting.slot').set_slots(record_data['slot_configuration'])
+        
     
     def trigger_onUpdating(self, record_data, old_record):
         for pkg in self.db.application.packages.values():
