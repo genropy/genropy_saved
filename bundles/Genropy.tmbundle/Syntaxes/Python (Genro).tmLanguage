@@ -1650,90 +1650,6 @@
 				</dict>
 				<dict>
 					<key>begin</key>
-					<string>('\^)</string>
-					<key>beginCaptures</key>
-					<dict>
-						<key>1</key>
-						<dict>
-							<key>name</key>
-							<string>punctuation.definition.string.begin.python.resolver.genro</string>
-						</dict>
-					</dict>
-					<key>comment</key>
-					<string>genro resolver as single quoted raw string</string>
-					<key>end</key>
-					<string>(')|(\n)</string>
-					<key>endCaptures</key>
-					<dict>
-						<key>1</key>
-						<dict>
-							<key>name</key>
-							<string>punctuation.definition.string.end.python.resolver.genro</string>
-						</dict>
-						<key>2</key>
-						<dict>
-							<key>name</key>
-							<string>invalid.illegal.unclosed-string.python.resolver.genro</string>
-						</dict>
-					</dict>
-					<key>name</key>
-					<string>string.quoted.resolver.firing.single.genro</string>
-					<key>patterns</key>
-					<array>
-						<dict>
-							<key>include</key>
-							<string>#constant_placeholder</string>
-						</dict>
-						<dict>
-							<key>include</key>
-							<string>#escaped_char</string>
-						</dict>
-					</array>
-				</dict>
-				<dict>
-					<key>begin</key>
-					<string>('\=)</string>
-					<key>beginCaptures</key>
-					<dict>
-						<key>1</key>
-						<dict>
-							<key>name</key>
-							<string>punctuation.definition.string.begin.python.resolver.genro</string>
-						</dict>
-					</dict>
-					<key>comment</key>
-					<string>genro resolver as single quoted raw string</string>
-					<key>end</key>
-					<string>(')|(\n)</string>
-					<key>endCaptures</key>
-					<dict>
-						<key>1</key>
-						<dict>
-							<key>name</key>
-							<string>punctuation.definition.string.end.python.resolver.genro</string>
-						</dict>
-						<key>2</key>
-						<dict>
-							<key>name</key>
-							<string>invalid.illegal.unclosed-string.python.resolver.genro</string>
-						</dict>
-					</dict>
-					<key>name</key>
-					<string>string.quoted.resolver.reading.single.genro</string>
-					<key>patterns</key>
-					<array>
-						<dict>
-							<key>include</key>
-							<string>#constant_placeholder</string>
-						</dict>
-						<dict>
-							<key>include</key>
-							<string>#escaped_char</string>
-						</dict>
-					</array>
-				</dict>
-				<dict>
-					<key>begin</key>
 					<string>([uU]r)(""")</string>
 					<key>beginCaptures</key>
 					<dict>
@@ -2459,6 +2375,90 @@
 		<dict>
 			<key>patterns</key>
 			<array>
+				<dict>
+					<key>begin</key>
+					<string>('\^)</string>
+					<key>beginCaptures</key>
+					<dict>
+						<key>1</key>
+						<dict>
+							<key>name</key>
+							<string>punctuation.definition.string.begin.python.resolver.genro</string>
+						</dict>
+					</dict>
+					<key>comment</key>
+					<string>genro resolver as single quoted raw string</string>
+					<key>end</key>
+					<string>((?&lt;=')(')|')|(\n)</string>
+					<key>endCaptures</key>
+					<dict>
+						<key>1</key>
+						<dict>
+							<key>name</key>
+							<string>punctuation.definition.string.end.python.resolver.genro</string>
+						</dict>
+						<key>2</key>
+						<dict>
+							<key>name</key>
+							<string>invalid.illegal.unclosed-string.python.resolver.genro</string>
+						</dict>
+					</dict>
+					<key>name</key>
+					<string>string.quoted.resolver.firing.single.genro</string>
+					<key>patterns</key>
+					<array>
+						<dict>
+							<key>include</key>
+							<string>#constant_placeholder</string>
+						</dict>
+						<dict>
+							<key>include</key>
+							<string>#escaped_char</string>
+						</dict>
+					</array>
+				</dict>
+				<dict>
+					<key>begin</key>
+					<string>('=)</string>
+					<key>beginCaptures</key>
+					<dict>
+						<key>1</key>
+						<dict>
+							<key>name</key>
+							<string>punctuation.definition.string.begin.python.resolver.genro</string>
+						</dict>
+					</dict>
+					<key>comment</key>
+					<string>genro resolver as single quoted raw string</string>
+					<key>end</key>
+					<string>((?&lt;=')(')|')|(\n)</string>
+					<key>endCaptures</key>
+					<dict>
+						<key>1</key>
+						<dict>
+							<key>name</key>
+							<string>punctuation.definition.string.end.python.resolver.genro</string>
+						</dict>
+						<key>2</key>
+						<dict>
+							<key>name</key>
+							<string>invalid.illegal.unclosed-string.python.resolver.genro</string>
+						</dict>
+					</dict>
+					<key>name</key>
+					<string>string.quoted.resolver.reading.single.genro</string>
+					<key>patterns</key>
+					<array>
+						<dict>
+							<key>include</key>
+							<string>#constant_placeholder</string>
+						</dict>
+						<dict>
+							<key>include</key>
+							<string>#escaped_char</string>
+						</dict>
+					</array>
+				</dict>
 				<dict>
 					<key>captures</key>
 					<dict>
