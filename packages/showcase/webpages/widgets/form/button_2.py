@@ -18,7 +18,7 @@ class GnrCustomWebPage(object):
         root.dataFormula('font_size','font + umf',font='^font',umf='^um_font')
         
         bc = root.borderContainer()
-        top = bc.contentPane(region='top')
+        top = bc.contentPane(region='top',background_color='orange')
         fb = top.formbuilder(cols=4, padding='10px')
         fb.horizontalslider(lbl='!!width',value='^width',width='200px',discreteValues='48',
                             minimum=3,maximum=50,intermediateChanges=True, default=8)
