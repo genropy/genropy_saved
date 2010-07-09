@@ -1,11 +1,8 @@
 #!/usr/bin/env pythonw
 # -*- coding: UTF-8 -*-
 #
-#  untitled
-#
 #  Created by Giovanni Porcari on 2007-03-24.
 #  Copyright (c) 2007 Softwell. All rights reserved.
-#
 
 """ GnrDojo Hello World """
 import os
@@ -24,7 +21,7 @@ class GnrCustomWebPage(object):
         self.validationTextBox(tc2)
         self.textArea(tc2)
         #self.buttons(tc2)
-    
+        
     def genroValidation(self,tc):
         tc.dataController("""var b = new gnr.GnrBag();
                              b.setItem('name','pippo');
@@ -49,7 +46,7 @@ class GnrCustomWebPage(object):
         
         fb.TextBox(lbl="Len",value='^.len') 
         fb.TextBox(lbl="Set case validation",value='^.case') 
-
+        
         fb.TextBox(lbl="Name", value='^.name', validate_len='4:', nodeId='name', 
                                         validate_onReject='alert("troppo corto: "+value)',
                                         validate_onAccept='alert("giusto: "+value)')
@@ -75,7 +72,7 @@ class GnrCustomWebPage(object):
         
         fb.NumberTextBox(lbl="Min",value='^.min') 
         fb.NumberTextBox(lbl="Max",value='^.max') 
-
+        
         fb.NumberTextBox(lbl="between min and max", value='^.namecall', 
                         validate_max='^.max', validate_min='^.min',
                         validate_call="""   
@@ -83,14 +80,13 @@ class GnrCustomWebPage(object):
                                            return 'min';
                                        } else if (value > max){
                                            return 'max';
-                                       }""", 
+                                       }""",
                     validate_call_min='!! small!', validate_call_max='!!Big!')
-                    
-                    
+        
         fb.TextBox(lbl="remote Name up", value='^.nameremote', 
                     validate_remote="nameremote", validate_name='^.name', 
                     validate_remote_error='different from the name field value entered')
-    
+        
     def rpc_nameremote(self, value=None, name=None, **kwargs):
         if not value:
             return
@@ -101,54 +97,51 @@ class GnrCustomWebPage(object):
         else:
             return 'nameremote'
         
-        
     def rpc_checkZ(self, value, noletters, **kwargs):
         for letter in noletters:
             if letter in value:
                 return False
         return True
-    
+        
     def numberTextBox(self,tc):
         fb=tc.contentPane(title='Number',datapath='.numberTextBox').formbuilder(cols=2,cellspacing='10')
         fb.NumberTextBox(lbl="Age",default=36,value='^.age')
         fb.NumberTextBox(lbl="Age echo",value='^.age')
-    
+        
     def currencyTextBox(self,tc):
         fb=tc.contentPane(title='CurrencyTextBox',datapath='.currencyTextBox').formbuilder(cols=2,cellspacing='10')
         fb.CurrencyTextBox(lbl="Amount",default=1123.34, currency='EUR', locale='it',value='^.amount')
         fb.CurrencyTextBox(lbl="Amount echo", currency='EUR', locale='it',value='^.amount')
-    
+        
     def dateTextBox(self,tc):
         fb=tc.contentPane(title='DateTextBox',datapath='.dateTextBox').formbuilder(cols=2,cellspacing='10')
         fb.DateTextBox(lbl='Birthday echo',value='^.birthday')
-    
+        
     def timeTextBox(self,tc):
         fb=tc.contentPane(title='TimeTextBox',datapath='.timeTextBox').formbuilder(cols=2,cellspacing='10')
         fb.TimeTextBox(lbl='Meeting Time',value='^.meetingAt')
         fb.TimeTextBox(lbl='Meeting Time echo',value='^.meetingAt')
-    
+        
     def validationTextBox(self,tc):
         fb=tc.contentPane(title='ValidationTextBox',datapath='.validationTextBox').formbuilder(cols=2,cellspacing='10')
         fb.ValidationTextBox(lbl='Email',default='john.brown@somewhere.com',value='^.email')
         fb.ValidationTextBox(lbl='Email echo',value='^.email')
-    
+        
     def textArea(self,tc):
         fb=tc.contentPane(title='TextArea',datapath='.textArea').formbuilder(cols=2,cellspacing='10')
         fb.textArea(lbl='Remarks',value='^.remarks')
         fb.textArea(lbl='Remarks echo',value='^.remarks')
-    
+        
     def inLineEditBox(self,tc):
         fb=tc.contentPane(title='InLineEditBox',datapath='.inLineEditBox').formbuilder(cols=2,cellspacing='10')
         fb.inlineEditBox(lbl='EditThis',onChange="function(x){alert('xxxx')}::JS").div(value='^.ed1')
         fb.inlineEditBox(lbl='EditThat',onChange="function(x){alert('xxxx')}::JS",
                                    autoSave=False,buttonSave='OK',buttonCance='Cancel',
                                    editor="dijit.form.DateTextBox").div(value='^.ed2')
-    
+        
     def buttons(self,tc):
         fb=tc.contentPane(title='Buttons',datapath='.buttons').formbuilder(cols=2,cellspacing='10')
         fb.button("Load me", action="alert('No way...')",fire='^.button1')
         fb.toggleButton('Toggle',iconClass="dijitRadioIcon",value='^.toggle1')
         fb.checkBoxGroup("Rugby,Soccer,Baseball,Tennis",cols=1,border='1px solid silver',padding='5px',value='^.cb')
         fb.radioGroup('Jazz,Rock,Punk,Metal','genre',cols=4,border='1px solid red',padding='5px',value='^.rb')
-
-

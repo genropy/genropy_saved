@@ -1,11 +1,8 @@
 #!/usr/bin/env pythonw
 # -*- coding: UTF-8 -*-
 #
-#  untitled
-#
 #  Created by Giovanni Porcari on 2007-03-24.
 #  Copyright (c) 2007 Softwell. All rights reserved.
-#
 
 """ dbSelect """
 import os
@@ -24,5 +21,3 @@ class GnrCustomWebPage(object):
                     condition='$person_id =:p',condition_p='=.person',auxColumns='$role,$prizes',
                     rowcaption='@movie_id.title',selected_role='.role')
         fb.div('^.role')
-        
-

@@ -1,11 +1,8 @@
 #!/usr/bin/env pythonw
 # -*- coding: UTF-8 -*-
 #
-#  untitled
-#
 #  Created by Giovanni Porcari on 2007-03-24.
 #  Copyright (c) 2007 Softwell. All rights reserved.
-#
 
 """ GnrDojo Hello World """
 import os
@@ -22,7 +19,7 @@ class GnrCustomWebPage(object):
         root.div().menu(modifiers='*',id='colorPalettemenu',_class='colorPaletteMenu',
                             connect_onOpen="""
                                             var path= this.widget.originalContextTarget.sourceNode.absDatapath();
-                                             SET tempcolor=path;""",
+                                            SET tempcolor=path;""",
                         ).menuItem(datapath='^tempcolor').colorPalette(value='^.color')
         root.dataController("sourceNode=dijit.byId('colorPalettemenu').originalContextTarget.sourceNode;",color="^temp.color")
         root.div(width='20px',height='20px',border='1px solid gray',background_color='^.color',
@@ -65,8 +62,6 @@ class GnrCustomWebPage(object):
         dlg.textbox(lbl='Filename',value='^.filename')
         dlg.checkbox('Make a copy',value='^.docopy')
         dlg.button('Ok',action='genro.savedlg.hide()')
-        
-
         
     def savingDialog(self,root,gnrId): 
         dlg=root.dialog(title='Saving all',datapath='saving',gnrId=gnrId).formbuilder(cols='2',cellspacing='8')
@@ -122,7 +117,6 @@ class GnrCustomWebPage(object):
         
         sex = fb.filteringSelect(lbl='Sex', value='^.r%i.sex' % r,storepath='values.sex')
         state = fb.filteringSelect(lbl='State', value = '^.r%i.state' % r, storepath='values.states')
-        
         
     def myRecords(self):
         data=Bag()

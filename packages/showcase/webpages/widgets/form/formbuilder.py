@@ -1,19 +1,14 @@
 #!/usr/bin/env pythonw
 # -*- coding: UTF-8 -*-
 #
-#  untitled
-#
 #  Created by Giovanni Porcari on 2007-03-24.
 #  Copyright (c) 2007 Softwell. All rights reserved.
-#
 
-""" Buttons """
+""" form builder """
 import os
 from gnr.core.gnrbag import Bag
 
 class GnrCustomWebPage(object):
-    css_requires='button'
-    
     def main(self, root, **kwargs):
         root.div("Formbuilder")
         fb=root.formbuilder(cols=2,_class='ppp')
@@ -30,6 +25,3 @@ class GnrCustomWebPage(object):
         r2 = table.tr()
         r2.td('BBB')
         r2.td(colSpan="3",width='30em').textbox(value='^bbb',width='25em')
-
-
-

@@ -1,11 +1,8 @@
 #!/usr/bin/env pythonw
 # -*- coding: UTF-8 -*-
 #
-#  untitled
-#
 #  Created by Giovanni Porcari on 2007-03-24.
 #  Copyright (c) 2007 Softwell. All rights reserved.
-#
 
 """ dbCombobox """
 import os
@@ -19,4 +16,3 @@ class GnrCustomWebPage(object):
         fb.dbCombobox(dbtable='showcase.movie', value='^dbcombo.m1',  lbl='dbsel in fb',validate_onAccept='alert("aaa")')
         #fb.div(lbl='field con div', datapath='xxy').field('showcase.cast.movie_id')
         #fb.div(lbl='dbsel con div', datapath='xxz').dbselect(dbtable='showcase.movie', value='^dbselect.m2',  )
-                           

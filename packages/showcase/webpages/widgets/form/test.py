@@ -1,17 +1,14 @@
 #!/usr/bin/env pythonw
 # -*- coding: UTF-8 -*-
 #
-#  untitled
-#
 #  Created by Giovanni Porcari on 2007-03-24.
 #  Copyright (c) 2007 Softwell. All rights reserved.
-#
 
 """ Buttons """
 import os
 from gnr.core.gnrbag import Bag
 
-class GnrCustomWebPage(object):    
+class GnrCustomWebPage(object):   
     def main(self, root, **kwargs):
         box = root.div(datapath='pluto')
         box.textbox(value='^.pippo')
@@ -23,7 +20,4 @@ class GnrCustomWebPage(object):
         box.dataRpc('dummy','test',_fired='^xx')
         
     def rpc_test(self,**kwargs):
-        self.debugger('py')
-    
-    
-        
+        self.debugger('py')  

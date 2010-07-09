@@ -1,19 +1,15 @@
 #!/usr/bin/env pythonw
 # -*- coding: UTF-8 -*-
 #
-#  untitled
-#
 #  Created by Giovanni Porcari on 2007-03-24.
 #  Copyright (c) 2007 Softwell. All rights reserved.
-#
 
 """ Buttons """
 import os
 from gnr.core.gnrbag import Bag
 
 class GnrCustomWebPage(object):
-    
-    def main(self, root, **kwargs):        
+    def main(self, root, **kwargs):
         root.data('values.sport',self.sports(),id='.pkey', caption='.Description')
         tbl=root.table()
         r=tbl.tr()
@@ -24,8 +20,7 @@ class GnrCustomWebPage(object):
         r.td().div('loaded from values')
         r.td().filteringSelect(lbl='Sport', 
                                values='so:Soccer,bs:Basket,hk:Hockey,ts:Tennis,bb:Baseball,sb:Snowboard')
-                              
-    
+        
     def sports(self,**kwargs):
         mytable=Bag()
         mytable.setItem('r1.pkey','SC')
@@ -41,5 +36,3 @@ class GnrCustomWebPage(object):
         mytable.setItem('r6.pkey','SB')
         mytable.setItem('r6.Description','Snowboard')
         return mytable
-    
-

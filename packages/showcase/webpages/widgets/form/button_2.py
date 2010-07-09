@@ -4,11 +4,6 @@
 #  Created by Giovanni Porcari on 2007-03-24.
 #  Copyright (c) 2007 Softwell. All rights reserved.
 
-""" Buttons """
-import os
-from gnr.core.gnrbag import Bag
-from gnr.web.gnrwsgisite import cache
-
 class GnrCustomWebPage(object):
     css_requires='index'
     def main(self, root, **kwargs):

@@ -1,11 +1,8 @@
 #!/usr/bin/env pythonw
 # -*- coding: UTF-8 -*-
 #
-#  untitled
-#
 #  Created by Giovanni Porcari on 2007-03-24.
 #  Copyright (c) 2007 Softwell. All rights reserved.
-#
 
 """ dropdownbutton """
 import os
@@ -34,4 +31,3 @@ class GnrCustomWebPage(object):
         b.setItem('r8',None,page=7,label='Money Order')
         b.setItem('r9',None,page=8,label='Other')
         return b
-        

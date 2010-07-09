@@ -1,11 +1,8 @@
 #!/usr/bin/env pythonw
 # -*- coding: UTF-8 -*-
 #
-#  untitled
-#
 #  Created by Giovanni Porcari on 2007-03-24.
 #  Copyright (c) 2007 Softwell. All rights reserved.
-#
 
 """textbox"""
 import os
@@ -24,7 +21,6 @@ class GnrCustomWebPage(object):
                                                     }""")
         root.dataController("console.log('load record '+code)",code="^code")
         fb.numberTextBox(value='^.r0.age',lbl='age')
-        fb.dateTextBox(value='^.r0.birthday',lbl='Birthday')        
+        fb.dateTextBox(value='^.r0.birthday',lbl='Birthday')
         fb.dateTextBox(value='^.r0.date',lbl='date')
         fb.dateTextBox(value='^.r0.dob',lbl='DOB',popup=False)
-
