@@ -1,17 +1,18 @@
-Abilitato in /etc/apt/sources.list le repositories universe levando il commento
+Enable  /etc/apt/sources.list  repositories universe removing #
+
 
 reference: http://wiki.ubuntu-it.org/AmministrazioneSistema/Apt
 
-ssh ipdelsito -l root
+ssh siteip -l root
 
 apt-get update
 apt-get upgrade
 apt-cache search - string lists the packages that have a relationship with that string
 apt-get install packagename - install the package
 
-PER NOI 
+FOR GENROPY INSTALL
 
-CON APT-GET
+USE APT-GET
 apt-get install libapache2-mod-wsgi
 apt-get install postgresql
 apt-get install build-essential
@@ -24,10 +25,10 @@ apt-get install python-qt4
 apt-get install libxml2-dev libxslt-dev
 apt-get install libcups2-dev wget cups cups-client
 
-MEGAPAROLAMAGICA
+THE GREAT MAGIC WORD
 apt-get install libapache2-mod-wsgi postgresql build-essential subversion python-psycopg2 python-setuptools python-dev python-reportlab python-qt4 libxml2-dev libxslt-dev libcups2-dev wget cups cups-client
 
-CON EASYINSTALL
+WITH EASYINSTALL
 easy_install -U -Z paver 
 easy_install -U -Z babel pytz vobject
 easy_install -U -Z paste webob weberror
@@ -36,21 +37,20 @@ easy_install -U -Z pypdf
 easy_install -U -Z z3c.rml
 easy_install -U -Z ipython
 
-MEGAPAROLAMAGICA
+THE GREAT MAGIC WORD - easy_install
 easy_install -U -Z paver babel pytz vobject paste webob weberror mako pypdf z3c.rml ipython
 
 
-CONSIGLIATO
+RECOMMENDED
 adduser genro
-visudo (copio root e gli metto il nome genro) - visudo (copied root and put the name Genro)
+visudo (copy the root and put the name Genro)
 
 install webmin
 http://www.kelvinwong.ca/2010/05/22/installing-webmin-on-ubuntu-server-10-04-lts-lucid/
 
 
-mettergli una password molto sicura - put a very safe password
-
-loggati nuovamente via ssh come utente genro - log in again via ssh as user Genro
+- put a very safe password
+- log in again via ssh as user Genro
 
 [genro]
 svn co http://svn.genropy.org/genro/trunk genro
@@ -64,12 +64,12 @@ svn co http://...../project
 sudo -u postgres psql
 postgres=# \password
 
-(nuova pass dell'utente postgres solitamente postgres o postgnr) - new postgres password is usually 'postgres'
+- new postgres password is usually 'postgres'
 
 postgres=# \q
 
-copio nella home di genro la cartella .gnr  (I copy the home folder id Genro)
-edito i path - edited paths
+- I copy the home folder of genro .gnr 
+- edit the paths to the relevant directories
 
 [pycups]
 wget http://cyberelk.net/tim/data/pycups/pycups-1.9.46.tar.bz2
@@ -80,49 +80,64 @@ sudo make install
 
 [screen]
 apt-get install screen
-con il comando screen si effettua un fork della sessione corrente, i comandi lanciati in quasta nuova sessione sopravvivono alla chiusura della sessione ssh. - with the screen command is made a fork of the current session, the command launched in totally abandons new session survive the closing ssh session . . To return to the normal Ctrl-A followed by d
 
-Per tornare alla vista normale ctrl-a seguito da d.
-per riaprire lo schermo con i processi in esecuzione: screen -r
-man screen è amico.
+ - http://kb.iu.edu/data/acuy.html
+ - the screen command creates a fork of the current session supporting multiple terminals under the same login process.
 
-[Leggere i log]
-less /var/log/apache2/error.log (legge dall'inizio del file. q per uscire)
-tail -n NUMEROLINEE /var/log/apache2/error.log (legge NUMEROLINEE alla fine del file.)
-tail -n NUMEROLINEE  -f /var/log/apache2/error.log (legge NUMEROLINEE alla fine del file e mantiene aperto il file in modo che aggiornamenti allo stesso siano immediatamente visualizzati. Ctrl-C per uscire)
+To return to the normal Ctrl-A followed by d.
+to reopen the screen with running processes: screen -r
+use the command 'man' (it is your friend).
+
+[Reading Logs]
+less /var/log/apache2/error.log (view the beginning of the file. q to quit)
+tail -n numberOfLines /var/log/apache2/error.log (Find the n lines  at the end of file.)
+tail -n numberOfLines  -f /var/log/apache2/error.log (Displays the last n lines at the end of the file and maintains an open file so that the same updates are immediately displayed. Ctrl-C to exit)
 
 [/etc/apache2/sites-available]
 
+
+# *:80 indicates the  port to which the virtualhost responds 
+# if you want the server with address 192.168.1.1 hypothetical, answer onlyc
+# to the local net at port 8080 you should write <VirtualHost 192.168.1.1:8080>
 <VirtualHost *:80> 
-# *:80 indica la coppia indirizzo porta a cui il virtualhost risponde
-# se si volesse che il server, con ipotetico indirizzo 192.168.1.1, rispondesse solo
-# alla rete locale sulla porta 8080 si scriverebbe <VirtualHost 192.168.1.1:8080>
-        ServerAdmin webmaster@localhost
-# Indirizzo di posta che viene stampato nei messaggi di errore standard di Apache
-        DocumentRoot /var/www
-# Path dove apache cerca i documenti, a noi non interessa particolarmente,
-# Ci interesserebbe solo se avessimo personalizzato le pagine 404 o 500 come
-# pagine statiche di apache
-        WSGIDaemonProcess gnr user=genro group=genro python-eggs=/tmp threads=25
-# Definisce un processo daemon WSGI:
-# user e group indicano lo user e il gruppo di esecuzione di tal processo (standard sarebbero stati www-data:www-data)
-# python-eggs indica il path dove espandere gli egg compressi, deve essere un path scrivibile dall'utente specificato prima
-#      solitamente /tmp è scrivibile da tutti
-# threads indica il numero di thread massimi per ogni processo WSGI
-# processes indica il numero di processi massimi, omettendolo si limita al singleprocess
-        SetEnv PROCESS_GROUP gnr
-# Setta una variabile di ambiente di Apache
-        WSGIProcessGroup %{ENV:PROCESS_GROUP}
-# Specifica che questo virtualhost deve essere servito dal processo WSGI specificato prima
-        # modify the following line to point your site
-        WSGIScriptAlias / /home/genro/progetti/mmusic/sites/provarci/root.py
-# Associa un path di apache a un file root.py (contenuto nella directory del sito) che deve rispondere
-# Il path di apache deve essere uguale al home_uri specificato nel siteconfig.xml
-        <Directory /home/genro/progetti/mmusic/sites/provarci>
+
+        
+# Email address that is usually written in the error messages of Apache log
+ServerAdmin webmaster@localhost
+        
+
+# Path that is used for static docs... not very relevant for us,
+# The only possible use could be to customize pages for errors 404 o 500 creating static pages for it
+DocumentRoot /var/www
+
+
+        
+# This directive defines a daemon  process WSGI:
+# user and group are used as user and group that are used to run this process (the default is user = www-data group = www-data)
+# python-eggs is the path to use do unzip eggs, it must be a path that the process user can write in.
+#      usually /tmp is a good choice as it is always writable
+# threads is the max number of threads for any WSGI process
+# processes is the max number of process,omitting this parameter you get single process
+WSGIDaemonProcess gnr user=genro group=genro python-eggs=/tmp threads=25
+
+        
+# set an apache environment variable. So now PROCESS_GROUP is 'gnr'
+SetEnv PROCESS_GROUP gnr
+
+        
+# Specifies that this virtualhost must be served by the process specified below
+WSGIProcessGroup %{ENV:PROCESS_GROUP}
+
+# modify the following line to point your site
+WSGIScriptAlias / /home/genro/progetti/mmusic/sites/provarci/root.py
+
+# Associates a path to a file root.py apache (in the directory of the site), which is responsible
+# The path must be equal to the apache home_url specified in siteconfig.xml
+        <Directory /home/genro/progetti/music/sites/provarci>
             Options Indexes FollowSymLinks
             AllowOverride All
             Order allow,deny
             Allow from all
         </Directory>
-# Tutta la sezione directory serve a specificare che la cartella del sito deve essere leggibile dall'esterno
+# The entire directory section to specify the folder of the site must be valid
 </VirtualHost>
