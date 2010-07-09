@@ -36,27 +36,9 @@ def rect(**kwargs):
 class Timetable(BaseComponent):
     py_requires='foundation/tools:CSSHandler'
     css_requires='public'
-    def tt_colorPaletteMenu(self,parent):
-        menuitem= parent.div().menu(modifiers='*',id='tt_colorPaletteMenu',_class='colorPaletteMenu',
-                            connect_onOpen="""
-                                            var connectedNode = this.widget.originalContextTarget.sourceNode;
-                                            var paletteNode = genro.nodeById('tt_colorPalette');
-                                            objectExtract(paletteNode.attr,'_set_*'); 
-                                            for (var attr in connectedNode.attr){
-                                                if(stringStartsWith(attr,'_set_')){
-                                                    paletteNode.attr[attr] = connectedNode.attr[attr];
-                                                }
-                                            }
-                                            var path = connectedNode.absDatapath();
-                                            SET _temp.ttcolor=path;
-                                             """,
-                        ).menuItem(datapath='^_temp.ttcolor')
-        menuitem.colorPalette(value='^.color',nodeId='tt_colorPalette',connect_ondblclick='dijit.byId("tt_colorPaletteMenu").onCancel();')
-
+    
     def tt_left(self,bc,wkdlist):
         center = bc.contentPane(region='center')
-        self.tt_colorPaletteMenu(center)
-
         fb = center.formbuilder(cols=2, border_spacing='2px',datapath='.conf.dayrow.day')
         weekdays = dates.get_day_names(width='wide', locale=self.locale.replace('-','_'))
         for k in wkdlist:
@@ -106,17 +88,12 @@ class Timetable(BaseComponent):
         parent.styleSheet(self.tt_localcss(),cssTitle='timetablecss')
         bc = parent.borderContainer(nodeId=nodeId,datapath=datapath,_class='pbl_roundedGroup',border='1px solid gray',
                                     regions='^.controller.layoutregions')
+        self.cssh_main(bc,storepath='.controller.conf')
+
         bc.data('.controller.layoutregions.left','215px',show=False)
         top = bc.contentPane(region='top',background='gray',_class='pbl_roundedGroupLabel')
         self.tt_bottom(bc.contentPane(region='bottom',datapath='.controller',_class='pbl_roundedGroupBottom'),wkdlist)
         self.tt_left(bc.borderContainer(region='left',datapath='.controller',border_right='1px solid gray'),wkdlist)
-        top.dataController("""
-                            var kw = $2.kw;
-                            if(kw.reason){
-                                genro.dom.styleSheetBagSetter($1.getValue(),kw.reason.attr);                                   
-                            }
-                            """,
-                            conf="^.controller.conf")
         bc.contentPane(region='center').remote('ttdh_main',nodeId=nodeId,tstart=tstart,tstop=tstop,period=period,
                                                 wkdlist=wkdlist,series=series,fired=fired, **kwargs)
       
