@@ -1,8 +1,10 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <GenRoBag><description><short>dbSelect</short>
 <full>It's a filteringSelect (see demo) that get data from a database's table.</full>
-<children/>
+<children></children>
 <params>&lt;i&gt;dbtable&lt;/i&gt; The name of table you want to use as source &lt;br/&gt;
 &lt;i&gt;columns&lt;/i&gt; what fields you use for your search&lt;br/&gt;
 &lt;i&gt;auxColumns&lt;/i&gt; the columns you want to see but you don't want to search in&lt;br/&gt;</params>
-<link>aaaa</link></description></GenRoBag>
+<link>aaaa</link>
+<introduction _T="NN"></introduction>
+<abstract _T="NN"></abstract></description></GenRoBag>

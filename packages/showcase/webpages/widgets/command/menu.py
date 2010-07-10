@@ -1,16 +1,9 @@
 #!/usr/bin/env pythonw
 # -*- coding: UTF-8 -*-
-#
-#  untitled
-#
+
 #  Created by Giovanni Porcari on 2007-03-24.
 #  Copyright (c) 2007 Softwell. All rights reserved.
-#
 
-""" GnrDojo Hello World """
-import os
-
-import datetime
 from gnr.core.gnrbag import Bag, DirectoryResolver
 
 class GnrCustomWebPage(object):
@@ -18,8 +11,7 @@ class GnrCustomWebPage(object):
         root.data('values.states', self.tableData_states())
         root.data('values.sex', self.tableData_sex(), id='#k', caption='#v')
         root.data('records', self.myRecords())
-        fb = root.formbuilder(cols='4', datapath='records',
-                              cellspacing='10', background_color='silver', margin='30px')
+        fb = root.formbuilder(cols='4',datapath='records',cellspacing='10',background_color='silver',margin='30px')
         for r in range (4):
             self.makeRow(fb,r)
             
@@ -36,8 +28,16 @@ class GnrCustomWebPage(object):
         dlg.checkbox('Make a copy',value='^.docopy')
         dlg.button('Ok',action='genro.savedlg.hide()')
         
+    def tableData_states(self):
+        mytable=Bag()
+        mytable.setItem('r1',None,id='CA',caption='California')
+        mytable.setItem('r2',None,id='IL',caption='Illinois')
+        mytable.setItem('r3',None,id='NY',caption='New York')
+        mytable.setItem('r4',None,id='TX',caption='Texas')
+        mytable.setItem('r5',None,id='AL',caption='Alabama')
+        return mytable
         
-    def savingDialog(self,root,gnrId): 
+    def savingDialog(self,root,gnrId):
         dlg=root.dialog(title='Saving all',datapath='saving',gnrId=gnrId).formbuilder(cols='2',cellspacing='8')
         dlg.textbox(lbl='Filename',value='^.filename')
         dlg.checkbox('Make a copy',value='^.docopy')
@@ -81,8 +81,8 @@ class GnrCustomWebPage(object):
         mz = m.menuline('Older').menu()
         mz.menuline('Over 50', action="alert('Senior uh ?')")
         mz.menuline('Over 100', disabled=True)
-
-    def makeRow(self,fb,r): 
+        
+    def makeRow(self,fb,r):
         name = fb.textBox(lbl='Name', value='^.r%i.name' % r )
         #age=fb.numberTextBox(lbl='Age', value='.r%i.age' % r)
         age = fb.numberSpinner(lbl='Age', value='^.r%i.age' % r)
@@ -108,13 +108,4 @@ class GnrCustomWebPage(object):
         mytable=Bag()
         mytable.setItem('M','Male')
         mytable.setItem('F','Female')
-        return mytable
-        
-    def tableData_states(self):
-        mytable=Bag()
-        mytable.setItem('r1',None,id='CA',caption='California')
-        mytable.setItem('r2',None,id='IL',caption='Illinois')
-        mytable.setItem('r3',None,id='NY',caption='New York')
-        mytable.setItem('r4',None,id='TX',caption='Texas')
-        mytable.setItem('r5',None,id='AL',caption='Alabama')        
         return mytable
