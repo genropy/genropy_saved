@@ -6,10 +6,10 @@
 	<string>E3BADC20-6B0E-11D9-9DC9-000D93589AF6</string>
 	<key>comment</key>
 	<string>
-	todo:
-		list comprehension / generator comprehension scope.
-		
-	</string>
+    todo:
+        list comprehension / generator comprehension scope.
+
+    </string>
 	<key>fileTypes</key>
 	<array>
 		<string>py</string>
@@ -748,6 +748,10 @@
 					<array>
 						<dict>
 							<key>include</key>
+							<string>#genro_structs</string>
+						</dict>
+						<dict>
+							<key>include</key>
 							<string>#dotted_name</string>
 						</dict>
 					</array>
@@ -1144,7 +1148,7 @@
                 input|intern|isinstance|issubclass|iter|len|locals|map|max|min|oct|
                 ord|pow|range|raw_input|reduce|reload|repr|round|setattr|sorted|
                 sum|unichr|vars|zip
-			)\b</string>
+            )\b</string>
 			<key>name</key>
 			<string>support.function.builtin.python</string>
 		</dict>
@@ -1152,10 +1156,10 @@
 		<dict>
 			<key>match</key>
 			<string>(?x)\b(
-				basestring|bool|buffer|classmethod|complex|dict|enumerate|file|
-				float|frozenset|int|list|long|object|open|property|reversed|set|
-				slice|staticmethod|str|super|tuple|type|unicode|xrange
-			)\b</string>
+                basestring|bool|buffer|classmethod|complex|dict|enumerate|file|
+                float|frozenset|int|list|long|object|open|property|reversed|set|
+                slice|staticmethod|str|super|tuple|type|unicode|xrange
+            )\b</string>
 			<key>name</key>
 			<string>support.type.python</string>
 		</dict>
@@ -1441,6 +1445,50 @@
 			<key>match</key>
 			<string>[A-Za-z_][A-Za-z0-9_]*</string>
 		</dict>
+		<key>genro_methods</key>
+		<dict>
+			<key>patterns</key>
+			<array>
+				<dict>
+					<key>match</key>
+					<string>(?xi)\b(accordionContainer|accordionPane|contentPane|borderContainer|layoutContainer|splitContainer|stackContainer|tabContainer|
+                                     toolbar|dialog|tooltipDialog|titlePane|floatingPane|formbuilder)\b</string>
+					<key>name</key>
+					<string>support.function.genro.layout</string>
+				</dict>
+				<dict>
+					<key>match</key>
+					<string>(?xi)\b(checkbox|radiobutton|combobox|currencytextbox|datetextbox|filteringselect|inlineeditbox|numberspinner|
+                                     numbertextbox|horizontalslider|verticalslider|simpletextarea|multiselect|textbox|timetextbox|validationtextbox|
+                                     button|togglebutton|combobutton|dropdownbutton|menu|menuitem|menuseparator|popupmenuitem|progressbar|tooltip|
+                                     colorpalette|editor|tree|dock|radiogroup|resizehandle|sizingpane|fisheyelist|loader|toaster|fileinput|fileinputblind|
+                                     fileinputauto|colorpicker|sortlist|timespinner|iterator|gallery|lightbox|slideshow|thumbnailpicker|deck|slide|grid|virtualgrid|
+                                     calendar|googlemap|googlechart|googlevisualization|ckeditor|includedview|multiselect|recordialog|div|span)\b</string>
+					<key>name</key>
+					<string>support.function.genro.widget</string>
+				</dict>
+				<dict>
+					<key>match</key>
+					<string>(?xi)\b(data|dataFormula|dataController|dataRemote|dataRecord|dataSelection|dataScript|dataRpc|formsaver|formloader)\b</string>
+					<key>name</key>
+					<string>support.function.genro.data</string>
+				</dict>
+			</array>
+		</dict>
+		<key>genro_structs</key>
+		<dict>
+			<key>begin</key>
+			<string>[A-Za-z_][A-Za-z0-9_]*\.(?=(?:[A-Za-z_][A-Za-z0-9_]*)(?:\s*\())</string>
+			<key>end</key>
+			<string>(?=\s*\()</string>
+			<key>patterns</key>
+			<array>
+				<dict>
+					<key>include</key>
+					<string>#genro_methods</string>
+				</dict>
+			</array>
+		</dict>
 		<key>illegal_names</key>
 		<dict>
 			<key>match</key>
@@ -1514,16 +1562,16 @@
 			<string>these methods have magic interpretation by python and are generally called indirectly through syntactic constructs</string>
 			<key>match</key>
 			<string>(?x)\b(__(?:
-						abs|add|and|call|cmp|coerce|complex|contains|del|delattr|
-						delete|delitem|delslice|div|divmod|enter|eq|exit|float|
-						floordiv|ge|get|getattr|getattribute|getitem|getslice|gt|
-						hash|hex|iadd|iand|idiv|ifloordiv|ilshift|imod|imul|init|
-						int|invert|ior|ipow|irshift|isub|iter|itruediv|ixor|le|len|
-						long|lshift|lt|mod|mul|ne|neg|new|nonzero|oct|or|pos|pow|
-						radd|rand|rdiv|rdivmod|repr|rfloordiv|rlshift|rmod|rmul|ror|
-						rpow|rrshift|rshift|rsub|rtruediv|rxor|set|setattr|setitem|
-						setslice|str|sub|truediv|unicode|xor
-					)__)\b</string>
+                        abs|add|and|call|cmp|coerce|complex|contains|del|delattr|
+                        delete|delitem|delslice|div|divmod|enter|eq|exit|float|
+                        floordiv|ge|get|getattr|getattribute|getitem|getslice|gt|
+                        hash|hex|iadd|iand|idiv|ifloordiv|ilshift|imod|imul|init|
+                        int|invert|ior|ipow|irshift|isub|iter|itruediv|ixor|le|len|
+                        long|lshift|lt|mod|mul|ne|neg|new|nonzero|oct|or|pos|pow|
+                        radd|rand|rdiv|rdivmod|repr|rfloordiv|rlshift|rmod|rmul|ror|
+                        rpow|rrshift|rshift|rsub|rtruediv|rxor|set|setattr|setitem|
+                        setslice|str|sub|truediv|unicode|xor
+                    )__)\b</string>
 			<key>name</key>
 			<string>support.function.magic.python</string>
 		</dict>
