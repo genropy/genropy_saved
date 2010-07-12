@@ -377,7 +377,7 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
            #'Css','Script','Func','BagFilteringTable','DbTableFilter','TreeCheck']
     gnrNS=['DbSelect','DbComboBox','DbView','DbForm','DbQuery','DbField','dataFormula','dataScript','dataRpc', 'dataController',
            'dataRemote','gridView','viewHeader','viewRow','script','func',
-           'staticGrid','dynamicGrid','fileUploader','gridEditor','ckEditor']
+           'staticGrid','dynamicGrid','fileUploader','gridEditor','ckEditor','tinyMCE']
     genroNameSpace=dict([(name.lower(),name) for name in htmlNS])
     genroNameSpace.update(dict([(name.lower(),name) for name in dijitNS]))
     genroNameSpace.update(dict([(name.lower(),name) for name in dojoxNS]))
