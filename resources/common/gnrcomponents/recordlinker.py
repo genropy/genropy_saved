@@ -28,18 +28,40 @@ import warnings
 class RecordLinker(BaseComponent):
     py_requires="foundation/recorddialog"
     def recordLinker(self,*args,**kwargs):
-        warnings.warn("recordLinker", DeprecationWarning, stacklevel=2)
+        warnings.warn("recordLinker is deprecated, use linkerField.", DeprecationWarning, stacklevel=2)
         self.linkerCell(*args,**kwargs)        
     
-    def linkerCell(self,fb,table=None,field=None,dialogPars=None,record_template=None,record_path=None,lbl=None,
+    def linkerField(self,fb,table=None,field=None,dialogPars=None,record_template=None,record_path=None,lbl=None,
                     value=None,width=None,height=None,colspan=1,rowspan=1,disabled=False,
                     default_path=None, record_reloader=None,**kwargs):
-        """create a cell inside a formbuilder that contains a dbselect for setting an ID,
-           a formatted div for viewing a preview of the selected record, one botton for editing
-           the selected record, one for adding a new one.
-           
+        """Creates a linker inside a formbuilder.
+        
+        A linker is a compound component that has a dbselect for selecting a record and
+        a div to show a preview/summary of that record. It has two buttons to add and edit the current record.
+
+        :param fb:              formbuilder (mandatory)
+        :param table:           string -- table (mandatory)
+        :param field:           string -- field name
+        :param dialogPars:      dict -- dialog parameters (mandatory)
+        :param record_template: string -- template for the record summary
+        :param record_path:     datapath
+        :param lbl:             label
+        :param value:           string -- where to store the selected ID
+        :param default_path:    ???
+        :param record_reloader: datapath
         """
-        assert 'dlgId' in dialogPars, 'this param is mandatory'
+        
+        # --------------------------------------------------------------------------------------------- Mandatory parameters
+        
+        assert table is not None, "table parameter is mandatory"
+        assert dialogPars is not None, "dialogPars is mandatory (and please remember to specify dlgId in your dialogPars)"
+        assert 'dlgId' in dialogPars, "dlgId in dialogPars is mandatory"
+        
+        assert not 'firedPkey' in dialogPars, "dialogPars must not contain 'firedPkey'. The linker uses it internally."
+        assert not 'savedPath' in dialogPars, "dialogPars must not contain 'savedPath'. The linker uses it internally."
+        
+        # --------------------------------------------------------------------------------------------- Code
+        
         selectorBox = fb.div(lbl=lbl,lbl_vertical_align='top',
                             min_height=height,width=width,colspan=colspan,
                             rowspan=rowspan,position='relative')
@@ -68,9 +90,6 @@ class RecordLinker(BaseComponent):
                     action='FIRE #%s.pkey = GET %s;' %(dialogPars['dlgId'], fieldrelpath),
                     visible=value,iconClass='icnBaseEdit')#disabled=disabled)
           
-        assert not 'firedPkey' in dialogPars, 'firedPkey is used by the component'     
-        assert not 'savedPath' in dialogPars, 'savedPath is used by the component'                  
-        
         selectorBox.dataRecord(record_path,table,pkey=record_reloader or value, _if='pkey',_else='null')
         selectorBox.dataController("SET %s = savedId;" %fieldrelpath,
                                     savedId='=#%s.savedId' %dialogPars['dlgId'],
@@ -85,6 +104,5 @@ class RecordLinker(BaseComponent):
     def linkerPane(self,parent,table=None,field=None,dialogPars=None,record_template=None,record_path=None,label=None,
                     value=None,width=None,height=None,colspan=1,rowspan=1,disabled=False,
                     default_path=None, record_reloader=None,**kwargs):
-        pane = parent.contentPane(**kwargs)
-        pass
+        raise NotImplementedError("Not yet implemented.")
     
