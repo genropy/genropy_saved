@@ -185,6 +185,7 @@ class GnrAppSync4D(GnrApp):
     def onIniting(self):
         basepath = self.config.getAttr('packages', 'path')
         self.s4d = Struct4D(self.instanceFolder, basepath)
+        self.checkChanges=False
         if not self.config['packages']:
             self.rebuildRecipe()
             
@@ -244,9 +245,10 @@ class GnrAppSync4D(GnrApp):
     folder4dDataOut = property(_get_folder4dDataOut)
 
     def beforeLoop(self):
-        changes = self.db.checkDb()
-        if changes:
-            raise NotMatchingModelError('\n'.join(self.db.model.modelChanges))
+        if self.checkChanges:
+            changes = self.db.checkDb()
+            if changes:
+                raise NotMatchingModelError('\n'.join(self.db.model.modelChanges))
         self.running = True
         
     def loop(self):

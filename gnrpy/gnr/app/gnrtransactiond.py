@@ -46,6 +46,7 @@ class GnrAppTransactionAgent(GnrApp):
         self.listen_timeout = int(gnrpkg.getAttr('listen_timeout_seconds',0)) or 60
         self.running = False
         self.db.inTransactionDaemon = True
+        self.checkModel = False
         self.transaction4d = TransactionManager4D(self, 'gnr')
         self.transaction_pkgid = 'gnr'
         self.transaction_tname = '%s.transaction' % self.transaction_pkgid
@@ -82,9 +83,10 @@ class GnrAppTransactionAgent(GnrApp):
         
         
     def loop(self):
-        changes = self.db.checkDb()
-        if changes:
-            raise NotMatchingModelError('\n'.join(self.db.model.modelChanges))
+        if self.checkModel:
+            changes = self.db.checkDb()
+            if changes:
+                raise NotMatchingModelError('\n'.join(self.db.model.modelChanges))
         self.running = True
         self.checkTransactions()
         self.db.listen('gnr_transaction_new', timeout=self.listen_timeout, onNotify=self.checkTransactions, onTimeout=self.checkTransactions)
