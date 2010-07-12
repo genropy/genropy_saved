@@ -23,10 +23,12 @@ Component for thermo:
 """
 from gnr.web.gnrwebpage import BaseComponent
 
+import warnings
+
 class RecordLinker(BaseComponent):
     py_requires="foundation/recorddialog"
     def recordLinker(self,*args,**kwargs):
-        print 'deprecated'
+        warnings.warn("recordLinker", DeprecationWarning, stacklevel=2)
         self.linkerCell(*args,**kwargs)        
     
     def linkerCell(self,fb,table=None,field=None,dialogPars=None,record_template=None,record_path=None,lbl=None,
