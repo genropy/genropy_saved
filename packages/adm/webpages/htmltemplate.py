@@ -81,8 +81,7 @@ class GnrCustomWebPage(object):
         self.controllers(bc)
         self.mainInfo(bc.borderContainer(region='left',width='50em',splitter=True,disabled=disabled))
         bc.borderContainer(region='center',overflow='auto',datapath='_temp.data').remote('printLayout',
-                                                                                            design='^form.record.data.main.design',
-                                                                                            lazy=False)
+                                                                                            design='^form.record.data.main.design')
 
     def remote_printLayout(self,parentBc,design=None,**kwargs):
         design = design or 'headline'
@@ -110,7 +109,7 @@ class GnrCustomWebPage(object):
                           )
         regions=dict(headline=('top','bottom','center'),sidebar=('left','right','center'))
         for region in regions[design]:
-            self._subRegions(bc,region=region,design=design,)
+            self._subRegions(bc,region=region,design=design)
 
     def _subRegions(self,parentBc,region=None,design=None):
         subregions=dict(sidebar=('top','bottom','center'),headline=('left','right','center'))
