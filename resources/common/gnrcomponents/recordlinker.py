@@ -18,9 +18,6 @@
 #License along with this library; if not, write to the Free Software
 #Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 
-"""
-Component for thermo:
-"""
 from gnr.web.gnrwebpage import BaseComponent
 
 import warnings
@@ -28,12 +25,12 @@ import warnings
 class RecordLinker(BaseComponent):
     py_requires="foundation/recorddialog"
     def recordLinker(self,*args,**kwargs):
-        warnings.warn("recordLinker is deprecated, use linkerField.", DeprecationWarning, stacklevel=2)
+        warnings.warn("recordLinker is deprecated, use linkerField instead.", DeprecationWarning, stacklevel=2)
         self.linkerCell(*args,**kwargs)        
     
-    def linkerField(self,fb,table=None,field=None,dialogPars=None,record_template=None,record_path=None,lbl=None,
-                    value=None,width=None,height=None,colspan=1,rowspan=1,disabled=False,
-                    default_path=None, record_reloader=None,**kwargs):
+    def linkerField(self, fb, table=None, field=None, dialogPars=None, record_template=None, record_path=None, lbl=None,
+                    value=None, width=None, height=None, colspan=1,rowspan=1, disabled=False, default_path=None, 
+                    record_reloader=None, **kwargs):
         """Creates a linker inside a formbuilder.
         
         A linker is a compound component that has a dbselect for selecting a record and
@@ -82,15 +79,15 @@ class RecordLinker(BaseComponent):
                             left='1px',width='100%',border='1px solid silver',
                             border_top='0px',style="""-moz-border-radius-bottomleft:6px;
                                                       -moz-border-radius-bottomright:6px;
-                                                    """)
-        selectorViewer.div(innerHTML='==dataTemplate(_tpl,_data)',_data='^%s' %record_path,
-                            _tpl=record_template)
+                                                   """)
+        selectorViewer.div(innerHTML='==dataTemplate(_tpl,_data)',_data='^%s' %record_path, _tpl=record_template)
         selectorViewer.button('!!Edit',baseClass='no_background',showLabel=False,
                     right='2px',z_index='100',bottom='2px',position='absolute',
                     action='FIRE #%s.pkey = GET %s;' %(dialogPars['dlgId'], fieldrelpath),
                     visible=value,iconClass='icnBaseEdit')#disabled=disabled)
           
-        selectorBox.dataRecord(record_path,table,pkey=record_reloader or value, _if='pkey',_else='null')
+        selectorBox.dataRecord(record_path,table,pkey=record_reloader or value, _if='pkey',_else='null',
+            _fired='^#%s.recordSaved' %dialogPars['dlgId'])
         selectorBox.dataController("SET %s = savedId;" %fieldrelpath,
                                     savedId='=#%s.savedId' %dialogPars['dlgId'],
                                     _fired='^#%s.recordSaved' %dialogPars['dlgId'])
@@ -105,4 +102,3 @@ class RecordLinker(BaseComponent):
                     value=None,width=None,height=None,colspan=1,rowspan=1,disabled=False,
                     default_path=None, record_reloader=None,**kwargs):
         raise NotImplementedError("Not yet implemented.")
-    
