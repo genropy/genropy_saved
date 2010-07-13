@@ -363,9 +363,13 @@ class GnrSqlDb(GnrObject):
         for pkg,pkgobj in self.packages.items():
             if (pkg in packages and omit) or (not pkg in packages and not omit):
                 continue                
-            result.setItem(pkg,Bag(),caption=pkgobj.attributes.get('name_long',pkg),**pkgobj.attributes)
+            pkgattr = dict(pkgobj.attributes)
+            pkgattr['caption'] = pkgobj.attributes.get('name_long',pkg)
+            result.setItem(pkg,Bag(),**pkgattr)
             for tbl, tblobj in pkgobj.tables.items():
-                result[pkg].setItem(tbl,None,caption=tblobj.attributes.get('name_long',tbl),**tblobj.attributes)
+                tblattr = dict(tblobj.attributes)
+                tblattr['caption'] = tblobj.attributes.get('name_long',pkg)
+                result[pkg].setItem(tbl,None,**tblattr)
         return result
     
     def table(self, tblname, pkg=None):
