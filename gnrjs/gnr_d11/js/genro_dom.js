@@ -426,7 +426,7 @@ dojo.declare("gnr.GnrDomHandler",null,{
         }else if(kw.evt=='ins'){
             st.setProperty(kw.node.label,kw.node.getValue(),null);
         }else if(kw.evt=='del'){
-            console.log(kw);
+           // console.log(kw);
         }
         var stylebag = genro.dom.styleToBag(st);
         parentNode.setValue(stylebag);
