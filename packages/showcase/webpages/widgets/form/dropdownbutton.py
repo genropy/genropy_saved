@@ -4,21 +4,15 @@
 #  Created by Giovanni Porcari on 2007-03-24.
 #  Copyright (c) 2007 Softwell. All rights reserved.
 
-""" dropdownbutton """
-import os
 from gnr.core.gnrbag import Bag
 
 class GnrCustomWebPage(object):
-
     def main(self, root, **kwargs):
-        root.data('contents', self._receiptBag())
+        root.data('contents', self.receiptBag())
         root.data('label','contents')
-      #x=root.toolbar().dropdownbutton('^label',id='zzz').menu(storepath='contents',
-      #                                               action='SET label=this.attr.label')
-        x=root.div(height='40px',width='40px',background='red').menu(storepath='contents',modifiers='*',
-                                                                    action='alert(this.attr.label)')
+        ddb=root.toolbar().dropdownbutton(label='!!Menu',id='zzz').menu(storepath='contents', action=("alert($1.label)"))
         
-    def _receiptBag(self):
+    def receiptBag(self):
         b = Bag()
         b.setItem('r1',None,page=0,label='Credit Card')
         b.setItem('r1.aaa',None,label='xxx')

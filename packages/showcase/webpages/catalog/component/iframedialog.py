@@ -8,7 +8,7 @@ class GnrCustomWebPage(object):
     py_requires='public:Public,foundation/dialogs'
     
     def main(self, rootBC, **kwargs):
-        pane, top, bottom = self.pbl_rootContentPane(rootBC, '!!Test iFrame dialog', margin='5px')
+        pane = rootBC.contentPane(margin='5px')
         pane.button('open 1',action='SET framepage_test ="/showcase/catalog/component/res/test1"; FIRE #myframe.open;')
         pane.button('open 2',action='SET framepage_test ="/showcase/catalog/component/res/test2"; FIRE #myframe.open;')
         
