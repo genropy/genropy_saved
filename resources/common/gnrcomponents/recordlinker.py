@@ -26,7 +26,7 @@ class RecordLinker(BaseComponent):
     py_requires="foundation/recorddialog"
     def recordLinker(self,*args,**kwargs):
         warnings.warn("recordLinker is deprecated, use linkerField instead.", DeprecationWarning, stacklevel=2)
-        self.linkerCell(*args,**kwargs)        
+        self.linkerField(*args,**kwargs)        
     
     def linkerField(self, fb, table=None, field=None, dialogPars=None, record_template=None, record_path=None, lbl=None,
                     value=None, width=None, height=None, colspan=1,rowspan=1, disabled=False, default_path=None, 
