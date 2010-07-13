@@ -4,7 +4,6 @@
 import datetime
 
 class GnrCustomWebPage(object):
-    
     def main(self, root, **kwargs):
         root.div('Hello assopy', font_size='40pt', border='3px solid yellow', 
                                                 padding='20px')
@@ -19,7 +18,6 @@ class GnrCustomWebPage(object):
         root.dataRpc('demo.autoHour', 'getTime', _timing='1')
         hour=root.div('^demo.autoHour',font_size='20pt', border='3px solid yellow',
                                      padding='20px', margin_top='5px' )  
-
+                                     
     def rpc_getTime(self):
         return self.toText(datetime.datetime.now(), format='HH:mm:ss')
-        

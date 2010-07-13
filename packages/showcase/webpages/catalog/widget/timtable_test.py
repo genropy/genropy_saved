@@ -18,24 +18,17 @@
 #License along with this library; if not, write to the Free Software
 #Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 
-"""
-Component for referto:
-"""
 import random
 from datetime import date,datetime,time,timedelta
 from gnr.core.gnrstring import toText
 
-
 class GnrCustomWebPage(object):
-    py_requires='foundation/macrowidgets,gnrcomponents/timetable:Timetable'
+    py_requires='foundation/macrowidgets, gnrcomponents/timetable:Timetable'
     css_requires='public'
-
-    def pageAuthTags(self, method=None, **kwargs):
-        return ''
-        
+    
     def windowTitle(self):
-         return 'Timetable'
-     
+        return 'Timetable'
+        
     def main(self,root,**kwargs):
         bc = root.borderContainer()
         top = bc.contentPane(region='top',height='40px').toolbar()
@@ -61,7 +54,6 @@ class GnrCustomWebPage(object):
                         tstart='=top.tstart',tstop='=top.tstop',
                         wkdlist='=top.wkdlist',fired='^build')
         
-    
     def tt_mytt_dataProvider(self,day=None,serie=None,tstart=None,tstop=None,**kwargs):
         timecurr = datetime.combine(day,tstart)
         timestop = datetime.combine(day,tstop)
@@ -86,7 +78,7 @@ class GnrCustomWebPage(object):
                     timeslot += deltaminutes
             timecurr+=deltavisits
         return slots
-    
+        
     def tt_mytt_slot(self,pane,slot=None,width=None,height=None):
         patient =  slot['patient']
         if patient is None:
@@ -98,10 +90,6 @@ class GnrCustomWebPage(object):
         slotdiv = pane.div(_class='ttslot %s' %status,height='100%')
         slotdiv.div(_class='ttslot_T').span(toText(slot['ts'],format='HH:mm'),margin='5px')
         
-        
-    #def tt_mytt_daylabel(self,pane):
-    #    pass
-    #
     def main_(self, root, **kwargs):
         root.data('zoomFactor',1)
         root.css('.zoommed',"""z-index:99; 
@@ -129,13 +117,12 @@ class GnrCustomWebPage(object):
                         color = 'red'
                     else:
                         color = 'orange'
-                        
+                    
                     app = inner.div(background=color,position='absolute',top='%ipx' %cy,left='%ipx' %cx,
                             height='%ipx' %h,width='%ipx' %w,border='1px solid gray',
                             _class='rounded_max shadow_2',connect_onclick='genro.dom.setClass(this.domNode,"zoommed","toggle")')
-                            
+                    
                     if disp> .3:
                         app.div('dottor pierone')
                         app.div('ore 13:22')
                         app.div('paziente mario')
-        

@@ -1,7 +1,6 @@
 #!/usr/bin/env pythonw
 # -*- coding: UTF-8 -*-
 
-
 class GnrCustomWebPage(object):
     py_requires='demo:Demo'
     
@@ -27,9 +26,3 @@ class GnrCustomWebPage(object):
         fb.numberTextBox(value = '^font',width='5em')
         
         fb.comboBox(width='5em',values='pt,px',value='^um_font',default='pt')
-
-        
-    
-    
-    
-    

@@ -1,9 +1,7 @@
 #!/usr/bin/env pythonw
 # -*- coding: UTF-8 -*-
-#
 
 from gnr.web.gnrhtmlpage import GnrHtmlDojoPage as page_factory
-
 
 class GnrCustomWebPage(object):
     dojoversion='14'
@@ -24,7 +22,3 @@ class GnrCustomWebPage(object):
         pane=bc.contentPane(region='center',padding='5px')
         pane.div(id="mychart", width='100%' , height='100%')
         pane.div( id="mychart_legend")
-
-
-
-

@@ -1,17 +1,10 @@
 #!/usr/bin/env pythonw
 # -*- coding: UTF-8 -*-
-#
-#  untitled
-#
+
 #  Created by Giovanni Porcari on 2007-03-24.
 #  Copyright (c) 2007 Softwell. All rights reserved.
-#
 
-""" Standard table showcase """
-
-from gnr.core.gnrbag import Bag
 from gnr.sql.gnrsql_exceptions import RecordNotExistingError
-
 
 class GnrCustomWebPage(object):
     py_requires = 'public:Public'
@@ -26,5 +19,3 @@ class GnrCustomWebPage(object):
         fb = dlgPane.formbuilder(border_spacing='6px',margin_left='1em',datapath='dlg.form')
         fb.textbox(value='^.a',lbl='Foo')
         fb.textbox(value='^.b',lbl='Spam')
-        
-

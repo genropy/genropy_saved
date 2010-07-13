@@ -9,4 +9,3 @@ class Table(object):
         tbl.column('year', 'L', name_short='Yr', name_long='Birth Year')
         tbl.column('nationality', name_short='Ntl',name_long='Nationality')
         tbl.column('number','L',name_long='!!Number')
-

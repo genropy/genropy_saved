@@ -36,8 +36,8 @@ test_css = mainpage.resolvePathAsUrl('dojo/dojo_13/dijit/tests/css/dijitTests.cs
 			var chart1 = new dojox.charting.Chart2D("simplechart");
 			chart1.addPlot("default", {type: "Lines"});
 			chart1.addAxis("x", {labels: [
-				                			{value: 1, text: "Jan"}, 
-			                    			{value: 2, text: "Feb"},
+											{value: 1, text: "Jan"}, 
+											{value: 2, text: "Feb"},
 											{value: 3, text: "Mar"}, 
 											{value: 4, text: "Apr"}, 
 											{value: 5, text: "Mag"}

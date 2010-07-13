@@ -1,18 +1,14 @@
 #!/usr/bin/env pythonw
 # -*- coding: UTF-8 -*-
-#
-#  untitled
-#
+
 #  Created by Giovanni Porcari on 2007-03-24.
 #  Copyright (c) 2007 Softwell. All rights reserved.
-#
-
 
 class GnrCustomWebPage(object):
     js_requires='raphael/raphael,raphael/colorpicker,raphael/colorwheel'
     def windowTitle(self):
-         return '!!Colorpicker'
-
+        return '!!Colorpicker'
+        
     def main(self, root, **kwargs):
         tc = root.tabContainer()
         pane1 = tc.contentPane(title='Colorpicker 1')

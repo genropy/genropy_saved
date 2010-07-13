@@ -1,6 +1,5 @@
 #!/usr/bin/env pythonw
 # -*- coding: UTF-8 -*-
-#
 
 from gnr.web.gnrhtmlpage import GnrHtmlPage as page_factory
 
@@ -15,9 +14,7 @@ class GnrCustomWebPage(object):
             tr = tbl.tr()
             for j in range(10):
                 tr.td('%s.%s'%(i,j))
-        
-          
-
+                
     def page_head(self,head):
         head.meta( content="text/html; charset=UTF-8")
         head.meta(name="OWNER",content="Centro medico Euriclea")
@@ -25,8 +22,5 @@ class GnrCustomWebPage(object):
         head.meta(name="Description", content="GenroMed software")
         head.meta(http_equiv="Content-Language" ,content="it")
         head.comment('<link rel="shortcut icon" href="favicon.ico">')
-
         head.meta(name="keywords", content="software, gestionale, medico")
         head.title('GenroMed')
-        
-

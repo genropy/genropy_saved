@@ -1,7 +1,6 @@
 # encoding: utf-8
 
 class Table(object):
-    """ """
     def config_db(self, pkg):
         """user"""
         tbl =  pkg.table('user',  pkey='id', name_long='!!User', rowcaption='username:%s')
@@ -20,19 +19,19 @@ class Table(object):
     def createPassword(self):
         password=getUuid()[0:6]
         return password
-
+        
     def trigger_onUpdating(self, record,**kwargs):
         self.passwordTrigger(record)
-
+        
     def trigger_onInserting(self, record,**kwargs):
         self.passwordTrigger(record)
-
+        
     def passwordTrigger(self,record):
         if 'md5pwd' in record:
             password =record['md5pwd']
             if len(password)<32:
                 record['md5pwd']=self.db.application.changePassword(None, None, password, userid=record['username'])
-
+                
     def loadRecord(self,username,for_update=False):
         try:
             record = self.record(username=username,for_update=for_update).output('bag')

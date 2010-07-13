@@ -1,9 +1,6 @@
 #!/usr/bin/env pythonw
 # -*- coding: UTF-8 -*-
 
-import datetime
-
-
 class GnrCustomWebPage(object):
     def main(self, root, **kwargs):
         lc = root.layoutContainer(height='100%')
@@ -44,7 +41,7 @@ class GnrCustomWebPage(object):
         ind.span('^.localita', mask=' %s ')
         ind.span('^.provincia', mask='(%s)')
         pane.div('^.@utente_id.email', _class='mydiv')
-    
+        
     def boxRecordTree(self, pane):
         pane.tree(storepath='anagrafica.record', inspect='shift', visible='^anagrafica.id')
         
@@ -72,5 +69,3 @@ class GnrCustomWebPage(object):
         
         pane.includedView(storepath='ordine.record.@assopy_ordine_riga_ordine_id',
                            struct=struct)
-
-        

@@ -10,4 +10,3 @@ class Table(object):
         tbl.column('purchasedate', 'D', name_short='Pdt', name_long='Purchase date')
         tbl.column('available', name_short='Avl', name_long='Available')
         tbl.column('number','L',name_long='!!Number')
-

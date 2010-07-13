@@ -1,16 +1,8 @@
 #!/usr/bin/env pythonw
 # -*- coding: UTF-8 -*-
-#
-#  untitled
-#
+
 #  Created by Giovanni Porcari on 2007-03-24.
 #  Copyright (c) 2007 Softwell. All rights reserved.
-#
-
-""" GnrDojo Hello World """
-import os, datetime
-
-from gnr.core.gnrbag import Bag
 
 class GnrCustomWebPage(object):
     py_requires = 'public:Public'
@@ -30,14 +22,13 @@ class GnrCustomWebPage(object):
                                 
         grid = t1.div(width='100%', height='300px').IncludedView(struct=self._gridStruct(), 
                         storepath='regione.@glbl_provincia_regione')
-                     
-
+        
         t2 = root.contentPane()
         t2.textbox(value='^mycontext.lettera')
-        t2.dataSelection('lista_regioni', 'glbl.regione', sqlContextName='ctxregione2', _fired='^mycontext.lettera', 
+        t2.dataSelection('lista_regioni', 'glbl.regione', sqlContextName='ctxregione2', _fired='^mycontext.lettera',
                                            columnsFromView='lista_regioni')
-
-        self.setJoinCondition('ctxregione2', 
+                                           
+        self.setJoinCondition('ctxregione2',
                                 condition='$tbl.nome ILIKE :lettera', 
                                 lettera='^mycontext.lettera')
                                 
@@ -62,4 +53,3 @@ class GnrCustomWebPage(object):
         r.fieldcell('nome')
         r.fieldcell('@glbl_provincia_regione.nome')
         return struct
-

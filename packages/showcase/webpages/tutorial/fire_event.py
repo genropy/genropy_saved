@@ -1,17 +1,10 @@
 #!/usr/bin/env pythonw
 # -*- coding: UTF-8 -*-
-#
-#  untitled
-#
+
 #  Created by Giovanni Porcari on 2007-03-24.
 #  Copyright (c) 2007 Softwell. All rights reserved.
-#
-
-import datetime
 
 class GnrCustomWebPage(object):
-    def windowTitle(self):
-         return '!!Hello world'
     def main(self, root, **kwargs):
         root.data('labelDelBottone','pippo')
         root.data('disab',False)
@@ -25,11 +18,6 @@ class GnrCustomWebPage(object):
         root.div('^miovalore2',callAgain='^asdrubale')
         
         root.dataController('FIRE asdrubale',_timing=1)
-        
-        
-        
-        
-        
         root.numberTextBox(value='^valoremio')
         root.dataRpc('risultato','doppio',valore='^valoremio')
         root.div('^risultato')

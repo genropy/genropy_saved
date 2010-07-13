@@ -7,11 +7,7 @@ Created by Saverio Porcari on 2008-07-28.
 Copyright (c) 2008 __MyCompanyName__. All rights reserved.
 """
 
-import sys
-import os
-import datetime
-
-from gnr.core.gnrbag import Bag,BagResolver, BagCbResolver,DirectoryResolver
+from gnr.core.gnrbag import Bag, BagResolver, BagCbResolver, DirectoryResolver
 from gnr.app.gnrapp import GnrApp
 
 def importPeople(db,dataBag):
@@ -47,7 +43,7 @@ def importCast(db,dataBag):
         record['role'] = item.getAttr('role')
         record['prizes'] = item.getAttr('prizes')
         tblObj.insert(record)
-
+        
 if __name__ == '__main__':
     db = GnrApp('/Users/michele/newsites/showcase/instance').db    
     dataBag = Bag('/Users/michele/genro/gnrpy/packages/showcase/lib/data.xml')
@@ -55,11 +51,3 @@ if __name__ == '__main__':
     importMovie(db,dataBag)
     importCast(db,dataBag)
     db.commit()
-
-
-
-
-
-        
-
-

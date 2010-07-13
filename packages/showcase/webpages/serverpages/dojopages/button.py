@@ -1,9 +1,7 @@
 #!/usr/bin/env pythonw
 # -*- coding: UTF-8 -*-
-#
 
 from gnr.web.gnrhtmlpage import GnrHtmlDojoPage as page_factory
-
 
 class GnrCustomWebPage(object):
     dojoversion='13'
@@ -27,5 +25,3 @@ class GnrCustomWebPage(object):
         c3.div('treeeee,')
         c3.div('%s!'%name, style='color:red;')
         c3.button(label='I am a button: please NOT click me!',onClick='alert("YOU dare")')
-        
-                   

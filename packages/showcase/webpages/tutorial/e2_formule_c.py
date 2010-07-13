@@ -1,7 +1,6 @@
 #!/usr/bin/env pythonw
 # -*- coding: UTF-8 -*-
 
-
 class GnrCustomWebPage(object):
     def main(self, root, **kwargs):
         fb = root.formbuilder(cols=2)
@@ -36,10 +35,8 @@ class GnrCustomWebPage(object):
         # == means evaluate the embedded javascript
         d=fb.div(width='^width_cell', height='^height_cell', red='^red', green='^green', blue='^blue',
                 background="=='#'+red.toString(16)+green.toString(16)+blue.toString(16)")
-        
-     
+                
     def rpc_areaPython(self, base, height):
         base = base or 0
         height = height or 0
         return base * height
-            
