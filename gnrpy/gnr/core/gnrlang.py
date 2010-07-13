@@ -554,12 +554,13 @@ def base_visitor(cls):
 
 
 def instanceMixin(obj, source, methods=None, attributes=None, only_callables=True,
-                exclude='js_requires,css_requires,py_requires', **kwargs): 
+                exclude='js_requires,css_requires,py_requires',prefix=None, **kwargs): 
     """
     Add to the instance obj methods from 'source'.
     Source can be an instance or a class
     If not 'methods' all methods are added.  
     """
+    
     if isinstance(source, basestring):
         if ':' in source:
             modulename, clsname = source.split(':')
@@ -574,9 +575,8 @@ def instanceMixin(obj, source, methods=None, attributes=None, only_callables=Tru
             classes=[clsname]
         for clsname in classes:
             source = getattr(m, clsname, None)
-            instanceMixin(obj, source, methods=methods,only_callables=only_callables, exclude=exclude, **kwargs)  
+            instanceMixin(obj, source, methods=methods,only_callables=only_callables, exclude=exclude,prefix=prefix, **kwargs)  
         return
-        
     if source is None:
         return
     
@@ -585,14 +585,19 @@ def instanceMixin(obj, source, methods=None, attributes=None, only_callables=Tru
     if not methods:
         methods = mlist
     else:
+        if isinstance(methods,basestring):
+            methods = methods.split(',')
         methods = [k for k in methods if k in mlist]
     for name in methods:
         method = getattr(source, name).im_func
         k = instmethod(method, obj, obj.__class__)
-        if hasattr(obj,name):
-            original = getattr(obj,name)
-            setattr(obj,name+'_',original)
-        setattr(obj,name,k)
+        name_as = name 
+        if prefix:
+            name_as = '%s_%s' %(prefix,name)
+        if hasattr(obj,name_as):
+            original = getattr(obj,name_as)
+            setattr(obj,name_as+'_',original)
+        setattr(obj,name_as,k)
     if not only_callables:
         exclude = (exclude or '').split(',')
         attributes = [k for k in dir(source) if not callable(getattr(source,k)) and not k.startswith('_') and not k in exclude] 
