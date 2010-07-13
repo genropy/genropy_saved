@@ -629,7 +629,7 @@ dojo.declare("gnr.GnrBag",null,{
             if (label.indexOf('?')>=0){
                 var flabel=label.split('?');
                 label=flabel[0];
-                var getter=flabel[1];         
+                var getter=flabel[1] || '#attr';         
             }
             var i = this.index(label);
             if (i<0) {
@@ -655,7 +655,9 @@ dojo.declare("gnr.GnrBag",null,{
             if(getter.indexOf('#')<0){
                 return currnode.getAttr(getter);
             }
-         
+            if (getter=='#attr'){ 
+                return currnode.attr;
+            }
             if (getter=='#keys'){ 
                 return currvalue.keys();
             }
