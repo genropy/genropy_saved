@@ -345,7 +345,7 @@ dojo.declare("gnr.GnrDomHandler",null,{
         var _importRule = 3;
         var _styleRule = 1;
         var rule,label,value,attr;
-        for (var i=0; i < rules.length; i++) {
+        for (var i=0, len=rules.length; i < len; i++) {
             r = rules.item(i);
             switch(r.type){
                 case _styleRule:
@@ -360,9 +360,9 @@ dojo.declare("gnr.GnrDomHandler",null,{
                     result.setItem(label,genro.dom.cssRulesToBag(r.styleSheet.cssRules),attr);
 
                     break;
-                default:
-                    console.log('no import no style');
-                    break;
+                // default:
+                //     console.log('cssRulesToBag(): rule #' + i);
+                //     console.log(r);
             }
         };
         
@@ -406,10 +406,14 @@ dojo.declare("gnr.GnrDomHandler",null,{
     styleToBag:function(s){
         result = new gnr.GnrBag();
         var rule;
-        for (var i=0; i < s.length; i++) {
-            st = s[i];
-            result.setItem(st, s.getPropertyValue(st)); 
-        };
+        // for (var i=0; i < s.length; i++) {
+        //     st = s[i];
+        //     result.setItem(st, s.getPropertyValue(st)); 
+        // };
+        for(var i = s.length; s--;) {
+            var st = s[i];
+            result.setItem(st, s.getPropertyValue(st));
+        }
         return result;
     },
     windowTitle:function(title){

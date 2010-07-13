@@ -329,6 +329,10 @@ dojo.declare("gnr.GnrRpcHandler",null,{
             }
             if(currentAttr){
                 var attr = objectUpdate({}, currentAttr);
+                if(!envNode) {
+                    console.log(envNode);
+                    debugger;
+                }
                 envNode.attr = objectUpdate(attr, envNode.attr);
             }
         }else{

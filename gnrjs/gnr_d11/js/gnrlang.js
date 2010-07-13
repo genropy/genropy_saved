@@ -89,13 +89,11 @@ function stringSplit(s,c,n){
     }
 }
 function stringEndsWith (s,v) {
-    var lastIndex=s.lastIndexOf(v);
-    return (lastIndex>=0) ? (lastIndex+v.length==s.length) : false;
+    return (s.slice(-v.length)==v);
 }
 
 function stringStartsWith (s,v) {
-    if (s.slice(0,v.length)==v){return true;}
-    else{return false;};
+    return (s.slice(0,v.length)==v);
 }
 function stringContains(s,v) {
     return (s.indexOf(v)>=0);
@@ -188,14 +186,11 @@ function bagPathJoin (path1,path2) {
 }
 function objectPop (obj, key, dflt) {
     var result;
-    if (typeof dflt == 'undefined'){
-        var dflt=null;
-    }
     if ((obj instanceof Object) && (key in obj)){
         result = obj[key];
         delete obj[key];
     } else {
-        result = dflt;
+        result = (typeof dflt == 'undefined') ? null : dflt;
     }
     return result;
 }
@@ -217,7 +212,7 @@ function objectKeyByIdx(obj,idx){
 function objectExtract (obj, keys, dontpop) {
     var result = {};
     var key,m;
-    if  (/[\*]$/.test(keys)){
+    if  (keys.slice(-1)=='*'){
         
         key='^'+keys.replace('*','(.*)');
         for (var prop in obj){
@@ -235,7 +230,7 @@ function objectExtract (obj, keys, dontpop) {
         }
     }else{
         keys = keys.split(',');
-        for (var i =0; i<keys.length; i++){
+        for (var i=keys.length; i--;){
             key = stringStrip(keys[i]);
             if (key in obj){
                 result[key] = obj[key];
