@@ -2349,7 +2349,8 @@ dojo.declare("gnr.widgets.VirtualStaticGrid",gnr.widgets.Grid,{
     },
 
     attributes_mixin_get: function(inRowIndex){
-        return this.grid.rowCached(inRowIndex)[this.field];
+        var rowdata=this.grid.rowCached(inRowIndex)
+        return this._customGetter?this._customGetter.call(this,rowdata):rowdata[this.field]
     },
     
     mixin_rowCached:function(inRowIndex){

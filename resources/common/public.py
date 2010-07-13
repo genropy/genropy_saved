@@ -88,12 +88,12 @@ class Public(BaseComponent):
 
         def cb_bottom(bc,confirm_btn=None,**kwargs):
             bottom = bc.contentPane(**kwargs)
-            bottom.button('!!Save changes',float='right',margin='1px',
+            bottom.button('!!Save',float='right',margin='1px',
                         action="FIRE .close; (GET .opener.saveCb)();",
                         disabled='^.opener.invalidData')
             bottom.button('!!Cancel',baseClass='bottom_btn',float='right',margin='1px',
                             action='FIRE .close; (GET .opener.cancelCb)();')
-            bottom.button('!!Discard changes',float='left',margin='1px',
+            bottom.button('!!Discard',float='left',margin='1px',
                         action="FIRE .close; (GET .opener.continueCb)();")
             
         def cb_center(parentBc,**kwargs):
