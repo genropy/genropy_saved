@@ -66,6 +66,8 @@ class RecordLinker(BaseComponent):
             selector = selectorBox.field(field,position='absolute',
                                         left='0px',top='0px',width='100%',disabled=disabled,**kwargs)
             fieldrelpath = '.%s' %field.split('.')[-1]
+            if not value:
+                value = '^.%s' %fieldrelpath
         else:
             selector = selectorBox.dbSelect(value=value,dbtable=table,position='absolute',
                                         left='0px',top='0px',width='100%',disabled=disabled,**kwargs)
@@ -88,7 +90,7 @@ class RecordLinker(BaseComponent):
           
         selectorBox.dataRecord(record_path,table,pkey=record_reloader or value, _if='pkey',_else='null',
             _fired='^#%s.recordSaved' %dialogPars['dlgId'])
-        selectorBox.dataController("SET %s = savedId;" %fieldrelpath,
+        selectorBox.dataController("console.log(savedId); SET %s = savedId;" %fieldrelpath,
                                     savedId='=#%s.savedId' %dialogPars['dlgId'],
                                     _fired='^#%s.recordSaved' %dialogPars['dlgId'])
         onSaved = ''
