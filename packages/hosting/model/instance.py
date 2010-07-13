@@ -89,19 +89,17 @@ class Table(object):
 
     def prepare_hosted_instance(self, record_data):
         hosted_app=self.db.application.getAuxInstance(record_data['code'])
-        hosted_anag_table=hosted_app.db.table('sw_base.anagrafica')
         hosted_user_table=hosted_app.db.table('adm.user')
         hosted_client_table=hosted_app.db.table('hosting.client')
         hosted_instance_table=hosted_app.db.table('hosting.instance')
+        hosted_pkg = self.db.application.config('packages.hosting?hostedPackage')
         client_id = record_data['client_id']
-        anagrafica_id,user_id=self.db.table('hosting.client').readColumns(record_data['client_id'],'$anagrafica_id,$user_id')
-        user_record = self.db.table('adm.user').record(pkey=user_id).output('dict')
-        anagrafica_record = self.db.table('sw_base.anagrafica').record(pkey=anagrafica_id).output('dict')
-        client_record = self.db.table('hosting.client').record(pkey=client_id).output('dict')
-        hosted_anag_table.insertOrUpdate(anagrafica_record)
+        client_record=self.db.table('hosting.client').record(record_data['client_id']).output('dict')
+        user_record = self.db.table('adm.user').record(pkey=client_record['user_id']).output('dict')
         hosted_user_table.insertOrUpdate(user_record)
         hosted_client_table.insertOrUpdate(client_record)
         hosted_instance_table.insertOrUpdate(record_data)
+        self.db.application.packages(hosted_pkg).copyLinkedCard(hosted_app,client_record)
         self.prepopulate_instance(hosted_app)
         hosted_app.db.commit()
 

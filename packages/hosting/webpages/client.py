@@ -9,8 +9,9 @@ from gnr.core.gnrbag import Bag
 
 class GnrCustomWebPage(object):
     maintable='hosting.client'
-    py_requires="""public:Public,standard_tables:TableHandler,sw_base_component:UtilitaAnagrafica,
-                   gnrcomponents/selectionhandler,hosted:HostedClient,hosted:HostedInstance"""
+    py_requires="""public:Public,standard_tables:TableHandler,
+                   gnrcomponents/selectionhandler,
+                   hosted:HostedClient,hosted:HostedInstance"""
 
 ######################## STANDARD TABLE OVERRIDDEN METHODS ###############
     def windowTitle(self):
@@ -31,8 +32,9 @@ class GnrCustomWebPage(object):
     def lstBase(self,struct):
         r = struct.view().rows()
         r.fieldcell('code',width='10em')
-        r.fieldcell('@anagrafica_id.ragione_sociale',name='!!Ragione sociale',width='15em')
         r.fieldcell('@user_id.username',name='User',width='10em')
+        self.hosted_card_columns(r)
+
         return struct
         
     def conditionBase(self):
@@ -49,14 +51,12 @@ class GnrCustomWebPage(object):
         bc = parentBC.borderContainer(**kwargs)
         top = bc.borderContainer(region='top',height='120px')
         right = top.contentPane(region='right',width='350px')
-        fb = right.formbuilder(cols=1,border_spacing='3px',disabled=disabled)
-        self.anagrafica_linker(fb,field='anagrafica_id',width='20em',height='8ex',lbl='!!Anagrafica') 
+        self.hosted_card_linker(right,disabled=disabled)
         center = top.contentPane(region='center')
         fb = center.formbuilder(cols=1, border_spacing='3px',fld_width='100%',
                                 width='350px',disabled=disabled)
         fb.field('code')
         fb.field('user_id')
-        #fb.field('anagrafica_id',colspan=2)
               
         tc = bc.tabContainer(region='center')
         
@@ -96,11 +96,7 @@ class GnrCustomWebPage(object):
         pane.div('!!Manage instances', _class='pbl_roundedGroupLabel')
         fb = pane.formbuilder(cols=1, border_spacing='6px',dbtable=table,disabled=disabled)
         fb.field('code',width='15em',lbl='!!Instance Name')
-        #fb.field('path',width='15em',lbl='!!Path')
-        #fb.field('site_path',width='15em',lbl='!!Site path')
-        #fb.button('Create', disabled='==_instance_exists&&_site_exists',
-        #            _instance_exists='=.$instance_exists',
-        #            _site_exists='^.$site_exists', action='FIRE .$create;')
+
 
         pane.dataRpc('.$creation_result', 'createInst', instance_code='=.code', instance_exists='=.$instance_exists', site_exists='=.$site_exists', 
                     _fired='^.$create',_onResult='FIRE .$created',_userChanges=True)

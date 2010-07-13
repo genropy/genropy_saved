@@ -15,7 +15,7 @@ class Package(GnrDboPackage):
         
     def hosting_folder(self):
         return os.path.realpath(os.path.join(self.db.application.instanceFolder,self.attributes['hostingFolder']))
-
+        
     def instance_template(self):
         """return """
         return os.path.join(self.hosting_folder(),'instances','_template','instanceconfig.xml')
