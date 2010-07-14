@@ -38,8 +38,8 @@ class Table(object):
         sm.do()
         return sm.site_path
 
-    def build_apache_site(self, instance_code, apache_path='/etc/apache2/sites-available/',process_name=None,user='genro',
-                    group='genro', tmp_path='/tmp', threads=25,
+    def build_apache_site(self, instance_code, apache_path='/etc/apache2/sites-available/',process_name=None,user=None,
+                    group=None, tmp_path='/tmp', threads=25,
                     admin_mail=None, port=80, domain=None,
                     processes=1, base_url='/', sudo_password=None):
         params=dict(process_name=process_name or 'gnr_%s'%instance_code,
@@ -129,7 +129,10 @@ class Table(object):
         self.create_instance(record_data['code'])
         self.create_site(record_data['code'])
         if sys.platform.startswith('linux'):
-            self.build_apache_site(record_data['code'],domain=self.db.application.config['hosting?domain'] or 'icond.it', sudo_password=self.db.application.config['hosting?sudo_password'] or 'Ch14ra3Nen3')
+            self.build_apache_site(record_data['code'],domain=self.db.application.config['hosting?domain'],
+                            sudo_password=self.db.application.config['hosting?sudo_password'],
+                            user=self.db.application.config['hosting?user'],
+                            group=self.db.application.config['hosting?group'] or self.db.application.config['hosting?user'])
         self.pkg.db_setup(record_data['code'])
         self.prepare_hosted_instance(record_data)
         if record_data['slot_configuration']:
