@@ -129,10 +129,11 @@ class Table(object):
         self.create_instance(record_data['code'])
         self.create_site(record_data['code'])
         if sys.platform.startswith('linux'):
-            self.build_apache_site(record_data['code'],domain=self.db.application.config['hosting?domain'],
-                            sudo_password=self.db.application.config['hosting?sudo_password'],
-                            user=self.db.application.config['hosting?user'],
-                            group=self.db.application.config['hosting?group'] or self.db.application.config['hosting?user'])
+            pkg_config=self.db.application.config.getAttr('packages.hosting')
+            self.build_apache_site(record_data['code'],domain=pkg_config.get('hosting?domain'),
+                            sudo_password=pkg_config.get('hosting?sudo_password'),
+                            user=pkg_config.get('hosting?user'),
+                            group=pkg_config.get('hosting?group') or pkg_config.get('hosting?user'))
         self.pkg.db_setup(record_data['code'])
         self.prepare_hosted_instance(record_data)
         if record_data['slot_configuration']:
