@@ -25,13 +25,15 @@ class GnrCustomWebPage(object):
         return 'admin'
         
     def columnsBase(self):
-        return """name:7,path:50"""
+        return """code:7,
+                  description:50,
+                  path:50"""
         
     def formBase(self,parentBC,disabled=False,**kwargs):
         instancecp = parentBC.contentPane(_class='pbl_roundedGroup',margin='5px',**kwargs)
         instancecp.div('!!Manage instances', _class='pbl_roundedGroupLabel')
         fb = instancecp.formbuilder(cols=1, border_spacing='6px',disabled=disabled)
-        fb.field('name',width='15em',lbl='!!Instance Name')
+        fb.field('description',width='15em',lbl='!!Instance Name')
         fb.field('path',width='15em',lbl='!!Path')
         fb.field('site_path',width='15em',lbl='!!Site path')
         fb.dataFormula('.$creationDisabled','instance_exists && site_exists', site_exists='^.$site_exists', instance_exists='^.$instance_exists')
