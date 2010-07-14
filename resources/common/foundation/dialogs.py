@@ -32,7 +32,7 @@ class Dialogs(BaseComponent):
         """
         a simple dialog layout
         """
-        bc = self._simpleDialog(parent,title=title,dlgId=dlgId,height=height,width=width,datapath=datapath,
+        bc = self._innerDialog(parent,title=title,dlgId=dlgId,height=height,width=width,datapath=datapath,
                                 cb_center=cb_center,cb_bottom=cb_bottom,confirm_btn=confirm_btn,**kwargs)
         bc.dataController("""FIRE ._setOpener = opener;
                              FIRE ._openSimpleDialog; 
@@ -40,20 +40,13 @@ class Dialogs(BaseComponent):
         bc.dataController("FIRE ._closeSimpleDialog;",_fired="^.close")
         return bc
         
-    def _simpleDialog(self,parent,title='',dlgId=None,height='',width='',datapath='',
+    def _innerDialog(self,parent,title='',dlgId=None,datapath='',height='',width='',
                     cb_center=None,cb_bottom='*',confirm_btn=None,**kwargs):
         """
         internal method used by dialogs micro components
         """
-        if cb_bottom=='*':
-            cb_bottom = self.formDialog_bottom
         dialog = parent.dialog(title=title,nodeId=dlgId,datapath=datapath,**kwargs)
-        bc=dialog.borderContainer(height=height,width=width)
-        if cb_bottom:
-            cb_bottom(bc,region='bottom',_class='dialog_bottom',confirm_btn=confirm_btn)
-        if cb_center:
-            cb_center(bc,region='center',_class='pbl_dialog_center',dlgId=dlgId)
-        bc.dataController("""if(typeof(opener)=='object'){
+        dialog.dataController("""if(typeof(opener)=='object'){
                                 if (opener.dialogPage){
                                     SET .page = objectPop(opener,'dialogPage');
                                 }
@@ -62,8 +55,21 @@ class Dialogs(BaseComponent):
                                  opener = new gnr.GnrBag();
                              }
                              SET .opener = opener;""",opener="^._setOpener")
-        bc.dataController('genro.wdgById(dlgId).show();SET .isOpen=true;',dlgId=dlgId,_fired="^._openSimpleDialog" )
-        bc.dataController('genro.wdgById(dlgId).hide();SET .isOpen=false;',dlgId=dlgId,_fired="^._closeSimpleDialog" )
+        dialog.dataController('genro.wdgById(dlgId).show();SET .isOpen=true;',
+                            dlgId=dlgId,_fired="^._openSimpleDialog" )
+        dialog.dataController('genro.wdgById(dlgId).hide();SET .isOpen=false;',
+                            dlgId=dlgId,_fired="^._closeSimpleDialog" )
+                            
+                            
+        bc=dialog.borderContainer(height=height,width=width)
+        cb_bottom = cb_bottom or getattr(self,'%s_bottom' %dlgId,None)
+        cb_center = cb_center or getattr(self,'%s_center' %dlgId,None)
+        if cb_bottom=='*':
+            cb_bottom = self.formDialog_bottom
+        if cb_bottom:
+            cb_bottom(bc,region='bottom',_class='dialog_bottom',confirm_btn=confirm_btn)
+        if cb_center:
+            cb_center(bc,region='center',_class='pbl_dialog_center',dlgId=dlgId)
         return bc
     
     def formDialog(self,parent,title='',formId='',height='',width='',datapath='',pkeyPath=None,
@@ -71,7 +77,7 @@ class Dialogs(BaseComponent):
                 allowNoChanges=True,**kwargs):
         """a dialog that use a form object"""
         dlgId='%s_dlg'%formId
-        bc = self._simpleDialog(parent,title=title,dlgId=dlgId,datapath=datapath,
+        bc = self._innerDialog(parent,title=title,dlgId=dlgId,datapath=datapath,
                                height=height,width=width,cb_bottom=cb_bottom,
                                confirm_btn=confirm_btn,**kwargs)
         bc.dataFormula(".disable_button", "!valid||(!changed && !allowNoChanges)||saving",valid="^.form.valid",
