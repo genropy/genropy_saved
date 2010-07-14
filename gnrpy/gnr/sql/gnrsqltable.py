@@ -571,9 +571,12 @@ class SqlTable(GnrObject):
         self.db.insert(self, record)
     
     def delete(self, record):
-        """This method deletes a single record.
-        :param record_data: a dictionary that represent the record that must be deleted
+        """Delete a single record from this table.
+        
+        :param record: a dictionary, bag or pkey (string)
         """
+        if isinstance(record, basestring):
+            record = self.recordAs(record,'dict')
         self.db.delete(self, record)
     
     def deleteRelated(self, record):
