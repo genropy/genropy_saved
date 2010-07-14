@@ -59,7 +59,7 @@ class Table(object):
                 ServerName %(domain)s
                 ServerAdmin %(admin_mail)s
                 DocumentRoot /var/www
-                WSGIDaemonProcess %(process_name)s user=%(user)s group=%(group)s python-eggs=%(tmp_path)s threads=%(threads)s processes=%(processes)s
+                WSGIDaemonProcess %(process_name)s user=%(user)s group=%(group)s python-eggs=%(tmp_path)s threads=%(threads)s 
                 SetEnv %(process_env)s %(process_name)s
                 WSGIProcessGroup %%{ENV:%(process_env)s}
                 # modify the following line to point your site
@@ -83,7 +83,7 @@ class Table(object):
         cm=Popen(['sudo -S /usr/sbin/a2ensite %s '%instance_code],stdin=pass_pipe.stdout,shell=True)
         cm.wait()
         pass_pipe=Popen(['/bin/echo',sudo_password], stdout=PIPE)
-        Popen(['sudo -S /usr/sbin/apache2ctl reload'],stdin=pass_pipe.stdout,stdout=None,shell=True,)
+        Popen(['sudo -S /usr/sbin/apache2ctl restart'],stdin=pass_pipe.stdout,stdout=None,shell=True,)
         tmp_file.close()
 
 
