@@ -83,7 +83,7 @@ class Table(object):
         cm=Popen(['sudo -S /usr/sbin/a2ensite %s '%instance_code],stdin=pass_pipe.stdout,shell=True)
         cm.wait()
         pass_pipe=Popen(['/bin/echo',sudo_password], stdout=PIPE)
-        Popen(['sudo -S /usr/sbin/apache2ctl reload'],stdin=pass_pipe.stdout,stdout=None,shell=True,)
+        Popen(['sudo -S /usr/sbin/apache2ctl graceful'],stdin=pass_pipe.stdout,stdout=None,shell=True,)
         tmp_file.close()
 
 
