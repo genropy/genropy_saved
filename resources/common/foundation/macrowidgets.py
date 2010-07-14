@@ -115,6 +115,29 @@ class PeriodCombo(BaseComponent):
         fb.combobox(lbl=lbl or '!!Period',value=value, width='16em',tip='^%s.period_string'%period_store,
                     values=self._pc_datesHints(), margin_right='5px',padding_top='1px',**kwargs)
 
+class SelectionBrowser(BaseComponent):
+    def selectionBrowser(self,pane,rowcount,indexPath=None):
+        pane.button('!!First', fire_first='.navbutton', iconClass="tb_button icnNavFirst", 
+                    disabled='^.atBegin', showLabel=False)
+        pane.button('!!Previous', fire_prev='.navbutton', iconClass="tb_button icnNavPrev", 
+                    disabled='^.atBegin', showLabel=False)
+        pane.button('!!Next', fire_next='.navbutton', iconClass="tb_button icnNavNext", 
+                    disabled='^.atEnd', showLabel=False)
+        pane.button('!!Last', fire_last='.navbutton', iconClass="tb_button icnNavLast", 
+                    disabled='^.atEnd', showLabel=False)
+        pane.dataController("""
+                                var newidx;
+                                var idx = this.getRelativeData(indexPath) || 0;
+                                if (btn == 'first' || btn=='new'){newidx = 0;} 
+                                else if (btn == 'last'){newidx = rowcount-1;}
+                                else if ((btn == 'prev') && (idx > 0)){newidx = idx-1;}
+                                else if ((btn == 'next') && (idx < rowcount-1)){newidx = idx+1;}
+                                this.setRelativeData(indexPath,newidx);
+                                
+                                """,  
+                                   indexPath=indexPath,btn='^.navbutton',
+                                    rowcount=rowcount)
+
 class RichTextEditor(BaseComponent):
     """  This is the default toolbar definition used by the editor. It contains all editor features.
          Any of these options can be used in the toolbar= parameter.  We are passing a string parameter 
