@@ -25,8 +25,8 @@ class TestBasicBag:
         assert b == self.mybag
 
     def test_fillFromUrl(self):
-        b = Bag('http://newsrss.bbc.co.uk/rss/newsonline_world_edition/europe/rss.xml')
-        assert b['rss.channel.title']=='BBC News | Europe | World Edition'
+        b = Bag('http://blog.genropy.org/rss.xml')
+        assert b['rss.channel.title']=='GenroPy'
         
     def test_fillFromXml(self):
         b = Bag("<name>John</name>")
