@@ -128,12 +128,6 @@ class Table(object):
     def common_inserting_trigger_hosting(self, record_data):
         self.create_instance(record_data['code'])
         self.create_site(record_data['code'])
-        if sys.platform.startswith('linux'):
-            pkg_config=self.db.application.config.getAttr('packages.hosting')
-            self.build_apache_site(record_data['code'],domain=pkg_config.get('domain'),
-                            sudo_password=pkg_config.get('sudo_password'),
-                            user=pkg_config.get('user'),
-                            group=pkg_config.get('group') or pkg_config.get('user'))
         self.pkg.db_setup(record_data['code'])
         self.prepare_hosted_instance(record_data)
         if record_data['slot_configuration']:
@@ -141,6 +135,13 @@ class Table(object):
         for pkg in self.db.application.packages.values():
             if hasattr(pkg,'onInstanceCreated'):
                 getattr(pkg,'onInstanceCreated')(record_data)
+        if sys.platform.startswith('linux'):
+            pkg_config=self.db.application.config.getAttr('packages.hosting')
+            self.build_apache_site(record_data['code'],domain=pkg_config.get('domain'),
+                            sudo_password=pkg_config.get('sudo_password'),
+                            user=pkg_config.get('user'),
+                            group=pkg_config.get('group') or pkg_config.get('user'))
+
     
     def common_inserting_trigger_hosted(self, record_data):
         if record_data['slot_configuration']:
