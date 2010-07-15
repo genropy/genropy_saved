@@ -2,9 +2,9 @@
 
 class Table(object):
     def config_db(self, pkg):
-        tbl =  pkg.table('cast',  pkey='id',name_long='!!Cast',
+        tbl = pkg.table('cast',pkey='id',name_long='!!Cast',
                           name_plural='!!Casts',rowcaption='@person_id.name,@movie_id.title')
-        tbl.column('id',size='22',group='_',readOnly='y',name_long='Id')
+        tbl.column('id',size='22',group='_',readOnly=True,name_long='Id')
         tbl.column('movie_id',size='22', name_short='Mid', 
                     name_long='Movie id').relation('movie.id',mode='foreignkey')
         tbl.column('person_id',size='22',name_short='Prs', 
