@@ -53,7 +53,7 @@ class SelectionHandler(BaseComponent):
                          hiddencolumns=None,custom_addCondition=None,custom_delCondition=None,
                          askBeforeDelete=True,checkMainRecord=True,onDeleting=None,dialogAddRecord=True,
                          onDeleted=None,add_enable=True,del_enable=True,
-                         parentSave=False,parentId=None,parentLock='^status.locked',
+                         parentSave=False,parentId=None,parentLock='^status.locked',reload_onSaved=True,
                          **kwargs):
         
         # --------------------------------------------------------------------------------------------- Mandatory param checks
@@ -86,7 +86,7 @@ class SelectionHandler(BaseComponent):
                         warnings.warn("[selectionhandler] use '=' and not '^' in dialogPars: %s=%s" % (k, repr(p)), stacklevel=2)
         
         if reloader and isinstance(reloader, basestring) and not reloader.startswith('^'):
-            wwarnings.warn("[selectionhandler] reloader should start with '^': %s" % repr(reloader), stacklevel=2)
+            warnings.warn("[selectionhandler] reloader should start with '^': %s" % repr(reloader), stacklevel=2)
         
         # --------------------------------------------------------------------------------------------- Implementation
         
@@ -95,7 +95,8 @@ class SelectionHandler(BaseComponent):
         dialogPars['dlgId'] = dlgId
         dialogPars['formId'] = dialogPars.get('formId',"%s_form" %nodeId)
         dialogPars['datapath'] = dialogPars.get('datapath','#%s.dlg' %nodeId)
-        dialogPars['onSaved'] = 'FIRE #%s.reload; %s' %(nodeId,dialogPars.get('onSaved',''))
+        if reload_onSaved:
+            dialogPars['onSaved'] = 'FIRE #%s.reload; %s' %(nodeId,dialogPars.get('onSaved',''))                         
         dialogPars['firedPkey'] = '^.pkey'
         dialogPars['disabled'] = '^#%s.status.locked' %nodeId
         dialogPars['toolbarCb'] = self._sh_toolbar

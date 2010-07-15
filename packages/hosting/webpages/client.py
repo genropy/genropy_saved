@@ -74,10 +74,11 @@ class GnrCustomWebPage(object):
         self.selectionHandler(bc.borderContainer(region='center'),label='!!Instances',
                                 datapath="instances",nodeId='instances',table='hosting.instance',
                                 struct=self.struct_instances,reloader='^form.record.id',
-                                hiddencolumns='$site_path',
+                                hiddencolumns='$site_path',reload_onSaved=False,
                                 selectionPars=dict(where='$client_id=:c_id',c_id='=form.record.id',
                                                     applymethod='apply_instances_selection',order_by='$code'),
                                 dialogPars=dict(height='400px',width='600px',formCb=self.instance_form,
+                                                onSaved='genro.fireAfter("#instances.reload",true,1000)',
                                                 toolbarPars=dict(lock_action=True,add_action=True,del_action=True,save_action=True),
                                                 default_client_id='=form.record.id',saveKwargs=dict(_lockScreen=True,saveAlways=True)))
                                                 
