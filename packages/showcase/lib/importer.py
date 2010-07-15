@@ -45,8 +45,8 @@ def importCast(db,dataBag):
         tblObj.insert(record)
         
 if __name__ == '__main__':
-    db = GnrApp('/Users/michele/newsites/showcase/instance').db    
-    dataBag = Bag('/Users/michele/genro/gnrpy/packages/showcase/lib/data.xml')
+    db = GnrApp('testgarden').db    
+    dataBag = Bag('data.xml')
     importPeople(db,dataBag)
     importMovie(db,dataBag)
     importCast(db,dataBag)
