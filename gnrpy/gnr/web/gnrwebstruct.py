@@ -796,6 +796,7 @@ class GnrFormBuilder(object):
                 else:
                     lbl_kwargs['_class']=self.lblclass
                 if lblvalue:
+                    lbl_kwargs['tabindex'] = -1 # prevent tab navigation to the zoom link
                     cell.a(content=lblvalue,href=lblhref,**lbl_kwargs)
             else:
                 
