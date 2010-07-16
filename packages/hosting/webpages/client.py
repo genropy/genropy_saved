@@ -116,7 +116,7 @@ class GnrCustomWebPage(object):
         def struct(struct):
             r = struct.view().rows()
             r.cell('type', name='Slot type', width='15em')
-            r.cell('qty', name='Q.ty', width='4em',dtype='I')
+            r.cell('qty', name='Qty', width='4em',dtype='I')
             return struct
         iv = self.includedViewBox(bc.borderContainer(region='center'),label='!!Slot configuration',
                          storepath='.slot_configuration', struct=struct,
