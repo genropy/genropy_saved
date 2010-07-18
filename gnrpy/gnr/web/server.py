@@ -198,7 +198,7 @@ class NewServer(object):
         (self.options,self.args)=self.parser.parse_args()
         self.load_gnr_config()
         self.set_environment()
-        self.site_name = hasattr(self.options, 'site_name') and self.options.site_name or self.args[0]
+        self.site_name = self.options.site_name or (self.args and self.args[0])
         if self.site_name:
             if not self.gnr_config:
                 raise ServerException(
