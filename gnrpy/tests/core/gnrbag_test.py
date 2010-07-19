@@ -178,10 +178,14 @@ class TestBasicBag:
     def test_fullpath(self):
         b = Bag()        
         b['just.a.simple.test'] = 123
-        assert b.fullpath, ''
+        assert b.fullpath == None
         bag = b['just.a.simple']
         assert isinstance(bag, Bag)
-        assert bag.fullpath == 'just.a.simple'
+        assert bag.fullpath == None
+        
+        b.setBackRef()
+        assert b.fullpath == ''
+        assert b['just.a.simple'].fullpath == 'just.a.simple'
 
 class TestBagTrigger:  
     def setup_class(cls):
