@@ -4,9 +4,6 @@
 #  Created by Giovanni Porcari on 2007-03-24.
 #  Copyright (c) 2007 Softwell. All rights reserved.
 
-""" dbSelect """
-import os
-from gnr.core.gnrbag import Bag
 from gnr.core.gnrstring import templateReplace, splitAndStrip, countOf
 
 class GnrCustomWebPage(object):
