@@ -1,30 +1,12 @@
-#!/usr/bin/env python
+
+# #!/usr/bin/env python
 # encoding: utf-8
 """
-==========================================================
- A subframework to write command-line utilities for Genro.
-==========================================================
-
 Available functionality:
-    - :class:`ProgressBar`, a class to draw text-based progressbars. see test_ProgressBar().
+    - :class:`ProgressBar`, a class to draw text-based progressbars.
     - :class:`AutoDiscovery`, a class to auto-detect current instance, site, package and
       project from ``GENROPY_xxx`` environment variables and/or the current working
       directory.
-
-Future plans:
-    - GnrCommand, base class for command-line utilities, will provide parameters
-      and options auto-discovery (much like Michele Simionato's plac).
-    - ``gnr`` utility, a single entry point for all command-line utilities so we don't
-      clutter ``/usr/local/bin`` with many scripts::
-    
-            Three scripts for the genro-kings under softwell sky,
-            Seven for goodsoftware-lords in their halls of stone,
-            Nine for mortal customers with money they will buy,
-            One for the Dark Lord Gio on his dark throne,
-            In the Land of GenroPy where the Commands lie.
-            One Script to rule them all, One Script to find them,
-            One Script to bring them all and in the darkness bind them
-            In the Land of GenroPy where the Commands lie.
 """
 
 from __future__ import with_statement
@@ -353,33 +335,13 @@ class AutoDiscovery(object):
             
         def _is_valid(self):
             p = path_join(self.path)
-            return isfile(p)
+            return p.endswith('.py') and isfile(p)
         
     class Package(Item):
         common_package_dirs = 'models webpages'.split()
         def _is_valid(self):
             return any([isdir(path_join(self.path,d)) for d in self.common_package_dirs])
 
-def test_AutoDiscovery():
-    ad = AutoDiscovery()
-    ad.report(all=True)        
-
-
-########################################################################
-class GnrCommand(object):
-    """Base class for Genro commands.
-    
-    NOT YET COMPLETE. DO NOT USE.
-    """
-
-    def __init__(self, auto_discovery=None):
-        """Constructor"""
-        self.auto_discovery = auto_discovery or AutoDiscovery()
-    
-    def main(self):
-        """main entry point."""
-        raise NotImplementedError, "Subclasses should override main()."            
-    
 ########################################################################
 class ProgressBar(object):
     """Provides a text-based progress bar.
@@ -433,16 +395,3 @@ class ProgressBar(object):
         free_bar = "-" * (self.bar_width - occupied_bar_chars)
         print >> self.fd, "\r%*s [%s%s] % 5.2f%%" % (self.label_width, self.label, occupied_bar, free_bar, progress * 100.0),
         self.fd.flush()
-
-def test_ProgressBar(testError=False):
-    import time
-    with ProgressBar('ProgressBar test') as pg:
-        for n in xrange(333):
-            time.sleep(0.01)
-            pg.update(n/3.33)
-            if testError and (n > 233):
-                raise Exception, "Something bad happened."
-
-if __name__ == '__main__':
-    # test_ProgressBar()
-    test_AutoDiscovery()
