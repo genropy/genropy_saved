@@ -8,7 +8,6 @@
 
 """ GnrDojo Examples & Tutorials """
 
-#from gnr.core.gnrbag import Bag
 from gnr.core.gnrlang import gnrImport
 from gnr.core.gnrbag import Bag
 import os

@@ -4,24 +4,33 @@
 #  Created by Giovanni Porcari on 2007-03-24.
 #  Copyright (c) 2007 Softwell. All rights reserved.
 
-""" form builder """
-import os
 from gnr.core.gnrbag import Bag
 
 class GnrCustomWebPage(object):
+    css_requires= 'index'
+    
     def main(self, root, **kwargs):
-        root.div("Formbuilder")
-        fb=root.formbuilder(cols=2,_class='ppp')
-        fb.textbox(lbl='Prova',value='^prova',width='10em')
-        fb.textbox(lbl='Pippo',value='^pippo',width='10em')
-        fb.textbox(value='^description',lbl="Description",width='30em',colspan="2")
-        root.div("tabella semplice")
+        root.div('----- Example of Form builder ------',_class='infopar')
+        root.div('note in data source that the following textbox has a RELATIVE path',
+                  _class='infopar')
+        fb=root.formbuilder(cols=3,datapath='record')
+        fb.textbox(lbl='Name',value='^.name')
+        fb.textbox(lbl='Surname',value='^.surname',colspan=2)
+        fb.numberTextbox(lbl="Age",value='^.age',width='4em')
+        fb.filteringSelect(lbl='Sex',value='^.sex',colspan=2,values='M:Male,F:Female')
+        fb.textbox(lbl='Job',value='^.job.profession')
+        fb.textbox(lbl='Company name',value='^.job.company_name')
+        root.div('------ Example of table ------',_class='infopar')
+        d = root.div(_class='infopar')
+        d.span('What you write in a magic div appear in the other one and vice versa')
+        d2 = root.div(_class='infopar') 
+        d2.span('The following divs have an ABSOLUTE path')
         table = root.table().tbody()
         r1 = table.tr()
-        r1.td('AAA')
-        r1.td().textbox(value='^aaa')
-        r1.td('BBB')
-        r1.td().textbox(value='^bbb')
+        r1.td('Phone number')
+        r1.td().textbox(value='^phone_number')
         r2 = table.tr()
-        r2.td('BBB')
-        r2.td(colSpan="3",width='30em').textbox(value='^bbb',width='25em')
+        r2.td('Magic div 1')
+        r2.td().textbox(value='^magic')
+        r2.td('Magic div 2')
+        r2.td().textbox(value='^magic')
