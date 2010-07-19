@@ -174,7 +174,14 @@ class TestBasicBag:
         b = self.mybag.getNodeByAttr('sim','tom')
         assert isinstance(b, BagNode)
         assert b.getValue() == 444230450
-        
+    
+    def test_fullpath(self):
+        b = Bag()        
+        b['just.a.simple.test'] = 123
+        assert b.fullpath, ''
+        bag = b['just.a.simple']
+        assert isinstance(bag, Bag)
+        assert bag.fullpath == 'just.a.simple'
 
 class TestBagTrigger:  
     def setup_class(cls):
@@ -276,4 +283,3 @@ def testToTree():
     
     treeBag2 = b.toTree(group_by='number,text',caption='alfa', attributes=('date','text'))
     assert treeBag == treeBag2
-    
