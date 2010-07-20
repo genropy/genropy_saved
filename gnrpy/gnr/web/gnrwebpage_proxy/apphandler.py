@@ -682,7 +682,7 @@ class GnrWebAppHandler(GnrBaseProxy):
         result = Bag()  
         for j,row in enumerate(outsource) :
             row = dict(row)
-            _customClasses = row.get('_customClasses','').split(' ')
+            _customClasses = (row.get('_customClasses','') or '').split(' ')
             pkey = row.pop('pkey', None)
             isDeleted=row.pop('_isdeleted',None)
             if isDeleted:
