@@ -214,7 +214,7 @@ dojo.declare("gnr.GnrDlgHandler",null,{
     },
     
     upload: function(title,method,resultPath,remotekw,label,cancel,send,fireOnSend){
-        /* first 4 params are mandatory */
+        /* first 3 params are mandatory */
         label=label || 'Browse...';
         cancel=cancel || 'Cancel';
         send=send || 'Send';
