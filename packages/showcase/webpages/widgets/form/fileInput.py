@@ -9,17 +9,15 @@ from gnr.core.gnrbag import Bag, DirectoryResolver
 
 class GnrCustomWebPage(object):
     def main(self, root, **kwargs):
-        fb = root.formbuilder(datapath='form',cols=3)
-        fb.button(label='Upload', 
-                    action='genro.dlg.upload("Upload something", "importMethod","aux.resultPath")')
-    
-        fb.simpleTextarea(value='^aux.resultPath')
-                    
+        fb = root.formbuilder(datapath='form')
+        fb.button(label='Upload',
+                    action='genro.dlg.upload("Upload something","importMethod","aux.resultPath")')
+        fb.simpleTextarea(value='^aux.resultPath',width='30em',height='40em')
+        
     def rpc_importMethod(self,**kwargs):
         """What I do with my file on server"""
-        try: 
-            form = self.request.form
-            f = form['fileHandle'].file
+        try:
+            f = kwargs['fileHandle'].file
             text = f.read()
             result = """Content-Type: text/html
                 <html>
@@ -29,15 +27,15 @@ class GnrCustomWebPage(object):
                         <textarea>%s</textarea>
                     </body>
                 </html>
-                """ %text
-        except Exception, e: 
+                """ % text
+        except Exception, e:
             result = """Content-Type: text/html
                 <html>
                     <head>
                     </head>
                     <body>
-                        <textarea>It doesn't work </textarea>
+                        <textarea>It doesn't work</textarea>
                     </body>
                 </html>
-                """ 
+            """
         return result
