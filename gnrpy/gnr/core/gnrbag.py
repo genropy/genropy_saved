@@ -2666,8 +2666,3 @@ if __name__=='__main__':
     b=Bag()
     b.setItem('aa',4,_attributes={'aa':4,'bb':None},_removeNullAttributes=False)
     print b.toXml()
-    
-    
-    
-    
-    
