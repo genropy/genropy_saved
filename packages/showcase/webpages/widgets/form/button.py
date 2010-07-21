@@ -5,7 +5,6 @@
 #  Copyright (c) 2007 Softwell. All rights reserved.
 
 class GnrCustomWebPage(object):
-    css_requires = 'index'
     def main(self, root, **kwargs):
         root.data('icon','icnBaseOk')
         root.data('fontType','Courier')

@@ -4,8 +4,6 @@
 #  Created by Giovanni Porcari on 2007-03-24.
 #  Copyright (c) 2007 Softwell. All rights reserved.
 
-from gnr.core.gnrstring import templateReplace, splitAndStrip, countOf
-
 class GnrCustomWebPage(object):
     maintable='showcase.cast' # puts in every formbuilder of this webpage the value of showcast.case in dbtable --> dbtable = 'showcase.cast'
     

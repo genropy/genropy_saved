@@ -4,15 +4,13 @@
 #  Created by Giovanni Porcari on 2007-03-24.
 #  Copyright (c) 2007 Softwell. All rights reserved.
 
-import datetime
-from gnr.core.gnrbag import Bag, DirectoryResolver
-
 class GnrCustomWebPage(object):
     def main(self, root, **kwargs):
-        fb = root.formbuilder(datapath='form')
+        fb = root.formbuilder(datapath='form',cols=2)
         fb.button(label='Upload',
                     action='genro.dlg.upload("Upload something","importMethod","aux.resultPath")')
-        fb.simpleTextarea(value='^aux.resultPath',width='30em',height='40em')
+        fb.span('--- upload a text file (.txt) ---')
+        fb.simpleTextarea(label='text uploaded',value='^aux.resultPath',width='30em',height='40em',colspan=2)
         
     def rpc_importMethod(self,**kwargs):
         """What I do with my file on server"""

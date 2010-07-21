@@ -4,8 +4,6 @@
 #  Created by Giovanni Porcari on 2007-03-24.
 #  Copyright (c) 2007 Softwell. All rights reserved.
 
-from gnr.core.gnrbag import Bag
-
 class GnrCustomWebPage(object):
     css_requires= 'index'
     
