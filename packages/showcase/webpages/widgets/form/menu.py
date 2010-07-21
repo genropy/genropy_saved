@@ -4,13 +4,13 @@
 #  Created by Giovanni Porcari on 2007-03-24.
 #  Copyright (c) 2007 Softwell. All rights reserved.
 
-from gnr.core.gnrbag import Bag, DirectoryResolver
+from gnr.core.gnrbag import Bag
 
 class GnrCustomWebPage(object):
     def main(self, root, **kwargs):
         root.data('values.states',self.tableData_states())
-        root.data('values.sex',self.tableData_sex(),id='#k',caption='#v')
         root.data('records',self.myRecords())
+        root.data('values.sex',self.tableData_sex())
         fb = root.formbuilder(cols='4',datapath='records',background_color='silver',margin='30px')
         for r in range(4):
             self.makeRow(fb,r)
@@ -86,6 +86,6 @@ class GnrCustomWebPage(object):
         
     def tableData_sex(self):
         mytable=Bag()
-        mytable.setItem('M','Male')
-        mytable.setItem('F','Female')
+        mytable.setItem('r1',None,id='M',caption='Male')
+        mytable.setItem('r2',None,id='F',caption='Female')
         return mytable
