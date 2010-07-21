@@ -67,7 +67,7 @@ class RecordLinker(BaseComponent):
                                         left='0px',top='0px',width='100%',disabled=disabled,**kwargs)
             fieldrelpath = '.%s' %field.split('.')[-1]
             if not value:
-                value = '^.%s' %fieldrelpath
+                value = '^%s' %fieldrelpath
         else:
             selector = selectorBox.dbSelect(value=value,dbtable=table,position='absolute',
                                         left='0px',top='0px',width='100%',disabled=disabled,**kwargs)
@@ -86,7 +86,8 @@ class RecordLinker(BaseComponent):
         selectorViewer.button('!!Edit',baseClass='no_background',showLabel=False,
                     right='2px',z_index='100',bottom='2px',position='absolute',
                     action='FIRE #%s.pkey = GET %s;' %(dialogPars['dlgId'], fieldrelpath),
-                    visible=value,iconClass='icnBaseEdit')#disabled=disabled)
+                    visible=value,
+                    iconClass='icnBaseEdit')#disabled=disabled)
           
         selectorBox.dataRecord(record_path,table,pkey=record_reloader or value, _if='pkey',_else='null',
             _fired='^#%s.recordSaved' %dialogPars['dlgId'])
@@ -99,7 +100,7 @@ class RecordLinker(BaseComponent):
         self.recordDialog(table,firedPkey='^#%s.pkey' %dialogPars['dlgId'],
                          onSaved='FIRE #%s.recordSaved; %s' %(dialogPars['dlgId'],onSaved),
                          savePath='#%s.savedId' %dialogPars['dlgId'],**dialogPars)
-    
+        
     def linkerPane(self,parent,table=None,field=None,dialogPars=None,record_template=None,record_path=None,label=None,
                     value=None,width=None,height=None,colspan=1,rowspan=1,disabled=False,
                     default_path=None, record_reloader=None,**kwargs):
