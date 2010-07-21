@@ -3,7 +3,12 @@
 <plist version="1.0">
 <dict>
 	<key>content</key>
-	<string>relation('$1',${2:mode='foreignkey'})</string>
+	<string>relation('$1',${2:mode='foreignkey',
+			onDelete='raise',
+			many_name='',
+			one_name='',
+			one_group='',
+			many_group=''})</string>
 	<key>name</key>
 	<string>gnrsql: add relation</string>
 	<key>tabTrigger</key>

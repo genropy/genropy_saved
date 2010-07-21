@@ -3,7 +3,7 @@
 <plist version="1.0">
 <dict>
 	<key>content</key>
-	<string>tbl.aliasColumn('$1',relation_path='$2',group='$3')
+	<string>tbl.aliasColumn('$1',relation_path='$2',group=$3)
 </string>
 	<key>name</key>
 	<string>gnrsql: aliasColumn</string>
