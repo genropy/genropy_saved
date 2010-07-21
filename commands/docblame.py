@@ -21,21 +21,24 @@ import os.path
 from gnr.core.gnrbag import Bag
 from gnr.devel.commands import command, argument
 
-class DocumentationExtractor(ast.NodeVisitor):
+class DocAnalyzer(ast.NodeVisitor):
+    """Reads a python source file and collects information about docstrings."""
     def __init__(self, filename):
         self.filename = filename
         with open(filename,'r') as fd:
             ast_tree = ast.parse(fd.read(), filename)
             self.current = self.module = Bag()
+            self.module.setBackRef()
             self.module.label, _ = os.path.splitext(os.path.basename(filename))
             self.lineno = 0
             self.visit(ast_tree)
 
     def visit(self, node):
+        """Visit nodes, gathering line numbers."""
         lineno = getattr(node, 'lineno', None)
         if lineno is not None and lineno > self.lineno:
             self.lineno = lineno
-        super(DocumentationExtractor, self).visit(node)
+        super(DocAnalyzer, self).visit(node)
     
     def visit_ClassDef(self, node):
         """Visits 'class' nodes"""
@@ -66,10 +69,10 @@ def main(filenames):
     
     Private methods (starting with '_') do not require documentation."""
     for fn in filenames:
-        e = DocumentationExtractor(fn)
+        e = DocAnalyzer(fn)
         for node in e.module.traverse():
-            if not node.getAttr('docstring'):
-                print node.fullpath, "missing docstring"
+            if not node.label.startswith('_') and not node.getAttr('docstring'):
+                print "%(file)s:%(line)d\t%(name)s (%(kind)s) missing docstring" % dict(file=fn, line=node.getAttr('start'), name=node.fullpath, kind=node.getAttr('kind'))
 
 if __name__ == '__main__':
     main.run()
