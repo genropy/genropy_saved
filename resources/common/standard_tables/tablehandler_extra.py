@@ -665,7 +665,7 @@ class HierarchicalViewHandler(BaseComponent):
         self.hv_right_view(bc.borderContainer(region = 'center'))
         
     def hv_tree_view(self,pane):
-        pane.dataRemote('.tree', 'hv_selectionAsTree', selectionName='^list.selectionName' ,_if='selectionName')
+        pane.dataRemote('.tree', 'hv_selectionAsTree', selectionName='^list.selectionName' ,_if='selectionName', _fired='^list.queryEnd')
         pane.dataRecord('.current_record', self.maintable, pkey='^.selected_id')
         pane.tree(storepath ='.tree',
                      selected_pkey ='.selected_id',
@@ -723,7 +723,7 @@ class HierarchicalViewHandler(BaseComponent):
                                                                 pageName=cb[1],
                                                                 _class='pbl_roundedGroup',
                                                                 datapath='.current_record'))
-    def rpc_hv_selectionAsTree(self,selectionName=None):
+    def rpc_hv_selectionAsTree(self,selectionName=None, **kwargs):
         selection = self.getUserSelection(selectionName=selectionName,columns=self.hv_columns())
         if hasattr(self.tblobj,'selectionAsTree'):
             return self.tblobj.selectionAsTree(selection)
