@@ -4,13 +4,8 @@
 #  Created by Giovanni Porcari on 2007-03-24.
 #  Copyright (c) 2007 Softwell. All rights reserved.
 
-from gnr.core.gnrstring import templateReplace, splitAndStrip, countOf
-
 class GnrCustomWebPage(object):
-    css_requires='index.css'   
     def main(self, root, **kwargs):
-        cont = root.div(_class='fieldcontainer',margin='1em',padding='10px',datapath='table')
-        tbl=cont.table()
-        r=tbl.tr()
-        r.td('Star name')
-        r.td().field('showcase.person.name')
+        cont = root.contentPane(margin='1em',padding='10px')
+        fb=cont.formBuilder(datapath='myform')
+        fb.field('showcase.cast.person_id',lbl='Star name',width='15em',zoom=False)
