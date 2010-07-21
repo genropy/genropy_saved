@@ -68,15 +68,34 @@ def argument(dest, *args, **kwargs):
     args = list(args)
     def decorator(cmd):
         argspec = vars(cmd).setdefault(_COMMAND_ARGUMENTS, {})
+        func_args, _, _, func_defaults = inspect.getargspec(cmd)
+        if not func_defaults:
+            func_defaults = ()
+        try:
+            default = func_defaults[func_args.index(dest) - (len(func_args) - len(func_defaults))]
+            has_default = True
+        except IndexError:
+            has_default = False
+            
         if not args:
-            func_args, _, _, func_defaults = inspect.getargspec(cmd)
-            has_default = func_args.index(dest) >= (len(func_args) - len(func_defaults or ()))
             if has_default:
                 args.append('--%s' % dest)
                 kwargs['dest'] = dest
             else:
                 args.append(dest)
+
+        # some magic for special cases
+        if has_default:
+            if default is True:
+                kwargs['action'] = 'store_false'
+                kwargs['default'] = True
+        
+            if default is False:
+                kwargs['action'] = 'store_true'
+                kwargs['default'] = False
             
+            kwargs['help'] = "%s (default: %s)" % (kwargs.get('help',''), repr(default))
+        
         argspec[dest] = (args, kwargs)
         return cmd
     return decorator
@@ -91,12 +110,33 @@ class GnrCommand(object):
         self.parser_kwargs = kwargs
         self.main = main
     
+    @property
+    def filename(self):
+        """File where main is implemented"""
+        try:
+            return self.main.func_code.co_filename
+        except:
+            return "(unknown)"
+    
+    @property
+    def lineno(self):
+        """Line where main is implemented"""
+        try:
+            return self.main.func_code.co_firstlineno
+        except:
+            return "(unknown)"
+    
+    @property
+    def description(self):
+        """Returns the command description"""
+        return self.parser_kwargs.get('description','')
+    
     def run(self, *args, **kwargs):
         """Run this command."""
         parser = self.init_parser()
         if kwargs:
             parser.set_defaults(**kwargs)
-        arguments = parser.parse_args(args)
+        arguments = parser.parse_args(args or None)
         return self.main(**vars(arguments))
     
     def main(self):
@@ -137,7 +177,7 @@ class GnrCommand(object):
             arg_type = type(default)
             kwargs = dict(dest=name, type=arg_type, default=default, help="(default: %s)" % repr(default))
             if arg_type is bool:
-                kwargs['action'] = action='store_false' if (default == True) else 'store_true'
+                kwargs['action'] = 'store_false' if (default == True) else 'store_true'
                 del kwargs['type']
             elif arg_type is type: # a class
                 arg_type = default.__class__
@@ -177,3 +217,32 @@ class CmdRunner(object):
         for cmd in command_registry.values():
             cmd.init_parser(subparsers)
         return parser
+
+@command('commands', help="List commands and where they are implemented")
+@argument('verbose', '-v','--verbose', help="Show command description")
+def commands(verbose=False):
+    global command_registry
+    for name, cmd in command_registry.items():
+        print "%(name)-20s %(filename)s:%(lineno)s" % dict(name=name, filename=cmd.filename, lineno=cmd.lineno)
+        if verbose and cmd.help:
+            print "%(space)20s %(help)s" % dict(space=" ", help=cmd.help)
+
+@command('adreport', help="Print AutoDiscovery report")
+@argument('full', '-f','--full', help="Show full report")
+def info(full=False):
+    ad = AutoDiscovery()
+    ad.report(full)
+
+@command('adenv', help="Print current project/instance/package/site as environment variables")
+@argument('dirs','-d','--dirs', help="print directories too")
+def info(dirs=False):
+    ad = AutoDiscovery()
+    print "CURRENT_PROJECT=%s" % (ad.current_project.name if ad.current_project else '')
+    print "CURRENT_INSTANCE=%s" % (ad.current_instance.name if ad.current_instance else '')
+    print "CURRENT_PACKAGE=%s" % (ad.current_package.name if ad.current_package else '')
+    print "CURRENT_SITE=%s" % (ad.current_site.name if ad.current_site else '')
+    if dirs:
+        print "CURRENT_PROJECT_DIR=%s" % (ad.current_project.path if ad.current_project else '')
+        print "CURRENT_INSTANCE_DIR=%s" % (ad.current_instance.path if ad.current_instance else '')
+        print "CURRENT_PACKAGE_DIR=%s" % (ad.current_package.path if ad.current_package else '')
+        print "CURRENT_SITE_DIR=%s" % (ad.current_site.path if ad.current_site else '')    

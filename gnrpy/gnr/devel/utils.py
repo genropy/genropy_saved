@@ -17,13 +17,10 @@ from os import environ, getcwd, listdir
 from os.path import normpath, splitext, expanduser, expandvars, \
                     isdir, isfile, basename
 from os.path import join as path_join
-import logging
 
 from gnr.core.gnrbag import Bag
 
 ########################################################################
-
-log = logging.getLogger('gnrcmd')
 
 def expandpath(path, full=False):
     """Expand user home directory (~) and envioronment variables.
@@ -178,12 +175,15 @@ class AutoDiscovery(object):
         print "Current Site:", repr(self.current_site)
         
         if all:
-            print "Projects:"
+            print "---- Projects ----"
             for p in self.all_projects.values():
-                print "  ", repr(p)
-            print "Instances:"
+                print "  %-20s %s" % (p.name, p.path)
+            print "---- Instances ----"
             for i in self.all_instances.values():
-                print "  ", repr(i)
+                print "  %-20s %s" % (i.name, i.path)
+            print "---- Command files ----"
+            for c in self.all_commands.values():
+                print "  %-20s %s" % (c.name, c.path)
         
         
     def _load_configuration(self):
@@ -193,7 +193,8 @@ class AutoDiscovery(object):
         def get_section(section_name, attr_name='path'):
             if cfg[section_name]:
                 for k,v in cfg[section_name].digest('#k,#a.' + attr_name):
-                    yield k, expandpath(v)
+                    if v is not None: # XML comments will be returned as ('_', None)
+                        yield k, expandpath(v)
         
         # Change os.environ, so expandvars() will expand our vars too
         for k,v in get_section('environment', attr_name='value'):
@@ -251,12 +252,10 @@ class AutoDiscovery(object):
                         self.warn("current %s (from working directory) is not in the current project" % name)
                     return item
         if project_items and len(project_items) == 1:
-            self.warn("project has just one %s, assuming it's the current one" % name)
             return project_items.values()[0]
     
     def warn(self, msg):
-        global log
-        log.warn(msg)
+        print >>sys.stderr, msg
     
     class Item(object):
         """
