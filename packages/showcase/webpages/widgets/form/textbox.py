@@ -9,7 +9,7 @@ class GnrCustomWebPage(object):
         #   dateTextBox - DEFAULT parameters:
         #       popup=True      --> show calendar dialog
         
-        fb = root.form().formbuilder(datapath='form',cols=2)
+        fb = root.formbuilder(datapath='form',cols=2)
         root.dataController("console.log('load record '+code)",code="^code")
         fb.textBox(value='^.r0.name',lbl='Name')
         fb.textBox(value='^.r0.surname',lbl='Surname')
