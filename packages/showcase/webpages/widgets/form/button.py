@@ -9,19 +9,17 @@ class GnrCustomWebPage(object):
         root.data('icon','icnBaseOk')
         root.data('fontType','Courier')
         root.dataController("""alert(msg);""",msg='^msg')
-        
         bc = root.borderContainer()
-        top = bc.contentPane(height='100px',region='top')
-        top.button("Save it", action="FIRE msg='Saving!';", iconClass='^icon',
-                   tooltip='click me!', font_family='^fontType')
-        center = bc.contentPane(region='center')
-        titlepane = center.titlepane(title='Center')
-        titlepane.div(height='200px',width='250px')
-        
-        self.makeDropDown(center,'Menù')
-        self.checkBoxGroup(center,'First,Second,Third,Fourth,Fifth,Sixth')
+        fb = bc.formbuilder(cols=2)
+        fb.div('button type')
+        fb.button("Save it",action="FIRE msg='Saving!';",iconClass='^icon',
+                   tooltip='click me!',font_family='^fontType')
+        fb.div('checkbox type')
+        self.checkBoxGroup(fb,'First,Second,Third,Fourth,Fifth,Sixth')
+        self.makeDropDown(fb,'Menù')
         
     def makeDropDown(self,pane,label):
+        pane.div('dropdownbutton type')
         ddb=pane.dropdownbutton(label)
         dmenu=ddb.menu()
         dmenu.menuline('Open...', action="FIRE msg='Opening!';")
