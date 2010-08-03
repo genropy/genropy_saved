@@ -8,16 +8,14 @@ from gnr.core.gnrbag import Bag
 
 class GnrCustomWebPage(object):
     def main(self, root, **kwargs):
-        root.data('values.sport',self.sports(),id='.pkey',caption='.Description')
+        #   combobox - DEFAULT parameters:
+        #       hasDownArrow=True --> create the selection arrow
+        #       ignoreCase=True   --> user can write ignoring the case
         
+        root.data('values.sport',self.sports(),id='.pkey',caption='.Description')
         fb = root.formbuilder(cols=2)
-        fb.combobox(lbl='loaded from Bag',value='^record.sport',storepath='values.sport',
-                    hasDownArrow=True,ignoreCase=True)
-        # default parameter of combobox:
-                    # hasDownArrow=True --> create the selection arrow
-                    # ignoreCase=True   --> user can write ignoring the case
-                    
-        fb.combobox(lbl='loaded from values', values='Football, Golf, Karate')
+        fb.combobox(lbl='loaded from Bag',value='^record.sport',storepath='values.sport')
+        fb.combobox(lbl='loaded from values', values='Football, Golf, Karate',hasDownArrow=False)
         
     def sports(self,**kwargs):
         mytable=Bag()
