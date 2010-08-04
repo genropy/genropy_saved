@@ -14,8 +14,8 @@ class GnrCustomWebPage(object):
         
         root.data('values.sport',self.sports(),id='.pkey',caption='.Description')
         fb = root.formbuilder(cols=2)
-        fb.combobox(lbl='loaded from Bag',value='^record.sport',storepath='values.sport')
-        fb.combobox(lbl='loaded from values', values='Football, Golf, Karate',hasDownArrow=False)
+        fb.combobox(value='^record.sport',storepath='values.sport',lbl='loaded from Bag')
+        fb.combobox(values='Football, Golf, Karate',hasDownArrow=False,lbl='loaded from values')
         
     def sports(self,**kwargs):
         mytable=Bag()

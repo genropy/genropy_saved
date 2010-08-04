@@ -10,11 +10,11 @@ class GnrCustomWebPage(object):
         #       minimum=0, maximum=100, intermediateChanges=False
         
         fb=root.formbuilder(cols=3,datapath='math')
-        fb.horizontalSlider(lbl='!!Integer number',value='^.number',width='250px',
-                            maximum=50,intermediateChanges=True,discreteValues=51)
+        fb.horizontalSlider(value='^.number',width='250px',maximum=50,
+                            intermediateChanges=True,discreteValues=51,lbl='!!Integer number')
         fb.numberTextBox(value='^.number',width='10em')
         fb.br()
-        fb.horizontalSlider(lbl='!!Float number',value='^.f_number',width='250px',
-                            minimum=10,default=25,intermediateChanges=True)
+        fb.horizontalSlider(value='^.f_number',width='250px',minimum=10,
+                            default=25,intermediateChanges=True,lbl='!!Float number')
         fb.numberTextBox(value='^.f_number',width='10em',places='^.decimals')
-        fb.numberSpinner(lbl='decimals',value='^.decimals',width='4em',min=0,max=15)
+        fb.numberSpinner(value='^.decimals',width='4em',min=0,max=15,lbl='decimals')

@@ -16,7 +16,7 @@ class GnrCustomWebPage(object):
         fb.div('date format: GG/MM/AAAA')
         fb.dateTextBox(value='^.r0.birthday',lbl='Birthday')
         fb.numberTextBox(value='^.r0.age',lbl='Age')
-        fb.dateTextBox(value='^.r0.date',lbl='Date (no popup)',popup=False)
+        fb.dateTextBox(value='^.r0.date',popup=False,lbl='Date (no popup)')
         
         root.div('- In magic box the sixth character is written onto the box with \"Text\" label')
         fb.textbox(value='^code',lbl='Magic box',connect_onkeyup="""if($1.target.value.length==5){
@@ -25,4 +25,4 @@ class GnrCustomWebPage(object):
                                                         form.elements[pos+1].focus();
                                                     }""")
                                                     
-        fb.textBox(value='^.r0.text',lbl='Text',width='5em')
+        fb.textBox(value='^.r0.text',width='5em',lbl='Text')

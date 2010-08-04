@@ -8,14 +8,14 @@ class GnrCustomWebPage(object):
     def main(self, rootBC, **kwargs):
         fb=rootBC.contentPane(title='Buttons',datapath='buttons').formbuilder(cols=3,border_spacing='10px')
         
-        fb.checkbox('checkbox',value='^.checkbox')
-        fb.toggleButton('Toggle',iconClass="dijitRadioIcon",value='^.toggle1')
-        fb.toggleButton(iconClass="dijitRadioIcon",value='^.toggle2')
+        fb.checkbox(value='^.checkbox',label='checkbox')
+        fb.toggleButton(value='^.toggle1',iconClass="dijitRadioIcon",label='Toggle')
+        fb.toggleButton(value='^.toggle2',iconClass="dijitRadioIcon")
         
-        fb.radiobutton('Jazz',value='^.radio.jazz',group='genre1')
-        fb.radiobutton('Rock',value='^.radio.rock',group='genre1')
-        fb.radiobutton('Blues',value='^.radio.blues',group='genre1')
+        fb.radiobutton(value='^.radio.jazz',group='genre1',label='Jazz')
+        fb.radiobutton(value='^.radio.rock',group='genre1',label='Rock')
+        fb.radiobutton(value='^.radio.blues',group='genre1',label='Blues')
         
         fb.div('Sex')
-        fb.radiobutton('M',value='^.sex.male',group='genre2')
-        fb.radiobutton('F',value='^.sex.female',group='genre2')
+        fb.radiobutton(value='^.sex.male',group='genre2',label='M')
+        fb.radiobutton(value='^.sex.female',group='genre2',label='F')

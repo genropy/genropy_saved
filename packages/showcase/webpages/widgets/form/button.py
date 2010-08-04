@@ -12,8 +12,8 @@ class GnrCustomWebPage(object):
         bc = root.borderContainer()
         fb = bc.formbuilder(cols=2)
         fb.div('button type')
-        fb.button("Save it",action="FIRE msg='Saving!';",iconClass='^icon',
-                   tooltip='click me!',font_family='^fontType')
+        fb.button(action="FIRE msg='Saving!';",iconClass='^icon',
+                   tooltip='click me!',font_family='^fontType',label='Save it')
         fb.div('checkbox type')
         self.checkBoxGroup(fb,'First,Second,Third,Fourth,Fifth,Sixth')
         self.makeDropDown(fb,'Menù')

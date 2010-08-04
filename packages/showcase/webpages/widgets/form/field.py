@@ -8,4 +8,4 @@ class GnrCustomWebPage(object):
     def main(self, root, **kwargs):
         cont = root.contentPane(margin='1em',padding='10px')
         fb=cont.formBuilder(datapath='myform')
-        fb.field('showcase.cast.person_id',lbl='Star name',width='15em',zoom=False)
+        fb.field('showcase.cast.person_id',width='15em',zoom=False,lbl='Star name')

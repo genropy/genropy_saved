@@ -22,10 +22,10 @@ class GnrCustomWebPage(object):
         fb.button('Save as...',action='genro.savedlg.show()')
         
     def makeRow(self,fb,r):
-        name = fb.textBox(lbl='Name',value='^.r%i.name' % r)
-        age = fb.numberSpinner(lbl='Age',value='^.r%i.age' % r)
-        sex = fb.filteringSelect(lbl='Sex',value='^.r%i.sex' % r,storepath='values.sex')
-        state = fb.filteringSelect(lbl='State',value='^.r%i.state' % r,storepath='values.states')
+        name = fb.textBox(value='^.r%i.name' % r,lbl='Name')
+        age = fb.numberSpinner(value='^.r%i.age' % r,lbl='Age')
+        sex = fb.filteringSelect(value='^.r%i.sex' % r,storepath='values.sex',lbl='Sex')
+        state = fb.filteringSelect(value='^.r%i.state' % r,storepath='values.states',lbl='State')
         
     def pageCtrlMenu(self,dropdownbutton):
         menu = dropdownbutton.menu()
@@ -50,16 +50,16 @@ class GnrCustomWebPage(object):
         
     def connectionDialog(self,dropdownbutton):
         tooltip=dropdownbutton.tooltipDialog(datapath='connection').formbuilder(cols='2',background_color='yellow')
-        tooltip.textbox(lbl='Url',lbl_color='red',value='^.url')
-        tooltip.textbox(lbl='User',value='^.user')
-        tooltip.numberTextBox(lbl='Min time',value='^.mintime')
-        tooltip.numberTextBox(lbl='Max time',value='^.maxtime')
+        tooltip.textbox(value='^.url',lbl_color='red',lbl='Url')
+        tooltip.textbox(value='^.user',lbl='User')
+        tooltip.numberTextBox(value='^.mintime',lbl='Min time')
+        tooltip.numberTextBox(value='^.maxtime',lbl='Max time')
         
     def saveDialog(self,root,gnrId):
         dlg=root.dialog(title='Save',datapath='saving',gnrId=gnrId).formbuilder(cols='2')
-        dlg.textbox(lbl='Filename',value='^.filename')
-        dlg.checkbox('Make a copy',value='^.docopy')
-        dlg.button('Ok',action='genro.%s.hide()' % gnrId)
+        dlg.textbox(value='^.filename',lbl='Filename')
+        dlg.checkbox(value='^.docopy',label='Make a copy')
+        dlg.button(action='genro.%s.hide()' % gnrId,label='Ok')
         
 ############################# filling Bag methods ####################################################
         
