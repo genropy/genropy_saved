@@ -3,8 +3,7 @@
 <plist version="1.0">
 <dict>
 	<key>content</key>
-	<string>relation('$1',${2:mode='foreignkey',
-			onDelete='raise',
+	<string>relation('$1', mode='foreignkey'${2:, onDelete='raise'}${3:, 
 			many_name='',
 			one_name='',
 			one_group='',
