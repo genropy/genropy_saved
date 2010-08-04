@@ -27,8 +27,10 @@ class DocAnalyzer(ast.NodeVisitor):
         self.filename = filename
         with open(filename,'r') as fd:
             ast_tree = ast.parse(fd.read(), filename)
+            self.root = Bag()
             self.current = self.module = Bag()
-            self.module.setBackRef()
+            self.root['_'] = self.module
+            self.root.setBackRef()
             self.module.label, _ = os.path.splitext(os.path.basename(filename))
             self.lineno = 0
             self.visit(ast_tree)
@@ -72,7 +74,9 @@ def main(filenames):
         e = DocAnalyzer(fn)
         for node in e.module.traverse():
             if not node.label.startswith('_') and not node.getAttr('docstring'):
-                print "%(file)s:%(line)d\t%(name)s (%(kind)s) missing docstring" % dict(file=fn, line=node.getAttr('start'), name=node.fullpath, kind=node.getAttr('kind'))
+                print "%(file)s:%(line)d\t%(name)s (%(kind)s)" % dict(file=fn, line=node.getAttr('start'),
+                    name=node.fullpath[2:], # HACK: setBackRef() only works if the "root" bag is inside another bag... damn
+                    kind=node.getAttr('kind'))
 
 if __name__ == '__main__':
     main.run()
