@@ -63,13 +63,13 @@ class RecordLinker(BaseComponent):
                             min_height=height,width=width,colspan=colspan,
                             rowspan=rowspan,position='relative')
         if field:
-            selector = selectorBox.field(field,position='absolute',
+            selector = selectorBox.field(field,position='absolute', zoom=False,
                                         left='0px',top='0px',width='100%',disabled=disabled,**kwargs)
             fieldrelpath = '.%s' %field.split('.')[-1]
             if not value:
                 value = '^%s' %fieldrelpath
         else:
-            selector = selectorBox.dbSelect(value=value,dbtable=table,position='absolute',
+            selector = selectorBox.dbSelect(value=value,dbtable=table,position='absolute', zoom=False,
                                         left='0px',top='0px',width='100%',disabled=disabled,**kwargs)
             fieldrelpath = value[1:]
         
