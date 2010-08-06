@@ -785,6 +785,7 @@ class GnrWebPage(GnrBaseWebPage):
         handler = self.getPublicMethod('remote',handler)
         if handler:
             pane = self.newSourceRoot()
+            self._root = pane
             for k,v in kwargs.items():
                 if k.endswith('_path'):
                     kwargs[k[0:-5]] = kwargs.pop(k)[1:]
