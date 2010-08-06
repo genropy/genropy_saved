@@ -491,7 +491,7 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
         elif parentfb:
             tblobj = parentfb.tblobj
         else:
-            raise 'No table'       
+            raise GnrDomSrcError('No table')
         fieldobj=tblobj.column(fld)
         if fieldobj is None:
             raise GnrDomSrcError('Not existing field %s' % fld)
