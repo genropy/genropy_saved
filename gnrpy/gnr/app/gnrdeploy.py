@@ -244,8 +244,8 @@ class PackageMaker(object):
         self.resources_path = os.path.join(self.webpages_path, '_resources')
         self.main_py_path = os.path.join(self.package_path, 'main.py')
         self.menu_xml_path = os.path.join(self.package_path, 'menu.xml')
-        self.examplemodel_py_example_path = os.path.join(self.model_path, 'examplemodel_py.example')
-        self.examplewebpage_py_example_path = os.path.join(self.webpages_path, 'examplewebpage_py.example')
+        self.examplemodel_py_example_path = os.path.join(self.model_path, 'example_table.py')
+        self.examplewebpage_py_example_path = os.path.join(self.webpages_path, 'example_webpage.py')
         for path in (self.package_path, self.model_path, self.lib_path, self.webpages_path, self.resources_path):
             if not os.path.isdir(path):
                 os.mkdir(path)
@@ -284,7 +284,6 @@ class Table(GnrDboTable):
         if not os.path.exists(self.examplemodel_py_example_path):
             examplemodel_py_example = open(self.examplemodel_py_example_path, 'w')
             examplemodel_py_example.write("""
-#!/usr/bin/env python
 # encoding: utf-8
 
 class Table(object):
@@ -304,20 +303,11 @@ class Table(object):
         if not os.path.exists(self.examplewebpage_py_example_path):
             examplewebpage_py_example = open(self.examplewebpage_py_example_path, 'w')
             examplewebpage_py_example.write("""
-#!/usr/bin/env python
 # -*- coding: UTF-8 -*-
 
 class GnrCustomWebPage(object):
-
-    #py_requires = 'public:Public'
-    #js_requires = '...'
-    #css_requires = '...'
-
-    #def pageAuthTags(self, method=None, **kwargs):
-    #    return 'user'
-
     def main(self, root, **kwargs):
-        root.div('Hello world!')
+        pass
 """)
             examplewebpage_py_example.close()
             
