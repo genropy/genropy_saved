@@ -15,11 +15,9 @@ class GnrCustomWebPage(object):
         
     def test_2_nested(self,pane):
         """Nested Dialogs"""
-        x=100
-        y=100
         for k in range (4):
             dlg=pane.dialog(nodeId='mydialog_%i' % k,style='width:300px;',
-                            title='Very simple dialog n. %i'%k,position='%i,%i'%(x,y))
+                            title='Very simple dialog n. %i'%k,position='%i,%i'%(100+k*10,100+k*10))
             dlg.div('This is a very simple dialog %i' %k)
             pane.button('Open a dialog %i'%k,action="genro.wdgById('mydialog_%i').show()" %k)
             pane=dlg
