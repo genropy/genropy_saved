@@ -974,20 +974,20 @@ dojo.declare("gnr.widgets.TabContainer",gnr.widgets.StackContainer,{
 });
 dojo.declare("gnr.widgets.BorderContainer",gnr.widgets.baseDojo,{
     creating: function(attributes, sourceNode){
-        if (dojoversion!='1.1'){
+        if ( dojo_version!='1.1'){
             attributes.gutters=attributes.gutters || false;
         }
         this.setControllerTitle(attributes, sourceNode);
     },
     created: function(widget, savedAttrs, sourceNode){
         dojo.connect(widget,'startup',dojo.hitch(this,'afterStartup',widget));
-        if (dojoversion=='1.7'){
+        if ( dojo_version=='1.7'){
             dojo.connect(widget,'addChild',dojo.hitch(this,'onAddChild',widget));
         }
     },
     afterStartup:function(widget){
         var sourceNode=widget.sourceNode;
-        if (dojoversion!='1.7'){
+        if ( dojo_version!='1.7'){
             widget._splitterConnections={};
             var region,splitter;
             for (region in widget._splitters){
@@ -1364,7 +1364,7 @@ dojo.declare("gnr.widgets.Tooltip",gnr.widgets.baseDojo,{
     }
     ,
     attributes_mixin_postCreate: function(){
-        if (dojoversion=='1.1'){
+        if ( dojo_version=='1.1'){
             if(this.srcNodeRef){this.srcNodeRef.style.display = "none";}
         }else{
             dojo.addClass(this.domNode,"dijitTooltipData");
@@ -1384,10 +1384,10 @@ dojo.declare("gnr.widgets.Tooltip",gnr.widgets.baseDojo,{
     mixin_connectOneNode:function(node){
         this._connectNodes.push(node);
         var eventlist;
-        if (dojoversion=='1.1'){
+        if ( dojo_version=='1.1'){
             eventlist = ["onMouseOver", "onMouseOut", "onFocus", "onBlur", "onHover", "onUnHover"];
         }
-        else if (dojoversion=='1.5'){
+        else if ( dojo_version=='1.5'){
             eventlist = ["onTargetMouseEnter", "onTargetMouseLeave", "onTargetFocus", "onTargetBlur", "onHover", "onUnHover"];
         }
         else{
@@ -1755,7 +1755,7 @@ dojo.declare("gnr.widgets.Grid",gnr.widgets.baseDojo,{
     constructor: function(application){
         this._domtag = 'div';
         this._dojotag = 'Grid';
-        if(dojoversion=='1.1'){
+        if( dojo_version=='1.1'){
             if (!dojox.grid) {
                 dojo.require('dojox.grid._grid.builder');
             };
@@ -3341,7 +3341,7 @@ dojo.declare("gnr.widgets.dbBaseCombo",gnr.widgets.BaseCombo,{
         var tag = 'cls_'+sourceNode.attr.tag;        
         dojo.addClass(widget.domNode.childNodes[0],tag);
         this.connectFocus(widget, savedAttrs, sourceNode);
-        if (dojoversion=='1.1'){
+        if ( dojo_version=='1.1'){
             if(dojo.isSafari){
                 dojo.connect(widget.focusNode,'onkeydown',widget,'_onKeyPress');            
             }
