@@ -796,7 +796,7 @@ dojo.declare("gnr.widgets.Dialog",gnr.widgets.baseDojo,{
          }
         
     },
-    versionpatch_11_position: function(){
+    versionpatch_11__position: function(){
         var centerOn = this.sourceNode.attr.centerOn;
         if (!centerOn){
             this._position_replaced();
