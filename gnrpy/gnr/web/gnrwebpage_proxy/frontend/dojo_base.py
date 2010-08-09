@@ -10,6 +10,7 @@
 # --------------------------- GnrWebPage subclass ---------------------------
 
 from gnr.web.gnrwebpage_proxy.frontend.gnrbasefrontend import GnrBaseFrontend
+from gnr.core.gnrlang import boolean
 
 
 class GnrBaseDojoFrontend(GnrBaseFrontend):
@@ -21,7 +22,11 @@ class GnrBaseDojoFrontend(GnrBaseFrontend):
         dojo_theme =  getattr(self.page, 'dojo_theme', None) or self.page.site.config['dojo?theme'] or 'tundra'
         self._theme = dojo_theme
         self.dojo_version = self.page.dojo_version
-        dojolib = self.page.site.dojo_static_url(self.dojo_version,'dojo','dojo','dojo.js')
+        if boolean(self.page.dojo_source):
+            dojofolder='dojo_src'
+        else:
+            dojofolder='dojo'
+        dojolib = self.page.site.dojo_static_url(self.dojo_version,dojofolder,'dojo','dojo.js')
         self.dojolib = dojolib
         self.djConfig = "parseOnLoad: false, isDebug: %s, locale: '%s'" % (self.page.isDeveloper() and 'true' or 'false',self.page.locale)
         
