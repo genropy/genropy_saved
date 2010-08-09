@@ -4,7 +4,7 @@
 from gnr.web.gnrhtmlpage import GnrHtmlDojoPage as page_factory
 
 class GnrCustomWebPage(object):
-    dojoversion='13'
+    dojo_version='13'
     theme='soria'
 
     def main_(self, body, name='World'):

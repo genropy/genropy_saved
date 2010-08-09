@@ -157,7 +157,7 @@ class GnrHtmlDojoPage(GnrHtmlPage):
     srcfactory=GnrHtmlDojoSrc
     def dojo(self, version=None, theme=None):
         theme=theme or self.theme 
-        version = version or self.dojoversion
+        version = version or self.dojo_version
         djConfig="parseOnLoad: true, isDebug: %s, locale: '%s'" % (self.isDeveloper() and 'true' or 'false',self.locale)
         css_dojo = getattr(self, '_css_dojo_d%s' % version)(theme=theme)
         import_statements = ';\n    '.join(['@import url("%s")'%self.site.dojo_static_url(version,'dojo',f) for f in css_dojo])

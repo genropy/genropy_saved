@@ -18,7 +18,7 @@ class Plugin(GnrBasePlugin):
         auth = self._checkAuth()
         if auth != AUTH_OK:
             self.raiseUnauthorized()
-        tpldirectories=[os.path.dirname(path), self.parentdirpath]+self.resourceDirs+[self.resolvePath('gnrjs','gnr_d%s' % self.dojoversion,'tpl',folder='*lib')]
+        tpldirectories=[os.path.dirname(path), self.parentdirpath]+self.resourceDirs+[self.resolvePath('gnrjs','gnr_d%s' % self.dojo_version,'tpl',folder='*lib')]
         lookup=TemplateLookup(directories=tpldirectories,
                              output_encoding='utf-8', encoding_errors='replace')                      
         template = lookup.get_template(os.path.basename(path))

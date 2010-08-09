@@ -20,8 +20,8 @@ class GnrBaseDojoFrontend(GnrBaseFrontend):
     def init(self, **kwargs):
         dojo_theme =  getattr(self.page, 'dojo_theme', None) or self.page.site.config['dojo?theme'] or 'tundra'
         self._theme = dojo_theme
-        self.dojoversion = self.page.dojoversion
-        dojolib = self.page.site.dojo_static_url(self.dojoversion,'dojo','dojo','dojo.js')
+        self.dojo_version = self.page.dojo_version
+        dojolib = self.page.site.dojo_static_url(self.dojo_version,'dojo','dojo','dojo.js')
         self.dojolib = dojolib
         self.djConfig = "parseOnLoad: false, isDebug: %s, locale: '%s'" % (self.page.isDeveloper() and 'true' or 'false',self.page.locale)
         
@@ -37,6 +37,6 @@ class GnrBaseDojoFrontend(GnrBaseFrontend):
         arg_dict['dojolib'] = self.dojolib
         arg_dict['djConfig'] = self.djConfig
         css_dojo = self.css_frontend()
-        arg_dict['css_dojo'] = [self.page.site.dojo_static_url(self.dojoversion,'dojo',f) for f in css_dojo]
+        arg_dict['css_dojo'] = [self.page.site.dojo_static_url(self. dojo_version,'dojo',f) for f in css_dojo]
         
     

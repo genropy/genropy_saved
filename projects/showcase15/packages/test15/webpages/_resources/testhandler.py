@@ -18,9 +18,9 @@ class TestHandler(BaseComponent):
     def testHandler_headers(self, pane):
         header=pane.div(width='900px',margin='5px')
         header.div('Dojo version :',float='left',margin_top='7px',color='gray')
-        pane.data('gnr.dojoversion','1.5')
-        mdiv=header.dropdownbutton(label='^gnr.dojoversion',float='left')
-        m=mdiv.menu(action='SET gnr.dojoversion=$1.label')
+        pane.data('gnr. dojo_version','1.5')
+        mdiv=header.dropdownbutton(label='^gnr. dojo_version',float='left')
+        m=mdiv.menu(action='SET gnr. dojo_version=$1.label')
         m.menuline('1.1')
         m.menuline('1.5')
         pane.data('gnr.dojotheme','claro')
@@ -38,7 +38,10 @@ class TestHandler(BaseComponent):
         for test_name in test_to_do:
             test_handler=getattr(self,test_name)
             element= pane.div(border='1px solid gray',margin='5px')
-            element.div(test_handler.__doc__ or test_name,background_color='gray',color='white',padding='3px')
+            h=element.div()
+            h.a('Source',href='',float='right',onclick='alert("ggg")',color='white',font_size='10px',margin_right='5px',margin_top='3px',style='cursor:pointer')
+            h.div(test_handler.__doc__ or test_name,background_color='gray',color='white',padding='3px')
+            
             element=element.div(padding='15px',background_color='white')
             test_handler(element)
             

@@ -111,7 +111,7 @@ class ResourceLoader(object):
         page_class = cloneClass('GnrCustomWebPage',page_factory)
         page_class.__module__ = page_module
         self.page_class_base_mixin(page_class, pkg=pkg)
-        page_class.dojoversion = getattr(custom_class, 'dojoversion', None) or self.site.config['dojo?version'] or '11'
+        page_class.dojo_version = getattr(custom_class, 'dojo_version', None) or self.site.config['dojo?version'] or '11'
         page_class.theme = getattr(custom_class, 'theme', None) or self.site.config['dojo?theme'] or 'tundra'
         page_class.gnrjsversion = getattr(custom_class, 'gnrjsversion', None) or self.site.config['gnrjs?version'] or '11'
         page_class.maintable = getattr(custom_class, 'maintable', None)

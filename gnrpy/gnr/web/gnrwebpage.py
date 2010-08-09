@@ -98,7 +98,8 @@ class GnrWebPage(GnrBaseWebPage):
         self.private_kwargs=dict([(k[:2],v)for k,v in request_kwargs.items() if k.startswith('__')])
         self.pagetemplate = request_kwargs.pop('pagetemplate',None) or getattr(self, 'pagetemplate', None) or self.site.config['dojo?pagetemplate'] # index
         self.css_theme = request_kwargs.pop('css_theme',None) or getattr(self, 'css_theme', None) or self.site.config['gui?css_theme']
-     
+        self.dojo_theme = request_kwargs.pop('dojo_theme',None) or self.dojo_theme
+        self.dojo_version= request_kwargs.pop('dojo_version',None) or self.dojo_version
         self.set_call_handler(request_args, request_kwargs)
         self._call_args = request_args or tuple()
         self._call_kwargs = request_kwargs or {}
@@ -106,8 +107,8 @@ class GnrWebPage(GnrBaseWebPage):
 
     def _get_frontend(self):
         if not hasattr(self,'_frontend'):
-            if not hasattr(self,'page_frontend') and hasattr(self,'dojoversion'):
-                self.page_frontend='dojo_%s'%self.dojoversion
+            if not hasattr(self,'page_frontend') and hasattr(self,'dojo_version'):
+                self.page_frontend='dojo_%s'%self.dojo_version
             frontend_module = gnrImport('gnr.web.gnrwebpage_proxy.frontend.%s'%self.page_frontend)
             frontend_class = getattr(frontend_module,'GnrWebFrontend')
             self._frontend= frontend_class(self)
@@ -845,7 +846,52 @@ class GnrWebPage(GnrBaseWebPage):
         
     def isDeveloper(self) :
         return (self.userTags and ('_DEV_' in self.userTags)) 
-    
+        
+    def css3make(self,rounded=None,shadow=None,gradient=None,style=''):
+        result=[]
+        if rounded:
+            for x in rounded.split(','):
+                if ':' in x:
+                    side,r=x.split(':')
+                else:
+                    side,r='all',x
+                side=side.lower()
+                if side=='all':
+                    result.append('-moz-border-radius:%spx;'%r)
+                    result.append('-webkit-border-radius:%spx;'%r)
+                else:
+                    if side in ('tl','topleft','top','left'):
+                        result.append('-moz-border-radius-topleft:%spx;'%r)
+                        result.append('-webkit-border-top-left-radius:%spx;'%r)
+                    if side in ('tr','topright','top','right'):
+                        result.append('-moz-border-radius-topright:%spx;'%r)
+                        result.append('-webkit-border-top-right-radius:%spx;'%r)
+                    if side in ('bl','bottomleft','bottom','left'):    
+                        result.append('-moz-border-radius-bottomleft:%spx;'%r)
+                        result.append('-webkit-border-bottom-left-radius:%spx;'%r)
+                    if side in ('br','bottomright','bottom','right'):
+                        result.append('-moz-border-radius-bottomright:%spx;'%r)
+                        result.append('-webkit-border-bottom-right-radius:%spx;'%r)
+        if shadow:
+            x,y,blur,color=shadow.split(',')
+            result.append('-moz-box-shadow:%spx %spx %spx %s;'%(x,y,blur,color))
+            result.append('-webkit-box-shadow:%spx %spx %spx %s;'%(x,y,blur,color))
+       #if gradient:
+       #    
+       #
+       # background-image:-webkit-gradient(linear, 0% 0%, 0% 90%, from(rgba(16,96,192,0.75)), to(rgba(96,192,255,0.9)));
+       #    background-image:-moz-linear-gradient(top,bottom,from(rgba(16,96,192,0.75)), to(rgba(96,192,255,0.9)));
+       #    result.append('background-image:-moz-linear-gradient(top,bottom,from(rgba(16,96,192,0.75)), to(rgba(96,192,255,0.9)));')
+       #    result.append('-webkit-box-shadow:%spx %spx %spx %s;'%(x,y,blur,color))
+       #    # -moz-linear-gradient( [<point> || <angle>,]? <stop>, <stop> [, <stop>]* )
+            # -moz-radial-gradient( [<position> || <angle>,]? [<shape> || <size>,]? <stop>, <stop>[, <stop>]* )
+            # 
+            # -moz-linear-gradient (%(begin)s, %(from)s, %(to)s);
+            # -webkit-gradient (%(mode)s, %(begin)s, %(end)s, from(%(from)s), to(%(to)s));
+            # 
+        return '%s\n%s' % ('\n'.join(result) ,style) 
+        
+        
     ##### BEGIN: DEPRECATED METHODS ###
     
     @deprecated

@@ -22,7 +22,7 @@
 */
  
 //######################## genro  #########################
-var dojoversion=dojo.version.major+'.'+dojo.version.minor;
+var dojo_version=dojo.version.major+'.'+dojo.version.minor;
 dojo.require("dojo.date");
 dojo.require('dijit.Tooltip');
 dojo.require('dojo.date.locale');
@@ -105,7 +105,7 @@ dojo.declare('gnr.GenroClient', null, {
         this.vld = new gnr.GnrValidator(this);
 
 
-        if (dojoversion=='1.1'){
+        if (dojo_version=='1.1'){
             if(dojo.isSafari){
                 dojo.keys.DOWN_ARROW = 40;
                 dojo.keys.UP_ARROW = 38;
