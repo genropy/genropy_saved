@@ -98,8 +98,13 @@ class GnrWebPage(GnrBaseWebPage):
         self.private_kwargs=dict([(k[:2],v)for k,v in request_kwargs.items() if k.startswith('__')])
         self.pagetemplate = request_kwargs.pop('pagetemplate',None) or getattr(self, 'pagetemplate', None) or self.site.config['dojo?pagetemplate'] # index
         self.css_theme = request_kwargs.pop('css_theme',None) or getattr(self, 'css_theme', None) or self.site.config['gui?css_theme']
-        self.dojo_theme = request_kwargs.pop('dojo_theme',None) or self.dojo_theme
-        self.dojo_version= request_kwargs.pop('dojo_version',None) or self.dojo_version
+        self.dojo_theme = request_kwargs.pop('dojo_theme',None) or getattr(self,'dojo_theme',None)
+        self.dojo_version= request_kwargs.pop('dojo_version',None) or getattr(self,'dojo_version',None)
+        if not hasattr(self,'dojo_source'):
+            self.dojo_source=self.site.config['dojo?source']
+        if 'dojo_source' in request_kwargs:
+            self.dojo_source=request_kwargs.pop('dojo_source')
+            
         self.set_call_handler(request_args, request_kwargs)
         self._call_args = request_args or tuple()
         self._call_kwargs = request_kwargs or {}
