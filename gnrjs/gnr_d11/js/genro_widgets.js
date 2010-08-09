@@ -756,6 +756,7 @@ dojo.declare("gnr.widgets.Dialog",gnr.widgets.baseDojo,{
     creating:function(attributes, sourceNode){
         objectPop(attributes,'parentDialog');
         objectPop(attributes,'centerOn');
+        objectPop(attributes,'position');
         var closable = ('closable' in attributes) ? objectPop(attributes,'closable') : true;
         attributes.title = attributes.title || '';
         if (!closable){
@@ -767,7 +768,15 @@ dojo.declare("gnr.widgets.Dialog",gnr.widgets.baseDojo,{
         }
     },
     created:function(newobj, savedAttrs, sourceNode){
-        dojo.connect(newobj,"show",newobj,
+         if ( dojo_version=='1.5'){
+              var position=sourceNode.attr.position;
+             if (position){
+                 position=position.split(',')
+                 newobj._relativePosition={x:position[0],y:position[1]};
+             }
+         }
+         if ( dojo_version=='1.1'){
+            dojo.connect(newobj,"show",newobj,
                     function(){
                         if (this!=genro.dialogStack.slice(-1)[0]) {
                             genro.dialogStack.push(this);
@@ -784,8 +793,10 @@ dojo.declare("gnr.widgets.Dialog",gnr.widgets.baseDojo,{
                                     if (genro.dialogStack.length>0) {
                                         genro.dialogStack.slice(-1)[0].show();
                                     }}});
+         }
+        
     },
-    patch__position: function(){
+    versionpatch_11_position: function(){
         var centerOn = this.sourceNode.attr.centerOn;
         if (!centerOn){
             this._position_replaced();
