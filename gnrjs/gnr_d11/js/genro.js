@@ -67,6 +67,7 @@ dojo.declare('gnr.GenroClient', null, {
         this.baseUrl = kwargs.baseUrl;
         this.lockingElements = {};
         this.debugRpc = false;
+
         setTimeout(dojo.hitch(this, 'genroInit'), 1);
     },
     genroInit:function(){
@@ -94,24 +95,25 @@ dojo.declare('gnr.GenroClient', null, {
         window.onunload = function(e){
             genro.onWindowUnload(e);
         };
-        this.rpc= new gnr.GnrRpcHandler(this);
+       this.rpc= new gnr.GnrRpcHandler(this);
         this.src= new gnr.GnrSrcHandler(this);
         this.wdg= new gnr.GnrWdgHandler(this);
         this.dev= new gnr.GnrDevHandler(this);
         this.dlg= new gnr.GnrDlgHandler(this); //da implementare
+
         this.dom= new gnr.GnrDomHandler(this);
         this.vld = new gnr.GnrValidator(this);
-        
-        genropatches.comboBox();
-        genropatches.tree();
-        genropatches.parseNumbers();
-     
+
+
         if (dojoversion=='1.1'){
             if(dojo.isSafari){
                 dojo.keys.DOWN_ARROW = 40;
                 dojo.keys.UP_ARROW = 38;
             }
             genropatches.borderContainer();
+            genropatches.comboBox();
+            genropatches.tree();
+            genropatches.parseNumbers();
         }
         this.clsdict = {domsource:gnr.GnrDomSource, bag:gnr.GnrBag};
         this.eventPath = '_sys.events';
