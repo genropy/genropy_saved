@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<GenRoBag>
+    <packages>
+        <test15 />
+    </packages>
+    <db _T="NN"/>
+    <authentication>
+        <py_auth _T="NN" defaultTags="user" pkg="adm" method="authenticate"/>
+    </authentication>
+</GenRoBag>
