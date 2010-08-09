@@ -2,4 +2,6 @@
 <GenRoBag><wsgi debug="true"></wsgi>
 <connection_timeout _T="NN"></connection_timeout>
 <connection_refresh _T="NN"></connection_refresh>
-<dojo _T="NN" version="15"></dojo></GenRoBag>
+<dojo _T="NN" version="15" source="true"></dojo>
+<gui css_theme=''/>
+</GenRoBag>

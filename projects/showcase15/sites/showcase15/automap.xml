@@ -1,5 +1,6 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<GenRoBag><test15 name="Test15"><dojo pkg="test15" name="!!Dojo"><container _T="BAG" pkg="test15" name="!!Container"></container>
-<form pkg="test15" name="!!Form"><button path="dojo/form/button.py" pkg="test15" name="!!Button"></button></form></dojo>
+<GenRoBag><test15 name="Test15"><dojo pkg="test15" name="!!Dojo"><form pkg="test15" name="!!Form"><button path="dojo/form/button.py" pkg="test15" name="!!Button"></button></form>
+<layout _T="BAG" pkg="test15" name="!!Layout"></layout>
+<widgets pkg="test15" name="!!Widgets"><dialog path="dojo/widgets/dialog.py" pkg="test15" name="!!Dialog"></dialog></widgets></dojo>
 <html pkg="test15" name="!!Html"><test path="html/test.py" pkg="test15" name="!!Test"></test></html>
 <tools pkg="test15" name="!!Tools"><css3make path="tools/css3make.py" pkg="test15" name="!!Css3make"></css3make></tools></test15></GenRoBag>
