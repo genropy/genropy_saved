@@ -218,48 +218,7 @@ class Public(BaseComponent):
             right.div(connect_onclick='genro.dev.openLocalizer()', _class='^gnr.localizerClass',float='right') 
         center.dataController("genro.dom.effect('bottomMsg','fadeout',{duration:3000,delay:3000});", 
                           msg='^pbl.bottomMsg',_if='msg')
-        return dict(left=left,right=right,center=center)
-        
-    def cssmake(self,rounded=None,shadow=None,gradient=None,style=''):
-        result=[]
-        if rounded:
-            for x in rounded.split(','):
-                side,r=x.split(':')
-                side=side.lower()
-                if side=='all':
-                    result.append('-moz-border-radius:%spx;'%r)
-                    result.append('-webkit-border-radius:%spx;'%r)
-                else:
-                    if side in ('tl','topleft','top','left'):
-                        result.append('-moz-border-radius-topleft:%spx;'%r)
-                        result.append('-webkit-border-top-left-radius:%spx;'%r)
-                    if side in ('tr','topright','top','right'):
-                        result.append('-moz-border-radius-topright:%spx;'%r)
-                        result.append('-webkit-border-top-right-radius:%spx;'%r)
-                    if side in ('bl','bottomleft','bottom','left'):    
-                        result.append('-moz-border-radius-bottomleft:%spx;'%r)
-                        result.append('-webkit-border-bottom-left-radius:%spx;'%r)
-                    if side in ('br','bottomright','bottom','right'):
-                        result.append('-moz-border-radius-bottomright:%spx;'%r)
-                        result.append('-webkit-border-bottom-right-radius:%spx;'%r)
-        if shadow:
-            x,y,blur,color=shadow.split(',')
-            result.append('-moz-box-shadow:%spx %spx %spx %s;'%(x,y,blur,color))
-            result.append('-webkit-box-shadow:%spx %spx %spx %s;'%(x,y,blur,color))
-       #if gradient:
-       #    
-       #
-       # background-image:-webkit-gradient(linear, 0% 0%, 0% 90%, from(rgba(16,96,192,0.75)), to(rgba(96,192,255,0.9)));
-       #    background-image:-moz-linear-gradient(top,bottom,from(rgba(16,96,192,0.75)), to(rgba(96,192,255,0.9)));
-       #    result.append('background-image:-moz-linear-gradient(top,bottom,from(rgba(16,96,192,0.75)), to(rgba(96,192,255,0.9)));')
-       #    result.append('-webkit-box-shadow:%spx %spx %spx %s;'%(x,y,blur,color))
-       #    # -moz-linear-gradient( [<point> || <angle>,]? <stop>, <stop> [, <stop>]* )
-            # -moz-radial-gradient( [<position> || <angle>,]? [<shape> || <size>,]? <stop>, <stop>[, <stop>]* )
-            # 
-            # -moz-linear-gradient (%(begin)s, %(from)s, %(to)s);
-            # -webkit-gradient (%(mode)s, %(begin)s, %(end)s, from(%(from)s), to(%(to)s));
-            # 
-        return '%s\n%s' % ('\n'.join(result) ,style)         
+        return dict(left=left,right=right,center=center)        
     
     def app_logo_url(self):
         logo_url = self.custom_logo_url()
