@@ -405,7 +405,8 @@ class GnrHtmlBuilder(object):
                 raise GnrHtmlSrcError('No total height with elastic rows')
                 ## Possibile ricerca in profondità
         layout.height = sum([row.height for row in layout.values()])+layout.border_width*(len(layout)-1)
-        layout.values()[-1].row_border=False
+        if layout.values():
+            layout.values()[-1].row_border=False
         
         attr['top'] = layout.top
         attr['left'] = layout.left
