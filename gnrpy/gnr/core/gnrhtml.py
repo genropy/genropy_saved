@@ -172,7 +172,7 @@ class GnrHtmlSrc(GnrStructData):
         row=self
         cell = row.child(tag='cell', **kwargs)
         #cell = row.child(tag='cell',content=content, **kwargs)
-        if content:
+        if not content is None:
             cell.child(tag='div', content=content, class_=content_class)
         cell.width = float(width or 0)
         cell.row = row
