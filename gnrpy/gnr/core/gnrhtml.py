@@ -414,7 +414,7 @@ class GnrHtmlBuilder(object):
         attr['right'] = layout.right
         attr['height'] = layout.height
         attr['width'] = layout.width
-        attr['class'] = ' '.join(x for x in [attr.get('class'),row.layout.layout_class] if x) 
+        attr['class'] = ' '.join(x for x in [attr.get('class'),layout.layout_class] if x) 
         kw={'border-width':borders}
        
         self.calculate_style(attr, layout.um,**kw)
