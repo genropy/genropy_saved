@@ -23,16 +23,12 @@
 
 from datetime import datetime
 
-
-
-
 class BaseRegister(object):
     
     DEFAULT_EXPIRY=60
     
     def _get_expiry(self):
         return self.DEFAULT_EXPIRY
-    
     
     def __init__(self, site, **kwargs):
         self.site = site
@@ -49,7 +45,6 @@ class BaseRegister(object):
         with sd.locked(key=address):
             self._add_object(obj)
             
-        
     def unregister(self,obj):
         """Unregister object"""
         sd=self.sd
@@ -60,9 +55,7 @@ class BaseRegister(object):
     
     def _get_object_info(self, obj):
         pass
-    
 
-    
     def _add_object(self, obj):
         sd=self.sd
         object_info=self._get_object_info(obj)
