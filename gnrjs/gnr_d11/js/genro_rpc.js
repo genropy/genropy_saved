@@ -477,13 +477,13 @@ dojo.declare("gnr.GnrRpcHandler",null,{
         if(freq==null){
             freq = genro.getData('gnr.polling');
         }
-        if(genro.polling){
-            clearInterval(genro.polling);
-            genro.polling = null;
+        if(genro.pollingHandler){
+            clearInterval(genro.pollingHandler);
+            genro.pollingHandler = null;
         }        
         if(freq>0){
             genro.lastRpc = new Date();
-            genro.polling = setInterval(function(){ var now = new Date();
+            genro.pollingHandler= setInterval(function(){ var now = new Date();
                                 if ((!genro.pollingRunning) && ((now - genro.lastRpc) > (freq*1000) )){
                                     genro.rpc.ping();
                                 }
