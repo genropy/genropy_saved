@@ -21,71 +21,72 @@
 #Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 
 from gnr.core.gnrbag import Bag
+import os.path
 
 class DojoApiReader(object):
-    def __init__(self,apipath):
-        b=Bag(apipath)
-        self.p=[]
+    discard=['provides','resources','mixins']
+    discard=[]
+    def __init__(self,apipath,resultpath=None):
+        self.resultpath=resultpath or os.path.dirname(apipath)
+        self.source=Bag(apipath)['javascript']
         self.apibag=Bag()
-        self.convert(b['javascript'])
-
+        for node in self.source:
+            attr=dict(node.attr)
+            value=node.value
+            location=attr.pop('location')
+            if isinstance(value,Bag):
+                value=self.convertObject(value)
+            if location in self.apibag:
+                print 'redefining object:',location
+            else:
+                self.write(location,value,attr)
+                self.apibag.setItem(location,value,attr)
+                
+    def write(self,location,obj,attr):
+        if attr:
+            print attr
+        destpath=os.path.join(self.resultpath,'objects',location.split('.'),'obj.xml')
+        obj.toXml(destpath,autocreate=True)
         
-    def convert(self, src,destpath=''):
+    def convertObject(self,src):
+        result=Bag()
         for node in src:
             label=node.label
-            node_value = node.value
+            if label in self.discard:
+                continue
             attr=dict(node.attr)
-            handler=getattr(self,'cpl_%s'%label,None)
-            if not handler:
-                print label
-            else:
-                label,node_value=handler(label,node_value,attr,destpath)
-                if node_value and isinstance(node_value, Bag):
-                    self.convert(node_value,label)
-                    value=None
-                else:
-                    value=node_value
-            self.p.append ((label,value,attr))
-            curr=self.apibag.getNode(label)
-            if not curr:
-                self.apibag.setItem(label,value,attr)
-            else:
-                curr.attr.update(attr)
+            value=node.value
+            if label=='mixins':
+                label='mixins_%s'% attr.get('scope','undefined_scope')
+            if isinstance(value,Bag):
+                value=self.convertItems(value)
+            if label in result:
+                print 'redefining:',label
+            result.setItem(label,value,attr)
+        return result
 
-    def cpl_object(self,label,node_value,attr,destpath):
-        return attr['location'],node_value
-    
-    def cpl_properties(self,label,node_value,attr,destpath):
-        return '%s.%s'%(destpath,label),node_value
-    
-    def cpl_methods(self,label,node_value,attr,destpath):
-        return '%s.%s'%(destpath,label),node_value
-    
-    def cpl_parameters(self,label,node_value,attr,destpath):
-        return '%s.%s'%(destpath,label),node_value
-    
-    def cpl_mixins(self,label,node_value,attr,destpath):
-        return '%s.%s'%(destpath,label),node_value
-    
-    def cpl_description(self,label,node_value,attr,destpath):
-        return '%s.%s'%(destpath,label),node_value
-    
-    def cpl_example(self,label,node_value,attr,destpath):
-        return '%s.%s'%(destpath,label),node_value
-    
-    def cpl_property(self,label,node_value,attr,destpath):
-        return '%s.%s'%(destpath,attr['name']),node_value
-    
-    def cpl_parameter(self,label,node_value,attr,destpath):
-        return '%s.%s'%(destpath,attr['name']),node_value,None
-    
-    def cpl_method(self,label,node_value,attr,destpath):
-        return '%s.%s'%(destpath,attr.get('name') or 'noname'),None
-    
-    def cpl_mixin(self,label,node_value,attr,destpath):
-        return attr['location'],None
+    def convertItems(self,items):
+        result=Bag()
+        for k,node in enumerate(items):
+            label=node.label
+            value=node.value
+            attr=dict(node.attr)
+            if label=='method':
+                label=attr.get('name')
+            if label=='property':
+                label=attr.get('name')
+            else:
+                label='r_%i' % k
+            if label:
+                result.setItem(label,value,attr)
+        return result
+           
     
 if __name__=='__main__':
-    obj=DojoApiReader("/Users/gpo/sviluppo/Dojo/dojo_14/api.xml")
+    obj=DojoApiReader("/Users/gpo/sviluppo/genro/dojo_libs/dojo_15/api.xml")    
+    #obj.apibag.toXml("/Users/gpo/sviluppo/genro/dojo_libs/dojo_15/api_gnr.xml")
+    for k,v in obj.apibag.items():
+        v.toXml("/Users/gpo/sviluppo/genro/dojo_libs/dojo_15/gnrapi/%s.xml"%k,autocreate=True)
+        
     print obj.apibag.keys()
     print x
