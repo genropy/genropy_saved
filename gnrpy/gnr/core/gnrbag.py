@@ -1478,13 +1478,13 @@ class Bag(GnrObject):
                 if el.label == label:
                     result=idx
                     break
-            if result == -1:
-                lowlabel = label.lower()
-                for idx,el in enumerate(self._nodes):
-                    if el.label.lower() == lowlabel:
-                        result=idx
-                        gnrlogger.warning('Case insensitive result: %s in %s' % (label, str(self.keys())))
-                        break
+           #if result == -1:
+           #    lowlabel = label.lower()
+           #    for idx,el in enumerate(self._nodes):
+           #        if el.label.lower() == lowlabel:
+           #            result=idx
+           #            gnrlogger.warning('Case insensitive result: %s in %s' % (label, str(self.keys())))
+           #            break
         return result
     
 #-------------------- pickle --------------------------------
