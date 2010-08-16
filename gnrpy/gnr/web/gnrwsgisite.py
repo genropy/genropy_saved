@@ -674,7 +674,7 @@ class GnrWsgiSite(object):
             currentPage.session.setInPageData('_clientDataChanges.%s' % client_path.replace('.','_'), 
                                         value, _attributes=attributes, page_id=page_id)
             if saveSession: 
-                self.session.saveSessionData()
+                currentPage.session.saveSessionData()
         else:
             msg_body = Bag()
             msg_body.setItem('dbevent', value,_client_data_path=client_path, dbevent=attributes['dbevent'])
