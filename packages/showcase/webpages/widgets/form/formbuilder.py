@@ -5,6 +5,10 @@
 #  Copyright (c) 2007 Softwell. All rights reserved.
 
 class GnrCustomWebPage(object):
+    #   formbuilder - DEFAULT parameters:
+    #       cols=1
+    #       border_spacing='6px'
+    
     css_requires= 'index'
     
     def main(self, root, **kwargs):
