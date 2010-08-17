@@ -6,8 +6,9 @@
 
 class GnrCustomWebPage(object):
     #   formbuilder - DEFAULT parameters:
-    #       cols=1
     #       border_spacing='6px'
+    #       cols=1
+    #       fld_width='7em'
     
     css_requires= 'index'
     
