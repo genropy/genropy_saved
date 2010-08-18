@@ -37,9 +37,9 @@ class TableHandlerForm(BaseComponent):
         pane.dataController("""genro.wdgById("gridbc").showHideRegion("top",showquery);genro.resizeAll();""",
                         showquery='^list.showExtendedQuery',
                         _fired='^gnr.onStart')
-        pane.dataController("""if(page==1){SET list.selectedTop=1;}
-                                   else if(page==0){SET list.selectedTop=0;}
-                                """, page='^list.selectedLeft')
+        pane.dataController("""if(page=='views'){SET list.selectedTop=1;}
+                                   else if(page=='queries'){SET list.selectedTop=0;}
+                                """, page='^list.toolboxSelected')
         
         pane.dataController("""genro.wdgById("gridbc").showHideRegion("left",show);genro.resizeAll();
                                genro.publish('pbl_mainMenu',!show);""",
@@ -73,7 +73,7 @@ class TableHandlerForm(BaseComponent):
         viewMenu.addItem('savedview',jsresolver,_T='JS',caption='!!Custom view',action='FIRE list.view_id = $1.pkey;')
         viewMenu.setItem('editview',None,caption='!!Edit view',action="""SET list.showToolbox = true;
                                                                     SET list.showExtendedQuery =true;
-                                                                    SET list.selectedLeft = 1;
+                                                                    SET list.toolboxSelected = 'views';
                                                                     """)
         pane.data('list.view.menu',viewMenu)
         pane.data('list.view.pyviews',structures,baseview='_base')
@@ -132,6 +132,7 @@ class TableHandlerForm(BaseComponent):
         pane.dataFormula('list.canDelete','(!locked) && deletePermission',locked='^status.locked',deletePermission='=usr.deletePermission',_init=True)
         pane.dataController("SET list.selectedIndex=-1; SET selectedPage = 1", fired='^list.newRecord')
         pane.dataController(""" var pkey;
+                                console.log(idx);
                                     if (idx < -1){
                                         pkey = null;
                                         PUT list.selectedIndex = null;
@@ -441,10 +442,8 @@ class TableHandlerForm(BaseComponent):
         grid = gridpane.virtualGrid(nodeId='maingrid', structpath="list.view.structure", storepath=".data", autoWidth=False,
                                 selectedIndex='list.rowIndex', rowsPerPage=self.rowsPerPage(), sortedBy='^list.grid.sorted',
                                 connect_onSelectionChanged='SET list.noSelection = (genro.wdgById("maingrid").selection.getSelectedCount()==0)',
-                                #connect_onRowDblClick='this.widget.editCurrentRow($1.rowIndex);',
                                 linkedForm='formPane',openFormEvent='onRowDblClick',
                                 connect_onRowContextMenu="FIRE list.onSelectionMenu = true;")    
-        #pane.dataController("SET list.selectedIndex = idx; SET selectedPage = 1;",nodeId="maingrid_record_opener") 
         pane.dataController("SET list.selectedIndex = idx; SET selectedPage = 1;",idx="^gnr.forms.formPane.openFormIdx") 
 
         pane.dataRpc('list.currentQueryCount','app.getRecordCount', condition=condition,fired='^list.updateCurrentQueryCount',
