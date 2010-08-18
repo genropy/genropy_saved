@@ -9,6 +9,7 @@ class Table(object):
                     validate_notnull=True,validate_notnull_error='!!Name is mandatory',
                     validate_nodup_error='!!This name is already taken')
         tbl.column('content',name_long='!!Content')
+        tbl.column('metadata','X',name_long='!!Metadata')
         tbl.column('username',name_long='!!Username')
         tbl.column('version',name_long='!!Version')
         tbl.column('maintable',name_long='!!Main table')

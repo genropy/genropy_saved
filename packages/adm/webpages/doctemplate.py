@@ -4,9 +4,6 @@
 Created by Softwell on 2008-07-10.
 Copyright (c) 2008 Softwell. All rights reserved.
 """
-from gnr.core.gnrstring import  concat, jsquote
-from gnr.core.gnrbag import Bag
-
 
 # --------------------------- GnrWebPage Standard header ---------------------------
 class GnrCustomWebPage(object):
@@ -44,22 +41,12 @@ class GnrCustomWebPage(object):
 
 ############################## FORM METHODS ##################################
         
-    
-    def tableData_states(self):
-        mytable=Bag()
-        mytable.setItem('r1',None,id='CA',caption='California')
-        mytable.setItem('r2',None,id='IL',caption='Illinois')
-        mytable.setItem('r3',None,id='NY',caption='New York')
-        mytable.setItem('r4',None,id='TX',caption='Texas')
-        mytable.setItem('r5',None,id='AL',caption='Alabama')        
-        return mytable
-        
     def formBase(self, parentBC,disabled=False, **kwargs):
         bc = parentBC.borderContainer(regions='^mainbc.regions',**kwargs)
         bc.data('mainbc.regions.left?show',False)
         bc.data('tableTree',self.db.tableTreeBag(['sys'],omit=True))
         bc.dataController('SET mainbc.regions.left?show = maintable?true:false',maintable='^.maintable')
-        left = bc.tabContainer(region='left',width='200px',splitter=True,datapath='table',selectedPage='^statusedit')
+        left = bc.tabContainer(region='left',width='280px',splitter=True,datapath='table',selectedPage='^statusedit')
         self.left(left)
         top = bc.contentPane(margin='5px',region='top').toolbar()
         fb = top.formbuilder(cols=6, border_spacing='4px',disabled=disabled)
@@ -73,9 +60,18 @@ class GnrCustomWebPage(object):
         editorPane = tc.borderContainer(title='Edit',pageName='edit')
         previewPane = tc.borderContainer(title='Preview',pageName='view')
         previewPane.div(innerHTML='==dataTemplate(tpl,data)',data='^test_record.record',
-                                  tpl='=form.record.content')
+                        tpl='=form.record.content',margin='10px')
+        self.metadataForm(tc.contentPane(title='!!Metadata',pageName='metadata',datapath='.metadata'),disabled=disabled)
         self.RichTextEditor(editorPane, value='^.content', contentPars=dict(region='center'),
                             nodeId='docEditor',editorHeight='200px',toolbar=self.rte_toolbar_standard())
+    
+    def metadataForm(self,pane,disabled=None):
+        fb = pane.formbuilder(cols=2, border_spacing='4px',fld_width='15em',disabled=disabled)
+        fb.textbox(value='^.subject',lbl='Subject',colspan='2',width='100%')
+        fb.textbox(value='^.to_address',lbl='To Address field')
+        fb.textbox(value='^.from_address',lbl='From Address field')
+        
+        
     def left(self,tc):
         t1 = tc.contentPane(title='Fields' ,pageName='edit')
         t1.dataRemote('.tree.fields','relationExplorer',table='^form.record.maintable',dosort=False)
