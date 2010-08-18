@@ -67,6 +67,7 @@ class GnrWebPage(GnrBaseWebPage):
     def __init__(self, site=None, request=None, response=None, request_kwargs=None, request_args=None, filepath = None, packageId = None, basename = None):
         self.site = site
         self.user_agent=request.user_agent
+        self.user_ip = request.remote_addr
         self.isTouchDevice = ('iPad' in self.user_agent or 'iPhone' in self.user_agent)
         self._event_subscribers = {}
         self._localClientDataChanges = Bag()
@@ -383,8 +384,7 @@ class GnrWebPage(GnrBaseWebPage):
 
     def _onEnd(self):
         self.site.page_register.refresh(self, renew=True)
-        if self.user or True: ## self.user is really needed for message handling?????
-            self.handleMessages()
+        self.handleMessages()
         self._publish_event('onEnd')
         self.onEnd()
     
@@ -565,6 +565,15 @@ class GnrWebPage(GnrBaseWebPage):
             self._app = GnrWebAppHandler(self)
         return self._app
     app = property(_get_app) #cambiare in appHandler e diminuirne l'utilizzo al minimo
+    # 
+    
+    def get_store(self,page_id=None):
+        page_id = page_id or self.page_id
+        return self.site.page_register.get_store(page_id)
+    
+    def on_store(self,cb,page_id=None):
+        page_id = page_id or self.page_id
+        return self.site.page_register.on_store(page_id,cb)
 
     def _get_pkgapp(self):
         if not hasattr(self, '_pkgapp'):
