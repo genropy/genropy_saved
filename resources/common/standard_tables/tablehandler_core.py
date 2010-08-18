@@ -32,6 +32,7 @@ class ListToolbarOptions(BaseComponent):
     py_requires = 'gnrcomponents/selectionhandler'
 
 class TableHandlerToolbox(BaseComponent):
+    py_requires = 'foundation/macrowidgets:SelectionBrowser'
     def lstToolbox(self,bc):
         if self.tblobj.logicalDeletionField:
             delprefpane = bc.contentPane(region='bottom',height='20px',background_color='lightgray', _class='pbl_roundedGroup', margin='3px')
@@ -39,13 +40,61 @@ class TableHandlerToolbox(BaseComponent):
             delprefpane.checkbox(value='^list.tableRecordCount', label='!!Show total count',margin_left='5px')
             delprefpane.dataController("""SET list.excludeLogicalDeleted = showDeleted? 'mark':true;""",showDeleted='^aux.showDeleted')
         self.toolboxFields(bc.contentPane(region='top',height='50%',splitter=True))
-        tc = bc.tabContainer(region='center', selected='^list.selectedLeft',margin='5px',margin_top='10px')
-        self.toolboxQueries(tc.borderContainer(title_tip='!!Queries',iconClass='icnBaseLens',showLabel=False))
-        self.toolboxViews(tc.borderContainer(title_tip='!!Views',iconClass='icnBaseView'))
-        self.toolboxFromResources(tc.contentPane(title_tip='!!Actions',iconClass='icnBaseAction'),res_type='actions')
-        self.toolboxFromResources(tc.contentPane(title_tip='Mails',iconClass='icnBaseEmail'),res_type='mail')
-        self.toolboxFromResources(tc.contentPane(title_tip='Print',iconClass='icnBasePrinter'),res_type='print')
+        tc = bc.tabContainer(region='center', selectedPage='^list.toolboxSelected',margin='5px',margin_top='10px')
+        self.toolboxQueries(tc.borderContainer(title_tip='!!Queries',pageName='queries',iconClass='icnBaseLens',showLabel=False))
+        self.toolboxViews(tc.borderContainer(title_tip='!!Views',pageName='views',iconClass='icnBaseView'))
+        self.toolboxFromResources(tc.contentPane(title_tip='!!Actions',pageName='actions',iconClass='icnBaseAction'),
+                                res_type='actions')
+        self.toolboxFromResources(tc.contentPane(title_tip='Mails',pageName='mails',iconClass='icnBaseEmail'),res_type='mails')
+        self.toolboxFromResources(tc.contentPane(title_tip='Print',pageName='prints',iconClass='icnBasePrinter'),res_type='prints')        
+        self.toolboxScriptRunner(datapath='list.toolbox.scriptrunner')
+    
+    def toolboxScriptRunner(self,datapath=None):
+        pane = self.pageSource()
+        pane.div(datapath=datapath).remote('toolboxParameters',
+                                            resource='=.resource',
+                                            res_type='=list.toolboxSelected',
+                                            _fired='^.ask')
+        controller = pane.dataController(nodeId="toolboxScriptRunner",datapath=datapath)
+        controller.dataController("""
+                                SET .resource = attr.resource;
+                                if(attr.has_parameters){
+                                    FIRE .ask;
+                                    FIRE #toolboxScriptDlg.open;
+                                }else{
+                                    FIRE .run;
+                                }""",
+                              attr="^.call")
+        
+        controller.dataRpc('.res_result','toolboxResourceDispatcher',
+                _fired='^.run',
+                pars='=.pars',resource='=.resource',
+                res_type='=list.toolboxSelected',
+                _onResult="""this.setRelativeData("list.toolbox."+$2.res_type+".tree.path",null);""", 
+                selectionName='=list.selectionName',
+                selectedRowidx="==genro.wdgById('maingrid').getSelectedRowidx();")
 
+    def remote_toolboxParameters(self,pane,resource='',res_type=None,title=None,**kwargs):
+        pkgname,tblname = self.maintable.split('.')
+        if not resource:
+            return
+        resource = resource.replace('.py','')
+        cl=self.site.loadResource(pkgname,'tables',tblname,res_type,"%s:Main" %resource)
+        self.mixin(cl,methods='askParameters',prefix='toolbox')
+        def cb_center(parentBc,**kwargs):
+            center=parentBc.contentPane(datapath='.pars',**kwargs)
+            self.toolbox_askParameters(center)
+            center_attr = center.getNode('#0').attr
+            dlg_attr = center.parentNode.parentbag.parentNode.attr
+            dlg_attr['height'] = center_attr.get('height') or dlg_attr['height']
+            dlg_attr['width'] = center_attr.get('width') or dlg_attr['width']
+
+        dlg = self.simpleDialog(pane,title=title,datapath='.parsDlg',height='300px',width='400px',
+                         cb_center=cb_center,dlgId='toolboxScriptDlg')
+        dlg.dataController("FIRE .close; SET #toolboxScriptRunner.pars=pars; FIRE #toolboxScriptRunner.run;",
+                            _fired="^.save",pars='=.pars')
+         
+        
     def toolboxFields(self,pane):
         treediv=pane.div(_class='treeContainer')
         treediv.tree(storepath='gnr.qb.fieldstree',persist=False,
@@ -70,33 +119,19 @@ class TableHandlerToolbox(BaseComponent):
                           _class='toolboxResourceTree',
                           selectedPath='.tree.path',
                           selectedLabelClass='selectedTreeNode',
-                          tooltip_callback="return sourceNode.attr.description || sourceNode.label;")
+                          tooltip_callback="return sourceNode.attr.description || sourceNode.label;") 
         parsstack = sc.borderContainer(pageName='pars')
         top = parsstack.contentPane(region='top',_class='pbl_roundedGroupLabel').div('^.tree.path?caption')
         bottom = parsstack.contentPane(region='bottom',_class='pbl_roundedGroupBottom')
-        bottom.button('!!Confirm',
-                     action='var selectedPath = GET .tree.path; console.log(selectedPath); SET .tree.path=null;',
-                     float='right')
+        bottom.button('!!Confirm',action="""FIRE #toolboxScriptRunner.call = GET .tree.path?;""",float='right')
         bottom.button('!!Cancel',action='SET .tree.path=null;',float='right')
-
-        parsstack.contentPane(region='center').remote('toolboxParsPane',
-                                                              resource='^.tree.path?resource',
-                                                              resultpath='.pars',
-                                                            res_type=res_type)
-    
-    def remote_toolboxParsPane(self,pane,resource='',res_type=None,resultpath=None,**kwargs):
-        pkgname,tblname = self.maintable.split('.')
-        resource = resource.replace('.py','')
-        cl=self.site.loadResource(pkgname,'tables',tblname,res_type,"%s:WebPage" %resource)
-        self.mixin(cl)
-  
-        self.toolbox_askParameters(pane,resultpath=resultpath)
-
-        #self.site.resource_loader.loadTableResource(resource,table=self.maintable)
+        center = parsstack.contentPane(region='center')
+        center.div('^.tree.path?description')
+        center.div('!!rows')
         
-        #center.div('^.tree.path?description')
-
-        
+    def rpc_toolboxResourceDispatcher(self,resource=None,res_type=None,**kwargs):
+        res_obj=self.site.loadTableScript(self,self.tblobj,'%s/%s' %(res_type,resource),class_name='Main')
+        res_obj.do(**kwargs)
         
     def rpc_tableResourceTree(self,tbl,res_type):
         pkg,tblname = tbl.split('.')
@@ -104,9 +139,11 @@ class TableHandlerToolbox(BaseComponent):
         resources = self.site.resource_loader.resourcesAtPath(pkg,'tables/%s/%s' %(tblname,res_type),'py')
         forbiddenNodes = []
         def cb(node,_pathlist=None):
+            has_parameters = False
             if node.attr['file_ext'] == 'py':
                 resmodule = gnrImport(node.attr['abs_path'])
                 tags = getattr(resmodule,'tags','') 
+                
                 if tags and not self.application.checkResourcePermission(tags, self.userTags):
                     if node.label=='_doc':
                         forbiddenNodes.append('.'.join(_pathlist))
@@ -114,11 +151,14 @@ class TableHandlerToolbox(BaseComponent):
                 caption = getattr(resmodule,'caption',node.label)
                 description = getattr(resmodule,'description','')
                 if  node.label=='_doc':
-                    result.setAttr('.'.join(_pathlist),dict(caption=caption,description=description,tags=tags))
+                    result.setAttr('.'.join(_pathlist),dict(caption=caption,description=description,tags=tags,
+                                                            has_parameters=has_parameters))
                 else:
-                
+                    mainclass = getattr(resmodule,'Main',None)
+                    assert mainclass,'Main class is mandatory in tablescript resource'
+                    has_parameters = hasattr(mainclass,'askParameters')
                     result.setItem('.'.join(_pathlist+[node.label]),None,caption=caption,description=description,
-                                    resource=node.attr['rel_path'][:-3])            
+                                    resource=node.attr['rel_path'][:-3],has_parameters=has_parameters)            
         resources.walk(cb,_pathlist=[])
         for forbidden in forbiddenNodes:
             result.pop(forbidden)
