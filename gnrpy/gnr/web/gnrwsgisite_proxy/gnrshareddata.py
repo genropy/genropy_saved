@@ -200,11 +200,15 @@ class GnrSharedData_dict(GnrSharedData):
 class GnrSharedData_memcache(GnrSharedData):
 
     def __init__(self,site, memcache_config=None, debug=None):
+        """
+        initialize the shared data store from memcache_config.
+        
+        """
         self.site = site
         self._namespace = site.site_name
         server_list = ['%(host)s:%(port)s'%attr for attr in memcache_config.digest('#a')]
         self.storage = memcache.Client(server_list, debug=debug)
-        self.visited_keys={}
+        self.visited_keys={} #MIKI:not used Do we really need it?
         self._test(False)
         
     def _test(self,doraise=True):
@@ -217,7 +221,7 @@ class GnrSharedData_memcache(GnrSharedData):
     def key(self, key):
         prefixed_key=('%s_%s'%(self._namespace, key)).encode('utf8')
         self.visited_keys[prefixed_key]=key
-        return prefixed_key
+        return prefixed_key  #MIKI: why don't we strip the result?
         
     def debug_keys(self):
         for key in self.visited_keys.values():
@@ -235,11 +239,15 @@ class GnrSharedData_memcache(GnrSharedData):
     def set(self, key, value, expiry=0, cas_id=None):
         prefixed_key=self.key(key).strip()
         if not cas_id:
-            if not self.storage.set(prefixed_key, value, time=exp_to_epoch(expiry)):
+            set_ok = self.storage.set(prefixed_key, value, time=exp_to_epoch(expiry))
+            if not set_ok:
                 self._test()
         else:
             self.storage.cas_ids[prefixed_key]=cas_id
             self.storage.cas(prefixed_key, value, time=exp_to_epoch(expiry))
+            # MIKI:we are not testing the result of this cas
+            # what happen if the cas is not respected
+            # no clash advice. Don't we need it?
     
     def add(self, key, value, expiry = 0):
         status = self.storage.add(self.key(key), value, time=exp_to_epoch(expiry))
