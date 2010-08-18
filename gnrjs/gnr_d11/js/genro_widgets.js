@@ -1114,6 +1114,14 @@ dojo.declare("gnr.widgets.ColorPalette",gnr.widgets.baseDojo,{
        return this.value;
    }
 });  
+dojo.declare('gnr.widgets.AccordionPane',gnr.widgets.baseDojo,{
+     constructor: function(application){
+        this._domtag = '*';
+        var dojotag = dojo_version>'1.4'? 'ContentPane':'AccordionPane'
+        this._dojotag = dojotag;
+        this._basedojotag = dojotag;
+    }
+});
 dojo.declare("gnr.widgets.Menuline",gnr.widgets.baseDojo,{
     constructor: function(application){
         this._domtag = '*';
