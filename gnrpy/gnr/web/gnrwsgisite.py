@@ -616,7 +616,8 @@ class GnrWsgiSite(object):
         
             
     def writeMessage(self,body=None, connection_id=None, user=None, page_id=None, expiry=None, message_type=None):
-        srcpage = self.db.application.site.currentPage
+        #srcpage = self.db.application.site.currentPage
+        srcpage = self.currentPage
         src_connection_id=srcpage.connection.connection_id
         src_page_id=srcpage.page_id
         src_user=srcpage.user
