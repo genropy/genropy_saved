@@ -125,7 +125,9 @@ dojo.declare("gnr.GnrSrcHandler",null,{
                 if(destination.getSelectedIndex){
                     var selectedIndex = destination.getSelectedIndex();
                 }
-                destination.removeChild(widget);
+                if ('removeChild' in destination){
+                    destination.removeChild(widget);
+                }
                 widget.destroyRecursive();
             }else{
                 if(domNode.parentNode){
