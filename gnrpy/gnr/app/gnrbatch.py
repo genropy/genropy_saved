@@ -174,7 +174,47 @@ class SelectionToXls(GnrBatch):
     def collect_result(self):
         return self.fileUrl
 
+class MailSender(GnrBatch):
+    
+    def __init__(self,page=None, table=None,doctemplate=None,selection=None,
+                      cc_address=None,bcc_address=None,from_address=None,to_address=None,attachments=None,
+                      account=None,host=None,port=None,user=None,password=None,ssl=None,tls=None,
+                      **kwargs): 
+                      
+        super(MailSender,self).__init__(**kwargs)
+        self.data = selection
+        self.page = page
+        self.doctemplate = doctemplate
+        self.tblobj = self.page.db.table(table)
+        self.from_address = from_address
+        self.mail_handler = self.page.site.mail_handler
+        self.cc_address= cc_address
+        self.bcc_address = bcc_address
+        self.attachments = attachments
+        self.account = account
+        self.host = host
+        self.port = port
+        self.user = user
+        self.password = password
+        self.ssl = ssl
+        self.tls = tls
+        self.to_address = to_address
+    
+    def data_fetcher(self):    
+        for row in self.data.output('records'):
+            yield row
+    
+    def process_chunk(self, chunk, **kwargs):
+        print x
+        self.mail_handler.sendmail_template(chunk, to_address=self.to_address or chunk[self.doctemplate['meta.to_address']],
+                         body=self.doctemplate['content'],subject=self.doctemplate['meta.subject'],
+                         cc_address=self.cc_address, bcc_address=self.bcc_address, from_address=self.from_address, 
+                         attachments=self.attachments, account=self.accont,
+                         host=self.host, port=self.port, user=self.user, password=self.password,
+                         ssl=self.ssl, tls=self.tls, html=True,  async=True)
         
+    
+    
 class PrintDbData(GnrBatch):
     def __init__(self, table=None,table_resource=None, class_name=None, selection=None,
                 folder=None, printParams=None, pdfParams=None, commitAfterPrint=False, **kwargs):
