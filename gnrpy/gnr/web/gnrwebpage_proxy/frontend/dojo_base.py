@@ -11,7 +11,7 @@
 
 from gnr.web.gnrwebpage_proxy.frontend.gnrbasefrontend import GnrBaseFrontend
 from gnr.core.gnrlang import boolean
-
+import os.path
 
 class GnrBaseDojoFrontend(GnrBaseFrontend):
     
@@ -24,6 +24,8 @@ class GnrBaseDojoFrontend(GnrBaseFrontend):
         self.dojo_version = self.page.dojo_version
         if boolean(self.page.dojo_source):
             dojofolder='dojo_src'
+            if not os.path.exists(self.page.site.dojo_static_path(self.dojo_version,dojofolder)):
+                dojofolder = 'dojo'
         else:
             dojofolder='dojo'
         dojolib = self.page.site.dojo_static_url(self.dojo_version,dojofolder,'dojo','dojo.js')
