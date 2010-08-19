@@ -174,6 +174,10 @@ dojo.declare("gnr.GnrRpcHandler",null,{
                  headers - Object. Additional HTTP headers to send in the request.
         */
         var httpMethod = httpMethod || 'GET';
+        if (genro._serverstore_changes) {
+            callKwargs._serverstore_changes = genro._serverstore_changes;
+            genro._serverstore_changes = null;
+        };
         callKwargs = this.serializeParameters(this.dynamicParameters(callKwargs, sourceNode));
         var content = objectUpdate({},callKwargs);
         content.page_id = this.application.page_id;

@@ -523,6 +523,9 @@ dojo.declare("gnr.GnrDomSourceNode",gnr.GnrBagNode,{
             genro.dom.addStyleSheet(this.getValue(),this.attr.cssTitle);
         }
     },
+    _bld_serverstore:function(){
+        genro._serverstore_paths[this.absDatapath(this.attr.clientpath)] = this.attr.serverpath;
+    },
     
     _bld_css:function() {
         genro.dom.addCssRule(this.getValue());

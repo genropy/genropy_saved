@@ -75,6 +75,8 @@ dojo.declare('gnr.GenroClient', null, {
         this.lastTime=this.startTime;
         this.dialogStack = [];
         this.sounds={};
+        this._serverstore_paths = {};
+        this._serverstore_changes = null;
         this.pendingFireAfter={};
         this.compareDict={'==':function(a,b){return (a==b);},
                           '>':function(a,b){return (a>b);},
@@ -528,6 +530,13 @@ dojo.declare('gnr.GenroClient', null, {
     },
     
     dataTrigger:function(kw){
+        if (kw.evt=='upd'){
+            var dpath=kw.pathlist.slice(1).join('.');
+            if (dpath in genro._serverstore_paths) {
+                genro._serverstore_changes = genro._serverstore_changes || {};
+                genro._serverstore_changes[genro._serverstore_paths[dpath]]=kw.value;
+            }
+        }
         dojo.publish('_trigger_data', [kw]);
     },
     fireDataTrigger: function(path){
