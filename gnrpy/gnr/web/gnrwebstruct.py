@@ -174,6 +174,11 @@ class GnrDomSrc(GnrStructData):
     def tooltip(self,label='',**kwargs):
         return self.child('tooltip',label=label,**kwargs)
 
+    def serverStore(self,clientpath=None,serverpath=None,store_type=None):
+        def onstore_cb(store):
+            store.subscribe_path(serverpath)
+        return self.child('serverStore',serverpath=serverpath,clientpath=clientpath)
+        
     def defineContext(self, context, datapath, value=None, savesession=True, **kwargs):
         #if not (value is None):
         if savesession:
