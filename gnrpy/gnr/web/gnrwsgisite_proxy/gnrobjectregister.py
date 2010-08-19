@@ -31,7 +31,7 @@ class ServerStore(object):
         self.locked=False
         self.source_obj=None
         if source_obj:
-            self.dataFromSource(source_obj)
+            self._data_from_source(source_obj)
             
     def _get_data(self):
         if not self.source_obj:
@@ -39,24 +39,55 @@ class ServerStore(object):
         return self.source_obj['data']
     data=property(_get_data)
     
-    def dataFromSource(self,source_obj=None):
-        source_obj=source_obj or self.parent.get_object(self.object_id)
+    def _get_datachanges(self):
+        if not self.source_obj:
+            self.load()
+        return self.source_obj['datachanges']
+    datachanges = property(_get_datachanges)
+    
+    def _get_subscribed_paths(self):
+        if not self.source_obj:
+            self.load()
+        return self.source_obj['subscribed_paths']
+    subscribed_paths = property(_get_subscribed_paths)
+    
+    def _data_from_source(self,source_obj=None):
+        if not source_obj:
+            source_obj=self.parent.get_object(self.object_id)
+            if not source_obj:
+                print x
         data=source_obj.get('data')
         if data is None:
-            data=Bag()
-            source_obj['data']=data
+            source_obj['data']=Bag()
+            source_obj['datachanges']=set()
+            source_obj['subscribed_paths']=set()
+        source_obj['data'].subscribe('datachanges',  any=self._on_data_trigger)
         self.source_obj=source_obj
+    
+    def subscribe_path(self,path):
+        self.subscribed_paths.add(path)
+        
+    def _on_data_trigger(self,node=None,ind=None,evt=None,pathlist=None,**kwargs):
+        path ='.'.join(pathlist)
+        if path in self.subscribed_paths:
+            self.datachanges.add(path)
+    
+    def reset_datachanges(self):
+        self.source_obj['datachanges'] = set()
         
     def load(self,lock=False):
         if lock:
             self.parent.lock(self.object_id)
             self.locked=True
-        self.dataFromSource()
+        self._data_from_source()
         
     def save(self,unlock=False):
         assert self.locked,'an unlocked store cannot be saved'
         parent = self.parent
         with parent.sd.locked(parent.prefix):
+            data = self.data
+            if data:
+                data.unsubscribe('datachanges',any=True)
             parent._set_object(self.source_obj)
         if unlock:
             parent.unlock(self.object_id)
