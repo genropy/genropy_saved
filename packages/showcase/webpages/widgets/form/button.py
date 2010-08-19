@@ -35,4 +35,4 @@ class GnrCustomWebPage(object):
         labels=labels.split(',')
         pane=pane.formbuilder(cols=columns)
         for label in labels:
-            pane.checkbox(label)
+            pane.checkbox(value='^cb_%s' %label,label=label)
