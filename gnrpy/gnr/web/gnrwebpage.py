@@ -105,7 +105,6 @@ class GnrWebPage(GnrBaseWebPage):
             self.dojo_source=self.site.config['dojo?source']
         if 'dojo_source' in request_kwargs:
             self.dojo_source=request_kwargs.pop('dojo_source')
-            
         self.set_call_handler(request_args, request_kwargs)
         self._call_args = request_args or tuple()
         self._call_kwargs = request_kwargs or {}
@@ -242,6 +241,15 @@ class GnrWebPage(GnrBaseWebPage):
             self._call_handler=self.rootPage
             #request_kwargs['dojo_theme']=self.dojo_theme
             request_kwargs['pagetemplate']=self.pagetemplate
+            
+    def update_serverstore(self,changes):
+        store = self.get_store()
+        store.load(True)
+        for k,w in changes.items():
+            store.setItem(k,w)
+        store.reset_datachanges()
+        store.save(True)
+        
 
     def _rpcDispatcher(self, method=None, xxcnt='', mode='bag',**kwargs):
         #if False and method!= 'main':
@@ -257,6 +265,9 @@ class GnrWebPage(GnrBaseWebPage):
                     parameters[k] = v
                 except Exception, e:
                     raise e
+        if '_serverstore_changes' in parameters:
+            serverstore_changes = parameters.pop('_serverstore_changes',None)
+            self.update_serverstore(serverstore_changes)
         auth = AUTH_OK
         if not method in ('doLogin', 'jscompress'):
             auth = self._checkAuth(method=method, **parameters)
@@ -384,11 +395,25 @@ class GnrWebPage(GnrBaseWebPage):
 
     def _onEnd(self):
         self.site.page_register.refresh(self, renew=True)
-        self.handleMessages()
+        #self.handleMessages() #commented has it was moved in another part. It may cause a regression
         self._publish_event('onEnd')
         self.onEnd()
     
+    def getStoreDataChanges(self):
+        store = self.get_store()
+        store.load()
+        datachanges = store.datachanges
+        if datachanges:
+            print xx
+            for change_path in datachanges:
+                node = store.getNode(change_path)
+                self.setInClientData(change.attr.pop('_client_data_path'), node.value , _attributes=node.attr, save=True,
+                                    src_page_id=src_page_id,src_user=src_user,src_connection_id=src_connection_id,
+                                    message_id=message_id)
+            
+    
     def collectClientDataChanges(self):
+        self.handleMessages()
         dataChanges = self.clientDataChanges() or Bag()
         self._publish_event('onCollectDataChanges')
         dataChanges.update(self._localClientDataChanges)
