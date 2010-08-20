@@ -260,14 +260,26 @@ class GnrWsgiSite(object):
         self.find_gnrjs_and_dojo()
         self.page_factory_lock=RLock()
         self.webtools = self.find_webtools()
-        self.print_handler=PrintHandler(parent = self)
-        self.mail_handler=MailHandler(parent = self)
-        self.message_handler=GnrMessageHandler(self)
-        self.page_register=PageRegister(self)
-        self.connection_register=ConnectionRegister(self,onRemoveConnection=self.connFolderRemove)
+
+        self.services = Bag()
+        self.print_handler = self.addService('print',PrintHandler(self))
+        self.mail_handler = self.addService('mail',MailHandler(self))
+        self.message_handler = self.addService('message',GnrMessageHandler(self))
+        self.register_page  = self.addService('register.page',PageRegister(self), private=True)
+        self.register_connection = self.addService('register.connection',
+                                                    ConnectionRegister(self,onRemoveConnection=self.connFolderRemove), 
+                                                    private=True)
+        #self.register_user = self.addService('register.user',UserRegister(self), private=True)
         if counter==0 and self.debug:
             self.onInited(clean = not noclean)
             
+    def addService(self,service_name,service_handler,**kwargs):
+        self.services.setItem(service_name,service_handler,**kwargs)
+        return service_handler
+    
+    def getService(self,service_name):
+        return self.services[service_name]
+    
     def exception(self,message):
         
         e= GnrSiteException(message=message)
@@ -279,7 +291,7 @@ class GnrWsgiSite(object):
     def connFolderRemove(self, connection_id, rnd=True):        
         shutil.rmtree(os.path.join(self.allConnectionsFolder, connection_id),True)
         if rnd and random.random() > 0.9:
-            live_connections=self.connection_register.connections()
+            live_connections=self.register_connection.connections()
             connection_to_remove=[connection_id for connection_id in os.listdir(self.allConnectionsFolder) if connection_id not in live_connections and os.path.isdir(connection_id)]
             for connection_id in connection_to_remove:
                 self.connFolderRemove(connection_id, rnd=False)
@@ -641,7 +653,7 @@ class GnrWsgiSite(object):
             return self.gnrapp.db.table('sys.locked_record').clearExistingLocks(**kwargs)
             
     def onClosePage(self,page):
-        self.page_register.unregister(page)
+        self.register_page.unregister(page)
         self.pageLog('close',page_id=page.page_id)
         self.clearRecordLocks(page_id=page.page_id)
         
@@ -653,7 +665,7 @@ class GnrWsgiSite(object):
         
     def notifyDbEvent(self,tblobj,record,event,old_record=None):
         if tblobj.attributes.get('broadcast'): 
-            subscribers = self.page_register.pages(index_name=tblobj.fullname)
+            subscribers = self.register_page.pages(index_name=tblobj.fullname)
             value=Bag([(k,v) for k,v in record.items() if not k.startswith('@')])
             for subscriber in subscribers:
                 sub=subscribers[subscriber]
