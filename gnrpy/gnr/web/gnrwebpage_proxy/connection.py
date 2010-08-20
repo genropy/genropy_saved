@@ -45,17 +45,17 @@ class GnrWebConnection(GnrBaseProxy):
         connection_info=None
         if self.cookie:
             self.connection_id = self.cookie.value.get('connection_id')
-            connection_info = page.site.connection_register.get_register_item(self.connection_id)
+            connection_info = page.site.register_connection.get_register_item(self.connection_id)
             if connection_info:
                 self.user = connection_info['user']
             elif page.site.debug:
                 self.user=self.cookie.value.get('user')
-                page.site.connection_register.refresh(self,renew=True)
-                connection_info = page.site.connection_register.get_register_item(self.connection_id)
+                page.site.register_connection.refresh(self,renew=True)
+                connection_info = page.site.register_connection.get_register_item(self.connection_id)
         if not connection_info and user:
             self.user = user
             self.connection_id = getUuid()
-            page.site.connection_register.register(self)
+            page.site.register_connection.register(self)
             self.cookie = self.page.newMarshalCookie(self.connection_name, {'user':self.user,'connection_id': self.connection_id, 'cookie_data':{}, 'locale':None}, secret = self.secret)
         self.inited=True
         
@@ -73,7 +73,7 @@ class GnrWebConnection(GnrBaseProxy):
     def _finalize(self):
         self.ip = self.page.request.remote_addr
         self.pages = Bag(self.page.session.getActivePages(self.connection_id))
-        self.page.site.connection_register.refresh(self,renew=False)
+        self.page.site.register_connection.refresh(self,renew=False)
         self.write()
         
     def writedata(self):
@@ -124,7 +124,7 @@ class GnrWebConnection(GnrBaseProxy):
         page=self.page
         site=page.site
         site.connectionLog('close',connection_id=connection_id)
-        site.connection_register.unregister(self)
+        site.register_connection.unregister(self)
         
     def pageFolderRemove(self):
         shutil.rmtree(os.path.join(self.connectionFolder, self.page.page_id),True)
