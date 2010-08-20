@@ -25,82 +25,78 @@ from datetime import datetime
 from gnr.core.gnrbag import Bag
 
 class ServerStore(object):
-    def __init__(self,parent,object_id,source_obj=None):
+    def __init__(self,parent,register_item_id=None,triggered=True):
         self.parent=parent
-        self.object_id=object_id
-        self.locked=False
-        self.source_obj=None
-        if source_obj:
-            self._data_from_source(source_obj)
+        self.register_item_id=register_item_id
+        self.triggered = triggered    
+        self._register_item = '*'  
             
+    def __enter__(self):
+        self.parent.lock(self.register_item_id)
+        return self
+        
+    def __exit__(self,type,value,tb):
+        if tb:
+            return
+        if not self.register_item:
+            return
+        data = self.data
+        if data is not None:
+            data.unsubscribe('datachanges',any=True)
+        self.parent.set_register_item(self.register_item)
+        self.parent.unlock(self.register_item_id)
+        
     def _get_data(self):
-        if not self.source_obj:
-            self.load()
-        return self.source_obj['data']
+        if self.register_item:
+            return self.register_item['data']
     data=property(_get_data)
     
+    def _get_register_item(self):
+        if self._register_item !='*':
+            return self._register_item
+        self._register_item = register_item = self.parent.get_register_item(self.register_item_id)
+        if not register_item:
+            return
+        data = register_item.get('data')
+        if data is None:
+            register_item['data']=Bag()
+            register_item['datachanges']=set()
+            register_item['subscribed_paths']=set()
+        if self.triggered:
+            register_item['data'].subscribe('datachanges',  any=self._on_data_trigger)
+        return register_item
+    register_item = property(_get_register_item)
+    
     def _get_datachanges(self):
-        if not self.source_obj:
-            self.load()
-        return self.source_obj['datachanges']
+        if self.register_item:
+            return self.register_item['datachanges']
     datachanges = property(_get_datachanges)
     
     def _get_subscribed_paths(self):
-        if not self.source_obj:
-            self.load()
-        return self.source_obj['subscribed_paths']
+        if self.register_item:
+            return self.register_item['subscribed_paths']
     subscribed_paths = property(_get_subscribed_paths)
     
-    def _data_from_source(self,source_obj=None):
-        if not source_obj:
-            source_obj=self.parent.get_object(self.object_id)
-            if not source_obj:
-                print x
-        data=source_obj.get('data')
-        if data is None:
-            source_obj['data']=Bag()
-            source_obj['datachanges']=set()
-            source_obj['subscribed_paths']=set()
-        source_obj['data'].subscribe('datachanges',  any=self._on_data_trigger)
-        self.source_obj=source_obj
-    
     def subscribe_path(self,path):
-        self.subscribed_paths.add(path)
+        if self.register_item:
+            self.subscribed_paths.add(path)
         
     def _on_data_trigger(self,node=None,ind=None,evt=None,pathlist=None,**kwargs):
         path ='.'.join(pathlist)
-        if path in self.subscribed_paths:
+        if path in self.subscribed_paths and self.register_item:
             self.datachanges.add(path)
-    
+
     def reset_datachanges(self):
-        self.source_obj['datachanges'] = set()
-        
-    def load(self,lock=False):
-        if lock:
-            self.parent.lock(self.object_id)
-            self.locked=True
-        self._data_from_source()
-        
-    def save(self,unlock=False):
-        assert self.locked,'an unlocked store cannot be saved'
-        parent = self.parent
-        with parent.sd.locked(parent.prefix):
-            data = self.data
-            if data:
-                data.unsubscribe('datachanges',any=True)
-            parent._set_object(self.source_obj)
-        if unlock:
-            parent.unlock(self.object_id)
-            self.locked=False
+        if self.register_item:
+            self.register_item['datachanges'] = set()
         
     def __getattr__(self,fname):
         if hasattr(self.data,fname):
             return getattr(self.data,fname)
         else:
-            raise AttributeError("object has no attribute '%s'" % fname)
+            raise AttributeError("register_item has no attribute '%s'" % fname)
 
 class BaseRegister(object):
-    
     DEFAULT_EXPIRY=60
     
     def _get_expiry(self):
@@ -115,40 +111,43 @@ class BaseRegister(object):
         pass
     
     def register(self,obj):
-        """Register object"""
+        """Register register_item"""
         sd=self.sd
         address=self.prefix
         with sd.locked(key=address):
-            object_info=self._get_object_info(obj)
-            self._set_object(object_info)
+            register_item=self._create_register_item(obj)
+            self._write_register_item(register_item)
             
     def unregister(self,obj):
-        """Unregister object"""
+        """Unregister register_item"""
         sd=self.sd
         address=self.prefix
-        object_id=self._get_object_info(obj)['object_id']
+        register_item_id=self._create_register_item(obj)['register_item_id']
         with sd.locked(key=address):
-            self._remove_object(object_id)
+            self._remove_register_item(register_item_id)
     
-    def _get_object_info(self, obj):
+    def make_store(self,register_item_id,triggered=None):
+        return ServerStore(self,register_item_id=register_item_id,triggered=triggered)
+
+    def _create_register_item(self, obj):
         pass
         
-    def _object_key(self,object_id):
-        return '%s_OBJECT_%s'%(self.prefix,object_id)
+    def _register_item_key(self,register_item_id):
+        return '%s_register_item_%s'%(self.prefix,register_item_id)
         
-    def _expiry_key(self,object_id):
-        return '%s_EXPIRY_%s'%(self.prefix,object_id)
+    def _expiry_key(self,register_item_id):
+        return '%s_EXPIRY_%s'%(self.prefix,register_item_id)
         
-    def _set_object(self, object_info):
+    def _write_register_item(self, register_item):
         """Private. It must be called only in locked mode"""
         sd=self.sd
-        object_id=object_info['object_id']
-        self._set_index(object_id)
-        sd.set(self._object_key(object_id),object_info,0)
-        sd.set(self._expiry_key(object_id),object_id,self._get_expiry())
-        self._on_set_object(object_info)
+        register_item_id=register_item['register_item_id']
+        self._set_index(register_item_id)
+        sd.set(self._register_item_key(register_item_id),register_item,0)
+        sd.set(self._expiry_key(register_item_id),register_item_id,self._get_expiry())
+        self._on_write_register_item(register_item)
         
-    def _on_set_object(self,object_info):
+    def _on_write_register_item(self,register_item):
         pass
         
     def _get_index_name(self,index_name=None):
@@ -160,7 +159,7 @@ class BaseRegister(object):
             ind_name='%s_INDEX'%self.prefix
         return ind_name
     
-    def _set_index(self,object_id,index_name=None):
+    def _set_index(self,register_item_id,index_name=None):
         """Private. It must be called only in locked mode"""
         sd=self.sd
         ind_name=self._get_index_name(index_name)
@@ -168,17 +167,17 @@ class BaseRegister(object):
         if not index:
             index={}
             if index_name and index_name!='*':
-                self._set_index(object_id=index_name,index_name='*')
-        index[object_id]=True
+                self._set_index(register_item_id=index_name,index_name='*')
+        index[register_item_id]=True
         sd.set(ind_name,index,0)
     
-    def _remove_index(self,object_id, index_name=None):
+    def _remove_index(self,register_item_id, index_name=None):
         """Private. It must be called only in locked mode"""
         sd=self.sd
         ind_name=self._get_index_name(index_name)
         index=sd.get(ind_name)
         if index:
-            index.pop(object_id,None)
+            index.pop(register_item_id,None)
             self._index_rewrite(index_name,index)
             
     
@@ -188,70 +187,63 @@ class BaseRegister(object):
         ind_name=self._get_index_name(index_name)
         if index=={}:
             if index_name and index_name!='*':
-                self._remove_index(object_id=index_name,index_name='*')
+                self._remove_index(register_item_id=index_name,index_name='*')
             sd.delete(ind_name)
         sd.set(ind_name,index,0)
     
-    def _remove_object(self,object_id):
+    def _remove_register_item(self,register_item_id):
         """Private. It must be called only in locked mode"""
         sd=self.sd
-        object_key=self._object_key(object_id)
-        object_info=sd.get(object_key)
-        sd.delete(object_key)
-        sd.delete(self._expiry_key(object_id))
-        self._remove_index(object_id)
-        self._on_remove_object(object_id,object_info)
+        register_item_key=self._register_item_key(register_item_id)
+        register_item=sd.get(register_item_key)
+        sd.delete(register_item_key)
+        sd.delete(self._expiry_key(register_item_id))
+        self._remove_index(register_item_id)
+        self._on_remove_register_item(register_item_id,register_item)
         
-    def _on_remove_object(self, object_id, object_info):
+    def _on_remove_register_item(self, register_item_id, register_item):
         pass
         
         
     def refresh(self,obj, renew=False):
-        """Refresh object"""
+        """Refresh register_item"""
         sd=self.sd
         address=self.prefix
-        object_id=self._get_object_info(obj)['object_id']
+        register_item_id=self._create_register_item(obj)['register_item_id']
         with sd.locked(key=address):
-            expiry_key=self._expiry_key(object_id)
+            expiry_key=self._expiry_key(register_item_id)
             expiry_address = sd.get(expiry_key)
             if expiry_address:
-                sd.set(expiry_key,object_id,self._get_expiry())
+                sd.set(expiry_key,register_item_id,self._get_expiry())
             elif renew:
-                object_info=self._get_object_info(obj)
-                self._set_object(object_info)
+                register_item=self._create_register_item(obj)
+                self._write_register_item(register_item)
     
     
-    def get_object(self, object_id, on_locked_object=None):
+    def get_register_item(self, register_item_id):
         sd=self.sd
         address=self.prefix
         with sd.locked(key=address):
-            expiry_key=self._expiry_key(object_id)
+            expiry_key=self._expiry_key(register_item_id)
             not_expired= sd.get(expiry_key)
             if not_expired:
-                object_key = self._object_key(object_id)
-                object_info=sd.get(object_key)
-                if on_locked_object:
-                    on_locked_object(object_key,object_info)
-                return object_info
+                register_item_key = self._register_item_key(register_item_id)
+                register_item=sd.get(register_item_key)
+                return register_item
             else:
-                self._remove_object(object_id)
+                self._remove_register_item(register_item_id)
     
-    def on_store(self,object_id,callback):
-        def cb(source_obj):
-            store=ServerStore(self,object_id,source_obj)
-            return callback(store)
-        return self.get_object(object_id,cb) and True
-        
-    def lock(self,object_id,max_retry=None,
+    def set_register_item(self,register_item):
+        with self.sd.locked(self.prefix):
+            self._write_register_item(register_item)
+
+    def lock(self,register_item_id,max_retry=None,
                             lock_time=None, 
                             retry_time=None):
-        return self.sd.lock(self._object_key(object_id), max_retry=max_retry,lock_time=lock_time,retry_time=retry_time)
+        return self.sd.lock(self._register_item_key(register_item_id), max_retry=max_retry,lock_time=lock_time,retry_time=retry_time)
         
-    def unlock(self,object_id):
-        return self.sd.unlock(self._object_key(object_id))
-        
-    def get_store(self,object_id):
-        return ServerStore(self,object_id)
+    def unlock(self,register_item_id):
+        return self.sd.unlock(self._register_item_key(register_item_id))
 
     def get_index(self, index_name=None):
         sd=self.sd
@@ -261,17 +253,17 @@ class BaseRegister(object):
             index=sd.get(ind_name) or {}
         return index.keys()
     
-    def _objects(self,index_name=None):
-        """Registered objects"""
+    def _register_items(self,index_name=None):
+        """Registered register_items"""
         sd=self.sd
         address=self.prefix
         with sd.locked(key=address):
             index=self.get_index(index_name)
             result=[]
-            live_index=[object_address for object_address in sd.get_multi(index,'%s_EXPIRY_'%self.prefix) if object_address]
-            new_index=dict([(object_id,True) for object_id in live_index])
+            live_index=[register_item_address for register_item_address in sd.get_multi(index,'%s_EXPIRY_'%self.prefix) if register_item_address]
+            new_index=dict([(register_item_id,True) for register_item_id in live_index])
             self._index_rewrite(index_name,new_index)
-            result=sd.get_multi(live_index,'%s_OBJECT_'%self.prefix)
+            result=sd.get_multi(live_index,'%s_register_item_'%self.prefix)
         return result
      
 
@@ -281,13 +273,13 @@ class PageRegister(BaseRegister):
     DEFAULT_EXPIRY=60
     prefix='PREG_'
     
-    def _get_object_info(self, page):
-        object_id=page.page_id
+    def _create_register_item(self, page):
+        register_item_id=page.page_id
         subscribed_tables=getattr(page,'subscribed_tables',None)
         if subscribed_tables:
             subscribed_tables=subscribed_tables.split(',')
-        object_info=dict(
-                object_id=object_id,
+        register_item=dict(
+                register_item_id=register_item_id,
                 pagename=page.basename,
                 connection_id=page.connection.connection_id,
                 start_ts=datetime.now(),
@@ -296,18 +288,18 @@ class PageRegister(BaseRegister):
                 user_ip = page.user_ip,
                 user_agent = page.user_agent
                 )
-        return object_info
+        return register_item
     
-    def _on_set_object(self,object_info):
-        for table in object_info['subscribed_tables']:
-            self._set_index(object_info['object_id'],index_name=table)
+    def _on_write_register_item(self,register_item):
+        for table in register_item['subscribed_tables']:
+            self._set_index(register_item['register_item_id'],index_name=table)
      
-    def _on_remove_object(self, object_id, object_info):
-        for table in object_info and object_info['subscribed_tables'] or []:
-            self._remove_index(object_info['object_id'], index_name=table)
+    def _on_remove_register_item(self, register_item_id, register_item):
+        for table in register_item and register_item['subscribed_tables'] or []:
+            self._remove_index(register_item['register_item_id'], index_name=table)
     
     def pages(self, index_name=None):
-        return self._objects(index_name=index_name)
+        return self._register_items(index_name=index_name)
         
 class ConnectionRegister(BaseRegister):
     DEFAULT_EXPIRY=3600
@@ -320,10 +312,10 @@ class ConnectionRegister(BaseRegister):
     def _get_expiry(self):
         return int(self.site.connection_timeout)
     
-    def _get_object_info(self, connection):
-        object_id=connection.connection_id
-        object_info=dict(
-                object_id=object_id,
+    def _create_register_item(self, connection):
+        register_item_id=connection.connection_id
+        register_item=dict(
+                register_item_id=register_item_id,
                 start_ts=datetime.now(),
                 connection_name=connection.connection_name,
                 user=connection.user,
@@ -331,26 +323,24 @@ class ConnectionRegister(BaseRegister):
                 user_agent=connection.user_agent,
                 pages=connection.pages
                 )
-        return object_info
+        return register_item
     
-    def _on_set_object(self,object_info):
+    def _on_write_register_item(self,register_item):
         pass
      
-    def _on_remove_object(self, object_id, object_info):
+    def _on_remove_register_item(self, register_item_id, register_item):
         if hasattr(self.onRemoveConnection,'__call__'):
-            self.onRemoveConnection(object_id)
+            self.onRemoveConnection(register_item_id)
         
     def connections(self, index_name=None):
-        return self._objects(index_name=index_name)     
+        return self._register_items(index_name=index_name)     
 
 
 class UserRegister(BaseRegister):
     DEFAULT_EXPIRY=3600
     prefix='CREG_'
     
-    
-    
-    def _get_object_info(self, user):
+    def _create_register_item(self, user):
         page = self.db.application.site.currentPage
         connection=page.connection
         avatar=page.avatar
@@ -359,21 +349,21 @@ class UserRegister(BaseRegister):
                                         userid=avatar.userid,start_ts=datetime.now(),
                                         ip=page.request.remote_addr,
                                          user_agent=page.request.get_header('User-Agent'))
-        object_id=connection.connection_id
+        register_item_id=connection.connection_id
         
-        object_info=dict(
-                object_id=object_id,
+        register_item=dict(
+                register_item_id=register_item_id,
                 start_ts=datetime.now(),
                 cookieName=connection.cookieName,
                 )
-        return object_info
+        return register_item
 
-    def _on_set_object(self,object_info):
+    def _on_write_register_item(self,register_item):
         pass
 
-    def _on_remove_object(self, object_id, object_info):
+    def _on_remove_register_item(self, register_item_id, register_item):
         pass
 
     def users(self, index_name=None):
-        return self._objects(index_name=index_name)
+        return self._register_items(index_name=index_name)
         
