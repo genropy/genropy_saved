@@ -407,7 +407,7 @@ class GnrWebPage(GnrBaseWebPage):
             if datachanges:
                 for j,change in enumerate(datachanges):
                     changesBag.setItem('sc_%i' %j,change.value,change_path=change.path,change_reason=change.reason,
-                                        change_as_fired=change.as_fired,change_attr=change.attr,
+                                        change_as_fired=change.as_fired,change_attr=change._attributes,
                                         change_ts=change.change_ts)
                 store.reset_datachanges()
         return changesBag
@@ -864,6 +864,10 @@ class GnrWebPage(GnrBaseWebPage):
         result.walk(buildLinkResolver, prevRelation=prevRelation, prevCaption=prevCaption)
         return result
     
+    def rpc_setInClientPage(self,pageId=None,changepath=None,value=None,as_fired=None,attr=None,reason=None):
+        with self.clientPage(pageId) as clientPage:
+            clientPage.set(changepath,value,attr=attr,reason=reason,as_fired=as_fired)
+    
     def getAuxInstance(self, name):
         return self.site.getAuxInstance(name)
         
@@ -961,12 +965,19 @@ class ClientPageHandler(object):
     def __init__(self, parent_page,page_id=None):
         self.parent_page = parent_page
         self.page_id = page_id or parent_page.page_id
+        self.pageStore = self.parent_page.pageStore(page_id=self.page_id)
+        self.store=None
     
-    def set(self,path,value,as_fired=None,reason=None,**kwargs):
-        with self.parent_page.pageStore(page_id=self.page_id) as store:
-            store.add_datachange(path,value,as_fired=as_fired,reason=reason,**kwargs)
+    def set(self,path,value,_attributes=None,as_fired=None,reason=None,**kwargs):
+        self.store.add_datachange(path,value,_attributes=_attributes,as_fired=as_fired,reason=reason,**kwargs)
     
+    def __enter__(self):
+        self.store = self.pageStore.__enter__()
+        return self
         
+    def __exit__(self,type,value,tb):
+        self.pageStore.__exit__(type,value,tb)
+                               
     def jsexec(self,path,value,**kwargs):
         pass
         

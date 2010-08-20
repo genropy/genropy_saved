@@ -235,20 +235,12 @@ class GnrBaseWebPage(GnrObject):
         self.session.loadSessionData()
         self.session.setInPageData('context.%s.%s' % (context, path), value, attr)
         self.session.saveSessionData()
-        
-    def setInClientData(self, _client_path, value, _attributes=None, page_id=None, connection_id=None, fired=False, save=False, **kwargs):
-        """@param save: remember to save on the last setInClientData. The first call to setInClientData implicitly lock the session util 
-                        setInClientData is called with save=True
-        """
-        _attributes = dict(_attributes or {})
-        _attributes.update(kwargs)
-        _attributes['_client_path'] = _client_path
-        if connection_id == None or connection_id==self.connection.connection_id:
-            self.session.setInPageData('_clientDataChanges.%s' % _client_path.replace('.','_'), 
-                                        value, _attributes=_attributes, page_id=page_id)
-            if save: self.session.saveSessionData()
-        else:
-            pass
+    
+    def setInClientData(self, _client_path, value, _attributes=None, page_id=None, 
+                        connection_id=None, fired=False, save=False,reason=None, **kwargs):
+        with self.clientPage(page_id=page_id) as clientPage:
+            clientPage.set(_client_path,value,_attributes=_attributes,reason=reason,as_fired=fired)
+
     
     def sendMessage(self,message):
         self.setInClientData('gnr.servermsg', message, fired=True, save=True,

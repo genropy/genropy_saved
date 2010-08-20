@@ -25,12 +25,12 @@ from datetime import datetime
 from gnr.core.gnrbag import Bag
 
 class ClientDataChange(object):
-    def __init__(self,path,value,reason=None,attr=None,as_fired=False,
+    def __init__(self,path,value,reason=None,_attributes=None,as_fired=False,
                  change_ts=None,**kwargs):
         self.path = path
         self.reason = reason
         self.value = value
-        self.attr = attr
+        self._attributes = _attributes
         self.as_fired = as_fired
         self.change_ts = change_ts or datetime.now()
             
@@ -44,9 +44,9 @@ class ClientDataChange(object):
         else:
             self.value = other.value    
         
-        if other.attr:
-            self.attr = self.attr or dict()
-            self.attr.update(other.attr)
+        if other._attributes:
+            self._attributes = self._attributes or dict()
+            self._attributes.update(other._attributes)
 
     
 class ServerStore(object):
