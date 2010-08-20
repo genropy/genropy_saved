@@ -43,9 +43,10 @@ class DojoApiReader(object):
                 self.apibag.setItem(location,value,attr)
                 
     def write(self,location,obj,attr):
+        destpath=[self.resultpath,'objects']+location.split('.')+'obj.xml'
         if attr:
             print attr
-        destpath=os.path.join(self.resultpath,'objects',location.split('.'),'obj.xml')
+        destpath=os.path.join(**destpath)
         obj.toXml(destpath,autocreate=True)
         
     def convertObject(self,src):
