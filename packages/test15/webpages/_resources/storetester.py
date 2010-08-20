@@ -60,11 +60,10 @@ class StoreTester(BaseComponent):
                     _onResult='FIRE .rebuld_store_tree',_fired='^.refresh_store')
         
     def rpc_currentRegister(self,pageId=None):
-        print 'before current register'
         store = self.pageStore(pageId)
         result = Bag()
-        result['data'] = store['data']
         register_item = store.register_item
+        result['data'] = store.data
         result['info'] = Bag(dict(user=register_item['user'],pageId=register_item['register_item_id'],
                             start_ts=register_item['start_ts'],user_ip=register_item['user_ip'],
                             user_agent=register_item['user_agent'],pagename=register_item['pagename']))

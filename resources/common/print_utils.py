@@ -107,12 +107,13 @@ class PrintUtils(BaseComponent):
         fb.filteringselect(value='^.params.printer_option.tray',lbl='!!Tray:',width='20em', colspan=3,
                             storepath='.printer_attributes.tray_supported')
     def rpc_getPrinters(self):
-        if self.site.print_handler:
-            return self.site.print_handler.getPrinters()
+        print_handler = self.getService('print')
+        if print_handler:
+            return print_handler.getPrinters()
         
     def rpc_getPrinterAttributes(self,printer_name):
         if printer_name and printer_name!='PDF':
-            attributes = self.site.print_handler.getPrinterAttributes(printer_name)
+            attributes = self.getService('print').getPrinterAttributes(printer_name)
             return attributes
 
     def _utl_pdf_opt(self,tc):

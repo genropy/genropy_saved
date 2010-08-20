@@ -23,7 +23,4 @@ class GnrCustomWebPage(object):
             fb.textbox(value='^.value_%i' %k,lbl='value_%i' %k)
 
     
-    def rpc_setInClientPage(self,pageId=None,changepath=None,value=None,as_fired=None,attr=None,reason=None):
-        clientPage = self.clientPage(pageId)
-        clientPage.set(changepath,value,attr=attr,reason=reason,as_fired=as_fired)
 
