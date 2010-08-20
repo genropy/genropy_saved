@@ -45,13 +45,13 @@ class GnrWebConnection(GnrBaseProxy):
         connection_info=None
         if self.cookie:
             self.connection_id = self.cookie.value.get('connection_id')
-            connection_info = page.site.connection_register.get_object(self.connection_id)
+            connection_info = page.site.connection_register.get_register_item(self.connection_id)
             if connection_info:
                 self.user = connection_info['user']
             elif page.site.debug:
                 self.user=self.cookie.value.get('user')
                 page.site.connection_register.refresh(self,renew=True)
-                connection_info = page.site.connection_register.get_object(self.connection_id)
+                connection_info = page.site.connection_register.get_register_item(self.connection_id)
         if not connection_info and user:
             self.user = user
             self.connection_id = getUuid()
