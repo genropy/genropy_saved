@@ -204,7 +204,6 @@ class GnrDomSrc(GnrStructData):
         if isinstance(value,Bag):
             className='bag'
         if '_serverpath' in kwargs:
-            print 'in struct'
             with self.page.pageStore() as store:
                 store.subscribe_path(kwargs['_serverpath'])
         return self.child('data', __cls=className, content=value, path=path, **kwargs)
