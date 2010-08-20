@@ -7,9 +7,10 @@
 from gnr.web.gnrwebpage import BaseComponent
 
 class TestHandler(BaseComponent):
-    
     def testHandler(self, pane):
         self.testHandler_headers(pane)
+
+        #pane.div(height='12px',width='12px',position='absolute',top='2px',right='2px',background='red',nodeId='rpcpulser',opacity=0)
         title=pane.div(width='900px',text_align='center',color='gray',font_size='20pt')
         title.span(self.__module__.__doc__ or '...missing docline in module...')
         pane=pane.div(width='900px')
@@ -50,6 +51,7 @@ class TestHandlerBase(TestHandler):
         
 class TestHandlerFull(TestHandler):
     def main(self, root, **kwargs):
+        self.autopolling =3
         self.testHandler(root)
         
 

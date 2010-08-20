@@ -11,7 +11,7 @@ class GnrCustomWebPage(object):
     def windowTitle(self):
         return ''
          
-    def test_bordercontainer(self,pane):
+    def test_bordercontainer_mixedlayout(self,pane):
         bc = pane.borderContainer(height='300px')
         bc.contentPane(region='top',height='20px',background='red',splitter=True)
         tc = bc.tabContainer(region='left',width='400px')
@@ -23,3 +23,16 @@ class GnrCustomWebPage(object):
         bc2.contentPane(region='center',background='lime')
         ac.contentPane(title='bb')
         bc.contentPane(region='center',background='yellow')
+
+class ToFix(object):
+    """
+    we have to add regions in genroway
+    """
+
+class FixedToCheck(object):
+    """
+    """
+    
+class Fixed(object):
+    """docstring for Fixed"""
+        

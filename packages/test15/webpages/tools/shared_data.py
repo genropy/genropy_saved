@@ -11,7 +11,7 @@ class GnrCustomWebPage(object):
         """1-Shared Data SET and GET"""
         fb = pane.formbuilder(cols=5, border_spacing='3px',fld_width='8em')
         fb.textbox(value='^item_key',lbl='Key')
-        fb.numberTextBox(value='^item_value',lbl='Value')
+        fb.textbox(value='^item_value',lbl='Value')
         fb.button('Set value',fire='set_item')
         fb.button('Get item',fire='get_item')
         
@@ -27,10 +27,10 @@ class GnrCustomWebPage(object):
         """2-Shared Data Incr"""
         fb = pane.formbuilder(cols=5, border_spacing='3px',fld_width='8em')
         fb.textbox(value='^item_key',lbl='Key')
-        fb.numberTextBox(value='^delta',default_value=1,lbl='Delta')
+        fb.textbox(value='^delta',default_value=1,lbl='Delta')
         fb.button('Increment value',fire='increment_value')
         fb.button('Get item',fire='get_item')
-        fb.numberTextBox(value='^item_remote',lbl='New value')
+        fb.textbox(value='^item_remote',lbl='New value')
         pane.dataRpc('dummy','incrementSharedItem',
                     item_key='=item_key',delta='=delta',
                     _fired='^increment_value')
