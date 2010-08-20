@@ -243,12 +243,10 @@ class GnrWebPage(GnrBaseWebPage):
             request_kwargs['pagetemplate']=self.pagetemplate
             
     def update_serverstore(self,changes):
-        store = self.get_store()
-        store.load(True)
-        for k,w in changes.items():
-            store.setItem(k,w)
-        store.reset_datachanges()
-        store.save(True)
+        with self.pageStore(triggered=False) as store:
+            if store:
+                for k,v in changes.items():
+                    store.setItem(k,v)
         
 
     def _rpcDispatcher(self, method=None, xxcnt='', mode='bag',**kwargs):
@@ -267,7 +265,8 @@ class GnrWebPage(GnrBaseWebPage):
                     raise e
         if '_serverstore_changes' in parameters:
             serverstore_changes = parameters.pop('_serverstore_changes',None)
-            self.update_serverstore(serverstore_changes)
+            if serverstore_changes:
+                self.update_serverstore(serverstore_changes)
         auth = AUTH_OK
         if not method in ('doLogin', 'jscompress'):
             auth = self._checkAuth(method=method, **parameters)
@@ -399,22 +398,20 @@ class GnrWebPage(GnrBaseWebPage):
         self._publish_event('onEnd')
         self.onEnd()
     
-    def getStoreDataChanges(self):
-        store = self.get_store()
-        store.load()
-        datachanges = store.datachanges
-        if datachanges:
-            print xx
-            for change_path in datachanges:
-                node = store.getNode(change_path)
-                self.setInClientData(change.attr.pop('_client_data_path'), node.value , _attributes=node.attr, save=True,
-                                    src_page_id=src_page_id,src_user=src_user,src_connection_id=src_connection_id,
-                                    message_id=message_id)
+    def getStoreDataChanges(self,changesBag):
+        with self.pageStore() as store:
+            datachanges = store.datachanges
+            if datachanges:
+                for j,serverpath in enumerate(datachanges):
+                    node = store.getNode(serverpath)
+                    changesBag.setItem('sc_%i' %j,node.value,_attributes=node.attr,_serverpath=serverpath)
+                store.reset_datachanges()
+        return changesBag
             
     
     def collectClientDataChanges(self):
         self.handleMessages()
-        dataChanges = self.clientDataChanges() or Bag()
+        dataChanges = self.getStoreDataChanges(self.clientDataChanges() or Bag())
         self._publish_event('onCollectDataChanges')
         dataChanges.update(self._localClientDataChanges)
         return dataChanges
@@ -591,15 +588,10 @@ class GnrWebPage(GnrBaseWebPage):
         return self._app
     app = property(_get_app) #cambiare in appHandler e diminuirne l'utilizzo al minimo
     # 
-    
-    def get_store(self,page_id=None):
+    def pageStore(self,page_id=None,triggered=True):
         page_id = page_id or self.page_id
-        return self.site.page_register.get_store(page_id)
-    
-    def on_store(self,cb,page_id=None):
-        page_id = page_id or self.page_id
-        return self.site.page_register.on_store(page_id,cb)
-
+        return self.site.page_register.make_store(page_id,triggered=triggered)
+            
     def _get_pkgapp(self):
         if not hasattr(self, '_pkgapp'):
             self._pkgapp = self.site.gnrapp.packages[self.packageId]
@@ -738,6 +730,7 @@ class GnrWebPage(GnrBaseWebPage):
     
     def rpc_main(self, _auth=AUTH_OK, debugger=None, **kwargs):
         page = self.domSrcFactory.makeRoot(self)
+        self.site.page_register.register(self)
         self._root = page
         pageattr = {}
         #try :
@@ -761,8 +754,6 @@ class GnrWebPage(GnrBaseWebPage):
                 #page.data('gnr.userTags', self.userTags)
                 page.data('gnr.locale',self.locale)
                 page.data('gnr.pagename',self.pagename)
-                page.data('gnr.polling',self.polling)
-                page.data('gnr.autopolling',self.autopolling)
                 page.data('_server', None, context='_server')
                 page.dataController('genro.dlg.serverMessage(msg);', msg='^gnr.servermsg')
                 page.dataController('console.log(msg);funcCreate(msg)();', msg='^gnr.servercode')
@@ -780,8 +771,9 @@ class GnrWebPage(GnrBaseWebPage):
                 rootwdg = self.rootWidget(root, region='center', nodeId='_pageRoot')
                 self.main(rootwdg, **kwargs)
                 self.onMainCalls()
+                page.data('gnr.polling',self.polling)
+                page.data('gnr.autopolling',self.autopolling)
                 self._createContext(root)
-                self.site.page_register.register(self)
                 if self.user:
                     self.site.pageLog('open')
 
