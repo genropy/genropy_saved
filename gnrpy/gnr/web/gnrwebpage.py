@@ -391,9 +391,12 @@ class GnrWebPage(GnrBaseWebPage):
     
     def onEnd(self):
         pass
-
+    
+    def getService(self,service_type):
+        return self.site.getService(service_type)
+        
     def _onEnd(self):
-        self.site.page_register.refresh(self, renew=True)
+        self.site.register_page.refresh(self, renew=True)
         #self.handleMessages() #commented has it was moved in another part. It may cause a regression
         self._publish_event('onEnd')
         self.onEnd()
@@ -402,9 +405,10 @@ class GnrWebPage(GnrBaseWebPage):
         with self.pageStore() as store:
             datachanges = store.datachanges
             if datachanges:
-                for j,serverpath in enumerate(datachanges):
-                    node = store.getNode(serverpath)
-                    changesBag.setItem('sc_%i' %j,node.value,_attributes=node.attr,_serverpath=serverpath)
+                for j,change in enumerate(datachanges):
+                    changesBag.setItem('sc_%i' %j,change.value,change_path=change.path,change_reason=change.reason,
+                                        change_as_fired=change.as_fired,change_attr=change.attr,
+                                        change_ts=change.change_ts)
                 store.reset_datachanges()
         return changesBag
             
@@ -590,7 +594,18 @@ class GnrWebPage(GnrBaseWebPage):
     # 
     def pageStore(self,page_id=None,triggered=True):
         page_id = page_id or self.page_id
-        return self.site.page_register.make_store(page_id,triggered=triggered)
+        return self.site.register_page.make_store(page_id,triggered=triggered)
+
+    def connectionStore(self,connection_id=None,triggered=True):
+        connection_id = connection_id or self.connection_id
+        return self.site.register_connection.make_store(connection_id,triggered=triggered)
+        
+    def userStore(self,user=None,triggered=True):
+        user = user or self.user
+        return self.site.register_user.make_store(user,triggered=triggered)
+    
+    def clientPage(self,page_id=None):
+        return ClientPageHandler(self, page_id or self.page_id) 
             
     def _get_pkgapp(self):
         if not hasattr(self, '_pkgapp'):
@@ -730,7 +745,7 @@ class GnrWebPage(GnrBaseWebPage):
     
     def rpc_main(self, _auth=AUTH_OK, debugger=None, **kwargs):
         page = self.domSrcFactory.makeRoot(self)
-        self.site.page_register.register(self)
+        self.site.register_page.register(self)
         self._root = page
         pageattr = {}
         #try :
@@ -941,3 +956,30 @@ class GnrMakoPage(GnrWebPage):
         request_kwargs['_plugin']='mako'
         request_kwargs['path']=self.mako_template()
     
+class ClientPageHandler(object):
+    """proxi for making actions on client page"""
+    def __init__(self, parent_page,page_id=None):
+        self.parent_page = parent_page
+        self.page_id = page_id or parent_page.page_id
+    
+    def set(self,path,value,as_fired=None,reason=None,**kwargs):
+        with self.parent_page.pageStore(page_id=self.page_id) as store:
+            store.add_datachange(path,value,as_fired=as_fired,reason=reason,**kwargs)
+    
+        
+    def jsexec(self,path,value,**kwargs):
+        pass
+        
+        
+    def copyData(self,srcpath,dstpath=None,page_id=None):
+        """
+        self.clientPage(page_id="nknnn").copyData('foo.bar','spam.egg') #copia sulla MIA pagina
+        self.clientPage(page_id="nknnn").copyData('foo.bar','bub.egg',page_id='xxxxxx') #copia sulla  pagina xxxxxx
+        self.clientPage(page_id="nknnn").copyData('foo.bar','bub.egg',pageStore=True) #copia sul mio pageStore
+        self.clientPage(page_id="nknnn").copyData('foo.bar','bub.egg',page_id='xxxxxx' ,pageStore=True) #copia sul pageStore della pagina xxxx
+
+        """
+        pass
+        
+    
+        
