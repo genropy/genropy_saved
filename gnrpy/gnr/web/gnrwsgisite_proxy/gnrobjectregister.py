@@ -24,6 +24,31 @@
 from datetime import datetime
 from gnr.core.gnrbag import Bag
 
+class ClientDataChange(object):
+    def __init__(self,path,value,reason=None,attr=None,as_fired=False,
+                 change_ts=None,**kwargs):
+        self.path = path
+        self.reason = reason
+        self.value = value
+        self.attr = attr
+        self.as_fired = as_fired
+        self.change_ts = change_ts or datetime.now()
+            
+    def __eq__(self,other):
+        return self.path == other.path and self.reason==other.reason \
+               and self.as_fired==other.as_fired and self.no_trigger==other.no_trigger \
+    
+    def update(self,other):
+        if hasattr(self.value,'update') and hasattr(other.value,'update'):
+            self.value.update(other.value)
+        else:
+            self.value = other.value    
+        
+        if other.attr:
+            self.attr = self.attr or dict()
+            self.attr.update(other.attr)
+
+    
 class ServerStore(object):
     def __init__(self,parent,register_item_id=None,triggered=True):
         self.parent=parent
@@ -46,6 +71,28 @@ class ServerStore(object):
         self.parent.set_register_item(self.register_item)
         self.parent.unlock(self.register_item_id)
         
+    def reset_datachanges(self):
+        if self.register_item:
+            self.register_item['datachanges'] = list()
+    
+    def add_datachange(self,path,value,**kwargs):
+        datachange = ClientDataChange(path,value,**kwargs)
+        self.datachanges.append(datachange)
+        return
+        
+    def set_datachange(self,datachange):
+        datachanges = self.datachanges
+        datachange = ClientDataChange(**datachange)
+        if datachange in datachanges:
+            datachanges[datachanges.index(datachange)].update(datachange)
+        else:
+            datachanges.append(datachange)
+    
+    def __getattr__(self,fname):
+        if hasattr(self.data,fname):
+            return getattr(self.data,fname)
+        else:
+            raise AttributeError("register_item has no attribute '%s'" % fname)
     def _get_data(self):
         if self.register_item:
             return self.register_item['data']
@@ -60,7 +107,7 @@ class ServerStore(object):
         data = register_item.get('data')
         if data is None:
             register_item['data']=Bag()
-            register_item['datachanges']=set()
+            register_item['datachanges']=list()
             register_item['subscribed_paths']=set()
         if self.triggered:
             register_item['data'].subscribe('datachanges',  any=self._on_data_trigger)
@@ -84,17 +131,8 @@ class ServerStore(object):
     def _on_data_trigger(self,node=None,ind=None,evt=None,pathlist=None,**kwargs):
         path ='.'.join(pathlist)
         if path in self.subscribed_paths and self.register_item:
-            self.datachanges.add(path)
+            self.datachanges.append(ClientDataChange(path=path,value=node.value,reason='serverChange'))
 
-    def reset_datachanges(self):
-        if self.register_item:
-            self.register_item['datachanges'] = set()
-        
-    def __getattr__(self,fname):
-        if hasattr(self.data,fname):
-            return getattr(self.data,fname)
-        else:
-            raise AttributeError("register_item has no attribute '%s'" % fname)
 
 class BaseRegister(object):
     DEFAULT_EXPIRY=60
@@ -265,6 +303,7 @@ class BaseRegister(object):
             self._index_rewrite(index_name,new_index)
             result=sd.get_multi(live_index,'%s_register_item_'%self.prefix)
         return result
+     
      
 
 
