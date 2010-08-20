@@ -657,7 +657,7 @@ class GnrWsgiSite(object):
             value=Bag([(k,v) for k,v in record.items() if not k.startswith('@')])
             for subscriber in subscribers:
                 sub=subscribers[subscriber]
-                self.setInClientPage(page_id=sub['object_id'],
+                self.setInClientPage(page_id=sub['register_item_id'],
                                     connection_id=sub['connection_id'],
                                     client_path='gnr.dbevent.%s'%tblobj.fullname.replace('.','_'),
                                     value=value,
