@@ -173,11 +173,6 @@ class GnrDomSrc(GnrStructData):
         
     def tooltip(self,label='',**kwargs):
         return self.child('tooltip',label=label,**kwargs)
-
-    def serverStore(self,clientpath=None,serverpath=None,store_type=None):
-        def onstore_cb(store):
-            store.subscribe_path(serverpath)
-        return self.child('serverStore',serverpath=serverpath,clientpath=clientpath)
         
     def defineContext(self, context, datapath, value=None, savesession=True, **kwargs):
         #if not (value is None):
@@ -208,6 +203,10 @@ class GnrDomSrc(GnrStructData):
             value=Bag(value)
         if isinstance(value,Bag):
             className='bag'
+        if '_serverpath' in kwargs:
+            print 'in struct'
+            with self.page.pageStore() as store:
+                store.subscribe_path(kwargs['_serverpath'])
         return self.child('data', __cls=className, content=value, path=path, **kwargs)
         
     def script(self, content='', **kwargs):
