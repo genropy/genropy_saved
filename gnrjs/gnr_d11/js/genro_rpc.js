@@ -307,23 +307,41 @@ dojo.declare("gnr.GnrRpcHandler",null,{
         var resultAsNode=(envelope.getItem('resultType')=='node') || currentAttr;
         
         
-        var changenode, _client_path, fired;
+        var changenode, clientpath,serverpath, fired;
         var dataChanges = envelope.getItem('dataChanges');
         if(dataChanges){
-            var changenodes = dataChanges.getNodes();
+            changenodes = dataChanges.getNodes();
             for (var i=0;i<changenodes.length;i++){
                 changenode = changenodes[i];
-                _client_path = objectPop(changenode.attr, '_client_path');
-                fired = objectPop(changenode.attr, 'fired');
-                if(changenode.attr._error){
-                    setTimeout(dojo.hitch(genro.dev, 'handleRpcError', changenode.attr._error, changenode));
-                } else {
-                    genro.setData(_client_path, changenode.getValue(), changenode.attr);
-                    if (fired){
-                        genro._data.setItem(_client_path, null, null, {'doTrigger':false});
+                var value = changenode.getValue();
+                var attr = changenode.attr;
+                clientpath = objectPop(attr, '_client_path');
+                serverpath = objectPop(attr,'_serverpath');
+                if(clientpath){
+                    fired = objectPop(attr, 'fired');
+                    if(attr._error){
+                        setTimeout(dojo.hitch(genro.dev, 'handleRpcError',attr._error, changenode));
+                    }
+                    else {
+                        if(genro._data.getItem(clientpath)!=value){
+                            genro._data.setItem(clientpath,value,attr,{'doTrigger':'serverChange'});
+                        }
+                        if (fired){
+                            genro._data.setItem(clientpath, null, null, {'doTrigger':false});
+                        }
                     }
                 }
-            };
+                else if (serverpath) {
+                    for (var clientpath in genro._serverstore_paths) {
+                        var spath = genro._serverstore_paths[clientpath];
+                        if (serverpath==spath) {
+                            if(genro._data.getItem(clientpath)!=value){
+                                genro._data.setItem(clientpath,value,attr,{'doTrigger':'serverChange'});
+                            }
+                        }
+                    }
+                }
+            }
         }
         var error = envelope.getItem('error'); 
         if(!error){
@@ -495,10 +513,16 @@ dojo.declare("gnr.GnrRpcHandler",null,{
         }
     },
     ping:function(){
-        genro.pollingRunning=true;
-        genro.rpc.remoteCall('ping', null, null, null, null, function(){genro.pollingRunning=false;});
+        genro.rpc.pollingStatus(true);
+        genro.rpc.remoteCall('ping', null, null, null, null, function(){genro.rpc.pollingStatus(false);});
     },
-    
+    pollingStatus:function(status){
+        genro.pollingRunning = status;
+        /*var pulse = genro.domById('rpcpulse')
+        if(pulse){
+             genro.dom.effect(pulse,status?'fadein':'fadeout');
+        }*/
+    },
     
     remote_relOneResolver: function(params, parentbag){
         var kw = {};
