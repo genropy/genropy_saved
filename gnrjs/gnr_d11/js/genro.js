@@ -532,7 +532,7 @@ dojo.declare('gnr.GenroClient', null, {
     dataTrigger:function(kw){
         if (kw.evt=='upd'){
             var dpath=kw.pathlist.slice(1).join('.');
-            if (dpath in genro._serverstore_paths) {
+            if (dpath in genro._serverstore_paths && kw.reason!='serverChange') {
                 genro._serverstore_changes = genro._serverstore_changes || {};
                 genro._serverstore_changes[genro._serverstore_paths[dpath]]=kw.value;
             }
@@ -550,6 +550,9 @@ dojo.declare('gnr.GenroClient', null, {
     },
    
     pathResolve: function(obj){
+        if (!obj) {
+            debugger;
+        };
         if (typeof (obj)=='string'){
            // return (obj.indexOf('@') ==0) ? obj.slice(1) : obj;
            if (!genro.src.getNode()){
