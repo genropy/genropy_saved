@@ -8,7 +8,7 @@ from gnr.web.gnrwebpage import BaseComponent
 from gnr.core.gnrbag import Bag
 import datetime
 class StoreTester(BaseComponent):
-    def common_form(self,pane,datapath=None):
+    def common_form(self,pane,datapath=None,common_rpc=True):
         fb = pane.formbuilder(cols=2, border_spacing='3px',fld_width='8em',datapath=datapath)
         fb.textbox(value='^.item_key',lbl='Key')
         fb.br()
@@ -16,12 +16,13 @@ class StoreTester(BaseComponent):
         fb.button('Set value',fire='.set_item')
         fb.textBox(value='^.item_value_r',lbl='Value in store')
         fb.button('Get item',fire='.get_item')
-        fb.dataRpc('dummy','serverStoreSet',item_value='=.item_value_w',
-                    item_key='=.item_key',_fired='^.set_item',pageId='=.info.pageId')
+        if common_rpc:
+            fb.dataRpc('dummy','serverStoreSet',item_value='=.item_value_w',
+                        item_key='=.item_key',_fired='^.set_item',pageId='=.info.pageId')
                     
-        fb.dataRpc('.item_value_r','serverStoreGet',
-                    item_key='=.item_key',
-                    _fired='^.get_item',pageId='=.info.pageId')
+            fb.dataRpc('.item_value_r','serverStoreGet',
+                        item_key='=.item_key',
+                        _fired='^.get_item',pageId='=.info.pageId')
            
 
     def common_pagemenu(self,pane):
@@ -61,7 +62,13 @@ class StoreTester(BaseComponent):
     def rpc_currentRegister(self,pageId=None):
         print 'before current register'
         store = self.pageStore(pageId)
-        return Bag(store.register_item)
+        result = Bag()
+        result['data'] = store['data']
+        register_item = store.register_item
+        result['info'] = Bag(dict(user=register_item['user'],pageId=register_item['register_item_id'],
+                            start_ts=register_item['start_ts'],user_ip=register_item['user_ip'],
+                            user_agent=register_item['user_agent'],pagename=register_item['pagename']))
+        return result
         
     def rpc_serverStoreSet(self,item_key=None,item_value=None,pageId=None):
         with self.pageStore(pageId) as store:
@@ -73,7 +80,7 @@ class StoreTester(BaseComponent):
         return item_value
         
     def rpc_curr_pages(self):
-        pagesDict = self.site.page_register.pages()
+        pagesDict = self.site.register_page.pages()
         result = Bag()
         for page_id,v in pagesDict.items():
             user = v['user'] or v['user_ip'].replace('.','_')
