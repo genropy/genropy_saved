@@ -187,7 +187,7 @@ class MailSender(GnrBatch):
         self.doctemplate = doctemplate
         self.tblobj = self.page.db.table(table)
         self.from_address = from_address
-        self.mail_handler = self.page.site.mail_handler
+        self.mail_handler = self.page.getService('mail')
         self.cc_address= cc_address
         self.bcc_address = bcc_address
         self.attachments = attachments
@@ -236,7 +236,7 @@ class PrintDbData(GnrBatch):
             self.printer_name = printParams.pop('printer_name')
             self.outputFilePath = None
         self.thermo_maximum[1] = len(self.data)
-        self.print_handler = self.page.site.print_handler
+        self.print_handler = self.page.getService('print')
         self.print_connection = self.print_handler.getPrinterConnection(self.printer_name, printParams)
         self.file_list = []
         self.commitAfterPrint=commitAfterPrint
