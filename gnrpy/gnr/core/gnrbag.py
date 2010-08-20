@@ -1228,7 +1228,7 @@ class Bag(GnrObject):
     
     #-------------------- setItem --------------------------------
     def setItem(self, item_path, item_value, _attributes=None, _position=None, _duplicate=False,
-                     _updattr=False, _validators=None,_removeNullAttributes=True, **kwargs):
+                     _updattr=False, _validators=None,_removeNullAttributes=True,**kwargs):
         """
         This method sets an item in the Bag using a path
         in the form "label1.label2...labelN".It returns the current bag.
@@ -1246,7 +1246,7 @@ class Bag(GnrObject):
         * `_validators`: an optional parameter, it specified the validators of
                          the value to set. Default is 'None'.
         * `kwargs`: all remaining kwargs can be attributes AND/OR validators .
-        
+
         Return: the current bag.
         """
 
@@ -1811,11 +1811,11 @@ class Bag(GnrObject):
         
         """
         if update or any:
-            self._upd_subscribers.pop(subscriberId)
+            self._upd_subscribers.pop(subscriberId,None)
         if insert or any:
-            self._ins_subscribers.pop(subscriberId)
+            self._ins_subscribers.pop(subscriberId,None)
         if delete or any:
-            self._del_subscribers.pop(subscriberId)
+            self._del_subscribers.pop(subscriberId,None)
         
     def setCallBackItem(self, path, callback, **kwargs):
         resolver = BagCbResolver(callback, **kwargs)
