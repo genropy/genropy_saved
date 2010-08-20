@@ -523,9 +523,6 @@ dojo.declare("gnr.GnrDomSourceNode",gnr.GnrBagNode,{
             genro.dom.addStyleSheet(this.getValue(),this.attr.cssTitle);
         }
     },
-    _bld_serverstore:function(){
-        genro._serverstore_paths[this.absDatapath(this.attr.clientpath)] = this.attr.serverpath;
-    },
     
     _bld_css:function() {
         genro.dom.addCssRule(this.getValue());
@@ -889,19 +886,25 @@ dojo.declare("gnr.GnrDomSourceNode",gnr.GnrBagNode,{
             if (value instanceof gnr.GnrBag){
                 value.clearBackRef();
             }
-            var context = objectPop(attributes, 'context');
-            genro.setData(path,value,attributes);
-            if(context){
-                if (!(value instanceof gnr.GnrBag)){
-                    value = new gnr.GnrBag();
-                    genro.setData(path, value, attributes);
-                }
-                if (!genro.contextIndex[context]){
+            var serverpath = objectPop(attributes, '_serverpath');
+            if (serverpath) {
+                genro._serverstore_paths[this.absDatapath(this.attr.path)] = serverpath;
+            }
+            else{
+                var context = objectPop(attributes, 'context');
+                genro.setData(path,value,attributes);
+                if(context){
+                    if (!(value instanceof gnr.GnrBag)){
+                        value = new gnr.GnrBag();
+                        genro.setData(path, value, attributes);
+                    }
+                    if (!genro.contextIndex[context]){
                     
-                    genro.contextIndex[context] = this;
-                    value.subscribe('context',{'any':dojo.hitch(this, "contextChange")});
-                } else {
-                    alert("Context name conflict: "+context);
+                        genro.contextIndex[context] = this;
+                        value.subscribe('context',{'any':dojo.hitch(this, "contextChange")});
+                    } else {
+                        alert("Context name conflict: "+context);
+                    }
                 }
             }
         }else if (tag=='dataRemote'){
