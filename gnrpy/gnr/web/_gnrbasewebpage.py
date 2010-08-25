@@ -231,11 +231,6 @@ class GnrBaseWebPage(GnrObject):
         return self.session.pagedata['pageArgs'] or {}
     pageArgs = property(_get_pageArgs)
     
-    def rpc_updateSessionContext(self, context, path, evt, value=None, attr=None):
-        self.session.loadSessionData()
-        self.session.setInPageData('context.%s.%s' % (context, path), value, attr)
-        self.session.saveSessionData()
-    
     def setInClientData(self, _client_path, value, _attributes=None, page_id=None, 
                         connection_id=None, fired=False, save=False,reason=None, **kwargs):
         with self.clientPage(page_id=page_id) as clientPage:
@@ -509,45 +504,6 @@ class GnrBaseWebPage(GnrObject):
         
     def main(self, root,**kwargs): #You MUST override this !
         root.h1('You MUST override this main method !!!')
-    
-    def _createContext(self, root):
-        if self._cliCtxData:
-            self.session.loadSessionData()
-            for ctxName, ctxValue in self._cliCtxData.items():
-                root.defineContext(ctxName, '_serverCtx.%s' % ctxName, ctxValue, savesession=False)
-            self.session.saveSessionData()
-                
-    def setJoinCondition(self, ctxname, target_fld='*', from_fld='*', condition=None, one_one=None, applymethod=None, **kwargs):
-        """define join condition in a given context (ctxname)
-           the condition is used to limit the automatic selection of related records
-           If target_fld AND from_fld equals to '*' the condition is an additional where clause added to any selection
-           
-           self.setJoinCondition('mycontext',
-                              target_fld = 'mypkg.rows.document_id',
-                              from_fld = 'mypkg.document.id',
-                              condition = "mypkg.rows.date <= :join_wkd",
-                              join_wkd = "^mydatacontext.foo.bar.mydate", one_one=False)
-                              
-            @param ctxname: name of the context of the main record 
-            @param target_fld: the many table column of the relation, '*' means the main table of the selection
-            @param from_fld: the one table column of the relation, '*' means the main table of the selection
-            @param condition: the sql condition
-            @param one_one: the result is returned as a record instead of as a selection. 
-                            If one_one is True the given condition MUST return always a single record
-            @param applymethod: a page method to be called after selecting the related records
-            @param kwargs: named parameters to use in condition. Can be static values or can be readed 
-                           from the context at query time. If a parameter starts with '^' it is a path in 
-                           the context where the value is stored. 
-                           If a parameter is the name of a defined method the method is called and the result 
-                           is used as the parameter value. The method has to be defined as 'ctxname_methodname'.
-        """
-        self._cliCtxData['%s.%s_%s' % (ctxname, target_fld.replace('.','_'), from_fld.replace('.','_'))] = Bag(dict(target_fld=target_fld, from_fld=from_fld, condition=condition, one_one=one_one, applymethod=applymethod, params=Bag(kwargs)))
-        
-    def setJoinColumns(self, ctxname, target_fld, from_fld, joincolumns):
-        self._cliCtxData['%s.%s_%s.joincolumns' % (ctxname,
-                                                target_fld.replace('.','_'),
-                                                from_fld.replace('.','_'))] = joincolumns
-    
     
     def forbiddenPage(self, root, **kwargs):
         dlg = root.dialog(toggle="fade", toggleDuration=250, onCreated='widget.show();')
