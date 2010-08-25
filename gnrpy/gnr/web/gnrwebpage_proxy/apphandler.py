@@ -261,23 +261,6 @@ class GnrWebAppHandler(GnrBaseProxy):
                 query_set.update(columns.split(','))
             store.setItem(ctxpath, ','.join(query_set))
 
-
-        
-        
-        
-    def setContextJoinColumns_old(self, table,contextName='', reason=None, path=None, columns=None):
-        tblobj = self.db.table(table)
-        relation = tblobj.model.getRelation(path)
-        ctxpath = 'context.%s.%s_%s'  % (contextName,relation['many'].replace('.','_'),relation['one'].replace('.','_'))
-        self.page.session.loadSessionData()
-        pagedata = self.page.session.pagedata
-        pagedata.setItem('%s._reasons.%s' %(ctxpath,reason ),columns)
-        query_set = set()
-        for columns in pagedata.getItem('%s._reasons' %ctxpath).values():
-            query_set.update(columns.split(','))
-        pagedata.setItem('%s.joincolumns' % ctxpath ,','.join(query_set))
-        self.page.session.saveSessionData()
-
     def rpc_getRelatedSelection(self, from_fld, target_fld, relation_value=None,
                                 columns='', query_columns=None, 
                                 order_by=None, condition=None, 
