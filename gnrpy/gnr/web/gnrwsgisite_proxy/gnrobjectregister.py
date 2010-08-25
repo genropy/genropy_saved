@@ -339,7 +339,6 @@ class BaseRegister(object):
             result=sd.get_multi(live_index,'%s_register_item_'%self.prefix)
         return result
      
-     
 
 
 class PageRegister(BaseRegister):

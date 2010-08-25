@@ -1642,7 +1642,7 @@ dojo.declare("gnr.GnrBag",null,{
                     }
                     if (resolverPars!=null){
                         resolverPars = genro.evaluate(resolverPars);
-                        var cacheTime = resolverPars['cacheTime'];
+                        var cacheTime = 'cacheTime' in attributes? attributes.cacheTime:resolverPars.kwargs['cacheTime'];
                         resolverPars['cacheTime'] = 0;
                         //resolverPars = dojo.toJson(resolverPars);
                         itemValue = genro.rpc.remoteResolver('resolverRecall', {'resolverPars':resolverPars},{'cacheTime':cacheTime});
