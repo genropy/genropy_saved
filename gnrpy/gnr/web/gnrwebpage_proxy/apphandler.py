@@ -72,7 +72,6 @@ class GnrWebAppHandler(GnrBaseProxy):
                 self._appId=self.page.request.uri.split['/'][2]
                 if not self._appId in instances:
                     self._appId=instances[0]
-        print self._appId
         return self._appId
     appId = property(_getAppId) 
 
@@ -238,17 +237,35 @@ class GnrWebAppHandler(GnrBaseProxy):
                                             js_resolver_one=js_resolver_one, js_resolver_many=js_resolver_many,
                                             sqlContextName=sqlContextName, **kwargs)
                                
-        joinDict = {}
         if sqlContextName:
-            ctx = self.page.session.pagedata['context.%s' % sqlContextName]
-            if ctx:
-                joinDict = ctx['%s_%s' % (target_fld.replace('.','_'), from_fld.replace('.','_'))]
-        if joinDict and joinDict.get('applymethod'):
-            applyPars = self._getApplyMethodPars(kwargs)
-            self.page.getPublicMethod('rpc', joinDict['applymethod'])(record,**applyPars)
+            joinBag = self._getSqlContextConditions(sqlContextName,target_fld=target_fld,from_fld=from_fld)
+            if joinBag and joinBag['applymethod']:
+                applyPars = self._getApplyMethodPars(kwargs)
+                self.page.getPublicMethod('rpc', joinBag['applymethod'])(record,**applyPars)
         return (record,recInfo)
         
     def setContextJoinColumns(self, table,contextName='', reason=None, path=None, columns=None):
+        tblobj = self.db.table(table)
+        relation = tblobj.model.getRelation(path)
+        target_fld = relation['many'].replace('.','_')
+        from_fld = relation['one'].replace('.','_')
+        ctxpath = '_sqlctx.columns.%s.%s_%s'  % (contextName,target_fld,from_fld)
+        with self.page.pageStore() as store:
+            reasons = store.getItem('%s._reasons' %ctxpath)
+            if reasons is None:
+                reasons = Bag()
+                store.setItem('%s._reasons' %ctxpath,reasons)
+            reasons.setItem(reason or '*',columns)
+            query_set = set()
+            for columns in reasons.values():
+                query_set.update(columns.split(','))
+            store.setItem(ctxpath, ','.join(query_set))
+
+
+        
+        
+        
+    def setContextJoinColumns_old(self, table,contextName='', reason=None, path=None, columns=None):
         tblobj = self.db.table(table)
         relation = tblobj.model.getRelation(path)
         ctxpath = 'context.%s.%s_%s'  % (contextName,relation['many'].replace('.','_'),relation['one'].replace('.','_'))
@@ -271,10 +288,11 @@ class GnrWebAppHandler(GnrBaseProxy):
         columns = columns or query_columns
         #self.page.gnotify('columns', str(self.page.session.pagedata.keys()), always=True)
         t = time.time()
-        if sqlContextName and not columns:
-            ctx = self.page.session.pagedata['context.%s' % sqlContextName]
-            if ctx:
-                columns = ctx['%s_%s.joincolumns' % (target_fld.replace('.','_'), from_fld.replace('.','_'))]
+        joinBag = None
+        if sqlContextName :
+            joinBag = self._getSqlContextConditions(sqlContextName,target_fld=target_fld,from_fld=from_fld)
+            if not columns:
+                columns = self._getSqlContextColumns(sqlContextName,target_fld=target_fld,from_fld=from_fld)
                 
         columns = columns or '*' 
         
@@ -289,22 +307,19 @@ class GnrWebAppHandler(GnrBaseProxy):
         query = self.db.query(dbtable, columns=columns, where=where, 
                               sqlContextName=sqlContextName, **kwargs)
         
-        joinDict = {}
+        joinBag = None
         if sqlContextName:
             self._joinConditionsFromContext(query, sqlContextName)
-            ctx = self.page.session.pagedata['context.%s' % sqlContextName]
-            if ctx:
-                joinDict = ctx['%s_%s' % (target_fld.replace('.','_'), from_fld.replace('.','_'))]
-                if joinDict and joinDict['condition']:
-                    params = self._getParamsFromContext(sqlContextName, joinDict['params'].asDict(ascii=True))
-                    query.setJoinCondition(target_fld='*', from_fld='*', condition=joinDict['condition'], 
-                                        one_one=joinDict['one_one'], **params)
-            
+            conditionKey = '%s_%s' % (target_fld.replace('.','_'), from_fld.replace('.','_'))
+            rootCond = query.joinConditions.get(conditionKey)
+            if rootCond:
+                query.setJoinCondition(target_fld='*', from_fld='*', condition=rootCond['condition'], 
+                                      one_one=rootCond['one_one'], **rootCond['params'])
         sel = query.selection()
-        if joinDict and joinDict.get('applymethod'):
+        if joinBag and joinBag.get('applymethod'):
             applyPars = self._getApplyMethodPars(kwargs)
-            self.page.getPublicMethod('rpc', joinDict['applymethod'])(sel,**applyPars)
-        
+            self.page.getPublicMethod('rpc', joinBag['applymethod'])(sel,**applyPars)
+                
         result = Bag()        
         relOneParams = dict(_target_fld = '%s.%s' % (dbtable, self.db.table(dbtable).pkey),
                             _from_fld='', 
@@ -437,30 +452,34 @@ class GnrWebAppHandler(GnrBaseProxy):
         colAttrs = selection.colAttrs
         return self.page.rmlTemplate('standard_print.rml', outdata=outdata, colAttrs=colAttrs,
                 title='Print List', header='Print List', columns=columns)
-                  
-    def _joinConditionsFromContext(self, obj, sqlContextName):
-        sessionCtx = self.page.session.pagedata['context.%s' % sqlContextName]
-        if sessionCtx:
-            for joinDict in sessionCtx.values():
-                if joinDict['condition']: # may be a relatedcolumns only
-                    params = self._getParamsFromContext(sqlContextName, joinDict['params'].asDict(ascii=True))
-                    #raise str(dict(target_fld=joinDict['target_fld'], from_fld=joinDict['from_fld'], condition=joinDict['condition'], 
-                    #                        one_one=joinDict['one_one'], **params))
-                    obj.setJoinCondition(target_fld=joinDict['target_fld'], from_fld=joinDict['from_fld'], condition=joinDict['condition'], 
-                                            one_one=joinDict['one_one'], **params)
-        #else:
-        #    raise str('%s \n\n %s' % (str(sqlContextName), str(self.page.session.pagedata['context'].keys())))
-
-    def _getParamsFromContext(self, sqlContextName, params):
-        if params:
-            for k,v in params.items():
-                if isinstance(v, basestring):
-                    if v.startswith('^'):
-                        params[k] = self.page.session.pagedata['context.%s' % v[1:]]
-                    elif hasattr(self, '%s_%s' % (sqlContextName, v)):
-                        params[k] = getattr(self, '%s_%s' % (sqlContextName, v))()
-        return params
+    
+    def _getSqlContextConditions(self,contextName,target_fld=None,from_fld=None):
+        result = self.page.pageStore().getItem('_sqlctx.conditions.%s' %contextName)
+        if result and target_fld and from_fld:
+            result = result[('%s_%s' %(target_fld, from_fld)).replace('.','_')]
+        return result
         
+    def _getSqlContextColumns(self,contextName,target_fld,from_fld):
+        result = self.page.pageStore().getItem('_sqlctx.columns.%s' %contextName)
+        if result:
+            return result[('%s_%s' %(target_fld, from_fld)).replace('.','_')]
+
+    def _joinConditionsFromContext(self, obj, sqlContextName):
+        sqlContextBag = self._getSqlContextConditions(sqlContextName)
+        storedata = self.page.pageStore().data
+        if sqlContextBag:
+            for joinBag in sqlContextBag.values():
+                if joinBag['condition']: # may be a relatedcolumns only
+                    params= (joinBag['params'] or Bag()).asDict(ascii=True)
+                    for k,v in params.items():
+                        if isinstance(v, basestring):
+                            if v.startswith('^'):
+                                params[k] = storedata[v[1:]]
+                            elif hasattr(self, '%s_%s' % (sqlContextName, v)):
+                                params[k] = getattr(self, '%s_%s' % (sqlContextName, v))()
+                    obj.setJoinCondition(target_fld=joinBag['target_fld'], from_fld=joinBag['from_fld'], condition=joinBag['condition'], 
+                                            one_one=joinBag['one_one'], **params)
+      
     def _getApplyMethodPars(self,kwargs,**optkwargs):
         result= dict([(k[6:],v) for k,v in kwargs.items() if k.startswith('apply_')])
         if optkwargs:
@@ -475,9 +494,6 @@ class GnrWebAppHandler(GnrBaseProxy):
                             selectmethod=None,selectmethod_prefix='rpc', expressions=None,sum_columns=None,
                             sortedBy=None,excludeLogicalDeleted=True, **kwargs):
         t = time.time()
-        #if 'sqlContextName' in kwargs:
-        #    kwargs['sqlContext'] = dict(name=kwargs['sqlContextName'], ctxbag=self.page.session.pagedata['context'])
-        #    kwargs['sqlContext'] = dict(name=kwargs['sqlContext'], fnc=getattr(self.page, kwargs['sqlContext']))
         tblobj = self.db.table(table)
         row_start = int(row_start)
         row_count = int(row_count)
@@ -580,7 +596,9 @@ class GnrWebAppHandler(GnrBaseProxy):
                             recordResolver=None, selectionName=None, pkeys=None, fromSelection=None,
                             sortedBy=None, sqlContextName=None,
                             excludeLogicalDeleted=True, **kwargs):
-
+        sqlContextBag = None
+        if sqlContextName:
+            sqlContextBag = self._getSqlContextConditions(sqlContextName)
         if fromSelection:
             fromSelection = self.page.unfreezeSelection(tblobj, fromSelection)
             pkeys = fromSelection.output('pkeylist')
@@ -600,13 +618,11 @@ class GnrWebAppHandler(GnrBaseProxy):
         if sqlContextName: 
             self._joinConditionsFromContext(query, sqlContextName)
         selection = query.selection(sortedBy=sortedBy, _aggregateRows=True)
-        if sqlContextName:
-            ctx = self.page.session.pagedata['context.%s' % sqlContextName]
-            if ctx and False:
-                joinDict = ctx['%s_%s' % (target_fld.replace('.','_'), from_fld.replace('.','_'))]
-                if joinDict and joinDict.get('applymethod'):
-                    applyPars = self._getApplyMethodPars(kwargs)
-                    self.page.getPublicMethod('rpc', joinDict['applymethod'])(selection,**applyPars)
+        if sqlContextBag:
+            joinBag = sqlContextBag['%s_%s' % (target_fld.replace('.','_'), from_fld.replace('.','_'))]
+            if joinBag and joinBag.get('applymethod'):
+                applyPars = self._getApplyMethodPars(kwargs)
+                self.page.getPublicMethod('rpc', joinBag['applymethod'])(selection,**applyPars)
                     
         return selection
         
@@ -625,11 +641,6 @@ class GnrWebAppHandler(GnrBaseProxy):
         """
         t = time.time()
         tblobj = self.db.table(table)
-        
-        #if 'sqlContextName' in kwargs:
-        #    kwargs['sqlContext'] = dict(name=kwargs['sqlContextName'], ctxbag=self.page.session.pagedata['context'])
-        #    kwargs['sqlContext'] = dict(name=kwargs['sqlContext'], fnc=getattr(self.page, kwargs['sqlContext']))
-        
         if selectionName=='*' or not selectionName:
             selectionName = getUuid()
             
