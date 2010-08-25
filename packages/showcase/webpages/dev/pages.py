@@ -54,10 +54,10 @@ class GnrCustomWebPage(object):
 
         
     def rpc_get_current_pages(self,idx=None):
-        return Bag(self.site.page_register.pages(idx))
+        return Bag(self.site.register_page.pages(idx))
         
     def rpc_get_subscribed_tables(self):
-        l = self.site.page_register.get_index(index_name='*')
+        l = self.site.register_page.get_index(index_name='*')
         result = Bag()
         for i,elem in enumerate(l):
             print elem
