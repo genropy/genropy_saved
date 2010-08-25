@@ -580,12 +580,8 @@ class SqlQueryCompiler(object):
                     extra_one_one = None
                     if self.joinConditions:
                         from_fld, target_fld = self._tablesFromRelation(attrs)
-                        
                         extracnd, extra_one_one = self.getJoinCondition(target_fld, from_fld, basealias)
                         
-                        #joinExtra = self.sqlContext['fnc'](command='joincondition', 
-                        #                                    from_fld=from_fld, target_fld=target_fld, 
-                        #                                    target_tbl_alias=basealias) or {}
                     else:
                         joinExtra = {}
                     if attrs['mode'] == 'O' or attrs.get('one_one') or extra_one_one:
