@@ -8,14 +8,14 @@
 #
 import os
 import datetime
-import random
-import time
 import shutil
 from gnr.core.gnrbag import Bag
 from gnr.core.gnrlang import getUuid
 from gnr.web.gnrwebpage_proxy.gnrbaseproxy import GnrBaseProxy
 
 
+CONNECTION_TIMEOUT = 3600
+CONNECTION_REFRESH = 20
 
 
 class GnrWebConnection(GnrBaseProxy):
@@ -29,7 +29,9 @@ class GnrWebConnection(GnrBaseProxy):
         self.user = None
         self.pages = Bag()
         self.inited=False
-        
+        self.connection_timeout = self.page.site.config('connection_timeout') or CONNECTION_TIMEOUT
+        self.connection_refresh = self.page.site.config('connection_refresh') or CONNECTION_REFRESH
+
     def event_onEnd(self):
         if self.page.user:
             self._finalize()
@@ -48,14 +50,10 @@ class GnrWebConnection(GnrBaseProxy):
             connection_info = page.site.register_connection.get_register_item(self.connection_id)
             if connection_info:
                 self.user = connection_info['user']
-            elif page.site.debug:
-                self.user=self.cookie.value.get('user')
-                page.site.register_connection.refresh(self,renew=True)
-                connection_info = page.site.register_connection.get_register_item(self.connection_id)
         if not connection_info and user:
             self.user = user
             self.connection_id = getUuid()
-            page.site.register_connection.register(self)
+            page.site.register_connection.register(self,autorenew=page.site.debug)
             self.cookie = self.page.newMarshalCookie(self.connection_name, {'user':self.user,'connection_id': self.connection_id, 'cookie_data':{}, 'locale':None}, secret = self.secret)
         self.inited=True
         
@@ -73,7 +71,7 @@ class GnrWebConnection(GnrBaseProxy):
     def _finalize(self):
         self.ip = self.page.request.remote_addr
         self.pages = Bag(self.page.session.getActivePages(self.connection_id))
-        self.page.site.register_connection.refresh(self,renew=False)
+        self.page.site.register_connection.refresh(self)
         self.write()
         
     def writedata(self):
