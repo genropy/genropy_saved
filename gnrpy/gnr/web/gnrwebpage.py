@@ -53,6 +53,8 @@ import datetime
 AUTH_OK=0
 AUTH_NOT_LOGGED=1
 AUTH_FORBIDDEN=-1
+PAGE_TIMEOUT = 1800
+PAGE_REFRESH = 20
 
 ##### Prima di modificare le repositori Progetti
 from gnr.web.gnrbaseclasses import BaseComponent
@@ -88,12 +90,14 @@ class GnrWebPage(GnrBaseWebPage):
         self._response = self.response._response
         self.response.add_header('Pragma','no-cache')
         self._htmlHeaders=[]
-        self._cliCtxData = Bag()
+        self._pendingContextToCreate = []
         self.pagename = os.path.splitext(os.path.basename(self.filepath))[0].split(os.path.sep)[-1]
         self.pagepath = self.filepath.replace(self.folders['pages'], '')
         self.debug_mode = False
         self._dbconnection=None
         self._user_login = request_kwargs.pop('_user_login',None)
+        self.page_timeout= self.site.config.getItem('page_timeout') or PAGE_TIMEOUT
+        self.page_refresh=self.site.config.getItem('page_refresh') or PAGE_REFRESH    
         self.onIniting(request_args,request_kwargs)
         
         self.private_kwargs=dict([(k[:2],v)for k,v in request_kwargs.items() if k.startswith('__')])
@@ -287,15 +291,15 @@ class GnrWebPage(GnrBaseWebPage):
         pageTags = self.pageAuthTags(method=method, **parameters)
         if not self.user:
             if not self.connection.inited:
-                try:
+                if True:
                     self.connection.getConnection()
                     self.user = self.connection.user
                     if self.connection.user:
                         self.user = self.connection.user
                         self.setInClientData('gnr.user' , self.user, fired=True, save=True)
                         self.setInClientData('gnr.userTags', self.userTags, fired=True, save=True)
-                except:
-                    self.user = None
+                #except:
+                #    self.user = None
         if pageTags:
             if not self.user:
                 auth = AUTH_NOT_LOGGED
@@ -396,10 +400,11 @@ class GnrWebPage(GnrBaseWebPage):
         return self.site.getService(service_type)
         
     def _onEnd(self):
-        self.site.register_page.refresh(self, renew=True)
+        self.site.register_page.refresh(self)
         #self.handleMessages() #commented has it was moved in another part. It may cause a regression
         self._publish_event('onEnd')
-        self.onEnd()
+        self.onEnd()            
+
     
     def getStoreDataChanges(self,changesBag):
         with self.pageStore() as store:
@@ -652,6 +657,7 @@ class GnrWebPage(GnrBaseWebPage):
         return self._avatar
     avatar = property(_get_avatar,_set_avatar)
     
+        
     #def updateAvatar(self):
     #    """Reload the avatar, recalculate tags, and save in cookie"""
     #    self.connection.updateAvatar(self.avatar)
@@ -745,7 +751,8 @@ class GnrWebPage(GnrBaseWebPage):
     
     def rpc_main(self, _auth=AUTH_OK, debugger=None, **kwargs):
         page = self.domSrcFactory.makeRoot(self)
-        self.site.register_page.register(self)
+        self.site.register_page.register(self,autorenew=True)
+        print 'registered page ',self.page_id
         self._root = page
         pageattr = {}
         #try :
@@ -769,7 +776,6 @@ class GnrWebPage(GnrBaseWebPage):
                 #page.data('gnr.userTags', self.userTags)
                 page.data('gnr.locale',self.locale)
                 page.data('gnr.pagename',self.pagename)
-                page.data('_server', None, context='_server')
                 page.dataController('genro.dlg.serverMessage(msg);', msg='^gnr.servermsg')
                 page.dataController('console.log(msg);funcCreate(msg)();', msg='^gnr.servercode')
                 
@@ -788,7 +794,8 @@ class GnrWebPage(GnrBaseWebPage):
                 self.onMainCalls()
                 page.data('gnr.polling',self.polling)
                 page.data('gnr.autopolling',self.autopolling)
-                self._createContext(root)
+                if self._pendingContextToCreate:
+                    self._createContext(root,self._pendingContextToCreate)
                 if self.user:
                     self.site.pageLog('open')
 
@@ -940,10 +947,53 @@ class GnrWebPage(GnrBaseWebPage):
             # -webkit-gradient (%(mode)s, %(begin)s, %(end)s, from(%(from)s), to(%(to)s));
             # 
         return '%s\n%s' % ('\n'.join(result) ,style) 
+            
+    def addToContext(self,value=None,serverpath=None,clientpath=None):
+        self._pendingContextToCreate.append((value,serverpath,clientpath or serverpath))
         
+    def _createContext(self, root,pendingContext):
+        with self.pageStore() as store:
+            for value,serverpath,clientpath in pendingContext:
+                store.setItem(serverpath, value)
+        for value,serverpath,clientpath in pendingContext:
+            root.child('data', __cls='bag', content=value, path=clientpath,_serverpath=serverpath)
+                
+    def setJoinCondition(self, ctxname, target_fld='*', from_fld='*', condition=None, one_one=None, applymethod=None, **kwargs):
+        """define join condition in a given context (ctxname)
+           the condition is used to limit the automatic selection of related records
+           If target_fld AND from_fld equals to '*' the condition is an additional where clause added to any selection
+           
+           self.setJoinCondition('mycontext',
+                              target_fld = 'mypkg.rows.document_id',
+                              from_fld = 'mypkg.document.id',
+                              condition = "mypkg.rows.date <= :join_wkd",
+                              join_wkd = "^mydatacontext.foo.bar.mydate", one_one=False)
+                              
+            @param ctxname: name of the context of the main record 
+            @param target_fld: the many table column of the relation, '*' means the main table of the selection
+            @param from_fld: the one table column of the relation, '*' means the main table of the selection
+            @param condition: the sql condition
+            @param one_one: the result is returned as a record instead of as a selection. 
+                            If one_one is True the given condition MUST return always a single record
+            @param applymethod: a page method to be called after selecting the related records
+            @param kwargs: named parameters to use in condition. Can be static values or can be readed 
+                           from the context at query time. If a parameter starts with '^' it is a path in 
+                           the context where the value is stored. 
+                           If a parameter is the name of a defined method the method is called and the result 
+                           is used as the parameter value. The method has to be defined as 'ctxname_methodname'.
+        """
+        path = '%s.%s_%s' % (ctxname, target_fld.replace('.','_'), from_fld.replace('.','_'))
+        value = Bag(dict(target_fld=target_fld, from_fld=from_fld, condition=condition, one_one=one_one, applymethod=applymethod, params=Bag(kwargs)))
         
+        self.addToContext(value=value,serverpath='_sqlctx.conditions.%s' %path, clientpath ='gnr.sqlctx.conditions.%s' %path )
+
+    def setJoinColumns(self, ctxname, target_fld, from_fld, joincolumns):
+        path = '%s.%s_%s' % (ctxname, target_fld.replace('.','_'), from_fld.replace('.','_'))
+        serverpath='_sqlctx.columns.%s'%path
+        clientpath ='gnr.sqlctx.columns.%s' %path
+        self.addToContext(value=joincolumns,serverpath=serverpath, clientpath =clientpath )
+            
     ##### BEGIN: DEPRECATED METHODS ###
-    
     @deprecated
     def _get_config(self):
         return self.site.config
@@ -952,6 +1002,12 @@ class GnrWebPage(GnrBaseWebPage):
     @deprecated
     def log(self, msg):
         self.debugger.log(msg)
+        
+    @deprecated
+    def rpc_updateSessionContext(self, context, path, evt, value=None, attr=None):
+        self.session.loadSessionData()
+        self.session.setInPageData('context.%s.%s' % (context, path), value, attr)
+        self.session.saveSessionData()
     ##### END: DEPRECATED METHODS #####
     
 class GnrMakoPage(GnrWebPage):

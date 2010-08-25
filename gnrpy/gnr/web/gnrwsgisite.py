@@ -30,9 +30,6 @@ import shutil
 mimetypes.init()
 site_cache = {}
 
-CONNECTION_TIMEOUT = 3600
-CONNECTION_REFRESH = 20
-
 global GNRSITE
 def currentSite():
     global GNRSITE
@@ -581,34 +578,6 @@ class GnrWsgiSite(object):
             pkg=pkg or self.currentPage.packageId
             username = username or self.currentPage.user
             self.db.table('adm.user').setPreference(path,data,pkg=pkg,username=username)
-            
-    def _get_connection_timeout(self):
-        return self.config.getItem('connection_timeout') or CONNECTION_TIMEOUT
-    connection_timeout = property(_get_connection_timeout)
-
-    def _get_connection_refresh(self):
-        return self.config.getItem('connection_refresh') or CONNECTION_REFRESH
-    connection_refresh = property(_get_connection_refresh)
-        
-    #def clearExpiredConnections(self):
-    #    if 'adm' in self.db.packages:
-    #        tblconnection = self.db.table('adm.connection')
-    #        pendingConnections = tblconnection.getPendingConnections()
-    #        for connection in pendingConnections:
-    #            connection_id = connection['id']
-    #            connectionPath = os.path.join(self.site_path, 'data', '_connections',connection_id,'connection.xml')
-    #            expired = True
-    #            dropFolder=False
-    #            if os.path.isfile(connectionPath):
-    #                connectionBag = Bag(connectionPath)
-    #                expired = (time()-(connectionBag['cookieData.timestamp'] or 0)) > self.connection_timeout
-    #                dropFolder=True
-    #            if expired:
-    #                tblconnection.closeConnection(connection_id,end_reason='expired')
-    #                if dropFolder:
-    #                    self.dropConnectionFolder(connection_id=connection_id)
-    #        self.db.table('adm.served_page').closeOrphans()
-
                     
     def dropConnectionFolder(self,connection_id=None):
         pathlist = ['data', '_connections']

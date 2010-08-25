@@ -174,15 +174,6 @@ class GnrDomSrc(GnrStructData):
     def tooltip(self,label='',**kwargs):
         return self.child('tooltip',label=label,**kwargs)
         
-    def defineContext(self, context, datapath, value=None, savesession=True, **kwargs):
-        #if not (value is None):
-        if savesession:
-            self.page.session.loadSessionData()
-        self.page.session.pagedata.setItem('context.%s' % (context), value, clientpath=datapath)
-        if savesession:
-            self.page.session.saveSessionData()
-        return self.child('data', __cls='bag', content=value, path=datapath, context=context, **kwargs)
-        
     def data(self, *args, **kwargs):
         value = None
         className=None

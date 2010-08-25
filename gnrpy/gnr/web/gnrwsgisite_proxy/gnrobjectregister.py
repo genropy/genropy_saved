@@ -23,6 +23,14 @@
 
 from datetime import datetime
 from gnr.core.gnrbag import Bag
+BAG_INSTANCE = Bag()
+
+import logging 
+
+logger= logging.getLogger('gnr.web.gnrobjectregister')
+
+class ExpiredItemException(Exception):
+    pass
 
 class ClientDataChange(object):
     def __init__(self,path,value,reason=None,_attributes=None,as_fired=False,
@@ -55,7 +63,7 @@ class ServerStore(object):
         self.register_item_id=register_item_id
         self.triggered = triggered    
         self._register_item = '*'  
-            
+
     def __enter__(self):
         self.parent.lock(self.register_item_id)
         return self
@@ -78,7 +86,6 @@ class ServerStore(object):
     def add_datachange(self,path,value,**kwargs):
         datachange = ClientDataChange(path,value,**kwargs)
         self.datachanges.append(datachange)
-        return
         
     def set_datachange(self,datachange):
         datachanges = self.datachanges
@@ -88,17 +95,28 @@ class ServerStore(object):
         else:
             datachanges.append(datachange)
     
+    def subscribe_path(self,path):
+        if self.register_item:
+            self.subscribed_paths.add(path)
+        
+    def _on_data_trigger(self,node=None,ind=None,evt=None,pathlist=None,**kwargs):
+        path ='.'.join(pathlist)
+        if path in self.subscribed_paths and self.register_item:
+            self.datachanges.append(ClientDataChange(path=path,value=node.value,reason='serverChange'))
+            
     def __getattr__(self,fname):
-        if hasattr(self.data,fname):
+        if hasattr(BAG_INSTANCE,fname):
             return getattr(self.data,fname)
         else:
             raise AttributeError("register_item has no attribute '%s'" % fname)
-    def _get_data(self):
+            
+    @property
+    def data(self):
         if self.register_item:
             return self.register_item['data']
-    data=property(_get_data)
     
-    def _get_register_item(self):
+    @property
+    def register_item(self):
         if self._register_item !='*':
             return self._register_item
         self._register_item = register_item = self.parent.get_register_item(self.register_item_id)
@@ -112,34 +130,20 @@ class ServerStore(object):
         if self.triggered:
             register_item['data'].subscribe('datachanges',  any=self._on_data_trigger)
         return register_item
-    register_item = property(_get_register_item)
     
-    def _get_datachanges(self):
+    @property
+    def datachanges(self):
+        datachanges=[]
         if self.register_item:
-            return self.register_item['datachanges']
-    datachanges = property(_get_datachanges)
-    
-    def _get_subscribed_paths(self):
+            datachanges = self.register_item.setdefault('datachanges',[])
+        return datachanges
+        
+    @property
+    def subscribed_paths(self):
         if self.register_item:
             return self.register_item['subscribed_paths']
-    subscribed_paths = property(_get_subscribed_paths)
-    
-    def subscribe_path(self,path):
-        if self.register_item:
-            self.subscribed_paths.add(path)
-        
-    def _on_data_trigger(self,node=None,ind=None,evt=None,pathlist=None,**kwargs):
-        path ='.'.join(pathlist)
-        if path in self.subscribed_paths and self.register_item:
-            self.datachanges.append(ClientDataChange(path=path,value=node.value,reason='serverChange'))
-
 
 class BaseRegister(object):
-    DEFAULT_EXPIRY=60
-    
-    def _get_expiry(self):
-        return self.DEFAULT_EXPIRY
-    
     def __init__(self, site, **kwargs):
         self.site = site
         self.sd=self.site.shared_data
@@ -148,13 +152,14 @@ class BaseRegister(object):
     def init(self, **kwargs):
         pass
     
-    def register(self,obj):
+    def register(self,obj,autorenew=False):
         """Register register_item"""
         sd=self.sd
         address=self.prefix
         with sd.locked(key=address):
-            register_item=self._create_register_item(obj)
+            register_item=self._create_register_item(obj,autorenew=autorenew)
             self._write_register_item(register_item)
+            #logger.warning('registering %s' %register_item)
             
     def unregister(self,obj):
         """Unregister register_item"""
@@ -163,12 +168,25 @@ class BaseRegister(object):
         register_item_id=self._create_register_item(obj)['register_item_id']
         with sd.locked(key=address):
             self._remove_register_item(register_item_id)
+            #logger.warning('unregister %s' %register_item_id)
+
     
     def make_store(self,register_item_id,triggered=None):
         return ServerStore(self,register_item_id=register_item_id,triggered=triggered)
 
-    def _create_register_item(self, obj):
-        pass
+    def _create_register_item(self, obj,autorenew=False):
+        """
+        override this:
+        you must return a register_item with at least
+        these elements
+        register_item=dict(
+                register_item_id = obj.obj_id,
+                timeout = obj.obj_timeout,
+                refresh = obj.obj_refresh,
+                renew = autorenew
+                )
+        """
+        pass 
         
     def _register_item_key(self,register_item_id):
         return '%s_register_item_%s'%(self.prefix,register_item_id)
@@ -176,15 +194,19 @@ class BaseRegister(object):
     def _expiry_key(self,register_item_id):
         return '%s_EXPIRY_%s'%(self.prefix,register_item_id)
         
+    def _upd_item_expiry(self,register_item):
+        self.sd.set(self._expiry_key(register_item['register_item_id']),datetime.now(),register_item['timeout'])
+
     def _write_register_item(self, register_item):
         """Private. It must be called only in locked mode"""
         sd=self.sd
         register_item_id=register_item['register_item_id']
         self._set_index(register_item_id)
         sd.set(self._register_item_key(register_item_id),register_item,0)
-        sd.set(self._expiry_key(register_item_id),register_item_id,self._get_expiry())
+        self._upd_item_expiry(register_item)
         self._on_write_register_item(register_item)
         
+   
     def _on_write_register_item(self,register_item):
         pass
         
@@ -247,29 +269,42 @@ class BaseRegister(object):
         """Refresh register_item"""
         sd=self.sd
         address=self.prefix
-        register_item_id=self._create_register_item(obj)['register_item_id']
+        temp_register_item = self._create_register_item(obj)
+        register_item_id = temp_register_item['register_item_id']
         with sd.locked(key=address):
             expiry_key=self._expiry_key(register_item_id)
-            expiry_address = sd.get(expiry_key)
-            if expiry_address:
-                sd.set(expiry_key,register_item_id,self._get_expiry())
-            elif renew:
-                register_item=self._create_register_item(obj)
-                self._write_register_item(register_item)
-    
+            last_ts = sd.get(expiry_key) #if exists the register_item is not expired
+            if last_ts:
+                self._upd_item_expiry(temp_register_item)
+            else:
+                current_register_item=sd.get(self._register_item_key(register_item_id))
+                self._tryrenew(current_register_item)
     
     def get_register_item(self, register_item_id):
         sd=self.sd
         address=self.prefix
         with sd.locked(key=address):
+            register_item_key = self._register_item_key(register_item_id)
+            register_item=sd.get(register_item_key)
+            if not register_item:
+                return
             expiry_key=self._expiry_key(register_item_id)
-            not_expired= sd.get(expiry_key)
-            if not_expired:
-                register_item_key = self._register_item_key(register_item_id)
-                register_item=sd.get(register_item_key)
-                return register_item
+            last_ts = sd.get(expiry_key)
+            if last_ts:
+                register_item['last_ts'] = last_ts
+            else:
+                self._tryrenew(register_item,raise_error=True)
+            return register_item
+                
+    def _tryrenew(self,register_item,raise_error=False):
+        if register_item:
+            register_item_id = register_item['register_item_id']
+            if register_item.get('renew'):
+                self._upd_item_expiry(register_item)
             else:
                 self._remove_register_item(register_item_id)
+        elif raise_error:
+            raise ExpiredItemException()
     
     def set_register_item(self,register_item):
         with self.sd.locked(self.prefix):
@@ -308,12 +343,11 @@ class BaseRegister(object):
 
 
 class PageRegister(BaseRegister):
-    
-    DEFAULT_EXPIRY=60
     prefix='PREG_'
     
-    def _create_register_item(self, page):
+    def _create_register_item(self, page,autorenew=False):
         register_item_id=page.page_id
+        start_ts= datetime.now()
         subscribed_tables=getattr(page,'subscribed_tables',None)
         if subscribed_tables:
             subscribed_tables=subscribed_tables.split(',')
@@ -321,11 +355,14 @@ class PageRegister(BaseRegister):
                 register_item_id=register_item_id,
                 pagename=page.basename,
                 connection_id=page.connection.connection_id,
-                start_ts=datetime.now(),
+                start_ts= start_ts,
                 subscribed_tables=subscribed_tables or [],
                 user = page.user,
                 user_ip = page.user_ip,
-                user_agent = page.user_agent
+                user_agent = page.user_agent,
+                timeout = page.page_timeout,
+                refresh = page.page_refresh,
+                renew=autorenew
                 )
         return register_item
     
@@ -341,17 +378,13 @@ class PageRegister(BaseRegister):
         return self._register_items(index_name=index_name)
         
 class ConnectionRegister(BaseRegister):
-    DEFAULT_EXPIRY=3600
     prefix='CREG_'
     
     def init(self,onAddConnection=None, onRemoveConnection=None):
         self.onAddConnection=onAddConnection
         self.onRemoveConnection=onRemoveConnection
     
-    def _get_expiry(self):
-        return int(self.site.connection_timeout)
-    
-    def _create_register_item(self, connection):
+    def _create_register_item(self, connection,autorenew=False):
         register_item_id=connection.connection_id
         register_item=dict(
                 register_item_id=register_item_id,
@@ -360,7 +393,10 @@ class ConnectionRegister(BaseRegister):
                 user=connection.user,
                 ip=connection.ip,
                 user_agent=connection.user_agent,
-                pages=connection.pages
+                pages=connection.pages,
+                timeout = connection.connection_timeout,
+                refresh = connection.connection_refresh,
+                renew = autorenew
                 )
         return register_item
     
@@ -376,9 +412,10 @@ class ConnectionRegister(BaseRegister):
 
 
 class UserRegister(BaseRegister):
-    DEFAULT_EXPIRY=3600
     prefix='CREG_'
-    
+    USER_TIMEOUT = 3600
+    USER_REFRESH = 20
+
     def _create_register_item(self, user):
         page = self.db.application.site.currentPage
         connection=page.connection
@@ -388,12 +425,14 @@ class UserRegister(BaseRegister):
                                         userid=avatar.userid,start_ts=datetime.now(),
                                         ip=page.request.remote_addr,
                                          user_agent=page.request.get_header('User-Agent'))
-        register_item_id=connection.connection_id
+        register_item_id=page.user
         
         register_item=dict(
                 register_item_id=register_item_id,
                 start_ts=datetime.now(),
                 cookieName=connection.cookieName,
+                timeout = self.USER_TIMEOUT,
+                refresh = self.USER_REFRESH
                 )
         return register_item
 
