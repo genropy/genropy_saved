@@ -242,8 +242,8 @@ dojo.declare('gnr.GenroClient', null, {
         }
          genro.sounds[name].play();
     },
-    setInServer: function(path, value){
-        genro.rpc.remoteCall('setInServer', {path:path, value:value});
+    setInServer: function(path, value,pageId){
+        genro.rpc.remoteCall('setInServer', {path:path, value:value,pageId:pageId});
     },
     registerEvent:function(e){
        if ((  new Date() - this.lastRpc)/1000 >genro.autopolling){

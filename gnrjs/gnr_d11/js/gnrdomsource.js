@@ -889,26 +889,10 @@ dojo.declare("gnr.GnrDomSourceNode",gnr.GnrBagNode,{
             var serverpath = objectPop(attributes, '_serverpath');
             if (serverpath) {
                 genro._serverstore_paths[this.absDatapath(path)] = serverpath;
-                genro.setData(path,value,attributes);
             }
-            else{
-                var context = objectPop(attributes, 'context');
-                genro.setData(path,value,attributes);
-                if(context){
-                    console.warn('deprecated old context way');
-                    if (!(value instanceof gnr.GnrBag)){
-                        value = new gnr.GnrBag();
-                        genro.setData(path, value, attributes);
-                    }
-                    if (!genro.contextIndex[context]){
-                    
-                        genro.contextIndex[context] = this;
-                        value.subscribe('context',{'any':dojo.hitch(this, "contextChange")});
-                    } else {
-                        alert("Context name conflict: "+context);
-                    }
-                }
-            }
+            genro.setData(path,value,attributes);
+
+            
         }else if (tag=='dataRemote'){
             this._dataprovider=tag;
             this.setDataNodeValue();
@@ -1045,17 +1029,7 @@ dojo.declare("gnr.GnrDomSourceNode",gnr.GnrBagNode,{
             genro.dom.removeClass(domnode, 'gnrrequired');
         }        
     },
-    contextChange: function(kw){
-        if(kw.reason != 'autocreate'){
-            genro.rpc.remoteCall('updateSessionContext', {'context': this.attr.context,
-                                                 'value': kw.node._value,
-                                                  'attr': kw.node.attr,
-                                                   'evt': kw.evt,
-                                                  'path': kw.pathlist.join('.')
-                                                },
-                                null, 'GET');
-        }
-    },
+
     setSource: function(path, /*gnr.GnrDomSource*/ source){
        var content=this.getValue();
        var child;

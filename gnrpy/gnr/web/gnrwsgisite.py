@@ -261,7 +261,9 @@ class GnrWsgiSite(object):
         self.services = Bag()
         self.print_handler = self.addService('print',PrintHandler(self))
         self.mail_handler = self.addService('mail',MailHandler(self))
-        self.message_handler = self.addService('message',GnrMessageHandler(self))
+        #self.message_handler = self.addService('message',GnrMessageHandler(self))
+        # currently message_handler was removed because it was used only to set data in external pages
+        # maybe we will find future use for message_handler
         self.register_page  = self.addService('register.page',PageRegister(self), private=True)
         self.register_connection = self.addService('register.connection',
                                                     ConnectionRegister(self,onRemoveConnection=self.connFolderRemove), 
@@ -592,23 +594,6 @@ class GnrWsgiSite(object):
         if connection_id:
             os.rmdir(connectionFolder)
 
-    def getMessages(self, connection_id=None, user=None, page_id=None,**kwargs):
-        return self.message_handler.getMessages(connection_id=connection_id, user=user, page_id=page_id,**kwargs)
-        
-            
-    def writeMessage(self,body=None, connection_id=None, user=None, page_id=None, expiry=None, message_type=None):
-        #srcpage = self.db.application.site.currentPage
-        srcpage = self.currentPage
-        src_connection_id=srcpage.connection.connection_id
-        src_page_id=srcpage.page_id
-        src_user=srcpage.user
-        if page_id:
-            self.message_handler.postPageMessage(page_id, body=body, dst_page_id=page_id, dst_user=user, dst_connection_id=connection_id, expiry=expiry, message_type=message_type, src_page_id=src_page_id, src_connection_id=src_connection_id, src_user=src_user)
-        elif connection_id:
-            self.message_handler.postConnectionMessage(connection_id, body=body, dst_connection_id=connection_id, dst_user=user, dst_page_id=page_id, expiry=expiry, message_type=message_type,  src_page_id=src_page_id, src_connection_id=src_connection_id, src_user=src_user)
-        elif user:
-            self.message_handler.postUserMessage(user, body=body, dst_user=user, dst_connection_id=connection_id, dst_page_id=page_id, expiry=expiry, message_type=message_type,  src_page_id=src_page_id, src_connection_id=src_connection_id, src_user=src_user)
-            
     def lockRecord(self,page,table,pkey):
         if 'sys' in self.gnrapp.db.packages:
             return self.gnrapp.db.table('sys.locked_record').lockRecord(page,table,pkey)
@@ -636,34 +621,13 @@ class GnrWsgiSite(object):
         if tblobj.attributes.get('broadcast'): 
             subscribers = self.register_page.pages(index_name=tblobj.fullname)
             value=Bag([(k,v) for k,v in record.items() if not k.startswith('@')])
+            currentPage = self.currentPage
             for subscriber in subscribers:
                 sub=subscribers[subscriber]
-                self.setInClientPage(page_id=sub['register_item_id'],
-                                    connection_id=sub['connection_id'],
-                                    client_path='gnr.dbevent.%s'%tblobj.fullname.replace('.','_'),
-                                    value=value,
-                                    attributes=dict(dbevent=event))
-
-    def setInClientPage(self, page_id=None, connection_id=None, client_path=None, value=None, attributes=None,  fired=False, saveSession=False):
-        """@param save: remember to save on the last setInClientPage. The first call to setInClientPage implicitly lock the session util 
-                        setInClientPage is called with save=True
-        """
-        currentPage = self.currentPage
-        page_id = page_id or currentPage.page_id
-        attributes = dict(attributes or {})
-        attributes['_client_path'] = client_path    
-        if not connection_id or  (connection_id==currentPage.connection.connection_id and not connection_id=='_anonymous') and not currentPage.forked:
-            currentPage.session.setInPageData('_clientDataChanges.%s' % client_path.replace('.','_'), 
-                                        value, _attributes=attributes, page_id=page_id)
-            if saveSession: 
-                currentPage.session.saveSessionData()
-        else:
-            msg_body = Bag()
-            msg_body.setItem('dbevent', value,_client_data_path=client_path, dbevent=attributes['dbevent'])
-            self.writeMessage(page_id=page_id,
-                              body=msg_body,
-                              message_type='datachange')
-            
+                with currentPage.clientPage(page_id=sub['register_item_id']) as clientPage:
+                    clientPage.set('gnr.dbevent.%s'%tblobj.fullname.replace('.','_'),
+                                    value,_attributes=dict(dbevent=event))
+                                    
     
     def _get_currentPage(self):
         """property currentPage it returns the page currently used in this thread"""

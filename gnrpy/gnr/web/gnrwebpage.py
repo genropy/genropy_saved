@@ -72,7 +72,7 @@ class GnrWebPage(GnrBaseWebPage):
         self.user_ip = request.remote_addr
         self.isTouchDevice = ('iPad' in self.user_agent or 'iPhone' in self.user_agent)
         self._event_subscribers = {}
-        self._localClientDataChanges = Bag()
+        self.local_datachanges = list()
         self.user = None
         self._connection = None
         self.forked = False # maybe redefine as _forked
@@ -190,18 +190,17 @@ class GnrWebPage(GnrBaseWebPage):
         if not hasattr(self,'_workdate'):
             workdate = self.pageArgs.get('_workdate_')
             if not workdate or not self.userTags or not('superadmin' in self.userTags):
-                workdate =  self.session.pagedata['workdate'] or datetime.date.today()
+                workdate =  self.pageStore().getItem('workdate') or datetime.date.today()
             if isinstance(workdate, basestring):
                 workdate = self.application.catalog.fromText(workdate, 'D')
-            self._workdate = workdate
-            self.db.workdate=workdate
+            self.workdate = workdate
         return self._workdate
     
     def _set_workdate(self, workdate):
-        self.session.setInPageData('workdate', workdate)
-        self.session.saveSessionData()
+        with self.pageStore() as store:
+            store.setItem('workdate',workdate)
         self._workdate = workdate
-        self.db.workdate=workdate
+        self.db.workdate = workdate
     workdate = property(_get_workdate, _set_workdate)
     ###### END: PROXY DEFINITION #########
 
@@ -296,8 +295,8 @@ class GnrWebPage(GnrBaseWebPage):
                     self.user = self.connection.user
                     if self.connection.user:
                         self.user = self.connection.user
-                        self.setInClientData('gnr.user' , self.user, fired=True, save=True)
-                        self.setInClientData('gnr.userTags', self.userTags, fired=True, save=True)
+                        self.setInClientData('gnr.user' , self.user, fired=True)
+                        self.setInClientData('gnr.userTags', self.userTags, fired=True)
                 #except:
                 #    self.user = None
         if pageTags:
@@ -356,8 +355,8 @@ class GnrWebPage(GnrBaseWebPage):
             self.avatar = avatar
             self.user = avatar.id
             self.connection.makeAvatar(avatar)
-            self.setInClientData('gnr.user' , self.user, fired=True, save=True)
-            self.setInClientData('gnr.userTags', self.userTags, fired=True, save=True)
+            self.setInClientData('gnr.user' , self.user, fired=True)
+            self.setInClientData('gnr.userTags', self.userTags, fired=True)
             self.site.onAuthenticated(avatar)
             login['message'] = ''
             loginPars=avatar.loginPars
@@ -401,39 +400,36 @@ class GnrWebPage(GnrBaseWebPage):
         
     def _onEnd(self):
         self.site.register_page.refresh(self)
-        #self.handleMessages() #commented has it was moved in another part. It may cause a regression
         self._publish_event('onEnd')
         self.onEnd()            
 
     
-    def getStoreDataChanges(self,changesBag):
+    def getStoreDataChanges(self):
+        result = Bag()
         with self.pageStore() as store:
-            datachanges = store.datachanges
+            datachanges = list(store.datachanges) or []
+            datachanges.extend(self.local_datachanges)
             if datachanges:
                 for j,change in enumerate(datachanges):
-                    changesBag.setItem('sc_%i' %j,change.value,change_path=change.path,change_reason=change.reason,
+                    result.setItem('sc_%i' %j,change.value,change_path=change.path,change_reason=change.reason,
                                         change_as_fired=change.as_fired,change_attr=change._attributes,
                                         change_ts=change.change_ts)
                 store.reset_datachanges()
-        return changesBag
+        return result
             
-    
     def collectClientDataChanges(self):
-        self.handleMessages()
-        dataChanges = self.getStoreDataChanges(self.clientDataChanges() or Bag())
         self._publish_event('onCollectDataChanges')
-        dataChanges.update(self._localClientDataChanges)
-        return dataChanges
-        
-    def setLocalClientDataChanges(self, changeSet):
-        self._localClientDataChanges.update(changeSet)
-    
-    def clientDataChanges(self):
-        if self.session.pagedata['_clientDataChanges']:
-            self.session.loadSessionData()
-            result = self.session.pagedata.pop('_clientDataChanges') or Bag()
-            self.session.saveSessionData()
-            return result
+        result = Bag()
+        with self.pageStore() as store:
+            external_datachanges = list(store.datachanges) or []
+            store.reset_datachanges()
+            
+        for j,change in enumerate(external_datachanges+self.local_datachanges):
+            result.setItem('sc_%i' %j,change.value,change_path=change.path,change_reason=change.reason,
+                            change_as_fired=change.as_fired,change_attr=change._attributes,
+                            change_ts=change.change_ts)
+                
+        return result
     
     def _subscribe_event(self, event, caller):
         assert hasattr(caller,'event_%s'%event)
@@ -459,18 +455,13 @@ class GnrWebPage(GnrBaseWebPage):
             raise GnrWebPageException("No template %s found in %s" % (tpl, str(self.tpldirectories)))
         self.htmlHeaders()
         arg_dict = self.build_arg_dict(**kwargs)
-        self.saveRootPageParams(kwargs)
+        
+        self.site.register_page.register(self,autorenew=True)
+        with self.pageStore() as store:
+            store.setItem('pageArgs',kwargs)
         
         return mytemplate.render(mainpage=self, **arg_dict)
-    
-    def saveRootPageParams(self,kwargs):
-        self.session.loadSessionData()
-        self.session.pagedata['pageArgs'] = kwargs
-        self.session.pagedata['page_id'] = self.page_id
-        self.session.pagedata['connection_id'] = self.connection.connection_id
-        self.session.pagedata['pagepath'] = self.pagepath
-        self.session.saveSessionData()
-    
+
     def getUuid(self):
         return getUuid()
 
@@ -481,6 +472,10 @@ class GnrWebPage(GnrBaseWebPage):
     def htmlHeaders(self):
         pass
 
+    def _get_pageArgs(self):
+        return self.pageStore().getItem('pageArgs') or {}
+    pageArgs = property(_get_pageArgs)
+    
     
     def _(self, txt):
         if txt.startswith('!!'):
@@ -742,6 +737,23 @@ class GnrWebPage(GnrBaseWebPage):
             
     def setUserPreference(self, path, data, pkg='',username=''):
         self.site.setUserPreference(path,data,pkg=pkg,username=username)
+    
+    def setInClientData(self, path, value=None, _attributes=None, page_id=None, fired=False,
+                            reason=None ):
+        if page_id is None or page_id == self.page_id:
+            if isinstance(path,Bag):
+                changeBag=path
+                for changeNode in changeBag:
+                    attr = changeNode.attr
+                    datachange = ClientDataChange(attr.pop('_client_path'),changeNode.value,
+                                                    _attributes=attr,as_fired=attr.pop('fired'))
+                    self.local_datachanges.append(datachange)
+            else:
+                datachange = ClientDataChange(path,value,reason=reason,_attributes=_attributes,as_fired=fired)
+                self.local_datachanges.append(datachange)
+        else:
+            with self.clientPage(page_id=page_id) as clientPage:
+                clientPage.set(path,value,_attributes=_attributes,reason=reason,as_fired=fired)
             
     def _get_package_folder(self):
         if not hasattr(self,'_package_folder'):
@@ -751,8 +763,6 @@ class GnrWebPage(GnrBaseWebPage):
     
     def rpc_main(self, _auth=AUTH_OK, debugger=None, **kwargs):
         page = self.domSrcFactory.makeRoot(self)
-        self.site.register_page.register(self,autorenew=True)
-        print 'registered page ',self.page_id
         self._root = page
         pageattr = {}
         #try :
@@ -823,6 +833,10 @@ class GnrWebPage(GnrBaseWebPage):
         for m in calls:
             getattr(self, m)()
         self.onMain()
+        
+    def rpc_onClosePage(self, **kwargs):
+        self.site.onClosePage(self)
+        self.connection.pageFolderRemove()
     
     def rpc_callTableScript(self,table, respath, class_name='Main',downloadAs=None,**kwargs):
         """Call a script from a table's resources (i.e. ``_resources/tables/<table>/<respath>``).
@@ -846,6 +860,17 @@ class GnrWebPage(GnrBaseWebPage):
             handler(pane,**kwargs)
             return pane
             
+    def rpc_ping(self, **kwargs):
+        pass
+    
+    def rpc_setInServer(self, path, value=None,pageId=None, **kwargs):
+        with self.pageStore(pageId) as store:
+            store.setItem(path,value)
+    
+    def rpc_setViewColumns(self, contextTable=None, gridId=None, relation_path=None, contextName=None, query_columns=None, **kwargs):
+        self.app.setContextJoinColumns(table=contextTable, contextName=contextName, reason=gridId,
+                                       path=relation_path, columns=query_columns)
+                                       
     def rpc_relationExplorer(self, table=None, prevRelation='', prevCaption='', 
                             omit='',**kwargs):
         if not table:
@@ -1002,12 +1027,7 @@ class GnrWebPage(GnrBaseWebPage):
     @deprecated
     def log(self, msg):
         self.debugger.log(msg)
-        
-    @deprecated
-    def rpc_updateSessionContext(self, context, path, evt, value=None, attr=None):
-        self.session.loadSessionData()
-        self.session.setInPageData('context.%s.%s' % (context, path), value, attr)
-        self.session.saveSessionData()
+
     ##### END: DEPRECATED METHODS #####
     
 class GnrMakoPage(GnrWebPage):
@@ -1048,5 +1068,27 @@ class ClientPageHandler(object):
         """
         pass
         
+class ClientDataChange(object):
+    def __init__(self,path,value,reason=None,_attributes=None,as_fired=False,
+                 change_ts=None,**kwargs):
+        self.path = path
+        self.reason = reason
+        self.value = value
+        self._attributes = _attributes
+        self.as_fired = as_fired
+        self.change_ts = change_ts or datetime.datetime.now()
+            
+    def __eq__(self,other):
+        return self.path == other.path and self.reason==other.reason \
+               and self.as_fired==other.as_fired and self.no_trigger==other.no_trigger \
     
+    def update(self,other):
+        if hasattr(self.value,'update') and hasattr(other.value,'update'):
+            self.value.update(other.value)
+        else:
+            self.value = other.value    
+        
+        if other._attributes:
+            self._attributes = self._attributes or dict()
+            self._attributes.update(other._attributes)    
         

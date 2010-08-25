@@ -647,31 +647,6 @@ class SqlDataResolver(BagResolver):
         
     def onCreate(self):
         pass
-
-#class SqlRecordResolver(SqlDataResolver):
-    #classKwargs = {'cacheTime': 0, 
-                   #'readOnly':True,
-                   #'where':None,
-                   #'lazy':None,
-                   #'eager':None,
-                   #'relationDict':None,
-                   #'mode':'bag',
-                   #'bagFields':True,
-                   #'db':None,
-                   #'sqlparams':None,
-                   #'pkey':None,
-                   #'sqlContextName':None,
-                   #'joinConditions':None
-               #}
-    #classArgs=['tablename']
-    
-    #def load(self):        
-        #record = SqlRecord(self.dbtable, pkey=self.pkey, where=self.where,
-                 #lazy=self.lazy, eager=self.eager, relationDict=self.relationDict, 
-                 #sqlparams=self.sqlparams, bagFields=self.bagFields, 
-                 #sqlContextName=self.sqlContextName, joinConditions=self.joinConditions, **self.kwargs)
-        #return record.output(self.mode)
-    
     
 class SqlRelatedRecordResolver(BagResolver):
     classKwargs={'cacheTime':0, 'readOnly':True, 'db':None,
@@ -1619,15 +1594,6 @@ class SqlRecord(object):
     def setJoinCondition(self, target_fld, from_fld, condition, one_one=False, **kwargs):
         cond = dict(condition=condition, one_one=one_one, params=kwargs)
         self.joinConditions['%s_%s' % (target_fld.replace('.','_'), from_fld.replace('.','_'))] = cond
-
-
-    #def resolver(self, mode='bag'):
-        #return SqlRecordResolver(self.dbtable.fullname,  db=self.db, where=self.where,
-                            #mode=mode, relationDict=self.relationDict, sqlparams=self.sqlparams,
-                            #sqlContext=self.sqlContext, pkey=self.pkey,
-                            #ignoreMissing=self.ignoreMissing, ignoreDuplicate=self.ignoreDuplicate, 
-                            #joinConditions=self.joinConditions, sqlContextName=self.sqlContextName,
-                            #bagFields=self.bagFields, **self.relmodes)
     
     def output(self, mode, **kwargs):
         if hasattr(self, 'out_%s' % mode):

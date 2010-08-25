@@ -56,7 +56,7 @@ class GnrWebRpc(GnrBaseProxy):
         if isinstance(result,tuple):
             resultAttrs=result[1]
             if len(result)==3 and isinstance(result[2],Bag):
-                self.page.setLocalClientDataChanges(result[2])
+                page.setInClientData(result[2])
             result=result[0]
             if resultAttrs is not None:
                 envelope['resultType'] = 'node'

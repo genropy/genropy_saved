@@ -134,17 +134,6 @@ class GnrBaseWebPage(GnrObject):
         result['period_string'] = gnrdate.periodCaption(locale=locale,*returnDate)
         return result
     
-    def rpc_ping(self, **kwargs):
-        pass
-    
-    def rpc_setInServer(self, path, value=None, **kwargs):
-        self.session.modifyPageData(path, value)
-    
-    def rpc_setViewColumns(self, contextTable=None, gridId=None, relation_path=None, contextName=None, query_columns=None, **kwargs):
-        self.app.setContextJoinColumns(table=contextTable, contextName=contextName, reason=gridId,
-                                       path=relation_path, columns=query_columns)
-    
-    
     def mixins(self):
         """Implement this method in your page for mixin the page with methods from the local _resources folder
         @return: list of mixin names, moduleName:className"""
@@ -227,19 +216,9 @@ class GnrBaseWebPage(GnrObject):
                                     **condition_args).selection()
         return selection
         
-    def _get_pageArgs(self):
-        return self.session.pagedata['pageArgs'] or {}
-    pageArgs = property(_get_pageArgs)
-    
-    def setInClientData(self, _client_path, value, _attributes=None, page_id=None, 
-                        connection_id=None, fired=False, save=False,reason=None, **kwargs):
-        with self.clientPage(page_id=page_id) as clientPage:
-            clientPage.set(_client_path,value,_attributes=_attributes,reason=reason,as_fired=fired)
-
-    
-    def sendMessage(self,message):
-        self.setInClientData('gnr.servermsg', message, fired=True, save=True,
-                            src_page_id=self.page_id,src_user=self.user,src_connection_id=self.connection.connection_id)
+    def sendMessage(self,message,pageId=None):
+        self.setInClientData('gnr.servermsg', message, fired=True,
+                            page_id=pageId,_attributes=dict(from_user=self.user,from_page=self.page_id))
    
     def _get_catalog(self):
         if not hasattr(self, '_catalog'):
@@ -481,12 +460,6 @@ class GnrBaseWebPage(GnrObject):
                        }
                 }""" % (cb, self._(msg)))
         
-        
-    def rpc_onClosePage(self, **kwargs):
-        self.site.onClosePage(self)
-        self.session.removePageData()
-        self.connection.pageFolderRemove()
-        
     def mainLeftContent(self,parentBC,**kwargs):
         pass
         
@@ -549,58 +522,6 @@ class GnrBaseWebPage(GnrObject):
                 tr.td(v.encode('ascii','ignore'))
         return page
         
-        
-    def handleMessages(self):
-        t1=time.time()
-        messages = self.site.getMessages(user=self.user, page_id=self.page_id, connection_id=self.connection.connection_id) or []
-        t2=time.time()-t1
-        if t2>1000:
-            print t2
-        for message in messages:
-            message_body = Bag(message['body'])
-            message_type = message['message_type']
-            #message_id = message['id']
-            handler = getattr(self,'msg_%s'%message_type,self.msg_undefined)
-            if message['dst_page_id']:
-                mode = 'page'
-            elif message['dst_connection_id']:
-                mode = 'connection'
-            elif message['dst_user']:
-                mode = 'user'
-            getattr(self, 'handleMessages_%s'%mode,lambda *a,**kw: None)(handler=handler, message_body=message_body,src_page_id=message['src_page_id'],
-                                                                        src_connection_id=message['src_connection_id'],src_user=message['src_user'])
-    
-    def handleMessages_user(self,handler,**kwargs):
-        handler(**kwargs)
-        
-    def handleMessages_connection(self,handler,**kwargs):
-        handler(**kwargs)
-            
-    def handleMessages_page(self,handler,message_id=None, **kwargs):
-        handler(message_id=message_id,**kwargs)
-        
-        
-    def msg_servermsg(self,message_id=None, message_body=None,src_page_id=None,src_user=None,src_connection_id=None):
-        self.setInClientData('gnr.servermsg', message_body['servermsg'], fired=True, save=True,
-                            src_page_id=src_page_id,src_user=src_user,src_connection_id=src_connection_id,
-                            message_id=message_id)
-    
-    def msg_servercode(self, message_id=None, message_body=None,src_page_id=None,src_user=None,src_connection_id=None):
-        self.setInClientData('gnr.servercode', message_body['servercode'], fired=True, save=True,
-                            src_page_id=src_page_id,src_user=src_user,src_connection_id=src_connection_id,
-                            message_id=message_id)
-    
-    def msg_datachange(self, message_id=None, message_body=None,src_page_id=None,src_user=None,src_connection_id=None):
-        for change in message_body:
-            self.setInClientData(change.attr.pop('_client_data_path'), change.value , _attributes=change.attr, save=True,
-                                src_page_id=src_page_id,src_user=src_user,src_connection_id=src_connection_id,
-                                message_id=message_id)
-    
-    
-    def msg_undefined(self, message):
-        pass
-        
-
     def rpc_resolverRecall(self, resolverPars=None, **auxkwargs):
         if isinstance(resolverPars,basestring):
             resolverPars = json.loads(resolverPars) #should never happen

@@ -23,6 +23,7 @@
 
 from datetime import datetime
 from gnr.core.gnrbag import Bag
+from gnr.web.gnrwebpage import ClientDataChange
 BAG_INSTANCE = Bag()
 
 import logging 
@@ -32,31 +33,7 @@ logger= logging.getLogger('gnr.web.gnrobjectregister')
 class ExpiredItemException(Exception):
     pass
 
-class ClientDataChange(object):
-    def __init__(self,path,value,reason=None,_attributes=None,as_fired=False,
-                 change_ts=None,**kwargs):
-        self.path = path
-        self.reason = reason
-        self.value = value
-        self._attributes = _attributes
-        self.as_fired = as_fired
-        self.change_ts = change_ts or datetime.now()
-            
-    def __eq__(self,other):
-        return self.path == other.path and self.reason==other.reason \
-               and self.as_fired==other.as_fired and self.no_trigger==other.no_trigger \
-    
-    def update(self,other):
-        if hasattr(self.value,'update') and hasattr(other.value,'update'):
-            self.value.update(other.value)
-        else:
-            self.value = other.value    
-        
-        if other._attributes:
-            self._attributes = self._attributes or dict()
-            self._attributes.update(other._attributes)
 
-    
 class ServerStore(object):
     def __init__(self,parent,register_item_id=None,triggered=True):
         self.parent=parent
@@ -114,6 +91,8 @@ class ServerStore(object):
     def data(self):
         if self.register_item:
             return self.register_item['data']
+        else:
+            return Bag()
     
     @property
     def register_item(self):
