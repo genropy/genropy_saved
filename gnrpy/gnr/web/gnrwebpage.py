@@ -738,23 +738,33 @@ class GnrWebPage(GnrBaseWebPage):
     def setUserPreference(self, path, data, pkg='',username=''):
         self.site.setUserPreference(path,data,pkg=pkg,username=username)
     
-    def setInClientData(self, path, value=None, _attributes=None, page_id=None, fired=False,
-                            reason=None ):
-        if page_id is None or page_id == self.page_id:
-            if isinstance(path,Bag):
-                changeBag=path
-                for changeNode in changeBag:
-                    attr = changeNode.attr
-                    datachange = ClientDataChange(attr.pop('_client_path'),changeNode.value,
-                                                    _attributes=attr,as_fired=attr.pop('fired'))
+    def setInClientData(self, path, value=None, _attributes=None, page_id=None, 
+                            fired=False, reason=None,filters=None ):
+        if filters:
+            pages=self.site.register_page.pages(filters=filters)
+        else:
+            pages=[page_id]
+        for page_id in pages:
+            if page_id is None or page_id == self.page_id:
+                if isinstance(path,Bag):
+                    changeBag=path
+                    for changeNode in changeBag:
+                        attr = changeNode.attr
+                        datachange = ClientDataChange(attr.pop('_client_path'),changeNode.value,
+                                                        _attributes=attr,as_fired=attr.pop('fired'))
+                        self.local_datachanges.append(datachange)
+                else:
+                    datachange = ClientDataChange(path,value,reason=reason,_attributes=_attributes,as_fired=fired)
                     self.local_datachanges.append(datachange)
             else:
-                datachange = ClientDataChange(path,value,reason=reason,_attributes=_attributes,as_fired=fired)
-                self.local_datachanges.append(datachange)
-        else:
-            with self.clientPage(page_id=page_id) as clientPage:
-                clientPage.set(path,value,_attributes=_attributes,reason=reason,as_fired=fired)
-            
+                with self.clientPage(page_id=page_id) as clientPage:
+                    clientPage.set(path,value,_attributes=_attributes,reason=reason,as_fired=fired)
+                
+  
+                            
+    def rpc_sendMessageToClient(self,message,pageId=None,filters=None,from_user=None,from_page=None):
+        self.site.sendMessageToClient(message,pageId=pageId,filters=filters)
+         
     def _get_package_folder(self):
         if not hasattr(self,'_package_folder'):
             self._package_folder = os.path.join(self.site.gnrapp.packages[self.packageId].packageFolder,'webpages')

@@ -27,7 +27,7 @@ from gnr.web.gnrwebpage import ClientDataChange
 BAG_INSTANCE = Bag()
 
 import logging 
-
+import re
 logger= logging.getLogger('gnr.web.gnrobjectregister')
 
 class ExpiredItemException(Exception):
@@ -352,8 +352,39 @@ class PageRegister(BaseRegister):
         for table in register_item and register_item['subscribed_tables'] or []:
             self._remove_index(register_item['register_item_id'], index_name=table)
     
-    def pages(self, index_name=None):
-        return self._register_items(index_name=index_name)
+    def pages(self, index_name=None,filters=None):
+        """returns a list of page_id and pages.
+           if no index is specified all pages are returned.
+           if filters return anly pages matching with filters
+           filters is a string with the propname and a regex"""
+        pages=self._register_items(index_name=index_name)
+        if not filters:
+            return pages
+            
+        fltdict=dict()
+        for flt in filters.split(' AND '):
+            fltname,fltvalue=flt.split(':',1)
+            fltdict[fltname]=fltvalue
+                
+        filtered=dict()
+        def checkpage(page,fltname,fltva):
+            value=page[fltname]
+            if not value:
+                return
+            if not isinstance(value,basestring):
+                return fltval==value
+            try:
+                return re.match(fltval,value)
+            except:
+                return False
+        for page_id,page in pages:
+            page=Bag(page)
+            for fltname,fltval in fltdict:
+                if checkpage(page,fltname,fltval):
+                    filtered[page_id]=page
+        return filtered
+                    
+        
         
 class ConnectionRegister(BaseRegister):
     prefix='CREG_'
@@ -399,7 +430,7 @@ class UserRegister(BaseRegister):
         connection=page.connection
         avatar=page.avatar
         
-        new_connection_record = dict(username=page.user,
+        new_user_record = dict(username=page.user,
                                         userid=avatar.userid,start_ts=datetime.now(),
                                         ip=page.request.remote_addr,
                                          user_agent=page.request.get_header('User-Agent'))

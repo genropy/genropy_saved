@@ -621,14 +621,23 @@ class GnrWsgiSite(object):
         if tblobj.attributes.get('broadcast'): 
             subscribers = self.register_page.pages(index_name=tblobj.fullname)
             value=Bag([(k,v) for k,v in record.items() if not k.startswith('@')])
-            currentPage = self.currentPage
-            for subscriber in subscribers:
-                sub=subscribers[subscriber]
-                with currentPage.clientPage(page_id=sub['register_item_id']) as clientPage:
-                    clientPage.set('gnr.dbevent.%s'%tblobj.fullname.replace('.','_'),
-                                    value,_attributes=dict(dbevent=event))
-                                    
-    
+            page = self.currentPage
+            for page_id in subscribers.keys():
+                page.setInClientData('gnr.dbevent.%s'%tblobj.fullname.replace('.','_'),value,
+                                     _attributes=dict(dbevent=event), page_id=page_id) 
+                                   
+    def sendMessageToClient(self,path,value,pageId=None,filters=None,origin=None):
+        """Send a message """
+        if origin:
+            from_page=origin.page_id
+            from_user=origin.user
+        else:
+            from_page=None
+            from_user='*Server*'
+        self.currentPage.setInClientData(path, value, fired=True,
+                            page_id=page_id,filters=filters,
+                            _attributes=dict(from_user=from_user,from_page=from_page))
+                            
     def _get_currentPage(self):
         """property currentPage it returns the page currently used in this thread"""
         return self._currentPages.get(thread.get_ident())
