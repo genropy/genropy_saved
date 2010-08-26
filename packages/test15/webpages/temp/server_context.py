@@ -18,9 +18,3 @@ class GnrCustomWebPage(object):
         center.defineContext('context_foo', 'bar.mycontext',value=Bag(dict(egg='spam')),savesession=True)
         fb.textbox(value='^.egg',lbl='Context value')
         fb.textbox(value='^.egg?attribute_1',lbl='Context attr')
-
- 
-    def rpc_currentStore(self,pageId=None):
-        "redefinition for using session instead of server store"
-        return self.session.pagedata
-        
