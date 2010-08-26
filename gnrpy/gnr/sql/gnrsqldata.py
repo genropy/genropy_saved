@@ -803,12 +803,6 @@ class SqlQuery(object):
 
     def test(self):
         return (self.sqltext, self.sqlparams)
-    
-    #def getColAttrs_OLD(self, x):
-    #    if x:
-    #        if isinstance(x[0],list):
-    #            x=x[0]
-    #        return self._prepColAttrs(x._index)
         
     def _dofetch(self, pyWhere=None):
         """private: called by _get_selection"""

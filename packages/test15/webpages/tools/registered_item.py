@@ -20,36 +20,10 @@ class GnrCustomWebPage(object):
         box.button('Get catalog',fire='.get_catalog')
         box.dataRpc('.catalog','get_catalog',_fired='^.get_catalog')
         
-    def rpc_get_catalog(self):
-        register_catalog = self.site.register_page.get_index()
-        print xx
-
-        
-    def rpc_curr_pages_old(self):
-        pagesDict = self.site.register_page.pages()
-        result = Bag()
-        for page_id,v in pagesDict.items():
-            user = v['user'] or v['user_ip'].replace('.','_')
-            pagename= v['pagename'].replace('.py','')
-            connection_id = v['connection_id']
-            delta = (datetime.datetime.now()-v['start_ts']).seconds
-            result.addItem('.'.join([user,'%s (%i)' %(pagename,delta)]),None,
-                            connection_id=connection_id,
-                            page_id=page_id,user_ip=v['user_ip'],
-                            user_agent=v['user_agent'],
-                            user=user,
-                            start_ts=v['start_ts'],
-                            last_ts=v['last_ts'])
-        return result 
-        
     def rpc_curr_pages(self):
         pagesDict = self.site.register_page.pages()
         result = Bag()
         for page_id,page in pagesDict.items():
-           #item = Bag()
-           #data = page.pop('data',None)
-           #item['info'] = Bag([('%s:%s' %(k,str(v).replace('.','_')),v) for k,v in page.items()])
-           #item['data'] = data
             delta = (datetime.datetime.now()-page['start_ts']).seconds
             pagename= page['pagename'].replace('.py','')
             user = page['user'] or 'Anonymous'
@@ -57,7 +31,6 @@ class GnrCustomWebPage(object):
             itemlabel = '%s (%s).%s (%i)' %(user,ip,pagename,delta)
             resolver = PageListResolver(page_id)
             result.setItem(itemlabel,resolver,cacheTime=1)
-         
         return result 
 
 class PageListResolver(BagResolver):

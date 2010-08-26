@@ -241,19 +241,7 @@ dojo.declare("gnr.GnrRpcHandler",null,{
         alert("remoteCallAsync");
         return this.remoteCall(method, params, null, null, null, async_cb);
     },
-    remoteUpload_old: function(formElement, method, params, cb){
-        alert("remoteUpload");
-        dojo.require('dojo.io.IframeIO');
-        var serverUrl=genro.rpc.rpcUrl(method, params);
-        var cb = cb || function(type, data){alert(data.toString());};
-        dojo.io.bind({
-            url:serverUrl,
-            handler:cb,
-            mimetype: 'text/plain',
-            formNode: formElement,
-            sync:false
-        });
-    },
+    
     downloadCall: function(method, kwargs){
         var cb = function(result){genro.download(result);};
         genro.rpc.remoteCall(method, objectUpdate(kwargs,{'mode':'text'}), null, 'POST', null, cb);
@@ -368,21 +356,7 @@ dojo.declare("gnr.GnrRpcHandler",null,{
         var result = genro.rpc.remoteCall('app.getRecordCount', {'field':field, 'value':value}, null, 'GET', null, cb);
         return result;
     },
-    pageIndexUrl_OLD:function(){
-        var url;
-        var curloc=document.location.pathname;
-        
-        if (stringEndsWith(curloc,'/')){
-            curloc = curloc.slice(0, curloc.length-1);
-        }
-        if (stringEndsWith(curloc,'.py')||this.application.pageMode!='legacy'){
-            url= curloc;
-        }else{
-            
-            url=curloc+'/index';
-        }
-        return url;
-    },
+
     pageIndexUrl:function(){
         return document.location.pathname;
     },
