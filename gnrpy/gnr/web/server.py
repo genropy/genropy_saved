@@ -24,7 +24,6 @@ wsgi_options=dict(
     reload=False,
     set_user=None,
     set_group=None,
-    session_key='session',
     server_name='Genropy',
     debug=True,
     noclean=False

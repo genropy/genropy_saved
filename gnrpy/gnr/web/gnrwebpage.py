@@ -38,7 +38,6 @@ from gnr.web.gnrwebreqresp import GnrWebRequest,GnrWebResponse
 from gnr.web.gnrwebpage_proxy.apphandler import GnrWebAppHandler
 from gnr.web.gnrwebpage_proxy.connection import GnrWebConnection
 from gnr.web.gnrwebpage_proxy.rpc import GnrWebRpc
-from gnr.web.gnrwebpage_proxy.session import GnrWebSession
 from gnr.web.gnrwebpage_proxy.localizer import GnrWebLocalizer
 from gnr.web.gnrwebpage_proxy.debugger import GnrWebDebugger
 from gnr.web.gnrwebpage_proxy.utils import GnrWebUtils
@@ -156,12 +155,6 @@ class GnrWebPage(GnrBaseWebPage):
             self._rpc = GnrWebRpc(self)
         return self._rpc
     rpc = property(_get_rpc)
-    
-    def _get_session(self):
-        if not hasattr(self, '_session'):
-            self._session = GnrWebSession(self, lock=0)
-        return self._session
-    session = property(_get_session)
 
     def _get_pluginhandler(self):
         if not hasattr(self, '_pluginhandler'):
@@ -253,9 +246,6 @@ class GnrWebPage(GnrBaseWebPage):
         
 
     def _rpcDispatcher(self, method=None, xxcnt='', mode='bag',**kwargs):
-        #if False and method!= 'main':
-        #    if self.session.pagedata['page_id']!=self.page_id :
-        #        self.raiseUnauthorized()
         parameters = dict(kwargs)
         for k,v in kwargs.items():
             if isinstance(v, basestring):

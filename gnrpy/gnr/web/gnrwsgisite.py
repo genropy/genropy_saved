@@ -1,6 +1,5 @@
 from gnr.core.gnrbag import Bag
 from gnr.web.gnrresourceloader import ResourceLoader
-from beaker.middleware import SessionMiddleware
 from paste import fileapp, httpexceptions
 from paste import request as paste_request
 from paste.httpheaders import ETAG
@@ -23,7 +22,6 @@ from gnr.core.gnrprinthandler import PrintHandler
 from gnr.core.gnrmailhandler import MailHandler
 from gnr.app.gnrdeploy import PathResolver
 from gnr.web.gnrwsgisite_proxy.gnrshareddata import GnrSharedData_dict, GnrSharedData_memcache
-from gnr.web.gnrwsgisite_proxy.gnrmsg import  GnrMessageHandler
 from gnr.web.gnrwsgisite_proxy.gnrobjectregister import PageRegister, ConnectionRegister
 import random
 import shutil
@@ -230,8 +228,6 @@ class GnrWsgiSite(object):
             self.config = self.load_site_config()
         
         self.default_uri = self.config['wsgi?home_uri'] or '/'
-        self.session_type = self.config['wsgi?session_type'] or 'dbm'
-        self.session_url = self.config['wsgi?session_url'] or 'localhost:11211'
         if self.default_uri[-1]!='/':
             self.default_uri+='/'
         self.mainpackage = self.config['wsgi?mainpackage']
@@ -242,7 +238,6 @@ class GnrWsgiSite(object):
             self.homepage = '%s%s'%(self.default_uri,self.homepage)
         self.secret = self.config['wsgi?secret'] or 'supersecret'
         self.config['secret'] = self.secret
-        self.session_key = self.config['wsgi?session_key'] or 'gnrsession'
         self.debug = boolean(options and getattr(options,'debug',False) or self.config['wsgi?debug'])
         self.cache_max_age = self.config['wsgi?cache_max_age'] or 2592000
         self.gnrapp = self.build_gnrapp()
@@ -261,9 +256,6 @@ class GnrWsgiSite(object):
         self.services = Bag()
         self.print_handler = self.addService('print',PrintHandler(self))
         self.mail_handler = self.addService('mail',MailHandler(self))
-        #self.message_handler = self.addService('message',GnrMessageHandler(self))
-        # currently message_handler was removed because it was used only to set data in external pages
-        # maybe we will find future use for message_handler
         self.register_page  = self.addService('register.page',PageRegister(self), private=True)
         self.register_connection = self.addService('register.connection',
                                                     ConnectionRegister(self,onRemoveConnection=self.connFolderRemove), 
@@ -516,23 +508,6 @@ class GnrWsgiSite(object):
         wsgiapp=self.dispatcher
         if self.debug:
             wsgiapp = EvalException(wsgiapp, debug=True)
-        beaker_data_path = os.path.join(os.path.realpath(self.site_path),'data','_beaker_data')
-        session_config={'session.key':self.session_key, 'session.secret':self.secret, 
-            'session.data_dir':beaker_data_path,
-             'session.type':self.session_type, 'session.auto':True}
-        if self.session_type.startswith('ext:'):
-            session_config['session.url']=self.session_url
-        #from repoze.profile.profiler import AccumulatingProfileMiddleware
-        #wsgiapp = AccumulatingProfileMiddleware(
-        #               wsgiapp,
-        #               log_filename='/bar.log',
-        #               cachegrind_filename='/cachegrind.out.bar',
-        #               discard_first_request=True,
-        #               flush_at_shutdown=True,
-        #               path='/__profile__'
-        #              )
-        
-        wsgiapp = SessionMiddleware(wsgiapp, config=session_config)
         return wsgiapp
         
     def build_gnrapp(self):

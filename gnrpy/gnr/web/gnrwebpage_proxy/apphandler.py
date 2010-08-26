@@ -269,7 +269,6 @@ class GnrWebAppHandler(GnrBaseProxy):
         if columns:
             raise 'COLUMNS PARAMETER NOT EXPECTED!!'
         columns = columns or query_columns
-        #self.page.gnotify('columns', str(self.page.session.pagedata.keys()), always=True)
         t = time.time()
         joinBag = None
         if sqlContextName :

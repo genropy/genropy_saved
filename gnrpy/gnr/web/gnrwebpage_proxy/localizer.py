@@ -27,16 +27,7 @@ class GnrWebLocalizer(GnrBaseProxy):
             localization.update(store.getItem('localization') or {})
             localization.update(self.localizer_dict)
             store.setItem('localization', localization)
-
-    #def old_event_onEnd(self):
-    #    session = self.page.session
-    #    session.loadSessionData()
-    #    localization={}
-    #    localization.update(session.pagedata['localization'] or {})
-    #    localization.update(self.localizer_dict)
-    #    session.setInPageData('localization', localization)
-    #    session.saveSessionData()
-        
+            
     def translateText(self, txt):
         application = self.page.application
         key='%s|%s' % (self.page.packageId, txt.lower())
