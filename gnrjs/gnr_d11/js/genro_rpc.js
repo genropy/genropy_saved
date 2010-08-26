@@ -305,33 +305,34 @@ dojo.declare("gnr.GnrRpcHandler",null,{
         envelope.fromXmlDoc(response, genro.clsdict);
         var envNode = envelope.getNode('result');
         var resultAsNode=(envelope.getItem('resultType')=='node') || currentAttr;
-        
-        
-        var changenode, clientpath,serverpath, as_fired;
+        var changenode,attr,value, changepath,serverpath, as_fired,reason;
         var dataChanges = envelope.getItem('dataChanges');
         if(dataChanges){
             changenodes = dataChanges.getNodes();
             for (var i=0;i<changenodes.length;i++){
                 changenode = changenodes[i];
-                var value = changenode.getValue();
-                var attr = changenode.attr;
-                changepath = objectPop(attr,'change_path');
-                var updater = function(clientpath,value,attr,reason){
-                    if(genro._data.getItem(clientpath)!=value){
-                        genro._data.setItem(clientpath,value,attr,reason!=null?{'doTrigger':reason}:null);
+                value = changenode.getValue();
+                attr = objectExtract(changenode.attr,'change_*');
+                changepath = attr.path;
+                as_fired = attr.as_fired;
+                reason = attr.reason;
+                attr = attr.attr;
+
+                var updater = function(path,value,attr,reason){
+                    if(genro._data.getItem(path)!=value){
+                        genro._data.setItem(path,value,attr,reason!=null?{'doTrigger':reason}:null);
                     }
                 }
-                var changepars = objectExtract(attr,'change_*');
-                if (changepars.reason=='serverChange') {
-                    for (var clientpath in genro._serverstore_paths) {
-                        if (changepath==genro._serverstore_paths[clientpath]) {
-                            updater(clientpath,value,attr,changepars.reason)
+                if (reason=='serverChange') {
+                    for (var serverpath in genro._serverstore_paths) {
+                        if (changepath==genro._serverstore_paths[serverpath]) {
+                            updater(changepath,value,attr,reason)
                         }
                     }
                 }
                 else{
-                    updater(changepath,value,attr,changepars.reason)
-                    if (changepars.as_fired){
+                    updater(changepath,value,attr,reason)
+                    if (as_fired){
                         genro._data.setItem(changepath, null, null, {'doTrigger':false});
                     }
                 }
