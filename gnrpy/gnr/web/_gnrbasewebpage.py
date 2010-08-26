@@ -79,9 +79,9 @@ class GnrBaseWebPage(GnrObject):
     def add_cookie(self,cookie):
         self.response.add_cookie(cookie)
 
-    def get_session(self, **kwargs):
-        session = self.request._request.environ['beaker.session']
-        return session
+   #def get_session(self, **kwargs):
+   #    session = self.request._request.environ['beaker.session']
+   #    return session
         
     def _get_clientContext(self):
         cookie=self.get_cookie('genroContext','simple')

@@ -22,13 +22,20 @@ class GnrWebLocalizer(GnrBaseProxy):
         self.missingLoc = False
         
     def event_onEnd(self):
-        session = self.page.session
-        session.loadSessionData()
-        localization={}
-        localization.update(session.pagedata['localization'] or {})
-        localization.update(self.localizer_dict)
-        session.setInPageData('localization', localization)
-        session.saveSessionData()
+        with self.page.pageStore() as store:
+            localization={}
+            localization.update(store.getItem('localization') or {})
+            localization.update(self.localizer_dict)
+            store.setItem('localization', localization)
+
+    #def old_event_onEnd(self):
+    #    session = self.page.session
+    #    session.loadSessionData()
+    #    localization={}
+    #    localization.update(session.pagedata['localization'] or {})
+    #    localization.update(self.localizer_dict)
+    #    session.setInPageData('localization', localization)
+    #    session.saveSessionData()
         
     def translateText(self, txt):
         application = self.page.application
@@ -85,7 +92,7 @@ class GnrWebLocalizer(GnrBaseProxy):
         self.page.siteStatusSave()
     
     def rpc_pageLocalizationLoad(self):
-        loc=self.page.session.pagedata['localization']
+        loc=self.page.pageStore().getItem('localization')
         b=Bag()
         loc_items=loc.items()
         loc_items.sort()

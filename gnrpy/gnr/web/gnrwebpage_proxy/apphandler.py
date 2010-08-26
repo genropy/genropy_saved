@@ -344,53 +344,43 @@ class GnrWebAppHandler(GnrBaseProxy):
                                     thermoId=thermoId, thermofield=thermofield, 
                                     stopOnError=stopOnError, forUpdate=forUpdate, onRow=onRow, **kwargs)
         return batch.run(pkeyList=pkeys)
-        
             
     def setThermo(self, thermoId, progress_1=None, message_1=None, 
                    maximum_1=None, command=None, **kwargs):
-        session = self.page.session
-        session.loadSessionData()
-        if command == 'init':
-            thermoBag = Bag()
-        else:
-            thermoBag = session.pagedata.getItem('thermo_%s' % thermoId) or Bag()
-
-            
-        max = maximum_1 or thermoBag['t1.maximum']
-        prog = progress_1 or thermoBag['t1.maximum']            
-        if max and prog > max:
-            command == 'end'
-            
-        if command == 'end':
-            thermoBag['status']='end'
-            thermoBag['message']='!!Execution completed'
-        elif command == 'stopped':
-            thermoBag['status']='stopped'
-            thermoBag['message']='!!Execution stopped'
-        else:
-            params = dict(progress_1=progress_1, message_1=message_1, maximum_1=maximum_1)
-            params.update(kwargs)
-            for k,v in params.items():
-                if v is not None:
-                    key, thermo = k.split('_')
-                    thermoBag['t%s.%s' % (thermo, key)] = v      
-                              
-        session.setInPageData('thermo_%s' % thermoId, thermoBag)
-        session.saveSessionData()
+        with self.page.pageStore() as store:
+            if command == 'init':
+                thermoBag = Bag()
+            else:
+                thermoBag = store.getItem('thermo_%s' % thermoId) or Bag()
+            max = maximum_1 or thermoBag['t1.maximum']
+            prog = progress_1 or thermoBag['t1.maximum']            
+            if max and prog > max:
+                command == 'end'
+            if command == 'end':
+                thermoBag['status']='end'
+                thermoBag['message']='!!Execution completed'
+            elif command == 'stopped':
+                thermoBag['status']='stopped'
+                thermoBag['message']='!!Execution stopped'
+            else:
+                params = dict(progress_1=progress_1, message_1=message_1, maximum_1=maximum_1)
+                params.update(kwargs)
+                for k,v in params.items():
+                    if v is not None:
+                        key, thermo = k.split('_')
+                        thermoBag['t%s.%s' % (thermo, key)] = v      
+            store.setItem('thermo_%s' % thermoId, thermoBag)
         if thermoBag['stop']:
             return 'stop'
         
     def rpc_getThermo(self, thermoId, flag=None):
-        session = self.page.session
-        if flag=='stop':
-            session.loadSessionData()
-            thermoBag = session.pagedata.getItem('thermo_%s' % thermoId) or Bag()
-            thermoBag['stop'] = True
-            session.setInPageData('thermo_%s' % thermoId, thermoBag)
-            session.saveSessionData()
-        else:
-            session.loadSessionData(locking=False)
-            thermoBag = session.pagedata.getItem('thermo_%s' % thermoId) or Bag()
+        with self.page.pageStore() as store:
+            if flag=='stop':
+                thermoBag = store.getItem('thermo_%s' % thermoId) or Bag()
+                thermoBag['stop'] = True
+                store.setItem('thermo_%s' % thermoId, thermoBag)
+            else:
+                thermoBag = store.getItem('thermo_%s' % thermoId) or Bag()
         return thermoBag
         
     def rpc_onSelectionDo(self, table, selectionName, command, callmethod=None, selectedRowidx=None, recordcall=False, **kwargs):

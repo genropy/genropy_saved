@@ -27,7 +27,6 @@ class GnrWebConnection(GnrBaseProxy):
         self.cookie = None
         self.allConnectionsFolder = self.page.site.allConnectionsFolder
         self.user = None
-        self.pages = Bag()
         self.inited=False
         self.connection_timeout = self.page.site.config('connection_timeout') or CONNECTION_TIMEOUT
         self.connection_refresh = self.page.site.config('connection_refresh') or CONNECTION_REFRESH
@@ -70,7 +69,6 @@ class GnrWebConnection(GnrBaseProxy):
         
     def _finalize(self):
         self.ip = self.page.request.remote_addr
-        self.pages = Bag(self.page.session.getActivePages(self.connection_id))
         self.page.site.register_connection.refresh(self)
         self.write()
         

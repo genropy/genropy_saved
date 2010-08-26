@@ -288,6 +288,16 @@ class BaseRegister(object):
     def set_register_item(self,register_item):
         with self.sd.locked(self.prefix):
             self._write_register_item(register_item)
+    
+    def upd_register_item(self,register_item_id,**kwargs):
+        sd=self.sd
+        address=self.prefix
+        with sd.locked(key=address):
+            register_item_key = self._register_item_key(register_item_id)
+            register_item=sd.get(register_item_key)
+            if register_item:
+                register_item.update(kwargs)
+                self._write_register_item(register_item)
 
     def lock(self,register_item_id,max_retry=None,
                             lock_time=None, 
@@ -367,7 +377,7 @@ class PageRegister(BaseRegister):
             fltdict[fltname]=fltvalue
                 
         filtered=dict()
-        def checkpage(page,fltname,fltva):
+        def checkpage(page,fltname,fltval):
             value=page[fltname]
             if not value:
                 return
@@ -377,9 +387,9 @@ class PageRegister(BaseRegister):
                 return re.match(fltval,value)
             except:
                 return False
-        for page_id,page in pages:
+        for page_id,page in pages.items():
             page=Bag(page)
-            for fltname,fltval in fltdict:
+            for fltname,fltval in fltdict.items():
                 if checkpage(page,fltname,fltval):
                     filtered[page_id]=page
         return filtered
@@ -402,7 +412,6 @@ class ConnectionRegister(BaseRegister):
                 user=connection.user,
                 ip=connection.ip,
                 user_agent=connection.user_agent,
-                pages=connection.pages,
                 timeout = connection.connection_timeout,
                 refresh = connection.connection_refresh,
                 renew = autorenew
