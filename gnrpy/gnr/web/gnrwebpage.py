@@ -290,15 +290,16 @@ class GnrWebPage(GnrBaseWebPage):
         pageTags = self.pageAuthTags(method=method, **parameters)
         if not self.user:
             if not self.connection.inited:
-                if True:
+                try:
                     self.connection.getConnection()
-                    self.user = self.connection.user
                     if self.connection.user:
                         self.user = self.connection.user
-                        self.setInClientData('gnr.user' , self.user, fired=True)
-                        self.setInClientData('gnr.userTags', self.userTags, fired=True)
-                #except:
-                #    self.user = None
+                        if method=='main':
+                            self.site.register_page.upd_register_item(self.page_id,user=self.user)
+                            self.setInClientData('gnr.user' , self.user)
+                            self.setInClientData('gnr.userTags', self.userTags)
+                except:
+                    self.user = None
         if pageTags:
             if not self.user:
                 auth = AUTH_NOT_LOGGED
@@ -349,9 +350,6 @@ class GnrWebPage(GnrBaseWebPage):
         if avatar:
             if not self.connection.inited:
                 self.connection.getConnection(user=login['user'])
-            #if not self.user:
-            #    connection=self.connection
-            #    self._user = self.connection.cookie_data.get('user')
             self.avatar = avatar
             self.user = avatar.id
             self.connection.makeAvatar(avatar)
@@ -455,7 +453,6 @@ class GnrWebPage(GnrBaseWebPage):
             raise GnrWebPageException("No template %s found in %s" % (tpl, str(self.tpldirectories)))
         self.htmlHeaders()
         arg_dict = self.build_arg_dict(**kwargs)
-        
         self.site.register_page.register(self,autorenew=True)
         with self.pageStore() as store:
             store.setItem('pageArgs',kwargs)
@@ -641,7 +638,7 @@ class GnrWebPage(GnrBaseWebPage):
     def _get_userTags(self):
         if self.user:
             return self.connection.cookie_data.get('tags')
-    userTags = property(_get_userTags)
+    userTags = property(_get_userTags)        
     
     def _set_avatar(self,avatar):
         self._avatar=avatar
@@ -762,8 +759,8 @@ class GnrWebPage(GnrBaseWebPage):
                 
   
                             
-    def rpc_sendMessageToClient(self,message,pageId=None,filters=None,from_user=None,from_page=None):
-        self.site.sendMessageToClient(message,pageId=pageId,filters=filters)
+    def rpc_sendMessageToClient(self,message,pageId=None,filters=None,msg_path=None):
+        self.site.sendMessageToClient(message,pageId=pageId,filters=filters,origin=self,msg_path=msg_path)
          
     def _get_package_folder(self):
         if not hasattr(self,'_package_folder'):
@@ -796,7 +793,7 @@ class GnrWebPage(GnrBaseWebPage):
                 #page.data('gnr.userTags', self.userTags)
                 page.data('gnr.locale',self.locale)
                 page.data('gnr.pagename',self.pagename)
-                page.dataController('genro.dlg.serverMessage(msg);', msg='^gnr.servermsg')
+                page.dataController('genro.dlg.serverMessage("gnr.servermsg");', _fired='^gnr.servermsg')
                 page.dataController('console.log(msg);funcCreate(msg)();', msg='^gnr.servercode')
                 
                 page.dataController('genro.rpc.managePolling(freq);', freq='^gnr.polling', _onStart=True)

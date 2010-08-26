@@ -215,10 +215,6 @@ class GnrBaseWebPage(GnrObject):
                                     pkeys=pkeys,addPkeyColumn=False,
                                     **condition_args).selection()
         return selection
-        
-    def sendMessage(self,message,pageId=None):
-        self.setInClientData('gnr.servermsg', message, fired=True,
-                            page_id=pageId,_attributes=dict(from_user=self.user,from_page=self.page_id))
    
     def _get_catalog(self):
         if not hasattr(self, '_catalog'):

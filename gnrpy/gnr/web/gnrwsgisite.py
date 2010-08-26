@@ -626,7 +626,7 @@ class GnrWsgiSite(object):
                 page.setInClientData('gnr.dbevent.%s'%tblobj.fullname.replace('.','_'),value,
                                      _attributes=dict(dbevent=event), page_id=page_id) 
                                    
-    def sendMessageToClient(self,path,value,pageId=None,filters=None,origin=None):
+    def sendMessageToClient(self,value,pageId=None,filters=None,origin=None,msg_path=None):
         """Send a message """
         if origin:
             from_page=origin.page_id
@@ -634,8 +634,8 @@ class GnrWsgiSite(object):
         else:
             from_page=None
             from_user='*Server*'
-        self.currentPage.setInClientData(path, value, fired=True,
-                            page_id=page_id,filters=filters,
+        self.currentPage.setInClientData(msg_path or 'gnr.servermsg', value,
+                            page_id=pageId,filters=filters,
                             _attributes=dict(from_user=from_user,from_page=from_page))
                             
     def _get_currentPage(self):
