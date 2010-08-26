@@ -145,8 +145,25 @@ dojo.declare("gnr.GnrDlgHandler",null,{
         genro.wdgById('_dlg_alert').show();
     },
     
-    serverMessage: function(msg){
-        genro.dlg.alert(msg,'Warning');
+    serverMessage: function(msgpath){
+        var msgnode = genro.getDataNode(msgpath);
+        var msgtext = msgnode.getValue();
+        var msgattr = msgnode.attr;
+        //genro._data.setItem(msgpath, null, null, {'doTrigger':false});
+        genro.src.getNode()._('div', '_dlg_alert');
+        var node = genro.src.getNode('_dlg_alert').clearValue().freeze();
+        var title = msgattr['title'] || 'Message from '+msgattr['from_user'];
+        var dlg=node._('dialog',{nodeId:'_dlg_alert', title:'', toggle:"fade", toggleDuration:250,centerOn:'_pageRoot'})._('div');
+        var tbl = dlg._('table',{});
+        tbl = tbl._('tbody',{});
+        var r = tbl._('tr');
+        r._('td',{content:'From'});
+        r._('td',{})._('div',{innerHTML:msgattr['from_user']});
+        r = tbl._('tr');
+        r._('td',{content:'Message'});
+        r._('td',{})._('div',{innerHTML:msgtext});   
+        node.unfreeze();
+        genro.wdgById('_dlg_alert').show();
     },
     
     ask: function(title, msg, buttons, resultPathOrActions){
