@@ -400,7 +400,7 @@ class GnrWebPage(GnrBaseWebPage):
             if datachanges:
                 for j,change in enumerate(datachanges):
                     result.setItem('sc_%i' %j,change.value,change_path=change.path,change_reason=change.reason,
-                                        change_as_fired=change.as_fired,change_attr=change._attributes,
+                                        change_fired=change.fired,change_attr=change._attributes,
                                         change_ts=change.change_ts)
                 store.reset_datachanges()
         return result
@@ -414,7 +414,7 @@ class GnrWebPage(GnrBaseWebPage):
             
         for j,change in enumerate(external_datachanges+self.local_datachanges):
             result.setItem('sc_%i' %j,change.value,change_path=change.path,change_reason=change.reason,
-                            change_as_fired=change.as_fired,change_attr=change._attributes,
+                            change_fired=change.fired,change_attr=change.attributes,
                             change_ts=change.change_ts)
                 
         return result
@@ -724,28 +724,28 @@ class GnrWebPage(GnrBaseWebPage):
             
     def setUserPreference(self, path, data, pkg='',username=''):
         self.site.setUserPreference(path,data,pkg=pkg,username=username)
-    
-    def setInClientData(self, path, value=None, _attributes=None, page_id=None, 
-                            fired=False, reason=None,filters=None ):
+        
+    def setInClientData(self, path, value=None, attributes=None, page_id=None, filters=None,
+                        fired=False, reason=None,public=False,replace=False):
         if filters:
             pages=self.site.register_page.pages(filters=filters)
         else:
             pages=[page_id]
         for page_id in pages:
-            if page_id is None or page_id == self.page_id:
+            if not public and (page_id is None or page_id == self.page_id):
                 if isinstance(path,Bag):
                     changeBag=path
                     for changeNode in changeBag:
                         attr = changeNode.attr
                         datachange = ClientDataChange(attr.pop('_client_path'),changeNode.value,
-                                                        _attributes=attr,as_fired=attr.pop('fired'))
+                                                        attributes=attr,fired=attr.pop('fired'))
                         self.local_datachanges.append(datachange)
                 else:
-                    datachange = ClientDataChange(path,value,reason=reason,_attributes=_attributes,as_fired=fired)
+                    datachange = ClientDataChange(path,value,reason=reason,attributes=attributes,fired=fired)
                     self.local_datachanges.append(datachange)
             else:
                 with self.clientPage(page_id=page_id) as clientPage:
-                    clientPage.set(path,value,_attributes=_attributes,reason=reason,as_fired=fired)
+                    clientPage.set(path,value,attributes=attributes,reason=reason,fired=fired)
                 
   
                             
@@ -893,9 +893,9 @@ class GnrWebPage(GnrBaseWebPage):
         result.walk(buildLinkResolver, prevRelation=prevRelation, prevCaption=prevCaption)
         return result
     
-    def rpc_setInClientPage(self,pageId=None,changepath=None,value=None,as_fired=None,attr=None,reason=None):
+    def rpc_setInClientPage(self,pageId=None,changepath=None,value=None,fired=None,attr=None,reason=None):
         with self.clientPage(pageId) as clientPage:
-            clientPage.set(changepath,value,attr=attr,reason=reason,as_fired=as_fired)
+            clientPage.set(changepath,value,attr=attr,reason=reason,fired=fired)
     
     def getAuxInstance(self, name):
         return self.site.getAuxInstance(name)
@@ -1041,8 +1041,8 @@ class ClientPageHandler(object):
         self.pageStore = self.parent_page.pageStore(page_id=self.page_id)
         self.store=None
     
-    def set(self,path,value,_attributes=None,as_fired=None,reason=None,**kwargs):
-        self.store.add_datachange(path,value,_attributes=_attributes,as_fired=as_fired,reason=reason,**kwargs)
+    def set(self,path,value,attributes=None,fired=None,reason=None,replace=False):        
+        self.store.set_datachange(path,value,attributes=attributes,fired=fired,reason=reason,replace=replace)
     
     def __enter__(self):
         self.store = self.pageStore.__enter__()
@@ -1066,26 +1066,24 @@ class ClientPageHandler(object):
         pass
         
 class ClientDataChange(object):
-    def __init__(self,path,value,reason=None,_attributes=None,as_fired=False,
+    def __init__(self,path,value,attributes=None,reason=None,fired=False,
                  change_ts=None,**kwargs):
         self.path = path
         self.reason = reason
         self.value = value
-        self._attributes = _attributes
-        self.as_fired = as_fired
+        self.attributes = attributes
+        self.fired = fired
         self.change_ts = change_ts or datetime.datetime.now()
             
     def __eq__(self,other):
-        return self.path == other.path and self.reason==other.reason \
-               and self.as_fired==other.as_fired and self.no_trigger==other.no_trigger \
+        return self.path == other.path and self.reason==other.reason and self.fired==other.fired
     
     def update(self,other):
         if hasattr(self.value,'update') and hasattr(other.value,'update'):
             self.value.update(other.value)
         else:
             self.value = other.value    
-        
-        if other._attributes:
-            self._attributes = self._attributes or dict()
-            self._attributes.update(other._attributes)    
+        if other.attributes:
+            self.attributes = self.attributes or dict()
+            self.attributes.update(other.attributes)    
         

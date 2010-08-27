@@ -59,15 +59,11 @@ class ServerStore(object):
     def reset_datachanges(self):
         if self.register_item:
             self.register_item['datachanges'] = list()
-    
-    def add_datachange(self,path,value,**kwargs):
-        datachange = ClientDataChange(path,value,**kwargs)
-        self.datachanges.append(datachange)
-        
-    def set_datachange(self,datachange):
+
+    def set_datachange(self,path,value,attributes=None,fired=False,reason=None,replace=False):
         datachanges = self.datachanges
-        datachange = ClientDataChange(**datachange)
-        if datachange in datachanges:
+        datachange = ClientDataChange(path,value,attributes=attributes,fired=fired,reason=reason)
+        if not replace and datachange in datachanges:
             datachanges[datachanges.index(datachange)].update(datachange)
         else:
             datachanges.append(datachange)

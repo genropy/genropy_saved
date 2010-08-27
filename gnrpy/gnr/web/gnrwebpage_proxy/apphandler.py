@@ -176,7 +176,7 @@ class GnrWebAppHandler(GnrBaseProxy):
                 result._page = None
                 error = 'serverError'
                 _cls = 'domsource'
-            self.page.setInClientData(resultpath, result,_attributes=dict(_error=error, __cls=_cls))
+            self.page.setInClientData(resultpath, result,attributes=dict(_error=error, __cls=_cls))
         else:
             return batch.run(**kwargs)
             
