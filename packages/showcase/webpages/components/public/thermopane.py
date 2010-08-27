@@ -4,6 +4,7 @@
 # Created by Francesco Porcari on 2010-08-13.
 # Copyright (c) 2010 Softwell. All rights reserved.
 
+import os
 import time
 
 class GnrCustomWebPage(object):
@@ -26,11 +27,13 @@ class GnrCustomWebPage(object):
         top.dataController('if(value==20){genro.rpc.managePolling(null);}',value='^thermo.items.test')
             
     def rpc_test_thermo(self):
-        self.response.write('200 pippo'+chr(12)+chr(10))
-        self.update_thermo('thermo','test',progress=0,maximum=20,message='Starting...')
-        for k in range(21):
-            time.sleep(.4)
-            self.update_thermo('thermo','test',progress=k,maximum=20,message='working %i' %k)
+        os.system('nohup curl http://www.istruzionefc.it/uopsa/public/articoli/allegati/angella.pdf > $HOME/angella.pdf &')
+        
+        # self.response.write('200 pippo'+chr(12)+chr(10))
+        # self.update_thermo('thermo','test',progress=0,maximum=20,message='Starting...')
+        # for k in range(21):
+        #     time.sleep(.4)
+        #     self.update_thermo('thermo','test',progress=k,maximum=20,message='working %i' %k)
             
     def update_thermo(self,thermo_path,thermo_item,progress=None,message=None,maximum=None):
         self.setInClientData(path='%s.items.%s' %(thermo_path,thermo_item),value=progress,page_id=self.page_id,
