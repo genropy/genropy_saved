@@ -232,6 +232,8 @@ class GnrWsgiSite(object):
             self.default_uri+='/'
         self.mainpackage = self.config['wsgi?mainpackage']
         self.allConnectionsFolder = os.path.join(self.site_path, 'data', '_connections')
+        self.allUsersFolder = os.path.join(self.site_path, 'data', '_users')
+
         self.homepage = self.config['wsgi?homepage'] or self.default_uri+'index'
         self.indexpage = self.config['wsgi?homepage'] or '/index'
         if not self.homepage.startswith('/'):
@@ -658,6 +660,7 @@ class GnrWsgiSite(object):
         kwargs_string = '&'.join(['%s=%s'%(k,v) for k,v in kwargs.items()])
         return '%s%s_tools/%s?%s'%(self.external_host,self.home_uri,tool,kwargs_string)
         
+
     def site_static_path(self,*args):
         return os.path.join(self.site_static_dir, *args)
 
@@ -694,13 +697,20 @@ class GnrWsgiSite(object):
     def gnr_static_url(self, version,*args):
         return '%s_gnr/%s/%s'%(self.home_uri,version,'/'.join(args))
         
+    
     def connection_static_path(self,connection_id,page_id,*args):
         return os.path.join(self.site_path,'data','_connections', connection_id, page_id, *args)
         
     def connection_static_url(self, page,*args):
         return '%s_conn/%s/%s/%s'%(self.home_uri,page.connection.connection_id, page.page_id,'/'.join(args))
+        
+    def user_static_path(self,user,page_id,*args):
+        return os.path.join(self.site_path,'data','_users', user, page_id, *args)
+        
+    def user_static_url(self, page,*args):
+        return '%s_user/%s/%s/%s'%(self.home_uri,page.user or 'Anonymous', page.page_id,'/'.join(args))
     ########################### begin static file handling #################################
-    
+            
     def serve_staticfile(self,path_list,environ,start_response,download=False,**kwargs):
         handler = getattr(self,'static%s'%path_list[0],None)
         if handler:
@@ -758,6 +768,11 @@ class GnrWsgiSite(object):
     def static_conn(self, path_list):
         connection_id, page_id = path_list[1],path_list[2]
         return self.connection_static_path(connection_id, page_id,*path_list[3:])
+        
+    def static_user(self, path_list):
+        user, page_id = path_list[1],path_list[2]
+        return self.user_static_path(user, page_id,*path_list[3:])
+        
     ##################### end static file handling #################################
     
     def zipFiles(self, file_list=None, zipPath=None):

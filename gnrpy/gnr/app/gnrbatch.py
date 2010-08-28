@@ -9,6 +9,7 @@
 
 from time import time
 from collections import defaultdict
+import os
 
 class GnrBatch(object):
     thermo_rows = 1
@@ -231,7 +232,7 @@ class PrintDbData(GnrBatch):
         if pdfParams:
             self.printer_name = 'PDF'
             printParams = pdfParams
-            self.outputFilePath = self.page.temporaryDocument(self.docName)
+            self.outputFilePath = self.page.userDocument('output','pdf',self.docName)
         else:  
             self.printer_name = printParams.pop('printer_name')
             self.outputFilePath = None
@@ -250,11 +251,12 @@ class PrintDbData(GnrBatch):
         
         
     def collect_result(self):
-        result = None
+        filename = None
         if self.file_list:        
-            result = self.print_connection.printFiles(self.file_list, 'GenroPrint', outputFilePath=self.outputFilePath)
-        if result:
-            return self.page.temporaryDocumentUrl(result)
+            filename = self.print_connection.printFiles(self.file_list, 'GenroPrint', outputFilePath=self.outputFilePath)
+        if filename:
+            return self.page.userDocumentUrl('output','pdf',filename)
+
                      
     def process_chunk(self, chunk, **kwargs):
         html = self.htmlMaker(chunk['pkey'], rebuild=self.rebuild,**kwargs)

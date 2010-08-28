@@ -37,7 +37,19 @@ class TableScript(object):
         folders=folders or []
         if folders and folders[0] == '*connections':
             folders = [self.page.connectionDocument(*list(folders[1:]+('',)))] 
-        return os.path.join(*folders)
+        elif folders and folders[0] == '*users':
+            folders = [self.page.userDocument(*list(folders[1:]+('',)))] 
+        result = os.path.join(*folders)
+        return result
+        
+    def getDocumentUrl(self, *args):
+        args=args or []
+        if args and args[0] == '*connections':
+            result = [self.page.connectionDocumentUrl(*list(args[1:]+('',)))] 
+        elif args and args[0] == '*users':
+            result = [self.page.userDocumentUrl(*list(args[1:]+('',)))] 
+        result = os.path.join(*result)
+        return result
         
     def filePath(self, filename, *folders):
         return os.path.join(self.getFolderPath(*folders), filename)

@@ -11,6 +11,8 @@
 from gnr.web.gnrbaseclasses import BaseComponent
 import gnr.app.gnrbatch
 from gnr.core.gnrlang import gnrImport
+import os
+
 
 
 class BatchRunner(BaseComponent):
@@ -56,7 +58,10 @@ class BatchRunner(BaseComponent):
             onBatchCalling = 'FIRE #pbl_waiting.open;'
             _onResult = '%s %s' % (_onResult, 'FIRE #pbl_waiting.close;')
             
-        pane.dataRpc('%s.result' % resultpath, 'runBatch', timeout=0, _POST=True,
+        pane.dataFormula(".batch_call","forked?'runBatch_forked':'runBatch';",
+                            forked="^.forked",datapath=datapath)
+        pane.data('.batch_call','runBatch',datapath=datapath)
+        pane.dataRpc('%s.result' % resultpath, method='=.batch_call', timeout=0, _POST=True,
                      table=kwargs.pop('table', self.maintable), selectionName=selectionName,
                      recordId = recordId,datapath=datapath,
                      batch_class=batch_class,
@@ -79,6 +84,36 @@ class BatchRunner(BaseComponent):
         d.div(position='absolute', top='28px', right='4px',
             bottom='4px', left='4px').includedView(storepath='%s.errors' % resultpath, struct=struct)
             
+            
+    def rpc_runBatch_forked(self, *args, **kwargs):
+        with self.pageStore() as store:
+            store.setItem('_batch_args',args)
+            store.setItem('_batch_kwargs',kwargs)
+            store.setItem('_batch_user',self.user)
+            store.setItem('_batch_connection_id',self.connection.connection_id)
+
+        request=self.request._request
+        protocol = request.host_url.split('//')[0]
+        host = '%s//localhost' % protocol
+        if ':' in request.host:
+            port = request.host.split(':')[1]
+            host = '%s:%s' %(host,port)
+        url = '%s%s?rpc=curl_runBatch&&page_id=%s' %(host,request.path_info,self.page_id)
+        print url
+        os.system("""nohup curl "%s" -o "%s" &""" %(url,'/result.txt'))
+        
+    def rpc_curl_runBatch(self):
+        print 'inside forked process'
+        store = self.pageStore()
+        args = store.getItem('_batch_args')
+        kwargs = store.getItem('_batch_kwargs')
+        external_connection = store.getItem('_batch_connection_id')
+        self.connection.getConnection(external_connection=external_connection)
+        self.user = self.connection.user
+        result = self.rpc_runBatch(*args,**kwargs)
+        self.setInClientData(path='gnr.downloadurl',value=result,fired=True,public=True)
+
+                   
     def rpc_runBatch(self, table, selectionName=None,selectionFilterCb=None,recordId=None ,batch_class=None, 
                    selectedRowidx=None, forUpdate=False, commitAfterPrint=None, data_method=None, **kwargs):
         """batchFactory: name of the Class, plugin of table, which executes the batch action
@@ -142,7 +177,6 @@ class BatchRunner(BaseComponent):
                                 connect_hide='clearInterval(this.intervalRef); SET .result = new gnr.GnrBag();')
         dlg.dataRpc('.result', 'app.getThermo', thermoId=thermoId,_fired='^.getThermo',
                     flag='=.flag',_onResult="""var status=result.getItem('status');
-                                               console.log(status);
                                                                     if (status=='stopped' || status=='end'){
                                                                         FIRE .close;
                                                                     }

@@ -117,7 +117,8 @@ class Public(BaseComponent):
             margin = None
         self.pageSource('_pageRoot').setAttr(height=height, width=width, margin=margin)
         top = self.pbl_topBar(rootbc.borderContainer(region='top', _class='pbl_root_top',overflow='hidden'),title,flagsLocale=flagsLocale)
-        bottom = self.pbl_bottomBar(rootbc.borderContainer(region='bottom', _class='pbl_root_bottom',overflow='hidden'))
+        bottom = self.pbl_bottomBar(rootbc.stackContainer(region='bottom', _class='pbl_root_bottom',
+                                                            overflow='hidden',selectedPage='^gnr.pbl.bottom_stack'))
         bc = rootbc.borderContainer(region='center', _class='pbl_root_center')        
         return bc, top, bottom
         
@@ -205,20 +206,46 @@ class Public(BaseComponent):
 
     def pbl_bottomBar(self,bottom):
         """docstring for publicTitleBar"""
-        left = bottom.contentPane(region='left',width='25%', overflow='hidden',nodeId='pbl_bottomBarLeft')
-        right = bottom.contentPane(region='right', width='25%', overflow='hidden',nodeId='pbl_bottomBarRight')
-        center = bottom.contentPane(region='center',nodeId='pbl_bottomBarCenter')
-        center.div('^pbl.bottomMsg', _class='pbl_messageBottom', nodeId='bottomMsg')
+        bottom.data('gnr.pbl.bottom_stack','default')
+        default_bottom = self.pbl_bottom_default(bottom.borderContainer(pageName='default'))
+        self.pbl_bottom_message(bottom.contentPane(pageName='message'))
+        return default_bottom
+
+    def pbl_bottom_message(self,pane):
+        pane.div('^pbl.bottomMsg', _class='pbl_messageBottom', nodeId='bottomMsg')
+        pane.dataController("""
+                                SET gnr.pbl.bottom_stack='message';
+                                var _this = this;
+                                var cb = function(){
+                                    _this.setRelativeData('gnr.pbl.bottom_stack','default');
+                                }
+                                genro.dom.effect('bottomMsg','fadeout',{duration:1000,delay:2000,onEnd:cb});
+                                
+                                """, 
+                              msg='^pbl.bottomMsg',_if='msg')
         
+    def pbl_bottom_default(self,bc):
+        left = bc.contentPane(region='left',overflow='hidden',nodeId='pbl_bottomBarLeft')
+        right = bc.contentPane(region='right',overflow='hidden',nodeId='pbl_bottomBarRight')
         right.dataScript('gnr.localizerClass',"""return 'localizer_'+status""", 
                               status='^gnr.localizerStatus', _init=True, _else="return 'localizer_hidden'")
         if self.isDeveloper():
             right.div(connect_onclick='SET _clientCtx.mainBC.right?show = !GET _clientCtx.mainBC.right?show;', _class='icnBaseEye buttonIcon',float='right',margin_right='5px')
         if self.isLocalizer():
             right.div(connect_onclick='genro.dev.openLocalizer()', _class='^gnr.localizerClass',float='right') 
-        center.dataController("genro.dom.effect('bottomMsg','fadeout',{duration:3000,delay:3000});", 
-                          msg='^pbl.bottomMsg',_if='msg')
+            
+        center = bc.contentPane(region='center',nodeId='pbl_bottomBarCenter')
+        
+        
+        
         return dict(left=left,right=right,center=center)        
+    
+    def pbl_batch_floating(self,pane):
+        pane.floatingPane(title='public floating',_class='shadow_4',
+                                   top='80px',left='20px',width='200px',height='470px',
+                                   visible=False,
+                                   closable=True,resizable=True,resizeAxis='xy',maxable=True,
+                                   dockable=True,dockTo='pbl_floating_dock',duration=400)
     
     def app_logo_url(self):
         logo_url = self.custom_logo_url()

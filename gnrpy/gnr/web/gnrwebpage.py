@@ -30,6 +30,8 @@ Copyright (c) 2007 Softwell. All rights reserved.
 import urllib
 from gnr.web._gnrbasewebpage import GnrBaseWebPage
 import os
+import shutil
+
 from gnr.core.gnrstring import toJson,concat, jsquote
 
 from gnr.core.gnrlang import getUuid
@@ -784,6 +786,9 @@ class GnrWebPage(GnrBaseWebPage):
                 page.data('gnr.locale',self.locale)
                 page.data('gnr.pagename',self.pagename)
                 page.dataController('genro.dlg.serverMessage("gnr.servermsg");', _fired='^gnr.servermsg')
+                
+                page.dataController('if(url){genro.download(url)};', url='^gnr.downloadurl')
+                
                 page.dataController('console.log(msg);funcCreate(msg)();', msg='^gnr.servercode')
                 
                 page.dataController('genro.rpc.managePolling(freq);', freq='^gnr.polling', _onStart=True)
@@ -833,7 +838,10 @@ class GnrWebPage(GnrBaseWebPage):
         
     def rpc_onClosePage(self, **kwargs):
         self.site.onClosePage(self)
-        self.connection.pageFolderRemove()
+        self.pageFolderRemove()
+
+    def pageFolderRemove(self):
+        shutil.rmtree(os.path.join(self.connectionFolder, self.page_id),True)
     
     def rpc_callTableScript(self,table, respath, class_name='Main',downloadAs=None,**kwargs):
         """Call a script from a table's resources (i.e. ``_resources/tables/<table>/<respath>``).
@@ -901,17 +909,31 @@ class GnrWebPage(GnrBaseWebPage):
         return self.site.getAuxInstance(name)
         
     def _get_connectionFolder(self):
-        return self.connection.connectionFolder
+        return os.path.join(self.site.allConnectionsFolder, self.connection.connection_id)
     connectionFolder = property(_get_connectionFolder)
+    
+    def _get_userFolder(self):
+        user = self.user or 'Anonymous'
+        return os.path.join(self.site.allUsersFolder, user)
+    userFolder = property(_get_userFolder)
  
     def temporaryDocument(self, *args):
         return self.connectionDocument('temp',*args)
     
     def temporaryDocumentUrl(self, *args):
         return self.connectionDocumentUrl('temp',*args)
+    
+    
         
     def connectionDocument(self, *args):
-        filepath = os.path.join(self.connection.connectionFolder, self.page_id, *args)
+        filepath = os.path.join(self.connectionFolder, self.page_id, *args)
+        folder = os.path.dirname(filepath)
+        if not os.path.isdir(folder):
+            os.makedirs(folder)
+        return filepath
+        
+    def userDocument(self, *args):
+        filepath = os.path.join(self.userFolder, self.page_id, *args)
         folder = os.path.dirname(filepath)
         if not os.path.isdir(folder):
             os.makedirs(folder)
@@ -919,6 +941,9 @@ class GnrWebPage(GnrBaseWebPage):
     
     def connectionDocumentUrl(self, *args):
         return self.site.connection_static_url(self,*args)
+        
+    def userDocumentUrl(self, *args):
+        return self.site.user_static_url(self,*args)
     
     def isLocalizer(self) :
         return (self.userTags and ('_TRD_' in self.userTags))

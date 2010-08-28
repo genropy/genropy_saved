@@ -179,6 +179,7 @@ dojo.declare("gnr.GnrDomSourceNode",gnr.GnrBagNode,{
             expr=objectPop(attributes,'script');
         }else {
             expr=objectPop(attributes,'method');
+            expr = this.getAttributeFromDatasource('method');
         }
         if(_trace) {
             console.log("TRACE " + tag + "("+_trace+")");

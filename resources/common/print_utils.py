@@ -121,6 +121,8 @@ class PrintUtils(BaseComponent):
         fb= pane.formbuilder(cols=1)
         fb.dataFormula('.zipped','false',_onStart=True)
         fb.checkbox(value='^.zipped',label='!!Zip folder')
+        fb.checkbox(value='^.#parent.forked',label='!!Forked process')
+
 
 ####################DEPRECATED STUFF###################
 
