@@ -14,12 +14,7 @@ class GnrCustomWebPage(object):
         box.button('Refresh',fire='.refresh_treestore')
         box.dataRpc('.curr_pages.pages','curr_pages',_fired='^.refresh_treestore',_onResult='FIRE .refresh_tree')
         box.tree(storepath='.curr_pages',_fired='^.refresh_tree')
-                    
-    def test_2_registered_catalog(self,pane):
-        box = pane.div(height='100px',datapath='test2')
-        box.button('Get catalog',fire='.get_catalog')
-        box.dataRpc('.catalog','get_catalog',_fired='^.get_catalog')
-        
+
     def rpc_curr_pages(self):
         pagesDict = self.site.register_page.pages()
         result = Bag()
