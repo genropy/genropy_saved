@@ -1,6 +1,6 @@
 # -*- coding: UTF-8 -*-
 # 
-"""Registered item tester"""
+"""Registered pages tester"""
 import datetime
 from gnr.core.gnrbag import Bag,BagResolver
 class GnrCustomWebPage(object):

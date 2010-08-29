@@ -134,7 +134,7 @@ class BaseRegister(object):
         with sd.locked(key=address):
             register_item=self._create_register_item(obj,autorenew=autorenew)
             self._write_register_item(register_item)
-            #logger.warning('registering %s' %register_item)
+            logger.warning('registering %s' %register_item)
             
     def unregister(self,obj):
         """Unregister register_item"""
@@ -143,7 +143,7 @@ class BaseRegister(object):
         register_item_id=self._create_register_item(obj)['register_item_id']
         with sd.locked(key=address):
             self._remove_register_item(register_item_id)
-            #logger.warning('unregister %s' %register_item_id)
+            logger.warning('unregister %s' %register_item_id)
 
     
     def make_store(self,register_item_id,triggered=None):
@@ -406,7 +406,7 @@ class ConnectionRegister(BaseRegister):
                 start_ts=datetime.now(),
                 connection_name=connection.connection_name,
                 user=connection.user,
-                ip=connection.ip,
+                user_ip=connection.ip,
                 user_agent=connection.user_agent,
                 timeout = connection.connection_timeout,
                 refresh = connection.connection_refresh,

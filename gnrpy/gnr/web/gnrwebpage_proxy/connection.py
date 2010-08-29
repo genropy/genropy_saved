@@ -13,7 +13,11 @@ from gnr.web.gnrwebpage_proxy.gnrbaseproxy import GnrBaseProxy
 CONNECTION_TIMEOUT = 3600
 CONNECTION_REFRESH = 20
 
-
+USER_AGENT_SNIFF=(('Chrome','Chrome'),
+                  ('Safari','Safari'),
+                  ('Firefox','Firefox'),
+                  ('Opera','Opera'),
+                  ('MSIE','InternetExplorer'))
 class GnrWebConnection(GnrBaseProxy):
     
     
@@ -23,8 +27,10 @@ class GnrWebConnection(GnrBaseProxy):
         self.cookie = None
         self.user = None
         self.inited=False
+        self.user_agent=self.page.request.get_header('User-Agent')
+        self.sniffed_user_agent=self.sniffUserAgent()
         self.ip = self.page.request.remote_addr
-
+        self.connection_name = '%s_%s'%(self.ip.replace('.','_'),self.sniffed_user_agent)
         self.connection_timeout = self.page.site.config('connection_timeout') or CONNECTION_TIMEOUT
         self.connection_refresh = self.page.site.config('connection_refresh') or CONNECTION_REFRESH
 
@@ -32,12 +38,17 @@ class GnrWebConnection(GnrBaseProxy):
         if self.page.user:
             self._finalize()
             
+    def sniffUserAgent(self):
+        user_agent=self.user_agent
+        for k,v in USER_AGENT_SNIFF:
+            if k in  user_agent:
+                return v
+        return 'unknown browser'
+  
     def getConnection(self, user=None,external_connection=None):
         page = self.page
         #self.ip=page.request.remote_addr
-        self.user_agent=page.request.get_header('User-Agent')
         sitename = self.page.siteName
-        self.connection_name = 'conn_%s'%sitename
         connection_info=None
         if external_connection:
             self.connection_id = external_connection
