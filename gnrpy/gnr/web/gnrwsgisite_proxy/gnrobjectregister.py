@@ -133,6 +133,9 @@ class BaseRegister(object):
         address=self.prefix
         with sd.locked(key=address):
             register_item=self._create_register_item(obj,autorenew=autorenew)
+            curr_item = self.get_register_item(register_item['register_item_id'])
+            if curr_item:
+                return
             self._write_register_item(register_item)
             logger.warning('registering %s' %register_item)
             
@@ -204,6 +207,7 @@ class BaseRegister(object):
             if index_name and index_name!='*':
                 self._set_index(register_item_id=index_name,index_name='*')
         index[register_item_id]=True
+        print 'indexing %s:%s' %(ind_name,str(index))
         sd.set(ind_name,index,0)
     
     def _remove_index(self,register_item_id, index_name=None):
@@ -212,6 +216,7 @@ class BaseRegister(object):
         ind_name=self._get_index_name(index_name)
         index=sd.get(ind_name)
         if index:
+            print 'removing %s:%s' %(ind_name,str(index))
             index.pop(register_item_id,None)
             self._index_rewrite(index_name,index)
             
@@ -224,7 +229,9 @@ class BaseRegister(object):
             if index_name and index_name!='*':
                 self._remove_index(register_item_id=index_name,index_name='*')
             sd.delete(ind_name)
+            print 'deleting %s' %ind_name
         sd.set(ind_name,index,0)
+        print 'rewriting %s:%s' %(ind_name,str(index))
     
     def _remove_register_item(self,register_item_id):
         """Private. It must be called only in locked mode"""
@@ -415,38 +422,31 @@ class ConnectionRegister(BaseRegister):
         return register_item
     
     def _on_write_register_item(self,register_item):
-        pass
+        self._set_index(register_item['user'],index_name='user')
      
     def _on_remove_register_item(self, register_item_id, register_item):
+        self._remove_index(register_item['user'], index_name='user')
         if hasattr(self.onRemoveConnection,'__call__'):
             self.onRemoveConnection(register_item_id)
-        
+    
     def connections(self, index_name=None):
         return self._register_items(index_name=index_name)     
 
 
 class UserRegister(BaseRegister):
-    prefix='CREG_'
+    prefix='UREG_'
     USER_TIMEOUT = 3600
     USER_REFRESH = 20
 
-    def _create_register_item(self, user):
-        page = self.db.application.site.currentPage
-        connection=page.connection
-        avatar=page.avatar
-        
-        new_user_record = dict(username=page.user,
-                                        userid=avatar.userid,start_ts=datetime.now(),
-                                        ip=page.request.remote_addr,
-                                         user_agent=page.request.get_header('User-Agent'))
-        register_item_id=page.user
-        
+    def _create_register_item(self, user,autorenew=False):
+        register_item_id= user
         register_item=dict(
                 register_item_id=register_item_id,
                 start_ts=datetime.now(),
-                cookieName=connection.cookieName,
-                timeout = self.USER_TIMEOUT,
-                refresh = self.USER_REFRESH
+                user=user,
+                timeout =self.USER_TIMEOUT,
+                refresh = self.USER_REFRESH,
+                renew = autorenew
                 )
         return register_item
 

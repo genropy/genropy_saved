@@ -66,6 +66,7 @@ class GnrWebConnection(GnrBaseProxy):
             self.user = user
             self.connection_id = getUuid()
             page.site.register_connection.register(self,autorenew=page.site.debug)
+            page.site.register_user.register(self.user)
             self.cookie = self.page.newMarshalCookie(self.connection_name, {'user':self.user,'connection_id': self.connection_id, 'cookie_data':{}, 'locale':None}, secret = self.secret)
         self.inited=True
     
@@ -108,4 +109,5 @@ class GnrWebConnection(GnrBaseProxy):
         site=page.site
         site.connectionLog('close',connection_id=connection_id)
         site.register_connection.unregister(self)
+        users = site.register_users.users(index_name='user')        
     

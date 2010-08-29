@@ -227,6 +227,7 @@ class Public(BaseComponent):
     def pbl_bottom_default(self,bc):
         left = bc.contentPane(region='left',overflow='hidden',nodeId='pbl_bottomBarLeft')
         right = bc.contentPane(region='right',overflow='hidden',nodeId='pbl_bottomBarRight')
+        
         right.dataScript('gnr.localizerClass',"""return 'localizer_'+status""", 
                               status='^gnr.localizerStatus', _init=True, _else="return 'localizer_hidden'")
         if self.isDeveloper():
@@ -234,13 +235,12 @@ class Public(BaseComponent):
         if self.isLocalizer():
             right.div(connect_onclick='genro.dev.openLocalizer()', _class='^gnr.localizerClass',float='right') 
             
-        center = bc.contentPane(region='center',nodeId='pbl_bottomBarCenter')
-        
-        
+        center = bc.contentPane(region='center',nodeId='pbl_bottomBarCenter')        
         
         return dict(left=left,right=right,center=center)        
     
     def pbl_batch_floating(self,pane):
+        
         pane.floatingPane(title='public floating',_class='shadow_4',
                                    top='80px',left='20px',width='200px',height='470px',
                                    visible=False,

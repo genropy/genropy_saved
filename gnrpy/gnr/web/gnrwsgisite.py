@@ -23,7 +23,7 @@ from gnr.core.gnrmailhandler import MailHandler
 from gnr.app.gnrdeploy import PathResolver
 from gnr.web.gnrwsgisite_proxy.gnrresourceloader import ResourceLoader
 from gnr.web.gnrwsgisite_proxy.gnrshareddata import GnrSharedData_dict, GnrSharedData_memcache
-from gnr.web.gnrwsgisite_proxy.gnrobjectregister import PageRegister, ConnectionRegister
+from gnr.web.gnrwsgisite_proxy.gnrobjectregister import PageRegister, ConnectionRegister, UserRegister
 import random
 import shutil
 mimetypes.init()
@@ -263,7 +263,7 @@ class GnrWsgiSite(object):
         self.register_connection = self.addService('register.connection',
                                                     ConnectionRegister(self,onRemoveConnection=self.connFolderRemove), 
                                                     private=True)
-        #self.register_user = self.addService('register.user',UserRegister(self), private=True)
+        self.register_user = self.addService('register.user',UserRegister(self), private=True)
         if counter==0 and self.debug:
             self.onInited(clean = not noclean)
             
