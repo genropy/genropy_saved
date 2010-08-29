@@ -54,7 +54,7 @@ import datetime
 AUTH_OK=0
 AUTH_NOT_LOGGED=1
 AUTH_FORBIDDEN=-1
-PAGE_TIMEOUT = 1800
+PAGE_TIMEOUT = 60
 PAGE_REFRESH = 20
 
 ##### Prima di modificare le repositori Progetti
