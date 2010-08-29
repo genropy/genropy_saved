@@ -1,5 +1,5 @@
 from gnr.core.gnrbag import Bag
-from gnr.web.gnrresourceloader import ResourceLoader
+
 from paste import fileapp, httpexceptions
 from paste import request as paste_request
 from paste.httpheaders import ETAG
@@ -21,6 +21,7 @@ import inspect
 from gnr.core.gnrprinthandler import PrintHandler
 from gnr.core.gnrmailhandler import MailHandler
 from gnr.app.gnrdeploy import PathResolver
+from gnr.web.gnrwsgisite_proxy.gnrresourceloader import ResourceLoader
 from gnr.web.gnrwsgisite_proxy.gnrshareddata import GnrSharedData_dict, GnrSharedData_memcache
 from gnr.web.gnrwsgisite_proxy.gnrobjectregister import PageRegister, ConnectionRegister
 import random
