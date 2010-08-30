@@ -477,7 +477,7 @@ class PagesTreeResolver(BagResolver):
             if not self.connectionId:
                 return self.one_user()
             else:
-                if not self.pageId
+        if not self.pageId
             return self.list_connections()
         else:
             return self.one_connection()
