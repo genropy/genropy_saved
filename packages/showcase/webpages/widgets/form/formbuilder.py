@@ -8,7 +8,8 @@ class GnrCustomWebPage(object):
     #   formbuilder - DEFAULT parameters:
     #       border_spacing='6px'
     #       cols=1
-    #       fld_width='7em'
+    #       fld_width='7em' NOTE: to create a single box with a different dimension,
+    #                             use the attribute "width"
     
     css_requires= 'index'
     
