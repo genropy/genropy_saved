@@ -123,30 +123,38 @@ class BaseRegister(object):
         self.site = site
         self.sd=self.site.shared_data
         self.init(**kwargs)
+        self.loglevel=0
     
     def init(self, **kwargs):
         pass
     
     def register(self,obj,autorenew=False):
+        
         """Register register_item"""
         sd=self.sd
         address=self.prefix
         with sd.locked(key=address):
             register_item=self._create_register_item(obj,autorenew=autorenew)
+            self.log('register',register_item_id=register_item['register_item_id'])
+            self.loglevel+=1
             curr_item = self.get_register_item(register_item['register_item_id'])
             if curr_item:
+                self.log('already registered',register_item_id=curr_item['register_item_id'])
                 return
             self._write_register_item(register_item)
-            #logger.warning('registering %s' %register_item)
-            
+            self.loglevel-=1
+
     def unregister(self,obj):
         """Unregister register_item"""
         sd=self.sd
         address=self.prefix
         register_item_id=self._create_register_item(obj)['register_item_id']
         with sd.locked(key=address):
+            self.loglevel+=1
+            self.log('unregister',register_item_id=register_item_id)
             self._remove_register_item(register_item_id)
-            #logger.warning('unregister %s' %register_item_id)
+            self.loglevel-=1
+
 
     
     def make_store(self,register_item_id,triggered=None):
@@ -176,6 +184,8 @@ class BaseRegister(object):
         self.sd.set(self._expiry_key(register_item['register_item_id']),datetime.now(),register_item['timeout'])
 
     def _write_register_item(self, register_item):
+        self.log('_write_register_item',register_item_id=register_item['register_item_id'])
+        self.loglevel+=1
         """Private. It must be called only in locked mode"""
         sd=self.sd
         register_item_id=register_item['register_item_id']
@@ -183,6 +193,8 @@ class BaseRegister(object):
         sd.set(self._register_item_key(register_item_id),register_item,0)
         self._upd_item_expiry(register_item)
         self._on_write_register_item(register_item)
+        self.loglevel-=1
+
         
    
     def _on_write_register_item(self,register_item):
@@ -202,8 +214,12 @@ class BaseRegister(object):
         sd=self.sd
         register_item_id = register_item['register_item_id']
         ind_key=self._get_index_key(index_name)
+        self.log('_set_index',register_item_id=register_item['register_item_id'],index_name=index_name,ind_key=ind_key)
+        self.loglevel+=1
+
         index=sd.get(ind_key)
         if not index:
+            self.log('_set_index (create new)')
             index={}
             if index_name and index_name!='*':
                 self._set_index({'register_item_id':index_name},index_name='*')
@@ -213,6 +229,9 @@ class BaseRegister(object):
             index[register_item_id]=True
         #print 'indexing %s:%s' %(ind_key,str(index))
         sd.set(ind_key,index,0)
+        self.log('_set_index:writing',index=index)
+        self.loglevel-=1
+
     
     def _remove_index(self,register_item_id, index_name=None):
         """Private. It must be called only in locked mode"""
@@ -220,12 +239,16 @@ class BaseRegister(object):
         ind_key=self._get_index_key(index_name)
         index=sd.get(ind_key)
         if index:
-            #print 'removing %s:%s' %(ind_key,str(index))
+            self.log('_remove_index',register_item_id=register_item_id,index_name=index_name,ind_key=ind_key)
+            self.loglevel+=1
             index.pop(register_item_id,None)
             self._index_rewrite(index_name,index)
-            
-    
+            self.loglevel-=1
+
     def _index_rewrite(self, index_name, index):
+        self.log('_index_rewrite',index_name=index_name,index=index)
+        self.loglevel+=1
+
         """Private. It must be called only in locked mode"""
         sd=self.sd
         ind_key=self._get_index_key(index_name)
@@ -233,8 +256,13 @@ class BaseRegister(object):
             if index_name and index_name!='*':
                 self._remove_index(register_item_id=index_name,index_name='*')
             sd.delete(ind_key)
+            self.log('_index_rewrite:index empty: deleted',ind_key=ind_key)
+            return
             #print 'deleting %s' %ind_key
         sd.set(ind_key,index,0)
+        self.log('_index_rewrite:index updated',ind_key=ind_key)
+        self.loglevel-=1
+
         #print 'rewriting %s:%s' %(ind_key,str(index))
     
     def _remove_register_item(self,register_item_id):
@@ -242,11 +270,14 @@ class BaseRegister(object):
         sd=self.sd
         register_item_key=self._register_item_key(register_item_id)
         register_item=sd.get(register_item_key)
+        self.log('_remove_register_item',register_item=register_item)
+        self.loglevel+=1
         sd.delete(register_item_key)
         sd.delete(self._expiry_key(register_item_id))
         self._remove_index(register_item_id)
         self._on_remove_register_item(register_item_id,register_item)
-        
+        self.loglevel-=1
+
     def _on_remove_register_item(self, register_item_id, register_item):
         pass
         
@@ -257,16 +288,24 @@ class BaseRegister(object):
         address=self.prefix
         temp_register_item = self._create_register_item(obj)
         register_item_id = temp_register_item['register_item_id']
+        self.log('refresh',register_item_id=register_item_id)
+        self.loglevel+=1
         with sd.locked(key=address):
             expiry_key=self._expiry_key(register_item_id)
             last_ts = sd.get(expiry_key) #if exists the register_item is not expired
             if last_ts:
+                self.log('refresh:updating',register_item_id=register_item_id)
                 self._upd_item_expiry(temp_register_item)
             else:
+                self.log('refresh:expired',register_item_id=register_item_id)
                 current_register_item=sd.get(self._register_item_key(register_item_id))
                 self._tryrenew(current_register_item)
-    
+        self.loglevel-=1
+
     def get_register_item(self, register_item_id):
+        self.log('get_register_item',register_item_id=register_item_id)
+        self.loglevel+=1
+
         sd=self.sd
         address=self.prefix
         with sd.locked(key=address):
@@ -281,31 +320,48 @@ class BaseRegister(object):
             else:
                 self._tryrenew(register_item,raise_error=True)
             return register_item
-                
+        self.loglevel-=1
+
     def _tryrenew(self,register_item,raise_error=False):
+        self.log('_tryrenew',register_item=register_item)
+        self.loglevel+=1
+
         if register_item:
             register_item_id = register_item['register_item_id']
             if register_item.get('renew'):
+                self.log('_tryrenew:must renew',register_item_id=register_item_id)
                 self._upd_item_expiry(register_item)
             else:
+                self.log('_tryrenew:not renuw:drop item',register_item_id=register_item_id)
                 self._remove_register_item(register_item_id)
         elif raise_error:
             raise ExpiredItemException()
+        self.loglevel-=1
+
     
     def set_register_item(self,register_item):
+        self.log('set_register_item',register_item=register_item)
+        self.loglevel+=1
+
         with self.sd.locked(self.prefix):
             self._write_register_item(register_item)
+        self.loglevel-=1
+
     
     def upd_register_item(self,register_item_id,**kwargs):
+        self.log('set_register_item',register_item_id=register_item_id)
+        self.loglevel+=1
         sd=self.sd
         address=self.prefix
         with sd.locked(key=address):
             register_item_key = self._register_item_key(register_item_id)
             register_item=sd.get(register_item_key)
+            self.log('upd_register_item',register_item_id=register_item_id,register_item=register_item,updates=kwargs)
             if register_item:
                 register_item.update(kwargs)
                 self._write_register_item(register_item)
-
+        self.loglevel-=1
+        
     def lock(self,register_item_id,max_retry=None,
                             lock_time=None, 
                             retry_time=None):
@@ -328,7 +384,6 @@ class BaseRegister(object):
         address=self.prefix
         with sd.locked(key=address):
             index=self.get_index(index_name)#return a dict 
-            result=[]
             living_items=[item_id for item_id in sd.get_multi(index.keys(),'%s_EXPIRY_'%self.prefix).keys() if item_id]
             if len(living_items)<len(index):
                 #print 'renewing index for expired objects'
@@ -340,8 +395,14 @@ class BaseRegister(object):
             if parent_index:
                 result_items=[k for k in living_items if index[k] == parent_index ]
             return sd.get_multi(result_items,'%s_register_item_'%self.prefix)
-     
+            
+    def log(self,command,**kwargs):
+        if False:
+            indent=self.loglevel*3*' '
+            print '%s-->%s:%s (%s)' % (indent,self.name,command,str(kwargs))
+        
 class PageRegister(BaseRegister):
+    name='page'
     prefix='PREG_'
     parent_index = 'connection_id'
     
@@ -374,12 +435,12 @@ class PageRegister(BaseRegister):
         for table in register_item and register_item['subscribed_tables'] or []:
             self._remove_index(register_item['register_item_id'], index_name=table)
     
-    def pages(self, index_name=None,filters=None):
+    def pages(self, parent_index=None,index_name=None,filters=None):
         """returns a list of page_id and pages.
            if no index is specified all pages are returned.
            if filters return anly pages matching with filters
            filters is a string with the propname and a regex"""
-        pages=self._register_items(index_name=index_name)
+        pages=self._register_items(parent_index=parent_index,index_name=index_name)
         if not filters:
             return pages
             
@@ -409,6 +470,7 @@ class PageRegister(BaseRegister):
         
         
 class ConnectionRegister(BaseRegister):
+    name='connection'
     prefix='CREG_'
     parent_index = 'user'
 
@@ -439,11 +501,12 @@ class ConnectionRegister(BaseRegister):
         if hasattr(self.onRemoveConnection,'__call__'):
             self.onRemoveConnection(register_item_id)
     
-    def connections(self, index_name=None):
-        return self._register_items(index_name=index_name)     
+    def connections(self,parent_index=None, index_name=None):
+        return self._register_items(parent_index=parent_index,index_name=index_name)     
 
 
 class UserRegister(BaseRegister):
+    name='user'
     prefix='UREG_'
     parent_index = None
 
@@ -478,7 +541,7 @@ class PagesTreeResolver(BagResolver):
     classKwargs={'cacheTime':1,
                  'readOnly':False,
                  'user':None,
-                 'connection':None,
+                 'connection_id':None,
                  'page':None
                  }
     classArgs=['user']
@@ -487,16 +550,16 @@ class PagesTreeResolver(BagResolver):
     def load(self): 
         if not self.user:
             return self.list_users()
-        elif not self.connection:
+        elif not self.connection_id:
             return self.list_connections(user=self.user)
         else:
-            return self.list_pages(user=self.user,connection_id=self.connection)
+            return self.list_pages(connection_id=self.connection_id)
             
     def list_users(self):
+        print 'list_users'
         usersDict = self._page.site.register_user.users()
         result = Bag()
         for user,item_user in usersDict.items():
-            delta = (datetime.now()-item_user['start_ts']).seconds
             user = user or 'Anonymous'
             itemlabel = user
             item=Bag()
@@ -508,14 +571,13 @@ class PagesTreeResolver(BagResolver):
         return result 
         
     def list_connections(self,user):
-        connectionsDict = self._page.site.register_connection.connections()
+        print 'list_connections'
+        connectionsDict = self._page.site.register_connection.connections(parent_index=user)
         result = Bag()
         for connection_id,connection in connectionsDict.items():
             delta = (datetime.now()-connection['start_ts']).seconds
             user = connection['user'] or 'Anonymous'
-            ip =  connection['user_ip'].replace('.','_')
             connection_name=connection['connection_name']
-            user_agent=connection['user_agent']
             itemlabel = '%s (%i)' %(connection_name,delta)
             item = Bag()
             data = connection.pop('data',None)
@@ -525,8 +587,10 @@ class PagesTreeResolver(BagResolver):
             result.setItem(itemlabel,item,user=user,connection_id=connection_id)
         return result 
     
-    def list_pages(self):
-        pagesDict = self._page.site.register_page.pages()
+    def list_pages(self,connection_id):
+        print 'list_pages'
+        pagesDict = self._page.site.register_page.pages(parent_index=connection_id)
+        print pagesDict
         result = Bag()
         for page_id,page in pagesDict.items():
             delta = (datetime.now()-page['start_ts']).seconds
