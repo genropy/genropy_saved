@@ -22,100 +22,89 @@ from gnr.web.gnrbaseclasses import BaseComponent
 from gnr.core.gnrbag import Bag
 from gnr.core.gnrstring import splitAndStrip
 
-
 class IncludedView(BaseComponent):
     css_requires = 'public'
     js_requires = 'public'
-    """IncludedView allows you to manage data of the table
-       in relation many to many. includedViewBox is the method that return some
-       custom widgets those allow all these operations"""
-     
-    def includedViewBox(self, parentBC, nodeId=None,table=None,datapath=None,
+    """IncludedView allows you to manage data of the table in relation many to many.
+       includedViewBox is the method that return some custom widgets who allow all these operations."""
+        
+    def includedViewBox(self,parentBC,nodeId=None,table=None,datapath=None,
                         storepath=None,selectionPars=None,formPars=None,label=None,footer=None,
-                        add_action=None, add_class='buttonIcon icnBaseAdd',add_enable='^form.canWrite',
-                        del_action=None, del_class='buttonIcon icnBaseDelete', del_enable='^form.canWrite',
-                        close_action=None, close_class='buttonIcon icnTabClose', 
-                        print_action=None, print_class='buttonIcon icnBasePrinter', 
+                        add_action=None,add_class='buttonIcon icnBaseAdd',add_enable='^form.canWrite',
+                        del_action=None,del_class='buttonIcon icnBaseDelete',del_enable='^form.canWrite',
+                        close_action=None,close_class='buttonIcon icnTabClose', 
+                        print_action=None,print_class='buttonIcon icnBasePrinter', 
                         pdf_action=None,pdf_class='buttonIcon icnBasePdf',pdf_name=None,
-                        export_action=None, export_class='buttonIcon icnBaseExport', 
-                        tools_action=None, tools_class='buttonIcon icnBaseAction',tools_enable='^form.canWrite',tools_lbl=None,
+                        export_action=None,export_class='buttonIcon icnBaseExport', 
+                        tools_action=None,tools_class='buttonIcon icnBaseAction',tools_enable='^form.canWrite',tools_lbl=None,
                         lock_action=False,tools_menu=None,upd_action=False,_onStart=False,
-                        filterOn=None,  pickerPars=None,centerPaneCb=None,
+                        filterOn=None,pickerPars=None,centerPaneCb=None,
                         editorEnabled=None,parentLock='^status.locked',reloader=None,externalChanges=None,
-                        addOnCb = None, zoom=True,hasToolbar=False,
+                        addOnCb=None,zoom=True,hasToolbar=False,
                         canSort=True,
                         **kwargs):
         """
-        This method returns a grid (includedView) for, viewing and selecting
-        rows from a many to many table related to the main table,
-        and the widget that hosts the editing the data. You can edit the data 
-        of a single row (record) using a form(formPars), or pick some rows from another table
-        with the picker widget(pickerPars).
-        The form can be contained inside a dialog or a contentPane and is useful
-        for editing a single record. If the data is stored inside another table 
-        you should use the picker to select the rows from that table.
+        This method returns a grid (includedView) for viewing and selecting rows from a many
+        to many table related to the main table, and the widget that allow to edit data.
+        You can edit data of a single row (record) using a form (formPars), or pick some rows
+        from another table with the picker widget (pickerPars).
+        The form can be contained inside a dialog or a contentPane and is useful to edit a single record.
+        If the data is stored inside another table you should use the picker to select the rows from that table.
         
-        @param parentBC: MANDATORY this is a border container you have to pass
-                         to includedViewBox for containing the the includedView
-                         and its label.
+        @param parentBC: MANDATORY - parentBC is a border container that you must pass to includedViewBox;
+                                     it contains the includedView and its labels.
         @param table:
-        @param storepath: if it is relative what is the datapath ?
-        
-        @param selectionPars:
         @param datapath:
-        @param formPars:(dict) contains all the param of the widget that host the form:
-                        these can be:
-                        - mode: "dialog"/"pane", the default is "dialog"
-                        - height = height of the dialog
-                        - width = width of the dialog
-                        - formCb = MANDATORY callback method for creating form.
-                                   this method receive as param: 
-                                             - formBorderCont: a borderContainer widget as root for construction
-                                             - datapath the right datapath for the data inside the form.
-                                             - region: 'center' of the pane/borderContainer you place into 
-                        - toolbarHandler = OPTIONAL a callback for the form toolbar
-                        - title: MANDATORY for mode dialog
-                        - pane: OPTIONAL pane of the input form
-        @param label: (string) adding this kwparam you put a label to the includedView
-        
-        @param add_action: (boolean) adding this kwparam you allow the inserting 
-                           of a row inside the includedView
-        @param add_class: css class of add button
-        @param add_enable: a path to enable/disable add action 
-        @param del_action: (boolean) adding this kwparam you allow the deleting 
-                           of a row inside the includedView
-        @param del_class: css class of delete button
-        @param del_enable: a path to enable/disable del action 
-        @param close_action: (boolean) adding closing button on tooltipDialog
-        @param close_class: css class of close button adding closing button on tooltipDialog
-        @param filterOn: (boolean only for picker) adding this kwparam you allow the filtering
-                         inside the pickers grid.
-        @param pickerPars:(dict) contains all the param of the tooltip dialog
-                           which host the picker grid. 
-                           these can be: 
-                            - height : eight of the tooltipdialog
-                            - width : width of the tooltipdialog
-                            - label :of the tooltipdialog
-                            - table : MANDATORY the table of the picker grid. From
-                                     these table you can pick the row for the many to many table you handle.
-                            - columns: MANDATORY columsn of the picker grid
-                            - nodeId: MANDATORY id for the picker.
-                            - storepath,autowidth etc grid params
-                            - filterOn: the columns on you can apply the filter
-        @param fromPicker_target_fields: for bind the picker's table
+        @param storepath: if it is relative what is the datapath?
+        @param selectionPars:
+        @param formPars (dict): it contains all the params of the widget that host the form.
+                            List of params:
+                            - mode: "dialog"/"pane" (default is "dialog").
+                            - height: height of the dialog.
+                            - width: width of the dialog.
+                            - formCb: MANDATORY - callback method used to create form.
+                                      formCb's params:
+                                             - formBorderCont: a borderContainer used as root for construction.
+                                             - datapath: the correct datapath for data contained into the form.
+                                             - region: 'center' of the pane/borderContainer where you place it into.
+                            - toolbarHandler: OPTIONAL - a callback for the form toolbar.
+                            - title: MANDATORY - for mode dialog
+                            - pane: OPTIONAL - pane of the input form
+        @param label (string): allow to create a label for the includedView.
+        @param add_action (boolean): allow the insertion of a row in the includedView.
+        @param add_class: css class of add button.
+        @param add_enable: a path to enable/disable add action.
+        @param del_action (boolean): allow the deleting of a row in the includedView.
+        @param del_class: css class of delete button.
+        @param del_enable: a path to enable/disable del action.
+        @param close_action (boolean): adding closing button in tooltipDialog.
+        @param close_class: css class of close button.
+        @param filterOn (boolean, only for picker): allow the filter into the picker grid.
+        @param pickerPars (dict): it contains all the params of the tooltip dialog which host the picker grid.
+                            List of params:
+                            - height: height of the tooltipdialog.
+                            - width: width of the tooltipdialog.
+                            - label: label of the tooltipdialog.
+                            - table: MANDATORY - the table of the picker grid. From this table you can pick
+                                                 a row for the many to many table you handle.
+                            - columns: MANDATORY - columns of the picker grid.
+                            - nodeId: MANDATORY - id for the picker.
+                            - autowidth, storepath, etc grid params.
+                            - filterOn: the columns on which to apply filter.
+        @param fromPicker_target_fields: allow to bind the picker's table.
                           columns to the includedView columns of the many to many table.
-        @param fromPicker_nodup_field: if this column value is present in the includedView
-                                       replace that row instead of adding a duplicate row
-        @params kwargs: you have to put the includedView params: autoWidth, storepath etc
+        @param fromPicker_nodup_field: if this column value is present in the includedView it allows
+                                       to replace that row instead of adding a duplicate row.
+        @params kwargs: you have to put the includedView params: autowidth, storepath, etc.
         """
         if not datapath:
-            if storepath.startswith('.'): 
+            if storepath.startswith('.'):
                 storepath = '%s%s' % (parentBC.parentNode.getInheritedAttributes()['sqlContextRoot'], storepath)
         viewPars = dict(kwargs)
         gridId = nodeId or self.getUuid()
-        viewPars['nodeId'] = gridId    
+        viewPars['nodeId'] = gridId
         controllerPath = datapath or 'grids.%s' %gridId
-        storepath = storepath or '.selection' 
+        storepath = storepath or '.selection'
         viewPars['storepath'] = storepath
         viewPars['controllerPath']= controllerPath
         controller = parentBC.dataController(datapath=controllerPath)
@@ -155,7 +144,6 @@ class IncludedView(BaseComponent):
                                  add_class=add_class,add_enable=add_enable,
                                  del_class=del_class, del_enable=del_enable,pickerPars=pickerPars,
                                  formPars=formPars,gridId=gridId) 
-                             
         if lock_action:
             gridtop_lock = gridtop_right.div(float='left',margin_right='5px')
             self._iv_gridLock(gridtop_lock,lock_action=lock_action)
@@ -166,11 +154,11 @@ class IncludedView(BaseComponent):
             if not 'height' in footerPars:
                 footerPars['height'] = '18px'
             if not '_class'in footerPars:
-                footerPars['_class']='pbl_roundedGroupBottom'           
+                footerPars['_class']='pbl_roundedGroupBottom'
             gridbottom = parentBC.contentPane(region='bottom',
                                               datapath=controllerPath,**footerPars)
             footer(gridbottom)
-
+            
         self._iv_IncludedViewController(controller, gridId,controllerPath,table=table)
         if centerPaneCb:
             gridcenter = getattr(self,centerPaneCb)(parentBC,region='center', datapath=controllerPath, **box_pars)
@@ -224,13 +212,13 @@ class IncludedView(BaseComponent):
                 pars['evtype'] = '=%s?dbevent' %event_path
             gridcenter.dataController("FIRE .reload;" ,_if=' && '.join(conditions),
                                      _fired='^%s' %event_path,**pars)
-            
         if selectionPars:
             self._iv_includedViewSelection(gridcenter,gridId,table,storepath,selectionPars,controllerPath)
             
         if formPars:
             formPars.setdefault('pane', gridcenter)
             self._includedViewForm(controller, controllerPath, view, formPars)
+            
         if pickerPars:
             pickerPars.setdefault('pane', gridcenter)
             self._iv_Picker(controller, controllerPath, view, pickerPars)
@@ -264,14 +252,16 @@ class IncludedView(BaseComponent):
                 upd_action = 'FIRE .showRecord' 
             pane.div(float='right', _class='icnBaseEdit buttonIcon', connect_onclick=upd_action,
                         margin_right='2px',visible=add_enable)    
-                         
+                        
     def _iv_gridAction(self,pane,print_action=None,export_action=None,tools_menu=None,tools_class=None,
                        tools_action=None,export_class=None,print_class=None,pdf_action=None,pdf_class=None,
                        pdf_name=None,table=None,gridId=None,tools_enable=None,tools_lbl=None,**kwargs):
+                       
         if print_action:
             if print_action is True:
                 print_action = 'FIRE .print;' 
             pane.div(float='left', margin_right='7px', _class=print_class, connect_onclick=print_action)
+            
         if export_action:
             if export_action is True:
                 export_action='xls'
@@ -281,6 +271,7 @@ class IncludedView(BaseComponent):
                 export_method = 'app.exportStaticGrid_'+export_action
             export_action = 'FIRE .export="%s";'%export_method 
             pane.div(float='left', margin_right='7px', _class=export_class, connect_onclick=export_action)
+            
         if tools_menu:                
             btn = pane.div(float='left', _class = tools_class,margin_right='7px')
             btn.menu(storepath=tools_menu, modifiers='*')
@@ -291,6 +282,7 @@ class IncludedView(BaseComponent):
             tool_block.div(float='left', _class=tools_class, connect_onclick=tools_action)
             if tools_lbl:
                 tool_block.div(tools_lbl, margin_left='5px', width='70px', font_size='0.9em')
+                
         if pdf_action:
             pane.dataController("""
                              var record = genro.wdgById(gridId).storebag();
@@ -312,9 +304,7 @@ class IncludedView(BaseComponent):
                     table=table,gridId=gridId,respath=pdf_action,
                     rebuild=True)
             pane.div(float='left', _class=pdf_class, connect_onclick='FIRE .downloadPdf')
-
-        
-        
+            
     def _iv_includedViewSelection(self, pane, gridId, table, storepath, selectionPars,controllerPath):
         #assert table
         assert not 'columnsFromView' in selectionPars
@@ -335,7 +325,7 @@ class IncludedView(BaseComponent):
             loadingParameters='=gnr.tables.%s.loadingParameters' %table.replace('.','_')
         controller.dataController("""var grid = genro.wdgById(gridId);
                                      grid.addBagRow('#id', '*', grid.newBagRow(),event);
-                                     """ , 
+                                     """ ,
                                      event='^.addRecord',
                                      gridId=gridId)
                                      #loadingParameters=loadingParameters)
@@ -354,8 +344,7 @@ class IncludedView(BaseComponent):
        #controller.dataController("""SET .selectedIndex = null;
        #                             PUT .selectedLabel= null;""",
        #                          _fired="^gnr.forms.formPane.saving") 
-        
-            
+       
     def _iv_gridFilter(self, gridId, gridtop, controller, controllerPath, filterOn, table,kwargs):
         colsMenu = Bag()
         if filterOn is True:
@@ -396,10 +385,10 @@ class IncludedView(BaseComponent):
         searchlbl.menu(modifiers='*', _class='smallmenu', storepath='.flt.colsMenu',
                     selected_col='.flt.selected.col',
                     selected_caption='.flt.selected.caption')
-        
+                    
         searchbox.input(value='^.currentFilter',_class='searchInput searchWidth', font_size='1.0em',
             connect_onkeyup='genro.wdgById("%s").applyFilter($1.target.value);' % gridId)
-                
+            
     def _includedViewForm(self, controller, controllerPath, view, formPars):
         viewPars = view.attributes
         gridId = viewPars['nodeId']
@@ -410,14 +399,14 @@ class IncludedView(BaseComponent):
                                                 if (!grid.gridEditor || !(cell.field in grid.gridEditor.columns)){
                                                     FIRE .showRecord = true;
                                                 }
-                                                """ 
-                
+                                                """
+                                                
         formHandler = getattr(self, '_iv_Form_%s' % formPars.get('mode', 'dialog'))
         
         toolbarPars = dict([(k, formPars.pop(k, None)) for k in ('add_action', 'add_class', 'add_enable','del_action', 'del_class','del_enable',)])
         toolbarPars['controllerHandler'] = formPars.pop('controllerHandler', '_iv_FormStaticController')
         formHandler(formPars, storepath, controller, controllerPath, gridId, toolbarPars)
-    
+        
     def _iv_Form_inline(self, formPars, storepath, controller, controllerPath, gridId, toolbarPars):
         getattr(self,toolbarPars['controllerHandler'])(controller, gridId)
         
@@ -442,8 +431,7 @@ class IncludedView(BaseComponent):
             add_enable = add_enable or '^form.canWrite'
             tb.button('!!Add', float='right',action=add_action,visible=add_enable,
                             iconClass=add_class, showLabel=False)
-        
-        
+                            
         tb.button('!!First', fire_first='.navbutton', iconClass="tb_button icnNavFirst", disabled='^.atBegin', showLabel=False)
         tb.button('!!Previous', fire_prev='.navbutton', iconClass="tb_button icnNavPrev", disabled='^.atBegin', showLabel=False)
         tb.button('!!Next', fire_next='.navbutton', iconClass="tb_button icnNavNext", disabled='^.atEnd', showLabel=False)
@@ -451,17 +439,17 @@ class IncludedView(BaseComponent):
         
         controller.dataFormula('.atBegin','(idx==0)',idx='^.selectedIndex')
         controller.dataFormula('.atEnd','(idx==genro.wdgById(gridId).rowCount-1)',idx='^.selectedIndex',gridId=gridId)
-
-    def _iv_FormStaticController(self, controller, gridId):                          
+        
+    def _iv_FormStaticController(self, controller, gridId):
         controller.dataController("""var newidx;
                                  var rowcount = genro.wdgById(gridId).rowCount;
-                                 if (btn == 'first'){newidx = 0;} 
+                                 if (btn == 'first'){newidx = 0;}
                                  else if (btn == 'last'){newidx = rowcount-1;}
                                  else if ((btn == 'prev') && (idx > 0)){newidx = idx-1;}
                                  else if ((btn == 'next') && (idx < rowcount-1)){newidx = idx+1;}
                                  SET .selectedIndex = newidx;
-                              """, btn='^.navbutton',idx='=.selectedIndex', gridId=gridId)
-                              
+                                 """, btn='^.navbutton',idx='=.selectedIndex', gridId=gridId)
+                                
     def _includedViewFormBody(self, recordBC, controller, storepath, gridId,formPars):
         #controller not used
         #recordBC datapath = controllerPath
@@ -498,7 +486,7 @@ class IncludedView(BaseComponent):
         emptypane = st.contentPane()
         emptypane.div("No record selected",_class='dlg_msgbox')
         formPars['formCb'](formBorderCont,region='center',disabled=disabled)
-
+        
     def _iv_Picker(self, controller, controllerPath, view, pickerPars):
         pickerId = pickerPars.setdefault('nodeId', self.getUuid())
         gridId = view.attributes['nodeId']
@@ -519,7 +507,7 @@ class IncludedView(BaseComponent):
                                          bottom_right='!!Add and Close',bottom_right_action='FIRE .close;FIRE_AFTER .pickerAdd;',
                                          onOpen=onOpen, onEnter='FIRE .close;FIRE_AFTER .pickerAdd;')
         gridBC = dlgBC.borderContainer(region='center')
-
+        
         selector_cb = pickerPars.pop('selector_cb', None)
         selector_storepath = pickerPars.pop('selector_storepath', None)
         selector_result = pickerPars.pop('selector_result', None)
@@ -538,16 +526,15 @@ class IncludedView(BaseComponent):
                 if tfld.strip() == nodup_field:
                     pickerPars['excludeCol'] = pfld.strip()
                     break
-        
-        self.includedViewBox(gridBC, **pickerPars)        
+                    
+        self.includedViewBox(gridBC, **pickerPars)
         controller.dataController("genro.wdgById(dialogId).onCancel();", dialogId=dialogId, _fired='^.close')
         controller.dataController("""var nodelist = genro.wdgById(pickerId).getSelectedNodes();
                                     genro.nodeById(gridId).includedViewPicker.fromPicker(nodelist);
-                                    """, 
+                                    """,
                                     pickerId=pickerId,
                                     gridId=gridId, _fired='^.pickerAdd')
-
-
+                                    
     def _iv_Form_dialog(self, formPars, storepath, controller, controllerPath, gridId, toolbarPars):
         dialogId = '%s_dialog' % gridId
         height = formPars.pop('height','40ex')
@@ -557,7 +544,7 @@ class IncludedView(BaseComponent):
             formPars['connect_show'] = '%s' %formPars.pop('onOpen')
         controller.dataController("genro.wdgById('%s').show();" %dialogId, _fired='^.showRecord')
         controller.dataController("genro.wdgById('%s').onCancel()" %dialogId ,_fired='^.close')
-                                    
+        
         toolbarHandler = formPars.pop('toolbarHandler', '_iv_FormToolbar')
         #recordBC = mainPane.dialog(nodeId=dialogId,**formPars).borderContainer(nodeId='%s_bc' %gridId,
         #                                                                       datapath=storepath, #[check]
