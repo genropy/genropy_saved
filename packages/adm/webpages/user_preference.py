@@ -6,10 +6,11 @@
 #  Created by Francesco Porcari on 2007-03-24.
 #  Copyright (c) 2007 Softwell. All rights reserved.
 #
+from gnr.web.gnrwsgisite_proxy.gnrresourceloader import GnrMixinError
 
 class GnrCustomWebPage(object):
     """USER PREFERENCE BUILDER"""
-    maintable ='adm.preference'
+    maintable ='adm.preference' 
     py_requires="""public:Public"""   
     
     def windowTitle(self):
@@ -26,7 +27,7 @@ class GnrCustomWebPage(object):
             try:
                 cl=self.site.loadResource(pkgname,'preference:UserPref')
                 self.mixin(cl) 
-            except:
+            except GnrMixinError:
                 pass
                 
     def main(self, rootBC, **kwargs):
