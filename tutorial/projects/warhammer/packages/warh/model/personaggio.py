@@ -4,14 +4,10 @@ class Table(object):
     def config_db(self, pkg):
         tbl =  pkg.table('personaggio',pkey='id',name_long='!!Personaggio',name_plural='!!Personaggi',rowcaption='$nome')
         self.sysFields(tbl)
-                   # aggiunge i campi ID, data inserimento, INS, MOD, DEL
         tbl.column('sigla',name_long='!!Sigla')
-                   # creo una casella; sintassi: tbl.column('nome_casella',name_long='nome visualizzato')
         tbl.column('nome',name_long='!!Nome')
         tbl.column('razza_codice',size=':2',name_long='!!Razza').relation('warh.razza.codice',mode='foreignkey')
-                   #.relation('nome_del_packages.nome_della_table.nome_di_una_tblColumn)
-                   # con "mode='foreignkey'" il vincolo di integrità referenziale ".relation" esiste VERAMENTE nel DB
-        tbl.column('carriera_id').relation('warh.carriera.id',mode='foreignkey',one_name='Carriera Attuale')
+        tbl.column('carriera_id').relation('warh.carriera.id',mode='foreignkey',one_name='!!Carriera Attuale')
         tbl.column('ac','L',name_long='!!Ab.Combatt.')
         tbl.column('ab','L',name_long='!!Ab.Balistica')
         tbl.column('forza','L',name_long='!!Forza')
@@ -27,11 +23,11 @@ class Table(object):
         tbl.column('mov','L',name_long='!!Movimento')
         tbl.column('magia','L',name_long='!!Magia')
         tbl.column('follia','L',name_long='!!Punti Follia')
-        tbl.column('fato','L',name_long='!!Punti Fato')                                                        
+        tbl.column('fato','L',name_long='!!Punti Fato')
         tbl.column('exp','L',default=0,name_long='!!Exp')
         
-        tbl.column('ac_incr','L',name_long='!!Incr')        
-        tbl.column('ab_incr','L',name_long='!!Incr')        
+        tbl.column('ac_incr','L',name_long='!!Incr')
+        tbl.column('ab_incr','L',name_long='!!Incr')
         tbl.column('forza_incr','L',name_long='!!Incr')
         tbl.column('resistenza_incr','L',name_long='!!Incr')
         tbl.column('agilita_incr','L',name_long='!!Incr')

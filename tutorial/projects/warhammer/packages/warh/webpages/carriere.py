@@ -1,24 +1,22 @@
 #!/usr/bin/env python
 # encoding: utf-8
 """
-Created by Softwell on 2008-07-10.
+Created by Softwell on 2010-05-15.
 Copyright (c) 2008 Softwell. All rights reserved.
 """
 
-# --------------------------- GnrWebPage Standard header ---------------------------
 class GnrCustomWebPage(object):
     maintable='warh.carriera'
     py_requires='public:Public,standard_tables:TableHandlerLight,public:IncludedView'
-
+    
 ######################## STANDARD TABLE OVERRIDDEN METHODS ################ 
     def windowTitle(self):
-        return '!!Carriere Personaggi'
-
+        return '!!Carriere personaggi'
+        
     def barTitle(self):
-        return '!!Carriere Personaggi'
-
+        return '!!Carriere personaggi'
+        
     def lstBase(self,struct):
-        """!!Vista base"""
         r = struct.view().rows()
         r.fieldcell('nome',width='11em')
         r.fieldcell('ac',width='5em')
@@ -57,29 +55,28 @@ class GnrCustomWebPage(object):
     def userCanDelete(self):
         return True
 
-    def formBaseDimension(self): 
-        return dict(height='250px',width='800px')
-
 ############################## FORM METHODS ##################################
+
+    def formBaseDimension(self):
+        return dict(height='220px',width='800px')
         
     def formBase(self, parentBC, disabled=False, **kwargs):
         pane = parentBC.contentPane(**kwargs)
-        fb = pane.formbuilder(cols=8, border_spacing='4px', disabled=disabled)
-        fb.field('nome', width='12em',colspan=8) 
-        fb.field('ac',width='2em')
-        fb.field('ab',width='2em')
-        fb.field('forza',width='2em')
-        fb.field('resistenza',width='2em')
-        fb.field('agilita',width='2em')
-        fb.field('intelligenza',width='2em')
-        fb.field('volonta',width='2em')
-        fb.field('simpatia',width='2em')
-        fb.field('attacchi',width='2em')
-        fb.field('ferite',width='2em')
-        fb.field('bonus_forza',width='2em')
-        fb.field('bonus_res',width='2em')
-        fb.field('mov',width='2em')
-        fb.field('magia',width='2em')
-        fb.field('follia',width='2em')
-        fb.field('fato',width='2em')
-
+        fb = pane.formbuilder(cols=8,border_spacing='4px',fld_width='2em')
+        fb.field('nome',width='12em',colspan=8)
+        fb.field('ac')
+        fb.field('ab')
+        fb.field('forza')
+        fb.field('resistenza')
+        fb.field('agilita')
+        fb.field('intelligenza')
+        fb.field('volonta')
+        fb.field('simpatia')
+        fb.field('attacchi')
+        fb.field('ferite')
+        fb.field('bonus_forza')
+        fb.field('bonus_res')
+        fb.field('mov')
+        fb.field('magia')
+        fb.field('follia')
+        fb.field('fato')

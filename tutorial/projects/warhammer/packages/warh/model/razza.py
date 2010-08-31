@@ -2,9 +2,7 @@
 
 class Table(object):
     def config_db(self, pkg):
-        tbl =  pkg.table('razza',pkey='codice',name_long='!!Razza',
-                      name_plural='!!Razze',rowcaption='$codice,$nome')
-               # pkg.table('nome_della_table',pkey='nome_di_una_tbl.column')
+        tbl =  pkg.table('razza',pkey='codice',name_long='!!Razza',name_plural='!!Razze',rowcaption='$codice,$nome')
         self.sysFields(tbl,id=False)
         tbl.column('codice',size=':2',name_long='!!Codice')
         tbl.column('nome',name_long='!!Nome')
