@@ -140,6 +140,7 @@ class BaseRegister(object):
             curr_item = self.get_register_item(register_item['register_item_id'])
             if curr_item:
                 self.log('already registered',register_item_id=curr_item['register_item_id'])
+                self.loglevel-=1
                 return
             self._write_register_item(register_item)
             self.loglevel-=1
@@ -257,6 +258,7 @@ class BaseRegister(object):
                 self._remove_index(register_item_id=index_name,index_name='*')
             sd.delete(ind_key)
             self.log('_index_rewrite:index empty: deleted',ind_key=ind_key)
+            self.loglevel-=1
             return
             #print 'deleting %s' %ind_key
         sd.set(ind_key,index,0)
@@ -303,6 +305,7 @@ class BaseRegister(object):
         self.loglevel-=1
 
     def get_register_item(self, register_item_id):
+        print x
         self.log('get_register_item',register_item_id=register_item_id)
         self.loglevel+=1
 
@@ -312,6 +315,7 @@ class BaseRegister(object):
             register_item_key = self._register_item_key(register_item_id)
             register_item=sd.get(register_item_key)
             if not register_item:
+                self.loglevel-=1
                 return
             expiry_key=self._expiry_key(register_item_id)
             last_ts = sd.get(expiry_key)
@@ -335,6 +339,7 @@ class BaseRegister(object):
                 self.log('_tryrenew:not renuw:drop item',register_item_id=register_item_id)
                 self._remove_register_item(register_item_id)
         elif raise_error:
+            self.loglevel-=1
             raise ExpiredItemException()
         self.loglevel-=1
 
@@ -397,7 +402,7 @@ class BaseRegister(object):
             return sd.get_multi(result_items,'%s_register_item_'%self.prefix)
             
     def log(self,command,**kwargs):
-        if False:
+        if self.loglevel==0:
             indent=self.loglevel*3*' '
             print '%s-->%s:%s (%s)' % (indent,self.name,command,str(kwargs))
         
