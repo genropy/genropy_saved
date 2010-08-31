@@ -305,7 +305,6 @@ class BaseRegister(object):
         self.loglevel-=1
 
     def get_register_item(self, register_item_id):
-        print x
         self.log('get_register_item',register_item_id=register_item_id)
         self.loglevel+=1
 
