@@ -58,13 +58,14 @@ class RecordLinker(BaseComponent):
         assert not 'savedPath' in dialogPars, "dialogPars must not contain 'savedPath'. The linker uses it internally."
         
         # --------------------------------------------------------------------------------------------- Code
-        
         selectorBox = fb.div(lbl=lbl,lbl_vertical_align='top',
                             min_height=height,width=width,colspan=colspan,
                             rowspan=rowspan,position='relative')
         if field:
             selector = selectorBox.field(field,position='absolute', zoom=zoom,
                                         left='0px',top='0px',width='100%',disabled=disabled,**kwargs)
+            if zoom:
+                self._zoom_fix(selector,lbl)
             fieldrelpath = '.%s' %field.split('.')[-1]
             if not value:
                 value = '^%s' %fieldrelpath
@@ -105,3 +106,14 @@ class RecordLinker(BaseComponent):
                     value=None,width=None,height=None,colspan=1,rowspan=1,disabled=False,
                     default_path=None, record_reloader=None,**kwargs):
         raise NotImplementedError("Not yet implemented.")
+
+    def _zoom_fix(self,fieldcell,lbl):
+        attr = fieldcell.parentNode.attr
+        lblattr = dict()
+        for k,v in attr.items():
+            if k.startswith('lbl_'):
+                lblattr[k[4:]] = attr.pop(k)
+        lblattr['_class'] = '%s gnrfieldlabel' %lblattr['_class']
+        row = fieldcell.parent.parent.parent
+        lblcell_path = fieldcell.parent.parent.parentNode.label.replace('f','l')
+        row.setItem('%s.#0' %lblcell_path,lbl,tag='a',**lblattr)
