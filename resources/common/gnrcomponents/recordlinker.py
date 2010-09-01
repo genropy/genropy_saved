@@ -70,7 +70,7 @@ class RecordLinker(BaseComponent):
             if not value:
                 value = '^%s' %fieldrelpath
         else:
-            selector = selectorBox.dbSelect(value=value,dbtable=table,position='absolute', zoom=zoom,
+            selector = selectorBox.dbSelect(value=value,dbtable=table,position='absolute',
                                         left='0px',top='0px',width='100%',disabled=disabled,**kwargs)
             fieldrelpath = value[1:]
         
