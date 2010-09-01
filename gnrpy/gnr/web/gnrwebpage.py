@@ -183,11 +183,7 @@ class GnrWebPage(GnrBaseWebPage):
     
     def _get_workdate(self):
         if not hasattr(self,'_workdate'):
-            workdate = self.pageArgs.get('_workdate_')
-            if not workdate or not self.userTags or not('superadmin' in self.userTags):
-                workdate =  self.pageStore().getItem('workdate') or datetime.date.today()
-            if isinstance(workdate, basestring):
-                workdate = self.application.catalog.fromText(workdate, 'D')
+            workdate =  self.pageStore().getItem('workdate') or datetime.date.today()
             self.workdate = workdate
         return self._workdate
     

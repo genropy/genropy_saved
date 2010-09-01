@@ -255,7 +255,8 @@ class GnrWsgiSite(object):
         self.find_gnrjs_and_dojo()
         self.page_factory_lock=RLock()
         self.webtools = self.find_webtools()
-
+        self.statics=Bag()
+        self.addAllStatics()
         self.services = Bag()
         self.print_handler = self.addService('print',PrintHandler(self))
         self.mail_handler = self.addService('mail',MailHandler(self))
@@ -273,6 +274,19 @@ class GnrWsgiSite(object):
     
     def getService(self,service_name):
         return self.services[service_name]
+    
+    def addAllStatics(self):
+        #inspect self (or other modules) for StaticHandler subclasses and 
+        # do addStatic for each
+        pass
+    
+    def addStatic(self, static_handler_factory, **kwargs):
+        static_handler=static_handler_factory(self,**kwargs)
+        self.statics.setItem(static_handler.prefix,static_handler,**kwargs)
+        return static_handler
+    
+    def getStatic(self,static_name):
+        return self.statics[static_name]
     
     def exception(self,message):
         
@@ -785,4 +799,28 @@ class GnrWsgiSite(object):
         zip_archive.close()
         zipresult.close()
         
-            
+        
+class StaticHandler(object):
+    """ implementor=self.site.get_implementor('dojo')
+    "/_dojo/11/dojo/dojo/dojo.js"=implementor.relative_url(*args)
+    "http://www.pippone.com/mysite/_dojo/11/dojo/dojo/dojo.js"=implementor.external_url(*args)
+    "http://localhost:8088/_dojo/11/dojo/dojo/dojo.js"=implementor.local_url(*args)
+    result=implementor.serve(*args)
+    '/Users/genro/develop/dojo11/dojo/dojo.js'=implementor.path(*args)
+    implementor()
+    def dojo_static_path(self, version,*args):
+        return expandpath(os.path.join(self.dojo_path[version], *args))
+    
+    def dojo_static_url(self, version,*args):
+        return '%s_dojo/%s/%s'%(self.home_uri,version,'/'.join(args))"""  
+    pass
+class DojoStaticHandler(StaticHandler):
+    prefix='dojo'
+    def url(self,*args):
+        pass
+    
+    def absolute_url(self,external=True, *args):
+        pass
+    
+    def path(self,*args):
+        pass
