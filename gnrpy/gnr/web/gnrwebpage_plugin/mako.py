@@ -26,7 +26,8 @@ class Plugin(GnrBasePlugin):
             page.raiseUnauthorized()
         if striped:
             kwargs['striped']=itertools.cycle(striped.split(','))
-        tpldirectories=[os.path.dirname(path), page.parentdirpath]+page.resourceDirs+[page.site.gnr_static_path(page.gnrjsversion,'tpl')]
+        gnr_static_handler=page.site.getStatic('gnr')
+        tpldirectories=[os.path.dirname(path), page.parentdirpath]+page.resourceDirs+[gnr_static_handler.path(page.gnrjsversion,'tpl')]
         lookup=TemplateLookup(directories=tpldirectories,
                               output_encoding='utf-8', encoding_errors='replace')                      
         template = lookup.get_template(os.path.basename(path))

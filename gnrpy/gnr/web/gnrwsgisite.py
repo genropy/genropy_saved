@@ -9,7 +9,7 @@ from gnr.web.gnrwebapp import GnrWsgiWebApp
 import os
 import glob
 from time import time
-from gnr.core.gnrlang import gnrImport,boolean
+from gnr.core.gnrlang import gnrImport,boolean,deprecated
 from gnr.core.gnrlang import GnrException
 from threading import RLock
 import thread
@@ -22,10 +22,12 @@ from gnr.core.gnrprinthandler import PrintHandler
 from gnr.core.gnrmailhandler import MailHandler
 from gnr.app.gnrdeploy import PathResolver
 from gnr.web.gnrwsgisite_proxy.gnrresourceloader import ResourceLoader
+from gnr.web.gnrwsgisite_proxy.gnrstatichandler import StaticHandlerManager
 from gnr.web.gnrwsgisite_proxy.gnrshareddata import GnrSharedData_dict, GnrSharedData_memcache
 from gnr.web.gnrwsgisite_proxy.gnrobjectregister import PageRegister, ConnectionRegister, UserRegister
 import random
 import shutil
+import atexit
 mimetypes.init()
 site_cache = {}
 
@@ -197,7 +199,14 @@ class GnrWsgiSite(object):
                 self._shared_data = GnrSharedData_memcache(self, memcache_config, debug=self.config.getAttr('memcache').get('debug'))
             else:
                 self._shared_data = GnrSharedData_dict(self)
+                shared_data_file_path = os.path.join(self.site_path,'shared_data.pik')
+                if os.path.exists(shared_data_file_path):
+                    with open(shared_data_file_path) as shared_data_file:
+                        self._shared_data.storage=cPickle.load(shared_data_file)
+                    os.remove(shared_data_file_path)
         return self._shared_data
+    
+    
     
     def log_print(self,str):
         if getattr(self,'debug',True):
@@ -210,6 +219,7 @@ class GnrWsgiSite(object):
         global GNRSITE
         GNRSITE = self
         counter = int(counter or '0')
+        atexit.register(self.on_monitor_restart)
         self._currentPages={}
         abs_script_path = os.path.abspath(script_path)
         if os.path.isfile(abs_script_path):
@@ -222,7 +232,6 @@ class GnrWsgiSite(object):
         else:
             self.gnr_config = self.load_gnr_config()
             self.set_environment()
-            
         if _config:
             self.config = _config
         else:
@@ -243,6 +252,9 @@ class GnrWsgiSite(object):
         self.config['secret'] = self.secret
         self.debug = boolean(options and getattr(options,'debug',False) or self.config['wsgi?debug'])
         self.cache_max_age = self.config['wsgi?cache_max_age'] or 2592000
+        self.statics=StaticHandlerManager(self)
+        self.statics.addAllStatics()
+        
         self.gnrapp = self.build_gnrapp()
         self.wsgiapp = self.build_wsgiapp()
         self.db=self.gnrapp.db
@@ -255,8 +267,6 @@ class GnrWsgiSite(object):
         self.find_gnrjs_and_dojo()
         self.page_factory_lock=RLock()
         self.webtools = self.find_webtools()
-        self.statics=Bag()
-        self.addAllStatics()
         self.services = Bag()
         self.print_handler = self.addService('print',PrintHandler(self))
         self.mail_handler = self.addService('mail',MailHandler(self))
@@ -275,18 +285,11 @@ class GnrWsgiSite(object):
     def getService(self,service_name):
         return self.services[service_name]
     
-    def addAllStatics(self):
-        #inspect self (or other modules) for StaticHandler subclasses and 
-        # do addStatic for each
-        pass
-    
     def addStatic(self, static_handler_factory, **kwargs):
-        static_handler=static_handler_factory(self,**kwargs)
-        self.statics.setItem(static_handler.prefix,static_handler,**kwargs)
-        return static_handler
+        return self.statics.add(static_handler_factory, **kwargs)
     
     def getStatic(self,static_name):
-        return self.statics[static_name]
+        return self.statics.get(static_name)
     
     def exception(self,message):
         
@@ -440,7 +443,7 @@ class GnrWsgiSite(object):
         if path_list and path_list[0].startswith('_tools'):
             return self.serve_tool(path_list,environ,start_response,**request_kwargs)
         elif path_list and path_list[0].startswith('_'):
-            return self.serve_staticfile(path_list,environ,start_response,**request_kwargs)
+            return self.statics.static_dispatcher(path_list,environ,start_response,**request_kwargs)
         else:
             if self.debug:
                 page = self.resource_loader(path_list, request, response)
@@ -675,119 +678,20 @@ class GnrWsgiSite(object):
         kwargs_string = '&'.join(['%s=%s'%(k,v) for k,v in kwargs.items()])
         return '%s%s_tools/%s?%s'%(self.external_host,self.home_uri,tool,kwargs_string)
         
+    def on_monitor_restart(self):
+        if not self.config['memcache']:
+            with open(os.path.join(self.site_path, 'shared_data.pik'),'w') as shared_data_file:
+                cPickle.dump(self.shared_data.storage, shared_data_file)
 
+    @deprecated
     def site_static_path(self,*args):
-        return os.path.join(self.site_static_dir, *args)
+        return self.getStatic('site').path(*args)
 
+    @deprecated
     def site_static_url(self,*args):
-        return '%s_site/%s'%(self.home_uri,'/'.join(args))
+        return self.getStatic('site').url(*args)
 
-    def pkg_static_path(self,pkg,*args):
-        return os.path.join(self.gnrapp.packages[pkg].packageFolder, *args)
-
-    def pkg_static_url(self,pkg,*args):
-        return '%s_pkg/%s/%s'%(self.home_uri,pkg,'/'.join(args))
-    
-    def rsrc_static_path(self,rsrc,*args):
-        return os.path.join(self.resources[rsrc], *args)
-    
-    def rsrc_static_url(self,rsrc,*args):
-        return '%s_rsrc/%s/%s'%(self.home_uri,rsrc,'/'.join(args))
-    
-    def pages_static_path(self,*args):
-        return os.path.join(self.site_path,'pages', *args)
-    
-    def pages_static_url(self,*args):
-        return '%s_pages/%s'%(self.home_uri,'/'.join(args))
-    
-    def dojo_static_path(self, version,*args):
-        return expandpath(os.path.join(self.dojo_path[version], *args))
-    
-    def dojo_static_url(self, version,*args):
-        return '%s_dojo/%s/%s'%(self.home_uri,version,'/'.join(args))
-    
-    def gnr_static_path(self, version,*args):
-        return expandpath(os.path.join(self.gnr_path[version], *args))
-
-    def gnr_static_url(self, version,*args):
-        return '%s_gnr/%s/%s'%(self.home_uri,version,'/'.join(args))
-        
-    
-    def connection_static_path(self,connection_id,page_id,*args):
-        return os.path.join(self.site_path,'data','_connections', connection_id, page_id, *args)
-        
-    def connection_static_url(self, page,*args):
-        return '%s_conn/%s/%s/%s'%(self.home_uri,page.connection.connection_id, page.page_id,'/'.join(args))
-        
-    def user_static_path(self,user,page_id,*args):
-        return os.path.join(self.site_path,'data','_users', user, page_id, *args)
-        
-    def user_static_url(self, page,*args):
-        return '%s_user/%s/%s/%s'%(self.home_uri,page.user or 'Anonymous', page.page_id,'/'.join(args))
-    ########################### begin static file handling #################################
-            
-    def serve_staticfile(self,path_list,environ,start_response,download=False,**kwargs):
-        handler = getattr(self,'static%s'%path_list[0],None)
-        if handler:
-            fullpath = handler(path_list)
-            if fullpath and not os.path.isabs(fullpath):
-                fullpath = os.path.normpath(os.path.join(self.site_path,fullpath))
-        else:
-            fullpath = None
-        if not (fullpath and os.path.exists(fullpath)):
-            return self.not_found(environ, start_response)
-        if_none_match = environ.get('HTTP_IF_NONE_MATCH')
-        if if_none_match:
-            mytime = os.stat(fullpath).st_mtime
-            if str(mytime) == if_none_match:
-                headers = []
-                ETAG.update(headers, mytime)
-                start_response('304 Not Modified', headers)
-                return [''] # empty body
-        file_args=dict()
-        if download:
-            file_args['content_disposition']="attachment; filename=%s" % os.path.basename(fullpath)
-        file_responder = fileapp.FileApp(fullpath,**file_args)
-        if self.cache_max_age:
-            file_responder.cache_control(max_age=self.cache_max_age)
-        return file_responder(environ, start_response)
-        
-    
-    def static_dojo(self,path_list):
-        return self.dojo_static_path(*path_list[1:])
-        
-    def static_gnr(self,path_list):
-        return self.gnr_static_path(*path_list[1:])
-    
-    def static_site(self,path_list):
-        static_dir = self.config['resources?site'] or '.'
-        return os.path.join(static_dir,*path_list[1:])
-    
-    def static_pages(self,path_list):
-        static_dir = self.site_path
-        return os.path.join(static_dir,'pages',*path_list[1:])
-        
-    def static_pkg(self,path_list):
-        package_id = path_list[1]
-        package = self.gnrapp.packages[package_id]
-        if package:
-            static_dir = package.packageFolder
-            return os.path.join(static_dir,'webpages',*path_list[2:])
-            
-    def static_rsrc(self,path_list):
-        resource_id = path_list[1]
-        resource_path = self.resources.get(resource_id)
-        if resource_path:
-            return os.path.join(resource_path, *path_list[2:])
-            
-    def static_conn(self, path_list):
-        connection_id, page_id = path_list[1],path_list[2]
-        return self.connection_static_path(connection_id, page_id,*path_list[3:])
-        
-    def static_user(self, path_list):
-        user, page_id = path_list[1],path_list[2]
-        return self.user_static_path(user, page_id,*path_list[3:])
-        
+   ########################### begin static file handling #################################
     ##################### end static file handling #################################
     
     def zipFiles(self, file_list=None, zipPath=None):
@@ -799,28 +703,3 @@ class GnrWsgiSite(object):
         zip_archive.close()
         zipresult.close()
         
-        
-class StaticHandler(object):
-    """ implementor=self.site.get_implementor('dojo')
-    "/_dojo/11/dojo/dojo/dojo.js"=implementor.relative_url(*args)
-    "http://www.pippone.com/mysite/_dojo/11/dojo/dojo/dojo.js"=implementor.external_url(*args)
-    "http://localhost:8088/_dojo/11/dojo/dojo/dojo.js"=implementor.local_url(*args)
-    result=implementor.serve(*args)
-    '/Users/genro/develop/dojo11/dojo/dojo.js'=implementor.path(*args)
-    implementor()
-    def dojo_static_path(self, version,*args):
-        return expandpath(os.path.join(self.dojo_path[version], *args))
-    
-    def dojo_static_url(self, version,*args):
-        return '%s_dojo/%s/%s'%(self.home_uri,version,'/'.join(args))"""  
-    pass
-class DojoStaticHandler(StaticHandler):
-    prefix='dojo'
-    def url(self,*args):
-        pass
-    
-    def absolute_url(self,external=True, *args):
-        pass
-    
-    def path(self,*args):
-        pass

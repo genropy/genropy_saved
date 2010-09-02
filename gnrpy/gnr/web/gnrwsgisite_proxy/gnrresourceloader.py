@@ -28,6 +28,7 @@ class ResourceLoader(object):
         self.gnr_config = self.site.gnr_config
         self.gnrapp = self.site.gnrapp
         self.debug = self.site.debug
+        self.gnr_static_handler=self.site.getStatic('gnr')
         self.build_automap()
         self.page_factories={}
     
@@ -127,7 +128,7 @@ class ResourceLoader(object):
         self.page_pyrequires_mixin(page_class, py_requires)
         classMixin(page_class,custom_class, only_callables=False)
         page_class.css_requires.extend([x for x in splitAndStrip(getattr(custom_class, 'css_requires', ''),',') if x])
-        page_class.tpldirectories=page_class.resourceDirs+[self.site.gnr_static_path(page_class.gnrjsversion,'tpl')]
+        page_class.tpldirectories=page_class.resourceDirs+[self.gnr_static_handler.path(page_class.gnrjsversion,'tpl')]
         page_class._packageId = pkg
         self.page_class_custom_mixin(page_class, path, pkg=pkg)
         self.page_factories[module_path]=page_class

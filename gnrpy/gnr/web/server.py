@@ -11,6 +11,8 @@ try:
     import subprocess
 except ImportError:
     from paste.util import subprocess24 as subprocess
+from paste.reloader import Monitor
+from paste.util.classinstance import classinstancemethod
 import optparse
 import threading
 import atexit
@@ -31,7 +33,53 @@ wsgi_options=dict(
 
 DNS_SD_PID = None
 
+def gnr_reloader_install(poll_interval=1):
+    """
+    Install the reloading monitor.
 
+    On some platforms server threads may not terminate when the main
+    thread does, causing ports to remain open/locked.  The
+    ``raise_keyboard_interrupt`` option creates a unignorable signal
+    which causes the whole application to shut-down (rudely).
+    """
+    mon = GnrReloaderMonitor(poll_interval=poll_interval)
+    t = threading.Thread(target=mon.periodic_reload)
+    t.setDaemon(True)
+    t.start()
+
+class GnrReloaderMonitor(Monitor):
+    
+    global_reloader_callbacks = []
+    
+    def __init__(self, poll_interval):
+        self.reloader_callbacks=[]
+        super(GnrReloaderMonitor,self).__init__(poll_interval)
+    
+    def add_reloader_callback(self,cls,callback):
+        """Add a callback -- a function that takes no parameters -- that will
+        return a list of filenames to watch for changes."""
+        if self is None:
+            for instance in cls.instances:
+                instance.add_reloader_callback(callback)
+            cls.global_reloader_callbacks.append(callback)
+        else:
+            self.reloader_callbacks.append(callback)
+
+    add_reloader_callback = classinstancemethod(add_reloader_callback)
+    
+    def periodic_reload(self):
+        while True:
+            if not self.check_reload():
+                # use os._exit() here and not sys.exit() since within a
+                # thread sys.exit() just closes the given thread and
+                # won't kill the process; note os._exit does not call
+                # any atexit callbacks, nor does it do finally blocks,
+                # flush open files, etc.  In otherwords, it is rude.
+                for cb in self.reloader_callbacks:
+                    cb()
+                os._exit(3)
+                break
+            time.sleep(self.poll_interval)
 
 def start_bonjour(host=None, port=None, server_name=None,
     server_description=None,home_uri=None):
@@ -348,19 +396,18 @@ class NewServer(object):
         self.set_user()
         if not (self.options.reload=='false' or self.options.reload=='False' or self.options.reload==False or self.options.reload==None):
             if os.environ.get(self._reloader_environ_key):
-                from paste import reloader
                 if self.options.verbose > 1:
                     print 'Running reloading file monitor'
-                reloader.install(int(self.options.reload_interval))
+                gnr_reloader_install(int(self.options.reload_interval))
                 menu_path = os.path.join(self.site_path,'menu.xml')
                 site_config_path = os.path.join(self.site_path,'siteconfig.xml')
                 for file_path in (menu_path,site_config_path):
                     if os.path.isfile(file_path):
-                        reloader.watch_file(file_path)
+                        GnrReloaderMonitor.watch_file(file_path)
                 config_path = expandpath(self.options.config_path)
                 if os.path.isdir(config_path):
                     for file_path in listdirs(config_path):
-                        reloader.watch_file(file_path)
+                        GnrReloaderMonitor.watch_file(file_path)
             else:
                 return self.restart_with_reloader()
         first_run=int(getattr(self.options,'counter',0) or 0)==0
@@ -392,11 +439,13 @@ class NewServer(object):
             print msg
 
         self.serve()
+        
 
     def serve(self):
         try:
             gnrServer=GnrWsgiSite(self.site_script, site_name = self.site_name, _config = self.siteconfig, _gnrconfig = self.gnr_config, 
                                   counter = getattr(self.options,'counter',None), noclean=self.options.noclean,options=self.options)
+            GnrReloaderMonitor.add_reloader_callback(gnrServer.on_monitor_restart)
             httpserver.serve(gnrServer, host=self.options.host, port=self.options.port)
         except (SystemExit, KeyboardInterrupt), e:
             if self.options.verbose > 1:
@@ -406,6 +455,7 @@ class NewServer(object):
             else:
                 msg = ''
             print 'Exiting%s (-v to see traceback)' % msg
+
 
     def daemonize(self):
         pid = live_pidfile(self.options.pid_file)
@@ -557,6 +607,7 @@ class NewServer(object):
                     return exit_code
             if self.options.verbose > 0:
                 print '-'*20, 'Restarting', '-'*20
+            
 
     def change_user_group(self, user, group):
         if not user and not group:

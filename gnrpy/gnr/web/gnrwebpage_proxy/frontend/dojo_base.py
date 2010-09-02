@@ -19,16 +19,17 @@ class GnrBaseDojoFrontend(GnrBaseFrontend):
         return '<script type="text/javascript" src="%s" djConfig="%s"> </script>'%(self.dojolib, self.djConfig)
     
     def init(self, **kwargs):
+        self.dojo_static_handler=self.page.site.getStatic('dojo')
         dojo_theme =  getattr(self.page, 'dojo_theme', None) or self.page.site.config['dojo?theme'] or 'tundra'
         self._theme = dojo_theme
         self.dojo_version = self.page.dojo_version
         if boolean(self.page.dojo_source):
             dojofolder='dojo_src'
-            if not os.path.exists(self.page.site.dojo_static_path(self.dojo_version,dojofolder)):
+            if not os.path.exists(self.dojo_static_handler.path(self.dojo_version,dojofolder)):
                 dojofolder = 'dojo'
         else:
             dojofolder='dojo'
-        dojolib = self.page.site.dojo_static_url(self.dojo_version,dojofolder,'dojo','dojo.js')
+        dojolib = self.dojo_static_handler.url(self.dojo_version,dojofolder,'dojo','dojo.js')
         self.dojolib = dojolib
         self.djConfig = "parseOnLoad: false, isDebug: %s, locale: '%s'" % (self.page.isDeveloper() and 'true' or 'false',self.page.locale)
         
@@ -44,6 +45,6 @@ class GnrBaseDojoFrontend(GnrBaseFrontend):
         arg_dict['dojolib'] = self.dojolib
         arg_dict['djConfig'] = self.djConfig
         css_dojo = self.css_frontend()
-        arg_dict['css_dojo'] = [self.page.site.dojo_static_url(self. dojo_version,'dojo',f) for f in css_dojo]
+        arg_dict['css_dojo'] = [self.dojo_static_handler.url(self. dojo_version,'dojo',f) for f in css_dojo]
         
     

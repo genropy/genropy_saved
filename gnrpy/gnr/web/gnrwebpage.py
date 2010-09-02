@@ -481,7 +481,8 @@ class GnrWebPage(GnrBaseWebPage):
         return handler
     
     def build_arg_dict(self,**kwargs):
-        gnrModulePath = self.site.gnr_static_url(self.gnrjsversion)
+        gnr_static_handler=self.site.getStatic('gnr')
+        gnrModulePath = gnr_static_handler.url(self.gnrjsversion)
         arg_dict={}
         self.frontend.frontend_arg_dict(arg_dict)
         arg_dict['customHeaders']=self._htmlHeaders
@@ -499,10 +500,10 @@ class GnrWebPage(GnrBaseWebPage):
         if self.site.debug or self.isDeveloper():
             arg_dict['genroJsImport'] = [self.mtimeurl(self.gnrjsversion,'js', '%s.js' % f) for f in gnrimports]
         elif self.site.config['closure_compiler']:
-            jsfiles = [self.site.gnr_static_path(self.gnrjsversion,'js', '%s.js' % f) for f in gnrimports]
+            jsfiles = [gnr_static_handler.path(self.gnrjsversion,'js', '%s.js' % f) for f in gnrimports]
             arg_dict['genroJsImport'] = [self.jstools.closurecompile(jsfiles)]
         else:
-            jsfiles = [self.site.gnr_static_path(self.gnrjsversion,'js', '%s.js' % f) for f in gnrimports]
+            jsfiles = [gnr_static_handler.path(self.gnrjsversion,'js', '%s.js' % f) for f in gnrimports]
             arg_dict['genroJsImport'] = [self.jstools.compress(jsfiles)]
         arg_dict['css_genro'] = self.get_css_genro()
         arg_dict['js_requires'] = [x for x in [self.getResourceUri(r,'js',add_mtime=True) for r in self.js_requires] if x]
@@ -512,9 +513,10 @@ class GnrWebPage(GnrBaseWebPage):
         return arg_dict
     
     def mtimeurl(self, *args):
-        fpath = self.site.gnr_static_path(*args)
+        gnr_static_handler=self.site.getStatic('gnr')
+        fpath = gnr_static_handler.path(*args)
         mtime = os.stat(fpath).st_mtime
-        url = self.site.gnr_static_url(*args)
+        url = gnr_static_handler.url(*args)
         url = '%s?mtime=%0.0f'%(url,mtime)
         return url
     
@@ -688,18 +690,18 @@ class GnrWebPage(GnrBaseWebPage):
             return
         if fpath.startswith(self.site.site_path):
             uripath=fpath[len(self.site.site_path):].lstrip('/').split(os.path.sep)
-            url = self.site.site_static_url(*uripath)
+            url = self.site.getStatic('site').url(*uripath)
         elif fpath.startswith(self.site.pages_dir):
             uripath=fpath[len(self.site.pages_dir):].lstrip('/').split(os.path.sep)
-            url = self.site.pages_static_url(*uripath)
+            url = self.site.getStatic('pages').url(*uripath)
         elif fpath.startswith(self.package_folder):
             uripath=fpath[len(self.package_folder):].lstrip('/').split(os.path.sep)
-            url = self.site.pkg_static_url(self.packageId,*uripath)
+            url = self.site.getStatic('pkg').url(self.packageId,*uripath)
         else:
             for rsrc,rsrc_path in self.site.resources.items():
                 if fpath.startswith(rsrc_path):
                     uripath=fpath[len(rsrc_path):].lstrip('/').split(os.path.sep)
-                    url = self.site.rsrc_static_url(rsrc,*uripath)
+                    url = self.site.getStatic('rsrc').url(rsrc,*uripath)
                     break
         if url and add_mtime:
             mtime = os.stat(fpath).st_mtime
@@ -936,10 +938,10 @@ class GnrWebPage(GnrBaseWebPage):
         return filepath
     
     def connectionDocumentUrl(self, *args):
-        return self.site.connection_static_url(self,*args)
+        return self.site.getStatic('conn').url(self,*args)
         
     def userDocumentUrl(self, *args):
-        return self.site.user_static_url(self,*args)
+        return self.site.getStatic('user').url(self,*args)
     
     def isLocalizer(self) :
         return (self.userTags and ('_TRD_' in self.userTags))
