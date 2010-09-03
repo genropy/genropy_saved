@@ -33,7 +33,7 @@ class GnrCustomWebPage(object):
     #
     #   - Other attributes:
     #       In this section we report attributes that have been used in this example
-    #       despite they doesn't strictly belonging to formbuilder.
+    #       despite they didn't strictly belonging to formbuilder.
     #       We also suggest you the file (if it has been created!) where you can find
     #       some documentation about them.
     #
