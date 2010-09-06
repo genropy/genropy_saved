@@ -31,17 +31,23 @@ class GnrCustomWebPage(object):
     #   - formbuilder's fields attributes:
     #       lbl: set label.
     #
-    #   - Other attributes:
-    #       In this section we report attributes that have been used in this example
+    #   - Other forms and attributes:
+    #       In this section we report forms/attributes that have been used in this example
     #       despite they didn't strictly belonging to formbuilder.
     #       We also suggest you the file (if it has been created!) where you can find
     #       some documentation about them.
     #
-    #       - Genro attributes:
-    #       action      --> action.py
-    #       datapath    --> datapath.py
-    #       value       --> datapath.py
-    #       values      --> filteringSelect.py
+    #       ## name ##      --> ## file ##
+    #       action          --> action.py
+    #       button          --> button.py
+    #       datapath        --> datapath.py
+    #       dateTextbox     --> textbox.py
+    #       filteringSelect --> filteringSelect.py
+    #       hook            --> hook.py
+    #       numberTextbox   --> textbox.py
+    #       textbox         --> textbox.py
+    #       value           --> datapath.py
+    #       values          --> filteringSelect.py
     
     py_requires="gnrcomponents/testhandler:TestHandlerBase"
     # dojo_theme='claro'    # !! Uncomment this row for Dojo_1.5 usage
@@ -78,25 +84,20 @@ class GnrCustomWebPage(object):
         #       it means that EVERY "lbl" field attribute will be gain its properties.
         #       The same thing happens for each formbuilder attribute that begins with
         #       "fld_" (like "fld_width='10em'").
-        #       To achieve a good result in term of beauty, we suggest you to write 
-        #       "fld_width='100%'" and "width='100%'" in formbulider attributes.
-        #       
+        #       To create a beautiful form, we suggest you to write "fld_width='100%'"
+        #       and "width='100%'" as formbuilder attributes.
         #       "cols" set the number of columns of the formbuilder. If you set cols=2
         #       and create 3 fields, they will be placed into two columns like this:
         #       field_1         field_2
         #       field_3
         #       Setting "cols=3" would have led to this result, as we expected in an HTML table:
         #       field_1         field_2        field_3
-        #
         #       With "colspan" you can fullfil with a single field the space of two or more
-        #       field (for an example see in test_3 the textbox with 'lbl=Surname')
-        #
+        #       field (for an example see in test_3 the textbox with 'lbl=Surname', where)
         #       "fld_width" set the dimension of every field; if you want to change a single
-        #       field you have to use the attribute "field" in it (for an example see in
-        #       test_3 the numberTextbox).
-        #
+        #       field you have to use the attribute "field" on it.
         #       There are also some attributes that doesn't strictly belong to formbuilder
-        #       (like "datapath", etc): see paragraph "Other attributes" for more details.
+        #       (like "datapath", etc): see paragraph "Other forms and attributes" for more details.
         
         fb=pane.formbuilder(cols=3,fld_width='100%',width='100%',lbl_color='red',datapath='employee')
         fb.textbox(value='^.name',lbl='Name')
