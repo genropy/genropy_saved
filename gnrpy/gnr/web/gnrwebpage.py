@@ -737,8 +737,8 @@ class GnrWebPage(GnrBaseWebPage):
                     changeBag=path
                     for changeNode in changeBag:
                         attr = changeNode.attr
-                        datachange = ClientDataChange(attr.pop('_client_path',None),changeNode.value,
-                                                        attributes=attr,fired=attr.pop('fired'))
+                        datachange = ClientDataChange(attr.pop('_client_path'),changeNode.value,
+                                                        attributes=attr,fired=attr.pop('fired',None))
                         self.local_datachanges.append(datachange)
                 else:
                     datachange = ClientDataChange(path,value,reason=reason,attributes=attributes,fired=fired)
