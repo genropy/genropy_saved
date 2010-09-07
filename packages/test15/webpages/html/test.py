@@ -1,7 +1,7 @@
 # -*- coding: UTF-8 -*-
 """Html elements tester"""
 class GnrCustomWebPage(object):
-    py_requires="testhandler:TestHandlerBase"
+    py_requires="gnrcomponents/testhandler:TestHandlerBase"
     dojo_theme='claro'
     
         

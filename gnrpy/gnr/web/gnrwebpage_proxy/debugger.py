@@ -86,7 +86,7 @@ class GnrWebDebugger(GnrBaseProxy):
             label='%s line:%i' %(m.__name__.replace('.','_'),_frame.f_lineno)
         self._debug_calls.addItem('%03i PY:%s'%(len(self._debug_calls),label),b,debugtype='py')
         
-    def event_onCollectDataChanges(self):
+    def event_onCollectDatachanges(self):
         page = self.page
         if page.debugopt and self._debug_calls:
             path = 'debugger.main.c_%s'%self.page.callcounter

@@ -21,7 +21,7 @@
 """
 Component for thermo:
 """
-from gnr.web.gnrwebpage import BaseComponent
+from gnr.web.gnrbaseclasses import BaseComponent
 from gnr.core.gnrstring import toText
 from gnr.core.gnrdate import dayIterator
 from babel import dates

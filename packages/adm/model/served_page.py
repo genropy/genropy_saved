@@ -41,7 +41,7 @@ class Table(object):
     def openServedPage(self):
         page = self.db.application.site.currentPage
         record_served_page = dict(page_id=page.page_id,end_reason=None,end_ts=None,
-                                  connection_id=page.connection.connection_id,
+                                  connection_id=page.connection_id,
                                   start_ts=datetime.now(),pagename=page.basename)
         with self.db.tempEnv(connectionName='system'):  
             self.insertOrUpdate(record_served_page)

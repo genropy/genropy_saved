@@ -125,7 +125,7 @@ dojo.declare("gnr.GnrDevHandler",null,{
         dojo.publish("standardDebugger",{message: msg, type:level.toUpperCase(), duration:duration});
     },
     handleRpcHttpError:function(response, ioArgs){
-        
+        console.log('handleRpcHttpError')
         debug_url = ioArgs.xhr.getResponseHeader('X-Debug-Url');
         if (!debug_url){
             genro.dlg.message("An HTTP error occurred: " + response.message, null,'error' );
@@ -137,6 +137,8 @@ dojo.declare("gnr.GnrDevHandler",null,{
         
     },
     handleRpcError:function(error, envNode){
+        console.log('handleRpcError')
+
         if (error=='expired'){
             genro.dlg.message('expired session');
             genro.pageReload();

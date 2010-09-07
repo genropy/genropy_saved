@@ -25,14 +25,16 @@ from datetime import datetime
 from gnr.core.gnrbag import Bag,BagResolver
 from gnr.web.gnrwebpage import ClientDataChange
 BAG_INSTANCE = Bag()
-
+import thread
 import logging 
 import re
 logger= logging.getLogger('gnr.web.gnrobjectregister')
+from gnr.core.gnrlang import timer_call
+
+from time import time
 
 class ExpiredItemException(Exception):
     pass
-
 
 class ServerStore(object):
     def __init__(self,parent,register_item_id=None,triggered=True):
@@ -42,10 +44,11 @@ class ServerStore(object):
         self._register_item = '*'  
 
     def __enter__(self):
-        self.parent.lock(self.register_item_id)
+        self.parent.lock_item(self.register_item_id)
         return self
         
     def __exit__(self,type,value,tb):
+        self.parent.unlock_item(self.register_item_id)
         if tb:
             return
         if not self.register_item:
@@ -54,7 +57,7 @@ class ServerStore(object):
         if data is not None:
             data.unsubscribe('datachanges',any=True)
         self.parent.set_register_item(self.register_item)
-        self.parent.unlock(self.register_item_id)
+        
         
     def reset_datachanges(self):
         if self.register_item:
@@ -73,10 +76,14 @@ class ServerStore(object):
             self.subscribed_paths.add(path)
         
     def _on_data_trigger(self,node=None,ind=None,evt=None,pathlist=None,**kwargs):
+        if evt == 'ins':
+            pathlist.append(node.label)
         path ='.'.join(pathlist)
-        if path in self.subscribed_paths and self.register_item:
-            self.datachanges.append(ClientDataChange(path=path,value=node.value,reason='serverChange'))
-            
+        for subscribed in self.subscribed_paths:
+            if path.startswith(subscribed):
+                self.datachanges.append(ClientDataChange(path=path,value=node.value,reason='serverChange',attributes=node.attr))
+                break
+                
     def __getattr__(self,fname):
         if hasattr(BAG_INSTANCE,fname):
             return getattr(self.data,fname)
@@ -99,11 +106,12 @@ class ServerStore(object):
             return
         data = register_item.get('data')
         if data is None:
-            register_item['data']=Bag()
+            data=Bag()
+            register_item['data']=data
             register_item['datachanges']=list()
             register_item['subscribed_paths']=set()
-        if self.triggered:
-            register_item['data'].subscribe('datachanges',  any=self._on_data_trigger)
+        if self.triggered and register_item['subscribed_paths']:
+            data.subscribe('datachanges',  any=self._on_data_trigger)
         return register_item
     
     @property
@@ -117,87 +125,249 @@ class ServerStore(object):
     def subscribed_paths(self):
         if self.register_item:
             return self.register_item['subscribed_paths']
+            
+class SiteRegister(object):
+    def __init__(self,site):
+        self.site = site
+        self.sd=self.site.shared_data
+        self._pages  = PageRegister(site)
+        self._connections = ConnectionRegister(site)
+        self._users = UserRegister(site)
+        
+    def new_connection(self,connection):
+        #'** SITEREGISTER_new_connection: ',connection
+        with  self._users as user_register:
+            with  self._connections as connection_register:
+                connection_register_item=connection_register._create_register_item(connection)
+                connection_id=connection_register_item['register_item_id']
+                assert not connection_register._exists_register_item(connection_id),'SITEREGISTER ERROR: connection_id %s already registered' % connection_id
+                user=connection_register_item['user']
+                user_register_item=user_register._read_register_item(user)
+                if not user_register_item:
+                    user_register_item=user_register._create_register_item(connection_register_item)
+                user_register_item['connections'][connection_id] = connection_register_item['connection_name']
+                user_register._write_register_item(user_register_item)
+                connection_register._write_register_item(connection_register_item)
+        return connection_register_item
+        
+    def change_connection_user(self,connection_id,user=None,user_tags=None,user_id=None,user_name=None):
+        #print '** change_connection_user: ',connection_id
+        with  self._users as user_register:
+            with  self._connections as connection_register:
+                connection_register_item=connection_register._read_register_item(connection_id)
+                old_user = connection_register_item['user']
+                old_user_register_item=user_register._read_register_item(old_user)
+                old_user_register_item['connections'].pop(connection_id)
+                if old_user_register_item['connections']:
+                    user_register._write_register_item(old_user_register_item)
+                else:
+                    user_register._pop_register_item(old_user)
+                    
+                connection_register_item['user'] = user
+                connection_register_item['user_tags'] = user_tags
+                connection_register_item['user_name'] = user_name
+                connection_register_item['user_id'] = user_id
+                user_register_item=user_register._read_register_item(user)
+                if not user_register_item:
+                    user_register_item=user_register._create_register_item(connection_register_item)
+                user_register_item['connections'][connection_id] = connection_register_item['connection_name']
+                user_register._write_register_item(user_register_item)
+                connection_register._write_register_item(connection_register_item) 
+        
+    def new_page(self,page,data=None):
+        #print '** SITEREGISTER_new_page: ',page.page_id
+        with  self._connections as connection_register:
+            with self._pages as page_register:
+                page_register_item = page_register._create_register_item(page,data)
+                page_id = page_register_item['register_item_id']
+                connection_id = page_register_item['connection_id']
+                connection_register_item = connection_register._read_register_item(connection_id)
+                connection_register_item['pages'][page_id] = page_register_item['pagename']
+                connection_register._write_register_item(connection_register_item)
+                page_register._write_register_item(page_register_item)
+        return page_register_item
+        
+    def get_user(self,user):
+        return self._users.get_register_item(user)
+    
+    def get_connection(self,connection_id):
+        return self._connections.get_register_item(connection_id)
+    
+    def get_page(self,page_id):
+        return self._pages.get_register_item(page_id)
+        
+    def drop_user():
+        pass
+        
+    def drop_connection(self,connection_id,cascade=None):
+        with  self._users as user_register:
+            with  self._connections as connection_register:
+                self._drop_connection(connection_id,connection_register=connection_register,user_register=user_register,cascade=cascade)
+                
+                
+    def _drop_connection(self,connection_id,connection_register=None,user_register=None,cascade=None):
+        connection_register_item = connection_register._pop_register_item(connection_id)
+        if not connection_register_item:
+            return
+        if connection_register_item['pages']:
+            for page_id in connection_register_item['pages']:
+                connection_register._pop_register_item(page_id)
+        user = connection_register_item['user']
+        user_register_item = user_register._read_register_item(user)
+        user_register_item['connections'].pop(connection_id)
+        if cascade and not user_register_item['connections']:
+            user_register._pop_register_item(user)
+        else:
+            user_register._write_register_item(user_register_item)
 
+    def _drop_page(self,page_id,page_register=None,connection_register=None,user_register=None,cascade=None):
+        page_register_item = page_register._pop_register_item(page_id)
+        if not page_register_item:
+            return
+        connection_id = page_register_item['connection_id']
+        connection_register_item = connection_register._read_register_item(connection_id)
+        connection_register_item['pages'].pop(page_id)
+        if cascade and not connection_register_item['pages']:
+            self._drop_connection(connection_id,connection_register=connection_register,user_register=user_register,cascade=cascade)
+        else:
+            connection_register._write_register_item(connection_register_item)
+
+    def drop_page(self,page_id,cascade=None):
+        #print '** SITEREGISTER_drop_page: ',page_id
+        with  self._connections as connection_register:
+            with self._pages as page_register:
+                self._drop_page(page_id,page_register,connection_register)
+                
+        
+    def connectionStore(self,connection_id,triggered=False):
+        return self._connections.make_store(connection_id,triggered=triggered)
+    
+    def userStore(self,user,triggered=False):
+        return self.users.make_store(user,triggered=triggered)
+    
+    def pageStore(self,page_id,triggered=False):
+        return self._pages.make_store(page_id,triggered=triggered)
+    
+    def refresh(self,page_id,ts=None):
+        with  self._pages as page_register:
+            page_register_item=page_register._read_register_item(page_id)
+            if not page_register_item:
+                return
+            page_register._update_lastused(page_id,ts)
+            
+        with  self._connections as connection_register:
+            connection_register._update_lastused(page_register_item['connection_id'],ts)
+            
+        with  self._users as user_register:
+            user_register._update_lastused(page_register_item['user'],ts)
+        
+        
+    def users(self,*args,**kwargs):
+        return self._users.users(*args,**kwargs)
+        
+    def user_connections(self,user):
+        result={}
+        with  self._users as user_register:
+            with  self._connections as connection_register:
+                item=user_register._read_register_item(user)
+                if item:
+                    result = connection_register._get_multi_items(item['connections'].keys())
+        return result
+        
+    def connection_pages(self,connection_id):
+        result={}
+        with  self._connections as connection_register:
+            with self._pages as page_register:
+                item=connection_register._read_register_item(connection_id)
+                if item:
+                    result = page_register._get_multi_items(item['pages'].keys())
+        return result
+        
+    def connections(self,*args,**kwargs):
+        return self._connections.connections(*args,**kwargs)
+        
+    def pages(self,*args,**kwargs):
+        return self._pages.pages(*args,**kwargs)
+        
+    def tree(self):
+        return PagesTreeResolver()
+    
+    def cleanup(self,max_age=30,cascade=False):
+        with self._users as user_register:
+            with self._connections as connection_register:
+                with self._pages as page_register:
+                    for page_id,page in self.pages().items():
+                        if page['last_rpc_age']>max_age:
+                            self._drop_page(page_id,page_register=page_register,
+                                            connection_register=connection_register,
+                                            user_register=user_register,cascade=cascade)
+                    for connection_id,connection in self.connections().items():
+                        if connection['last_rpc_age']>max_age:
+                            self._drop_connection(connection_id,connection_register=connection_register,
+                                                  user_register=user_register,cascade=cascade)
+        
+        
 class BaseRegister(object):
     def __init__(self, site, **kwargs):
         self.site = site
         self.sd=self.site.shared_data
         self.init(**kwargs)
-        self.loglevel=0
-    
+
+        
+    def __enter__(self):
+        self.sd.lock(self.prefix)
+        return self
+        
+    def __exit__(self,type,value,tb):
+        self.sd.unlock(self.prefix)
+
     def init(self, **kwargs):
         pass
-    
-    def register(self,obj,autorenew=False):
-        
-        """Register register_item"""
-        sd=self.sd
-        address=self.prefix
-        with sd.locked(key=address):
-            register_item=self._create_register_item(obj,autorenew=autorenew)
-            self.log('register',register_item_id=register_item['register_item_id'])
-            self.loglevel+=1
-            curr_item = self.get_register_item(register_item['register_item_id'])
-            if curr_item:
-                self.log('already registered',register_item_id=curr_item['register_item_id'])
-                self.loglevel-=1
-                return
-            self._write_register_item(register_item)
-            self.loglevel-=1
-
-    def unregister(self,obj):
-        """Unregister register_item"""
-        sd=self.sd
-        address=self.prefix
-        register_item_id=self._create_register_item(obj)['register_item_id']
-        with sd.locked(key=address):
-            self.loglevel+=1
-            self.log('unregister',register_item_id=register_item_id)
-            self._remove_register_item(register_item_id)
-            self.loglevel-=1
-
-
     
     def make_store(self,register_item_id,triggered=None):
         return ServerStore(self,register_item_id=register_item_id,triggered=triggered)
 
-    def _create_register_item(self, obj,autorenew=False):
-        """
-        override this:
-        you must return a register_item with at least
-        these elements
-        register_item=dict(
-                register_item_id = obj.obj_id,
-                timeout = obj.obj_timeout,
-                refresh = obj.obj_refresh,
-                renew = autorenew
-                )
-        """
+    def _create_register_item(self, obj):
         pass 
         
     def _register_item_key(self,register_item_id):
-        return '%s_register_item_%s'%(self.prefix,register_item_id)
+        return '%s_ITEM_%s'%(self.prefix,register_item_id)
         
-    def _expiry_key(self,register_item_id):
-        return '%s_EXPIRY_%s'%(self.prefix,register_item_id)
+    def _lastused_key(self,register_item_id):
+        return '%s_LAST_%s'%(self.prefix,register_item_id)
         
-    def _upd_item_expiry(self,register_item):
-        self.sd.set(self._expiry_key(register_item['register_item_id']),datetime.now(),register_item['timeout'])
-
+    def _update_lastused(self,register_item_id,ts=None):
+        last_used_key = self._lastused_key(register_item_id)
+        last_used = self.sd.get(last_used_key)
+        if last_used:
+            ts = max(last_used[1],ts) if ts else last_used[1]
+        self.sd.set(last_used_key, (datetime.now(),ts),0)
+        
+    def _read_register_item(self, register_item_id):
+        register_item_key = self._register_item_key(register_item_id)
+        register_item=self.sd.get(register_item_key)
+        if register_item:
+            self._set_last_ts_in_item(register_item)
+        return register_item
+            
+    def _exists_register_item(self, register_item_id):
+        register_item_key = self._register_item_key(register_item_id)
+        return self.sd.get(register_item_key) is not None
+        
     def _write_register_item(self, register_item):
-        self.log('_write_register_item',register_item_id=register_item['register_item_id'])
-        self.loglevel+=1
         """Private. It must be called only in locked mode"""
+        self.log('_write_register_item',register_item=register_item)
+        is_new_item = register_item.pop('_new',None)
         sd=self.sd
         register_item_id=register_item['register_item_id']
         self._set_index(register_item)
-        sd.set(self._register_item_key(register_item_id),register_item,0)
-        self._upd_item_expiry(register_item)
-        self._on_write_register_item(register_item)
-        self.loglevel-=1
-
         
-   
+        sd.set(self._register_item_key(register_item_id),register_item,0)
+        if is_new_item:
+            self._update_lastused(register_item_id,register_item['start_ts'])
+        self._on_write_register_item(register_item)
+        
+
     def _on_write_register_item(self,register_item):
         pass
         
@@ -216,8 +386,6 @@ class BaseRegister(object):
         register_item_id = register_item['register_item_id']
         ind_key=self._get_index_key(index_name)
         self.log('_set_index',register_item_id=register_item['register_item_id'],index_name=index_name,ind_key=ind_key)
-        self.loglevel+=1
-
         index=sd.get(ind_key)
         if not index:
             self.log('_set_index (create new)')
@@ -228,12 +396,9 @@ class BaseRegister(object):
             index[register_item_id]=register_item[self.parent_index]
         else:
             index[register_item_id]=True
-        #print 'indexing %s:%s' %(ind_key,str(index))
         sd.set(ind_key,index,0)
         self.log('_set_index:writing',index=index)
-        self.loglevel-=1
-
-    
+        
     def _remove_index(self,register_item_id, index_name=None):
         """Private. It must be called only in locked mode"""
         sd=self.sd
@@ -241,16 +406,12 @@ class BaseRegister(object):
         index=sd.get(ind_key)
         if index:
             self.log('_remove_index',register_item_id=register_item_id,index_name=index_name,ind_key=ind_key)
-            self.loglevel+=1
             index.pop(register_item_id,None)
             self._index_rewrite(index_name,index)
-            self.loglevel-=1
 
     def _index_rewrite(self, index_name, index):
-        self.log('_index_rewrite',index_name=index_name,index=index)
-        self.loglevel+=1
-
         """Private. It must be called only in locked mode"""
+        self.log('_index_rewrite',index_name=index_name,index=index)
         sd=self.sd
         ind_key=self._get_index_key(index_name)
         if index=={}:
@@ -258,159 +419,95 @@ class BaseRegister(object):
                 self._remove_index(register_item_id=index_name,index_name='*')
             sd.delete(ind_key)
             self.log('_index_rewrite:index empty: deleted',ind_key=ind_key)
-            self.loglevel-=1
             return
-            #print 'deleting %s' %ind_key
         sd.set(ind_key,index,0)
         self.log('_index_rewrite:index updated',ind_key=ind_key)
-        self.loglevel-=1
-
-        #print 'rewriting %s:%s' %(ind_key,str(index))
     
-    def _remove_register_item(self,register_item_id):
+    def _pop_register_item(self,register_item_id):
         """Private. It must be called only in locked mode"""
         sd=self.sd
         register_item_key=self._register_item_key(register_item_id)
         register_item=sd.get(register_item_key)
-        self.log('_remove_register_item',register_item=register_item)
-        self.loglevel+=1
+        self.log('_pop_register_item',register_item=register_item)
         sd.delete(register_item_key)
-        sd.delete(self._expiry_key(register_item_id))
+        sd.delete(self._lastused_key(register_item_id))
         self._remove_index(register_item_id)
-        self._on_remove_register_item(register_item_id,register_item)
-        self.loglevel-=1
+        self._on_pop_register_item(register_item_id,register_item)
+        return register_item
 
-    def _on_remove_register_item(self, register_item_id, register_item):
+    def _on_pop_register_item(self, register_item_id, register_item):
         pass
-        
-        
-    def refresh(self,obj, renew=False):
-        """Refresh register_item"""
-        sd=self.sd
-        address=self.prefix
-        temp_register_item = self._create_register_item(obj)
-        register_item_id = temp_register_item['register_item_id']
-        self.log('refresh',register_item_id=register_item_id)
-        self.loglevel+=1
-        with sd.locked(key=address):
-            expiry_key=self._expiry_key(register_item_id)
-            last_ts = sd.get(expiry_key) #if exists the register_item is not expired
-            if last_ts:
-                self.log('refresh:updating',register_item_id=register_item_id)
-                self._upd_item_expiry(temp_register_item)
-            else:
-                self.log('refresh:expired',register_item_id=register_item_id)
-                current_register_item=sd.get(self._register_item_key(register_item_id))
-                self._tryrenew(current_register_item)
-        self.loglevel-=1
 
     def get_register_item(self, register_item_id):
         self.log('get_register_item',register_item_id=register_item_id)
-        self.loglevel+=1
-
+        register_item=None
         sd=self.sd
-        address=self.prefix
-        with sd.locked(key=address):
-            register_item_key = self._register_item_key(register_item_id)
-            register_item=sd.get(register_item_key)
-            if not register_item:
-                self.loglevel-=1
-                return
-            expiry_key=self._expiry_key(register_item_id)
-            last_ts = sd.get(expiry_key)
-            if last_ts:
-                register_item['last_ts'] = last_ts
-            else:
-                self._tryrenew(register_item,raise_error=True)
-            return register_item
-        self.loglevel-=1
+        with sd.locked(key=self.prefix):
+            register_item = self._read_register_item(register_item_id)
+        return register_item
 
-    def _tryrenew(self,register_item,raise_error=False):
-        self.log('_tryrenew',register_item=register_item)
-        self.loglevel+=1
+    def _set_last_ts_in_item(self,register_item,last_used=None,now=None):
+        now=now or datetime.now()
+        def age(label):
+            return (now-register_item[label]).seconds
+        last_used = last_used or self.sd.get(self._lastused_key(register_item['register_item_id']))
+        register_item['last_ts'],register_item['last_user_ts'] = last_used
+        register_item['age'] = age('start_ts')
+        register_item['last_rpc_age'] = age('last_ts')
+        register_item['last_event_age'] = age('last_user_ts')
 
-        if register_item:
-            register_item_id = register_item['register_item_id']
-            if register_item.get('renew'):
-                self.log('_tryrenew:must renew',register_item_id=register_item_id)
-                self._upd_item_expiry(register_item)
-            else:
-                self.log('_tryrenew:not renuw:drop item',register_item_id=register_item_id)
-                self._remove_register_item(register_item_id)
-        elif raise_error:
-            self.loglevel-=1
-            raise ExpiredItemException()
-        self.loglevel-=1
-
-    
+        
     def set_register_item(self,register_item):
         self.log('set_register_item',register_item=register_item)
-        self.loglevel+=1
-
         with self.sd.locked(self.prefix):
             self._write_register_item(register_item)
-        self.loglevel-=1
 
-    
     def upd_register_item(self,register_item_id,**kwargs):
         self.log('set_register_item',register_item_id=register_item_id)
-        self.loglevel+=1
         sd=self.sd
-        address=self.prefix
-        with sd.locked(key=address):
+        with sd.locked(key=self.prefix):
             register_item_key = self._register_item_key(register_item_id)
             register_item=sd.get(register_item_key)
             self.log('upd_register_item',register_item_id=register_item_id,register_item=register_item,updates=kwargs)
             if register_item:
                 register_item.update(kwargs)
                 self._write_register_item(register_item)
-        self.loglevel-=1
         
-    def lock(self,register_item_id,max_retry=None,
+    def lock_item(self,register_item_id,max_retry=None,
                             lock_time=None, 
                             retry_time=None):
         return self.sd.lock(self._register_item_key(register_item_id), max_retry=max_retry,lock_time=lock_time,retry_time=retry_time)
         
-    def unlock(self,register_item_id):
+    def unlock_item(self,register_item_id):
         return self.sd.unlock(self._register_item_key(register_item_id))
-
-    def get_index(self, index_name=None):
-        sd=self.sd
-        ind_key=self._get_index_key(index_name)
-        address=self.prefix
-        with sd.locked(key=address):
-            index=sd.get(ind_key) or {}
-        return index
-    
-    def _register_items(self,parent_index=None,index_name=None):
+        
+    def _register_items(self,index_name=None):
         """Registered register_items"""
         sd=self.sd
         address=self.prefix
         with sd.locked(key=address):
-            index=self.get_index(index_name)#return a dict 
-            living_items=[item_id for item_id in sd.get_multi(index.keys(),'%s_EXPIRY_'%self.prefix).keys() if item_id]
-            if len(living_items)<len(index):
-                #print 'renewing index for expired objects'
-                for item_id in index.keys():
-                    if not item_id in living_items:
-                        index.pop(item_id)
-                self._index_rewrite(index_name,index)
-            result_items=living_items
-            if parent_index:
-                result_items=[k for k in living_items if index[k] == parent_index ]
-            return sd.get_multi(result_items,'%s_register_item_'%self.prefix)
+            index=self.sd.get(self._get_index_key(index_name)) or {}
+        return self._get_multi_items(index.keys())
+            
+    def _get_multi_items(self,keys):
+        sd=self.sd
+        items=sd.get_multi(keys,'%s_ITEM_'%self.prefix)
+        items_lastused=sd.get_multi(keys,'%s_LAST_'%self.prefix)
+        now=datetime.now()
+        for k,register_item in items.items():
+            self._set_last_ts_in_item(register_item,items_lastused[k],now=now)
+        return items
             
     def log(self,command,**kwargs):
-        if self.loglevel==0:
-            indent=self.loglevel*3*' '
-            print '%s-->%s:%s (%s)' % (indent,self.name,command,str(kwargs))
+        if False:
+            print '-->%s:%s\n                       (%s)' % (self.name,command,str(kwargs))
         
 class PageRegister(BaseRegister):
     name='page'
-    prefix='PREG_'
+    prefix='PREG'
     parent_index = 'connection_id'
     
-    def _create_register_item(self, page,autorenew=False):
+    def _create_register_item(self, page, data=None):
         register_item_id=page.page_id
         start_ts= datetime.now()
         subscribed_tables=getattr(page,'subscribed_tables',None)
@@ -419,32 +516,34 @@ class PageRegister(BaseRegister):
         register_item=dict(
                 register_item_id=register_item_id,
                 pagename=page.basename,
-                connection_id=page.connection.connection_id,
+                connection_id=page.connection_id,
                 start_ts= start_ts,
+                _new=True,
                 subscribed_tables=subscribed_tables or [],
                 user = page.user,
                 user_ip = page.user_ip,
                 user_agent = page.user_agent,
-                timeout = page.page_timeout,
-                refresh = page.page_refresh,
-                renew=autorenew
+                datachanges=list(),
+                subscribed_paths=set()
                 )
+        if data:
+            register_item['data'] = Bag(data)
         return register_item
     
     def _on_write_register_item(self,register_item):
         for table in register_item['subscribed_tables']:
             self._set_index(register_item,index_name=table)
      
-    def _on_remove_register_item(self, register_item_id, register_item):
+    def _on_pop_register_item(self, register_item_id, register_item):
         for table in register_item and register_item['subscribed_tables'] or []:
             self._remove_index(register_item['register_item_id'], index_name=table)
     
-    def pages(self, parent_index=None,index_name=None,filters=None):
+    def pages(self, connection_id=None,index_name=None,filters=None):
         """returns a list of page_id and pages.
            if no index is specified all pages are returned.
            if filters return anly pages matching with filters
            filters is a string with the propname and a regex"""
-        pages=self._register_items(parent_index=parent_index,index_name=index_name)
+        pages=self._register_items(index_name=index_name)
         if not filters:
             return pages
             
@@ -475,71 +574,70 @@ class PageRegister(BaseRegister):
         
 class ConnectionRegister(BaseRegister):
     name='connection'
-    prefix='CREG_'
+    prefix='CREG'
     parent_index = 'user'
 
     def init(self,onAddConnection=None, onRemoveConnection=None):
         self.onAddConnection=onAddConnection
         self.onRemoveConnection=onRemoveConnection
     
-    def _create_register_item(self, connection,autorenew=False):
+    def _create_register_item(self, connection):
         register_item_id=connection.connection_id
         register_item=dict(
                 register_item_id=register_item_id,
                 start_ts=datetime.now(),
+                _new=True,
                 connection_name=connection.connection_name,
                 user=connection.user,
+                user_id = connection.user_id,
+                user_name = connection.user_name,
+                user_tags = connection.user_tags,
                 user_ip=connection.ip,
                 user_agent=connection.user_agent,
-                timeout = connection.connection_timeout,
-                refresh = connection.connection_refresh,
-                renew = autorenew
+                browser_name=connection.browser_name,
+                pages={}
                 )
         return register_item
-    
+        
+        
     def _on_write_register_item(self,register_item):
         pass
         
 
-    def _on_remove_register_item(self, register_item_id, register_item):
+    def _on_pop_register_item(self, register_item_id, register_item):
         if hasattr(self.onRemoveConnection,'__call__'):
             self.onRemoveConnection(register_item_id)
     
-    def connections(self,parent_index=None, index_name=None):
-        return self._register_items(parent_index=parent_index,index_name=index_name)     
-
+    def connections(self,user=None, index_name=None):
+        return self._register_items(index_name=index_name)     
 
 class UserRegister(BaseRegister):
     name='user'
-    prefix='UREG_'
+    prefix='UREG'
     parent_index = None
 
-    USER_TIMEOUT = 3600
-    USER_REFRESH = 20
-
-    def _create_register_item(self, user,autorenew=False):
-        register_item_id= user
+    def _create_register_item(self, connection_register_item):
+        register_item_id= connection_register_item['user']
         register_item=dict(
                 register_item_id=register_item_id,
                 start_ts=datetime.now(),
-                user=user,
-                timeout =self.USER_TIMEOUT,
-                refresh = self.USER_REFRESH,
-                renew = autorenew
+                _new=True,
+                user=register_item_id,
+                user_id= connection_register_item['user_id'],
+                user_name= connection_register_item['user_name'],
+                user_tags= connection_register_item['user_tags'],
+                connections={}
                 )
         return register_item
 
     def _on_write_register_item(self,register_item):
         pass
 
-    def _on_remove_register_item(self, register_item_id, register_item):
+    def _on_pop_register_item(self, register_item_id, register_item):
         pass
 
     def users(self, index_name=None):
         return self._register_items(index_name=index_name)
-        
-    def user_tree(self):
-        return PagesTreeResolver()
         
 class PagesTreeResolver(BagResolver):
     classKwargs={'cacheTime':1,
@@ -560,23 +658,21 @@ class PagesTreeResolver(BagResolver):
             return self.list_pages(connection_id=self.connection_id)
             
     def list_users(self):
-        print 'list_users'
-        usersDict = self._page.site.register_user.users()
+        
+        usersDict = self._page.site.register.users()
         result = Bag()
         for user,item_user in usersDict.items():
-            user = user or 'Anonymous'
-            itemlabel = user
             item=Bag()
             data = item_user.pop('data',None)
+            connections = item_user.pop('connections')
             item['info'] = Bag([('%s:%s' %(k,str(v).replace('.','_')),v) for k,v in item_user.items()])
             item['data'] = data
             item.setItem('connections', PagesTreeResolver(user=user),cacheTime=3)
-            result.setItem(itemlabel,item,user=user)
+            result.setItem(user,item,user=user)
         return result 
         
     def list_connections(self,user):
-        print 'list_connections'
-        connectionsDict = self._page.site.register_connection.connections(parent_index=user)
+        connectionsDict = self._page.site.register.user_connections(user)
         result = Bag()
         for connection_id,connection in connectionsDict.items():
             delta = (datetime.now()-connection['start_ts']).seconds
@@ -584,6 +680,7 @@ class PagesTreeResolver(BagResolver):
             connection_name=connection['connection_name']
             itemlabel = '%s (%i)' %(connection_name,delta)
             item = Bag()
+            pages = connection.pop('pages',None)
             data = connection.pop('data',None)
             item['info'] = Bag([('%s:%s' %(k,str(v).replace('.','_')),v) for k,v in connection.items()])
             item['data'] = data
@@ -592,9 +689,7 @@ class PagesTreeResolver(BagResolver):
         return result 
     
     def list_pages(self,connection_id):
-        print 'list_pages'
-        pagesDict = self._page.site.register_page.pages(parent_index=connection_id)
-        print pagesDict
+        pagesDict = self._page.site.register.connection_pages(connection_id)
         result = Bag()
         for page_id,page in pagesDict.items():
             delta = (datetime.now()-page['start_ts']).seconds

@@ -22,7 +22,7 @@ class Table(object):
                     lock_pkey=pkey,
                     page_id=page.page_id,
                     username=page.user,
-                    connection_id=page.connection.connection_id
+                    connection_id=page.connection_id
                     )
         with self.db.tempEnv(connectionName='system'):
             try:

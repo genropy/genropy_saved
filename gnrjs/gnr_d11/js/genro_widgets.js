@@ -2487,10 +2487,7 @@ dojo.declare("gnr.widgets.VirtualStaticGrid",gnr.widgets.Grid,{
         }
         this.updateRowCount();
         this.selection.unselectAll();
-        if((this.prevSelectedIdentifiers) && (this.prevSelectedIdentifiers.length>0 )){
-            this.selectByRowAttr(this._identifier,this.prevSelectedIdentifiers);
-            this.prevSelectedIdentifiers = null;
-        }
+        this.selectionKeeper('load')
         if(this.autoSelect && (this.selection.selectedIndex<0)){
             var sel = this.autoSelect==true? 0:this.autoSelect();
             this.selection.select(sel);
@@ -2735,17 +2732,25 @@ dojo.declare("gnr.widgets.VirtualStaticGrid",gnr.widgets.Grid,{
         }
         this.reload(true);
     },
-    mixin_reload:function(keep_selection){
-        if (keep_selection){
+    mixin_selectionKeeper:function(flag){
+        if (flag=='save') {
              var prevSelectedIdentifiers=[];
              var identifier=this._identifier;
              dojo.forEach(this.getSelectedNodes(), function(node){
-                    if (node) {prevSelectedIdentifiers.push(node.attr[identifier]);};
+                 if (node) {prevSelectedIdentifiers.push(node.attr[identifier]);};
              });
              this.prevSelectedIdentifiers=prevSelectedIdentifiers;
-        }else{
+        }else if(flag=='clear'){
             this.prevSelectedIdentifiers=null;
+        }else if(flag=='load'){
+            if((this.prevSelectedIdentifiers) && (this.prevSelectedIdentifiers.length>0 )){
+                this.selectByRowAttr(this._identifier,this.prevSelectedIdentifiers);
+                this.prevSelectedIdentifiers = null;
+            }
         }
+    },
+    mixin_reload:function(keep_selection){
+        this.selectionKeeper(keep_selection?'save':'clear');
         var storebag = this.storebag();
         var storeParent = storebag.getParentNode();
         if (storeParent.getResolver()){

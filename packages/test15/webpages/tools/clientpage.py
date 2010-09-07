@@ -4,7 +4,7 @@
 
 class GnrCustomWebPage(object):
 
-    py_requires="testhandler:TestHandlerFull,storetester:StoreTester"
+    py_requires="gnrcomponents/testhandler:TestHandlerFull,storetester:StoreTester"
     dojo_theme='claro'
 
                     

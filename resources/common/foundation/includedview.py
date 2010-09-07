@@ -311,9 +311,10 @@ class IncludedView(BaseComponent):
         assert not 'nodeId' in selectionPars
         #assert 'where' in selectionPars
         selectionPars['nodeId'] = "%s_selection" %gridId
-        selectionPars['columns'] = selectionPars.get('columns') or '=.columns'
+        if table:
+            selectionPars['table'] = table
+            selectionPars['columns'] = selectionPars.get('columns') or '=.columns'
         method = selectionPars.pop('method','app.getSelection')
-        selectionPars['table'] = table
         destpath = None
         if 'destpath' not in selectionPars:
             destpath = storepath

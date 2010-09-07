@@ -26,17 +26,16 @@ try:
     HAS_MEMCACHE = True
 except ImportError:
     HAS_MEMCACHE = False
-try:
-    import cPickle as pickle
-except:
-    import pickle
-    
+
+import cPickle as pickle
+import os
+
 from datetime import timedelta
 import time
 from threading import RLock
 
 MAX_RETRY=20
-RETRY_TIME=0.01
+RETRY_TIME=0.03
 LOCK_TIME=2
 
 
@@ -78,27 +77,56 @@ class GnrSharedData(object):
                                        retry_time=retry_time)
         
     def unlock(self,key): 
-        return self.delete('%s_lock' % key)
+        result = self.delete('%s_lock' % key)
+        return result
         
-    def lock(self, key, max_retry=MAX_RETRY, 
-                        lock_time=LOCK_TIME, 
-                        retry_time=RETRY_TIME):
-        k, ok = max_retry, False
-        while k and not ok:
+    def lock(self, key, max_retry=None, 
+                        lock_time=None, 
+                        retry_time=None):
+                        
+        k = max_retry or MAX_RETRY
+        lock_time = lock_time or LOCK_TIME
+        retry_time = retry_time or RETRY_TIME
+        while k:
             if self.add('%s_lock' % key, True, expiry=lock_time):
                 return True
             k-=1
+            print 'retry to lock attempt n:',k
             time.sleep(retry_time)
+        print '**************UNABLE TO LOCK : %s max_retry:%i***************' % (key,max_retry)
 
- 
+    def dump(self):
+        pass
+        
+    def load(self):
+        pass
+        
 class GnrSharedData_dict(GnrSharedData):
-    
+    STORAGE_PATH='shared_data.pik'
     def __init__(self, site):
         self.storage = {}
         self.storage_lock = RLock()
         self.site = site
         self.cas_id = 0
-    
+        self.storage_path=os.path.join(self.site.site_path, self.STORAGE_PATH)
+        if os.path.exists(self.storage_path):
+            self.load()
+        
+    def dump(self):
+        print 'DUMP SHARED DATA'
+        with open(self.storage_path,'w') as shared_data_file:
+            pickle.dump(self.storage, shared_data_file)
+                
+    def load(self):
+        
+        try:
+            with open(self.storage_path) as shared_data_file:
+                self.storage=pickle.load(shared_data_file)
+                print 'LOAD SHARED DATA'
+        except EOFError:
+            print 'UNABLE TO LOAD SHARED DATA'
+        os.remove(self.storage_path)
+                    
     def key(self, key):
         return key
 

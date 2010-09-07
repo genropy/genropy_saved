@@ -18,7 +18,7 @@
 #License along with this library; if not, write to the Free Software
 #Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 
-from gnr.web.gnrwebpage import BaseComponent
+from gnr.web.gnrbaseclasses import BaseComponent
 from gnr.core.gnrbag import Bag,BagResolver
 
 def _getTreeRowCaption(tblobj):

@@ -144,8 +144,8 @@ dojo.declare('gnr.GenroClient', null, {
         console.log('bp '+aux);
     },
     onWindowUnload:function(e){
+        this.rpc.remoteCall('onClosePage',{sync:true});
         if (genro._data){
-            this.rpc.remoteCall('onClosePage',{sync:true});
             genro.saveContextCookie();
         }
     },
@@ -162,6 +162,21 @@ dojo.declare('gnr.GenroClient', null, {
     warning: function(msg){
         console.warn(msg);
         genro.dlg.message(msg );
+    },
+    _registerUserEvents:function(){
+        this.auto_polling = -1;
+        this.user_polling = -1;
+        genro._lastUserEventTs=new Date();
+        var cb=function(e){
+            if (genro.user_polling>0){
+                genro._lastUserEventTs=new Date();
+                if ((genro._lastUserEventTs - genro.lastRpc)/1000 >genro.user_polling){
+                    genro.rpc.ping({'reason':'user'});
+                }
+            }
+        }
+        dojo.connect(window ,'onmousemove',cb);
+        dojo.connect(window ,'onkeypress',cb);
     },
     dostart: function(){
         /*
@@ -181,6 +196,7 @@ dojo.declare('gnr.GenroClient', null, {
         this.dlg.createStandardMsg(document.body);
         this.dev.srcInspector(document.body);
         this.contextIndex = {};
+        
         
         //genro.timeIt('** getting main **');
         var mainBagPage  = this.rpc.remoteCall('main', this.startArgs, 'bag');
@@ -219,20 +235,12 @@ dojo.declare('gnr.GenroClient', null, {
         }
         this.isMac = dojo.isMac !=undefined? dojo.isMac:navigator.appVersion.indexOf('Macintosh')>=0;
         this.isTouchDevice = ( (navigator.appVersion.indexOf('iPad')>=0 )|| (navigator.appVersion.indexOf('iPhone')>=0));
-
+        this._registerUserEvents();
  
         if( this.isTouchDevice ){ 
             genro.dom.startTouchDevice()
           }   
-        genro.autopolling=genro.getData('gnr.autopolling')
-        if(genro.autopolling>0){
-            dojo.connect(window ,'onmousemove',function(e){
-                genro.registerEvent(e)
-            })
-            dojo.connect(window ,'onkeypress',function(e){
-                genro.registerEvent(e)
-            })
-        }          
+     
     },
     playSound:function(name,path,ext){
         if (!(name in genro.sounds)){
@@ -244,12 +252,6 @@ dojo.declare('gnr.GenroClient', null, {
     },
     setInServer: function(path, value,pageId){
         genro.rpc.remoteCall('setInServer', {path:path, value:value,pageId:pageId});
-    },
-    registerEvent:function(e){
-       if ((  new Date() - this.lastRpc)/1000 >genro.autopolling){
-           genro.rpc.ping();
-       }
-        
     },
     loadContext:function(){
         var contextBag = new gnr.GnrBag();
@@ -495,7 +497,7 @@ dojo.declare('gnr.GenroClient', null, {
             var currParams = {};
             var parameters = [];
             currParams['page_id']=genro.page_id;
-            currParams['xxcnt']=genro.getCounter();
+            currParams['_no_cache_']=genro.getCounter();
             objectUpdate(currParams, kwargs);
             for (var key in currParams){
                 parameters.push(key+'='+escape(currParams[key]));
@@ -719,7 +721,7 @@ dojo.declare('gnr.GenroClient', null, {
             var currParams = {};
             currParams['page_id']=genro.page_id;
             if (avoidCache != false){
-                currParams['xxcnt']=genro.getCounter();
+                currParams['_no_cache_']=genro.getCounter();
             }
             objectUpdate(currParams, kwargs);
             var parameters = [];
@@ -931,7 +933,7 @@ dojo.declare('gnr.GenroClient', null, {
     pageReload:function(params){
         if (params){
             if (objectNotEmpty(params)){
-                params['xxcnt'] = genro.getCounter();
+                params['_no_cache_'] = genro.getCounter();
                 var plist=[];
                 for (k in params){
                     plist.push(k+'='+encodeURIComponent(params[k]));

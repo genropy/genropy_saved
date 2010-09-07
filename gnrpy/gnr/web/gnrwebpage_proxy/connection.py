@@ -18,96 +18,115 @@ USER_AGENT_SNIFF=(('Chrome','Chrome'),
                   ('Firefox','Firefox'),
                   ('Opera','Opera'),
                   ('MSIE','InternetExplorer'))
+                  
 class GnrWebConnection(GnrBaseProxy):
-    
-    
     def init(self, **kwargs):
-        self.expired = False
-        self.connection_id = '_anonymous'
-        self.cookie = None
-        self.user = None
-        self.inited=False
-        self.user_agent=self.page.request.get_header('User-Agent')
-        self.sniffed_user_agent=self.sniffUserAgent()
+        page=self.page
+        self.user_agent=page.request.get_header('User-Agent')
+        self.browser_name=self.sniffUserAgent()
         self.ip = self.page.request.remote_addr
-        self.connection_name = '%s_%s'%(self.ip.replace('.','_'),self.sniffed_user_agent)
-        self.connection_timeout = self.page.site.config('connection_timeout') or CONNECTION_TIMEOUT
-        self.connection_refresh = self.page.site.config('connection_refresh') or CONNECTION_REFRESH
+        self.connection_name = '%s_%s'%(self.ip.replace('.','_'),self.browser_name)
+        self.secret = page.site.config['secret'] or self.page.siteName
+        self.cookie_name=self.page.siteName
+        self.connection_id =None
+        self.user=None
+        self.user_tags = None
+        self.user_id = None
+        self.user_name = None
+        self.registered_pages=[]
+        self.cookie = self.read_cookie()
+        self._cookie_data = None
+        if self.cookie:
+            self.connection_from_cookie(self.cookie.value)
 
-    def event_onEnd(self):
-        if self.page.user:
-            self._finalize()
+    def start(self):
+        if not self.connection_id:
+            self.connection_id =  getUuid()
+            self.user = self.guestname
+            self.register()
+            self.write_cookie()     
+   
+    def validate_page_id(self,page_id):
+        assert self.connection_id,'GNRWEBPAGE: not valid connection for page_id %s  '%page_id
+        return page_id in self.registered_pages
+
+    def connection_from_cookie(self,cookie_value):
+        cookie_connection_id=cookie_value.get('connection_id')
+        cookie_user=cookie_value.get('user')
+        cookie_data=cookie_value.get('data')
+        connection_item = self.page.site.register.get_connection(cookie_connection_id)
+        if connection_item:
+            if (connection_item['user'] == cookie_user) and (connection_item['user_ip'] == self.page.request.remote_addr):
+                self.connection_id = cookie_connection_id
+                self.user = cookie_user
+                self.registered_pages=connection_item['pages']
+                self.user_tags = connection_item['user_tags']
+                self.user_id = connection_item['user_id']
+                self.user_name = connection_item['user_name']
+        
+    @property
+    def guestname(self):
+        return 'guest_%s' % self.connection_id
+        
+    def register(self):
+        return self.page.site.register.new_connection(self)
+        
+    def unregister(self):
+        self.page.site.register.drop_connection(self.connection_id)
+        
+    def upd_registration(self,user):
+        pass
+        
+    def read_cookie(self):
+        return self.page.get_cookie(self.cookie_name,'marshal', secret = self.secret)
+
+    def write_cookie(self):
+        self.cookie = self.page.newMarshalCookie(self.cookie_name, {'user':self.user,
+                                                                    'connection_id': self.connection_id,
+                                                                    'data':self.cookie_data,
+                                                                    'locale':None}, secret = self.secret)
+        self.cookie.path = self.page.site.default_uri
+        self.page.add_cookie(self.cookie) 
+
+    @property    
+    def loggedUser(self):
+        return (self.user != self.guestname) and self.user
+        
+    @property
+    def cookie_data(self):
+        if self._cookie_data is None:
+            if self.cookie:
+                self._cookie_data = self.cookie.value.get('data') or {}
+            else:
+                self._cookie_data ={}
+        return self._cookie_data
             
+        
     def sniffUserAgent(self):
         user_agent=self.user_agent
         for k,v in USER_AGENT_SNIFF:
             if k in  user_agent:
                 return v
         return 'unknown browser'
-  
-    def getConnection(self, user=None,external_connection=None):
-        page = self.page
-        #self.ip=page.request.remote_addr
-        sitename = self.page.siteName
-        connection_info=None
-        if external_connection:
-            self.connection_id = external_connection
-        else:
-            self.secret = page.site.config['secret'] or self.page.siteName
-            self.cookie = self.page.get_cookie(self.connection_name,'marshal', secret = self.secret)
-            if self.cookie:
-                self.connection_id = self.cookie.value.get('connection_id')            
-        if self.connection_id:
-            connection_info = page.site.register_connection.get_register_item(self.connection_id)
-            if connection_info:
-                self.user = connection_info['user']
-            
-        if not connection_info and user:
-            self.user = user
-            self.connection_id = getUuid()
-            page.site.register_connection.register(self,autorenew=page.site.debug)
-            page.site.register_user.register(self.user)
-            self.cookie = self.page.newMarshalCookie(self.connection_name, {'user':self.user,'connection_id': self.connection_id, 'cookie_data':{}, 'locale':None}, secret = self.secret)
-        self.inited=True
-    
-    def _finalize(self):
-        self.page.site.register_connection.refresh(self)
-        if self.cookie:
-            self.cookie.path = self.page.site.default_uri
-            self.page.add_cookie(self.cookie)        
-
-    def _get_cookie_data(self):
-        if self.cookie:
-            return self.cookie.value.setdefault('cookie_data',{})
-        return {}
-    cookie_data = property(_get_cookie_data)
     
     def _get_locale(self):
         if self.cookie:
             return self.cookie.value.get('locale')
             
     def _set_locale(self, v):
-        self.cookie.value['timestamp'] = None
         self.cookie.value['locale'] = v
     locale = property(_get_locale, _set_locale)
-    
-    def makeAvatar(self, avatar):
-        self.cookie.value['timestamp'] = None
-        cookie_data = self.cookie_data
-        cookie_data['user'] = avatar.id
-        cookie_data['tags'] = avatar.tags
-
-    def rpc_logout(self,**kwargs):
-        self.close()
         
-    def close(self):
-        self.cookie.expires=1
-        self.dropConnection(self.connection_id)
+    def change_user(self,user=None,user_tags=None,user_id=None,user_name=None):
+        self.user = user or self.guestname
+        self.user_tags = user_tags
+        self.user_name = user_name
+        self.user_id = user_id
+        self.page.site.register.change_connection_user(self.connection_id,user=self.user,
+                                                        user_tags=self.user_tags,user_id=self.user_id,
+                                                        user_name=self.user_name)
+        self.write_cookie()
         
-    def dropConnection(self,connection_id):
-        page=self.page
-        site=page.site
-        site.connectionLog('close',connection_id=connection_id)
-        site.register_connection.unregister(self)
-        users = site.register_users.users(index_name='user')        
-    
+    def rpc_logout(self):
+        self.change_user()
+        

@@ -35,7 +35,7 @@ class Table(object):
             expiry=expiry,
             message_type=message_type,
             datetime=datetime.now(),
-            src_connection_id=srcpage.connection.connection_id,
+            src_connection_id=srcpage.connection_id,
             src_page_id=srcpage.page_id,
             src_user=srcpage.user)
             

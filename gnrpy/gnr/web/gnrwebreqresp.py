@@ -35,8 +35,6 @@ class GnrWebRequest(object):
         else:
             return getattr(self._request, name)
 
-            
-
     def _get_path_info(self):
         return self._request.path_info
     path_info= property(_get_path_info)
@@ -113,8 +111,8 @@ class GnrWebResponse(object):
 
     def _set_content_type(self,value):
         self._response.content_type=value
-        
+    content_type = property(_get_content_type,_set_content_type)
+    
+    
     def write(self, *args, **kwargs):
         return self._response.write(*args,**kwargs)
-        
-    content_type = property(_get_content_type,_set_content_type)

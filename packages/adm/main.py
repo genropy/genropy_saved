@@ -24,8 +24,8 @@ class Package(GnrDboPackage):
             result = dict(result[0])
             result['tags'] = result.pop('auth_tags')
             result['pwd'] = result.pop('md5pwd')
-            result['userid'] = result['id']
-            result['id'] = username
+            result['user_id'] = result['id']
+            result['user_name'] = '%s %s' %(result['firstname'],result['lastname'])
             result['md5len']=len(result['pwd'])
             return result
             
@@ -36,7 +36,8 @@ class Package(GnrDboPackage):
         avatar.login_pwd = None
         
     def onAuthenticated(self,avatar):
-        self.db.table('adm.connection').connectionLog('open')
+        pass
+        #self.db.table('adm.connection').connectionLog('open')
         
     def update_md5(self,avatar):
         md5_userid=hashlib.md5(str(avatar.userid)).hexdigest()

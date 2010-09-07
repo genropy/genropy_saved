@@ -144,7 +144,7 @@ class ConnectionStaticHandler(StaticHandler):
         return os.path.join(self.site.site_path,'data','_connections', connection_id, page_id, *args)
         
     def url(self, page,*args):
-        return '%s_conn/%s/%s/%s'%(self.home_uri,page.connection.connection_id, page.page_id,'/'.join(args))
+        return '%s_conn/%s/%s/%s'%(self.home_uri,page.connection_id, page.page_id,'/'.join(args))
 
 
 class UserStaticHandler(StaticHandler):

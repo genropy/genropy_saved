@@ -1289,9 +1289,11 @@ class Bag(GnrObject):
             if label.startswith('#'):
                 raise BagException ('Not existing index in #n syntax')
             else:
-                self._insertNode(BagNode(self,label=label,value=value,attr=_attributes,
+                bagnode=BagNode(self,label=label,value=value,attr=_attributes,
                                 resolver=resolver, validators=_validators,
-                                _removeNullAttributes=_removeNullAttributes), _position)
+                                _removeNullAttributes=_removeNullAttributes)
+                self._insertNode(bagnode, _position)
+                
         else:
             node=self._nodes[i]
             if resolver != None:
@@ -1540,7 +1542,7 @@ class Bag(GnrObject):
 
 #-------------------- toXml --------------------------------
     def toXml(self,filename=None,encoding='UTF-8',typeattrs=True,typevalue=True, unresolved=False, addBagTypeAttr=True,
-              autocreate=False, jsonmode=None, jsonkey=None, translate_cb=None,self_closed_tags=None,
+              autocreate=False, translate_cb=None,self_closed_tags=None,
               omitUnknownTypes=False, catalog=None, omitRoot=False, forcedTagAttr=None,docHeader=None):
         """
         This method returns a complete standard XML version of the Bag,
@@ -1569,7 +1571,7 @@ class Bag(GnrObject):
         from gnr.core.gnrbagxml import BagToXml
         return BagToXml().build(self, filename=filename, encoding=encoding,typeattrs=typeattrs,typevalue=typevalue, addBagTypeAttr=addBagTypeAttr,
                                     unresolved=unresolved,autocreate=autocreate, forcedTagAttr=forcedTagAttr,
-                                    jsonmode=jsonmode,jsonkey=jsonkey, translate_cb=translate_cb, self_closed_tags=self_closed_tags,
+                                    translate_cb=translate_cb, self_closed_tags=self_closed_tags,
                                     omitUnknownTypes=omitUnknownTypes, catalog=catalog, omitRoot=omitRoot,docHeader=docHeader)
         
     def fillFrom(self, source):
@@ -1751,11 +1753,16 @@ class Bag(GnrObject):
             s(node=node, pathlist=pathlist, oldvalue=oldvalue, evt=evt)
         if self.parent: 
             self.parent._onNodeChanged(node, [self.parentNode.label]+pathlist, evt ,oldvalue)
-        
+  
     def _onNodeInserted(self,node,ind, pathlist=None):
         """
         This method is called from the trigger system and set a function at inserting events
         """
+        
+        parent=node.parentbag
+        if parent!=None and parent.backref and isinstance(node._value,Bag):
+            node._value.setBackRef(node=node,parent=parent)
+                
         if pathlist==None:
             pathlist=[]        
         for s in self._ins_subscribers.values():

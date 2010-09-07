@@ -163,11 +163,11 @@ class GnrPackage(object):
                 
     def config_attributes(self):
         return {}
-
+        
     def onAuthentication(self, avatar):
         """Hook after authentication: receive the avatar and can add information to it"""
         pass
-
+        
     def configure(self):
         """Build db structure in this order:
         - package config_db.xml
@@ -468,21 +468,19 @@ class GnrApp(object):
     def authPackage(self):
         return self.packages[self.config.getAttr('authentication','pkg')]
 
-    def getAvatar(self, username, password=None, authenticate=False,page=None):
-        if username:
+    def getAvatar(self, user, password=None, authenticate=False,page=None):
+        if user:
             authmethods = self.config['authentication']
             if authmethods:
                 for node in self.config['authentication'].nodes:
-                    
-                    avatar = getattr(self, 'auth_%s' % node.label.replace('_auth',''))(node, username, password=password, authenticate=authenticate)
-        
+                    avatar = getattr(self, 'auth_%s' % node.label.replace('_auth',''))(node, user, password=password, authenticate=authenticate)
                     if not (avatar is None):
                         avatar.page = page
                         for pkg in self.packages.values():
                             pkg.onAuthentication(avatar)
                         return avatar
                 
-    def auth_xml(self, node, username, password=None, authenticate=False):
+    def auth_xml(self, node, user, password=None, authenticate=False):
         """Authentication from instanceconfig.xml, use it during development or for sysadmin tasks.
         
         In file instanceconfig.xml insert a tag like::
@@ -498,12 +496,15 @@ class GnrApp(object):
             users=Bag(self.realPath(path))
         else:
             users=node.getValue()
-        for userid, attrs in users.digest('#k,#a'):
-            if username == userid:
-                return self.makeAvatar(login_pwd=password, authenticate=authenticate, defaultTags=defaultTags, 
-                                          id=userid, username=userid, userid=userid, **attrs)
+        for key, attrs in users.digest('#k,#a'):
+            if key == user:
+                user_name=attrs.pop('user_name',key)
+                user_id=attrs.pop('user_id',key)
+                return self.makeAvatar(user=user,user_name=user_name,user_id=user_id,
+                                        login_pwd=password, authenticate=authenticate, 
+                                        defaultTags=defaultTags, **attrs)
 
-    def auth_py(self, node, username, password=None, authenticate=False):
+    def auth_py(self, node, user, password=None, authenticate=False):
         """Python authentication. This is mostly used to register new users for the first time. (see ``adm`` package).
         
         In file instanceconfig.xml insert a tag like::
@@ -526,12 +527,16 @@ class GnrApp(object):
         else:
             handler = getattr(self, attrs['method'])
         if handler:
-            result = handler(username)
+            result = handler(user)
         if result:
-            result['id'] = result['username']
-            return self.makeAvatar(login_pwd=password, authenticate=authenticate, defaultTags=defaultTags, **result)
+            user_name = result.pop('user_name',user) 
+            user_id = result.pop('user_id',user)
+            tags = result.pop('tags',user)
+            return self.makeAvatar(user=user, user_name=user_name,user_id=user_id,tags=tags,
+                                    login_pwd=password, authenticate=authenticate, 
+                                    defaultTags=defaultTags, **result)
     
-    def auth_sql(self, node, username, password=None, authenticate=False):
+    def auth_sql(self, node, user, password=None, authenticate=False):
         """Authenticate from database.
         
         In file instanceconfig.xml insert a tag like::
@@ -546,17 +551,21 @@ class GnrApp(object):
         attrs = dict(node.getAttr())
         defaultTags = attrs.pop('defaultTags', None)
         kwargs = {}
-        kwargs[str(attrs['username'])] = username
+        kwargs[str(attrs['username'])] = user
         dbtable = attrs.pop('dbtable')
         try:
-            rec = self.db.table(dbtable).record(**kwargs).output('bag')
+            tblobj = self.db.table(dbtable)
+            rec = tblobj.record(**kwargs).output('bag')
             result = dict([(str(k), rec[v]) for k,v in attrs.items()])
-            result['id'] = result['username']
-            return self.makeAvatar(login_pwd=password, authenticate=authenticate, defaultTags=defaultTags, **result)
+            user_name = result.pop('user_name',user) 
+            user_id = result[tblobj.pkey]
+            return self.makeAvatar(user=user, user_name=user_name,user_id=user_id,
+                                   login_pwd=password, authenticate=authenticate, defaultTags=defaultTags, **result)
         except:
             return None
-        
-    def makeAvatar(self, id, username=None, userid=None, login_pwd=None, authenticate=False, defaultTags=None, pwd=None,  tags='', **kwargs):
+    
+    def makeAvatar(self, user, user_name=None, user_id=None, login_pwd=None, 
+                    authenticate=False, defaultTags=None, pwd=None,  tags='', **kwargs):
         if defaultTags:
             tags = ','.join(makeSet(defaultTags, tags or ''))
         if authenticate:
@@ -564,7 +573,7 @@ class GnrApp(object):
         else:
             valid = True
         if valid:
-            return GnrAvatar(id=id, username=username, userid=userid, pwd=pwd, tags=tags,login_pwd=login_pwd, **kwargs)
+            return GnrAvatar(user=user, user_name=user_name, user_id=user_id, pwd=pwd, tags=tags,login_pwd=login_pwd, **kwargs)
         
     def validatePassword(self, login_pwd, pwd=None, user=None):
         if not pwd:
@@ -691,12 +700,12 @@ class GnrApp(object):
             
         
 class GnrAvatar(object):
-    def __init__(self, id, username, tags='', userid=None, **kwargs):
-        self.id = id
-        self.username = username
-        self.userid = userid or id
-        self.tags = tags
-        self.loginPars={'tags':self.tags}
+    def __init__(self, user, user_name=None, user_id=None,tags='', **kwargs):
+        self.user = user
+        self.user_name = user_name
+        self.user_id = user_id
+        self.user_tags = tags
+        self.loginPars={'tags':self.user_tags}
         for k,v in kwargs.items():
             setattr(self, k, v)
             
@@ -708,6 +717,10 @@ class GnrAvatar(object):
             if not tag in t:
                 t.append(tag)
         self.tags = ','.join(t)
+    
+    def as_dict(self):
+        return dict(user=self.user,user_tags=self.user_tags, 
+                    user_id=self.user_id,user_name=self.user_name)
         
 class GnrWriteInReservedTableError(Exception):
     pass

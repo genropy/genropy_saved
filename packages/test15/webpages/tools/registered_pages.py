@@ -5,7 +5,7 @@ import datetime
 from gnr.core.gnrbag import Bag,BagResolver
 class GnrCustomWebPage(object):
 
-    py_requires="testhandler:TestHandlerFull,storetester:StoreTester"
+    py_requires="gnrcomponents/testhandler:TestHandlerFull,storetester:StoreTester"
     dojo_theme='claro'
     
     def test_1_registered_pages(self,pane):

@@ -55,7 +55,7 @@ dojo.declare("gnr.GnrStoreBag",null,{
     },
 // -----------------------------------------common API ------------------------------
     getFeatures: function(){
-        //genro.debug('getFeatures');
+        genro.debug('getFeatures');
         return {
             'dojo.data.api.Read': true,
             'dojo.data.api.Write': true,
@@ -66,7 +66,7 @@ dojo.declare("gnr.GnrStoreBag",null,{
 // -----------------------------------------read API ------------------------------
 
     getValue: function( /* item */ item, /* attribute-name-string */ attribute, /* value? */ defaultValue){
-        //genro.debug('getValue: item='+item.label+' - attribute-name-string='+attribute+' - default='+ defaultValue);
+        genro.debug('getValue: item='+item.label+' - attribute-name-string='+attribute+' - default='+ defaultValue);
         var attributes=item.attr;
         if (attribute=='#k'){
             return item.label;
@@ -87,7 +87,7 @@ dojo.declare("gnr.GnrStoreBag",null,{
     },
     
     getValues: function(/* item */ item,/* attribute-name-string */ attribute){
-        //genro.debug('getValues: item='+item.label+' - attribute-name-string='+attribute);
+        genro.debug('getValues: item='+item.label+' - attribute-name-string='+attribute);
         var attributes = item.getAttr();
         if (attribute=='#v'){
             var itemvalue=item.getValue();
@@ -114,7 +114,7 @@ dojo.declare("gnr.GnrStoreBag",null,{
         var attributes = [];
         
         if(item){
-            //genro.debug('getAttributes: item='+item.label);
+            genro.debug('getAttributes: item='+item.label);
             for(var key in item.getAttr()){
                 attributes.push(key);
             }
@@ -125,7 +125,7 @@ dojo.declare("gnr.GnrStoreBag",null,{
     hasAttribute: function( /* item */ item, /* attribute-name-string */ attribute){
         
         if(this.isItem(item)){
-            //genro.debug('hasAttribute: item='+item.label+' - attribute-name-string='+attribute);
+            genro.debug('hasAttribute: item='+item.label+' - attribute-name-string='+attribute);
             if (attribute=='#v'){
                 var resolver = item.getResolver();
                 if (resolver && !resolver.lastUpdate){
@@ -155,17 +155,17 @@ dojo.declare("gnr.GnrStoreBag",null,{
     },
 
     containsValue: function(/* item */ item,/* attribute-name-string */ attribute, /* anything */ value){
-        //genro.debug('containsValue: item='+item.label+' - attribute-name-string='+attribute+' - value='+ value+' ---->Unimplemeted','alert');
+        genro.debug('containsValue: item='+item.label+' - attribute-name-string='+attribute+' - value='+ value+' ---->Unimplemeted','alert');
         return false; // boolean
     },
 
     isItem: function(/* anything */ something){
-        //genro.debug('isItem');
+        genro.debug('isItem');
         return (something instanceof gnr.GnrBagNode);
     },
 
     isItemLoaded: function(/* anything */ something) {
-        //genro.debug('isItemLoaded: something='+something);
+        genro.debug('isItemLoaded: something='+something);
 
         if (this.isItem(something)){
             return something.isLoaded();
@@ -176,7 +176,7 @@ dojo.declare("gnr.GnrStoreBag",null,{
     },
 
     loadItem: function(/* object */ request){
-        //genro.debug('loadItem: keywordArgs='+objectString(request));
+        genro.debug('loadItem: keywordArgs='+objectString(request));
         if (!this.isItemLoaded(request.item)) {
             var scope =  request.scope?request.scope:dojo.global;
             var cb=dojo.hitch(scope,request.onItem);
@@ -190,7 +190,7 @@ dojo.declare("gnr.GnrStoreBag",null,{
     },
 
     fetch : function(/* Object */ request){
-        //genro.debug('loadItem: request='+objectString(request));
+        genro.debug('loadItem: request='+objectString(request));
         request = request || {};
         if(!request.store){
             request.store = this;
@@ -284,12 +284,12 @@ dojo.declare("gnr.GnrStoreBag",null,{
     },
 
     close: function(/*dojo.data.api.Request || keywordArgs || null */ request){  
-        //genro.debug('close: keywordArgs='+objectString(keywordArgs)+' - request'+objectString(request)+'  ---->Unimplemented','alert');
+        genro.debug('close: keywordArgs='+objectString(keywordArgs)+' - request'+objectString(request)+'  ---->Unimplemented','alert');
     },
 
     getLabel: function(/* item */ item){
         if (this.isItem(item)){
-            //genro.debug('getLabel: item='+item.label);
+            genro.debug('getLabel: item='+item.label);
             if(this.labelAttribute){
                 return item.attr[this.labelAttribute]||item.label;
             }else if(this.labelCb){
@@ -309,7 +309,7 @@ dojo.declare("gnr.GnrStoreBag",null,{
     },
 
     getLabelAttributes: function(/* item */ item){
-        //genro.debug('getLabelAttributes: item='+item.label+'  ------>Unimplemented','alert');
+        genro.debug('getLabelAttributes: item='+item.label+'  ------>Unimplemented','alert');
 },
 
 // -----------------------------------------write API ------------------------------
@@ -317,41 +317,41 @@ dojo.declare("gnr.GnrStoreBag",null,{
     newItem: function(/* Object? */ keywordArgs, /*Object?*/ parentInfo){
        
         var newItem;
-        //genro.debug('newItem: item='+objectString(keywordArgs)+'  ------>Unimplemented','alert');
+        genro.debug('newItem: item='+objectString(keywordArgs)+'  ------>Unimplemented','alert');
         return newItem; // item
     },
 
     deleteItem: function(/* item */ item){
-        //genro.debug('deleteItem: item='+item.label+'  ------>Unimplemented','alert');
+        genro.debug('deleteItem: item='+item.label+'  ------>Unimplemented','alert');
         return false; // boolean
     },
 
     setValue: function( /* item */ item, /* string */ attribute,/* almost anything */ value){
-        //genro.debug('setValue: item='+item.label+'  ------>Unimplemented','alert');
+        genro.debug('setValue: item='+item.label+'  ------>Unimplemented','alert');
         return false; // boolean
     },
 
     setValues: function(/* item */ item,/* string */ attribute, /* array */ values){
-        //genro.debug('setValues: item='+item.label+'  ------>Unimplemented','alert');
+        genro.debug('setValues: item='+item.label+'  ------>Unimplemented','alert');
         return false; // boolean
     },
 
     unsetAttribute: function(   /* item */ item, /* string */ attribute){
-        //genro.debug('unsetAttribute: item='+item.label+'  ------>Unimplemented','alert');
+        genro.debug('unsetAttribute: item='+item.label+'  ------>Unimplemented','alert');
         return false; // boolean
     },
 
     save: function(/* object */ keywordArgs){
-        //genro.debug('save: keywordArgs='+objectString(keywordArgs)+'  ------>Unimplemented','alert');   
+        genro.debug('save: keywordArgs='+objectString(keywordArgs)+'  ------>Unimplemented','alert');   
       },
 
     revert: function(){
-     //genro.debug('revert:   ------>Unimplemented','alert');
+     genro.debug('revert:   ------>Unimplemented','alert');
         return false; // boolean
     },
 
     isDirty: function(/* item? */ item){
-     //genro.debug('isDirty: item='+item.label+'  ------>Unimplemented','alert');
+     genro.debug('isDirty: item='+item.label+'  ------>Unimplemented','alert');
         return false; // boolean
     },
 // -----------------------------------------identity API ------------------------------
@@ -367,7 +367,7 @@ dojo.declare("gnr.GnrStoreBag",null,{
         if (!( item instanceof gnr.GnrBagNode)) {
             return item.id;
         }
-        //genro.debug('getIdentity: item='+item.label);
+        genro.debug('getIdentity: item='+item.label);
         var identifier= this._identifier;
         if (identifier=='#id'){
             return item._id;
@@ -390,18 +390,18 @@ dojo.declare("gnr.GnrStoreBag",null,{
     },
 
     getIdentityAttributes: function(/* item */ item){
-        //genro.debug('getIdentityAttributes: item='+item.label+'  ------>Unimplemented','alert');  
+        genro.debug('getIdentityAttributes: item='+item.label+'  ------>Unimplemented','alert');  
         return null; // string
     },
 
     fetchItemByIdentity: function(/* object */ request){
-        //genro.debug('fetchItemByIdentity: identity='+request.identity);
+        genro.debug('fetchItemByIdentity: identity='+request.identity);
         if (request.identity){
             var id=request.identity;
             var item=null;
             var bagnode;
             var nodes=this.rootData().getNodes();
-            //genro.debug('trying fetchIdentity on '+nodes.length+' existing nodes');
+            genro.debug('trying fetchIdentity on '+nodes.length+' existing nodes');
             for (var i=0; i<nodes.length; i++){
                 bagnode=nodes[i];
                 if(this.getIdentity(bagnode) == id){
@@ -425,11 +425,11 @@ dojo.declare("gnr.GnrStoreBag",null,{
 // -----------------------------------------Notification API ------------------------------
   
     onSet: function(/* item */ item, /* attribute-name-string */ attribute, /* object | array */ oldValue,/* object | array */ newValue){
-        ////genro.debug('onSet: item='+item.label+' - value:'+ item._value+' - status:'+item._status);
+        //genro.debug('onSet: item='+item.label+' - value:'+ item._value+' - status:'+item._status);
     },
 
     onNew: function(/* item */ newItem, /*object?*/ parentInfo){
-        ////genro.debug('onNew: item='+newItem.label+'  ------>Unimplemented');
+        //genro.debug('onNew: item='+newItem.label+'  ------>Unimplemented');
     },
 
     // item: someItem,                         //The parent item
@@ -442,7 +442,7 @@ dojo.declare("gnr.GnrStoreBag",null,{
     //                      //it will be an array.
     
     onDelete: function(/* item */ deletedItem){
-       ////genro.debug('onDelete: item='+deletedItem.label+'  ------>Unimplemented');
+       //genro.debug('onDelete: item='+deletedItem.label+'  ------>Unimplemented');
     },
     _triggerUpd:function(kw){
         if (kw.updvalue){
@@ -528,9 +528,9 @@ dojo.declare("gnr.GnrStoreGrid",gnr.GnrStoreBag,{
         }
     },
     fetchItemByIdentity: function(/* object */ request){
-        //genro.debug('fetchItemByIdentity: identity='+request.identity);
+        genro.debug('fetchItemByIdentity: identity='+request.identity);
         if (!request.identity){
-            //genro.debug('fetchItemByIdentity: return null');
+            genro.debug('fetchItemByIdentity: return null');
             return null;
         }else{
             var id=request.identity;
@@ -552,9 +552,9 @@ dojo.declare("gnr.GnrStoreGrid",gnr.GnrStoreBag,{
 // ******************** GnrStoreQuery **************************
 dojo.declare("gnr.GnrStoreQuery",gnr.GnrStoreBag,{
     fetchItemByIdentity: function(/* object */ request){
-        //genro.debug('fetchItemByIdentity: identity='+request.identity);
+        genro.debug('fetchItemByIdentity: identity='+request.identity);
         if (!request.identity){
-            //genro.debug('fetchItemByIdentity: return null');
+            genro.debug('fetchItemByIdentity: return null');
             var result = new gnr.GnrBagNode();
             result.attr[this.searchAttr] = '';
             var scope =  request.scope?request.scope:dojo.global;

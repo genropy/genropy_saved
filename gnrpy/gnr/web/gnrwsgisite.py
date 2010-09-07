@@ -23,11 +23,11 @@ from gnr.core.gnrmailhandler import MailHandler
 from gnr.app.gnrdeploy import PathResolver
 from gnr.web.gnrwsgisite_proxy.gnrresourceloader import ResourceLoader
 from gnr.web.gnrwsgisite_proxy.gnrstatichandler import StaticHandlerManager
+
 from gnr.web.gnrwsgisite_proxy.gnrshareddata import GnrSharedData_dict, GnrSharedData_memcache
-from gnr.web.gnrwsgisite_proxy.gnrobjectregister import PageRegister, ConnectionRegister, UserRegister
+from gnr.web.gnrwsgisite_proxy.gnrobjectregister import SiteRegister
 import random
 import shutil
-import atexit
 mimetypes.init()
 site_cache = {}
 
@@ -73,7 +73,7 @@ class SiteLock(object):
         page=self.site.currentPage
         lockinfo=dict(user=page.user,
                       page_id=page.page_id,
-                      connection_id=page.connection.connection_id,
+                      connection_id=page.connection_id,
                       currtime=time.time())
         
         result= self.site.shared_data.add(self.locked_path,lockinfo, expiry=self.expiry)
@@ -199,14 +199,7 @@ class GnrWsgiSite(object):
                 self._shared_data = GnrSharedData_memcache(self, memcache_config, debug=self.config.getAttr('memcache').get('debug'))
             else:
                 self._shared_data = GnrSharedData_dict(self)
-                shared_data_file_path = os.path.join(self.site_path,'shared_data.pik')
-                if os.path.exists(shared_data_file_path):
-                    with open(shared_data_file_path) as shared_data_file:
-                        self._shared_data.storage=cPickle.load(shared_data_file)
-                    os.remove(shared_data_file_path)
         return self._shared_data
-    
-    
     
     def log_print(self,str):
         if getattr(self,'debug',True):
@@ -214,12 +207,13 @@ class GnrWsgiSite(object):
     
     def __call__(self, environ, start_response):
         return self.wsgiapp(environ, start_response)
-    
+        
+
+        
     def __init__(self, script_path, site_name=None, _config=None, _gnrconfig=None, counter=None, noclean=None,options=None):
         global GNRSITE
         GNRSITE = self
         counter = int(counter or '0')
-        atexit.register(self.on_monitor_restart)
         self._currentPages={}
         abs_script_path = os.path.abspath(script_path)
         if os.path.isfile(abs_script_path):
@@ -232,6 +226,7 @@ class GnrWsgiSite(object):
         else:
             self.gnr_config = self.load_gnr_config()
             self.set_environment()
+            
         if _config:
             self.config = _config
         else:
@@ -267,14 +262,11 @@ class GnrWsgiSite(object):
         self.find_gnrjs_and_dojo()
         self.page_factory_lock=RLock()
         self.webtools = self.find_webtools()
+
         self.services = Bag()
         self.print_handler = self.addService('print',PrintHandler(self))
         self.mail_handler = self.addService('mail',MailHandler(self))
-        self.register_page  = self.addService('register.page',PageRegister(self), private=True)
-        self.register_connection = self.addService('register.connection',
-                                                    ConnectionRegister(self,onRemoveConnection=self.connFolderRemove), 
-                                                    private=True)
-        self.register_user = self.addService('register.user',UserRegister(self), private=True)
+        self.register = SiteRegister(self)
         if counter==0 and self.debug:
             self.onInited(clean = not noclean)
             
@@ -292,36 +284,39 @@ class GnrWsgiSite(object):
         return self.statics.get(static_name)
     
     def exception(self,message):
-        
         e= GnrSiteException(message=message)
         if self.currentPage:
             e.setLocalizer(self.currentPage.localizer)
         return e
         
         
-    def connFolderRemove(self, connection_id, rnd=True):        
-        shutil.rmtree(os.path.join(self.allConnectionsFolder, connection_id),True)
-        if rnd and random.random() > 0.9:
-            live_connections=self.register_connection.connections()
-            connection_to_remove=[connection_id for connection_id in os.listdir(self.allConnectionsFolder) if connection_id not in live_connections and os.path.isdir(connection_id)]
-            for connection_id in connection_to_remove:
-                self.connFolderRemove(connection_id, rnd=False)
-        
+   #def connFolderRemove(self, connection_id, rnd=True):        
+   #    shutil.rmtree(os.path.join(self.allConnectionsFolder, connection_id),True)
+   #    if rnd and random.random() > 0.9:
+   #        live_connections=self.register_connection.connections()
+   #        connection_to_remove=[connection_id for connection_id in os.listdir(self.allConnectionsFolder) if connection_id not in live_connections and os.path.isdir(connection_id)]
+   #        for connection_id in connection_to_remove:
+   #            self.connFolderRemove(connection_id, rnd=False)
+   #    
     def _get_automap(self):
         return self.resource_loader.automap
     automap = property(_get_automap)
+    
     def onInited(self, clean):
         if clean:
             self.dropConnectionFolder()
             self.initializePackages()
         else:
             pass
+            
+    def on_reloader_restart(self):
+        self.shared_data.dump()
+            
     def initializePackages(self):
         for pkg in self.gnrapp.packages.values():
             if hasattr(pkg,'onSiteInited'):
                 pkg.onSiteInited()
                 
-        
     def find_webtools(self):
         def isgnrwebtool(cls):
             return inspect.isclass(cls) and issubclass(cls,BaseWebtool)
@@ -426,7 +421,7 @@ class GnrWsgiSite(object):
         else:
             return self.default_uri
     home_uri=property(_get_home_uri)
-        
+    
     def dispatcher(self,environ,start_response):
         """Main WSGI dispatcher, calls serve_staticfile for static files and self.createWebpage for
          GnrWebPages"""
@@ -437,9 +432,16 @@ class GnrWsgiSite(object):
         # Url parsing start
         path_list = self.get_path_list(request.path_info)
         request_kwargs=dict(request.params)
+        request_kwargs.pop('_no_cache_',None)
         storename = None
+        #print 'site dispatcher: ',path_list
         if path_list[0] in self.dbstores:
             storename = path_list.pop(0)
+        if path_list[0] == '_ping':
+            result=self.serve_ping(response, **request_kwargs)
+            self.setResultInResponse(result, response, totaltime = time()-t)
+            return response(environ, start_response)
+
         if path_list and path_list[0].startswith('_tools'):
             return self.serve_tool(path_list,environ,start_response,**request_kwargs)
         elif path_list and path_list[0].startswith('_'):
@@ -547,11 +549,11 @@ class GnrWsgiSite(object):
             self.db.packages['adm'].onAuthenticated(avatar)
               
     def pageLog(self,event,page_id=None):
-        if 'adm' in self.db.packages:
+        if False and 'adm' in self.db.packages:
             self.db.table('adm.served_page').pageLog(event,page_id=page_id)
             
     def connectionLog(self,event,connection_id=None):
-        if 'adm' in self.db.packages:
+        if False and 'adm' in self.db.packages:
             self.db.table('adm.connection').connectionLog(event,connection_id=connection_id)
 
     def setPreference(self,path, data,pkg=''):
@@ -602,9 +604,10 @@ class GnrWsgiSite(object):
             return self.gnrapp.db.table('sys.locked_record').clearExistingLocks(**kwargs)
             
     def onClosePage(self,page):
-        self.register_page.unregister(page)
-        self.pageLog('close',page_id=page.page_id)
-        self.clearRecordLocks(page_id=page.page_id)
+        page_id=page.page_id
+        self.register.drop_page(page_id)
+        self.pageLog('close',page_id=page_id)
+        self.clearRecordLocks(page_id=page_id)
         
     def debugger(self,debugtype,**kwargs):
         if self.currentPage:
@@ -614,12 +617,12 @@ class GnrWsgiSite(object):
         
     def notifyDbEvent(self,tblobj,record,event,old_record=None):
         if tblobj.attributes.get('broadcast'): 
-            subscribers = self.register_page.pages(index_name=tblobj.fullname)
+            subscribers = self.register.pages(index_name=tblobj.fullname)
             value=Bag([(k,v) for k,v in record.items() if not k.startswith('@')])
             page = self.currentPage
             for page_id in subscribers.keys():
                 page.setInClientData('gnr.dbevent.%s'%tblobj.fullname.replace('.','_'),value,
-                                     _attributes=dict(dbevent=event), page_id=page_id) 
+                                     attributes=dict(dbevent=event), page_id=page_id) 
                                    
     def sendMessageToClient(self,value,pageId=None,filters=None,origin=None,msg_path=None):
         """Send a message """
@@ -658,6 +661,21 @@ class GnrWsgiSite(object):
     def loadTableScript(self, page, table, respath, class_name=None):
         return self.resource_loader.loadTableScript( page, table, respath, class_name=class_name)
   
+    def getPageDatachanges(self,page_id,local_datachanges=None):
+        result = Bag()
+        local_datachanges = local_datachanges or []
+        with self.register.pageStore(page_id) as store:
+            external_datachanges = list(store.datachanges) or []
+            store.reset_datachanges()
+            
+        for j,change in enumerate(external_datachanges+local_datachanges):
+            result.setItem('sc_%i' %j,change.value,change_path=change.path,change_reason=change.reason,
+                            change_fired=change.fired,change_attr=change.attributes,
+                            change_ts=change.change_ts)
+                
+        return result
+  
+  
     def _get_resources(self):
         if not hasattr (self,'_resources'):
             self._resources= self.resource_loader.site_resources()
@@ -677,12 +695,36 @@ class GnrWsgiSite(object):
     def webtools_url(self,tool,**kwargs):
         kwargs_string = '&'.join(['%s=%s'%(k,v) for k,v in kwargs.items()])
         return '%s%s_tools/%s?%s'%(self.external_host,self.home_uri,tool,kwargs_string)
-        
-    def on_monitor_restart(self):
-        if not self.config['memcache']:
-            with open(os.path.join(self.site_path, 'shared_data.pik'),'w') as shared_data_file:
-                cPickle.dump(self.shared_data.storage, shared_data_file)
-
+                
+    def serve_ping(self,response, page_id=None,reason=None,**kwargs):
+        kwargs=self.parse_kwargs(kwargs)
+        _lastUserEventTs=kwargs.get('_lastUserEventTs')
+        self.register.refresh(page_id,_lastUserEventTs)
+        envelope = Bag(dict(result=None))
+        datachanges = self.getPageDatachanges(page_id)
+        if datachanges:
+            envelope.setItem('dataChanges', datachanges)
+        response.content_type = "text/xml"
+        result= envelope.toXml(unresolved=True,  omitUnknownTypes=True)
+        return result
+ 
+    def parse_kwargs(self,kwargs,workdate=None):
+        catalog=self.gnrapp.catalog
+        result = dict(kwargs)
+        for k,v in kwargs.items():
+            if isinstance(v, basestring):
+                try:
+                    v=catalog.fromTypedText(v)
+                    if isinstance(v, basestring):
+                        v = v.decode('utf-8')
+                    result[k] = v
+                except Exception, e:
+                    raise e
+        return result
+ 
+ 
+ 
+ 
     @deprecated
     def site_static_path(self,*args):
         return self.getStatic('site').path(*args)
@@ -703,3 +745,4 @@ class GnrWsgiSite(object):
         zip_archive.close()
         zipresult.close()
         
+            

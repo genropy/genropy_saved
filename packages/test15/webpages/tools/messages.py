@@ -5,7 +5,7 @@
 # Copyright (c) 2010 Softwell. All rights reserved.
 
 class GnrCustomWebPage(object):
-    py_requires="testhandler:TestHandlerFull,storetester:StoreTester"
+    py_requires="gnrcomponents/testhandler:TestHandlerFull,storetester:StoreTester"
 
     def windowTitle(self):
         return 'Messages'

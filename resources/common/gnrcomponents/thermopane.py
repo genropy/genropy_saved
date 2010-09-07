@@ -18,7 +18,26 @@ class ThermoPane(BaseComponent):
         </status>
         
     -Parameters:    
+    
+
+
+
+
     """
+    def thermoFloating(self,pane):
+        fp = pane.floatingPane(title='public floating',_class='shadow_4',nodeId='thermoFloating',datapath='_thermo',
+                                   top='80px',left='20px',width='400px',visible=False,dockTo='invisible_dock',
+                                   closable=False,resizable=True,resizeAxis='xy',maxable=False,dockable=True,
+                                   duration=400)
+        pane.dock(nodeId='invisible_dock',hidden=True)
+        
+        fp.dataController("""
+                            genro.dlg.
+                            
+                            genro.wdgById('thermoFloating').show();
+                                """,_fired="^.show")
+        
+                                   
     def thermoPane(self,pane,nodeId=None,title=None,datapath=None,items=None):
         box = pane.div(datapath=datapath,hidden='^.status?hidden')
         for item in items.split(','):

@@ -32,7 +32,7 @@ from gnr.web._gnrbasewebpage import GnrBaseWebPage
 import os
 import shutil
 
-from gnr.core.gnrstring import toJson,concat, jsquote
+from gnr.core.gnrstring import toText,toJson,concat, jsquote
 
 from gnr.core.gnrlang import getUuid
 from mako.lookup import TemplateLookup
@@ -49,6 +49,9 @@ from gnr.web.gnrwebstruct import GnrGridStruct
 from gnr.core.gnrlang import gnrImport, GnrException
 from gnr.core.gnrbag import Bag
 from gnr.core.gnrlang import deprecated
+
+from gnr.web.gnrbaseclasses import BaseComponent
+
 import datetime
 
 AUTH_OK=0
@@ -57,8 +60,6 @@ AUTH_FORBIDDEN=-1
 PAGE_TIMEOUT = 60
 PAGE_REFRESH = 20
 
-##### Prima di modificare le repositori Progetti
-from gnr.web.gnrbaseclasses import BaseComponent
 
 class GnrWebPageException(GnrException):
     pass
@@ -74,10 +75,9 @@ class GnrWebPage(GnrBaseWebPage):
         self.isTouchDevice = ('iPad' in self.user_agent or 'iPhone' in self.user_agent)
         self._event_subscribers = {}
         self.local_datachanges = list()
-        self.user = None
         self._connection = None
         self.forked = False # maybe redefine as _forked
-        self.page_id = request_kwargs.pop('page_id',None) or getUuid()
+        self.request_page_id = request_kwargs.pop('page_id',None)
         self.filepath = filepath
         self.packageId = packageId
         self.basename = basename
@@ -102,7 +102,7 @@ class GnrWebPage(GnrBaseWebPage):
         self.onIniting(request_args,request_kwargs)
         
         self.private_kwargs=dict([(k[:2],v)for k,v in request_kwargs.items() if k.startswith('__')])
-        self.pagetemplate = request_kwargs.pop('pagetemplate',None) or getattr(self, 'pagetemplate', None) or self.site.config['dojo?pagetemplate'] # index
+        self.pagetemplate = request_kwargs.pop('pagetemplate',None) or getattr(self, 'pagetemplate', None) or self.site.config['dojo?pagetemplate'] or 'standard.tpl'
         self.css_theme = request_kwargs.pop('css_theme',None) or getattr(self, 'css_theme', None) or self.site.config['gui?css_theme']
         self.dojo_theme = request_kwargs.pop('dojo_theme',None) or getattr(self,'dojo_theme',None)
         self.dojo_version= request_kwargs.pop('dojo_version',None) or getattr(self,'dojo_version',None)
@@ -110,10 +110,12 @@ class GnrWebPage(GnrBaseWebPage):
             self.dojo_source=self.site.config['dojo?source']
         if 'dojo_source' in request_kwargs:
             self.dojo_source=request_kwargs.pop('dojo_source')
+        
         self.set_call_handler(request_args, request_kwargs)
         self._call_args = request_args or tuple()
         self._call_kwargs = request_kwargs or {}
-##### BEGIN: PROXY DEFINITION ########
+
+# ##### BEGIN: PROXY DEFINITION ########
 
     def _get_frontend(self):
         if not hasattr(self,'_frontend'):
@@ -144,13 +146,7 @@ class GnrWebPage(GnrBaseWebPage):
         return self._utils
     utils = property(_get_utils)
     
-    def _get_connection(self):
-        if self._connection is None:
-            connection = GnrWebConnection(self)
-            self._connection = connection
-            #connection.initConnection()
-        return self._connection
-    connection = property(_get_connection)
+   
 
     def _get_rpc(self):
         if not hasattr(self, '_rpc'):
@@ -183,7 +179,11 @@ class GnrWebPage(GnrBaseWebPage):
     
     def _get_workdate(self):
         if not hasattr(self,'_workdate'):
-            workdate =  self.pageStore().getItem('workdate') or datetime.date.today()
+            workdate = self.pageArgs.get('_workdate_')
+            if not workdate or not self.userTags or not('superadmin' in self.userTags):
+                workdate =  self.pageStore().getItem('workdate') or datetime.date.today()
+            if isinstance(workdate, basestring):
+                workdate = self.application.catalog.fromText(workdate, 'D')
             self.workdate = workdate
         return self._workdate
     
@@ -215,7 +215,13 @@ class GnrWebPage(GnrBaseWebPage):
             plugin = self.pluginhandler.get_plugin(request_kwargs['_plugin'],request_args=request_args, request_kwargs=request_kwargs)
             self._call_handler=plugin
         elif 'method' in request_kwargs:
-            self._call_handler=self._rpcDispatcher
+            method=request_kwargs['method' ]
+            if self.connection_id and(method in ('onClosePage','doLogin') or self.connection.validate_page_id(self.request_page_id)):
+                self.page_id = self.request_page_id
+                self._call_handler=self._rpcDispatcher
+            else:
+                self._call_handler=self.rootPage
+                
         elif 'rpc' in request_kwargs:
             method = request_kwargs.pop('rpc')
             self._call_handler = self.getPublicMethod('rpc',method)
@@ -233,8 +239,7 @@ class GnrWebPage(GnrBaseWebPage):
                 request_kwargs.update([(str(k),v) for k,v in token_kwargs.items()])
         else:
             self._call_handler=self.rootPage
-            #request_kwargs['dojo_theme']=self.dojo_theme
-            request_kwargs['pagetemplate']=self.pagetemplate
+            
             
     def update_serverstore(self,changes):
         with self.pageStore(triggered=False) as store:
@@ -243,23 +248,21 @@ class GnrWebPage(GnrBaseWebPage):
                     store.setItem(k,v)
         
 
-    def _rpcDispatcher(self, method=None, xxcnt='', mode='bag',**kwargs):
-        parameters = dict(kwargs)
-        for k,v in kwargs.items():
-            if isinstance(v, basestring):
-                try:
-                    v=self.catalog.fromTypedText(v, workdate=self.workdate)
-                    if isinstance(v, basestring):
-                        v = v.decode('utf-8')
-                    parameters[k] = v
-                except Exception, e:
-                    raise e
+    def _rpcDispatcher(self, method=None, mode='bag',**kwargs):
+        #assert self.request_page_id,'GNRWEBPAGE:missing page_id calling method %s' % method
+        #valid=self.connection.validate_page_id(self.request_page_id)
+        #if not method in ('onClosePage','doLogin'): # closing the page we can tollerate an invalid one
+        #    assert valid,'GNRWEBPAGE:invalid page calling method %s' % method
+        # 
+        self.page_id = self.request_page_id
+        parameters=self.site.parse_kwargs(kwargs,workdate=self.workdate)
+        self._lastUserEventTs=parameters.pop('_lastUserEventTs',None)
         if '_serverstore_changes' in parameters:
             serverstore_changes = parameters.pop('_serverstore_changes',None)
             if serverstore_changes:
                 self.update_serverstore(serverstore_changes)
         auth = AUTH_OK
-        if not method in ('doLogin', 'jscompress'):
+        if not method in ('doLogin'):
             auth = self._checkAuth(method=method, **parameters)
         if self.isDeveloper():
             result = self.rpc(method=method, _auth=auth, **parameters)
@@ -274,56 +277,17 @@ class GnrWebPage(GnrBaseWebPage):
         return return_result
 
     def _checkAuth(self, method=None, **parameters):
-        auth = AUTH_OK
         pageTags = self.pageAuthTags(method=method, **parameters)
-        if not self.user:
-            if not self.connection.inited:
-                try:
-                    self.connection.getConnection()
-                    if self.connection.user:
-                        self.user = self.connection.user
-                        if method=='main':
-                            self.site.register_page.upd_register_item(self.page_id,user=self.user)
-                            self.setInClientData('gnr.user' , self.user)
-                            self.setInClientData('gnr.userTags', self.userTags)
-                except:
-                    self.user = None
-        if pageTags:
-            if not self.user:
-                auth = AUTH_NOT_LOGGED
-            elif not self.application.checkResourcePermission(pageTags, self.userTags):
-                auth = AUTH_FORBIDDEN
-
-            if auth == AUTH_NOT_LOGGED and method != 'main':
-                auth = 'EXPIRED'
-
-        elif parameters.get('_loginRequired') == 'y':
-            auth = AUTH_NOT_LOGGED
-        return auth
-
-
-    def _checkAuth_(self, method=None, **parameters):
-        auth = AUTH_OK
-        pageTags = self.pageAuthTags(method=method, **parameters)
-        if pageTags:
-            if not self.user:
-                if not self.connection.cookie:
-                    self.connection.initConnection()
-                self.user = self.connection.user
-            if not self.user:
-                auth = AUTH_NOT_LOGGED
-            elif not self.application.checkResourcePermission(pageTags, self.userTags):
-                auth = AUTH_FORBIDDEN
-
-            if auth == AUTH_NOT_LOGGED and method != 'main':# and method!='onClosePage':
-                if not self.connection.oldcookie:
-                    pass
-                    #self.raiseUnauthorized()
-                auth = 'EXPIRED'
-
-        elif parameters.get('_loginRequired') == 'y':
-            auth = AUTH_NOT_LOGGED
-        return auth
+        if not pageTags:
+            return AUTH_OK  
+        if not self.connection.loggedUser:  
+            if method!='main':
+                return 'EXPIRED'
+            return AUTH_NOT_LOGGED
+        if not self.application.checkResourcePermission(pageTags, self.userTags):
+            print x
+            return AUTH_FORBIDDEN
+        return AUTH_OK
 
     def rpc_doLogin(self, login=None, guestName=None, **kwargs):
         """Service method that set user's avatar into its connection if
@@ -334,22 +298,19 @@ class GnrWebPage(GnrBaseWebPage):
         if guestName:
             avatar = self.application.getAvatar(guestName)
         else:
-            avatar = self.application.getAvatar(login['user'], password=login['password'], authenticate=True,page=self)
+            avatar = self.application.getAvatar(login['user'], password=login['password'], 
+                                                  authenticate=True, page=self)
         if avatar:
-            if not self.connection.inited:
-                self.connection.getConnection(user=login['user'])
             self.avatar = avatar
-            self.user = avatar.id
-            self.connection.makeAvatar(avatar)
-            self.setInClientData('gnr.user' , self.user, fired=True)
-            self.setInClientData('gnr.userTags', self.userTags, fired=True)
+            self.connection.change_user(user=avatar.user,user_id=avatar.user_id,user_name=avatar.user_name,
+                                        user_tags=avatar.user_tags)
+            self.setInClientData('gnr.avatar' , Bag(avatar.as_dict()))
             self.site.onAuthenticated(avatar)
             login['message'] = ''
             loginPars=avatar.loginPars
         else:
             login['message'] = 'invalid login'
         return (login,loginPars)
-
 
     def onInit(self):
         # subclass hook
@@ -385,36 +346,12 @@ class GnrWebPage(GnrBaseWebPage):
         return self.site.getService(service_type)
         
     def _onEnd(self):
-        self.site.register_page.refresh(self)
         self._publish_event('onEnd')
         self.onEnd()            
-
-    
-    def getStoreDataChanges(self):
-        result = Bag()
-        with self.pageStore() as store:
-            datachanges = list(store.datachanges) or []
-            datachanges.extend(self.local_datachanges)
-            if datachanges:
-                for j,change in enumerate(datachanges):
-                    result.setItem('sc_%i' %j,change.value,change_path=change.path,change_reason=change.reason,
-                                        change_fired=change.fired,change_attr=change._attributes,
-                                        change_ts=change.change_ts)
-                store.reset_datachanges()
-        return result
             
-    def collectClientDataChanges(self):
-        self._publish_event('onCollectDataChanges')
-        result = Bag()
-        with self.pageStore() as store:
-            external_datachanges = list(store.datachanges) or []
-            store.reset_datachanges()
-            
-        for j,change in enumerate(external_datachanges+self.local_datachanges):
-            result.setItem('sc_%i' %j,change.value,change_path=change.path,change_reason=change.reason,
-                            change_fired=change.fired,change_attr=change.attributes,
-                            change_ts=change.change_ts)
-                
+    def collectClientDatachanges(self):
+        self._publish_event('onCollectDatachanges')
+        result = self.site.getPageDatachanges(self.page_id,self.local_datachanges)
         return result
     
     def _subscribe_event(self, event, caller):
@@ -425,13 +362,11 @@ class GnrWebPage(GnrBaseWebPage):
         for subscriber in self._event_subscribers.get(event,[]):
             getattr(subscriber,'event_%s'%event)()
 
-    def rootPage(self,pagetemplate=None,**kwargs):
-        #self.frontend
-        #self.dojo_theme = dojo_theme or 'tundra'
-        # 
-        # 
+    def rootPage(self,**kwargs):
+        self.page_id = getUuid()
+        self.connection.start()
         self.charset='utf-8'
-        tpl = pagetemplate or 'standard.tpl'
+        tpl = self.pagetemplate
         if not isinstance(tpl, basestring):
             tpl = '%s.%s' % (self.pagename, 'tpl')
         lookup=TemplateLookup(directories=self.tpldirectories, output_encoding=self.charset, encoding_errors='replace')
@@ -441,11 +376,26 @@ class GnrWebPage(GnrBaseWebPage):
             raise GnrWebPageException("No template %s found in %s" % (tpl, str(self.tpldirectories)))
         self.htmlHeaders()
         arg_dict = self.build_arg_dict(**kwargs)
-        self.site.register_page.register(self,autorenew=True)
-        with self.pageStore() as store:
-            store.setItem('pageArgs',kwargs)
+        self.site.register.new_page(self,data=dict(pageArgs=kwargs))
+        return mytemplate.render(mainpage=self, **arg_dict)        
         
-        return mytemplate.render(mainpage=self, **arg_dict)
+    
+    def _set_locale(self, val):
+        self._locale = val
+        
+    def _get_locale(self): # TODO IMPLEMENT DEFAULT FROM APP OR AVATAR 
+        if not hasattr(self, '_locale'):
+            self._locale = self.connection.locale or self.request.headers.get('Accept-Language', 'en').split(',')[0] or 'en'
+        return self._locale
+    locale = property(_get_locale, _set_locale)
+    
+    def rpc_changeLocale(self, locale):
+        self.connection.locale = locale.lower()
+        
+
+    def toText(self, obj, locale=None, format=None, mask=None, encoding=None, dtype=None):
+        locale = locale or self.locale
+        return toText(obj, locale=locale, format=format, mask=mask, encoding=encoding)
 
     def getUuid(self):
         return getUuid()
@@ -573,23 +523,20 @@ class GnrWebPage(GnrBaseWebPage):
                 'site':self.site.site_path,
                 'current':os.path.dirname(self.filepath)}
     
-    def _get_app(self):
-        if not hasattr(self, '_app'):
-            self._app = GnrWebAppHandler(self)
-        return self._app
-    app = property(_get_app) #cambiare in appHandler e diminuirne l'utilizzo al minimo
+        
+
     # 
     def pageStore(self,page_id=None,triggered=True):
         page_id = page_id or self.page_id
-        return self.site.register_page.make_store(page_id,triggered=triggered)
+        return self.site.register.pageStore(page_id,triggered=triggered)
 
     def connectionStore(self,connection_id=None,triggered=True):
         connection_id = connection_id or self.connection_id
-        return self.site.register_connection.make_store(connection_id,triggered=triggered)
+        return self.site.register.connectionStore(connection_id,triggered=triggered)
         
     def userStore(self,user=None,triggered=True):
         user = user or self.user
-        return self.site.register_user.make_store(user,triggered=triggered)
+        return self.site.register.userStore(user,triggered=triggered)
     
     def clientPage(self,page_id=None):
         return ClientPageHandler(self, page_id or self.page_id) 
@@ -624,12 +571,38 @@ class GnrWebPage(GnrBaseWebPage):
         return self._subscribedTablesDict
     subscribedTablesDict = property(_get_subscribedTablesDict)
     
-        
-    def _get_userTags(self):
-        if self.user:
-            return self.connection.cookie_data.get('tags')
-    userTags = property(_get_userTags)        
+    @property
+    def application(self):
+        return self.site.gnrapp
     
+    @property
+    def app(self):
+        if not hasattr(self, '_app'):
+            self._app = GnrWebAppHandler(self)
+        return self._app
+    # 
+    @property
+    def catalog(self):
+        return self.application.catalog
+    
+    @property
+    def userTags(self):
+        return self.connection.user_tags
+        
+    @property
+    def user(self):
+        return self.connection.user 
+        
+    @property
+    def connection(self):
+        if self._connection is None:
+            self._connection = GnrWebConnection(self)
+        return self._connection
+        
+    @property
+    def connection_id(self):
+        return self.connection.connection_id
+
     def _set_avatar(self,avatar):
         self._avatar=avatar
 
@@ -638,11 +611,6 @@ class GnrWebPage(GnrBaseWebPage):
             self._avatar = self.application.getAvatar(self.user)
         return self._avatar
     avatar = property(_get_avatar,_set_avatar)
-    
-        
-    #def updateAvatar(self):
-    #    """Reload the avatar, recalculate tags, and save in cookie"""
-    #    self.connection.updateAvatar(self.avatar)
     
     
     def checkPermission(self, pagepath, relative=True):
@@ -789,7 +757,7 @@ class GnrWebPage(GnrBaseWebPage):
                 
                 page.dataController('console.log(msg);funcCreate(msg)();', msg='^gnr.servercode')
                 
-                page.dataController('genro.rpc.managePolling(freq);', freq='^gnr.polling', _onStart=True)
+                
                 root=page.borderContainer(design='sidebar', height='100%', nodeId='_gnrRoot',_class='hideSplitter notvisible', 
                                             regions='^_clientCtx.mainBC')
                 typekit_code=self.site.config['gui?typekit']
@@ -802,8 +770,19 @@ class GnrWebPage(GnrBaseWebPage):
                 rootwdg = self.rootWidget(root, region='center', nodeId='_pageRoot')
                 self.main(rootwdg, **kwargs)
                 self.onMainCalls()
-                page.data('gnr.polling',self.polling)
-                page.data('gnr.autopolling',self.autopolling)
+                page.data('gnr.polling.user_polling',self.user_polling)
+                page.data('gnr.polling.auto_polling',self.auto_polling)
+                if self.avatar:
+                    page.data('gnr.avatar',Bag(self.avatar.as_dict()))
+                page.dataController("""genro.user_polling = user_polling;
+                                       genro.auto_polling = auto_polling;
+                                      """,
+                                      user_polling="^gnr.polling.user_polling",
+                                      auto_polling="^gnr.polling.auto_polling",
+                                      _onStart=True)
+                
+                #page.dataController('genro.rpc.managePolling(freq);', freq='^gnr.polling', _onStart=True)
+                
                 if self._pendingContextToCreate:
                     self._createContext(root,self._pendingContextToCreate)
                 if self.user:
@@ -836,7 +815,7 @@ class GnrWebPage(GnrBaseWebPage):
         
     def rpc_onClosePage(self, **kwargs):
         self.site.onClosePage(self)
-        self.pageFolderRemove()
+        #self.pageFolderRemove()
 
     def pageFolderRemove(self):
         shutil.rmtree(os.path.join(self.connectionFolder, self.page_id),True)
@@ -907,7 +886,7 @@ class GnrWebPage(GnrBaseWebPage):
         return self.site.getAuxInstance(name)
         
     def _get_connectionFolder(self):
-        return os.path.join(self.site.allConnectionsFolder, self.connection.connection_id)
+        return os.path.join(self.site.allConnectionsFolder, self.connection_id)
     connectionFolder = property(_get_connectionFolder)
     
     def _get_userFolder(self):
@@ -948,50 +927,6 @@ class GnrWebPage(GnrBaseWebPage):
         
     def isDeveloper(self) :
         return (self.userTags and ('_DEV_' in self.userTags)) 
-        
-    def css3make(self,rounded=None,shadow=None,gradient=None,style=''):
-        result=[]
-        if rounded:
-            for x in rounded.split(','):
-                if ':' in x:
-                    side,r=x.split(':')
-                else:
-                    side,r='all',x
-                side=side.lower()
-                if side=='all':
-                    result.append('-moz-border-radius:%spx;'%r)
-                    result.append('-webkit-border-radius:%spx;'%r)
-                else:
-                    if side in ('tl','topleft','top','left'):
-                        result.append('-moz-border-radius-topleft:%spx;'%r)
-                        result.append('-webkit-border-top-left-radius:%spx;'%r)
-                    if side in ('tr','topright','top','right'):
-                        result.append('-moz-border-radius-topright:%spx;'%r)
-                        result.append('-webkit-border-top-right-radius:%spx;'%r)
-                    if side in ('bl','bottomleft','bottom','left'):    
-                        result.append('-moz-border-radius-bottomleft:%spx;'%r)
-                        result.append('-webkit-border-bottom-left-radius:%spx;'%r)
-                    if side in ('br','bottomright','bottom','right'):
-                        result.append('-moz-border-radius-bottomright:%spx;'%r)
-                        result.append('-webkit-border-bottom-right-radius:%spx;'%r)
-        if shadow:
-            x,y,blur,color=shadow.split(',')
-            result.append('-moz-box-shadow:%spx %spx %spx %s;'%(x,y,blur,color))
-            result.append('-webkit-box-shadow:%spx %spx %spx %s;'%(x,y,blur,color))
-       #if gradient:
-       #    
-       #
-       # background-image:-webkit-gradient(linear, 0% 0%, 0% 90%, from(rgba(16,96,192,0.75)), to(rgba(96,192,255,0.9)));
-       #    background-image:-moz-linear-gradient(top,bottom,from(rgba(16,96,192,0.75)), to(rgba(96,192,255,0.9)));
-       #    result.append('background-image:-moz-linear-gradient(top,bottom,from(rgba(16,96,192,0.75)), to(rgba(96,192,255,0.9)));')
-       #    result.append('-webkit-box-shadow:%spx %spx %spx %s;'%(x,y,blur,color))
-       #    # -moz-linear-gradient( [<point> || <angle>,]? <stop>, <stop> [, <stop>]* )
-            # -moz-radial-gradient( [<position> || <angle>,]? [<shape> || <size>,]? <stop>, <stop>[, <stop>]* )
-            # 
-            # -moz-linear-gradient (%(begin)s, %(from)s, %(to)s);
-            # -webkit-gradient (%(mode)s, %(begin)s, %(end)s, from(%(from)s), to(%(to)s));
-            # 
-        return '%s\n%s' % ('\n'.join(result) ,style) 
             
     def addToContext(self,value=None,serverpath=None,clientpath=None):
         self._pendingContextToCreate.append((value,serverpath,clientpath or serverpath))

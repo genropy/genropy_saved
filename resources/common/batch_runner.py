@@ -90,7 +90,7 @@ class BatchRunner(BaseComponent):
             store.setItem('_batch_args',args)
             store.setItem('_batch_kwargs',kwargs)
             store.setItem('_batch_user',self.user)
-            store.setItem('_batch_connection_id',self.connection.connection_id)
+            store.setItem('_batch_connection_id',self.connection_id)
 
         request=self.request._request
         protocol = request.host_url.split('//')[0]

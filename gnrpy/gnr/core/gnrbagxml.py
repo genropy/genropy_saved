@@ -222,7 +222,7 @@ class BagToXml(object):
         elif isinstance(nodeValue, BagAsXml):
             result = self.buildTag(node.label, nodeValue, node.attr,'', xmlMode=True)
         
-        elif (self.jsonmode and (isinstance(nodeValue, list) or isinstance(nodeValue, dict))):
+        elif ((isinstance(nodeValue, list) or isinstance(nodeValue, dict))):
             nodeValue = gnrstring.toJson(nodeValue)
             result = self.buildTag(node.label, nodeValue, node.attr)
         elif nodeValue and (isinstance(nodeValue, list) or isinstance(nodeValue, tuple)):
@@ -255,7 +255,7 @@ class BagToXml(object):
 
 #-------------------- toXml --------------------------------
     def build(self, bag, filename=None, encoding='UTF-8', catalog=None, typeattrs=True,typevalue=True, addBagTypeAttr=True,
-                  unresolved=False, autocreate=False, jsonmode=None, jsonkey=None, docHeader=None,self_closed_tags=None,
+                  unresolved=False, autocreate=False, docHeader=None,self_closed_tags=None,
                   translate_cb=None, omitUnknownTypes=False, omitRoot=False, forcedTagAttr=None):
         """
         This method returns a complete standard XML version of the Bag, including the encoding tag 
@@ -279,8 +279,6 @@ class BagToXml(object):
         self.catalog = catalog
         self.typeattrs=typeattrs
         self.typevalue=typevalue
-        self.jsonmode=jsonmode
-        self.jsonkey=jsonkey
         self.self_closed_tags=self_closed_tags or []
         self.forcedTagAttr=forcedTagAttr
         self.addBagTypeAttr = addBagTypeAttr

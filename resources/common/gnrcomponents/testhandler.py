@@ -4,9 +4,12 @@
 # Created by Giovanni Porcari on 2010-08-09.
 # Copyright (c) 2010 Softwell. All rights reserved.
 
-from gnr.web.gnrwebpage import BaseComponent
+from gnr.web.gnrbaseclasses import BaseComponent
 
 class TestHandler(BaseComponent):
+    def windowTitle(self):
+        return 'Test: %s' %self.__module__.__doc__ or 'unnamed'
+        
     def testHandler(self, pane):
         self.testHandler_headers(pane)
 

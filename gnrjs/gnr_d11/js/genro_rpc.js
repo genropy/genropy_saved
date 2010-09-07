@@ -179,6 +179,10 @@ dojo.declare("gnr.GnrRpcHandler",null,{
             genro._serverstore_changes = null;
         };
         callKwargs = this.serializeParameters(this.dynamicParameters(callKwargs, sourceNode));
+        callKwargs._lastUserEventTs= asTypedTxt(genro._lastUserEventTs,'DH');
+        if (genro.auto_polling>0){
+            this._call_auto_polling()
+        }
         var content = objectUpdate({},callKwargs);
         content.page_id = this.application.page_id;
         var kw = objectUpdate({},xhrKwargs);
@@ -216,6 +220,20 @@ dojo.declare("gnr.GnrRpcHandler",null,{
              }
          }     
          return xhrResult;
+    },
+    _call_auto_polling:function(){
+        if (this._auto_pollig_handler){
+            clearTimeout(this._auto_pollig_handler)
+        }
+        this._auto_pollig_handler=setTimeout(function(){genro.rpc.ping({reason:'auto'})},genro.auto_polling*1000);
+    },
+    setPolling:function(auto_polling,user_polling){
+        genro.user_polling = user_polling || genro._('gnr.polling.user_pollig');
+        auto_polling = auto_polling || genro._('gnr.polling.auto_pollig');
+        if (auto_polling!= genro.auto_polling) {
+            genro.auto_polling = auto_polling;
+            this._call_auto_polling();
+        };
     },
     debugRpc:function(kw){
         var method = kw.content? kw.content.method:'';
@@ -288,43 +306,48 @@ dojo.declare("gnr.GnrRpcHandler",null,{
     errorHandler: function(response, ioArgs){
         genro.dev.handleRpcHttpError(response, ioArgs);
     },
+    setDatachangesInData:function (datachanges){
+        console.log('apply datachanges');
+        changenodes = datachanges.getNodes();
+        for (var i=0;i<changenodes.length;i++){
+            changenode = changenodes[i];
+            value = changenode.getValue();
+            attr = objectExtract(changenode.attr,'change_*');
+            changepath = attr.path;
+            as_fired = attr.as_fired;
+            reason = attr.reason;
+            attr = attr.attr;
+            var updater = function(path,value,attr,reason){
+                if(genro._data.getItem(path)!=value){
+                    genro._data.setItem(path,value,attr,reason!=null?{'doTrigger':reason,_updattr:true}:null);
+                }
+            };
+            if (reason=='serverChange') {
+                for (var clientpath_prefix in genro._serverstore_paths) {
+                    var serverpath_prefix = genro._serverstore_paths[clientpath_prefix];
+                    if (stringStartsWith(changepath,serverpath_prefix)) {
+                        clientpath = clientpath_prefix+changepath.slice(serverpath_prefix.length);
+                        updater(clientpath,value,attr,reason);
+                    }
+                }
+            }
+            else{
+                updater(changepath,value,attr,reason);
+                if (as_fired){
+                    genro._data.setItem(changepath, null, null, {'doTrigger':false});
+                }
+            }
+        };
+    },
     resultHandler: function(response, ioArgs, currentAttr){
         var envelope = new gnr.GnrBag();
         envelope.fromXmlDoc(response, genro.clsdict);
         var envNode = envelope.getNode('result');
         var resultAsNode=(envelope.getItem('resultType')=='node') || currentAttr;
         var changenode,attr,value, changepath,serverpath, as_fired,reason;
-        var dataChanges = envelope.getItem('dataChanges');
-        if(dataChanges){
-            changenodes = dataChanges.getNodes();
-            for (var i=0;i<changenodes.length;i++){
-                changenode = changenodes[i];
-                value = changenode.getValue();
-                attr = objectExtract(changenode.attr,'change_*');
-                changepath = attr.path;
-                as_fired = attr.as_fired;
-                reason = attr.reason;
-                attr = attr.attr;
-
-                var updater = function(path,value,attr,reason){
-                    if(genro._data.getItem(path)!=value){
-                        genro._data.setItem(path,value,attr,reason!=null?{'doTrigger':reason}:null);
-                    }
-                }
-                if (reason=='serverChange') {
-                    for (var serverpath in genro._serverstore_paths) {
-                        if (changepath==genro._serverstore_paths[serverpath]) {
-                            updater(changepath,value,attr,reason)
-                        }
-                    }
-                }
-                else{
-                    updater(changepath,value,attr,reason)
-                    if (as_fired){
-                        genro._data.setItem(changepath, null, null, {'doTrigger':false});
-                    }
-                }
-            }
+        var datachanges = envelope.getItem('dataChanges');
+        if(datachanges){
+            genro.rpc.setDatachangesInData(datachanges);
         }
         var error = envelope.getItem('error'); 
         if(!error){
@@ -394,7 +417,7 @@ dojo.declare("gnr.GnrRpcHandler",null,{
         currParams['method']=method;
         currParams['mode']='text';
         if(avoidCache!=false){
-            currParams['xxcnt'] = genro.getCounter();
+            currParams['_no_cache_'] = genro.getCounter();
         }
         return objectUpdate(currParams, this.serializeParameters(this.dynamicParameters(kwargs, sourceNode)));
     }
@@ -408,7 +431,7 @@ dojo.declare("gnr.GnrRpcHandler",null,{
         var currParams = {};
         currParams['page_id']=this.application.page_id;
         currParams['mako']=template;
-        currParams['xxcnt']=this.counter;
+        currParams['_no_cache_']=this.counter;
         objectUpdate(currParams, kwargs);
         var parameters = [];
         for (var key in currParams){
@@ -464,33 +487,48 @@ dojo.declare("gnr.GnrRpcHandler",null,{
         }
         return kwargs;
     },
-    managePolling: function(freq){
-        if(freq==null){
-            freq = genro.getData('gnr.polling');
+   // managePolling: function(freq){
+   //     if(freq==null){
+   //         freq = genro.getData('gnr.polling');
+   //     }
+   //     if(genro.pollingHandler){
+   //         clearInterval(genro.pollingHandler);
+   //         genro.pollingHandler = null;
+   //     }        
+   //     if(freq>0){
+   //         genro.lastRpc = new Date();
+   //         genro.pollingHandler= setInterval(function(){ var now = new Date();
+   //                             if ((!genro.pollingRunning) && ((now - genro.lastRpc) > (freq*1000) )){
+   //                                 genro.rpc.ping();
+   //                             }
+   //                     }, 1000);
+   //     }
+   // },
+    
+    ping:function(kw){
+        if (genro.pollingRunning) {
+            return;
         }
-        if(genro.pollingHandler){
-            clearInterval(genro.pollingHandler);
-            genro.pollingHandler = null;
-        }        
-        if(freq>0){
-            genro.lastRpc = new Date();
-            genro.pollingHandler= setInterval(function(){ var now = new Date();
-                                if ((!genro.pollingRunning) && ((now - genro.lastRpc) > (freq*1000) )){
-                                    genro.rpc.ping();
-                                }
-                        }, 1000);
-        }
+        var kw = kw || {reason:null};
+        genro.rpc.setPollingStatus(true);
+        var xhrKwargs = {'handleAs':'xml',
+                           'url' :'http://'+ document.location.host+'/_ping',
+                          'timeout': 10000,
+                            'load': dojo.hitch(this,function(response, ioArgs){
+                                    var result = genro.rpc.resultHandler(response, ioArgs);
+                                    genro.rpc.setPollingStatus(false);
+                                    return result;}),
+                            'error': dojo.hitch(this,function(response, ioArgs){
+                                                 genro.rpc.errorHandler(response, ioArgs);
+                                                 genro.rpc.setPollingStatus(false);
+                                                 }),
+                            'sync': false,
+                            'preventCache': false
+                        };
+        this._serverCall({page_id:genro.page_id,reason:kw.reason,_no_cache_:genro.getCounter()}, xhrKwargs, 'GET');
     },
-    ping:function(){
-        genro.rpc.pollingStatus(true);
-        genro.rpc.remoteCall('ping', null, null, null, null, function(){genro.rpc.pollingStatus(false);});
-    },
-    pollingStatus:function(status){
+    setPollingStatus:function(status){
         genro.pollingRunning = status;
-        /*var pulse = genro.domById('rpcpulse')
-        if(pulse){
-             genro.dom.effect(pulse,status?'fadein':'fadeout');
-        }*/
     },
     
     remote_relOneResolver: function(params, parentbag){

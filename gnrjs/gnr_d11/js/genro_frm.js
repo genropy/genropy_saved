@@ -652,19 +652,3 @@ dojo.declare("gnr.GnrValidator",null,{
         }
     }
 });
-
-dojo.declare("gnr.GnrLstHandler",null,{
-    
-    constructor: function(application){
-        this.application = application;
-    },
-    getRecord: function(table, id, datapath){
-        genro.rpc._serverCall(callKwargs, xhrKwargs, httpMethod);
-    },
-    saveRecord: function(table, id, datapath){
-    },
-	changeRecord: function(table, id, datapath){
-    },
-    deleteRecord: function(table, id, datapath){
-    }
-});

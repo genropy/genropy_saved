@@ -67,11 +67,11 @@ class GnrWebRpc(GnrBaseProxy):
         if page.isLocalizer():
             envelope['_localizerStatus']='*_localizerStatus*'
         envelope.setItem('result', result, _attributes=resultAttrs)
-        dataChanges = self.page.collectClientDataChanges()      
+        dataChanges = self.page.collectClientDatachanges()      
         if dataChanges :
             envelope.setItem('dataChanges', dataChanges)
         page.response.content_type = "text/xml"
-        xmlresult= envelope.toXml(unresolved=True, jsonmode=True, jsonkey=page.page_id, 
+        xmlresult= envelope.toXml(unresolved=True,  
                               translate_cb=page.localizer.translateText, omitUnknownTypes=True, catalog=page.catalog)
         if page.isLocalizer():
             xmlresult=xmlresult.replace('*_localizerStatus*', page.localizer.status)

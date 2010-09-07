@@ -13,7 +13,7 @@ from gnr.core.gnrstring import toJson
 from collections import defaultdict
 from itertools import imap
 from gnr.core.gnrstring import splitAndStrip,toText
-from gnr.web.gnrwebpage import BaseComponent
+from gnr.web.gnrbaseclasses import BaseComponent
 
 class GetInfoPage(BaseComponent):
     py_requires='reportcmp/getinfo:QuickQueryTool'

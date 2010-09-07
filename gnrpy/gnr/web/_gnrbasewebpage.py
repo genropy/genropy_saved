@@ -45,7 +45,7 @@ except:
 from gnr.core.gnrbag import Bag, TraceBackResolver
 
 from gnr.core.gnrlang import GnrObject
-from gnr.core.gnrstring import  toText, toJson
+from gnr.core.gnrstring import  toJson
 from gnr.core import gnrdate
 
 from gnr.sql.gnrsql_exceptions import GnrSqlSaveException,GnrSqlDeleteException
@@ -160,11 +160,6 @@ class GnrBaseWebPage(GnrObject):
     def pageAuthTags(self, method=None, **kwargs):
         return ""
     
-
-
-        
-
-        
     def pageLocalDocument(self, docname):
         folder = os.path.join(self.connectionFolder, self.page_id)
         if not os.path.isdir(folder):
@@ -210,28 +205,6 @@ class GnrBaseWebPage(GnrObject):
                                     **condition_args).selection()
         return selection
    
-    def _get_catalog(self):
-        if not hasattr(self, '_catalog'):
-            self._catalog = self.application.catalog
-        return self._catalog
-    catalog = property(_get_catalog)
-    
-    def _set_locale(self, val):
-        self._locale = val
-    def _get_locale(self): # TODO IMPLEMENT DEFAULT FROM APP OR AVATAR 
-        if not hasattr(self, '_locale'):
-            self._locale = self.connection.locale or self.request.headers.get('Accept-Language', 'en').split(',')[0] or 'en'
-        return self._locale
-    locale = property(_get_locale, _set_locale)
-    
-    def rpc_changeLocale(self, locale):
-        self.connection.locale = locale.lower()
-        
-
-    def toText(self, obj, locale=None, format=None, mask=None, encoding=None, dtype=None):
-        locale = locale or self.locale
-        return toText(obj, locale=locale, format=format, mask=mask, encoding=encoding)
-    
 
         
     def getAbsoluteUrl(self, path, **kwargs):
@@ -289,13 +262,7 @@ class GnrBaseWebPage(GnrObject):
         return 
     dbconnection = property(_get_dbconnection)
     
-    
-    def _get_application(self):
-        if not hasattr(self,'_application'):
-            self._application= self.app.gnrapp
-        return self._application
-    application = property(_get_application)
-    
+
     def _get_packages(self):
         return self.db.packages
     packages = property(_get_packages)

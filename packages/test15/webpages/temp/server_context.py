@@ -6,7 +6,7 @@ from gnr.core.gnrbag import Bag
 
 class GnrCustomWebPage(object):
 
-    py_requires="testhandler:TestHandlerFull,storetester:StoreTester"
+    py_requires="gnrcomponents/testhandler:TestHandlerFull,storetester:StoreTester"
     dojo_version='11'
     dojo_theme='tundra'
     

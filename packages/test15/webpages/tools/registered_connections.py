@@ -5,7 +5,7 @@ import datetime
 from gnr.core.gnrbag import Bag,BagResolver
 class GnrCustomWebPage(object):
 
-    py_requires="testhandler:TestHandlerFull,storetester:StoreTester"
+    py_requires="gnrcomponents/testhandler:TestHandlerFull,storetester:StoreTester"
     dojo_theme='claro'
     
     def test_1_registered_connections(self,pane):
@@ -26,7 +26,7 @@ class GnrCustomWebPage(object):
         
 
     def rpc_send_data_to_connection(self,v=None,p=None,connection_id=None):
-        connection_id = connection_id or self.connection.connection_id
+        connection_id = connection_id or self.connection_id
         with self.connectionStore(connection_id=connection_id) as store:
             store.setItem(p,v)
             

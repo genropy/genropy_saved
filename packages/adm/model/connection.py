@@ -45,7 +45,7 @@ class Table(object):
             
     def closeConnection(self,connection_id=None, end_ts=None, end_reason=None):
         page = self.db.application.site.currentPage
-        connection_id=connection_id or page.connection.connection_id
+        connection_id=connection_id or page.connection_id
         with self.db.tempEnv(connectionName='system'):
             self.batchUpdate(dict(end_ts=end_ts or datetime.now(),end_reason=end_reason),
                             where='$id=:connection_id',connection_id=connection_id)
@@ -55,7 +55,7 @@ class Table(object):
         page = self.db.application.site.currentPage
         avatar=page.avatar
         
-        new_connection_record = dict(id=page.connection.connection_id,username=page.user,
+        new_connection_record = dict(id=page.connection_id,username=page.user,
                                         userid=avatar.userid,start_ts=datetime.now(),
                                         ip=page.request.remote_addr,
                                          user_agent=page.request.get_header('User-Agent'))

@@ -445,7 +445,7 @@ class NewServer(object):
         try:
             gnrServer=GnrWsgiSite(self.site_script, site_name = self.site_name, _config = self.siteconfig, _gnrconfig = self.gnr_config, 
                                   counter = getattr(self.options,'counter',None), noclean=self.options.noclean,options=self.options)
-            GnrReloaderMonitor.add_reloader_callback(gnrServer.on_monitor_restart)
+            GnrReloaderMonitor.add_reloader_callback(gnrServer.on_reloader_restart)
             httpserver.serve(gnrServer, host=self.options.host, port=self.options.port)
         except (SystemExit, KeyboardInterrupt), e:
             if self.options.verbose > 1:

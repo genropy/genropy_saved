@@ -190,6 +190,55 @@ dojo.declare("gnr.GnrDlgHandler",null,{
         node.unfreeze();
         genro.wdgById('_dlg_ask').show();
     },
+    thermoFloating:function(thermopath){
+        
+    },
+    batchMonitor:function(thermopath){
+        var thermopath = thermopath || '_thermo';
+        genro.src.getNode()._('div', '_thermo_floating');
+        var node = genro.src.getNode('_thermo_floating').clearValue().freeze();
+        var floatingPars = {};
+        floatingPars.title='public floating';
+        floatingPars._class='shadow_4';
+        floatingPars.nodeId='batchMonitor';
+        floatingPars.datapath=thermopath;
+        floatingPars.top='80px';
+        floatingPars.left='20px';
+        floatingPars.width='400px';
+        floatingPars.closable = true;
+        floatingPars.resizable=true;
+        floatingPars.dockable=false;
+        floatingPars.resizeAxis='y';
+        floatingPars.maxable=false;
+        floatingPars.duration=400;
+        var floating = node._('floatingPane',floatingPars)
+        var container = floating._('div',{datapath:'.data','margin_bottom':'12px'})
+        var create_thermoline = function(node,kw,i){
+            var innerpane = kw.pane._('div',{datapath:'.'+node.label})
+            innerpane._('div',{innerHTML:'^.?message',font_size:'8px',text_align:'center',color:'black'});
+            innerpane._('progressBar',{progress:'^.?progress',maximum:'^.?maximum',indeterminate:'^.?indeterminate',
+                                places:'^.?places',width:'100%',height:'10px',font_size:'9px'});
+            
+        };
+        var create_thermopane = function(node,kw,i){
+            var innerpane = kw.pane._('div',{_class:'thermopane',border:'1px solid gray',
+                                margin:'2px',datapath:'.'+node.label});
+            var titlediv = innerpane._('div',{background:'gray',color:'white',font_size:'9px',padding:'2px',height:'8px'});
+            titlediv._('div',{innerHTML:'^.?thermotitle','float':'left'});
+            titlediv._('a',{innerHTML:'Stop','float':'right'});
+            var pane = innerpane._('div',{datapath:'.lines',padding:'3px'});
+            var lines = node.getValue().getItem('lines');
+            if(lines){
+                lines.forEach(create_thermoline,null,{'pane':pane});
+            }
+        };
+        var thermobag = genro._(thermopath+'.data');
+        thermobag.forEach(create_thermopane,null,{'pane':container});
+        node.unfreeze();
+        var bm=genro.wdgById('batchMonitor')
+        dojo.connect(bm,'close',function(){genro.setData('_thermo.monitor',false)})
+        genro.setData('_thermo.monitor',true)
+    },
     
     message: function(msg, position,level, duration ){
         this.messanger.forcedPos = position;

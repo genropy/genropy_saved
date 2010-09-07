@@ -8,10 +8,16 @@ class GnrCustomWebPage(object):
     #py_requires='public:Public'
 
     def pageAuthTags(self, method=None, **kwargs):
-        return ''
+        return 'user'
         
     def windowTitle(self):
         return ''
          
     def main_root(self, root, **kwargs):
         root.div('hello')
+        root.button('rpcrun',fire='run')
+        root.dataRpc('dummy','dummy',_fired='^run')
+    
+    def rpc_dummy(self):
+        return ''
+        

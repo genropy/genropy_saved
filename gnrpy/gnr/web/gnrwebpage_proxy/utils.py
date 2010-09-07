@@ -7,6 +7,12 @@
 #  Copyright (c) 2007 Softwell. All rights reserved.
 #
 from gnr.web.gnrwebpage_proxy.gnrbaseproxy import GnrBaseProxy
+import os
+import urllib
+import StringIO
+import datetime
+import zipfile
+from gnr.core.gnrbag import Bag,DirectoryResolver
 
 class GnrWebUtils(GnrBaseProxy):
     
@@ -125,3 +131,46 @@ class GnrWebUtils(GnrBaseProxy):
             zipresult.close()
         response.add_header("Content-Length", str(len(content)))
         response.write(content)
+    def css3make(self,rounded=None,shadow=None,gradient=None,style=''):
+        result=[]
+        if rounded:
+            for x in rounded.split(','):
+                if ':' in x:
+                    side,r=x.split(':')
+                else:
+                    side,r='all',x
+                side=side.lower()
+                if side=='all':
+                    result.append('-moz-border-radius:%spx;'%r)
+                    result.append('-webkit-border-radius:%spx;'%r)
+                else:
+                    if side in ('tl','topleft','top','left'):
+                        result.append('-moz-border-radius-topleft:%spx;'%r)
+                        result.append('-webkit-border-top-left-radius:%spx;'%r)
+                    if side in ('tr','topright','top','right'):
+                        result.append('-moz-border-radius-topright:%spx;'%r)
+                        result.append('-webkit-border-top-right-radius:%spx;'%r)
+                    if side in ('bl','bottomleft','bottom','left'):    
+                        result.append('-moz-border-radius-bottomleft:%spx;'%r)
+                        result.append('-webkit-border-bottom-left-radius:%spx;'%r)
+                    if side in ('br','bottomright','bottom','right'):
+                        result.append('-moz-border-radius-bottomright:%spx;'%r)
+                        result.append('-webkit-border-bottom-right-radius:%spx;'%r)
+        if shadow:
+            x,y,blur,color=shadow.split(',')
+            result.append('-moz-box-shadow:%spx %spx %spx %s;'%(x,y,blur,color))
+            result.append('-webkit-box-shadow:%spx %spx %spx %s;'%(x,y,blur,color))
+       #if gradient:
+       #    
+       #
+       # background-image:-webkit-gradient(linear, 0% 0%, 0% 90%, from(rgba(16,96,192,0.75)), to(rgba(96,192,255,0.9)));
+       #    background-image:-moz-linear-gradient(top,bottom,from(rgba(16,96,192,0.75)), to(rgba(96,192,255,0.9)));
+       #    result.append('background-image:-moz-linear-gradient(top,bottom,from(rgba(16,96,192,0.75)), to(rgba(96,192,255,0.9)));')
+       #    result.append('-webkit-box-shadow:%spx %spx %spx %s;'%(x,y,blur,color))
+       #    # -moz-linear-gradient( [<point> || <angle>,]? <stop>, <stop> [, <stop>]* )
+            # -moz-radial-gradient( [<position> || <angle>,]? [<shape> || <size>,]? <stop>, <stop>[, <stop>]* )
+            # 
+            # -moz-linear-gradient (%(begin)s, %(from)s, %(to)s);
+            # -webkit-gradient (%(mode)s, %(begin)s, %(end)s, from(%(from)s), to(%(to)s));
+            # 
+        return '%s\n%s' % ('\n'.join(result) ,style) 
