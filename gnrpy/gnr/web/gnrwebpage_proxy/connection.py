@@ -22,9 +22,9 @@ USER_AGENT_SNIFF=(('Chrome','Chrome'),
 class GnrWebConnection(GnrBaseProxy):
     def init(self, **kwargs):
         page=self.page
-        self.user_agent=page.request.get_header('User-Agent')
+        self.user_agent=page.request.get_header('User-Agent') or ''
         self.browser_name=self.sniffUserAgent()
-        self.ip = self.page.request.remote_addr
+        self.ip = self.page.request.remote_addr or '0.0.0.0'
         self.connection_name = '%s_%s'%(self.ip.replace('.','_'),self.browser_name)
         self.secret = page.site.config['secret'] or self.page.siteName
         self.cookie_name=self.page.siteName
