@@ -699,6 +699,7 @@ class GnrWsgiSite(object):
     def serve_ping(self,response, page_id=None,reason=None,**kwargs):
         kwargs=self.parse_kwargs(kwargs)
         _lastUserEventTs=kwargs.get('_lastUserEventTs')
+        self.handle_clientchanges(page_id,kwargs)
         self.register.refresh(page_id,_lastUserEventTs)
         envelope = Bag(dict(result=None))
         datachanges = self.getPageDatachanges(page_id)
@@ -707,7 +708,16 @@ class GnrWsgiSite(object):
         response.content_type = "text/xml"
         result= envelope.toXml(unresolved=True,  omitUnknownTypes=True)
         return result
- 
+        
+    def handle_clientchanges(self,page_id=None,parameters=None):
+        if '_serverstore_changes' in parameters:
+            serverstore_changes = parameters.pop('_serverstore_changes',None)
+            if serverstore_changes:
+                with self.register.pageStore(page_id,triggered=False) as store:
+                    if store:
+                        for k,v in serverstore_changes.items():
+                            store.setItem(k,v)
+                
     def parse_kwargs(self,kwargs,workdate=None):
         catalog=self.gnrapp.catalog
         result = dict(kwargs)

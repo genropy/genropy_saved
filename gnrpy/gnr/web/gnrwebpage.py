@@ -239,14 +239,6 @@ class GnrWebPage(GnrBaseWebPage):
                 request_kwargs.update([(str(k),v) for k,v in token_kwargs.items()])
         else:
             self._call_handler=self.rootPage
-            
-            
-    def update_serverstore(self,changes):
-        with self.pageStore(triggered=False) as store:
-            if store:
-                for k,v in changes.items():
-                    store.setItem(k,v)
-        
 
     def _rpcDispatcher(self, method=None, mode='bag',**kwargs):
         #assert self.request_page_id,'GNRWEBPAGE:missing page_id calling method %s' % method
@@ -257,10 +249,7 @@ class GnrWebPage(GnrBaseWebPage):
         self.page_id = self.request_page_id
         parameters=self.site.parse_kwargs(kwargs,workdate=self.workdate)
         self._lastUserEventTs=parameters.pop('_lastUserEventTs',None)
-        if '_serverstore_changes' in parameters:
-            serverstore_changes = parameters.pop('_serverstore_changes',None)
-            if serverstore_changes:
-                self.update_serverstore(serverstore_changes)
+        self.site.handle_clientchanges(self.page_id,parameters)
         auth = AUTH_OK
         if not method in ('doLogin'):
             auth = self._checkAuth(method=method, **parameters)
@@ -522,9 +511,6 @@ class GnrWebPage(GnrBaseWebPage):
         return {'pages':self.site.pages_dir,
                 'site':self.site.site_path,
                 'current':os.path.dirname(self.filepath)}
-    
-        
-
     # 
     def pageStore(self,page_id=None,triggered=True):
         page_id = page_id or self.page_id
