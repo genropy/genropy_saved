@@ -60,7 +60,8 @@ def importModule(module):
         __import__(module)
     return sys.modules[module]
         
-def timer_call(time_list=[],print_time=True):
+def timer_call(time_list=None,print_time=True):
+    time_list = time_list or []
     def decore(func):
         def wrapper(*arg,**kw):
             t1 = time.time()
