@@ -4,7 +4,7 @@
 # Created by Francesco Porcari on 2010-08-13.
 # Copyright (c) 2010 Softwell. All rights reserved.
 
-from gnr.web.gnrwebpage import BaseComponent
+from gnr.web.gnrbaseclasses import BaseComponent
 
 class ThermoPane(BaseComponent):
     """
