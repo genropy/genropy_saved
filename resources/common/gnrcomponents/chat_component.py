@@ -90,7 +90,7 @@ class ChatComponent(BaseComponent):
             arguments.pop('connections',None)
             if user != self.user:
                 arguments['_pkey'] = user
-                arguments.pop('datachanges')
+                arguments.pop('datachanges',None)
                 result.setItem(user,None,**arguments)
         return result
     
