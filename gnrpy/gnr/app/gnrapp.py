@@ -48,6 +48,8 @@ from gnr.core.gnrsys import expandpath
 from gnr.sql.gnrsql import GnrSqlDb
 from gnr.sql.gnrsqltable import SqlTablePlugin
 
+log = logging.getLogger('gnrapp')
+
 class GnrImportException(GnrException):
     pass
         
@@ -98,7 +100,8 @@ class GnrPackage(object):
         self.customFolder = os.path.join(self.application.instanceFolder, 'custom', pkg_id)
         try:
             self.main_module = gnrImport(os.path.join(self.packageFolder, 'main.py'),'package_%s' % pkg_id)
-        except:
+        except Exception, e:
+            log.exception(e)
             raise GnrImportException("Cannot import package %s from %s" % (pkg_id, os.path.join(self.packageFolder, 'main.py')))
         try:
             self.pkgMenu = Bag(os.path.join(self.packageFolder, 'menu.xml'))
