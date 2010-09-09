@@ -626,15 +626,10 @@ class GnrWsgiSite(object):
                                    
     def sendMessageToClient(self,value,pageId=None,filters=None,origin=None,msg_path=None):
         """Send a message """
-        if origin:
-            from_page=origin.page_id
-            from_user=origin.user
-        else:
-            from_page=None
-            from_user='*Server*'
+        from_page,from_user = (origin.page_id,origin.user) if origin else (None,'*Server*')
         self.currentPage.setInClientData(msg_path or 'gnr.servermsg', value,
-                            page_id=pageId,filters=filters,
-                            _attributes=dict(from_user=from_user,from_page=from_page))
+                                       page_id=pageId,filters=filters,
+                                      attributes=dict(from_user=from_user,from_page=from_page))
                             
     def _get_currentPage(self):
         """property currentPage it returns the page currently used in this thread"""
@@ -661,21 +656,6 @@ class GnrWsgiSite(object):
     def loadTableScript(self, page, table, respath, class_name=None):
         return self.resource_loader.loadTableScript( page, table, respath, class_name=class_name)
   
-    def getPageDatachanges(self,page_id,local_datachanges=None):
-        result = Bag()
-        local_datachanges = local_datachanges or []
-        with self.register.pageStore(page_id) as store:
-            external_datachanges = list(store.datachanges) or []
-            store.reset_datachanges()
-            
-        for j,change in enumerate(external_datachanges+local_datachanges):
-            result.setItem('sc_%i' %j,change.value,change_path=change.path,change_reason=change.reason,
-                            change_fired=change.fired,change_attr=change.attributes,
-                            change_ts=change.change_ts)
-                
-        return result
-  
-  
     def _get_resources(self):
         if not hasattr (self,'_resources'):
             self._resources= self.resource_loader.site_resources()
@@ -699,16 +679,43 @@ class GnrWsgiSite(object):
     def serve_ping(self,response, page_id=None,reason=None,**kwargs):
         kwargs=self.parse_kwargs(kwargs)
         _lastUserEventTs=kwargs.get('_lastUserEventTs')
+        _user_offset=kwargs.get('_user_offset')
+        page_item = self.register.refresh(page_id,_lastUserEventTs)
+        if not page_item:
+            return
+        
+
         self.handle_clientchanges(page_id,kwargs)
-        self.register.refresh(page_id,_lastUserEventTs)
         envelope = Bag(dict(result=None))
-        datachanges = self.getPageDatachanges(page_id)
+        datachanges = self.get_datachanges(page_id,user=page_item['user'],user_offset=_user_offset)
         if datachanges:
             envelope.setItem('dataChanges', datachanges)
         response.content_type = "text/xml"
         result= envelope.toXml(unresolved=True,  omitUnknownTypes=True)
         return result
         
+    def get_datachanges(self,page_id,user=None,user_offset=None,local_datachanges=None):
+        result = Bag()
+        local_datachanges = local_datachanges or []
+        with self.register.pageStore(page_id) as store:
+            external_datachanges = list(store.datachanges) or []
+            store.reset_datachanges()
+            
+        user_datachanges = self.register.userStore(user).datachanges
+        if user_datachanges:
+            user_datachanges=user_datachanges[user_offset:]
+            
+            for j,change in enumerate(user_datachanges):                
+                change.attributes = change.attributes or {}
+                change.attributes['_user_offset']=j+user_offset+1
+            
+        for j,change in enumerate(external_datachanges+local_datachanges+user_datachanges):
+            result.setItem('sc_%i' %j,change.value,change_path=change.path,change_reason=change.reason,
+                            change_fired=change.fired,change_attr=change.attributes,
+                            change_ts=change.change_ts)
+        return result        
+        
+
     def handle_clientchanges(self,page_id=None,parameters=None):
         if '_serverstore_changes' in parameters:
             serverstore_changes = parameters.pop('_serverstore_changes',None)

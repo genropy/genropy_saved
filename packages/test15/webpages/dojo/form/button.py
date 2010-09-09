@@ -15,4 +15,8 @@ class GnrCustomWebPage(object):
         """Styled button"""
         pane.button('i am a button',action='alert("you clicked me")',
                         style='color:red;font-size:44px;')
-        
+    
+    def test_3_params(self,pane):
+        """Button with action and action parameters"""
+        pane.textbox(value='^msg')
+        pane.button('i am a button',action='alert(msg)',msg='=msg')        

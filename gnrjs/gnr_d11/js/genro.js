@@ -66,6 +66,7 @@ dojo.declare('gnr.GenroClient', null, {
         this.pageMode = kwargs.pageMode;
         this.baseUrl = kwargs.baseUrl;
         this.lockingElements = {};
+        this._user_offset =0;
         this.debugRpc = false;
 
         setTimeout(dojo.hitch(this, 'genroInit'), 1);

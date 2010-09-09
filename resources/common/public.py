@@ -15,7 +15,8 @@ class Public(BaseComponent):
     """docstring for Public for common_d11: a complete restyling of Public of common_d10"""
     css_requires = 'public'
     js_requires = 'public'
-    py_requires = 'foundation/menu:Menu,foundation/dialogs,foundation/macrowidgets'
+    py_requires = 'foundation/menu:Menu,foundation/dialogs,foundation/macrowidgets,gnrcomponents/chat_component:ChatComponent'
+    
         
     def userRecord(self,path=None):
         if not hasattr(self,'_userRecord' ):
@@ -29,18 +30,31 @@ class Public(BaseComponent):
         pass
         
     def mainLeftContent(self,parentBC,**kwargs):
-        bc = parentBC.borderContainer(width='20%',_class='menupane',**kwargs)
-        logo_pane = bc.contentPane(region='bottom',_class='menupane_pref')
-        #logo_path = self.site.site_static_path('data','adm','logo.png')
-       #if not os.path.isfile(logo_path):
-       #    logo_path = self.getResourceUri('images/information.png')
-       #logo_pane.img(src=logo_path,connect_onclick='FIRE gnr.openAppPreference;',
-       #             _class='buttonIcon',float='right',width="100px",height="50px",border='1px solid white')
-        logo_pane.button('!!Preferences',float='right',action='FIRE gnr.openPreference="app";')
-        self.pbl_preference_main(logo_pane)
-        menu_pane = bc.contentPane(region='center',_class='menutree_container',overflow='auto')
-        self.menu_menuPane(menu_pane)
+        sc = parentBC.stackContainer(width='20%',selectedPage='^pbl.left_stack',
+                                    _class='menupane',**kwargs)
+        sc.data('pbl.left_stack','menu')
+        bc_main = sc.borderContainer(pageName='menu')
+        bottom = bc_main.contentPane(region='bottom').toolbar(height='20px',overflow='hidden')
+        self.pbl_preference_main(bottom)
+        bottom.button('!!Preferences',
+                     action='FIRE gnr.openPreference="app";',
+                     font_size='.8em',float='left') #'pbl_brandLogo' should be the client logo
+        self.menu_menuPane(bc_main.contentPane(region='center',_class='menutree_container',overflow='auto'))
+        
+        for pageName, cb in [(c.split('_')[2],getattr(self,c)) for c in dir(self) if c.startswith('pbl_left_')]:
+            bc = sc.borderContainer(overflow='auto',pageName=pageName)
+            top = bc.contentPane(region='top').toolbar(height='20px',overflow='hidden')
+            top.div(cb.__doc__,float='left',font_weight='bold',font_size='.9em')
+            top.div(float='right',_class='buttonIcon icnTabClose',connect_onclick='SET pbl.left_stack="menu";')            
+            cb(bc.contentPane(region='center'),toolbar=bottom)
     
+    def pbl_left_batch(self,pane,toolbar=None):     
+        "Batch"
+        toolbar.button('!!Batch',showLabel=False,
+                     action='SET pbl.left_stack = "batch";',
+                     iconClass='icnBaseAction',float='right')
+
+
     def pbl_preference_main(self,pane):
         #pane.img(_class='buttonIcon %s' %self.pbl_logoclass())
         if self.db.packages['adm']:
@@ -118,7 +132,7 @@ class Public(BaseComponent):
         self.pageSource('_pageRoot').setAttr(height=height, width=width, margin=margin)
         top = self.pbl_topBar(rootbc.borderContainer(region='top', _class='pbl_root_top',overflow='hidden'),title,flagsLocale=flagsLocale)
         bottom = self.pbl_bottomBar(rootbc.stackContainer(region='bottom', _class='pbl_root_bottom',
-                                                            overflow='hidden',selectedPage='^gnr.pbl.bottom_stack'))
+                                                            overflow='hidden',selectedPage='^pbl.bottom_stack'))
         bc = rootbc.borderContainer(region='center', _class='pbl_root_center')        
         return bc, top, bottom
         
@@ -206,7 +220,7 @@ class Public(BaseComponent):
 
     def pbl_bottomBar(self,bottom):
         """docstring for publicTitleBar"""
-        bottom.data('gnr.pbl.bottom_stack','default')
+        bottom.data('pbl.bottom_stack','default')
         default_bottom = self.pbl_bottom_default(bottom.borderContainer(pageName='default'))
         self.pbl_bottom_message(bottom.contentPane(pageName='message'))
         return default_bottom
@@ -214,10 +228,10 @@ class Public(BaseComponent):
     def pbl_bottom_message(self,pane):
         pane.div('^pbl.bottomMsg', _class='pbl_messageBottom', nodeId='bottomMsg')
         pane.dataController("""
-                                SET gnr.pbl.bottom_stack='message';
+                                SET pbl.bottom_stack='message';
                                 var _this = this;
                                 var cb = function(){
-                                    _this.setRelativeData('gnr.pbl.bottom_stack','default');
+                                    _this.setRelativeData('pbl.bottom_stack','default');
                                 }
                                 genro.dom.effect('bottomMsg','fadeout',{duration:1000,delay:2000,onEnd:cb});
                                 

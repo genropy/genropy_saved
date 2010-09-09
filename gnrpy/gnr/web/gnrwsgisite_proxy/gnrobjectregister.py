@@ -66,7 +66,7 @@ class ServerStore(object):
     def set_datachange(self,path,value,attributes=None,fired=False,reason=None,replace=False):
         datachanges = self.datachanges
         datachange = ClientDataChange(path,value,attributes=attributes,fired=fired,reason=reason)
-        if not replace and datachange in datachanges:
+        if replace and datachange in datachanges: 
             datachanges[datachanges.index(datachange)].update(datachange)
         else:
             datachanges.append(datachange)
@@ -243,7 +243,7 @@ class SiteRegister(object):
         return self._connections.make_store(connection_id,triggered=triggered)
     
     def userStore(self,user,triggered=False):
-        return self.users.make_store(user,triggered=triggered)
+        return self._users.make_store(user,triggered=triggered)
     
     def pageStore(self,page_id,triggered=False):
         return self._pages.make_store(page_id,triggered=triggered)
@@ -260,6 +260,7 @@ class SiteRegister(object):
             
         with  self._users as user_register:
             user_register._update_lastused(page_register_item['user'],ts)
+        return page_register_item
         
         
     def users(self,*args,**kwargs):

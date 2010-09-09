@@ -249,6 +249,7 @@ class GnrWebPage(GnrBaseWebPage):
         self.page_id = self.request_page_id
         parameters=self.site.parse_kwargs(kwargs,workdate=self.workdate)
         self._lastUserEventTs=parameters.pop('_lastUserEventTs',None)
+        self._user_offset = parameters.pop('_user_offset',0)
         self.site.handle_clientchanges(self.page_id,parameters)
         auth = AUTH_OK
         if not method in ('doLogin'):
@@ -340,7 +341,8 @@ class GnrWebPage(GnrBaseWebPage):
             
     def collectClientDatachanges(self):
         self._publish_event('onCollectDatachanges')
-        result = self.site.getPageDatachanges(self.page_id,self.local_datachanges)
+        result = self.site.get_datachanges(self.page_id,user=self.user,user_offset=self._user_offset,
+                                            local_datachanges=self.local_datachanges)
         return result
     
     def _subscribe_event(self, event, caller):
@@ -682,7 +684,7 @@ class GnrWebPage(GnrBaseWebPage):
     def setInClientData(self, path, value=None, attributes=None, page_id=None, filters=None,
                         fired=False, reason=None,public=False,replace=False):
         if filters:
-            pages=self.site.register_page.pages(filters=filters)
+            pages=self.site.register.pages(filters=filters)
         else:
             pages=[page_id]
         for page_id in pages:

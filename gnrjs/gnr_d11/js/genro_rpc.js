@@ -178,6 +178,7 @@ dojo.declare("gnr.GnrRpcHandler",null,{
             callKwargs._serverstore_changes = genro._serverstore_changes;
             genro._serverstore_changes = null;
         };
+        callKwargs._user_offset = genro._user_offset;
         callKwargs = this.serializeParameters(this.dynamicParameters(callKwargs, sourceNode));
         callKwargs._lastUserEventTs= asTypedTxt(genro._lastUserEventTs,'DH');
         if (genro.auto_polling>0){
@@ -308,17 +309,20 @@ dojo.declare("gnr.GnrRpcHandler",null,{
     },
     setDatachangesInData:function (datachanges){
         console.log('apply datachanges');
-        changenodes = datachanges.getNodes();
+        var changenodes = datachanges.getNodes();
         for (var i=0;i<changenodes.length;i++){
-            changenode = changenodes[i];
-            value = changenode.getValue();
-            attr = objectExtract(changenode.attr,'change_*');
-            changepath = attr.path;
-            as_fired = attr.as_fired;
-            reason = attr.reason;
+            var changenode = changenodes[i];
+            var value = changenode.getValue();
+            var attr = objectExtract(changenode.attr,'change_*');
+            var changepath = attr.path;
+            var fired = attr.fired;
+            var reason = attr.reason;
             attr = attr.attr;
             var updater = function(path,value,attr,reason){
                 if(genro._data.getItem(path)!=value){
+                    if (attr && ('_user_offset' in attr)) {
+                        genro._user_offset = (objectPop(attr,'_user_offset') ||0);
+                    };
                     genro._data.setItem(path,value,attr,reason!=null?{'doTrigger':reason,_updattr:true}:null);
                 }
             };
@@ -333,7 +337,7 @@ dojo.declare("gnr.GnrRpcHandler",null,{
             }
             else{
                 updater(changepath,value,attr,reason);
-                if (as_fired){
+                if (fired){
                     genro._data.setItem(changepath, null, null, {'doTrigger':false});
                 }
             }
