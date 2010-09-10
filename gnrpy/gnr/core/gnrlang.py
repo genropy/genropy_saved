@@ -24,7 +24,7 @@ import inspect
 #import weakref
 import sys, imp, traceback, datetime
 import os.path
-
+import thread
 import warnings
 
 from gnr.core import gnrstring
@@ -32,7 +32,11 @@ from gnr.core import gnrstring
 import uuid
 import base64
 import time
-import thread
+thread_ws=dict()
+
+def thlocal():
+    return thread_ws.setdefault(thread.get_ident(),{})
+
 def deprecated(func):
     """This is a decorator which can be used to mark functions
     as deprecated. It will result in a warning being emmitted
@@ -59,7 +63,21 @@ def importModule(module):
     if module not in sys.modules:
         __import__(module)
     return sys.modules[module]
-        
+
+
+def debug_call(func):
+    def decore(self,*args,**kwargs):
+        tloc=thlocal()
+        indent=tloc['debug_call_indent']=tloc.get('debug_call_indent',-1)+1
+        indent=' '*indent
+        print'%sSTART: %s'% (indent, func.func_name)
+        _timer_=time.time()
+        result= func(self,*args,**kwargs)
+        print'%sEND  : %s ms: %.4f'% (indent,func.func_name ,(time.time()-_timer_)*1000)
+        tloc['debug_call_indent']-=1
+        return result
+    return decore
+            
 def timer_call(time_list=None,print_time=True):
     time_list = time_list or []
     def decore(func):
