@@ -128,6 +128,7 @@ dojo.declare("gnr.GnrDevHandler",null,{
         var status = ioArgs.xhr.status;
         if (status==412) {
             genro.dlg.alert('No longer existing page');
+            genro.pageReload()
             return
         }else if(status==0){
             genro.dlg.alert('Site temporary un available. Retry later');
