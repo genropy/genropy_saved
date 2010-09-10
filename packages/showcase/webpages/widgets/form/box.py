@@ -11,13 +11,24 @@ class GnrCustomWebPage(object):
         simple textarea, number spinner. They are form widgets inherit from Dojo.
         
         Before introducing boxes we write here the common default values of box attributes:
+            
             font_size='1em'.
+            
             text_align='left' (there are two boxes with a different default value;
                                 we specify directly in the box itself)
-            lbl='name_of_box' You can use 'lbl' to give to the box a label.
-                              Pay attention! You can use the attribute 'lbl' only if the box
-                              is son of a formbuilder (see test_1 for example).
+                                
+        Here we introduce the attributes belonging to every box:
         
+            default='VALUE' Add a default value in your box (use a type supported from your box!).
+                            It's not compatible with dateTextbox and timeTextbox.
+                            
+            lbl='STRING'    You can use 'lbl' to give to the box a label.
+                            Pay attention! You can use the attribute 'lbl' only if the box
+                            is son of a formbuilder (see test_1 for example).
+                            
+            value='STRING'  Insert an address for your data. For further details check
+                            datapath documentation.
+            
         - Boxes: 
             - textbox: a simple textbox.
                 
@@ -59,6 +70,7 @@ class GnrCustomWebPage(object):
     #
     #       ## name ##      --> ## file ##
     #       formbuilder     --> formbuilder.py
+    #       value           --> datapath.py
             
     py_requires="gnrcomponents/testhandler:TestHandlerBase"
     css_requires='index.css'
@@ -67,7 +79,7 @@ class GnrCustomWebPage(object):
     def test_1_textbox(self,pane):
         """Textbox"""
         fb = pane.formbuilder(cols=2)
-        fb.textBox(value='^textBox',lbl='Name')
+        fb.textBox(value='^textBox',lbl='Name',default='ciao')
         fb.div("A simple textbox.",font_size='.9em',text_align='justify')
         fb.textBox(value='^textBox_2',nodeId='name',lbl="Surname",
                                     validate_len='4:',
@@ -91,15 +103,15 @@ class GnrCustomWebPage(object):
         """numberSpinner"""
         pane.numberSpinner(value='^age',default=100)
         pane.div("""Try to hold down a button: the spinning accelerates
-         to make coarser adjustments easier""",
+                    to make coarser adjustments easier""",
                    font_size='.9em',text_align='justify',margin='5px')
-        
+                   
     def test_4_simpleTextarea(self,pane):
         """simpleTextarea"""
-        pane.data('^simpleTextarea',"""A simple area to contain text.""")
         pane.simpleTextarea(value='^simpleTextarea',height='80px',width='30em',colspan=2,
-                            color='blue',font_size='1.2em')
-        
+                            color='blue',font_size='1.2em',
+                            default='A simple area to contain text.')
+                            
     def test_5_dateTextbox(self,pane):
         """dateTextbox"""
         pane.dateTextbox(value='^dateTextbox')
@@ -113,7 +125,6 @@ class GnrCustomWebPage(object):
         pane.currencyTextBox(value='^amount',default=1123.34,currency='EUR',locale='it')
         
         #attributi:
-        #default=NUMBER, value
         #currency='EUR' --> indica la moneta utilizzata
         #locale='it' --> ??
         
