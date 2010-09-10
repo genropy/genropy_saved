@@ -134,7 +134,6 @@ dojo.declare("gnr.GnrDevHandler",null,{
             genro.dlg.alert('Site temporary un available. Retry later');
             return
         }
-
         console.log('handleRpcHttpError')
         debug_url = ioArgs.xhr.getResponseHeader('X-Debug-Url');
         if (!debug_url){
