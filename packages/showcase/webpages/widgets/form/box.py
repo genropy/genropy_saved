@@ -73,7 +73,6 @@ class GnrCustomWebPage(object):
     #       value           --> datapath.py
             
     py_requires="gnrcomponents/testhandler:TestHandlerBase"
-    css_requires='index.css'
     # dojo_theme='claro'    # !! Uncomment this row for Dojo_1.5 usage
     
     def test_1_textbox(self,pane):
