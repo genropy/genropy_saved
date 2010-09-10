@@ -37,7 +37,7 @@ class StaticHandlerManager(object):
         if handler:
             return handler.serve(path_list,environ,start_response,download=False,**kwargs)
         else:
-            return self.site.not_found(environ, start_response)
+            return self.site.not_found_exception(environ, start_response)
 
 
 
@@ -69,7 +69,7 @@ class StaticHandler(object):
         if fullpath and not os.path.isabs(fullpath):
             fullpath = os.path.normpath(os.path.join(self.site_path,fullpath))
         if fullpath and not os.path.exists(fullpath):
-            return self.site.not_found(environ, start_response)
+            return self.site.not_found_exception(environ, start_response)
         if_none_match = environ.get('HTTP_IF_NONE_MATCH')
         if if_none_match:
             mytime = os.stat(fullpath).st_mtime

@@ -438,7 +438,9 @@ class GnrWsgiSite(object):
         if path_list[0] in self.dbstores:
             storename = path_list.pop(0)
         if path_list[0] == '_ping':
-            result=self.serve_ping(response, **request_kwargs)
+            result=self.serve_ping(response,environ,start_response, **request_kwargs)
+            if not isinstance(result,basestring):
+                return result
             self.setResultInResponse(result, response, totaltime = time()-t)
             return response(environ, start_response)
 
@@ -455,7 +457,7 @@ class GnrWsgiSite(object):
                 except Exception,exc:
                     raise exc
             if not (page and page._call_handler):
-                return self.not_found(environ,start_response)
+                return self.not_found_exception(environ,start_response)
             self.onServingPage(page)
             self.currentPage = page
             page.storename = storename
@@ -492,7 +494,7 @@ class GnrWsgiSite(object):
         tool = self.load_webtool(toolname)  
         tool.site=self      
         if not tool:
-            return self.not_found(environ, start_response)
+            return self.not_found_exception(environ, start_response)
         response = Response()
         result = tool(*args, **kwargs)
         content_type = getattr(tool,'content_type')
@@ -516,10 +518,19 @@ class GnrWsgiSite(object):
         if webtool:
             return webtool()
     
-    def not_found(self, environ, start_response, debug_message=None):
+    def not_found_exception(self, environ, start_response, debug_message=None):
         exc = httpexceptions.HTTPNotFound(
             'The resource at %s could not be found'
             % paste_request.construct_url(environ),
+            comment='SCRIPT_NAME=%r; PATH_INFO=%r; debug: %s'
+            % (environ.get('SCRIPT_NAME'), environ.get('PATH_INFO'),
+                debug_message or '(none)'))
+        return exc.wsgi_application(environ, start_response)
+    
+    def failed_exception(self, message,environ, start_response, debug_message=None):
+        if '%%s' in message:
+            message = message % paste_request.construct_url(environ)
+        exc = httpexceptions.HTTPPreconditionFailed(message,
             comment='SCRIPT_NAME=%r; PATH_INFO=%r; debug: %s'
             % (environ.get('SCRIPT_NAME'), environ.get('PATH_INFO'),
                 debug_message or '(none)'))
@@ -676,15 +687,15 @@ class GnrWsgiSite(object):
         kwargs_string = '&'.join(['%s=%s'%(k,v) for k,v in kwargs.items()])
         return '%s%s_tools/%s?%s'%(self.external_host,self.home_uri,tool,kwargs_string)
                 
-    def serve_ping(self,response, page_id=None,reason=None,**kwargs):
+    def serve_ping(self,response,environ,start_response, page_id=None,reason=None,**kwargs):
         kwargs=self.parse_kwargs(kwargs)
         _lastUserEventTs=kwargs.get('_lastUserEventTs')
         _user_offset=kwargs.get('_user_offset')
         page_item = self.register.refresh(page_id,_lastUserEventTs)
         if not page_item:
-            return
-        
+            return self.failed_exception('no longer existing page %s' %page_id,environ, start_response)
 
+        
         self.handle_clientchanges(page_id,kwargs)
         envelope = Bag(dict(result=None))
         datachanges = self.get_datachanges(page_id,user=page_item['user'],user_offset=_user_offset)

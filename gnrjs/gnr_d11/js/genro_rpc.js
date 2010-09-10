@@ -345,7 +345,14 @@ dojo.declare("gnr.GnrRpcHandler",null,{
     },
     resultHandler: function(response, ioArgs, currentAttr){
         var envelope = new gnr.GnrBag();
-        envelope.fromXmlDoc(response, genro.clsdict);
+        try{
+            envelope.fromXmlDoc(response, genro.clsdict);
+        }
+        catch(e){
+            console.log('error in fromXmlDoc');
+            console.log(response);
+            return;
+        }
         var envNode = envelope.getNode('result');
         var resultAsNode=(envelope.getItem('resultType')=='node') || currentAttr;
         var changenode,attr,value, changepath,serverpath, as_fired,reason;

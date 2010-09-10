@@ -1634,8 +1634,8 @@ dojo.declare("gnr.GnrBag",null,{
                         itemValue=convertFromText(itemValue,convertAs);
                     }else if (stringContains(itemValue,'::')){
                         itemValue=itemValue.split('::');
-                        itemValue=convertFromText(itemValue[0],itemValue[1]);
                         convertAs = itemValue[1];
+                        itemValue=convertFromText(itemValue[0],convertAs);
                     }
                     if(convertAs=='H'){
                         attributes.dtype=convertAs;

@@ -279,7 +279,7 @@ class SiteRegister(object):
         pass
 
     @lock_connection
-    @debug_call
+    #@debug_call
     def drop_connection(self,connection_id,cascade=None):
         connection_item = self.c_register.pop(connection_id)
         if not connection_item:
@@ -290,7 +290,7 @@ class SiteRegister(object):
         self.pop_connections_from_user(connection_item['user'],connection_item,delete_if_empty=cascade)
         
     @lock_page
-    @debug_call
+    #@debug_call
     def drop_page(self,page_id,cascade=None):
         page_item = self.p_register.pop(page_id)
         if not page_item:
@@ -341,12 +341,20 @@ class SiteRegister(object):
         return PagesTreeResolver()
     
     def cleanup(self,max_age=30,cascade=False):
+        for page_id,page in self.pages().items():
+            if page['last_rpc_age']>max_age:
+                self.drop_page(page_id,cascade=cascade)
+        for connection_id,connection in self.connections().items():
+            if connection['last_rpc_age']>max_age:
+                self.drop_connection(connection_id,cascade=cascade)
+    
+    def cleanup_(self,max_age=30,cascade=False):
         with self.u_register as user_register:
             with self.c_register as connection_register:
                 with self.p_register as page_register:
                     for page_id,page in self.pages().items():
                         if page['last_rpc_age']>max_age:
-                            self._drop_page(page_id,page_register=page_register,
+                            self.drop_page(page_id,page_register=page_register,
                                             connection_register=connection_register,
                                             user_register=user_register,cascade=cascade)
                     for connection_id,connection in self.connections().items():
@@ -385,7 +393,7 @@ class BaseRegister(object):
         return '%s_LU_%s'%(self.prefix,register_item_id)
     
     @lock_item
-    @debug_call
+    #@debug_call
     def update_lastused(self,register_item_id,ts=None):
         last_used_key = self.lastused_key(register_item_id)
         last_used = self.sd.get(last_used_key)
@@ -393,7 +401,7 @@ class BaseRegister(object):
             ts = max(last_used[1],ts) if ts else last_used[1]
         self.sd.set(last_used_key, (datetime.now(),ts),0)
         
-    @debug_call
+    #@debug_call
     def read(self, register_item_id):
         register_item=self.sd.get(self.item_key(register_item_id))
         if register_item:
@@ -404,7 +412,7 @@ class BaseRegister(object):
         return self.sd.get(self.item_key(register_item_id)) is not None
     
     @lock_item
-    @debug_call
+    #@debug_call
     def write(self, register_item):
         sd=self.sd
         self.log('write',register_item=register_item)
@@ -430,7 +438,7 @@ class BaseRegister(object):
         return ind_key
         
     @lock_index
-    @debug_call
+    #@debug_call
     def set_index(self,register_item,index_name=None):
         sd=self.sd
         register_item_id = register_item['register_item_id']
@@ -450,7 +458,7 @@ class BaseRegister(object):
         self.log('set_index:writing',index=index)
     
     @lock_index
-    @debug_call
+    #@debug_call
     def _remove_index(self,register_item_id, index_name=None):
         """Private. It must be called only in locked mode"""
         sd=self.sd
@@ -475,7 +483,7 @@ class BaseRegister(object):
         self.log('_index_rewrite:index updated',ind_key=ind_key)
     
     @lock_item
-    @debug_call
+    #@debug_call
     def pop(self,register_item_id):
         sd=self.sd
         item_key=self.item_key(register_item_id)
@@ -501,7 +509,7 @@ class BaseRegister(object):
         register_item['last_event_age'] = age('last_user_ts')
 
     @lock_item
-    @debug_call
+    #@debug_call
     def upd_register_item(self,register_item_id,**kwargs):
         sd=self.sd
         self.log('set_register_item',register_item_id=register_item_id)
@@ -523,14 +531,13 @@ class BaseRegister(object):
     def unlock_register_item(self,register_item_id):
         return self.sd.unlock(self.item_key(register_item_id))
         
-    @debug_call
+    #@debug_call
     def items(self,index_name=None):
         """Registered register_items"""
         index=self.sd.get(self._get_index_key(index_name)) or {}
-        print 'items : ',index
         return self.get_multi_items(index.keys())
         
-    @debug_call
+    #@debug_call
     def get_multi_items(self,keys):
         sd=self.sd
         items=sd.get_multi(keys,'%s_IT_'%self.prefix)
@@ -700,7 +707,6 @@ class PagesTreeResolver(BagResolver):
     def list_users(self):
         
         usersDict = self._page.site.register.users()
-        print 'list_users: ',usersDict
         result = Bag()
         for user,item_user in usersDict.items():
             item=Bag()

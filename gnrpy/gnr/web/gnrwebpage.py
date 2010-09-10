@@ -354,9 +354,12 @@ class GnrWebPage(GnrBaseWebPage):
             getattr(subscriber,'event_%s'%event)()
 
     def rootPage(self,**kwargs):
-        self.page_id = getUuid()
-        self.connection.start()
+        self.page_id = self.request_page_id or getUuid()
         self.charset='utf-8'
+        arg_dict = self.build_arg_dict(**kwargs)
+        self.connection.start()
+        if not self.request_page_id:
+            self.site.register.new_page(self.page_id,self,data=dict(pageArgs=kwargs))
         tpl = self.pagetemplate
         if not isinstance(tpl, basestring):
             tpl = '%s.%s' % (self.pagename, 'tpl')
@@ -366,8 +369,6 @@ class GnrWebPage(GnrBaseWebPage):
         except:
             raise GnrWebPageException("No template %s found in %s" % (tpl, str(self.tpldirectories)))
         self.htmlHeaders()
-        arg_dict = self.build_arg_dict(**kwargs)
-        self.site.register.new_page(self.page_id,self,data=dict(pageArgs=kwargs))
         return mytemplate.render(mainpage=self, **arg_dict)        
         
     

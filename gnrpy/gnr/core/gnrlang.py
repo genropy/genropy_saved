@@ -70,7 +70,7 @@ def debug_call(func):
         tloc=thlocal()
         indent=tloc['debug_call_indent']=tloc.get('debug_call_indent',-1)+1
         indent=' '*indent
-        print'%sSTART: %s'% (indent, func.func_name)
+        print'%sSTART: %s (args:%s, kwargs=%s)'% (indent, func.func_name,args,kwargs)
         _timer_=time.time()
         result= func(self,*args,**kwargs)
         print'%sEND  : %s ms: %.4f'% (indent,func.func_name ,(time.time()-_timer_)*1000)

@@ -73,7 +73,7 @@ class GnrCustomWebPage(object):
         dialog = self.simpleDialog(pane,datapath='cleanup_dialog',dlgId='dlg_cleanup',
                                     cb_center=cb_center,height='130px',width='300px',title='Cleanup')
         dialog.dataRpc('dummy','cleanup_register',_fired='^.save',register_type='=.opener',
-                        _onResult='FIRE refresh_all;',max_age='=.max_age',cascade='=.cascade')
+                        _onResult='FIRE .close;FIRE refresh_all;',max_age='=.max_age',cascade='=.cascade')
         
     def rpc_cleanup_register(self,register_type=None,max_age=None,cascade=None):
         self.site.register.cleanup(max_age=max_age,cascade=cascade)

@@ -125,6 +125,15 @@ dojo.declare("gnr.GnrDevHandler",null,{
         dojo.publish("standardDebugger",{message: msg, type:level.toUpperCase(), duration:duration});
     },
     handleRpcHttpError:function(response, ioArgs){
+        var status = ioArgs.xhr.status;
+        if (status==412) {
+            genro.dlg.alert('No longer existing page');
+            return
+        }else if(status==0){
+            genro.dlg.alert('Site temporary un available. Retry later');
+            return
+        }
+
         console.log('handleRpcHttpError')
         debug_url = ioArgs.xhr.getResponseHeader('X-Debug-Url');
         if (!debug_url){
