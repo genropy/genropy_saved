@@ -56,6 +56,8 @@ class GnrWebConnection(GnrBaseProxy):
         cookie_data=cookie_value.get('data')
         connection_item = self.page.site.register.get_connection(cookie_connection_id)
         if connection_item:
+            if connection_item['user'] != cookie_user:
+                print  'wrong user'
             if (connection_item['user'] == cookie_user) and (connection_item['user_ip'] == self.page.request.remote_addr):
                 self.connection_id = cookie_connection_id
                 self.user = cookie_user
@@ -69,7 +71,7 @@ class GnrWebConnection(GnrBaseProxy):
         return 'guest_%s' % self.connection_id
         
     def register(self):
-        return self.page.site.register.new_connection(self)
+        return self.page.site.register.new_connection(self.connection_id,self)
         
     def unregister(self):
         self.page.site.register.drop_connection(self.connection_id)
