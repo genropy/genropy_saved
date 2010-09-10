@@ -367,7 +367,7 @@ class GnrWebPage(GnrBaseWebPage):
             raise GnrWebPageException("No template %s found in %s" % (tpl, str(self.tpldirectories)))
         self.htmlHeaders()
         arg_dict = self.build_arg_dict(**kwargs)
-        self.site.register.new_page(self,data=dict(pageArgs=kwargs))
+        self.site.register.new_page(self.page_id,self,data=dict(pageArgs=kwargs))
         return mytemplate.render(mainpage=self, **arg_dict)        
         
     
