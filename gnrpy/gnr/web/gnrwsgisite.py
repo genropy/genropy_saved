@@ -431,6 +431,10 @@ class GnrWsgiSite(object):
         self.external_host = self.config['wsgi?external_host'] or request.host_url
         # Url parsing start
         path_list = self.get_path_list(request.path_info)
+        if path_list==['favicon.ico']:
+            print '******** FAVICON'
+            return response(environ, start_response)
+            
         request_kwargs=dict(request.params)
         request_kwargs.pop('_no_cache_',None)
         storename = None
@@ -438,6 +442,7 @@ class GnrWsgiSite(object):
         if path_list[0] in self.dbstores:
             storename = path_list.pop(0)
         if path_list[0] == '_ping':
+            print '******** PING: kwargs: %s' % str(request_kwargs)
             result=self.serve_ping(response,environ,start_response, **request_kwargs)
             if not isinstance(result,basestring):
                 return result
@@ -445,15 +450,23 @@ class GnrWsgiSite(object):
             return response(environ, start_response)
 
         if path_list and path_list[0].startswith('_tools'):
+            print '******** TOOLS %s : kwargs: %s' % (path_list,str(request_kwargs))
             return self.serve_tool(path_list,environ,start_response,**request_kwargs)
         elif path_list and path_list[0].startswith('_'):
+            print '******** STATIC %s : kwargs: %s' % (path_list,str(request_kwargs))
             return self.statics.static_dispatcher(path_list,environ,start_response,**request_kwargs)
         else:
+            print '******** RESURCE %s : kwargs: %s' % (path_list,str(request_kwargs))
             if self.debug:
-                page = self.resource_loader(path_list, request, response)
+                try:
+                    page = self.resource_loader(path_list, request, response,environ=environ)
+                except httpexceptions.HTTPException,exc:
+                    return exc.wsgi_application(environ, start_response)
             else:
                 try:
                     page = self.resource_loader(path_list, request, response)
+                except httpexceptions.HTTPException,exc:
+                    return exc.wsgi_application(environ, start_response)
                 except Exception,exc:
                     raise exc
             if not (page and page._call_handler):
@@ -535,6 +548,13 @@ class GnrWsgiSite(object):
             % (environ.get('SCRIPT_NAME'), environ.get('PATH_INFO'),
                 debug_message or '(none)'))
         return exc.wsgi_application(environ, start_response)
+        
+    def client_exception(self, message,environ):
+        message = 'ERROR REASON : %s' % message
+        exc = httpexceptions.HTTPClientError(message,
+            comment='SCRIPT_NAME=%r; PATH_INFO=%r'
+            % (environ.get('SCRIPT_NAME'), environ.get('PATH_INFO')))
+        return exc
         
     def build_wsgiapp(self):
         """Builds the wsgiapp callable wrapping self.dispatcher with WSGI middlewares """

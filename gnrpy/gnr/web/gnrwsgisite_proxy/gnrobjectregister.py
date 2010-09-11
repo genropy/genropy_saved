@@ -265,18 +265,19 @@ class SiteRegister(object):
         page_item = self.p_register.create(page_id,page,data)
         self.attach_pages_to_connection(page_item['connection_id'],page_item)
         self.p_register.write(page_item)
+        return page_item
         
     def get_user(self,user):
         return self.u_register.read(user)
     
-    def get_connection(self,connection_id):
+    def connection(self,connection_id):
         return self.c_register.read(connection_id)
     
-    def get_page(self,page_id):
+    def page(self,page_id):
         return self.p_register.read(page_id)
         
-    def drop_user():
-        pass
+    def user(self,user):
+        return self.u_register.read(user)
 
     @lock_connection
     #@debug_call
@@ -711,7 +712,7 @@ class PagesTreeResolver(BagResolver):
         for user,item_user in usersDict.items():
             item=Bag()
             data = item_user.pop('data',None)
-            connections = item_user.pop('connections')
+            item_user.pop('connections')
             item['info'] = Bag([('%s:%s' %(k,str(v).replace('.','_')),v) for k,v in item_user.items()])
             item['data'] = data
             item.setItem('connections', PagesTreeResolver(user=user),cacheTime=3)
@@ -727,7 +728,7 @@ class PagesTreeResolver(BagResolver):
             connection_name=connection['connection_name']
             itemlabel = '%s (%i)' %(connection_name,delta)
             item = Bag()
-            pages = connection.pop('pages',None)
+            connection.pop('pages',None)
             data = connection.pop('data',None)
             item['info'] = Bag([('%s:%s' %(k,str(v).replace('.','_')),v) for k,v in connection.items()])
             item['data'] = data

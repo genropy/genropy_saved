@@ -126,7 +126,12 @@ dojo.declare("gnr.GnrDevHandler",null,{
     },
     handleRpcHttpError:function(response, ioArgs){
         var status = ioArgs.xhr.status;
-        if (status==412) {
+        if (status==400) {
+            genro.dlg.alert('Client HTTP error');
+            genro.pageReload()
+            return
+        }
+        else if (status==412) {
             genro.dlg.alert('No longer existing page');
             genro.pageReload()
             return

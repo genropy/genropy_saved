@@ -68,16 +68,16 @@ class GnrWebPageException(GnrException):
 class GnrWebPage(GnrBaseWebPage):
     
     
-    def __init__(self, site=None, request=None, response=None, request_kwargs=None, request_args=None, filepath = None, packageId = None, basename = None):
+    def __init__(self, site=None, request=None, response=None, request_kwargs=None, request_args=None, filepath = None, packageId = None, basename = None,environ=None):
         self.site = site
         self.user_agent=request.user_agent
         self.user_ip = request.remote_addr
+        self._environ=environ
         self.isTouchDevice = ('iPad' in self.user_agent or 'iPhone' in self.user_agent)
         self._event_subscribers = {}
         self.local_datachanges = list()
-        self._connection = None
         self.forked = False # maybe redefine as _forked
-        self.request_page_id = request_kwargs.pop('page_id',None)
+        
         self.filepath = filepath
         self.packageId = packageId
         self.basename = basename
@@ -98,23 +98,66 @@ class GnrWebPage(GnrBaseWebPage):
         self._dbconnection=None
         self._user_login = request_kwargs.pop('_user_login',None)
         self.page_timeout= self.site.config.getItem('page_timeout') or PAGE_TIMEOUT
-        self.page_refresh=self.site.config.getItem('page_refresh') or PAGE_REFRESH    
-        self.onIniting(request_args,request_kwargs)
-        
+        self.page_refresh=self.site.config.getItem('page_refresh') or PAGE_REFRESH 
         self.private_kwargs=dict([(k[:2],v)for k,v in request_kwargs.items() if k.startswith('__')])
         self.pagetemplate = request_kwargs.pop('pagetemplate',None) or getattr(self, 'pagetemplate', None) or self.site.config['dojo?pagetemplate'] or 'standard.tpl'
         self.css_theme = request_kwargs.pop('css_theme',None) or getattr(self, 'css_theme', None) or self.site.config['gui?css_theme']
         self.dojo_theme = request_kwargs.pop('dojo_theme',None) or getattr(self,'dojo_theme',None)
         self.dojo_version= request_kwargs.pop('dojo_version',None) or getattr(self,'dojo_version',None)
+        self.debugopt=request_kwargs.pop('debugopt',None)
+
+        self.callcounter=request_kwargs.pop('callcounter',None) or 'begin'
         if not hasattr(self,'dojo_source'):
             self.dojo_source=self.site.config['dojo?source']
         if 'dojo_source' in request_kwargs:
             self.dojo_source=request_kwargs.pop('dojo_source')
-        
-        self.set_call_handler(request_args, request_kwargs)
+        self.connection = GnrWebConnection(self,
+                             connection_id =request_kwargs.pop('_connection_id',None),
+                             user=request_kwargs.pop('_user',None))
+        self._call_handler=self.get_call_handler(request_args, request_kwargs)
+        page_id = request_kwargs.pop('page_id',None)
+        self.page_item=self._check_page_id(page_id,kwargs=request_kwargs)
+        self._workdate=self.page_item['data']['workdate']
+        self.onIniting(request_args,request_kwargs)
         self._call_args = request_args or tuple()
         self._call_kwargs = request_kwargs or {}
+        
+    def _check_page_id(self,page_id=None,kwargs=None):
+        if page_id :
+            if not self.connection.connection_id:
+                raise self.site.client_exception('The connection is not longer valid',self._environ)
+            if not self.connection.validate_page_id(page_id):
+                raise self.site.client_exception('The referenced page_id is not valid in this connection',self._environ)
+            page_item=self.site.register.page(page_id)
+            if not page_item:
+                raise self.site.client_exception('The referenced page_id is cannot be found in site register',self._environ)
+            self.page_id=page_id
+            return page_item
+        else:
+            if self._call_handler_type in ('pageCall','externalCall'):
+                raise self.site.client_exception('The request must reference a page_id',self._environ)
+            if not self.connection.connection_id:
+                self.connection.create()
+            self.page_id = getUuid()
+            workdate=kwargs.pop('_workdate_',None) or datetime.date.today()
+            return self.site.register.new_page(self.page_id,self,data=dict(pageArgs=kwargs,workdate=workdate))
+        
 
+    def get_call_handler(self,request_args, request_kwargs):
+        if '_plugin' in request_kwargs:
+            self._call_handler_type='plugin'
+            return self.pluginhandler.get_plugin(request_kwargs['_plugin'],request_args=request_args, request_kwargs=request_kwargs)
+        elif 'rpc' in request_kwargs:
+            self._call_handler_type='externalCall'
+            return self.getPublicMethod('rpc',request_kwargs.pop('rpc'))         
+        elif 'method' in request_kwargs:
+            self._call_handler_type='pageCall'
+            return self._rpcDispatcher
+        else:
+            self._call_handler_type='root'
+            return self.rootPage
+            
+            
 # ##### BEGIN: PROXY DEFINITION ########
 
     def _get_frontend(self):
@@ -178,13 +221,6 @@ class GnrWebPage(GnrBaseWebPage):
     db = property(_get_db)
     
     def _get_workdate(self):
-        if not hasattr(self,'_workdate'):
-            workdate = self.pageArgs.get('_workdate_')
-            if not workdate or not self.userTags or not('superadmin' in self.userTags):
-                workdate =  self.pageStore().getItem('workdate') or datetime.date.today()
-            if isinstance(workdate, basestring):
-                workdate = self.application.catalog.fromText(workdate, 'D')
-            self.workdate = workdate
         return self._workdate
     
     def _set_workdate(self, workdate):
@@ -202,51 +238,11 @@ class GnrWebPage(GnrBaseWebPage):
         self._onBegin()
         args = self._call_args
         kwargs = self._call_kwargs
-        self.debugopt=kwargs.pop('debugopt',None)
-        self.callcounter=kwargs.pop('callcounter',None) or 'begin'
-        if self._user_login:
-            user=self.user # if we have an embedded login we get the user right now
         result = self._call_handler(*args,**kwargs)
         self._onEnd()
         return result
-    
-    def set_call_handler(self, request_args, request_kwargs):
-        if '_plugin' in request_kwargs:
-            plugin = self.pluginhandler.get_plugin(request_kwargs['_plugin'],request_args=request_args, request_kwargs=request_kwargs)
-            self._call_handler=plugin
-        elif 'method' in request_kwargs:
-            method=request_kwargs['method' ]
-            if self.connection_id and(method in ('onClosePage','doLogin') or self.connection.validate_page_id(self.request_page_id)):
-                self.page_id = self.request_page_id
-                self._call_handler=self._rpcDispatcher
-            else:
-                self._call_handler=self.rootPage
-                
-        elif 'rpc' in request_kwargs:
-            method = request_kwargs.pop('rpc')
-            self._call_handler = self.getPublicMethod('rpc',method)
-        elif 'gnrtoken' in request_kwargs:
-            external_token = request_kwargs.pop('gnrtoken')
-            method,token_args,token_kwargs,user = self.db.table('sys.external_token').use_token(external_token, commit=True)
-            if user:
-                self.user=user # TODO: refactor and cleanup
-            if method:
-                if method=='root':
-                    self._call_handler=self.rootPage
-                else:
-                    self._call_handler = self.getPublicMethod('rpc',method)
-                request_args.extend(token_args)
-                request_kwargs.update([(str(k),v) for k,v in token_kwargs.items()])
-        else:
-            self._call_handler=self.rootPage
 
     def _rpcDispatcher(self, method=None, mode='bag',**kwargs):
-        #assert self.request_page_id,'GNRWEBPAGE:missing page_id calling method %s' % method
-        #valid=self.connection.validate_page_id(self.request_page_id)
-        #if not method in ('onClosePage','doLogin'): # closing the page we can tollerate an invalid one
-        #    assert valid,'GNRWEBPAGE:invalid page calling method %s' % method
-        # 
-        self.page_id = self.request_page_id
         parameters=self.site.parse_kwargs(kwargs,workdate=self.workdate)
         self._lastUserEventTs=parameters.pop('_lastUserEventTs',None)
         self._user_offset = parameters.pop('_user_offset',0)
@@ -354,12 +350,8 @@ class GnrWebPage(GnrBaseWebPage):
             getattr(subscriber,'event_%s'%event)()
 
     def rootPage(self,**kwargs):
-        self.page_id = self.request_page_id or getUuid()
         self.charset='utf-8'
         arg_dict = self.build_arg_dict(**kwargs)
-        self.connection.start()
-        if not self.request_page_id:
-            self.site.register.new_page(self.page_id,self,data=dict(pageArgs=kwargs))
         tpl = self.pagetemplate
         if not isinstance(tpl, basestring):
             tpl = '%s.%s' % (self.pagename, 'tpl')
@@ -581,12 +573,7 @@ class GnrWebPage(GnrBaseWebPage):
     @property
     def user(self):
         return self.connection.user 
-        
-    @property
-    def connection(self):
-        if self._connection is None:
-            self._connection = GnrWebConnection(self)
-        return self._connection
+
         
     @property
     def connection_id(self):

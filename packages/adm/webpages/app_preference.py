@@ -24,7 +24,7 @@ class GnrCustomWebPage(object):
         return root.borderContainer(_class='pbl_dialog_center',**kwargs)
         
     def onIniting(self, url_parts, request_kwargs):
-        for pkgname in self.app.db.packages.keys():
+        for pkgname in self.db.packages.keys():
             try:
                 cl=self.site.loadResource(pkgname,'preference:AppPref')
                 self.mixin(cl)

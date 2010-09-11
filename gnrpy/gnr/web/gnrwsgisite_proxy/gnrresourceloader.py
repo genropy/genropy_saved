@@ -84,7 +84,7 @@ class ResourceLoader(object):
         return None,None
 
     
-    def __call__(self, path_list, request, response):
+    def __call__(self, path_list, request, response,environ=None):
         page_node, page_node_attributes = self.get_page_node(path_list)
         if not page_node:
             return None
@@ -93,7 +93,7 @@ class ResourceLoader(object):
         pkg = page_node_attributes.get('pkg')
         page_class = self.get_page_class(path = path, pkg = pkg)
         page = page_class(site= self.site, request=request, response=response, request_kwargs=dict(request.params), request_args=request_args,
-                    filepath = path, packageId = pkg, basename = path)
+                    filepath = path, packageId = pkg, basename = path,environ=environ)
         return page
  
     def get_page_class(self,path=None,pkg=None):

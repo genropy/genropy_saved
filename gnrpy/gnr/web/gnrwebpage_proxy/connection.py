@@ -20,7 +20,7 @@ USER_AGENT_SNIFF=(('Chrome','Chrome'),
                   ('MSIE','InternetExplorer'))
                   
 class GnrWebConnection(GnrBaseProxy):
-    def init(self, **kwargs):
+    def init(self, connection_id=None,user=None,**kwargs):
         page=self.page
         self.user_agent=page.request.get_header('User-Agent') or ''
         self.browser_name=self.sniffUserAgent()
@@ -33,38 +33,36 @@ class GnrWebConnection(GnrBaseProxy):
         self.user_tags = None
         self.user_id = None
         self.user_name = None
-        self.registered_pages=[]
         self.cookie = self.read_cookie()
         self._cookie_data = None
-        if self.cookie:
-            self.connection_from_cookie(self.cookie.value)
+        self.connection_item=None
+        if connection_id:
+            self.validate_connection(connection_id=connection_id,user=user)
+            
+        elif self.cookie:
+            cv=self.cookie.value
+            self.validate_connection(connection_id=cv.get('connection_id'),user=cv.get('user'))
+       
 
-    def start(self):
-        if not self.connection_id:
-            self.connection_id =  getUuid()
-            self.user = self.guestname
-            self.register()
-            self.write_cookie()     
+    def create(self):
+        self.connection_id =  getUuid()
+        self.user = self.guestname
+        self.register()
+        self.write_cookie()     
    
     def validate_page_id(self,page_id):
-        assert self.connection_id,'GNRWEBPAGE: not valid connection for page_id %s  '%page_id
-        return page_id in self.registered_pages
+        return page_id in self.connection_item['pages']
 
-    def connection_from_cookie(self,cookie_value):
-        cookie_connection_id=cookie_value.get('connection_id')
-        cookie_user=cookie_value.get('user')
-        cookie_data=cookie_value.get('data')
-        connection_item = self.page.site.register.get_connection(cookie_connection_id)
+    def validate_connection(self,connection_id=None,user=None):
+        connection_item = self.page.site.register.connection(connection_id)
         if connection_item:
-            if connection_item['user'] != cookie_user:
-                print  'wrong user'
-            if (connection_item['user'] == cookie_user) and (connection_item['user_ip'] == self.page.request.remote_addr):
-                self.connection_id = cookie_connection_id
-                self.user = cookie_user
-                self.registered_pages=connection_item['pages']
+            if (connection_item['user'] == user) and (connection_item['user_ip'] == self.page.request.remote_addr):
+                self.connection_id = connection_id
+                self.user = user
                 self.user_tags = connection_item['user_tags']
                 self.user_id = connection_item['user_id']
                 self.user_name = connection_item['user_name']
+                self.connection_item=connection_item
         
     @property
     def guestname(self):
