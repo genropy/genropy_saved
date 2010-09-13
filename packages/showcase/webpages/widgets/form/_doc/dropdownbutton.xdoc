@@ -4,7 +4,7 @@
 		<short>dropdownbutton</short>
 		<full>
 		<![CDATA[
-		Utilizza il dropdownbutton di dojo. I valori selezionabili dal menu incluso si strovano nella bag dei dati al path indicato nel parametro <i>datastore</i>
+		Utilizza il dropdownbutton di dojo. I valori selezionabili dal menu incluso si trovano nella bag dei dati al path indicato nel parametro <i>datastore</i>
 		]]></full>
 		<children><![CDATA[
 		tooltipDialog
