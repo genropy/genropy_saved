@@ -1,14 +1,14 @@
 # -*- coding: UTF-8 -*-
 
-# formbuilder.py
+# button.py
 # Created by Niso on 2010-09-01.
 # Copyright (c) 2010 Softwell. All rights reserved.
 
 """Button"""
 
 class GnrCustomWebPage(object):
-    py_requires="gnrcomponents/testhandler:TestHandlerBase"
-    # dojo_theme='claro'
+    py_requires="gnrcomponents/testhandler:TestHandlerFull"
+    # dojo_theme='claro'    # !! Uncomment this row for Dojo_1.5 usage
     
     """ "Button" is a Dojo widget used as a representation of a normal button.
         You can act with it through "action" attribute, a js that is executed on mouse click.
@@ -34,13 +34,14 @@ class GnrCustomWebPage(object):
         #
         #       ## name ##      --> ## file ##
         #       checkbox        --> togglebutton.py
+        #       datapath        --> webpages/tutorial/datapath.py
         #       formbuilder     --> formbuilder.py
         #       FIRE            --> macro.py
         #       menu            --> menu.py
         #       menuline        --> menu.py
         #       numberTextbox   --> textbox.py
         #       textbox         --> textbox.py
-        #       value           --> datapath.py
+        #       value           --> webpages/tutorial/datapath.py
         
     def test_1_action(self,pane):
         """Action attribute"""
@@ -56,11 +57,11 @@ class GnrCustomWebPage(object):
         pane.dataController('''alert(msg);''', msg='^msg')
         fb = pane.formbuilder(cols=2) # in this test formbuilder is only used to have a better layout
         fb.button('Click me!',action="FIRE msg='Click';")
-        fb.div(""" "action="FIRE msg='Click';" by showing an alert message reporting "Click" """,font_size='.9em')
+        fb.div(""" "action="FIRE msg='Click';" [shows an alert message reporting "Click"] """,font_size='.9em')
         fb.button('Click me!',fire_Click = 'msg')
-        fb.div(""" "fire_Click = 'msg'" the result is the same of the previous one.""",font_size='.9em')
+        fb.div(""" "fire_Click = 'msg'" [same result of the previous one]""",font_size='.9em')
         fb.button('Click me!',fire='msg')
-        fb.div(""" "fire='msg'" by showing an alert message reporting "true" """,font_size='.9em')
+        fb.div(""" "fire='msg'" [shows an alert message reporting "true"] """,font_size='.9em')
         
     def test_3_graphical_attributes(self,pane):
         """Graphical attributes"""

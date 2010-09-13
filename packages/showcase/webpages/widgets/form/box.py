@@ -7,6 +7,9 @@
 """Box"""
 
 class GnrCustomWebPage(object):
+    py_requires="gnrcomponents/testhandler:TestHandlerFull"
+    # dojo_theme='claro'    # !! Uncomment this row for Dojo_1.5 usage
+    
     """ Here we introduce textbox, number textbox, date textbox, time textbox, currency textbox,
         simple textarea, number spinner. They are form widgets inherit from Dojo.
         
@@ -63,68 +66,71 @@ class GnrCustomWebPage(object):
     #       We also suggest you the file (if it has been created!) where you can find
     #       some documentation about them.
     #
-    #       ## name ##      --> ## file ##
-    #       formbuilder     --> formbuilder.py
-    #       value           --> datapath.py
-            
-    py_requires="gnrcomponents/testhandler:TestHandlerBase"
-    # dojo_theme='claro'    # !! Uncomment this row for Dojo_1.5 usage
+    #       ## name ##          --> ## file ##
+    #       datapath            --> webpages/tutorial/datapath.py
+    #       formbuilder         --> formbuilder.py
+    #       nodeId              --> form.py
+    #       validate_len        --> form.py
+    #       validate_onAccept   --> form.py
+    #       validate_onReject   --> form.py
+    #       value               --> webpages/tutorial/datapath.py
     
     def test_1_textbox(self,pane):
         """Textbox"""
-        fb = pane.formbuilder(cols=2)
-        fb.textBox(value='^textBox',lbl='Name',default='ciao')
+        fb = pane.formbuilder(datapath='test1',cols=2)
+        fb.textBox(value='^.textBox',default='ciao')
         fb.div("A simple textbox.",font_size='.9em',text_align='justify')
-        fb.textBox(value='^textBox_2',nodeId='name',lbl="Surname",
-                                    validate_len='4:',
-                                    validate_onReject='alert(value+" is too short (minimum 4 characters)")',
-                                    validate_onAccept='alert("Correct lenght of "+value)')
-        fb.div(""" A textbox with "validate" attributes.
-                   Here you have to write a text with 4 or more characters.""",
+        fb.textBox(value='^.textBox_2',nodeId='name',
+                   validate_len='4:',
+                   validate_onReject='alert(value+" is too short (minimum 4 characters)")',
+                   validate_onAccept='alert("Correct lenght of "+value)')
+        fb.div(""" A textbox with "validate" attributes. Here you have to write a text
+                   with 4 or more characters.""",
                    font_size='.9em',text_align='justify')
                    
     def test_2_numberTextbox(self,pane):
         """numberTextbox"""
-        fb = pane.formbuilder(cols=2)
-        fb.numberTextBox(value='^numberTextbox')
-        fb.div("A simple number textbox. You can write any number with no more than three decimals.",
-                   font_size='.9em',text_align='justify')
-        fb.numberTextbox(value='^numberTextbox_2',places=3)
+        fb = pane.formbuilder(datapath='test2',cols=2)
+        fb.numberTextBox(value='^.numberTextbox')
+        fb.div("""A simple number textbox. You can write any number with no more than three 
+                decimals.""",font_size='.9em',text_align='justify')
+        fb.numberTextbox(value='^.numberTextbox_2',places=3)
         fb.div("With \"places=3\" you must write a number with three decimals.",
                    font_size='.9em',text_align='justify')
                    
     def test_3_numberSpinner(self,pane):
         """numberSpinner"""
-        pane.numberSpinner(value='^age',default=100)
-        pane.div("""Try to hold down a button: the spinning accelerates
+        fb = pane.formbuilder(datapath='test3',cols=2)
+        fb.numberSpinner(value='^.age',default=100)
+        fb.div("""Try to hold down a button: the spinning accelerates
                     to make coarser adjustments easier""",
                    font_size='.9em',text_align='justify',margin='5px')
                    
     def test_4_simpleTextarea(self,pane):
         """simpleTextarea"""
-        pane.simpleTextarea(value='^simpleTextarea',height='80px',width='30em',colspan=2,
-                            color='blue',font_size='1.2em',
+        fb = pane.formbuilder(datapath='test4')
+        fb.simpleTextarea(value='^.simpleTextarea',height='80px',width='30em',
+                            colspan=2,color='blue',font_size='1.2em',
                             default='A simple area to contain text.')
                             
     def test_5_dateTextbox(self,pane):
         """dateTextbox"""
-        pane.dateTextbox(value='^dateTextbox')
+        fb = pane.formbuilder(datapath='test5')
+        fb.dateTextbox(value='^.dateTextbox')
         
     def test_6_timeTextbox(self,pane):
         """timeTextbox"""
-        pane.timeTextBox(value='^timeTextbox')
+        fb = pane.formbuilder(datapath='test6')
+        fb.timeTextBox(value='^.timeTextbox')
         
     def test_7_currencyTextbox(self,pane):
         """currencyTextbox"""
-        pane.currencyTextBox(value='^amount',default=1123.34,currency='EUR',locale='it')
-        
-        #attributi:
-        #currency='EUR' --> indica la moneta utilizzata
-        #locale='it' --> ??
+        fb = pane.formbuilder(datapath='test7')
+        fb.currencyTextBox(value='^.amount',default=1123.34,currency='EUR',locale='it')
         
     def test_8_mixed(self,pane):
         """Mixed"""
-        fb = pane.formbuilder(datapath='form',cols=3,fld_width='100%',width='100%')
+        fb = pane.formbuilder(datapath='test8',cols=3,fld_width='100%',width='100%')
         fb.textBox(value='^.r0.name',lbl='Name')
         fb.textBox(value='^.r0.surname',lbl='Surname',colspan=2)
         fb.dateTextBox(value='^.r0.birthday',lbl='Birthday')

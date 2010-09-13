@@ -7,6 +7,8 @@
 """Formbuilder"""
 
 class GnrCustomWebPage(object):
+    py_requires="gnrcomponents/testhandler:TestHandlerFull"
+    # dojo_theme='claro'    # !! Uncomment this row for Dojo_1.5 usage
     
     """ With formbuilder you have an ordered place to put your HTML object;
     formbuilder is used in place of an HTML table.
@@ -54,16 +56,12 @@ class GnrCustomWebPage(object):
     #       ## name ##      --> ## file ##
     #       action          --> button.py
     #       button          --> button.py
-    #       datapath        --> datapath.py
     #       dateTextbox     --> textbox.py
     #       filteringSelect --> filteringSelect.py
     #       numberTextbox   --> textbox.py
     #       textbox         --> textbox.py
     #       value           --> datapath.py
     #       values          --> filteringSelect.py
-    
-    py_requires="gnrcomponents/testhandler:TestHandlerBase"
-    # dojo_theme='claro'    # !! Uncomment this row for Dojo_1.5 usage
     
     def test_1_basic(self,pane):
         """Standard formbuilder"""
@@ -74,7 +72,7 @@ class GnrCustomWebPage(object):
                 font_size='.9em',text_align='justify')
         fb = pane.formbuilder(datapath='test1')
         fb.textbox(value='^.name',lbl='Name')
-        fb.textbox(lbl='Surname')
+        fb.textbox(value='^.surname',lbl='Surname')
     def test_2_structure(self,pane):
         """Formbuilder structure"""
         pane.div("""Every formbuilder column is splitted in two parts (left one and right one):
@@ -85,9 +83,9 @@ class GnrCustomWebPage(object):
                 we used the "border" attribute (the outcome doesn't follow the standard of
                 beauty, but the example is very instructive!).""",
                 font_size='.9em',text_align='justify')
-        fb = pane.formbuilder(border='5px')
+        fb = pane.formbuilder(datapath='test2',border='5px')
         fb.button('Click here',action="alert('Clicked!')",lbl='A button')
-        fb.textbox(lbl='Name')
+        fb.textbox(value='^.name',lbl='Name')
         
     def test_3_attributes(self,pane):
         """Formbuilder attributes"""
@@ -110,7 +108,7 @@ class GnrCustomWebPage(object):
                 There are also some attributes that doesn't strictly belong to formbuilder
                 (like "datapath", etc): see paragraph "Other forms and attributes" for more details.""",
                 font_size='.9em',text_align='justify')
-        fb=pane.formbuilder(cols=3,fld_width='100%',width='100%',lbl_color='red',datapath='employee')
+        fb=pane.formbuilder(datapath='test3',cols=3,fld_width='100%',width='100%',lbl_color='red')
         fb.textbox(value='^.name',lbl='Name')
         fb.textbox(value='^.surname',colspan=2,lbl='Surname')
         fb.numberTextbox(value='^.age',lbl="Age")

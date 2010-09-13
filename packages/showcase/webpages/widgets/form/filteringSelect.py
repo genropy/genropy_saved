@@ -9,6 +9,9 @@
 from gnr.core.gnrbag import Bag
 
 class GnrCustomWebPage(object):
+    py_requires="gnrcomponents/testhandler:TestHandlerFull"
+    # dojo_theme='claro'    # !! Uncomment this row for Dojo_1.5 usage
+    
     """ The filteringSelect is a text field who suggests to user the possible (and unique!) entries 
     of his selection.
     
@@ -36,26 +39,22 @@ class GnrCustomWebPage(object):
     #
     #       ## name ##      --> ## file ##
     #       Bag             --> bag.py
-    #       datapath        --> datapath.py
     #       formbuilder     --> formbuilder.py
     #       value           --> datapath.py
-    
-    py_requires="gnrcomponents/testhandler:TestHandlerBase"
-    # dojo_theme='claro'    # !! Uncomment this row for Dojo_1.5 usage
     
     def test_1_basic(self,pane):
         """Basic example"""
         pane.data('bag',self.sports(),id='.pkey',caption='.Description')
-        fb = pane.formbuilder(datapath='test_1.record',cols=2)
-        fb.filteringSelect(value='^.loaded_values',
+        fb = pane.formbuilder(datapath='test1',cols=2)
+        fb.filteringSelect(value='^.values',
                            values='SC:Soccer,BK:Basket,HK:Hockey,TE:Tennis,BB:Baseball,SB:Snowboard')
         fb.div("""Values loaded through "values" attribute.""",
                 font_size='.9em',text_align='justify')
         
     def test_2_bag(self,pane):
         """Bag example"""
-        fb = pane.formbuilder(datapath='test_2.record',cols=2)
-        fb.filteringSelect(value='^.bag_values',storepath='bag')
+        fb = pane.formbuilder(datapath='test2',cols=2)
+        fb.filteringSelect(value='^.bag',storepath='bag')
         fb.div("""Values loaded through a Bag.""",
                 font_size='.9em',text_align='justify')
         

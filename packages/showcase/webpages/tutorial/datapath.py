@@ -7,6 +7,8 @@
 """Datapath"""
 
 class GnrCustomWebPage(object):
+    py_requires="gnrcomponents/testhandler:TestHandlerFull"
+    # dojo_theme='claro'    # !! Uncomment this row for Dojo_1.5 usage
     
     """ Datapath is an attribute used to create a hierarchy of your data's addresses.
     You can give "datapath" attribute to each item (widget, etc).
@@ -38,9 +40,6 @@ class GnrCustomWebPage(object):
     #       datasource      --> datasource.py
     #       textbox         --> textbox.py
     
-    py_requires="gnrcomponents/testhandler:TestHandlerBase"
-    # dojo_theme='claro'    # !! Uncomment this row for Dojo_1.5 usage
-    
     def test_1_basic(self,pane):
         """Standard datapath"""
         pane.div("""Simple example of datapath. In the first line "datapath='father'" is
@@ -48,7 +47,8 @@ class GnrCustomWebPage(object):
         a relative path linked to "father" ("value" attribute).
         The last four rows (that begins with "box2") described a similar example:
         even in this case the "datapath='job'" is an absolute path.
-        Try to type something in textbox and retrieve it in Datasource.""",
+        Try to type something in textbox and retrieve it in Datasource (to open it use 
+        "SHIFT+CTRL+D".)""",
         font_size='.9em',text_align='justify')
         box = pane.div(datapath='father')
         box.textbox(value='^.son')
