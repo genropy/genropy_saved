@@ -117,7 +117,7 @@ def merge(*args):
     return result
     
 def readTab(doc):
-    """This reads a tab delimited file, the previous function readCSV was misnamed but must be ledt for legacy"""
+    """This reads a tab delimited file, the previous function readCSV was misnamed but must be left for legacy"""
     if isinstance(doc, basestring):
         f = open(doc)
     else:
