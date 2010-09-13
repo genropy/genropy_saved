@@ -730,17 +730,24 @@ class GnrWsgiSite(object):
         local_datachanges = local_datachanges or []
         with self.register.pageStore(page_id) as store:
             external_datachanges = list(store.datachanges) or []
+            subscriptions=store.getItem('_subscriptions')
             store.reset_datachanges()
+        
+        store_datachanges=[]   
+        for storename,storesubscriptions in subscriptions:
+            if storename=='user':
+                datachanges = self.register.userStore(user).datachanges
+            else:
+                datachanges = self.register.stores(storename).datachanges
             
-        user_datachanges = self.register.userStore(user).datachanges
-        if user_datachanges:
-            user_datachanges=user_datachanges[user_offset:]
+            if datachanges:
+                datachanges= datachanges[user_offset:]
+                for j,change in enumerate(datachanges):                
+                    change.attributes = change.attributes or {}
+                    change.attributes['_user_offset']=j+user_offset+1
+                    store_datachanges.append(change)
             
-            for j,change in enumerate(user_datachanges):                
-                change.attributes = change.attributes or {}
-                change.attributes['_user_offset']=j+user_offset+1
-            
-        for j,change in enumerate(external_datachanges+local_datachanges+user_datachanges):
+        for j,change in enumerate(external_datachanges+local_datachanges+store_datachanges):
             result.setItem('sc_%i' %j,change.value,change_path=change.path,change_reason=change.reason,
                             change_fired=change.fired,change_attr=change.attributes,
                             change_ts=change.change_ts)

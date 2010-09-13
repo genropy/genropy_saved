@@ -24,7 +24,7 @@ class ChatComponent(BaseComponent):
                                SET gnr.chat.disabled=false;
                                """,user='^#ct_connected_user_grid.selectedId',
                                _if='user',_else='SET gnr.chat.disabled=true;')
-                         
+        self.subscribeStore('user','gnr.chat')        
         fb = pane.formbuilder(cols=1, border_spacing='4px',
                             disabled='^gnr.chat.disabled',onEnter='FIRE .send;',
                             width='90%',margin='5px')

@@ -139,16 +139,18 @@ dojo.declare("gnr.GnrDevHandler",null,{
             genro.dlg.alert('Site temporary un available. Retry later');
             return
         }
-        console.log('handleRpcHttpError')
-        debug_url = ioArgs.xhr.getResponseHeader('X-Debug-Url');
-        if (!debug_url){
-            genro.dlg.message("An HTTP error occurred: " + response.message, null,'error' );
-        }
         else
         {
+            console.log('handleRpcHttpError')
+            debug_url = ioArgs.xhr.getResponseHeader('X-Debug-Url');
+            if (!debug_url){
+                genro.dlg.message("An HTTP error occurred: " + response.message, null,'error' );
+            }
+            else
+            {
             genro.openWindow(debug_url,'Internal Server Error',{scrollbars:'yes'});
+            }
         }
-        
     },
     handleRpcError:function(error, envNode){
         console.log('handleRpcError')
