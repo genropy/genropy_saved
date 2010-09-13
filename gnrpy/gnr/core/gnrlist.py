@@ -116,13 +116,67 @@ def merge(*args):
                 result.append(el)
     return result
     
-    
+def readTab(doc):
+    """This reads a tab delimited file, the previous function readCSV was misnamed but must be ledt for legacy"""
+    if isinstance(doc, basestring):
+        f = open(doc)
+    else:
+        f = doc
+
+
+    txt = f.read()
+    txt = txt.replace('\r\n', '\n')
+    txt = txt.replace('\r', '\n')
+    lines = txt.split('\n')
+    txt = None
+    u = [line.split('\t') for line in lines]
+    headers = u[0]
+    rows = u[1:]
+
+    index = dict([(k,i) for i,k in enumerate(headers)])
+
+    ncols = len(headers)
+    for row in rows:
+        if len(row) == ncols: # it works only for rows with the same length of header
+            yield GnrNamedList(index, row)
+
+    if isinstance(doc, basestring):
+        f.close()  
+
+def readCSV_new(doc):
+    """This reads a CSV file - done by Jeff"""
+    if isinstance(doc, basestring):
+        f = open(doc)
+    else:
+        f = doc
+
+    txt = f.read()
+    txt = txt.replace('\r\n', '\n')
+    txt = txt.replace('\r', '\n')
+    txt = txt.replace('\",\"', '\t')
+    txt = txt.replace(',', '\t')
+    lines = txt.split('\n')
+    txt = None
+    u = [line.split('\t') for line in lines]
+    headers = u[0]
+    rows = u[1:]
+
+    index = dict([(k,i) for i,k in enumerate(headers)])
+    print index
+
+    ncols = len(headers)
+    for row in rows:
+        if len(row) == ncols: # it works only for rows with the same length of header
+            yield GnrNamedList(index, row)
+
+    if isinstance(doc, basestring):
+        f.close()
+
 def readCSV(doc):
     if isinstance(doc, basestring):
         f = open(doc)
     else:
         f = doc
-    
     
     txt = f.read()
     txt = txt.replace('\r\n', '\n')
@@ -132,9 +186,7 @@ def readCSV(doc):
     u = [line.split('\t') for line in lines]
     headers = u[0]
     rows = u[1:]
-    
     index = dict([(k,i) for i,k in enumerate(headers)])
-    
     ncols = len(headers)
     for row in rows:
         if len(row) == ncols: # it works only for rows with the same length of header
