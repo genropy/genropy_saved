@@ -157,6 +157,7 @@ class GnrCustomWebPage(object):
                 _customClasses.append('inactive')
             if child_name and not item[child_name]:
                 _customClasses.append('no_children')
+            item.pop('datachanges',None)
             result.setItem(key,None,_customClasses=' '.join(_customClasses),**item)
         return result
 

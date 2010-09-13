@@ -712,6 +712,7 @@ class PagesTreeResolver(BagResolver):
         for user,item_user in usersDict.items():
             item=Bag()
             data = item_user.pop('data',None)
+            item_user.pop('datachanges',None)
             item_user.pop('connections')
             item['info'] = Bag([('%s:%s' %(k,str(v).replace('.','_')),v) for k,v in item_user.items()])
             item['data'] = data

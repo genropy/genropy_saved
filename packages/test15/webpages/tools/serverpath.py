@@ -7,8 +7,22 @@
 """Serverpath"""
 class GnrCustomWebPage(object):
     py_requires="gnrcomponents/testhandler:TestHandlerFull"
+    auto_polling = 10
+    user_polling = 3
+    
+    def test_0_serverpath(self,pane):
+        fb = pane.formbuilder(cols=1, border_spacing='3px',datapath='test0')
+        fb.data('.willbesetonserver','',_serverpath='mytest0.mirror')
+        fb.textbox(value='^.willbesetonserver',lbl='Set on server')
+        fb.button('Get Value from server',fire='.get')
+        fb.dataRpc('dummy','get_value_on_server',_fired='^.get',_onResult='alert(result)')
+    
+    def rpc_get_value_on_server(self):
+        store = self.pageStore()
+        return store.getItem('mytest0.mirror')
+        
+    
     def test_1_serverpath(self,pane):
-        self.autopolling = 0
         fb = pane.formbuilder(cols=1, border_spacing='3px',datapath='test1')
         fb.data('.mysync','',_serverpath='mytest1.mirror')
         fb.textbox(value='^.mydata',lbl='Data')
