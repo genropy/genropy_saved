@@ -1,8 +1,8 @@
-#!/usr/bin/env pythonw
 # -*- coding: UTF-8 -*-
 
-#  Created by Giovanni Porcari on 2007-03-24.
-#  Copyright (c) 2007 Softwell. All rights reserved.
+# filteringSelect.py
+# Created by Niso on 2010-09-13.
+# Copyright (c) 2010 Softwell. All rights reserved.
 
 """ Filtering select """
 
