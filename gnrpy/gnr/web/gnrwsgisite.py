@@ -456,7 +456,7 @@ class GnrWsgiSite(object):
             print '******** STATIC %s : kwargs: %s' % (path_list,str(request_kwargs))
             return self.statics.static_dispatcher(path_list,environ,start_response,**request_kwargs)
         else:
-            print '******** RESURCE %s : kwargs: %s' % (path_list,str(request_kwargs))
+            print '******** RESOURCE %s : kwargs: %s' % (path_list,str(request_kwargs))
             if self.debug:
                 try:
                     page = self.resource_loader(path_list, request, response,environ=environ)
