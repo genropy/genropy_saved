@@ -163,7 +163,6 @@ def readCSV_new(doc):
     rows = u[1:]
 
     index = dict([(k,i) for i,k in enumerate(headers)])
-    print index
 
     ncols = len(headers)
     for row in rows:
