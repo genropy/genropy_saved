@@ -95,9 +95,10 @@ class SelectionHandler(BaseComponent):
             dialogPars['firedPkey'] = '^.pkey'
             dialogPars['disabled'] = '^#%s.status.locked' %nodeId
             dialogPars['toolbarCb'] = self._sh_toolbar
-            dialogPars['toolbarPars'] = dialogPars.get('toolbarPars') \
-                                        or dict(add_action=True,del_action=False,save_action=False,lock_action=True,nodeId=nodeId)
-        
+            defaultDialogPars = dict(add_action=True,del_action=False,save_action=False,lock_action=True,nodeId=nodeId)
+            defaultDialogPars.update(dialogPars.get('toolbarPars',{}))
+            dialogPars['toolbarPars'] = defaultDialogPars
+            
         if reloader and isinstance(reloader, basestring) and not reloader.startswith('^'):
             warnings.warn("[selectionhandler] reloader should start with '^': %s" % repr(reloader), stacklevel=2)
         
