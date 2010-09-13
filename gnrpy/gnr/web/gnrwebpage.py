@@ -519,13 +519,13 @@ class GnrWebPage(GnrBaseWebPage):
         user = user or self.user
         return self.site.register.userStore(user,triggered=triggered)
         
-    def subscribeStore(self,store,path):
+    def subscribeStore(self,storename,path):
         with self.pageStore() as store:
-            store.setItem('_subscriptions.%s.%s'%(store,path.replace('.','_')),path)
+            store.setItem('_subscriptions.%s.%s'%(storename,path.replace('.','_')),path)
             
-    def unsubscribeStore(self,store,path):
+    def unsubscribeStore(self,storename,path):
         with self.pageStore() as store:
-            store.delItem('_subscriptions.%s.%s'%(store,path.replace('.','_')))
+            store.delItem('_subscriptions.%s.%s'%(storename,path.replace('.','_')))
         
     def clientPage(self,page_id=None):
         return ClientPageHandler(self, page_id or self.page_id) 

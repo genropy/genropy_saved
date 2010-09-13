@@ -738,9 +738,7 @@ class GnrWsgiSite(object):
             if storename=='user':
                 datachanges = self.register.userStore(user).datachanges
             else:
-                datachanges = None
-           #else:
-           #    datachanges = self.register.stores(storename).datachanges
+                datachanges = self.register.stores(storename).datachanges
             
             if datachanges:
                 datachanges= datachanges[user_offset:]
