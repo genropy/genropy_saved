@@ -57,13 +57,13 @@ class SelectionHandler(BaseComponent):
                          **kwargs):
         
         # --------------------------------------------------------------------------------------------- Mandatory param checks
+        #assert dialogPars,'dialogPars are Mandatory'
         
-        assert dialogPars,'dialogPars are Mandatory'
-        assert not 'table' in dialogPars, 'take the table of the grid'
-        assert not 'firedPkey' in dialogPars, 'auto firedPkey'
-        assert not 'savePath' in dialogPars,'toolbarCb calculated'
-
-        assert not 'toolbarCb' in dialogPars,'toolbarCb calculated'
+        if dialogPars:
+            assert not 'table' in dialogPars, 'take the table of the grid'
+            assert not 'firedPkey' in dialogPars, 'auto firedPkey'
+            assert not 'savePath' in dialogPars,'toolbarCb calculated'
+            assert not 'toolbarCb' in dialogPars,'toolbarCb calculated'
         assert not 'toolbarPars' in kwargs, 'remove toolbarPars par'
         assert 'order_by' in selectionPars, 'add order_by to selectionPars'
         assert not 'del_action' in kwargs,'remove del_action par'
@@ -84,26 +84,28 @@ class SelectionHandler(BaseComponent):
                 if isinstance(p, basestring):
                     if p.startswith('^'):
                         warnings.warn("[selectionhandler] use '=' and not '^' in dialogPars: %s=%s" % (k, repr(p)), stacklevel=2)
+            
+            dialogPars['table'] = table
+            dlgId = dialogPars.get('dlgId',"%s_dlg" %nodeId)
+            dialogPars['dlgId'] = dlgId
+            dialogPars['formId'] = dialogPars.get('formId',"%s_form" %nodeId)
+            dialogPars['datapath'] = dialogPars.get('datapath','#%s.dlg' %nodeId)
+            if reload_onSaved:
+                dialogPars['onSaved'] = 'FIRE #%s.reload; %s' %(nodeId,dialogPars.get('onSaved',''))                         
+            dialogPars['firedPkey'] = '^.pkey'
+            dialogPars['disabled'] = '^#%s.status.locked' %nodeId
+            dialogPars['toolbarCb'] = self._sh_toolbar
+            dialogPars['toolbarPars'] = dialogPars.get('toolbarPars') \
+                                        or dict(add_action=True,del_action=False,save_action=False,lock_action=True,nodeId=nodeId)
         
         if reloader and isinstance(reloader, basestring) and not reloader.startswith('^'):
             warnings.warn("[selectionhandler] reloader should start with '^': %s" % repr(reloader), stacklevel=2)
         
         # --------------------------------------------------------------------------------------------- Implementation
-        
-        dialogPars['table'] = table
-        dlgId = dialogPars.get('dlgId',"%s_dlg" %nodeId)
-        dialogPars['dlgId'] = dlgId
-        dialogPars['formId'] = dialogPars.get('formId',"%s_form" %nodeId)
-        dialogPars['datapath'] = dialogPars.get('datapath','#%s.dlg' %nodeId)
-        if reload_onSaved:
-            dialogPars['onSaved'] = 'FIRE #%s.reload; %s' %(nodeId,dialogPars.get('onSaved',''))                         
-        dialogPars['firedPkey'] = '^.pkey'
-        dialogPars['disabled'] = '^#%s.status.locked' %nodeId
-        dialogPars['toolbarCb'] = self._sh_toolbar
-        dialogPars['toolbarPars'] = dialogPars.get('toolbarPars') \
-                                    or dict(add_action=True,del_action=False,save_action=False,lock_action=True,nodeId=nodeId)
 
-        self.recordDialog(**dialogPars)
+        
+        if dialogPars:
+            self.recordDialog(**dialogPars)
         add_action='FIRE .dlg.pkey="*newrecord*";'
         if parentSave:
             add_action = 'FIRE .checkForAdd;'
