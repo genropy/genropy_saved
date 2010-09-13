@@ -730,10 +730,10 @@ class GnrWsgiSite(object):
         local_datachanges = local_datachanges or []
         with self.register.pageStore(page_id) as store:
             external_datachanges = list(store.datachanges) or []
-            subscriptions=store.getItem('_subscriptions')
+            subscriptions=store.getItem('_subscriptions') or []
             store.reset_datachanges()
         
-        store_datachanges=[]   
+        store_datachanges=[]
         for storename,storesubscriptions in subscriptions:
             if storename=='user':
                 datachanges = self.register.userStore(user).datachanges
