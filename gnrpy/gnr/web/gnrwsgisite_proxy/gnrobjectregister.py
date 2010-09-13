@@ -279,6 +279,9 @@ class SiteRegister(object):
     def user(self,user):
         return self.u_register.read(user)
 
+    def stores(self,storename):
+        return
+        
     @lock_connection
     #@debug_call
     def drop_connection(self,connection_id,cascade=None):
