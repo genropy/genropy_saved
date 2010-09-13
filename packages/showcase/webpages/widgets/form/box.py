@@ -46,7 +46,10 @@ class GnrCustomWebPage(object):
                              - The down and up arrow buttons "spin" the number up and down.
                              - Furthermore, when you hold down the buttons, the spinning accelerates
                              to make coarser adjustments easier.
-                             
+                - attributes:
+                    min=NUMBER  set min value of numberSpinner.
+                    max=NUMBER  set max value of numberSpinner.
+                    
             - simpleTextarea: a simple text area.
                 
             - timeTextbox: it's a time input control that allow either typing time or choosing it from
