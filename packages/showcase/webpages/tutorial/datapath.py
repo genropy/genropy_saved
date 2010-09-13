@@ -17,13 +17,11 @@ class GnrCustomWebPage(object):
         
     If you want to create a son with an absolute path, you simply mustn't write the dot at the
     beginning of son's datapath, like:
-        box.textbox(value='^.another_son',datapath='father_2') (this datapath will have
-                                                                an absolute path)
+        box.textbox(value='^.another_son',datapath='father_2') (this datapath will have an absolute path)
         
     You can also create a datapath with a relative path; for doing this you have to put the dot at
     the beginning of son's datapath, like:
-        box.textbox(value='^.another_son',datapath='.father_2') (this datapath will inherit
-                                                                from the previous datapath)
+        box.textbox(value='^.another_son',datapath='.father_2') (this datapath will inherit from the previous datapath)
                                                                 
     Pay attention to not create a relative path without an absolute path as father!"""
     
