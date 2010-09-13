@@ -18,16 +18,8 @@ class GnrCustomWebPage(object):
                                 we specify directly in the box itself)
                                 
         Here we introduce the attributes belonging to every box:
-        
             default='VALUE' Add a default value in your box (use a type supported from your box!).
                             It's not compatible with dateTextbox and timeTextbox.
-                            
-            lbl='STRING'    You can use 'lbl' to give to the box a label.
-                            Pay attention! You can use the attribute 'lbl' only if the box
-                            is son of a formbuilder (see test_1 for example).
-                            
-            value='STRING'  Insert an address for your data. For further details check
-                            datapath documentation.
             
         - Boxes: 
             - textbox: a simple textbox.
@@ -57,9 +49,9 @@ class GnrCustomWebPage(object):
                              
             - simpleTextarea: a simple text area.
                 
-            - timeTextbox: it's a time input control that allow either typing or choosing a time from a picker widget.
+            - timeTextbox: it's a time input control that allow either typing time or choosing it from
+                           a picker widget.
                 - sintax: HH:MM
-                
         """
         
     #   - Other forms, attributes and items:

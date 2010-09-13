@@ -27,10 +27,10 @@ class GnrCustomWebPage(object):
     a form made by fields and layers, and that's because formbuilder can manage automatically
     fields and their positioning.
     
-    - formbuilder attributes: (and default values)
-        border_spacing (CCS attribute)      Default: 6px
-        cols: set columns number.           Default: 1
-        fld_width: set field width.         Default: 7em
+    - formbuilder's attributes (and default values)
+        border_spacing (6px)
+        cols: set columns number (1)
+        fld_width: set field width (7em)
         pos: choose element position;       Sintax: pos(number,number)
                                                 whereas the first value represents a row, the second
                                                 value represents a column.

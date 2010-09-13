@@ -11,7 +11,7 @@ class GnrCustomWebPage(object):
     # dojo_theme='claro'
     
     """ "Button" is a Dojo widget used as a representation of a normal button.
-        You can act with it through "action" attribute, that allow you to use Javascript.
+        You can act with it through "action" attribute, a js that is executed on mouse click.
         - sintax: action="Here put Javascript code"
         
         You can also use "FIRE" attribute within "action" attribute; the difference is ... ???
