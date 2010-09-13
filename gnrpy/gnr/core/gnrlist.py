@@ -154,6 +154,7 @@ def readCSV_new(doc):
     txt = txt.replace('\r\n', '\n')
     txt = txt.replace('\r', '\n')
     txt = txt.replace('\",\"', '\t')
+    txt = txt.replace('\"', '')
     txt = txt.replace(',', '\t')
     lines = txt.split('\n')
     txt = None
