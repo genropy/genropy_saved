@@ -21,7 +21,7 @@ class GnrCustomWebPage(object):
     the page, you can have dojo.data fetch them from a server-based store. The unified dojo.data architecture can get 
     its data from various places such as databases and web services.
     
-    Warning: actually (13/10/2010) the filteringSelect doesn't warn user for its wrong insertion. You can
+    Warning: actually filteringSelect doesn't warn user for its wrong insertion. You can
     add a warning for the user through a "validate" attribute.
     
     - filteringSelect's attributes (and default values)
