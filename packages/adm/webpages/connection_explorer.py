@@ -20,7 +20,6 @@ class GnrCustomWebPage(object):
         return '!!Connection explorer'
         
     def main(self, rootBC, **kwargs):
-        rootBC.data('gnr.polling',3)
         tc,top,bottom = self.pbl_rootTabContainer(rootBC,'!!Connections')
         self.overviewPane(tc.borderContainer(title='!!Overview',datapath='overviewPane'))
         self.userPane(tc.borderContainer(title='!!Users',datapath='userPane'))

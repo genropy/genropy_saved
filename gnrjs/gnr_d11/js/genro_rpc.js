@@ -178,7 +178,10 @@ dojo.declare("gnr.GnrRpcHandler",null,{
             callKwargs._serverstore_changes = genro._serverstore_changes;
             genro._serverstore_changes = null;
         };
-        callKwargs._user_offset = genro._user_offset;
+        if (objectNotEmpty(genro._store_offset)){
+            callKwargs._store_offset=genro._store_offset
+        }
+        
         callKwargs = this.serializeParameters(this.dynamicParameters(callKwargs, sourceNode));
         callKwargs._lastUserEventTs= asTypedTxt(genro._lastUserEventTs,'DH');
         if (genro.auto_polling>0){
@@ -320,8 +323,13 @@ dojo.declare("gnr.GnrRpcHandler",null,{
             attr = attr.attr;
             var updater = function(path,value,attr,reason){
                 if(genro._data.getItem(path)!=value){
-                    if (attr && ('_user_offset' in attr)) {
-                        genro._user_offset = (objectPop(attr,'_user_offset') ||0);
+                    if (attr && ('_store_offset' in attr)) {
+                        var _store_offset_dict = objectPop(attr,'_store_offset') ;
+                        var storename=_store_offset_dict['store']
+                        if (!(storename in  genro._store_offset)){
+                            genro._store_offset[storename]={}
+                        }
+                        genro._store_offset[storename][_store_offset_dict['path']]=_store_offset_dict['offset']
                     };
                     genro._data.setItem(path,value,attr,reason!=null?{'doTrigger':reason,_updattr:true}:null);
                 }
@@ -498,24 +506,6 @@ dojo.declare("gnr.GnrRpcHandler",null,{
         }
         return kwargs;
     },
-   // managePolling: function(freq){
-   //     if(freq==null){
-   //         freq = genro.getData('gnr.polling');
-   //     }
-   //     if(genro.pollingHandler){
-   //         clearInterval(genro.pollingHandler);
-   //         genro.pollingHandler = null;
-   //     }        
-   //     if(freq>0){
-   //         genro.lastRpc = new Date();
-   //         genro.pollingHandler= setInterval(function(){ var now = new Date();
-   //                             if ((!genro.pollingRunning) && ((now - genro.lastRpc) > (freq*1000) )){
-   //                                 genro.rpc.ping();
-   //                             }
-   //                     }, 1000);
-   //     }
-   // },
-    
     ping:function(kw){
         if (genro.pollingRunning) {
             return;

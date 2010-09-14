@@ -245,7 +245,7 @@ class GnrWebPage(GnrBaseWebPage):
     def _rpcDispatcher(self, method=None, mode='bag',**kwargs):
         parameters=self.site.parse_kwargs(kwargs,workdate=self.workdate)
         self._lastUserEventTs=parameters.pop('_lastUserEventTs',None)
-        self._user_offset = parameters.pop('_user_offset',0)
+        self._store_offset = parameters.pop('_store_offset',None ) or {}
         self.site.handle_clientchanges(self.page_id,parameters)
         auth = AUTH_OK
         if not method in ('doLogin'):
@@ -337,7 +337,7 @@ class GnrWebPage(GnrBaseWebPage):
             
     def collectClientDatachanges(self):
         self._publish_event('onCollectDatachanges')
-        result = self.site.get_datachanges(self.page_id,user=self.user,user_offset=self._user_offset,
+        result = self.site.get_datachanges(self.page_id,user=self.user,_store_offset=self._store_offset,
                                             local_datachanges=self.local_datachanges)
         return result
     
@@ -754,10 +754,11 @@ class GnrWebPage(GnrBaseWebPage):
                 rootwdg = self.rootWidget(root, region='center', nodeId='_pageRoot')
                 self.main(rootwdg, **kwargs)
                 self.onMainCalls()
-                page.data('gnr.polling.user_polling',self.user_polling)
-                page.data('gnr.polling.auto_polling',self.auto_polling)
                 if self.avatar:
                     page.data('gnr.avatar',Bag(self.avatar.as_dict()))
+                page.data('gnr.polling.user_polling',self.user_polling)
+                page.data('gnr.polling.auto_polling',self.auto_polling)
+      
                 page.dataController("""genro.user_polling = user_polling;
                                        genro.auto_polling = auto_polling;
                                       """,
@@ -765,7 +766,6 @@ class GnrWebPage(GnrBaseWebPage):
                                       auto_polling="^gnr.polling.auto_polling",
                                       _onStart=True)
                 
-                #page.dataController('genro.rpc.managePolling(freq);', freq='^gnr.polling', _onStart=True)
                 
                 if self._pendingContextToCreate:
                     self._createContext(root,self._pendingContextToCreate)

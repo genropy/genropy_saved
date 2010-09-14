@@ -31,6 +31,8 @@ import shutil
 mimetypes.init()
 site_cache = {}
 
+OP_TO_LOG={}
+
 global GNRSITE
 def currentSite():
     global GNRSITE
@@ -201,9 +203,12 @@ class GnrWsgiSite(object):
                 self._shared_data = GnrSharedData_dict(self)
         return self._shared_data
     
-    def log_print(self,str):
+    def log_print(self,msg,code=None):
         if getattr(self,'debug',True):
-            print str
+            if code and code in OP_TO_LOG:
+                print '***** %s : %s'%(code,msg)
+            elif not code:
+                print '***** OTHER : %s'%(msg)
     
     def __call__(self, environ, start_response):
         return self.wsgiapp(environ, start_response)
@@ -432,7 +437,7 @@ class GnrWsgiSite(object):
         # Url parsing start
         path_list = self.get_path_list(request.path_info)
         if path_list==['favicon.ico']:
-            print '******** FAVICON'
+            self.log_print( '',code='FAVICON')
             return response(environ, start_response)
             
         request_kwargs=dict(request.params)
@@ -442,7 +447,7 @@ class GnrWsgiSite(object):
         if path_list[0] in self.dbstores:
             storename = path_list.pop(0)
         if path_list[0] == '_ping':
-            print '******** PING: kwargs: %s' % str(request_kwargs)
+            self.log_print( 'kwargs: %s' % str(request_kwargs),code='PING')
             result=self.serve_ping(response,environ,start_response, **request_kwargs)
             if not isinstance(result,basestring):
                 return result
@@ -450,13 +455,13 @@ class GnrWsgiSite(object):
             return response(environ, start_response)
 
         if path_list and path_list[0].startswith('_tools'):
-            print '******** TOOLS %s : kwargs: %s' % (path_list,str(request_kwargs))
+            self.log_print( '%s : kwargs: %s' % (path_list,str(request_kwargs)),code='TOOLS')
             return self.serve_tool(path_list,environ,start_response,**request_kwargs)
         elif path_list and path_list[0].startswith('_'):
-            print '******** STATIC %s : kwargs: %s' % (path_list,str(request_kwargs))
+            self.log_print( '%s : kwargs: %s' % (path_list,str(request_kwargs)),code='STATIC')
             return self.statics.static_dispatcher(path_list,environ,start_response,**request_kwargs)
         else:
-            print '******** RESOURCE %s : kwargs: %s' % (path_list,str(request_kwargs))
+            self.log_print( '%s : kwargs: %s' % (path_list,str(request_kwargs)),code='RESOURCE')
             if self.debug:
                 try:
                     page = self.resource_loader(path_list, request, response,environ=environ)
@@ -710,7 +715,7 @@ class GnrWsgiSite(object):
     def serve_ping(self,response,environ,start_response, page_id=None,reason=None,**kwargs):
         kwargs=self.parse_kwargs(kwargs)
         _lastUserEventTs=kwargs.get('_lastUserEventTs')
-        _user_offset=kwargs.get('_user_offset')
+        _store_offset=kwargs.get('_store_offset') or {}
         page_item = self.register.refresh(page_id,_lastUserEventTs)
         if not page_item:
             return self.failed_exception('no longer existing page %s' %page_id,environ, start_response)
@@ -718,34 +723,37 @@ class GnrWsgiSite(object):
         
         self.handle_clientchanges(page_id,kwargs)
         envelope = Bag(dict(result=None))
-        datachanges = self.get_datachanges(page_id,user=page_item['user'],user_offset=_user_offset)
+        datachanges = self.get_datachanges(page_id,user=page_item['user'],_store_offset=_store_offset)
         if datachanges:
             envelope.setItem('dataChanges', datachanges)
         response.content_type = "text/xml"
         result= envelope.toXml(unresolved=True,  omitUnknownTypes=True)
         return result
         
-    def get_datachanges(self,page_id,user=None,user_offset=None,local_datachanges=None):
+    def get_datachanges(self,page_id,user=None,_store_offset=None,local_datachanges=None):
         result = Bag()
         local_datachanges = local_datachanges or []
         with self.register.pageStore(page_id) as store:
             external_datachanges = list(store.datachanges) or []
             subscriptions=store.getItem('_subscriptions') or Bag()
             store.reset_datachanges()
-        
         store_datachanges=[]
         for storename,storesubscriptions in subscriptions.items():
+            storename_offsets=_store_offset.setdefault(storename,{})
             if storename=='user':
                 datachanges = self.register.userStore(user).datachanges
             else:
                 datachanges = self.register.stores(storename).datachanges
             
             if datachanges:
-                datachanges= datachanges[user_offset:]
-                for j,change in enumerate(datachanges):                
-                    change.attributes = change.attributes or {}
-                    change.attributes['_user_offset']=j+user_offset+1
-                    store_datachanges.append(change)
+                subscribed_paths=storesubscriptions.values()
+                for j,change in enumerate(datachanges):
+                    changepath =change.path 
+                    for subpath in subscribed_paths :
+                        if changepath.startswith(subpath) and j >storename_offsets.get(subpath,-1):
+                            change.attributes = change.attributes or {}
+                            change.attributes['_store_offset']=dict(store=storename,path=subpath,offset=j)
+                            store_datachanges.append(change)
             
         for j,change in enumerate(external_datachanges+local_datachanges+store_datachanges):
             result.setItem('sc_%i' %j,change.value,change_path=change.path,change_reason=change.reason,

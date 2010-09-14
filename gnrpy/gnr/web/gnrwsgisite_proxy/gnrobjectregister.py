@@ -260,7 +260,7 @@ class SiteRegister(object):
         return result
         
     @lock_page
-    @debug_call
+    #@debug_call
     def new_page(self,page_id,page,data=None):
         page_item = self.p_register.create(page_id,page,data)
         self.attach_pages_to_connection(page_item['connection_id'],page_item)
