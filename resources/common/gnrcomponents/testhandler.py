@@ -54,5 +54,4 @@ class TestHandlerBase(TestHandler):
         
 class TestHandlerFull(TestHandler):
     def main(self, root, **kwargs):
-        self.autopolling =3
         self.testHandler(root)

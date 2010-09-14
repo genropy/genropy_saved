@@ -31,7 +31,6 @@ class GnrCustomWebPage(object):
                     serverpath='mytest1.mirror')
 
     def test_2_serverpath(self,pane):
-        self.autopolling = 0
         fb = pane.formbuilder(cols=1, border_spacing='3px',datapath='test2')
         fb.data('.mysync','',_serverpath='mytest2.mirror.ppp')
         fb.textbox(value='^.mydata',lbl='Data')
@@ -40,7 +39,6 @@ class GnrCustomWebPage(object):
                     serverpath='mytest2.mirror.ppp')
                     
     def test_3_serverpath(self,pane):
-        self.autopolling = 0
         fb = pane.formbuilder(cols=1, border_spacing='3px',datapath='test3')
         fb.data('.mysync','',_serverpath='mytest3.mirror')
         fb.textbox(value='^.mydata',lbl='Data')

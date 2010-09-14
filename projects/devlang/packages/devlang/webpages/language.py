@@ -12,9 +12,7 @@ class GnrCustomWebPage(object):
     js_requires = 'devlang'
     subscribed_tables='devlang.dev_lang' # ask to be notified for changes in this table (s)
     # 
-    polling=15 # polling interval for not operating times
-    autopolling=2 # polling interval foractivity times
-    
+
     def lstBase(self,struct):
         r = struct.view().rows()
         r.fieldcell('name', name='Name', width='20em')
