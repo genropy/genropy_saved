@@ -13,19 +13,19 @@ class GnrCustomWebPage(object):
     """A form is a method to manage both data loading and data saving.
     
     Every form is characterized by a formId (MANDATORY) and by a datapath (MANDATORY):
-    with formId you can refer your code strictly to the form itself, while with datapath you can link
-    every object you want to the form itself.
+    with formId you can interact with the code, while with datapath you can link every object you want
+    to the form itself.
     Pay attention that only the data linked to form's datapath are managed by the form (for more details
     see "datapath")
     
     Every form is characterized by a "load" action and a "save" action: every time user wants to create
     a new record (generally for his database) Genro make a "load": this action allows to reload a "form"
     in its standard form. Until the form isn't completely loaded, the program prevents the user to perform
-    any writing action.
+    any writing action (the sintax is "genro.formById(f_id).loaded()", where f_id is the formId)
     When the load is over, Genro makes user able to write. With the button "save" allows user to save
     his progress. Performing the "save" action, Genro completely reload the standard form.
     
-    For helping user not to making some mistakes in compiling the form, Genro provides an helpful developer's tool:
+    For helping user not to make some mistakes in compiling the form, Genro provides an helpful developer's tool:
     the validations. With validations you can force an user to perform an action, without which he can't
     save his written data.
     
@@ -50,10 +50,12 @@ class GnrCustomWebPage(object):
         validate_case='c'   --> 'Capitalize', set first letter of every word uppercase
         validate_case='u'   --> 'Uppercase', set every letter of every word uppercase
         validate_case='l'   --> 'Lowercase', set every letter of every word lowcase
-        
-    Another useful tool is the controller path; we suggest you to create it ( Se no lo crea lui... capire percorso!)
-    - Controller path: in the controller path lies control informations; if you want to check it, just click
-    "CTRL+SHIFT+D" to open dataSource, so you can view all controller path's informations.
+    
+    - The controleer path:
+    Another useful tool is the controller path; we suggest you to create it, but if you don't it will
+    create itself in the following path: ???)
+    In the controller path lies control informations; if you want to check it, just click "CTRL+SHIFT+D"
+    to open dataSource, so you can view all controller path's informations.
     Let's check out these informations:
         - loading: ???
         - invalidFields: this address contains all wrong fields compiled from user.
@@ -78,11 +80,9 @@ class GnrCustomWebPage(object):
     <surname _T="NN"/>
     </GenRoBag> 
     
-    So the form will be saved into a GenRoBag (XML type) and will go into a database.
-    
-    
-    
-    genro.formById(f_id).loaded(); --> serve a impedire all'utente di scrivere prima che la form sia pronta.
+    So the form will be saved into a GenRoBag (XML type), every row is composed by a single form field, with
+    the following sintax:
+        <name_of_field _loadedValue="::NN">value_of_record</name_of_field>
     
     """
     
@@ -127,6 +127,10 @@ class GnrCustomWebPage(object):
         """Validations"""
         formpane = self._formpane(pane,datapath='test2',formId='test2')
         fb = formpane.formbuilder(cols=2,border_spacing='3px')
+        fb.div("""In this example we let you test validations.""",
+        font_size='.9em',text_align='justify')
+        fb.div("""???.""",
+        font_size='.9em',text_align='justify')
         fb.textbox(value='^.name',lbl='!!Name',validate_case='c')
         fb.div('Capitalize field',
         font_size='.9em',text_align='justify')
