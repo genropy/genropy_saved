@@ -30,8 +30,9 @@ class Public(BaseComponent):
         pass
         
     def mainLeftContent(self,parentBC,**kwargs):
+        print kwargs
         sc = parentBC.stackContainer(width='20%',selectedPage='^pbl.left_stack',
-                                    _class='menupane',**kwargs)
+                                    _class='menupane',overflow='hidden',**kwargs)
         sc.data('pbl.left_stack','menu')
         bc_main = sc.borderContainer(pageName='menu')
         bottom = bc_main.contentPane(region='bottom').toolbar(height='20px',overflow='hidden')
@@ -42,7 +43,7 @@ class Public(BaseComponent):
         self.menu_menuPane(bc_main.contentPane(region='center',_class='menutree_container',overflow='auto'))
         
         for pageName, cb in [(c.split('_')[2],getattr(self,c)) for c in dir(self) if c.startswith('pbl_left_')]:
-            bc = sc.borderContainer(overflow='auto',pageName=pageName)
+            bc = sc.borderContainer(pageName=pageName)
             top = bc.contentPane(region='top').toolbar(height='20px',overflow='hidden')
             top.div(cb.__doc__,float='left',font_weight='bold',font_size='.9em')
             top.div(float='right',_class='buttonIcon icnTabClose',connect_onclick='SET pbl.left_stack="menu";')            

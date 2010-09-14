@@ -178,7 +178,7 @@ dojo.declare("gnr.GnrRpcHandler",null,{
             callKwargs._serverstore_changes = genro._serverstore_changes;
             genro._serverstore_changes = null;
         };
-        if (objectNotEmpty(genro._store_offset)){
+        if (genro._store_offset){
             callKwargs._store_offset=genro._store_offset
         }
         
@@ -325,11 +325,11 @@ dojo.declare("gnr.GnrRpcHandler",null,{
                 if(genro._data.getItem(path)!=value){
                     if (attr && ('_store_offset' in attr)) {
                         var _store_offset_dict = objectPop(attr,'_store_offset') ;
-                        var storename=_store_offset_dict['store']
+                        var storename=_store_offset_dict['store'];
                         if (!(storename in  genro._store_offset)){
-                            genro._store_offset[storename]={}
+                            genro._store_offset[storename]={};
                         }
-                        genro._store_offset[storename][_store_offset_dict['path']]=_store_offset_dict['offset']
+                        genro._store_offset[storename][_store_offset_dict['path']]=_store_offset_dict['offset'];
                     };
                     genro._data.setItem(path,value,attr,reason!=null?{'doTrigger':reason,_updattr:true}:null);
                 }

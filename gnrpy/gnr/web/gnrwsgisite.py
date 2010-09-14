@@ -715,7 +715,7 @@ class GnrWsgiSite(object):
     def serve_ping(self,response,environ,start_response, page_id=None,reason=None,**kwargs):
         kwargs=self.parse_kwargs(kwargs)
         _lastUserEventTs=kwargs.get('_lastUserEventTs')
-        _store_offset=kwargs.get('_store_offset') or {}
+        _store_offset=kwargs.get('_store_offset')
         page_item = self.register.refresh(page_id,_lastUserEventTs)
         if not page_item:
             return self.failed_exception('no longer existing page %s' %page_id,environ, start_response)
@@ -738,13 +738,23 @@ class GnrWsgiSite(object):
             subscriptions=store.getItem('_subscriptions') or Bag()
             store.reset_datachanges()
         store_datachanges=[]
+        if _store_offset is not None:
+            store_datachanges = self._get_storechanges(subscriptions,user,_store_offset)   
+        for j,change in enumerate(external_datachanges+local_datachanges+store_datachanges):
+            result.setItem('sc_%i' %j,change.value,change_path=change.path,change_reason=change.reason,
+                            change_fired=change.fired,change_attr=change.attributes,
+                            change_ts=change.change_ts)
+        return result        
+    
+    def _get_storechanges(self,subscriptions,user,_store_offset):
+        store_datachanges=[]
         for storename,storesubscriptions in subscriptions.items():
             storename_offsets=_store_offset.setdefault(storename,{})
             if storename=='user':
                 datachanges = self.register.userStore(user).datachanges
             else:
                 datachanges = self.register.stores(storename).datachanges
-            
+            print 'store offset:', _store_offset
             if datachanges:
                 subscribed_paths=storesubscriptions.values()
                 for j,change in enumerate(datachanges):
@@ -754,13 +764,9 @@ class GnrWsgiSite(object):
                             change.attributes = change.attributes or {}
                             change.attributes['_store_offset']=dict(store=storename,path=subpath,offset=j)
                             store_datachanges.append(change)
-            
-        for j,change in enumerate(external_datachanges+local_datachanges+store_datachanges):
-            result.setItem('sc_%i' %j,change.value,change_path=change.path,change_reason=change.reason,
-                            change_fired=change.fired,change_attr=change.attributes,
-                            change_ts=change.change_ts)
-        return result        
-        
+        print 'store:',store_datachanges
+        return store_datachanges
+                            
 
     def handle_clientchanges(self,page_id=None,parameters=None):
         if '_serverstore_changes' in parameters:

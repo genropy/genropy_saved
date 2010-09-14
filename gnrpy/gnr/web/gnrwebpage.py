@@ -245,7 +245,7 @@ class GnrWebPage(GnrBaseWebPage):
     def _rpcDispatcher(self, method=None, mode='bag',**kwargs):
         parameters=self.site.parse_kwargs(kwargs,workdate=self.workdate)
         self._lastUserEventTs=parameters.pop('_lastUserEventTs',None)
-        self._store_offset = parameters.pop('_store_offset',None ) or {}
+        self._store_offset = parameters.pop('_store_offset',None )
         self.site.handle_clientchanges(self.page_id,parameters)
         auth = AUTH_OK
         if not method in ('doLogin'):
@@ -519,13 +519,12 @@ class GnrWebPage(GnrBaseWebPage):
         user = user or self.user
         return self.site.register.userStore(user,triggered=triggered)
         
-    def subscribeStore(self,storename,path):
+    def rpc_setStoreSubscription(self,storename=None,client_path=None,subscribe=True):
         with self.pageStore() as store:
-            store.setItem('_subscriptions.%s.%s'%(storename,path.replace('.','_')),path)
-            
-    def unsubscribeStore(self,storename,path):
-        with self.pageStore() as store:
-            store.delItem('_subscriptions.%s.%s'%(storename,path.replace('.','_')))
+            if subscribe:
+                store.setItem('_subscriptions.%s.%s'%(storename,client_path.replace('.','_')),client_path)
+            else:
+                store.delItem('_subscriptions.%s.%s'%(storename,client_path.replace('.','_')))
         
     def clientPage(self,page_id=None):
         return ClientPageHandler(self, page_id or self.page_id) 

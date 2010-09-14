@@ -93,6 +93,32 @@
 
 /* @end */
 
+/* @group Chat */
+.ct_inmsg .ct_msglbl{
+	text-align: right;
+	font-size: .7em;
+	background: lightblue;
+}
+.ct_outmsg .ct_msglbl{
+	text-align: left;
+	font-size: .7em;
+	padding: 1px;
+	background: lavenderblush;
+}
+.ct_inmsg{
+	font-size: .9em;
+	background-color: #fdffd8;
+	margin: 3px;
+}
+.ct_outmsg{
+	font-size: .9em;
+	background-color: #e0dcff;
+	margin: 3px;
+}
+
+/* @end */
+
+
 /* @group MenuTree */
 
 .menu_page  > a{

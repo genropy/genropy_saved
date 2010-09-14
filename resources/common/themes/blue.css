@@ -431,7 +431,6 @@ padding-bottom: 5px;
 	text-decoration: underline;
 }
 .menupane{
-	overflow: auto;
 	background-color: rgba(168,181,182,0.8);
 	background-image:-webkit-gradient(linear, 0% 0%, 0% 90%, from(rgba(105,127,127,0.50)), to(rgba(192,192,192,0.9)));
     background-image:-moz-linear-gradient(top, bottom,from(rgba(105,127,127,0.50)), to(rgba(192,192,192,0.9)))

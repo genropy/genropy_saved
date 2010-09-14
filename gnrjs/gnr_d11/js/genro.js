@@ -66,7 +66,7 @@ dojo.declare('gnr.GenroClient', null, {
         this.pageMode = kwargs.pageMode;
         this.baseUrl = kwargs.baseUrl;
         this.lockingElements = {};
-        this._store_offset={}
+        this._store_offset=null;
         this.debugRpc = false;
 
         setTimeout(dojo.hitch(this, 'genroInit'), 1);
@@ -214,13 +214,14 @@ dojo.declare('gnr.GenroClient', null, {
         genro.dom.removeClass('mainWindow', 'waiting');
         genro.dom.removeClass('_gnrRoot', 'notvisible');
         genro.dom.effect('_gnrRoot','fadein',{duration:400});
+        
         var _this=this;                                            
         this._dataroot.subscribe('dataTriggers', {'any':dojo.hitch(this, "dataTrigger")});
         
         genro.dev.shortcut("Ctrl+Shift+D",function(){genro.dev.showDebugger();});
         genro.dev.shortcut("Ctrl+Shift+B",function(){genro.dev.showBottomHelper();});
         
-        genro.callAfter(function(){genro.fireEvent('gnr.onStart');}, 100);
+        genro.callAfter(function(){genro.fireEvent('gnr.onStart');genro._store_offset={};}, 100);
        /* if (dojo.isSafari && genro.wdgById('pbl_root')){
             setTimeout(genro.forceResize,1);
         }*/
