@@ -37,6 +37,7 @@ class GnrCustomWebPage(object):
     #       filteringSelect --> filteringSelect.py
     #       formbuilder     --> formbuilder.py
     #       numberTextBox   --> box.py
+    #       splitter        --> webpages/widgets/layout/border.py
     #       value           --> datapath.py
     
     def test_1_simple(self,pane):
@@ -86,6 +87,5 @@ class GnrCustomWebPage(object):
         fb.filteringSelect(value='^.icon',width='5em',colspan=4,lbl='icon',
                            values='icnBaseAdd:Add,icnBaseCancel:Cancel,icnBaseDelete:Delete,icnBaseOk:Ok')
         fb.button('Save it',action="alert('Saving!')",tooltip='click me',colspan=4,
-                  font_size='^.font_size',font_family='^.fontfam',
+                  ffont_size='^.font_size',font_family='^.fontfam',
                   iconClass='^.icon',width='^.width_calc')
-                           
