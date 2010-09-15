@@ -82,7 +82,7 @@ class GnrCustomWebPage(object):
     
     So the form will be saved into a GenRoBag (XML type), every row is composed by a single form field, with
     the following sintax:
-        <name_of_field _loadedValue="::NN">value_of_record</name_of_field>
+        <field_name _loadedValue="::NN">record_value</field_name>
     
     """
     
