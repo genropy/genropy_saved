@@ -646,6 +646,11 @@ class GnrWsgiSite(object):
         self.clearRecordLocks(page_id=page_id)
         
     def debugger(self,debugtype,**kwargs):
+        """Send debug information to the client, if debugging is enabled.        
+        Press Ctrl-Shift-B to open the debug pane in your browser.
+        
+        :param debugtype: string (values: 'sql' or 'py')
+        """
         if self.currentPage:
             page =self.currentPage
             if self.debug or page.isDeveloper():
@@ -727,7 +732,7 @@ class GnrWsgiSite(object):
         if datachanges:
             envelope.setItem('dataChanges', datachanges)
         response.content_type = "text/xml"
-        result= envelope.toXml(unresolved=True,  omitUnknownTypes=True)
+        result = envelope.toXml(unresolved=True,  omitUnknownTypes=True)
         return result
         
     def get_datachanges(self,page_id,user=None,_store_offset=None,local_datachanges=None):
