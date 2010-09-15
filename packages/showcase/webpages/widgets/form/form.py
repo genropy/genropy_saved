@@ -104,7 +104,8 @@ class GnrCustomWebPage(object):
     
     def test_1_basicForm(self,pane):
         """Basic Form"""
-        formpane = self._formpane(pane,datapath='test1',formId='test1')
+        bc = pane.borderContainer(height='250px',datapath='test1')
+        formpane = self._formpane(bc,datapath='test1',formId='test1')
         fb = formpane.formbuilder(border_spacing='3px')
         fb.div("""In this basic example we let you test a simple case of form.""",
         font_size='.9em',text_align='justify')
@@ -125,29 +126,43 @@ class GnrCustomWebPage(object):
         
     def test_2_validations(self,pane):
         """Validations"""
-        formpane = self._formpane(pane,datapath='test2',formId='test2')
+        bc = pane.borderContainer(height='350px',datapath='test2')
+        formpane = self._formpane(bc,datapath='test2',formId='test2')
         fb = formpane.formbuilder(cols=2,border_spacing='3px')
         fb.div("""In this example we let you test validations.""",
-        font_size='.9em',text_align='justify')
-        fb.div("""???.""",
-        font_size='.9em',text_align='justify')
+               colspan=2,font_size='.9em',text_align='justify')
+        fb.div("""1) If you try to save BEFORE doing anything else, you will notice the same behavior
+               of test1 (that is an alert message reporting "nochange" and the impossibility to save your
+               form).""",
+               colspan=2,font_size='.9em',text_align='justify')
+        fb.div("""2) Now, compile any field EXCEPT for "Address" field. After that, try to save.
+               An alert message reporting "invalid" will warn you that you can't save because you haven't
+               written in the mandatory fields.""",
+               colspan=2,font_size='.9em',text_align='justify')
+        fb.div("""3) You can save if you have almost compiled mandatory fields, so try to write in the
+               "Address" field.""",
+               colspan=2,font_size='.9em',text_align='justify')
+        fb.div("""4) If you write in the last three fields (labeled as "Fiscal code", "Job" or "e-mail")
+               you have to meet the demands of those fields; if you don't and try to save, an alert message
+               ("invalid") will warn you that you can't save the form.""",
+               colspan=2,font_size='.9em',text_align='justify',margin_bottom='10px')
         fb.textbox(value='^.name',lbl='!!Name',validate_case='c')
         fb.div('Capitalize field',
-        font_size='.9em',text_align='justify')
+                font_size='.9em',text_align='justify')
         fb.textbox(value='^.surname',lbl='!!Surname',validate_case='u')
         fb.div('Uppercase field',
-        font_size='.9em',text_align='justify')
+                font_size='.9em',text_align='justify')
         fb.textbox(value='^.profession',lbl='!!Profession',validate_case='l')
         fb.div('Lowercase field',
-        font_size='.9em',text_align='justify')
+                font_size='.9em',text_align='justify')
         fb.textbox(value='^.address',lbl='!!Address',
                    validate_notnull=True,
                    validate_notnull_error='!!Required field')
         fb.div('Not null field',
-                   font_size='.9em',text_align='justify')
+                font_size='.9em',text_align='justify')
         fb.textbox(value='^.fiscal_code',lbl='!!Fiscal code',validate_len='3:10')
         fb.div('Precise lenght field [3:10]',
-        font_size='.9em',text_align='justify')
+                font_size='.9em',text_align='justify')
         fb.textBox(value='^.job',lbl='!!Job',
                    validate_len='6:',
                    validate_onReject='alert("The name "+"\'"+value+"\'"+" is too short")')
@@ -160,7 +175,9 @@ class GnrCustomWebPage(object):
         
     def test_3_prova(self,pane):
         """Genro and Dojo validations"""
-        tc = pane.tabContainer(margin='5px',datapath='test3',formId='testform')
+        bc = pane.borderContainer(height='350px',datapath='test3')
+        formpane = self._formpane(bc,datapath='test3',formId='test3')
+        tc = pane.tabContainer(datapath='test3',formId='testform')
         self.genroValidation(tc)
         tc2 = tc.tabContainer(title='Dojo Validation')
         self.numberTextbox(tc2)
@@ -169,8 +186,7 @@ class GnrCustomWebPage(object):
         self.timeTextbox(tc2)
         self.textArea(tc2)
         
-    def _formpane(self,pane,datapath=None,formId=None,loader='basic'):
-        bc = pane.borderContainer(height='300px',datapath=datapath)
+    def _formpane(self,bc,datapath=None,formId=None,loader='basic'):
         right = bc.contentPane(region='right',width='200px',splitter=True)
         center = bc.contentPane(region='center',formId=formId,datapath='.data',controllerPath='%s.form' %datapath)
         right.button('Load',fire='.load')
