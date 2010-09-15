@@ -63,6 +63,10 @@ dojo.declare("gnr.GnrRemoteResolver",gnr.GnrBagResolver,{
         return genro.rpc.errorHandler(response, ioArgs);
     },
     resultHandler: function(response, ioArgs){
+        if(response.documentElement.tagName == 'parsererror') {
+            // We got an error parsing the XML response from the server
+            debugger;
+        }
         return genro.rpc.resultHandler(response, ioArgs, (this.updateAttr ? this._parentNode.attr: null));
     }
 });
@@ -389,6 +393,9 @@ dojo.declare("gnr.GnrRpcHandler",null,{
         if(resultAsNode){
             return envNode;
         } else {
+            if(envNode == null) {
+                debugger;
+            }
             return envNode.getValue();
         }
         
