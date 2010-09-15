@@ -366,7 +366,6 @@ class IncludedView(BaseComponent):
         controller.data('.flt.selected.caption', colsMenu['#0?caption'])
         searchbox = gridtop.div(float='right', margin_right='5px')
         searchlbl = searchbox.div(float='left',margin_top='2px')
-        searchlbl.span('!!Search ',float='left', margin_right='5px')
         controller.dataController("""var grid = genro.wdgById(gridId);
                                         SET .currentFilter = "";
                                         grid.filterColumn = col;
@@ -381,7 +380,6 @@ class IncludedView(BaseComponent):
                                      nodeId='%s_filterReset' %gridId)
                                      
         controller.data('.flt.colsMenu', colsMenu, automenu=(filterOn is True))
-        searchlbl.span(':')
         searchlbl.span(value='^.flt.selected.caption',_class='buttonIcon')
         searchlbl.menu(modifiers='*', _class='smallmenu', storepath='.flt.colsMenu',
                     selected_col='.flt.selected.col',
