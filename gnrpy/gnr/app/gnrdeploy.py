@@ -122,7 +122,7 @@ class SiteMaker(object):
             os.mkdir(pages_path)
         if not os.path.isfile(root_py_path):
             root_py = open(root_py_path,'w')
-            root_py.write("""
+            root_py.write("""#!/usr/bin/env python2.6
 import sys
 sys.stdout = sys.stderr
 from gnr.web.gnrwsgisite import GnrWsgiSite
@@ -251,18 +251,16 @@ class PackageMaker(object):
                 os.mkdir(path)
         if not os.path.exists(self.menu_xml_path):
             menu_xml = open(self.menu_xml_path, 'w')
-            menu_xml.write("""
-<?xml version="1.0" encoding="UTF-8"?>
+            menu_xml.write("""<?xml version="1.0" encoding="UTF-8"?>
 <GenRoBag>
-</GenRoBag>            
+</GenRoBag>
 """)
             menu_xml.close()
         if not os.path.exists(self.main_py_path):
             main_py_options = dict(comment=self.comment, sqlschema=self.sqlschema, name_short=self.name_short,
                 name_long=self.name_long, name_full=self.name_full, login_url=self.login_url)
             main_py = open(self.main_py_path, 'w')
-            main_py.write("""
-#!/usr/bin/env python
+            main_py.write("""#!/usr/bin/env python
 # encoding: utf-8
 from gnr.app.gnrdbo import GnrDboTable, GnrDboPackage, Table_counter, Table_userobject
 
@@ -283,8 +281,7 @@ class Table(GnrDboTable):
             main_py.close()
         if not os.path.exists(self.examplemodel_py_example_path):
             examplemodel_py_example = open(self.examplemodel_py_example_path, 'w')
-            examplemodel_py_example.write("""
-# encoding: utf-8
+            examplemodel_py_example.write("""# encoding: utf-8
 
 class Table(object):
 
@@ -302,8 +299,7 @@ class Table(object):
             examplemodel_py_example.close()
         if not os.path.exists(self.examplewebpage_py_example_path):
             examplewebpage_py_example = open(self.examplewebpage_py_example_path, 'w')
-            examplewebpage_py_example.write("""
-# -*- coding: UTF-8 -*-
+            examplewebpage_py_example.write("""# -*- coding: UTF-8 -*-
 
 class GnrCustomWebPage(object):
     def main(self, root, **kwargs):
