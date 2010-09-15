@@ -10,97 +10,104 @@ from datetime import datetime
 
 class ChatComponent(BaseComponent):
     py_requires='foundation/includedview:IncludedView'
-    def pbl_left_chat(self,pane,toolbar=None):
+    def pbl_left_chat(self,pane,footer=None,toolbar=None):
         "Chat"
-        toolbar.button('!!Chat',showLabel=False,
-             action='SET pbl.left_stack = "chat";',
-             iconClass='icnBaseEditUser',float='right')
-        bc = pane.borderContainer(datapath='gnr.chat')
-        self.ct_chat_grid(bc.borderContainer(region='top',height='30%',splitter=True))
-        self.ct_chat_form(bc.borderContainer(region='center'))
+        footer.button('!!Chat',showLabel=False,
+             action="""SET gnr.chat.buttonIcon = 'icnBuddy';
+                        SET pbl.left_stack = "chat";
+                        """,
+             iconClass='^gnr.chat.buttonIcon',default_iconClass='icnBuddy',float='right',nodeId='ct_button_footer')
+        ttdialog = toolbar.dropDownButton(label='User').tooltipDialog(title='!!Users list',datapath='gnr.chat',nodeId='ct_chat_list_users_dlg',
+                                                                     connect_onOpen='genro.wdgById("ct_chat_list_users").resize(); FIRE .listusers;'
+                                                                     ).borderContainer(height='300px',width='250px',nodeId='ct_chat_list_users')        
+        self.ct_chat_grid(ttdialog)
+        self.ct_chat_form(pane.borderContainer(datapath='gnr.chat'))
 
         
     def ct_chat_form(self,bc):
         bc.dataController("""SET gnr.chat.curr_address = 'gnr.chat.rooms.'+user;
-                               SET gnr.chat.disabled=false;
                                """,user='^#ct_connected_user_grid.selectedId',
                                _if='user',_else='SET gnr.chat.disabled=true;')
         bc.dataRpc('dummy','setStoreSubscription',subscribe='==_selected_stack=="chat"',
-                    _selected_stack='^pbl.left_stack',storename='user',client_path='gnr.chat')
+                    _selected_stack='^pbl.left_stack',storename='user',client_path='gnr.chat.msg')
         
-        bc.dataController("""var msgnode = _node;
-                               var attrs = msgnode.attr;
-                               var room = attrs.room;
-                               var roomNode = genro.nodeById(room+'_room');
-                               var message = roomNode._('div',{_class:attrs['in_out']=='in'?'ct_inmsg':'ct_outmsg'});
-                               message._('div',{content:attrs['from_user'],_class:'ct_msglbl'})
-                               message._('div',{content:msgtxt});
-                           """,msgtxt="^gnr.chat.msg")
-                           
-        bc.dataController("""var roomsNode = genro.nodeById('ct_chat_rooms');
-                             console.log(selected_user);
-                             console.log(selected_user in roomsNode.widget.gnrPageDict);
-                             if (!(selected_user in roomsNode.widget.gnrPageDict)){
-                                roomsNode._('ContentPane',{pageName:selected_user,overflow:'auto'})._('div',{margin:'4px',nodeId:selected_user+'_room'});
-                             }
-                             SET .selected_room = selected_user;
-                             """,
-                            selected_user="^#ct_connected_user_grid.selectedId")
-        bc.contentPane(region='bottom',onEnter='FIRE .send;',height='30px',overflow='hidden',
-                        ).textbox(value='^.message',ghost='Write message',padding='3px',
-                                    disabled='^gnr.chat.disabled',width='95%',margin_left='5px')      
-        bc.stackContainer(region='center',nodeId='ct_chat_rooms',background='white',margin='5px',
+        bc.dataRpc('dummy','setStoreSubscription',subscribe=True,
+                    storename='user',client_path='gnr.chat.rooms',_onStart=True)
+        bc.dataController("""
+                            SET gnr.chat.buttonIcon = 'icnBuddyChat'
+                            """,user="^gnr.chat.rooms")
+        bc.script("""
+                    var ct_chat_utils = {};
+                    ct_chat_utils.open_chat = function(user){
+                        var roomsNode = genro.nodeById('ct_chat_rooms');
+                        var roomTab =  genro.nodeById(user+'_room');
+                        if (!roomTab){
+                            roomTab = roomsNode._('ContentPane',{pageName:user,overflow:'auto',title:user,
+                                                            margin:'4px',background:'white',border:'1px solid gray',
+                                                            id:user+'_room'});
+                            roomsNode.widget.resize();
+                        }
+                        dojo.byId("ct_msgtextbox").focus();
+
+                    };
+                    """)
+        bc.dataController("""
+                            ct_chat_utils.open_chat(selected_user);
+                            SET .selected_room = selected_user;
+                            """,selected_user="^#ct_connected_user_grid.open_chat")
+        
+        bc.dataController("""
+            var msgnode,attrs,room,roomNode,message;
+            msgnode = _node;
+            attrs = msgnode.attr;
+            room = attrs.room;
+            roomNode = dojo.byId(room+'_room');
+            console.log(attrs["ts"]);
+            if(!roomNode){
+                ct_chat_utils.open_chat(room);
+                roomNode = dojo.byId(room+'_room');
+            }
+            message = roomNode.lastElementChild;
+            if(!message||(message.from_user!=attrs['from_user'])){
+                message = document.createElement('div');
+                message.innerHTML = '<div class="ct_msglbl"> <div class="ct_msglbl_from">'+attrs["from_user"]+'</div><div class="ct_msglbl_ts">'+genro.format(attrs["ts"],{time:'medium'})+'</div></div><div class="ct_msgbody"></div>';
+                dojo.addClass(message,attrs['in_out']=='in'?'ct_inmsg':'ct_outmsg');
+                dojo.addClass(message,'ct_msgblock');
+                message.from_user =  attrs['from_user'];
+                roomNode.appendChild(message);
+            }
+            var msgrow =  document.createElement('div');
+            dojo.addClass(msgrow,'ct_msgrow');
+            msgrow.innerHTML = msgtxt;
+            message.lastElementChild.appendChild(msgrow);
+            roomNode.scrollTop = roomNode.scrollHeight;
+        """,msgtxt="^gnr.chat.msg")
+        
+        bottom = bc.contentPane(region='bottom',onEnter='FIRE .send;',height='30px',overflow='hidden')
+       # bottom.dataController("console.log(room);",room="^.selected_room",_onStart=True)
+        bottom = bottom.div(position='absolute',top='4px',bottom='4px',left='4px',right='4px',padding_left='1px',
+                        padding_right='8px',padding_bottom='1px',padding_top='1px',visible='^.selected_room',
+                            default_visible=False)
+        bottom.textbox(value='^.message',ghost='Write message',width='100%',padding='2px',id='ct_msgtextbox')      
+        bc.tabContainer(region='center',nodeId='ct_chat_rooms',margin='5px',
                          selectedPage='^.selected_room')        
-        bc.dataRpc('dummy','ct_send_message',user='=#ct_connected_user_grid.selectedId',
-                    msg='=.message',_fired='^.send',_if='user&&msg',_onResult='SET .message="";')
-
-       #fb.dataController("""
-       #                    var rootnode= genro.nodeById("ct_chat_monitor");
-       #                    var domNode = rootnode.domNode;
-       #                    rootnode.clearValue().freeze();
-       #                    rows.forEach(function(n){
-       #                        var attr = n.attr;
-       #                        var msgattr = {};
-       #                        msgattr['background_color'] = attr['in_out']=='out'?'lightgreen':'lightblue';
-       #                        msgattr['_class'] = 'shadow_2 rounded_min';
-       #                        msgattr['margin_right'] = attr['in_out']=='out'?'25px':'3px';
-       #                        msgattr['margin_left'] = attr['in_out']=='out'?'3px':'25px';
-       #                        msgattr['margin_top'] = '5px';
-       #                        msgattr['padding'] = '3px';
-       #                        msgattr['font_size'] ='.9em';
-       #                        msgattr['text_align'] = attr['in_out']=='out'?'left':'right';
-       #                        msgattr.content = n.getValue();
-       #                        rootnode._('div',msgattr);
-       #                    });
-       #                    rootnode.unfreeze();
-       #                    var scrollHeight = rootnode.domNode.scrollHeight;
-       #                    var clientHeight = rootnode.domNode.clientHeight;
-       #                    var scrollTop;
-       #                    if (scrollHeight>clientHeight){
-       #                        scrollTop = scrollHeight-domNode.scrollWidth;
-       #                    }
-       #                    if (scrollTop){
-       #                        rootnode.domNode.scrollTop = scrollTop;
-       #                    }
-       #                    
-       #                    """,rows="^.rows",datapath='^gnr.chat.curr_address',_if='rows',font_size='.8em')
-
-
-
-        
+        bc.dataRpc('dummy','ct_send_message',user='=.selected_room',
+                    msg='=.message',_fired='^.send',_if='user&&msg',_onResult='SET .message="";dojo.byId("ct_msgtextbox").focus();')
         
     def ct_chat_grid(self,bc):
-        bc.dataRpc('.connected_users','ct_get_connected_users',_timing=30,
-                        _if='_page=="chat"',_page='^pbl.left_stack')
+        bc.dataRpc('.connected_users','ct_get_connected_users',_fired='^.listusers')
         def struct(struct):
             r = struct.view().rows()
-            r.cell('user_name', width='20em',name='Fullname')
+            r.cell('user_name', dtype='T', name='Fullname', width='16em')
             return struct
         self.includedViewBox(bc,nodeId='ct_connected_user_grid',
-                            datapath='.grid_users',
+                            datapath='.grid_users',filterOn='!!Search:user_name',
                             storepath='gnr.chat.connected_users',
-                            label='Current users',
-                            autoSelect=True,
+                            label='!!Users',
+                            connect_onRowDblClick="""
+                                                    genro.wdgById("ct_chat_list_users_dlg").onCancel();
+                                                    FIRE .open_chat = this.widget.rowIdByIndex($1.rowIndex);;
+                                                    """ ,
                             struct=struct, autoWidth=True)
     
     def rpc_ct_get_connected_users(self):
@@ -111,16 +118,19 @@ class ChatComponent(BaseComponent):
             if user != self.user:
                 arguments['_pkey'] = user
                 arguments.pop('datachanges',None)
+                arguments['user_name'] = arguments['user_name'] or user
                 result.setItem(user,None,**arguments)
         return result
     
     def rpc_ct_send_message(self,user=None,msg=None):
-        ts = datetime.now()
+        ts=self.toText(datetime.now(),format='HH:mm:ss')
         path = 'gnr.chat.msg' 
         with self.userStore(self.user) as store:
             store.set_datachange(path,msg,fired=True,reason='chat_in',
                                 attributes=dict(from_user=self.user,room=user,in_out='out',ts=ts))
+                                
         with self.userStore(user) as store:
             store.set_datachange(path,msg,fired=True,reason='chat_out',
                                 attributes=dict(from_user=self.user,room=self.user,in_out='in',ts=ts))
+            store.set_datachange('gnr.chat.rooms',self.user,fired=True,reason='chat_open')
         

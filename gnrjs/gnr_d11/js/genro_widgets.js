@@ -729,6 +729,8 @@ dojo.declare("gnr.widgets.baseDojo",gnr.widgets.baseHtml,{
         widget.setHref(url);
     },
     mixin_setVisible: function(visible){
+        console.log('setting visible')
+        console.log(visible)
         dojo.style(this.domNode,'visibility',(visible? 'visible':'hidden'));
     },
 

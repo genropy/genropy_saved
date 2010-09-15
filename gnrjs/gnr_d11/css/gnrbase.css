@@ -638,6 +638,19 @@ table.formbuilder {
     height: 16px;
 }
 
+
+
+.icnBuddy {
+    background: url(icons/base16/buddy.png) no-repeat;
+    width: 16px;
+    height: 16px;
+}
+.icnBuddyChat {
+    background: url(icons/base16/buddy_chat.png) no-repeat;
+    width: 16px;
+    height: 16px;
+}
+
 .icnBaseCancel {
     background: url(icons/base16/cancel.gif) no-repeat;
     width: 16px;

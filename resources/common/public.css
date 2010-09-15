@@ -94,26 +94,47 @@
 /* @end */
 
 /* @group Chat */
-.ct_inmsg .ct_msglbl{
+.ct_msglbl{
 	text-align: right;
-	font-size: .7em;
-	background: lightblue;
+	font-size: .8em;
+	color: white;
+	height: 14px;
+}
+.ct_msgblock{
+	margin: 2px;
+	border: 1px solid lightgray;
+	-moz-border-radius:3px;
+    -webkit-border-radius:3px;
+}
+
+.ct_inmsg .ct_msglbl{
+	background: #00306d;
 }
 .ct_outmsg .ct_msglbl{
-	text-align: left;
-	font-size: .7em;
-	padding: 1px;
-	background: lavenderblush;
+	background: #822f1e;
 }
-.ct_inmsg{
-	font-size: .9em;
-	background-color: #fdffd8;
-	margin: 3px;
+
+.ct_inmsg .ct_msgbody{
+	background: rgba(1,94,201,0.28);
 }
-.ct_outmsg{
+.ct_outmsg .ct_msgbody{
+	background: rgba(208,80,54,0.27);
+}
+
+
+.ct_msgrow{
 	font-size: .9em;
-	background-color: #e0dcff;
-	margin: 3px;
+	padding: 1px 3px;
+}
+
+.ct_msglbl_ts{
+	float: right;
+	margin-right: 3px;
+}
+.ct_msglbl_from{
+	float: left;
+	margin-left: 3px;
+	font-weight: bold;
 }
 
 /* @end */
@@ -299,7 +320,7 @@
 /* @group includedview */
 
 .searchWidth{
-    width 6em;
+    width: 6em;
 }
 .pbl_viewBoxToolbar{
     height:20px;

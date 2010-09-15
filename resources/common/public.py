@@ -30,28 +30,28 @@ class Public(BaseComponent):
         pass
         
     def mainLeftContent(self,parentBC,**kwargs):
-        print kwargs
         sc = parentBC.stackContainer(width='20%',selectedPage='^pbl.left_stack',
                                     _class='menupane',overflow='hidden',**kwargs)
         sc.data('pbl.left_stack','menu')
         bc_main = sc.borderContainer(pageName='menu')
-        bottom = bc_main.contentPane(region='bottom').toolbar(height='20px',overflow='hidden')
+        bottom = bc_main.contentPane(region='bottom').toolbar(overflow='hidden',padding=0,padding_left='3px',padding_right='3px',font_size='.9em')
         self.pbl_preference_main(bottom)
         bottom.button('!!Preferences',
                      action='FIRE gnr.openPreference="app";',
-                     font_size='.8em',float='left') #'pbl_brandLogo' should be the client logo
+                     float='left') #'pbl_brandLogo' should be the client logo
         self.menu_menuPane(bc_main.contentPane(region='center',_class='menutree_container',overflow='auto'))
         
         for pageName, cb in [(c.split('_')[2],getattr(self,c)) for c in dir(self) if c.startswith('pbl_left_')]:
             bc = sc.borderContainer(pageName=pageName)
-            top = bc.contentPane(region='top').toolbar(height='20px',overflow='hidden')
-            top.div(cb.__doc__,float='left',font_weight='bold',font_size='.9em')
-            top.div(float='right',_class='buttonIcon icnTabClose',connect_onclick='SET pbl.left_stack="menu";')            
-            cb(bc.contentPane(region='center'),toolbar=bottom)
+            top = bc.contentPane(region='top').toolbar(overflow='hidden',padding=0,padding_left='3px',padding_right='3px',min_height='22px',font_size='.9em')
+            top.div(float='right',margin='3px',_class='buttonIcon icnTabClose',
+                    connect_onclick='SET pbl.left_stack="menu";')            
+            cb(bc.contentPane(region='center',overflow='hidden'),footer=bottom,toolbar=top)
     
-    def pbl_left_batch(self,pane,toolbar=None):     
+    def pbl_left_batch(self,pane,toolbar=None,footer=None):     
         "Batch"
-        toolbar.button('!!Batch',showLabel=False,
+        toolbar.div('Batch',float='left')
+        footer.button('!!Batch',showLabel=False,
                      action='SET pbl.left_stack = "batch";',
                      iconClass='icnBaseAction',float='right')
 

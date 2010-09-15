@@ -202,6 +202,11 @@ class GnrWsgiSite(object):
             else:
                 self._shared_data = GnrSharedData_dict(self)
         return self._shared_data
+        
+    @property
+    def guest_counter(self):
+        self._guest_counter +=1
+        return self._guest_counter
     
     def log_print(self,msg,code=None):
         if getattr(self,'debug',True):
@@ -246,6 +251,7 @@ class GnrWsgiSite(object):
 
         self.homepage = self.config['wsgi?homepage'] or self.default_uri+'index'
         self.indexpage = self.config['wsgi?homepage'] or '/index'
+        self._guest_counter = 0
         if not self.homepage.startswith('/'):
             self.homepage = '%s%s'%(self.default_uri,self.homepage)
         self.secret = self.config['wsgi?secret'] or 'supersecret'
