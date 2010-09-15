@@ -11,13 +11,12 @@
 class GnrCustomWebPage(object):
     maintable ='adm.preference'
     py_requires="""public:Public"""
-    
+
     def pageAuthTags(self, **kwargs):
         return 'user'
-        
+
     def windowTitle(self):
-         return '!!Preference panel'
+        return '!!Preference panel'
 
     def main(self, rootBC, **kwargs):
         mainbc, top, bottom = self.pbl_rootBorderContainer(rootBC, '!!Preference')
-        
