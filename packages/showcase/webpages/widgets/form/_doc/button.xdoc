@@ -1,6 +1,0 @@
-<?xml version='1.0' encoding='UTF-8'?>
-<GenRoBag><description><short>Button</short>
-<full>Standard button</full>
-<params>label: the label of the button, action: js that is executed onclick</params>
-<link>http://www.dojotoolkit.org/reference-guide/dijit/form/Button.html</link>
-</description></GenRoBag>
