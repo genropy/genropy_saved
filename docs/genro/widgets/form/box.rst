@@ -63,9 +63,18 @@
         
         - numberTextbox: a simple number textbox.
 
-            - attributes:
-                places=3    (if is reached the fourth decimal, a tooltip error will warn user.)
-                text_align='right'
+		+------------------------+-------------------------------------------------------+-------------+
+		|   Attribute            |          Description                                  |   Default   |
+		+========================+=======================================================+=============+
+		| ``places``             | Numbers of decimals. If it's reached the last         |  ``3``      |
+		|                        | supported decimal, a tooltip error will warn user.    |             |
+		+------------------------+-------------------------------------------------------+-------------+
+		| ``text_align``         | CSS attribute                                         |  ``right``  |
+		+------------------------+-------------------------------------------------------+-------------+
+		
+		example::
+			
+			pane.numberTextbox(value='^.numberTextbox',places=2)
                 
         - numberSpinner: it's similar to numberTextBox, but makes integer entry easier when
                          small adjustments are required.
