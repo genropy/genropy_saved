@@ -21,7 +21,7 @@ GenroPy
             :maxdepth: 2
 
             installation
-            widgets/index
+            widgets/form/index
             ui/index
 
     *   How to:
