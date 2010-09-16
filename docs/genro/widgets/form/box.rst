@@ -49,14 +49,18 @@
         
         - dateTextbox: it's a easy-to-use date entry controls that allow either typing or choosing a date from any calendar widget.
 
-            - sintax: GG/MM/AAAA
+        - sintax: GG/MM/AAAA
 
-			+------------------------+-------------------------------------------------------+-------------+
-			|   Attribute            |          Description                                  |   Default   |
-			+========================+=======================================================+=============+
-			| ``popup``              | allow to show a calendar dialog.                      |  ``True``   |
-			+------------------------+-------------------------------------------------------+-------------+
-                
+		+------------------------+-------------------------------------------------------+-------------+
+		|   Attribute            |          Description                                  |   Default   |
+		+========================+=======================================================+=============+
+		| ``popup``              | allow to show a calendar dialog.                      |  ``True``   |
+		+------------------------+-------------------------------------------------------+-------------+
+        
+		example::
+		
+			pane.dateTextbox(value='^.dateTextbox')
+        
         - numberTextbox: a simple number textbox.
 
             - attributes:
