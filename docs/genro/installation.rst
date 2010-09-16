@@ -75,7 +75,7 @@ Showcase - is an incomplete but useful collection of examples.
 Fatture1 - is a simple invoice application
 (package: **invoices**, application and site: **fatture1**)
 
-To create the DATABASE in postgres and start the paste wsgi development webserver::
+To create the database in postgres and start the paste wsgi development webserver::
 
     gnrdbsetup fatture1
     gnrwsgiserve fatture1
