@@ -10,21 +10,44 @@ class GnrCustomWebPage(object):
     py_requires="gnrcomponents/testhandler:TestHandlerFull"
     # dojo_theme='claro'    # !! Uncomment this row for Dojo_1.5 usage
     
-    """ "Button" is a Dojo widget used as a representation of a normal button.
-        You can act with it through "action" attribute, a js that is executed on mouse click.
-        - sintax: action="Here put Javascript code"
-        
-        You can also use "FIRE" attribute within "action" attribute; the difference is ... ???
-        - sintax: action="FIRE 'javascript command'".
-            Here is an example:
-                pane.dataController('''alert(msg);''', msg='^msg')
-                pane.button('Click me!',action="FIRE msg='Click!';")
-            An alternative sintax is:
-                pane.button('Click me!', fire_Click = 'msg')
-                
-        In Genro there are four macros used as a shortcut that you can use in the place of
-        a Javascript command.
-        Here is the list: FIRE, GET, SET, PUT. For more example see macro.py"""
+    """ .. currentmodule:: widgets
+
+    .. class:: Buttons -  Genropy buttons
+
+    	This is not a real class, but only one way to combine the methods of the struct that implements interface **buttons**
+
+    .. method:: button(label[, fire=datapath][, action=javascript][, hidden=boolean or resolver])
+
+    	Button is a Dojo widget used as a representation of a normal button. You can act with it through "action" attribute, a js that is executed on mouse click.
+
+    	Example::
+
+    		pane.button('Button',action="alert('Hello!')")
+
+    	You can also use "FIRE" attribute within "action" attribute (action="FIRE 'javascript command'").
+
+    	Here is an example::
+
+    		pane.dataController('''alert(msg);''', msg='^msg')
+    		pane.button('Click me!',action="FIRE msg='Click!';")
+
+    	An alternative sintax is::
+
+    		pane.button('Click me!', fire_Click = 'msg')
+
+        In Genro there are four macros used as a shortcut that you can use in place of a Javascript command.
+
+    	Here is the list: FIRE, GET, SET, PUT.
+
+    .. method:: dropdownbutton(label)
+
+    	Constructs a button that opens a ``menu`` or a ``tooltipdialog``.
+
+    		Example::
+
+    			def ddButtonPane(self, cp):
+    				dd = cp.dropdownbutton('test')
+    				dd.tooltipdialog().div('Hello, world!')"""
         
         #   - Other forms and attributes:
         #       In this section we report forms/attributes that have been used in this example
@@ -45,11 +68,11 @@ class GnrCustomWebPage(object):
         
     def test_1_action(self,pane):
         """Action attribute"""
-        pane.div(""" This button is used to create an alert message through "action" attribute.
-                """,
-                font_size='.9em',text_align='justify')
-        pane.button('Button',action="alert('Hello!')",tooltip='click me!')
-                    
+        fb = pane.formbuilder(cols=2)
+        fb.button('Button',action="alert('Hello!')",tooltip='click me!')
+        fb.div(""" This button is used to create an alert message through "action" attribute.
+                 """,font_size='.9em',text_align='justify')
+        
     def test_2_fire(self,pane):
         """FIRE attribute"""
         pane.div("""There are three way to use FIRE:""",
