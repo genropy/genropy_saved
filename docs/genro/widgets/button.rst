@@ -10,7 +10,22 @@
 
 .. method:: button(label[, fire=datapath][, action=javascript][, hidden=boolean or resolver])
 
-	Construct a button using the HTML tag ``button``.
+	"Button" is a Dojo widget used as a representation of a normal button.
+    You can act with it through "action" attribute, a js that is executed on mouse click.
+        
+    You can also use "FIRE" attribute within "action" attribute (action="FIRE 'javascript command'").
+            
+	Here is an example::
+		
+		pane.dataController('''alert(msg);''', msg='^msg')
+        pane.button('Click me!',action="FIRE msg='Click!';")
+        
+	An alternative sintax is::
+	
+		pane.button('Click me!', fire_Click = 'msg')
+                
+    In Genro there are four macros used as a shortcut that you can use in the place of a Javascript command.
+    Here is the list: FIRE, GET, SET, PUT. For more example see macro.py
 
 .. method:: dropdownbutton(label)
 
