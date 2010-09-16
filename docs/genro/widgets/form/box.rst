@@ -51,7 +51,7 @@
 				| ``min=NUMBER`` | set min value of numberSpinner. |  ``None``   |
 				+----------------+---------------------------------+-------------+
 				| ``max=NUMBER`` | set max value of numberSpinner. |  ``None``   |
-				+-------------+------------------------------------+-------------+
+				+----------------+---------------------------------+-------------+
                 
         - simpleTextarea: a simple text area.
             
