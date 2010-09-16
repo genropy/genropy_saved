@@ -43,9 +43,21 @@ class GnrDboPackage(object):
         return self.dbtable('userobject').listUserObject(pkg=pkg or self.name, **kwargs)
                 
     def getPreference(self, path, dflt=None):
+        """Get a preference for the current package.
+        
+        :param path: dotted name of the preference item.
+        :param dflt: default value.
+        :returns:    value of the specified preference, or 'dflt' if it is 
+                     missing.
+        """
         return self.db.table('adm.preference').getPreference(path, pkg=self.name, dflt=dflt)
     
     def setPreference(self, path, value):
+        """Set a preference for the current package.
+        
+        :param path:  dotted name of the preference item.
+        :param value: new value.
+        """
         self.db.table('adm.preference').setPreference(path, value, pkg=self.name)
         
 class TableBase(object):

@@ -12,6 +12,9 @@ class Table(object):
         self.sysFields(tbl,id=False)
         tbl.column('code',size='12',name_long='!!Code')
         tbl.column('data','X',name_long='!!Data')        
+    
+    # NOTE: these are private APIs, please use <your_package>.getPreference()
+    # and <your_package>.setPreference() to get and set preferences.
         
     def getPreference(self, path, pkg='', dflt=None):
         record = self.loadPreference()
