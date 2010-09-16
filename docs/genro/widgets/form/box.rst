@@ -84,17 +84,31 @@
                          - The down and up arrow buttons "spin" the number up and down.
                          - Furthermore, when you hold down the buttons, the spinning accelerates to make coarser adjustments easier.
 
-				+----------------+---------------------------------+-------------+
-				|   Attribute    |          Description            |   Default   |
-				+================+=================================+=============+
-				| ``min=NUMBER`` | set min value of numberSpinner. |  ``None``   |
-				+----------------+---------------------------------+-------------+
-				| ``max=NUMBER`` | set max value of numberSpinner. |  ``None``   |
-				+----------------+---------------------------------+-------------+
-                
+		+----------------+---------------------------------------------------------------+-------------+
+		|   Attribute    |          Description                                          |   Default   |
+		+================+===============================================================+=============+
+		| ``min=NUMBER`` | set min value of numberSpinner.                               |  ``None``   |
+		+----------------+---------------------------------------------------------------+-------------+
+		| ``max=NUMBER`` | set max value of numberSpinner.                               |  ``None``   |
+		+----------------+---------------------------------------------------------------+-------------+
+		
+		example::
+		
+			pane.numberSpinner(value='^.age',default=100,min=0)
+
         - simpleTextarea: a simple text area.
+
+		example::
+		
+			pane.simpleTextarea(value='^.simpleTextarea',height='80px',width='30em',
+	                            colspan=2,color='blue',font_size='1.2em',
+	                            default='A simple area to contain text.')
             
         - timeTextbox: it's a time input control that allow either typing time or choosing it from
                        a picker widget.
 
-            - sintax: HH:MM
+		- sintax: HH:MM
+		
+		example::
+		
+			pane.timeTextBox(value='^.timeTextbox')
