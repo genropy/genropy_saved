@@ -3,17 +3,20 @@
 
 from gnr.app.gnrapp import GnrApp
 
-class AppTesting(object):
+import unittest
+
+app = GnrApp('gnrtest',forTesting=True)
+
+class AppTesting(unittest.TestCase):
     """Base class for GenroPy tests that require an application instance.
-    
-    You can change the instance_name or specify a path to an XML file with test data.
     """
-    
-    
-    instance_name = 'gnrtest'
-    testing_data = None # specify a path (relative to the subclass' file) to an XML file containing test data
-    
-    def setup_class(self):
-        """Setups the app for testing."""
-        self.app = GnrApp(self.instance_name, forTesting=self.testing_data or True)
+    def setUp(self):
+        # NOTE: it would be better to teardown and rebuild the app at every test,
+        #       but it takes a lot of time.
+        global app
+        self.app = app
         self.db = self.app.db
+    
+    def tearDown(self):
+        del self.db
+        del self.app
