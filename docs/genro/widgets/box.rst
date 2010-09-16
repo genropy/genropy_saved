@@ -2,6 +2,10 @@
  Box
 =====
 
+.. currentmodule:: widgets
+
+.. class:: Buttons -  Genropy buttons
+
 Here we introduce textbox, number textbox, date textbox, time textbox, currency textbox,
     simple textarea, number spinner. They are form widgets inherit from Dojo.
     
