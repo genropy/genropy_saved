@@ -30,6 +30,6 @@
 	
 		Example::
 	
-		def ddButtonPane(self, cp):
-			dd = cp.dropdownbutton('test')
-			dd.tooltipdialog().div('Hello, world!')
+			def ddButtonPane(self, cp):
+				dd = cp.dropdownbutton('test')
+				dd.tooltipdialog().div('Hello, world!')
