@@ -12,20 +12,20 @@
 
 	"Button" is a Dojo widget used as a representation of a normal button. You can act with it through "action" attribute, a js that is executed on mouse click.
 	
-		Example::
+	Example::
 		
-			pane.button('Button',action="alert('Hello!')")
+		pane.button('Button',action="alert('Hello!')")
 		
 	You can also use "FIRE" attribute within "action" attribute (action="FIRE 'javascript command'").
             
-		Here is an example::
+	Here is an example::
 		
-			pane.dataController('''alert(msg);''', msg='^msg')
-			pane.button('Click me!',action="FIRE msg='Click!';")
+		pane.dataController('''alert(msg);''', msg='^msg')
+		pane.button('Click me!',action="FIRE msg='Click!';")
         
-		An alternative sintax is::
+	An alternative sintax is::
 	
-			pane.button('Click me!', fire_Click = 'msg')
+		pane.button('Click me!', fire_Click = 'msg')
                 
     In Genro there are four macros used as a shortcut that you can use in the place of a Javascript command.
     
