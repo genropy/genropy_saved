@@ -182,10 +182,6 @@ dojo.declare("gnr.GnrRpcHandler",null,{
             callKwargs._serverstore_changes = genro._serverstore_changes;
             genro._serverstore_changes = null;
         };
-        if (genro._store_offset){
-            callKwargs._store_offset=genro._store_offset
-        }
-        
         callKwargs = this.serializeParameters(this.dynamicParameters(callKwargs, sourceNode));
         callKwargs._lastUserEventTs= asTypedTxt(genro._lastUserEventTs,'DH');
         if (genro.auto_polling>0){
@@ -327,14 +323,6 @@ dojo.declare("gnr.GnrRpcHandler",null,{
             attr = attr.attr;
             var updater = function(path,value,attr,reason){
                 if(genro._data.getItem(path)!=value){
-                    if (attr && ('_store_offset' in attr)) {
-                        var _store_offset_dict = objectPop(attr,'_store_offset') ;
-                        var storename=_store_offset_dict['store'];
-                        if (!(storename in  genro._store_offset)){
-                            genro._store_offset[storename]={};
-                        }
-                        genro._store_offset[storename][_store_offset_dict['path']]=_store_offset_dict['offset'];
-                    };
                     genro._data.setItem(path,value,attr,reason!=null?{'doTrigger':reason,_updattr:true}:null);
                 }
             };

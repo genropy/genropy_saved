@@ -246,7 +246,6 @@ class GnrWebPage(GnrBaseWebPage):
     def _rpcDispatcher(self, method=None, mode='bag',**kwargs):
         parameters=self.site.parse_kwargs(kwargs,workdate=self.workdate)
         self._lastUserEventTs=parameters.pop('_lastUserEventTs',None)
-        self._store_offset = parameters.pop('_store_offset',None )
         self.site.handle_clientchanges(self.page_id,parameters)
         auth = AUTH_OK
         if not method in ('doLogin'):
@@ -338,7 +337,7 @@ class GnrWebPage(GnrBaseWebPage):
             
     def collectClientDatachanges(self):
         self._publish_event('onCollectDatachanges')
-        result = self.site.get_datachanges(self.page_id,user=self.user,_store_offset=self._store_offset,
+        result = self.site.get_datachanges(self.page_id,user=self.user,
                                             local_datachanges=self.local_datachanges)
         return result
     

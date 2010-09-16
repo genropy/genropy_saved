@@ -728,7 +728,6 @@ class GnrWsgiSite(object):
     def serve_ping(self,response,environ,start_response, page_id=None,reason=None,**kwargs):
         kwargs=self.parse_kwargs(kwargs)
         _lastUserEventTs=kwargs.get('_lastUserEventTs')
-        _store_offset=kwargs.get('_store_offset')
         page_item = self.register.refresh(page_id,_lastUserEventTs)
         if not page_item:
             return self.failed_exception('no longer existing page %s' %page_id,environ, start_response)
@@ -736,14 +735,14 @@ class GnrWsgiSite(object):
         
         self.handle_clientchanges(page_id,kwargs)
         envelope = Bag(dict(result=None))
-        datachanges = self.get_datachanges(page_id,user=page_item['user'],_store_offset=_store_offset)
+        datachanges = self.get_datachanges(page_id,user=page_item['user'])
         if datachanges:
             envelope.setItem('dataChanges', datachanges)
         response.content_type = "text/xml"
         result = envelope.toXml(unresolved=True,  omitUnknownTypes=True)
         return result
         
-    def get_datachanges(self,page_id,user=None,_store_offset=None,local_datachanges=None):
+    def get_datachanges(self,page_id,user=None,local_datachanges=None):
         result = Bag()
         local_datachanges = local_datachanges or []
         with self.register.pageStore(page_id) as store:
@@ -765,18 +764,15 @@ class GnrWsgiSite(object):
                
     def _get_storechanges(self,store, subscribed_paths, page_id, store_datachanges):
         datachanges=store.datachanges
-        store_offsets=store.getItem('_subscriptions.offsets')
-        if store_offsets is None:
-            store_offsets = {}
-            store.setItem('_subscriptions.offsets',store_offsets)
-        page_offsets = store_offsets.setdefault(page_id,{})
-        global_offsets = store_offsets.setdefault(page_id,'_global')
-        print 'page_offsets',page_offsets
-        print 'global_offsets',global_offsets
+        offsets=store.getItem('_subscriptions.offsets')
+        if offsets is None:
+            offsets = {}
+            store.setItem('_subscriptions.offsets',offsets)
+        page_offsets = offsets.setdefault(page_id,{})
+        global_offsets = offsets.setdefault(page_id,'_global')
         for j,change in enumerate(datachanges):
             changepath =change.path 
             change_idx=change.change_idx
-            print 'change_idx',change_idx
             for subpath in subscribed_paths :
                 if changepath.startswith(subpath):
                     if change_idx >page_offsets.get(subpath,0):
@@ -786,31 +782,7 @@ class GnrWsgiSite(object):
                             global_offsets[subpath] = change_idx
                             change.attributes['_new_datachange']=True
                         store_datachanges.append(change)
-        return store_datachanges
-
-    
-    
-        
-    def _get_storechanges_old(self,subscriptions,user,_store_offset):
-        store_datachanges=[]
-        for storename,storesubscriptions in subscriptions.items():
-            storename_offsets=_store_offset.setdefault(storename,{})
-            if storename=='user':
-                datachanges = self.register.userStore(user).datachanges
-            else:
-                datachanges = self.register.stores(storename).datachanges
-            if datachanges:
-                subscribed_paths=storesubscriptions.values()
-                for j,change in enumerate(datachanges):
-                    changepath =change.path 
-                    for subpath in subscribed_paths :
-                        if changepath.startswith(subpath) and j >storename_offsets.get(subpath,-1):
-                            change.attributes = change.attributes or {}
-                            change.attributes['_store_offset']=dict(store=storename,path=subpath,offset=j)
-                            store_datachanges.append(change)
-        print 'store:',store_datachanges
-        return store_datachanges
-                            
+        return store_datachanges                      
 
     def handle_clientchanges(self,page_id=None,parameters=None):
         if '_serverstore_changes' in parameters:
