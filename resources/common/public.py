@@ -15,7 +15,11 @@ class Public(BaseComponent):
     """docstring for Public for common_d11: a complete restyling of Public of common_d10"""
     css_requires = 'public'
     js_requires = 'public'
-    py_requires = 'foundation/menu:Menu,foundation/dialogs,foundation/macrowidgets,gnrcomponents/chat_component:ChatComponent'
+    py_requires = """foundation/menu:Menu,
+                     foundation/dialogs,
+                     foundation/macrowidgets,
+                     gnrcomponents/chat_component:ChatComponent,
+                     gnrcomponents/batch_monitor/batch_monitor:BatchMonitor"""
     
         
     def userRecord(self,path=None):
@@ -47,14 +51,6 @@ class Public(BaseComponent):
             top.div(float='right',margin='3px',_class='buttonIcon icnTabClose',
                     connect_onclick='SET pbl.left_stack="menu";')            
             cb(bc.contentPane(region='center',overflow='hidden'),footer=bottom,toolbar=top)
-    
-    def pbl_left_batch(self,pane,toolbar=None,footer=None):     
-        "Batch"
-        toolbar.div('Batch',float='left')
-        footer.button('!!Batch',showLabel=False,
-                     action='SET pbl.left_stack = "batch";',
-                     iconClass='icnBaseAction',float='right')
-
 
     def pbl_preference_main(self,pane):
         #pane.img(_class='buttonIcon %s' %self.pbl_logoclass())

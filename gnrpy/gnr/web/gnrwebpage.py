@@ -39,6 +39,7 @@ from mako.lookup import TemplateLookup
 from gnr.web.gnrwebreqresp import GnrWebRequest,GnrWebResponse
 from gnr.web.gnrwebpage_proxy.apphandler import GnrWebAppHandler
 from gnr.web.gnrwebpage_proxy.connection import GnrWebConnection
+from gnr.web.gnrwebpage_proxy.serverbatch import GnrWebBatch
 from gnr.web.gnrwebpage_proxy.rpc import GnrWebRpc
 from gnr.web.gnrwebpage_proxy.localizer import GnrWebLocalizer
 from gnr.web.gnrwebpage_proxy.debugger import GnrWebDebugger
@@ -568,6 +569,12 @@ class GnrWebPage(GnrBaseWebPage):
         if not hasattr(self, '_app'):
             self._app = GnrWebAppHandler(self)
         return self._app
+        
+    @property
+    def btc(self):
+        if not hasattr(self, '_btc'):
+            self._btc = GnrWebBatch(self)
+        return self._btc
     # 
     @property
     def catalog(self):
@@ -1008,13 +1015,14 @@ class ClientPageHandler(object):
         
 class ClientDataChange(object):
     def __init__(self,path,value,attributes=None,reason=None,fired=False,
-                 change_ts=None,**kwargs):
+                 change_ts=None,change_idx=None,**kwargs):
         self.path = path
         self.reason = reason
         self.value = value
         self.attributes = attributes
         self.fired = fired
         self.change_ts = change_ts or datetime.datetime.now()
+        self.change_idx = change_idx
             
     def __eq__(self,other):
         return self.path == other.path and self.reason==other.reason and self.fired==other.fired

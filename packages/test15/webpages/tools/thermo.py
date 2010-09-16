@@ -7,6 +7,7 @@
 # 
 import os
 from gnr.core.gnrbag import Bag
+import random
 import time
 
 class GnrCustomWebPage(object):
@@ -18,7 +19,7 @@ class GnrCustomWebPage(object):
          
     def test_1_thermo(self,pane):
         """Thermo"""
-        bc = pane.borderContainer(height='400px',datapath='test1') 
+        bc = pane.borderContainer(height='200px',datapath='test1') 
         bc.data('_thermo.auto_polling',3)
         bc.data('_thermo.user_polling',.5)
 
@@ -47,7 +48,6 @@ class GnrCustomWebPage(object):
         return result
     
     def rpc_test_thermo(self,thermo_id,thermo_item=None):
-        request=self.request._request
         t = time.time()
         maximum=20
         self.start_thermo(thermo_id,thermo_item,maximum=maximum,message='Starting...')
@@ -75,19 +75,45 @@ class GnrCustomWebPage(object):
         with self.pageStore() as store:
             store.setItem('_thermo.%s.status.end' %thermo_id,True)
     
-    def doc_thermo(self):
-        """
-         _thermo.data
-            .mythermo
-                    .lines
-                        .client
-                        .invoice
-                        .rows
-                     .status
-                         .end
-            .yourthermo
-                    .foo
-        .show
- 
-        """
-        pass
+    def test_2_batch(self,pane):
+        "Batch"
+        box = pane.div(datapath='test2')
+        box.button('Start',fire='.start_test')      
+        box.dataRpc('dummy','test2_batch',_fired='^.start_test')
+    
+    def rpc_test2_batch(self,):
+        t = time.time()
+        cli_max = 20
+        invoice_max = 15
+        row_max = 50
+        sleep_time = 0.5
+
+        thermo_lines='clients,invoices,rows'
+        batch_id = self.btc.batch_create(title='testbatch',thermo_lines=thermo_lines)
+        clients = int(random.random() *cli_max)
+        self.btc.thermo_line_start(batch_id=batch_id,line='clients',maximum=clients)
+        
+        for client in range(1,clients+1):
+            stopped = self.btc.thermo_line_update(batch_id=batch_id,line='clients',
+                                        maximum=clients,message='client %i' %client,progress=client)
+            invoices = int(random.random() *invoice_max)
+            self.btc.thermo_line_start(batch_id=batch_id,line='invoices',maximum=clients)
+            
+            for invoice in range(1,invoices+1):
+                stopped= self.btc.thermo_line_update(batch_id=batch_id,line='invoices',
+                                            maximum=clients,message='invoice %i' %invoice,progress=invoice)
+                rows = int(random.random() *row_max)
+                self.btc.thermo_line_start(batch_id=batch_id,line='rows',maximum=rows)
+                
+                for row in range(1,rows+1):
+                    stopped = self.btc.thermo_line_update(batch_id=batch_id,line='rows',
+                                                maximum=clients,message='row %i' %row,progress=row)
+                    time.sleep(sleep_time)
+     
+        self.btc.batch_complete(batch_id,dict(total_time=time.time()-t))
+        return batch_id
+        
+          
+
+
+

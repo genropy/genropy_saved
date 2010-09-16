@@ -750,16 +750,45 @@ class GnrWsgiSite(object):
             external_datachanges = list(store.datachanges) or []
             subscriptions=store.getItem('_subscriptions') or Bag()
             store.reset_datachanges()
+            
         store_datachanges=[]
-        if _store_offset is not None:
-            store_datachanges = self._get_storechanges(subscriptions,user,_store_offset)   
+        for storename,storesubscriptions in subscriptions.items():
+            store = self.register.userStore(user) if storename =='user' else self.register.stores(storename)
+            with store:
+                self._get_storechanges(store,storesubscriptions.values(),page_id,store_datachanges)
+
         for j,change in enumerate(external_datachanges+local_datachanges+store_datachanges):
             result.setItem('sc_%i' %j,change.value,change_path=change.path,change_reason=change.reason,
                             change_fired=change.fired,change_attr=change.attributes,
                             change_ts=change.change_ts)
-        return result        
+        return result 
+               
+    def _get_storechanges(self,store, subscribed_paths, page_id, store_datachanges):
+        datachanges=store.datachanges
+        store_offsets=store.getItem('_subscriptions.offsets')
+        if store_offsets is None:
+            store_offsets = {}
+            store.setItem('_subscriptions.offsets',store_offsets)
+        page_offsets = store_offsets.setdefault(page_id,{})
+        global_offsets = store_offsets.setdefault(page_id,'_global')
+        for j,change in enumerate(datachanges):
+            changepath =change.path 
+            change_idx=change.change_idx
+            for subpath in subscribed_paths :
+                if changepath.startswith(subpath):
+                    if change_idx >page_offsets.get(subpath,0):
+                        page_offsets['subpath'] = change_idx
+                        change.attributes = change.attributes or {}
+                        if change_idx>global_offsets.get(subpath,0):
+                            global_offsets['subpath'] = change_idx
+                            change.attributes['_new_datachange']=True
+                        store_datachanges.append(change)
+        return store_datachanges
+
     
-    def _get_storechanges(self,subscriptions,user,_store_offset):
+    
+        
+    def _get_storechanges_old(self,subscriptions,user,_store_offset):
         store_datachanges=[]
         for storename,storesubscriptions in subscriptions.items():
             storename_offsets=_store_offset.setdefault(storename,{})
@@ -767,7 +796,6 @@ class GnrWsgiSite(object):
                 datachanges = self.register.userStore(user).datachanges
             else:
                 datachanges = self.register.stores(storename).datachanges
-            print 'store offset:', _store_offset
             if datachanges:
                 subscribed_paths=storesubscriptions.values()
                 for j,change in enumerate(datachanges):

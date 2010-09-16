@@ -17,6 +17,9 @@ class ChatComponent(BaseComponent):
                         SET pbl.left_stack = "chat";
                         """,
              iconClass='^gnr.chat.buttonIcon',default_iconClass='icnBuddy',float='right',nodeId='ct_button_footer')
+        footer.dataRpc('dummy','setStoreSubscription',subscribe='==_selected_stack=="chat"',
+                    _selected_stack='^pbl.left_stack',storename='user',client_path='gnr.chat.msg')
+                    
         ttdialog = toolbar.dropDownButton(label='User').tooltipDialog(title='!!Users list',datapath='gnr.chat',nodeId='ct_chat_list_users_dlg',
                                                                      connect_onOpen='genro.wdgById("ct_chat_list_users").resize(); FIRE .listusers;'
                                                                      ).borderContainer(height='300px',width='250px',nodeId='ct_chat_list_users')        
@@ -28,9 +31,6 @@ class ChatComponent(BaseComponent):
         bc.dataController("""SET gnr.chat.curr_address = 'gnr.chat.rooms.'+user;
                                """,user='^#ct_connected_user_grid.selectedId',
                                _if='user',_else='SET gnr.chat.disabled=true;')
-        bc.dataRpc('dummy','setStoreSubscription',subscribe='==_selected_stack=="chat"',
-                    _selected_stack='^pbl.left_stack',storename='user',client_path='gnr.chat.msg')
-        
         bc.dataRpc('dummy','setStoreSubscription',subscribe=True,
                     storename='user',client_path='gnr.chat.rooms',_onStart=True)
         bc.dataController("""

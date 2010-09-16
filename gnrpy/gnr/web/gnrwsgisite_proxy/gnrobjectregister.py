@@ -103,14 +103,17 @@ class ServerStore(object):
     def reset_datachanges(self):
         if self.register_item:
             self.register_item['datachanges'] = list()
+            self.register_item['datachanges_idx']= 0
+
 
     def set_datachange(self,path,value,attributes=None,fired=False,reason=None,replace=False):
         datachanges = self.datachanges
-        datachange = ClientDataChange(path,value,attributes=attributes,fired=fired,reason=reason)
-        if replace and datachange in datachanges: 
-            datachanges[datachanges.index(datachange)].update(datachange)
-        else:
-            datachanges.append(datachange)
+        self.register_item['datachanges_idx']+=1
+        datachange = ClientDataChange(path,value,attributes=attributes,fired=fired,
+                                        reason=reason,change_idx=self.register_item['datachanges_idx'])
+        if replace and datachange in datachanges:
+            datachanges.pop(datachanges.index(datachange)) 
+        datachanges.append(datachange)
     
     def subscribe_path(self,path):
         if self.register_item:
@@ -150,6 +153,7 @@ class ServerStore(object):
             data=Bag()
             register_item['data']=data
             register_item['datachanges']=list()
+            register_item['datachanges_idx']=0
             register_item['subscribed_paths']=set()
         if self.triggered and register_item['subscribed_paths']:
             data.subscribe('datachanges',  any=self._on_data_trigger)
@@ -716,6 +720,7 @@ class PagesTreeResolver(BagResolver):
             item=Bag()
             data = item_user.pop('data',None)
             item_user.pop('datachanges',None)
+            item_user.pop('datachanges_idx',None)
             item_user.pop('connections')
             item['info'] = Bag([('%s:%s' %(k,str(v).replace('.','_')),v) for k,v in item_user.items()])
             item['data'] = data
