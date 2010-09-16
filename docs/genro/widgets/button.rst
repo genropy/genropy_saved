@@ -10,7 +10,13 @@
 
 .. method:: button(label[, fire=datapath][, action=javascript][, hidden=boolean or resolver])
 
-	"Button" is a Dojo widget used as a representation of a normal button. You can act with it through "action" attribute, a js that is executed on mouse click. You can also use "FIRE" attribute within "action" attribute (action="FIRE 'javascript command'").
+	"Button" is a Dojo widget used as a representation of a normal button. You can act with it through "action" attribute, a js that is executed on mouse click.
+	
+	Example::
+		
+    	pane.button('Button',action="alert('Hello!')")
+		
+	You can also use "FIRE" attribute within "action" attribute (action="FIRE 'javascript command'").
             
 	Here is an example::
 		
