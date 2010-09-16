@@ -10,4 +10,4 @@
 
 .. toctree::
 
-    button
+    form/button
