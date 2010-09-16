@@ -65,7 +65,6 @@ class StaticHandler(object):
         pass
 
     def serve(self,path_list,environ,start_response,download=False,**kwargs):
-        print 'path_list', path_list
         fullpath = self.path(*path_list[1:])
         if fullpath and not os.path.isabs(fullpath):
             fullpath = os.path.normpath(os.path.join(self.site_path,fullpath))

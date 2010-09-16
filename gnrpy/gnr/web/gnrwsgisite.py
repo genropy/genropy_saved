@@ -444,7 +444,7 @@ class GnrWsgiSite(object):
         path_list = self.get_path_list(request.path_info)
         if path_list==['favicon.ico']:
             path_list=['_site','favicon.ico']
-            print path_list
+            #print path_list
             #self.log_print( '',code='FAVICON')
            # return response(environ, start_response)
     
@@ -771,16 +771,19 @@ class GnrWsgiSite(object):
             store.setItem('_subscriptions.offsets',store_offsets)
         page_offsets = store_offsets.setdefault(page_id,{})
         global_offsets = store_offsets.setdefault(page_id,'_global')
+        print 'page_offsets',page_offsets
+        print 'global_offsets',global_offsets
         for j,change in enumerate(datachanges):
             changepath =change.path 
             change_idx=change.change_idx
+            print 'change_idx',change_idx
             for subpath in subscribed_paths :
                 if changepath.startswith(subpath):
                     if change_idx >page_offsets.get(subpath,0):
-                        page_offsets['subpath'] = change_idx
+                        page_offsets[subpath] = change_idx
                         change.attributes = change.attributes or {}
                         if change_idx>global_offsets.get(subpath,0):
-                            global_offsets['subpath'] = change_idx
+                            global_offsets[subpath] = change_idx
                             change.attributes['_new_datachange']=True
                         store_datachanges.append(change)
         return store_datachanges
