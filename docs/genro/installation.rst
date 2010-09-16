@@ -77,5 +77,5 @@ Fatture1 - is a simple invoice application
 
 To create the database in postgres and start the paste wsgi development webserver::
 
-    gnrdbsetup -i fatture1
-    gnrwsgiserve -s fatture1
+    gnrdbsetup fatture1
+    gnrwsgiserve fatture1
