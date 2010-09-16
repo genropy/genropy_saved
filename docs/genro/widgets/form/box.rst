@@ -49,7 +49,7 @@
         
         - dateTextbox: it's a easy-to-use date entry controls that allow either typing or choosing a date from any calendar widget.
 
-        - sintax: GG/MM/AAAA
+        	- sintax: GG/MM/AAAA
 
 		+------------------------+-------------------------------------------------------+-------------+
 		|   Attribute            |          Description                                  |   Default   |
