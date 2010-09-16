@@ -10,7 +10,12 @@ class GnrCustomWebPage(object):
     py_requires="gnrcomponents/testhandler:TestHandlerFull"
     # dojo_theme='claro'    # !! Uncomment this row for Dojo_1.5 usage
     
-    """ .. currentmodule:: widgets
+    """
+    =========
+     Buttons
+    =========
+    
+    .. currentmodule:: widgets
 
     .. class:: Buttons -  Genropy buttons
 

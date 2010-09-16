@@ -10,54 +10,121 @@ class GnrCustomWebPage(object):
     py_requires="gnrcomponents/testhandler:TestHandlerFull"
     # dojo_theme='claro'    # !! Uncomment this row for Dojo_1.5 usage
     
-    """ Here we introduce textbox, number textbox, date textbox, time textbox, currency textbox,
+    """
+    =====
+     Box
+    =====
+
+    .. currentmodule:: form
+
+    .. class:: Boxes -  Genropy boxes
+
+    	We now introduce textbox, number textbox, date textbox, time textbox, currency textbox,
         simple textarea, number spinner. They are form widgets inherit from Dojo.
-        
-        Before introducing boxes we write here the common default values of box attributes:
-            
-            font_size='1em'.
-            
-            text_align='left' (there are two boxes with a different default value;
-                                we specify directly in the box itself)
-                                
-        Here we introduce the attributes belonging to every box:
-            default='VALUE' Add a default value in your box (use a type supported from your box!).
-                            It's not compatible with dateTextbox and timeTextbox.
-            
-        - Boxes: 
+
+        - common box attributes:
+
+    		+-----------------------+---------------------------------------------------------+-------------+
+    		|   Attribute           |          Description                                    |   Default   |
+    		+=======================+=========================================================+=============+
+    		| ``font_size``         | CSS attribute                                           |  ``1em``    |
+    		+-----------------------+---------------------------------------------------------+-------------+
+    		| ``text_align``        | CSS attribute                                           |  ``left``   |
+    		+-----------------------+---------------------------------------------------------+-------------+
+    		| ``default``           | Add the default box value (use a default type supported |  ``None``   |
+    		|                       | from your box!). It's not compatible with dateTextbox   |             |
+    		|                       | and timeTextbox                                         |             |
+    		+-----------------------+---------------------------------------------------------+-------------+
+
+        - Boxes:
+
             - textbox: a simple textbox.
-                
-            - currencyTextbox: it inherit all the attributes and behaviors of the numberTextbox widget
-                               but are specialized for input monetary values, much like the currency type
-                               in spreadsheet programs.
-                - attributes:
-                    text_align='right'
-                    
-            - dateTextbox: it's a easy-to-use date entry controls that allow either typing or choosing a date
-                           from any calendar widget.
-                - sintax: GG/MM/AAAA
-                - attributes:
-                    popup=True  allow to show a calendar dialog.
-                    
+
+    			Example::
+
+    				pane.textbox('Hello world!')
+
+            - currencyTextbox: it inherit all the attributes and behaviors of the numberTextbox widget but are specialized for input monetary values, much like the currency type in spreadsheet programs.
+
+    		+------------------------+-------------------------------------------------------+-------------+
+    		|   Attribute            |          Description                                  |   Default   |
+    		+========================+=======================================================+=============+
+    		| ``text_align``         | CSS attribute                                         |  ``right``  |
+    		+------------------------+-------------------------------------------------------+-------------+
+    		| ``currency``           | specify used currency                                 |  ``None``   |
+    		+------------------------+-------------------------------------------------------+-------------+
+    		| ``locale``             | specify currency format type                          |  ``it``     |
+    		+------------------------+-------------------------------------------------------+-------------+
+
+    		Example::
+
+    			pane.currencyTextBox(value='^.amount',default=1123.34,currency='EUR',locale='it')
+
+            - dateTextbox: it's a easy-to-use date entry controls that allow either typing or choosing a date from any calendar widget.
+
+            	- sintax: GG/MM/AAAA
+
+    		+------------------------+-------------------------------------------------------+-------------+
+    		|   Attribute            |          Description                                  |   Default   |
+    		+========================+=======================================================+=============+
+    		| ``popup``              | allow to show a calendar dialog.                      |  ``True``   |
+    		+------------------------+-------------------------------------------------------+-------------+
+
+    		example::
+
+    			pane.dateTextbox(value='^.dateTextbox')
+
             - numberTextbox: a simple number textbox.
-                - attributes:
-                    places=3    (if is reached the fourth decimal, a tooltip error will warn user.)
-                    text_align='right'
-                    
+
+    		+------------------------+-------------------------------------------------------+-------------+
+    		|   Attribute            |          Description                                  |   Default   |
+    		+========================+=======================================================+=============+
+    		| ``places``             | Numbers of decimals. If it's reached the last         |  ``3``      |
+    		|                        | supported decimal, a tooltip error will warn user.    |             |
+    		+------------------------+-------------------------------------------------------+-------------+
+    		| ``text_align``         | CSS attribute                                         |  ``right``  |
+    		+------------------------+-------------------------------------------------------+-------------+
+
+    		example::
+
+    			pane.numberTextbox(value='^.numberTextbox',places=2)
+
             - numberSpinner: it's similar to numberTextBox, but makes integer entry easier when
-                             small adjustments are required. There are two features:
+                             small adjustments are required.
+
+    						There are two features:
+
                              - The down and up arrow buttons "spin" the number up and down.
-                             - Furthermore, when you hold down the buttons, the spinning accelerates
-                             to make coarser adjustments easier.
-                - attributes:
-                    min=NUMBER  set min value of numberSpinner.
-                    max=NUMBER  set max value of numberSpinner.
-                    
+                             - Furthermore, when you hold down the buttons, the spinning accelerates to make coarser adjustments easier.
+
+    		+----------------+---------------------------------------------------------------+-------------+
+    		|   Attribute    |          Description                                          |   Default   |
+    		+================+===============================================================+=============+
+    		| ``min=NUMBER`` | set min value of numberSpinner.                               |  ``None``   |
+    		+----------------+---------------------------------------------------------------+-------------+
+    		| ``max=NUMBER`` | set max value of numberSpinner.                               |  ``None``   |
+    		+----------------+---------------------------------------------------------------+-------------+
+
+    		example::
+
+    			pane.numberSpinner(value='^.age',default=100,min=0)
+
             - simpleTextarea: a simple text area.
-                
+
+    		example::
+
+    			pane.simpleTextarea(value='^.simpleTextarea',height='80px',width='30em',
+    	                            colspan=2,color='blue',font_size='1.2em',
+    	                            default='A simple area to contain text.')
+
             - timeTextbox: it's a time input control that allow either typing time or choosing it from
                            a picker widget.
-                - sintax: HH:MM
+
+    		- sintax: HH:MM
+
+    		example::
+
+    			pane.timeTextBox(value='^.timeTextbox')
         """
         
     #   - Other forms, attributes and items:
@@ -101,7 +168,7 @@ class GnrCustomWebPage(object):
     def test_3_numberSpinner(self,pane):
         """numberSpinner"""
         fb = pane.formbuilder(datapath='test3',cols=2)
-        fb.numberSpinner(value='^.age',default=100)
+        fb.numberSpinner(value='^.age',default=100,min=0)
         fb.div("""Try to hold down a button: the spinning accelerates
                     to make coarser adjustments easier""",
                    font_size='.9em',text_align='justify',margin='5px')
