@@ -28,7 +28,7 @@
 
 	Constructs a button that opens a ``menu`` or a ``tooltipdialog``.
 	
-	Example::
+		Example::
 	
 		def ddButtonPane(self, cp):
 			dd = cp.dropdownbutton('test')
