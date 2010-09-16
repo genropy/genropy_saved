@@ -48,11 +48,9 @@
 				+----------------+---------------------------------+-------------+
 				|   Attribute    |          Description            |   Default   |
 				+================+=================================+=============+
-				| ``min=NUMBER`` | set min value of numberSpinner. | ``x or y``  |
-				|                |                                 |             |
+				| ``min=NUMBER`` | set min value of numberSpinner. |  ``None``   |
 				+----------------+---------------------------------+-------------+
-				| ``max=NUMBER`` | set max value of numberSpinner. | ``x and y`` |
-				|                |                                 |             |
+				| ``max=NUMBER`` | set max value of numberSpinner. |  ``None``   |
 				+-------------+------------------------------------+-------------+
                 
         - simpleTextarea: a simple text area.
