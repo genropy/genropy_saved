@@ -10,4 +10,5 @@
 
 .. toctree::
 
+	box
     button
