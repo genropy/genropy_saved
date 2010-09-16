@@ -27,7 +27,7 @@
 	
 		pane.button('Click me!', fire_Click = 'msg')
                 
-    In Genro there are four macros used as a shortcut that you can use in the place of a Javascript command.
+    In Genro there are four macros used as a shortcut that you can use in place of a Javascript command.
     
 	Here is the list: FIRE, GET, SET, PUT. For more example see macro.py
 
