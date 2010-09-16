@@ -6,7 +6,7 @@
 
 .. class:: Buttons -  Genropy buttons
 
-	CIAO PAOLO CAMERA This is not a real class, but only one way to combine the methods of the struct that implements interface **buttons**
+	This is not a real class, but only one way to combine the methods of the struct that implements interface **buttons**
 
 .. method:: button(label[, fire=datapath][, action=javascript][, hidden=boolean or resolver])
 
