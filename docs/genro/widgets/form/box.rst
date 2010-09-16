@@ -10,16 +10,26 @@
     simple textarea, number spinner. They are form widgets inherit from Dojo.
     
     - common box attributes:
-        
-        ``font_size='1em'``
-        
-        ``text_align='left'``
-        
-        ``default='VALUE'`` Add a default value in your box (use a type supported from your box!). It's not compatible with dateTextbox and timeTextbox.
+
+		+-----------------------+-------------------------------------------------------+-------------+
+		|   Attribute           |          Description                                  |   Default   |
+		+=======================+=======================================================+=============+
+		| ``font_size='1em'``   | set min value of numberSpinner.                       |  ``None``   |
+		+-----------------------+-------------------------------------------------------+-------------+
+		| ``text_align='left'`` | set max value of numberSpinner.                       |  ``None``   |
+		+-----------------------+-------------------------------------------------------+-------------+
+		| ``default='VALUE'``   | Add a default value in your box (use a type supported |  ``None``   |
+		|                       | from your box!). It's not compatible with dateTextbox |             |
+		|                       | and timeTextbox.                                      |             |
+		+-----------------------+-------------------------------------------------------+-------------+
         
     - Boxes:
 
         - textbox: a simple textbox.
+
+			Example::
+			
+				pane.textbox('Hello world!')
             
         - currencyTextbox: it inherit all the attributes and behaviors of the numberTextbox widget but are specialized for input monetary values, much like the currency type in spreadsheet programs.
 
