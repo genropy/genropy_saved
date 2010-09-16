@@ -48,6 +48,8 @@ class SqlDbAdapter(SqlDbBaseAdapter):
                  'I':'integer', 'L':'bigint', 'R':'real','N':'numeric',
                  'serial':'serial8'}
     
+    support_multiple_connections = False
+    
     def defaultMainSchema(self):
         return 'main'
     

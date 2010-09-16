@@ -4,31 +4,30 @@
 from gnr.core.gnrbag import Bag
 from gnrtestutils import AppTesting
 
-class TestPreferencesAPI(AppTesting):
-    """Tests the public API of the preferences system"""
-    
-    
-    #--------------------------------------------------------- Setup / TearDown
+class TestTablePrefrences(AppTesting):
     
     def setUp(self):
-        AppTesting.setUp(self)
-        self.db.table('adm.preference').empty()
-        self.pkg = self.db.packages['gnrtest']
+        super(TestTablePrefrences, self).setUp()
+        self.package = self.app.db.packages['gnrtest']
+        self.app.db.table('adm.preference').empty()
     
-    def tearDown(self):
-        del self.pkg
-        AppTesting.tearDown(self)
+    def testEmptyPreference(self):
+        p = self.package.getPreference('something')
+        self.assertEqual(None, p, '(new) child preferences should be None.')
 
-    #------------------------------------------------------ Preferences as bags
+    def testSinglePreference(self):
+        self.package.setPreference('something','else')
+        self.assertEqual('else', self.package.getPreference('something'))
     
-    def testGetPreference(self):
-        p = self.pkg.getPreference('something')
-        self.assertEqual(None, p, 'empty preferences should be None')
+    def testAllPreferences(self):
+        p = self.package.getPreference('')
+        self.assertEqual(None, p)
         
+        self.package.setPreference('', Bag(dict(something='else')))
+        self.assertEqual('else', self.package.getPreference('something'))
 
-    def testSetPreference(self):
-        self.pkg.setPreference('something','else')
-        p = self.pkg.getPreference('something')
-        self.assertEqual('else', p, 'getPreference() should return what we set')
-    
-    
+        p = self.package.getPreference('')
+        self.assertTrue(isinstance(p, Bag), 'should be a Bag')
+        self.assertEqual(1, len(p))
+        self.assertEqual(set(('something',)), set(p.keys()))
+        self.assertEqual('else', p['something'])

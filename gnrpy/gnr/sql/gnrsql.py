@@ -458,13 +458,15 @@ class TempEnv(object):
         self.kwargs=kwargs
         
     def __enter__(self):
-        currentEnv=self.db.currentEnv
-        self.savedEnv=dict(currentEnv)
-        currentEnv.update(self.kwargs)
+        if self.db.adapter.support_multiple_connections:
+            currentEnv=self.db.currentEnv
+            self.savedEnv=dict(currentEnv)
+            currentEnv.update(self.kwargs)
         return self.db
         
     def __exit__(self, type, value, traceback):
-        self.db.currentEnv=self.savedEnv
+        if self.db.adapter.support_multiple_connections:
+            self.db.currentEnv=self.savedEnv
     
 class DbStoresHandler(object):
     """Handler for using multi-db"""

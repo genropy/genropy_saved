@@ -41,7 +41,15 @@ class SqlDbAdapter(object):
                  'B':'boolean', 'D':'date', 'H':'time without time zone', 'DH':'timestamp without time zone',
                  'I':'integer', 'L':'bigint', 'R':'real',
                  'serial':'serial8','O':'bytea'}
-        
+    
+    # True if the database supports multiple connections. If False,
+    # switching environments will be a no-op::
+    #
+    #     with self.db.tempEnv(connectionName='system'):
+    #         # your code here
+    #         pass
+    support_multiple_connections = True
+
     def __init__(self, dbroot, **kwargs):
         self.dbroot = dbroot
         self.options = kwargs

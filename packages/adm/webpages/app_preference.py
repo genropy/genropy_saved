@@ -62,10 +62,10 @@ class GnrCustomWebPage(object):
                      _onResult='genro.formById("preference").loaded();')
 
     def rpc_loadPreference(self, **kwargs):
-        record= self.tblobj.loadPreference() or self.tblobj.newPreference()
+        record= self.tblobj.loadPreference()
         return record['data']
 
-    def rpc_savePreference(self,data, **kwargs):
+    def rpc_savePreference(self, data, **kwargs):
         record = self.tblobj.loadPreference(for_update=True)
         record['data']=data
         self.tblobj.savePreference(record)

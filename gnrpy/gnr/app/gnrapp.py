@@ -373,20 +373,6 @@ class GnrApp(object):
 
     def instance_name_to_path(self,instance_name):
         return PathResolver(gnr_config=self.gnr_config).instance_name_to_path(instance_name)
-        if 'instances' in self.gnr_config['gnr.environment_xml']:
-            for path in [expandpath(path) for path in self.gnr_config['gnr.environment_xml'].digest('instances:#a.path') if os.path.isdir(expandpath(path))]:
-                instance_path=os.path.join(path,instance_name)
-                if os.path.isdir(instance_path):
-                    return instance_path
-        if 'projects' in self.gnr_config['gnr.environment_xml']:
-            projects = [expandpath(path) for path in self.gnr_config['gnr.environment_xml'].digest('projects:#a.path') if os.path.isdir(expandpath(path))]
-            for project_path in projects:
-                for path in glob.glob(os.path.join(project_path,'*/instances')):
-                    instance_path=os.path.join(path,instance_name)
-                    if os.path.isdir(instance_path):
-                        return instance_path
-        raise Exception(
-            'Error: instance %s not found' % instance_name)
         
     def build_package_path(self):
         self.package_path={}
