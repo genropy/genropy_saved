@@ -11,17 +11,17 @@
     
     - common box attributes:
 
-		+-----------------------+-------------------------------------------------------+-------------+
-		|   Attribute           |          Description                                  |   Default   |
-		+=======================+=======================================================+=============+
-		| ``font_size='1em'``   | set min value of numberSpinner.                       |  ``None``   |
-		+-----------------------+-------------------------------------------------------+-------------+
-		| ``text_align='left'`` | set max value of numberSpinner.                       |  ``None``   |
-		+-----------------------+-------------------------------------------------------+-------------+
-		| ``default='VALUE'``   | Add a default value in your box (use a type supported |  ``None``   |
-		|                       | from your box!). It's not compatible with dateTextbox |             |
-		|                       | and timeTextbox.                                      |             |
-		+-----------------------+-------------------------------------------------------+-------------+
+		+-----------------------+---------------------------------------------------------+-------------+
+		|   Attribute           |          Description                                    |   Default   |
+		+=======================+=========================================================+=============+
+		| ``font_size``         | CSS attribute.                                          |  ``1em``    |
+		+-----------------------+---------------------------------------------------------+-------------+
+		| ``text_align``        | CSS attribute.                                          |  ``left``   |
+		+-----------------------+---------------------------------------------------------+-------------+
+		| ``default``           | Add the default box value (use a default type supported |  ``None``   |
+		|                       | from your box!). It's not compatible with dateTextbox   |             |
+		|                       | and timeTextbox.                                        |             |
+		+-----------------------+---------------------------------------------------------+-------------+
         
     - Boxes:
 
@@ -33,9 +33,12 @@
             
         - currencyTextbox: it inherit all the attributes and behaviors of the numberTextbox widget but are specialized for input monetary values, much like the currency type in spreadsheet programs.
 
-            - attributes:
-                text_align='right'
-                
+		+------------------------+-------------------------------------------------------+-------------+
+		|   Attribute            |          Description                                  |   Default   |
+		+========================+=======================================================+=============+
+		| ``text_align``         | CSS attribute.                                        |  ``right``  |
+		+------------------------+-------------------------------------------------------+-------------+
+        
         - dateTextbox: it's a easy-to-use date entry controls that allow either typing or choosing a date from any calendar widget.
 
             - sintax: GG/MM/AAAA
