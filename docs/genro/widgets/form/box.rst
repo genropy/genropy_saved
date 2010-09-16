@@ -14,13 +14,13 @@
 		+-----------------------+---------------------------------------------------------+-------------+
 		|   Attribute           |          Description                                    |   Default   |
 		+=======================+=========================================================+=============+
-		| ``font_size``         | CSS attribute.                                          |  ``1em``    |
+		| ``font_size``         | CSS attribute                                           |  ``1em``    |
 		+-----------------------+---------------------------------------------------------+-------------+
-		| ``text_align``        | CSS attribute.                                          |  ``left``   |
+		| ``text_align``        | CSS attribute                                           |  ``left``   |
 		+-----------------------+---------------------------------------------------------+-------------+
 		| ``default``           | Add the default box value (use a default type supported |  ``None``   |
 		|                       | from your box!). It's not compatible with dateTextbox   |             |
-		|                       | and timeTextbox.                                        |             |
+		|                       | and timeTextbox                                         |             |
 		+-----------------------+---------------------------------------------------------+-------------+
         
     - Boxes:
@@ -36,15 +36,26 @@
 		+------------------------+-------------------------------------------------------+-------------+
 		|   Attribute            |          Description                                  |   Default   |
 		+========================+=======================================================+=============+
-		| ``text_align``         | CSS attribute.                                        |  ``right``  |
+		| ``text_align``         | CSS attribute                                         |  ``right``  |
 		+------------------------+-------------------------------------------------------+-------------+
+		| ``currency``           | specify used currency                                 |  ``None``   |
+		+------------------------+-------------------------------------------------------+-------------+
+		| ``locale``             | specify currency format type                          |  ``it``     |
+		+------------------------+-------------------------------------------------------+-------------+
+		
+		Example::
+		
+			pane.currencyTextBox(value='^.amount',default=1123.34,currency='EUR',locale='it')
         
         - dateTextbox: it's a easy-to-use date entry controls that allow either typing or choosing a date from any calendar widget.
 
             - sintax: GG/MM/AAAA
 
-            - attributes:
-                popup=True  allow to show a calendar dialog.
+			+------------------------+-------------------------------------------------------+-------------+
+			|   Attribute            |          Description                                  |   Default   |
+			+========================+=======================================================+=============+
+			| ``popup``              | allow to show a calendar dialog.                      |  ``True``   |
+			+------------------------+-------------------------------------------------------+-------------+
                 
         - numberTextbox: a simple number textbox.
 
