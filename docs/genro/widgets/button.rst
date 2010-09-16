@@ -10,7 +10,7 @@
 
 .. method:: button(label[, fire=datapath][, action=javascript][, hidden=boolean or resolver])
 
-	"Button" is a Dojo widget used as a representation of a normal button. You can act with it through "action" attribute, a js that is executed on mouse click.
+	Button is a Dojo widget used as a representation of a normal button. You can act with it through "action" attribute, a js that is executed on mouse click.
 	
 	Example::
 		
@@ -34,11 +34,7 @@
 .. method:: dropdownbutton(label)
 
 	Constructs a button that opens a ``menu`` or a ``tooltipdialog``.
-	
-.. method:: button(label[, fire=datapath][, action=javascript][, hidden=boolean or resolver])
-
-	"Button" is a Dojo widget used as a representation of a normal button. You can act with it through "action" attribute, a js that is executed on mouse click.
-		
+			
 		Example::
 	
 			def ddButtonPane(self, cp):
