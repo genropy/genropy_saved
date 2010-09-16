@@ -11,4 +11,4 @@
 .. toctree::
 
 	box
-    button
+	button
