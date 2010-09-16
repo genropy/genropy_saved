@@ -8,7 +8,7 @@ from gnr.core.gnrstring import splitAndStrip
 class GnrDboPackage(object):
     """Base class for packages.
     """
-    def getCounter(self, name, code, codekey, output, date=None, phyear=False,lastAssigned=0):
+    def getCounter(self, name, code, codekey, output, date=None, phyear=False, lastAssigned=0):
         """Generate a new number from the specified counter.
         
         :param name: counter name
@@ -47,7 +47,7 @@ class GnrDboPackage(object):
         
         :param path: dotted name of the preference item.
         :param dflt: default value.
-        :returns:    value of the specified preference, or 'dflt' if it is 
+        :returns:    value of the specified preference, or **dflt** if it is 
                      missing.
         """
         return self.db.table('adm.preference').getPreference(path, pkg=self.name, dflt=dflt)
