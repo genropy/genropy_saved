@@ -65,6 +65,7 @@ class StaticHandler(object):
         pass
 
     def serve(self,path_list,environ,start_response,download=False,**kwargs):
+        print 'path_list', path_list
         fullpath = self.path(*path_list[1:])
         if fullpath and not os.path.isabs(fullpath):
             fullpath = os.path.normpath(os.path.join(self.site_path,fullpath))
@@ -98,11 +99,9 @@ class DojoStaticHandler(StaticHandler):
 class SiteStaticHandler(StaticHandler):
     prefix='site'
     def url(self ,*args):
-        print x
         return '%s_site/%s'%(self.home_uri,'/'.join(args))
     
     def path(self ,*args):
-        print x
         return expandpath(os.path.join(self.site.site_static_dir, *args))
 
 class PkgStaticHandler(StaticHandler):
