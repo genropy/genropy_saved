@@ -98,9 +98,11 @@ class DojoStaticHandler(StaticHandler):
 class SiteStaticHandler(StaticHandler):
     prefix='site'
     def url(self ,*args):
+        print x
         return '%s_site/%s'%(self.home_uri,'/'.join(args))
     
     def path(self ,*args):
+        print x
         return expandpath(os.path.join(self.site.site_static_dir, *args))
 
 class PkgStaticHandler(StaticHandler):

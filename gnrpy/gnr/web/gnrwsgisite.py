@@ -443,9 +443,11 @@ class GnrWsgiSite(object):
         # Url parsing start
         path_list = self.get_path_list(request.path_info)
         if path_list==['favicon.ico']:
-            self.log_print( '',code='FAVICON')
-            return response(environ, start_response)
-            
+            path_list=['_site','favicon.ico']
+            print path_list
+            #self.log_print( '',code='FAVICON')
+           # return response(environ, start_response)
+    
         request_kwargs=dict(request.params)
         request_kwargs.pop('_no_cache_',None)
         storename = None
