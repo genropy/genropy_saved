@@ -2,7 +2,7 @@
  Box
 =====
 
-.. currentmodule:: widgets
+.. currentmodule:: form
 
 .. class:: Boxes -  Genropy boxes
 

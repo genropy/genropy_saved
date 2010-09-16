@@ -10,5 +10,5 @@
 
 .. toctree::
 
-	box
-	button
+	form/box
+	form/button

@@ -2,7 +2,7 @@
  Buttons
 =========
 
-.. currentmodule:: widgets
+.. currentmodule:: form
 
 .. class:: Buttons -  Genropy buttons
 
