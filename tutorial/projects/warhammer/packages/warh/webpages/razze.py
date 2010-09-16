@@ -102,7 +102,7 @@ class GnrCustomWebPage(object):
         iv = self.includedViewBox(bc,
                                   add_action=True,
                                   del_action=True,
-                                  #nodeId='FatoGrid',
+                                  nodeId='FatoGrid',
                                   editorEnabled=True,
                                   storepath='.pf_base',
                                   struct=self.fato_struct,
