@@ -40,7 +40,10 @@
                 text_align='right'
                 
         - numberSpinner: it's similar to numberTextBox, but makes integer entry easier when
-                         small adjustments are required. There are two features:
+                         small adjustments are required.
+
+						There are two features:
+						
                          - The down and up arrow buttons "spin" the number up and down.
                          - Furthermore, when you hold down the buttons, the spinning accelerates
                          to make coarser adjustments easier.
