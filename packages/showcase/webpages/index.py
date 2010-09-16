@@ -37,7 +37,7 @@ class GnrCustomWebPage(object):
         """The data controller on the page"""
         root.dataFormula("demo.current.relpath", "page?page:'index.py'",_onStart=True,page='^iframe.selected_page')
         root.dataRpc("demo.current.name", "demoCurrentName",_onStart=True,relpath='^demo.current.relpath')
-    #    root.dataController('SET stack_selected = 0', _fired='^demo.current.name') # OPTIONAL: with this line the iFrame is ALWAYS opened on "Page"        
+        #root.dataController('SET stack_selected = 0', _fired='^demo.current.name') # OPTIONAL: with this line the iFrame is ALWAYS opened on "Page"        
         root.dataRpc('demo.current.syspath', 'fileSysPath', relpath='^demo.current.relpath')
         root.dataRpc('demo.current.source', 'getSourceFile', syspath='^demo.current.syspath')
         
