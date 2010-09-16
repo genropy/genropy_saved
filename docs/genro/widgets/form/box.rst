@@ -11,9 +11,9 @@
     
     - common default values of box attributes:
         
-        font_size='1em'.
+        ``font_size='1em'``
         
-        text_align='left'
+        ``text_align='left'``
         
     Here we introduce the attributes belonging to every box:
         default='VALUE' Add a default value in your box (use a type supported from your box!).
@@ -45,8 +45,7 @@
 						There are two features:
 						
                          - The down and up arrow buttons "spin" the number up and down.
-                         - Furthermore, when you hold down the buttons, the spinning accelerates
-                         to make coarser adjustments easier.
+                         - Furthermore, when you hold down the buttons, the spinning accelerates to make coarser adjustments easier.
 
 				+----------------+---------------------------------+-------------+
 				|   Attribute    |          Description            |   Default   |
