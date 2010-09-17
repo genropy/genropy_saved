@@ -3711,7 +3711,8 @@ dojo.declare("gnr.widgets.Tree",gnr.widgets.baseDojo,{
        } 
        bagnode.setAttr({'checked':checked},true,true);
        var parentNode=bagnode.getParentNode();
-       while(parentNode){
+       var rootNodeId = genro.getDataNode(this.model.store.datapath)._id;
+       while(parentNode && (parentNode._id != rootNodeId)){
            parentNode.setAttr({'checked':this.checkBoxCalcStatus(parentNode)},true,true);
            var parentNode=parentNode.getParentNode();
        }
