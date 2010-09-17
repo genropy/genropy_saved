@@ -10,6 +10,7 @@
 
 .. toctree::
 
-	form/textbox
-	form/numberTextbox
 	form/button
+	form/currencyTextbox
+	form/numberTextbox
+	form/textbox
