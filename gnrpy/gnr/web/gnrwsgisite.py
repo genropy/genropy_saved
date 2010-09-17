@@ -31,7 +31,7 @@ import shutil
 mimetypes.init()
 site_cache = {}
 
-OP_TO_LOG={}
+OP_TO_LOG={'FAVICON':True}
 
 global GNRSITE
 def currentSite():
@@ -444,8 +444,7 @@ class GnrWsgiSite(object):
         path_list = self.get_path_list(request.path_info)
         if path_list==['favicon.ico']:
             path_list=['_site','favicon.ico']
-            #print path_list
-            #self.log_print( '',code='FAVICON')
+            self.log_print( '',code='FAVICON')
            # return response(environ, start_response)
     
         request_kwargs=dict(request.params)
@@ -745,38 +744,35 @@ class GnrWsgiSite(object):
     def get_datachanges(self,page_id,user=None,local_datachanges=None):
         result = Bag()
         local_datachanges = local_datachanges or []
-        with self.register.pageStore(page_id) as store:
-            external_datachanges = list(store.datachanges) or []
-            subscriptions=store.getItem('_subscriptions') or Bag()
-            store.reset_datachanges()
+        with self.register.pageStore(page_id) as pagestore:
+            external_datachanges = list(pagestore.datachanges) or []
+            subscriptions=pagestore.getItem('_subscriptions') or Bag()
+            pagestore.reset_datachanges()
+            store_datachanges=[]
+            for storename,storesubscriptions in subscriptions.items():
+                store = self.register.userStore(user) if storename =='user' else self.register.stores(storename)
+                with store:
+                    self._get_storechanges(store,storesubscriptions.items(),page_id,store_datachanges)
             
-        store_datachanges=[]
-        for storename,storesubscriptions in subscriptions.items():
-            store = self.register.userStore(user) if storename =='user' else self.register.stores(storename)
-            with store:
-                self._get_storechanges(store,storesubscriptions.values(),page_id,store_datachanges)
-
-        for j,change in enumerate(external_datachanges+local_datachanges+store_datachanges):
-            result.setItem('sc_%i' %j,change.value,change_path=change.path,change_reason=change.reason,
-                            change_fired=change.fired,change_attr=change.attributes,
-                            change_ts=change.change_ts)
+            for j,change in enumerate(external_datachanges+local_datachanges+store_datachanges):
+                result.setItem('sc_%i' %j,change.value,change_path=change.path,change_reason=change.reason,
+                                change_fired=change.fired,change_attr=change.attributes,
+                                change_ts=change.change_ts)
         return result 
                
-    def _get_storechanges(self,store, subscribed_paths, page_id, store_datachanges):
+    def _get_storechanges(self,store, subscriptions, page_id, store_datachanges):
         datachanges=store.datachanges
-        offsets=store.getItem('_subscriptions.offsets')
-        if offsets is None:
-            offsets = {}
-            store.setItem('_subscriptions.offsets',offsets)
-        page_offsets = offsets.setdefault(page_id,{})
-        global_offsets = offsets.setdefault(page_id,'_global')
+        global_offsets=store.getItem('_subscriptions.offsets')
+        if global_offsets is None:
+            global_offsets = {}
+            store.setItem('_subscriptions.offsets',global_offsets)
         for j,change in enumerate(datachanges):
             changepath =change.path 
             change_idx=change.change_idx
-            for subpath in subscribed_paths :
-                if changepath.startswith(subpath):
-                    if change_idx >page_offsets.get(subpath,0):
-                        page_offsets[subpath] = change_idx
+            for subpath,subdict in subscriptions :
+                if subdict['on'] and changepath.startswith(subpath):
+                    if change_idx >subdict.get('offset',0):
+                        subdict['offset'] = change_idx
                         change.attributes = change.attributes or {}
                         if change_idx>global_offsets.get(subpath,0):
                             global_offsets[subpath] = change_idx

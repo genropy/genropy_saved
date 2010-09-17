@@ -521,10 +521,14 @@ class GnrWebPage(GnrBaseWebPage):
         
     def rpc_setStoreSubscription(self,storename=None,client_path=None,subscribe=True):
         with self.pageStore() as store:
-            if subscribe:
-                store.setItem('_subscriptions.%s.%s'%(storename,client_path.replace('.','_')),client_path)
-            else:
-                store.delItem('_subscriptions.%s.%s'%(storename,client_path.replace('.','_')))
+            subscriptions=store.getItem('_subscriptions')
+            if subscriptions is None:
+                subscriptions=dict()
+                store.setItem('_subscriptions',subscriptions)
+            storesub=subscriptions.setdefault(storename,{})
+            pathsub=storesub.setdefault(client_path,{})
+            pathsub['on']=subscribe
+     
         
     def clientPage(self,page_id=None):
         return ClientPageHandler(self, page_id or self.page_id) 
