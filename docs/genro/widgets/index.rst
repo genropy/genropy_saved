@@ -12,5 +12,6 @@
 
 	form/button
 	form/currencyTextbox
+	form/dateTextbox
 	form/numberTextbox
 	form/textbox
