@@ -62,14 +62,14 @@ class GnrCustomWebPage(object):
         #
         #       ## name ##      --> ## file ##
         #       checkbox        --> togglebutton.py
-        #       datapath        --> webpages/tutorial/datapath.py
+        #       datapath        --> datapath.py
         #       formbuilder     --> formbuilder.py
         #       FIRE            --> macro.py
         #       menu            --> menu.py
         #       menuline        --> menu.py
         #       numberTextbox   --> textbox.py
         #       textbox         --> textbox.py
-        #       value           --> webpages/tutorial/datapath.py
+        #       value           --> datapath.py
         
     def test_1_action(self,pane):
         """Action attribute"""
