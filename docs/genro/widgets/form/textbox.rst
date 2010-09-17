@@ -6,7 +6,6 @@
 
 .. class:: textbox -  Genropy textbox
 
-
 	A simple textbox.
     
     - common box attributes:
