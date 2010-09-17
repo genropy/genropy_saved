@@ -29,3 +29,8 @@ Modules
     modules/gnrbag
     modules/gnrstructures
 
+Showcase
+=======
+.. toctree:: 
+
+    showcase/widgets
