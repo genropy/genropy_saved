@@ -14,6 +14,7 @@
 	form/currencyTextbox
 	form/dateTextbox
 	form/numberTextbox
+	form/simpleTextarea
 	form/slider
 	form/textbox
 	form/timeTextbox
