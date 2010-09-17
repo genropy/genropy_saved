@@ -15,3 +15,4 @@
 	form/dateTextbox
 	form/numberTextbox
 	form/textbox
+	form/timeTextbox
