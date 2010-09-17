@@ -11,4 +11,5 @@
 .. toctree::
 
 	form/textbox
+	form/numberTextbox
 	form/button
