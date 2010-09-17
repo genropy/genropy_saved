@@ -24,5 +24,6 @@
 	It is strongly advised to use "width" attribute for horizontal slider and "height" attribute for vertical slider.
 	
 		Example::
+		
 			pane.horizontalSlider(value='^integer_number',width='200px',
 								  maximum=50,discreteValues=51)
