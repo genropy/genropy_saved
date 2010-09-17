@@ -6,8 +6,7 @@
 
 .. class:: Boxes -  Genropy boxes
 
-	We now introduce textbox, number textbox, date textbox, time textbox, currency textbox,
-    simple textarea, number spinner. They are form widgets inherit from Dojo.
+	We now introduce textbox, number textbox, date textbox, time textbox, currency textbox, simple textarea, number spinner. They are form widgets inherit from Dojo.
     
     - common box attributes:
 
@@ -104,8 +103,7 @@
 	                            colspan=2,color='blue',font_size='1.2em',
 	                            default='A simple area to contain text.')
             
-        - timeTextbox: it's a time input control that allow either typing time or choosing it from
-                       a picker widget.
+        - timeTextbox: it's a time input control that allow either typing time or choosing it from a picker widget.
 
 		- sintax: HH:MM
 		
