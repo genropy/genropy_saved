@@ -777,6 +777,9 @@ class GnrWsgiSite(object):
                         if change_idx>global_offsets.get(subpath,0):
                             global_offsets[subpath] = change_idx
                             change.attributes['_new_datachange']=True
+                        else:
+                            change.attributes.pop('_new_datachange',None)
+                        
                         store_datachanges.append(change)
         return store_datachanges                      
 

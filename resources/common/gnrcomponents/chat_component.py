@@ -19,7 +19,14 @@ class ChatComponent(BaseComponent):
              iconClass='^gnr.chat.buttonIcon',default_iconClass='icnBuddy',float='right',nodeId='ct_button_footer')
         footer.dataRpc('dummy','setStoreSubscription',subscribe='==_selected_stack=="chat"',
                     _selected_stack='^pbl.left_stack',storename='user',client_path='gnr.chat.msg')
-                    
+        
+        footer.dataController("""
+                            console.log(_node);
+                            SET gnr.chat.buttonIcon = 'icnBuddyChat'
+                            """,user="^gnr.chat.room_alert",
+                            _if='selected_stack!="chat"',
+                            selected_stack='=pbl.left_stack')
+        
         ttdialog = toolbar.dropDownButton(label='User').tooltipDialog(title='!!Users list',datapath='gnr.chat',nodeId='ct_chat_list_users_dlg',
                                                                      connect_onOpen='genro.wdgById("ct_chat_list_users").resize(); FIRE .listusers;'
                                                                      ).borderContainer(height='300px',width='250px',nodeId='ct_chat_list_users')        
@@ -31,11 +38,11 @@ class ChatComponent(BaseComponent):
         bc.dataController("""SET gnr.chat.curr_address = 'gnr.chat.rooms.'+user;
                                """,user='^#ct_connected_user_grid.selectedId',
                                _if='user',_else='SET gnr.chat.disabled=true;')
-        bc.dataRpc('dummy','setStoreSubscription',subscribe=True,
-                    storename='user',client_path='gnr.chat.rooms',_onStart=True)
-        bc.dataController("""
-                            SET gnr.chat.buttonIcon = 'icnBuddyChat'
-                            """,user="^gnr.chat.rooms")
+
+
+        bc.dataController("""if(_node.attr._new_datachange){
+                                genro.playSound("NewMessage");
+                            }""",_fired="^gnr.chat.msg")
         bc.script("""
                     var ct_chat_utils = {};
                     ct_chat_utils.open_chat = function(user){
@@ -132,5 +139,7 @@ class ChatComponent(BaseComponent):
         with self.userStore(user) as store:
             store.set_datachange(path,msg,fired=True,reason='chat_out',
                                 attributes=dict(from_user=self.user,room=self.user,in_out='in',ts=ts))
-            store.set_datachange('gnr.chat.rooms',self.user,fired=True,reason='chat_open')
+        self.setInClientData(path='gnr.chat.room_alert',value=self.user,
+                            filters='user:%s' %user,fired=True,reason='chat_open',
+                            public=True, replace=True)
         
