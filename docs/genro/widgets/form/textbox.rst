@@ -18,6 +18,6 @@
 		| ``text_align``        | CSS attribute                                           |  ``left``   |
 		+-----------------------+---------------------------------------------------------+-------------+
 
-	Example::
+		Example::
 
-		pane.textbox(value='^box')
+			pane.textbox(value='^box')
