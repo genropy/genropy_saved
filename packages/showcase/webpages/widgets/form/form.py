@@ -22,8 +22,8 @@ class GnrCustomWebPage(object):
     a new record (generally for his database) Genro make a "load": this action allows to reload a "form"
     in its standard form. Until the form isn't completely loaded, the program prevents the user to perform
     any writing action (the sintax is "genro.formById(f_id).loaded()", where f_id is the formId)
-    When the load is over, Genro makes user able to write. With the button "save" allows user to save
-    his progress. Performing the "save" action, Genro completely reload the standard form.
+    When the load is over, Genro makes user able to write. With the button "save" the program allows user
+    to save his progress. Performing the "save" action, Genro completely reload the standard form.
     
     For helping user not to make some mistakes in compiling the form, Genro provides an helpful developer's tool:
     the validations. With validations you can force an user to perform an action, without which he can't
@@ -41,7 +41,7 @@ class GnrCustomWebPage(object):
         validate_onReject='alert(" ")'  --> alert window (rejected writing user)
         
     - validate_onAccept:
-        validate_onAccept='alert(" ")'  --> alert window (confermed writing user)
+        validate_onAccept='alert(" ")'  --> alert window (confirmed writing user)
         
     - validate_email:
         validate_email=True             --> validate an e-mail format.
@@ -51,9 +51,9 @@ class GnrCustomWebPage(object):
         validate_case='u'   --> 'Uppercase', set every letter of every word uppercase
         validate_case='l'   --> 'Lowercase', set every letter of every word lowcase
     
-    - The controleer path:
-    Another useful tool is the controller path; we suggest you to create it, but if you don't it will
-    create itself in the following path: ???)
+    - The controller path:
+    Another useful tool is the controller path; we suggest you to create it, but if you don't
+    it will be created automatically in the following path: ???
     In the controller path lies control informations; if you want to check it, just click "CTRL+SHIFT+D"
     to open dataSource, so you can view all controller path's informations.
     Let's check out these informations:
@@ -63,15 +63,16 @@ class GnrCustomWebPage(object):
                  "false" if there is one invalid field (or more).
         - changesLogger: tracks the story-line of user changes.
         - changed: "true" if user compiles some part of the form, "false" if there is no changes.
-        If this ???parametro is "false" and user tries to save the form, Genro prevents to save the form warning
-        user with an alert message reporting: "nochange".
+                   If this parameter is "false" and user tries to save the form, Genro prevents to
+                   save the form warning user with an alert message reporting: "nochange".
         - is_newrecord: ???undefined
         - loaded: it s "true" when a new form is loaded.
-        - saving:
-        - saved:
+        - saving: this folder is created during the save. ???cosa_si_trova_dentro?
+        - saved: this folder is created after the save. ???cosa_si_trova_dentro?
         - save_failed: report the same alert message reported to user:
             "nochange" if user tries to save without making any changement.
             "invalid" if user doesn't meet all the form requirements.
+            This folder is created on a failed save.
     
     When you save the form, a message will show you the contents of your save; it should be like this one:
     <?xml version="1.0" encoding="utf-8"?>
@@ -83,7 +84,6 @@ class GnrCustomWebPage(object):
     So the form will be saved into a GenRoBag (XML type), every row is composed by a single form field, with
     the following sintax:
         <field_name _loadedValue="::NN">record_value</field_name>
-    
     """
     
     #   - Other forms, attributes and items:
@@ -97,7 +97,7 @@ class GnrCustomWebPage(object):
     #       button              --> button.py
     #       contentPane         --> webpages/widgets/layout/border.py
     #       formbuilder         --> formbuilder.py
-    #       textbox             --> box.py
+    #       textbox             --> textbox.py
     
     #       ??? aggiungere quelli del test_3!!
     
@@ -105,7 +105,7 @@ class GnrCustomWebPage(object):
     def test_1_basicForm(self,pane):
         """Basic Form"""
         bc = pane.borderContainer(height='250px',datapath='test1')
-        formpane = self._formpane(bc,datapath='test1',formId='test1')
+        formpane = self._formpane(bc,datapath='test1',formId='test1',loader='basic')
         fb = formpane.formbuilder(border_spacing='3px')
         fb.div("""In this basic example we let you test a simple case of form.""",
         font_size='.9em',text_align='justify')
@@ -127,7 +127,7 @@ class GnrCustomWebPage(object):
     def test_2_validations(self,pane):
         """Validations"""
         bc = pane.borderContainer(height='350px',datapath='test2')
-        formpane = self._formpane(bc,datapath='test2',formId='test2')
+        formpane = self._formpane(bc,datapath='test2',formId='test2',loader='basic')
         fb = formpane.formbuilder(cols=2,border_spacing='3px')
         fb.div("""In this example we let you test validations.""",
                colspan=2,font_size='.9em',text_align='justify')
@@ -176,7 +176,7 @@ class GnrCustomWebPage(object):
     def test_3_prova(self,pane):
         """Genro and Dojo validations"""
         bc = pane.borderContainer(height='350px',datapath='test3')
-        formpane = self._formpane(bc,datapath='test3',formId='test3')
+        formpane = self._formpane(bc,datapath='test3',formId='test3',loader='basic')
         tc = pane.tabContainer(datapath='test3',formId='testform')
         self.genroValidation(tc)
         tc2 = tc.tabContainer(title='Dojo Validation')
@@ -186,7 +186,7 @@ class GnrCustomWebPage(object):
         self.timeTextbox(tc2)
         self.textArea(tc2)
         
-    def _formpane(self,bc,datapath=None,formId=None,loader='basic'):
+    def _formpane(self,bc,datapath=None,formId=None,loader=None):
         right = bc.contentPane(region='right',width='200px',splitter=True)
         center = bc.contentPane(region='center',formId=formId,datapath='.data',controllerPath='%s.form' %datapath)
         right.button('Load',fire='.load')
@@ -196,7 +196,7 @@ class GnrCustomWebPage(object):
             bc.dataController("genro.formById(f_id).load()",_fired="^.load",_onStart=True,f_id=formId)
             bc.dataController("SET .data= new gnr.GnrBag(); genro.formById(f_id).loaded();",
                               nodeId="%s_loader" %formId,f_id=formId) #fire node
-            bc.dataController("alert(saved_data.toXml()); ;genro.formById(f_id).saved();",nodeId="%s_saver" %formId,
+            bc.dataController("alert(saved_data.toXml()); genro.formById(f_id).saved();",nodeId="%s_saver" %formId,
                               saved_data='=.data',f_id=formId) #fire node
             bc.dataController("alert(msg)",msg="^.form.save_failed")
             
