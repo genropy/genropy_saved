@@ -86,31 +86,34 @@ class GnrCustomWebPage(object):
         cli_max = 20
         invoice_max = 15
         row_max = 50
-        sleep_time = 0.5
+        sleep_time = 0.01
 
         thermo_lines='clients,invoices,rows'
-        batch_id = self.btc.batch_create(title='testbatch',thermo_lines=thermo_lines)
+        batch_id = self.btc.batch_create(batch_id='test_batch',title='testbatch',
+                                        thermo_lines=thermo_lines,note='This is a test batch')
         clients = int(random.random() *cli_max)
         self.btc.thermo_line_start(batch_id=batch_id,line='clients',maximum=clients)
-        
-        for client in range(1,clients+1):
-            stopped = self.btc.thermo_line_update(batch_id=batch_id,line='clients',
-                                        maximum=clients,message='client %i' %client,progress=client)
-            invoices = int(random.random() *invoice_max)
-            self.btc.thermo_line_start(batch_id=batch_id,line='invoices',maximum=clients)
-            
-            for invoice in range(1,invoices+1):
-                stopped= self.btc.thermo_line_update(batch_id=batch_id,line='invoices',
-                                            maximum=clients,message='invoice %i' %invoice,progress=invoice)
-                rows = int(random.random() *row_max)
-                self.btc.thermo_line_start(batch_id=batch_id,line='rows',maximum=rows)
+        try:
+            for client in range(1,clients+1):
+                stopped = self.btc.thermo_line_update(batch_id=batch_id,line='clients',
+                                            maximum=clients,message='client %i/%i' %(client,clients),progress=client)
                 
-                for row in range(1,rows+1):
-                    stopped = self.btc.thermo_line_update(batch_id=batch_id,line='rows',
-                                                maximum=clients,message='row %i' %row,progress=row)
-                    time.sleep(sleep_time)
-     
-        self.btc.batch_complete(batch_id,dict(total_time=time.time()-t))
+                invoices = int(random.random() *invoice_max)
+                self.btc.thermo_line_start(batch_id=batch_id,line='invoices',maximum=invoices)
+            
+                for invoice in range(1,invoices+1):
+                    stopped= self.btc.thermo_line_update(batch_id=batch_id,line='invoices',
+                                                maximum=invoices,message='invoice %i/%i' %(invoice,invoices),progress=invoice)
+                    rows = int(random.random() *row_max)
+                    self.btc.thermo_line_start(batch_id=batch_id,line='rows',maximum=rows)
+                
+                    for row in range(1,rows+1):
+                        stopped = self.btc.thermo_line_update(batch_id=batch_id,line='rows',
+                                                    maximum=rows,message='row %i/%i' %(row,rows),progress=row)
+                        time.sleep(sleep_time)
+        except self.btc.exception_stopped:
+            self.btc.batch_complete(batch_id,result='aborted')
+        self.btc.batch_complete(batch_id,result=dict(total_time=time.time()-t))
         return batch_id
         
           

@@ -9,6 +9,7 @@ from gnr.core.gnrbag import Bag
 from datetime import datetime
 
 class BatchMonitor(BaseComponent):
+    js_requires = 'gnrcomponents/batch_monitor/batch_monitor'
     css_requires = 'gnrcomponents/batch_monitor/batch_monitor'
     def pbl_left_batchmonitor(self,pane,footer=None,toolbar=None):
         "Batch Monitor"
@@ -16,11 +17,14 @@ class BatchMonitor(BaseComponent):
                      action='SET pbl.left_stack = "batchmonitor";',
                      iconClass='icnBaseAction',float='right')
         toolbar.div('Batch',float='left')
-       #pane.dataRpc('dummy','setStoreSubscription',subscribe='==_selected_stack=="batchmonitor"',
-       #            _selected_stack='^pbl.left_stack',storename='user',
-       #            client_path='gnr.batch',)
+        pane.dataRpc('dummy','setStoreSubscription',subscribe='==_selected_stack=="batchmonitor"',
+                    _selected_stack='^pbl.left_stack',storename='user',
+                    client_path='gnr.batch')        
+        pane.dataController("if(selected_stack=='batchmonitor'){genro.rpc.setPolling(1,1)}else{genro.rpc.setPolling();}",selected_stack='^pbl.left_stack')
         self.bm_monitor_pane(pane)
         
     def bm_monitor_pane(self,pane):
+        pane.dataController("batchbag.forEach(batch_monitor.monitor);",_fired="^gnr.batch",
+                            batchbag='=gnr.batch')
         pane.div(nodeId='bm_rootnode',_class='bm_rootnode')
         

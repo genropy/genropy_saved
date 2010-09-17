@@ -317,6 +317,7 @@ dojo.declare("gnr.GnrRpcHandler",null,{
             var changenode = changenodes[i];
             var value = changenode.getValue();
             var attr = objectExtract(changenode.attr,'change_*');
+            var isDelete = objectPop(attr,'delete');
             var changepath = attr.path;
             var fired = attr.fired;
             var reason = attr.reason;
@@ -334,6 +335,9 @@ dojo.declare("gnr.GnrRpcHandler",null,{
                         updater(clientpath,value,attr,reason);
                     }
                 }
+            }
+            else if (isDelete){
+                genro._data.delItem(changepath);
             }
             else{
                 updater(changepath,value,attr,reason);

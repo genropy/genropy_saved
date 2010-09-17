@@ -1018,7 +1018,7 @@ class ClientPageHandler(object):
         
 class ClientDataChange(object):
     def __init__(self,path,value,attributes=None,reason=None,fired=False,
-                 change_ts=None,change_idx=None,**kwargs):
+                 change_ts=None,change_idx=None,delete=False,**kwargs):
         self.path = path
         self.reason = reason
         self.value = value
@@ -1026,6 +1026,7 @@ class ClientDataChange(object):
         self.fired = fired
         self.change_ts = change_ts or datetime.datetime.now()
         self.change_idx = change_idx
+        self.delete = delete
             
     def __eq__(self,other):
         return self.path == other.path and self.reason==other.reason and self.fired==other.fired

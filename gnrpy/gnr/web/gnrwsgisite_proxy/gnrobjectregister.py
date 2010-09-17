@@ -106,11 +106,12 @@ class ServerStore(object):
             self.register_item['datachanges_idx']= 0
 
 
-    def set_datachange(self,path,value,attributes=None,fired=False,reason=None,replace=False):
-        datachanges = self.datachanges
+    def set_datachange(self,path,value=None,attributes=None,fired=False,reason=None,replace=False,delete=False):
+        datachanges = self.datachanges;
         self.register_item['datachanges_idx']+=1
         datachange = ClientDataChange(path,value,attributes=attributes,fired=fired,
-                                        reason=reason,change_idx=self.register_item['datachanges_idx'])
+                                        reason=reason,change_idx=self.register_item['datachanges_idx'],
+                                        delete=delete)
         if replace and datachange in datachanges:
             datachanges.pop(datachanges.index(datachange)) 
         datachanges.append(datachange)

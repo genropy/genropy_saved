@@ -740,7 +740,7 @@ class GnrWsgiSite(object):
         response.content_type = "text/xml"
         result = envelope.toXml(unresolved=True,  omitUnknownTypes=True)
         return result
-        
+    
     def get_datachanges(self,page_id,user=None,local_datachanges=None):
         result = Bag()
         local_datachanges = local_datachanges or []
@@ -757,7 +757,7 @@ class GnrWsgiSite(object):
             for j,change in enumerate(external_datachanges+local_datachanges+store_datachanges):
                 result.setItem('sc_%i' %j,change.value,change_path=change.path,change_reason=change.reason,
                                 change_fired=change.fired,change_attr=change.attributes,
-                                change_ts=change.change_ts)
+                                change_ts=change.change_ts,change_delete=change.delete)
         return result 
                
     def _get_storechanges(self,store, subscriptions, page_id, store_datachanges):
@@ -779,7 +779,6 @@ class GnrWsgiSite(object):
                             change.attributes['_new_datachange']=True
                         else:
                             change.attributes.pop('_new_datachange',None)
-                        
                         store_datachanges.append(change)
         return store_datachanges                      
 
