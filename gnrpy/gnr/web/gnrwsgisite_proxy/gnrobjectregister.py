@@ -116,6 +116,9 @@ class ServerStore(object):
             datachanges.pop(datachanges.index(datachange)) 
         datachanges.append(datachange)
     
+    def drop_datachanges(self,path):
+        self.datachanges[:] = [dc for dc in self.datachanges if not dc.path.startswith(path)]
+    
     def subscribe_path(self,path):
         if self.register_item:
             self.subscribed_paths.add(path)

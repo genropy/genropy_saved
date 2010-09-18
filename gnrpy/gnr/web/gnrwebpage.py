@@ -903,7 +903,7 @@ class GnrWebPage(GnrBaseWebPage):
         return filepath
         
     def userDocument(self, *args):
-        filepath = os.path.join(self.userFolder, self.page_id, *args)
+        filepath = os.path.join(self.userFolder, *args)
         folder = os.path.dirname(filepath)
         if not os.path.isdir(folder):
             os.makedirs(folder)

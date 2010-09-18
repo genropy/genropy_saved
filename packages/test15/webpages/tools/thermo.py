@@ -17,104 +17,48 @@ class GnrCustomWebPage(object):
     def windowTitle(self):
         return 'Thermo'
          
-    def test_1_thermo(self,pane):
-        """Thermo"""
-        bc = pane.borderContainer(height='200px',datapath='test1') 
-        bc.data('_thermo.auto_polling',3)
-        bc.data('_thermo.user_polling',.5)
-
-        bc.data('_thermo.data',None,_serverpath='_thermo')
-        top = bc.contentPane(region='left')
-        top.button('Start',fire='.start_test')        
-        center = bc.contentPane(region='center') 
-        center.button('Open floating',action='genro.dlg.batchMonitor();')
-        center.dataController("""
-                                 FIRE .run_rpc;""",_fired="^.start_test")
-        center.dataRpc('dummy','test_thermo',_fired='^.run_rpc',thermo_id='mythermo',thermo_item='clients')
-                    
-        top.dataController("""genro.rpc.setPolling(auto_polling&&monitor,user_polling&&monitor);""",
-                           monitor='^_thermo.monitor',auto_polling='=_thermo.auto_polling',
-                           user_polling='=_thermo.user_polling')
-        
-    def thermo_test(self):
-        result = Bag()
-        th=Bag()
-        th.setItem('lines.clients',None,progress=0,maximum=50,message='Rufus Baboden')
-        th.setItem('lines.invoices',None,progress=13,maximum=20,message='IN:10.1209 - 23/07/2010')
-        result.setItem('print_inv',th,thermotitle='Invoice printing')
-        th=Bag()
-        th.setItem('lines.jobs',None,progress=300,maximum=1000,message='BK208089-client:Landers')
-        result.setItem('print_jobs',th,thermotitle='Job batch print')
-        return result
-    
-    def rpc_test_thermo(self,thermo_id,thermo_item=None):
-        t = time.time()
-        maximum=20
-        self.start_thermo(thermo_id,thermo_item,maximum=maximum,message='Starting...')
-        for k in range(maximum+1):
-            time.sleep(1)
-            self.update_thermo(thermo_id,thermo_item,progress=k,maximum=maximum,message='working %i' %k)
-        time.sleep(1)
-        result = Bag()
-        result['esito'] = 'done'
-        result['tempo'] =str(time.time()-t)
-        self.end_thermo(thermo_id)
-        return result
-
-    def start_thermo(self,thermo_id,thermo_item,maximum=None,message=None):
-        with self.pageStore() as store:
-            store.setItem('_thermo.%s.lines.%s' %(thermo_id,thermo_item),0,
-                            message=message,maximum=maximum)
-        
-    def update_thermo(self,thermo_id,thermo_item,progress=None,message=None,maximum=None):
-        with self.pageStore() as store:
-            store.setItem('_thermo.%s.lines.%s' %(thermo_id,thermo_item),progress,
-                            progress=progress,message=message,maximum=maximum)
-                            
-    def end_thermo(self,thermo_id):
-        with self.pageStore() as store:
-            store.setItem('_thermo.%s.status.end' %thermo_id,True)
-    
-    def test_2_batch(self,pane):
+    def test_1_batch(self,pane):
         "Batch"
-        box = pane.div(datapath='test2')
+        box = pane.div(datapath='test1')
         box.button('Start',fire='.start_test')      
-        box.dataRpc('dummy','test2_batch',_fired='^.start_test')
+        box.dataRpc('dummy','test_1_batch',_fired='^.start_test')
     
-    def rpc_test2_batch(self,):
+    def rpc_test_1_batch(self,):
         t = time.time()
         cli_max = 20
         invoice_max = 15
-        row_max = 50
-        sleep_time = 0.01
+        row_max = 35
+        sleep_time = 0.1
 
         thermo_lines='clients,invoices,rows'
-        batch_id = self.btc.batch_create(batch_id='test_batch',title='testbatch',
-                                        thermo_lines=thermo_lines,note='This is a test batch')
+       # thermo_lines = [{'title':'Clients',_class=}]
+        self.btc.batch_create(title='testbatch',
+                              thermo_lines=thermo_lines,note='This is a test batch %i' %int(random.random()*100))
         clients = int(random.random() *cli_max)
-        self.btc.thermo_line_start(batch_id=batch_id,line='clients',maximum=clients)
+        #self.btc.thermo_line_start(line='clients',maximum=clients)
         try:
             for client in range(1,clients+1):
-                stopped = self.btc.thermo_line_update(batch_id=batch_id,line='clients',
+                stopped = self.btc.thermo_line_update(line='clients',
                                             maximum=clients,message='client %i/%i' %(client,clients),progress=client)
                 
                 invoices = int(random.random() *invoice_max)
-                self.btc.thermo_line_start(batch_id=batch_id,line='invoices',maximum=invoices)
+                #self.btc.thermo_line_start(line='invoices',maximum=invoices)
             
                 for invoice in range(1,invoices+1):
-                    stopped= self.btc.thermo_line_update(batch_id=batch_id,line='invoices',
+                    stopped= self.btc.thermo_line_update(line='invoices',
                                                 maximum=invoices,message='invoice %i/%i' %(invoice,invoices),progress=invoice)
                     rows = int(random.random() *row_max)
-                    self.btc.thermo_line_start(batch_id=batch_id,line='rows',maximum=rows)
+                    #self.btc.thermo_line_start(line='rows',maximum=rows)
                 
                     for row in range(1,rows+1):
-                        stopped = self.btc.thermo_line_update(batch_id=batch_id,line='rows',
+                        stopped = self.btc.thermo_line_update(line='rows',
                                                     maximum=rows,message='row %i/%i' %(row,rows),progress=row)
                         time.sleep(sleep_time)
         except self.btc.exception_stopped:
-            self.btc.batch_complete(batch_id,result='aborted')
-        self.btc.batch_complete(batch_id,result=dict(total_time=time.time()-t))
-        return batch_id
+            self.btc.batch_aborted()
+       #except Exception, e:
+       #    self.btc.batch_error(error=str(e))
+        self.btc.batch_complete(result='Execution completed',result_attr=dict(url='http://www.apple.com'))
         
           
 

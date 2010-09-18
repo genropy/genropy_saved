@@ -173,7 +173,7 @@ dojo.declare("gnr.GnrDlgHandler",null,{
         var node = genro.src.getNode('_dlg_ask').clearValue().freeze();
         if (typeof(resultPathOrActions)=='string'){
             var resultPath=resultPathOrActions;
-            actions={};
+            var actions={};
             action="genro.wdgById('_dlg_ask').hide();genro.fireEvent('"+resultPath+"',this.attr.actCode);";
          }
          else{

@@ -24,7 +24,9 @@ class BatchMonitor(BaseComponent):
         self.bm_monitor_pane(pane)
         
     def bm_monitor_pane(self,pane):
-        pane.dataController("batchbag.forEach(batch_monitor.monitor);",_fired="^gnr.batch",
-                            batchbag='=gnr.batch')
-        pane.div(nodeId='bm_rootnode',_class='bm_rootnode')
+        pane.dataController("""var callname = 'on_'+_triggerpars.kw.reason;
+                            if(callname in batch_monitor){
+                                batch_monitor[callname].call(batch_monitor,_node);
+                            }""",_fired="^gnr.batch")
+        pane.div(nodeId='bm_rootnode',_class='bm_rootnode',overflow='auto',height='100%')
         
