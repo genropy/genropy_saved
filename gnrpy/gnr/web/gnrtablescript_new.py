@@ -274,13 +274,11 @@ class RecordToHtmlNew(RecordToHtmlPage):
         if lines:
             nodes = lines.getNodes()
             self.totalRowCount= len(nodes)
-            self.thermo_init()
             for k,rowDataNode in enumerate(nodes):
                 self.currRowDataNode = rowDataNode
                 self.currRowCount = k
-                self.stopped = self.thermo_step()
-                if self.stopped:
-                    break
+                self.thermo_step()
+
                 for copy in range(self.copies_per_page):
                     self.copy=copy
                     rowheight = self.calcRowHeight()
@@ -297,14 +295,13 @@ class RecordToHtmlNew(RecordToHtmlPage):
             for copy in range(self.copies_per_page):
                 self.copy=copy
                 self._closePage(True)
-    
-    def thermo_init(self):
-        if hasattr(self,'thermoCb'):
-            self.thermoCb(row=2,max_value=self.totalRowCount)
             
     def thermo_step(self):
-        if hasattr(self,'thermoCb'):
-            return self.thermoCb(row=2,message=self.thermo_message())
+        self.page.btc.thermo_line_update(line=1,
+                                        maximum=self.totalRowCount,
+                                        message=self.thermo_message(),
+                                        progress=self.currRowCount)
+
             
     def thermo_message(self):
         return '%i/%i' %(self.currRowCount,self.totalRowCount)

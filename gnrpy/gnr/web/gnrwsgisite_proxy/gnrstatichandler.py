@@ -150,7 +150,7 @@ class ConnectionStaticHandler(StaticHandler):
 class UserStaticHandler(StaticHandler):
     prefix='user'
     def path(self,user,page_id,*args):
-        return os.path.join(self.site.site_path,'data','_users', user, page_id, *args)
+        return os.path.join(self.site.site_path,'data','_users', user, *args)
         
     def url(self, page,*args):
-        return '%s_user/%s/%s/%s'%(self.home_uri,page.user or 'Anonymous', page.page_id,'/'.join(args))
+        return '%s_user/%s/%s'%(self.home_uri,page.user,'/'.join(args))

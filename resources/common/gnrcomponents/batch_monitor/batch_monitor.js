@@ -1,4 +1,18 @@
 var batch_monitor = {};
+
+
+batch_monitor.on_datachange = function(kw){
+    if(!kw.reason){
+        genro.bp(kw);
+        return;
+    }
+    var callname = 'on_'+kw.reason;
+    var node = kw.node;
+    if(callname in batch_monitor){
+     this[callname].call(this,node);
+    }
+}
+
 batch_monitor.on_btc_create = function(node){
     var batch_id = node.label;
     var batch_bag = node.getValue();
@@ -27,6 +41,8 @@ batch_monitor.on_btc_result_doc = function(node){
     if (url) {
         resultpane._('div')._('a',{href:url,innerHTML:'download'});
     };
+    topright = genro.nodeById('bm_top_right_'+batch_id).clearValue();
+    topright._('div',{_class:'buttonIcon icnTabClose',connect_onclick:'genro.serverCall("btc.remove_batch",{"batch_id":"'+batch_id+'"})'});
     resultpane._('div',{innerHTML:'Batch completed - total time:'+batch_value.getItem('time_delta')})
     resultpane.unfreeze();
 };
@@ -37,7 +53,7 @@ batch_monitor.on_btc_error_doc = function(node){
     genro.bp(node);
 };
 batch_monitor.on_btc_aborted = function(node){
-    genro.bp(node);
+    this.batch_remove(node.label);
 };
 batch_monitor.on_th_cleanup = function(node){
     genro.bp(node);
@@ -48,6 +64,16 @@ batch_monitor.on_tl_start = function(node){
 batch_monitor.on_tl_upd = function(node){
     //genro.bp(node);
 };
+
+batch_monitor.on_btc_removed = function(node){
+    this.batch_remove(node.label);
+};
+
+batch_monitor.batch_remove = function(batch_id){
+    this.batchpane(batch_id)._destroy();
+    genro._data.delItem(this.batchpath(batch_id));
+}
+
 batch_monitor.get_batch_node_id = function(batch_id){
     return 'batch_'+batch_id;
 };
@@ -77,8 +103,8 @@ batch_monitor.create_batchpane = function(batch_id,batch_data){
         var titlediv = batchpane._('div',{background:'gray',color:'white',
                                         font_size:'9px',padding:'2px',height:'8px'});
         titlediv._('div',{innerHTML:'^.title','float':'left'});
-        titlediv._('a',{innerHTML:'Stop','float':'right',
-                    visible:'^.cancellable',
+        titlediv._('div',{'float':'right',nodeId:'bm_top_right_'+batch_id})._('a',{innerHTML:'Stop',
+                                                visible:'^.cancellable',
                     href:'javascript:genro.dlg.ask("Stopping batch","Do you want really stop batch"+"'+batch_data.getItem('title')+'"+"?",null,{confirm:function(){genro.serverCall("btc.abort_batch",{"batch_id":"'+batch_id+'"})}})'});
         return batchpane._('div',{padding:'3px',datapath:'.thermo',nodeId:this.get_batch_thermo_node_id(batch_id)});
     }

@@ -8,7 +8,8 @@
 #
 from gnr.web.gnrwebpage_proxy.gnrbaseproxy import GnrBaseProxy
 from gnr.core.gnrbag import Bag
-from datetime import datetime             
+from datetime import datetime           
+import os  
 from gnr.core.gnrlang import timer_call,debug_call
 
 class GnrBatchStoppedException(Exception):
@@ -30,15 +31,42 @@ class GnrWebBatch(GnrBaseProxy):
     def result_doc_path(self):
         return self.page.userDocument('_batch_result','b_%s.xml' %self.batch_id)
         
+        
+    def run_batch(self,gnrbatch):
+        self.batch_create(batch_id='%s_%s' %(gnrbatch.batch_prefix,self.page.getUuid()),
+                            title=gnrbatch.batch_title,thermo_lines=gnrbatch.batch_thermo_lines,
+                            cancellable=gnrbatch.batch_cancellable,delay=gnrbatch.batch_delay,note=gnrbatch.batch_note)
+        try:
+            batch_result = gnrbatch.run()
+        except self.exception_stopped:
+            self.batch_aborted()
+        url = None
+        result = 'Execution completed'
+        result_attr = dict()
+        if isinstance(batch_result,basestring):
+            url = batch_result
+        else:
+            url = batch_result['url']
+            result = batch_result['result']
+            result_attr = batch_result['attr'] 
+        if url:
+            result_attr['url'] = url
+            
+       #except Exception, e:
+       #    self.btc.batch_error(error=str(e))
+       
+        self.batch_complete(result=result,result_attr=result_attr)
+        
+        
     #@debug_call
     def batch_create(self,batch_id=None,title=None,thermo_lines=None,note=None,cancellable=True,delay=1):
         self.batch_id = batch_id or self.page.getUuid()
         self.title = title
         self.thermo_lines = thermo_lines
         if isinstance(thermo_lines,basestring):
-            self.last_line = thermo_lines.split(',')[-1]
+            self.line_codes =  thermo_lines.split(',')
         else:
-            self.last_line = thermo_lines[-1]['code']
+            self.line_codes = [line['code'] for line in thermo_lines]
         self.note = note
         self.start_ts=datetime.now()
         self.last_ts = self.start_ts
@@ -70,15 +98,24 @@ class GnrWebBatch(GnrBaseProxy):
     def batch_aborted(self):
         with self.page.userStore() as store:
             store.drop_datachanges(self.batch_path)
-            store.set_datachange(self.batch_path,delete=True,reason='btc_aborted')
-            
+            store.set_datachange(self.batch_path,None,reason='btc_aborted')
+    
+    def rpc_remove_batch(self,batch_id):
+        self.batch_id = batch_id
+        with self.page.userStore() as store:
+            store.drop_datachanges(self.batch_path)
+            store.set_datachange(self.batch_path,None,reason='btc_removed')
+        self._result_remove()
+                    
     def rpc_abort_batch(self,batch_id):
         self.batch_id = batch_id
         with self.page.userStore() as store:
             store.setItem('%s.stopped' %self.batch_path,True)
         
         
-        
+    def _result_remove(self):
+        os.remove(self.result_doc_path)    
+    
     def _result_write(self,result=None,result_attr=None,error=None,error_attr=None):
         result_doc = Bag()
         result_doc['title'] = self.title
@@ -111,8 +148,10 @@ class GnrWebBatch(GnrBaseProxy):
         
     #@debug_call
     def thermo_line_update(self,line,progress=None,message=None,maximum=None):
+        if isinstance(line,int):
+            line = self.line_codes[line]
         curr_time = datetime.now()
-        if line==self.last_line and ((datetime.now()-self.last_ts).seconds<self.delay):
+        if line==self.line_codes[-1] and ((datetime.now()-self.last_ts).seconds<self.delay):
             return
         print message
         self.last_ts = curr_time
