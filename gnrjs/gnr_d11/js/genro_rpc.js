@@ -103,6 +103,22 @@ dojo.declare("gnr.GnrRpcHandler",null,{
     constructor: function(application){
         this.application=application;
         this.counter=0;
+        this.rpc_register={};
+        this.rpc_counter=0;
+        this.rpc_level=0;
+        
+    },
+    register_call:function(kw){
+        this.rpc_counter=this.rpc_counter+1
+        this.rpc_level=this.rpc_level+1
+        kw['__rpc_counter']=this.rpc_counter
+        this.rpc_register['r_'+this.rpc_counter]=kw
+        console.log('rpc level:'+this.rpc_level)
+    },
+    unregister_call:function(ioArgs){
+        this.rpc_level=this.rpc_level-1
+        var rpc_counter=ioArgs.args['__rpc_counter']
+        delete this.rpc_register['r_'+rpc_counter]
     },
     /* callbackArgs 
               args: Object 
@@ -191,6 +207,7 @@ dojo.declare("gnr.GnrRpcHandler",null,{
         content.page_id = this.application.page_id;
         var kw = objectUpdate({},xhrKwargs);
         kw.url = kw.url || this.pageIndexUrl();
+        
         if (this.application.debugopt){
             content.debugopt=this.application.debugopt;
             content.callcounter=this.application.getCounter();
@@ -198,6 +215,7 @@ dojo.declare("gnr.GnrRpcHandler",null,{
         kw.content=content;
          //kw.preventCache = kw.preventCache - just to remember that we can have it
         kw.handleAs = kw.handleAs || 'xml';
+        this.register_call(kw)
         var xhrResult;
         genro.lastRpc = new Date();
         if (genro.debugRpc) {
@@ -348,6 +366,7 @@ dojo.declare("gnr.GnrRpcHandler",null,{
         };
     },
     resultHandler: function(response, ioArgs, currentAttr){
+        this.unregister_call(ioArgs);
         var envelope = new gnr.GnrBag();
         try{
             envelope.fromXmlDoc(response, genro.clsdict);

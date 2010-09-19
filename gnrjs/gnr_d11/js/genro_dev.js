@@ -125,7 +125,11 @@ dojo.declare("gnr.GnrDevHandler",null,{
         dojo.publish("standardDebugger",{message: msg, type:level.toUpperCase(), duration:duration});
     },
     handleRpcHttpError:function(response, ioArgs){
-        var status = ioArgs.xhr.status;
+        var xhr=ioArgs.xhr
+        var status = xhr.status;
+        var statusText = xhr.statusText;
+        var readyState = xhr.readyState;
+        var responseText = xhr.responseText;
         if (status==400) {
             genro.dlg.alert('Client HTTP error');
             genro.pageReload()
@@ -136,8 +140,13 @@ dojo.declare("gnr.GnrDevHandler",null,{
             genro.pageReload()
             return
         }else if(status==0){
-            genro.dlg.alert('Site temporary un available. Retry later');
-            return
+            //genro.dlg.alert('Site temporary un available. Retry later');
+             
+             var msg='status: '+ xhr.status+' - statusText:'+xhr.statusText+' - readyState:'+xhr.readyState+' - responseText:'+responseText
+             console.log(ioArgs.url)
+             console.log(msg)
+             console.log (ioArgs)
+            
         }
         else
         {
