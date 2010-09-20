@@ -113,6 +113,7 @@ Here we describe the formbuilder's field attributes:
 	.. _here:
     
 	**dbtable: an explanation of the attribute**
+	
 	The "dbtable" attribute is used to give a different path for database table in the queries of field form widget. If you don't specify it, Genro will put the value of maintable as dbtable value. Let's see two examples on "maintable", and two examples on "dbtable"::
 	
 		EXAMPLE 1:
