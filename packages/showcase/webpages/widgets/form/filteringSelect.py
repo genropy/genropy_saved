@@ -67,7 +67,8 @@ class GnrCustomWebPage(object):
 
     	            def main(self,root,**kwargs):
     	                pane.filteringSelect(value='^sports',
-    	                                 values='SC:Soccer,BK:Basket,HK:Hockey,TE:Tennis,BB:Baseball,SB:Snowboard')
+    	                                     values='SC:Soccer,BK:Basket,HK:Hockey,
+    	                                     TE:Tennis,BB:Baseball,SB:Snowboard')
 
     	Pay attention not to confuse the "value" attribute with the "values" attribute: "value" is used to allocate user data in a well determined datapath, while "values" is used to fill the filteringSelect.
 
