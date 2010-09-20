@@ -42,6 +42,18 @@ In formbuilder you can put dom and widget elements; its most classic usage is to
 	+--------------------+-------------------------------------------------+--------------------------+
 	| ``fld_width``      | Set field width                                 |  ``7em``                 |
 	+--------------------+-------------------------------------------------+--------------------------+
+	| ``lblclass``       | Set label style                                 |  ``gnrfieldlabel``       |
+	+--------------------+-------------------------------------------------+--------------------------+
+	| ``lblpos``         | Set label position                                                         |
+	|                    |                                                                            |
+	|                    | ``L`` : set label on the left side of textbox                              |
+	|                    |                                                                            |
+	|                    | ``T`` : set label on top of textbox                                        |
+	+--------------------+----------------------------------------------------------------------------+
+	| ``lblalign``       | Set label alignment                                                        |
+	|                    |                                                                            |
+	|                    | SEMBRA NON FUNZIONARE ???                                                  |
+	+--------------------+----------------------------------------------------------------------------+
 	| ``pos``            | Choose element position                         |  The first free position |
 	|                    |                                                 |                          |
 	|                    | Sintax: pos(NUMBER,NUMBER)                      |                          |
@@ -57,18 +69,6 @@ In formbuilder you can put dom and widget elements; its most classic usage is to
 	|                    |                                                 |                          |
 	|                    |         \* to refer itself at the current row   |                          |
 	+--------------------+-------------------------------------------------+--------------------------+
-	| ``lblclass``       | Set label style                                 |  ``gnrfieldlabel``       |
-	+--------------------+-------------------------------------------------+--------------------------+
-	| ``lblpos``         | Set label position                                                         |
-	|                    |                                                                            |
-	|                    | ``L`` : set label on the left side of textbox                              |
-	|                    |                                                                            |
-	|                    | ``T`` : set label on top of textbox                                        |
-	+--------------------+----------------------------------------------------------------------------+
-	| ``lblalign``       | Set label alignment                                                        |
-	|                    |                                                                            |
-	|                    | SEMBRA NON FUNZIONARE ???                                                  |
-	+--------------------+----------------------------------------------------------------------------+
 	
 	Example::
 	
