@@ -36,9 +36,9 @@ fields and their positioning:
 	+--------------------+----------------------------------------------------------+-------------------------------------+
 	| ``fld_width``      | Set field width                                          |  ``7em``                            |
 	+--------------------+----------------------------------------------------------+-------------------------------------+
-	| ``pos``            | Choose element position                                  |  ``The element is positioned into   |
+	| ``pos``            | Choose element position                                  |  The first free position            |
 	|                    |                                                          |                                     |
-	|                    | Sintax: pos(NUMBER,NUMBER)                               |    the first free position ``       |
+	|                    | Sintax: pos(NUMBER,NUMBER)                               |                                     |
 	|                    |     whereas the first value represents a row, the second |                                     |
 	|                    |     value represents a column.                           |                                     |
 	|                    |                                                          |                                     |
