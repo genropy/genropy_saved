@@ -11,15 +11,28 @@ class GnrCustomWebPage(object):
     # dojo_theme='claro'    # !! Uncomment this row for Dojo_1.5 usage
     
     """
-    ================
-     Dropdownbutton
-    ================
-    
-    .. currentmodule:: widgets
+    =================
+     dropdownbuttons
+    =================
 
-    .. class:: dropdown buttons -  Genropy dropdown buttons
-    
-    ???TO DO!!!!
+    .. currentmodule:: form
+
+    .. class:: dropdownbuttons -  Genropy dropdownbuttons
+
+    **Definition**: same definition of Dojo dropdownbuttons (version 1.4). To show it, click here_.
+
+    .. _here: http://docs.dojocampus.org/dijit/form/DropDownButton
+
+
+    .. method:: dropdownbutton(label)
+
+    	Constructs a button that opens a ``menu`` or a ``tooltipdialog``.
+
+    		Example::
+
+    			def ddButtonPane(self, cp):
+    				dd = cp.dropdownbutton('test')
+    				dd.tooltipdialog().div('Hello, world!')
     """
         
         #   - Other forms and attributes:
@@ -36,7 +49,7 @@ class GnrCustomWebPage(object):
         #       numberTextbox   --> textbox.py
         #       textbox         --> textbox.py
         #       value           --> datapath.py
-
+        
     def test_1_dropdownbutton(self,pane):
         """Dropdown button"""
         pane.div(""" Here we show you an example of dropdown button, using also "action" attribute
