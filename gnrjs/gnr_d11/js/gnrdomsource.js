@@ -616,6 +616,9 @@ dojo.declare("gnr.GnrDomSourceNode",gnr.GnrBagNode,{
         }
     },
     _doBuildNode: function(tag, attributes, destination, ind){
+        //if (('nodeId' in attributes) && !('id' in attributes)){
+        //    attributes.id = attributes.nodeId;
+        //}
         var bld_attrs = objectExtract(attributes,'onCreating,onCreated,gnrId,tooltip,nodeId');
         var connections = objectExtract(attributes,'connect_*');
         if (objectPop(attributes,'autofocus')){
