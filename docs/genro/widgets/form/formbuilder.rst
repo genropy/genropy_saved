@@ -119,8 +119,8 @@ Here we describe the formbuilder's field attributes:
 		
 		class GnrCustomWebPage(object):
 		    maintable='packageName.fileName'	/* This is the line for maintable definition, whereas "packageName"
-                                                           is the name of the package, while "fileName" is the name of the model
-                                                           file, where lies the database.*/
+		                                           is the name of the package, while "fileName" is the name of the model
+		                                           file, where lies the database.*/
 		
 			def main(self,root,**kwargs):
 				fb = root.formbuilder(cols=2)
@@ -148,19 +148,19 @@ Here we describe the formbuilder's field attributes:
 			def main(self,root,**kwargs):
 				fb = root.formbuilder(cols=2)
 				fb.field('attribute',dbtable='packageName.fileName') /*This line will work, even if you haven't
-                                                                                       specify the maintable!*/
-																	
+				                                                       specify the maintable!*/
 		EXAMPLE 4:
 		class GnrCustomWebPage(object):
 			maintable='shop_management.storage' /*Like before, "shop_management" is the package name, while
-                                                             "storage" is the file name where lies database.*/
+			                                      "storage" is the file name where lies database.*/
 			
 			def main(self,root,**kwargs):
 				fb = root.formbuilder(cols=2)
 				fb.field('name') /*This field will get "name" attribute from the "shop_management" package,
-				in the file named "storage".*/
+				                   in the file named "storage".*/
 				fb.field('name',dbtable='sell_package.employees') /*This field will get "name" attribute from the
-				"sell_package" package, in the file named "employees".*/
+				                                                    "sell_package" package, in the file
+				                                                    named "employees".*/
 		
 	For further details on "dbtable" attribute, see #NISO METTERE IL LINK AL FILE DI DOCUMENTAZIONE SUL FIELD!!
 		
