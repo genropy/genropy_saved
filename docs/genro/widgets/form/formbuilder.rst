@@ -23,7 +23,7 @@ To let you see how Genro code is simpler and more compact, we report here a comp
 	fb = root.formbuilder()
 	fb.textbox(value='^name',lbl='Name')
 	
-	Definition::
+Definition::
 	
 		def formbuilder(self, cols=1, dbtable=None, tblclass='formbuilder',
 	                    lblclass='gnrfieldlabel', lblpos='L', _class='', fieldclass='gnrfield',
