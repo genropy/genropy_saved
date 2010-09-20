@@ -18,6 +18,10 @@ class GnrCustomWebPage(object):
     .. currentmodule:: form
 
     .. class:: Sliders -  Genropy sliders
+    
+    **Definition**: for definition, click here_.
+    
+    .. _here: http://docs.dojocampus.org/dijit/form/Slider
 
     	Here we introduce the sliders, form widgets inherit from Dojo. It is a scale with a handle you can drag left/right for horizontal slider (or up/down for vertical one) to select a value.
 
@@ -35,6 +39,8 @@ class GnrCustomWebPage(object):
     	+-------------------------+---------------------------------------------------------+-------------+
 
     	It is strongly advised to use "width" attribute for horizontal slider and "height" attribute for vertical slider.
+    	
+    	#NISO: ho visto che per Dojo 1.1 c'è un attributo chiamato showButtons che sembra non funzionare... (e tra l'altro c'è anche in Dojo 1.5...) la domanda è: "ci sono degli attributi che non avete riportato da Dojo, o è un errore?"
 
     		Example::
 
