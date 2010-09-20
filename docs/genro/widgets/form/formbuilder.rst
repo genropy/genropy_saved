@@ -12,11 +12,11 @@ To let you see how Genro code is simpler and more compact, we report here a comp
 
     HTML code:
 	<table>
-		<tr>
-			<td>
-				<input type='text' value='name'/>
-			</td>
-		</tr>
+	    <tr>
+	        <td>
+	            <input type='text' value='name'/>
+	        </td>
+	    </tr>
 	</table>
     
     Genro code:
