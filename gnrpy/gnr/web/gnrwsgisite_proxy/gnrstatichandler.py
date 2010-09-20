@@ -149,7 +149,7 @@ class ConnectionStaticHandler(StaticHandler):
 
 class UserStaticHandler(StaticHandler):
     prefix='user'
-    def path(self,user,page_id,*args):
+    def path(self,user,*args):
         return os.path.join(self.site.site_path,'data','_users', user, *args)
         
     def url(self, page,*args):

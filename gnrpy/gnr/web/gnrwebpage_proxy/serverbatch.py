@@ -36,9 +36,11 @@ class GnrWebBatch(GnrBaseProxy):
         self.batch_create(batch_id='%s_%s' %(gnrbatch.batch_prefix,self.page.getUuid()),
                             title=gnrbatch.batch_title,thermo_lines=gnrbatch.batch_thermo_lines,
                             cancellable=gnrbatch.batch_cancellable,delay=gnrbatch.batch_delay,note=gnrbatch.batch_note)
-        try:
+        #try:
+        if True:
             batch_result = gnrbatch.run()
-        except self.exception_stopped:
+        #except self.exception_stopped:
+        else:
             self.batch_aborted()
         url = None
         result = 'Execution completed'
@@ -58,7 +60,7 @@ class GnrWebBatch(GnrBaseProxy):
         self.batch_complete(result=result,result_attr=result_attr)
         
         
-    #@debug_call
+    @debug_call
     def batch_create(self,batch_id=None,title=None,thermo_lines=None,note=None,cancellable=True,delay=1):
         self.batch_id = batch_id or self.page.getUuid()
         self.title = title
