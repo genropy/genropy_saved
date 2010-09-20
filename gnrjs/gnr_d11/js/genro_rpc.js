@@ -109,16 +109,16 @@ dojo.declare("gnr.GnrRpcHandler",null,{
         
     },
     register_call:function(kw){
-        this.rpc_counter=this.rpc_counter+1
-        this.rpc_level=this.rpc_level+1
-        kw['__rpc_counter']=this.rpc_counter
-        this.rpc_register['r_'+this.rpc_counter]=kw
+        this.rpc_counter=this.rpc_counter+1;
+        this.rpc_level=this.rpc_level+1;
+        kw['__rpc_counter']=this.rpc_counter;
+        this.rpc_register['r_'+this.rpc_counter]=kw;
         //console.log('rpc level:'+this.rpc_level)
     },
     unregister_call:function(ioArgs){
-        this.rpc_level=this.rpc_level-1
-        var rpc_counter=ioArgs.args['__rpc_counter']
-        delete this.rpc_register['r_'+rpc_counter]
+        this.rpc_level=this.rpc_level-1;
+        var rpc_counter=ioArgs.args['__rpc_counter'];
+        delete this.rpc_register['r_'+rpc_counter];
     },
     /* callbackArgs 
               args: Object 
@@ -201,7 +201,7 @@ dojo.declare("gnr.GnrRpcHandler",null,{
         callKwargs = this.serializeParameters(this.dynamicParameters(callKwargs, sourceNode));
         callKwargs._lastUserEventTs= asTypedTxt(genro._lastUserEventTs,'DH');
         if (genro.auto_polling>0){
-            this._call_auto_polling()
+            this._call_auto_polling();
         }
         var content = objectUpdate({},callKwargs);
         content.page_id = this.application.page_id;
@@ -215,7 +215,7 @@ dojo.declare("gnr.GnrRpcHandler",null,{
         kw.content=content;
          //kw.preventCache = kw.preventCache - just to remember that we can have it
         kw.handleAs = kw.handleAs || 'xml';
-        this.register_call(kw)
+        this.register_call(kw);
         var xhrResult;
         genro.lastRpc = new Date();
         if (genro.debugRpc) {
@@ -244,14 +244,14 @@ dojo.declare("gnr.GnrRpcHandler",null,{
          return xhrResult;
     },
     _call_auto_polling:function(){
-        if (this._auto_pollig_handler){
-            clearTimeout(this._auto_pollig_handler)
+        if (this._auto_polling_handler){
+            clearTimeout(this._auto_polling_handler);
         }
-        this._auto_pollig_handler=setTimeout(function(){genro.rpc.ping({reason:'auto'})},genro.auto_polling*1000);
+        this._auto_polling_handler=setTimeout(function(){genro.rpc.ping({reason:'auto'});},genro.auto_polling*1000);
     },
     setPolling:function(auto_polling,user_polling){
-        genro.user_polling = user_polling || genro._('gnr.polling.user_pollig');
-        auto_polling = auto_polling || genro._('gnr.polling.auto_pollig');
+        genro.user_polling = user_polling || genro._('gnr.polling.user_polling');
+        auto_polling = auto_polling || genro._('gnr.polling.auto_polling');
         if (auto_polling!= genro.auto_polling) {
             genro.auto_polling = auto_polling;
             this._call_auto_polling();
