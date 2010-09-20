@@ -6,7 +6,7 @@
 
 .. class:: Sliders -  Genropy sliders
 
-**Definition**: same definition of Dojo slider (version 1.4). To show it, click here_.
+**Definition**: same definition of Dojo sliders (version 1.4). To show it, click here_.
 
 .. _here: http://docs.dojocampus.org/dijit/form/Slider
 
