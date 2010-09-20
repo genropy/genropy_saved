@@ -126,7 +126,7 @@ Here we describe the formbuilder's field attributes:
 				fb = root.formbuilder(cols=2)
 				
 				/*for specifing "maintable", you can write one of the following two lines,
-				           because they have the same meaning*/
+				  because they have the same meaning*/
 				fb.field('packageName.fileName.attribute')
 				fb.field('attribute')
 				
