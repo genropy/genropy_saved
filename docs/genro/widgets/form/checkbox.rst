@@ -1,6 +1,6 @@
-================
- Checkboxbutton
-================
+==========
+ Checkbox
+==========
 
 .. currentmodule:: widgets
 
