@@ -23,10 +23,16 @@ To let you see how Genro code is simpler and more compact, we report here a comp
 	fb = root.formbuilder()
 	fb.textbox(value='^name',lbl='Name')
 	
-In formbuilder you can put dom and widget elements; its most classic usage is to create
-a form made by fields and layers, and that's because formbuilder can manage automatically
-fields and their positioning:
+	Definition::
 	
+		def formbuilder(self, cols=1, dbtable=None, tblclass='formbuilder',
+	                    lblclass='gnrfieldlabel', lblpos='L', _class='', fieldclass='gnrfield',
+	                    lblalign=None, lblvalign='middle',
+	                    fldalign=None, fldvalign='middle',disabled=False,
+	                    rowdatapath=None, head_rows=None, **kwargs):
+
+In formbuilder you can put dom and widget elements; its most classic usage is to create a form made by fields and layers, and that's because formbuilder can manage automatically fields and their positioning:
+
 	+--------------------+-------------------------------------------------+--------------------------+
 	|   Attribute        |          Description                            |   Default                |
 	+====================+=================================================+==========================+
@@ -54,14 +60,17 @@ fields and their positioning:
 	
 Here we describe the formbuilder's field attributes:
 	
-	+----------------+------------------------------------+-------------+
-	|   Attribute    |          Description               |   Default   |
+	+----------------+-------------------------------------------------+
+	|   Attribute    |       Values and description                    |
 	+================+====================================+=============+
 	| ``lbl``        | Set field label                    |  ``None``   |
 	+----------------+------------------------------------+-------------+
-	| ``lblclass``   | Set label style                    |  ``None``   |
+	| ``lblclass``   | Set label style                    |  ``BOH``    |
 	+----------------+------------------------------------+-------------+
-	| ``lblpos``     | Set label position                 |  ``Left``   |
+	| ``lblpos``     | Set label position                               |
+	|                |                                                  |
+	                   ``L`` (default):
+	                   ``T`` :
 	+----------------+------------------------------------+-------------+
 	| ``lblalign``   | Set label alignment                |  ``BOH``    |
 	+----------------+------------------------------------+-------------+
