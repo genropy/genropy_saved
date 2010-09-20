@@ -1,3 +1,7 @@
+=============
+ formbuilder
+=============
+
 .. currentmodule:: form
 
 .. class:: formbuilder -  Genropy formbuilder
@@ -7,14 +11,17 @@ With formbuilder you have an ordered place to put your HTML object; formbuilder 
 To let you see how Genro code is simpler and more compact, we report here a comparison between an HTML table and a Genro formbuilder::
 
     HTML code:
-    table = root.table()
-    row = table.tr()
-    row.td('Nome')
-    row.td().textbox(value='^nome')
+	<table>
+		<tr>
+			<td>
+				<input type='text' value='name'/>
+			</td>
+		</tr>
+	</table>
     
     Genro code:
     fb = root.formbuilder()
-    fb.textbox(value='^nome',lbl='Nome')
+    fb.textbox(value='^name',lbl='Name')
     
 In formbuilder you can put dom and widget elements; its most classic usage is to create
 a form made by fields and layers, and that's because formbuilder can manage automatically
