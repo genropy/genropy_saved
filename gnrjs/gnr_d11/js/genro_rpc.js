@@ -113,7 +113,7 @@ dojo.declare("gnr.GnrRpcHandler",null,{
         this.rpc_level=this.rpc_level+1
         kw['__rpc_counter']=this.rpc_counter
         this.rpc_register['r_'+this.rpc_counter]=kw
-        console.log('rpc level:'+this.rpc_level)
+        //console.log('rpc level:'+this.rpc_level)
     },
     unregister_call:function(ioArgs){
         this.rpc_level=this.rpc_level-1
@@ -329,7 +329,7 @@ dojo.declare("gnr.GnrRpcHandler",null,{
         genro.dev.handleRpcHttpError(response, ioArgs);
     },
     setDatachangesInData:function (datachanges){
-        console.log('apply datachanges');
+        //console.log('apply datachanges');
         var changenodes = datachanges.getNodes();
         for (var i=0;i<changenodes.length;i++){
             var changenode = changenodes[i];
