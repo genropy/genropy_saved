@@ -57,6 +57,22 @@ In formbuilder you can put dom and widget elements; its most classic usage is to
 	|                    |                                                 |                          |
 	|                    |         \* to refer itself at the current row   |                          |
 	+--------------------+-------------------------------------------------+--------------------------+
+	| ``lblclass``       | Set label style                                 |  ``gnrfieldlabel``       |
+	+--------------------+-------------------------------------------------+--------------------------+
+	| ``lblpos``         | Set label position                                                         |
+	|                    |                                                                            |
+	|                    | ``L`` : set label on the left side of textbox                              |
+	|                    |                                                                            |
+	|                    | ``T`` : set label on top of textbox                                        |
+	+--------------------+----------------------------------------------------------------------------+
+	| ``lblalign``       | Set label alignment                                                        |
+	|                    |                                                                            |
+	|                    | SEMBRA NON FUNZIONARE ???                                                  |
+	+--------------------+----------------------------------------------------------------------------+
+	
+	Example::
+	
+		pane.formbuilder(cols=2,border_spacing='10px',fld_width='100%')
 	
 Here we describe the formbuilder's field attributes:
 	
@@ -65,15 +81,9 @@ Here we describe the formbuilder's field attributes:
 	+================+========================================================+=============+
 	| ``lbl``        | Set field label                                        |  ``None``   |
 	+----------------+--------------------------------------------------------+-------------+
-	| ``lblclass``   | Set label style                                        |  ``???``    |
-	+----------------+--------------------------------------------------------+-------------+
-	| ``lblpos``     | Set label position                                                   |
-	|                |                                                                      |
-	|                | ``L`` : set label on the left side of textbox                        |
-	|                |                                                                      |
-	|                | ``T`` : set label on top of textbox                                  |
-	+----------------+----------------------------------------------------------------------+
-	| ``lblalign``   | Set label alignment                                                  |
-	|                | SEMBRA NON FUNZIONARE ???                                            |
-	+----------------+----------------------------------------------------------------------+
+	
+	Example::
+	
+		fb = pane.formbuilder(cols=2)
+		fb.textbox(value='^name',lbl='Name')
 	
