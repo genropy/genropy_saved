@@ -120,7 +120,7 @@ Here we describe the formbuilder's field attributes:
 		class GnrCustomWebPage(object):
 		    maintable='packageName.fileName'	/* This is the line for maintable definition, whereas "packageName"
                                                            is the name of the package, while "fileName" is the name of the model
-                                                   file, where lies the database.*/
+                                                           file, where lies the database.*/
 		
 			def main(self,root,**kwargs):
 				fb = root.formbuilder(cols=2)
