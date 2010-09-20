@@ -10,42 +10,58 @@ class GnrCustomWebPage(object):
     py_requires="gnrcomponents/testhandler:TestHandlerFull"
     # dojo_theme='claro'    # !! Uncomment this row for Dojo_1.5 usage
     
-    """ With formbuilder you have an ordered place to put your HTML object;
-    formbuilder is used in place of an HTML table.
-    To let you see how Genro code is simpler and more compact, we report here
-    a comparison between an HTML table and a Genro formbuilder.
+    """ With formbuilder you have an ordered place to put your HTML object; formbuilder is used in place of an HTML table.
     
-    HTML code:
-    table = root.table()
-    row = table.tr()
-    row.td('Nome')
-    row.td().textbox(value='^nome')
+    To let you see how Genro code is simpler and more compact, we report here a comparison between an HTML table and a Genro formbuilder::
     
-    Genro code:
-    fb = root.formbuilder()
-    fb.textbox(value='^nome',lbl='Nome')
-    
+        HTML code:
+        table = root.table()
+        row = table.tr()
+        row.td('Nome')
+        row.td().textbox(value='^nome')
+        
+        Genro code:
+        fb = root.formbuilder()
+        fb.textbox(value='^nome',lbl='Nome')
+        
     In formbuilder you can put dom and widget elements; its most classic usage is to create
     a form made by fields and layers, and that's because formbuilder can manage automatically
     fields and their positioning.
     
-    - formbuilder's attributes (and default values)
-        border_spacing (6px)
-        cols: set columns number (1)
-        fld_width: set field width (7em)
-        pos: choose element position;       Sintax: pos(number,number)
-                                                whereas the first value represents a row, the second
-                                                value represents a column.
-                                            Default: the element is positioned into the first free position.
-                                            Other feature: pos can accept as a number row two special characters:
-                                            + to refer itself at the following row
-                                            * to refer itself at the current row
+        +--------------------+----------------------------------------------------------+-----------------------------------+
+		|   Attribute        |          Description                                     |   Default                         |
+		+====================+==========================================================+===================================+
+		| ``border_spacing`` | If True, user can write in filteringSelect ignoring case |  ``True``                         |
+		+--------------------+----------------------------------------------------------+-----------------------------------+
+		| ``cols``           | Set columns number                                       |  ``1``                            |
+		+--------------------+----------------------------------------------------------+-----------------------------------+
+		| ``fld_width``      | Set field width                                          |  ``7em``                          |
+    	+--------------------+----------------------------------------------------------+-----------------------------------+
+        | ``pos``            | Choose element position                                  |  ``The element is positioned into |
+        |                    |                                                          |  the first free position ``       |
+        |                    | Sintax: pos(NUMBER,NUMBER)                               |                                   |
+        |                    |     whereas the first value represents a row, the second |                                   |
+        |                    |     value represents a column.                           |                                   |
+        |                    |     Other feature: "pos" accepts as a number row two     |                                   |
+        |                    |         special characters:                              |                                   |
+        |                    |         + to refer itself at the following row           |                                   |
+        |                    |         * to refer itself at the current row             |                                   |
+        +--------------------+----------------------------------------------------------+-----------------------------------+
         
-    - formbuilder's fields attributes:
-        lbl: set label.
-        lblclass: set label style.
-        lblpos: set label position.
-        lblalign: set label alignment. """
+    Here we describe the formbuilder's field attributes:
+        +--------------+---------------------+------------+
+		|   Attribute  |  Description        |   Default  |
+		+==============+=====================+============+
+		| ``lbl``      | Set field label     |  ``None``  |
+		+--------------+----------------------------------+
+		| ``lblclass`` | Set label style     |  ``None``  |
+		+--------------+----------------------------------+
+        | ``lblpos``   | Set label position  |  ``Left``  |
+		+--------------+----------------------------------+
+        | ``lblalign`` | Set label alignment |  ``????``  |
+		+--------------+---------------------+------------+
+        
+    """
     
     #   - Other forms and attributes:
     #       In this section we report forms/attributes that have been used in this example
