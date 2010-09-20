@@ -36,23 +36,30 @@ In formbuilder you can put dom and widget elements; its most classic usage is to
 	+--------------------+-------------------------------------------------+--------------------------+
 	|   Attribute        |          Description                            |   Default                |
 	+====================+=================================================+==========================+
+	| ``_class=''``      | ???                                             |  ``6px``                 |
+	+--------------------+-------------------------------------------------+--------------------------+
 	| ``border_spacing`` | CSS attribute, space between rows               |  ``6px``                 |
 	+--------------------+-------------------------------------------------+--------------------------+
 	| ``cols``           | Set columns number                              |  ``1``                   |
 	+--------------------+-------------------------------------------------+--------------------------+
+	| ``db_table``       | #NISO ???                                       |  ``None``                |
+	+--------------------+-------------------------------------------------+--------------------------+
 	| ``fld_width``      | Set field width                                 |  ``7em``                 |
 	+--------------------+-------------------------------------------------+--------------------------+
-	| ``lblclass``       | Set label style                                 |  ``gnrfieldlabel``       |
+	| ``head_rows``      | #NISO ???                                       |  ``None``                |
 	+--------------------+-------------------------------------------------+--------------------------+
-	| ``lblpos``         | Set label position                                                         |
-	|                    |                                                                            |
-	|                    | ``L`` : set label on the left side of textbox                              |
-	|                    |                                                                            |
-	|                    | ``T`` : set label on top of textbox                                        |
+	| ``lblclass``       | Set label style                                 |  ``gnrfieldlabel``       |
+	|                    | #NISO Altre opzioni?                            |                          |
+	+--------------------+-------------------------------------------------+--------------------------+
+	| ``lblpos``         | Set label position                              |  ``L``                   |
+	|                    |                                                 |                          |
+	|                    | ``L`` : set label on the left side of textbox   |                          |
+	|                    |                                                 |                          |
+	|                    | ``T`` : set label on top of textbox             |                          |
 	+--------------------+----------------------------------------------------------------------------+
 	| ``lblalign``       | Set label alignment                                                        |
 	|                    |                                                                            |
-	|                    | SEMBRA NON FUNZIONARE ???                                                  |
+	|                    | #NISO Sembra non funzionare                                                |
 	+--------------------+-------------------------------------------------+--------------------------+
 	| ``pos``            | Choose element position                         |  The first free position |
 	|                    |                                                 |                          |
@@ -67,6 +74,15 @@ In formbuilder you can put dom and widget elements; its most classic usage is to
 	|                    |                                                 |                          |
 	|                    |         \* to refer itself at the current row   |                          |
 	+--------------------+-------------------------------------------------+--------------------------+
+	| ``rowdatapath``    | #NISO ???                                       |  ``None``                |
+	+--------------------+-------------------------------------------------+--------------------------+
+	| ``tblclass``       | #NISO ???                                       |  ``formbuilder``         |
+	+--------------------+-------------------------------------------------+--------------------------+
+	
+                      fieldclass='gnrfield',
+                    lblalign=None, lblvalign='middle',
+                    fldalign=None, fldvalign='middle', disabled=False,
+                    rowdatapath=None, head_rows=None, **kwargs
 	
 	Example::
 	
