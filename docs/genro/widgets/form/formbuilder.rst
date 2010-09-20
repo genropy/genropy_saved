@@ -159,8 +159,8 @@ Here we describe the formbuilder's field attributes:
 				fb = root.formbuilder(cols=2)
 				fb.field('name') /*This field will get "name" attribute from the "shop_management" package,
 				                   in the file named "storage".*/
-				fb.field('name',dbtable='sell_package.employees') /*This field will get "name" attribute from the
-				                                                    "sell_package" package, in the file
+				fb.field('name',dbtable='sell_package.employees') /*This field will get "name" attribute from
+				                                                    the "sell_package" package, in the file
 				                                                    named "employees".*/
 		
 	For further details on "dbtable" attribute, see #NISO METTERE IL LINK AL FILE DI DOCUMENTAZIONE SUL FIELD!!
