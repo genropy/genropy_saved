@@ -18,6 +18,10 @@ class GnrCustomWebPage(object):
     .. currentmodule:: widgets
 
     .. class:: Buttons -  Genropy buttons
+    
+    **Definition**: same definition of Dojo buttons (version 1.4). To show it, click here_.
+    
+    .. _here: http://docs.dojocampus.org/dijit/form/Button
 
     	This is not a real class, but only one way to combine the methods of the struct that implements interface **buttons**
 
@@ -52,7 +56,8 @@ class GnrCustomWebPage(object):
 
     			def ddButtonPane(self, cp):
     				dd = cp.dropdownbutton('test')
-    				dd.tooltipdialog().div('Hello, world!')"""
+    				dd.tooltipdialog().div('Hello, world!')
+    """
         
         #   - Other forms and attributes:
         #       In this section we report forms/attributes that have been used in this example
@@ -61,10 +66,8 @@ class GnrCustomWebPage(object):
         #       some documentation about them.
         #
         #       ## name ##      --> ## file ##
-        #       checkbox        --> togglebutton.py
         #       datapath        --> datapath.py
         #       formbuilder     --> formbuilder.py
-        #       FIRE            --> macro.py
         #       menu            --> menu.py
         #       menuline        --> menu.py
         #       numberTextbox   --> textbox.py
@@ -103,29 +106,4 @@ class GnrCustomWebPage(object):
         pane.button('Click me',iconClass='^icon',width='^widthButton',color='^color',
                     font_size='^fontSize',font_family='^fontType',action="alert('Clicked!')")
                     
-    def test_4_checkbox(self,pane):
-        """Checkbox button"""
-        pane.div(""" Here we show you an example of checkbox button.""",
-                font_size='.9em',text_align='justify')
-        labels = 'First,Second,Third'
-        labels=labels.split(',')
-        pane=pane.formbuilder()
-        for label in labels:
-            pane.checkbox(value='^cb_%s'%label, label=label)
-            
-    def test_5_dropdownbutton(self,pane):
-        """Dropdown button"""
-        pane.div(""" Here we show you an example of dropdown button, using also "action" attribute
-                (for further details, check "menu.py").""",
-                font_size='.9em',text_align='justify')
-        ddb=pane.dropdownbutton('Menù')
-        dmenu=ddb.menu()
-        dmenu.menuline('Open...', action="FIRE msg='Opening!';")
-        dmenu.menuline('Close', action="FIRE msg='Closing!';")
-        dmenu.menuline('-')
-        submenu=dmenu.menuline('I have submenues').menu()
-        submenu.menuline('To do this', action="alert('Doing this...')")
-        submenu.menuline('Or to do that', action="alert('Doing that...')")
-        dmenu.menuline('-')
-        dmenu.menuline('Quit',action="alert('Quitting...')")
                     
