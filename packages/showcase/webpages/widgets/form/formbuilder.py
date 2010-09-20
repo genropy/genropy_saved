@@ -10,57 +10,117 @@ class GnrCustomWebPage(object):
     py_requires="gnrcomponents/testhandler:TestHandlerFull"
     # dojo_theme='claro'    # !! Uncomment this row for Dojo_1.5 usage
     
-    """ With formbuilder you have an ordered place to put your HTML object; formbuilder is used in place of an HTML table.
-    
+    """ 
+    =============
+     formbuilder
+    =============
+
+    .. currentmodule:: form
+
+    .. class:: formbuilder -  Genropy formbuilder
+
+    **Definition**::
+
+    		def formbuilder(self, cols=1, dbtable=None, tblclass='formbuilder',
+    	                    lblclass='gnrfieldlabel', lblpos='L', _class='', fieldclass='gnrfield',
+    	                    lblalign=None, lblvalign='middle',
+    	                    fldalign=None, fldvalign='middle', disabled=False,
+    	                    rowdatapath=None, head_rows=None, **kwargs):
+
+    With formbuilder you have an ordered place to put your HTML object; formbuilder is used in place of an HTML table.
+
     To let you see how Genro code is simpler and more compact, we report here a comparison between an HTML table and a Genro formbuilder::
-    
-        HTML code:
-        table = root.table()
-        row = table.tr()
-        row.td('Nome')
-        row.td().textbox(value='^nome')
-        
-        Genro code:
-        fb = root.formbuilder()
-        fb.textbox(value='^nome',lbl='Nome')
-        
-    In formbuilder you can put dom and widget elements; its most classic usage is to create
-    a form made by fields and layers, and that's because formbuilder can manage automatically
-    fields and their positioning.
-    
-        +--------------------+----------------------------------------------------------+-----------------------------------+
-		|   Attribute        |          Description                                     |   Default                         |
-		+====================+==========================================================+===================================+
-		| ``border_spacing`` | If True, user can write in filteringSelect ignoring case |  ``True``                         |
-		+--------------------+----------------------------------------------------------+-----------------------------------+
-		| ``cols``           | Set columns number                                       |  ``1``                            |
-		+--------------------+----------------------------------------------------------+-----------------------------------+
-		| ``fld_width``      | Set field width                                          |  ``7em``                          |
-    	+--------------------+----------------------------------------------------------+-----------------------------------+
-        | ``pos``            | Choose element position                                  |  ``The element is positioned into |
-        |                    |                                                          |  the first free position ``       |
-        |                    | Sintax: pos(NUMBER,NUMBER)                               |                                   |
-        |                    |     whereas the first value represents a row, the second |                                   |
-        |                    |     value represents a column.                           |                                   |
-        |                    |     Other feature: "pos" accepts as a number row two     |                                   |
-        |                    |         special characters:                              |                                   |
-        |                    |         + to refer itself at the following row           |                                   |
-        |                    |         * to refer itself at the current row             |                                   |
-        +--------------------+----------------------------------------------------------+-----------------------------------+
-        
+
+    	HTML code:
+    	<table>
+    	    <tr>
+    	        <td>
+    	            <input type='text' value='name'/>
+    	        </td>
+    	    </tr>
+    	</table>
+
+    	Genro code:
+    	fb = root.formbuilder()
+    	fb.textbox(value='^name',lbl='Name')
+
+    In formbuilder you can put dom and widget elements; its most classic usage is to create a form made by fields and layers, and that's because formbuilder can manage automatically fields and their positioning:
+
+    	+--------------------+-------------------------------------------------+--------------------------+
+    	|   Attribute        |          Description                            |   Default                |
+    	+====================+=================================================+==========================+
+    	| ``_class``         | For CSS style                                   |  `` ``                   |
+    	+--------------------+-------------------------------------------------+--------------------------+
+    	| ``border_spacing`` | CSS attribute, space between rows               |  ``6px``                 |
+    	+--------------------+-------------------------------------------------+--------------------------+
+    	| ``cols``           | Set columns number                              |  ``1``                   |
+    	+--------------------+-------------------------------------------------+--------------------------+
+    	| ``db_table``       | #NISO ???                                       |  ``None``                |
+    	+--------------------+-------------------------------------------------+--------------------------+
+    	| ``disabled``       | #NISO ???                                       |  ``False``               |
+    	+--------------------+-------------------------------------------------+--------------------------+
+    	| ``fieldclass``     | #NISO ??? Altri attributi!                      |  ``gnrfield``            |
+    	+--------------------+-------------------------------------------------+--------------------------+
+    	| ``fld_width``      | Set field width                                 |  ``7em``                 |
+    	+--------------------+-------------------------------------------------+--------------------------+
+    	| ``fldalign``       | Set field horizontal align                      |  ``None``                |
+    	+--------------------+-------------------------------------------------+--------------------------+
+    	| ``fldvalign``      | Set field vertical align                        |  ``middle``              |
+    	+--------------------+-------------------------------------------------+--------------------------+
+    	| ``head_rows``      | #NISO ???                                       |  ``None``                |
+    	+--------------------+-------------------------------------------------+--------------------------+
+    	| ``lblalign``       | Set horizontal label alignment                                             |
+    	|                    |                                                                            |
+    	|                    | #NISO Sembra non funzionare                                                |
+    	+--------------------+-------------------------------------------------+--------------------------+
+    	| ``lblclass``       | Set label style                                 |  ``gnrfieldlabel``       |
+    	|                    | #NISO Inserire possibili valori!                |                          |
+    	+--------------------+-------------------------------------------------+--------------------------+
+    	| ``lblpos``         | Set label position                              |  ``L``                   |
+    	|                    |                                                 |                          |
+    	|                    | ``L``: set label on the left side of text field |                          |
+    	|                    |                                                 |                          |
+    	|                    | ``T``: set label on top of text field           |                          |
+    	+--------------------+-------------------------------------------------+--------------------------+
+    	| ``lblvalign``      | Set vertical label alignment                    |  ``middle``              |
+    	|                    | #NISO Inserire possibili valori                 |                          |
+    	+--------------------+-------------------------------------------------+--------------------------+
+    	| ``pos``            | Choose element position                         |  The first free position |
+    	|                    |                                                 |                          |
+    	|                    | Sintax: pos(NUMBER,NUMBER)                      |                          |
+    	|                    |     whereas the first value represents a row,   |                          |
+    	|                    |     the second value represents a column.       |                          |
+    	|                    |                                                 |                          |
+    	|                    | Other feature: "pos" accepts as a number row    |                          |
+    	|                    | two special characters:                         |                          |
+    	|                    |                                                 |                          |
+    	|                    |         \+ to refer itself at the following row |                          |
+    	|                    |                                                 |                          |
+    	|                    |         \* to refer itself at the current row   |                          |
+    	+--------------------+-------------------------------------------------+--------------------------+
+    	| ``rowdatapath``    | #NISO ???                                       |  ``None``                |
+    	+--------------------+-------------------------------------------------+--------------------------+
+    	| ``tblclass``       | The standard class for formbuilder.             |  ``formbuilder``         |
+    	|                    |                                                 |                          |
+    	|                    | Actually it is the unique defined class         |                          |
+    	+--------------------+-------------------------------------------------+--------------------------+
+
+    	Example::
+
+    		pane.formbuilder(cols=2,border_spacing='10px',fld_width='100%')
+
     Here we describe the formbuilder's field attributes:
-        +--------------+---------------------+------------+
-		|   Attribute  |  Description        |   Default  |
-		+==============+=====================+============+
-		| ``lbl``      | Set field label     |  ``None``  |
-		+--------------+----------------------------------+
-		| ``lblclass`` | Set label style     |  ``None``  |
-		+--------------+----------------------------------+
-        | ``lblpos``   | Set label position  |  ``Left``  |
-		+--------------+----------------------------------+
-        | ``lblalign`` | Set label alignment |  ``????``  |
-		+--------------+---------------------+------------+
-        
+
+    	+----------------+--------------------------------------------------------+-------------+
+    	|   Attribute    |       Values and description                           |   default   |
+    	+================+========================================================+=============+
+    	| ``lbl``        | Set field label                                        |  ``None``   |
+    	+----------------+--------------------------------------------------------+-------------+
+
+    	Example::
+
+    		fb = pane.formbuilder(cols=2)
+    		fb.textbox(value='^name',lbl='Name')
     """
     
     #   - Other forms and attributes:
@@ -133,4 +193,35 @@ class GnrCustomWebPage(object):
         fb.textbox(value='^.job.profession',lbl='Job')
         fb.textbox(value='^.job.company_name',lbl='Company name')
         fb.textbox(value='^.job.fiscal_code',lbl='Fiscal code')
+        
+    def test_4_pos_align(self,pane):
+        """lblpos and lblalign"""
+        pane.div('lblpos = \'L\' ')
+        fb = pane.formbuilder(cols=2,lblpos='L')
+        fb.textbox(value='^top',lbl='left')
+        fb.textbox(value='^top2',lbl='left')
+        fb.textbox(value='^top3',lbl='left')
+        fb.textbox(value='^top4',lbl='left')
+        
+        pane.div('lblpos = \'T\' ')
+        fb = pane.formbuilder(cols=2,lblpos='T')
+        fb.textbox(value='^top',lbl='top')
+        fb.textbox(value='^top2',lbl='top')
+        fb.textbox(value='^top3',lbl='top')
+        fb.textbox(value='^top4',lbl='top')
+        
+        pane.div('lblalign = \'left\' ')
+        fb = pane.formbuilder(cols=2,lblpos='T',lblalign='left')
+        fb.textbox(value='^top',lbl='left')
+        fb.textbox(value='^top2',lbl='left')
+        fb.textbox(value='^top3',lbl='left')
+        fb.textbox(value='^top4',lbl='left')
+        
+        pane.div('lblalign = \'right\' ')
+        fb = pane.formbuilder(cols=2,lblpos='T',lblalign='right')
+        fb.textbox(value='^top',lbl='right')
+        fb.textbox(value='^top2',lbl='right')
+        fb.textbox(value='^top3',lbl='right')
+        fb.textbox(value='^top4',lbl='right')
+        
         

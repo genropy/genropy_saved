@@ -36,7 +36,7 @@ In formbuilder you can put dom and widget elements; its most classic usage is to
 	+--------------------+-------------------------------------------------+--------------------------+
 	|   Attribute        |          Description                            |   Default                |
 	+====================+=================================================+==========================+
-	| ``_class=''``      | ???                                             |  ``6px``                 |
+	| ``_class``         | For CSS style                                   |  `` ``                   |
 	+--------------------+-------------------------------------------------+--------------------------+
 	| ``border_spacing`` | CSS attribute, space between rows               |  ``6px``                 |
 	+--------------------+-------------------------------------------------+--------------------------+
@@ -44,22 +44,33 @@ In formbuilder you can put dom and widget elements; its most classic usage is to
 	+--------------------+-------------------------------------------------+--------------------------+
 	| ``db_table``       | #NISO ???                                       |  ``None``                |
 	+--------------------+-------------------------------------------------+--------------------------+
+	| ``disabled``       | #NISO ???                                       |  ``False``               |
+	+--------------------+-------------------------------------------------+--------------------------+
+	| ``fieldclass``     | #NISO ??? Altri attributi!                      |  ``gnrfield``            |
+	+--------------------+-------------------------------------------------+--------------------------+
 	| ``fld_width``      | Set field width                                 |  ``7em``                 |
+	+--------------------+-------------------------------------------------+--------------------------+
+	| ``fldalign``       | Set field horizontal align                      |  ``None``                |
+	+--------------------+-------------------------------------------------+--------------------------+
+	| ``fldvalign``      | Set field vertical align                        |  ``middle``              |
 	+--------------------+-------------------------------------------------+--------------------------+
 	| ``head_rows``      | #NISO ???                                       |  ``None``                |
 	+--------------------+-------------------------------------------------+--------------------------+
+	| ``lblalign``       | Set horizontal label alignment                                             |
+	|                    |                                                                            |
+	|                    | #NISO Sembra non funzionare                                                |
+	+--------------------+-------------------------------------------------+--------------------------+
 	| ``lblclass``       | Set label style                                 |  ``gnrfieldlabel``       |
-	|                    | #NISO Altre opzioni?                            |                          |
+	|                    | #NISO Inserire possibili valori!                |                          |
 	+--------------------+-------------------------------------------------+--------------------------+
 	| ``lblpos``         | Set label position                              |  ``L``                   |
 	|                    |                                                 |                          |
-	|                    | ``L`` : set label on the left side of textbox   |                          |
+	|                    | ``L``: set label on the left side of text field |                          |
 	|                    |                                                 |                          |
-	|                    | ``T`` : set label on top of textbox             |                          |
-	+--------------------+----------------------------------------------------------------------------+
-	| ``lblalign``       | Set label alignment                                                        |
-	|                    |                                                                            |
-	|                    | #NISO Sembra non funzionare                                                |
+	|                    | ``T``: set label on top of text field           |                          |
+	+--------------------+-------------------------------------------------+--------------------------+
+	| ``lblvalign``      | Set vertical label alignment                    |  ``middle``              |
+	|                    | #NISO Inserire possibili valori                 |                          |
 	+--------------------+-------------------------------------------------+--------------------------+
 	| ``pos``            | Choose element position                         |  The first free position |
 	|                    |                                                 |                          |
@@ -76,13 +87,10 @@ In formbuilder you can put dom and widget elements; its most classic usage is to
 	+--------------------+-------------------------------------------------+--------------------------+
 	| ``rowdatapath``    | #NISO ???                                       |  ``None``                |
 	+--------------------+-------------------------------------------------+--------------------------+
-	| ``tblclass``       | #NISO ???                                       |  ``formbuilder``         |
+	| ``tblclass``       | The standard class for formbuilder.             |  ``formbuilder``         |
+	|                    |                                                 |                          |
+	|                    | Actually it is the unique defined class         |                          |
 	+--------------------+-------------------------------------------------+--------------------------+
-	
-                      fieldclass='gnrfield',
-                    lblalign=None, lblvalign='middle',
-                    fldalign=None, fldvalign='middle', disabled=False,
-                    rowdatapath=None, head_rows=None, **kwargs
 	
 	Example::
 	
