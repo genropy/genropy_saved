@@ -6,6 +6,14 @@
 
 .. class:: formbuilder -  Genropy formbuilder
 
+**Definition**::
+	
+		def formbuilder(self, cols=1, dbtable=None, tblclass='formbuilder',
+	                    lblclass='gnrfieldlabel', lblpos='L', _class='', fieldclass='gnrfield',
+	                    lblalign=None, lblvalign='middle',
+	                    fldalign=None, fldvalign='middle',disabled=False,
+	                    rowdatapath=None, head_rows=None, **kwargs):
+
 With formbuilder you have an ordered place to put your HTML object; formbuilder is used in place of an HTML table.
 
 To let you see how Genro code is simpler and more compact, we report here a comparison between an HTML table and a Genro formbuilder::
@@ -22,14 +30,6 @@ To let you see how Genro code is simpler and more compact, we report here a comp
 	Genro code:
 	fb = root.formbuilder()
 	fb.textbox(value='^name',lbl='Name')
-	
-**Definition**::
-	
-		def formbuilder(self, cols=1, dbtable=None, tblclass='formbuilder',
-	                    lblclass='gnrfieldlabel', lblpos='L', _class='', fieldclass='gnrfield',
-	                    lblalign=None, lblvalign='middle',
-	                    fldalign=None, fldvalign='middle',disabled=False,
-	                    rowdatapath=None, head_rows=None, **kwargs):
 
 In formbuilder you can put dom and widget elements; its most classic usage is to create a form made by fields and layers, and that's because formbuilder can manage automatically fields and their positioning:
 
