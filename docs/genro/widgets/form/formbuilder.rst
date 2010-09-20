@@ -11,7 +11,7 @@
 		def formbuilder(self, cols=1, dbtable=None, tblclass='formbuilder',
 	                    lblclass='gnrfieldlabel', lblpos='L', _class='', fieldclass='gnrfield',
 	                    lblalign=None, lblvalign='middle',
-	                    fldalign=None, fldvalign='middle',disabled=False,
+	                    fldalign=None, fldvalign='middle', disabled=False,
 	                    rowdatapath=None, head_rows=None, **kwargs):
 
 With formbuilder you have an ordered place to put your HTML object; formbuilder is used in place of an HTML table.
@@ -60,18 +60,20 @@ In formbuilder you can put dom and widget elements; its most classic usage is to
 	
 Here we describe the formbuilder's field attributes:
 	
-	+----------------+-------------------------------------------------+
-	|   Attribute    |       Values and description                    |
-	+================+====================================+=============+
-	| ``lbl``        | Set field label                    |  ``None``   |
-	+----------------+------------------------------------+-------------+
-	| ``lblclass``   | Set label style                    |  ``BOH``    |
-	+----------------+------------------------------------+-------------+
-	| ``lblpos``     | Set label position                               |
-	|                |                                                  |
-	                   ``L`` (default):
-	                   ``T`` :
-	+----------------+------------------------------------+-------------+
-	| ``lblalign``   | Set label alignment                |  ``BOH``    |
-	+----------------+------------------------------------+-------------+
+	+----------------+--------------------------------------------------------+-------------+
+	|   Attribute    |       Values and description                           |   default   |
+	+================+========================================================+=============+
+	| ``lbl``        | Set field label                                        |  ``None``   |
+	+----------------+--------------------------------------------------------+-------------+
+	| ``lblclass``   | Set label style                                        |  ``???``    |
+	+----------------+--------------------------------------------------------+-------------+
+	| ``lblpos``     | Set label position                                                   |
+	|                |                                                                      |
+	|                | ``L`` : set label on the left side of textbox                        |
+	|                |                                                                      |
+	|                | ``T`` : set label on top of textbox                                  |
+	+----------------+----------------------------------------------------------------------+
+	| ``lblalign``   | Set label alignment                                                  |
+	|                | SEMBRA NON FUNZIONARE ???                                            |
+	+----------------+----------------------------------------------------------------------+
 	
