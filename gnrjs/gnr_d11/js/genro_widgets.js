@@ -1680,7 +1680,6 @@ dojo.declare("gnr.widgets.DateTextBox",gnr.widgets.baseDojo,{
         this._dojotag='DateTextBox';
     },
     creating: function(attributes, sourceNode){
-        
         if('popup' in attributes && (objectPop(attributes,'popup')==false)){
             attributes.popupClass=null;
         }
