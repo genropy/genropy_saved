@@ -22,9 +22,10 @@ class ChatComponent(BaseComponent):
         
         footer.dataController("""
                             console.log(_node);
+                            genro.rpc.setPolling(2,2);
                             SET gnr.chat.buttonIcon = 'icnBuddyChat'
                             """,user="^gnr.chat.room_alert",
-                            _if='selected_stack!="chat"',
+                            _if='selected_stack!="chat"',_else='genro.rpc.setPolling();',
                             selected_stack='=pbl.left_stack')
         
         ttdialog = toolbar.dropDownButton(label='User').tooltipDialog(title='!!Users list',datapath='gnr.chat',nodeId='ct_chat_list_users_dlg',
