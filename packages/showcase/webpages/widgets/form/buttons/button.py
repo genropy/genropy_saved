@@ -47,16 +47,6 @@ class GnrCustomWebPage(object):
         In Genro there are four macros used as a shortcut that you can use in place of a Javascript command.
 
     	Here is the list: FIRE, GET, SET, PUT.
-
-    .. method:: dropdownbutton(label)
-
-    	Constructs a button that opens a ``menu`` or a ``tooltipdialog``.
-
-    		Example::
-
-    			def ddButtonPane(self, cp):
-    				dd = cp.dropdownbutton('test')
-    				dd.tooltipdialog().div('Hello, world!')
     """
         
         #   - Other forms and attributes:
