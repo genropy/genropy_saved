@@ -58,11 +58,9 @@ In formbuilder you can put dom and widget elements; its most classic usage is to
 	|                    |                                                 |                          |
 	|                    | Sintax: pos(NUMBER,NUMBER)                      |                          |
 	|                    |     whereas the first value represents a row,   |                          |
-	|                    |                                                 |                          |
 	|                    |     the second value represents a column.       |                          |
 	|                    |                                                 |                          |
 	|                    | Other feature: "pos" accepts as a number row    |                          |
-	|                    |                                                 |                          |
 	|                    | two special characters:                         |                          |
 	|                    |                                                 |                          |
 	|                    |         \+ to refer itself at the following row |                          |
