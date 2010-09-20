@@ -19,7 +19,7 @@ class GnrCustomWebPage(object):
 
     .. class:: Sliders -  Genropy sliders
     
-    **Definition**: for definition, click here_.
+    **Definition**: the definition is the same of Dojo 1.4. To show it, click here_.
     
     .. _here: http://docs.dojocampus.org/dijit/form/Slider
 
