@@ -46,6 +46,7 @@ fields and their positioning:
 	|                    | characters:                                              |                                     |
 	|                    |                                                          |                                     |
 	|                    |         \+ to refer itself at the following row          |                                     |
+	|                    |                                                          |                                     |
 	|                    |         \* to refer itself at the current row            |                                     |
 	+--------------------+----------------------------------------------------------+-------------------------------------+
     
