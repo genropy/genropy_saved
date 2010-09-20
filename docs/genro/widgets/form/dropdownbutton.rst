@@ -6,10 +6,9 @@
 
 .. class:: dropdownbuttons -  Genropy dropdownbuttons
 
-**Definition**: same definition of Dojo dropdownbuttons (version 1.4). To show it, click here_.
+**Definition**: same definition of Dojo dropdownbuttons (version 1.5). To show it, click here_.
 
 .. _here: http://docs.dojocampus.org/dijit/form/DropDownButton
-
 
 .. method:: dropdownbutton(label)
 
