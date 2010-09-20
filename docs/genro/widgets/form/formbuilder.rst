@@ -1,3 +1,7 @@
+.. currentmodule:: form
+
+.. class:: formbuilder -  Genropy formbuilder
+
 With formbuilder you have an ordered place to put your HTML object; formbuilder is used in place of an HTML table.
 
 To let you see how Genro code is simpler and more compact, we report here a comparison between an HTML table and a Genro formbuilder::
