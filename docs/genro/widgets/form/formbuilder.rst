@@ -53,7 +53,7 @@ In formbuilder you can put dom and widget elements; its most classic usage is to
 	| ``lblalign``       | Set label alignment                                                        |
 	|                    |                                                                            |
 	|                    | SEMBRA NON FUNZIONARE ???                                                  |
-	+--------------------+----------------------------------------------------------------------------+
+	+--------------------+-------------------------------------------------+--------------------------+
 	| ``pos``            | Choose element position                         |  The first free position |
 	|                    |                                                 |                          |
 	|                    | Sintax: pos(NUMBER,NUMBER)                      |                          |
