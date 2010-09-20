@@ -42,7 +42,7 @@ In formbuilder you can put dom and widget elements; its most classic usage is to
 	+--------------------+-------------------------------------------------+--------------------------+
 	| ``cols``           | Set columns number                              |  ``1``                   |
 	+--------------------+-------------------------------------------------+--------------------------+
-	| ``dbtable``        | See DBtable_.                                   |  ``None``                |
+	| ``dbtable``        | See dbtable explanation below by clicking here_ |  ``None``                |
 	+--------------------+-------------------------------------------------+--------------------------+
 	| ``disabled``       | #NISO ??? True/False o un path tegolinato...    |  ``False``               |
 	+--------------------+-------------------------------------------------+--------------------------+
@@ -110,7 +110,59 @@ Here we describe the formbuilder's field attributes:
 		fb = pane.formbuilder(cols=2)
 		fb.textbox(value='^name',lbl='Name')
 		
-	.. _DBtable:
+	.. _here:
     
-	Ecco il link!
+	**dbtable: an explanation of the attribute**
+	The "dbtable" attribute is used to give a different path for database table in the queries of field form widget. If you don't specify it, Genro will put the value of maintable as dbtable value. Let's see two examples on "maintable", and two examples on "dbtable"::
 	
+		EXAMPLE 1:
+		
+		class GnrCustomWebPage(object):
+		    maintable='packageName.fileName'	/* This is the line for maintable definition, whereas "packageName" is the
+												name of the package, while "fileName" is the name of the model file, where
+												lies the database.*/
+			def main(self,root,**kwargs):
+				fb = root.formbuilder(cols=2)
+				
+				/*for specifing "maintable", you can write one of the following two lines, because they have the same
+				  meaning*/
+				fb.field('packageName.fileName.attribute')
+				fb.field('attribute')
+				
+		EXAMPLE 2:
+		class GnrCustomWebPage(object):
+			/* Here we didn't write the maintable!*/
+			
+			def main(self,root,**kwargs):
+				fb = root.formbuilder(cols=2)
+				fb.field('packageName.fileName.attribute') /*This is the only way to recall database.*/
+				fb.field('attribute') /*This line will not work!*/
+	
+	Now let's see the two examples on dbtable::
+				
+		EXAMPLE 3:
+		class GnrCustomWebPage(object):
+			/* Here we didn't write the maintable!*/
+			
+			def main(self,root,**kwargs):
+				fb = root.formbuilder(cols=2)
+				fb.field('attribute',dbtable='packageName.fileName') /*This line will work, even if you haven't specify
+																	   the maintable!*/
+																	
+		EXAMPLE 4:
+		class GnrCustomWebPage(object):
+			maintable='shop_management.storage' /*Like before, "shop_management" is the package name, while
+												  "storage" is the file name where lies database.*/
+			
+			def main(self,root,**kwargs):
+				fb = root.formbuilder(cols=2)
+				fb.field('name') /*This field will get "name" attribute from the "shop_management" package, in 
+								   the file named "storage".*/
+				fb.field('name',dbtable='sell_package.employees') /*This field will get "name" attribute from the
+				 													"sell_package" package, in the file named
+																	"employees".*/
+		
+	For further details on "dbtable" attribute, see #NISO METTERE IL LINK AL FILE DI DOCUMENTAZIONE SUL FIELD!!
+		
+		
+		
