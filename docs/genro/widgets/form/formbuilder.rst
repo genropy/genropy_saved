@@ -25,14 +25,27 @@ To let you see how Genro code is simpler and more compact, we report here a comp
     
 In formbuilder you can put dom and widget elements; its most classic usage is to create
 a form made by fields and layers, and that's because formbuilder can manage automatically
-fields and their positioning.
-	+--------------------+----------------------------------------------------------+-------------+
-	|   Attribute        |          Description                                     |   Default   |
-	+====================+==========================================================+=============+
-	| ``border_spacing`` | CSS attribute, space between rows                        |  ``6px``   |
-	+--------------------+----------------------------------------------------------+-------------+
-	| ``values``         | Contains all the entries from which users have to choose |  ``None``   |
-	+--------------------+----------------------------------------------------------+-------------+
+fields and their positioning:
+	
+	+--------------------+----------------------------------------------------------+-----------------------------------+
+	|   Attribute        |          Description                                     |   Default                         |
+	+====================+==========================================================+===================================+
+	| ``border_spacing`` | CSS attribute, space between rows                        |  ``6px``                          |
+	+--------------------+----------------------------------------------------------+-----------------------------------+
+	| ``cols``           | Set columns number                                       |  ``1``                            |
+	+--------------------+----------------------------------------------------------+-----------------------------------+
+	| ``fld_width``      | Set field width                                          |  ``7em``                          |
+	+--------------------+----------------------------------------------------------+-----------------------------------+
+    | ``pos``            | Choose element position                                  |  ``The element is positioned into |
+    |                    |                                                          |  the first free position ``       |
+    |                    | Sintax: pos(NUMBER,NUMBER)                               |                                   |
+    |                    |     whereas the first value represents a row, the second |                                   |
+    |                    |     value represents a column.                           |                                   |
+    |                    |     Other feature: "pos" accepts as a number row two     |                                   |
+    |                    |         special characters:                              |                                   |
+    |                    |         + to refer itself at the following row           |                                   |
+    |                    |         * to refer itself at the current row             |                                   |
+    +--------------------+----------------------------------------------------------+-----------------------------------+
     
 Here we describe the formbuilder's field attributes:
     +--------------+---------------------+------------+
