@@ -21,8 +21,10 @@ batch_monitor.on_btc_create = function(node){
     if (typeof(lines)=='string') {
         lines = lines.split(',');
     }
+    var k=0
     dojo.forEach(lines,function(line){
-        batch_monitor.create_thermoline(thermopane,line);
+        batch_monitor.create_thermoline(thermopane,line,k);
+        k=k+1;
     });    
 };
 batch_monitor.on_btc_end = function(node){
@@ -99,19 +101,18 @@ batch_monitor.create_batchpane = function(batch_id,batch_data){
     if (!batchpane){
         var rootNode = genro.nodeById('bm_rootnode');
         batchpane = rootNode._('div',{datapath:batchpath,nodeId:batch_node_id,title:'^.note',
-                                    _class:'thermopane',border:'1px solid gray',margin:'2px'});
-        var titlediv = batchpane._('div',{background:'gray',color:'white',
-                                        font_size:'9px',padding:'2px',height:'8px'});
-        titlediv._('div',{innerHTML:'^.title','float':'left'});
-        titlediv._('div',{'float':'right',nodeId:'bm_top_right_'+batch_id})._('a',{innerHTML:'Stop',
+                                    _class:'bm_batchpane'});
+        var titlediv = batchpane._('div',{_class:'bm_batchlabel'});
+        titlediv._('div',{innerHTML:'^.title', _class:'bm_batchtitle'});
+        titlediv._('div',{_class:'bm_label_action_link',nodeId:'bm_top_right_'+batch_id})._('a',{innerHTML:'Stop',
                                                 visible:'^.cancellable',
                     href:'javascript:genro.dlg.ask("Stopping batch","Do you want really stop batch"+"'+batch_data.getItem('title')+'"+"?",null,{confirm:function(){genro.serverCall("btc.abort_batch",{"batch_id":"'+batch_id+'"})}})'});
-        return batchpane._('div',{padding:'3px',datapath:'.thermo',nodeId:this.get_batch_thermo_node_id(batch_id)});
+        return batchpane._('div',{_class:'bm_contentpane',datapath:'.thermo',nodeId:this.get_batch_thermo_node_id(batch_id)});
     }
 };
 
 
-batch_monitor.create_thermoline = function(pane,line){
+batch_monitor.create_thermoline = function(pane,line,k){
     var code = line;
     var custom_attr = {};
     if (typeof(line)!='string') {
@@ -123,13 +124,13 @@ batch_monitor.create_thermoline = function(pane,line){
     var cb = function(percent){
         return line+':'+dojo.number.format(percent, {type: "percent", places: this.places, locale: this.lang});
     };
-    var thermo_attr = {progress:'^.?progress',maximum:'^.?maximum',indeterminate:'^.?indeterminate',
-                     places:'^.?places',width:'100%',height:'10px',font_size:'9px',report:cb};
-    var msg_attr = {innerHTML:'^.?message',font_size:'8px',text_align:'center',color:'black'};
+    var thermo_attr = {progress:'^.?progress',maximum:'^.?maximum',indeterminate:'^.?indeterminate',_class:'bm_thermoline bm_line_'+k,
+                     places:'^.?places',report:cb};
+    var msg_attr = {innerHTML:'^.?message',_class:'bm_thermomsg'};
     thermo_attr = objectUpdate(thermo_attr,custom_attr);   
     msg_attr = objectUpdate(msg_attr,custom_msg_attr);
-    if (!msg_attr['hidden']){
-        innerpane._('div',msg_attr);
-    }
-    innerpane._('progressBar',thermo_attr);
+    //if (!msg_attr['hidden']){
+    //    innerpane._('div',msg_attr);
+    //}
+    innerpane._('div',{_class:'bm_thermoline_box'})._('progressBar',thermo_attr);
 };

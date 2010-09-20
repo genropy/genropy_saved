@@ -25,10 +25,10 @@ class GnrCustomWebPage(object):
     
     def rpc_test_1_batch(self,):
         t = time.time()
-        cli_max = 5
-        invoice_max = 5
-        row_max = 25
-        sleep_time = 0.1
+        cli_max = 10
+        invoice_max = 10
+        row_max = 50
+        sleep_time = 0.05
 
         thermo_lines='clients,invoices,rows'
        # thermo_lines = [{'title':'Clients',_class=}]
