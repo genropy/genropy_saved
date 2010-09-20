@@ -27,6 +27,14 @@ In formbuilder you can put dom and widget elements; its most classic usage is to
 a form made by fields and layers, and that's because formbuilder can manage automatically
 fields and their positioning.
 
+	+----------------+----------------------------------------------------------+-------------+
+	|   Attribute    |          Description                                     |   Default   |
+	+================+==========================================================+=============+
+	| ``ignoreCase`` | If True, user can write in filteringSelect ignoring case |  ``True``   |
+	+----------------+----------------------------------------------------------+-------------+
+	| ``values``     | Contains all the entries from which users have to choose |  ``None``   |
+	+----------------+----------------------------------------------------------+-------------+
+	
     +--------------------+----------------------------------------------------------+-----------------------------------+
 	|   Attribute        |          Description                                     |   Default                         |
 	+====================+==========================================================+===================================+
