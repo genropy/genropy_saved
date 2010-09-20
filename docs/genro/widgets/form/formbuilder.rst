@@ -34,27 +34,6 @@ fields and their positioning.
 	+--------------------+----------------------------------------------------------+-------------+
 	| ``values``         | Contains all the entries from which users have to choose |  ``None``   |
 	+--------------------+----------------------------------------------------------+-------------+
-	
-	
-    +--------------------+----------------------------------------------------------+-----------------------------------+
-	|   Attribute        |          Description                                     |   Default                         |
-	+====================+==========================================================+===================================+
-	| ``border_spacing`` | If True, user can write in filteringSelect ignoring case |  ````                             |
-	+--------------------+----------------------------------------------------------+-----------------------------------+
-	| ``cols``           | Set columns number                                       |  ``1``                            |
-	+--------------------+----------------------------------------------------------+-----------------------------------+
-	| ``fld_width``      | Set field width                                          |  ``7em``                          |
-	+--------------------+----------------------------------------------------------+-----------------------------------+
-    | ``pos``            | Choose element position                                  |  ``The element is positioned into |
-    |                    |                                                          |  the first free position ``       |
-    |                    | Sintax: pos(NUMBER,NUMBER)                               |                                   |
-    |                    |     whereas the first value represents a row, the second |                                   |
-    |                    |     value represents a column.                           |                                   |
-    |                    |     Other feature: "pos" accepts as a number row two     |                                   |
-    |                    |         special characters:                              |                                   |
-    |                    |         + to refer itself at the following row           |                                   |
-    |                    |         * to refer itself at the current row             |                                   |
-    +--------------------+----------------------------------------------------------+-----------------------------------+
     
 Here we describe the formbuilder's field attributes:
     +--------------+---------------------+------------+
