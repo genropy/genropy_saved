@@ -11,15 +11,23 @@ class GnrCustomWebPage(object):
     # dojo_theme='claro'    # !! Uncomment this row for Dojo_1.5 usage
     
     """
-    ================
-     Checkboxbutton
-    ================
-    
+    ==========
+     Checkbox
+    ==========
+
     .. currentmodule:: widgets
 
     .. class:: checkbox -  Genropy checkbox
-    
-    ???TO DO!!!!
+
+    **Definition**: same definition of Dojo checkbox (version 1.5). To show it, click here_.
+
+    .. _here: http://docs.dojocampus.org/dijit/form/CheckBox
+
+    	Genro checkbox is the combination between an HTML checkbox and a Dojo checkbox.
+
+    	Example::
+
+    		pane.checkbox(value='^name',label='Name')
     """
         
         #   - Other forms and attributes:

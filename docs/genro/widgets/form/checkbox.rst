@@ -10,4 +10,8 @@
 
 .. _here: http://docs.dojocampus.org/dijit/form/CheckBox
 
-	
+	Genro checkbox is the combination between an HTML checkbox and a Dojo checkbox.
+
+	Example::
+
+		pane.checkbox(value='^name',label='Name')
