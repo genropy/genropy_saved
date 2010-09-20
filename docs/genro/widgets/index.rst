@@ -11,6 +11,7 @@
 .. toctree::
 
 	form/button
+	form/checkbox
 	form/currencyTextbox
 	form/dateTextbox
 	form/dropdownbutton

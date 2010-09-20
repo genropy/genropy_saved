@@ -6,7 +6,7 @@
 
 .. class:: Buttons -  Genropy buttons
 
-**Definition**: same definition of Dojo buttons (version 1.4). To show it, click here_.
+**Definition**: same definition of Dojo buttons (version 1.5). To show it, click here_.
 
 .. _here: http://docs.dojocampus.org/dijit/form/Button
 
