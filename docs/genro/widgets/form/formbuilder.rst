@@ -41,8 +41,10 @@ fields and their positioning:
 	|                    | Sintax: pos(NUMBER,NUMBER)                               |                                     |
 	|                    |     whereas the first value represents a row, the second |                                     |
 	|                    |     value represents a column.                           |                                     |
-	|                    |     Other feature: "pos" accepts as a number row two     |                                     |
-	|                    |         special characters:                              |                                     |
+	|                    |                                                          |                                     |
+	|                    | Other feature: "pos" accepts as a number row two special |                                     |
+	|                    | characters:                                              |                                     |
+	|                    |                                                          |                                     |	
 	|                    |         + to refer itself at the following row           |                                     |
 	|                    |         * to refer itself at the current row             |                                     |
 	+--------------------+----------------------------------------------------------+-------------------------------------+
