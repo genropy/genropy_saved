@@ -147,8 +147,8 @@ Here we describe the formbuilder's field attributes:
 			
 			def main(self,root,**kwargs):
 				fb = root.formbuilder(cols=2)
-				fb.field('attribute',dbtable='packageName.fileName') /*This line will work, even if you haven't specify
-																	   the maintable!*/
+				fb.field('attribute',dbtable='packageName.fileName') /*This line will work, even if you haven't
+                                                                       specify the maintable!*/
 																	
 		EXAMPLE 4:
 		class GnrCustomWebPage(object):
