@@ -56,9 +56,9 @@ In formbuilder you can put dom and widget elements; its most classic usage is to
 	+--------------------+-------------------------------------------------+--------------------------+
 	| ``head_rows``      | #NISO ???                                       |  ``None``                |
 	+--------------------+-------------------------------------------------+--------------------------+
-	| ``lblalign``       | Set horizontal label alignment                                             |
-	|                    |                                                                            |
-	|                    | #NISO Sembra non funzionare                                                |
+	| ``lblalign``       | Set horizontal label alignment                  |  ``#NISO Boh!``          |
+	|                    |                                                 |                          |
+	|                    | #NISO Sembra non funzionare                     |                          |
 	+--------------------+-------------------------------------------------+--------------------------+
 	| ``lblclass``       | Set label style                                 |  ``gnrfieldlabel``       |
 	|                    | #NISO Inserire possibili valori!                |                          |

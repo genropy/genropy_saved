@@ -1,7 +1,7 @@
 # -*- coding: UTF-8 -*-
 
 # formbuilder.py
-# Created by Niso on 2010-09-01.
+# Created by Niso on 2010-09-20.
 # Copyright (c) 2010 Softwell. All rights reserved.
 
 """Formbuilder"""
@@ -69,9 +69,9 @@ class GnrCustomWebPage(object):
     	+--------------------+-------------------------------------------------+--------------------------+
     	| ``head_rows``      | #NISO ???                                       |  ``None``                |
     	+--------------------+-------------------------------------------------+--------------------------+
-    	| ``lblalign``       | Set horizontal label alignment                                             |
-    	|                    |                                                                            |
-    	|                    | #NISO Sembra non funzionare                                                |
+    	| ``lblalign``       | Set horizontal label alignment                  |  ``#NISO Boh!``          |
+    	|                    |                                                 |                          |
+    	|                    | #NISO Sembra non funzionare                     |                          |
     	+--------------------+-------------------------------------------------+--------------------------+
     	| ``lblclass``       | Set label style                                 |  ``gnrfieldlabel``       |
     	|                    | #NISO Inserire possibili valori!                |                          |
