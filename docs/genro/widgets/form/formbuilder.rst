@@ -153,12 +153,12 @@ Here we describe the formbuilder's field attributes:
 		EXAMPLE 4:
 		class GnrCustomWebPage(object):
 			maintable='shop_management.storage' /*Like before, "shop_management" is the package name, while
-                                                              "storage" is the file name where lies database.*/
+                                                             "storage" is the file name where lies database.*/
 			
 			def main(self,root,**kwargs):
 				fb = root.formbuilder(cols=2)
-				fb.field('name') /*This field will get "name" attribute from the "shop_management" package, in 
-								   the file named "storage".*/
+				fb.field('name') /*This field will get "name" attribute from the "shop_management" package,
+				in the file named "storage".*/
 				fb.field('name',dbtable='sell_package.employees') /*This field will get "name" attribute from the
 				 													"sell_package" package, in the file named
 																	"employees".*/
