@@ -13,6 +13,7 @@
 	form/button
 	form/currencyTextbox
 	form/dateTextbox
+	form/dropdownbutton
 	form/filteringSelect
 	form/formbuilder
 	form/numberTextbox
