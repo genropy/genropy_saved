@@ -36,16 +36,16 @@ fields and their positioning:
 	+--------------------+----------------------------------------------------------+-------------------------------------+
 	| ``fld_width``      | Set field width                                          |  ``7em``                            |
 	+--------------------+----------------------------------------------------------+-------------------------------------+
-    | ``pos``            | Choose element position                                  |  ``The element is positioned into`` |
-    |                    |                                                          |  ``the first free position ``       |
-    |                    | Sintax: pos(NUMBER,NUMBER)                               |                                     |
-    |                    |     whereas the first value represents a row, the second |                                     |
-    |                    |     value represents a column.                           |                                     |
-    |                    |     Other feature: "pos" accepts as a number row two     |                                     |
-    |                    |         special characters:                              |                                     |
-    |                    |         + to refer itself at the following row           |                                     |
-    |                    |         * to refer itself at the current row             |                                     |
-    +--------------------+----------------------------------------------------------+-------------------------------------+
+	| ``pos``            | Choose element position                                  |  ``The element is positioned into`` |
+	|                    |                                                          |  ``the first free position ``       |
+	|                    | Sintax: pos(NUMBER,NUMBER)                               |                                     |
+	|                    |     whereas the first value represents a row, the second |                                     |
+	|                    |     value represents a column.                           |                                     |
+	|                    |     Other feature: "pos" accepts as a number row two     |                                     |
+	|                    |         special characters:                              |                                     |
+	|                    |         + to refer itself at the following row           |                                     |
+	|                    |         * to refer itself at the current row             |                                     |
+	+--------------------+----------------------------------------------------------+-------------------------------------+
     
 Here we describe the formbuilder's field attributes:
     +--------------+---------------------+------------+
