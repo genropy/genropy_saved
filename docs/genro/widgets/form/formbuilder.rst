@@ -137,7 +137,7 @@ Here we describe the formbuilder's field attributes:
 			def main(self,root,**kwargs):
 				fb = root.formbuilder(cols=2)
 				fb.field('packageName.fileName.attribute') /*This is the only way to recall database.*/
-				fb.field('attribute') /*This line will not work!*/
+				fb.field('attribute')                      /*This line will not work!*/
 	
 	Now let's see the two examples on dbtable::
 				
@@ -153,7 +153,7 @@ Here we describe the formbuilder's field attributes:
 		EXAMPLE 4:
 		class GnrCustomWebPage(object):
 			maintable='shop_management.storage' /*Like before, "shop_management" is the package name, while
-												  "storage" is the file name where lies database.*/
+                                                  "storage" is the file name where lies database.*/
 			
 			def main(self,root,**kwargs):
 				fb = root.formbuilder(cols=2)
