@@ -51,8 +51,6 @@ class GnrBatch(object):
             self.thermo_step(chunk)
             self.process_chunk(chunk,**self.runKwargs)
             self.progress += 1
-
-
     
     def thermo_step(self, chunk=None):
         self.page.btc.thermo_line_update(line=0,maximum=len(self.data),
@@ -61,8 +59,6 @@ class GnrBatch(object):
     
     def thermo_chunk_message(self, chunk, row):
         pass
-        
-
         
 class SelectionToXls(GnrBatch):
     def __init__(self, data=None, table=None, filename=None, columns=None, locale=None, **kwargs):
@@ -81,16 +77,18 @@ class SelectionToXls(GnrBatch):
         data=data.output('dictlist', columns=self.columns, locale=self.locale)
         super(SelectionToXls,self).__init__(data=data,**kwargs)
         self.tblobj = self.page.db.table(table)
-        self.thermo_maximum[0] = self.data_counter()
-        
-    def thermo_chunk_message(self, chunk, row):
-        if self.thermofield=='*':
-            msg = self.tblobj.recordCaption(chunk)
-        else:
-            msg = chunk[self.thermofield]
-        return msg
+        self.batch_prefix = 'exp_%s' %self.tblobj.name
+        self.batch_title = "Exporting %s"  %self.tblobj.name
+        self.batch_thermo_lines = 'row'
+        self.batch_note = "Exporting %s"  %self.tblobj.name
+        self.batch_cancellable = False
+        self.batch_delay = 0.5
 
-    
+        #self.thermo_maximum[0] = self.data_counter()
+        
+    def thermo_chunk_message(self, chunk):
+        return self.tblobj.recordCaption(chunk)
+
     def pre_process(self):
         import xlwt
         self.workbook = xlwt.Workbook(encoding='latin-1')
@@ -125,45 +123,6 @@ class SelectionToXls(GnrBatch):
     def collect_result(self):
         return self.fileUrl
 
-class MailSender(GnrBatch):
-    
-    def __init__(self,page=None, table=None,doctemplate=None,selection=None,
-                      cc_address=None,bcc_address=None,from_address=None,to_address=None,attachments=None,
-                      account=None,host=None,port=None,user=None,password=None,ssl=None,tls=None,
-                      **kwargs): 
-                      
-        super(MailSender,self).__init__(**kwargs)
-        self.data = selection
-        self.page = page
-        self.doctemplate = doctemplate
-        self.tblobj = self.page.db.table(table)
-        self.from_address = from_address
-        self.mail_handler = self.page.getService('mail')
-        self.cc_address= cc_address
-        self.bcc_address = bcc_address
-        self.attachments = attachments
-        self.account = account
-        self.host = host
-        self.port = port
-        self.user = user
-        self.password = password
-        self.ssl = ssl
-        self.tls = tls
-        self.to_address = to_address
-    
-    def data_fetcher(self):    
-        for row in self.data.output('records'):
-            yield row
-    
-    def process_chunk(self, chunk, **kwargs):
-        print x
-        self.mail_handler.sendmail_template(chunk, to_address=self.to_address or chunk[self.doctemplate['meta.to_address']],
-                         body=self.doctemplate['content'],subject=self.doctemplate['meta.subject'],
-                         cc_address=self.cc_address, bcc_address=self.bcc_address, from_address=self.from_address, 
-                         attachments=self.attachments, account=self.accont,
-                         host=self.host, port=self.port, user=self.user, password=self.password,
-                         ssl=self.ssl, tls=self.tls, html=True,  async=True)
-            
 class PrintDbData(GnrBatch):
     def __init__(self, table=None,table_resource=None, class_name=None, selection=None,
                 folder=None, printParams=None, pdfParams=None, commitAfterPrint=False, **kwargs):
@@ -239,6 +198,45 @@ class PrintSelection(PrintDbData):
 class PrintRecord(PrintDbData):
     def process(self):
         self.process_chunk(dict(pkey=self.data),**self.runKwargs)
+        
+class MailSender(GnrBatch):
+    
+    def __init__(self,page=None, table=None,doctemplate=None,selection=None,
+                      cc_address=None,bcc_address=None,from_address=None,to_address=None,attachments=None,
+                      account=None,host=None,port=None,user=None,password=None,ssl=None,tls=None,
+                      **kwargs): 
+                      
+        super(MailSender,self).__init__(**kwargs)
+        self.data = selection
+        self.page = page
+        self.doctemplate = doctemplate
+        self.tblobj = self.page.db.table(table)
+        self.from_address = from_address
+        self.mail_handler = self.page.getService('mail')
+        self.cc_address= cc_address
+        self.bcc_address = bcc_address
+        self.attachments = attachments
+        self.account = account
+        self.host = host
+        self.port = port
+        self.user = user
+        self.password = password
+        self.ssl = ssl
+        self.tls = tls
+        self.to_address = to_address
+    
+    def data_fetcher(self):    
+        for row in self.data.output('records'):
+            yield row
+    
+    def process_chunk(self, chunk, **kwargs):
+        print x
+        self.mail_handler.sendmail_template(chunk, to_address=self.to_address or chunk[self.doctemplate['meta.to_address']],
+                         body=self.doctemplate['content'],subject=self.doctemplate['meta.subject'],
+                         cc_address=self.cc_address, bcc_address=self.bcc_address, from_address=self.from_address, 
+                         attachments=self.attachments, account=self.accont,
+                         host=self.host, port=self.port, user=self.user, password=self.password,
+                         ssl=self.ssl, tls=self.tls, html=True,  async=True)
 
 ################################
 class Fake(GnrBatch):
