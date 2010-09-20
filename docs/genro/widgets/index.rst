@@ -14,6 +14,7 @@
 	form/currencyTextbox
 	form/dateTextbox
 	form/filteringSelect
+	form/formbuilder
 	form/numberTextbox
 	form/simpleTextarea
 	form/slider
