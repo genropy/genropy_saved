@@ -44,9 +44,9 @@ fields and their positioning:
 	|                    |                                                          |                                     |
 	|                    | Other feature: "pos" accepts as a number row two special |                                     |
 	|                    | characters:                                              |                                     |
-	|                    |                                                          |                                     |	
-	|                    |         + to refer itself at the following row           |                                     |
-	|                    |         * to refer itself at the current row             |                                     |
+	|                    |                                                          |                                     |
+	|                    |         \+ to refer itself at the following row          |                                     |
+	|                    |         \* to refer itself at the current row            |                                     |
 	+--------------------+----------------------------------------------------------+-------------------------------------+
     
 Here we describe the formbuilder's field attributes:
