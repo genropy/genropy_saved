@@ -42,11 +42,12 @@ In formbuilder you can put dom and widget elements; its most classic usage is to
 	+--------------------+-------------------------------------------------+--------------------------+
 	| ``cols``           | Set columns number                              |  ``1``                   |
 	+--------------------+-------------------------------------------------+--------------------------+
-	| ``db_table``       | #NISO ???                                       |  ``None``                |
+	| ``dbtable``        | See DBtable_.                                   |  ``None``                |
 	+--------------------+-------------------------------------------------+--------------------------+
-	| ``disabled``       | #NISO ???                                       |  ``False``               |
+	| ``disabled``       | #NISO ??? True/False o un path tegolinato...    |  ``False``               |
 	+--------------------+-------------------------------------------------+--------------------------+
-	| ``fieldclass``     | #NISO ??? Altri attributi!                      |  ``gnrfield``            |
+	| ``fieldclass``     | #NISO ??? Altri attributi! appizza a tutti i    |  ``gnrfield``            |
+	|                    | figli quella classe                             |                          |
 	+--------------------+-------------------------------------------------+--------------------------+
 	| ``fld_width``      | Set field width                                 |  ``7em``                 |
 	+--------------------+-------------------------------------------------+--------------------------+
@@ -54,7 +55,7 @@ In formbuilder you can put dom and widget elements; its most classic usage is to
 	+--------------------+-------------------------------------------------+--------------------------+
 	| ``fldvalign``      | Set field vertical align                        |  ``middle``              |
 	+--------------------+-------------------------------------------------+--------------------------+
-	| ``head_rows``      | #NISO ???                                       |  ``None``                |
+	| ``head_rows``      | #NISO ??? GHIGO NON LO SA!                      |  ``None``                |
 	+--------------------+-------------------------------------------------+--------------------------+
 	| ``lblalign``       | Set horizontal label alignment                  |  ``#NISO Boh!``          |
 	|                    |                                                 |                          |
@@ -85,7 +86,7 @@ In formbuilder you can put dom and widget elements; its most classic usage is to
 	|                    |                                                 |                          |
 	|                    |         \* to refer itself at the current row   |                          |
 	+--------------------+-------------------------------------------------+--------------------------+
-	| ``rowdatapath``    | #NISO ???                                       |  ``None``                |
+	| ``rowdatapath``    | #NISO ??? GHIGO NON LO SA!                      |  ``None``                |
 	+--------------------+-------------------------------------------------+--------------------------+
 	| ``tblclass``       | The standard class for formbuilder.             |  ``formbuilder``         |
 	|                    |                                                 |                          |
@@ -108,4 +109,8 @@ Here we describe the formbuilder's field attributes:
 	
 		fb = pane.formbuilder(cols=2)
 		fb.textbox(value='^name',lbl='Name')
+		
+	.. _DBtable:
+    
+	Ecco il link!
 	
