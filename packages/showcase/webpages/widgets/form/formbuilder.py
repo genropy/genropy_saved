@@ -250,34 +250,35 @@ class GnrCustomWebPage(object):
         fb.textbox(value='^.job.company_name',lbl='Company name')
         fb.textbox(value='^.job.fiscal_code',lbl='Fiscal code')
         
-    def test_4_pos_align(self,pane):
-        """lblpos and lblalign"""
-        pane.div('lblpos = \'L\' ')
-        fb = pane.formbuilder(cols=2,lblpos='L')
-        fb.textbox(value='^top',lbl='left')
-        fb.textbox(value='^top2',lbl='left')
-        fb.textbox(value='^top3',lbl='left')
-        fb.textbox(value='^top4',lbl='left')
-        
-        pane.div('lblpos = \'T\' ')
-        fb = pane.formbuilder(cols=2,lblpos='T')
-        fb.textbox(value='^top',lbl='top')
-        fb.textbox(value='^top2',lbl='top')
-        fb.textbox(value='^top3',lbl='top')
-        fb.textbox(value='^top4',lbl='top')
-        
-        pane.div('lblalign = \'left\' ')
-        fb = pane.formbuilder(cols=2,lblpos='T',lblalign='left')
-        fb.textbox(value='^top',lbl='left')
-        fb.textbox(value='^top2',lbl='left')
-        fb.textbox(value='^top3',lbl='left')
-        fb.textbox(value='^top4',lbl='left')
-        
-        pane.div('lblalign = \'right\' ')
-        fb = pane.formbuilder(cols=2,lblpos='T',lblalign='right')
-        fb.textbox(value='^top',lbl='right')
-        fb.textbox(value='^top2',lbl='right')
-        fb.textbox(value='^top3',lbl='right')
-        fb.textbox(value='^top4',lbl='right')
+        # This is a bad test to correct the lblpos and lblalign functioning
+        def test_4_pos_align(self,pane):
+            """lblpos and lblalign"""
+            pane.div('lblpos = \'L\' ')
+            fb = pane.formbuilder(cols=2,lblpos='L')
+            fb.textbox(value='^top',lbl='left')
+            fb.textbox(value='^top2',lbl='left')
+            fb.textbox(value='^top3',lbl='left')
+            fb.textbox(value='^top4',lbl='left')
+
+            pane.div('lblpos = \'T\' ')
+            fb = pane.formbuilder(cols=2,lblpos='T')
+            fb.textbox(value='^top',lbl='top')
+            fb.textbox(value='^top2',lbl='top')
+            fb.textbox(value='^top3',lbl='top')
+            fb.textbox(value='^top4',lbl='top')
+
+            pane.div('lblalign = \'left\' ')
+            fb = pane.formbuilder(cols=2,lblpos='T',lblalign='left')
+            fb.textbox(value='^top',lbl='left')
+            fb.textbox(value='^top2',lbl='left')
+            fb.textbox(value='^top3',lbl='left')
+            fb.textbox(value='^top4',lbl='left')
+
+            pane.div('lblalign = \'right\' ')
+            fb = pane.formbuilder(cols=2,lblpos='T',lblalign='right')
+            fb.textbox(value='^top',lbl='right')
+            fb.textbox(value='^top2',lbl='right')
+            fb.textbox(value='^top3',lbl='right')
+            fb.textbox(value='^top4',lbl='right')
         
         
