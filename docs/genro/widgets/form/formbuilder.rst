@@ -83,7 +83,7 @@ In formbuilder you can put dom and widget elements; its most classic usage is to
 
 	.. figure:: formbuilder.png
 
-.. _Attibutes:
+.. _Attributes:
 
 **Attributes**:
 
