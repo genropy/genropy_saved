@@ -6,6 +6,23 @@
 
 .. class:: formbuilder -  Genropy formbuilder
 
+**Index:**
+
+	- Definition_
+	
+	- Where
+	
+	- Description
+	
+	- Example
+	
+	- Attributes
+	
+	- Other features
+	
+		- dbtable: an explanation of the attribute
+
+.. _Definition:
 **Definition**::
 	
 		def formbuilder(self, cols=1, dbtable=None, tblclass='formbuilder',
@@ -14,7 +31,11 @@
 	                    fldalign=None, fldvalign='middle', disabled=False,
 	                    rowdatapath=None, head_rows=None, **kwargs):
 
-**Where:** you can find formbuilder in *genro/gnrpy/gnr/web/gnrwebstruct.py*
+**Where:**
+
+	You can find formbuilder in *genro/gnrpy/gnr/web/gnrwebstruct.py*
+	
+**Description:**
 
 With formbuilder you have an ordered place to put your HTML object; formbuilder is used in place of an HTML table.
 
@@ -35,6 +56,8 @@ To let you see how Genro code is simpler and more compact, we report here a comp
 
 In formbuilder you can put dom and widget elements; its most classic usage is to create a form made by fields and layers, and that's because formbuilder can manage automatically fields and their positioning.
 
+**Example**:
+
 	Let's see a code example::
 	
 		fb=pane.formbuilder(datapath='test3',cols=3,fld_width='100%',width='100%',lbl_color='red')
@@ -50,6 +73,8 @@ In formbuilder you can put dom and widget elements; its most classic usage is to
 	Let's see its graphical result:
 
 	.. figure:: formbuilder.png
+
+**Attributes**:
 
 	+--------------------+-------------------------------------------------+--------------------------+
 	|   Attribute        |          Description                            |   Default                |
@@ -123,10 +148,12 @@ Here we describe the formbuilder's field attributes:
 	
 		fb = pane.formbuilder(cols=2)
 		fb.textbox(value='^name',lbl='Name')
+
+**Other features:**
 		
 	.. _here:
-    
-	**dbtable: an explanation of the attribute**
+	
+**dbtable: an explanation of the attribute**
 	
 	The "dbtable" attribute is used to give a different path for database table in the queries of field form widget. If you don't specify it, Genro will put the value of maintable as dbtable value. Let's see two examples on "maintable", and two examples on "dbtable"::
 	
