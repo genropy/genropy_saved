@@ -116,10 +116,10 @@ In formbuilder you can put dom and widget elements; its most classic usage is to
 	| ``lblclass``       | Set label style                                 |  ``gnrfieldlabel``       |
 	+--------------------+-------------------------------------------------+--------------------------+
 	| ``lblpos``         | Set label position                              |  ``L``                   |
-	|                    | ::                                              |                          |
 	|                    |                                                 |                          |
-	|                    | lblpos='L' set label on the left side of a field|                          |
-	|                    | lblpos='T' set label on top of a field          |                          |
+	|                    | ``L``: set label on the left side of text field |                          |
+	|                    |                                                 |                          |
+	|                    | ``T``: set label on top of text field           |                          |
 	+--------------------+-------------------------------------------------+--------------------------+
 	| ``lblvalign``      | Set vertical label alignment                    |  ``middle``              |
 	+--------------------+-------------------------------------------------+--------------------------+
