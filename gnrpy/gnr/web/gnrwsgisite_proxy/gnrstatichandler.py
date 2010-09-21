@@ -16,9 +16,9 @@ class StaticHandlerManager(object):
         self.statics=Bag()
         
     def addAllStatics(self,module=None):
-        module = module or sys.modules[self.__module__]
         """inspect self (or other modules) for StaticHandler subclasses and 
         do addStatic for each"""
+        module = module or sys.modules[self.__module__]
         def is_StaticHandler(cls):
             return inspect.isclass(cls) and issubclass(cls,StaticHandler) and cls is not StaticHandler
         statichandler_classes = inspect.getmembers(module, is_StaticHandler)

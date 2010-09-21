@@ -760,7 +760,7 @@ class PagesTreeResolver(BagResolver):
             data = page.pop('data',None)
             item['info'] = Bag([('%s:%s' %(k,str(v).replace('.','_')),v) for k,v in page.items()])
             item['data'] = data
-            result.setItem(itemlabel,item)
+            result.setItem(itemlabel,item,user=item['user'],connection_id=item['connection_id'],page_id=page_id)
         return result     
         
 
