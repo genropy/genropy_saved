@@ -118,8 +118,8 @@ In formbuilder you can put dom and widget elements; its most classic usage is to
 	| ``lblpos``         | Set label position                              |  ``L``                   |
 	|                    | ::                                              |                          |
 	|                    |                                                 |                          |
-	|                    | ``L``: set label on the left side of text field |                          |
-	|                    | ``T``: set label on top of text field           |                          |
+	|                    | lblpos='L' set label on the left side of a field|                          |
+	|                    | lblpos='T' set label on top of a field          |                          |
 	+--------------------+-------------------------------------------------+--------------------------+
 	| ``lblvalign``      | Set vertical label alignment                    |  ``middle``              |
 	+--------------------+-------------------------------------------------+--------------------------+
