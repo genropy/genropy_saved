@@ -10,17 +10,17 @@
 
 	- Definition_
 	
-	- Where
+	- Where_
 	
-	- Description
+	- Description_
 	
-	- Example
+	- Examples_
 	
-	- Attributes
+	- Attributes_
 	
-	- Other features
+	- Other features_
 	
-		- dbtable: an explanation of the attribute
+		- dbtable: an explanation of the attribute_
 
 	.. _Definition:
 
@@ -32,9 +32,13 @@
 	                    fldalign=None, fldvalign='middle', disabled=False,
 	                    rowdatapath=None, head_rows=None, **kwargs):
 
+	.. _Where:
+
 **Where:**
 
 	You can find formbuilder in *genro/gnrpy/gnr/web/gnrwebstruct.py*
+	
+	.. _Description:
 	
 **Description:**
 
@@ -57,6 +61,8 @@ To let you see how Genro code is simpler and more compact, we report here a comp
 
 In formbuilder you can put dom and widget elements; its most classic usage is to create a form made by fields and layers, and that's because formbuilder can manage automatically fields and their positioning.
 
+	.. _Example:
+
 **Example**:
 
 	Let's see a code example::
@@ -74,6 +80,8 @@ In formbuilder you can put dom and widget elements; its most classic usage is to
 	Let's see its graphical result:
 
 	.. figure:: formbuilder.png
+
+	.. _Attibutes:
 
 **Attributes**:
 
@@ -149,6 +157,8 @@ Here we describe the formbuilder's field attributes:
 	
 		fb = pane.formbuilder(cols=2)
 		fb.textbox(value='^name',lbl='Name')
+
+	.. _Other features:
 
 **Other features:**
 		
