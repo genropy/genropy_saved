@@ -19,6 +19,24 @@ class GnrCustomWebPage(object):
 
     .. class:: formbuilder -  Genropy formbuilder
 
+    **Index:**
+
+    	- Definition_
+
+    	- Where_
+
+    	- Description_
+
+    	- Examples_
+
+    	- Attributes_
+
+    	- Other features
+
+    		- dbtable_: an explanation of the attribute
+
+    .. _Definition:
+
     **Definition**::
 
     		def formbuilder(self, cols=1, dbtable=None, tblclass='formbuilder',
@@ -26,6 +44,18 @@ class GnrCustomWebPage(object):
     	                    lblalign=None, lblvalign='middle',
     	                    fldalign=None, fldvalign='middle', disabled=False,
     	                    rowdatapath=None, head_rows=None, **kwargs):
+
+
+
+    .. _Where:
+
+    **Where:**
+
+    	You can find formbuilder in *genro/gnrpy/gnr/web/gnrwebstruct.py*
+
+    .. _Description:
+
+    **Description:**
 
     With formbuilder you have an ordered place to put your HTML object; formbuilder is used in place of an HTML table.
 
@@ -44,7 +74,33 @@ class GnrCustomWebPage(object):
     	fb = root.formbuilder()
     	fb.textbox(value='^name',lbl='Name')
 
-    In formbuilder you can put dom and widget elements; its most classic usage is to create a form made by fields and layers, and that's because formbuilder can manage automatically fields and their positioning:
+    In formbuilder you can put dom and widget elements; its most classic usage is to create a form made by fields and layers, and that's because formbuilder can manage automatically fields and their positioning.
+
+    .. _Examples:
+
+    **Example**:
+
+    	Let's see a code example::
+
+    		class GnrCustomWebPage(object):
+    			def main(self,root,**kwargs):
+    				fb=pane.formbuilder(datapath='test3',cols=3,fld_width='100%',width='100%')
+    				fb.textbox(value='^.name',lbl='Name')
+    				fb.textbox(value='^.surname',colspan=2,lbl='Surname')
+    				fb.numberTextbox(value='^.age',lbl="Age")
+    				fb.dateTextbox(value='^.birthdate',lbl='Birthdate')
+    				fb.filteringSelect(value='^.sex',values='M:Male,F:Female',lbl='Sex')
+    				fb.textbox(value='^.job.profession',lbl='Job')
+    				fb.textbox(value='^.job.company_name',lbl='Company name')
+    				fb.textbox(value='^.job.fiscal_code',lbl='Fiscal code')
+
+    	Let's see its graphical result:
+
+    	.. figure:: formbuilder.png
+
+    .. _Attributes:
+
+    **Attributes**:
 
     	+--------------------+-------------------------------------------------+--------------------------+
     	|   Attribute        |          Description                            |   Default                |
@@ -55,7 +111,7 @@ class GnrCustomWebPage(object):
     	+--------------------+-------------------------------------------------+--------------------------+
     	| ``cols``           | Set columns number                              |  ``1``                   |
     	+--------------------+-------------------------------------------------+--------------------------+
-    	| ``dbtable``        | See dbtable explanation below by clicking here_ |  ``None``                |
+    	| ``dbtable``        | See dbtable_ explanation                        |  ``None``                |
     	+--------------------+-------------------------------------------------+--------------------------+
     	| ``disabled``       | #NISO ??? True/False o un path tegolinato...    |  ``False``               |
     	+--------------------+-------------------------------------------------+--------------------------+
@@ -106,10 +162,6 @@ class GnrCustomWebPage(object):
     	|                    | Actually it is the unique defined class         |                          |
     	+--------------------+-------------------------------------------------+--------------------------+
 
-    	Example::
-
-    		pane.formbuilder(cols=2,border_spacing='10px',fld_width='100%')
-
     Here we describe the formbuilder's field attributes:
 
     	+----------------+--------------------------------------------------------+-------------+
@@ -123,58 +175,62 @@ class GnrCustomWebPage(object):
     		fb = pane.formbuilder(cols=2)
     		fb.textbox(value='^name',lbl='Name')
 
-    	.. _here:
+    	.. _Other features:
 
-    	**dbtable: an explanation of the attribute**
+    **Other features:**
+
+    .. _dbtable:
+
+    **dbtable: an explanation of the attribute**
 
     	The "dbtable" attribute is used to give a different path for database table in the queries of field form widget. If you don't specify it, Genro will put the value of maintable as dbtable value. Let's see two examples on "maintable", and two examples on "dbtable"::
 
     		EXAMPLE 1:
 
     		class GnrCustomWebPage(object):
-    		    maintable='packageName.fileName'	/* This is the line for maintable definition, whereas "packageName"
-    		                                           is the name of the package, while "fileName" is the name of the model
-    		                                           file, where lies the database.*/
+    		    maintable='packageName.fileName'	# This is the line for maintable definition, whereas "packageName"
+    		                                        # is the name of the package, while "fileName" is the name of the model
+    		                                        # file, where lies the database.
 
     			def main(self,root,**kwargs):
     				fb = root.formbuilder(cols=2)
 
-    				/*for specifing "maintable", you can write one of the following two lines,
-    				  because they have the same meaning*/
+    				# For specifing "maintable", you can write one of the following two lines,
+    				# because they have the same meaning.
     				fb.field('packageName.fileName.attribute')
     				fb.field('attribute')
 
     		EXAMPLE 2:
     		class GnrCustomWebPage(object):
-    			/* Here we didn't write the maintable!*/
+    			# Here we haven't written the maintable, and so...
 
     			def main(self,root,**kwargs):
     				fb = root.formbuilder(cols=2)
-    				fb.field('packageName.fileName.attribute') /*This is the only way to recall database.*/
-    				fb.field('attribute')                      /*This line will not work!*/
+    				fb.field('packageName.fileName.attribute') # ... this is the only way to recall database.
+    				fb.field('attribute')                      # This line will not work!
 
     	Now let's see the two examples on dbtable::
 
     		EXAMPLE 3:
     		class GnrCustomWebPage(object):
-    			/* Here we didn't write the maintable!*/
+    			# Here we haven't written the maintable...
 
     			def main(self,root,**kwargs):
     				fb = root.formbuilder(cols=2)
-    				fb.field('attribute',dbtable='packageName.fileName') /*This line will work, even if you haven't
-    				                                                       specify the maintable!*/
+    				fb.field('attribute',dbtable='packageName.fileName') # ... but this line works, even if you
+    				                                                     # haven't specified the maintable!
     		EXAMPLE 4:
     		class GnrCustomWebPage(object):
-    			maintable='shop_management.storage' /*Like before, "shop_management" is the package name, while
-    			                                      "storage.py" is the file name where lies database.*/
+    			maintable='shop_management.storage' # Like before, "shop_management" is the package name, while
+    			                                    # "storage.py" is the file name where lies database.
 
     			def main(self,root,**kwargs):
     				fb = root.formbuilder(cols=2)
-    				fb.field('name') /*This field will get "name" attribute from the "shop_management" package,
-    				                   in the file named "storage".*/
-    				fb.field('name',dbtable='sell_package.employees') /*This field will get "name" attribute from
-    				                                                    the "sell_package" package, in the file
-    				                                                    named "employees.py".*/
+    				fb.field('name') # This field will get "name" attribute from the "shop_management" package,
+    				                 # in the file named "storage".
+    				fb.field('name',dbtable='sell_package.employees') # This field will get "name" attribute from
+    				                                                  # the "sell_package" package, in the file
+    				                                                  # named "employees.py".
 
     	For further details on "dbtable" attribute, see #NISO METTERE IL LINK AL FILE DI DOCUMENTAZIONE SUL FIELD!!
     """
