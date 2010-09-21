@@ -69,15 +69,17 @@ In formbuilder you can put dom and widget elements; its most classic usage is to
 
 	Let's see a code example::
 	
-		fb=pane.formbuilder(datapath='test3',cols=3,fld_width='100%',width='100%',lbl_color='red')
-		fb.textbox(value='^.name',lbl='Name')
-		fb.textbox(value='^.surname',colspan=2,lbl='Surname')
-		fb.numberTextbox(value='^.age',lbl="Age")
-		fb.dateTextbox(value='^.birthdate',lbl='Birthdate')
-		fb.filteringSelect(value='^.sex',values='M:Male,F:Female',lbl='Sex')
-		fb.textbox(value='^.job.profession',lbl='Job')
-		fb.textbox(value='^.job.company_name',lbl='Company name')
-		fb.textbox(value='^.job.fiscal_code',lbl='Fiscal code')
+		class GnrCustomWebPage(object):
+			def main(self,root,**kwargs):
+				fb=pane.formbuilder(datapath='test3',cols=3,fld_width='100%',width='100%')
+				fb.textbox(value='^.name',lbl='Name')
+				fb.textbox(value='^.surname',colspan=2,lbl='Surname')
+				fb.numberTextbox(value='^.age',lbl="Age")
+				fb.dateTextbox(value='^.birthdate',lbl='Birthdate')
+				fb.filteringSelect(value='^.sex',values='M:Male,F:Female',lbl='Sex')
+				fb.textbox(value='^.job.profession',lbl='Job')
+				fb.textbox(value='^.job.company_name',lbl='Company name')
+				fb.textbox(value='^.job.fiscal_code',lbl='Fiscal code')
 
 	Let's see its graphical result:
 
