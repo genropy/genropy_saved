@@ -18,9 +18,9 @@
 	
 	- Attributes_
 	
-	- Other features_
+	- Other features
 	
-		- dbtable: an explanation of the attribute_
+		- dbtable_: an explanation of the attribute
 
 .. _Definition:
 
@@ -63,7 +63,7 @@ To let you see how Genro code is simpler and more compact, we report here a comp
 
 In formbuilder you can put dom and widget elements; its most classic usage is to create a form made by fields and layers, and that's because formbuilder can manage automatically fields and their positioning.
 
-.. _Example:
+.. _Examples:
 
 **Example**:
 
@@ -83,7 +83,7 @@ In formbuilder you can put dom and widget elements; its most classic usage is to
 
 	.. figure:: formbuilder.png
 
-	.. _Attibutes:
+.. _Attibutes:
 
 **Attributes**:
 
@@ -96,7 +96,7 @@ In formbuilder you can put dom and widget elements; its most classic usage is to
 	+--------------------+-------------------------------------------------+--------------------------+
 	| ``cols``           | Set columns number                              |  ``1``                   |
 	+--------------------+-------------------------------------------------+--------------------------+
-	| ``dbtable``        | See dbtable explanation below by clicking here_ |  ``None``                |
+	| ``dbtable``        | See dbtable_ explanation                        |  ``None``                |
 	+--------------------+-------------------------------------------------+--------------------------+
 	| ``disabled``       | #NISO ??? True/False o un path tegolinato...    |  ``False``               |
 	+--------------------+-------------------------------------------------+--------------------------+
@@ -164,7 +164,7 @@ Here we describe the formbuilder's field attributes:
 
 **Other features:**
 		
-	.. _here:
+.. _dbtable:
 	
 **dbtable: an explanation of the attribute**
 	
