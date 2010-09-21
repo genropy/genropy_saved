@@ -23,6 +23,7 @@
 		- dbtable: an explanation of the attribute_
 
 .. _Definition:
+
 **Definition**::
 	
 		def formbuilder(self, cols=1, dbtable=None, tblclass='formbuilder',
@@ -34,11 +35,13 @@
 
 
 .. _Where:
+
 **Where:**
 
 	You can find formbuilder in *genro/gnrpy/gnr/web/gnrwebstruct.py*
 	
 .. _Description:
+
 **Description:**
 
 With formbuilder you have an ordered place to put your HTML object; formbuilder is used in place of an HTML table.
@@ -61,6 +64,7 @@ To let you see how Genro code is simpler and more compact, we report here a comp
 In formbuilder you can put dom and widget elements; its most classic usage is to create a form made by fields and layers, and that's because formbuilder can manage automatically fields and their positioning.
 
 .. _Example:
+
 **Example**:
 
 	Let's see a code example::
