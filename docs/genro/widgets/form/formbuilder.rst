@@ -33,10 +33,23 @@ To let you see how Genro code is simpler and more compact, we report here a comp
 	fb = root.formbuilder()
 	fb.textbox(value='^name',lbl='Name')
 
-In formbuilder you can put dom and widget elements; its most classic usage is to create a form made by fields and layers, and that's because formbuilder can manage automatically fields and their positioning:
+In formbuilder you can put dom and widget elements; its most classic usage is to create a form made by fields and layers, and that's because formbuilder can manage automatically fields and their positioning.
+
+	Let's see a code example::
+	
+		fb=pane.formbuilder(datapath='test3',cols=3,fld_width='100%',width='100%',lbl_color='red')
+		fb.textbox(value='^.name',lbl='Name')
+		fb.textbox(value='^.surname',colspan=2,lbl='Surname')
+		fb.numberTextbox(value='^.age',lbl="Age")
+		fb.dateTextbox(value='^.birthdate',lbl='Birthdate')
+		fb.filteringSelect(value='^.sex',values='M:Male,F:Female',lbl='Sex')
+		fb.textbox(value='^.job.profession',lbl='Job')
+		fb.textbox(value='^.job.company_name',lbl='Company name')
+		fb.textbox(value='^.job.fiscal_code',lbl='Fiscal code')
+
+	Let's see its graphical result:
 
 	.. figure:: formbuilder.png
-	   :alt: An example of the formbuilder.
 
 	+--------------------+-------------------------------------------------+--------------------------+
 	|   Attribute        |          Description                            |   Default                |
@@ -97,10 +110,6 @@ In formbuilder you can put dom and widget elements; its most classic usage is to
 	|                    |                                                 |                          |
 	|                    | Actually it is the unique defined class         |                          |
 	+--------------------+-------------------------------------------------+--------------------------+
-	
-	Example::
-	
-		pane.formbuilder(cols=2,border_spacing='10px',fld_width='100%')
 	
 Here we describe the formbuilder's field attributes:
 	
