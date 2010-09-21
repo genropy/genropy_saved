@@ -35,7 +35,8 @@ To let you see how Genro code is simpler and more compact, we report here a comp
 
 In formbuilder you can put dom and widget elements; its most classic usage is to create a form made by fields and layers, and that's because formbuilder can manage automatically fields and their positioning:
 
-	.. image:: formbuilder.png
+	.. figure:: formbuilder.png
+	   :alt: An example of the formbuilder.
 
 	+--------------------+-------------------------------------------------+--------------------------+
 	|   Attribute        |          Description                            |   Default                |
