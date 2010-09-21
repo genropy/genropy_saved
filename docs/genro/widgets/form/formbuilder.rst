@@ -22,7 +22,9 @@
 	
 		- dbtable: an explanation of the attribute
 
-.. _Definition: **Definition**::
+	.. _Definition:
+
+**Definition**::
 	
 		def formbuilder(self, cols=1, dbtable=None, tblclass='formbuilder',
 	                    lblclass='gnrfieldlabel', lblpos='L', _class='', fieldclass='gnrfield',
