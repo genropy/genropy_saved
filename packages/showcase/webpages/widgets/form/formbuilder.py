@@ -45,8 +45,6 @@ class GnrCustomWebPage(object):
     	                    fldalign=None, fldvalign='middle', disabled=False,
     	                    rowdatapath=None, head_rows=None, **kwargs):
 
-
-
     .. _Where:
 
     **Where:**
@@ -113,10 +111,9 @@ class GnrCustomWebPage(object):
     	+--------------------+-------------------------------------------------+--------------------------+
     	| ``dbtable``        | See dbtable_ explanation                        |  ``None``                |
     	+--------------------+-------------------------------------------------+--------------------------+
-    	| ``disabled``       | #NISO ??? True/False o un path tegolinato...    |  ``False``               |
+    	| ``disabled``       | If True, user can't write in the form.          |  ``False``               |
     	+--------------------+-------------------------------------------------+--------------------------+
-    	| ``fieldclass``     | #NISO ??? Altri attributi! appizza a tutti i    |  ``gnrfield``            |
-    	|                    | figli quella classe                             |                          |
+    	| ``fieldclass``     | CSS class appended to every formbuilder's son   |  ``gnrfield``            |
     	+--------------------+-------------------------------------------------+--------------------------+
     	| ``fld_width``      | Set field width                                 |  ``7em``                 |
     	+--------------------+-------------------------------------------------+--------------------------+
@@ -127,11 +124,9 @@ class GnrCustomWebPage(object):
     	| ``head_rows``      | #NISO ??? GHIGO NON LO SA!                      |  ``None``                |
     	+--------------------+-------------------------------------------------+--------------------------+
     	| ``lblalign``       | Set horizontal label alignment                  |  ``#NISO Boh!``          |
-    	|                    |                                                 |                          |
     	|                    | #NISO Sembra non funzionare                     |                          |
     	+--------------------+-------------------------------------------------+--------------------------+
     	| ``lblclass``       | Set label style                                 |  ``gnrfieldlabel``       |
-    	|                    | #NISO Inserire possibili valori!                |                          |
     	+--------------------+-------------------------------------------------+--------------------------+
     	| ``lblpos``         | Set label position                              |  ``L``                   |
     	|                    |                                                 |                          |
@@ -140,20 +135,6 @@ class GnrCustomWebPage(object):
     	|                    | ``T``: set label on top of text field           |                          |
     	+--------------------+-------------------------------------------------+--------------------------+
     	| ``lblvalign``      | Set vertical label alignment                    |  ``middle``              |
-    	|                    | #NISO Inserire possibili valori                 |                          |
-    	+--------------------+-------------------------------------------------+--------------------------+
-    	| ``pos``            | Choose element position                         |  The first free position |
-    	|                    |                                                 |                          |
-    	|                    | Sintax: pos(NUMBER,NUMBER)                      |                          |
-    	|                    |     whereas the first value represents a row,   |                          |
-    	|                    |     the second value represents a column.       |                          |
-    	|                    |                                                 |                          |
-    	|                    | Other feature: "pos" accepts as a number row    |                          |
-    	|                    | two special characters:                         |                          |
-    	|                    |                                                 |                          |
-    	|                    |         \+ to refer itself at the following row |                          |
-    	|                    |                                                 |                          |
-    	|                    |         \* to refer itself at the current row   |                          |
     	+--------------------+-------------------------------------------------+--------------------------+
     	| ``rowdatapath``    | #NISO ??? GHIGO NON LO SA!                      |  ``None``                |
     	+--------------------+-------------------------------------------------+--------------------------+
@@ -164,16 +145,26 @@ class GnrCustomWebPage(object):
 
     Here we describe the formbuilder's field attributes:
 
-    	+----------------+--------------------------------------------------------+-------------+
-    	|   Attribute    |       Values and description                           |   default   |
-    	+================+========================================================+=============+
-    	| ``lbl``        | Set field label                                        |  ``None``   |
-    	+----------------+--------------------------------------------------------+-------------+
-
-    	Example::
-
-    		fb = pane.formbuilder(cols=2)
-    		fb.textbox(value='^name',lbl='Name')
+    	+----------------+------------------------------------------------------+--------------------------+
+    	|   Attribute    |       Description                                    |   default                |
+    	+================+======================================================+==========================+
+    	| ``colspan``    | Set the number of columns occupied by a single field |  ``None``                |
+    	+----------------+------------------------------------------------------+--------------------------+
+    	| ``lbl``        | Set field label                                      |  ``None``                |
+    	+----------------+------------------------------------------------------+--------------------------+
+    	| ``pos``        | Choose element position                              |  The first free position |
+    	|                |                                                      |                          |
+    	|                | Sintax: pos(NUMBER,NUMBER)                           |                          |
+    	|                |     whereas the first value represents a row,        |                          |
+    	|                |     the second value represents a column.            |                          |
+    	|                |                                                      |                          |
+    	|                | Other feature: "pos" accepts as a number row         |                          |
+    	|                | two special characters:                              |                          |
+    	|                |                                                      |                          |
+    	|                |         \+ to refer itself at the following row      |                          |
+    	|                |                                                      |                          |
+    	|                |         \* to refer itself at the current row        |                          |
+    	+----------------+------------------------------------------------------+--------------------------+
 
     	.. _Other features:
 
@@ -280,22 +271,26 @@ class GnrCustomWebPage(object):
         pane.div("""When a formbuilder attribute begins with "lbl_" (like "lbl_width='10px'"),
                 it means that EVERY "lbl" field attribute will be gain its properties.
                 The same thing happens for each formbuilder attribute that begins with
-                "fld_" (like "fld_width='10em'").
-                To create a beautiful form, we suggest you to write "fld_width='100%'"
-                and "width='100%'" as formbuilder attributes.
-                "cols" set the number of columns of the formbuilder. If you set cols=2
-                and create 3 fields, they will be placed into two columns like this:
-                field_1         field_2
-                field_3
-                Setting "cols=3" would have led to this result, as we expected in an HTML table:
-                field_1         field_2        field_3
-                With "colspan" you can fullfil with a single field the space of two or more
-                field (for an example see in test_3 the textbox with 'lbl=Surname', where)
-                "fld_width" set the dimension of every field; if you want to change a single
-                field you have to use the attribute "field" on it.
-                There are also some attributes that doesn't strictly belong to formbuilder
-                (like "datapath", etc): see paragraph "Other forms and attributes" for more details.""",
+                "fld_" (like "fld_width='10em'").""",
                 font_size='.9em',text_align='justify')
+        pane.div("""To create a beautiful form, we suggest you to write "fld_width='100%'"
+                and "width='100%'" as formbuilder attributes.""",
+                font_size='.9em',text_align='justify')
+        pane.div(""" "cols" set the number of columns of the formbuilder. If you set cols=2
+                and create 3 fields, they will be placed into two columns like this:""",
+                font_size='.9em',text_align='justify')
+        pane.span("field_1 ",font_size='.9em',text_align='justify')
+        pane.span("field_2",font_size='.9em',text_align='justify')
+        pane.div("field_3",font_size='.9em',text_align='justify')
+        pane.div("Setting \"cols=3\" would have led to this result, as we expected in an HTML table:",
+                font_size='.9em',text_align='justify')
+        pane.span("field_1 field_2 field_3",font_size='.9em',text_align='justify')
+        pane.div("""With "colspan" you can fullfil with a single field the space of two or more
+                field (for an example check the textbox with 'lbl=Surname')""",
+                font_size='.9em',text_align='justify')
+        pane.div("\"fld_width\" set the dimension of every field.",
+                font_size='.9em',text_align='justify')
+                
         fb=pane.formbuilder(datapath='test3',cols=3,fld_width='100%',width='100%',lbl_color='red')
         fb.textbox(value='^.name',lbl='Name')
         fb.textbox(value='^.surname',colspan=2,lbl='Surname')
@@ -306,35 +301,50 @@ class GnrCustomWebPage(object):
         fb.textbox(value='^.job.company_name',lbl='Company name')
         fb.textbox(value='^.job.fiscal_code',lbl='Fiscal code')
         
-        # This is a bad test to correct the lblpos and lblalign functioning
-        def test_4_pos_align(self,pane):
-            """lblpos and lblalign"""
-            pane.div('lblpos = \'L\' ')
-            fb = pane.formbuilder(cols=2,lblpos='L')
-            fb.textbox(value='^top',lbl='left')
-            fb.textbox(value='^top2',lbl='left')
-            fb.textbox(value='^top3',lbl='left')
-            fb.textbox(value='^top4',lbl='left')
-
-            pane.div('lblpos = \'T\' ')
-            fb = pane.formbuilder(cols=2,lblpos='T')
-            fb.textbox(value='^top',lbl='top')
-            fb.textbox(value='^top2',lbl='top')
-            fb.textbox(value='^top3',lbl='top')
-            fb.textbox(value='^top4',lbl='top')
-
-            pane.div('lblalign = \'left\' ')
-            fb = pane.formbuilder(cols=2,lblpos='T',lblalign='left')
-            fb.textbox(value='^top',lbl='left')
-            fb.textbox(value='^top2',lbl='left')
-            fb.textbox(value='^top3',lbl='left')
-            fb.textbox(value='^top4',lbl='left')
-
-            pane.div('lblalign = \'right\' ')
-            fb = pane.formbuilder(cols=2,lblpos='T',lblalign='right')
-            fb.textbox(value='^top',lbl='right')
-            fb.textbox(value='^top2',lbl='right')
-            fb.textbox(value='^top3',lbl='right')
-            fb.textbox(value='^top4',lbl='right')
+    def test_4_disabled(self,pane):
+        """Disabled"""
+        pane.div("""In this test you can see the effect of the "disabled" formbuilder attribute: if True
+                    user can't write in the form (use the checkbox to activate this attribute).""",
+                font_size='.9em',text_align='justify')
+        fb=pane.formbuilder(datapath='test5',cols=3,fld_width='100%',width='100%',disabled='^disab')
+        fb.checkbox(value='^disab',lbl='form DISABLED',lbl_width='8em')
+        fb.textbox(value='^.name',lbl='Name')
+        fb.textbox(value='^.surname',lbl='Surname')
+        fb.numberTextbox(value='^.age',lbl="Age")
+        fb.dateTextbox(value='^.birthdate',lbl='Birthdate')
+        fb.filteringSelect(value='^.sex',values='M:Male,F:Female',lbl='Sex')
+        fb.textbox(value='^.job.profession',lbl='Job')
+        fb.textbox(value='^.job.company_name',lbl='Company name')
+        
+# This is a bad test to correct the lblpos and lblalign functioning...
+    def test_5_pos_align(self,pane):
+        """lblpos and lblalign"""
+        pane.div('lblpos = \'L\' ')
+        fb = pane.formbuilder(cols=2,lblpos='L')
+        fb.textbox(value='^top',lbl='left')
+        fb.textbox(value='^top2',lbl='left')
+        fb.textbox(value='^top3',lbl='left')
+        fb.textbox(value='^top4',lbl='left')
+        
+        pane.div('lblpos = \'T\' ')
+        fb = pane.formbuilder(cols=2,lblpos='T')
+        fb.textbox(value='^top',lbl='top')
+        fb.textbox(value='^top2',lbl='top')
+        fb.textbox(value='^top3',lbl='top')
+        fb.textbox(value='^top4',lbl='top')
+        
+        pane.div('lblalign = \'left\' ')
+        fb = pane.formbuilder(cols=2,lblpos='T',lblalign='left')
+        fb.textbox(value='^top',lbl='left')
+        fb.textbox(value='^top2',lbl='left')
+        fb.textbox(value='^top3',lbl='left')
+        fb.textbox(value='^top4',lbl='left')
+        
+        pane.div('lblalign = \'right\' ')
+        fb = pane.formbuilder(cols=2,lblpos='T',lblalign='right')
+        fb.textbox(value='^top',lbl='right')
+        fb.textbox(value='^top2',lbl='right')
+        fb.textbox(value='^top3',lbl='right')
+        fb.textbox(value='^top4',lbl='right')
         
         

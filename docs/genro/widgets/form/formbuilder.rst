@@ -32,8 +32,6 @@
 	                    fldalign=None, fldvalign='middle', disabled=False,
 	                    rowdatapath=None, head_rows=None, **kwargs):
 
-
-
 .. _Where:
 
 **Where:**
@@ -100,10 +98,9 @@ In formbuilder you can put dom and widget elements; its most classic usage is to
 	+--------------------+-------------------------------------------------+--------------------------+
 	| ``dbtable``        | See dbtable_ explanation                        |  ``None``                |
 	+--------------------+-------------------------------------------------+--------------------------+
-	| ``disabled``       | #NISO ??? True/False o un path tegolinato...    |  ``False``               |
+	| ``disabled``       | If True, user can't write in the form.          |  ``False``               |
 	+--------------------+-------------------------------------------------+--------------------------+
-	| ``fieldclass``     | #NISO ??? Altri attributi! appizza a tutti i    |  ``gnrfield``            |
-	|                    | figli quella classe                             |                          |
+	| ``fieldclass``     | CSS class appended to every formbuilder's son   |  ``gnrfield``            |
 	+--------------------+-------------------------------------------------+--------------------------+
 	| ``fld_width``      | Set field width                                 |  ``7em``                 |
 	+--------------------+-------------------------------------------------+--------------------------+
@@ -114,11 +111,9 @@ In formbuilder you can put dom and widget elements; its most classic usage is to
 	| ``head_rows``      | #NISO ??? GHIGO NON LO SA!                      |  ``None``                |
 	+--------------------+-------------------------------------------------+--------------------------+
 	| ``lblalign``       | Set horizontal label alignment                  |  ``#NISO Boh!``          |
-	|                    |                                                 |                          |
 	|                    | #NISO Sembra non funzionare                     |                          |
 	+--------------------+-------------------------------------------------+--------------------------+
 	| ``lblclass``       | Set label style                                 |  ``gnrfieldlabel``       |
-	|                    | #NISO Inserire possibili valori!                |                          |
 	+--------------------+-------------------------------------------------+--------------------------+
 	| ``lblpos``         | Set label position                              |  ``L``                   |
 	|                    |                                                 |                          |
@@ -127,20 +122,6 @@ In formbuilder you can put dom and widget elements; its most classic usage is to
 	|                    | ``T``: set label on top of text field           |                          |
 	+--------------------+-------------------------------------------------+--------------------------+
 	| ``lblvalign``      | Set vertical label alignment                    |  ``middle``              |
-	|                    | #NISO Inserire possibili valori                 |                          |
-	+--------------------+-------------------------------------------------+--------------------------+
-	| ``pos``            | Choose element position                         |  The first free position |
-	|                    |                                                 |                          |
-	|                    | Sintax: pos(NUMBER,NUMBER)                      |                          |
-	|                    |     whereas the first value represents a row,   |                          |
-	|                    |     the second value represents a column.       |                          |
-	|                    |                                                 |                          |
-	|                    | Other feature: "pos" accepts as a number row    |                          |
-	|                    | two special characters:                         |                          |
-	|                    |                                                 |                          |
-	|                    |         \+ to refer itself at the following row |                          |
-	|                    |                                                 |                          |
-	|                    |         \* to refer itself at the current row   |                          |
 	+--------------------+-------------------------------------------------+--------------------------+
 	| ``rowdatapath``    | #NISO ??? GHIGO NON LO SA!                      |  ``None``                |
 	+--------------------+-------------------------------------------------+--------------------------+
@@ -151,16 +132,26 @@ In formbuilder you can put dom and widget elements; its most classic usage is to
 	
 Here we describe the formbuilder's field attributes:
 	
-	+----------------+--------------------------------------------------------+-------------+
-	|   Attribute    |       Values and description                           |   default   |
-	+================+========================================================+=============+
-	| ``lbl``        | Set field label                                        |  ``None``   |
-	+----------------+--------------------------------------------------------+-------------+
-	
-	Example::
-	
-		fb = pane.formbuilder(cols=2)
-		fb.textbox(value='^name',lbl='Name')
+	+----------------+------------------------------------------------------+--------------------------+
+	|   Attribute    |       Description                                    |   default                |
+	+================+======================================================+==========================+
+	| ``colspan``    | Set the number of columns occupied by a single field |  ``None``                |
+	+----------------+------------------------------------------------------+--------------------------+
+	| ``lbl``        | Set field label                                      |  ``None``                |
+	+----------------+------------------------------------------------------+--------------------------+
+	| ``pos``        | Choose element position                              |  The first free position |
+	|                |                                                      |                          |
+	|                | Sintax: pos(NUMBER,NUMBER)                           |                          |
+	|                |     whereas the first value represents a row,        |                          |
+	|                |     the second value represents a column.            |                          |
+	|                |                                                      |                          |
+	|                | Other feature: "pos" accepts as a number row         |                          |
+	|                | two special characters:                              |                          |
+	|                |                                                      |                          |
+	|                |         \+ to refer itself at the following row      |                          |
+	|                |                                                      |                          |
+	|                |         \* to refer itself at the current row        |                          |
+	+----------------+------------------------------------------------------+--------------------------+
 
 	.. _Other features:
 
