@@ -5,6 +5,9 @@
 #  Copyright (c) 2007 Softwell. All rights reserved.
 
 class GnrCustomWebPage(object):
+    
+    # spiegare lo splitter...
+    
     def main(self, root, **kwargs):
         bc = root.borderContainer(regions='^regions')
         top = bc.contentPane(region='top',height='5em',background_color='#f2c922')
