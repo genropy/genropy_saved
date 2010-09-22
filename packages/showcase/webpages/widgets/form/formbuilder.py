@@ -31,7 +31,7 @@ class GnrCustomWebPage(object):
 
     	- Attributes_
 
-    	- Other features
+    	- Other features:
 
     		- dbtable_: an explanation of the attribute
 
@@ -76,7 +76,7 @@ class GnrCustomWebPage(object):
 
     .. _Examples:
 
-    **Example**:
+    **Examples**:
 
     	Let's see a code example::
 
@@ -165,8 +165,6 @@ class GnrCustomWebPage(object):
     	|                |                                                      |                          |
     	|                |         \* to refer itself at the current row        |                          |
     	+----------------+------------------------------------------------------+--------------------------+
-
-    	.. _Other features:
 
     **Other features:**
 
