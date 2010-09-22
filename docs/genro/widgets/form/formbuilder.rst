@@ -18,7 +18,7 @@
 	
 	- Attributes_
 	
-	- Other features
+	- Other features_
 	
 		- dbtable_: an explanation of the attribute
 
@@ -63,7 +63,7 @@ In formbuilder you can put dom and widget elements; its most classic usage is to
 
 .. _Examples:
 
-**Example**:
+**Examples**:
 
 	Let's see a code example::
 	
@@ -153,7 +153,7 @@ Here we describe the formbuilder's field attributes:
 	|                |         \* to refer itself at the current row        |                          |
 	+----------------+------------------------------------------------------+--------------------------+
 
-	.. _Other features:
+.. _Other features:
 
 **Other features:**
 		
