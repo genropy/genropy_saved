@@ -108,6 +108,7 @@ class ServerStore(object):
 
     def set_datachange(self,path,value=None,attributes=None,fired=False,reason=None,replace=False,delete=False):
         datachanges = self.datachanges;
+        self.register_item['datachanges_idx'] = self.register_item.get('datachanges_idx',0)
         self.register_item['datachanges_idx']+=1
         datachange = ClientDataChange(path,value,attributes=attributes,fired=fired,
                                         reason=reason,change_idx=self.register_item['datachanges_idx'],
@@ -618,6 +619,7 @@ class PageRegister(BaseRegister):
             value=page[fltname]
             if not value:
                 return
+            print 'value',value
             if not isinstance(value,basestring):
                 return fltval==value
             try:
