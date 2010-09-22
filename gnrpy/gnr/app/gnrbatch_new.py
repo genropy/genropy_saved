@@ -125,7 +125,7 @@ class SelectionToXls(GnrBatch):
 
 class PrintDbData(GnrBatch):
     def __init__(self, table=None,table_resource=None, class_name=None, selection=None,
-                folder=None, printParams=None, pdfParams=None, commitAfterPrint=False, **kwargs):
+                folder=None, printParams=None, pdfParams=None, commitAfterPrint=False,batch_note=None, **kwargs):
         #import cups
         
         super(PrintDbData,self).__init__(**kwargs)
@@ -146,6 +146,7 @@ class PrintDbData(GnrBatch):
         self.print_connection = self.print_handler.getPrinterConnection(self.printer_name, printParams)
         self.file_list = []
         self.commitAfterPrint=commitAfterPrint
+        self.batch_note = batch_note
 
     @property
     def batch_prefix(self):
