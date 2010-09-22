@@ -18,7 +18,7 @@
 	
 	- Attributes_
 	
-	- Other features_
+	- Other features:
 	
 		- dbtable_: an explanation of the attribute
 
@@ -152,8 +152,6 @@ Here we describe the formbuilder's field attributes:
 	|                |                                                      |                          |
 	|                |         \* to refer itself at the current row        |                          |
 	+----------------+------------------------------------------------------+--------------------------+
-
-.. _Other features:
 
 **Other features:**
 		
