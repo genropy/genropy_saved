@@ -374,9 +374,9 @@ dojo.declare("gnr.widgets.baseHtml",null,{
             //for having form information inside the form datapath
             var controllerPath = objectPop(attributes,'controllerPath');
             var pkeyPath = objectPop(attributes,'pkeyPath');
-
+            var formDatapath = objectPop(attributes,'formDatapath') || sourceNode.absDatapath();
             sourceNode.attr.nodeId = formId;
-            sourceNode.defineForm(formId,sourceNode.absDatapath(),controllerPath,pkeyPath);
+            sourceNode.defineForm(formId,formDatapath,controllerPath,pkeyPath);
         }
         //Fix Colspan in Internet explorer
         if(dojo.isIE>0){

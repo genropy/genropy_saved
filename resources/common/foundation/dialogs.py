@@ -69,7 +69,7 @@ class Dialogs(BaseComponent):
         if cb_bottom:
             cb_bottom(bc,region='bottom',_class='dialog_bottom',confirm_btn=confirm_btn)
         if cb_center:
-            cb_center(bc,region='center',_class='pbl_dialog_center',dlgId=dlgId)
+            cb_center(bc,region='center',_class='pbl_dialog_center',dlgId=dlgId,**kwargs)
         return bc
     
     def formDialog(self,parent,title='',formId='',height='',width='',datapath='',pkeyPath=None,
@@ -79,14 +79,14 @@ class Dialogs(BaseComponent):
         dlgId='%s_dlg'%formId
         bc = self._innerDialog(parent,title=title,dlgId=dlgId,datapath=datapath,
                                height=height,width=width,cb_bottom=cb_bottom,
-                               confirm_btn=confirm_btn,**kwargs)
+                               confirm_btn=confirm_btn)
         bc.dataFormula(".disable_button", "!valid||(!changed && !allowNoChanges)||saving",valid="^.form.valid",
                         changed="^.form.changed",saving='^.form.saving',allowNoChanges=allowNoChanges,
                         formId=formId,_if='formId')
         if cb_center:
             cb_center(bc,region='center',datapath='.data',_class='pbl_dialog_center',
                         controllerPath='#%s.form' %dlgId,pkeyPath=pkeyPath,
-                      formId=formId)
+                      formId=formId,**kwargs)
         #only in form mode
         bc.dataController("""
                              FIRE ._setOpener = opener;

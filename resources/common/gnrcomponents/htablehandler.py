@@ -31,7 +31,37 @@ def _getTreeRowCaption2(tblobj):
         return tblobj.treeRowCaption()
     return  '$child_code'
 
-class HTableHandler(BaseComponent):
+class HTableHandlerBase(BaseComponent):
+    def ht_treeDataStore(self,table=None,rootpath=None,rootcaption=None):
+        tblobj= self.db.table(table)
+        result = Bag()
+        if rootpath:
+            row=tblobj.query(columns='*',where='$code=:code',code=rootpath).fetch()[0]
+            description = row['description']
+            if description:
+                get_tree_row_caption = _getTreeRowCaption
+            else:
+                get_tree_row_caption = _getTreeRowCaption2
+            caption=tblobj.recordCaption(row,rowcaption=get_tree_row_caption(tblobj))
+            rootlabel = row['child_code']
+            pkey=row['pkey']
+            _attributes=dict(row)
+            rootpath=row['code']
+            code=row['code']
+            child_count = row['child_count']
+
+        else:
+            caption=rootcaption
+            rootlabel ='_root_'
+            _attributes=dict()
+            pkey=None
+            code=None
+            rootpath=None
+            child_count = tblobj.query().count()
+        result.setItem(rootlabel, HTableResolver(table=table,rootpath=rootpath),child_count=child_count, caption=caption,pkey=pkey,code=code)#,_attributes=_attributes)
+        return result
+                    
+class HTableHandler(HTableHandlerBase):
     css_requires='public'
     def htableHandler(self,parent,nodeId=None,datapath=None,table=None,rootpath=None,label=None,
                     editMode='bc',childTypes=None,dialogPars=None,loadKwargs=None,parentLock=None,where=None,onChecked=None):
@@ -279,36 +309,7 @@ class HTableHandler(BaseComponent):
                     selected_child_count='.tree.child_count',
                     connect_ondblclick=connect_ondblclick,
                     onChecked=onChecked)
-                    
-    def ht_treeDataStore(self,table=None,rootpath=None,rootcaption=None):
-        tblobj= self.db.table(table)
-        result = Bag()
-        if rootpath:
-            row=tblobj.query(columns='*',where='$code=:code',code=rootpath).fetch()[0]
-            description = row['description']
-            if description:
-                get_tree_row_caption = _getTreeRowCaption
-            else:
-                get_tree_row_caption = _getTreeRowCaption2
-            caption=tblobj.recordCaption(row,rowcaption=get_tree_row_caption(tblobj))
-            rootlabel = row['child_code']
-            pkey=row['pkey']
-            _attributes=dict(row)
-            rootpath=row['code']
-            code=row['code']
-            child_count = row['child_count']
 
-        else:
-            caption=rootcaption
-            rootlabel ='_root_'
-            _attributes=dict()
-            pkey=None
-            code=None
-            rootpath=None
-            child_count = tblobj.query().count()
-        result.setItem(rootlabel, HTableResolver(table=table,rootpath=rootpath),child_count=child_count, caption=caption,pkey=pkey,code=code)#,_attributes=_attributes)
-        return result
-                     
 class HTableResolver(BagResolver):
     classKwargs={'cacheTime':300,
                  'readOnly':False,
@@ -336,19 +337,100 @@ class HTableResolver(BagResolver):
                              parent_code=row['parent_code'],hdescription=row['hdescription'])#_attributes=dict(row),
         return children
         
-class HTablePicker(BaseComponent):
-    def htablePicker(self,parent,nodeId=None,datapath=None,table=None,**kwargs):
-        bc = parent.borderContainer(datapath=datapath,nodeId=nodeId,**kwargs)
-        left = bc.borderContainer(region='left',width='50%',splitter=True)
-        center = bc.contentPane(region='center')
-        self.htp_tree(left)
-        self.htp_edit(center)
+class HTablePicker(HTableHandlerBase):
+    def htablePicker(self,parent,table=None,column=None,rootpath=None,
+                    resultpath=None,nodeId=None,datapath=None,dialogPars=None,
+                    caption=None,grid_struct=None,grid_table=None,grid_where=None,**kwargs):
+        """params htable:
+            parent
+            column??
+            resultpath
+            """
+        dialogPars = dialogPars or dict()
+        tblobj = self.db.table(table)
+        dialogPars['title'] = dialogPars.get('title','%s picker' %tblobj.name_long)
+        dialogPars['height'] = dialogPars.get('height','300px')
+        dialogPars['width'] =  dialogPars.get('width', '400px')
+        dlgbc = self.formDialog(parent,datapath=datapath,formId=nodeId,
+                                cb_center=self.ht_pk_center,caption=caption,table=table,
+                                grid_struct=grid_struct,
+                                grid_where=grid_where,
+                                grid_table=grid_table,**dialogPars)
+                                
+        dlgbc.dataRpc('.data.tree','ht_pk_getTreeData',table=table,
+                        rootpath=rootpath,rootcaption=tblobj.name_plural,
+                        nodeId='%s_loader' %nodeId,_onResult='FIRE .check_curr_elements;')
+        dlgbc.dataController("FIRE .reload_tree; console.log(checked_elements); FIRE .loaded",
+                            _fired="^.check_curr_elements",checked_elements='=%s' %resultpath)
+        dlgbc.dataController("""
+                            var result = [];
+                            console.log('sto salvando');
+                            treedata.walk(function(n){
+                                if (n.attr['checked']==true && !n.getValue()){
+                                    result.push(n.attr['code']);
+                                }
+                            });
+                            console.log(result);
+                            FIRE .saved;
+        
+                            """,nodeId='%s_saver' %nodeId,treedata='=.data.tree')        
+        
+        
+    def rpc_ht_pk_getTreeData(self,table=None,rootpath=None,rootcaption=None):
+        result = self.db.table(table).query().fetchAsBag(key='code')
+        return result
     
-    def htp_tree(self,pane):
-        pane.div('will be tree')
-    
-    def htp_edit(self,pane):
-        pane.div('will be something else')
+    def ht_pk_center(self,parentBC,table=None,formId=None,datapath=None,
+                    controllerPath=None,region=None,caption=None,grid_struct=None,
+                    grid_table=None,grid_where=None,**kwargs):
+        sc = parentBC.stackContainer(_class='pbl_roundedGroup',selectedPage='^.selectedPage',region=region)
+        self._ht_pk_tree(sc.borderContainer(pageName='tree'),
+                         caption=caption,datapath=datapath,
+                        controllerPath=controllerPath,
+                        formDatapath='.data.tree',formId=formId)
+        self._ht_pk_view(sc.borderContainer(pageName='view'),
+                        caption=caption, gridId='%s_grid' %formId,dlgId='%s_dlg' %formId,
+                        table=table,grid_table=grid_table,grid_where=grid_where,
+                        grid_struct=grid_struct)
+
+    def _ht_pk_tree(self,bc,caption=None,datapath=None,formId=None,controllerPath=None,**kwargs):
+        top = bc.contentPane(region='top').toolbar().div(value=caption,height='20px')
+        bc.contentPane(region='bottom').button('Show selected',action='FIRE .calculate_checked; SET .selectedPage = "view";')
+        
+        center = bc.contentPane(region='center',datapath=datapath,formId=formId,controllerPath=controllerPath)
+        center.tree(storepath ='.tree',
+                    isTree =False,hideValues=True,
+                    _fired='^.#parent.reload_tree',
+                    inspect ='shift',labelAttribute ='code',
+                    onChecked=True)
+        bc.dataController("""
+                            var result = [];
+                            treedata.walk(function(n){
+                                if (n.attr['checked']==true && !n.getValue()){
+                                    result.push(n.attr['code']);
+                                }
+                            });
+                            SET .data.checked_codes = result;
+                            FIRE .preview_grid.load;
+                            """,_fired="^.calculate_checked",treedata='=.data.tree')
+                    
+    def _ht_pk_view(self,bc,caption=None,gridId=None,table=None,
+                    grid_struct=None,grid_where=None,grid_table=None,
+                    dlgId=None,**kwargs):
+        def footer(pane,**kwargs):
+            pane.button('Tree',action='SET .#parent.selectedPage = "tree";')
+        self.includedViewBox(bc,label=caption,footer=footer,datapath='.preview_grid',
+                             nodeId=gridId,
+                             table=grid_table or table,autoWidth=True,
+                             struct=grid_struct or self._ht_pk_view_struct,
+                             reloader='^.load', 
+                             selectionPars=dict(where=grid_where or '$code IN :codes',
+                                                codes='=.#parent.data.checked_codes'))
+                                                
+    def _ht_pk_view_struct(self,struct):
+        r = struct.view().rows()
+        r.fieldcell('code', name='!!Code', width='5em')
+        return struct
         
         
         
