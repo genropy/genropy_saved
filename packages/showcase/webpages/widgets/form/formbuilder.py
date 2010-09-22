@@ -346,4 +346,3 @@ class GnrCustomWebPage(object):
         fb.textbox(value='^top3',lbl='right')
         fb.textbox(value='^top4',lbl='right')
         
-        
