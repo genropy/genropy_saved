@@ -909,17 +909,19 @@ class GnrWebPage(GnrBaseWebPage):
             os.makedirs(folder)
         return filepath
     
-    def connectionDocumentUrl(self, nocache=True,*args ):
+    def connectionDocumentUrl(self, *args ,**kwargs):
+        nocache=kwargs.get('nocache')
         if nocache:
-            return self.site.getStatic('conn').nocache_url(self,*args)
+            return self.site.getStatic('conn').nocache_url(self.connection_id, self.page_id,*args)
         else:
-            return self.site.getStatic('conn').url(self,*args)
+            return self.site.getStatic('conn').url(self.connection_id, self.page_id,*args)
         
-    def userDocumentUrl(self,nocache=True, *args):
+    def userDocumentUrl(self,*args, **kwargs):
+        nocache=kwargs.get('nocache')
         if nocache:
-            return self.site.getStatic('user').nocache_url(self,*args)
+            return self.site.getStatic('user').nocache_url(self.user,*args)
         else:
-            return self.site.getStatic('user').nocache_url(self,*args)
+            return self.site.getStatic('user').nocache_url(self.user,*args)
             
     def isLocalizer(self) :
         return (self.userTags and ('_TRD_' in self.userTags))

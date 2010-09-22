@@ -86,7 +86,7 @@ class StaticHandler(object):
             file_responder.cache_control(max_age=self.site.cache_max_age)
         return file_responder(environ, start_response)
 
-    def nocache_url(*args):
+    def nocache_url(self, *args):
         url = self.url(*args)
         fpath = self.path(*args)
         if os.path.exists(fpath):
@@ -152,8 +152,8 @@ class ConnectionStaticHandler(StaticHandler):
     def path(self,connection_id,page_id,*args):
         return os.path.join(self.site.site_path,'data','_connections', connection_id, page_id, *args)
         
-    def url(self, page,*args):
-        return '%s_conn/%s/%s/%s'%(self.home_uri,page.connection_id, page.page_id,'/'.join(args))
+    def url(self, connection_id, page_id ,*args):
+        return '%s_conn/%s/%s/%s'%(self.home_uri,connection_id, page_id,'/'.join(args))
 
 
 class UserStaticHandler(StaticHandler):
@@ -161,5 +161,5 @@ class UserStaticHandler(StaticHandler):
     def path(self,user,*args):
         return os.path.join(self.site.site_path,'data','_users', user, *args)
         
-    def url(self, page,*args):
-        return '%s_user/%s/%s'%(self.home_uri,page.user,'/'.join(args))
+    def url(self, user,*args):
+        return '%s_user/%s/%s'%(self.home_uri,user,'/'.join(args))
