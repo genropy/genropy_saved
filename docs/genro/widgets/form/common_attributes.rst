@@ -1,6 +1,4 @@
 
-.. _common-attributes:
-
 ===================
  Common attributes
 ===================
