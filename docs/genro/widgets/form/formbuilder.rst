@@ -135,11 +135,11 @@ In formbuilder you can put dom and widget elements; its most classic usage is to
 	|                    | Actually it is the unique defined class         |                          |
 	+--------------------+-------------------------------------------------+--------------------------+
 	
-	Note: you can give CSS attributes to the field by using "fld_" followed by a CSS attribute, like::
+	Note: you can give CSS attributes to the field by using `fld_` followed by a CSS attribute, like::
 	
 		fld_color='red'
 		
-	In the same way you can modify lbl appearences, like::
+	In the same way (that is `lbl_` plus a CSS attribute) you can modify lbl appearences, like::
 	
 		lbl_width='10em'
 	
