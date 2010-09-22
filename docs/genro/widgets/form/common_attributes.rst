@@ -24,9 +24,9 @@ In this section we report all those attributes that are common to many Genro obj
 	
 	- Default value: ???
 	
-	Example::
+		Example::
 
-		pane.???(???)
+			pane.???(???)
 		
 	Let's see its graphical result:
 
