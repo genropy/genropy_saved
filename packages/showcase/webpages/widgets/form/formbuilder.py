@@ -10,7 +10,7 @@ class GnrCustomWebPage(object):
     py_requires="gnrcomponents/testhandler:TestHandlerFull"
     # dojo_theme='claro'    # !! Uncomment this row for Dojo_1.5 usage
     
-    """ 
+    """
     =============
      formbuilder
     =============
@@ -121,7 +121,7 @@ class GnrCustomWebPage(object):
     	+--------------------+-------------------------------------------------+--------------------------+
     	| ``fldvalign``      | Set field vertical align                        |  ``middle``              |
     	+--------------------+-------------------------------------------------+--------------------------+
-    	| ``head_rows``      | #NISO ??? GHIGO NON LO SA!                      |  ``None``                |
+    	| ``head_rows``      | #NISO ???                                       |  ``None``                |
     	+--------------------+-------------------------------------------------+--------------------------+
     	| ``lblalign``       | Set horizontal label alignment                  |  ``#NISO Boh!``          |
     	|                    | #NISO Sembra non funzionare                     |                          |
@@ -136,7 +136,7 @@ class GnrCustomWebPage(object):
     	+--------------------+-------------------------------------------------+--------------------------+
     	| ``lblvalign``      | Set vertical label alignment                    |  ``middle``              |
     	+--------------------+-------------------------------------------------+--------------------------+
-    	| ``rowdatapath``    | #NISO ??? GHIGO NON LO SA!                      |  ``None``                |
+    	| ``rowdatapath``    | #NISO ???                                       |  ``None``                |
     	+--------------------+-------------------------------------------------+--------------------------+
     	| ``tblclass``       | The standard class for formbuilder.             |  ``formbuilder``         |
     	|                    |                                                 |                          |
@@ -224,6 +224,7 @@ class GnrCustomWebPage(object):
     				                                                  # named "employees.py".
 
     	For further details on "dbtable" attribute, see #NISO METTERE IL LINK AL FILE DI DOCUMENTAZIONE SUL FIELD!!
+    	
     """
     
     #   - Other forms and attributes:

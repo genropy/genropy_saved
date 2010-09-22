@@ -108,7 +108,7 @@ In formbuilder you can put dom and widget elements; its most classic usage is to
 	+--------------------+-------------------------------------------------+--------------------------+
 	| ``fldvalign``      | Set field vertical align                        |  ``middle``              |
 	+--------------------+-------------------------------------------------+--------------------------+
-	| ``head_rows``      | #NISO ??? GHIGO NON LO SA!                      |  ``None``                |
+	| ``head_rows``      | #NISO ???                                       |  ``None``                |
 	+--------------------+-------------------------------------------------+--------------------------+
 	| ``lblalign``       | Set horizontal label alignment                  |  ``#NISO Boh!``          |
 	|                    | #NISO Sembra non funzionare                     |                          |
@@ -123,7 +123,7 @@ In formbuilder you can put dom and widget elements; its most classic usage is to
 	+--------------------+-------------------------------------------------+--------------------------+
 	| ``lblvalign``      | Set vertical label alignment                    |  ``middle``              |
 	+--------------------+-------------------------------------------------+--------------------------+
-	| ``rowdatapath``    | #NISO ??? GHIGO NON LO SA!                      |  ``None``                |
+	| ``rowdatapath``    | #NISO ???                                       |  ``None``                |
 	+--------------------+-------------------------------------------------+--------------------------+
 	| ``tblclass``       | The standard class for formbuilder.             |  ``formbuilder``         |
 	|                    |                                                 |                          |
