@@ -21,6 +21,7 @@
 	- Other features:
 	
 		- dbtable_: an explanation of the attribute
+		- label and lbl: an explanation_.
 
 .. _Definition:
 
@@ -98,7 +99,7 @@ In formbuilder you can put dom and widget elements; its most classic usage is to
 	+--------------------+-------------------------------------------------+--------------------------+
 	| ``dbtable``        | See dbtable_ explanation                        |  ``None``                |
 	+--------------------+-------------------------------------------------+--------------------------+
-	| ``disabled``       | If True, user can't write in the form.          |  ``False``               |
+	| ``disabled``       | See :doc:`/common/attributes`                                              |
 	+--------------------+-------------------------------------------------+--------------------------+
 	| ``fieldclass``     | CSS class appended to every formbuilder's son   |  ``gnrfield``            |
 	+--------------------+-------------------------------------------------+--------------------------+
@@ -109,6 +110,8 @@ In formbuilder you can put dom and widget elements; its most classic usage is to
 	| ``fldvalign``      | Set field vertical align                        |  ``middle``              |
 	+--------------------+-------------------------------------------------+--------------------------+
 	| ``head_rows``      | #NISO ???                                       |  ``None``                |
+	+--------------------+-------------------------------------------------+--------------------------+
+	| ``hidden``         | See :doc:`/common/attributes`                                              |
 	+--------------------+-------------------------------------------------+--------------------------+
 	| ``lblalign``       | Set horizontal label alignment                  |  ``#NISO Boh!``          |
 	|                    | #NISO Sembra non funzionare                     |                          |
@@ -137,7 +140,9 @@ Here we describe the formbuilder's field attributes:
 	+================+======================================================+==========================+
 	| ``colspan``    | Set the number of columns occupied by a single field |  ``None``                |
 	+----------------+------------------------------------------------------+--------------------------+
-	| ``lbl``        | Set field label                                      |  ``None``                |
+	| ``label``      | Set field right label - for more details, check this example_.                  |
+	+----------------+---------------------------------------------------------------------------------+
+	| ``lbl``        | Set field left label - for more details, check this example_.                   |
 	+----------------+------------------------------------------------------+--------------------------+
 	| ``pos``        | Choose element position                              |  The first free position |
 	|                |                                                      |                          |
@@ -209,4 +214,11 @@ Here we describe the formbuilder's field attributes:
 				                                                  # named "employees.py".
 		
 	For further details on "dbtable" attribute, see #NISO METTERE IL LINK AL FILE DI DOCUMENTAZIONE SUL FIELD!!
-		
+	
+.. _example:
+
+.. _explanation:
+
+**label and lbl: an explanation**:
+
+	SPIEGARE!! ???
