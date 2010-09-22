@@ -179,9 +179,8 @@ Here we describe the formbuilder's field attributes:
 **dbtable: an explanation of the attribute**
 	
 	The "dbtable" attribute is used to give a different path for database table in the queries of field form widget. If you don't specify it, Genro will put the value of maintable as dbtable value. Let's see two examples on "maintable", and two examples on "dbtable"::
-	
+				
 		# EXAMPLE 1
-		
 		class GnrCustomWebPage(object):
 		    maintable='packageName.fileName'	# This is the line for maintable definition, whereas "packageName"
 		                                        # is the name of the package, while "fileName" is the name of the model
