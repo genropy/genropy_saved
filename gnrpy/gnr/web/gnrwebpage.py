@@ -890,8 +890,8 @@ class GnrWebPage(GnrBaseWebPage):
     def temporaryDocument(self, *args):
         return self.connectionDocument('temp',*args)
     
-    def temporaryDocumentUrl(self, nocache=True,*args):
-        return self.connectionDocumentUrl('temp',*args, nocache=nocache)
+    def temporaryDocumentUrl(self,*args, **kwargs):
+        return self.connectionDocumentUrl('temp',*args, **kwargs)
     
     
         
