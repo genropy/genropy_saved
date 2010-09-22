@@ -2,29 +2,15 @@
  Common attributes
 ===================
 
-.. currentmodule:: ???
-
-.. class:: ??? -  Genropy ???
+In this section we report all those attributes that are common to every Genro object. Howewer, in some case we report this attribute even in the single widget, suggesting to take vision of this page for more details.
 
 **Index:**
 
-	- Description_
-	
-	- Attributes:
-	
-		- disabled_
+	- disabled_
 		
-		- hidden_
+	- hidden_
 		
-		- value_
-
-
-.. _Description:
-
-**Description:**
-
-	In this section we report all those attributes that are common to every Genro object. Howewer, in some case we report this attribute even in the single widget, suggesting to take vision of this page for more details.
-
+	- value_
 
 .. _disabled:
 
@@ -49,7 +35,6 @@
 	.. figure:: ???.png
 
 
-.. _Attributes:
 
 
 	+--------------------+-------------------------------------------------+--------------------------+
