@@ -15,19 +15,66 @@ class GnrCustomWebPage(object):
      Checkbox
     ==========
 
-    .. currentmodule:: widgets
+    .. currentmodule:: form
 
     .. class:: checkbox -  Genropy checkbox
+
+    **Index:**
+
+    	- Definition_
+
+    	- Where_
+
+    	- Description_
+
+    	- Examples_
+
+    	- Attributes_
+
+    .. _Definition:
 
     **Definition**: same definition of Dojo checkbox (version 1.5). To show it, click here_.
 
     .. _here: http://docs.dojocampus.org/dijit/form/CheckBox
 
+    	Checkbox is a widget that permits the user to make a selection.
+
+    .. _Where:
+
+    **Where:**
+
+    	#NISO ???
+
+    .. _Description:
+
+    **Description:**
+
     	Genro checkbox is the combination between an HTML checkbox and a Dojo checkbox.
+
+    .. _Examples:
+
+    **Examples**:
 
     	Example::
 
     		pane.checkbox(value='^name',label='Name')
+
+    	Let's see its graphical result:
+
+    	.. figure:: checkbox.png
+
+    .. _Attributes:
+
+    **Attributes**:
+
+    	+--------------------+-------------------------------------------------+--------------------------+
+    	|   Attribute        |          Description                            |   Default                |
+    	+====================+=================================================+==========================+
+    	| ``label``          | Set checkbox label                              |  ``None``                |
+    	+--------------------+-------------------------------------------------+--------------------------+
+    	| ``value``          | Set a path for checkbox value                   |  ``None``                |
+    	+--------------------+-------------------------------------------------+--------------------------+
+    
     """
         
         #   - Other forms and attributes:
@@ -37,14 +84,21 @@ class GnrCustomWebPage(object):
         #       some documentation about them.
         #
         #       ## name ##      --> ## file ##
+        #       datapath        --> datapath.py
         #       formbuilder     --> formbuilder.py
+        #       lbl             --> formbuilder.py
+        #       value           --> datapath.py
         
-    def test_1_checkbox(self,pane):
-        """Checkbox button"""
-        pane.div(""" Here we show you an example of checkbox button.""",
-                 font_size='.9em',text_align='justify')
+    def test_1_basic(self,pane):
+        """Basic checkbox"""
+        fb = pane.formbuilder(datapath='test1',cols=2)
+        fb.checkbox(value='^.checkbox',lbl='Checkbox')
+        fb.checkbox(value='^.checkbox2',lbl='Checkbox')
+        
+    def test_2_checkbox(self,pane):
+        """Checkbox"""
         labels = 'First,Second,Third'
         labels=labels.split(',')
-        pane=pane.formbuilder()
+        pane=pane.formbuilder(datapath='test2')
         for label in labels:
-            pane.checkbox(value='^cb_%s'%label, label=label)
+            pane.checkbox(value='^.%s_checkbox'%label,label=label)
