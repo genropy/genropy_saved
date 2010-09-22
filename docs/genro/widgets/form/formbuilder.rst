@@ -180,7 +180,7 @@ Here we describe the formbuilder's field attributes:
 	
 	The "dbtable" attribute is used to give a different path for database table in the queries of field form widget. If you don't specify it, Genro will put the value of maintable as dbtable value. Let's see two examples on "maintable", and two examples on "dbtable"::
 	
-		EXAMPLE 1:
+		# EXAMPLE 1
 		
 		class GnrCustomWebPage(object):
 		    maintable='packageName.fileName'	# This is the line for maintable definition, whereas "packageName"
@@ -195,7 +195,7 @@ Here we describe the formbuilder's field attributes:
 				fb.field('packageName.fileName.attribute')
 				fb.field('attribute')
 				
-		EXAMPLE 2:
+		# EXAMPLE 2
 		class GnrCustomWebPage(object):
 			# Here we haven't written the maintable, and so...
 			
@@ -206,7 +206,7 @@ Here we describe the formbuilder's field attributes:
 	
 	Now let's see the two examples on dbtable::
 				
-		EXAMPLE 3:
+		# EXAMPLE 3
 		class GnrCustomWebPage(object):
 			# Here we haven't written the maintable...
 			
@@ -214,7 +214,7 @@ Here we describe the formbuilder's field attributes:
 				fb = root.formbuilder(cols=2)
 				fb.field('attribute',dbtable='packageName.fileName') # ... but this line works, even if you
 				                                                     # haven't specified the maintable!
-		EXAMPLE 4:
+		# EXAMPLE 4
 		class GnrCustomWebPage(object):
 			maintable='shop_management.storage' # Like before, "shop_management" is the package name, while
 			                                    # "storage.py" is the file name where lies database.
