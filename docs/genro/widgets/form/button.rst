@@ -17,10 +17,6 @@
 	- Examples_
 	
 	- Attributes_
-	
-	- Other features:
-		
-		- feature1_: descriptionTitle1
 
 .. _Definition:
 
@@ -71,16 +67,6 @@
 	+--------------------+-------------------------------------------------+--------------------------+
 	| ``value``          | Set a path for button value                     |  ``None``                |
 	+--------------------+-------------------------------------------------+--------------------------+
-
-**Other features:**
-
-.. _feature1:
-	
-**descriptionTitle1**
-
-
-
-
 
 
 
