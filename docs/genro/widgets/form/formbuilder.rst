@@ -97,9 +97,11 @@ In formbuilder you can put dom and widget elements; its most classic usage is to
 	+--------------------+-------------------------------------------------+--------------------------+
 	| ``cols``           | Set columns number                              |  ``1``                   |
 	+--------------------+-------------------------------------------------+--------------------------+
+	| ``datapath``       | See :doc:`/common/attributes`                   |  ``None``                |
+	+--------------------+-------------------------------------------------+--------------------------+
 	| ``dbtable``        | See dbtable_ explanation                        |  ``None``                |
 	+--------------------+-------------------------------------------------+--------------------------+
-	| ``disabled``       | See :doc:`/common/attributes`                                              |
+	| ``disabled``       | See :doc:`/common/attributes`                   |  ``False``               |
 	+--------------------+-------------------------------------------------+--------------------------+
 	| ``fieldclass``     | CSS class appended to every formbuilder's son   |  ``gnrfield``            |
 	+--------------------+-------------------------------------------------+--------------------------+
@@ -111,7 +113,7 @@ In formbuilder you can put dom and widget elements; its most classic usage is to
 	+--------------------+-------------------------------------------------+--------------------------+
 	| ``head_rows``      | #NISO ???                                       |  ``None``                |
 	+--------------------+-------------------------------------------------+--------------------------+
-	| ``hidden``         | See :doc:`/common/attributes`                                              |
+	| ``hidden``         | See :doc:`/common/attributes`                   |  ``False``               |
 	+--------------------+-------------------------------------------------+--------------------------+
 	| ``lblalign``       | Set horizontal label alignment                  |  ``#NISO Boh!``          |
 	|                    | #NISO Sembra non funzionare                     |                          |
@@ -140,6 +142,8 @@ Here we describe the formbuilder's field attributes:
 	+================+======================================================+==========================+
 	| ``colspan``    | Set the number of columns occupied by a single field |  ``None``                |
 	+----------------+------------------------------------------------------+--------------------------+
+	| ``hidden``     | See :doc:`/common/attributes`                        |  ``False``               |
+	+----------------+------------------------------------------------------+--------------------------+
 	| ``label``      | Set field right label - for more details, check this example_.                  |
 	+----------------+---------------------------------------------------------------------------------+
 	| ``lbl``        | Set field left label - for more details, check this example_.                   |
@@ -156,6 +160,8 @@ Here we describe the formbuilder's field attributes:
 	|                |         \+ to refer itself at the following row      |                          |
 	|                |                                                      |                          |
 	|                |         \* to refer itself at the current row        |                          |
+	+----------------+------------------------------------------------------+--------------------------+
+	| ``value``      | See :doc:`/common/attributes`                        |  ``None``                |
 	+----------------+------------------------------------------------------+--------------------------+
 
 **Other features:**
@@ -213,12 +219,14 @@ Here we describe the formbuilder's field attributes:
 				                                                  # the "sell_package" package, in the file
 				                                                  # named "employees.py".
 		
-	For further details on "dbtable" attribute, see #NISO METTERE IL LINK AL FILE DI DOCUMENTAZIONE SUL FIELD!!
+	For further details on "dbtable" attribute, see also :doc:`/form/field`
 	
 .. _example:
 
 .. _explanation:
 
 **label and lbl: an explanation**:
-
-	SPIEGARE!! ???
+	
+	Every formbuilder column is splitted in two parts (left one and right one): the right part is the one where user can compile fields, while the left part is where "lbl" attribute appear. You can also see the effect of "border_spacing" css attribute, that is the space between fields. Last thing: to help you in discovering of the formbuilder hidden structure we used the "border" attribute (the outcome doesn't follow the standard of beauty, but the example is very instructive!).
+	
+	When a formbuilder attribute begins with "lbl_" (like "lbl_width='10px'"), it means that EVERY "lbl" field attribute will be gain its properties. The same thing happens for each formbuilder attribute that begins with "fld_" (like "fld_width='10em'").
