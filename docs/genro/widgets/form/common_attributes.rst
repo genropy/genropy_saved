@@ -2,11 +2,13 @@
  Common attributes
 ===================
 
-In this section we report all those attributes that are common to every Genro object. Howewer, in some case we report this attribute even in the single widget, suggesting to take vision of this page for more details.
+In this section we report all those attributes that are common to many Genro objects. Nevertheless, in some case we report those attributes even in the single widget, suggesting to take vision of this page for more details.
 
 **Index:**
 
 	- disabled_
+	
+	- label_
 		
 	- hidden_
 		
@@ -14,18 +16,14 @@ In this section we report all those attributes that are common to every Genro ob
 
 .. _disabled:
 
-**disabled**: 
+**disabled**:
 
+	- Description: with ... ???
 
-.. _hidden:
-
-**hidden**:
-
-.. _value:
-
-**value**:
-
-
+	- Validity: ???
+	
+	- Default value: ???
+	
 	Example::
 
 		pane.???(???)
@@ -34,14 +32,26 @@ In this section we report all those attributes that are common to every Genro ob
 
 	.. figure:: ???.png
 
+.. _label:
 
+**label**:
 
+.. _hidden:
+
+**hidden**:
 
 	+--------------------+-------------------------------------------------+--------------------------+
 	|   Attribute        |          Description                            |   Default                |
 	+====================+=================================================+==========================+
-	| ``nameAttribute``  | description...                                  |  ``defaultValue``        |
+	| ``hidden``         | ???                                             |  ``None``                |
+	|                    |                                                 |                          |
+	|                    |                                                 |                          |
+	|                    |                                                 |                          |
+	|                    | boolean or resolver                             |                          |
 	+--------------------+-------------------------------------------------+--------------------------+
-	| ``nameAttribute``  | description...                                  |  ``defaultValue``        |
-	+--------------------+-------------------------------------------------+--------------------------+
-	
+
+.. _value:
+
+**value**:
+
+
