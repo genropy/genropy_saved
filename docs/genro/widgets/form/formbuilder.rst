@@ -219,7 +219,7 @@ Here we describe the formbuilder's field attributes:
 				                                                  # the "sell_package" package, in the file
 				                                                  # named "employees.py".
 		
-	For further details on "dbtable" attribute, see also :doc:`widgets/form/field`
+	For further details on "dbtable" attribute, see also :doc:`/widgets/form/field`
 	
 .. _example:
 
