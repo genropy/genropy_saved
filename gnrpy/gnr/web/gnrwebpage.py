@@ -890,8 +890,8 @@ class GnrWebPage(GnrBaseWebPage):
     def temporaryDocument(self, *args):
         return self.connectionDocument('temp',*args)
     
-    def temporaryDocumentUrl(self, *args):
-        return self.connectionDocumentUrl('temp',*args)
+    def temporaryDocumentUrl(self, nocache=True,*args):
+        return self.connectionDocumentUrl('temp',*args, nocache=nocache)
     
     
         
@@ -909,12 +909,18 @@ class GnrWebPage(GnrBaseWebPage):
             os.makedirs(folder)
         return filepath
     
-    def connectionDocumentUrl(self, *args):
-        return self.site.getStatic('conn').url(self,*args)
+    def connectionDocumentUrl(self, nocache=True,*args ):
+        if nocache:
+            return self.site.getStatic('conn').nocache_url(self,*args)
+        else:
+            return self.site.getStatic('conn').url(self,*args)
         
-    def userDocumentUrl(self, *args):
-        return self.site.getStatic('user').url(self,*args)
-    
+    def userDocumentUrl(self,nocache=True, *args):
+        if nocache:
+            return self.site.getStatic('user').nocache_url(self,*args)
+        else:
+            return self.site.getStatic('user').nocache_url(self,*args)
+            
     def isLocalizer(self) :
         return (self.userTags and ('_TRD_' in self.userTags))
         

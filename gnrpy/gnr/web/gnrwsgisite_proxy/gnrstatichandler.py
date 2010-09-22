@@ -6,7 +6,7 @@ import sys
 from gnr.core.gnrsys import expandpath
 from paste import fileapp
 from paste.httpheaders import ETAG
-
+import random
 
 class StaticHandlerManager(object):
     """ This class handles the StaticHandlers"""
@@ -86,6 +86,15 @@ class StaticHandler(object):
             file_responder.cache_control(max_age=self.site.cache_max_age)
         return file_responder(environ, start_response)
 
+    def nocache_url(*args):
+        url = self.url(*args)
+        fpath = self.path(*args)
+        if os.path.exists(fpath):
+            mtime = os.stat(fpath).st_mtime
+        else:
+            mtime = random.random()*100000
+        url = '%s?mtime=%0.0f'%(url,mtime)
+        return url
     
 class DojoStaticHandler(StaticHandler):
     prefix='dojo'
