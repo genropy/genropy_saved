@@ -28,9 +28,9 @@ In this section we report all those attributes that are common to many Genro obj
 
 			pane.???(???)
 		
-	Let's see its graphical result:
+		Let's see its graphical result:
 
-	.. figure:: ???.png
+		.. figure:: ???.png
 
 .. _label:
 
