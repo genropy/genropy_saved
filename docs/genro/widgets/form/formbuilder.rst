@@ -135,6 +135,14 @@ In formbuilder you can put dom and widget elements; its most classic usage is to
 	|                    | Actually it is the unique defined class         |                          |
 	+--------------------+-------------------------------------------------+--------------------------+
 	
+	Note: you can give CSS attributes to the field by using "fld_" followed by a CSS attribute, like::
+	
+		fld_color='red'
+		
+	In the same way you can modify lbl appearences, like::
+	
+		lbl_width='10em'
+	
 Here we describe the formbuilder's field attributes:
 	
 	+----------------+------------------------------------------------------+--------------------------+
@@ -219,7 +227,7 @@ Here we describe the formbuilder's field attributes:
 				                                                  # the "sell_package" package, in the file
 				                                                  # named "employees.py".
 		
-	For further details on "dbtable" attribute, see also :doc:`/widgets/form/field`
+	For further details on "dbtable" attribute, see also :doc:`/widgets/form/field`.
 	
 .. _example:
 
@@ -227,6 +235,35 @@ Here we describe the formbuilder's field attributes:
 
 **label and lbl: an explanation**:
 	
-	Every formbuilder column is splitted in two parts (left one and right one): the right part is the one where user can compile fields, while the left part is where "lbl" attribute appear. You can also see the effect of "border_spacing" css attribute, that is the space between fields. Last thing: to help you in discovering of the formbuilder hidden structure we used the "border" attribute (the outcome doesn't follow the standard of beauty, but the example is very instructive!).
+	Every formbuilder column is splitted in two parts (left one and right one): in the left one lies the value of the "lbl" attribute, while in the right one lies the value of the "label" attribute. Usually BLA BLA???
 	
-	When a formbuilder attribute begins with "lbl_" (like "lbl_width='10px'"), it means that EVERY "lbl" field attribute will be gain its properties. The same thing happens for each formbuilder attribute that begins with "fld_" (like "fld_width='10em'").
+	Example::
+	
+		class GnrCustomWebPage(object):
+			def main(self,root,**kwargs):
+				fb = pane.formbuilder(datapath='test2',cols=2)
+				fb.textbox(value='^.name',lbl='Name')
+				fb.textbox(value='^.surname',lbl='Surname')
+				fb.textbox(value='^.job',lbl='Profession')
+				fb.numberTextbox(value='^.age',lbl='Age')
+				fb.div('Favorite sport:')
+				fb.div('Favorite browser:')
+				fb.checkbox(value='^.football',label='Football')
+				fb.radiobutton('Internet explorer',value='^.radio1',group='genre1')
+				fb.checkbox(value='^.basketball',label='Basketball')
+				fb.radiobutton('Mozilla Firefox',value='^.radio2',group='genre1')
+				fb.checkbox(value='^.tennis',label='Tennis')
+				fb.radiobutton('Google Chrome',value='^.radio3',group='genre1')
+	
+	.. figure:: formbuilder2.png
+	
+	To help you in discovering of the formbuilder hidden structure we used the "border" attribute (the outcome doesn't follow the standard of beauty, but the example is very instructive!).
+	
+	So replacing the line `fb = pane.formbuilder(datapath='test2',cols=2)` with::
+	
+		fb = pane.formbuilder(datapath='test2',border='5px',cols=2)
+	
+	the effect will be this:
+	
+	.. figure:: formbuilder3.png
+	
