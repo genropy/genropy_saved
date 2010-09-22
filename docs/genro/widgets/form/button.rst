@@ -2,17 +2,96 @@
  Buttons
 =========
 
-.. currentmodule:: widgets
+.. currentmodule:: form
 
 .. class:: Buttons -  Genropy buttons
 
-**Definition**: same definition of Dojo buttons (version 1.5). To show it, click here_.
+**Index:**
 
-.. _here: http://docs.dojocampus.org/dijit/form/Button
+	- Definition_
+	
+	- Where_
+	
+	- Description_
+	
+	- Examples_
+	
+	- Attributes_
+	
+	- Other features:
+		
+		- feature1_: descriptionTitle1
+
+.. _Definition:
+
+**Definition**:
+
+	Same definition of Dojo button (version 1.5). To show it, click here_.
+
+	.. _here: http://docs.dojocampus.org/dijit/form/Button
+	
+.. _Where:
+
+**Where:**
+
+	#NISO ???
+
+.. _Description:
+
+**Description:**
+
+	A simple button.
+
+.. _Examples:
+
+**Examples**:
+
+	Example::
+
+		pane.button('Click me!',value='^button')
+
+	Let's see its graphical result:
+
+	.. figure:: ???.png
+
+.. _Attributes:
+
+**Attributes**:
+
+	+--------------------+-------------------------------------------------+--------------------------+
+	|   Attribute        |          Description                            |   Default                |
+	+====================+=================================================+==========================+
+	| ``action``         | ???fa partire un comando javascript.            |  ``defaultValue``        |
+	+--------------------+-------------------------------------------------+--------------------------+
+	| ``disabled``       | funziona???                                     |  ``defaultValue``        |
+	+--------------------+-------------------------------------------------+--------------------------+
+	| ``fire``           | ???fire il datapath...                          |  ``defaultValue``        |
+	+--------------------+-------------------------------------------------+--------------------------+
+	| ``label``          | Set button label                                |  ``None``                |
+	+--------------------+-------------------------------------------------+--------------------------+
+	| ``hidden``         | ???                                             |  ``False``               |
+	|                    |                                                 |                          |
+	|                    |                                                 |                          |
+	|                    |                                                 |                          |
+	|                    | boolean or resolver                             |                          |
+	+--------------------+-------------------------------------------------+--------------------------+
+	| ``value``          | Set a path for button value                     |  ``None``                |
+	+--------------------+-------------------------------------------------+--------------------------+
+
+**Other features:**
+
+.. _feature1:
+	
+**descriptionTitle1**
+
+
+
+
+
+
 
 	This is not a real class, but only one way to combine the methods of the struct that implements interface **buttons**
 
-.. method:: button(label[, fire=datapath][, action=javascript][, hidden=boolean or resolver])
 
 	Button is a Dojo widget used as a representation of a normal button. You can act with it through "action" attribute, a js that is executed on mouse click.
 
