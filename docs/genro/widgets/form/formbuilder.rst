@@ -235,7 +235,7 @@ Here we describe the formbuilder's field attributes:
 
 **label and lbl: an explanation**:
 	
-	Every formbuilder column is splitted in two parts (left one and right one): in the left one lies the value of the "lbl" attribute, while in the right one lies the value of the "label" attribute. Usually BLA BLA???
+	Every formbuilder column is splitted in two parts (left one and right one): in the left one lie the values of the "lbl" attributes, while in the right one lie the values of the "label" attributes. Usually you label your form's fields with "lbl", excepted for the radiobuttons and the checkboxes on which you have to use "label" (the reason is merely visual).
 	
 	Example::
 	
@@ -257,13 +257,17 @@ Here we describe the formbuilder's field attributes:
 	
 	.. figure:: formbuilder2.png
 	
-	To help you in discovering of the formbuilder hidden structure we used the "border" attribute (the outcome doesn't follow the standard of beauty, but the example is very instructive!).
+	To help you in discovering of the formbuilder hidden structure we used the "border" attribute (the outcome doesn't follow the standard of beauty, but the example is instructive!).
 	
-	So replacing the line `fb = pane.formbuilder(datapath='test2',cols=2)` with::
+	So replacing the line::
+	
+		fb = pane.formbuilder(datapath='test2',cols=2)
+		
+	with::
 	
 		fb = pane.formbuilder(datapath='test2',border='5px',cols=2)
 	
-	the effect will be this:
+	the effect will be:
 	
 	.. figure:: formbuilder3.png
 	
