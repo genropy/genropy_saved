@@ -10,6 +10,7 @@ Building Client-side pages
 **************************
 
 .. toctree::
+	:numbered:
 
 	events
 
