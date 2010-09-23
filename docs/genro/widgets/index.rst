@@ -9,8 +9,8 @@
     :synopsis:  Genropy user interface elements
 
 .. toctree::
+	:numbered:
 
-	form/common_attributes <common attributes>
 	form/button
 	form/checkbox
 	form/currencyTextbox
