@@ -18,7 +18,7 @@
 	form/dropdownbutton
 	form/field
 	form/filteringSelect
-	form/formbuilder
+	form/formbuilder2
 	form/numberTextbox
 	form/simpleTextarea
 	form/slider
