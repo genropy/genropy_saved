@@ -1,7 +1,7 @@
 Logging in GenroPy
 ==================
 
-**NOTA:** This function is being implemented, it is not yet available.
+**NOTA:** This function is being implemented, it is not yet available but it will be available soon.
 
 Logging in Python
 *****************
