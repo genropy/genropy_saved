@@ -19,6 +19,7 @@ GenroPy
 
         .. toctree::
             :maxdepth: 2
+			:numbered:
 
             installation
             widgets/index
@@ -28,6 +29,7 @@ GenroPy
 
         .. toctree::
             :maxdepth: 2
+			:numbered:
 
             print/index
             howto/logging
@@ -36,6 +38,7 @@ GenroPy
 
         .. toctree::
             :maxdepth: 2
+			:numbered:
 
             linode_install
             da-sistemare
@@ -44,6 +47,7 @@ GenroPy
 
         .. toctree::
             :maxdepth: 2
+			:numbered:
 
             core/index
             app/index
@@ -53,6 +57,7 @@ GenroPy
 
         .. toctree::
             :maxdepth: 2
+			:numbered:
 
             components/maturity-matrix
             components/writing
