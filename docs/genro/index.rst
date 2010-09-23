@@ -15,6 +15,9 @@ GenroPy
 .. hlist::
     :columns: 2
 
+	..toctree::
+	:numbered:
+
     *   Getting Started:
 
         .. toctree::
