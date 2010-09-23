@@ -156,11 +156,13 @@ Here we describe the formbuilder's field attributes:
 	| ``hidden``     | Hide the formbuilder.                                |  ``False``               |
 	|                | See :doc:`/common/hidden`                            |                          |
 	+----------------+------------------------------------------------------+--------------------------+
-	| ``label``      | If possible, set a label for formbuilder right field-part -                     |
-	|                | for more details, check this example_.                                          |
+	| ``label``      | If possible, set a label for formbuilder right field-part.                      |
+	|                |                                                                                 |
+	|                | For more details, check this example_.                                          |
 	+----------------+---------------------------------------------------------------------------------+
-	| ``lbl``        | If possible, set a label for formbuilder left field-part -                      |
-	|                | for more details, check this example_.                                          |
+	| ``lbl``        | If possible, set a label for formbuilder left field-part.                       |
+	|                |                                                                                 |
+	|                | For more details, check this example_.                                          |
 	+----------------+------------------------------------------------------+--------------------------+
 	| ``pos``        | Choose element position                              |  The first free position |
 	|                |                                                      |                          |
