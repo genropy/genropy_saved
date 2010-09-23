@@ -187,8 +187,10 @@ class SelectionHandler(BaseComponent):
                               add_enable=add_enable,main_record_id=main_record_id,isLocked='^.status.locked',_if='!isLocked',
                               _else='false;',custom_condition=custom_addCondition or True)
         controller.dataFormula(".can_del","del_enable?(main_record_id!=null)&&custom_condition:false",
-                              del_enable=del_enable,selectedId='^.selectedId',_if='!isLocked&&selectedId',_else='false',
-                              isLocked='^.status.locked',main_record_id=main_record_id or True,custom_condition=custom_delCondition or True)
+                              del_enable=del_enable,selectedId='^.selectedId',_if='!isLocked&&selectedId',
+                              _else='false',
+                              isLocked='^.status.locked',main_record_id=main_record_id or True,
+                              custom_condition=custom_delCondition or True)
                               
         controller.dataController("""
                                     genro.dlg.ask(title, msg, null, '#%s.confirm_delete')""" %nodeId,
