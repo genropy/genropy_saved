@@ -36,7 +36,9 @@
 
 **Description:**
 
-	A simple button.
+	Button is a Dojo widget used as a representation of a normal button.
+	
+	You can act with it through "action" attribute, a javascript executed on mouse click.
 
 .. _Examples:
 
@@ -44,44 +46,15 @@
 
 	Example::
 
-		pane.button('Click me!',value='^button')
+		pane.button('Button',action="alert('Hello!')")
 
 	Let's see its graphical result:
 
 	.. figure:: ???.png
-
-.. _Attributes:
-
-**Attributes**:
-
-	+--------------------+-------------------------------------------------+--------------------------+
-	|   Attribute        |          Description                            |   Default                |
-	+====================+=================================================+==========================+
-	| ``action``         | ???fa partire un comando javascript.            |  ``defaultValue``        |
-	+--------------------+-------------------------------------------------+--------------------------+
-	| ``disabled``       | See :doc:`/common/attributes`                                              |
-	+--------------------+-------------------------------------------------+--------------------------+
-	| ``fire``           | ???fire il datapath...                          |  ``defaultValue``        |
-	+--------------------+-------------------------------------------------+--------------------------+
-	| ``label``          | Set button label                                |  ``None``                |
-	+--------------------+-------------------------------------------------+--------------------------+
-	| ``value``          | Set a path for button value                     |  ``None``                |
-	+--------------------+-------------------------------------------------+--------------------------+
-
-
-
-	This is not a real class, but only one way to combine the methods of the struct that implements interface **buttons**
-
-
-	Button is a Dojo widget used as a representation of a normal button. You can act with it through "action" attribute, a js that is executed on mouse click.
+	
+	You can also use "FIRE" attribute within "action" attribute: `action="FIRE 'javascript command'"`
 
 	Example::
-
-		pane.button('Button',action="alert('Hello!')")
-
-	You can also use "FIRE" attribute within "action" attribute (action="FIRE 'javascript command'").
-
-	Here is an example::
 
 		pane.dataController('''alert(msg);''', msg='^msg')
 		pane.button('Click me!',action="FIRE msg='Click!';")
@@ -90,6 +63,28 @@
 
 		pane.button('Click me!', fire_Click = 'msg')
 
-    In Genro there are four macros used as a shortcut that you can use in place of a Javascript command.
+    In Genro there are four macros used as a shortcut that you can use in place of a Javascript command. They are FIRE, GET, SET, PUT. For more details, see :doc:`/common/datastore`.
 
-	Here is the list: FIRE, GET, SET, PUT.
+.. _Attributes:
+
+**Attributes**:
+
+	+--------------------+-------------------------------------------------+--------------------------+
+	|   Attribute        |          Description                            |   Default                |
+	+====================+=================================================+==========================+
+	| ``action``         | Starts a Javascript command                     |  ``#NISO???``            |
+	+--------------------+-------------------------------------------------+--------------------------+
+	| ``disabled``       | If True, user can't act on the object.          |  ``False``               |
+	|                    | For more details, see :doc:`/common/disabled`   |                          |
+	+--------------------+-------------------------------------------------+--------------------------+
+	| ``fire``           | ???fire il datapath...                          |  ``#NISO???``            |
+	+--------------------+-------------------------------------------------+--------------------------+
+	| ``hidden``         | Hide the button.                                |  ``False``               |
+	|                    | See :doc:`/common/hidden`                       |                          |
+	+--------------------+-------------------------------------------------+--------------------------+
+	| ``label``          | Set button label.                               |  ``None``                |
+	|                    | For more details, see :doc:`/common/label`      |                          |
+	+--------------------+-------------------------------------------------+--------------------------+
+	| ``value``          | Set a path for button's values.                 |  ``None``                |
+	|                    | For more details, see :doc:`/common/datastore`  |                          |
+	+--------------------+-------------------------------------------------+--------------------------+

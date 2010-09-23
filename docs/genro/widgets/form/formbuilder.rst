@@ -97,11 +97,13 @@ In formbuilder you can put dom and widget elements; its most classic usage is to
 	+--------------------+-------------------------------------------------+--------------------------+
 	| ``cols``           | Set columns number                              |  ``1``                   |
 	+--------------------+-------------------------------------------------+--------------------------+
-	| ``datapath``       | See :doc:`/common/attributes`                   |  ``None``                |
+	| ``datapath``       | Set path for data.                              |  ``None``                |
+	|                    | For more details, see :doc:`/common/datastore`  |                          |
 	+--------------------+-------------------------------------------------+--------------------------+
 	| ``dbtable``        | See dbtable_ explanation                        |  ``None``                |
 	+--------------------+-------------------------------------------------+--------------------------+
-	| ``disabled``       | See :doc:`/common/attributes`                   |  ``False``               |
+	| ``disabled``       | If True, user can't act on the object.          |  ``False``               |
+	|                    | For more details, see :doc:`/common/disabled`   |                          |
 	+--------------------+-------------------------------------------------+--------------------------+
 	| ``fieldclass``     | CSS class appended to every formbuilder's son   |  ``gnrfield``            |
 	+--------------------+-------------------------------------------------+--------------------------+
@@ -113,7 +115,8 @@ In formbuilder you can put dom and widget elements; its most classic usage is to
 	+--------------------+-------------------------------------------------+--------------------------+
 	| ``head_rows``      | #NISO ???                                       |  ``None``                |
 	+--------------------+-------------------------------------------------+--------------------------+
-	| ``hidden``         | See :doc:`/common/attributes`                   |  ``False``               |
+	| ``hidden``         | Hide the formbuilder.                           |  ``False``               |
+	|                    | See :doc:`/common/hidden`                       |                          |
 	+--------------------+-------------------------------------------------+--------------------------+
 	| ``lblalign``       | Set horizontal label alignment                  |  ``#NISO Boh!``          |
 	|                    | #NISO Sembra non funzionare                     |                          |
@@ -150,11 +153,14 @@ Here we describe the formbuilder's field attributes:
 	+================+======================================================+==========================+
 	| ``colspan``    | Set the number of columns occupied by a single field |  ``None``                |
 	+----------------+------------------------------------------------------+--------------------------+
-	| ``hidden``     | See :doc:`/common/attributes`                        |  ``False``               |
+	| ``hidden``     | Hide the formbuilder.                                |  ``False``               |
+	|                | See :doc:`/common/hidden`                            |                          |
 	+----------------+------------------------------------------------------+--------------------------+
-	| ``label``      | Set field right label - for more details, check this example_.                  |
+	| ``label``      | If possible, set a label for formbuilder right field-part -                     |
+	|                | for more details, check this example_.                                          |
 	+----------------+---------------------------------------------------------------------------------+
-	| ``lbl``        | Set field left label - for more details, check this example_.                   |
+	| ``lbl``        | If possible, set a label for formbuilder left field-part -                      |
+	|                | for more details, check this example_.                                          |
 	+----------------+------------------------------------------------------+--------------------------+
 	| ``pos``        | Choose element position                              |  The first free position |
 	|                |                                                      |                          |
@@ -169,7 +175,8 @@ Here we describe the formbuilder's field attributes:
 	|                |                                                      |                          |
 	|                |         \* to refer itself at the current row        |                          |
 	+----------------+------------------------------------------------------+--------------------------+
-	| ``value``      | See :doc:`/common/attributes`                        |  ``None``                |
+	| ``value``      | Set a path for formbuilder's values.                 |  ``None``                |
+	|                | For more details, see :doc:`/common/datastore`       |                          |
 	+----------------+------------------------------------------------------+--------------------------+
 
 **Other features:**
