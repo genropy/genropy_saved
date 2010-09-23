@@ -15,7 +15,6 @@ from threading import RLock
 import thread
 import mimetypes
 from gnr.core.gnrsys import expandpath
-from gnr.web.gnrbaseclasses import BaseWebtool
 import cPickle
 import inspect
 from gnr.core.gnrprinthandler import PrintHandler
@@ -272,7 +271,7 @@ class GnrWsgiSite(object):
             self.site_static_dir = os.path.normpath(os.path.join(self.site_path,self.site_static_dir))
         self.find_gnrjs_and_dojo()
         self.page_factory_lock=RLock()
-        self.webtools = self.find_webtools()
+        self.webtools = self.resource_loader.find_webtools()
 
         self.services = Bag()
         self.print_handler = self.addService('print',PrintHandler(self))
@@ -327,28 +326,7 @@ class GnrWsgiSite(object):
         for pkg in self.gnrapp.packages.values():
             if hasattr(pkg,'onSiteInited'):
                 pkg.onSiteInited()
-                
-    def find_webtools(self):
-        def isgnrwebtool(cls):
-            return inspect.isclass(cls) and issubclass(cls,BaseWebtool)
-        tools = {}
-        if 'webtools' in self.gnr_config['gnr.environment_xml']:
-            for path in self.gnr_config['gnr.environment_xml'].digest('webtools:#a.path'):
-                path = expandpath(path)
-                if os.path.isdir(path):
-                    for tool_module in os.listdir(path):
-                        if tool_module.endswith('.py'):
-                            module_path =os.path.join(path,tool_module)
-                            try:
-                                module = gnrImport(module_path,avoidDup=True)
-                                tool_classes = inspect.getmembers(module, isgnrwebtool)
-                                tool_classes = [(name.lower(),value) for name,value in tool_classes]
-                                tools.update(dict(tool_classes))
-                            except:
-                                pass
-        return tools
-        
-    
+
     def resource_name_to_path(self,res_id, safe=True):
         project_resource_path = os.path.join(self.site_path, '..','..','resources',res_id)
         if os.path.isdir(project_resource_path):

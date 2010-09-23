@@ -11,10 +11,11 @@ import os
 from gnr.core.gnrlang import gnrImport, classMixin, cloneClass, instanceMixin
 from gnr.core.gnrstring import splitAndStrip
 from gnr.core.gnrsys import expandpath
-
+import inspect
 from gnr.web.gnrwebpage import GnrWebPage
 from gnr.web._gnrbasewebpage import GnrWebServerError
 from gnr.web.gnrbaseclasses import BaseResource
+from gnr.web.gnrbaseclasses import BaseWebtool
 
 
 class GnrMixinError(Exception):
@@ -31,6 +32,35 @@ class ResourceLoader(object):
         self.gnr_static_handler=self.site.getStatic('gnr')
         self.build_automap()
         self.page_factories={}
+    
+    
+    def find_webtools(self):
+        def isgnrwebtool(cls):
+            return inspect.isclass(cls) and issubclass(cls,BaseWebtool) and cls is not BaseWebtool
+        tools = {}
+        webtool_pathlist=[]
+        if 'webtools' in self.gnr_config['gnr.environment_xml']:
+            for path in self.gnr_config['gnr.environment_xml'].digest('webtools:#a.path'):
+                webtool_pathlist.append(expandpath(path))
+        for package in self.gnrapp.packages.values():
+            webtool_pathlist.append(os.path.join(package.packageFolder, 'webtools'))
+        project_resource_path = os.path.join(self.site_path, '..','..','webtools')
+        webtool_pathlist.append(os.path.normpath(project_resource_path))
+        for path in webtool_pathlist:
+            if not os.path.isdir(path):
+                continue
+            for tool_module in os.listdir(path):
+                if tool_module.endswith('.py'):
+                    module_path =os.path.join(path,tool_module)
+                    if True:
+                        module = gnrImport(module_path,avoidDup=True)
+                        tool_classes = inspect.getmembers(module, isgnrwebtool)
+                        tool_classes = [(name.lower(),value) for name,value in tool_classes]
+                        tools.update(dict(tool_classes))
+                    else:
+                    #except:
+                        pass
+        return tools
     
     def build_automap(self):
         def handleNode(node, pkg=None):
