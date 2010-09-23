@@ -6,7 +6,8 @@
 
 .. class:: Buttons -  Genropy buttons
 
-**Index:**
+Index
+*****
 
 	- Definition_
 	

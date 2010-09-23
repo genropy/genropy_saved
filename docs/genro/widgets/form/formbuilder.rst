@@ -6,7 +6,8 @@
 
 .. class:: formbuilder -  Genropy formbuilder
 
-**Index:**
+Index
+*****
 
 	- Definition_
 	
@@ -37,7 +38,7 @@
 
 **Where:**
 
-	CIAO MICHI You can find formbuilder in *genro/gnrpy/gnr/web/gnrwebstruct.py*
+	You can find formbuilder in *genro/gnrpy/gnr/web/gnrwebstruct.py*
 
 .. _Description:
 
