@@ -10,7 +10,7 @@
 
 .. toctree::
 
-	form/common_attributes
+	form/common_attributes <common attributes>
 	form/button
 	form/checkbox
 	form/currencyTextbox
