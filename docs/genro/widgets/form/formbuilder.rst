@@ -28,8 +28,6 @@ Index
 
 **Definition**::
 
-		ciao ciao
-
 		def formbuilder(self, cols=1, dbtable=None, tblclass='formbuilder',
 	                    lblclass='gnrfieldlabel', lblpos='L', _class='', fieldclass='gnrfield',
 	                    lblalign=None, lblvalign='middle',
