@@ -261,9 +261,19 @@ class GnrCustomWebPage(object):
                 we used the "border" attribute (the outcome doesn't follow the standard of
                 beauty, but the example is very instructive!).""",
                 font_size='.9em',text_align='justify')
-        fb = pane.formbuilder(datapath='test2',border='5px')
-        fb.button('Click here',action="alert('Clicked!')",lbl='A button')
+        fb = pane.formbuilder(datapath='test2',border='5px',cols=2)
         fb.textbox(value='^.name',lbl='Name')
+        fb.textbox(value='^.surname',lbl='Surname')
+        fb.textbox(value='^.job',lbl='Profession')
+        fb.numberTextbox(value='^.age',lbl='Age')
+        fb.div('Favorite sport:')
+        fb.div('Favorite browser:')
+        fb.checkbox(value='^.football',label='Football')
+        fb.radiobutton('Internet explorer',value='^.radio1',group='genre1')
+        fb.checkbox(value='^.basketball',label='Basketball')
+        fb.radiobutton('Mozilla Firefox',value='^.radio2',group='genre1')
+        fb.checkbox(value='^.tennis',label='Tennis')
+        fb.radiobutton('Google Chrome',value='^.radio3',group='genre1')
         
     def test_3_attributes(self,pane):
         """Formbuilder attributes"""
@@ -306,7 +316,7 @@ class GnrCustomWebPage(object):
                     user can't write in the form (use the checkbox to activate this attribute).""",
                 font_size='.9em',text_align='justify')
         fb=pane.formbuilder(datapath='test5',cols=3,fld_width='100%',width='100%',disabled='^disab')
-        fb.checkbox(value='^disab',lbl='form DISABLED',lbl_width='8em')
+        fb.checkbox(value='^disab',label='disable form')
         fb.textbox(value='^.name',lbl='Name')
         fb.textbox(value='^.surname',lbl='Surname')
         fb.numberTextbox(value='^.age',lbl="Age")
