@@ -97,7 +97,7 @@ In formbuilder you can put dom and widget elements; its most classic usage is to
 	+--------------------+-------------------------------------------------+--------------------------+
 	| ``cols``           | Set columns number                              |  ``1``                   |
 	+--------------------+-------------------------------------------------+--------------------------+
-	| ``datapath``       | Set path for data.                              |  ``None``                |
+	| ``datapath``       | Set path for data. CIAO!                        |  ``None``                |
 	|                    | For more details, see :doc:`/common/attributes` |                          |
 	+--------------------+-------------------------------------------------+--------------------------+
 	| ``dbtable``        | See dbtable_ explanation                        |  ``None``                |
