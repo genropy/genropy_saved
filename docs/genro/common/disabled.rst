@@ -2,6 +2,16 @@
  disabled
 ==========
 
+??? DA SISTEMARE!
+
 .. currentmodule:: common
 
-In this section we report all those attributes that are common to many Genro objects. Nevertheless, we report those attributes even in the single widget, suggesting to take vision of this page for more details.
+	- Description: if True, user can't write in the object.
+
+	- Validity: it works on every form widget
+	
+	- Default value: False.
+	
+		Example::
+
+			pane.???(???)

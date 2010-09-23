@@ -2,6 +2,16 @@
  hidden
 ========
 
+??? DA SISTEMARE!
+
 .. currentmodule:: common
 
-In this section we report all those attributes that are common to many Genro objects. Nevertheless, we report those attributes even in the single widget, suggesting to take vision of this page for more details.
+	- Description: with ... ??? spiegare che si può attivare con un boolean o con un resolver
+
+	- Validity: it works on every objects.
+
+	- Default value: False.
+
+		Example::
+
+			pane.???(???)
