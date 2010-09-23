@@ -52,13 +52,12 @@ class ResourceLoader(object):
             for tool_module in os.listdir(path):
                 if tool_module.endswith('.py'):
                     module_path =os.path.join(path,tool_module)
-                    if True:
+                    try:
                         module = gnrImport(module_path,avoidDup=True)
                         tool_classes = inspect.getmembers(module, isgnrwebtool)
                         tool_classes = [(name.lower(),value) for name,value in tool_classes]
                         tools.update(dict(tool_classes))
-                    else:
-                    #except:
+                    except:
                         pass
         return tools
     
