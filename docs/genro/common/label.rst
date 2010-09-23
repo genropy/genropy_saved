@@ -15,15 +15,25 @@ Index
 
 .. _Description:
 
-- Description: with ... ???
+**Description:**
+
+	with ... ???
 
 .. _Validity:
 
-- Validity: ???
+**Validity:**
+
+	???
 
 .. _Default:
 
-- Default value: ???
+**Default value:**
+
+???
+
+.. _Examples:
+
+**Examples:**
 	
 		Example::
 	

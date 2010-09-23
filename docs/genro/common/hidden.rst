@@ -15,15 +15,25 @@ Index
 
 .. _Description:
 
-- Description: with ... ??? spiegare che si può attivare con un boolean o con un resolver
+**Description:**
+
+With ... ??? spiegare che si può attivare con un boolean o con un resolver
 
 .. _Validity:
 
-- Validity: it works on every objects.
+**Validity:**
+
+It works on every objects.
 
 .. _Default:
 
-- Default value: False.
+**Default value:**
+
+	False.
+	
+.. _Examples:
+
+**Examples:**
 
 		Example::
 
