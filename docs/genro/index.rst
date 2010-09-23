@@ -12,11 +12,8 @@ GenroPy
 
 .. Be careful with the code below. If you screw the indentation, the doc contents page will appear messed up!
 
-..toctree::
-:numbered:
-
-	.. hlist::
-	    :columns: 2
+.. hlist::
+    :columns: 2
 
     *   Getting Started:
 
