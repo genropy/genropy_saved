@@ -6,7 +6,7 @@ Genro Bag library
 =================
 
 
-Contents:
+Contents n:
 
 .. toctree::
 
