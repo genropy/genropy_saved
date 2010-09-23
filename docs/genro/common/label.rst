@@ -2,15 +2,28 @@
  label
 =======
 
-??? DA SISTEMARE!
+Index
+*****
 
-.. currentmodule:: common
+	- Description_
+	
+	- Validity_
+	
+	- Default_
+	
+	- Examples_
 
-	- Description: with ... ???
-	
-	- Validity: ???
-	
-	- Default value: ???
+.. _Description:
+
+- Description: with ... ???
+
+.. _Validity:
+
+- Validity: ???
+
+.. _Default:
+
+- Default value: ???
 	
 		Example::
 	

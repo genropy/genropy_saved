@@ -2,15 +2,28 @@
  hidden
 ========
 
-??? DA SISTEMARE!
+Index
+*****
 
-.. currentmodule:: common
+	- Description_
+	
+	- Validity_
+	
+	- Default_
+	
+	- Examples_
 
-	- Description: with ... ??? spiegare che si può attivare con un boolean o con un resolver
+.. _Description:
 
-	- Validity: it works on every objects.
+- Description: with ... ??? spiegare che si può attivare con un boolean o con un resolver
 
-	- Default value: False.
+.. _Validity:
+
+- Validity: it works on every objects.
+
+.. _Default:
+
+- Default value: False.
 
 		Example::
 
