@@ -3,7 +3,6 @@
 ================================
 
 .. toctree::
-   :numbered:
 
 	gnrbags
 	gnrclasses
