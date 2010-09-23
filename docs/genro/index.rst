@@ -14,7 +14,6 @@ GenroPy
 
 .. hlist::
     :columns: 2
-    :numbered:
 
     *   Getting Started:
 
