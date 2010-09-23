@@ -499,6 +499,7 @@ class GnrWsgiSite(object):
         if not tool:
             return self.not_found_exception(environ, start_response)
         response = Response()
+        kwargs['environ']=environ
         result = tool(*args, **kwargs)
         content_type = getattr(tool,'content_type')
         if content_type:
