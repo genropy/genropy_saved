@@ -37,7 +37,7 @@
 
 **Where:**
 
-	CIAO SAVI! You can find formbuilder in *genro/gnrpy/gnr/web/gnrwebstruct.py*
+	You can find formbuilder in *genro/gnrpy/gnr/web/gnrwebstruct.py*
 	
 .. _Description:
 
