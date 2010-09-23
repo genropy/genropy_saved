@@ -96,7 +96,7 @@ class TableHandler(BaseComponent):
         r.fields(self.columnsBase())
         return struct
     
-    def main(self, root, pkey=None, **kwargs):
+    def main(self, root, **kwargs):
         root.data('selectedPage',0)
         root.data('gnr.maintable',self.maintable)
         self.userObjectDialog()
@@ -110,15 +110,24 @@ class TableHandler(BaseComponent):
         self.pageList(pages)
         self.pageForm(pages,bottom)
         self.joinConditions()
-        
-        if pkey == '*newrecord*':
-            root.dataController('FIRE list.newRecord; FIRE status.unlock',_fired='^gnr.onStart',_delay=4000)
-        elif pkey and self.db.table(self.maintable).existsRecord(pkey):
-            pages.data('initialPkey',pkey)
-            
+
+        self.parsePageParameters(root, **kwargs)
+
         #root.defineContext('sql_selection','_serverCtx.sql_selection', self.sqlContextSelection())
         #root.defineContext('sql_record','_serverCtx.sql_record', self.sqlContextRecord())
+
+    def parsePageParameters(self, root, pkey=None, **kwargs):        
+        if pkey == '*newrecord*':
+            self.startWithNewRecord(root)
+        elif pkey and self.db.table(self.maintable).existsRecord(pkey):
+            self.startWithExistingRecord(root, pkey)
     
+    def startWithNewRecord(self, root):
+        root.dataController('FIRE list.newRecord; FIRE status.unlock',_fired='^gnr.onStart',_delay=4000)
+
+    def startWithExistingRecord(self, root, pkey):
+        root.data('initialPkey',pkey)
+            
     def joinConditions(self):
         """hook to define all join conditions for retrieve records related to the current edited record
            using method self.setJoinCondition
