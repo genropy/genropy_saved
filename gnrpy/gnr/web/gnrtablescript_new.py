@@ -20,7 +20,6 @@ class TableScript(object):
     batch_cancellable = True
     batch_delay = 0.5
     batch_thermo_lines = None
-    loop_thermo_line = 'ts_loop'
     
     def __init__(self, page=None, resource_table = None,db=None,locale='en',tempFolder='',batch=None,**kwargs):
         if page:
@@ -213,6 +212,8 @@ class RecordToHtmlMail(RecordToHtmlPage):
     pass
     
 class RecordToHtmlNew(RecordToHtmlPage):
+    loop_thermo_line = 'ts_loop'
+    rows_table=None
         
     def onRecordExit(self, recordBag):
         return
@@ -282,7 +283,6 @@ class RecordToHtmlNew(RecordToHtmlPage):
                 self.currRowDataNode = rowDataNode
                 self.currRowCount = k
                 self.thermo_step(line=self.loop_thermo_line)
-
                 for copy in range(self.copies_per_page):
                     self.copy=copy
                     rowheight = self.calcRowHeight()
