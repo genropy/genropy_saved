@@ -22,7 +22,24 @@ class GnrWebBatch(GnrBaseProxy):
     def init(self, connection_id=None,user=None,**kwargs):
         pass
         
-    
+    def on_authenticated(self,user):
+        if not os.path.exists(self.page.userDocument('_batch_result')):
+            return
+        batch_results = os.listdir(self.page.userDocument('_batch_result'))
+        with self.page.userStore(user) as store:
+            already_registered_batch = [dc.path.split('.')[2] for dc in store.datachanges if dc.path.startswith('gnr.batch')]
+            for res_doc_name in batch_results:
+                result_doc = Bag(self.page.userDocument('_batch_result',res_doc_name))
+                batch_id = result_doc['batch_id']
+                if batch_id not in already_registered_batch:
+                    batch_path = 'gnr.batch.%s' %batch_id
+                    newbatch = Bag(dict(title=result_doc['title'],start_ts=result_doc['start_ts'],note=result_doc['note'],
+                                        owner_page_id=result_doc['owner_page_id']))    
+                    store.set_datachange(batch_path,newbatch,reason='btc_create')
+                    reason = 'btc_result_doc' if result_doc['result'] else 'btc_error_doc'
+                    store.set_datachange(batch_path,result_doc,reason=reason)
+
+
     @property
     def batch_path(self):
         return 'gnr.batch.%s' %self.batch_id
@@ -78,6 +95,7 @@ class GnrWebBatch(GnrBaseProxy):
         with self.page.userStore() as store:
             store.drop_datachanges(self.batch_path)
             newbatch = Bag(dict(title=title,start_ts=self.start_ts,lines=thermo_lines,note=note,
+                                owner_page_id=self.page.page_id,
                                 thermo=Bag(dict([(k,None) for k in thermo_lines.split(',')],
                                 cancellable = cancellable)
                            )))    
@@ -121,6 +139,8 @@ class GnrWebBatch(GnrBaseProxy):
     def _result_write(self,result=None,result_attr=None,error=None,error_attr=None):
         result_doc = Bag()
         result_doc['title'] = self.title
+        result_doc['batch_id'] = self.batch_id
+        result_doc['owner_page_id'] = self.page.page_id
         result_doc['note'] = self.note
         result_doc['start_ts'] = self.start_ts
         result_doc['end_ts'] = datetime.now()
@@ -142,24 +162,34 @@ class GnrWebBatch(GnrBaseProxy):
             for line in thermo_lines.split(','):
                 store.set_datachange('%s.thermo.%s' %(self.batch_path,line),Bag(),reason='th_cleanup')
 
+    def _get_line_code(self,line):
+        if isinstance(line,int):
+            return self.line_codes[line]
+        elif line in self.line_codes:
+            return line
+                
     #@debug_call
     def thermo_line_start(self,line,maximum=None,message=None):
+        code = self._get_line_code(line)
+        if not code:
+            return
         with self.page.userStore() as store:
-            store.set_datachange('%s.thermo.%s' %(self.batch_path,line),0,
+            store.set_datachange('%s.thermo.%s' %(self.batch_path,code),0,
                             attributes=dict(message=message,maximum=maximum),reason='tl_start')
         
-    #@debug_call
+    
+    # #@debug_call
     def thermo_line_update(self,line,progress=None,message=None,maximum=None):
-        if isinstance(line,int):
-            line = self.line_codes[line]
-        curr_time = datetime.now()
-        if line==self.line_codes[-1] and ((datetime.now()-self.last_ts).seconds<self.delay):
+        code = self._get_line_code(line)
+        if not code:
             return
-        print message
+        curr_time = datetime.now()
+        if code==self.line_codes[-1] and ((datetime.now()-self.last_ts).seconds<self.delay):
+            return
         self.last_ts = curr_time
         with self.page.userStore() as store:
             if self.cancellable and store.getItem('%s.stopped' %self.batch_path):
                 raise GnrBatchStoppedException('Execution stopped by user')
-            store.set_datachange('%s.thermo.%s' %(self.batch_path,line),progress,
+            store.set_datachange('%s.thermo.%s' %(self.batch_path,code),progress,
                             attributes=dict(progress=progress,message=message,maximum=maximum),replace=True,
                             reason='tl_upd')

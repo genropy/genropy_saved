@@ -20,6 +20,7 @@ class TableScript(object):
     batch_cancellable = True
     batch_delay = 0.5
     batch_thermo_lines = None
+    loop_thermo_line = 'ts_loop'
     
     def __init__(self, page=None, resource_table = None,db=None,locale='en',tempFolder='',batch=None,**kwargs):
         if page:
@@ -135,6 +136,9 @@ class RecordToHtmlPage(TableScriptOnRecord):
     def init(self,**kwargs):
         self.maintable=self.maintable or self.resource_table
         self.maintable_obj=self.db.table(self.maintable)
+        self.rows_table_obj = None
+        if self.rows_table:
+            self.rows_table_obj=self.db.table(self.rows_table)
         self.stopped = False
 
     def __call__(self, record=None, filepath=None,
@@ -277,7 +281,7 @@ class RecordToHtmlNew(RecordToHtmlPage):
             for k,rowDataNode in enumerate(nodes):
                 self.currRowDataNode = rowDataNode
                 self.currRowCount = k
-                self.thermo_step()
+                self.thermo_step(line=self.loop_thermo_line)
 
                 for copy in range(self.copies_per_page):
                     self.copy=copy
@@ -296,15 +300,19 @@ class RecordToHtmlNew(RecordToHtmlPage):
                 self.copy=copy
                 self._closePage(True)
             
-    def thermo_step(self):
-        self.page.btc.thermo_line_update(line=1,
+    def thermo_step(self,line):
+        self.page.btc.thermo_line_update(line=line,
                                         maximum=self.totalRowCount,
                                         message=self.thermo_message(),
                                         progress=self.currRowCount)
 
             
     def thermo_message(self):
-        return '%i/%i' %(self.currRowCount,self.totalRowCount)
+        progress = '%i/%i' %(self.currRowCount,self.totalRowCount)
+        if self.rows_table_obj:
+            return '%s (%s)' %(self.rows_table_obj.recordCaption(self.rowData),progress)
+        else:
+            return progress
 
     def _newPage(self):
         if self.copyValue('currPage') >= 0:
@@ -313,13 +321,13 @@ class RecordToHtmlNew(RecordToHtmlPage):
         self.copies[self.copy]['grid_body_used']=0
         self._createPage()
         self._openPage()
-                  
-    def _get_rowData(self):
+    
+    @property              
+    def rowData(self):
         if self.row_mode=='attribute':
             return self.currRowDataNode.attr
         else:
             return self.currRowDataNode.value
-    rowData = property(_get_rowData)    
     
     def rowField(self,path=None,**kwargs):
         if self.row_mode=='attribute':

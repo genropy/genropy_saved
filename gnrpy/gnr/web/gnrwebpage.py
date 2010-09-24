@@ -248,7 +248,7 @@ class GnrWebPage(GnrBaseWebPage):
         self._lastUserEventTs=parameters.pop('_lastUserEventTs',None)
         self.site.handle_clientchanges(self.page_id,parameters)
         auth = AUTH_OK
-        if not method in ('doLogin'):
+        if not method in ('doLogin','onClosePage'):
             auth = self._checkAuth(method=method, **parameters)
         if self.isDeveloper():
             result = self.rpc(method=method, _auth=auth, **parameters)
@@ -259,6 +259,7 @@ class GnrWebPage(GnrBaseWebPage):
                 self.rpc.error = str(e)
                 result = None
         result_handler = getattr(self.rpc, 'result_%s' % mode.lower())
+
         return_result = result_handler(result)
         return return_result
 
@@ -290,6 +291,7 @@ class GnrWebPage(GnrBaseWebPage):
             self.avatar = avatar
             self.connection.change_user(user=avatar.user,user_id=avatar.user_id,user_name=avatar.user_name,
                                         user_tags=avatar.user_tags)
+         
             self.setInClientData('gnr.avatar' , Bag(avatar.as_dict()))
             self.site.onAuthenticated(avatar)
             login['message'] = ''
@@ -305,7 +307,7 @@ class GnrWebPage(GnrBaseWebPage):
     def onIniting(self, request_args, request_kwargs):
         """Callback onIniting called in early stages of page initialization"""
         pass
-    
+        
     def onSaving(self, recordCluster, recordClusterAttr, resultAttr=None):
         pass
 
@@ -1048,3 +1050,9 @@ class ClientDataChange(object):
             self.attributes = self.attributes or dict()
             self.attributes.update(other.attributes)    
         
+    def __str__(self):
+        return "Datachange path:%s, reason:%s, value:%s, attributes:%s" %(self.path,self.reason,self.value,self.attributes)
+
+    def __repr__(self):
+        return "Datachange path:%s, reason:%s, value:%s, attributes:%s" %(self.path,self.reason,self.value,self.attributes)
+             

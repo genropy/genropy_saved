@@ -30,7 +30,7 @@ import shutil
 mimetypes.init()
 site_cache = {}
 
-OP_TO_LOG={'FAVICON':True}
+OP_TO_LOG={'x':'y'}
 
 global GNRSITE
 def currentSite():
@@ -569,6 +569,7 @@ class GnrWsgiSite(object):
     def onAuthenticated(self,avatar):
         if 'adm' in self.db.packages:
             self.db.packages['adm'].onAuthenticated(avatar)
+        self.currentPage.btc.on_authenticated(avatar.user)
               
     def pageLog(self,event,page_id=None):
         if False and 'adm' in self.db.packages:

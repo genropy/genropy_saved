@@ -19,6 +19,9 @@ class GnrBatch(object):
             if v:
                 setattr(self,k,v)
     
+    def set_data(self,data):
+        self.data = data
+    
     def data_counter(self):
         return len(self.data)
     
@@ -40,20 +43,32 @@ class GnrBatch(object):
     
     def run(self):
         self.progress = 0
+        self.page.btc.thermo_line_update(line='batch_steps',maximum=5,progress=2,message='!!Pre processing')
         self.pre_process()
+        self.page.btc.thermo_line_update(line='batch_steps',maximum=5,progress=3,message='!!Executing')
         self.process()
+        self.page.btc.thermo_line_update(line='batch_steps',maximum=5,progress=4,message='!!Post processing')
+
         self.post_process()
+        self.page.btc.thermo_line_update(line='batch_steps',maximum=5,progress=5,message='!!Collecting results')
+
         result = self.collect_result()
         return result
 
     def process(self):
+        self.thermo_start(line='batch_main',msg='')
         for chunk in self.data_fetcher():
-            self.thermo_step(chunk)
+            self.thermo_step(line='batch_main',chunk=chunk)
             self.process_chunk(chunk,**self.runKwargs)
             self.progress += 1
     
-    def thermo_step(self, chunk=None):
-        self.page.btc.thermo_line_update(line=0,maximum=len(self.data),
+    def thermo_start(self,line=None,msg=None):
+        self.page.btc.thermo_line_start(line=line,maximum=len(self.data),
+                                        message=msg)
+
+    
+    def thermo_step(self,line=None, chunk=None):
+        self.page.btc.thermo_line_update(line=line,maximum=len(self.data),
                                         message=self.thermo_chunk_message(chunk),
                                         progress=self.progress)
     

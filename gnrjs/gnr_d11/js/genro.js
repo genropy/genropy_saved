@@ -202,7 +202,7 @@ dojo.declare('gnr.GenroClient', null, {
         var mainBagPage  = this.rpc.remoteCall('main', this.startArgs, 'bag');
         //genro.timeIt('**  main received  **');
         if(mainBagPage && mainBagPage.attr.redirect){
-            var url=this.addParamsToUrl(mainBagPage.attr.redirect, {'page_id':this.page_id,'fromPage':this.absoluteUrl()});
+            var url=this.addParamsToUrl(mainBagPage.attr.redirect, {'fromPage':this.absoluteUrl()});
             this.gotoURL(url);
         }
         //this.loadPersistentData()
@@ -877,7 +877,7 @@ dojo.declare('gnr.GenroClient', null, {
         
     },
     logout:function(){
-        this.serverCall('connection.logout',null,'genro.gotoHome()');
+        this.serverCall('connection.logout',null,'genro.gotoHome();');
         //this.gotoHome();
     },
     remoteJson:function(method,params){

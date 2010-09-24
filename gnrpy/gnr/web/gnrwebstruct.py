@@ -894,7 +894,7 @@ class GnrGridStruct(GnrStructData):
         
 
         self.cell(field,name=name,format_trueclass=trueclass,format_falseclass=falseclass,
-                 classes=classes,_calculated=True,format_onclick="""var idx = kw.rowIndex;
+                 classes=classes,calculated=True,format_onclick="""var idx = kw.rowIndex;
                                                                     var rowpath = '#'+idx;
                                                                     var valuepath = rowpath+'?%s';
                                                                     var disabledpath = rowpath+'?disabled';
