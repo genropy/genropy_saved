@@ -101,26 +101,50 @@ class BatchRunner(BaseComponent):
         if batch_forked:
             print 'Forking...'
         if data_method:
-            handler = getattr(self, 'rpc_%s'%data_method)
-            runKwargs = kwargs['runKwargs']
-            data = handler(selectionName=selectionName, selectedRowidx=selectedRowidx, selectionFilterCb=selectionFilterCb, pars=runKwargs)
             batch_class = 'PrintRecord'
-        elif recordId:
-            data = self.db.table(table).record(pkey=recordId,ignoreMissing=True).output('bag')
-        elif selectionName:   
-            data = self.getUserSelection(selectionName=selectionName,
+        batch_class = self.batch_loader(batch_class)
+        if not batch_class:
+            raise Exception ('Missing or wrong batch_class')
+        gnrbatch = batch_class(data=None, table=table, page=self,
+                                commitAfterPrint=commitAfterPrint,batch_note=batch_note,**kwargs)
+        self.btc.batch_create(batch_id='%s_%s' %(gnrbatch.batch_prefix,self.getUuid()),
+                            title=gnrbatch.batch_title,thermo_lines=gnrbatch.batch_thermo_lines,
+                            cancellable=gnrbatch.batch_cancellable,delay=gnrbatch.batch_delay,note=gnrbatch.batch_note) 
+        self.btc.thermo_line_start(line='batch_steps',maximum=5,message='')
+        self.btc.thermo_line_update(line='batch_steps',maximum=5,progress=1,message='!!Getting data')
+        try:
+            if data_method:
+                handler = getattr(self, 'rpc_%s'%data_method)
+                runKwargs = kwargs['runKwargs']
+                data = handler(selectionName=selectionName, selectedRowidx=selectedRowidx, selectionFilterCb=selectionFilterCb, pars=runKwargs)
+            elif recordId:
+                data = self.db.table(table).record(pkey=recordId,ignoreMissing=True).output('bag')
+            elif selectionName:   
+                data = self.getUserSelection(selectionName=selectionName,
                                          selectedRowidx=selectedRowidx,
                                          filterCb=selectionFilterCb)
-        else:
-            data=None
-        batch_class = self.batch_loader(batch_class)
-        if batch_class:
-            batch = batch_class(data=data, table=table, page=self, thermocb=self.app.setThermo,
-                                commitAfterPrint=commitAfterPrint,batch_note=batch_note,**kwargs)
-            self.btc.run_batch(batch)
-            #return batch.run()
-        else:
-            raise Exception
+            else:
+                data=None
+            
+            gnrbatch.set_data(data)
+            batch_result = gnrbatch.run()
+            url = None
+            result = 'Execution completed'
+            result_attr = dict()
+            if isinstance(batch_result,basestring):
+                url = batch_result
+            else:
+                url = batch_result['url']
+                result = batch_result['result']
+                result_attr = batch_result['attr'] 
+            if url:
+                result_attr['url'] = url
+            self.btc.batch_complete(result=result,result_attr=result_attr)
+        except self.btc.exception_stopped:
+            self.btc.batch_aborted()
+        except Exception, e:
+            self.btc.batch_error(error=str(e))
+
                 
     def batch_loader(self, batch_class):
         if ':' in batch_class:
