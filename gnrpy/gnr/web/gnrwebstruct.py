@@ -363,7 +363,7 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
     dojoxNS=['FloatingPane','Dock','RadioGroup','ResizeHandle','SizingPane','BorderContainer',
              'FisheyeList','Loader','Toaster','FileInput','fileInputBlind','FileInputAuto','ColorPicker',
              'SortList','TimeSpinner','Iterator','ScrollPane',
-             'Gallery','Lightbox','SlideShow','ThumbnailPicker',
+             'Gallery','Lightbox','SlideShow','ThumbnailPicker','Chart',
              'Deck','Slide','GoogleMap','Calendar','GoogleChart','GoogleVisualization',
              'Grid','VirtualGrid','VirtualStaticGrid']
     
