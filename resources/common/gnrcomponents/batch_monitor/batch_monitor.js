@@ -49,10 +49,21 @@ batch_monitor.on_btc_result_doc = function(node){
     resultpane.unfreeze();
 };
 batch_monitor.on_btc_error = function(node){
-    genro.bp(node);
+   // genro.bp(node);
 };
 batch_monitor.on_btc_error_doc = function(node){
-    genro.bp(node);
+    var batch_id = node.label;
+    var batch_value = node.getValue();
+    var resultpane = this.thermopane(node.label);
+    resultpane.clearValue().freeze();
+    var error = batch_value.getItem('error');
+    if (error) {
+        resultpane._('div',{innerHTML:error});
+    };
+    topright = genro.nodeById('bm_top_right_'+batch_id).clearValue();
+    topright._('div',{_class:'buttonIcon icnTabClose',connect_onclick:'genro.serverCall("btc.remove_batch",{"batch_id":"'+batch_id+'"})'});
+    resultpane._('div',{innerHTML:'Error inside batch - total time:'+batch_value.getItem('time_delta')})
+    resultpane.unfreeze();  
 };
 batch_monitor.on_btc_aborted = function(node){
     this.batch_remove(node.label);
@@ -121,13 +132,18 @@ batch_monitor.create_thermoline = function(pane,line,k){
     }      
     var custom_msg_attr = objectExtract(custom_attr,'msg_*');
     var innerpane = pane._('div',{datapath:'.'+code});
+    //var cb = function(percent){
+    //    return line+':'+dojo.number.format(percent, {type: "percent", places: this.places, locale: this.lang});
+    //};
     var cb = function(percent){
-        return line+':'+dojo.number.format(percent, {type: "percent", places: this.places, locale: this.lang});
-    };
+        var msg = this.domNode.parentNode.sourceNode.getRelativeData('.?message');
+        return msg;
+    }
     var thermo_attr = {progress:'^.?progress',maximum:'^.?maximum',indeterminate:'^.?indeterminate',_class:'bm_thermoline bm_line_'+k,
                      places:'^.?places',report:cb};
     var msg_attr = {innerHTML:'^.?message',_class:'bm_thermomsg'};
     thermo_attr = objectUpdate(thermo_attr,custom_attr);   
+    
     msg_attr = objectUpdate(msg_attr,custom_msg_attr);
     //if (!msg_attr['hidden']){
     //    innerpane._('div',msg_attr);
