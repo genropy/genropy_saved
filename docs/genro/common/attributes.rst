@@ -6,6 +6,7 @@ In this section we report all those attributes that are common to many Genro obj
 
 Index
 *****
+
 	- datapath :doc:`datastore`
 
 	- disabled :doc:`disabled`
