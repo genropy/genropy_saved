@@ -176,7 +176,6 @@ class NewServer(object):
                       
     parser.add_option('-c','--config',
                       dest='config_path',
-                      default="~/.gnr",
                       help="gnrserve directory path")
     
     parser.add_option('-p','--port',
@@ -277,7 +276,14 @@ class NewServer(object):
             'Error: no site named %s found' % site_name) 
     
     def load_gnr_config(self):
-        config_path = expandpath(self.options.config_path)
+        if hasattr(self.options, 'config_path') and self.options.config_path:
+            config_path = self.options.config_path
+        else:
+            if sys.platform=='win32':
+                config_path = '~\gnr'
+            else:
+                config_path = '~/.gnr'
+        config_path= self.config_path = expandpath(config_path)
         if os.path.isdir(config_path):
             self.gnr_config=Bag(config_path)
         else:
@@ -287,7 +293,7 @@ class NewServer(object):
         for var,value in self.gnr_config['gnr.environment_xml'].digest('environment:#k,#a.value'):
             var=var.upper()
             if not os.getenv(var):
-                os.environ[var]=str(value)
+                os.environ[str(var)]=str(value)
     
     def init_options(self): 
         self.siteconfig=self.get_config()
@@ -404,7 +410,7 @@ class NewServer(object):
                 for file_path in (menu_path,site_config_path):
                     if os.path.isfile(file_path):
                         GnrReloaderMonitor.watch_file(file_path)
-                config_path = expandpath(self.options.config_path)
+                config_path = expandpath(self.config_path)
                 if os.path.isdir(config_path):
                     for file_path in listdirs(config_path):
                         GnrReloaderMonitor.watch_file(file_path)
@@ -576,6 +582,7 @@ class NewServer(object):
             else:
                 new_environ[self._monitor_environ_key] = 'true'
             proc = None
+            print new_environ
             try:
                 try:
                     _turn_sigterm_into_systemexit()

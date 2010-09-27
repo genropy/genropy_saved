@@ -6,7 +6,7 @@ from gnr.core.gnrbag import Bag
 import optparse
 import glob
 from gnr.core.gnrsys import expandpath
-
+import sys
 import logging
 from gnr.core.gnrlog import enable_colored_logging
 
@@ -54,7 +54,6 @@ parser.add_option('-I','--import',
             
 parser.add_option('--config',
                   dest='config_path',
-                  default="~/.gnr",
                   help="gnrserve file path")
 
 (options,args)=parser.parse_args()
@@ -91,7 +90,14 @@ def instance_name_to_path(gnr_config,instance_name):
 
 
 def load_gnr_config():
-    config_path = expandpath(options.config_path)
+    if hasattr(options, 'config_path') and options.config_path:
+        config_path = options.config_path
+    else:
+        if sys.platform=='win32':
+            config_path = '~\gnr'
+        else:
+            config_path = '~/.gnr'
+    config_path = expandpath(config_path)
     if os.path.isdir(config_path):
         return Bag(config_path)
     else:

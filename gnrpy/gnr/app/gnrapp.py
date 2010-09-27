@@ -257,7 +257,11 @@ class GnrApp(object):
                 os.environ[var]=str(value)
     
     def load_gnr_config(self):
-        config_path = expandpath('~/.gnr')
+        if sys.platform=='win32':
+            config_path = '~\gnr'
+        else:
+            config_path = '~/.gnr'
+        config_path = expandpath(config_path)
         if os.path.isdir(config_path):
             return Bag(config_path)
         config_path = expandpath(os.path.join('/etc/gnr'))

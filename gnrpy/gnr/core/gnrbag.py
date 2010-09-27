@@ -60,6 +60,7 @@ from gnr.core.gnrlang import setCallable, GnrObject
 import os.path
 import logging
 import time
+import sys
 gnrlogger = logging.getLogger('gnr.core.gnrbag')
 
 def timer_call(time_list=[],print_time=True):
@@ -1651,7 +1652,10 @@ class Bag(GnrObject):
         if len(source)>300:
             #if source is longer than 300 chars it cannot be a path or an URI
             return source, False, 'unknown' #it is a long not xml string
-        urlparsed = urlparse.urlparse(source)
+        if sys.platform=="win32" and ":\\" in source:
+            urlparsed = ('file',None,source)
+        else:
+            urlparsed = urlparse.urlparse(source)
         if not urlparsed[0] or urlparsed[0]=='file':
             source = urlparsed[2]
             if os.path.exists(source):
