@@ -286,7 +286,7 @@ class GnrApp(object):
         self.localization = {}
         if not forTesting: 
             dbattrs = self.config.getAttr('db')
-            if dbattrs.get('implementation') =='sqlite':
+            if dbattrs and dbattrs.get('implementation') =='sqlite':
                 dbattrs['dbname'] = self.realPath(dbattrs.pop('filename'))
         else:
             # Setup for testing with a temporary sqlite database
