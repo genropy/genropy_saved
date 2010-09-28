@@ -326,7 +326,7 @@ class HTableResolver(BagResolver):
         children = Bag()
         for row in rows:
             child_count= row['child_count']
-            value=HTableResolver(table=self.table,rootpath=row['code'],child_count=child_count,_page=self)
+            value=HTableResolver(table=self.table,rootpath=row['code'],child_count=child_count,_page=self._page)
             description = row['description']
             if description:
                 get_tree_row_caption = _getTreeRowCaption
