@@ -760,7 +760,6 @@ class SqlQuery(object):
                                 
     def cursor(self):
         """get a cursor of current selection"""
-        print 'dbtable.fullname: ',self.dbtable.fullname
         return self.db.execute(self.sqltext, self.sqlparams, dbtable=self.dbtable.fullname)
         
     def fetch(self):
