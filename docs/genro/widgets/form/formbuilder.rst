@@ -37,13 +37,15 @@ Definition
 
 	.. _where-is-it-?:
 
-**Where:**
+Where
+=====
 
 	You can find formbuilder in *genro/gnrpy/gnr/web/gnrwebstruct.py*
 
 	.. _A-brief-description:
 
-**Description:**
+Description
+===========
 
 With formbuilder you have an ordered place to put your HTML object; formbuilder is used in place of an HTML table.
 
@@ -66,7 +68,8 @@ In formbuilder you can put dom and widget elements; its most classic usage is to
 
 	.. _some-examples:
 
-**Examples**:
+Examples
+========
 
 	Let's see a code example::
 	
@@ -88,7 +91,8 @@ In formbuilder you can put dom and widget elements; its most classic usage is to
 
 	.. _main-attributes:
 
-**Attributes**:
+Attributes
+==========
 
 	+--------------------+-------------------------------------------------+--------------------------+
 	|   Attribute        |          Description                            |   Default                |
@@ -190,7 +194,8 @@ Other features:
 
 	.. _dbtable:
 	
-**dbtable: an explanation of the attribute**
+dbtable: an explanation of the attribute
+========================================
 	
 	The "dbtable" attribute is used to give a different path for database table in the queries of field form widget. If you don't specify it, Genro will put the value of maintable as dbtable value. Let's see two examples on "maintable", and two examples on "dbtable"::
 				
@@ -246,7 +251,8 @@ Other features:
 	
 	.. _explanation:
 
-**label and lbl: an explanation**:
+label and lbl: an explanation
+=============================
 	
 	Every formbuilder column is splitted in two parts (left one and right one): in the left one lie the values of the "lbl" attributes, while in the right one lie the values of the "label" attributes. Usually you label your form's fields with "lbl", excepted for the radiobuttons and the checkboxes on which you have to use "label" (the reason is merely visual).
 	
