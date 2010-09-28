@@ -19,7 +19,7 @@ Index
 	
 	- Attributes_
 	
-	- Other features:
+	- :ref:`Other-features`:
 	
 		- dbtable_: an explanation of the attribute
 		- label and lbl: an explanation_.
@@ -182,8 +182,8 @@ Here we describe the formbuilder's field attributes:
 	|                | For more details, see :doc:`/common/datastore`       |                          |
 	+----------------+------------------------------------------------------+--------------------------+
 
-**Other features:**
-		
+Other features:
+==============
 .. _dbtable:
 	
 **dbtable: an explanation of the attribute**
