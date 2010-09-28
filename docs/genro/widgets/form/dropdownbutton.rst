@@ -80,7 +80,7 @@ Index
 	| ``disabled``       | If True, user can't act on the dropdownbutton.  |  ``False``               |
 	|                    | For more details, see :doc:`/common/disabled`   |                          |
 	+--------------------+-------------------------------------------------+--------------------------+
-	| ``hidden``         | Hide the ???.                                   |  ``False``               |
+	| ``hidden``         | Hide the dropdownbutton.                        |  ``False``               |
 	|                    | See :doc:`/common/hidden`                       |                          |
 	+--------------------+-------------------------------------------------+--------------------------+
 	| ``label``          | Set dropdownbutton label.                       |  ``None``                |
