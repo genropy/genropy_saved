@@ -77,15 +77,18 @@ class GnrWebBatch(GnrBaseProxy):
         self.batch_complete(result=result,result_attr=result_attr)
         
         
-    @debug_call
+    #@debug_call
     def batch_create(self,batch_id=None,title=None,thermo_lines=None,note=None,cancellable=True,delay=1):
         self.batch_id = batch_id or self.page.getUuid()
         self.title = title
+        self.line_codes = []
+        if thermo_lines:
+            if isinstance(thermo_lines,basestring):
+                self.line_codes =  thermo_lines.split(',')
+            else:
+                self.line_codes = [line['code'] for line in thermo_lines]
         self.thermo_lines = thermo_lines
-        if isinstance(thermo_lines,basestring):
-            self.line_codes =  thermo_lines.split(',')
-        else:
-            self.line_codes = [line['code'] for line in thermo_lines]
+        
         self.note = note
         self.start_ts=datetime.now()
         self.last_ts = self.start_ts
@@ -96,9 +99,7 @@ class GnrWebBatch(GnrBaseProxy):
             store.drop_datachanges(self.batch_path)
             newbatch = Bag(dict(title=title,start_ts=self.start_ts,lines=thermo_lines,note=note,
                                 owner_page_id=self.page.page_id,
-                                thermo=Bag(dict([(k,None) for k in thermo_lines.split(',')],
-                                cancellable = cancellable)
-                           )))    
+                                thermo=Bag(dict([(k,None) for k in self.line_codes],cancellable = cancellable))))    
             store.set_datachange(self.batch_path,newbatch,reason='btc_create')
         return batch_id
         
@@ -162,29 +163,28 @@ class GnrWebBatch(GnrBaseProxy):
             for line in thermo_lines.split(','):
                 store.set_datachange('%s.thermo.%s' %(self.batch_path,line),Bag(),reason='th_cleanup')
 
-    def _get_line_code(self,line):
-        if isinstance(line,int):
-            return self.line_codes[line]
-        elif line in self.line_codes:
-            return line
+
                 
     #@debug_call
-    def thermo_line_start(self,line,maximum=None,message=None):
-        code = self._get_line_code(line)
-        if not code:
-            return
+    def thermo_line_add(self,code,maximum=None,message=None): 
+        self.line_codes.append(code)           
         with self.page.userStore() as store:
             store.set_datachange('%s.thermo.%s' %(self.batch_path,code),0,
-                            attributes=dict(message=message,maximum=maximum),reason='tl_start')
+                            attributes=dict(message=message,maximum=maximum,batch_id=self.batch_id),reason='tl_add')
         
+    def thermo_line_del(self,code):
+        self.line_codes.remove(code)           
+        with self.page.userStore() as store:
+            store.set_datachange('%s.thermo.%s' %(self.batch_path,code),None,
+                            attributes=dict(batch_id=self.batch_id),reason='tl_del')
+
     
     # #@debug_call
-    def thermo_line_update(self,line,progress=None,message=None,maximum=None):
-        code = self._get_line_code(line)
-        if not code:
+    def thermo_line_update(self,code,progress=None,message=None,maximum=None):
+        if not code in self.line_codes:
             return
         curr_time = datetime.now()
-        if code==self.line_codes[-1] and ((datetime.now()-self.last_ts).seconds<self.delay):
+        if progress>1 and code==self.line_codes[-1] and ((datetime.now()-self.last_ts).seconds<self.delay):
             return
         self.last_ts = curr_time
         with self.page.userStore() as store:
@@ -193,3 +193,35 @@ class GnrWebBatch(GnrBaseProxy):
             store.set_datachange('%s.thermo.%s' %(self.batch_path,code),progress,
                             attributes=dict(progress=progress,message=message,maximum=maximum),replace=True,
                             reason='tl_upd')
+
+    def thermo_wrapper(self,iterable,line_code,message=None,keep=True,**kwargs):
+        """
+        this method will return an iterator that wraps
+        the give iterable and update the related thermo
+        
+        Params:
+        * `iterable`:  it can be an iterable or a callable. If callable: it's called before iteration.
+        * `line_code`: the code for the thermoline: if it's not existing it's created before iteration and removed at the end.
+        * `message`:  it can be a callable: in this case it's called for any iteration with item, progress an maximum. If it's a string
+                     it's used to create a standard message that adds progress/maximum. If it's omitted the line_code is used for message
+        * `kwargs`: any given kwargs is passed to the iterable method
+    
+        """
+
+        if callable(iterable):
+            iterable=iterable(**kwargs)
+        maximum=len(iterable)
+        if callable(message):
+            cb_message = message
+        else:
+            msg_desc = message or line_code
+            cb_message = lambda item,k,m: '%s %i/%i'  %(msg_desc,k,m)
+        if not line_code in self.line_codes:
+            self.thermo_line_add(line_code,maximum=maximum)
+        for k,item in enumerate(iterable):
+            progress=k+1
+            message = cb_message(item,progress,maximum)
+            self.thermo_line_update(line_code,maximum=maximum,message=message,progress=progress)
+            yield item
+        if not keep:
+            self.thermo_line_del(line=line_code)

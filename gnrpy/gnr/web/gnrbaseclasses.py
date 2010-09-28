@@ -86,3 +86,56 @@ class BaseProxy(object):
 
 class BaseWebtool(object):
     pass
+    
+class BaseResourceBatch(object):
+    batch_prefix = 'BB'
+    batch_thermo_lines = 'batch_steps,batch_main,ts_loop'
+    batch_title = 'My Batch Title'
+    batch_cancellable = True
+    batch_delay = 0.5
+    batch_note = None
+
+    def __init__(self,page=None,resource_table=None):
+        self.page = page
+        self.resource_table = resource_table
+    
+    def do(self,**kwargs):
+        """override me"""
+        btc_handler = self.page.btc
+        btc_handler.batch_create(batch_id='%s_%s' %(self.batch_prefix,self.page.getUuid()),
+                            title=self.batch_title,thermo_lines=self.batch_thermo_lines,
+                            cancellable=self.batch_cancellable,delay=self.batch_delay,note=self.batch_note) 
+        self.page.btc.thermo_line_start(line='batch_steps',maximum=5,message='')
+        self.btc.thermo_line_update(line='batch_steps',maximum=6,progress=1,message='Getting data')
+    
+    def defineSelection(self,selectionName=None,selectedRowIdx=None):
+        self.selectionName = selectionName
+        self.selectedRowIdx = selectedRowIdx
+    
+    @property
+    def selection(self):
+        self.selection = self.page.getUserSelection(selectionName=self.selectionName,
+                                         selectedRowidx=self.selectedRowidx,
+                                         filterCb=self.selectionFilterCb)
+    
+    def selectionFilterCb(self,row):
+        """override me"""
+        return True
+        
+    def askParameters(self,pane,**kwargs):
+        """Pass a ContentPane for adding forms to allow you to ask parameters to the clients"""
+        pass
+    
+        
+
+class BaseResourceAction(BaseResourceBatch):
+    pass
+    
+class BaseResourceMail(BaseResourceBatch):
+    pass
+    
+    
+class BaseResourcePrint(BaseResourceBatch):
+    pass
+    
+    

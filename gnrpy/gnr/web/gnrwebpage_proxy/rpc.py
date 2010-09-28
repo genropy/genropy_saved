@@ -12,16 +12,13 @@ AUTH_FORBIDDEN=-1
 
 class GnrWebRpc(GnrBaseProxy):    
     def __call__(self, method=None, _auth=AUTH_FORBIDDEN, **kwargs):
-        print 'GnrWebRpc ',method
         page = self.page
         if _auth==AUTH_FORBIDDEN and method!='main':
             result = None
             error = 'forbidden call'
-            print error
         elif _auth=='EXPIRED':
             result=None
             error='expired'
-            print error
         else:
             handler=page.getPublicMethod('rpc', method)
             if method=='main':
