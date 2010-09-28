@@ -6,7 +6,8 @@
 
 .. class:: checkbox -  Genropy checkbox
 
-**Index:**
+Index
+*****
 
 	- Definition_
 	

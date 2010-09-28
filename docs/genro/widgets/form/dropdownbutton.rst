@@ -1,10 +1,10 @@
-=================
- dropdownbuttons
-=================
+================
+ dropdownbutton
+================
 
 .. currentmodule:: form
 
-.. class:: dropdownbuttons -  Genropy dropdownbuttons
+.. class:: dropdownbutton -  Genropy dropdownbutton
 
 Index
 *****
