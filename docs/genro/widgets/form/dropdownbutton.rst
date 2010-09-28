@@ -9,39 +9,43 @@
 Index
 *****
 
-	- Definition_
+	- :ref:`main-definition`
+	
+	- :ref:`where-is-it-?`
+	
+	- :ref:`A-brief-description`
+	
+	- :ref:`some-examples`
+	
+	- :ref:`main-attributes`
 
-	- Where_
+	.. _main-definition:
 
-	- Description_
-
-	- Examples_
-
-	- Attributes_
-
-.. _Definition:
-
-**Definition**:
+Definition
+==========
 
 	same definition of Dojo dropdownbuttons (version 1.5). To show it, click here_.
 
-.. _here: http://docs.dojocampus.org/dijit/form/DropDownButton
+	.. _here: http://docs.dojocampus.org/dijit/form/DropDownButton
 
-.. _Where:
+	.. _where-is-it-?:
 
-**Where:**
+Where
+=====
 
 	#NISO???
 
-.. _Description:
+	.. _A-brief-description:
 
-**Description:**
+Description
+===========
 
 	Constructs a button that opens a ``menu`` or a ``tooltipdialog``.
 
-.. _Examples:
+	.. _some-examples:
 
-**Examples**:
+Examples
+========
 
 	First example::
 	
@@ -70,9 +74,10 @@ Index
 
 	.. figure:: dropdownbutton.png
 
-.. _Attributes:
+	.. _main-attributes:
 
-**Attributes**:
+Attributes
+==========
 
 	+--------------------+-------------------------------------------------+--------------------------+
 	|   Attribute        |          Description                            |   Default                |
