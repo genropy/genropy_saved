@@ -13,6 +13,7 @@
 	
 	form/button
 	form/checkbox
+	form/combobox
 	form/currencyTextbox
 	form/dateTextbox
 	form/dropdownbutton
