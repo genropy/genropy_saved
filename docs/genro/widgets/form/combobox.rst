@@ -59,33 +59,33 @@ Examples
 Fill combobox through a Bag
 ===========================
 
-	???
+	#NISO ??? SPIEGARE!!
 
 	Example::
 
-		class
+		class GnrCustomWebPage(object):
 			def main(self,root,**kwargs):
-				"""Checkbox filled through a Bag"""
-				bc = pane.borderContainer(datapath='test2')
+				bc = root.borderContainer(datapath='test1')
 				bc.data('.values.sport',self.sports(),id='.pkey',caption='.Description')
 				bc.combobox(value='^.record.Bag',storepath='.values.sport',
-				lbl='loaded from Bag')
+				            lbl='loaded from Bag')
 
-    def sports(self,**kwargs):
-        mytable=Bag()
-        mytable['r1.pkey'] = 'SC'
-        mytable['r1.Description'] = 'Soccer'
-        mytable['r2.pkey'] = 'BK'
-        mytable['r2.Description'] = 'Basket'
-        mytable['r3.pkey'] = 'TE'
-        mytable['r3.Description'] = 'Tennis'
-        mytable['r4.pkey'] = 'HK'
-        mytable['r4.Description'] = 'Hockey'
-        mytable['r5.pkey'] = 'BB'
-        mytable['r5.Description'] = 'Baseball'
-        mytable['r6.pkey'] = 'SB'
-        mytable['r6.Description'] = 'Snowboard'
-        return mytable		
+			def sports(self,**kwargs):
+				mytable=Bag()
+				mytable['r1.pkey'] = 'SC'
+				mytable['r1.Description'] = 'Soccer'
+				mytable['r2.pkey'] = 'BK'
+				mytable['r2.Description'] = 'Basket'
+				mytable['r3.pkey'] = 'TE'
+				mytable['r3.Description'] = 'Tennis'
+				mytable['r4.pkey'] = 'HK'
+				mytable['r4.Description'] = 'Hockey'
+				mytable['r5.pkey'] = 'BB'
+				mytable['r5.Description'] = 'Baseball'
+				mytable['r6.pkey'] = 'SB'
+				mytable['r6.Description'] = 'Snowboard'
+				return mytable
+				
 	.. _here:
 		
 	Let's see its graphical result:
@@ -99,12 +99,16 @@ Fill combobox through a Bag
 Fill combobox through "values" attribute
 ========================================
 
-	???
+	#NISO ??? SPIEGARE!!
 
 	Example::
 
-		pane.???(???)
-		
+		class GnrCustomWebPage(object):
+			def test_1_values(self,pane):
+				bc = pane.borderContainer(datapath='test1')
+				bc.combobox(value='^.record.values',values='Football,Golf,Karate',
+            	            lbl='loaded from values')
+
 	The graphical result is the same of the Bag-way (see it here_).
 
 	.. _main-attributes:
