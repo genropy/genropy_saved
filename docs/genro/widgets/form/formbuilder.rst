@@ -26,7 +26,7 @@ Index
 
 	.. _main-definition:
 
-**Definition**::
+**Main definition**::
 
 		def formbuilder(self, cols=1, dbtable=None, tblclass='formbuilder',
 	                    lblclass='gnrfieldlabel', lblpos='L', _class='', fieldclass='gnrfield',
@@ -187,7 +187,7 @@ Here we describe the formbuilder's field attributes:
 Other features:
 ==============
 
-.. _dbtable:
+	.. _dbtable:
 	
 **dbtable: an explanation of the attribute**
 	
@@ -241,9 +241,9 @@ Other features:
 		
 	For further details on "dbtable" attribute, see also :doc:`/widgets/form/field`.
 	
-.. _example:
-
-.. _explanation:
+	.. _example:
+	
+	.. _explanation:
 
 **label and lbl: an explanation**:
 	
