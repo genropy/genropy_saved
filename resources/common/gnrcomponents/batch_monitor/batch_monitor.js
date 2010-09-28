@@ -11,20 +11,21 @@ batch_monitor.on_datachange = function(kw){
     if(callname in batch_monitor){
      this[callname].call(this,node);
     }
-}
+};
 
 batch_monitor.on_btc_create = function(node){
     var batch_id = node.label;
     var batch_bag = node.getValue();
     var thermopane = this.create_batchpane(batch_id,batch_bag);
     var lines = batch_bag.getItem('lines');
+    if (!lines){
+        return;
+    }
     if (typeof(lines)=='string') {
         lines = lines.split(',');
     }
-    var k=0
     dojo.forEach(lines,function(line){
-        batch_monitor.create_thermoline(thermopane,line,k);
-        k=k+1;
+        batch_monitor.create_thermoline(thermopane,batch_id,line);
     });    
 };
 batch_monitor.on_btc_end = function(node){
@@ -45,7 +46,7 @@ batch_monitor.on_btc_result_doc = function(node){
     };
     topright = genro.nodeById('bm_top_right_'+batch_id).clearValue();
     topright._('div',{_class:'buttonIcon icnTabClose',connect_onclick:'genro.serverCall("btc.remove_batch",{"batch_id":"'+batch_id+'"})'});
-    resultpane._('div',{innerHTML:'Batch completed - total time:'+batch_value.getItem('time_delta')})
+    resultpane._('div',{innerHTML:'Batch completed - total time:'+batch_value.getItem('time_delta')});
     resultpane.unfreeze();
 };
 batch_monitor.on_btc_error = function(node){
@@ -62,7 +63,7 @@ batch_monitor.on_btc_error_doc = function(node){
     };
     topright = genro.nodeById('bm_top_right_'+batch_id).clearValue();
     topright._('div',{_class:'buttonIcon icnTabClose',connect_onclick:'genro.serverCall("btc.remove_batch",{"batch_id":"'+batch_id+'"})'});
-    resultpane._('div',{innerHTML:'Error inside batch - total time:'+batch_value.getItem('time_delta')})
+    resultpane._('div',{innerHTML:'Error inside batch - total time:'+batch_value.getItem('time_delta')});
     resultpane.unfreeze();  
 };
 batch_monitor.on_btc_aborted = function(node){
@@ -71,9 +72,21 @@ batch_monitor.on_btc_aborted = function(node){
 batch_monitor.on_th_cleanup = function(node){
     genro.bp(node);
 };
-batch_monitor.on_tl_start = function(node){
-    //genro.bp(node);
+batch_monitor.on_tl_add = function(node){
+    var batch_id = node.attr.batch_id;
+    var thermopane = genro.nodeById(this.get_batch_thermo_node_id(batch_id));
+    if (thermopane){
+        this.create_thermoline(thermopane,batch_id,node.label);
+    }
+    else{
+        //genro.bp()
+        console.log('on_tl_add no thermopane');
+    }
 };
+batch_monitor.on_tl_del = function(node){
+    this.delete_thermoline(node.attr.batch_id,node.label);
+};
+
 batch_monitor.on_tl_upd = function(node){
     //genro.bp(node);
 };
@@ -85,7 +98,7 @@ batch_monitor.on_btc_removed = function(node){
 batch_monitor.batch_remove = function(batch_id){
     this.batchpane(batch_id)._destroy();
     genro._data.delItem(this.batchpath(batch_id));
-}
+};
 
 batch_monitor.get_batch_node_id = function(batch_id){
     return 'batch_'+batch_id;
@@ -122,8 +135,15 @@ batch_monitor.create_batchpane = function(batch_id,batch_data){
     }
 };
 
+batch_monitor.delete_thermoline = function(batch_id,code){
+    var thermo_id = 'thermo_'+batch_id+'_'+code;
+    var node = genro.nodeById(thermo_id)
+    if (node){
+        node._destroy();
+    }
+}
 
-batch_monitor.create_thermoline = function(pane,line,k){
+batch_monitor.create_thermoline = function(pane,batch_id,line){
     var code = line;
     var custom_attr = {};
     if (typeof(line)!='string') {
@@ -131,16 +151,16 @@ batch_monitor.create_thermoline = function(pane,line,k){
         custom_attr = line;
     }      
     var custom_msg_attr = objectExtract(custom_attr,'msg_*');
-    var innerpane = pane._('div',{datapath:'.'+code});
+    var innerpane = pane._('div',{datapath:'.'+code,nodeId:'thermo_'+batch_id+'_'+code});
     //var cb = function(percent){
     //    return line+':'+dojo.number.format(percent, {type: "percent", places: this.places, locale: this.lang});
     //};
     var cb = function(percent){
         var msg = this.domNode.parentNode.sourceNode.getRelativeData('.?message');
         return msg;
-    }
-    var thermo_attr = {progress:'^.?progress',maximum:'^.?maximum',indeterminate:'^.?indeterminate',_class:'bm_thermoline bm_line_'+k,
-                     places:'^.?places',report:cb};
+    };
+    var thermo_attr = {progress:'^.?progress',maximum:'^.?maximum',indeterminate:'^.?indeterminate',
+                        _class:'bm_thermoline bm_line_'+code,places:'^.?places',report:cb};
     var msg_attr = {innerHTML:'^.?message',_class:'bm_thermomsg'};
     thermo_attr = objectUpdate(thermo_attr,custom_attr);   
     
