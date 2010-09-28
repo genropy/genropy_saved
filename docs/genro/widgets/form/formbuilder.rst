@@ -21,14 +21,16 @@ Index
 	
 	- :ref:`other-features`
 	
-		- an explanation of the :ref:`db-table` attribute
-		- explanation of :ref:`label-and-lbl` attributes
+		- :ref:`db-table`
+		- :ref:`label-and-lbl`
 
 	.. _main-definition:
 
 Definition
 ==========
-
+		
+	Here we report formbuilder's definition::
+		
 		def formbuilder(self, cols=1, dbtable=None, tblclass='formbuilder',
 	                    lblclass='gnrfieldlabel', lblpos='L', _class='', fieldclass='gnrfield',
 	                    lblalign=None, lblvalign='middle',
@@ -192,10 +194,12 @@ Here we describe the formbuilder's field attributes:
 Other features:
 ==============
 
+	.. _dbtable:
+
 	.. _db-table:
 	
-dbtable: an explanation of the attribute
-========================================
+dbtable: an explanation
+=======================
 	
 	The "dbtable" attribute is used to give a different path for database table in the queries of field form widget. If you don't specify it, Genro will put the value of maintable as dbtable value. Let's see two examples on "maintable", and two examples on "dbtable"::
 				
