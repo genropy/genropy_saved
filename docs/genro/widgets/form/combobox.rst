@@ -17,12 +17,10 @@ Index
 	
 	- :ref:`some-examples`
 	
+		- :ref:`Bag-way`
+		- :ref:`values-attribute`
+	
 	- :ref:`main-attributes`
-	
-	- :ref:`other-features`
-	
-		- ???:ref:`first-reference`
-		- ???:ref:`second-reference`
 
 	.. _main-definition:
 
@@ -43,12 +41,26 @@ Where
 Description
 ===========
 
-	Checkbox is a graphical user widget that permits the user to select from multiple options.
+	Checkbox is a graphical user widget that permits the user to select a value from multiple options. The checkbox must have some values between user can choose. To upload these values, you can use two different ways: the Bag-way and the Attribute-way
 
 	.. _some-examples:
 
 Examples
 ========
+
+	.. _Bag-way:
+
+Fill combobox through a Bag
+===========================
+
+	???
+
+	.. _values-attribute:
+
+Fill combobox through "values" attribute
+========================================
+
+	???
 
 	Example::
 
@@ -56,7 +68,7 @@ Examples
 		
 	Let's see its graphical result:
 
-	.. figure:: ???.png
+	.. figure:: combobox.png
 
 
 	.. _main-attributes:
@@ -91,15 +103,3 @@ Attributes
 	ComboBox widgets are dojo.data-enabled. This means rather than embedding all the OPTION tags within the page, you can have dojo.data fetch them from a server-based store. The unified dojo.data architecture can get its data from various places such as databases and web services. See the dojo.data section for complete details.
     
     note: ComboBox only has a single value that matches what is displayed while FilteringSelect incorporates a hidden value that corresponds to the displayed value.
-
-Other features:
-===============
-
-.. _values:
-
-.. _explanation:
-
-
-
-
-	
