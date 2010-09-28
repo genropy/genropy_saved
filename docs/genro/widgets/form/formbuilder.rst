@@ -19,7 +19,7 @@ Index
 	
 	- Attributes_
 	
-	- :ref:`other-features`:
+	- :ref:`other-features`
 	
 		- dbtable_: an explanation of the attribute
 		- label and lbl: an explanation_.
