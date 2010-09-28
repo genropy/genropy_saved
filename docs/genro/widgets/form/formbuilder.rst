@@ -21,8 +21,8 @@ Index
 	
 	- :ref:`other-features`
 	
-		- dbtable_: an explanation of the attribute
-		- label and lbl: an explanation_.
+		- an explanation of the :ref:`db-table` attribute
+		- explanation of :ref:`label-and-lbl` attributes
 
 	.. _main-definition:
 
@@ -192,7 +192,7 @@ Here we describe the formbuilder's field attributes:
 Other features:
 ==============
 
-	.. _dbtable:
+	.. _db-table:
 	
 dbtable: an explanation of the attribute
 ========================================
@@ -249,7 +249,7 @@ dbtable: an explanation of the attribute
 	
 	.. _example:
 	
-	.. _explanation:
+	.. _label-and-lbl:
 
 label and lbl: an explanation
 =============================
