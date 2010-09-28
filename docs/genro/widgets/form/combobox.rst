@@ -59,10 +59,6 @@ Examples
 Fill combobox through a Bag
 ===========================
 
-	.. _values:
-
-	.. _values-attribute:
-	
 	???
 
 	Example::
@@ -95,6 +91,10 @@ Fill combobox through a Bag
 	Let's see its graphical result:
 
 	.. figure:: combobox.png
+
+	.. _values:
+
+	.. _values-attribute:
 
 Fill combobox through "values" attribute
 ========================================
