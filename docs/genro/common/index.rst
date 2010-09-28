@@ -9,4 +9,3 @@ Common attributes
     disabled
     hidden
     label
-    index

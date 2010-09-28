@@ -20,6 +20,7 @@ GenroPy
             :maxdepth: 2
 
             installation
+            common/index
             widgets/index
             ui/index
 
