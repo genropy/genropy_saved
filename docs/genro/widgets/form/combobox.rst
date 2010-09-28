@@ -41,21 +41,60 @@ Where
 Description
 ===========
 
-	Checkbox is a graphical user widget that permits the user to select a value from multiple options. The checkbox must have some values between user can choose. To upload these values, you can use two different ways: the Bag-way and the Attribute-way
+	Combobox is a graphical user widget that permits the user to select a value from multiple options.
+	
+	In combobox you have to provide a list of acceptable values (to upload these values, you can use two different ways: the Bag_-way and the Values_-way). But like an input text field, user can also type whatever he wants. As the user types, partially matched values will be shown in a pop-up menu below the input text box.
+	
+	So, the combobox is like a filteringSelect, but combobox doesn't have keys.
 
 	.. _some-examples:
 
 Examples
 ========
 
+	.. _Bag:
+
 	.. _Bag-way:
 
 Fill combobox through a Bag
 ===========================
 
-	???
+	.. _Values:
 
 	.. _values-attribute:
+	
+	???
+
+	Example::
+
+		class
+			def main(self,root,**kwargs):
+				"""Checkbox filled through a Bag"""
+				bc = pane.borderContainer(datapath='test2')
+				bc.data('.values.sport',self.sports(),id='.pkey',caption='.Description')
+				bc.combobox(value='^.record.Bag',storepath='.values.sport',
+				lbl='loaded from Bag')
+
+    def sports(self,**kwargs):
+        mytable=Bag()
+        mytable['r1.pkey'] = 'SC'
+        mytable['r1.Description'] = 'Soccer'
+        mytable['r2.pkey'] = 'BK'
+        mytable['r2.Description'] = 'Basket'
+        mytable['r3.pkey'] = 'TE'
+        mytable['r3.Description'] = 'Tennis'
+        mytable['r4.pkey'] = 'HK'
+        mytable['r4.Description'] = 'Hockey'
+        mytable['r5.pkey'] = 'BB'
+        mytable['r5.Description'] = 'Baseball'
+        mytable['r6.pkey'] = 'SB'
+        mytable['r6.Description'] = 'Snowboard'
+        return mytable		
+	.. _here:
+		
+	Let's see its graphical result:
+
+	.. figure:: combobox.png
 
 Fill combobox through "values" attribute
 ========================================
@@ -66,10 +105,7 @@ Fill combobox through "values" attribute
 
 		pane.???(???)
 		
-	Let's see its graphical result:
-
-	.. figure:: combobox.png
-
+	The graphical result is the same of the Bag-way (see it here_).
 
 	.. _main-attributes:
 
@@ -79,6 +115,8 @@ Attributes
 	+--------------------+-------------------------------------------------+--------------------------+
 	|   Attribute        |          Description                            |   Default                |
 	+====================+=================================================+==========================+
+	| ``default``        | For setting default combobox value              |  ``None``                |
+	+--------------------+-------------------------------------------------+--------------------------+
 	| ``disabled``       | If True, user can't act on the combobox.        |  ``False``               |
 	|                    | For more details, see :doc:`/common/disabled`   |                          |
 	+--------------------+-------------------------------------------------+--------------------------+
@@ -95,11 +133,3 @@ Attributes
 	| ``values``         | Set all the possible values for user choice     |  ``None``                |
 	|                    | Check here for explanation_.                    |                          |
 	+--------------------+-------------------------------------------------+--------------------------+
-
-	Like a SELECT combo-box, you provide a list of acceptable values. But like an INPUT text field, the user can also type whatever they want. As the user types, partially matched values will be shown in a pop-up menu below the INPUT text box.
-    
-	On FORM submit, the displayed text value of a non-disabled ComboBox widget is submitted using a native INPUT text box if the name attribute was specified at widget creation time.
-    
-	ComboBox widgets are dojo.data-enabled. This means rather than embedding all the OPTION tags within the page, you can have dojo.data fetch them from a server-based store. The unified dojo.data architecture can get its data from various places such as databases and web services. See the dojo.data section for complete details.
-    
-    note: ComboBox only has a single value that matches what is displayed while FilteringSelect incorporates a hidden value that corresponds to the displayed value.
