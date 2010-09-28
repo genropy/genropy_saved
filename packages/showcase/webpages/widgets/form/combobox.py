@@ -1,19 +1,22 @@
-#!/usr/bin/env pythonw
 # -*- coding: UTF-8 -*-
 
-#  Created by Giovanni Porcari on 2007-03-24.
-#  Copyright (c) 2007 Softwell. All rights reserved.
+# combobox.py
+# Created by Niso on 2010-09-22.
+# Copyright (c) 2010 Softwell. All rights reserved.
+
+"""Combobox"""
 
 from gnr.core.gnrbag import Bag
 
 class GnrCustomWebPage(object):
-    def main(self, root, **kwargs):
-        #   combobox - DEFAULT parameters:
-        #       hasDownArrow=True --> create the selection arrow
-        #       ignoreCase=True   --> user can write ignoring the case
-        
-        root.data('values.sport',self.sports(),id='.pkey',caption='.Description')
-        fb = root.formbuilder(cols=2)
+    py_requires="gnrcomponents/testhandler:TestHandlerFull"
+    # dojo_theme='claro'    # !! Uncomment this row for Dojo_1.5 usage
+    
+    # For an exhaustive documentation, please see http://docs.genropy.org/widgets/form/combobox.html
+    
+    def test_1_basic(self,pane):
+        pane.data('values.sport',self.sports(),id='.pkey',caption='.Description')
+        fb = pane.formbuilder(cols=2)
         fb.combobox(value='^record.sport',storepath='values.sport',lbl='loaded from Bag')
         fb.combobox(values='Football, Golf, Karate',hasDownArrow=False,lbl='loaded from values')
         

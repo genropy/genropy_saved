@@ -10,14 +10,7 @@ class GnrCustomWebPage(object):
     py_requires="gnrcomponents/testhandler:TestHandlerFull"
     # dojo_theme='claro'    # !! Uncomment this row for Dojo_1.5 usage
     
-    """
-    =============
-     formbuilder
-    =============
-    
-    SEE FORMBUILDER.RST
-    
-    """
+    # For an exhaustive documentation, please see http://docs.genropy.org/widgets/form/formbuilder.html
     
     #   - Other forms and attributes:
     #       In this section we report forms/attributes that have been used in this example

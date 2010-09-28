@@ -10,14 +10,7 @@ class GnrCustomWebPage(object):
     py_requires="gnrcomponents/testhandler:TestHandlerFull"
     # dojo_theme='claro'    # !! Uncomment this row for Dojo_1.5 usage
     
-    """
-    =================
-     dropdownbuttons
-    =================
-    
-    SEE DROPDOWNBUTTON.RST
-    
-    """
+    # For an exhaustive documentation, please see http://docs.genropy.org/widgets/form/dropdownbutton.html
     
     def test_1_dropdownbutton(self,pane):
         """Dropdown button"""

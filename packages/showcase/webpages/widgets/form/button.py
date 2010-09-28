@@ -10,30 +10,23 @@ class GnrCustomWebPage(object):
     py_requires="gnrcomponents/testhandler:TestHandlerFull"
     # dojo_theme='claro'    # !! Uncomment this row for Dojo_1.5 usage
     
-    """
-    =========
-     Buttons
-    =========
+    # For an exhaustive documentation, please see http://docs.genropy.org/widgets/form/button.html
     
-    SEE BUTTON.RST
+    #   - Other forms and attributes:
+    #       In this section we report forms/attributes that have been used in this example
+    #       despite they didn't strictly belonging to button.
+    #       We also suggest you the file (if it has been created!) where you can find
+    #       some documentation about them.
+    #
+    #       ## name ##      --> ## file ##
+    #       datapath        --> datapath.py
+    #       formbuilder     --> formbuilder.py
+    #       menu            --> menu.py
+    #       menuline        --> menu.py
+    #       numberTextbox   --> textbox.py
+    #       textbox         --> textbox.py
+    #       value           --> datapath.py
     
-    """
-        
-        #   - Other forms and attributes:
-        #       In this section we report forms/attributes that have been used in this example
-        #       despite they didn't strictly belonging to button.
-        #       We also suggest you the file (if it has been created!) where you can find
-        #       some documentation about them.
-        #
-        #       ## name ##      --> ## file ##
-        #       datapath        --> datapath.py
-        #       formbuilder     --> formbuilder.py
-        #       menu            --> menu.py
-        #       menuline        --> menu.py
-        #       numberTextbox   --> textbox.py
-        #       textbox         --> textbox.py
-        #       value           --> datapath.py
-        
     def test_1_action(self,pane):
         """Action attribute"""
         fb = pane.formbuilder(cols=2)
