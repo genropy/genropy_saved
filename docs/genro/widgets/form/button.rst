@@ -1,10 +1,10 @@
-=========
- Buttons
-=========
+========
+ Button
+========
 
 .. currentmodule:: form
 
-.. class:: Buttons -  Genropy buttons
+.. class:: Button -  Genropy button
 
 Index
 *****
