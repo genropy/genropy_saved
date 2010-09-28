@@ -6,16 +6,83 @@
 
 .. class:: dropdownbuttons -  Genropy dropdownbuttons
 
-**Definition**: same definition of Dojo dropdownbuttons (version 1.5). To show it, click here_.
+Index
+*****
+
+	- Definition_
+
+	- Where_
+
+	- Description_
+
+	- Examples_
+
+	- Attributes_
+
+.. _Definition:
+
+**Definition**:
+
+	same definition of Dojo dropdownbuttons (version 1.5). To show it, click here_.
 
 .. _here: http://docs.dojocampus.org/dijit/form/DropDownButton
 
-.. method:: dropdownbutton(label)
+.. _Where:
+
+**Where:**
+
+	#NISO???
+
+.. _Description:
+
+**Description:**
 
 	Constructs a button that opens a ``menu`` or a ``tooltipdialog``.
-			
-		Example::
+
+.. _Examples:
+
+**Examples**:
+
+	First example::
 	
-			def ddButtonPane(self, cp):
-				dd = cp.dropdownbutton('test')
-				dd.tooltipdialog().div('Hello, world!')
+		def main(self,root,**kwargs):
+			ddb=root.dropdownbutton('Menù')    # Same meaning: ddb=root.dropdownbutton(label='Menù')
+			dmenu=ddb.menu()
+			
+		Every menu row is created through "menuline"::
+			
+			dmenu.menuline('Open...',action="alert('Opening...')")
+			dmenu.menuline('Close',action="alert('Closing...')")
+			
+		For creating a dividing line use the following sintax::
+			
+			dmenu.menuline('-')
+		
+		You can also create a menu inside a menu::
+		
+			submenu=dmenu.menuline('I have submenues').menu()
+			submenu.menuline('To do this',action="alert('Doing this...')")
+			submenu.menuline('Or to do that',action="alert('Doing that...')")
+			dmenu.menuline('-')
+			dmenu.menuline('Quit',action="alert('Quitting...')")
+
+	Let's see its graphical result:
+
+	.. figure:: dropdownbutton.png
+
+.. _Attributes:
+
+**Attributes**:
+
+	+--------------------+-------------------------------------------------+--------------------------+
+	|   Attribute        |          Description                            |   Default                |
+	+====================+=================================================+==========================+
+	| ``disabled``       | If True, user can't act on the dropdownbutton.  |  ``False``               |
+	|                    | For more details, see :doc:`/common/disabled`   |                          |
+	+--------------------+-------------------------------------------------+--------------------------+
+	| ``hidden``         | Hide the ???.                                   |  ``False``               |
+	|                    | See :doc:`/common/hidden`                       |                          |
+	+--------------------+-------------------------------------------------+--------------------------+
+	| ``label``          | Set dropdownbutton label.                       |  ``None``                |
+	|                    | For more details, see :doc:`/common/label`      |                          |
+	+--------------------+-------------------------------------------------+--------------------------+
