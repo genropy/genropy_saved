@@ -57,7 +57,7 @@ class ResourceLoader(object):
                         tool_classes = inspect.getmembers(module, isgnrwebtool)
                         tool_classes = [(name.lower(),value) for name,value in tool_classes]
                         tools.update(dict(tool_classes))
-                    except:
+                    except ImportError:
                         pass
         return tools
     
