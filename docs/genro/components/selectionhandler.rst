@@ -72,7 +72,7 @@ Relative to the ``datapath``.
     Boolean flag (treat as read-only, read the code of the component to see how to edit).
 
 Names
-****
+*****
 
 Given a ``NodeID`` equal to ``foo``, the various components are named as follows:
 
