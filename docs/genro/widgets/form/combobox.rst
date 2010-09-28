@@ -43,7 +43,7 @@ Description
 
 	Combobox is a graphical user widget that permits the user to select a value from multiple options.
 	
-	In combobox you have to provide a list of acceptable values (to upload these values, you can use two different ways: the Bag_-way and the Values_-way). But like an input text field, user can also type whatever he wants. As the user types, partially matched values will be shown in a pop-up menu below the input text box.
+	In combobox you have to provide a list of acceptable values (to upload these values, you can use two different ways: the Bag_-way and the values_-way). But like an input text field, user can also type whatever he wants. As the user types, partially matched values will be shown in a pop-up menu below the input text box.
 	
 	So, the combobox is like a filteringSelect, but combobox doesn't have keys.
 
@@ -59,7 +59,7 @@ Examples
 Fill combobox through a Bag
 ===========================
 
-	.. _Values:
+	.. _values:
 
 	.. _values-attribute:
 	
