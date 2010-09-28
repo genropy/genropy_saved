@@ -55,7 +55,7 @@ Examples
 
 	Let's see its graphical result:
 
-	.. figure:: ???.png
+	.. figure:: button.png
 	
 	You can also use "FIRE" attribute within "action" attribute: `action="FIRE 'javascript command'"`
 
