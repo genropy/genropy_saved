@@ -50,7 +50,7 @@ Examples
 	First example::
 	
 		def main(self,root,**kwargs):
-			ddb=root.dropdownbutton('Menù')    # Same meaning: ddb=root.dropdownbutton(label='Menù')
+			ddb=root.dropdownbutton('Menu')    # Same meaning: ddb=root.dropdownbutton(label='Menu')
 			dmenu=ddb.menu()
 			
 	Every menu row is created through "menuline"::
