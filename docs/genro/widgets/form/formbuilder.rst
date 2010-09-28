@@ -9,22 +9,22 @@
 Index
 *****
 
-	- :ref:`definition`
+	- :ref:`main-definition`
 	
-	- :ref:`where`
+	- :ref:`where-is-it-?`
 	
-	- :ref:`description`
+	- :ref:`A-brief-description`
 	
-	- :ref:`examples`
+	- :ref:`some-examples`
 	
-	- :ref:`attributes`
+	- :ref:`main-attributes`
 	
 	- :ref:`other-features`
 	
 		- dbtable_: an explanation of the attribute
 		- label and lbl: an explanation_.
 
-	.. _definition:
+	.. _main-definition:
 
 **Definition**::
 
@@ -34,13 +34,13 @@ Index
 	                    fldalign=None, fldvalign='middle', disabled=False,
 	                    rowdatapath=None, head_rows=None, **kwargs):
 
-	.. _where:
+	.. _where-is-it-?:
 
 **Where:**
 
 	You can find formbuilder in *genro/gnrpy/gnr/web/gnrwebstruct.py*
 
-	.. _description:
+	.. _A-brief-description:
 
 **Description:**
 
@@ -63,7 +63,7 @@ To let you see how Genro code is simpler and more compact, we report here a comp
 
 In formbuilder you can put dom and widget elements; its most classic usage is to create a form made by fields and layers, and that's because formbuilder can manage automatically fields and their positioning.
 
-	.. _examples:
+	.. _some-examples:
 
 **Examples**:
 
@@ -85,7 +85,7 @@ In formbuilder you can put dom and widget elements; its most classic usage is to
 
 	.. figure:: formbuilder.png
 
-	.. _attributes:
+	.. _main-attributes:
 
 **Attributes**:
 
