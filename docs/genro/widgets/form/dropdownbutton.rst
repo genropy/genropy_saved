@@ -53,16 +53,16 @@ Examples
 			ddb=root.dropdownbutton('Menù')    # Same meaning: ddb=root.dropdownbutton(label='Menù')
 			dmenu=ddb.menu()
 			
-		Every menu row is created through "menuline"::
+	Every menu row is created through "menuline"::
 			
 			dmenu.menuline('Open...',action="alert('Opening...')")
 			dmenu.menuline('Close',action="alert('Closing...')")
 			
-		For creating a dividing line use the following sintax::
+	For creating a dividing line use the following sintax::
 			
 			dmenu.menuline('-')
 		
-		You can also create a menu inside a menu::
+	You can also create a menu inside a menu::
 		
 			submenu=dmenu.menuline('I have submenues').menu()
 			submenu.menuline('To do this',action="alert('Doing this...')")
