@@ -28,7 +28,7 @@ class GnrCustomWebPage(object):
         """Basic checkbox"""
         fb = pane.formbuilder(datapath='test1',cols=2)
         fb.checkbox(value='^.checkbox',lbl='Checkbox')
-        fb.checkbox(value='^.checkbox2',lbl='Checkbox')
+        fb.checkbox(value='^.checkbox2',label='Checkbox')
         
     def test_2_checkbox(self,pane):
         """Checkbox"""
