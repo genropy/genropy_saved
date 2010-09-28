@@ -4,46 +4,50 @@
 
 .. currentmodule:: form
 
-.. class:: Button -  Genropy button
+.. class:: button -  Genropy button
 
 Index
 *****
 
-	- Definition_
-	
-	- Where_
-	
-	- Description_
-	
-	- Examples_
-	
-	- Attributes_
+	- :ref:`main-definition`
 
-.. _Definition:
+	- :ref:`where-is-it-?`
 
-**Definition**:
+	- :ref:`A-brief-description`
+
+	- :ref:`some-examples`
+
+	- :ref:`main-attributes`
+
+	.. _main-definition:
+
+Definition
+==========
 
 	Same definition of Dojo button (version 1.5). To show it, click here_.
 
 	.. _here: http://docs.dojocampus.org/dijit/form/Button
 	
-.. _Where:
+	.. _where-is-it-?:
 
-**Where:**
+Where
+=====
 
 	#NISO ???
 
-.. _Description:
+	.. _A-brief-description:
 
-**Description:**
+Description
+===========
 
 	Button is a Dojo widget used as a representation of a normal button.
 	
 	You can act with it through "action" attribute, a javascript executed on mouse click.
 
-.. _Examples:
+	.. _some-examples:
 
-**Examples**:
+Examples
+========
 
 	Example::
 
@@ -66,9 +70,10 @@ Index
 
     In Genro there are four macros used as a shortcut that you can use in place of a Javascript command. They are FIRE, GET, SET, PUT. For more details, see :doc:`/common/datastore`.
 
-.. _Attributes:
+	.. _main-attributes:
 
-**Attributes**:
+Attributes
+==========
 
 	+--------------------+-------------------------------------------------+--------------------------+
 	|   Attribute        |          Description                            |   Default                |
