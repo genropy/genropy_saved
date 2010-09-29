@@ -582,7 +582,6 @@ class NewServer(object):
             else:
                 new_environ[self._monitor_environ_key] = 'true'
             proc = None
-            print new_environ
             try:
                 try:
                     _turn_sigterm_into_systemexit()
