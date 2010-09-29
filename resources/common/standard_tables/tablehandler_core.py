@@ -66,11 +66,17 @@ class TableHandlerToolbox(BaseComponent):
                                 }""",
                               attr="^.call")
         
+        controller.dataController("""
+                            FIRE .run_rpc_dispatcher; 
+                            this.setRelativeData("list.toolbox."+res_type+".tree.path",null);
+                            FIRE list.showToolbox = false;
+                            FIRE #bm_batch_monitor.open;
+                            """,_fired="^.run",res_type='=list.toolboxSelected')
+        
         controller.dataRpc('.res_result','toolboxResourceDispatcher',
-                _fired='^.run',
+                _fired='^.run_rpc_dispatcher',
                 pars='=.pars',resource='=.resource',
                 res_type='=list.toolboxSelected',
-                _onResult="""this.setRelativeData("list.toolbox."+$2.res_type+".tree.path",null);""", 
                 selectionName='=list.selectionName',
                 selectedRowidx="==genro.wdgById('maingrid').getSelectedRowidx();")
 
@@ -80,10 +86,10 @@ class TableHandlerToolbox(BaseComponent):
             return
         resource = resource.replace('.py','')
         cl=self.site.loadResource(pkgname,'tables',tblname,res_type,"%s:Main" %resource)
-        self.mixin(cl,methods='askParameters',prefix='toolbox')
+        self.mixin(cl,methods='parameters_pane',prefix='toolbox')
         def cb_center(parentBc,**kwargs):
             center=parentBc.contentPane(datapath='.pars',**kwargs)
-            self.toolbox_askParameters(center)
+            self.toolbox_parameters_pane(center)
             center_attr = center.getNode('#0').attr
             dlg_attr = center.parentNode.parentbag.parentNode.attr
             dlg_attr['height'] = center_attr.get('height') or dlg_attr['height']
@@ -129,9 +135,10 @@ class TableHandlerToolbox(BaseComponent):
         center.div('^.tree.path?description')
         center.div('!!rows')
         
-    def rpc_toolboxResourceDispatcher(self,resource=None,res_type=None,**kwargs):
+    def rpc_toolboxResourceDispatcher(self,resource=None,res_type=None,selectionName=None,selectedRowidx=None,**kwargs):
         res_obj=self.site.loadTableScript(self,self.tblobj,'%s/%s' %(res_type,resource),class_name='Main')
-        res_obj.do(**kwargs)
+        res_obj.defineSelection(selectionName=selectionName,selectedRowidx=selectedRowidx)
+        res_obj(**kwargs)
         
     def rpc_tableResourceTree(self,tbl,res_type):
         pkg,tblname = tbl.split('.')
@@ -156,7 +163,7 @@ class TableHandlerToolbox(BaseComponent):
                 else:
                     mainclass = getattr(resmodule,'Main',None)
                     assert mainclass,'Main class is mandatory in tablescript resource'
-                    has_parameters = hasattr(mainclass,'askParameters')
+                    has_parameters = hasattr(mainclass,'parameters_pane')
                     result.setItem('.'.join(_pathlist+[node.label]),None,caption=caption,description=description,
                                     resource=node.attr['rel_path'][:-3],has_parameters=has_parameters)            
         resources.walk(cb,_pathlist=[])
