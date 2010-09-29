@@ -69,11 +69,7 @@ Examples
 
 	Let's see its graphical result:
 
-	.. figure:: ../images/dropdownbutton.png
-	
-	.. figure:: /images/dropdownbutton.png
-	
-	.. figure:: genro/images/dropdownbutton.png
+	.. figure:: dropdownbutton.png
 	
 	.. _main-attributes:
 
