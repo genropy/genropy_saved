@@ -1,5 +1,5 @@
 ================
- dropdownbutton
+ Dropdownbutton
 ================
 
 .. currentmodule:: form
