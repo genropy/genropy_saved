@@ -69,7 +69,7 @@ Examples
 
 	Let's see its graphical result:
 
-	.. figure:: dropdownbutton.png
+	.. figure:: /images/dropdownbutton.png
 
 	.. _main-attributes:
 
