@@ -94,40 +94,69 @@ class BaseResourceBatch(object):
     batch_cancellable = True
     batch_delay = 0.5
     batch_note = None
+    batch_steps = None #'foo,bar'
+    
+
 
     def __init__(self,page=None,resource_table=None):
         self.page = page
         self.resource_table = resource_table
+        self.btc = self.page.btc
     
+    def __call__(self,batch_note=None,**kwargs):
+        self.batch_parameters = kwargs
+        self.batch_note = batch_note
+        if True: #try:
+            self.run()
+       #except self.btc.exception_stopped:
+       #   self.btc.batch_aborted()
+       #except Exception, e:
+       #   self.btc.batch_error(error=str(e))
+        self.btc.batch_complete(self.result_handler())
+    
+    def run(self):
+        self.btc.batch_create(batch_id='%s_%s' %(self.batch_prefix,self.page.getUuid()),
+                            title=self.batch_title,
+                            cancellable=self.batch_cancellable,delay=self.batch_delay,note=self.batch_note) 
+        if self.batch_steps:
+            for step in self.btc.thermo_wrapper(self.batch_steps,'btc_steps',message=self.get_step_caption,keep=True):
+                step_handler = getattr(self,'step_%s' %step)
+                step_handler()
+        else:
+            self.do()
+    
+    def result_handler(self):
+        return 'Execution completed',dict()
+        
+    def get_step_caption(self,item,progress,maximum,**kwargs):
+        step_handler = getattr(self,'step_%s' %item)
+        return step_handler.__doc__
+        
+    def get_record_caption(self,item,progress,maximum,iterable=None,**kwargs):
+        caption = iterable.dbtable.recordCaption(item)
+        return '%s (%i/%i)' %(caption,progress,maximum)
+
     def do(self,**kwargs):
         """override me"""
-        btc_handler = self.page.btc
-        btc_handler.batch_create(batch_id='%s_%s' %(self.batch_prefix,self.page.getUuid()),
-                            title=self.batch_title,thermo_lines=self.batch_thermo_lines,
-                            cancellable=self.batch_cancellable,delay=self.batch_delay,note=self.batch_note) 
-        self.page.btc.thermo_line_start(line='batch_steps',maximum=5,message='')
-        self.btc.thermo_line_update(line='batch_steps',maximum=6,progress=1,message='Getting data')
+        pass
     
-    def defineSelection(self,selectionName=None,selectedRowIdx=None):
+    def defineSelection(self,selectionName=None,selectedRowidx=None):
         self.selectionName = selectionName
-        self.selectedRowIdx = selectedRowIdx
+        self.selectedRowidx = selectedRowidx
     
-    @property
-    def selection(self):
-        self.selection = self.page.getUserSelection(selectionName=self.selectionName,
-                                         selectedRowidx=self.selectedRowidx,
-                                         filterCb=self.selectionFilterCb)
-    
-    def selectionFilterCb(self,row):
+    def get_selection(self):
+        selection = self.page.getUserSelection(selectionName=self.selectionName,
+                                         selectedRowidx=self.selectedRowidx)
+        return selection
+        
+    def rpc_selectionFilterCb(self,row):
         """override me"""
         return True
         
-    def askParameters(self,pane,**kwargs):
+    def parameters_pane(self,pane,**kwargs):
         """Pass a ContentPane for adding forms to allow you to ask parameters to the clients"""
         pass
     
-        
-
 class BaseResourceAction(BaseResourceBatch):
     pass
     

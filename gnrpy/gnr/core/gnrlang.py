@@ -556,9 +556,12 @@ def classMixin(target_class, source_class, methods=None, only_callables=True,
         original=target_class.__dict__.get(name)
         base_generator=base_visitor(source_class)
         new=None
-        while not new:
+        found = False
+        while not found:
             base_class = base_generator.next()
-            new = base_class.__dict__.get(name)
+            if name in base_class.__dict__:
+                new = base_class.__dict__.get(name)
+                found = True            
         setattr(target_class,name,new)
         if original:
             setattr(target_class,'%s_'%name,original)

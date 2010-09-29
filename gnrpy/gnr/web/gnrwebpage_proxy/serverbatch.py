@@ -166,11 +166,12 @@ class GnrWebBatch(GnrBaseProxy):
 
                 
     #@debug_call
-    def thermo_line_add(self,code,maximum=None,message=None): 
+    def thermo_line_add(self,code,maximum=None,message=None,thermo_class=None): 
         self.line_codes.append(code)           
+        thermo_class = thermo_class or 'bm_line_%s' %len(self.line_codes)
         with self.page.userStore() as store:
             store.set_datachange('%s.thermo.%s' %(self.batch_path,code),0,
-                            attributes=dict(message=message,maximum=maximum,batch_id=self.batch_id),reason='tl_add')
+                            attributes=dict(message=message,maximum=maximum,batch_id=self.batch_id,thermo_class=thermo_class),reason='tl_add')
         
     def thermo_line_del(self,code):
         self.line_codes.remove(code)           
@@ -207,7 +208,9 @@ class GnrWebBatch(GnrBaseProxy):
         * `kwargs`: any given kwargs is passed to the iterable method
     
         """
-
+        
+        if isinstance(iterable,basestring):
+            iterable = iterable.split(',')
         if callable(iterable):
             iterable=iterable(**kwargs)
         maximum=len(iterable)
@@ -220,8 +223,8 @@ class GnrWebBatch(GnrBaseProxy):
             self.thermo_line_add(line_code,maximum=maximum)
         for k,item in enumerate(iterable):
             progress=k+1
-            message = cb_message(item,progress,maximum)
+            message = cb_message(item,progress,maximum,iterable=iterable)
             self.thermo_line_update(line_code,maximum=maximum,message=message,progress=progress)
             yield item
         if not keep:
-            self.thermo_line_del(line=line_code)
+            self.thermo_line_del(line_code)

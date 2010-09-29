@@ -120,7 +120,7 @@ class GnrHTable(TableBase):
         if not 'description' in columns:
             tbl.column('description',name_long='!!Description')
         if not 'child_code' in columns:
-            tbl.column('child_code',name_long='!!Child code',unmodifiable=True)
+            tbl.column('child_code',name_long='!!Child code',validate_notnull=True,validate_notnull_error='!!Required')
         tbl.column('parent_code',name_long='!!Parent code').relation('%s.code' %tbl.parentNode.label)
         tbl.column('level',name_long='!!Level')
         pkgname = tbl.getAttr()['pkg']
