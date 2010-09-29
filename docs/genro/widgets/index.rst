@@ -9,7 +9,6 @@
     :synopsis:  Genropy user interface elements
 
 .. toctree::
-	:numbered:
 	
 	form/button
 	form/checkbox
