@@ -1,5 +1,5 @@
 =============
- formbuilder
+ Formbuilder
 =============
 
 .. currentmodule:: form
