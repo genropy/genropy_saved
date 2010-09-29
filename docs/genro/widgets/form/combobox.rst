@@ -52,6 +52,29 @@ Description
 Examples
 ========
 
+	.. _explanation:
+
+	.. _values:
+
+	.. _values-attribute:
+
+Fill combobox through "values" attribute
+========================================
+
+	You can add values to combobox using the "values" attribute; check this example for the correct sintax::
+
+		class GnrCustomWebPage(object):
+			def test_1_values(self,pane):
+				bc = pane.borderContainer(datapath='test1')
+				bc.combobox(value='^.record.values',values='Football,Golf,Karate',
+            	            lbl='loaded from values')
+
+	.. _here:
+
+	Let's see its graphical result:	
+
+	.. figure:: combobox.png
+
 	.. _Bag:
 
 	.. _Bag-way:
@@ -59,7 +82,7 @@ Examples
 Fill combobox through a Bag
 ===========================
 
-	#NISO ??? SPIEGARE!!
+	You can add values to combobox using a Bag; ??? link a :doc:`datacontroller/data`
 
 	Example::
 
@@ -85,31 +108,9 @@ Fill combobox through a Bag
 				mytable['r6.pkey'] = 'SB'
 				mytable['r6.Description'] = 'Snowboard'
 				return mytable
-				
-	.. _here:
-		
-	Let's see its graphical result:
 
-	.. figure:: combobox.png
 
-	.. _values:
-
-	.. _values-attribute:
-
-Fill combobox through "values" attribute
-========================================
-
-	#NISO ??? SPIEGARE!!
-
-	Example::
-
-		class GnrCustomWebPage(object):
-			def test_1_values(self,pane):
-				bc = pane.borderContainer(datapath='test1')
-				bc.combobox(value='^.record.values',values='Football,Golf,Karate',
-            	            lbl='loaded from values')
-
-	The graphical result is the same of the Bag-way (see it here_).
+	The graphical result is the same of the values-way (see it here_).
 
 	.. _main-attributes:
 
@@ -134,6 +135,6 @@ Attributes
 	| ``value``          | Set a path for combobox's values.               |  ``None``                |
 	|                    | For more details, see :doc:`/common/datastore`  |                          |
 	+--------------------+-------------------------------------------------+--------------------------+
-	| ``values``         | Set all the possible values for user choice     |  ``None``                |
+	| ``values``         | Set all the possible values for user choice.    |  ``None``                |
 	|                    | Check here for explanation_.                    |                          |
 	+--------------------+-------------------------------------------------+--------------------------+
