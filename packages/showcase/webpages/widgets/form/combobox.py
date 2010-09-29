@@ -14,11 +14,18 @@ class GnrCustomWebPage(object):
     
     # For an exhaustive documentation, please see http://docs.genropy.org/widgets/form/combobox.html
     
-    def test_1_basic(self,pane):
-        pane.data('values.sport',self.sports(),id='.pkey',caption='.Description')
-        fb = pane.formbuilder(cols=2)
-        fb.combobox(value='^record.sport',storepath='values.sport',lbl='loaded from Bag')
-        fb.combobox(values='Football, Golf, Karate',hasDownArrow=False,lbl='loaded from values')
+    def test_1_values(self,pane):
+        """Combobox filled through "values" attribute"""
+        bc = pane.borderContainer(datapath='test1')
+        bc.combobox(value='^.record.values',values='Football,Golf,Karate',
+                    lbl='loaded through values')
+        
+    def test_2_bag(self,pane):
+        """Combobox filled through a Bag"""
+        bc = pane.borderContainer(datapath='test2')
+        bc.data('.values.sport',self.sports(),id='.pkey',caption='.Description')
+        bc.combobox(value='^.record.Bag',storepath='.values.sport',
+                    lbl='loaded through Bag')
         
     def sports(self,**kwargs):
         mytable=Bag()
@@ -35,3 +42,4 @@ class GnrCustomWebPage(object):
         mytable['r6.pkey'] = 'SB'
         mytable['r6.Description'] = 'Snowboard'
         return mytable
+                    
