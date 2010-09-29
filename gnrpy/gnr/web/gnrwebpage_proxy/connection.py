@@ -128,6 +128,5 @@ class GnrWebConnection(GnrBaseProxy):
         self.write_cookie()
         
     def rpc_logout(self):
-        print 'logout'
         self.change_user()
         
