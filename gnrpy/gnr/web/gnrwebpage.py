@@ -272,7 +272,6 @@ class GnrWebPage(GnrBaseWebPage):
                 return 'EXPIRED'
             return AUTH_NOT_LOGGED
         if not self.application.checkResourcePermission(pageTags, self.userTags):
-            print x
             return AUTH_FORBIDDEN
         return AUTH_OK
 
