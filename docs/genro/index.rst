@@ -18,6 +18,7 @@ GenroPy
 
         .. toctree::
             :maxdepth: 2
+            :numbered:
 
             installation
             common/index
