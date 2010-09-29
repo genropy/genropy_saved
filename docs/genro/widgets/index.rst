@@ -13,14 +13,15 @@
 	form/button
 	form/checkbox
 	form/combobox
-	form/currencyTextbox
-	form/dateTextbox
+	form/currencytextbox
+	form/datetextbox
+	form/dbcombobox
 	form/dropdownbutton
 	form/field
-	form/filteringSelect
+	form/filteringselect
 	form/formbuilder
-	form/numberTextbox
-	form/simpleTextarea
+	form/numbertextbox
+	form/simpletextarea
 	form/slider
 	form/textbox
-	form/timeTextbox
+	form/timetextbox
