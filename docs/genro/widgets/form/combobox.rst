@@ -45,7 +45,7 @@ Description
 	
 	In combobox you have to provide a list of acceptable values (to upload these values, you can use two different ways: the Bag_-way and the values_-way). But like an input text field, user can also type whatever he wants. As the user types, partially matched values will be shown in a pop-up menu below the input text box.
 	
-	So, the combobox is like a :doc:`/filteringselect`; the difference is that combobox doesn't support keys.
+	So, the combobox is like a :doc:`widgets/form/filteringselect`; the difference is that combobox doesn't support keys.
 
 	.. _some-examples:
 
