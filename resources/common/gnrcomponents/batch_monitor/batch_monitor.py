@@ -14,13 +14,22 @@ class BatchMonitor(BaseComponent):
     def pbl_left_batchmonitor(self,pane,footer=None,toolbar=None):
         "Batch Monitor"
         footer.button('!!Batch',showLabel=False,
-                     action='SET pbl.left_stack = "batchmonitor";',
+                     fire='#bm_batch_monitor.open',
                      iconClass='icnBaseAction',float='right')
         toolbar.div('Batch',float='left')
         pane.dataRpc('dummy','setStoreSubscription',subscribe='==_selected_stack=="batchmonitor"',
                     _selected_stack='^pbl.left_stack',storename='user',
                     client_path='gnr.batch')        
-        pane.dataController("if(selected_stack=='batchmonitor'){genro.rpc.setPolling(1,1)}else{genro.rpc.setPolling();}",selected_stack='^pbl.left_stack')
+        pane.dataController("if(selected_stack=='batchmonitor'){}",
+                        selected_stack='^pbl.left_stack')
+                        
+        pane.dataController("""
+                                SET  _clientCtx.mainBC.left?show = true;
+                                SET pbl.left_stack = "batchmonitor";
+                                genro.rpc.setPolling(1,1)
+                            """,
+                            nodeId='bm_batch_monitor',datapath='gnr.batch',
+                            _fired='^.open')
         self.bm_monitor_pane(pane)
         
     def bm_monitor_pane(self,pane):

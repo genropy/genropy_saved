@@ -76,7 +76,7 @@ batch_monitor.on_tl_add = function(node){
     var batch_id = node.attr.batch_id;
     var thermopane = genro.nodeById(this.get_batch_thermo_node_id(batch_id));
     if (thermopane){
-        this.create_thermoline(thermopane,batch_id,node.label);
+        this.create_thermoline(thermopane,batch_id,node.label,node.attr);
     }
     else{
         //genro.bp()
@@ -143,13 +143,14 @@ batch_monitor.delete_thermoline = function(batch_id,code){
     }
 }
 
-batch_monitor.create_thermoline = function(pane,batch_id,line){
+batch_monitor.create_thermoline = function(pane,batch_id,line,attributes){
     var code = line;
     var custom_attr = {};
     if (typeof(line)!='string') {
         code = objectPop(line,'code');
         custom_attr = line;
     }      
+    thermo_class = attributes.thermo_class || '';
     var custom_msg_attr = objectExtract(custom_attr,'msg_*');
     var innerpane = pane._('div',{datapath:'.'+code,nodeId:'thermo_'+batch_id+'_'+code});
     //var cb = function(percent){
@@ -160,7 +161,7 @@ batch_monitor.create_thermoline = function(pane,batch_id,line){
         return msg;
     };
     var thermo_attr = {progress:'^.?progress',maximum:'^.?maximum',indeterminate:'^.?indeterminate',
-                        _class:'bm_thermoline bm_line_'+code,places:'^.?places',report:cb};
+                        _class:'bm_thermoline '+thermo_class,places:'^.?places',report:cb};
     var msg_attr = {innerHTML:'^.?message',_class:'bm_thermomsg'};
     thermo_attr = objectUpdate(thermo_attr,custom_attr);   
     

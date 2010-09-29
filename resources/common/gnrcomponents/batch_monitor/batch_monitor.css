@@ -8,8 +8,8 @@
      -webkit-border-radius: 6px;
      background:white;
      border:1px solid gray;
-     -moz-box-shadow: 1px 1px 2px gray;
-     -webkit-box-shadow:1px 1px 2px gray;
+     -moz-box-shadow: inset 1px 1px 2px gray;
+     -webkit-box-shadow: inset 1px 1px 2px gray;
   
 }
 .bm_thermoline .dijitProgressBarFull {
@@ -43,14 +43,17 @@
      -webkit-border-radius: 6px;
 }
 
-.bm_thermoline.bm_line_0 div.dijitProgressBarTile{
+.bm_thermoline.bm_line_1 div.dijitProgressBarTile{
     background:#ff8d00;
 }
-.bm_thermoline.bm_line_1 div.dijitProgressBarTile{
+.bm_thermoline.bm_line_2 div.dijitProgressBarTile{
     background:#d1fb00;
 }
-.bm_thermoline.bm_line_2 div.dijitProgressBarTile{
+.bm_thermoline.bm_line_3 div.dijitProgressBarTile{
     background:#59d6ff;
+}
+.bm_thermoline.bm_line_4 div.dijitProgressBarTile{
+    background:#59ffff;
 }
 
 
