@@ -7,13 +7,13 @@
 .. class:: formbuilder -  Genropy formbuilder
 
 	- :ref:`main-definition`
-	
+
 	- :ref:`where-is-it-?`
-	
+
 	- :ref:`A-brief-description`
-	
+
 	- :ref:`some-examples`
-	
+
 	- :ref:`main-attributes`
 	
 	- :ref:`other-features`
