@@ -68,7 +68,7 @@ Fill combobox through "values" attribute
 
 	.. _here:
 
-	Let's see its graphical result:	
+	Let's see its graphical result:
 
 	.. figure:: combobox.png
 
@@ -79,11 +79,8 @@ Fill combobox through "values" attribute
 Fill combobox through a Bag
 ===========================
 
-	You can add values to combobox using a Bag. Postponing all info of a Bag and of a ``data`` on the relative pages of documentation (:doc:`/bag/introduction` and :doc:`/datacontroller/data`), ???
+	Postponing all info of a Bag and of a ``data`` on the relative pages of documentation (:doc:`/bag/introduction` and :doc:`/datacontroller/data`), we'll show here how you can add values to combobox using a Bag.
 	
-	
-	link to :doc:`/datacontroller/data`
-
 	Example::
 
 		class GnrCustomWebPage(object):
@@ -91,7 +88,7 @@ Fill combobox through a Bag
 				bc = root.borderContainer(datapath='test1')
 				bc.data('.values.sport',self.sports(),id='.pkey',caption='.Description')
 				bc.combobox(value='^.record.Bag',storepath='.values.sport',
-				            lbl='loaded from Bag')
+					        lbl='loaded from Bag')
 
 			def sports(self,**kwargs):
 				mytable=Bag()
