@@ -1,13 +1,10 @@
 =================
- filteringSelect
+ FilteringSelect
 =================
 
 .. currentmodule:: form
 
 .. class:: filteringSelect -  Genropy filteringSelect
-
-Index
-*****
 
 	- :ref:`main-definition`
 	
