@@ -82,7 +82,7 @@ Fill combobox through "values" attribute
 Fill combobox through a Bag
 ===========================
 
-	You can add values to combobox using a Bag; ??? link a :doc:`datacontroller/data`
+	You can add values to combobox using a Bag; ??? link to :doc:`/datacontroller/data`
 
 	Example::
 
