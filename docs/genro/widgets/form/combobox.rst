@@ -6,9 +6,6 @@
 
 .. class:: combobox -  Genropy combobox
 
-Index
-*****
-
 	- :ref:`main-definition`
 	
 	- :ref:`where-is-it-?`

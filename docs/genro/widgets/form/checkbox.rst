@@ -6,9 +6,6 @@
 
 .. class:: checkbox -  Genropy checkbox
 
-Index
-*****
-
 	- :ref:`main-definition`
 	
 	- :ref:`where-is-it-?`

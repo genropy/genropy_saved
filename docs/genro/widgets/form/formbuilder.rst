@@ -6,9 +6,6 @@
 
 .. class:: formbuilder -  Genropy formbuilder
 
-Index
-*****
-
 	- :ref:`main-definition`
 	
 	- :ref:`where-is-it-?`

@@ -6,9 +6,6 @@
 
 .. class:: dropdownbutton -  Genropy dropdownbutton
 
-Index
-*****
-
 	- :ref:`main-definition`
 	
 	- :ref:`where-is-it-?`
