@@ -6,9 +6,6 @@
 
 .. class:: button -  Genropy button
 
-Index
-*****
-
 	- :ref:`main-definition`
 
 	- :ref:`where-is-it-?`
