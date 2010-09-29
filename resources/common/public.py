@@ -49,7 +49,7 @@ class Public(BaseComponent):
             bc = sc.borderContainer(pageName=pageName)
             top = bc.contentPane(region='top').toolbar(overflow='hidden',padding=0,padding_left='3px',padding_right='3px',min_height='22px',font_size='.9em')
             top.div(float='right',margin='3px',_class='buttonIcon icnTabClose',
-                    connect_onclick='SET pbl.left_stack="menu";')            
+                    connect_onclick='genro.rpc.setPolling();SET pbl.left_stack="menu";')            
             cb(bc.contentPane(region='center',overflow='hidden'),footer=bottom,toolbar=top)
 
     def pbl_preference_main(self,pane):
