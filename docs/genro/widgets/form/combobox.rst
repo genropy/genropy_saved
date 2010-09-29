@@ -64,7 +64,7 @@ Fill combobox through "values" attribute
 			def test_1_values(self,pane):
 				bc = pane.borderContainer(datapath='test1')
 				bc.combobox(value='^.record.values',values='Football,Golf,Karate',
-            	            lbl='loaded from values')
+					        lbl='loaded from values')
 
 	.. _here:
 
@@ -79,7 +79,7 @@ Fill combobox through "values" attribute
 Fill combobox through a Bag
 ===========================
 
-	Postponing all info of a Bag and of a ``data`` on the relative pages of documentation (:doc:`/bag/introduction` and :doc:`/datacontroller/data`), we'll show here how you can add values to combobox using a Bag.
+	Postponing all info of a ``Bag`` and of a ``data`` on the relative pages of documentation (:doc:`/bag/introduction` and :doc:`/datacontroller/data`), we'll show here how you can add values to ``combobox`` using a ``Bag``.
 	
 	Example::
 
@@ -87,8 +87,7 @@ Fill combobox through a Bag
 			def main(self,root,**kwargs):
 				bc = root.borderContainer(datapath='test1')
 				bc.data('.values.sport',self.sports(),id='.pkey',caption='.Description')
-				bc.combobox(value='^.record.Bag',storepath='.values.sport',
-					        lbl='loaded from Bag')
+				bc.combobox(value='^.record.Bag',storepath='.values.sport',lbl='loaded from Bag')
 
 			def sports(self,**kwargs):
 				mytable=Bag()
@@ -105,7 +104,8 @@ Fill combobox through a Bag
 				mytable['r6.pkey'] = 'SB'
 				mytable['r6.Description'] = 'Snowboard'
 				return mytable
-
+				
+	The advantage of using a Bag is that you can add attributes to your records, while the info onto ``id`` are lost. For get an example, check ???METTERE IL LINK GIUSTO QUANDO C'E' LA PAGINA.
 
 	The graphical result is the same of the values-way (see it here_).
 
@@ -117,8 +117,6 @@ Attributes
 	+--------------------+-------------------------------------------------+--------------------------+
 	|   Attribute        |          Description                            |   Default                |
 	+====================+=================================================+==========================+
-	| ``default``        | For setting default combobox value              |  ``None``                |
-	+--------------------+-------------------------------------------------+--------------------------+
 	| ``disabled``       | If True, user can't act on the combobox.        |  ``False``               |
 	|                    | For more details, see :doc:`/common/disabled`   |                          |
 	+--------------------+-------------------------------------------------+--------------------------+
