@@ -135,7 +135,8 @@ class GnrWebBatch(GnrBaseProxy):
         
         
     def _result_remove(self):
-        os.remove(self.result_doc_path)    
+        if os.path.exists(self.result_doc_path):
+            os.remove(self.result_doc_path)    
     
     def _result_write(self,result=None,result_attr=None,error=None,error_attr=None):
         result_doc = Bag()
