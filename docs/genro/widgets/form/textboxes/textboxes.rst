@@ -21,13 +21,13 @@ Definition
 	
 	- :doc:`textbox`
 	
-	- currencyTextbox
+	- :doc:`currencytextbox`
 	
-	- dateTextbox
+	- :doc:`datetextbox`
 	
-	- numberTextbox
+	- :doc:`numbertextbox`
 	
-	- timeTextbox
+	- :doc:`timetextbox`
 
 	.. _common-attributes:
 
