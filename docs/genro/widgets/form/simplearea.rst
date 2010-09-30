@@ -77,7 +77,7 @@ Common attributes
 	+--------------------+-------------------------------------------------+--------------------------+
 	|   Attribute        |          Description                            |   Default                |
 	+====================+=================================================+==========================+
-	| ``default``        | Add a text to the area.                         |  ``None``               |
+	| ``default``        | Add a text to the area.                         |  ``None``                |
 	|                    | For more details, see :doc:`/common/disabled`   |                          |
 	+--------------------+-------------------------------------------------+--------------------------+
 	| ``disabled``       | If True, user can't act on the area.            |  ``False``               |
