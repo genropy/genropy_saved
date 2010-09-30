@@ -14,7 +14,7 @@
 	
 	- :ref:`some-examples`
 	
-	- :ref:`main-attributes`
+	- :ref:`common5-attributes`
 
 	.. _main-definition:
 
@@ -71,10 +71,10 @@ Examples
 
 	.. figure:: dropdownbutton.png
 	
-	.. _main-attributes:
+	.. _common5-attributes:
 
-Attributes
-==========
+Common Attributes
+=================
 
 	+--------------------+-------------------------------------------------+--------------------------+
 	|   Attribute        |          Description                            |   Default                |

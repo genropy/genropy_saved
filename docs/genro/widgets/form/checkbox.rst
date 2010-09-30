@@ -14,7 +14,7 @@
 	
 	- :ref:`some-examples`
 	
-	- :ref:`common-attributes`
+	- :ref:`common3-attributes`
 	
 	.. _main-definition:
 
@@ -52,7 +52,7 @@ Examples
 
 	.. figure:: checkbox.png
 
-	.. _`common-attributes`:
+	.. _`common3-attributes`:
 	
 Common attributes
 =================

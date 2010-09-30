@@ -19,7 +19,7 @@
 	
 	- :ref:`main-attributes`
 	
-	- :ref:`common-attributes`
+	- :ref:`common4-attributes`
 
 	.. _main-definition:
 
@@ -127,7 +127,7 @@ Attributes
 	|                    | Check here for explanation_.                    |                          |
 	+--------------------+-------------------------------------------------+--------------------------+
 	
-	.. _`common-attributes`:
+	.. _`common4-attributes`:
 	
 Common attributes
 =================

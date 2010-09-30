@@ -16,6 +16,8 @@
 
 	- :ref:`main-attributes`
 	
+	- :ref:`common6-attributes`
+	
 	- :ref:`other-features`
 	
 		- :ref:`db-table`
@@ -107,9 +109,6 @@ Attributes
 	+--------------------+-------------------------------------------------+--------------------------+
 	| ``dbtable``        | See dbtable_ explanation                        |  ``None``                |
 	+--------------------+-------------------------------------------------+--------------------------+
-	| ``disabled``       | If True, user can't act on the object.          |  ``False``               |
-	|                    | For more details, see :doc:`/common/disabled`   |                          |
-	+--------------------+-------------------------------------------------+--------------------------+
 	| ``fieldclass``     | CSS class appended to every formbuilder's son   |  ``gnrfield``            |
 	+--------------------+-------------------------------------------------+--------------------------+
 	| ``fld_width``      | Set field width                                 |  ``7em``                 |
@@ -119,9 +118,6 @@ Attributes
 	| ``fldvalign``      | Set field vertical align                        |  ``middle``              |
 	+--------------------+-------------------------------------------------+--------------------------+
 	| ``head_rows``      | #NISO ???                                       |  ``None``                |
-	+--------------------+-------------------------------------------------+--------------------------+
-	| ``hidden``         | Hide the formbuilder.                           |  ``False``               |
-	|                    | See :doc:`/common/hidden`                       |                          |
 	+--------------------+-------------------------------------------------+--------------------------+
 	| ``lblalign``       | Set horizontal label alignment                  |  ``#NISO Boh!``          |
 	|                    | #NISO Sembra non funzionare                     |                          |
@@ -158,9 +154,6 @@ Here we describe the formbuilder's field attributes:
 	+================+======================================================+==========================+
 	| ``colspan``    | Set the number of columns occupied by a single field |  ``None``                |
 	+----------------+------------------------------------------------------+--------------------------+
-	| ``hidden``     | Hide the formbuilder.                                |  ``False``               |
-	|                | See :doc:`/common/hidden`                            |                          |
-	+----------------+------------------------------------------------------+--------------------------+
 	| ``label``      | If possible, set a label for formbuilder right field-part.                      |
 	|                |                                                                                 |
 	|                | For more details, check this example_.                                          |
@@ -185,6 +178,21 @@ Here we describe the formbuilder's field attributes:
 	| ``value``      | Set a path for formbuilder's values.                 |  ``None``                |
 	|                | For more details, see :doc:`/common/datastore`       |                          |
 	+----------------+------------------------------------------------------+--------------------------+
+
+	.. _common6-attributes:
+
+Common attributes:
+==================
+	
+	+--------------------+--------------------------------------------------+--------------------------+
+	|   Attribute        |       Description                                |   default                |
+	+====================+==================================================+==========================+
+	| ``disabled``       | If True, user can't act on the object.           |  ``False``               |
+	|                    | For more details, see :doc:`/common/disabled`    |                          |
+	+--------------------+--------------------------------------------------+--------------------------+
+	| ``hidden``         | Hide the formbuilder/formbuilder's field         |  ``False``               |
+	|                    | See :doc:`/common/hidden`                        |                          |
+	+--------------------+--------------------------------------------------+--------------------------+
 
 	.. _other-features:
 
