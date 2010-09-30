@@ -7,16 +7,16 @@
 .. class:: simpleTextarea -  Genropy simpleTextarea
 
 	- :ref:`main-definition`
-	
+
 	- :ref:`where-is-it-?`
-	
+
 	- :ref:`A-brief-description`
-	
+
 	- :ref:`some-examples`
-	
+
 	- :ref:`main-attributes`
-	
-	- :ref:`common7-attributes`
+
+	- :ref:`common-attributes-1`
 
 	.. _main-definition:
 
@@ -69,7 +69,7 @@ Attributes
 	| ``text_align``     | CSS attribute                                   |  ``left``                |
 	+--------------------+-------------------------------------------------+--------------------------+
 
-	.. common7-attributes:
+	.. _common-attributes-1:
 
 Common attributes
 =================
