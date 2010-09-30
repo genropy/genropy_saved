@@ -10,7 +10,7 @@ class GnrCustomWebPage(object):
     py_requires="gnrcomponents/testhandler:TestHandlerFull"
     # dojo_theme='claro'    # !! Uncomment this row for Dojo_1.5 usage
     
-    # For an exhaustive documentation, please see http://docs.genropy.org/widgets/form/textbox.html
+    # For an exhaustive documentation, please see http://docs.genropy.org/widgets/form/textboxes/textbox.html
     
     #   - Other forms, attributes and items:
     #       In this section we report forms/attributes that have been used in this example

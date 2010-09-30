@@ -10,37 +10,8 @@ class GnrCustomWebPage(object):
     py_requires="gnrcomponents/testhandler:TestHandlerFull"
     # dojo_theme='claro'    # !! Uncomment this row for Dojo_1.5 usage
     
-    """
-    ===============
-     numberTextbox
-    ===============
-
-    .. currentmodule:: form
-
-    .. class:: numberTextbox -  Genropy numberTextbox
-
-    	A simple number textbox.
-
-    	+-----------------------+---------------------------------------------------------+-------------+
-    	|   Attribute           |          Description                                    |   Default   |
-    	+=======================+=========================================================+=============+
-    	| ``default``           | Add a default number to your text box                   |  ``None``   |
-    	+-----------------------+---------------------------------------------------------+-------------+
-    	| ``font_size``         | CSS attribute                                           |  ``1em``    |
-    	+-----------------------+---------------------------------------------------------+-------------+
-    	| ``text_align``        | CSS attribute                                           |  ``left``   |
-    	+-----------------------+---------------------------------------------------------+-------------+
-    	| ``places``            | Numbers of decimals. If it's reached the following      |  ``3``      |
-    	|                       | decimal to the last supported one, a tooltip error      |             |
-    	|                       | will warn user                                          |             |
-    	+-----------------------+---------------------------------------------------------+-------------+
-
-    		Example::
-
-    			pane.numberTextbox(value='^numberTextbox',places=2)
-
-        """
-        
+    # For an exhaustive documentation, please see http://docs.genropy.org/widgets/form/textboxes/numbertextbox.html
+    
     #   - Other forms, attributes and items:
     #       In this section we report forms/attributes that have been used in this example
     #       despite they didn't strictly belonging to boxes.

@@ -10,35 +10,8 @@ class GnrCustomWebPage(object):
     py_requires="gnrcomponents/testhandler:TestHandlerFull"
     # dojo_theme='claro'    # !! Uncomment this row for Dojo_1.5 usage
     
-    """
-    =============
-     dateTextbox
-    =============
-
-    .. currentmodule:: form
-
-    .. class:: dateTextbox -  Genropy dateTextbox
-
-        A dateTextbox is a easy-to-use date entry controls that allow either typing or choosing a date from any calendar widget.
-
-    	- sintax: GG/MM/AAAA
-
-    	+-----------------------+---------------------------------------------------------+-------------+
-    	|   Attribute           |          Description                                    |   Default   |
-    	+=======================+=========================================================+=============+
-    	| ``font_size``         | CSS attribute                                           |  ``1em``    |
-    	+-----------------------+---------------------------------------------------------+-------------+
-    	| ``text_align``        | CSS attribute                                           |  ``left``   |
-    	+-----------------------+---------------------------------------------------------+-------------+
-    	| ``popup``             | allow to show a calendar dialog                         |  ``True``   |
-    	+-----------------------+---------------------------------------------------------+-------------+
-
-    		example::
-
-    			pane.dateTextbox(value='^dateTextbox',popup=True)
-    			
-        """
-        
+    # For an exhaustive documentation, please see http://docs.genropy.org/widgets/form/textboxes/datetextbox.html
+    
     #   - Other forms, attributes and items:
     #       In this section we report forms/attributes that have been used in this example
     #       despite they didn't strictly belonging to boxes.

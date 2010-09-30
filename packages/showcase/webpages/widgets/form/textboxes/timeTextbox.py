@@ -10,33 +10,8 @@ class GnrCustomWebPage(object):
     py_requires="gnrcomponents/testhandler:TestHandlerFull"
     # dojo_theme='claro'    # !! Uncomment this row for Dojo_1.5 usage
     
-    """
-    =============
-     timeTextbox
-    =============
-
-    .. currentmodule:: form
-
-    .. class:: timeTextbox -  Genropy timeTextbox
-
-        A timeTextbox it's a time input control that allow either typing time or choosing it from a picker widget.
-
-        - sintax: HH:MM
-
-    	+-----------------------+---------------------------------------------------------+-------------+
-    	|   Attribute           |          Description                                    |   Default   |
-    	+=======================+=========================================================+=============+
-    	| ``font_size``         | CSS attribute                                           |  ``1em``    |
-    	+-----------------------+---------------------------------------------------------+-------------+
-    	| ``text_align``        | CSS attribute                                           |  ``left``   |
-    	+-----------------------+---------------------------------------------------------+-------------+
-
-    	    example::
-
-    		    pane.timeTextBox(value='^timeTextbox')
-        
-        """
-        
+    # For an exhaustive documentation, please see http://docs.genropy.org/widgets/form/textboxes/timetextbox.html
+    
     #   - Other forms, attributes and items:
     #       In this section we report forms/attributes that have been used in this example
     #       despite they didn't strictly belonging to boxes.
