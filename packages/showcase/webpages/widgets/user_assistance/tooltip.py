@@ -15,8 +15,8 @@ from gnr.core.gnrstring import templateReplace, splitAndStrip, countOf
 class GnrCustomWebPage(object):
     def main(self, root, **kwargs):
         root.fileInputBlind(label='Sfoglia...',cancel='Annulla',
-                             remote_username='pippo',
-                             method='uploadImage')
+                            remote_username='pippo',
+                            method='uploadImage')
     def main_(self, root, **kwargs):
         root = self.rootLayoutContainer(root)
         root.data('record.name','John')
@@ -25,8 +25,8 @@ class GnrCustomWebPage(object):
         root.data('record.prov','TK')
         
         #root.dbField(field='utils.anagrafiche.an_provincia')
-        fb=root.formbuilder(cols="2", cellspacing='10')
-        fb.textbox(lbl='Name', value='^record.name', lbl_color='red',validate_case='c',required=True,width='auto')
+        fb=root.formbuilder(cols="2",cellspacing='10')
+        fb.textbox(lbl='Name',value='^record.name',lbl_color='red',validate_case='c',required=True,width='auto')
         fb.NumberTextBox(lbl='Age',value='^record.age')
         fb.textbox(lbl='Email', value='^record.email', width='30em',lbl_color='green',validate_email=True)
         fb.dbCombobox(lbl='Province', value = '^record.prov',ignoreCase=True,
