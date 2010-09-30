@@ -6,40 +6,40 @@
 
 .. class:: simpleTextarea -  Genropy simpleTextarea
 
-	- :ref:`main-definition`
+	- :ref:`simpleTextarea-definition`
 
-	- :ref:`where-is-it-?`
+	- :ref:`simpleTextarea-where`
 
-	- :ref:`A-brief-description`
+	- :ref:`simpleTextarea-description`
 
-	- :ref:`some-examples`
+	- :ref:`simpleTextarea-examples`
 
-	- :ref:`main-attributes`
+	- :ref:`simpleTextarea-attributes`
 
-	- :ref:`common-attributes-1`
+	- :ref:`simpleTextarea-other-attributes`
 
-	.. _main-definition:
+	.. _simpleTextarea-definition:
 
 Definition
 ==========
 
 	A simple text area.
 
-	.. _where-is-it-?:
+	.. _simpleTextarea-where:
 
 Where
 =====
 
 	#NISO ???
 
-	.. _A-brief-description:
+	.. _simpleTextarea-description:
 
 Description
 ===========
 
 	With simpletextarea you can add an area for user writing.
 
-	.. _some-examples:
+	.. _simpleTextarea-examples:
 
 Examples
 ========
@@ -56,7 +56,7 @@ Examples
 
 	.. figure:: ???.png
 
-	.. _main-attributes:
+	.. _simpleTextarea-attributes:
 
 Attributes
 ==========
@@ -69,7 +69,7 @@ Attributes
 	| ``text_align``     | CSS attribute                                   |  ``left``                |
 	+--------------------+-------------------------------------------------+--------------------------+
 
-	.. _common-attributes-1:
+	.. _simpleTextarea-other-attributes:
 
 Common attributes
 =================
