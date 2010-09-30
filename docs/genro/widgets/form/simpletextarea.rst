@@ -74,13 +74,13 @@ Attributes
 Common attributes
 =================
 
-	``default``: Add a text to your area. See :doc:`default`
+	``default``: Add a text to your area. See :doc:`/common/default`
 	
-	``disabled``: If True, user can't act on the simpletextarea. See :doc:`disabled`
+	``disabled``: If True, user can't act on the simpletextarea. See :doc:`/common/disabled`
 	
-	``hidden``: Hide the simpletextarea. See :doc:`hidden`
+	``hidden``: Hide the simpletextarea. See :doc:/common/`hidden`
 	
-	``value``: Set a path for simpletextarea's text. See :doc:`value`
+	``value``: Set a path for simpletextarea's text. See :doc:`/common/value`
 	
 	
 	
