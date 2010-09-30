@@ -1,27 +1,27 @@
 ===========
- datastore
+ Datastore
 ===========
 
-Index:
-******
+Index
+*****
 
-	**Datastore and and the Javascript code of Genro**
+**Datastore and and the Javascript code of Genro**
 
-		- Description_
+	- Description_
 
-		- Sintax_
+	- Sintax_
 
-		- Example_
+	- Example_
 
-	**Datapath and value**
+**Datapath and value**
 
-		- Descriptions_
+	- Descriptions_
 
-		- Validity_
+	- Validity_
 
-		- Default_
+	- Default_
 
-		- Examples_
+	- Examples_
 
 Datastore
 =========

@@ -1,5 +1,5 @@
 ==========
- disabled
+ Disabled
 ==========
 
 Index
@@ -64,5 +64,5 @@ Index
 
 	**"disabled" on a standardTable**
 	
-	In a standard table the "disabled" 
+	In a standard table the "disabled" ??? continuare!! (spiegare del lucchetto)
 	
