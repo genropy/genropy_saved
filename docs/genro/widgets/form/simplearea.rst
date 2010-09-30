@@ -37,7 +37,7 @@ Where
 Description
 ===========
 
-	
+	With simpletextarea you can add an area for user writing.
 
 	.. _some-examples:
 
