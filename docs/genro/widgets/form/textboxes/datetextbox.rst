@@ -61,5 +61,10 @@ Attributes
 	+-----------------------+---------------------------------------------------------+-------------+
 	| ``popup``             | allow to show a calendar dialog                         |  ``True``   |
 	+-----------------------+---------------------------------------------------------+-------------+
-
 	
+	.. _common-attributes:
+
+Common attributes
+=================
+
+	For common attributes, see :doc:`textboxes`

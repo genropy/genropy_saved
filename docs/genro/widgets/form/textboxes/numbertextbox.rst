@@ -63,3 +63,10 @@ Attributes
 	|                       | decimal to the last supported one, a tooltip error      |             |
 	|                       | will warn user                                          |             |
 	+-----------------------+---------------------------------------------------------+-------------+
+	
+	.. _common-attributes:
+
+Common attributes
+=================
+
+	For common attributes, see :doc:`textboxes`
