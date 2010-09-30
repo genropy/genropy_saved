@@ -1,8 +1,0 @@
-===========
- Textboxes
-===========
-
-.. toctree::
-	
-	textbox
-	textboxes
