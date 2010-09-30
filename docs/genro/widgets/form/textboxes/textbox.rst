@@ -38,6 +38,8 @@ Description
 ===========
 
 	Textbox is used to insert a text.
+	
+	.. _some-examples:
 
 Examples
 ========
