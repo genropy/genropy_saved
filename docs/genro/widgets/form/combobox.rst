@@ -55,7 +55,7 @@ Examples
 
 	.. _values:
 
-	.. _combobox-attribute:
+	.. _values-attribute:
 
 Fill combobox through "values" attribute
 ========================================
