@@ -1,5 +1,5 @@
 ================
- simpletextarea
+ Simpletextarea
 ================
 
 .. currentmodule:: form
