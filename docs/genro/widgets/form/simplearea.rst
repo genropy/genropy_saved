@@ -16,7 +16,7 @@
 	
 	- :ref:`main-attributes`
 	
-	- :ref:`common-attributes`
+	- :ref:`other-attributes`
 
 	.. _main-definition:
 
@@ -69,7 +69,7 @@ Attributes
 	| ``text_align``     | CSS attribute                                   |  ``left``                |
 	+--------------------+-------------------------------------------------+--------------------------+
 
-	.. _common-attributes:
+	.. other-attributes:
 
 Common attributes
 =================
