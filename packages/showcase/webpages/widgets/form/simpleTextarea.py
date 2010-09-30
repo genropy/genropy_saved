@@ -9,34 +9,8 @@
 class GnrCustomWebPage(object):
     py_requires="gnrcomponents/testhandler:TestHandlerFull"
     # dojo_theme='claro'    # !! Uncomment this row for Dojo_1.5 usage
-
-    """
-    ================
-     simpleTextarea
-    ================
-
-    .. currentmodule:: form
-
-    .. class:: simpleTextarea -  Genropy simpleTextarea
-
-    	A simple text area.
-
-    	+----------------+---------------------------------------------------------+-------------+
-    	|   Attribute    |          Description                                    |   Default   |
-    	+================+=========================================================+=============+
-    	| ``font_size``  | CSS attribute                                           |  ``1em``    |
-    	+----------------+---------------------------------------------------------+-------------+
-    	| ``text_align`` | CSS attribute                                           |  ``left``   |
-    	+----------------+---------------------------------------------------------+-------------+
-    	| ``default``    | Add a text to your area                                 |  ``None``   |
-    	+----------------+---------------------------------------------------------+-------------+
-
-        example::
-
-    		pane.simpleTextarea(value='^.simpleTextarea',height='80px',width='30em',
-                                colspan=2,color='blue',font_size='1.2em',
-                                default='A simple area to contain text.')
-    """
+    
+    # For an exhaustive documentation, please see http://docs.genropy.org/widgets/form/simplearea.html
     
     #   - Other forms, attributes and items:
     #       In this section we report forms/attributes that have been used in this example
