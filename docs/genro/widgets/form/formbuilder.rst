@@ -16,7 +16,7 @@
 
 	- :ref:`formbuilder-attributes`
 	
-	- :ref:`formbuilder-common-attributes`
+	- :ref:`formbuilder-other-attributes`
 	
 	- :ref:`formbuilder-other-features`
 	
