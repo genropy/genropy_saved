@@ -28,7 +28,7 @@ Definition
 
 	Genro checkbox is the combination between an HTML checkbox and a Dojo checkbox.
 
-	.. _combobox-where?:
+	.. _combobox-where:
 
 Where
 =====
