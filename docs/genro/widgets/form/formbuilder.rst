@@ -6,24 +6,24 @@
 
 .. class:: formbuilder -  Genropy formbuilder
 
-	- :ref:`main-definition`
+	- :ref:`formbuilder-definition`
 
-	- :ref:`where-is-it-?`
+	- :ref:`formbuilder-where`
 
-	- :ref:`A-brief-description`
+	- :ref:`formbuilder-description`
 
-	- :ref:`some-examples`
+	- :ref:`formbuilder-examples`
 
-	- :ref:`main-attributes`
+	- :ref:`formbuilder-attributes`
 	
-	- :ref:`common6-attributes`
+	- :ref:`formbuilder-common-attributes`
 	
-	- :ref:`other-features`
+	- :ref:`formbuilder-other-features`
 	
 		- :ref:`db-table`
 		- :ref:`label-and-lbl`
 
-	.. _main-definition:
+	.. _formbuilder-definition:
 
 Definition
 ==========
@@ -36,14 +36,14 @@ Definition
 	                    fldalign=None, fldvalign='middle', disabled=False,
 	                    rowdatapath=None, head_rows=None, **kwargs):
 
-	.. _where-is-it-?:
+	.. _formbuilder-where:
 
 Where
 =====
 
 	You can find formbuilder in *genro/gnrpy/gnr/web/gnrwebstruct.py*
 
-	.. _A-brief-description:
+	.. _formbuilder-description:
 
 Description
 ===========
@@ -67,7 +67,7 @@ To let you see how Genro code is simpler and more compact, we report here a comp
 
 In formbuilder you can put dom and widget elements; its most classic usage is to create a form made by fields and layers, and that's because formbuilder can manage automatically fields and their positioning.
 
-	.. _some-examples:
+	.. _formbuilder-examples:
 
 Examples
 ========
@@ -90,7 +90,7 @@ Examples
 
 	.. figure:: formbuilder.png
 
-	.. _main-attributes:
+	.. _formbuilder-attributes:
 
 Attributes
 ==========
@@ -179,7 +179,7 @@ Here we describe the formbuilder's field attributes:
 	|                | For more details, see :doc:`/common/datastore`       |                          |
 	+----------------+------------------------------------------------------+--------------------------+
 
-	.. _common6-attributes:
+	.. _formbuilder-other-attributes:
 
 Common attributes:
 ==================
@@ -194,7 +194,7 @@ Common attributes:
 	|                    | See :doc:`/common/hidden`                        |                          |
 	+--------------------+--------------------------------------------------+--------------------------+
 
-	.. _other-features:
+	.. _formbuilder-other-features:
 
 Other features:
 ==============
