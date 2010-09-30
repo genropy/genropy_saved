@@ -197,6 +197,7 @@ dojo.declare("gnr.GnrDomSourceNode",gnr.GnrBagNode,{
         var argNames=['_node', '_triggerpars']; //_node is also in _triggerpars.kw.node: todo remove (could be used as $1)
         var kwargs={};
         if (subscription_args){
+            console.log(trigger_reason);
             argNames.push(trigger_reason.split(':')[1]);
             argValues.push(subscription_args);
         }
@@ -924,9 +925,10 @@ dojo.declare("gnr.GnrDomSourceNode",gnr.GnrBagNode,{
             }
             var onStart = objectPop(attributes,'_onStart');
             var subscriptions = objectExtract(attributes,'subscribe_*');
-            for (subscription in subscriptions) {
+            for (var subscription in subscriptions) {
+                var trigger_reason = 'subscription:'+subscription;
                 dojo.subscribe(subscription, this, function(){
-                    this.setDataNodeValue(null,{},'subscription:'+subscription,arguments);
+                    this.setDataNodeValue(null,{},trigger_reason,arguments);
                 });
             };
             if (onStart){
