@@ -6,43 +6,43 @@
 
 .. class:: filteringSelect -  Genropy filteringSelect
 
-	- :ref:`main-definition`
+	- :ref:`filteringSelect-definition`
 	
-	- :ref:`where-is-it-?`
+	- :ref:`filteringSelect-where`
 	
-	- :ref:`A-brief-description`
+	- :ref:`filteringSelect-description`
 	
-	- :ref:`some-examples`
+	- :ref:`filteringSelect-examples`
 	
 		- :ref:`bag-example`
 		- :ref:`values-example`
 		
-	- :ref:`main-attributes`
+	- :ref:`filteringSelect-attributes`
 	
-	- :ref:`other-attributes`
+	- :ref:`filteringSelect-other-attributes`
 
-	.. _main-definition:
+	.. _filteringSelect-definition:
 	
 Definition
 ==========
 
 	The filteringSelect is a text field who suggests to user the possible (and unique!) entries of his selection.
 	
-	.. _where-is-it-?:
+	.. _filteringSelect-where:
 
 Where
 =====
 
 	#NISO ???
 	
-	.. _A-brief-description:
+	.. _filteringSelect-description:
 
 Description
 ===========
 
 	FilteringSelect's values are composed by a key and a value (like the Python dictionary's elements): user can chooses from values, while in database the user's choice is saved through keys. User can also freely type text and partially matched values will be shown in a pop-up menu below the input text box.
 
-	.. _some-examples:
+	.. _filteringSelect-examples:
 
 Examples
 ========
@@ -94,7 +94,7 @@ Filling filteringSelect through "values" attribute
 	
 	Warning: unlike Dojo, actually filteringSelect doesn't warn user for its wrong insertion. You can add a warning for the user through a "validate" attribute.
 	
-	.. _main-attributes:
+	.. _filteringSelect-attributes:
 
 Attributes
 ==========
@@ -107,7 +107,7 @@ Attributes
 	| ``values``         | Contains all the entries from which users have to choose |  ``None``       |
 	+--------------------+----------------------------------------------------------+-----------------+
 
-	.. _other-attributes:
+	.. _filteringSelect-other-attributes:
 
 Common attributes
 =================
