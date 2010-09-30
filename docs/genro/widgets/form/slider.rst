@@ -6,24 +6,19 @@
 
 .. class:: Sliders -  Genropy sliders
 
-	- :ref:`main-definition`
+	- :ref:`slider-definition`
 
-	- :ref:`where-is-it-?`
+	- :ref:`slider-where`
 
-	- :ref:`A-brief-description`
+	- :ref:`slider-description`
 
-	- :ref:`some-examples`
+	- :ref:`slider-examples`
 
-	- :ref:`main-attributes`
+	- :ref:`slider-attributes`
 	
-	- :ref:`other-attributes`
-	
-	- :ref:`other-features`
-	
-		- :ref:`db-table`
-		- :ref:`label-and-lbl`
+	- :ref:`slider-other-attributes`
 
-	.. _main-definition:
+	.. _slider-definition:
 
 Definition
 ==========
@@ -32,14 +27,14 @@ Same definition of Dojo sliders (version 1.5). To show it, click here_.
 
 .. _here: http://docs.dojocampus.org/dijit/form/Slider
 
-	.. _where-is-it-?:
+	.. _slider-where:
 
 Where
 =====
 
 	#NISO ???
 	
-	.. _A-brief-description:
+	.. _slider-description:
 
 Description
 ===========
@@ -47,7 +42,7 @@ Description
 	Here we introduce the sliders, form widgets inherit from Dojo. It is a scale with a handle you can drag left/right for horizontal slider (or up/down for vertical one) to select a value.
 
 
-	.. _some-examples:
+	.. _slider-examples:
 
 Examples
 ========
@@ -59,7 +54,7 @@ Examples
 				root.horizontalSlider(value='^integer_number',width='200px',
 									  maximum=50,discreteValues=51)
 
-	.. _main-attributes:
+	.. _slider-attributes:
 
 Attributes
 ==========
@@ -81,7 +76,7 @@ Attributes
 	
 	#NISO: ho visto che per Dojo 1.1 c'è un attributo chiamato showButtons che sembra non funzionare... (e tra l'altro c'è anche in Dojo 1.5...) la domanda è: "ci sono degli attributi che non avete riportato da Dojo, o è un errore?"
 
-	.. other-attributes:
+	.. slider-other-attributes:
 
 Common attributes
 =================
