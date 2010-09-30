@@ -18,6 +18,8 @@
 		- :ref:`values-attribute`
 	
 	- :ref:`main-attributes`
+	
+	- :ref:`common-attributes`
 
 	.. _main-definition:
 
@@ -117,19 +119,28 @@ Attributes
 	+--------------------+-------------------------------------------------+--------------------------+
 	|   Attribute        |          Description                            |   Default                |
 	+====================+=================================================+==========================+
+	| ``hasDownArrow``   | If True, create the selection arrow             |  ``True``                |
+	+--------------------+-------------------------------------------------+--------------------------+
+	| ``ignoreCase``     | If True, user can write ignoring the case       |  ``True``                |
+	+--------------------+-------------------------------------------------+--------------------------+
+	| ``values``         | Set all the possible values for user choice.    |  ``None``                |
+	|                    | Check here for explanation_.                    |                          |
+	+--------------------+-------------------------------------------------+--------------------------+
+	
+	.. _`common-attributes`:
+	
+Common attributes
+=================
+	
+	+--------------------+-------------------------------------------------+--------------------------+
+	|   Attribute        |          Description                            |   Default                |
+	+====================+=================================================+==========================+
 	| ``disabled``       | If True, user can't act on the combobox.        |  ``False``               |
 	|                    | For more details, see :doc:`/common/disabled`   |                          |
-	+--------------------+-------------------------------------------------+--------------------------+
-	| ``hasDownArrow``   | If True, create the selection arrow             |  ``True``                |
 	+--------------------+-------------------------------------------------+--------------------------+
 	| ``hidden``         | Hide the combobox.                              |  ``False``               |
 	|                    | See :doc:`/common/hidden`                       |                          |
 	+--------------------+-------------------------------------------------+--------------------------+
-	| ``ignoreCase``     | If True, user can write ignoring the case       |  ``True``                |
-	+--------------------+-------------------------------------------------+--------------------------+
 	| ``value``          | Set a path for combobox's values.               |  ``None``                |
 	|                    | For more details, see :doc:`/common/datastore`  |                          |
-	+--------------------+-------------------------------------------------+--------------------------+
-	| ``values``         | Set all the possible values for user choice.    |  ``None``                |
-	|                    | Check here for explanation_.                    |                          |
 	+--------------------+-------------------------------------------------+--------------------------+
