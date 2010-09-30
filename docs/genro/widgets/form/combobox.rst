@@ -6,36 +6,36 @@
 
 .. class:: combobox -  Genropy combobox
 
-	- :ref:`main-definition`
+	- :ref:`combobox-definition`
 	
-	- :ref:`where-is-it-?`
+	- :ref:`combobox-where`
 	
-	- :ref:`A-brief-description`
+	- :ref:`combobox-description`
 	
-	- :ref:`some-examples`
+	- :ref:`combobox-examples`
 	
 		- :ref:`Bag-way`
 		- :ref:`values-attribute`
 	
-	- :ref:`main-attributes`
+	- :ref:`combobox-attributes`
 	
-	- :ref:`common4-attributes`
+	- :ref:`combobox-other-attributes`
 
-	.. _main-definition:
+	.. _combobox-definition:
 
 Definition
 ==========
 
 	Genro checkbox is the combination between an HTML checkbox and a Dojo checkbox.
 
-	.. _where-is-it-?:
+	.. _combobox-where?:
 
 Where
 =====
 
 	#NISO???
 
-	.. _A-brief-description:
+	.. _combobox-description:
 
 Description
 ===========
@@ -46,7 +46,7 @@ Description
 	
 	So, the combobox is like a :doc:`filteringselect`; the difference is that combobox doesn't support keys.
 
-	.. _some-examples:
+	.. _combobox-examples:
 
 Examples
 ========
@@ -55,7 +55,7 @@ Examples
 
 	.. _values:
 
-	.. _values-attribute:
+	.. _combobox-attribute:
 
 Fill combobox through "values" attribute
 ========================================
@@ -111,7 +111,7 @@ Fill combobox through a Bag
 
 	The graphical result is the same of the values-way (see it here_).
 
-	.. _main-attributes:
+	.. _combobox-attributes:
 
 Attributes
 ==========
@@ -127,7 +127,7 @@ Attributes
 	|                    | Check here for explanation_.                    |                          |
 	+--------------------+-------------------------------------------------+--------------------------+
 	
-	.. _`common4-attributes`:
+	.. _`combobox-other-attributes`:
 	
 Common attributes
 =================
