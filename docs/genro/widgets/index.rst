@@ -18,6 +18,6 @@
 	form/field
 	form/filteringselect
 	form/formbuilder
-	form/simpletextarea
+	form/simplearea
 	form/slider
 	form/textboxes/textboxes
