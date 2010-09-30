@@ -6,19 +6,19 @@
 
 .. class:: button -  Genropy button
 
-	- :ref:`main-definition`
+	- :ref:`button-definition`
 
-	- :ref:`where-is-it-?`
+	- :ref:`button-where`
 
-	- :ref:`A-brief-description`
+	- :ref:`button-description`
 
-	- :ref:`some-examples`
+	- :ref:`button-examples`
 
-	- :ref:`main-attributes`
+	- :ref:`button-attributes`
 
-	- :ref:`common2-attributes`
+	- :ref:`button-other-attributes`
 
-	.. _main-definition:
+	.. _button-definition:
 
 Definition
 ==========
@@ -27,14 +27,14 @@ Definition
 
 	.. _here: http://docs.dojocampus.org/dijit/form/Button
 	
-	.. _where-is-it-?:
+	.. _button-where:
 
 Where
 =====
 
 	#NISO ???
 
-	.. _A-brief-description:
+	.. _button-description:
 
 Description
 ===========
@@ -43,7 +43,7 @@ Description
 	
 	You can act with it through "action" attribute, a javascript executed on mouse click.
 
-	.. _some-examples:
+	.. _button-examples:
 
 Examples
 ========
@@ -69,7 +69,7 @@ Examples
 
     In Genro there are four macros used as a shortcut that you can use in place of a Javascript command. They are FIRE, GET, SET, PUT. For more details, see :doc:`/common/datastore`.
 
-	.. _main-attributes:
+	.. _button-attributes:
 
 Attributes
 ==========
@@ -80,7 +80,7 @@ Attributes
 	| ``action``         | Starts a Javascript command                     |  ``#NISO???``            |
 	+--------------------+-------------------------------------------------+--------------------------+
 	
-	.. _`common2-attributes`:
+	.. _`button-other-attributes`:
 	
 Common attributes
 =================
