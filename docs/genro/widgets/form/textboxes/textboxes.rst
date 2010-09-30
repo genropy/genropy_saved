@@ -26,7 +26,7 @@ Definition
 	- :doc:`datetextbox`
 	
 	- :doc:`numbertextbox`
-	
+
 	- :doc:`timetextbox`
 
 	.. _common-attributes:
