@@ -14,8 +14,8 @@
 	
 	- :ref:`some-examples`
 	
-		- :ref: `bag-example`
-		- :ref: `values-example`
+		- :ref:`bag-example`
+		- :ref:`values-example`
 		
 	- :ref:`main-attributes`
 	
