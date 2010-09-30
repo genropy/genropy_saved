@@ -6,17 +6,17 @@
 
 .. class:: checkbox -  Genropy checkbox
 
-	- :ref:`main-definition`
+	- :ref:`checkbox-definition`
 	
-	- :ref:`where-is-it-?`
+	- :ref:`checkbox-where`
 	
-	- :ref:`A-brief-description`
+	- :ref:`checkbox-description`
 	
-	- :ref:`some-examples`
+	- :ref:`checkbox-examples`
 	
-	- :ref:`common3-attributes`
+	- :ref:`checkbox-attributes`
 	
-	.. _main-definition:
+	.. _checkbox-definition:
 
 Definition
 ==========
@@ -25,21 +25,21 @@ Definition
 
 	.. _here: http://docs.dojocampus.org/dijit/form/CheckBox
 
-	.. _where-is-it-?:
+	.. _checkbox-where:
 
 Where
 =====
 
 	#NISO ???
 
-	.. _A-brief-description:
+	.. _checkbox-description:
 
 Description
 ===========
 	
 	Genro checkbox is the combination between an HTML checkbox and a Dojo checkbox; like in HTML and in Dojo, it is a widget that permits the user to make a selection between a boolean True/False choice.
 
-	.. _some-examples:
+	.. _checkbox-examples:
 
 Examples
 ========
@@ -52,7 +52,7 @@ Examples
 
 	.. figure:: checkbox.png
 
-	.. _`common3-attributes`:
+	.. _`checkbox-attributes`:
 	
 Common attributes
 =================
