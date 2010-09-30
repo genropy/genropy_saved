@@ -38,8 +38,10 @@ Examples
 ========
 	
 	Example::
-
-		pane.dateTextbox(value='^dateTextbox',popup=True)
+	
+		class GnrCustomWebPage(object):
+			def main(self,root,**kwargs):
+				root.dateTextbox(value='^dateTextbox',popup=True)
 		
 	Let's see its graphical result:
 

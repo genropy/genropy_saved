@@ -37,7 +37,9 @@ Examples
 
 	Example::
 
-		pane.currencyTextBox(value='^amount',default=1123.34,currency='EUR',locale='it')
+		class GnrCustomWebPage(object):
+			def main(self,root,**kwargs):
+				root.currencyTextBox(value='^amount',default=1123.34,currency='EUR',locale='it')
 	
 	Let's see its graphical result:
 
