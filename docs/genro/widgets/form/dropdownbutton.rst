@@ -6,17 +6,17 @@
 
 .. class:: dropdownbutton -  Genropy dropdownbutton
 
-	- :ref:`main-definition`
+	- :ref:`dropdownbutton-definition`
 	
-	- :ref:`where-is-it-?`
+	- :ref:`dropdownbutton-where`
 	
-	- :ref:`A-brief-description`
+	- :ref:`dropdownbutton-description`
 	
-	- :ref:`some-examples`
+	- :ref:`dropdownbutton-examples`
 	
-	- :ref:`common5-attributes`
+	- :ref:`dropdownbutton-attributes`
 
-	.. _main-definition:
+	.. _dropdownbutton-definition:
 
 Definition
 ==========
@@ -25,21 +25,21 @@ Definition
 
 	.. _here: http://docs.dojocampus.org/dijit/form/DropDownButton
 
-	.. _where-is-it-?:
+	.. _dropdownbutton-where:
 
 Where
 =====
 
 	#NISO???
 
-	.. _A-brief-description:
+	.. _dropdownbutton-description:
 
 Description
 ===========
 
 	Constructs a button that opens a ``menu`` or a ``tooltipdialog``.
 
-	.. _some-examples:
+	.. _dropdownbutton-examples:
 
 Examples
 ========
@@ -71,7 +71,7 @@ Examples
 
 	.. figure:: dropdownbutton.png
 	
-	.. _common5-attributes:
+	.. _dropdownbutton-attributes:
 
 Common Attributes
 =================
