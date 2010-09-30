@@ -23,6 +23,5 @@
 	form/numbertextbox
 	form/simpletextarea
 	form/slider
-	form/textbox
-	form/textboxes
+	textboxes/textboxes
 	form/timetextbox
