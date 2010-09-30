@@ -16,7 +16,7 @@
 	
 	- :ref:`main-attributes`
 	
-	- :ref:`other-attributes`
+	- :ref:`common7-attributes`
 
 	.. _main-definition:
 
@@ -69,7 +69,7 @@ Attributes
 	| ``text_align``     | CSS attribute                                   |  ``left``                |
 	+--------------------+-------------------------------------------------+--------------------------+
 
-	.. other-attributes:
+	.. common7-attributes:
 
 Common attributes
 =================
@@ -78,7 +78,7 @@ Common attributes
 	|   Attribute        |          Description                            |   Default                |
 	+====================+=================================================+==========================+
 	| ``default``        | Add a text to the area.                         |  ``None``                |
-	|                    | For more details, see :doc:`/common/disabled`   |                          |
+	|                    | For more details, see :doc:`/common/default`    |                          |
 	+--------------------+-------------------------------------------------+--------------------------+
 	| ``disabled``       | If True, user can't act on the area.            |  ``False``               |
 	|                    | For more details, see :doc:`/common/disabled`   |                          |
