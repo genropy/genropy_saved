@@ -219,7 +219,7 @@ class GnrWebBatch(GnrBaseProxy):
             cb_message = message
         else:
             msg_desc = message or line_code
-            cb_message = lambda item,k,m: '%s %i/%i'  %(msg_desc,k,m)
+            cb_message = lambda item,k,m,iterable: '%s %i/%i'  %(msg_desc,k,m)
         if not line_code in self.line_codes:
             self.thermo_line_add(line_code,maximum=maximum)
         for k,item in enumerate(iterable):
