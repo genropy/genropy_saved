@@ -16,14 +16,14 @@
 
 	- :ref:`main-attributes`
 
-	- :ref:`common-attributes`
+	- :ref:`common2-attributes`
 
 	.. _main-definition:
 
 Definition
 ==========
 
-	Same definition of Dojo's button (version 1.5). To show it, click here_.
+	Same definition of Dojo button (version 1.5). To show it, click here_.
 
 	.. _here: http://docs.dojocampus.org/dijit/form/Button
 	
@@ -80,7 +80,7 @@ Attributes
 	| ``action``         | Starts a Javascript command                     |  ``#NISO???``            |
 	+--------------------+-------------------------------------------------+--------------------------+
 	
-	.. _`common-attributes`:
+	.. _`common2-attributes`:
 	
 Common attributes
 =================
