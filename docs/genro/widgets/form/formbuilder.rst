@@ -76,7 +76,7 @@ Examples
 	
 		class GnrCustomWebPage(object):
 			def main(self,root,**kwargs):
-				fb=pane.formbuilder(datapath='test3',cols=3,fld_width='100%',width='100%')
+				fb=root.formbuilder(datapath='test3',cols=3,fld_width='100%',width='100%')
 				fb.textbox(value='^.name',lbl='Name')
 				fb.textbox(value='^.surname',colspan=2,lbl='Surname')
 				fb.numberTextbox(value='^.age',lbl="Age")

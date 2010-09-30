@@ -1,16 +1,68 @@
-=========
- Sliders
-=========
+========
+ Slider
+========
 
 .. currentmodule:: form
 
 .. class:: Sliders -  Genropy sliders
 
-**Definition**: same definition of Dojo sliders (version 1.5). To show it, click here_.
+	- :ref:`main-definition`
+
+	- :ref:`where-is-it-?`
+
+	- :ref:`A-brief-description`
+
+	- :ref:`some-examples`
+
+	- :ref:`main-attributes`
+	
+	- :ref:`other-attributes`
+	
+	- :ref:`other-features`
+	
+		- :ref:`db-table`
+		- :ref:`label-and-lbl`
+
+	.. _main-definition:
+
+Definition
+==========
+
+Same definition of Dojo sliders (version 1.5). To show it, click here_.
 
 .. _here: http://docs.dojocampus.org/dijit/form/Slider
 
+	.. _where-is-it-?:
+
+Where
+=====
+
+	#NISO ???
+	
+	.. _A-brief-description:
+
+Description
+===========
+
 	Here we introduce the sliders, form widgets inherit from Dojo. It is a scale with a handle you can drag left/right for horizontal slider (or up/down for vertical one) to select a value.
+
+
+	.. _some-examples:
+
+Examples
+========
+
+	Let's see a code example::
+	
+		class GnrCustomWebPage(object):
+			def main(self,root,**kwargs):
+				root.horizontalSlider(value='^integer_number',width='200px',
+									  maximum=50,discreteValues=51)
+
+	.. _main-attributes:
+
+Attributes
+==========
 
 	+-------------------------+---------------------------------------------------------+-------------+
 	|   Attribute             |          Description                                    |   Default   |
@@ -29,7 +81,20 @@
 	
 	#NISO: ho visto che per Dojo 1.1 c'è un attributo chiamato showButtons che sembra non funzionare... (e tra l'altro c'è anche in Dojo 1.5...) la domanda è: "ci sono degli attributi che non avete riportato da Dojo, o è un errore?"
 
-		Example::
+	.. other-attributes:
 
-			pane.horizontalSlider(value='^integer_number',width='200px',
-								  maximum=50,discreteValues=51)
+Common attributes
+=================
+
+	+--------------------+-------------------------------------------------+--------------------------+
+	|   Attribute        |          Description                            |   Default                |
+	+====================+=================================================+==========================+
+	| ``disabled``       | If True, user can't act on the slider.          |  ``False``               |
+	|                    | For more details, see :doc:`/common/disabled`   |                          |
+	+--------------------+-------------------------------------------------+--------------------------+
+	| ``hidden``         | Hide the slider.                                |  ``False``               |
+	|                    | See :doc:`/common/hidden`                       |                          |
+	+--------------------+-------------------------------------------------+--------------------------+
+	| ``value``          | Set a path for slider's values.                 |  ``None``                |
+	|                    | For more details, see :doc:`/common/datastore`  |                          |
+	+--------------------+-------------------------------------------------+--------------------------+
