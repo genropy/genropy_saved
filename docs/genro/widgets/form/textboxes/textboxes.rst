@@ -6,36 +6,20 @@
 
 .. class:: textbox -  Genropy textbox
 
-	- :ref:`main-definition`
-
-	- :ref:`where-is-it-?`
-
-	- :ref:`A-brief-description`
+	- :ref:`main-introduction`
 
 	- :ref:`common-attributes`
 
-	.. _main-definition:
+	.. _main-introduction:
 
 Definition
 ==========
 
 	Textbox is a form widget used to insert data.
 	
-	.. _where-is-it-?:
-
-Where
-=====
-
-	#NISO ???
-	
-	.. _A-brief-description:
-
-Description
-===========
-
 	There are different textbox types:
 	
-	- textbox
+	- :doc:`textbox`
 	
 	- currencyTextbox
 	
