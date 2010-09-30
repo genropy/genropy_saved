@@ -6,22 +6,17 @@
 
 .. class:: dbCombobox -  Genropy dbCombobox
 
-	- :ref:`main-definition`
-	
-	- :ref:`where-is-it-?`
-	
-	- :ref:`A-brief-description`
-	
-	- :ref:`some-examples`
-	
-	- :ref:`main-attributes`
-	
-	- :ref:`other-features`
-	
-		- ???:ref:`first-reference`
-		- ???:ref:`second-reference`
+	- :ref:`dbCombobox-definition`
 
-	.. _main-definition:
+	- :ref:`dbCombobox-where`
+
+	- :ref:`dbCombobox-description`
+
+	- :ref:`dbCombobox-examples`
+
+	- :ref:`dbCombobox-attributes`
+
+	.. _dbCombobox-definition:
 
 Definition
 ==========
@@ -34,21 +29,21 @@ Definition
 	                    fldalign=None, fldvalign='middle', disabled=False,
 	                    rowdatapath=None, head_rows=None, **kwargs):
 
-	.. _where-is-it-?:
+	.. _dbCombobox-where:
 
 Where
 =====
 
 	You can find ??? in *genro/gnrpy/???*
 
-	.. _A-brief-description:
+	.. _dbCombobox-description:
 
 Description
 ===========
 
 	???
 
-	.. _some-examples:
+	.. _dbCombobox-examples:
 
 Examples
 ========
@@ -64,7 +59,7 @@ Examples
 
 	.. figure:: ???.png
 
-	.. _main-attributes:
+	.. _dbCombobox-attributes:
 
 Attributes
 ==========
@@ -87,22 +82,4 @@ Attributes
 	| ``value``          | Set a path for ???'s values.                    |  ``None``                |
 	|                    | For more details, see :doc:`/common/datastore`  |                          |
 	+--------------------+-------------------------------------------------+--------------------------+
-
-	.. _other-features:
-
-Other features:
-==============
-
-	.. _first-reference:
 	
-??? Title first reference
-=======================
-	
-	???
-	
-	.. _second-reference:
-	
-??? Title second reference
-=======================
-	
-	???
