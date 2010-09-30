@@ -150,7 +150,7 @@ dojo.declare("gnr.GnrDomSourceNode",gnr.GnrBagNode,{
     fireNode: function(){
         this.setDataNodeValue();
     },
-    setDataNodeValue:function(node, kw, trigger_reason){
+    setDataNodeValue:function(node, kw, trigger_reason,subscription_args){
         var attributes=objectUpdate({}, this.attr);
         var _userChanges=objectPop(attributes,'_userChanges');
         var _trace=objectPop(attributes,'_trace');
@@ -196,6 +196,10 @@ dojo.declare("gnr.GnrDomSourceNode",gnr.GnrBagNode,{
         var argValues=[node, {'kw':kw, 'trigger_reason':trigger_reason}];
         var argNames=['_node', '_triggerpars']; //_node is also in _triggerpars.kw.node: todo remove (could be used as $1)
         var kwargs={};
+        if (subscription_args){
+            argNames.push(trigger_reason.split(':')[1]);
+            argValues.push(subscription_args);
+        }
         var val;
         if(_trace && (_trace_level > 0)) {
             console.log('Arguments:');
@@ -919,6 +923,12 @@ dojo.declare("gnr.GnrDomSourceNode",gnr.GnrBagNode,{
                 this.setTiming(timing);
             }
             var onStart = objectPop(attributes,'_onStart');
+            var subscriptions = objectExtract(attributes,'subscribe_*');
+            for (subscription in subscriptions) {
+                dojo.subscribe(subscription, this, function(){
+                    this.setDataNodeValue(null,{},'subscription:'+subscription,arguments);
+                });
+            };
             if (onStart){
                 this.attr._fired_onStart='^gnr.onStart';
                 this.registerDynAttr('_fired_onStart');
