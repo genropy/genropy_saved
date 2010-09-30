@@ -76,7 +76,7 @@ Attributes
 	
 	#NISO: ho visto che per Dojo 1.1 c'è un attributo chiamato showButtons che sembra non funzionare... (e tra l'altro c'è anche in Dojo 1.5...) la domanda è: "ci sono degli attributi che non avete riportato da Dojo, o è un errore?"
 
-	.. slider-other-attributes:
+	.. _slider-other-attributes:
 
 Common attributes
 =================
