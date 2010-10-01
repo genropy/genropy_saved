@@ -23,7 +23,6 @@ GenroPy
             installation
             common/index
             widgets/index
-            bag/index
             datacontroller/index
             ui/index
 
