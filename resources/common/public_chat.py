@@ -2,7 +2,7 @@
 
 from gnr.web.gnrwebpage import BaseComponent
 
-class ChatComponent(BaseComponent):
+class PublicChat(BaseComponent):
     py_requires='gnrcomponents/chat_component'
     def pbl_left_chat(self,pane,footer=None,toolbar=None):
         "Chat"
@@ -20,8 +20,15 @@ class ChatComponent(BaseComponent):
                                 PUBLISH ct_chat_close;
                             };
                             """,subscribe_pbl_left_stack_selected=True,subscribe_pbl_mainMenuStatus=True,
-                            _if='_reason=="pbl_left_stack_selected";',
-                            _else='if(pbl_mainMenuStatus==false){PUBLISH ct_chat_close;}')
+                            _if='_reason=="pbl_left_stack_selected"',
+                            _else="""
+                                    if(currentStack=='chat'){
+                                        if (pbl_mainMenuStatus[0]==false){
+                                            PUBLISH ct_chat_close;
+                                        }else{
+                                            PUBLISH ct_chat_open;
+                                        }
+                                    }""",currentStack='=pbl.left_stack')
         
         pane.dataController("SET gnr.chat.buttonIcon = 'icnBuddyChat';",subscribe_ct_room_alert=True,
                             _if='selectedStack!="chat"',selectedStack='=pbl.left_stack')

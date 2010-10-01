@@ -18,7 +18,7 @@ class Public(BaseComponent):
     py_requires = """foundation/menu:Menu,
                      foundation/dialogs,
                      foundation/macrowidgets,
-                     public_batch,public_chat"""
+                     public_batch:PublicBatchMonitor,public_chat:PublicChat"""
     
         
     def userRecord(self,path=None):
