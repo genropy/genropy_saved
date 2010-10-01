@@ -183,6 +183,7 @@ class HTableHandler(HTableHandlerBase):
 
         bc.dataController("""
                              var rootpath = rootpath || null;
+                             
                              if (destPkey!='*newrecord*'){
                                  var editNode = treestore.getNode(treepath);
                                  var attr= editNode.attr;
@@ -193,9 +194,12 @@ class HTableHandler(HTableHandlerBase):
                                 SET .edit.pkey = savedPkey;
                                 FIRE .edit.load;
                                 var parentPath = rootpath?parent_code.slice(rootpath.length):parent_code?'_root_.'+parent_code:'_root_'
-                                var parentNode = treestore.getNode(parentPath);
-                                console.log(parentNode);
-                                parentNode.refresh(true);
+                                var refreshFromNode = treestore.getNode(parentPath);
+                                
+                                if(!refreshFromNode.getValue()){
+                                    refreshFromNode = refreshFromNode.getParentNode();
+                                }
+                                refreshFromNode.refresh(true);
                              }
                          """,
                         _fired="^.edit.onSaved",destPkey='=.tree.pkey',parent_code='=.edit.record.parent_code',
