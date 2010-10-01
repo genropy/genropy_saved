@@ -16,19 +16,19 @@ Definition
 ==========
 
 	Textbox is a form widget used to insert data.
-	
+
 	There are different textbox types:
-	
+
 	- :doc:`textbox`
-	
+
 	- :doc:`currencytextbox`
-	
+
 	- :doc:`datetextbox`
-	
+
 	- :doc:`numbertextbox`
 
 	- :doc:`timetextbox`
-	
+
 	The main feature of each of these textboxes is that Genro combines Dojo's textboxes with HTML's textboxes.
 
 	.. _common-attributes:
