@@ -49,18 +49,9 @@ class TableHandlerToolbox(BaseComponent):
     def toolboxFromResources(self, parent,res_type=None):
         datapath = 'list.toolbox.%s' %res_type
         pane = parent.contentPane(datapath=datapath)
-        pane.dataRemote('.tree.store', 'table_script_resource_tree', tbl=self.maintable, cacheTime=10,res_type=res_type)
-        pane.tree(storepath='.tree.store', persist=False, 
-                          labelAttribute='caption',hideValues=True,
-                          _class='toolboxResourceTree',
-                          selected_resource ='.resource',
-                          connect_ondblclick='FIRE .run_table_script',
-                          tooltip_callback="return sourceNode.attr.description || sourceNode.label;") 
-        pane.dataController("""PUBLISH table_script_run={res_type:res_type,selectionName:selectionName,selectedRowidx:selectedRowidx,resource:resource};""",
-                            _fired="^.run_table_script",selectionName='=list.selectionName',
-                            selectedRowidx="==genro.wdgById('maingrid').getSelectedRowidx();",
-                            res_type='=list.toolboxSelected',resource='=.resource')
-                
+        self.table_script_resource_tree(pane,table=self.maintable,res_type=res_type,selectionName='=list.selectionName',
+                                        gridId='maingrid',_class='toolboxResourceTree')
+                        
     def toolboxFields(self,pane):
         treediv=pane.div(_class='treeContainer')
         treediv.tree(storepath='gnr.qb.fieldstree',persist=False,

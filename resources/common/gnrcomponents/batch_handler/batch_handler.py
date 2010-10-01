@@ -25,10 +25,10 @@ class BatchMonitor(BaseComponent):
 class TableScriptRunner(BaseComponent):
     py_requires='foundation/dialogs'
     def onMain_table_script_runner(self):
-        print 'on_main'
         page = self.pageSource()
         plugin_main = page.div(datapath='gnr.plugin.table_script_runner',nodeId='table_script_runner')
         plugin_main.dataController(""" var params = table_script_run[0];
+                                       console.log(params);
                                        SET .res_type= params['res_type'];
                                        SET .table =  params['table'];
                                        SET .resource =  params['resource'];
@@ -52,9 +52,24 @@ class TableScriptRunner(BaseComponent):
                             title='=.title',
                             table='=.table',
                             _fired='^.build_pars_dialog')
+                            
+    def table_script_resource_tree(self,pane,table=None,res_type=None,selectionName=None,gridId=None,_class=None,**kwargs):
+        pane.dataRemote('.tree.store', 'table_script_resource_tree_data', table=table, cacheTime=10,res_type=res_type)
+        pane.tree(storepath='.tree.store', persist=False, 
+                          labelAttribute='caption',hideValues=True,
+                          _class=_class,
+                          selected_resource ='.resource',
+                          connect_ondblclick='FIRE .run_table_script',
+                          tooltip_callback="return sourceNode.attr.description || sourceNode.label;",
+                          **kwargs) 
+                          
+        pane.dataController("""
+                            var selectedRowidx = gridId?genro.wdgById(gridId).getSelectedRowidx():null;
+                            PUBLISH table_script_run={table:table,res_type:res_type,selectionName:selectionName,selectedRowidx:selectedRowidx,resource:resource};""",
+                            _fired="^.run_table_script",selectionName=selectionName,table=table,
+                            gridId=gridId,res_type=res_type,resource='=.resource')
 
-    def remote_table_script_parameters(self,pane,resource='',res_type=None,title=None,table=None,**kwargs):
-        table = table or self.maintable
+    def remote_table_script_parameters(self,pane,table=None,res_type=None,resource='',title=None,**kwargs):
         pkgname,tblname = table.split('.')
         if not resource:
             return
@@ -82,8 +97,8 @@ class TableScriptRunner(BaseComponent):
         res_obj.defineSelection(selectionName=selectionName,selectedRowidx=selectedRowidx)
         res_obj(**kwargs)
         
-    def rpc_table_script_resource_tree(self,tbl,res_type):
-        pkg,tblname = tbl.split('.')
+    def rpc_table_script_resource_tree_data(self,table=None,res_type=None):
+        pkg,tblname = table.split('.')
         result = Bag()
         resources = self.site.resource_loader.resourcesAtPath(pkg,'tables/%s/%s' %(tblname,res_type),'py')
         forbiddenNodes = []
