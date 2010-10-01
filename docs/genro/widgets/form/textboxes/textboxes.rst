@@ -28,13 +28,15 @@ Definition
 	- :doc:`numbertextbox`
 
 	- :doc:`timetextbox`
+	
+	The main feature of each of these textboxes is that Genro combines Dojo's textboxes with HTML's textboxes.
 
 	.. _common-attributes:
 
 Common attributes
 =================
 
-	There are some common attributes to every textbox:
+	Here we show the attributes that belong to every textbox:
 
 	+--------------------+-------------------------------------------------+--------------------------+
 	|   Attribute        |          Description                            |   Default                |
