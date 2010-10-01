@@ -7,8 +7,8 @@
 from gnr.web.gnrwebpage import BaseComponent
 
 class BatchMonitor(BaseComponent):
-    js_requires = 'gnrcomponents/batch_monitor/batch_monitor'
-    css_requires = 'gnrcomponents/batch_monitor/batch_monitor'
+    js_requires = 'gnrcomponents/batch_monitor/batch_handler'
+    css_requires = 'gnrcomponents/batch_monitor/batch_handler'
         
     def bm_monitor_pane(self,pane):
         pane.dataController("batch_monitor.on_datachange(_triggerpars.kw);",_fired="^gnr.batch")
