@@ -5,10 +5,13 @@
 # Copyright (c) 2010 Softwell. All rights reserved.
 
 from gnr.web.gnrwebpage import BaseComponent
+from gnr.core.gnrlang import gnrImport
+from gnr.core.gnrbag import Bag
+
 
 class BatchMonitor(BaseComponent):
-    js_requires = 'gnrcomponents/batch_monitor/batch_handler'
-    css_requires = 'gnrcomponents/batch_monitor/batch_handler'
+    js_requires = 'gnrcomponents/batch_handler/batch_handler'
+    css_requires = 'gnrcomponents/batch_handler/batch_handler'
         
     def bm_monitor_pane(self,pane):
         pane.dataController("batch_monitor.on_datachange(_triggerpars.kw);",_fired="^gnr.batch")
@@ -19,40 +22,40 @@ class BatchMonitor(BaseComponent):
         pane.dataRpc('dummy','setStoreSubscription',active=False,subscribe_bm_monitor_close=True,
                     _onCalling='genro.rpc.setPolling();',storename='user')
         
-class BatchRunner(BaseComponent):
-    def toolboxScriptRunner(self,datapath=None):
-        pane = self.pageSource()
-        pane.div(datapath=datapath).remote('toolboxParameters',
-                                            resource='=.resource',
-                                            res_type='=list.toolboxSelected',
-                                            _fired='^.ask')
-        controller = pane.dataController(nodeId="toolboxScriptRunner",datapath=datapath)
-        controller.dataController("""
-                                SET .resource = attr.resource;
-                                if(attr.has_parameters){
-                                    FIRE .ask;
-                                    FIRE #toolboxScriptDlg.open;
-                                }else{
-                                    FIRE .run;
-                                }""",
-                              attr="^.call")
-        
-        controller.dataController("""
-                            FIRE .run_rpc_dispatcher; 
-                            this.setRelativeData("list.toolbox."+res_type+".tree.path",null);
-                            FIRE list.showToolbox = false;
-                            PUBLISH bm_monitor_open;
-                            """,_fired="^.run",res_type='=list.toolboxSelected')
-        
-        controller.dataRpc('.res_result','toolboxResourceDispatcher',
-                _fired='^.run_rpc_dispatcher',
+class TableScriptRunner(BaseComponent):
+    py_requires='foundation/dialogs'
+    def onMain_table_script_runner(self):
+        print 'on_main'
+        page = self.pageSource()
+        plugin_main = page.div(datapath='gnr.plugin.table_script_runner',nodeId='table_script_runner')
+        plugin_main.dataController(""" var params = table_script_run[0];
+                                       SET .res_type= params['res_type'];
+                                       SET .table =  params['table'];
+                                       SET .resource =  params['resource'];
+                                       SET .selectionName =  params['selectionName'];
+                                       SET .selectedRowidx =  params['selectedRowidx'];
+                                       FIRE .build_pars_dialog;
+                                       FIRE .parsDlg.open;
+                                    """,subscribe_table_script_run=True)
+        plugin_main.dataRpc('dummy','table_script_run',
+                _fired='^.run',
+                _onCalling='PUBLISH bm_monitor_open;console.log($2)',
                 pars='=.pars',resource='=.resource',
-                res_type='=list.toolboxSelected',
-                selectionName='=list.selectionName',
-                selectedRowidx="==genro.wdgById('maingrid').getSelectedRowidx();")
+                res_type='=.res_type',
+                table='=.table',
+                selectionName='=.selectionName',
+                selectedRowidx="=.selectedRowidx",subscribe_pippone=True)
+                
+        plugin_main.div().remote('table_script_parameters',
+                            resource='=.resource',
+                            res_type='=.res_type',
+                            title='=.title',
+                            table='=.table',
+                            _fired='^.build_pars_dialog')
 
-    def remote_toolboxParameters(self,pane,resource='',res_type=None,title=None,**kwargs):
-        pkgname,tblname = self.maintable.split('.')
+    def remote_table_script_parameters(self,pane,resource='',res_type=None,title=None,table=None,**kwargs):
+        table = table or self.maintable
+        pkgname,tblname = table.split('.')
         if not resource:
             return
         resource = resource.replace('.py','')
@@ -67,51 +70,19 @@ class BatchRunner(BaseComponent):
             dlg_attr['width'] = center_attr.get('width') or dlg_attr['width']
 
         dlg = self.simpleDialog(pane,title=title,datapath='.parsDlg',height='300px',width='400px',
-                         cb_center=cb_center,dlgId='toolboxScriptDlg')
-        dlg.dataController("FIRE .close; SET #toolboxScriptRunner.pars=pars; FIRE #toolboxScriptRunner.run;",
+                         cb_center=cb_center,dlgId='table_script_dlg_parameters')
+        dlg.dataController("""FIRE .close;
+                            SET #table_script_runner.pars=pars;
+                            FIRE #table_script_runner.run;""",
                             _fired="^.save",pars='=.pars')
-         
-        
-    def toolboxFields(self,pane):
-        treediv=pane.div(_class='treeContainer')
-        treediv.tree(storepath='gnr.qb.fieldstree',persist=False,
-                     inspect='shift', labelAttribute='caption',
-                     _class='fieldsTree',
-                     hideValues=True,
-                     getIconClass='if(node.attr.dtype){return "icnDtype_"+node.attr.dtype}',
-                     dndController="dijit._tree.dndSource",
-                     onDndDrop="function(){this.onDndCancel();}::JS",
-                     checkAcceptance='function(){return false;}::JS',
-                     checkItemAcceptance='function(){return false;}::JS')
-    
-    def bm_resource_pane(self, parent,res_type=None):
-        datapath = 'list.toolbox.%s' %res_type
-        sc = parent.stackContainer(datapath=datapath,selectedPage='^.currentPage')
-        sc.dataFormula(".currentPage","resource?'pars':'tree';",
-                        resource="^.tree.path?resource")
-        treestack = sc.contentPane(pageName='tree')
-        treestack.dataRemote('.tree.store', 'tableResourceTree', tbl=self.maintable, cacheTime=10,res_type=res_type)
-        treestack.tree(storepath='.tree.store', persist=False, 
-                          labelAttribute='caption',hideValues=True,
-                          _class='toolboxResourceTree',
-                          selectedPath='.tree.path',
-                          selectedLabelClass='selectedTreeNode',
-                          tooltip_callback="return sourceNode.attr.description || sourceNode.label;") 
-        parsstack = sc.borderContainer(pageName='pars')
-        top = parsstack.contentPane(region='top',_class='pbl_roundedGroupLabel').div('^.tree.path?caption')
-        bottom = parsstack.contentPane(region='bottom',_class='pbl_roundedGroupBottom')
-        bottom.button('!!Confirm',action="""FIRE #toolboxScriptRunner.call = GET .tree.path?;""",float='right')
-        bottom.button('!!Cancel',action='SET .tree.path=null;',float='right')
-        center = parsstack.contentPane(region='center')
-        center.div('^.tree.path?description')
-        center.div('!!rows')
-        
-    def rpc_toolboxResourceDispatcher(self,resource=None,res_type=None,selectionName=None,selectedRowidx=None,**kwargs):
-        res_obj=self.site.loadTableScript(self,self.tblobj,'%s/%s' %(res_type,resource),class_name='Main')
+                     
+    def rpc_table_script_run(self,table=None,resource=None,res_type=None,selectionName=None,selectedRowidx=None,**kwargs):
+        tblobj = self.tblobj or self.db.table(table)
+        res_obj=self.site.loadTableScript(self,tblobj,'%s/%s' %(res_type,resource),class_name='Main')
         res_obj.defineSelection(selectionName=selectionName,selectedRowidx=selectedRowidx)
         res_obj(**kwargs)
         
-    def rpc_tableResourceTree(self,tbl,res_type):
+    def rpc_table_script_resource_tree(self,tbl,res_type):
         pkg,tblname = tbl.split('.')
         result = Bag()
         resources = self.site.resource_loader.resourcesAtPath(pkg,'tables/%s/%s' %(tblname,res_type),'py')

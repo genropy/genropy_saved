@@ -73,7 +73,7 @@ class TableHandlerForm(BaseComponent):
         viewMenu.addItem('savedview',jsresolver,_T='JS',caption='!!Custom view',action='FIRE list.view_id = $1.pkey;')
         viewMenu.setItem('editview',None,caption='!!Edit view',action="""SET list.showToolbox = true;
                                                                     SET list.showExtendedQuery =true;
-                                                                    SET list.toolboxSelected = 'views';
+                                                                    SET list.toolboxSelected = 'view';
                                                                     """)
         pane.data('list.view.menu',viewMenu)
         pane.data('list.view.pyviews',structures,baseview='_base')

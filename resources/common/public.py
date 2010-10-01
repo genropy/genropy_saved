@@ -51,7 +51,8 @@ class Public(BaseComponent):
             top.div(float='right',margin='3px',_class='buttonIcon icnTabClose',
                     connect_onclick='genro.rpc.setPolling();SET pbl.left_stack="menu";')            
             cb(bc.contentPane(region='center',overflow='hidden'),footer=bottom,toolbar=top)
-        sc.dataController(""" var pageName = pbl_left_stack_selected[1];
+        sc.dataController(""" 
+                              var pageName = pbl_left_stack_selected[1];
                               var isSelected =  pbl_left_stack_selected[2];
                               if(pageName!='menu' && isSelected){
                                     SET _clientCtx.mainBC.left?show = true;
