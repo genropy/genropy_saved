@@ -520,7 +520,7 @@ class GnrWebPage(GnrBaseWebPage):
         user = user or self.user
         return self.site.register.userStore(user,triggered=triggered)
         
-    def rpc_setStoreSubscription(self,storename=None,client_path=None,subscribe=True):
+    def rpc_setStoreSubscription(self,storename=None,client_path=None,active=True):
         with self.pageStore() as store:
             subscriptions=store.getItem('_subscriptions')
             if subscriptions is None:
@@ -528,7 +528,7 @@ class GnrWebPage(GnrBaseWebPage):
                 store.setItem('_subscriptions',subscriptions)
             storesub=subscriptions.setdefault(storename,{})
             pathsub=storesub.setdefault(client_path,{})
-            pathsub['on']=subscribe
+            pathsub['on']=active
      
         
     def clientPage(self,page_id=None):
