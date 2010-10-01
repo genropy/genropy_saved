@@ -16,8 +16,8 @@ class ChatComponent(BaseComponent):
         pane.dataRpc('dummy','setStoreSubscription',subscribe_ct_chat_open=True,
                     storename='user',client_path='gnr.chat.msg',active=True,
                     _onResult='genro.rpc.setPolling(2,2);')
-        pane.dataRpc('dummy','setStoreSubscription',active=False,subscribe_ct_chat_close=True,
-                    _onResult='genro.rpc.setPolling();')
+        pane.dataRpc('dummy','setStoreSubscription',active=False,subscribe_ct_chat_close=True,storename='user',
+                    _onCalling='genro.rpc.setPolling();')
                     
         pane.dataController("genro.playSound('NewMessage'); PUBLISH ct_room_alert = user;",user="^gnr.chat.room_alert")
         
