@@ -729,8 +729,6 @@ dojo.declare("gnr.widgets.baseDojo",gnr.widgets.baseHtml,{
         widget.setHref(url);
     },
     mixin_setVisible: function(visible){
-        console.log('setting visible')
-        console.log(visible)
         dojo.style(this.domNode,'visibility',(visible? 'visible':'hidden'));
     },
 
@@ -773,7 +771,7 @@ dojo.declare("gnr.widgets.Dialog",gnr.widgets.baseDojo,{
          if ( dojo_version=='1.5'){
               var position=sourceNode.attr.position;
              if (position){
-                 position=position.split(',')
+                 position=position.split(',');
                  newobj._relativePosition={x:position[0],y:position[1]};
              }
          }
@@ -913,6 +911,7 @@ dojo.declare("gnr.widgets.StackContainer",gnr.widgets.baseDojo,{
     created: function(widget, savedAttrs, sourceNode){
         var selpath=sourceNode.attr['selected'];
         var selpage=sourceNode.attr['selectedPage'];
+        var newpage,oldpage,path;
         widget.gnrPageDict={};
         if(selpath || selpage){
             var controller=widget.tablist || widget;
@@ -920,10 +919,21 @@ dojo.declare("gnr.widgets.StackContainer",gnr.widgets.baseDojo,{
             dojo.connect(controller, evt, dojo.hitch(widget,function(child){
                             if(!widget.sourceNode._isBuilding){
                                 if (selpath){
-                                    this.sourceNode.setRelativeData(selpath,this.getChildIndex(child));
+                                    newpage = this.getChildIndex(child);
+                                    path = selpath;
                                 }
                                 if (selpage){
-                                    this.sourceNode.setRelativeData(selpage,child.sourceNode.attr.pageName);
+                                    newpage = child.sourceNode.attr.pageName;
+                                    path = selpage;
+                                }
+                                
+                                if(sourceNode.nodeId){
+                                    oldpage =  this.sourceNode.setRelativeData(path);
+                                    genro.publish(sourceNode.nodeId+'_selected',oldpage+'_hide',oldpage,false);
+                                }
+                                this.sourceNode.setRelativeData(path,newpage);
+                                if(sourceNode.nodeId){
+                                    genro.publish(sourceNode.nodeId+'_selected',newpage+'_show',newpage,true);
                                 }
                             }
                         }));
@@ -1100,8 +1110,7 @@ dojo.declare("gnr.widgets.FloatingPane",gnr.widgets.baseDojo,{
 dojo.declare("gnr.widgets.ColorPicker",gnr.widgets.baseDojo,{
    created: function(widget, savedAttrs, sourceNode){
         dojo.connect(widget,'onChange',function(){console.log(arguments);});
-    },
-    
+    }
 });   
 dojo.declare("gnr.widgets.ColorPalette",gnr.widgets.baseDojo,{
    created: function(widget, savedAttrs, sourceNode){
@@ -1119,7 +1128,7 @@ dojo.declare("gnr.widgets.ColorPalette",gnr.widgets.baseDojo,{
 dojo.declare('gnr.widgets.AccordionPane',gnr.widgets.baseDojo,{
      constructor: function(application){
         this._domtag = '*';
-        var dojotag = dojo_version>'1.4'? 'ContentPane':'AccordionPane'
+        var dojotag = dojo_version>'1.4'? 'ContentPane':'AccordionPane';
         this._dojotag = dojotag;
         this._basedojotag = dojotag;
     }
@@ -2369,8 +2378,8 @@ dojo.declare("gnr.widgets.VirtualStaticGrid",gnr.widgets.Grid,{
     },
 
     attributes_mixin_get: function(inRowIndex){
-        var rowdata=this.grid.rowCached(inRowIndex)
-        return this._customGetter?this._customGetter.call(this,rowdata):rowdata[this.field]
+        var rowdata=this.grid.rowCached(inRowIndex);
+        return this._customGetter?this._customGetter.call(this,rowdata):rowdata[this.field];
     },
     
     mixin_rowCached:function(inRowIndex){
@@ -2488,7 +2497,7 @@ dojo.declare("gnr.widgets.VirtualStaticGrid",gnr.widgets.Grid,{
         }
         this.updateRowCount();
         this.selection.unselectAll();
-        this.selectionKeeper('load')
+        this.selectionKeeper('load');
         if(this.autoSelect && (this.selection.selectedIndex<0)){
             var sel = this.autoSelect==true? 0:this.autoSelect();
             this.selection.select(sel);
@@ -3839,6 +3848,7 @@ dojo.declare("gnr.widgets.Tree",gnr.widgets.baseDojo,{
                     this._expandNode(treeNode);
                 };
             }
+            
         };
 
         
