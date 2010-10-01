@@ -78,7 +78,7 @@ Attributes
 	| ``invalidMessage``  | Tooltip text that appears when the content of   |  ``Il valore immesso non è valido.`` |
 	|                     | the text box is invalid                         |                                      |
 	+---------------------+-------------------------------------------------+--------------------------------------+
-	| ``promptMessage``   | Tooltip text that appears when the text box is  |  ``None`                             |
+	| ``promptMessage``   | Tooltip text that appears when the text box is  |  ``None``                            |
 	|                     | empty and on focus                              |                                      |
 	+---------------------+-------------------------------------------------+--------------------------------------+
 	| ``required``        | Whether the field is required or not            |  ``false``                           |
