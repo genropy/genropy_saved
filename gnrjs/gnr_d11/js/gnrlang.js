@@ -748,6 +748,16 @@ function macroExpand_FIRE_AFTER(fnc){
     fnc = fnc.replace(/;FIRE_AFTER/g,'; FIRE_AFTER').replace(macroSET, "$1this.setRelativeData('$2', true, null, true,null,10)$3 ");
     return fnc;
 }
+
+function macroExpand_PUBLISH(fnc){
+    var macroSET = /(\W|^)PUBLISH (?:\s*)(\^?[\w\.\#\@\$\?-]+)(?:\s*)=(?:\s*)([^;\r\n]*)(;?)/g;
+    fnc = fnc.replace(/;PUBLISH/g,'; PUBLISH').replace(macroSET, "$1genro.publish('$2', $3,true)$4 ");
+    
+    var macroSET = /(\W|^)PUBLISH (?:\s*)(\^?[\w\.\#\@\$\?-]+)(?:\s*)(;?)/g;
+    fnc = fnc.replace(/;PUBLISH/g,'; PUBLISH').replace(macroSET, "$1genro.publish('$2')$3 ");
+    return fnc;
+}  
+
 function cleanJsCode(code){
     return code.replace(/\n/g,'').replace(/;(\s)+/g,';');
 }
@@ -818,6 +828,7 @@ function funcCreate(fnc, pars, scope){
             fnc = macroExpand_SET(fnc);
             fnc = macroExpand_PUT(fnc);
             fnc = macroExpand_FIRE_AFTER(fnc);
+            fnc = macroExpand_PUBLISH(fnc);
             fnc = macroExpand_FIRE(fnc);
             if (!stringStartsWith(fnc, 'function')){
                 fnc = 'function('+pars+'){'+fnc+'}';

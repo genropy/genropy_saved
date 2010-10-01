@@ -158,6 +158,7 @@ dojo.declare("gnr.GnrDomSourceNode",gnr.GnrBagNode,{
         if ((kw && kw.reason == 'autocreate' )||( _userChanges && trigger_reason!='node')){
             return;
         }
+        objectExtract(attributes,'subscribe_*');
         var tag=objectPop(attributes,'tag');
         var path=objectPop(attributes,'path');
         objectPop(attributes,'_onStart');
@@ -193,12 +194,11 @@ dojo.declare("gnr.GnrDomSourceNode",gnr.GnrBagNode,{
                 console.log(expr);
             }
         }
-        var argValues=[node, {'kw':kw, 'trigger_reason':trigger_reason}];
-        var argNames=['_node', '_triggerpars']; //_node is also in _triggerpars.kw.node: todo remove (could be used as $1)
+        var argValues=[node, {'kw':kw, 'trigger_reason':trigger_reason},trigger_reason];
+        var argNames=['_node', '_triggerpars','_reason']; //_node is also in _triggerpars.kw.node: todo remove (could be used as $1)
         var kwargs={};
         if (subscription_args){
-            console.log(trigger_reason);
-            argNames.push(trigger_reason.split(':')[1]);
+            argNames.push(trigger_reason);
             argValues.push(subscription_args);
         }
         var val;
@@ -927,7 +927,7 @@ dojo.declare("gnr.GnrDomSourceNode",gnr.GnrBagNode,{
             var subscriptions = objectExtract(attributes,'subscribe_*');
             for (var subscription in subscriptions) {
                 var cb=function(node,trigger_reason){
-                    var reason='subscription:'+trigger_reason;
+                    var reason=trigger_reason;
                      dojo.subscribe(subscription, this, function(){
                        node.setDataNodeValue(null,{},reason,arguments);
                 });}

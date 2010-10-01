@@ -24,7 +24,6 @@ class GnrCustomWebPage(object):
 
     def test_3_publish_double_subscription(self,pane):
         pane.button('publish a',action='PUBLISH pressed_a = "bau","miao"')
-        pane.button('publish b',action='PUBLISH pressed_b = "tau"')
-
-        pane.dataController("console.log(arguments)",
+        pane.button('publish b',action='PUBLISH pressed_b;')
+        pane.dataController("if(_reason=='pressed_a'){console.log('you pressed a '+pressed_a[0])}else{console.log('you pressed b '+pressed_b[0])}",
                             subscribe_pressed_a=True,subscribe_pressed_b=True)
