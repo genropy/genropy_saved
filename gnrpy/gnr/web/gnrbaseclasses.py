@@ -95,8 +95,6 @@ class BaseResourceBatch(object):
     batch_delay = 0.5
     batch_note = None
     batch_steps = None #'foo,bar'
-    
-
 
     def __init__(self,page=None,resource_table=None):
         self.page = page
@@ -106,12 +104,12 @@ class BaseResourceBatch(object):
     def __call__(self,batch_note=None,**kwargs):
         self.batch_parameters = kwargs
         self.batch_note = batch_note
-        if True: #try:
+        try:
             self.run()
-       #except self.btc.exception_stopped:
-       #   self.btc.batch_aborted()
-       #except Exception, e:
-       #   self.btc.batch_error(error=str(e))
+        except self.btc.exception_stopped:
+           self.btc.batch_aborted()
+        except Exception, e:
+           self.btc.batch_error(error=str(e))
         self.btc.batch_complete(self.result_handler())
     
     def run(self):
@@ -161,8 +159,20 @@ class BaseResourceAction(BaseResourceBatch):
     pass
     
 class BaseResourceMail(BaseResourceBatch):
-    pass
-    
+    def __init__(self,*args,**kwargs):
+        super(BaseResourceMail,self).__init__(**kwargs)
+        self.mail_handler = self.page.getService('mail')
+        self.mail_pars = dict()
+        
+        
+    def send_one_mail(self, chunk, **kwargs):
+        mp = self.mail_pars
+        self.mail_handler.sendmail_template(chunk, to_address=mp['to_address'] or chunk[self.doctemplate['meta.to_address']],
+                         body=self.doctemplate['content'],subject=self.doctemplate['meta.subject'],
+                         cc_address=mp['cc_address'], bcc_address=mp['bcc_address'], from_address=mp['from_address'], 
+                         attachments=mp['attachments'], account=mp['account'],
+                         host=mp['host'], port=mp['port'], user=mp['user'], password=mp['password'],
+                         ssl=mp['ssl'], tls=mp['tls'], html=True,  async=True)
     
 class BaseResourcePrint(BaseResourceBatch):
     pass
