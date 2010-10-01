@@ -926,10 +926,12 @@ dojo.declare("gnr.GnrDomSourceNode",gnr.GnrBagNode,{
             var onStart = objectPop(attributes,'_onStart');
             var subscriptions = objectExtract(attributes,'subscribe_*');
             for (var subscription in subscriptions) {
-                var trigger_reason = 'subscription:'+subscription;
-                dojo.subscribe(subscription, this, function(){
-                    this.setDataNodeValue(null,{},trigger_reason,arguments);
-                });
+                var cb=function(node,trigger_reason){
+                    var reason='subscription:'+trigger_reason;
+                     dojo.subscribe(subscription, this, function(){
+                       node.setDataNodeValue(null,{},reason,arguments);
+                });}
+                cb(this,subscription) ;         
             };
             if (onStart){
                 this.attr._fired_onStart='^gnr.onStart';
