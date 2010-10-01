@@ -481,11 +481,17 @@ class GnrWebAppHandler(GnrBaseProxy):
             else:
                 selectionName=selectionName[1:]
         elif selectionName:
-            newSelection=False
+            selection = self.page.unfreezeSelection(tblobj, selectionName)
+            if selection is not None:
+                if ','.join( selection.sortedBy or [])!= sortedBy:
+                    selection.sort(sortedBy)
+                    selection.freezeUpdate()
+                debug='fromPickle'
+                resultAttributes={}
+                newSelection=False            
         if newSelection:
             debug='fromDb'
             if selectmethod:
-                
                 selecthandler = self.page.getPublicMethod(selectmethod_prefix, selectmethod)
             else:
                 selecthandler = self._default_getSelection   
@@ -504,13 +510,6 @@ class GnrWebAppHandler(GnrBaseProxy):
                 self.page.freezeSelection(selection,selectionName)
             resultAttributes=dict(table=table, method='app.getSelection',selectionName=selectionName, row_count=row_count,
                                                totalrows=len(selection))
-        else:
-            selection = self.page.unfreezeSelection(tblobj, selectionName)
-            if ','.join( selection.sortedBy or [])!= sortedBy:
-                selection.sort(sortedBy)
-                selection.freezeUpdate()
-            debug='fromPickle'
-            resultAttributes={}
         generator = selection.output(mode='generator',offset=row_start,limit=row_count, formats=formats)
         _addClassesDict = dict([(k,v['_addClass']) for k,v in selection.colAttrs.items() if '_addClass' in v])
         data = self.gridSelectionData(selection, generator, logicalDeletionField=tblobj.logicalDeletionField,

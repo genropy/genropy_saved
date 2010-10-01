@@ -174,7 +174,7 @@ class GnrBaseWebPage(GnrObject):
         if isinstance(dbtable, basestring):
             dbtable = self.db.table(dbtable)
         selection = self.db.unfreezeSelection(self.pageLocalDocument(name))
-        if dbtable:
+        if dbtable and selection is not None:
             assert dbtable == selection.dbtable, 'unfrozen selection does not belong to the given table'
         return selection
     
