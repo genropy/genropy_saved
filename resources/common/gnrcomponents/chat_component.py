@@ -10,40 +10,24 @@ from datetime import datetime
 
 class ChatComponent(BaseComponent):
     py_requires='foundation/includedview:IncludedView'
-    def pbl_left_chat(self,pane,footer=None,toolbar=None):
-        "Chat"
-        footer.button('!!Chat',showLabel=False,
-             action="""SET gnr.chat.buttonIcon = 'icnBuddy';
-                        SET pbl.left_stack = "chat";
-                        """,
-             iconClass='^gnr.chat.buttonIcon',default_iconClass='icnBuddy',float='right',nodeId='ct_button_footer')
-        footer.dataRpc('dummy','setStoreSubscription',subscribe='==_selected_stack=="chat"',
-                    _selected_stack='^pbl.left_stack',storename='user',client_path='gnr.chat.msg')
+    
+    def ct_controller_main(self,pane):
         
-        footer.dataController("""
-                            console.log(_node);
-                            genro.rpc.setPolling(2,2);
-                            SET gnr.chat.buttonIcon = 'icnBuddyChat'
-                            """,user="^gnr.chat.room_alert",
-                            _if='selected_stack!="chat"',_else='genro.rpc.setPolling();',
-                            selected_stack='=pbl.left_stack')
+        pane.dataRpc('dummy','setStoreSubscription',subscribe_ct_chat_open=True,
+                    storename='user',client_path='gnr.chat.msg',active=True,
+                    _onResult='genro.rpc.setPolling(2,2);')
+        pane.dataRpc('dummy','setStoreSubscription',active=False,subscribe_ct_chat_close=True,
+                    _onResult='genro.rpc.setPolling();')
+                    
+        pane.dataController("genro.playSound('NewMessage'); PUBLISH ct_room_alert = user;",user="^gnr.chat.room_alert")
         
-        ttdialog = toolbar.dropDownButton(label='User').tooltipDialog(title='!!Users list',datapath='gnr.chat',nodeId='ct_chat_list_users_dlg',
-                                                                     connect_onOpen='genro.wdgById("ct_chat_list_users").resize(); FIRE .listusers;'
-                                                                     ).borderContainer(height='300px',width='250px',nodeId='ct_chat_list_users')        
-        self.ct_chat_grid(ttdialog)
-        self.ct_chat_form(pane.borderContainer(datapath='gnr.chat'))
-
-        
+    
     def ct_chat_form(self,bc):
+        self.ct_controller_main(bc)
+        
         bc.dataController("""SET gnr.chat.curr_address = 'gnr.chat.rooms.'+user;
                                """,user='^#ct_connected_user_grid.selectedId',
                                _if='user',_else='SET gnr.chat.disabled=true;')
-
-
-        bc.dataController("""if(_node.attr._new_datachange){
-                                genro.playSound("NewMessage");
-                            }""",_fired="^gnr.chat.msg")
         bc.script("""
                     var ct_chat_utils = {};
                     ct_chat_utils.open_chat = function(user){

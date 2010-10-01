@@ -18,8 +18,7 @@ class Public(BaseComponent):
     py_requires = """foundation/menu:Menu,
                      foundation/dialogs,
                      foundation/macrowidgets,
-                     gnrcomponents/chat_component:ChatComponent,
-                     gnrcomponents/batch_monitor/batch_monitor:BatchMonitor"""
+                     public_batch,public_chat"""
     
         
     def userRecord(self,path=None):
@@ -34,8 +33,9 @@ class Public(BaseComponent):
         pass
         
     def mainLeftContent(self,parentBC,**kwargs):
-        sc = parentBC.stackContainer(width='20%',selectedPage='^pbl.left_stack',
-                                    _class='menupane',overflow='hidden',**kwargs)
+        pane = parentBC.contentPane(**kwargs)
+        sc = pane.stackContainer(width='20%',selectedPage='^pbl.left_stack',nodeId='pbl_left_stack',
+                                    _class='menupane',overflow='hidden')
         sc.data('pbl.left_stack','menu')
         bc_main = sc.borderContainer(pageName='menu')
         bottom = bc_main.contentPane(region='bottom').toolbar(overflow='hidden',padding=0,padding_left='3px',padding_right='3px',font_size='.9em')
@@ -51,6 +51,13 @@ class Public(BaseComponent):
             top.div(float='right',margin='3px',_class='buttonIcon icnTabClose',
                     connect_onclick='genro.rpc.setPolling();SET pbl.left_stack="menu";')            
             cb(bc.contentPane(region='center',overflow='hidden'),footer=bottom,toolbar=top)
+        sc.dataController(""" var pageName = pbl_left_stack_selected[1];
+                              var isSelected =  pbl_left_stack_selected[2];
+                              if(pageName!='menu' && isSelected){
+                                    SET _clientCtx.mainBC.left?show = true;
+                              }
+                            """,
+                            subscribe_pbl_left_stack_selected=True)
 
     def pbl_preference_main(self,pane):
         #pane.img(_class='buttonIcon %s' %self.pbl_logoclass())

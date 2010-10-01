@@ -43,6 +43,7 @@ class TableHandlerToolbox(BaseComponent):
         tc = bc.tabContainer(region='center', selectedPage='^list.toolboxSelected',margin='5px',margin_top='10px')
         self.toolboxQueries(tc.borderContainer(title_tip='!!Queries',pageName='queries',iconClass='icnBaseLens',showLabel=False))
         self.toolboxViews(tc.borderContainer(title_tip='!!Views',pageName='views',iconClass='icnBaseView'))
+       
         self.toolboxFromResources(tc.contentPane(title_tip='!!Actions',pageName='actions',iconClass='icnBaseAction'),
                                 res_type='actions')
         self.toolboxFromResources(tc.contentPane(title_tip='Mails',pageName='mails',iconClass='icnBaseEmail'),res_type='mails')
@@ -70,7 +71,7 @@ class TableHandlerToolbox(BaseComponent):
                             FIRE .run_rpc_dispatcher; 
                             this.setRelativeData("list.toolbox."+res_type+".tree.path",null);
                             FIRE list.showToolbox = false;
-                            FIRE #bm_batch_monitor.open;
+                            PUBLISH bm_monitor_open;
                             """,_fired="^.run",res_type='=list.toolboxSelected')
         
         controller.dataRpc('.res_result','toolboxResourceDispatcher',
