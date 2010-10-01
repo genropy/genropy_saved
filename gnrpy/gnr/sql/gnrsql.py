@@ -437,6 +437,9 @@ class GnrSqlDb(GnrObject):
                 
     def unfreezeSelection(self, fpath):
         """it gets a pickled selection"""
+        filename = '%s.pik' % fpath
+        if not os.path.exists(filename):
+            return
         f = file('%s.pik' % fpath, 'r')
         selection = cPickle.load(f)
         f.close()
