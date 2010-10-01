@@ -106,11 +106,15 @@ class BaseResourceBatch(object):
         self.batch_note = batch_note
         try:
             self.run()
+            self.btc.batch_complete(self.result_handler())
         except self.btc.exception_stopped:
-           self.btc.batch_aborted()
+            self.btc.batch_aborted()
         except Exception, e:
-           self.btc.batch_error(error=str(e))
-        self.btc.batch_complete(self.result_handler())
+            if self.page.site.debug:
+                raise e
+            else:
+                self.btc.batch_error(error=str(e))
+        
     
     def run(self):
         self.btc.batch_create(batch_id='%s_%s' %(self.batch_prefix,self.page.getUuid()),
