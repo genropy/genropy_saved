@@ -60,6 +60,7 @@ class RecordDialog(BaseComponent):
         formId = formId or  '%s_form' % tableId
         
         assert dlgId != formId, "formId and dlgId must not be equal"
+
         
         disabled = disabled or '^form.locked'
         sqlContextName='sqlcontext_%s' %tableId
