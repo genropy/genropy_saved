@@ -927,13 +927,13 @@ dojo.declare("gnr.widgets.StackContainer",gnr.widgets.baseDojo,{
                                     path = selpage;
                                 }
                                 
-                                if(sourceNode.nodeId){
-                                    oldpage =  this.sourceNode.setRelativeData(path);
-                                    genro.publish(sourceNode.nodeId+'_selected',oldpage+'_hide',oldpage,false);
+                                if(sourceNode.attr.nodeId){
+                                    oldpage =  this.sourceNode.getRelativeData(path);
+                                    genro.publish(sourceNode.attr.nodeId+'_selected',oldpage+'_hide',oldpage,false);
                                 }
                                 this.sourceNode.setRelativeData(path,newpage);
-                                if(sourceNode.nodeId){
-                                    genro.publish(sourceNode.nodeId+'_selected',newpage+'_show',newpage,true);
+                                if(sourceNode.attr.nodeId){
+                                    genro.publish(sourceNode.attr.nodeId+'_selected',newpage+'_show',newpage,true);
                                 }
                             }
                         }));

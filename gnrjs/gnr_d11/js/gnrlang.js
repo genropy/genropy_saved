@@ -751,7 +751,7 @@ function macroExpand_FIRE_AFTER(fnc){
 
 function macroExpand_PUBLISH(fnc){
     var macroSET = /(\W|^)PUBLISH (?:\s*)(\^?[\w\.\#\@\$\?-]+)(?:\s*)=(?:\s*)([^;\r\n]*)(;?)/g;
-    fnc = fnc.replace(/;PUBLISH/g,'; PUBLISH').replace(macroSET, "$1genro.publish('$2', $3,true)$4 ");
+    fnc = fnc.replace(/;PUBLISH/g,'; PUBLISH').replace(macroSET, "$1genro.publish('$2', $3)$4 ");
     
     var macroSET = /(\W|^)PUBLISH (?:\s*)(\^?[\w\.\#\@\$\?-]+)(?:\s*)(;?)/g;
     fnc = fnc.replace(/;PUBLISH/g,'; PUBLISH').replace(macroSET, "$1genro.publish('$2')$3 ");
