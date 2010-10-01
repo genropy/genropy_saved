@@ -25,7 +25,7 @@ class GnrWebBatch(GnrBaseProxy):
     def on_authenticated(self,user):
         if not os.path.exists(self.page.userDocument('_batch_result')):
             return
-        batch_results = os.listdir(self.page.userDocument('_batch_result'))
+        batch_results = [x for x in os.listdir(self.page.userDocument('_batch_result')) if not x.startswith('.')]
         with self.page.userStore(user) as store:
             already_registered_batch = [dc.path.split('.')[2] for dc in store.datachanges if dc.path.startswith('gnr.batch')]
             for res_doc_name in batch_results:
