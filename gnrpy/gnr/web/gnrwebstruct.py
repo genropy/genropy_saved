@@ -420,9 +420,11 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
             struct = self.page.newGridStruct(maintable=table)
             rows = struct.view().rows()
             rows.fields(columns)
+        elif callable(struct) and not isinstance(struct,Bag):
+            struct = struct(self.page.newGridStruct(maintable=table))
         if struct:
             self.data(structpath,struct)
-        return self.child('includedView', storepath=storepath, structpath=structpath, nodeId=nodeId, **kwargs)
+        return self.child('includedView', storepath=storepath, structpath=structpath, nodeId=nodeId, table=table,**kwargs)
         
     def button(self,label=None,**kwargs):
         return self.child('button',label=label,**kwargs)

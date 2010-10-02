@@ -3130,7 +3130,7 @@ dojo.declare("gnr.widgets.IncludedView",gnr.widgets.VirtualStaticGrid,{
         attributes.rowCount=0;
         attributes.datamode = datamode;
         sourceNode.attr.nodeId = sourceNode.attr.nodeId || 'grid_' + sourceNode.getStringId();
-        var structAsBag = genro.getData(sourceNode.absDatapath(sourceNode.attr.structpath));
+        var structAsBag = sourceNode.getRelativeData(sourceNode.attr.structpath);
         attributes.query_columns=this.getQueryColumns(sourceNode, structAsBag)
         attributes.structure = this.structFromBag(structAsBag, attributes.cellmap);
         //if (attributes.query_columns){

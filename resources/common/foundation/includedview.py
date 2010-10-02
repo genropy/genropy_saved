@@ -164,12 +164,12 @@ class IncludedView(BaseComponent):
             gridcenter = getattr(self,centerPaneCb)(parentBC,region='center', datapath=controllerPath, **box_pars)
         else:
             gridcenter = parentBC.contentPane(region='center',datapath=controllerPath, **box_pars)
-        if not 'columns' in viewPars:
-            struct =  viewPars.get('struct',None)
-            if struct and callable(struct) and not isinstance(struct,Bag):
-                gridStruct = self.newGridStruct(table)
-                struct = struct(gridStruct)
-                viewPars['struct'] = struct or gridStruct
+        #if not 'columns' in viewPars:
+        #    struct =  viewPars.get('struct',None)
+        #    if struct and callable(struct) and not isinstance(struct,Bag):
+        #        gridStruct = self.newGridStruct(table)
+        #        struct = struct(gridStruct)
+        #        viewPars['struct'] = struct or gridStruct
         viewPars['structpath'] = viewPars.get('structpath') or '.struct'  or 'grids.%s.struct' %nodeId
         if filterOn is True:
             gridcenter.dataController("""var colsMenu = new gnr.GnrBag();

@@ -7,7 +7,10 @@
 
 """Test batch handler"""
 class GnrCustomWebPage(object):
-    py_requires="gnrcomponents/testhandler:TestHandlerFull,gnrcomponents/batch_handler/batch_handler:TableScriptRunner,gnrcomponents/batch_handler/batch_handler:BatchMonitor"
+    py_requires="""gnrcomponents/testhandler:TestHandlerFull,
+                   gnrcomponents/batch_handler/batch_handler:TableScriptRunner,
+                   gnrcomponents/batch_handler/batch_handler:BatchMonitor,
+                   gnrcomponents/grid_configurator/grid_configurator:GridConfigurator"""
 
     maintable='glbl.localita'
     defaultscript='localita_script'
@@ -15,8 +18,7 @@ class GnrCustomWebPage(object):
     def windowTitle(self):
         return 'Test Batch Handler'
     
-    def loc_struct(self):
-        struct = self.newGridStruct()
+    def loc_struct(self,struct):
         r = struct.view().rows()
         r.fieldcell('nome', name='Nome', width='10em')
         r.fieldcell('provincia', name='Provincia', width='10em')
@@ -34,7 +36,7 @@ class GnrCustomWebPage(object):
         viewpane.dataSelection('.selection',self.maintable,where="$nome ILIKE :seed || '%%'",seed='^.#parent.start',
                             columnsFromView='mygrid',
                             selectionName='*currsel',selectionId='mainselection')
-        viewpane.includedView(storepath='.selection',struct=self.loc_struct(),nodeId='mygrid')
+        viewpane.includedView(storepath='.selection',struct=self.loc_struct,nodeId='mygrid',table=self.maintable,datamode='bag')
         
     def test_1_launch_button(self,pane):
         """Launch test from button"""
@@ -46,26 +48,8 @@ class GnrCustomWebPage(object):
         """Launch test from tree"""
         box = pane.div(datapath='test2',height='200px')
         self.table_script_resource_tree(box,res_type='action',table=self.maintable,gridId='mygrid',selectionName='currsel')
+
+
+
         
-    def onMain_grid_configurator(self):
-        page = self.pageSource()
-        root=page.div(nodeId='grid_configurator_root',datapath='gnr.plugin.grid_configurator')
-        root.dataController("""var e=grid_configurator[1];
-                               var grid=e.grid;
-                               var cell=e.cell;
-                               var attr=grid.sourceNode.attr;
-                               console.log(e);
-                               SET .dialog.title='Grid configuration: '+attr.nodeId;
-                               FIRE .dialog.open;""",
-                               subscribe_grid_configurator=True)
-        dlg = self.simpleDialog(root,title='^.title',datapath='.dialog',height='300px',width='400px',
-                         cb_center=self.grid_configurator_dialog_center,dlgId='grid_configurator_dialog')
-                         
-                         
-    def grid_configurator_dialog_center(self,parentBc,**kwargs):
-        center=parentBc.contentPane(datapath='.pars',**kwargs)
-        center.div('my configurator')
-        center_attr = center.getNode('#0').attr
-        dlg_attr = center.parentNode.parentbag.parentNode.attr
-        dlg_attr['height'] = center_attr.get('height') or dlg_attr['height']
-        dlg_attr['width'] = center_attr.get('width') or dlg_attr['width']
+        
