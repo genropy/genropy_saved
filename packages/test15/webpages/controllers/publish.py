@@ -12,9 +12,14 @@ class GnrCustomWebPage(object):
          
     def test_1_publish_subscribe(self,pane):
         pane.textbox(value='^test')
-        pane.button('publish',action='genro.publish("pressed",arg,"miao")',arg='=test')
-        pane.dataController("console.log(arguments);console.log(pressed[0]); console.log(pressed[1]);",
-                            subscribe_pressed=True)
+        pane.button('publish',action='genro.publish("pressed",mypar,"foo")',mypar='=test',nodeId='BUTTON_1')
+        #the button use genro.publish to 'send a generic message' 'pressed' with par mypar and 'foo'
+        pane.dataController("""console.log('I receved subscription "pressed" ');
+                               console.log('first par was:'+pressed[0]);
+                               console.log('second par was:'+pressed[1]);""",
+                               subscribe_pressed=True)
+        # the data controlller is triggered by subscribe_pressed and receives an array 'pressed' that
+        # contains the published parameters
         #pane.div(subscribe_test_pressed='var args =arguments; genro.bp(args);')
     
     def test_2_publish_subscribe_button(self,pane):
