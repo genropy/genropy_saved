@@ -314,6 +314,7 @@ class IncludedView(BaseComponent):
         if table:
             selectionPars['table'] = table
             selectionPars['columns'] = selectionPars.get('columns') or '=.columns'
+            
         method = selectionPars.pop('method','app.getSelection')
         destpath = None
         if 'destpath' not in selectionPars:
