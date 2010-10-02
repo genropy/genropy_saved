@@ -24,7 +24,7 @@ class GridConfigurator(BaseComponent):
                                 FIRE .dialog.open;
                              """,
                                subscribe_grid_configurator=True)
-        dlg = self.simpleDialog(root,title='^.title',datapath='.dialog',height='300px',width='500px',
+        dlg = self.simpleDialog(root,title='^.title',datapath='.dialog',height='300px',width='600px',
                          cb_center=self.grid_configurator_dialog_center,dlgId='grid_configurator_dialog')
         dlg.dataController("""
                             grid_conf.from_struct_to_edit(genro.nodeById(gridId),currGridStruct);
@@ -37,17 +37,17 @@ class GridConfigurator(BaseComponent):
         top = bc.contentPane(region='top').toolbar()
         top.button('!!Add row',action='SET .data.struct_to_edit.#id = new gnr.GnrBag();')
         top.button('!!Del row')
-       #left = bc.contentPane(region='left',width='150px')
-       #left.dataRpc('.fieldstree','relationExplorer',table='^.table', omit='_',_onResult='FIRE .maketree')
-       #left.tree(storepath='.fieldstree',persist=False,
-       #             inspect='shift', labelAttribute='caption',
-       #             _class='fieldsTree',_fired='^.maketree',
-       #             hideValues=True,
-       #             getIconClass='if(node.attr.dtype){return "icnDtype_"+node.attr.dtype}',
-       #             dndController="dijit._tree.dndSource",
-       #             onDndDrop="function(){this.onDndCancel();}::JS",
-       #             checkAcceptance='function(){return false;}::JS',
-       #             checkItemAcceptance='function(){return false;}::JS')
+        left = bc.contentPane(region='left',width='150px')
+        left.dataRpc('.fieldstree','relationExplorer',table='^.table', omit='_',_onResult='FIRE .maketree')
+        left.tree(storepath='.fieldstree',persist=False,
+                    inspect='shift', labelAttribute='caption',
+                    _class='fieldsTree',_fired='^.maketree',
+                    hideValues=True,
+                    getIconClass='if(node.attr.dtype){return "icnDtype_"+node.attr.dtype}',
+                    dndController="dijit._tree.dndSource",
+                    onDndDrop="function(){this.onDndCancel();}::JS",
+                    checkAcceptance='function(){return false;}::JS',
+                    checkItemAcceptance='function(){return false;}::JS')
 
         iv = bc.contentPane(region='center',datapath='.data').includedView(storepath='.struct_to_edit',struct=self.grid_configurator_struct(),datamode='bag',
                                         nodeId='grid_configurator_grid',editorEnabled=True)
