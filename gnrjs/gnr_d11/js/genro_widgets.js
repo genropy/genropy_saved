@@ -2778,15 +2778,21 @@ dojo.declare("gnr.widgets.VirtualStaticGrid",gnr.widgets.Grid,{
     },
     
     mixin_onSetStructpath: function(structure){
-     var columns = gnr.columnsFromStruct(structure);
-        if(this.sourceNode.hiddencolumns){
-            columns = columns+','+this.sourceNode.hiddencolumns;
-        }
-        this.query_columns= columns;
-        if (this.rpcViewColumns){
-            this.rpcViewColumns.call();
-        }
-        //this.reload(); test
+    this.query_columns=this.gnr.getQueryColumns(this.sourceNode,structure)
+    if (this.rpcViewColumns){
+        this.rpcViewColumns.call();
+    }
+    
+     //var columns = gnr.columnsFromStruct(structure);
+     //   if(this.sourceNode.hiddencolumns){
+     //       columns = columns+','+this.sourceNode.hiddencolumns;
+     //   }
+     //   this.query_columns= columns;
+     //  
+     //  if (this.rpcViewColumns){
+     //      this.rpcViewColumns.call();
+     //  }
+     //  //this.reload(); test
     },
     
     mixin_absIndex: function(inRowIndex){
@@ -3105,14 +3111,13 @@ dojo.declare("gnr.widgets.IncludedView",gnr.widgets.VirtualStaticGrid,{
         sourceNode.registerDynAttr('storepath');
         var structpath = sourceNode.attr.structpath;
         sourceNode.registerDynAttr('structpath');
-        structure = genro.getData(sourceNode.absDatapath(sourceNode.attr.structpath));
         attributes.cellmap = {};
-        attributes.structure = this.structFromBag(structure, attributes.cellmap);
-        var columns = gnr.columnsFromStruct(structure);
-        if(hiddencolumns){
-            columns = columns+','+hiddencolumns;
-        }
-        attributes.query_columns= columns;
+        
+        //var columns = gnr.columnsFromStruct(structure);
+        //if(hiddencolumns){
+        //    columns = columns+','+hiddencolumns;
+        //}
+        //attributes.query_columns= columns;
         
         attributes.relation_path= relation_path;
         attributes.sqlContextName= inAttrs['sqlContextName'];
@@ -3125,12 +3130,27 @@ dojo.declare("gnr.widgets.IncludedView",gnr.widgets.VirtualStaticGrid,{
         attributes.rowCount=0;
         attributes.datamode = datamode;
         sourceNode.attr.nodeId = sourceNode.attr.nodeId || 'grid_' + sourceNode.getStringId();
-        if (attributes.query_columns){
-            var controllerPath = sourceNode.absDatapath() || 'grids.' + sourceNode.attr.nodeId;
-            sourceNode.setRelativeData(controllerPath+'.columns', attributes.query_columns);
-        }
+        var structAsBag = genro.getData(sourceNode.absDatapath(sourceNode.attr.structpath));
+        attributes.query_columns=this.getQueryColumns(sourceNode, structAsBag)
+        attributes.structure = this.structFromBag(structAsBag, attributes.cellmap);
+        //if (attributes.query_columns){
+        //    this.setQueryColumns()
+        //    var controllerPath = sourceNode.attr.controllerPath || 'grids.' + sourceNode.attr.nodeId;
+        //    sourceNode.setRelativeData(controllerPath+'.columns', attributes.query_columns);
+        //}
     },    
-    
+    getQueryColumns:function(sourceNode,structure){
+        var columns = gnr.columnsFromStruct(structure);
+        if(sourceNode.attr.hiddencolumns){
+            columns = columns+','+sourceNode.attr.hiddencolumns;
+        }
+        if (columns){
+            var controllerPath = sourceNode.attr.controllerPath || 'grids.' + sourceNode.attr.nodeId;
+            sourceNode.setRelativeData(controllerPath+'.columns', columns);
+        }
+        return columns
+    },
+
     created: function(widget, savedAttrs, sourceNode){
         this.created_common(widget, savedAttrs, sourceNode);
         var selectionId = sourceNode.attr['selectionId'] || sourceNode.attr.nodeId+'_selection';
@@ -3142,6 +3162,7 @@ dojo.declare("gnr.widgets.IncludedView",gnr.widgets.VirtualStaticGrid,{
         genro.src.afterBuildCalls.push(dojo.hitch(widget,'render'));
         //dojo.connect(widget, 'onSelected', widget,'_gnrUpdateSelect');
         dojo.connect(widget, 'modelAllChange', dojo.hitch(sourceNode ,this.modelAllChange));
+        dojo.connect(widget,'doheadercontextmenu',function(e){genro.publish('grid_configurator','open',e)})
         if (sourceNode.attr.editbuffer){
             sourceNode.registerDynAttr('editbuffer');
         }
@@ -3151,7 +3172,6 @@ dojo.declare("gnr.widgets.IncludedView",gnr.widgets.VirtualStaticGrid,{
         widget.rpcViewColumns();
         widget.updateRowCount('*');
     },
-
     mixin_structbag:function(){
         //return genro.getData(this.sourceNode.absDatapath(structpath));
         return genro.getData(this.sourceNode.absDatapath(this.sourceNode.attr.structpath));
