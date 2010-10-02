@@ -483,7 +483,7 @@ class GnrWebAppHandler(GnrBaseProxy):
         elif selectionName:
             selection = self.page.unfreezeSelection(tblobj, selectionName)
             if selection is not None:
-                if ','.join( selection.sortedBy or [])!= sortedBy:
+                if sortedBy and  ','.join(selection.sortedBy or [])!= sortedBy:
                     selection.sort(sortedBy)
                     selection.freezeUpdate()
                 debug='fromPickle'
