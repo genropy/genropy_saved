@@ -13,13 +13,19 @@ class BatchMonitor(BaseComponent):
     js_requires = 'gnrcomponents/batch_handler/batch_handler'
     css_requires = 'gnrcomponents/batch_handler/batch_handler'
         
+    def mainLeft_batch_monitor(self,tc):
+        """!!Batch"""
+        self.bm_monitor_pane(tc.contentPane(title='!!Batch',pageName='batch_monitor'))
+    
     def bm_monitor_pane(self,pane):
         pane.dataController("batch_monitor.on_datachange(_triggerpars.kw);",_fired="^gnr.batch")
-        pane.div(nodeId='bm_rootnode',_class='bm_rootnode',overflow='auto',height='100%')
-        pane.dataRpc('dummy','setStoreSubscription',subscribe_bm_monitor_open=True,
+        #dovrei modificare il clieant in modo che mi prenda l elemento di classe bm_rootnode visibile
+        # e gli appiccichi i termometri senza usare il node id
+        pane.div(nodeId='bm_rootnode',_class='bm_rootnode')
+        pane.dataRpc('dummy','setStoreSubscription',subscribe_batch_monitor_open=True,
                     storename='user',client_path='gnr.batch',active=True,
                     _onResult='genro.rpc.setPolling(1,1);')
-        pane.dataRpc('dummy','setStoreSubscription',active=False,subscribe_bm_monitor_close=True,
+        pane.dataRpc('dummy','setStoreSubscription',active=False,subscribe_batch_monitor_close=True,
                     _onCalling='genro.rpc.setPolling();',storename='user')
         
 class TableScriptRunner(BaseComponent):
@@ -39,12 +45,12 @@ class TableScriptRunner(BaseComponent):
                                     """,subscribe_table_script_run=True)
         plugin_main.dataRpc('dummy','table_script_run',
                 _fired='^.run',
-                _onCalling='PUBLISH bm_monitor_open;console.log($2)',
+                _onCalling='PUBLISH batch_monitor_open;',
                 pars='=.pars',resource='=.resource',
                 res_type='=.res_type',
                 table='=.table',
                 selectionName='=.selectionName',
-                selectedRowidx="=.selectedRowidx",subscribe_pippone=True)
+                selectedRowidx="=.selectedRowidx")
                 
         plugin_main.div().remote('table_script_parameters',
                             resource='=.resource',
