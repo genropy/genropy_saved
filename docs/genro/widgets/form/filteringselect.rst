@@ -15,6 +15,7 @@
 	- :ref:`filteringSelect-examples`
 	
 		- :ref:`bag-example`
+		
 		- :ref:`values-example`
 		
 	- :ref:`filteringSelect-attributes`
@@ -40,9 +41,9 @@ Where
 Description
 ===========
 
-	FilteringSelect's values are composed by a key and a value (like the Python dictionary's elements): user can chooses from values, while in :doc:`/common/datastore` the user's choice is saved through keys. User can also freely type text and partially matched values will be shown in a pop-up menu below the input text box.
+	FilteringSelect's values are composed by a key and a value (like the Python dictionary's elements): user can chooses from values, while in :doc:`/datastore` the user's choice is saved through keys. User can also freely type text and partially matched values will be shown in a pop-up menu below the input text box.
 	
-	If user types a wrong entry, that is a word that doesn't corresponds to any of the filteringSelect values, the key in :doc:`/common/datastore` will be saved as ``undefined``.
+	If user types a wrong entry, that is a word that doesn't corresponds to any of the filteringSelect values, the key in :doc:`/datastore` will be saved as ``undefined``.
 
 	.. _filteringSelect-examples:
 
@@ -51,12 +52,16 @@ Examples
 
 	The main two modes to fill a filteringSelect are:
 	
+	* Filling a filteringSelect through a Bag
+	* Filling a filteringSelect through "values" attribute
+	
 	.. _bag-example:
 	
-Filling filteringSelect through a bag
-=====================================
+Filling a filteringSelect through a Bag
+=======================================
 
-		Example::
+	In this example we show you how to fill a filteringSelect through a Bag (for further explanations, check :doc:`/bag/introduction`):
+		::
 
 			class GnrCustomWebPage(object):
 				def main(self,root,**kwargs):
@@ -81,8 +86,8 @@ Filling filteringSelect through a bag
 
 	.. _values-example:
 
-Filling filteringSelect through "values" attribute
-==================================================
+Filling a filteringSelect through "values" attribute
+====================================================
 
 		Example::
 
@@ -93,9 +98,9 @@ Filling filteringSelect through "values" attribute
 					                   values="""SC:Soccer,BK:Basket,HK:Hockey,
 					                             TE:Tennis,BB:Baseball,SB:Snowboard""")
 	
-	Pay attention not to confuse ``value`` with ``values``: ``value`` is used to allocate user data in a well determined ``datapath``, while ``values`` is used to fill the filteringSelect.
+	Pay attention not to confuse ``value`` with ``values``: ``value`` is used to allocate user data in a well determined :doc:`/common/datapath`, while ``values`` is used to fill the filteringSelect.
 	
-	Warning: unlike Dojo, actually filteringSelect doesn't warn user for its wrong insertion. You can add a warning for the user through a "validate" attribute.
+	Warning: unlike Dojo, actually filteringSelect doesn't warn user for its wrong insertion. You can add a warning for the user through a "validate" attribute (see :doc:`/validations/validations`).
 	
 	Let's see a demo:
 	

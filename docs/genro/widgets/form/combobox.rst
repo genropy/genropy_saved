@@ -42,7 +42,7 @@ Description
 
 	Combobox is a graphical user widget that permits the user to select a value from multiple options.
 	
-	In combobox you have to provide a list of acceptable values (to upload these values, you can use two different ways: the Bag_-way and the values_-way). But like an input text field, user can also type whatever he wants. As the user types, partially matched values will be shown in a pop-up menu below the input text box.
+	In combobox you have to provide a list of acceptable values (to upload these values, you can use two different ways: the Bag_-way and the values_-way). As the user types, partially matched values will be shown in a pop-up menu below the input text box. Like an input text field, user can also type whatever he wants.
 	
 	So, the combobox is like a :doc:`filteringselect`; the difference is that combobox doesn't support keys.
 
@@ -107,7 +107,7 @@ Fill combobox through a Bag
 				mytable['r6.Description'] = 'Snowboard'
 				return mytable
 				
-	The advantage of using a Bag is that you can add attributes to your records, while the info onto ``id`` are lost. For get an example, check ???METTERE IL LINK GIUSTO QUANDO C'E' LA PAGINA.
+	The advantage of using a Bag is that you can add attributes to your records, while the info onto key values are lost. For get an example, check ???METTERE IL LINK GIUSTO QUANDO C'E' LA PAGINA.
 
 	The graphical result is the same of the values-way (see it here_).
 

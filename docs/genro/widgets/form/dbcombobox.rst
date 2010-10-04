@@ -1,6 +1,3 @@
-
-.. Use this file to create a new file for the documentation. Use "Find and replace" on "dbcombobox" to change the triple question mark in the name of the object you're going to document
-
 ============
  DbCombobox
 ============
@@ -38,7 +35,7 @@ Definition
 Where
 =====
 
-	You can find dbcombobox in *genro/gnrpy/...*
+	You can find dbcombobox in *genro/gnrpy/...* ???
 
 	.. _dbcombobox-description:
 
@@ -48,6 +45,25 @@ Description
 	The Genro dbCombobox is a :doc:`combobox` that conducts research on specific columns in a database table. As the user types, partially matched values will be shown in a pop-up menu below the input text box. The main feature is that dbCombobox, unlike the :doc:`dbselect`, permits to enter new values not yet in the database.
 
 	.. _dbcombobox-examples:
+
+
+	- attributi:
+			auxColumns 		--> visualizza nella tendina i parametri di ricerca (vuole obbligato columns)
+				       	    (campi di pura visualizzazione)
+			columns		--> query fields
+			limit='NUMBER'	--> pone il numero di campi visibili nel menu a scorrimento per la scelta
+					    	    (di default è limit='10')
+			alternatePkey=''	--> ???
+			lbl='nome'		--> the label… (dbSelect doesn't have "label" attribute!!)
+			zoom=True		--> serve per andare ad aprire il record collegato (all'id)
+						    nella sua standard table (di default zoom è True!!)
+
+	It's a filteringSelect that get data from a database's table.
+    
+    dbtable     The name of table you want to use as source
+    columns     what fields you use for your search
+    auxColumns  the columns you want to see but you don't want to search in
+
 
 Examples
 ========
