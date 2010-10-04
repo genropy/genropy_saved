@@ -916,8 +916,9 @@ dojo.declare("gnr.widgets.StackContainer",gnr.widgets.baseDojo,{
         if(selpath || selpage){
             var controller=widget.tablist || widget;
             var evt = (controller == widget) ? 'selectChild' :'onSelectChild';
+            
             dojo.connect(controller, evt, dojo.hitch(widget,function(child){
-                            if(!widget.sourceNode._isBuilding){
+                            if(child){
                                 if (selpath){
                                     newpage = this.getChildIndex(child);
                                     path = selpath;
@@ -927,7 +928,7 @@ dojo.declare("gnr.widgets.StackContainer",gnr.widgets.baseDojo,{
                                     path = selpage;
                                 }
                                 
-                                if(sourceNode.attr.nodeId){
+                                if(sourceNode.attr.nodeId && !widget.sourceNode._isBuilding){
                                     oldpage =  this.sourceNode.getRelativeData(path);
                                     genro.publish(sourceNode.attr.nodeId+'_selected',oldpage+'_hide',oldpage,false);
                                 }
