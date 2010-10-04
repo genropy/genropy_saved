@@ -7,6 +7,8 @@ Common attributes
 
 	attributes
 	datapath
+	dbtable
+	default
 	disabled
 	hidden
 	label
