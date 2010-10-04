@@ -1,4 +1,4 @@
-#!/usr/bin/env pythonw
+#!/usr/bin/env python
 # -*- coding: UTF-8 -*-
 #
 #  untitled
@@ -14,11 +14,13 @@ import os
 class Public(BaseComponent):
     """docstring for Public for common_d11: a complete restyling of Public of common_d10"""
     css_requires = 'public'
+    plugin_list = 'menu_plugin,batch_monitor,chat_plugin'
     js_requires = 'public'
     py_requires = """foundation/menu:Menu,
                      foundation/dialogs,
                      foundation/macrowidgets,
-                     public_batch:PublicBatchMonitor,public_chat:PublicChat,
+                     gnrcomponents/batch_handler/batch_handler:BatchMonitor,
+                     gnrcomponents/chat_component:ChatComponent,
                      gnrcomponents/grid_configurator/grid_configurator:GridConfigurator"""
     
         
@@ -29,12 +31,9 @@ class Public(BaseComponent):
                 user =  self.user
             self._userRecord=self.db.table('adm.user').record(username=user).output('bag')
         return self._userRecord[path]
-
-    def onMain_pbl(self):
-        pass
         
-    def mainLeftContent(self,parentBC,**kwargs):
-        pane = parentBC.contentPane(**kwargs)
+
+    def pbl_menupane(self,pane):
         sc = pane.stackContainer(width='20%',selectedPage='^pbl.left_stack',nodeId='pbl_left_stack',
                                     _class='menupane',overflow='hidden')
         sc.data('pbl.left_stack','menu')
@@ -61,11 +60,12 @@ class Public(BaseComponent):
                             """,
                             subscribe_pbl_left_stack_selected=True)
 
-    def pbl_preference_main(self,pane):
+    def onMain_pbl_preference(self):
+        pane = self.pageSource()
         #pane.img(_class='buttonIcon %s' %self.pbl_logoclass())
         if self.db.packages['adm']:
-            pane.dataController("""var frameId = prefCode=='app'?app+'_frame':user+'_frame';
-                                   console.log(frameId);
+            pane.dataController("""var prefCode = preference_open[0];
+                                   var frameId = prefCode=='app'?app+'_frame':user+'_frame';
                                    var frameWindow = genro.domById(frameId).contentWindow;
                                    if('genro' in frameWindow){
                                         frameWindow.genro.formById('preference').load();
@@ -76,8 +76,10 @@ class Public(BaseComponent):
                                     else if (prefCode=='user'){
                                         FIRE #userpreference.open;
                                     }
-                                    """,prefCode="^gnr.openPreference",app='mainpreference',
-                                    user='userpreference')
+                                    """,
+                                    app='mainpreference',
+                                    user='userpreference',
+                                    subscribe_preference_open=True)
                                     
             self.iframeDialog(pane,title='!!Application Preference',dlgId='mainpreference',src='/adm/app_preference',
                              cached=False,height='450px',width='800px',centerOn='_pageRoot',datapath='gnr.preference.application')
@@ -198,10 +200,7 @@ class Public(BaseComponent):
         left = top.contentPane(region='left',width='250px')
         top.data('_clientCtx.mainBC.left?show',self.pageOptions.get('openMenu',True))
         menubtn = left.div(_class='pbl_menu_icon buttonIcon', float='left',
-                            connect_onclick=""" var newStatus = !GET _clientCtx.mainBC.left?show
-                                                SET _clientCtx.mainBC.left?show = newStatus;
-                                                genro.publish('pbl_mainMenuStatus',newStatus);""",
-                            subscribe_pbl_mainMenu='SET _clientCtx.mainBC.left?show=$1;')
+                            connect_onclick="PUBLISH main_left_set_status= 'toggle';")
         self.pbl_topBarLeft(left)
         right = top.contentPane(region='right', width='250px', padding_top='5px', padding_right='8px')
         right.div(connect_onclick='genro.pageBack()', _class='goback',tooltip='!!Torna alla pagina precedente')
@@ -220,7 +219,7 @@ class Public(BaseComponent):
         if self.user:
             right.div(connect_onclick="genro.logout()", title="!!Logout",
                   _class='pbl_logout buttonIcon', content='&nbsp;', float='right')
-            right.div(content=self.user, float='right', _class='pbl_username buttonIcon',connect_onclick='FIRE gnr.openPreference="user";')
+            right.div(content=self.user, float='right', _class='pbl_username buttonIcon',connect_onclick='PUBLISH preference_open="user";')
 
         return center
 
