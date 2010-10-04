@@ -3,6 +3,5 @@
 =================
 
 .. toctree::
-	:numbered:
-	
+
 	data
