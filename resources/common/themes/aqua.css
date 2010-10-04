@@ -434,6 +434,31 @@
 
 /* @end */
 
+.main_left_tab{
+	background-color: rgba(168,181,182,0.8);
+	background-image:-webkit-gradient(linear, 0% 0%, 0% 90%, from(rgba(105,127,127,0.50)), to(rgba(192,192,192,0.9)));
+    background-image:-moz-linear-gradient(-90deg,rgba(105,127,127,0.50), rgba(192,192,192,0.9));
+	margin-right: 8px;
+	margin-top: 8px;
+	margin-bottom: 8px;
+	-moz-border-radius-topright:6px;
+	-moz-border-radius-bottomright:6px;
+    -webkit-border-bottom-right-radius:6px;
+    -webkit-border-top-right-radius:7px;
+	-moz-box-shadow:4px 4px 4px #403b3b;
+	-webkit-box-shadow:4px 4px 4px #403b3b;
+    border-left: 0px;
+}
+.main_left_tab .dijitTabPaneWrapper{
+    -moz-border-radius-bottomright:0px;
+    -webkit-border-bottom-right-radius:0px;
+    -moz-border-radius-bottomleft:0px;
+    -webkit-border-bottom-left-radius:0px;
+    background-color: rgba(168,181,182,0.8);
+    border:0px;
+}
+
+
 /* @group MenuTree */
 
 
