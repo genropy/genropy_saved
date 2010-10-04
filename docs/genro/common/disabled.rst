@@ -47,18 +47,18 @@ Index
 		class GnrCustomWebPage(object):
 			def main(self,root,**kwargs):
 				fb=root.formbuilder(datapath='test1',cols=3,fld_width='100%',width='100%',disabled='^disab')
-		        fb.checkbox(value='^disab',label='disable form')
-		        fb.textbox(value='^.name',lbl='Name')
-		        fb.textbox(value='^.surname',lbl='Surname')
-		        fb.numberTextbox(value='^.age',lbl="Age")
-		        fb.dateTextbox(value='^.birthdate',lbl='Birthdate')
-		        fb.filteringSelect(value='^.sex',values='M:Male,F:Female',lbl='Sex')
-		        fb.textbox(value='^.job.profession',lbl='Job')
-		        fb.textbox(value='^.job.company_name',lbl='Company name')
-				
-	Let's see its graphical result:
+				fb.checkbox(value='^disab',label='disable form')
+				fb.textbox(value='^.name',lbl='Name')
+				fb.textbox(value='^.surname',lbl='Surname')
+				fb.numberTextbox(value='^.age',lbl="Age")
+				fb.dateTextbox(value='^.birthdate',lbl='Birthdate')
+				fb.filteringSelect(value='^.sex',values='M:Male,F:Female',lbl='Sex')
+				fb.textbox(value='^.job.profession',lbl='Job')
+				fb.textbox(value='^.job.company_name',lbl='Company name')
+
+	Let's see a demo:
      
-	.. figure:: disabled.png
+	#NISO add online demo!
 	
 .. _standardTable:
 
