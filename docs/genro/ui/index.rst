@@ -1,3 +1,4 @@
+==============
 User interface
 ==============
 
@@ -12,4 +13,3 @@ Building Client-side pages
 .. toctree::
 
 	events
-
