@@ -10,13 +10,29 @@ from datetime import datetime
 
 class ChatComponent(BaseComponent):
     py_requires='foundation/includedview:IncludedView'
-    
+    def mainLeft_chat_plugin(self,tc):
+        """!!Chat"""
+        tc.dataController("SET gnr.chat.buttonIcon = 'icnBuddyChat';",subscribe_ct_room_alert=True,
+                            _if='selectedTab!="chat"',selectedTab='=.selected')
+        
+        self.ct_chat_main(tc.borderContainer(title='!!Chat',pageName='chat_plugin',
+                                            iconClass='^gnr.chat.buttonIcon',
+                                            default_iconClass='icnBuddy'))
+        
+    def ct_chat_main(self,bc):
+        toolbar = bc.contentPane(region='top').toolbar()
+        ttdialog = toolbar.dropDownButton(label='User').tooltipDialog(title='!!Users list',datapath='gnr.chat',nodeId='ct_chat_list_users_dlg',
+                                                                     connect_onOpen='genro.wdgById("ct_chat_list_users").resize(); FIRE .listusers;'
+                                                                     ).borderContainer(height='300px',width='250px',nodeId='ct_chat_list_users')
+        self.ct_chat_grid(ttdialog)
+        self.ct_chat_form(bc.borderContainer(region='center',datapath='gnr.chat'))
+
     def ct_controller_main(self,pane):
         
-        pane.dataRpc('dummy','setStoreSubscription',subscribe_ct_chat_open=True,
+        pane.dataRpc('dummy','setStoreSubscription',subscribe_chat_plugin_open=True,
                     storename='user',client_path='gnr.chat.msg',active=True,
                     _onResult='genro.rpc.setPolling(2,2);')
-        pane.dataRpc('dummy','setStoreSubscription',active=False,subscribe_ct_chat_close=True,storename='user',
+        pane.dataRpc('dummy','setStoreSubscription',active=False,subscribe_chat_plugin_close=True,storename='user',
                     _onCalling='genro.rpc.setPolling();')
                     
         pane.dataController("genro.playSound('NewMessage'); PUBLISH ct_room_alert = user;",user="^gnr.chat.room_alert")
