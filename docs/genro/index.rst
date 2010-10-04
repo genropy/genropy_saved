@@ -1,66 +1,29 @@
-.. GenroPy documentation master file, created by
-    sphinx-quickstart on Wed Jun 16 10:22:46 2010.
+.. GenroPy documentation master file, created by sphinx-quickstart on Wed Jun 16 10:22:46 2010.
 
-    Note from Roberto Lupi:
-        I write much faster in my mother tongue than in other languages.
-        I will write these documents in Italian, we can translate them to English later.
+.. Note from Roberto Lupi:
+.. I write much faster in my mother tongue than in other languages.
+.. I will write these documents in Italian, we can translate them to English later.
 
-GenroPy
+=======
+Genropy
 =======
 
-**Last update:** |today|
+:Release: |version|
+:Date: |today|
+:Last update: |today|
 
 .. Be careful with the code below. If you screw the indentation, the doc contents page will appear messed up!
 
-.. hlist::
+.. toctree::
+	:maxdepth: 3
+	:numbered:
 
-    *   Getting Started:
-
-        .. toctree::
-            :maxdepth: 2
-            :numbered:
-
-            installation
-            datastore
-            common/index
-            widgets/index
-            bag/index
-            datacontroller/index
-            ui/index
-
-    *   How to:
-
-        .. toctree::
-            :maxdepth: 2
-
-            print/index
-            howto/logging
-
-    *   Miscellaneous:
-
-        .. toctree::
-            :maxdepth: 2
-
-            linode_install
-            da-sistemare
-
-    *   Library Reference:
-
-        .. toctree::
-            :maxdepth: 2
-
-            core/index
-            app/index
-            sql/index
-
-    *   Component Reference:
-
-        .. toctree::
-            :maxdepth: 2
-
-            components/maturity-matrix
-            components/writing
-            components/index
+	getting_started
+	how_to
+	miscellaneous
+	library_reference
+	component_reference
+	genro_database_management
 
 Indices and Tables
 ==================
@@ -68,4 +31,3 @@ Indices and Tables
 * :ref:`genindex`
 * :ref:`modindex`
 * :ref:`search`
-
