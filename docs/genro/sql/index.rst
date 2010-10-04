@@ -5,8 +5,8 @@
 .. toctree::
     :maxdepth: 2
 
-    sql
-    data
-    model
-    table
-    utils
+	sql
+	data
+	model
+	table
+	utils
