@@ -16,8 +16,8 @@ And obtain the logger you're interesed in::
     log.warn('messaggio')
 
 
-Configurting logging in GenroPy
-*******************************
+Configuring logging in GenroPy
+******************************
 
 Formato::
 
