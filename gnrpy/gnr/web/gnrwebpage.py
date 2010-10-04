@@ -78,7 +78,6 @@ class GnrWebPage(GnrBaseWebPage):
         self._event_subscribers = {}
         self.local_datachanges = list()
         self.forked = False # maybe redefine as _forked
-        
         self.filepath = filepath
         self.packageId = packageId
         self.basename = basename
@@ -761,6 +760,18 @@ class GnrWebPage(GnrBaseWebPage):
                 self.debugger.right_pane(root)
                 self.debugger.bottom_pane(root)
                 self.mainLeftContent(root,region='left',splitter=True, nodeId='gnr_main_left')
+                root.dataController("""
+                                       var new_status = main_left_set_status[0];
+                                       new_status = new_status=='toggle'? !current_status:new_status;
+                                       if(new_status!=current_status){
+                                            SET _clientCtx.mainBC.left?show=new_status;
+                                            PUBLISH main_left_status = main_left_set_status[0];
+                                       }
+                                    """,subscribe_main_left_set_status=True,
+                                    current_status='=_clientCtx.mainBC.left?show')
+                
+                
+                
                 rootwdg = self.rootWidget(root, region='center', nodeId='_pageRoot')
                 self.main(rootwdg, **kwargs)
                 self.onMainCalls()
@@ -800,6 +811,37 @@ class GnrWebPage(GnrBaseWebPage):
             
     def onMain(self): #You CAN override this !
         pass
+        
+    def mainLeftContent(self,parentBC,**kwargs):
+        plugin_list = getattr(self,'plugin_list',None)
+        if not plugin_list:
+            return
+            
+        tc = parentBC.tabContainer(selectedPage='^.selected',_class='main_left_tab',
+                                    datapath='gnr.main_container.left',
+                                    tabPosition='bottom',**kwargs)        
+        for plugin in self.plugin_list.split(','):
+            cb = getattr(self,'mainLeft_%s' %plugin)
+            assert cb,'Plugin %s not found' %plugin
+            cb(tc)
+            tc.dataController("""
+                            var command = leftVisible && (selectedPage==plugin)?'open':'close';
+                            genro.publish(plugin+'_'+command);
+                            """,
+                        subscribe_gnr_main_left_selected=True,
+                        subscribe_main_left_status=True,
+                        selectedPage='=.selected',
+                        leftVisible='=_clientCtx.mainBC.left?show',
+                        plugin=plugin)
+            tc.dataController("""
+                            PUBLISH main_left_set_status = true;
+                            SET .selected=plugin;
+                          """,**{'subscribe_%s_open' %plugin:True,'plugin':plugin})
+    
+    def includeVirtualColumn(self,table,virtual_column):
+        """Add to the record loader for given table a virtual_column"""
+        with self.pageStore() as store:
+            store.setItem('tables.%s.virtual_columns.%s' %(table,virtual_column),True)
         
     def onMainCalls(self):
         calls = [m for m in dir(self) if m.startswith('onMain_')]
