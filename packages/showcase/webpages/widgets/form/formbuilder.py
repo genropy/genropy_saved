@@ -38,6 +38,7 @@ class GnrCustomWebPage(object):
         fb = pane.formbuilder(datapath='test1')
         fb.textbox(value='^.name',lbl='Name')
         fb.textbox(value='^.surname',lbl='Surname')
+        
     def test_2_structure(self,pane):
         """Formbuilder structure"""
         pane.div("""Every formbuilder column is splitted in two parts (left one and right one):

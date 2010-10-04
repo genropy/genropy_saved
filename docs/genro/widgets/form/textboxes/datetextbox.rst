@@ -6,17 +6,17 @@
 
 .. class:: dateTextbox -  Genropy dateTextbox
 
-	- :ref:`main-definition`
+	- :ref:`dateTextbox-definition`
 	
-	- :ref:`where-is-it-?`
+	- :ref:`dateTextbox-where`
 	
-	- :ref:`some-examples`
+	- :ref:`dateTextbox-examples`
 	
-	- :ref:`main-attributes`
+	- :ref:`dateTextbox-attributes`
 	
-	- :ref:`common-attributes`
+	- :ref:`dateTextbox-other-attributes`
 	
-	.. _main-definition:
+	.. _dateTextbox-definition:
 
 Definition
 ==========
@@ -25,14 +25,14 @@ Definition
     
 	- sintax: GG/MM/AAAA
 	
-	.. _where-is-it-?:
+	.. _dateTextbox-where:
 
 Where
 =====
 
 	#NISO ???
 
-	.. _some-examples:
+	.. _dateTextbox-examples:
 
 Examples
 ========
@@ -43,11 +43,11 @@ Examples
 			def main(self,root,**kwargs):
 				root.dateTextbox(value='^dateTextbox',popup=True)
 		
-	Let's see its graphical result:
+	Let's see a demo:
 
-	.. figure:: ???.png
+	#NISO add online demo!
 
-	.. _main-attributes:
+	.. _dateTextbox-attributes:
 
 Attributes
 ==========
@@ -62,7 +62,7 @@ Attributes
 	| ``popup``             | allow to show a calendar dialog                         |  ``True``   |
 	+-----------------------+---------------------------------------------------------+-------------+
 	
-	.. _common-attributes:
+	.. _dateTextbox-other-attributes:
 
 Common attributes
 =================

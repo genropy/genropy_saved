@@ -21,6 +21,7 @@ GenroPy
             :numbered:
 
             installation
+            datastore
             common/index
             widgets/index
             bag/index

@@ -6,11 +6,11 @@
 
 .. class:: textbox -  Genropy textbox
 
-	- :ref:`main-introduction`
+	- :ref:`textboxes-introduction`
 
-	- :ref:`common-attributes`
+	- :ref:`textboxes-attributes`
 
-	.. _main-introduction:
+	.. _textboxes-introduction:
 
 Definition
 ==========
@@ -31,7 +31,7 @@ Definition
 
 	The main feature of each of these textboxes is that Genro combines Dojo's textboxes with HTML's textboxes.
 
-	.. _common-attributes:
+	.. _textboxes-attributes:
 
 Common attributes
 =================
@@ -51,5 +51,5 @@ Common attributes
 	|                    | See :doc:`/common/hidden`                       |                          |
 	+--------------------+-------------------------------------------------+--------------------------+
 	| ``value``          | Set a path for textbox's value.                 |  ``None``                |
-	|                    | For more details, see :doc:`/common/datastore`  |                          |
+	|                    | For more details, see :doc:`/common/datapath`   |                          |
 	+--------------------+-------------------------------------------------+--------------------------+

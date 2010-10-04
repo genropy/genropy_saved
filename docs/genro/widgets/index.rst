@@ -14,6 +14,7 @@
 	form/checkbox
 	form/combobox
 	form/dbcombobox
+	form/dbselect
 	form/dropdownbutton
 	form/field
 	form/filteringselect

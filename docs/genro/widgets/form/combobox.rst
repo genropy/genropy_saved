@@ -70,9 +70,9 @@ Fill combobox through "values" attribute
 
 	.. _here:
 
-	Let's see its graphical result:
+	Let's see a demo:
 
-	.. figure:: combobox.png
+	#NISO add online demo!
 
 	.. _Bag:
 
@@ -142,5 +142,5 @@ Common attributes
 	|                    | See :doc:`/common/hidden`                       |                          |
 	+--------------------+-------------------------------------------------+--------------------------+
 	| ``value``          | Set a path for combobox's values.               |  ``None``                |
-	|                    | For more details, see :doc:`/common/datastore`  |                          |
+	|                    | For more details, see :doc:`/common/datapath`   |                          |
 	+--------------------+-------------------------------------------------+--------------------------+

@@ -30,14 +30,15 @@ class GnrCustomWebPage(object):
         pane.data('bag',self.sports(),id='.pkey',caption='.Description')
         fb = pane.formbuilder(datapath='test1',cols=2)
         fb.filteringSelect(value='^.values',
-                           values='SC:Soccer,BK:Basket,HK:Hockey,TE:Tennis,BB:Baseball,SB:Snowboard')
+                           values="""SC:Soccer,BK:Basket,HK:Hockey,
+                                     TE:Tennis,BB:Baseball,SB:Snowboard'""")
         fb.div("""Values loaded through "values" attribute.""",
                 font_size='.9em',text_align='justify')
         
     def test_2_bag(self,pane):
         """Bag example"""
         fb = pane.formbuilder(datapath='test2',cols=2)
-        fb.filteringSelect(value='^.bag',storepath='bag')
+        fb.filteringSelect(value='^.value_bag',storepath='bag')
         fb.div("""Values loaded through a Bag.""",
                 font_size='.9em',text_align='justify')
         

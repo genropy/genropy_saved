@@ -67,9 +67,9 @@ Examples
 			dmenu.menuline('-')
 			dmenu.menuline('Quit',action="alert('Quitting...')")
 
-	Let's see its graphical result:
+	Let's see a demo:
 
-	.. figure:: dropdownbutton.png
+	#NISO add online demo!
 	
 	.. _dropdownbutton-attributes:
 

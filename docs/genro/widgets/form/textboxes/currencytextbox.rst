@@ -6,31 +6,31 @@
 
 .. class:: currencyTextbox -  Genropy currencyTextbox
 
-	- :ref:`main-definition`
+	- :ref:`currencyTextbox-definition`
 	
-	- :ref:`where-is-it-?`
+	- :ref:`currencyTextbox-where`
 	
-	- :ref:`some-examples`
+	- :ref:`currencyTextbox-examples`
 	
-	- :ref:`main-attributes`
+	- :ref:`currencyTextbox-attributes`
 	
-	- :ref:`common-attributes`
+	- :ref:`currencyTextbox-other-attributes`
 	
-	.. _main-definition:
+	.. _currencyTextbox-definition:
 
 Definition
 ==========
 
     The currencyTextbox inherits all the attributes and behaviors of the numberTextbox widget but are specialized for input monetary values, much like the currency type in spreadsheet programs.
 
-	.. _where-is-it-?:
+	.. _currencyTextbox-where:
 
 Where
 =====
 
 	#NISO ???
 
-	.. _some-examples:
+	.. _currencyTextbox-examples:
 
 Examples
 ========
@@ -41,11 +41,11 @@ Examples
 			def main(self,root,**kwargs):
 				root.currencyTextBox(value='^amount',default=1123.34,currency='EUR',locale='it')
 	
-	Let's see its graphical result:
+	Let's see a demo:
 
-	.. figure:: ???.png
+	#NISO add online demo!
 
-	.. _main-attributes:
+	.. _currencyTextbox-attributes:
 
 Attributes
 ==========
@@ -64,7 +64,7 @@ Attributes
 	| ``text_align``        | CSS attribute                                           |  ``right``  |
 	+-----------------------+---------------------------------------------------------+-------------+
 
-	.. _common-attributes:
+	.. _currencyTextbox-other-attributes:
 
 Common attributes
 =================

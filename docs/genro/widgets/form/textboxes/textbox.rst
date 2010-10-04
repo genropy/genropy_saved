@@ -6,42 +6,42 @@
 
 .. class:: textbox -  Genropy textbox
 
-	- :ref:`main-definition`
+	- :ref:`textbox-definition`
 
-	- :ref:`where-is-it-?`
+	- :ref:`textbox-where`
 
-	- :ref:`A-brief-description`
+	- :ref:`textbox-description`
 
-	- :ref:`some-examples`
+	- :ref:`textbox-examples`
 
-	- :ref:`main-attributes`
+	- :ref:`textbox-attributes`
 	
-	- :ref:`common-attributes`
+	- :ref:`textbox-other-attributes`
 
-	.. _main-definition:
+	.. _textbox-definition:
 
 Definition
 ==========
 
-	Textbox is a form widget used to insert data. Genro textbox is taken from Dojo ValidationTextBox (version 1.5; to show it, click here_.), so it supports all of Dojo ValidationTextBox attributes (explained below_).
+	Textbox is a form widget used to insert data.
 
 	.. _here: http://docs.dojocampus.org/dijit/form/ValidationTextBox
 	
-	.. _where-is-it-?:
+	.. _textbox-where:
 
 Where
 =====
 
 	#NISO ???
 	
-	.. _A-brief-description:
+	.. _textbox-description:
 
 Description
 ===========
 
-	Textbox is used to insert a text.
+	Textbox is used to insert a text. Genro textbox is taken from Dojo ValidationTextBox (version 1.5; to show it, click here_.), so it supports all of Dojo ValidationTextBox attributes (explained below_).
 	
-	.. _some-examples:
+	.. _textbox-examples:
 
 Examples
 ========
@@ -57,13 +57,13 @@ Examples
 				fb.textbox(value='^.address',lbl='Address')
 				fb.textbox(value='^.email',lbl='e-mail')
 
-	Let's see its graphical result:
+	Let's see a demo:
 
-	.. figure:: ???.png
+	#NISO add online demo!
 
 	.. _below:
 
-	.. _main-attributes:
+	.. _textbox-attributes:
 
 Attributes
 ==========
@@ -94,7 +94,7 @@ Attributes
 	| ``tooltipPosition`` | Define where Tooltip will appear                |  ``right``                           |
 	+---------------------+-------------------------------------------------+--------------------------------------+
 
-	.. _common-attributes:
+	.. _textbox-other-attributes:
 
 Common attributes
 =================

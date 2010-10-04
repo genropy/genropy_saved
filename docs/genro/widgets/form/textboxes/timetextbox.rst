@@ -6,17 +6,17 @@
 
 .. class:: timeTextbox -  Genropy timeTextbox
 
-	- :ref:`main-definition`
+	- :ref:`timeTextbox-definition`
 	
-	- :ref:`where-is-it-?`
+	- :ref:`timeTextbox-where`
 	
-	- :ref:`some-examples`
+	- :ref:`timeTextbox-examples`
 	
-	- :ref:`main-attributes`
+	- :ref:`timeTextbox-attributes`
 	
-	- :ref:`common-attributes`
+	- :ref:`timeTextbox-other-attributes`
 	
-	.. _main-definition:
+	.. _timeTextbox-definition:
 
 Definition
 ==========
@@ -25,12 +25,14 @@ Definition
     
     - sintax: HH:MM
 
+	.. _timeTextbox-where:
+
 Where
 =====
 
 	#NISO ???
 
-	.. _some-examples:
+	.. _timeTextbox-examples:
 
 Examples
 ========
@@ -41,11 +43,11 @@ Examples
 			def main(self,root,**kwargs):
 				root.timeTextBox(value='^timeTextbox')
 
-	Let's see its graphical result:
+	Let's see a demo:
 
-	.. figure:: ???.png
+	#NISO add online demo!
 
-	.. _main-attributes:
+	.. _timeTextbox-attributes:
 
 Attributes
 ==========
@@ -58,7 +60,7 @@ Attributes
 	| ``text_align``        | CSS attribute                                           |  ``left``   |
 	+-----------------------+---------------------------------------------------------+-------------+
 	
-	.. _common-attributes:
+	.. _timeTextbox-other-attributes:
 
 Common attributes
 =================

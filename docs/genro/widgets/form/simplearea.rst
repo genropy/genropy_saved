@@ -52,9 +52,9 @@ Examples
 				                    colspan=2,color='blue',font_size='1.2em',
 				                    default='A simple area to contain text.')
 
-	Let's see its graphical result:
+	Let's see a demo:
 
-	.. figure:: ???.png
+	#NISO add online demo!
 
 	.. _simpleTextarea-attributes:
 
@@ -87,6 +87,6 @@ Common attributes
 	|                    | See :doc:`/common/hidden`                       |                          |
 	+--------------------+-------------------------------------------------+--------------------------+
 	| ``value``          | Set a path for simpletextarea's value.          |  ``None``                |
-	|                    | For more details, see :doc:`/common/datastore`  |                          |
+	|                    | For more details, see :doc:`/common/datapath`   |                          |
 	+--------------------+-------------------------------------------------+--------------------------+
 	

@@ -52,9 +52,9 @@ Examples
 
 		pane.button('Button',action="alert('Hello!')")
 
-	Let's see its graphical result:
+	Let's see a demo:
 
-	.. figure:: button.png
+	#NISO add online demo!
 	
 	You can also use "FIRE" attribute within "action" attribute: `action="FIRE 'javascript command'"`
 
@@ -98,5 +98,5 @@ Common attributes
 	|                    | For more details, see :doc:`/common/label`      |                          |
 	+--------------------+-------------------------------------------------+--------------------------+
 	| ``value``          | Set a path for button's values.                 |  ``None``                |
-	|                    | For more details, see :doc:`/common/datastore`  |                          |
+	|                    | For more details, see :doc:`/common/datapath`   |                          |
 	+--------------------+-------------------------------------------------+--------------------------+

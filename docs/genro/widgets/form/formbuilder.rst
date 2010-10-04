@@ -86,9 +86,9 @@ Examples
 				fb.textbox(value='^.job.company_name',lbl='Company name')
 				fb.textbox(value='^.job.fiscal_code',lbl='Fiscal code')
 
-	Let's see its graphical result:
+	Let's see a demo:
 
-	.. figure:: formbuilder.png
+	#NISO add online demo!
 
 	.. _formbuilder-attributes:
 
@@ -176,7 +176,7 @@ Here we describe the formbuilder's field attributes:
 	|                |         \* to refer itself at the current row        |                          |
 	+----------------+------------------------------------------------------+--------------------------+
 	| ``value``      | Set a path for formbuilder's values.                 |  ``None``                |
-	|                | For more details, see :doc:`/common/datastore`       |                          |
+	|                | For more details, see :doc:`/common/datapath`        |                          |
 	+----------------+------------------------------------------------------+--------------------------+
 
 	.. _formbuilder-other-attributes:
@@ -196,7 +196,7 @@ Common attributes:
 
 	.. _formbuilder-other-features:
 
-Other features:
+Other features
 ==============
 
 	.. _dbtable:
@@ -283,7 +283,7 @@ label and lbl: an explanation
 				fb.checkbox(value='^.tennis',label='Tennis')
 				fb.radiobutton('Google Chrome',value='^.radio3',group='genre1')
 	
-	.. figure:: formbuilder2.png
+	#NISO add online demo!
 	
 	To help you in discovering of the formbuilder hidden structure we used the "border" attribute (the outcome doesn't follow the standard of beauty, but the example is instructive!).
 	
@@ -297,5 +297,4 @@ label and lbl: an explanation
 	
 	the effect will be:
 	
-	.. figure:: formbuilder3.png
-	
+	#NISO add online demo!

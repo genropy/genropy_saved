@@ -49,4 +49,23 @@ class GnrCustomWebPage(object):
         fb.div(""" A textbox with "validate" attributes. Here you have to write a text
                    with 4 or more characters.""",
                    font_size='.9em',text_align='justify')
+                   
+    def test_3_validationTextBoxAttributes(self,pane):
+        """Some validationTextBox features"""
+        fb = pane.formbuilder(datapath='test3',cols=2)
+        fb.textbox(value='^.name',lbl='Name',colspan=2,
+                   required=True,
+                   promptMessage="""Write something!(regExp='casa')""",
+                   regExp='casa'
+                   )
+                    
+        fb.textbox(value='^.surname',lbl='Surname',
+                   invalidMessage='You MUST write something!', #NISO Questo non funziona, però di default esiste
+                                                               #     un invalidMessage, che dice: "Il valore
+                                                               #     immesso non è valido." Strano!
+                   tooltipPosition='top',
+                   constraints='???')
+        fb.div("""In the following textbox I (NISO) write all the attributes that doesn't work
+                  in Dojo 1.1, and that have to be tested for Dojo 1.5""",
+                  font_size='.9em',text_align='justify')
         

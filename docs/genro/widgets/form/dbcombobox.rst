@@ -1,49 +1,53 @@
+
+.. Use this file to create a new file for the documentation. Use "Find and replace" on "dbcombobox" to change the triple question mark in the name of the object you're going to document
+
 ============
  DbCombobox
 ============
 
-.. currentmodule:: form
+.. currentmodule:: dbcombobox
 
-.. class:: dbCombobox -  Genropy dbCombobox
+.. class:: dbcombobox - Genropy dbcombobox
 
-	- :ref:`dbCombobox-definition`
+	- :ref:`dbcombobox-definition`
 
-	- :ref:`dbCombobox-where`
+	- :ref:`dbcombobox-where`
 
-	- :ref:`dbCombobox-description`
+	- :ref:`dbcombobox-description`
 
-	- :ref:`dbCombobox-examples`
+	- :ref:`dbcombobox-examples`
 
-	- :ref:`dbCombobox-attributes`
+	- :ref:`dbcombobox-attributes`
 
-	.. _dbCombobox-definition:
+	- :ref:`dbcombobox-other-attributes`
+
+	- :ref:`dbcombobox-features`
+
+		- :ref:`dbcombobox-first-reference`
+		- :ref:`dbcombobox-second-reference`
+
+	.. _dbcombobox-definition:
 
 Definition
 ==========
-		
-	Here we report ???'s definition::
-		
-		def formbuilder(self, cols=1, dbtable=None, tblclass='formbuilder',
-	                    lblclass='gnrfieldlabel', lblpos='L', _class='', fieldclass='gnrfield',
-	                    lblalign=None, lblvalign='middle',
-	                    fldalign=None, fldvalign='middle', disabled=False,
-	                    rowdatapath=None, head_rows=None, **kwargs):
 
-	.. _dbCombobox-where:
+	dbCombobox is a :doc:`combobox` that research values from a database table.
+
+	.. _dbcombobox-where:
 
 Where
 =====
 
-	You can find ??? in *genro/gnrpy/???*
+	You can find dbcombobox in *genro/gnrpy/...*
 
-	.. _dbCombobox-description:
+	.. _dbcombobox-description:
 
 Description
 ===========
 
-	???
+	The Genro dbCombobox is a :doc:`combobox` that conducts research on specific columns in a database table. As the user types, partially matched values will be shown in a pop-up menu below the input text box. The main feature is that dbCombobox, unlike the :doc:`dbselect`, permits to enter new values not yet in the database.
 
-	.. _dbCombobox-examples:
+	.. _dbcombobox-examples:
 
 Examples
 ========
@@ -53,16 +57,35 @@ Examples
 		class GnrCustomWebPage(object):
 			def main(self,root,**kwargs):
 				fb=pane.formbuilder(datapath='test1',cols=2)
-				???
+				??
 
-	Let's see its graphical result:
+	Let's see a demo:
 
-	.. figure:: ???.png
+	#NISO add online demo!
 
-	.. _dbCombobox-attributes:
+	.. _dbcombobox-attributes:
 
 Attributes
 ==========
+
+	I parametri di dbCombobox sono:
+	<i>dbtable</i> ovvero la table del database a cui si riferisce la ricerca, espressa col path package.table.<br/>
+	<i>columns</i> ovvero le colonne sulle quali viene effettuata la ricerca.<br/>
+	<i>auxColumns</i> le colonne aggiuntive che vengono mostrate nel menu popup delle opzioni trovate<br/>
+	Inoltre è possibile aggiungere diversi parametri chiamati formati dal prefisso <i>selected_</i> 
+	e dal nome di una colonna della table, nel quale specificare il datapath, dove salvare i rispettivi 
+	dati del record selezionato con il dbCombobox.
+	
+	+--------------------+-------------------------------------------------+--------------------------+
+	|   Attribute        |          Description                            |   Default                |
+	+====================+=================================================+==========================+
+	| ``??``             | ??                                              |  ``??``                  |
+	+--------------------+-------------------------------------------------+--------------------------+
+	
+	.. _dbcombobox-other-attributes:
+
+Common attributes
+=================
 
 	+--------------------+-------------------------------------------------+--------------------------+
 	|   Attribute        |          Description                            |   Default                |
@@ -70,16 +93,31 @@ Attributes
 	| ``datapath``       | Set path for data.                              |  ``None``                |
 	|                    | For more details, see :doc:`/common/datapath`   |                          |
 	+--------------------+-------------------------------------------------+--------------------------+
-	| ``disabled``       | If True, user can't act on the ???.             |  ``False``               |
+	| ``disabled``       | If True, user can't act on the dbcombobox.      |  ``False``               |
 	|                    | For more details, see :doc:`/common/disabled`   |                          |
 	+--------------------+-------------------------------------------------+--------------------------+
-	| ``hidden``         | Hide the ???.                                   |  ``False``               |
+	| ``hidden``         | Hide the dbcombobox.                            |  ``False``               |
 	|                    | See :doc:`/common/hidden`                       |                          |
 	+--------------------+-------------------------------------------------+--------------------------+
-	| ``label``          | Set ??? label.                                  |  ``None``                |
-	|                    | For more details, see :doc:`/common/label`      |                          |
+	| ``value``          | Set a path for dbcombobox's values.             |  ``None``                |
+	|                    | For more details, see :doc:`/common/datapath`   |                          |
 	+--------------------+-------------------------------------------------+--------------------------+
-	| ``value``          | Set a path for ???'s values.                    |  ``None``                |
-	|                    | For more details, see :doc:`/common/datastore`  |                          |
-	+--------------------+-------------------------------------------------+--------------------------+
+
+	.. _dbcombobox-features:
+
+Other features
+==============
+
+	.. _dbcombobox-first-reference:
 	
+?? Title first reference
+===============================================
+	
+	??
+	
+	.. _dbcombobox-second-reference:
+	
+?? Title second reference
+===============================================
+	
+	??

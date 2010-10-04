@@ -54,6 +54,10 @@ Examples
 				root.horizontalSlider(value='^integer_number',width='200px',
 									  maximum=50,discreteValues=51)
 
+	Let's see a demo:
+	
+	#NISO add online demo!
+
 	.. _slider-attributes:
 
 Attributes
@@ -91,5 +95,5 @@ Common attributes
 	|                    | See :doc:`/common/hidden`                       |                          |
 	+--------------------+-------------------------------------------------+--------------------------+
 	| ``value``          | Set a path for slider's values.                 |  ``None``                |
-	|                    | For more details, see :doc:`/common/datastore`  |                          |
+	|                    | For more details, see :doc:`/common/datapath`   |                          |
 	+--------------------+-------------------------------------------------+--------------------------+

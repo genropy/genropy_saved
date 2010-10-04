@@ -48,10 +48,9 @@
 
 		pane.???(???)
 		
-	Let's see its graphical result:
+	Let's see a demo:
 
-	.. figure:: ???.png
-
+	#NISO add online demo!
 
 .. _Attributes:
 

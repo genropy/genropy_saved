@@ -6,31 +6,31 @@
 
 .. class:: numberTextbox -  Genropy numberTextbox
 
-	- :ref:`main-definition`
+	- :ref:`numberTextbox-definition`
 	
-	- :ref:`where-is-it-?`
+	- :ref:`numberTextbox-where`
 	
-	- :ref:`some-examples`
+	- :ref:`numberTextbox-examples`
 	
-	- :ref:`main-attributes`
+	- :ref:`numberTextbox-attributes`
 	
-	- :ref:`common-attributes`
+	- :ref:`numberTextbox-other-attributes`
 	
-	.. _main-definition:
+	.. _numberTextbox-definition:
 
 Definition
 ==========
 
 	A simple number textbox.
 	
-	.. _where-is-it-?:
+	.. _numberTextbox-where:
 
 Where
 =====
 
 	#NISO ???
 
-	.. _some-examples:
+	.. _numberTextbox-examples:
 
 Examples
 ========
@@ -41,11 +41,11 @@ Examples
 			def main(self,root,**kwargs):
 				root.numberTextbox(value='^numberTextbox',places=2)
 	
-	Let's see its graphical result:
+	Let's see a demo:
 
-	.. figure:: ???.png
+	#NISO add online demo!
 
-	.. _main-attributes:
+	.. _numberTextbox-attributes:
 
 Attributes
 ==========
@@ -64,7 +64,7 @@ Attributes
 	|                       | will warn user                                          |             |
 	+-----------------------+---------------------------------------------------------+-------------+
 	
-	.. _common-attributes:
+	.. _numberTextbox-other-attributes:
 
 Common attributes
 =================

@@ -48,9 +48,9 @@ Examples
 
 		pane.checkbox(value='^name',label='Name')
 		
-	Let's see its graphical result:
+	Let's see a demo:
 
-	.. figure:: checkbox.png
+	#NISO add online demo!
 
 	.. _`checkbox-attributes`:
 	
