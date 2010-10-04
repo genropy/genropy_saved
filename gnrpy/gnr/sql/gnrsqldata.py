@@ -494,19 +494,46 @@ class SqlQueryCompiler(object):
         return self.cpl
 
     def compiledRecordQuery(self, lazy=None, eager=None, where=None,
-                            bagFields=True, for_update=False, relationDict=None):
+                            bagFields=True, for_update=False, relationDict=None,virtual_columns=None):
         """Prepare the SqlCompiledQuery to get the sql query for a selection."""
         self.cpl = SqlCompiledQuery(self.tblobj.sqlfullname, relationDict=relationDict)
         if not 'pkey' in self.cpl.relationDict:
             self.cpl.relationDict['pkey'] = self.tblobj.pkey
         self.init(lazy=lazy, eager=eager)
         self.recordFields(self.relations,[],[],'t0',bagFields)
-        
+        if virtual_columns:
+            self._handle_virtual_columns(virtual_columns)
         self.cpl.where = self._recordWhere(where=where)
+        
         self.cpl.columns = ',\n       '.join(self.fieldlist)
         self.cpl.limit = 2
         self.cpl.for_update = for_update
         return self.cpl
+    
+    def _handle_virtual_columns(self,virtual_columns):
+        if isinstance(virtual_columns,basestring):
+            virtual_columns = gnrstring.splitAndStrip(virtual_columns,',')
+        tbl_virtual_columns = self.tblobj.virtual_columns
+        for col_name in virtual_columns:
+            if col_name.startswith('$'):
+                col_name = col_name[1:]
+            column = tbl_virtual_columns[col_name]
+            if column is None:
+                print 'not existing col:%s' %col_name
+                continue
+            field = self.getFieldAlias(column.name)
+            xattrs=dict([(k,v) for k,v in column.attributes.items() if not k in ['tag','comment','table','pkg']])
+
+            if column.attributes['tag'] == 'virtual_column':
+                as_name = '%s_%s' % ('t0',column.name)
+                path_name = column.name
+            else:
+                pass
+            xattrs['as'] = as_name
+            self.fieldlist.append('%s AS %s' % (field,as_name))
+            self.cpl.template.setItem(path_name, None, xattrs)
+            self.cpl.dicttemplate[path_name] = as_name
+        
     
     def expandPeriod(self,m):
         fld=m.group(1)
@@ -1566,6 +1593,7 @@ class SqlRecord(object):
                  ignoreMissing=False, ignoreDuplicate=False,
                  bagFields=True, for_update=False, 
                  joinConditions=None, sqlContextName=None, 
+                 virtual_columns=None,
                  **kwargs):
         
         self.dbtable = dbtable
@@ -1584,6 +1612,7 @@ class SqlRecord(object):
         self.ignoreDuplicate = ignoreDuplicate
         self.bagFields=bagFields
         self.for_update = for_update
+        self.virtual_columns= virtual_columns
         
     def setJoinCondition(self, target_fld, from_fld, condition, one_one=False, **kwargs):
         cond = dict(condition=condition, one_one=one_one, params=kwargs)
@@ -1614,7 +1643,9 @@ class SqlRecord(object):
                                           sqlContextName=self.sqlContextName).compiledRecordQuery(where=where,
                                                                                                   relationDict=self.relationDict,
                                                                                                   bagFields=self.bagFields, 
-                                                                                                  for_update=self.for_update, **self.relmodes)
+                                                                                                  for_update=self.for_update, 
+                                                                                                  virtual_columns=self.virtual_columns,
+                                                                                                  **self.relmodes)
         return result
     
     def _get_result(self):
@@ -1806,5 +1837,3 @@ class SqlRecordBag(Bag):
             return self._db
     db = property(_get_db, _set_db)
     
-
-

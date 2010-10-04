@@ -340,7 +340,7 @@ class SqlTable(GnrObject):
         return newrecord
         
     def record(self, pkey=None, where=None,
-               lazy=None, eager=None, mode=None, relationDict=None, ignoreMissing=False,
+               lazy=None, eager=None, mode=None, relationDict=None, ignoreMissing=False,virtual_columns=None,
                ignoreDuplicate=False, bagFields=True, joinConditions=None, sqlContextName=None,
                for_update=False, **kwargs):
         """
@@ -365,6 +365,7 @@ class SqlTable(GnrObject):
                            lazy=lazy, eager=eager,
                            relationDict=relationDict,
                            ignoreMissing=ignoreMissing,
+                           virtual_columns=virtual_columns,
                            ignoreDuplicate=ignoreDuplicate,
                            joinConditions=joinConditions, sqlContextName=sqlContextName,
                            bagFields=bagFields,for_update=for_update, **kwargs)

@@ -325,8 +325,8 @@ class DbModelSrc(GnrStructData):
     def aliasColumn(self, name, relation_path, **kwargs):
         return self.virtual_column(name, relation_path=relation_path, **kwargs)
         
-    def formulaColumn(self, name, sql_formula, **kwargs):
-        return self.virtual_column(name, sql_formula=sql_formula, **kwargs)
+    def formulaColumn(self, name, sql_formula,dtype='A', **kwargs):
+        return self.virtual_column(name, sql_formula=sql_formula,dtype=dtype, **kwargs)
         
     def pyColumn(self, name, py_method, **kwargs):
         return self.virtual_column(name, py_method=py_method, **kwargs)

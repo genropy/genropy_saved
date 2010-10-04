@@ -488,6 +488,7 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
             tblobj = parentfb.tblobj
         else:
             raise GnrDomSrcError('No table')
+        
         fieldobj=tblobj.column(fld)
         if fieldobj is None:
             raise GnrDomSrcError('Not existing field %s' % fld)
@@ -495,9 +496,12 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
             args = copy(parentfb.fieldPars)
             args.update(kwargs)
         wdgattr = self.wdgAttributesFromColumn(fieldobj, **args)
+        if fld in tblobj.model.virtual_columns:
+            self.page.includeVirtualColumn(tblobj.fullname,fld)
+            wdgattr['readOnly'] = True
         wdgattr['value']='^.%s' % fld
         return wdgattr
-
+        
     def wdgAttributesFromColumn(self, fieldobj, **kwargs):
         result={}
         result['lbl']=fieldobj.name_long        
