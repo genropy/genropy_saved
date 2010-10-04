@@ -1,8 +1,7 @@
-=====
- Bag
-=====
+===
+Bag
+===
 
 .. toctree::
-	:numbered:
 
 	introduction
