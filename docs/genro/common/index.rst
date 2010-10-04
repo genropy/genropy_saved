@@ -5,7 +5,7 @@ Common attributes
     :maxdepth: 2
 
     attributes
-    datastore
+    datapath
     disabled
     hidden
     label
