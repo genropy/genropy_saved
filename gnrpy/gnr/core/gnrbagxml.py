@@ -209,10 +209,13 @@ class BagToXml(object):
         This method handles all the different node types, calls the method build tag and returns its result.
         @return: the XML tag that represent self BagNode.
         """
-        if self.unresolved and node.resolver != None:
+        if self.unresolved and node.resolver != None:                
             newattr = dict(node.attr)
             newattr['_resolver'] = gnrstring.toJson(node.resolver.resolverSerialize())
-            return self.buildTag(node.label, '', newattr, '', xmlMode=True)
+            value = ''
+            if isinstance(node._value, Bag):
+                value = self.bagToXmlBlock(node._value)
+            return self.buildTag(node.label, value, newattr, '', xmlMode=True)
             
         nodeValue = node.getValue()
         if isinstance(nodeValue, Bag) and nodeValue: #<---Add the second condition in order to type the empty bag.
