@@ -9,9 +9,9 @@
 class GnrCustomWebPage(object):
     py_requires='gnrcomponents/testhandler:TestHandlerFull,gnrcomponents/htablehandler:HTablePicker'
     
-    htable = 'auspost.sla_tree'
-    grid_table = 'auspost.postdata'
-    grid_where = '$sla_tree_code IN :codes'
+    htable = 'base.category'
+    grid_table = 'base.pt_product'
+    grid_where = '$category_code IN :codes'
     
     def test_1_testpicker(self,pane):
         """Picker on htable"""
