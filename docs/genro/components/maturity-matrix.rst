@@ -1,5 +1,8 @@
-Component Maturity Matrix
-=========================
+	.. _components-maturity-matrix:
+
+===========================
+ Component Maturity Matrix
+===========================
 
 .. Note to developers
 
@@ -13,7 +16,7 @@ standardtable                                                 Mature            
 standardtable_light                                           Mature                      Documentation needed
 ------------------------------------------------------------- --------------------------- -----------------------------
 includedview
-:doc:`selectionhandler`
+:ref:`components-selectionhandler`
 multiselect
 ------------------------------------------------------------- --------------------------- -----------------------------
 iframedialog

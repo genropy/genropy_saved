@@ -1,3 +1,5 @@
+	.. _components-standardtable_introduction:
+
 ================
  Standard table
 ================
@@ -6,6 +8,6 @@
 
 	There are two standard table types:
 	
-		* the :doc:`standardtable`
+		* the :ref:`components-standardtable`
 		
-		* a light version of the standard table: the :doc:`standardtable_light`
+		* a light version of the standard table: the :ref:`components-standardtable_light`

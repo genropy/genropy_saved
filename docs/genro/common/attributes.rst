@@ -1,3 +1,5 @@
+	.. _common-attributes:
+
 ===================
  Common attributes
 ===================
@@ -6,14 +8,14 @@
 
 	Nevertheless, we report those attributes even in the single widget, suggesting to take vision of this page for more details.
 
-	- ``datapath``: see :doc:`datapath`
+	- ``datapath``: see :ref:`common-datapath`
 
-	- ``default``: see :doc:`default`
+	- ``default``: see :ref:`common-default`
 
-	- ``disabled``: see :doc:`disabled`
+	- ``disabled``: see :ref:`common-disabled`
 
-	- ``hidden``: see :doc:`hidden`
+	- ``hidden``: see :ref:`common-hidden`
 
-	- ``label``: see :doc:`label`
+	- ``label``: see :ref:`common-label`
 
-	- ``value``: see :doc:`datapath`
+	- ``value``: see :ref:`common-datapath`

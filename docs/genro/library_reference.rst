@@ -1,10 +1,11 @@
+	.. _genro-library_reference:
+
 ===================
  Library reference
 ===================
 
 .. toctree::
-	:maxdepth: 2
-	
+
+	sql/index
 	core/index
 	app/index
-	sql/index

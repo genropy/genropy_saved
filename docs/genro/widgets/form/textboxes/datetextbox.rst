@@ -1,3 +1,5 @@
+	.. _textboxes-datetextbox:
+
 =============
  DateTextbox
 =============
@@ -67,4 +69,4 @@ Attributes
 Common attributes
 =================
 
-	For common attributes, see :doc:`textboxes`
+	For common attributes, see :ref:`textboxes-attributes`

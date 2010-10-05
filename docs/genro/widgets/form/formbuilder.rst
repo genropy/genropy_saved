@@ -1,3 +1,5 @@
+	.. _form-formbuilder:
+
 =============
  Formbuilder
 =============
@@ -104,10 +106,10 @@ Attributes
 	| ``cols``           | Set columns number                              |  ``1``                   |
 	+--------------------+-------------------------------------------------+--------------------------+
 	| ``datapath``       | Set path for data.                              |  ``None``                |
-	|                    | For more details, see :doc:`/common/attributes` |                          |
+	|                    | For more details, see :ref:`common-attributes`  |                          |
 	+--------------------+-------------------------------------------------+--------------------------+
 	| ``dbtable``        | Set the database table.                         |  ``None``                |
-	|                    | For more details, see :doc:`/common/dbtable`    |                          |
+	|                    | For more details, see :ref:`common-dbtable`     |                          |
 	+--------------------+-------------------------------------------------+--------------------------+
 	| ``fieldclass``     | CSS class appended to every formbuilder's son   |  ``gnrfield``            |
 	+--------------------+-------------------------------------------------+--------------------------+
@@ -176,7 +178,7 @@ Here we describe the formbuilder's field attributes:
 	|                |         \* to refer itself at the current row        |                          |
 	+----------------+------------------------------------------------------+--------------------------+
 	| ``value``      | Set a path for formbuilder's values.                 |  ``None``                |
-	|                | For more details, see :doc:`/common/datapath`        |                          |
+	|                | For more details, see :ref:`common-datapath`         |                          |
 	+----------------+------------------------------------------------------+--------------------------+
 
 	.. _formbuilder-other-attributes:
@@ -188,10 +190,10 @@ Common attributes:
 	|   Attribute        |       Description                                |   default                |
 	+====================+==================================================+==========================+
 	| ``disabled``       | If True, user can't act on the object.           |  ``False``               |
-	|                    | For more details, see :doc:`/common/disabled`    |                          |
+	|                    | For more details, see :ref:`common-disabled`     |                          |
 	+--------------------+--------------------------------------------------+--------------------------+
 	| ``hidden``         | Hide the formbuilder/formbuilder's field         |  ``False``               |
-	|                    | See :doc:`/common/hidden`                        |                          |
+	|                    | See :ref:`common-hidden`                         |                          |
 	+--------------------+--------------------------------------------------+--------------------------+
 
 	.. _formbuilder-other-features:

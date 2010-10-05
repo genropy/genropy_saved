@@ -1,3 +1,5 @@
+	.. _form-filteringselect:
+
 =================
  FilteringSelect
 =================
@@ -41,9 +43,9 @@ Where
 Description
 ===========
 
-	FilteringSelect's values are composed by a key and a value (like the Python dictionary's elements): user can chooses from values, while in :doc:`/datastore` the user's choice is saved through keys. User can also freely type text and partially matched values will be shown in a pop-up menu below the input text box.
+	FilteringSelect's values are composed by a key and a value (like the Python dictionary's elements): user can chooses from values, while in :ref:`genro-datastore` the user's choice is saved through keys. User can also freely type text and partially matched values will be shown in a pop-up menu below the input text box.
 	
-	If user types a wrong entry, that is a word that doesn't corresponds to any of the filteringSelect values, the key in :doc:`/datastore` will be saved as ``undefined``.
+	If user types a wrong entry, that is a word that doesn't corresponds to any of the filteringSelect values, the key in :ref:`genro-datastore` will be saved as ``undefined``.
 
 	.. _filteringSelect-examples:
 
@@ -60,7 +62,7 @@ Examples
 Filling a filteringSelect through a Bag
 =======================================
 
-	In this example we show you how to fill a filteringSelect through a Bag (for further explanations, check :doc:`/bag/introduction`):
+	In this example we show you how to fill a filteringSelect through a Bag (for further explanations, check :ref:`bag-introduction`):
 		::
 
 			class GnrCustomWebPage(object):
@@ -98,9 +100,9 @@ Filling a filteringSelect through "values" attribute
 					                   values="""SC:Soccer,BK:Basket,HK:Hockey,
 					                             TE:Tennis,BB:Baseball,SB:Snowboard""")
 	
-	Pay attention not to confuse ``value`` with ``values``: ``value`` is used to allocate user data in a well determined :doc:`/common/datapath`, while ``values`` is used to fill the filteringSelect.
+	Pay attention not to confuse ``value`` with ``values``: ``value`` is used to allocate user data in a well determined :ref:`common-datapath`, while ``values`` is used to fill the filteringSelect.
 	
-	Warning: unlike Dojo, actually filteringSelect doesn't warn user for its wrong insertion. You can add a warning for the user through a "validate" attribute (see :doc:`/validations/validations`).
+	Warning: unlike Dojo, actually filteringSelect doesn't warn user for its wrong insertion. You can add a warning for the user through a "validate" attribute (see :ref:`validations-validations`).
 	
 	Let's see a demo:
 	
@@ -130,12 +132,12 @@ Common attributes
 	|   Attribute        |          Description                            |   Default                |
 	+====================+=================================================+==========================+
 	| ``disabled``       | If True, user can't act on the filteringSelect. |  ``False``               |
-	|                    | For more details, see :doc:`/common/disabled`   |                          |
+	|                    | For more details, see :ref:`common-disabled`    |                          |
 	+--------------------+-------------------------------------------------+--------------------------+
 	| ``hidden``         | Hide the filteringSelect.                       |  ``False``               |
-	|                    | See :doc:`/common/hidden`                       |                          |
+	|                    | See :ref:`common-hidden`                        |                          |
 	+--------------------+-------------------------------------------------+--------------------------+
 	| ``value``          | Set a path for filteringSelect's values.        |  ``None``                |
-	|                    | For more details, see :doc:`/common/datapath`   |                          |
+	|                    | For more details, see :ref:`common-datapath`    |                          |
 	+--------------------+-------------------------------------------------+--------------------------+
 	

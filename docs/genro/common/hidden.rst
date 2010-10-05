@@ -1,3 +1,5 @@
+	.. _common-hidden:
+
 ========
  Hidden
 ========

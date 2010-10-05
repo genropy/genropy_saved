@@ -1,3 +1,5 @@
+	.. _components-index:
+
 ==========
 Components
 ==========
@@ -7,5 +9,7 @@ Components
 
 	maturity-matrix
 	selectionhandler
+	standardtable
 	standardtable_introduction
+	standardtable_light
 	writing

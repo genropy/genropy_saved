@@ -1,3 +1,5 @@
+	.. _components-writing:
+
 Scrivere propri componenti
 ==========================
 

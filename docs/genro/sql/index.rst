@@ -1,12 +1,13 @@
+	.. _sql-index:
+
 ==================================
 :mod:`gnr.sql` -- Database support
 ==================================
 
 .. toctree::
-    :maxdepth: 2
 
-	sql
 	data
 	model
+	sql
 	table
 	utils

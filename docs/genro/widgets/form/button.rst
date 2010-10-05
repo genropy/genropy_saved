@@ -1,3 +1,5 @@
+	.. _form-button:
+
 ========
  Button
 ========
@@ -67,7 +69,7 @@ Examples
 
 		pane.button('Click me!', fire_Click = 'msg')
 
-    In Genro there are four macros used as a shortcut that you can use in place of a Javascript command. They are FIRE, GET, SET, PUT. For more details, see :doc:`/datastore`.
+    In Genro there are four macros used as a shortcut that you can use in place of a Javascript command. They are FIRE, GET, SET, PUT. For more details, see :ref:`genro-datastore`.
 
 	.. _button-attributes:
 
@@ -89,14 +91,14 @@ Common attributes
 	|   Attribute        |          Description                            |   Default                |
 	+====================+=================================================+==========================+
 	| ``disabled``       | If True, user can't act on the object.          |  ``False``               |
-	|                    | For more details, see :doc:`/common/disabled`   |                          |
+	|                    | For more details, see :ref:`common-disabled`    |                          |
 	+--------------------+-------------------------------------------------+--------------------------+
 	| ``hidden``         | Hide the button.                                |  ``False``               |
-	|                    | See :doc:`/common/hidden`                       |                          |
+	|                    | See :ref:`common-hidden`                        |                          |
 	+--------------------+-------------------------------------------------+--------------------------+
 	| ``label``          | Set button label.                               |  ``None``                |
-	|                    | For more details, see :doc:`/common/label`      |                          |
+	|                    | For more details, see :ref:`common-label`       |                          |
 	+--------------------+-------------------------------------------------+--------------------------+
 	| ``value``          | Set a path for button's values.                 |  ``None``                |
-	|                    | For more details, see :doc:`/common/datapath`   |                          |
+	|                    | For more details, see :ref:`common-datapath`    |                          |
 	+--------------------+-------------------------------------------------+--------------------------+

@@ -1,3 +1,5 @@
+	.. _form-checkbox:
+
 ==========
  Checkbox
 ==========

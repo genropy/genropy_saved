@@ -1,9 +1,10 @@
+	.. _common-index:
+
 =================
 Common attributes
 =================
 
 .. toctree::
-    :maxdepth: 2
 
 	attributes
 	datapath

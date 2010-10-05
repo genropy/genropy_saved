@@ -1,3 +1,5 @@
+	.. _form-simplearea:
+
 ================
  Simpletextarea
 ================
@@ -78,15 +80,15 @@ Common attributes
 	|   Attribute        |          Description                            |   Default                |
 	+====================+=================================================+==========================+
 	| ``default``        | Add a text to the area.                         |  ``None``                |
-	|                    | For more details, see :doc:`/common/default`    |                          |
+	|                    | For more details, see :ref:`common-default`     |                          |
 	+--------------------+-------------------------------------------------+--------------------------+
 	| ``disabled``       | If True, user can't act on the area.            |  ``False``               |
-	|                    | For more details, see :doc:`/common/disabled`   |                          |
+	|                    | For more details, see :ref:`common-disabled`    |                          |
 	+--------------------+-------------------------------------------------+--------------------------+
 	| ``hidden``         | Hide the simpletextarea.                        |  ``False``               |
-	|                    | See :doc:`/common/hidden`                       |                          |
+	|                    | See :ref:`common-hidden`                        |                          |
 	+--------------------+-------------------------------------------------+--------------------------+
 	| ``value``          | Set a path for simpletextarea's value.          |  ``None``                |
-	|                    | For more details, see :doc:`/common/datapath`   |                          |
+	|                    | For more details, see :ref:`common-datapath`    |                          |
 	+--------------------+-------------------------------------------------+--------------------------+
 	

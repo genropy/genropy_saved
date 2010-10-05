@@ -1,5 +1,8 @@
-Logging in GenroPy
-==================
+	.. _howto-logging:
+
+====================
+ Logging in GenroPy
+====================
 
 **NOTA:** This function is being implemented, it is not yet available but it will be available soon.
 

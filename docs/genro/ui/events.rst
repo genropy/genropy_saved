@@ -1,5 +1,8 @@
-Events
-======
+	.. _ui-events:
+
+========
+ Events
+========
 
 Load record
 ***********

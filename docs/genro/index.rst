@@ -3,6 +3,7 @@
 .. Note from Roberto Lupi:
 .. I write much faster in my mother tongue than in other languages.
 .. I will write these documents in Italian, we can translate them to English later.
+	.. _genro-index:
 
 =======
 Genropy

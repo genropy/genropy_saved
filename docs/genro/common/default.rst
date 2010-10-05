@@ -1,0 +1,5 @@
+	.. _common-default:
+	
+=========
+ Default
+=========

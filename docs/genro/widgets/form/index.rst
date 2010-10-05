@@ -1,3 +1,5 @@
+	.. _form-index:
+
 ===========
 Form widget
 ===========
@@ -16,4 +18,4 @@ Form widget
 	formbuilder
 	simplearea
 	slider
-	textboxes/textboxes
+	textboxes/index

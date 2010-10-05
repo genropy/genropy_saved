@@ -1,3 +1,5 @@
+	.. _datacontroller-data:
+
 ======
  data
 ======

@@ -1,9 +1,11 @@
+	.. _genro-getting_started:
+
 =================
  Getting started
 =================
 
 .. toctree::
-	:maxdepth: 2
+	:maxdepth: 3
 
 	installation
 	datastore
@@ -12,3 +14,4 @@
 	bag/index
 	datacontroller/index
 	ui/index
+	validations/index

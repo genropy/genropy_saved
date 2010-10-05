@@ -1,3 +1,5 @@
+	.. _form-dbcombobox:
+
 ============
  DbCombobox
 ============
@@ -28,7 +30,7 @@
 Definition
 ==========
 
-	dbCombobox is a :doc:`combobox` that research values from a database table.
+	dbCombobox is a :ref:`form-combobox` that research values from a database table.
 
 	.. _dbcombobox-where:
 
@@ -42,7 +44,7 @@ Where
 Description
 ===========
 
-	The Genro dbCombobox is a :doc:`combobox` that conducts research on specific columns in a database table. As the user types, partially matched values will be shown in a pop-up menu below the input text box. The main feature is that dbCombobox, unlike the :doc:`dbselect`, permits to enter new values not yet in the database.
+	The Genro dbCombobox is a :ref:`form-combobox` that conducts research on specific columns in a database table. As the user types, partially matched values will be shown in a pop-up menu below the input text box. The main feature is that dbCombobox, unlike the :ref:`form-dbselect`, permits to enter new values not yet in the database.
 
 	.. _dbcombobox-examples:
 
@@ -107,16 +109,16 @@ Common attributes
 	|   Attribute        |          Description                            |   Default                |
 	+====================+=================================================+==========================+
 	| ``datapath``       | Set path for data.                              |  ``None``                |
-	|                    | For more details, see :doc:`/common/datapath`   |                          |
+	|                    | For more details, see :ref:`common-datapath`    |                          |
 	+--------------------+-------------------------------------------------+--------------------------+
 	| ``disabled``       | If True, user can't act on the dbcombobox.      |  ``False``               |
-	|                    | For more details, see :doc:`/common/disabled`   |                          |
+	|                    | For more details, see :ref:`common-disabled`    |                          |
 	+--------------------+-------------------------------------------------+--------------------------+
 	| ``hidden``         | Hide the dbcombobox.                            |  ``False``               |
-	|                    | See :doc:`/common/hidden`                       |                          |
+	|                    | See :ref:`common-hidden`                        |                          |
 	+--------------------+-------------------------------------------------+--------------------------+
 	| ``value``          | Set a path for dbcombobox's values.             |  ``None``                |
-	|                    | For more details, see :doc:`/common/datapath`   |                          |
+	|                    | For more details, see :ref:`common-datapath`    |                          |
 	+--------------------+-------------------------------------------------+--------------------------+
 
 	.. _dbcombobox-features:

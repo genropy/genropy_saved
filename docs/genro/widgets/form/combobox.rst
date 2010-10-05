@@ -1,3 +1,5 @@
+	.. _form-combobox:
+
 ==========
  Combobox
 ==========
@@ -44,7 +46,7 @@ Description
 	
 	In combobox you have to provide a list of acceptable values (to upload these values, you can use two different ways: the Bag_-way and the values_-way). As the user types, partially matched values will be shown in a pop-up menu below the input text box. Like an input text field, user can also type whatever he wants.
 	
-	So, the combobox is like a :doc:`filteringselect`; the difference is that combobox doesn't support keys.
+	So, the combobox is like a :ref:`form-filteringselect`; the difference is that combobox doesn't support keys.
 
 	.. _combobox-examples:
 
@@ -81,7 +83,7 @@ Fill combobox through "values" attribute
 Fill combobox through a Bag
 ===========================
 
-	Postponing all info of a ``Bag`` and of a ``data`` on the relative pages of documentation (:doc:`/bag/introduction` and :doc:`/datacontroller/data`), we'll show here how you can add values to ``combobox`` using a ``Bag``.
+	Postponing all info of a ``Bag`` and of a ``data`` on the relative pages of documentation (:ref:`bag-introduction` and :ref:`datacontroller-data`), we'll show here how you can add values to ``combobox`` using a ``Bag``.
 	
 	Example::
 
@@ -136,11 +138,11 @@ Common attributes
 	|   Attribute        |          Description                            |   Default                |
 	+====================+=================================================+==========================+
 	| ``disabled``       | If True, user can't act on the combobox.        |  ``False``               |
-	|                    | For more details, see :doc:`/common/disabled`   |                          |
+	|                    | For more details, see :ref:`common-disabled`    |                          |
 	+--------------------+-------------------------------------------------+--------------------------+
 	| ``hidden``         | Hide the combobox.                              |  ``False``               |
-	|                    | See :doc:`/common/hidden`                       |                          |
+	|                    | See :ref:`common-hidden`                        |                          |
 	+--------------------+-------------------------------------------------+--------------------------+
 	| ``value``          | Set a path for combobox's values.               |  ``None``                |
-	|                    | For more details, see :doc:`/common/datapath`   |                          |
+	|                    | For more details, see :ref:`common-datapath`    |                          |
 	+--------------------+-------------------------------------------------+--------------------------+

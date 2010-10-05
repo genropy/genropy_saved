@@ -1,3 +1,5 @@
+	.. _textboxes-textbox:
+
 =========
  Textbox
 =========
@@ -99,4 +101,4 @@ Attributes
 Common attributes
 =================
 
-	For common attributes, see :doc:`textboxes`
+	For common attributes, see :ref:`textboxes-attributes`

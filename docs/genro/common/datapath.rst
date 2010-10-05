@@ -1,3 +1,5 @@
+	.. _common-datapath:
+
 ==========
  Datapath
 ==========
@@ -17,7 +19,7 @@
 Datapath description
 ====================
 
-	Datapath is an attribute used to create a hierarchy of your data's addresses into the :doc:`/datastore`.
+	Datapath is an attribute used to create a hierarchy of your data's addresses into the :ref:`genro-datastore`.
 	
 	You have to use ``datapath`` to an object that you want to be the father, while on the son elements you have to specify their relative path (but you can also specify an absolute path).
 	

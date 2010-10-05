@@ -1,5 +1,8 @@
-Selection Handler
-=================
+	.. _components-selectionhandler:
+
+===================
+ Selection Handler
+===================
 
 
 .. method:: selectionHandler(self, bc, nodeId, table, datapath, struct, label, selectionPars, dialogPars, ...)

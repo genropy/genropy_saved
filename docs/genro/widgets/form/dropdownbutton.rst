@@ -1,3 +1,5 @@
+	.. _form-dropdownbutton:
+
 ================
  Dropdownbutton
 ================
@@ -80,11 +82,11 @@ Common Attributes
 	|   Attribute        |          Description                            |   Default                |
 	+====================+=================================================+==========================+
 	| ``disabled``       | If True, user can't act on the dropdownbutton.  |  ``False``               |
-	|                    | For more details, see :doc:`/common/disabled`   |                          |
+	|                    | For more details, see :ref:`common-disabled`    |                          |
 	+--------------------+-------------------------------------------------+--------------------------+
 	| ``hidden``         | Hide the dropdownbutton.                        |  ``False``               |
-	|                    | See :doc:`/common/hidden`                       |                          |
+	|                    | See :ref:`common-hidden`                        |                          |
 	+--------------------+-------------------------------------------------+--------------------------+
 	| ``label``          | Set dropdownbutton label.                       |  ``None``                |
-	|                    | For more details, see :doc:`/common/label`      |                          |
+	|                    | For more details, see :ref:`common-label`       |                          |
 	+--------------------+-------------------------------------------------+--------------------------+

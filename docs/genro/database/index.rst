@@ -1,3 +1,5 @@
+	.. _database-index:
+
 ========
 Database
 ========
@@ -6,3 +8,5 @@ Database
 	:maxdepth: 2
 
 	introduction
+	maintable
+	table
