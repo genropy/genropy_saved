@@ -715,10 +715,10 @@ class SqlTable(GnrObject):
     
     def baseViewColumns(self):
         allcolumns = self.model.columns
-        result = [k for k,to_add in allcolumns.digest('#k,#a.base_view') if to_add]
+        result = [k for k,v in allcolumns.items() if v.attributes.get('base_view')]
         if not result:
             result = [col for col,colobj in allcolumns.items() if not colobj.isReserved]
-        return ','.join('result')
+        return ','.join(result)
 
     def getResource(self,path):
         return self.db.getResource(self,path)
