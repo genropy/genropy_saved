@@ -589,12 +589,14 @@ class GnrWebAppHandler(GnrBaseProxy):
         if sqlContextName: 
             self._joinConditionsFromContext(query, sqlContextName)
         selection = query.selection(sortedBy=sortedBy, _aggregateRows=True)
-        if sqlContextBag:
-            joinBag = sqlContextBag['%s_%s' % (target_fld.replace('.','_'), from_fld.replace('.','_'))]
-            if joinBag and joinBag.get('applymethod'):
-                applyPars = self._getApplyMethodPars(kwargs)
-                self.page.getPublicMethod('rpc', joinBag['applymethod'])(selection,**applyPars)
-                    
+       #if sqlContextBag: 
+       #    THIS BLOCK SHOULD ALLOW US TO HAVE AN APPLYMETHOD INSIDE SQLCONTEXT.
+       #    IT DOES NOT WORK BUT WE THINK IT'S USELESS
+       #    joinBag = sqlContextBag['%s_%s' % (target_fld.replace('.','_'), from_fld.replace('.','_'))]
+       #    if joinBag and joinBag.get('applymethod'):
+       #        applyPars = self._getApplyMethodPars(kwargs)
+       #        self.page.getPublicMethod('rpc', joinBag['applymethod'])(selection,**applyPars)
+       #            
         return selection
         
     def rpc_createSelection(self, table='', selectionName='', distinct=False, columns='', where='', condition=None,
