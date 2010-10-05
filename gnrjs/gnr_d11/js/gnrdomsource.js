@@ -129,16 +129,7 @@ dojo.declare("gnr.GnrDomSourceNode",gnr.GnrBagNode,{
                     this.widget.focus();
                 }
             } else if (this._dataprovider && (kw.evt!='del')){ //VERIFICARE perché escusi gli eventi DEL
-                if (this.attr._delay>0){
-                    if (this.pendingFire){
-                        clearTimeout(this.pendingFire);
-                        }
-                    this.pendingFire=setTimeout(dojo.hitch(this,'setDataNodeValue',kw.node,kw,trigger_reason),this.attr._delay);
-                   
-                }else{
-                    this.setDataNodeValue(kw.node,kw,trigger_reason);
-                }
-                
+                this.setDataNodeValue(kw.node,kw,trigger_reason);
             }
             else{
                 if (kw.reason != this){
@@ -151,6 +142,17 @@ dojo.declare("gnr.GnrDomSourceNode",gnr.GnrBagNode,{
         this.setDataNodeValue();
     },
     setDataNodeValue:function(node, kw, trigger_reason,subscription_args){
+        if('_delay' in this.attr){
+            if (this.pendingFire){
+                clearTimeout(this.pendingFire);
+            }
+            this.pendingFire=setTimeout(dojo.hitch(this,'setDataNodeValueDo',kw.node,kw,trigger_reason),this.attr._delay);
+        }else{
+            this.setDataNodeValueDo(node, kw, trigger_reason,subscription_args);
+        }
+    },
+
+    setDataNodeValueDo:function(node, kw, trigger_reason,subscription_args){
         var attributes=objectUpdate({}, this.attr);
         var _userChanges=objectPop(attributes,'_userChanges');
         var _trace=objectPop(attributes,'_trace');

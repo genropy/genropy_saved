@@ -3745,6 +3745,10 @@ dojo.declare("gnr.widgets.Tree",gnr.widgets.baseDojo,{
            parentNode.setAttr({'checked':this.checkBoxCalcStatus(parentNode)},true,true);
            var parentNode=parentNode.getParentNode();
        }
+       if (this.sourceNode.attr.nodeId){
+           genro.publish(this.sourceNode.attr.nodeId+'_checked',bagnode);
+       }
+       
     },
     versionpatch_11__onClick:function(e){  
         var nodeWidget = dijit.getEnclosingWidget(e.target);

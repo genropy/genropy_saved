@@ -192,12 +192,14 @@ dojo.declare("gnr.GnrRpcHandler",null,{
                     sync - Boolean. false is default. Indicates whether the request should
                            be a synchronous (blocking) request.
                  headers - Object. Additional HTTP headers to send in the request.
+                 
         */
         var httpMethod = httpMethod || 'GET';
         if (genro._serverstore_changes) {
             callKwargs._serverstore_changes = genro._serverstore_changes;
             genro._serverstore_changes = null;
         };
+        var delayOnCall = objectPop(callKwargs,'_delayOnCall');
         callKwargs = this.serializeParameters(this.dynamicParameters(callKwargs, sourceNode));
         callKwargs._lastUserEventTs= asTypedTxt(genro._lastUserEventTs,'DH');
         if (genro.auto_polling>0){
@@ -221,6 +223,14 @@ dojo.declare("gnr.GnrRpcHandler",null,{
         if (genro.debugRpc) {
             this.debugRpc(kw);
         };
+        if (delayOnCall) {
+            //add this stuff to handle it
+        }else{
+            return this._serverCall_execute(httpMethod,kw,callKwargs);
+        }
+        
+    },
+    _serverCall_execute: function(httpMethod,kw,callKwargs){
         if(httpMethod=='GET'){
             xhrResult=dojo.xhrGet(kw);
         }
