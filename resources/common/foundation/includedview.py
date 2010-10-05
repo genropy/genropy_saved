@@ -118,35 +118,36 @@ class IncludedView(BaseComponent):
         label_pars['_class'] = label_pars.pop('class', None) or (not hasToolbar and 'pbl_viewBoxLabel')
         box_pars = dict([(k[4:], kwargs.pop(k)) for k in kwargs.keys() if k.startswith('box_')])
         box_pars['_class'] = (box_pars.pop('class', None) or 'pbl_viewBox')
-        gridtop = parentBC.contentPane(region='top',datapath=controllerPath, overflow='hidden',nodeId='%s_top' %gridId,**label_pars)
-        if hasToolbar is True:
-            gridtop = gridtop.toolbar(_class='pbl_viewBoxToolbar')
-        gridtop_left= gridtop.div(float='left')
-        if callable(label):
-            label(gridtop_left)
-        else:
-            gridtop_left.div(label,margin_top='2px',float='left')
-        gridtop_right = gridtop.div(float='right')
-        if filterOn:
-            gridtop_filter = gridtop_right.div(float='left',margin_right='5px')
-            self._iv_gridFilter(gridId, gridtop_filter, 
-                                controller, controllerPath, filterOn,table, kwargs) 
-        if print_action or export_action or tools_menu or tools_action or pdf_action:
-            gridtop_actions = gridtop_right.div(float='left',margin_right='5px')
-            self._iv_gridAction(gridtop_actions,print_action=print_action,export_action=export_action,
-                                export_class=export_class,print_class=print_class,tools_class=tools_class,
-                                tools_menu=tools_menu,tools_action=tools_action,pdf_action=pdf_action,
-                                pdf_class=pdf_class,pdf_name=pdf_name,table=table,gridId=gridId,
-                                tools_enable=tools_enable, tools_lbl=tools_lbl)
-        if add_action or del_action:
-            gridtop_add_del = gridtop_right.div(float='left',margin_right='5px')
-            self._iv_gridAddDel(gridtop_add_del,add_action=add_action,del_action=del_action,
-                                 add_class=add_class,add_enable=add_enable,
-                                 del_class=del_class, del_enable=del_enable,pickerPars=pickerPars,
-                                 formPars=formPars,gridId=gridId) 
-        if lock_action:
-            gridtop_lock = gridtop_right.div(float='left',margin_right='5px')
-            self._iv_gridLock(gridtop_lock,lock_action=lock_action)
+        if label is not False:
+            gridtop = parentBC.contentPane(region='top',datapath=controllerPath, overflow='hidden',nodeId='%s_top' %gridId,**label_pars)
+            if hasToolbar is True:
+                gridtop = gridtop.toolbar(_class='pbl_viewBoxToolbar')
+            gridtop_left= gridtop.div(float='left')
+            if callable(label):
+                label(gridtop_left)
+            else:
+                gridtop_left.div(label,margin_top='2px',float='left')
+            gridtop_right = gridtop.div(float='right')
+            if filterOn:
+                gridtop_filter = gridtop_right.div(float='left',margin_right='5px')
+                self._iv_gridFilter(gridId, gridtop_filter, 
+                                    controller, controllerPath, filterOn,table, kwargs) 
+            if print_action or export_action or tools_menu or tools_action or pdf_action:
+                gridtop_actions = gridtop_right.div(float='left',margin_right='5px')
+                self._iv_gridAction(gridtop_actions,print_action=print_action,export_action=export_action,
+                                    export_class=export_class,print_class=print_class,tools_class=tools_class,
+                                    tools_menu=tools_menu,tools_action=tools_action,pdf_action=pdf_action,
+                                    pdf_class=pdf_class,pdf_name=pdf_name,table=table,gridId=gridId,
+                                    tools_enable=tools_enable, tools_lbl=tools_lbl)
+            if add_action or del_action:
+                gridtop_add_del = gridtop_right.div(float='left',margin_right='5px')
+                self._iv_gridAddDel(gridtop_add_del,add_action=add_action,del_action=del_action,
+                                     add_class=add_class,add_enable=add_enable,
+                                     del_class=del_class, del_enable=del_enable,pickerPars=pickerPars,
+                                     formPars=formPars,gridId=gridId) 
+            if lock_action:
+                gridtop_lock = gridtop_right.div(float='left',margin_right='5px')
+                self._iv_gridLock(gridtop_lock,lock_action=lock_action)
             
         if footer:
             assert callable(footer),'footer param must be a callable'
