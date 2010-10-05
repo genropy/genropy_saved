@@ -831,7 +831,7 @@ function funcCreate(fnc, pars, scope){
             fnc = macroExpand_PUBLISH(fnc);
             fnc = macroExpand_FIRE(fnc);
             if (!stringStartsWith(fnc, 'function')){
-                fnc = 'function('+pars+'){'+fnc+'}';
+                fnc = 'function('+pars+'){'+fnc+'\n}';
             }
             fnc = genro.evaluate(fnc);
             if (scope) {
