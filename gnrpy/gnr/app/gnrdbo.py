@@ -116,18 +116,18 @@ class GnrHTable(TableBase):
     def htableFields(self,tbl):
         columns = tbl['columns'] or []
         if not 'code' in columns:
-            tbl.column('code',name_long='!!Code')
+            tbl.column('code',name_long='!!Code',base_view=True)
         if not 'description' in columns:
-            tbl.column('description',name_long='!!Description')
+            tbl.column('description',name_long='!!Description',base_view=True)
         if not 'child_code' in columns:
-            tbl.column('child_code',name_long='!!Child code',validate_notnull=True,validate_notnull_error='!!Required')
+            tbl.column('child_code',name_long='!!Child code',validate_notnull=True,validate_notnull_error='!!Required',base_view=True)
         tbl.column('parent_code',name_long='!!Parent code').relation('%s.code' %tbl.parentNode.label)
         tbl.column('level',name_long='!!Level')
         pkgname = tbl.getAttr()['pkg']
         tblname = '%s.%s_%s'%(pkgname,pkgname,tbl.parentNode.label)
         tbl.formulaColumn('child_count',
                         '(SELECT count(*) FROM %s AS children WHERE children.parent_code=#THIS.code)' %tblname,
-                         dtype='L')
+                         dtype='L',base_view=True)
         tbl.formulaColumn('hdescription',
                         """
                         CASE WHEN #THIS.parent_code IS NULL THEN #THIS.description
