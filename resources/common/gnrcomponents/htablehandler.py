@@ -343,9 +343,10 @@ class HTableResolver(BagResolver):
         return children
         
 class HTablePicker(HTableHandlerBase):
+    py_requires='foundation/dialogs,foundation/includedview:IncludedView'
     def htablePicker(self,parent,table=None,column=None,rootpath=None,
                     resultpath=None,nodeId=None,datapath=None,dialogPars=None,
-                    caption=None,grid_struct=None,grid_table=None,grid_where=None,**kwargs):
+                    caption=None,grid_struct=None,grid_columns=None,grid_table=None,grid_where=None,**kwargs):
         """params htable:
             parent
             column??
@@ -358,7 +359,7 @@ class HTablePicker(HTableHandlerBase):
         dialogPars['width'] =  dialogPars.get('width', '400px')
         dlgbc = self.formDialog(parent,datapath=datapath,formId=nodeId,
                                 cb_center=self.ht_pk_center,caption=caption,table=table,
-                                grid_struct=grid_struct,
+                                grid_struct=grid_struct,grid_columns=grid_columns,
                                 grid_where=grid_where,
                                 grid_table=grid_table,**dialogPars)
                                 
@@ -386,7 +387,7 @@ class HTablePicker(HTableHandlerBase):
         return result
     
     def ht_pk_center(self,parentBC,table=None,formId=None,datapath=None,
-                    controllerPath=None,region=None,caption=None,grid_struct=None,
+                    controllerPath=None,region=None,caption=None,grid_struct=None,grid_columns=None,
                     grid_table=None,grid_where=None,**kwargs):
         sc = parentBC.stackContainer(_class='pbl_roundedGroup',selectedPage='^.selectedPage',region=region)
         
@@ -397,7 +398,7 @@ class HTablePicker(HTableHandlerBase):
         self._ht_pk_view(sc.borderContainer(pageName='view'),
                         caption=caption, gridId='%s_grid' %formId,
                         table=table,grid_table=grid_table,grid_where=grid_where,
-                        grid_struct=grid_struct)
+                        grid_struct=grid_struct,grid_columns=grid_columns)
 
     def _ht_pk_tree(self,bc,caption=None,datapath=None,formId=None,controllerPath=None,**kwargs):
         top = bc.contentPane(region='top').toolbar().div(value=caption,height='20px')
@@ -423,15 +424,15 @@ class HTablePicker(HTableHandlerBase):
                             FIRE .preview_grid.load;
                             """,_fired="^.calculate_checked",treedata='=.data.tree')
                     
-    def _ht_pk_view(self,bc,caption=None,gridId=None,table=None,
+    def _ht_pk_view(self,bc,caption=None,gridId=None,table=None,grid_columns=None,
                     grid_struct=None,grid_where=None,grid_table=None,**kwargs):
         def footer(pane,**kwargs):
             pane.button('Tree',action='SET .#parent.selectedPage = "tree";')
-        struct=grid_struct or self._ht_pk_view_struct
-        struct = struct(self.newGridStruct(grid_table))
-        struct.getItem('#0.#0').checkboxcell()
+        struct=grid_struct #or self._ht_pk_view_struct
+       #struct = struct(self.newGridStruct(grid_table))
+       #struct.getItem('#0.#0').checkboxcell()
         self.includedViewBox(bc,label=caption,footer=footer,datapath='.preview_grid',
-                             nodeId=gridId,
+                             nodeId=gridId,columns=grid_columns,
                              table=grid_table or table,autoWidth=True,
                              struct=struct,
                              reloader='^.load', 
@@ -442,10 +443,6 @@ class HTablePicker(HTableHandlerBase):
                                                              bag.forEach(function(n){n.attr._checked=true;},'static');
                                                              """))
                                                 
-    def _ht_pk_view_struct(self,struct):
-        r = struct.view().rows()
-        r.fieldcell('code', name='!!Code', width='5em')
-        return struct
         
         
         

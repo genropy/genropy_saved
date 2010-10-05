@@ -40,7 +40,7 @@ class TestHandler(BaseComponent):
         test_to_do.sort()
         for test_name in test_to_do:
             test_handler=getattr(self,test_name)
-            element= pane.div(border='1px solid gray',margin='5px')
+            element= pane.div(border='1px solid gray',margin='5px',datapath= 'test.%s' %test_name)
             h=element.div()
             h.a('Source',href='',float='right',onclick='alert("ggg")',color='white',font_size='10px',margin_right='5px',margin_top='3px',style='cursor:pointer')
             h.div(test_handler.__doc__ or test_name,background_color='gray',color='white',padding='3px')

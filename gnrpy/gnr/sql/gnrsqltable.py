@@ -712,6 +712,13 @@ class SqlTable(GnrObject):
             return lastid[0] + 1
         else:
             return getUuid()
+    
+    def baseViewColumns(self):
+        allcolumns = self.model.columns
+        result = [k for k,to_add in allcolumns.digest('#k,#a.base_view') if to_add]
+        if not result:
+            result = [col for col,colobj in allcolumns.items() if not colobj.isReserved]
+        return ','.join('result')
 
     def getResource(self,path):
         return self.db.getResource(self,path)
