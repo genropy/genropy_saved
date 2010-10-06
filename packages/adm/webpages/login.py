@@ -19,7 +19,7 @@ class GnrCustomWebPage(object):
         #root = root.contentPane(region='center')
         client, top, bottom = self.pbl_rootContentPane(root, '!!Login', width='25em', height='25ex', centered=True)        
         fb = client.formbuilder(cols=1,onEnter="FIRE loginbtn=true",border_spacing='8px',margin='auto',margin_top='1ex')  
-        fb.textbox(lbl='!!User', value='^form.user', autofocus=True, width='16em', _autoselect=True)
+        fb.textbox(lbl='!!User', value='^form.user', autofocus=True, width='16em', _autoselect=True) # TODO autoFocus or _autoselect sometime cause a "this.focus -- focus is unassigned" error in JS on Firefox
         fb.textbox(lbl='!!Password', type='password', value='^form.password', width='16em', _autoselect=True)
         newUserUrl = self.application.newUserUrl()
         if newUserUrl:

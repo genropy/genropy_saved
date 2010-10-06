@@ -33,7 +33,9 @@ class RecordDialog(BaseComponent):
                     savePath='',bottomCb=None,savingMethod=None,
                     loadingMethod=None, loadingParameters=None,onClosed='',onShow='',
                     validation_failed='alert',custom_table_id=None,centerOn=None,
-                    dlgId=None,formId=None,datapath=None,dlgPars=None,toolbarCb=None,toolbarPars=None,
+                    dlgId=None,formId=None,datapath=None,
+                    dlgPars=None, # TODO is dlgPars really supported? it seems to prevent the recordDialog from working properly.
+                    toolbarCb=None,toolbarPars=None,
                     record_datapath=None,disabled=None,**kwargs):
         """
         Allow to manage a form into a dialog for editing and saving a single RecordHandler.
