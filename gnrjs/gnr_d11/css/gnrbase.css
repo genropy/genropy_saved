@@ -963,6 +963,9 @@ table.formbuilder {
 .gnrfield .dijitButtonDisabled .dijitButtonNode, .tundra .dijitToggleButtonDisabled .dijitButtonNode, .tundra .dijitDropDownButtonDisabled .dijitButtonNode, .tundra .dijitComboButtonDisabled .dijitButtonNode, .tundra .dijitComboBoxDisabled, .tundra .dijitSpinnerDisabled, .tundra .dijitSpinnerDisabled .dijitButtonNode {
     opacity: 0.8;
 }
+.warningForm .dijitButtonNode{
+    color:red;
+}
 
 .tundra .dijitDialog .dijitDialogPaneContent {
     font-size:12px;
