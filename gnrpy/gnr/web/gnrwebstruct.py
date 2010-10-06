@@ -416,12 +416,15 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
                     nodeId = None, columns=None,**kwargs):
         nodeId = nodeId or self.page.getUuid()
         structpath = structpath or 'grids.%s.struct' %nodeId
-        if not struct and (columns and table):
+        if table and not struct:
+            columns = columns or self.page.db.table(table).baseViewColumns()
             struct = self.page.newGridStruct(maintable=table)
             rows = struct.view().rows()
             rows.fields(columns)
         elif callable(struct) and not isinstance(struct,Bag):
-            struct = struct(self.page.newGridStruct(maintable=table))
+            struct_cb = struct
+            struct = self.page.newGridStruct(maintable=table)
+            struct_cb(struct)
         if struct:
             self.data(structpath,struct)
         return self.child('includedView', storepath=storepath, structpath=structpath, nodeId=nodeId, table=table,**kwargs)
