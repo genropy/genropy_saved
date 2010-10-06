@@ -88,6 +88,7 @@ dojo.declare("gnr.GnrDomSourceNode",gnr.GnrBagNode,{
             while (this.domNode.childNodes.length > 0){
                 dojo._destroyElement(this.domNode.childNodes[0]);
             }
+            dojo._destroyElement(this.domNode);
         }
     },
     
