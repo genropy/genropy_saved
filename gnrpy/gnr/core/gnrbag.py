@@ -1203,6 +1203,13 @@ class Bag(GnrObject):
             if lower: key = key.lower()
             result[key] = el.value
         return result
+
+    def asDictDeeply(self, ascii=False, lower=False):
+        d = self.asDict(ascii=ascii, lower=lower)
+        for k,v in d.items():
+            if isinstance(v, Bag):
+                d[k] = v.asDictDeeply(ascii=ascii, lower=lower)
+        return d
         
 #-------------------- addItem --------------------------------
     def addItem(self, item_path, item_value, _attributes=None, _position=">",_validators=None,**kwargs):
