@@ -55,7 +55,7 @@ class HTableResolver(BagResolver):
                 get_tree_row_caption = _getTreeRowCaption2
             children.setItem(row['child_code'], value,
                              caption=tblobj.recordCaption(row,rowcaption=get_tree_row_caption(tblobj)),
-                             pkey=row['pkey'],code=row['code'],child_count=child_count,
+                             pkey=row['pkey'],code=row['code'],child_count=child_count,checked=False,
                              parent_code=row['parent_code'],hdescription=row['hdescription'])#_attributes=dict(row),
         return children
         
@@ -92,7 +92,7 @@ class HTableHandlerBase(BaseComponent):
             rootpath=None
             child_count = tblobj.query().count()
         value =  HTableResolver(table=table,rootpath=rootpath,_page=self) if child_count else None
-        result.setItem(rootlabel,value,child_count=child_count, caption=caption,pkey=pkey,code=code)#,_attributes=_attributes)
+        result.setItem(rootlabel,value,child_count=child_count, caption=caption,pkey=pkey,code=code,checked=False)#,_attributes=_attributes)
         return result
                     
 class HTableHandler(HTableHandlerBase):
@@ -350,24 +350,59 @@ class HTableHandler(HTableHandlerBase):
         
 class HTablePicker(HTableHandlerBase):
     py_requires='foundation/dialogs,foundation/includedview:IncludedView'
+    
     def htablePicker(self,parent,table=None,rootpath=None,
-                    input_pkeys=None,input_codes=None,
-                    output_pkeys=None,output_codes=None,
+                    input_codes=None,
+                    output_codes=None,
                     nodeId=None,datapath=None,dialogPars=None,
                     caption=None,grid_struct=None,grid_columns=None,
+                    condition=None,condition_pars=None,**kwargs):
+        
+        self._htablePicker_main(parent,table=table,rootpath=rootpath,
+                                input_codes=input_codes,output_codes=output_codes,nodeId=nodeId,
+                                datapath=datapath,dialogPars=dialogPars,grid_struct=grid_struct,
+                                grid_columns=grid_columns,
+                                condition=condition,condition_pars=condition_pars)
+    
+    
+    def htablePickerOnRelated(self,parent,table=None,rootpath=None,
+                            input_pkeys=None,output_pkeys=None,
+                            related_table=None,relation_path=None,
+                            nodeId=None,datapath=None,dialogPars=None,
+                            caption=None,grid_struct=None,grid_columns=None,
+                            condition=None,condition_pars=None,**kwargs):
+            
+        self._htablePicker_main(parent,table=table,rootpath=rootpath,
+                        related_table=related_table,
+                        relation_path=relation_path,
+                        input_pkeys=input_pkeys or '',output_pkeys=output_pkeys,nodeId=nodeId,
+                        datapath=datapath,dialogPars=dialogPars,grid_struct=grid_struct,grid_columns=grid_columns,
+                        condition=condition,condition_pars=condition_pars)
+    
+    
+    def _htablePicker_main(self,parent,table=None,rootpath=None,
+                    input_pkeys=None,
+                    input_codes=None,
+                    output_pkeys=None,
+                    output_codes=None,
+                    nodeId=None,datapath=None,dialogPars=None,
+                    caption=None,grid_struct=None,grid_columns=None,
+                    condition=None,
+                    condition_pars=None,
                     related_table=None,
                     relation_path=None,
-                    grid_where=None,
                     **kwargs):
         """params htable:
             parent
             column??
             resultpath
             """
-        grid_table = related_table if related_table else table
-        if not grid_struct and not grid_columns:
-            grid_columns = self.db.table(grid_table).baseViewColumns()
-            
+        grid_where = '$code IN :codes'
+        if related_table:
+            grid_where = '%s IN :codes' %relation_path 
+        if condition:
+            grid_where = '%s AND %s' %(grid_where,condition)
+        condition_pars = condition_pars or dict()
         dialogPars = dialogPars or dict()
         tblobj = self.db.table(table)
         dialogPars['title'] = dialogPars.get('title','%s picker' %tblobj.name_long)
@@ -377,7 +412,8 @@ class HTablePicker(HTableHandlerBase):
         dlgbc = self.formDialog(parent,datapath=datapath,formId=nodeId,
                                 cb_center=self.ht_pk_center,caption=caption,table=table,
                                 grid_struct=grid_struct,grid_columns=grid_columns,
-                                grid_where=grid_where,
+                                grid_where=grid_where,condition_pars=condition_pars,
+                                output_codes=output_codes,output_pkeys=output_pkeys,
                                 related_table=related_table,**dialogPars)
         dlgbc.dataController("FIRE .open;",**{"subscribe_%s_open" %nodeId:True})
         
@@ -386,73 +422,82 @@ class HTablePicker(HTableHandlerBase):
                         rootpath=rootpath,rootcaption=tblobj.name_plural,
                         input_pkeys=input_pkeys,input_codes=input_codes,
                         relation_path=relation_path,related_table=related_table,
-                        nodeId='%s_loader' %nodeId,_onResult='FIRE .check_curr_elements;')
-                        
-        dlgbc.dataController("FIRE .reload_tree; FIRE .loaded",
-                            _fired="^.check_curr_elements",
-                            checked_elements=input_codes)
-       #dlgbc.dataController("""
-       #                        SET %s = result;                                
-       #                    """ %resultpath,nodeId='%s_saver' %nodeId,
-       #                    result='=.data.checked_codes')        
-        
-        
+                        nodeId='%s_loader' %nodeId,
+                        _onResult="""FIRE .reload_tree;
+                                     PUBLISH %s_tree_checked; 
+                                     FIRE .loaded;""" %nodeId)
+
+  
     def rpc_ht_pk_getTreeData(self,table=None,rootpath=None,rootcaption=None,
                              input_codes=None,input_pkeys=None,related_table=None,
                              relation_path=None):
         result = self.ht_treeDataStore(table=table,rootpath=rootpath,rootcaption=rootcaption)
-        print input_codes
-        if isinstance(input_codes,basestring):
-            input_codes = input_codes.split(',')
         htableobj = self.db.table(table)
         if related_table:
-            pass
-            #devo trovare i code o le pkey da selezionare nell'htable
-            # SELECT * FROM htable WHERE
-            # SELECT DISTINCT category_id  FROM pruduct WHERE id in input_pkeys
-            # SELECT DISTINCT @product_id.category_id  FROM sales WHERE id in input_pkeys 
-        else:
-            assert not relation_path,'Missing related_table'    
-            if not input_codes and input_pkeys:
-                f = htableobj.query(columns='$code',where='$%s IN :pkeys' %htableobj.pkey,
-                                pkeys=input_pkeys,addPkeyColumn=False).fetch()
-                input_codes = [r['code'] for r in f]
-        for code in input_codes:
-            node = result.getNode('#0.%s' %code)
-            if node:
-                print node
-                node.setAttr(checked=True)
-            else:
-                print x
+            if isinstance(input_pkeys,basestring):
+                input_pkeys = input_pkeys.split(',')
+            reltableobj = self.db.table(related_table)
+            input_codes = reltableobj.query(columns='%s AS hcode' %relation_path,where='$%s IN :pkeys' %reltableobj.pkey,
+                                            pkeys=input_pkeys,distinct=True,addPkeyColumn=False).fetch()
+            input_codes = [r['hcode'] for r in input_codes]
+        if input_codes:
+            if isinstance(input_codes,basestring):
+                input_codes = input_codes.split(',')
+            for code in input_codes:
+                node = result.getNode('#0.%s' %code)
+                if node and not node.attr['child_count']>0:
+                    node.setAttr(checked=True)
+            self._ht_pk_setParentStatus(result)
         return result
+        
+    def _ht_pk_setParentStatus(self,bag):
+        for node in bag.nodes:        
+            value = node.getValue('static')
+            if isinstance(value,Bag):
+                self._ht_pk_setParentStatus(value)
+                checked_elements = value.digest('#a.checked')
+                n_checked = checked_elements.count(True)
+                n_fuzzy = checked_elements.count(-1)
+                if n_checked == len(value):
+                    checked = True
+                elif n_checked==0 and n_fuzzy==0:
+                    checked = False
+                else:
+                    checked = -1
+                node.attr['checked'] = checked
+        
     
     def ht_pk_center(self,parentBC,table=None,formId=None,datapath=None,
                     controllerPath=None,region=None,caption=None,grid_struct=None,grid_columns=None,
-                    related_table=None,grid_where=None,**kwargs):
+                    related_table=None,grid_where=None,condition_pars=None,output_codes=None,output_pkeys=None,**kwargs):
         bc = parentBC.borderContainer(_class='pbl_roundedGroup',region=region)
         
         self._ht_pk_tree(bc.borderContainer(region='left',width='150px',splitter=True),
                          caption=caption,datapath=datapath,
                         controllerPath=controllerPath,
-                        formDatapath='.data.tree',formId=formId)
+                        formDatapath='.data.checked_codes',formId=formId,
+                        output_codes=output_codes,output_pkeys=output_pkeys)
         self._ht_pk_view(bc.borderContainer(region='center'),
                         caption=caption, gridId='%s_grid' %formId,
-                        table=table,related_table=related_table,grid_where=grid_where,
-                        grid_struct=grid_struct,grid_columns=grid_columns)
+                        table=table,related_table=related_table,grid_where=grid_where,condition_pars=condition_pars,
+                        output_pkeys=output_pkeys,grid_struct=grid_struct,
+                        grid_columns=grid_columns)
 
-    def _ht_pk_tree(self,bc,caption=None,datapath=None,formId=None,controllerPath=None,**kwargs):
+    def _ht_pk_tree(self,bc,caption=None,datapath=None,formId=None,
+                    controllerPath=None,output_codes=None,
+                    output_pkeys=None,**kwargs):
         #top = bc.contentPane(region='top').div(value=caption,height='20px')
         treeId = '%s_tree' %formId
         center = bc.contentPane(region='center',datapath=datapath,formId=formId,controllerPath=controllerPath)
         center.tree(storepath ='.tree._root_',
                     isTree =False,hideValues=True,
                     _fired='^.#parent.reload_tree',
-                    nodeId=treeId,
+                    nodeId=treeId,eagerCheck=True,
                     inspect ='shift',labelAttribute ='caption',onChecked=True)
                     
                     
         bc.dataController("""
-                            console.log('calculating');
+
                             var result = [];
                             treedata.walk(function(n){
                                 if (n.attr['checked']==true && !n.getValue()){
@@ -460,29 +505,47 @@ class HTablePicker(HTableHandlerBase):
                                 }
                             },'static');
                             SET .data.checked_codes = result;
+                            if(output_codes){
+                                this.setRelativeData(output_codes,result.join(','));
+                            }
                             FIRE .preview_grid.load;
-                            """,treedata='=.data.tree',
-                            _delay=1000,**{'subscribe_%s_checked' %treeId:True})
+                            """ ,output_codes = output_codes or False,treedata='=.data.tree',
+                            **{'subscribe_%s_checked' %treeId:True})
                             
                             
                     
     def _ht_pk_view(self,bc,caption=None,gridId=None,table=None,grid_columns=None,
-                    grid_struct=None,grid_where=None,related_table=None,**kwargs):
-        struct=grid_struct #or self._ht_pk_view_struct
-       #struct = struct(self.newGridStruct(related_table))
-       #struct.getItem('#0.#0').checkboxcell()
+                    grid_struct=None,grid_where=None,condition_pars=None,related_table=None,
+                    output_pkeys=None,**kwargs):
+                    
         self.includedViewBox(bc,label=False,datapath='.preview_grid',
                              nodeId=gridId,columns=grid_columns,
-                             table=related_table or table,autoWidth=True,
-                             struct=struct,
-                             reloader='^.load', 
-                             selectionPars=dict(where=grid_where or '$code IN :codes',
+                             table=related_table or table,
+                             struct=grid_struct,
+                             reloader='^.load', addCheckBoxColumn=bool(related_table),
+                             selectionPars=dict(where=grid_where,
                                                 codes='=.#parent.data.checked_codes',
-                                                pkeys='=.#parent.data.checked_pkeys',
+                                                _delay=1000,
                                                 _onResult="""
-                                                             var bag =result.getValue();
-                                                             bag.forEach(function(n){n.attr._checked=true;},'static');
-                                                             """))
+                                                    var bag =result.getValue();
+                                                    bag.forEach(function(n){
+                                                        var old_n = old.getNodeByAttr('_pkey',n.attr._pkey);
+                                                        n.attr._checked=(old_n && old_n.attr._checked==false)?false:true;
+                                                    },'static');     
+                                                """),**condition_pars)
+        bc.dataController("""
+                            console.log('eseguo');
+                            var output_pkey_list = [];
+                            selection.forEach(function(n){
+                                if(n.attr._checked==true){
+                                    output_pkey_list.push(n.attr._pkey);
+                                }
+                            });
+                            this.setRelativeData(output_pkeys,output_pkey_list.join(','));
+                            """ ,
+                            output_pkeys=output_pkeys,
+                            selection="^.preview_grid.selection",_if='selection')
+                                            
                                                 
         
         

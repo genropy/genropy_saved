@@ -3113,13 +3113,6 @@ dojo.declare("gnr.widgets.IncludedView",gnr.widgets.VirtualStaticGrid,{
         var structpath = sourceNode.attr.structpath;
         sourceNode.registerDynAttr('structpath');
         attributes.cellmap = {};
-        
-        //var columns = gnr.columnsFromStruct(structure);
-        //if(hiddencolumns){
-        //    columns = columns+','+hiddencolumns;
-        //}
-        //attributes.query_columns= columns;
-        
         attributes.relation_path= relation_path;
         attributes.sqlContextName= inAttrs['sqlContextName'];
         attributes.sqlContextTable= inAttrs['sqlContextTable'];
@@ -3131,14 +3124,14 @@ dojo.declare("gnr.widgets.IncludedView",gnr.widgets.VirtualStaticGrid,{
         attributes.rowCount=0;
         attributes.datamode = datamode;
         sourceNode.attr.nodeId = sourceNode.attr.nodeId || 'grid_' + sourceNode.getStringId();
+        var addCheckBoxColumn = sourceNode.attr.addCheckBoxColumn;
+        if (addCheckBoxColumn){
+            var kw = addCheckBoxColumn==true? null: genro.evaluate(addCheckBoxColumn);
+            this.addCheckBoxColumn(kw,sourceNode);
+        }
         var structAsBag = sourceNode.getRelativeData(sourceNode.attr.structpath);
         attributes.query_columns=this.getQueryColumns(sourceNode, structAsBag)
         attributes.structure = this.structFromBag(structAsBag, attributes.cellmap);
-        //if (attributes.query_columns){
-        //    this.setQueryColumns()
-        //    var controllerPath = sourceNode.attr.controllerPath || 'grids.' + sourceNode.attr.nodeId;
-        //    sourceNode.setRelativeData(controllerPath+'.columns', attributes.query_columns);
-        //}
     },    
     getQueryColumns:function(sourceNode,structure){
         var columns = gnr.columnsFromStruct(structure);
@@ -3146,12 +3139,42 @@ dojo.declare("gnr.widgets.IncludedView",gnr.widgets.VirtualStaticGrid,{
             columns = columns+','+sourceNode.attr.hiddencolumns;
         }
         if (columns){
-            var controllerPath = sourceNode.attr.controllerPath || 'grids.' + sourceNode.attr.nodeId;
-            sourceNode.setRelativeData(controllerPath+'.columns', columns);
+            var path = sourceNode.attr.controllerPath? '.columns':'grids.' + sourceNode.attr.nodeId +'.columns';
+            sourceNode.setRelativeData(path, columns);
         }
         return columns
     },
+    mixin_onCheckedColumn:function(idx){
+        var rowpath = '#'+idx;
+        var valuepath = rowpath+'?_checked';
+        var disabledpath = rowpath+'?disabled';
+        var storebag = this.storebag();
+        if (storebag.getItem(disabledpath)){
+            return;
+        }
+        var currval = storebag.getItem(valuepath);
+        storebag.setItem(valuepath,!currval);
+    },
+    mixin_addCheckBoxColumn:function(kw){
+        this.gnr.addCheckBoxColumn(kw,this.sourceNode);
+    },
+    addCheckBoxColumn:function(kw,sourceNode){
+        var position = position || 'left';
+        var structbag = sourceNode.getRelativeData(sourceNode.attr.structpath);
+        var celldata = {};
+        var kw = kw || {};
+        celldata['field'] = '_checked';
+        celldata['name'] = kw.name || ' ';
+        celldata['dtype'] = 'B';
+        celldata['width'] = '20px';
 
+        celldata['format_trueclass'] = kw.format_trueclass || 'checkboxOn';
+        celldata['classes'] = kw.classes || 'row_checker';
+        celldata['format_falseclass'] = kw.format_falseclass || 'checkboxOff' ;
+        celldata['calculated'] = true;
+        celldata['format_onclick'] = 'this.widget.onCheckedColumn(kw.rowIndex)';
+        structbag.setItem('view_0.rows_0.cell_checked',null,celldata,{_position:kw.position || 0});
+    },
     created: function(widget, savedAttrs, sourceNode){
         this.created_common(widget, savedAttrs, sourceNode);
         var selectionId = sourceNode.attr['selectionId'] || sourceNode.attr.nodeId+'_selection';
@@ -3726,25 +3749,46 @@ dojo.declare("gnr.widgets.Tree",gnr.widgets.baseDojo,{
     },
     mixin_clickOnCheckbox:function(bagnode,e){
        var checked=bagnode.attr.checked?false:true;
+       var walkmode = this.sourceNode.attr.eagerCheck?null:'static';
+       var updBranchCheckedStatus = function(bag){
+           bag.forEach(function(n){
+               var v = n.getValue(walkmode);
+               if(v instanceof gnr.GnrBag){
+                   updBranchCheckedStatus(v);
+                   var checkedStatus = dojo.every(v.getNodes(),function(cn){return cn.attr.checked==true;});
+                   if (!checkedStatus){
+                      var allUnchecked= dojo.every(v.getNodes(),function(cn){return cn.attr.checked==false;});
+                      checkedStatus = allUnchecked?false:-1;
+                   }
+                   n.setAttr({'checked':checkedStatus},true,true);
+
+               }else if(n._resolver && n._resolver.expired()){
+                   n.setAttr({'checked':-1},true,true);
+               }else{
+                   n.setAttr({'checked':checked},true,true);
+               }
+           })
+       };
        if (bagnode.getValue){
            var value=bagnode.getValue();
            if (value instanceof gnr.GnrBag){
-               value.walk(function(node){
-                   if(node._resolver && node._resolver.expired()){
-                       node.setAttr({'checked':-1},true,true);
-                   }else{
-                       node.setAttr({'checked':checked},true,true);
-                   }
-                   },'static');
+               //value.walk(function(node){
+               //    if(node._resolver && node._resolver.expired()){
+               //        node.setAttr({'checked':-1},true,true);
+               //    }else{
+               //        node.setAttr({'checked':checked},true,true);
+               //    }
+               //    },walkmode);
+               updBranchCheckedStatus(value); 
            }
        } 
        bagnode.setAttr({'checked':checked},true,true);
        var parentNode=bagnode.getParentNode();
        var rootNodeId = genro.getDataNode(this.model.store.datapath)._id;
-       while(parentNode && (parentNode._id != rootNodeId)){
-           parentNode.setAttr({'checked':this.checkBoxCalcStatus(parentNode)},true,true);
-           var parentNode=parentNode.getParentNode();
-       }
+       //while(parentNode && (parentNode._id != rootNodeId)){
+       //    parentNode.setAttr({'checked':this.checkBoxCalcStatus(parentNode)},true,true);
+       //    var parentNode=parentNode.getParentNode();
+       //}
        if (this.sourceNode.attr.nodeId){
            genro.publish(this.sourceNode.attr.nodeId+'_checked',bagnode);
        }

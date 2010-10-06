@@ -147,7 +147,7 @@ dojo.declare("gnr.GnrDomSourceNode",gnr.GnrBagNode,{
             if (this.pendingFire){
                 clearTimeout(this.pendingFire);
             }
-            this.pendingFire=setTimeout(dojo.hitch(this,'setDataNodeValueDo',kw.node,kw,trigger_reason),this.attr._delay);
+            this.pendingFire=setTimeout(dojo.hitch(this,'setDataNodeValueDo',node,kw,trigger_reason),this.attr._delay);
         }else{
             this.setDataNodeValueDo(node, kw, trigger_reason,subscription_args);
         }
@@ -246,7 +246,7 @@ dojo.declare("gnr.GnrDomSourceNode",gnr.GnrBagNode,{
                  var origKwargs = objectUpdate({},kwargs);
                  objectExtract(kwargs,'_*');
                  if (_onResult){
-                    _onResult = funcCreate(_onResult,'result,kwargs',this);
+                    _onResult = funcCreate(_onResult,'result,kwargs,old',this);
                  }
                  if (_onError){
                     _onError = funcCreate(_onError,'error,kwargs',this);
@@ -263,11 +263,13 @@ dojo.declare("gnr.GnrDomSourceNode",gnr.GnrBagNode,{
                                                      }
                                                     }
                                                  else{
+                                                     var oldValue;
                                                      if(dataNode){
+                                                         oldValue = dataNode.getValue();
                                                          dataNode.setValue(result); 
                                                      }
                                                      if(_onResult){
-                                                         _onResult(result,origKwargs);
+                                                         _onResult(result,origKwargs,oldValue);
                                                      }
                                                   } 
                                                };
