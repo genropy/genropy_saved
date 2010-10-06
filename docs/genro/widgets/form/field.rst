@@ -40,7 +40,7 @@
 
 **Description:**
 
-
+	Il field si chiede chi è la form (il formbuilder), e legge il dbtable della form (o la maintable della form se l'attributo dbtable non è definito)
 
 .. _Examples:
 
@@ -61,9 +61,9 @@
 	+--------------------+-------------------------------------------------+--------------------------+
 	|   Attribute        |          Description                            |   Default                |
 	+====================+=================================================+==========================+
-	| ``nameAttribute``  | description...                                  |  ``defaultValue``        |
-	+--------------------+-------------------------------------------------+--------------------------+
-	| ``nameAttribute``  | description...                                  |  ``defaultValue``        |
+	| ``zoom``           | It allows to open the linked record in its      |  ``True``                |
+	|                    | :ref:`database-table`. For further              |                          |
+	|                    | details, check :ref:`field-zoom-example`        |                          |
 	+--------------------+-------------------------------------------------+--------------------------+
 
 **Other features:**

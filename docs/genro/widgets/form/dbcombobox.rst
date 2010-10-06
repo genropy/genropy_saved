@@ -22,50 +22,43 @@
 
 	- :ref:`dbcombobox-features`
 
-		- :ref:`dbcombobox-first-reference`
-		- :ref:`dbcombobox-second-reference`
+		- :ref:`dbcombobox-zoom-example`
 
 	.. _dbcombobox-definition:
 
 Definition
 ==========
 
-	dbCombobox is a :ref:`form-combobox` that research values from a database table.
+	Here we report dbCombobox's definition::
+		
+		def nameOfObject(args): #NISO ???
 
 	.. _dbcombobox-where:
 
 Where
 =====
 
-	You can find dbcombobox in *genro/gnrpy/...* ???
+	You can find dbcombobox in *genro/gnrpy/...* #NISO ???
 
 	.. _dbcombobox-description:
 
 Description
 ===========
 
-	The Genro dbCombobox is a :ref:`form-combobox` that conducts research on specific columns in a database table. As the user types, partially matched values will be shown in a pop-up menu below the input text box. The main feature is that dbCombobox, unlike the :ref:`form-dbselect`, permits to enter new values not yet in the database.
+	The Genro dbCombobox is a :ref:`form-combobox` that conducts research on specific columns in a database table.
+
+	The main feature is that dbCombobox, unlike the :ref:`form-dbselect`, permits to enter new values not yet in the database.
+
+	While user write in the dbCombobox, partially matched values will be shown in a pop-up menu below the input text box.
+
+	The only way to specify the table related to the dbSelect is using the :ref:`common-dbtable` attribute.
+	
+	???
+	< #NISO >
+	Inoltre è possibile aggiungere diversi parametri chiamati formati dal prefisso "selected" e dal nome di una colonna della table, nel quale specificare il datapath, dove salvare i rispettivi dati del record selezionato con il dbCombobox.
+	</ #NISO>
 
 	.. _dbcombobox-examples:
-
-
-	- attributi:
-			auxColumns 		--> visualizza nella tendina i parametri di ricerca (vuole obbligato columns)
-				       	    (campi di pura visualizzazione)
-			columns		--> query fields
-			limit='NUMBER'	--> pone il numero di campi visibili nel menu a scorrimento per la scelta
-					    	    (di default è limit='10')
-			alternatePkey=''	--> ???
-			lbl='nome'		--> the label… (dbSelect doesn't have "label" attribute!!)
-			zoom=True		--> serve per andare ad aprire il record collegato (all'id)
-						    nella sua standard table (di default zoom è True!!)
-
-	It's a filteringSelect that get data from a database's table.
-    
-    dbtable     The name of table you want to use as source
-    columns     what fields you use for your search
-    auxColumns  the columns you want to see but you don't want to search in
-
 
 Examples
 ========
@@ -75,31 +68,47 @@ Examples
 		class GnrCustomWebPage(object):
 			def main(self,root,**kwargs):
 				fb=pane.formbuilder(datapath='test1',cols=2)
-				??
+				???
 
 	Let's see a demo:
 
-	#NISO add online demo!
+	#NISO add online demo! ???
 
 	.. _dbcombobox-attributes:
 
 Attributes
 ==========
 
-	I parametri di dbCombobox sono:
-	<i>dbtable</i> ovvero la table del database a cui si riferisce la ricerca, espressa col path package.table.<br/>
-	<i>columns</i> ovvero le colonne sulle quali viene effettuata la ricerca.<br/>
-	<i>auxColumns</i> le colonne aggiuntive che vengono mostrate nel menu popup delle opzioni trovate<br/>
-	Inoltre è possibile aggiungere diversi parametri chiamati formati dal prefisso <i>selected_</i> 
-	e dal nome di una colonna della table, nel quale specificare il datapath, dove salvare i rispettivi 
-	dati del record selezionato con il dbCombobox.
-	
 	+--------------------+-------------------------------------------------+--------------------------+
 	|   Attribute        |          Description                            |   Default                |
 	+====================+=================================================+==========================+
-	| ``??``             | ??                                              |  ``??``                  |
+	| ``alternatePkey``  | #NISO                                           |  ``None``                |
+	|                    | ???                                             |                          |
 	+--------------------+-------------------------------------------------+--------------------------+
-	
+	| ``auxColumns``     | Show in a pop-up menu below the input textbox   |  ``None``                |
+	|                    | i parametri di ricerca (vuole obbligato columns)|                          |
+	|                    | (campi di pura visualizzazione) ???             |                          |
+	+--------------------+-------------------------------------------------+--------------------------+
+	| ``columns``        | Specify the columns on which will be made the   |  ``None``                |
+	|                    | query ???                                       |                          |
+	+--------------------+-------------------------------------------------+--------------------------+
+	| ``dbtable``        | MANDATORY - Select the database                 |  ``None``                |
+	|                    | :ref:`database-table` for dbCombobox query. For |                          |
+	|                    | further details, see :ref:`common-dbtable`      |                          |
+	+--------------------+-------------------------------------------------+--------------------------+
+	| ``limit``          | Set the number of visible choices on the pop-up |  ``10``                  |
+	|                    | menu below the input textbox during user typing |                          |
+	+--------------------+-------------------------------------------------+--------------------------+
+	| ``rowcaption``     | Allow user to view records through              |  ``None``                |
+	|                    | :ref:`name-name_long` value.                    |                          |
+	|                    | Without ``rowcaption``, user will see value ID. |                          |
+	|                    | Check for more information on                   |                          |
+	|                    | :ref:`database-rowcaption` page                 |                          |
+	+--------------------+-------------------------------------------------+--------------------------+
+
+	???
+	<i>auxColumns</i> le colonne aggiuntive che vengono mostrate nel menu popup delle opzioni trovate<br/>
+
 	.. _dbcombobox-other-attributes:
 
 Common attributes
@@ -108,9 +117,6 @@ Common attributes
 	+--------------------+-------------------------------------------------+--------------------------+
 	|   Attribute        |          Description                            |   Default                |
 	+====================+=================================================+==========================+
-	| ``datapath``       | Set path for data.                              |  ``None``                |
-	|                    | For more details, see :ref:`common-datapath`    |                          |
-	+--------------------+-------------------------------------------------+--------------------------+
 	| ``disabled``       | If True, user can't act on the dbcombobox.      |  ``False``               |
 	|                    | For more details, see :ref:`common-disabled`    |                          |
 	+--------------------+-------------------------------------------------+--------------------------+
@@ -120,22 +126,4 @@ Common attributes
 	| ``value``          | Set a path for dbcombobox's values.             |  ``None``                |
 	|                    | For more details, see :ref:`common-datapath`    |                          |
 	+--------------------+-------------------------------------------------+--------------------------+
-
-	.. _dbcombobox-features:
-
-Other features
-==============
-
-	.. _dbcombobox-first-reference:
 	
-?? Title first reference
-===============================================
-	
-	??
-	
-	.. _dbcombobox-second-reference:
-	
-?? Title second reference
-===============================================
-	
-	??

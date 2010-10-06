@@ -4,14 +4,46 @@
  Dbtable
 =========
 	
-	The ``dbtable`` attribute is used to specify a path for a database :ref:`database-table` during a user query. If you don't specify it, Genro will use as dbtable value the value of the :ref:`database-maintable`
+	The ``dbtable`` attribute is used to specify a path for a database :ref:`database-table` during a user query.
 	
 	The sintax is ``packageName.tableName``, where:
 	
-		* ``packageName`` is the name of the package on which you're working; 
-		* ``tableName`` is the name of the file on which are saved the value of database;
+		* ``packageName`` is the name of the package on which you're working;
+		* ``tableName`` is the name of the :ref:`database-table` on which is executed the user query.
+
+	Based on the form widget you're using, there is a different usage of ``dbtable``:
+	
+		* :ref:`dbtable-formbuilder-field`
+		* :ref:`dbtable-dbselect-dbcombobox`
 		
-	for more details, check :ref:`database-introduction`
+	.. _dbtable-formbuilder-field:
+
+dbtable for the formbuilder and the field widgets
+=================================================
+
+	???
+
+	.. _dbtable-dbselect-dbcombobox:
+
+dbtable for the dbSelect and the dbCombobox widgets
+===================================================
+
+	???
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	If you don't specify it, Genro will use as dbtable value the :ref:`database-maintable` value.
+	
+	
 	
 	Let's see two examples about the :ref:`database-maintable`, and two examples about the ``dbtable``.
 	

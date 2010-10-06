@@ -10,3 +10,5 @@ Database
 	introduction
 	maintable
 	table
+	name/index
+	rowcaption

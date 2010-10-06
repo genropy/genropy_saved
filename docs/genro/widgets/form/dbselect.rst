@@ -20,38 +20,37 @@
 
 	- :ref:`dbselect-other-attributes`
 
-	- :ref:`dbselect-features`
-
-		- :ref:`dbselect-zoom-example`
-
 	.. _dbselect-definition:
 
 Definition
 ==========
 		
-	Here we report dbselect's definition::
+	Here we report dbSelect's definition::
 		
-		def nameOfObject(args): ???
-			
+		def nameOfObject(args): #NISO ???
 
 	.. _dbselect-where:
 
 Where
 =====
 
-	You can find dbSelect in *genro/gnrpy/...* ???
+	You can find dbSelect in *genro/gnrpy/...* #NISO ???
 
 	.. _dbselect-description:
 
 Description
 ===========
 
-	dbSelect [#]_ is a :ref:`form-filteringselect` that takes the values through a query on the database. While user write in the dbSelect, partially matched values will be shown in a pop-up menu below the input text box.
+	dbSelect [#]_ is a :ref:`form-filteringselect` that takes the values through a query on the database [#]_.
+	
+	User can choose between all the values contained into the linked :ref:`database-table`. You have to specify the table from which user makes his selection.
 	
 	dbSelect keep track into the :ref:`genro-datastore` of the ID of the record chosen by the user.
 	
-	To use dbSelect there must exist a database. For having information on a database creation, please check :ref:`database-introduction`.
-
+	While user write in the dbSelect, partially matched values will be shown in a pop-up menu below the input text box.
+	
+	The only way to specify the table related to the dbSelect is using the :ref:`common-dbtable` attribute.
+	
 	.. _dbselect-examples:
 
 Examples
@@ -62,7 +61,8 @@ Examples
 		class GnrCustomWebPage(object):
 			def main(self,root,**kwargs):
 				fb=pane.formbuilder(datapath='test1',cols=2)
-				fb.dbSelect(value='^.query',)
+				fb.dbSelect(dbtable='showcase.person',rowcaption='$name',
+				            value='^.person_id',lbl='Star')
 
 	Let's see a demo:
 
@@ -76,25 +76,28 @@ Attributes
 	+--------------------+-------------------------------------------------+--------------------------+
 	|   Attribute        |          Description                            |   Default                |
 	+====================+=================================================+==========================+
-	| ``alternatePkey``  | ???                                             |  ``???``                 |
+	| ``alternatePkey``  | #NISO                                           |  ``None``                |
 	|                    | ???                                             |                          |
 	+--------------------+-------------------------------------------------+--------------------------+
-	| ``auxColumns``     | Show in a pop-up menu below the input textbox   |  ``???``                 |
+	| ``auxColumns``     | Show in a pop-up menu below the input textbox   |  ``None``                |
 	|                    | i parametri di ricerca (vuole obbligato columns)|                          |
 	|                    | (campi di pura visualizzazione) ???             |                          |
 	+--------------------+-------------------------------------------------+--------------------------+
-	| ``columns``        | Query fields ???                                |  ``???``                 |
+	| ``columns``        | Specify the columns on which will be made the   |  ``None``                |
+	|                    | query ???                                       |                          |
 	+--------------------+-------------------------------------------------+--------------------------+
-	| ``dbtable``        | Select the database :ref:`database-table` for   |  ``None``                |
-	|                    | dbSelect query. For further details, see        |                          |
-	|                    | :ref:`common-dbtable`                           |                          |
+	| ``dbtable``        | MANDATORY - Select the database                 |  ``None``                |
+	|                    | :ref:`database-table` for dbSelect query. For   |                          |
+	|                    | further details, see :ref:`common-dbtable`      |                          |
 	+--------------------+-------------------------------------------------+--------------------------+
 	| ``limit``          | Set the number of visible choices on the pop-up |  ``10``                  |
 	|                    | menu below the input textbox during user typing |                          |
 	+--------------------+-------------------------------------------------+--------------------------+
-	| ``zoom=True``      | It allows to open the linked record in its      |  ``True``                |
-	|                    | :ref:`database-table`. For further              |                          |
-	|                    | details, check :ref:`dbselect-zoom-example`     |                          |
+	| ``rowcaption``     | Allow user to view records through              |  ``None``                |
+	|                    | :ref:`name-name_long` value.                    |                          |
+	|                    | Without ``rowcaption``, user will see value ID. |                          |
+	|                    | Check for more information on                   |                          |
+	|                    | :ref:`database-rowcaption` page                 |                          |
 	+--------------------+-------------------------------------------------+--------------------------+
 
 	.. _dbselect-other-attributes:
@@ -115,18 +118,9 @@ Common attributes
 	|                    | For more details, see :ref:`common-datapath`    |                          |
 	+--------------------+-------------------------------------------------+--------------------------+
 
-	.. _dbselect-features:
-
-Attributes description
-======================
-
-	.. _dbselect-zoom-example:
-	
-zoom example
-============
-	
-	??
 	
 **Footnotes**
 	
 .. [#] It should have been called "dbFilteringSelect", but it has been shortened in "dbSelect"
+.. [#] To use dbSelect there must exist a database. For having information on a database creation, please check :ref:`database-introduction`.
+

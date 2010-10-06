@@ -20,7 +20,6 @@ cd psycopg2-2.0.13
 python setup.py build (on Snow Leopard CC=/usr/bin/gcc-4.0 python setup.py build)
 sudo python setup.py install
 
-
 [paver]
 sudo easy_install -U -Z paver
 
@@ -30,7 +29,7 @@ cd genro
 cd gnrpy
 sudo paver develop
 
------------------------ Skip These --------------------
+----------------------- Skip These ---------------------
 #[python packages]
 #sudo easy_install -U -Z babel
 #sudo easy_install -U -Z pytz
@@ -46,7 +45,8 @@ sudo easy_install -U -Z mako
 sudo easy_install -U -Z pypdf
 sudo easy_install -U -Z huBarcode
 
------------------------------------------------------
+--------------------------------------------------------
+
 [ReportLab]
 download from: http://www.reportlab.org/ftp/ReportLab_2_3.tar.gz
 tar xvfz ReportLab_2_3.tar.gz
@@ -93,6 +93,5 @@ make && sudo make install
 
 To run apache in 32bit mode:
 http://code.google.com/p/modwsgi/wiki/InstallationOnMacOSX
-and read the "Forcing 32 Bit Execution"
-of the document.
+and read the "Forcing 32 Bit Execution" of the document.
 

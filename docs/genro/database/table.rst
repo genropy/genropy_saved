@@ -17,7 +17,7 @@ Definition
 
 	???
 
-	.. _table-description
+	.. _table-description:
 
 Description
 ===========
