@@ -86,7 +86,7 @@ dojo.declare("gnr.GnrDomSourceNode",gnr.GnrBagNode,{
             widgets= widgets.map(dijit.byNode);     // Array
             dojo.forEach(widgets, function(widget){ widget.destroy(); });
             while (this.domNode.childNodes.length > 0){
-                dojo._destroyElement(node.childNodes[0]);
+                dojo._destroyElement(this.domNode.childNodes[0]);
             }
         }
     },
