@@ -172,9 +172,7 @@ class RecordDialog(BaseComponent):
                                 }""",save_failed='^gnr.forms.%s.save_failed' %formId)
         pane.dataController("SET .saveDisabled = saving;",saving="gnr.forms.%s.saving" %formId)
         
-        pane.dataController("""if(warning){
-                                    genro.dom.addClass(dlgId,'warningForm');
-                                }""",warning="^.warning",dlgId=dlgId)   
+        pane.dataController("""genro.dom.setClass(dlgId,'warningForm',warning);""",warning="^.warning",dlgId=dlgId)   
                                                                       
         if validation_failed == "alert":
             pane.dataController("genro.dlg.alert(msg,title)",
