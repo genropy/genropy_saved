@@ -171,12 +171,17 @@ class RecordDialog(BaseComponent):
                                     FIRE .validation_failed;
                                 }""",save_failed='^gnr.forms.%s.save_failed' %formId)
         pane.dataController("SET .saveDisabled = saving;",saving="gnr.forms.%s.saving" %formId)
-                                                                  
+        
+        pane.dataController("""if(warning){
+                                    genro.dom.addClass(dlgId,'warningForm');
+                                }""",warning="^.warning",dlgId=dlgId)   
+                                                                      
         if validation_failed == "alert":
             pane.dataController("genro.dlg.alert(msg,title)",
                                   _fired='^.validation_failed',
                                   msg='!!Not valid data. Please check the form',
                                   title='!!Warning')
+        
                         
         elif validation_failed == "focus":
             pane.dataController("genro.formById('%s').focusFirstInvalidField()" %formId,_fired="^.validation_failed")
