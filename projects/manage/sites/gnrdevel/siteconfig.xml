@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<GenRoBag>
+    <wsgi debug="true" reload="true" mainpackage='gnrdevel' port='8090'/>
+    <gui css_theme='aqua'/>
+    <resources >
+	<common/>
+	<js_libs/>
+    </resources>
+</GenRoBag>
