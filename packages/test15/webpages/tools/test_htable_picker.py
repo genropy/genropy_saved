@@ -29,7 +29,7 @@ class GnrCustomWebPage(object):
         """Picker on related table"""
         fb = pane.formbuilder(cols=1, border_spacing='3px')
         fb.textbox(value='^.pkeys',lbl='Related Pkeys',width='30em')
-        fb.div(value='^.output_pkeys',lbl='Related Pkeys',width='30em',height='20px',background='red')
+        fb.div(value='^.output_pkeys',lbl='Related Output Pkeys',width='30em',height='20px',background='red')
 
         fb.button('Show',action='PUBLISH picker_2_open;')
         self.htablePickerOnRelated(pane,table=self.htable,
