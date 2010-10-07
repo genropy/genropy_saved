@@ -552,19 +552,16 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
             result['width']='%iem' % (int(size*.7)+2)
             if(onerelfld != relcol.table.pkey):
                 result['alternatePkey']=onerelfld
-            
         #elif attr.get('mode')=='M':
         #    result['tag']='bagfilteringtable'
+        elif dtype in ('A','T') and fieldobj.attributes.get('values', False):
+            result['tag'] = 'filteringselect'
+            result['values'] = fieldobj.attributes.get('values',[])
         elif dtype == 'A' :
             result['maxLength'] = size
             result['tag']='textBox'
             result['_type']='text'
             result['width']='%iem' % (int(size*.7)+2)
-            
-            values=fieldobj.attributes.get('values',None)
-            if values is not None:
-                result['tag'] = 'filteringselect'
-                result['values'] = values
         elif dtype == 'B':
             result['tag']='checkBox'
             if 'width' in kwargs: del kwargs['width']
