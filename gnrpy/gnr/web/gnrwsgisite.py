@@ -411,6 +411,15 @@ class GnrWsgiSite(object):
             return self.default_uri
     home_uri=property(_get_home_uri)
     
+    def parse_request_params(self, params):
+        out_dict=dict()
+        for name,value in params.items():
+            if name.endswith('[]'):
+                out_dict.setdefault(name[:-2],[]).append(value)
+            else:
+                out_dict[name]=value
+        return out_dict
+    
     def dispatcher(self,environ,start_response):
         """Main WSGI dispatcher, calls serve_staticfile for static files and self.createWebpage for
          GnrWebPages"""
@@ -425,10 +434,11 @@ class GnrWsgiSite(object):
             self.log_print( '',code='FAVICON')
            # return response(environ, start_response)
     
-        request_kwargs=dict(request.params)
+        request_kwargs=self.parse_request_params(request.params)
         request_kwargs.pop('_no_cache_',None)
         storename = None
         #print 'site dispatcher: ',path_list
+        
         if path_list[0] in self.dbstores:
             storename = path_list.pop(0)
         if path_list[0] == '_ping':
