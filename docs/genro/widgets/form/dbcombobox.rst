@@ -20,10 +20,6 @@
 
 	- :ref:`dbcombobox-other-attributes`
 
-	- :ref:`dbcombobox-features`
-
-		- :ref:`dbcombobox-zoom-example`
-
 	.. _dbcombobox-definition:
 
 Definition
@@ -51,12 +47,15 @@ Description
 
 	While user write in the dbCombobox, partially matched values will be shown in a pop-up menu below the input text box.
 
-	The only way to specify the table related to the dbSelect is using the :ref:`common-dbtable` attribute.
+	The only way to specify the table related to the dbCombobox is using the :ref:`common-dbtable` attribute.
 	
 	???
 	< #NISO >
 	Inoltre è possibile aggiungere diversi parametri chiamati formati dal prefisso "selected" e dal nome di una colonna della table, nel quale specificare il datapath, dove salvare i rispettivi dati del record selezionato con il dbCombobox.
 	</ #NISO>
+	
+	
+	la dbcombobox ha gli stessi parametri della dbselect, però permette di scegliere tra elementi anche non previsti nel database (NON è che i valori che non sono nel database vengonno aggiunti nel database, PERO' dà la possibilità di metterli! Tanto salva per valori, non ha le chiavi! Quindi è una figata, magari mettere un esempio in cui nel database ci sono tutte le città italiane, e uno può aggiungere una località strana cazzuta che non è contemplata nel databse)
 
 	.. _dbcombobox-examples:
 
@@ -106,8 +105,7 @@ Attributes
 	|                    | :ref:`database-rowcaption` page                 |                          |
 	+--------------------+-------------------------------------------------+--------------------------+
 
-	???
-	<i>auxColumns</i> le colonne aggiuntive che vengono mostrate nel menu popup delle opzioni trovate<br/>
+	??? <i>auxColumns</i> le colonne aggiuntive che vengono mostrate nel menu popup delle opzioni trovate<br/>
 
 	.. _dbcombobox-other-attributes:
 
