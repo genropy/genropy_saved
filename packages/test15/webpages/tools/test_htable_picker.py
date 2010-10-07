@@ -9,11 +9,14 @@
 class GnrCustomWebPage(object):
     py_requires='gnrcomponents/testhandler:TestHandlerFull,gnrcomponents/htablehandler:HTablePicker'
     
-    htable = 'base.category'
-    related_table = 'base.pr_product'
-    relation_path = '@category_id.code'
-
-
+    #htable = 'base.category'
+    #related_table = 'base.pr_product'
+    #relation_path = '@category_id.code'
+    
+    htable = 'pforce.extra'
+    related_table = 'pforce.extra_product'
+    relation_path = '@extra_id.code'
+    
     def test_1_testpicker(self,pane):
         """Picker on htable"""
         fb = pane.formbuilder(cols=1, border_spacing='3px')
@@ -39,6 +42,7 @@ class GnrCustomWebPage(object):
                             relation_path=self.relation_path,
                             nodeId='picker_2',datapath='.struct_picker',
                             dialogPars=dict(width='600px'))
+                            
                             
     def __test_3_testpicker(self,pane):
         fb = pane.formbuilder(cols=1, border_spacing='3px')

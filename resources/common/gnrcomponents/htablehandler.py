@@ -55,7 +55,7 @@ class HTableResolver(BagResolver):
                 get_tree_row_caption = _getTreeRowCaption2
             children.setItem(row['child_code'], value,
                              caption=tblobj.recordCaption(row,rowcaption=get_tree_row_caption(tblobj)),
-                             pkey=row['pkey'],code=row['code'],child_count=child_count,checked=False,
+                             _pkey=row['pkey'],code=row['code'],child_count=child_count,checked=False,
                              parent_code=row['parent_code'],hdescription=row['hdescription'])#_attributes=dict(row),
         return children
         
@@ -92,7 +92,7 @@ class HTableHandlerBase(BaseComponent):
             rootpath=None
             child_count = tblobj.query().count()
         value =  HTableResolver(table=table,rootpath=rootpath,_page=self) if child_count else None
-        result.setItem(rootlabel,value,child_count=child_count, caption=caption,pkey=pkey,code=code,checked=False)#,_attributes=_attributes)
+        result.setItem(rootlabel,value,child_count=child_count, caption=caption,_pkey=pkey,code=code,checked=False)#,_attributes=_attributes)
         return result
                     
 class HTableHandler(HTableHandlerBase):
@@ -354,12 +354,15 @@ class HTablePicker(HTableHandlerBase):
     def htablePicker(self,parent,table=None,rootpath=None,
                     input_codes=None,
                     output_codes=None,
+                    output_pkeys=None,
                     nodeId=None,datapath=None,dialogPars=None,
                     caption=None,grid_struct=None,grid_columns=None,
                     condition=None,condition_pars=None,**kwargs):
         
         self._htablePicker_main(parent,table=table,rootpath=rootpath,
-                                input_codes=input_codes,output_codes=output_codes,nodeId=nodeId,
+                                input_codes=input_codes,output_codes=output_codes,
+                                output_pkeys=output_pkeys,
+                                nodeId=nodeId,
                                 datapath=datapath,dialogPars=dialogPars,grid_struct=grid_struct,
                                 grid_columns=grid_columns,
                                 condition=condition,condition_pars=condition_pars)
@@ -426,6 +429,8 @@ class HTablePicker(HTableHandlerBase):
                         _onResult="""FIRE .reload_tree;
                                      PUBLISH %s_tree_checked; 
                                      FIRE .loaded;""" %nodeId)
+        dlgbc.dataController("PUBLISH %s_confirmed; FIRE .saved;" %nodeId,
+                            nodeId="%s_saver" %nodeId)
 
   
     def rpc_ht_pk_getTreeData(self,table=None,rootpath=None,rootcaption=None,
@@ -498,18 +503,27 @@ class HTablePicker(HTableHandlerBase):
                     
         bc.dataController("""
 
-                            var result = [];
+                            var result_codes = [];
+                            var result_pkeys = [];
                             treedata.walk(function(n){
                                 if (n.attr['checked']==true && !n.getValue()){
-                                    result.push(n.attr['code']);
+                                    result_codes.push(n.attr['code']);
+                                    result_pkeys.push(n.attr['_pkey']);
                                 }
                             },'static');
-                            SET .data.checked_codes = result;
+                            SET .data.checked_codes = result_codes;
+                            SET .data.checked_pkeys = result_pkeys;
                             if(output_codes){
-                                this.setRelativeData(output_codes,result.join(','));
+                                this.setRelativeData(output_codes,result_codes.join(','));
                             }
+                            if(output_pkeys){
+                                this.setRelativeData(output_pkeys,result_pkeys.join(','));
+                            }
+                            
                             FIRE .preview_grid.load;
-                            """ ,output_codes = output_codes or False,treedata='=.data.tree',
+                            """ ,output_codes = output_codes or False,
+                            output_pkeys= output_pkeys or False,
+                            treedata='=.data.tree',
                             **{'subscribe_%s_checked' %treeId:True})
                             
                             
@@ -533,20 +547,20 @@ class HTablePicker(HTableHandlerBase):
                                                         n.attr._checked=(old_n && old_n.attr._checked==false)?false:true;
                                                     },'static');     
                                                 """),**condition_pars)
-        bc.dataController("""
-                            console.log('eseguo');
-                            var output_pkey_list = [];
-                            selection.forEach(function(n){
-                                if(n.attr._checked==true){
-                                    output_pkey_list.push(n.attr._pkey);
-                                }
-                            });
-                            this.setRelativeData(output_pkeys,output_pkey_list.join(','));
-                            """ ,
-                            output_pkeys=output_pkeys,
-                            selection="^.preview_grid.selection",_if='selection')
-                                            
-                                                
+        #bc.dataController("""
+        #                    console.log('eseguo');
+        #                    var output_pkey_list = [];
+        #                    selection.forEach(function(n){
+        #                        if(n.attr._checked==true){
+        #                            output_pkey_list.push(n.attr._pkey);
+        #                        }
+        #                    });
+        #                    this.setRelativeData(output_pkeys,output_pkey_list.join(','));
+        #                    """ ,
+        #                    output_pkeys=output_pkeys,
+        #                    selection="^.preview_grid.selection",_if='selection')
+        #                                    
+        #                                        
         
         
         
