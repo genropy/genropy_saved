@@ -12,3 +12,6 @@ class Table(object):
         tbl.column('role', name_short='Rl.',name_long='Role')
         tbl.column('prizes', name_short='Priz.',name_long='Prizes', size='40')
         tbl.column('number','L',name_long='!!Number')
+        
+    def zoomUrl(self):
+        return 'showcase/model/person'
