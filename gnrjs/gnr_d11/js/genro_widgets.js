@@ -3146,14 +3146,13 @@ dojo.declare("gnr.widgets.IncludedView",gnr.widgets.VirtualStaticGrid,{
     },
     mixin_onCheckedColumn:function(idx){
         var rowpath = '#'+idx;
-        var valuepath = rowpath+'?_checked';
-        var disabledpath = rowpath+'?disabled';
         var storebag = this.storebag();
-        if (storebag.getItem(disabledpath)){
+        var currNode = storebag.getNode(rowpath);
+        if (currNode.attr.disabled){
             return;
         }
-        var currval = storebag.getItem(valuepath);
-        storebag.setItem(valuepath,!currval);
+        var currval = currNode.attr._checked;
+        currNode.setAttr({'_checked':!currval},true,true);
     },
     mixin_addCheckBoxColumn:function(kw){
         this.gnr.addCheckBoxColumn(kw,this.sourceNode);
