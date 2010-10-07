@@ -121,7 +121,7 @@ class ResourceLoader(object):
         path = page_node_attributes.get('path')
         pkg = page_node_attributes.get('pkg')
         page_class = self.get_page_class(path = path, pkg = pkg)
-        page = page_class(site= self.site, request=request, response=response, request_kwargs=dict(request.params), request_args=request_args,
+        page = page_class(site= self.site, request=request, response=response, request_kwargs=self.site.parse_request_params(request.params), request_args=request_args,
                     filepath = path, packageId = pkg, basename = path,environ=environ)
         return page
  
