@@ -98,11 +98,13 @@ class BaseResourceBatch(object):
 
     def __init__(self,page=None,resource_table=None):
         self.page = page
+        self.db = self.page.db
         self.resource_table = resource_table
         self.btc = self.page.btc
+        self._pkeys=None
     
     def __call__(self,batch_note=None,**kwargs):
-        self.batch_parameters = kwargs
+        self.batch_parameters = kwargs['pars']
         self.batch_note = batch_note
         try:
             self.run()
@@ -114,8 +116,7 @@ class BaseResourceBatch(object):
                 raise e
             else:
                 self.btc.batch_error(error=str(e))
-        
-    
+
     def run(self):
         self.btc.batch_create(batch_id='%s_%s' %(self.batch_prefix,self.page.getUuid()),
                             title=self.batch_title,
@@ -124,9 +125,25 @@ class BaseResourceBatch(object):
             for step in self.btc.thermo_wrapper(self.batch_steps,'btc_steps',message=self.get_step_caption,keep=True):
                 step_handler = getattr(self,'step_%s' %step)
                 step_handler()
+                for line_code in self.btc.line_codes[1:]:
+                    self.btc.thermo_line_del(line_code)
         else:
             self.do()
     
+    def batchUpdate(self, updater=None, table = None, where=None, line_code=None, message=None, **kwargs ):
+        table = table or self.page.maintable
+        tblobj = self.db.table(table)
+        
+        if not where:
+            where='$%s IN:pkeys' % tblobj.pkey
+            kwargs['pkeys'] = self.get_selection_pkeys()
+            
+        tblobj.batchUpdate(updater=updater, where=where,
+                          _wrapper=self.btc.thermo_wrapper,
+                            _wrapperKwargs=dict(line_code='date',
+                                                message= message or self.get_record_caption,
+                                                tblobj=tblobj), **kwargs)
+        
     def result_handler(self):
         return 'Execution completed',dict()
         
@@ -134,9 +151,12 @@ class BaseResourceBatch(object):
         step_handler = getattr(self,'step_%s' %item)
         return step_handler.__doc__
         
-    def get_record_caption(self,item,progress,maximum,iterable=None,**kwargs):
-        caption = iterable.dbtable.recordCaption(item)
-        return '%s (%i/%i)' %(caption,progress,maximum)
+    def get_record_caption(self,item,progress,maximum, tblobj=None,**kwargs):
+        if tblobj:
+            caption = '%s (%i/%i)' % (tblobj.recordCaption(item),progress,maximum)
+        else:
+            caption = '%i/%i' % (progress,maximum)
+        return caption
 
     def do(self,**kwargs):
         """override me"""
@@ -150,6 +170,11 @@ class BaseResourceBatch(object):
         selection = self.page.getUserSelection(selectionName=self.selectionName,
                                          selectedRowidx=self.selectedRowidx)
         return selection
+        
+    def get_selection_pkeys(self):
+        if self._pkeys is None:
+            self._pkeys = self.get_selection().output('pkeylist')
+        return self._pkeys
         
     def rpc_selectionFilterCb(self,row):
         """override me"""

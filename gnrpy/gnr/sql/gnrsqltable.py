@@ -451,8 +451,10 @@ class SqlTable(GnrObject):
         
         return query
     
-    def batchUpdate(self,updater=None,**kwargs):
+    def batchUpdate(self,updater=None, _wrapper=None, _wrapperKwargs=None, **kwargs):
         fetch = self.query(addPkeyColumn=False,for_update=True,**kwargs).fetch()
+        if _wrapper:
+            fetch = _wrapper(fetch, **(_wrapperKwargs or dict()))
         for row in fetch:
             new_row = dict(row)
             if callable(updater):

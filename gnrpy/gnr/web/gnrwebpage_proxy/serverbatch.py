@@ -195,8 +195,8 @@ class GnrWebBatch(GnrBaseProxy):
             store.set_datachange('%s.thermo.%s' %(self.batch_path,code),progress,
                             attributes=dict(progress=progress,message=message,maximum=maximum),replace=True,
                             reason='tl_upd')
-
-    def thermo_wrapper(self,iterable,line_code,message=None,keep=True,**kwargs):
+                            
+    def thermo_wrapper(self,iterable=None,line_code=None,message=None,keep=True, **kwargs):
         """
         this method will return an iterator that wraps
         the give iterable and update the related thermo
@@ -209,7 +209,6 @@ class GnrWebBatch(GnrBaseProxy):
         * `kwargs`: any given kwargs is passed to the iterable method
     
         """
-        
         if isinstance(iterable,basestring):
             iterable = iterable.split(',')
         if callable(iterable):
@@ -219,12 +218,12 @@ class GnrWebBatch(GnrBaseProxy):
             cb_message = message
         else:
             msg_desc = message or line_code
-            cb_message = lambda item,k,m,iterable: '%s %i/%i'  %(msg_desc,k,m)
+            cb_message = lambda item,k,m,**kwargs: '%s %i/%i'  %(msg_desc,k,m)
         if not line_code in self.line_codes:
             self.thermo_line_add(line_code,maximum=maximum)
         for k,item in enumerate(iterable):
             progress=k+1
-            message = cb_message(item,progress,maximum,iterable=iterable)
+            message = cb_message(item, progress, maximum, **kwargs)
             self.thermo_line_update(line_code,maximum=maximum,message=message,progress=progress)
             yield item
         if not keep:

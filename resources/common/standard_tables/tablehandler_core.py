@@ -49,6 +49,10 @@ class TableHandlerToolbox(BaseComponent):
     def toolboxFromResources(self, parent,res_type=None):
         datapath = 'list.toolbox.%s' %res_type
         pane = parent.contentPane(datapath=datapath)
+        pane.dataController("""PUBLISH table_script_run = {res_type:tablehandler_run_script[0],
+                                                           table:table,resource:tablehandler_run_script[1],
+                                                           selectionName:selectionName};
+                            """,subscribe_tablehandler_run_script=True,table=self.maintable,selectionName='=list.selectionName')
         self.table_script_resource_tree(pane,table=self.maintable,res_type=res_type,selectionName='=list.selectionName',
                                         gridId='maingrid',_class='toolboxResourceTree')
                         
