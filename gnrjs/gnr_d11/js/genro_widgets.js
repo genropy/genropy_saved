@@ -2779,7 +2779,7 @@ dojo.declare("gnr.widgets.VirtualStaticGrid",gnr.widgets.Grid,{
     },
     
     mixin_onSetStructpath: function(structure){
-    this.query_columns=this.gnr.getQueryColumns(this.sourceNode,structure)
+    this.query_columns=this.gnr.getQueryColumns(this.sourceNode,structure);
     if (this.rpcViewColumns){
         this.rpcViewColumns.call();
     }
@@ -3126,11 +3126,11 @@ dojo.declare("gnr.widgets.IncludedView",gnr.widgets.VirtualStaticGrid,{
         sourceNode.attr.nodeId = sourceNode.attr.nodeId || 'grid_' + sourceNode.getStringId();
         var addCheckBoxColumn = sourceNode.attr.addCheckBoxColumn;
         if (addCheckBoxColumn){
-            var kw = addCheckBoxColumn==true? null: genro.evaluate(addCheckBoxColumn);
+            var kw = addCheckBoxColumn==true? null: addCheckBoxColumn;
             this.addCheckBoxColumn(kw,sourceNode);
         }
         var structAsBag = sourceNode.getRelativeData(sourceNode.attr.structpath);
-        attributes.query_columns=this.getQueryColumns(sourceNode, structAsBag)
+        attributes.query_columns=this.getQueryColumns(sourceNode, structAsBag);
         attributes.structure = this.structFromBag(structAsBag, attributes.cellmap);
     },    
     getQueryColumns:function(sourceNode,structure){
@@ -3142,7 +3142,7 @@ dojo.declare("gnr.widgets.IncludedView",gnr.widgets.VirtualStaticGrid,{
             var path = sourceNode.attr.controllerPath? '.columns':'grids.' + sourceNode.attr.nodeId +'.columns';
             sourceNode.setRelativeData(path, columns);
         }
-        return columns
+        return columns;
     },
     mixin_onCheckedColumn:function(idx){
         var rowpath = '#'+idx;
@@ -3185,7 +3185,7 @@ dojo.declare("gnr.widgets.IncludedView",gnr.widgets.VirtualStaticGrid,{
         genro.src.afterBuildCalls.push(dojo.hitch(widget,'render'));
         //dojo.connect(widget, 'onSelected', widget,'_gnrUpdateSelect');
         dojo.connect(widget, 'modelAllChange', dojo.hitch(sourceNode ,this.modelAllChange));
-        dojo.connect(widget,'doheadercontextmenu',function(e){genro.publish('grid_configurator','open',e)})
+        dojo.connect(widget,'doheadercontextmenu',function(e){genro.publish('grid_configurator','open',e);});
         if (sourceNode.attr.editbuffer){
             sourceNode.registerDynAttr('editbuffer');
         }
@@ -3766,7 +3766,7 @@ dojo.declare("gnr.widgets.Tree",gnr.widgets.baseDojo,{
                }else{
                    n.setAttr({'checked':checked},true,true);
                }
-           })
+           });
        };
        if (bagnode.getValue){
            var value=bagnode.getValue();
