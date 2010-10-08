@@ -36,7 +36,7 @@ class TableHandlerToolbox(BaseComponent):
             delprefpane.checkbox(value='^list.tableRecordCount', label='!!Show total count',margin_left='5px')
             delprefpane.dataController("""SET list.excludeLogicalDeleted = showDeleted? 'mark':true;""",showDeleted='^aux.showDeleted')
         self.toolboxFields(bc.contentPane(region='top',height='50%',splitter=True))
-        tc = bc.tabContainer(region='center', selectedPage='^list.toolboxSelected',margin='5px',margin_top='10px')
+        tc = bc.tabContainer(region='center', selectedPage='^list.toolboxSelected',margin='5px',margin_top='10px')    
         self.toolboxQueries(tc.borderContainer(title_tip='!!Queries',pageName='query',iconClass='icnBaseLens',showLabel=False))
         self.toolboxViews(tc.borderContainer(title_tip='!!Views',pageName='view',iconClass='icnBaseView'))
        
@@ -44,15 +44,20 @@ class TableHandlerToolbox(BaseComponent):
                                 res_type='action')
         self.toolboxFromResources(tc.contentPane(title_tip='Mails',pageName='mail',iconClass='icnBaseEmail'),res_type='mail')
         self.toolboxFromResources(tc.contentPane(title_tip='Prints',pageName='print',iconClass='icnBasePrinter'),res_type='print')        
-    
+        tc.dataController("""
+                            var selectedRowidx = genro.wdgById('maingrid').getSelectedRowidx();
+                            var script_pars = {'res_type':tablehandler_run_script[0],
+                                                'resource':tablehandler_run_script[1],
+                                                'table':table,
+                                                'selectedRowidx':selectedRowidx,
+                                                'selectionName':selectionName};
+                            PUBLISH table_script_run = script_pars;
+                            """,subscribe_tablehandler_run_script=True,table=self.maintable,
+                            selectionName='=list.selectionName')
     
     def toolboxFromResources(self, parent,res_type=None):
         datapath = 'list.toolbox.%s' %res_type
         pane = parent.contentPane(datapath=datapath)
-        pane.dataController("""PUBLISH table_script_run = {res_type:tablehandler_run_script[0],
-                                                           table:table,resource:tablehandler_run_script[1],
-                                                           selectionName:selectionName};
-                            """,subscribe_tablehandler_run_script=True,table=self.maintable,selectionName='=list.selectionName')
         self.table_script_resource_tree(pane,table=self.maintable,res_type=res_type,selectionName='=list.selectionName',
                                         gridId='maingrid',_class='toolboxResourceTree')
                         

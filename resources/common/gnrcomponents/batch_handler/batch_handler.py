@@ -34,15 +34,15 @@ class TableScriptRunner(BaseComponent):
         page = self.pageSource()
         plugin_main = page.div(datapath='gnr.plugin.table_script_runner',nodeId='table_script_runner')
         plugin_main.dataController(""" var params = table_script_run[0];
-                                       console.log(params);
                                        SET .res_type= params['res_type'];
                                        SET .table =  params['table'];
                                        SET .resource =  params['resource'];
                                        SET .selectionName =  params['selectionName'];
                                        SET .selectedRowidx =  params['selectedRowidx'];
                                        FIRE .build_pars_dialog;
-                                       FIRE .parsDlg.open;
+                                       FIRE #table_script_dlg_parameters.open;
                                     """,subscribe_table_script_run=True)
+                                    
         plugin_main.dataRpc('dummy','table_script_run',
                 _fired='^.run',
                 _onCalling='PUBLISH batch_monitor_open;',
@@ -92,6 +92,7 @@ class TableScriptRunner(BaseComponent):
 
         dlg = self.simpleDialog(pane,title=title,datapath='.parsDlg',height='300px',width='400px',
                          cb_center=cb_center,dlgId='table_script_dlg_parameters')
+                         
         dlg.dataController("""FIRE .close;
                             SET #table_script_runner.pars=pars;
                             FIRE #table_script_runner.run;""",
