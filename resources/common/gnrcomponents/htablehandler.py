@@ -358,12 +358,13 @@ class HTablePicker(HTableHandlerBase):
                     output_pkeys=None,
                     nodeId=None,datapath=None,dialogPars=None,
                     caption=None,grid_struct=None,grid_columns=None,
+                    grid_show=False,
                     condition=None,condition_pars=None,**kwargs):
         
         self._htablePicker_main(parent,table=table,rootpath=rootpath,
                                 input_codes=input_codes,output_codes=output_codes,
                                 output_pkeys=output_pkeys,
-                                nodeId=nodeId,
+                                nodeId=nodeId,grid_show=grid_show,
                                 datapath=datapath,dialogPars=dialogPars,grid_struct=grid_struct,
                                 grid_columns=grid_columns,
                                 condition=condition,condition_pars=condition_pars)
@@ -390,7 +391,7 @@ class HTablePicker(HTableHandlerBase):
                     input_codes=None,
                     output_pkeys=None,
                     output_related_pkeys=None,
-                    
+                    grid_show=True,
                     output_codes=None,
                     nodeId=None,datapath=None,dialogPars=None,
                     caption=None,grid_struct=None,grid_columns=None,
@@ -413,16 +414,20 @@ class HTablePicker(HTableHandlerBase):
         dialogPars = dialogPars or dict()
         tblobj = self.db.table(table)
         dialogPars['title'] = dialogPars.get('title','%s picker' %tblobj.name_long)
-        dialogPars['height'] = dialogPars.get('height','300px')
-        dialogPars['width'] =  dialogPars.get('width', '450px')
+        dialogPars['height'] = dialogPars.get('height','400px')
+        default_width = '300px'
+        if grid_show:
+            default_width = '600px'
+        dialogPars['width'] =  dialogPars.get('width', default_width)
         
         dlgbc = self.formDialog(parent,datapath=datapath,formId=nodeId,
                                 cb_center=self.ht_pk_center,caption=caption,table=table,
                                 grid_struct=grid_struct,grid_columns=grid_columns,
                                 grid_where=grid_where,condition_pars=condition_pars,
                                 output_codes=output_codes,output_pkeys=output_pkeys,
-                                related_table=related_table,
+                                related_table=related_table,grid_show=grid_show,
                                 output_related_pkeys=output_related_pkeys,**dialogPars)
+    
         dlgbc.dataController("FIRE .open;",**{"subscribe_%s_open" %nodeId:True})
         
                                                                 
@@ -433,15 +438,45 @@ class HTablePicker(HTableHandlerBase):
                         nodeId='%s_loader' %nodeId,
                         _onResult="""FIRE .reload_tree;
                                      FIRE .prepare_check_status;
-                                     SET .preview_grid.initial_checked_pkeys = $2.input_pkeys.split(',');
-                                     FIRE .preview_grid.load;
-                                     FIRE .loaded;""")
+                                     if(kwargs._grid_show){
+                                        SET .preview_grid.initial_checked_pkeys = $2.input_pkeys.split(',');
+                                        FIRE .preview_grid.load;
+                                     }
+                                     FIRE .loaded;""",_grid_show=grid_show)
                                      
         dlgbc.dataController("""FIRE .prepare_output_related_pkeys; 
                                 PUBLISH %s_confirmed; 
                                 FIRE .saved;""" %nodeId,
                             nodeId="%s_saver" %nodeId)
-
+        
+        dlgbc.dataController("""
+                            FIRE .prepare_check_status;
+                            FIRE .preview_grid.load;
+                            """ ,
+                            **{'subscribe_%s_tree_checked' %nodeId:True})
+                            
+        dlgbc.dataController("""
+                            var result_codes = [];
+                            var result_pkeys = [];
+                            treedata.walk(function(n){
+                                if (n.attr['checked']==true && !n.getValue()){
+                                    result_codes.push(n.attr['code']);
+                                    result_pkeys.push(n.attr['pkey']);
+                                }
+                            },'static');
+                            SET .data.checked_codes = result_codes;
+                            SET .data.checked_pkeys = result_pkeys;
+                            if(output_codes){
+                                this.setRelativeData(output_codes,result_codes.join(','));
+                            }
+                            if(output_pkeys){
+                                this.setRelativeData(output_pkeys,result_pkeys.join(','));
+                            }
+                        """,
+                        _fired="^.prepare_check_status",output_codes = output_codes or False,
+                        output_pkeys= output_pkeys or False,
+                        treedata='=.data.tree')
+        
   
     def rpc_ht_pk_getTreeData(self,table=None,rootpath=None,rootcaption=None,
                              input_codes=None,input_pkeys=None,related_table=None,
@@ -450,10 +485,7 @@ class HTablePicker(HTableHandlerBase):
         htableobj = self.db.table(table)
         if related_table:
             if input_pkeys:
-                if isinstance(input_pkeys,basestring):
-                    input_pkeys = input_pkeys.split(',')
-                else:
-                    print mpht
+                input_pkeys = input_pkeys.split(',')
                 reltableobj = self.db.table(related_table)
                 where='$%s IN :pkeys' %reltableobj.pkey
                 q = reltableobj.query(columns='%s AS hcode' %relation_path,where=where,
@@ -491,63 +523,32 @@ class HTablePicker(HTableHandlerBase):
     def ht_pk_center(self,parentBC,table=None,formId=None,datapath=None,
                     controllerPath=None,region=None,caption=None,grid_struct=None,grid_columns=None,
                     related_table=None,grid_where=None,condition_pars=None,output_codes=None,
-                    output_related_pkeys=None,
+                    output_related_pkeys=None,grid_show=None,
                     output_pkeys=None,**kwargs):
-        bc = parentBC.borderContainer(_class='pbl_roundedGroup',region=region)
-        
-        self._ht_pk_tree(bc.borderContainer(region='left',width='150px',splitter=True),
-                         caption=caption,datapath=datapath,
-                        controllerPath=controllerPath,
-                        formDatapath='.data.checked_codes',formId=formId,
-                        output_codes=output_codes,output_pkeys=output_pkeys)
-        self._ht_pk_view(bc.borderContainer(region='center'),
+        if grid_show:
+            bc = parentBC.borderContainer(_class='pbl_roundedGroup',region=region)
+            treepane = bc.contentPane(region='left',width='150px',splitter=True,
+                                        datapath=datapath,formId=formId,controllerPath=controllerPath)
+            self._ht_pk_view(bc.borderContainer(region='center'),
                         caption=caption, gridId='%s_grid' %formId,
                         table=table,related_table=related_table,
                         grid_where=grid_where,condition_pars=condition_pars,
                         output_related_pkeys=output_related_pkeys,
                         output_pkeys=output_pkeys,grid_struct=grid_struct,
                         grid_columns=grid_columns)
+        else:
+            treepane = parentBC.contentPane(region=region,datapath=datapath,formId=formId,
+                                                controllerPath=controllerPath)
+        self._ht_pk_tree(treepane,caption=caption,formId=formId)
+    
+        
 
-    def _ht_pk_tree(self,bc,caption=None,datapath=None,formId=None,
-                    controllerPath=None,output_codes=None,
-                    output_pkeys=None,**kwargs):
-        #top = bc.contentPane(region='top').div(value=caption,height='20px')
-        treeId = '%s_tree' %formId
-        center = bc.contentPane(region='center',datapath=datapath,formId=formId,controllerPath=controllerPath)
-        center.tree(storepath ='.tree._root_',
+    def _ht_pk_tree(self,pane,caption=None,formId=None,*kwargs):
+        pane.tree(storepath ='.tree._root_',
                     isTree =False,hideValues=True,
                     _fired='^.#parent.reload_tree',
-                    nodeId=treeId,eagerCheck=True,
+                    nodeId='%s_tree' %formId,eagerCheck=True,
                     inspect ='shift',labelAttribute ='caption',onChecked=True)
-                    
-                    
-        bc.dataController("""
-                            FIRE .prepare_check_status;
-                            FIRE .preview_grid.load;
-                            """ ,
-                            **{'subscribe_%s_checked' %treeId:True})
-                            
-        bc.dataController("""
-                            var result_codes = [];
-                            var result_pkeys = [];
-                            treedata.walk(function(n){
-                                if (n.attr['checked']==true && !n.getValue()){
-                                    result_codes.push(n.attr['code']);
-                                    result_pkeys.push(n.attr['pkey']);
-                                }
-                            },'static');
-                            SET .data.checked_codes = result_codes;
-                            SET .data.checked_pkeys = result_pkeys;
-                            if(output_codes){
-                                this.setRelativeData(output_codes,result_codes.join(','));
-                            }
-                            if(output_pkeys){
-                                this.setRelativeData(output_pkeys,result_pkeys.join(','));
-                            }
-                        """,
-                        _fired="^.prepare_check_status",output_codes = output_codes or False,
-                        output_pkeys= output_pkeys or False,
-                        treedata='=.data.tree')
                             
                             
                     

@@ -8,19 +8,11 @@
 
 class GnrCustomWebPage(object):
     py_requires='gnrcomponents/testhandler:TestHandlerFull,gnrcomponents/htablehandler:HTablePicker'
+    htable = 'base.category'
+    related_table = 'base.pr_product'
+    relation_path = '@category_id.code'
     
-    htable='auspost.sla_tree'
-    related_table = 'auspost.postcode_sla'
-    relation_path = '$sla_tree_code'
-    
-    #htable = 'base.category'
-    #related_table = 'base.pr_product'
-    #relation_path = '@category_id.code'
-    
-    htable = 'pforce.extra'
-    related_table = 'pforce.extra_product'
-    relation_path = '@extra_id.code'
-    
+
     def test_1_testpicker(self,pane):
         """Picker on htable"""
         fb = pane.formbuilder(cols=1, border_spacing='3px')
@@ -29,8 +21,7 @@ class GnrCustomWebPage(object):
         self.htablePicker(pane,table=self.htable, 
                             nodeId='picker_1',datapath='.struct_picker',
                             input_codes='=.#parent.codes',
-                            output_codes='.#parent.codes',
-                            dialogPars=dict(width='600px'))
+                            output_codes='.#parent.codes')
     
     def test_2_testpicker(self,pane):
         """Picker on related table"""
@@ -44,8 +35,7 @@ class GnrCustomWebPage(object):
                             input_pkeys='=.#parent.pkeys',
                             output_pkeys='.#parent.output_pkeys',
                             relation_path=self.relation_path,
-                            nodeId='picker_2',datapath='.struct_picker',
-                            dialogPars=dict(width='600px'))
+                            nodeId='picker_2',datapath='.struct_picker')
                             
                             
     def __test_3_testpicker(self,pane):

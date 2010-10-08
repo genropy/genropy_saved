@@ -3771,23 +3771,16 @@ dojo.declare("gnr.widgets.Tree",gnr.widgets.baseDojo,{
        if (bagnode.getValue){
            var value=bagnode.getValue();
            if (value instanceof gnr.GnrBag){
-               //value.walk(function(node){
-               //    if(node._resolver && node._resolver.expired()){
-               //        node.setAttr({'checked':-1},true,true);
-               //    }else{
-               //        node.setAttr({'checked':checked},true,true);
-               //    }
-               //    },walkmode);
                updBranchCheckedStatus(value); 
            }
        } 
        bagnode.setAttr({'checked':checked},true,true);
        var parentNode=bagnode.getParentNode();
        var rootNodeId = genro.getDataNode(this.model.store.datapath)._id;
-       //while(parentNode && (parentNode._id != rootNodeId)){
-       //    parentNode.setAttr({'checked':this.checkBoxCalcStatus(parentNode)},true,true);
-       //    var parentNode=parentNode.getParentNode();
-       //}
+       while(parentNode && (parentNode._id != rootNodeId)){
+           parentNode.setAttr({'checked':this.checkBoxCalcStatus(parentNode)},true,true);
+           var parentNode=parentNode.getParentNode();
+       }
        if (this.sourceNode.attr.nodeId){
            genro.publish(this.sourceNode.attr.nodeId+'_checked',bagnode);
        }
