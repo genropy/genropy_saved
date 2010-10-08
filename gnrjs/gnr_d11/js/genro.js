@@ -706,8 +706,8 @@ dojo.declare('gnr.GenroClient', null, {
         for (var i=1; i < arguments.length; i++){
             args.push(arguments[i]);
         }
-        console.log('publishing:'+topic);
-        console.log(args)
+       //console.log('publishing:'+topic);
+       //console.log(args)
         dojo.publish(topic, args);
     },
     absoluteUrl: function(url, kwargs, avoidCache){

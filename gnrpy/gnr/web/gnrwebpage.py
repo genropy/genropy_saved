@@ -819,20 +819,30 @@ class GnrWebPage(GnrBaseWebPage):
             
         tc = parentBC.tabContainer(selectedPage='^.selected',_class='main_left_tab',
                                     datapath='gnr.main_container.left',
-                                    tabPosition='bottom',**kwargs)        
+                                    tabPosition='bottom',**kwargs)    
+        tc.dataController("""
+                            var command;
+                            if(_reason=='gnr_main_left_selected' && leftVisible){
+                                var pagename = gnr_main_left_selected[1];
+                                var pagestatus = gnr_main_left_selected[2];
+                                command = pagestatus?'open':'close';
+                            }else{
+                                var leftStatus = main_left_status[0];
+                                var pagename = selectedPage;
+                                command = leftStatus?'open':'close';
+                            }
+                            genro.publish(pagename+'_'+command);
+                            """,
+                            subscribe_gnr_main_left_selected=True,
+                            subscribe_main_left_status=True,
+                            leftVisible='=_clientCtx.mainBC.left?show',
+                            selectedPage='=.selected',
+                            plugin_list=self.plugin_list)    
+                            
         for plugin in self.plugin_list.split(','):
             cb = getattr(self,'mainLeft_%s' %plugin)
             assert cb,'Plugin %s not found' %plugin
             cb(tc)
-            tc.dataController("""
-                            var command = leftVisible && (selectedPage==plugin)?'open':'close';
-                            genro.publish(plugin+'_'+command);
-                            """,
-                        subscribe_gnr_main_left_selected=True,
-                        subscribe_main_left_status=True,
-                        selectedPage='=.selected',
-                        leftVisible='=_clientCtx.mainBC.left?show',
-                        plugin=plugin)
             tc.dataController("""
                             PUBLISH main_left_set_status = true;
                             SET .selected=plugin;
