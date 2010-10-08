@@ -101,7 +101,7 @@ internal dbtable
 				fb = root.formbuilder(datapath='test3')
 				fb.field('showcase.cast.person_id',rowcaption='$name')
 				
-	In this example, the first ``Field`` attribute (its query-path) has the sintax ``packageName.tableName.tableAttributeName``. Genro trasforms the ``Field`` into a ``dbselect``, splitting the query-path in two: ``packageName.tableName`` will go as the string applied to the ``dbtable`` attribute, while the ``tableAttributeName`` will go as the string applied to the ``value`` attribute. So, the path of field value will be ``/test1/person_id/ID``, where ``test1`` is the name we chose for the datapath, ``person_id`` is the name of the attribute we chose for user query contained in the database model called ``cast`` and the ID is the record ID.
+	In this example, the first ``Field`` attribute (its query-path) has the syntax ``packageName.tableName.tableAttributeName``. Genro trasforms the ``Field`` into a ``dbselect``, splitting the query-path in two: ``packageName.tableName`` will go as the string applied to the ``dbtable`` attribute, while the ``tableAttributeName`` will go as the string applied to the ``value`` attribute. So, the path of field value will be ``/test1/person_id/ID``, where ``test1`` is the name we chose for the datapath, ``person_id`` is the name of the attribute we chose for user query contained in the database model called ``cast`` and the ID is the record ID.
 
 	.. _field-attributes:
 
@@ -123,7 +123,7 @@ Attributes
 	|                    | requested data                                  |                          |
 	+--------------------+-------------------------------------------------+--------------------------+
 	|  nameOfTheColumn   | MANDATORY - The first field's parameter; it is  |  ``None``                |
-	|                    | field's query path; its complete sintax is      |                          |
+	|                    | field's query path; its complete syntax is      |                          |
 	|                    | ``packageName.tableName.tableAttributeName``.   |                          |
 	|                    | It can be used in a combo with ``dbtable``      |                          |
 	|                    | (a ``formbuilder`` attribute) and with the      |                          |

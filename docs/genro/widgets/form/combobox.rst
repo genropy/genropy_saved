@@ -62,7 +62,7 @@ Examples
 Fill combobox through "values" attribute
 ========================================
 
-	You can add values to combobox using the "values" attribute; check this example for the correct sintax::
+	You can add values to combobox using the "values" attribute; check this example for the correct syntax::
 
 		class GnrCustomWebPage(object):
 			def test_1_values(self,pane):

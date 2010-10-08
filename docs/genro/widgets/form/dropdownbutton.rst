@@ -57,7 +57,7 @@ Examples
 			dmenu.menuline('Open...',action="alert('Opening...')")
 			dmenu.menuline('Close',action="alert('Closing...')")
 			
-	For creating a dividing line use the following sintax::
+	For creating a dividing line use the following syntax::
 			
 			dmenu.menuline('-')
 		

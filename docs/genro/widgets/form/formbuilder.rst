@@ -166,7 +166,7 @@ Here we describe the formbuilder's field attributes:
 	+----------------+------------------------------------------------------+--------------------------+
 	| ``pos``        | Choose element position                              |  The first free position |
 	|                |                                                      |                          |
-	|                | Sintax: pos(NUMBER,NUMBER)                           |                          |
+	|                | syntax: pos(NUMBER,NUMBER)                           |                          |
 	|                |     whereas the first value represents a row,        |                          |
 	|                |     the second value represents a column.            |                          |
 	|                |                                                      |                          |

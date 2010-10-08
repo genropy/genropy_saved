@@ -25,7 +25,7 @@ Definition
 
     A dateTextbox is a easy-to-use date entry controls that allow either typing or choosing a date from any calendar widget.
     
-	- sintax: GG/MM/AAAA
+	- syntax: GG/MM/AAAA
 	
 	.. _dateTextbox-where:
 

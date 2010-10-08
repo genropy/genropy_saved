@@ -15,7 +15,7 @@
 Definition
 ==========
 
-	???
+	The rowcaption is defined as a way to describe a record from the table.
 
 	.. _table-description:
 
@@ -24,7 +24,6 @@ Description
 
 	??? Introdurre l'attributo rowcaption e mettere il link alla pagina relativa per maggiori informazioni (:ref:`database-rowcaption`).
 	
-	??? Descrivere bene il "@"!!!
 
 	.. _table-examples:
 

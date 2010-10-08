@@ -65,7 +65,7 @@ Examples
 		pane.dataController('''alert(msg);''', msg='^msg')
 		pane.button('Click me!',action="FIRE msg='Click!';")
 
-	An alternative sintax is::
+	An alternative syntax is::
 
 		pane.button('Click me!', fire_Click = 'msg')
 

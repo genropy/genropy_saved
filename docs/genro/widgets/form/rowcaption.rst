@@ -16,7 +16,7 @@
 Definition
 ==========
 
-	``rowcaption`` is the textual rappresentation of a record, and it is used with all the form widgets that draw their value from a database :ref:`database-table`, that are :ref:`form-field`, :ref:`form-dbselect` and :ref:`form-dbcombobox`.
+	``rowcaption`` is the textual representation of a record, and it is used with all the form widgets that draw their value from a database :ref:`database-table`, that are :ref:`form-field`, :ref:`form-dbselect` and :ref:`form-dbcombobox`.
 
 	.. _database-description-examples:
 
@@ -40,7 +40,7 @@ rowcaption in the database table
 				tbl = pkg.table('person',pkey='id',rowcaption='$name',
 				                 name_long='!!people',name_plural='!!People')
 
-	The sintax is ``$`` followed by the name of a column, like::
+	The syntax is ``$`` followed by the name of a column, like::
 	
 		rowcaption='$name'
 		
@@ -48,11 +48,16 @@ rowcaption in the database table
 	
 		rowcaption='$name,$nationality'
 		
+	or::
+	 
+		rowcaption='$name,$nationality:%s: %s'
+		# where the %s: %s are placeholders providing an alternate way to format the rowcaption with fields and addtion characters.
+		
 	The graphical result is the list of attributes separated by a "-", like::
 	
 		Alfred Hitchcock - UK
 	
-	Obviously, you can also use the "@" sintax (check in :ref:`database-table` page for further details).
+	Obviously, you can also use the "@" syntax (check in :ref:`database-table` page for further details).
 	
 	.. _rowcaption-webpage:
 	

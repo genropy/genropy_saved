@@ -6,7 +6,7 @@
 	
 	The ``dbtable`` attribute is used to specify a path for a database :ref:`database-table` during a user query.
 	
-	The sintax is ``packageName.tableName.attributeName``, where:
+	The syntax is ``packageName.tableName.attributeName``, where:
 	
 		* ``packageName`` is the name of the package on which you're working;
 		* ``tableName`` is the name of the :ref:`database-table` on which is executed the user query.
@@ -38,7 +38,7 @@ dbtable for the dbSelect and the dbCombobox widgets
 				
 				fb.dbCombobox('???',rowcaption=???)
 				
-	In this example, the first ``dbSelect`` attribute (its query-path) has the sintax ``packageName.tableName``. 
+	In this example, the first ``dbSelect`` attribute (its query-path) has the syntax ``packageName.tableName``. 
 	
 	The path of field value will be ``/test1/person_id/ID``, where ``test1`` is the name we chose for the datapath, ``person_id`` is the name of the attribute we chose for user query contained in the database model called ``cast`` and the ID is the record ID.
 	

@@ -23,11 +23,11 @@ Datapath description
 	
 	You have to use ``datapath`` to an object that you want to be the father, while on the son elements you have to specify their relative path (but you can also specify an absolute path).
 	
-	Let's see the sintax for an absolute path and for a relative path:
+	Let's see the syntax for an absolute path and for a relative path:
 	
-	* ``pathAbsoluteInDatastore``: with this sintax your data will be saved in its absolute path.
+	* ``pathAbsoluteInDatastore``: with this syntax your data will be saved in its absolute path.
 	
-	* ``.pathRelativeInDatastore``: with this sintax your path will be relative. Pay attention that you can use this attribute only for a son object, that is only for an object that is linked to a father on which it is defined the "datapath" attribute. Every dot "." that you use have the meaning of a new subfolder; so::
+	* ``.pathRelativeInDatastore``: with this syntax your path will be relative. Pay attention that you can use this attribute only for a son object, that is only for an object that is linked to a father on which it is defined the "datapath" attribute. Every dot "." that you use have the meaning of a new subfolder; so::
 	
 		class GnrCustomWebPage(object):
 			def main(self,root,**kwargs):

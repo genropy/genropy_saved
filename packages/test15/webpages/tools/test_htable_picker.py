@@ -9,6 +9,10 @@
 class GnrCustomWebPage(object):
     py_requires='gnrcomponents/testhandler:TestHandlerFull,gnrcomponents/htablehandler:HTablePicker'
     
+    htable='auspost.sla_tree'
+    related_table = 'auspost.postcode_sla'
+    relation_path = '$sla_tree_code'
+    
     #htable = 'base.category'
     #related_table = 'base.pr_product'
     #relation_path = '@category_id.code'

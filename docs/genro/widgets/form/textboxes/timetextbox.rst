@@ -25,7 +25,7 @@ Definition
 
     A timeTextbox it's a time input control that allow either typing time or choosing it from a picker widget.
     
-    - sintax: HH:MM
+    - syntax: HH:MM
 
 	.. _timeTextbox-where:
 
