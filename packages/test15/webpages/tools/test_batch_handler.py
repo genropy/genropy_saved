@@ -40,9 +40,11 @@ class GnrCustomWebPage(object):
         
     def test_1_launch_button(self,pane):
         """Launch test from button"""
-        parameters="""{res_type:"action",table:"%s",resource:"%s",selectionName:"currsel"}""" % (self.maintable,self.defaultscript)
+        parameters="""{res_type:"action",table:"%s",resource:"%s",selectionName:"currsel",}""" % (self.maintable,self.defaultscript)
         pane.button('Launch action',
-                    action="PUBLISH table_script_run=%s;" % parameters)
+                    action="PUBLISH table_script_run=params;" ,
+                    params=dict(res_type='action',table=self.maintable, 
+                                selectionName='cursel',structurepath='list.structure'))
     
     def test_2_launch_tree(self,pane):
         """Launch test from tree"""
