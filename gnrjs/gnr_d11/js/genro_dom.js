@@ -499,7 +499,157 @@ dojo.declare("gnr.GnrDomHandler",null,{
         // Dispatch event into document
         domnode.dispatchEvent(e);
     },
-    
+    canBeDropped:function(event,sourceNode){
+        var supportedTypes=splitStrip(sourceNode.getInheritedAttributes().drop_types || 'text/plain');
+        var draggedTypes =event.dataTransfer.types;
+        if(dojo.filter(supportedTypes,function (value){ return dojo.indexOf(draggedTypes,value)>=0;}).length==0){
+            return false;
+        };
+        var drop_tags=sourceNode.getInheritedAttributes().drop_tags;
+        if(!drop_tags){
+            return true;
+        }
+        var drag_tags=event.dataTransfer.getData('drag_tags') || '';
+        if(!drag_tags){
+            return false;
+        }
+        var drag_tags=splitStrip(drag_tags,',');
+        var or_conditions=splitStrip(drop_tags,',');
+        valid=false;
+        for (var i=0; ((i < or_conditions.length) && !valid); i++) {
+            var valid=true;
+            var or_condition=or_conditions[i].replace(/' NOT '/g,' AND !');
+            or_condition=splitStrip(or_condition,' AND ');
+            for (var j=0; ((j < or_condition.length) && valid); j++) {
+                var c=or_condition[j];
+                exclude=false;
+                if (c[0]=='!'){
+                    c=c.slice(1);
+                    exclude=true;
+                }
+                var match=dojo.some(drag_tags,function(k){return k==c;});
+                valid = exclude? !match:match;
+            };
+            
+        };
+        return valid;
+   
+    },
+    onDragOver:function(event,sourceNode){
+       event.stopPropagation();
+       event.preventDefault();
+       event.dataTransfer.dropEffect = "move";
+    },
+    onDragEnter:function(event,sourceNode){
+        event.stopPropagation();
+        event.preventDefault();
+        var canBeDropped=this.canBeDropped(event,sourceNode);
+        event.dataTransfer.effectAllowed=canBeDropped?'move':'none';
+        event.dataTransfer.dropEffect=canBeDropped?'move':'none';
+        genro.dom.setClass(event.target,'cannotBeDropped',!canBeDropped);
+        genro.dom.setClass(event.target,'canBeDropped',canBeDropped);
+        
+    },
+    onDragLeave:function(event,sourceNode){
+        event.stopPropagation();
+        event.preventDefault();
+        genro.dom.removeClass(event.target,'canBeDropped');
+        genro.dom.removeClass(event.target,'cannotBeDropped');
+
+    },
+     onDrop:function(event,sourceNode){
+         event.stopPropagation();
+         genro.dom.removeClass(event.target,'canBeDropped');
+         genro.dom.removeClass(event.target,'cannotBeDropped');
+         canBeDropped=this.canBeDropped(event,sourceNode);
+         if(canBeDropped){
+             var inherited=sourceNode.getInheritedAttributes();
+             event.preventDefault();
+            var action = sourceNode.getInheritedAttributes().drop_action;
+            var dropped=null;
+            if (action){
+                var drop_types=inherited.drop_types.split(',');
+                var params=objectUpdate(sourceNode.currentAttributes(),{'drop_object':event.dataTransfer,'event':event});
+                if (dojo.indexOf(event.dataTransfer.types,'Files')>=0){
+                    console.log('files')
+                    var drop_ext=inherited.drop_ext;
+                    if(drop_ext){
+                        
+                        drop_ext=splitStrip(drop_ext);
+                        var files=[];
+                        dojo.forEach(event.dataTransfer.files,function(f){
+                            if(dojo.indexOf(drop_ext,f['name'].split('.').pop())>=0){
+                                files.push(f);
+                            }
+                        });
+                        params['files']=files;
+                    }else{
+                        params['files']=event.dataTransfer.files;
+                    }
+                    if(params['files'].length>0){
+                        funcApply(action,params, sourceNode);
+                    }
+                    
+                }else{
+                    console.log('data')
+                    for (var i=0; i < drop_types.length; i++) {
+                        if (dojo.indexOf(event.dataTransfer.types,drop_types[i])>=0){
+                            params['drop_data']=event.dataTransfer.getData(drop_types[i]);
+                            funcApply(action,params, sourceNode);
+                            break;
+                        }
+                    }
+                }       
+            }             
+         }
+     },
+    onDragStart:function(event,sourceNode){
+        event.stopPropagation();
+        var inherited=sourceNode.getInheritedAttributes();
+        var value;
+        if ('drop_cb' in inherited){
+            value=inherited['drop_cb'](sourceNode);
+        }
+        else if ('drop_value' in inherited){
+            value=sourceNode.currentFromDatasource(inherited['drop_value']);
+        }
+        else if ('value' in sourceNode.attr){
+            value=sourceNode.getAttributeFromDatasource('value');
+        }
+        else if ('innerHTML' in sourceNode.attr){
+            value=sourceNode.getAttributeFromDatasource('innerHTML');
+        }
+        else{
+             value=event.target.innerHTML;
+        }
+        var drag_class=inherited['drag_class'];
+        if(drag_class){
+            genro.dom.addClass(event.target,drag_class);
+        }
+        
+        event.dataTransfer.setData('text/plain', convertToText(value)[1]);
+        var drag_tags=inherited['drag_tags'];
+        if(drag_tags){
+            event.dataTransfer.setData('drag_tags', drag_tags);
+        }
+        
+
+    },
+    onDragEnd:function(event,sourceNode){
+        var inherited=sourceNode.getInheritedAttributes();
+        var drag_class=inherited['drag_class'];
+        if(drag_class){
+            genro.dom.removeClass(event.target,drag_class);
+        }
+    },
+    onDrag:function(event,sourceNode){
+       var inherited=sourceNode.getInheritedAttributes();
+        var drag_class=inherited['drag_class'];
+        if(drag_class){
+            genro.dom.removeClass(event.target,drag_class);
+        }
+    },
+                                   
     startTouchDevice:function(){
        document.body.ontouchmove= function(e){
             e.preventDefault();
@@ -517,8 +667,7 @@ dojo.declare("gnr.GnrDomHandler",null,{
             };
         
         });
-        
-    /*    dojo.connect(document.body, 'touchend', function(e){
+       dojo.connect(document.body, 'touchend', function(e){
 
             var dx=e.screenX-this.startTouch_x
             var dy=e.screenY-this.startTouch_y
@@ -529,15 +678,15 @@ dojo.declare("gnr.GnrDomHandler",null,{
 
         document.body.onorientationchange= function(e){
             genro.setData('touch.orientation',window.orientation);
-        }
+        };
         dojo.connect(document.body,'gestureend',  function(e){
-            genro.dom.logTouchEvent('gesture',e)
+            genro.dom.logTouchEvent('gesture',e);
         });
     
     },
     logTouchEvent:function(path,e){
         
-        var b=''
+        var b='';
         for (var k in e){
             b=b+k+':'+e[k]+'<br/>';
         }

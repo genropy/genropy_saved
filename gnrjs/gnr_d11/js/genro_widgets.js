@@ -335,6 +335,9 @@ dojo.declare("gnr.widgets.baseHtml",null,{
         
         this._makeInteger(attributes,['sizeShare','sizerWidth']);
         var savedAttrs = {};
+        savedAttrs['dragPars'] = objectExtract(attributes,'drag_*');
+        savedAttrs['dragPars']['draggable']=objectPop(attributes,'draggable');
+        savedAttrs['dropPars'] = objectExtract(attributes,'drop_*');
         savedAttrs.connectedMenu=objectPop(attributes,'connectedMenu');
         savedAttrs.dragDrop = objectExtract(attributes,'dnd_*');
         savedAttrs.onEnter = objectPop(attributes,'onEnter');
@@ -409,7 +412,25 @@ dojo.declare("gnr.widgets.baseHtml",null,{
             attributes['title'] = '<span title="'+tip+'">'+attributes['title']+'</span>';
         };
     },
+    dragSettings:function(newobj, sourceNode){
+        var domNode=newobj.domNode || newobj;
+        if(!domNode){ return;}
+        if (!domNode.getAttribute('draggable')){
+            domNode.setAttribute('draggable',true);
+        }
+        dojo.connect(domNode,'dragstart',function(event){genro.dom.onDragStart(event,sourceNode);})
+        dojo.connect(domNode,'drag',function(event){genro.dom.onDrag(event,sourceNode);});
+        dojo.connect(domNode,'dragend',function(event){genro.dom.onDragEnd(event,sourceNode);});
 
+    },
+    dropSettings:function(newobj, sourceNode){
+        var domNode=newobj.domNode || newobj;
+        if(!domNode){ return;}
+        dojo.connect(domNode,'dragover',function(event){genro.dom.onDragOver(event,sourceNode);})
+        dojo.connect(domNode,'dragenter',function(event){genro.dom.onDragEnter(event,sourceNode);})
+        dojo.connect(domNode,'dragleave',function(event){genro.dom.onDragLeave(event,sourceNode);})
+        dojo.connect(domNode,'drop',function(event){genro.dom.onDrop(event,sourceNode);});
+    },
     dndSettings:function(newobj, sourceNode,savedAttrs){
         var dragDrop=savedAttrs.dragDrop;
         var domNode=newobj.domNode || newobj;
@@ -509,6 +530,12 @@ dojo.declare("gnr.widgets.baseHtml",null,{
         }
         if(!sourceNode){
             return;
+        }
+        if(objectNotEmpty(savedAttrs.dragPars)){
+            this.dragSettings(newobj, sourceNode);
+        }
+        if(objectNotEmpty(savedAttrs.dropPars)){
+            this.dropSettings(newobj, sourceNode);
         }
         if(objectNotEmpty(savedAttrs.dragDrop)){
             this.dndSettings(newobj, sourceNode, savedAttrs);

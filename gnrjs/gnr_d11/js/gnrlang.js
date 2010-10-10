@@ -25,6 +25,8 @@
  //funzioni di utilità varie
 
 //########################  Lang #########################
+var _lf='\n'
+var _crlf='\r\n'
 function bagAsObj(bag){
     var result = {};
     var parentNode = bag.getParentNode();
@@ -168,7 +170,12 @@ function stringStrip(s) {
     if (!s) return s;
     return s.replace(/^[ \t\r\n]+/,'').replace(/[ \t\r\n]+$/,'');
 }
-
+function splitStrip(s,sp) {
+    r=[]
+    var sp=sp || ','
+    dojo.forEach(s.split(sp),function(v){r.push(stringStrip(v))})
+    return r
+}
 function argumentsReplace(s) {
   return s.replace(/\$(\d+)/g, function(s, n){
                                       return "arguments[" + (parseInt(n)-1) + "]";
@@ -209,7 +216,7 @@ function objectKeyByIdx(obj,idx){
     }
 }
 
-function objectExtract (obj, keys, dontpop) {
+function objectExtract(obj, keys, dontpop) {
     var result = {};
     var key,m;
     if  (keys.slice(-1)=='*'){
@@ -242,21 +249,7 @@ function objectExtract (obj, keys, dontpop) {
     }
     return result;
 }
-function objectExtract_ (obj, keys, dontpop) {
-    keys = keys.split(',');
-    var result = {};
-    var key;
-    for (var i =0; i<keys.length; i++){
-        key = stringStrip(keys[i]);
-        if (key in obj){
-            result[key] = obj[key];
-            if(!(dontpop)){
-                delete obj[key];
-            }
-        }
-    }
-    return result;
-}
+
 function objectNotEmpty (obj) {
     if (obj){
         for (var prop in obj){
