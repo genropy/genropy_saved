@@ -25,8 +25,8 @@ Description and examples
 
 	``rowcaption`` can be defined in two places:
 	
-		* directly into the database table: :ref:`rowcaption-database-table`
-		* in the query-field (``field``, ``dbselect`` or ``dbcombobox``) placed into the webpage: :ref:`rowcaption-webpage`
+		* directly into the database table: check :ref:`rowcaption-database-table`
+		* in the query-field (``field``, ``dbselect`` or ``dbcombobox``) placed into the webpage: check :ref:`rowcaption-webpage`
 
 	.. _rowcaption-database-table:
 
@@ -48,14 +48,15 @@ rowcaption in the database table
 	
 		rowcaption='$name,$nationality'
 		
-	or::
-	 
-		rowcaption='$name,$nationality:%s: %s'
-		# where the %s: %s are placeholders providing an alternate way to format the rowcaption with fields and addtion characters.
-		
 	The graphical result is the list of attributes separated by a "-", like::
-	
+
 		Alfred Hitchcock - UK
+		
+	or::
+	
+		rowcaption='$name,$nationality:%s: %s' # where the %s: %s are placeholders providing an
+		                                       # alternate way to format the rowcaption with fields
+		                                       # and addition characters.
 	
 	Obviously, you can also use the "@" syntax (check in :ref:`database-table` page for further details).
 	
@@ -64,7 +65,7 @@ rowcaption in the database table
 rowcaption in the query-field
 =============================
 	
-	Let's see another example::
+	Let's see an example on putting the ``rowcaption`` attribute directly in the webpage::
 	
 		class Table(object):
 			def config_db(self, pkg):

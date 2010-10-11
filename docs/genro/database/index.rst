@@ -9,6 +9,7 @@ Database
 
 	introduction
 	maintable
-	table
 	name/index
 	rowcaption
+	table
+	relation_table

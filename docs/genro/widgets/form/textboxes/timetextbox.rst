@@ -18,6 +18,8 @@
 	
 	- :ref:`timeTextbox-other-attributes`
 	
+	We recommend you to read :ref:`textboxes-textboxes` first.
+	
 	.. _timeTextbox-definition:
 
 Definition

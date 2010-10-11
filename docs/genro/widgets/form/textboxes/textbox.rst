@@ -20,6 +20,8 @@
 	
 	- :ref:`textbox-other-attributes`
 
+We recommend you to read :ref:`textboxes-textboxes` first.
+
 	.. _textbox-definition:
 
 Definition

@@ -32,10 +32,10 @@ Definition
 	Here we report formbuilder's definition::
 		
 		def formbuilder(self, cols=1, dbtable=None, tblclass='formbuilder',
-	                    lblclass='gnrfieldlabel', lblpos='L', _class='', fieldclass='gnrfield',
-	                    lblalign=None, lblvalign='middle',
-	                    fldalign=None, fldvalign='middle', disabled=False,
-	                    rowdatapath=None, head_rows=None, **kwargs):
+		                lblclass='gnrfieldlabel', lblpos='L', _class='', fieldclass='gnrfield',
+		                lblalign=None, lblvalign='middle',
+		                fldalign=None, fldvalign='middle', disabled=False,
+		                rowdatapath=None, head_rows=None, **kwargs):
 
 	.. _formbuilder-where:
 
@@ -53,7 +53,7 @@ With formbuilder you have an ordered place to put your HTML object; formbuilder 
 
 To let you see how Genro code is simpler and more compact, we report here a comparison between an HTML table and a Genro formbuilder::
 	
-	HTML code:
+	<!-- HTML code: -->
 	<table>
 	    <tr>
 	        <td>
@@ -62,7 +62,7 @@ To let you see how Genro code is simpler and more compact, we report here a comp
 	    </tr>
 	</table>
 	
-	Genro code:
+	# Genro code:
 	fb = root.formbuilder()
 	fb.textbox(value='^name',lbl='Name')
 
@@ -173,9 +173,9 @@ Here we describe the formbuilder's field attributes:
 	|                | Other feature: "pos" accepts as a number row         |                          |
 	|                | two special characters:                              |                          |
 	|                |                                                      |                          |
-	|                |         \+ to refer itself at the following row      |                          |
+	|                | ``+`` to refer itself at the following row           |                          |
 	|                |                                                      |                          |
-	|                |         \* to refer itself at the current row        |                          |
+	|                | ``*`` to refer itself at the current row             |                          |
 	+----------------+------------------------------------------------------+--------------------------+
 	| ``value``      | Set a path for formbuilder's values.                 |  ``None``                |
 	|                | For more details, see :ref:`common-datapath`         |                          |

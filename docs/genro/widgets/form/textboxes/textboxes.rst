@@ -27,6 +27,8 @@ Definition
 
 	The main feature of each of these textboxes is that Genro combines Dojo's textboxes with HTML's textboxes.
 
+	.. _textboxes-attributes:
+
 Common attributes
 =================
 

@@ -15,14 +15,14 @@
 Definition
 ==========
 
-	The rowcaption is defined as a way to describe a record from the table.
+	The table is ... ???
 
 	.. _table-description:
 
 Description
 ===========
 
-	??? Introdurre l'attributo rowcaption e mettere il link alla pagina relativa per maggiori informazioni (:ref:`database-rowcaption`).
+	??? Introduce the rowcaption attribute and put the link to the relative page for further details (:ref:`database-rowcaption`).
 	
 
 	.. _table-examples:

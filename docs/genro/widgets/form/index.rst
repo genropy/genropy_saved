@@ -10,12 +10,11 @@ Form widget
 	button
 	checkbox
 	combobox
-	dbcombobox
-	dbselect
 	dropdownbutton
 	field
 	filteringselect
 	formbuilder
 	simplearea
 	slider
+	db/index
 	textboxes/index

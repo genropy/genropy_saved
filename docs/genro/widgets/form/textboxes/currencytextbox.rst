@@ -9,15 +9,17 @@
 .. class:: currencyTextbox -  Genropy currencyTextbox
 
 	- :ref:`currencyTextbox-definition`
-	
+
 	- :ref:`currencyTextbox-where`
-	
+
 	- :ref:`currencyTextbox-examples`
-	
+
 	- :ref:`currencyTextbox-attributes`
-	
+
 	- :ref:`currencyTextbox-other-attributes`
-	
+
+	We recommend you to read :ref:`textboxes-textboxes` first.
+
 	.. _currencyTextbox-definition:
 
 Definition
@@ -41,7 +43,8 @@ Examples
 
 		class GnrCustomWebPage(object):
 			def main(self,root,**kwargs):
-				root.currencyTextBox(value='^amount',default=1123.34,currency='EUR',locale='it')
+				root.currencyTextBox(value='^amount',default=1123.34,
+				                     currency='EUR',locale='it')
 	
 	Let's see a demo:
 

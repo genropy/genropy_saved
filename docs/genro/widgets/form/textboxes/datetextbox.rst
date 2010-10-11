@@ -17,7 +17,9 @@
 	- :ref:`dateTextbox-attributes`
 	
 	- :ref:`dateTextbox-other-attributes`
-	
+
+	We recommend you to read :ref:`textboxes-textboxes` first.
+
 	.. _dateTextbox-definition:
 
 Definition

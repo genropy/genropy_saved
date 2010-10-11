@@ -1,8 +1,20 @@
 	.. _genro-installation:
 
-***************
+==============
  Installation
-***************
+==============
+
+	- :ref:`installationRequirements`
+
+	- :ref:`obtainingGenropy`
+
+	- :ref:`installingGenropy`
+
+	- :ref:`configuringGenropy`
+
+	- :ref:`projectsExamples`
+
+.. _installationRequirements:
 
 Requirements
 ============
@@ -34,6 +46,8 @@ To install *paver*::
 
 (``-U`` = upgrade, ``-Z`` = always unzip)
 
+.. _obtainingGenropy:
+
 How to obtain GenroPy
 =====================
 
@@ -44,16 +58,20 @@ track local changes. To obtain genropy, type::
 
 If you have the time here is the git alternative::
 
-    git svn clone http://robertolupi@svn.genropy.org/genro/trunk genro
+	git svn clone http://robertolupi@svn.genropy.org/genro/trunk genro
+
+.. _installingGenropy:
 
 Installing GenroPy
 ==================
 
 The bulk of the work is done thanks to *paver*::
 
-    cd genro
-    cd gnrpy
-    sudo paver develop
+	cd genro
+	cd gnrpy
+	sudo paver develop
+
+.. _configuringGenropy:
 
 Configuring GenroPy
 ===================
@@ -65,16 +83,17 @@ GenroPy using the ``.gnr`` configuration::
 
 Edit ``environment.xml``, ``siteconfig/default.xml`` and ``instanceconfig/default.xml`` as needed.
 
+.. _projectsExamples:
+
 Project Examples
 ================
 
-GenroPy includes some test projects:
+GenroPy includes some tutorial projects:
 
-Showcase - is an incomplete but useful collection of examples.
-(package: **showcase**, application:**showcase**, site **testgarden**)
+Showcase - it is an incomplete but useful collection of examples.
+(package: **showcase**, application: **showcase**, site: **testgarden**)
 
-
-Fatture1 - is a simple invoice application
+Fatture1 - it is a simple invoice application
 (package: **invoices**, application and site: **fatture1**)
 
 To create the database in postgres and start the paste wsgi development webserver::

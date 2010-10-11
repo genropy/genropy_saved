@@ -17,7 +17,9 @@
 	- :ref:`numberTextbox-attributes`
 	
 	- :ref:`numberTextbox-other-attributes`
-	
+
+	We recommend you to read :ref:`textboxes-textboxes` first.
+
 	.. _numberTextbox-definition:
 
 Definition
