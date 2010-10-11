@@ -359,14 +359,15 @@ class HTablePicker(HTableHandlerBase):
                     nodeId=None,datapath=None,dialogPars=None,
                     caption=None,grid_struct=None,grid_columns=None,
                     grid_show=False,
-                    condition=None,condition_pars=None,**kwargs):
+                    condition=None,condition_pars=None,
+                    editMode='dlg',**kwargs):
         
         self._htablePicker_main(parent,table=table,rootpath=rootpath,
                                 input_codes=input_codes,output_codes=output_codes,
                                 output_pkeys=output_pkeys,
                                 nodeId=nodeId,grid_show=grid_show,
                                 datapath=datapath,dialogPars=dialogPars,grid_struct=grid_struct,
-                                grid_columns=grid_columns,
+                                grid_columns=grid_columns,editMode=editMode,
                                 condition=condition,condition_pars=condition_pars)
     
     
@@ -375,7 +376,7 @@ class HTablePicker(HTableHandlerBase):
                             related_table=None,relation_path=None,
                             nodeId=None,datapath=None,dialogPars=None,
                             caption=None,grid_struct=None,grid_columns=None,
-                            condition=None,condition_pars=None,**kwargs):
+                            condition=None,condition_pars=None,editMode='dlg',**kwargs):
             
             
         self._htablePicker_main(parent,table=table,rootpath=rootpath,
@@ -383,7 +384,7 @@ class HTablePicker(HTableHandlerBase):
                         relation_path=relation_path,
                         input_pkeys=input_pkeys or '',output_related_pkeys=output_pkeys,nodeId=nodeId,
                         datapath=datapath,dialogPars=dialogPars,grid_struct=grid_struct,grid_columns=grid_columns,
-                        condition=condition,condition_pars=condition_pars)
+                        condition=condition,condition_pars=condition_pars,editMode=editMode)
     
     
     def _htablePicker_main(self,parent,table=None,rootpath=None,
@@ -399,6 +400,7 @@ class HTablePicker(HTableHandlerBase):
                     condition_pars=None,
                     related_table=None,
                     relation_path=None,
+                    editMode='dlg',
                     **kwargs):
         """params htable:
             parent
@@ -411,27 +413,48 @@ class HTablePicker(HTableHandlerBase):
         if condition:
             grid_where = '%s AND %s' %(grid_where,condition)
         condition_pars = condition_pars or dict()
-        dialogPars = dialogPars or dict()
+        
         tblobj = self.db.table(table)
-        dialogPars['title'] = dialogPars.get('title','%s picker' %tblobj.name_long)
-        dialogPars['height'] = dialogPars.get('height','400px')
         default_width = '300px'
         if grid_show:
             default_width = '600px'
-        dialogPars['width'] =  dialogPars.get('width', default_width)
+        params = dict(caption=caption,table=table,
+                        grid_struct=grid_struct,grid_columns=grid_columns,
+                        grid_where=grid_where,condition_pars=condition_pars,
+                        output_codes=output_codes,output_pkeys=output_pkeys,
+                        related_table=related_table,grid_show=grid_show,
+                        output_related_pkeys=output_related_pkeys)
         
-        dlgbc = self.formDialog(parent,datapath=datapath,formId=nodeId,
-                                cb_center=self.ht_pk_center,caption=caption,table=table,
-                                grid_struct=grid_struct,grid_columns=grid_columns,
-                                grid_where=grid_where,condition_pars=condition_pars,
-                                output_codes=output_codes,output_pkeys=output_pkeys,
-                                related_table=related_table,grid_show=grid_show,
-                                output_related_pkeys=output_related_pkeys,**dialogPars)
-    
-        dlgbc.dataController("FIRE .open;",**{"subscribe_%s_open" %nodeId:True})
+        if editMode=='dlg':
+            dialogPars = dialogPars or dict()
+            dialogPars['title'] = dialogPars.get('title','%s picker' %tblobj.name_long)
+            dialogPars['height'] = dialogPars.get('height','400px')
+            dialogPars['width'] =  dialogPars.get('width', default_width)
+            params.update(dialogPars)
+            bc = self.formDialog(parent,datapath=datapath,formId=nodeId,
+                                    cb_center=self.ht_pk_center,**params)
+            bc.dataController("FIRE .open;",**{"subscribe_%s_open" %nodeId:True})
+        elif editMode=='bc':
+            bcId = '%s_bc' %nodeId
+            bc = parent.borderContainer(datapath=datapath,nodeId=bcId)
+            #bc.contentPane(region='top',_class='pbl_roundedGroupLabel').div('%s picker' %tblobj.name_long)
+            #bottom = bc.contentPane(region='bottom',_class='pbl_roundedGroupBottom')
+            bc.dataController("genro.formById(fid).load()",_onStart=True,fid=nodeId,**{"subscribe_%s_open" %nodeId:True})
+           # bc.dataController("genro.formById(fid).load()",_onStart=True,fid=nodeId,**{"subscribe_%s_open" %nodeId:True)
+
+           #bottom.button('!!Confirm', action='genro.formById(fid).save(true})',
+           #                fid=nodeId,float='right')
+            bc.dataController('genro.formById(fid).loaded();',fid=nodeId,_fired="^.loaded")
+            bc.dataController('genro.formById(fid).saved();',fid=nodeId,_fired="^.saved")
+
+            self.ht_pk_center(bc,region='center',
+                        formId=nodeId,#form parameter
+                        datapath='.data',#form parameter
+                        controllerPath='#%s.form' %bcId,#form parameter
+                        **params)
+            
         
-                                                                
-        dlgbc.dataRpc('.data.tree','ht_pk_getTreeData',table=table,
+        bc.dataRpc('.data.tree','ht_pk_getTreeData',table=table,
                         rootpath=rootpath,rootcaption=tblobj.name_plural,
                         input_pkeys=input_pkeys,input_codes=input_codes,
                         relation_path=relation_path,related_table=related_table,
@@ -444,18 +467,18 @@ class HTablePicker(HTableHandlerBase):
                                      }
                                      FIRE .loaded;""",_grid_show=grid_show)
                                      
-        dlgbc.dataController("""FIRE .prepare_output_related_pkeys; 
+        bc.dataController("""FIRE .prepare_output_related_pkeys; 
                                 PUBLISH %s_confirmed; 
                                 FIRE .saved;""" %nodeId,
                             nodeId="%s_saver" %nodeId)
         
-        dlgbc.dataController("""
+        bc.dataController("""
                             FIRE .prepare_check_status;
                             FIRE .preview_grid.load;
                             """ ,
                             **{'subscribe_%s_tree_checked' %nodeId:True})
                             
-        dlgbc.dataController("""
+        bc.dataController("""
                             var result_codes = [];
                             var result_pkeys = [];
                             treedata.walk(function(n){
