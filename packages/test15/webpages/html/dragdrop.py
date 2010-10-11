@@ -7,6 +7,28 @@
 
 """Test drag & drop"""
 class GnrCustomWebPage(object):
+    """This is an example of Drag and Drop to support dragging of a field from one div to another even or to
+        another application.  You can also drag files.  HTML5 is used to implement this feature.
+        For a dropbox we have 'drop_tags'and 'drop_types'.  A drop tag can have multiple tags and support boolean operators.
+        For example: foo AND bar; client AND good,payer;   so the comma implies an OR and the AND is explicit.
+        A drop_type specifies whether it is plain text, xml, a file etc.
+        
+        From a source widget we can set it to 'draggable=True'. We can also have 'drag_tags', and if we do, we can omit
+        'draggable=True' as it is implicit.
+        From a source widget we can also define 'drag_value='.  This can be a path for example: =ccc.nnn.kkk' or =hhh.kkk?.yyy'
+        If a div ( or textbox or any widget) has a data value, then the data value is used, The data value can be an observer,
+        for example ='^mydata'.  The data dragged can be overridden by 'drag_value='.  You can also have 'drag_cb='.  In this
+        case you get a callback and you can put any value.  The callback parameters are: sourceNode, so you have all the info
+        to know how to build the value to return.
+        
+        DRAG                        DROP
+        draggable=True              drop_tags = 'foo AND Bar'
+        drag_tags='foo AND Bar      drop_types = 'text/plain', 'xml', 'Files'
+                                    drop_action = "js"
+                                    drop_ext = 'gif' or 'py' or 'bar' , etc
+        
+        
+        """
     py_requires="""gnrcomponents/testhandler:TestHandlerFull"""
     def test_0_dropBoxes(self,pane):
         """Drop Boxes"""
