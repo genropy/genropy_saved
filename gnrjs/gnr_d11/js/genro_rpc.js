@@ -675,6 +675,9 @@ dojo.declare("gnr.GnrRpcHandler",null,{
             param.push('Content-Type: application/octet-stream')
             return paramValue(param,file.getAsBinary())
         }
+        var addContentLength=function(content){
+            return "Content-Length: "+content.length+_crlf+_crlf+content;
+        }
         var content=[];
         content.push('')
         //content.push('--')
@@ -690,6 +693,42 @@ dojo.declare("gnr.GnrRpcHandler",null,{
                      load:onResult? function(data){return onResult(data)}:function(data){console.log(data);},
                      error:onError || function(data){console.log(data);}
         };
-        dojo.rawXhrPost(post_kwargs);
-    }
+        var sender = new XMLHttpRequest();
+        sender.open("POST",genro.rpc.pageIndexUrl());
+        var content=content.join('--'+boundary+_crlf)+boundary+'--'+_crlf;
+        content=addContentLength(content);
+        sender.setRequestHeader("Content-Type", 'multipart/form-data; boundary=' + boundary);
+        sender.sendAsBinary(content);
+        //dojo.rawXhrPost(post_kwargs);
+    },
+    uploadMultipartFilesN: function(files){
+        dojo.require("dojo.io.iframe");
+        // summary: triggers the chain of events needed to upload a file in the background.
+        //if(!files){ return; }
+        console.log('inizio');
+        var uploadPars=genro.rpc.serializeParameters({page_id:genro.page_id});
+        //var method=this.savedAttrs.method;
+        var method = 'upload';
+        var url=genro.remoteUrl(method,uploadPars);      
+        //var url=genro.rpc.pageIndexUrl()   
+        var _newForm = document.createElement('form');
+        _newForm.setAttribute("enctype","multipart/form-data");
+        var fileinput = document.createElement('input');
+        var rpc = document.createElement('input',type='file');
+        _newForm.appendChild(fileinput);
+        fileinput.setAttribute('name','user_file[]');
+        fileinput.setAttribute('type','file');
+        dojo.forEach(files,function(f){fileinput.files.push(f)});
+        
+        dojo.body().appendChild(_newForm);
+        console.log('form fatta');
+        dojo.io.iframe.send({
+            url: url,
+            form: _newForm,
+            handleAs: "text"//,
+            //handle: dojo.hitch(this,"_handleSend")
+        });
+        
+        console.log('finito');
+    },
 });
