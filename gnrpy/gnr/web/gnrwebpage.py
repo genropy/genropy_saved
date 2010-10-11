@@ -765,7 +765,7 @@ class GnrWebPage(GnrBaseWebPage):
                                        new_status = new_status=='toggle'? !current_status:new_status;
                                        if(new_status!=current_status){
                                             SET _clientCtx.mainBC.left?show=new_status;
-                                            PUBLISH main_left_status = main_left_set_status[0];
+                                            PUBLISH main_left_status = new_status;
                                        }
                                     """,subscribe_main_left_set_status=True,
                                     current_status='=_clientCtx.mainBC.left?show')
