@@ -12,11 +12,7 @@
 	
 	- :ref:`db-common-attributes`
 	
-	- :ref:`db-examples`
-
-		- :ref:`db-selected`
-
-		- :ref:`db-condition`
+	- :ref:`db-examples`: :ref:`db-selected`, :ref:`db-condition`, :ref:`db-columns` and :ref:`db-auxColumns`
 
 	.. _db-description:
 
@@ -46,13 +42,13 @@ Common attributes
 	+--------------------+---------------------------------------------------+--------------------------+
 	| ``auxColumns``     | Show in a pop-up menu below the input textbox     |  ``None``                |
 	|                    | query parameters (``columns`` is MANDATORY).      |                          |
-	|                    | ??? #NISO                                         |                          |
+	|                    | Check :ref:`db-auxColumns` example for further    |                          |
+	|                    | details                                           |                          |
 	+--------------------+---------------------------------------------------+--------------------------+
-	| ``columns``        | Specify the columns on which will be made the     |  ``None``                |
-	|                    | query ??? #NISO                                   |                          |
+	| ``columns``        | Check :ref:`db-columns` for further details       |  ``None``                |
 	+--------------------+---------------------------------------------------+--------------------------+
-	| ``condition``      | Start a SQL query. Check :ref:`db-condition` for  |  ``None``                |
-	|                    | further details                                   |                          |
+	| ``condition``      | Start a SQL query. Check :ref:`db-condition`      |  ``None``                |
+	|                    | example for further details                       |                          |
 	+--------------------+---------------------------------------------------+--------------------------+
 	| ``dbtable``        | MANDATORY - Select the database                   |  ``None``                |
 	|                    | :ref:`database-table` for database widget query.  |                          |
@@ -74,7 +70,7 @@ Common attributes
 	+--------------------+---------------------------------------------------+--------------------------+
 	| ``selected``       | You can add different parameters with the sintax: |  ``None``                |
 	|                    | ``selected_nameOfATableColumn='datapathFolder'``. |                          |
-	|                    | See :ref:`db-selected` for further details        |                          |
+	|                    | See :ref:`db-selected` example for further details|                          |
 	+--------------------+---------------------------------------------------+--------------------------+
 	| ``value``          | Set a path for widget's values.                   |  ``None``                |
 	|                    | For more details, see :ref:`common-datapath`      |                          |
@@ -87,8 +83,8 @@ Examples
 
 	.. _db-selected:
 
-Selected explanation
-====================
+Selected
+========
 
 	With ``selected`` attribute you can draw multiple attributes to the :ref:`genro-datastore` through a single ``dbSelect`` or ``dbCombobox``; the sintax is ``selected_nameOfATableColumn='datapathFolder'``.
 
@@ -132,8 +128,8 @@ Selected explanation
 
 	.. _db-condition:
 	
-Condition explanation
-=====================
+Condition
+=========
 
 	With ``condition`` attribute you can write a SQL query; let's make an example starting from the previous example (:ref:`db-selected`), so we have a list of actors into a ``table`` called "person"; let's introduce a "movie" ``table`` that contains a lot of title films on which the actors have participated::
 	
@@ -188,3 +184,17 @@ Condition explanation
 		
 		``condition_something='=PathOfValue'``
 	
+	.. _db-columns:
+
+Columns
+=======
+
+	??? se non c'è columns, allora la dbselect ricerca E visualizza attraverso i parametri del rowcaption,
+	??? se c'è columns allora ricerca SOLAMENTE per columns, e visualizza SOLO per rowcaption.
+
+	.. _db-auxColumns:
+
+auxColumns
+==========
+
+	??? auxColumns: campi di pura visualizzazione aggiunti a quello primario
