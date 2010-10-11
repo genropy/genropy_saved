@@ -14,5 +14,7 @@ class GnrCustomWebPage(object):
     def test_1_uploader(self,pane):
         """File Uploader"""
         self.dropUploader(pane)
+    
+    
         
         
