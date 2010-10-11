@@ -8,7 +8,7 @@
 """Test drop uploader"""
 class GnrCustomWebPage(object):
     py_requires="""gnrcomponents/testhandler:TestHandlerFull,
-                   gnrcomponents/drop_uploader/drop_uploader:DropUploader"""
+                   gnrcomponents/drop_uploader:DropUploader"""
 
         
     def test_1_uploader(self,pane):

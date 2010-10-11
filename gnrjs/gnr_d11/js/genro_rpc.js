@@ -658,13 +658,13 @@ dojo.declare("gnr.GnrRpcHandler",null,{
     },
     uploadMultipartFiles:function(files,onResult,onError){
         var paramValue=function(param,value){
-            param.push('')
-            param.push(value)
-            param.push('')
-            return param.join(_crlf)
+            param.push('');
+            param.push(value);
+            param.push('');
+            return param.join(_crlf);
         }
         var textParam=function(name,value){
-            var param=[]
+            var param=[];
             param.push('Content-Disposition: form-data; name="'+name+'"')
             param.push('Content-Type: text/plain')
             return paramValue(param,value)
@@ -678,14 +678,14 @@ dojo.declare("gnr.GnrRpcHandler",null,{
         var content=[];
         content.push('')
         //content.push('--')
-        content.push(textParam('rpc','upload'))
-        content.push(textParam('page_id',genro.page_id))
+        content.push(textParam('rpc','upload'));
+        content.push(textParam('page_id',genro.page_id));
         dojo.forEach(files,function(f){
-            content.push(fileParam(f))
-        })
+            content.push(fileParam(f));
+        });
         var boundary = '------multipartformboundary' + (new Date).getTime()
         post_kwargs={url:genro.rpc.pageIndexUrl(),
-                     postData:content.join('--'+boundary+_crlf)+boundary+'--'+_crlf,
+                     postData:content.join('--'+boundary+_crlf)+'--'+boundary+'--'+_crlf,
                      headers:{'content-type': 'multipart/form-data; boundary=' + boundary},
                      load:onResult? function(data){return onResult(data)}:function(data){console.log(data);},
                      error:onError || function(data){console.log(data);}

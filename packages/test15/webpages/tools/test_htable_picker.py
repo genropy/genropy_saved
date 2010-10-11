@@ -38,33 +38,35 @@ class GnrCustomWebPage(object):
                             nodeId='picker_2',datapath='.struct_picker')
                             
                             
-    def __test_3_testpicker(self,pane):
-        fb = pane.formbuilder(cols=1, border_spacing='3px')
-        fb.textbox(value='^.codes',lbl='Codes')
-        fb.button('Show',fire='.struct_picker.open')
+    def test_3_testpicker_bc(self,pane):
+        """Picker on bc"""
+
+        bc = pane.borderContainer(height='400px')
+        top = bc.contentPane(region='top')
+        fb = top.formbuilder(cols=1, border_spacing='3px')
+        fb.textbox(value='^.codes',lbl='Codes',width='30em')
         
-        self.htablePicker(pane,table=self.htable,
+        self.htablePicker(bc.contentPane(region='center'),table=self.htable,
                             grid_columns=self.db.table(self.htable).baseViewColumns(),
-                            input_codes='=.#parent.codes',
-                            resultpath=None,nodeId='struct_picker',datapath='.struct_picker',
-                            dialogPars=dict(width='600px'))
-                            
+                            input_codes='=.#parent.codes',output_codes='.#parent.codes',
+                            resultpath=None,nodeId='picker_3',
+                            datapath='.struct_picker',editMode='bc')
+    
+    def test_4_testpicker_bc(self,pane):
+        """Picker on bc"""
 
+        bc = pane.borderContainer(height='400px')
+        top = bc.contentPane(region='top')
+        fb = top.formbuilder(cols=1, border_spacing='3px')
+        fb.textbox(value='^.pkeys',lbl='Related Pkeys',width='30em')
+        fb.div(value='^.output_pkeys',lbl='Related Output Pkeys',width='30em',height='20px',background='red')
 
-    def __test_4_testpicker(self,pane):
-        """Picker on related table"""
-        pane.button('Show',fire='.struct_picker.open')
-        
-        
-        self.htablePicker(pane,table=self.htable,column='id', 
-                            grid_columns=self.db.table(self.grid_table).baseViewColumns(),
-                            grid_where=self.grid_where,grid_table=self.grid_table,
-                            input_pkeys='=',
-                            onAccept='console.log(pkeys); console.log(codes);',
-                            onChange='console.log(pkeys); console.log(codes);',
-                            nodeId='struct_picker2',datapath='.struct_picker',
-                            dialogPars=dict(width='600px'))
-                            
-                            
+        self.htablePickerOnRelated(bc.contentPane(region='center'),table=self.htable,
+                            related_table=self.related_table,
+                            input_pkeys='=.#parent.pkeys',
+                            output_pkeys='.#parent.output_pkeys',
+                            relation_path=self.relation_path,
+                            nodeId='picker_4',datapath='.struct_picker',editMode='bc')
+
                             
                             
