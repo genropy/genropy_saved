@@ -8,10 +8,7 @@ from gnr.web.gnrwebpage import BaseComponent
 from gnr.core.gnrbag import Bag
 import os
 
-class DropUploader(BaseComponent):
-    js_requires = 'gnrcomponents/drop_uploader/drop_uploader'
-    css_requires = 'gnrcomponents/drop_uploader/drop_uploader'
-    
+class DropUploader(BaseComponent):    
     def dropUploader(self,pane,ext='',**kwargs):
         pane.div(drop_types='Files',drop_ext=ext,
                  drop_action="""console.log(files);drop_uploader.send_files(files)""",
