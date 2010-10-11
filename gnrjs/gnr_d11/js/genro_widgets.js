@@ -336,7 +336,10 @@ dojo.declare("gnr.widgets.baseHtml",null,{
         this._makeInteger(attributes,['sizeShare','sizerWidth']);
         var savedAttrs = {};
         savedAttrs['dragPars'] = objectExtract(attributes,'drag_*');
-        savedAttrs['dragPars']['draggable']=objectPop(attributes,'draggable');
+        var draggable = objectPop(attributes,'draggable');
+        if (draggable) {
+            savedAttrs['dragPars']['draggable']=true;
+        };
         savedAttrs['dropPars'] = objectExtract(attributes,'drop_*');
         savedAttrs.connectedMenu=objectPop(attributes,'connectedMenu');
         savedAttrs.dragDrop = objectExtract(attributes,'dnd_*');
