@@ -764,11 +764,15 @@ class GnrWebPage(GnrBaseWebPage):
                                        var new_status = main_left_set_status[0];
                                        new_status = new_status=='toggle'? !current_status:new_status;
                                        if(new_status!=current_status){
+                                    
                                             SET _clientCtx.mainBC.left?show=new_status;
+                                            if(new_status && left_width.replace('px','')<200){
+                                                SET _clientCtx.mainBC.left = '200px';
+                                            }
                                             PUBLISH main_left_status = new_status;
                                        }
                                     """,subscribe_main_left_set_status=True,
-                                    current_status='=_clientCtx.mainBC.left?show')
+                                    current_status='=_clientCtx.mainBC.left?show',left_width='=_clientCtx.mainBC.left')
                 
                 
                 
@@ -899,6 +903,16 @@ class GnrWebPage(GnrBaseWebPage):
         self.app.setContextJoinColumns(table=contextTable, contextName=contextName, reason=gridId,
                                        path=relation_path, columns=query_columns)
                                        
+    def rpc_getPrinters(self):
+        print_handler = self.getService('print')
+        if print_handler:
+            return print_handler.getPrinters()
+        
+    def rpc_getPrinterAttributes(self,printer_name):
+        if printer_name and printer_name!='PDF':
+            attributes = self.getService('print').getPrinterAttributes(printer_name)
+            return attributes
+
     def rpc_relationExplorer(self, table=None, prevRelation='', prevCaption='', 
                             omit='',**kwargs):
         if not table:
