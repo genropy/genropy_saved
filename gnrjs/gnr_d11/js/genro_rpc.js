@@ -656,7 +656,7 @@ dojo.declare("gnr.GnrRpcHandler",null,{
         resolver.updateAttr=true;
         return resolver;
     },
-    uploadMultipartFiles:function(files,onResult,onError){
+    uploadMultipartFiles:function(files,params,onResult,onProgress,onError,onAbort){
         var paramValue=function(param,value){
             param.push('');
             param.push(value);
@@ -669,7 +669,7 @@ dojo.declare("gnr.GnrRpcHandler",null,{
             param.push('Content-Type: text/plain')
             return paramValue(param,value)
         }
-        var fileParam=function(file){
+        var fileParam=function(filedata){
             var param=[]
             param.push('Content-Disposition: form-data; name="user_file[]"; filename="' + file['name'] + '"')
             param.push('Content-Type: application/octet-stream')
@@ -679,27 +679,38 @@ dojo.declare("gnr.GnrRpcHandler",null,{
             return "Content-Length: "+content.length+_crlf+_crlf+content;
         }
         var content=[];
-        content.push('')
-        //content.push('--')
+        content.push('');
         content.push(textParam('rpc','upload'));
         content.push(textParam('page_id',genro.page_id));
-        dojo.forEach(files,function(f){
-            content.push(fileParam(f));
-        });
-        var boundary = '------multipartformboundary' + (new Date).getTime()
-        post_kwargs={url:genro.rpc.pageIndexUrl(),
-                     postData:content.join('--'+boundary+_crlf)+'--'+boundary+'--'+_crlf,
-                     headers:{'content-type': 'multipart/form-data; boundary=' + boundary},
-                     load:onResult? function(data){return onResult(data)}:function(data){console.log(data);},
-                     error:onError || function(data){console.log(data);}
-        };
+        if (params) {
+            for (key in params){
+                content.push(textParam(key,params[key]));
+            }
+        }
+        var boundary = '------multipartformboundary' + (new Date).getTime();
         var sender = new XMLHttpRequest();
-        sender.open("POST",genro.rpc.pageIndexUrl());
-        var content=content.join('--'+boundary+_crlf)+boundary+'--'+_crlf;
-        content=addContentLength(content);
-        sender.setRequestHeader("Content-Type", 'multipart/form-data; boundary=' + boundary);
-        sender.sendAsBinary(content);
-        //dojo.rawXhrPost(post_kwargs);
+        if (onResult) sender.upload.addEventListener("load", onResult, false);  
+        if (onProgress) sender.upload.addEventListener("progress", onProgress, false);  
+        if (onError) sender.upload.addEventListener("error", onError, false);  
+        if (onAbort) sender.upload.addEventListener("abort", onAbort, false);
+        var sendData=function(){
+            content=content.join('--'+boundary+_crlf)+boundary+'--'+_crlf;
+            content=addContentLength(content);
+            sender.open("POST",genro.rpc.pageIndexUrl(),true);
+            sender.setRequestHeader("Content-Type", 'multipart/form-data; boundary=' + boundary);
+            sender.sendAsBinary(content);
+        };
+        filereader = new FileReader();
+        var readFile=function(){
+            content.push(fileParam(filereader.result));
+            if (files.lenght>0) {
+                filereader.readAsBinaryString(files.shift())}
+            else{
+                sendData()
+                }
+        };
+        filereader.addEventListener("loadend", readFile, false);  
+        filereader.readAsBinaryString(files.shift());
     },
     uploadMultipartFilesN: function(files){
         dojo.require("dojo.io.iframe");
