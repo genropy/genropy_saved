@@ -111,8 +111,7 @@ class Public(BaseComponent):
             margin = None
         self.pageSource('_pageRoot').setAttr(height=height, width=width, margin=margin)
         top = self.pbl_topBar(rootbc.borderContainer(region='top', _class='pbl_root_top',overflow='hidden'),title,flagsLocale=flagsLocale)
-        bottom = self.pbl_bottomBar(rootbc.stackContainer(region='bottom', _class='pbl_root_bottom',
-                                                            overflow='hidden',selectedPage='^pbl.bottom_stack'))
+        bottom = self.pbl_bottomBar(rootbc.contentPane(region='bottom'))
         bc = rootbc.borderContainer(region='center', _class='pbl_root_center')        
         return bc, top, bottom
         
@@ -197,7 +196,10 @@ class Public(BaseComponent):
 
     def pbl_bottomBar(self,bottom):
         """docstring for publicTitleBar"""
+        bottom = bottom.stackContainer(region='bottom', _class='pbl_root_bottom',
+                                       overflow='hidden',selectedPage='^pbl.bottom_stack')
         bottom.data('pbl.bottom_stack','default')
+        
         default_bottom = self.pbl_bottom_default(bottom.borderContainer(pageName='default'))
         self.pbl_bottom_message(bottom.contentPane(pageName='message'))
         return default_bottom
