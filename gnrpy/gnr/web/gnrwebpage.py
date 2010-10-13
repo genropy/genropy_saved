@@ -826,10 +826,12 @@ class GnrWebPage(GnrBaseWebPage):
                                     tabPosition='bottom',**kwargs)    
         tc.dataController("""
                             var command;
-                            if(_reason=='gnr_main_left_selected' && leftVisible){
-                                var pagename = gnr_main_left_selected[1];
-                                var pagestatus = gnr_main_left_selected[2];
-                                command = pagestatus?'open':'close';
+                            if(_reason=='gnr_main_left_selected'){
+                                if (leftVisible){
+                                    var pagename = gnr_main_left_selected[1];
+                                    var pagestatus = gnr_main_left_selected[2];
+                                    command = pagestatus?'open':'close';
+                                }
                             }else{
                                 var leftStatus = main_left_status[0];
                                 var pagename = selectedPage;
