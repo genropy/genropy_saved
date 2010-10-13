@@ -104,7 +104,8 @@ class GnrSharedData(object):
                         
         if self.lockcount(key,1)>1:
             return True
-        k = max_retry or MAX_RETRY
+        max_retry=max_retry or MAX_RETRY
+        k = max_retry 
         lock_time = lock_time or LOCK_TIME
         retry_time = retry_time or RETRY_TIME
         while k:
@@ -305,7 +306,7 @@ class GnrSharedData_memcache(GnrSharedData):
             return value
     
     def delete(self, key):
-        self.storage.delete(self.key(key))
+        self.storage.delete(self.key(key),None)
         
     def incr(self, key, delta=1):
         return self.storage.incr(self.key(key), delta=delta)
