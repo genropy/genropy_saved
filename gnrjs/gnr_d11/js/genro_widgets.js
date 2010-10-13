@@ -3181,8 +3181,12 @@ dojo.declare("gnr.widgets.IncludedView",gnr.widgets.VirtualStaticGrid,{
         if (currNode.attr.disabled){
             return;
         }
-        var currval = currNode.attr._checked;
-        currNode.setAttr({'_checked':!currval},true,true);
+        var newval = !currNode.attr._checked;
+        currNode.setAttr({'_checked':newval},true,true);
+        var gridId = this.sourceNode.attr.nodeId;
+        if(gridId){
+            genro.publish(gridId+'_row_checked',currNode.label,newval,currNode.attr);
+        }
     },
     mixin_addCheckBoxColumn:function(kw){
         this.gnr.addCheckBoxColumn(kw,this.sourceNode);
@@ -3201,7 +3205,7 @@ dojo.declare("gnr.widgets.IncludedView",gnr.widgets.VirtualStaticGrid,{
         celldata['classes'] = kw.classes || 'row_checker';
         celldata['format_falseclass'] = kw.format_falseclass || 'checkboxOff' ;
         celldata['calculated'] = true;
-        celldata['format_onclick'] = 'this.widget.onCheckedColumn(kw.rowIndex)';
+        celldata['format_onclick'] = 'this.widget.onCheckedColumn(kw.rowIndex);';
         structbag.setItem('view_0.rows_0.cell_checked',null,celldata,{_position:kw.position || 0});
     },
     created: function(widget, savedAttrs, sourceNode){

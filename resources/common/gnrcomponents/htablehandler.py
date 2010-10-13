@@ -467,8 +467,7 @@ class HTablePicker(HTableHandlerBase):
                                      }
                                      FIRE .loaded;""",_grid_show=grid_show)
                                      
-        bc.dataController("""FIRE .prepare_output_related_pkeys; 
-                                PUBLISH %s_confirmed; 
+        bc.dataController("""   PUBLISH %s_confirmed; 
                                 FIRE .saved;""" %nodeId,
                             nodeId="%s_saver" %nodeId)
         
@@ -599,19 +598,20 @@ class HTablePicker(HTableHandlerBase):
                                                     }
                                                     bag.forEach(initial_pkeys?cb_initial:cb,'static');   
                                                     SET .initial_checked_pkeys = null;
+                                                    FIRE .#parent.set_output_pkeys;
                                                 """),**condition_pars)
-                                                
+        
         bc.dataController("""
-                            var result = [];
+                            var l = [];
                             selection.forEach(function(n){
                                 if(n.attr._checked){
-                                    result.push(n.attr._pkey);
+                                    l.push(n.attr._pkey);
                                 }
-                            },'static');
-                            this.setRelativeData(output_related_pkeys,result.join(','));
-                        """,_fired='^.prepare_output_related_pkeys',
-                        selection='=.preview_grid.selection',
-                        output_related_pkeys=output_related_pkeys,_if='output_related_pkeys')
+                            })
+                            this.setRelativeData(output_related_pkeys,l.join(','));
+                            """,_fired="^.set_output_pkeys",selection='=.preview_grid.selection',
+                            output_related_pkeys=output_related_pkeys,_if='output_related_pkeys',
+                            **{'subscribe_%s_row_checked' %gridId:True})
         
                          
         
