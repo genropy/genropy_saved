@@ -751,7 +751,7 @@ class GnrWebPage(GnrBaseWebPage):
                 page.dataController('console.log(msg);funcCreate(msg)();', msg='^gnr.servercode')
                 
                 
-                root=page.borderContainer(design='sidebar', height='100%', nodeId='_gnrRoot',_class='hideSplitter notvisible', 
+                root=page.borderContainer(design='sidebar', height='100%',nodeId='_gnrRoot',_class='hideSplitter notvisible', 
                                             regions='^_clientCtx.mainBC')
                 typekit_code=self.site.config['gui?typekit']
                 if typekit_code:
@@ -766,6 +766,7 @@ class GnrWebPage(GnrBaseWebPage):
                                        if(new_status!=current_status){
                                     
                                             SET _clientCtx.mainBC.left?show=new_status;
+                                            left_width = left_width || '';
                                             if(new_status && left_width.replace('px','')<200){
                                                 SET _clientCtx.mainBC.left = '200px';
                                             }
@@ -819,10 +820,9 @@ class GnrWebPage(GnrBaseWebPage):
     def mainLeftContent(self,parentBC,**kwargs):
         plugin_list = getattr(self,'plugin_list',None)
         if not plugin_list:
-            return
-            
+            return            
         tc = parentBC.tabContainer(selectedPage='^.selected',_class='main_left_tab',
-                                    datapath='gnr.main_container.left',
+                                    datapath='gnr.main_container.left',width='200px',
                                     tabPosition='bottom',**kwargs)    
         tc.dataController("""
                             var command;

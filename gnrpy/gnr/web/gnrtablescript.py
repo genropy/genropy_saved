@@ -19,16 +19,15 @@ class TableScript(object):
     batch_prefix = 'ts'
     batch_cancellable = True
     batch_delay = 0.5
-    batch_thermo_lines = None
     
-    def __init__(self, page=None, resource_table = None,db=None,locale='en',tempFolder='',batch=None,**kwargs):
+    def __init__(self, page=None, resource_table = None,db=None,locale='en',tempFolder='',**kwargs):
         if page:
             self.page = page
-            self.batch = batch
             self.site = self.page.site
             self.locale = self.page.locale
             self.db = self.page.db
             self.docFolder = tempFolder or self.page.temporaryDocument()
+            self.thermoKwargs = None
         else:
             self.db=db
             self.locale=locale
@@ -260,6 +259,7 @@ class RecordToHtmlNew(RecordToHtmlPage):
         return (self.page_width-self.page_margin_left-self.page_margin_right-\
                 self.page_leftbar_width - self.page_rightbar_width)
         
+                
     def mainLoop(self):
         self.copies=[]
         self.lastPage=False
@@ -273,14 +273,10 @@ class RecordToHtmlNew(RecordToHtmlPage):
         lines=self.getData(self.rows_path)
         if lines:
             nodes = lines.getNodes()
-            self.totalRowCount= len(nodes)
-            self.thermo_init()
-            for k,rowDataNode in enumerate(nodes):
+            if self.thermoKwargs:
+                nodes = self.page.btc.thermo_wrapper(nodes,**self.thermoKwargs)
+            for rowDataNode in nodes:
                 self.currRowDataNode = rowDataNode
-                self.currRowCount = k
-                self.stopped = self.thermo_step()
-                if self.stopped:
-                    break
                 for copy in range(self.copies_per_page):
                     self.copy=copy
                     rowheight = self.calcRowHeight()
@@ -297,17 +293,6 @@ class RecordToHtmlNew(RecordToHtmlPage):
             for copy in range(self.copies_per_page):
                 self.copy=copy
                 self._closePage(True)
-    
-    def thermo_init(self):
-        if hasattr(self,'thermoCb'):
-            self.thermoCb(row=2,max_value=self.totalRowCount)
-            
-    def thermo_step(self):
-        if hasattr(self,'thermoCb'):
-            return self.thermoCb(row=2,message=self.thermo_message())
-            
-    def thermo_message(self):
-        return '%i/%i' %(self.currRowCount,self.totalRowCount)
 
     def _newPage(self):
         if self.copyValue('currPage') >= 0:

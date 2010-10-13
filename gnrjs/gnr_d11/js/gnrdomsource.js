@@ -353,7 +353,7 @@ dojo.declare("gnr.GnrDomSourceNode",gnr.GnrBagNode,{
         return value;
     },
     fireEvent:function(path, value, attributes, reason,delay){
-        this.setRelativeData(path, value, attributes, true, reason,delay);
+        this.setRelativeData(path, value||true, attributes, true, reason,delay);
     },
     setRelativeData: function(path, value, attributes, fired, reason,delay){
        // var reason=reason || this

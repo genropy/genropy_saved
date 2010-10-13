@@ -100,10 +100,7 @@ class RecordDialog(BaseComponent):
                                 loadingParameters,validation_failed,record_datapath,**kwargs):
         onSaved = onSaved or ''
         onSaved = 'FIRE #%s.afterSaving = result; %s' %(dlgId,onSaved)
-        pane.dataController("""console.log('save action');
-                               console.log('saveAndAdd '+saveAndAdd);
-                               console.log('saveAndClose '+saveAndClose);
-                                if(saveAndAdd){
+        pane.dataController(""" if(saveAndAdd){
                                     SET .closeDlg = false;
                                     SET .addRecord = true;
                                     FIRE .saveRecord = saveAndAdd;

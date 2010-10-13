@@ -34,6 +34,12 @@ import base64
 import time
 thread_ws=dict()
 
+
+class FilterList(list):
+    """FilterList"""
+    def __contains__(self,item):
+        return len([k for k in self if k==item or k.endswith('*') and item.startswith(k[0:-1])])>0
+
 def thlocal():
     return thread_ws.setdefault(thread.get_ident(),{})
 
@@ -519,7 +525,8 @@ def classMixin(target_class, source_class, methods=None, only_callables=True,
     Source isclass
     If not 'methods' all methods are added.  
     """
-    
+    if isinstance(methods,basestring):
+        methods = methods.split(',')
     if isinstance(source_class, basestring):
         if ':' in source_class:
             modulename, clsname = source_class.split(':')
@@ -547,12 +554,10 @@ def classMixin(target_class, source_class, methods=None, only_callables=True,
     exclude_list = dir(type)+['__weakref__','__onmixin__','__on_class_mixin__','__py_requires__']
     if exclude:
         exclude_list.extend(exclude.split(','))
-    mlist = [k for k in dir(source_class) if ((only_callables and callable(getattr(source_class,k))) or not only_callables) and not k in exclude_list] 
-    if not methods:
-        methods = mlist
-    else:
-        methods = [k for k in methods if k in mlist]
-    for name in methods:
+    mlist = [k for k in dir(source_class) if ((only_callables and callable(getattr(source_class,k))) or not only_callables) and not k in exclude_list]
+    if methods:
+        mlist = filter(lambda item: item in FilterList(methods),mlist)
+    for name in mlist:
         original=target_class.__dict__.get(name)
         base_generator=base_visitor(source_class)
         new=None
@@ -582,7 +587,8 @@ def instanceMixin(obj, source, methods=None, attributes=None, only_callables=Tru
     Source can be an instance or a class
     If not 'methods' all methods are added.  
     """
-    
+    if isinstance(methods,basestring):
+        methods = methods.split(',')
     if isinstance(source, basestring):
         if ':' in source:
             modulename, clsname = source.split(':')
@@ -604,13 +610,9 @@ def instanceMixin(obj, source, methods=None, attributes=None, only_callables=Tru
     
     mlist = [k for k in dir(source) if callable(getattr(source,k)) and not k in dir(type)+['__weakref__','__onmixin__']] 
     instmethod = type(obj.__init__)
-    if not methods:
-        methods = mlist
-    else:
-        if isinstance(methods,basestring):
-            methods = methods.split(',')
-        methods = [k for k in methods if k in mlist]
-    for name in methods:
+    if methods:
+        mlist = filter(lambda item: item in FilterList(methods),mlist)
+    for name in mlist:
         method = getattr(source, name).im_func
         k = instmethod(method, obj, obj.__class__)
         name_as = name 

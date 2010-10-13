@@ -29,7 +29,7 @@ class BatchMonitor(BaseComponent):
                     _onCalling='genro.rpc.setPolling();',storename='user')
         
 class TableScriptRunner(BaseComponent):
-    py_requires='foundation/dialogs'
+    py_requires='foundation/dialogs,gnrcomponents/printer_option_dialog'
     def onMain_table_script_runner(self):
         page = self.pageSource()
         plugin_main = page.div(datapath='gnr.plugin.table_script_runner',nodeId='table_script_runner')
@@ -37,8 +37,10 @@ class TableScriptRunner(BaseComponent):
                                        SET .res_type= params['res_type'];
                                        SET .table =  params['table'];
                                        SET .resource =  params['resource'];
+                                       SET .structpath =  params['structpath'];
                                        SET .selectionName =  params['selectionName'];
                                        SET .selectedRowidx =  params['selectedRowidx'];
+                                       SET .paramspath = params['paramspath'];
                                        FIRE .build_pars_dialog;
                                        FIRE #table_script_dlg_parameters.open;
                                     """,subscribe_table_script_run=True)
@@ -46,10 +48,14 @@ class TableScriptRunner(BaseComponent):
         plugin_main.dataRpc('dummy','table_script_run',
                 _fired='^.run',
                 _onCalling='PUBLISH batch_monitor_open;',
-                pars='=.pars',resource='=.resource',
+                parameters='=.parameters',resource='=.resource',
                 res_type='=.res_type',
                 table='=.table',
                 selectionName='=.selectionName',
+                struct='==this.getRelativeData(_structpath);',
+                _structpath='=.structpath',
+                otherParams='==this.getRelativeData(_paramspath)',
+                _paramspath='=.paramspath',
                 selectedRowidx="=.selectedRowidx")
                 
         plugin_main.div().remote('table_script_parameters',
@@ -80,23 +86,31 @@ class TableScriptRunner(BaseComponent):
         if not resource:
             return
         resource = resource.replace('.py','')
-        cl=self.site.loadResource(pkgname,'tables',tblname,res_type,"%s:Main" %resource)
-        self.mixin(cl,methods='parameters_pane',prefix='toolbox')
+        cl=self.site.loadResource(pkgname,'tables',tblname,res_type,"%s:Main" %resource) #faccio mixin con prefisso
+        self.mixin(cl,methods='table_script_*,rpc_table_script_*')
+        batch_dict = dict([(k[6:],getattr(cl,k)) for k in dir(cl) if k.startswith('batch_')])
+        batch_dict['resource_name'] = resource
+        batch_dict['res_type'] = res_type
+        pane.data('.batch',batch_dict)
+        dlg_dict = dict([(k[7:],getattr(cl,k)) for k in dir(cl) if k.startswith('dialog_')])
+        dlg_dict['title'] = dlg_dict.get('title',batch_dict.get('title'))
+        pane.data('.dialog',dlg_dict)
         def cb_center(parentBc,**kwargs):
-            center=parentBc.contentPane(datapath='.pars',**kwargs)
-            self.toolbox_parameters_pane(center)
-            center_attr = center.getNode('#0').attr
-            dlg_attr = center.parentNode.parentbag.parentNode.attr
-            dlg_attr['height'] = center_attr.get('height') or dlg_attr['height']
-            dlg_attr['width'] = center_attr.get('width') or dlg_attr['width']
-
-        dlg = self.simpleDialog(pane,title=title,datapath='.parsDlg',height='300px',width='400px',
-                         cb_center=cb_center,dlgId='table_script_dlg_parameters')
+            if hasattr(self,'table_script_option_pane'):
+                center = parentBc.tabContainer(datapath='.data',**kwargs)
+                self.table_script_parameters_pane(center.contentPane(title='!!Parameters'))
+                self.table_script_option_pane(center.contentPane(title='!!Options',datapath='.batch_options'))
+            else:
+                center = parentBc.contentPane(datapath='.data',**kwargs)
+                self.table_script_parameters_pane(center)
+        
+        dlg = self.simpleDialog(pane,datapath='.dialog',title='^.title',height='^.height',width='^.width',
+                             cb_center=cb_center,dlgId='table_script_dlg_parameters')
                          
         dlg.dataController("""FIRE .close;
-                            SET #table_script_runner.pars=pars;
+                            SET #table_script_runner.parameters=pars;
                             FIRE #table_script_runner.run;""",
-                            _fired="^.save",pars='=.pars')
+                            _fired="^.save",pars='=.data')
                      
     def rpc_table_script_run(self,table=None,resource=None,res_type=None,selectionName=None,selectedRowidx=None,**kwargs):
         tblobj = self.tblobj or self.db.table(table)
