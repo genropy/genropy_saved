@@ -632,7 +632,7 @@ dojo.declare("gnr.GnrDomSourceNode",gnr.GnrBagNode,{
         var bld_attrs = objectExtract(attributes,'onCreating,onCreated,gnrId,tooltip,nodeId');
         var connections = objectExtract(attributes,'connect_*');
         if (objectPop(attributes,'autofocus')){
-            attributes.subscribe_onPageStart="this.focus()";
+            attributes.subscribe_onPageStart="this.widget.focus()";
         }
         var subscriptions = objectExtract(attributes,'subscribe_*');
             
