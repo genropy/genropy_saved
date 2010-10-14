@@ -1,4 +1,4 @@
-	.. _dbselect-dbcombobox-index:
+	.. _genro-db-index:
 
 =========================
  dbSelect and dbCombobox

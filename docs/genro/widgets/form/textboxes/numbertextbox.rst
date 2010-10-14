@@ -1,4 +1,4 @@
-	.. _textboxes-numbertextbox:
+	.. _genro-numbertextbox:
 
 ===============
  NumberTextbox
@@ -8,31 +8,22 @@
 
 .. class:: numberTextbox -  Genropy numberTextbox
 
-	- :ref:`numberTextbox-definition`
-	
-	- :ref:`numberTextbox-where`
-	
+	- :ref:`numberTextbox-definition-description`
+
 	- :ref:`numberTextbox-examples`
-	
+
 	- :ref:`numberTextbox-attributes`
-	
+
 	- :ref:`numberTextbox-other-attributes`
 
-	We recommend you to read :ref:`textboxes-textboxes` first.
+	We recommend you to read :ref:`genro-textboxes` first.
 
-	.. _numberTextbox-definition:
+	.. _numberTextbox-definition-description:
 
-Definition
-==========
+Definition and Description
+==========================
 
 	A simple number textbox.
-	
-	.. _numberTextbox-where:
-
-Where
-=====
-
-	#NISO ???
 
 	.. _numberTextbox-examples:
 

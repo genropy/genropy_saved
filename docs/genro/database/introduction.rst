@@ -15,14 +15,14 @@
 Introduction
 ============
 
-	???
+	Genro is a Data Base Management System (DBMS), so it is a software that is able to manage small and great database ensuring to follow great reliability and security standards.
 
 	.. _genro-project-creation:
 
 Create a Genro project
 ======================
 
-	To create a (Genro) project, you need to create a "package".
+	To create a project, you need to create a "package".
 
 	To create a ``package``, just type in your command window the command::
 
@@ -66,7 +66,7 @@ Packages
 ========
 
 	???
-	Model --> containing database :ref:`database-table`
+	Model --> containing database :ref:`genro-database_table`
 
 	.. _genro-resources:
 

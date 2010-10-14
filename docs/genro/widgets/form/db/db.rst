@@ -1,16 +1,16 @@
 	.. _genro-dbselect-dbcombobox:
 
-==========================================
- dbSelect and dbCombobox: common features
-==========================================
+============================================
+ An Introduction to dbSelect and dbCombobox
+============================================
 
 .. currentmodule:: form
 
-.. class:: dbFormWidgets -  Genropy dbFormWidgets
+.. class:: dbFormWidgets - Genropy dbFormWidgets
 
 	- :ref:`db-description`
 	
-	- :ref:`db-common-attributes`
+	- :ref:`db-genro-attributes`
 	
 	- :ref:`db-examples`: :ref:`db-selected`, :ref:`db-condition`, :ref:`db-columns` and :ref:`db-auxColumns`
 
@@ -21,11 +21,11 @@ Description
 
 	dbSelect and dbCombobox are form widgets used to handle database user queries.
 
-	- :ref:`form-dbselect`
+	- :ref:`genro-dbselect`
 
-	- :ref:`form-dbcombobox`
+	- :ref:`genro-dbcombobox`
 
-	.. _db-common-attributes:
+	.. _db-genro-attributes:
 
 Common attributes
 =================
@@ -51,29 +51,30 @@ Common attributes
 	|                    | example for further details                       |                          |
 	+--------------------+---------------------------------------------------+--------------------------+
 	| ``dbtable``        | MANDATORY - Select the database                   |  ``None``                |
-	|                    | :ref:`database-table` for database widget query.  |                          |
-	|                    | For further details, see :ref:`common-dbtable`    |                          |
+	|                    | :ref:`genro-database_table` for database widget   |                          |
+	|                    | query. For further details, see                   |                          |
+	|                    | :ref:`genro-dbtable`                              |                          |
 	+--------------------+---------------------------------------------------+--------------------------+
 	| ``disabled``       | If True, user can't act on the form widget.       |  ``False``               |
-	|                    | For more details, see :ref:`common-disabled`      |                          |
+	|                    | For more details, see :ref:`genro-disabled`       |                          |
 	+--------------------+---------------------------------------------------+--------------------------+
-	| ``hidden``         | Hide the form widget. See :ref:`common-hidden`    |  ``False``               |
+	| ``hidden``         | Hide the form widget. See :ref:`genro-hidden`     |  ``False``               |
 	+--------------------+---------------------------------------------------+--------------------------+
 	| ``limit``          | Set the number of visible choices on the pop-up   |  ``10``                  |
 	|                    | menu below the input textbox during user typing   |                          |
 	+--------------------+---------------------------------------------------+--------------------------+
 	| ``rowcaption``     | Allow user to view records through                |  ``None``                |
-	|                    | :ref:`name-name_long` value.                      |                          |
+	|                    | :ref:`genro-name_long` value.                     |                          |
 	|                    | Without ``rowcaption``, user will see value ID.   |                          |
 	|                    | Check for more information the                    |                          |
-	|                    | :ref:`database-rowcaption` page                   |                          |
+	|                    | :ref:`genro-database_rowcaption` page             |                          |
 	+--------------------+---------------------------------------------------+--------------------------+
 	| ``selected``       | You can add different parameters with the sintax: |  ``None``                |
 	|                    | ``selected_nameOfATableColumn='datapathFolder'``. |                          |
 	|                    | See :ref:`db-selected` example for further details|                          |
 	+--------------------+---------------------------------------------------+--------------------------+
 	| ``value``          | Set a path for widget's values.                   |  ``None``                |
-	|                    | For more details, see :ref:`common-datapath`      |                          |
+	|                    | For more details, see :ref:`genro-datapath`       |                          |
 	+--------------------+---------------------------------------------------+--------------------------+
 
 	.. _db-examples:
@@ -88,12 +89,12 @@ Selected
 
 	With ``selected`` attribute you can draw multiple attributes to the :ref:`genro-datastore` through a single ``dbSelect`` or ``dbCombobox``; the sintax is ``selected_nameOfATableColumn='datapathFolder'``.
 
-	Example: let's consider a database :ref:`database-table` that includes a list of actors::
+	Example: let's consider a database :ref:`genro-database_table` that includes a list of actors::
 	
 		# encoding: utf-8
 
 		class Table(object):
-			def config_db(self, pkg):
+			def config_db(self,pkg):
 				tbl = pkg.table('person',pkey='id',rowcaption='$name',
 				                 name_long='!!people',name_plural='!!People')
 				tbl.column('id',size='22',group='_',readOnly=True,name_long='Id')
@@ -105,7 +106,7 @@ Selected
 	let's consider also this Genro webpage::
 
 		class GnrCustomWebPage(object):
-			def main(self,root):
+			def main(self,root,**kwargs):
 				fb = root.formbuilder(cols=2,border_spacing='10px',datapath='myform')
 				fb.dbSelect(dbtable='showcase.person',value='^.person_id',lbl='Star',
 				            selected_name='.name',selected_year='.year')
@@ -136,7 +137,7 @@ Condition
 		# encoding: utf-8
 		
 		class Table(object):
-			def config_db(self, pkg):
+			def config_db(self,pkg):
 				tbl = pkg.table('movie',pkey='id',name_long='!!Movie',
 				                 name_plural='!!Movies')#,rowcaption='$title')
 				tbl.column('id',size='22',group='_',readOnly=True,name_long='Id')
@@ -149,12 +150,12 @@ Condition
 				tbl.column('description', name_short='Dsc', name_long='Movie description')
 				tbl.column('number','L',name_long='!!Number')
 	
-	The two tables ("movie" and "person") will be linked through a :ref:`database-relation_table` called "cast"::
+	The two tables ("movie" and "person") will be linked through a :ref:`genro-relation_table` called "cast"::
 	
 		# encoding: utf-8
 		
 		class Table(object):
-			def config_db(self, pkg):
+			def config_db(self,pkg):
 				tbl = pkg.table('cast',pkey='id',rowcaption='@movie_id.title',
 				                 name_long='!!Cast',name_plural='!!Casts')
 				tbl.column('id',size='22',group='_',readOnly=True,name_long='Id')
@@ -169,7 +170,7 @@ Condition
 	Finally, let's introduce a Genro webpage made like this one::
 	
 		class GnrCustomWebPage(object):
-			def main(self,root):
+			def main(self,root,**kwargs):
 				fb = root.formbuilder(cols=2,border_spacing='10px',datapath='myform')
 				fb.dbSelect(dbtable='showcase.person',value='^.person_id',lbl='Star')
 				fb.dbSelect(dbtable='showcase.movie',value='^.movie_id',lbl='Movie',
@@ -189,12 +190,38 @@ Condition
 Columns
 =======
 
-	??? se non c'è columns, allora la dbselect ricerca E visualizza attraverso i parametri del rowcaption,
-	??? se c'è columns allora ricerca SOLAMENTE per columns, e visualizza SOLO per rowcaption.
+	We explain the ``columns`` attribute for the ``dbSelect``, but the explanation also applies to the ``dbCombobox``.
+	
+	When a user begins to type something into the ``dbSelect`` field, he can see visualized the database columns specified into the ``rowcaption`` field.
+	
+	The usual procedure of a ``dbSelect`` query is *to search* through the records owned by the ``rowcaption`` attribute and *to save* the record chosen by the user through record's ID.
+	
+	If you define ``columns``, the ``dbSelect`` will continue to visualize only the records owned by the ``rowcaption`` attribute, but ``dbSelect`` will search ONLY through the record columns defined in the ``columns`` attribute.
+
+	Example::
+	
+		class GnrCustomWebPage(object):
+			def main(self,root,**kwargs):
+				fb = root.formbuilder(cols=2,border_spacing='10px',datapath='myform')
+				fb.dbSelect(dbtable='showcase.person',value='^.person_id',lbl='Star',
+				            selected_name='.name',selected_year='.year')
+		
+	??? Add a demo...
 
 	.. _db-auxColumns:
 
 auxColumns
 ==========
 
-	??? auxColumns: campi di pura visualizzazione aggiunti a quello primario
+	The ``auxColumns`` attribute allows to visualize in the menu below the input text box some additional fields.
+
+	Example::
+	
+		class GnrCustomWebPage(object):
+			def main(self,root,**kwargs):
+				fb = root.formbuilder(cols=2,border_spacing='10px',datapath='myform')
+				fb.dbCombobox(dbtable='showcase.person',value='^.person_id',
+				              lbl='Star', auxColumns='$nationality')
+				
+	??? Add a demo...
+	

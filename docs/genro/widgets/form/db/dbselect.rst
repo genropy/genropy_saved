@@ -1,18 +1,14 @@
-	.. _form-dbselect:
+	.. _genro-dbselect:
 
 ==========
- DbSelect
+ dbSelect
 ==========
 
 .. currentmodule:: dbSelect
 
 .. class:: dbSelect - Genropy dbSelect
 
-	- :ref:`dbselect-definition`
-
-	- :ref:`dbselect-where`
-
-	- :ref:`dbselect-description`
+	- :ref:`dbselect-definition-description`
 
 	- :ref:`dbselect-examples`
 
@@ -20,34 +16,18 @@
 
 	We recommend you to read :ref:`genro-dbselect-dbcombobox` first.
 
-	.. _dbselect-definition:
+	.. _dbselect-definition-description:
 
-Definition
-==========
-		
-	Here we report dbSelect's definition::
-		
-		def nameOfObject(args): #NISO ???
+Definition and Description
+==========================
 
-	.. _dbselect-where:
-
-Where
-=====
-
-	You can find dbSelect in *genro/gnrpy/...* #NISO ???
-
-	.. _dbselect-description:
-
-Description
-===========
-
-	dbSelect [#]_ is a :ref:`form-filteringselect` that takes the values through a query on the database [#]_.
+	dbSelect [#]_ is a :ref:`genro-filteringselect` that takes the values through a query on the database [#]_.
 	
-	User can choose between all the values contained into the linked :ref:`database-table` (you have to specify the table from which user makes his selection), and dbSelect keep track into the :ref:`genro-datastore` of the ID of the record chosen by the user.
+	User can choose between all the values contained into the linked :ref:`genro-database_table` (you have to specify the table from which user makes his selection), and dbSelect keep track into the :ref:`genro-datastore` of the ID of the record chosen by the user.
 	
 	While user write in the dbSelect, partially matched values will be shown in a pop-up menu below the input text box.
 	
-	The only way to specify the table related to the dbSelect is using the :ref:`common-dbtable` attribute.
+	The only way to specify the table related to the dbSelect is using the :ref:`genro-dbtable` attribute.
 	
 	.. _dbselect-examples:
 
@@ -71,7 +51,7 @@ Examples
 dbSelect attributes
 ===================
 
-	For the list of dbSelect attributes, please check :ref:`db-common-attributes`.
+	For the list of dbSelect attributes, please check :ref:`db-genro-attributes`.
 
 **Footnotes**
 	

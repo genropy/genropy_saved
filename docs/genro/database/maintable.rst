@@ -1,4 +1,4 @@
-	.. _database-maintable:
+	.. _genro-maintable:
 
 ===========
  Maintable

@@ -1,4 +1,4 @@
-	.. _layout-bordercontainer:
+	.. _genro-bordercontainer:
 
 ==================
  Border container

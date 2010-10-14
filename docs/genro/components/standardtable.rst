@@ -1,4 +1,4 @@
-	.. _components-standardtable:
+	.. _genro-standardtable:
 
 ================
  Standard table

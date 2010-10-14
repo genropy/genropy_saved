@@ -1,4 +1,4 @@
-	.. _components-standardtable_introduction:
+	.. _genro-standardtable_introduction:
 
 ================
  Standard table
@@ -8,6 +8,6 @@
 
 	There are two standard table types:
 	
-		* the :ref:`components-standardtable`
+		* the :ref:`genro-standardtable`
 		
-		* a light version of the standard table: the :ref:`components-standardtable_light`
+		* a light version of the standard table: the :ref:`genro-standardtable_light`

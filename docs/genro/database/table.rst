@@ -1,4 +1,4 @@
-	.. _database-table:
+	.. _genro-database_table:
 
 =======
  Table
@@ -15,14 +15,14 @@
 Definition
 ==========
 
-	The table is ... ???
+	A table is ... ???
 
 	.. _table-description:
 
 Description
 ===========
 
-	??? Introduce the rowcaption attribute and put the link to the relative page for further details (:ref:`database-rowcaption`).
+	??? Introduce the rowcaption attribute and put the link to the relative page for further details (:ref:`genro-database_rowcaption`).
 	
 
 	.. _table-examples:

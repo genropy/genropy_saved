@@ -1,4 +1,4 @@
-	.. _textboxes-timetextbox:
+	.. _genro-timetextbox:
 
 =============
  TimeTextbox
@@ -6,35 +6,26 @@
 
 .. currentmodule:: form
 
-.. class:: timeTextbox -  Genropy timeTextbox
+.. class:: timeTextbox - Genropy timeTextbox
 
-	- :ref:`timeTextbox-definition`
-	
-	- :ref:`timeTextbox-where`
-	
+	- :ref:`timeTextbox-definition-description`
+
 	- :ref:`timeTextbox-examples`
-	
-	- :ref:`timeTextbox-attributes`
-	
-	- :ref:`timeTextbox-other-attributes`
-	
-	We recommend you to read :ref:`textboxes-textboxes` first.
-	
-	.. _timeTextbox-definition:
 
-Definition
-==========
+	- :ref:`timeTextbox-attributes`
+
+	- :ref:`timeTextbox-other-attributes`
+
+	We recommend you to read :ref:`genro-textboxes` first.
+	
+	.. _timeTextbox-definition-description:
+
+Definition and Description
+==========================
 
     A timeTextbox it's a time input control that allow either typing time or choosing it from a picker widget.
     
     - syntax: HH:MM
-
-	.. _timeTextbox-where:
-
-Where
-=====
-
-	#NISO ???
 
 	.. _timeTextbox-examples:
 

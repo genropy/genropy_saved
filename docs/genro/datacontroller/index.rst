@@ -1,4 +1,4 @@
-	.. _datacontroller-index:
+	.. _genro-datacontroller-index:
 
 =================
  Data controller

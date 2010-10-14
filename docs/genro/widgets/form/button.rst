@@ -1,18 +1,14 @@
-	.. _form-button:
+	.. _genro-button:
 
 ========
- Button
+ button
 ========
 
 .. currentmodule:: form
 
-.. class:: button -  Genropy button
+.. class:: button - Genropy button
 
-	- :ref:`button-definition`
-
-	- :ref:`button-where`
-
-	- :ref:`button-description`
+	- :ref:`button-definition-description`
 
 	- :ref:`button-examples`
 
@@ -20,30 +16,16 @@
 
 	- :ref:`button-other-attributes`
 
-	.. _button-definition:
+	.. _button-definition-description:
 
-Definition
-==========
+Definition and Description
+==========================
 
 	Same definition of Dojo button (version 1.5). To show it, click here_.
 
 	.. _here: http://docs.dojocampus.org/dijit/form/Button
-	
-	.. _button-where:
 
-Where
-=====
-
-	#NISO ???
-
-	.. _button-description:
-
-Description
-===========
-
-	Button is a Dojo widget used as a representation of a normal button.
-	
-	You can act with it through "action" attribute, a javascript executed on mouse click.
+	Button is a Dojo widget used as a representation of a normal button. You can act with it through "action" attribute, a javascript executed on mouse click.
 
 	.. _button-examples:
 
@@ -82,7 +64,7 @@ Attributes
 	| ``action``         | Starts a Javascript command                     |  ``#NISO???``            |
 	+--------------------+-------------------------------------------------+--------------------------+
 	
-	.. _`button-other-attributes`:
+	.. _button-other-attributes:
 	
 Common attributes
 =================
@@ -91,14 +73,14 @@ Common attributes
 	|   Attribute        |          Description                            |   Default                |
 	+====================+=================================================+==========================+
 	| ``disabled``       | If True, user can't act on the object.          |  ``False``               |
-	|                    | For more details, see :ref:`common-disabled`    |                          |
+	|                    | For more details, see :ref:`genro-disabled`     |                          |
 	+--------------------+-------------------------------------------------+--------------------------+
 	| ``hidden``         | Hide the button.                                |  ``False``               |
-	|                    | See :ref:`common-hidden`                        |                          |
+	|                    | See :ref:`genro-hidden`                         |                          |
 	+--------------------+-------------------------------------------------+--------------------------+
 	| ``label``          | Set button label.                               |  ``None``                |
-	|                    | For more details, see :ref:`common-label`       |                          |
+	|                    | For more details, see :ref:`genro-label`        |                          |
 	+--------------------+-------------------------------------------------+--------------------------+
 	| ``value``          | Set a path for button's values.                 |  ``None``                |
-	|                    | For more details, see :ref:`common-datapath`    |                          |
+	|                    | For more details, see :ref:`genro-datapath`     |                          |
 	+--------------------+-------------------------------------------------+--------------------------+

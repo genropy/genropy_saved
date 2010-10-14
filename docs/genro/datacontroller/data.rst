@@ -1,4 +1,4 @@
-	.. _datacontroller-data:
+	.. _genro-data:
 
 ======
  data

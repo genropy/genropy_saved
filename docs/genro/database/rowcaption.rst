@@ -1,4 +1,4 @@
-	.. _database-rowcaption:
+	.. _genro-database_rowcaption:
 
 ============
  Rowcaption
@@ -6,17 +6,14 @@
 
 	- :ref:`database-definition`
 	
-	- :ref:`database-description-examples`
-	
-		- :ref:`rowcaption-database-table`
-		- :ref:`rowcaption-webpage`
+	- :ref:`database-description-examples`: :ref:`rowcaption-genro-database_table`, :ref:`rowcaption-webpage`
 
 	.. _database-definition:
 
 Definition
 ==========
 
-	``rowcaption`` is the textual representation of a record, and it is used with all the form widgets that draw their value from a database :ref:`database-table`, that are :ref:`form-field`, :ref:`form-dbselect` and :ref:`form-dbcombobox`.
+	``rowcaption`` is the textual representation of a record, and it is used with all the form widgets that draw their value from a database :ref:`genro-database_table`, that are :ref:`genro-field`, :ref:`genro-dbselect` and :ref:`genro-dbcombobox`.
 
 	.. _database-description-examples:
 
@@ -25,10 +22,10 @@ Description and examples
 
 	``rowcaption`` can be defined in two places:
 	
-		* directly into the database table: check :ref:`rowcaption-database-table`
+		* directly into the database table: check :ref:`rowcaption-genro-database_table`
 		* in the query-field (``field``, ``dbselect`` or ``dbcombobox``) placed into the webpage: check :ref:`rowcaption-webpage`
 
-	.. _rowcaption-database-table:
+	.. _rowcaption-genro-database_table:
 
 rowcaption in the database table
 ================================
@@ -58,7 +55,7 @@ rowcaption in the database table
 		                                       # alternate way to format the rowcaption with fields
 		                                       # and addition characters.
 	
-	Obviously, you can also use the "@" syntax (check in :ref:`database-table` page for further details).
+	Obviously, you can also use the "@" syntax (check in :ref:`genro-database_table` page for further details).
 	
 	.. _rowcaption-webpage:
 	

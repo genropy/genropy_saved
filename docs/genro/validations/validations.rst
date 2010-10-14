@@ -1,4 +1,4 @@
-	.. _validations-validations:
+	.. _genro-validations:
 
 =============
  Validations

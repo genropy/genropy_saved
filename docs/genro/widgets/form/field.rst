@@ -1,60 +1,43 @@
-	.. _form-field:
+	.. _genro-field:
 
 =======
- Field
+ field
 =======
 
 .. currentmodule:: form
 
-.. class:: Field -  Genropy Field
+.. class:: field - Genropy field
 
-	- :ref:`field-definition`
+	- :ref:`field-definition-description`
 
-	- :ref:`field-where`
-
-	- :ref:`field-description-examples`
-
-		- :ref:`first-one`
-		- :ref:`second-one`
-		- :ref:`third-one`
+	- :ref:`field-examples`: :ref:`first-one`, :ref:`second-one`, :ref:`third-one`
 
 	- :ref:`field-attributes`
 	
 	- :ref:`field-other-attributes`
 
-	.. _field-definition:
+	.. _field-definition-description:
 
-Definition
-==========
+Definition and Description
+==========================
 
-	Here we report Field's definition::
+	``field`` is used to view and select data included in a database :ref:`genro-database_table` (and, eventually, through the ``zoom`` attribute, is used to modify them).
 
-		def nameOfObject(args): #NISO ??
+	Its type is inherited from the type of data contained in the table to which ``field`` refers. For example, if ``field`` catches data from a :ref:`genro-numbertextbox`, its type is actually a ``numberTextbox``.
 
-	.. _field-where:
+	``field`` MUST be a son of the form widget called :ref:`genro-formbuilder`, and ``formbuilder`` itself MUST have a :ref:`genro-datapath` for inner relative path gears. So, ``field`` search a form to bind itself to (so don't forget to link every ``field`` to a ``formbuilder``!).
 
-Where
-=====
+	The last thing is to specify the database table to which the ``field`` refers to. There are three different possibilities for doing this, that are:
 
-	You can find Field in *genro/gnrpy/...* #NISO ??
-
-	.. _field-description-examples:
-
-Description and Examples
-========================
-
-	``Field`` is used to view and select data included in a database :ref:`database-table` (and, eventually, through the ``zoom`` attribute, is used to modify them).
-
-	Its type is inherited from the type of data contained in the table to which ``Field`` refers. For example, if ``Field`` catches data from a :ref:`textboxes-numbertextbox`, its type is actually a ``numberTextbox``.
-
-	``Field`` MUST be a son of the form widget called :ref:`form-formbuilder`, and ``formbuilder`` itself MUST have a :ref:`common-datapath` for inner relative path gears. So, ``Field`` search a form to bind itself to (so don't forget to link every ``Field`` to a ``formbuilder``!).
-	
-	The last thing is to specify the database table to which the Field refers to. There are three different possibilities for doing this, that are:
-	
 	* :ref:`first-one`
 	* :ref:`second-one`
 	* :ref:`third-one`
-	
+
+	.. _field-examples:
+
+Examples
+========
+
 	.. _first-one:
 
 dbtable on the formbuilder
@@ -70,7 +53,7 @@ dbtable on the formbuilder
 	
 				fb.field('person_id',rowcaption='$name')
 
-	So, the first value of the field contains the name of the attribute you want to save in the :ref:`datastore` (for rowcaption explanation, check :ref:`field-attributes`).
+	So, the first value of the field contains the name of the attribute you want to save in the :ref:`genro-datastore` (for rowcaption explanation, check :ref:`field-attributes`).
 
 	.. _second-one:
 
@@ -119,7 +102,7 @@ Attributes
 	|  ``lbl``           | Set the Field label. Properly, "lbl" is a       |  name_long value         |
 	|                    | formbuilder's son attribute, so if you don't    |                          |
 	|                    | specify it, then Field will inherit it from the |                          |
-	|                    | :ref:`name-name_long` attribute of the          |                          |
+	|                    | :ref:`genro-name_long` attribute of the         |                          |
 	|                    | requested data                                  |                          |
 	+--------------------+-------------------------------------------------+--------------------------+
 	|  nameOfTheColumn   | MANDATORY - The first field's parameter; it is  |  ``None``                |
@@ -130,14 +113,14 @@ Attributes
 	|                    | ``maintable``                                   |                          |
 	+--------------------+-------------------------------------------------+--------------------------+
 	| ``rowcaption``     | Allow user to view records through              |  ``None``                |
-	|                    | :ref:`name-name_long` value.                    |                          |
+	|                    | :ref:`genro-name_long` value.                   |                          |
 	|                    | Without ``rowcaption``, user will see value ID. |                          |
 	|                    | Check for more information on                   |                          |
-	|                    | :ref:`database-rowcaption` page                 |                          |
+	|                    | :ref:`genro-database_rowcaption` page           |                          |
 	+--------------------+-------------------------------------------------+--------------------------+
 	| ``zoom``           | It allows to open the linked record in its      |  ``True``                |
-	|                    | :ref:`database-table`. For further              |                          |
-	|                    | details, check :ref:`components-standardtable`  |                          |
+	|                    | :ref:`genro-database_table`. For further        |                          |
+	|                    | details, check :ref:`genro-standardtable`       |                          |
 	+--------------------+-------------------------------------------------+--------------------------+
 	
 	.. _field-other-attributes:
@@ -149,12 +132,12 @@ Common attributes
 	|   Attribute        |          Description                            |   Default                |
 	+====================+=================================================+==========================+
 	| ``disabled``       | If True, user can't act on the dbselect.        |  ``False``               |
-	|                    | For more details, see :ref:`common-disabled`    |                          |
+	|                    | For more details, see :ref:`genro-disabled`     |                          |
 	+--------------------+-------------------------------------------------+--------------------------+
 	| ``hidden``         | Hide the dbselect.                              |  ``False``               |
-	|                    | See :ref:`common-hidden`                        |                          |
+	|                    | See :ref:`genro-hidden`                         |                          |
 	+--------------------+-------------------------------------------------+--------------------------+
 	| ``value``          | Set a path for dbselect's values.               |  ``None``                |
-	|                    | For more details, see :ref:`common-datapath`    |                          |
+	|                    | For more details, see :ref:`genro-datapath`     |                          |
 	+--------------------+-------------------------------------------------+--------------------------+
 	

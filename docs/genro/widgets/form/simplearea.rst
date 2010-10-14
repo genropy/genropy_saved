@@ -1,47 +1,29 @@
-	.. _form-simplearea:
+	.. _genro-simplearea:
 
 ================
- Simpletextarea
+ simpletextarea
 ================
 
 .. currentmodule:: form
 
 .. class:: simpleTextarea -  Genropy simpleTextarea
 
-	- :ref:`simpleTextarea-definition`
+	- :ref:`simpletextarea-definition-description`
 
-	- :ref:`simpleTextarea-where`
+	- :ref:`simpletextarea-examples`
 
-	- :ref:`simpleTextarea-description`
+	- :ref:`simpletextarea-attributes`
 
-	- :ref:`simpleTextarea-examples`
+	- :ref:`simpletextarea-other-attributes`
 
-	- :ref:`simpleTextarea-attributes`
+	.. _simpletextarea-definition-description:
 
-	- :ref:`simpleTextarea-other-attributes`
-
-	.. _simpleTextarea-definition:
-
-Definition
-==========
-
-	A simple text area.
-
-	.. _simpleTextarea-where:
-
-Where
-=====
-
-	#NISO ???
-
-	.. _simpleTextarea-description:
-
-Description
-===========
+Definition and Description
+==========================
 
 	With simpletextarea you can add an area for user writing.
 
-	.. _simpleTextarea-examples:
+	.. _simpletextarea-examples:
 
 Examples
 ========
@@ -58,7 +40,7 @@ Examples
 
 	#NISO add online demo!
 
-	.. _simpleTextarea-attributes:
+	.. _simpletextarea-attributes:
 
 Attributes
 ==========
@@ -71,7 +53,7 @@ Attributes
 	| ``text_align``     | CSS attribute                                   |  ``left``                |
 	+--------------------+-------------------------------------------------+--------------------------+
 
-	.. _simpleTextarea-other-attributes:
+	.. _simpletextarea-other-attributes:
 
 Common attributes
 =================
@@ -80,15 +62,15 @@ Common attributes
 	|   Attribute        |          Description                            |   Default                |
 	+====================+=================================================+==========================+
 	| ``default``        | Add a text to the area.                         |  ``None``                |
-	|                    | For more details, see :ref:`common-default`     |                          |
+	|                    | For more details, see :ref:`genro-default`      |                          |
 	+--------------------+-------------------------------------------------+--------------------------+
 	| ``disabled``       | If True, user can't act on the area.            |  ``False``               |
-	|                    | For more details, see :ref:`common-disabled`    |                          |
+	|                    | For more details, see :ref:`genro-disabled`     |                          |
 	+--------------------+-------------------------------------------------+--------------------------+
 	| ``hidden``         | Hide the simpletextarea.                        |  ``False``               |
-	|                    | See :ref:`common-hidden`                        |                          |
+	|                    | See :ref:`genro-hidden`                         |                          |
 	+--------------------+-------------------------------------------------+--------------------------+
 	| ``value``          | Set a path for simpletextarea's value.          |  ``None``                |
-	|                    | For more details, see :ref:`common-datapath`    |                          |
+	|                    | For more details, see :ref:`genro-datapath`     |                          |
 	+--------------------+-------------------------------------------------+--------------------------+
 	

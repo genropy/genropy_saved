@@ -1,4 +1,4 @@
-	.. _common-index:
+	.. _genro-common-index:
 
 =================
 Common attributes

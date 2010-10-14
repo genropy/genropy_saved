@@ -1,7 +1,7 @@
-	.. _form-formbuilder:
+	.. _genro-formbuilder:
 
 =============
- Formbuilder
+ formbuilder
 =============
 
 .. currentmodule:: form
@@ -106,10 +106,10 @@ Attributes
 	| ``cols``           | Set columns number                              |  ``1``                   |
 	+--------------------+-------------------------------------------------+--------------------------+
 	| ``datapath``       | Set path for data.                              |  ``None``                |
-	|                    | For more details, see :ref:`common-attributes`  |                          |
+	|                    | For more details, see :ref:`genro-attributes`   |                          |
 	+--------------------+-------------------------------------------------+--------------------------+
 	| ``dbtable``        | Set the database table.                         |  ``None``                |
-	|                    | For more details, see :ref:`common-dbtable`     |                          |
+	|                    | For more details, see :ref:`genro-dbtable`      |                          |
 	+--------------------+-------------------------------------------------+--------------------------+
 	| ``fieldclass``     | CSS class appended to every formbuilder's son   |  ``gnrfield``            |
 	+--------------------+-------------------------------------------------+--------------------------+
@@ -178,7 +178,7 @@ Here we describe the formbuilder's field attributes:
 	|                | ``*`` to refer itself at the current row             |                          |
 	+----------------+------------------------------------------------------+--------------------------+
 	| ``value``      | Set a path for formbuilder's values.                 |  ``None``                |
-	|                | For more details, see :ref:`common-datapath`         |                          |
+	|                | For more details, see :ref:`genro-datapath`          |                          |
 	+----------------+------------------------------------------------------+--------------------------+
 
 	.. _formbuilder-other-attributes:
@@ -190,10 +190,10 @@ Common attributes:
 	|   Attribute        |       Description                                |   default                |
 	+====================+==================================================+==========================+
 	| ``disabled``       | If True, user can't act on the object.           |  ``False``               |
-	|                    | For more details, see :ref:`common-disabled`     |                          |
+	|                    | For more details, see :ref:`genro-disabled`      |                          |
 	+--------------------+--------------------------------------------------+--------------------------+
 	| ``hidden``         | Hide the formbuilder/formbuilder's field         |  ``False``               |
-	|                    | See :ref:`common-hidden`                         |                          |
+	|                    | See :ref:`genro-hidden`                          |                          |
 	+--------------------+--------------------------------------------------+--------------------------+
 
 	.. _formbuilder-other-features:

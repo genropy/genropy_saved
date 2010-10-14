@@ -1,12 +1,18 @@
-	.. _textboxes-textboxes:
+	.. _genro-textboxes:
 
-===========
- Textboxes
-===========
+==================================
+ An Introduction to the Textboxes
+==================================
 
 .. currentmodule:: form
 
-.. class:: textbox -  Genropy textbox
+.. class:: textboxes - Genropy textboxes
+
+	- :ref:`textboxes-introduction`
+
+	- :ref:`textboxes-attributes`
+
+	.. _textboxes-introduction:
 
 Definition
 ==========
@@ -15,15 +21,15 @@ Definition
 
 	There are different textbox types:
 
-	- :ref:`textboxes-textbox`
+	- :ref:`genro-textbox`
 
-	- :ref:`textboxes-currencytextbox`
+	- :ref:`genro-currencytextbox`
 
-	- :ref:`textboxes-datetextbox`
+	- :ref:`genro-datetextbox`
 
-	- :ref:`textboxes-numbertextbox`
+	- :ref:`genro-numbertextbox`
 
-	- :ref:`textboxes-timetextbox`
+	- :ref:`genro-timetextbox`
 
 	The main feature of each of these textboxes is that Genro combines Dojo's textboxes with HTML's textboxes.
 
@@ -38,14 +44,14 @@ Common attributes
 	|   Attribute        |          Description                            |   Default                |
 	+====================+=================================================+==========================+
 	| ``datapath``       | Set path for data.                              |  ``None``                |
-	|                    | For more details, see :ref:`common-datapath`    |                          |
+	|                    | For more details, see :ref:`genro-datapath`     |                          |
 	+--------------------+-------------------------------------------------+--------------------------+
 	| ``disabled``       | If True, user can't act on the textbox.         |  ``False``               |
-	|                    | For more details, see :ref:`common-disabled`    |                          |
+	|                    | For more details, see :ref:`genro-disabled`     |                          |
 	+--------------------+-------------------------------------------------+--------------------------+
 	| ``hidden``         | Hide the textbox.                               |  ``False``               |
-	|                    | See :ref:`common-hidden`                        |                          |
+	|                    | See :ref:`genro-hidden`                         |                          |
 	+--------------------+-------------------------------------------------+--------------------------+
 	| ``value``          | Set a path for textbox's value.                 |  ``None``                |
-	|                    | For more details, see :ref:`common-datapath`    |                          |
+	|                    | For more details, see :ref:`genro-datapath`     |                          |
 	+--------------------+-------------------------------------------------+--------------------------+

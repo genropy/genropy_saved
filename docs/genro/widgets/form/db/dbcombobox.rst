@@ -1,18 +1,14 @@
-	.. _form-dbcombobox:
+	.. _genro-dbcombobox:
 
 ============
- DbCombobox
+ dbCombobox
 ============
 
 .. currentmodule:: dbcombobox
 
-.. class:: dbcombobox - Genropy dbcombobox
+.. class:: dbCombobox - Genropy dbCombobox
 
-	- :ref:`dbcombobox-definition`
-
-	- :ref:`dbcombobox-where`
-
-	- :ref:`dbcombobox-description`
+	- :ref:`dbcombobox-definition-description`
 
 	- :ref:`dbcombobox-examples`
 
@@ -20,30 +16,14 @@
 
 	We recommend you to read :ref:`genro-dbselect-dbcombobox` first.
 
-	.. _dbcombobox-definition:
+	.. _dbcombobox-definition-description:
 
-Definition
-==========
+Definition and Description
+==========================
 
-	Here we report dbCombobox's definition::
-		
-		def nameOfObject(args): #NISO ???
+	The Genro ``dbCombobox`` is a :ref:`genro-combobox` that conducts research on specific columns in a database table. While user write in the dbCombobox, partially matched values will be shown in a pop-up menu below the input text box. ``dbCombobox`` has got the same parameters of the :ref:`genro-dbselect`, and allows to choose from values situated in the database AND from values that aren't in the database. These "new" values aren't added in the database but they have being placed in the :ref:`genro-datastore`, so they can be handled from Genropy. [#]_
 
-	.. _dbcombobox-where:
-
-Where
-=====
-
-	You can find dbcombobox in *genro/gnrpy/...* #NISO ???
-
-	.. _dbcombobox-description:
-
-Description
-===========
-
-	The Genro ``dbCombobox`` is a :ref:`form-combobox` that conducts research on specific columns in a database table. While user write in the dbCombobox, partially matched values will be shown in a pop-up menu below the input text box. ``dbCombobox`` has got the same parameters of the :ref:`form-dbselect`, and allows to choose from values situated in the database AND from values that aren't in the database. These "new" values aren't added in the database but they have being placed in the :ref:`genro-datastore`, so they can be handled from Genropy [#]_.
-
-	The only way to specify the table related to the dbCombobox is using the :ref:`common-dbtable` attribute.
+	The only way to specify the table related to the dbCombobox is using the :ref:`genro-dbtable` attribute.
 
 	.. _dbcombobox-examples:
 
@@ -54,8 +34,18 @@ Examples
 	
 		class GnrCustomWebPage(object):
 			def main(self,root,**kwargs):
-				fb=pane.formbuilder(datapath='test1',cols=2)
-				???
+				fb=pane.formbuilder(datapath='test1')
+				fb.div("""In a "dbCombobox" you can draw record values from a database (not the ID!).
+				          The difference with the "dbSelect" is the possibility to add NEW records.""",
+				          font_size='.9em',text_align='justify')
+				fb.div('For example, try to draw an actor from the first "dbCombobox"...',
+				        font_size='.9em',text_align='justify')
+				fb.dbCombobox(dbtable='showcase.person',value='^.person',lbl='Star')
+				fb.div('... and then write a film not in the database.',
+				          font_size='.9em',text_align='justify')
+				fb.dbCombobox(dbtable='showcase.movie',value='^.movie',lbl='Movie')
+				fb.div("""After that, check in the datasource your saved records (by clicking
+				          ctrl+shift+D)""",font_size='.9em',text_align='justify')
 
 	Let's see a demo:
 
@@ -66,7 +56,7 @@ Examples
 dbCombobox attributes
 =====================
 
-	For the list of dbCombobox attributes, please check :ref:`db-common-attributes`.
+	For the list of dbCombobox attributes, please check :ref:`db-genro-attributes`.
 
 **Footnotes**
 

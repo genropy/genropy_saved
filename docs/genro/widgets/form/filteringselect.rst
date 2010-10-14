@@ -1,47 +1,27 @@
-	.. _form-filteringselect:
+	.. _genro-filteringselect:
 
 =================
- FilteringSelect
+ filteringSelect
 =================
 
 .. currentmodule:: form
 
-.. class:: filteringSelect -  Genropy filteringSelect
+.. class:: filteringSelect - Genropy filteringSelect
 
-	- :ref:`filteringSelect-definition`
-	
-	- :ref:`filteringSelect-where`
-	
-	- :ref:`filteringSelect-description`
-	
-	- :ref:`filteringSelect-examples`
-	
-		- :ref:`bag-example`
-		
-		- :ref:`values-example`
-		
+	- :ref:`filteringSelect-definition-description`
+
+	- :ref:`filteringSelect-examples`: :ref:`bag-example`, :ref:`values-example`
+
 	- :ref:`filteringSelect-attributes`
-	
+
 	- :ref:`filteringSelect-other-attributes`
 
-	.. _filteringSelect-definition:
-	
-Definition
-==========
+	.. _filteringSelect-definition-description:
+
+Definition and Description
+==========================
 
 	The filteringSelect is a text field who suggests to user the possible (and unique!) entries of his selection.
-	
-	.. _filteringSelect-where:
-
-Where
-=====
-
-	#NISO ???
-	
-	.. _filteringSelect-description:
-
-Description
-===========
 
 	FilteringSelect's values are composed by a key and a value (like the Python dictionary's elements): user can chooses from values, while in :ref:`genro-datastore` the user's choice is saved through keys. User can also freely type text and partially matched values will be shown in a pop-up menu below the input text box.
 	
@@ -62,7 +42,7 @@ Examples
 Filling a filteringSelect through a Bag
 =======================================
 
-	In this example we show you how to fill a filteringSelect through a Bag (for further explanations, check :ref:`bag-introduction`):
+	In this example we show you how to fill a filteringSelect through a Bag (for further explanations, check :ref:`genro-bag-introduction`):
 		::
 
 			class GnrCustomWebPage(object):
@@ -100,9 +80,9 @@ Filling a filteringSelect through "values" attribute
 					                   values="""SC:Soccer,BK:Basket,HK:Hockey,
 					                             TE:Tennis,BB:Baseball,SB:Snowboard""")
 	
-	Pay attention not to confuse ``value`` with ``values``: ``value`` is used to allocate user data in a well determined :ref:`common-datapath`, while ``values`` is used to fill the filteringSelect.
+	Pay attention not to confuse ``value`` with ``values``: ``value`` is used to allocate user data in a well determined :ref:`genro-datapath`, while ``values`` is used to fill the filteringSelect.
 	
-	Warning: unlike Dojo, actually filteringSelect doesn't warn user for its wrong insertion. You can add a warning for the user through a "validate" attribute (see :ref:`validations-validations`).
+	Warning: unlike Dojo, actually filteringSelect doesn't warn user for its wrong insertion. You can add a warning for the user through a "validate" attribute (see :ref:`genro-validations`).
 	
 	Let's see a demo:
 	
@@ -132,12 +112,12 @@ Common attributes
 	|   Attribute        |          Description                            |   Default                |
 	+====================+=================================================+==========================+
 	| ``disabled``       | If True, user can't act on the filteringSelect. |  ``False``               |
-	|                    | For more details, see :ref:`common-disabled`    |                          |
+	|                    | For more details, see :ref:`genro-disabled`     |                          |
 	+--------------------+-------------------------------------------------+--------------------------+
 	| ``hidden``         | Hide the filteringSelect.                       |  ``False``               |
-	|                    | See :ref:`common-hidden`                        |                          |
+	|                    | See :ref:`genro-hidden`                         |                          |
 	+--------------------+-------------------------------------------------+--------------------------+
 	| ``value``          | Set a path for filteringSelect's values.        |  ``None``                |
-	|                    | For more details, see :ref:`common-datapath`    |                          |
+	|                    | For more details, see :ref:`genro-datapath`     |                          |
 	+--------------------+-------------------------------------------------+--------------------------+
 	

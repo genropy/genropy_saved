@@ -1,4 +1,4 @@
-	.. _widgets-index:
+	.. _genro-widgets-index:
 
 =========
  Widgets

@@ -1,4 +1,4 @@
-	.. _bag-index:
+	.. _genro-bag-index:
 
 ===
 Bag

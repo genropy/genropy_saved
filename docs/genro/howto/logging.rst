@@ -1,5 +1,3 @@
-	.. _howto-logging:
-
 ====================
  Logging in GenroPy
 ====================

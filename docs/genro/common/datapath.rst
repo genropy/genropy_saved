@@ -1,4 +1,4 @@
-	.. _common-datapath:
+	.. _genro-datapath:
 
 ==========
  Datapath
@@ -8,11 +8,7 @@
 
 	- :ref:`data-validity`
 
-	- :ref:`data-examples`
-	
-		- :ref:`bc-example`
-		
-		- :ref:`absolute-example`
+	- :ref:`data-examples`: :ref:`bc-example`, :ref:`absolute-example`
 
 	.. _data-description:
 

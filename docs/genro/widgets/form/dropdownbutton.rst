@@ -1,43 +1,29 @@
-	.. _form-dropdownbutton:
+	.. _genro-dropdownbutton:
 
 ================
- Dropdownbutton
+ dropdownbutton
 ================
 
 .. currentmodule:: form
 
-.. class:: dropdownbutton -  Genropy dropdownbutton
+.. class:: dropdownbutton - Genropy dropdownbutton
 
-	- :ref:`dropdownbutton-definition`
-	
-	- :ref:`dropdownbutton-where`
-	
-	- :ref:`dropdownbutton-description`
-	
+	- :ref:`dropdownbutton-definition-description`
+
 	- :ref:`dropdownbutton-examples`
-	
+
 	- :ref:`dropdownbutton-attributes`
 
-	.. _dropdownbutton-definition:
+	.. _dropdownbutton-definition-description:
 
-Definition
-==========
+Definition and Description
+==========================
 
 	Same definition of Dojo dropdownbuttons (version 1.5). To show it, click here_.
 
 	.. _here: http://docs.dojocampus.org/dijit/form/DropDownButton
 
 	.. _dropdownbutton-where:
-
-Where
-=====
-
-	#NISO???
-
-	.. _dropdownbutton-description:
-
-Description
-===========
 
 	Constructs a button that opens a ``menu`` or a ``tooltipdialog``.
 
@@ -82,11 +68,11 @@ Common Attributes
 	|   Attribute        |          Description                            |   Default                |
 	+====================+=================================================+==========================+
 	| ``disabled``       | If True, user can't act on the dropdownbutton.  |  ``False``               |
-	|                    | For more details, see :ref:`common-disabled`    |                          |
+	|                    | For more details, see :ref:`genro-disabled`     |                          |
 	+--------------------+-------------------------------------------------+--------------------------+
 	| ``hidden``         | Hide the dropdownbutton.                        |  ``False``               |
-	|                    | See :ref:`common-hidden`                        |                          |
+	|                    | See :ref:`genro-hidden`                         |                          |
 	+--------------------+-------------------------------------------------+--------------------------+
 	| ``label``          | Set dropdownbutton label.                       |  ``None``                |
-	|                    | For more details, see :ref:`common-label`       |                          |
+	|                    | For more details, see :ref:`genro-label`        |                          |
 	+--------------------+-------------------------------------------------+--------------------------+

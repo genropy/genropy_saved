@@ -1,4 +1,4 @@
-	.. _form-index:
+	.. _genro-form-index:
 
 ===========
 Form widget
@@ -14,7 +14,10 @@ Form widget
 	field
 	filteringselect
 	formbuilder
+	numberspinner
+	radiobutton
 	simplearea
 	slider
+	togglebutton
 	db/index
 	textboxes/index

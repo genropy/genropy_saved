@@ -1,4 +1,4 @@
-	.. _common-attributes:
+	.. _genro-attributes:
 
 ===================
  Common attributes
@@ -8,14 +8,14 @@
 
 	Nevertheless, we report those attributes even in the single widget, suggesting to take vision of this page for more details.
 
-	- ``datapath``: see :ref:`common-datapath`
+	- ``datapath``: see :ref:`genro-datapath`
 
-	- ``default``: see :ref:`common-default`
+	- ``default``: see :ref:`genro-default`
 
-	- ``disabled``: see :ref:`common-disabled`
+	- ``disabled``: see :ref:`genro-disabled`
 
-	- ``hidden``: see :ref:`common-hidden`
+	- ``hidden``: see :ref:`genro-hidden`
 
-	- ``label``: see :ref:`common-label`
+	- ``label``: see :ref:`genro-label`
 
-	- ``value``: see :ref:`common-datapath`
+	- ``value``: see :ref:`genro-datapath`

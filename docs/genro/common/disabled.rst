@@ -1,4 +1,4 @@
-	.. _common-disabled:
+	.. _genro-disabled:
 
 ==========
  Disabled

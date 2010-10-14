@@ -1,4 +1,4 @@
-	.. _components-maturity-matrix:
+	.. _genro-maturity_matrix:
 
 ===========================
  Component Maturity Matrix
@@ -10,21 +10,23 @@
     - Please add links to components' documentation to this table, when you document your public API
 
 ============================================================= =========================== =============================
-Component                                                     Maturity [1]_               Stability [2]_
+Component                                                     Maturity [#]_               Stability [#]_
 ============================================================= =========================== =============================
-standardtable                                                 Mature                      Documentation needed
-standardtable_light                                           Mature                      Documentation needed
+:ref:`genro-standardtable`                                    Mature                      Documentation needed
+:ref:`genro-standardtable_light`                              Mature                      Documentation needed
 ------------------------------------------------------------- --------------------------- -----------------------------
 includedview
-:ref:`components-selectionhandler`
+:ref:`genro-selectionhandler`
 multiselect
 ------------------------------------------------------------- --------------------------- -----------------------------
 iframedialog
 simpledialog
-recordDialog
+recorddialog
 ------------------------------------------------------------- --------------------------- -----------------------------
 timetable_dh                                                  Draft                       API may change
 ============================================================= =========================== =============================
 
-.. [1] Maturity is a measure of how bug-free a component is.
-.. [2] Stability is a measure of how much the public API will change in the future; that means that a undocumented module is considered not stable.
+**Footnotes**
+
+.. [#] Maturity is a measure of how bug-free a component is.
+.. [#] Stability is a measure of how much the public API will change in the future; that means that a undocumented module is considered not stable.

@@ -1,4 +1,4 @@
-	.. _components-selectionhandler:
+	.. _genro-selectionhandler:
 
 ===================
  Selection Handler

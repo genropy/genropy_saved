@@ -1,4 +1,4 @@
-	.. _database-relation_table:
+	.. _genro-relation_table:
 
 ================
  Relation table
@@ -10,7 +10,7 @@
 	
 ..(use OmniGraffle!!)
 	
-	Suppose to create a database of directors and films. In this database you have created a :ref:`database-table` for the directors (called ``person.py``), a ``table`` for the films (called ``movie.py``) and a :ref:`database-relation_table` between directors and films (called ``cast.py``).
+	Suppose to create a database of directors and films. In this database you have created a :ref:`genro-database_table` for the directors (called ``person.py``), a ``table`` for the films (called ``movie.py``) and a :ref:`genro-relation_table` between directors and films (called ``cast.py``).
 	
 ..add a figure...
 

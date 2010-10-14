@@ -1,4 +1,4 @@
-	.. _textboxes-textbox:
+	.. _genro-textbox:
 
 =========
  Textbox
@@ -6,45 +6,32 @@
 
 .. currentmodule:: form
 
-.. class:: textbox -  Genropy textbox
+.. class:: textbox - Genropy textbox
 
-	- :ref:`textbox-definition`
-
-	- :ref:`textbox-where`
-
-	- :ref:`textbox-description`
+	- :ref:`textbox-definition-description`
 
 	- :ref:`textbox-examples`
 
 	- :ref:`textbox-attributes`
-	
+
 	- :ref:`textbox-other-attributes`
 
-We recommend you to read :ref:`textboxes-textboxes` first.
+We recommend you to read :ref:`genro-textboxes` first.
 
-	.. _textbox-definition:
+	.. _textbox-definition-description:
 
-Definition
-==========
+Definition and Description
+==========================
 
 	Textbox is a form widget used to insert data.
-
-	.. _here: http://docs.dojocampus.org/dijit/form/ValidationTextBox
-	
-	.. _textbox-where:
-
-Where
-=====
-
-	#NISO ???
-	
-	.. _textbox-description:
 
 Description
 ===========
 
 	Textbox is used to insert a text. Genro textbox is taken from Dojo ValidationTextBox (version 1.5; to show it, click here_.), so it supports all of Dojo ValidationTextBox attributes (explained below_).
-	
+
+	.. _here: http://docs.dojocampus.org/dijit/form/ValidationTextBox
+
 	.. _textbox-examples:
 
 Examples

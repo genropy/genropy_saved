@@ -1,4 +1,4 @@
-	.. _bag-introduction:
+	.. _genro-bag-introduction:
 
 =======================
  Introduction to a Bag

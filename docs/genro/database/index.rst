@@ -1,4 +1,4 @@
-	.. _database-index:
+	.. _genro-database-index:
 
 ========
 Database

@@ -1,4 +1,4 @@
-	.. _common-label:
+	.. _genro-label:
 
 =======
  Label

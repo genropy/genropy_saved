@@ -1,4 +1,4 @@
-	.. _name-name_long:
+	.. _genro-name_long:
 
 ===========
  Name_long
@@ -11,8 +11,8 @@
 	+--------------------+-------------------------+
 	|   Attribute        |   Objects               |
 	+====================+=========================+
-	| ``rowcaption``     |  :ref:`form-dbselect`   |
+	| ``rowcaption``     |  :ref:`genro-dbselect`  |
 	|                    |                         |
-	|                    |  :ref:`form-dbcombobox` |
+	|                    |  :ref:`genro-dbcombobox`|
 	+--------------------+-------------------------+
 	

@@ -1,4 +1,4 @@
-	.. _components-writing:
+	.. _genro-components_writing:
 
 Scrivere propri componenti
 ==========================

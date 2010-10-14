@@ -1,4 +1,4 @@
-	.. _textboxes-datetextbox:
+	.. _genro-datetextbox:
 
 =============
  DateTextbox
@@ -8,33 +8,24 @@
 
 .. class:: dateTextbox -  Genropy dateTextbox
 
-	- :ref:`dateTextbox-definition`
-	
-	- :ref:`dateTextbox-where`
-	
+	- :ref:`dateTextbox-definition-description`
+
 	- :ref:`dateTextbox-examples`
-	
+
 	- :ref:`dateTextbox-attributes`
-	
+
 	- :ref:`dateTextbox-other-attributes`
 
-	We recommend you to read :ref:`textboxes-textboxes` first.
+	We recommend you to read :ref:`genro-textboxes` first.
 
-	.. _dateTextbox-definition:
+	.. _dateTextbox-definition-description:
 
-Definition
-==========
+Definition and Description
+==========================
 
     A dateTextbox is a easy-to-use date entry controls that allow either typing or choosing a date from any calendar widget.
     
 	- syntax: GG/MM/AAAA
-	
-	.. _dateTextbox-where:
-
-Where
-=====
-
-	#NISO ???
 
 	.. _dateTextbox-examples:
 

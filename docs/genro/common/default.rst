@@ -1,4 +1,4 @@
-	.. _common-default:
+	.. _genro-default:
 	
 =========
  Default

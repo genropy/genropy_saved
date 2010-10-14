@@ -1,4 +1,4 @@
-	.. _name-index:
+	.. _genro-name-index:
 
 ======
  Name

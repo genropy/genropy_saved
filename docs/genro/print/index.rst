@@ -1,7 +1,5 @@
 **TODO:** Need to rewrite and re-organize this page.
 
-	.. _print-index:
-
 ===================
 Posters and Reports
 ===================

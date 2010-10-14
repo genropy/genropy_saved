@@ -1,4 +1,4 @@
-	.. _textboxes-currencytextbox:
+	.. _genro-currencytextbox:
 
 =================
  CurrencyTextbox
@@ -8,9 +8,7 @@
 
 .. class:: currencyTextbox -  Genropy currencyTextbox
 
-	- :ref:`currencyTextbox-definition`
-
-	- :ref:`currencyTextbox-where`
+	- :ref:`currencyTextbox-definition-description`
 
 	- :ref:`currencyTextbox-examples`
 
@@ -18,21 +16,14 @@
 
 	- :ref:`currencyTextbox-other-attributes`
 
-	We recommend you to read :ref:`textboxes-textboxes` first.
+	We recommend you to read :ref:`genro-textboxes` first.
 
-	.. _currencyTextbox-definition:
+	.. _currencyTextbox-definition-description:
 
-Definition
-==========
+Definition and Description
+==========================
 
     The currencyTextbox inherits all the attributes and behaviors of the numberTextbox widget but are specialized for input monetary values, much like the currency type in spreadsheet programs.
-
-	.. _currencyTextbox-where:
-
-Where
-=====
-
-	#NISO ???
 
 	.. _currencyTextbox-examples:
 

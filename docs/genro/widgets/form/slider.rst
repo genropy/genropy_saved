@@ -1,18 +1,14 @@
-	.. _form-slider:
+	.. _genro-slider:
 
 ========
- Slider
+ slider
 ========
 
 .. currentmodule:: form
 
-.. class:: Sliders -  Genropy sliders
+.. class:: sliders -  Genropy sliders
 
-	- :ref:`slider-definition`
-
-	- :ref:`slider-where`
-
-	- :ref:`slider-description`
+	- :ref:`slider-definition-description`
 
 	- :ref:`slider-examples`
 
@@ -20,29 +16,16 @@
 	
 	- :ref:`slider-other-attributes`
 
-	.. _slider-definition:
+	.. _slider-definition-description:
 
-Definition
-==========
+Definition and Description
+==========================
 
 Same definition of Dojo sliders (version 1.5). To show it, click here_.
 
 .. _here: http://docs.dojocampus.org/dijit/form/Slider
 
-	.. _slider-where:
-
-Where
-=====
-
-	#NISO ???
-	
-	.. _slider-description:
-
-Description
-===========
-
 	Here we introduce the sliders, form widgets inherit from Dojo. It is a scale with a handle you can drag left/right for horizontal slider (or up/down for vertical one) to select a value.
-
 
 	.. _slider-examples:
 
@@ -54,7 +37,7 @@ Examples
 		class GnrCustomWebPage(object):
 			def main(self,root,**kwargs):
 				root.horizontalSlider(value='^integer_number',width='200px',
-									  maximum=50,discreteValues=51)
+				                      maximum=50,discreteValues=51)
 
 	Let's see a demo:
 	
@@ -91,11 +74,11 @@ Common attributes
 	|   Attribute        |          Description                            |   Default                |
 	+====================+=================================================+==========================+
 	| ``disabled``       | If True, user can't act on the slider.          |  ``False``               |
-	|                    | For more details, see :ref:`common-disabled`    |                          |
+	|                    | For more details, see :ref:`genro-disabled`     |                          |
 	+--------------------+-------------------------------------------------+--------------------------+
 	| ``hidden``         | Hide the slider.                                |  ``False``               |
-	|                    | See :ref:`common-hidden`                        |                          |
+	|                    | See :ref:`genro-hidden`                         |                          |
 	+--------------------+-------------------------------------------------+--------------------------+
 	| ``value``          | Set a path for slider's values.                 |  ``None``                |
-	|                    | For more details, see :ref:`common-datapath`    |                          |
+	|                    | For more details, see :ref:`genro-datapath`     |                          |
 	+--------------------+-------------------------------------------------+--------------------------+

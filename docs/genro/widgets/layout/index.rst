@@ -1,4 +1,4 @@
-	.. _layout-index:
+	.. _genro-layout-index:
 
 =============
 Layout widget

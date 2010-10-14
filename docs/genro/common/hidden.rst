@@ -1,4 +1,4 @@
-	.. _common-hidden:
+	.. _genro-hidden:
 
 ========
  Hidden
