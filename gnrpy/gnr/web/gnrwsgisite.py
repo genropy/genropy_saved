@@ -8,6 +8,7 @@ from webob import Request, Response
 from gnr.web.gnrwebapp import GnrWsgiWebApp
 import os
 import glob
+import logging
 from time import time
 from gnr.core.gnrlang import gnrImport,boolean,deprecated
 from gnr.core.gnrlang import GnrException
@@ -31,6 +32,8 @@ mimetypes.init()
 site_cache = {}
 
 OP_TO_LOG={'x':'y'}
+
+log = logging.getLogger('gnrwsgisite')
 
 global GNRSITE
 def currentSite():
@@ -89,7 +92,7 @@ class SiteLock(object):
         self.site.shared_data.delete(self.locked_path)
 
 class memoize(object):
-    class Node:
+    class Node(object):
         __slots__ = ['key', 'value', 'older', 'newer']
         def __init__(self, key, value, older=None, newer=None):
             self.key = key
@@ -468,7 +471,8 @@ class GnrWsgiSite(object):
                 except httpexceptions.HTTPException,exc:
                     return exc.wsgi_application(environ, start_response)
                 except Exception,exc:
-                    raise exc
+                    log.exception("wsgisite.dispatcher: self.resource_loader failed with non-HTTP exception.")
+                    raise exc # TODO: start_response will not be called if we get here, that could be the cause of some blank response errors.
             if not (page and page._call_handler):
                 return self.not_found_exception(environ,start_response)
             self.onServingPage(page)
@@ -649,7 +653,7 @@ class GnrWsgiSite(object):
         :param debugtype: string (values: 'sql' or 'py')
         """
         if self.currentPage:
-            page =self.currentPage
+            page = self.currentPage
             if self.debug or page.isDeveloper():
                 page.debugger.output(debugtype,**kwargs)
         

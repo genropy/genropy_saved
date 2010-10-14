@@ -273,7 +273,6 @@ dojo.declare('gnr.GenroClient', null, {
         console.log(v);
     },
     resizeAll: function(){
-        return;
         //window.resizeBy(1,1);
         //window.resizeBy(-1,-1);
         
@@ -555,7 +554,7 @@ dojo.declare('gnr.GenroClient', null, {
     pathResolve: function(obj){
         if (!obj) {
             debugger;
-        };
+        }
         if (typeof (obj)=='string'){
            // return (obj.indexOf('@') ==0) ? obj.slice(1) : obj;
            if (!genro.src.getNode()){
