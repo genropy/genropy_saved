@@ -607,7 +607,7 @@ class HTablePicker(HTableHandlerBase):
                                 if(n.attr._checked){
                                     l.push(n.attr._pkey);
                                 }
-                            })
+                            },'static');
                             this.setRelativeData(output_related_pkeys,l.join(','));
                             """,_fired="^.set_output_pkeys",selection='=.preview_grid.selection',
                             output_related_pkeys=output_related_pkeys,_if='output_related_pkeys',

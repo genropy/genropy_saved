@@ -8,6 +8,7 @@
 #
 from gnr.core.gnrbag import Bag
 from gnr.web.gnrwebpage_proxy.gnrbaseproxy import GnrBaseProxy
+import os
 AUTH_FORBIDDEN=-1
 
 class GnrWebRpc(GnrBaseProxy):    
@@ -102,3 +103,27 @@ class GnrWebRpc(GnrBaseProxy):
         page.response.content_type = "text/html"
         return result or error
 
+    def rpc_upload_file(self,file_handle=None, uploadPath=None, uploaderId=None,**kwargs):
+        site = self.page.site
+        if not uploadPath:
+            uploadPath = 'site:uploaded_files'
+            if uploaderId:
+                uploadPath =  '%s/%s' %(uploadPath,uploaderId)
+        if file_handle is None or uploadPath is None:
+            return
+        dest_dir = site.getStaticPath(uploadPath,autocreate=True)
+        f=file_handle.file
+        content=f.read()
+        filename=file_handle.filename
+        file_path = site.getStaticPath(uploadPath,filename)
+        file_url = site.getStaticUrl(uploadPath,filename)
+        with file(file_path, 'wb') as outfile:
+            outfile.write(content)
+        if uploaderId:
+            handler = getattr(self.page,'onUploading_%s' %uploaderId)
+            if handler:
+                return handler(file_url=file_url, file_path=file_path, **kwargs)
+        return file_url
+        
+
+        

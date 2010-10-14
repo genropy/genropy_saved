@@ -293,6 +293,19 @@ class GnrWsgiSite(object):
     def addStatic(self, static_handler_factory, **kwargs):
         return self.statics.add(static_handler_factory, **kwargs)
     
+    def getStaticPath(self,static,*args,**kwargs):
+        autocreate = kwargs.get('autocreate',False)
+        static_name,static_path = static.split(':')
+        dest_dir= self.getStatic(static_name).path(static_path,*args)
+        if autocreate and not os.path.exists(dest_dir):
+            os.makedirs(dest_dir)
+        return dest_dir
+
+    def getStaticUrl(self,static,*args):
+        static_name,static_url = static.split(':')
+        return self.getStatic(static_name).url(static_url,*args)
+
+
     def getStatic(self,static_name):
         return self.statics.get(static_name)
     

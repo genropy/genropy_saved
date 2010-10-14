@@ -656,7 +656,52 @@ dojo.declare("gnr.GnrRpcHandler",null,{
         resolver.updateAttr=true;
         return resolver;
     },
-    uploadMultipartFiles:function(files,params,onResult,onProgress,onError,onAbort){
+    
+    uploadMultipartFiles: function(filebag,kw){
+        var kw = kw || {};
+        var uploaderId = kw.uploaderId;
+        var onResult = kw.onResult || function(){genro.publish(uploaderId+'_done',arguments);};
+        kw.onProgress =kw.onProgress || function(){genro.publish(uploaderId+'_progress',arguments);};
+        kw.onError = kw.onError || function(){genro.publish(uploaderId+'_error',arguments);};
+        kw.onAbort = kw.onAbort || function(){genro.publish(uploaderId+'_upload_aborted',arguments);};
+
+        var onUploaded=function(node){
+            onResult(node);
+            filebag.pop(node.label);
+            genro.rpc.uploadMultipartFiles(filebag,kw);
+        }
+        var setProgress = function(statusNode,evt){
+            if(statusNode.last_execution_time &&(new Date()-statusNode.last_execution_time<500)){
+                return;
+            }
+            var percentComplete='';
+            if (evt.lengthComputable) {  
+                percentComplete =100*dojo.number.round(evt.loaded / evt.total,2);  
+                percentComplete +=' %';
+            }
+            statusNode.attr.loaded = evt.loaded;
+            statusNode.attr.total = evt.total;
+            var message = 'SENDING: '+ percentComplete;
+            kw.onProgress(statusNode,evt);
+            statusNode.setValue(message);
+            statusNode.last_execution_time = new Date();
+            genro.upload_progress=null;
+        };
+        if (filebag.len()>0){
+            var firstNode = filebag.getNode('#0');
+            var statusNode = firstNode.getValue().getNode('_status',false,true);
+            var params = firstNode.getValue().asObj();
+            var file=objectPop(params,'_file');
+            objectExtract(params,'_*');
+            var innerKw = objectUpdate({},kw)
+            innerKw.onResult = function (e){onUploaded(firstNode)};
+            innerKw.onProgress = function (e){setProgress(statusNode,e)};
+            genro.rpc.uploadMultipart_oneFile(file,params,innerKw);
+        }
+    },
+    
+    uploadMultipart_oneFile:function(file,params,kw){
+        params = params || {};
         var paramValue=function(param,value){
             param.push('');
             param.push(value);
@@ -670,76 +715,46 @@ dojo.declare("gnr.GnrRpcHandler",null,{
             return paramValue(param,value)
         }
         var fileParam=function(filedata){
-            var param=[]
-            param.push('Content-Disposition: form-data; name="user_file[]"; filename="' + file['name'] + '"')
-            param.push('Content-Type: application/octet-stream')
-            return paramValue(param,file.getAsBinary())
+            var param=[];
+            param.push('Content-Disposition: form-data; name="file_handle"; filename="' + file['name'] + '"');
+            param.push('Content-Type: application/octet-stream');
+            return paramValue(param,file.getAsBinary());
         }
         var addContentLength=function(content){
             return "Content-Length: "+content.length+_crlf+_crlf+content;
         }
         var content=[];
         content.push('');
-        content.push(textParam('rpc','upload'));
-        content.push(textParam('page_id',genro.page_id));
-        if (params) {
-            for (key in params){
-                content.push(textParam(key,params[key]));
-            }
+        params['rpc'] = kw.method || 'rpc.upload_file';
+        params['page_id'] = genro.page_id;
+        params['uploaderId'] = kw.uploaderId;
+        params['uploadPath'] = kw.uploadPath;
+        
+        var sourceNode = kw.uploaderId? genro.nodeById(kw.uploaderId):null;
+        params = this.serializeParameters(this.dynamicParameters(params, sourceNode));
+        for (key in params){
+            content.push(textParam(key,params[key]));
         }
         var boundary = '------multipartformboundary' + (new Date).getTime();
         var sender = new XMLHttpRequest();
-        if (onResult) sender.upload.addEventListener("load", onResult, false);  
-        if (onProgress) sender.upload.addEventListener("progress", onProgress, false);  
-        if (onError) sender.upload.addEventListener("error", onError, false);  
-        if (onAbort) sender.upload.addEventListener("abort", onAbort, false);
+        var errorCb = function(){
+            console.log(arguments);
+        };
+        if (kw.onResult) sender.upload.addEventListener("load", kw.onResult, false);  
+        if (kw.onProgress) sender.upload.addEventListener("progress", kw.onProgress, false);  
+        if (kw.onError) sender.upload.addEventListener("error", kw.onError || errorCb, false);  
+        if (kw.onAbort) sender.upload.addEventListener("abort", kw.onAbort, false);
+        var filereader = new FileReader();
         var sendData=function(){
+            content.push(fileParam(filereader.result));
             content=content.join('--'+boundary+_crlf)+boundary+'--'+_crlf;
             content=addContentLength(content);
             sender.open("POST",genro.rpc.pageIndexUrl(),true);
             sender.setRequestHeader("Content-Type", 'multipart/form-data; boundary=' + boundary);
             sender.sendAsBinary(content);
         };
-        filereader = new FileReader();
-        var readFile=function(){
-            content.push(fileParam(filereader.result));
-            if (files.lenght>0) {
-                filereader.readAsBinaryString(files.shift())}
-            else{
-                sendData()
-                }
-        };
-        filereader.addEventListener("loadend", readFile, false);  
-        filereader.readAsBinaryString(files.shift());
-    },
-    uploadMultipartFilesN: function(files){
-        dojo.require("dojo.io.iframe");
-        // summary: triggers the chain of events needed to upload a file in the background.
-        //if(!files){ return; }
-        console.log('inizio');
-        var uploadPars=genro.rpc.serializeParameters({page_id:genro.page_id});
-        //var method=this.savedAttrs.method;
-        var method = 'upload';
-        var url=genro.remoteUrl(method,uploadPars);      
-        //var url=genro.rpc.pageIndexUrl()   
-        var _newForm = document.createElement('form');
-        _newForm.setAttribute("enctype","multipart/form-data");
-        var fileinput = document.createElement('input');
-        var rpc = document.createElement('input',type='file');
-        _newForm.appendChild(fileinput);
-        fileinput.setAttribute('name','user_file[]');
-        fileinput.setAttribute('type','file');
-        dojo.forEach(files,function(f){fileinput.files.push(f)});
         
-        dojo.body().appendChild(_newForm);
-        console.log('form fatta');
-        dojo.io.iframe.send({
-            url: url,
-            form: _newForm,
-            handleAs: "text"//,
-            //handle: dojo.hitch(this,"_handleSend")
-        });
-        
-        console.log('finito');
-    },
+        filereader.addEventListener("loadend", sendData, false);  
+        filereader.readAsBinaryString(file);
+    }
 });

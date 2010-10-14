@@ -131,12 +131,17 @@ class BaseResourceBatch(object):
         self.batch_parameters = kwargs['parameters']
         self.batch_note = batch_note
         self.run()
-        self.btc.batch_complete(self.result_handler())
+        result,result_attr = self.result_handler()
+        self.btc.batch_complete(result=result,result_attr=result_attr)
+    
+    def _pre_process(self):
+        pass
         
     def run(self):
         self.btc.batch_create(batch_id='%s_%s' %(self.batch_prefix,self.page.getUuid()),
                             title=self.batch_title,
                             cancellable=self.batch_cancellable,delay=self.batch_delay,note=self.batch_note) 
+        self._pre_process()
         if self.batch_steps:
             for step in self.btc.thermo_wrapper(self.batch_steps,'btc_steps',message=self.get_step_caption,keep=True):
                 step_handler = getattr(self,'step_%s' %step)
@@ -225,6 +230,29 @@ class BaseResourcePrint(BaseResourceBatch):
         self.htmlMaker = self.page.site.loadTableScript(page=self.page,table=self.resource_table ,
                                                         respath=self.html_res,
                                                         class_name='Main')
+        self.file_list = []
+        
+    
+    def _pre_process(self):
+        self.batch_options = self.batch_parameters['batch_options']
+        self.print_mode = self.batch_options['print_mode']
+        self.print_options = self.batch_options['print_mode_option']
+        self.print_handler = self.page.getService('print')             #porting stuff
+        self.folder = self.htmlMaker.pdfFolderPath()         #porting stuff
+        if self.print_mode=='pdf':
+            filename= self.print_options['save_as'] or self.batch_prefix
+            self.print_connection = self.print_handler.getPrinterConnection('PDF', self.print_options)
+            self.output_file_path = self.page.userDocument('output','pdf',filename)
+    
+    def result_handler(self):
+        resultAttr = dict()
+        if self.print_mode=='direct':
+            print x
+        elif self.print_mode=='pdf':
+            filename = self.print_connection.printFiles(self.file_list, 'GenroPrint', outputFilePath=self.output_file_path)
+            if filename:
+                resultAttr['url'] = self.page.userDocumentUrl('output','pdf',filename)
+        return 'Execution completed',resultAttr
     
     def table_script_option_pane(self,pane):
         bc = pane.borderContainer()
@@ -235,9 +263,10 @@ class BaseResourcePrint(BaseResourceBatch):
         fb.radiobutton(value='^.mail',label='Send as mail',print_mode='mail')
         fb.radiobutton(value='^.server',label='Send to printer',print_mode='server')
 
-        center = bc.stackContainer(region='center',selectedPage='^.print_mode',margin='3px',border='2px solid white')
+        center = bc.stackContainer(region='center',selectedPage='^.#parent.print_mode',
+                                    margin='3px',border='2px solid white',datapath='.print_mode_option')
         center.contentPane(pageName='direct')
-        self.table_script_pdf_options(center.contentPane(pageName='pdf',datapath='pdf_option'))
+        self.table_script_pdf_options(center.contentPane(pageName='pdf'))
         center.contentPane(pageName='mail',datapath='mail')
         serverprint = center.contentPane(pageName='server')
         serverprint.button('Options',action='FIR #printer_option_dialog.open=resource_name',
@@ -267,9 +296,9 @@ class BaseResourcePrint(BaseResourceBatch):
     
     
     def table_script_pdf_options(self,pane):
-        pane.div('Pdf options')
-        fb= pane.formbuilder(cols=1)
+        fb = pane.formbuilder(cols=1)
         fb.dataFormula('.zipped','false',_onStart=True)
+        fb.textbox(value='^.save_as',lbl='!!Save as')
         fb.checkbox(value='^.zipped',label='!!Zip folder')
                 
     
