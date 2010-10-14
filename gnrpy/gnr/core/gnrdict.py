@@ -21,6 +21,11 @@
 #Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 
 import gnrclasses
+
+def dictExtract(mydict,f):
+    lf=len(f)
+    return dict([(k[lf:],v) for k,v in mydict.items() if k.startswith(f)])
+
 class FakeDict(dict):
     pass
 class GnrDict(dict):
