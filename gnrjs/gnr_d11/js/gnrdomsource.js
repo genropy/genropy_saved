@@ -1067,14 +1067,14 @@ dojo.declare("gnr.GnrDomSourceNode",gnr.GnrBagNode,{
        child = content.setItem(path, source.getNodes()[0]);
        return child;
    },     
-   _ : function(tag,name,attributes){
+   _ : function(tag,name,attributes,extrakw){
            var content=this.getValue();
            var child;
            if (!(content instanceof gnr.GnrDomSource)){
                content=new gnr.GnrDomSource();
                this.setValue(content,false);
            }
-           child = content._(tag,name,attributes);
+           child = content._(tag,name,attributes,extrakw);
            return child;
        },
     _destroy: function(){
@@ -1092,13 +1092,14 @@ dojo.declare("gnr.GnrDomSource",gnr.GnrStructData,{
     _validationPrefix: 'structvalidate_',
     _nodeFactory:gnr.GnrDomSourceNode,
     
-    _ : function(tag, name/*optional*/, attributes/*Object*/){
+    _ : function(tag, name/*optional*/, attributes/*Object*/,extrakw){
             var tag_UpperLower = null;
             var name, content;
             tag=tag.toLowerCase();
             if(tag){
         
                 if (name instanceof Object){
+                    var extrakw = attributes;
                     var attributes =  name;
                     var name='';
                 }
@@ -1122,7 +1123,7 @@ dojo.declare("gnr.GnrDomSource",gnr.GnrStructData,{
                     content = new gnr.GnrDomSource();
                 }
                 attributes.tag = tag;
-                this.setItem(name, content, attributes);
+                this.setItem(name, content, attributes,extrakw);
                 return content;
             }
             
