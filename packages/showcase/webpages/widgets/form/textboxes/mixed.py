@@ -10,19 +10,6 @@ class GnrCustomWebPage(object):
     py_requires="gnrcomponents/testhandler:TestHandlerFull"
     # dojo_theme='claro'    # !! Uncomment this row for Dojo_1.5 usage
     
-    #   - Other forms, attributes and items:
-    #       In this section we report forms/attributes that have been used in this example
-    #       despite they didn't strictly belonging to boxes.
-    #       We also suggest you the file (if it has been created!) where you can find
-    #       some documentation about them.
-    #
-    #       ## name ##          --> ## file ##
-    #       cols                --> formbuilder.py
-    #       datapath            --> datapath.py
-    #       formbuilder         --> formbuilder.py
-    #       popup               --> dateTextbox.py
-    #       value               --> datapath.py
-    
     def test_1_basic(self,pane):
         """Mixed"""
         fb = pane.formbuilder(datapath='test1',cols=3,fld_width='100%',width='100%')
