@@ -165,6 +165,7 @@ dojo.declare("gnr.GridEditor",null,{
         }
         var rowLabel = rowDataNode.label;
         var cellNode = cell.getNode(row);
+        
         var attr = objectUpdate({},fldDict.attr);
         attr.datapath = '.'+rowLabel;   
         //attr.preventChangeIfIvalid = true;     
@@ -185,7 +186,6 @@ dojo.declare("gnr.GridEditor",null,{
             var dflt = attr['default'] || attr['default_value'] || '';
             node.getAttributeFromDatasource('value', true, dflt);
         */
-        
         
         
         var editingInfo={'cellNode':cellNode,'contentText':cellNode.innerHTML,
@@ -224,6 +224,7 @@ dojo.declare("gnr.GridEditor",null,{
                     
                 };
         var gridEditor = this;
+
         var cbBlur = function(e){
                     var cellNext = this.widget.cellNext; //|| 'RIGHT'; dannoso
                     this.widget.cellNext = null;
@@ -241,6 +242,7 @@ dojo.declare("gnr.GridEditor",null,{
         attr.connect_onBlur = cbBlur;
         attr._autoselect = true;
         var editWidgetNode = this.widgetRootNode._(fldDict.tag,attr).getParentNode();
+        editWidgetNode.editedRowIndex = row;
         this.onEditCell(true);
         if(cellDataNode.attr._validationError || cellDataNode.attr._validationWarnings){
             editWidgetNode._validations = {'error':cellDataNode.attr._validationError,'warnings':cellDataNode.attr._validationWarnings};
