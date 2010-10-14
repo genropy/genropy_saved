@@ -67,7 +67,8 @@ Common Attributes
 	+--------------------+-------------------------------------------------+--------------------------+
 	|   Attribute        |          Description                            |   Default                |
 	+====================+=================================================+==========================+
-	| ``disabled``       | If True, user can't act on the dropdownbutton.  |  ``False``               |
+	| ``disabled``       | If True, user can't act on the dropdownbutton/  |  ``False``               |
+	|                    | menuline/menu.                                  |                          |
 	|                    | For more details, see :ref:`genro-disabled`     |                          |
 	+--------------------+-------------------------------------------------+--------------------------+
 	| ``hidden``         | Hide the dropdownbutton.                        |  ``False``               |

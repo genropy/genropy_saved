@@ -12,22 +12,6 @@ class GnrCustomWebPage(object):
     
     # For an exhaustive documentation, please see http://docs.genropy.org/widgets/form/formbuilder.html
     
-    #   - Other forms and attributes:
-    #       In this section we report forms/attributes that have been used in this example
-    #       despite they didn't strictly belonging to formbuilder.
-    #       We also suggest you the file (if it has been created!) where you can find
-    #       some documentation about them.
-    #
-    #       ## name ##      --> ## file ##
-    #       action          --> button.py
-    #       button          --> button.py
-    #       dateTextbox     --> textbox.py
-    #       filteringSelect --> filteringSelect.py
-    #       numberTextbox   --> textbox.py
-    #       textbox         --> textbox.py
-    #       value           --> datapath.py
-    #       values          --> filteringSelect.py
-    
     def test_1_basic(self,pane):
         """Standard formbuilder"""
         pane.div("""Since we haven't changed any of the default attributes of the formbuilder,

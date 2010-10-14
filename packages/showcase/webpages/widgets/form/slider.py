@@ -12,22 +12,6 @@ class GnrCustomWebPage(object):
     
     # For an exhaustive documentation, please see http://docs.genropy.org/widgets/form/slider.html
     
-    #   - Other forms, attributes and items:
-    #       In this section we report forms/attributes that have been used in this example
-    #       despite they didn't strictly belonging to slider.
-    #       We also suggest you the file (if it has been created!) where you can find
-    #       some documentation about them.
-    #
-    #       ## name ##      --> ## file ##
-    #       action          --> button.py
-    #       button          --> button.py
-    #       comboBox        --> combobox.py
-    #       filteringSelect --> filteringSelect.py
-    #       formbuilder     --> formbuilder.py
-    #       numberTextBox   --> textbox.py
-    #       splitter        --> webpages/widgets/layout/border.py
-    #       value           --> datapath.py
-    
     def test_1_simple(self,pane):
         """Simple vertical slider"""
         fb=pane.formbuilder(datapath='test1',cols=2)

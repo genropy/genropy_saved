@@ -10,29 +10,7 @@ class GnrCustomWebPage(object):
     py_requires="gnrcomponents/testhandler:TestHandlerFull"
     # dojo_theme='claro'    # !! Uncomment this row for Dojo_1.5 usage
     
-    """
-    =================
-     dropdownbuttons
-    =================
-
-    .. currentmodule:: form
-
-    .. class:: dropdownbuttons -  Genropy dropdownbuttons
-
-    **Definition**: same definition of Dojo dropdownbuttons (version 1.5). To show it, click here_.
-
-    .. _here: http://docs.dojocampus.org/dijit/form/DropDownButton
-
-    .. method:: dropdownbutton(label)
-
-    	Constructs a button that opens a ``menu`` or a ``tooltipdialog``.
-
-    		Example::
-
-    			def ddButtonPane(self, cp):
-    				dd = cp.dropdownbutton('test')
-    				dd.tooltipdialog().div('Hello, world!')
-    """
+    # For an exhaustive documentation, please see http://docs.genropy.org/widgets/form/dropdownbutton.html
     
     def test_1_dropdownbutton(self,pane):
         """Dropdown button"""

@@ -1,18 +1,28 @@
-#!/usr/bin/env pythonw
 # -*- coding: UTF-8 -*-
 
-#  Created by Giovanni Porcari on 2007-03-24.
-#  Copyright (c) 2007 Softwell. All rights reserved.
+# dbCombobox.py
+# Created by Niso on 2010-09-01.
+# Copyright (c) 2010 Softwell. All rights reserved.
+
+"""dbCombobox"""
 
 class GnrCustomWebPage(object):
-    maintable='showcase.cast' # puts in every formbuilder of this webpage the value of showcast.case in dbtable --> dbtable = 'showcase.cast'
+    py_requires="gnrcomponents/testhandler:TestHandlerFull"
+    # dojo_theme='claro'    # !! Uncomment this row for Dojo_1.5 usage
     
-    def main(self, root, **kwargs):
-    #   fb = root.formbuilder(cols=1, datapath='xxx')
-        fb = root.formbuilder(cols=1, dbtable='showcase.cast', datapath='xxx')
-        
-        fb.dbCombobox(lbl='dbselect in form builder',dbtable='showcase.movie',value='^dbcombo.value')
-
-    #    fb.field('showcase.cast.movie_id', lbl='field in fb',validate_notnull=True,validate_notnull_error='!!Required')
-    #    fb.div(lbl='field con div', datapath='xxy').field('showcase.cast.movie_id')
-    #    fb.div(lbl='dbsel con div', datapath='xxz').dbselect(dbtable='showcase.movie', value='^dbselect.m2',  )
+    # For an exhaustive documentation, please see http://docs.genropy.org/widgets/form/db/dbcombobox.html
+    
+    def test_1_basic(self,pane):
+        """Basic dbCombobox"""
+        fb = pane.formbuilder(datapath='test1_movie')
+        fb.div("""In a "dbCombobox" you can draw record values from a database (not the ID!).
+                  The difference with the "dbSelect" is the possibility to add NEW records.""",
+                  font_size='.9em',text_align='justify')
+        fb.div('For example, try to draw an actor from the first "dbCombobox"...',
+                  font_size='.9em',text_align='justify')
+        fb.dbCombobox(dbtable='showcase.person',value='^.person',lbl='Star')
+        fb.div('... and then write a film not in the database.',
+                  font_size='.9em',text_align='justify')
+        fb.dbCombobox(dbtable='showcase.movie',value='^.movie',lbl='Movie')
+        fb.div("""After that, check in the datasource your saved records (by clicking
+                  ctrl+shift+D)""",font_size='.9em',text_align='justify')

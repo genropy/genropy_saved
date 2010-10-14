@@ -1,21 +1,21 @@
-#!/usr/bin/env pythonw
 # -*- coding: UTF-8 -*-
 
-#  Created by Giovanni Porcari on 2007-03-24.
-#  Copyright (c) 2007 Softwell. All rights reserved.
+# togglebutton.py
+# Created by Niso on 2010-10-13.
+# Copyright (c) 2010 Softwell. All rights reserved.
+
+"""Toggle buttons"""
 
 class GnrCustomWebPage(object):
-    def main(self, rootBC, **kwargs):
-        fb=rootBC.contentPane(title='Buttons',datapath='buttons').formbuilder(cols=3,border_spacing='10px')
-        
-        fb.checkbox(value='^.checkbox',label='checkbox')
-        fb.toggleButton(value='^.toggle1',iconClass="dijitRadioIcon",label='Toggle')
-        fb.toggleButton(value='^.toggle2',iconClass="dijitRadioIcon")
-        
-        fb.radiobutton(value='^.radio.jazz',group='genre1',label='Jazz')
-        fb.radiobutton(value='^.radio.rock',group='genre1',label='Rock')
-        fb.radiobutton(value='^.radio.blues',group='genre1',label='Blues')
-        
-        fb.div('Sex')
-        fb.radiobutton(value='^.sex.male',group='genre2',label='M')
-        fb.radiobutton(value='^.sex.female',group='genre2',label='F')
+    py_requires="gnrcomponents/testhandler:TestHandlerFull"
+    # dojo_theme='claro'    # !! Uncomment this row for Dojo_1.5 usage
+    
+    # For an exhaustive documentation, please see http://docs.genropy.org/widgets/form/togglebutton.html
+    
+    def test_1_basic(self,pane):
+        """Simple test"""
+        pane.div('We show you here a simple togglebuttons set:',
+                  font_size='.9em',text_align='justify')
+        fb=pane.formbuilder(border_spacing='10px',datapath='test1')
+        fb.togglebutton(value='^.toggle1',iconClass="dijitRadioIcon",label='label')
+        fb.togglebutton(value='^.toggle2',iconClass="dijitRadioIcon",label='another label')

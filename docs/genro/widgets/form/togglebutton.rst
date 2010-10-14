@@ -21,7 +21,7 @@
 Definition and Description
 ==========================
 
-	???
+	A toggle button is a button that represents a setting with a ``True`` or ``False`` state. Toggle buttons look similar to command buttons and display a graphic or text (or both) to identify themselves.
 
 	.. _togglebutton-examples:
 

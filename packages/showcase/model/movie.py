@@ -8,7 +8,7 @@ class Table(object):
         tbl.column('title',name_short='Ttl.',name_long='Title',
                     validate_case='capitalize',validate_len='3,40')
         tbl.column('genre',name_short='Gnr',name_long='Genre',
-                            validate_case='upper', validate_len='3,10',indexed=True)
+                    validate_case='upper',validate_len='3,10',indexed=True)
         tbl.column('year', 'L', name_short='Yr',name_long='Year',indexed=True)
         tbl.column('nationality', name_short='Ntl', name_long='Nationality')
         tbl.column('description', name_short='Dsc', name_long='Movie description')

@@ -14,17 +14,6 @@ class GnrCustomWebPage(object):
     
     # For an exhaustive documentation, please see http://docs.genropy.org/widgets/form/filteringselect.html
     
-    #   - Other forms and attributes:
-    #       In this section we report forms/attributes that have been used in this example
-    #       despite they didn't strictly belonging to filteringSelect.
-    #       We also suggest you the file (if it has been created!) where you can find
-    #       some documentation about them.
-    #
-    #       ## name ##      --> ## file ##
-    #       Bag             --> bag.py
-    #       formbuilder     --> formbuilder.py
-    #       value           --> datapath.py
-    
     def test_1_basic(self,pane):
         """Basic example"""
         pane.data('bag',self.sports(),id='.pkey',caption='.Description')
