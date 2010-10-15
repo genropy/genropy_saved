@@ -18,14 +18,20 @@ class GnrCustomWebPage(object):
     
     def test_2_dropFileGrid(self,pane):
         """dropFileGrid"""
-        pane=pane.contentPane(height='400px',width='800px',position='relative')
-        self.dropFileGrid(pane,uploaderId='foo_uploader',datapath='.uploader',
-                      label='Upload here',footer=None,enabled=True,onResult='alert("Done")',
+        def footer(footer,**kwargs):
+            footer.button('Upload',action='PUBLISH foo_uploader_upload',float='right')
+        self.dropFileGrid(pane.contentPane(height='400px'),uploaderId='foo_uploader',datapath='.uploader',
+                      label='Upload here',enabled=True,onResult='alert("Done")',
+                      metacol_description=dict(name='!!Description',width='10em'),footer=footer,
                       uploadPath='site:testuploader/foo_up',
-                      preview=True)
+                      preview=True,uploadedFilesGrid=True)
         
     
-    
+    def onUploading_foo_uploader(self,file_url=None,file_path=None,
+                                description=None,titolo=None,**kwargs):
+        result =  dict(file_url=file_url,file_path=file_path)
+        print result
+        return result
         
     
         
