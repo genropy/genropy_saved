@@ -573,25 +573,19 @@ dojo.declare("gnr.GnrDomHandler",null,{
                 if (dojo.indexOf(event.dataTransfer.types,'Files')>=0){
                     console.log('files')
                     var drop_ext=inherited.drop_ext;
-                    if(drop_ext){
-                        
-                        drop_ext=splitStrip(drop_ext);
-                        var files=[];
-                        dojo.forEach(event.dataTransfer.files,function(f){
-                            if(dojo.indexOf(drop_ext,f['name'].split('.').pop())>=0){
-                                files.push(f);
-                            }
-                        });
+                    var valid_ext=drop_ext?splitStrip(drop_ext):null;
+                    var files=[];
+                    dojo.forEach(event.dataTransfer.files,function(f){
+                        if((!valid_ext) || (dojo.indexOf(drop_ext,f['name'].split('.').pop())>=0)){
+                            files.push(f);
+                        }
+                    });
+                    if(files.length>0){
                         params['files']=files;
-                    }else{
-                        params['files']=event.dataTransfer.files;
-                    }
-                    if(params['files'].length>0){
                         funcApply(action,params, sourceNode);
                     }
                     
                 }else{
-                    console.log('data')
                     for (var i=0; i < drop_types.length; i++) {
                         if (dojo.indexOf(event.dataTransfer.types,drop_types[i])>=0){
                             params['drop_data']=event.dataTransfer.getData(drop_types[i]);
