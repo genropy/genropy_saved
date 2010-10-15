@@ -71,13 +71,19 @@ class GnrCustomWebPage(object):
         fb.data('.mydiv','aaaabbbbbccc',draggable=True)
         fb.textBox(value='^.name',lbl='my name',draggable=True)
         fb.div('^.mydiv',lbl='my div',draggable=True)
-                         
-    def test_2_checktag(self,pane):
+
+        fb.div('drag foo',drag_tags='foo',lbl='drag with foo')
+        fb.div('drag bar',drag_tags='bar',lbl='drag with bar')
+        fb.div('drag foo,bar',drag_tags='foo,bar',lbl='drag with foo,bar')
+    
+    def test_3_dropimg(self,pane):
         """Drag checking tags"""
-        l=pane.ul(drag_class='draggedItem')
-        l.li('drag foo',drag_tags='foo')
-        l.li('drag bar',drag_tags='bar')
-        l.li('drag foo,bar',drag_tags='foo,bar')
+        pane.data('.imgurl','https://developer.mozilla.org/skins/mozilla/Fox3/img/mdc-logo.png')
+        pane.img(drop_types='Files',drop_ext='png,jpg,gif',
+                       drop_action="""alert('ss')""",
+                       src='^.imgurl')
+
+        
         
 
         
