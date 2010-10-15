@@ -660,13 +660,13 @@ dojo.declare("gnr.GnrRpcHandler",null,{
     uploadMultipartFiles: function(filebag,kw){
         var kw = kw || {};
         var uploaderId = kw.uploaderId;
-        var onResult = kw.onResult || function(){genro.publish(uploaderId+'_done',arguments);};
+        var onFileUploaded = kw.onFileUploaded || function(){genro.publish(uploaderId+'_done',arguments);};
         kw.onProgress =kw.onProgress || function(){genro.publish(uploaderId+'_progress',arguments);};
         kw.onError = kw.onError || function(){genro.publish(uploaderId+'_error',arguments);};
         kw.onAbort = kw.onAbort || function(){genro.publish(uploaderId+'_upload_aborted',arguments);};
 
         var onUploaded=function(node){
-            onResult(node);
+            onFileUploaded(node);
             filebag.pop(node.label);
             genro.rpc.uploadMultipartFiles(filebag,kw);
         }
@@ -697,6 +697,10 @@ dojo.declare("gnr.GnrRpcHandler",null,{
             innerKw.onResult = function (e){onUploaded(firstNode)};
             innerKw.onProgress = function (e){setProgress(statusNode,e)};
             genro.rpc.uploadMultipart_oneFile(file,params,innerKw);
+        }else{
+            if(kw.onResult){
+                kw.onResult();
+            }
         }
     },
     
