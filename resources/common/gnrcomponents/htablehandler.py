@@ -376,13 +376,14 @@ class HTablePicker(HTableHandlerBase):
                             related_table=None,relation_path=None,
                             nodeId=None,datapath=None,dialogPars=None,
                             caption=None,grid_struct=None,grid_columns=None,
-                            condition=None,condition_pars=None,editMode='dlg',**kwargs):
+                            grid_filter=None,
+                            condition=None,condition_pars=None,editMode=None,**kwargs):
             
             
         self._htablePicker_main(parent,table=table,rootpath=rootpath,
                         related_table=related_table,
                         relation_path=relation_path,
-                        input_pkeys=input_pkeys or '',output_related_pkeys=output_pkeys,nodeId=nodeId,
+                        input_pkeys=input_pkeys or '',output_related_pkeys=output_pkeys,nodeId=nodeId,grid_filter=grid_filter,
                         datapath=datapath,dialogPars=dialogPars,grid_struct=grid_struct,grid_columns=grid_columns,
                         condition=condition,condition_pars=condition_pars,editMode=editMode)
     
@@ -400,13 +401,15 @@ class HTablePicker(HTableHandlerBase):
                     condition_pars=None,
                     related_table=None,
                     relation_path=None,
-                    editMode='dlg',
+                    grid_filter=None,
+                    editMode=None,
                     **kwargs):
         """params htable:
             parent
             column??
             resultpath
             """
+        editMode = editMode or 'dlg'
         grid_where = '$code IN :codes'
         if related_table:
             grid_where = '%s IN :codes' %relation_path 
@@ -422,7 +425,7 @@ class HTablePicker(HTableHandlerBase):
                         grid_struct=grid_struct,grid_columns=grid_columns,
                         grid_where=grid_where,condition_pars=condition_pars,
                         output_codes=output_codes,output_pkeys=output_pkeys,
-                        related_table=related_table,grid_show=grid_show,
+                        related_table=related_table,grid_show=grid_show,grid_filter=grid_filter,
                         output_related_pkeys=output_related_pkeys)
         
         if editMode=='dlg':
@@ -462,7 +465,9 @@ class HTablePicker(HTableHandlerBase):
                         _onResult="""FIRE .reload_tree;
                                      FIRE .prepare_check_status;
                                      if(kwargs._grid_show){
-                                        SET .preview_grid.initial_checked_pkeys = $2.input_pkeys.split(',');
+                                        if ($2.input_pkeys){
+                                            SET .preview_grid.initial_checked_pkeys = $2.input_pkeys.split(',');
+                                        }
                                         FIRE .preview_grid.load;
                                      }
                                      FIRE .loaded;""",_grid_show=grid_show)
@@ -546,7 +551,7 @@ class HTablePicker(HTableHandlerBase):
                     controllerPath=None,region=None,caption=None,grid_struct=None,grid_columns=None,
                     related_table=None,grid_where=None,condition_pars=None,output_codes=None,
                     output_related_pkeys=None,grid_show=None,
-                    output_pkeys=None,**kwargs):
+                    output_pkeys=None,grid_filter=None,**kwargs):
         if grid_show:
             bc = parentBC.borderContainer(_class='pbl_roundedGroup',region=region)
             treepane = bc.contentPane(region='left',width='150px',splitter=True,
@@ -557,7 +562,7 @@ class HTablePicker(HTableHandlerBase):
                         grid_where=grid_where,condition_pars=condition_pars,
                         output_related_pkeys=output_related_pkeys,
                         output_pkeys=output_pkeys,grid_struct=grid_struct,
-                        grid_columns=grid_columns)
+                        grid_columns=grid_columns,grid_filter=grid_filter)
         else:
             treepane = parentBC.contentPane(region=region,datapath=datapath,formId=formId,
                                                 controllerPath=controllerPath)
@@ -576,12 +581,18 @@ class HTablePicker(HTableHandlerBase):
                     
     def _ht_pk_view(self,bc,caption=None,gridId=None,table=None,grid_columns=None,
                     grid_struct=None,grid_where=None,condition_pars=None,related_table=None,
-                    output_related_pkeys=None,**kwargs):
-                    
-        self.includedViewBox(bc,label=False,datapath='.preview_grid',
+                    output_related_pkeys=None,grid_filter=None,**kwargs):
+                  
+        label = False
+        hasToolbar = None
+        
+        if grid_filter:
+            label = ' '  
+            hasToolbar = True
+        self.includedViewBox(bc,label=label,datapath='.preview_grid',
                              nodeId=gridId,columns=grid_columns,
-                             table=related_table or table,
-                             struct=grid_struct,
+                             table=related_table or table,filterOn=grid_filter,
+                             struct=grid_struct,hasToolbar=hasToolbar,
                              reloader='^.load', addCheckBoxColumn=bool(related_table),
                              selectionPars=dict(where=grid_where,
                                                 codes='=.#parent.data.checked_codes',
