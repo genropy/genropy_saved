@@ -776,7 +776,8 @@ class GnrWebAppHandler(GnrBaseProxy):
             handler = self.page.getPublicMethod('rpc', method)
         else:
             if dbtable == self.page.maintable:
-                method = 'onLoading'
+                method = 'onLoading' # TODO: fall back on the next case if onLoading is missing?
+                                     #       (or maybe execute both if they exist)
             else:
                 #self.page.gnotify('getRecord', dbtable, True)
                 method = 'onLoading_%s' % dbtable.replace('.','_')
