@@ -31,7 +31,16 @@ class GnrCustomWebPage(object):
         r.fieldcell('title', name='!!Title', width='8em')
         r.fieldcell('description', name='!!Description', width='18em')
         r.fieldcell('url', name='Url', width='10em')
-        
+        return struct
+
+    def formBase(self, parentBC,  disabled=False, **kwargs):
+        bc=parentBC.borderContainer(**kwargs)
+        base= bc.contentPane(region='center', _class='pbl_roundedGroup',margin='5px')
+        base.div('!!File Items',_class='pbl_roundedGroupLabel')
+        fb = base.formbuilder(cols=1, margin_left='2em',border_spacing='7px',margin_top='1em')
+        fb.field('title',width='10')
+        fb.field('description',width='30em')
+        fb.field('url',width='30em')
                   
             
     def orderBase(self):
