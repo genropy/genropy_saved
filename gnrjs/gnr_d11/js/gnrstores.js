@@ -610,13 +610,14 @@ dojo.declare("gnr.GnrStoreQuery",gnr.GnrStoreBag,{
                 var ignoreCase = request.queryOptions ? request.queryOptions.ignoreCase : false; 
                 var kwargs={_id:'',_querystring:query.caption,ignoreCase:ignoreCase};
                 var cb=dojo.hitch(this,function(r){
-                    this.lastFetchAttrs=r.attr;
                     var result;
                     if (r instanceof gnr.GnrBagNode && r.getValue()){
+                        this.lastFetchAttrs=r.attr;
                         result=r.getValue().getNodes();
                     }
                     else{
                         result=[];
+                        this.lastFetchAttrs={};
                     }
                     findCallback(result, request);
                 });
