@@ -16,5 +16,17 @@ class GnrCustomWebPage(object):
         self.dropUploader(pane)
     
     
+    def test_2_dropFileGrid(self,pane):
+        """dropFileGrid"""
+        pane=pane.contentPane(height='400px',width='800px',position='relative')
+        self.dropFileGrid(pane,uploaderId='foo_uploader',datapath='.uploader',
+                      label='Upload here',footer=None,enabled=True,onResult='alert("Done")',
+                      uploadPath='site:testuploader/foo_up',
+                      preview=True)
+        
+    
+    
+        
+    
         
         
