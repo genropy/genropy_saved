@@ -37,8 +37,8 @@ class TableHandlerForm(BaseComponent):
         pane.dataController("""genro.wdgById("gridbc").showHideRegion("top",showquery);genro.resizeAll();""",
                         showquery='^list.showExtendedQuery',
                         _fired='^gnr.onStart')
-        pane.dataController("""if(page=='views'){SET list.selectedTop=1;}
-                                   else if(page=='queries'){SET list.selectedTop=0;}
+        pane.dataController("""if(page=='view'){SET list.selectedTop=1;}
+                                   else if(page=='query'){SET list.selectedTop=0;}
                                 """, page='^list.toolboxSelected')
         
         pane.dataController("""genro.wdgById("gridbc").showHideRegion("left",show);
