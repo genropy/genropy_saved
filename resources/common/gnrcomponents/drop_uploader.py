@@ -5,9 +5,7 @@
 # Copyright (c) 2010 Softwell. All rights reserved.
 
 from gnr.web.gnrwebpage import BaseComponent
-from gnr.core.gnrbag import Bag
 from gnr.core.gnrdict import dictExtract
-import os
 
 class DropUploader(BaseComponent):  
     py_requires='foundation/includedview'  
@@ -15,10 +13,6 @@ class DropUploader(BaseComponent):
         pane.div(drop_types='Files',drop_ext=ext,
                  drop_action="""console.log(files);drop_uploader.send_files(files)""",
                  width='100px',height='50px',background_color='#c7ff9a')
-
-
-    
-
 
     def dropFileGrid(self,pane,uploaderId=None,datapath=None,
                       label=None,footer=None,enabled=True,onResult=None,uploadPath=None,
@@ -34,21 +28,33 @@ class DropUploader(BaseComponent):
             for k,v in metacol_dict.items():
                 r.cell(k,**v)
             r.cell('_status', name='Status', width='6em')
-        bc = pane.borderContainer()
+        bc = pane.borderContainer(height='100%',width='100%')
         if preview:
-            previewpane = bc.contentPane(region='bottom',height='50%',splitter=True)
-            previewpane.img(height='100%',width='100%',src='^.preview_img',datapath=datapath)
-            previewpane.dataController("""
+            sc = bc.stackContainer(region='bottom',height='50%',splitter=True,selectedPage='.selpreview',datapath=datapath)
+            sc.dataController("""
+                                        var selectedType = filebag.getItem(selectedLabel+'._type');
                                         var selectedFile = filebag.getItem(selectedLabel+'._file');
                                         console.log(selectedFile);
                                         var fileReader = new FileReader();
                                         var that = this;
                                         fileReader.addEventListener("loadend", function(){
-                                            that.setRelativeData('.preview_img',fileReader.result);
+                                            that.setRelativeData('.preview',fileReader.result);
                                         }, false);
-                                        fileReader.readAsDataURL(selectedFile);
-                                    """,selectedLabel="^.selectedLabel",filebag='=.uploaded_files',
-                                        datapath=datapath)
+                                           if (selectedType.indexOf('image')>=0){
+                                                SET .selpreview='image'
+                                                fileReader.readAsDataURL(selectedFile);
+                                            }else if(selectedType.indexOf('text')>=0){
+                                                fileReader.readAsDataURL(selectedFile);
+
+                                            }
+                                            
+                                        
+                                    """,selectedLabel="^.selectedLabel",filebag='=.uploaded_files')
+            sc.dataController("""if
+                               """,preview='.preview',selpreview='.selpreview')
+            previewpane=sc.contentPane(pageName='image')
+            previewpane.img(height='100%',width='100%',src='^.preview_img')
+            
         iv = self.includedViewBox(bc.borderContainer(region='center'),label=label,datapath=datapath,
                             storepath='.uploaded_files',nodeId=uploaderId,
                             struct=_struct,datamode='bag',
