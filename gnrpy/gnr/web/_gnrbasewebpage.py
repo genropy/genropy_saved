@@ -362,6 +362,10 @@ class GnrBaseWebPage(GnrObject):
         onSavedKwargs = dict()
         if onSavingHandler:
             onSavedKwargs = onSavingHandler(recordCluster, recordClusterAttr, resultAttr=resultAttr) or {}
+        virtual_columns = self.pageStore().getItem('tables.%s.virtual_columns' %table)
+        if virtual_columns:
+            for virtual_col in virtual_columns.keys():
+                recordCluster.pop(virtual_col,None)
         record = tblobj.writeRecordCluster(recordCluster,recordClusterAttr)
         if onSavedHandler:
             onSavedHandler(record, resultAttr=resultAttr,  **onSavedKwargs)

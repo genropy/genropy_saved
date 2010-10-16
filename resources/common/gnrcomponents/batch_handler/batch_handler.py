@@ -5,7 +5,8 @@
 # Copyright (c) 2010 Softwell. All rights reserved.
 
 from gnr.web.gnrwebpage import BaseComponent
-from gnr.core.gnrlang import gnrImport
+from gnr.core.gnrlang import gnrImport,objectExtract
+
 from gnr.core.gnrbag import Bag
 
 
@@ -88,11 +89,11 @@ class TableScriptRunner(BaseComponent):
         resource = resource.replace('.py','')
         cl=self.site.loadResource(pkgname,'tables',tblname,res_type,"%s:Main" %resource) #faccio mixin con prefisso
         self.mixin(cl,methods='table_script_*,rpc_table_script_*')
-        batch_dict = dict([(k[6:],getattr(cl,k)) for k in dir(cl) if k.startswith('batch_')])
+        batch_dict = objectExtract(cl,'batch_') 
         batch_dict['resource_name'] = resource
         batch_dict['res_type'] = res_type
         pane.data('.batch',batch_dict)
-        dlg_dict = dict([(k[7:],getattr(cl,k)) for k in dir(cl) if k.startswith('dialog_')])
+        dlg_dict = objectExtract(cl,'dialog_')
         dlg_dict['title'] = dlg_dict.get('title',batch_dict.get('title'))
         pane.data('.dialog',dlg_dict)
         def cb_center(parentBc,**kwargs):

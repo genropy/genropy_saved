@@ -65,6 +65,11 @@ def boolean(x):
             return False
         return bool(x)
         
+def objectExtract(myobj,f):
+    lf=len(f)
+    return dict([(k[lf:],getattr(myobj,k)) for k in dir(myobj) if k.startswith(f)])
+    
+    
 def importModule(module):
     if module not in sys.modules:
         __import__(module)

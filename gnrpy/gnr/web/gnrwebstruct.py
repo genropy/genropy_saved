@@ -502,6 +502,7 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
         if fld in tblobj.model.virtual_columns:
             self.page.includeVirtualColumn(tblobj.fullname,fld)
             wdgattr['readOnly'] = True
+            wdgattr['_virtual_column'] = True
         wdgattr['value']='^.%s' % fld
         return wdgattr
         

@@ -12,7 +12,6 @@ class GnrCustomWebPage(object):
     related_table = 'base.pr_product'
     relation_path = '@category_id.code'
     
-
     def test_1_testpicker(self,pane):
         """Picker on htable"""
         fb = pane.formbuilder(cols=1, border_spacing='3px')
@@ -28,7 +27,6 @@ class GnrCustomWebPage(object):
         fb = pane.formbuilder(cols=1, border_spacing='3px')
         fb.textbox(value='^.pkeys',lbl='Related Pkeys',width='30em')
         fb.div(value='^.output_pkeys',lbl='Related Output Pkeys',width='30em',height='20px',background='red')
-
         fb.button('Show',action='PUBLISH picker_2_open;')
         self.htablePickerOnRelated(pane,table=self.htable,
                             related_table=self.related_table,

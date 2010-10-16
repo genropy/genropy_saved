@@ -111,7 +111,7 @@ class Public(BaseComponent):
             margin = None
         self.pageSource('_pageRoot').setAttr(height=height, width=width, margin=margin)
         top = self.pbl_topBar(rootbc.borderContainer(region='top', _class='pbl_root_top',overflow='hidden'),title,flagsLocale=flagsLocale)
-        bottom = self.pbl_bottomBar(rootbc.contentPane(region='bottom'))
+        bottom = self.pbl_bottomBar(rootbc.contentPane(region='bottom',_class='pbl_root_bottom',overflow='hidden'))
         bc = rootbc.borderContainer(region='center', _class='pbl_root_center')        
         return bc, top, bottom
         
@@ -194,14 +194,13 @@ class Public(BaseComponent):
 
         return center
 
-    def pbl_bottomBar(self,bottom):
+    def pbl_bottomBar(self,pane):
         """docstring for publicTitleBar"""
-        bottom = bottom.stackContainer(region='bottom', _class='pbl_root_bottom',
-                                       overflow='hidden',selectedPage='^pbl.bottom_stack')
-        bottom.data('pbl.bottom_stack','default')
+        sc = pane.stackContainer(selectedPage='^pbl.bottom_stack')
+        sc.data('pbl.bottom_stack','default')
         
-        default_bottom = self.pbl_bottom_default(bottom.borderContainer(pageName='default'))
-        self.pbl_bottom_message(bottom.contentPane(pageName='message'))
+        default_bottom = self.pbl_bottom_default(sc.borderContainer(pageName='default'))
+        self.pbl_bottom_message(sc.contentPane(pageName='message'))
         return default_bottom
 
     def pbl_bottom_message(self,pane):

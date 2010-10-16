@@ -376,7 +376,7 @@ class HTablePicker(HTableHandlerBase):
                             related_table=None,relation_path=None,
                             nodeId=None,datapath=None,dialogPars=None,
                             caption=None,grid_struct=None,grid_columns=None,
-                            grid_filter=None,
+                            grid_filter=None,default_checked_row=None,
                             condition=None,condition_pars=None,editMode=None,**kwargs):
             
             
@@ -385,7 +385,7 @@ class HTablePicker(HTableHandlerBase):
                         relation_path=relation_path,
                         input_pkeys=input_pkeys or '',output_related_pkeys=output_pkeys,nodeId=nodeId,grid_filter=grid_filter,
                         datapath=datapath,dialogPars=dialogPars,grid_struct=grid_struct,grid_columns=grid_columns,
-                        condition=condition,condition_pars=condition_pars,editMode=editMode)
+                        condition=condition,condition_pars=condition_pars,editMode=editMode,default_checked_row=default_checked_row)
     
     
     def _htablePicker_main(self,parent,table=None,rootpath=None,
@@ -403,12 +403,15 @@ class HTablePicker(HTableHandlerBase):
                     relation_path=None,
                     grid_filter=None,
                     editMode=None,
+                    default_checked_row=None,
                     **kwargs):
         """params htable:
             parent
             column??
             resultpath
             """
+        default_checked_row = False if default_checked_row is False else True
+            
         editMode = editMode or 'dlg'
         grid_where = '$code IN :codes'
         if related_table:
@@ -426,6 +429,7 @@ class HTablePicker(HTableHandlerBase):
                         grid_where=grid_where,condition_pars=condition_pars,
                         output_codes=output_codes,output_pkeys=output_pkeys,
                         related_table=related_table,grid_show=grid_show,grid_filter=grid_filter,
+                        default_checked_row=default_checked_row,
                         output_related_pkeys=output_related_pkeys)
         
         if editMode=='dlg':
@@ -551,7 +555,7 @@ class HTablePicker(HTableHandlerBase):
                     controllerPath=None,region=None,caption=None,grid_struct=None,grid_columns=None,
                     related_table=None,grid_where=None,condition_pars=None,output_codes=None,
                     output_related_pkeys=None,grid_show=None,
-                    output_pkeys=None,grid_filter=None,**kwargs):
+                    output_pkeys=None,grid_filter=None,default_checked_row=None,**kwargs):
         if grid_show:
             bc = parentBC.borderContainer(_class='pbl_roundedGroup',region=region)
             treepane = bc.contentPane(region='left',width='150px',splitter=True,
@@ -562,7 +566,7 @@ class HTablePicker(HTableHandlerBase):
                         grid_where=grid_where,condition_pars=condition_pars,
                         output_related_pkeys=output_related_pkeys,
                         output_pkeys=output_pkeys,grid_struct=grid_struct,
-                        grid_columns=grid_columns,grid_filter=grid_filter)
+                        grid_columns=grid_columns,grid_filter=grid_filter,default_checked_row=default_checked_row)
         else:
             treepane = parentBC.contentPane(region=region,datapath=datapath,formId=formId,
                                                 controllerPath=controllerPath)
@@ -581,7 +585,7 @@ class HTablePicker(HTableHandlerBase):
                     
     def _ht_pk_view(self,bc,caption=None,gridId=None,table=None,grid_columns=None,
                     grid_struct=None,grid_where=None,condition_pars=None,related_table=None,
-                    output_related_pkeys=None,grid_filter=None,**kwargs):
+                    output_related_pkeys=None,grid_filter=None,default_checked_row=None,**kwargs):
                   
         label = False
         hasToolbar = None
@@ -600,17 +604,18 @@ class HTablePicker(HTableHandlerBase):
                                                 _onResult="""
                                                     var bag =result.getValue();
                                                     var initial_pkeys = GET .initial_checked_pkeys;
+                                                    var default_check = kwargs.checked_row_default;
                                                     var cb_initial = function(n){
-                                                        n.attr._checked = dojo.indexOf(initial_pkeys,n.attr._pkey)>=0?true:false;
+                                                        n.attr._checked = dojo.indexOf(initial_pkeys,n.attr._pkey)>=0?default_check:false;
                                                     };
                                                     var cb = function(n){
                                                         var old_n = old.getNodeByAttr('_pkey',n.attr._pkey);
-                                                        n.attr._checked=(old_n && old_n.attr._checked==false)?false:true;
+                                                        n.attr._checked=(old_n && old_n.attr._checked==false)?false:default_check;
                                                     }
                                                     bag.forEach(initial_pkeys?cb_initial:cb,'static');   
                                                     SET .initial_checked_pkeys = null;
                                                     FIRE .#parent.set_output_pkeys;
-                                                """),**condition_pars)
+                                                """,checked_row_default=default_checked_row,**condition_pars))
         
         bc.dataController("""
                             var l = [];
