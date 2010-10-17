@@ -222,7 +222,7 @@ dojo.declare("gnr.GnrDomSourceNode",gnr.GnrBagNode,{
         if(_if){
             if_result = funcCreate('return (' + _if +')', argNames.join(',')).apply(this,argValues);
             if(_trace && (_trace_level > 0)) {
-                console.log("_if="+_if_result);
+                console.log("_if="+if_result);
             }
         }
         if(tag=='dataFormula' || tag=='dataScript' || tag=='dataController' || tag=='dataRpc'){
