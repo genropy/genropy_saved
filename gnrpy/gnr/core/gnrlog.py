@@ -42,18 +42,18 @@ class ColoredFormatter(logging.Formatter):
 FORMAT = "[$BOLD%(name)-20s$RESET][%(levelname)-18s]  %(message)s ($BOLD%(filename)s$RESET:%(lineno)d)"
 COLOR_FORMAT = formatter_message(FORMAT, True)
 
-colored_logging_enabled=False
+root_logger = None
 
 def enable_colored_logging(stream=sys.stderr, level=None):
     """Enable colored logging."""
-    global colored_logging_enabled
-    if not colored_logging_enabled:
-        colored_logging_enabled = True
-        root = logging.getLogger()
-        if len(root.handlers) == 0:
+    global root_logger
+    if not root_logger:
+        root_logger = logging.getLogger()
+        if len(root_logger.handlers) == 0:
             hdlr = logging.StreamHandler(stream)
             if hasattr(stream, 'isatty') and stream.isatty():
                 hdlr.setFormatter(ColoredFormatter(COLOR_FORMAT))
-            if level is not None:
-                root.setLevel(level)
-            root.addHandler(hdlr)
+            root_logger.addHandler(hdlr)
+    if level is not None:
+        root_logger.setLevel(level)
+
