@@ -706,7 +706,8 @@ class GnrWsgiSite(object):
         if runKwargs:
             for k,v in runKwargs.items():
                 kwargs[str(k)] = v
-        return script(**kwargs)
+        result = script(**kwargs)
+        return result
         
     def loadTableScript(self, page, table, respath, class_name=None):
         return self.resource_loader.loadTableScript( page, table, respath, class_name=class_name)

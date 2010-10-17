@@ -335,8 +335,10 @@ class ResourceLoader(object):
         self.mixinResource(resource_class, resourceDirs, *path)
         return resource_class()
         
-    def loadTableScript(self, page, table, respath, class_name=None):
+    def loadTableScript(self, page, table=None, respath=None, class_name=None):
         class_name=class_name or 'Main'
+        if ':' in respath:
+            table,respath = respath.split(':')
         application=self.gnrapp
         if isinstance(table, basestring):
             table=application.db.table(table)

@@ -22,9 +22,10 @@
 
 import gnrclasses
 
-def dictExtract(mydict,f):
+def dictExtract(mydict,f,pop=False):
     lf=len(f)
-    return dict([(k[lf:],v) for k,v in mydict.items() if k.startswith(f)])
+    cb = mydict.pop if pop else mydict.get
+    return dict([(k[lf:],cb(k)) for k in mydict.keys() if k.startswith(f)])
 
 class FakeDict(dict):
     pass

@@ -6,14 +6,17 @@ print.py
 Created by Francesco Porcari on 2010-10-16.
 Copyright (c) 2010 Softwell. All rights reserved.
 """
+import os
+import tempfile
+
 from gnr.web.batch.btcbase import BaseResourceBatch
 
 class BaseResourcePrint(BaseResourceBatch):
     def __init__(self,*args,**kwargs):
         super(BaseResourcePrint,self).__init__(**kwargs)
-        self.htmlMaker = self.page.site.loadTableScript(page=self.page,table=self.resource_table ,
+        self.htmlMaker = self.page.site.loadTableScript(page=self.page,table=self.maintable ,
                                                         respath=self.html_res,class_name='Main')
-        self.file_list = []
+                                    
         
     
     def _pre_process(self):
@@ -76,6 +79,28 @@ class BaseResourcePrint(BaseResourceBatch):
         self.file_list = []
         self.commitAfterPrint=commitAfterPrint
         self.batch_note = batch_note
+    
+    def _old_in_tablescrip(self):
+        #if not (dontSave or pdf):
+        #self.filepath=filepath or os.path.join(self.hmtlFolderPath(),self.outputDocName(ext='html'))
+        #else:
+        #    self.filepath = None
+        #if rebuild or not os.path.isfile(self.filepath):
+        #    html=self.createHtml(filepath=self.filepath , **kwargs)
+            
+        #else:
+        #    with open(self.filepath,'r') as f:
+        #        html=f.read()
+        if pdf:
+            temp = tempfile.NamedTemporaryFile(suffix='.pdf')
+            self.page.getService('print').htmlToPdf(self.filepath, temp.name)
+            with open(temp.name,'rb') as f:
+                html=f.read()
+        self.onRecordExit(self.getData('record'))
+        return html
+        
+        def pdfFolderPath(self):
+            return self.getFolderPath(*self.pdf_folder.split('/'))
     
     
     def table_script_pdf_options(self,pane):

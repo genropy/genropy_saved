@@ -1,104 +1,21 @@
 #!/usr/bin/env python
 # encoding: utf-8
 """
-gnrtablescript.py
+gnrbaghtml.py
 
-Created by Saverio Porcari on 2009-07-08.
-Copyright (c) 2009 __MyCompanyName__. All rights reserved.
+Created by Francesco Porcari on 2010-10-16.
+Copyright (c) 2010 Softwell. All rights reserved.
+
 """
-import os.path
-import tempfile
-from gnr.core.gnrbag import Bag, BagCbResolver
-from gnr.core.gnrhtml import GnrHtmlBuilder
+import os
 from gnr.core.gnrstring import toText
-from gnr.core.gnrlang import NotImplementedException
-from gnr.core.gnrstring import slugify, templateReplace
+from gnr.core.gnrhtml import GnrHtmlBuilder
+from gnr.core.gnrbag import Bag, BagCbResolver
 
-class TableScript(object):
-    def __init__(self, page=None, resource_table = None,db=None,locale='en',tempFolder='',**kwargs):
-        if page:
-            self.page = page
-            self.site = self.page.site
-            self.locale = self.page.locale
-            self.db = self.page.db
-            self.docFolder = tempFolder or self.page.temporaryDocument()
-            self.thermoKwargs = None
-        else:
-            self.db=db
-            self.locale=locale
-            self.tempFolder = tempFolder
-        self.resource_table = resource_table
-        self.init(**kwargs)
-        
-    def __call__(self,  *args, **kwargs):
-        raise NotImplementedException()
-       
-    def getFolderPath(self, *folders):
-        folders=folders or []
-        if folders and folders[0] == '*connections':
-            folders = [self.page.connectionDocument(*list(folders[1:]+('',)))] 
-        elif folders and folders[0] == '*users':
-            folders = [self.page.userDocument(*list(folders[1:]+('',)))] 
-        result = os.path.join(*folders)
-        return result
-        
-    def getDocumentUrl(self, *args):
-        args=args or []
-        if args and args[0] == '*connections':
-            result = [self.page.connectionDocumentUrl(*list(args[1:]+('',)))] 
-        elif args and args[0] == '*users':
-            result = [self.page.userDocumentUrl(*list(args[1:]+('',)))] 
-        result = os.path.join(*result)
-        return result
-        
-    def filePath(self, filename, *folders):
-        return os.path.join(self.getFolderPath(*folders), filename)
-        
-    def fileUrl(self, folder, filename):
-        return self.page.temporaryDocumentUrl(folder, filename)
-        
-class TableScriptOnRecord(TableScript): 
-    def __call__(self, record=None, **kwargs):
-        raise NotImplementedException()
-        
-    def getData(self,path,default=None):
-        wildchars = []
-        if path[0] in wildchars:
-            value='not yet implemented'
-        else:
-            value=self._data.getItem(path, default)
-        return value
-        
-    def loadRecord(self, record=None,**kwargs):
-        self._data = Bag()
-        self._data['record'] = self.db.table(self.maintable or self.resource_table).recordAs(record, mode='bag')
-        if kwargs:
-            self._data['kwargs']=Bag()
-            for k,v in kwargs.items():
-                self._data['kwargs.%s' % k] = v
-        return self.onRecordLoaded(**kwargs)  
-
-    def onRecordLoaded(self,**kwargs):
-        pass
-
-        
-    def outputDocName(self, ext=''):
-        maintable_obj = self.db.table(self.maintable)
-        if ext and not ext[0]=='.':
-            ext = '.%s' % ext
-        caption = ''
-        if self.getData('record'):
-            caption= slugify(maintable_obj.recordCaption(self.getData('record')))
-        doc_name = '%s_%s%s' % (maintable_obj.name, caption, ext)
-        return doc_name
-
-
-class RecordToHtmlPage(TableScriptOnRecord):
-    maintable=''
+class BagToHtml(object):
     templates = ''
+    print_button = None
     rows_path = 'rows'
-    html_folder = '*connections/html'
-    pdf_folder = '*connections/pdf'
     encoding= 'utf-8'
     page_debug = False
     page_width = 200
@@ -107,7 +24,6 @@ class RecordToHtmlPage(TableScriptOnRecord):
     page_margin_left = 0
     page_margin_right = 0
     page_margin_bottom = 0
-    print_button = None
     currencyFormat=u'#,###.00'
     row_mode='bag'
     #override these lines
@@ -126,91 +42,112 @@ class RecordToHtmlPage(TableScriptOnRecord):
     copy_extra_height=0
     starting_page_number=0
     
-    def init(self,**kwargs):
-        self.maintable=self.maintable or self.resource_table
-        self.maintable_obj=self.db.table(self.maintable)
-        self.stopped = False
+    def __init__(self,locale='en',encoding='utf-8',**kwargs):
+        self.locale = locale
+        self.encoding = encoding
+        self.thermo_kwargs = None
+        self.thermo_wrapper = None
 
-    def __call__(self, record=None, filepath=None,
-                 rebuild=False, dontSave=False, pdf=False, runKwargs=None,
-                 showTemplateContent=None,**kwargs):
+        
+    def init(self,*args,**kwargs):
+        pass
+        
+    def outputDocName(self, ext=''):
+        return 'temp.%s' %ext
+
+    def onRecordLoaded(self):
+        """override this"""
+        pass 
+        
+    def __call__(self, record=None, filepath=None,folder=None,filename=None,hideTemplate=False,rebuild=True,**kwargs):
         """This method returns the html corresponding to a given record.
            the html can be loaded from a cached document or created if still doesn't exist.
         """
-        if not record:
+        if record is None:
+            record = Bag()
+        self._data = Bag()
+        self.record = record
+        self.setData('record',record) #compatibility
+        for k,v in kwargs.items():
+            self.setData(k,v)
+        if folder and not filepath:
+            filepath =  os.path.join(folder,filename or self.outputDocName(ext='html'))
+        self.filepath = filepath
+        
+        if not rebuild:
+            with open(self.filepath,'r') as f:
+                result =f.read()
+            return result
+                
+        self.templates=kwargs.pop('templates',self.templates)
+        self.print_button=kwargs.pop('print_button',self.print_button)
+        if self.onRecordLoaded() is False:
             return False
-        self.showTemplateContent = showTemplateContent or True
-        loadResult=self.loadRecord(record, **kwargs)
-        if loadResult==False:
-            return False
+        
+        self.showTemplate(hideTemplate is not True)
         self.htmlTemplate=None
-        if self.templates:
-            self.htmlTemplate = self.db.table('adm.htmltemplate').getTemplate(self.templates)
-            self.page_height = self.page_height or self.htmlTemplate['main.page.height'] or 280
-            self.page_width = self.page_width or self.htmlTemplate['main.page.width'] or 200
-            self.page_header_height = self.page_header_height or  self.htmlTemplate['layout.top?height'] or 0
-            self.page_footer_height = self.page_footer_height or  self.htmlTemplate['layout.bottom?height'] or 0
-            self.page_leftbar_width = self.page_leftbar_width or  self.htmlTemplate['layout.left?width'] or 0
-            self.page_rightbar_width = self.page_leftbar_width or  self.htmlTemplate['layout.right?width'] or 0
-            self.page_margin_top = self.page_margin_top or self.htmlTemplate['main.page.top'] or 0
-            self.page_margin_left = self.page_margin_left or self.htmlTemplate['main.page.left'] or 0
-            self.page_margin_right = self.page_margin_right or self.htmlTemplate['main.page.right'] or 0
-            self.page_margin_bottom = self.page_margin_bottom or self.htmlTemplate['main.page.bottom'] or 0
-
+        self.prepareTemplates()
         self.builder = GnrHtmlBuilder(page_width=self.page_width,page_height=self.page_height,
                                   page_margin_top=self.page_margin_top,page_margin_bottom=self.page_margin_bottom,
                                   page_margin_left=self.page_margin_left,page_margin_right=self.page_margin_right,
                                   page_debug=self.page_debug,print_button=self.print_button,htmlTemplate=self.htmlTemplate,
                                   showTemplateContent=self.showTemplateContent)
-        #if not (dontSave or pdf):
-        self.filepath=filepath or os.path.join(self.hmtlFolderPath(),self.outputDocName(ext='html'))
-        #else:
-        #    self.filepath = None
-        if rebuild or not os.path.isfile(self.filepath):
-            html=self.createHtml(filepath=self.filepath , **kwargs)
-            
-        else:
-            with open(self.filepath,'r') as f:
-                html=f.read()
-        if pdf:
-            temp = tempfile.NamedTemporaryFile(suffix='.pdf')
-            self.page.getService('print').htmlToPdf(self.filepath, temp.name)
-            with open(temp.name,'rb') as f:
-                html=f.read()
-        self.onRecordExit(self.getData('record'))
-        return html
+        result = self.createHtml(filepath=self.filepath)
+        return result
+             
+    def prepareTemplates(self):
+        self.htmlTemplate = self.templateLoader(self.templates)
+        self.page_height = self.page_height or self.htmlTemplate['main.page.height'] or 280
+        self.page_width = self.page_width or self.htmlTemplate['main.page.width'] or 200
+        self.page_header_height = self.page_header_height or  self.htmlTemplate['layout.top?height'] or 0
+        self.page_footer_height = self.page_footer_height or  self.htmlTemplate['layout.bottom?height'] or 0
+        self.page_leftbar_width = self.page_leftbar_width or  self.htmlTemplate['layout.left?width'] or 0
+        self.page_rightbar_width = self.page_leftbar_width or  self.htmlTemplate['layout.right?width'] or 0
+        self.page_margin_top = self.page_margin_top or self.htmlTemplate['main.page.top'] or 0
+        self.page_margin_left = self.page_margin_left or self.htmlTemplate['main.page.left'] or 0
+        self.page_margin_right = self.page_margin_right or self.htmlTemplate['main.page.right'] or 0
+        self.page_margin_bottom = self.page_margin_bottom or self.htmlTemplate['main.page.bottom'] or 0
         
     def toText(self, obj, locale=None, format=None, mask=None, encoding=None,**kwargs):
         locale = locale or self.locale
         encoding = locale or self.encoding
         return toText(obj, locale=locale, format=format, mask=mask, encoding=encoding,**kwargs)
 
-    def createHtml(self, filepath=None, **kwargs):
+    def createHtml(self, filepath=None):
         #filepath = filepath or self.filepath
         self.initializeBuilder()
         self.main()
-        if not self.stopped:
-            self.builder.toHtml(filepath=filepath)
-            return self.builder.html
+        self.builder.toHtml(filepath=filepath)
+        return self.builder.html
+    
+    def showTemplate(self,value):
+        self.showTemplateContent = value
+
+    def setTemplates(self,templates):
+        self.templates = templates
+        
+    def getTemplates(self,templates):
+        return self.templates
         
     def initializeBuilder(self):
         self.builder.initializeSrc()
         self.body = self.builder.body
         self.getNewPage = self.builder.newPage
         self.builder.styleForLayout()
-
-class RecordToHtmlMail(RecordToHtmlPage):
-    pass
     
-class RecordToHtmlNew(RecordToHtmlPage):
+    def getData(self,path,default=None):
+        wildchars = []
+        if path[0] in wildchars:
+            value='not yet implemented'
+        else:
+            value=self._data.getItem(path, default)
+        return value
+    
+    def setData(self,path,value,**kwargs):
+        self._data.setItem(path,value,**kwargs)
+        
     def onRecordExit(self, recordBag):
         return
-        
-    def hmtlFolderPath(self):
-        return self.getFolderPath(*self.html_folder.split('/'))
-        
-    def pdfFolderPath(self):
-        return self.getFolderPath(*self.pdf_folder.split('/'))
         
     def field(self, path, default=None, locale=None,
                     format=None, mask=None,root=None,**kwargs):
@@ -266,8 +203,9 @@ class RecordToHtmlNew(RecordToHtmlPage):
         lines=self.getData(self.rows_path)
         if lines:
             nodes = lines.getNodes()
-            if self.thermoKwargs:
-                nodes = self.page.btc.thermo_wrapper(nodes,**self.thermoKwargs)
+            if hasattr(self,'thermo_wrapper') and self.thermo_kwargs:
+                nodes = self.thermo_wrapper(nodes,**self.thermo_kwargs)
+                
             for rowDataNode in nodes:
                 self.currRowDataNode = rowDataNode
                 for copy in range(self.copies_per_page):
@@ -473,99 +411,3 @@ class RecordToHtmlNew(RecordToHtmlPage):
                         }
                          """)
                          
-                         
-class RecordToHtml(TableScriptOnRecord):
-    maintable=''
-    templates = ''
-    html_folder = '*connections/html'
-    pdf_folder = '*connections/pdf'
-    encoding= 'utf-8'
-    page_debug = False
-    page_width = 200
-    page_height = 280
-    print_button = None
-    page_margin_top = 0
-    page_margin_left = 0
-    page_margin_right = 0
-    page_margin_bottom = 0
-    htmlTemplate = None
-
-        
-    def init(self,**kwargs):
-        self.maintable=self.maintable or self.resource_table
-        self.maintable_obj=self.db.table(self.maintable)
-        if self.templates:
-            self.htmlTemplate = self.db.table('adm.htmltemplate').getTemplate(self.templates)
-        self.builder = GnrHtmlBuilder(page_width=self.page_width,page_height=self.page_height,
-                                      page_margin_top=self.page_margin_top,page_margin_bottom=self.page_margin_bottom,
-                                      page_margin_left=self.page_margin_left,page_margin_right=self.page_margin_right,
-                                      page_debug=self.page_debug,print_button=self.print_button,htmlTemplate=self.htmlTemplate)
-        
-    def __call__(self, record=None, filepath=None,
-                       rebuild=False, dontSave=False, pdf=False, runKwargs=None,**kwargs):
-        """This method returns the html corresponding to a given record.
-           the html can be loaded from a cached document or created if still doesn't exist.
-        """
-        if not record:
-            return
-        self.loadRecord(record, **kwargs)
-        if kwargs:
-            self._data['kwargs']=Bag()
-            for k,v in kwargs.items():
-                self._data['kwargs.%s' % k] = v
-                            
-        #if not (dontSave or pdf):
-        self.filepath=filepath or os.path.join(self.hmtlFolderPath(),self.outputDocName(ext='html'))
-        #else:
-        #    self.filepath = None
-        if rebuild or not os.path.isfile(self.filepath):
-            html=self.createHtml(filepath=self.filepath , **kwargs)
-            
-        else:
-            with open(self.filepath,'r') as f:
-                html=f.read()
-        if pdf:
-            temp = tempfile.NamedTemporaryFile(suffix='.pdf')
-            self.page.getService('print').htmlToPdf(self.filepath, temp.name)
-            with open(temp.name,'rb') as f:
-                html=f.read()
-        return html
-        
-    def createHtml(self, filepath=None, **kwargs):
-        #filepath = filepath or self.filepath
-        self.initializeBuilder()
-        self.main()
-        self.builder.toHtml(filepath=filepath)
-        return self.builder.html
-        
-    def initializeBuilder(self):
-        self.builder.initializeSrc()
-        self.body = self.builder.body
-        self.getNewPage = self.builder.newPage
-        self.builder.styleForLayout()
-        
-    def hmtlFolderPath(self):
-        return self.getFolderPath(*self.html_folder.split('/'))
-        
-    def pdfFolderPath(self):
-        return self.getFolderPath(*self.pdf_folder.split('/'))
-        
-    def field(self, path, default=None, locale=None,
-                    format=None, mask=None,root=None):
-        root=root or self._data['record']
-        datanode=root.getNode(path, default)
-        value = datanode.value
-        attr=datanode.attr
-        if value is None:
-            value=default
-        if isinstance(value,Bag):
-            return value
-        format= format or attr.get('format')
-        mask= mask or attr.get('mask')
-        return self.toText(value,locale,format, mask, self.encoding)
-
-    def toText(self, obj, locale=None, format=None, mask=None, encoding=None):
-        locale = locale or self.locale
-        encoding = locale or self.encoding
-        return toText(obj, locale=locale, format=format, mask=mask, encoding=encoding)
-        

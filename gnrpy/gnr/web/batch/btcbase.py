@@ -7,6 +7,8 @@ Created by Francesco Porcari on 2010-10-16.
 Copyright (c) 2010 Softwell. All rights reserved.
 """
 
+from gnr.core.gnrbag import Bag
+
 class BaseResourceBatch(object):
     batch_prefix = 'BB'
     batch_thermo_lines = 'batch_steps,batch_main,ts_loop'
@@ -21,12 +23,14 @@ class BaseResourceBatch(object):
     def __init__(self,page=None,resource_table=None):
         self.page = page
         self.db = self.page.db
-        self.resource_table = resource_table
+        self.maintable = resource_table
+        self.tblobj = self.db.table(self.maintable)
         self.btc = self.page.btc
+        self.results = Bag()
         self._pkeys=None
     
     def x__call__(self,batch_note=None,**kwargs):
-        self.batch_parameters = kwargs['parameters']
+        self.batch_parameters = dict(kwargs['parameters'] or {})
         self.batch_note = batch_note
         try:
             self.run()
@@ -40,7 +44,7 @@ class BaseResourceBatch(object):
                 self.btc.batch_error(error=str(e))
                 
     def __call__(self,batch_note=None,**kwargs):
-        self.batch_parameters = kwargs['parameters']
+        self.batch_parameters = dict(kwargs['parameters'] or {})
         self.batch_note = batch_note
         self.run()
         result,result_attr = self.result_handler()
@@ -62,6 +66,9 @@ class BaseResourceBatch(object):
                     self.btc.thermo_line_del(line_code)
         else:
             self.do()
+    
+    def storeResult(self,key,result):
+        self.result[key] = result
     
     def batchUpdate(self, updater=None, table = None, where=None, line_code=None, message=None, **kwargs ):
         table = table or self.page.maintable
@@ -103,6 +110,14 @@ class BaseResourceBatch(object):
         selection = self.page.getUserSelection(selectionName=self.selectionName,
                                          selectedRowidx=self.selectedRowidx)
         return selection
+    
+    def get_records(self):
+        pkeys = self.get_selection_pkeys()
+        for pkey in pkeys:
+            yield self.get_record(pkey)
+    
+    def get_record(self,pkey):
+        return self.tblobj.record(pkey).output('bag')
         
     def get_selection_pkeys(self):
         if self._pkeys is None:
