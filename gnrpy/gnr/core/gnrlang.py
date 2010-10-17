@@ -141,16 +141,18 @@ def moduleDict(module,proplist):
     return result
 
 def gnrImport(source, importAs=None, avoidDup=False):
+    modkey=source
+    if '/' in source:
+        if avoidDup and not importAs:
+            importAs= os.path.splitext(source)[0].replace('/', '_').replace('.','_')
+        modkey=importAs or os.path.splitext(os.path.basename(source))[0]
     try:
-        m=sys.modules[source]
+        m=sys.modules[modkey]
         return m
     except KeyError:
         pass
     path=None
-    if os.path.isfile(source) or '/' in source:
-        if avoidDup and not importAs:
-            importAs= os.path.splitext(source)[0].replace('/', '_').replace('.','_')
-            
+    if '/' in source:
         path=[os.path.dirname(source)]
         source=os.path.splitext(os.path.basename(source))[0]
     segments=source.split('.')
