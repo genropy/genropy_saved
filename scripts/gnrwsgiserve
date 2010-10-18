@@ -2,11 +2,7 @@
 # encoding: utf-8
 
 from gnr.web.server import NewServer
-from gnr.core.gnrlog import enable_colored_logging
-
-import logging
 
 if __name__ == '__main__':
-    enable_colored_logging(level=logging.WARN)
     server=NewServer()
     server.run()
