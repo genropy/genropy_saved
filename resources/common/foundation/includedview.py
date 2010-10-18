@@ -98,10 +98,13 @@ class IncludedView(BaseComponent):
         @params kwargs: you have to put the includedView params: autowidth, storepath, etc.
         """
         if storepath:
-            assert not storepath.startswith('^') and not storepath.startswith('='), "storepath should be a plain datapath, no ^ or ="
+            assert not storepath.startswith('^') and not storepath.startswith('='), \
+                "storepath should be a plain datapath, no ^ or ="
         if not datapath:
             if storepath.startswith('.'):
-                storepath = '%s%s' % (parentBC.parentNode.getInheritedAttributes()['sqlContextRoot'], storepath)
+                inherited_attributes = parentBC.parentNode.getInheritedAttributes()
+                assert inherited_attributes.has_key('sqlContextRoot'), 'please specify an absolute storepath, if sqlContextRoot is not available'
+                storepath = '%s%s' % (inherited_attributes['sqlContextRoot'], storepath)
         viewPars = dict(kwargs)
         gridId = nodeId or self.getUuid()
         viewPars['nodeId'] = gridId
