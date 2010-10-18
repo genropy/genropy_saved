@@ -8,6 +8,7 @@ from paste import fileapp
 from paste.httpheaders import ETAG
 import random
 
+
 class StaticHandlerManager(object):
     """ This class handles the StaticHandlers"""
     
@@ -63,7 +64,6 @@ class StaticHandler(object):
     
     def absolute_url(self,external=True, *args):
         pass
-
     def serve(self,path_list,environ,start_response,download=False,**kwargs):
         fullpath = self.path(*path_list[1:])
         if fullpath and not os.path.isabs(fullpath):
@@ -149,17 +149,21 @@ class GnrStaticHandler(StaticHandler):
         
 class ConnectionStaticHandler(StaticHandler):
     prefix='conn'
-    def path(self,connection_id,page_id,*args):
-        return os.path.join(self.site.site_path,'data','_connections', connection_id, page_id, *args)
+    def path(self,*args):
+        currentPage=self.site.currentPage
+        return os.path.join(self.site.site_path,'data','_connections', currentPage.connection_id, currentPage.page_id, *args)
         
-    def url(self, connection_id, page_id ,*args):
-        return '%s_conn/%s/%s/%s'%(self.home_uri,connection_id, page_id,'/'.join(args))
+    def url(self,*args):
+        currentPage=self.site.currentPage
+        return '%s_conn/%s/%s/%s'%(self.home_uri,currentPage.connection_id, currentPage.page_id,'/'.join(args))
 
 
 class UserStaticHandler(StaticHandler):
     prefix='user'
-    def path(self,user,*args):
-        return os.path.join(self.site.site_path,'data','_users', user, *args)
+    def path(self,*args):
+        currentPage=self.site.currentPage
+        return os.path.join(self.site.site_path,'data','_users', currentPage.user, *args)
         
-    def url(self, user,*args):
-        return '%s_user/%s/%s'%(self.home_uri,user,'/'.join(args))
+    def url(self, *args):
+        currentPage=self.site.currentPage
+        return '%s_user/%s/%s'%(self.home_uri,currentPage.user,'/'.join(args))

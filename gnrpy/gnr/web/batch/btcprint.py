@@ -23,21 +23,24 @@ class BaseResourcePrint(BaseResourceBatch):
         self.batch_options = self.batch_parameters['batch_options']
         self.print_mode = self.batch_options['print_mode']
         self.print_options = self.batch_options['print_mode_option']
-        self.print_handler = self.page.getService('print')             #porting stuff
-        self.folder = self.htmlMaker.pdfFolderPath()         #porting stuff
-        if self.print_mode=='pdf':
-            filename= self.print_options['save_as'] or self.batch_prefix
-            self.print_connection = self.print_handler.getPrinterConnection('PDF', self.print_options)
-            self.output_file_path = self.page.userDocument('output','pdf',filename)
+        self.print_handler = self.page.getService('print')           
+       #self.folder = self.htmlMaker.pdfFolderPath()         #porting stuff
+       #if self.print_mode=='pdf':
+       #    filename= self.print_options['save_as'] or self.batch_prefix
+       #    self.print_connection = self.print_handler.getPrinterConnection('PDF', self.print_options)
+       #    self.output_file_path = self.page.userDocument('output','pdf',filename)
     
     def result_handler(self):
         resultAttr = dict()
         if self.print_mode=='direct':
             print x
         elif self.print_mode=='pdf':
+            print y
             filename = self.print_connection.printFiles(self.file_list, 'GenroPrint', outputFilePath=self.output_file_path)
             if filename:
                 resultAttr['url'] = self.page.userDocumentUrl('output','pdf',filename)
+        else:
+            print z
         return 'Execution completed',resultAttr
     
     def table_script_option_pane(self,pane):

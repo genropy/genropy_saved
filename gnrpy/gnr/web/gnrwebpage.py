@@ -881,7 +881,9 @@ class GnrWebPage(GnrBaseWebPage):
             import mimetypes
             self.response.content_type = mimetypes.guess_type(downloadAs)[0]
             self.response.add_header("Content-Disposition",str("attachment; filename=%s"%downloadAs))
-        return self.site.callTableScript(page=self, table=table, respath=respath, class_name=class_name, **kwargs)
+        print downloadAs
+        return self.site.callTableScript(page=self, table=table, respath=respath, class_name=class_name,
+                                        downloadAs=downloadAs, **kwargs)
         
     def rpc_remoteBuilder(self,handler=None,**kwargs):
         handler = self.getPublicMethod('remote',handler)

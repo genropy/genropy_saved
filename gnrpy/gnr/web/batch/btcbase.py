@@ -23,14 +23,15 @@ class BaseResourceBatch(object):
     def __init__(self,page=None,resource_table=None):
         self.page = page
         self.db = self.page.db
-        self.maintable = resource_table
-        self.tblobj = self.db.table(self.maintable)
+        self.tblobj = resource_table
+        self.maintable = resource_table.fullname
         self.btc = self.page.btc
         self.results = Bag()
         self._pkeys=None
     
     def x__call__(self,batch_note=None,**kwargs):
-        self.batch_parameters = dict(kwargs['parameters'] or {})
+        parameters = kwargs['parameters']
+        self.batch_parameters = parameters.asDict(True) if parameters else {}
         self.batch_note = batch_note
         try:
             self.run()
@@ -44,7 +45,8 @@ class BaseResourceBatch(object):
                 self.btc.batch_error(error=str(e))
                 
     def __call__(self,batch_note=None,**kwargs):
-        self.batch_parameters = dict(kwargs['parameters'] or {})
+        parameters = kwargs['parameters']
+        self.batch_parameters = parameters.asDict(True) if parameters else {}
         self.batch_note = batch_note
         self.run()
         result,result_attr = self.result_handler()
