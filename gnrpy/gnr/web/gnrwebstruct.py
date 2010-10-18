@@ -177,6 +177,7 @@ class GnrDomSrc(GnrStructData):
     def data(self, *args, **kwargs):
         value = None
         className=None
+        path=None
         if len(args)==1:
             if not kwargs:
                 value=args[0]
@@ -507,9 +508,7 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
         return wdgattr
         
     def wdgAttributesFromColumn(self, fieldobj, **kwargs):
-        result={}
-        result['lbl']=fieldobj.name_long        
-        result['dbfield'] = fieldobj.fullname
+        result= {'lbl': fieldobj.name_long, 'dbfield': fieldobj.fullname}
         dtype=result['dtype']=fieldobj.dtype
         if dtype in ('A','C'):
             size=fieldobj.attributes.get('size','20')
@@ -750,13 +749,14 @@ class GnrFormBuilder(object):
         row=self.getRow(r)
         row_attributes = dict()
         lbl=''
+        lblvalue=None
         tag=None
         rowspan,colspan=1,1
         lblalign, fldalign = self.lblalign, self.fldalign
         lblvalign, fldvalign = self.lblvalign, self.fldvalign
         lbl_kwargs={}
         lblhref=None
-        if field != None:
+        if field is not None:
             lbl=field.pop('lbl','')
             if 'lbl_href' in field:
                 lblhref=field.pop('lbl_href')
@@ -837,7 +837,6 @@ class GnrFormBuilder(object):
                     row[1].delItem('c_%i' %cs)
             
         if tag:
-            tagHandler = getattr(td,tag)
             ghost = field.pop('ghost',None)
             if ghost:
                 if ghost is True:

@@ -51,8 +51,6 @@ from gnr.core.gnrlang import gnrImport, GnrException
 from gnr.core.gnrbag import Bag
 from gnr.core.gnrlang import deprecated
 
-from gnr.web.gnrbaseclasses import BaseComponent
-
 import datetime
 
 AUTH_OK=0
@@ -402,6 +400,7 @@ class GnrWebPage(GnrBaseWebPage):
         return txt
 
     def getPublicMethod(self, prefix, method):
+        handler = None
         if '.' in method:
             proxy_name, submethod = method.split('.',1)
             proxy_object = getattr(self, proxy_name, None)
