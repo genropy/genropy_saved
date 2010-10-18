@@ -97,6 +97,8 @@ class IncludedView(BaseComponent):
                                        to replace that row instead of adding a duplicate row.
         @params kwargs: you have to put the includedView params: autowidth, storepath, etc.
         """
+        if storepath:
+            assert not storepath.startswith('^') and not storepath.startswith('='), "storepath should be a plain datapath, no ^ or ="
         if not datapath:
             if storepath.startswith('.'):
                 storepath = '%s%s' % (parentBC.parentNode.getInheritedAttributes()['sqlContextRoot'], storepath)
