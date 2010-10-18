@@ -135,10 +135,10 @@ class GnrPackage(object):
         self.tableMixinDict = {}
         self.loadTableMixinDict(self.main_module, self.packageFolder)
         if os.path.isdir(self.customFolder):
-            self.loadTableMixinDict(self.custom_module, self.customFolder)
+            self.loadTableMixinDict(self.custom_module, self.customFolder, 'custom_')
         self.configure()
         
-    def loadTableMixinDict(self, module, folder):
+    def loadTableMixinDict(self, module, folder, model_prefix=''):
         tbldict = {}
         if module:
             tbldict = dict([(x[6:], getattr(module, x)) for x in dir(module) if x.startswith('Table_')])
@@ -153,7 +153,7 @@ class GnrPackage(object):
                 instanceMixin(self.tableMixinDict[tbl], self.baseTableMixinCls)
                 instanceMixin(self.tableMixinDict[tbl], self.baseTableMixinClsCustom)
             if not cls: 
-                tbl_module = gnrImport(os.path.join(modelfolder, '%s.py' % tbl), 'model_of_%s_%s' % (self.id,tbl))
+                tbl_module = gnrImport(os.path.join(modelfolder, '%s.py' % tbl), '%smodel_of_%s_%s' % (model_prefix,self.id,tbl))
                 instanceMixin(self.tableMixinDict[tbl], getattr(tbl_module, 'Table', None))
                 self.tableMixinDict[tbl]._plugins = dict()
                 for cname in dir(tbl_module):
