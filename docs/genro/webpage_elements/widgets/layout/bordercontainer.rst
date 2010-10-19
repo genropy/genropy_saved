@@ -12,7 +12,7 @@
 
 	- :ref:`border-common-attributes`
 	
-	- attributes explanation: :ref:`border-regions`, :ref:`border-splitter`
+	- attributes explanation: :ref:`border-regions`, :ref:`border_splitter`
 
 	.. _border-definition:
 
@@ -33,16 +33,16 @@ Examples
 Simple example
 ==============
 
-Here we show you a simple code containing a ``border container``::
+	Here we show you a simple code containing a ``border container``::
 
-	class GnrCustomWebPage(object):
-		def main(self,root,**kwargs):
-			bc = pane.borderContainer(height='400px')
-			top = bc.contentPane(region='top',height='5em',background_color='#f2c922')
-			center = bc.contentPane(region='center',background_color='silver',padding='10px')
-			left = bc.contentPane(region='left',width='100px',background_color='red',splitter=True)
-			right = bc.contentPane(region='right',width='80px',background_color='yellow')
-			bottom = bc.contentPane(region='bottom',height='80px',background_color='grey')
+		class GnrCustomWebPage(object):
+			def main(self,root,**kwargs):
+				bc = pane.borderContainer(height='400px')
+				top = bc.contentPane(region='top',height='5em',background_color='#f2c922')
+				left = bc.contentPane(region='left',width='100px',background_color='red',splitter=True)
+				right = bc.contentPane(region='right',width='80px',background_color='yellow')
+				bottom = bc.contentPane(region='bottom',height='80px',background_color='grey')
+				center = bc.contentPane(region='center',background_color='silver',padding='10px')
 
 .. #NISO ??? Add a demo!
 
@@ -54,12 +54,12 @@ Attributes
 	+--------------------+----------------------------------------------------+--------------------------+
 	|   Attribute        |          Description                               |   Default                |
 	+====================+====================================================+==========================+
-	| ``regions``        | Allow to act on regions.                           |  ``None``                |
-	|                    | Check the :ref:`border-regions` example            |                          |
+	| ``regions``        | borderContainer's attribute. Allow to act on       |  ``None``                |
+	|                    | regions. Check the :ref:`border-regions` example   |                          |
 	+--------------------+----------------------------------------------------+--------------------------+
-	| ``splitter``       | Attribute of borderContainer's children.           |  ``False``               |
+	| ``splitter``       | borderContainer's children attribute.              |  ``False``               |
 	|                    | If true, it allows to modify the region width.     |                          |
-	|                    | For more information, check :ref:`border-splitter` |                          |
+	|                    | For more information, check :ref:`border_splitter` |                          |
 	|                    | page                                               |                          |
 	+--------------------+----------------------------------------------------+--------------------------+
 
@@ -69,11 +69,6 @@ Common attributes
 =================
 
 	For common attributes, see :ref:`genro-layout-common-attributes`
-
-	.. _border-splitter:
-
-Splitter attribute
-==================
 
 	.. _border-regions:
 
@@ -128,5 +123,27 @@ Regions attribute
 				               (in pixel) of the left pane (you can see its dimension only after the first move
 				               you made on it).""")
 
-	??? Add online demo! #NISO
-		
+.. ??? Add online demo! #NISO
+
+.. _border_splitter:
+
+Splitter attribute
+==================
+
+	Here we show you an example for the ``splitter`` attribute::
+
+		class GnrCustomWebPage(object):
+			def main(self,root,**kwargs):
+				bc = pane.borderContainer(height='400px')
+				top = bc.contentPane(region='top',height='5em',
+				                     background_color='#f2c922',splitter=True)
+				center = bc.contentPane(region='center',background_color='silver',
+				                        padding='10px',splitter=True)
+				left = bc.contentPane(region='left',width='100px',
+				                      background_color='red',splitter=True)
+				right = bc.contentPane(region='right',width='80px',
+				                       background_color='yellow',splitter=True)
+				bottom = bc.contentPane(region='bottom',height='80px',
+				                        background_color='grey',splitter=True)
+
+.. #NISO ??? Add a demo!

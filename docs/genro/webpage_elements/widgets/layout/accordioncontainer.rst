@@ -55,7 +55,8 @@ Attributes
 	+--------------------+----------------------------------------------------+--------------------------+
 	|   Attribute        |          Description                               |   Default                |
 	+====================+====================================================+==========================+
-	| ``title``          | Set the title of a accordionPane.                  |  ``None``                |
+	| ``title``          | accordionContainer's children attribute.           |  ``None``                |
+	|                    | Set the title of an accordionPane.                 |                          |
 	+--------------------+----------------------------------------------------+--------------------------+
 
 	.. _accordion-common-attributes:
