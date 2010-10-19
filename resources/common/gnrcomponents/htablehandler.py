@@ -42,7 +42,7 @@ class HTableResolver(BagResolver):
     def load(self):
         db= self._page.db
         tblobj = db.table(self.table) 
-        rows = tblobj.query(columns='*,$child_count,$hdescription',where="COALESCE($parent_code,'')=:rootpath" ,
+        rows = tblobj.query(columns='*,$child_code,$child_count,$description',where="COALESCE($parent_code,'')=:rootpath" ,
                      rootpath=self.rootpath or '',order_by='$child_code').fetch()
         children = Bag()
         for row in rows:
@@ -56,7 +56,7 @@ class HTableResolver(BagResolver):
             children.setItem(row['child_code'], value,
                              caption=tblobj.recordCaption(row,rowcaption=get_tree_row_caption(tblobj)),
                              pkey=row['pkey'],code=row['code'],child_count=child_count,checked=False,
-                             parent_code=row['parent_code'],hdescription=row['hdescription'])#_attributes=dict(row),
+                             parent_code=row['parent_code'],description=row['description'])#_attributes=dict(row),
         return children
         
     def resolverSerialize(self):
