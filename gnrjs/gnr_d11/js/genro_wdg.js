@@ -32,7 +32,8 @@ dojo.declare("gnr.GnrWdgHandler",null,{
         this.noConvertStyle={
             'table' :[ 'width', 'border'],
             'editor' :[ 'height'],
-            'embed':['width','height']};
+            'embed':['width','height'],
+            'img':['width','height']};
         this.tagParameters={};
         this.tagParameters['button']={'caption':'input'};
         this.tagParameters['contentpane']={'label':'input','layoutAlign':'select:top,bottom,left,right,client'};
