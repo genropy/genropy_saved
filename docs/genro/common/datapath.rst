@@ -39,7 +39,7 @@ Datapath description
 Datapath validity
 =================
 
-	You can give "datapath" attribute to each object, but it is useful give this attribute only to the objects that contain other objects (so give this attribute to container objects).
+	You can give "datapath" attribute to each object, but it is useful give this attribute only to the objects that contain other objects (so give this attribute to container objects, that are :ref:`genro-accordioncontainer`, :ref:`genro-bordercontainer`, :ref:`genro-stackcontainer`, :ref:`genro-tabcontainer`).
 
 	.. _data-examples:
 

@@ -4,6 +4,9 @@
  Standard table
 ================
 
+	??? explain that standard table is an "active" component (active = get the "def main" from Genro...)
+
+
 	<ZOOM>	
 		??? parlare dello zoom!
 		

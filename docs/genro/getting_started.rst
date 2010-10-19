@@ -8,10 +8,9 @@
 	:maxdepth: 3
 
 	installation
-	datastore
-	widgets/index
+	webpage_elements/index
+	datastore/index
 	common/index
 	bag/index
-	datacontroller/index
 	ui/index
 	validations/index

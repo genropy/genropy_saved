@@ -28,7 +28,7 @@ Create a Genro project
 
 		gnrmkproject ProjectName
 	
-	This will create a folder with the project name you have chosen, and 4 subfolders called ``Instances``, ``Packages``, ``Resources``, ``Sites``, as you can see in this image (in this case the name of the project is "MyProject"):
+	This will create a folder with the project name you have chosen, and 4 subfolders called ``Instances``, ``Packages``, ``Resources``, ``Sites``, as you can see in this image (in this case the name of the project is "myproject"):
 
 	.. image:: myproject.png
 
@@ -46,7 +46,7 @@ Create a Genro project
 
 	.. image:: myproject2.png
 
-	In the next section we'll see all the details of a project's subfolders.
+	In the next section we'll see all the details of the project's subfolders.
 
 	.. _genro-project-structure:
 
