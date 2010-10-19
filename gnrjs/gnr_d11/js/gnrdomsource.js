@@ -959,6 +959,7 @@ dojo.declare("gnr.GnrDomSourceNode",gnr.GnrBagNode,{
        
     },
     updateRemoteContent:function(forceUpdate){
+        var _onRemote = false;
         var currentValue = this.getValue('static');
         if (currentValue && currentValue.len()>0 && !forceUpdate){
             return;
@@ -975,15 +976,21 @@ dojo.declare("gnr.GnrDomSourceNode",gnr.GnrBagNode,{
                 var sendattr = attrname.slice(7);
                 if (sendattr.indexOf('_')!=0){
                     kwargs[sendattr] = value; 
+                } else if(sendattr == '_onRemote') {
+                    _onRemote = funcCreate(value, '', this);
                 }
             }
         }
         var method=this.attr.remote;
         var _sourceNode=this;
         kwargs.sync=true;
-        genro.rpc.remoteCall(method, kwargs, null, null, null, function(result){
-                                             _sourceNode.setValue(result);
-                                             });
+        genro.rpc.remoteCall(method, kwargs, null, null, null,
+                            function(result){
+                                _sourceNode.setValue(result);
+                                if(_onRemote) {
+                                    _onRemote();
+                                }
+                            });
     },
     getValidationError: function(){
         if (this._validations){
