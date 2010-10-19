@@ -36,6 +36,7 @@ class HTableResolver(BagResolver):
                  'readOnly':False,
                  'table':None,
                  'rootpath':None,
+                 'limit_rec_type':None,
                  '_page':None}
     classArgs=['table','rootpath']
             
@@ -47,7 +48,15 @@ class HTableResolver(BagResolver):
         children = Bag()
         for row in rows:
             child_count= row['child_count']
-            value=HTableResolver(table=self.table,rootpath=row['code'],child_count=child_count,_page=self._page) if child_count else None
+            limit_condition = True
+            if self.limit_rec_type:
+                limit_condition = row['rec_type'] !=self.limit_rec_type
+            if child_count and limit_condition:
+                value = HTableResolver(table=self.table,rootpath=row['code'],
+                                        limit_rec_type=self.limit_rec_type,
+                                        child_count=child_count,_page=self._page)  
+            else:
+                value = None
             description = row['description']
             if description:
                 get_tree_row_caption = _getTreeRowCaption
@@ -65,7 +74,7 @@ class HTableResolver(BagResolver):
         
 class HTableHandlerBase(BaseComponent):
     
-    def ht_treeDataStore(self,table=None,rootpath=None,rootcaption=None):
+    def ht_treeDataStore(self,table=None,rootpath=None,limit_rec_type=None,rootcaption=None):
         tblobj= self.db.table(table)
         result = Bag()
         if rootpath:
@@ -91,7 +100,7 @@ class HTableHandlerBase(BaseComponent):
             code=None
             rootpath=None
             child_count = tblobj.query().count()
-        value =  HTableResolver(table=table,rootpath=rootpath,_page=self) if child_count else None
+        value =  HTableResolver(table=table,rootpath=rootpath,limit_rec_type=limit_rec_type,_page=self) if child_count else None
         result.setItem(rootlabel,value,child_count=child_count, caption=caption,pkey=pkey,code=code,checked=False)#,_attributes=_attributes)
         return result
                     
@@ -352,7 +361,7 @@ class HTableHandler(HTableHandlerBase):
 class HTablePicker(HTableHandlerBase):
     py_requires='foundation/dialogs,foundation/includedview:IncludedView'
     
-    def htablePicker(self,parent,table=None,rootpath=None,
+    def htablePicker(self,parent,table=None,rootpath=None,limit_rec_type=None,
                     input_codes=None,
                     output_codes=None,
                     output_pkeys=None,
@@ -362,7 +371,7 @@ class HTablePicker(HTableHandlerBase):
                     condition=None,condition_pars=None,
                     editMode='dlg',**kwargs):
         
-        self._htablePicker_main(parent,table=table,rootpath=rootpath,
+        self._htablePicker_main(parent,table=table,rootpath=rootpath,limit_rec_type=limit_rec_type,
                                 input_codes=input_codes,output_codes=output_codes,
                                 output_pkeys=output_pkeys,
                                 nodeId=nodeId,grid_show=grid_show,
@@ -371,7 +380,7 @@ class HTablePicker(HTableHandlerBase):
                                 condition=condition,condition_pars=condition_pars)
     
     
-    def htablePickerOnRelated(self,parent,table=None,rootpath=None,
+    def htablePickerOnRelated(self,parent,table=None,rootpath=None,limit_rec_type=None,
                             input_pkeys=None,output_pkeys=None,
                             related_table=None,relation_path=None,
                             nodeId=None,datapath=None,dialogPars=None,
@@ -381,6 +390,7 @@ class HTablePicker(HTableHandlerBase):
             
             
         self._htablePicker_main(parent,table=table,rootpath=rootpath,
+                        limit_rec_type=limit_rec_type,
                         related_table=related_table,
                         relation_path=relation_path,
                         input_pkeys=input_pkeys or '',output_related_pkeys=output_pkeys,nodeId=nodeId,grid_filter=grid_filter,
@@ -388,7 +398,7 @@ class HTablePicker(HTableHandlerBase):
                         condition=condition,condition_pars=condition_pars,editMode=editMode,default_checked_row=default_checked_row)
     
     
-    def _htablePicker_main(self,parent,table=None,rootpath=None,
+    def _htablePicker_main(self,parent,table=None,rootpath=None,limit_rec_type=None,
                     input_pkeys=None,
                     input_codes=None,
                     output_pkeys=None,
@@ -465,6 +475,7 @@ class HTablePicker(HTableHandlerBase):
                         rootpath=rootpath,rootcaption=tblobj.name_plural,
                         input_pkeys=input_pkeys,input_codes=input_codes,
                         relation_path=relation_path,related_table=related_table,
+                        limit_rec_type=limit_rec_type,
                         nodeId='%s_loader' %nodeId,
                         _onResult="""FIRE .reload_tree;
                                      FIRE .prepare_check_status;
@@ -509,10 +520,10 @@ class HTablePicker(HTableHandlerBase):
                         treedata='=.data.tree')
         
   
-    def rpc_ht_pk_getTreeData(self,table=None,rootpath=None,rootcaption=None,
+    def rpc_ht_pk_getTreeData(self,table=None,rootpath=None,limit_rec_type=None,rootcaption=None,
                              input_codes=None,input_pkeys=None,related_table=None,
                              relation_path=None):
-        result = self.ht_treeDataStore(table=table,rootpath=rootpath,rootcaption=rootcaption)
+        result = self.ht_treeDataStore(table=table,rootpath=rootpath,limit_rec_type=limit_rec_type,rootcaption=rootcaption)
         htableobj = self.db.table(table)
         if related_table:
             if input_pkeys:

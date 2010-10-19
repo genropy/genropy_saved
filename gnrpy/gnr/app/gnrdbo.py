@@ -134,6 +134,8 @@ class GnrHTable(TableBase):
                         ELSE ((SELECT description FROM  %s AS ptable WHERE ptable.code = #THIS.parent_code) || '-' || #THIS.description)
                         END
                         """%tblname)
+        if not 'rec_type' in columns:
+            tbl.column('rec_type',name_long='!!Type')
 
 
     def trigger_onInserting(self, record_data):

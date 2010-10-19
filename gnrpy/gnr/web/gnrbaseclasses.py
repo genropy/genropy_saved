@@ -115,11 +115,9 @@ class TableScriptToHtml(BagToHtml):
         self.thermo_kwargs = dictExtract(kwargs,'thermo_',pop=True)
         html_folder = self.getHtmlPath(autocreate=True)
         pdf_folder = self.getPdfPath(autocreate=True)
-                
         html = super(TableScriptToHtml, self).__call__(record=record,folder=html_folder,**kwargs)
         if not pdf:
             return html
-            
         docname = os.path.splitext(os.path.basename(self.filepath))[0]
         self.pdfpath = self.getPdfPath('%s.pdf' %docname)
         self.print_handler.htmlToPdf(self.filepath, self.pdfpath)
@@ -128,10 +126,7 @@ class TableScriptToHtml(BagToHtml):
                 result=f.read()
             return result
         else:
-            return self.getPdfUlr('%s.pdf' %docname)
-        
-        
-        
+            return self.pdfpath
            #with open(temp.name,'rb') as f:
            #    result=f.read()
     

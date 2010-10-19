@@ -70,7 +70,7 @@ class BaseResourceBatch(object):
             self.do()
     
     def storeResult(self,key,result):
-        self.result[key] = result
+        self.results[key] = result
     
     def batchUpdate(self, updater=None, table = None, where=None, line_code=None, message=None, **kwargs ):
         table = table or self.page.maintable

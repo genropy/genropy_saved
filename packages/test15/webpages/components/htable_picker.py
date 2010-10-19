@@ -32,7 +32,7 @@ class GnrCustomWebPage(object):
                             related_table=self.related_table,
                             input_pkeys='=.#parent.pkeys',
                             output_pkeys='.#parent.output_pkeys',
-                            relation_path=self.relation_path,
+                            relation_path=self.relation_path,leaf_type='livello_due',
                             nodeId='picker_2',datapath='.struct_picker')
                             
                             

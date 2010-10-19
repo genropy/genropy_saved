@@ -296,15 +296,25 @@ class GnrWsgiSite(object):
     def getStaticPath(self,static,*args,**kwargs):
         autocreate = kwargs.get('autocreate',False)
         static_name,static_path = static.split(':')
-        dest_dir= self.getStatic(static_name).path(static_path,*args)
+        args=self.adaptStaticArgs(static_name, static_path, args)
+        dest_dir= self.getStatic(static_name).path(*args)
         if autocreate and not os.path.exists(dest_dir):
             os.makedirs(dest_dir)
         return dest_dir
 
+
     def getStaticUrl(self,static,*args):
         static_name,static_url = static.split(':')
-        return self.getStatic(static_name).url(static_url,*args)
+        args=self.adaptStaticArgs(static_name,static_url, args)
+        return self.getStatic(static_name).url(*args)
 
+    def adaptStaticArgs(self,static_name, static_path,args):
+        args=tuple(static_path.split('/'))+args
+        if static_name=='user':
+            args=(self.currentPage.user,)+args #comma does matter
+        elif static_name=='conn':
+            args=(self.currentPage.connection_id,self.currentPage.page_id)+args
+        return args
 
     def getStatic(self,static_name):
         return self.statics.get(static_name)
