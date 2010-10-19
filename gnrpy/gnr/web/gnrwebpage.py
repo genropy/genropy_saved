@@ -50,7 +50,7 @@ from gnr.web.gnrwebstruct import GnrGridStruct
 from gnr.core.gnrlang import gnrImport, GnrException
 from gnr.core.gnrbag import Bag
 from gnr.core.gnrlang import deprecated
-from gnr.web.gnrbaseclasses import BaseComponent
+from gnr.web.gnrbaseclasses import BaseComponent # DO NOT REMOVE, old code relies on BaseComponent being defined in this file
 
 import datetime
 
