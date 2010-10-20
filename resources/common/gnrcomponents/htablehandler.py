@@ -105,9 +105,11 @@ class HTableHandlerBase(BaseComponent):
         return result
                     
 class HTableHandler(HTableHandlerBase):
+    py_require='gnrcomponents/selectionhandler:SelectionHandler'
     css_requires='public'
     def htableHandler(self,parent,nodeId=None,datapath=None,table=None,rootpath=None,label=None,
-                    editMode='bc',childTypes=None,dialogPars=None,loadKwargs=None,parentLock=None,where=None,onChecked=None):
+                    editMode='bc',childTypes=None,dialogPars=None,loadKwargs=None,parentLock=None,
+                    where=None,onChecked=None,plainView=False):
         """
         .tree: tree data:
                         store
@@ -128,6 +130,14 @@ class HTableHandler(HTableHandlerBase):
                                     _if='parentLock!=isLocked',datapath=datapath)
                                         
         formPanePars = dict(selectedPage='^.edit.selectedPage',_class='pbl_roundedGroup')
+        
+        if plainView:
+            tc = parent.tabContainer(nodeId='%s_tc' %nodeId,region='center')
+            parent = tc.contentPane(title='!!Hierarchical')
+            self.ht_plainView(tc.borderContainer(title='!!Plain',datapath=datapath),table=table,nodeId=nodeId,disabled=disabled,
+                    rootpath=rootpath,childTypes=childTypes,editMode=editMode,label=label)
+
+            
         if editMode=='bc':
             bc = parent.borderContainer(region='center',datapath=datapath,nodeId=nodeId,margin='2px')
             treepane = bc.borderContainer(region='left',width='40%',splitter=True,_class='pbl_roundedGroup')
@@ -320,7 +330,25 @@ class HTableHandler(HTableHandlerBase):
         if editMode=='sc':
             toolbar.button('!!Tree',action="SET .selectedPage = 'tree';")
                                             
-                                                                 
+                 
+    def ht_plainView(self,bc,table=None,nodeId=None,disabled=None,
+                    rootpath=None,childTypes=None,editMode=None,label=None):
+        gridId='%s_grid' %nodeId
+        default_selectionPars = dict(order_by='$code')
+        dialogParsCb =getattr(self,'%s_dialogPars' %gridId,None)
+        dialogPars=None
+        if dialogParsCb:
+            dialogPars = dialogParsCb()
+        if rootpath:
+            default_selectionPars = dict(where='$code LIKE %%:rootpath',rootpath=rootpath,order_by='$code')
+        self.selectionHandler(bc,label=label,datapath=".plainview",
+                                nodeId=gridId,table=table,add_enable=False,del_enable=False,
+                                struct=getattr(self,'%s_struct' %gridId,None),
+                                parentLock=disabled,_onStart=True,
+                                selectionPars=getattr(self,'%s_selectionPars' %gridId,default_selectionPars),
+                                dialogPars=dialogPars,
+                                filterOn=getattr(self,'%s_filterOn' %gridId,'$code,$description'))
+                                                    
     def ht_tree(self,bc,table=None,nodeId=None,rootpath=None,disabled=None,
                 childTypes=None,editMode=None,label=None,onChecked=None):
         

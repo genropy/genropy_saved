@@ -98,6 +98,7 @@ class SelectionHandler(BaseComponent):
             defaultDialogPars = dict(add_action=True,del_action=False,save_action=False,lock_action=True,nodeId=nodeId)
             defaultDialogPars.update(dialogPars.get('toolbarPars',{}))
             dialogPars['toolbarPars'] = defaultDialogPars
+            self.recordDialog(**dialogPars)
             
         if reloader and isinstance(reloader, basestring) and not reloader.startswith('^'):
             warnings.warn("[selectionhandler] reloader should start with '^': %s" % repr(reloader), stacklevel=2)
@@ -105,8 +106,7 @@ class SelectionHandler(BaseComponent):
         # --------------------------------------------------------------------------------------------- Implementation
 
         
-        if dialogPars:
-            self.recordDialog(**dialogPars)
+            
         add_action='FIRE .dlg.pkey="*newrecord*";'
         if parentSave:
             add_action = 'FIRE .checkForAdd;'
