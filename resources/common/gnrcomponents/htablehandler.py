@@ -413,6 +413,8 @@ class HTablePicker(HTableHandlerBase):
                             related_table=None,relation_path=None,
                             nodeId=None,datapath=None,dialogPars=None,
                             caption=None,grid_struct=None,grid_columns=None,
+                            grid_applymethod=None,
+
                             grid_filter=None,default_checked_row=None,
                             condition=None,condition_pars=None,editMode=None,**kwargs):
             
@@ -423,6 +425,7 @@ class HTablePicker(HTableHandlerBase):
                         relation_path=relation_path,
                         input_pkeys=input_pkeys or '',output_related_pkeys=output_pkeys,nodeId=nodeId,grid_filter=grid_filter,
                         datapath=datapath,dialogPars=dialogPars,grid_struct=grid_struct,grid_columns=grid_columns,
+                        grid_applymethod=grid_applymethod,
                         condition=condition,condition_pars=condition_pars,editMode=editMode,default_checked_row=default_checked_row)
     
     
@@ -441,6 +444,7 @@ class HTablePicker(HTableHandlerBase):
                     relation_path=None,
                     grid_filter=None,
                     editMode=None,
+                    grid_applymethod=None,
                     default_checked_row=None,
                     **kwargs):
         """params htable:
@@ -466,7 +470,7 @@ class HTablePicker(HTableHandlerBase):
                         grid_struct=grid_struct,grid_columns=grid_columns,
                         grid_where=grid_where,condition_pars=condition_pars,
                         output_codes=output_codes,output_pkeys=output_pkeys,
-                        related_table=related_table,grid_show=grid_show,grid_filter=grid_filter,
+                        related_table=related_table,grid_show=grid_show,grid_filter=grid_filter,grid_applymethod=grid_applymethod,
                         default_checked_row=default_checked_row,
                         output_related_pkeys=output_related_pkeys)
         
@@ -591,7 +595,7 @@ class HTablePicker(HTableHandlerBase):
         
     
     def ht_pk_center(self,parentBC,table=None,formId=None,datapath=None,
-                    controllerPath=None,region=None,caption=None,grid_struct=None,grid_columns=None,
+                    controllerPath=None,region=None,caption=None,grid_struct=None,grid_columns=None,grid_applymethod=None,
                     related_table=None,grid_where=None,condition_pars=None,output_codes=None,
                     output_related_pkeys=None,grid_show=None,
                     output_pkeys=None,grid_filter=None,default_checked_row=None,**kwargs):
@@ -604,7 +608,7 @@ class HTablePicker(HTableHandlerBase):
                         table=table,related_table=related_table,
                         grid_where=grid_where,condition_pars=condition_pars,
                         output_related_pkeys=output_related_pkeys,
-                        output_pkeys=output_pkeys,grid_struct=grid_struct,
+                        output_pkeys=output_pkeys,grid_struct=grid_struct,grid_applymethod=grid_applymethod,
                         grid_columns=grid_columns,grid_filter=grid_filter,default_checked_row=default_checked_row)
         else:
             treepane = parentBC.contentPane(region=region,datapath=datapath,formId=formId,
@@ -623,12 +627,12 @@ class HTablePicker(HTableHandlerBase):
                             
                     
     def _ht_pk_view(self,bc,caption=None,gridId=None,table=None,grid_columns=None,
+                    grid_applymethod=None,
                     grid_struct=None,grid_where=None,condition_pars=None,related_table=None,
                     output_related_pkeys=None,grid_filter=None,default_checked_row=None,**kwargs):
                   
         label = False
         hasToolbar = None
-        
         if grid_filter:
             label = ' '  
             hasToolbar = True
@@ -654,7 +658,9 @@ class HTablePicker(HTableHandlerBase):
                                                     bag.forEach(initial_pkeys?cb_initial:cb,'static');   
                                                     SET .initial_checked_pkeys = null;
                                                     FIRE .#parent.set_output_pkeys;
-                                                """,checked_row_default=default_checked_row,**condition_pars))
+                                                """,checked_row_default=default_checked_row,
+                                                    applymethod=grid_applymethod,**condition_pars),
+                                                )
         
         bc.dataController("""
                             var l = [];
