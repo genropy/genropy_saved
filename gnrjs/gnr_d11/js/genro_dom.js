@@ -630,11 +630,10 @@ dojo.declare("gnr.GnrDomHandler",null,{
         if(widget.isTreeNode){
             value=(widget.item instanceof gnr.GnrBagNode)? widget.item.getValue():widget.item.label
         }
-        if ('drag_value' in inherited){
-            var drag_value=inherited['drag_value']
-            if (typeof(drag_value)=='function'){
-                value=drag_value(sourceNode,event)
-            }
+        if ('drag_value_cb' in inherited){
+            value=funcCreate(inherited['drag_value'])(sourceNode,event)
+        }
+        else if ('drag_value' in inherited){
             value=sourceNode.currentFromDatasource(inherited['drag_value']);
         }
         else if ('value' in sourceNode.attr){
