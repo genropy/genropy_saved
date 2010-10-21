@@ -734,6 +734,15 @@ genropatches.tree=function(){
         else{
             this.labelNode.appendChild(dojo.doc.createTextNode(label));
         };
+
+        var sourceNode=this.tree.sourceNode
+        var nodeattrs=this.tree.gnrNodeAttributes
+        if (nodeattrs.draggable){
+            this.domNode.setAttribute('draggable',true);
+        }
+        if (nodeattrs.droppable && (this.item instanceof gnr.GnrBagNode)){
+            this.domNode.setAttribute('droppable',true);
+        }
     };
 	
 };
