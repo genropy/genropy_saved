@@ -725,5 +725,6 @@ class HierarchicalViewHandler(BaseComponent):
                                                                 datapath='.current_record'))
     def rpc_hv_selectionAsTree(self,selectionName=None, **kwargs):
         selection = self.getUserSelection(selectionName=selectionName,columns=self.hv_columns())
-        if hasattr(self.tblobj,'selectionAsTree'):
-            return self.tblobj.selectionAsTree(selection)
+        h= getattr(self,'selectionAsTree',None) or getattr(self.tblobj,'selectionAsTree',None)
+        if h:
+            return h(selection)
