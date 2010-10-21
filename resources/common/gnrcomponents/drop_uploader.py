@@ -47,6 +47,7 @@ class DropUploader(BaseComponent):
                             footer=footer,del_action=True,del_enabled=enabled,
                             editorEnabled=enabled,autoWidth=True,
                             box_drop_action="FIRE .prepare_files=files;FIRE .on_drop = 1000;",
+                            box_droppable=True,
                             box_drop_types='Files')
         gridEditor = iv.gridEditor()
         for k,v in metacol_dict.items():

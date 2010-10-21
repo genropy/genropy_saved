@@ -40,11 +40,11 @@ class GnrCustomWebPage(object):
         dropboxes.div('no tags',width='100px',height='50px',margin='3px',background_color='#c7ff9a',
                             float='left',droppable=True)
         dropboxes.div('only foo',width='100px',height='50px',margin='3px',background_color='#fcfca9',
-                            float='left',drop_tags='foo')
+                            float='left',drop_tags='foo',droppable=True)
         dropboxes.div('only bar',width='100px',height='50px',margin='3px',background_color='#ffc2f5',
-                            float='left',drop_tags='bar')
+                            float='left',drop_tags='bar',droppable=True)
         dropboxes.div('only foo AND bar',width='100px',height='50px',margin='3px',background_color='#a7cffb',
-                            float='left',drop_tags='foo AND bar')
+                            float='left',drop_tags='foo AND bar',droppable=True)
         
         dropboxes=fb.div(drop_action="""var result=[];
                                         result.push('dropped '+files.length+' files:');
@@ -57,13 +57,13 @@ class GnrCustomWebPage(object):
                                          lbl='Drop boxes Files',drop_types='Files')
                             
         dropboxes.div('all types',width='100px',height='50px',margin='3px',background_color='#c7ff9a',
-                            float='left')
+                            float='left',droppable=True)
         dropboxes.div('only py',width='100px',height='50px',margin='3px',background_color='#fcfca9',
-                            float='left',drop_ext='py')
+                            float='left',drop_ext='py',droppable=True)
         dropboxes.div('only py or xml',width='100px',height='50px',margin='3px',background_color='#ffc2f5',
-                            float='left',drop_ext='bar')
+                            float='left',drop_ext='bar',droppable=True)
         dropboxes.div('only gif',width='100px',height='50px',margin='3px',background_color='#a7cffb',
-                            float='left',drop_ext='gif')
+                            float='left',drop_ext='gif',droppable=True)
                             
     def test_1_simple(self,pane):
         """Simple Drag"""

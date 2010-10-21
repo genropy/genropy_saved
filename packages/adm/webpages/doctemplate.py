@@ -82,6 +82,10 @@ class GnrCustomWebPage(object):
                      margin='6px',
                      font_size='.9em',
                      selected_fieldpath='.selpath',
+                     drag_value_cb='return item.attr.fieldpath;',
+                     node_draggable=True,
+                     drag_class='draggedItem',
+                     
                      getLabelClass="""if (!node.attr.fieldpath && node.attr.table){return "tableTreeNode"}
                                         else if(node.attr.relation_path){return "aliasColumnTreeNode"}
                                         else if(node.attr.sql_formula){return "formulaColumnTreeNode"}""",
@@ -91,5 +95,6 @@ class GnrCustomWebPage(object):
         t2 = tc.contentPane(title='Sample Record',pageName='view')
         fb = t2.formbuilder(cols=1, border_spacing='2px')
         fb.dbSelect(dbtable='^form.record.maintable',value='^test_id',lbl='Test')
-        fb.dataRecord('test_record.record','=form.record.maintable',pkey='^test_id',_if='pkey')
+        fb.dataRecord('test_record.record','=form.record.maintable',pkey='^test_id',
+                    _if='pkey')
         t2.tree(storepath='test_record')

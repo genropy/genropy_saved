@@ -631,7 +631,7 @@ dojo.declare("gnr.GnrDomHandler",null,{
             value=(widget.item instanceof gnr.GnrBagNode)? widget.item.getValue():widget.item.label
         }
         if ('drag_value_cb' in inherited){
-            value=funcCreate(inherited['drag_value'])(sourceNode,event)
+            value=funcCreate(inherited['drag_value_cb'],'sourceNode,item,event')(sourceNode,widget.item,event);
         }
         else if ('drag_value' in inherited){
             value=sourceNode.currentFromDatasource(inherited['drag_value']);
@@ -649,7 +649,7 @@ dojo.declare("gnr.GnrDomHandler",null,{
         if(drag_class){
             genro.dom.addClass(domnode,drag_class);
         }
-        
+        console.log(value);
         dataTransfer.setData('text/plain', convertToText(value)[1]);
         var drag_tags=inherited['drag_tags'];
         if(drag_tags){
