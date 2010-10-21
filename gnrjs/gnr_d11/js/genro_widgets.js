@@ -338,10 +338,6 @@ dojo.declare("gnr.widgets.baseHtml",null,{
         this._makeInteger(attributes,['sizeShare','sizerWidth']);
         var savedAttrs = {};
         savedAttrs['dragPars'] = objectExtract(attributes,'drag_*');
-        var draggable = objectPop(attributes,'draggable');
-        if (draggable) {
-            savedAttrs['dragPars']['draggable']=true;
-        };
         savedAttrs['dropPars'] = objectExtract(attributes,'drop_*');
         savedAttrs.connectedMenu=objectPop(attributes,'connectedMenu');
         savedAttrs.dragDrop = objectExtract(attributes,'dnd_*');
@@ -417,24 +413,19 @@ dojo.declare("gnr.widgets.baseHtml",null,{
             attributes['title'] = '<span title="'+tip+'">'+attributes['title']+'</span>';
         };
     },
-    dragSettings:function(newobj, sourceNode){
-        var domNode=newobj.domNode || newobj;
-        if(!domNode){ return;}
-        if (!domNode.getAttribute('draggable')){
-            domNode.setAttribute('draggable',true);
-        }
-        dojo.connect(domNode,'dragstart',function(event){genro.dom.onDragStart(event,sourceNode);})
-        dojo.connect(domNode,'drag',function(event){genro.dom.onDrag(event,sourceNode);});
-        dojo.connect(domNode,'dragend',function(event){genro.dom.onDragEnd(event,sourceNode);});
-
+    setDraggable:function(domNode,value){
+        domNode.setAttribute('draggable',value)
+    },
+    setDroppable:function(domNode,value){
+        domNode.setAttribute('droppable',value)
     },
     dropSettings:function(newobj, sourceNode){
         var domNode=newobj.domNode || newobj;
         if(!domNode){ return;}
-        dojo.connect(domNode,'dragover',function(event){genro.dom.onDragOver(event,sourceNode);})
-        dojo.connect(domNode,'dragenter',function(event){genro.dom.onDragEnter(event,sourceNode);})
-        dojo.connect(domNode,'dragleave',function(event){genro.dom.onDragLeave(event,sourceNode);})
-        dojo.connect(domNode,'drop',function(event){genro.dom.onDrop(event,sourceNode);});
+        // dojo.connect(domNode,'dragover',function(event){genro.dom.onDragOver(event);})
+        //dojo.connect(domNode,'dragenter',function(event){genro.dom.onDragEnter(event);})
+        //dojo.connect(domNode,'dragleave',function(event){genro.dom.onDragLeave(event);})
+        //dojo.connect(domNode,'drop',function(event){genro.dom.onDrop(event);});
     },
     dndSettings:function(newobj, sourceNode,savedAttrs){
         var dragDrop=savedAttrs.dragDrop;
@@ -536,9 +527,9 @@ dojo.declare("gnr.widgets.baseHtml",null,{
         if(!sourceNode){
             return;
         }
-        if(objectNotEmpty(savedAttrs.dragPars)){
-            this.dragSettings(newobj, sourceNode);
-        }
+       //if(objectNotEmpty(savedAttrs.dragPars)){
+       //    this.dragSettings(newobj, sourceNode);
+       //}
         if(objectNotEmpty(savedAttrs.dropPars)){
             this.dropSettings(newobj, sourceNode);
         }
@@ -727,6 +718,12 @@ dojo.declare("gnr.widgets.baseDojo",gnr.widgets.baseHtml,{
     },
     convertValueOnBagSetItem: function(sourceNode, value){
         return value;
+    },
+    mixin_setDraggable:function(value){
+        this.domNode.setAttribute('draggable',value)
+    },
+    mixin_setDroppable:function(value){
+        this.domNode.setAttribute('droppable',value)
     },
     validatemixin_validationsOnChange: function(sourceNode, value){
         var result = genro.vld.validate(sourceNode, value,true);
@@ -3644,6 +3641,7 @@ dojo.declare("gnr.widgets.Tree",gnr.widgets.baseDojo,{
     creating: function(attributes, sourceNode){
         dojo.require("dijit._tree.dndSource");
         dojo.require("dijit.Tree");
+        var nodeAttributes = objectExtract(attributes,'node_*')
         var storepath=sourceNode.absDatapath(objectPop(attributes,'storepath'));
         var labelAttribute=objectPop(attributes,'labelAttribute');
         var labelCb = objectPop(attributes,'labelCb');
@@ -3720,7 +3718,10 @@ dojo.declare("gnr.widgets.Tree",gnr.widgets.baseDojo,{
         if (objectNotEmpty(tooltipAttrs)) {
             savedAttrs['tooltipAttrs'] = tooltipAttrs;
         };
+        attributes.gnrNodeAttributes=nodeAttributes
+        attributes.sourceNode=sourceNode
         return savedAttrs;
+        
     },
     created: function(widget, savedAttrs, sourceNode){
         if (savedAttrs.tooltipAttrs) {
