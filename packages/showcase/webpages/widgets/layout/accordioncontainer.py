@@ -16,7 +16,7 @@ class GnrCustomWebPage(object):
         """Basic accordion container"""
         pane.div("""In this example we will show you an example of an accordion container.""",
                     font_size='.9em',text_align='justify',margin_bottom='10px')
-        ac = pane.accordionContainer(height='300px')
+        ac = pane.accordionContainer(height='300px',selected='^selected')
         ap1 = ac.accordionPane(title='Pane one')
         ap1.div("""Click on the "Pane three"!""",
                 font_size='.9em',text_align='justify',margin='10px')

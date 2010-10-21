@@ -135,15 +135,12 @@ Splitter attribute
 		class GnrCustomWebPage(object):
 			def main(self,root,**kwargs):
 				bc = pane.borderContainer(height='400px')
-				top = bc.contentPane(region='top',height='5em',
-				                     background_color='#f2c922',splitter=True)
-				center = bc.contentPane(region='center',background_color='silver',
-				                        padding='10px',splitter=True)
-				left = bc.contentPane(region='left',width='100px',
-				                      background_color='red',splitter=True)
-				right = bc.contentPane(region='right',width='80px',
-				                       background_color='yellow',splitter=True)
-				bottom = bc.contentPane(region='bottom',height='80px',
-				                        background_color='grey',splitter=True)
+				top = bc.contentPane(region='top',height='5em',background_color='#f2c922',splitter=True)
+				left = bc.contentPane(region='left',width='100px',background_color='red',splitter=True)
+				right = bc.contentPane(region='right',width='80px',background_color='yellow',splitter=True)
+				bottom = bc.contentPane(region='bottom',height='80px',background_color='grey',splitter=True)
+				center = bc.contentPane(region='center',background_color='silver',padding='10px')
+
+	The ``splitter`` attribute is NOT supported by the center region (that is, you cannot apply ``splitter=True`` on a contentPane including ``region='center'``).
 
 .. #NISO ??? Add a demo!

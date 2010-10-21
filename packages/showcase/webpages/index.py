@@ -19,8 +19,8 @@ class GnrCustomWebPage(object):
     def main(self, root, **kwargs):
         rootBC = root.borderContainer(_class='mainindex', **kwargs)
         self.pageController(rootBC)
-        self.left_menu(rootBC.contentPane(region='left', width='230px', splitter=True, _class='leftpane'))
-        self.top(rootBC.borderContainer(region='top', height='30px', _class='top_pane'))
+        self.left_menu(rootBC.contentPane(region='left',width='230px',splitter=True,_class='leftpane'))
+        self.top(rootBC.borderContainer(region='top',height='30px',_class='top_pane'))
         center = rootBC.borderContainer(region='center')
         buttons = center.contentPane(region='bottom',height='36px',_class='centerfooter').div(position='absolute',right='20px',top='2px')
         
@@ -35,25 +35,23 @@ class GnrCustomWebPage(object):
         
     def pageController(self, root):
         """The data controller on the page"""
-        root.dataFormula("demo.current.relpath", "page?page:'index.py'",_onStart=True,page='^iframe.selected_page')
-        root.dataRpc("demo.current.name", "demoCurrentName",_onStart=True,relpath='^demo.current.relpath')
+        root.dataFormula("demo.current.relpath","page?page:'index.py'",_onStart=True,page='^iframe.selected_page')
+        root.dataRpc("demo.current.name","demoCurrentName",_onStart=True,relpath='^demo.current.relpath')
         #root.dataController('SET stack_selected = 0', _fired='^demo.current.name') # OPTIONAL: with this line the iFrame is ALWAYS opened on "Page"        
-        root.dataRpc('demo.current.syspath', 'fileSysPath', relpath='^demo.current.relpath')
-        root.dataRpc('demo.current.source', 'getSourceFile', syspath='^demo.current.syspath')
+        root.dataRpc('demo.current.syspath','fileSysPath',relpath='^demo.current.relpath')
+        root.dataRpc('demo.current.source','getSourceFile',syspath='^demo.current.syspath')
         
     def left_menu(self, pane):
         pane.data('menubag',self.diskDirectory())
-        pane.tree(storepath='menubag',hideValues=True,inspect='shift',labelAttribute='name',isTree=False,
-                    selected_path='tree.current_path', selected_name='tree.name')
-        pane.dataController("""
-            if (current_path){
-            SET iframe.selected_page=current_path;}
-            """,  current_path="^tree.current_path")
+        pane.tree(storepath='menubag',hideValues=True,inspect='shift',labelAttribute='name',
+                  isTree=False,selected_path='tree.current_path', selected_name='tree.name')
+        pane.dataController("""if (current_path){SET iframe.selected_page=current_path;}""",
+                            current_path="^tree.current_path")
                 
     def top(self, bc):
-        leftpane = bc.contentPane(overflow='hidden', region='left', style='font-size:20px;')
+        leftpane = bc.contentPane(overflow='hidden',region='left',style='font-size:20px;')
         leftpane.span("TestGarden > ")
-        leftpane.span().a('^demo.current.relpath', href='^demo.current.relpath', color='white')
+        leftpane.span().a('^demo.current.relpath',href='^demo.current.relpath',color='white')
                         
     def docPane(self, parent):
         doc=parent.contentPane(overflow='auto',_class='docpane',datapath='demo.doc.description')

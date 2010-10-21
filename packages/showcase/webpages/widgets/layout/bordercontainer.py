@@ -70,9 +70,8 @@ class GnrCustomWebPage(object):
         top2 = bc2.contentPane(region='top',height='40px',background_color='#f2c922')
         left2 = bc2.contentPane(region='left',width='100px',background_color='orange')
         center2 = bc2.contentPane(region='center',background_color='silver',padding='10px')
-        center2.div("""There are a left and a top regions made by two paneContainer(s).
-                       In this sample there are two buttons that can make visible the left and the top
-                       paneContainer(s), two numberTextbox(es) that show the actual dimension of top
+        center2.div("""In this sample there are two buttons that can make visible the left and the top
+                       contentPane(s), two numberTextbox(es) that show the actual dimension of top
                        and left panes, two horizontalSliders with which you can modify the dimensions of
                        top and left pane and a comboBox that allow you to change from "px" to "em".""",
                        font_size='.9em',text_align='justify',margin='10px')
