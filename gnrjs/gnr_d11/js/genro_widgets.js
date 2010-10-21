@@ -2791,19 +2791,23 @@ dojo.declare("gnr.widgets.VirtualStaticGrid",gnr.widgets.Grid,{
     },
     mixin_reload:function(keep_selection){
         this.selectionKeeper(keep_selection?'save':'clear');
+        var nodeId =this.sourceNode.attr.nodeId
         var storebag = this.storebag();
         var storeParent = storebag.getParentNode();
         if (storeParent.getResolver()){
             storeParent.refresh(true);
         }
         else{
-            var selectionNode=genro.nodeById(this.sourceNode.attr.nodeId+'_selection');
+            var selectionNode=genro.nodeById(nodeId+'_selection');
             if (selectionNode){
                 if (this.filtered){
                     this.filterToRebuild = true;
                 }
                 selectionNode.fireNode();
             }
+        }
+        if(nodeId){
+            genro.publish(nodeId+'_data_loaded');
         }
     },
     

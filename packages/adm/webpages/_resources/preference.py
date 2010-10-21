@@ -43,5 +43,10 @@ class UserPref(object):
     
     def _pr_mail(self,pane):
         fb = pane.formbuilder(cols=1, border_spacing='6px')
+        fb.textbox(value='^.host',lbl='!!Host')
         fb.textbox(value='^.user',lbl='!!User')
-        fb.checkbox(value='^.password',label='!!Password')
+        fb.textbox(value='^.password',lbl='!!Password')
+        fb.textbox(value='^.from_address',lbl='!!From address')
+        fb.checkbox(value='^.tls',label='!!Tls')
+        
+        

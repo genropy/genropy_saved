@@ -179,7 +179,7 @@ class MailHandler(object):
                             from_address=from_address, host=host, port=port, user=user, password=password, 
                             ssl=ssl, tls=tls, html=html, charset=charset,async=async)
     
-    def sendmail(self, to_address, subject, body, cc_address=None,bcc_address=None, attachments=None, account=None,
+    def sendmail(self, to_address=None, subject=None, body=None, cc_address=None,bcc_address=None, attachments=None, account=None,
                         from_address=None, host=None, port=None, user=None, password=None, 
                         ssl=False, tls=False, html=False, charset='utf-8', async=False):
         """

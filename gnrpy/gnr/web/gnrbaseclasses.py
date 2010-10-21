@@ -110,9 +110,9 @@ class TableScriptToHtml(BagToHtml):
         self.thermo_wrapper = self.page.btc.thermo_wrapper
         self.print_handler = self.page.getService('print')
     
-    def __call__(self,record=None,pdf=None,downloadAs=None,**kwargs):
+    def __call__(self,record=None,pdf=None,downloadAs=None,thermo=None,**kwargs):
         record = self.tblobj.recordAs(record, mode='bag') 
-        self.thermo_kwargs = dictExtract(kwargs,'thermo_',pop=True)
+        self.thermo_kwargs = thermo
         html_folder = self.getHtmlPath(autocreate=True)
         pdf_folder = self.getPdfPath(autocreate=True)
         html = super(TableScriptToHtml, self).__call__(record=record,folder=html_folder,**kwargs)

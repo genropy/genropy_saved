@@ -27,6 +27,7 @@ class BaseResourceBatch(object):
         self.maintable = resource_table.fullname
         self.btc = self.page.btc
         self.results = Bag()
+        self.records = dict()
         self._pkeys=None
     
     def x__call__(self,batch_note=None,**kwargs):
@@ -69,8 +70,9 @@ class BaseResourceBatch(object):
         else:
             self.do()
     
-    def storeResult(self,key,result):
+    def storeResult(self,key,result,record=None):
         self.results[key] = result
+        self.records[key] = record
     
     def batchUpdate(self, updater=None, table = None, where=None, line_code=None, message=None, **kwargs ):
         table = table or self.page.maintable
