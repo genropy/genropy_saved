@@ -3,9 +3,11 @@
 # batch_handler.py
 # Created by Francesco Porcari on 2010-10-01.
 # Copyright (c) 2010 Softwell. All rights reserved.
+# 
 
 
 """Test drag & drop"""
+print 'xxx'
 class GnrCustomWebPage(object):
     """This is an example of Drag and Drop to support dragging of a field from one div to another even or to
         another application.  You can also drag files.  HTML5 is used to implement this feature.
@@ -33,10 +35,10 @@ class GnrCustomWebPage(object):
     def test_0_dropBoxes(self,pane):
         """Drop Boxes"""
         fb=pane.formbuilder(cols=1)
-        dropboxes=fb.div(drop_action='console.log("ddd");alert(drop_data)',lbl='Drop boxes text/plain',drop_types='text/plain')
+        dropboxes=fb.div(drop_action='alert(drop_data)',lbl='Drop boxes text/plain',drop_types='text/plain')
                             
         dropboxes.div('no tags',width='100px',height='50px',margin='3px',background_color='#c7ff9a',
-                            float='left')
+                            float='left',droppable=True)
         dropboxes.div('only foo',width='100px',height='50px',margin='3px',background_color='#fcfca9',
                             float='left',drop_tags='foo')
         dropboxes.div('only bar',width='100px',height='50px',margin='3px',background_color='#ffc2f5',
@@ -65,16 +67,20 @@ class GnrCustomWebPage(object):
                             
     def test_1_simple(self,pane):
         """Simple Drag"""
-        fb=pane.formbuilder(cols=1,drag_class='draggedItem') 
+        fb=pane.formbuilder(cols=2,drag_class='draggedItem') 
         fb.div('Drag Me',width='70px',height='30px',margin='3px',
-                    background_color='green',lbl='drag it',draggable=True)
-        fb.data('.mydiv','aaaabbbbbccc',draggable=True)
-        fb.textBox(value='^.name',lbl='my name',draggable=True)
+                    background_color='green',lbl='drag it',draggable='^.cb1')
+        fb.checkbox(value='^.cb1',label='draggable')
+        
+        fb.data('.mydiv','aaaabbbbbccc')
+        fb.textBox(value='^.name',lbl='my name',draggable='^.cb2')
+        fb.checkbox(value='^.cb2',label='draggable')
+        
+        fb=pane.formbuilder(cols=1,drag_class='draggedItem') 
         fb.div('^.mydiv',lbl='my div',draggable=True)
-
-        fb.div('drag foo',drag_tags='foo',lbl='drag with foo')
-        fb.div('drag bar',drag_tags='bar',lbl='drag with bar')
-        fb.div('drag foo,bar',drag_tags='foo,bar',lbl='drag with foo,bar')
+        fb.div('drag foo',drag_tags='foo',lbl='drag with foo',draggable=True)
+        fb.div('drag bar',drag_tags='bar',lbl='drag with bar',draggable=True)
+        fb.div('drag foo,bar',drag_tags='foo,bar',lbl='drag with foo,bar',draggable=True)
     
     def test_3_dropimg(self,pane):
         """Drag checking tags"""
