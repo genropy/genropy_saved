@@ -116,9 +116,8 @@ Regions attribute
 				left2 = bc2.contentPane(region='left',width='100px',background_color='orange',splitter=True)
 				center2 = bc2.contentPane(region='center',background_color='silver',padding='10px')
 				center2.textbox(value='^regions.left',default='100px',margin_left='5px')
-				center2.div("""There are a left and a top regions made by two paneContainer(s).
-				               In this sample there are two buttons that can make visible the left and the top
-				               paneContainer(s); in particular, the left pane had the attribute "splitter=True",
+				center2.div("""In this sample there are two buttons that can make visible the left and the top
+				               contentPane(s); in particular, the left pane had the attribute "splitter=True",
 				               so you can move it; there's a textBox too where you can see the dimension
 				               (in pixel) of the left pane (you can see its dimension only after the first move
 				               you made on it).""")
