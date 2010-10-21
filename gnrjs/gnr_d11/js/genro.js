@@ -213,13 +213,11 @@ dojo.declare('gnr.GenroClient', null, {
         genro.dom.removeClass('mainWindow', 'waiting');
         genro.dom.removeClass('_gnrRoot', 'notvisible');
         genro.dom.effect('_gnrRoot','fadein',{duration:400});
-        
+        genro.dragDropConnect()
         var _this=this;                                            
         this._dataroot.subscribe('dataTriggers', {'any':dojo.hitch(this, "dataTrigger")});
-        
         genro.dev.shortcut("Ctrl+Shift+D",function(){genro.dev.showDebugger();});
-        genro.dev.shortcut("Ctrl+Shift+B",function(){genro.dev.showBottomHelper();});
-        
+        genro.dev.shortcut("Ctrl+Shift+B",function(){genro.dev.showBottomHelper();}); 
         genro.callAfter(function(){genro.fireEvent('gnr.onStart');}, 100);
        /* if (dojo.isSafari && genro.wdgById('pbl_root')){
             setTimeout(genro.forceResize,1);
@@ -242,6 +240,17 @@ dojo.declare('gnr.GenroClient', null, {
             genro.dom.startTouchDevice()
           }   
      
+    },
+    dragDropConnect:function(){
+        var mainWindow=genro.domById('mainWindow')
+        dojo.connect(mainWindow,'dragstart',genro.dom,'onDragStart')
+        dojo.connect(mainWindow,'drag',genro.dom ,'onDrag');
+        dojo.connect(mainWindow,'dragend',genro.dom,'onDragEnd');
+        dojo.connect(mainWindow,'dragover',genro.dom,'onDragOver')
+        dojo.connect(mainWindow,'dragenter',genro.dom,'onDragEnter')
+        dojo.connect(mainWindow,'dragleave',genro.dom,'onDragLeave')
+        dojo.connect(mainWindow,'drop',genro.dom,'onDrop');
+       
     },
     playSound:function(name,path,ext){
         if (!(name in genro.sounds)){
