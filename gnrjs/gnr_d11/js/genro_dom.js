@@ -545,18 +545,42 @@ dojo.declare("gnr.GnrDomHandler",null,{
     },
     droppableDomnode:function(event){
         var target=event.target;
+        if(target.className == 'cellContent'){
+            return 'cell'
+    
+        }
         var domnode;
+        var widget = dijit.getEnclosingWidget(target);
         while ( target && ! domnode){
             domnode=  (target.getAttribute && target.getAttribute('droppable'))?target:null
             target=target.parentNode;
         }
+        if (widget&&!domnode) {
+            if (widget.declaredClass=='dojox.GridView') {
+                //console.log(widget);
+                //console.log(event)
+               
+            };
+            
+        };
         return domnode;
+    },
+    onDragCellEnter:function(event){
+        var idx = event.target.parentNode.getAttribute('idx');
+        var nodelist = dojo.query('td.dojoxGrid-cell[idx="'+idx+'"]',dijit.getEnclosingWidget(event.target).domnode);
+        dojo.forEach(nodelist,function(n){dojo.addClass(n,'canBeDropped')});
+        
+        console.log('dragged on col '+idx);
     },
     onDragEnter:function(event){
         var domnode=genro.dom.droppableDomnode(event)
         if (!domnode){ return}
         event.stopPropagation();
         event.preventDefault();
+        if(domnode=='cell'){
+            this.onDragCellEnter(event);
+            return;
+        }       
         var sourceNode=genro.dom.getSourceNode(domnode)
         var dataTransfer=event.dataTransfer
         var canBeDropped=this.canBeDropped(dataTransfer,sourceNode);
@@ -675,15 +699,17 @@ dojo.declare("gnr.GnrDomHandler",null,{
         }
     },
     getSourceNode:function(domnode){
-        var widget=dijit.getEnclosingWidget(domnode)
-        if(widget.isTreeNode){
-            return widget.tree.sourceNode
+        var widget=dijit.getEnclosingWidget(domnode);
+        if (widget){
+            if(widget.isTreeNode){
+                return widget.tree.sourceNode
+            }
         }
-        while (!domnode.sourceNode){
+        while (domnode && !domnode.sourceNode && domnode!=widget.domNode){
             domnode=domnode.parentNode
         }
-        return domnode.sourceNode
-    }, 
+        return domnode.sourceNode || widget.sourceNode;
+    },
                     
     startTouchDevice:function(){
        document.body.ontouchmove= function(e){

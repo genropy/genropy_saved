@@ -444,7 +444,9 @@ class TableHandlerForm(BaseComponent):
                                 selectedIndex='list.rowIndex', rowsPerPage=self.rowsPerPage(), sortedBy='^list.grid.sorted',
                                 connect_onSelectionChanged='SET list.noSelection = (genro.wdgById("maingrid").selection.getSelectedCount()==0)',
                                 linkedForm='formPane',openFormEvent='onRowDblClick',
-                                connect_onRowContextMenu="FIRE list.onSelectionMenu = true;")    
+                                connect_onRowContextMenu="FIRE list.onSelectionMenu = true;",
+                                #droppable=True,
+                                column_droppable=True,drop_action='alert(drop_data);',drop_types='text/plain')    
         pane.dataController("SET list.selectedIndex = idx; SET selectedPage = 1;",idx="^gnr.forms.formPane.openFormIdx") 
 
         pane.dataRpc('list.currentQueryCount','app.getRecordCount', condition=condition,fired='^list.updateCurrentQueryCount',

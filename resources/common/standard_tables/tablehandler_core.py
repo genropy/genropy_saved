@@ -66,12 +66,16 @@ class TableHandlerToolbox(BaseComponent):
         treediv.tree(storepath='gnr.qb.fieldstree',persist=False,
                      inspect='shift', labelAttribute='caption',
                      _class='fieldsTree',
+                     drag_value_cb='return item.attr.fieldpath;',
+                     node_draggable=True,
+                     drag_class='draggedItem',
                      hideValues=True,
                      getIconClass='if(node.attr.dtype){return "icnDtype_"+node.attr.dtype}',
-                     dndController="dijit._tree.dndSource",
-                     onDndDrop="function(){this.onDndCancel();}::JS",
-                     checkAcceptance='function(){return false;}::JS',
-                     checkItemAcceptance='function(){return false;}::JS')
+                     #dndController="dijit._tree.dndSource",
+                     #onDndDrop="function(){this.onDndCancel();}::JS",
+                     #checkAcceptance='function(){return false;}::JS',
+                     #checkItemAcceptance='function(){return false;}::JS'
+                     )
 
 class ViewExporter(BaseComponent):
     def rpc_rpcSavedSelection(self, table, view=None, query=None, userid=None, out_mode='tabtext', **kwargs):

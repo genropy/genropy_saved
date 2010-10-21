@@ -339,6 +339,8 @@ dojo.declare("gnr.widgets.baseHtml",null,{
         var savedAttrs = {};
         savedAttrs['dragPars'] = objectExtract(attributes,'drag_*');
         savedAttrs['dropPars'] = objectExtract(attributes,'drop_*');
+        savedAttrs['droppable'] = objectPop(attributes,'droppable');
+
         savedAttrs.connectedMenu=objectPop(attributes,'connectedMenu');
         savedAttrs.dragDrop = objectExtract(attributes,'dnd_*');
         savedAttrs.onEnter = objectPop(attributes,'onEnter');
@@ -521,6 +523,9 @@ dojo.declare("gnr.widgets.baseHtml",null,{
             }
             
         }
+        if (savedAttrs.droppable) {
+            newobj.setDroppable(savedAttrs.droppable);
+        };
         if (savedAttrs.zoomFactor){
             sourceNode.setZoomFactor(savedAttrs.zoomFactor);
         }
