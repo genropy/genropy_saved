@@ -1156,10 +1156,8 @@ textarea:disabled {
                             
 }
 .droppableColumn {
-	border-left: 2px solid lime !important;
-    border-right: 10px solid lime !important;
-    background: rgba(192,255,17,0.56) !important;
-   
+    border-right: 4px solid lime !important;
+    background: rgba(0,255,0,0.23)!important;
 }
 .undroppableColumn{
 	border-left: 2px solid red !important;
