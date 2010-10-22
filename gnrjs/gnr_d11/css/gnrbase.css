@@ -1155,6 +1155,17 @@ textarea:disabled {
      max-width:200px;
                             
 }
+.droppableColumn {
+	border-left: 2px solid lime;
+    border-right: 2px solid lime;
+   
+}
+.undroppableColumn{
+	border-left: 2px solid red;
+    border-right: 2px solid red;
+	background: url(icons/base16/oneway.gif) no-repeat 50% 50%;
+}
+
 
 /* @end */
 
