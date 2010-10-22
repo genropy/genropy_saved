@@ -523,7 +523,7 @@ dojo.declare("gnr.widgets.baseHtml",null,{
             }
             
         }
-        if (savedAttrs.droppable) {
+        if (savedAttrs.droppable && newobj.setDroppable) {
             newobj.setDroppable(savedAttrs.droppable);
         };
         if (savedAttrs.zoomFactor){
