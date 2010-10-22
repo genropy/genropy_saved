@@ -1,7 +1,7 @@
 # -*- coding: UTF-8 -*-
 
 # button.py
-# Created by Niso on 2010-09-01.
+# Created by Filippo Astolfi on 2010-09-01.
 # Copyright (c) 2010 Softwell. All rights reserved.
 
 """Button"""

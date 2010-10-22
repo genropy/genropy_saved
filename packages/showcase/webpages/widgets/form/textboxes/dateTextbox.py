@@ -1,7 +1,7 @@
 # -*- coding: UTF-8 -*-
 
 # dateTextbox.py
-# Created by Niso on 2010-09-17.
+# Created by Filippo Astolfi on 2010-09-17.
 # Copyright (c) 2010 Softwell. All rights reserved.
 
 """dateTextbox"""

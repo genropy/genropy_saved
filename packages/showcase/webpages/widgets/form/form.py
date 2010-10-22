@@ -1,7 +1,7 @@
 # -*- coding: UTF-8 -*-
 
 # form.py
-# Created by Niso on 2010-09-13.
+# Created by Filippo Astolfi on 2010-09-13.
 # Copyright (c) 2010 Softwell. All rights reserved.
 
 """Form"""

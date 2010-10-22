@@ -1,7 +1,7 @@
 # -*- coding: UTF-8 -*-
 
 # slider.py
-# Created by Niso on 2010-09-08.
+# Created by Filippo Astolfi on 2010-09-08.
 # Copyright (c) 2010 Softwell. All rights reserved.
 
 """Slider"""

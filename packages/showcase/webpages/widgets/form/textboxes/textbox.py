@@ -1,7 +1,7 @@
 # -*- coding: UTF-8 -*-
 
 # textbox.py
-# Created by Niso on 2010-09-17.
+# Created by Filippo Astolfi on 2010-09-17.
 # Copyright (c) 2010 Softwell. All rights reserved.
 
 """Textbox"""
@@ -44,12 +44,12 @@ class GnrCustomWebPage(object):
                    )
                     
         fb.textbox(value='^.surname',lbl='Surname',
-                   invalidMessage='You MUST write something!', #NISO Questo non funziona, però di default esiste
+                   invalidMessage='You MUST write something!', #Filippo Astolfi Questo non funziona, però di default esiste
                                                                #     un invalidMessage, che dice: "Il valore
                                                                #     immesso non è valido." Strano!
                    tooltipPosition='top',
                    constraints='???')
-        fb.div("""In the following textbox I (NISO) write all the attributes that doesn't work
+        fb.div("""In the following textbox I (Filippo Astolfi) write all the attributes that doesn't work
                   in Dojo 1.1, and that have to be tested for Dojo 1.5""",
                   font_size='.9em',text_align='justify')
         

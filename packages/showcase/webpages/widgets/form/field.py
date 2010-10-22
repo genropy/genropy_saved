@@ -1,7 +1,7 @@
 # -*- coding: UTF-8 -*-
 
 # field.py
-# Created by Niso on 2010-09-15.
+# Created by Filippo Astolfi on 2010-09-15.
 # Copyright (c) 2010 Softwell. All rights reserved.
 
 """Field"""

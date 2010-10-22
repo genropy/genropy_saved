@@ -1,7 +1,7 @@
 # -*- coding: UTF-8 -*-
 
 # combobox.py
-# Created by Niso on 2010-09-22.
+# Created by Filippo Astolfi on 2010-09-22.
 # Copyright (c) 2010 Softwell. All rights reserved.
 
 """Combobox"""

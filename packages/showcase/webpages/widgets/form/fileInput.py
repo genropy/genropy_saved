@@ -1,7 +1,7 @@
 # -*- coding: UTF-8 -*-
 
 # fileInput.py
-# Created by Niso on 2010-10-14.
+# Created by Filippo Astolfi on 2010-10-14.
 # Copyright (c) 2010 Softwell. All rights reserved.
 
 """file Input"""
@@ -16,7 +16,7 @@ class GnrCustomWebPage(object):
         """An explanation of "genro.dlg.upload" """
         pane.div("""We show you the "genro.dlg.upload": its first parameter is the name of the dialogue window (you
                     can see this window by clicking the button "Upload"; in this example the name is "Upload something"),
-                    the second parameter is the name of the Rpc method you're calling (#NISO: is there a standard Rpc or
+                    the second parameter is the name of the Rpc method you're calling (#Filippo Astolfi: is there a standard Rpc or
                     the programmer have to use a Rpc created by himself?), the third parameter is the folder for the
                     data uploaded.""",
                     font_size='.9em',text_align='justify')
