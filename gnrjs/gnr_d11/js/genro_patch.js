@@ -734,7 +734,9 @@ genropatches.tree=function(){
         else{
             this.labelNode.appendChild(dojo.doc.createTextNode(label));
         };
-
+        if (this.item.attr && 'node_class' in this.item.attr){
+            dojo.addClass(this.domNode,this.item.attr.node_class)
+        }
         var sourceNode=this.tree.sourceNode
         var nodeattrs=this.tree.gnrNodeAttributes
         if (nodeattrs.draggable){
