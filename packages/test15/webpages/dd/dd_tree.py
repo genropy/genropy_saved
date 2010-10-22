@@ -30,6 +30,8 @@ class GnrCustomWebPage(object):
                             
     def test_1_simple(self,pane):
         """Simple Drag"""
+        pane.css('.foo','color:pink;')
+        pane.css('.bar','background-color:yellow;')
         root=pane.div(height='200px',overflow='auto')
         root.data('.tree.data',self.treedata())
         root.tree(storepath='.tree.data',node_droppable=True,
@@ -72,7 +74,8 @@ class GnrCustomWebPage(object):
         
     def treedata(self):
         b = Bag()
-        b.setItem('person.name','John', job='superhero')
+        b.setItem('person',None,node_class='foo')
+        b.setItem('person.name','John', job='superhero',node_class='bar')
         b.setItem('person.age' , 22)
         b.setItem('person.sport.tennis' , 'good')
         b.setItem('person.sport.footbal' , 'poor')
