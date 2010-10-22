@@ -13,5 +13,6 @@
 .. toctree::
 	:maxdepth: 2
 
+	introduction
 	form/index
 	layout/index

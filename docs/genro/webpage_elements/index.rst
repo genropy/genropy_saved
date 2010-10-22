@@ -8,6 +8,8 @@ Webpage elements
 	:maxdepth: 2
 
 	introduction
-	data
-	datacontroller/index
 	widgets/index
+	html
+	css
+	data
+	controller/index

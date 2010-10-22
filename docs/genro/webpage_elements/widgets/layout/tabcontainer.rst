@@ -74,7 +74,7 @@ Common attributes
 
 	With the ``selected`` attribute Genro create a folder path in the :ref:`genro-datastore` where lies a number indicating the tab selected (for the first tab you'll find 0, for the second one 1 and so on).
 	
-	The sintax is ``selected='folderPathName'``
+	The syntax is ``selected='folderPathName'``
 	
 	Example::
 	

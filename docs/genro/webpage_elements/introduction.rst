@@ -1,19 +1,17 @@
 	.. _genro-webpage-elements-introduction:
 
-==============
- Introduction
-==============
+========================================
+ Introduction to Genro webpage elements
+========================================
 
 You can act on a Genro webpage through:
 
-- data elements
+	- Widgets elements: :ref:`genro-widgets-introduction`, list of :ref:`genro-widgets-index`.
 
-- controller elements
+	- HTML elements: :ref:`genro-html-introduction`
 
-- widget elements
+	- CSS elements: :ref:`genro-css`, list of `CSS attributes <http://www.w3.org/Style/CSS/>`_.
 
-- HTML and CSS elements
+	- data elements: :ref:`genro-data`
 
-elementi data (il data, non fa partire script, mette solamente un qualcosa in un qualche posto), elementi controller (dataController, dataScript, ..., fanno partire degli script), elementi HTML, elementi widget
-
-specificare che gli elementi HTML vanno bene così, mentre i CSS hanno "_" invece che "-"
+	- controller elements: :ref:`genro-controllers-introduction`

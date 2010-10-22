@@ -77,8 +77,8 @@ Regions attribute
 
 	With the "regions" attribute you can act on the regions of the borderContainer's sons. You can modify their dimensions, and see them in the :ref:`genro-datastore`.
 	
-	The sintax is: ``regions='folderName'``.
-	If you have to interact with the regions, the sintax is: ``folderName.regionName``; so, if you have to interact with the "left" region, you have to write: ``folderName.left``.
+	The syntax is: ``regions='folderName'``.
+	If you have to interact with the regions, the syntax is: ``folderName.regionName``; so, if you have to interact with the "left" region, you have to write: ``folderName.left``.
 	
 	In this example, we give the name "regions" as folder name of the ``regions`` attribute::
 	

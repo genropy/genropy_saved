@@ -6,4 +6,5 @@
 
 .. toctree::
 
+	introduction
 	dataformula
