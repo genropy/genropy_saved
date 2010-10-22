@@ -1156,14 +1156,15 @@ textarea:disabled {
                             
 }
 .droppableColumn {
-	border-left: 2px solid lime;
-    border-right: 2px solid lime;
+	border-left: 2px solid lime !important;
+    border-right: 10px solid lime !important;
+    background: rgba(192,255,17,0.56) !important;
    
 }
 .undroppableColumn{
-	border-left: 2px solid red;
-    border-right: 2px solid red;
-	background: url(icons/base16/oneway.gif) no-repeat 50% 50%;
+	border-left: 2px solid red !important;
+    border-right: 2px solid red !important;
+	background: url(icons/base16/oneway.gif) no-repeat 50% 50% !important;
 }
 
 

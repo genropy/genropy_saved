@@ -1885,9 +1885,12 @@ dojo.declare("gnr.widgets.Grid",gnr.widgets.baseDojo,{
         }
         //this.widget._gnrUpdateSelect();
     },
-    mixin_columnNodelist:function(idx){
-        var nodelist = dojo.query('td.dojoxGrid-cell[idx="'+idx+'"]',this.domNode);
-        dojo.forEach(nodelist,function(n){dojo.addClass(n,'canBeDropped')});
+    mixin_columnNodelist:function(idx,includeHeader){
+        var condition = 'td.dojoxGrid-cell[idx="'+idx+'"]';
+        if (includeHeader) {
+            condition = 'td.dojoxGrid-cell[idx="'+idx+'"], th.dojoxGrid-cell[idx="'+idx+'"]';
+        };
+        return dojo.query(condition,this.domNode);
     },
     
     mixin_rowIdByIndex: function(idx){

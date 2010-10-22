@@ -551,27 +551,28 @@ dojo.declare("gnr.GnrDomHandler",null,{
         var target=event.target;
         var result,domnode;
         var widget = dijit.getEnclosingWidget(target);
-        if (widget.declaredClass=='dojox.GridView') {
-            var cellnode=target;
-            while ((!cellnode.className) || (cellnode.className.indexOf( 'dojoxGrid-cell')<0)){
-                cellnode=cellnode.parentNode;
+        if (widget.declaredClass=='dojox.GridView' || widget.declaredClass=='dojox.VirtualGrid') {
+            var eventDecorator;
+            if (widget.declaredClass=='dojox.VirtualGrid'){
+                eventDecorator = widget.views.views[0].header;
+            }else{
+                eventDecorator = widget.content;
+                widget=widget.grid;
             }
-            if (cellnode){
-                var idx = cellnode.getAttribute('idx');
-                if (idx==null){
-                    debugger
-                }
-                
+            if(eventDecorator.decorateEvent(event)){
                 result= {'type':'cell','widget':widget,
-                        'column':idx,
-                        'row':'',
-                         'sourceNode':widget.grid.sourceNode,domnode:cellnode}
-            }
-            else{
-                debugger
+                        'column':event.cellIndex,
+                        'row':event.rowIndex,
+                        'cell':event.cell,
+                        'cellNode': event.cellNode,
+                        'rowNode': event.rowNode,
+                         'sourceNode':widget.sourceNode,
+                         'domnode':event.cellNode
+                         }
             }
         }
         else{
+            console.log(widget.declaredClass);
             while ( target && ! domnode){
                 domnode=  (target.getAttribute && target.getAttribute('droppable'))?target:null
                 target=target.parentNode;
@@ -593,7 +594,7 @@ dojo.declare("gnr.GnrDomHandler",null,{
         dataTransfer.effectAllowed=canBeDropped?'move':'none';
         dataTransfer.dropEffect=canBeDropped?'move':'none';
         if(droppable.type=='cell'){
-            var nodelist = dojo.query('td.dojoxGrid-cell[idx="'+droppable.column+'"]',droppable.widget.domNode);
+            var nodelist = droppable.widget.columnNodelist(droppable.column,true);
             nodelist[canBeDropped?'addClass':'removeClass']('droppableColumn')
             nodelist[canBeDropped?'removeClass':'addClass']('undroppableColumn')
         }else{
@@ -608,7 +609,7 @@ dojo.declare("gnr.GnrDomHandler",null,{
         event.stopPropagation();
         event.preventDefault();
         if(droppable.type=='cell'){
-            var nodelist = dojo.query('td.dojoxGrid-cell[idx="'+droppable.column+'"]',droppable.widget.domNode);
+            var nodelist = droppable.widget.columnNodelist(droppable.column,true);
             nodelist.removeClass('droppableColumn')
             nodelist.removeClass('undroppableColumn')
         }else{
