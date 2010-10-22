@@ -1,7 +1,7 @@
 # -*- coding: UTF-8 -*-
 
 # datapath.py
-# Created by Niso on 2010-09-06.
+# Created by Filippo Astolfi on 2010-09-06.
 # Copyright (c) 2010 Softwell. All rights reserved.
 
 """Datapath"""
