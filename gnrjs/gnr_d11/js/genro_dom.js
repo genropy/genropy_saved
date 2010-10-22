@@ -500,6 +500,10 @@ dojo.declare("gnr.GnrDomHandler",null,{
         domnode.dispatchEvent(e);
     },
     canBeDropped:function(dataTransfer,sourceNode){
+        if (!sourceNode){
+            console.log('no sourceNode')
+            return
+        }
         var supportedTypes=splitStrip(sourceNode.getInheritedAttributes().drop_types || 'text/plain');
         var draggedTypes =dataTransfer.types;
         if(dojo.filter(supportedTypes,function (value){ return dojo.indexOf(draggedTypes,value)>=0;}).length==0){
@@ -536,72 +540,85 @@ dojo.declare("gnr.GnrDomHandler",null,{
    
     },
     onDragOver:function(event){
-        var domnode=genro.dom.droppableDomnode(event)
-        if (!domnode){ return}
+        var droppable=genro.dom.droppableObject(event)
+        if (!droppable){ return}
         event.stopPropagation();
         event.preventDefault();
         event.dataTransfer.dropEffect = "move";
 
     },
-    droppableDomnode:function(event){
+    droppableObject:function(event){
         var target=event.target;
-        if(target.className == 'cellContent'){
-            return 'cell'
-    
-        }
-        var domnode;
+        var result,domnode;
         var widget = dijit.getEnclosingWidget(target);
-        while ( target && ! domnode){
-            domnode=  (target.getAttribute && target.getAttribute('droppable'))?target:null
-            target=target.parentNode;
+        if (widget.declaredClass=='dojox.GridView') {
+            var cellnode=target;
+            while ((!cellnode.className) || (cellnode.className.indexOf( 'dojoxGrid-cell')<0)){
+                cellnode=cellnode.parentNode;
+            }
+            if (cellnode){
+                var idx = cellnode.getAttribute('idx');
+                if (idx==null){
+                    debugger
+                }
+                
+                result= {'type':'cell','widget':widget,
+                        'column':idx,
+                        'row':'',
+                         'sourceNode':widget.grid.sourceNode,domnode:cellnode}
+            }
+            else{
+                debugger
+            }
         }
-        if (widget&&!domnode) {
-            if (widget.declaredClass=='dojox.GridView') {
-                //console.log(widget);
-                //console.log(event)
-               
-            };
-            
-        };
-        return domnode;
-    },
-    onDragCellEnter:function(event){
-        var idx = event.target.parentNode.getAttribute('idx');
-        var nodelist = dojo.query('td.dojoxGrid-cell[idx="'+idx+'"]',dijit.getEnclosingWidget(event.target).domnode);
-        dojo.forEach(nodelist,function(n){dojo.addClass(n,'canBeDropped')});
-        
-        console.log('dragged on col '+idx);
+        else{
+            while ( target && ! domnode){
+                domnode=  (target.getAttribute && target.getAttribute('droppable'))?target:null
+                target=target.parentNode;
+            }
+            if (domnode){
+                result= {'type':'domnode','widget':widget,'domnode':domnode,
+                          'sourceNode':genro.dom.getSourceNode(domnode)}
+            }
+        }
+        return result;
     },
     onDragEnter:function(event){
-        var domnode=genro.dom.droppableDomnode(event)
-        if (!domnode){ return}
+        var droppable=genro.dom.droppableObject(event)
+        if (!droppable){ return}
         event.stopPropagation();
         event.preventDefault();
-        if(domnode=='cell'){
-            this.onDragCellEnter(event);
-            return;
-        }       
-        var sourceNode=genro.dom.getSourceNode(domnode)
         var dataTransfer=event.dataTransfer
-        var canBeDropped=this.canBeDropped(dataTransfer,sourceNode);
+        var canBeDropped=this.canBeDropped(dataTransfer,droppable.sourceNode);
         dataTransfer.effectAllowed=canBeDropped?'move':'none';
         dataTransfer.dropEffect=canBeDropped?'move':'none';
-        genro.dom.setClass(domnode,'cannotBeDropped',!canBeDropped);
-        genro.dom.setClass(domnode,'canBeDropped',canBeDropped);
+        if(droppable.type=='cell'){
+            var nodelist = dojo.query('td.dojoxGrid-cell[idx="'+droppable.column+'"]',droppable.widget.domNode);
+            nodelist[canBeDropped?'addClass':'removeClass']('droppableColumn')
+            nodelist[canBeDropped?'removeClass':'addClass']('undroppableColumn')
+        }else{
+            genro.dom.setClass(domnode,'cannotBeDropped',!canBeDropped);
+            genro.dom.setClass(domnode,'canBeDropped',canBeDropped);
+        }
         
     },
     onDragLeave:function(event){
-        var domnode=genro.dom.droppableDomnode(event)
-        if (!domnode){ return}
+        var droppable=genro.dom.droppableObject(event)
+        if (!droppable){ return}
         event.stopPropagation();
         event.preventDefault();
-        genro.dom.removeClass(domnode,'canBeDropped');
-        genro.dom.removeClass(domnode,'cannotBeDropped');
-       
+        if(droppable.type=='cell'){
+            var nodelist = dojo.query('td.dojoxGrid-cell[idx="'+droppable.column+'"]',droppable.widget.domNode);
+            nodelist.removeClass('droppableColumn')
+            nodelist.removeClass('undroppableColumn')
+        }else{
+             genro.dom.removeClass(domnode,'canBeDropped');
+             genro.dom.removeClass(domnode,'cannotBeDropped');
+        }
     },
      onDrop:function(event){
-        var domnode=genro.dom.droppableDomnode(event)
-        if (!domnode){ return}
+        var droppable=genro.dom.droppableObject(event)
+        if (!droppable){ return}
         var sourceNode=genro.dom.getSourceNode(domnode)
         var dataTransfer=event.dataTransfer
         event.stopPropagation();

@@ -1885,6 +1885,11 @@ dojo.declare("gnr.widgets.Grid",gnr.widgets.baseDojo,{
         }
         //this.widget._gnrUpdateSelect();
     },
+    mixin_columnNodelist:function(idx){
+        var nodelist = dojo.query('td.dojoxGrid-cell[idx="'+idx+'"]',this.domNode);
+        dojo.forEach(nodelist,function(n){dojo.addClass(n,'canBeDropped')});
+    },
+    
     mixin_rowIdByIndex: function(idx){
         if (idx!=null){
             return this.rowIdentity(this.rowByIndex(idx));
