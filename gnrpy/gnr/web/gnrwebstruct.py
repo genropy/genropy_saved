@@ -417,6 +417,8 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
                     nodeId = None, columns=None,**kwargs):
         nodeId = nodeId or self.page.getUuid()
         structpath = structpath or 'grids.%s.struct' %nodeId
+        if not struct:
+            struct=getattr(self.page,'%s_struct'%nodeId,None)
         if table and not struct:
             columns = columns or self.page.db.table(table).baseViewColumns()
             struct = self.page.newGridStruct(maintable=table)
