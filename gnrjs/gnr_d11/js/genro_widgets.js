@@ -3311,6 +3311,11 @@ dojo.declare("gnr.widgets.BaseCombo",gnr.widgets.baseDojo,{
         dojo.addClass(widget.domNode.childNodes[0],tag);
         this.connectFocus(widget);
         this.connectForUpdate(widget,sourceNode);
+        if ( dojo_version=='1.1'){
+            if(dojo.isSafari){
+                dojo.connect(widget.focusNode,'onkeydown',widget,'_onKeyPress');
+            }
+        }
     },
     /*patch__onBlur: function(){
         this._hideResultList();
