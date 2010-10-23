@@ -2090,7 +2090,7 @@ dojo.declare("gnr.widgets.Grid",gnr.widgets.baseDojo,{
                     }
                     var key=this.grid.currRenderedRow[zoomPkey? zoomPkey : this.grid._identifier];
                     // changed to support ctrl+click on non mac platforms v = "<a onclick='var ev = arguments[0]; if(!ev.metaKey){dojo.stopEvent(ev);}' class='gnrzoomcell' href='/"+zoomPage+"?pkey="+key+"&autoLinkFrom="+genro.page_id+"'>"+v+"</a>";
-                    v = "<a onclick='var ev = arguments[0]; if((genro.isMac&&!ev.metaKey)||(!genro.isMac&&!ev.ctrlKey)){dojo.stopEvent(ev);}' class='gnrzoomcell' href='/"+zoomPage+"?pkey="+key+"&autoLinkFrom="+genro.page_id+"'>"+v+"</a>";
+                    v = "<a onclick='if((genro.isMac&&!event.metaKey)||(!genro.isMac&&!event.ctrlKey)){dojo.stopEvent(event);}' class='gnrzoomcell' href='/"+zoomPage+"?pkey="+key+"&autoLinkFrom="+genro.page_id+"'>"+v+"</a>";
                 }
                 return '<div class="cellContent">'+v+'</div>';
                 
