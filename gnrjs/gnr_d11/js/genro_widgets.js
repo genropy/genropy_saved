@@ -339,7 +339,7 @@ dojo.declare("gnr.widgets.baseHtml",null,{
         var savedAttrs = {};
         savedAttrs['dragPars'] = objectExtract(attributes,'drag_*');
         savedAttrs['dropPars'] = objectExtract(attributes,'drop_*');
-        savedAttrs['droppable'] = objectPop(attributes,'droppable');
+        savedAttrs['droppable'] = attributes['droppable'];
 
         savedAttrs.connectedMenu=objectPop(attributes,'connectedMenu');
         savedAttrs.dragDrop = objectExtract(attributes,'dnd_*');
@@ -420,14 +420,6 @@ dojo.declare("gnr.widgets.baseHtml",null,{
     },
     setDroppable:function(domNode,value){
         domNode.setAttribute('droppable',value)
-    },
-    dropSettings:function(newobj, sourceNode){
-        var domNode=newobj.domNode || newobj;
-        if(!domNode){ return;}
-        // dojo.connect(domNode,'dragover',function(event){genro.dom.onDragOver(event);})
-        //dojo.connect(domNode,'dragenter',function(event){genro.dom.onDragEnter(event);})
-        //dojo.connect(domNode,'dragleave',function(event){genro.dom.onDragLeave(event);})
-        //dojo.connect(domNode,'drop',function(event){genro.dom.onDrop(event);});
     },
     dndSettings:function(newobj, sourceNode,savedAttrs){
         var dragDrop=savedAttrs.dragDrop;
@@ -531,12 +523,6 @@ dojo.declare("gnr.widgets.baseHtml",null,{
         }
         if(!sourceNode){
             return;
-        }
-       //if(objectNotEmpty(savedAttrs.dragPars)){
-       //    this.dragSettings(newobj, sourceNode);
-       //}
-        if(objectNotEmpty(savedAttrs.dropPars)){
-            this.dropSettings(newobj, sourceNode);
         }
         if(objectNotEmpty(savedAttrs.dragDrop)){
             this.dndSettings(newobj, sourceNode, savedAttrs);
@@ -1892,7 +1878,6 @@ dojo.declare("gnr.widgets.Grid",gnr.widgets.baseDojo,{
         };
         return dojo.query(condition,this.domNode);
     },
-    
     mixin_rowIdByIndex: function(idx){
         if (idx!=null){
             return this.rowIdentity(this.rowByIndex(idx));

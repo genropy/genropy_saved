@@ -572,7 +572,7 @@ dojo.declare("gnr.GnrDomHandler",null,{
             }
         }
         else{
-            console.log(widget.declaredClass);
+            //console.log(widget.declaredClass);
             while ( target && ! domnode){
                 domnode=  (target.getAttribute && target.getAttribute('droppable'))?target:null
                 target=target.parentNode;
@@ -586,11 +586,16 @@ dojo.declare("gnr.GnrDomHandler",null,{
     },
     onDragEnter:function(event){
         var droppable=genro.dom.droppableObject(event)
-        if (!droppable){ return}
+        if (!droppable){ 
+            return
+        }
+        var domnode=droppable.domnode
+        var sourceNode=droppable.sourceNode
+        console.log('onDragEnter:'+droppable.type+' '+droppable.column)
         event.stopPropagation();
         event.preventDefault();
         var dataTransfer=event.dataTransfer
-        var canBeDropped=this.canBeDropped(dataTransfer,droppable.sourceNode);
+        var canBeDropped=this.canBeDropped(dataTransfer,sourceNode);
         dataTransfer.effectAllowed=canBeDropped?'move':'none';
         dataTransfer.dropEffect=canBeDropped?'move':'none';
         if(droppable.type=='cell'){
@@ -606,6 +611,8 @@ dojo.declare("gnr.GnrDomHandler",null,{
     onDragLeave:function(event){
         var droppable=genro.dom.droppableObject(event)
         if (!droppable){ return}
+        var domnode=droppable.domnode
+        console.log('onDragLeave:'+droppable.type+' '+droppable.column)
         event.stopPropagation();
         event.preventDefault();
         if(droppable.type=='cell'){
@@ -620,7 +627,8 @@ dojo.declare("gnr.GnrDomHandler",null,{
      onDrop:function(event){
         var droppable=genro.dom.droppableObject(event)
         if (!droppable){ return}
-        var sourceNode=genro.dom.getSourceNode(domnode)
+        var domnode=droppable.domnode
+        var sourceNode=droppable.sourceNode
         var dataTransfer=event.dataTransfer
         event.stopPropagation();
         genro.dom.removeClass(domnode,'canBeDropped');
@@ -629,7 +637,7 @@ dojo.declare("gnr.GnrDomHandler",null,{
         if(canBeDropped){
             var inherited=sourceNode.getInheritedAttributes();
             event.preventDefault();
-            var action = sourceNode.getInheritedAttributes().drop_action;
+            var action = inherited.drop_action;
             var dropped=null;
             if (action){
                 var drop_types=(inherited.drop_types || 'text/plain').split(',');
