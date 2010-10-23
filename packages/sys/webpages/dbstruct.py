@@ -20,15 +20,15 @@ class GnrCustomWebPage(object):
         center=bc.contentPane(region='center',splitter=True,background_color='white')
         for table in pkg['tables'].values():
             center.dataRemote('.tree.%s' % table.name,'relationExplorer',table=table.fullname,dosort=False)
-        
         center.tree(storepath='.tree',persist=False,
                      inspect='shift', labelAttribute='caption',
                      _class='fieldsTree',
                      hideValues=True,
                      margin='6px',
-                     drag_value_cb='return item.attr.fieldpath;',
+                     drag_value_cb=self.drag_value_cb(),
                      node_draggable=True,
                      drag_class='draggedItem',
+                     onChecked=True,
                      selected_fieldpath='.selpath',
                      getLabelClass="""if (!node.attr.fieldpath && node.attr.table){return "tableTreeNode"}
                                         else if(node.attr.relation_path){return "aliasColumnTreeNode"}
@@ -44,4 +44,35 @@ class GnrCustomWebPage(object):
         pane.css('#mainWindow','background-color:white;')
         pane.css('.tundra .dijitTreeContent','padding-top:0;min-height:17px;')
         pane.css('.tundra .dijitTreeExpando','height:16px;')
-        
+    def drag_value_cb(self):
+        return """if (item.attr.fieldpath){
+                      var fieldpath=item.attr.fieldpath
+                       if(item.attr.checked){
+                       return event.shiftKey ? 'r.fieldcell("'+fieldpath+'")':event.metaKey?'fb.field("'+fieldpath+'")':fieldpath
+                       }
+                        
+                   }
+                   var cb;
+                   if   (event.shiftKey) {
+                       cb=function(n){
+                           return '        '+'r.fieldcell("'+n.attr.fieldpath+'")';
+                       };
+                   }
+                   
+                   else if(event.metaKey){
+                       cb=function(n){
+                           return '        '+ 'fb.field("'+n.attr.fieldpath+'")';
+                       };
+                   }
+                   else {
+                       cb=function(n){
+                           return n.attr.fieldpath;
+                       };
+                   }
+                   result=[];
+                   result.push('')
+                   item.getValue().forEach(function(n){if (n.attr.checked){result.push(cb(n));}},'static');
+                   result.push('')
+                   return result.join(_lf); 
+                        
+               """
