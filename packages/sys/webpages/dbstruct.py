@@ -50,7 +50,6 @@ class GnrCustomWebPage(object):
                        if(item.attr.checked){
                        return event.shiftKey ? 'r.fieldcell("'+fieldpath+'")':event.metaKey?'fb.field("'+fieldpath+'")':fieldpath
                        }
-                        
                    }
                    var cb;
                    if   (event.shiftKey) {
@@ -58,7 +57,6 @@ class GnrCustomWebPage(object):
                            return '        '+'r.fieldcell("'+n.attr.fieldpath+'")';
                        };
                    }
-                   
                    else if(event.metaKey){
                        cb=function(n){
                            return '        '+ 'fb.field("'+n.attr.fieldpath+'")';
@@ -74,5 +72,4 @@ class GnrCustomWebPage(object):
                    item.getValue().forEach(function(n){if (n.attr.checked){result.push(cb(n));}},'static');
                    result.push('')
                    return result.join(_lf); 
-                        
                """
