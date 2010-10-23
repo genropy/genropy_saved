@@ -27,6 +27,7 @@
 //########################  Lang #########################
 var _lf='\n'
 var _crlf='\r\n'
+var _tab='\t'
 function bagAsObj(bag){
     var result = {};
     var parentNode = bag.getParentNode();

@@ -3775,7 +3775,7 @@ dojo.declare("gnr.widgets.Tree",gnr.widgets.baseDojo,{
     attributes_mixin_checkBoxCalcStatus:function(bagnode){
         var checked;
         if(bagnode._resolver && bagnode._resolver.expired()){
-            return -1;
+            return false;
         }else if(bagnode._value instanceof gnr.GnrBag){
             var ck=null;
             bagnode._value.forEach(function(node){
@@ -3801,7 +3801,7 @@ dojo.declare("gnr.widgets.Tree",gnr.widgets.baseDojo,{
                    n.setAttr({'checked':checkedStatus},true,true);
 
                }else if(n._resolver && n._resolver.expired()){
-                   n.setAttr({'checked':-1},true,true);
+                   n.setAttr({'checked':false},true,true);
                }else{
                    n.setAttr({'checked':checked},true,true);
                }
