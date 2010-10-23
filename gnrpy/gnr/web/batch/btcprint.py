@@ -23,7 +23,6 @@ class BaseResourcePrint(BaseResourceBatch):
         self.print_mode = self.batch_options['print_mode']
         self.print_options = self.batch_options['print_mode_option']
         self.print_handler = self.page.getService('print')           
-        
     
     def print_selection(self,thermo_selection=None,thermo_record=None):
         thermo_s = dict(line_code='selection',message='get_record_caption')
@@ -81,7 +80,7 @@ class BaseResourcePrint(BaseResourceBatch):
         pdfprinter = self.print_handler.getPrinterConnection('PDF', self.print_options)
         save_as = self.print_options['save_as'] or self.batch_title
         filename = pdfprinter.printPdf(self.results.values(), self.batch_title, 
-                                      outputFilePath=self.page.site.getStaticPath('user:output','pdf',save_as))
+                                      outputFilePath=self.page.site.getStaticPath('user:output','pdf',save_as,autocreate=True))
         if filename:
             resultAttr['url'] = self.page.site.getStaticUrl('user:output','pdf',filename)
     
@@ -89,6 +88,7 @@ class BaseResourcePrint(BaseResourceBatch):
         bc = pane.borderContainer()
         top = bc.contentPane(region='top')
         fb = top.formbuilder(cols=1, border_spacing='3px',action='SET .print_mode=$1.print_mode',group='print_mode')
+        fb.data('.print_mode','client_print')
         fb.radiobutton(value='^.client_print',default_value=True,label='!!Client print',print_mode='client_print')
         fb.radiobutton(value='^.server_print',label='!!Server print',print_mode='server_print')
         fb.radiobutton(value='^.pdf',label='!!Download Pdf',print_mode='pdf')

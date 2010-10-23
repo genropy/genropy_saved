@@ -1,5 +1,8 @@
 var batch_monitor = {};
 
+batch_monitor.owner_page_batch = function(batch_id){
+    return genro.nodeById('bm_local_rootnode') && (genro.page_id == genro.getData(this.batchpath(batch_id)));
+};
 
 batch_monitor.on_datachange = function(kw){
     if(!kw.reason){
@@ -9,32 +12,59 @@ batch_monitor.on_datachange = function(kw){
     var callname = 'on_'+kw.reason;
     var node = kw.node;
     if(callname in batch_monitor){
-     this[callname].call(this,node);
+        var batch_id = node.attr.batch_id || node.label;
+        this[callname].call(this,node,this.get_batch_sourceNode(batch_id));
+        if (this.owner_page_batch(batch_id)){
+            this[callname].call(this,node,this.get_batch_sourceNode(batch_id,true));
+        }
     }
+};
+//batch_monitor.on_btc_create = function(node,sourceNode){
+//    console.log('create');
+//};
+batch_monitor.get_batch_sourceNode= function(batch_id,local){
+    var batch_sourceNode_id = 'batch_'+batch_id;
+    var container_id='bm_rootnode'
+    if (local){
+        batch_sourceNode_id = batch_sourceNode_id+'_local';
+        container_id='bm_local_rootnode'
+    }
+    var sourceNode= genro.nodeById(batch_sourceNode_id);
+    if(!sourceNode){
+       var container_node= genro.nodeById(container_id);
+       if(container_node){
+           this.batch_sourceNode_create(container_node,batch_id,batch_sourceNode_id);
+           sourceNode= genro.nodeById(batch_sourceNode_id);
+       }
+    }
+    sourceNode.batch_id = batch_id;
+    return sourceNode;
+};
+batch_monitor.batch_sourceNode_create = function(container_node,batch_id,batch_sourceNode_id){
+    var batchpath = this.batchpath(batch_id);
+    var batch_data = genro.getData(batchpath);
+    var batchpane = container_node._('div',{datapath:batchpath,nodeId:batch_sourceNode_id,title:'^.note',
+                                _class:'bm_batchpane'});
+    var titlediv = batchpane._('div',{_class:'bm_batchlabel'});
+    titlediv._('div',{innerHTML:'^.title', _class:'bm_batchtitle'});
+    var topright = titlediv._('div',{_class:'bm_label_action_link'})
+    topright._('a',{innerHTML:'Stop',visible:'^.cancellable',
+                    href:'javascript:genro.dlg.ask("Stopping batch","Do you want really stop batch"+"'+batch_data.getItem('title')+'"+"?",null,{confirm:function(){genro.serverCall("btc.abort_batch",{"batch_id":"'+batch_id+'"})}})'});
+    var thermopane = batchpane._('div',{_class:'bm_contentpane',datapath:'.thermo'});
+    sourceNode = genro.nodeById(batch_sourceNode_id);
+    sourceNode.thermoSourceNode = thermopane.getParentNode();
+    sourceNode.thermoSourceNode.thermolines = {};
+    sourceNode.toprightSourceNode = topright.getParentNode();
 };
 
-batch_monitor.on_btc_create = function(node){
-    var batch_id = node.label;
-    var batch_bag = node.getValue();
-    var thermopane = this.create_batchpane(batch_id,batch_bag);
-    var lines = batch_bag.getItem('lines');
-    if (!lines){
-        return;
-    }
-    if (typeof(lines)=='string') {
-        lines = lines.split(',');
-    }
-    dojo.forEach(lines,function(line){
-        batch_monitor.create_thermoline(thermopane,batch_id,line);
-    });    
-};
-batch_monitor.on_btc_end = function(node){
-   
-};
-batch_monitor.on_btc_result_doc = function(node){
-    var batch_id = node.label;
+//batch_monitor.on_btc_end = function(node,sourceNode){
+//
+//};
+
+batch_monitor.on_btc_result_doc = function(node,sourceNode){
+    var batch_id = sourceNode.batch_id;
     var batch_value = node.getValue();
-    var resultpane = this.thermopane(node.label);
+    var resultpane = sourceNode.thermoSourceNode;
     resultpane.clearValue().freeze();
     var result = batch_value.getItem('result');
     var url = batch_value.getItem('result?url');
@@ -44,115 +74,86 @@ batch_monitor.on_btc_result_doc = function(node){
     if (url) {
         resultpane._('div')._('a',{href:url,innerHTML:'download'});
     };
-    topright = genro.nodeById('bm_top_right_'+batch_id).clearValue();
+    topright = sourceNode.toprightSourceNode.clearValue();
     topright._('div',{_class:'buttonIcon icnTabClose',connect_onclick:'genro.serverCall("btc.remove_batch",{"batch_id":"'+batch_id+'"})'});
     resultpane._('div',{innerHTML:'Batch completed - total time:'+batch_value.getItem('time_delta')});
     resultpane.unfreeze();
 };
-batch_monitor.on_btc_error = function(node){
+batch_monitor.on_btc_error = function(node,sourceNode){
    // genro.bp(node);
 };
-batch_monitor.on_btc_error_doc = function(node){
-    var batch_id = node.label;
+batch_monitor.on_btc_error_doc = function(node,sourceNode){
     var batch_value = node.getValue();
-    var resultpane = this.thermopane(node.label);
+    var batch_id = sourceNode.batch_id;
+    var resultpane = sourceNode.thermoSourceNode;
     resultpane.clearValue().freeze();
     var error = batch_value.getItem('error');
     if (error) {
         resultpane._('div',{innerHTML:error});
     };
-    topright = genro.nodeById('bm_top_right_'+batch_id).clearValue();
+    topright = sourceNode.toprightSourceNode.clearValue();
     topright._('div',{_class:'buttonIcon icnTabClose',connect_onclick:'genro.serverCall("btc.remove_batch",{"batch_id":"'+batch_id+'"})'});
     resultpane._('div',{innerHTML:'Error inside batch - total time:'+batch_value.getItem('time_delta')});
     resultpane.unfreeze();  
 };
-batch_monitor.on_btc_aborted = function(node){
-    this.batch_remove(node.label);
+batch_monitor.on_btc_aborted = function(node,sourceNode){
+    this.batch_remove(sourceNode);
 };
-batch_monitor.on_th_cleanup = function(node){
+batch_monitor.on_th_cleanup = function(node,sourceNode){
     genro.bp(node);
 };
-batch_monitor.on_tl_add = function(node){
-    var batch_id = node.attr.batch_id;
-    var thermopane = genro.nodeById(this.get_batch_thermo_node_id(batch_id));
-    if (thermopane){
-        this.create_thermoline(thermopane,batch_id,node.label,node.attr);
-    }
-    else{
-        //genro.bp()
-        console.log('on_tl_add no thermopane');
-    }
+batch_monitor.on_tl_add = function(node,sourceNode){
+    this.create_thermoline(sourceNode,node.label,node.attr);
 };
-batch_monitor.on_tl_del = function(node){
-    this.delete_thermoline(node.attr.batch_id,node.label);
+batch_monitor.on_tl_del = function(node,sourceNode){
+    this.delete_thermoline(sourceNode,node.label);
 };
 
-batch_monitor.on_tl_upd = function(node){
+batch_monitor.on_tl_upd = function(node,sourceNode){
     //genro.bp(node);
 };
 
-batch_monitor.on_btc_removed = function(node){
-    this.batch_remove(node.label);
+batch_monitor.on_btc_removed = function(node,sourceNode){
+    this.batch_remove(sourceNode);
 };
 
-batch_monitor.batch_remove = function(batch_id){
-    this.batchpane(batch_id)._destroy();
+batch_monitor.batch_remove = function(sourceNode){
+    var batch_id = sourceNode.batch_id;
+    sourceNode._destroy();
     genro._data.delItem(this.batchpath(batch_id));
-};
-
-batch_monitor.get_batch_node_id = function(batch_id){
-    return 'batch_'+batch_id;
-};
-batch_monitor.get_batch_thermo_node_id = function(batch_id){
-    return 'batch_'+batch_id+'_thermo';
 };
 
 batch_monitor.batchpath = function(batch_id){
     return 'gnr.batch.'+batch_id;
 };
-batch_monitor.batchpane = function(batch_id){
-    var node =  genro.nodeById(this.get_batch_node_id(batch_id));
-    return node;
-};
-batch_monitor.thermopane = function(batch_id){
-    return genro.nodeById(this.get_batch_thermo_node_id(batch_id));
+
+batch_monitor.waiting_pane = function(parentId){
+    var parentSourceNode = genro.nodeById(parentId);
+    genro.dom.addClass(parentSourceNode.domNode,'loadingForm');
+    parentSourceNode._('div',{_class:'formHider',nodeId:'bm_local_rootnode'});
+
 };
 
-batch_monitor.create_batchpane = function(batch_id,batch_data){
-    var batch_node_id = this.get_batch_node_id(batch_id);
-    var batchpane = genro.nodeById(batch_node_id);
-    var batchpath = this.batchpath(batch_id);
-    if (!batchpane){
-        var rootNode = genro.nodeById('bm_rootnode');
-        batchpane = rootNode._('div',{datapath:batchpath,nodeId:batch_node_id,title:'^.note',
-                                    _class:'bm_batchpane'});
-        var titlediv = batchpane._('div',{_class:'bm_batchlabel'});
-        titlediv._('div',{innerHTML:'^.title', _class:'bm_batchtitle'});
-        titlediv._('div',{_class:'bm_label_action_link',nodeId:'bm_top_right_'+batch_id})._('a',{innerHTML:'Stop',
-                                                visible:'^.cancellable',
-                    href:'javascript:genro.dlg.ask("Stopping batch","Do you want really stop batch"+"'+batch_data.getItem('title')+'"+"?",null,{confirm:function(){genro.serverCall("btc.abort_batch",{"batch_id":"'+batch_id+'"})}})'});
-        return batchpane._('div',{_class:'bm_contentpane',datapath:'.thermo',nodeId:this.get_batch_thermo_node_id(batch_id)});
-    }
-};
 
-batch_monitor.delete_thermoline = function(batch_id,code){
-    var thermo_id = 'thermo_'+batch_id+'_'+code;
-    var node = genro.nodeById(thermo_id)
+batch_monitor.delete_thermoline = function(sourceNode,code){
+    var node = sourceNode.thermoSourceNode.thermolines[code];
     if (node){
         node._destroy();
     }
-}
+};
 
-batch_monitor.create_thermoline = function(pane,batch_id,line,attributes){
+batch_monitor.create_thermoline = function(sourceNode,line,attributes){
+    var pane = sourceNode.thermoSourceNode;
     var code = line;
     var custom_attr = {};
     if (typeof(line)!='string') {
         code = objectPop(line,'code');
         custom_attr = line;
-    }      
+    }     
     thermo_class = attributes.thermo_class || '';
     var custom_msg_attr = objectExtract(custom_attr,'msg_*');
-    var innerpane = pane._('div',{datapath:'.'+code,nodeId:'thermo_'+batch_id+'_'+code});
+    var innerpane = pane._('div',{datapath:'.'+code});
+    pane.thermolines[code] = innerpane.getParentNode();
     //var cb = function(percent){
     //    return line+':'+dojo.number.format(percent, {type: "percent", places: this.places, locale: this.lang});
     //};
@@ -170,4 +171,5 @@ batch_monitor.create_thermoline = function(pane,batch_id,line,attributes){
     //    innerpane._('div',msg_attr);
     //}
     innerpane._('div',{_class:'bm_thermoline_box'})._('progressBar',thermo_attr);
+    
 };

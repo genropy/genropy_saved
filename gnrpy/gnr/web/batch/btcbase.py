@@ -59,7 +59,9 @@ class BaseResourceBatch(object):
     def run(self):
         self.btc.batch_create(batch_id='%s_%s' %(self.batch_prefix,self.page.getUuid()),
                             title=self.batch_title,
-                            cancellable=self.batch_cancellable,delay=self.batch_delay,note=self.batch_note) 
+                            cancellable=self.batch_cancellable,
+                            delay=self.batch_delay,
+                            note=self.batch_note) 
         self._pre_process()
         if self.batch_steps:
             for step in self.btc.thermo_wrapper(self.batch_steps,'btc_steps',message=self.get_step_caption,keep=True):

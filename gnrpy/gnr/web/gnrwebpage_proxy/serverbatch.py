@@ -107,7 +107,7 @@ class GnrWebBatch(GnrBaseProxy):
     def batch_complete(self, result=None,result_attr=None):
         result_doc = self._result_write(result=result,result_attr=result_attr)
         with self.page.userStore() as store:
-            store.set_datachange('%s.end' %self.batch_path,True,reason='btc_end')
+            #store.set_datachange('%s.end' %self.batch_path,True,reason='btc_end')
             store.set_datachange(self.batch_path,result_doc,reason='btc_result_doc')
     
     def batch_error(self, error=None,error_attr=None):

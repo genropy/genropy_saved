@@ -31,6 +31,8 @@ class BatchMonitor(BaseComponent):
         
 class TableScriptRunner(BaseComponent):
     py_requires='foundation/dialogs,gnrcomponents/printer_option_dialog'
+    js_requires = 'gnrcomponents/batch_handler/batch_handler'
+
     def onMain_table_script_runner(self):
         page = self.pageSource()
         plugin_main = page.div(datapath='gnr.plugin.table_script_runner',nodeId='table_script_runner')
@@ -43,12 +45,18 @@ class TableScriptRunner(BaseComponent):
                                        SET .selectedRowidx =  params['selectedRowidx'];
                                        SET .paramspath = params['paramspath'];
                                        FIRE .build_pars_dialog;
-                                       FIRE #table_script_dlg_parameters.open;
+                                       if(params['selectionName']){
+                                            FIRE #table_script_dlg_parameters.open;
+                                       }else{
+                                            genro.dlg.alert('Warning','No selection');
+                                       }
+                                       
                                     """,subscribe_table_script_run=True)
                                     
         plugin_main.dataRpc('dummy','table_script_run',
                 _fired='^.run',
                 _onCalling='PUBLISH batch_monitor_open;',
+                _onResult='FIRE .dialog.rpc_end;',
                 parameters='=.parameters',resource='=.resource',
                 res_type='=.res_type',
                 table='=.table',
@@ -108,10 +116,20 @@ class TableScriptRunner(BaseComponent):
         dlg = self.simpleDialog(pane,datapath='.dialog',title='^.title',height='^.height',width='^.width',
                              cb_center=cb_center,dlgId='table_script_dlg_parameters')
                          
-        dlg.dataController("""FIRE .close;
-                            SET #table_script_runner.parameters=pars;
-                            FIRE #table_script_runner.run;""",
+        dlg.dataController("""
+                            var modifier = _node.attr.modifier;
+                            if (modifier=='Shift'){
+                                FIRE .close;
+                                SET #table_script_runner.parameters=pars;
+                                FIRE #table_script_runner.run;
+                            }else{
+                                SET #table_script_runner.parameters=pars;
+                                batch_monitor.waiting_pane('table_script_dlg_parameters')
+                                FIRE #table_script_runner.run;
+                            }
+                            """,
                             _fired="^.save",pars='=.data')
+        dlg.dataController("var rootNode = genro.nodeById('bm_local_rootnode');if(rootNode){rootNode._destroy();}FIRE .close;",_fired="^.rpc_end")
                      
     def rpc_table_script_run(self,table=None,resource=None,res_type=None,selectionName=None,selectedRowidx=None,**kwargs):
         tblobj = self.tblobj or self.db.table(table)
