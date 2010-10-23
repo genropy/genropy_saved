@@ -5,20 +5,18 @@ class GnrCustomWebPage(object):
         self.createCss(root)
         root.data('gnr.windowTite','Dtatabase Structure')
         root.dataRemote('_dev.dbstruct','app.dbStructure')
-        bc=root.borderContainer(height='100%')
-        self.topPane(bc.contentPane(region='top',height='70px',_class='tm_top'))
-        tc=bc.tabContainer(region='center',margin='10px',background_color='white')
+        bc=root.borderContainer(height='100%',font_family='monaco')
+        self.topPane(bc.contentPane(region='top',_class='tm_top'))
+        tc=bc.tabContainer(region='center',margin='6px',background_color='white',font_size='.9em')
         for pkg in self.db.packages.values():
             self.packagePane(tc.borderContainer(title=pkg.name,
                                datapath='packages.%s'%pkg.name),pkg)
 
     def topPane(self,pane):
         top=pane.div()
-        top.div('Genropy',font_size='3em',color='white',margin='10px')
+        top.div('Genropy',font_size='1.7em',color='white',margin='10px')
     
     def packagePane(self,bc,pkg):
-        top=bc.contentPane(region='bottom',height='32px',background_color='silver',overflow='hidden')
-        top.textBox(value='^.selpath',readOnly=True,width='80%',margin='8px')
         center=bc.contentPane(region='center',splitter=True,background_color='white')
         for table in pkg['tables'].values():
             center.dataRemote('.tree.%s' % table.name,'relationExplorer',table=table.fullname,dosort=False)
@@ -28,7 +26,9 @@ class GnrCustomWebPage(object):
                      _class='fieldsTree',
                      hideValues=True,
                      margin='6px',
-                     font_size='.9em',
+                     drag_value_cb='return item.attr.fieldpath;',
+                     node_draggable=True,
+                     drag_class='draggedItem',
                      selected_fieldpath='.selpath',
                      getLabelClass="""if (!node.attr.fieldpath && node.attr.table){return "tableTreeNode"}
                                         else if(node.attr.relation_path){return "aliasColumnTreeNode"}
@@ -42,4 +42,6 @@ class GnrCustomWebPage(object):
     def createCss(self,pane):
         pane.css('.tm_top','background-color:#801f78;')
         pane.css('#mainWindow','background-color:white;')
+        pane.css('.tundra .dijitTreeContent','padding-top:0;min-height:17px;')
+        pane.css('.tundra .dijitTreeExpando','height:16px;')
         
