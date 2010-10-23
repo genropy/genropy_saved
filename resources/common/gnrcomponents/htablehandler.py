@@ -199,7 +199,7 @@ class HTableHandler(HTableHandlerBase):
                 
     def ht_edit(self,sc,table=None,nodeId=None,disabled=None,rootpath=None,editMode=None,loadKwargs=None):
         formId='%s_form' %nodeId
-        norecord = sc.contentPane(id='no_record_page',pageName='no_record').div('No record selected')
+        norecord = sc.contentPane(id='no_record_page',pageName='no_record').div('&nbsp;&nbsp;&nbsp;No record selected')
         bc = sc.borderContainer(pageName='record_selected')
         toolbar = bc.contentPane(region='top',overflow='hidden').toolbar(_class='standard_toolbar')
         toolbar.dataFormula('.edit.status.locked',True,_onStart=True)
