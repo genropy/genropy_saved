@@ -268,18 +268,12 @@ class GnrDomSrc(GnrStructData):
                          fldalign=None, fldvalign='middle', disabled=False,
                          rowdatapath=None, head_rows=None, **kwargs):
       
-        fieldPars = {}
-        for k, v in kwargs.items():
-            if k.startswith('lbl_'):
-                fieldPars[k] = v
-                del kwargs[k]
-            if k.startswith('fld_'):
-                fieldPars[k[4:]] = v
-                del kwargs[k]
+        commonPrefix = ('lbl_','fld_','row_','tdf_','tdl_')
+        commonKwargs = dict([(k,kwargs.pop(k)) for k in kwargs.keys() if len(k)>4 and k[0:4] in commonPrefix])
         tbl = self.child('table', _class='%s %s' % (tblclass, _class), **kwargs).child('tbody')
         tbl.fbuilder = GnrFormBuilder(tbl, cols=int(cols), dbtable=dbtable,
                 lblclass=lblclass,lblpos=lblpos,lblalign=lblalign,fldalign=fldalign,fieldclass=fieldclass,
-                lblvalign=lblvalign,fldvalign=fldvalign, rowdatapath=rowdatapath, head_rows=head_rows, fieldPars=fieldPars)
+                lblvalign=lblvalign,fldvalign=fldvalign, rowdatapath=rowdatapath, head_rows=head_rows, commonKwargs=commonKwargs)
         tbl.childrenDisabled=disabled
         return tbl
         
@@ -498,10 +492,10 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
         fieldobj=tblobj.column(fld)
         if fieldobj is None:
             raise GnrDomSrcError('Not existing field %s' % fld)
-        if parentfb:
-            args = copy(parentfb.fieldPars)
-            args.update(kwargs)
-        wdgattr = self.wdgAttributesFromColumn(fieldobj, **args)
+       #if parentfb:
+       #    args = copy(parentfb.commonKwargs)
+       #    args.update(kwargs)
+        wdgattr = self.wdgAttributesFromColumn(fieldobj)
         if fld in tblobj.model.virtual_columns:
             self.page.includeVirtualColumn(tblobj.fullname,fld)
             wdgattr['readOnly'] = True
@@ -601,8 +595,8 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
 class GnrFormBuilder(object):
     def __init__(self, tbl, cols=None, dbtable=None,fieldclass=None,
                 lblclass='gnrfieldlabel',lblpos='L',lblalign=None,fldalign=None,
-                lblvalign='middle',fldvalign='middle', rowdatapath=None, head_rows=None, fieldPars=None):
-        self.fieldPars = fieldPars or {}
+                lblvalign='middle',fldvalign='middle', rowdatapath=None, head_rows=None, commonKwargs=None):
+        self.commonKwargs = commonKwargs or {}
         self.lblalign=lblalign or {'L':'right','T':'center'}[lblpos] # jbe?  why is this right and not left?
         self.fldalign=fldalign or {'L':'left','T':'center'}[lblpos]
         self.lblvalign=lblvalign
@@ -750,6 +744,8 @@ class GnrFormBuilder(object):
     def _formCell(self, r, c, field=None):
         row=self.getRow(r)
         row_attributes = dict()
+        td_field_attr = dict()
+        td_lbl_attr = dict()
         lbl=''
         lblvalue=None
         tag=None
@@ -759,20 +755,31 @@ class GnrFormBuilder(object):
         lbl_kwargs={}
         lblhref=None
         if field is not None:
+            f=dict(self.commonKwargs)
+            f.update(field)
+            field=f
             lbl=field.pop('lbl','')
             if 'lbl_href' in field:
                 lblhref=field.pop('lbl_href')
                 lblvalue=lbl
                 lbl=None
-            for k,v in field.items():
-                if k.startswith('row_'):
-                    field.pop(k)
-                    row_attributes[k[4:]] = v
-            if 'class' in row_attributes:
-                row_attributes['_class'] = row_attributes.pop('class')
             for k in field.keys():
-                if k.startswith('lbl_'):
-                    lbl_kwargs[k[4:]]=field.pop(k)
+                attr_name = k[4:] 
+                if attr_name == 'class':
+                    attr_name = '_class'
+                if k.startswith('row_'):
+                    row_attributes[attr_name] = field.pop(k)
+                elif k.startswith('lbl_'):
+                    lbl_kwargs[attr_name]= field.pop(k)
+                elif k.startswith('fld_'):
+                    field[attr_name] = field.pop(k)
+                elif k.startswith('tdf_'):
+                    td_field_attr[attr_name] = field.pop(k)
+                elif k.startswith('tdl_'):
+                    td_lbl_attr[attr_name] = field.pop(k)
+                    
+                
+            
             lblalign, fldalign = field.pop('lblalign',lblalign), field.pop('fldalign',fldalign)
             lblvalign, fldvalign = field.pop('lblvalign',lblvalign), field.pop('fldvalign',fldvalign)
             tag=field.pop('tag',None)
@@ -793,7 +800,7 @@ class GnrFormBuilder(object):
             lblvalign=lbl_kwargs.pop('vertical_align', lblvalign)
             lblalign=lbl_kwargs.pop('align', lblalign)
             if lblhref:
-                cell=row.td(name='c_%i_l' % c, content=lbl,align=lblalign,vertical_align=lblvalign)
+                cell=row.td(name='c_%i_l' % c, content=lbl,align=lblalign,vertical_align=lblvalign,**td_lbl_attr)
                 if '_class' in lbl_kwargs:
                     lbl_kwargs['_class']=self.lblclass+' '+lbl_kwargs['_class']
                 else:
@@ -803,7 +810,7 @@ class GnrFormBuilder(object):
                     cell.a(content=lblvalue,href=lblhref,**lbl_kwargs)
             else:
                 
-                cell=row.td(name='c_%i_l' % c,align=lblalign,vertical_align=lblvalign)
+                cell=row.td(name='c_%i_l' % c,align=lblalign,vertical_align=lblvalign,**td_lbl_attr)
                 if lbl:
                     cell.div(content=lbl, _class=self.lblclass,**lbl_kwargs)
             for k,v in row_attributes.items():
@@ -811,6 +818,7 @@ class GnrFormBuilder(object):
                 row.parentNode.attr[k] = v
             if colspan>1:
                 kwargs['colspan']=str(colspan*2-1)
+            kwargs.update(td_field_attr)
             td=row.td(name='c_%i_f' % c, align=fldalign,vertical_align=fldvalign,_class=self.fieldclass,**kwargs)
             if colspan>1:
                 for cs in range(c+1,c+colspan):

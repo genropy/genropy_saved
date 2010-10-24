@@ -10,7 +10,8 @@ from gnr.web.batch.btcbase import BaseResourceBatch
 from gnr.core.gnrbag import Bag
 class BaseResourcePrint(BaseResourceBatch):
     dialog_height = '300px'
-    dialog_width = '400px'
+    dialog_width = '460px'
+    dialog_height_no_par = '200px'
         
     def __init__(self,*args,**kwargs):
         super(BaseResourcePrint,self).__init__(**kwargs)
@@ -21,6 +22,7 @@ class BaseResourcePrint(BaseResourceBatch):
     def _pre_process(self):
         self.batch_options = self.batch_parameters['batch_options']
         self.print_mode = self.batch_options['print_mode']
+        self.server_print_options = self.batch_parameters['_printerOptions']
         self.print_options = self.batch_options['print_mode_option']
         self.print_handler = self.page.getService('print')           
     
@@ -72,7 +74,7 @@ class BaseResourcePrint(BaseResourceBatch):
         print 'client print:todo'
         
     def result_handler_server_print(self,resultAttr):
-        printer = self.print_handler.getPrinterConnection(self.print_options['printer_name'],self.print_options)
+        printer = self.print_handler.getPrinterConnection(self.server_print_options['printer_name'],**self.server_print_options)
         return printer.printCups(self.results.values(), self.batch_title )
 
         
@@ -86,49 +88,54 @@ class BaseResourcePrint(BaseResourceBatch):
     
     def table_script_option_pane(self,pane):
         bc = pane.borderContainer()
-        top = bc.contentPane(region='top')
-        fb = top.formbuilder(cols=1, border_spacing='3px',action='SET .print_mode=$1.print_mode',group='print_mode')
+        top = bc.contentPane(region='top',padding='6px').div(_class='ts_printMode',padding='2px')
+        fb = top.formbuilder(cols=5, border_spacing='4px',margin_top='2px',font_size='.9em',
+                            action='SET .print_mode=$1.print_mode',group='print_mode',lbl_width='3em')
         fb.data('.print_mode','client_print')
         fb.radiobutton(value='^.client_print',default_value=True,label='!!Client print',print_mode='client_print')
         fb.radiobutton(value='^.server_print',label='!!Server print',print_mode='server_print')
-        fb.radiobutton(value='^.pdf',label='!!Download Pdf',print_mode='pdf')
-        fb.radiobutton(value='^.mail_pdf',label='!!Send pdf as mail',print_mode='mail_pdf')
+        fb.radiobutton(value='^.pdf',label='!!Pdf download',print_mode='pdf')
+        fb.radiobutton(value='^.mail_pdf',label='!!Pdf by mail',print_mode='mail_pdf')
         fb.radiobutton(value='^.mail_deliver',label='!!Deliver mails',print_mode='mail_deliver')
-
+        
         center = bc.stackContainer(region='center',selectedPage='^.#parent.print_mode',
-                                    margin='3px',border='2px solid white',datapath='.print_mode_option')
+                                    margin='3px',datapath='.print_mode_option')
                                     
         self.table_script_options_client_print(center.contentPane(pageName='client_print'))
-        self.table_script_options_server_print(center.contentPane(pageName='server_print'))
+        self.server_print_option_pane(center.contentPane(pageName='server_print'))
         self.table_script_options_pdf(center.contentPane(pageName='pdf'))
-        self.table_script_options_mail_pdf(center.contentPane(pageName='mail_pdf'))
-        self.table_script_options_mail_deliver(center.contentPane(pageName='mail_deliver'))
+        self.table_script_options_mail_pdf(center.contentPane(pageName='mail_pdf',datapath='.mail'))
+        self.table_script_options_mail_deliver(center.contentPane(pageName='mail_deliver',datapath='.mail'))
         
     def table_script_options_client_print(self,pane):
-        pane.div('!!TODO: client print')
+        pane.div()
         
-    def table_script_options_server_print(self,pane):
-        pane.button('Options',action='FIR #printer_option_dialog.open=resource_name',
-                    resource_name='=.#parent.batch.resource_name')
-    
+    #def table_script_options_server_print(self,pane):
+    #    pane.button('Options',action='FIR #printer_option_dialog.open=resource_name',
+    #                resource_name='=.#parent.batch.resource_name')
+    #
     def table_script_options_pdf(self,pane):
-        fb = pane.formbuilder(cols=1)
-        fb.dataFormula('.zipped','false',_onStart=True)
-        fb.textbox(value='^.save_as',lbl='!!Save as')
+        fb = self.table_script_fboptions(pane,fld_width=None,tdl_width='6em')
+        fb.data('.zipped',False)
+        fb.textbox(value='^.save_as',lbl='!!Document name',width='100%')
         fb.checkbox(value='^.zipped',label='!!Zip folder')
         
     def table_script_options_mail_pdf(self,pane):
-        fb = pane.formbuilder(cols=1,width='350px',datapath='.mail')
-        fb.textbox(value='^.to_address',lbl='!!To',width='100%')
-        fb.textbox(value='^.cc_address',lbl='!!CC',width='100%')
-        fb.textbox(value='^.subject',lbl='!!Subject',width='100%')
-        fb.textbox(value='^.body',lbl='!!Body',width='100%')
+        fb = self.table_script_fboptions(pane)
+        fb.textbox(value='^.to_address',lbl='!!To')
+        fb.textbox(value='^.cc_address',lbl='!!CC')
+        fb.textbox(value='^.subject',lbl='!!Subject')
+        fb.simpleTextArea(value='^.body',lbl='!!Body',height='10ex',lbl_vertical_align='top')
     
     def table_script_options_mail_deliver(self,pane):
-        fb = pane.formbuilder(cols=1,width='350px',datapath='.mail')
+        fb = self.table_script_fboptions(pane)
         fb.textbox(value='^.cc_address',lbl='!!CC',width='100%')
         fb.textbox(value='^.subject',lbl='!!Subject',width='100%')
-        fb.textbox(value='^.body',lbl='!!Body',width='100%')
+        fb.simpleTextArea(value='^.body',lbl='!!Body',height='14ex',lbl_vertical_align='top')
+    
+    def table_script_fboptions(self,pane,fld_width='100%',tdl_width='4em'):
+        return pane.div(margin_right='5px').formbuilder(cols=1,width='100%',tdl_width=tdl_width,
+                             border_spacing='4px',fld_width=fld_width)
 
 
 

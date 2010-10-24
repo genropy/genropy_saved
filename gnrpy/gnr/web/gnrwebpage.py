@@ -838,6 +838,7 @@ class GnrWebPage(GnrBaseWebPage):
                                 command = leftStatus?'open':'close';
                             }
                             genro.publish(pagename+'_'+command);
+                            genro.publish(pagename+'_'+command=='open'?'on':'off');
                             """,
                             subscribe_gnr_main_left_selected=True,
                             subscribe_main_left_status=True,
@@ -853,6 +854,8 @@ class GnrWebPage(GnrBaseWebPage):
                             PUBLISH main_left_set_status = true;
                             SET .selected=plugin;
                           """,**{'subscribe_%s_open' %plugin:True,'plugin':plugin})
+            
+            
     
     def includeVirtualColumn(self,table,virtual_column):
         """Add to the record loader for given table a virtual_column"""
