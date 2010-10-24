@@ -151,6 +151,7 @@ dojo.declare('gnr.GenroClient', null, {
     },
     saveContextCookie:function(){
         var clientCtx=genro.getData('_clientCtx');
+        genro.publish('onCookieSaving');
         if (clientCtx){
             dojo.cookie("genroContext",clientCtx.toXml(), { expires: 5,path:genro.getData('gnr.homeUrl')});
         }
@@ -270,7 +271,8 @@ dojo.declare('gnr.GenroClient', null, {
             var cookiestring=genro.dom.parseXmlString(cookie);
             contextBag.fromXmlDoc(cookiestring);
         }
-        genro.setData('_clientCtx', contextBag);    
+        genro.setData('_clientCtx', contextBag); 
+        genro.publish('onCookieLoaded');
     },
     fireEvent: function(path, msg){
         msg =(msg!=null)?msg:true;
