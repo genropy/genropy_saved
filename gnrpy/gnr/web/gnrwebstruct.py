@@ -492,10 +492,7 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
         fieldobj=tblobj.column(fld)
         if fieldobj is None:
             raise GnrDomSrcError('Not existing field %s' % fld)
-       #if parentfb:
-       #    args = copy(parentfb.commonKwargs)
-       #    args.update(kwargs)
-        wdgattr = self.wdgAttributesFromColumn(fieldobj)
+        wdgattr = self.wdgAttributesFromColumn(fieldobj,**kwargs)
         if fld in tblobj.model.virtual_columns:
             self.page.includeVirtualColumn(tblobj.fullname,fld)
             wdgattr['readOnly'] = True
@@ -772,7 +769,9 @@ class GnrFormBuilder(object):
                 elif k.startswith('lbl_'):
                     lbl_kwargs[attr_name]= field.pop(k)
                 elif k.startswith('fld_'):
-                    field[attr_name] = field.pop(k)
+                    v = field.pop(k)
+                    if not attr_name in field:
+                        field[attr_name] = v
                 elif k.startswith('tdf_'):
                     td_field_attr[attr_name] = field.pop(k)
                 elif k.startswith('tdl_'):
