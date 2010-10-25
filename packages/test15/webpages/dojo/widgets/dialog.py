@@ -5,7 +5,7 @@
 class GnrCustomWebPage(object):
 
     py_requires="gnrcomponents/testhandler:TestHandlerBase"
-    dojo_theme='claro'
+    dojo_theme='tundra'
     
     def test_1_basic(self,pane):
         """Basic Dialog"""
@@ -34,4 +34,16 @@ class GnrCustomWebPage(object):
         fld.span().textbox(value='^dialogTitle',placeholder='dialog title')
         pane.data('dialogTitle','dialog title')
         pane.button('Open a dialog',action="genro.wdgById('mydialog_variable_title').show()")
+
+    def test_4_tooltip_dialog_in_dialog(self,pane):
+        pane.button('show',action='genro.wdgById("mydialog_with_tooltip").show();')
+        dlg=pane.dialog(nodeId='mydialog_with_tooltip',duration=1000,
+                       style='width:300px;top:20px;',title='^dialogTitle')
+        box = dlg.div(height='300px',width='400px')
+        innerdlg = box.dropDownButton('open tooltip').tooltipDialog(title='inner dialog')
+        innerbox = innerdlg.div(height='150px',width='200px')
+        fb = innerbox.formbuilder(cols=1, border_spacing='2px')
+        fb.textbox(value='^aaa',lbl='Try')
+        fb.textbox(value='^bb',lbl='Try 2')
+
 
