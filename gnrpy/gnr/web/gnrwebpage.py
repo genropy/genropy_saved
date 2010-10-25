@@ -838,7 +838,7 @@ class GnrWebPage(GnrBaseWebPage):
                                 command = leftStatus?'open':'close';
                             }
                             genro.publish(pagename+'_'+command);
-                            genro.publish(pagename+'_'+command=='open'?'on':'off');
+                            genro.publish(pagename+'_'+(command=='open'?'on':'off'));
                             """,
                             subscribe_gnr_main_left_selected=True,
                             subscribe_main_left_status=True,
