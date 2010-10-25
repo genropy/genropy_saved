@@ -23,14 +23,14 @@ class BatchMonitor(BaseComponent):
         #dovrei modificare il clieant in modo che mi prenda l elemento di classe bm_rootnode visibile
         # e gli appiccichi i termometri senza usare il node id
         pane.div(nodeId='bm_rootnode',_class='bm_rootnode')
-        pane.dataRpc('dummy','setStoreSubscription',subscribe_batch_monitor_open=True,
+        pane.dataRpc('dummy','setStoreSubscription',subscribe_batch_monitor_on=True,
                     storename='user',client_path='gnr.batch',active=True,
                     _onResult='genro.rpc.setPolling(1,1);')
-        pane.dataRpc('dummy','setStoreSubscription',active=False,subscribe_batch_monitor_close=True,
+        pane.dataRpc('dummy','setStoreSubscription',active=False,subscribe_batch_monitor_off=True,
                     _onCalling='genro.rpc.setPolling();',storename='user')
         
 class TableScriptRunner(BaseComponent):
-    py_requires='foundation/dialogs,gnrcomponents/printer_option_dialog'
+    py_requires='foundation/dialogs,gnrcomponents/printer_option_dialog:PrinterOption'
     js_requires = 'gnrcomponents/batch_handler/batch_handler'
 
     def onMain_table_script_runner(self):
@@ -55,16 +55,15 @@ class TableScriptRunner(BaseComponent):
                                     
         plugin_main.dataRpc('dummy','table_script_run',
                 _fired='^.run',
-                _onCalling='PUBLISH batch_monitor_open;',
-                _onResult='FIRE .dialog.rpc_end;',
-                parameters='=.parameters',resource='=.resource',
+                _onResult='PUBLISH table_script_end;',
+                parameters='=.parameters',
+                resource='=.resource',
                 res_type='=.res_type',
                 table='=.table',
                 selectionName='=.selectionName',
                 struct='==this.getRelativeData(_structpath);',
                 _structpath='=.structpath',
-                otherParams='==this.getRelativeData(_paramspath)',
-                _paramspath='=.paramspath',
+                printerOptions='==this.getRelativeData("gnr.server_print.printers."+resource);',
                 selectedRowidx="=.selectedRowidx")
                 
         plugin_main.div().remote('table_script_parameters',
@@ -90,6 +89,32 @@ class TableScriptRunner(BaseComponent):
                             _fired="^.run_table_script",selectionName=selectionName,table=table,
                             gridId=gridId,res_type=res_type,resource='=.resource')
 
+    
+    def table_script_dialog_center(self,parentBc,hasParameters=None,dialog_height_no_par=None,**kwargs):
+        if hasattr(self,'table_script_option_pane'):
+            paramsBc = parentBc.borderContainer(pageName='params',datapath='.data',**kwargs)
+            if hasParameters:
+                self.table_script_parameters_pane(paramsBc.contentPane(region='top',_class='ts_parametersPane'))
+            self.table_script_option_pane(paramsBc.contentPane(region='bottom',height=dialog_height_no_par,datapath='.batch_options',
+                                                                _class='ts_optionsPane'))
+        elif hasParameters:
+            paramsPane = parentBc.contentPane(pageName='params',_class='ts_parametersPane',datapath='.data',**kwargs)
+            self.table_script_parameters_pane(paramsPane)
+        self.table_script_waitingpane(parentBc.auxPane)
+        
+    def table_script_waitingpane(self,pane):
+        bc = pane.borderContainer()
+        bottom = bc.contentPane(region='bottom',_class='dialog_bottom')
+        bottom.button('!!Close',float='right',margin='1px',
+                      action='PUBLISH batch_monitor_off; FIRE .close')
+        center = bc.contentPane(region='center', nodeId='table_script_waitingpane',_class='pbl_viewbox')
+        center.dataController("""if(page=='aux'){
+                                    batch_monitor.create_local_root('table_script_waitingpane');
+                                 }
+                                    """,page="^.selected_stack_page")
+        
+        
+    
     def remote_table_script_parameters(self,pane,table=None,res_type=None,resource='',title=None,**kwargs):
         pkgname,tblname = table.split('.')
         if not resource:
@@ -101,41 +126,44 @@ class TableScriptRunner(BaseComponent):
         batch_dict['resource_name'] = resource
         batch_dict['res_type'] = res_type
         pane.data('.batch',batch_dict)
-        dlg_dict = objectExtract(cl,'dialog_')
-        dlg_dict['title'] = dlg_dict.get('title',batch_dict.get('title'))
-        pane.data('.dialog',dlg_dict)
-        def cb_center(parentBc,**kwargs):
-            if hasattr(self,'table_script_option_pane'):
-                center = parentBc.tabContainer(datapath='.data',**kwargs)
-                self.table_script_parameters_pane(center.contentPane(title='!!Parameters'))
-                self.table_script_option_pane(center.contentPane(title='!!Options',datapath='.batch_options'))
-            else:
-                center = parentBc.contentPane(datapath='.data',**kwargs)
-                self.table_script_parameters_pane(center)
+        hasParameters = hasattr(self,'table_script_parameters_pane')
         
+        dlg_dict = objectExtract(cl,'dialog_')
+        dialog_height_no_par = dlg_dict.pop('height_no_par',dlg_dict.get('height'))
+        if not hasParameters:
+            dlg_dict['height'] = dialog_height_no_par
+        dlg_dict['title'] = dlg_dict.get('title',batch_dict.get('title'))
+        pane.data('.dialog',dlg_dict)        
         dlg = self.simpleDialog(pane,datapath='.dialog',title='^.title',height='^.height',width='^.width',
-                             cb_center=cb_center,dlgId='table_script_dlg_parameters')
+                             cb_center=self.table_script_dialog_center,dlgId='table_script_dlg_parameters',
+                             hasParameters=hasParameters,dialog_height_no_par=dialog_height_no_par)
                          
         dlg.dataController("""
                             var modifier = _node.attr.modifier;
                             if (modifier=='Shift'){
                                 FIRE .close;
+                                //PUBLISH batch_monitor_open;
                                 SET #table_script_runner.parameters=pars;
                                 FIRE #table_script_runner.run;
                             }else{
+                                //FIRE .close;
+                                SET .selected_stack_page = 'aux';
+                                //batch_monitor.create_local_root('_pageRoot');
                                 SET #table_script_runner.parameters=pars;
-                                batch_monitor.waiting_pane('table_script_dlg_parameters')
+                                PUBLISH batch_monitor_on;
                                 FIRE #table_script_runner.run;
                             }
                             """,
                             _fired="^.save",pars='=.data')
-        dlg.dataController("var rootNode = genro.nodeById('bm_local_rootnode');if(rootNode){rootNode._destroy();}FIRE .close;",_fired="^.rpc_end")
                      
-    def rpc_table_script_run(self,table=None,resource=None,res_type=None,selectionName=None,selectedRowidx=None,**kwargs):
+    def rpc_table_script_run(self,table=None,resource=None,res_type=None,selectionName=None,selectedRowidx=None,
+                            parameters=None,printerOptions=None,**kwargs):
         tblobj = self.tblobj or self.db.table(table)
         res_obj=self.site.loadTableScript(self,tblobj,'%s/%s' %(res_type,resource),class_name='Main')
         res_obj.defineSelection(selectionName=selectionName,selectedRowidx=selectedRowidx)
-        res_obj(**kwargs)
+        parameters = parameters or {}
+        parameters['_printerOptions'] = printerOptions
+        res_obj(parameters=parameters,**kwargs)
         
     def rpc_table_script_resource_tree_data(self,table=None,res_type=None):
         pkg,tblname = table.split('.')

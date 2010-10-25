@@ -1,7 +1,8 @@
 var batch_monitor = {};
 
 batch_monitor.owner_page_batch = function(batch_id){
-    return genro.nodeById('bm_local_rootnode') && (genro.page_id == genro.getData(this.batchpath(batch_id)));
+    var isOwner = genro.page_id == genro.getData(this.batchpath(batch_id)).getItem('owner_page_id');
+    return genro.nodeById('bm_local_rootnode') && isOwner;
 };
 
 batch_monitor.on_datachange = function(kw){
@@ -19,9 +20,13 @@ batch_monitor.on_datachange = function(kw){
         }
     }
 };
-//batch_monitor.on_btc_create = function(node,sourceNode){
-//    console.log('create');
-//};
+
+batch_monitor.create_local_root = function(parentId){
+    var hiderLayer = genro.dom.makeHiderLayer(parentId);
+    hiderLayer.clearValue();
+    hiderLayer._('div',{width:'200px',position:'absolute',nodeId:'bm_local_rootnode'});
+};
+
 batch_monitor.get_batch_sourceNode= function(batch_id,local){
     var batch_sourceNode_id = 'batch_'+batch_id;
     var container_id='bm_rootnode'
@@ -35,6 +40,7 @@ batch_monitor.get_batch_sourceNode= function(batch_id,local){
        if(container_node){
            this.batch_sourceNode_create(container_node,batch_id,batch_sourceNode_id);
            sourceNode= genro.nodeById(batch_sourceNode_id);
+           genro.dom.centerOn('bm_local_rootnode');
        }
     }
     sourceNode.batch_id = batch_id;
@@ -104,9 +110,11 @@ batch_monitor.on_th_cleanup = function(node,sourceNode){
 };
 batch_monitor.on_tl_add = function(node,sourceNode){
     this.create_thermoline(sourceNode,node.label,node.attr);
+    genro.dom.centerOn('bm_local_rootnode'); //FORSE
 };
 batch_monitor.on_tl_del = function(node,sourceNode){
     this.delete_thermoline(sourceNode,node.label);
+    genro.dom.centerOn('bm_local_rootnode'); //FORSE
 };
 
 batch_monitor.on_tl_upd = function(node,sourceNode){
@@ -119,8 +127,8 @@ batch_monitor.on_btc_removed = function(node,sourceNode){
 
 batch_monitor.batch_remove = function(sourceNode){
     var batch_id = sourceNode.batch_id;
-    sourceNode._destroy();
     genro._data.delItem(this.batchpath(batch_id));
+    sourceNode._destroy();
 };
 
 batch_monitor.batchpath = function(batch_id){
@@ -128,9 +136,6 @@ batch_monitor.batchpath = function(batch_id){
 };
 
 batch_monitor.waiting_pane = function(parentId){
-    var parentSourceNode = genro.nodeById(parentId);
-    genro.dom.addClass(parentSourceNode.domNode,'loadingForm');
-    parentSourceNode._('div',{_class:'formHider',nodeId:'bm_local_rootnode'});
 
 };
 

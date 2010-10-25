@@ -107,3 +107,17 @@
 .bm_contentpane{
     padding:5px;
 }
+
+.ts_optionsPane{
+    background-color: rgba(168,181,182,0.8);
+}
+.ts_parametersPane{
+    background:whitesmoke;
+}
+.ts_printMode{
+    background:whitesmoke;
+    margin:2px;
+    -moz-border-radius:6px;
+    -moz-box-shadow:inset 2px 2px 2px gray;
+    -webkit-box-shadow:inset 2px 2px 2px gray;
+}
