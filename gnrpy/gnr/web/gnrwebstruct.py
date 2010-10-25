@@ -492,6 +492,9 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
         fieldobj=tblobj.column(fld)
         if fieldobj is None:
             raise GnrDomSrcError('Not existing field %s' % fld)
+       #if parentfb:
+       #    kw = dict(parentfb.commonKwargs)
+       #    kw.update(kwargs)
         wdgattr = self.wdgAttributesFromColumn(fieldobj,**kwargs)
         if fld in tblobj.model.virtual_columns:
             self.page.includeVirtualColumn(tblobj.fullname,fld)
@@ -542,7 +545,7 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
             result['ignoreCase']=True
             result['method']='app.dbSelect'
             result['size']=size
-            result['width']='%iem' % (int(size*.7)+2)
+            result['_guess_width']='%iem' % (int(size*.7)+2)
             if(onerelfld != relcol.table.pkey):
                 result['alternatePkey']=onerelfld
         #elif attr.get('mode')=='M':
@@ -554,31 +557,30 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
             result['maxLength'] = size
             result['tag']='textBox'
             result['_type']='text'
-            result['width']='%iem' % (int(size*.7)+2)
+            result['_guess_width']='%iem' % (int(size*.7)+2)
         elif dtype == 'B':
             result['tag']='checkBox'
-            if 'width' in kwargs: del kwargs['width']
             if 'autospan' in kwargs:
                 kwargs['colspan'] = kwargs['autospan']
                 del kwargs['autospan']
         elif dtype == 'T':
             result['tag']='textBox'
-            result['width']='%iem' % int(size*.5)
+            result['_guess_width']='%iem' % int(size*.5)
         elif dtype == 'R':
             result['tag']='numberTextBox'
             result['width']='7em' 
         elif dtype == 'N':
             result['tag']='numberTextBox'
-            result['width']='7em' 
+            result['_guess_width']='7em' 
         elif dtype == 'L' or dtype == 'I':
              result['tag']='numberTextBox'
-             result['width']='7em' 
+             result['_guess_width']='7em' 
         elif dtype == 'D':
             result['tag']='dateTextBox'
-            result['width']='9em' 
+            result['_guess_width']='9em' 
         elif dtype == 'H':
             result['tag'] = 'timeTextBox'
-            result['width'] ='7em'
+            result['_guess_width'] ='7em'
         else:
             result['tag']='textBox'
         if kwargs:
