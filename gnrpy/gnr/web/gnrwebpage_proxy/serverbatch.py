@@ -213,7 +213,11 @@ class GnrWebBatch(GnrBaseProxy):
             iterable = iterable.split(',')
         if callable(iterable):
             iterable=iterable(**kwargs)
-        maximum=len(iterable)
+        if 'maximum' in kwargs:
+            maximum = kwargs.pop('maximum')
+        else:
+            maximum=len(iterable)
+            
         if callable(message):
             cb_message = message
         else:
