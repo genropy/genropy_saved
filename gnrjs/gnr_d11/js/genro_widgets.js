@@ -1595,6 +1595,7 @@ dojo.declare("gnr.widgets.RadioButton",gnr.widgets.baseDojo,{
     creating:function(attributes, sourceNode){
         var savedAttrs = objectExtract(attributes, 'action,callback');
         var label=objectPop(attributes,'label');
+        objectPop(attributes,'width');
         attributes.name=objectPop(attributes,'group');
         if(label){
             attributes['id'] = attributes['id'] || 'id_'+ sourceNode._id;
@@ -1636,6 +1637,7 @@ dojo.declare("gnr.widgets.CheckBox",gnr.widgets.baseDojo,{
         this._dojotag='CheckBox';
     },
     creating:function(attributes, sourceNode){
+        objectPop(attributes,'width');
         var savedAttrs = objectExtract(attributes, 'action,callback');
         var label=objectPop(attributes,'label');
 
