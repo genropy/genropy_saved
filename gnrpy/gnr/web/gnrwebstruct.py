@@ -800,12 +800,12 @@ class GnrFormBuilder(object):
             lbl_kwargs.update(kwargs)
             lblvalign=lbl_kwargs.pop('vertical_align', lblvalign)
             lblalign=lbl_kwargs.pop('align', lblalign)
+            if '_class' in lbl_kwargs:
+                lbl_kwargs['_class']=self.lblclass+' '+lbl_kwargs['_class']
+            else:
+                lbl_kwargs['_class']=self.lblclass
             if lblhref:
                 cell=row.td(name='c_%i_l' % c, content=lbl,align=lblalign,vertical_align=lblvalign,**td_lbl_attr)
-                if '_class' in lbl_kwargs:
-                    lbl_kwargs['_class']=self.lblclass+' '+lbl_kwargs['_class']
-                else:
-                    lbl_kwargs['_class']=self.lblclass
                 if lblvalue:
                     lbl_kwargs['tabindex'] = -1 # prevent tab navigation to the zoom link
                     cell.a(content=lblvalue,href=lblhref,**lbl_kwargs)
@@ -813,7 +813,7 @@ class GnrFormBuilder(object):
                 
                 cell=row.td(name='c_%i_l' % c,align=lblalign,vertical_align=lblvalign,**td_lbl_attr)
                 if lbl:
-                    cell.div(content=lbl, _class=self.lblclass,**lbl_kwargs)
+                    cell.div(content=lbl,**lbl_kwargs)
             for k,v in row_attributes.items():
                 # TODO: warn if row_attributes already contains the attribute k (and it has a different value)
                 row.parentNode.attr[k] = v
