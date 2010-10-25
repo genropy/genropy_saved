@@ -747,6 +747,10 @@ class GnrWebPage(GnrBaseWebPage):
                 page.dataController('genro.dlg.serverMessage("gnr.servermsg");', _fired='^gnr.servermsg')
                 
                 page.dataController('if(url){genro.download(url)};', url='^gnr.downloadurl')
+                page.dataController("""if(url){
+                                        genro.download(url,null,"print")
+                                        };""", url='^gnr.printurl')
+
                 
                 page.dataController('console.log(msg);funcCreate(msg)();', msg='^gnr.servercode')
                 
