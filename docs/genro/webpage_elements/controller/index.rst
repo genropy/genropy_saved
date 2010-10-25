@@ -1,10 +1,13 @@
 	.. _genro-datacontroller-index:
 
-=================
- Data controller
-=================
+==================
+ Data controllers
+==================
 
 .. toctree::
 
 	introduction
+	datacontroller
 	dataformula
+	datarpc
+	datascript

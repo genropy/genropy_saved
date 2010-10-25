@@ -1,4 +1,4 @@
-	.. _genro-layout-index:
+	.. _genro-layout-introduction:
 
 ================================
  Introduction to the containers
