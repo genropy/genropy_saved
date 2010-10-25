@@ -109,15 +109,18 @@ class TableScriptToHtml(BagToHtml):
         self.templateLoader = self.db.table('adm.htmltemplate').getTemplate
         self.thermo_wrapper = self.page.btc.thermo_wrapper
         self.print_handler = self.page.getService('print')
+        self.record = None
     
     def __call__(self,record=None,pdf=None,downloadAs=None,thermo=None,**kwargs):
-        record = self.tblobj.recordAs(record, mode='bag') 
         self.thermo_kwargs = thermo
+        record = self.tblobj.recordAs(record)
         html_folder = self.getHtmlPath(autocreate=True)
         pdf_folder = self.getPdfPath(autocreate=True)
         html = super(TableScriptToHtml, self).__call__(record=record,folder=html_folder,**kwargs)
         if not pdf:
             return html
+            
+            
         docname = os.path.splitext(os.path.basename(self.filepath))[0]
         self.pdfpath = self.getPdfPath('%s.pdf' %docname)
         self.print_handler.htmlToPdf(self.filepath, self.pdfpath)
@@ -129,6 +132,15 @@ class TableScriptToHtml(BagToHtml):
             return self.pdfpath
            #with open(temp.name,'rb') as f:
            #    result=f.read()
+        
+    def get_record_caption(self,item,progress,maximum,**kwargs):
+        if self.rows_table:
+            tblobj = self.db.table(self.rows_table)
+            caption = '%s (%i/%i)' % (tblobj.recordCaption(item.value),progress,maximum)
+        else:
+            caption = '%i/%i' % (progress,maximum)
+        return caption
+
     
     def getHtmlPath(self,*args,**kwargs):
         return self.page.site.getStaticPath('conn:html',*args,**kwargs)
