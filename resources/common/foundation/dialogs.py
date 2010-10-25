@@ -60,8 +60,10 @@ class Dialogs(BaseComponent):
         dialog.dataController('genro.wdgById(dlgId).hide();SET .isOpen=false;',
                             dlgId=dlgId,_fired="^._closeSimpleDialog" )
                             
-                            
-        bc=dialog.borderContainer(height=height,width=width)
+        sc = dialog.stackContainer(height=height,width=width,selectedPage='^.selected_stack_page')              
+        bc=sc.borderContainer(pageName='main')
+        bc.auxPane = sc.contentPane(pageName='aux')
+
         cb_bottom = cb_bottom or getattr(self,'%s_bottom' %dlgId,None)
         cb_center = cb_center or getattr(self,'%s_center' %dlgId,None)
         if cb_bottom=='*':
