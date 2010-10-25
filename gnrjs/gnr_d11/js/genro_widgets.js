@@ -823,13 +823,14 @@ dojo.declare("gnr.widgets.Dialog",gnr.widgets.baseDojo,{
         }
         else
         {
-            var viewport=dojo.coords(genro.domById(centerOn));
-            viewport.l=viewport.x;
-            viewport.t=viewport.y;
-            var mb = dojo.marginBox(this.domNode);
-            var style = this.domNode.style;
-            style.left = Math.floor((viewport.l + (viewport.w - mb.w)/2)) + "px";
-            style.top = Math.floor((viewport.t + (viewport.h - mb.h)/2)) + "px";
+            genro.dom.centerOn(this.domNode,centerOn);
+           //var viewport=dojo.coords(genro.domById(centerOn));
+           //viewport.l=viewport.x;
+           //viewport.t=viewport.y;
+           //var mb = dojo.marginBox(this.domNode);
+           //var style = this.domNode.style;
+           //style.left = Math.floor((viewport.l + (viewport.w - mb.w)/2)) + "px";
+           //style.top = Math.floor((viewport.t + (viewport.h - mb.h)/2)) + "px";
         }
     },
 

@@ -146,6 +146,8 @@ dojo.declare("gnr.GnrDomHandler",null,{
         }
         if (where instanceof gnr.GnrDomSourceNode){
             where = where.getDomNode();
+        }else if (where instanceof gnr.GnrDomSource){
+            where = where.getParentNode().getDomNode();
         }
         return where;
     },
@@ -828,5 +830,23 @@ dojo.declare("gnr.GnrDomHandler",null,{
             };
         };
         setTimeout(cb,1); 
+    },
+    centerOn: function(what,where){
+        var whatDomNode = this.getDomNode(what);
+        var whereDomNode = where?this.getDomNode(where): whatDomNode.parentNode;
+        var viewport=dojo.coords(whereDomNode);
+        var mb = dojo.marginBox(whatDomNode);
+        var result = {};
+        var style = whatDomNode.style;
+        style.left = Math.floor((viewport.l + (viewport.w - mb.w)/2)) + "px";
+        style.top = Math.floor((viewport.t + (viewport.h - mb.h)/2)) + "px";
+    },
+    makeHiderLayer: function(parentId,kw){
+        var rootNode = parentId?genro.nodeById(parentId):genro.src.getNode();
+        var default_kw = {'position':'absolute',top:'0',left:'0',right:'0','bottom':0,
+                                  z_index:1000,background_color:'rgba(255,255,255,0.5)',id:parentId+'_hider'};
+        var kw = objectUpdate(default_kw,kw);
+        return rootNode._('div',kw).getParentNode();
     }
+    
 });
