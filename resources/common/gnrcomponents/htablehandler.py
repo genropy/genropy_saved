@@ -109,7 +109,7 @@ class HTableHandler(HTableHandlerBase):
     css_requires='public'
     def htableHandler(self,parent,nodeId=None,datapath=None,table=None,rootpath=None,label=None,
                     editMode='bc',childTypes=None,dialogPars=None,loadKwargs=None,parentLock=None,
-                    where=None,onChecked=None,plainView=False):
+                    where=None,onChecked=None,plainView=False,noRecordClass='noRecordSelected'):
         """
         .tree: tree data:
                         store
@@ -171,15 +171,15 @@ class HTableHandler(HTableHandlerBase):
                     rootpath=rootpath,childTypes=childTypes,editMode=editMode,label=label,onChecked=onChecked)
         self.ht_edit(formpane,table=table,nodeId=nodeId,disabled=disabled,
                         rootpath=rootpath,editMode=editMode,loadKwargs=loadKwargs,
-                        childTypes=childTypes,commonTop=commonTop)
+                        childTypes=childTypes,commonTop=commonTop,noRecordClass=noRecordClass)
                         
     def ht_edit_dlg_bottom(self,bc,**kwargs):
         bottom = bc.contentPane(**kwargs)
         bottom.button('!!Close',fire='.close')
                 
-    def ht_edit(self,sc,table=None,nodeId=None,disabled=None,rootpath=None,editMode=None,loadKwargs=None,childTypes=None,commonTop=None):
+    def ht_edit(self,sc,table=None,nodeId=None,disabled=None,rootpath=None,editMode=None,loadKwargs=None,childTypes=None,commonTop=None,noRecordClass=''):
         formId='%s_form' %nodeId
-        norecord = sc.contentPane(id='no_record_page',pageName='no_record').div('',_class='noRecordSelected')
+        norecord = sc.contentPane(id='no_record_page',pageName='no_record').div('',_class=noRecordClass)
         bc = sc.borderContainer(pageName='record_selected')
         top = commonTop if editMode=='bc' else bc.contentPane(region='top',overflow='hidden')
         toolbar =top.toolbar(_class='standard_toolbar')
