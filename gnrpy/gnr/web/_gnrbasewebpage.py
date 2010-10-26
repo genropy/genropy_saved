@@ -289,7 +289,7 @@ class GnrBaseWebPage(GnrObject):
             _onCalling = """var currform = genro.formById("%s");
                             var onSavingCb = function(record,form){%s};
                              %s
-                            var result = onSavingCb(data.getItem('record'),currform);
+                            var result = onSavingCb.call(this, data.getItem('record'), currform);
                             if(result===false){
                                 currform.status = null;
                                 return false;
