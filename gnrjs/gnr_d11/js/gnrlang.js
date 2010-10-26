@@ -25,9 +25,9 @@
  //funzioni di utilità varie
 
 //########################  Lang #########################
-var _lf='\n'
-var _crlf='\r\n'
-var _tab='\t'
+var _lf='\n';
+var _crlf='\r\n';
+var _tab='\t';
 function bagAsObj(bag){
     var result = {};
     var parentNode = bag.getParentNode();
@@ -172,10 +172,10 @@ function stringStrip(s) {
     return s.replace(/^[ \t\r\n]+/,'').replace(/[ \t\r\n]+$/,'');
 }
 function splitStrip(s,sp) {
-    r=[]
-    var sp=sp || ','
-    dojo.forEach(s.split(sp),function(v){r.push(stringStrip(v))})
-    return r
+    r=[];
+    var sp=sp || ',';
+    dojo.forEach(s.split(sp),function(v){r.push(stringStrip(v));});
+    return r;
 }
 function argumentsReplace(s) {
   return s.replace(/\$(\d+)/g, function(s, n){

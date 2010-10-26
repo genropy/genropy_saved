@@ -211,10 +211,10 @@ dojo.declare("gnr.GnrDlgHandler",null,{
         floatingPars.resizeAxis='y';
         floatingPars.maxable=false;
         floatingPars.duration=400;
-        var floating = node._('floatingPane',floatingPars)
-        var container = floating._('div',{datapath:'.data','margin_bottom':'12px'})
+        var floating = node._('floatingPane',floatingPars);
+        var container = floating._('div',{datapath:'.data','margin_bottom':'12px'});
         var create_thermoline = function(node,kw,i){
-            var innerpane = kw.pane._('div',{datapath:'.'+node.label})
+            var innerpane = kw.pane._('div',{datapath:'.'+node.label});
             innerpane._('div',{innerHTML:'^.?message',font_size:'8px',text_align:'center',color:'black'});
             innerpane._('progressBar',{progress:'^.?progress',maximum:'^.?maximum',indeterminate:'^.?indeterminate',
                                 places:'^.?places',width:'100%',height:'10px',font_size:'9px'});
@@ -235,9 +235,9 @@ dojo.declare("gnr.GnrDlgHandler",null,{
         var thermobag = genro._(thermopath+'.data');
         thermobag.forEach(create_thermopane,null,{'pane':container});
         node.unfreeze();
-        var bm=genro.wdgById('batchMonitor')
-        dojo.connect(bm,'close',function(){genro.setData('_thermo.monitor',false)})
-        genro.setData('_thermo.monitor',true)
+        var bm=genro.wdgById('batchMonitor');
+        dojo.connect(bm,'close',function(){genro.setData('_thermo.monitor',false);});
+        genro.setData('_thermo.monitor',true);
     },
     
     message: function(msg, position,level, duration ){

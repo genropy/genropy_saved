@@ -521,7 +521,7 @@ dojo.declare("gnr.GnrDomSourceNode",gnr.GnrBagNode,{
     _bld_datarpc: function() {},
     _bld_script: function() {
         if (this.attr.src){
-            genro.dom.loadJs(this.attr.src)
+            genro.dom.loadJs(this.attr.src);
         }else{
             dojo.eval(this.getValue());
         }
@@ -935,7 +935,7 @@ dojo.declare("gnr.GnrDomSourceNode",gnr.GnrBagNode,{
                     var reason=trigger_reason;
                      dojo.subscribe(subscription, this, function(){
                        node.setDataNodeValue(null,{},reason,arguments);
-                });}
+                });};
                 cb(this,subscription) ;         
             };
             if (onStart){
@@ -950,7 +950,7 @@ dojo.declare("gnr.GnrDomSourceNode",gnr.GnrBagNode,{
     },
     setTiming:function(timing){
         if(this._timing){
-            clearInterval(this._timing)
+            clearInterval(this._timing);
         }
         if(timing>=1){
              var timerFunc = dojo.hitch(this, 'setDataNodeValue');

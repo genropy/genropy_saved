@@ -143,7 +143,7 @@ dojo.declare("gnr.GnrSrcHandler",null,{
             var widgets = dojo.query('[widgetId]', domNode);
             while(widgets.length >0){
                 widgets= widgets.map(dijit.byNode); 
-                widgets[0].destroyRecursive()
+                widgets[0].destroyRecursive();
                 widgets = dojo.query('[widgetId]', domNode);
             }
                 // Array

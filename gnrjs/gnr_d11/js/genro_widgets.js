@@ -416,10 +416,10 @@ dojo.declare("gnr.widgets.baseHtml",null,{
         };
     },
     setDraggable:function(domNode,value){
-        domNode.setAttribute('draggable',value)
+        domNode.setAttribute('draggable',value);
     },
     setDroppable:function(domNode,value){
-        domNode.setAttribute('droppable',value)
+        domNode.setAttribute('droppable',value);
     },
     dndSettings:function(newobj, sourceNode,savedAttrs){
         var dragDrop=savedAttrs.dragDrop;
@@ -711,10 +711,10 @@ dojo.declare("gnr.widgets.baseDojo",gnr.widgets.baseHtml,{
         return value;
     },
     mixin_setDraggable:function(value){
-        this.domNode.setAttribute('draggable',value)
+        this.domNode.setAttribute('draggable',value);
     },
     mixin_setDroppable:function(value){
-        this.domNode.setAttribute('droppable',value)
+        this.domNode.setAttribute('droppable',value);
     },
     validatemixin_validationsOnChange: function(sourceNode, value){
         var result = genro.vld.validate(sourceNode, value,true);
@@ -2792,7 +2792,7 @@ dojo.declare("gnr.widgets.VirtualStaticGrid",gnr.widgets.Grid,{
     },
     mixin_reload:function(keep_selection){
         this.selectionKeeper(keep_selection?'save':'clear');
-        var nodeId =this.sourceNode.attr.nodeId
+        var nodeId =this.sourceNode.attr.nodeId;
         var storebag = this.storebag();
         var storeParent = storebag.getParentNode();
         if (storeParent.getResolver()){
@@ -3651,7 +3651,7 @@ dojo.declare("gnr.widgets.Tree",gnr.widgets.baseDojo,{
     creating: function(attributes, sourceNode){
         dojo.require("dijit._tree.dndSource");
         dojo.require("dijit.Tree");
-        var nodeAttributes = objectExtract(attributes,'node_*')
+        var nodeAttributes = objectExtract(attributes,'node_*');
         var storepath=sourceNode.absDatapath(objectPop(attributes,'storepath'));
         var labelAttribute=objectPop(attributes,'labelAttribute');
         var labelCb = objectPop(attributes,'labelCb');
@@ -3728,8 +3728,8 @@ dojo.declare("gnr.widgets.Tree",gnr.widgets.baseDojo,{
         if (objectNotEmpty(tooltipAttrs)) {
             savedAttrs['tooltipAttrs'] = tooltipAttrs;
         };
-        attributes.gnrNodeAttributes=nodeAttributes
-        attributes.sourceNode=sourceNode
+        attributes.gnrNodeAttributes=nodeAttributes;
+        attributes.sourceNode=sourceNode;
         return savedAttrs;
         
     },

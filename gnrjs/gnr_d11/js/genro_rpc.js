@@ -669,7 +669,7 @@ dojo.declare("gnr.GnrRpcHandler",null,{
             onFileUploaded(node);
             filebag.pop(node.label);
             genro.rpc.uploadMultipartFiles(filebag,kw);
-        }
+        };
         var setProgress = function(statusNode,evt){
             if(statusNode.last_execution_time &&(new Date()-statusNode.last_execution_time<500)){
                 return;
@@ -693,9 +693,9 @@ dojo.declare("gnr.GnrRpcHandler",null,{
             var params = firstNode.getValue().asObj();
             var file=objectPop(params,'_file');
             objectExtract(params,'_*');
-            var innerKw = objectUpdate({},kw)
-            innerKw.onResult = function (e){onUploaded(firstNode)};
-            innerKw.onProgress = function (e){setProgress(statusNode,e)};
+            var innerKw = objectUpdate({},kw);
+            innerKw.onResult = function (e){onUploaded(firstNode);};
+            innerKw.onProgress = function (e){setProgress(statusNode,e);};
             genro.rpc.uploadMultipart_oneFile(file,params,innerKw);
         }else{
             if(kw.onResult){
@@ -711,22 +711,22 @@ dojo.declare("gnr.GnrRpcHandler",null,{
             param.push(value);
             param.push('');
             return param.join(_crlf);
-        }
+        };
         var textParam=function(name,value){
             var param=[];
-            param.push('Content-Disposition: form-data; name="'+name+'"')
-            param.push('Content-Type: text/plain')
-            return paramValue(param,value)
-        }
+            param.push('Content-Disposition: form-data; name="'+name+'"');
+            param.push('Content-Type: text/plain');
+            return paramValue(param,value);
+        };
         var fileParam=function(filedata){
             var param=[];
             param.push('Content-Disposition: form-data; name="file_handle"; filename="' + file['name'] + '"');
             param.push('Content-Type: application/octet-stream');
             return paramValue(param,file.getAsBinary());
-        }
+        };
         var addContentLength=function(content){
             return "Content-Length: "+content.length+_crlf+_crlf+content;
-        }
+        };
         var content=[];
         content.push('');
         params['rpc'] = kw.method || 'rpc.upload_file';

@@ -735,10 +735,10 @@ genropatches.tree=function(){
             this.labelNode.appendChild(dojo.doc.createTextNode(label));
         };
         if (this.item.attr && 'node_class' in this.item.attr){
-            dojo.addClass(this.domNode,this.item.attr.node_class)
+            dojo.addClass(this.domNode,this.item.attr.node_class);
         }
-        var sourceNode=this.tree.sourceNode
-        var nodeattrs=this.tree.gnrNodeAttributes
+        var sourceNode=this.tree.sourceNode;
+        var nodeattrs=this.tree.gnrNodeAttributes;
         if (nodeattrs.draggable){
             this.domNode.setAttribute('draggable',true);
         }
