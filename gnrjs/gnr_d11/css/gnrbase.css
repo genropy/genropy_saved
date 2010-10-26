@@ -633,7 +633,7 @@ table.formbuilder {
 /* @group Base16 */
 
 .icnBaseAdd {
-    background: url(icons/base16/add.gif) no-repeat;
+    background: url(icons/base16/add.png) no-repeat;
     width: 16px;
     height: 16px;
 }
@@ -687,7 +687,7 @@ table.formbuilder {
 }
 
 .icnBaseDelete {
-    background: url(icons/base16/delete.gif) no-repeat;
+    background: url(icons/base16/delete.png) no-repeat;
     width: 16px;
     height: 16px;
 }
