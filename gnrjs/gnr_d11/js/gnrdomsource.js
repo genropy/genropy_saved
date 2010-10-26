@@ -1106,16 +1106,16 @@ dojo.declare("gnr.GnrDomSource",gnr.GnrStructData,{
             if(tag){
         
                 if (name instanceof Object){
-                    attributes = name;
-                    name = '';
+                    var extrakw = attributes;
+                    var attributes =  name;
+                    var name='';
                 }
-                attributes = attributes || {};
-
+                var attributes=attributes || {};
                 if(attributes && ('remote' in attributes)){
                     var remattr = objectUpdate({},objectPop(attributes, 'remote'));
                     remattr['handler'] = objectPop(remattr, 'method');
                     remattr['method']='remoteBuilder';
-                    var cacheTime=objectPop(remattr, 'cacheTime');
+                    var cacheTime=objectPop(remattr,'cacheTime');
                     content = new gnr.GnrRemoteResolver(remattr, false, cacheTime);
                     content.updateAttr=true;
                 }
