@@ -308,7 +308,7 @@ class HTableHandler(HTableHandlerBase):
                             rootnode._('button',{label:record_label,'float':'left',iconClass:'breadcrumbIcn',color:'red'});
                             rootnode._('button',{label:add_label,'float':'left',disabled:'%s',
                                                 iconClass:'icnBaseAdd',showLabel:false,
-                                                action:"this.setRelativeData('.edit.defaults.parent_code',tree_code);this.setRelativeData('.tree.pkey','*newrecord*');",
+                                                fire:'.edit.save_button',
                                                 tree_code:tree_code});
 
                             """ %disabled,
@@ -318,7 +318,17 @@ class HTableHandler(HTableHandlerBase):
                              record_label='^.tree.caption',
                              tree_code='=.tree.code',
                              add_label='!!Add')
-        
+        toolbar.dataController("""
+                                  if(modifier=="Shift"){
+                                        SET .edit.defaults.parent_code = GET .edit.record.parent_code;
+                                        SET .tree.pkey = '*newrecord*';
+                                  }else{
+                                        SET .edit.defaults.parent_code = tree_code;
+                                        SET .tree.pkey ='*newrecord*';       
+                                  }                                  
+                                  
+                                """,tree_code='=.tree.code',
+                                modifier="^.edit.save_button")
         
         
         buttons = toolbar.div(float='right')
