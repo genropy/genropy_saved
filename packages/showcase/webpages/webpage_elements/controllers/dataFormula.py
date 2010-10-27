@@ -1,7 +1,7 @@
 # -*- coding: UTF-8 -*-
 
 # dataFormula.py
-# Created by Filippo Astolfi on 2010-09-01.
+# Created by Filippo Astolfi on 2010-10-27.
 # Copyright (c) 2010 Softwell. All rights reserved.
 
 """dataFormula"""
