@@ -20,17 +20,17 @@ class GnrCustomWebPage(object):
         pane.textBox(value="^color",background_color='^color')
         
         pane.dataController("""var out = document.getElementById("output");
-                       var cp = Raphael.colorpicker(40, 100, 200, "#eee");
-                       var cp2 = Raphael.colorwheel(250, 100, 200, "#eee");
-                       // assigning onchange event handler
-                       out.onkeyup = cp.onchange = cp2.onchange = function (clr) {
-                            clr = this == out ? this.value : clr;
-                            genro.setData('color',clr)
-                            out.value = clr;
-                            this != cp && cp.color(clr);
-                            this != cp2 && cp2.color(clr);
-                            out.style.background = clr;
-                            out.style.color = Raphael.rgb2hsb(clr).b < .5 ? "#fff" : "#000";
-                        };""",_onStart=True)
+                               var cp = Raphael.colorpicker(40, 100, 200, "#eee");
+                               var cp2 = Raphael.colorwheel(250, 100, 200, "#eee");
+                               // assigning onchange event handler
+                               out.onkeyup = cp.onchange = cp2.onchange = function (clr) {
+                               clr = this == out ? this.value : clr;
+                               genro.setData('color',clr)
+                               out.value = clr;
+                               this != cp && cp.color(clr);
+                               this != cp2 && cp2.color(clr);
+                               out.style.background = clr;
+                               out.style.color = Raphael.rgb2hsb(clr).b < .5 ? "#fff" : "#000";
+                               };""",_onStart=True)
                         
         pane.input( type="text", id="output" ,value="#eeeeee")

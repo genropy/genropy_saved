@@ -12,7 +12,7 @@ from gnr.core.gnrlang import gnrImport
 from gnr.core.gnrbag import Bag
 import os
 
-class GnrCustomWebPage(object):    
+class GnrCustomWebPage(object):
     css_requires= 'index'
     # js_requires='ckeditor/ckeditor'
     

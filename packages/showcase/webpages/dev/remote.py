@@ -30,13 +30,13 @@ class GnrCustomWebPage(object):
         top.button('Build',fire='build')
 
         top.button('Add element',fire='add')
-        top.dataController("""
-                            var pane = genro.nodeById('remoteContent')
-                             pane._('div',{height:'200px',width:'200px',background:'lightBlue',
-                                                    border:'1px solid blue','float':'left',
-                                                    remote:{'method':'test'}});
+        top.dataController("""var pane = genro.nodeById('remoteContent')
+                              pane._('div',{height:'200px',width:'200px',background:'lightBlue',
+                                            border:'1px solid blue','float':'left',
+                                            remote:{'method':'test'}});
 
                             """,_fired="^add")
+                            
         center = bc.contentPane(region = 'center').div(nodeId='remoteContent')
         center.div().remote('test',_fired='^build')
         
