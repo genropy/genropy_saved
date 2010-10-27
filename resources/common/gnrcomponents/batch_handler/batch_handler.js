@@ -7,7 +7,7 @@ batch_monitor.owner_page_batch = function(batch_id){
 
 batch_monitor.on_datachange = function(kw){
     if(!kw.reason){
-        genro.bp(kw);
+        //genro.bp(kw);
         return;
     }
     var callname = 'on_'+kw.reason;
@@ -40,7 +40,8 @@ batch_monitor.get_batch_sourceNode= function(batch_id,local){
        if(container_node){
            this.batch_sourceNode_create(container_node,batch_id,batch_sourceNode_id);
            sourceNode= genro.nodeById(batch_sourceNode_id);
-           genro.dom.centerOn('bm_local_rootnode');
+           if (local){genro.dom.centerOn('bm_local_rootnode');} //FORSE
+           
        }
     }
     sourceNode.batch_id = batch_id;
@@ -110,11 +111,15 @@ batch_monitor.on_th_cleanup = function(node,sourceNode){
 };
 batch_monitor.on_tl_add = function(node,sourceNode){
     this.create_thermoline(sourceNode,node.label,node.attr);
-    genro.dom.centerOn('bm_local_rootnode'); //FORSE
+    if(sourceNode.attr.nodeId=='bm_local_rootnode'){
+        genro.dom.centerOn('bm_local_rootnode'); //FORSE
+    }
 };
 batch_monitor.on_tl_del = function(node,sourceNode){
     this.delete_thermoline(sourceNode,node.label);
-    genro.dom.centerOn('bm_local_rootnode'); //FORSE
+    if(sourceNode.attr.nodeId=='bm_local_rootnode'){
+        genro.dom.centerOn('bm_local_rootnode'); //FORSE
+    }
 };
 
 batch_monitor.on_tl_upd = function(node,sourceNode){
