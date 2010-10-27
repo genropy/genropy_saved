@@ -27,23 +27,33 @@ class BaseResourcePrint(BaseResourceBatch):
         self.print_handler = self.page.getService('print')           
     
     def print_selection(self,thermo_selection=None,thermo_record=None):
-        thermo_s = dict(line_code='selection',message='get_record_caption')
+        thermo_s = dict(line_code='selection',message='get_record_caption',tblobj=self.tblobj)
         thermo_s.update(thermo_selection or {})
-        thermo_r = dict(line_code='record')
+        thermo_r = dict(line_code='record',message='get_record_caption')
         thermo_r.update(thermo_record or {})
+        if isinstance(thermo_s['message'],basestring) and hasattr(self,thermo_s['message']):
+            thermo_s['message'] = getattr(self,thermo_s['message'])
+        if isinstance(thermo_r['message'],basestring) and hasattr(self.htmlMaker,thermo_r['message']):
+            thermo_r['message'] = getattr(self.htmlMaker,thermo_r['message'])
         if not 'templates' in self.batch_parameters:
             self.batch_parameters['templates'] = self.templates
-        pkeys = self.get_selection_pkeys()
-        pdf = self.print_mode=='pdf' or self.print_mode == 'mail_pdf' or self.print_mode == 'mail_deliver'
-        for pkey in self.btc.thermo_wrapper(pkeys,**thermo_s):
-            result = self.htmlMaker(record=pkey,thermo=thermo_r,pdf=pdf,
+        records = self.get_records()
+        pkeyfield = self.tblobj.pkey
+        pdf = self.print_mode not in ('server_print','client_print')
+        for record in self.btc.thermo_wrapper(records,maximum=len(self.get_selection()),**thermo_s):
+            print self.batch_parameters
+            result = self.htmlMaker(record=record,thermo=thermo_r,pdf=pdf,
                                     **self.batch_parameters)
-            
-            self.storeResult(pkey,result,self.htmlMaker.record)           
+            self.storeResult(record[pkeyfield],result,record,filepath=self.htmlMaker.filepath)           
     
     def do(self):
         self.print_selection()
-
+                 
+    def get_record_caption(self,item,progress,maximum,**kwargs):
+        caption = '%s (%i/%i)' % (self.tblobj.recordCaption(item),
+                              progress,maximum)
+        return caption
+        
     def result_handler(self):
         resultAttr = dict()
         result = getattr(self,'result_handler_%s' %self.print_mode)(resultAttr)
@@ -71,8 +81,12 @@ class BaseResourcePrint(BaseResourceBatch):
         mailmanager.sendmail(**mailpars)
     
     def result_handler_client_print(self,resultAttr):
-        print 'client print:todo'
-        
+        pass
+        #self.page.setInClientData(path='#table_script_dlg_parameters.close',value=True,fired=True)
+        #
+        #for html in self.result_info.values():
+        #    self.page.setInClientData(path='gnr.printurl',value=html,fired=True)
+
     def result_handler_server_print(self,resultAttr):
         printer = self.print_handler.getPrinterConnection(self.server_print_options['printer_name'],**self.server_print_options)
         return printer.printCups(self.results.values(), self.batch_title )
@@ -108,14 +122,13 @@ class BaseResourcePrint(BaseResourceBatch):
         self.table_script_options_mail_deliver(center.contentPane(pageName='mail_deliver',datapath='.mail'))
         
     def table_script_options_client_print(self,pane):
-        pane.div()
+        fb = self.table_script_fboptions(pane,tdl_width='3em')
+        fb.simpleTextArea(value='^.batch_note',
+                        height='20ex',lbl='!!Notes',
+                        lbl_vertical_align='top')
         
-    #def table_script_options_server_print(self,pane):
-    #    pane.button('Options',action='FIR #printer_option_dialog.open=resource_name',
-    #                resource_name='=.#parent.batch.resource_name')
-    #
     def table_script_options_pdf(self,pane):
-        fb = self.table_script_fboptions(pane,fld_width=None,tdl_width='6em')
+        fb = self.table_script_fboptions(pane,fld_width=None,tdl_width='10em')
         fb.data('.zipped',False)
         fb.textbox(value='^.save_as',lbl='!!Document name',width='100%')
         fb.checkbox(value='^.zipped',label='!!Zip folder')
@@ -133,7 +146,7 @@ class BaseResourcePrint(BaseResourceBatch):
         fb.textbox(value='^.subject',lbl='!!Subject',width='100%')
         fb.simpleTextArea(value='^.body',lbl='!!Body',height='14ex',lbl_vertical_align='top')
     
-    def table_script_fboptions(self,pane,fld_width='100%',tdl_width='4em'):
+    def table_script_fboptions(self,pane,fld_width='100%',tdl_width='4em',**kwargs):
         return pane.div(margin_right='5px').formbuilder(cols=1,width='100%',tdl_width=tdl_width,
                              border_spacing='4px',fld_width=fld_width)
 

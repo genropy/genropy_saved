@@ -28,6 +28,7 @@ class BaseResourceBatch(object):
         self.btc = self.page.btc
         self.results = Bag()
         self.records = dict()
+        self.result_info = dict()
         self._pkeys=None
     
     def x__call__(self,batch_note=None,**kwargs):
@@ -72,9 +73,10 @@ class BaseResourceBatch(object):
         else:
             self.do()
     
-    def storeResult(self,key,result,record=None):
+    def storeResult(self,key,result,record=None,**info):
         self.results[key] = result
         self.records[key] = record
+        self.result_info[key] = info
     
     def batchUpdate(self, updater=None, table = None, where=None, line_code=None, message=None, **kwargs ):
         table = table or self.page.maintable
@@ -121,7 +123,7 @@ class BaseResourceBatch(object):
         pkeys = self.get_selection_pkeys()
         for pkey in pkeys:
             yield self.get_record(pkey)
-    
+            
     def get_record(self,pkey):
         return self.tblobj.record(pkey).output('bag')
         
