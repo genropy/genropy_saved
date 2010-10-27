@@ -1,23 +1,42 @@
 	.. _genro-dataformula:
 
 =============
- dataformula
+ dataFormula
 =============
+
+	- :ref:`dataformula-description`
+
+	- :ref:`dataformula-syntax`
+
+	- :ref:`dataformula-examples`
+
+	.. _dataformula-description:
+
+Description
+===========
 
 	``dataformula`` allows to insert a value into a specific address of the :ref:`genro-datastore`.
 
-	**Syntax**:
-	
-		``First parameter: folderPlaceOfYourValue;``
+	.. _dataformula-syntax:
 
-		``second parameter: formula;``
-		
-		``next parameters: variables;``
+Syntax
+======
 
-	Example::
+	``object.dataformula('folderPlaceOfYourValue','formula','param','param',...)``
 	
-		root.dataFormula('somma','a+b',a='^a',b='1')
+	Where:
+
+	- first parameter: here lies the path folder in the :ref:`genro-datastore` of your value.
+
+	- second parameter: here lies the "formula" (dataformula does not have to be necessarily a mathematical formula!)
 	
+	- next parameters: variables contained into the formula.
+
+	.. _dataformula-examples:
+
+Examples
+========
+
 	Example::
 
 		class GnrCustomWebPage(object):
@@ -29,3 +48,7 @@
 				fb.numberTextBox(value='^height',places=2)
 				fb.dataFormula('area','base * height', base='^base', height='^height')
 				fb.numberTextBox(lbl='!!Area',value='^area',places=2,border='2px solid grey',padding='2px')
+	
+	Example::
+	
+		??? Add an example for a not mathematical usage with the dataFormula

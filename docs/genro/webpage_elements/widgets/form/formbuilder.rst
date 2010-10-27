@@ -20,9 +20,7 @@
 	
 	- :ref:`formbuilder-other-attributes`
 	
-	- :ref:`formbuilder-other-features`
-	
-		- :ref:`label-and-lbl`
+	- :ref:`formbuilder-other-features`: :ref:`label-and-lbl`
 
 	.. _formbuilder-definition:
 

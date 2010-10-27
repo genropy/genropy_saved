@@ -26,3 +26,5 @@
 	- data elements: :ref:`genro-data`
 
 	- controller elements: :ref:`genro-controllers-introduction`, list of :ref:`genro-datacontroller-index`.
+
+	For further details on a creation of a webpage, please check :ref:`genro-webpage`.

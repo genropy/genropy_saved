@@ -9,5 +9,7 @@
 	introduction
 	datacontroller
 	dataformula
+	datarecord
 	datarpc
 	datascript
+	dataselection

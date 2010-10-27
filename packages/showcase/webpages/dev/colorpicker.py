@@ -33,4 +33,4 @@ class GnrCustomWebPage(object):
                                out.style.color = Raphael.rgb2hsb(clr).b < .5 ? "#fff" : "#000";
                                };""",_onStart=True)
                         
-        pane.input( type="text", id="output" ,value="#eeeeee")
+        pane.input(type="text",id="output",value="#eeeeee")

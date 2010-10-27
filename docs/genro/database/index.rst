@@ -13,3 +13,4 @@ Database
 	rowcaption
 	table
 	relation_table
+	webpage

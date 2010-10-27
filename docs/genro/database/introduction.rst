@@ -1,8 +1,8 @@
 	.. _genro-database-introduction:
 
-====================================================
- Make a database management project: an introduction
-====================================================
+=================================
+ Make a project: an introduction
+=================================
 
 	- :ref:`genro-project-introduction`
 	
@@ -28,7 +28,7 @@ Create a Genro project
 
 		gnrmkproject ProjectName
 	
-	This will create a folder with the project name you have chosen, and 4 subfolders called ``Instances``, ``Packages``, ``Resources``, ``Sites``, as you can see in this image (in this case the name of the project is "myproject"):
+	This will create a folder with the project name you have chosen, and 4 subfolders called ``Instances``, ``Packages``, ``Resources``, ``Sites``, as you can see in this image (in this case the name of the project is "myproject") [#]_:
 
 	.. image:: myproject.png
 
@@ -38,7 +38,9 @@ Create a Genro project
 	
 	.. image:: myproject-h.png
 	
-	So, if you want to create a project with both site and instance default features (that we will explain later in this page), you have to write::
+	As you can see in the previous snapshot, you can use ``-p``, ``-r`` and ``-d`` to specify some :ref:`genro-wsgi` features.
+	
+	However, if you want to create a project with both site and instance default features (that we will explain later in this page), you have to write::
 
 		gnrmkproject ProjectName -a
 
@@ -53,7 +55,7 @@ Create a Genro project
 Structure of a project
 ======================
 
-	??? CONTINUARE DA QUI!
+	???
 
 	.. _genro-instances:
 
@@ -67,6 +69,7 @@ Packages
 
 	???
 	Model --> containing database :ref:`genro-database_table`
+	Webpages --> containing all the webpages of your project --> :ref:`genro-webpage`
 
 	.. _genro-resources:
 
@@ -81,3 +84,5 @@ Sites
 =====
 
 	???
+
+.. [#] Genro team prefer to call a project using only lowercase letters.

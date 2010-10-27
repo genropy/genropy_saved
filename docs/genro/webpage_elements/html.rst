@@ -41,13 +41,3 @@ Introduction to HTML elements
 	
 		pane.div(width='100%',height='300px').IncludedView(struct=self._gridStruct2(),
 		                                                   storepath='lista_regioni',nodeId='regioni_grid')
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	

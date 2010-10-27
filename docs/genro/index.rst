@@ -25,6 +25,7 @@ Genropy
 	library_reference
 	component_reference
 	genro_database_management
+	wsgi
 
 Indices and Tables
 ==================

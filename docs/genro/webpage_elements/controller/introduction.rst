@@ -4,37 +4,48 @@
  Introduction to the controllers
 =================================
 
-	The Genro controllers allow to execute a script. Follow these links to see the relaative documentation:
+	The Genro controllers allow to execute a script.
+
+	.. note:: we recommend you in reading :ref:`genro-webpage` before.
+
+	*Client-side controllers*:
 	
+	The client-side controllers work on client through Javascript code; they are:
+
 	- :ref:`genro-datacontroller`
 	- :ref:`genro-dataformula`
+	- :ref:`genro-datascript` (deprecated)
+	
+	*Server-side controllers*:
+	
+	The server-side controllers work on server, so they use python code; they are:
+
+	- dataRecord ???
+	
 	- :ref:`genro-datarpc`
-	- :ref:`genro-datascript`
+	
+	- dataSelection ???
+
+	We emphasize that all the controllers can be attached to every Genro object.
 
 Common attributes
 =================
 
+	Let's see all the controllers' common attributes:
+
 	+--------------------+----------------------------------------------------+--------------------------+
 	|   Attribute        |          Description                               |   Default                |
 	+====================+====================================================+==========================+
-	| ``_init``          | Boolean; if True, ... ???                          |  ``None``                |
-	|                    |                                                    |                          |
+	| ``_init``          | Boolean; if True, the controller is executed when  |  ``False``               |
+	|                    | when the line containing ``_init`` is read         |                          |
 	+--------------------+----------------------------------------------------+--------------------------+
-	| ``_onresult``      | Boolean; if True, ... ???                          |  ``None``                |
-	|                    |                                                    |                          |
+	| ``_onresult``      | Boolean; if True, ... ??? #NISO                    |  ``False``               |
 	+--------------------+----------------------------------------------------+--------------------------+
-	| ``_onstart``       | Boolean; if True, ... ???                          |  ``None``                |
-	|                    |                                                    |                          |
+	| ``_onstart``       | Boolean; if True, FIRST all the line codes are     |  ``False``               |
+	|                    | read, THEN the controller containing ``_onresult`` |                          |
+	|                    | is executed                                        |                          |
 	+--------------------+----------------------------------------------------+--------------------------+
-	| ``_timing``        | ... ???                                            |  ``None``                |
-	|                    |                                                    |                          |
+	| ``_timing``        | number; this attribute allows to choose the        |  ``???``                 |
+	|                    | controller response time (milliseconds)            |                          |
 	+--------------------+----------------------------------------------------+--------------------------+
-
-	???
-	_init =    viene eseguita un'azione quando nel codice si arriva a leggere
-	           la determinata riga in cui è definito l'init stesso
-	_onstart = prima viene letta tutta la pagina, subito dopo viene eseguita l'azione relativa all'onstart;
-	           vantaggi rispetto all'init: può essere che l'azione che scatta con l'init utilizzi anche righe che non sono
-	           ancora state lette; con "_onstart" si legge tutta la pagina e poi si esegue l'azione
-	_timing = 'NUMBER'
-	           aggiorna l'operazione di un numero di secondi pari a NUMBER
+	

@@ -34,10 +34,7 @@ Here we show you a simple code containing a ``stack container``::
 	class GnrCustomWebPage(object):
 		def main(self,root,**kwargs):
 			???
-			ac = root.accordionContainer()
-			ac.accordionPane(title='Pane one')
-			ac.accordionPane(title='Pane two')
-			ac.accordionPane(title='Pane three')
+			
 
 .. #NISO ??? Add a demo!
 

@@ -26,7 +26,7 @@ class GnrCustomWebPage(object):
          
     def main(self, root, **kwargs):
         bc = root.borderContainer()
-        top = bc.contentPane(region = 'top',height='100px')
+        top = bc.contentPane(region='top',height='100px')
         top.button('Build',fire='build')
 
         top.button('Add element',fire='add')
