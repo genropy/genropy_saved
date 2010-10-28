@@ -4,10 +4,6 @@
  dbSelect
 ==========
 
-.. currentmodule:: dbSelect
-
-.. class:: dbSelect - Genropy dbSelect
-
 	- :ref:`dbselect-definition-description`
 
 	- :ref:`dbselect-examples`

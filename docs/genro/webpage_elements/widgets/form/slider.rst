@@ -4,10 +4,6 @@
  slider
 ========
 
-.. currentmodule:: form
-
-.. class:: sliders -  Genropy sliders
-
 	- :ref:`slider-definition-description`
 
 	- :ref:`slider-examples`

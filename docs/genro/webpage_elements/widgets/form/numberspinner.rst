@@ -4,10 +4,6 @@
  numberSpinner
 ===============
 
-.. currentmodule:: numberspinner
-
-.. class:: numberspinner - Genropy numberspinner
-
 	- :ref:`numberspinner-definition-description`
 	
 	- :ref:`numberspinner-examples`

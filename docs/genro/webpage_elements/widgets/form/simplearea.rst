@@ -4,10 +4,6 @@
  simpletextarea
 ================
 
-.. currentmodule:: form
-
-.. class:: simpleTextarea -  Genropy simpleTextarea
-
 	- :ref:`simpletextarea-definition-description`
 
 	- :ref:`simpletextarea-examples`

@@ -4,10 +4,6 @@
  filteringSelect
 =================
 
-.. currentmodule:: form
-
-.. class:: filteringSelect - Genropy filteringSelect
-
 	- :ref:`filteringSelect-definition-description`
 
 	- :ref:`filteringSelect-examples`: :ref:`bag-example`, :ref:`values-example`
@@ -34,7 +30,7 @@ Examples
 
 	The main two modes to fill a filteringSelect are:
 	
-	* Filling a filteringSelect through a Bag
+	* Filling a filteringSelect through a :ref:`genro-bag-introduction`
 	* Filling a filteringSelect through "values" attribute
 	
 	.. _bag-example:
@@ -42,7 +38,7 @@ Examples
 Filling a filteringSelect through a Bag
 =======================================
 
-	In this example we show you how to fill a filteringSelect through a Bag (for further explanations, check :ref:`genro-bag-introduction`):
+	In this example we show you how to fill a filteringSelect through a Bag:
 		::
 
 			class GnrCustomWebPage(object):

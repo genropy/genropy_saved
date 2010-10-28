@@ -4,10 +4,6 @@
  dropdownbutton
 ================
 
-.. currentmodule:: form
-
-.. class:: dropdownbutton - Genropy dropdownbutton
-
 	- :ref:`dropdownbutton-definition-description`
 
 	- :ref:`dropdownbutton-examples`

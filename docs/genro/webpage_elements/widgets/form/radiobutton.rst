@@ -4,10 +4,6 @@
  radiobutton
 =============
 
-.. currentmodule:: form
-
-.. class:: radiobutton - Genropy radiobutton
-
 	- :ref:`radiobutton-definition-description`
 
 	- :ref:`radiobutton-examples`

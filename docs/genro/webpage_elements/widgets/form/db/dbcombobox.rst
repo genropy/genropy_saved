@@ -4,10 +4,6 @@
  dbCombobox
 ============
 
-.. currentmodule:: dbcombobox
-
-.. class:: dbCombobox - Genropy dbCombobox
-
 	- :ref:`dbcombobox-definition-description`
 
 	- :ref:`dbcombobox-examples`

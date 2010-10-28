@@ -4,10 +4,6 @@
  togglebutton
 ==============
 
-.. currentmodule:: form
-
-.. class:: togglebutton - Genropy togglebutton
-
 	- :ref:`togglebutton-definition-description`
 
 	- :ref:`togglebutton-examples`

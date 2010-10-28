@@ -4,10 +4,6 @@
  An Introduction to dbSelect and dbCombobox
 ============================================
 
-.. currentmodule:: form
-
-.. class:: dbFormWidgets - Genropy dbFormWidgets
-
 	- :ref:`db-description`
 	
 	- :ref:`db-genro-attributes`

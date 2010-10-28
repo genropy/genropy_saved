@@ -4,10 +4,6 @@
  checkbox
 ==========
 
-.. currentmodule:: form
-
-.. class:: checkbox - Genropy checkbox
-
 	- :ref:`checkbox-definition-description`
 
 	- :ref:`checkbox-examples`

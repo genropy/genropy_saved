@@ -4,10 +4,6 @@
  field
 =======
 
-.. currentmodule:: form
-
-.. class:: field - Genropy field
-
 	- :ref:`field-definition-description`
 
 	- :ref:`field-examples`: :ref:`first-one`, :ref:`second-one`, :ref:`third-one`

@@ -4,10 +4,6 @@
  formbuilder
 =============
 
-.. currentmodule:: form
-
-.. class:: formbuilder -  Genropy formbuilder
-
 	- :ref:`formbuilder-definition`
 
 	- :ref:`formbuilder-where`
@@ -154,13 +150,11 @@ Here we describe the formbuilder's field attributes:
 	+================+======================================================+==========================+
 	| ``colspan``    | Set the number of columns occupied by a single field |  ``None``                |
 	+----------------+------------------------------------------------------+--------------------------+
-	| ``label``      | If possible, set a label for formbuilder right field-part.                      |
-	|                |                                                                                 |
-	|                | For more details, check this example_.                                          |
+	| ``label``      | If possible, set a label for formbuilder right       |  ``None``                |
+	|                | field-part. For more details, check this example_.   |                          |
 	+----------------+---------------------------------------------------------------------------------+
-	| ``lbl``        | If possible, set a label for formbuilder left field-part.                       |
-	|                |                                                                                 |
-	|                | For more details, check this example_.                                          |
+	| ``lbl``        | If possible, set a label for formbuilder left        |  ``None``                |
+	|                | field-part. For more details, check this example_.   |                          |
 	+----------------+------------------------------------------------------+--------------------------+
 	| ``pos``        | Choose element position                              |  The first free position |
 	|                |                                                      |                          |

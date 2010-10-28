@@ -4,10 +4,6 @@
  combobox
 ==========
 
-.. currentmodule:: form
-
-.. class:: combobox - Genropy combobox
-
 	- :ref:`combobox-definition-description`
 
 	- :ref:`combobox-examples`: :ref:`Bag-way`, :ref:`values-attribute`
@@ -64,7 +60,7 @@ Fill combobox through "values" attribute
 Fill combobox through a Bag
 ===========================
 
-	Postponing all info of a ``Bag`` and of a ``data`` on the relative pages of documentation (:ref:`genro-bag-introduction` and :ref:`datacontroller-data`), we'll show here how you can add values to ``combobox`` using a ``Bag``.
+	Postponing all info of a ``Bag`` and of a ``data`` on the relative pages of documentation (:ref:`genro-bag-introduction` introduction page and :ref:`datacontroller-data`), we'll show here how you can add values to ``combobox`` using a ``Bag``.
 	
 	Example::
 

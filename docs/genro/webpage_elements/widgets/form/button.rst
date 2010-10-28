@@ -4,10 +4,6 @@
  button
 ========
 
-.. currentmodule:: form
-
-.. class:: button - Genropy button
-
 	- :ref:`button-definition-description`
 
 	- :ref:`button-examples`
