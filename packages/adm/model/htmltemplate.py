@@ -32,6 +32,8 @@ class Table(object):
         tbl.column('data',dtype='X',name_long='!!Data',_sendback=True)
     
     def getTemplate(self,name):
+        if not name:
+            return Bag()
         templatelist = name.split(',')
         f = self.query(where='$name IN :names',names=templatelist,columns='name,version,data').fetchAsDict(key='name')
         templatebase = Bag(f[templatelist[0]]['data'])

@@ -59,7 +59,7 @@ class BagToHtml(object):
         """override this"""
         pass 
         
-    def __call__(self, record=None, filepath=None,folder=None,filename=None,hideTemplate=False,rebuild=True,**kwargs):
+    def __call__(self, record=None,filepath=None,folder=None,filename=None,hideTemplate=False,rebuild=True,**kwargs):
         """This method returns the html corresponding to a given record.
            the html can be loaded from a cached document or created if still doesn't exist.
         """

@@ -42,28 +42,28 @@ class TableScriptRunner(BaseComponent):
                                        SET .resource =  params['resource'];
                                        SET .structpath =  params['structpath'];
                                        SET .selectionName =  params['selectionName'];
+                                       SET .publishOnResult = params['publishOnResult'];
+                                       SET .selectionFilterCb =  params['selectionFilterCb'];
+                                       
                                        SET .selectedRowidx =  params['selectedRowidx'];
                                        SET .paramspath = params['paramspath'];
                                        FIRE .build_pars_dialog;
-                                       if(params['selectionName']){
-                                            FIRE #table_script_dlg_parameters.open;
-                                       }else{
-                                            genro.dlg.alert('Warning','No selection');
-                                       }
-                                       
+                                       FIRE #table_script_dlg_parameters.open;
                                     """,subscribe_table_script_run=True)
                                     
         plugin_main.dataRpc('dummy','table_script_run',
                 _fired='^.run',
-                _onResult='PUBLISH table_script_end;',
+                _onResult='if(kwargs._publishOnResult){genro.publish(kwargs._publishOnResult);}',
                 parameters='=.parameters',
                 resource='=.resource',
                 res_type='=.res_type',
                 table='=.table',
+                _publishOnResult='=.publishOnResult',
                 selectionName='=.selectionName',
                 struct='==this.getRelativeData(_structpath);',
                 _structpath='=.structpath',
                 printerOptions='==this.getRelativeData("gnr.server_print.printers."+resource);',
+                selectionFilterCb='=.selectionFilterCb',
                 selectedRowidx="=.selectedRowidx")
                 
         plugin_main.div().remote('table_script_parameters',
@@ -90,12 +90,12 @@ class TableScriptRunner(BaseComponent):
                             gridId=gridId,res_type=res_type,resource='=.resource')
 
     
-    def table_script_dialog_center(self,parentBc,hasParameters=None,dialog_height_no_par=None,**kwargs):
+    def table_script_dialog_center(self,parentBc,hasParameters=None,**kwargs):
         if hasattr(self,'table_script_option_pane'):
             paramsBc = parentBc.borderContainer(pageName='params',datapath='.data',**kwargs)
             if hasParameters:
                 self.table_script_parameters_pane(paramsBc.contentPane(region='top',_class='ts_parametersPane'))
-            self.table_script_option_pane(paramsBc.contentPane(region='bottom',height=dialog_height_no_par,datapath='.batch_options',
+            self.table_script_option_pane(paramsBc.contentPane(region='bottom',datapath='.batch_options',
                                                                 _class='ts_optionsPane'))
         elif hasParameters:
             paramsPane = parentBc.contentPane(pageName='params',_class='ts_parametersPane',datapath='.data',**kwargs)
@@ -131,7 +131,7 @@ class TableScriptRunner(BaseComponent):
         dlg_dict = objectExtract(cl,'dialog_')
         dialog_height_no_par = dlg_dict.pop('height_no_par',dlg_dict.get('height'))
         if not hasParameters:
-            dlg_dict['height'] = dialog_height_no_par
+            dlg_dict['height'] = dialog_height_no_par 
         dlg_dict['title'] = dlg_dict.get('title',batch_dict.get('title'))
         pane.data('.dialog',dlg_dict)        
         dlg = self.simpleDialog(pane,datapath='.dialog',title='^.title',height='^.height',width='^.width',
@@ -156,11 +156,11 @@ class TableScriptRunner(BaseComponent):
                             """,
                             _fired="^.save",pars='=.data')
                      
-    def rpc_table_script_run(self,table=None,resource=None,res_type=None,selectionName=None,selectedRowidx=None,
+    def rpc_table_script_run(self,table=None,resource=None,res_type=None,selectionName=None,selectionFilterCb=None,selectedRowidx=None,
                             parameters=None,printerOptions=None,**kwargs):
         tblobj = self.tblobj or self.db.table(table)
         res_obj=self.site.loadTableScript(self,tblobj,'%s/%s' %(res_type,resource),class_name='Main')
-        res_obj.defineSelection(selectionName=selectionName,selectedRowidx=selectedRowidx)
+        res_obj.defineSelection(selectionName=selectionName,selectedRowidx=selectedRowidx,selectionFilterCb=selectionFilterCb)
         parameters = parameters or {}
         parameters['_printerOptions'] = printerOptions
         res_obj(parameters=parameters,**kwargs)

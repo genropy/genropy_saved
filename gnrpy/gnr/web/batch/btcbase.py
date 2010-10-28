@@ -110,13 +110,14 @@ class BaseResourceBatch(object):
         """override me"""
         pass
     
-    def defineSelection(self,selectionName=None,selectedRowidx=None):
+    def defineSelection(self,selectionName=None,selectedRowidx=None,selectionFilterCb=None):
         self.selectionName = selectionName
         self.selectedRowidx = selectedRowidx
+        self.selectionFilterCb = selectionFilterCb
     
     def get_selection(self):
         selection = self.page.getUserSelection(selectionName=self.selectionName,
-                                         selectedRowidx=self.selectedRowidx)
+                                         selectedRowidx=self.selectedRowidx,filterCb=self.selectionFilterCb)
         return selection
     
     def get_records(self):
@@ -132,9 +133,9 @@ class BaseResourceBatch(object):
             self._pkeys = self.get_selection().output('pkeylist')
         return self._pkeys
         
-    def rpc_selectionFilterCb(self,row):
-        """override me"""
-        return True
+    #def rpc_selectionFilterCb(self,row):
+    #    """override me"""
+    #    return True
         
     def parameters_pane(self,pane,**kwargs):
         """Pass a ContentPane for adding forms to allow you to ask parameters to the clients"""

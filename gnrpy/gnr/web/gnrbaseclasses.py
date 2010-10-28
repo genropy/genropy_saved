@@ -100,6 +100,8 @@ class BaseWebtool(object):
 
     
 class TableScriptToHtml(BagToHtml):
+    rows_table = None
+    
     def __init__(self,page=None,resource_table=None,**kwargs):
         super(TableScriptToHtml, self).__init__(**kwargs)
         self.page = page
@@ -112,11 +114,15 @@ class TableScriptToHtml(BagToHtml):
         self.record = None
     
     def __call__(self,record=None,pdf=None,downloadAs=None,thermo=None,**kwargs):
+        if not record:
+            return
         self.thermo_kwargs = thermo
         record = self.tblobj.recordAs(record)
         html_folder = self.getHtmlPath(autocreate=True)
         pdf_folder = self.getPdfPath(autocreate=True)
         html = super(TableScriptToHtml, self).__call__(record=record,folder=html_folder,**kwargs)
+        if not html:
+            return False
         if not pdf:
             return html
             

@@ -11,7 +11,8 @@ from gnr.core.gnrbag import Bag
 class BaseResourcePrint(BaseResourceBatch):
     dialog_height = '300px'
     dialog_width = '460px'
-    dialog_height_no_par = '200px'
+    dialog_height_no_par = '225px'
+    templates = '' #CONTROLLARE
         
     def __init__(self,*args,**kwargs):
         super(BaseResourcePrint,self).__init__(**kwargs)
@@ -24,7 +25,8 @@ class BaseResourcePrint(BaseResourceBatch):
         self.print_mode = self.batch_options['print_mode']
         self.server_print_options = self.batch_parameters['_printerOptions']
         self.print_options = self.batch_options['print_mode_option']
-        self.print_handler = self.page.getService('print')           
+        self.print_handler = self.page.getService('print')     
+        self.pdf_make = self.print_mode not in ('server_print','client_print')      
     
     def print_selection(self,thermo_selection=None,thermo_record=None):
         thermo_s = dict(line_code='selection',message='get_record_caption',tblobj=self.tblobj)
@@ -36,15 +38,23 @@ class BaseResourcePrint(BaseResourceBatch):
         if isinstance(thermo_r['message'],basestring) and hasattr(self.htmlMaker,thermo_r['message']):
             thermo_r['message'] = getattr(self.htmlMaker,thermo_r['message'])
         if not 'templates' in self.batch_parameters:
-            self.batch_parameters['templates'] = self.templates
+            self.batch_parameters['templates'] = self.templates  #CONTROLLARE
         records = self.get_records()
         pkeyfield = self.tblobj.pkey
-        pdf = self.print_mode not in ('server_print','client_print')
+        
         for record in self.btc.thermo_wrapper(records,maximum=len(self.get_selection()),**thermo_s):
-            print self.batch_parameters
-            result = self.htmlMaker(record=record,thermo=thermo_r,pdf=pdf,
-                                    **self.batch_parameters)
-            self.storeResult(record[pkeyfield],result,record,filepath=self.htmlMaker.filepath)           
+            self.print_record(record=record,thermo=thermo_r,storagekey=record[pkeyfield])
+    
+    def print_record(self,record=None,thermo=None,storagekey=None):
+        result = self.htmlMaker(record=record,thermo=thermo,pdf=self.pdf_make,
+                                **self.batch_parameters)
+        self.onRecordExit(record)
+        if result:
+            self.storeResult(storagekey,result,record,filepath=self.htmlMaker.filepath)
+
+    def onRecordExit(self,record=None):
+        "override"
+        pass
     
     def do(self):
         self.print_selection()
@@ -101,7 +111,7 @@ class BaseResourcePrint(BaseResourceBatch):
             resultAttr['url'] = self.page.site.getStaticUrl('user:output','pdf',filename)
     
     def table_script_option_pane(self,pane):
-        bc = pane.borderContainer()
+        bc = pane.borderContainer(height='200px')
         top = bc.contentPane(region='top',padding='6px').div(_class='ts_printMode',padding='2px')
         fb = top.formbuilder(cols=5, border_spacing='4px',margin_top='2px',font_size='.9em',
                             action='SET .print_mode=$1.print_mode',group='print_mode',lbl_width='3em')
