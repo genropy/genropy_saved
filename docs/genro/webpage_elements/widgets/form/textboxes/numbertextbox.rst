@@ -4,10 +4,6 @@
  NumberTextbox
 ===============
 
-.. currentmodule:: form
-
-.. class:: numberTextbox -  Genropy numberTextbox
-
 	- :ref:`numberTextbox-definition-description`
 
 	- :ref:`numberTextbox-examples`

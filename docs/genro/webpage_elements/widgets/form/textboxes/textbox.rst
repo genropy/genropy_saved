@@ -4,10 +4,6 @@
  Textbox
 =========
 
-.. currentmodule:: form
-
-.. class:: textbox - Genropy textbox
-
 	- :ref:`textbox-definition-description`
 
 	- :ref:`textbox-examples`

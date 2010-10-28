@@ -4,10 +4,6 @@
  TimeTextbox
 =============
 
-.. currentmodule:: form
-
-.. class:: timeTextbox - Genropy timeTextbox
-
 	- :ref:`timeTextbox-definition-description`
 
 	- :ref:`timeTextbox-examples`

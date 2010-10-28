@@ -4,10 +4,6 @@
  DateTextbox
 =============
 
-.. currentmodule:: form
-
-.. class:: dateTextbox -  Genropy dateTextbox
-
 	- :ref:`dateTextbox-definition-description`
 
 	- :ref:`dateTextbox-examples`

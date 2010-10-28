@@ -4,10 +4,6 @@
  An Introduction to the Textboxes
 ==================================
 
-.. currentmodule:: form
-
-.. class:: textboxes - Genropy textboxes
-
 	- :ref:`textboxes-introduction`
 
 	- :ref:`textboxes-attributes`

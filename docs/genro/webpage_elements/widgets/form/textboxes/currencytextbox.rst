@@ -4,10 +4,6 @@
  CurrencyTextbox
 =================
 
-.. currentmodule:: form
-
-.. class:: currencyTextbox -  Genropy currencyTextbox
-
 	- :ref:`currencyTextbox-definition-description`
 
 	- :ref:`currencyTextbox-examples`
