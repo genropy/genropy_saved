@@ -15,14 +15,16 @@
 Description
 ===========
 
-	``datarecord`` allows to ... ???
+	``dataRecord`` allows to ... ???
+	
+	The ``dataRecord`` belongs to :ref:`genro-server-side-controllers` family.
 
 	.. _datarecord-syntax:
 
 Syntax
 ======
 
-	``object``.datarecord('???',...)
+	``object``.dataRecord('???',...)
 	
 	Where:
 

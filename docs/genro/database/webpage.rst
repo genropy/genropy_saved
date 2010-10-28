@@ -4,10 +4,12 @@
  Creation of a webpage
 =======================
 
-Introduction
-============
+	.. _webpage-build-phase:
 
-	In the construction of the pages, first GenroPy loads the browser (client) with its JavaScript engine (the Genro engine). Then the Javascript engine immediately requests the server to build the recipe for the DOM. This recipe is returned to the client in a bag.   This is the page description and content of the original datastore form of bags. At this point, the JS can make calls to the python code to further buildings on the page.
+The build phase
+===============
+
+	In the construction of the pages, first GenroPy loads the browser (client) with its JavaScript engine (the Genro engine). Then the Javascript engine immediately requests the server to build the recipe for the DOM. This recipe is returned to the client in a :ref:`genro-bag-introduction`.   This is the page description and content of the original datastore form of bags. At this point, the JS can make calls to the python code to further buildings on the page.
 
 	In practice, GenroPy behaves in this way:
 
@@ -69,7 +71,7 @@ Introduction
 
 .. [#] For further details on the Genro element widgets, please check :ref:`genro-widgets-introduction`.
 
-.. [#] For further details on the Genro Bag, please check :ref:`genro-bag-introduction`.
+.. [#] For further details on the Genro Bag, please check :ref:`genro-bag-introduction` introduction page.
 
 .. [#] You can access to it from any Genro webpage through the debugger by clicking ``ctrl+shift+D``. For more information on the debugger, check :ref:`datastore-debugger`.
 

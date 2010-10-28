@@ -15,20 +15,22 @@
 Description
 ===========
 
-	``dataformula`` allows to insert a value into a specific address of the :ref:`genro-datastore`.
+	``dataFormula`` allows to insert a value into a specific address of the :ref:`genro-datastore`.
+	
+	The ``dataFormula`` belongs to :ref:`genro-client-side-controllers` family.
 
 	.. _dataformula-syntax:
 
 Syntax
 ======
 
-	``object.dataformula('folderPlaceOfYourValue','formula','param','param',...)``
+	``object.dataFormula('folderPlaceOfYourValue','formula','param','param',...)``
 	
 	Where:
 
 	- first parameter: here lies the path folder in the :ref:`genro-datastore` of your value.
 
-	- second parameter: here lies the "formula" (dataformula does not have to be necessarily a mathematical formula!)
+	- second parameter: here lies the "formula" [#]_.
 	
 	- next parameters: variables contained into the formula.
 
@@ -49,6 +51,6 @@ Examples
 				fb.dataFormula('area','base * height', base='^base', height='^height')
 				fb.numberTextBox(lbl='!!Area',value='^area',places=2,border='2px solid grey',padding='2px')
 	
-	Example::
-	
-		??? Add an example for a not mathematical usage with the dataFormula
+**Footnotes**
+
+.. [#] dataFormula does not have to be necessarily a mathematical formula!

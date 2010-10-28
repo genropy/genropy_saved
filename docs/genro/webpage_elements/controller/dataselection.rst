@@ -15,7 +15,9 @@
 Description
 ===========
 
-	``dataselection`` allows to ... ???
+	``dataSelection`` allows to ... ???
+	
+	The ``dataSelection`` belongs to :ref:`genro-server-side-controllers` family.
 
 	.. _dataselection-syntax:
 

@@ -6,27 +6,33 @@
 
 	The Genro controllers allow to execute a script.
 
-	.. note:: we recommend you in reading :ref:`genro-webpage` before.
+	We emphasize that all the controllers can be attached to every Genro object.
 
-	*Client-side controllers*:
-	
+	.. note:: we recommend you to read :ref:`genro-webpage` before reading this paragraph.
+
+	.. _genro-client-side-controllers:
+
+client-side controllers
+=======================
+
 	The client-side controllers work on client through Javascript code; they are:
 
 	- :ref:`genro-datacontroller`
 	- :ref:`genro-dataformula`
 	- :ref:`genro-datascript` (deprecated)
-	
-	*Server-side controllers*:
-	
+
+	.. _genro-server-side-controllers:
+
+server-side controllers
+=======================
+
 	The server-side controllers work on server, so they use python code; they are:
 
 	- dataRecord ???
-	
-	- :ref:`genro-datarpc`
-	
-	- dataSelection ???
 
-	We emphasize that all the controllers can be attached to every Genro object.
+	- :ref:`genro-datarpc`
+
+	- dataSelection ???
 
 Common attributes
 =================
@@ -39,13 +45,15 @@ Common attributes
 	| ``_init``          | Boolean; if True, the controller is executed when  |  ``False``               |
 	|                    | when the line containing ``_init`` is read         |                          |
 	+--------------------+----------------------------------------------------+--------------------------+
-	| ``_onresult``      | Boolean; if True, ... ??? #NISO                    |  ``False``               |
+	| ``_onresult``      | allows to execute a Javascript code AFTER when the |  ``None``                |
+	|                    | controller finished its action                     |                          |
 	+--------------------+----------------------------------------------------+--------------------------+
 	| ``_onstart``       | Boolean; if True, FIRST all the line codes are     |  ``False``               |
 	|                    | read, THEN the controller containing ``_onresult`` |                          |
 	|                    | is executed                                        |                          |
 	+--------------------+----------------------------------------------------+--------------------------+
 	| ``_timing``        | number; this attribute allows to choose the        |  ``???``                 |
-	|                    | controller response time (milliseconds)            |                          |
+	|                    | controller response time (milliseconds) #NISO???   |                          |
 	+--------------------+----------------------------------------------------+--------------------------+
-	
+	| ``???``            | #NISO Other attributes?                            |  ``???``                 |
+	+--------------------+----------------------------------------------------+--------------------------+
