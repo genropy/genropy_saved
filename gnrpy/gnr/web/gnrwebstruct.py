@@ -216,6 +216,9 @@ class GnrDomSrc(GnrStructData):
                 parentAttr['remote_%s' %k] = v
                 kwargs.pop(k)
             if not lazy:
+                onRemote = kwargs_copy.pop('_onRemote', None)
+                if onRemote:
+                    self.dataController(onRemote, _onStart=True)
                 handler(self, **kwargs_copy)
         
     def func(self,name, pars='',funcbody=None, **kwargs):
