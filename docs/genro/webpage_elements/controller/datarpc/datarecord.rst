@@ -15,9 +15,9 @@
 Description
 ===========
 
+	- The ``dataRecord`` belongs to :ref:`genro-server-side-controllers` family.
+
 	``dataRecord`` allows to ... ???
-	
-	The ``dataRecord`` belongs to :ref:`genro-server-side-controllers` family.
 
 	.. _datarecord-syntax:
 
