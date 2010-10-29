@@ -17,7 +17,7 @@
 Description
 ===========
 
-	The datastore is a Genro bag and it's used to keep track of data.
+	The datastore is a Genro bag called and it's used to keep track of data.
 
 	You can access to it from any Genro webpage through the debugger by clicking ``ctrl+shift+D``.
 

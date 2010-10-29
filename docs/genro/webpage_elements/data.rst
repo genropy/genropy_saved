@@ -4,12 +4,36 @@
  data
 ======
 
-	The 
-	il data, non fa partire script, mette solamente un qualcosa in un qualche posto
+	- :ref:`data-description`
 
-	il data è serverside
+	- :ref:`data-syntax`
 
-	??? write of "pane.data('numero','2')"
+	- :ref:`data-examples`
+
+	.. _data-description:
+
+Description
+===========
+
+	The ``data`` is a server-side Genro object that allows to define variables from server to client.
+
+	.. _data-syntax:
+
+Syntax
+======
+
+	``object``.data('folderPath','value')
+
+	Where:
+
+	- first parameter: it contains the variable folder path.
+
+	- second parameter: it contains the value of the variable.
+
+	.. _data-examples:
+
+Examples
+========
 
 	Example::
 	
@@ -23,3 +47,17 @@
 				bc = root.borderContainer()
 				bc.button('Click me',iconClass='^icon',width='^widthButton',color='^color',
 				           font_size='^fontSize',font_family='^fontType',action="alert('Clicked!')")
+	
+	Example::
+		
+		def test_2_basic2(self,pane):
+			"""data basic example - formbuilder attributes"""
+			bc = pane.borderContainer(datapath='test2')
+			fb = bc.formbuilder(cols=2)
+			fb.data('.name','Filippo')
+			fb.data('.surname','Astolfi')
+			fb.textbox(value='^.name',lbl='!!Name')
+			fb.textbox(value='^.surname',lbl='!!Surname')
+			fb.numberTextbox(value='^.phone',lbl='!!Phone number')
+			fb.textbox(value='^.address',lbl='!!Address')
+			

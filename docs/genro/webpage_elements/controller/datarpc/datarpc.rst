@@ -9,6 +9,8 @@
 	- :ref:`datarpc-syntax`
 
 	- :ref:`datarpc-examples`
+	
+	- :ref:`datarpc-common-attributes`
 
 	.. _datarpc-description:
 
@@ -36,13 +38,15 @@ Syntax
 
 	Where:
 
-	- ``object`` is a form widget or a layout widget.
+	- ``object`` is a form widget or a layout widget on which you append the ``dataRpc``.
 
-	- ``folderPath`` contains the folder path of the result of the ``dataRpc`` action; if you don't return any value in the ``dataRpc``, then this parameter is still essential but becomes a fake parameter.
+	- ``folderPath`` contains the folder path of the result of the ``dataRpc`` action; you have to write it even if you don't return any value in the ``dataRpc`` (in this situation it will become a "mandatory but dummy" parameter).
 
 	- ``method`` is the name of your ``dataRpc``.
 
-	- ??? ``_fired='^anotherFolderPath'``; this is a fake parameter. Genro use it to trigger the ``dataRpc`` call: the dataRpc is triggered whenever the value contained in ``anotherFolderPath`` changes.
+	- in the **kwargs you have to define a parameter who allows the ``dataRpc`` to be triggered.
+	
+	For example, Genro Team uses ``_fired='^anotherFolderPath'``: the dataRpc is triggered whenever the value contained in ``anotherFolderPath`` changes; the "_" is used to hide the trigger parameter in the :ref:`genro-datastore`..
 
 	Then, you have to create a ``rpc server method`` following this syntax:
 
@@ -99,8 +103,14 @@ Examples
 			def rpc_getTime(self):
 			    return self.toText(datetime.datetime.now(),format='HH:mm:ss')
 
+	..datarpc-common-attributes:
+
+Common attributes
+=================
+
+	For a complete reference of ``dataRpc`` common attributes, please check :ref:`rpc-common-attributes`.
+
 **Footnotes**:
 
 .. [#] dataRpc: data remote procedure call.
-
  

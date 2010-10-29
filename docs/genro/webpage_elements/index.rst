@@ -12,4 +12,5 @@ Webpage elements
 	html
 	css
 	data
+	dataremote
 	controller/index

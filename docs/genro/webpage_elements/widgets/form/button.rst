@@ -46,6 +46,14 @@ Examples
 	An alternative syntax is::
 
 		pane.button('Click me!', fire_Click = 'msg')
+	
+	Example::
+	
+		top.button('Unleash the dataController!',fire='.add')
+        top.dataController("""put some Javascript code here...
+                           """,_fired="^.add")
+	
+	Please note that the ``fire`` attribute in :ref:`genro-button` is a shortcut for a script that puts 'true' in the destination path and then put again false. So for a little while we have a true in that location, that allows to trigger the action of the button.
 
     In Genro there are four macros used as a shortcut that you can use in place of a Javascript command. They are FIRE, GET, SET, PUT. For more details, see :ref:`genro-datastore`.
 

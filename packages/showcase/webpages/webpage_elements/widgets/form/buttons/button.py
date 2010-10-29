@@ -43,5 +43,4 @@ class GnrCustomWebPage(object):
         pane.data('color','green')
         pane.button('Click me',iconClass='^icon',width='^widthButton',color='^color',
                     font_size='^fontSize',font_family='^fontType',action="alert('Clicked!')")
-                    
-                    
+        

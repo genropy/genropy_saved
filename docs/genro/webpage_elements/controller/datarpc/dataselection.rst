@@ -10,6 +10,8 @@
 
 	- :ref:`dataselection-examples`
 
+	- :ref:`dataselection-common-attributes`
+
 	.. _dataselection-description:
 
 Description
@@ -35,3 +37,10 @@ Syntax
 
 Examples
 ========
+
+	..dataselection-common-attributes:
+
+Common attributes
+=================
+
+	For a complete reference of ``dataSelection`` common attributes, please check :ref:`rpc-common-attributes`.

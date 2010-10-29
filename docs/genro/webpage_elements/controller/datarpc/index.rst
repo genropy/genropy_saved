@@ -4,8 +4,9 @@
  dataRpc
 =========
 
-	.. toctree::
+.. toctree::
 
+	introduction
 	datarpc
 	datarecord
 	dataselection

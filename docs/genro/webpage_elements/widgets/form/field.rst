@@ -21,7 +21,7 @@ Definition and Description
 
 	Its type is inherited from the type of data contained in the table to which ``field`` refers. For example, if ``field`` catches data from a :ref:`genro-numbertextbox`, its type is actually a ``numberTextbox``.
 
-	``field`` MUST be a son of the form widget called :ref:`genro-formbuilder`, and ``formbuilder`` itself MUST have a :ref:`genro-datapath` for inner relative path gears. So, ``field`` search a form to bind itself to (so don't forget to link every ``field`` to a ``formbuilder``!).
+	``field`` MUST be a child of the form widget called :ref:`genro-formbuilder`, and ``formbuilder`` itself MUST have a :ref:`genro-datapath` for inner relative path gears. So, ``field`` search a form to bind itself to (so don't forget to link every ``field`` to a ``formbuilder``!).
 
 	The last thing is to specify the database table to which the ``field`` refers to. There are three different possibilities for doing this, that are:
 
@@ -96,7 +96,7 @@ Attributes
 	|                    | choose it to undo his request                   |                          |
 	+--------------------+-------------------------------------------------+--------------------------+
 	|  ``lbl``           | Set the Field label. Properly, "lbl" is a       |  name_long value         |
-	|                    | formbuilder's son attribute, so if you don't    |                          |
+	|                    | formbuilder's child attribute, so if you don't  |                          |
 	|                    | specify it, then Field will inherit it from the |                          |
 	|                    | :ref:`genro-name_long` attribute of the         |                          |
 	|                    | requested data                                  |                          |

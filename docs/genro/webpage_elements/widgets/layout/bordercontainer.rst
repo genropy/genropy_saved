@@ -75,7 +75,7 @@ Common attributes
 Regions attribute
 =================
 
-	With the "regions" attribute you can act on the regions of the borderContainer's sons. You can modify their dimensions, and see them in the :ref:`genro-datastore`.
+	With the "regions" attribute you can act on the regions of the borderContainer's children. You can modify their dimensions, and see them in the :ref:`genro-datastore`.
 	
 	The syntax is: ``regions='folderName'``.
 	If you have to interact with the regions, the syntax is: ``folderName.regionName``; so, if you have to interact with the "left" region, you have to write: ``folderName.left``.

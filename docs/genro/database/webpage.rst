@@ -33,7 +33,7 @@ The build phase
 
 	    page js <- dataRpc() or remote() -> page python
 
-	The html [#]_ and widget [#]_ elements will be stored in a struct Bag [#]_, while data will be stored in the data bag.
+	The html [#]_ and widget [#]_ elements will be stored in a the struct Bag (??? find a name for the struct bag!) [#]_, while data will be stored in the :ref:`genro-datastore`.
 
 	In python Genro creates a bag using genropy syntax and this bag is sent as XML to the client. In the client widgets and html elements will be stored in the struct bag, while data elements will be stored in data bag. You can see these two bags in the datastore [#]_.
 

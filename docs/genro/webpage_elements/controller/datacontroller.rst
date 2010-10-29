@@ -15,9 +15,9 @@
 Description
 ===========
 
-	The ``dataController`` is just a javascript code that is executed when a parameter value changes.
+	- The ``dataController`` belongs to :ref:`genro-client-side-controllers` family.
 
-	The ``dataController`` belongs to :ref:`genro-client-side-controllers` family.
+	The ``dataController`` is just a javascript code that is executed when a parameter value changes.
 
 	.. _datacontroller-syntax:
 

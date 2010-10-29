@@ -105,7 +105,7 @@ Attributes
 	| ``dbtable``        | Set the database table.                         |  ``None``                |
 	|                    | For more details, see :ref:`genro-dbtable`      |                          |
 	+--------------------+-------------------------------------------------+--------------------------+
-	| ``fieldclass``     | CSS class appended to every formbuilder's son   |  ``gnrfield``            |
+	| ``fieldclass``     | CSS class appended to every formbuilder's child |  ``gnrfield``            |
 	+--------------------+-------------------------------------------------+--------------------------+
 	| ``fld_width``      | Set field width                                 |  ``7em``                 |
 	+--------------------+-------------------------------------------------+--------------------------+

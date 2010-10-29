@@ -9,7 +9,5 @@
 	introduction
 	datacontroller
 	dataformula
-	datarecord
-	datarpc
+	datarpc/index
 	datascript
-	dataselection

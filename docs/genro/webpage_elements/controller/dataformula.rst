@@ -15,9 +15,9 @@
 Description
 ===========
 
+	- The ``dataFormula`` belongs to :ref:`genro-client-side-controllers` family.
+
 	``dataFormula`` allows to insert a value into a specific address of the :ref:`genro-datastore`.
-	
-	The ``dataFormula`` belongs to :ref:`genro-client-side-controllers` family.
 
 	.. _dataformula-syntax:
 

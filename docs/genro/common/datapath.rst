@@ -4,26 +4,30 @@
  Datapath
 ==========
 
-	- :ref:`data-description`
+	- :ref:`datapath-description`
 
-	- :ref:`data-validity`
+	- :ref:`datapath-validity`
 
-	- :ref:`data-examples`: :ref:`bc-example`, :ref:`absolute-example`
+	- :ref:`datapath-examples`: :ref:`datapath-bc-example`, :ref:`datapath-absolute-example`
 
-	.. _data-description:
+	.. _datapath-description:
 
 Datapath description
 ====================
 
 	Datapath is an attribute used to create a hierarchy of your data's addresses into the :ref:`genro-datastore`.
+
+	Placing the ``datapath`` attributes will cause the element to be a root path.
+
+	In the child elements we can specify either to set a relative path to the father, or an absolute path.
+
+	The syntax:
+
+	- ``absolutePathInDatastore``: your data will be saved in its absolute path.
+
+	- ``.relativePathInDatastore``: your path will be relative. Pay attention that you can use this attribute only for a child object linked to a father on which the "datapath" attribute is defined.
 	
-	You have to use ``datapath`` to an object that you want to be the father, while on the son elements you have to specify their relative path (but you can also specify an absolute path).
-	
-	Let's see the syntax for an absolute path and for a relative path:
-	
-	* ``pathAbsoluteInDatastore``: with this syntax your data will be saved in its absolute path.
-	
-	* ``.pathRelativeInDatastore``: with this syntax your path will be relative. Pay attention that you can use this attribute only for a son object, that is only for an object that is linked to a father on which it is defined the "datapath" attribute. Every dot "." that you use have the meaning of a new subfolder; so::
+	Every dot "." that you use have the meaning of a new subfolder; so::
 	
 		class GnrCustomWebPage(object):
 			def main(self,root,**kwargs):
@@ -32,21 +36,21 @@ Datapath description
 				bc.numberTextbox(value='^number2')
 				bc.numberTextbox(value='^.number.number3')
 	
-	The first numberTextbox will have the following path: ``test1/number1`` (this is a relative path). The second one will have the following path: ``number2`` (that is an absolute path!). The third one will have the following path: ``test1/number/number3``. See more explanations in the :ref:`data-examples` section.
+	The first numberTextbox will have the following path: ``test1/number1`` (this is a relative path). The second one will have the following path: ``number2`` (that is an absolute path!). The third one will have the following path: ``test1/number/number3``. See more explanations in the :ref:`datapath-examples` section.
 
-	.. _data-validity:
+	.. _datapath-validity:
 
 Datapath validity
 =================
 
 	You can give "datapath" attribute to each object, but it is useful give this attribute only to the objects that contain other objects (so give this attribute to container objects, that are :ref:`genro-accordioncontainer`, :ref:`genro-bordercontainer`, :ref:`genro-stackcontainer`, :ref:`genro-tabcontainer`).
 
-	.. _data-examples:
+	.. _datapath-examples:
 
 Examples
 ========
 
-	.. _bc-example:
+	.. _datapath-bc-example:
 
 A simple example
 ================
@@ -62,7 +66,7 @@ A simple example
 				
 	the strings typed in the textbox will be saved in the following paths: ``test1/name``, ``test1/surname``
 
-	.. _absolute-example:
+	.. _datapath-absolute-example:
 
 Absolute path example
 =====================

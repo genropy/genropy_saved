@@ -4,7 +4,7 @@
  Introduction to the controllers
 =================================
 
-	The Genro controllers allow to execute a script.
+	The Genro controllers receive inputs and initiate a response by making calls on model objects.
 
 	We emphasize that all the controllers can be attached to every Genro object.
 
@@ -45,15 +45,11 @@ Common attributes
 	| ``_init``          | Boolean; if True, the controller is executed when  |  ``False``               |
 	|                    | when the line containing ``_init`` is read         |                          |
 	+--------------------+----------------------------------------------------+--------------------------+
-	| ``_onresult``      | allows to execute a Javascript code AFTER when the |  ``None``                |
-	|                    | controller finished its action                     |                          |
-	+--------------------+----------------------------------------------------+--------------------------+
-	| ``_onstart``       | Boolean; if True, FIRST all the line codes are     |  ``False``               |
+	| ``_onStart``       | Boolean; if True, FIRST all the line codes are     |  ``False``               |
 	|                    | read, THEN the controller containing ``_onresult`` |                          |
 	|                    | is executed                                        |                          |
 	+--------------------+----------------------------------------------------+--------------------------+
-	| ``_timing``        | number; this attribute allows to choose the        |  ``???``                 |
-	|                    | controller response time (milliseconds) #NISO???   |                          |
-	+--------------------+----------------------------------------------------+--------------------------+
-	| ``???``            | #NISO Other attributes?                            |  ``???``                 |
+	| ``_timing``        | number (seconds); the controller will be triggered |  ``None``                |
+	|                    | every "x" seconds, where "x" is the number defined |                          |
+	|                    | in this attribute                                  |                          |
 	+--------------------+----------------------------------------------------+--------------------------+

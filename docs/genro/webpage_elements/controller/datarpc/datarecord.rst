@@ -9,6 +9,8 @@
 	- :ref:`datarecord-syntax`
 
 	- :ref:`datarecord-examples`
+	
+	- :ref:`datarecord-common-attributes`
 
 	.. _datarecord-description:
 
@@ -34,3 +36,10 @@ Syntax
 
 Examples
 ========
+
+	..datarecord-common-attributes:
+
+Common attributes
+=================
+
+	For a complete reference of ``dataRecord`` common attributes, please check :ref:`rpc-common-attributes`.
