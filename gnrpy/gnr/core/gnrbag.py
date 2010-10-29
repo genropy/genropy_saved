@@ -962,13 +962,13 @@ class Bag(GnrObject):
         for n in otherbag:
             node_resolver=n.resolver
             node_value = None
-            if not node_resolver or resolved:
+            if node_resolver is None or resolved:
                 node_value = n.value
                 node_resolver=None
             if n.label in self.keys():
                 currNode=self.getNode(n.label)
                 currNode.attr.update(n.attr)
-                if node_resolver:
+                if node_resolver is not None:
                     currNode.resolver=node_resolver
                 if isinstance(node_value, Bag) and  isinstance(currNode.value,Bag):
                     currNode.value.update(node_value)

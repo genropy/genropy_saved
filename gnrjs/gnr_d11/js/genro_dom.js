@@ -576,12 +576,15 @@ dojo.declare("gnr.GnrDomHandler",null,{
         else{
             //console.log(widget.declaredClass);
             while ( target && ! domnode){
-                domnode=  (target.getAttribute && target.getAttribute('droppable'))?target:null;
+                domnode=  (target.getAttribute && eval(target.getAttribute('droppable')))?target:null;
                 target=target.parentNode;
             }
             if (domnode){
                 result= {'type':'domnode','widget':widget,'domnode':domnode,
                           'sourceNode':genro.dom.getSourceNode(domnode)};
+                if(widget.declaredClass=='dijit._TreeNode'){
+                    result['item'] = widget.item;
+                }
             }
         }
         return result;
@@ -594,8 +597,8 @@ dojo.declare("gnr.GnrDomHandler",null,{
         }
         var domnode=droppable.domnode;
         var sourceNode=droppable.sourceNode;
-        console.log('onDragEnter '+domnode);
-        
+        console.log('onDragEnter ')
+        console.log(droppable);
         event.stopPropagation();
         event.preventDefault();
         var dataTransfer=event.dataTransfer;
@@ -670,7 +673,13 @@ dojo.declare("gnr.GnrDomHandler",null,{
                 }else{
                     for (var i=0; i < drop_types.length; i++) {
                         if (dojo.indexOf(dataTransfer.types,drop_types[i])>=0){
-                            params['drop_data']=dataTransfer.getData(drop_types[i]);
+                            var datatype=drop_types[i];
+                            var value=dataTransfer.getData(datatype)
+                            if (stringEndsWith(datatype,'/json')){
+                                value=convertFromText(value,'JS');
+                            }
+                            params['drop_data']=value;
+                            params['drop_item']=droppable.item;
                             funcApply(action,params, sourceNode);
                             break;
                         }
@@ -688,30 +697,38 @@ dojo.declare("gnr.GnrDomHandler",null,{
         var sourceNode=genro.dom.getSourceNode(domnode);
         var dataTransfer=event.dataTransfer;
         var inherited=sourceNode.getInheritedAttributes();
-        if(widget.isTreeNode){
-            value=(widget.item instanceof gnr.GnrBagNode)? widget.item.getValue():widget.item.label;
-        }
         if ('drag_value_cb' in inherited){
             value=funcCreate(inherited['drag_value_cb'],'sourceNode,item,event')(sourceNode,widget.item,event);
+        }else{
+            if(widget.isTreeNode){
+                value=(widget.item instanceof gnr.GnrBagNode)? widget.item.getValue():widget.item.label;
+            }
+            else if ('drag_value' in inherited){
+                value=sourceNode.currentFromDatasource(inherited['drag_value']);
+            }
+            else if ('value' in sourceNode.attr){
+                value=sourceNode.getAttributeFromDatasource('value');
+            }
+            else if ('innerHTML' in sourceNode.attr){
+                value=sourceNode.getAttributeFromDatasource('innerHTML');
+            }
+            else{
+                 value=domnode.innerHTML;
+            }
         }
-        else if ('drag_value' in inherited){
-            value=sourceNode.currentFromDatasource(inherited['drag_value']);
-        }
-        else if ('value' in sourceNode.attr){
-            value=sourceNode.getAttributeFromDatasource('value');
-        }
-        else if ('innerHTML' in sourceNode.attr){
-            value=sourceNode.getAttributeFromDatasource('innerHTML');
-        }
-        else{
-             value=domnode.innerHTML;
-        }
+        
         var drag_class=inherited['drag_class'];
         if(drag_class){
             genro.dom.addClass(domnode,drag_class);
         }
         console.log(value);
-        dataTransfer.setData('text/plain', convertToText(value)[1]);
+        if (typeof(value)=='object'){
+            for (var k in value){
+                dataTransfer.setData(k, convertToText(value[k])[1]);
+            }
+        }else{
+            dataTransfer.setData('text/plain', convertToText(value)[1]);
+        }
         var drag_tags=inherited['drag_tags'];
         if(drag_tags){
             dataTransfer.setData('drag_tags', drag_tags);

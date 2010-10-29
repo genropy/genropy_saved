@@ -739,11 +739,19 @@ genropatches.tree=function(){
         }
         var sourceNode=this.tree.sourceNode;
         var nodeattrs=this.tree.gnrNodeAttributes;
-        if (nodeattrs.draggable){
-            this.domNode.setAttribute('draggable',true);
+        if (nodeattrs.draggable && (this.item instanceof gnr.GnrBagNode)){
+            var draggable=nodeattrs.draggable
+            if((typeof(draggable)=='function') || (typeof(draggable)=='string')){
+                draggable=funcCreate(draggable,'item')(this.item)
+            }
+            this.domNode.setAttribute('draggable',draggable);
         }
         if (nodeattrs.droppable && (this.item instanceof gnr.GnrBagNode)){
-            this.domNode.setAttribute('droppable',true);
+             var droppable=nodeattrs.droppable
+                if((typeof(droppable)=='function') || (typeof(droppable)=='string')){
+                    droppable=funcCreate(droppable,'item')(this.item);
+                }
+            this.contentNode.setAttribute('droppable',droppable);
         }
     };
 	

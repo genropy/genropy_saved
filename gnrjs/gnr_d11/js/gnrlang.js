@@ -482,6 +482,11 @@ function quoted(astring){
 
 
 function convertFromText (value, t, fromLocale){
+    if (!t && value.indexOf('::')>=0){
+        value = value.split('::');
+        t=value[1];
+        value=value[0];
+    }
     t=t.toUpperCase();
     if (t=='NN'){
         return null;
