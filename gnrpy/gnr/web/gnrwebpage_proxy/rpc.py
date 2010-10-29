@@ -7,6 +7,8 @@
 #  Copyright (c) 2007 Softwell. All rights reserved.
 #
 from gnr.core.gnrbag import Bag
+from gnr.core import gnrstring
+from gnr.core.gnrdict import dictExtract
 from gnr.web.gnrwebpage_proxy.gnrbaseproxy import GnrBaseProxy
 import os
 AUTH_FORBIDDEN=-1
@@ -105,6 +107,10 @@ class GnrWebRpc(GnrBaseProxy):
 
     def rpc_upload_file(self,file_handle=None, uploadPath=None, uploaderId=None,**kwargs):
         site = self.page.site
+        kwargs=site.parse_kwargs(kwargs)
+        file_actions=dictExtract(kwargs,'fileaction_') or {}
+        print kwargs
+        print file_actions
         if not uploadPath:
             uploadPath = 'site:uploaded_files'
             if uploaderId:
@@ -119,6 +125,15 @@ class GnrWebRpc(GnrBaseProxy):
         file_url = site.getStaticUrl(uploadPath,filename)
         with file(file_path, 'wb') as outfile:
             outfile.write(content)
+        for action_name,action_params in file_actions.items():
+            command_name=action_params.pop('command',None)
+            if not command_name:
+                continue
+            action_runner=getattr(self.page,'fileaction_%s' %command_name)
+            if action_runner:
+                for action_param in action_params:
+                    action_params[str(action_param)]=action_params.pop(action_param)
+                action_runner(file_url=file_url, file_path=file_path, **action_params)
         if uploaderId:
             handler = getattr(self.page,'onUploading_%s' %uploaderId)
             if handler:
