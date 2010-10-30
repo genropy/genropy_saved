@@ -66,7 +66,8 @@ class GnrCustomWebPage(object):
         else:
             item_table.insert(item_record)
         for category_id in categories:
-            cat_table.insert(dict(category_id=category_id,item_id=item_record['id']))
+            if category_id:
+                cat_table.insert(dict(category_id=category_id,item_id=item_record['id']))
         self.db.commit()
     
     def rpc_get_uploaded_files(self,selected_categories=None,current_range=None):
