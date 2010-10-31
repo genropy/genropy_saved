@@ -8,12 +8,13 @@ Copyright (c) 2010 Softwell. All rights reserved.
 """
 
 from gnr.web.batch.btcbase import BaseResourceBatch
-
+from gnr.core.gnrbag import Bag
 class BaseResourceMail(BaseResourceBatch):
     def __init__(self,*args,**kwargs):
         super(BaseResourceMail,self).__init__(**kwargs)
         self.mail_handler = self.page.getService('mail')
-        self.mail_pars = dict()
+        self.mail_preference = self.page.getUserPreference('mail',pkg='adm') or Bag(self.page.application.config.getNode('mail').attr)
+
         
         
     def send_one_mail(self, chunk, **kwargs):

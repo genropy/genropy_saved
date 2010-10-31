@@ -98,7 +98,7 @@ class TableScriptRunner(BaseComponent):
             self.table_script_option_pane(paramsBc.contentPane(region='bottom',datapath='.batch_options',
                                                                 _class='ts_optionsPane'))
         elif hasParameters:
-            paramsPane = parentBc.contentPane(pageName='params',_class='ts_parametersPane',datapath='.data',**kwargs)
+            paramsPane = parentBc.contentPane(pageName='params',datapath='.data',**kwargs)
             self.table_script_parameters_pane(paramsPane)
         self.table_script_waitingpane(parentBc.auxPane)
         

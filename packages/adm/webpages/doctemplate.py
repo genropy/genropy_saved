@@ -57,13 +57,12 @@ class GnrCustomWebPage(object):
         box.menu(storepath='tableTree',modifiers='*',_class='smallmenu',action='SET .maintable = $1.fullpath')
         fb.checkbox(value='^mainbc.regions.left?show',label='!!Show fields')        
         tc = bc.tabContainer(region='center',selectedPage='^statusedit')
-        editorPane = tc.borderContainer(title='Edit',pageName='edit')
+        editorPane = tc.contentPane(title='Edit',pageName='edit')
         previewPane = tc.borderContainer(title='Preview',pageName='view')
         previewPane.div(innerHTML='==dataTemplate(tpl,data)',data='^test_record.record',
                         tpl='=form.record.content',margin='10px')
         self.metadataForm(tc.contentPane(title='!!Metadata',pageName='metadata',datapath='.metadata'),disabled=disabled)
-        self.RichTextEditor(editorPane, value='^.content', contentPars=dict(region='center'),
-                            nodeId='docEditor',editorHeight='200px',toolbar=self.rte_toolbar_standard())
+        self.RichTextEditor(editorPane, value='^.content',height='100%',toolbar=self.rte_toolbar_standard())
     
     def metadataForm(self,pane,disabled=None):
         fb = pane.formbuilder(cols=2, border_spacing='4px',fld_width='15em',disabled=disabled)
