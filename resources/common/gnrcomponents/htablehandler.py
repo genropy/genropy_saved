@@ -140,7 +140,7 @@ class HTableHandler(HTableHandlerBase):
         commontop = None
         if editMode=='bc':
             bc = parent.borderContainer(region='center',datapath=datapath,nodeId=nodeId,margin='2px')
-            treepane = bc.borderContainer(region='left',width='40%',splitter=True,_class='pbl_roundedGroup')
+            treepane = bc.borderContainer(region='left',width='220px',splitter=True,_class='pbl_roundedGroup')
             formPanePars['region'] = 'center'            
             formBC = bc.borderContainer(region='center')
             commonTop = bc.contentPane(region='top',overflow='hidden')
@@ -538,7 +538,7 @@ class HTablePicker(HTableHandlerBase):
             bc.dataController("FIRE .open;",**{"subscribe_%s_open" %nodeId:True})
         elif editMode=='bc':
             bcId = '%s_bc' %nodeId
-            bc = parent.borderContainer(datapath=datapath,nodeId=bcId)
+            bc = parent.borderContainer(datapath=datapath,height='100%',nodeId=bcId)
             #bc.contentPane(region='top',_class='pbl_roundedGroupLabel').div('%s picker' %tblobj.name_long)
             #bottom = bc.contentPane(region='bottom',_class='pbl_roundedGroupBottom')
             bc.dataController("genro.formById(fid).load()",_onStart=True,fid=nodeId,**{"subscribe_%s_open" %nodeId:True})
@@ -671,7 +671,7 @@ class HTablePicker(HTableHandlerBase):
         
 
     def _ht_pk_tree(self,pane,caption=None,formId=None,*kwargs):
-        pane.tree(storepath ='.tree._root_',
+        pane.tree(storepath ='.tree._root_',font_size='.9em',
                     isTree =False,hideValues=True,
                     _fired='^.#parent.reload_tree',
                     nodeId='%s_tree' %formId,eagerCheck=True,
