@@ -32,12 +32,15 @@ class IncludedView(BaseComponent):
                         storepath=None,selectionPars=None,formPars=None,label=None,footer=None,
                         add_action=None,add_class='buttonIcon icnBaseAdd',add_enable='^form.canWrite',
                         del_action=None,del_class='buttonIcon icnBaseDelete',del_enable='^form.canWrite',
+                        upd_action=None,upd_class='buttonIcon icnBaseEdit',upd_enable='^form.canWrite',
+                        
                         close_action=None,close_class='buttonIcon icnTabClose',
                         print_action=None,print_class='buttonIcon icnBasePrinter',
                         pdf_action=None,pdf_class='buttonIcon icnBasePdf',pdf_name=None,
                         export_action=None,export_class='buttonIcon icnBaseExport',
-                        tools_action=None,tools_class='buttonIcon icnBaseAction',tools_enable='^form.canWrite',tools_lbl=None,
-                        lock_action=False,tools_menu=None,upd_action=False,_onStart=False,
+                        tools_action=None,tools_class='buttonIcon icnBaseAction',
+                        tools_enable='^form.canWrite',tools_lbl=None,
+                        lock_action=False,tools_menu=None,_onStart=False,
                         filterOn=None,pickerPars=None,centerPaneCb=None,
                         editorEnabled=None,parentLock='^status.locked',reloader=None,externalChanges=None,
                         addOnCb=None,zoom=True,hasToolbar=False,
@@ -145,11 +148,14 @@ class IncludedView(BaseComponent):
                                     tools_menu=tools_menu,tools_action=tools_action,pdf_action=pdf_action,
                                     pdf_class=pdf_class,pdf_name=pdf_name,table=table,gridId=gridId,
                                     tools_enable=tools_enable, tools_lbl=tools_lbl)
-            if add_action or del_action:
+            if add_action or del_action or upd_action:
                 gridtop_add_del = gridtop_right.div(float='left',margin_right='5px')
-                self._iv_gridAddDel(gridtop_add_del,add_action=add_action,del_action=del_action,
+                self._iv_gridAddDel(gridtop_add_del,add_action=add_action,
+                                    del_action=del_action,upd_action=upd_action,
+                                    upd_class=upd_class,upd_enable=upd_enable,
                                      add_class=add_class,add_enable=add_enable,
-                                     del_class=del_class, del_enable=del_enable,pickerPars=pickerPars,
+                                     del_class=del_class, del_enable=del_enable,
+                                     pickerPars=pickerPars,
                                      formPars=formPars,gridId=gridId)
             if lock_action:
                 gridtop_lock = gridtop_right.div(float='left',margin_right='5px')
@@ -237,8 +243,8 @@ class IncludedView(BaseComponent):
             spacer.button(label='^.status.lockLabel', fire='.status.changelock',iconClass="^.status.statusClass",
                         showLabel=False)
 
-    def _iv_gridAddDel(self,pane,add_action=None,del_action=None,upd_action=None, add_class=None,add_enable=None,
-                        del_class=None, del_enable=None,pickerPars=None,formPars=None,gridId=None):
+    def _iv_gridAddDel(self,pane,add_action=None,del_action=None,upd_action=None,upd_class=None,upd_enable=None, 
+                        add_class=None,add_enable=None,del_class=None, del_enable=None,pickerPars=None,formPars=None,gridId=None):
         if del_action:
             if del_action is True:
                 del_action = 'FIRE .delSelection'
@@ -257,8 +263,8 @@ class IncludedView(BaseComponent):
         if upd_action:
             if upd_action is True:
                 upd_action = 'FIRE .showRecord'
-            pane.div(float='right', _class='icnBaseEdit buttonIcon', connect_onclick=upd_action,
-                        margin_right='2px',visible=add_enable)
+            pane.div(float='right', _class=upd_class, connect_onclick=upd_action,
+                        margin_right='2px',visible=upd_enable)
 
     def _iv_gridAction(self,pane,print_action=None,export_action=None,tools_menu=None,tools_class=None,
                        tools_action=None,export_class=None,print_class=None,pdf_action=None,pdf_class=None,
