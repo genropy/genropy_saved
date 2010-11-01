@@ -667,6 +667,7 @@ class HierarchicalViewHandler(BaseComponent):
     def hv_tree_view(self,pane):
         pane.dataRemote('.tree', 'hv_selectionAsTree', selectionName='^list.selectionName' ,_if='selectionName', _fired='^list.queryEnd')
         pane.dataRecord('.current_record', self.maintable, pkey='^.selected_id')
+        tree_kwargs=self.hv_tree_kwargs()
         pane.tree(storepath ='.tree',
                      selected_pkey ='.selected_id',
                      isTree =False,
@@ -676,8 +677,12 @@ class HierarchicalViewHandler(BaseComponent):
                      inspect ='shift',
                      selectedLabelClass='selectedTreeNode',
                      labelAttribute ='caption',
-                     fired ='^list.queryEnd')
-    
+                     fired ='^list.queryEnd',
+                     **tree_kwargs)
+                    
+    def hv_tree_kwargs(self):
+        return dict()
+        
     def hv_right_view(self, infocontainer):
         infocontainer.data('.conf', self.hierarchicalViewConf())
         infopane_top= infocontainer.contentPane(region ='top', height='50%',
