@@ -74,7 +74,7 @@ class HTableResolver(BagResolver):
         
 class HTableHandlerBase(BaseComponent):
     
-    def ht_treeDataStore(self,table=None,rootpath=None,limit_rec_type=None,rootcaption=None):
+    def ht_treeDataStore(self,table=None,rootpath=None,limit_rec_type=None,rootcaption=None,rootcode=None):
         tblobj= self.db.table(table)
         result = Bag()
         if rootpath:
@@ -97,7 +97,7 @@ class HTableHandlerBase(BaseComponent):
             rootlabel ='_root_'
             _attributes=dict()
             pkey=None
-            code=None
+            code=rootcode
             rootpath=None
             child_count = tblobj.query().count()
         value =  HTableResolver(table=table,rootpath=rootpath,limit_rec_type=limit_rec_type,_page=self) if child_count else None

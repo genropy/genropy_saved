@@ -1127,8 +1127,19 @@ dojo.declare("gnr.widgets.FloatingPane",gnr.widgets.baseDojo,{
         this._dojotag = 'FloatingPane';
         genro.dom.loadCss("/_dojo/11/dojo/dojox/layout/resources/FloatingPane.css");
         genro.dom.loadCss("/_dojo/11/dojo/dojox/layout/resources/ResizeHandle.css");
+    },
+    created: function(widget,savedAttrs,sourceNode){
+        if(sourceNode.attr.showOnStart===false){
+            widget.hide();
+        }
+    },
+    patch_close:function(){
+        /*close destroy the domNode*/
+        this.hide();
     }
 });   
+
+
 dojo.declare("gnr.widgets.ColorPicker",gnr.widgets.baseDojo,{
    created: function(widget, savedAttrs, sourceNode){
         dojo.connect(widget,'onChange',function(){console.log(arguments);});

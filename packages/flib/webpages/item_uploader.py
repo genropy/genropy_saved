@@ -4,6 +4,7 @@
 Created by Softwell on 2009-02-23.
 Copyright (c) 2009 Softwell. All rights reserved.
 """
+from gnr.core.gnrbag import Bag
 
 class GnrCustomWebPage(object):
     py_requires="""public:Public,public:IncludedView,gnrcomponents/htablehandler:HTablePicker,gnrcomponents/drop_uploader"""
@@ -43,23 +44,29 @@ class GnrCustomWebPage(object):
                             label='!!Upload files',uploadPath='site:flib/items',
                             metacol_title=dict(name='!!Title',width='10em'),
                             metacol_description=dict(name='!!Descripton',width='15em'),
-                            external_fileaction_resize48=dict(command='resize',dir='48x48',width=48),
-                            external_fileaction_resize64=dict(command='resize',filetype='jpg'),
+                            fileaction_thumb32=dict(command='resize',height=32,filetype='png'),
                             external_categories='=selected_categories',preview=True,
                             footer=footer,onResult='FIRE reload_saved_files;',
                             savedFilesGrid=savedFilesGrid)
         pane.dataController("console.log('fatto');",subscribe_flib_uploader_done=True)
         
-    def onUploading_flib_uploader(self,file_url=None,file_path=None,categories=None,
-                                description=None,title=None,**kwargs):
+    def onUploading_flib_uploader(self,file_url=None,file_path=None,file_ext=None,categories=None,
+                                description=None,title=None,action_results=None,**kwargs):
         item_table=self.db.table('flib.item')
         cat_table=self.db.table('flib.item_category')
         categories = categories.split(',')
-        item_record=dict(path=file_path,url=file_url,description=description,title=title, username=self.user)
-        f = item_table.query(where='path=:p',p=file_path,for_update=True,addPkeyColumn=False).fetch()
-        if f:
+        item_record=dict(path=file_path,url=file_url,description=description,title=title, 
+                        username=self.user,ext=file_ext)
+        metadata = Bag()
+        if action_results['thumb32']:
+            metadata['thumb32_url'] = action_results['thumb32']['file_url']
+            metadata['thumb32_path'] = action_results['thumb32']['file_path']
+        item_record['metadata'] = metadata
+
+        existing_record = item_table.query(where='path=:p',p=file_path,for_update=True,addPkeyColumn=False).fetch()
+        if existing_record:
             r = item_record
-            item_record = dict(f[0])
+            item_record = dict(existing_record[0])
             item_record.update(r)
             item_table.update(item_record)
             cat_table.deleteSelection('item_id',item_record['id'])
@@ -74,14 +81,23 @@ class GnrCustomWebPage(object):
         tblobj = self.db.table('flib.item_category')
         categories = selected_categories.split(',')
         current_range = current_range or 20
-        data = tblobj.query(columns='@item_id.url AS url, @item_id.title AS title, @item_id.description AS description',
+        fetch = tblobj.query(columns='@item_id.ext AS ext,@item_id.url AS url, @item_id.title AS title, @item_id.description AS description,@item_id.metadata AS metadata',
                         where='$category_id IN :categories', 
                         categories=categories,limit=current_range,
-                        order_by='$__ins_ts').selection().output('grid')
-        for n in data:
-           n.attr['thumb']  = '<img border=0 width="40px" height="40px" src="%s" />' %n.attr['url']
-           print n.attr
-        return data
+                        order_by='$__ins_ts').fetch()
+        result = Bag()
+        if not fetch:
+            return result
+        for i,r in enumerate(fetch):
+            info = dict()
+            info['url'] = r['url']
+            info['title'] = r['title']
+            info['description'] = r['description']
+            metadata = Bag(r['metadata'])
+            ext_img = self.getResourceUri('filetype_icons/%s.png'%r['ext'][1:].lower()) or self.getResourceUri('filetype_icons/_blank.png')
+            info['thumb'] = '<img border=0 height="32px" src="%s" />' %(metadata['thumb32_url'] or ext_img)
+            result.setItem('r_%i' %i,None,_attributes=info) 
+        return result
         
         
         

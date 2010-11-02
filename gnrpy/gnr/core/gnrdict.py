@@ -22,10 +22,17 @@
 
 import gnrclasses
 
-def dictExtract(mydict,f,pop=False):
-    lf=len(f)
+def dictExtract(mydict,prefix,pop=False,slice_prefix=True):
+    """
+    return a dict of the items with keys starting with prefix.
+    * `mydict`: sourcedict 
+    * `prefix`: the prefix of the items you need to extract
+    * `pop` : removes the items from the sourcedict
+    * `slice_prefix` : shortens the keys of the output dict removing the prefix
+    """
+    lprefix=len(prefix) if slice_prefix else 0
     cb = mydict.pop if pop else mydict.get
-    return dict([(k[lf:],cb(k)) for k in mydict.keys() if k.startswith(f)])
+    return dict([(k[lprefix:],cb(k)) for k in mydict.keys() if k.startswith(prefix)])
 
 class FakeDict(dict):
     pass

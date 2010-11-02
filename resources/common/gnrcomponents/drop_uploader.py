@@ -38,6 +38,8 @@ class DropUploader(BaseComponent):
         uploadPath = uploadPath or 'site:uploaded_files'
         metacol_dict = dictExtract(kwargs,'metacol_')
         external_dict = dictExtract(kwargs,'external_') or {}
+        fileaction_dict = dictExtract(kwargs,'fileaction_',slice_prefix=False) or {}
+        external_dict.update(fileaction_dict)
         datapath = '.uploader'
         gridId = '%s_uploader' %uploaderId
         def _struct(struct):
@@ -150,32 +152,45 @@ class DropUploader(BaseComponent):
                             struct=savedFilesGrid['struct'],
                             autoWidth=True,selectionPars=dict(**savedFilesGrid))
 
-    def fileaction_resize(self, file_path=None,file_url=None,height=None,width=None,filetype=None, **kwargs):
+    def fileaction_resize(self, file_path=None,file_url=None,file_ext=None,height=None,width=None,filetype=None,action_name=None, dest_dir=None, **kwargs):
         import Image
         with open(file_path,'rb') as image_file:
-            original=Image.open(image_file)
+            try:
+                original=Image.open(image_file)
+            except:
+                return dict()
             if original.mode != "RGB":
                 original = original.convert("RGB")
             dir_path,filename=os.path.split(file_path)
             imagename,ext=os.path.splitext(filename)
-            landscape=original.size[0]>original.size[1]
-            if not (height and width) and filetype:
-                original.save(os.path.join(dir_path,'%s.%s'%(imagename,filetype.lower())))
-                return
-            elif height and width:
+            if dest_dir:
+                dir_path=self.site.getStaticPath(dest_dir)
+                dest_url=self.site.getStaticUrl(dest_dir)
+            else:
+                dir_path=os.path.join(dir_path,action_name)
+                dest_url="%s/%s"%(file_url.rpartition('/')[0],action_name)
+                
+            if not os.path.exists(dir_path):
+                os.makedirs(dir_path)
+            #landscape=original.size[0]>original.size[1]
+            if height and width:
                 imagename='%s_h%i_w%i'%(imagename,height,width)
                 original.resize(height,width)
-            else:
+            elif height or width:
                 if height:
-                    width=int(height*original.size[1]*1.0/original.size[0])
+                    width=int(height*original.size[0]*1.0/original.size[1])
                     imagename='%s_h%i'%(imagename,height)
                 elif width:
-                    height=int(width*original.size[0]*1.0/original.size[1])
+                    height=int(width*original.size[1]*1.0/original.size[0])
                     imagename='%s_w%i'%(imagename,width)
-                dest_size=height, width
-                original.thumbnail((height,width))
-                filetype=filetype or ext[1:]
-                original.save(os.path.join(dir_path,'%s.%s'%(imagename,filetype)))
-            
+                dest_size=width,height
+                print 'dest_size ',dest_size
+                original.thumbnail(dest_size)
+            filetype=filetype or ext[1:]
+            image_filename='%s.%s'%(imagename,filetype.lower())
+            image_path=os.path.join(dir_path,image_filename)
+            original.save(image_path)
+            image_url='%s/%s'%(dest_url,image_filename)
+        return dict(file_url=image_url,file_path=image_path)
         
     

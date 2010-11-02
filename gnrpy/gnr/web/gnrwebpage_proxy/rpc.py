@@ -121,10 +121,12 @@ class GnrWebRpc(GnrBaseProxy):
         f=file_handle.file
         content=f.read()
         filename=file_handle.filename
+        file_ext = os.path.splitext(filename)[1]
         file_path = site.getStaticPath(uploadPath,filename)
         file_url = site.getStaticUrl(uploadPath,filename)
         with file(file_path, 'wb') as outfile:
             outfile.write(content)
+        action_results=dict()
         for action_name,action_params in file_actions.items():
             command_name=action_params.pop('command',None)
             if not command_name:
@@ -133,11 +135,11 @@ class GnrWebRpc(GnrBaseProxy):
             if action_runner:
                 for action_param in action_params:
                     action_params[str(action_param)]=action_params.pop(action_param)
-                action_runner(file_url=file_url, file_path=file_path, **action_params)
+                action_results[action_name]=action_runner(file_url=file_url, file_path=file_path,file_ext=file_ext, action_name=action_name, **action_params)
         if uploaderId:
             handler = getattr(self.page,'onUploading_%s' %uploaderId)
             if handler:
-                return handler(file_url=file_url, file_path=file_path, **kwargs)
+                return handler(file_url=file_url, file_path=file_path,file_ext=file_ext,action_results=action_results, **kwargs)
         return file_url
         
 
