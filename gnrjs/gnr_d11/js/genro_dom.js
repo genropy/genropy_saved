@@ -549,6 +549,25 @@ dojo.declare("gnr.GnrDomHandler",null,{
         event.dataTransfer.dropEffect = "move";
 
     },
+    
+    decorateEvent:function(event){
+        var domnode = event.target;
+        var widget = dijit.getEnclosingWidget(domnode);
+        if (widget.declaredClass=='dojox.GridView' || widget.declaredClass=='dojox.VirtualGrid') {
+            var eventDecorator;
+            if (widget.declaredClass=='dojox.VirtualGrid'){
+                eventDecorator = widget.views.views[0].header;
+            }else{
+                eventDecorator = widget.content;
+                widget=widget.grid;
+            }
+            var sourceNode = widget.sourceNode;
+            eventDecorator.decorateEvent(event)
+        }
+        event.widget=widget
+        event.sourceNode=genro.dom.getSourceNode(domnode);
+        
+    },
     droppableObject:function(event){
         var target=event.target;
         var result,domnode;
@@ -561,17 +580,21 @@ dojo.declare("gnr.GnrDomHandler",null,{
                 eventDecorator = widget.content;
                 widget=widget.grid;
             }
-            if(eventDecorator.decorateEvent(event)){
-                result= {'type':'cell','widget':widget,
+            var sourceNode = widget.sourceNode;
+            if (sourceNode.attr.droppable || sourceNode.attr.cell_droppable || sourceNode.attr.row_droppable || sourceNode.attr.column_droppable) {
+                if(eventDecorator.decorateEvent(event)){
+                    result= {'type':'cell','widget':widget,
                         'column':event.cellIndex,
                         'row':event.rowIndex,
                         'cell':event.cell,
                         'cellNode': event.cellNode,
                         'rowNode': event.rowNode,
-                         'sourceNode':widget.sourceNode,
+                         'sourceNode':sourceNode,
                          'domnode':event.cellNode
                          };
-            }
+                }
+            };
+            
         }
         else{
             //console.log(widget.declaredClass);
@@ -656,7 +679,7 @@ dojo.declare("gnr.GnrDomHandler",null,{
             if (action){
                 var drop_types=(inherited.drop_types || 'text/plain').split(',');
                 var params=objectUpdate(sourceNode.currentAttributes(),{'drop_object':dataTransfer,'event':event});
-                if (dojo.indexOf(dataTransfer.types,'Files')>=0){
+                if ((dojo.indexOf(dataTransfer.types,'Files')>=0 )&& (dojo.indexOf(drop_types,'Files')>=0)){
                     console.log('files');
                     var drop_ext=inherited.drop_ext;
                     var valid_ext=drop_ext?splitStrip(drop_ext):null;
@@ -691,10 +714,11 @@ dojo.declare("gnr.GnrDomHandler",null,{
     onDragStart:function(event){
         event.stopPropagation();
         console.log(event);
+        this.decorateEvent(event);
         var domnode=event.target;
-        var widget=dijit.getEnclosingWidget(domnode);
+        var widget = event.widget;
+        var sourceNode = event.sourceNode;
         var value;
-        var sourceNode=genro.dom.getSourceNode(domnode);
         var dataTransfer=event.dataTransfer;
         var inherited=sourceNode.getInheritedAttributes();
         if ('drag_value_cb' in inherited){
@@ -757,6 +781,8 @@ dojo.declare("gnr.GnrDomHandler",null,{
         if (widget){
             if(widget.isTreeNode){
                 return widget.tree.sourceNode;
+            }else if  (widget.declaredClass=='dojox.GridView'){
+                return widget.grid.sourceNode;
             }
         }
         while (domnode && !domnode.sourceNode && domnode!=widget.domNode){
