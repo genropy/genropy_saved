@@ -204,6 +204,9 @@ dojo.declare("gnr.GnrSrcHandler",null,{
         }
     },
     
+    nodeBySourceNodeId:function(identifier){
+        return this._main.findNodeById(identifier);
+    },
     newRoot:function(){
            return new gnr.GnrDomSource();
     },
