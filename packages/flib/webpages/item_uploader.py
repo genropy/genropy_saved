@@ -6,6 +6,7 @@ Copyright (c) 2009 Softwell. All rights reserved.
 """
 from gnr.core.gnrbag import Bag
 
+
 class GnrCustomWebPage(object):
     py_requires="""public:Public,public:IncludedView,gnrcomponents/htablehandler:HTablePicker,gnrcomponents/drop_uploader"""
     pageOptions={'enableZoom':False,'openMenu':False}
