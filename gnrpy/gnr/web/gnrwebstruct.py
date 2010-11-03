@@ -838,7 +838,7 @@ class GnrFormBuilder(object):
             if colspan>1:
                 kwargs['colspan']=str(colspan)
             lbl_kwargs.update(kwargs)
-            row[0].td(name='c_%i' %c, content=lbl, align=lblalign, vertical_align=lblvalign, _class=self.lblclass,**lbl_kwargs)
+            row[0].td(name='c_%i' %c, content=lbl, align=lblalign, vertical_align=lblvalign,**lbl_kwargs)
             td=row[1].td(name='c_%i' %c,align=fldalign, vertical_align=fldvalign,**kwargs)
             for k,v in row_attributes.items():
                 # TODO: warn if row_attributes already contains the attribute k (and it has a different value)
