@@ -27,7 +27,7 @@ class DropUploader(BaseComponent):
                                                 uploaderId=uploaderId,savedFilesGrid=savedFilesGrid)
         
         self.dropFileGrid_uploader_grid(bc.borderContainer(region='center'),
-                                        uploaderId=uploaderId,label=label,footer=footer,
+                                        uploaderId=uploaderId,label=label,footer=footer,preview=preview,
                                         enabled=enabled,onResult=onResult,onFileUploaded=onFileUploaded,
                                         uploadPath=uploadPath,**kwargs)
 
@@ -121,7 +121,7 @@ class DropUploader(BaseComponent):
                                  that.fireEvent('.reader_result',fileReader.result);
                              }, false);
                              fileReader[readFunc](selectedFile);
-                        """,selectedLabel="^.drop_uploader.selectedLabel",filebag='=.uploading_data',
+                        """,selectedLabel="^.selectedLabel",filebag='=.uploading_data',
                         _if='selectedLabel',_else='SET .selpreview  = "no_prev";')
         sc.dataController("""if(selpreview=='image'){
                                 SET .preview_img = reader_result;
