@@ -17,7 +17,7 @@
 Description
 ===========
 
-	- The ``dataRpc`` belongs to :ref:`genro-server-side-controllers` family.
+	- The ``dataRpc`` belongs to :ref:`genro-datarpc` family, so it is a server-side controller.
 
 	With ``dataRpc`` [#]_ Genro let the client to make a call to the server and allows the server to perform an action.
 

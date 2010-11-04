@@ -1,9 +1,9 @@
 	.. _genro-datascript:
 
-=========================
- dataScript (deprecated)
-=========================
+============
+ dataScript
+============
 
-	.. note:: DEPRECATED - this controller has been substituted by :ref:`genro-datacontroller` and :ref:`genro-dataformula`.
+.. deprecated:: 0.7
 
-	- The ``dataScript`` belongs to :ref:`genro-client-side-controllers` family.
+.. note:: This controller has been substituted by :ref:`genro-datacontroller` and :ref:`genro-dataformula`.

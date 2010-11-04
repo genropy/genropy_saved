@@ -22,7 +22,7 @@ class GnrCustomWebPage(object):
                    font_size='^.fontSize',font_family='^.fontType',action="alert('Clicked!')")
                    
     def test_2_basic2(self,pane):
-        """data basic example - formbuilder attributes"""
+        """data basic example - filling some formbuilder attributes"""
         bc = pane.borderContainer(datapath='test2')
         fb = bc.formbuilder(cols=2)
         fb.data('.name','Filippo')

@@ -17,7 +17,7 @@
 Description
 ===========
 
-	- The ``dataSelection`` belongs to :ref:`genro-server-side-controllers` family.
+	- The ``dataSelection`` belongs to :ref:`genro-datarpc` family, so it is a server-side controller.
 
 	``dataSelection`` allows to ... ???
 	

@@ -13,7 +13,9 @@
 Description
 ===========
 
-	The ``dataRpc`` are ???
+	- The ``dataRpc`` belongs to :ref:`genro-server-side-controllers` family.
+
+	The ``dataRpc`` is ...???
 
 	.. _rpc-common-attributes:
 
@@ -31,5 +33,6 @@ Rpc common attributes
 	| ``_onResult``      | allows to execute a Javascript code AFTER when the |  ``None``                |
 	|                    | controller finished its action                     |                          |
 	+--------------------+----------------------------------------------------+--------------------------+
-	| ``sync``           | boolean; ???                                       |  ``False``               |
+	| ``sync``           | boolean; if True, Genro stops every further action |  ``False``               |
+	|                    | until the Rpc containing ``sync=True`` finishes.   |                          |
 	+--------------------+----------------------------------------------------+--------------------------+

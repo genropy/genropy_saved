@@ -8,18 +8,17 @@ from gnr.core.gnrbag import Bag
 
 class GnrCustomWebPage(object):
     py_requires="foundation/includedview"
-    def main(self, root, **kwargs):        
+    def main(self,root,**kwargs):
         tc = root.tabContainer()
         # self.ivDbSelection(tc, title="Db Selection")
-        self.ivInline(tc, title="Inline")
-    
+        self.ivInline(tc,title="Inline")
+        
     def ivInline(self, parent, **kwargs):
         """An includedview on a datastore's path."""
         bc = parent.borderContainer(**kwargs)
-        
         b = Bag()
-        b.addItem('r0',Bag(dict(name="name", description="Full name", size=40, type="U")))
-        b.addItem('r1',Bag(dict(name="birth date", description="Birth date", size=10, type="D")))
+        b.addItem('r0',Bag(dict(name="name",description="Full name",size=40,type="U")))
+        b.addItem('r1',Bag(dict(name="birth date",description="Birth date",size=10,type="D")))
         
         bc.data('inline_data', b)
         
@@ -29,11 +28,12 @@ class GnrCustomWebPage(object):
             r.cell('description', name='!!Description', width='40ex')
             r.cell('size', name='!!Size', width='5ex')
             r.cell('type', name='!!Type', width='20ex')
-        
+            
         iv = self.includedViewBox(bc,label='!!Inline IncludedView', locked=False,
                             datamode="bag",
                             storepath='inline_data', struct=structInlineData,
                             autoWidth=True, add_action=True,del_action=True)
+                            
         ge = iv.gridEditor()
         ge.textbox(gridcell="name")
         ge.textbox(gridcell="description")

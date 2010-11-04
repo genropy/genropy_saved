@@ -10,37 +10,6 @@ class GnrCustomWebPage(object):
     py_requires="gnrcomponents/testhandler:TestHandlerFull"
     # dojo_theme='claro'    # !! Uncomment this row for Dojo_1.5 usage
     
-    """ Datapath is an attribute used to create a hierarchy of your data's addresses.
-    You can give "datapath" attribute to each object (widget, etc), but it is useful give this attribute only to the
-    objects that contain other object (let's call them "containers").
-    
-    Let's see an example:
-        box = pane.div(datapath='father')   (this div is the father, and datapath carries an absolute path)
-        box.textbox(value='^.son')          (this textbox is the son)
-        
-    If you want to create a son with an absolute path, you simply mustn't write the dot at the
-    beginning of son's datapath, like:
-        box.textbox(value='^.another_son',datapath='father_2') (this datapath will have an absolute path)
-        
-    You can also create a datapath with a relative path; for doing this you have to put the dot at
-    the beginning of son's datapath, like:
-        box.textbox(value='^.another_son',datapath='.father_2') (this datapath will inherit from the previous datapath)
-                                                                
-    Pay attention to not create a relative path without an absolute path as father!"""
-    
-    #   - attributes of datapath's sons:
-    #       value: set item's address.
-    #
-    #   - Other forms, attributes and items:
-    #       In this section we report forms/attributes that have been used in this example
-    #       despite they didn't strictly belonging to datapath.
-    #       We also suggest you the file (if it has been created!) where you can find
-    #       some documentation about them.
-    #
-    #       ## name ##      --> ## file ##
-    #       datasource      --> datasource.py
-    #       textbox         --> textbox.py
-    
     def test_1_basic(self,pane):
         """Standard datapath"""
         pane.div("""Simple example of datapath. In the first line "datapath='father'" is

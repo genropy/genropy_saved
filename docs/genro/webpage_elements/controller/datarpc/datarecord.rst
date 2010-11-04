@@ -17,7 +17,7 @@
 Description
 ===========
 
-	- The ``dataRecord`` belongs to :ref:`genro-server-side-controllers` family.
+	- The ``dataRecord`` belongs to :ref:`genro-datarpc` family, so it is a server-side controller.
 
 	``dataRecord`` allows to ... ???
 
