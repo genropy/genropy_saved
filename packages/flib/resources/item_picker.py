@@ -43,10 +43,11 @@ class FlibPicker(BaseComponent):
             
         pickerGridId = '%s_grid' %pickerId
         
-        self.includedViewBox(center.borderContainer(region='top',height='50%'),label='!!Items',
+        self.includedViewBox(center.borderContainer(region='top',height='50%',splitter=True),label='!!Items',
                             datapath='.item_grid',
                              nodeId=pickerGridId,table='flib.item_category',autoWidth=True,
-                             struct=saved_files_struct,hiddencolumns='$item_id,@item_id.ext AS ext,@item_id.metadata AS meta',
+                             struct=saved_files_struct,
+                             hiddencolumns='$item_id,@item_id.ext AS ext,@item_id.metadata AS meta,@item_id.url AS url',
                              reloader='^.#parent.tree.code',
                              drag_value_cb='var dataNode = event.widget.dataNodeByIndex(event.rowIndex); return {flib_element:dataNode.attr.item_id};',
                              filterOn='@item_id.title,@item_id.description',
@@ -54,6 +55,15 @@ class FlibPicker(BaseComponent):
                                                 cat_code='=.#parent.tree.code',
                                                 applymethod='flibPickerThumb',
                                                 order_by='@item_id.title'))
+            
+        sc = center.stackContainer(region='center',selectedPage='^.preview_type')
+        sc.dataController("""
+                            var imageExt = ['.png','.jpg','.jpeg']
+                            SET .preview_type = dojo.indexOf(ext,imageExt)>=0?'image':'no_prev';
+                            """,ext=".item_grid.selectedId?ext")
+        sc.contentPane(overflow='hidden',pageName='image').img(height='100%',src='^.item_grid.selectedId?url')
+        
+        sc.contentPane(pageName='no_prev').div(innerHTML='^.item_grid.selectedId?_thumb')
 
                                                 
     def rpc_flibPickerThumb(self,selection):
@@ -63,7 +73,7 @@ class FlibPicker(BaseComponent):
             if row['meta']:
                 metabag = Bag(row['meta'])
             return dict(_thumb= '<img border=0 src="%s" height="32px" />' %(metabag['thumb32_url'] or ext_img))
-        selection.apply(apply_thumb)
+        selection.apply(apply_thumb) 
     
     
     

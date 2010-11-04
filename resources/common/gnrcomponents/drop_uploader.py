@@ -19,7 +19,6 @@ class DropUploader(BaseComponent):
                       onFileUploaded=None,uploadPath=None,
                       preview=False,savedFilesGrid=None,**kwargs):
         
-        
         bc = pane.borderContainer(height='100%',design='sidebar',datapath=datapath,nodeId=uploaderId)
         
         if savedFilesGrid:
@@ -38,8 +37,8 @@ class DropUploader(BaseComponent):
         uploadPath = uploadPath or 'site:uploaded_files'
         metacol_dict = dictExtract(kwargs,'metacol_')
         external_dict = dictExtract(kwargs,'external_') or {}
-        fileaction_dict = dictExtract(kwargs,'fileaction_',slice_prefix=False) or {}
-        external_dict.update(fileaction_dict)
+        process_dict = dictExtract(kwargs,'process_',slice_prefix=False) or {}
+        external_dict.update(process_dict)
         datapath = '.uploader'
         gridId = '%s_uploader' %uploaderId
         def _struct(struct):
@@ -59,9 +58,9 @@ class DropUploader(BaseComponent):
                             struct=_struct,datamode='bag',datapath=datapath,
                             footer=footer,del_action=True,del_enabled=enabled,
                             editorEnabled=enabled,autoWidth=True,
-                            box_drop_action="FIRE .prepare_files=files;FIRE .on_drop = 1000;",
-                            box_droppable=True,
-                            box_drop_types='Files')
+                            drop_action="FIRE .prepare_files=files;FIRE .on_drop = 1000;",
+                            droppable=True,
+                            drop_types='Files')
         gridEditor = iv.gridEditor()
         for k,v in metacol_dict.items():
             _tag='textbox'

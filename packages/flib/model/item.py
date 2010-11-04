@@ -13,3 +13,6 @@ class Table(object):
         tbl.column('metadata','X',name_long='!!Metadata')
         tbl.column('username', name_long='!!User name', indexed=True).relation('adm.user.username')
         self.setTagColumn(tbl,group='zz')
+        
+    def zoomUrl(self):
+        return 'flib/items' 

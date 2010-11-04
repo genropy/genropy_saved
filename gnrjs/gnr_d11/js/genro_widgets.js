@@ -571,6 +571,26 @@ dojo.declare("gnr.widgets.baseHtml",null,{
 
         }
      },
+     onDragDropEvent:function(event){
+         var target = event.target;
+         var domnode;
+         var widget = event.widget;
+         var sourceNode = event.sourceNode;
+         while ( target && ! domnode){
+             domnode=  (target.getAttribute && eval(target.getAttribute('droppable')))?target:null;
+             target=target.parentNode;
+         }
+         if (domnode){
+             result= {'type':'domnode','widget':widget,'domnode':domnode,
+                          'sourceNode':sourceNode,shapes:{'node':domnode}};
+            if(widget.declaredClass=='dijit._TreeNode'){
+                result['item'] = widget.item;
+            }
+            event.droppableObject = result;
+        }
+         /*override this*/
+     },
+     
      created:function(newobj, savedAttrs, sourceNode){
          /*override this for each widget*/
          return null;
@@ -2210,6 +2230,57 @@ dojo.declare("gnr.widgets.Grid",gnr.widgets.baseDojo,{
             }
         }
         return grouppable.join(',');
+    },
+    onDragDropEvent:function(event){
+        if(event.type!='dragover'){
+            console.log('grid event');
+            console.log(event);
+        }
+        var sourceNode = event.sourceNode;
+        var attr = sourceNode.attr;
+        var shapesDict = objectExtract(attr,'droppable_*',true);
+        var widget = event.widget;
+        var result = {}
+        if (attr.droppable || objectNotEmpty(shapesDict)) {
+            if('cell' in shapesDict){
+                shapesDict['cell'] = event.cellNode;
+                result['onCell'] = true;
+            }
+            if('column' in shapesDict){
+                shapesDict['column'] = event.widget.columnNodelist(event.cellIndex,true);
+                result['onColumn'] = true;
+
+            }
+            if('row' in shapesDict){
+                shapesDict['row'] = event.rowNode;
+                result['onRow'] = true;
+
+            }
+            if(attr.droppable){
+                shapesDict['node'] = widget.domNode;
+                result['onGrid'] = true;
+
+            }
+            
+            
+            var attributes= {'widget':widget,
+                    'column':event.cellIndex,
+                    'row':event.rowIndex,
+                    'cell':event.cell,
+                    'cellNode': event.cellNode,
+                    'rowNode': event.rowNode,
+                     'sourceNode':sourceNode,
+                     'domnode':event.cellNode,
+                     'shapes':shapesDict
+                     };
+            result = objectUpdate(result,attributes);
+            event.droppableObject = result;
+            if(event.type!='dragover'){
+            console.log('result');
+            console.log(result);
+        }
+
+        };
     }
 });
 dojo.declare("gnr.widgets.VirtualGrid",gnr.widgets.Grid,{

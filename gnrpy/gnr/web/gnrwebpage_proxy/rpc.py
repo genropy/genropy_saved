@@ -108,9 +108,7 @@ class GnrWebRpc(GnrBaseProxy):
     def rpc_upload_file(self,file_handle=None, uploadPath=None, uploaderId=None,**kwargs):
         site = self.page.site
         kwargs=site.parse_kwargs(kwargs)
-        file_actions=dictExtract(kwargs,'fileaction_') or {}
-        print kwargs
-        print file_actions
+        file_actions=dictExtract(kwargs,'process_') or {}
         if not uploadPath:
             uploadPath = 'site:uploaded_files'
             if uploaderId:
@@ -128,7 +126,9 @@ class GnrWebRpc(GnrBaseProxy):
             outfile.write(content)
         action_results=dict()
         for action_name,action_params in file_actions.items():
-            command_name=action_params.pop('command',None)
+            if action_params==True:
+                action_params=getattr(self.page,'process_%s' %action_name)()
+            command_name=action_params.pop('fileaction',None)
             if not command_name:
                 continue
             action_runner=getattr(self.page,'fileaction_%s' %command_name)

@@ -8,7 +8,8 @@ from gnr.core.gnrbag import Bag
 
 
 class GnrCustomWebPage(object):
-    py_requires="""public:Public,public:IncludedView,gnrcomponents/htablehandler:HTablePicker,gnrcomponents/drop_uploader"""
+    py_requires="""public:Public,public:IncludedView,gnrcomponents/htablehandler:HTablePicker,
+                    gnrcomponents/drop_uploader,flib:FlibBase"""
     pageOptions={'enableZoom':False,'openMenu':False}
     
     def main(self, root, **kwargs):
@@ -19,37 +20,28 @@ class GnrCustomWebPage(object):
                             table='flib.category',datapath='category_picker',
                             output_pkeys='selected_categories',editMode='bc')
         left.dataController("FIRE reload_saved_files",_fired="^selected_categories")
+        self.flibSavedFilesGrid(bc.contentPane(region='right',margin='2px',width='30%',_class='pbl_roundedGroup',splitter=True),
+                                gridId='saved_files_grid',checked_categories='=selected_categories',reloader='^reload_saved_files')
         self.uploader_pane(bc.contentPane(region='center',margin='2px'))
-       
-        
-       
-    def saved_files_struct(self):
-        struct = self.newGridStruct()
-        r = struct.view().rows()
-        r.cell("title",width='10em',title='!!Title')
-        r.cell("description",width='15em',title='!!Description')
-        r.cell("thumb",width='5em',title='!!Thumb')
-        return struct
-    
+
     def uploader_pane(self,pane):
         def footer(footer,**kwargs):
-            footer.button('Upload',action='PUBLISH flib_uploader_upload',float='right')
-        
-        savedFilesGrid=dict(method='get_uploaded_files',
-                                                selected_categories='=selected_categories',
-                                                reloader='^reload_saved_files',
-                                                current_range='=current_range')
-        savedFilesGrid['struct'] = self.saved_files_struct()            
-            
+            footer.button('Upload',action='PUBLISH flib_uploader_upload',float='right',
+                            disabled='==!_selected_categories',
+                            _selected_categories='^selected_categories')            
         self.dropFileGrid(pane,uploaderId='flib_uploader',datapath='.drop_filegrid',
                             label='!!Upload files',uploadPath='site:flib/items',
                             metacol_title=dict(name='!!Title',width='10em'),
                             metacol_description=dict(name='!!Descripton',width='15em'),
-                            fileaction_thumb32=dict(command='resize',height=32,filetype='png'),
+                            process_thumb32=True,
                             external_categories='=selected_categories',preview=True,
                             footer=footer,onResult='FIRE reload_saved_files;',
-                            savedFilesGrid=savedFilesGrid)
+                            )
         pane.dataController("console.log('fatto');",subscribe_flib_uploader_done=True)
+        
+        
+    def process_thumb32(self):
+        return dict(fileaction='resize',height=32,filetype='png')
         
     def onUploading_flib_uploader(self,file_url=None,file_path=None,file_ext=None,categories=None,
                                 description=None,title=None,action_results=None,**kwargs):
