@@ -28,7 +28,7 @@ class GnrCustomWebPage(object):
         
         
     def test_1_grid(self,pane):
-        pane=pane.div(height='300px')
+        pane=pane.div(height='150px')
         pane.data('.data',self.aux_test_1_grid_data())
         grid = pane.IncludedView(nodeId='inputgrid',storepath='.data',
                         datamode='bag',editorEnabled=True)
