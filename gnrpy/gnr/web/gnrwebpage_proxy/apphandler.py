@@ -51,13 +51,16 @@ class GnrWebAppHandler(GnrBaseProxy):
         siteStatus = self.page.siteStatus
         if siteStatus['resetLocalizationTime'] and self.gnrapp.localizationTime < siteStatus['resetLocalizationTime']:
             self.gnrapp.buildLocalization()
-        self.db = self.gnrapp.db
-    
+            
     def event_onEnd(self):
         self._finalize(self)
     
     def _finalize(self, page):
         self.db.closeConnection()
+        
+    @property
+    def db(self):
+        return self.page.db
         
     def getDb(self, dbId=None):
         return self.db # TODO: is a __getitem__ for back compatibility: see gnrsqldata DataResolver
@@ -466,7 +469,10 @@ class GnrWebAppHandler(GnrBaseProxy):
                             selectmethod=None,selectmethod_prefix='rpc', expressions=None,sum_columns=None,
                             sortedBy=None,excludeLogicalDeleted=True, **kwargs):
         t = time.time()
+        print '------GET SELECTION PRIMA DI PRENDERE LA TABLE------'
+        db=self.page.db
         tblobj = self.db.table(table)
+
         row_start = int(row_start)
         row_count = int(row_count)
         newSelection=True
