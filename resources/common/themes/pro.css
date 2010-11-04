@@ -342,7 +342,7 @@
 
 ._common_d11 .dijitTab{
 	font-size: .9em;
-    background:#939393 none repeat scroll 0 0;
+    background:whitesmoke none repeat scroll 0 0;
 	-moz-border-radius-topleft:6px;
 	-moz-border-radius-topright:6px;
     -webkit-border-top-left-radius:6px;
@@ -365,7 +365,7 @@
 	opacity: 1;
 }
 ._common_d11 .dijitTabChecked{
-    background: #9E856F;
+    background: #377A98;
     border-bottom-color: #9E856F;
     color: #F5F5F5;
 }
@@ -380,8 +380,8 @@
 }
 
 ._common_d11 .dijitTabPaneWrapper{
-	-moz-border-radius:6px;
-	-webkit-border-radius:6px;
+	-moz-border-radius:6px 6px 0 0 ;
+	-webkit-border-radius:6px  6px 0 0;
 	-moz-border-radius-topleft:0px;
     -webkit-border-top-left-radius:0px;
     background-color: #F5F5F5;
@@ -431,6 +431,22 @@
 /* @end */
 
 
+/* @group bottomtab */
+._common_d11 .dijitTabLabels-bottom {
+	padding-left: 3px;	
+	border-top: 1px solid #ccc;
+	border-left: 1px solid #ccc;
+	border-bottom: 1px solid #ccc;
+	border-right: 1px solid #ccc;
+	background: #fafafa; /*url(images/tabStripeBottom.gif) repeat-x left top;*/
+	padding-top: 5px;
+	/*-moz-border-radius:5px 5px 0 0;
+	-webkit-border-radius:5px;
+	-moz-box-shadow:4px 4px 4px #403b3b;
+	-webkit-box-shadow:4px 4px 4px #403b3b;
+	*/
+}
+/* @end */
 
 
 /* @end */
