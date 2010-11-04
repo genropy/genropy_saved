@@ -469,8 +469,6 @@ class GnrWebAppHandler(GnrBaseProxy):
                             selectmethod=None,selectmethod_prefix='rpc', expressions=None,sum_columns=None,
                             sortedBy=None,excludeLogicalDeleted=True, **kwargs):
         t = time.time()
-        print '------GET SELECTION PRIMA DI PRENDERE LA TABLE------'
-        db=self.page.db
         tblobj = self.db.table(table)
 
         row_start = int(row_start)
