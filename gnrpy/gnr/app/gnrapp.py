@@ -311,16 +311,16 @@ class GnrApp(object):
         dbattrs['allow_eager_many'] = ((self.config['eager?many'] or '').lower() =="true")
         self.db = GnrSqlAppDb(debugger=getattr(self,'debugger',None), **dbattrs)
         
-        pkgMenues = self.config['menu?package'] or []
-        if pkgMenues:
-            pkgMenues = pkgMenues.split(',')
+        pkgMenus = self.config['menu?package'] or []
+        if pkgMenus:
+            pkgMenus = pkgMenus.split(',')
         for pkgid, attrs in self.config['packages'].digest('#k,#a'):
             if not attrs.get('path'):
                 attrs['path']=self.pkg_name_to_path(pkgid)
             if not os.path.isabs(attrs['path']):
                 attrs['path'] = self.realPath(attrs['path'])
             apppkg = GnrPackage(pkgid, self, **attrs)
-            if apppkg.pkgMenu and (not pkgMenues or pkgid in pkgMenues):
+            if apppkg.pkgMenu and (not pkgMenus or pkgid in pkgMenus):
                 #self.config['menu.%s' %pkgid] = apppkg.pkgMenu
                 if len(apppkg.pkgMenu)==1:
                     self.config['menu.%s' %pkgid]=apppkg.pkgMenu.getNode('#0')
