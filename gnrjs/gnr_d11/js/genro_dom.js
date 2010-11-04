@@ -565,18 +565,24 @@ dojo.declare("gnr.GnrDomHandler",null,{
             eventDecorator.decorateEvent(event)
         }
         event.widget=widget
-        event.sourceNode=genro.dom.getSourceNode(domnode);
-        var gnr = widget?widget.gnr:event.sourceNode.domNode.gnr;
-        if(gnr){
-            gnr.onDragDropEvent(event);
+        sourceNode= sourceNode || genro.dom.getSourceNode(domnode);
+        event.sourceNode=sourceNode;
+        if (sourceNode){
+            sourceNode.getBuiltObj().gnr.onDragDropEvent(event)
         }else{
-            console.log('Not gnr');
+            //gnr = event.sourceNode.widget.gnr;
+            //gnr.onDragDropEvent(event);
+            console.log('No sourcenode');
+            console.log(event)
+            
         }
         
     },
     droppableObject:function(event){
         this.decorateEvent(event)
-        return event.droppableObject;
+        var droppable = event.droppableObject;
+        console.log(droppable)
+        return droppable;
     },
     
 
