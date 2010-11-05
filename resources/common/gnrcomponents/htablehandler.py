@@ -135,7 +135,7 @@ class HTableHandler(HTableHandlerBase):
             tc = parent.tabContainer(nodeId='%s_tc' %nodeId,region='center')
             parent = tc.contentPane(title='!!Hierarchical')
             self.ht_plainView(tc.borderContainer(title='!!Plain',datapath=datapath),table=table,nodeId=nodeId,disabled=disabled,
-                    rootpath=rootpath,childTypes=childTypes,editMode=editMode,label=label)
+                    rootpath=rootpath,editMode=editMode,label=label)
 
         commontop = None
         if editMode=='bc':
@@ -282,9 +282,31 @@ class HTableHandler(HTableHandlerBase):
                         table=table,onSaved='FIRE .onSaved;',#onSaving='if($1.getItem("child_code").indexOf(".")>=0){}',
                         rowcaption=_getTreeRowCaption(self.db.table(table)))
 
-    def ht_edit_toolbar(self,toolbar,nodeId=None,disabled=None,editMode=None,childTypes=None):
+    def _ht_add_button(self,pane,childTypes=None,disabled=None):
+        if childTypes:
+            ddb = pane.dropDownButton(label='!!Add',float='left',disabled=disabled,
+                                        iconClass='icnBaseAdd',showLabel=False,
+                                        visible='==tree_caption!=null' ,
+                                        tree_caption='^.tree.caption')
+            storepath = childTypes
+            if isinstance(childTypes,dict):
+                childTypesMenu = Bag()
+                storepath = '.tree.childTypesMenu'
+                for k,v in childTypes.items():
+                    childTypesMenu.setItem(k,None,caption=v,action="SET .edit.childType = $1.fullpath; FIRE .edit.add_button;")
+                    pane.data(storepath,childTypesMenu)
+            ddb.menu(storepath=storepath,modifiers='*',_class='smallmenu') 
+        else:
+            pane.button(label='!!Add',float='left',disabled=disabled,
+                                                        iconClass='icnBaseAdd',showLabel=False,
+                                                        fire='.edit.add_button',visible='==tree_caption!=null' ,
+                                                        tree_caption='^.tree.caption')
         
-        nav = toolbar.div(float='left',nodeId='%s_nav' %nodeId,font_size='.9em')
+                    
+        
+    def ht_edit_toolbar(self,toolbar,nodeId=None,disabled=None,editMode=None,childTypes=None):
+        nav = toolbar.div(float='left').div(float='left',nodeId='%s_nav' %nodeId,font_size='.9em')
+        self._ht_add_button(toolbar.div(float='left'),childTypes=childTypes,disabled=disabled)
         toolbar.dataController("""
         
                             var pathlist = currpath.split('.');
@@ -306,18 +328,15 @@ class HTableHandler(HTableHandlerBase):
                                     
                             }
                             rootnode._('button',{label:record_label,'float':'left',iconClass:'breadcrumbIcn',color:'red'});
-                            rootnode._('button',{label:add_label,'float':'left',disabled:'%s',
-                                                iconClass:'icnBaseAdd',showLabel:false,
-                                                fire:'.edit.save_button',
-                                                tree_code:tree_code});
 
-                            """ %disabled,
-                             
+
+                            """ ,
                              labelNodeId='%s_nav' %nodeId,
                              currpath='=.tree.path',
                              record_label='^.tree.caption',
                              tree_code='=.tree.code',
                              add_label='!!Add')
+                             
         toolbar.dataController("""
                                   if(modifier=="Shift"){
                                         SET .edit.defaults.parent_code = GET .edit.record.parent_code;
@@ -328,7 +347,7 @@ class HTableHandler(HTableHandlerBase):
                                   }                                  
                                   
                                 """,tree_code='=.tree.code',
-                                modifier="^.edit.save_button")
+                                modifier="^.edit.add_button")
         
         
         buttons = toolbar.div(float='right')
@@ -358,10 +377,6 @@ class HTableHandler(HTableHandlerBase):
                         hidden='^.edit.no_record',
                         float='right',
                         showLabel=False,disabled=disabled)      
-       # toolbar.button('!!Add',action="""   SET .edit.defaults.parent_code = GET .edit.record.parent_code;
-       #                                     SET .tree.pkey = '*newrecord*';
-       #                                     """,iconClass='db_add tb_button',
-       #                                     showLabel=False,hidden=disabled,float='right')
         toolbar.button('!!Delete',fire=".edit.delete",iconClass='db_del tb_button',
                                             showLabel=False,disabled=disabled,
                                             hidden='^.edit.no_record',
@@ -392,29 +407,18 @@ class HTableHandler(HTableHandlerBase):
                                 dialogPars=dialogPars,
                                 filterOn=getattr(self,'%s_filterOn' %gridId,'$code,$description'))
                                             
-    def ht_labeltree(self,pane,label=None,nodeId=None,childTypes=None,editMode=None):
-        pane.div(label,float='left')
-        add_action="""SET .edit.defaults.parent_code = GET .tree.code;
-                      SET .tree.pkey = '*newrecord*';"""
-        if editMode=='dlg':
-            add_action = '%s FIRE #%s_dlg.open;' %(add_action,nodeId)
         
-        btn_addChild = pane.div(float='left' if editMode=='bc' else 'right', 
-                                _class='buttonIcon icnBaseAdd',connect_onclick=add_action,
-                                margin_right='2px',visible='^.tree.path',default_visible=False)
         
-        if childTypes:
-            childTypesMenu = Bag()
-            for k,v in childTypes.items():
-                childTypesMenu.setItem(k,None,caption=v,action="SET .edit.childType = $1.fullpath; %s" %add_action)
-            pane.data('.childTypesMenu',childTypesMenu)
-            btn_addChild.menu(storepath='.childTypesMenu',modifiers='*',_class='smallmenu') 
+    
                                     
     def ht_tree(self,bc,table=None,nodeId=None,rootpath=None,disabled=None,
                 childTypes=None,editMode=None,label=None,onChecked=None):
         if editMode!='bc':
-            self.ht_labeltree(bc.contentPane(region='top',_class='pbl_roundedGroupLabel'),label=label,
-                                            nodeId=nodeId,childTypes=childTypes,editMode=editMode)
+            top = bc.contentPane(region='top',_class='pbl_roundedGroupLabel')
+            top.div(label,float='left')
+            self._ht_add_button(top.div(float='left'),disabled=disabled,childTypes=childTypes)
+            
+            
         tblobj = self.db.table(table)
         center = bc.contentPane(region='center')
         center.data('.tree.store',self.ht_treeDataStore(table=table,rootpath=rootpath,rootcaption=tblobj.name_plural),
