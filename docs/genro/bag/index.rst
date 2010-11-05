@@ -7,4 +7,7 @@ Bag
 .. toctree::
 
 	introduction
+	bagTwo
+	attributes
+	nodes
 	methods

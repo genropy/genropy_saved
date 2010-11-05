@@ -1,4 +1,4 @@
-	.. _genro-numberspinner
+	.. _genro-numberspinner:
 
 ===============
  numberSpinner

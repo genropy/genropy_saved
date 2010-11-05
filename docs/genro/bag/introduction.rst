@@ -27,44 +27,32 @@
 Introduction
 ============
 
-	A ``Bag`` is a multi-purpose datastructure, and it is ideal for storing and retrieving any kind of complex data in tidily and deeply way: any value inserted into a ``Bag`` has its own position at the appropriate hierarchical level.
+	A Bag is a multi-purpose datastructure, and it is ideal for storing and retrieving any kind of complex data in tidily and deeply way: any value inserted into a Bag has its own position at the appropriate hierarchical level.
 
-	A Bag is a collection of ``nodes``.
+	A Bag is a collection of :ref:`bag-nodes`, and every ``node`` (or ``BagNode``) is an object composed of three metadata: label, value and :ref:`bag-attributes`
 
-	A ``BagNode`` is an object composed of three things:
+	In these introduction we will describe a Bag omitting the ``attributes`` and the concept of ``BagNodes``, postponing their explanation for subsequent paragraphs (for more information check the :ref:`bag-attributes` page and the :ref:`bag-nodes` page).
 
-	- label
-
-	- attributes
-
-	- value
-
-	.. image:: bagnode.jpg
-
-	In these introduction we will describe a ``Bag`` omitting the ``attributes`` and the concept of ``Bagnodes``, postponing their explanation for subsequent paragraphs [#]_.
-
-	So, we consider now a ``Bag`` as an ordered container of couples composed by a label and a value. A bag's value can itself contain another bag: this feature transforms the ``Bag`` into a recursive and a hierarchical container. Each bag may access directly to its inner elements using a path composed by a concatenation of traversed bag labels.
-
-	You can use a ``Bag`` as:
-
-	- a flat container [#]_
+	So, we consider now a Bag as an ordered container of couples composed by a label and a value. A Bag's value can itself contain another Bag: this feature transforms the Bag into a recursive and a hierarchical container:
 	
-	- a hierachical container
+	.. image:: bagnode.jpg
+	
+	Each bag may access directly to its inner elements using a path composed by a concatenation of traversed bag labels.
 
 	.. _bag-instance:
 
 How to instantiate a Bag
 ========================
 
-	To instantiate a ``Bag`` you have to call its constructor:
+	To instantiate a Bag you have to call its constructor:
 
 		>>> from gnr.core.gnrbag import Bag
 
-	You can now create an empty ``Bag``:
+	You can now create an empty Bag:
 	
 		>>> mybag= Bag()
 
-	The constructor may receive several kinds of initialization parameters: you can create a ``Bag`` starting from XML files, URL or file-system paths [#]_:
+	The constructor may receive several kinds of initialization parameters: you can create a Bag starting from XML files, URL or file-system paths [#]_:
 
 		>>> mybag = Bag('/data/myfile.xml')
 		>>> mybag = Bag('http://www.foo.com')
@@ -74,20 +62,18 @@ How to instantiate a Bag
 Set and get values from a Bag
 =============================
 
-	You can read from a ``Bag``'s value using the :meth:`Bag.getItem` method; for writing on a ``Bag``, you can use the :meth:`Bag.setItem` method.
-
-	<#NISO> ??? When considering flat bags, the path is called a label and represent the value's identifier among the bag's children. </#NISO>
+	You can read from a Bag's value using the :meth:`Bag.getItem` method; for writing on a Bag, you can use the :meth:`Bag.setItem` method.
 
 		>>> mybag = Bag()
 		>>> mybag.setItem('a',1)
 		>>> first= mybag.getItem('a')
 	
-	Now the ``Bag`` will look like this:
+	Now the Bag will look like this:
 
 		>>> print mybag
 		0 - (int) a: 1
 
-	You can write on a ``Bag`` through a more compact notation:
+	You can write on a Bag through a more compact notation:
 
 		>>> mybag['b']=2
 		>>> print mybag
@@ -100,6 +86,10 @@ Set and get values from a Bag
 		>>> print second
 		2
 
+	You can use Bag as a hierarchical container, so you can create nested Bag with complex path: check :ref:`bag-path` paragraph for more explanation.
+
+	For advanced information, check the :ref:`bag_getting_values_advanced` paragraph.
+
 	.. _bag-printing:
 
 Printing a Bag
@@ -111,29 +101,31 @@ Printing a Bag
 	0 - (int) a: 1  
 	1 - (int) b: 2  
 
-	Bag representation makes a line for each item. The line is structured in the following way:
+	Bag representation makes a line for each value. The line is structured in the following way:
 
-	``item's index - (item's type) label: value`` ??? Add attributes printing!
+	``value's index - (value's type) label: value`` ??? Add attributes printing!
 
 	You have to know that when you use the built-in function ``print`` you call the :meth:`Bag.asString` method:
 
-	>>> mybag = Bag({'a':1,'b':2,'c':3,'d':4})
-	>>> string = mybag.asString()
-	>>> string
-	'0 - (int) a: 1  \n1 - (int) c: 3  \n2 - (int) b: 2  \n3 - (int) d: 4  '
+		>>> mybag = Bag({'a':1,'b':2,'c':3,'d':4})
+		>>> string = mybag.asString()
+		>>> string
+		'0 - (int) a: 1  \n1 - (int) c: 3  \n2 - (int) b: 2  \n3 - (int) d: 4  '
+	
+	For advanced information, check the :ref:`bag-printing-advanced` paragraph.
 
 .. _bag_lists_dictionaries:
 
 Flat bags VS lists and dictionaries
 ===================================
 
-	There are several analogies between a ``Bag``'s label and dictionary key; there are also some fundamental differences:
+	There are several analogies between a Bag's label and dictionary key; there are also some fundamental differences:
 
-	- a ``Bag``'s label must be a string: numbers or complex types are not valid labels.
+	- a Bag's label must be a string: numbers or complex types are not valid labels.
 
-	- In ``dictionaries``, keys must be unique; in a ``Bag`` you can have different values tagged with the same label.
+	- In ``dictionaries``, keys must be unique; in a Bag you can have different values tagged with the same label.
 
-	- If you try to get a value that is not present within the ``Bag``, you will get ``None`` (while in a ``Dictionary`` you will get an exception).
+	- If you try to get a value that is not present within the Bag, you will get ``None`` (while in a ``Dictionary`` you will get an exception).
 
 	.. _bag-duplicated:
 
@@ -148,7 +140,7 @@ Duplicated labels
 		>>> beatles.setItem('member','George')
 		>>> beatles.setItem('member','Ringo')
 	
-	And check your ``Bag``:
+	And check your Bag:
 	
 		>>> print beatles
 		0 - (str) member: Ringo
@@ -173,7 +165,7 @@ Duplicated labels
 Access to values: the "#" label
 ===============================
 
-	A ``Bag`` is an ordered container: it remembers the order of its children insertion [#]_ and allows the ``Bag`` to get its values with a numeric index representing an element's position. So, if you want to access data by its position, you have to use a particular label composed by ``#`` followed by the value's index:
+	A Bag is an ordered container: it remembers the order of its children insertion [#]_ and allows the Bag to get its values with a numeric index representing an element's position. So, if you want to access data by its position, you have to use a particular label composed by ``#`` followed by the value's index:
 
 		>>> first = beatles.getItem('#0')
 		>>> print first
@@ -182,7 +174,7 @@ Access to values: the "#" label
 		>>> print second
 		Paul
 
-	This feature is very useful when a ``Bag`` has several values with the same label, because the :meth:`Bag.getItem` method returns only the first value tagged with the argument label. This means that the only way to access values with a duplicated label is by index:
+	This feature is very useful when a Bag has several values with the same label, because the :meth:`Bag.getItem` method returns only the first value tagged with the argument label. This means that the only way to access values with a duplicated label is by index:
 
 		>>> print beatles.getItem('member')
 		John
@@ -200,7 +192,7 @@ Access to values: the "#" label
 Setting value's position
 ========================
 
-	It is possible to set a new value at a particular position among its brothers, using the optional argument ``_position`` of the :meth:`Bag.setItem` method. The default behaviour of setItem is to add the new item as the last element of a list, but the ``_position`` argument provides a compact syntax to insert any value in any place you want. ``_position`` must be a string containing one of the following types:
+	It is possible to set a new value at a particular position among its brothers, using the optional argument ``_position`` of the :meth:`Bag.setItem` method. The default behaviour of setItem is to add the new value as the last element of a list, but the ``_position`` argument provides a compact syntax to insert any value in any place you want. ``_position`` must be a string containing one of the following types:
 
 	+---------------+----------------------------------------------------------------------+
 	|  Attribute    |  Description                                                         |
@@ -228,7 +220,7 @@ Setting value's position
 		>>> mybag['c'] = 3
 		>>> mybag['d'] = 4
 	
-	The ``Bag`` will look like this:
+	The Bag will look like this:
 	
 		>>> print mybag
 		0 - a: 1
@@ -242,7 +234,7 @@ Setting value's position
 		>>> mybag.setItem('f',6, _position= '<c')
 		>>> mybag.setItem('g',7, _position= '<#3')
 		
-	Now the ``Bag`` looks like this:
+	Now the Bag looks like this:
 	
 		>>> print mybag
 		0 - (int) e: 5
@@ -289,15 +281,9 @@ Dictionary methods implemented by Bag and other related methods
 		>>> print d
 		{'a': 1, 'c': 3, 'b': 2, 'd': 4}
 
-	
-
 **Footnotes:**
 
-.. [#] Check :ref:`???` for the ``attributes`` and :ref:`???` for the ``bagNodes``.
-
-.. [#] A Bag used as a simple flat container has some similarities with both Python ``Dictionary`` and Python ``List``, but it also has got several important differences. The main difference lies in its hierarchical nature.
-
 .. [#] For further information, check the :ref:`???` paragraph.
-.. ??? that is paragraph called "Importing and exporting bags"
+.. ??? that will be a paragraph called "Importing and exporting bags"
 
 .. [#] Like a Python ``list``.
