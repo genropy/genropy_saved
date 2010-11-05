@@ -123,7 +123,7 @@ class ChatComponent(BaseComponent):
         result = Bag()
         for user,arguments in users.items():
             arguments.pop('connections',None)
-            if user != self.user:
+            if user != self.user and not user.startswith('guest_'):
                 arguments['_pkey'] = user
                 arguments.pop('datachanges',None)
                 arguments['user_name'] = arguments['user_name'] or user
