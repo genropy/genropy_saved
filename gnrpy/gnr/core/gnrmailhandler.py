@@ -108,7 +108,7 @@ class MailHandler(object):
         else:
             smtp=getattr(smtplib,'SMTP')
         if port:
-            smtp_connection = smtp(host=smtp_host, port=port)
+            smtp_connection = smtp(host=str(smtp_host), port=str(port))
         else:
             smtp_connection = smtp(host=smtp_host)
         if tls:
