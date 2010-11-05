@@ -29,6 +29,7 @@ import re, htmlentitydefs
 import mimetypes
 from gnr.core.gnrstring import templateReplace
 import thread
+import os
 mimetypes.init() # Required for python 2.6 (fixes a multithread bug)
 TAG_SELECTOR='<[^>]*>'
 
@@ -151,6 +152,7 @@ class MailHandler(object):
             mime_family,mime_subtype = mime_type.split('/')
             attachment_file = open(attachment_path,'rb')
             email_attachment = mime_mapping[mime_family](attachment_file.read(),mime_subtype)
+            msg.add_header('content-disposition', 'attachment', filename=os.path.basename(attachment_path))
             msg.attach(email_attachment)
             attachment_file.close()
         if html:
