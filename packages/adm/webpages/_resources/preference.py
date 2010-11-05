@@ -29,9 +29,14 @@ class AppPref(object):
         self._pr_logo(tc.contentPane(title='!!Logo',datapath='.logo'))
     
     def _pr_mail(self,pane):
-        fb = pane.formbuilder(cols=1, border_spacing='6px')
-        fb.textbox(value='^.host',lbl='!!Host')
-        fb.checkbox(value='^.ssl',label='!!Use SSL')
+        fb = pane.div(margin='5px').formbuilder(cols=1, border_spacing='6px',width='100%',fld_width='100%')
+        fb.div(lbl='Mail Settings', colspan=2, lbl_font_style='italic', lbl_margin_top='1em', margin_top='1em',lbl_color='#7e5849')
+        fb.textbox(value='^.smtp_host',lbl='SMTP Host',dtype='T', colspan=1)
+        fb.textbox(value='^.from_address',lbl='From address',dtype='T', colspan=1)
+        fb.textbox(value='^.user',lbl='Username',dtype='T', colspan=1)
+        fb.textbox(value='^.password',lbl='Password',dtype='T', colspan=1, type='password')
+        fb.textbox(value='^.port',lbl='Port', dtype='T', colspan=1)
+        fb.checkbox(value='^.tls',lbl='TLS',dtype='B', colspan=1)
         
     def _pr_logo(self,pane):
         pass
@@ -42,11 +47,13 @@ class UserPref(object):
         self._pr_mail(tc.contentPane(title='!!Mail options',datapath='.mail'))
     
     def _pr_mail(self,pane):
-        fb = pane.formbuilder(cols=1, border_spacing='6px')
-        fb.textbox(value='^.host',lbl='!!Host')
-        fb.textbox(value='^.user',lbl='!!User')
-        fb.textbox(value='^.password',lbl='!!Password')
-        fb.textbox(value='^.from_address',lbl='!!From address')
-        fb.checkbox(value='^.tls',label='!!Tls')
+        fb = pane.div(margin='5px').formbuilder(cols=1, border_spacing='6px',width='100%',fld_width='100%')
+        fb.div(lbl='Mail Settings', colspan=2, lbl_font_style='italic', lbl_margin_top='1em', margin_top='1em',lbl_color='#7e5849')
+        fb.textbox(value='^.smtp_host',lbl='SMTP Host',dtype='T', colspan=1)
+        fb.textbox(value='^.from_address',lbl='From address',dtype='T', colspan=1)
+        fb.textbox(value='^.user',lbl='Username',dtype='T', colspan=1)
+        fb.textbox(value='^.password',lbl='Password',dtype='T', colspan=1, type='password')
+        fb.textbox(value='^.port',lbl='Port', dtype='T', colspan=1)
+        fb.checkbox(value='^.tls',lbl='TLS',dtype='B', colspan=1)
         
         

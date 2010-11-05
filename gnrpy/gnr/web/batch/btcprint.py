@@ -16,7 +16,7 @@ class BaseResourcePrint(BaseResourceBatch):
         
     def __init__(self,*args,**kwargs):
         super(BaseResourcePrint,self).__init__(**kwargs)
-        self.mail_preference = self.page.getUserPreference('mail',pkg='adm') or Bag(self.page.application.config.getNode('mail').attr)
+        self.mail_preference = self.page.getUserPreference('mail',pkg='adm') or self.page.getPreference('mail',pkg='adm') or Bag(self.page.application.config.getNode('mail').attr)
         self.htmlMaker = self.page.site.loadTableScript(page=self.page,table=self.maintable ,
                                                         respath=self.html_res,class_name='Main')
                                         

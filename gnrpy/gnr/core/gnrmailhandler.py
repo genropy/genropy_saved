@@ -75,9 +75,9 @@ class MailHandler(object):
         self.imap_accounts = {}
         self.default_imap_account = None
     
-    def set_smtp_account(self, name, from_address=None, host=None, username=None, password=None, port=None, ssl=False, default=False):
+    def set_smtp_account(self, name, from_address=None, smtp_host=None, username=None, password=None, port=None, ssl=False, default=False):
         self.smtp_accounts[name]= dict(from_address=from_address, 
-                                        host=host, username=username, 
+                                        smtp_host=smtp_host, username=username, 
                                         password=password, port=port, ssl=ssl)
         if default:
             self.default_smtp_account = name
@@ -91,26 +91,26 @@ class MailHandler(object):
     def set_imap_default_account(self, name):
         self.default_imap_account = name
     
-    def get_account_params(self, account=None, from_address=None, host=None, port=None, 
+    def get_account_params(self, account=None, from_address=None, smtp_host=None, port=None, 
                             user=None, password=None, ssl=False, tls=False, **kwargs):
         account = account or self.default_smtp_account
         if account:
             account_params = self.smtp_accounts[account]
         else:
-            account_params = dict(host = host, port = port, user = user, password = password,
+            account_params = dict(smtp_host = smtp_host, port = port, user = user, password = password,
                                 ssl=ssl, tls=tls, from_address=from_address)
         return account_params
 
-    def get_smtp_connection(self, account=None, host=None, port=None, 
+    def get_smtp_connection(self, account=None, smtp_host=None, port=None, 
                             user=None, password=None, ssl=False, tls=False, **kwargs):
         if ssl:
             smtp=getattr(smtplib,'SMTP_SSL')
         else:
             smtp=getattr(smtplib,'SMTP')
         if port:
-            smtp_connection = smtp(host=host, port=port)
+            smtp_connection = smtp(host=smtp_host, port=port)
         else:
-            smtp_connection = smtp(host=host)
+            smtp_connection = smtp(host=smtp_host)
         if tls:
             smtp_connection.starttls()
         if user:
@@ -161,8 +161,8 @@ class MailHandler(object):
         return msg
     
     def sendmail_template(self, datasource, to_address=None, cc_address=None, bcc_address=None, subject=None, from_address=None, body=None, attachments=None, account=None,
-                            host=None, port=None, user=None, password=None,
-                            ssl=False, tls=False, html=False,  charset='utf-8',async=False):
+                           smtp_host=None, port=None, user=None, password=None,
+                            ssl=False, tls=False, html=False,  charset='utf-8',async=False,**kwargs):
         def get_templated(field):
             value = datasource.get(field)
             
@@ -176,12 +176,12 @@ class MailHandler(object):
         body = body or get_templated('body')
         body = templateReplace(body,datasource)
         self.sendmail(to_address, subject=subject, body=body,cc_address=cc_address,bcc_address=bcc_address, attachments=attachments, account=account,
-                            from_address=from_address, host=host, port=port, user=user, password=password, 
+                            from_address=from_address,smtp_host=smtp_host,port=port, user=user, password=password, 
                             ssl=ssl, tls=tls, html=html, charset=charset,async=async)
     
     def sendmail(self, to_address=None, subject=None, body=None, cc_address=None,bcc_address=None, attachments=None, account=None,
-                        from_address=None, host=None, port=None, user=None, password=None, 
-                        ssl=False, tls=False, html=False, charset='utf-8', async=False):
+                        from_address=None, smtp_host=None, port=None, user=None, password=None, 
+                        ssl=False, tls=False, html=False, charset='utf-8', async=False,**kwargs):
         """
             send mail is a function called from the postoffice object to send an email.
             parameters:
@@ -194,7 +194,7 @@ class MailHandler(object):
             @account     if an account has been defined previously with set_smtp_account then this account can be used
                          instead of having to repeat all the mail parameters is contains
             @from_address  the address that will appear in the recipients from field - default=None
-            @host        the smtp host to send this email
+            @smtp_host        the smtp host to send this email
             @port        If a non standard port is used then it can be overridden. default=None
             @user        If a username is required for authentication - default-None
             @password    If a username is required for authentication - default-None
@@ -207,8 +207,9 @@ class MailHandler(object):
             @charset     a different charser may be defined by its standard name. - default = 'utf-8'
             @async       if set to true, then a separate process is spawned to send the email and control is returned immediately to the calling function - default=False
         """
+      
         account_params = self.get_account_params(account=account, from_address=from_address, 
-                            host=host, port=port, user=user, password=password, ssl=ssl, tls=tls)
+                            smtp_host=smtp_host, port=port, user=user, password=password, ssl=ssl, tls=tls)
         from_address=account_params['from_address']
         msg = self.build_base_message(subject, body, attachments=attachments, html=html, charset=charset)
         msg['From'] = from_address
@@ -233,7 +234,7 @@ class MailHandler(object):
         smtp_connection.close()
     
     def sendmail_many(self, to_address, subject, body, attachments=None, account=None,
-                        from_address=None, host=None, port=None, user=None, password=None, 
+                        from_address=None, smtp_host=None, port=None, user=None, password=None, 
                         ssl=False, tls=False, html=False, multiple_mode=False, progress_cb=None, charset='utf-8', async=False):
         """
         multiple_mode can be:
@@ -242,7 +243,7 @@ class MailHandler(object):
                 bcc, Bcc, BCC - a mail sent to ourself with all recipient in bcc address
         """
         account_params = self.get_account_params(account=account, from_address=from_address, 
-                            host=host, port=port, user=user, password=password, ssl=ssl, tls=tls)
+                            smtp_host=smtp_host, port=port, user=user, password=password, ssl=ssl, tls=tls)
         smtp_connection = self.get_smtp_connection(**account_params)
         to, cc, bcc = self.handle_addresses(from_address=account_params['from_address'],
                         to_address=to_address, multiple_mode=multiple_mode)
