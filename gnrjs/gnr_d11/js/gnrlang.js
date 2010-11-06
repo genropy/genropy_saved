@@ -110,11 +110,16 @@ function stringCapitalize(str){
     });
 };
 
-function dataTemplate(str, data, path){
+function dataTemplate(str, data, path,showAlways){
+    if(!str){
+        return '';
+    }
     var regexpr = /\$([a-z0-9.@?_]+)/g;
     var result;
     var is_empty = true;
-    if(!data){
+    console.log('datatemplate');
+    
+    if(!data && !showAlways){
         return '';
     } 
     else if(typeof(data) == 'string'){
@@ -127,7 +132,7 @@ function dataTemplate(str, data, path){
          if (path){
              data = data.getItem(path);
          }
-         if (!data){
+         if (!data && !showAlways){
              return '';
          }
          result = str.replace(regexpr,
@@ -144,6 +149,7 @@ function dataTemplate(str, data, path){
                                   }
                               });       
     } else {
+        data = data || {};
         return str.replace(regexpr,
                            function(path){
                                var value=data[path.slice(1)];
