@@ -12,14 +12,10 @@ class ChatComponent(BaseComponent):
     py_requires='foundation/includedview:IncludedView'
     js_requires='gnrcomponents/chat_component'
     def mainLeft_chat_plugin(self,tc):
-        """!!Chat"""
-        tc.dataController("""SET gnr.chat.buttonIcon = 'icnBuddyChat';""",subscribe_ct_room_alert=True,
-                            _if='selectedTab!="chat"',selectedTab='=.selected')
+        """!!Chat"""          
         tc.data('gnr.chat.buttonIcon','icnBuddy')
         tc.dataController("""var kw = _triggerpars.kw;
-                             console.log('.'+kw.oldvalue)
                              var nodelist = dojo.query('.'+kw.oldvalue); 
-                             console.log(nodelist)
                              nodelist.removeClass(kw.oldvalue);
                              nodelist.addClass(newicon);
                              """,
@@ -40,11 +36,12 @@ class ChatComponent(BaseComponent):
         
         pane.dataRpc('dummy','setStoreSubscription',subscribe_chat_plugin_open=True,
                     storename='user',client_path='gnr.chat.msg',active=True,
-                    _onResult='genro.rpc.setPolling(2,2);')
+                    _onResult='genro.rpc.setPolling(2,2); SET gnr.chat.buttonIcon = "icnBuddy";')
         pane.dataRpc('dummy','setStoreSubscription',active=False,subscribe_chat_plugin_close=True,storename='user',
                     _onCalling='genro.rpc.setPolling();')
                     
-        pane.dataController("genro.playSound('NewMessage'); PUBLISH ct_room_alert = user;",user="^gnr.chat.room_alert")
+        pane.dataController("genro.playSound('NewMessage'); SET gnr.chat.buttonIcon = 'icnBuddyChat';",
+                            user="^gnr.chat.room_alert",_if='selectedTab!="chat"',selectedTab='=.selected')
         
     
     def ct_chat_form(self,bc):
