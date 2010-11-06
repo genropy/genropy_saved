@@ -104,7 +104,12 @@ dojo.declare("gnr.GnrDomHandler",null,{
             if (!domnode) return;
             var classes=cls.split(' ');
             for (var i=0;i<classes.length;i++){
-                dojo.addClass(domnode, classes[i]);
+                if (domnode.addClass){
+                    domnode.addClass(classes[i]);
+                }else{
+                    dojo.addClass(domnode, classes[i]);
+                }
+                
             }
         }  
     },
@@ -157,22 +162,40 @@ dojo.declare("gnr.GnrDomHandler",null,{
             if (!domnode) return;
             var classes = cls.split(' ');
             for (var i=0;i<classes.length;i++){
-                dojo.removeClass(domnode, classes[i]);
+                if (domnode.removeClass){
+                    domnode.removeClass(classes[i]);
+                }else{
+                    dojo.removeClass(domnode, classes[i]);
+                }
             } 
-
         }
         
     },
     setClass:function(where,cls,set){
         if (set=='toggle'){
+            genro.dom.toggleClass(where,cls)
+        }
+        else if (set) {
+            this.addClass(where,cls);
+        }else {
+            this.removeClass(where,cls);
+        }
+    },
+    toggleClass:function(where,cls){
+        if(typeof(cls)=='string'){
+            var toggle=function (n,c){
+                        dojo[dojo.hasClass(n,c)?'removeClass':'addClass'](n,c)
+                       }
             var domnode=this.getDomNode(where);
             if (!domnode) return;
-            set = !dojo.hasClass(domnode,cls);
-        }
-        if (set) {
-            this.addClass(where,cls);
-        }else{
-            this.removeClass(where,cls);
+            var classes = cls.split(' ');
+            for (var i=0;i<classes.length;i++){
+                if (domnode.forEach){
+                    domnode.forEach(function(n){toggle(n,classes[i])})
+                }else{
+                    toggle(domnode,classes[i])
+                }
+            }
         }
     },
     bodyClass:function(cls,set){
@@ -570,8 +593,6 @@ dojo.declare("gnr.GnrDomHandler",null,{
         if (sourceNode){
             sourceNode.getBuiltObj().gnr.onDragDropEvent(event)
         }else{
-            //gnr = event.sourceNode.widget.gnr;
-            //gnr.onDragDropEvent(event);
             console.log('No sourcenode');
             console.log(event)
             
@@ -580,132 +601,47 @@ dojo.declare("gnr.GnrDomHandler",null,{
     },
     droppableObject:function(event){
         this.decorateEvent(event)
-        var droppable = event.droppableObject;
-        console.log(droppable)
-        return droppable;
+        return  event.droppableObject;
     },
-    
 
-    droppableObject_old:function(event){
-        this.decorateEvent(event);
-        var domnode=event.target;
-        var widget = event.widget;
-        var sourceNode = event.sourceNode;
-        var target=event.target;
-        if (widget) {
-            return event.droppableObject;
-        }else{
-            
-        }
-        
-        var result;
-        if (widget.declaredClass=='dojox.GridView' || widget.declaredClass=='dojox.VirtualGrid') {
-            var eventDecorator;
-            if (widget.declaredClass=='dojox.VirtualGrid'){
-                eventDecorator = widget.views.views[0].header;
-            }else{
-                eventDecorator = widget.content;
-                widget=widget.grid;
-            }
-            var sourceNode = widget.sourceNode;
-            var attr = sourceNode.attr;
-            var droppable_dict = objectExtract(attr,'droppable_*',true);
-            if (attr.droppable || objectNotEmpty(droppable_dict)) {
-                if(eventDecorator.decorateEvent(event)){
-                    result= {'type':'cell','widget':widget,
-                        'column':event.cellIndex,
-                        'row':event.rowIndex,
-                        'cell':event.cell,
-                        'cellNode': event.cellNode,
-                        'rowNode': event.rowNode,
-                         'sourceNode':sourceNode,
-                         'domnode':event.cellNode
-                         };
-                }
-            };
-            
-        }
-        else{
-            //console.log(widget.declaredClass);
-            while ( target && ! domnode){
-                domnode=  (target.getAttribute && eval(target.getAttribute('droppable')))?target:null;
-                target=target.parentNode;
-            }
-            if (domnode){
-                result= {'type':'domnode','widget':widget,'domnode':domnode,
-                          'sourceNode':genro.dom.getSourceNode(domnode)};
-                if(widget.declaredClass=='dijit._TreeNode'){
-                    result['item'] = widget.item;
-                }
-            }
-        }
-        return result;
-    },
-    
     onDragEnter:function(event){
+        console.log('************** onDragEnter')
         var droppable=genro.dom.droppableObject(event);
         if (!droppable){ 
+            console.log('onDragEnter: not droppable')
+           // console.log(event)
             return;
         }
         var domnode=droppable.domnode;
         var sourceNode=droppable.sourceNode;
-       // console.log('onDragEnter ')
-       //console.log(droppable);
         event.stopPropagation();
         event.preventDefault();
         var dataTransfer=event.dataTransfer;
         var canBeDropped=this.canBeDropped(dataTransfer,sourceNode);
         dataTransfer.effectAllowed=canBeDropped?'move':'none';
         dataTransfer.dropEffect=canBeDropped?'move':'none';
-        if(droppable.onCell){
-            console.log('droppable on cell')
-            if(droppable.column>=0){
-                var nodelist = droppable.widget.columnNodelist(droppable.column,true);
-                nodelist[canBeDropped?'addClass':'removeClass']('droppableColumn');
-                nodelist[canBeDropped?'removeClass':'addClass']('undroppableColumn');
-            }
+        if(droppable.onColumn){
+            genro.dom.outlineShape(droppable.shapes?droppable.shapes.column:null,canBeDropped)
         }else{
-            console.log('droppable  NOT on cell')
-            if(!droppable.shapes){
-                console.log('no shape')
-                console.log(event)
-            }else{
-                domnode = droppable.shapes.node;
-            }
-            genro.dom.setClass(domnode,'cannotBeDropped',!canBeDropped);
-            genro.dom.setClass(domnode,'canBeDropped',canBeDropped);
+            genro.dom.outlineShape(droppable.shapes?droppable.shapes.node:null,canBeDropped)
         }
         
     },
-    onDragLeave:function(event){
-        var droppable=genro.dom.droppableObject(event);
-        if (!droppable){ return;}
-        var domnode=droppable.domnode;
-        console.log('onDragLeave '+domnode);
-
-        event.stopPropagation();
-        event.preventDefault();
-        if(droppable.onCell){
-            if(droppable.column>=0){
-                console.log('onDragLeave:'+droppable.type+' '+droppable.column);
-                console.log('*'+event.target.tagName+'*');
-                var nodelist = droppable.widget.columnNodelist(droppable.column,true);
-                nodelist.removeClass('droppableColumn');
-                nodelist.removeClass('undroppableColumn');
-            }
-        }else{
-            if(!droppable.shapes){
-                console.log('no shape')
-                console.log(event)
-            }else{
-                domnode = droppable.shapes.node;
-            }
-            
-            genro.dom.removeClass(domnode,'canBeDropped');
-            genro.dom.removeClass(domnode,'cannotBeDropped');
-        }
+    outlineShape:function(shape,canBeDropped){
+         if(genro.dom._dragLastShape){
+             genro.dom.removeClass(genro.dom._dragLastShape,'canBeDropped');
+             genro.dom.removeClass(genro.dom._dragLastShape,'cannotBeDropped');
+             genro.dom._dragLastShape=null
+         }
+         if (shape){
+            genro.dom.setClass(shape,'cannotBeDropped',!canBeDropped);
+            genro.dom.setClass(shape,'canBeDropped',canBeDropped);
+            genro.dom._dragLastShape=shape
+         }
     },
+   
      onDrop:function(event){
+        genro.dom.outlineShape(null)
         var droppable=genro.dom.droppableObject(event);
         if (!droppable){ return;}
         var domnode=droppable.domnode;
@@ -803,13 +739,7 @@ dojo.declare("gnr.GnrDomHandler",null,{
         }
     },
     onDragEnd:function(event){
-        var domnode=event.target;
-        var sourceNode=genro.dom.getSourceNode(domnode);
-        var inherited=sourceNode.getInheritedAttributes();
-        var drag_class=inherited['drag_class'];
-        if(drag_class){
-            genro.dom.removeClass(domnode,drag_class);
-        }
+        genro.dom.outlineShape(null)
     },
     onDrag:function(event){
         var domnode=event.target;

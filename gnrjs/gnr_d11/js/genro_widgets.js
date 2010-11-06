@@ -2232,28 +2232,30 @@ dojo.declare("gnr.widgets.Grid",gnr.widgets.baseDojo,{
         return grouppable.join(',');
     },
     onDragDropEvent:function(event){
-        if(event.type!='dragover'){
-            console.log('grid event');
-            console.log(event);
-        }
         var sourceNode = event.sourceNode;
         var attr = sourceNode.attr;
         var shapesDict = objectExtract(attr,'droppable_*',true);
         var widget = event.widget;
-        var result = {}
+        var result = {};
         if (attr.droppable || objectNotEmpty(shapesDict)) {
-            if('cell' in shapesDict){
-                shapesDict['cell'] = event.cellNode;
+            if(event.cellNode && 'cell' in shapesDict){
                 result['onCell'] = true;
+                shapesDict['node'] = event.cellNode;
+                result['cellNode'] = event.cellNode;
+                result['cell'] = event.cell;
+                result['column']=event.cellIndex;
+                result['row']=event.rowIndex;
             }
-            if('column' in shapesDict){
+            if(event.cellIndex>=0 && 'column' in shapesDict){
                 shapesDict['column'] = event.widget.columnNodelist(event.cellIndex,true);
                 result['onColumn'] = true;
+                result['column']=event.cellIndex;
 
             }
-            if('row' in shapesDict){
-                shapesDict['row'] = event.rowNode;
+            if(event.rowNode && 'row' in shapesDict){
+                shapesDict['node'] = event.rowNode;
                 result['onRow'] = true;
+                result['row']=event.rowIndex;
 
             }
             if(attr.droppable){
@@ -2262,23 +2264,13 @@ dojo.declare("gnr.widgets.Grid",gnr.widgets.baseDojo,{
 
             }
             
-            
             var attributes= {'widget':widget,
-                    'column':event.cellIndex,
-                    'row':event.rowIndex,
-                    'cell':event.cell,
-                    'cellNode': event.cellNode,
-                    'rowNode': event.rowNode,
                      'sourceNode':sourceNode,
                      'domnode':event.cellNode,
                      'shapes':shapesDict
                      };
             result = objectUpdate(result,attributes);
             event.droppableObject = result;
-            if(event.type!='dragover'){
-            console.log('result');
-            console.log(result);
-        }
 
         };
     }
