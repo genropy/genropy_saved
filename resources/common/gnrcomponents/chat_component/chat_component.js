@@ -16,7 +16,6 @@ ct_chat_utils.read_msg = function(msgnode,msgtxt){
     attrs = msgnode.attr;
     room = attrs.room;
     roomNode = dojo.byId(room+'_room');
-    console.log(attrs["ts"]);
     if(!roomNode){
         ct_chat_utils.open_chat(room);
         roomNode = dojo.byId(room+'_room');
