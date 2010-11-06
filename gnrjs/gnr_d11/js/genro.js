@@ -247,7 +247,7 @@ dojo.declare('gnr.GenroClient', null, {
         dojo.connect(mainWindow,'dragstart',genro.dom,'onDragStart');
         dojo.connect(mainWindow,'drag',genro.dom ,'onDrag');
         dojo.connect(mainWindow,'dragend',genro.dom,'onDragEnd');
-        //dojo.connect(mainWindow,'dragover',genro.dom,'onDragOver');
+        dojo.connect(mainWindow,'dragover',genro.dom,'onDragOver');
         dojo.connect(mainWindow,'dragenter',genro.dom,'onDragEnter');
        // dojo.connect(mainWindow,'dragleave',genro.dom,'onDragLeave');
         dojo.connect(mainWindow,'drop',genro.dom,'onDrop');
