@@ -560,6 +560,15 @@ class Bag(GnrObject):
             return default
     __getitem__ = getItem
 
+    def setdefault(self, path, default=None):
+        """If key is in the Bag, return its value.
+        If not, insert key with a value of default and return default. default defaults to ``None``."""
+        node = self.getNode(path)
+        if not node:
+            self[path] = default
+        else:
+            return node.value
+    
     def toTree(self, group_by, caption=None, attributes="*"):
         """Transforms a (flat) bag of items into a tree-like structure.
         
