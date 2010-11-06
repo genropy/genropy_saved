@@ -49,7 +49,8 @@ class BaseResourceBatch(object):
     def __call__(self,batch_note=None,**kwargs):
         parameters = kwargs['parameters']
         self.batch_parameters = parameters.asDict(True) if parameters else {}
-        self.batch_note = batch_note
+        self.batch_note = batch_note or self.batch_parameters.get('batch_note')
+        
         self.run()
         result,result_attr = self.result_handler()
         self.btc.batch_complete(result=result,result_attr=result_attr)

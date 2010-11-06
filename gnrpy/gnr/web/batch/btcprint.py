@@ -133,7 +133,7 @@ class BaseResourcePrint(BaseResourceBatch):
         
     def table_script_options_client_print(self,pane):
         fb = self.table_script_fboptions(pane,tdl_width='3em')
-        fb.simpleTextArea(value='^.batch_note',
+        fb.simpleTextArea(value='^.#parent.#parent.batch_note',
                         height='20ex',lbl='!!Notes',
                         lbl_vertical_align='top')
         
