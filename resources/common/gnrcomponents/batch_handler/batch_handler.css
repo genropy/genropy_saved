@@ -69,6 +69,7 @@
     color:black;
 }
 .bm_batchpane{
+    position:relative;
     border: 1px solid gray;
     margin: 4px ;
     background:white;
@@ -106,6 +107,20 @@
 }
 .bm_contentpane{
     padding:5px;
+    font-size:.9em;
+}
+.bm_batchbottom{
+    background:none repeat scroll 0 0 darkred;
+    bottom:0;
+    color:white;
+    font-size:0.7em;
+    left:0;
+    right:0;
+    text-align:center;
+    -moz-border-radius-bottomleft:6px ;
+    -webkit-border-bottom-left-radius: 6px;
+    -moz-border-radius-bottomright:6px ;
+    -webkit-border-bottom-right-radius: 6px; 
 }
 
 .ts_optionsPane{

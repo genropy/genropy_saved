@@ -50,7 +50,7 @@ batch_monitor.get_batch_sourceNode= function(batch_id,local){
 batch_monitor.batch_sourceNode_create = function(container_node,batch_id,batch_sourceNode_id){
     var batchpath = this.batchpath(batch_id);
     var batch_data = genro.getData(batchpath);
-    var batchpane = container_node._('div',{datapath:batchpath,nodeId:batch_sourceNode_id,title:'^.note',
+    var batchpane = container_node._('div',{datapath:batchpath,nodeId:batch_sourceNode_id,tip:'^.note',
                                 _class:'bm_batchpane'});
     var titlediv = batchpane._('div',{_class:'bm_batchlabel'});
     titlediv._('div',{innerHTML:'^.title', _class:'bm_batchtitle'});
@@ -58,10 +58,12 @@ batch_monitor.batch_sourceNode_create = function(container_node,batch_id,batch_s
     topright._('a',{innerHTML:'Stop',visible:'^.cancellable',
                     href:'javascript:genro.dlg.ask("Stopping batch","Do you want really stop batch"+"'+batch_data.getItem('title')+'"+"?",null,{confirm:function(){genro.serverCall("btc.abort_batch",{"batch_id":"'+batch_id+'"})}})'});
     var thermopane = batchpane._('div',{_class:'bm_contentpane',datapath:'.thermo'});
+    var bottompane = batchpane._('div',{_class:'bm_batchbottom'})
     sourceNode = genro.nodeById(batch_sourceNode_id);
     sourceNode.thermoSourceNode = thermopane.getParentNode();
     sourceNode.thermoSourceNode.thermolines = {};
     sourceNode.toprightSourceNode = topright.getParentNode();
+    sourceNode.bottomSourceNode = bottompane.getParentNode()
 };
 
 //batch_monitor.on_btc_end = function(node,sourceNode){
@@ -72,6 +74,7 @@ batch_monitor.on_btc_result_doc = function(node,sourceNode){
     var batch_id = sourceNode.batch_id;
     var batch_value = node.getValue();
     var resultpane = sourceNode.thermoSourceNode;
+    var bottompane = sourceNode.bottomSourceNode;
     resultpane.clearValue().freeze();
     var result = batch_value.getItem('result');
     var url = batch_value.getItem('result?url');
@@ -83,7 +86,8 @@ batch_monitor.on_btc_result_doc = function(node,sourceNode){
     };
     topright = sourceNode.toprightSourceNode.clearValue();
     topright._('div',{_class:'buttonIcon icnTabClose',connect_onclick:'genro.serverCall("btc.remove_batch",{"batch_id":"'+batch_id+'"})'});
-    resultpane._('div',{innerHTML:'Batch completed - total time:'+batch_value.getItem('time_delta')});
+    resultpane._('div',{innerHTML:'Execution time:'+batch_value.getItem('time_delta')});
+    bottompane._('div',{innerHTML:'Started at:'+genro.format(batch_value.getItem('start_ts'),{'time':'short'})})
     resultpane.unfreeze();
 };
 batch_monitor.on_btc_error = function(node,sourceNode){

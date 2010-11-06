@@ -8,6 +8,7 @@ Copyright (c) 2008 Softwell. All rights reserved.
 # --------------------------- GnrWebPage Standard header ---------------------------
 class GnrCustomWebPage(object):
     maintable='adm.doctemplate'
+    css_requires='doctemplate'
     py_requires='public:Public,standard_tables:TableHandler,foundation/macrowidgets:RichTextEditor'
 
 ######################## STANDARD TABLE OVERRIDDEN METHODS ###############
@@ -58,11 +59,15 @@ class GnrCustomWebPage(object):
         fb.checkbox(value='^mainbc.regions.left?show',label='!!Show fields')        
         tc = bc.tabContainer(region='center',selectedPage='^statusedit')
         editorPane = tc.contentPane(title='Edit',pageName='edit')
-        previewPane = tc.borderContainer(title='Preview',pageName='view')
-        previewPane.div(innerHTML='==dataTemplate(tpl,data)',data='^test_record.record',
-                        tpl='=form.record.content',margin='10px')
+        previewPane = tc.borderContainer(title='Preview',pageName='view',_class='preview')
+        tc.borderContainer(title='content',pageName='content').div('^.content')
+
+        previewPane.div(innerHTML='==dataTemplate(tpl,data,null,true)',data='^test_record.record',
+                        tpl='^form.record.content',margin='10px')
         self.metadataForm(tc.contentPane(title='!!Metadata',pageName='metadata',datapath='.metadata'),disabled=disabled)
-        self.RichTextEditor(editorPane, value='^.content',height='100%',toolbar=self.rte_toolbar_standard())
+        self.RichTextEditor(editorPane, value='^.content',height='100%',
+                            toolbar=self.rte_toolbar_standard(),
+                            config_contentsCss='/_pkg/adm/_resources/doctemplate.css')
     
     def metadataForm(self,pane,disabled=None):
         fb = pane.formbuilder(cols=2, border_spacing='4px',fld_width='15em',disabled=disabled)
@@ -81,7 +86,9 @@ class GnrCustomWebPage(object):
                      margin='6px',
                      font_size='.9em',
                      selected_fieldpath='.selpath',
-                     drag_value_cb='return item.attr.fieldpath;',
+                     drag_value_cb="""var result = {'text/html':'<span>&nbsp</span><span class="tplfieldpath">$'+item.attr.fieldpath+'</span><span class="tplfieldcaption"> '+item.attr.caption+' </span><span>&nbsp</span>',
+                                                    'text/plain':item.attr.fieldpath};
+                                      return result;""",
                      node_draggable=True,
                      drag_class='draggedItem',
                      

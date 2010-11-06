@@ -10,7 +10,7 @@ from datetime import datetime
 
 class ChatComponent(BaseComponent):
     py_requires='foundation/includedview:IncludedView'
-    js_requires='gnrcomponents/chat_component'
+    js_requires='gnrcomponents/chat_component/chat_component'
     def mainLeft_chat_plugin(self,tc):
         """!!Chat"""          
         tc.data('gnr.chat.buttonIcon','icnBuddy')
