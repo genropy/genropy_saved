@@ -1133,15 +1133,15 @@ textarea:disabled {
 /* @end */
 
 /* @group drag drop */
-.canBeDropped {
-	-moz-box-shadow:inset 0px 0px 3px lime;
-    -webkit-box-shadow:inset 0px 0px 3px lime;
+.canBeDropped{
+	 background: rgba(0,255,0,0.25)!important;
+	 
 }
 .cannotBeDropped{
-	-moz-box-shadow:inset 0px 0px 3px red;
-    -webkit-box-shadow:inset 0px 0px 3px red;
-	background: url(icons/base16/oneway.gif) no-repeat 50% 50%;
+     background: rgba(255,0,0,0.25)!important;
 }
+
+
 .draggedItem{
 	background-color:rgba(252,252,169,0.63);
     -moz-border-radius:8px;
