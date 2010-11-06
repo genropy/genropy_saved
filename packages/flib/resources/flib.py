@@ -10,33 +10,34 @@ class FlibBase(BaseComponent):
     py_requires='foundation/includedview:IncludedView'
     css_requires ='public'
     def flibSavedFilesGrid(self,pane,gridId,checked_categories=None,reloader=None,label=None):
-        selectionPars=dict(where="@category_id.code LIKE :cat_code || '%%'",
+        selectionPars=dict(where="@flib_item_category_item_id.@category_id.code LIKE :cat_code || '%%'",
                             cat_code='=.#parent.tree.code',
                             applymethod='flibPickerThumb',
-                            order_by='@item_id.title',_if='cat_code',_else='null')
+                            order_by='$title',_if='cat_code',_else='null')
         if checked_categories:
-            selectionPars['where'] = '$category_id IN :checked_categories'
+            selectionPars['where'] = '@flib_item_category_item_id.category_id IN :checked_categories'
             selectionPars['checked_categories'] = '==_checked_categories?_checked_categories.split(","):[];'
             selectionPars['_if'] = '_checked_categories'
             selectionPars['_checked_categories'] = checked_categories
             selectionPars['order_by'] = '$__ins_ts'
-            selectionPars['limit'] = 100            
+            selectionPars['limit'] = 100
+        
         bc = pane.borderContainer()
         
         def saved_files_struct(struct):
             r = struct.view().rows()
-            r.fieldcell("@item_id.title",width='10em',zoom=True)
-            r.fieldcell("@item_id.description",width='15em',zoom=True)
+            r.fieldcell("title",width='10em',zoom=True)
+            r.fieldcell("description",width='15em',zoom=True)
             r.cell("_thumb",width='5em',name='!!Thumb',calculated=True)
             
         self.includedViewBox(bc.borderContainer(region='top',height='50%',splitter=True),label=label or '!!Items',
                             datapath='.item_grid',
-                             nodeId=gridId,table='flib.item_category',autoWidth=True,
+                             nodeId=gridId,table='flib.item',autoWidth=True,
                              struct=saved_files_struct,
-                             hiddencolumns='$item_id,@item_id.ext AS ext,@item_id.metadata AS meta,@item_id.url AS url',
+                             hiddencolumns='$__ins_ts,ext,metadata',
                              reloader=reloader,
-                             drag_value_cb='var dataNode = event.widget.dataNodeByIndex(event.rowIndex); return {flib_element:dataNode.attr.item_id};',
-                             filterOn='@item_id.title,@item_id.description',
+                             drag_value_cb='var dataNode = event.widget.dataNodeByIndex(event.rowIndex); return {flib_element:dataNode.attr._pkey};',
+                             filterOn='title,description',
                              selectionPars=selectionPars)
             
         sc = bc.stackContainer(region='center',selectedPage='^.preview_type')
@@ -52,8 +53,8 @@ class FlibBase(BaseComponent):
         def apply_thumb(row):
             ext_img = self.getResourceUri('filetype_icons/%s.png'%row['ext'][1:].lower()) \
                       or self.getResourceUri('filetype_icons/_blank.png')
-            if row['meta']:
-                metabag = Bag(row['meta'])
+            if row['metadata']:
+                metabag = Bag(row['metadata'])
             return dict(_thumb= '<img border=0 src="%s" height="32px" />' %(metabag['thumb32_url'] or ext_img))
         selection.apply(apply_thumb)
 
