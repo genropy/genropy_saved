@@ -62,7 +62,7 @@ def boolean(x):
             return True
         if x in ('FALSE','F','N','NO','0'):
             return False
-        return bool(x)
+    return bool(x)
         
 def objectExtract(myobj,f):
     lf=len(f)
