@@ -582,7 +582,7 @@ dojo.declare("gnr.widgets.baseHtml",null,{
          }
          if (domnode){
              result= {'type':'domnode','widget':widget,'domnode':domnode,
-                          'sourceNode':sourceNode,shapes:{'node':domnode}};
+                          'sourceNode':sourceNode,'outlineNode':domnode};
             if(widget.declaredClass=='dijit._TreeNode'){
                 result['item'] = widget.item;
             }
@@ -2239,35 +2239,30 @@ dojo.declare("gnr.widgets.Grid",gnr.widgets.baseDojo,{
         var result = {};
         if (attr.droppable || objectNotEmpty(shapesDict)) {
             if(event.cellNode && 'cell' in shapesDict){
-                result['onCell'] = true;
-                shapesDict['node'] = event.cellNode;
+                result['outlineCell'] = event.cellNode;;
                 result['cellNode'] = event.cellNode;
                 result['cell'] = event.cell;
                 result['column']=event.cellIndex;
                 result['row']=event.rowIndex;
             }
             if(event.cellIndex>=0 && 'column' in shapesDict){
-                shapesDict['column'] = event.widget.columnNodelist(event.cellIndex,true);
-                result['onColumn'] = true;
+                result['outlineColumn'] =  event.widget.columnNodelist(event.cellIndex,true);;
                 result['column']=event.cellIndex;
 
             }
             if(event.rowNode && 'row' in shapesDict){
-                shapesDict['node'] = event.rowNode;
-                result['onRow'] = true;
+                result['outlineRow'] = event.rowNode;
                 result['row']=event.rowIndex;
 
             }
             if(attr.droppable){
-                shapesDict['node'] = widget.domNode;
-                result['onGrid'] = true;
+                result['outlineGrid'] = widget.domNod;
 
             }
             
             var attributes= {'widget':widget,
                      'sourceNode':sourceNode,
                      'domnode':event.cellNode,
-                     'shapes':shapesDict
                      };
             result = objectUpdate(result,attributes);
             event.droppableObject = result;
