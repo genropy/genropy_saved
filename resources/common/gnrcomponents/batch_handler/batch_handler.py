@@ -7,6 +7,8 @@
 from gnr.web.gnrwebpage import BaseComponent
 from gnr.core.gnrlang import gnrImport,objectExtract
 
+from gnr.core.gnrbaghtml import BagToHtml
+
 from gnr.core.gnrbag import Bag
 
 
@@ -94,13 +96,16 @@ class TableScriptRunner(BaseComponent):
         if hasattr(self,'table_script_option_pane'):
             paramsBc = parentBc.borderContainer(pageName='params',datapath='.data',**kwargs)
             if hasParameters:
-                self.table_script_parameters_pane(paramsBc.contentPane(region='top',_class='ts_parametersPane'))
+                parameters_pane = paramsBc.contentPane(region='top',_class='ts_parametersPane')
+                parameters_pane.mainStack = parentBc.mainStack
+                self.table_script_parameters_pane(parameters_pane)
             self.table_script_option_pane(paramsBc.contentPane(region='bottom',datapath='.batch_options',
                                                                 _class='ts_optionsPane'))
         elif hasParameters:
-            paramsPane = parentBc.contentPane(pageName='params',datapath='.data',**kwargs)
-            self.table_script_parameters_pane(paramsPane)
-        self.table_script_waitingpane(parentBc.auxPane)
+            parameters_pane = parentBc.contentPane(pageName='params',datapath='.data',**kwargs)
+            parameters_pane.mainStack = parentBc.mainStack
+            self.table_script_parameters_pane(parameters_pane)
+        self.table_script_waitingpane(parentBc.mainStack.contentPane(pageName='waiting'))
         
     def table_script_waitingpane(self,pane):
         bc = pane.borderContainer()
@@ -108,7 +113,7 @@ class TableScriptRunner(BaseComponent):
         bottom.button('!!Close',float='right',margin='1px',
                       action='PUBLISH batch_monitor_off; FIRE .close')
         center = bc.contentPane(region='center', nodeId='table_script_waitingpane',_class='pbl_viewbox')
-        center.dataController("""if(page=='aux'){
+        center.dataController("""if(page=='waiting'){
                                     batch_monitor.create_local_root('table_script_waitingpane');
                                  }
                                     """,page="^.selected_stack_page")
@@ -147,7 +152,7 @@ class TableScriptRunner(BaseComponent):
                                 FIRE #table_script_runner.run;
                             }else{
                                 //FIRE .close;
-                                SET .selected_stack_page = 'aux';
+                                PUBLISH table_script_dlg_parameters_page = 'waiting';
                                 //batch_monitor.create_local_root('_pageRoot');
                                 SET #table_script_runner.parameters=pars;
                                 PUBLISH batch_monitor_on;
@@ -195,3 +200,8 @@ class TableScriptRunner(BaseComponent):
         for forbidden in forbiddenNodes:
             result.pop(forbidden)
         return result
+
+    def rpc_table_script_getHtmlTemplate(self,template_id):
+        tpl = self.db.table('adm.htmltemplate').getTemplate(pkey=template_id)
+        html = BagToHtml(templateHtml=tpl)
+        print x

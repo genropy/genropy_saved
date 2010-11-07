@@ -29,6 +29,7 @@ class GnrCustomWebPage(object):
         
     def lstBase(self,struct):
         r = struct.view().rows()
+        r.fieldcell('maintable',name='!!Name',width='20em')
         r.fieldcell('name',name='!!Name',width='20em')
         r.fieldcell('username',name='!!Username',width='10em')
         r.fieldcell('version',name='!!Version',width='20em')
@@ -51,11 +52,11 @@ class GnrCustomWebPage(object):
         self.left(left)
         top = bc.contentPane(margin='5px',region='top').toolbar()
         fb = top.formbuilder(cols=6, border_spacing='4px',disabled=disabled)
-        fb.field('name',width='10em')
-        fb.field('version',width='4em')
         box = fb.div(_class='fakeTextBox floatingPopup',width='15em',lbl='Table',colspan=2)
         box.span('^.maintable')
         box.menu(storepath='tableTree',modifiers='*',_class='smallmenu',action='SET .maintable = $1.fullpath')
+        fb.field('name',width='10em')
+        fb.field('version',width='4em')
         fb.checkbox(value='^mainbc.regions.left?show',label='!!Show fields')        
         tc = bc.tabContainer(region='center',selectedPage='^statusedit')
         editorPane = tc.contentPane(title='Edit',pageName='edit')
@@ -67,8 +68,8 @@ class GnrCustomWebPage(object):
         self.metadataForm(tc.contentPane(title='!!Metadata',pageName='metadata',datapath='.metadata'),disabled=disabled)
         self.RichTextEditor(editorPane, value='^.content',height='100%',
                             toolbar=self.rte_toolbar_standard(),
-                            config_contentsCss='/_pkg/adm/_resources/doctemplate.css')
-    
+                            config_contentsCss=self.getResourceUri('doctemplate.css',add_mtime=True))
+                            
     def metadataForm(self,pane,disabled=None):
         fb = pane.formbuilder(cols=2, border_spacing='4px',fld_width='15em',disabled=disabled)
         fb.textbox(value='^.subject',lbl='Subject',colspan='2',width='100%')
@@ -85,11 +86,11 @@ class GnrCustomWebPage(object):
                      hideValues=True,
                      margin='6px',
                      font_size='.9em',
+                     node_draggable="""return item.attr.dtype && item.attr.dtype!='RM' && item.attr.dtype!='RO'""",
                      selected_fieldpath='.selpath',
                      drag_value_cb="""var result = {'text/html':'<span>&nbsp</span><span class="tplfieldpath">$'+item.attr.fieldpath+'</span><span class="tplfieldcaption"> '+item.attr.caption+' </span><span>&nbsp</span>',
                                                     'text/plain':item.attr.fieldpath};
                                       return result;""",
-                     node_draggable=True,
                      drag_class='draggedItem',
                      
                      getLabelClass="""if (!node.attr.fieldpath && node.attr.table){return "tableTreeNode"}

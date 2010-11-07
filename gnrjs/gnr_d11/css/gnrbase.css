@@ -1,3 +1,13 @@
+.fieldsTree .dijitTreeContent{
+    cursor:move;
+    min-height:0;
+    padding-bottom:2px;
+    padding-top:0;
+}
+.fieldsTree.dijitTreeIcon{
+    padding-right:0;
+}
+
 .tpl_nocontent .tpl_content{
     visibility:hidden;
 }
@@ -493,71 +503,71 @@ table.formbuilder {
 /* @group Dtype */
 
 .icnDtype_A {
-    background: url(icons/dtype/alpha.gif) no-repeat;
+    background: url(icons/dtype/alpha.gif) center center no-repeat;
     width: 10px;
     height: 10px;
 }
 .icnDtype_DH {
-    background: url(icons/dtype/datetime.gif) no-repeat;
+    background: url(icons/dtype/datetime.gif)  center center no-repeat;
     width: 10px;
     height: 10px;
 }
 .icnDtype_B {
-    background: url(icons/dtype/bool.gif) no-repeat;
+    background: url(icons/dtype/bool.gif)  center center no-repeat;
     width: 10px;
     height: 10px;
 }
 
 .icnDtype_D {
-    background: url(icons/dtype/date.gif) no-repeat;
+    background: url(icons/dtype/date.gif) center center no-repeat;
     width: 10px;
     height: 10px;
 }
 
 .icnDtype_L {
-    background: url(icons/dtype/long.gif) no-repeat;
+    background: url(icons/dtype/long.gif)  center center no-repeat;
     width: 10px;
     height: 10px;
 }
 
 .icnDtype_R {
-    background: url(icons/dtype/real.gif) no-repeat;
+    background: url(icons/dtype/real.gif)  center center no-repeat;
     width: 10px;
     height: 10px;
 }
 
 .icnDtype_N {
-    background: url(icons/dtype/numeric.gif) no-repeat;
+    background: url(icons/dtype/numeric.gif)  center center no-repeat;
     width: 10px;
     height: 10px;
 }
 
 .icnDtype_T {
-    background: url(icons/dtype/text.gif) no-repeat;
+    background: url(icons/dtype/text.gif)  center center no-repeat;
     width: 10px;
     height: 10px;
 }
 
 .icnDtype_X {
-    background: url(icons/dtype/xml.gif) no-repeat;
+    background: url(icons/dtype/xml.gif)  center center no-repeat;
     width: 10px;
     height: 10px;
 }
 
 .icnDtype_RO {
-    background: url(icons/dtype/relate_one.gif) no-repeat;
+    background: url(icons/dtype/relate_one.gif)  center center no-repeat;
     width: 10px;
     height: 10px;
 }
 
 .icnDtype_RM {
-    background: url(icons/dtype/relate_many.gif) no-repeat;
+    background: url(icons/dtype/relate_many.gif)  center center no-repeat;
     width: 10px;
     height: 10px;
 }
 
 .icnDtype_SQL_F {
-    background: url(icons/dtype/sql_formula.gif) no-repeat;
+    background: url(icons/dtype/sql_formula.gif)  center center no-repeat;
     width: 10px;
     height: 10px;
 }
@@ -627,6 +637,18 @@ table.formbuilder {
 	overflow: hidden;
 	white-space: pre;
 }
+
+/* @end */
+
+/*@group template*/
+
+.preview .tplfieldpath{
+    display:inline;
+}
+.preview .tplfieldcaption{
+    display:none;
+}
+
 
 /* @end */
 
