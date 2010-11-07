@@ -67,11 +67,18 @@ class TableHandlerToolbox(BaseComponent):
                      inspect='shift', labelAttribute='caption',
                      _class='fieldsTree',
                      hideValues=True,
+                     drag_value_cb="""var fldinfo=objectUpdate({},item.attr);
+                                      fldinfo['maintable']=self.maintable
+                                      return {'text/plain':item.attr.fieldpath,
+                                              'gnrdbfld/json':fldinfo};""",
+                     node_draggable="""return item.attr.dtype && item.attr.dtype!='RM' && item.attr.dtype!='RO'""",
+                     drag_mode='column',              
+                     drag_class='draggedItem',
                      getIconClass='if(node.attr.dtype){return "icnDtype_"+node.attr.dtype}',
-                     dndController="dijit._tree.dndSource",
-                     onDndDrop="function(){this.onDndCancel();}::JS",
-                     checkAcceptance='function(){return false;}::JS',
-                     checkItemAcceptance='function(){return false;}::JS'
+                    #dndController="dijit._tree.dndSource",
+                    #onDndDrop="function(){this.onDndCancel();}::JS",
+                    #checkAcceptance='function(){return false;}::JS',
+                    #checkItemAcceptance='function(){return false;}::JS'
                      )
 
 class ViewExporter(BaseComponent):
