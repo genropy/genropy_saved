@@ -628,7 +628,6 @@ class PageRegister(BaseRegister):
             value=page[fltname]
             if not value:
                 return
-            print 'value',value
             if not isinstance(value,basestring):
                 return fltval==value
             try:
