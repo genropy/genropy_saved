@@ -565,7 +565,8 @@ dojo.declare("gnr.GnrDomHandler",null,{
    
     },
     onDragOver:function(event){
-        var droppable=genro.dom.droppableObject(event);
+        this.decorateEvent(event)
+        var droppable=event.droppableObject;
         if (!droppable){ return;}
         event.stopPropagation();
         event.preventDefault();
@@ -599,20 +600,10 @@ dojo.declare("gnr.GnrDomHandler",null,{
         }
         
     },
-    droppableObject:function(event){
-        if (event.target==event.dataTransfer.target){
-            console.log('same ')
-        }
-        this.decorateEvent(event)
-        return  event.droppableObject;
-    },
-
     onDragEnter:function(event){
-        console.log('************** onDragEnter')
-        var droppable=genro.dom.droppableObject(event);
+        this.decorateEvent(event)
+        var droppable=event.droppableObject;
         if (!droppable){ 
-            console.log('onDragEnter: not droppable')
-           // console.log(event)
             return;
         }
         if(genro.dom._dragged){
@@ -652,14 +643,13 @@ dojo.declare("gnr.GnrDomHandler",null,{
             genro.dom.setClass(shape,'cannotBeDropped',!canBeDropped);
             genro.dom.setClass(shape,'canBeDropped',canBeDropped);
             genro.dom._dragLastShape=shape
-         }else{
-             console.log(x)
          }
     },
    
      onDrop:function(event){
         genro.dom.outlineShape(null)
-        var droppable=genro.dom.droppableObject(event);
+        this.decorateEvent(event)
+        var droppable=event.droppableObject;
         if (!droppable){ return;}
         var domnode=droppable.domnode;
         var sourceNode=droppable.sourceNode;
@@ -700,6 +690,7 @@ dojo.declare("gnr.GnrDomHandler",null,{
                             }
                             params['drop_data']=value;
                             params['drop_item']=droppable.item;
+                            params['drop_event']=event
                             funcApply(action,params, sourceNode);
                             break;
                         }
