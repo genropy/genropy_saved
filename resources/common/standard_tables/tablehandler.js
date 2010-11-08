@@ -8,6 +8,17 @@ dojo.declare("gnr.GnrViewEditor",null,{
         this.sourceNode=genro.nodeById(widgetNodeId);
         this.width_em = 10;
     },
+    onDroppedColumn:function(drop_data,drop_event){
+        var colsBag = genro.viewEditor.getStruct('#0','#0');
+        toPos = drop_event.droppableObject.column + 1;
+        if(drop_data.tag == 'column' || drop_data.tag == 'virtual_column'){
+            colsBag.setItem('cellx_'+genro.getCounter(), null, {'width':'8em','name':drop_data.fullcaption, 
+                                                    'dtype':drop_data.dtype, 'field':drop_data.fieldpath,
+                                                    'tag':'cell'}, {'_position':toPos});
+        }
+          genro.fireAfter('list.runQueryDo',true)
+        
+    },
     getStruct: function(view, subrow){
         var struct = this.sourceNode.getRelativeData(this.sourceNode.attr.structpath);
         if(view){
@@ -291,8 +302,10 @@ dojo.declare("gnr.GnrQueryBuilder",null,{
             attr.column_caption = this.getCaption('column',attr);
             attr.op_caption = this.getCaption('op',attr) ;
             tr._('td')._('div',{_class:'qb_div qb_field floatingPopup',connectedMenu:'qb_fields_menu',relpath:node.label,
-                                dnd_onDrop:"genro.querybuilder.onChangedQueryColumn(this,item.attr,'"+node.label+"');",
-                                dnd_allowDrop:"return !(item.attr.one_relation);",
+                                drop_types:'gnrdbfld/json',droppable:true,
+                                //dnd_onDrop:"genro.querybuilder.onChangedQueryColumn(this,item.attr,'"+node.label+"');",
+                                drop_action:"genro.querybuilder.onChangedQueryColumn(this,drop_data,'"+node.label+"');",
+                               // dnd_allowDrop:"return !(item.attr.one_relation);",
                                 innerHTML:'^'+relpath+'?column_caption'});
             tr._('td')._('div',{_class:'qb_div qb_op floatingPopup', 
                                 connectedMenu:'==genro.querybuilder.getOpMenuId(_dtype);',
