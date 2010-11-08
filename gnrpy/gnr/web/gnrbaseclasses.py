@@ -106,6 +106,7 @@ class TableScriptToHtml(BagToHtml):
         super(TableScriptToHtml, self).__init__(**kwargs)
         self.page = page
         self.db = page.db
+        self.locale = self.page.locale
         self.tblobj = resource_table
         self.maintable = resource_table.fullname
         self.templateLoader = self.db.table('adm.htmltemplate').getTemplate
