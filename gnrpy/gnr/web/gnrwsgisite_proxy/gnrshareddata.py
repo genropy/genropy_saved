@@ -112,7 +112,6 @@ class GnrSharedData(object):
             if self.add('%s_lock' % key, True, expiry=lock_time):
                 return True
             k-=1
-            print 'retry to lock attempt n:',k
             time.sleep(retry_time)
         print '************UNABLE TO LOCK : %s max_retry:%i***************' % (key,max_retry)
 
