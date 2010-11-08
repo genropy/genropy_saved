@@ -286,8 +286,14 @@ class IncludedView(BaseComponent):
             pane.div(float='left', margin_right='7px', _class=export_class, connect_onclick=export_action)
 
         if tools_menu:
-            btn = pane.div(float='left', _class = tools_class,margin_right='7px')
-            btn.menu(storepath=tools_menu, modifiers='*')
+            storepath = '.toolsmenu'
+            if isinstance(tools_menu,basestring):
+                storepath = tools_menu
+            else:
+                pane.data('.toolsmenu',tools_menu)
+            btn = pane.dropDownButton('!!Edit',showLabel=False,float='left', 
+                                        iconClass = tools_class,margin_right='7px',baseClass='no_background')
+            btn.menu(storepath=storepath, modifiers='*',_class='smallmenu')
         elif tools_action:
             if tools_action is True:
                 tools_action = 'FIRE .reload'
