@@ -495,7 +495,8 @@ class GnrWsgiSite(object):
                     return exc.wsgi_application(environ, start_response)
                 except Exception,exc:
                     log.exception("wsgisite.dispatcher: self.resource_loader failed with non-HTTP exception.")
-                    raise exc # TODO: start_response will not be called if we get here, that could be the cause of some blank response errors.
+                    log.exception(str(exc))
+                    #raise exc # TODO: start_response will not be called if we get here, that could be the cause of some blank response errors.
             if not (page and page._call_handler):
                 return self.not_found_exception(environ,start_response)
             self.onServingPage(page)
