@@ -44,3 +44,14 @@ class GnrCustomWebPage(object):
         pane.button('Click me',iconClass='^icon',width='^widthButton',color='^color',
                     font_size='^fontSize',font_family='^fontType',action="alert('Clicked!')")
         
+    def test_4_hidden(self,pane):
+        """Hidden attribute"""
+        bc = pane.borderContainer(height='100px',datapath='test4')
+        bc.data('.hidden',False,_init=True)
+        bc.dataController("""SET .hidden=true""",_fired='^.invisibility')
+        bc.dataController("""SET .hidden=false""",_fired='^.show')
+        fb = bc.formbuilder(cols=2)
+        fb.button('Hide the div!',fire='^.invisibility')
+        fb.button('Show the div!',fire='^.show')
+        fb.div('You can hide me!',hidden='^.hidden',colspan=2,border='4px solid red')
+                    

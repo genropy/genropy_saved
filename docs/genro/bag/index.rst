@@ -7,7 +7,10 @@ Bag
 .. toctree::
 
 	introduction
+	bagOne
 	bagTwo
 	attributes
 	nodes
-	methods
+	bagThree
+	deprecated
+	class/index

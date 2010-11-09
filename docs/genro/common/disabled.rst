@@ -4,45 +4,39 @@
  Disabled
 ==========
 
-Index
-*****
+	- :ref:`disabled-definition-description`
 
-	- Description_
-	
-	- Validity_
-	
-	- Default_
-	
-	- Examples_
-	
-		- "disabled" on a formbuilder_
-		- "disabled" on a standardTable_
+	- :ref:`disabled-validity`
 
-.. _Description:
+	- :ref:`disabled_examples`: :ref:`disabled_examples-formbuilder`, :ref:`disabled_examples_standardTable`
 
-**Description:**
+	.. _disabled-definition-description:
 
-	If True, user can't write in the object.
+Definition and description
+==========================
 
-.. _Validity:
+	If ``True``, user can't act on the object (write, drag...).
 
-**Validity:** 
+	.. _disabled-validity:
 
-	It works on every form widget.
+Validity and default value
+==========================
 
-.. _Default:
+	**Validity:** it works on every form widget.
 
-**Default value:**
+	**default value:** the default value of ``disabled`` is ``False``::
 
-	False.
+		disabled=False
 
-.. _Examples:
+.. _disabled_examples:
 
-**Examples:**
+Examples
+========
 
-.. _formbuilder:
+	.. _disabled_examples-formbuilder:
 
-	**"disabled" on a formbuilder**
+Disabled on a formbuilder
+=========================
 
 	In the following example you can see the effect of the "disabled" attribute applied to the formbuilder: with checkbox you activate "disabled" attribute::
 	
@@ -58,13 +52,10 @@ Index
 				fb.textbox(value='^.job.profession',lbl='Job')
 				fb.textbox(value='^.job.company_name',lbl='Company name')
 
-	Let's see a demo:
-     
-	#NISO add online demo!
-	
-.. _standardTable:
+.. _disabled_examples_standardTable:
 
-	**"disabled" on a standardTable**
-	
-	In a standard table the "disabled" ??? continuare!! (spiegare del lucchetto)
+Disabled on a standard table
+============================
+
+	In a :ref:`genro-standardtable_introduction` the ``disabled`` ??? continue!! (explain the lock properties...)
 	

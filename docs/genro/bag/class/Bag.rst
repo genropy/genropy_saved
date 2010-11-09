@@ -1,17 +1,6 @@
-	.. _bag-methods:
+	.. _genro-bag-class:
 
-=======
-methods
-=======
-
-.. ??? Take doc from gnrbag.py !
-
-	- :ref:`bag-class`
-	
-	- :ref:`bagnode-class`
-
-	.. _bag-class:
-
+===============
  The Bag class
 ===============
 
@@ -225,7 +214,7 @@ methods
 
 		Add values (or attributes) to your Bag. The default behaviour of ``setItem`` is to add the new value as the last element of a list. You can change this trend with the _position argument, who provides a compact syntax to insert any item in the desired place.
 		
-		- ``_position``: with this optional argument it is possible to set a new value at a particular position among its brothers. *expression* must be a string of the following types:
+		- `_position`: with this optional argument it is possible to set a new value at a particular position among its brothers. *expression* must be a string of the following types:
 
 			+----------------------------+----------------------------------------------------------------------+
 			| *Expressions*              |  Description                                                         |
@@ -286,24 +275,4 @@ methods
 	.. method:: values()
 
 		Return a copy of the Bag values as a list.
-
-	.. _bagnode-class:
-
-The BagNode class
-=================
-
-..class:: BagNode
-	
-	.. method:: getNode(self, path=None, asTuple=False, autocreate=False, default=None):
-	
-		Return the BagNode stored to a given path.
 		
-		* `path`: path of the given item. 
-	
-	
-	
-	
-	
-	
-	
-	

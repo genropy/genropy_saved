@@ -4,40 +4,31 @@
  Label
 =======
 
-Index
-*****
+	- :ref:`label-definition-description`
 
-	- Description_
-	
-	- Validity_
-	
-	- Default_
-	
-	- Examples_
+	- :ref:`label-validity`
 
-.. _Description:
+	- :ref:`label-examples`
 
-**Description:**
+	.. _label-definition-description:
 
-	with ... ???
+Definition and description
+==========================
 
-.. _Validity:
+	``label`` is an attribute used to ... ???
 
-**Validity:**
+	.. _label-validity:
 
-	???
+Validity and label value
+==========================
 
-.. _Default:
+	**Validity:** you can give ``label`` attribute to the following objects:
 
-**Default value:**
+		- ???
 
-???
+	**label value:** the label value of ``label`` is ... ???
 
-.. _Examples:
+	.. _label-examples:
 
-**Examples:**
-	
-		Example::
-	
-			pane.???(???)
-
+Examples
+========

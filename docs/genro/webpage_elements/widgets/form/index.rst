@@ -7,7 +7,6 @@ Form widgets
 .. toctree::
 	:maxdepth: 2
 
-	introduction
 	button
 	checkbox
 	combobox

@@ -1,8 +1,8 @@
 	.. _bag-two:
 
-====================
- Advanced functions
-====================
+=================
+ Basic functions
+=================
 
 	- :ref:`bag-hierarchical`
 	
@@ -13,6 +13,8 @@
 	- :ref:`bag-printing-advanced`
 	
 	- :ref:`bag_getting_values_advanced`
+	
+	- :ref:`bag_digest`
 
 	.. _bag-hierarchical:
 
@@ -120,10 +122,49 @@ Getting Values (advanced)
 		>>> print officenumber
 		555450210
 
+.. _bag_digest:
 
+The digest method
+=================
+
+	Let's introduce a very useful method: the :meth:`Bag.digest` method. It returns a list of ``n`` tuples including keys and/or values and/or attributes of all the Bag's elements.
+
+	``n`` is the number of expressions called in the method.
+
+	+------------------------+----------------------------------------------------------------------+
+	|  *Expressions*         |  Description                                                         |
+	+========================+======================================================================+
+	| ``'#k'``               | Show the label of each item                                          |
+	+------------------------+----------------------------------------------------------------------+
+	| ``'#v'``               | Show the value of each item                                          |
+	+------------------------+----------------------------------------------------------------------+
+	| ``'#v.path'``          | Show inner values of each item                                       |
+	+------------------------+----------------------------------------------------------------------+
+	| ``'#a'``               | Show attributes of each item                                         |
+	+------------------------+----------------------------------------------------------------------+
+	| ``'#a.attributeName'`` | Show the attribute called 'attrname' for each item                   |
+	+------------------------+----------------------------------------------------------------------+
+
+	>>> print b['documents.letters'].digest('#k,#a.createdOn,#a.createdBy')
+	[('letter_to_sheila', '12-4-2003', 'Walter'), ('letter_to_mark', '10-7-2003', 'Jack'), ('letter_to_john', '11-5-2003', 'Mark')]
+
+	In this example we made a query of:
+
+	- the Bag's labels, with ``#k``
+
+	- the Bag's attribute createdOn, with ``#a.createdOn``
+
+	- the Bag's attribute createdBy, with ``#a.createdBy``
+
+	**Square-brackets notations:** you have to use the special char ``?`` followed by ``d:`` followed by one or more expressions:
+
+	>>> print b['documents.letters.?d:#k,#a.createdOn,#a.createdBy']
+	[('letter_to_sheila', '12-4-2003', 'Walter'), ('letter_to_mark', '10-7-2003', 'Jack'), ('letter_to_john', '11-5-2003', 'Mark')]
+	>>> print b['documents.letters.?d:#v,#a.createdOn']
+	[('file0', '10-7-2003'), ('file1', '11-5-2003'), ('file2', '12-4-2003')]
 
 **Footnotes**
 
 .. [#] Check the :ref:`genro-bag-introduction` page.
 
-.. [#] If you need to use the dot (``.``) in the name of the instance (label), but you didn't want them to be interpreted as part of a complex path, you have to add a backslash ("\") before the dot.
+.. [#] If you need to use the dot (``.``) in the name of the instance (label), but you didn't want them to be interpreted as part of a complex path, you have to add a backslash (``\``) before the dot.

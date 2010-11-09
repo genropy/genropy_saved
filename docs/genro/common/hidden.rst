@@ -4,39 +4,45 @@
  Hidden
 ========
 
-Index
-*****
+	- :ref:`hidden-definition-description`
 
-	- Description_
-	
-	- Validity_
-	
-	- Default_
-	
-	- Examples_
+	- :ref:`hidden-validity`
 
-.. _Description:
+	- :ref:`hidden-examples`
 
-**Description:**
+	.. _hidden-definition-description:
 
-With ... ??? spiegare che si può attivare con un boolean o con un resolver
+Definition and description
+==========================
 
-.. _Validity:
+	If ``True``, it allows to hide any object you want.
 
-**Validity:**
+	.. _hidden-validity:
 
-It works on every objects.
+Validity and default value
+==========================
 
-.. _Default:
+	**Validity:** the ``hidden`` attribute works on every object.
 
-**Default value:**
+	**default value:** the default value of ``hidden`` is ``False``::
 
-	False.
-	
-.. _Examples:
+		hidden=False
 
-**Examples:**
+	.. _hidden-examples:
 
-		Example::
+Examples
+========
 
-			pane.???(???)
+	::
+
+		class GnrCustomWebPage(object):
+			def main(self,root,**kwargs):
+				bc = root.borderContainer(height='100px',datapath='test4')
+				bc.data('.hidden',False,_init=True)
+				bc.dataController("""SET .hidden=true""",_fired='^.invisibility')
+				bc.dataController("""SET .hidden=false""",_fired='^.show')
+				fb = bc.formbuilder(cols=2)
+				fb.button('Hide the div!',fire='^.invisibility')
+				fb.button('Show the div!',fire='^.show')
+				fb.div('You can hide me!',hidden='^.hidden',colspan=2,border='4px solid red')
+

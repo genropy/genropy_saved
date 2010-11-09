@@ -6,7 +6,7 @@ Common attributes
 
 .. toctree::
 
-	attributes
+	introduction
 	datapath
 	dbtable
 	default

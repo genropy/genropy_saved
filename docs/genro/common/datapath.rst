@@ -4,20 +4,20 @@
  Datapath
 ==========
 
-	- :ref:`datapath-description`
+	- :ref:`datapath-definition-description`
 
 	- :ref:`datapath-validity`
 
 	- :ref:`datapath-examples`: :ref:`datapath-bc-example`, :ref:`datapath-absolute-example`
 
-	.. _datapath-description:
+	.. _datapath-definition-description:
 
-Datapath description
-====================
+Definition and description
+==========================
 
-	Datapath is an attribute used to create a hierarchy of your data's addresses into the :ref:`genro-datastore`.
+	``datapath`` is an attribute used to create a hierarchy of your data's addresses into the :ref:`genro-datastore`.
 
-	Placing the ``datapath`` attributes will cause the element to be a root path.
+	The element on which you apply this attribute will be able to become the father of other elements in a path tree.
 
 	In the child elements we can specify either to set a relative path to the father, or an absolute path.
 
@@ -40,10 +40,14 @@ Datapath description
 
 	.. _datapath-validity:
 
-Datapath validity
-=================
+Validity and default value
+==========================
 
-	You can give "datapath" attribute to each object, but it is useful give this attribute only to the objects that contain other objects (so give this attribute to container objects, that are :ref:`genro-accordioncontainer`, :ref:`genro-bordercontainer`, :ref:`genro-stackcontainer`, :ref:`genro-tabcontainer`).
+	**Validity:** you can give ``datapath`` attribute to each object, but it is useful give this attribute only to the objects that contain other objects. For example, you can give it to the container objects, that are :ref:`genro-accordioncontainer`, :ref:`genro-bordercontainer`, :ref:`genro-stackcontainer`, :ref:`genro-tabcontainer`, or if you create a form you can give it to the :ref:`genro-formbuilder`.
+
+	**default value:** the default value of ``datapath`` is ``None``::
+	
+		datapath=None
 
 	.. _datapath-examples:
 
