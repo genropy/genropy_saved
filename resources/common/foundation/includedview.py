@@ -21,6 +21,7 @@
 from gnr.web.gnrbaseclasses import BaseComponent
 from gnr.core.gnrbag import Bag
 from gnr.core.gnrstring import splitAndStrip
+from gnr.core.gnrdict import dictExtract
 
 class IncludedView(BaseComponent):
     css_requires = 'public'
@@ -29,7 +30,7 @@ class IncludedView(BaseComponent):
        includedViewBox is the method that return some custom widgets who allow all these operations."""
 
     def includedViewBox(self,parentBC,nodeId=None,table=None,datapath=None,
-                        storepath=None,selectionPars=None,formPars=None,label=None,footer=None,
+                        storepath=None,selectionPars=None,formPars=None,label=None,caption=None,footer=None,
                         add_action=None,add_class='buttonIcon icnBaseAdd',add_enable='^form.canWrite',
                         del_action=None,del_class='buttonIcon icnBaseDelete',del_enable='^form.canWrite',
                         upd_action=None,upd_class='buttonIcon icnBaseEdit',upd_enable='^form.canWrite',
@@ -177,12 +178,6 @@ class IncludedView(BaseComponent):
             gridcenter = getattr(self,centerPaneCb)(parentBC,region='center', datapath=controllerPath, **box_pars)
         else:
             gridcenter = parentBC.contentPane(region='center',datapath=controllerPath, **box_pars)
-        #if not 'columns' in viewPars:
-        #    struct =  viewPars.get('struct',None)
-        #    if struct and callable(struct) and not isinstance(struct,Bag):
-        #        gridStruct = self.newGridStruct(table)
-        #        struct = struct(gridStruct)
-        #        viewPars['struct'] = struct or gridStruct
         viewPars['structpath'] = viewPars.get('structpath') or '.struct'  or 'grids.%s.struct' %nodeId
         if filterOn is True:
             gridcenter.dataController("""var colsMenu = new gnr.GnrBag();
@@ -194,6 +189,11 @@ class IncludedView(BaseComponent):
             gridcenter.dataFormula(".editorEnabled", "parentLock==null?false:!parentLock",parentLock=parentLock)
         elif parentLock is False:
             editorEnabled=True
+        if caption:
+            innerbc = gridcenter.borderContainer()
+            caption_pars = dictExtract(viewPars,'caption_',pop=True)
+            innerbc.contentPane(region='top').div(caption,**caption_pars)
+            gridcenter= innerbc.contentPane(region='center')
         view = gridcenter.includedView(extension='includedViewPicker',table=table,
                                        editorEnabled=editorEnabled or '^.editorEnabled',
                                        reloader=reloader, **viewPars)
@@ -293,7 +293,7 @@ class IncludedView(BaseComponent):
                 pane.data('.toolsmenu',tools_menu)
             btn = pane.dropDownButton('!!Edit',showLabel=False,float='left', 
                                         iconClass = tools_class,margin_right='7px',baseClass='no_background')
-            btn.menu(storepath=storepath, modifiers='*',_class='smallmenu')
+            btn.menu(storepath=storepath, modifiers='*',_class='smallmenu',action='this.fireEvent(item.attr.fire_path);')
         elif tools_action:
             if tools_action is True:
                 tools_action = 'FIRE .reload'
