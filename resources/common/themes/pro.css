@@ -163,7 +163,7 @@
 /* @group includedviewbox */
 
 .pbl_viewBox{
-	background-color: #E1E9E9;
+	background-color: transparent;
 	padding:5px;
 	-moz-border-radius-bottomleft:6px;
 	-moz-border-radius-bottomright:6px;
@@ -173,11 +173,14 @@
 
 .pbl_viewBoxLabel{
 	height:18px;
-	background-color:#97AEA9;
+	background-color:#254868;
+	color:white;
 	-moz-border-radius-topleft:6px;
 	-moz-border-radius-topright:6px;
 	-webkit-border-top-left-radius:6px;
 	-webkit-border-top-right-radius:6px;
+	background-image:-webkit-gradient(linear, 0% 0%, 0% 90%,from(#254868),to(#0073E7));
+    background-image:-moz-linear-gradient(-90deg,#254868, #0073E7);
 	padding-left:10px ;
 	font-size: 0.9em;
 	padding-top: 3px;
@@ -202,7 +205,6 @@
 
 .pbl_roundedGroupLabel{
 	height:18px;
-	background-color:#97AEA9;
 	-moz-border-radius-topleft:6px;
 	-moz-border-radius-topright:6px;
 	-webkit-border-top-left-radius:6px;
@@ -210,13 +212,13 @@
 	padding-left:10px ;
 	font-size: 0.9em;
 	padding-top: 5px;
-	background-image:-webkit-gradient(linear, left top, right bottom, from(rgba(151,174,169,99)), to(rgba(225,233,233,0.99)));
-    background-image:-moz-linear-gradient(180deg, rgba(225,233,233,0.99), rgba(151,174,169,99));
+	background-image:-webkit-gradient(linear, left top, right bottom, from(#0073E7), to(white));
+    background-image:-moz-linear-gradient(180deg,#0073E7, white);
 }
 
 .pbl_roundedGroupBottom{
 	height:18px;
-	background-color:#97AEA9;
+	background-color:#0073E7;
 	-moz-border-radius-bottomleft:6px;
 	-moz-border-radius-bottomright:6px;
 	-webkit-border-bottom-left-radius:6px;
@@ -224,6 +226,10 @@
 	padding-left:10px ;
 	font-size: 0.9em;
 	padding-bottom: 5px;
+	/*
+	background-image:-webkit-gradient(linear, left top, right bottom, from(#0073E7), to(white));
+    background-image:-moz-linear-gradient(180deg,#0073E7, white);
+	*/
 }
 
 /* @end */
@@ -260,8 +266,8 @@
 
 ._common_d11 .dijitDialogTitleBar{
 	background:#4D5962 none repeat scroll 0 0;
-	background-image:-webkit-gradient(linear, 0% 0%, 0% 90%, from(rgba(77,89,98,0.99)), to(rgba(101,135,142,0.9)));
-    background-image:-moz-linear-gradient(-90deg,rgba(77,89,98,0.99), rgba(101,135,142,0.9));
+	background-image:-webkit-gradient(linear, 0% 0%, 0% 90%,from(#0F1724),to(#254868));
+    background-image:-moz-linear-gradient(-90deg,#0F1724, #254868);
 	color:#F5F5F5;
 	vertical-align: middle;
 	-moz-border-radius-topleft:6px;
@@ -768,13 +774,14 @@
 	margin: auto;
 }
 ._common_d11 .invalidCell  {
-    background-color: red ;
+    background-color: #F4B87C ;
 }
 
 ._common_d11 .widgetInCell {
 }
 ._common_d11 .widgetInCell {
-	background-color: red;
+	/*also invalid*/
+	background-color: #FFFFAD;
     color: black;
 	display: block;
 	border: 0px grey;
@@ -846,3 +853,6 @@ padding-bottom:2px;
 
 
 /* @end */
+/* @group Dojox */
+._common_d11 .dojoxDock{background:transparent;border:0;margin:auto 4px;}
+/*@end*/
