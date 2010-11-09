@@ -174,7 +174,7 @@
 .pbl_viewBoxLabel{
 	height:18px;
 	background-color:#254868;
-	color:white;
+	/*color:white;*/
 	-moz-border-radius-topleft:6px;
 	-moz-border-radius-topright:6px;
 	-webkit-border-top-left-radius:6px;
