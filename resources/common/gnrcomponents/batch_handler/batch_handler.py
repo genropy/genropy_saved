@@ -171,7 +171,10 @@ class TableScriptRunner(BaseComponent):
         res_obj(parameters=parameters,**kwargs)
         
     def rpc_table_script_resource_tree_data(self,table=None,res_type=None):
-        pkg,tblname = table.split('.')
+        #pkg,tblname = table.split('.')
+        tblobj=self.db.table(table)
+        pkg=tblobj.pkg.name
+        tblname=tblobj.name
         result = Bag()
         resources = self.site.resource_loader.resourcesAtPath(pkg,'tables/%s/%s' %(tblname,res_type),'py')
         forbiddenNodes = []
