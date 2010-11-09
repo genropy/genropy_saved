@@ -264,6 +264,7 @@ dojo.declare("gnr.GridEditor",null,{
                 this.startEdit(rc.row,rc.col);
             }
         }
+
     },
     editableCell:function(col){
         return (this.grid.getCell(col).field in this.columns);
@@ -2648,7 +2649,7 @@ dojo.declare("gnr.widgets.VirtualStaticGrid",gnr.widgets.Grid,{
                         //}
                     }
                 }
-                this.renderOnIdle();
+                //this.renderOnIdle(); 
                 this._updatingIncludedView=false;
               // if (this.prevSelectedIdentifiers){
               //     
