@@ -186,12 +186,12 @@
 
 .pbl_viewBoxLabel{
 	height:18px;
-	background-color:#254868;
+	background-color:#9AA5FA;
 	/*color:white;*/
 	-moz-border-radius-topright:20px;
 	-webkit-border-top-right-radius:20px;
-	background-image:-webkit-gradient(linear, 0% 0%, 0% 90%,from(#265BC0),to(#0073E7));
-    background-image:-moz-linear-gradient(-90deg,#254868, #0073E7);
+	/*background-image:-webkit-gradient(linear, 0% 0%, 0% 90%,from(#265BC0),to(#0073E7));
+    background-image:-moz-linear-gradient(-90deg,#254868, #0073E7);*/
 	padding-left:10px ;
 	font-size: 0.9em;
 	padding-top: 3px;
@@ -399,9 +399,9 @@
 	-moz-border-top-right-radius:20px;
 	-webkit-border-top-right-radius:20px;
 	border-top-right-radius:20px;
-    background-color: #96B1CC;
-	background-image:-webkit-gradient(linear, 0% 0%, 0% 90%,from(#96ADDE), to(#BFD5FF));
-    background-image:-moz-linear-gradient(-90deg,#96ADDE, #BFD5FF);
+    background-color: #D1DBE4;
+	/*background-image:-webkit-gradient(linear, 0% 0%, 0% 90%,from(#96ADDE), to(#BFD5FF));
+    background-image:-moz-linear-gradient(-90deg,#96ADDE, #BFD5FF);*/
 }
 /* @group righttab */
 
