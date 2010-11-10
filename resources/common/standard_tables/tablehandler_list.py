@@ -440,12 +440,13 @@ class TableHandlerForm(BaseComponent):
                              _onCalling=self.onQueryCalling(),
                              _onResult='FIRE list.queryEnd=true; SET list.selectmethod=null;',
                              **condPars)
-
+        dragColumn="""var cell=event.cell;return{'gnrgridcol/json':{'name':cell.name,'field':cell.field,'original_field':cell.original_field,'cellIndex':event.cellIndex},'text/plain':cell.name};"""
         grid = gridpane.virtualGrid(nodeId='maingrid', structpath="list.view.structure", storepath=".data", autoWidth=False,
                                 selectedIndex='list.rowIndex', rowsPerPage=self.rowsPerPage(), sortedBy='^list.grid.sorted',
                                 connect_onSelectionChanged='SET list.noSelection = (genro.wdgById("maingrid").selection.getSelectedCount()==0)',
-                                linkedForm='formPane',openFormEvent='onRowDblClick',drop_types='gnrdbfld/json',
-                                droppable_column=True,drop_action="genro.viewEditor.onDroppedColumn(drop_data,drop_event)",
+                                linkedForm='formPane',openFormEvent='onRowDblClick',drop_types='gnrdbfld/json,gnrgridcol/json',
+                                droppable_column=True,drop_action="genro.viewEditor.onDroppedColumn(drop_data,drop_event,drop_datatype)",
+                                draggable=True,draggable_column=True,drag_value_cb=dragColumn,drag_class='draggedItem',
                                 connect_onRowContextMenu="FIRE list.onSelectionMenu = true;")    
         pane.dataController("SET list.selectedIndex = idx; SET selectedPage = 1;",idx="^gnr.forms.formPane.openFormIdx") 
 

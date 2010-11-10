@@ -8,16 +8,21 @@ dojo.declare("gnr.GnrViewEditor",null,{
         this.sourceNode=genro.nodeById(widgetNodeId);
         this.width_em = 10;
     },
-    onDroppedColumn:function(drop_data,drop_event){
+    onDroppedColumn:function(drop_data,drop_event,drop_datatype){
         var colsBag = genro.viewEditor.getStruct('#0','#0');
-        toPos = drop_event.droppableObject.column + 1;
-        if(drop_data.tag == 'column' || drop_data.tag == 'virtual_column'){
+        var toPos=drop_event.droppableObject.column
+        if(drop_datatype=='gnrgridcol/json'){
+            var fromPos=drop_data.cellIndex
+            var moved=colsBag.popNode('#'+fromPos)
+            colsBag.setItem('cellx_'+genro.getCounter(), null, moved.attr, {'_position':toPos});
+        }
+        else if(drop_data.tag == 'column' || drop_data.tag == 'virtual_column'){
             colsBag.setItem('cellx_'+genro.getCounter(), null, {'width':'8em','name':drop_data.fullcaption, 
                                                     'dtype':drop_data.dtype, 'field':drop_data.fieldpath,
-                                                    'tag':'cell'}, {'_position':toPos});
+                                                    'tag':'cell'}, {'_position':toPos+1});
+            genro.fireAfter('list.runQueryDo',true)
         }
-          genro.fireAfter('list.runQueryDo',true)
-        
+       
     },
     getStruct: function(view, subrow){
         var struct = this.sourceNode.getRelativeData(this.sourceNode.attr.structpath);
