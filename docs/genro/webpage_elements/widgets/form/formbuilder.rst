@@ -151,10 +151,10 @@ Here we describe the formbuilder's field attributes:
 	| ``colspan``    | Set the number of columns occupied by a single field |  ``None``                |
 	+----------------+------------------------------------------------------+--------------------------+
 	| ``label``      | If possible, set a label for formbuilder right       |  ``None``                |
-	|                | field-part. For more details, check this example_.   |                          |
-	+----------------+---------------------------------------------------------------------------------+
+	|                | field-part (more details on this example_)           |                          |
+	+----------------+------------------------------------------------------+--------------------------+
 	| ``lbl``        | If possible, set a label for formbuilder left        |  ``None``                |
-	|                | field-part. For more details, check this example_.   |                          |
+	|                | field-part (more details on this example_)           |                          |
 	+----------------+------------------------------------------------------+--------------------------+
 	| ``pos``        | Choose element position                              |  The first free position |
 	|                |                                                      |                          |

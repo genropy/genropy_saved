@@ -17,7 +17,7 @@
 Description
 ===========
 
-	The datastore is a Genro :ref:`genro-bag-introduction` used to keep track of data.
+	The datastore is a Genro :ref:`genro-bag-intro` used to keep track of data.
 
 	You can access to it from any Genro webpage by clicking ``ctrl+shift+D`` [#]_.
 

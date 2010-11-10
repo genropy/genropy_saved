@@ -9,7 +9,7 @@
 The build phase
 ===============
 
-	In the construction of the pages, first GenroPy loads the browser (client) with its JavaScript engine (the Genro engine). Then the Javascript engine immediately requests the server to build the recipe for the DOM. This recipe is returned to the client in a :ref:`genro-bag-introduction`.   This is the page description and content of the original datastore form of bags. At this point, the JS can make calls to the python code to further buildings on the page.
+	In the construction of the pages, first GenroPy loads the browser (client) with its JavaScript engine (the Genro engine). Then the Javascript engine immediately requests the server to build the recipe for the DOM. This recipe is returned to the client in a :ref:`genro-bag-intro`.   This is the page description and content of the original datastore form of bags. At this point, the JS can make calls to the python code to further buildings on the page.
 
 	In practice, GenroPy behaves in this way:
 
@@ -33,7 +33,7 @@ The build phase
 
 	    page js <- dataRpc() or remote() -> page python
 
-	Genro creates a :ref:`genro-bag-introduction` using genropy syntax and this ``Bag`` is sent as XML to the client. In the client, widgets and html elements will be stored in the struct bag (??? find a name for the struct Bag!), while data elements will be placed in the :ref:`genro-datastore`.
+	Genro creates a :ref:`genro-bag-intro` using genropy syntax and this ``Bag`` is sent as XML to the client. In the client, widgets and html elements will be stored in the struct bag (??? find a name for the struct Bag!), while data elements will be placed in the :ref:`genro-datastore`.
 
 	When the XML arrives and the two bags are created a builder is started that will use the struct bag to create html and dojo elements. The builder will also 'link' data bag with the related widgets using the '^' syntax [#]_.
 
@@ -69,7 +69,7 @@ The build phase
 
 .. [#] For further details on the Genro element widgets, please check :ref:`genro-widgets-introduction`.
 
-.. [#] For further details on the Genro Bag, please check :ref:`genro-bag-introduction` introduction page.
+.. [#] For further details on the Genro Bag, please check :ref:`genro-bag-intro` introduction page.
 
 .. [#] For more information on the circumflex accent, please check :ref:`datastore-syntax`.
 

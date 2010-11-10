@@ -30,7 +30,7 @@ Examples
 
 	The main two modes to fill a filteringSelect are:
 	
-	* Filling a filteringSelect through a :ref:`genro-bag-introduction`
+	* Filling a filteringSelect through a :ref:`genro-bag-intro`
 	* Filling a filteringSelect through "values" attribute
 	
 	.. _bag-example:

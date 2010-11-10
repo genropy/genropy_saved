@@ -12,5 +12,4 @@ Bag
 	attributes
 	nodes
 	bagThree
-	deprecated
 	class/index

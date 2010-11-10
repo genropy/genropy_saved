@@ -1,11 +1,9 @@
-	.. _genro-bag-introduction:
+	.. _genro-bag-one:
 
-=====
- Bag
-=====
+=================
+ Basic functions
+=================
 
-	- :ref:`bag-introduction`
-	
 	- :ref:`bag-instance`
 	
 	- :ref:`bag-set-get`
@@ -22,35 +20,37 @@
 	
 	- :ref:`bag_dictionary_methods`
 
-	.. _bag-introduction:
-
-Introduction
-============
-
-	???
-	
-	In these introduction we will describe a Bag omitting the ``attributes`` and the concept of ``BagNodes``, postponing their explanation for subsequent chapters (that are the :ref:`bag-attributes` page and the :ref:`bag-nodes` page).
-
-	
-	Each bag may access directly to its inner elements using a path composed by a concatenation of traversed bag labels [#]_.
-
 	.. _bag-instance:
 
 How to instantiate a Bag
 ========================
 
-	To instantiate a Bag you have to call its constructor:
+	<#NISO ???>
 
-		>>> from gnr.core.gnrbag import Bag
-
-	You can now create an empty Bag:
+		To instantiate a Bag you have to call its constructor:
+    	
+			>>> from gnr.core.gnrbag import Bag
+    	
+		You can now create an empty Bag:
+		
+			>>> mybag= Bag()
+    	
+		The constructor may receive several kinds of initialization parameters; you can create a Bag:
+		
+		- starting from XML files, URL or file-system paths:
+    	
+			>>> mybag = Bag('/data/myfile.xml')
+			>>> mybag = Bag('http://www.foo.com')
+		
+		- parsing a text string (see fromXml???)
+    	
+		- converting a dictionary into a Bag 
+    	
+		- passing a list or a tuple just like for the builtin ``dict()`` command
+		
+		For more information, check the ??? paragraph.
 	
-		>>> mybag= Bag()
-
-	The constructor may receive several kinds of initialization parameters: you can create a Bag starting from XML files, URL or file-system paths [#]_:
-
-		>>> mybag = Bag('/data/myfile.xml')
-		>>> mybag = Bag('http://www.foo.com')
+	<\#NISO ???>
 
 	.. _bag-set-get:
 
@@ -95,14 +95,20 @@ Printing a Bag
 ==============
 
 	If you want to display a bag in your python shell you can use the built-in function ``print``:
-
+	
 	>>> print mybag
-	0 - (int) a: 1  
-	1 - (int) b: 2  
-
-	Bag representation makes a line for each value. The line is structured in the following way:
-
-	``value's index - (value's type) label: value`` ??? Add attributes printing!
+	0 - (int) a: 1
+	1 - (int) b: 2
+	
+	We don't introduced the :ref:`bag-attributes` yet; however, if you print a Bag with attributes, you will get them included between angle brackets and separated by a single space, like::
+	
+		<createdOn='11-10-2010' createdBy='Niso'>.
+	
+	Bag representation makes a line for each value. The line is structured in the following way::
+	
+		numericIndex - (type) label: value <firstAttributeName='firstAttributeValue' secondAttributeName='secondAttributeValue' >
+	
+	Check the :ref:`bag-attributes-setItem` paragraph for a complete example on printing a Bag with attributes.
 
 	You have to know that when you use the built-in function ``print`` you call the :meth:`Bag.asString` method:
 
@@ -279,10 +285,5 @@ Dictionary methods implemented by Bag and other related methods
 		{'a': 1, 'c': 3, 'b': 2, 'd': 4}
 
 **Footnotes:**
-
-.. [#] For more information, check :ref:`bag-two` page.
-
-.. [#] For further information, check the :ref:`???` paragraph.
-.. ??? that will be a paragraph called "Importing and exporting bags"
 
 .. [#] Like a Python ``list``.

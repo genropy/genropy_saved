@@ -98,9 +98,13 @@
 		>>> print b['documents.letters.letter_to_sheila?fileOwner']
 		Steve
 	
-	.. method:: getItem(path)
+	.. method:: getItem(path, default=None[, mode=None])
 
 		Return the value if it is in the Bag, else it returns ``None``, so that this method never raises a ``KeyError``:
+		
+		* `default`: it is the default value.
+		
+		* `mode='static'`: with this attribute the getItem doesn't solve the Bag :ref:`bag_resolver`.
 		
 		>>> mybag = Bag()
 		>>> mybag.setItem('a',1)
@@ -142,31 +146,30 @@
 		>>> b.keys()
 		['a', 'c', 'b']
 	
-	.. method:: merge()
+	.. method:: merge(upd_values=True, add_values=True, upd_attr=True, add_attr=True)
 	
+		.. deprecated:: 0.7
+
+		.. note:: This method have to be rewritten.
+
 		Allow to merge two bags into one.
 
 		It has four optional parameters:
 
-		+------------------------+----------------------------------------+-----------------------------+
-		|  *flag*                |  Description                           |  Default                    |
-		+========================+========================================+=============================+
-		| ``upd_values``         | ???                                    |  ``True``                   |
-		+------------------------+----------------------------------------+-----------------------------+
-		| ``add_values``         | ???                                    |  ``True``                   |
-		+------------------------+----------------------------------------+-----------------------------+
-		| ``upd_attr``           | ???                                    |  ``True``                   |
-		+------------------------+----------------------------------------+-----------------------------+
-		| ``add_attr``           | ???                                    |  ``True``                   |
-		+------------------------+----------------------------------------+-----------------------------+
-
+		* `upd_values`: ???
+		
+		* `add_values`: ???
+		
+		* `upd_attr`: ???
+		
+		* `add_attr`: ???
+		
 		>>> john_doe=Bag()
 		>>> john_doe['telephones']=Bag()
 		>>> john_doe['telephones.house']=55523412
 		>>> other_numbers=Bag({'mobile':444334523, 'office':3320924, 'house':2929387})
 		>>> other_numbers.setAttr('office',{'from': 9, 'to':17})
 		>>> john_doe['telephones']=john_doe['telephones'].merge(other_numbers)
-
 		>>> print john_doe
 		0 - (Bag) telephones:
 		    0 - (int) house: 2929387
@@ -214,7 +217,7 @@
 
 		Add values (or attributes) to your Bag. The default behaviour of ``setItem`` is to add the new value as the last element of a list. You can change this trend with the _position argument, who provides a compact syntax to insert any item in the desired place.
 		
-		- `_position`: with this optional argument it is possible to set a new value at a particular position among its brothers. *expression* must be a string of the following types:
+		* `_position`: with this optional argument it is possible to set a new value at a particular position among its brothers. *expression* must be a string of the following types:
 
 			+----------------------------+----------------------------------------------------------------------+
 			| *Expressions*              |  Description                                                         |
@@ -267,7 +270,23 @@
 		        0 - (int) d: 2
 		
 		.. note:: if you have to use the ``_position`` attribute you can't use the square-brackets notation.
+	
+	.. method:: setdefault(self, path, default=None)
+	
+		If *path* is in the Bag, return its value. If not, insert key in the *path* with a value of default and return default. default defaults to None.
+	
+	.. method:: toTree(self, group_by, caption=None, attributes="*")
+	
+		It transforms a flat Bag into a hierarchical Bag and returns it.
 		
+		* `group_by`: list of keys.
+		
+		* `caption`: the attribute to use for the leaf key. If not specified, it uses the original key.
+		
+		* `attributes`: keys to copy as attributes of the leaves. (default: `'*'` = select all the attributes)
+		
+		:returns: |Bag|
+	
 	.. method:: update(other)
 
 		Update the Bag with the ``key/value`` pairs from *other*, overwriting existing keys. Return ``None``.
@@ -275,4 +294,3 @@
 	.. method:: values()
 
 		Return a copy of the Bag values as a list.
-		

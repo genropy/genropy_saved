@@ -1,5 +1,12 @@
-	.. _bag-three:
+	.. _genro-bag-three:
 
 ====================
  Advanced functions
 ====================
+
+.. _bag_resolver:
+
+resolver
+========
+
+	???

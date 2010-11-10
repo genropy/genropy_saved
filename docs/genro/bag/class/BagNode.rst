@@ -1,8 +1,8 @@
 	.. _genro-bagnode-class:
 
-===================
- The BagNode class
-===================
+===============
+ :mod: BagNode
+===============
 
 .. class:: BagNode
 

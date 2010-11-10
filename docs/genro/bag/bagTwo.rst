@@ -1,8 +1,8 @@
-	.. _bag-two:
+	.. _genro-bag-two:
 
-=================
- Basic functions
-=================
+============================
+ Basic functions (part two)
+============================
 
 	- :ref:`bag-hierarchical`
 	
@@ -121,6 +121,16 @@ Getting Values (advanced)
 		>>> officenumber = address_book.getItem('friends.johnny.#2.office')
 		>>> print officenumber
 		555450210
+	
+	We show now other properties:
+	
+	- If a path ends with ``.?``, the :meth:`Bag.getItem` method return the item's keys.
+	
+	- If the last path-level contains ``#``, what follows the '#' is considered the key of an item's attribute and the function will return that attribute's value.
+	
+	- If a path starts with ``?`` then the path is interpreted as a call to the :meth:`Bag.digest` method.
+	
+	- A path can also ba a list of keys.
 
 .. _bag_digest:
 
@@ -165,6 +175,6 @@ The digest method
 
 **Footnotes**
 
-.. [#] Check the :ref:`genro-bag-introduction` page.
+.. [#] Check the :ref:`genro-bag-one` page.
 
 .. [#] If you need to use the dot (``.``) in the name of the instance (label), but you didn't want them to be interpreted as part of a complex path, you have to add a backslash (``\``) before the dot.
