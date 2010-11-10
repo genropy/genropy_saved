@@ -1866,7 +1866,10 @@ dojo.declare("gnr.widgets.Grid",gnr.widgets.baseDojo,{
         this.setStructure(this.gnr.structFromBag(structure, this.cellmap));
         this.onSetStructpath(structure);
     },
-    
+    mixin_setDraggable_column:function(draggable){
+       var draggable=draggable==false?false:true
+       dojo.query('[role="wairole:columnheader"]',this.domNode).forEach(function(n){n.draggable=true})
+    },
     mixin_onSetStructpath: function(structure){
         return;
     },
@@ -1883,6 +1886,9 @@ dojo.declare("gnr.widgets.Grid",gnr.widgets.baseDojo,{
                 widget.gridEditor= new gnr.GridEditor(widget,sourceNode,gridEditorNode);
             };
         };
+        if(sourceNode.attr.draggable_column){
+            dojo.connect(widget, 'postrender', dojo.hitch(widget ,'setDraggable_column'));
+        }
         if(sourceNode.attr.openFormEvent){
             dojo.connect(widget, sourceNode.attr.openFormEvent, widget,'openLinkedForm');
             if(genro.isTouchDevice ){
@@ -1898,6 +1904,8 @@ dojo.declare("gnr.widgets.Grid",gnr.widgets.baseDojo,{
         dojo.connect(widget, 'onSelected', widget,'_gnrUpdateSelect');
         genro.src.afterBuildCalls.push(dojo.hitch(widget,'render'));
         dojo.connect(widget, 'modelAllChange', dojo.hitch(sourceNode ,this.modelAllChange));
+
+       
     },
 
     modelAllChange:function(){
