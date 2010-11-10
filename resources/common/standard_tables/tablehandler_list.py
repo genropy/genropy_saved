@@ -72,10 +72,11 @@ class TableHandlerForm(BaseComponent):
         viewMenu.addItem('-',None)
         jsresolver = "genro.rpc.remoteResolver('getQuickView',null,{cacheTime:'5'})"
         viewMenu.addItem('savedview',jsresolver,_T='JS',caption='!!Custom view',action='FIRE list.view_id = $1.pkey;')
-        viewMenu.setItem('editview',None,caption='!!Edit view',action="""SET list.showToolbox = true;
-                                                                    SET list.showExtendedQuery =true;
+        viewMenu.setItem('editview',None,caption='!!Edit view',action="""
+                                                                    SET list.showToolbox = true;
                                                                     SET list.toolboxSelected = 'view';
                                                                     """)
+        viewMenu.setItem('saveview',None,caption='!!Save view',action="FIRE list.save_userobject='view';")
         pane.data('list.view.menu',viewMenu)
         pane.data('list.view.pyviews',structures,baseview='_base')
 

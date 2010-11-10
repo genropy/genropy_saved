@@ -174,11 +174,20 @@ class LstUserObjects(BaseComponent):
                        """%(restype,restype,restype,datapath)
         if restype=='query':
             save_action = 'genro.querybuilder.cleanQueryPane(); %s' %save_action                          
+        
+        top.dataController("""
+                          var currentId = this.getRelativeData('list.'+restype+'.selectedId'); 
+                         SET #userobject_dlg.pars.objtype = restype;
+                         SET #userobject_dlg.pars.title = 'Edit '+restype;
+                         SET #userobject_dlg.pars.data = this.getRelativeData(data_path);
+                         FIRE #userobject_dlg.pkey = currentId?currentId:"*newrecord*";
+                       """,restype="^list.save_userobject" ,data_path=datapath)
+                       
         top.div(_class='icnBase10_Doc buttonIcon',float='right',
                                 connect_onclick=" SET list.%s.selectedId = null ;FIRE .new=true;" %restype, 
                                 margin_right='5px', margin_top='2px', tooltip='!!New %s' % restype);
         top.div(_class='icnBase10_Save buttonIcon', float='right',margin_right='5px', margin_top='2px',
-                connect_onclick=save_action,tooltip='!!Save %s' % restype);
+                connect_onclick='FIRE list.save_userobject="%s";' %restype,tooltip='!!Save %s' % restype);
         top.dataController("FIRE list.%s.reload; SET list.%s.selectedId = savedId;" %(restype,restype),
                             savedId="=#userobject_dlg.savedPkey",
                             objtype='=#userobject_dlg.pars.objtype',
