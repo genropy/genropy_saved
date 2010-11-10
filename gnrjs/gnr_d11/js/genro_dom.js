@@ -603,20 +603,26 @@ dojo.declare("gnr.GnrDomHandler",null,{
     onDragEnter:function(event){
         this.decorateEvent(event)
         var droppable=event.droppableObject;
+         console.log('onDragEnter:')
         if (!droppable){ 
+            console.log('not droppable:')
             return;
         }
-        if(genro.dom._dragged){
-            if(genro.dom._dragged.sourceNode==event.sourceNode && genro.dom._dragged.widget==event.widget && genro.dom._dragged.domnode==event.domnode){
-                return
-            }
-        }
+      //if(genro.dom._dragged){
+      //    if((genro.dom._dragged.sourceNode==event.sourceNode) && (genro.dom._dragged.widget==event.widget) &&( genro.dom._dragged.domnode==event.domnode)){
+      //       console.log('same object:')
+      //        console.log(event)
+      //        console.log(genro.dom._dragged)
+      //        return
+      //    }
+      //}
         var domnode=droppable.domnode;
         var sourceNode=droppable.sourceNode;
         event.stopPropagation();
         event.preventDefault();
         var dataTransfer=event.dataTransfer;
         var canBeDropped=this.canBeDropped(dataTransfer,sourceNode);
+        console.log('onDragEnter:'+canBeDropped)
         dataTransfer.effectAllowed=canBeDropped?'move':'none';
         dataTransfer.dropEffect=canBeDropped?'move':'none';
         if(droppable.outlineColumn){
@@ -691,6 +697,7 @@ dojo.declare("gnr.GnrDomHandler",null,{
                             params['drop_data']=value;
                             params['drop_item']=droppable.item;
                             params['drop_event']=event
+                            params['drop_datatype']=datatype
                             funcApply(action,params, sourceNode);
                             break;
                         }
@@ -701,7 +708,8 @@ dojo.declare("gnr.GnrDomHandler",null,{
      },
     onDragStart:function(event){
         event.stopPropagation();
-        console.log(event);
+        //console.log(event);
+         console.log('onDragStart')
         this.decorateEvent(event);
         var domnode=event.target;
         var widget = event.widget;
@@ -711,6 +719,7 @@ dojo.declare("gnr.GnrDomHandler",null,{
         var inherited=sourceNode.getInheritedAttributes();
         if ('drag_value_cb' in inherited){
             value=funcCreate(inherited['drag_value_cb'],'sourceNode,item,event')(sourceNode,widget.item,event);
+            console.log(value)
         }else{
             if(widget.isTreeNode){
                 value=(widget.item instanceof gnr.GnrBagNode)? widget.item.getValue():widget.item.label;
@@ -731,8 +740,10 @@ dojo.declare("gnr.GnrDomHandler",null,{
         }
         var drag_class=inherited['drag_class'];
         if(drag_class){
+            console.log(drag_class)
             genro.dom.addClass(domnode,drag_class);
         }
+        
         if (typeof(value)=='object'){
             for (var k in value){
                 dataTransfer.setData(k, convertToText(value[k])[1]);
@@ -743,9 +754,11 @@ dojo.declare("gnr.GnrDomHandler",null,{
         genro.dom._dragged={'sourceNode':event.sourceNode,'widget':event.widget,
                             'domnode':event.domnode}
         var drag_tags=inherited['drag_tags'];
+         
         if(drag_tags){
             dataTransfer.setData('drag_tags', drag_tags);
         }
+        console.log('sssssssssss')
     },
     onDragEnd:function(event){
         genro.dom.outlineShape(null)
