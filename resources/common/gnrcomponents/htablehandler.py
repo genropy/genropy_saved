@@ -100,7 +100,7 @@ class HTableHandlerBase(BaseComponent):
             code=rootcode
             rootpath=None
             child_count = tblobj.query().count()
-        value =  HTableResolver(table=table,rootpath=rootpath,limit_rec_type=limit_rec_type,_page=self) if child_count else None
+        value =  HTableResolver(table=table,rootpath=rootpath,limit_rec_type=limit_rec_type,_page=self) #if child_count else None
         result.setItem(rootlabel,value,child_count=child_count, caption=caption,pkey=pkey,code=code,checked=False)#,_attributes=_attributes)
         return result
                     
@@ -226,6 +226,7 @@ class HTableHandler(HTableHandlerBase):
                              var rootpath = rootpath || null;
                              
                              if (destPkey!='*newrecord*'){
+                                 
                                  var editNode = treestore.getNode(treepath);
                                  var attr= editNode.attr;
                                  attr.caption = treeCaption;
@@ -233,14 +234,14 @@ class HTableHandler(HTableHandlerBase):
                                  FIRE .edit.load;
                              }else{
                                 SET .edit.pkey = savedPkey;
-                                FIRE .edit.load;
                                 var parentPath = rootpath?parent_code.slice(rootpath.length):parent_code?'_root_.'+parent_code:'_root_'
                                 var refreshFromNode = treestore.getNode(parentPath);
-                                
+
                                 if(!refreshFromNode.getValue()){
                                     refreshFromNode = refreshFromNode.getParentNode();
                                 }
                                 refreshFromNode.refresh(true);
+                                FIRE .edit.load;
                              }
                          """,
                         _fired="^.edit.onSaved",destPkey='=.tree.pkey',parent_code='=.edit.record.parent_code',
