@@ -9,12 +9,15 @@ dojo.declare("gnr.GnrViewEditor",null,{
         this.width_em = 10;
     },
     onDroppedColumn:function(drop_data,drop_event,drop_datatype){
+        if(!('column' in drop_event.droppableObject)){ return }
         var colsBag = genro.viewEditor.getStruct('#0','#0');
         var toPos=drop_event.droppableObject.column
         if(drop_datatype=='gnrgridcol/json'){
-            var fromPos=drop_data.cellIndex
-            var moved=colsBag.popNode('#'+fromPos)
-            colsBag.setItem('cellx_'+genro.getCounter(), null, moved.attr, {'_position':toPos});
+            if(toPos!=drop_data.position){
+                var moved=colsBag.popNode('#'+drop_data.position)
+                colsBag.setItem('cellx_'+genro.getCounter(), null, moved.attr, {'_position':toPos});
+            }
+            
         }
         else if(drop_data.tag == 'column' || drop_data.tag == 'virtual_column'){
             colsBag.setItem('cellx_'+genro.getCounter(), null, {'width':'8em','name':drop_data.fullcaption, 
