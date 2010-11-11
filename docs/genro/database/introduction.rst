@@ -35,8 +35,22 @@ Create a Genro project
 	You can call an help that explains all the possibilities on creating a project, typing::
 	
 		gnrmkproject -h
-	
-	.. image:: myproject-h.png
+		Usage: gnrmkproject [options]
+
+		Options:
+		  -h, --help            show this help message and exit
+		  -b BASE_PATH, --base-path=BASE_PATH
+		                        base path where project will be created
+		  -s, --create-site     create site
+		  -i, --create-instance
+		                        create instance
+		  -a, --create-all      create both site and instance
+		  -p WSGI_PORT, --wsgi-port=WSGI_PORT
+		                        Specify WSGI port
+		  -r WSGI_RELOAD, --wsgi-reload=WSGI_RELOAD
+		                        Specify WSGI autoreload
+		  -d WSGI_DEBUG, --wsgi-debug=WSGI_DEBUG
+		                        Specify WSGI debug
 	
 	As you can see in the previous snapshot, you can use ``-p``, ``-r`` and ``-d`` to specify some :ref:`genro-wsgi` features.
 	
