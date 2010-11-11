@@ -719,7 +719,6 @@ dojo.declare("gnr.GnrDomHandler",null,{
         var inherited=sourceNode.getInheritedAttributes();
         if ('drag_value_cb' in inherited){
             value=funcCreate(inherited['drag_value_cb'],'sourceNode,item,event')(sourceNode,widget.item,event);
-            console.log(value)
         }else{
             if(widget.isTreeNode){
                 value=(widget.item instanceof gnr.GnrBagNode)? widget.item.getValue():widget.item.label;
@@ -740,7 +739,6 @@ dojo.declare("gnr.GnrDomHandler",null,{
         }
         var drag_class=inherited['drag_class'];
         if(drag_class){
-            console.log(drag_class)
             genro.dom.addClass(domnode,drag_class);
         }
         
@@ -753,15 +751,20 @@ dojo.declare("gnr.GnrDomHandler",null,{
         }
         genro.dom._dragged={'sourceNode':event.sourceNode,'widget':event.widget,
                             'domnode':event.domnode}
+        if(inherited.drag_trash){
+            genro.dom.addClass(dojo.body(),'drag_to_trash')
+        }
+        genro.dom.addClass(dojo.body(),'drag_started')
         var drag_tags=inherited['drag_tags'];
          
         if(drag_tags){
             dataTransfer.setData('drag_tags', drag_tags);
         }
-        console.log('sssssssssss')
     },
     onDragEnd:function(event){
         genro.dom.outlineShape(null)
+        genro.dom.removeClass(dojo.body(),'drag_started')
+        genro.dom.removeClass(dojo.body(),'drag_to_trash')
     },
     onDrag:function(event){
         var domnode=event.target;

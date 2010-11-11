@@ -1165,10 +1165,12 @@ textarea:disabled {
 
 
 .draggedItem{
-	background:rgba(252,252,169,0.63)!important;
+	background-color:rgba(252,252,169,0.63)!important;
+	background-image: none !important;
     -moz-border-radius:8px;
     -webkit-border-radius:8px;
     border-radius:8px;
+    display:block;
     border: 3px solid yellow !important;
     padding-left:5px !important;
     padding-right:5px !important;
@@ -1186,7 +1188,25 @@ textarea:disabled {
     border-right: 2px solid red !important;
 	background: url(icons/base16/oneway.gif) no-repeat 50% 50% !important;
 }
-
+.drag_to_trash .trash_drop{
+	display:block;
+}
+.trash_drop{
+	display:none;
+	width: 30px;
+	height: 30px;
+	position: absolute;
+	bottom: 50%;
+	right:50px;
+	z-index:100;
+	-moz-border-radius:4px;
+    -webkit-border-radius:4px;
+    border-radius:4px;
+    background: rgba(234,234,234,0.92) url(icons/base16/trash.gif) no-repeat center center;
+    -moz-box-shadow:4px 4px 4px #403b3b;
+	-webkit-box-shadow:4px 4px 4px #403b3b;
+	border: 2px solid #c40001;
+}
 
 /* @end */
 
