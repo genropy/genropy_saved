@@ -4,6 +4,9 @@
 Created by Softwell on 2008-07-10.
 Copyright (c) 2008 Softwell. All rights reserved.
 """
+from gnr.core.gnrbag import Bag
+from gnr.core.gnrbaghtml import BagToHtml
+from gnr.core.gnrstring import templateReplace
 
 # --------------------------- GnrWebPage Standard header ---------------------------
 class GnrCustomWebPage(object):
@@ -59,14 +62,35 @@ class GnrCustomWebPage(object):
         fb.field('version',width='4em')
         fb.checkbox(value='^mainbc.regions.left?show',label='!!Show fields')        
         tc = bc.tabContainer(region='center',selectedPage='^statusedit')
-        editorPane = tc.contentPane(title='Edit',pageName='edit')
+        editorPane = tc.contentPane(title='Edit',pageName='edit',id='editpage')
         previewPane = tc.borderContainer(title='Preview',pageName='view',_class='preview')
-        previewPane.div(innerHTML='==dataTemplate(tpl,data,null,true)',data='^test_record.record',
-                        tpl='^form.record.content',margin='10px')
+        previewPane.div(innerHTML='^preview',margin='10px')
+        
         self.metadataForm(tc.contentPane(title='!!Metadata',pageName='metadata',datapath='.metadata'),disabled=disabled)
         self.RichTextEditor(editorPane, value='^.content',height='100%',
                             toolbar=self.rte_toolbar_standard(),
                             config_contentsCss=self.getResourceUri('doctemplate.css',add_mtime=True))
+                            
+        bc.dataController("""
+                                var virtual_columns = [];
+                                dojo.query('[itemtag="virtual_column"]').forEach(function(n){
+                                                var field = n.getAttribute('fieldpath');
+                                                if(field){
+                                                    virtual_columns.push(field);
+                                                }
+                                             });
+                                SET .virtual_columns = virtual_columns.join(',');
+                                """,_fired="^.content",_userChanges=True)
+        bc.dataRpc('dummy','includeVirtualColumn',
+                    virtual_column='^.virtual_columns',
+                    table='=.maintable',_if='virtual_column')
+        
+    def rpc_includeVirtualColumn(self,table=None,virtual_column=None):
+        print 'aaaa'
+        with self.pageStore() as store:
+            store.setItem('virtual_columns',None)
+        self.includeVirtualColumn(table=table,virtual_column=virtual_column)
+        
                             
     def metadataForm(self,pane,disabled=None):
         fb = pane.formbuilder(cols=2, border_spacing='4px',fld_width='15em',disabled=disabled)
@@ -74,6 +98,8 @@ class GnrCustomWebPage(object):
         fb.textbox(value='^.to_address',lbl='To Address field')
         fb.textbox(value='^.from_address',lbl='From Address field')
         
+    def html_item_res(self):
+        return """<span class="tplfieldpath" fieldpath="'+item.attr.fieldpath+'" itemtag = "'+item.attr.tag+'">$'+item.attr.fieldpath+'</span><span class="tplfieldcaption">'+item.attr.caption+'</span><span>&nbsp</span>"""
         
     def left(self,tc):
         t1 = tc.contentPane(title='Fields' ,pageName='edit')
@@ -87,9 +113,11 @@ class GnrCustomWebPage(object):
                      font_size='.9em',
                      node_draggable="""return item.attr.dtype && item.attr.dtype!='RM' && item.attr.dtype!='RO'""",
                      selected_fieldpath='.selpath',
-                     drag_value_cb="""var result = {'text/html':'<span>&nbsp</span><span class="tplfieldpath">$'+item.attr.fieldpath+'</span><span class="tplfieldcaption"> '+item.attr.caption+' </span><span>&nbsp</span>',
+                     drag_value_cb="""
+                                      console.log(item.attr);
+                                      var result = {'text/html':'%s',
                                                     'text/plain':item.attr.fieldpath};
-                                      return result;""",
+                                      return result;""" %self.html_item_res(),
                      drag_class='draggedItem',
                      
                      getLabelClass="""if (!node.attr.fieldpath && node.attr.table){return "tableTreeNode"}
@@ -101,10 +129,21 @@ class GnrCustomWebPage(object):
         t2 = tc.contentPane(title='Sample Record',pageName='view')
         fb = t2.formbuilder(cols=1, border_spacing='2px')
         fb.dbSelect(dbtable='^form.record.maintable',value='^test_id',lbl='!!Record',width='8em')
-        fb.dbSelect(dbtable='adm.htmltemplate',value='^html_template_id',lbl='!!Template',width='8em')
+        fb.dbSelect(dbtable='adm.htmltemplate',value='^html_template_id',selected_name='html_template_name',lbl='!!Template',width='8em')
+        
+        fb.dataRpc('preview','renderTemplate',table='=form.record.maintable',record_id='^test_id',
+                    doctemplate='^form.record.content',htmltemplate_name='^html_template_name')
 
-        fb.dataRecord('test_record.record','=form.record.maintable',pkey='^test_id',
-                    _if='pkey')
-                    
         if self.isDeveloper():
             t2.tree(storepath='test_record')
+
+    def rpc_renderTemplate(self,table=None,record_id=None,doctemplate=None,htmltemplate_name=None):
+        record = self.app.rpc_getRecord(table=table,pkey=record_id)[0]
+        if not record_id:
+            return ''
+        htmlContent = templateReplace(doctemplate,record,True)
+        htmlbuilder = BagToHtml(templates=htmltemplate_name,templateLoader=self.db.table('adm.htmltemplate').getTemplate)
+        html = htmlbuilder(htmlContent=htmlContent)
+        return html
+        
+        

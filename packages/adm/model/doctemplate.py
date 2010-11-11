@@ -13,4 +13,4 @@ class Table(object):
         tbl.column('username',name_long='!!Username')
         tbl.column('version',name_long='!!Version')
         tbl.column('maintable',name_long='!!Main table')
-        tbl.column('required_columns',name_long='!!Columns')
+        tbl.column('virtual_columns',name_long='!!Columns')

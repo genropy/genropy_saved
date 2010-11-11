@@ -22,7 +22,7 @@ from gnr.core.gnrbag import Bag
 class Table(object):
     def config_db(self, pkg):
         tbl =  pkg.table('htmltemplate',  pkey='id',name_long='!!Html Template',
-                      name_plural='!!Html Template')
+                      name_plural='!!Html Template',rowcaption='name')
         self.sysFields(tbl)
         tbl.column('name',name_long='!!Name',validate_nodup=True,unique=True,
                     validate_notnull=True,validate_notnull_error='!!Name is mandatory',
