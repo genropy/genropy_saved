@@ -65,19 +65,17 @@ Definitions
 	
 	- a single label.
 	
-	- a single value.
+	- a single value (or *item*).
 	
 	- one or more :ref:`bag-attributes`.
 
 	Where:
 	
-	- The "label"" is the key of the BagNode.
-	
 	- The "value" contains the value of the Bagnode.
 	
 	- The "attributes" allow to insert other metadata (for more information, check the :ref:`bag-attributes` page).
 	
-		.. note:: The couple ``label:value`` carries many analogies with the ``key:value`` couple Dictionary [#]_, so you can think to the Bag label as a transposition of the Dictionary key (for example, with the :meth:`Bag.keys` method you will get all the Bag labels) but for its nature a key is unique, while Bag label can be unique or not.
+		.. note:: The couple ``label:value`` carries many analogies with the ``key:value`` couple Dictionary [#]_, so you can think to the Bag label as a transposition of the Dictionary key (for example, with the :meth:`Bag.keys` method you will get all the Bag labels) but for its nature a key is unique, while Bag label can be unique or not. <???> approfondire! spiegare che la vera chiave di una Bag è il *path*, ma che c'è un'analogia con i metodi del Python dict() (ad esempio keys()...)</???>
 	
 	Let's see a scheme of a BagNode:
 

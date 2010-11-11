@@ -4,24 +4,23 @@
  nodes
 =======
 
-	We discovered in the previous paragraph that we can associate a set of attributes to each item. We will now discuss a more advanced concept about Bag, introducing the BagNode.
+	We discovered in the previous paragraph that we can associate a set of :ref:`bag-attributes` to each item, and we know that each item is a BagNode.
 	
-	Until now we have considered the hierachical Bag as a chain of nested bags. That is not properly true, because *each bag's element is a BagNode*.
+	We remeber you that a :class:`BagNode` is a class composed by:
 
-	A 'BagNode' is an object composed of three parts:
-
-	label
-	attributes
-	value (or item)
-	In order to avoid confusion between the terms item and node, what we used to call an 'item' we will now call a value.
-
-	If you need to work with nodes, you may get them with the methods:
-
-	- getNode(path): returns a node
+	- a single label.
 	
-	- getNodes(): returns a list of nodes
+	- A single value (or item).
 	
-	- getNodeByAttr(attribute, attr_value): returns the node that has the passed couple attribute-value
+	- One or more attributes.
+	
+	If you need to work with nodes, you may get them with the following methods:
+
+	- :meth:`Bag.getNode`: return a node.
+	
+	- :meth:`Bag.getNodes`: return a list of nodes.
+	
+	- :meth:`Bag.getNodeByAttr`: return the node who has the passed value-attribute couple. ???#NISO
 	
 	>>> mybag = Bag({'paper':1,'scissors':2})
 	>>> papernode = mybag.getNode('paper')
@@ -29,37 +28,50 @@
 	>>> rocknode=mybag.getNodeByAttr('color','grey')
 	>>> nodes=mybag.getNodes()
 	
-	The method getNodes() implements the bag's property nodes.
+	The :meth:`Bag.getNodes` method implements the Bag's property nodes (???#NISO):
 
-	>>>mybag.getNodes() == mybag.nodes
+	>>> mybag.getNodes() == mybag.nodes
 	True
 
 	If you have a node instance you may use one of the following methods:
 
-	hasAttr(attribute)	returns true if the node has a value for the passed attribute
-	setAttr(attribute=value)	set to the node one or more attributes passed as kwargs
-	getAttr(attribute)	returns the attribute's value
-	replaceAttr(attribute=value)	replaces the value of one or more attributes passed as kwargs
-	delAttr(attribute)	deletes the attribute with the passed name
-	getLabel()	returns the node's label
-	setLabel(label)	sets the node's label
-	getValue()	returns the node's value
-	setValue()	sets the node's value
+	- :meth:`BagNode.hasAttr`: check if a node has the given pair label-value in its attributes' dictionary.
+	
+	- :meth:`BagNode.setAttr`: receive one or more key-value couple, passed as a dict or as named parameters, and sets them as attributes of the node.
+	
+	- :meth:`BagNode.getAttr`: return the value of an attribute. You have to specify the attribute's label. If it doesn't exist then it returns a default value.
+	
+	- :meth:`BagNode.delAttr`: delete the attribute with the passed names.
+	
+	- :meth:`BagNode.getLabel`: return the node's label.
+	
+	- :meth:`BagNode.setLabel`: sets the node's label.
+	
+	- :meth:`BagNode.getValue`: return the node's value.
+	
+	- :meth:`BagNode.setValue`: set the node's value.
+	
 	>>> print papernode.hasAttr('color')
 	False
-
 	>>> papernode.setAttr(color='white')
 	>>> print papernode.getAttr('color')
 	white
-
 	>>> papernode.replaceAttr(color='yellow')
-
 	>>> papernode.delAttr('color')
-
 	>>> papernode.setLabel('sheet')
 	>>> print papernode.getLabel()
 	sheet
-
 	>>> papernode.setValue(8)
 	>>> papernode.getValue()
 	8
+	
+	We list here all the node methods:
+	
+	>>> dir(node)
+	['__class__','__delattr__', '__dict__', '__doc__', '__eq__', '__format__', '__getattribute__', '__hash__', '__init__', '__module__',
+	'__new__', '__reduce__', '__reduce_ex__', '__repr__', '__setattr__', '__sizeof__', '__str__', '__subclasshook__', '__weakref__',
+	'_get_fullpath', '_get_parentbag', '_get_resolver', '_node_subscribers', '_parentbag', '_resolver', '_set_parentbag',
+	'_set_resolver','_validators', '_value', 'addValidator', 'asTuple', 'attr', 'delAttr', 'fullpath', 'getAttr',
+	'getInheritedAttributes', 'getLabel', 'getStaticValue', 'getValidatorData', 'getValue', 'hasAttr', 'label', 'locked', 'parentbag',
+	'removeValidator', 'resetResolver', 'resolver', 'setAttr', 'setLabel', 'setStaticValue', 'setValidators', 'setValue',
+	'staticvalue', 'subscribe', 'unsubscribe', 'value']

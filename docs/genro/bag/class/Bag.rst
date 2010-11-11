@@ -120,8 +120,36 @@
 		>>> print second
 		2
 
+	.. method:: getNode(self, path=None, asTuple=False, autocreate=False, default=None)
+	
+		Return the BagNode stored at the relative path.
+		
+		* `path`: path of the given item.
+		
+		* `asTuple`: ???
+		
+		* `autocreate`: ???
+		
+		* `default`: ???
+	
+	.. method:: getNodeByAttr(self, attr, value [, path=None])
+	
+		Return: a BagNode with the requested attribute.
+		
+		Return the first found node which has an attribute named 'attr' equal to 'value'.
+		
+		* `attr`: path of the given item.
+		
+		* `value`: path of the given item.
+		
+		* `path`: optional, an empty list that will be filled with the path of the found node.
+		
+	.. method:: getNodes(self, condition=None)
+	
+		Get the actual list of nodes contained in the Bag.
+		
 	.. method:: has_key(key)
-
+	
 		Test for the presence of key in the Bag.
 		
 		>>> b = Bag({'a':1,'b':2,'c':3})
@@ -131,7 +159,7 @@
 		False
 
 	.. method:: items()
-
+	
 		Return a copy of the Bag as a list of tuples (``key, value`` pairs)
 		
 		>>> b = Bag({'a':1,'b':2,'c':3})
@@ -285,8 +313,6 @@
 		
 		* `attributes`: keys to copy as attributes of the leaves. (default: `'*'` = select all the attributes)
 		
-		:returns: |Bag|
-	
 	.. method:: update(other)
 
 		Update the Bag with the ``key/value`` pairs from *other*, overwriting existing keys. Return ``None``.
