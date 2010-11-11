@@ -8,6 +8,7 @@ Copyright (c) 2010 Softwell. All rights reserved.
 """
 from gnr.web.batch.btcbase import BaseResourceBatch
 from gnr.core.gnrbag import Bag
+import os
 class BaseResourcePrint(BaseResourceBatch):
     dialog_height = '300px'
     dialog_width = '460px'
@@ -105,10 +106,12 @@ class BaseResourcePrint(BaseResourceBatch):
     def result_handler_pdf(self,resultAttr):
         pdfprinter = self.print_handler.getPrinterConnection('PDF', self.print_options)
         save_as = self.print_options['save_as'] or self.batch_title
+        output = self.page.site.getStaticPath('user:output','pdf',autocreate=True)
         filename = pdfprinter.printPdf(self.results.values(), self.batch_title, 
-                                      outputFilePath=self.page.site.getStaticPath('user:output','pdf',save_as,autocreate=True))
+                                      outputFilePath=os.path.join(output,save_as))
         if filename:
             resultAttr['url'] = self.page.site.getStaticUrl('user:output','pdf',filename)
+            resultAttr['document_name'] = save_as
     
     def table_script_option_pane(self,pane):
         bc = pane.borderContainer(height='200px')

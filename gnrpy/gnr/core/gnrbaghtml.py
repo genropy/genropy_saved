@@ -86,7 +86,6 @@ class BagToHtml(object):
         self.print_button=kwargs.pop('print_button',self.print_button)
         if self.onRecordLoaded() is False:
             return False
-        
         self.showTemplate(hideTemplate is not True)
         self.htmlTemplate=None
         self.prepareTemplates()
@@ -212,6 +211,7 @@ class BagToHtml(object):
         if lines:
             nodes = lines.getNodes()
             if hasattr(self,'thermo_wrapper') and self.thermo_kwargs:
+                print self.thermo_kwargs
                 nodes = self.thermo_wrapper(nodes,**self.thermo_kwargs)
                 
             for rowDataNode in nodes:

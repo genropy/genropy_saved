@@ -82,7 +82,7 @@ batch_monitor.on_btc_result_doc = function(node,sourceNode){
         resultpane._('div',{innerHTML:result});
     };
     if (url) {
-        resultpane._('div')._('a',{href:url,innerHTML:'download'});
+        resultpane._('div')._('a',{href:url,innerHTML:batch_value.getItem('result?document_name') || 'download'});
     };
     topright = sourceNode.toprightSourceNode.clearValue();
     topright._('div',{_class:'buttonIcon icnTabClose',connect_onclick:'genro.serverCall("btc.remove_batch",{"batch_id":"'+batch_id+'"})'});
