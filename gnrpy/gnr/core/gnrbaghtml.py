@@ -25,7 +25,6 @@ class BagToHtml(object):
     page_margin_right = 0
     page_margin_bottom = 0
     currencyFormat=u'#,###.00'
-    row_mode='bag'
     #override these lines
     row_mode = 'value'
     page_header_height = 0 #
@@ -42,12 +41,15 @@ class BagToHtml(object):
     copy_extra_height=0
     starting_page_number=0
     
-    def __init__(self,locale='en',encoding='utf-8',**kwargs):
+    def __init__(self,locale='en',encoding='utf-8',templates=None,templateLoader=None,**kwargs):
         self.locale = locale
         self.encoding = encoding
         self.thermo_kwargs = None
         self.thermo_wrapper = None
-
+        if templates:
+            self.templates = templates
+        if templateLoader:
+            self.templateLoader = templateLoader
         
     def init(self,*args,**kwargs):
         pass
@@ -59,12 +61,13 @@ class BagToHtml(object):
         """override this"""
         pass 
         
-    def __call__(self, record=None,filepath=None,folder=None,filename=None,hideTemplate=False,rebuild=True,**kwargs):
+    def __call__(self, record=None,filepath=None,folder=None,filename=None,hideTemplate=False,rebuild=True,htmlContent=None,**kwargs):
         """This method returns the html corresponding to a given record.
            the html can be loaded from a cached document or created if still doesn't exist.
         """
         if record is None:
             record = Bag()
+        self.htmlContent=htmlContent
         self._data = Bag()
         self.record = record
         self.setData('record',record) #compatibility
@@ -96,7 +99,8 @@ class BagToHtml(object):
         return result
              
     def prepareTemplates(self):
-        self.htmlTemplate = self.templateLoader(self.templates)
+        if not self.htmlTemplate:
+            self.htmlTemplate = self.templateLoader(self.templates)
         self.page_height = self.page_height or self.htmlTemplate['main.page.height'] or 280
         self.page_width = self.page_width or self.htmlTemplate['main.page.width'] or 200
         self.page_header_height = self.page_header_height or  self.htmlTemplate['layout.top?height'] or 0
@@ -171,7 +175,11 @@ class BagToHtml(object):
         
     def main(self):
         """can be overridden"""
-        self.mainLoop()
+        if self.htmlContent:
+            page = self.getNewPage()
+            page.div("%s::HTML" %self.htmlContent)
+        else:
+            self.mainLoop()
         
     def pageCounter(self,mask=None):
         mask = mask or '%s/%s'
@@ -409,5 +417,4 @@ class BagToHtml(object):
                         .aligned_center{
                             text-align:center;
                         }
-                         """)
-                         
+                         """) 
