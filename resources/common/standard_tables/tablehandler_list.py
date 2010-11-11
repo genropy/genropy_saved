@@ -448,7 +448,6 @@ class TableHandlerForm(BaseComponent):
                                 connect_onSelectionChanged='SET list.noSelection = (genro.wdgById("maingrid").selection.getSelectedCount()==0)',
                                 linkedForm='formPane',openFormEvent='onRowDblClick',drop_types='gnrdbfld/json,gnrgridcol/json',
                                 droppable_column=True,drop_action="genro.viewEditor.onDroppedColumn(drop_data,drop_event,drop_datatype)",
-                                drag_trash=True,
                                 draggable=True,draggable_column=True,drag_value_cb=dragColumnCb,drag_class='draggedItem',
                                 connect_onRowContextMenu="FIRE list.onSelectionMenu = true;")   
         
