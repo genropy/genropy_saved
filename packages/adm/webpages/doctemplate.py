@@ -61,8 +61,6 @@ class GnrCustomWebPage(object):
         tc = bc.tabContainer(region='center',selectedPage='^statusedit')
         editorPane = tc.contentPane(title='Edit',pageName='edit')
         previewPane = tc.borderContainer(title='Preview',pageName='view',_class='preview')
-        tc.borderContainer(title='content',pageName='content').div('^.content')
-
         previewPane.div(innerHTML='==dataTemplate(tpl,data,null,true)',data='^test_record.record',
                         tpl='^form.record.content',margin='10px')
         self.metadataForm(tc.contentPane(title='!!Metadata',pageName='metadata',datapath='.metadata'),disabled=disabled)
@@ -79,9 +77,10 @@ class GnrCustomWebPage(object):
         
     def left(self,tc):
         t1 = tc.contentPane(title='Fields' ,pageName='edit')
-        t1.dataRemote('.tree.fields','relationExplorer',table='^form.record.maintable',dosort=False)
+        t1.dataRemote('.tree.fields','relationExplorer',table='^form.record.maintable',dosort=False,caption='Fields')
         t1.tree(storepath='.tree',persist=False,
-                     inspect='shift', labelAttribute='caption',
+                     #inspect='shift', 
+                     labelAttribute='caption',
                      _class='fieldsTree',
                      hideValues=True,
                      margin='6px',
@@ -101,7 +100,11 @@ class GnrCustomWebPage(object):
                                      
         t2 = tc.contentPane(title='Sample Record',pageName='view')
         fb = t2.formbuilder(cols=1, border_spacing='2px')
-        fb.dbSelect(dbtable='^form.record.maintable',value='^test_id',lbl='Test')
+        fb.dbSelect(dbtable='^form.record.maintable',value='^test_id',lbl='!!Record',width='8em')
+        fb.dbSelect(dbtable='adm.htmltemplate',value='^html_template_id',lbl='!!Template',width='8em')
+
         fb.dataRecord('test_record.record','=form.record.maintable',pkey='^test_id',
                     _if='pkey')
-        t2.tree(storepath='test_record')
+                    
+        if self.isDeveloper():
+            t2.tree(storepath='test_record')
