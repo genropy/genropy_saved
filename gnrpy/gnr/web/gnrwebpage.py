@@ -764,7 +764,8 @@ class GnrWebPage(GnrBaseWebPage):
                 self.debugger.right_pane(root)
                 self.debugger.bottom_pane(root)
                 self.mainLeftContent(root,region='left',splitter=True, nodeId='gnr_main_left')
-                root.div(_class='trash_drop',droppable=True,drop_types='trashable',drop_action="""genro.publish('trashedObject',arguments)""")
+                root.div(_class='trash_drop',droppable=True,drop_types='trashable',
+                         drop_action="""genro.publish('trashedObject',arguments)""")
                 root.dataController("""
                                        var new_status = main_left_set_status[0];
                                        new_status = new_status=='toggle'? !current_status:new_status;
@@ -862,10 +863,20 @@ class GnrWebPage(GnrBaseWebPage):
             
             
     
-    def includeVirtualColumn(self,table,virtual_column):
+    def includeVirtualColumn(self,table=None,virtual_column=None):
         """Add to the record loader for given table a virtual_column"""
+        columns = virtual_column.split(',')
+        tblobj = self.db.table(table)
         with self.pageStore() as store:
-            store.setItem('tables.%s.virtual_columns.%s' %(table,virtual_column),True)
+            for column in columns:
+                if column in tblobj.model.virtual_columns:
+                    col = column
+                    tbl = tblobj.fullname
+                else:
+                    tbl = column.split('.')
+                    col = tbl.pop()
+                    tbl = '%(opkg)s.%(otbl)s' %tblobj.model.getRelationBlock('.'.join(tbl))
+                store.setItem('virtual_columns.%s.%s' %(tbl,col),True)
         
     def onMainCalls(self):
         calls = [m for m in dir(self) if m.startswith('onMain_')]
