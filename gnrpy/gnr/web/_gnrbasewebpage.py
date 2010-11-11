@@ -336,10 +336,7 @@ class GnrBaseWebPage(GnrObject):
     def rpc_loadRecordCluster(self, table=None, pkey=None, recordGetter='app.getRecord', **kwargs):
         table = table or self.maintable
         getterHandler = self.getPublicMethod('rpc', recordGetter)
-        virtual_columns = self.pageStore().getItem('tables.%s.virtual_columns' %table)
-        if virtual_columns:
-            virtual_columns = virtual_columns.keys()
-        record, recinfo = getterHandler(table=table, pkey=pkey, virtual_columns=virtual_columns,**kwargs)
+        record, recinfo = getterHandler(table=table, pkey=pkey,**kwargs)
         return record, recinfo
         
 

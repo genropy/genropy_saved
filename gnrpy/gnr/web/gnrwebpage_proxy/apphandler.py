@@ -749,9 +749,13 @@ class GnrWebAppHandler(GnrBaseProxy):
             lock=False
         if lock:
             kwargs['for_update']=True
+        
+        virtual_columns = self.page.pageStore().getItem('virtual_columns.%s' %dbtable)
+        if virtual_columns:
+            virtual_columns = virtual_columns.keys()
         rec = tblobj.record(eager=eager or self.page.eagers.get(dbtable),
                             ignoreMissing=ignoreMissing,ignoreDuplicate=ignoreDuplicate,
-                            sqlContextName=sqlContextName,**kwargs)
+                            sqlContextName=sqlContextName,virtual_columns=virtual_columns,**kwargs)
         if sqlContextName:
             self._joinConditionsFromContext(rec, sqlContextName)
             
