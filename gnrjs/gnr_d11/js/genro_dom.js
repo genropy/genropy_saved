@@ -649,6 +649,9 @@ dojo.declare("gnr.GnrDomHandler",null,{
             genro.dom.setClass(shape,'cannotBeDropped',!canBeDropped);
             genro.dom.setClass(shape,'canBeDropped',canBeDropped);
             genro.dom._dragLastShape=shape
+         }else{
+            genro.dom.removeClass(dojo.body(),'drag_started')
+            genro.dom.removeClass(dojo.body(),'drag_to_trash')
          }
     },
    
@@ -743,6 +746,9 @@ dojo.declare("gnr.GnrDomHandler",null,{
         }
         
         if (typeof(value)=='object'){
+            if('trashable' in value){
+                genro.dom.addClass(dojo.body(),'drag_to_trash')
+            }
             for (var k in value){
                 dataTransfer.setData(k, convertToText(value[k])[1]);
             }
@@ -751,9 +757,7 @@ dojo.declare("gnr.GnrDomHandler",null,{
         }
         genro.dom._dragged={'sourceNode':event.sourceNode,'widget':event.widget,
                             'domnode':event.domnode}
-        if(inherited.drag_trash){
-            genro.dom.addClass(dojo.body(),'drag_to_trash')
-        }
+      
         genro.dom.addClass(dojo.body(),'drag_started')
         var drag_tags=inherited['drag_tags'];
          
@@ -763,8 +767,7 @@ dojo.declare("gnr.GnrDomHandler",null,{
     },
     onDragEnd:function(event){
         genro.dom.outlineShape(null)
-        genro.dom.removeClass(dojo.body(),'drag_started')
-        genro.dom.removeClass(dojo.body(),'drag_to_trash')
+
     },
     onDrag:function(event){
         var domnode=event.target;
