@@ -197,6 +197,7 @@ class GnrDomSrc(GnrStructData):
             className='bag'
         if '_serverpath' in kwargs:
             with self.page.pageStore() as store:
+                store.setItem(kwargs['_serverpath'],value)
                 store.subscribe_path(kwargs['_serverpath'])
         return self.child('data', __cls=className, content=value, path=path, **kwargs)
         
