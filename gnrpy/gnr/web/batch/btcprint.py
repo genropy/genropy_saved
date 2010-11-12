@@ -22,12 +22,13 @@ class BaseResourcePrint(BaseResourceBatch):
                                                         respath=self.html_res,class_name='Main')
                                         
     def _pre_process(self):
+        self.pre_process()
         self.batch_options = self.batch_parameters['batch_options']
         self.print_mode = self.batch_options['print_mode']
         self.server_print_options = self.batch_parameters['_printerOptions']
         self.print_options = self.batch_options['print_mode_option']
         self.print_handler = self.page.getService('print')     
-        self.pdf_make = self.print_mode not in ('server_print','client_print')      
+        self.pdf_make = self.print_mode not in ('server_print','client_print')     
     
     def print_selection(self,thermo_selection=None,thermo_record=None):
         thermo_s = dict(line_code='selection',message='get_record_caption',tblobj=self.tblobj)
