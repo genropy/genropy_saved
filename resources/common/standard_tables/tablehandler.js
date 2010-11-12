@@ -13,9 +13,9 @@ dojo.declare("gnr.GnrViewEditor",null,{
         colsBag.popNode('#'+kw.column)
     },
     onDroppedColumn:function(drop_data,drop_event,drop_datatype){
-        if(!('column' in drop_event.droppableObject)){ return }
+        if(!('column' in drop_event.dragDropInfo)){ return }
         var colsBag = genro.viewEditor.getStruct('#0','#0');
-        var toPos=drop_event.droppableObject.column
+        var toPos=drop_event.dragDropInfo.column
         if(drop_datatype=='gnrgridcol/json'){
             if(toPos!=drop_data.position){
                 var moved=colsBag.popNode('#'+drop_data.position)
