@@ -80,8 +80,8 @@ class GnrCustomWebPage(object):
         
      
     def overview_pane(self,bc):
-        self.overview_user_grid(bc.borderContainer(region='left',width='400px'))
-        self.overview_connection_grid(bc.borderContainer(region='top',height='50%'))
+        self.overview_user_grid(bc.borderContainer(region='left',width='400px',splitter=True))
+        self.overview_connection_grid(bc.borderContainer(region='top',height='50%',splitter=True))
         self.overview_page_grid(bc.borderContainer(region='center'))
 
     def overview_user_grid(self,bc):
@@ -126,11 +126,11 @@ class GnrCustomWebPage(object):
     def overview_page_grid(self,bc):
         def struct(struct):
             r = struct.view().rows()
-            r.cell('register_item_id', width='12em',name='Page id')
+            r.cell('register_item_id', width='15em',name='Page id')
             r.cell('connection_id', width='15em',name='Connection id')
             r.cell('user_ip',width='6em',name='User ip')
-            r.cell('start_ts',width='9em',name='Start',dtype='DH')
-            r.cell('pagename',width='8em',name='Pagename')
+            r.cell('start_ts',width='11em',name='Start',dtype='DH')
+            r.cell('pagename',width='10em',name='Pagename')
             r.cell('age', width='4em',dtype='L',name='Age')
             r.cell('last_rpc_age', width='4em',dtype='L',name='L.RPC')
             r.cell('last_event_age', width='4em',dtype='L',name='L.EVT')  
@@ -187,7 +187,7 @@ class GnrCustomWebPage(object):
         r.cell('user',width='6em',name='User')
         r.cell('user_name', width='12em',name='Fullname')
         r.cell('user_tags', width='12em',name='Tags')
-        r.cell('start_ts', width='9em',dtype='DH',name='Started')
+        r.cell('start_ts', width='11em',dtype='DH',name='Started')
         r.cell('age', width='4em',dtype='L',name='Age')
         r.cell('last_rpc_age', width='4em',dtype='L',name='L.RPC')
         r.cell('last_event_age', width='4em',dtype='L',name='L.EVT')  
@@ -205,7 +205,7 @@ class GnrCustomWebPage(object):
 
     def _connection_grid_struct(self,struct):
         r = struct.view().rows()
-        r.cell('register_item_id', width='12em',name='Connection id')
+        r.cell('register_item_id', width='14em',name='Connection id')
         r.cell('user',width='6em',name='User')
         r.cell('user_ip',width='12em',name='User')
         r.cell('browser_name', width='10em',name='Browser')
@@ -228,11 +228,11 @@ class GnrCustomWebPage(object):
         
     def _page_grid_struct(self,struct):
         r = struct.view().rows()
-        r.cell('register_item_id', width='12em',name='Page id')
+        r.cell('register_item_id', width='14em',name='Page id')
         r.cell('user',width='6em',name='User')
         r.cell('user_ip',width='6em',name='User ip')
-        r.cell('connection_id', width='12em',name='Connection')
-        r.cell('start_ts',width='9em',name='Start',dtype='DH')
+        r.cell('connection_id', width='14em',name='Connection')
+        r.cell('start_ts',width='11em',name='Start',dtype='DH')
         r.cell('pagename',width='8em',name='Pagename')
         r.cell('age', width='4em',dtype='L',name='Age')
         r.cell('last_rpc_age', width='4em',dtype='L',name='L.RPC')
