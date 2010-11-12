@@ -441,8 +441,8 @@ class TableHandlerForm(BaseComponent):
                              _onResult='FIRE list.queryEnd=true; SET list.selectmethod=null;',
                              **condPars)
         dragColumnCb="""var cell=event.cell;
-                        return{'gnrgridcol/json':{'position':event.cellIndex},'text/plain':cell.name,'trashable':{'column':event.cellIndex}};"""
-        pane.dataController("console.log(trashedObject)",subscribe_trashedObject=True)
+                        return{'gnrgridcol/json':{'position':event.cellIndex},'text/plain':cell.name,'trashable/json':{'nodeId':event.sourceNode.attr.nodeId,'column':event.cellIndex}};"""
+        pane.dataController("genro.viewEditor.onTrashedColumn(trashedObject[0]);",subscribe_trashedObject=True)
         grid = gridpane.virtualGrid(nodeId='maingrid', structpath="list.view.structure", storepath=".data", autoWidth=False,
                                 selectedIndex='list.rowIndex', rowsPerPage=self.rowsPerPage(), sortedBy='^list.grid.sorted',
                                 connect_onSelectionChanged='SET list.noSelection = (genro.wdgById("maingrid").selection.getSelectedCount()==0)',

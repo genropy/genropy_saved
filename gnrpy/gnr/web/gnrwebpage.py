@@ -764,8 +764,8 @@ class GnrWebPage(GnrBaseWebPage):
                 self.debugger.right_pane(root)
                 self.debugger.bottom_pane(root)
                 self.mainLeftContent(root,region='left',splitter=True, nodeId='gnr_main_left')
-                root.div(_class='trash_drop',droppable=True,drop_types='trashable',
-                         drop_action="""genro.publish('trashedObject',arguments)""")
+                root.div(_class='trash_drop',droppable=True,drop_types='trashable/json',id='trash_drop',
+                         drop_action="""genro.publish('trashedObject',drop_data,event)""")
                 root.dataController("""
                                        var new_status = main_left_set_status[0];
                                        new_status = new_status=='toggle'? !current_status:new_status;

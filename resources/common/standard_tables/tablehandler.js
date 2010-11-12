@@ -8,6 +8,10 @@ dojo.declare("gnr.GnrViewEditor",null,{
         this.sourceNode=genro.nodeById(widgetNodeId);
         this.width_em = 10;
     },
+    onTrashedColumn:function(kw){
+        var colsBag = genro.viewEditor.getStruct('#0','#0');
+        colsBag.popNode('#'+kw.column)
+    },
     onDroppedColumn:function(drop_data,drop_event,drop_datatype){
         if(!('column' in drop_event.droppableObject)){ return }
         var colsBag = genro.viewEditor.getStruct('#0','#0');

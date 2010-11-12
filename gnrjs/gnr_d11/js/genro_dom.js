@@ -746,7 +746,7 @@ dojo.declare("gnr.GnrDomHandler",null,{
         }
         
         if (typeof(value)=='object'){
-            if('trashable' in value){
+            if('trashable/json' in value){
                 genro.dom.addClass(dojo.body(),'drag_to_trash')
             }
             for (var k in value){
