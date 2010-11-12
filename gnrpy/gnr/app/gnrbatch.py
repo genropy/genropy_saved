@@ -10,7 +10,7 @@
 from time import time
 from collections import defaultdict
 import os
-
+import datetime
 class GnrBatch(object):
     thermo_rows = 1
     def __init__(self,data=None,runKwargs=None, thermocb = None, thermoId=None,thermofield='*',thermodelay=0.5,**kwargs):
@@ -145,10 +145,12 @@ class SelectionToXls(GnrBatch):
         import xlwt
         self.workbook = xlwt.Workbook(encoding='latin-1')
         self.sheet = self.workbook.add_sheet(self.filename)
-        float_style = xlwt.XFStyle()
-        float_style.num_format_str = '#,##0.00'
-        int_style = xlwt.XFStyle()
-        int_style.num_format_str = '#,##0'
+        self.float_style = xlwt.XFStyle()
+        self.float_style.num_format_str = '#,##0.00'
+        self.int_style = xlwt.XFStyle()
+        self.int_style.num_format_str = '#,##0'
+        self.date_style = xlwt.XFStyle()
+        self.date_style.num_format_str = 'DD-MM-YYYY'
         font0 = xlwt.Font()
         font0.name = 'Times New Roman'
         font0.bold = True
@@ -164,7 +166,18 @@ class SelectionToXls(GnrBatch):
                 value=','.join([str(x != None and x or '') for x in chunk[column]])
             else:
                 value = chunk[column]
-            self.sheet.write(self.current_row, c, value)
+            if type(value)==int:
+                style=self.int_style
+            elif type(value)==float:
+                style=self.float_style
+            elif type(value)==datetime.date:
+                style=self.date_style
+            else:
+                style=None
+            if style:
+                self.sheet.write(self.current_row, c, value,style)
+            else:
+                self.sheet.write(self.current_row, c, value)
         self.current_row += 1
     
     def post_process(self):
