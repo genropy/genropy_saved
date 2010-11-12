@@ -51,20 +51,19 @@ class GnrCustomWebPage(object):
         bc.data('mainbc.regions.left?show',False)
         bc.data('tableTree',self.db.tableTreeBag(['sys'],omit=True))
         bc.dataController('SET mainbc.regions.left?show = maintable?true:false',maintable='^.maintable')
-        left = bc.tabContainer(region='left',width='280px',splitter=True,datapath='table',selectedPage='^statusedit')
-        self.left(left)
+        self.left(bc.contentPane(region='left',width='280px',splitter=True,datapath='table'))
         top = bc.contentPane(margin='5px',region='top').toolbar()
         fb = top.formbuilder(cols=6, border_spacing='4px',disabled=disabled)
         box = fb.div(_class='fakeTextBox floatingPopup',width='15em',lbl='Table',colspan=2)
         box.span('^.maintable')
         box.menu(storepath='tableTree',modifiers='*',_class='smallmenu',action='SET .maintable = $1.fullpath')
-        fb.field('name',width='10em')
+        fb.field('name',width='20em')
         fb.field('version',width='4em')
         fb.checkbox(value='^mainbc.regions.left?show',label='!!Show fields')        
-        tc = bc.tabContainer(region='center',selectedPage='^statusedit')
+        tc = bc.tabContainer(region='center')
         editorPane = tc.contentPane(title='Edit',pageName='edit',id='editpage')
-        previewPane = tc.borderContainer(title='Preview',pageName='view',_class='preview')
-        previewPane.div(innerHTML='^preview',margin='10px')
+        self.previewPane(tc.borderContainer(title='Preview',pageName='view',_class='preview'))
+        
         
         self.metadataForm(tc.contentPane(title='!!Metadata',pageName='metadata',datapath='.metadata'),disabled=disabled)
         self.RichTextEditor(editorPane, value='^.content',height='100%',
@@ -84,6 +83,15 @@ class GnrCustomWebPage(object):
         bc.dataRpc('dummy','includeVirtualColumn',
                     virtual_column='^.virtual_columns',
                     table='=.maintable',_if='virtual_column')
+    
+    def previewPane(self,bc):
+        top = bc.contentPane(region='top').toolbar()
+        fb = top.formbuilder(cols=2, border_spacing='2px')
+        fb.dbSelect(dbtable='^form.record.maintable',value='^test_id',lbl='!!Record',width='20em')
+        fb.dbSelect(dbtable='adm.htmltemplate',value='^html_template_id',selected_name='html_template_name',lbl_width='10em',lbl='!!Template',width='20em',hasDownArrow=True)
+        fb.dataRpc('preview','renderTemplate',table='=form.record.maintable',record_id='^test_id',
+                    doctemplate='^form.record.content',htmltemplate_name='^html_template_name',_if='table&&doctemplate')
+        bc.contentPane(region='center',padding='10px').div(height='100%',background='white').div(innerHTML='^preview')
         
     def rpc_includeVirtualColumn(self,table=None,virtual_column=None):
         print 'aaaa'
@@ -101,10 +109,9 @@ class GnrCustomWebPage(object):
     def html_item_res(self):
         return """<span class="tplfieldpath" fieldpath="'+item.attr.fieldpath+'" itemtag = "'+item.attr.tag+'">$'+item.attr.fieldpath+'</span><span class="tplfieldcaption">'+item.attr.caption+'</span><span>&nbsp</span>"""
         
-    def left(self,tc):
-        t1 = tc.contentPane(title='Fields' ,pageName='edit')
-        t1.dataRemote('.tree.fields','relationExplorer',table='^form.record.maintable',dosort=False,caption='Fields')
-        t1.tree(storepath='.tree',persist=False,
+    def left(self,pane):
+        pane.dataRemote('.tree.fields','relationExplorer',table='^form.record.maintable',dosort=False,caption='Fields')
+        pane.tree(storepath='.tree',persist=False,
                      #inspect='shift', 
                      labelAttribute='caption',
                      _class='fieldsTree',
@@ -125,17 +132,6 @@ class GnrCustomWebPage(object):
                                         else if(node.attr.sql_formula){return "formulaColumnTreeNode"}""",
                      getIconClass="""if(node.attr.dtype){return "icnDtype_"+node.attr.dtype}
                                      else {return opened?'dijitFolderOpened':'dijitFolderClosed'}""")
-                                     
-        t2 = tc.contentPane(title='Sample Record',pageName='view')
-        fb = t2.formbuilder(cols=1, border_spacing='2px')
-        fb.dbSelect(dbtable='^form.record.maintable',value='^test_id',lbl='!!Record',width='8em')
-        fb.dbSelect(dbtable='adm.htmltemplate',value='^html_template_id',selected_name='html_template_name',lbl='!!Template',width='8em')
-        
-        fb.dataRpc('preview','renderTemplate',table='=form.record.maintable',record_id='^test_id',
-                    doctemplate='^form.record.content',htmltemplate_name='^html_template_name',_if='table&&doctemplate')
-
-        if self.isDeveloper():
-            t2.tree(storepath='test_record')
 
     def rpc_renderTemplate(self,table=None,record_id=None,doctemplate=None,htmltemplate_name=None):
         record = self.app.rpc_getRecord(table=table,pkey=record_id)[0]
