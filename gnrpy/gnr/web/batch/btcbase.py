@@ -19,7 +19,8 @@ class BaseResourceBatch(object):
     batch_steps = None #'foo,bar'
     dialog_height = '200px'
     dialog_width = '300px'
-
+    virtual_columns = None
+    
     def __init__(self,page=None,resource_table=None):
         self.page = page
         self.db = self.page.db
@@ -56,6 +57,9 @@ class BaseResourceBatch(object):
         self.btc.batch_complete(result=result,result_attr=result_attr)
     
     def _pre_process(self):
+        self.pre_process()
+        
+    def pre_process():
         pass
         
     def run(self):
@@ -126,8 +130,8 @@ class BaseResourceBatch(object):
         for pkey in pkeys:
             yield self.get_record(pkey)
             
-    def get_record(self,pkey):
-        return self.tblobj.record(pkey).output('bag')
+    def get_record(self,pkey,virtual_columns=None):
+        return self.tblobj.record(pkey=pkey,virtual_columns=self.virtual_columns).output('bag')
         
     def get_selection_pkeys(self):
         if self._pkeys is None:
