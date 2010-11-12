@@ -220,6 +220,8 @@ dojo.declare('gnr.GenroClient', null, {
         genro.dev.shortcut("Ctrl+Shift+D",function(){genro.dev.showDebugger();});
         genro.dev.shortcut("Ctrl+Shift+B",function(){genro.dev.showBottomHelper();}); 
         genro.callAfter(function(){genro.fireEvent('gnr.onStart');}, 100);
+        genro.dev.shortcut('f1',function(e){genro.publish('SAVERECORD',e)})
+        genro.dev.shortcut('f3',function(e){genro.publish('PRINTRECORD',e)})
        /* if (dojo.isSafari && genro.wdgById('pbl_root')){
             setTimeout(genro.forceResize,1);
         }*/
