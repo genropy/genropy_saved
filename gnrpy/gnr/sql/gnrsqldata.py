@@ -677,7 +677,7 @@ class SqlDataResolver(BagResolver):
     
 class SqlRelatedRecordResolver(BagResolver):
     classKwargs={'cacheTime':0, 'readOnly':True, 'db':None,
-                 'mode':None, 'joinConditions':None, 'sqlContextName':None,
+                 'mode':None, 'joinConditions':None, 'sqlContextName':None,'virtual_columns':None,
                  'ignoreMissing':False, 'ignoreDuplicate':False, 'bagFields':True,
                  'target_fld':None, 'relation_value':None}
         
@@ -697,7 +697,7 @@ class SqlRelatedRecordResolver(BagResolver):
         recordpars = dict()
         recordpars[str(related_field)] = self.relation_value
         record = SqlRecord(self.db.table(dbtable), joinConditions=self.joinConditions, sqlContextName=self.sqlContextName,
-                           ignoreMissing=self.ignoreMissing, ignoreDuplicate=self.ignoreDuplicate, 
+                           ignoreMissing=self.ignoreMissing, ignoreDuplicate=self.ignoreDuplicate, virtual_columns=self.virtual_columns,
                            bagFields=self.bagFields, **recordpars)
         return record.output(self.mode)
 
@@ -1773,12 +1773,15 @@ class SqlRecord(object):
                     info['_from_fld'] = args['many_relation']
                     info['_target_fld'] = args['one_relation']
                     relation_value = sqlresult['%s_%s' % (args['basealias'], mfld)]
-
+                    
                     if resolver_one is True:
+                        rel_vc = None
+                        if self.virtual_columns:
+                            rel_vc = ','.join([vc.split('.',1)[1] for vc in self.virtual_columns.split(',') if vc.startswith(k)])                            
                         value = SqlRelatedRecordResolver( db=self.db, cacheTime=-1, 
                                                           target_fld = info['_target_fld'],
                                                           relation_value=relation_value,
-                                                          mode='bag',
+                                                          mode='bag',virtual_columns=rel_vc,
                                                           bagFields=True,
                                                           ignoreMissing=True,
                                                           joinConditions=self.joinConditions,

@@ -896,8 +896,15 @@ dojo.declare("gnr.GnrDomHandler",null,{
         var mb = dojo.marginBox(whatDomNode);
         var result = {};
         var style = whatDomNode.style;
-        style.left = Math.floor((viewport.l +viewport.x+ (viewport.w - mb.w)/2)) + "px";
-        style.top = Math.floor((viewport.t+viewport.y + (viewport.h - mb.h)/2)) + "px";
+        var whereposition = whereDomNode.style.position;
+        var deltax = whereposition==viewport.l;
+        var deltay = viewport.t;
+        if (whereposition=='relative'){
+            deltax = deltax +viewport.x;
+            deltay = deltay + viewport.y;
+        }
+        style.left = Math.floor((deltax + (viewport.w - mb.w)/2)) + "px";
+        style.top = Math.floor((deltay + (viewport.h - mb.h)/2)) + "px";
                    //var viewport=dojo.coords(genro.domById(centerOn));
            //viewport.l=viewport.x;
            //viewport.t=viewport.y;
