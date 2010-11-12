@@ -132,7 +132,7 @@ class GnrCustomWebPage(object):
         fb.dbSelect(dbtable='adm.htmltemplate',value='^html_template_id',selected_name='html_template_name',lbl='!!Template',width='8em')
         
         fb.dataRpc('preview','renderTemplate',table='=form.record.maintable',record_id='^test_id',
-                    doctemplate='^form.record.content',htmltemplate_name='^html_template_name')
+                    doctemplate='^form.record.content',htmltemplate_name='^html_template_name',_if='table&&doctemplate')
 
         if self.isDeveloper():
             t2.tree(storepath='test_record')
