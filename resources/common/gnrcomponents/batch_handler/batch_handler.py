@@ -8,6 +8,7 @@ from gnr.web.gnrwebpage import BaseComponent
 from gnr.core.gnrlang import gnrImport,objectExtract
 
 from gnr.core.gnrbaghtml import BagToHtml
+from gnr.core.gnrstring import templateReplace
 
 from gnr.core.gnrbag import Bag
 
@@ -46,7 +47,7 @@ class TableScriptRunner(BaseComponent):
                                        SET .selectionName =  params['selectionName'];
                                        SET .publishOnResult = params['publishOnResult'];
                                        SET .selectionFilterCb =  params['selectionFilterCb'];
-                                       
+                                       SET .gridId = params['gridId'];
                                        SET .selectedRowidx =  params['selectedRowidx'];
                                        SET .paramspath = params['paramspath'];
                                        FIRE .build_pars_dialog;
@@ -60,6 +61,7 @@ class TableScriptRunner(BaseComponent):
                 resource='=.resource',
                 res_type='=.res_type',
                 table='=.table',
+                gridId='=.gridId',
                 _publishOnResult='=.publishOnResult',
                 selectionName='=.selectionName',
                 struct='==this.getRelativeData(_structpath);',
@@ -87,7 +89,8 @@ class TableScriptRunner(BaseComponent):
                           
         pane.dataController("""
                             var selectedRowidx = gridId?genro.wdgById(gridId).getSelectedRowidx():null;
-                            PUBLISH table_script_run={table:table,res_type:res_type,selectionName:selectionName,selectedRowidx:selectedRowidx,resource:resource};""",
+                            PUBLISH table_script_run={table:table,res_type:res_type,selectionName:selectionName,
+                                                        selectedRowidx:selectedRowidx,resource:resource,gridId:gridId};""",
                             _fired="^.run_table_script",selectionName=selectionName,table=table,
                             gridId=gridId,res_type=res_type,resource='=.resource')
 
@@ -203,8 +206,13 @@ class TableScriptRunner(BaseComponent):
         for forbidden in forbiddenNodes:
             result.pop(forbidden)
         return result
-
-    def rpc_table_script_getHtmlTemplate(self,template_id):
-        tpl = self.db.table('adm.htmltemplate').getTemplate(pkey=template_id)
-        html = BagToHtml(templateHtml=tpl)
-        print x
+        
+    def rpc_table_script_renderTemplate(self,record_id=None,doctemplate_id=None,htmltemplate=None):
+        doctemplateRecord = self.db.table('adm.doctemplate').record(pkey=doctemplate_id).output('bag')        
+        virtual_columns = doctemplateRecord['virtual_columns']
+        record = self.tblobj.record(pkey=record_id,virtual_columns=virtual_columns).output('bag')
+        doctemplate = doctemplateRecord['content']
+        htmlContent = templateReplace(doctemplate,record,True)
+        htmlbuilder = BagToHtml(templates=htmltemplate,templateLoader=self.db.table('adm.htmltemplate').getTemplate)
+        html = htmlbuilder(htmlContent=htmlContent)
+        return html
