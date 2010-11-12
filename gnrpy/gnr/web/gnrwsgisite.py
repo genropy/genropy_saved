@@ -533,9 +533,9 @@ class GnrWsgiSite(object):
         toolname = path_list[1]
         args = path_list[2:]
         tool = self.load_webtool(toolname)  
-        tool.site=self      
         if not tool:
             return self.not_found_exception(environ, start_response)
+        tool.site=self
         response = Response()
         kwargs['environ']=environ
         result = tool(*args, **kwargs)

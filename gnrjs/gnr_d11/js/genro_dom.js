@@ -42,7 +42,8 @@ dojo.declare("gnr.GnrDomHandler",null,{
     },
     
     iFramePrint: function(iframe){
-        genro.dom.iframeContentWindow(iframe).print();
+        var contentWindow = genro.dom.iframeContentWindow(iframe);
+        setTimeout(function(){contentWindow.print();},1);
     },
     
     iframeContentWindow: function(/* HTMLIFrameElement */iframe_el) {
