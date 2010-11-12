@@ -47,7 +47,7 @@ class UserObject(BaseComponent):
                             default_userid=self.user,saveKwargs=saveKwargs,
                             onSaved="""FIRE .saved;""",savePath='.savedPkey')
 
-    def _uo_form(self,parentContainer,disabled,table):
+    def _uo_form(self,parentContainer,disabled,table, **kwargs):
         pane = parentContainer.contentPane(margin_top='5px')
         pane.dataFormula(".data", "databag",_fired="^.id",databag='=.#parent.pars.data')
         fb = pane.formbuilder(cols=3, dbtable=table, width='320px', border_spacing='5px')
