@@ -587,9 +587,12 @@ dojo.declare("gnr.widgets.baseHtml",null,{
             if(widget.declaredClass=='dijit._TreeNode'){
                 result['item'] = widget.item;
             }
-            event.droppableObject = result;
+            event.dragDropInfo = result;
         }
          /*override this*/
+     },
+     setTrashPosition: function(event){
+        /*override this for each widget*/
      },
      
      created:function(newobj, savedAttrs, sourceNode){
@@ -2274,9 +2277,12 @@ dojo.declare("gnr.widgets.Grid",gnr.widgets.baseDojo,{
                      'domnode':event.cellNode,
                      };
             result = objectUpdate(result,attributes);
-            event.droppableObject = result;
+            event.dragDropInfo = result;
 
         };
+    },
+    setTrashPosition: function(event){
+        genro.dom.centerOn('trash_drop',event.widget.domNode);
     }
 });
 dojo.declare("gnr.widgets.VirtualGrid",gnr.widgets.Grid,{

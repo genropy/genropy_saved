@@ -566,7 +566,7 @@ dojo.declare("gnr.GnrDomHandler",null,{
     },
     onDragOver:function(event){
         this.decorateEvent(event)
-        var droppable=event.droppableObject;
+        var droppable=event.dragDropInfo;
         if (!droppable){ return;}
         event.stopPropagation();
         event.preventDefault();
@@ -602,7 +602,7 @@ dojo.declare("gnr.GnrDomHandler",null,{
     },
     onDragEnter:function(event){
         this.decorateEvent(event)
-        var droppable=event.droppableObject;
+        var droppable=event.dragDropInfo;
          console.log('onDragEnter:')
         if (!droppable){ 
             console.log('not droppable:')
@@ -658,7 +658,7 @@ dojo.declare("gnr.GnrDomHandler",null,{
      onDrop:function(event){
         genro.dom.outlineShape(null)
         this.decorateEvent(event)
-        var droppable=event.droppableObject;
+        var droppable=event.dragDropInfo;
         if (!droppable){ return;}
         var domnode=droppable.domnode;
         var sourceNode=droppable.sourceNode;
@@ -747,7 +747,10 @@ dojo.declare("gnr.GnrDomHandler",null,{
         
         if (typeof(value)=='object'){
             if('trashable/json' in value){
-                genro.dom.addClass(dojo.body(),'drag_to_trash')
+                genro.dom.addClass(dojo.body(),'drag_to_trash');
+                if(widget){
+                    widget.gnr.setTrashPosition(event);
+                }
             }
             for (var k in value){
                 dataTransfer.setData(k, convertToText(value[k])[1]);
@@ -892,8 +895,15 @@ dojo.declare("gnr.GnrDomHandler",null,{
         var mb = dojo.marginBox(whatDomNode);
         var result = {};
         var style = whatDomNode.style;
-        style.left = Math.floor((viewport.l + (viewport.w - mb.w)/2)) + "px";
-        style.top = Math.floor((viewport.t + (viewport.h - mb.h)/2)) + "px";
+        style.left = Math.floor((viewport.l +viewport.x+ (viewport.w - mb.w)/2)) + "px";
+        style.top = Math.floor((viewport.t+viewport.y + (viewport.h - mb.h)/2)) + "px";
+                   //var viewport=dojo.coords(genro.domById(centerOn));
+           //viewport.l=viewport.x;
+           //viewport.t=viewport.y;
+           //var mb = dojo.marginBox(this.domNode);
+           //var style = this.domNode.style;
+           //style.left = Math.floor((viewport.l + (viewport.w - mb.w)/2)) + "px";
+           //style.top = Math.floor((viewport.t + (viewport.h - mb.h)/2)) + "px";
     },
     makeHiderLayer: function(parentId,kw){
         var rootNode = parentId?genro.nodeById(parentId):genro.src.getNode();
