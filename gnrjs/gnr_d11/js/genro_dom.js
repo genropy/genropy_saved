@@ -531,16 +531,22 @@ dojo.declare("gnr.GnrDomHandler",null,{
             return;
         }
         var supportedTypes=splitStrip(sourceNode.getInheritedAttributes().drop_types || 'text/plain');
-        var draggedTypes =dataTransfer.types;
+        //var draggedTypes =dataTransfer.types;
+        var draggedTypes=genro.dom.dataTransferTypes(dataTransfer)
         if(dojo.filter(supportedTypes,function (value){ return dojo.indexOf(draggedTypes,value)>=0;}).length==0){
+            console.log('kkkkkk')
+            console.log(draggedTypes)
+            console.log(dataTransfer)
             return false;
         };
         var drop_tags=sourceNode.getInheritedAttributes().drop_tags;
         if(!drop_tags){
             return true;
         }
-        var drag_tags=dataTransfer.getData('drag_tags') || '';
+        //var drag_tags=dataTransfer.getData('drag_tags') || '';
+        var drag_tags = genro.dom.getFromDataTransfer(dataTransfer,'drag_tags')
         if(!drag_tags){
+            console.log('mmmmmmm')
             return false;
         }
         var drag_tags=splitStrip(drag_tags,',');
@@ -562,6 +568,7 @@ dojo.declare("gnr.GnrDomHandler",null,{
             };
             
         };
+        console.log('zzzzzz')
         return valid;
    
     },
@@ -601,12 +608,21 @@ dojo.declare("gnr.GnrDomHandler",null,{
         }
         
     },
+    onDragLeave:function(event){
+       this.decorateEvent(event)
+       if (genro.dom._lastDroppable && (genro.dom._lastDroppable.widget==event.widget)){
+           return
+       }
+       genro.dom.removeClass(genro.dom._dragLastShape,'canBeDropped');
+       genro.dom.removeClass(genro.dom._dragLastShape,'cannotBeDropped');
+       genro.dom._dragLastShape=null
+
+       
+    },
     onDragEnter:function(event){
         this.decorateEvent(event)
         var droppable=event.dragDropInfo;
-         console.log('onDragEnter:')
         if (!droppable){ 
-            console.log('not droppable:')
             return;
         }
       //if(genro.dom._dragged){
@@ -638,6 +654,8 @@ dojo.declare("gnr.GnrDomHandler",null,{
         else if(droppable.outlineNode){
             genro.dom.outlineShape(droppable.outlineNode,canBeDropped,event)
         }
+        genro.dom._lastDroppable={'sourceNode':event.sourceNode,'widget':event.widget,
+                            'domnode':event.domnode}
         
     },
     outlineShape:function(shape,canBeDropped,x){
@@ -673,10 +691,11 @@ dojo.declare("gnr.GnrDomHandler",null,{
             event.preventDefault();
             var action = inherited.drop_action;
             var dropped=null;
+            var dataTransferTypes=genro.dom.dataTransferTypes(dataTransfer)
             if (action){
                 var drop_types=(inherited.drop_types || 'text/plain').split(',');
                 var params=objectUpdate(sourceNode.currentAttributes(),{'drop_object':dataTransfer,'event':event});
-                if ((dojo.indexOf(dataTransfer.types,'Files')>=0 )&& (dojo.indexOf(drop_types,'Files')>=0)){
+                if ((dojo.indexOf(dataTransferTypes,'Files')>=0 )&& (dojo.indexOf(drop_types,'Files')>=0)){
                     console.log('files');
                     var drop_ext=inherited.drop_ext;
                     var valid_ext=drop_ext?splitStrip(drop_ext):null;
@@ -692,9 +711,9 @@ dojo.declare("gnr.GnrDomHandler",null,{
                     }
                 }else{
                     for (var i=0; i < drop_types.length; i++) {
-                        if (dojo.indexOf(dataTransfer.types,drop_types[i])>=0){
+                        if (dojo.indexOf(dataTransferTypes,drop_types[i])>=0){
                             var datatype=drop_types[i];
-                            var value=dataTransfer.getData(datatype)
+                            var value=genro.dom.getFromDataTransfer(dataTransfer,datatype)
                             if (stringEndsWith(datatype,'/json')){
                                 value=convertFromText(value,'JS');
                             }
@@ -713,12 +732,12 @@ dojo.declare("gnr.GnrDomHandler",null,{
     onDragStart:function(event){
         event.stopPropagation();
         //console.log(event);
-         console.log('onDragStart')
         this.decorateEvent(event);
         var domnode=event.target;
         var widget = event.widget;
         var sourceNode = event.sourceNode;
         var value;
+        genro.dom._transferObj={}
         var dataTransfer=event.dataTransfer;
         var inherited=sourceNode.getInheritedAttributes();
         if ('drag_value_cb' in inherited){
@@ -754,10 +773,12 @@ dojo.declare("gnr.GnrDomHandler",null,{
                 }
             }
             for (var k in value){
-                dataTransfer.setData(k, convertToText(value[k])[1]);
+                genro.dom.setInDataTransfer(dataTransfer,k, convertToText(value[k])[1])
+               // dataTransfer.setData(k, convertToText(value[k])[1]);
             }
         }else{
-            dataTransfer.setData('text/plain', convertToText(value)[1]);
+            genro.dom.setInDataTransfer(dataTransfer,'text/plain', convertToText(value)[1])
+            //dataTransfer.setData('text/plain', convertToText(value)[1]);
         }
         genro.dom._dragged={'sourceNode':event.sourceNode,'widget':event.widget,
                             'domnode':event.domnode}
@@ -767,7 +788,32 @@ dojo.declare("gnr.GnrDomHandler",null,{
          
         if(drag_tags){
             dataTransfer.setData('drag_tags', drag_tags);
+            genro.dom.setInDataTransfer('drag_tags', drag_tags)
         }
+    },
+    setInDataTransfer:function(dataTransfer,k,v){
+        dataTransfer.setData(k, v);
+        if(genro.isChrome){
+            genro.dom._transferObj[k]=v;
+        }
+    },
+    getFromDataTransfer:function(dataTransfer,k){
+        return genro.isChrome? (genro.dom._transferObj?genro.dom._transferObj[k]:null):dataTransfer.getData(k)
+
+    },
+    dataTransferTypes:function(dataTransfer){
+        if (genro.isChrome){
+            var dt=[]
+            if (genro.dom._transferObj){
+                for (var k in genro.dom._transferObj){
+                    dt.push(k)
+                }
+            }
+            return dt
+        }else{
+            return dataTransfer.types
+        }
+         return dataTransfer.types
     },
     onDragEnd:function(event){
         genro.dom.outlineShape(null)

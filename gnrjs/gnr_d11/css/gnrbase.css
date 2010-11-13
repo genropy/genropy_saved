@@ -1162,15 +1162,15 @@ textarea:disabled {
 .cannotBeDropped{
      background-color: #ffa997 !important;
 }
-.dojoxGrid-header table .cannotBeDropped{
+.dojoxGrid-header .canBeDropped{
     background: #8fff9d !important;
 }
-.dojoxGrid-header table .cannotBeDropped{
+.dojoxGrid-header .cannotBeDropped{
     background: #ffa997 !important;
 }
 
 
-#trash_drop .canBeDropped{
+#_trash_drop.canBeDropped{
     background-color: rgba(170,170,170,0.92) !important;
 }
 .draggedItem{

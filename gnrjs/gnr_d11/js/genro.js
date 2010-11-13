@@ -75,6 +75,7 @@ dojo.declare('gnr.GenroClient', null, {
         this.lastTime=this.startTime;
         this.dialogStack = [];
         this.sounds={};
+     
         this._serverstore_paths = {};
         this._serverstore_changes = null;
         this.pendingFireAfter={};
@@ -237,6 +238,7 @@ dojo.declare('gnr.GenroClient', null, {
         }
         this.isMac = dojo.isMac !=undefined? dojo.isMac:navigator.appVersion.indexOf('Macintosh')>=0;
         this.isTouchDevice = ( (navigator.appVersion.indexOf('iPad')>=0 )|| (navigator.appVersion.indexOf('iPhone')>=0));
+        this.isChrome = ( (navigator.appVersion.indexOf('Chrome')>=0 ));
         this._registerUserEvents();
  
         if( this.isTouchDevice ){ 
@@ -251,7 +253,7 @@ dojo.declare('gnr.GenroClient', null, {
         dojo.connect(mainWindow,'dragend',genro.dom,'onDragEnd');
         dojo.connect(mainWindow,'dragover',genro.dom,'onDragOver');
         dojo.connect(mainWindow,'dragenter',genro.dom,'onDragEnter');
-       // dojo.connect(mainWindow,'dragleave',genro.dom,'onDragLeave');
+        dojo.connect(mainWindow,'dragleave',genro.dom,'onDragLeave');
         dojo.connect(mainWindow,'drop',genro.dom,'onDrop');
        
     },

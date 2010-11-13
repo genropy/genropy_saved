@@ -2282,7 +2282,11 @@ dojo.declare("gnr.widgets.Grid",gnr.widgets.baseDojo,{
         };
     },
     setTrashPosition: function(event){
-        genro.dom.centerOn('trash_drop',event.widget.domNode);
+        var trash = genro.dom.getDomNode('trash_drop');
+        var mb=dojo.marginBox(trash);
+        var vp=dojo.coords(event.cellNode);
+        trash.style.left = Math.floor(vp.x ) + "px";
+        trash.style.top = Math.floor(vp.y + vp.h+ 1) + "px";
     }
 });
 dojo.declare("gnr.widgets.VirtualGrid",gnr.widgets.Grid,{
