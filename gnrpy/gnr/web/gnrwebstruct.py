@@ -908,13 +908,14 @@ class GnrGridStruct(GnrStructData):
                           classes=classes, cellClasses=cellClasses, headerClasses=headerClasses, **kwargs)
                           
     def checkboxcell(self,field='_checked',falseclass='checkboxOff',
-                        trueclass='checkboxOn',classes='row_checker',action=None,name=' '):
+                        trueclass='checkboxOn',classes='row_checker',action=None,name=' ',
+                        calculated=True,**kwargs):
         
-
         self.cell(field,name=name,format_trueclass=trueclass,format_falseclass=falseclass,
-                 classes=classes,calculated=True,format_onclick="""var idx = kw.rowIndex;
+                 classes=classes,calculated=calculated,format_onclick= action or """var idx = kw.rowIndex;
                                                                     var rowpath = '#'+idx;
-                                                                    var valuepath = rowpath+'?%s';
+                                                                    var valuepath = rowpath+'%s%s';
+                                                                    console.log(valuepath);
                                                                     var disabledpath = rowpath+'?disabled';
                                                                     var storebag = this.widget.storebag();
                                                                     if (storebag.getItem(disabledpath)){
@@ -922,8 +923,8 @@ class GnrGridStruct(GnrStructData):
                                                                     }
                                                                     var currval = storebag.getItem(valuepath);
                                                                     storebag.setItem(valuepath,!currval);
-                                                                    """ %field
-                                                                    ,dtype='B')
+                                                                    """ %('?' if calculated else '.',field)
+                                                                    ,dtype='B',**kwargs)
                  
     def defaultArgsForDType(self, dtype):
         if dtype == 'B':

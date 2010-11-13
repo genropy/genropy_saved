@@ -37,7 +37,7 @@ class Menu(BaseComponent):
         bottom.button('!!Preferences',
                      action='PUBLISH preference_open = "app";',
                      float='left') #'pbl_brandLogo' should be the client logo
-        self.menu_menuPane(bc.contentPane(region='center',_class='menutree_container'))
+        self.menu_menuPane(bc.contentPane(region='center',padding='2px').div(height='100%',overflow='auto'))
         
 
         
