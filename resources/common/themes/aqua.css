@@ -193,6 +193,7 @@
 	padding-top: 5px;
 	background-image:-webkit-gradient(linear, left top, right bottom, from(rgba(151,174,169,99)), to(rgba(225,233,233,0.99)));
     background-image:-moz-linear-gradient(180deg, rgba(225,233,233,0.99), rgba(151,174,169,99));
+	color: #feffff;
 }
 
 .pbl_roundedGroupBottom{
@@ -602,7 +603,7 @@
 /* @group General */
 /* @group form */
 .gnrfieldlabel {
-	color: rgba(72,84,92,0.9);
+	color: #8a8a8a;
 }
 .label {
 	color: rgba(72,84,92,0.9);
