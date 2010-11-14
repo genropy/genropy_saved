@@ -43,11 +43,7 @@ class GridConfigurator(BaseComponent):
                     inspect='shift', labelAttribute='caption',
                     _class='fieldsTree',_fired='^.maketree',
                     hideValues=True,
-                    getIconClass='if(node.attr.dtype){return "icnDtype_"+node.attr.dtype}',
-                    dndController="dijit._tree.dndSource",
-                    onDndDrop="function(){this.onDndCancel();}::JS",
-                    checkAcceptance='function(){return false;}::JS',
-                    checkItemAcceptance='function(){return false;}::JS')
+                    getIconClass='if(node.attr.dtype){return "icnDtype_"+node.attr.dtype}')
 
         iv = bc.contentPane(region='center',datapath='.data').includedView(storepath='.struct_to_edit',struct=self.grid_configurator_struct(),datamode='bag',
                                         nodeId='grid_configurator_grid',editorEnabled=True)

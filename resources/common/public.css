@@ -20,21 +20,6 @@
 
 /* @end */
 
-/* @group dragDrop */
-
-.dojoDndItemOver		{background: #feb;}
-		.dojoDndItemSelected	{background: #ccf; color: #444;}
-		.dojoDndItemAnchor		{background: #ccf; color: black;}
-		.dojoDndItemOver.dojoDndItemSelected	{background: #ec8;}
-		.dojoDndItemOver.dojoDndItemAnchor		{background: #ec8;}
-		.dojoDndItemBefore		{border-top:    3px solid red;}
-		.dojoDndItemAfter		{border-bottom: 3px solid red;}
-		.dojoDndHorizontal .dojoDndItemBefore		{border-top:    none;}
-		.dojoDndHorizontal .dojoDndItemAfter		{border-bottom: none;}
-		.dojoDndHorizontal .dojoDndItemBefore img	{border-left:  3px solid red;}
-		.dojoDndHorizontal .dojoDndItemAfter img	{border-right: 3px solid red;}
-
-/* @end */
 
 /* @group zoom */
 

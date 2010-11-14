@@ -442,7 +442,7 @@ class TableHandlerForm(BaseComponent):
                              **condPars)
         dragColumnCb="""var cell=event.cell;
                         return{'gnrgridcol/json':{'position':event.cellIndex},'text/plain':cell.name,'trashable/json':{'nodeId':event.sourceNode.attr.nodeId,'column':event.cellIndex}};"""
-        pane.dataController("genro.viewEditor.onTrashedColumn(trashedObject[0]);",subscribe_trashedObject=True)
+       # pane.dataController("genro.viewEditor.onTrashedColumn(trashedObject[0]);",subscribe_trashedObject=True)
         drop_types = 'gnrdbfld/json,gnrgridcol/json'
         if hasattr(self,'explorer_manager_draggable_types'):
             drop_types = '%s,%s' %(drop_types,self.explorer_manager_draggable_types())
@@ -450,9 +450,12 @@ class TableHandlerForm(BaseComponent):
                                 selectedIndex='list.rowIndex', rowsPerPage=self.rowsPerPage(), sortedBy='^list.grid.sorted',
                                 connect_onSelectionChanged='SET list.noSelection = (genro.wdgById("maingrid").selection.getSelectedCount()==0)',
                                 linkedForm='formPane',openFormEvent='onRowDblClick',drop_types=drop_types,
-                                droppable_column=True,drop_action="genro.viewEditor.onDroppedColumn(drop_data,drop_event,drop_datatype)",
+                                droppable_column=True,drop_action="""this.widget.onDroppedColumn(drop_data,drop_event,drop_datatype);        
+                                                                     genro.fireAfter('list.runQueryDo',true)""",
                                 draggable=True,draggable_column=True,drag_value_cb=dragColumnCb,drag_class='draggedItem',
-                                connect_onRowContextMenu="FIRE list.onSelectionMenu = true;")   
+                                connect_onRowContextMenu="FIRE list.onSelectionMenu = true;",
+                                subscribe_trashedObject="""this.widget.onTrashedColumn(trashedObject[0]);"""
+                                )   
         
         pane.dataController("SET list.selectedIndex = idx; SET selectedPage = 1;",idx="^gnr.forms.formPane.openFormIdx") 
 
