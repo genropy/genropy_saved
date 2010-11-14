@@ -459,8 +459,8 @@ dojo.declare("gnr.GnrDevHandler",null,{
         else ele['on'+opt['type']] = func;
     }
 });
-dojo.declare("gnr.GnrViewEditor",null,{
-      constructor: function(widget){
-        this.widget = widget;
-      }
-});
+//dojo.declare("gnr.GnrViewEditor",null,{
+//      constructor: function(widget){
+//        this.widget = widget;
+//      }
+//});
