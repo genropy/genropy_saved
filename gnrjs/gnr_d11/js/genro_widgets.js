@@ -343,13 +343,8 @@ dojo.declare("gnr.widgets.baseHtml",null,{
         savedAttrs['droppable'] = attributes['droppable'];
 
         savedAttrs.connectedMenu=objectPop(attributes,'connectedMenu');
-        savedAttrs.dragDrop = objectExtract(attributes,'dnd_*');
         savedAttrs.onEnter = objectPop(attributes,'onEnter');
         objectUpdate(savedAttrs, this.creating(attributes,sourceNode));
-        if(sourceNode && objectNotEmpty(savedAttrs.dragDrop) && (!attributes.id)){
-            attributes['id'] = sourceNode.getStringId();
-            savedAttrs.dom_id = attributes['id'];
-        }
         var formId = objectPop(attributes,'formId');
         if(attributes._for){
             attributes['for'] = objectPop(attributes,'_for');
@@ -422,86 +417,7 @@ dojo.declare("gnr.widgets.baseHtml",null,{
     setDroppable:function(domNode,value){
         domNode.setAttribute('droppable',value);
     },
-    dndSettings:function(newobj, sourceNode,savedAttrs){
-        var dragDrop=savedAttrs.dragDrop;
-        var domNode=newobj.domNode || newobj;
-        if(!domNode){ return;}
-        var checkAcceptance= function(source, nodes){
-            // summary: checks, if the target can accept nodes from this source
-            // source: Object: the source which provides items
-            // nodes: Array: the list of transferred items
-            if(this == source){ 
-                return true;
-            } else if (source.tree){
-                return true;
-                //source.tree.getItemById(nodes[0].id);
-            } else {
-                for(var i = 0; i < nodes.length; ++i){
-                    var type = source.getItem(nodes[i].id).type;
-                    // type instanceof Array
-                    var flag = false;
-                    for(var j = 0; j < type.length; ++j){
-                        if(type[j] in this.accept){
-                            flag = true;
-                            break;
-                        }
-                    }
-                    if(!flag){
-                        return false;   // Boolean
-                    }
-                }
-                return true;    // Boolean
-            }
-        };
-        if(dragDrop.source || dragDrop.target){
-            var dndPars={isSource: dragDrop.source || false,
-                         horizontal: dragDrop.horizontal || false,
-                         copyOnly: dragDrop.copyOnly || false,
-                         skipForm: dragDrop.skipForm || false,
-                         withHandles: dragDrop.withHandles || false,
-                         accept: dragDrop.accept ? dragDrop.accept.split(',') :[],
-                         singular:(dragDrop.singular ==false)  ? false: true
-                         };
-            if(dragDrop.onDndDrop){
-                dndPars.onDndDrop = dragDrop.onDndDrop;
-            }
-        sourceNode.dndSource = new dojo.dnd.Source(savedAttrs.dom_id,dndPars);
-        sourceNode.dndSource.checkAcceptance =checkAcceptance;
-        
-    }else if(dragDrop.target){
-         sourceNode.dndTarget = new dojo.dnd.Target(savedAttrs.dom_id);
-         sourceNode.dndTarget.checkAcceptance=checkAcceptance;
-    }else if(dragDrop.allowDrop){
-            sourceNode.dndTarget = new dojo.dnd.Target(savedAttrs.dom_id);
-            var checkAcceptanceFunc = funcCreate(dragDrop.allowDrop || 'return true;', 'item');
-            sourceNode.dndTarget.checkAcceptance = function(source, nodes){
-                if(source.tree){
-                    return checkAcceptanceFunc.call(sourceNode, source.tree.getItemById(nodes[0].id));
-                } else {
-                    // TODO Drag from non tree source
-                }
-            };
-        }else if(dragDrop.itemType){
-            var dndSource=domNode.sourceNode.getParentNode().dndSource;
-            if( dndSource){
-                dojo.addClass(domNode,'dojoDndItem');
-                dndSource.setItem(domNode.id, {data: null, type: dragDrop.itemType});
-            }
-        }
-        if(dragDrop['onDrop']){
-            var onDndDropFunc = funcCreate(dragDrop['onDrop'], 'item, copy');
-            sourceNode.dndTarget.onDndDrop = function(source, nodes, copy){
-                if(source.tree){
-                    if (this==dojo.dnd.manager().target){
-                        onDndDropFunc.call(sourceNode, source.tree.getItemById(nodes[0].id), copy);
-                    }
-                } else {
-                    // TODO Drag from non tree source
-                }
-            };
-        }
-        
-    },
+   
 
     _created:function(newobj, savedAttrs, sourceNode, ind){
         this.created(newobj, savedAttrs, sourceNode);
@@ -525,9 +441,7 @@ dojo.declare("gnr.widgets.baseHtml",null,{
         if(!sourceNode){
             return;
         }
-        if(objectNotEmpty(savedAttrs.dragDrop)){
-            this.dndSettings(newobj, sourceNode, savedAttrs);
-        }
+
 
         var parentNode=sourceNode.getParentNode();
         if(parentNode.attr.tag){
@@ -1839,6 +1753,7 @@ dojo.declare("gnr.widgets.NumberSpinner",gnr.widgets.NumberTextBox,{
     }
 });
 
+// ********* Grid ************
 dojo.declare("gnr.widgets.Grid",gnr.widgets.baseDojo,{
     constructor: function(application){
         this._domtag = 'div';
@@ -1864,10 +1779,10 @@ dojo.declare("gnr.widgets.Grid",gnr.widgets.baseDojo,{
         }
     },
     mixin_setStructpath:function(val,kw){
-        var structure = genro.getData(this.sourceNode.attrDatapath('structpath'));
+        this.structBag = genro.getData(this.sourceNode.attrDatapath('structpath'));
         this.cellmap = {};
-        this.setStructure(this.gnr.structFromBag(structure, this.cellmap));
-        this.onSetStructpath(structure);
+        this.setStructure(this.gnr.structFromBag(this.structBag, this.cellmap));
+        this.onSetStructpath(this.structBag);
     },
     mixin_setDraggable_column:function(draggable){
        var draggable=draggable==false?false:true
@@ -1879,6 +1794,30 @@ dojo.declare("gnr.widgets.Grid",gnr.widgets.baseDojo,{
     mixin_openLinkedForm: function(e){
         var idx = e.rowIndex;
         genro.formById(this.sourceNode.attr.linkedForm).openForm(idx,this.rowIdByIndex(idx));
+    },
+    
+    creating_common: function(attributes, sourceNode){
+        var savedAttrs = objectExtract(attributes,'selected*');
+        var identifier=attributes.identifier || '_pkey';
+        attributes.datamode=attributes.datamode || 'attr';
+        attributes.rowsPerPage=attributes.rowsPerPage || 10;
+        attributes.rowCount=attributes.rowCount || 0;
+        attributes.fastScroll=attributes.fastScroll || false;
+        var attributesToKeep='autoHeight,autoRender,autoWidth,defaultHeight,elasticView,fastScroll,keepRows,model,rowCount,rowsPerPage,singleClickEdit,structure,'
+        attributesToKeep=attributesToKeep+'datamode,sortedBy,filterColumn,excludeCol,excludeListCb,editorEnabled'
+        var gridAttributes=objectExtract(attributes,attributesToKeep);
+        objectPopAll(attributes);
+        objectUpdate(attributes,gridAttributes);
+        attributes._identifier=identifier;
+        sourceNode.attr.nodeId = sourceNode.attr.nodeId || 'grid_' + sourceNode.getStringId();
+        return savedAttrs
+    },
+    
+    creating_structure: function(attributes, sourceNode){
+        sourceNode.registerDynAttr('structpath');
+        attributes.structBag = sourceNode.getRelativeData(sourceNode.attr.structpath);
+        attributes.cellmap = {};
+        attributes.structure=this.structFromBag(attributes.structBag, attributes.cellmap);
     },
     
     created_common:function(widget, savedAttrs, sourceNode){
@@ -2243,6 +2182,28 @@ dojo.declare("gnr.widgets.Grid",gnr.widgets.baseDojo,{
         }
         return grouppable.join(',');
     },
+    mixin_onTrashedColumn:function(kw){
+        var colsBag = this.structBag.getItem('#0.#0');
+        colsBag.popNode('#'+kw.column)
+    },
+    mixin_onDroppedColumn:function(drop_data,drop_event,drop_datatype){
+        if(!('column' in drop_event.dragDropInfo)){ return }
+        var colsBag = this.structBag.getItem('#0.#0');
+        var toPos=drop_event.dragDropInfo.column
+        if(drop_datatype=='gnrgridcol/json'){
+            if(toPos!=drop_data.position){
+                var moved=colsBag.popNode('#'+drop_data.position)
+                colsBag.setItem('cellx_'+genro.getCounter(), null, moved.attr, {'_position':toPos});
+            }
+            
+        }
+        else if(drop_data.tag == 'column' || drop_data.tag == 'virtual_column'){
+            colsBag.setItem('cellx_'+genro.getCounter(), null, {'width':'8em','name':drop_data.fullcaption, 
+                                                    'dtype':drop_data.dtype, 'field':drop_data.fieldpath,
+                                                    'tag':'cell'}, {'_position':toPos+1});
+        }
+       
+    },
     onDragDropEvent:function(event){
         var sourceNode = event.sourceNode;
         var attr = sourceNode.attr;
@@ -2289,13 +2250,35 @@ dojo.declare("gnr.widgets.Grid",gnr.widgets.baseDojo,{
         trash.style.top = Math.floor(vp.y + vp.h+ 1) + "px";
     }
 });
+// **************** Virtual Grid ****************
 dojo.declare("gnr.widgets.VirtualGrid",gnr.widgets.Grid,{
     constructor: function(application){
         this._domtag = 'div';
         this._dojotag = 'VirtualGrid';
     },
     creating: function(attributes, sourceNode){
-        var savedAttrs = objectExtract(attributes,'selected*');
+        var savedAttrs= this.creating_common(attributes, sourceNode);
+        this.creating_structure(attributes, sourceNode);
+        var storepath = sourceNode.absDatapath(sourceNode.attr.storepath);
+        attributes.storebag=genro.getDataNode(storepath,true,new gnr.GnrBag());
+        if (!(attributes.storebag.getValue() instanceof gnr.GnrBag)){
+            attributes.storebag.setValue(new gnr.GnrBag());
+        }
+        
+        attributes.get=function(inRowIndex){
+            var grid=this.grid;
+            if (grid.currRenderedRowIndex!=inRowIndex){
+                grid.currRenderedRowIndex=inRowIndex;
+                grid.currRenderedRow=grid.rowByIndex(inRowIndex);
+            }
+            return grid.currRenderedRow[this.field];
+        };
+        attributes.canSort=function(){return true;};
+    },
+    
+    creating_OLD: function(attributes, sourceNode){
+        var savedAttrs= this.creating_common(attributes, sourceNode);
+        
         var sortedBy=objectPop(attributes,'sortedBy');
         var identifier=objectPop(attributes,'identifier','_pkey');
         var gridAttributes=objectExtract(attributes,'autoHeight,autoRender,autoWidth,defaultHeight,elasticView,fastScroll,keepRows,model,rowCount,rowsPerPage,singleClickEdit,structure');
@@ -2465,7 +2448,12 @@ dojo.declare("gnr.widgets.VirtualStaticGrid",gnr.widgets.Grid,{
         this._dojotag = 'VirtualGrid';
     },
     creating: function(attributes, sourceNode){
-        var savedAttrs = objectExtract(attributes,'selected*');
+        var savedAttrs = this.creating_common(attributes, sourceNode);
+        this.creating_structure(attributes, sourceNode);
+        sourceNode.registerDynAttr('storepath'); 
+    },
+    creating_OLD: function(attributes, sourceNode){
+        var savedAttrs = this.creating_common(attributes, sourceNode);
         var sortedBy=objectPop(attributes,'sortedBy');
         var identifier=objectPop(attributes,'identifier','_pkey');
         var datamode=objectPop(attributes,'datamode','attr');
@@ -2900,8 +2888,8 @@ dojo.declare("gnr.widgets.VirtualStaticGrid",gnr.widgets.Grid,{
         }
     },
     
-    mixin_onSetStructpath: function(structure){
-    this.query_columns=this.gnr.getQueryColumns(this.sourceNode,structure);
+    mixin_onSetStructpath: function(structBag){
+    this.query_columns=this.gnr.getQueryColumns(this.sourceNode,structBag);
     if (this.rpcViewColumns){
         this.rpcViewColumns.call();
     }
@@ -3214,11 +3202,35 @@ dojo.declare("gnr.widgets.IncludedView",gnr.widgets.VirtualStaticGrid,{
     },
     
     creating: function(attributes, sourceNode){
+        var savedAttrs= this.creating_common(attributes, sourceNode);
+        var addCheckBoxColumn = sourceNode.attr.addCheckBoxColumn;
+        if (addCheckBoxColumn){
+            var kw = addCheckBoxColumn==true? null: addCheckBoxColumn;
+            this.addCheckBoxColumn(kw,sourceNode);
+        }
+        this.creating_structure(attributes, sourceNode);
+        sourceNode.registerDynAttr('storepath'); 
+        attributes.query_columns=this.getQueryColumns(sourceNode, attributes.structBag);
+        var inAttrs= sourceNode.getInheritedAttributes();
+        var ctxRoot = sourceNode.absDatapath(inAttrs.sqlContextRoot);
+        var abs_storepath = sourceNode.absDatapath(sourceNode.attr.storepath);
+        var relation_path = abs_storepath;
+        if (abs_storepath.indexOf(ctxRoot) == 0){
+            relation_path = abs_storepath.replace(ctxRoot+'.', '');
+        }
+        attributes.relation_path= relation_path;
+        attributes.sqlContextName= inAttrs['sqlContextName'];
+        attributes.sqlContextTable= inAttrs['sqlContextTable'];
+        if(attributes.excludeListCb){
+            attributes.excludeListCb = funcCreate(attributes.excludeListCb);
+        }
+    }, 
+    creating_OLD: function(attributes, sourceNode){
+        var savedAttrs= this.creating_common(attributes, sourceNode);
         var sortedBy = objectPop(attributes,'sortedBy');
         var multiSelect = objectPop(attributes,'multiselect');
         var datamode=objectPop(attributes,'datamode','attr');
         var identifier=objectPop(attributes,'identifier','_pkey');
-        var savedAttrs = objectExtract(attributes,'selected*');
         var hiddencolumns = objectPop(attributes,'hiddencolumns');
         var gridAttributes=objectExtract(attributes,'autoHeight,autoRender,autoWidth,defaultHeight,elasticView,fastScroll,keepRows,model,rowCount,rowsPerPage,singleClickEdit,structure,filterColumn,excludeCol,excludeListCb,editorEnabled');
         objectPopAll(attributes);
@@ -3737,7 +3749,6 @@ dojo.declare("gnr.widgets.Tree",gnr.widgets.baseDojo,{
         this._dojotag='Tree';
     },
     creating: function(attributes, sourceNode){
-        dojo.require("dijit._tree.dndSource");
         dojo.require("dijit.Tree");
         var nodeAttributes = objectExtract(attributes,'node_*');
         var storepath=sourceNode.absDatapath(objectPop(attributes,'storepath'));

@@ -1170,8 +1170,8 @@ textarea:disabled {
 }
 
 
-#_trash_drop.canBeDropped{
-    background-color: rgba(170,170,170,0.92) !important;
+#trash_drop.canBeDropped{
+    background-color: rgba(170,170,170,0.3) !important;
 }
 .draggedItem{
 	background-color:rgba(252,252,169,0.63)!important;
@@ -1200,15 +1200,16 @@ textarea:disabled {
 .drag_to_trash .trash_drop{
 	display:block;
 }
+
 .trash_drop{
 	display:none;
-	width: 50px;
-	height: 50px;
+	width: 40px;
+	height: 40px;
 	position: absolute;
 	z-index:100;
-	-moz-border-radius:4px;
-    -webkit-border-radius:4px;
-    border-radius:4px;
+	-moz-border-radius:8px;
+    -webkit-border-radius:8px;
+    border-radius:8px;
     background: rgba(234,234,234,0.92) url(icons/base48/trash_icon.png) no-repeat center center;
     -moz-box-shadow:4px 4px 4px #403b3b;
 	-webkit-box-shadow:4px 4px 4px #403b3b;

@@ -29,7 +29,6 @@ dojo.require('dojo.date.locale');
 dojo.require("dojo.currency");
 dojo.require("dojox.validate.web");
 dojo.require("dojo.number");
-dojo.require("dojo.dnd.Source");
 dojo.require("dojo.cookie");
 dojo.require("dojo.fx");
 dijit.showTooltip = function(/*String*/ innerHTML, /*DomNode*/ aroundNode){
