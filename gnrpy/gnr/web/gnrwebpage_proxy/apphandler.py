@@ -224,7 +224,7 @@ class GnrWebAppHandler(GnrBaseProxy):
 
     def rpc_getRelatedRecord(self, from_fld=None, target_fld=None, pkg=None, pkey=None, ignoreMissing=True, ignoreDuplicate=True, 
                           js_resolver_one='relOneResolver', js_resolver_many='relManyResolver',
-                          sqlContextName=None, one_one=None, **kwargs):
+                          sqlContextName=None, one_one=None,virtual_columns=None, **kwargs):
         if one_one is not None:
             raise 'error'
             
@@ -238,7 +238,7 @@ class GnrWebAppHandler(GnrBaseProxy):
         record,recInfo = self.rpc_getRecord(table=table, from_fld=from_fld, target_fld=target_fld, pkey=pkey, 
                                             ignoreMissing=ignoreMissing, ignoreDuplicate=ignoreDuplicate, 
                                             js_resolver_one=js_resolver_one, js_resolver_many=js_resolver_many,
-                                            sqlContextName=sqlContextName, **kwargs)
+                                            sqlContextName=sqlContextName,virtual_columns=virtual_columns, **kwargs)
                                
         if sqlContextName:
             joinBag = self._getSqlContextConditions(sqlContextName,target_fld=target_fld,from_fld=from_fld)
@@ -737,7 +737,7 @@ class GnrWebAppHandler(GnrBaseProxy):
                     ignoreMissing=True, ignoreDuplicate=True, lock=False,readOnly=False,
                     from_fld=None, target_fld=None, sqlContextName=None, applymethod=None,
                     js_resolver_one='relOneResolver', js_resolver_many='relManyResolver', 
-                    loadingParameters=None, eager=None,**kwargs):
+                    loadingParameters=None, eager=None,virtual_columns=None,**kwargs):
         t = time.time()
         dbtable = dbtable or table
         if pkg:
@@ -749,10 +749,11 @@ class GnrWebAppHandler(GnrBaseProxy):
             lock=False
         if lock:
             kwargs['for_update']=True
-        
-        virtual_columns = self.page.pageStore().getItem('virtual_columns.%s' %dbtable)
-        if virtual_columns:
-            virtual_columns = virtual_columns.keys()
+       #if not virtual_columns:
+       #    virtual_columns = self.page.pageStore().getItem('virtual_columns.%s' %dbtable)
+       #    if virtual_columns:
+       #        virtual_columns = virtual_columns.keys()
+
         rec = tblobj.record(eager=eager or self.page.eagers.get(dbtable),
                             ignoreMissing=ignoreMissing,ignoreDuplicate=ignoreDuplicate,
                             sqlContextName=sqlContextName,virtual_columns=virtual_columns,**kwargs)

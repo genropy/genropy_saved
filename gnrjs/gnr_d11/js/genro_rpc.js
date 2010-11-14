@@ -567,7 +567,8 @@ dojo.declare("gnr.GnrRpcHandler",null,{
         var sync=('sync' in params)? objectPop(params,'sync'):true;
         var kwargs = { 'sync':sync,'from_fld':params._from_fld, 
                                  'target_fld':params._target_fld, 
-                             'sqlContextName':params._sqlContextName};
+                             'sqlContextName':params._sqlContextName,
+                             'virtual_columns':params._virtual_columns};
         kwargs.method = 'app.getRelatedRecord';
         
         var resolver = new gnr.GnrRemoteResolver(kwargs, isGetter, cacheTime);

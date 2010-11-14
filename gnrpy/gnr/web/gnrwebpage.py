@@ -860,24 +860,7 @@ class GnrWebPage(GnrBaseWebPage):
                             PUBLISH main_left_set_status = true;
                             SET .selected=plugin;
                           """,**{'subscribe_%s_open' %plugin:True,'plugin':plugin})
-            
-            
-    
-    def includeVirtualColumn(self,table=None,virtual_column=None):
-        """Add to the record loader for given table a virtual_column"""
-        columns = virtual_column.split(',')
-        tblobj = self.db.table(table)
-        with self.pageStore() as store:
-            for column in columns:
-                if column in tblobj.model.virtual_columns:
-                    col = column
-                    tbl = tblobj.fullname
-                else:
-                    tbl = column.split('.')
-                    col = tbl.pop()
-                    tbl = '%(opkg)s.%(otbl)s' %tblobj.model.getRelationBlock('.'.join(tbl))
-                store.setItem('virtual_columns.%s.%s' %(tbl,col),True)
-        
+
     def onMainCalls(self):
         calls = [m for m in dir(self) if m.startswith('onMain_')]
         for m in calls:

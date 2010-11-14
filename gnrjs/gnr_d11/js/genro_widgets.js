@@ -4205,7 +4205,8 @@ dojo.declare("gnr.widgets.CkEditor",gnr.widgets.baseHtml,{
     },
     connectChangeEvent:function(obj){
         var ckeditor=obj.sourceNode.externalWidget;
-         dojo.connect(ckeditor.focusManager,'blur', ckeditor, 'gnr_setInDatastore');
+        dojo.connect(ckeditor.focusManager,'blur', ckeditor, 'gnr_setInDatastore');
+         dojo.connect(ckeditor.editor,'paste', ckeditor, 'gnr_setInDatastore');
     },
     
     mixin_gnr_value:function(value,kw,reason){

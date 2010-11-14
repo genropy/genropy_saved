@@ -498,9 +498,8 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
             raise GnrDomSrcError('Not existing field %s' % fld)
         wdgattr = self.wdgAttributesFromColumn(fieldobj,**kwargs)
         if fieldobj.getTag() == 'virtual_column' or (('@' in fld )and fld!=tblobj.fullRelationPath(fld)):
-            self.page.includeVirtualColumn(tblobj.fullname,fld)
             wdgattr['readOnly'] = True
-            wdgattr['_virtual_column'] = True
+            wdgattr['_virtual_column'] = fld
         wdgattr['value']='^.%s' % fld
         return wdgattr
         

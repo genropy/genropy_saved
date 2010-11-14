@@ -1773,11 +1773,10 @@ class SqlRecord(object):
                     info['_from_fld'] = args['many_relation']
                     info['_target_fld'] = args['one_relation']
                     relation_value = sqlresult['%s_%s' % (args['basealias'], mfld)]
-                    
+                    rel_vc = None
+                    if self.virtual_columns:
+                        rel_vc = ','.join([vc.split('.',1)[1] for vc in self.virtual_columns.split(',') if vc.startswith(k)])
                     if resolver_one is True:
-                        rel_vc = None
-                        if self.virtual_columns:
-                            rel_vc = ','.join([vc.split('.',1)[1] for vc in self.virtual_columns.split(',') if vc.startswith(k)])                            
                         value = SqlRelatedRecordResolver( db=self.db, cacheTime=-1, 
                                                           target_fld = info['_target_fld'],
                                                           relation_value=relation_value,
@@ -1792,6 +1791,7 @@ class SqlRecord(object):
                         info['_resolver_name'] = resolver_one
                         info['_sqlContextName'] = self.sqlContextName
                         info['_auto_relation_value'] = mfld
+                        info['_virtual_columns'] = rel_vc
                     result.setItem(k, value, info)
             else:
                 if args.get('as'):

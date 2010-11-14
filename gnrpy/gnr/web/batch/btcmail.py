@@ -9,9 +9,7 @@ Copyright (c) 2010 Softwell. All rights reserved.
 
 from gnr.web.batch.btcbase import BaseResourceBatch
 from gnr.core.gnrbag import Bag
-from gnr.core.gnrstring import templateReplace
-from gnr.core.gnrbaghtml import BagToHtml
-import re
+
 
 class BaseResourceMail(BaseResourceBatch):
     def __init__(self,*args,**kwargs):
@@ -42,42 +40,23 @@ class TemplateMail(BaseResourceMail):
                               progress,maximum)
         return caption
     
-    def cleanTemplate(self,doctemplate_content):
-        EXTRACT_FIELDS_STRIPPED_RE=r'(?:\$)(.*?)(?:<|\s)'
-        EXTRACT_FIELDS_RE=r'(\$.*?)(?:<|\s)'
-        SUB_SPAN_RE=r'(<span\s+class="tplfieldpath".*?/span>\s*<span\s+class="tplfieldcaption".*?/span>)'
-        extract_fields_stripped=re.compile(EXTRACT_FIELDS_STRIPPED_RE)
-        sub_span=re.compile(SUB_SPAN_RE)
-        extract_fields=re.compile(EXTRACT_FIELDS_RE)
-        def replace_span(a):
-            b = a.group()
-            if 'virtual_column' in b:
-                self.template_virtual_columns.append(b.split('fieldpath="')[1].split('"')[0])
-            return ' '.join(extract_fields.findall(a.group(0),re.MULTILINE))
-        return sub_span.sub(replace_span,doctemplate_content)
-
     def _pre_process(self):
-        self.template_virtual_columns = []
-        self.mailbody = self.cleanTemplate(self.batch_parameters['body'])
-        custom_virtual_columns = self.virtual_columns
-        self.virtual_columns = ','.join(self.template_virtual_columns)
-        if custom_virtual_columns:
-            self.virtual_columns = '%s,%s' %(self.virtual_columns,custom_virtual_columns)
-        print self.virtual_columns
-        self.htmlBuilder = BagToHtml(templates=self.batch_parameters['htmltemplate'],
-                                    templateLoader=self.db.table('adm.htmltemplate').getTemplate)
-        
+        self.doctemplate_tbl =  self.db.table('adm.doctemplate')
+        self.htmlBuilder = self.doctemplate_tbl.getTemplateBuilder(doctemplate=self.batch_parameters.get('doctemplate'),
+                                                                templates=self.batch_parameters.get('templates'))
         
     def do(self):
-        thermo_s = dict(line_code='selection',message=self.get_record_caption)
+        thermo_s = dict(line_code='selection',message='sending')
         mailpars = dict()
         mailpars.update(self.mail_preference.asDict(True))
-        for record in self.btc.thermo_wrapper(self.get_records(),maximum=len(self.get_selection()),**thermo_s):            
+        pkeys = self.get_selection_pkeys()
+        for pkey in self.btc.thermo_wrapper(pkeys,**thermo_s):            
             mailpars['html'] = True
-            mailpars['body'] = self.htmlBuilder(htmlContent=templateReplace(self.mailbody,record))
-            mailpars['to_address'] = record[self.batch_parameters['deliver_field']]
-            mailpars['cc_address'] = self.batch_parameters['cc_address']
-            mailpars['subject'] = self.batch_parameters['subject']
+            mailpars['body'] = self.doctemplate_tbl.renderTemplate(self.htmlBuilder,record_id=pkey)
+            record = self.htmlBuilder.record
+            mailpars['to_address'] = record[self.batch_parameters.get('to_address')]
+            mailpars['cc_address'] = self.batch_parameters.get('cc_address')
+            mailpars['subject'] = self.batch_parameters.get('subject')
             self.mail_handler.sendmail(**mailpars)
 
         
@@ -87,21 +66,28 @@ class TemplateMail(BaseResourceMail):
         top = bc.contentPane(region='top')
         bc.data('.#parent.zoomFactor',.5)
         fb = top.div(margin_right='5px').formbuilder(cols=2,width='100%',border_spacing='4px',fld_width='100%')
-        fb.dbSelect(dbtable='adm.doctemplate',value='^.doctemplate',lbl='Template',
+        fb.dbSelect(dbtable='adm.doctemplate',value='^.doctemplate_id',lbl='Template',
                     condition='maintable=:mt',condition_mt = self.maintable,hasDownArrow=True)
         fb.dbSelect(dbtable='adm.htmltemplate',value='^.htmltemplate_id',
-                    selected_name='.htmltemplate',
+                    selected_name='.templates',
                     lbl='Header template',hasDownArrow=True)
-        fb.dataRpc('.#parent.rendered_template','table_script_renderTemplate',doctemplate_id='^.doctemplate',
-                    htmltemplate='^.htmltemplate',record_id= '==genro.wdgById(_gridId).rowIdByIndex(_idx);',
-                    _idx='^list.rowIndex',_gridId='maingrid',_if='doctemplate_id')
-        fb.dataRecord('.#parent.currentDocTemplate','adm.doctemplate',
-                        pkey='^.doctemplate',_if='pkey',_onResult="""
-                                                                    var record = result.getValue();
-                                                                    SET .subject = record.getItem("metadata.subject"); 
-                                                                    SET .deliver_field = record.getItem("metadata.to_address");
-                                                                    SET .body = record.getItem('content');
-                                                                    """)
+        #doctemplate=None,record_id=None,templates=None
+        fb.dataRpc('.#parent.rendered_template','table_script_renderTemplate',
+                    templates='^.templates',
+                    doctemplate='=.doctemplate',doctemplate_id='=.doctemplate_id',
+                    record_id= '==genro.wdgById(_gridId).rowIdByIndex(_idx);',
+                    _idx='^list.rowIndex',
+                    _gridId='maingrid',
+                    _if='doctemplate_id',_fired='^.doctemplate_loaded')                    
+        fb.dataRecord('.doctemplate','adm.doctemplate',pkey='^.doctemplate_id',_if='pkey',
+                        _onResult="""
+                            var metadata = result.getValue('metadata');
+                            if(metadata){
+                                SET .to_address = metadata.getItem('to_address');
+                                SET .subject = metadata.getItem('subject');
+                            }
+                            FIRE .doctemplate_loaded;
+                        """)
         fb.textbox(value='^.cc_address',lbl='!!CC',colspan=2)
         fb.textbox(value='^.subject',lbl='!!Subject',colspan=2)
         sc = bc.stackContainer(region='center',selectedPage='^.#parent.previewPage')
@@ -125,7 +111,7 @@ class TemplateMail(BaseResourceMail):
                                     showLabel=False)
         self.RichTextEditor(editpane.contentPane(region='center'), 
                             config_contentsCss=self.getResourceUri('doctemplate.css',add_mtime=True),
-                            value='^.body',toolbar=self.rte_toolbar_standard())
+                            value='^.doctemplate.content',toolbar=self.rte_toolbar_standard())
          
   #INSIDE BATCHHANDLER
   # def rpc_table_script_renderTemplate(self,record_id=None,doctemplate_id=None,htmltemplate=None):

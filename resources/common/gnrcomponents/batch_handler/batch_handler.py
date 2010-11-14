@@ -89,8 +89,9 @@ class TableScriptRunner(BaseComponent):
                           
         pane.dataController("""
                             var selectedRowidx = gridId?genro.wdgById(gridId).getSelectedRowidx():null;
-                            PUBLISH table_script_run={table:table,res_type:res_type,selectionName:selectionName,
-                                                        selectedRowidx:selectedRowidx,resource:resource,gridId:gridId};""",
+                            var pars = {table:table,res_type:res_type,selectionName:selectionName,selectedRowidx:selectedRowidx,resource:resource,gridId:gridId}
+                            console.log(pars);
+                            PUBLISH table_script_run=pars;""",
                             _fired="^.run_table_script",selectionName=selectionName,table=table,
                             gridId=gridId,res_type=res_type,resource='=.resource')
 
@@ -207,12 +208,7 @@ class TableScriptRunner(BaseComponent):
             result.pop(forbidden)
         return result
         
-    def rpc_table_script_renderTemplate(self,record_id=None,doctemplate_id=None,htmltemplate=None):
-        doctemplateRecord = self.db.table('adm.doctemplate').record(pkey=doctemplate_id).output('bag')        
-        virtual_columns = doctemplateRecord['virtual_columns']
-        record = self.tblobj.record(pkey=record_id,virtual_columns=virtual_columns).output('bag')
-        doctemplate = doctemplateRecord['content']
-        htmlContent = templateReplace(doctemplate,record,True)
-        htmlbuilder = BagToHtml(templates=htmltemplate,templateLoader=self.db.table('adm.htmltemplate').getTemplate)
-        html = htmlbuilder(htmlContent=htmlContent)
-        return html
+    def rpc_table_script_renderTemplate(self,doctemplate=None,record_id=None,templates=None,**kwargs):
+        doctemplate_tbl =  self.db.table('adm.doctemplate')
+        tplbuilder = doctemplate_tbl.getTemplateBuilder(doctemplate=doctemplate,templates=templates)
+        return doctemplate_tbl.renderTemplate(tplbuilder,record_id=record_id,extraData=Bag(dict(host=self.request.host)))

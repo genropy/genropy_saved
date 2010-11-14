@@ -190,6 +190,13 @@ dojo.declare("gnr.GnrFrmHandler",null,{
     getFormCluster: function(){
         return this._getRecordCluster(this.getFormData(),false);
     },
+    getVirtualColumns:function(){
+        var virtual_columns = [];
+        this.sourceNode.getValue().walk(function(n){
+           if(n.attr._virtual_column){virtual_columns.push(n.attr._virtual_column)}
+        });
+        return virtual_columns.join(',');
+    },
     
     _getRecordCluster: function(record, changesOnly,result, removed, parentpath){
         if (record) {

@@ -313,8 +313,7 @@ class GnrBaseWebPage(GnrObject):
                        
     def formLoader(self,formId,resultPath,table=None,pkey=None,  datapath=None,
                     _fired=None,loadOnStart = False,lock=False,
-                    method=None,onLoading=None,onLoaded=None,loadingParameters=None,
-                    **kwargs):
+                    method=None,onLoading=None,onLoaded=None,loadingParameters=None,**kwargs):
         pkey = pkey or '*newrecord*'
         method = method or 'loadRecordCluster'
         onResultScripts=[]
@@ -323,15 +322,16 @@ class GnrBaseWebPage(GnrObject):
             onResultScripts.append(onLoaded)
         loadingParameters = loadingParameters or '=gnr.tables.maintable.loadingParameters'
         controller = self.pageController()
-        controller.dataController('genro.formById(frmId).load();',
-                                _fired=_fired, _onStart=loadOnStart,_delay=1,frmId=formId,
+        controller.dataController('genro.formById(_formId).load();',
+                                _fired=_fired, _onStart=loadOnStart,_delay=1,_formId=formId,
                                 datapath=datapath)
                     
         controller.dataRpc(resultPath, method=method, pkey=pkey, table=table,
                            nodeId='%s_loader' %formId,datapath=datapath,_onCalling=onLoading,
                            _onResult=';'.join(onResultScripts),lock=lock,
                            loadingParameters=loadingParameters,
-                           **kwargs)
+                           virtual_columns='==genro.formById(_formId).getVirtualColumns()',
+                           _formId=formId,**kwargs)
                     
     def rpc_loadRecordCluster(self, table=None, pkey=None, recordGetter='app.getRecord', **kwargs):
         table = table or self.maintable

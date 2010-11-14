@@ -5,11 +5,12 @@ Created by Softwell on 2008-07-10.
 Copyright (c) 2008 Softwell. All rights reserved.
 """
 from gnr.core.gnrbag import Bag
-from gnr.core.gnrbaghtml import BagToHtml
-from gnr.core.gnrstring import templateReplace
+
 
 # --------------------------- GnrWebPage Standard header ---------------------------
 class GnrCustomWebPage(object):
+    pageOptions={'openMenu':False}
+
     maintable='adm.doctemplate'
     css_requires='doctemplate'
     py_requires='public:Public,standard_tables:TableHandler,foundation/macrowidgets:RichTextEditor'
@@ -60,7 +61,7 @@ class GnrCustomWebPage(object):
         fb.field('name',width='20em')
         fb.field('version',width='4em')
         fb.checkbox(value='^mainbc.regions.left?show',label='!!Show fields')        
-        tc = bc.tabContainer(region='center')
+        tc = bc.tabContainer(region='center',nodeId='doc_tabs',selectedPage='^doc_tabs.selectedPage')
         editorPane = tc.contentPane(title='Edit',pageName='edit',id='editpage')
         self.previewPane(tc.borderContainer(title='Preview',pageName='view',_class='preview'))
         
@@ -69,36 +70,17 @@ class GnrCustomWebPage(object):
         self.RichTextEditor(editorPane, value='^.content',height='100%',
                             toolbar=self.rte_toolbar_standard(),
                             config_contentsCss=self.getResourceUri('doctemplate.css',add_mtime=True))
-                            
-        bc.dataController("""
-                                var virtual_columns = [];
-                                dojo.query('[itemtag="virtual_column"]').forEach(function(n){
-                                                var field = n.getAttribute('fieldpath');
-                                                if(field){
-                                                    virtual_columns.push(field);
-                                                }
-                                             });
-                                SET .virtual_columns = virtual_columns.join(',');
-                                """,_fired="^.content",_userChanges=True)
-        bc.dataRpc('dummy','includeVirtualColumn',
-                    virtual_column='^.virtual_columns',
-                    table='=.maintable',_if='virtual_column')
+
     
     def previewPane(self,bc):
-        top = bc.contentPane(region='top').toolbar()
+        top = bc.contentPane(region='top',overflow='hidden').toolbar()
         fb = top.formbuilder(cols=2, border_spacing='2px')
         fb.dbSelect(dbtable='^form.record.maintable',value='^test_id',lbl='!!Record',width='20em')
         fb.dbSelect(dbtable='adm.htmltemplate',value='^html_template_id',selected_name='html_template_name',lbl_width='10em',lbl='!!Template',width='20em',hasDownArrow=True)
-        fb.dataRpc('preview','renderTemplate',table='=form.record.maintable',record_id='^test_id',
-                    doctemplate='^form.record.content',htmltemplate_name='^html_template_name',_if='table&&doctemplate')
+        fb.dataRpc('preview','renderTemplate',doctemplate='=form.record',record_id='^test_id',templates='^html_template_name',
+                    content='=form.record.content',_if='content&&selectedTab=="view"',selectedTab='^doc_tabs.selectedPage')
+
         bc.contentPane(region='center',padding='10px').div(height='100%',background='white').div(innerHTML='^preview')
-        
-    def rpc_includeVirtualColumn(self,table=None,virtual_column=None):
-        print 'aaaa'
-        with self.pageStore() as store:
-            store.setItem('virtual_columns',None)
-        self.includeVirtualColumn(table=table,virtual_column=virtual_column)
-        
                             
     def metadataForm(self,pane,disabled=None):
         fb = pane.formbuilder(cols=2, border_spacing='4px',fld_width='15em',disabled=disabled)
@@ -133,13 +115,8 @@ class GnrCustomWebPage(object):
                      getIconClass="""if(node.attr.dtype){return "icnDtype_"+node.attr.dtype}
                                      else {return opened?'dijitFolderOpened':'dijitFolderClosed'}""")
 
-    def rpc_renderTemplate(self,table=None,record_id=None,doctemplate=None,htmltemplate_name=None):
-        record = self.app.rpc_getRecord(table=table,pkey=record_id)[0]
-        if not record_id:
-            return ''
-        htmlContent = templateReplace(doctemplate,record,True)
-        htmlbuilder = BagToHtml(templates=htmltemplate_name,templateLoader=self.db.table('adm.htmltemplate').getTemplate)
-        html = htmlbuilder(htmlContent=htmlContent)
-        return html
+    def rpc_renderTemplate(self,doctemplate=None,record_id=None,templates=None,**kwargs):
+        tplbuilder = self.tblobj.getTemplateBuilder(doctemplate=doctemplate,templates=templates)
+        return self.tblobj.renderTemplate(tplbuilder,record_id=record_id,extraData=Bag(dict(host=self.request.host)))
         
         
