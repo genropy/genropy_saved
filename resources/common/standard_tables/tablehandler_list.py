@@ -100,7 +100,7 @@ class TableHandlerForm(BaseComponent):
         self.listViewStructures(pane)
         pane.dataController("""genro.querybuilder = new gnr.GnrQueryBuilder("query_root", "%s", "list.query.where");""" % self.maintable,_init=True)
         pane.dataController("""genro.queryanalyzer = new gnr.GnrQueryAnalyzer("translator_root","list.query.where","list.runQueryDo")""",_onStart=True)
-        pane.dataController("""genro.viewEditor = new gnr.GnrViewEditor("view_root", "%s", "maingrid");""" % self.maintable,_onStart=True)
+        #pane.dataController("""genro.viewEditor = new gnr.GnrViewEditor("view_root", "%s", "maingrid");""" % self.maintable,_onStart=True)
         pane.dataController("""genro.querybuilder.createMenues();
                                   dijit.byId('qb_fields_menu').bindDomNode(genro.domById('fastQueryColumn'));
                                   dijit.byId('qb_not_menu').bindDomNode(genro.domById('fastQueryNot'));
@@ -245,10 +245,11 @@ class TableHandlerForm(BaseComponent):
     def listToolbar_query(self,pane):
         queryfb = pane.formbuilder(cols=5,datapath='list.query.where',_class='query_form',
                                           border_spacing='2px',onEnter='genro.fireAfter("list.runQuery",true,10);',float='left')
-        queryfb.div('^.c_0?column_caption',min_width='12em',_class='smallFakeTextBox floatingPopup',
-                              dnd_onDrop="genro.querybuilder.onChangedQueryColumn(this,item.attr);",
-                              dnd_allowDrop="return !(item.attr.one_relation);", nodeId='fastQueryColumn',
-                              
+        queryfb.div('^.c_0?column_caption',min_width='12em',_class='smallFakeTextBox floatingPopup',nodeId='fastQueryColumn',
+                              #dnd_onDrop="genro.querybuilder.onChangedQueryColumn(this,item.attr);",
+                              drop_action="genro.querybuilder.onChangedQueryColumn(this,drop_data);",
+                              #dnd_allowDrop="return !(item.attr.one_relation);", 
+                              drop_types='gnrdbfld/json',droppable=True,
                               lbl='!!Search')
         optd = queryfb.div(_class='smallFakeTextBox',lbl='!!Op.',lbl_width='4em')
         
@@ -446,7 +447,7 @@ class TableHandlerForm(BaseComponent):
         drop_types = 'gnrdbfld/json,gnrgridcol/json'
         if hasattr(self,'explorer_manager_draggable_types'):
             drop_types = '%s,%s' %(drop_types,self.explorer_manager_draggable_types())
-        grid = gridpane.virtualGrid(nodeId='maingrid', structpath="list.view.structure", storepath=".data", autoWidth=False,
+        gridpane.virtualGrid(nodeId='maingrid', structpath="list.view.structure", storepath=".data", autoWidth=False,
                                 selectedIndex='list.rowIndex', rowsPerPage=self.rowsPerPage(), sortedBy='^list.grid.sorted',
                                 connect_onSelectionChanged='SET list.noSelection = (genro.wdgById("maingrid").selection.getSelectedCount()==0)',
                                 linkedForm='formPane',openFormEvent='onRowDblClick',drop_types=drop_types,
@@ -454,7 +455,7 @@ class TableHandlerForm(BaseComponent):
                                                                      genro.fireAfter('list.runQueryDo',true)""",
                                 draggable=True,draggable_column=True,drag_value_cb=dragColumnCb,drag_class='draggedItem',
                                 connect_onRowContextMenu="FIRE list.onSelectionMenu = true;",
-                                subscribe_trashedObject="""this.widget.onTrashedColumn(trashedObject[0]);"""
+                                subscribe_trashedObject="""this.widget.onTrashedColumn($1);"""
                                 )   
         
         pane.dataController("SET list.selectedIndex = idx; SET selectedPage = 1;",idx="^gnr.forms.formPane.openFormIdx") 

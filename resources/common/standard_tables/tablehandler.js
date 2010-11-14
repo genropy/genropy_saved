@@ -1,139 +1,14 @@
 
 
 
-dojo.declare("gnr.GnrViewEditor",null,{
-      constructor: function(nodeId, maintable, widgetNodeId){
-        this.nodeId = nodeId;
-        this.maintable=maintable;
-        this.sourceNode=genro.nodeById(widgetNodeId);
-        this.width_em = 10;
-    },
-    onTrashedColumn:function(kw){
-        var colsBag = genro.viewEditor.getStruct('#0','#0');
-        colsBag.popNode('#'+kw.column)
-    },
-    onDroppedColumn:function(drop_data,drop_event,drop_datatype){
-        if(!('column' in drop_event.dragDropInfo)){ return }
-        var colsBag = genro.viewEditor.getStruct('#0','#0');
-        var toPos=drop_event.dragDropInfo.column
-        if(drop_datatype=='gnrgridcol/json'){
-            if(toPos!=drop_data.position){
-                var moved=colsBag.popNode('#'+drop_data.position)
-                colsBag.setItem('cellx_'+genro.getCounter(), null, moved.attr, {'_position':toPos});
-            }
-            
-        }
-        else if(drop_data.tag == 'column' || drop_data.tag == 'virtual_column'){
-            colsBag.setItem('cellx_'+genro.getCounter(), null, {'width':'8em','name':drop_data.fullcaption, 
-                                                    'dtype':drop_data.dtype, 'field':drop_data.fieldpath,
-                                                    'tag':'cell'}, {'_position':toPos+1});
-            genro.fireAfter('list.runQueryDo',true)
-        }
-       
-    },
-    getStruct: function(view, subrow){
-        var struct = this.sourceNode.getRelativeData(this.sourceNode.attr.structpath);
-        if(view){
-            struct = struct.getItem(view);
-            if(subrow){
-                struct = struct.getItem(subrow);
-            }
-        }
-        return struct;
-    },
-    colsFromBag: function(){
-        this.clearCols();
-        setTimeout(dojo.hitch(this, 'buildCols'), 100);
-    },
-    clearCols: function(){
-        var startNode = genro.nodeById(this.nodeId);
-        var dndBag = startNode.getValue();
-        if(dndBag && dndBag.len()>0){
-            dndBag.getNode('#0').dndSource.destroy();
-        }
-        startNode.clearValue();
-    },
-    buildCols: function(){
-        var startNode = genro.nodeById(this.nodeId);
-        startNode.freeze();
-        var cols=this.getStruct('#0','#0').getNodes();
-        
-        var dndOnDrop = function(source, nodes, copy){
-            var toPos = 0;
-            var torebuild = false;
-            var colsBag = genro.viewEditor.getStruct('#0','#0');
-            if (this.targetAnchor){
-                toPos = this.targetAnchor.sourceNode.attr.pos;
-            } else if (colsBag.len()==0){
-                toPos = 0;
-            } else {
-                return;
-            }
-            if(source.before){
-                    toPos = toPos - 1;
-            }
-
-            if(source.tree){
-                toPos = toPos + 1;
-                var colNode = source.tree.getItemById(nodes[0].id);
-                if(colNode.attr.tag == 'column' || colNode.attr.tag == 'virtual_column'){
-                    colsBag.setItem('cellx_'+genro.getCounter(), null, {'width':'8em','name':colNode.attr.fullcaption, 
-                                                    'dtype':colNode.attr.dtype, 'field':colNode.attr.fieldpath,
-                                                    'tag':'cell'}, {'_position':toPos});
-                }
-                torebuild = true;
-            } else {
-                var fromPos = source.anchor.sourceNode.attr.pos;
-                var sourceNode = colsBag.getNode('#'+fromPos);
-                colsBag.delItem(sourceNode['label']);
-                if(toPos < fromPos){
-                    toPos = toPos + 1;
-                }
-                colsBag.setItem(sourceNode['label'], sourceNode['value'], sourceNode.attr, {'_position':toPos});
-                this.parent.removeChild(nodes[0]);
-                this.parent.insertBefore(nodes[0], this.parent.childNodes[toPos]);
-            }
-            this.onDndCancel();
-            if(torebuild){
-                genro.viewEditor.colsFromBag();
-            }
-        };
-        var head, col, relpath, v, colattrs;
-        var pane=startNode._('div',{'dnd_source':true,'dnd_singular':true, 'dnd_onDndDrop': dndOnDrop,
-                                    'dnd_horizontal':true,'nodeId':'viewedit', 'dnd_accept':'data',
-                                    datapath:'.#0.#0', width:((this.width_em+1) * (cols.length || 5))+ 'em', height:'100%'});
-        for (var i=0; i < cols.length; i++) {
-             col=cols[i];
-             colattrs = col.attr;
-             relpath='.'+col['label'];
-             v = pane._('div',{'_class':'ve_cols','dnd_itemType':'cols', 'pos':i, 'width':this.width_em + 'em'});
-             head = v._('div',{'_class':'ve_cols_label'})._('div',{innerHTML:'^'+relpath+'?name'});
-             v._('div',{'_class':'icnBase10_Trash', 'float':'left', 'margin_top':'2px', 'margin_left':'6px', 
-                           'connect_onclick':"genro.viewEditor.getStruct('#0','#0').delItem('"+col['label']+"');genro.viewEditor.colsFromBag();"});
-     
-             v._('div', {'_class':'icnBase10_Lens','float':'right', 'margin_right':'6px', 
-                                    connect_onclick:function(evt){
-                                        genro.setData('vars.editedColumn', this.absDatapath(this.attr.colpath));
-                                        genro.wdgById('ve_colEditor')._openDropDown(evt.target);
-                                    },
-                                      'colpath':relpath});
-        }
-        startNode.unfreeze();
-     },
-     
-     buildColEditor_OLD: function(){
-         var fb=v._('table',{'border_spacing':'3px', 'font_size':'0.9em'})._('tbody',{});
-         this.addDlgCell(fb, 'Name', 'textbox', {'value':'^'+relpath+'?name'});
-         this.addDlgCell(fb, 'Width', 'textbox', {'value':'^'+relpath+'?width'});
-     },
-     addDlgCell_OLD: function(fb, lbl, tag, attrs){
-        var dflt = {'width': '6em'};
-        attrs = objectUpdate(dflt, attrs);
-        r=fb._('tr');
-        r._('td')._('div',{'content':lbl});
-        r._('td')._(tag, attrs);
-     }
-});
+//dojo.declare("gnr.GnrViewEditor",null,{
+//      constructor: function(nodeId, maintable, widgetNodeId){
+//        this.nodeId = nodeId;
+//        this.maintable=maintable;
+//        this.sourceNode=genro.nodeById(widgetNodeId);
+//        this.width_em = 10;
+//    }
+//});
 
 dojo.declare("gnr.GnrQueryBuilder",null,{
     constructor: function(nodeId, maintable, datapath){
