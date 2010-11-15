@@ -6,6 +6,8 @@
 
 	- :ref:`bag-backward-path`
 	
+	- :ref:`bag-trigger`
+	
 	.. _bag-backward-path:
 
 Backward path
@@ -17,36 +19,39 @@ Backward path
 	
 	- each item can be included in other Bags.
 	
-	These two features mean that a Bag knows its children but not its father (infact a Bag may have more than one father). We could set some stricter hypotesis about a bag's structure, making it more similar to a tree-leaf model: this would happen if a Bag would have a back reference to its father Bag.
+	This means that a Bag knows its children but not its father (infact a Bag may have more than one father). We could set some stricter hypotesis about a Bag's structure, making it more similar to a tree-leaf model: this would happen if a Bag had a back reference to its father Bag.
 	
 	.. image:: ../images/backward_path.png
 
-	This feature is implemented by the :meth:`setBackRef()` method. If we call it on a Bag instance, that Bag becomes the root of a tree structure in which each leaf (BagNode) knows its father. This means that we can traverse a Bag backward using the parent properties of Bag's nodes.
+	This feature is implemented by the :meth:`gnr.core.gnrbag.Bag.setBackRef()` method. If we call it on a Bag instance, that Bag becomes the root of a tree structure in which each leaf (BagNode) knows its father. This means that we can traverse a Bag backward using the ``parent`` property of Bag's nodes:
 
-		family = Bag()
-		family['grandpa'] = Bag() 
-		family['grandpa'].setBackRef()
-		family['grandpa.father.son.nephew']=Bag()
-
-		nephew = family['grandpa.father.son.nephew']
-		son = family['grandpa.father.son']
-		father = family['grandpa.father']
-
+		>>> family = Bag()
+		>>> family['grandpa'] = Bag() 
+		>>> family['grandpa'].setBackRef()
+		>>> family['grandpa.father.son.nephew']=Bag()
+		>>> nephew = family['grandpa.father.son.nephew']
+		>>> son = family['grandpa.father.son']
+		>>> father = family['grandpa.father']
 		>>> son.parent == father
 		True
 		>>> nephew.parent.parent == father
 		True
 		>>> nephew.parent == son
 		True
-	A bag with back reference can be traversed with special back-paths that use a new syntax. The symbol '../' in a path is equivalent to the property parent.
-
-	When the backreference is set, it is possible to get from the bag its own BagNode:
+	
+	A bag with back reference can be traversed with special back-paths that use a new syntax. The symbol '../' in a path is equivalent to the ``parent`` property: when the backreference is set, it is possible to get from the Bag its own BagNode:
 
 		>>> nephew['../../'] == father
 		True
-	Trigger
+		
+	.. _bag-trigger:
+	
+Trigger
+=======
 
-	Bag provides a trigger system. This means that a Bag may be notified when its data changes. Bag triggers are based on the concept of subscription, that is a link between an event (update, insert, delete) with its eventhandler callback functions. The method subscribe defines new subscriptions for update, insert, delete events.
+	Bag provides a trigger system.
+	
+	This means that a Bag may be notified when its data changes. Bag triggers are based on the concept of *subscription*, that is a link between an event (update, insert, delete) with its eventhandler callback functions. The method subscribe defines new subscriptions for update, insert, delete events.
 
 	Triggers may be defined either on bags or nodes, in fact there are two subscribe methods.
 

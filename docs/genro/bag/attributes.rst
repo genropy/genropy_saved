@@ -19,7 +19,7 @@
 Setting attributes with setItem method
 ======================================
 
-	You can set attributes while you set an item, passing them as ``**kwargs`` of the :meth:`setItem` method.
+	You can set attributes while you set an item, passing them as ``**kwargs`` of the :meth:`gnr.core.gnrbag.Bag.setItem` method.
 
 	>>> b=Bag()
 	>>> b.setItem('documents.letters.letter_to_mark','file0',createdOn='10-7-2003',createdBy= 'Jack')
@@ -37,7 +37,7 @@ Setting attributes with setItem method
 Setting attributes with setAttr method
 ======================================
 
-	With :meth:`setAttr` method you can set, modify or delete attributes. The attributes are passed as ``**kwargs``; let's add some attributes to the letter to Sheila (the Bag item labelled "2"):
+	With :meth:`gnr.core.gnrbag.Bag.setAttr` method you can set, modify or delete attributes. The attributes are passed as ``**kwargs``; let's add some attributes to the letter to Sheila (the Bag item labelled "2"):
 
 		>>> b.setAttr('documents.letters.letter_to_sheila', createdOn='12-4-2003', createdBy='Walter', lastModify= '12-9-2003')
 		>>> b.setAttr('documents.letters.letter_to_sheila', fileOwner='Steve')
@@ -61,7 +61,7 @@ Setting attributes with setAttr method
 Getting attributes
 ==================
 
-	To get a single Bag's attribute you can use the :meth:`getAttr` method:
+	To get a single Bag's attribute you can use the :meth:`gnr.core.gnrbag.Bag.getAttr` method:
 
 	>>> print b.getAttr('documents.letters.letter_to_sheila', 'fileOwner')
 	Steve
