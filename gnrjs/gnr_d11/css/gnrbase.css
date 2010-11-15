@@ -774,11 +774,18 @@ table.formbuilder {
     width: 15px;
     height: 15px;
 }
-.checkboxOff {
+
+.radioOn {
+    background: url(icons/checkMarkOn.png) no-repeat;
+    width: 15px;
+    height: 15px;
+}
+.radioOff {
     background: url(icons/checkMarkOff.png) no-repeat;
     width: 15px;
     height: 15px;
 }
+
 /* @group boole */
 .icnTrue{
     background: url(icons/base16/ok.gif) no-repeat;
