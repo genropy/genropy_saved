@@ -335,16 +335,21 @@ class ResourceLoader(object):
         self.mixinResource(resource_class, resourceDirs, *path)
         return resource_class()
         
-    def loadTableScript(self, page, table=None, respath=None, class_name=None):
+    def loadTableScript(self, page, table=None, respath=None, class_name=None,_onDefault=None):
         class_name=class_name or 'Main'
         if ':' in respath:
             table,respath = respath.split(':')
         application=self.gnrapp
         if isinstance(table, basestring):
             table=application.db.table(table)
-        modName = os.path.join('tables',table.name,*(respath.split('/')))
+        tablename = table.name
+        if _onDefault:
+            tablename = '_default'
+            resourceDirs=page.resourceDirs
+        else:
+            resourceDirs=self.package_resourceDirs(table.pkg.name)
+        modName = os.path.join('tables',tablename,*(respath.split('/')))
         #resourceDirs = application.packages[table.pkg.name].resourceDirs
-        resourceDirs=self.package_resourceDirs(table.pkg.name)
         modPathList = self.getResourceList(resourceDirs, modName, 'py') or []
         if modPathList:
             modPathList.reverse()
@@ -358,6 +363,8 @@ class ResourceLoader(object):
                 if resource_class:
                     instanceMixin(resource_obj,resource_class,only_callables=False)
             return resource_obj
+        elif not _onDefault:
+            return self.loadTableScript(page,table=table,respath=respath,_onDefault=True)
         else:
             raise GnrWebServerError('Cannot import component %s' % modName)
     

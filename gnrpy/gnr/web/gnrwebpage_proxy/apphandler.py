@@ -511,7 +511,9 @@ class GnrWebAppHandler(GnrBaseProxy):
                 
             if selectionName:
                 selection.setKey('rowidx')
-                self.page.freezeSelection(selection,selectionName)
+                selectionPath = self.page.freezeSelection(selection,selectionName)
+                with self.page.userStore() as store:
+                    store.setItem('current.table.%s.last_selection_path' %table.replace('.','_'),selectionPath)
             resultAttributes=dict(table=table, method='app.getSelection',selectionName=selectionName, row_count=row_count,
                                                totalrows=len(selection))
         generator = selection.output(mode='generator',offset=row_start,limit=row_count, formats=formats)
@@ -749,11 +751,6 @@ class GnrWebAppHandler(GnrBaseProxy):
             lock=False
         if lock:
             kwargs['for_update']=True
-       #if not virtual_columns:
-       #    virtual_columns = self.page.pageStore().getItem('virtual_columns.%s' %dbtable)
-       #    if virtual_columns:
-       #        virtual_columns = virtual_columns.keys()
-
         rec = tblobj.record(eager=eager or self.page.eagers.get(dbtable),
                             ignoreMissing=ignoreMissing,ignoreDuplicate=ignoreDuplicate,
                             sqlContextName=sqlContextName,virtual_columns=virtual_columns,**kwargs)

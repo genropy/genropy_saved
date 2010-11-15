@@ -8,7 +8,7 @@ from gnr.core.gnrbag import Bag
 class Table(object):
    
     def config_db(self, pkg):
-        tbl =  pkg.table('user',  pkey='id', name_long='!!User', rowcaption='username,email:%s (%s)')
+        tbl =  pkg.table('user',  pkey='id', name_long='!!User', rowcaption='username,email:%s (%s)',tabletype='main')
         self.sysFields(tbl,ins=True, upd=True, md5=True)
         tbl.column('id',size='22',group='_',readOnly='y',name_long='Id')
         tbl.column('username', size=':32',name_long='!!Username', unique='y', _sendback=True,

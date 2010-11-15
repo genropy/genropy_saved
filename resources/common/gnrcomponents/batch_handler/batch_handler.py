@@ -129,15 +129,16 @@ class TableScriptRunner(BaseComponent):
         if not resource:
             return
         resource = resource.replace('.py','')
-        cl=self.site.loadResource(pkgname,'tables',tblname,res_type,"%s:Main" %resource) #faccio mixin con prefisso
-        self.mixin(cl,methods='table_script_*,rpc_table_script_*')
-        batch_dict = objectExtract(cl,'batch_') 
+        #cl=self.site.loadResource(pkgname,'tables',tblname,res_type,"%s:Main" %resource) #faccio mixin con prefisso
+        res_obj=self.site.loadTableScript(self,table,'%s/%s' %(res_type,resource),class_name='Main')
+        self.mixin(res_obj,methods='table_script_*,rpc_table_script_*')
+        batch_dict = objectExtract(res_obj,'batch_') 
         batch_dict['resource_name'] = resource
         batch_dict['res_type'] = res_type
         pane.data('.batch',batch_dict)
         hasParameters = hasattr(self,'table_script_parameters_pane')
         
-        dlg_dict = objectExtract(cl,'dialog_')
+        dlg_dict = objectExtract(res_obj,'dialog_')
         dialog_height_no_par = dlg_dict.pop('height_no_par',dlg_dict.get('height'))
         if not hasParameters:
             dlg_dict['height'] = dialog_height_no_par 
@@ -146,7 +147,6 @@ class TableScriptRunner(BaseComponent):
         dlg = self.simpleDialog(pane,datapath='.dialog',title='^.title',height='^.height',width='^.width',
                              cb_center=self.table_script_dialog_center,dlgId='table_script_dlg_parameters',
                              hasParameters=hasParameters,dialog_height_no_par=dialog_height_no_par)
-                         
         dlg.dataController("""
                             var modifier = _node.attr.modifier;
                             if (modifier=='Shift'){

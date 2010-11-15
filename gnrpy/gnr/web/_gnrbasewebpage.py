@@ -167,7 +167,9 @@ class GnrBaseWebPage(GnrObject):
         return os.path.join(folder, docname)
     
     def freezeSelection(self, selection, name):
-        selection.freeze(self.pageLocalDocument(name), autocreate=True)
+        path = self.pageLocalDocument(name)
+        selection.freeze(path, autocreate=True)
+        return path
         
     def unfreezeSelection(self, dbtable=None, name=None):
         assert name,'name is mandatory'

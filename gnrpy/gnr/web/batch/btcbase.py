@@ -32,10 +32,10 @@ class BaseResourceBatch(object):
         self.result_info = dict()
         self._pkeys=None
     
-    def x__call__(self,batch_note=None,**kwargs):
+    def __call__(self,batch_note=None,**kwargs):
         parameters = kwargs['parameters']
         self.batch_parameters = parameters.asDict(True) if parameters else {}
-        self.batch_note = batch_note
+        self.batch_note = batch_note or self.batch_parameters.get('batch_note')
         try:
             self.run()
             self.btc.batch_complete(self.result_handler())
@@ -47,7 +47,7 @@ class BaseResourceBatch(object):
             else:
                 self.btc.batch_error(error=str(e))
                 
-    def __call__(self,batch_note=None,**kwargs):
+    def __call___debug_mode(self,batch_note=None,**kwargs):
         parameters = kwargs['parameters']
         self.batch_parameters = parameters.asDict(True) if parameters else {}
         self.batch_note = batch_note or self.batch_parameters.get('batch_note')
@@ -59,7 +59,7 @@ class BaseResourceBatch(object):
     def _pre_process(self):
         self.pre_process()
         
-    def pre_process():
+    def pre_process(self):
         pass
         
     def run(self):

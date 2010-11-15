@@ -358,7 +358,7 @@ class GnrSqlDb(GnrObject):
         return self.model.obj
     packages = property(_get_packages)
     
-    def tableTreeBag(self,packages=None,omit=None):
+    def tableTreeBag(self,packages=None,omit=None,tabletype=None):
         result = Bag()
         for pkg,pkgobj in self.packages.items():
             if (pkg in packages and omit) or (not pkg in packages and not omit):
@@ -368,8 +368,12 @@ class GnrSqlDb(GnrObject):
             result.setItem(pkg,Bag(),**pkgattr)
             for tbl, tblobj in pkgobj.tables.items():
                 tblattr = dict(tblobj.attributes)
+                if tabletype and tblattr.get('tabletype') != tabletype:
+                    continue
                 tblattr['caption'] = tblobj.attributes.get('name_long',pkg)
                 result[pkg].setItem(tbl,None,**tblattr)
+            if len(result[pkg])==0:
+                result.pop(pkg)
         return result
     
     def table(self, tblname, pkg=None):

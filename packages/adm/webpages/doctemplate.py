@@ -50,7 +50,7 @@ class GnrCustomWebPage(object):
     def formBase(self, parentBC,disabled=False, **kwargs):
         bc = parentBC.borderContainer(regions='^mainbc.regions',**kwargs)
         bc.data('mainbc.regions.left?show',False)
-        bc.data('tableTree',self.db.tableTreeBag(['sys'],omit=True))
+        bc.data('tableTree',self.db.tableTreeBag(['sys'],omit=True,tabletype='main'))
         bc.dataController('SET mainbc.regions.left?show = maintable?true:false',maintable='^.maintable')
         self.left(bc.contentPane(region='left',width='280px',splitter=True,datapath='table'))
         top = bc.contentPane(margin='5px',region='top').toolbar()
@@ -63,9 +63,10 @@ class GnrCustomWebPage(object):
         fb.checkbox(value='^mainbc.regions.left?show',label='!!Show fields')        
         tc = bc.tabContainer(region='center',nodeId='doc_tabs',selectedPage='^doc_tabs.selectedPage')
         editorPane = tc.contentPane(title='Edit',pageName='edit',id='editpage')
-        self.previewPane(tc.borderContainer(title='Preview',pageName='view',_class='preview'))
+        bc.dataRpc('preview.pkeys','getPreviewPkeys',
+                    maintable='^.maintable',_if='maintable',_onResult='SET preview.selected_id = result[0]; SET preview.idx=0')
         
-        
+        self.previewPane(tc.borderContainer(title='Preview',pageName='view',_class='preview'))        
         self.metadataForm(tc.contentPane(title='!!Metadata',pageName='metadata',datapath='.metadata'),disabled=disabled)
         self.RichTextEditor(editorPane, value='^.content',height='100%',
                             toolbar=self.rte_toolbar_standard(),
@@ -74,13 +75,21 @@ class GnrCustomWebPage(object):
     
     def previewPane(self,bc):
         top = bc.contentPane(region='top',overflow='hidden').toolbar()
-        fb = top.formbuilder(cols=2, border_spacing='2px')
-        fb.dbSelect(dbtable='^form.record.maintable',value='^test_id',lbl='!!Record',width='20em')
+        fb = top.formbuilder(cols=3, border_spacing='2px')
+        fb.dbSelect(dbtable='^form.record.maintable',value='^preview.selected_id',lbl='!!Record',width='20em')
+        box = fb.div(width='70px')
+        box.button('!!Previous', action='idx = idx>0?idx-1:10; SET preview.selected_id = pkeys[idx]; SET preview.idx = idx;', idx='=preview.idx',pkeys='=preview.pkeys',
+                        iconClass="tb_button icnNavPrev",  showLabel=False)
+        box.button('!!Next', action='idx = idx<=pkeys.length?idx+1:0; SET preview.selected_id = pkeys[idx]; SET preview.idx = idx;', idx='=preview.idx',pkeys='=preview.pkeys',
+                        iconClass="tb_button icnNavNext", showLabel=False)
+                        
         fb.dbSelect(dbtable='adm.htmltemplate',value='^html_template_id',selected_name='html_template_name',lbl_width='10em',lbl='!!Template',width='20em',hasDownArrow=True)
-        fb.dataRpc('preview','renderTemplate',doctemplate='=form.record',record_id='^test_id',templates='^html_template_name',
-                    content='=form.record.content',_if='content&&selectedTab=="view"',selectedTab='^doc_tabs.selectedPage')
+        fb.dataRpc('preview.renderedtemplate','renderTemplate',doctemplate='=form.record',record_id='^preview.selected_id',
+                    templates='^html_template_name',
+                    content='=form.record.content',_if='content&&selectedTab=="view"',
+                    selectedTab='^doc_tabs.selectedPage')
 
-        bc.contentPane(region='center',padding='10px').div(height='100%',background='white').div(innerHTML='^preview')
+        bc.contentPane(region='center',padding='10px').div(height='100%',background='white').div(innerHTML='^preview.renderedtemplate')
                             
     def metadataForm(self,pane,disabled=None):
         fb = pane.formbuilder(cols=2, border_spacing='4px',fld_width='15em',disabled=disabled)
@@ -92,7 +101,8 @@ class GnrCustomWebPage(object):
         return """<span class="tplfieldpath" fieldpath="'+item.attr.fieldpath+'" itemtag = "'+item.attr.tag+'">$'+item.attr.fieldpath+'</span><span class="tplfieldcaption">'+item.attr.caption+'</span><span>&nbsp</span>"""
         
     def left(self,pane):
-        pane.dataRemote('.tree.fields','relationExplorer',table='^form.record.maintable',dosort=False,caption='Fields')
+        pane.dataRemote('.tree.fields','relationExplorer',table='^form.record.maintable',
+                        dosort=False,caption='Fields')
         pane.tree(storepath='.tree',persist=False,
                      #inspect='shift', 
                      labelAttribute='caption',
@@ -114,6 +124,15 @@ class GnrCustomWebPage(object):
                                         else if(node.attr.sql_formula){return "formulaColumnTreeNode"}""",
                      getIconClass="""if(node.attr.dtype){return "icnDtype_"+node.attr.dtype}
                                      else {return opened?'dijitFolderOpened':'dijitFolderClosed'}""")
+    
+    def rpc_getPreviewPkeys(self,maintable=None):
+        path = self.userStore().getItem('current.table.%s.last_selection_path' %maintable.replace('.','_'))
+        selection = self.db.unfreezeSelection(path)
+        if selection:
+            result = selection.output('pkeylist')
+        else:
+            result = self.db.table(maintable).query(limit=10,order_by='$__ins_ts').selection().output('pkeylist')
+        return "%s::JS" %str(result).replace("u'","'")
 
     def rpc_renderTemplate(self,doctemplate=None,record_id=None,templates=None,**kwargs):
         tplbuilder = self.tblobj.getTemplateBuilder(doctemplate=doctemplate,templates=templates)
