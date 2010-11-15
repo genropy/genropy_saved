@@ -12,4 +12,3 @@ Bag
 	attributes
 	nodes
 	bagThree
-	class/index

@@ -57,7 +57,7 @@ How to instantiate a Bag
 Set and get values from a Bag
 =============================
 
-	You can read from a Bag's value using the :meth:`Bag.getItem` method; for writing on a Bag, you can use the :meth:`Bag.setItem` method.
+	You can read from a Bag's value using the :meth:`getItem` method; for writing on a Bag, you can use the :meth:`setItem` method.
 
 		>>> mybag = Bag()
 		>>> mybag.setItem('a',1)
@@ -70,7 +70,7 @@ Set and get values from a Bag
 		0 - (int) a: 1
 		1 - (int) b: 2
 		
-	.. note:: Any value inserted into a Bag through the :meth:`Bag.setItem` method is inserted as the last element of a chain: every BagNode has its own position at the appropriate hierarchical level.
+	.. note:: Any value inserted into a Bag through the :meth:`setItem` method is inserted as the last element of a chain: every BagNode has its own position at the appropriate hierarchical level.
 
 	You can write on a Bag through a more compact notation:
 
@@ -110,7 +110,7 @@ Printing a Bag
 	
 	Check the :ref:`bag-attributes-setItem` paragraph for a complete example on printing a Bag with attributes.
 
-	You have to know that when you use the built-in function ``print`` you call the :meth:`Bag.asString` method:
+	You have to know that when you use the built-in function ``print`` you call the :meth:`asString` method:
 
 		>>> mybag = Bag({'a':1,'b':2,'c':3,'d':4})
 		>>> string = mybag.asString()
@@ -148,14 +148,14 @@ Duplicated labels
 		>>> print beatles
 		0 - (str) member: Ringo
 	
-	you will notice that with :meth:`Bag.setItem` method you would set the new values on the existing one.
+	you will notice that with :meth:`setItem` method you would set the new values on the existing one.
 
-	So, if you want to add different values with the same label you have to use the :meth:`Bag.addItem` method:
+	So, if you want to add different values with the same label you have to use the :meth:`addItem` method:
 
 		>>> beatles = Bag()
 		>>> beatles.setItem('member','John')    # alternatively, you could write beatles.addItem('member','John')
 		>>> beatles.addItem('member','Paul')
-		>>> beatles.addItem('member','George')  # ??? OGNUNO DI QUESTI E' UN NODO A SE STANTE CON IL PROPRIO VALUE!!!!!
+		>>> beatles.addItem('member','George') 
 		>>> beatles.addItem('member','Ringo')
 		>>> print beatles
 		0 - (str) member: John
@@ -177,7 +177,7 @@ Access to values: the "#" label
 		>>> print second
 		Paul
 
-	This feature is very useful when a Bag has several values with the same label, because the :meth:`Bag.getItem` method returns only the first value tagged with the argument label. This means that the only way to access values with a duplicated label is by index:
+	This feature is very useful when a Bag has several values with the same label, because the :meth:`getItem` method returns only the first value tagged with the argument label. This means that the only way to access values with a duplicated label is by index:
 
 		>>> print beatles.getItem('member')
 		John
@@ -195,7 +195,7 @@ Access to values: the "#" label
 Setting value's position
 ========================
 
-	It is possible to set a new value at a particular position among its brothers, using the optional argument ``_position`` of the :meth:`Bag.setItem` method. The default behaviour of setItem is to add the new value as the last element of a list, but the ``_position`` argument provides a compact syntax to insert any value in any place you want. ``_position`` must be a string containing one of the following types:
+	It is possible to set a new value at a particular position among its brothers, using the optional argument ``_position`` of the :meth:`setItem` method. The default behaviour of setItem is to add the new value as the last element of a list, but the ``_position`` argument provides a compact syntax to insert any value in any place you want. ``_position`` must be a string containing one of the following types:
 
 	+---------------+----------------------------------------------------------------------+
 	|  Attribute    |  Description                                                         |
@@ -255,15 +255,15 @@ Dictionary methods implemented by Bag and other related methods
 
 	We report here a list of the Bag methods inherited from a Python Dictionary:
 
-	- :meth:`Bag.keys`
+	- :meth:`keys`
 	
-	- :meth:`Bag.items`
+	- :meth:`items`
 	
-	- :meth:`Bag.values`
+	- :meth:`values`
 	
-	- :meth:`Bag.has_key`
+	- :meth:`has_key`
 
-	- :meth:`Bag.update`
+	- :meth:`update`
 	
 	- Bag also supports the operator ``in`` exactly like a dictionary:
 
@@ -272,7 +272,7 @@ Dictionary methods implemented by Bag and other related methods
 		>>> 'a' in mybag
 		True
 	
-	- A bag can be transformed into a dict with the :meth:`Bag.asDict` method:
+	- A bag can be transformed into a dict with the :meth:`asDict` method:
 
 		>>> mybag=Bag({'a':1,'b':2,'c':3,'d':4})
 		>>> print mybag

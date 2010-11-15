@@ -16,11 +16,11 @@
 	
 	If you need to work with nodes, you may get them with the following methods:
 
-	- :meth:`Bag.getNode`: return a node.
+	- :meth:`getNode`: return a node.
 	
-	- :meth:`Bag.getNodes`: return a list of nodes.
+	- :meth:`getNodes`: return a list of nodes.
 	
-	- :meth:`Bag.getNodeByAttr`: return the node who has the passed value-attribute couple. ???#NISO
+	- :meth:`getNodeByAttr`: return the node who has the passed value-attribute couple. ???#NISO
 	
 	>>> mybag = Bag({'paper':1,'scissors':2})
 	>>> papernode = mybag.getNode('paper')
@@ -28,7 +28,7 @@
 	>>> rocknode=mybag.getNodeByAttr('color','grey')
 	>>> nodes=mybag.getNodes()
 	
-	The :meth:`Bag.getNodes` method implements the Bag's property nodes (???#NISO):
+	The :meth:`getNodes` method implements the Bag's property nodes (???#NISO):
 
 	>>> mybag.getNodes() == mybag.nodes
 	True

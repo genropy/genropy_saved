@@ -11,7 +11,13 @@
 Backward path
 =============
 
-	We said that each item is enveloped into a bag node, and that can be contained by several bags in different places. This means that a Bag knows its children but ignores who is its father, in fact it may have many fathers. We could set stricter hypotesis about the structure of a bag, making it more similar to a tree-leaf model: this would happen if a bag had a back reference to the bag that contains it.
+	We remember you that:
+	
+	- each item is enveloped into a BagNode.
+	
+	- each item can be included in other Bags.
+	
+	These two features mean that a Bag knows its children but not its father (infact a Bag may have more than one father). We could set some stricter hypotesis about a bag's structure, making it more similar to a tree-leaf model: this would happen if a Bag would have a back reference to its father Bag.
 	
 	.. image:: ../images/backward_path.png
 
