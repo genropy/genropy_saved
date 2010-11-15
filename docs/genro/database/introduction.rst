@@ -30,7 +30,7 @@ Create a Genro project
 	
 	This will create a folder with the project name you have chosen, and 4 subfolders called ``Instances``, ``Packages``, ``Resources``, ``Sites``, as you can see in this image (in this case the name of the project is "myproject") [#]_:
 
-	.. image:: myproject.png
+	.. image:: ../images/myproject.png
 
 	You can call an help that explains all the possibilities on creating a project, typing::
 	
@@ -60,7 +60,7 @@ Create a Genro project
 
 	You can see the result in this image:
 
-	.. image:: myproject2.png
+	.. image:: ../images/myproject2.png
 
 	In the next section we'll see all the details of the project's subfolders.
 
