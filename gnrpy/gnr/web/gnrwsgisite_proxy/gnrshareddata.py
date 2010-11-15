@@ -120,6 +120,9 @@ class GnrSharedData(object):
         
     def load(self):
         pass
+    
+    def flush_all(self):
+        pass
         
 class GnrSharedData_dict(GnrSharedData):
     
@@ -241,6 +244,9 @@ class GnrSharedData_dict(GnrSharedData):
             if cas_id:
                 result[k]=val
         return result
+        
+    def flush_all(self):
+        self.storage = {}
     
 class GnrSharedData_memcache(GnrSharedData):
 
@@ -317,6 +323,10 @@ class GnrSharedData_memcache(GnrSharedData):
         key_prefix='%s_%s'%(self._namespace,key_prefix)
         key_prefix=key_prefix.encode('utf8')
         return self.storage.get_multi(keys, key_prefix)
+    
+    def flush_all(self):
+        self.storage.flush_all()
+        self.visited_keys={}
 
 class Client(object):
 
