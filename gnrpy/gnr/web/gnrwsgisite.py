@@ -538,6 +538,7 @@ class GnrWsgiSite(object):
         tool.site=self
         response = Response()
         kwargs['environ']=environ
+        kwargs['response']=response
         result = tool(*args, **kwargs)
         content_type = getattr(tool,'content_type')
         if content_type:
