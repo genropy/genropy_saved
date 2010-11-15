@@ -1086,7 +1086,6 @@ class GnrWebAppHandler(GnrBaseProxy):
         
         for colindex,colsize in colsizes.items():
             ws.col(colindex).width=colsize
-            print colsize
         if not filename.lower().endswith('.xls'):
             filename += '.xls'
         fpath = self.page.temporaryDocument(filename)
