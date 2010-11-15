@@ -1009,6 +1009,32 @@ class GnrWebAppHandler(GnrBaseProxy):
         return storebag
         
     def rpc_exportStaticGrid_xls(self, structbag, storebag, filename=None, **kwargs):
+        charwidths = {
+            '0': 262.637,'1': 262.637,'2': 262.637,'3': 262.637,'4': 262.637,'5': 262.637,'6': 262.637,
+            '7': 262.637,'8': 262.637,'9': 262.637,'a': 262.637,'b': 262.637,'c': 262.637,'d': 262.637,
+            'e': 262.637,'f': 146.015,'g': 262.637,'h': 262.637,'i': 117.096,'j': 88.178,'k': 233.244,
+            'l': 88.178,'m': 379.259,'n': 262.637,'o': 262.637,'p': 262.637,'q': 262.637,'r': 175.407,
+            's': 233.244,'t': 117.096,'u': 262.637,'v': 203.852,'w': 321.422,'x': 203.852,'y': 262.637,
+            'z': 233.244,'A': 321.422,'B': 321.422,'C': 350.341,'D': 350.341,'E': 321.422,'F': 291.556,
+            'G': 350.341,'H': 321.422,'I': 146.015,'J': 262.637,'K': 321.422,'L': 262.637,'M': 379.259,
+            'N': 321.422,'O': 350.341,'P': 321.422,'Q': 350.341,'R': 321.422,'S': 321.422,'T': 262.637,
+            'U': 321.422,'V': 321.422,'W': 496.356,'X': 321.422,'Y': 321.422,'Z': 262.637,' ': 146.015,
+            '!': 146.015,'"': 175.407,'#': 262.637,'$': 262.637,'%': 438.044,'&': 321.422,'\'': 88.178,
+            '(': 175.407,')': 175.407,'*': 203.852,'+': 291.556,',': 146.015,'-': 175.407,'.': 146.015,
+            '/': 146.015,':': 146.015,';': 146.015,'<': 291.556,'=': 291.556,'>': 291.556,'?': 262.637,
+            '@': 496.356,'[': 146.015,'\\': 146.015,']': 146.015,'^': 203.852,'_': 262.637,'`': 175.407,
+            '{': 175.407,'|': 146.015,'}': 175.407,'~': 291.556}
+        def fitwidth(data, bold=False):
+            '''Try to autofit Arial 10'''
+            units = 220
+            for char in str(data):
+                if char in charwidths:
+                    units += charwidths[char]
+                else:
+                    units += charwidths['0']
+            if bold:
+                units *= 1.1
+            return max(units, 700)
         import xlwt
         w = xlwt.Workbook(encoding='latin-1')
         filename = self._exportFileNameClean(filename)
@@ -1024,7 +1050,7 @@ class GnrWebAppHandler(GnrBaseProxy):
         font0.bold = True
         hstyle = xlwt.XFStyle()
         hstyle.font = font0
-    
+        colsizes=dict()
         storebag = self._getStoreBag(storebag)
         columns = []
         headers=[]
@@ -1042,19 +1068,25 @@ class GnrWebAppHandler(GnrBaseProxy):
         for c,header in enumerate(headers):
             #self.page._(self.tblobj.column(header).name_long)
             ws.write(0, c, header, hstyle)
+            colsizes[c]=max(colsizes.get(c,0),fitwidth(header))
+            
             
         for i,row in enumerate(storebag):
             r = row.getAttr()
             for c,col in enumerate(columns):
+                value=r.get(col)
                 if coltype[col] in ('R', 'F','N'):
-                    ws.write(i+1, c, r.get(col), float_style)
+                    ws.write(i+1, c,value,  float_style)
                 elif coltype[col] in ('L','I'):
-                    ws.write(i+1, c, r.get(col), int_style)
+                    ws.write(i+1, c, value, int_style)
                 else:
-                    ws.write(i+1, c, self.page.toText(r.get(col)))
+                    value=self.page.toText(r.get(col))
+                    ws.write(i+1, c, value)
+                colsizes[c]=max(colsizes.get(c,0),fitwidth(value))
         
-
-        
+        for colindex,colsize in colsizes.items():
+            ws.col(colindex).width=colsize
+            print colsize
         if not filename.lower().endswith('.xls'):
             filename += '.xls'
         fpath = self.page.temporaryDocument(filename)
