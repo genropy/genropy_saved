@@ -906,24 +906,31 @@ class GnrGridStruct(GnrStructData):
         return self.child('cell', content= '', field=field, _name=name or field, width=width, dtype=dtype, 
                           classes=classes, cellClasses=cellClasses, headerClasses=headerClasses, **kwargs)
                           
-    def checkboxcell(self,field='_checked',falseclass='checkboxOff',
-                        trueclass='checkboxOn',classes='row_checker',action=None,name=' ',
-                        calculated=True,**kwargs):
+    def checkboxcell(self,field=None,falseclass=None,
+                        trueclass=None,classes='row_checker',action=None,name=' ',
+                        calculated=False, radioButton=False, **kwargs):
+        if not field:
+            field='_checked'
+            calculated = True
+        falseclass= falseclass or ('checkboxOff' if not radioButton else falseclass or 'radioOff')
+        trueclass= trueclass or ('checkboxOn' if not radioButton else trueclass or 'radioOn')
         
         self.cell(field,name=name,format_trueclass=trueclass,format_falseclass=falseclass,
-                 classes=classes,calculated=calculated,format_onclick= action or """var idx = kw.rowIndex;
+                 classes=classes,calculated=calculated,format_onclick="""var idx = kw.rowIndex;
                                                                     var rowpath = '#'+idx;
-                                                                    var valuepath = rowpath+'%s%s';
-                                                                    console.log(valuepath);
+                                                                    var sep = this.widget.gridEditor? '.':'?';
+                                                                    var valuepath=rowpath+sep+'%s';
                                                                     var disabledpath = rowpath+'?disabled';
                                                                     var storebag = this.widget.storebag();
                                                                     if (storebag.getItem(disabledpath)){
                                                                         return;
                                                                     }
                                                                     var currval = storebag.getItem(valuepath);
+                                                                    
                                                                     storebag.setItem(valuepath,!currval);
-                                                                    """ %('?' if calculated else '.',field)
-                                                                    ,dtype='B',**kwargs)
+                                                                    
+                                                                    """%field
+                                                                    ,dtype='B', **kwargs)
                  
     def defaultArgsForDType(self, dtype):
         if dtype == 'B':
