@@ -34,7 +34,7 @@ class FlibBase(BaseComponent):
                             datapath='.item_grid',
                              nodeId=gridId,table='flib.item',autoWidth=True,
                              struct=saved_files_struct,
-                             hiddencolumns='$__ins_ts,ext,metadata',
+                             hiddencolumns='$__ins_ts,$thumb_url,ext,metadata',
                              reloader=reloader,
                              drag_value_cb='var dataNode = event.widget.dataNodeByIndex(event.rowIndex); return {flib_element:dataNode.attr._pkey};',
                              filterOn='title,description',

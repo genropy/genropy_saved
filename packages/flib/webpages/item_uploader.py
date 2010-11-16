@@ -73,28 +73,6 @@ class GnrCustomWebPage(object):
             if category_id:
                 cat_table.insert(dict(category_id=category_id,item_id=item_record['id']))
         self.db.commit()
-    
-    def rpc_get_uploaded_files(self,selected_categories=None,current_range=None):
-        tblobj = self.db.table('flib.item_category')
-        categories = selected_categories.split(',')
-        current_range = current_range or 20
-        fetch = tblobj.query(columns='@item_id.ext AS ext,@item_id.url AS url, @item_id.title AS title, @item_id.description AS description,@item_id.metadata AS metadata',
-                        where='$category_id IN :categories', 
-                        categories=categories,limit=current_range,
-                        order_by='$__ins_ts').fetch()
-        result = Bag()
-        if not fetch:
-            return result
-        for i,r in enumerate(fetch):
-            info = dict()
-            info['url'] = r['url']
-            info['title'] = r['title']
-            info['description'] = r['description']
-            metadata = Bag(r['metadata'])
-            ext_img = self.getResourceUri('filetype_icons/%s.png'%r['ext'][1:].lower()) or self.getResourceUri('filetype_icons/_blank.png')
-            info['thumb'] = '<img border=0 height="32px" src="%s" />' %(metadata['thumb32_url'] or ext_img)
-            result.setItem('r_%i' %i,None,_attributes=info) 
-        return result
-        
+
         
         
