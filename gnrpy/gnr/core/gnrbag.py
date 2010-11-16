@@ -391,7 +391,13 @@ class BagNode(object):
         if not self._validators is None:
             return self._validators.getdata(validator,label=label,dflt=dflt)
         
-    def subscribe(self, subscriberId,callback):
+    def subscribe(self, subscriberId, callback):
+        """Add the description!!! #NISO???
+        
+        * `subscriberId`: ???
+        
+        * `callback`: ???
+        """
         self._node_subscribers[subscriberId] = callback
         
     def unsubscribe(self, subscriberId):
@@ -1019,11 +1025,11 @@ class Bag(GnrObject):
         if self.backref:
             self._onNodeDeleted(oldnodes,-1)
             
-    def update(self, otherbag,resolved=False):
+    def update(self, otherbag, resolved=False):
         """Update the Bag with the ``key/value`` pairs from *otherbag*, overwriting all the existing keys.
         Return ``None``.
         
-        * `otherbag`: a Bag to merge into.
+        * `otherbag`: the Bag to merge into.
         
         * `resolved`: #NISO ???
         """
@@ -1972,9 +1978,7 @@ class Bag(GnrObject):
         Add a validator into the node at the given path.
         
         * `path`: node's path.
-        
         * `validator`: validation's type.
-        
         * `parameterString`: a string which contains the parameters for the validation.
         """
         self.getNode(path,autocreate=True).addValidator(validator, parameterString)
@@ -1984,7 +1988,6 @@ class Bag(GnrObject):
         Remove a node's validator at the given path.
         
         * `path`: node's path.
-        
         * `validator`: validation's type.
         """
         self.getNode(path).removeValidator(validator)
@@ -1992,17 +1995,26 @@ class Bag(GnrObject):
     def _onNodeChanged(self, node, pathlist, evt, oldvalue=None):
         """
         Set a function at changing events. It is called from the trigger system.
+        
+        * `node`: the node that has benn changed.
+        * `pathlist`: it includes the Bag subscribed's path linked to the node where the event was catched.
+        * `evt`: it is the event type, that is insert, delete, upd_value or upd_attrs.
+        * `oldvalue`: it is the previous node's value.
+        
         """
         for s in self._upd_subscribers.values():
             s(node=node, pathlist=pathlist, oldvalue=oldvalue, evt=evt)
         if self.parent: 
             self.parent._onNodeChanged(node, [self.parentNode.label]+pathlist, evt ,oldvalue)
   
-    def _onNodeInserted(self,node,ind, pathlist=None):
+    def _onNodeInserted(self, node, ind, pathlist=None):
         """
         Set a function at inserting events. It is called from the trigger system.
-        """
         
+        * `node`: <#NISO> The node inserted I suppose, right??? </NISO>
+        * `ìnd`: #NISO ???
+        * `pathlist`: it includes the Bag subscribed's path linked to the node where the event was catched.
+        """
         parent=node.parentbag
         if parent!=None and parent.backref and isinstance(node._value,Bag):
             node._value.setBackRef(node=node,parent=parent)
@@ -2030,18 +2042,17 @@ class Bag(GnrObject):
             subscribersdict[subscriberId]=callback
         
     def subscribe(self, subscriberId, update=None, insert=None, delete=None, any=None):
-        """
-        This method provides a subscribing of a function to an event.
+        """This method provides a subscribing of a function to an event.
         Subscribing an event on a Bag means that every time that it happens,
         it is propagated along the bag hierarchy and is triggered by its
-        eventhandler. A subscription can be seen as a couple event-function,
-        this means that I can define many eventhandlers for the same event.
+        eventhandler. A subscription can be seen as a event-function couple,
+        so you can define many eventhandlers for the same event.
         
-        * `subscriberId`: an ID can be assigned for a subscription
+        * `subscriberId`: the Id of the Bag's subscription.
         * `update`: the eventhandler function linked to update event.
         * `insert`: the eventhandler function linked to insert event.
         * `delete`: the eventhandler function linked to delete event.
-        * `any`: the eventhandler function linked to do whenever something happens.
+        * `any`: the eventhandler function linked to do whenever something (delete, insert or update action) happens.
         """
         if self.backref == False:
             self.setBackRef()
@@ -2050,16 +2061,14 @@ class Bag(GnrObject):
         self._subscribe(subscriberId, self._ins_subscribers, insert or any)
         self._subscribe(subscriberId, self._del_subscribers, delete or any)
         
-    def unsubscribe(self,subscriberId, update=None,insert=None,delete=None, any=None):
-        """
-        delete a subscription of an event of given subscriberId.
+    def unsubscribe(self,subscriberId, update=None, insert=None, delete=None, any=None):
+        """Delete a subscription of an event of a given subscriberId.
         
-        * `subscriberId`: an ID can be assigned for a subscription
-        * `update`: the eventhandler function to remove
-        * `insert`: the eventhandler function to remove
-        * `delete`: the eventhandler function to remove
-        * `any`: the eventhandler function to remove
-        
+        * `subscriberId`: the Id of the Bag's subscription.
+        * `update`: the eventhandler function linked to update event.
+        * `insert`: the eventhandler function linked to insert event.
+        * `delete`: the eventhandler function linked to delete event.
+        * `any`: the eventhandler function linked to do whenever something (delete, insert or update action) happens.
         """
         if update or any:
             self._upd_subscribers.pop(subscriberId,None)
@@ -2092,7 +2101,7 @@ class Bag(GnrObject):
                 return node
         return self.walk(f)
         
-    def walk(self, callback, _mode='static',**kwargs):
+    def walk(self, callback, _mode='static', **kwargs):
         """
         Calls a function for each node of the Bag.
         * `callback`: the function which is called. 
@@ -2117,7 +2126,7 @@ class Bag(GnrObject):
                 for node in value.traverse():
                     yield node 
 
-    def rowchild(self,childname='R_#', _pkey=None, **kwargs):
+    def rowchild(self, childname='R_#', _pkey=None, **kwargs):
         if not childname:
             childname='R_#'
         childname = childname.replace('#', str(len(self)).zfill(8))
@@ -2407,7 +2416,9 @@ class BagResolver(object):
         return result
     
     def load(self):
-        """must be reimplemented"""
+        """.. deprecated:: 0.7
+        .. note:: This method have to be rewritten.
+        """
         pass 
     
     def init(self):
@@ -2607,7 +2618,7 @@ class XmlDocResolver(BagResolver):
     
     
 class BagFormula(BagResolver):
-    """This resolver calculates the value of an algebric espression
+    """This resolver calculates the value of an algebric espression.
     """
     classKwargs={'cacheTime':0,
                  'formula':'',
@@ -2636,14 +2647,13 @@ class BagFormula(BagResolver):
 ########################### start experimental features#######################
 class BagResolverNew(object):
     """docstring for BagResolver"""
-    
     def __init__(self,cacheTime=0, readOnly=True,
                     serializerStore=None, **kwargs):
         self.serializerStore=serializerStore
         self.kwargs={}
-        self._updateKwargs(dict(cacheTime=cacheTime, readOnly=readOnly))      
-        self._updateKwargs(kwargs)  
-            
+        self._updateKwargs(dict(cacheTime=cacheTime, readOnly=readOnly))
+        self._updateKwargs(kwargs)
+        
     def _get_serializerStore(self):
         if self._serializerStore is None:
             return self._serializerStore
@@ -2658,7 +2668,7 @@ class BagResolverNew(object):
             #self._serializerStore = weakref.ref(serializerStore)
             self._serializerStore = serializerStore
     serializerStore = property(_get_serializerStore, _set_serializerStore)
-    
+        
     def _getPar(self,name):
         attr = getattr(self,name)
         if isinstance(attr,basestring) or \
@@ -2671,19 +2681,19 @@ class BagResolverNew(object):
             key = '%s' % name
             self.serializerStore[key]=attr
             return key
-    
+            
     def __eq__(self, other):
         try:
             if isinstance(other, self.__class__) and (self.kwargs==other.kwargs):
                 return True
         except:
             return False
-
+            
     def _get_parentNode(self):
         if self._parentNode:
             return self._parentNode
             #return self._parentNode()
-
+            
     def _set_parentNode(self, parentNode):
         if parentNode == None:
             self._parentNode = None
@@ -2691,7 +2701,7 @@ class BagResolverNew(object):
             #self._parentNode = weakref.ref(parentNode)
             self._parentNode = parentNode
     parentNode = property(_get_parentNode, _set_parentNode)
-
+        
     def _set_cacheTime(self, cacheTime):
         self._cacheTime=cacheTime
         if cacheTime != 0:
@@ -2701,23 +2711,22 @@ class BagResolverNew(object):
                 self._cacheTimeDelta = timedelta(0, cacheTime)
             self._cache = None
             self._cacheLastUpdate = datetime.min
-
+            
     def _get_cacheTime(self):
-        return self._cacheTime 
+        return self._cacheTime
     cacheTime=property(_get_cacheTime, _set_cacheTime)
-
+        
     def reset(self):
         self._cache = None
         self._cacheLastUpdate = datetime.min
-
+        
     def _get_expired(self):
         if self._cacheTime == 0 or self._cacheLastUpdate == datetime.min:
             return True
         return ((datetime.now() - self._cacheLastUpdate ) > self._cacheTimeDelta)
     expired=property(_get_expired)
- 
+        
     def _updateKwargs(self, kwargs):
-        """docstring for _updateKwargs"""
         reset = False
         for k,v in kwargs.items():
             if self.kwargs.get(k) != v:
@@ -2726,16 +2735,16 @@ class BagResolverNew(object):
                 setattr(self,k,v)
         if reset:
             self.reset()
-    
+            
     def __call__(self,**kwargs):
         if kwargs:
             self._updateKwargs(kwargs)
-
+            
         if self.cacheTime==0:
-            return self.load() 
-
+            return self.load()
+            
         if self.expired:
-            result = self.load() 
+            result = self.load()
             self._cacheLastUpdate = datetime.now()
             self._cache = result
         else:
@@ -2743,7 +2752,8 @@ class BagResolverNew(object):
         return result
 
     def load(self):
-        """must be reimplemented"""
+        """.. deprecated:: 0.7
+        .. note:: This method have to be rewritten."""
         pass 
 
     def init(self):

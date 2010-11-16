@@ -25,33 +25,29 @@
 How to instantiate a Bag
 ========================
 
-	<#NISO ???>
-
-		To instantiate a Bag you have to call its constructor:
-    	
-			>>> from gnr.core.gnrbag import Bag
-    	
-		You can now create an empty Bag:
-		
-			>>> mybag= Bag()
-    	
-		The constructor may receive several kinds of initialization parameters; you can create a Bag:
-		
-		- starting from XML files, URL or file-system paths:
-    	
-			>>> mybag = Bag('/data/myfile.xml')
-			>>> mybag = Bag('http://www.foo.com')
-		
-		- parsing a text string (see fromXml???)
-    	
-		- converting a dictionary into a Bag 
-    	
-		- passing a list or a tuple just like for the builtin ``dict()`` command
-		
-		For more information, check the ??? paragraph.
+	To instantiate a Bag you have to call its constructor:
 	
-	<\#NISO ???>
-
+		>>> from gnr.core.gnrbag import Bag
+		
+	You can now create an empty Bag:
+		
+		>>> mybag= Bag()
+	
+	The constructor may receive several kinds of initialization parameters; you can create a Bag:
+	
+	- starting from XML files, URL or file-system paths:
+	
+		>>> mybag = Bag('/data/myfile.xml')
+		>>> mybag = Bag('http://www.foo.com')
+	
+	- parsing a text string
+	
+	- converting a dictionary into a Bag 
+	
+	- passing a list or a tuple just like for the builtin ``dict()`` command
+	
+	For more information, check the :ref:`bag-from-to` paragraph.
+	
 	.. _bag-set-get:
 
 Set and get values from a Bag
@@ -272,17 +268,7 @@ Dictionary methods implemented by Bag and other related methods
 		>>> 'a' in mybag
 		True
 	
-	- A bag can be transformed into a dict with the :meth:`gnr.core.gnrbag.Bag.asDict` method:
-
-		>>> mybag=Bag({'a':1,'b':2,'c':3,'d':4})
-		>>> print mybag
-		0 - (int) a: 1
-		1 - (int) c: 3
-		2 - (int) b: 2
-		3 - (int) d: 4
-		>>> d = mybag.asDict()
-		>>> print d
-		{'a': 1, 'c': 3, 'b': 2, 'd': 4}
+	- Finally, you can transform a Bag into a dict with the :meth:`gnr.core.gnrbag.Bag.asDict` method: check the :ref:`from_bag_to_dict` paragraph for further details.
 
 **Footnotes:**
 

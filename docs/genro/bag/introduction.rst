@@ -79,7 +79,7 @@ Definitions
 	
 	Let's see a scheme of a BagNode:
 
-	.. image:: ../images/BagNode.png
+	.. image:: ../images/bag/bag-bagnode.png
 	
 	A BagNode value can be a Bag, so a Bag is a *recursive and hierarchical container*.
 
