@@ -50,11 +50,15 @@ class GnrCustomWebPage(object):
         categories = categories.split(',')
         item_record=dict(path=file_path,url=file_url,description=description,title=title, 
                         username=self.user,ext=file_ext)
-        metadata = Bag()
+        versions = Bag()
         if action_results['thumb32']:
-            metadata['thumb32_url'] = action_results['thumb32']['file_url']
-            metadata['thumb32_path'] = action_results['thumb32']['file_path']
-        item_record['metadata'] = metadata
+            thumb_url = action_results['thumb32']['file_url']
+            thumb_path= action_results['thumb32']['file_path']
+            item_record['thumb_url'] = thumb_url
+            item_record['thumb_path']= thumb_path
+            versions['thumb32_url']  = thumb_url
+            versions['thumb32_path'] = thumb_path
+        item_record['versions'] = versions
 
         existing_record = item_table.query(where='path=:p',p=file_path,for_update=True,addPkeyColumn=False).fetch()
         if existing_record:

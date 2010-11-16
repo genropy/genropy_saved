@@ -53,9 +53,7 @@ class FlibBase(BaseComponent):
         def apply_thumb(row):
             ext_img = self.getResourceUri('filetype_icons/%s.png'%row['ext'][1:].lower()) \
                       or self.getResourceUri('filetype_icons/_blank.png')
-            if row['metadata']:
-                metabag = Bag(row['metadata'])
-            return dict(_thumb= '<img border=0 src="%s" height="32px" />' %(metabag['thumb32_url'] or ext_img))
+            return dict(_thumb= '<img border=0 src="%s" />' %(row['thumb_url'] or ext_img))
         selection.apply(apply_thumb)
 
 
