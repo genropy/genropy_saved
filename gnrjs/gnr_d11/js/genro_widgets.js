@@ -97,6 +97,9 @@ dojo.declare("gnr.GridEditor",null,{
         this.widgetRootNode = gridEditorNode;
         gridEditorColumns.forEach(function(node){
             attr = node.attr;
+            if(!attr.gridcell) {
+                throw "Missing gridcell parameter";
+            }
             columns[attr.gridcell.replace(/\W/g,'_')] = {'tag':attr.tag,'attr':attr};
         });
         this.columns = columns;
@@ -2212,14 +2215,14 @@ dojo.declare("gnr.widgets.Grid",gnr.widgets.baseDojo,{
         var result = {};
         if (attr.droppable || objectNotEmpty(shapesDict)) {
             if(event.cellNode && 'cell' in shapesDict){
-                result['outlineCell'] = event.cellNode;;
+                result['outlineCell'] = event.cellNode;
                 result['cellNode'] = event.cellNode;
                 result['cell'] = event.cell;
                 result['column']=event.cellIndex;
                 result['row']=event.rowIndex;
             }
             if(event.cellIndex>=0 && 'column' in shapesDict){
-                result['outlineColumn'] =  event.widget.columnNodelist(event.cellIndex,true);;
+                result['outlineColumn'] =  event.widget.columnNodelist(event.cellIndex,true);
                 result['column']=event.cellIndex;
 
             }
@@ -2235,8 +2238,7 @@ dojo.declare("gnr.widgets.Grid",gnr.widgets.baseDojo,{
             
             var attributes= {'widget':widget,
                      'sourceNode':sourceNode,
-                     'domnode':event.cellNode,
-                     };
+                     'domnode':event.cellNode };
             result = objectUpdate(result,attributes);
             event.dragDropInfo = result;
 
