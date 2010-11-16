@@ -32,7 +32,7 @@ class BaseResourceBatch(object):
         self.result_info = dict()
         self._pkeys=None
     
-    def __call__(self,batch_note=None,**kwargs):
+    def __call__x(self,batch_note=None,**kwargs):
         parameters = kwargs['parameters']
         self.batch_parameters = parameters.asDict(True) if parameters else {}
         self.batch_note = batch_note or self.batch_parameters.get('batch_note')
@@ -47,7 +47,7 @@ class BaseResourceBatch(object):
             else:
                 self.btc.batch_error(error=str(e))
                 
-    def __call___debug_mode(self,batch_note=None,**kwargs):
+    def __call__(self,batch_note=None,**kwargs):
         parameters = kwargs['parameters']
         self.batch_parameters = parameters.asDict(True) if parameters else {}
         self.batch_note = batch_note or self.batch_parameters.get('batch_note')
@@ -120,9 +120,10 @@ class BaseResourceBatch(object):
         self.selectedRowidx = selectedRowidx
         self.selectionFilterCb = selectionFilterCb
     
-    def get_selection(self):
+    def get_selection(self,columns=None):
         selection = self.page.getUserSelection(selectionName=self.selectionName,
-                                         selectedRowidx=self.selectedRowidx,filterCb=self.selectionFilterCb)
+                                         selectedRowidx=self.selectedRowidx,filterCb=self.selectionFilterCb,
+                                         columns=columns)
         return selection
     
     def get_records(self):
