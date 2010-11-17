@@ -18,7 +18,7 @@ class Main(BaseResourceAction):
     batch_delay = 0.5
         
     def result_handler(self):
-        return 'Execution completed',dict(url=self.fileUrl)
+        return 'Execution completed',dict(url=self.fileUrl,document_name=self.batch_parameters['filename'])
     
     def pre_process(self):
         self.locale = self.page.locale
