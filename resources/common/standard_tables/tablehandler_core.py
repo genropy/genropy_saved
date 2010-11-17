@@ -50,7 +50,8 @@ class TableHandlerToolbox(BaseComponent):
                                                 'resource':tablehandler_run_script[1],
                                                 'table':table,
                                                 'selectedRowidx':selectedRowidx,
-                                                'selectionName':selectionName};
+                                                'selectionName':selectionName,
+                                                'structpath':'list.view.structure'};
                             PUBLISH table_script_run = script_pars;
                             """,subscribe_tablehandler_run_script=True,table=self.maintable,
                             selectionName='=list.selectionName')

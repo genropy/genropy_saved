@@ -47,11 +47,11 @@ class BaseResourceBatch(object):
             else:
                 self.btc.batch_error(error=str(e))
                 
-    def __call__(self,batch_note=None,**kwargs):
+    def __call__(self,batch_note=None,struct=None,**kwargs):
         parameters = kwargs['parameters']
         self.batch_parameters = parameters.asDict(True) if parameters else {}
         self.batch_note = batch_note or self.batch_parameters.get('batch_note')
-        
+        self.struct = struct
         self.run()
         result,result_attr = self.result_handler()
         self.btc.batch_complete(result=result,result_attr=result_attr)
