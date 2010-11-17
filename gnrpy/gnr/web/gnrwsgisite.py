@@ -303,10 +303,14 @@ class GnrWsgiSite(object):
         return dest_dir
 
 
-    def getStaticUrl(self,static,*args):
+    def getStaticUrl(self,static,*args,**kwargs):
+        nocache=kwargs.get('nocache')
         static_name,static_url = static.split(':')
         args=self.adaptStaticArgs(static_name,static_url, args)
-        return self.getStatic(static_name).url(*args)
+        if nocache:
+            return self.getStatic(static_name).url(*args)
+        else:
+            return self.getStatic(static_name).nocache_url(*args)
 
     def adaptStaticArgs(self,static_name, static_path,args):
         args=tuple(static_path.split('/'))+args
