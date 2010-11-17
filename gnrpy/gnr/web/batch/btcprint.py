@@ -14,12 +14,13 @@ class BaseResourcePrint(BaseResourceBatch):
     dialog_width = '460px'
     dialog_height_no_par = '225px'
     templates = '' #CONTROLLARE
+    mail_tags = 'admin'
     def __init__(self,*args,**kwargs):
         super(BaseResourcePrint,self).__init__(**kwargs)
         self.mail_preference = self.page.getUserPreference('mail',pkg='adm') or self.page.getPreference('mail',pkg='adm') or Bag(self.page.application.config.getNode('mail').attr)
         self.htmlMaker = self.page.site.loadTableScript(page=self.page,table=self.maintable ,
                                                         respath=self.html_res,class_name='Main')
-        if not self.mail_tags:
+        if not hasattr(self,'mail_tags'):
             self.mail_tags = 'mail'
         
     def _pre_process(self):
@@ -131,10 +132,10 @@ class BaseResourcePrint(BaseResourceBatch):
         self.table_script_options_client_print(center.contentPane(pageName='client_print'))
         self.server_print_option_pane(center.contentPane(pageName='server_print'))
         self.table_script_options_pdf(center.contentPane(pageName='pdf'))
-        if self.current_batch.mail_tags and not self.application.checkResourcePermission(self.current_batch.mail_tags, self.userTags):
+        if self.current_batch.mail_tags and self.application.checkResourcePermission(self.current_batch.mail_tags, self.userTags):
             fb.radiobutton(value='^.mail_pdf',label='!!Pdf by mail',print_mode='mail_pdf')
             self.table_script_options_mail_pdf(center.contentPane(pageName='mail_pdf',datapath='.mail'))
-            if self.current_batch.mail_address:
+            if hasattr(self.current_batch,'mail_address'):
                 fb.radiobutton(value='^.mail_deliver',label='!!Deliver mails',print_mode='mail_deliver')
                 self.table_script_options_mail_deliver(center.contentPane(pageName='mail_deliver',datapath='.mail'))
         
