@@ -314,8 +314,13 @@ dojo.declare("gnr.GnrRpcHandler",null,{
         if (async_cb) {
             cb = dojo.hitch(this,function(response, ioArgs){
                 var result = preprocessor(response, ioArgs);
-                var error = (result && typeof(result)=='object')?result.error:null; 
-                async_cb(result,error);
+                var error = (result && typeof(result)=='object')?result.error:null;
+                try {
+                    async_cb(result,error);
+                } catch(e) {
+                    alert(e.toSource());
+                    throw e;
+                }
             });
             //sync = false;
         } else {
