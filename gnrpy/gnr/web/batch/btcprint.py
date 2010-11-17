@@ -130,11 +130,12 @@ class BaseResourcePrint(BaseResourceBatch):
         self.table_script_options_client_print(center.contentPane(pageName='client_print'))
         self.server_print_option_pane(center.contentPane(pageName='server_print'))
         self.table_script_options_pdf(center.contentPane(pageName='pdf'))
-        if self.mail_tags and not self.application.checkResourcePermission(self.mail_tags, self.userTags):
+        if self.current_batch.mail_tags and not self.application.checkResourcePermission(self.current_batch.mail_tags, self.userTags):
             fb.radiobutton(value='^.mail_pdf',label='!!Pdf by mail',print_mode='mail_pdf')
-            fb.radiobutton(value='^.mail_deliver',label='!!Deliver mails',print_mode='mail_deliver')
             self.table_script_options_mail_pdf(center.contentPane(pageName='mail_pdf',datapath='.mail'))
-            self.table_script_options_mail_deliver(center.contentPane(pageName='mail_deliver',datapath='.mail'))
+            if self.current_batch.mail_address:
+                fb.radiobutton(value='^.mail_deliver',label='!!Deliver mails',print_mode='mail_deliver')
+                self.table_script_options_mail_deliver(center.contentPane(pageName='mail_deliver',datapath='.mail'))
         
     def table_script_options_client_print(self,pane):
         fb = self.table_script_fboptions(pane,tdl_width='3em')

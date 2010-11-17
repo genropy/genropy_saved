@@ -131,6 +131,7 @@ class TableScriptRunner(BaseComponent):
         resource = resource.replace('.py','')
         #cl=self.site.loadResource(pkgname,'tables',tblname,res_type,"%s:Main" %resource) #faccio mixin con prefisso
         res_obj=self.site.loadTableScript(self,table,'%s/%s' %(res_type,resource),class_name='Main')
+        self.current_batch = res_obj
         self.mixin(res_obj,methods='table_script_*,rpc_table_script_*')
         batch_dict = objectExtract(res_obj,'batch_') 
         batch_dict['resource_name'] = resource
