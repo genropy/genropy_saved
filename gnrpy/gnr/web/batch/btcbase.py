@@ -34,7 +34,14 @@ class BaseResourceBatch(object):
     
     def __call__(self,batch_note=None,struct=None,**kwargs):
         parameters = kwargs['parameters']
-        self.batch_parameters = parameters.asDict(True) if parameters else {}
+        #if parameters:
+        #    if isinstance(parameters, Bag):
+        #        self.batch_parameters = parameters.asDict(True)
+        #    else:
+        #        self.batch_parameters = parameters
+        #else:
+        #    self.batch_parameters = {}
+        self.batch_parameters = parameters.asDict(True) if isinstance(parameters, Bag) else parameters or {}
         self.batch_note = batch_note or self.batch_parameters.get('batch_note')
         self.struct = struct
         try:
