@@ -13,3 +13,4 @@ Bag
 	nodes
 	bagThree
 	bagFromTo
+	bagFour

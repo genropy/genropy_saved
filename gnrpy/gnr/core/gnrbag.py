@@ -121,18 +121,19 @@ class BagNode(object):
         -label: can be only a string.
         -value: can be anything even a BagNode. If you have get the xml of the
                 bag it should be serializable.
-        -attributes: dictionary that contains node's metadata   
+        -attributes: dictionary that contains node's metadata
         
     """
     def __init__(self, parentbag, label, value=None, attr=None, resolver=None,
-                validators=None,_removeNullAttributes=True):
+                validators=None, _removeNullAttributes=True):
         """
-        * `parentbag`: Bag than contains the node
-        * `label`: label that identifies the node
-        * `value`: value of the node
-        * `attr`: node's attributes
-        * `resolver`: a BagResolver
-        * `validators`: a dict with all validators pairs
+        * `parentbag`: Bag than contains the node.
+        * `label`: label that identifies the node.
+        * `value`: value of the node. Default value is ``None``.
+        * `attr`: node's attributes. Default value is ``None``.
+        * `resolver`: a BagResolver. Default value is ``None``.
+        * `validators`: a dict with all validators pairs. Default value is ``None``.
+        * `_removeNullAttributes`: an optional parameter; <#NISO ??? Add description! />. Default value is ``True``.
         """
         self.label = label
         self.locked = False
@@ -143,14 +144,15 @@ class BagNode(object):
         self._validators = None
         self.attr = {}
         if attr:
-            self.setAttr(attr, trigger = False,
-                        _removeNullAttributes = _removeNullAttributes)
+            self.setAttr(attr, trigger=False, _removeNullAttributes = _removeNullAttributes)
         if validators:
             self.setValidators(validators)
         self.setValue(value, trigger=False)
         
     def __eq__(self, other):
-        """one bagnode is equal to another if its key, value, attributes and resolvers are the same"""
+        """
+        One BagNode is equal to another one if its key, value, attributes and resolvers are the same of the other one.
+        """
         try:
             if isinstance(other, self.__class__) and (self.attr == other.attr):
                 if self._resolver == None:
@@ -189,23 +191,20 @@ class BagNode(object):
     fullpath = property(_get_fullpath)
     
     def getLabel(self):
-        """
-        Return the node's label.
-        """
+        """Return the node's label.
+            """
         return self.label
 
     def setLabel(self, label):
-        """
-        set node's label
-        """
+        """Set node's label.
+            """
         self.label = label
     
     def getValue(self, mode=''):
         """
-        Returns the value of the BagNode. This method is called by the property .value
-        
+        Return the value of the BagNode. It is called by the property .value
+            
         * `mode='static`: allow to get the resolver instance instead of the calculated value.
-        
         * `mode='weak`: allow to get a weak ref stored in the node instead of the actual object.
         """
         if not self._resolver == None:
@@ -220,15 +219,17 @@ class BagNode(object):
         #if isinstance(self._value, weakref.ref) and not 'weak' in mode:
         #    return self._value()
         return self._value
-    
-    def setValue(self, value, trigger=True, _attributes = None,
-                _updattr = None,_removeNullAttributes = True):
+        
+    def setValue(self, value, trigger=True, _attributes=None, _updattr=None, _removeNullAttributes=True):
         """
-        Set the node's value, unless the node is locked.
-        This method is called by the property .value
+        Set the node's value, unless the node is locked. This method is called by the property .value
         
         * `value`: the value to set the new bag inherits the trigger of the
-                   parentbag and calls it sending an update event
+                   parentbag and calls it sending an update event.
+        * `trigger`: an optional parameter; #NISO ???. Default value is ``True``.
+        * `_attributes`: <#NISO ??? Add description! />. Default value is ``None``.
+        * `_updattr`: <#NISO ??? Add description! />. Default value is ``None``.
+        * `_removeNullAttributes`: an optional parameter; <#NISO ??? Add description! />. Default value is ``True``.
         """
         if self.locked:
             raise BagNodeException("Locked node %s" % self.label)
@@ -298,15 +299,16 @@ class BagNode(object):
     
     def getAttr(self, label=None, default=None):
         """
-        It returns the value of an attribute. You have to specify the attribute's label. If it doesn't exist then it returns a default value.
+        It returns the value of an attribute. You have to specify the attribute's label.
+        If it doesn't exist then it returns a default value.
         
-        * `label`: the attribute's label that should be get.
+        * `label`: the attribute's label that should be get. Default value is ``None``.
+        * `default`: the default return value for a not found attribute. Default value is ``None``.
         """
         if not label or label=='#': 
             return self.attr
         return self.attr.get(label,default)
         
-    
     def getInheritedAttributes(self):
         inherited = {}
         if self.parentbag:
@@ -314,21 +316,23 @@ class BagNode(object):
                 inherited = self.parentbag.parentNode.getInheritedAttributes()
         inherited.update(self.attr)
         return inherited
-    
+        
     def hasAttr(self, label=None, value=None):
-        """
-        Check if a node has the given pair label-value in its attributes' dictionary.
-        """
+        """Check if a node has the given pair label-value in its attributes' dictionary.
+            """
         if not label in self.attr: return False
         if value: return (self.attr[label] == value)
         return True
-        
-    def setAttr(self, attr = None, trigger = True, _updattr = True, 
-                _removeNullAttributes = True,**kwargs):
-        """this method receives one or more key-value couple, passed as a dict or
-        as named parameters, and sets them as attributes of the node
-        
-        * `attr`: the attributes' dict that should be set into the node.
+            
+    def setAttr(self, attr=None, trigger=True, _updattr=True, _removeNullAttributes=True, **kwargs):
+        """
+        It receives one or more key-value couple, passed as a dict or as named parameters,
+        and sets them as attributes of the node.
+            
+        * `attr`: the attributes' dict that should be set into the node. Default value is ``None``.
+        * `trigger`: an optional parameter; <#NISO ??? Add description! />. Default value is ``True``.
+        * `_updattr`: an optional parameter; <#NISO ??? Add description! />. Default value is ``True``.
+        * `_removeNullAttributes`: an optional parameter; <#NISO ??? Add description! />. Default value is ``True``.
         """
         if not _updattr:
             self.attr.clear()
@@ -350,11 +354,10 @@ class BagNode(object):
                     subscriber(node=self, info=upd_attrs, evt='upd_attrs')
             if self.parentbag!=None and self.parentbag.backref :
                 self.parentbag._onNodeChanged(self, [self.label], evt='upd_attrs')
-
-        
+                
     def delAttr(self, *attrToDelete):
-        """this method receives one or more attributes' labels and removes them
-        from the node's attributes
+        """
+        It receives one or more attributes' labels and removes them from the node's attributes
         """
         if isinstance(attrToDelete,basestring):
             attrToDelete=attrToDelete.split(',')
@@ -373,9 +376,10 @@ class BagNode(object):
     
     def addValidator(self, validator, parameterString):
         """
-        this method set a new validator into the BagValidationList of the node.
+        Set a new validator into the BagValidationList of the node.
         If there are no validators into the node then addValidator instantiate
         a new BagValidationList and append the validator to it.
+        
         * `validator`: the type of validation to set into the list of the node.
         * `parameterString`: the parameters for a single validation type.
         """
@@ -392,11 +396,11 @@ class BagNode(object):
             return self._validators.getdata(validator,label=label,dflt=dflt)
         
     def subscribe(self, subscriberId, callback):
-        """Add the description!!! #NISO???
+        """
+        <#NISO ??? Add description! />.
         
-        * `subscriberId`: ???
-        
-        * `callback`: ???
+        * `subscriberId`: <#NISO ??? Add description! />.
+        * `callback`: <#NISO ??? Add description! />.
         """
         self._node_subscribers[subscriberId] = callback
         
@@ -416,9 +420,10 @@ class Bag(GnrObject):
     def __init__(self, source=None):
         """ 
         A new bag can be created in various ways:
-            - parsing a local file, a remote url or a text string (see fromXml).
-            - converting a dictionary into a Bag.
-            - passing a list or a tuple just like for the builtin dict() command.
+        
+        - parsing a local file, a remote url or a text string (see fromXml).
+        - converting a dictionary into a Bag.
+        - passing a list or a tuple just like for the builtin dict() command.
         """
         GnrObject.__init__(self)
         self._nodes = []
@@ -515,9 +520,9 @@ class Bag(GnrObject):
         """
         The "in" operator can be used to test the existence of a key in a
         bag. Also nested keys are allowed.
+        
         * `what`: the key path to test.
         @return: a boolean value, True if the key exists in the bag, False otherwise.
-        
         """
         if isinstance(what, basestring):
             return bool(self.getNode(what))
@@ -528,25 +533,25 @@ class Bag(GnrObject):
             
     #-------------------- getItem --------------------------------
     def getItem(self, path, default=None, mode=None):
-        """Return the value of the given item if it is in the Bag, else it returns ``None``, so that this method never raises a ``KeyError``:
+        """
+        Return the value of the given item if it is in the Bag, else it returns ``None``, so that this method never raises a ``KeyError``:
         
         This method reimplements the list's __getitem__() method. Usually a path is a string formed by the labels of the nested items,
         joined by the char '.', but several different path notations have been implemented to offer some useful features:
         
-            - if a path segment who starts with '#' is followed by a number, the item will by identified
-              by its index position, as a list element.
-            - if a path ends with '.?', it returns the item's keys.
-            - if at the last path-level the label contains '#', what follows the '#' is considered the key of an item's attribute and this
-              method will return that attribute's value.
-            - if a path starts with '?' the path is interpreted as a digest method.
-            
+        - if a path segment who starts with '#' is followed by a number, the item will by identified
+        by its index position, as a list element.
+        - if a path ends with '.?', it returns the item's keys.
+        - if at the last path-level the label contains '#', what follows the '#' is considered the key of an item's attribute and this
+        method will return that attribute's value.
+        - if a path starts with '?' the path is interpreted as a digest method.
+        
         A path can also be a list of keys.
         
-        * `path`: the item's path
-        
-        * `default`: the default return value for a not found item.
-        
+        * `path`: the item's path.
+        * `default`: the default return value for a not found item. Default value is ``None``.
         * `mode='static'`: with this attribute the getItem doesn't solve the Bag :ref:`bag_resolver`.
+        Default value is ``None``.
         
         >>> mybag = Bag()
         >>> mybag.setItem('a',1)
@@ -584,7 +589,8 @@ class Bag(GnrObject):
     __getitem__ = getItem
 
     def setdefault(self, path, default=None):
-        """If *path* is in the Bag, return its value. If not, insert in the *path* the default value and return it.
+        """
+        If *path* is in the Bag, return its value. If not, insert in the *path* the default value and return it.
         default defaults to ``None``.
         """
         node = self.getNode(path)
@@ -599,7 +605,9 @@ class Bag(GnrObject):
         
         * `group_by`: list of keys.
         * `caption`: the attribute to use for the leaf key. If not specified, it uses the original key.
-        * `attributes`: keys to copy as attributes of the leaves. (default: `'*'` = select all the attributes)
+        Default value is ``None``.
+        * `attributes`: keys to copy as attributes of the leaves.
+        Default value is ``*`` (= select all the attributes)
         """
         
         if isinstance(group_by, str) or isinstance(group_by, unicode):
@@ -695,16 +703,18 @@ class Bag(GnrObject):
                     result = currvalue.keys()
                 elif cmd.startswith('d:') or cmd.startswith('digest:'):
                     result = currvalue.digest(mode.split(':')[1])
-        return result 
-    
-    
-    def _htraverse(self,  pathlist, autocreate=False, returnLastMatch=False):
+        return result
+        
+    def _htraverse(self, pathlist, autocreate=False, returnLastMatch=False):
         """
-        this method receives a list that represents a hierarchical path and executes
-        one step of the path, calling itself recursively. If autocreate mode is True,
-        the method creates not existing nodes of the pathlist.
-        * `pathlist`: list of nodes'labels
-        @return: current node's value
+        Receive a hierarchical path as a list and execute one step of the path,
+        calling itself recursively. If autocreate mode is True, the method creates all the not
+        existing nodes of the pathlist. Return the current node's value.
+        
+        * `pathlist`: list of nodes' labels.
+        * `autocreate`: an optional parameter; if True, it creates all the not existing nodes of the pathlist.
+        Default value is ``False``.
+        * `returnLastMatch`: an optional parameter; <#NISO ??? Add description! />. Default value is ``False``.
         """
         curr = self
         if isinstance(pathlist,basestring):
@@ -764,8 +774,8 @@ class Bag(GnrObject):
     def __str__(self, exploredNodes=None, mode='static,weak'):
         """
         This method returns a formatted representation of the bag contents.
-        @return: a formatted representation of the bag contents (unicode)
         
+        @return: a formatted representation of the bag contents (unicode)
         """
         if not exploredNodes:
             exploredNodes={}
@@ -801,24 +811,24 @@ class Bag(GnrObject):
         return '\n'.join(outlist) 
         
     def asString(self, encoding='UTF-8', mode='weak'):
-        """This method calls the __str__ method, and return an ascii encoded formatted representation of the Bag.
+        """
+        Call the __str__ method, and return an ascii encoded formatted representation of the Bag.
         
-        * `encoding`: default is 'UTF-8'
-        
-        * `mode`: default is 'weak', that is ... #NISO???
-        
+        * `encoding`: an optional parameter; it is the type of encoding. Default value is ``UTF-8``.
+        * `mode`: an optional parameter; <#NISO ??? Add description! />. Default value is ``weak``.
         """
         return self.__str__(mode=mode).encode(encoding,'ignore')
-    
+        
     def keys(self):
-        """Return a copy of the Bag as a list of keys.
+        """
+        Return a copy of the Bag as a list of keys.
         
         >>> b = Bag({'a':1,'a':2,'a':3})
         >>> b.keys()
         ['a', 'c', 'b']
         """
         return [x.label for x in self._nodes]
-    
+        
     def values(self):
         """Return a copy of the Bag values as a list.
             """
@@ -847,12 +857,14 @@ class Bag(GnrObject):
             yield x.value
             
     def digest(self, what=None, condition=None, asColumns=False):
-        """It returns a list of ``n`` tuples including keys and/or values and/or attributes of all the Bag's elements,
+        """
+        It returns a list of ``n`` tuples including keys and/or values and/or attributes of all the Bag's elements,
         where ``n`` is the number of *special keys* called in the method.
             
         * `what`: the parameter who includes a string of one or more special keys separated by a comma.
+        Default value is ``None``.
             
-            Here follows a list of the *special keys*:
+        Here follows a list of the *special keys*:
             
             +------------------------+----------------------------------------------------------------------+
             |  *Special keys*        |  Description                                                         |
@@ -870,6 +882,9 @@ class Bag(GnrObject):
             | ``'#a.attributeName'`` | Show the attribute called 'attrname' for each item                   |
             +------------------------+----------------------------------------------------------------------+
             
+        * `condition`: an optional parameter; set a condition for digest process. Default value is ``None``.
+        * `asColumns`: an optional parameter; <#NISO ??? Add description! />. Default value is ``False``.
+            
             >>> b=Bag()
             >>> b.setItem('documents.letters.letter_to_mark','file0',createdOn='10-7-2003',createdBy= 'Jack')
             >>> b.setItem('documents.letters.letter_to_john','file1',createdOn='11-5-2003',createdBy='Mark',
@@ -880,10 +895,6 @@ class Bag(GnrObject):
             >>> print b['documents.letters'].digest('#k,#a.createdOn,#a.createdBy')
             [('letter_to_sheila','12-4-2003','Walter'),('letter_to_mark','10-7-2003','Jack'),('letter_to_john','11-5-2003','Mark')]
             
-        * `condition`: set a condition for digest process.
-        
-        * `asColumns`: #NISO ???
-        
         **Square-brackets notations:**
         
         You have to use the special char ``?`` followed by ``d:`` followed by one or more *expressions*:
@@ -944,7 +955,7 @@ class Bag(GnrObject):
         return self.digest(what, asColumns=True)
         
     def has_key(self, path):
-        """ 
+        """
         This method is analog to dictionary's has_key() method.
         Seek for the presence of the key in the Bag, and return True if the given item has the key, False otherwise.
         
@@ -957,11 +968,9 @@ class Bag(GnrObject):
         False
         """
         return bool(self.getNode(path))
-    
-    def getNodes(self,condition=None):
-        """Get the actual list of nodes contained in the Bag.
         
-        The getNodes method works as the filter of a list.
+    def getNodes(self,condition=None):
+        """Get the actual list of nodes contained in the Bag. The getNodes method works as the filter of a list.
         """
         if not condition:
             return self._nodes
@@ -977,12 +986,12 @@ class Bag(GnrObject):
                 return n
             
     def pop(self, path, dflt=None):
-        """This method is analog to dictionary's pop() method. It pops the given item from the Bag at the relative path
-        and returns it.
+        """
+        This method is analog to dictionary's pop() method. It pops the given item from
+        the Bag at the relative path and returns it.
         
         * `path`: path of the given item.
-        
-        * `dflt`: #NISO ???
+        * `dflt`: <#NISO ??? Add description! />. Default value is ``None``.
         
         >>> b = Bag()
         >>> b.setItem('a',1)
@@ -1026,12 +1035,12 @@ class Bag(GnrObject):
             self._onNodeDeleted(oldnodes,-1)
             
     def update(self, otherbag, resolved=False):
-        """Update the Bag with the ``key/value`` pairs from *otherbag*, overwriting all the existing keys.
+        """
+        Update the Bag with the ``key/value`` pairs from *otherbag*, overwriting all the existing keys.
         Return ``None``.
         
         * `otherbag`: the Bag to merge into.
-        
-        * `resolved`: #NISO ???
+        * `resolved`: an optional parameter; <#NISO ??? Add description! />. Default value is ``False``.
         """
         if isinstance(otherbag,dict):
             for k,v in otherbag.items():
@@ -1070,20 +1079,17 @@ class Bag(GnrObject):
             return False
         
     def merge(self, otherbag, upd_values=True, add_values=True, upd_attr=True, add_attr=True):
-        """.. deprecated:: 0.7
+        """
+        .. deprecated:: 0.7
         .. note:: This method have to be rewritten.
         
         Allow to merge two bags into one.
         
         * `otherbag`: the Bag used for the merge.
-        
-        * `upd_values`: optional parameter, ???
-        
-        * `add_values`: optional parameter, ???
-        
-        * `upd_attr`: optional parameter, ???
-        
-        * `add_attr`: optional parameter, ???
+        * `upd_values`: an optional parameter; <#NISO ??? Add description! />. Default value is ``True``.
+        * `add_values`: an optional parameter; <#NISO ??? Add description! />. Default value is ``True``.
+        * `upd_attr`: an optional parameter; <#NISO ??? Add description! />. Default value is ``True``.
+        * `add_attr`: an optional parameter; <#NISO ??? Add description! />. Default value is ``True``.
         
         >>> john_doe=Bag()
         >>> john_doe['telephones']=Bag()
@@ -1128,16 +1134,14 @@ class Bag(GnrObject):
 #-------------------- copy --------------------------------
     def copy(self):
         """
-        This method returns a copy of the Bag.
-        @return: a copy of the Bag.
+        Return a Bag copy.
         """
         return copy.copy(self)
         
 #-------------------- deepcopy -------------------------------
     def deepcopy(self):
         """
-        This method returns a deep copy of the Bag.
-        @return: a deep copy of the Bag.
+        Return a deep Bag copy.
         """
         result = Bag()
         for node in self:
@@ -1149,12 +1153,13 @@ class Bag(GnrObject):
         
 #-------------------- getNodeByAttr --------------------------------
     def getNodeByAttr(self, attr, value, path=None):
-        """Return a BagNode with the requested attribute.
+        """
+        Return a BagNode with the requested attribute.
         (e.g. searching a node with a given 'id' in a Bag build from html).
         
         * `attr`: path of the given item.
         * `value`: path of the given item.
-        * `path`: optional, an empty list that will be filled with the path of the found node.
+        * `path`: an optional parameter; an empty list that will be filled with the path of the found node. Default value is ``None``.
         """
         bags=[]
         if path == None: path = []
@@ -1173,7 +1178,7 @@ class Bag(GnrObject):
         
     def getDeepestNode(self,path=None):
         """
-        This method returns the deepest matching node in the bag and the remaining path of the path
+        Return the deepest matching node in the bag and the remaining path of the path.
         eg: bag.getDeepestNode('foo.bar.baz') returns 
         if 'foo.bar.baz' in bag:
             return (bag.getNode(foo.bar.baz), [])
@@ -1214,25 +1219,27 @@ class Bag(GnrObject):
         return result
 #-------------------- getNode --------------------------------        
     def getNode(self, path=None, asTuple=False, autocreate=False, default=None):
-        """Return the BagNode stored at the relative path.
+        """
+        Return the BagNode stored at the relative path.
             
-            * `path`: path of the given node.
-            * `asTuple`: #NISO???
-            * `autocreate`: #NISO???
-            * `default`: #NISO???
+        * `path`: path of the given node. Default value is ``None``.
+        * `asTuple`: an optional parameter; <#NISO ??? Add description! />. Default value is ``False``.
+        * `autocreate`: an optional parameter; if True, it creates all the not existing nodes of the pathlist.
+        Default value is ``False``.
+        * `default`: the default return value for a not found node. Default value is ``None``.
         """
         if not path:
             return self.parentNode
         if isinstance(path,int):
             return self._nodes[path]
         obj, label = self._htraverse(path,autocreate=autocreate)
-
+        
         if isinstance(obj,Bag):
             node=obj._getNode(label,autocreate,default)
             if asTuple:
                 return (obj,node)
             return node
-
+            
     def _getNode(self, label, autocreate,default):
         p = self._index(label)
         if p >= 0:
@@ -1244,14 +1251,14 @@ class Bag(GnrObject):
             node.parentbag=self
             if self.backref:
                 self._onNodeInserted(node,i)
-
+                
         else:
             node = None
         return node
         
-        
     def setAttr(self, _path=None, _attributes=None, _removeNullAttributes=True,**kwargs):
-        """Allow to set, modify or delete attributes into a node at the given path.
+        """
+        Allow to set, modify or delete attributes into a node at the given path.
         
         You can set the attributes into a Bag with the `_attributes` parameter if you have a dict of attributes;
         alternatively, you can pass all the attributes as **kwargs.
@@ -1275,19 +1282,20 @@ class Bag(GnrObject):
             0 - (Bag) letters:
                 0 - (str) letter_to_sheila: file2  <lastModify='12-9-2003'>
                 
-        * `_path`: path of the target item. 
-        * `_attributes`: a dict of attributes to set into the node.
-        * `_removeNullAttributes`: #NISO ???
+        * `_path`: path of the target item. Default value is ``None``.
+        * `_attributes`: a dict of attributes to set into the node. Default value is ``None``.
+        * `_removeNullAttributes`: an optional parameter; <#NISO ??? Add description! />. Default value is ``True``.
         """
         self.getNode(_path,autocreate=True).setAttr(attr=_attributes, _removeNullAttributes=_removeNullAttributes,**kwargs)
         
     def getAttr(self, path=None, attr=None, default=None):
-        """Get the node's attribute at the given path and return it. If it doesn't exist, it returns ``None``,
+        """
+        Get the node's attribute at the given path and return it. If it doesn't exist, it returns ``None``,
         so that this method never raises a ``KeyError``.
-        
-        * `path`: path of the given item.
-        * `attr`: the label of the attribute to get.
-        * `default`: the value returned by this method for an unexisting attribute.
+            
+        * `path`: path of the given item. Default value is ``None``.
+        * `attr`: the label of the attribute to get. Default value is ``None``.
+        * `default`: the value returned by this method for an unexisting attribute. Default value is ``None``.
         
         >>> b = Bag()
         >>> b.setItem('documents.letters.letter_to_mark','file0',createdOn='10-7-2003',createdBy= 'Jack')
@@ -1314,16 +1322,16 @@ class Bag(GnrObject):
             return node.getAttr(label=attr, default=default)
         else:
             return default
-    
+            
     def delAttr(self, path=None, attr=None):
         return self.getNode(path).delAttr(attr)
         
     def _pathSplit(self,path):
-        """This method splits a path string it at each '.' and returns a list of
-        nodes' labels and the label of the first list's element.
+        """
+        This method splits a path string it at each '.' and returns both a list of nodes' labels
+        and the first list's element label.
+        
         * `path`: the given path.
-        @return label: the first label
-        @return pathlist: the list result of path splitting.
         """
         if isinstance(path,basestring):
             escape="\\."
@@ -1340,7 +1348,11 @@ class Bag(GnrObject):
         return label, pathList
 
     def asDict(self, ascii=False, lower=False): 
-        """Convert a Bag in a Dictionary and return it.
+        """
+        Convert a Bag in a Dictionary and return it.
+        
+        * `ascii`: an optional parameter; <#NISO ??? Add description! />. Default value is ``False``.
+        * `lower`: an optional parameter; <#NISO ??? Add description! />. Default value is ``False``.
         
         .. note:: If you attempt to transform a hierarchical bag to a dictionary, the resulting dictionary will contain
                   nested bags as values. In other words only the first level of the Bag is transformed to a dictionary,
@@ -1362,19 +1374,20 @@ class Bag(GnrObject):
         return d
         
 #-------------------- addItem --------------------------------
-    def addItem(self, item_path, item_value, _attributes=None, _position=">",_validators=None,**kwargs):
-        """Add an item to the current Bag using a path in the form "label1.label2. ... .labelN", returning the current Bag.
+    def addItem(self, item_path, item_value, _attributes=None, _position=">", _validators=None, **kwargs):
+        """
+        Add an item to the current Bag using a path in the form "label1.label2. ... .labelN", returning the current Bag.
         If the path already exists, this method replicates the path keeping both the old values and the new value.
         
         Parameters:
         
         - `item_path`: the path of the given item.
         - `item_value`: the value to set.
-        - `_attributes`: an optional parameter, it specifies the attributes
-          of the value to set. Default is 'None'.
-        - `_position`: with this optional argument it is possible to set a new value at a particular position among its brothers.
+        - `_attributes`: an optional parameter, it specifies the attributes of the value to set. Default value is 'None'.
+        - `_position`: an optional parameter; allow to set a new value at a particular position among its brothers.
+        Default value is ``>``.
             
-            You can use one of the following types:
+        You can use one of the following types:
             
             +----------------------------+----------------------------------------------------------------------+
             | *Position's attributes*    |  Description                                                         |
@@ -1395,6 +1408,7 @@ class Bag(GnrObject):
             +----------------------------+----------------------------------------------------------------------+
             
         * `_validators`: an optional parameter, it specifies the value's validators to set.
+        Default value is ``None``.
         * `**kwargs`: attributes AND/OR validators.
         
         Example:
@@ -1418,8 +1432,9 @@ class Bag(GnrObject):
     
     #-------------------- setItem --------------------------------
     def setItem(self, item_path, item_value, _attributes=None, _position=None, _duplicate=False,
-                     _updattr=False, _validators=None,_removeNullAttributes=True,**kwargs):
-        """Add values (or attributes) to your Bag and return the Bag. The default behaviour of ``setItem`` is to add the new value
+                     _updattr=False, _validators=None, _removeNullAttributes=True, **kwargs):
+        """
+        Add values (or attributes) to your Bag and return the Bag. The default behaviour of ``setItem`` is to add the new value
         as the last element of a list. You can change this trend with the `_position` argument, who provides a compact
         syntax to insert any item in the desired place.
         
@@ -1431,9 +1446,11 @@ class Bag(GnrObject):
         * `item_path`: the path of the given item.
         * `item_value`: the value to set.
         * `_attributes`: an optional parameter, it specified the value's attributes to set.
-        * `_position`: an optional parameter, if specified this method behaves like addItem().
-        It is possible to set a new value at a particular position among its brothers. *expression* must be a
-        string of the following types:
+        Default value is ``None``.
+        * `_position`: an optional parameter; it is possible to set a new value at a
+        particular position among its brothers. Default value is ``None``.
+        
+        *expression* must be a string of the following types:
 
             +----------------------------+----------------------------------------------------------------------+
             | *Expressions*              |  Description                                                         |
@@ -1453,8 +1470,11 @@ class Bag(GnrObject):
             | ``'#index'``               | Set the value in a determined position indicated by ``index`` number |
             +----------------------------+----------------------------------------------------------------------+
             
-        * `_duplicate`: specifies if a node with an existing path overwrite the value or append to it the new one.
-        * `_validators`: an optional parameter, it specifies the value's validators to set.
+        * `_duplicate`: an optional parameter; specifies if a node with an existing path overwrite the value or append
+        to it the new one. Default value is ``False``.
+        * `_updattr`: an optional parameter; <#NISO ??? Add description! />. Default value is ``False``.
+        * `_validators`: an optional parameter, it specifies the value's validators to set. Default value is ``None``.
+        * `_removeNullAttributes`: an optional parameter; <#NISO ??? Add description! />. Default value is ``True``.
         * `**kwargs`: attributes AND/OR validators.
         
             >>> mybag = Bag()
@@ -1516,8 +1536,8 @@ class Bag(GnrObject):
                            _validators = _validators,_removeNullAttributes=_removeNullAttributes)
     __setitem__ = setItem
     
-    def _set(self, label, value, _attributes=None, _position=None, 
-            _duplicate=False, _updattr=False, _validators=None,_removeNullAttributes=True):
+    def _set(self, label, value, _attributes=None, _position=None,
+            _duplicate=False, _updattr=False, _validators=None, _removeNullAttributes=True):
         resolver = None
         if isinstance(value, BagResolver):
             resolver = value
@@ -1542,21 +1562,22 @@ class Bag(GnrObject):
                 node.setValidators(_validators)
             node.setValue(value, _attributes=_attributes, _updattr=_updattr,
                         _removeNullAttributes=_removeNullAttributes)
-    def defineSymbol(self,**kwargs):
+    def defineSymbol(self, **kwargs):
         """
         Define a variable and link it to a value at the specified path. The value
         linked is a BagFormula Resolver.
-        * `kwargs`: a dict of symbol to define for a formula.
+        
+        * `kwargs`: a dict of symbol to make a formula.
         """
         if self._symbols == None:
             self._symbols={}
         self._symbols.update(kwargs)
     
-    def defineFormula(self,**kwargs):
+    def defineFormula(self, **kwargs):
         """
         Define a formula that uses defined symbols.
-        * `kwargs`: a pair of key-value which rapresent the formula and the
-        string that describes it.
+        
+        * `kwargs`: a key-value couple which represents the formula and the string that describes it.
         """
         if self._symbols== None:
             self._symbols={}
@@ -1566,8 +1587,9 @@ class Bag(GnrObject):
     def formula(self, formula, **kwargs):
         """
         Sets a BagFormula resolver.
-        * `formula`: a string that represents the expression with symbolic vars
-        * `kwargs`: links between symbols and paths associated to their values
+        
+        * `formula`: a string that represents the expression with symbolic vars.
+        * `**kwargs`: links between symbols and paths associated to their values.
         """
         self.setBackRef()
         if self._symbols== None:
@@ -1577,7 +1599,7 @@ class Bag(GnrObject):
         parameters.update(kwargs)
         return BagFormula(formula=formula,parameters=parameters)
         
-    def getResolver(self,path):
+    def getResolver(self, path):
         """
         This method get the resolver of the node at the given path.
         
@@ -1586,39 +1608,40 @@ class Bag(GnrObject):
         return self.getNode(path).getResolver()
     getFormula=getResolver
         
-    def setResolver(self,path,resolver):
+    def setResolver(self, path, resolver):
         """
-         This method set a resolver into the node at the given path.
-         * `path`: path of the node.
-         """   
+        Set a resolver into the node at the given path.
+        
+        * `path`: path of the node.
+        * `resolver`: <#NISO ??? Add description! />.
+        """
         return self.setItem(path,None,resolver=resolver)
-       
+        
     def setBackRef(self, node=None, parent=None):
         """
-         This method imposes a more strict structure to a bag.
-         It make it more similar to a tree-leaf model: a Bag can have only one Parent
-         and it knows has a reference to its Parent.
-         
-         * `node`: not required
-         * `parent`: not required
-         """
+        Force a Bag to a more strict structure. It makes the Bag similar to a tree-leaf model:
+        a Bag can have only one Parent and it knows this reference.
+        
+        * `node`: an optional parameter; <#NISO ??? Add description! />. Default value is ``None``.
+        * `parent`: an optional parameter; <#NISO ??? Add description! />. Default value is ``None``.
+        """
         if self.backref != True:
             self._backref = True
             self.parent = parent
             self.parentNode = node
             for node in self:
                 node.parentbag = self #node property calls back setBackRef recursively
-
+                
     def delParentRef(self):
         """
-        This method set false the reference to the ParentBag of this Bag.
+        Set false in the ParentBag reference of the relative Bag.
         """
         self.parent = None
         self._backref=False
-    
+        
     def clearBackRef(self):
         """
-        This method clear all the setBackRef() assumption.
+        Clear all the setBackRef() assumption.
         """
         if self.backref:
             self._backref = False
@@ -1632,7 +1655,7 @@ class Bag(GnrObject):
                     
     def makePicklable(self):
         """
-        This method make a Bag picklable.
+        Allow a Bag to be picklable.
         """
         if self.backref == True:
             self._backref = 'x'
@@ -1646,7 +1669,7 @@ class Bag(GnrObject):
                 
     def restoreFromPicklable(self):
         """
-        This method restore a Bag to its original form from its picklable.
+        Restore a Bag from its picklable form to its original form.
         """
         if self._backref == 'x':
             self.setBackRef()
@@ -1655,12 +1678,12 @@ class Bag(GnrObject):
                 node.parentbag = None
                 value = node.staticvalue
                 if isinstance(value, Bag):
-                    value.restoreFromPicklable()        
+                    value.restoreFromPicklable()
                     
     def _get_backref (self):
         return self._backref
     backref=property(_get_backref)
-    
+            
     def _insertNode(self, node, position):
         if not (position) or position == '>':
             n = -1
@@ -1690,15 +1713,11 @@ class Bag(GnrObject):
 #-------------------- index --------------------------------
     def _index(self, label):
         """
-        This method returns the position of the label into the given bag. 
-        It is not recursive. So it works just in the current level. 
-        The label can be '#n' where n is the position. 
-        The label can be '#attribute=value'.
-        If the label doesn't exist it returns -1. 
-        The mach is not case sensitive.
-        * `label`: a not hierarchical label.
-        @return: position into the bag.
+        Return the label position into a given Bag. It is not recursive, so it works just in the current level.
+        The label can be '#n' where n is the position. The label can be '#attribute=value'.
+        If the label doesn't exist it returns -1. The mach is not case sensitive.
         
+        * `label`: a not hierarchical label.
         """
         result = -1
         if label.startswith('#'):
@@ -1733,18 +1752,12 @@ class Bag(GnrObject):
 #-------------------- pickle --------------------------------
     def pickle(self,destination=None,bin=True):
         """
-        This method returns a pickled Bag.
+        Return a pickled Bag.
         
-        * `destination`: an optional parameter; it is the destination path;
-                         default is 'None'.
-        * `bin`: a boolean optional parameter, if set to 'False' the Bag is
-                 pickled in ASCII code, if set to 'True' is pickled in binary format.
-                 Default is 'True'.
-         
-        Return: the pickled Bag.
-        
+        * `destination`: an optional parameter; it is the destination path; default is 'None'.
+        * `bin`: a boolean optional parameter; if it is ``False`` the Bag will be pickled in ASCII code,
+        if it is set ``True`` the Bag will be pickled in a binary format. Default value is ``True``.
         """
-
         if not destination :
             return pickle.dumps(self,bin)
         if isinstance(destination,file):
@@ -1757,10 +1770,9 @@ class Bag(GnrObject):
 #-------------------- unpickle --------------------------------
     def unpickle(self,source):
         """
-        This method unpickles a pickled Bag.
-        * `source`: the source path.
-        @return: the unpickled Bag.
+        Unpickle a pickled Bag.
         
+        * `source`: the source path.
         """
         source,fromFile,mode=self._sourcePrepare(source)
         if source and mode=='pickle':
@@ -1774,10 +1786,14 @@ class Bag(GnrObject):
         else:
             result = pickle.loads(source)
         return result
-
+            
     def setCallable(self, name, argstring=None, func='pass'):
         """
-        review
+        <#NISO ??? Add description! />.
+        
+        * `name`: <#NISO ??? Add description! />.
+        * `argstring`: <#NISO ??? Add description! />. Default value is ``None``.
+        * `func`: an optional parameter; <#NISO ??? Add description! />. Default value is ``pass``.
         """
         setCallable(self, name, argstring=argstring, func=func)
 
@@ -1794,20 +1810,29 @@ class Bag(GnrObject):
         Is also possible to write the result on a file, passing the path of the file
         as the 'filename' parameter.
         
-        * `filename`: an optional parameter, it is the path of the output file;
-                      default value is 'None'
-        * `encoding`: an optional parameter, is used to set the XML encoding;
-                      default value is UTF-8.
-         
-        Return: an XML version of the bag.
+        * `filename`: an optional parameter; it's the path of the output file. Default value is ``None``.
+        * `encoding`: an optional parameter; set the XML encoding. Default value is ``UTF-8``.
+        * `typeattrs`: if True, keep the attribute's types. Default value is ``True``.
+        * `typevalue`: if True, keep the value's type. Default value is ``True``.
+        * `unresolved`: an optional parameter; <#NISO ??? Add description! />. Default value is ``False``.
+        * `addBagTypeAttr`: an optional parameter; <#NISO ??? Add description! />. Default value is ``True``.
+        * `autocreate`: an optional parameter; if True, it creates all the not existing nodes of the pathlist.
+        Default value is ``False``.
+        * `translate_cb`: an optional parameter; <#NISO ??? Add description! />. Default value is ``None``.
+        * `self_closed_tags`: an optional parameter; <#NISO ??? Add description! />. Default value is ``None``.
+        * `omitUnknownTypes`: an optional parameter; <#NISO ??? Add description! />. Default value is ``False``.
+        * `catalog`: an optional parameter; <#NISO ??? Add description! />. Default value is ``None``.
+        * `omitRoot`: an optional parameter; if False, add a tag root called ``<GenRoBag>``. Default value is ``False``.
+        * `forcedTagAttr`: an optional parameter; <#NISO ??? Add description! />. Default value is ``None``.
+        * `docHeader`: an optional parameter; set an header string, out of the ``<GenRoBag>`` tag. Default value is ``None``.
         
-            >>> mybag=Bag()
-            >>> mybag['aa.bb']=4567
-            >>> mybag.toXml()
-            '<?xml version=\'1.0\' encoding=\'iso-8859-15\'?>
-             <GenRoBag>
-             <aa><bb T="L">
-             4567</bb></aa></GenRoBag>'
+        >>> mybag=Bag()
+        >>> mybag['aa.bb']=4567
+        >>> mybag.toXml()
+        '<?xml version=\'1.0\' encoding=\'iso-8859-15\'?>
+        <GenRoBag>
+        <aa><bb T="L">
+        4567</bb></aa></GenRoBag>'
         """
         from gnr.core.gnrbagxml import BagToXml
         return BagToXml().build(self, filename=filename, encoding=encoding,typeattrs=typeattrs,typevalue=typevalue, addBagTypeAttr=addBagTypeAttr,
@@ -1817,10 +1842,9 @@ class Bag(GnrObject):
         
     def fillFrom(self, source):
         """
-        This method fills a void Bag from: basestring, bag, list.
+        Fill a void Bag from a source (basestring, bag or list).
         
         * `source`: the source for the Bag.
-                      
         """
         if isinstance(source, basestring) :
             b = self._fromSource(*self._sourcePrepare(source))
@@ -1846,19 +1870,18 @@ class Bag(GnrObject):
     
     def _fromSource(self, source, fromFile, mode):
         """
-        * `source`: the source string or source URI
-        * `fromFile`: flag that says if source is eventually an URI
-        * `mode`: flag that means the importation mode (XML, pickle or VCARD)
-        @return: a bag from unpickle or from fromXml
-        
-        This method receives "mode" and "fromFile" and switch between the different
-        modes calling _fromXml or _unpickle
-        
-        """  
+        <#NISO ??? This method receives "mode" and "fromFile" and switch between the different
+        modes calling _fromXml or _unpickle />.
+        Return a Bag from _unpickle() method or from _fromXml() method.
+            
+        * `source`: the source string or source URI.
+        * `fromFile`: flag that says if source is eventually an URI.
+        * `mode`: flag of the importation mode (XML, pickle or VCARD).
+        """ 
         if not source:
             return
-                
-        if mode=='xml' :  
+            
+        if mode=='xml':
             return self._fromXml(source,fromFile)
         elif mode=='pickle':
             return self._unpickle(source,fromFile)
@@ -1869,22 +1892,22 @@ class Bag(GnrObject):
             return Bag((os.path.basename(source), DirectoryResolver(source)))
         elif mode == 'unknown':
             raise  BagException('invalid source: %s' % source)
-        
-        
-        
+            
     def _sourcePrepare(self,source):
         """
         Generate a Bag from a generic xml
+        
         * `source`: an xml string or a path to an xml document.
         @type source: basestring
-        @return: source, fromFile, mode
+        @return: source, fromFile, mode.
+        
         "source" parameter can be either a URI (file path or URL) or a string.
         If source is a an URI the method opens and reads the identified file an sets
         the value of the flag "fromFile" to true.
+        
         Anyway source can be a well-formed XML document, or a raw one,or even a
         pickled bag. In any of this cases the method sets the value of the flag
         "mode" to xml, vcard or pickle and returns it with "source" and "fromFile"
-            
         """
         originalsource=source
         if source.startswith('<'):
@@ -1928,13 +1951,14 @@ class Bag(GnrObject):
    
     
 #-------------------- fromXml --------------------------------
-    def fromXml(self, source,catalog=None,bagcls=None,empty=None):
+    def fromXml(self, source, catalog=None, bagcls=None, empty=None):
         """
         This method fills the Bag with values read from an XML string or file or URL.
-        * `source`: the XML source to be loaded in the Bag. 
-        * `catalog`:
-        * `bagcls`:
-        bagcls empty:
+        
+        * `source`: the XML source to be loaded in the Bag.
+        * `catalog`: <#NISO ??? Add description! />. Default value is ``None``.
+        * `bagcls`: <#NISO ??? Add description! />. Default value is ``None``.
+        * `empty`: <#NISO ??? Add description! />. Default value is ``None``.
         """
         source, fromFile, mode = self._sourcePrepare(source)
         self._nodes[:] = self._fromXml(source, fromFile, catalog=catalog,
@@ -1964,9 +1988,8 @@ class Bag(GnrObject):
                     v._deepIndex(path+[node.label], resList, exploredItems)
                     
     def getIndexList(self,asText=False):
-        """
-        This method return the index of the Bag as a plan list of the Nodes paths.
-        """
+        """This method return the index of the Bag as a plan list of the Nodes paths.
+            """
         l = self.getIndex()
         l=['.'.join(x) for x,y in l]
         if asText :
@@ -1999,21 +2022,20 @@ class Bag(GnrObject):
         * `node`: the node that has benn changed.
         * `pathlist`: it includes the Bag subscribed's path linked to the node where the event was catched.
         * `evt`: it is the event type, that is insert, delete, upd_value or upd_attrs.
-        * `oldvalue`: it is the previous node's value.
-        
+        * `oldvalue`: it is the previous node's value. Default value is ``None``.
         """
         for s in self._upd_subscribers.values():
             s(node=node, pathlist=pathlist, oldvalue=oldvalue, evt=evt)
         if self.parent: 
             self.parent._onNodeChanged(node, [self.parentNode.label]+pathlist, evt ,oldvalue)
-  
+            
     def _onNodeInserted(self, node, ind, pathlist=None):
         """
         Set a function at inserting events. It is called from the trigger system.
         
         * `node`: <#NISO> The node inserted I suppose, right??? </NISO>
-        * `ìnd`: #NISO ???
-        * `pathlist`: it includes the Bag subscribed's path linked to the node where the event was catched.
+        * `ìnd`: <#NISO ??? Add description! />.
+        * `pathlist`: it includes the Bag subscribed's path linked to the node where the event was catched. Default value is ``None``.
         """
         parent=node.parentbag
         if parent!=None and parent.backref and isinstance(node._value,Bag):
@@ -2042,17 +2064,19 @@ class Bag(GnrObject):
             subscribersdict[subscriberId]=callback
         
     def subscribe(self, subscriberId, update=None, insert=None, delete=None, any=None):
-        """This method provides a subscribing of a function to an event.
+        """
+        This method provides a subscribing of a function to an event.
         Subscribing an event on a Bag means that every time that it happens,
         it is propagated along the bag hierarchy and is triggered by its
         eventhandler. A subscription can be seen as a event-function couple,
         so you can define many eventhandlers for the same event.
         
         * `subscriberId`: the Id of the Bag's subscription.
-        * `update`: the eventhandler function linked to update event.
-        * `insert`: the eventhandler function linked to insert event.
-        * `delete`: the eventhandler function linked to delete event.
+        * `update`: the eventhandler function linked to update event. Default value is ``None``.
+        * `insert`: the eventhandler function linked to insert event. Default value is ``None``.
+        * `delete`: the eventhandler function linked to delete event. Default value is ``None``.
         * `any`: the eventhandler function linked to do whenever something (delete, insert or update action) happens.
+        Default value is ``None``.
         """
         if self.backref == False:
             self.setBackRef()
@@ -2062,13 +2086,15 @@ class Bag(GnrObject):
         self._subscribe(subscriberId, self._del_subscribers, delete or any)
         
     def unsubscribe(self,subscriberId, update=None, insert=None, delete=None, any=None):
-        """Delete a subscription of an event of a given subscriberId.
+        """
+        Delete a subscription of an event of a given subscriberId.
         
         * `subscriberId`: the Id of the Bag's subscription.
-        * `update`: the eventhandler function linked to update event.
-        * `insert`: the eventhandler function linked to insert event.
-        * `delete`: the eventhandler function linked to delete event.
+        * `update`: the eventhandler function linked to update event. Default value is ``None``.
+        * `insert`: the eventhandler function linked to insert event. Default value is ``None``.
+        * `delete`: the eventhandler function linked to delete event. Default value is ``None``.
         * `any`: the eventhandler function linked to do whenever something (delete, insert or update action) happens.
+        Default value is ``None``.
         """
         if update or any:
             self._upd_subscribers.pop(subscriberId,None)
@@ -2104,7 +2130,9 @@ class Bag(GnrObject):
     def walk(self, callback, _mode='static', **kwargs):
         """
         Calls a function for each node of the Bag.
-        * `callback`: the function which is called. 
+        
+        * `callback`: the function which is called.
+        * `_mode`: <#NISO ??? Add description! />. Default value is ``static``.
         """
         result=None
         for node in self.nodes:
@@ -2134,12 +2162,13 @@ class Bag(GnrObject):
         return self.setItem(childname, None,_pkey=_pkey, _attributes=kwargs)
         
     def child(self, tag, childname='*_#', childcontent=None, _parentTag=None, **kwargs):
-        """This method sets a new item of the type tag into the current structure
-        * `tag`: structure type
-        * `name`: structure name. Default value is formed by 'tag_position'
-        * `content`: optional structure content
-        * `kwargs`: other parameters
-        @return : the new structure if content is none else the parent"""
+        """
+        Set a new item of a tag type into the current structure or return the parent.
+        
+        * `tag`: structure type.
+        * `name`: structure name. Default value is formed by 'tag_position'.
+        * `childcontent`: an optional parameter; <#NISO ??? Add description! />. Default value is ``None``.
+        """
         where=self
         if not childname:
             childname='*_#'
@@ -2313,8 +2342,8 @@ class BagValidationList(object):
 class BagResolver(object):
     """
     BagResolver is an abstract class, that defines the interface
-    for a new kind of dynamic objects. By "Dynamic" we mean, properties
-    that are calculated in real-time but looks like static ones.
+    for a new kind of dynamic objects. By "Dynamic" property we mean a property
+    that is calculated in real-time but looks like a static one.
     """
     classKwargs={'cacheTime':0, 'readOnly':True}
     classArgs=[]
