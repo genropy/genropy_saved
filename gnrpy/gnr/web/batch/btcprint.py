@@ -14,7 +14,7 @@ class BaseResourcePrint(BaseResourceBatch):
     dialog_width = '460px'
     dialog_height_no_par = '225px'
     templates = '' #CONTROLLARE
-        
+    mail_tags = ''
     def __init__(self,*args,**kwargs):
         super(BaseResourcePrint,self).__init__(**kwargs)
         self.mail_preference = self.page.getUserPreference('mail',pkg='adm') or self.page.getPreference('mail',pkg='adm') or Bag(self.page.application.config.getNode('mail').attr)
@@ -122,9 +122,7 @@ class BaseResourcePrint(BaseResourceBatch):
         fb.data('.print_mode','client_print')
         fb.radiobutton(value='^.client_print',default_value=True,label='!!Client print',print_mode='client_print')
         fb.radiobutton(value='^.server_print',label='!!Server print',print_mode='server_print')
-        fb.radiobutton(value='^.pdf',label='!!Pdf download',print_mode='pdf')
-        fb.radiobutton(value='^.mail_pdf',label='!!Pdf by mail',print_mode='mail_pdf')
-        fb.radiobutton(value='^.mail_deliver',label='!!Deliver mails',print_mode='mail_deliver')
+        fb.radiobutton(value='^.pdf',label='!!Pdf download',print_mode='pdf')            
         
         center = bc.stackContainer(region='center',selectedPage='^.#parent.print_mode',
                                     margin='3px',datapath='.print_mode_option')
@@ -132,8 +130,11 @@ class BaseResourcePrint(BaseResourceBatch):
         self.table_script_options_client_print(center.contentPane(pageName='client_print'))
         self.server_print_option_pane(center.contentPane(pageName='server_print'))
         self.table_script_options_pdf(center.contentPane(pageName='pdf'))
-        self.table_script_options_mail_pdf(center.contentPane(pageName='mail_pdf',datapath='.mail'))
-        self.table_script_options_mail_deliver(center.contentPane(pageName='mail_deliver',datapath='.mail'))
+        if self.mail_tags and not self.application.checkResourcePermission(self.mail_tags, self.userTags):
+            fb.radiobutton(value='^.mail_pdf',label='!!Pdf by mail',print_mode='mail_pdf')
+            fb.radiobutton(value='^.mail_deliver',label='!!Deliver mails',print_mode='mail_deliver')
+            self.table_script_options_mail_pdf(center.contentPane(pageName='mail_pdf',datapath='.mail'))
+            self.table_script_options_mail_deliver(center.contentPane(pageName='mail_deliver',datapath='.mail'))
         
     def table_script_options_client_print(self,pane):
         fb = self.table_script_fboptions(pane,tdl_width='3em')
