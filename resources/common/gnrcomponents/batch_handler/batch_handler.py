@@ -96,7 +96,7 @@ class TableScriptRunner(BaseComponent):
                             gridId=gridId,res_type=res_type,resource='=.resource')
 
     
-    def table_script_dialog_center(self,parentBc,hasParameters=None,**kwargs):
+    def table_script_dialog_center(self,parentBc,hasParameters=None,resource=None,**kwargs):
         if hasattr(self,'table_script_option_pane'):
             paramsBc = parentBc.borderContainer(pageName='params',datapath='.data',**kwargs)
             if hasParameters:
@@ -104,7 +104,7 @@ class TableScriptRunner(BaseComponent):
                 parameters_pane.mainStack = parentBc.mainStack
                 self.table_script_parameters_pane(parameters_pane)
             self.table_script_option_pane(paramsBc.contentPane(region='bottom',datapath='.batch_options',
-                                                                _class='ts_optionsPane'))
+                                                                _class='ts_optionsPane'),resource=resource)
         elif hasParameters:
             parameters_pane = parentBc.contentPane(pageName='params',datapath='.data',**kwargs)
             parameters_pane.mainStack = parentBc.mainStack
@@ -147,7 +147,7 @@ class TableScriptRunner(BaseComponent):
         pane.data('.dialog',dlg_dict)        
         dlg = self.simpleDialog(pane,datapath='.dialog',title='^.title',height='^.height',width='^.width',
                              cb_center=self.table_script_dialog_center,dlgId='table_script_dlg_parameters',
-                             hasParameters=hasParameters,dialog_height_no_par=dialog_height_no_par)
+                             hasParameters=hasParameters,dialog_height_no_par=dialog_height_no_par,resource=resource)
         dlg.dataController("""
                             var modifier = _node.attr.modifier;
                             if (modifier=='Shift'){

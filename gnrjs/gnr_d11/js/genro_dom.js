@@ -943,21 +943,14 @@ dojo.declare("gnr.GnrDomHandler",null,{
         var result = {};
         var style = whatDomNode.style;
         var whereposition = whereDomNode.style.position;
-        var deltax = whereposition==viewport.l;
+        var deltax = viewport.l;
         var deltay = viewport.t;
-        if (whereposition=='relative'){
-            deltax = deltax +viewport.x;
-            deltay = deltay + viewport.y;
-        }
+       //if (whereposition=='relative' || whereposition=='absolute'){
+       //    deltax = deltax +viewport.x;
+       //    deltay = deltay + viewport.y;
+       //}
         style.left = Math.floor((deltax + (viewport.w - mb.w)/2)) + "px";
         style.top = Math.floor((deltay + (viewport.h - mb.h)/2)) + "px";
-                   //var viewport=dojo.coords(genro.domById(centerOn));
-           //viewport.l=viewport.x;
-           //viewport.t=viewport.y;
-           //var mb = dojo.marginBox(this.domNode);
-           //var style = this.domNode.style;
-           //style.left = Math.floor((viewport.l + (viewport.w - mb.w)/2)) + "px";
-           //style.top = Math.floor((viewport.t + (viewport.h - mb.h)/2)) + "px";
     },
     makeHiderLayer: function(parentId,kw){
         var rootNode = parentId?genro.nodeById(parentId):genro.src.getNode();

@@ -116,7 +116,7 @@ class BaseResourcePrint(BaseResourceBatch):
             resultAttr['url'] = self.page.site.getStaticUrl('user:output','pdf',filename)
             resultAttr['document_name'] = save_as
     
-    def table_script_option_pane(self,pane):
+    def table_script_option_pane(self,pane,resource=None):
         bc = pane.borderContainer(height='200px')
         top = bc.contentPane(region='top',padding='6px').div(_class='ts_printMode',padding='2px')
         fb = top.formbuilder(cols=5, border_spacing='4px',margin_top='2px',font_size='.9em',
@@ -130,7 +130,7 @@ class BaseResourcePrint(BaseResourceBatch):
                                     margin='3px',datapath='.print_mode_option')
                                     
         self.table_script_options_client_print(center.contentPane(pageName='client_print'))
-        self.server_print_option_pane(center.contentPane(pageName='server_print'))
+        self.server_print_option_pane(center.contentPane(pageName='server_print'),resource=resource)
         self.table_script_options_pdf(center.contentPane(pageName='pdf'))
         if self.current_batch.mail_tags and self.application.checkResourcePermission(self.current_batch.mail_tags, self.userTags):
             fb.radiobutton(value='^.mail_pdf',label='!!Pdf by mail',print_mode='mail_pdf')

@@ -211,7 +211,6 @@ class BagToHtml(object):
         if lines:
             nodes = lines.getNodes()
             if hasattr(self,'thermo_wrapper') and self.thermo_kwargs:
-                print self.thermo_kwargs
                 nodes = self.thermo_wrapper(nodes,**self.thermo_kwargs)
                 
             for rowDataNode in nodes:
