@@ -153,6 +153,7 @@ dojo.declare("gnr.GnrDevHandler",null,{
             console.log('handleRpcHttpError');
             debug_url = ioArgs.xhr.getResponseHeader('X-Debug-Url');
             if (!debug_url){
+                alert(ioArgs.toSource());
                 genro.dlg.message("An HTTP error occurred: " + response.message, null,'error' );
             }
             else
