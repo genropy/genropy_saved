@@ -543,7 +543,7 @@ class SqlTable(GnrObject):
         sel = self.query(where=where, addPkeyColumn=False,for_update=True,**kwargs).fetch()
         for row in sel:
             row._notUserChange = True
-            self.update(row)
+            self.update(row, old_record = dict(row))
         
     def existsRecord(self, record):
         """This method check if a record already exists in the table"""
