@@ -14,14 +14,14 @@ class BaseResourcePrint(BaseResourceBatch):
     dialog_width = '460px'
     dialog_height_no_par = '225px'
     templates = '' #CONTROLLARE
-    mail_tags = 'mail'
-    mail_address = None
     def __init__(self,*args,**kwargs):
         super(BaseResourcePrint,self).__init__(**kwargs)
         self.mail_preference = self.page.getUserPreference('mail',pkg='adm') or self.page.getPreference('mail',pkg='adm') or Bag(self.page.application.config.getNode('mail').attr)
         self.htmlMaker = self.page.site.loadTableScript(page=self.page,table=self.maintable ,
                                                         respath=self.html_res,class_name='Main')
-                                        
+        if not self.mail_tags:
+            self.mail_tags = 'mail'
+        
     def _pre_process(self):
         self.pre_process()
         self.batch_options = self.batch_parameters['batch_options']
