@@ -102,7 +102,7 @@ class BaseResourcePrint(BaseResourceBatch):
         #    self.page.setInClientData(path='gnr.printurl',value=html,fired=True)
 
     def result_handler_server_print(self,resultAttr):
-        printer = self.print_handler.getPrinterConnection(self.server_print_options['printer_name'],**self.server_print_options)
+        printer = self.print_handler.getPrinterConnection(self.server_print_options['printer_name'],**self.server_print_options.asDict(True))
         return printer.printCups(self.results.values(), self.batch_title )
 
         
