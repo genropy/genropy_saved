@@ -39,7 +39,8 @@ class BaseResourceBatch(object):
         self.struct = struct
         try:
             self.run()
-            self.btc.batch_complete(self.result_handler())
+            result,result_attr = self.result_handler()
+            self.btc.batch_complete(result=result,result_attr=result_attr)
         except self.btc.exception_stopped:
             self.btc.batch_aborted()
         except Exception, e:
@@ -47,7 +48,7 @@ class BaseResourceBatch(object):
                 raise
             else:
                 self.btc.batch_error(error=str(e))
-                
+    
     def _pre_process(self):
         self.pre_process()
         
