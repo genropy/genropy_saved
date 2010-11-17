@@ -14,7 +14,8 @@ class BaseResourcePrint(BaseResourceBatch):
     dialog_width = '460px'
     dialog_height_no_par = '225px'
     templates = '' #CONTROLLARE
-    mail_tags = ''
+    mail_tags = 'mail'
+    mail_address = None
     def __init__(self,*args,**kwargs):
         super(BaseResourcePrint,self).__init__(**kwargs)
         self.mail_preference = self.page.getUserPreference('mail',pkg='adm') or self.page.getPreference('mail',pkg='adm') or Bag(self.page.application.config.getNode('mail').attr)
