@@ -133,6 +133,7 @@ dojo.declare("gnr.GridEditor",null,{
         var rowNode = this.grid.dataNodeByIndex(row);
         if (!rowNode){
             console.log('missing rowNode');
+            return;
         }
         var rowData =  rowNode.getValue('static');
         if (rowData) {
