@@ -60,6 +60,7 @@ batch_monitor.batch_sourceNode_create = function(container_node,batch_id,batch_s
     var thermopane = batchpane._('div',{_class:'bm_contentpane',datapath:'.thermo'});
     var bottompane = batchpane._('div',{_class:'bm_batchbottom'})
     sourceNode = genro.nodeById(batch_sourceNode_id);
+    bottompane._('div',{innerHTML:'Started at:'+genro.format(sourceNode.getRelativeData('.start_ts'),{'time':'short'})});
     sourceNode.thermoSourceNode = thermopane.getParentNode();
     sourceNode.thermoSourceNode.thermolines = {};
     sourceNode.toprightSourceNode = topright.getParentNode();
@@ -87,11 +88,10 @@ batch_monitor.on_btc_result_doc = function(node,sourceNode){
     topright = sourceNode.toprightSourceNode.clearValue();
     topright._('div',{_class:'buttonIcon icnTabClose',connect_onclick:'genro.serverCall("btc.remove_batch",{"batch_id":"'+batch_id+'"})'});
     resultpane._('div',{innerHTML:'Execution time:'+batch_value.getItem('time_delta')});
-    bottompane._('div',{innerHTML:'Started at:'+genro.format(batch_value.getItem('start_ts'),{'time':'short'})})
     resultpane.unfreeze();
 };
 batch_monitor.on_btc_error = function(node,sourceNode){
-   // genro.bp(node);
+    sourceNode.setRelativeData('.error',true);
 };
 batch_monitor.on_btc_error_doc = function(node,sourceNode){
     var batch_value = node.getValue();
@@ -127,7 +127,15 @@ batch_monitor.on_tl_del = function(node,sourceNode){
 };
 
 batch_monitor.on_tl_upd = function(node,sourceNode){
-    //genro.bp(node);
+    var age = (new Date()-node.attr._change_ts)/1000;
+    console.log(age)
+    if (age>20){
+        var bag_error = new gnr.GnrBag();
+        bag_error.setItem('error','Timeout');
+        bag_error.setItem('time_delta',age);
+        node.setValue(bag_error);
+        batch_monitor.on_btc_error_doc(node,sourceNode);
+    }
 };
 
 batch_monitor.on_btc_removed = function(node,sourceNode){
