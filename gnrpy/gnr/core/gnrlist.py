@@ -143,6 +143,8 @@ def readTab(doc):
     if isinstance(doc, basestring):
         f.close()  
 
+
+        
 def readCSV_new(doc):
     """This reads a CSV file - done by Jeff"""
     if isinstance(doc, basestring):
