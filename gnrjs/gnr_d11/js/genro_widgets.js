@@ -2860,12 +2860,17 @@ dojo.declare("gnr.widgets.VirtualStaticGrid",gnr.widgets.Grid,{
                  if (node) {prevSelectedIdentifiers.push(node.attr[identifier]);};
              });
              this.prevSelectedIdentifiers=prevSelectedIdentifiers;
+             this.prevScrollTop = this.scrollTop;
         }else if(flag=='clear'){
             this.prevSelectedIdentifiers=null;
         }else if(flag=='load'){
             if((this.prevSelectedIdentifiers) && (this.prevSelectedIdentifiers.length>0 )){
                 this.selectByRowAttr(this._identifier,this.prevSelectedIdentifiers);
                 this.prevSelectedIdentifiers = null;
+                if (this.prevScrollTop){
+                    this.setScrollTop(this.prevScrollTop);
+                    this.prevScrollTop=null;
+                }
             }
         }
     },
