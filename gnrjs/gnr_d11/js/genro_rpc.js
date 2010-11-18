@@ -355,7 +355,7 @@ dojo.declare("gnr.GnrRpcHandler",null,{
             var fired = attr.fired;
             var reason = attr.reason;
             var change_ts = attr.ts;
-            attr = attr.attr;
+            attr = attr.attr || {};
             attr._change_ts = change_ts;
             var updater = function(path,value,attr,reason){
                 if(genro._data.getItem(path)!=value){
