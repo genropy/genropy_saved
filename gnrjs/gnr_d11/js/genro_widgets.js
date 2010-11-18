@@ -2641,7 +2641,7 @@ dojo.declare("gnr.widgets.VirtualStaticGrid",gnr.widgets.Grid,{
                         this.newDataStore();
                     }
                 } else if(kw.evt=='ins') {//ATTENZIONE: questo trigger fa scattare il ridisegno della grid e cambia l'indice di riga
-                    if (parent_lv == 1){
+                    if (parent_lv == 1 || (parent_lv ==2 && this.datamode=='bag')){
                         this.updateRowCount();
                         //fa srotellare in presenza di parametri con ==
                         this.setSelectedIndex(kw.ind);
