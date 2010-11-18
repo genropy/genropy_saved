@@ -121,12 +121,20 @@ class GnrWebBatch(GnrBaseProxy):
             store.drop_datachanges(self.batch_path)
             store.set_datachange(self.batch_path,None,reason='btc_aborted')
     
-    def rpc_remove_batch(self,batch_id):
-        self.batch_id = batch_id
+    def rpc_remove_batch(self,batch_id,all_batches=False):
+        if all_batches:
+            userstore = self.page.userStore()
+            batches = [dc.path.split('.')[2] for dc in userstore.datachanges if (dc.reason=='btc_error' or dc.reason=='btc_end')]
+        else:
+            batches = [batch_id]
         with self.page.userStore() as store:
-            store.drop_datachanges(self.batch_path)
-            store.set_datachange(self.batch_path,None,reason='btc_removed')
-        self._result_remove()
+            for batch_id in batches:
+                self.batch_id = batch_id
+                store.drop_datachanges(self.batch_path)
+                store.set_datachange(self.batch_path,None,reason='btc_removed')
+        for batch_id in batches:
+            self.batch_id = batch_id
+            self._result_remove()
                     
     def rpc_abort_batch(self,batch_id):
         self.batch_id = batch_id

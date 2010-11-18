@@ -70,43 +70,43 @@ batch_monitor.batch_sourceNode_create = function(container_node,batch_id,batch_s
 //batch_monitor.on_btc_end = function(node,sourceNode){
 //
 //};
-
 batch_monitor.on_btc_result_doc = function(node,sourceNode){
-    var batch_id = sourceNode.batch_id;
-    var batch_value = node.getValue();
-    var resultpane = sourceNode.thermoSourceNode;
-    var bottompane = sourceNode.bottomSourceNode;
-    resultpane.clearValue().freeze();
-    var result = batch_value.getItem('result');
-    var url = batch_value.getItem('result?url');
-    if (result) {
-        resultpane._('div',{innerHTML:result});
-    };
-    if (url) {
-        resultpane._('div')._('a',{href:url,innerHTML:batch_value.getItem('result?document_name') || 'download'});
-    };
-    topright = sourceNode.toprightSourceNode.clearValue();
-    topright._('div',{_class:'buttonIcon icnTabClose',connect_onclick:'genro.serverCall("btc.remove_batch",{"batch_id":"'+batch_id+'"})'});
-    resultpane._('div',{innerHTML:'Execution time:'+batch_value.getItem('time_delta')});
-    resultpane.unfreeze();
-};
-batch_monitor.on_btc_error = function(node,sourceNode){
-    sourceNode.setRelativeData('.error',true);
+    batch_monitor.btc_result(node,sourceNode);
 };
 batch_monitor.on_btc_error_doc = function(node,sourceNode){
-    var batch_value = node.getValue();
+    batch_monitor.btc_result(node,sourceNode);
+};
+
+batch_monitor.btc_result = function(node,sourceNode){
     var batch_id = sourceNode.batch_id;
+    var batch_value = node.getValue();
     var resultpane = sourceNode.thermoSourceNode;
     resultpane.clearValue().freeze();
     var error = batch_value.getItem('error');
     if (error) {
         resultpane._('div',{innerHTML:error});
     };
+    
+    var result = batch_value.getItem('result');
+    if (result){
+        var url = batch_value.getItem('result?url');
+        if (result) {
+            resultpane._('div',{innerHTML:result});
+        };
+        if (url) {
+            resultpane._('div')._('a',{href:url,innerHTML:batch_value.getItem('result?document_name') || 'download'});
+        };
+    }
     topright = sourceNode.toprightSourceNode.clearValue();
-    topright._('div',{_class:'buttonIcon icnTabClose',connect_onclick:'genro.serverCall("btc.remove_batch",{"batch_id":"'+batch_id+'"})'});
-    resultpane._('div',{innerHTML:'Error inside batch - total time:'+batch_value.getItem('time_delta')});
-    resultpane.unfreeze();  
+    topright._('div',{_class:'buttonIcon icnTabClose',connect_onclick:'genro.serverCall("btc.remove_batch",{"batch_id":"'+batch_id+'","all_batches":$1.shiftKey})'});
+    resultpane._('div',{innerHTML:'Execution time:'+batch_value.getItem('time_delta')});
+    resultpane.unfreeze();
 };
+
+batch_monitor.on_btc_error = function(node,sourceNode){
+    sourceNode.setRelativeData('.error',true);
+};
+
 batch_monitor.on_btc_aborted = function(node,sourceNode){
     this.batch_remove(sourceNode);
 };
@@ -127,8 +127,8 @@ batch_monitor.on_tl_del = function(node,sourceNode){
 };
 
 batch_monitor.on_tl_upd = function(node,sourceNode){
-    var age = (new Date()-node.attr._change_ts)/1000;
-    console.log(age)
+    var last_change = node.attr._change_ts;
+    var age = last_change? (new Date()-last_change)/1000:1000;
     if (age>20){
         var bag_error = new gnr.GnrBag();
         bag_error.setItem('error','Timeout');
