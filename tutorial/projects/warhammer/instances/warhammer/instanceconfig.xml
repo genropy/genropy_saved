@@ -3,7 +3,6 @@
     <packages>
         <warh/>
         <showcase/>
-		<rss/>
     </packages>
     <db dbname='warhammer'/>
 </GenRoBag>

@@ -16,13 +16,6 @@ Bags
 	:members:
 	:synopsis: the foundamental data structure in GenroPy.
 
-XML
-===
-
-.. automodule:: gnr.core.gnrbagxml
-	:members:
-	:synopsis: Bag serialization to and from XML.
-
 Structures
 ==========
 

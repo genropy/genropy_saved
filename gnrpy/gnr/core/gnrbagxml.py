@@ -37,7 +37,7 @@ class _BagXmlException(Exception): pass
 
 
         
-class BagFromXml(object): 
+class BagFromXml(object):
     def build(self, source, fromFile, catalog = None,bagcls=Bag,empty=None):
         if not bagcls: bagcls = Bag
         done = False
@@ -236,9 +236,8 @@ class BagToXml(object):
         else:
             result = self.buildTag(node.label, nodeValue, node.attr)
         return result
-    
-
-    #-------------------- toXmlBlock --------------------------------
+        
+#-------------------- toXmlBlock --------------------------------
     def bagToXmlBlock(self, bag):
         """
         This method returns an XML block version of the Bag.

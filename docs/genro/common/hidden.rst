@@ -26,7 +26,7 @@ Validity and default value
 
 	**default value:** the default value of ``hidden`` is ``False``::
 
-		hidden=False
+		hidden = False
 
 	.. _hidden-examples:
 

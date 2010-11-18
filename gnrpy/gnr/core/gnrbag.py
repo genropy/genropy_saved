@@ -118,10 +118,9 @@ class BagNode(object):
     possible to say that a Bag is a collection of BagNodes. A BagNode is an 
     object that gather within itself, three main things:
     
-        -label: can be only a string.
-        -value: can be anything even a BagNode. If you have get the xml of the
-                bag it should be serializable.
-        -attributes: dictionary that contains node's metadata
+    * label: can be only a string.
+    * value: can be anything even a BagNode. If you have get the xml of the Bag it should be serializable.
+    * attributes: dictionary that contains node's metadata
         
     """
     def __init__(self, parentbag, label, value=None, attr=None, resolver=None,
@@ -224,8 +223,7 @@ class BagNode(object):
         """
         Set the node's value, unless the node is locked. This method is called by the property .value
         
-        * `value`: the value to set the new bag inherits the trigger of the
-                   parentbag and calls it sending an update event.
+        * `value`: the value to set the new bag inherits the trigger of the parentBag and calls it sending an update event.
         * `trigger`: an optional parameter; #NISO ???. Default value is ``True``.
         * `_attributes`: <#NISO ??? Add description! />. Default value is ``None``.
         * `_updattr`: <#NISO ??? Add description! />. Default value is ``None``.
@@ -604,10 +602,8 @@ class Bag(GnrObject):
         It transforms a flat Bag into a hierarchical Bag and returns it.
         
         * `group_by`: list of keys.
-        * `caption`: the attribute to use for the leaf key. If not specified, it uses the original key.
-        Default value is ``None``.
-        * `attributes`: keys to copy as attributes of the leaves.
-        Default value is ``*`` (= select all the attributes)
+        * `caption`: the attribute to use for the leaf key. If not specified, it uses the original key. Default value is ``None``.
+        * `attributes`: keys to copy as attributes of the leaves. Default value is ``*`` (= select all the attributes)
         """
         
         if isinstance(group_by, str) or isinstance(group_by, unicode):
@@ -667,8 +663,7 @@ class Bag(GnrObject):
             return result
         else:
             return sum(map(lambda n : n or 0,self.digest(what)))
-
-    
+            
     def get(self, label, default=None, mode=None):
         result = None
         currnode = None
@@ -1179,15 +1174,16 @@ class Bag(GnrObject):
     def getDeepestNode(self,path=None):
         """
         Return the deepest matching node in the bag and the remaining path of the path.
-        eg: bag.getDeepestNode('foo.bar.baz') returns 
-        if 'foo.bar.baz' in bag:
-            return (bag.getNode(foo.bar.baz), [])
-        elif 'foo.bar' in bag:
-            return (bag.getNode('foo.bar'), ['baz'])
-        elif 'bar' in bag:
-            return (bag.getNode(foo),['bar','baz'])
-        else:
-            return (None,['foo','bar','baz'])
+        bag.getDeepestNode('foo.bar.baz') returns:
+            
+            >>> if 'foo.bar.baz' in bag:
+            >>>     return (bag.getNode(foo.bar.baz), [])
+            >>> elif 'foo.bar' in bag:
+            >>>     return (bag.getNode('foo.bar'), ['baz'])
+            >>> elif 'bar' in bag:
+            >>>     return (bag.getNode(foo),['bar','baz'])
+            >>> else:
+            >>>     return (None,['foo','bar','baz'])
         """
         node, tail_path = self._htraverse(path,returnLastMatch=True)
         if hasattr(node,'_htraverse'):
@@ -1202,16 +1198,17 @@ class Bag(GnrObject):
         
     def getDeepestNode_(self,path=None):
         """
-        This method returns the deepest matching node in the bag and the remaining path of the path
-        eg: bag.getDeepestNode('foo.bar.baz') returns 
-        if 'foo.bar.baz' in bag:
-            return (bag.getNode(foo.bar.baz), [])
-        elif 'foo.bar' in bag:
-            return (bag.getNode('foo.bar'), ['baz'])
-        elif 'bar' in bag:
-            return (bag.getNode(foo),['bar','baz'])
-        else:
-            return (None,['foo','bar','baz'])
+        This method returns the deepest matching node in the bag and the remaining path of the path.
+        bag.getDeepestNode('foo.bar.baz') returns:
+            
+            >>> if 'foo.bar.baz' in bag:
+            >>>     return (bag.getNode(foo.bar.baz), [])
+            >>> elif 'foo.bar' in bag:
+            >>>     return (bag.getNode('foo.bar'), ['baz'])
+            >>> elif 'bar' in bag:
+            >>>     return (bag.getNode(foo),['bar','baz'])
+            >>> else:
+            >>>     return (None,['foo','bar','baz'])
         """
         result = self._htraverse(path,returnLastMatch=True)
         if hasattr(result[0],'_htraverse'):
@@ -1224,8 +1221,7 @@ class Bag(GnrObject):
             
         * `path`: path of the given node. Default value is ``None``.
         * `asTuple`: an optional parameter; <#NISO ??? Add description! />. Default value is ``False``.
-        * `autocreate`: an optional parameter; if True, it creates all the not existing nodes of the pathlist.
-        Default value is ``False``.
+        * `autocreate`: an optional parameter; if True, it creates all the not existing nodes of the pathlist. Default value is ``False``.
         * `default`: the default return value for a not found node. Default value is ``None``.
         """
         if not path:
@@ -1385,10 +1381,8 @@ class Bag(GnrObject):
         - `item_value`: the value to set.
         - `_attributes`: an optional parameter, it specifies the attributes of the value to set. Default value is 'None'.
         - `_position`: an optional parameter; allow to set a new value at a particular position among its brothers.
-        Default value is ``>``.
-            
-        You can use one of the following types:
-            
+        Default value is ``>``. You can use one of the following types:
+        
             +----------------------------+----------------------------------------------------------------------+
             | *Position's attributes*    |  Description                                                         |
             +============================+======================================================================+
@@ -1407,8 +1401,7 @@ class Bag(GnrObject):
             | ``'#index'``               | Set the value in a determined position indicated by ``index`` number |
             +----------------------------+----------------------------------------------------------------------+
             
-        * `_validators`: an optional parameter, it specifies the value's validators to set.
-        Default value is ``None``.
+        * `_validators`: an optional parameter, it specifies the value's validators to set. Default value is ``None``.
         * `**kwargs`: attributes AND/OR validators.
         
         Example:
@@ -1445,54 +1438,51 @@ class Bag(GnrObject):
         
         * `item_path`: the path of the given item.
         * `item_value`: the value to set.
-        * `_attributes`: an optional parameter, it specified the value's attributes to set.
-        Default value is ``None``.
-        * `_position`: an optional parameter; it is possible to set a new value at a
-        particular position among its brothers. Default value is ``None``.
+        * `_attributes`: an optional parameter, it specified the value's attributes to set. Default value is ``None``.
+        * `_position`: an optional parameter; it is possible to set a new value at a particular position among its brothers. Default value is ``None``.
         
         *expression* must be a string of the following types:
-
-            +----------------------------+----------------------------------------------------------------------+
-            | *Expressions*              |  Description                                                         |
-            +============================+======================================================================+
-            | ``'<'``                    | Set the value as the first value of the Bag                          |
-            +----------------------------+----------------------------------------------------------------------+
-            | ``'>'``                    | Set the value as the last value of the Bag                           |
-            +----------------------------+----------------------------------------------------------------------+
-            | ``'<label'``               | Set the value in the previous position respect to the labelled one   |
-            +----------------------------+----------------------------------------------------------------------+
-            | ``'>label'``               | Set the value in the position next to the labelled one               |
-            +----------------------------+----------------------------------------------------------------------+
-            | ``'<#index'``              | Set the value in the previous position respect to the indexed one    |
-            +----------------------------+----------------------------------------------------------------------+
-            | ``'>#index'``              | Set the value in the position next to the indexed one                |
-            +----------------------------+----------------------------------------------------------------------+
-            | ``'#index'``               | Set the value in a determined position indicated by ``index`` number |
-            +----------------------------+----------------------------------------------------------------------+
+        
+        +----------------------------+----------------------------------------------------------------------+
+        | *Expressions*              |  Description                                                         |
+        +============================+======================================================================+
+        | ``'<'``                    | Set the value as the first value of the Bag                          |
+        +----------------------------+----------------------------------------------------------------------+
+        | ``'>'``                    | Set the value as the last value of the Bag                           |
+        +----------------------------+----------------------------------------------------------------------+
+        | ``'<label'``               | Set the value in the previous position respect to the labelled one   |
+        +----------------------------+----------------------------------------------------------------------+
+        | ``'>label'``               | Set the value in the position next to the labelled one               |
+        +----------------------------+----------------------------------------------------------------------+
+        | ``'<#index'``              | Set the value in the previous position respect to the indexed one    |
+        +----------------------------+----------------------------------------------------------------------+
+        | ``'>#index'``              | Set the value in the position next to the indexed one                |
+        +----------------------------+----------------------------------------------------------------------+
+        | ``'#index'``               | Set the value in a determined position indicated by ``index`` number |
+        +----------------------------+----------------------------------------------------------------------+
             
-        * `_duplicate`: an optional parameter; specifies if a node with an existing path overwrite the value or append
-        to it the new one. Default value is ``False``.
+        * `_duplicate`: an optional parameter; specifies if a node with an existing path overwrite the value or append to it the new one. Default value is ``False``.
         * `_updattr`: an optional parameter; <#NISO ??? Add description! />. Default value is ``False``.
         * `_validators`: an optional parameter, it specifies the value's validators to set. Default value is ``None``.
         * `_removeNullAttributes`: an optional parameter; <#NISO ??? Add description! />. Default value is ``True``.
         * `**kwargs`: attributes AND/OR validators.
         
-            >>> mybag = Bag()
-            >>> mybag.setItem('a',1)
-            >>> mybag.setItem('b',2)
-            >>> mybag.setItem('c',3)
-            >>> mybag.setItem('d',4)
-            >>> mybag.setItem('e',5, _position= '<')
-            >>> mybag.setItem('f',6, _position= '<c')
-            >>> mybag.setItem('g',7, _position= '<#3')
-            >>> print mybag
-            0 - (int) e: 5
-            1 - (int) a: 1
-            2 - (int) b: 2
-            3 - (int) g: 7
-            4 - (int) f: 6
-            5 - (int) c: 3
-            6 - (int) d: 4
+        >>> mybag = Bag()
+        >>> mybag.setItem('a',1)
+        >>> mybag.setItem('b',2)
+        >>> mybag.setItem('c',3)
+        >>> mybag.setItem('d',4)
+        >>> mybag.setItem('e',5, _position= '<')
+        >>> mybag.setItem('f',6, _position= '<c')
+        >>> mybag.setItem('g',7, _position= '<#3')
+        >>> print mybag
+        0 - (int) e: 5
+        1 - (int) a: 1
+        2 - (int) b: 2
+        3 - (int) g: 7
+        4 - (int) f: 6
+        5 - (int) c: 3
+        6 - (int) d: 4
         
         **Square-brackets notations:**
         
@@ -1564,10 +1554,18 @@ class Bag(GnrObject):
                         _removeNullAttributes=_removeNullAttributes)
     def defineSymbol(self, **kwargs):
         """
-        Define a variable and link it to a value at the specified path. The value
-        linked is a BagFormula Resolver.
+        Define a variable and link it to a BagFormula Resolver at the specified path.
         
         * `kwargs`: a dict of symbol to make a formula.
+        
+        >>> mybag=Bag({'rect': Bag()})
+        >>> mybag['rect.params.base'] = 20
+        >>> mybag['rect.params.height'] = 10
+        >>> mybag.defineFormula(calculate_perimeter='2*($base + $height)' )
+        >>> mybag.defineSymbol(base ='params.base',  height='params.height')
+        >>> mybag['rect.perimeter']= mybag.formula('calculate_perimeter')
+        >>> print mybag['rect.perimeter']
+        60
         """
         if self._symbols == None:
             self._symbols={}
@@ -1816,8 +1814,7 @@ class Bag(GnrObject):
         * `typevalue`: if True, keep the value's type. Default value is ``True``.
         * `unresolved`: an optional parameter; <#NISO ??? Add description! />. Default value is ``False``.
         * `addBagTypeAttr`: an optional parameter; <#NISO ??? Add description! />. Default value is ``True``.
-        * `autocreate`: an optional parameter; if True, it creates all the not existing nodes of the pathlist.
-        Default value is ``False``.
+        * `autocreate`: an optional parameter; if True, it creates all the not existing nodes of the pathlist. Default value is ``False``.
         * `translate_cb`: an optional parameter; <#NISO ??? Add description! />. Default value is ``None``.
         * `self_closed_tags`: an optional parameter; <#NISO ??? Add description! />. Default value is ``None``.
         * `omitUnknownTypes`: an optional parameter; <#NISO ??? Add description! />. Default value is ``False``.
@@ -2075,8 +2072,7 @@ class Bag(GnrObject):
         * `update`: the eventhandler function linked to update event. Default value is ``None``.
         * `insert`: the eventhandler function linked to insert event. Default value is ``None``.
         * `delete`: the eventhandler function linked to delete event. Default value is ``None``.
-        * `any`: the eventhandler function linked to do whenever something (delete, insert or update action) happens.
-        Default value is ``None``.
+        * `any`: the eventhandler function linked to do whenever something (delete, insert or update action) happens. Default value is ``None``.
         """
         if self.backref == False:
             self.setBackRef()
@@ -2093,8 +2089,7 @@ class Bag(GnrObject):
         * `update`: the eventhandler function linked to update event. Default value is ``None``.
         * `insert`: the eventhandler function linked to insert event. Default value is ``None``.
         * `delete`: the eventhandler function linked to delete event. Default value is ``None``.
-        * `any`: the eventhandler function linked to do whenever something (delete, insert or update action) happens.
-        Default value is ``None``.
+        * `any`: the eventhandler function linked to do whenever something (delete, insert or update action) happens. Default value is ``None``.
         """
         if update or any:
             self._upd_subscribers.pop(subscriberId,None)
@@ -2104,6 +2099,7 @@ class Bag(GnrObject):
             self._del_subscribers.pop(subscriberId,None)
         
     def setCallBackItem(self, path, callback, **kwargs):
+        """An alternative syntax for a BagCbResolver call."""
         resolver = BagCbResolver(callback, **kwargs)
         self.setItem(path, resolver, **kwargs)
         
@@ -2514,7 +2510,6 @@ class BagResolver(object):
         return self.resolverDescription()
         
 class GeoCoderBag(Bag):
-    
     def setGeocode(self,key,address):
         url="http://maps.google.com/maps/geo?%s" % urllib.urlencode(dict(q=address,output='xml'))
         result=Bag()
@@ -2528,7 +2523,8 @@ class GeoCoderBag(Bag):
         self[key]=result
         
 class BagCbResolver(BagResolver):
-    """This is a standard resolver. It calls a callback method, passing its kwargs parameters
+    """
+    A standard resolver. Call a callback method, passing its kwargs parameters.
     """
     classArgs=['method']
     def load(self):
@@ -2647,7 +2643,8 @@ class XmlDocResolver(BagResolver):
     
     
 class BagFormula(BagResolver):
-    """This resolver calculates the value of an algebric espression.
+    """
+    This resolver calculates the value of an algebric espression.
     """
     classKwargs={'cacheTime':0,
                  'formula':'',
@@ -2675,7 +2672,7 @@ class BagFormula(BagResolver):
 
 ########################### start experimental features#######################
 class BagResolverNew(object):
-    """docstring for BagResolver"""
+    """docstring for BagResolverNew"""
     def __init__(self,cacheTime=0, readOnly=True,
                     serializerStore=None, **kwargs):
         self.serializerStore=serializerStore
@@ -2849,8 +2846,6 @@ class BagResolverNew(object):
             
 ########################### end experimental features#########################
 
-
-
 def testFormule():
     b= Bag()
     b.defineFormula(calc_riga_lordo='$riga_qta*$riga_prUnit')
@@ -2904,7 +2899,6 @@ def testFormule():
     print b['ft1.righe.3.netto']
     b['ft1.sconto'] = 10
     print b['ft1.totalefattura']
-
 
 class TraceBackResolver(BagResolver):
     classKwargs={'cacheTime': 0, 'limit': None}

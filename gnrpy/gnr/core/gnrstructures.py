@@ -137,8 +137,7 @@ class GnrStructData(Bag):
 
 class GnrStructObj(GnrObject):
     """
-    is a tree of GnrObjects that is auto-builded starting from an instance 
-    of GnrStructData. 
+    It is a tree of GnrObjects that is auto-builded starting from an instance of GnrStructData.
     """
     def makeRoot(cls, parent , structnode, objclassdict, **kwargs):
         """
@@ -147,10 +146,8 @@ class GnrStructObj(GnrObject):
         * `cls`
         * `parent`
         * `structnode`
-        * `objclassdict``: dictionary of the classes
+        * `objclassdict`: dictionary of the classes
         * `kwargs`
-        
-        return
         """
         if isinstance(structnode, Bag):
             structnode = structnode.getNode('#0')

@@ -272,7 +272,11 @@ class GnrWebPage(GnrBaseWebPage):
         if not self.application.checkResourcePermission(pageTags, self.userTags):
             return AUTH_FORBIDDEN
         return AUTH_OK
-
+        
+    @property
+    def isGuest(self):
+        return self.user == self.connection.guestname
+        
     def rpc_doLogin(self, login=None, guestName=None, **kwargs):
         """Service method that set user's avatar into its connection if
         - The user exists and his password is correct.
@@ -600,6 +604,8 @@ class GnrWebPage(GnrBaseWebPage):
         self._avatar=avatar
 
     def _get_avatar(self):
+        if self.isGuest:
+            return
         if not hasattr(self, '_avatar'):
             self._avatar = self.application.getAvatar(self.user)
         return self._avatar
