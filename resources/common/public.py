@@ -101,7 +101,7 @@ class Public(BaseComponent):
     def _pbl_root(self, rootbc, title=None, height=None, width=None, centered=None,flagsLocale=False):
         userTable=self.pbl_userTable()
         self._pbl_dialogs(rootbc)
-        if self.user and userTable:
+        if not self.isGuest and userTable:
             rootbc.dataRecord('gnr.user_record',userTable, username=self.user, _init=True)
             rootbc.data('gnr.user_preference',self.getUserPreference('*'))
         rootbc.data('gnr.workdate', self.workdate)
@@ -187,7 +187,7 @@ class Public(BaseComponent):
                     _class='icnIntlEn buttonIcon', content='&nbsp;', float='right',margin_left='5px',margin_top='2px')
             right.div(connect_onclick="SET aux.locale = 'IT'", title="!!Italian",
                     _class='icnIntlIt buttonIcon', content='&nbsp;', float='right',margin_left='5px',margin_top='2px')
-        if self.user:
+        if not self.isGuest:
             right.div(connect_onclick="genro.logout()", title="!!Logout",
                   _class='pbl_logout buttonIcon', content='&nbsp;', float='right')
             right.div(content=self.user, float='right', _class='pbl_username buttonIcon',connect_onclick='PUBLISH preference_open="user";')
