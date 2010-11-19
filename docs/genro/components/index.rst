@@ -9,9 +9,7 @@ Components
 
 	introduction
 	includedview
-	maturity-matrix
 	selectionhandler
-	standardtable
-	standardtable_introduction
-	standardtable_light
+	standardtable/index
 	writing
+	maturity-matrix

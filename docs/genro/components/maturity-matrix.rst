@@ -15,7 +15,7 @@ Component                                                     Maturity [#]_     
 :ref:`genro-standardtable`                                    Mature                      Documentation needed
 :ref:`genro-standardtable_light`                              Mature                      Documentation needed
 ------------------------------------------------------------- --------------------------- -----------------------------
-includedview
+:ref:`genro-includedview`
 :ref:`genro-selectionhandler`
 multiselect
 ------------------------------------------------------------- --------------------------- -----------------------------
