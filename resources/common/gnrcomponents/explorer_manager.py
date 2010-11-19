@@ -59,8 +59,8 @@ class ExplorerManager(BaseComponent):
                  font_size='.9em',
                  node_draggable="""return item.attr.child_count==0 || !item.attr.child_count;""",                     
                  drag_mode='grid',              
-                 drag_value_cb="""result = {'text/plain':item.attr.caption,
+                 onDrag="""result = {'text/plain':item.attr.caption,
                                          '%s_item/json':item.attr}
                                   return result;""" %explorername,
-                 drag_class='draggedItem')
+                 dragClass='draggedItem')
             

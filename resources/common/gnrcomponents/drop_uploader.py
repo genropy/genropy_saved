@@ -10,8 +10,8 @@ import os
 class DropUploader(BaseComponent):  
     py_requires='foundation/includedview'  
     def dropUploader(self,pane,ext='',**kwargs):
-        pane.div(drop_types='Files',drop_ext=ext,
-                 drop_action="""console.log(files);drop_uploader.send_files(files)""",
+        pane.div(dropTypes='Files',drop_ext=ext,
+                 onDrop="""console.log(files);drop_uploader.send_files(files)""",
                  width='100px',height='50px',background_color='#c7ff9a')
 
     def dropFileGrid(self,pane,uploaderId=None,datapath=None,
@@ -58,9 +58,9 @@ class DropUploader(BaseComponent):
                             struct=_struct,datamode='bag',datapath=datapath,
                             footer=footer,del_action=True,del_enabled=enabled,
                             editorEnabled=enabled,autoWidth=True,
-                            drop_action="FIRE .prepare_files=files;FIRE .on_drop = 1000;",
+                            onDrop="FIRE .prepare_files=files;FIRE .on_drop = 1000;",
                             droppable=True,
-                            drop_types='Files')
+                            dropTypes='Files')
         gridEditor = iv.gridEditor()
         for k,v in metacol_dict.items():
             _tag='textbox'

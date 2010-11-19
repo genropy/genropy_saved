@@ -189,10 +189,8 @@ dojo.declare("gnr.GnrQueryBuilder",null,{
             attr.column_caption = this.getCaption('column',attr);
             attr.op_caption = this.getCaption('op',attr) ;
             tr._('td')._('div',{_class:'qb_div qb_field floatingPopup',connectedMenu:'qb_fields_menu',relpath:node.label,
-                                drop_types:'gnrdbfld/json',droppable:true,
-                                //dnd_onDrop:"genro.querybuilder.onChangedQueryColumn(this,item.attr,'"+node.label+"');",
-                                drop_action:"genro.querybuilder.onChangedQueryColumn(this,drop_data,'"+node.label+"');",
-                               // dnd_allowDrop:"return !(item.attr.one_relation);",
+                                dropTypes:'gnrdbfld/json',droppable:true,
+                                onDrop:"genro.querybuilder.onChangedQueryColumn(this,drop_data,'"+node.label+"');",
                                 innerHTML:'^'+relpath+'?column_caption'});
             tr._('td')._('div',{_class:'qb_div qb_op floatingPopup', 
                                 connectedMenu:'==genro.querybuilder.getOpMenuId(_dtype);',

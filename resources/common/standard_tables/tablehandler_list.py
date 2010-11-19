@@ -245,10 +245,8 @@ class TableHandlerForm(BaseComponent):
         queryfb = pane.formbuilder(cols=5,datapath='list.query.where',_class='query_form',
                                           border_spacing='2px',onEnter='genro.fireAfter("list.runQuery",true,10);',float='left')
         queryfb.div('^.c_0?column_caption',min_width='12em',_class='smallFakeTextBox floatingPopup',nodeId='fastQueryColumn',
-                              #dnd_onDrop="genro.querybuilder.onChangedQueryColumn(this,item.attr);",
-                              drop_action="genro.querybuilder.onChangedQueryColumn(this,drop_data);",
-                              #dnd_allowDrop="return !(item.attr.one_relation);", 
-                              drop_types='gnrdbfld/json',droppable=True,
+                              onDrop="genro.querybuilder.onChangedQueryColumn(this,drop_data);",
+                              dropTypes='gnrdbfld/json',droppable=True,
                               lbl='!!Search')
         optd = queryfb.div(_class='smallFakeTextBox',lbl='!!Op.',lbl_width='4em')
         
@@ -442,16 +440,16 @@ class TableHandlerForm(BaseComponent):
                              **condPars)
         dragColumnCb="""var cell=event.cell;
                         return{'gnrgridcol/json':{'position':event.cellIndex},'text/plain':cell.name,'trashable/json':{'nodeId':event.sourceNode.attr.nodeId,'column':event.cellIndex}};"""
-        drop_types = 'gnrdbfld/json,gnrgridcol/json'
+        dropTypes = 'gnrdbfld/json,gnrgridcol/json'
         if hasattr(self,'explorer_manager_draggable_types'):
-            drop_types = '%s,%s' %(drop_types,self.explorer_manager_draggable_types())
+            dropTypes = '%s,%s' %(dropTypes,self.explorer_manager_draggable_types())
         gridpane.virtualGrid(nodeId='maingrid', structpath="list.view.structure", storepath=".data", autoWidth=False,
                                 selectedIndex='list.rowIndex', rowsPerPage=self.rowsPerPage(), sortedBy='^list.grid.sorted',
                                 connect_onSelectionChanged='SET list.noSelection = (genro.wdgById("maingrid").selection.getSelectedCount()==0)',
-                                linkedForm='formPane',openFormEvent='onRowDblClick',drop_types=drop_types,
-                                droppable_column=True,drop_action="""this.widget.onDroppedColumn(drop_data,drop_event,drop_datatype);        
+                                linkedForm='formPane',openFormEvent='onRowDblClick',dropTypes=dropTypes,
+                                droppable_column=True,onDrop="""this.widget.onDroppedColumn(drop_data,drop_event,drop_datatype);        
                                                                      genro.fireAfter('list.runQueryDo',true)""",
-                                draggable=True,draggable_column=True,drag_value_cb=dragColumnCb,drag_class='draggedItem',
+                                draggable=True,draggable_column=True,onDrag=dragColumnCb,dragClass='draggedItem',
                                 connect_onRowContextMenu="FIRE list.onSelectionMenu = true;",
                                 subscribe_trashedObject="""this.widget.onTrashedColumn($1);"""
                                 )   
