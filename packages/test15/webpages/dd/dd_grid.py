@@ -15,23 +15,25 @@ class GnrCustomWebPage(object):
     def test_0_drop(self,pane):
         """Drop Boxes"""
         fb=pane.formbuilder(cols=1)
-        dropboxes=fb.div(drop_action='console.log("ddd");alert(drop_data)',lbl='Drop boxes text/plain',drop_types='text/plain')
+        dropboxes=fb.div(onDrop='console.log("ddd");alert(drop_data)',lbl='Drop boxes text/plain',dropTypes='text/plain')
                             
         dropboxes.div('no tags',width='100px',height='50px',margin='3px',background_color='#c7ff9a',
                             float='left',droppable=True)
         dropboxes.div('only foo',width='100px',height='50px',margin='3px',background_color='#fcfca9',
-                            float='left',drop_tags='foo',droppable=True)
+                            float='left',dropTags='foo',droppable=True)
         dropboxes.div('only bar',width='100px',height='50px',margin='3px',background_color='#ffc2f5',
-                            float='left',drop_tags='bar',droppable=True)
+                            float='left',dropTags='bar',droppable=True)
         dropboxes.div('only foo AND bar',width='100px',height='50px',margin='3px',background_color='#a7cffb',
-                            float='left',drop_tags='foo AND bar',droppable=True)
+                            float='left',dropTags='foo AND bar',droppable=True)
         
         
     def test_1_grid(self,pane):
         pane=pane.div(height='150px')
         pane.data('.data',self.aux_test_1_grid_data())
-        grid = pane.IncludedView(nodeId='inputgrid',storepath='.data',droppable_column=True,
-                        datamode='bag',editorEnabled=True)
+        grid = pane.IncludedView(nodeId='inputgrid',storepath='.data',selfDragCols=True,selfDragRows=True,
+                        draggable_row=True,droppable_row=True,draggable_column=True,droppable_column=False,
+                        onDrop='alert(drop_data)',
+                        datamode='bag',editorEnabled=True,draggable=True,dragClass='draggedItem')
                         
         gridEditor = grid.gridEditor(datapath='dummy') #editOn='onCellClick')
         gridEditor.filteringSelect(gridcell='filter',values='A:Alberto,B:Bonifacio,C:Carlo')
@@ -47,7 +49,7 @@ class GnrCustomWebPage(object):
         r = struct.view().rows()
         r.cell('filter', name='FS',width='10em')
         r.cell('language', name='Lang',width='10em', dtype='T')
-        r.cell('name', name='Name',width='10em', dtype='T')
+        r.cell('name', name='Name',width='10em', dtype='T',draggable=True)
         r.cell('qt', name='Qty',width='10em', dtype='R')
         r.cell('new', name='New',width='10em', dtype='B')
         r.cell('size', name='Size',width='10em', dtype='T')
@@ -67,8 +69,8 @@ class GnrCustomWebPage(object):
         root.data('.tree.data',self.treedata())
         root.tree(storepath='.tree.data',node_droppable=True,
                                          node_draggable=True,
-                                         drag_class='draggedItem',
-                                         drop_action='alert(drop_data)')
+                                         dragClass='draggedItem',
+                                         onDrop='alert(drop_data)')
         
     
 
