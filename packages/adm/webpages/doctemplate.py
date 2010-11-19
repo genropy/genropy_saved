@@ -112,12 +112,12 @@ class GnrCustomWebPage(object):
                      font_size='.9em',
                      node_draggable="""return item.attr.dtype && item.attr.dtype!='RM' && item.attr.dtype!='RO'""",
                      selected_fieldpath='.selpath',
-                     drag_value_cb="""
+                     onDrag="""
                                       console.log(item.attr);
                                       var result = {'text/html':'%s',
                                                     'text/plain':item.attr.fieldpath};
                                       return result;""" %self.html_item_res(),
-                     drag_class='draggedItem',
+                     dragClass='draggedItem',
                      
                      getLabelClass="""if (!node.attr.fieldpath && node.attr.table){return "tableTreeNode"}
                                         else if(node.attr.relation_path){return "aliasColumnTreeNode"}
