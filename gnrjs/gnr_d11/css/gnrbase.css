@@ -1192,8 +1192,10 @@ textarea:disabled {
     padding-right:5px !important;
     padding-top:2px!important;
     padding-bottom:2px!important;
-    max-width:200px!important;
                             
+}
+table.draggedItem{
+	display:table;
 }
 .droppableColumn {
     border-right: 4px solid lime !important;
