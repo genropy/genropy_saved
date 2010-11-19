@@ -36,7 +36,7 @@ class FlibBase(BaseComponent):
                              struct=saved_files_struct,
                              hiddencolumns='$__ins_ts,$thumb_url,ext,metadata',
                              reloader=reloader,
-                             drag_value_cb='var dataNode = event.widget.dataNodeByIndex(event.rowIndex); return {flib_element:dataNode.attr._pkey};',
+                             onDrag='var dataNode = event.widget.dataNodeByIndex(event.rowIndex); return {flib_element:dataNode.attr._pkey};',
                              filterOn='title,description',
                              selectionPars=selectionPars)
             

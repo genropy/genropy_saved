@@ -49,7 +49,7 @@ class FlibPicker(BaseComponent):
                              struct=saved_files_struct,
                              hiddencolumns='$item_id,@item_id.ext AS ext,@item_id.metadata AS meta,@item_id.url AS url',
                              reloader='^.#parent.tree.code',
-                             drag_value_cb='var dataNode = event.widget.dataNodeByIndex(event.rowIndex); return {flib_element:dataNode.attr.item_id};',
+                             onDrag='var dataNode = event.widget.dataNodeByIndex(event.rowIndex); return {flib_element:dataNode.attr.item_id};',
                              filterOn='@item_id.title,@item_id.description',
                              selectionPars=dict(where="@category_id.code LIKE :cat_code || '%%'",
                                                 cat_code='=.#parent.tree.code',
