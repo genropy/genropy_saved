@@ -34,7 +34,7 @@ class BaseResourceBatch(object):
     
     def __call__(self,batch_note=None,struct=None,**kwargs):
         parameters = kwargs['parameters']
-        #if parameters:
+        #if parameters:a
         #    if isinstance(parameters, Bag):
         #        self.batch_parameters = parameters.asDict(True)
         #    else:
