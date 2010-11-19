@@ -25,9 +25,9 @@ class GnrCustomWebPage(object):
                      _class='fieldsTree',
                      hideValues=True,
                      margin='6px',
-                     drag_value_cb=self.drag_value_cb(),
+                     onDrag=self.onDrag(),
                      node_draggable=True,
-                     drag_class='draggedItem',
+                     dragClass='draggedItem',
                      onChecked=True,
                      selected_fieldpath='.selpath',
                      getLabelClass="""if (!node.attr.fieldpath && node.attr.table){return "tableTreeNode"}
@@ -44,7 +44,7 @@ class GnrCustomWebPage(object):
         pane.css('#mainWindow','background-color:white;')
         pane.css('.tundra .dijitTreeContent','padding-top:0;min-height:17px;')
         pane.css('.tundra .dijitTreeExpando','height:16px;')
-    def drag_value_cb(self):
+    def onDrag(self):
         return """if (item.attr.fieldpath){
                       var fieldpath=item.attr.fieldpath
                        if(item.attr.checked){
