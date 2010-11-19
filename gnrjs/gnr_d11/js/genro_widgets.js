@@ -490,7 +490,11 @@ dojo.declare("gnr.widgets.baseHtml",null,{
 
         }
      },
-     onDragDropEvent:function(event){
+     onDragStart:function(event){
+        value={};
+        return value;
+    },
+     decorateDragDropEvent:function(event){
          var target = event.target;
          var domnode;
          var widget = event.widget;
@@ -1792,6 +1796,10 @@ dojo.declare("gnr.widgets.Grid",gnr.widgets.baseDojo,{
        var draggable=draggable==false?false:true
        dojo.query('[role="wairole:columnheader"]',this.domNode).forEach(function(n){n.draggable=true})
     },
+    mixin_setDraggable_row:function(draggable){
+       var draggable=draggable==false?false:true
+       dojo.query('.dojoxGrid-row-table',this.domNode).forEach(function(n){n.draggable=true})
+    },
     mixin_onSetStructpath: function(structure){
         return;
     },
@@ -1834,6 +1842,9 @@ dojo.declare("gnr.widgets.Grid",gnr.widgets.baseDojo,{
         };
         if(sourceNode.attr.draggable_column){
             dojo.connect(widget, 'postrender', dojo.hitch(widget ,'setDraggable_column'));
+        }
+        if(sourceNode.attr.draggable_row){
+            dojo.connect(widget, 'postrender', dojo.hitch(widget ,'setDraggable_row'));
         }
         if(sourceNode.attr.openFormEvent){
             dojo.connect(widget, sourceNode.attr.openFormEvent, widget,'openLinkedForm');
@@ -2081,7 +2092,8 @@ dojo.declare("gnr.widgets.Grid",gnr.widgets.baseDojo,{
                     // changed to support ctrl+click on non mac platforms v = "<a onclick='var ev = arguments[0]; if(!ev.metaKey){dojo.stopEvent(ev);}' class='gnrzoomcell' href='/"+zoomPage+"?pkey="+key+"&autoLinkFrom="+genro.page_id+"'>"+v+"</a>";
                     v = "<a onclick='if((genro.isMac&&!event.metaKey)||(!genro.isMac&&!event.ctrlKey)){dojo.stopEvent(event);}' class='gnrzoomcell' href='/"+zoomPage+"?pkey="+key+"&autoLinkFrom="+genro.page_id+"'>"+v+"</a>";
                 }
-                return '<div class="cellContent">'+v+'</div>';
+                var draggable= this.draggable?' draggable=true ':''
+                return '<div '+draggable+'class="cellContent">'+v+'</div>';
                 
                 };
             };
@@ -2208,7 +2220,33 @@ dojo.declare("gnr.widgets.Grid",gnr.widgets.baseDojo,{
         }
        
     },
-    onDragDropEvent:function(event){
+    onDragStart:function(event){
+        var info=event.dragDropInfo
+        value={};
+        if ('row' in info){
+            
+            
+            var cells=info.widget.structBag.getItem('#0.#0')
+            var rowdata=info.widget.rowByIndex(info.row)
+            value['gridrow/json']={'row':info.row,'rowdata':rowdata,'gridId':info.sourceNode.attr.nodeId}
+            var r=[]
+            var r_xml=''
+            var r_html=''
+            cells.forEach(function(n){
+                var field=n.attr.field
+                var v=convertToText(rowdata[field],{'xml':true,'dtype':+n.attr.dtype})[1]
+                r.push(v)
+                r_xml=r_xml+'<'+field+'>'+v+'</'+field+'>'
+                r_html=r_html+'<td name="'+field+'">'+v+'</td>'
+            })
+            value['text/plain']=r.join('\t')
+            value['text/xml']=r_xml
+            value['text/html']='<table><tr><!--StartFragment-->'+r_html+'<!--EndFragment--> </tr></table>'
+        }
+        
+        return value;
+    },
+    decorateDragDropEvent:function(event){
         var sourceNode = event.sourceNode;
         var attr = sourceNode.attr;
         var shapesDict = objectExtract(attr,'droppable_*',true);
@@ -2222,7 +2260,7 @@ dojo.declare("gnr.widgets.Grid",gnr.widgets.baseDojo,{
                 result['column']=event.cellIndex;
                 result['row']=event.rowIndex;
             }
-            if(event.cellIndex>=0 && 'column' in shapesDict){
+            if(event.cellIndex>=0 && 'column' && event.rowIndex==-1 && 'column'in shapesDict){
                 result['outlineColumn'] =  event.widget.columnNodelist(event.cellIndex,true);
                 result['column']=event.cellIndex;
 

@@ -530,7 +530,7 @@ dojo.declare("gnr.GnrDomHandler",null,{
             console.log('no sourceNode');
             return;
         }
-        var supportedTypes=splitStrip(sourceNode.getInheritedAttributes().drop_types || 'text/plain');
+        var supportedTypes=splitStrip(sourceNode.getInheritedAttributes().dropTypes || 'text/plain');
         //var draggedTypes =dataTransfer.types;
         var draggedTypes=genro.dom.dataTransferTypes(dataTransfer)
         if(dojo.filter(supportedTypes,function (value){ return dojo.indexOf(draggedTypes,value)>=0;}).length==0){
@@ -539,18 +539,18 @@ dojo.declare("gnr.GnrDomHandler",null,{
             console.log(dataTransfer)
             return false;
         };
-        var drop_tags=sourceNode.getInheritedAttributes().drop_tags;
-        if(!drop_tags){
+        var dropTags=sourceNode.getInheritedAttributes().dropTags;
+        if(!dropTags){
             return true;
         }
-        //var drag_tags=dataTransfer.getData('drag_tags') || '';
-        var drag_tags = genro.dom.getFromDataTransfer(dataTransfer,'drag_tags')
-        if(!drag_tags){
+        //var dragTags=dataTransfer.getData('dragTags') || '';
+        var dragTags = genro.dom.getFromDataTransfer(dataTransfer,'dragTags')
+        if(!dragTags){
             console.log('mmmmmmm')
             return false;
         }
-        var drag_tags=splitStrip(drag_tags,',');
-        var or_conditions=splitStrip(drop_tags,',');
+        var dragTags=splitStrip(dragTags,',');
+        var or_conditions=splitStrip(dropTags,',');
         valid=false;
         for (var i=0; ((i < or_conditions.length) && !valid); i++) {
             var valid=true;
@@ -563,7 +563,7 @@ dojo.declare("gnr.GnrDomHandler",null,{
                     c=c.slice(1);
                     exclude=true;
                 }
-                var match=dojo.some(drag_tags,function(k){return k==c;});
+                var match=dojo.some(dragTags,function(k){return k==c;});
                 valid = exclude? !match:match;
             };
             
@@ -600,7 +600,7 @@ dojo.declare("gnr.GnrDomHandler",null,{
         sourceNode= sourceNode || genro.dom.getSourceNode(domnode);
         event.sourceNode=sourceNode;
         if (sourceNode){
-            sourceNode.getBuiltObj().gnr.onDragDropEvent(event)
+            sourceNode.getBuiltObj().gnr.decorateDragDropEvent(event)
         }else{
             console.log('No sourcenode');
             console.log(event)
@@ -689,13 +689,13 @@ dojo.declare("gnr.GnrDomHandler",null,{
         if(canBeDropped){
             var inherited=sourceNode.getInheritedAttributes();
             event.preventDefault();
-            var action = inherited.drop_action;
+            var action = inherited.onDrop;
             var dropped=null;
             var dataTransferTypes=genro.dom.dataTransferTypes(dataTransfer)
             if (action){
-                var drop_types=(inherited.drop_types || 'text/plain').split(',');
+                var dropTypes=(inherited.dropTypes || 'text/plain').split(',');
                 var params=objectUpdate(sourceNode.currentAttributes(),{'drop_object':dataTransfer,'event':event});
-                if ((dojo.indexOf(dataTransferTypes,'Files')>=0 )&& (dojo.indexOf(drop_types,'Files')>=0)){
+                if ((dojo.indexOf(dataTransferTypes,'Files')>=0 )&& (dojo.indexOf(dropTypes,'Files')>=0)){
                     console.log('files');
                     var drop_ext=inherited.drop_ext;
                     var valid_ext=drop_ext?splitStrip(drop_ext):null;
@@ -710,9 +710,9 @@ dojo.declare("gnr.GnrDomHandler",null,{
                         funcApply(action,params, sourceNode);
                     }
                 }else{
-                    for (var i=0; i < drop_types.length; i++) {
-                        if (dojo.indexOf(dataTransferTypes,drop_types[i])>=0){
-                            var datatype=drop_types[i];
+                    for (var i=0; i < dropTypes.length; i++) {
+                        if (dojo.indexOf(dataTransferTypes,dropTypes[i])>=0){
+                            var datatype=dropTypes[i];
                             var value=genro.dom.getFromDataTransfer(dataTransfer,datatype)
                             if (stringEndsWith(datatype,'/json')){
                                 value=convertFromText(value,'JS');
@@ -740,9 +740,10 @@ dojo.declare("gnr.GnrDomHandler",null,{
         genro.dom._transferObj={}
         var dataTransfer=event.dataTransfer;
         var inherited=sourceNode.getInheritedAttributes();
-        if ('drag_value_cb' in inherited){
-            value=funcCreate(inherited['drag_value_cb'],'sourceNode,item,event')(sourceNode,widget.item,event);
-        }else{
+        var value=sourceNode.getBuiltObj().gnr.onDragStart(event)
+        if ('onDrag' in inherited){
+            value=funcCreate(inherited['onDrag'],'sourceNode,item,event')(sourceNode,widget.item,event);
+        }else if (!('text/plain' in value)){
             if(widget.isTreeNode){
                 value=(widget.item instanceof gnr.GnrBagNode)? widget.item.getValue():widget.item.label;
             }
@@ -760,9 +761,9 @@ dojo.declare("gnr.GnrDomHandler",null,{
             }
             value={'text/plain':value}
         }
-        var drag_class=inherited['drag_class'];
-        if(drag_class){
-            genro.dom.addClass(domnode,drag_class);
+        var dragClass=inherited['dragClass'];
+        if(dragClass){
+            genro.dom.addClass(domnode,dragClass);
         }
         
         if (typeof(value)=='object'){
@@ -784,11 +785,11 @@ dojo.declare("gnr.GnrDomHandler",null,{
                             'domnode':event.domnode}
       
         genro.dom.addClass(dojo.body(),'drag_started')
-        var drag_tags=inherited['drag_tags'];
+        var dragTags=inherited['dragTags'];
          
-        if(drag_tags){
-            dataTransfer.setData('drag_tags', drag_tags);
-            genro.dom.setInDataTransfer('drag_tags', drag_tags)
+        if(dragTags){
+            dataTransfer.setData('dragTags', dragTags);
+            genro.dom.setInDataTransfer('dragTags', dragTags)
         }
     },
     setInDataTransfer:function(dataTransfer,k,v){
@@ -823,9 +824,9 @@ dojo.declare("gnr.GnrDomHandler",null,{
         var domnode=event.target;
         var sourceNode=genro.dom.getSourceNode(domnode);
         var inherited=sourceNode.getInheritedAttributes();
-        var drag_class=inherited['drag_class'];
-        if(drag_class){
-            genro.dom.removeClass(domnode,drag_class);
+        var dragClass=inherited['dragClass'];
+        if(dragClass){
+            genro.dom.removeClass(domnode,dragClass);
         }
     },
     getSourceNode:function(domnode){
