@@ -14,10 +14,18 @@ batch_monitor.on_datachange = function(kw){
     var node = kw.node;
     if(callname in batch_monitor){
         var batch_id = node.attr.batch_id || node.label;
-        this[callname].call(this,node,this.get_batch_sourceNode(batch_id));
-        if (this.owner_page_batch(batch_id)){
-            this[callname].call(this,node,this.get_batch_sourceNode(batch_id,true));
-        }
+        var sourceNode = this.get_batch_sourceNode(batch_id)
+         if(sourceNode){
+			this[callname].call(this,node,sourceNode);
+	        if (this.owner_page_batch(batch_id)){
+				var sourceNode = this.get_batch_sourceNode(batch_id,true)
+				if(sourceNode){
+					this[callname].call(this,node,sourceNode);
+				}
+	            
+	        }
+}
+        
     }
 };
 
@@ -38,18 +46,21 @@ batch_monitor.get_batch_sourceNode= function(batch_id,local){
     if(!sourceNode){
        var container_node= genro.nodeById(container_id);
        if(container_node){
-           this.batch_sourceNode_create(container_node,batch_id,batch_sourceNode_id);
-           sourceNode= genro.nodeById(batch_sourceNode_id);
+           sourceNode=this.batch_sourceNode_create(container_node,batch_id,batch_sourceNode_id);
+          // sourceNode= genro.nodeById(batch_sourceNode_id);
            if (local){genro.dom.centerOn('bm_local_rootnode');} //FORSE
            
        }
     }
-    sourceNode.batch_id = batch_id;
+     if (sourceNode){sourceNode.batch_id = batch_id;}
     return sourceNode;
 };
 batch_monitor.batch_sourceNode_create = function(container_node,batch_id,batch_sourceNode_id){
     var batchpath = this.batchpath(batch_id);
     var batch_data = genro.getData(batchpath);
+    if (!batch_data){
+	return;
+     }
     var batchpane = container_node._('div',{datapath:batchpath,nodeId:batch_sourceNode_id,tip:'^.note',
                                 _class:'bm_batchpane'});
     var titlediv = batchpane._('div',{_class:'bm_batchlabel'});
@@ -65,6 +76,7 @@ batch_monitor.batch_sourceNode_create = function(container_node,batch_id,batch_s
     sourceNode.thermoSourceNode.thermolines = {};
     sourceNode.toprightSourceNode = topright.getParentNode();
     sourceNode.bottomSourceNode = bottompane.getParentNode()
+    return sourceNode
 };
 
 //batch_monitor.on_btc_end = function(node,sourceNode){
