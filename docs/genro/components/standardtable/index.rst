@@ -1,5 +1,9 @@
 	.. _genro-standardtable-index:
-	
+
+==============
+Standard table
+==============
+
 .. toctree::
 	:maxdepth: 2
 

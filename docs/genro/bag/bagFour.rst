@@ -45,7 +45,7 @@ Introduction
 
 .. _bag_resolver:
 
-Resolver
+resolver
 ========
 
 	The basic idea of a dynamic Bag is to hide all the function calls treating their results as they were Bag static items (so, a likely-static value can be the result of a realtime elaboration or a remote call). The BagResolver class (:class:`gnr.core.gnrbag.BagResolver`) is an interface that allow to define objects that implement this process.
@@ -233,7 +233,7 @@ Bag Formula
 .. _bag_symbol_formula:
 	
 Bag Formula: ``the defineSymbol()`` and the ``defineFormula()`` methods
-===================================================================
+=======================================================================
 	
 	Bag has a register for every defined formula and symbols. So if you plan to use them in several situations, it is better using the following two methods:
 	

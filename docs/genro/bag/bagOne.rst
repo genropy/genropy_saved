@@ -191,7 +191,7 @@ Access to values: the "#" label
 Setting value's position
 ========================
 
-	It is possible to set a new value at a particular position among its brothers, using the optional argument ``_position`` of the :meth:`gnr.core.gnrbag.Bag.setItem` method. The default behaviour of setItem is to add the new value as the last element of a list, but the ``_position`` argument provides a compact syntax to insert any value in any place you want. ``_position`` must be a string containing one of the following types:
+	It is possible to set a new value at a particular position among its brothers, using the optional argument ``_position`` of the :meth:`gnr.core.gnrbag.Bag.setItem` method. The default behavior of setItem is to add the new value as the last element of a list, but the ``_position`` argument provides a compact syntax to insert any value in any place you want. ``_position`` must be a string containing one of the following types:
 
 	+---------------+----------------------------------------------------------------------+
 	|  Attribute    |  Description                                                         |

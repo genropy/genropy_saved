@@ -6,6 +6,4 @@
 
 .. toctree::
 
-	components/maturity-matrix
-	components/writing
 	components/index
