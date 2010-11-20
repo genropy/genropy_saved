@@ -192,10 +192,11 @@ dojo.declare("gnr.GnrWdgHandler",null,{
         if (hidden==true){
             attributes.display='none';
         }
-        var disabled=objectPop(attributes, 'disabled') ? true:false;
+       //var disabled=objectPop(attributes, 'disabled') ? true:false;
+       //attributes.disabled=disabled;
         var kw = {'postCreation':handler._creating(attributes, sourceNode),
                   'readonly' : objectPop(attributes, 'readonly'),
-                  'disabled' : disabled,
+                 // 'disabled' : disabled,
                   '_style': objectAsStyle(genro.dom.getStyleDict(attributes, (this.noConvertStyle[tag.toLowerCase()]))),
                   '_class' : objectPop(attributes, '_class')
                  };
@@ -215,9 +216,9 @@ dojo.declare("gnr.GnrWdgHandler",null,{
         }
         else{//This is dojo widget
             newobj=this.createDojoWidget (tag, domnode, attributes, kw ,sourceNode);
-            if(disabled){
-                newobj.setAttribute('disabled', true);
-            }
+           //if(disabled){
+           //    newobj.setAttribute('disabled', true);
+           //}
             if(tip){
                 newobj.domNode.setAttribute('title', tip);
             } 
@@ -273,9 +274,9 @@ dojo.declare("gnr.GnrWdgHandler",null,{
         if (kw._class){
             genro.dom.addClass(domnode, kw._class);
         }
-        if(kw.disabled){
-            attributes['disabled'] ='disabled' ;
-        }
+       //if(kw.disabled){
+       //    attributes['disabled'] ='disabled' ;
+       //}
         if(kw.readonly ){
               attributes['readonly'] = 'readonly';
           }
