@@ -25,25 +25,18 @@ class BaseResourceBatch(object):
         self.page = page
         self.db = self.page.db
         self.tblobj = resource_table
-        self.maintable = resource_table.fullname
+        if self.tblobj:
+            self.maintable = self.tblobj.fullname
         self.btc = self.page.btc
         self.results = Bag()
         self.records = dict()
         self.result_info = dict()
         self._pkeys=None
     
-    def __call__(self,batch_note=None,struct=None,**kwargs):
+    def __call__(self,batch_note=None,**kwargs):
         parameters = kwargs['parameters']
-        #if parameters:a
-        #    if isinstance(parameters, Bag):
-        #        self.batch_parameters = parameters.asDict(True)
-        #    else:
-        #        self.batch_parameters = parameters
-        #else:
-        #    self.batch_parameters = {}
         self.batch_parameters = parameters.asDict(True) if isinstance(parameters, Bag) else parameters or {}
         self.batch_note = batch_note or self.batch_parameters.get('batch_note')
-        self.struct = struct
         try:
             self.run()
             result,result_attr = self.result_handler()
@@ -104,7 +97,8 @@ class BaseResourceBatch(object):
         step_handler = getattr(self,'step_%s' %item)
         return step_handler.__doc__
         
-    def get_record_caption(self,item,progress,maximum, tblobj=None,**kwargs):
+    def get_record_caption(self,item,progress,maximum,tblobj=None,**kwargs):
+        tblobj = tblobj or self.tblobj
         if tblobj:
             caption = '%s (%i/%i)' % (tblobj.recordCaption(item),progress,maximum)
         else:
