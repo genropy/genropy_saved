@@ -7,6 +7,7 @@
 #  Copyright (c) 2007 Softwell. All rights reserved.
 #
 from gnr.core.gnrlang import getUuid
+from gnr.core.gnrbag import Bag
 from gnr.web.gnrwebpage_proxy.gnrbaseproxy import GnrBaseProxy
 
 
@@ -129,4 +130,20 @@ class GnrWebConnection(GnrBaseProxy):
         
     def rpc_logout(self):
         self.change_user()
+    
+    def rpc_connected_users_bag(self,exclude=None,exclude_guest=True,max_age=600):
+        users = self.page.site.register.users()   
+        result = Bag()
+        exclude = exclude or []
+        if isinstance(exclude,basestring):
+            exclude = exclude.split(',')
         
+        for user,arguments in users.items():
+            if user in exclude:
+                continue
+            menuattr = dict()
+            if exclude_guest and user.startswith('guest_') or user != self.user:
+                continue
+            menuattr['caption'] = arguments['user_name'] or user
+            result.setItem(user,None,**menuattr)
+        return result
