@@ -1008,140 +1008,6 @@ class GnrWebAppHandler(GnrBaseProxy):
                 storebag = Bag(self.pageLocalDocument(storebag))
         return storebag
         
-    def rpc_exportStaticGrid_xls(self, structbag, storebag, filename=None, **kwargs):
-        charwidths = {
-            '0': 262.637,'1': 262.637,'2': 262.637,'3': 262.637,'4': 262.637,'5': 262.637,'6': 262.637,
-            '7': 262.637,'8': 262.637,'9': 262.637,'a': 262.637,'b': 262.637,'c': 262.637,'d': 262.637,
-            'e': 262.637,'f': 146.015,'g': 262.637,'h': 262.637,'i': 117.096,'j': 88.178,'k': 233.244,
-            'l': 88.178,'m': 379.259,'n': 262.637,'o': 262.637,'p': 262.637,'q': 262.637,'r': 175.407,
-            's': 233.244,'t': 117.096,'u': 262.637,'v': 203.852,'w': 321.422,'x': 203.852,'y': 262.637,
-            'z': 233.244,'A': 321.422,'B': 321.422,'C': 350.341,'D': 350.341,'E': 321.422,'F': 291.556,
-            'G': 350.341,'H': 321.422,'I': 146.015,'J': 262.637,'K': 321.422,'L': 262.637,'M': 379.259,
-            'N': 321.422,'O': 350.341,'P': 321.422,'Q': 350.341,'R': 321.422,'S': 321.422,'T': 262.637,
-            'U': 321.422,'V': 321.422,'W': 496.356,'X': 321.422,'Y': 321.422,'Z': 262.637,' ': 146.015,
-            '!': 146.015,'"': 175.407,'#': 262.637,'$': 262.637,'%': 438.044,'&': 321.422,'\'': 88.178,
-            '(': 175.407,')': 175.407,'*': 203.852,'+': 291.556,',': 146.015,'-': 175.407,'.': 146.015,
-            '/': 146.015,':': 146.015,';': 146.015,'<': 291.556,'=': 291.556,'>': 291.556,'?': 262.637,
-            '@': 496.356,'[': 146.015,'\\': 146.015,']': 146.015,'^': 203.852,'_': 262.637,'`': 175.407,
-            '{': 175.407,'|': 146.015,'}': 175.407,'~': 291.556}
-        def fitwidth(data, bold=False):
-            '''Try to autofit Arial 10'''
-            units = 220
-            for char in str(data):
-                if char in charwidths:
-                    units += charwidths[char]
-                else:
-                    units += charwidths['0']
-            if bold:
-                units *= 1.1
-            return max(units, 700)
-        import xlwt
-        w = xlwt.Workbook(encoding='latin-1')
-        filename = self._exportFileNameClean(filename)
-        ws = w.add_sheet(filename[:31])
-        
-        float_style = xlwt.XFStyle()
-        float_style.num_format_str = '#,##0.00'
-        int_style = xlwt.XFStyle()
-        int_style.num_format_str = '#,##0'
-        
-        font0 = xlwt.Font()
-        font0.name = 'Times New Roman'
-        font0.bold = True
-        hstyle = xlwt.XFStyle()
-        hstyle.font = font0
-        colsizes=dict()
-        storebag = self._getStoreBag(storebag)
-        columns = []
-        headers=[]
-        coltype={}
-        for view in structbag.values():
-            for row in view.values():
-                for cell in row:
-                    col = self.db.colToAs(cell.getAttr('field'))
-                    columns.append(col)
-                    headers.append(cell.getAttr('name'))
-                    coltype[col] = cell.getAttr('dtype')
-                    
-        ws.panes_frozen = True
-        ws.horz_split_pos = 1
-        for c,header in enumerate(headers):
-            #self.page._(self.tblobj.column(header).name_long)
-            ws.write(0, c, header, hstyle)
-            colsizes[c]=max(colsizes.get(c,0),fitwidth(header))
-            
-            
-        for i,row in enumerate(storebag):
-            r = row.getAttr()
-            for c,col in enumerate(columns):
-                value=r.get(col)
-                if coltype[col] in ('R', 'F','N'):
-                    ws.write(i+1, c,value,  float_style)
-                elif coltype[col] in ('L','I'):
-                    ws.write(i+1, c, value, int_style)
-                else:
-                    value=self.page.toText(r.get(col))
-                    ws.write(i+1, c, value)
-                colsizes[c]=max(colsizes.get(c,0),fitwidth(value))
-        
-        for colindex,colsize in colsizes.items():
-            ws.col(colindex).width=colsize
-        if not filename.lower().endswith('.xls'):
-            filename += '.xls'
-        fpath = self.page.temporaryDocument(filename)
-        w.save(fpath)
-        return self.page.temporaryDocumentUrl(filename)
-        
-    def rpc_exportStaticGridDownload_xls(self, filename, **kwargs):
-        fpath = self.page.pageLocalDocument(filename)
-        f = open(fpath, 'r')
-        result = f.read()
-        f.close()
-        #os.remove(fpath)
-        self.page.utils.sendFile(result, filename, 'xls', encoding=None)
-
-    def rpc_exportStaticGrid_csv(self, structbag, storebag, filename=None, **kwargs):
-        def cleanCol(txt, dtype):
-            txt = txt.replace('\n',' ').replace('\r',' ').replace('\t',' ').replace('"',"'")
-            if txt:
-                if txt[0] in ('+','=', '-'):
-                    txt = ' %s' % txt
-                elif txt[0].isdigit() and (dtype in ('T','A','',None)):
-                    txt = '%s' % txt # how to escape numbers in text columns?
-            return txt
-            
-        filename = self._exportFileNameClean(filename)
-        storebag = self._getStoreBag(storebag)
-        columns = []
-        headers=[]
-        coltype={}
-        for view in structbag.values():
-            for row in view.values():
-                for cell in row:
-                    col = self.db.colToAs(cell.getAttr('field'))
-                    columns.append(col)
-                    headers.append(cell.getAttr('name'))
-                    coltype[col] = cell.getAttr('dtype')
-
-        result=['\t'.join(headers)]
-        for row in storebag:
-            r = row.getAttr()
-            result.append('\t'.join([cleanCol(self.page.toText(r.get(col)), coltype[col]) for col in columns]))
-        result = '\n'.join(result)
-        fpath = self.page.pageLocalDocument(filename)
-        f = open(fpath, 'w')
-        f.write(result.encode('utf-8'))
-        f.close()
-        return filename
-        
-    def rpc_exportStaticGridDownload_csv(self, filename, **kwargs):
-        fpath = self.page.pageLocalDocument(filename)
-        f = open(fpath, 'r')
-        result = f.read()
-        f.close()
-        os.remove(fpath)
-        self.page.utils.sendFile(result.decode('utf-8'), filename, 'xls', encoding='latin1')
-        
     def _printCellStyle(self, colAttr):
         style = [colAttr.get('style')]
         styleAttrNames = ('height', 'width','top','left', 'right', 'bottom',
@@ -1206,9 +1072,19 @@ class GnrWebAppHandler(GnrBaseProxy):
     def rpc_recordToPDF(self,table,pkey,template, **kwargs):
         record = self.db.table(table).record(pkey).output('bag')
         return self.page.rmlTemplate(path=template, record=record)
-
-
     
+    def rpc_includedViewAction(self,action=None,export_mode=None,respath=None,table=None,data=None,struct=None,datamode=None,downloadAs=None,**kwargs):
+        page = self.page
+        if downloadAs:
+            import mimetypes
+            page.response.content_type = mimetypes.guess_type(downloadAs)[0]
+            page.response.add_header("Content-Disposition",str("attachment; filename=%s"%downloadAs))
+        if not respath:
+            respath = 'action/%s' %action
+        res_obj = self.page.site.loadTableScript(page=self.page,table=table ,
+                                        respath=respath,class_name='Main')
+        return res_obj.gridcall(data=data,struct=struct,export_mode=export_mode,datamode=datamode) 
+
 class BatchExecutor(object):
     def __init__(self, page):
         #self._page = weakref.ref(page)
