@@ -28,12 +28,9 @@ Created by Giovanni Porcari on 2007-03-24.
 Copyright (c) 2007 Softwell. All rights reserved.
 """
 import os
-from gnr.core.gnrbag import Bag 
 from gnr.core.gnrbaghtml import BagToHtml
 from gnr.core.gnrstring import  splitAndStrip,slugify
-from gnr.core.gnrdict import dictExtract
-from gnr.core.gnrlang import GnrObject, uniquify
-from itertools import chain
+from gnr.core.gnrlang import GnrObject
 
 
 def page_mixin(func):
@@ -97,7 +94,6 @@ class BaseProxy(object):
 
 class BaseWebtool(object):
     pass
-
     
 class TableScriptToHtml(BagToHtml):
     rows_table = None
