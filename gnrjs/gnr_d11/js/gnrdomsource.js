@@ -784,7 +784,15 @@ dojo.declare("gnr.GnrDomSourceNode",gnr.GnrBagNode,{
            if(attr.indexOf('__')==0){
                return;
            }
-           else if ((attr_lower=='disabled') || (attr_lower=='readonly'))  {
+           else if (attr_lower=='disabled' )  {
+              if( dijit.form._FormWidget.prototype.setDisabled==this.widget.setDisabled){
+                  this.widget.setAttribute(attr,value? true:false);
+              }else{
+                  this.widget.setDisabled(value? true:false);
+              }
+               
+           }
+          else if (attr_lower=='readonly')  {
                this.widget.setAttribute(attr,value? true:false);
            }
            else if ((attr=='storepath') && (this.attr.storepath.indexOf('^') == 0)){
