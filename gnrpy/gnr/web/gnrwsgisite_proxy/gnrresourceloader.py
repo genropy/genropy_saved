@@ -337,16 +337,18 @@ class ResourceLoader(object):
         
     def loadTableScript(self, page, table=None, respath=None, class_name=None,_onDefault=None):
         class_name=class_name or 'Main'
+        application=self.gnrapp
+        if not table:
+            _onDefault=True
         if ':' in respath:
             table,respath = respath.split(':')
-        application=self.gnrapp
-        if isinstance(table, basestring):
-            table=application.db.table(table)
-        tablename = table.name
         if _onDefault:
             tablename = '_default'
             resourceDirs=page.resourceDirs
         else:
+            if isinstance(table, basestring):
+                table=application.db.table(table)
+            tablename = table.name
             resourceDirs=self.package_resourceDirs(table.pkg.name)
         modName = os.path.join('tables',tablename,*(respath.split('/')))
         #resourceDirs = application.packages[table.pkg.name].resourceDirs
