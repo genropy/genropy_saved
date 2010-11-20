@@ -880,7 +880,7 @@ class GnrWebPage(GnrBaseWebPage):
     def pageFolderRemove(self):
         shutil.rmtree(os.path.join(self.connectionFolder, self.page_id),True)
     
-    def rpc_callTableScript(self,table, respath, class_name='Main',downloadAs=None,**kwargs):
+    def rpc_callTableScript(self,table=None, respath=None, class_name='Main',downloadAs=None,**kwargs):
         """Call a script from a table's resources (i.e. ``_resources/tables/<table>/<respath>``).
         
         This is typically used to customize prints and batch jobs for a particular installation.
@@ -889,7 +889,6 @@ class GnrWebPage(GnrBaseWebPage):
             import mimetypes
             self.response.content_type = mimetypes.guess_type(downloadAs)[0]
             self.response.add_header("Content-Disposition",str("attachment; filename=%s"%downloadAs))
-        print downloadAs
         return self.site.callTableScript(page=self, table=table, respath=respath, class_name=class_name,
                                         downloadAs=downloadAs, **kwargs)
         
