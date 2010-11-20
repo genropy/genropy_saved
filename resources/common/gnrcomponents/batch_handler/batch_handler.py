@@ -7,9 +7,6 @@
 from gnr.web.gnrwebpage import BaseComponent
 from gnr.core.gnrlang import gnrImport,objectExtract
 
-from gnr.core.gnrbaghtml import BagToHtml
-from gnr.core.gnrstring import templateReplace
-
 from gnr.core.gnrbag import Bag
 
 
@@ -43,7 +40,6 @@ class TableScriptRunner(BaseComponent):
                                        SET .res_type= params['res_type'];
                                        SET .table =  params['table'];
                                        SET .resource =  params['resource'];
-                                       SET .structpath =  params['structpath'];
                                        SET .selectionName =  params['selectionName'];
                                        SET .publishOnResult = params['publishOnResult'];
                                        SET .selectionFilterCb =  params['selectionFilterCb'];
@@ -64,11 +60,9 @@ class TableScriptRunner(BaseComponent):
                 gridId='=.gridId',
                 _publishOnResult='=.publishOnResult',
                 selectionName='=.selectionName',
-                struct='==this.getRelativeData(_structpath);',
-                _structpath='=.structpath',
                 printerOptions='==this.getRelativeData("gnr.server_print.printers."+resource);',
                 selectionFilterCb='=.selectionFilterCb',
-                selectedRowidx="=.selectedRowidx")
+                selectedRowidx="=.selectedRowidx",_POST=True)
                 
         plugin_main.div().remote('table_script_parameters',
                             resource='=.resource',
