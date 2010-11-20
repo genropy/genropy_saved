@@ -255,7 +255,7 @@ class IncludedView(BaseComponent):
                 if pickerPars:
                     add_action='FIRE .showPicker'
                 elif formPars:
-                    add_action = ' FIRE .showRecord; FIRE .addRecord =$1;'
+                    add_action = 'FIRE .showRecord; FIRE .addRecord =$1;'
                 else:
                     add_action = 'FIRE .addRecord =$1;FIRE .editRow=1000;'
             pane.div(float='right', _class=add_class,connect_onclick=add_action,
@@ -277,12 +277,9 @@ class IncludedView(BaseComponent):
 
         if export_action:
             if export_action is True:
-                export_action='xls'
-            if export_action.startswith('custom_'):
-                export_method =  export_action[7:] # len('custom_')
-            else:
-                export_method = 'app.exportStaticGrid_'+export_action
-            export_action = 'FIRE .export="%s";'%export_method
+                export_action = 'export'
+                export_mode ='xls'
+            export_action = 'FIRE .iv_action={action:"%s",export_mode:"%s"};' %(export_action,export_mode)
             pane.div(float='left', margin_right='7px', _class=export_class, connect_onclick=export_action)
 
         if tools_menu:
@@ -359,8 +356,26 @@ class IncludedView(BaseComponent):
                                 idx='=.selectedIndex', gridId=gridId)
         controller.dataController("""genro.wdgById(gridId).editBagRow(null,fired);""",fired='^.editRow',gridId=gridId)
         controller.dataController("genro.wdgById(gridId).printData();" ,fired='^.print',gridId=gridId)
-        controller.dataController("genro.wdgById(gridId).exportData(mode, export_method);" ,
-                                   mode='^.export', export_method='=.export_method', gridId=gridId)
+       #controller.dataController("genro.wdgById(gridId).exportData(mode, export_method);" ,
+       #                           mode='^.export', export_method='=.export_method', gridId=gridId)
+        controller.dataController("""
+                                var grid = genro.wdgById(gridId);
+                                var method = objectPop(action,"method") || "app.includedViewAction";
+                                var kwargs = objectUpdate({},action);
+                                kwargs['selectedRowIdx'] = grid.getSelectedRowidx();
+                                kwargs['table'] =grid.sourceNode.attr.table;
+                                kwargs['datamode'] = grid.datamode;
+                                kwargs['struct'] = grid.structbag();
+                                kwargs['data'] = grid.storebag();
+                                var cb = function(result){genro.download(result);};
+                                kwargs['meta'] = objectExtract(grid.sourceNode.attr, 'meta_*', true);
+                                genro.rpc.remoteCall(method, kwargs, null, 'POST', null,cb);
+                            """,
+                            gridId=gridId,action='^.iv_action')
+        
+                                   
+                                   
+                                   
         controller.dataController("genro.wdgById(gridId).reload(true);" ,_fired='^.reload',gridId=gridId)
        #controller.dataController("""SET .selectedIndex = null;
        #                             PUT .selectedLabel= null;""",
