@@ -1285,7 +1285,9 @@ dojo.declare("gnr.widgets.Menu",gnr.widgets.baseDojo,{
         }
         else if(this.modifiers && genro.wdg.filterEvent(e, this.modifiers, this.validclass)){
             this._contextMouse_replaced.call(this,e);
-            this._openMyself_replaced.call(this,e);
+            var wdg = sourceNode.widget;
+            wdg._openMyself_replaced.call(wdg,e);
+            
         }
     },
     versionpatch_15__openMyself: function (e){

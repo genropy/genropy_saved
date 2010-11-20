@@ -94,6 +94,9 @@ dojo.declare("gnr.GnrSrcHandler",null,{
     },
     _trigger_del:function(kw){//da rivedere
         var domNode =  kw.node.getDomNode();
+        if (!domNode){
+            return;
+        }
         var widget=kw.node.widget;
         if(widget){
             widget.destroyRecursive();
