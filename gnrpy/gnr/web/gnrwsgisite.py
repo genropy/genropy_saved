@@ -725,8 +725,8 @@ class GnrWsgiSite(object):
         result = script(**kwargs)
         return result
         
-    def loadTableScript(self, page, table, respath, class_name=None):
-        return self.resource_loader.loadTableScript( page, table, respath, class_name=class_name)
+    def loadTableScript(self, page=None, table=None, respath=None, class_name=None):
+        return self.resource_loader.loadTableScript( page=page, table=table, respath=respath, class_name=class_name)
   
     def _get_resources(self):
         if not hasattr (self,'_resources'):
