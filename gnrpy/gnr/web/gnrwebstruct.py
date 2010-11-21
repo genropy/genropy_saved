@@ -500,7 +500,10 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
         if fieldobj.getTag() == 'virtual_column' or (('@' in fld )and fld!=tblobj.fullRelationPath(fld)):
             wdgattr['readOnly'] = True
             wdgattr['_virtual_column'] = fld
-        wdgattr['value']='^.%s' % fld
+        if wdgattr['tag']in ('div','span'):
+            wdgattr['innerHTML']='^.%s' % fld
+        else:
+            wdgattr['value']='^.%s' % fld
         return wdgattr
         
     def wdgAttributesFromColumn(self, fieldobj, **kwargs):
