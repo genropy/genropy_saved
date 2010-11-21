@@ -12,7 +12,7 @@ import os
 class BaseResourcePrint(BaseResourceBatch):
     dialog_height = '300px'
     dialog_width = '460px'
-    dialog_height_no_par = '225px'
+    dialog_height_no_par = '245px'
     templates = '' #CONTROLLARE
     mail_tags = 'admin'
     def __init__(self,*args,**kwargs):
@@ -117,19 +117,21 @@ class BaseResourcePrint(BaseResourceBatch):
             resultAttr['document_name'] = save_as
     
     def table_script_option_pane(self,pane,resource=None):
-        bc = pane.borderContainer(height='200px')
+        bc = pane.borderContainer(height='220px')
         top = bc.contentPane(region='top',padding='6px').div(_class='ts_printMode',padding='2px')
-        fb = top.formbuilder(cols=5, border_spacing='4px',margin_top='2px',font_size='.9em',
+        bottom = bc.borderContainer(region='bottom',height='60px')
+        bottom.contentPane(region='top').div('Notes',background='rgba(168,181,182,0.8)',font_size='.9em',color='gray',padding_left='2px')
+        bottom.contentPane(region='center',overflow='hidden',margin='2px').simpleTextArea(value='^.#parent.batch_note')
+        fb = top.formbuilder(cols=4, border_spacing='4px',margin_top='2px',font_size='.9em',
                             action='SET .print_mode=$1.print_mode',group='print_mode',lbl_width='3em')
         fb.data('.print_mode','client_print')
-        fb.radiobutton(value='^.client_print',default_value=True,label='!!Client print',print_mode='client_print')
-        fb.radiobutton(value='^.server_print',label='!!Server print',print_mode='server_print')
+        #fb.radiobutton(value='^.client_print',default_value=True,label='!!Client print',print_mode='client_print')
+        fb.radiobutton(value='^.server_print',label='!!Server print',print_mode='server_print',default_value=True)
         fb.radiobutton(value='^.pdf',label='!!Pdf download',print_mode='pdf')            
         
-        center = bc.stackContainer(region='center',selectedPage='^.#parent.print_mode',
-                                    margin='3px',datapath='.print_mode_option')
+        center = bc.stackContainer(region='center',selectedPage='^.#parent.print_mode',datapath='.print_mode_option')
                                     
-        self.table_script_options_client_print(center.contentPane(pageName='client_print'))
+        #self.table_script_options_client_print(center.contentPane(pageName='client_print'))
         self.server_print_option_pane(center.contentPane(pageName='server_print'),resource=resource)
         self.table_script_options_pdf(center.contentPane(pageName='pdf'))
         if self.current_batch.mail_tags and self.application.checkResourcePermission(self.current_batch.mail_tags, self.userTags):
@@ -156,13 +158,13 @@ class BaseResourcePrint(BaseResourceBatch):
         fb.textbox(value='^.to_address',lbl='!!To')
         fb.textbox(value='^.cc_address',lbl='!!CC')
         fb.textbox(value='^.subject',lbl='!!Subject')
-        fb.simpleTextArea(value='^.body',lbl='!!Body',height='10ex',lbl_vertical_align='top')
+        fb.simpleTextArea(value='^.body',lbl='!!Body',height='5ex',lbl_vertical_align='top')
     
     def table_script_options_mail_deliver(self,pane):
         fb = self.table_script_fboptions(pane)
         fb.textbox(value='^.cc_address',lbl='!!CC',width='100%')
         fb.textbox(value='^.subject',lbl='!!Subject',width='100%')
-        fb.simpleTextArea(value='^.body',lbl='!!Body',height='14ex',lbl_vertical_align='top')
+        fb.simpleTextArea(value='^.body',lbl='!!Body',height='8ex',lbl_vertical_align='top')
     
     def table_script_fboptions(self,pane,fld_width='100%',tdl_width='4em',**kwargs):
         return pane.div(margin_right='5px').formbuilder(cols=1,width='100%',tdl_width=tdl_width,
