@@ -787,7 +787,7 @@ dojo.declare("gnr.GnrDomSourceNode",gnr.GnrBagNode,{
            else if (attr_lower=='disabled' )  {
               if( dijit.form._FormWidget.prototype.setDisabled==this.widget.setDisabled){
                   this.widget.setAttribute(attr,value? true:false);
-              }else{
+              }else if(this.widget.setDisabled){
                   this.widget.setDisabled(value? true:false);
               }
                
