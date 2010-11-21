@@ -126,8 +126,11 @@
 .ts_optionsPane{
     background-color: rgba(168,181,182,0.8);
 }
-.ts_parametersPane{
-    background:whitesmoke;
+.ts_parametersPane {
+    -moz-box-shadow:1px 1px 2px 1px gray inset;
+    -webkit-box-shadow:1px 2px 2px 2px gray inset;
+    background:none repeat scroll 0 0 white;
+    height:100%;
 }
 .ts_printMode{
     background:whitesmoke;
@@ -136,3 +139,4 @@
     -moz-box-shadow:inset 2px 2px 2px gray;
     -webkit-box-shadow:inset 2px 2px 2px gray;
 }
+
