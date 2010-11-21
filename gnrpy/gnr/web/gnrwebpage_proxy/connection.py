@@ -142,8 +142,11 @@ class GnrWebConnection(GnrBaseProxy):
             if user in exclude:
                 continue
             menuattr = dict()
-            if exclude_guest and user.startswith('guest_') or user != self.user:
+            if exclude_guest and user.startswith('guest_') or user == self.page.user:
                 continue
             menuattr['caption'] = arguments['user_name'] or user
+            menuattr.update(arguments)
+            menuattr.pop('datachanges',None)
             result.setItem(user,None,**menuattr)
         return result
+        
