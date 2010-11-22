@@ -210,7 +210,7 @@ dojo.declare("gnr.GnrFrmHandler",null,{
             for (var i=0;i<bagnodes.length;i++){
                 node=bagnodes[i];
                 sendback = changesOnly? node.attr._sendback:true;
-                if(sendback==false || node.label.slice(0,1)=='$' || node.attr.virtual_column){
+                if(sendback==false || node.label.slice(0,1)=='$'){
                     continue;
                 }
                 currpath = parentpath ? parentpath + '.' + node.label : node.label;
