@@ -97,7 +97,7 @@ class StaticHandler(object):
                 mtime = os.stat(fpath).st_mtime
             else:
                 mtime = random.random()*100000
-            kwargs['mtime']='%0.0f'%(url,mtime)
+            kwargs['mtime']='%0.0f'%(mtime)
         
         url = '%s?%s'%(url,'&'.join(['%s=%s'%(k,v) for k,v in kwargs.items()]))
         return url
