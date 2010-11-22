@@ -307,7 +307,7 @@ class GnrWsgiSite(object):
         static_name,static_url = static.split(':')
         args=self.adaptStaticArgs(static_name,static_url, args)
         if kwargs:
-            return self.getStatic(static_name).kwargs_url(*args)
+            return self.getStatic(static_name).kwargs_url(*args,**kwargs)
         else:
             return self.getStatic(static_name).url(*args)
 
