@@ -397,7 +397,7 @@ function objectAsXmlAttributes (obj,sep){
             val = val.replace(/\t/g,'&#09;');
             result.push(prop+"="+ quoted(val));
             
-        }else{
+        }else if(typeof(obj[prop])!='function'){
             result.push(prop+"="+ quoted(asTypedTxt(obj[prop])));
         }
     }

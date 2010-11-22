@@ -105,7 +105,7 @@ class BaseResourceExport(BaseResourceBatch):
 
     def prepareFilePath(self, filename=None):
         if not filename:
-            filename = self.maintable.replace('.','_') if self.maintable else self.page.getUUid()
+            filename = self.maintable.replace('.','_') if hasattr(self,'maintable') else self.page.getUuid()
         filename = filename.replace(' ','_').replace('.','_').replace('/','_')[:64]
         filename = filename.encode('ascii', 'ignore')
         self.filename = filename
