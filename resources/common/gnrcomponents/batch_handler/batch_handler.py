@@ -62,7 +62,7 @@ class TableScriptRunner(BaseComponent):
                 selectionName='=.selectionName',
                 printerOptions='==this.getRelativeData("gnr.server_print.printers."+resource);',
                 selectionFilterCb='=.selectionFilterCb',
-                selectedRowidx="=.selectedRowidx",_POST=True)
+                selectedRowidx="=.selectedRowidx",_POST=True,timeout=0)
                 
         plugin_main.div().remote('table_script_parameters',
                             resource='=.resource',

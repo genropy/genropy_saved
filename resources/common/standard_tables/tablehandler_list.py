@@ -53,8 +53,7 @@ class TableHandlerForm(BaseComponent):
         #left
         self.lstToolbox(bc.borderContainer(width='250px',region = 'left',_class='toolbox',splitter=True,hidden=True))
         #top
-        topStackContainer = bc.stackContainer(region='top',height='20%', splitter=True,hidden=True,selected='^list.selectedTop')
-        self.lstEditors_main(topStackContainer)
+        self.lstEditors_main(bc.stackContainer(region='top',height='20%', splitter=True,hidden=True,selected='^list.selectedTop'))
         self.listBottomPane(bc,region='bottom')
         #center
         st = bc.stackContainer(region='center',datapath='list.grid', margin='5px',

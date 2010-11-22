@@ -149,10 +149,21 @@ class ListViewHandler(BaseComponent):
         return self.rpc_saveUserObject(userobject, userobject_attr)    
         
 class LstUserObjects(BaseComponent):
-    def lstEditors_main(self,topStackContainer):
-        extendedQueryPane = topStackContainer.contentPane(onEnter='FIRE list.runQuery=true;')
+    def lstEditors_main(self,sc):
+        sc.dataController("""
+                          var currentId = this.getRelativeData('list.'+restype+'.selectedId'); 
+                         SET #userobject_dlg.pars.objtype = restype;
+                         SET #userobject_dlg.pars.title = 'Edit '+restype;
+                         var data_path = restype=='query'?query_path:view_path;
+                         SET #userobject_dlg.pars.data = this.getRelativeData(data_path);
+                         FIRE #userobject_dlg.pkey = currentId?currentId:"*newrecord*";
+                       """,restype="^list.save_userobject" ,
+                          query_path='list.query.where',
+                          view_path='list.view.structure')
+        
+        extendedQueryPane = sc.contentPane(onEnter='FIRE list.runQuery=true;')
         self.editorPane('query', extendedQueryPane, datapath='list.query.where')
-        ve_editpane = topStackContainer.contentPane()
+        ve_editpane = sc.contentPane()
         fb = ve_editpane.dropdownbutton('', hidden=True, nodeId='ve_colEditor', datapath='^vars.editedColumn').tooltipdialog().formbuilder(border_spacing='3px', font_size='0.9em', cols=1)
         fb.textbox(lbl='Name', value='^.?name') 
         fb.textbox(lbl='Width', value='^.?width')
@@ -162,29 +173,15 @@ class LstUserObjects(BaseComponent):
         
     def editorPane(self, restype, pane, datapath):
         parentdatapath, resname = datapath.rsplit('.', 1)
-        top = pane.div(_class='st_editor_bar', datapath=parentdatapath)   
-        save_action = """var currentId = GET list.%s.selectedId; 
-                         SET #userobject_dlg.pars.objtype = '%s';
-                         SET #userobject_dlg.pars.title = 'Edit %s';
-                         SET #userobject_dlg.pars.data = GET %s;
-                         FIRE #userobject_dlg.pkey = currentId?currentId:"*newrecord*";
-                       """%(restype,restype,restype,datapath)
+        top = pane.div(_class='st_editor_bar', datapath=parentdatapath)
+        save_action = 'FIRE list.save_userobject="%s";' %restype
         if restype=='query':
             save_action = 'genro.querybuilder.cleanQueryPane(); %s' %save_action                          
-        
-        top.dataController("""
-                          var currentId = this.getRelativeData('list.'+restype+'.selectedId'); 
-                         SET #userobject_dlg.pars.objtype = restype;
-                         SET #userobject_dlg.pars.title = 'Edit '+restype;
-                         SET #userobject_dlg.pars.data = this.getRelativeData(data_path);
-                         FIRE #userobject_dlg.pkey = currentId?currentId:"*newrecord*";
-                       """,restype="^list.save_userobject" ,data_path=datapath)
-                       
         top.div(_class='icnBase10_Doc buttonIcon',float='right',
                                 connect_onclick=" SET list.%s.selectedId = null ;FIRE .new=true;" %restype, 
                                 margin_right='5px', margin_top='2px', tooltip='!!New %s' % restype);
         top.div(_class='icnBase10_Save buttonIcon', float='right',margin_right='5px', margin_top='2px',
-                connect_onclick='FIRE list.save_userobject="%s";' %restype,tooltip='!!Save %s' % restype);
+                connect_onclick=save_action,tooltip='!!Save %s' % restype);
         top.dataController("FIRE list.%s.reload; SET list.%s.selectedId = savedId;" %(restype,restype),
                             savedId="=#userobject_dlg.savedPkey",
                             objtype='=#userobject_dlg.pars.objtype',
@@ -248,6 +245,7 @@ class LstQueryHandler(BaseComponent):
         treepane.tree(storepath='list.query.saved_menu',persist=False, inspect='shift',
                           labelAttribute='caption',connect_ondblclick='FIRE list.runQuery = true;',
                           selected_pkey='list.query.selectedId', selected_code='list.query.selectedCode',
+                          selectedLabelClass='selectedTreeNode',
                           _class='queryTree',
                           hideValues=True,_reload='^list.query.reload')
                           
