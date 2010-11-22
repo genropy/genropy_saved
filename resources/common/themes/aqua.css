@@ -611,7 +611,7 @@
 /* @group General */
 /* @group form */
 .gnrfieldlabel {
-	color: #333333;
+	color: rgba(104,51,52,0.7);
 }
 .label {
 	color: rgba(72,84,92,0.9);
