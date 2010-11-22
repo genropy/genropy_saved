@@ -304,11 +304,10 @@ class GnrWsgiSite(object):
 
 
     def getStaticUrl(self,static,*args,**kwargs):
-        nocache=kwargs.get('nocache')
         static_name,static_url = static.split(':')
         args=self.adaptStaticArgs(static_name,static_url, args)
-        if nocache:
-            return self.getStatic(static_name).nocache_url(*args)
+        if kwargs:
+            return self.getStatic(static_name).kwargs_url(*args)
         else:
             return self.getStatic(static_name).url(*args)
 

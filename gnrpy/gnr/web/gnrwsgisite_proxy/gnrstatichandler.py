@@ -35,7 +35,7 @@ class StaticHandlerManager(object):
     def static_dispatcher(self,path_list,environ,start_response,download=False,**kwargs):
         handler = self.get(path_list[0][1:])
         if handler:
-            return handler.serve(path_list,environ,start_response,download=False,**kwargs)
+            return handler.serve(path_list,environ,start_response,download=download,**kwargs)
         else:
             return self.site.not_found_exception(environ, start_response)
 
@@ -86,27 +86,34 @@ class StaticHandler(object):
             file_responder.cache_control(max_age=self.site.cache_max_age)
         return file_responder(environ, start_response)
 
-    def nocache_url(self, *args):
+    def kwargs_url(self, *args, **kwargs):
         url = self.url(*args)
         fpath = self.path(*args)
-        if os.path.exists(fpath):
-            mtime = os.stat(fpath).st_mtime
-        else:
-            mtime = random.random()*100000
-        url = '%s?mtime=%0.0f'%(url,mtime)
+        if not kwargs:
+            return url
+        nocache=kwargs.pop('nocache',None)
+        if nocache:
+            if os.path.exists(fpath):
+                mtime = os.stat(fpath).st_mtime
+            else:
+                mtime = random.random()*100000
+            kwargs['mtime']='%0.0f'%(url,mtime)
+        
+        url = '%s?%s'%(url,'&'.join(['%s=%s'%(k,v) for k,v in kwargs.items()]))
         return url
+        
     
 class DojoStaticHandler(StaticHandler):
     prefix='dojo'
-    def url(self, version ,*args):
+    def url(self, version ,*args, **kwargs):
         return '%s_dojo/%s/%s'%(self.home_uri,version,'/'.join(args))
     
-    def path(self, version ,*args):
+    def path(self, version ,*args, **kwargs):
         return expandpath(os.path.join(self.site.dojo_path[version], *args))
         
 class SiteStaticHandler(StaticHandler):
     prefix='site'
-    def url(self ,*args):
+    def url(self ,*args, **kwargs):
         return '%s_site/%s'%(self.home_uri,'/'.join(args))
     
     def path(self ,*args):
@@ -117,7 +124,7 @@ class PkgStaticHandler(StaticHandler):
     def path(self,pkg,*args):
         return os.path.join(self.site.gnrapp.packages[pkg].packageFolder,'webpages', *args)
 
-    def url(self,pkg,*args):
+    def url(self,pkg,*args, **kwargs):
         return '%s_pkg/%s/%s'%(self.home_uri,pkg,'/'.join(args))
     
 class RsrcStaticHandler(StaticHandler):
@@ -127,7 +134,7 @@ class RsrcStaticHandler(StaticHandler):
         if resource_path:
             return os.path.join(resource_path, *args)
     
-    def url(self,resource_id,*args):
+    def url(self,resource_id,*args, **kwargs):
         return '%s_rsrc/%s/%s'%(self.home_uri,resource_id,'/'.join(args))
 
 
@@ -136,7 +143,7 @@ class PagesStaticHandler(StaticHandler):
     def path(self,*args):
         return os.path.join(self.site_path,'pages', *args)
     
-    def url(self,*args):
+    def url(self,*args, **kwargs):
         return '%s_pages/%s'%(self.home_uri,'/'.join(args))
 
 class GnrStaticHandler(StaticHandler):
@@ -144,7 +151,7 @@ class GnrStaticHandler(StaticHandler):
     def path(self, version,*args):
         return expandpath(os.path.join(self.site.gnr_path[version], *args))
 
-    def url(self, version,*args):
+    def url(self, version,*args, **kwargs):
         return '%s_gnr/%s/%s'%(self.home_uri,version,'/'.join(args))
         
 class ConnectionStaticHandler(StaticHandler):
@@ -152,7 +159,7 @@ class ConnectionStaticHandler(StaticHandler):
     def path(self,connection_id,page_id,*args):
         return os.path.join(self.site.site_path,'data','_connections', connection_id, page_id, *args)
         
-    def url(self, connection_id, page_id ,*args):
+    def url(self, connection_id, page_id ,*args, **kwargs):
         return '%s_conn/%s/%s/%s'%(self.home_uri,connection_id, page_id,'/'.join(args))
 
 

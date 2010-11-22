@@ -988,18 +988,16 @@ class GnrWebPage(GnrBaseWebPage):
         return filepath
     
     def connectionDocumentUrl(self, *args ,**kwargs):
-        nocache=kwargs.get('nocache')
-        if nocache:
-            return self.site.getStatic('conn').nocache_url(self.connection_id, self.page_id,*args)
+        if kwargs:
+            return self.site.getStatic('conn').kwargs_url(self.connection_id, self.page_id,*args,**kwargs)
         else:
             return self.site.getStatic('conn').url(self.connection_id, self.page_id,*args)
         
     def userDocumentUrl(self,*args, **kwargs):
-        nocache=kwargs.get('nocache')
-        if nocache:
-            return self.site.getStatic('user').nocache_url(self.user,*args)
+        if kwargs:
+            return self.site.getStatic('user').kwargs_url(self.user,*args,**kwargs_url)
         else:
-            return self.site.getStatic('user').nocache_url(self.user,*args)
+            return self.site.getStatic('user').url(self.user,*args)
             
     def isLocalizer(self) :
         return (self.userTags and ('_TRD_' in self.userTags))
