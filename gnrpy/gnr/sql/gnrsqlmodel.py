@@ -320,7 +320,8 @@ class DbModelSrc(GnrStructData):
             self.child('virtual_columns_list', 'virtual_columns')
         return self.child('virtual_column', 'virtual_columns.%s' % name, 
                           relation_path=relation_path,
-                          sql_formula=sql_formula, py_method=py_method, **kwargs)
+                          sql_formula=sql_formula, py_method=py_method,
+                          virtual_column=True, **kwargs)
 
     def aliasColumn(self, name, relation_path, **kwargs):
         return self.virtual_column(name, relation_path=relation_path, **kwargs)

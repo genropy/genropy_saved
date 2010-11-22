@@ -40,7 +40,7 @@ class TableHandlerForm(BaseComponent):
                  hidden='^aux.listpage').checkbox(label='!!Hidden',
                                                   value='^form.logical_deleted',
                                                   disabled='^form.locked')
-        elem.dataFormula('aux.listpage', '!selectedpage', selectedpage='^selectedPage', _init=True)
+        elem.dataFormula('aux.listpage', '!selectedpage', selectedpage='^selectedPage', _onStart=True)
         elem.dataController("""if(logical_deleted){
                                    genro.dom.addClass("formRoot", "logicalDeleted");
                                }else{
@@ -58,7 +58,7 @@ class TableHandlerForm(BaseComponent):
             
     def formController(self,pane):
         self.formTitleBase(pane)
-        pane.dataFormula('form.locked','statusLocked || recordLocked',statusLocked='^status.locked',
+        pane.dataFormula('form.locked','statusLocked || recordLocked || false',statusLocked='^status.locked',
                                      recordLocked='=form.recordLocked',fired='^gnr.forms.formPane.loaded')
         pane.dataFormula('form.canWrite','(!locked ) && writePermission',locked='^form.locked',writePermission='=usr.writePermission',_init=True)
         pane.dataFormula('form.canDelete','(!locked) && deletePermission',locked='^form.locked',deletePermission='=usr.deletePermission',_init=True)
