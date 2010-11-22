@@ -113,7 +113,7 @@ class BaseResourcePrint(BaseResourceBatch):
         filename = pdfprinter.printPdf(self.results.values(), self.batch_title, 
                                       outputFilePath=os.path.join(output,save_as))
         if filename:
-            resultAttr['url'] = self.page.site.getStaticUrl('user:output','pdf',filename,nocache=True)
+            resultAttr['url'] = self.page.site.getStaticUrl('user:output','pdf',filename,nocache=True,download=True)
             resultAttr['document_name'] = save_as
     
     def table_script_option_pane(self,pane,resource=None):
