@@ -344,6 +344,7 @@ dojo.declare("gnr.widgets.baseHtml",null,{
         var savedAttrs = {};
         savedAttrs['dragPars'] = objectExtract(attributes,'drag_*');
         savedAttrs['dropPars'] = objectExtract(attributes,'drop_*');
+        objectExtract(attributes,'dragValue,onDrop,onDrag,dragTag,dropTag,dragTypes,dopTypes');
         savedAttrs['droppable'] = attributes['droppable'];
 
         savedAttrs.connectedMenu=objectPop(attributes,'connectedMenu');
@@ -2224,6 +2225,10 @@ dojo.declare("gnr.widgets.Grid",gnr.widgets.baseDojo,{
     },
     onDragStart:function(event){
         var info=event.dragDropInfo
+        if (!info){
+            console.log(event);
+            return
+        }
         value={};
         if ('row' in info){
             
@@ -2273,7 +2278,7 @@ dojo.declare("gnr.widgets.Grid",gnr.widgets.baseDojo,{
 
             }
             if(attr.droppable){
-                result['outlineGrid'] = widget.domNod;
+                result['outlineGrid'] = widget.domNode;
 
             }
             
