@@ -53,7 +53,7 @@ class BaseResourceExport(BaseResourceBatch):
         
         self.prepareFromStruct(struct)
         self.data = self.rowFromValue(data) if datamode=='bag' else self.rowFromAttr(data)
-        self.pre_process()
+        self._pre_process()
         self.do()
         return self.fileurl
         
@@ -74,7 +74,8 @@ class BaseResourceExport(BaseResourceBatch):
                     self.headers.append(cell.getAttr('name'))
                     self.coltypes[col] = cell.getAttr('dtype') 
     
-    def pre_process(self):
+    def _pre_process(self):
+        self.pre_process()
         self.fileurl = None
         self.export_mode = self.batch_parameters['export_mode']
         self.prepareFilePath(self.batch_parameters['filename'])
