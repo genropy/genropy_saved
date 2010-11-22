@@ -120,25 +120,25 @@ class BaseResourcePrint(BaseResourceBatch):
         bc = pane.borderContainer(height='220px')
         top = bc.contentPane(region='top',padding='6px').div(_class='ts_printMode',padding='2px')
         bottom = bc.borderContainer(region='bottom',height='60px')
-        bottom.contentPane(region='top').div('Notes',background='rgba(168,181,182,0.8)',font_size='.9em',color='gray',padding_left='2px')
-        bottom.contentPane(region='center',overflow='hidden',margin='2px').simpleTextArea(value='^.#parent.batch_note')
+        bottom.contentPane(region='top').div('Notes',_class='bgcolor_darkest',color='white',padding_left='2px')
+        bottom.contentPane(region='center',overflow='hidden',margin='4px').simpleTextArea(value='^.#parent.batch_note')
         fb = top.formbuilder(cols=4, border_spacing='4px',margin_top='2px',font_size='.9em',
-                            action='SET .print_mode=$1.print_mode',group='print_mode',lbl_width='3em')
-        fb.data('.print_mode','client_print')
+                            action='SET .print_mode=$1.print_mode',group='print_mode',lbl_width='1.5em')
+        fb.data('.print_mode','pdf')
         #fb.radiobutton(value='^.client_print',default_value=True,label='!!Client print',print_mode='client_print')
-        fb.radiobutton(value='^.server_print',label='!!Server print',print_mode='server_print',default_value=True)
-        fb.radiobutton(value='^.pdf',label='!!Pdf download',print_mode='pdf')            
+        fb.radiobutton(value='^.pdf',label='!!Pdf download',lbl=' ',print_mode='pdf',default_value=True)            
+        fb.radiobutton(value='^.server_print',label='!!Server print',lbl=' ',print_mode='server_print')
         
         center = bc.stackContainer(region='center',selectedPage='^.#parent.print_mode',datapath='.print_mode_option')
                                     
         #self.table_script_options_client_print(center.contentPane(pageName='client_print'))
-        self.server_print_option_pane(center.contentPane(pageName='server_print'),resource=resource)
         self.table_script_options_pdf(center.contentPane(pageName='pdf'))
+        self.server_print_option_pane(center.contentPane(pageName='server_print'),resource=resource)
         if self.current_batch.mail_tags and self.application.checkResourcePermission(self.current_batch.mail_tags, self.userTags):
-            fb.radiobutton(value='^.mail_pdf',label='!!Pdf by mail',print_mode='mail_pdf')
+            fb.radiobutton(value='^.mail_pdf',label='!!Pdf by mail',print_mode='mail_pdf',lbl=' ')
             self.table_script_options_mail_pdf(center.contentPane(pageName='mail_pdf',datapath='.mail'))
             if hasattr(self.current_batch,'mail_address'):
-                fb.radiobutton(value='^.mail_deliver',label='!!Deliver mails',print_mode='mail_deliver')
+                fb.radiobutton(value='^.mail_deliver',label='!!Deliver mails',print_mode='mail_deliver',lbl=' ')
                 self.table_script_options_mail_deliver(center.contentPane(pageName='mail_deliver',datapath='.mail'))
         
     def table_script_options_client_print(self,pane):
@@ -148,9 +148,9 @@ class BaseResourcePrint(BaseResourceBatch):
                         lbl_vertical_align='top')
         
     def table_script_options_pdf(self,pane):
-        fb = self.table_script_fboptions(pane,fld_width=None,tdl_width='10em')
+        fb = self.table_script_fboptions(pane,fld_width=None,tdl_width='5em')
         fb.data('.zipped',False)
-        fb.textbox(value='^.save_as',lbl='!!Document name',width='100%')
+        fb.textbox(value='^.save_as',lbl='!!File Name',width='100%')
         fb.checkbox(value='^.zipped',label='!!Zip folder')
         
     def table_script_options_mail_pdf(self,pane):
