@@ -788,8 +788,8 @@ dojo.declare("gnr.GnrDomHandler",null,{
         var dragTags=inherited['dragTags'];
          
         if(dragTags){
-            dataTransfer.setData('dragTags', dragTags);
-            genro.dom.setInDataTransfer('dragTags', dragTags)
+            //dataTransfer.setData('dragTags', dragTags);
+            genro.dom.setInDataTransfer(dataTransfer, 'dragTags', dragTags)
         }
     },
     setInDataTransfer:function(dataTransfer,k,v){
