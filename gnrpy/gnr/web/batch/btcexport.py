@@ -90,7 +90,8 @@ class BaseResourceExport(BaseResourceBatch):
                 self.headers = selection.colHeaders
             else:
                 self.prepareFromStruct(struct)
-        writerPars = dict(columns=self.columns,coltypes=self.coltypes,headers=self.headers,filepath=self.filepath)
+        writerPars = dict(columns=self.columns,coltypes=self.coltypes,headers=self.headers,
+                          filepath=self.filepath, locale=self.locale)
         if self.export_mode == 'xls':
             self.writer = XlsWriter(**writerPars)
         elif self.export_mode == 'csv':

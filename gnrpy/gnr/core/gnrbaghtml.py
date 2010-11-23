@@ -207,9 +207,15 @@ class BagToHtml(object):
         self.grid_body_height = self.grid_height -self.grid_header_height - self.grid_footer_height
         for copy in range(self.copies_per_page):
             self.copies.append(dict(grid_body_used=self.grid_height,currPage=-1))
+        
         lines=self.getData(self.rows_path)
+        
         if lines:
-            nodes = lines.getNodes()
+            if isinstance(lines,Bag):
+                nodes = lines.getNodes()
+            elif hasattr(lines,'next'):
+                nodes = list(lines)
+                
             if hasattr(self,'thermo_wrapper') and self.thermo_kwargs:
                 nodes = self.thermo_wrapper(nodes,**self.thermo_kwargs)
                 
@@ -241,18 +247,21 @@ class BagToHtml(object):
         self._openPage()
                   
     def _get_rowData(self):
-        if self.row_mode=='attribute':
+        
+        if isinstance(self.currRowDataNode,dict):
+            return self.currRowDataNode
+        elif self.row_mode=='attribute':
             return self.currRowDataNode.attr
         else:
             return self.currRowDataNode.value
     rowData = property(_get_rowData)    
     
     def rowField(self,path=None,**kwargs):
-        if self.row_mode=='attribute':
-            data = self.currRowDataNode.attr
-        else:
-            data = self.currRowDataNode.value
-        return self.field(path,root=data,**kwargs)
+        #if self.row_mode=='attribute':
+        #    data = self.currRowDataNode.attr
+        #else:
+        #    data = self.currRowDataNode.value
+        return self.field(path,root=self.rowData,**kwargs)
         
     def rowCell(self,field=None,value=None,default=None, locale=None,
                format=None, mask=None,currency=None,**kwargs):

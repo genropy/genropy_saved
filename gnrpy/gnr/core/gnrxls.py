@@ -6,13 +6,14 @@ from gnr.core.gnrstring import toText
 class XlsWriter(object):
     """docstring for XlsWriter"""
     def __init__(self,columns=None,coltypes=None,headers=None,filepath=None,
-                font='Times New Roman',format_float='#,##0.00',format_int='#,##0'):
+                font='Times New Roman',format_float='#,##0.00',format_int='#,##0', locale=None):
         self.headers = headers
         self.columns =columns
         self.filepath ='%s.xls' %os.path.splitext(filepath)[0]        
         self.workbook = xlwt.Workbook(encoding='latin-1')
         self.sheet = self.workbook.add_sheet(os.path.basename(self.filepath))
         self.coltypes=coltypes
+        self.locale = locale
         
         self.float_style = xlwt.XFStyle()
         self.float_style.num_format_str = format_float
@@ -61,7 +62,7 @@ class XlsWriter(object):
             elif coltype in ('L','I'):
                 self.sheet.write(self.current_row, c, value, self.int_style)
             else:
-                value=toText(value)
+                value=toText(value, self.locale)
                 self.sheet.write(self.current_row, c, value)
             self.colsizes[c]=max(self.colsizes.get(c,0),self.fitwidth(value))
         
