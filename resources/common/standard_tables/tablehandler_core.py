@@ -48,6 +48,7 @@ class TableHandlerToolbox(BaseComponent):
                             var selectedRowidx = genro.wdgById('maingrid').getSelectedRowidx();
                             var script_pars = {'res_type':tablehandler_run_script[0],
                                                 'resource':tablehandler_run_script[1],
+                                                'onCalling': tablehandler_run_script[2],
                                                 'table':table,
                                                 'selectedRowidx':selectedRowidx,
                                                 'selectionName':selectionName,
