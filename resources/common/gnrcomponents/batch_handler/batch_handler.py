@@ -46,12 +46,14 @@ class TableScriptRunner(BaseComponent):
                                        SET .gridId = params['gridId'];
                                        SET .selectedRowidx =  params['selectedRowidx'];
                                        SET .paramspath = params['paramspath'];
+                                       SET .onCalling = params['onCalling'];
                                        FIRE .build_pars_dialog;
                                        FIRE #table_script_dlg_parameters.open;
                                     """,subscribe_table_script_run=True)
                                     
         plugin_main.dataRpc('dummy','table_script_run',
                 _fired='^.run',
+                _onCalling='=.onCalling',
                 _onResult='if(kwargs._publishOnResult){genro.publish(kwargs._publishOnResult);}',
                 parameters='=.parameters',
                 resource='=.resource',
