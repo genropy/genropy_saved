@@ -650,7 +650,7 @@ class DbTableObj(DbModelObj):
                         raise GnrSqlMissingColumn('Invalid column %s in table %s' % (name, self.name_full))
         if name.startswith('@'):
             relcol = self._relatedColumn(name)
-            if colalias is not None:
+            if colalias is not None and 'virtual_column' in relcol.attributes:
                 mixedattributes=dict(relcol.attributes)
                 colalias_attributes=dict(colalias.attributes)
                 colalias_attributes.pop('tag')
