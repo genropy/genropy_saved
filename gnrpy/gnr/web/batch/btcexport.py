@@ -81,14 +81,15 @@ class BaseResourceExport(BaseResourceBatch):
         self.prepareFilePath(self.batch_parameters['filename'])
         if not self.data:
             selection = self.get_selection()
+            struct = self.batch_parameters.get('struct')
             self.data = self.btc.thermo_wrapper(selection.data,message=self.tblobj.name_plural,tblobj=self.tblobj)
-            if not self.batch_parameters['struct']:
+            if not struct:
                 self.columns = selection.columns
                 self.columns = [c for c in self.columns if not c in ('pkey','rowidx')]
                 self.coltypes = dict([(k,v['dataType']) for k,v in selection.colAttrs.items()])
                 self.headers = selection.colHeaders
             else:
-                self.prepareFromStruct(self.batch_parameters['struct'])
+                self.prepareFromStruct(struct)
         writerPars = dict(columns=self.columns,coltypes=self.coltypes,headers=self.headers,filepath=self.filepath)
         if self.export_mode == 'xls':
             self.writer = XlsWriter(**writerPars)
