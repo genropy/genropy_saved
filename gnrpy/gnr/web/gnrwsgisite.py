@@ -599,6 +599,7 @@ class GnrWsgiSite(object):
             smtp_kwargs=self.config.getAttr('debug_email')
             if 'error_subject_prefix' not in smtp_kwargs:
                 smtp_kwargs['error_subject_prefix']='[%s] '%self.site_name
+            smtp_kwargs['error_email']=smtp_kwargs['error_email'].replace(';',',').split(',')
             if 'smtp_use_tls' in smtp_kwargs:
                 smtp_kwargs['smtp_use_tls']=(smtp_kwargs['smtp_use_tls'] in (True,'true','t','True','1','TRUE'))
             wsgiapp = ErrorMiddleware(wsgiapp, **smtp_kwargs)
