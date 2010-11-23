@@ -4,6 +4,7 @@ from paste import fileapp, httpexceptions
 from paste import request as paste_request
 from paste.httpheaders import ETAG
 from weberror.evalexception import EvalException
+from paste.exceptions.errormiddleware import ErrorMiddleware
 from webob import Request, Response
 from gnr.web.gnrwebapp import GnrWsgiWebApp
 import os
@@ -594,6 +595,13 @@ class GnrWsgiSite(object):
         wsgiapp=self.dispatcher
         if self.debug:
             wsgiapp = EvalException(wsgiapp, debug=True)
+        elif 'debug_email' in self.config:
+            smtp_kwargs=self.config.getAttr('debug_email')
+            if 'error_subject_prefix' not in smtp_kwargs:
+                smtp_kwargs['error_subject_prefix']='[%s] '%self.site_name
+            if 'smtp_use_tls' in smtp_kwargs:
+                smtp_kwargs['smtp_use_tls']=(smtp_kwargs['smtp_use_tls'] in (True,'true','t','True','1','TRUE'))
+            wsgiapp = ErrorMiddleware(wsgiapp, **smtp_kwargs)
         return wsgiapp
         
     def build_gnrapp(self):
