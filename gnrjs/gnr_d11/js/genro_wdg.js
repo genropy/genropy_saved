@@ -274,9 +274,15 @@ dojo.declare("gnr.GnrWdgHandler",null,{
         if (kw._class){
             genro.dom.addClass(domnode, kw._class);
         }
-       //if(kw.disabled){
-       //    attributes['disabled'] ='disabled' ;
-       //}
+       if('disabled' in attributes){
+           if (attributes.disabled){
+               attributes['disabled'] ='disabled' ;
+           }
+            else{
+                delete attributes['disabled'] ;
+            }
+            
+       }
         if(kw.readonly ){
               attributes['readonly'] = 'readonly';
           }
