@@ -6,6 +6,6 @@
 
 .. toctree::
 
-	sql/index
+	genro/gnrpy/gnr/sql/index
 	core/index
 	app/index

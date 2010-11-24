@@ -4,8 +4,8 @@
 
 .. toctree::
 
-	data
-	model
-	sql
-	table
-	utils
+	gnrsql
+	gnrsqldata
+	gnrsqlmodel
+	gnrsqltable
+	gnrsqlutils

@@ -21,7 +21,7 @@ Genropy
 	getting_started
 	how_to
 	miscellaneous
-	library_reference
+	library_reference/index
 	component_reference
 	genro_database_management
 	wsgi
