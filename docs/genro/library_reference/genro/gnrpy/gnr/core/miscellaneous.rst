@@ -1,5 +1,5 @@
 Miscellaneous
-===========
+=============
 
 :mod:`gnr.core.gnrmailhandler`
 ******************************

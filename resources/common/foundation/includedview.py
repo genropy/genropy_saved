@@ -24,11 +24,12 @@ from gnr.core.gnrstring import splitAndStrip
 from gnr.core.gnrdict import dictExtract
 
 class IncludedView(BaseComponent):
+    """
+    IncludedView allows you to manage data of the table in relation many to many. includedViewBox is the main method of this class.
+    """
     css_requires = 'public'
     js_requires = 'public'
-    """IncludedView allows you to manage data of the table in relation many to many.
-       includedViewBox is the method that return some custom widgets who allow all these operations."""
-
+    
     def includedViewBox(self,parentBC,nodeId=None,table=None,datapath=None,
                         storepath=None,selectionPars=None,formPars=None,label=None,caption=None,footer=None,
                         add_action=None,add_class='buttonIcon icnBaseAdd',add_enable='^form.canWrite',
@@ -55,51 +56,55 @@ class IncludedView(BaseComponent):
         The form can be contained inside a dialog or a contentPane and is useful to edit a single record.
         If the data is stored inside another table you should use the picker to select the rows from that table.
         
-        @param parentBC: MANDATORY - parentBC is a border container that you must pass to includedViewBox;
-                                     it contains the includedView and its labels.
-        @param table:
-        @param datapath:
-        @param storepath: if it is relative what is the datapath?
-        @param selectionPars:
-        @param formPars (dict): it contains all the params of the widget that host the form.
-                            List of params:
-                            - mode: "dialog"/"pane" (default is "dialog").
-                            - height: height of the dialog.
-                            - width: width of the dialog.
-                            - formCb: MANDATORY - callback method used to create form.
-                                      formCb's params:
-                                             - formBorderCont: a borderContainer used as root for construction.
-                                             - datapath: the correct datapath for data contained into the form.
-                                             - region: 'center' of the pane/borderContainer where you place it into.
-                            - toolbarHandler: OPTIONAL - a callback for the form toolbar.
-                            - title: MANDATORY - for mode dialog
-                            - pane: OPTIONAL - pane of the input form
-        @param label (string): allow to create a label for the includedView.
-        @param add_action (boolean): allow the insertion of a row in the includedView.
-        @param add_class: css class of add button.
-        @param add_enable: a path to enable/disable add action.
-        @param del_action (boolean): allow the deleting of a row in the includedView.
-        @param del_class: css class of delete button.
-        @param del_enable: a path to enable/disable del action.
-        @param close_action (boolean): adding closing button in tooltipDialog.
-        @param close_class: css class of close button.
-        @param filterOn (boolean, only for picker): allow the filter into the picker grid.
-        @param pickerPars (dict): it contains all the params of the tooltip dialog which host the picker grid.
-                            List of params:
-                            - height: height of the tooltipdialog.
-                            - width: width of the tooltipdialog.
-                            - label: label of the tooltipdialog.
-                            - table: MANDATORY - the table of the picker grid. From this table you can pick
-                                                 a row for the many to many table you handle.
-                            - columns: MANDATORY - columns of the picker grid.
-                            - nodeId: MANDATORY - id for the picker.
-                            - autowidth, storepath, etc grid params.
-                            - filterOn: the columns on which to apply filter.
-        @param fromPicker_target_fields: allow to bind the picker's table.
-                          columns to the includedView columns of the many to many table.
-        @param fromPicker_nodup_field: if this column value is present in the includedView it allows
-                                       to replace that row instead of adding a duplicate row.
-        @params kwargs: you have to put the includedView params: autowidth, storepath, etc.
+        * `parentBC`: MANDATORY - parentBC is a border container that you must pass to includedViewBox; it contains the includedView and its labels.
+        
+        Attention! The includedViewBox and its sons (for example, the selectionHandler) can accept only borderContainer and doesn't accept contentPane; in contentPane(s) you can't put other containers, you can only put objects
+        
+        * `table`:
+        * `datapath`:
+        * `storepath`: if it is relative what is the datapath?
+        * `selectionPars`:
+        * `formPars`: (dict) it contains all the params of the widget that host the form.
+        
+            Parameters:
+            - mode: "dialog"/"pane" (default is "dialog").
+            - height: height of the dialog.
+            - width: width of the dialog.
+            - formCb: MANDATORY - callback method used to create form.
+            
+            Parameters:
+            - formBorderCont: a borderContainer used as root for construction.
+            - datapath: the correct datapath for data contained into the form.
+            - region: 'center' of the pane/borderContainer where you place it into.
+            - toolbarHandler: OPTIONAL - a callback for the form toolbar.
+            - title: MANDATORY - for mode dialog.
+            - pane: OPTIONAL - pane of the input form.
+            
+        * `label`: (string) allow to create a label for the includedView.
+        * `param add_action`: (boolean) allow the insertion of a row in the includedView.
+        * `add_class`: css class of add button.
+        * `add_enable`: a path to enable/disable add action.
+        * `del_action`: (boolean) allow the deleting of a row in the includedView.
+        * `del_class`: css class of delete button.
+        * `del_enable`: a path to enable/disable del action.
+        * `close_action`: (boolean) adding closing button in tooltipDialog.
+        * `close_class`: css class of close button.
+        * `filterOn`: (boolean, only for picker) allow the filter into the picker grid.
+        * `pickerPars`: (dict) it contains all the params of the tooltip dialog which host the picker grid.
+        
+            Parameters:
+            - height: height of the tooltipdialog.
+            - width: width of the tooltipdialog.
+            - label: label of the tooltipdialog.
+            - table: MANDATORY - the table of the picker grid. From this table you can pick a row for the many to many table you handle.
+            - columns: MANDATORY - columns of the picker grid.
+            - nodeId: MANDATORY - id for the picker.
+            - autowidth, storepath, etc grid params.
+            - filterOn: the columns on which to apply filter.
+            
+        * `fromPicker_target_fields`: allow to bind the picker's table. columns to the includedView columns of the many to many table.
+        * `fromPicker_nodup_field`: if this column value is present in the includedView it allows to replace that row instead of adding a duplicate row.
+        * `**kwargs`: you have to put the includedView params: autowidth, storepath, etc.
         """
         if storepath:
             assert not storepath.startswith('^') and not storepath.startswith('='), \

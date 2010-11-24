@@ -8,8 +8,8 @@ Components
 	:maxdepth: 2
 
 	introduction
-	includedview
-	selectionhandler
-	standardtable/index
 	writing
+	IncludedView <includedview>
+	SelectionHandler <selectionhandler>
+	standardtable/index
 	maturity-matrix

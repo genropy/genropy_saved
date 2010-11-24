@@ -1,0 +1,7 @@
+====================
+:mod:`gnrcomponents`
+====================
+
+.. toctree::
+
+	selectionhandler

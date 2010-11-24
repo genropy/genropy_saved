@@ -5,7 +5,7 @@
 ===================
 
 .. toctree::
+	:maxdepth: 3
 
-	genro/gnrpy/gnr/sql/index
-	genro/gnrpy/gnr/core/index
-	genro/gnrpy/gnr/app/index
+	genro/gnrpy/index
+	genro/resources/index
