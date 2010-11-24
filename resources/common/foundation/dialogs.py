@@ -150,10 +150,11 @@ class Dialogs(BaseComponent):
         pane.dataController("""genro.wdgById(btnId)._openDropDown(genro._firingNode.getDomNode());""", 
                                 btnId=btnId, fired=fired) 
         container=dlg.borderContainer(height=height,width=width,nodeId=bcId, onEnter=onEnter,_class='pbl_dialog_center')
-        top = container.contentPane(region='top',_class='dijitDialogTitleBar',height='18px')
-        if close_action:
-            top.div(_class='icnTabClose',float='right',margin='2px',connect_onclick=close_action)
-        top.div(title)        
+        if title is not False:
+            top = container.contentPane(region='top',_class='dijitDialogTitleBar',height='18px')
+            if close_action:
+                top.div(_class='icnTabClose',float='right',margin='2px',connect_onclick=close_action)
+            top.div(title)        
         if bottom_left or bottom_right:
             bottom = container.contentPane(region='bottom',height='18px',_class='pbl_roundedGroupBottom')
             if bottom_left:
