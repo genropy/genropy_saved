@@ -7,5 +7,5 @@
 .. toctree::
 
 	genro/gnrpy/gnr/sql/index
-	core/index
-	app/index
+	genro/gnrpy/gnr/core/index
+	genro/gnrpy/gnr/app/index
