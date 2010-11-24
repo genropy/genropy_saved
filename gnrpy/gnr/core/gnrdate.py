@@ -227,12 +227,14 @@ def decodeDatePeriod(datestr, workdate=None, locale=None, returnDate=False, dtyp
     workdate = workdate or datetime.date.today()
     months = gnrlocale.getMonthNames(locale)
     days = gnrlocale.getDayNames(locale)
+    datestr = datestr or ''
     datestr = datestr.lower().strip().replace(',',';').replace(':',';')
     exercise = False  # TODO
     
     dateStart = None
     dateEnd = None
     
+    localNoPeriod = gnrlocale.getDateKeywords('no period', locale)
     localTo = gnrlocale.getDateKeywords('to', locale)
     localFrom = gnrlocale.getDateKeywords('from', locale)
     
@@ -240,6 +242,8 @@ def decodeDatePeriod(datestr, workdate=None, locale=None, returnDate=False, dtyp
     if ';' in datestr:
         # two dates or keywords separated by ";":   today;today+5
         dateStart, dateEnd = datestr.split(';')
+    elif [k for k in localNoPeriod if k in datestr]:
+        dateStart= dateEnd = ''
     elif [k for k in localTo if datestr.startswith('%s ' % k)]:
         # only end date: to december
         dateStart = ''
