@@ -906,6 +906,43 @@ table.formbuilder {
 
 /* @end */
 
+.back_icon24{
+    background:url(icons/base24/backarrow.png) no-repeat center center;
+    width: 24px;
+	height: 24px;
+}
+
+/* @group Base 48 */
+.trash_icon48{
+    background:url(icons/base48/trash_icon.png) no-repeat center center;
+    width: 40px;
+	height: 40px;
+}
+
+.confirm_icon48{
+    background:url(icons/base48/confirm.png) no-repeat center center;
+    width: 48px;
+	height: 48px;
+}
+.back_icon48{
+    background:url(icons/base48/backarrow.png) no-repeat center center;
+    width: 48px;
+	height: 48px;
+}
+.cancel_icon48{
+    background:url(icons/base48/cancel.png) no-repeat center center;
+    width: 48px;
+	height: 48px;
+}
+
+/* @end */
+
+.cash_icon64{
+    background:url(icons/base64/cashbox.png) no-repeat center center;
+    width: 64px;
+	height: 64px;
+}
+
 /* @group Dev */
 
 .gnrhighlight {
@@ -1222,12 +1259,6 @@ table.draggedItem{
     background: rgba(234,234,234,0.92) url(icons/base48/trash_icon.png) no-repeat center center;
     -moz-box-shadow:4px 4px 4px #403b3b;
 	-webkit-box-shadow:4px 4px 4px #403b3b;
-}
-
-.trash_icon48{
-    background:url(icons/base48/trash_icon.png) no-repeat center center;
-    width: 40px;
-	height: 40px;
 }
 
 /* @end */
