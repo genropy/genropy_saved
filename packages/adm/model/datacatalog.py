@@ -65,18 +65,19 @@ class Table(GnrHTable):
         
     
     def make_record_db_pkg(self,idx=None,parent_code=None,name=None,attr=None):
-        record = dict(child_code='P%i' %idx,parent_code=None,name_long=attr.get('name_long'),name_full=attr.get('name_full'),
-                      name_short=attr.get('name_short'),rec_type='db_pkg',pkg=name)
+        record = dict(child_code='%02i' %idx,parent_code=None,name_long=attr.get('name_long'),name_full=attr.get('name_full'),
+                      name_short=attr.get('name_short'),rec_type='db_pkg',pkg=name,description=name)
         return record
     
     def make_record_db_tbl(self,idx=None,parent_code=None,name=None,attr=None):
-        record = dict(child_code='T%i' %idx,parent_code=parent_code,name_long=attr.get('name_long'),name_full=attr.get('name_full'),
-                      name_short=attr.get('name_short'),pkey_field=attr.get('pkey'),rec_type='db_tbl',tbl=name)
+        record = dict(child_code='%02i' %idx,parent_code=parent_code,name_long=attr.get('name_long'),name_full=attr.get('name_full'),
+                      name_short=attr.get('name_short'),pkey_field=attr.get('pkey'),rec_type='db_tbl',tbl=name,description=name)
         return record
     
     def make_record_db_col(self,idx=None,parent_code=None,name=None,attr=None,obj=None):
-        record = dict(child_code='F%i' %idx,parent_code=parent_code,name_long=attr.get('name_long'),name_full=attr.get('name_full'),
-                      name_short=attr.get('name_short'),size=attr.get('size'),fld=name,dtype=attr.get('dtype'),rec_type='db_field')
+        record = dict(child_code='%03i' %idx,parent_code=parent_code,name_long=attr.get('name_long'),name_full=attr.get('name_full'),
+                      description=name,name_short=attr.get('name_short'),size=attr.get('size'),fld=name,dtype=attr.get('dtype'),
+                      rec_type='db_field')
         return record
         
         
