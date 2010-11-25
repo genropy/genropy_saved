@@ -11,7 +11,7 @@
 	introduction_to_Genro/index
 	webpage_elements/index
 	datastore/index
-	common/index
+	common_attributes/index
 	bag/index
 	ui/index
 	validations/index

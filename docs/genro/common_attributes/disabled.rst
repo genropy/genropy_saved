@@ -57,5 +57,5 @@ Disabled on a formbuilder
 Disabled on a standard table
 ============================
 
-	In a :ref:`genro-standardtable_introduction` the ``disabled`` ??? continue!! (explain the lock properties...)
+	In a :ref:`genro-standardtable` the ``disabled`` ??? continue!! (explain the lock properties...)
 	
