@@ -10,8 +10,6 @@ class GnrCustomWebPage(object):
     py_requires="gnrcomponents/testhandler:TestHandlerFull"
     # dojo_theme='claro'    # !! Uncomment this row for Dojo_1.5 usage
     
-    # For an exhaustive documentation, please see http://docs.genropy.org/widgets/form/radiobutton.html
-    
     def test_1_basic(self,pane):
         """Simple test"""
         fb=pane.contentPane(title='Buttons',datapath='test1').formbuilder(cols=4,border_spacing='10px')

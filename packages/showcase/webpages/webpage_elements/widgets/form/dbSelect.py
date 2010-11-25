@@ -10,8 +10,6 @@ class GnrCustomWebPage(object):
     py_requires="gnrcomponents/testhandler:TestHandlerFull"
     # dojo_theme='claro'    # !! Uncomment this row for Dojo_1.5 usage
     
-    # For an exhaustive documentation, please see http://docs.genropy.org/widgets/form/db/dbselect.html
-    
     def test_1_basic(self,pane):
         """Basic test"""
         fb = pane.formbuilder(border_spacing='10px',datapath='test1')

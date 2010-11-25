@@ -10,8 +10,6 @@ class GnrCustomWebPage(object):
     py_requires="gnrcomponents/testhandler:TestHandlerFull"
     # dojo_theme='claro'    # !! Uncomment this row for Dojo_1.5 usage
     
-    # For an exhaustive documentation, please see http://docs.genropy.org/widgets/form/textboxes/textbox.html
-    
     def test_1_textbox(self,pane):
         """Textbox"""
         pane.div("Some simple textboxes.",font_size='.9em',text_align='justify')

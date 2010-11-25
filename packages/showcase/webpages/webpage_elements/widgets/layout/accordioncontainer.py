@@ -10,8 +10,6 @@ class GnrCustomWebPage(object):
     py_requires="gnrcomponents/testhandler:TestHandlerFull"
     # dojo_theme='claro'    # !! Uncomment this row for Dojo_1.5 usage
     
-    # For an exhaustive documentation, please see http://docs.genropy.org/widgets/layout/accordioncontainer.html
-    
     def test_1_basic(self,pane):
         """Basic accordion container"""
         pane.div("""In this example we will show you an example of an accordion container.""",

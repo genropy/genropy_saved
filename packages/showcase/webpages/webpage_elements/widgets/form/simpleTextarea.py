@@ -10,8 +10,6 @@ class GnrCustomWebPage(object):
     py_requires="gnrcomponents/testhandler:TestHandlerFull"
     # dojo_theme='claro'    # !! Uncomment this row for Dojo_1.5 usage
     
-    # For an exhaustive documentation, please see http://docs.genropy.org/widgets/form/simplearea.html
-    
     def test_1_simpleTextarea(self,pane):
         """simpleTextarea"""
         fb = pane.formbuilder(datapath='test1')

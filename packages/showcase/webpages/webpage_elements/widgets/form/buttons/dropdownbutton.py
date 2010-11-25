@@ -10,8 +10,6 @@ class GnrCustomWebPage(object):
     py_requires="gnrcomponents/testhandler:TestHandlerFull"
     # dojo_theme='claro'    # !! Uncomment this row for Dojo_1.5 usage
     
-    # For an exhaustive documentation, please see http://docs.genropy.org/widgets/form/dropdownbutton.html
-    
     def test_1_dropdownbutton(self,pane):
         """Dropdown button"""
         pane.div(""" Here we show you an example of dropdown button, using also "action" attribute

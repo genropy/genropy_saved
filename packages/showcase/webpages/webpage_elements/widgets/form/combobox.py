@@ -12,8 +12,6 @@ class GnrCustomWebPage(object):
     py_requires="gnrcomponents/testhandler:TestHandlerFull"
     # dojo_theme='claro'    # !! Uncomment this row for Dojo_1.5 usage
     
-    # For an exhaustive documentation, please see http://docs.genropy.org/widgets/form/combobox.html
-    
     def test_1_values(self,pane):
         """Combobox filled through "values" attribute"""
         bc = pane.borderContainer(datapath='test1')
