@@ -40,7 +40,7 @@ class Table(GnrHTable):
         return dict(children='field,group',caption='Root')
     
     def rectype_field(self):
-        return dict(caption='Field')
+        return dict(caption='Field',fields='fld,purpuse,comment')
     
     def rectype_group(self):
         return dict(caption='Group',fields='name_long,name_short')
