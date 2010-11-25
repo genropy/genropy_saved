@@ -15,30 +15,35 @@ class Main(BaseResourceAction):
     batch_title = 'Datacatalog importer'
     batch_cancellable = False
     batch_delay = 0.5
-    dialog_height = '300px'
-    dialog_width = '200px'
+    dialog_height = '200px'
+    dialog_width = '300px'
 
     def do(self):
         pkgidx = 0
+        rootname = self.batch_parameters.get('root_code','db_0')
+        self.tblobj.insert(dict(parent_code='imp',child_code=rootname,description=self.batch_parameters.get('root_code','Imported Db')))
         for pkg,pkgobj in self.btc.thermo_wrapper(self.db.packages.items(),'pkg'):
-            pkgcode = 'P%i' %(pkgidx)
-            self.tblobj.insert(self.tblobj.package_record(pkgcode,name=pkg,attr=pkgobj.attributes))
+            pkgrec = self.tblobj.make_record_db_pkg(idx=pkgidx,parent_code=rootname,name=pkg,attr=pkgobj.attributes)
+            self.tblobj.insert(pkgrec)
             pkgidx+=1
             tblidx = 0
             for tbl,tblobj in self.btc.thermo_wrapper(pkgobj.tables.items(),'tbl'):
-                tblcode = 'T%i' %(tblidx)
-                self.tblobj.insert(self.tblobj.table_record(tblcode,parent_code=pkgcode,name=tbl,attr=tblobj.attributes))
+                tblrec = self.tblobj.make_record_db_tbl(idx=tblidx,parent_code=pkgrec['code'],name=tbl,attr=tblobj.attributes)
+                self.tblobj.insert(tblrec)
                 tblidx+=1
                 colidx = 0
                 for col,colobj in self.btc.thermo_wrapper(tblobj.columns.items(),'field'):
-                    colcode = 'C%i' %(colidx)
-                    self.tblobj.insert(self.tblobj.col_record(colcode,parent_code=tblcode,name=col,attr=colobj.attributes,obj=colobj))
+                    colrec = self.tblobj.make_record_db_col(idx=colidx,parent_code=tblrec['code'],
+                                                            name=col,attr=colobj.attributes,obj=colobj)
+                    self.tblobj.insert(colrec)
                     colidx+=1
         self.db.commit()
                     
         
     def result_handler(self):
-        return 'Execution completed'
+        return 'Execution completed',dict()
             
     def table_script_parameters_pane(self,pane,**kwargs):
-        pane.div('Import all model')
+        fb = pane.formbuilder(cols=1, border_spacing='4px')
+        fb.textbox(value='^.root_code',lbl='Root Code')
+        fb.textbox(value='^.root_desc',lbl='Root Description')
