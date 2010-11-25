@@ -241,6 +241,8 @@ class HTableHandler(HTableHandlerBase):
                             }else{
                                 SET .edit.selectedPage='no_record';
                                 SET .edit.no_record = true;
+                                SET .edit.pkey = '*newrecord*';
+                                FIRE .edit.load;
                             }
                             """,pkey="^.tree.pkey")
         bc.dataController("""
@@ -307,7 +309,6 @@ class HTableHandler(HTableHandlerBase):
                               pkeyPath='#%s.edit.pkey' %nodeId)
         tblobj = self.db.table(table)
         loadKwargs =  loadKwargs or dict()
-       
         loadKwargs['default_parent_code'] = '=.defaults.parent_code'                                
         self.formLoader(formId,datapath='#%s.edit' %nodeId,resultPath='.record',_fired='^.load',
                         table=table, pkey='=.pkey',**loadKwargs)
@@ -317,8 +318,8 @@ class HTableHandler(HTableHandlerBase):
 
     def _ht_add_button(self,pane,childTypes=None,disabled=None):
         if childTypes:
-            ddb = pane.dropDownButton(label='!!Add',float='left',disabled=disabled,
-                                        iconClass='icnBaseAdd',showLabel=False,
+            ddb = pane.div(label='!!Add',float='left',hidden=disabled,
+                                        _class='icnBaseAdd',showLabel=False,
                                         visible='==tree_caption!=null' ,
                                         tree_caption='^.tree.caption')
             storepath = childTypes
@@ -326,9 +327,10 @@ class HTableHandler(HTableHandlerBase):
                 childTypesMenu = Bag()
                 storepath = '.tree.childTypesMenu'
                 for k,v in childTypes.items():
-                    childTypesMenu.setItem(k,None,caption=v,action="SET .edit.childType = $1.fullpath; FIRE .edit.add_button;")
+                    childTypesMenu.setItem(k,None,caption=v)
                     pane.data(storepath,childTypesMenu)
-            ddb.menu(storepath=storepath,modifiers='*',_class='smallmenu') 
+            ddb.menu(storepath=storepath,modifiers='*',_class='smallmenu',
+                     action="SET .edit.childType = $1.fullpath; SET .edit.childItem = new gnr.GnrBag($1);FIRE .edit.add_button;") 
         else:
             pane.button(label='!!Add',float='left',disabled=disabled,
                                                         iconClass='icnBaseAdd',showLabel=False,
