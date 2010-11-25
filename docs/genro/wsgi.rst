@@ -19,7 +19,7 @@
 	.. _Paste: http://pythonpaste.org/
 	.. _WebOb: http://pythonpaste.org/webob/reference.html
 
-	For an example of middleware, see ``gnrpy/gnr/web/gzipmiddleware.py ``. 
+	For an example of middleware, see ``gnrpy/gnr/web/gzipmiddleware.py``.
 	
 ..(the script does not work currently Genro, but for other reasons, Michele Bertoldi indicates that it is working)).
 

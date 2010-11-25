@@ -22,7 +22,7 @@ Genropy
 	how_to
 	miscellaneous
 	library_reference/index
-	component_reference
+	components/index
 	genro_database_management
 	wsgi
 

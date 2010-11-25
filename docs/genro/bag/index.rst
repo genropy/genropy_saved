@@ -14,3 +14,4 @@ Bag
 	bagThree
 	bagFromTo
 	bagFour
+	bagLibrary

@@ -73,7 +73,7 @@ Common attributes
 	|                    | For more details, see :ref:`genro-disabled`     |                          |
 	+--------------------+-------------------------------------------------+--------------------------+
 	| ``hidden``         | Hide the numberspinner.                         |  ``False``               |
-	|                    | See :doc:`/common/hidden`                       |                          |
+	|                    | See :ref:`genro-hidden`                         |                          |
 	+--------------------+-------------------------------------------------+--------------------------+
 	| ``label``          | Set numberspinner label.                        |  ``None``                |
 	|                    | For more details, see :ref:`genro-label`        |                          |

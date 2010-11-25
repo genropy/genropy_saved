@@ -4,10 +4,6 @@
  formbuilder
 =============
 
-	- :ref:`formbuilder-definition`
-
-	- :ref:`formbuilder-where`
-
 	- :ref:`formbuilder-description`
 
 	- :ref:`formbuilder-examples`
@@ -17,26 +13,6 @@
 	- :ref:`formbuilder-other-attributes`
 	
 	- :ref:`formbuilder-other-features`: :ref:`label-and-lbl`
-
-	.. _formbuilder-definition:
-
-Definition
-==========
-		
-	Here we report formbuilder's definition::
-		
-		def formbuilder(self, cols=1, dbtable=None, tblclass='formbuilder',
-		                lblclass='gnrfieldlabel', lblpos='L', _class='', fieldclass='gnrfield',
-		                lblalign=None, lblvalign='middle',
-		                fldalign=None, fldvalign='middle', disabled=False,
-		                rowdatapath=None, head_rows=None, **kwargs):
-
-	.. _formbuilder-where:
-
-Where
-=====
-
-	You can find formbuilder in *genro/gnrpy/gnr/web/gnrwebstruct.py*
 
 	.. _formbuilder-description:
 
@@ -90,56 +66,13 @@ Examples
 Attributes
 ==========
 
-	+--------------------+-------------------------------------------------+--------------------------+
-	|   Attribute        |          Description                            |   Default                |
-	+====================+=================================================+==========================+
-	| ``_class``         | For CSS style                                   |  `` ``                   |
-	+--------------------+-------------------------------------------------+--------------------------+
-	| ``border_spacing`` | CSS attribute, space between rows               |  ``6px``                 |
-	+--------------------+-------------------------------------------------+--------------------------+
-	| ``cols``           | Set columns number                              |  ``1``                   |
-	+--------------------+-------------------------------------------------+--------------------------+
-	| ``datapath``       | Set path for data.                              |  ``None``                |
-	|                    | For more details, see :ref:`genro-attributes`   |                          |
-	+--------------------+-------------------------------------------------+--------------------------+
-	| ``dbtable``        | Set the database table.                         |  ``None``                |
-	|                    | For more details, see :ref:`genro-dbtable`      |                          |
-	+--------------------+-------------------------------------------------+--------------------------+
-	| ``fieldclass``     | CSS class appended to every formbuilder's child |  ``gnrfield``            |
-	+--------------------+-------------------------------------------------+--------------------------+
-	| ``fld_width``      | Set field width                                 |  ``7em``                 |
-	+--------------------+-------------------------------------------------+--------------------------+
-	| ``fldalign``       | Set field horizontal align                      |  ``None``                |
-	+--------------------+-------------------------------------------------+--------------------------+
-	| ``fldvalign``      | Set field vertical align                        |  ``middle``              |
-	+--------------------+-------------------------------------------------+--------------------------+
-	| ``head_rows``      | #NISO ???                                       |  ``None``                |
-	+--------------------+-------------------------------------------------+--------------------------+
-	| ``lblalign``       | Set horizontal label alignment                  |  ``#NISO Boh!``          |
-	|                    | #NISO Sembra non funzionare                     |                          |
-	+--------------------+-------------------------------------------------+--------------------------+
-	| ``lblclass``       | Set label style                                 |  ``gnrfieldlabel``       |
-	+--------------------+-------------------------------------------------+--------------------------+
-	| ``lblpos``         | Set label position                              |  ``L``                   |
-	|                    |                                                 |                          |
-	|                    | ``L``: set label on the left side of text field |                          |
-	|                    |                                                 |                          |
-	|                    | ``T``: set label on top of text field           |                          |
-	+--------------------+-------------------------------------------------+--------------------------+
-	| ``lblvalign``      | Set vertical label alignment                    |  ``middle``              |
-	+--------------------+-------------------------------------------------+--------------------------+
-	| ``rowdatapath``    | #NISO ???                                       |  ``None``                |
-	+--------------------+-------------------------------------------------+--------------------------+
-	| ``tblclass``       | The standard class for formbuilder.             |  ``formbuilder``         |
-	|                    |                                                 |                          |
-	|                    | Actually it is the unique defined class         |                          |
-	+--------------------+-------------------------------------------------+--------------------------+
+	For a complete list of formbuilder's attributes, check the :ref:`genro_library_gnrwebstruct` library reference page.
 	
-	Note: you can give CSS attributes to the field by using `fld_` followed by a CSS attribute, like::
+	.. note:: you can give CSS attributes to the field by using `fld_` followed by a CSS attribute, like:
 	
 		fld_color='red'
 		
-	In the same way (that is `lbl_` plus a CSS attribute) you can modify lbl appearences, like::
+		In the same way (that is `lbl_` plus a CSS attribute) you can modify lbl appearences, like:
 	
 		lbl_width='10em'
 	

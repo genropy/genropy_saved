@@ -56,41 +56,64 @@ class IncludedView(BaseComponent):
         The form can be contained inside a dialog or a contentPane and is useful to edit a single record.
         If the data is stored inside another table you should use the picker to select the rows from that table.
         
-        * `parentBC`: MANDATORY - parentBC is a border container that you must pass to includedViewBox; it contains the includedView and its labels.
-        
-        Attention! The includedViewBox and its sons (for example, the selectionHandler) can accept only borderContainer and doesn't accept contentPane; in contentPane(s) you can't put other containers, you can only put objects
-        
-        * `table`:
-        * `datapath`:
-        * `storepath`: if it is relative what is the datapath?
-        * `selectionPars`:
-        * `formPars`: (dict) it contains all the params of the widget that host the form.
-        
-            Parameters:
-            - mode: "dialog"/"pane" (default is "dialog").
-            - height: height of the dialog.
-            - width: width of the dialog.
-            - formCb: MANDATORY - callback method used to create form.
+        * `parentBC`: MANDATORY - parentBC is a :ref:`genro-bordercontainer` that you must pass to the includedViewBox.
+        .. note:: The includedViewBox and its sons (for example, the :ref:`genro-selectionhandler`) can only accept borderContainer and doesn't accept contentPane.
+        * `nodeId`: the includedViewbox's Id. For more information, check :ref:`genro_nodeid` page. Default value is ``None``.
+        * `table`: the includedViewbox's reference :ref:`genro-database_table`. Default value is ``None``.
+        * `datapath`: allow to create a hierarchy of your data’s addresses into the datastore. Default value is ``None``.
+            For more information, check the :ref:`genro-datapath` and the :ref:`genro-datastore` pages.
+        * `storepath`: <#NISO ??? Add description! /> Default value is ``None``.
+        * `selectionPars`: <#NISO ??? Add description! /> Default value is ``None``.
+        * `formPars`: (dict) it contains all the params of the widget who hosts the form. Default value is ``None``.
             
-            Parameters:
-            - formBorderCont: a borderContainer used as root for construction.
-            - datapath: the correct datapath for data contained into the form.
-            - region: 'center' of the pane/borderContainer where you place it into.
-            - toolbarHandler: OPTIONAL - a callback for the form toolbar.
-            - title: MANDATORY - for mode dialog.
-            - pane: OPTIONAL - pane of the input form.
+            formPars parameters:
             
-        * `label`: (string) allow to create a label for the includedView.
-        * `param add_action`: (boolean) allow the insertion of a row in the includedView.
-        * `add_class`: css class of add button.
-        * `add_enable`: a path to enable/disable add action.
-        * `del_action`: (boolean) allow the deleting of a row in the includedView.
-        * `del_class`: css class of delete button.
-        * `del_enable`: a path to enable/disable del action.
-        * `close_action`: (boolean) adding closing button in tooltipDialog.
-        * `close_class`: css class of close button.
-        * `filterOn`: (boolean, only for picker) allow the filter into the picker grid.
-        * `pickerPars`: (dict) it contains all the params of the tooltip dialog which host the picker grid.
+            * mode: `dialog` / `pane`. Default value is `dialog`.
+            * height: the dialog's height.
+            * width: the dialog's width.
+            * formCb: MANDATORY - callback method used to create the form.
+            
+                formCb parameters:
+                
+                * formBorderCont: a :ref:`genro-bordercontainer` used as root for the formCb's construction.
+                * datapath: allow to create a hierarchy of your data’s addresses into the datastore.
+                    For more information, check the :ref:`genro-datapath` and the :ref:`genro-datastore` pages.
+                * region: 'center' of the pane/borderContainer where you place it into.
+                * toolbarHandler: OPTIONAL - a callback for the form toolbar.
+                * title: MANDATORY - for dialog mode.
+                * pane: OPTIONAL - pane of the form input.
+            
+        * `label`: (string) allow to create a label for the includedView. Default value is ``None``.
+        * `caption`: <#NISO ??? Add description! />. Default value is ``None``.
+        * `footer`: <#NISO ??? Add description! />. Default value is ``None``.
+        * `add_action`: (boolean) allow the insertion of a row in the includedView. Default value is ``None``.
+        * `add_class`: the css class of the add button. Default value is ``buttonIcon icnBaseAdd``.
+        * `add_enable`: a path to enable/disable add action. Default value is ``^form.canWrite``.
+        * `del_action`: (boolean) allow the deleting of a row in the includedView. Default value is ``None``.
+        * `del_class`: the css class of the delete button. Default value is ``buttonIcon icnBaseDelete``.
+        * `del_enable`: a path to enable/disable del action. Default value is ``^form.canWrite``.
+        * `upd_action`: <#NISO ??? Add description! />. Default value is ``None``.
+        * `upd_class`: <#NISO ??? Add description! />. Default value is ``buttonIcon icnBaseEdit``.
+        * `upd_enable`: <#NISO ??? Add description! />. Default value is ``^form.canWrite``.
+        * `close_action`: (boolean) adding closing button in tooltipDialog. Default value is ``None``.
+        * `close_class`: css class of close button. Default value is ``None``.
+        * `print_action`: <#NISO ??? Add description! />. Default value is ``None``.
+        * `print_class`: <#NISO ??? Add description! />. Default value is ``None``.
+        * `pdf_action`: <#NISO ??? Add description! />. Default value is ``None``.
+        * `pdf_class`: <#NISO ??? Add description! />. Default value is ``None``.
+        * `pdf_name`: <#NISO ??? Add description! />. Default value is ``None``.
+        * `export_action`: <#NISO ??? Add description! />. Default value is ``None``.
+        * `export_class`: <#NISO ??? Add description! />. Default value is ``None``.
+        * `tools_action`: <#NISO ??? Add description! />. Default value is ``None``.
+        * `tools_class`: <#NISO ??? Add description! />. Default value is ``None``.
+        * `tools_enable`: <#NISO ??? Add description! />. Default value is ``None``.
+        * `tools_lbl`: <#NISO ??? Add description! />. Default value is ``None``.
+        * `lock_action`: an optional parameter; <#NISO ??? Add description! />. Default value is ``False``.
+        * `tools_menu`: <#NISO ??? Add description! />. Default value is ``None``.
+        * `_onStart`: an optional parameter; (Boolean) if True, the controller is executed only after that all the line
+            codes are read. Default value is ``False``.
+        * `filterOn`: (boolean, only for picker) allow the filter into the picker grid. Default value is ``None``.
+        * `pickerPars`: (dict) it contains all the params of the tooltip dialog which host the picker grid. Default value is ``None``.
         
             Parameters:
             - height: height of the tooltipdialog.
@@ -101,7 +124,16 @@ class IncludedView(BaseComponent):
             - nodeId: MANDATORY - id for the picker.
             - autowidth, storepath, etc grid params.
             - filterOn: the columns on which to apply filter.
-            
+        
+        * `centerPaneCb`: <#NISO ??? Add description! />. Default value is ``None``.
+        * `editorEnabled`: <#NISO ??? Add description! />. Default value is ``None``.
+        * `parentLock`: <#NISO ??? Add description! />. Default value is ``None``.
+        * `reloader`: <#NISO ??? Add description! />. Default value is ``None``.
+        * `externalChanges`: <#NISO ??? Add description! />. Default value is ``None``.
+        * `addOnCb`: <#NISO ??? Add description! />. Default value is ``None``.
+        * `zoom`: It allows to open the linked record in its :ref:`genro-database_table`. For further details, check :ref:`genro_zoom`. Default value is ``True``.
+        * `hasToolbar`: <#NISO ??? Add description! />. Default value is ``False``.
+        * `canSort`: <#NISO ??? Add description! />. Default value is ``True``.
         * `fromPicker_target_fields`: allow to bind the picker's table. columns to the includedView columns of the many to many table.
         * `fromPicker_nodup_field`: if this column value is present in the includedView it allows to replace that row instead of adding a duplicate row.
         * `**kwargs`: you have to put the includedView params: autowidth, storepath, etc.

@@ -16,6 +16,8 @@ Definition and description
 ==========================
 
 	``label`` is an attribute used to ... ???
+	
+	??? Explain the meaning of the "!!" --> language translation
 
 	.. _label-validity:
 

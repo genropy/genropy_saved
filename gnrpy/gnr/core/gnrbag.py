@@ -121,7 +121,6 @@ class BagNode(object):
     * label: can be only a string.
     * value: can be anything even a BagNode. If you have get the xml of the Bag it should be serializable.
     * attributes: dictionary that contains node's metadata
-        
     """
     def __init__(self, parentbag, label, value=None, attr=None, resolver=None,
                 validators=None, _removeNullAttributes=True):

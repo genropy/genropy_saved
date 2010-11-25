@@ -31,18 +31,18 @@ from copy import copy
 
 class GnrDomSrcError(Exception):
     pass
-
+    
 class GnrDomElem(object):
     def __init__(self,obj,tag):
         self.obj=obj
         self.tag=tag
-    
+        
     def __call__(self,*args,**kwargs):
         child=self.obj.child(self.tag,*args, **kwargs)
         return child
-    
-
+        
 class GnrDomSrc(GnrStructData):
+    """GnrDomSrc class"""
     def makeRoot(cls, page, source=None):
         root=GnrStructData.makeRoot(source=source, protocls=cls)
         #root._page=weakref.ref(page)
@@ -62,7 +62,6 @@ class GnrDomSrc(GnrStructData):
             return self.parent.parentfb
     parentfb = property(_get_parentfb)
     
-    
     def __getattr__(self,fname):
         fnamelower=fname.lower()
         if (fname != fnamelower) and hasattr(self,fnamelower) :
@@ -71,7 +70,7 @@ class GnrDomSrc(GnrStructData):
             return GnrDomElem(self,'%s' % (self.genroNameSpace[fnamelower]))
         else:
             raise AttributeError("object has no attribute '%s'" % fname)
-
+            
     def child(self, tag, name=None, envelope=None, **kwargs):
         if 'fld' in kwargs:
             fld_dict=self.getField(kwargs.pop('fld'))
@@ -267,11 +266,40 @@ class GnrDomSrc(GnrStructData):
         return self.child('macro',name=name,content=source,**kwargs)
         
     def formbuilder(self, cols=1, dbtable=None, tblclass='formbuilder',
-                         lblclass='gnrfieldlabel', lblpos='L', _class='', fieldclass='gnrfield',
-                         lblalign=None, lblvalign='middle',
-                         fldalign=None, fldvalign='middle', disabled=False,
-                         rowdatapath=None, head_rows=None, **kwargs):
-      
+                    lblclass='gnrfieldlabel', lblpos='L', _class='', fieldclass='gnrfield',
+                    lblalign=None, lblvalign='middle',
+                    fldalign=None, fldvalign='middle', disabled=False,
+                    rowdatapath=None, head_rows=None, **kwargs):
+        """
+        In formbuilder you can put dom and widget elements; its most classic usage is to create a form made by fields and layers,
+        and that's because formbuilder can manage automatically fields and their positioning.
+        
+        * `cols`: set columns number. Default value is ``1``.
+        * `dbtable`: set the database table. For more details, see :ref:`genro-dbtable`. Default value is ``None``.
+        * `tblclass`: the standard class for the formbuilder. Default value is ``'formbuilder'`` (actually it is the unique defined class).
+        * `lblclass`: set label style. Default value is ``'gnrfieldlabel'``.
+        * `lblpos`: set label position. Default value is ``'L'``.
+            Parameters:
+            
+            ``L``: set label on the left side of text field
+            
+            ``T``: set label on top of text field
+        * `_class`: for CSS style.
+        * `fieldclass`: CSS class appended to every formbuilder's child. Default value is ``gnrfield``.
+        * `lblalign`: It seems broken ??? Set horizontal label alignment. Default value is ``None``.
+        * `lblvalign`: set vertical label alignment. Default value is ``'middle'``.
+        * `fldalign`: set field horizontal align. Default value is ``None``.
+        * `fldvalign`: set field vertical align. Default value is ``'middle'``.
+        * `disabled`: Add a description ???. Default value is ``False``.
+        * `rowdatapath`: Add a description ???. Default value is ``None``.
+        * `head_rows`: Add a description ???. Default value is ``None``.
+        * `**kwargs`: allow to insert some additional paramaters:
+            * `datapath`: set path for data. For more details, see :ref:`genro-datapath`.
+            * `fld_` + CSSexpression: set a CSS expression to every formbuilder's field.
+            (example: fld_color='red', fld_width='100%')
+            * `lbl_` + CSSexpression: set a CSS expression to every lbl's field.
+            (example: lbl_width='10em')
+        """
         commonPrefix = ('lbl_','fld_','row_','tdf_','tdl_')
         commonKwargs = dict([(k,kwargs.pop(k)) for k in kwargs.keys() if len(k)>4 and k[0:4] in commonPrefix])
         tbl = self.child('table', _class='%s %s' % (tblclass, _class), **kwargs).child('tbody')
@@ -869,10 +897,12 @@ class GnrDomSrc_dojo_14(GnrDomSrc_dojo_11):
     
 class GnrDomSrc_dojo_15(GnrDomSrc_dojo_11):
     pass
+    
 class GnrGridStruct(GnrStructData):
-    """        r=struct.child('view').child('rows',classes='df_grid',cellClasses='df_cells',headerClasses='df_headers')
-        r.child('cell',field='protocollo',width='9em',name='Protocollo')
-"""      
+    """
+    r=struct.child('view').child('rows',classes='df_grid',cellClasses='df_cells',headerClasses='df_headers')
+    r.child('cell',field='protocollo',width='9em',name='Protocollo')
+    """
     def makeRoot(cls, page, maintable=None, source=None):
         root = GnrStructData.makeRoot(source=source, protocls=cls)
         #root._page = weakref.ref(page)

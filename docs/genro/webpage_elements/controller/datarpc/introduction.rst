@@ -30,8 +30,8 @@ Rpc common attributes
 	| ``_onCalling``     | allows to execute a Javascript code BEFORE the     |  ``None``                |
 	|                    | controller action                                  |                          |
 	+--------------------+----------------------------------------------------+--------------------------+
-	| ``_onResult``      | allows to execute a Javascript code AFTER when the |  ``None``                |
-	|                    | controller finished its action                     |                          |
+	| ``_onResult``      | allows to execute a Javascript code AFTER that the |  ``None``                |
+	|                    | controller have finished its action                |                          |
 	+--------------------+----------------------------------------------------+--------------------------+
 	| ``sync``           | boolean; if True, Genro stops every further action |  ``False``               |
 	|                    | until the Rpc containing ``sync=True`` finishes.   |                          |

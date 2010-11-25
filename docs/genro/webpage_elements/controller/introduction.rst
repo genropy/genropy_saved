@@ -29,9 +29,7 @@ server-side controllers
 	The server-side controllers work on server, so they use python code; they are:
 
 	- dataRecord ???
-
 	- :ref:`genro-datarpc`
-
 	- dataSelection ???
 
 Common attributes
@@ -42,12 +40,11 @@ Common attributes
 	+--------------------+----------------------------------------------------+--------------------------+
 	|   Attribute        |          Description                               |   Default                |
 	+====================+====================================================+==========================+
-	| ``_init``          | Boolean; if True, the controller is executed when  |  ``False``               |
+	| ``_init``          | Boolean; if True, the controller is executed       |  ``False``               |
 	|                    | when the line containing ``_init`` is read         |                          |
 	+--------------------+----------------------------------------------------+--------------------------+
-	| ``_onStart``       | Boolean; if True, FIRST all the line codes are     |  ``False``               |
-	|                    | read, THEN the controller containing ``_onresult`` |                          |
-	|                    | is executed                                        |                          |
+	| ``_onStart``       | Boolean; if True, the controller is executed       |  ``False``               |
+	|                    | only after that the line codes are read            |                          |
 	+--------------------+----------------------------------------------------+--------------------------+
 	| ``_timing``        | number (seconds); the controller will be triggered |  ``None``                |
 	|                    | every "x" seconds, where "x" is the number defined |                          |

@@ -69,7 +69,7 @@ Common attributes
 	|                    | For more details, see :ref:`genro-disabled`     |                          |
 	+--------------------+-------------------------------------------------+--------------------------+
 	| ``hidden``         | Hide the radiobutton.                           |  ``False``               |
-	|                    | See :doc:`/common/hidden`                       |                          |
+	|                    | See :ref:`genro-hidden`                         |                          |
 	+--------------------+-------------------------------------------------+--------------------------+
 	| ``label``          | Set radiobutton label.                          |  ``None``                |
 	|                    | For more details, see :ref:`genro-label`        |                          |

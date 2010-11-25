@@ -15,7 +15,7 @@ Load record
 
 	The bag ``record`` can be manipulated to alter the data being supplied to the client.
 
- 	The ``Recinfo`` record contains metadata that is used by the framework to determine which behaviour is determined in various situations.  ``RecInfo`` may contain the following values:
+ 	The ``Recinfo`` record contains metadata that is used by the framework to determine which behavior is determined in various situations.  ``RecInfo`` may contain the following values:
 	
 		``_alwaysSaveRecord`` -- controls the behavior during the rescue.
 			* ``False`` (default) -- When a user inserts a new record and immediately saves (without change),

@@ -14,5 +14,7 @@
 		
 			def zoomUrl(self):
 				return 'pforce/backoffice/maintables/product'
-				
+	
+	Make a link to :ref:`genro_zoom`.
+	
 	</ZOOM>

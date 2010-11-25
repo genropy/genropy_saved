@@ -8,7 +8,8 @@ Layout widgets
 	:maxdepth: 2
 
 	container
-	accordioncontainer
 	bordercontainer
+	contentpane
+	accordioncontainer
 	stackcontainer
 	tabcontainer

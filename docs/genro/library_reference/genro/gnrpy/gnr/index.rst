@@ -8,3 +8,4 @@
 	app/index
 	core/index
 	sql/index
+	web/index

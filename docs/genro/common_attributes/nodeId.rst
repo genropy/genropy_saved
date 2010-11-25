@@ -1,4 +1,4 @@
-	.. genro_nodeId:
+.. _genro_nodeid:
 
 ========
  nodeId

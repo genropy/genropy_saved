@@ -57,7 +57,7 @@ Components and Resource:
 Mixin classes at runtime
 ************************
 
-GenroPy's application class builds *mixin* classes at runtime. The methods and resources (CSS, JS, and Python components) are aggregated at runtime according to specific rules that allow you to customize the behaviour for a single install and maintain these customizations, with minimal impact, even for future updates.
+GenroPy's application class builds *mixin* classes at runtime. The methods and resources (CSS, JS, and Python components) are aggregated at runtime according to specific rules that allow you to customize the behavior for a single install and maintain these customizations, with minimal impact, even for future updates.
 
 When code changes are made the WSGI application restarts.
 

@@ -7,6 +7,8 @@ included view
 	- :ref:`iv_description`
 
 	- :ref:`iv_example`
+	
+	- :ref:`iv_library_reference`
 
 .. _iv_description:
 
@@ -20,7 +22,7 @@ Description
 	
 	 In this case, the records are updated in the datastore (ie are treated as logically part of the record in the master table, and the changes will be applied to save the master record).
 
-	Using the method ``iv.gridEditor()`` can define the widgets used for editing lines. (The widgets are reused gridEditor, moving them into the DOM of the page, as you move between the lines.)
+	The ``gridEditor()`` method allow to define the widgets used for editing lines. (The widgets are reused gridEditor, moving them into the DOM of the page, as you move between the lines.)
 	
 	</LUPI'S CLIPBOARD>
 
@@ -53,4 +55,11 @@ Example
 			r.cell('da',name='Tiro da',dtype='L',width='3em')
 			r.cell('a',name='Tiro a',dtype='L',width='3em')
 			r.cell('valore',name='Valore',dtype='L',width='7em')
-			
+
+.. _iv_library_reference:
+
+Included view library reference
+===============================
+
+	For the complete IncludedView library reference, check the :ref:`genro_library_includedview` page.
+	

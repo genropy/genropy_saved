@@ -10,16 +10,18 @@
 
 	.. _Dojo: http://dojotoolkit.org/
 
-	Let's analize the containers:
-
-	- :ref:`genro-accordioncontainer`
-
-	- :ref:`genro-bordercontainer`
-
-	- :ref:`genro-stackcontainer`
-
-	- :ref:`genro-tabcontainer`
-
+	The containers are:
+	
+	- :ref:`genro-bordercontainer`;
+	
+	- :ref:`genro-contentpane`;
+	
+	- :ref:`genro-accordioncontainer`;
+	
+	- :ref:`genro-stackcontainer`;
+	
+	- :ref:`genro-tabcontainer`.
+	
 	.. _genro-layout-common-attributes:
 
 Common attributes

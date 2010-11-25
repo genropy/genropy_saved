@@ -6,7 +6,7 @@
 
 ..??? Explain of the possibility to create a Table with the relation attribute; make an example of:
 	
-	table + table + relation table
+	table1 + table2 + table3 (in relation with table 1 and table2)
 	
 ..(use OmniGraffle!!)
 	

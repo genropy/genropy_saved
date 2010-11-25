@@ -13,3 +13,5 @@ Common attributes
 	disabled
 	hidden
 	label
+	nodeId
+	zoom

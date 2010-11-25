@@ -116,7 +116,7 @@ Attributes
 	+--------------------+-------------------------------------------------+--------------------------+
 	| ``zoom``           | It allows to open the linked record in its      |  ``True``                |
 	|                    | :ref:`genro-database_table`. For further        |                          |
-	|                    | details, check :ref:`genro-standardtable`       |                          |
+	|                    | details, check :ref:`genro_zoom`                |                          |
 	+--------------------+-------------------------------------------------+--------------------------+
 	
 	.. _field-other-attributes:

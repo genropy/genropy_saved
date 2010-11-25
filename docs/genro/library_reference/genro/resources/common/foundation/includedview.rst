@@ -1,9 +1,8 @@
+.. _genro_library_includedview:
+
 ===================
 :mod:`IncludedView`
 ===================
-
-IncludedView
-============
 
 .. automodule:: resources.common.foundation.includedview
 	:members:
