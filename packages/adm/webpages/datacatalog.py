@@ -62,15 +62,13 @@ class GnrCustomWebPage(object):
     def datacatalog_form(self,parentBC,table=None,disabled=None,**kwargs):
         bc = parentBC.borderContainer(**kwargs)
         top = bc.contentPane(region='top',_class='pbl_roundedGroup',margin='2px')
-        top.div('Base Info',_class='pbl_roundedGroupLabel')
+        top.div().div(innerHTML='=="Base info:"+_rec_type',_rec_type='^.rec_type',_class='pbl_roundedGroupLabel')
         top.data('rec_type_fullmenu',self.db.table(table).datacatalog_rec_types())        
-        fb = top.div(margin='10px').formbuilder(cols=2, border_spacing='4px',width='100%',fld_width='100%',tdl_width='5em',dbtable=table,disabled=disabled)
+        fb = top.formbuilder(cols=2, border_spacing='4px',fld_width='15em',tdl_width='5em',dbtable=table,disabled=disabled)
         fb.field('child_code')
         fb.field('description')
-        fb.div('^.rec_type',lbl='Rec type')
-        center = bc.contentPane(region='center',_class='pbl_roundedGroup',margin='2px')
-        center.div('Type info',_class='pbl_roundedGroupLabel')
-        center.div().remote('rec_type_main',rec_type='=.rec_type',_fired='^.#parent.form.loaded',disabled_path=disabled)
+        center = bc.contentPane(region='center')
+        center.remote('rec_type_main',rec_type='=.rec_type',_fired='^.#parent.form.loaded',disabled_path=disabled)
         
     def remote_rec_type_main(self, pane,rec_type=None, disabled=None, **kwargs):
         if not rec_type:
@@ -80,10 +78,42 @@ class GnrCustomWebPage(object):
         handler(pane,rec_type_dict=rec_type_dict, disabled=disabled, **kwargs) 
         
     def remote_rec_type_default(self,pane, rec_type_dict=None, disabled=None, **kwargs):  
-        fb = pane.div(margin='10px').formbuilder(cols=2, border_spacing='4px',fld_width='100%',tdl_width='5em',disabled=disabled)
+        fb = pane.formbuilder(cols=2, border_spacing='4px',fld_width='15em',tdl_width='5em',disabled=disabled)
         
         fields = rec_type_dict.get('fields')
         fields = fields.split(',') if fields else []
         for fld in fields:
             fb.field(fld)
+            
+    def remote_rec_type_group(self,pane, rec_type_dict=None, disabled=None, **kwargs):
+        bc = pane.borderContainer(height='100%')
+        top = bc.contentPane(region='top')
+        fb = top.formbuilder(cols=2, border_spacing='4px',disabled=disabled,fld_widt='15em',tdl_width='5em')
+        fb.field('name_short')
+        fb.field('name_long')
+        fb.field('purpose',tag='simpleTextArea',height='6ex',colspan=2,width='100%')
+        center = bc.contentPane(region='center')
+        self.RichTextEditor(center, value='^.comment',height='100%',
+                            toolbar=self.rte_toolbar_standard())
+                            
+    def remote_rec_type_field(self,pane, rec_type_dict=None, disabled=None, **kwargs):
+        bc = pane.borderContainer(height='100%')
+        top = bc.contentPane(region='top')
+        fb = top.formbuilder(cols=2, border_spacing='4px',disabled=disabled,fld_widt='15em',tdl_width='5em')
+        fb.field('fld')
+        fb.field('dtype',tag='filteringSelect',values='T:Text,L:Integer,N:Decimal,D:Date,H:Time,DH:Timestamp,B:Boolean')
+        fb.field('name_short')
+        fb.field('name_long')
+        fb.field('field_size')
+        fb.field('dflt')
+        fb.field('minvalue')
+        fb.field('maxvalue')
+        fb.field('purpose',tag='simpleTextArea',height='6ex',colspan=2,width='100%')
+        center = bc.contentPane(region='center')
+        self.RichTextEditor(center, value='^.comment',height='70%',
+                            toolbar=self.rte_toolbar_standard())
+
+
+        
+        
     

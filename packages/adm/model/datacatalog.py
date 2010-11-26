@@ -37,13 +37,13 @@ class Table(GnrHTable):
         return dict(children='db_root,root')
     
     def rectype_root(self):
-        return dict(children='field,group',caption='Root')
+        return dict(children='field,group',caption='Root',fields='comment')
     
     def rectype_field(self):
         return dict(caption='Field',fields='fld,purpuse,comment')
     
     def rectype_group(self):
-        return dict(caption='Group',fields='name_long,name_short')
+        return dict(caption='Group',children='field',fields='name_long,name_short')
 
     def rectype_db_root(self):
         return dict(children='db_pkg',caption='Root Db')
@@ -65,7 +65,7 @@ class Table(GnrHTable):
         
     
     def make_record_db_pkg(self,idx=None,parent_code=None,name=None,attr=None):
-        record = dict(child_code='%02i' %idx,parent_code=None,name_long=attr.get('name_long'),name_full=attr.get('name_full'),
+        record = dict(child_code='%02i' %idx,parent_code=parent_code,name_long=attr.get('name_long'),name_full=attr.get('name_full'),
                       name_short=attr.get('name_short'),rec_type='db_pkg',pkg=name,description=name)
         return record
     

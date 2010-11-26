@@ -20,10 +20,14 @@ class Main(BaseResourceAction):
 
     def do(self):
         pkgidx = 0
-        rootname = self.batch_parameters.get('root_code','db_0')
-        self.tblobj.insert(dict(parent_code='imp',child_code=rootname,description=self.batch_parameters.get('root_code','Imported Db')))
+        rootname = self.batch_parameters.get('root_code') or 'db_0'
+        root_rec =dict(parent_code=None,child_code=rootname,
+                    description=self.batch_parameters.get('root_description') or 'Imported Db',
+                    rec_type='db_root')
+        self.tblobj.insert(root_rec)
+        
         for pkg,pkgobj in self.btc.thermo_wrapper(self.db.packages.items(),'pkg'):
-            pkgrec = self.tblobj.make_record_db_pkg(idx=pkgidx,parent_code=rootname,name=pkg,attr=pkgobj.attributes)
+            pkgrec = self.tblobj.make_record_db_pkg(idx=pkgidx,parent_code=root_rec['code'],name=pkg,attr=pkgobj.attributes)
             self.tblobj.insert(pkgrec)
             pkgidx+=1
             tblidx = 0
