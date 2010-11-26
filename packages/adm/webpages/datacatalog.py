@@ -65,7 +65,7 @@ class GnrCustomWebPage(object):
         top = bc.contentPane(region='top',_class='pbl_roundedGroup',margin='2px')
         top.div().div(innerHTML='=="Base info:"+_rec_type',_rec_type='^.rec_type',_class='pbl_roundedGroupLabel')
         top.data('rec_type_fullmenu',self.db.table(table).datacatalog_rec_types())        
-        fb = top.formbuilder(cols=2, border_spacing='4px',fld_width='15em',tdl_width='5em',dbtable=table,disabled=disabled)
+        fb = top.formbuilder(cols=2, border_spacing='4px',fld_width='15em',tdl_width='8em',dbtable=table,disabled=disabled)
         fb.field('child_code')
         fb.field('description')
         center = bc.contentPane(region='center')
@@ -79,28 +79,38 @@ class GnrCustomWebPage(object):
         handler(pane,rec_type_dict=rec_type_dict, disabled=disabled, **kwargs) 
         
     def remote_rec_type_default(self,pane, rec_type_dict=None, disabled=None, **kwargs):  
-        fb = pane.formbuilder(cols=2, border_spacing='4px',fld_width='15em',tdl_width='5em',disabled=disabled)
-        
+        bc = pane.borderContainer(height='100%')
+        top = bc.contentPane(region='top')
+        fb = top.formbuilder(cols=2, border_spacing='4px',fld_width='15em',tdl_width='8em',disabled=disabled)
         fields = rec_type_dict.get('fields')
         fields = fields.split(',') if fields else []
         for fld in fields:
             fb.field(fld)
-            
+        fb.br()
+        fb.field('purpose',tag='simpleTextArea',height='6ex',colspan=2,width='100%',lbl_vertical_align='top')
+        center = bc.contentPane(region='center',overflow='hidden')
+        center.div('Comment',_class='pbl_roundedGroupLabel')
+        self.RichTextEditor(center, value='^.comment',height='70%',
+                            toolbar=self.rte_toolbar_standard())    
+        
     def remote_rec_type_group(self,pane, rec_type_dict=None, disabled=None, **kwargs):
         bc = pane.borderContainer(height='100%')
         top = bc.contentPane(region='top')
-        fb = top.formbuilder(cols=2, border_spacing='4px',disabled=disabled,fld_widt='15em',tdl_width='5em')
+        fb = top.formbuilder(cols=2, border_spacing='4px',disabled=disabled,fld_widt='15em',tdl_width='8em')
         fb.field('name_short')
         fb.field('name_long')
-        fb.field('purpose',tag='simpleTextArea',height='6ex',colspan=2,width='100%')
-        center = bc.contentPane(region='center')
-        self.RichTextEditor(center, value='^.comment',height='100%',
+        fb.field('purpose',tag='simpleTextArea',height='6ex',colspan=2,width='100%',lbl_vertical_align='top')
+        center = bc.contentPane(region='center',overflow='hidden')
+        center.div('Comment',_class='pbl_roundedGroupLabel')
+        self.RichTextEditor(center, value='^.comment',height='70%',
                             toolbar=self.rte_toolbar_standard())
                             
+    def remote_rec_type_db_field(self,pane, rec_type_dict=None, disabled=None, **kwargs):
+        self.remote_rec_type_field(pane, rec_type_dict=rec_type_dict, disabled=disabled, **kwargs)
     def remote_rec_type_field(self,pane, rec_type_dict=None, disabled=None, **kwargs):
         bc = pane.borderContainer(height='100%')
         top = bc.contentPane(region='top')
-        fb = top.formbuilder(cols=2, border_spacing='4px',disabled=disabled,fld_widt='15em',tdl_width='5em')
+        fb = top.formbuilder(cols=2, border_spacing='4px',disabled=disabled,fld_widt='15em',tdl_width='8em')
         fb.field('fld')
         fb.field('dtype',tag='filteringSelect',values='T:Text,L:Integer,N:Decimal,D:Date,H:Time,DH:Timestamp,B:Boolean')
         fb.field('name_short')
@@ -109,8 +119,9 @@ class GnrCustomWebPage(object):
         fb.field('dflt')
         fb.field('minvalue')
         fb.field('maxvalue')
-        fb.field('purpose',tag='simpleTextArea',height='6ex',colspan=2,width='100%')
-        center = bc.contentPane(region='center')
+        fb.field('purpose',tag='simpleTextArea',height='6ex',colspan=2,width='100%',lbl_vertical_align='top')
+        center = bc.contentPane(region='center',overflow='hidden')
+        center.div('Comment',_class='pbl_roundedGroupLabel')
         self.RichTextEditor(center, value='^.comment',height='70%',
                             toolbar=self.rte_toolbar_standard())
 
