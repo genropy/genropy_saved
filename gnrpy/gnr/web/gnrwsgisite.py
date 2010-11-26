@@ -494,7 +494,7 @@ class GnrWsgiSite(object):
                     return exc.wsgi_application(environ, start_response)
             else:
                 try:
-                    page = self.resource_loader(path_list, request, response)
+                    page = self.resource_loader(path_list, request, response,environ=environ)
                 except httpexceptions.HTTPException,exc:
                     return exc.wsgi_application(environ, start_response)
                 except Exception,exc:
