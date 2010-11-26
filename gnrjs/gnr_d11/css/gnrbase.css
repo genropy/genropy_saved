@@ -942,6 +942,19 @@ table.formbuilder {
     width: 64px;
 	height: 64px;
 }
+/* @end */
+
+
+.money_icon64{
+    background:url(icons/base64/money.png) no-repeat center center;
+    width: 64px;
+	height: 64px;
+}
+.creditcard_icon64{
+    background:url(icons/base64/creditcard.png) no-repeat center center;
+    width: 64px;
+	height: 64px;
+}
 
 /* @group Dev */
 
