@@ -46,6 +46,7 @@ class GnrCustomWebPage(object):
         top.dataController("""
                                 var result = new gnr.GnrBag();
                                 rec_type = rec_type || 'main';
+                                console.log(rec_type);
                                 var children_rec_types = rec_type_fullmenu.getNode(rec_type).attr.children;
                                 if (children_rec_types){
                                     children_rec_types= children_rec_types.split(',');
@@ -56,7 +57,7 @@ class GnrCustomWebPage(object):
                                 }
                                 SET rec_type_menu = result;
                             """,rec_type_fullmenu="=rec_type_fullmenu",
-                                rec_type='^.edit.record.rec_type',_onStart=True,
+                                rec_type='=.edit.record.rec_type',_fired='^.edit.form.loaded',_onStart=True,
                                 datapath='datacatalog')
         
     def datacatalog_form(self,parentBC,table=None,disabled=None,**kwargs):
