@@ -318,10 +318,6 @@ class HTableHandler(HTableHandlerBase):
 
     def _ht_add_button(self,pane,childTypes=None,disabled=None):
         if childTypes:
-            ddb = pane.div(label='!!Add',float='left',hidden=disabled,
-                                        _class='icnBaseAdd',showLabel=False,
-                                        visible='==tree_caption!=null' ,
-                                        tree_caption='^.tree.caption')
             storepath = childTypes
             if isinstance(childTypes,dict):
                 childTypesMenu = Bag()
@@ -329,6 +325,11 @@ class HTableHandler(HTableHandlerBase):
                 for k,v in childTypes.items():
                     childTypesMenu.setItem(k,None,caption=v)
                     pane.data(storepath,childTypesMenu)
+            ddb = pane.div(label='!!Add',float='left',hidden=disabled,
+                            margin='2px',_class='buttonIcon icnBaseAdd',showLabel=False,
+                                        visible='==_tree_caption!=null',
+                                        _tree_caption='^.tree.caption',_storepath=storepath)
+            
             ddb.menu(storepath=storepath,modifiers='*',_class='smallmenu',
                      action="SET .edit.childType = $1.fullpath; SET .edit.childItem = new gnr.GnrBag($1);FIRE .edit.add_button;") 
         else:
