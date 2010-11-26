@@ -18,6 +18,7 @@ class Table(GnrHTable):
         tbl.column('tip',name_long='!!Tip')
         tbl.column('purpose',name_long='!!Purpose')
         tbl.column('ext_ref',name_long='!!External referenece')
+        tbl.column('related_to',name_long='!!Related to')
         tbl.column('pkg',name_long='!!Package')
         tbl.column('pkey_field',name_long='!!Pkey field')#oppure attr per table pkey?
         tbl.column('field_size',name_long='!!Size')

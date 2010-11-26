@@ -24,9 +24,10 @@ class GnrCustomWebPage(object):
     maintable='adm.datacatalog'
     py_requires="""public:Public,gnrcomponents/htablehandler:HTableHandler,
                    gnrcomponents/batch_handler/batch_handler:TableScriptRunner,
-                   gnrcomponents/batch_handler/batch_handler:BatchMonitor
+                   gnrcomponents/batch_handler/batch_handler:BatchMonitor,
+                   gnrcomponents/explorer_manager:ExplorerManager
                 """
-    
+    explorers='adm.datacatalog'
     def windowTitle(self):
          return '!!Categories'
          
@@ -119,6 +120,9 @@ class GnrCustomWebPage(object):
         fb.field('dflt',tip='Default value for the field')
         fb.field('minvalue',row_hidden='==_dtype?(_dtype!="L"&&_dtype!="N"):true',row__dtype='^.dtype')
         fb.field('maxvalue')
+        fb.field('related_to',row_hidden='==_dtype?(_dtype=="D"||_dtype=="H"||_dtype=="DH"||_dtype=="B"):true',
+                row__dtype='^.dtype',tip='Drag from the explorer')
+        fb.field('ext_ref')
         fb.field('options',colspan=2,width='100%',ghost='comma separated CODE:VALUE',
                  row_hidden='==_dtype?_dtype!="T":true',row__dtype='^.dtype')
         fb.field('purpose',tag='simpleTextArea',height='5ex',colspan=2,width='100%',lbl_vertical_align='top')
