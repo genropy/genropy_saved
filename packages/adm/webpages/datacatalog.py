@@ -32,7 +32,7 @@ class GnrCustomWebPage(object):
          
     def main(self, rootBC, **kwargs):
         bc,top,bottom = self.pbl_rootBorderContainer(rootBC,'Categories')
-        footer = bc.contentPane(region='bottom')
+        footer = bottom['left']
         footer.button('Import All',
                     action="PUBLISH table_script_run=params;" ,
                     params=dict(res_type='action',table=self.maintable,resource='import_datacatalog'))
@@ -111,15 +111,17 @@ class GnrCustomWebPage(object):
         bc = pane.borderContainer(height='100%')
         top = bc.contentPane(region='top')
         fb = top.formbuilder(cols=2, border_spacing='4px',disabled=disabled,fld_widt='15em',tdl_width='8em')
-        fb.field('fld')
+        fb.field('fld',tip='The name of the field')
         fb.field('dtype',tag='filteringSelect',values='T:Text,L:Integer,N:Decimal,D:Date,H:Time,DH:Timestamp,B:Boolean')
         fb.field('name_short')
         fb.field('name_long')
-        fb.field('field_size')
-        fb.field('dflt')
-        fb.field('minvalue')
+        fb.field('field_size',tip='(eg: 2:5 means at least 2 chars, maximum 5 chars')
+        fb.field('dflt',tip='Default value for the field')
+        fb.field('minvalue',row_hidden='==_dtype?(_dtype!="L"&&_dtype!="N"):true',row__dtype='^.dtype')
         fb.field('maxvalue')
-        fb.field('purpose',tag='simpleTextArea',height='6ex',colspan=2,width='100%',lbl_vertical_align='top')
+        fb.field('options',colspan=2,width='100%',ghost='comma separated CODE:VALUE',
+                 row_hidden='==_dtype?_dtype!="T":true',row__dtype='^.dtype')
+        fb.field('purpose',tag='simpleTextArea',height='5ex',colspan=2,width='100%',lbl_vertical_align='top')
         center = bc.contentPane(region='center',overflow='hidden')
         center.div('Comment',_class='pbl_roundedGroupLabel')
         self.RichTextEditor(center, value='^.comment',height='70%',
