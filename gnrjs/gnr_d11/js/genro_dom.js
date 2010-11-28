@@ -264,8 +264,6 @@ dojo.declare("gnr.GnrDomHandler",null,{
             genro.dom[evt.target.value.length>0?'addClass':'removeClass'](evt.target.id+"_label","ghosthidden");
         }else if (evt_type=='setvalue'){
             genro.dom[evt.value.length>0?'addClass':'removeClass'](evt.obj.id+"_label","ghosthidden");
-        }else{
-            //console.log('line 179 genro_dom');
         }
     },
     html_maker:function(kw,bagnode){
@@ -526,17 +524,12 @@ dojo.declare("gnr.GnrDomHandler",null,{
         domnode.dispatchEvent(e);
     },
     canBeDropped:function(dataTransfer,sourceNode){
-        if (!sourceNode){
-            console.log('no sourceNode');
-            return;
-        }
+        var inherited=sourceNode.getInheritedAttributes()
+        var dragSourceInfo=genro.dom.getDragSourceInfo(dataTransfer)
         var supportedTypes=splitStrip(sourceNode.getInheritedAttributes().dropTypes || 'text/plain');
-        //var draggedTypes =dataTransfer.types;
+        objectUpdate(supportedTypes,objectExtract(inherited,'onDrop_*',true))
         var draggedTypes=genro.dom.dataTransferTypes(dataTransfer)
         if(dojo.filter(supportedTypes,function (value){ return dojo.indexOf(draggedTypes,value)>=0;}).length==0){
-            console.log('kkkkkk')
-            console.log(draggedTypes)
-            console.log(dataTransfer)
             return false;
         };
         var dropTags=sourceNode.getInheritedAttributes().dropTags;
@@ -544,9 +537,8 @@ dojo.declare("gnr.GnrDomHandler",null,{
             return true;
         }
         //var dragTags=dataTransfer.getData('dragTags') || '';
-        var dragTags = genro.dom.getFromDataTransfer(dataTransfer,'dragTags')
+        var dragTags = dragSourceInfo.dragTags
         if(!dragTags){
-            console.log('mmmmmmm')
             return false;
         }
         var dragTags=splitStrip(dragTags,',');
@@ -568,106 +560,112 @@ dojo.declare("gnr.GnrDomHandler",null,{
             };
             
         };
-        console.log('zzzzzz')
         return valid;
    
     },
     onDragOver:function(event){
-        this.decorateEvent(event)
-        var droppable=event.dragDropInfo;
-        if (!droppable){ return;}
-        event.stopPropagation();
-        event.preventDefault();
-        event.dataTransfer.dropEffect = "move";
-
-    },
+        if(false){
+                var result=event.type+' ('+event.dataTransfer.getData('text/plain')+') :'
+        var draggedTypes=event.dataTransfer.types
+        for (var i=0; i < draggedTypes.length; i++) {
+            result=result+draggedTypes[i]+'  '
+        };
+             console.log(result)
+        }
     
-    decorateEvent:function(event){
-        var domnode = event.target;
-        var widget = dijit.getEnclosingWidget(domnode);
-        if (widget.declaredClass=='dojox.GridView' || widget.declaredClass=='dojox.VirtualGrid') {
-            var eventDecorator;
-            if (widget.declaredClass=='dojox.VirtualGrid'){
-                eventDecorator = widget.views.views[0].header;
-            }else{
-                eventDecorator = widget.content;
-                widget=widget.grid;
-            }
-            var sourceNode = widget.sourceNode;
-            eventDecorator.decorateEvent(event)
-        }
-        event.widget=widget
-        sourceNode= sourceNode || genro.dom.getSourceNode(domnode);
-        event.sourceNode=sourceNode;
-        if (sourceNode){
-            sourceNode.getBuiltObj().gnr.decorateDragDropEvent(event)
-        }else{
-            console.log('No sourcenode');
-            console.log(event)
-            
-        }
         
-    },
-    onDragLeave:function(event){
-       this.decorateEvent(event)
-       if (genro.dom._lastDroppable && (genro.dom._lastDroppable.widget==event.widget)){
-           return
-       }
-       genro.dom.removeClass(genro.dom._dragLastShape,'canBeDropped');
-       genro.dom.removeClass(genro.dom._dragLastShape,'cannotBeDropped');
-       genro.dom._dragLastShape=null
-
+        if(genro._lastDropTarget!=event.target){
+            if(genro._lastDropTarget){
+                genro.dom.onDragLeave(event)
+            }
+            genro._lastDropTarget=event.target
+            genro.dom.onDragEnter(event)
+        }
+       event.stopPropagation();
+       event.preventDefault();
+       event.dataTransfer.dropEffect = "move";
        
     },
+    getDragDropInfo:function(event){
+        var domnode = event.target;
+        while (!domnode.getAttribute){
+             domnode=domnode.parentNode;
+        }
+        var info={'domnode':domnode};
+        info.modifiers=genro.dom.getEventModifiers(event)
+        var widget,handler,sourceNode;
+        if(domnode.sourceNode){
+            info.handler=domnode.gnr
+            info.sourceNode=domnode.sourceNode 
+            info.nodeId=domnode.sourceNode.attr.nodeId
+        }
+        else{
+            widget=dijit.getEnclosingWidget(domnode)
+            var rootwidget=widget.sourceNode?widget:widget.grid||widget.tree
+            info.widget=widget
+            info.handler=rootwidget.gnr
+            info.sourceNode=rootwidget.sourceNode 
+            info.nodeId=info.sourceNode.attr.nodeId
+        }
+        info.event=event;
+        if (event.type=='dragstart'){
+            info.dragmode=domnode.getAttribute('dragmode')
+            info.handler.fillDragInfo(info)
+        }else{
+            var attr=info.sourceNode.attr
+            var droppable=info.sourceNode.droppable
+            if (droppable){
+                info.dragSourceInfo=genro.dom.getDragSourceInfo(event.dataTransfer)
+                info.sourceNodeId=info.dragSourceInfo.nodeId
+                info.selfdrop=(info.nodeId && (info.nodeId==info.sourceNodeId))
+                info.hasDragType=function(){
+                    var draggedTypes=genro.dom.dataTransferTypes(event.dataTransfer)
+                    return (dojo.filter(arguments,function (value){ return dojo.indexOf(draggedTypes,value)>=0;}).length>0)
+                }
+                if( typeof(droppable)=='function'){
+                    droppable=droppable(info)
+                }
+            }
+            if (droppable){
+                info.dropmode=droppable
+                info.handler.fillDropInfo(info)
+            }else{
+                info = null;
+            }
+        }
+        return info
+    },
+    onDragLeave:function(event){
+        if(genro.dom._dragLastOutlined){
+            genro.dom.removeClass(genro.dom._dragLastOutlined,'canBeDropped');
+            genro.dom.removeClass(genro.dom._dragLastOutlined,'cannotBeDropped');
+            genro.dom._dragLastOutlined=null
+        }
+    },
     onDragEnter:function(event){
-        this.decorateEvent(event)
-        var droppable=event.dragDropInfo;
-        if (!droppable){ 
+        var dropInfo=this.getDragDropInfo(event)
+        if (!dropInfo){ 
             return;
         }
-      //if(genro.dom._dragged){
-      //    if((genro.dom._dragged.sourceNode==event.sourceNode) && (genro.dom._dragged.widget==event.widget) &&( genro.dom._dragged.domnode==event.domnode)){
-      //       console.log('same object:')
-      //        console.log(event)
-      //        console.log(genro.dom._dragged)
-      //        return
-      //    }
-      //}
-        var domnode=droppable.domnode;
-        var sourceNode=droppable.sourceNode;
         event.stopPropagation();
         event.preventDefault();
+        var sourceNode=dropInfo.sourceNode;
         var dataTransfer=event.dataTransfer;
         var canBeDropped=this.canBeDropped(dataTransfer,sourceNode);
-        console.log('onDragEnter:'+canBeDropped)
         dataTransfer.effectAllowed=canBeDropped?'move':'none';
         dataTransfer.dropEffect=canBeDropped?'move':'none';
-        if(droppable.outlineColumn){
-            genro.dom.outlineShape(droppable.outlineColumn,canBeDropped,event)
-        }else if(droppable.outlineCell){
-            genro.dom.outlineShape(droppable.outlineCell,canBeDropped,event)
-        }else if(droppable.outlineRow){
-            genro.dom.outlineShape(droppable.outlineRow,canBeDropped,event)
-        }else if(droppable.outlineGrid){
-            genro.dom.outlineShape(droppable.outlineGrid,canBeDropped,event)
-        }
-        else if(droppable.outlineNode){
-            genro.dom.outlineShape(droppable.outlineNode,canBeDropped,event)
-        }
-        genro.dom._lastDroppable={'sourceNode':event.sourceNode,'widget':event.widget,
-                            'domnode':event.domnode}
-        
+        genro.dom.outlineShape(dropInfo.outline,canBeDropped,event)
     },
     outlineShape:function(shape,canBeDropped,x){
-         if(genro.dom._dragLastShape){
-             genro.dom.removeClass(genro.dom._dragLastShape,'canBeDropped');
-             genro.dom.removeClass(genro.dom._dragLastShape,'cannotBeDropped');
-             genro.dom._dragLastShape=null
+         if(genro.dom._dragLastOutlined){
+             genro.dom.removeClass(genro.dom._dragLastOutlined,'canBeDropped');
+             genro.dom.removeClass(genro.dom._dragLastOutlined,'cannotBeDropped');
+             genro.dom._dragLastOutlined=null
          }
          if (shape){
             genro.dom.setClass(shape,'cannotBeDropped',!canBeDropped);
             genro.dom.setClass(shape,'canBeDropped',canBeDropped);
-            genro.dom._dragLastShape=shape
+            genro.dom._dragLastOutlined=shape
          }else{
             genro.dom.removeClass(dojo.body(),'drag_started')
             genro.dom.removeClass(dojo.body(),'drag_to_trash')
@@ -676,134 +674,145 @@ dojo.declare("gnr.GnrDomHandler",null,{
    
      onDrop:function(event){
         genro.dom.outlineShape(null)
-        this.decorateEvent(event)
-        var droppable=event.dragDropInfo;
-        if (!droppable){ return;}
-        var domnode=droppable.domnode;
-        var sourceNode=droppable.sourceNode;
+        var dropInfo=this.getDragDropInfo(event)
+        if (!dropInfo){ return;}
+        var domnode=dropInfo.domnode;
+        var sourceNode=dropInfo.sourceNode;
         var dataTransfer=event.dataTransfer;
         event.stopPropagation();
-        genro.dom.removeClass(domnode,'canBeDropped');
-        genro.dom.removeClass(domnode,'cannotBeDropped');
-        canBeDropped=this.canBeDropped(dataTransfer,sourceNode);
+        var canBeDropped=this.canBeDropped(dataTransfer,sourceNode); // dovrei già essere bono
         if(canBeDropped){
             var inherited=sourceNode.getInheritedAttributes();
             event.preventDefault();
-            var action = inherited.onDrop;
             var dropped=null;
             var dataTransferTypes=genro.dom.dataTransferTypes(dataTransfer)
-            if (action){
-                var dropTypes=(inherited.dropTypes || 'text/plain').split(',');
-                var params=objectUpdate(sourceNode.currentAttributes(),{'drop_object':dataTransfer,'event':event});
-                if ((dojo.indexOf(dataTransferTypes,'Files')>=0 )&& (dojo.indexOf(dropTypes,'Files')>=0)){
-                    console.log('files');
-                    var drop_ext=inherited.drop_ext;
-                    var valid_ext=drop_ext?splitStrip(drop_ext):null;
-                    var files=[];
-                    dojo.forEach(dataTransfer.files,function(f){
-                        if((!valid_ext) || (dojo.indexOf(drop_ext,f['name'].split('.').pop())>=0)){
-                            files.push(f);
-                        }
-                    });
-                    if(files.length>0){
-                        params['files']=files;
-                        funcApply(action,params, sourceNode);
-                    }
-                }else{
-                    for (var i=0; i < dropTypes.length; i++) {
-                        if (dojo.indexOf(dataTransferTypes,dropTypes[i])>=0){
-                            var datatype=dropTypes[i];
-                            var value=genro.dom.getFromDataTransfer(dataTransfer,datatype)
-                            if (stringEndsWith(datatype,'/json')){
-                                value=convertFromText(value,'JS');
-                            }
-                            params['drop_data']=value;
-                            params['drop_item']=droppable.item;
-                            params['drop_event']=event
-                            params['drop_datatype']=datatype
-                            funcApply(action,params, sourceNode);
-                            break;
-                        }
-                    }
-                }       
-            }             
+            var dropTypes=(inherited.dropTypes || 'text/plain').split(',');
+            //var params=objectUpdate(sourceNode.currentAttributes(),{'drop_object':dataTransfer,'event':event});
+            var params={'dropInfo':dropInfo}
+            if ((dojo.indexOf(dataTransferTypes,'Files')>=0 )&& (dojo.indexOf(dropTypes,'Files')>=0)){
+                 genro.dom.onDrop_files(dataTransfer,inherited,onDropAction,params,sourceNode)
+            }else{
+               genro.dom.onDrop_standard(dataTransfer,inherited,params,sourceNode,dropTypes,dataTransferTypes)
+            }
          }
+     },
+    onDrop_files:function(dataTransfer,inherited,params,sourceNode){
+        var onDropAction = inherited.onDrop;
+        if (!onDropAction){return}
+        console.log('files');
+        var drop_ext=inherited.drop_ext;
+        var valid_ext=drop_ext?splitStrip(drop_ext):null;
+        var files=[];
+        dojo.forEach(dataTransfer.files,function(f){
+            if((!valid_ext) || (dojo.indexOf(drop_ext,f['name'].split('.').pop())>=0)){
+                files.push(f);
+            }});
+        if(files.length>0){
+            params['files']=files;
+            funcApply(onDropAction,params, sourceNode);
+        }
+    },
+    onDrop_standard:function(dataTransfer,inherited,params,sourceNode,dropTypes,dataTransferTypes){
+        var onDropAction = inherited.onDrop;
+        var values={}
+        for (var i=0; i < dataTransferTypes.length; i++) {
+            var datatype=dataTransferTypes[i];
+            var datatype_code=datatype.replace(/\W/g,'_')
+            if (inherited['onDrop_'+datatype_code] || (dojo.indexOf(dropTypes,dataTransferTypes[i])>=0)){
+                 var value=genro.dom.getFromDataTransfer(dataTransfer,datatype)
+                if (inherited['onDrop_'+datatype_code]){
+                    params['data']=value;
+                    funcApply(inherited['onDrop_'+datatype_code],params, sourceNode);
+                }else{
+                    values[datatype_code]=value
+                }
+            }  
+        }
+        if(objectNotEmpty(values) && onDropAction){
+            params['data']=values
+            funcApply(onDropAction,params, sourceNode);
+        }
      },
     onDragStart:function(event){
         event.stopPropagation();
-        //console.log(event);
-        this.decorateEvent(event);
-        var domnode=event.target;
-        var widget = event.widget;
-        var sourceNode = event.sourceNode;
-        var value;
+        var dragInfo=this.getDragDropInfo(event)
+        var dragValues=dragInfo.handler.onDragStart(dragInfo)
+        var sourceNode=dragInfo.sourceNode
+        var inherited=sourceNode.getInheritedAttributes();
+        if (('dragIf' in inherited) && (!funcCreate('return '+inherited['dragIf'],'dragValues,dragInfo,treeItem')(dragValues,dragInfo,dragInfo.treeItem))){
+            return
+        }
+        if ('onDrag' in inherited){
+            var result=funcCreate(inherited['onDrag'],'dragValues,dragInfo,treeItem')(dragValues,dragInfo,dragInfo.treeItem)
+            if (result===false){
+                return
+            }
+            if(typeof(result)=='object'){
+                objectUpdate(dragValues,result)
+            }
+        }
+        var domnode=dragInfo.target;
+        var widget = dragInfo.widget;
         genro.dom._transferObj={}
         var dataTransfer=event.dataTransfer;
-        var inherited=sourceNode.getInheritedAttributes();
-        var value=sourceNode.getBuiltObj().gnr.onDragStart(event)
-        if ('onDrag' in inherited){
-            value=funcCreate(inherited['onDrag'],'sourceNode,item,event')(sourceNode,widget.item,event);
-        }else if (!('text/plain' in value)){
-            if(widget.isTreeNode){
-                value=(widget.item instanceof gnr.GnrBagNode)? widget.item.getValue():widget.item.label;
-            }
-            else if ('drag_value' in inherited){
-                value=sourceNode.currentFromDatasource(inherited['drag_value']);
-            }
-            else if ('value' in sourceNode.attr){
-                value=sourceNode.getAttributeFromDatasource('value');
-            }
-            else if ('innerHTML' in sourceNode.attr){
-                value=sourceNode.getAttributeFromDatasource('innerHTML');
-            }
-            else{
-                 value=domnode.innerHTML;
-            }
-            value={'text/plain':value}
-        }
         var dragClass=inherited['dragClass'];
         if(dragClass){
-            genro.dom.addClass(domnode,dragClass);
+            genro.dom.addClass(dragInfo.domnode,dragClass);
+            dragInfo.dragClass=dragClass;
+            setTimeout(function(){genro.dom.removeClass(dragInfo.domnode,dragClass);},1)
         }
-        
-        if (typeof(value)=='object'){
-            if('trashable/json' in value){
-                genro.dom.addClass(dojo.body(),'drag_to_trash');
-                if(widget){
-                    widget.gnr.setTrashPosition(event);
-                }
+        if('trashable' in dragValues){
+            genro.dom.addClass(dojo.body(),'drag_to_trash');
+            if(widget){
+                widget.gnr.setTrashPosition(event);
             }
-            for (var k in value){
-                genro.dom.setInDataTransfer(dataTransfer,k, convertToText(value[k])[1])
-               // dataTransfer.setData(k, convertToText(value[k])[1]);
-            }
-        }else{
-            genro.dom.setInDataTransfer(dataTransfer,'text/plain', convertToText(value)[1])
-            //dataTransfer.setData('text/plain', convertToText(value)[1]);
         }
-        genro.dom._dragged={'sourceNode':event.sourceNode,'widget':event.widget,
-                            'domnode':event.domnode}
-      
-        genro.dom.addClass(dojo.body(),'drag_started')
         var dragTags=inherited['dragTags'];
-         
-        if(dragTags){
-            //dataTransfer.setData('dragTags', dragTags);
-            genro.dom.setInDataTransfer(dataTransfer, 'dragTags', dragTags)
+        genro.dom.setDragSourceInfo(dragInfo,dragValues,dragTags);
+        for (var k in dragValues){
+            genro.dom.setInDataTransfer(dataTransfer,k, dragValues[k])
         }
+        genro.dom._lastDragInfo=dragInfo
+        genro.dom.addClass(dojo.body(),'drag_started')
     },
     setInDataTransfer:function(dataTransfer,k,v){
+        var v=convertToText(v)
+        v=((k.indexOf('text/')==0) || (v[0]=='') || (v[0]=='T')) ? v[1] : v[1]+'::'+v[0]
         dataTransfer.setData(k, v);
-        if(genro.isChrome){
+        if(genro.dom.dragDropPatch()){
             genro.dom._transferObj[k]=v;
         }
     },
+    setDragSourceInfo:function(dragInfo,dragValues,dragTags){
+        if(dragInfo.nodeId){
+            dragValues['sourceNode_nodeId:'+dragInfo.nodeId]=null
+        }
+        if(dragInfo.dragmode){
+            dragValues['sourceNode_dragmode:'+dragInfo.dragmode]=null
+        }
+        dragValues['sourceNode_page_id:'+genro.page_id]=null
+        if (dragTags){
+            dragValues['sourceNode_dragTags:'+dragTags]=null
+        }
+     },
+    getDragSourceInfo:function(dataTransfer){
+        var draggedTypes=genro.dom.dataTransferTypes(dataTransfer)
+        var dt;
+        var result={};
+        for (var i=0; i < draggedTypes.length; i++) {
+            if(draggedTypes[i].indexOf('sourceNode_')==0){
+                dt=draggedTypes[i].slice(11).split(':')
+                result[dt[0]]=dt[1]
+            }
+        };
+        return result
+    },
     getFromDataTransfer:function(dataTransfer,k){
-        return genro.isChrome? (genro.dom._transferObj?genro.dom._transferObj[k]:null):dataTransfer.getData(k)
-
+        var value= genro.dom.dragDropPatch() ? (genro.dom._transferObj?genro.dom._transferObj[k]:null):dataTransfer.getData(k)
+        return convertFromText(value)
     },
     dataTransferTypes:function(dataTransfer){
-        if (genro.isChrome){
+        if (genro.dom.dragDropPatch()){
             var dt=[]
             if (genro.dom._transferObj){
                 for (var k in genro.dom._transferObj){
@@ -818,32 +827,18 @@ dojo.declare("gnr.GnrDomHandler",null,{
     },
     onDragEnd:function(event){
         genro.dom.outlineShape(null)
-
     },
-    onDrag:function(event){
-        var domnode=event.target;
-        var sourceNode=genro.dom.getSourceNode(domnode);
-        var inherited=sourceNode.getInheritedAttributes();
-        var dragClass=inherited['dragClass'];
-        if(dragClass){
-            genro.dom.removeClass(domnode,dragClass);
-        }
+    getEventModifiers:function(e){
+        var m=[]
+        if (e.shiftKey){m.push('Shift');}
+        if (e.ctrlKey){m.push('Ctrl');}
+        if (e.altKey){m.push('Alt');}
+        if (e.metaKey){m.push('Meta');}
+        return m.join()
     },
-    getSourceNode:function(domnode){
-        var widget=dijit.getEnclosingWidget(domnode);
-        if (widget){
-            if(widget.isTreeNode){
-                return widget.tree.sourceNode;
-            }else if  (widget.declaredClass=='dojox.GridView'){
-                return widget.grid.sourceNode;
-            }
-        }
-        while (domnode && !domnode.sourceNode && domnode!=widget.domNode){
-            domnode=domnode.parentNode;
-        }
-        return domnode.sourceNode || widget.sourceNode;
+    dragDropPatch:function(){
+        return (genro.isChrome)
     },
-                    
     startTouchDevice:function(){
        document.body.ontouchmove= function(e){
             e.preventDefault();

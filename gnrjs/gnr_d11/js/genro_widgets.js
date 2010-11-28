@@ -342,9 +342,8 @@ dojo.declare("gnr.widgets.baseHtml",null,{
         
         this._makeInteger(attributes,['sizeShare','sizerWidth']);
         var savedAttrs = {};
-        savedAttrs['dragPars'] = objectExtract(attributes,'drag_*');
-        savedAttrs['dropPars'] = objectExtract(attributes,'drop_*');
-        objectExtract(attributes,'dragValue,onDrop,onDrag,dragTag,dropTag,dragTypes,dopTypes');
+        objectExtract(attributes,'onDrop,onDrag,dragTag,dropTag,dragTypes,dropTypes');
+        objectExtract(attributes,'onDrop_*');
         savedAttrs['droppable'] = attributes['droppable'];
 
         savedAttrs.connectedMenu=objectPop(attributes,'connectedMenu');
@@ -420,7 +419,8 @@ dojo.declare("gnr.widgets.baseHtml",null,{
         domNode.setAttribute('draggable',value);
     },
     setDroppable:function(domNode,value){
-        domNode.setAttribute('droppable',value);
+        if (typeof(value) =='string'){value=funcCreate(value,'dropInfo',this.sourceNode)}
+        domNode.sourceNode.droppable=value;
     },
    
 
@@ -437,8 +437,12 @@ dojo.declare("gnr.widgets.baseHtml",null,{
             }
             
         }
-        if (savedAttrs.droppable && newobj.setDroppable) {
-            newobj.setDroppable(savedAttrs.droppable);
+        if (savedAttrs.droppable) {
+            if(newobj.setDroppable){
+                newobj.setDroppable(savedAttrs.droppable)
+            }else{
+                newobj.gnr.setDroppable(newobj,savedAttrs.droppable)
+            }
         };
         if (savedAttrs.zoomFactor){
             sourceNode.setZoomFactor(savedAttrs.zoomFactor);
@@ -491,29 +495,30 @@ dojo.declare("gnr.widgets.baseHtml",null,{
 
         }
      },
-     onDragStart:function(event){
-        value={};
-        return value;
-    },
-     decorateDragDropEvent:function(event){
-         var target = event.target;
-         var domnode;
-         var widget = event.widget;
-         var sourceNode = event.sourceNode;
-         while ( target && ! domnode){
-             domnode=  (target.getAttribute && eval(target.getAttribute('droppable')))?target:null;
-             target=target.parentNode;
-         }
-         if (domnode){
-             result= {'type':'domnode','widget':widget,'domnode':domnode,
-                          'sourceNode':sourceNode,'outlineNode':domnode};
-            if(widget.declaredClass=='dijit._TreeNode'){
-                result['item'] = widget.item;
-            }
-            event.dragDropInfo = result;
+     onDragStart:function(dragInfo){
+        var event=dragInfo.event;
+        var sourceNode=dragInfo.sourceNode
+        if ('dragValue' in sourceNode.attr){
+              value=sourceNode.currentFromDatasource(sourceNode.attr['dragValue']);
         }
-         /*override this*/
+        else if ('value' in sourceNode.attr){
+              value=sourceNode.getAttributeFromDatasource('value');
+        }
+          else if ('innerHTML' in sourceNode.attr){
+              value=sourceNode.getAttributeFromDatasource('innerHTML');
+          }
+          else{
+               value=dragInfo.domnode.innerHTML;
+          }
+        return {'text/plain':value};
+    },
+     fillDragInfo:function(dragInfo){
+
      },
+    fillDropInfo:function(dropInfo){
+        dropInfo.outline=dropInfo.domnode
+     },
+     
      setTrashPosition: function(event){
         /*override this for each widget*/
      },
@@ -661,7 +666,8 @@ dojo.declare("gnr.widgets.baseDojo",gnr.widgets.baseHtml,{
         this.domNode.setAttribute('draggable',value);
     },
     mixin_setDroppable:function(value){
-        this.domNode.setAttribute('droppable',value);
+        if (typeof(value) =='string'){value=funcCreate(value,'dropInfo',this.sourceNode)}
+        this.sourceNode.droppable=value;
     },
     validatemixin_validationsOnChange: function(sourceNode, value){
         var result = genro.vld.validate(sourceNode, value,true);
@@ -1797,11 +1803,11 @@ dojo.declare("gnr.widgets.Grid",gnr.widgets.baseDojo,{
     },
     mixin_setDraggable_column:function(draggable){
        var draggable=draggable==false?false:true
-       dojo.query('[role="wairole:columnheader"]',this.domNode).forEach(function(n){n.draggable=true})
+       dojo.query('[role="wairole:columnheader"]',this.domNode).forEach(function(n){n.draggable=true;n.setAttribute('dragmode','gridcolumn');})
     },
     mixin_setDraggable_row:function(draggable){
        var draggable=draggable==false?false:true
-       dojo.query('.dojoxGrid-row-table',this.domNode).forEach(function(n){n.draggable=true})
+       dojo.query('.dojoxGrid-row-table',this.domNode).forEach(function(n){n.draggable=true;n.setAttribute('dragmode','gridrow')})
     },
     mixin_onSetStructpath: function(structure){
         return;
@@ -2096,7 +2102,7 @@ dojo.declare("gnr.widgets.Grid",gnr.widgets.baseDojo,{
                     v = "<a onclick='if((genro.isMac&&!event.metaKey)||(!genro.isMac&&!event.ctrlKey)){dojo.stopEvent(event);}' class='gnrzoomcell' href='/"+zoomPage+"?pkey="+key+"&autoLinkFrom="+genro.page_id+"'>"+v+"</a>";
                 }
                 var draggable= this.draggable?' draggable=true ':''
-                return '<div '+draggable+'class="cellContent">'+v+'</div>';
+                return '<div '+draggable+'class="cellContent" dragmode="gridcell" >'+v+'</div>';
                 
                 };
             };
@@ -2201,41 +2207,35 @@ dojo.declare("gnr.widgets.Grid",gnr.widgets.baseDojo,{
         }
         return grouppable.join(',');
     },
-    mixin_onTrashedColumn:function(kw){
+    mixin_deleteColumn:function(col){
         var colsBag = this.structBag.getItem('#0.#0');
-        colsBag.popNode('#'+kw.column)
+        colsBag.popNode('#'+col)
     },
-    mixin_onDroppedColumn:function(drop_data,drop_event,drop_datatype){
-        if(!('column' in drop_event.dragDropInfo)){ return }
-        var colsBag = this.structBag.getItem('#0.#0');
-        var toPos=drop_event.dragDropInfo.column
-        if(drop_datatype=='gnrgridcol/json'){
-            if(toPos!=drop_data.position){
-                var moved=colsBag.popNode('#'+drop_data.position)
-                colsBag.setItem('cellx_'+genro.getCounter(), null, moved.attr, {'_position':toPos});
-            }
-            
+    mixin_moveColumn:function(col,toPos){
+        if(toPos!=col){
+            var colsBag = this.structBag.getItem('#0.#0');
+            var nodeToMove=colsBag.popNode('#'+col)
+            colsBag.setItem(nodeToMove.label, null, nodeToMove.attr, {'_position':toPos});
         }
-        else if(drop_data.tag == 'column' || drop_data.tag == 'virtual_column'){
-            colsBag.setItem('cellx_'+genro.getCounter(), null, {'width':'8em','name':drop_data.fullcaption, 
-                                                    'dtype':drop_data.dtype, 'field':drop_data.fieldpath,
+
+    },
+    mixin_addColumn:function(col,toPos){
+        //if(!('column' in drop_event.dragDropInfo)){ return }
+        var colsBag = this.structBag.getItem('#0.#0');
+        colsBag.setItem('cellx_'+genro.getCounter(), null, {'width':'8em','name':col.fullcaption, 
+                                                    'dtype':col.dtype, 'field':col.fieldpath,
                                                     'tag':'cell'}, {'_position':toPos+1});
-        }
-       
     },
-    onDragStart:function(event){
-        var info=event.dragDropInfo
-        if (!info){
-            console.log(event);
-            return
-        }
+    onDragStart:function(dragInfo){
+        var dragmode=dragInfo.dragmode
+        var event=dragInfo.event
+        var widget=dragInfo.widget
+        
         value={};
-        if ('row' in info){
-            
-            
-            var cells=info.widget.structBag.getItem('#0.#0')
-            var rowdata=info.widget.rowByIndex(info.row)
-            value['gridrow/json']={'row':info.row,'rowdata':rowdata,'gridId':info.sourceNode.attr.nodeId}
+        if (dragmode=='gridrow'){
+            var cells=widget.structBag.getItem('#0.#0')
+            var rowdata=widget.rowByIndex(dragInfo.row)
+            value['gridrow']={'row':dragInfo.row,'rowdata':rowdata,'gridId':widget.sourceNode.attr.nodeId}
             var r=[]
             var r_xml=''
             var r_html=''
@@ -2249,47 +2249,75 @@ dojo.declare("gnr.widgets.Grid",gnr.widgets.baseDojo,{
             value['text/plain']=r.join('\t')
             value['text/xml']=r_xml
             value['text/html']='<table><tr><!--StartFragment-->'+r_html+'<!--EndFragment--> </tr></table>'
+        }else if (dragmode=='gridcell'){
+            var celldata=widget.rowByIndex(dragInfo.row)[event.cell.field]
+            value['gridcell']={'row':dragInfo.row,'column':dragInfo.column,'celldata':celldata,'gridId':widget.sourceNode.attr.nodeId}
+            value['text/plain']=convertToText(celldata)[1]
+        }else if (dragmode=='gridcolumn'){
+            var textcol=''
+            var field=event.cell.field;
+            columndata=[]
+            for (var i=0; i < widget.rowCount; i++) {
+                var row=widget.rowByIndex(i,true)
+                var v=row?row[field]:'';
+                columndata.push(v)
+                textcol=textcol+convertToText(v)[1]+'\n'
+            };            
+            value['gridcolumn']={'column':dragInfo.column,'columndata':columndata,'gridId':widget.sourceNode.attr.nodeId}
+            value['text/plain']=textcol
         }
         
         return value;
     },
-    decorateDragDropEvent:function(event){
-        var sourceNode = event.sourceNode;
-        var attr = sourceNode.attr;
-        var shapesDict = objectExtract(attr,'droppable_*',true);
-        var widget = event.widget;
-        var result = {};
-        if (attr.droppable || objectNotEmpty(shapesDict)) {
-            if(event.cellNode && 'cell' in shapesDict){
-                result['outlineCell'] = event.cellNode;
-                result['cellNode'] = event.cellNode;
-                result['cell'] = event.cell;
-                result['column']=event.cellIndex;
-                result['row']=event.rowIndex;
-            }
-            if(event.cellIndex>=0 && 'column' && event.rowIndex==-1 && 'column'in shapesDict){
-                result['outlineColumn'] =  event.widget.columnNodelist(event.cellIndex,true);
-                result['column']=event.cellIndex;
-
-            }
-            if(event.rowNode && 'row' in shapesDict){
-                result['outlineRow'] = event.rowNode;
-                result['row']=event.rowIndex;
-
-            }
-            if(attr.droppable){
-                result['outlineGrid'] = widget.domNode;
-
-            }
-            
-            var attributes= {'widget':widget,
-                     'sourceNode':sourceNode,
-                     'domnode':event.cellNode };
-            result = objectUpdate(result,attributes);
-            event.dragDropInfo = result;
-
-        };
-    },
+     fillDropInfo:function(dropInfo){
+        var dragSourceInfo=dropInfo.dragSourceInfo
+        var event=dropInfo.event
+        var widget=dropInfo.widget
+        var dropmode=dropInfo.dropmode //|| dragSourceInfo?dragSourceInfo.dragmode:null
+        if (widget.grid){
+            widget.content.decorateEvent(event)
+            widget=widget.grid
+        }else{
+            widget.views.views[0].header.decorateEvent(event)
+        }
+       
+        if (dropmode=='column'){
+             dropInfo.column=event.cellIndex
+             dropInfo.outline =  widget.columnNodelist(event.cellIndex,true);
+        }else{
+             dropInfo.row=event.rowIndex;
+             if(dropmode=='cell'){
+                 dropInfo.column=event.cellIndex
+                 dropInfo.outline=event.cellNode
+             }else if(dropmode=='row'){
+                 dropInfo.outline=event.rowNode
+             }
+        }
+        dropInfo.widget=widget
+        dropInfo.sourceNode=widget.sourceNode
+         
+     },
+    fillDragInfo:function(dragInfo){
+        var event=dragInfo.event
+        var widget=dragInfo.widget
+        if (dragInfo.dragmode=='gridcolumn'){
+             widget.views.views[0].header.decorateEvent(event)
+             dragInfo.column=event.cellIndex
+             dragInfo.outline =  widget.columnNodelist(event.cellIndex,true);
+        }else{
+             widget.content.decorateEvent(event)
+             widget=widget.grid
+             dragInfo.row=event.rowIndex;
+             if(dragInfo.dragmode=='gridcell'){
+                 dragInfo.column=event.cellIndex
+                 dragInfo.outline=event.cellNode
+             }else{
+                 dragInfo.outline=event.rowNode
+             }
+        }
+        dragInfo.widget=widget
+        dragInfo.sourceNode=widget.sourceNode
+    },    
     setTrashPosition: function(event){
         var trash = genro.dom.getDomNode('trash_drop');
         var mb=dojo.marginBox(trash);
@@ -2445,17 +2473,20 @@ dojo.declare("gnr.widgets.VirtualGrid",gnr.widgets.Grid,{
         }
      },
     
-    mixin_rowByIndex:function(inRowIndex){
+    mixin_rowByIndex:function(inRowIndex,lazy){
         var rowIdx = inRowIndex%this.rowsPerPage;
         var pageIdx=(inRowIndex-rowIdx)/this.rowsPerPage;
         if (this.currCachedPageIdx!=pageIdx){
             this.currCachedPageIdx=pageIdx;
             this.currCachedPage=this.storebag.getValue().getItem('P_'+pageIdx);
             if (!this.currCachedPage){
+                if(lazy){
+                    return;
+                }
                 this.currCachedPage = this.loadBagPageFromServer(pageIdx);
             }
         }
-        return this.currCachedPage.getNodes()[rowIdx].attr;
+        return this.currCachedPage?this.currCachedPage.getNodes()[rowIdx].attr:null;
     },
     
     mixin_rowIdentity: function(row){
@@ -3803,7 +3834,7 @@ dojo.declare("gnr.widgets.Tree",gnr.widgets.baseDojo,{
     },
     creating: function(attributes, sourceNode){
         dojo.require("dijit.Tree");
-        var nodeAttributes = objectExtract(attributes,'node_*');
+       // var nodeAttributes = objectExtract(attributes,'node_*');
         var storepath=sourceNode.absDatapath(objectPop(attributes,'storepath'));
         var labelAttribute=objectPop(attributes,'labelAttribute');
         var labelCb = objectPop(attributes,'labelCb');
@@ -3880,7 +3911,7 @@ dojo.declare("gnr.widgets.Tree",gnr.widgets.baseDojo,{
         if (objectNotEmpty(tooltipAttrs)) {
             savedAttrs['tooltipAttrs'] = tooltipAttrs;
         };
-        attributes.gnrNodeAttributes=nodeAttributes;
+       // attributes.gnrNodeAttributes=nodeAttributes;
         attributes.sourceNode=sourceNode;
         return savedAttrs;
         
@@ -3931,6 +3962,30 @@ dojo.declare("gnr.widgets.Tree",gnr.widgets.baseDojo,{
                   });
              });         
          }
+    },
+    fillDragInfo:function(dragInfo){
+         dragInfo.treenode=dragInfo.widget
+         dragInfo.widget=dragInfo.widget.tree
+         dragInfo.treeItem=dragInfo.treenode.item
+         
+     },
+    fillDropInfo:function(dropInfo){
+         dropInfo.treenode=dropInfo.widget
+         dropInfo.widget=dropInfo.widget.tree
+         dragInfo.treeItem=dragInfo.treenode.item
+         
+     },
+    onDragStart:function(dragInfo){
+       var item=dragInfo.treenode.item
+       var result={}
+       if (item instanceof gnr.GnrBagNode){
+           result['text/plain']=item.getValue()
+           result['text/xml']=item.getValue()
+       }else{
+           result['text/plain']=item.label
+       }
+       result['treenode']={'fullpath':item.getFullpath(),'relpath':item.getFullpath(null,dragInfo.treenode.tree.model.store.rootData())}
+       return result
     },
     attributes_mixin_checkBoxCalcStatus:function(bagnode){
         var checked;

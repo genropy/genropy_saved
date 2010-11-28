@@ -488,11 +488,15 @@ function quoted(astring){
 
 
 function convertFromText (value, t, fromLocale){
+    if (value==null){
+        return null
+    }
     if (!t && value.indexOf('::')>=0){
         value = value.split('::');
         t=value[1];
         value=value[0];
     }
+    var t=t||'T';
     t=t.toUpperCase();
     if (t=='NN'){
         return null;

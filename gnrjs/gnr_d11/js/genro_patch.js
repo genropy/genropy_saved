@@ -738,19 +738,19 @@ genropatches.tree=function(){
             dojo.addClass(this.domNode,this.item.attr.node_class);
         }
         var sourceNode=this.tree.sourceNode;
-        var nodeattrs=this.tree.gnrNodeAttributes;
-        if (nodeattrs.draggable && (this.item instanceof gnr.GnrBagNode)){
-            var draggable=nodeattrs.draggable
-            if((typeof(draggable)=='function') || (typeof(draggable)=='string')){
-                draggable=funcCreate(draggable,'item')(this.item)
-            }
+        var draggable=sourceNode.attr.draggable
+        var droppable=sourceNode.attr.droppable
+        //var nodeattrs=this.tree.gnrNodeAttributes;
+        if (draggable && (this.item instanceof gnr.GnrBagNode)){
+            //if((typeof(draggable)=='function') || (typeof(draggable)=='string')){
+            //    draggable=funcCreate(draggable,'item')(this.item)
+            //}
             this.domNode.setAttribute('draggable',draggable);
         }
-        if (nodeattrs.droppable && (this.item instanceof gnr.GnrBagNode)){
-             var droppable=nodeattrs.droppable
-                if((typeof(droppable)=='function') || (typeof(droppable)=='string')){
-                    droppable=funcCreate(droppable,'item')(this.item);
-                }
+        if (droppable && (this.item instanceof gnr.GnrBagNode)){
+               //if((typeof(droppable)=='function') || (typeof(droppable)=='string')){
+               //    droppable=funcCreate(droppable,'item')(this.item);
+               //}
             this.contentNode.setAttribute('droppable',droppable);
         }
     };
