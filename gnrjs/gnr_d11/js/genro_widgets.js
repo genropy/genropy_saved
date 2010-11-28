@@ -1850,10 +1850,10 @@ dojo.declare("gnr.widgets.Grid",gnr.widgets.baseDojo,{
             };
         };
         if(sourceNode.attr.draggable_column){
-            dojo.connect(widget, 'postrender', dojo.hitch(widget ,'setDraggable_column'));
+            dojo.connect(widget, 'updateRowCount', dojo.hitch(widget ,'setDraggable_column'));
         }
         if(sourceNode.attr.draggable_row){
-            dojo.connect(widget, 'postrender', dojo.hitch(widget ,'setDraggable_row'));
+            dojo.connect(widget, 'updateRowCount', dojo.hitch(widget ,'setDraggable_row'));
         }
         if(sourceNode.attr.openFormEvent){
             dojo.connect(widget, sourceNode.attr.openFormEvent, widget,'openLinkedForm');
@@ -2251,7 +2251,8 @@ dojo.declare("gnr.widgets.Grid",gnr.widgets.baseDojo,{
             value['text/html']='<table><tr><!--StartFragment-->'+r_html+'<!--EndFragment--> </tr></table>'
         }else if (dragmode=='gridcell'){
             var celldata=widget.rowByIndex(dragInfo.row)[event.cell.field]
-            value['gridcell']={'row':dragInfo.row,'column':dragInfo.column,'celldata':celldata,'gridId':widget.sourceNode.attr.nodeId}
+            var rowdata=widget.rowByIndex(dragInfo.row)
+            value['gridcell']={'row':dragInfo.row,'column':dragInfo.column,'celldata':celldata,'rowdata':rowdata,'gridId':widget.sourceNode.attr.nodeId}
             value['text/plain']=convertToText(celldata)[1]
         }else if (dragmode=='gridcolumn'){
             var textcol=''

@@ -650,7 +650,7 @@ dojo.declare("gnr.GnrDomHandler",null,{
         var dropInfo=this.getDragDropInfo(event)
         
         if (!dropInfo){ 
-            console.log('not drag_info')
+            //console.log('not drag_info')
             return;
         }
         event.stopPropagation();
@@ -741,6 +741,10 @@ dojo.declare("gnr.GnrDomHandler",null,{
      },
     onDragStart:function(event){
         event.stopPropagation();
+        if(event.target.draggable===false){
+            event.preventDefault();
+            return false;
+        }
         var dragInfo=this.getDragDropInfo(event)
         var dragValues=dragInfo.handler.onDragStart(dragInfo)
         var sourceNode=dragInfo.sourceNode
@@ -761,7 +765,7 @@ dojo.declare("gnr.GnrDomHandler",null,{
         var widget = dragInfo.widget;
         genro.dom._transferObj={}
         var dataTransfer=event.dataTransfer;
-        var dragClass=inherited['dragClass'];
+        var dragClass=inherited['dragClass'] || 'draggedItem';
         if(dragClass){
             genro.dom.addClass(dragInfo.domnode,dragClass);
             dragInfo.dragClass=dragClass;
