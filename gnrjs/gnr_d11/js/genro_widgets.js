@@ -2280,8 +2280,10 @@ dojo.declare("gnr.widgets.Grid",gnr.widgets.baseDojo,{
         }else{
             widget.views.views[0].header.decorateEvent(event)
         }
-       
-        if (dropmode=='column'){
+        if (dropmode===true){
+            dropInfo.outline =  widget.domNode;
+        }
+        else if (dropmode=='column'){
              dropInfo.column=event.cellIndex
              dropInfo.outline =  widget.columnNodelist(event.cellIndex,true);
         }else{

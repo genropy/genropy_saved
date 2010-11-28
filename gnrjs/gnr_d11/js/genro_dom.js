@@ -618,6 +618,7 @@ dojo.declare("gnr.GnrDomHandler",null,{
             var attr=info.sourceNode.attr
             var droppable=info.sourceNode.droppable
             if (droppable){
+                
                 info.dragSourceInfo=genro.dom.getDragSourceInfo(event.dataTransfer)
                 info.sourceNodeId=info.dragSourceInfo.nodeId
                 info.selfdrop=(info.nodeId && (info.nodeId==info.sourceNodeId))
@@ -647,7 +648,9 @@ dojo.declare("gnr.GnrDomHandler",null,{
     },
     onDragEnter:function(event){
         var dropInfo=this.getDragDropInfo(event)
+        
         if (!dropInfo){ 
+            console.log('not drag_info')
             return;
         }
         event.stopPropagation();
@@ -693,7 +696,7 @@ dojo.declare("gnr.GnrDomHandler",null,{
             //var params=objectUpdate(sourceNode.currentAttributes(),{'drop_object':dataTransfer,'event':event});
             var params={'dropInfo':dropInfo}
             if ((dojo.indexOf(dataTransferTypes,'Files')>=0 )&& (dojo.indexOf(dropTypes,'Files')>=0)){
-                 genro.dom.onDrop_files(dataTransfer,inherited,onDropAction,params,sourceNode)
+                 genro.dom.onDrop_files(dataTransfer,inherited,params,sourceNode)
             }else{
                genro.dom.onDrop_standard(dataTransfer,inherited,params,sourceNode,dropTypes,dataTransferTypes)
             }
@@ -822,6 +825,9 @@ dojo.declare("gnr.GnrDomHandler",null,{
                     dt.push(k)
                 }
             }
+            for (var i=0; i < dataTransfer.types.length; i++) {
+                dt.push(dataTransfer.types[i]);
+            };
             return dt
         }else{
             return dataTransfer.types
