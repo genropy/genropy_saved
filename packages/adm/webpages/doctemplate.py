@@ -98,7 +98,7 @@ class GnrCustomWebPage(object):
         fb.textbox(value='^.from_address',lbl='From Address field')
         
     def html_item_res(self):
-        return """<span class="tplfieldpath" fieldpath="'+item.attr.fieldpath+'" itemtag = "'+item.attr.tag+'">$'+item.attr.fieldpath+'</span><span class="tplfieldcaption">'+item.attr.caption+'</span><span>&nbsp</span>"""
+        return """<span class="tplfieldpath" fieldpath="'+treeItem.attr.fieldpath+'" itemtag = "'+treeItem.attr.tag+'">$'+treeItem.attr.fieldpath+'</span><span class="tplfieldcaption">'+treeItem.attr.caption+'</span><span>&nbsp</span>"""
         
     def left(self,pane):
         pane.dataRemote('.tree.fields','relationExplorer',table='^form.record.maintable',
@@ -110,8 +110,9 @@ class GnrCustomWebPage(object):
                      hideValues=True,
                      margin='6px',
                      font_size='.9em',
-                     node_draggable="""return item.attr.dtype && item.attr.dtype!='RM' && item.attr.dtype!='RO'""",
+                     dragIf="""treeItem.attr.dtype && treeItem.attr.dtype!='RM' && treeItem.attr.dtype!='RO'""",
                      selected_fieldpath='.selpath',
+                     draggable=True,
                      onDrag="""return {'text/html':'%s','text/plain':treeItem.attr.fieldpath};
                                       """ %self.html_item_res(),
                      dragClass='draggedItem',
