@@ -603,6 +603,9 @@ dojo.declare("gnr.GnrDomHandler",null,{
             widget=dijit.getEnclosingWidget(domnode)
             var rootwidget=widget.sourceNode?widget:widget.grid||widget.tree
             info.widget=widget
+            if (!rootwidget){
+                return;
+            }
             info.handler=rootwidget.gnr
             info.sourceNode=rootwidget.sourceNode 
             info.nodeId=info.sourceNode.attr.nodeId
