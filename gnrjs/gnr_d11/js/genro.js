@@ -115,6 +115,7 @@ dojo.declare('gnr.GenroClient', null, {
             genropatches.borderContainer();
             genropatches.comboBox();
             genropatches.tree();
+            //genropatches.grid();
             genropatches.parseNumbers();
         }
         this.clsdict = {domsource:gnr.GnrDomSource, bag:gnr.GnrBag};

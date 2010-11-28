@@ -756,7 +756,10 @@ genropatches.tree=function(){
     };
 	
 };
-
+genropatches.grid=function(){
+    dojo.require('dojox.grid._grid.builder');
+    console.log('ssss')
+};
 
 genropatches.parseNumbers=function(){
     dojo.require('dojo.number');

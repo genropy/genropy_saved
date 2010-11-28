@@ -1849,11 +1849,13 @@ dojo.declare("gnr.widgets.Grid",gnr.widgets.baseDojo,{
                 widget.gridEditor= new gnr.GridEditor(widget,sourceNode,gridEditorNode);
             };
         };
+        
         if(sourceNode.attr.draggable_column){
             dojo.connect(widget, 'updateRowCount', dojo.hitch(widget ,'setDraggable_column'));
         }
         if(sourceNode.attr.draggable_row){
-            dojo.connect(widget, 'updateRowCount', dojo.hitch(widget ,'setDraggable_row'));
+            widget.views.views[0].content._table=widget.views.views[0].content._table.replace('<table ','<table draggable="true" ')
+           // dojo.connect(widget, 'updateRowCount', dojo.hitch(widget ,'setDraggable_row'));
         }
         if(sourceNode.attr.openFormEvent){
             dojo.connect(widget, sourceNode.attr.openFormEvent, widget,'openLinkedForm');
