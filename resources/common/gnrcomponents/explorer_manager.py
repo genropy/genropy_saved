@@ -14,7 +14,7 @@ class ExplorerManager(BaseComponent):
             self.explorer_manager_main(explorers)
     
     def explorer_manager_draggable_types(self):
-        return ','.join(['%s_item/json' %n.split('_',1)[1] for n in dir(self) if n.startswith('onDroppedItem_')])
+        return ','.join(['%s_item' %n.split('_',1)[1] for n in dir(self) if n.startswith('onDroppedItem_')])
        
     def explorer_manager_main(self,explorers):
         explorer_tables = explorers.split(',')
@@ -57,10 +57,8 @@ class ExplorerManager(BaseComponent):
                  hideValues=True,
                  margin='6px',
                  font_size='.9em',
-                 node_draggable="""return item.attr.child_count==0 || !item.attr.child_count;""",                     
-                 drag_mode='grid',              
-                 onDrag="""result = {'text/plain':item.attr.caption,
-                                         '%s_item/json':item.attr}
-                                  return result;""" %explorername,
+                 dragIf="""treeItem.attr.child_count==0 || !treeItem.attr.child_count;""",                     
+                 onDrag="""return{'text/plain':treeItem.attr.caption,
+                            '%s_item':treeItem.attr};""" %explorername,
                  dragClass='draggedItem')
             
