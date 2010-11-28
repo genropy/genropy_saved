@@ -36,7 +36,12 @@ class FlibBase(BaseComponent):
                              struct=saved_files_struct,
                              hiddencolumns='$__ins_ts,$thumb_url,ext,metadata',
                              reloader=reloader,
-                             onDrag='var dataNode = event.widget.dataNodeByIndex(event.rowIndex); return {flib_element:dataNode.attr._pkey};',
+                             draggable_row=True,
+                             #draggable=True,
+                             onDrag="""
+                                    var row = dragValues.gridrow.rowdata;
+                                    return {'flib_element':row._pkey};                                
+                             """,
                              filterOn='title,description',
                              selectionPars=selectionPars)
             
@@ -53,7 +58,7 @@ class FlibBase(BaseComponent):
         def apply_thumb(row):
             ext_img = self.getResourceUri('filetype_icons/%s.png'%row['ext'][1:].lower()) \
                       or self.getResourceUri('filetype_icons/_blank.png')
-            return dict(_thumb= '<img border=0 src="%s" />' %(row['thumb_url'] or ext_img))
+            return dict(_thumb= '<img border=0 draggable="false" src="%s" />' %(row['thumb_url'] or ext_img))
         selection.apply(apply_thumb)
 
 
