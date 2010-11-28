@@ -26,7 +26,7 @@ class GnrCustomWebPage(object):
                      hideValues=True,
                      margin='6px',
                      onDrag=self.onDrag(),
-                     node_draggable=True,
+                     draggable=True,
                      dragClass='draggedItem',
                      onChecked=True,
                      selected_fieldpath='.selpath',
@@ -45,31 +45,22 @@ class GnrCustomWebPage(object):
         pane.css('.tundra .dijitTreeContent','padding-top:0;min-height:17px;')
         pane.css('.tundra .dijitTreeExpando','height:16px;')
     def onDrag(self):
-        return """if (item.attr.fieldpath){
-                      var fieldpath=item.attr.fieldpath
-                       if(item.attr.checked){
-                       return event.shiftKey ? 'r.fieldcell("'+fieldpath+'")':event.metaKey?'fb.field("'+fieldpath+'")':fieldpath
-                       }
-                   }
+        return """var modifiers=dragInfo.modifiers;
+                  var mode= (modifiers=='Shift') ? 'fieldcell':(modifiers=='Meta') ? 'field':''
+                  var children=treeItem.getValue()
+                  if(!children){
+                      var fieldpath=treeItem.attr.fieldpath;
+                      dragValues['text/plain']=mode?'r.'+mode+'("'+fieldpath+'");':fieldpath;
+                      return
+                  }
                    var cb;
-                   if   (event.shiftKey) {
-                       cb=function(n){
-                           return '        '+'r.fieldcell("'+n.attr.fieldpath+'")';
-                       };
-                   }
-                   else if(event.metaKey){
-                       cb=function(n){
-                           return '        '+ 'fb.field("'+n.attr.fieldpath+'")';
-                       };
-                   }
-                   else {
-                       cb=function(n){
-                           return n.attr.fieldpath;
-                       };
-                   }
+                    cb=function(n){
+                        var fieldpath=n.attr.fieldpath
+                        return '        '+(mode?'r.'+mode+'("'+fieldpath+'");':fieldpath);
+                   };
                    result=[];
                    result.push('')
-                   item.getValue().forEach(function(n){if (n.attr.checked){result.push(cb(n));}},'static');
+                   children.forEach(function(n){if (n.attr.checked){result.push(cb(n));}},'static');
                    result.push('')
-                   return result.join(_lf); 
+                   dragValues['text/plain']= result.join(_lf); 
                """
