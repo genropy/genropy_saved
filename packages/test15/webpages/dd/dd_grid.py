@@ -15,9 +15,22 @@ class GnrCustomWebPage(object):
     def test_0_drop(self,pane):
         """Drop Boxes"""
         fb=pane.formbuilder(cols=1)
-        dropboxes=fb.div(onDrop='console.log("ddd");alert(drop_data)',lbl='Drop boxes text/plain',dropTypes='text/plain')
+        dropboxes=fb.div(onDrop="""console.log("ondrop");
+                                   console.log(dropInfo);
+                                   console.log(data);
+                                   for (var k in data){
+                                       alert(k+' :'+data[k])
+                                   }
+                                   """,
+                  onDrop_text_plain="""console.log("ondrop_text");
+                                   console.log(dropInfo);
+                                   console.log(data);
+                                   alert('text plain dropped here:'+data)""",
                             
-        dropboxes.div('no tags',width='100px',height='50px',margin='3px',background_color='#c7ff9a',
+                  
+                  lbl='Drop boxes text/plain',dropTypes='text/plain,gridrow/json,gridcell/json,gridcolumn/json')
+                            
+        dropboxes.div('no tags',width='100px',height='50px',margin='3px',background_color='lightgray',
                             float='left',droppable=True)
         dropboxes.div('only foo',width='100px',height='50px',margin='3px',background_color='#fcfca9',
                             float='left',dropTags='foo',droppable=True)
@@ -31,7 +44,7 @@ class GnrCustomWebPage(object):
         pane=pane.div(height='150px')
         pane.data('.data',self.aux_test_1_grid_data())
         grid = pane.IncludedView(nodeId='inputgrid',storepath='.data',selfDragCols=True,selfDragRows=True,
-                        draggable_row=True,droppable_row=True,draggable_column=True,droppable_column=False,
+                        draggable_row=True,droppable_row=True,draggable_column=True,droppable_column=True,
                         onDrop='alert(drop_data)',
                         datamode='bag',editorEnabled=True,draggable=True,dragClass='draggedItem')
                         

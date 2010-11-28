@@ -15,9 +15,10 @@ class GnrCustomWebPage(object):
     def test_0_drop(self,pane):
         """Drop Boxes"""
         fb=pane.formbuilder(cols=1)
-        dropboxes=fb.div(onDrop='console.log("ddd");alert(drop_data)',lbl='Drop boxes text/plain',dropTypes='text/plain')
+        dropboxes=fb.div( onDrop_text_plain='alert(data)',
+                            onDrop_treenode_json="""console.log(data);alert(data.fullpath+' - '+data.relpath)""",lbl='Drop boxes text/plain',dropTypes='text/plain')
                             
-        dropboxes.div('no tags',width='100px',height='50px',margin='3px',background_color='#c7ff9a',
+        dropboxes.div('no tags',width='100px',height='50px',margin='3px',background_color='lightgray',
                             float='left',droppable=True)
         dropboxes.div('only foo',width='100px',height='50px',margin='3px',background_color='#fcfca9',
                             float='left',dropTags='foo',droppable=True)
@@ -34,10 +35,12 @@ class GnrCustomWebPage(object):
         pane.css('.bar','background-color:yellow;')
         root=pane.div(height='200px',overflow='auto')
         root.data('.tree.data',self.treedata())
-        root.tree(storepath='.tree.data',node_droppable=True,
-                                         node_draggable=True,
+        root.tree(storepath='.tree.data',droppable=True,
+                                         draggable=True,
+                                         onDrag="""function(dragValues){console.log(dragValues)}""",
                                          dragClass='draggedItem',
-                                         onDrop='alert(drop_data)')
+                                         onDrop_text_plain='alert(data)',
+                                         onDrop_treenode_json='alert(data.fullpath)')
         
     def test_2_disk(self,pane):
         """Disk Directory Drag"""

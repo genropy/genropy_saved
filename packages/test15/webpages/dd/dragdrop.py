@@ -35,9 +35,12 @@ class GnrCustomWebPage(object):
     def test_0_dropBoxes(self,pane):
         """Drop Boxes"""
         fb=pane.formbuilder(cols=1)
-        dropboxes=fb.div(onDrop='alert(drop_data)',lbl='Drop boxes text/plain',dropTypes='text/plain')
+        dropboxes=fb.div(onDrop="""for (var k in data){
+                                       alert(k+' :'+data[k])
+                                   }""",
+                                   lbl='Drop boxes text/plain',dropTypes='text/plain')
                             
-        dropboxes.div('no tags',width='100px',height='50px',margin='3px',background_color='#c7ff9a',
+        dropboxes.div('no tags',width='100px',height='50px',margin='3px',background_color='whithesmoke',
                             float='left',droppable=True)
         dropboxes.div('only foo',width='100px',height='50px',margin='3px',background_color='#fcfca9',
                             float='left',dropTags='foo',droppable=True)
@@ -56,7 +59,7 @@ class GnrCustomWebPage(object):
                                         """,
                                          lbl='Drop boxes Files',dropTypes='Files')
                             
-        dropboxes.div('all types',width='100px',height='50px',margin='3px',background_color='#c7ff9a',
+        dropboxes.div('all types',width='100px',height='50px',margin='3px',background_color='whithesmoke',
                             float='left',droppable=True)
         dropboxes.div('only py',width='100px',height='50px',margin='3px',background_color='#fcfca9',
                             float='left',drop_ext='py',droppable=True)
