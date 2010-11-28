@@ -100,7 +100,12 @@ class DropUploader(BaseComponent):
     
     def _dropFileGrid_preview(self,bc,datapath=None):
         sc = bc.stackContainer(region='bottom',height='50%',splitter=True,selectedPage='^.selpreview',datapath=datapath)
-        sc.dataController("""var selectedType = filebag.getItem(selectedLabel+'._type');
+        sc.dataController("""
+                            if(dojo.isSafari){
+                                console.log("no filereader")
+                                return;
+                            }
+                            var selectedType = filebag.getItem(selectedLabel+'._type');
                              var selectedFile = filebag.getItem(selectedLabel+'._file');
                              console.log(selectedFile);
                              var readFunc;
