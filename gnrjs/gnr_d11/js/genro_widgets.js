@@ -1803,11 +1803,16 @@ dojo.declare("gnr.widgets.Grid",gnr.widgets.baseDojo,{
     },
     mixin_setDraggable_column:function(draggable){
        var draggable=draggable==false?false:true
-       dojo.query('[role="wairole:columnheader"]',this.domNode).forEach(function(n){n.draggable=true;n.setAttribute('dragmode','gridcolumn');})
+       dojo.query('[role="wairole:columnheader"]',this.domNode).forEach(function(n){n.draggable=true;})
     },
     mixin_setDraggable_row:function(draggable){
        var draggable=draggable==false?false:true
-       dojo.query('.dojoxGrid-row-table',this.domNode).forEach(function(n){n.draggable=true;n.setAttribute('dragmode','gridrow')})
+       if(draggable){
+           this.views.views[0].content._table=this.views.views[0].content._table.replace('<table ','<table draggable="true" ')
+       }else{
+           this.views.views[0].content._table=this.views.views[0].content._table.replace('<table draggable="true" ','<table ')
+       }
+       dojo.query('.dojoxGrid-row-table',this.domNode).forEach(function(n){n.draggable=true})
     },
     mixin_onSetStructpath: function(structure){
         return;
@@ -1851,10 +1856,11 @@ dojo.declare("gnr.widgets.Grid",gnr.widgets.baseDojo,{
         };
         
         if(sourceNode.attr.draggable_column){
-            dojo.connect(widget, 'updateRowCount', dojo.hitch(widget ,'setDraggable_column'));
+            dojo.connect(widget, 'postrender', dojo.hitch(widget ,'setDraggable_column'));
         }
         if(sourceNode.attr.draggable_row){
-            widget.views.views[0].content._table=widget.views.views[0].content._table.replace('<table ','<table draggable="true" ')
+            widget.setDraggable_row(true);
+            //widget.views.views[0].content._table=widget.views.views[0].content._table.replace('<table ','<table draggable="true" ')
            // dojo.connect(widget, 'updateRowCount', dojo.hitch(widget ,'setDraggable_row'));
         }
         if(sourceNode.attr.openFormEvent){
@@ -2104,7 +2110,7 @@ dojo.declare("gnr.widgets.Grid",gnr.widgets.baseDojo,{
                     v = "<a onclick='if((genro.isMac&&!event.metaKey)||(!genro.isMac&&!event.ctrlKey)){dojo.stopEvent(event);}' class='gnrzoomcell' href='/"+zoomPage+"?pkey="+key+"&autoLinkFrom="+genro.page_id+"'>"+v+"</a>";
                 }
                 var draggable= this.draggable?' draggable=true ':''
-                return '<div '+draggable+'class="cellContent" dragmode="gridcell" >'+v+'</div>';
+                return '<div '+draggable+'class="cellContent">'+v+'</div>';
                 
                 };
             };
@@ -2305,20 +2311,23 @@ dojo.declare("gnr.widgets.Grid",gnr.widgets.baseDojo,{
     fillDragInfo:function(dragInfo){
         var event=dragInfo.event
         var widget=dragInfo.widget
-        if (dragInfo.dragmode=='gridcolumn'){
-             widget.views.views[0].header.decorateEvent(event)
-             dragInfo.column=event.cellIndex
-             dragInfo.outline =  widget.columnNodelist(event.cellIndex,true);
+        if(widget.grid){
+            widget.content.decorateEvent(event)
+            widget=widget.grid
         }else{
-             widget.content.decorateEvent(event)
-             widget=widget.grid
-             dragInfo.row=event.rowIndex;
-             if(dragInfo.dragmode=='gridcell'){
-                 dragInfo.column=event.cellIndex
-                 dragInfo.outline=event.cellNode
-             }else{
-                 dragInfo.outline=event.rowNode
-             }
+            widget.views.views[0].header.decorateEvent(event)
+        }
+        dragInfo.column=event.cellIndex
+        dragInfo.row=event.rowIndex;
+        if ((event.cellIndex>=0) && (event.rowIndex==-1)){
+             dragInfo.dragmode='gridcolumn'
+             dragInfo.outline =  widget.columnNodelist(event.cellIndex,true);
+        }else if((event.cellIndex==-1) && (event.rowIndex>=0)){
+             dragInfo.dragmode='gridrow'
+             dragInfo.outline=event.rowNode
+        }else if((event.cellIndex>=0) && (event.rowIndex>=0)){
+             dragInfo.dragmode='gridcell';
+             dragInfo.outline=event.cellNode
         }
         dragInfo.widget=widget
         dragInfo.sourceNode=widget.sourceNode
