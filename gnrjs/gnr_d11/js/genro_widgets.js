@@ -3986,7 +3986,8 @@ dojo.declare("gnr.widgets.Tree",gnr.widgets.baseDojo,{
     fillDropInfo:function(dropInfo){
          dropInfo.treenode=dropInfo.widget
          dropInfo.widget=dropInfo.widget.tree
-         dragInfo.treeItem=dragInfo.treenode.item
+         dropInfo.treeItem=dropInfo.treenode.item
+         dropInfo.outline=dropInfo.treenode.domNode
          
      },
     onDragStart:function(dragInfo){
