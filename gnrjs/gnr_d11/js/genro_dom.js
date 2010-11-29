@@ -527,7 +527,9 @@ dojo.declare("gnr.GnrDomHandler",null,{
         var inherited=sourceNode.getInheritedAttributes()
         var dragSourceInfo=genro.dom.getDragSourceInfo(dataTransfer)
         var supportedTypes=splitStrip(sourceNode.getInheritedAttributes().dropTypes || 'text/plain');
-        objectUpdate(supportedTypes,objectExtract(inherited,'onDrop_*',true))
+        for (var k in objectExtract(inherited,'onDrop_*',true)){
+            supportedTypes.push(k);
+        }
         var draggedTypes=genro.dom.dataTransferTypes(dataTransfer)
         if(dojo.filter(supportedTypes,function (value){ return dojo.indexOf(draggedTypes,value)>=0;}).length==0){
             return false;
@@ -618,21 +620,21 @@ dojo.declare("gnr.GnrDomHandler",null,{
             var attr=info.sourceNode.attr
             var droppable=info.sourceNode.droppable
             if (droppable){
-                
                 info.dragSourceInfo=genro.dom.getDragSourceInfo(event.dataTransfer)
                 info.sourceNodeId=info.dragSourceInfo.nodeId
                 info.selfdrop=(info.nodeId && (info.nodeId==info.sourceNodeId))
                 info.hasDragType=function(){
                     var draggedTypes=genro.dom.dataTransferTypes(event.dataTransfer)
                     return (dojo.filter(arguments,function (value){ return dojo.indexOf(draggedTypes,value)>=0;}).length>0)
+                    
                 }
+                info.handler.fillDropInfo(info)
                 if( typeof(droppable)=='function'){
-                    droppable=droppable(info)
+                    droppable = funcApply(droppable, {'dropInfo':info}, info.sourceNode);
                 }
             }
             if (droppable){
                 info.dropmode=droppable
-                info.handler.fillDropInfo(info)
             }else{
                 info = null;
             }
@@ -749,9 +751,13 @@ dojo.declare("gnr.GnrDomHandler",null,{
         var dragValues=dragInfo.handler.onDragStart(dragInfo)
         var sourceNode=dragInfo.sourceNode
         var inherited=sourceNode.getInheritedAttributes();
-        if (('dragIf' in inherited) && (!funcCreate('return '+inherited['dragIf'],'dragValues,dragInfo,treeItem')(dragValues,dragInfo,dragInfo.treeItem))){
-            return
+        if ('dragIf' in inherited) {
+            var doDrag=funcCreate('return '+inherited['dragIf'],'dragValues,dragInfo,treeItem')(dragValues,dragInfo,dragInfo.treeItem)
+            if (!doDrag){
+                return
+            }
         }
+    
         if ('onDrag' in inherited){
             var result=funcCreate(inherited['onDrag'],'dragValues,dragInfo,treeItem')(dragValues,dragInfo,dragInfo.treeItem)
             if (result===false){
@@ -769,7 +775,7 @@ dojo.declare("gnr.GnrDomHandler",null,{
         if(dragClass){
             genro.dom.addClass(dragInfo.domnode,dragClass);
             dragInfo.dragClass=dragClass;
-            setTimeout(function(){genro.dom.removeClass(dragInfo.domnode,dragClass);},1)
+            setTimeout(function(){genro.dom.removeClass(dragInfo.domnode,dragClass);},1);
         }
         if('trashable' in dragValues){
             genro.dom.addClass(dojo.body(),'drag_to_trash');
@@ -778,6 +784,8 @@ dojo.declare("gnr.GnrDomHandler",null,{
             }
         }
         var dragTags=inherited['dragTags'];
+        var local_dragTags = objectPop(dragValues, 'dragTags');
+        dragTags = dragTags? (local_dragTags? dragTags+','+local_dragTags : dragTags ): local_dragTags;
         genro.dom.setDragSourceInfo(dragInfo,dragValues,dragTags);
         for (var k in dragValues){
             genro.dom.setInDataTransfer(dataTransfer,k, dragValues[k])
