@@ -3627,6 +3627,9 @@ dojo.declare("gnr.widgets.dbBaseCombo",gnr.widgets.BaseCombo,{
         attributes.store=store;
         return savedAttrs;      
     },
+    mixin_setDbtable:function(value){
+        this.store.rootDataNode()._resolver.kwargs.dbtable = value;
+    },
     mixin_onSetValueFromItem: function(item, priorityChange){
         if (!item.attr.caption ){
             return;
