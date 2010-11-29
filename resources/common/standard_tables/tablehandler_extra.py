@@ -543,7 +543,7 @@ class StatsHandler(BaseComponent):
     def stats_create_custom_selection(self,selectionName,cust_selectionName):
         pkeys = self.unfreezeSelection(self.tblobj, selectionName).output('pkeylist')
         query = self.tblobj.query(columns=self.stats_columns(),
-                                    where='t0.%s in :pkeys' % self.tblobj.pkey,
+                                    where='t0.%s IN :pkeys' % self.tblobj.pkey,
                                     pkeys=pkeys,addPkeyColumn=True)
         return query.selection()
         
