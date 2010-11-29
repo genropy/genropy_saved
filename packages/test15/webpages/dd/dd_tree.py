@@ -16,7 +16,8 @@ class GnrCustomWebPage(object):
         """Drop Boxes"""
         fb=pane.formbuilder(cols=1)
         dropboxes=fb.div( onDrop_text_plain='alert(data)',
-                            onDrop_treenode_json="""console.log(data);alert(data.fullpath+' - '+data.relpath)""",lbl='Drop boxes text/plain',dropTypes='text/plain')
+                            onDrop_treenode="""console.log(data);alert(data.fullpath+' - '+data.relpath)""",
+                            lbl='Drop boxes text/plain')
                             
         dropboxes.div('no tags',width='100px',height='50px',margin='3px',background_color='lightgray',
                             float='left',droppable=True)
@@ -40,7 +41,7 @@ class GnrCustomWebPage(object):
                                          onDrag="""function(dragValues){console.log(dragValues)}""",
                                          dragClass='draggedItem',
                                          onDrop_text_plain='alert(data)',
-                                         onDrop_treenode_json='alert(data.fullpath)')
+                                         onDrop_treenode='alert(data.fullpath)')
         
     def test_2_disk(self,pane):
         """Disk Directory Drag"""
