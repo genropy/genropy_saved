@@ -1828,7 +1828,7 @@ dojo.declare("gnr.widgets.Grid",gnr.widgets.baseDojo,{
         attributes.rowCount=attributes.rowCount || 0;
         attributes.fastScroll=attributes.fastScroll || false;
         sourceNode.dropModes = objectExtract(attributes,'dropTarget_*');
-        var attributesToKeep='autoHeight,autoRender,autoWidth,defaultHeight,elasticView,fastScroll,keepRows,model,rowCount,rowsPerPage,singleClickEdit,structure';
+        var attributesToKeep='autoHeight,autoRender,autoWidth,defaultHeight,elasticView,fastScroll,keepRows,model,rowCount,rowsPerPage,singleClickEdit,structure,'; 
         attributesToKeep=attributesToKeep+'datamode,sortedBy,filterColumn,excludeCol,excludeListCb,editorEnabled';
         var gridAttributes=objectExtract(attributes,attributesToKeep);
         objectPopAll(attributes);
