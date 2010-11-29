@@ -41,13 +41,13 @@ class GnrCustomWebPage(object):
                                    lbl='Drop boxes text/plain',dropTypes='text/plain')
                             
         dropboxes.div('no tags',width='100px',height='50px',margin='3px',background_color='whithesmoke',
-                            float='left',droppable=True)
+                            float='left',dropTarget=True)
         dropboxes.div('only foo',width='100px',height='50px',margin='3px',background_color='#fcfca9',
-                            float='left',dropTags='foo',droppable=True)
+                            float='left',dropTags='foo',dropTarget=True)
         dropboxes.div('only bar',width='100px',height='50px',margin='3px',background_color='#ffc2f5',
-                            float='left',dropTags='bar',droppable=True)
+                            float='left',dropTags='bar',dropTarget=True)
         dropboxes.div('only foo AND bar',width='100px',height='50px',margin='3px',background_color='#a7cffb',
-                            float='left',dropTags='foo AND bar',droppable=True)
+                            float='left',dropTags='foo AND bar',dropTarget=True)
         
         dropboxes=fb.div(onDrop="""var result=[];
                                         result.push('dropped '+files.length+' files:');
@@ -60,13 +60,13 @@ class GnrCustomWebPage(object):
                                          lbl='Drop boxes Files',dropTypes='Files')
                             
         dropboxes.div('all types',width='100px',height='50px',margin='3px',background_color='whithesmoke',
-                            float='left',droppable=True)
+                            float='left',dropTarget=True)
         dropboxes.div('only py',width='100px',height='50px',margin='3px',background_color='#fcfca9',
-                            float='left',drop_ext='py',droppable=True)
+                            float='left',drop_ext='py',dropTarget=True)
         dropboxes.div('only py or xml',width='100px',height='50px',margin='3px',background_color='#ffc2f5',
-                            float='left',drop_ext='bar',droppable=True)
+                            float='left',drop_ext='bar',dropTarget=True)
         dropboxes.div('only gif',width='100px',height='50px',margin='3px',background_color='#a7cffb',
-                            float='left',drop_ext='gif',droppable=True)
+                            float='left',drop_ext='gif',dropTarget=True)
                             
     def test_1_simple(self,pane):
         """Simple Drag"""

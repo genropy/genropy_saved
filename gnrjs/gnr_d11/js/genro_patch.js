@@ -738,27 +738,17 @@ genropatches.tree=function(){
             dojo.addClass(this.domNode,this.item.attr.node_class);
         }
         var sourceNode=this.tree.sourceNode;
-        var draggable=sourceNode.attr.draggable
-        var droppable=sourceNode.attr.droppable
+        var draggable=sourceNode.attr.draggable;
         //var nodeattrs=this.tree.gnrNodeAttributes;
         if (draggable && (this.item instanceof gnr.GnrBagNode)){
-            //if((typeof(draggable)=='function') || (typeof(draggable)=='string')){
-            //    draggable=funcCreate(draggable,'item')(this.item)
-            //}
             this.domNode.setAttribute('draggable',draggable);
         }
-        if (droppable && (this.item instanceof gnr.GnrBagNode)){
-               //if((typeof(droppable)=='function') || (typeof(droppable)=='string')){
-               //    droppable=funcCreate(droppable,'item')(this.item);
-               //}
+        /*var dropTarget=sourceNode.attr.dropTarget
+        if (dropTarget && (this.item instanceof gnr.GnrBagNode)){
             this.contentNode.setAttribute('droppable',droppable);
-        }
+        }*/
     };
 	
-};
-genropatches.grid=function(){
-    dojo.require('dojox.grid._grid.builder');
-    console.log('ssss')
 };
 
 genropatches.parseNumbers=function(){

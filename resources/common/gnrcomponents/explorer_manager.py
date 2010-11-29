@@ -57,8 +57,9 @@ class ExplorerManager(BaseComponent):
                  hideValues=True,
                  margin='6px',
                  font_size='.9em',
-                 dragIf="""treeItem.attr.child_count==0 || !treeItem.attr.child_count;""",                     
-                 onDrag="""return{'text/plain':treeItem.attr.caption,
-                            '%s_item':treeItem.attr};""" %explorername,
-                 dragClass='draggedItem')
+                 onDrag=""" if(!(treeItem.attr.child_count==0 || !treeItem.attr.child_count)){
+                                return false;
+                            }
+                            dragValues['text/plain']=treeItem.attr.caption,
+                           dragValues['%s_item']=treeItem.attr;""" %explorername)
             

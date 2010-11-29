@@ -31,22 +31,22 @@ class GnrCustomWebPage(object):
                   lbl='Drop boxes text/plain',dropTypes='text/plain,gridrow/json,gridcell/json,gridcolumn/json')
                             
         dropboxes.div('no tags',width='100px',height='50px',margin='3px',background_color='lightgray',
-                            float='left',droppable=True)
+                            float='left',dropTarget=True)
         dropboxes.div('only foo',width='100px',height='50px',margin='3px',background_color='#fcfca9',
-                            float='left',dropTags='foo',droppable=True)
+                            float='left',dropTags='foo',dropTarget=True)
         dropboxes.div('only bar',width='100px',height='50px',margin='3px',background_color='#ffc2f5',
-                            float='left',dropTags='bar',droppable=True)
+                            float='left',dropTags='bar',dropTarget=True)
         dropboxes.div('only foo AND bar',width='100px',height='50px',margin='3px',background_color='#a7cffb',
-                            float='left',dropTags='foo AND bar',droppable=True)
+                            float='left',dropTags='foo AND bar',dropTarget=True)
         
         
     def test_1_grid(self,pane):
         pane=pane.div(height='150px')
         pane.data('.data',self.aux_test_1_grid_data())
         grid = pane.IncludedView(nodeId='inputgrid',storepath='.data',selfDragCols=True,selfDragRows=True,
-                        draggable_row=True,droppable_row=True,draggable_column=True,droppable_column=True,
+                        draggable_row=True,draggable_column=True,
                         onDrop='alert(drop_data)',
-                        datamode='bag',editorEnabled=True,draggable=True,dragClass='draggedItem')
+                        datamode='bag',editorEnabled=True,draggable=True)
                         
         gridEditor = grid.gridEditor(datapath='dummy') #editOn='onCellClick')
         gridEditor.filteringSelect(gridcell='filter',values='A:Alberto,B:Bonifacio,C:Carlo')
@@ -80,7 +80,7 @@ class GnrCustomWebPage(object):
         """Simple Drag"""
         root=pane.div(height='200px',overflow='auto')
         root.data('.tree.data',self.treedata())
-        root.tree(storepath='.tree.data',node_droppable=True,
+        root.tree(storepath='.tree.data',node_dropTarget=True,
                                          node_draggable=True,
                                          dragClass='draggedItem',
                                          onDrop='alert(drop_data)')

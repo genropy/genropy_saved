@@ -188,7 +188,7 @@ dojo.declare("gnr.GnrQueryBuilder",null,{
             var op_menu_id ='qb_op_menu_'+ (this.getDtypeGroup(attr.column_dtype || 'T'));
             attr.column_caption = this.getCaption('column',attr);
             attr.op_caption = this.getCaption('op',attr) ;
-            tr._('td')._('div',{_class:'qb_div qb_field floatingPopup',connectedMenu:'qb_fields_menu',relpath:node.label,droppable:true,
+            tr._('td')._('div',{_class:'qb_div qb_field floatingPopup',connectedMenu:'qb_fields_menu',relpath:node.label,dropTarget:true,
                                 onDrop_gnrdbfld:"genro.querybuilder.onChangedQueryColumn(this,data,'"+node.label+"');",
                                 innerHTML:'^'+relpath+'?column_caption'});
             tr._('td')._('div',{_class:'qb_div qb_op floatingPopup', 

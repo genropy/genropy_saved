@@ -113,13 +113,14 @@ class GnrCustomWebPage(object):
                      hideValues=True,
                      margin='6px',
                      font_size='.9em',
-                     dragIf="""treeItem.attr.dtype && treeItem.attr.dtype!='RM' && treeItem.attr.dtype!='RO'""",
                      selected_fieldpath='.selpath',
                      draggable=True,
-                     onDrag="""return {'text/html':'%s','text/plain':treeItem.attr.fieldpath};
-                                      """ %self.html_item_res(),
-                     dragClass='draggedItem',
-                     
+                     onDrag="""if(!(treeItem.attr.dtype && treeItem.attr.dtype!='RM' && treeItem.attr.dtype!='RO')){
+                                    return false;
+                                }
+                                dragValues['text/html']='%s';
+                                dragValues['text/plain'] =treeItem.attr.fieldpath;
+                              """ %self.html_item_res(),                     
                      getLabelClass="""if (!node.attr.fieldpath && node.attr.table){return "tableTreeNode"}
                                         else if(node.attr.relation_path){return "aliasColumnTreeNode"}
                                         else if(node.attr.sql_formula){return "formulaColumnTreeNode"}""",

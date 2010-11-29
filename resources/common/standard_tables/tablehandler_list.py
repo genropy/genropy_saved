@@ -244,7 +244,7 @@ class TableHandlerForm(BaseComponent):
         queryfb = pane.formbuilder(cols=5,datapath='list.query.where',_class='query_form',
                                           border_spacing='2px',onEnter='genro.fireAfter("list.runQuery",true,10);',float='left')
         queryfb.div('^.c_0?column_caption',min_width='12em',_class='smallFakeTextBox floatingPopup',nodeId='fastQueryColumn',
-                              onDrop_gnrdbfld="genro.querybuilder.onChangedQueryColumn(this,data);",droppable=True,lbl='!!Search')
+                              onDrop_gnrdbfld="genro.querybuilder.onChangedQueryColumn(this,data);",dropTarget=True,lbl='!!Search')
         optd = queryfb.div(_class='smallFakeTextBox',lbl='!!Op.',lbl_width='4em')
         
         optd.div('^.c_0?not_caption',selected_caption='.c_0?not_caption',selected_fullpath='.c_0?not',
@@ -442,11 +442,13 @@ class TableHandlerForm(BaseComponent):
                                 selectedIndex='list.rowIndex', rowsPerPage=self.rowsPerPage(), sortedBy='^list.grid.sorted',
                                 connect_onSelectionChanged='SET list.noSelection = (genro.wdgById("maingrid").selection.getSelectedCount()==0)',
                                 linkedForm='formPane',openFormEvent='onRowDblClick',dropTypes=dropTypes,
-                                droppable="""if(dropInfo.hasDragType('gnrdbfld','gridcolumn')){return 'column'}""",
+                                dropTarget=True,
+                                dropTarget_column='gnrdbfld,gridcolumn',
+                                #droppable="""if(dropInfo.hasDragType('gnrdbfld','gridcolumn')){return 'column'}""",
                                 onDrop_gnrdbfld="""this.widget.addColumn(data,dropInfo.column);genro.fireAfter('list.runQueryDo',true)""",
                                 onDrop_gridcolumn="""this.widget.moveColumn(data.column,dropInfo.column)""",
                                 draggable=True,draggable_column=True,
-                                onDrag="""return{'trashable':{'nodeId':dragInfo.nodeId,'column':dragInfo.column}};""",
+                                onDrag="""dragValues['trashable']={'nodeId':dragInfo.nodeId,'column':dragInfo.column};""",
                                 dragClass='draggedItem',
                                 onDrop=""" for (var k in data){
                                              genro.publish('maingrid_dropped_'+k,data[k])

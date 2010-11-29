@@ -20,13 +20,13 @@ class GnrCustomWebPage(object):
                             lbl='Drop boxes text/plain')
                             
         dropboxes.div('no tags',width='100px',height='50px',margin='3px',background_color='lightgray',
-                            float='left',droppable=True)
+                            float='left',dropTarget=True)
         dropboxes.div('only foo',width='100px',height='50px',margin='3px',background_color='#fcfca9',
-                            float='left',dropTags='foo',droppable=True)
+                            float='left',dropTags='foo',dropTarget=True)
         dropboxes.div('only bar',width='100px',height='50px',margin='3px',background_color='#ffc2f5',
-                            float='left',dropTags='bar',droppable=True)
+                            float='left',dropTags='bar',dropTarget=True)
         dropboxes.div('only foo AND bar',width='100px',height='50px',margin='3px',background_color='#a7cffb',
-                            float='left',dropTags='foo AND bar',droppable=True)
+                            float='left',dropTags='foo AND bar',dropTarget=True)
         
         
                             
@@ -36,7 +36,7 @@ class GnrCustomWebPage(object):
         pane.css('.bar','background-color:yellow;')
         root=pane.div(height='200px',overflow='auto')
         root.data('.tree.data',self.treedata())
-        root.tree(storepath='.tree.data',droppable=True,
+        root.tree(storepath='.tree.data',dropTarget=True,
                                          draggable=True,
                                          onDrag="""function(dragValues){console.log(dragValues)}""",
                                          dragClass='draggedItem',

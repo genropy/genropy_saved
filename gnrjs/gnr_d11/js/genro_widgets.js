@@ -344,7 +344,11 @@ dojo.declare("gnr.widgets.baseHtml",null,{
         var savedAttrs = {};
         objectExtract(attributes,'onDrop,onDrag,dragTag,dropTag,dragTypes,dropTypes');
         objectExtract(attributes,'onDrop_*');
-        savedAttrs['droppable'] = attributes['droppable'];
+        savedAttrs['dropTarget'] = objectPop(attributes,'dropTarget');
+        var dropTargetCb = objectPop(attributes,'dropTargetCb');
+        if(dropTargetCb){
+            attributes['dropTargetCb'] = funcCreate(dropTargetCb,'dropInfo',sourceNode);
+        }
 
         savedAttrs.connectedMenu=objectPop(attributes,'connectedMenu');
         savedAttrs.onEnter = objectPop(attributes,'onEnter');
@@ -418,9 +422,8 @@ dojo.declare("gnr.widgets.baseHtml",null,{
     setDraggable:function(domNode,value){
         domNode.setAttribute('draggable',value);
     },
-    setDroppable:function(domNode,value){
-        if (typeof(value) =='string'){value=funcCreate(value,'dropInfo',this.sourceNode)}
-        domNode.sourceNode.droppable=value;
+    setDropTarget:function(domNode,value){
+        domNode.sourceNode.dropTarget=value;
     },
    
 
@@ -437,11 +440,11 @@ dojo.declare("gnr.widgets.baseHtml",null,{
             }
             
         }
-        if (savedAttrs.droppable) {
-            if(newobj.setDroppable){
-                newobj.setDroppable(savedAttrs.droppable)
+        if (savedAttrs.dropTarget) {
+            if(newobj.setDropTarget){
+                newobj.setDropTarget(savedAttrs.dropTarget);
             }else{
-                newobj.gnr.setDroppable(newobj,savedAttrs.droppable)
+                newobj.gnr.setDropTarget(newobj,savedAttrs.dropTarget);
             }
         };
         if (savedAttrs.zoomFactor){
@@ -497,7 +500,7 @@ dojo.declare("gnr.widgets.baseHtml",null,{
      },
      onDragStart:function(dragInfo){
         var event=dragInfo.event;
-        var sourceNode=dragInfo.sourceNode
+        var sourceNode=dragInfo.sourceNode;
         if ('dragValue' in sourceNode.attr){
               value=sourceNode.currentFromDatasource(sourceNode.attr['dragValue']);
         }
@@ -516,7 +519,7 @@ dojo.declare("gnr.widgets.baseHtml",null,{
 
      },
     fillDropInfo:function(dropInfo){
-        dropInfo.outline=dropInfo.domnode
+        dropInfo.outline=dropInfo.domnode;
      },
      
      setTrashPosition: function(event){
@@ -665,9 +668,8 @@ dojo.declare("gnr.widgets.baseDojo",gnr.widgets.baseHtml,{
     mixin_setDraggable:function(value){
         this.domNode.setAttribute('draggable',value);
     },
-    mixin_setDroppable:function(value){
-        if (typeof(value) =='string'){value=funcCreate(value,'dropInfo',this.sourceNode)}
-        this.sourceNode.droppable=value;
+    mixin_setDropTarget:function(value){
+        this.sourceNode.dropTarget=value;
     },
     validatemixin_validationsOnChange: function(sourceNode, value){
         var result = genro.vld.validate(sourceNode, value,true);
@@ -1540,19 +1542,6 @@ dojo.declare("gnr.widgets.Calendar",gnr.widgets.baseDojo,{
         }
     }
 });
-//dojo.declare("gnr.widgets.ToggleButton",gnr.widgets.baseDojo,{
-//    created: function(widget, savedAttrs, sourceNode){
-//        if(sourceNode.hasDynamicAttr('value')){
-//            var value=sourceNode.getAttributeFromDatasource('value');
-//            //widget.setChecked(value);
-//            widget.setAttribute('checked',value);
-//        }
-//    },
-//    mixin_setValue: function(/*String*/ value,pc){
-//        //this.setChecked(value,pc);
-//        this.setAttribute('checked',pc);
-//    }
-//});
 
 dojo.declare("gnr.widgets.RadioButton",gnr.widgets.baseDojo,{
     constructor: function(application){
@@ -1802,17 +1791,26 @@ dojo.declare("gnr.widgets.Grid",gnr.widgets.baseDojo,{
         this.onSetStructpath(this.structBag);
     },
     mixin_setDraggable_column:function(draggable){
-       var draggable=draggable==false?false:true
-       dojo.query('[role="wairole:columnheader"]',this.domNode).forEach(function(n){n.draggable=true;})
+       var draggable=draggable==false?false:true;
+       dojo.query('[role="wairole:columnheader"]',this.domNode).forEach(function(n){n.draggable=true;});
     },
     mixin_setDraggable_row:function(draggable){
-       var draggable=draggable==false?false:true
+       var draggable=draggable==false?false:true;
        if(draggable){
-           this.views.views[0].content._table=this.views.views[0].content._table.replace('<table ','<table draggable="true" ')
+           this.views.views[0].content._table=this.views.views[0].content._table.replace('<table ','<table draggable="true" ');
        }else{
-           this.views.views[0].content._table=this.views.views[0].content._table.replace('<table draggable="true" ','<table ')
+           this.views.views[0].content._table=this.views.views[0].content._table.replace('<table draggable="true" ','<table ');
        }
-       dojo.query('.dojoxGrid-row-table',this.domNode).forEach(function(n){n.draggable=true})
+       dojo.query('.dojoxGrid-row-table',this.domNode).forEach(function(n){n.draggable=true;});
+    },
+    mixin_setDropTarget_row:function(value){
+        this.sourceNode.dropModes.row = value;
+    },
+    mixin_setDropTarget_column:function(value){
+        this.sourceNode.dropModes.column= value;
+    },
+    mixin_setDropTarget_cell:function(value){
+        this.sourceNode.dropModes.cell = value;
     },
     mixin_onSetStructpath: function(structure){
         return;
@@ -1829,14 +1827,15 @@ dojo.declare("gnr.widgets.Grid",gnr.widgets.baseDojo,{
         attributes.rowsPerPage=attributes.rowsPerPage || 10;
         attributes.rowCount=attributes.rowCount || 0;
         attributes.fastScroll=attributes.fastScroll || false;
-        var attributesToKeep='autoHeight,autoRender,autoWidth,defaultHeight,elasticView,fastScroll,keepRows,model,rowCount,rowsPerPage,singleClickEdit,structure,'
-        attributesToKeep=attributesToKeep+'datamode,sortedBy,filterColumn,excludeCol,excludeListCb,editorEnabled'
+        sourceNode.dropModes = objectExtract(attributes,'dropTarget_*');
+        var attributesToKeep='autoHeight,autoRender,autoWidth,defaultHeight,elasticView,fastScroll,keepRows,model,rowCount,rowsPerPage,singleClickEdit,structure';
+        attributesToKeep=attributesToKeep+'datamode,sortedBy,filterColumn,excludeCol,excludeListCb,editorEnabled';
         var gridAttributes=objectExtract(attributes,attributesToKeep);
         objectPopAll(attributes);
         objectUpdate(attributes,gridAttributes);
         attributes._identifier=identifier;
         sourceNode.attr.nodeId = sourceNode.attr.nodeId || 'grid_' + sourceNode.getStringId();
-        return savedAttrs
+        return savedAttrs;
     },
     
     creating_structure: function(attributes, sourceNode){
@@ -2109,7 +2108,7 @@ dojo.declare("gnr.widgets.Grid",gnr.widgets.baseDojo,{
                     // changed to support ctrl+click on non mac platforms v = "<a onclick='var ev = arguments[0]; if(!ev.metaKey){dojo.stopEvent(ev);}' class='gnrzoomcell' href='/"+zoomPage+"?pkey="+key+"&autoLinkFrom="+genro.page_id+"'>"+v+"</a>";
                     v = "<a onclick='if((genro.isMac&&!event.metaKey)||(!genro.isMac&&!event.ctrlKey)){dojo.stopEvent(event);}' class='gnrzoomcell' href='/"+zoomPage+"?pkey="+key+"&autoLinkFrom="+genro.page_id+"'>"+v+"</a>";
                 }
-                var draggable= this.draggable?' draggable=true ':''
+                var draggable= this.draggable?' draggable=true ':'';
                 return '<div '+draggable+'class="cellContent">'+v+'</div>';
                 
                 };
@@ -2217,12 +2216,12 @@ dojo.declare("gnr.widgets.Grid",gnr.widgets.baseDojo,{
     },
     mixin_deleteColumn:function(col){
         var colsBag = this.structBag.getItem('#0.#0');
-        colsBag.popNode('#'+col)
+        colsBag.popNode('#'+col);
     },
     mixin_moveColumn:function(col,toPos){
         if(toPos!=col){
             var colsBag = this.structBag.getItem('#0.#0');
-            var nodeToMove=colsBag.popNode('#'+col)
+            var nodeToMove=colsBag.popNode('#'+col);
             colsBag.setItem(nodeToMove.label, null, nodeToMove.attr, {'_position':toPos});
         }
 
@@ -2235,102 +2234,110 @@ dojo.declare("gnr.widgets.Grid",gnr.widgets.baseDojo,{
                                                     'tag':'cell'}, {'_position':toPos+1});
     },
     onDragStart:function(dragInfo){
-        var dragmode=dragInfo.dragmode
-        var event=dragInfo.event
-        var widget=dragInfo.widget
-        
+        var dragmode=dragInfo.dragmode;
+        var event=dragInfo.event;
+        var widget=dragInfo.widget;
         value={};
-        if (dragmode=='gridrow'){
-            var cells=widget.structBag.getItem('#0.#0')
-            var rowdata=widget.rowByIndex(dragInfo.row)
-            value['gridrow']={'row':dragInfo.row,'rowdata':rowdata,'gridId':widget.sourceNode.attr.nodeId}
-            var r=[]
-            var r_xml=''
-            var r_html=''
+        if (dragmode=='row'){
+            var cells=widget.structBag.getItem('#0.#0');
+            var rowdata=widget.rowByIndex(dragInfo.row);
+            value['gridrow']={'row':dragInfo.row,'rowdata':rowdata,'gridId':widget.sourceNode.attr.nodeId};
+            var r=[];
+            var r_xml='';
+            var r_html='';
             cells.forEach(function(n){
-                var field=n.attr.field
-                var v=convertToText(rowdata[field],{'xml':true,'dtype':+n.attr.dtype})[1]
-                r.push(v)
-                r_xml=r_xml+'<'+field+'>'+v+'</'+field+'>'
-                r_html=r_html+'<td name="'+field+'">'+v+'</td>'
-            })
-            value['text/plain']=r.join('\t')
-            value['text/xml']=r_xml
-            value['text/html']='<table><tr><!--StartFragment-->'+r_html+'<!--EndFragment--> </tr></table>'
-        }else if (dragmode=='gridcell'){
-            var celldata=widget.rowByIndex(dragInfo.row)[event.cell.field]
-            var rowdata=widget.rowByIndex(dragInfo.row)
-            value['gridcell']={'row':dragInfo.row,'column':dragInfo.column,'celldata':celldata,'rowdata':rowdata,'gridId':widget.sourceNode.attr.nodeId}
-            value['text/plain']=convertToText(celldata)[1]
-        }else if (dragmode=='gridcolumn'){
-            var textcol=''
+                var field=n.attr.field;
+                var v=convertToText(rowdata[field],{'xml':true,'dtype':+n.attr.dtype})[1];
+                r.push(v);
+                r_xml=r_xml+'<'+field+'>'+v+'</'+field+'>';
+                r_html=r_html+'<td name="'+field+'">'+v+'</td>';
+            });
+            value['text/plain']=r.join('\t');
+            value['text/xml']=r_xml;
+            value['text/html']='<table><tr><!--StartFragment-->'+r_html+'<!--EndFragment--> </tr></table>';
+        }else if (dragmode=='cell'){
+            var celldata=widget.rowByIndex(dragInfo.row)[event.cell.field];
+            var rowdata=widget.rowByIndex(dragInfo.row);
+            value['gridcell']={'row':dragInfo.row,'column':dragInfo.column,'celldata':celldata,'rowdata':rowdata,'gridId':widget.sourceNode.attr.nodeId};
+            value['text/plain']=convertToText(celldata)[1];
+        }else if (dragmode=='column'){
+            var textcol='';
             var field=event.cell.field;
-            columndata=[]
+            columndata=[];
             for (var i=0; i < widget.rowCount; i++) {
-                var row=widget.rowByIndex(i,true)
+                var row=widget.rowByIndex(i,true);
                 var v=row?row[field]:'';
-                columndata.push(v)
-                textcol=textcol+convertToText(v)[1]+'\n'
+                columndata.push(v);
+                textcol=textcol+convertToText(v)[1]+'\n';
             };            
-            value['gridcolumn']={'column':dragInfo.column,'columndata':columndata,'gridId':widget.sourceNode.attr.nodeId}
-            value['text/plain']=textcol
+            value['gridcolumn']={'column':dragInfo.column,'columndata':columndata,'gridId':widget.sourceNode.attr.nodeId};
+            value['text/plain']=textcol;
         }
         
         return value;
     },
      fillDropInfo:function(dropInfo){
-        var dragSourceInfo=dropInfo.dragSourceInfo
-        var event=dropInfo.event
-        var widget=dropInfo.widget
-        var dropmode=dropInfo.dropmode //|| dragSourceInfo?dragSourceInfo.dragmode:null
-        if (widget.grid){
-            widget.content.decorateEvent(event)
-            widget=widget.grid
-        }else{
-            widget.views.views[0].header.decorateEvent(event)
+        var dragSourceInfo=dropInfo.dragSourceInfo;
+        var event=dropInfo.event;
+        var draggedTypes=genro.dom.dataTransferTypes(event.dataTransfer);
+        var dropModes = dropInfo.sourceNode.dropModes;
+        var dropmode;
+        for (dropmode in dropModes){
+            if(dojo.filter(dropModes[dropmode].split(','),function (value){ return dojo.indexOf(draggedTypes,value)>=0;}).length>0){
+                break;
+            };
         }
-        if (dropmode===true){
+
+        var widget=dropInfo.widget;
+        var dropmode=dropmode || 'grid'; //|| dragSourceInfo?dragSourceInfo.dragmode:null
+        if (widget.grid){
+            widget.content.decorateEvent(event);
+            widget=widget.grid;
+        }else{
+            widget.views.views[0].header.decorateEvent(event);
+        }
+        if (dropmode=='grid'){
             dropInfo.outline =  widget.domNode;
         }
         else if (dropmode=='column'){
-             dropInfo.column=event.cellIndex
+             dropInfo.column=event.cellIndex;
              dropInfo.outline =  widget.columnNodelist(event.cellIndex,true);
         }else{
              dropInfo.row=event.rowIndex;
              if(dropmode=='cell'){
-                 dropInfo.column=event.cellIndex
-                 dropInfo.outline=event.cellNode
+                 dropInfo.column=event.cellIndex;
+                 dropInfo.outline=event.cellNode;
              }else if(dropmode=='row'){
-                 dropInfo.outline=event.rowNode
+                 dropInfo.outline=event.rowNode;
              }
         }
-        dropInfo.widget=widget
-        dropInfo.sourceNode=widget.sourceNode
+        dropInfo.widget=widget;
+        dropInfo.sourceNode=widget.sourceNode;
          
      },
     fillDragInfo:function(dragInfo){
-        var event=dragInfo.event
-        var widget=dragInfo.widget
+        var event=dragInfo.event;
+        var widget=dragInfo.widget;
         if(widget.grid){
-            widget.content.decorateEvent(event)
-            widget=widget.grid
+            widget.content.decorateEvent(event);
+            widget=widget.grid;
         }else{
-            widget.views.views[0].header.decorateEvent(event)
+            widget.views.views[0].header.decorateEvent(event);
         }
-        dragInfo.column=event.cellIndex
+        dragInfo.column=event.cellIndex;
         dragInfo.row=event.rowIndex;
         if ((event.cellIndex>=0) && (event.rowIndex==-1)){
-             dragInfo.dragmode='gridcolumn'
+             dragInfo.dragmode='column';
              dragInfo.outline =  widget.columnNodelist(event.cellIndex,true);
         }else if((event.cellIndex==-1) && (event.rowIndex>=0)){
-             dragInfo.dragmode='gridrow'
-             dragInfo.outline=event.rowNode
+             dragInfo.dragmode='row';
+             dragInfo.outline=event.rowNode;
         }else if((event.cellIndex>=0) && (event.rowIndex>=0)){
-             dragInfo.dragmode='gridcell';
-             dragInfo.outline=event.cellNode
+             dragInfo.dragmode='cell';
+             dragInfo.outline=event.cellNode;
         }
-        dragInfo.widget=widget
-        dragInfo.sourceNode=widget.sourceNode
+        dragInfo.widget=widget;
+        dragInfo.sourceNode=widget.sourceNode;
     },    
     setTrashPosition: function(event){
         var trash = genro.dom.getDomNode('trash_drop');
@@ -3981,21 +3988,21 @@ dojo.declare("gnr.widgets.Tree",gnr.widgets.baseDojo,{
          }
     },
     fillDragInfo:function(dragInfo){
-         dragInfo.treenode=dragInfo.widget
-         dragInfo.widget=dragInfo.widget.tree
-         dragInfo.treeItem=dragInfo.treenode.item
+         dragInfo.treenode=dragInfo.widget;
+         dragInfo.widget=dragInfo.widget.tree;
+         dragInfo.treeItem=dragInfo.treenode.item;
          
      },
     fillDropInfo:function(dropInfo){
-         dropInfo.treenode=dropInfo.widget
-         dropInfo.widget=dropInfo.widget.tree
-         dropInfo.treeItem=dropInfo.treenode.item
-         dropInfo.outline=dropInfo.treenode.domNode
+         dropInfo.treenode=dropInfo.widget;
+         dropInfo.widget=dropInfo.widget.tree;
+         dropInfo.treeItem=dropInfo.treenode.item;
+         dropInfo.outline=dropInfo.treenode.domNode;
          
      },
     onDragStart:function(dragInfo){
-       var item=dragInfo.treenode.item
-       var result={}
+       var item=dragInfo.treenode.item;
+       var result={};
        if (item instanceof gnr.GnrBagNode){
            var v = item.getValue('static');
            result['text/plain']=v;
@@ -4003,7 +4010,7 @@ dojo.declare("gnr.widgets.Tree",gnr.widgets.baseDojo,{
        }else{
            result['text/plain']=item.label;
        }
-       result['treenode']={'fullpath':item.getFullpath(),'relpath':item.getFullpath(null,dragInfo.treenode.tree.model.store.rootData())}
+       result['treenode']={'fullpath':item.getFullpath(),'relpath':item.getFullpath(null,dragInfo.treenode.tree.model.store.rootData())};
        return result;
     },
     attributes_mixin_checkBoxCalcStatus:function(bagnode){

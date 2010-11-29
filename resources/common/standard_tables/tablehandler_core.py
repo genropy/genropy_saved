@@ -69,13 +69,16 @@ class TableHandlerToolbox(BaseComponent):
                      inspect='shift', labelAttribute='caption',
                      _class='fieldsTree',
                      hideValues=True,nodeId='treeField',
-                     dragIf="treeItem.attr.dtype && treeItem.attr.dtype!='RM' && treeItem.attr.dtype!='RO'",
-                     onDrag="""var fldinfo=objectUpdate({},treeItem.attr);
+                     onDrag="""
+                                if(!(treeItem.attr.dtype && treeItem.attr.dtype!='RM' && treeItem.attr.dtype!='RO')){
+                                    return false;
+                                }
+                               var fldinfo=objectUpdate({},treeItem.attr);
                                fldinfo['maintable']=genro._('gnr.maintable');
-                               return {'text/plain':treeItem.attr.fieldpath,'gnrdbfld':fldinfo} ;                            
+                               dragValues['text/plain']=treeItem.attr.fieldpath;
+                               dragValues['gnrdbfld']=fldinfo;                            
                              """,
                      draggable=True,
-                     dragClass='draggedItem',
                      getIconClass='if(node.attr.dtype){return "icnDtype_"+node.attr.dtype}')
 
 class ViewExporter(BaseComponent):
