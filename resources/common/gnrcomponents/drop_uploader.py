@@ -79,13 +79,15 @@ class DropUploader(BaseComponent):
         bc.dataController("""genro.wdgById(gridId).editBagRow(null,fired);""",fired='^.on_drop',
                             gridId=gridId,datapath=datapath)
         bc.dataController("""
-                console.log(filebag)
                 dojo.forEach(files,
                             function(f){
                                 var row = objectUpdate({_name:f.name,_size:f.size,_type:f.type,_file:f,_uploaderId:uploaderId},external_params);
                                 var label = (f.name+'_'+f.size+'_'+f.type).replace(/\W/g,'_');
                                 if(filebag.index(label)<0){
-                                    filebag.setItem(label,new gnr.GnrBag(row));
+                                    console.log('row');
+                                    var r = new gnr.GnrBag(row);
+                                    console.log(r)
+                                    filebag.setItem(label,r);
                                 }
                             });
                 """,filebag="=.uploading_data",files='^.prepare_files',datapath=datapath,
