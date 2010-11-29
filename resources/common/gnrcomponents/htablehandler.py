@@ -90,7 +90,7 @@ class HTableResolver(BagResolver):
                 get_tree_row_caption = _getTreeRowCaption2
             children.setItem(row['child_code'], value,
                              caption=tblobj.recordCaption(row,rowcaption=get_tree_row_caption(tblobj)),
-                             pkey=row['pkey'],code=row['code'],child_count=child_count,checked=False,
+                             rec_type=row['rec_type'],pkey=row['pkey'],code=row['code'],child_count=child_count,checked=False,
                              parent_code=row['parent_code'],description=row['description'])#_attributes=dict(row),
         return children
         
@@ -122,6 +122,7 @@ class HTableHandlerBase(BaseComponent):
             rootpath=row['code']
             code=row['code']
             child_count = row['child_count']
+            rec_type = row['rec_type']
 
         else:
             caption=rootcaption
@@ -130,10 +131,11 @@ class HTableHandlerBase(BaseComponent):
             pkey=None
             code=rootcode
             rootpath=None
+            rec_type = None
             child_count = tblobj.query().count()
         value =  HTableResolver(table=table,rootpath=rootpath,limit_rec_type=limit_rec_type,_page=self,
                                 related_table=related_table,relation_path=relation_path) #if child_count else None
-        result.setItem(rootlabel,value,child_count=child_count, caption=caption,pkey=pkey,code=code,checked=False)#,_attributes=_attributes)
+        result.setItem(rootlabel,value,child_count=child_count, caption=caption,pkey=pkey,code=code,rec_type=rec_type,checked=False)#,_attributes=_attributes)
         return result
                     
 class HTableHandler(HTableHandlerBase):
@@ -240,9 +242,7 @@ class HTableHandler(HTableHandlerBase):
                                 SET .edit.no_record = false;
                             }else{
                                 SET .edit.selectedPage='no_record';
-                                SET .edit.no_record = true;
-                                SET .edit.pkey = '*newrecord*';
-                                FIRE .edit.load;
+                                SET .edit.no_record = true;                                
                             }
                             """,pkey="^.tree.pkey")
         bc.dataController("""
@@ -331,7 +331,7 @@ class HTableHandler(HTableHandlerBase):
                                         _tree_caption='^.tree.caption',_storepath=storepath)
             
             ddb.menu(storepath=storepath,modifiers='*',_class='smallmenu',
-                     action="SET .edit.childType = $1.fullpath; SET .edit.childItem = new gnr.GnrBag($1);FIRE .edit.add_button;") 
+                     action="SET .edit.childType = $1.fullpath; FIRE .edit.add_button;") 
         else:
             pane.button(label='!!Add',float='left',disabled=disabled,
                                                         iconClass='icnBaseAdd',showLabel=False,
@@ -469,6 +469,7 @@ class HTableHandler(HTableHandlerBase):
                     margin='10px',isTree =False,hideValues=True,
                     inspect ='shift',labelAttribute ='caption',
                     selected_pkey='.tree.pkey',selectedPath='.tree.path',  
+                    selected_rec_type='.tree.rec_type',
                     selectedLabelClass='selectedTreeNode',
                     selected_code='.tree.code',
                     selected_caption='.tree.caption',
