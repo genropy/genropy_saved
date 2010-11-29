@@ -55,12 +55,12 @@ class GnrCustomWebPage(object):
         self.left(bc.contentPane(region='left',width='280px',splitter=True,datapath='table'))
         top = bc.contentPane(margin='5px',region='top').toolbar()
         fb = top.formbuilder(cols=6, border_spacing='4px',disabled=disabled)
-        box = fb.div(_class='fakeTextBox floatingPopup',width='15em',lbl='Table',colspan=2)
-        box.span('^.maintable')
+        
+        box = fb.field('maintable',width='15em',readOnly=True,validate_notnull=True) #fb.div(_class='fakeTextBox floatingPopup',width='15em',lbl='Table',colspan=2)
         box.menu(storepath='tableTree',modifiers='*',_class='smallmenu',action='SET .maintable = $1.fullpath')
         fb.field('name',width='20em')
         fb.field('version',width='4em')
-        fb.checkbox(value='^mainbc.regions.left?show',label='!!Show fields')        
+        fb.checkbox(value='^mainbc.regions.left?show',label='!!Show fields')     
         tc = bc.tabContainer(region='center',nodeId='doc_tabs',selectedPage='^doc_tabs.selectedPage')
         editorPane = tc.contentPane(title='Edit',pageName='edit',id='editpage')
         bc.dataRpc('preview.pkeys','getPreviewPkeys',
@@ -75,15 +75,18 @@ class GnrCustomWebPage(object):
     
     def previewPane(self,bc):
         top = bc.contentPane(region='top',overflow='hidden').toolbar()
-        fb = top.formbuilder(cols=3, border_spacing='2px')
-        fb.dbSelect(dbtable='^form.record.maintable',value='^preview.selected_id',lbl='!!Record',width='20em')
+        fb = top.formbuilder(cols=3, border_spacing='2px',visible='^form.record.maintable')
+        fb.dbSelect(dbtable='^form.record.maintable',value='^preview.selected_id',
+                    lbl='!!Record',width='20em')
         box = fb.div(width='70px')
         box.button('!!Previous', action='idx = idx>0?idx-1:10; SET preview.selected_id = pkeys[idx]; SET preview.idx = idx;', idx='=preview.idx',pkeys='=preview.pkeys',
                         iconClass="tb_button icnNavPrev",  showLabel=False)
         box.button('!!Next', action='idx = idx<=pkeys.length?idx+1:0; SET preview.selected_id = pkeys[idx]; SET preview.idx = idx;', idx='=preview.idx',pkeys='=preview.pkeys',
                         iconClass="tb_button icnNavNext", showLabel=False)
                         
-        fb.dbSelect(dbtable='adm.htmltemplate',value='^html_template_id',selected_name='html_template_name',lbl_width='10em',lbl='!!Template',width='20em',hasDownArrow=True)
+        fb.dbSelect(dbtable='adm.htmltemplate',value='^html_template_id',
+                    selected_name='html_template_name',lbl_width='10em',lbl='!!Template',
+                    width='20em',hasDownArrow=True)
         fb.dataRpc('preview.renderedtemplate','renderTemplate',doctemplate='=form.record',record_id='^preview.selected_id',
                     templates='^html_template_name',
                     content='=form.record.content',_if='content&&selectedTab=="view"',
@@ -133,6 +136,8 @@ class GnrCustomWebPage(object):
         return "%s::JS" %str(result).replace("u'","'")
 
     def rpc_renderTemplate(self,doctemplate=None,record_id=None,templates=None,**kwargs):
+        if not doctemplate['content']:
+            return
         tplbuilder = self.tblobj.getTemplateBuilder(doctemplate=doctemplate,templates=templates)
         return self.tblobj.renderTemplate(tplbuilder,record_id=record_id,extraData=Bag(dict(host=self.request.host)))
         
