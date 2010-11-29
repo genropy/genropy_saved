@@ -35,10 +35,10 @@ class Table(GnrHTable):
         return result
     
     def rectype_main(self):
-        return dict(children='db_root,root')
+        return dict(children='db_root,root',caption='Main')
     
     def rectype_root(self):
-        return dict(children='field,group',caption='Root',fields='comment')
+        return dict(children='field,group',caption='Root')
     
     def rectype_field(self):
         return dict(caption='Field',fields='fld,purpuse,comment')
@@ -50,7 +50,7 @@ class Table(GnrHTable):
         return dict(children='db_pkg',caption='Root Db')
         
     def rectype_db_pkg(self):
-        return dict(children='db_tbl,db_tgroup',fields='pkg,name_long,name_short',caption='Package')
+        return dict(children='db_tbl,db_tgroup',fields='pkg,name_long,name_short,name_full',caption='Package')
     
     def rectype_db_tgroup(self):
         return dict(children='db_tbl',fields='name_long,name_short',caption='Group of table')

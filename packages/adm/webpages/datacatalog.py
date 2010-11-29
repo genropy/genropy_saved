@@ -18,8 +18,6 @@
 #License along with this library; if not, write to the Free Software
 #Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 
-from gnr.core.gnrdict import dictExtract
-
 class GnrCustomWebPage(object):
     maintable='adm.datacatalog'
     py_requires="""public:Public,gnrcomponents/htablehandler:HTableHandler,
@@ -46,9 +44,8 @@ class GnrCustomWebPage(object):
                             
         top.dataController("""
                                 var result = new gnr.GnrBag();
-                                rec_type = rec_type || 'main';
-                                console.log(rec_type);
-                                var children_rec_types = rec_type_fullmenu.getNode(rec_type).attr.children;
+                                var rec_type_path = rec_type || 'main';
+                                var children_rec_types = rec_type_fullmenu.getNode(rec_type_path).attr.children;
                                 if (children_rec_types){
                                     children_rec_types= children_rec_types.split(',');
                                     dojo.forEach(children_rec_types,function(child_type){
@@ -58,9 +55,10 @@ class GnrCustomWebPage(object):
                                 }
                                 SET rec_type_menu = result;
                             """,rec_type_fullmenu="=rec_type_fullmenu",
-                                rec_type='=.edit.record.rec_type',_fired='^.edit.form.loaded',_onStart=True,
+                                rec_type='^.tree.rec_type',
+                                _onStart=True,
                                 datapath='datacatalog')
-        
+
     def datacatalog_form(self,parentBC,table=None,disabled=None,**kwargs):
         bc = parentBC.borderContainer(**kwargs)
         top = bc.contentPane(region='top',_class='pbl_roundedGroup',margin='2px')
@@ -87,8 +85,8 @@ class GnrCustomWebPage(object):
         fields = fields.split(',') if fields else []
         for fld in fields:
             fb.field(fld)
-        fb.br()
-        fb.field('purpose',tag='simpleTextArea',height='6ex',colspan=2,width='100%',lbl_vertical_align='top')
+        purpuse_width = '100%' if fields else '39em'
+        fb.field('purpose',tag='simpleTextArea',height='6ex',colspan=2,width=purpuse_width,lbl_vertical_align='top')
         center = bc.contentPane(region='center',overflow='hidden')
         center.div('Comment',_class='pbl_roundedGroupLabel')
         self.RichTextEditor(center, value='^.comment',height='70%',
@@ -108,6 +106,7 @@ class GnrCustomWebPage(object):
                             
     def remote_rec_type_db_field(self,pane, rec_type_dict=None, disabled=None, **kwargs):
         self.remote_rec_type_field(pane, rec_type_dict=rec_type_dict, disabled=disabled, **kwargs)
+        
     def remote_rec_type_field(self,pane, rec_type_dict=None, disabled=None, **kwargs):
         bc = pane.borderContainer(height='100%')
         top = bc.contentPane(region='top')
