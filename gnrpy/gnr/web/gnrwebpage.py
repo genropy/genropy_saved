@@ -116,7 +116,7 @@ class GnrWebPage(GnrBaseWebPage):
         self._call_handler=self.get_call_handler(request_args, request_kwargs)
         page_id = request_kwargs.pop('page_id',None)
         self.page_item=self._check_page_id(page_id,kwargs=request_kwargs)
-        self._workdate=self.page_item['data']['workdate']
+        self._workdate=self.page_item['data']['workdate'] or datetime.date.today()
         self.onIniting(request_args,request_kwargs)
         self._call_args = request_args or tuple()
         self._call_kwargs = request_kwargs or {}
@@ -138,7 +138,7 @@ class GnrWebPage(GnrBaseWebPage):
             if not self.connection.connection_id:
                 self.connection.create()
             self.page_id = getUuid()
-            workdate=kwargs.pop('_workdate_',None) or datetime.date.today()
+            workdate=kwargs.pop('_workdate_',None)# or datetime.date.today()
             return self.site.register.new_page(self.page_id,self,data=dict(pageArgs=kwargs,workdate=workdate))
         
 
