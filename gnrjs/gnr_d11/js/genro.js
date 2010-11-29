@@ -70,7 +70,7 @@ dojo.declare('gnr.GenroClient', null, {
         setTimeout(dojo.hitch(this, 'genroInit'), 1);
     },
     genroInit:function(){
-         this.startTime=new Date();
+        this.startTime=new Date();
         this.lastTime=this.startTime;
         this.dialogStack = [];
         this.sounds={};
@@ -173,6 +173,9 @@ dojo.declare('gnr.GenroClient', null, {
             if (genro.user_polling>0){
                 genro._lastUserEventTs=new Date();
                 if ((genro._lastUserEventTs - genro.lastRpc)/1000 >genro.user_polling){
+                    if(genro._lastUserEventTs.getDate()!=this.startTime){
+                        genro.publish('WARNING_CHANGED_DATE')
+                    }
                     genro.rpc.ping({'reason':'user'});
                 }
             }
