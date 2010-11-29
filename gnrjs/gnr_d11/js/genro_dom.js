@@ -682,12 +682,12 @@ dojo.declare("gnr.GnrDomHandler",null,{
    
      onDrop:function(event){
         genro.dom.outlineShape(null)
+        event.stopPropagation();
         var dropInfo=this.getDragDropInfo(event)
         if (!dropInfo){ return;}
         var domnode=dropInfo.domnode;
         var sourceNode=dropInfo.sourceNode;
         var dataTransfer=event.dataTransfer;
-        event.stopPropagation();
         var canBeDropped=this.canBeDropped(dataTransfer,sourceNode); // dovrei già essere bono
         if(canBeDropped){
             var inherited=sourceNode.getInheritedAttributes();
