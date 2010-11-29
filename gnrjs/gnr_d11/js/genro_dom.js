@@ -626,15 +626,14 @@ dojo.declare("gnr.GnrDomHandler",null,{
                 info.hasDragType=function(){
                     var draggedTypes=genro.dom.dataTransferTypes(event.dataTransfer)
                     return (dojo.filter(arguments,function (value){ return dojo.indexOf(draggedTypes,value)>=0;}).length>0)
-                    
                 }
-                info.handler.fillDropInfo(info)
                 if( typeof(droppable)=='function'){
                     droppable = funcApply(droppable, {'dropInfo':info}, info.sourceNode);
                 }
             }
             if (droppable){
                 info.dropmode=droppable
+                info.handler.fillDropInfo(info)
             }else{
                 info = null;
             }
