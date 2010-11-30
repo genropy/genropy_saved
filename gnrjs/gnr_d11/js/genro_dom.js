@@ -620,6 +620,7 @@ dojo.declare("gnr.GnrDomHandler",null,{
             var sourceNode = info.sourceNode;
             var attr=sourceNode.attr;
             var dropTarget = sourceNode.dropTarget;
+            info.handler.fillDropInfo(info);
             if(sourceNode.dropTargetCb){
                 var dropTarget = sourceNode.dropTargetCb(info);
             }
@@ -631,7 +632,6 @@ dojo.declare("gnr.GnrDomHandler",null,{
                     var draggedTypes=genro.dom.dataTransferTypes(event.dataTransfer);
                     return (dojo.filter(arguments,function (value){ return dojo.indexOf(draggedTypes,value)>=0;}).length>0);
                 };
-                info.handler.fillDropInfo(info);
             }
             else{
                 info = null;

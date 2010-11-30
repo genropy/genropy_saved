@@ -345,10 +345,7 @@ dojo.declare("gnr.widgets.baseHtml",null,{
         objectExtract(attributes,'onDrop,onDrag,dragTag,dropTag,dragTypes,dropTypes');
         objectExtract(attributes,'onDrop_*');
         savedAttrs['dropTarget'] = objectPop(attributes,'dropTarget');
-        var dropTargetCb = objectPop(attributes,'dropTargetCb');
-        if(dropTargetCb){
-            attributes['dropTargetCb'] = funcCreate(dropTargetCb,'dropInfo',sourceNode);
-        }
+        savedAttrs['dropTargetCb'] = objectPop(attributes,'dropTargetCb');
 
         savedAttrs.connectedMenu=objectPop(attributes,'connectedMenu');
         savedAttrs.onEnter = objectPop(attributes,'onEnter');
@@ -439,6 +436,9 @@ dojo.declare("gnr.widgets.baseHtml",null,{
                 menu.bindDomNode(domNode);
             }
             
+        }
+        if (savedAttrs.dropTargetCb){
+            sourceNode.dropTargetCb=funcCreate(savedAttrs.dropTargetCb,'dropInfo',sourceNode);
         }
         if (savedAttrs.dropTarget) {
             if(newobj.setDropTarget){
