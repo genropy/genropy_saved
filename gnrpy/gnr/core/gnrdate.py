@@ -656,7 +656,7 @@ class TimePeriod(object):
         
         If it overlaps with any existing interval in this TimePeriod, they'll be merged.
         
-        :param item:    TimeInterval or TimePeriod
+        :param item:    TimeInterval or TimePeriod or string
         """
         if isinstance(item, TimePeriod):
             intervals = item.intervals
