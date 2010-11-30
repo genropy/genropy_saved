@@ -35,9 +35,9 @@ class TableHandlerForm(BaseComponent):
             self.setLogicalDeletionCheckBox(bottom['left'])
     
     def setLogicalDeletionCheckBox(self, elem):
-        elem.div(padding_left='5px',
-                 padding_top='2px',
-                 hidden='^aux.listpage').checkbox(label='!!Hidden',
+        box = elem.div(padding_left='5px',
+                 padding_top='2px',width='10em')
+        box.div(hidden='^aux.listpage').checkbox(label='!!Hidden',
                                                   value='^form.logical_deleted',
                                                   disabled='^form.locked')
         elem.dataFormula('aux.listpage', '!selectedpage', selectedpage='^selectedPage', _onStart=True)
