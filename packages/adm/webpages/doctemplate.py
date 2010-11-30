@@ -107,7 +107,7 @@ class GnrCustomWebPage(object):
         fb.textbox(value='^.from_address',lbl='From Address field')
         
     def html_item_res(self):
-        return """<span>&nbsp<span class="tplfieldpath" fieldpath="'+treeItem.attr.fieldpath+'" itemtag = "'+treeItem.attr.tag+'">$'+treeItem.attr.fieldpath+'</span><span class="tplfieldcaption">'+treeItem.attr.caption+'</span>&nbsp</span>"""
+        return """<span><span class="tplfieldpath" fieldpath="'+treeItem.attr.fieldpath+'" itemtag = "'+treeItem.attr.tag+'">$'+treeItem.attr.fieldpath+'</span><span class="tplfieldcaption">'+treeItem.attr.caption+'</span></span><span>&nbsp</span>"""
         
     def left(self,pane):
         pane.dataRemote('.tree.fields','relationExplorer',table='^form.record.maintable',
