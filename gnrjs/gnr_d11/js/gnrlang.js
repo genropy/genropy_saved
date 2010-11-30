@@ -63,6 +63,13 @@ function arrayPushNoDup(arr,item){
     };
 }
 
+function arrayMatch(a,matchString){
+    if (matchString.indexOf('*')>=0){
+        matchString=matchString.replace('*','(.*)');
+    }
+    return dojo.filter(a,function(item){return item.match(matchString);});
+}
+
 //funzione di utilità per una split insensibile al punto 
 function smartsplit(/*string*/path, /*string*/on)
 {

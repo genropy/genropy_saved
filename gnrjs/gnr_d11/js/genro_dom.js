@@ -531,7 +531,7 @@ dojo.declare("gnr.GnrDomHandler",null,{
             supportedTypes.push(k);
         }
         var draggedTypes=genro.dom.dataTransferTypes(dataTransfer);
-        if(dojo.filter(supportedTypes,function (value){ return dojo.indexOf(draggedTypes,value)>=0;}).length==0){
+        if(dojo.filter(supportedTypes,function(supportedType){return arrayMatch(draggedTypes,supportedType).length>0}).length==0){
             return false;
         };
         var dropTags=sourceNode.getInheritedAttributes().dropTags;
@@ -726,13 +726,18 @@ dojo.declare("gnr.GnrDomHandler",null,{
         var values={};
         for (var i=0; i < dataTransferTypes.length; i++) {
             var datatype=dataTransferTypes[i];
+            if(datatype.indexOf('sourceNode_')==0){
+                continue;
+            }
             var datatype_code=datatype.replace(/\W/g,'_');
-            if (inherited['onDrop_'+datatype_code] || (dojo.indexOf(dropTypes,dataTransferTypes[i])>=0)){
+            var inDropTypes=(dojo.filter(dropTypes,function(dropType){return datatype.match(dropType.replace('*','(.*)'))}).length>0);
+            //var inDropTypes = dataTransferTypes[i].match()//(arrayMatch(dropTypes,dataTransferTypes[i]).length>0);
+            if (inherited['onDrop_'+datatype_code] || inDropTypes){
                  var value=genro.dom.getFromDataTransfer(dataTransfer,datatype);
                 if (inherited['onDrop_'+datatype_code]){
                     params['data']=value;
                     funcApply(inherited['onDrop_'+datatype_code],params, sourceNode);
-                }else{
+                }else if(inDropTypes){
                     values[datatype_code]=value;
                 }
             }  
