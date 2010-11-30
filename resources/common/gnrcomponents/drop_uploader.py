@@ -59,6 +59,7 @@ class DropUploader(BaseComponent):
                             footer=footer,del_action=True,del_enabled=enabled,
                             editorEnabled=enabled,autoWidth=True,
                             onDrop="FIRE .prepare_files=files;FIRE .on_drop = 1000;",
+                            dropTarget_grid='Files',
                             dropTarget=True,
                             dropTypes='Files')
         gridEditor = iv.gridEditor()
@@ -84,9 +85,7 @@ class DropUploader(BaseComponent):
                                 var row = objectUpdate({_name:f.name,_size:f.size,_type:f.type,_file:f,_uploaderId:uploaderId},external_params);
                                 var label = (f.name+'_'+f.size+'_'+f.type).replace(/\W/g,'_');
                                 if(filebag.index(label)<0){
-                                    console.log('row');
                                     var r = new gnr.GnrBag(row);
-                                    console.log(r)
                                     filebag.setItem(label,r);
                                 }
                             });
