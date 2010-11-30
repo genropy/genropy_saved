@@ -38,7 +38,7 @@ class GnrCustomWebPage(object):
         dropboxes=fb.div(onDrop="""for (var k in data){
                                        alert(k+' :'+data[k])
                                    }""",
-                                   lbl='Drop boxes text/plain',dropTypes='text/plain')
+                                   lbl='Drop boxes text/plain',dropTypes='text/plain,text/html')
                             
         dropboxes.div('no tags',width='100px',height='50px',margin='3px',background_color='whithesmoke',
                             float='left',dropTarget=True)

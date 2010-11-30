@@ -40,7 +40,7 @@ class FlibBase(BaseComponent):
                              #draggable=True,
                              onDrag="""
                                     var row = dragValues.gridrow.rowdata;
-                                    return {'flib_element':row._pkey};                                
+                                    dragValues['flib_element'] = row._pkey;                                
                              """,
                              filterOn='title,description',
                              selectionPars=selectionPars)

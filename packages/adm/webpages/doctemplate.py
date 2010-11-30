@@ -64,7 +64,14 @@ class GnrCustomWebPage(object):
         tc = bc.tabContainer(region='center',nodeId='doc_tabs',selectedPage='^doc_tabs.selectedPage')
         editorPane = tc.contentPane(title='Edit',pageName='edit',id='editpage')
         bc.dataRpc('preview.pkeys','getPreviewPkeys',
-                    maintable='^.maintable',_if='maintable',_onResult='SET preview.selected_id = result[0]; SET preview.idx=0')
+                    maintable='^.maintable',_if='maintable',
+                    _onResult="""
+                                 var first_row = result[0];
+                                 SET preview.selected_id = first_row; 
+                                 SET preview.idx=0;
+                                """
+                    )
+        #bc.dataController("console.log('record_id');console.log(record_id)",record_id="^preview.selected_id")
         
         self.previewPane(tc.borderContainer(title='Preview',pageName='view',_class='preview'))        
         self.metadataForm(tc.contentPane(title='!!Metadata',pageName='metadata',datapath='.metadata'),disabled=disabled)
@@ -88,10 +95,9 @@ class GnrCustomWebPage(object):
                     selected_name='html_template_name',lbl_width='10em',lbl='!!Template',
                     width='20em',hasDownArrow=True)
         fb.dataRpc('preview.renderedtemplate','renderTemplate',doctemplate='=form.record',record_id='^preview.selected_id',
-                    templates='^html_template_name',
-                    content='=form.record.content',_if='content&&selectedTab=="view"',
+                    templates='^html_template_name',_if='selectedTab=="view"&&doctemplate.getItem("content")',
                     selectedTab='^doc_tabs.selectedPage')
-
+        
         bc.contentPane(region='center',padding='10px').div(height='100%',background='white').div(innerHTML='^preview.renderedtemplate')
                             
     def metadataForm(self,pane,disabled=None):
@@ -101,7 +107,7 @@ class GnrCustomWebPage(object):
         fb.textbox(value='^.from_address',lbl='From Address field')
         
     def html_item_res(self):
-        return """<span class="tplfieldpath" fieldpath="'+treeItem.attr.fieldpath+'" itemtag = "'+treeItem.attr.tag+'">$'+treeItem.attr.fieldpath+'</span><span class="tplfieldcaption">'+treeItem.attr.caption+'</span><span>&nbsp</span>"""
+        return """<span>&nbsp<span class="tplfieldpath" fieldpath="'+treeItem.attr.fieldpath+'" itemtag = "'+treeItem.attr.tag+'">$'+treeItem.attr.fieldpath+'</span><span class="tplfieldcaption">'+treeItem.attr.caption+'</span>&nbsp</span>"""
         
     def left(self,pane):
         pane.dataRemote('.tree.fields','relationExplorer',table='^form.record.maintable',
