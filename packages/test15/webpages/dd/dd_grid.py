@@ -33,7 +33,7 @@ class GnrCustomWebPage(object):
         dropboxes.div('no tags',width='100px',height='50px',margin='3px',background_color='lightgray',
                             float='left',dropTarget=True)
         dropboxes.div('only foo',width='100px',height='50px',margin='3px',background_color='#fcfca9',
-                            float='left',dropTags='foo',dropTarget=True)
+                            float='left',dropTags='foo',dropTarget=True,id='pippone')
         dropboxes.div('only bar',width='100px',height='50px',margin='3px',background_color='#ffc2f5',
                             float='left',dropTags='bar',dropTarget=True)
         dropboxes.div('only foo AND bar',width='100px',height='50px',margin='3px',background_color='#a7cffb',

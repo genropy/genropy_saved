@@ -1225,7 +1225,11 @@ textarea:disabled {
 .dojoxGrid-header .cannotBeDropped{
     background: #ffa997 !important;
 }
-
+.rowsetdragging{
+	position: absolute;
+	top: 0px;
+	font-size:0.8em;
+}
 
 #trash_drop.canBeDropped{
     background-color: rgba(170,170,170,0.9) !important;

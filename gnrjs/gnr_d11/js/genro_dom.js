@@ -632,6 +632,10 @@ dojo.declare("gnr.GnrDomHandler",null,{
                     var draggedTypes=genro.dom.dataTransferTypes(event.dataTransfer);
                     return (dojo.filter(arguments,function (value){ return dojo.indexOf(draggedTypes,value)>=0;}).length>0);
                 };
+                var continueDrop=info.handler.fillDropInfo(info);
+                if(continueDrop===false){
+                    info = null;
+                }
             }
             else{
                 info = null;
@@ -758,16 +762,20 @@ dojo.declare("gnr.GnrDomHandler",null,{
         var widget = dragInfo.widget;
         genro.dom._transferObj={};
         var dataTransfer=event.dataTransfer;
-        var dragClass=inherited['dragClass'] || 'draggedItem';
-        if(dragClass){
-            genro.dom.addClass(dragInfo.domnode,dragClass);
-            dragInfo.dragClass=dragClass;
-            setTimeout(function(){genro.dom.removeClass(dragInfo.domnode,dragClass);},1);
+        if(!dragInfo.dragImageNode){
+            var dragClass=inherited['dragClass'] || 'draggedItem';
+            if(dragClass){
+                genro.dom.addClass(dragInfo.domnode,dragClass);
+                dragInfo.dragClass=dragClass;
+                setTimeout(function(){genro.dom.removeClass(dragInfo.domnode,dragClass);},1);
+            }
         }
+        
         if('trashable' in dragValues){
-            genro.dom.addClass(dojo.body(),'drag_to_trash');
             if(widget){
-                widget.gnr.setTrashPosition(event);
+                if(widget.gnr.setTrashPosition(dragInfo)){
+                    genro.dom.addClass(dojo.body(),'drag_to_trash');
+                };
             }
         }
         var dragTags=inherited['dragTags'];

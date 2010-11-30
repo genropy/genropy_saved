@@ -447,7 +447,7 @@ class TableHandlerForm(BaseComponent):
                                 #droppable="""if(dropInfo.hasDragType('gnrdbfld','gridcolumn')){return 'column'}""",
                                 onDrop_gnrdbfld="""this.widget.addColumn(data,dropInfo.column);genro.fireAfter('list.runQueryDo',true)""",
                                 onDrop_gridcolumn="""this.widget.moveColumn(data.column,dropInfo.column)""",
-                                draggable=True,draggable_column=True,
+                                draggable=True,draggable_column=True,draggable_row=True,
                                 onDrag="""dragValues['trashable']={'nodeId':dragInfo.nodeId,'column':dragInfo.column};""",
                                 dragClass='draggedItem',
                                 onDrop=""" for (var k in data){
