@@ -116,7 +116,7 @@ class GnrWebPage(GnrBaseWebPage):
         self._call_handler=self.get_call_handler(request_args, request_kwargs)
         page_id = request_kwargs.pop('page_id',None)
         self.page_item=self._check_page_id(page_id,kwargs=request_kwargs)
-        self._workdate=self.page_item['data']['workdate'] or datetime.date.today()
+        self._workdate=self.page_item['data']['workdate'] #or datetime.date.today()
         self.onIniting(request_args,request_kwargs)
         self._call_args = request_args or tuple()
         self._call_kwargs = request_kwargs or {}
@@ -220,7 +220,7 @@ class GnrWebPage(GnrBaseWebPage):
     db = property(_get_db)
     
     def _get_workdate(self):
-        return self._workdate
+        return self._workdate or datetime.date.today()
     
     def _set_workdate(self, workdate):
         with self.pageStore() as store:
