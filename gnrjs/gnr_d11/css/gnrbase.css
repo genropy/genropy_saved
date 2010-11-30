@@ -81,6 +81,7 @@ label.ghostlabel span{
 	visibility: hidden;
 }
 
+
 /* @group dialog */
 .dlg_ask{
     padding: 5px;
@@ -1136,6 +1137,9 @@ table.formbuilder {
 
 /* @end */
 
+.tundra .dojoxFloatingPane{
+    z-index:10000 !important;
+}
 /* @end */
 
 .waiting {
