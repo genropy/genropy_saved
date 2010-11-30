@@ -2383,11 +2383,11 @@ dojo.declare("gnr.widgets.Grid",gnr.widgets.baseDojo,{
         dragInfo.sourceNode=widget.sourceNode;
     },    
     setTrashPosition: function(dragInfo){
-        var cellNode=dragInfo.cellNode;
+        var cellNode=dragInfo.event.cellNode;
         if(cellNode){
             var trash = genro.dom.getDomNode('trash_drop');
             var mb=dojo.marginBox(trash);
-            var vp=dojo.coords(event.cellNode);
+            var vp=dojo.coords(cellNode);
             trash.style.left = Math.floor(vp.x ) + "px";
             trash.style.top = Math.floor(vp.y + vp.h+ 1) + "px";
             return true;
