@@ -19,9 +19,9 @@ class ExplorerManager(BaseComponent):
     def explorer_manager_main(self,explorers):
         explorer_tables = explorers.split(',')
         pane = self.pageSource('pbl_bottomBarCenter').value
-        pane.dock(id='explorer_dock',width='100px',background='none',border=0)
+        pane.dock(id='explorer_dock',width='100px',background='none',border=0,float='right')
         floating = pane.floatingPane(title='!!Explorers',height='400px',width='300px',
-                        top='100px',right='100px',closable=False,resizable=True,z_index=10000,persist=True,
+                        top='100px',right='100px',closable=False,resizable=True,persist=True,
                         dockable=True,dockTo='explorer_dock',_class='shadow_4',visibility='hidden',
                         datapath='gnr.explorers')
         tc = floating.tabContainer(margin='2px')
@@ -57,9 +57,10 @@ class ExplorerManager(BaseComponent):
                  hideValues=True,
                  margin='6px',
                  font_size='.9em',
-                 onDrag=""" if(!(treeItem.attr.child_count==0 || !treeItem.attr.child_count)){
+                 draggable=True,
+                 onDrag=""" if(treeItem.attr.child_count && treeItem.attr.child_count>0){
                                 return false;
                             }
-                            dragValues['text/plain']=treeItem.attr.caption,
-                           dragValues['%s_item']=treeItem.attr;""" %explorername)
+                            dragValues['text/plain']=treeItem.attr.caption;
+                           dragValues['explorer_%s']=treeItem.attr;""" %explorername)
             

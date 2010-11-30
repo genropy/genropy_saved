@@ -391,6 +391,7 @@ class TableHandlerForm(BaseComponent):
         return None
         
     def gridPane(self,pane):
+        lstkwargs = dict()
         stats_main = getattr(self,'stats_main',None)
         if self.hierarchicalViewConf() or self.hierarchicalEdit() or stats_main:
             tc = pane.tabContainer(selected='^list.selectedTab')
@@ -435,27 +436,28 @@ class TableHandlerForm(BaseComponent):
                              _onCalling=self.onQueryCalling(),
                              _onResult='FIRE list.queryEnd=true; SET list.selectmethod=null;',
                              **condPars)
-        dropTypes = 'gnrdbfld,gridcolumn'
-        if hasattr(self,'explorer_manager_draggable_types'):
-            dropTypes = '%s,%s' %(dropTypes,self.explorer_manager_draggable_types())
+        customOnDrops = dict([('onDrop_%s'%k[10:],getattr(self,k)()) for k in dir(self) if k.startswith('lstOnDrop_')])
+        lstkwargs.update(customOnDrops)
         gridpane.virtualGrid(nodeId='maingrid', structpath="list.view.structure", storepath=".data", autoWidth=False,
                                 selectedIndex='list.rowIndex', rowsPerPage=self.rowsPerPage(), sortedBy='^list.grid.sorted',
                                 connect_onSelectionChanged='SET list.noSelection = (genro.wdgById("maingrid").selection.getSelectedCount()==0)',
-                                linkedForm='formPane',openFormEvent='onRowDblClick',dropTypes=dropTypes,
+                                linkedForm='formPane',openFormEvent='onRowDblClick',dropTypes=None,
                                 dropTarget=True,
                                 dropTarget_column='gnrdbfld,gridcolumn',
-                                #droppable="""if(dropInfo.hasDragType('gnrdbfld','gridcolumn')){return 'column'}""",
+                                dropTarget_grid='explorer_*',
                                 onDrop_gnrdbfld="""this.widget.addColumn(data,dropInfo.column);genro.fireAfter('list.runQueryDo',true)""",
                                 onDrop_gridcolumn="""this.widget.moveColumn(data.column,dropInfo.column)""",
+                                onDrop_gridrow='console.log("dropped gridrow");console.log(data);',
                                 draggable=True,draggable_column=True,draggable_row=True,
                                 onDrag="""dragValues['trashable']={'nodeId':dragInfo.nodeId,'column':dragInfo.column};""",
                                 dragClass='draggedItem',
                                 onDrop=""" for (var k in data){
-                                             genro.publish('maingrid_dropped_'+k,data[k])
+                                             this.setRelativeData('list.external_drag.'+k,new gnr.GnrBag(data[k]));
                                           }""",
+                                
                                 connect_onRowContextMenu="FIRE list.onSelectionMenu = true;",
-                                subscribe_trashedObject="""this.widget.deleteColumn($1.column);"""
-                                )   
+                                subscribe_trashedObject="""this.widget.deleteColumn($1.column);""",
+                                **lstkwargs)   
         
         pane.dataController("SET list.selectedIndex = idx; SET selectedPage = 1;",idx="^gnr.forms.formPane.openFormIdx") 
 
