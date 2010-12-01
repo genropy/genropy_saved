@@ -919,6 +919,28 @@ table.formbuilder {
     width: 40px;
 	height: 40px;
 }
+.key_icon48{
+    background:url(icons/base48/keyicon.png) no-repeat center center;
+    width: 48px;
+	height: 48px;
+}
+.money_icon48{
+    background:url(icons/base48/money.png) no-repeat center center;
+    width: 48px;
+	height: 48px;
+}
+.drawer_icon48{
+    background:url(icons/base48/drawer.png) no-repeat center center;
+    width: 48px;
+	height: 48px;
+}
+
+.creditcard_icon48{
+    background:url(icons/base48/creditcard.png) no-repeat center center;
+    width: 48px;
+	height: 48px;
+}
+
 
 .confirm_icon48{
     background:url(icons/base48/confirm.png) no-repeat center center;
