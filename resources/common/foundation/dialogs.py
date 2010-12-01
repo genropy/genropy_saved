@@ -147,7 +147,11 @@ class Dialogs(BaseComponent):
 
         dlg=dlg.tooltipdialog(nodeId=dlgId, connect_onOpen='genro.wdgById("%s").resize();%s' % (bcId, onOpen),
                               connect_onClose=close_action)
-        pane.dataController("""genro.wdgById(btnId)._openDropDown(genro._firingNode.getDomNode());""", 
+        pane.dataController("""
+                                if(_reason=='container'){
+                                    return;
+                                }
+                                genro.wdgById(btnId)._openDropDown(genro._firingNode.getDomNode());""", 
                                 btnId=btnId, fired=fired) 
         container=dlg.borderContainer(height=height,width=width,nodeId=bcId, onEnter=onEnter,_class='pbl_dialog_center')
         if title is not False:
