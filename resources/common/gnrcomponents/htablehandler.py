@@ -143,7 +143,7 @@ class HTableHandler(HTableHandlerBase):
     css_requires='public'
     def htableHandler(self,parent,nodeId=None,datapath=None,table=None,rootpath=None,label=None,
                     editMode='bc',childTypes=None,dialogPars=None,loadKwargs=None,parentLock=None,
-                    where=None,onChecked=None,plainView=False,noRecordClass='noRecordSelected'):
+                    where=None,onChecked=None,plainView=False,childsCodes=False,noRecordClass='noRecordSelected'):
         """
         .tree: tree data:
                         store
@@ -155,8 +155,20 @@ class HTableHandler(HTableHandlerBase):
         controllerNodeId:nodeId_edit
         treeId:nodeId_tree
         editMode:'bc','sc','dlg'
+        childsCodes:tuple(path,field) returns a list of values of all the selected node childs at a given path.
+                    Useful to list, via a selectionHandler or an includedView ... , both all the records related to the selected node and
+                    those related to the childs nodes
         """
         disabled ='^#%s.edit.status.locked'%nodeId
+        if childsCodes:
+            childsCodesDiv=parent.div(datapath=datapath)
+            if isinstance(childsCodes,tuple):
+                childsCodesPath=childsCodes[0]
+                field=childsCodes[1]
+                childsCodesDiv.dataRpc(childsCodesPath,'getChildsIds',field=field,code='^.edit.record.code',table=table)
+            else:
+                childsCodesDiv.dataRpc(childsCodes,'getChildsIds',field=None,code='^.edit.record.code',table=table)
+                
         if parentLock:
             parent.dataController("SET .edit.status.locked=parentLock;",parentLock=parentLock,datapath=datapath)
             parent.dataController("""SET %s=isLocked;""" %parentLock[1:],
@@ -206,7 +218,12 @@ class HTableHandler(HTableHandlerBase):
         self.ht_edit(formpane,table=table,nodeId=nodeId,disabled=disabled,
                         rootpath=rootpath,editMode=editMode,loadKwargs=loadKwargs,
                         childTypes=childTypes,commonTop=commonTop,noRecordClass=noRecordClass)
-                        
+    
+    def rpc_getChildsIds(self,code=None,field=None,table=None):
+        field =field or 'code'
+        records=self.db.table(table).query(field,where='($code LIKE :code)',code='%s%%'%code,addPkeyColumn=False).fetch()
+        return str([str(f[field]) for f in records])+'::JS'
+        
     def ht_edit_dlg_bottom(self,bc,**kwargs):
         bottom = bc.contentPane(**kwargs)
         bottom.button('!!Close',fire='.close')
