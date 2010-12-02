@@ -935,6 +935,12 @@ table.formbuilder {
 	height: 48px;
 }
 
+.keyboard_icon48{
+    background:url(icons/base48/keyboard.png) no-repeat center center;
+    width: 48px;
+	height: 48px;
+}
+
 .creditcard_icon48{
     background:url(icons/base48/creditcard.png) no-repeat center center;
     width: 48px;
