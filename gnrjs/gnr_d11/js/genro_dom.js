@@ -567,16 +567,6 @@ dojo.declare("gnr.GnrDomHandler",null,{
    
     },
     onDragOver:function(event){
-        if(false){
-                var result=event.type+' ('+event.dataTransfer.getData('text/plain')+') :';
-        var draggedTypes=event.dataTransfer.types;
-        for (var i=0; i < draggedTypes.length; i++) {
-            result=result+draggedTypes[i]+'  ';
-        };
-             console.log(result);
-        }
-    
-        
         if(genro._lastDropTarget!=event.target){
             if(genro._lastDropTarget){
                 genro.dom.onDragLeave(event);
@@ -621,11 +611,8 @@ dojo.declare("gnr.GnrDomHandler",null,{
             var sourceNode = info.sourceNode;
             var attr=sourceNode.attr;
             var dropTarget = sourceNode.dropTarget;
-            info.handler.fillDropInfo(info);
-            if(sourceNode.dropTargetCb){
-                var dropTarget = sourceNode.dropTargetCb(info);
-            }
-            if (dropTarget){
+            var dropTargetCb=sourceNode.dropTargetCb
+            if (dropTarget || dropTargetCb){
                 info.dragSourceInfo=genro.dom.getDragSourceInfo(event.dataTransfer);
                 info.sourceNodeId=info.dragSourceInfo.nodeId;
                 info.selfdrop=(info.nodeId && (info.nodeId==info.sourceNodeId));
@@ -633,8 +620,8 @@ dojo.declare("gnr.GnrDomHandler",null,{
                     var draggedTypes=genro.dom.dataTransferTypes(event.dataTransfer);
                     return (dojo.filter(arguments,function (value){ return dojo.indexOf(draggedTypes,value)>=0;}).length>0);
                 };
-                var continueDrop=info.handler.fillDropInfo(info);
-                if(continueDrop===false){
+                var continueDrop = ! (info.handler.fillDropInfo(info)===false);
+                if(!continueDrop ||( dropTargetCb &&  (! dropTargetCb(info)))){
                     info = null;
                 }
             }
@@ -709,7 +696,6 @@ dojo.declare("gnr.GnrDomHandler",null,{
     onDrop_files:function(dataTransfer,inherited,params,sourceNode){
         var onDropAction = inherited.onDrop;
         if (!onDropAction){return;}
-        console.log('files');
         var drop_ext=inherited.drop_ext;
         var valid_ext=drop_ext?splitStrip(drop_ext):null;
         var files=[];
