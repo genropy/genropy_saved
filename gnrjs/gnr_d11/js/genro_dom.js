@@ -526,7 +526,8 @@ dojo.declare("gnr.GnrDomHandler",null,{
     canBeDropped:function(dataTransfer,sourceNode){
         var inherited=sourceNode.getInheritedAttributes();
         var dragSourceInfo=genro.dom.getDragSourceInfo(dataTransfer);
-        var supportedTypes=splitStrip(sourceNode.getInheritedAttributes().dropTypes || 'text/plain');
+        var supportedTypes=sourceNode.getInheritedAttributes().dropTypes
+        var supportedTypes=supportedTypes?splitStrip( supportedTypes):[];
         for (var k in objectExtract(inherited,'onDrop_*',true)){
             supportedTypes.push(k);
         }
