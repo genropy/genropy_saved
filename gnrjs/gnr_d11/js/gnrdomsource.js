@@ -203,6 +203,13 @@ dojo.declare("gnr.GnrDomSourceNode",gnr.GnrBagNode,{
         if (subscription_args){
             argNames.push(trigger_reason);
             argValues.push(subscription_args);
+            if ((subscription_args.length == 1) && (typeof(subscription_args[0])=='object')){
+                for (var k in subscription_args[0]){
+                    argNames.push(k);
+                    argValues.push(subscription_args[0][k]);
+                    kwargs[k]=subscription_args[0][k];
+                }
+            }
         }
         var val;
         if(_trace && (_trace_level > 0)) {
