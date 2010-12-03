@@ -26,8 +26,6 @@ class GnrCustomWebPage(object):
                                    console.log(dropInfo);
                                    console.log(data);
                                    alert('text plain dropped here:'+data)""",
-                            
-                  
                   lbl='Drop boxes text/plain',dropTypes='text/plain,gridrow/json,gridcell/json,gridcolumn/json')
                             
         dropboxes.div('no tags',width='100px',height='50px',margin='3px',background_color='lightgray',
@@ -44,7 +42,7 @@ class GnrCustomWebPage(object):
         pane=pane.div(height='150px')
         pane.data('.data',self.aux_test_1_grid_data())
         grid = pane.IncludedView(nodeId='inputgrid',storepath='.data',selfDragCols=True,selfDragRows=True,
-                        draggable_row=True,draggable_column=True,
+                        draggable_row=True,draggable_column=True, # draggabile per righe e colonne
                         onDrop='alert(drop_data)',
                         datamode='bag',editorEnabled=True,draggable=True)
                         
@@ -62,7 +60,7 @@ class GnrCustomWebPage(object):
         r = struct.view().rows()
         r.cell('filter', name='FS',width='10em')
         r.cell('language', name='Lang',width='10em', dtype='T')
-        r.cell('name', name='Name',width='10em', dtype='T',draggable=True)
+        r.cell('name', name='Name',width='10em', dtype='T',draggable=True) # draggabile per celle
         r.cell('qt', name='Qty',width='10em', dtype='R')
         r.cell('new', name='New',width='10em', dtype='B')
         r.cell('size', name='Size',width='10em', dtype='T')
@@ -80,10 +78,10 @@ class GnrCustomWebPage(object):
         """Simple Drag"""
         root=pane.div(height='200px',overflow='auto')
         root.data('.tree.data',self.treedata())
-        root.tree(storepath='.tree.data',node_dropTarget=True,
-                                         node_draggable=True,
+        root.tree(storepath='.tree.data',dropTarget=True,
+                                         draggable=True,
                                          dragClass='draggedItem',
-                                         onDrop='alert(drop_data)')
+                                         onDrop='alert(data)')
         
     
 

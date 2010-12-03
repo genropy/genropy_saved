@@ -79,6 +79,16 @@ class GnrCustomWebPage(object):
         fb.textBox(value='^.name',lbl='my name',draggable='^.cb2')
         fb.checkbox(value='^.cb2',label='draggable')
         
+        # Si può anche usare dragValue="^.valoreDaDraggare" oppure onDrag="... imposta il valore da draggare ..."
+        #
+        # Vedi tablehandler_core.py e tablehandler_list.py per qualche esempio
+        #
+        # onDrag può:
+        # - restituire False, per abortire il drag & drop;
+        # - ha i parametri dragValues, dragInfo, treeItem (l'ultimo ha senso solo se dragghi da un albero)
+        # - dragValues è l'envelope ove si possono aggiungere altri dati
+        # - 
+        
         fb=pane.formbuilder(cols=1,dragClass='draggedItem') 
         fb.div('^.mydiv',lbl='my div',draggable=True)
         fb.div('drag foo',dragTags='foo',lbl='drag with foo',draggable=True)

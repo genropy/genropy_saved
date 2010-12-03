@@ -47,17 +47,17 @@ class GnrCustomWebPage(object):
         """Disk Directory Drag"""
         root=pane.div(height='200px',overflow='auto')
         root.data('.disk',Bag(dict(root=DirectoryResolver('/'))))
-        root.tree(storepath='.disk',hideValues=True,inspect='shift',node_draggable=True,dragClass='draggedItem')
+        root.tree(storepath='.disk',hideValues=True,inspect='shift',draggable=True,dragClass='draggedItem')
         
     def test_3_data(self,pane):
         """Data Drag"""
         root=pane.div(height='200px',overflow='auto')
-        root.tree(storepath='*D',hideValues=True,inspect='shift',node_draggable=True,dragClass='draggedItem')
+        root.tree(storepath='*D',hideValues=True,inspect='shift',draggable=True,dragClass='draggedItem')
         
     def test_4_source(self,pane):
         """Source Drag"""
         root=pane.div(height='200px',overflow='auto')
-        root.tree(storepath='*S',hideValues=True,inspect='shift',node_draggable=True,dragClass='draggedItem')
+        root.tree(storepath='*S',hideValues=True,inspect='shift',draggable=True,dragClass='draggedItem')
         
         
         
