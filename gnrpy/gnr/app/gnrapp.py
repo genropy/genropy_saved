@@ -461,19 +461,19 @@ class GnrApp(object):
     def authPackage(self):
         return self.packages[self.config.getAttr('authentication','pkg')]
 
-    def getAvatar(self, user, password=None, authenticate=False,page=None):
+    def getAvatar(self, user, password=None, authenticate=False,page=None, **kwargs):
         if user:
             authmethods = self.config['authentication']
             if authmethods:
                 for node in self.config['authentication'].nodes:
-                    avatar = getattr(self, 'auth_%s' % node.label.replace('_auth',''))(node, user, password=password, authenticate=authenticate)
+                    avatar = getattr(self, 'auth_%s' % node.label.replace('_auth',''))(node, user, password=password, authenticate=authenticate, **kwargs)
                     if not (avatar is None):
                         avatar.page = page
                         for pkg in self.packages.values():
                             pkg.onAuthentication(avatar)
                         return avatar
                 
-    def auth_xml(self, node, user, password=None, authenticate=False):
+    def auth_xml(self, node, user, password=None, authenticate=False, **kwargs):
         """Authentication from instanceconfig.xml, use it during development or for sysadmin tasks.
         
         In file instanceconfig.xml insert a tag like::
@@ -493,11 +493,13 @@ class GnrApp(object):
             if key == user:
                 user_name=attrs.pop('user_name',key)
                 user_id=attrs.pop('user_id',key)
+                kw = dict(attrs)
+                kw.update(kwargs)
                 return self.makeAvatar(user=user,user_name=user_name,user_id=user_id,
                                         login_pwd=password, authenticate=authenticate, 
-                                        defaultTags=defaultTags, **attrs)
+                                        defaultTags=defaultTags, **kw)
 
-    def auth_py(self, node, user, password=None, authenticate=False):
+    def auth_py(self, node, user, password=None, authenticate=False, **kwargs):
         """Python authentication. This is mostly used to register new users for the first time. (see ``adm`` package).
         
         In file instanceconfig.xml insert a tag like::
@@ -520,7 +522,7 @@ class GnrApp(object):
         else:
             handler = getattr(self, attrs['method'])
         if handler:
-            result = handler(user)
+            result = handler(user, **kwargs)
         if result:
             user_name = result.pop('user_name',user) 
             user_id = result.pop('user_id',user)
@@ -529,7 +531,7 @@ class GnrApp(object):
                                     login_pwd=password, authenticate=authenticate, 
                                     defaultTags=defaultTags, **result)
     
-    def auth_sql(self, node, user, password=None, authenticate=False):
+    def auth_sql(self, node, user, password=None, authenticate=False, **kwargs):
         """Authenticate from database.
         
         In file instanceconfig.xml insert a tag like::

@@ -16,7 +16,7 @@ class Package(GnrDboPackage):
     def config_db(self, pkg):
         pass
     
-    def authenticate(self, username):
+    def authenticate(self, username, **kwargs):
         result = self.application.db.query('adm.user', columns='*',
                                            where='$username = :user AND $status != :waiting', 
                                            user=username, waiting='wait').fetch()
@@ -27,6 +27,7 @@ class Package(GnrDboPackage):
             result['user_id'] = result['id']
             result['user_name'] = '%s %s' %(result['firstname'],result['lastname'])
             result['md5len']=len(result['pwd'])
+            result.update(kwargs)
             return result
             
     def onAuthentication(self, avatar):

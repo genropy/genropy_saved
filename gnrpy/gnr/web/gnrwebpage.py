@@ -287,7 +287,7 @@ class GnrWebPage(GnrBaseWebPage):
             avatar = self.application.getAvatar(guestName)
         else:
             avatar = self.application.getAvatar(login['user'], password=login['password'], 
-                                                  authenticate=True, page=self)
+                                                  authenticate=True, page=self, **kwargs)
         if avatar:
             self.avatar = avatar
             self.connection.change_user(user=avatar.user,user_id=avatar.user_id,user_name=avatar.user_name,
