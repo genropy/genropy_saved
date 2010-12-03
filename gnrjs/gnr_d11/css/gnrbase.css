@@ -912,6 +912,11 @@ table.formbuilder {
     width: 24px;
 	height: 24px;
 }
+.logout_icon32{
+    background:url(icons/base32/logout.png) no-repeat center center;
+    width: 32px;
+	height: 32px;
+}
 
 /* @group Base 48 */
 .trash_icon48{
