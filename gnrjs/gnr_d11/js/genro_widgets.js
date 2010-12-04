@@ -1824,6 +1824,15 @@ dojo.declare("gnr.widgets.Grid",gnr.widgets.baseDojo,{
     },
     
     creating_common: function(attributes, sourceNode){
+        if (sourceNode.attr.selfDragRows){
+            if (typeof(sourceNode.attr.selfDragRows)=='string'){
+                sourceNode.attr.selfDragRows=funcCreate(sourceNode.attr.selfDragRows,'info',sourceNode)
+            }
+            sourceNode.attr.draggable_row=true;
+            sourceNode.attr['onDrop_selfdragrow_'+sourceNode._id]=function(dropInfo,rows){
+                dropInfo.widget.moveRow(rows,dropInfo.row)
+            }
+        }
         var savedAttrs = objectExtract(attributes,'selected*');
         var identifier=attributes.identifier || '_pkey';
         attributes.datamode=attributes.datamode || 'attr';
@@ -2236,6 +2245,13 @@ dojo.declare("gnr.widgets.Grid",gnr.widgets.baseDojo,{
         }
 
     },
+    mixin_moveRow:function(row,toPos){
+        if(toPos!=row){
+            var storebag = this.storebag();
+            storebag.moveNode(row,toPos)
+    }
+
+    },
     mixin_addColumn:function(col,toPos){
         //if(!('column' in drop_event.dragDropInfo)){ return }
         var colsBag = this.structBag.getItem('#0.#0');
@@ -2248,10 +2264,14 @@ dojo.declare("gnr.widgets.Grid",gnr.widgets.baseDojo,{
         var event=dragInfo.event;
         var widget=dragInfo.widget;
         value={};
+        
        if (dragmode=='row'){
             var cells=widget.structBag.getItem('#0.#0');
             var sel = widget.selection.getSelected();
             var rowdata=widget.rowByIndex(dragInfo.row);
+            if (sel.length==1){
+                sel=[];
+            }
             if (sel.indexOf(dragInfo.row)<0){
                 sel.push(dragInfo.row);
             }
@@ -2281,6 +2301,17 @@ dojo.declare("gnr.widgets.Grid",gnr.widgets.baseDojo,{
                 valTextHtml.push('<tr>'+r_html.join('')+'</tr>');
                 idx=idx+1;
             });
+            var selfDragRows=dragInfo.sourceNode.attr.selfDragRows
+            if(selfDragRows){
+                if(typeof(selfDragRows)=='function'){
+                    selfDragRows=selfDragRows(dragInfo)
+                }
+                if (selfDragRows){
+                    value['selfdragrow_'+dragInfo.sourceNode._id]=sel;
+                }else{
+                    return false
+                }
+            }
             value['text/plain']=valTextPlain.join('\n');
             value['text/xml']=valTextXml.join('\n');
             value['text/html']='<table>\n'+valTextHtml.join('\n')+'\n</table>';
@@ -2322,12 +2353,17 @@ dojo.declare("gnr.widgets.Grid",gnr.widgets.baseDojo,{
         var event=dropInfo.event;
         var draggedTypes=genro.dom.dataTransferTypes(event.dataTransfer);
         var dropModes = dropInfo.sourceNode.dropModes;
+
         var dropmode;
         for (var k in dropModes){
             if(dojo.filter(dropModes[k].split(','),function (value){ return arrayMatch(draggedTypes,value).length>0;}).length>0){
                 dropmode=k;
                 break;
             };
+        }
+
+        if(!dropmode && (dojo.indexOf(draggedTypes,'selfdragrow_'+dropInfo.sourceNode._id)>=0)){
+            dropmode='row'
         }
         if (!dropmode){
             return false;
@@ -2351,7 +2387,15 @@ dojo.declare("gnr.widgets.Grid",gnr.widgets.baseDojo,{
                  dropInfo.column=event.cellIndex;
                  dropInfo.outline=event.cellNode;
              }else if(dropmode=='row'){
-                 dropInfo.outline=event.rowNode;
+                dropInfo.outline=event.rowNode;
+                var selfDragRows=dropInfo.sourceNode.attr.selfDragRows
+                if(selfDragRows){
+                    if(typeof(selfDragRows)=='function'){
+                        if (!selfDragRows(dropInfo)){
+                            return false
+                        }
+                    }
+                }
              }
         }
         dropInfo.widget=widget;

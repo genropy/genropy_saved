@@ -43,7 +43,6 @@ class GnrCustomWebPage(object):
         pane.data('.data',self.aux_test_1_grid_data())
         grid = pane.IncludedView(nodeId='inputgrid',storepath='.data',selfDragCols=True,selfDragRows=True,
                         draggable_row=True,draggable_column=True, # draggabile per righe e colonne
-                        onDrop='alert(drop_data)',
                         datamode='bag',editorEnabled=True,draggable=True)
                         
         gridEditor = grid.gridEditor(datapath='dummy') #editOn='onCellClick')
@@ -55,7 +54,15 @@ class GnrCustomWebPage(object):
         gridEditor.numbertextbox(gridcell='qt')
         gridEditor.checkbox(gridcell='new')
         gridEditor.datetextbox(gridcell='date',format_date='short')
-                        
+           
+    def test_2_grid(self,pane):
+        pane=pane.div(height='250px')
+        pane.data('.data',self.aux_test_1_grid_data())
+        grid = pane.IncludedView(nodeId='inputgrid',storepath='.data',selfDragCols=True,
+                        selfDragRows="""if (info.drag){return info.row%2?false: true}else{console.log(info.row+' '+((info.row%2)?true: false));return info.row%2?true: false}""",
+                        onSelfDragRows="alert('from:'+fromPos,' to:'+toPos)",
+                        datamode='bag',editorEnabled=True)
+                      
     def inputgrid_struct(self,struct):
         r = struct.view().rows()
         r.cell('filter', name='FS',width='10em')
