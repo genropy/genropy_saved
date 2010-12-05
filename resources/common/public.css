@@ -538,6 +538,14 @@
 ._common_d11 .dojoxGrid-row{
 	background-color: transparent;
 }
+._common_d11 .canBeDropped .dojoxGrid-cell{
+	background-color: #8fff9d !important;
+}
+._common_d11 .cannotBeDropped .dojoxGrid-cell{
+    background-color: #ffa997 !important;
+}
+
+
 ._common_d11 .dojoxGrid-row-selected{
 	background-color: transparent;
 }
