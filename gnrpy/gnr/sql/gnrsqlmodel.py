@@ -90,7 +90,7 @@ class DbModel(object):
     
     def addRelation(self, many_relation_tuple, oneColumn,  mode=None,  one_one=None, onDelete=None, onDelete_sql=None,
                             onUpdate=None, onUpdate_sql=None, deferred=None, eager_one=None, eager_many=None,
-                            one_name=None,  many_name=None, one_group=None, many_group=None):
+                            one_name=None,  many_name=None, one_group=None, many_group=None,many_order_by=None):
         """ This method adds a relation in the current model.
             @param many_relation_tuple: the column of the "many table" as tuple. Eg. ('video','movie','director_id')
             @param oneColumn: the column of the "one table" as string. Eg. 'video.director.id'
@@ -119,13 +119,13 @@ class DbModel(object):
             case_insensitive = (mode=='insensitive')
             foreignkey = (mode=='foreignkey')
             self.relations.setItem('%s.%s.@%s' % (many_pkg, many_table, link_many_name), None, mode='O',
-                           many_relation=many_relation, many_rel_name= many_name, foreignkey=foreignkey, 
+                           many_relation=many_relation, many_rel_name= many_name, foreignkey=foreignkey, many_order_by=many_order_by,
                            one_relation=one_relation, one_rel_name= one_name, one_one=one_one, onDelete=onDelete, onDelete_sql=onDelete_sql,
                            onUpdate=onUpdate,onUpdate_sql=onUpdate_sql, deferred=deferred, case_insensitive=case_insensitive, eager_one=eager_one,eager_many=eager_many,
                            one_group=one_group, many_group=many_group)
             
             self.relations.setItem('%s.%s.@%s' % (one_pkg, one_table, link_one_name), None, mode='M',
-                           many_relation=many_relation, many_rel_name =  many_name,
+                           many_relation=many_relation, many_rel_name =  many_name, many_order_by=many_order_by,
                            one_relation=one_relation, one_rel_name= one_name, one_one=one_one, onDelete=onDelete, onDelete_sql=onDelete_sql,
                            onUpdate=onUpdate,onUpdate_sql=onUpdate_sql, deferred=deferred, case_insensitive=case_insensitive, eager_one=eager_one,eager_many=eager_many,
                            one_group=one_group, many_group=many_group)
