@@ -59,12 +59,13 @@ class GnrCustomWebPage(object):
         pane=pane.div(height='250px')
         pane.data('.data',self.aux_test_1_grid_data())
         grid = pane.IncludedView(nodeId='inputgrid',storepath='.data',selfDragCols=True,
-                        selfDragRows="""if (info.drag){return info.row%2?false: true}else{console.log(info.row+' '+((info.row%2)?true: false));return info.row%2?true: false}""",
-                        onSelfDragRows="alert('from:'+fromPos,' to:'+toPos)",
+                        selfDragRows="""var odd= info.row%2;if (info.drag){console.log('drag odd:'+odd);return odd?false: true}else{console.log('drop odd:'+odd);return odd?true: false}""",
+                        afterSelfDropRows="var k=0;this.widget.storebag().forEach(function(n){n.getValue().setItem('idx',k);k=k+1})",
                         datamode='bag',editorEnabled=True)
                       
     def inputgrid_struct(self,struct):
         r = struct.view().rows()
+        r.cell('idx', name='FS',width='10em')
         r.cell('filter', name='FS',width='10em')
         r.cell('language', name='Lang',width='10em', dtype='T')
         r.cell('name', name='Name',width='10em', dtype='T',draggable=True) # draggabile per celle
