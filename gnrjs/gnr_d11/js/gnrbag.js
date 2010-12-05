@@ -345,7 +345,16 @@ dojo.declare("gnr.GnrBagNode",null,{
     /**
      * @id setAttr
      */
+    setAttribute:function(label,value,doTrigger){
+        var updDict = {};
+        updDict[label] = value;
+        this.setAttr(updDict,doTrigger,true);
+    },
      
+    updAttributes:function(attrDict,doTrigger){
+        this.setAttr(attrDict,doTrigger,true);
+    },
+    
     setAttr: function(attr,doTrigger,updateAttr,changedAttr){
         if (doTrigger == null){
             doTrigger=true;

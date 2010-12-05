@@ -624,7 +624,7 @@ dojo.declare("gnr.GnrRpcHandler",null,{
 
         var kwargs = {'sync':true, 
                       'from_fld':params._from_fld, 'target_fld':params._target_fld, 'relation_value':params._relation_value,
-                      'sqlContextName':params._sqlContextName};
+                      'sqlContextName':params._sqlContextName,order_by:params.many_order_by};
         kwargs.method = 'app.getRelatedSelection';
                 
         var resolver = new gnr.GnrRemoteResolver(kwargs, isGetter, cacheTime);

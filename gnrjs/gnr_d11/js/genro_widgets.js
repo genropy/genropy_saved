@@ -1791,7 +1791,7 @@ dojo.declare("gnr.widgets.Grid",gnr.widgets.baseDojo,{
     mixin_setStructpath:function(val,kw){
         this.structBag = genro.getData(this.sourceNode.attrDatapath('structpath'));
         this.cellmap = {};
-        this.setStructure(this.gnr.structFromBag(this.structBag, this.cellmap));
+        this.setStructure(this.gnr.structFromBag(this.sourceNode,this.structBag, this.cellmap));
         this.onSetStructpath(this.structBag);
     },
     mixin_setDraggable_column:function(draggable){
@@ -1833,14 +1833,18 @@ dojo.declare("gnr.widgets.Grid",gnr.widgets.baseDojo,{
         gnr.convertFuncAttribute(sourceNode,'afterSelfDropRows','rows,dropInfo');
         sourceNode.attr.draggable_row=true;
         var onDropCall=function(dropInfo,rows){
+            if (!('row' in dropInfo )|| (dropInfo.row<0)){
+                return;
+            }
             if(sourceNode.attr.onSelfDropRows){
-                sourceNode.attr.onSelfDropRows(rows,dropInfo)
+                sourceNode.attr.onSelfDropRows(rows,dropInfo);
             }
             else{
-                dropInfo.widget.moveRow(rows,dropInfo.row)
+                dropInfo.widget.moveRow(rows,dropInfo.row);
+                var row_counter_changes= dropInfo.widget.updateCounterColumn();
             }
             if(sourceNode.attr.afterSelfDropRows){
-                sourceNode.attr.afterSelfDropRows(rows,dropInfo)
+                sourceNode.attr.afterSelfDropRows(rows,dropInfo,row_counter_changes);
             }
         }
         sourceNode.attr['onDrop_selfdragrow_'+sourceNode._id]=onDropCall
@@ -1871,7 +1875,7 @@ dojo.declare("gnr.widgets.Grid",gnr.widgets.baseDojo,{
         sourceNode.registerDynAttr('structpath');
         attributes.structBag = sourceNode.getRelativeData(sourceNode.attr.structpath);
         attributes.cellmap = {};
-        attributes.structure=this.structFromBag(attributes.structBag, attributes.cellmap);
+        attributes.structure=this.structFromBag(sourceNode,attributes.structBag, attributes.cellmap);
     },
     mixin_onAddedView:function(view){
         var draggable_row=this.sourceNode.getAttributeFromDatasource('draggable_row');
@@ -2102,7 +2106,7 @@ dojo.declare("gnr.widgets.Grid",gnr.widgets.baseDojo,{
         }
         return result;
     },
-    structFromBag: function(struct, cellmap){
+    structFromBag: function(sourceNode,struct, cellmap){
         var cellmap = cellmap || {};
         var result = [];
         var _cellFormatter=function(formatOptions, cellClassCB){
@@ -2209,9 +2213,14 @@ dojo.declare("gnr.widgets.Grid",gnr.widgets.baseDojo,{
                              if (format){
                                  formats['format']=format;
                              }
+                             if(cell.counter){
+                                 sourceNode.attr.counterField = cell.field;
+                                 dtype = 'L';
+                             }
                              if (dtype){
                                  formats = objectUpdate(objectUpdate({}, localTypes[dtype]), formats);
                              }
+                             
                              //formats = objectUpdate(formats, localTypes[dtype]);
                              var cellClassCB=objectPop(cell,'cellClassCB');
                              cell.formatter=_cellFormatter(formats, cellClassCB);
@@ -3122,7 +3131,7 @@ dojo.declare("gnr.widgets.VirtualStaticGrid",gnr.widgets.Grid,{
         if(col.slice(0,2)=='^.'){
             col = col.slice(2);
         }
-        if(this.datamode!='bag'){
+        if(this.datamode!='bag' && !this.gridEditor){
             col = '#a.' + col;
         }
         return storebag.columns(col)[0];
@@ -3209,6 +3218,38 @@ dojo.declare("gnr.widgets.VirtualStaticGrid",gnr.widgets.Grid,{
             }
         }
     },
+    
+    mixin_updateCounterColumn: function(){
+        var storebag = this.storebag();
+        var cb;
+        var k=0;
+        var changes = [];
+        var counterField = this.sourceNode.attr.counterField;
+        if (!counterField){
+            return;
+        }
+        if (this.datamode=='bag' || this.gridEditor){
+            cb = function(n){
+                var row = n.getValue();
+                var oldk=row.getItem(counterField);
+                if(k!=oldk){
+                    row.setItem(counterField,k);
+                }
+                k++;
+            }
+        }else{
+            cb = function(n){
+                var oldk=row.getItem(counterField);
+                if(k!=oldk){
+                    n.setAttribute(counterField,k);
+                    changes.push({'node':n,'old':oldk,'new':k})
+                }
+                k++;
+            }
+        }
+        storebag.forEach(cb,'static');
+        return changes;
+    },
     mixin_addBagRow: function(label, pos, newnode, event, nodupField){
         var label = label || 'r_' + newnode._id;
         var storebag=this.storebag();
@@ -3244,6 +3285,7 @@ dojo.declare("gnr.widgets.VirtualStaticGrid",gnr.widgets.Grid,{
             //this.selection.select(kw._new_position);
             //alert('ex apply filter')
         //}
+        this.updateCounterColumn();
         return kw._new_position;
     },
     mixin_delBagRow: function(pos, many, params){
@@ -3267,6 +3309,7 @@ dojo.declare("gnr.widgets.VirtualStaticGrid",gnr.widgets.Grid,{
         }
         removed.reverse();
         this.filterToRebuild = true;
+        this.updateCounterColumn();
         this.updateRowCount('*');
         
         //if(params.del_register){
@@ -3380,48 +3423,7 @@ dojo.declare("gnr.widgets.IncludedView",gnr.widgets.VirtualStaticGrid,{
             attributes.excludeListCb = funcCreate(attributes.excludeListCb);
         }
     }, 
-    creating_OLD: function(attributes, sourceNode){
-        var savedAttrs= this.creating_common(attributes, sourceNode);
-        var sortedBy = objectPop(attributes,'sortedBy');
-        var multiSelect = objectPop(attributes,'multiselect');
-        var datamode=objectPop(attributes,'datamode','attr');
-        var identifier=objectPop(attributes,'identifier','_pkey');
-        var hiddencolumns = objectPop(attributes,'hiddencolumns');
-        var gridAttributes=objectExtract(attributes,'autoHeight,autoRender,autoWidth,defaultHeight,elasticView,fastScroll,keepRows,model,rowCount,rowsPerPage,singleClickEdit,structure,filterColumn,excludeCol,excludeListCb,editorEnabled');
-        objectPopAll(attributes);
-        objectUpdate(attributes,gridAttributes);
-        var structure, contents;
-        var inAttrs= sourceNode.getInheritedAttributes();
-        var ctxRoot = sourceNode.absDatapath(inAttrs.sqlContextRoot);
-        var abs_storepath = sourceNode.absDatapath(sourceNode.attr.storepath);
-        var relation_path = abs_storepath;
-        if (abs_storepath.indexOf(ctxRoot) == 0){
-            relation_path = abs_storepath.replace(ctxRoot+'.', '');
-        }
-        sourceNode.registerDynAttr('storepath');
-        var structpath = sourceNode.attr.structpath;
-        sourceNode.registerDynAttr('structpath');
-        attributes.cellmap = {};
-        attributes.relation_path= relation_path;
-        attributes.sqlContextName= inAttrs['sqlContextName'];
-        attributes.sqlContextTable= inAttrs['sqlContextTable'];
-        if(attributes.excludeListCb){
-            attributes.excludeListCb = funcCreate(attributes.excludeListCb);
-        }
-        attributes._identifier=identifier;
-        attributes.sortedBy=sortedBy;
-        attributes.rowCount=0;
-        attributes.datamode = datamode;
-        sourceNode.attr.nodeId = sourceNode.attr.nodeId || 'grid_' + sourceNode.getStringId();
-        var addCheckBoxColumn = sourceNode.attr.addCheckBoxColumn;
-        if (addCheckBoxColumn){
-            var kw = addCheckBoxColumn==true? null: addCheckBoxColumn;
-            this.addCheckBoxColumn(kw,sourceNode);
-        }
-        var structAsBag = sourceNode.getRelativeData(sourceNode.attr.structpath);
-        attributes.query_columns=this.getQueryColumns(sourceNode, structAsBag);
-        attributes.structure = this.structFromBag(structAsBag, attributes.cellmap);
-    },    
+
     getQueryColumns:function(sourceNode,structure){
         var columns = gnr.columnsFromStruct(structure);
         if(sourceNode.attr.hiddencolumns){

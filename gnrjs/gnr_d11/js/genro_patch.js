@@ -109,7 +109,6 @@ genropatches.comboBox=function(){
                 var delta=brect.bottom-brect.top;
                 var scrollTop = this.domNode.children[0].children[1].scrollTop;
                 this.domNode.children[0].children[1].scrollTop = scrollTop+20;
-                console.log(scrollTop);
             }
         }
          
