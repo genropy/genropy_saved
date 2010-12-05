@@ -266,8 +266,7 @@ class GnrWebAppHandler(GnrBaseProxy):
 
     def rpc_getRelatedSelection(self, from_fld, target_fld, relation_value=None,
                                 columns='', query_columns=None, 
-                                order_by=None, condition=None, 
-                                js_resolver_one='relOneResolver', 
+                                condition=None, js_resolver_one='relOneResolver', 
                                 sqlContextName=None, **kwargs):
         if columns:
             raise 'COLUMNS PARAMETER NOT EXPECTED!!'
@@ -279,8 +278,7 @@ class GnrWebAppHandler(GnrBaseProxy):
             if not columns:
                 columns = self._getSqlContextColumns(sqlContextName,target_fld=target_fld,from_fld=from_fld)
                 
-        columns = columns or '*' 
-        
+        columns = columns or '*'         
         pkg, tbl, related_field = target_fld.split('.')
         dbtable = '%s.%s' % (pkg, tbl)
         if not relation_value:
