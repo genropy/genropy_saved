@@ -59,13 +59,20 @@ class GnrCustomWebPage(object):
         pane=pane.div(height='250px')
         pane.data('.data',self.aux_test_1_grid_data())
         grid = pane.IncludedView(nodeId='inputgrid',storepath='.data',selfDragCols=True,
-                        selfDragRows="""var odd= info.row%2;if (info.drag){console.log('drag odd:'+odd);return odd?false: true}else{console.log('drop odd:'+odd);return odd?true: false}""",
-                        afterSelfDropRows="var k=0;this.widget.storebag().forEach(function(n){n.getValue().setItem('idx',k);k=k+1})",
+                        selfDragRows=True,
+                        afterSelfDropRows="console.log('dragged')",
+                        datamode='bag',editorEnabled=True)       
+    
+    def test_3_grid(self,pane):
+        pane=pane.div(height='250px')
+        pane.data('.data',self.aux_test_1_grid_data())
+        grid = pane.IncludedView(nodeId='inputgrid',storepath='.data',selfDragCols=True,
+                        selfDragRows="""var odd= info.row%2;if (info.drag){return odd?false: true}else{return odd?true: false;}""",
                         datamode='bag',editorEnabled=True)
                       
     def inputgrid_struct(self,struct):
         r = struct.view().rows()
-        r.cell('idx', name='FS',width='10em')
+        r.cell('idx', name='N.',width='3em',counter=True)
         r.cell('filter', name='FS',width='10em')
         r.cell('language', name='Lang',width='10em', dtype='T')
         r.cell('name', name='Name',width='10em', dtype='T',draggable=True) # draggabile per celle
@@ -79,7 +86,7 @@ class GnrCustomWebPage(object):
         date = datetime.date.today()
         for i in range(100):
             pkey = 'r_%i' % i
-            result[pkey] = Bag({'_pkey':pkey,'filter':'A','language':'Python','language_id':'6c75RL4uPJiMu5oEcfrx1w', 'name':'Dsc %i' % i, 'qt':None, 'new':bool(i%2), 'size':'big', 'date':date + datetime.timedelta(i)})
+            result[pkey] = Bag({'idx':i,'_pkey':pkey,'filter':'A','language':'Python','language_id':'6c75RL4uPJiMu5oEcfrx1w', 'name':'Dsc %i' % i, 'qt':None, 'new':bool(i%2), 'size':'big', 'date':date + datetime.timedelta(i)})
         return result
         
     def test_8_tree(self,pane):
