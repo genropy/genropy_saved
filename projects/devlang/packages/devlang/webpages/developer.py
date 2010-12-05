@@ -28,8 +28,10 @@ class GnrCustomWebPage(object):
     def developer_language_view(self,bc):
         iv = self.includedViewBox(bc,label='!!Languages',table='devlang.dev_lang',nodeId='dev_lang',
                                 storepath='.@devlang_dev_lang_developer_id',
-                                struct=self.developer_language_struct,hiddencolumns='$language_id',
-                                autoWidth=True,add_action=True,del_action=True)
+                                 selfDragRows=True,
+                                 afterSelfDropRows="this.widget.updateCounterColumn();",
+                                 struct=self.developer_language_struct,hiddencolumns='$language_id',
+                                 autoWidth=True,add_action=True,del_action=True)
                             
         gridEditor = iv.gridEditor()
         gridEditor.dbSelect(dbtable='devlang.language',value='^.language_id',
@@ -38,6 +40,7 @@ class GnrCustomWebPage(object):
     
     def developer_language_struct(self,struct):
         r = struct.view().rows()
+        r.fieldcell('_row_counter',counter=True,width='4em',name='!!N.')
         r.fieldcell('@language_id.name', name='!!Language', width='20em')
         r.fieldcell('level',width='10em',format_apply="return formatLevel(value);") #format_apply allows you to change the visual value
                                                         # of a cell using a callback that receive the value itself.

@@ -4,7 +4,6 @@ function formatLevel(value){
     var colors = ['#6352b6','#9552b6','#bc5491','#cd5c5c','#ef0d0e'] 
     for (var i=0; i<value ; i++){
         var style = "width:10px;height:14px;float:left;background:"+colors[i]+";";
-        console.log(i)
         result = result+'<div style="'+style+'"> </div>';
     }
     return result;
