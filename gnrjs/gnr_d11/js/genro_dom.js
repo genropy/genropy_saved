@@ -607,9 +607,9 @@ dojo.declare("gnr.GnrDomHandler",null,{
         if (event.type=='dragstart'){
             info.dragmode=domnode.getAttribute('dragmode');
             info.handler.fillDragInfo(info);
-            info,drag=true;
+            info.drag=true;
         }else{
-            info,drop=true;
+            info.drop=true;
             var sourceNode = info.sourceNode;
             var attr=sourceNode.attr;
             var dropTarget = sourceNode.dropTarget || sourceNode.attr.selfDragRows  || sourceNode.attr.selfDragColumns

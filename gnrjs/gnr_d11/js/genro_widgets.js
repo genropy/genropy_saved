@@ -23,7 +23,11 @@
 
 //######################## genro  #########################
     
-
+gnr.convertFuncAttribute=function(sourceNode,name,parameters){
+    if(sourceNode.attr[name] && (typeof(sourceNode.attr[name])=='string')){
+        sourceNode.attr[name]=funcCreate(sourceNode.attr[name],parameters,sourceNode);
+    }
+};
 gnr.columnsFromStruct = function(struct, columns){
         if (columns==undefined){
             columns = [];
@@ -1823,15 +1827,28 @@ dojo.declare("gnr.widgets.Grid",gnr.widgets.baseDojo,{
         genro.formById(this.sourceNode.attr.linkedForm).openForm(idx,this.rowIdByIndex(idx));
     },
     
-    creating_common: function(attributes, sourceNode){
-        if (sourceNode.attr.selfDragRows){
-            if (typeof(sourceNode.attr.selfDragRows)=='string'){
-                sourceNode.attr.selfDragRows=funcCreate(sourceNode.attr.selfDragRows,'info',sourceNode)
+    selfDragRowsPrepare:function(sourceNode){
+        gnr.convertFuncAttribute(sourceNode,'selfDragRows','info');
+        gnr.convertFuncAttribute(sourceNode,'onSelfDropRows','rows,dropInfo');
+        gnr.convertFuncAttribute(sourceNode,'afterSelfDropRows','rows,dropInfo');
+        sourceNode.attr.draggable_row=true;
+        var onDropCall=function(dropInfo,rows){
+            if(sourceNode.attr.onSelfDropRows){
+                sourceNode.attr.onSelfDropRows(rows,dropInfo)
             }
-            sourceNode.attr.draggable_row=true;
-            sourceNode.attr['onDrop_selfdragrow_'+sourceNode._id]=function(dropInfo,rows){
+            else{
                 dropInfo.widget.moveRow(rows,dropInfo.row)
             }
+            if(sourceNode.attr.afterSelfDropRows){
+                sourceNode.attr.afterSelfDropRows(rows,dropInfo)
+            }
+        }
+        sourceNode.attr['onDrop_selfdragrow_'+sourceNode._id]=onDropCall
+    },
+    
+    creating_common: function(attributes, sourceNode){
+        if (sourceNode.attr.selfDragRows){
+           this.selfDragRowsPrepare(sourceNode)
         }
         var savedAttrs = objectExtract(attributes,'selected*');
         var identifier=attributes.identifier || '_pkey';
