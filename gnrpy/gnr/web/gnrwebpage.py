@@ -771,7 +771,7 @@ class GnrWebPage(GnrBaseWebPage):
                 self.debugger.bottom_pane(root)
                 self.mainLeftContent(root,region='left',splitter=True, nodeId='gnr_main_left')
                 root.div(_class='trash_drop',dropTarget=True,dropTypes='trashable',id='trash_drop',
-                         onDrop_trashable="""genro.publish('trashedObject',data,dropInfo)""")
+                         onDrop_trashable="""genro.publish('trashedObject',{'data':data,'_id':dropInfo.dragSourceInfo._id,'dropInfo':dropInfo,'nodeId':dropInfo.dragSourceInfo.nodeId)}""")
                 root.div(id='auxDragImage')
                 root.dataController("""
                                        var new_status = main_left_set_status[0];
