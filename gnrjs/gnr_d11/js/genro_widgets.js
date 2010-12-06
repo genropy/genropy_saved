@@ -1826,7 +1826,14 @@ dojo.declare("gnr.widgets.Grid",gnr.widgets.baseDojo,{
         var idx = e.rowIndex;
         genro.formById(this.sourceNode.attr.linkedForm).openForm(idx,this.rowIdByIndex(idx));
     },
-    
+    selfDragColumnsPrepare:function(sourceNode){
+        gnr.convertFuncAttribute(sourceNode,'selfDragColumns','info');
+        sourceNode.attr.draggable_column=true;
+        var onDropCall=function(dropInfo,col){
+            this.widget.moveColumn(col,dropInfo.column)
+        }
+        sourceNode.attr['onDrop_selfdragcolumn_'+sourceNode._id]=onDropCall
+    },
     selfDragRowsPrepare:function(sourceNode){
         gnr.convertFuncAttribute(sourceNode,'selfDragRows','info');
         gnr.convertFuncAttribute(sourceNode,'onSelfDropRows','rows,dropInfo');
@@ -1853,6 +1860,9 @@ dojo.declare("gnr.widgets.Grid",gnr.widgets.baseDojo,{
     creating_common: function(attributes, sourceNode){
         if (sourceNode.attr.selfDragRows){
            this.selfDragRowsPrepare(sourceNode)
+        }
+        if (sourceNode.attr.selfDragColumns){
+           this.selfDragColumnsPrepare(sourceNode)
         }
         var savedAttrs = objectExtract(attributes,'selected*');
         var identifier=attributes.identifier || '_pkey';
@@ -2328,15 +2338,9 @@ dojo.declare("gnr.widgets.Grid",gnr.widgets.baseDojo,{
                 idx=idx+1;
             });
             var selfDragRows=dragInfo.sourceNode.attr.selfDragRows
-            if(selfDragRows){
-                if(typeof(selfDragRows)=='function'){
-                    selfDragRows=selfDragRows(dragInfo)
-                }
-                if (selfDragRows){
-                    value['selfdragrow_'+dragInfo.sourceNode._id]=sel;
-                }else{
-                    return false
-                }
+            if(typeof(selfDragRows)=='function'){selfDragRows=selfDragRows(dragInfo)}
+            if (selfDragRows){
+                value['selfdragrow_'+dragInfo.sourceNode._id]=sel;
             }
             value['text/plain']=valTextPlain.join('\n');
             value['text/xml']=valTextXml.join('\n');
@@ -2369,6 +2373,12 @@ dojo.declare("gnr.widgets.Grid",gnr.widgets.baseDojo,{
             };            
             value['gridcolumn']={'column':dragInfo.column,'columndata':columndata,'gridId':widget.sourceNode.attr.nodeId};
             value['text/plain']=textcol;
+            var selfDragColumns=dragInfo.sourceNode.attr.selfDragColumns
+            if(typeof(selfDragColumns)=='function'){selfDragColumns=selfDragColumns(dragInfo)}
+            if (selfDragColumns){
+                value['selfdragcolumn_'+dragInfo.sourceNode._id]=dragInfo.column;
+                value['trashable']={'nodeId':dragInfo.nodeId,'column':dragInfo.column};
+            }
         }
         
         return value;
@@ -2387,9 +2397,16 @@ dojo.declare("gnr.widgets.Grid",gnr.widgets.baseDojo,{
                 break;
             };
         }
-
+        dropmode=dropmode || dragSourceInfo.dragmode
         if(!dropmode && (dojo.indexOf(draggedTypes,'selfdragrow_'+dropInfo.sourceNode._id)>=0)){
-            dropmode='row'
+            var selfDragRows=dropInfo.sourceNode.attr.selfDragRows
+            if(typeof(selfDragRows)=='function'){selfDragRows=selfDragRows(dropInfo)}
+            if(selfDragRows){dropmode='row'}
+        }
+        if(!dropmode && (dojo.indexOf(draggedTypes,'selfdracolumn_'+dropInfo.sourceNode._id)>=0)){
+            var selfDragColumns=dropInfo.sourceNode.attr.selfDragColumns
+            if(typeof(selfDragColumns)=='function'){selfDragColumns=selfDragColumns(dropInfo)}
+            if(selfDragColumns){dropmode='column'}
         }
         if (!dropmode){
             return false;
@@ -2405,8 +2422,8 @@ dojo.declare("gnr.widgets.Grid",gnr.widgets.baseDojo,{
             dropInfo.outline =  widget.domNode;
         }
         else if (dropmode=='column'){
-             dropInfo.column=event.cellIndex;
-             dropInfo.outline =  widget.columnNodelist(event.cellIndex,true);
+            dropInfo.column=event.cellIndex;
+            dropInfo.outline =  widget.columnNodelist(event.cellIndex,true);
         }else{
              dropInfo.row=event.rowIndex;
              if(dropmode=='cell'){
@@ -2414,14 +2431,6 @@ dojo.declare("gnr.widgets.Grid",gnr.widgets.baseDojo,{
                  dropInfo.outline=event.cellNode;
              }else if(dropmode=='row'){
                 dropInfo.outline=event.rowNode;
-                var selfDragRows=dropInfo.sourceNode.attr.selfDragRows
-                if(selfDragRows){
-                    if(typeof(selfDragRows)=='function'){
-                        if (!selfDragRows(dropInfo)){
-                            return false
-                        }
-                    }
-                }
              }
         }
         dropInfo.widget=widget;

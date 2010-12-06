@@ -797,6 +797,9 @@ dojo.declare("gnr.GnrDomHandler",null,{
         if(dragInfo.nodeId){
             dragValues['sourceNode_nodeId:'+dragInfo.nodeId]=null;
         }
+        if(dragInfo.sourceNode){
+            dragValues['sourceNode__id:'+dragInfo.sourceNode._id]=null;
+        }
         if(dragInfo.dragmode){
             dragValues['sourceNode_dragmode:'+dragInfo.dragmode]=null;
         }
