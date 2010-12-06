@@ -568,7 +568,7 @@ class GnrApp(object):
         else:
             valid = True
         if valid:
-            return GnrAvatar(user=user, user_name=user_name, user_id=user_id,tags=tags, **kwargs)
+            return GnrAvatar(user=user, user_name=user_name, user_id=user_id,tags=tags, login_pwd=login_pwd, **kwargs)
         
     def validatePassword(self, login_pwd, pwd=None, user=None):
         if not pwd:
@@ -695,11 +695,12 @@ class GnrApp(object):
             
         
 class GnrAvatar(object):
-    def __init__(self, user, user_name=None, user_id=None,tags='', **kwargs):
+    def __init__(self, user, user_name=None, user_id=None,tags='',login_pwd=None, **kwargs):
         self.user = user
         self.user_name = user_name
         self.user_id = user_id
         self.user_tags = tags
+        self.pwd = login_pwd
         self.loginPars={'tags':self.user_tags}
         self.extra_kwargs = kwargs or dict()
             
