@@ -735,6 +735,7 @@ class GnrWebPage(GnrBaseWebPage):
         #try :
         if True:
             if _auth==AUTH_OK:
+                avatar = self.avatar #force get_avatar
                 if hasattr(self,'main_root'):
                     self.main_root(page,**kwargs)
                     return (page, pageattr)
