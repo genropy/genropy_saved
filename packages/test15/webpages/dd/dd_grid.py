@@ -41,7 +41,7 @@ class GnrCustomWebPage(object):
     def test_1_grid(self,pane):
         pane=pane.div(height='150px')
         pane.data('.data',self.aux_test_1_grid_data())
-        grid = pane.IncludedView(nodeId='inputgrid',storepath='.data',selfDragCols=True,selfDragRows=True,
+        grid = pane.IncludedView(nodeId='inputgrid',storepath='.data',selfDragColumns=True,selfDragRows=True,
                         draggable_row=True,draggable_column=True, # draggabile per righe e colonne
                         datamode='bag',editorEnabled=True,draggable=True)
                         
@@ -58,7 +58,7 @@ class GnrCustomWebPage(object):
     def test_2_grid(self,pane):
         pane=pane.div(height='250px')
         pane.data('.data',self.aux_test_1_grid_data())
-        grid = pane.IncludedView(nodeId='inputgrid',storepath='.data',selfDragCols=True,
+        grid = pane.IncludedView(nodeId='inputgrid',storepath='.data',selfDragColumns='trashable',
                         selfDragRows=True,
                         afterSelfDropRows="console.log('dragged')",
                         datamode='bag',editorEnabled=True)       
@@ -66,7 +66,7 @@ class GnrCustomWebPage(object):
     def test_3_grid(self,pane):
         pane=pane.div(height='250px')
         pane.data('.data',self.aux_test_1_grid_data())
-        grid = pane.IncludedView(nodeId='inputgrid',storepath='.data',selfDragCols=True,
+        grid = pane.IncludedView(nodeId='inputgrid',storepath='.data',selfDragColumns=True,
                         selfDragRows="""var odd= info.row%2;if (info.drag){return odd?false: true}else{return odd?true: false;}""",
                         datamode='bag',editorEnabled=True)
                       
