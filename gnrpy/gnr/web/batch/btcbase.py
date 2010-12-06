@@ -48,7 +48,11 @@ class BaseResourceBatch(object):
             if self.page.site.debug:
                 raise
             else:
-                self.btc.batch_error(error=str(e))
+                try:
+                    self.btc.batch_error(error=str(e))
+                except Exception, e:
+                    print e
+                    raise
     
     def _pre_process(self):
         self.pre_process()
