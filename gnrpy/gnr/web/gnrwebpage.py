@@ -290,8 +290,9 @@ class GnrWebPage(GnrBaseWebPage):
                                                   authenticate=True, page=self, **kwargs)
         if avatar:
             self.avatar = avatar
-            self.connection.change_user(user=avatar.user,user_id=avatar.user_id,user_name=avatar.user_name,
-                                        user_tags=avatar.user_tags)
+            #self.connection.change_user(user=avatar.user,user_id=avatar.user_id,user_name=avatar.user_name,
+            #                            user_tags=avatar.user_tags)
+            self.connection.change_user(avatar)
          
             self.setInClientData('gnr.avatar' , Bag(avatar.as_dict()))
             self.site.onAuthenticated(avatar)
@@ -607,7 +608,9 @@ class GnrWebPage(GnrBaseWebPage):
         if self.isGuest:
             return
         if not hasattr(self, '_avatar'):
-            self._avatar = self.application.getAvatar(self.user)
+            connection = self.connection
+            self._avatar = self.application.getAvatar(self.user,tags=connection.user_tags,page=self,
+                                                     **connection.avatar_extra)
         return self._avatar
     avatar = property(_get_avatar,_set_avatar)
     
