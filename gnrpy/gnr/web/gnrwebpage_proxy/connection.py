@@ -125,7 +125,8 @@ class GnrWebConnection(GnrBaseProxy):
         self.user_tags = avatar_dict.get('user_tags')
         self.user_name = avatar_dict.get('user_name')
         self.user_id = avatar_dict.get('user_id')
-        self.avatar_extra = avatar_dict.get('extra_kwargs')
+        if avatar:
+            self.avatar_extra = avatar.extra_kwargs
 
         self.page.site.register.change_connection_user(self.connection_id,user=self.user,
                                                         user_tags=self.user_tags,user_id=self.user_id,
