@@ -918,6 +918,19 @@ table.formbuilder {
 	height: 32px;
 }
 
+.refresh_icon32{
+    background:url(icons/base32/refresh.png) no-repeat center center;
+    width: 32px;
+	height: 32px;
+}
+
+.tools_icon32{
+    background:url(icons/base32/tools.png) no-repeat center center;
+    width: 32px;
+	height: 32px;
+}
+
+
 /* @group Base 48 */
 .trash_icon48{
     background:url(icons/base48/trash_icon.png) no-repeat center center;
