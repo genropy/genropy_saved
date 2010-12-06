@@ -165,15 +165,14 @@ class RichTextEditor(BaseComponent):
     
     css_requires = 'rich_edit'
     js_requires='ckeditor/ckeditor'
-    def RichTextEditor(self, pane, value, disabled=None,
-                      nodeId=None,toolbar=None,**kwargs):
+    
+    def RichTextEditor(self, pane, value, disabled=None, nodeId=None,toolbar=None,**kwargs):
 
         editorId = "%s_editor"%nodeId
         if isinstance(toolbar,basestring):
             tb=getattr(self,'rte_toolbar_%s'%toolbar,None)
-            if tb:
-                toolbar=tb()
-        editPane = pane.ckeditor(value=value, nodeId=editorId, readOnly=disabled, toolbar=toolbar, **kwargs)
+            toolbar = tb() if callable(tb) else tb
+        return pane.ckeditor(value=value, nodeId=editorId, readOnly=disabled, toolbar=toolbar, **kwargs)
 
     def rte_toolbar_standard(self):
         return """[
