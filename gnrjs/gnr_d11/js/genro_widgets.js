@@ -1827,12 +1827,15 @@ dojo.declare("gnr.widgets.Grid",gnr.widgets.baseDojo,{
         genro.formById(this.sourceNode.attr.linkedForm).openForm(idx,this.rowIdByIndex(idx));
     },
     selfDragColumnsPrepare:function(sourceNode){
-        gnr.convertFuncAttribute(sourceNode,'selfDragColumns','info');
+        if(sourceNode.attr.selfDragColumns!='trashable'){
+            gnr.convertFuncAttribute(sourceNode,'selfDragColumns','info');
+        }
         sourceNode.attr.draggable_column=true;
         var onDropCall=function(dropInfo,col){
             this.widget.moveColumn(col,dropInfo.column)
         }
         sourceNode.attr['onDrop_selfdragcolumn_'+sourceNode._id]=onDropCall
+        sourceNode.attr.onTrashed=sourceNode.attr.onTrashed || 'this.widget.deleteColumn(data);'
     },
     selfDragRowsPrepare:function(sourceNode){
         gnr.convertFuncAttribute(sourceNode,'selfDragRows','info');
@@ -2377,7 +2380,9 @@ dojo.declare("gnr.widgets.Grid",gnr.widgets.baseDojo,{
             if(typeof(selfDragColumns)=='function'){selfDragColumns=selfDragColumns(dragInfo)}
             if (selfDragColumns){
                 value['selfdragcolumn_'+dragInfo.sourceNode._id]=dragInfo.column;
-                value['trashable']={'nodeId':dragInfo.nodeId,'column':dragInfo.column};
+                if(selfDragColumns=='trashable'){
+                    value['trashable']=dragInfo.column;
+                }
             }
         }
         
@@ -2451,12 +2456,14 @@ dojo.declare("gnr.widgets.Grid",gnr.widgets.baseDojo,{
         if ((event.cellIndex>=0) && (event.rowIndex==-1)){
              dragInfo.dragmode='column';
              dragInfo.outline =  widget.columnNodelist(event.cellIndex,true);
+             dragInfo.colStruct=widget.cellmap[event.cell.field];
         }else if((event.cellIndex==-1) && (event.rowIndex>=0)){
              dragInfo.dragmode='row';
              dragInfo.outline=event.rowNode;
         }else if((event.cellIndex>=0) && (event.rowIndex>=0)){
              dragInfo.dragmode='cell';
              dragInfo.outline=event.cellNode;
+             dragInfo.colStruct=widget.cellmap[event.cell.field];
         }
         dragInfo.widget=widget;
         dragInfo.sourceNode=widget.sourceNode;

@@ -446,18 +446,14 @@ class TableHandlerForm(BaseComponent):
                                 selfDragColumns='trashable',
                                 dropTarget_column='gnrdbfld',
                                 dropTarget_grid='explorer_*',
-                                onDrop_gnrdbfld="""this.widget.addColumn(data,dropInfo.column);console.log(this.widget);//genro.fireAfter('list.runQueryDo',true)""",
-                                #onDrop_gridcolumn="""this.widget.moveColumn(data.column,dropInfo.column)""",
+                                onDrop_gnrdbfld="""this.widget.addColumn(data,dropInfo.column);if(this.widget.rowCount>0){genro.fireAfter('list.runQueryDo',true);}""",
                                 onDrop_gridrow='console.log("dropped gridrow");console.log(data);',
-                                draggable=True,draggable_column=True,draggable_row=True,
-                                onDrag="""dragValues['trashable']={'nodeId':dragInfo.nodeId,'column':dragInfo.column};""",
+                                draggable=True,draggable_row=True,
                                 dragClass='draggedItem',
                                 onDrop=""" for (var k in data){
                                              this.setRelativeData('list.external_drag.'+k,new gnr.GnrBag(data[k]));
                                           }""",
-                                
                                 connect_onRowContextMenu="FIRE list.onSelectionMenu = true;",
-                                subscribe_trashedObject="""this.widget.deleteColumn($1.column);""",
                                 **lstkwargs)   
         
         pane.dataController("SET list.selectedIndex = idx; SET selectedPage = 1;",idx="^gnr.forms.formPane.openFormIdx") 
