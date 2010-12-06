@@ -224,27 +224,17 @@ class SiteRegister(object):
             self.u_register.write(user_item)
         return result
         
-    def change_connection_user(self,connection_id,user=None,user_tags=None,user_id=None,user_name=None):
+    def change_connection_user(self,connection_id,user=None,user_tags=None,user_id=None,user_name=None,avatar_extra=None):
         connection_item=self.c_register.read(connection_id)
         self.pop_connections_from_user(connection_item['user'],connection_item,delete_if_empty=True)
         connection_item['user'] = user
         connection_item['user_tags'] = user_tags
         connection_item['user_name'] = user_name
         connection_item['user_id'] = user_id
+        connection_item['avatar_extra'] = avatar_extra
+
         self.attach_connections_to_user(connection_item['user'],connection_item)
         self.c_register.write(connection_item)
-
-    def change_connection_user_old(self,connection_id,user=None,user_tags=None,user_id=None,user_name=None):
-        connection_item=self.c_register.read(connection_id)
-        connections_dict=self.pop_connections_from_user(connection_item['user'],'*',delete_if_empty=True)
-        for connection_id in connections_dict.keys():
-            connection_item=self.c_register.read(connection_id)
-            connection_item['user'] = user
-            connection_item['user_tags'] = user_tags
-            connection_item['user_name'] = user_name
-            connection_item['user_id'] = user_id
-            self.attach_connections_to_user(connection_item['user'],connection_item)
-            self.c_register.write(connection_item)
 
     @lock_connection
     def attach_pages_to_connection(self,connection_id,page_items):
@@ -695,6 +685,7 @@ class UserRegister(BaseRegister):
                 user_id= connection_item['user_id'],
                 user_name= connection_item['user_name'],
                 user_tags= connection_item['user_tags'],
+                avatar_extra=connection_item.get('avatar_extra'),
                 connections={}
                 )
         return register_item

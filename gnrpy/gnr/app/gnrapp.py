@@ -568,7 +568,7 @@ class GnrApp(object):
         else:
             valid = True
         if valid:
-            return GnrAvatar(user=user, user_name=user_name, user_id=user_id, pwd=pwd, tags=tags,login_pwd=login_pwd, **kwargs)
+            return GnrAvatar(user=user, user_name=user_name, user_id=user_id,tags=tags, **kwargs)
         
     def validatePassword(self, login_pwd, pwd=None, user=None):
         if not pwd:
@@ -701,8 +701,9 @@ class GnrAvatar(object):
         self.user_id = user_id
         self.user_tags = tags
         self.loginPars={'tags':self.user_tags}
-        for k,v in kwargs.items():
-            setattr(self, k, v)
+        self.extra_kwargs = kwargs or dict()
+       #for k,v in kwargs.items():
+       #    setattr(self, k, v)
             
     def addTags(self, tags):
         t = self.tags.split(',')
@@ -715,7 +716,8 @@ class GnrAvatar(object):
     
     def as_dict(self):
         return dict(user=self.user,user_tags=self.user_tags, 
-                    user_id=self.user_id,user_name=self.user_name)
+                    user_id=self.user_id,user_name=self.user_name,
+                    extra_kwargs=self.extra_kwargs)
         
 class GnrWriteInReservedTableError(Exception):
     pass

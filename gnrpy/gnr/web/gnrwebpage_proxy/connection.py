@@ -63,6 +63,7 @@ class GnrWebConnection(GnrBaseProxy):
                 self.user_tags = connection_item['user_tags']
                 self.user_id = connection_item['user_id']
                 self.user_name = connection_item['user_name']
+                self.avatar_extra = connection_item.get('avatar_extra')
                 self.connection_item=connection_item
         
     @property
@@ -118,14 +119,17 @@ class GnrWebConnection(GnrBaseProxy):
         self.cookie.value['locale'] = v
     locale = property(_get_locale, _set_locale)
         
-    def change_user(self,user=None,user_tags=None,user_id=None,user_name=None):
-        self.user = user or self.guestname
-        self.user_tags = user_tags
-        self.user_name = user_name
-        self.user_id = user_id
+    def change_user(self,avatar=None):
+        avatar_dict = avatar.as_dict() if avatar else dict()
+        self.user = avatar_dict.get('user') or self.guestname
+        self.user_tags = avatar_dict.get('user_tags')
+        self.user_name = avatar_dict.get('user_name')
+        self.user_id = avatar_dict.get('user_id')
+        self.avatar_extra = avatar_dict.get('extra_kwargs')
+
         self.page.site.register.change_connection_user(self.connection_id,user=self.user,
                                                         user_tags=self.user_tags,user_id=self.user_id,
-                                                        user_name=self.user_name)
+                                                        user_name=self.user_name,avatar_extra=self.avatar_extra)
         self.write_cookie()
         
     def rpc_logout(self):
