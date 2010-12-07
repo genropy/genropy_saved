@@ -200,11 +200,10 @@ dojo.declare("gnr.GnrDevHandler",null,{
         content.setItem('pippo',null,{label:'pippo'})
         content.setItem('pluto',null,{label:'pluto'})
         var storepath = gridSourceNode.gridControllerPath+'.confMenu';
-        var domNode = gridSourceNode.widget.domNode;
         genro.setData(storepath,content);
         var menu = node._('menu',{storepath:storepath,id:menuId,action:'alert($1.label)'});
         node.unfreeze();
-        dijit.byId(menuId).bindDomNode(domNode);
+        dijit.byId(menuId).bindDomNode(gridSourceNode.widget.views.views[0].headerNode);
     },
     
     openInspector:function(){
