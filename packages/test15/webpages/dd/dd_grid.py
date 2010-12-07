@@ -41,7 +41,7 @@ class GnrCustomWebPage(object):
     def test_1_grid(self,pane):
         pane=pane.div(height='150px')
         pane.data('.data',self.aux_test_1_grid_data())
-        grid = pane.IncludedView(nodeId='inputgrid',storepath='.data',selfDragColumns=True,selfDragRows=True,
+        grid = pane.includedView(nodeId='inputgrid',storepath='.data',selfDragColumns=True,selfDragRows=True,
                         draggable_row=True,draggable_column=True, # draggabile per righe e colonne
                         datamode='bag',editorEnabled=True,draggable=True)
                         
