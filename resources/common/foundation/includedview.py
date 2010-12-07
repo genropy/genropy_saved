@@ -46,7 +46,7 @@ class IncludedView(BaseComponent):
                         filterOn=None,pickerPars=None,centerPaneCb=None,
                         editorEnabled=None,parentLock='^status.locked',reloader=None,externalChanges=None,
                         addOnCb=None,zoom=True,hasToolbar=False,
-                        canSort=True,
+                        canSort=True,configurable=None,
                         **kwargs):
         """
         This method returns a grid (includedView) for viewing and selecting rows from a many
@@ -148,10 +148,13 @@ class IncludedView(BaseComponent):
                     'please specify an absolute storepath, if sqlContextRoot is not available'
                 storepath = '%s%s' % (inherited_attributes['sqlContextRoot'], storepath)
         viewPars = dict(kwargs)
+        if nodeId and configurable is not False:
+            configurable = True
         gridId = nodeId or self.getUuid()
         viewPars['nodeId'] = gridId
         controllerPath = datapath or 'grids.%s' %gridId
         storepath = storepath or '.selection'
+        viewPars['configurable'] = configurable
         viewPars['storepath'] = storepath
         viewPars['controllerPath']= controllerPath
         controller = parentBC.dataController(datapath=controllerPath)
