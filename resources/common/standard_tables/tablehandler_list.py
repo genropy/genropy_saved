@@ -438,13 +438,16 @@ class TableHandlerForm(BaseComponent):
                              **condPars)
         customOnDrops = dict([('onDrop_%s'%k[10:],getattr(self,k)()) for k in dir(self) if k.startswith('lstOnDrop_')])
         lstkwargs.update(customOnDrops)
+        dbfieldcode = 'gnrdbfld_%s' %self.maintable.replace('.','_')
+        lstkwargs['onDrop_%s' %dbfieldcode] = "this.widget.addColumn(data,dropInfo.column);if(this.widget.rowCount>0){genro.fireAfter('list.runQueryDo',true);}"
+        
         gridpane.virtualGrid(nodeId='maingrid', structpath="list.view.structure", storepath=".data", autoWidth=False,
                                 selectedIndex='list.rowIndex', rowsPerPage=self.rowsPerPage(), sortedBy='^list.grid.sorted',
                                 connect_onSelectionChanged='SET list.noSelection = (genro.wdgById("maingrid").selection.getSelectedCount()==0)',
                                 linkedForm='formPane',openFormEvent='onRowDblClick',dropTypes=None,
                                 dropTarget=True,
                                 selfDragColumns='trashable',
-                                dropTarget_column='gnrdbfld',
+                                dropTarget_column=dbfieldcode,
                                 dropTarget_grid='explorer_*',
                                 onDrop_gnrdbfld="""this.widget.addColumn(data,dropInfo.column);if(this.widget.rowCount>0){genro.fireAfter('list.runQueryDo',true);}""",
                                 onDrop_gridrow='console.log("dropped gridrow");console.log(data);',

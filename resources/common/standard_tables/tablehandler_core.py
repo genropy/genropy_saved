@@ -74,10 +74,11 @@ class TableHandlerToolbox(BaseComponent):
                                     return false;
                                 }
                                var fldinfo=objectUpdate({},treeItem.attr);
-                               fldinfo['maintable']=genro._('gnr.maintable');
+                               var maintable = genro._('gnr.maintable');
+                               fldinfo['maintable']=maintable;
                                dragValues['text/plain']=treeItem.attr.fieldpath;
-                               dragValues['gnrdbfld']=fldinfo;                            
-                             """,
+                               dragValues['gnrdbfld_'+maintable.replace('.','_')]=fldinfo;                            
+                             """ ,
                      draggable=True,
                      getIconClass='if(node.attr.dtype){return "icnDtype_"+node.attr.dtype}')
 
