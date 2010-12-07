@@ -180,8 +180,14 @@ dojo.declare("gnr.GnrDevHandler",null,{
             genro.wdgById('traceback_main').show();
         }
     },
-    
-    
+    relationExplorer:function(){
+       var node = genro.src.getNode('_relationExplorer_').clearValue().freeze();
+        genro.setData('_dev.relationExplorer',null,{remote:"relationExplorer",'table':table,'dosort':false});
+        var fpane = root._('floatingPane','inspector',{title:'Debug',top:'100px',left:'100px',height:'300px',width:'400px',
+                                                      resizable:true,maxable:true,dockable:false,
+                                                      closable:true,gnrId:'inspector_main'});
+                                                      
+    },
     openInspector:function(){
         var root=genro.src.newRoot();
         this.application.setData('_dev.dbstruct',null,{remote:"app.dbStructure"});

@@ -1861,6 +1861,10 @@ dojo.declare("gnr.widgets.Grid",gnr.widgets.baseDojo,{
     },
     
     creating_common: function(attributes, sourceNode){
+        if(sourceNode.attrs.configurable){
+            sourceNode.attrs.selfDragColumns='trashable';
+            sourceNode.onDrop_gnrdbfld="""var grid=this.widget;grid.addColumn(data,dropInfo.column);if(grid.rowCount>0){setTimeout(grid.reload(),1)}""",
+        }
         if (sourceNode.attr.selfDragRows){
            this.selfDragRowsPrepare(sourceNode)
         }
@@ -1897,6 +1901,9 @@ dojo.declare("gnr.widgets.Grid",gnr.widgets.baseDojo,{
         }
     },
     created_common:function(widget, savedAttrs, sourceNode){
+        if(sourceNode.attrs.configurable){
+            dojo.connect(widget,'doheadercontextmenu',function(e){genro.publish('showFieldsTree',e);});
+        }
         var gridContent = sourceNode.getValue();
         if (gridContent instanceof gnr.GnrBag) {
             var gridEditorNode = gridContent.getNodeByAttr('tag','gridEditor');
@@ -3496,7 +3503,7 @@ dojo.declare("gnr.widgets.IncludedView",gnr.widgets.VirtualStaticGrid,{
         genro.src.afterBuildCalls.push(dojo.hitch(widget,'render'));
         //dojo.connect(widget, 'onSelected', widget,'_gnrUpdateSelect');
         dojo.connect(widget, 'modelAllChange', dojo.hitch(sourceNode ,this.modelAllChange));
-        dojo.connect(widget,'doheadercontextmenu',function(e){genro.publish('grid_configurator','open',e);});
+
         if (sourceNode.attr.editbuffer){
             sourceNode.registerDynAttr('editbuffer');
         }
