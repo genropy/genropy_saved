@@ -148,7 +148,7 @@ class IncludedView(BaseComponent):
                     'please specify an absolute storepath, if sqlContextRoot is not available'
                 storepath = '%s%s' % (inherited_attributes['sqlContextRoot'], storepath)
         viewPars = dict(kwargs)
-        if nodeId and configurable is not False:
+        if nodeId and table and configurable is not False:
             configurable = True
         gridId = nodeId or self.getUuid()
         viewPars['nodeId'] = gridId
