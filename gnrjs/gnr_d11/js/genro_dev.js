@@ -180,13 +180,79 @@ dojo.declare("gnr.GnrDevHandler",null,{
             genro.wdgById('traceback_main').show();
         }
     },
-    relationExplorer:function(){
-       var node = genro.src.getNode('_relationExplorer_').clearValue().freeze();
-        genro.setData('_dev.relationExplorer',null,{remote:"relationExplorer",'table':table,'dosort':false});
-        var fpane = root._('floatingPane','inspector',{title:'Debug',top:'100px',left:'100px',height:'300px',width:'400px',
-                                                      resizable:true,maxable:true,dockable:false,
-                                                      closable:true,gnrId:'inspector_main'});
-                                                      
+    saveGridView:function(gridId){
+        var gridSourceNode = genro.nodeById(gridId);
+        var gridControllerPath = gridSourceNode.gridControllerPath;
+        var selectedView = gridSourceNode.selectedView;
+        var datapath = gridControllerPath+'.confMenu.save_dlg'
+        var dlg = genro.dlg.quickDialog(selectedView?'Save View '+selectedView.description:'Save New View');
+        genro.setData(datapath,new gnr.GnrBag(selectedView));
+        var center = dlg.center;
+        var box = center._('div',{datapath:datapath,padding:'20px'})
+        var fb = this.formbuilder(box,1,{border_spacing:'6px'});
+        fb.addField('textbox',{lbl:"Name",value:'^.description',width:'10em'});
+        fb.addField('checkbox',{label:"Private",value:'^.private'});
+        var bottom = dlg.bottom._('div');
+        var saveattr = {'float':'right',label:'Save'};
+        var data = new gnr.GnrBag();
+
+        saveattr.action = function(){
+            genro.serverCall('saveGridCustomView',{'gridId':gridId,'save_info':genro.getData(datapath),'data':gridSourceNode.widget.structBag},
+                            dlg.close_action);
+        }
+        bottom._('button',saveattr);
+        bottom._('button',{'float':'right',label:'Cancel',action:dlg.close_action});
+        dlg.show_action();
+    },
+    
+    
+    formbuilder:function(node,col,tblattr){
+        var tbl = node._('table',tblattr||{})._('tbody');
+        tbl.col_max = col || 1;
+        tbl.col_count = tbl.col_max +1;
+        tbl.addField = function(tag,kw){
+            if(this.col_count>this.col_max){
+                this.curr_tr = this._('tr');
+                this.col_count = 1;
+            }
+            var lblpars = {innerHTML:objectPop(kw,'lbl')};
+            objectUpdate(lblpars,objectExtract(kw,'lbl_*'));
+            var tr = this.curr_tr;
+            tr._('td',lblpars);
+            tr._('td')._(tag,kw);
+            this.col_count = this.col_count+1;
+        }
+        return tbl;
+    },
+    
+    relationExplorer:function(table){
+        var code = table.replace('.','_')
+        genro.src.getNode()._('div', '_relationExplorer_'+code);
+        var node = genro.src.getNode('_relationExplorer_'+code).clearValue()
+        node.freeze();
+        var path = 'gnr.relation_explorers.'+table;
+        genro.setData(path,
+                     genro.rpc.remoteResolver('relationExplorer',{'table':table}));
+        var fpane = node._('floatingPane',{title:'Explorer',top:'10px',right:'10px',height:'300px',width:'200px',
+                                                      resizable:true,dockable:false,_class:'shadow_4',
+                                                      closable:true});
+       var treeattr = {storepath:path,margin:'4px'};
+       treeattr.labelAttribute='caption',
+       treeattr._class='fieldsTree',
+       treeattr.hideValues=true;
+       treeattr.onDrag = function(dragValues,dragInfo,treeItem){
+                                if(!(treeItem.attr.dtype && treeItem.attr.dtype!='RM' && treeItem.attr.dtype!='RO')){
+                                    return false;
+                                }
+                               var fldinfo=objectUpdate({},treeItem.attr);
+                               fldinfo['maintable']=table;
+                               dragValues['text/plain']=treeItem.attr.fieldpath;
+                               dragValues['gnrdbfld_'+code]=fldinfo; 
+        };
+        treeattr.draggable=true;
+        treeattr.getIconClass='if(node.attr.dtype){return "icnDtype_"+node.attr.dtype}';                                       
+        fpane._('tree',treeattr);
+        node.unfreeze();
     },
     
     gridConfiguratorMenu:function(gridId){
@@ -195,16 +261,31 @@ dojo.declare("gnr.GnrDevHandler",null,{
         node.freeze();
         var menuId = 'confMenu_'+gridId;
         var gridSourceNode = genro.nodeById(gridId);
-        var controllerPath = gridSourceNode.attr.controllerPath;
-        var content = new gnr.GnrBag();
-        content.setItem('pippo',null,{label:'pippo'})
-        content.setItem('pluto',null,{label:'pluto'})
-        var storepath = gridSourceNode.gridControllerPath+'.confMenu';
-        genro.setData(storepath,content);
-        var menu = node._('menu',{storepath:storepath,id:menuId,action:'alert($1.label)'});
+        var menu_datapath = gridSourceNode.gridControllerPath+'.confMenu';  
+        genro.setData(menu_datapath+'.data',
+                     genro.rpc.remoteResolver('gridConfigurationMenu',{'gridId':gridId,'table':gridSourceNode.attr.table},{'cacheTime':'5'}));
+        var menu = node._('menu',{storepath:'.data',id:menuId,
+                    action:function(){
+                        genro.dev.loadCustomView(gridId,this.attr.pkey);
+                    },
+                    _class:'smallmenu',datapath:menu_datapath});
         node.unfreeze();
-        dijit.byId(menuId).bindDomNode(gridSourceNode.widget.views.views[0].headerNode);
+        var grid = gridSourceNode.widget;
+        dojo.connect(grid, 'postrender', function(){
+            dijit.byId(menuId).bindDomNode(grid.views.views[0].headerNode);
+        });
     },
+    
+    loadCustomView:function(gridId,pkey){
+        var gridSourceNode = genro.nodeById(gridId);
+        genro.serverCall('loadGridCustomView',{pkey:pkey},function(result){
+            gridSourceNode.selectedView = result.attr;
+            gridSourceNode.setRelativeData(gridSourceNode.attr.structpath,result.getValue());
+            gridSourceNode.widget.reload();
+        })
+    },
+    
+    
     
     openInspector:function(){
         var root=genro.src.newRoot();

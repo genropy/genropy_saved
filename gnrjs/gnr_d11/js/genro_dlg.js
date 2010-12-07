@@ -263,6 +263,21 @@ dojo.declare("gnr.GnrDlgHandler",null,{
         genro.wdgById('_dlg_request').show();
     },
     
+    quickDialog: function(title){
+        genro.src.getNode()._('div', '_dlg_quick');
+        var node = genro.src.getNode('_dlg_quick').clearValue();
+        node.freeze();
+        var dlg=node._('dialog',{nodeId:'_dlg_quick',title:title})
+        var center = dlg._('div',{_class:'pbl_dialog_center'});
+        var bottom = dlg._('div',{_class:'dialog_bottom'});
+        dlg.center=center;
+        dlg.bottom=bottom;
+        dlg.close_action = function(){genro.wdgById('_dlg_quick').hide()};
+        dlg.show_action = function(){node.unfreeze();genro.wdgById('_dlg_quick').show()};
+        return dlg;
+    },
+    
+    
     listChoice: function(title, msg, buttons, resultPath, valuePath, storePath){
         genro.src.getNode()._('div', '_dlg_listChoice');
         var buttons=buttons || {confirm:'Confirm',cancel:'Cancel'};

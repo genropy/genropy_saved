@@ -1286,8 +1286,13 @@ dojo.declare("gnr.widgets.Menu",gnr.widgets.baseDojo,{
                 var result=sourceNode.getValue('notrigger');
                 if ( result instanceof gnr.GnrBag){
                     var menubag=new gnr.GnrDomSource();
+                    var old_bindings = [];
+                    dojo.forEach(this._bindings,function(k){old_bindings.push(k[0][0])});
                     gnr.menuFromBag(result,menubag,sourceNode.attr._class,sourceNode.attr.fullpath);
                     sourceNode.setValue(menubag);
+                    var new_bindings = [];
+                    dojo.forEach(sourceNode.widget._bindings,function(k){new_bindings.push(k[0][0])});
+                    dojo.forEach(old_bindings,function(n){if(dojo.indexOf(new_bindings,n)<0){sourceNode.widget.bindDomNode(n)}})
                 }else{
                     sourceNode.setValue(result);
                 }
@@ -1865,11 +1870,13 @@ dojo.declare("gnr.widgets.Grid",gnr.widgets.baseDojo,{
         sourceNode.gridControllerPath = sourceNode.attr.controllerPath? sourceNode.absDatapath():'grids.' + sourceNode.attr.nodeId;
         if(sourceNode.attr.configurable){
             sourceNode.attr.selfDragColumns='trashable';
-            sourceNode.onDrop_gnrdbfld=function(dropInfo,data){
+            var tablecode = sourceNode.attr.table.replace('.','_');
+            sourceNode.attr['onDrop_gnrdbfld_'+tablecode]=function(dropInfo,data){
                 var grid=this.widget;
                 grid.addColumn(data,dropInfo.column);
-                if(grid.rowCount>0){setTimeout(grid.reload(),1);}
+                if(grid.rowCount>0){setTimeout(function(){grid.reload()},1);}
             };
+            sourceNode.attr.dropTarget_column = sourceNode.attr.dropTarget_column? sourceNode.attr.dropTarget_column+','+'gnrdbfld_'+tablecode:'gnrdbfld_'+tablecode;
         }
         if (sourceNode.attr.selfDragRows){
            this.selfDragRowsPrepare(sourceNode)
@@ -1883,7 +1890,7 @@ dojo.declare("gnr.widgets.Grid",gnr.widgets.baseDojo,{
         attributes.rowsPerPage=attributes.rowsPerPage || 10;
         attributes.rowCount=attributes.rowCount || 0;
         attributes.fastScroll=attributes.fastScroll || false;
-        sourceNode.dropModes = objectExtract(attributes,'dropTarget_*');
+        sourceNode.dropModes = objectExtract(sourceNode.attr,'dropTarget_*',true);
         var attributesToKeep='autoHeight,autoRender,autoWidth,defaultHeight,elasticView,fastScroll,keepRows,model,rowCount,rowsPerPage,singleClickEdit,structure,'; 
         attributesToKeep=attributesToKeep+'datamode,sortedBy,filterColumn,excludeCol,excludeListCb,editorEnabled';
         var gridAttributes=objectExtract(attributes,attributesToKeep);
@@ -1907,6 +1914,9 @@ dojo.declare("gnr.widgets.Grid",gnr.widgets.baseDojo,{
         }
     },
     created_common:function(widget, savedAttrs, sourceNode){
+        if(widget.structBag){
+             widget.baseStructBag = widget.structBag.deepCopy();
+        }
         if(sourceNode.attr.configurable && sourceNode.attr.nodeId){
             var gridId = sourceNode.attr.nodeId;
             var cb = function(){
