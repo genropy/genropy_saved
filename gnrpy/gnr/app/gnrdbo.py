@@ -272,11 +272,11 @@ class Table_userobject(TableBase):
     def config_db(self, pkg):
         tbl =  pkg.table('userobject',  pkey='id', name_long='!!User Object', transaction=False)
         self.sysFields(tbl, id=True, ins=True, upd=True)
-        tbl.column('code', size=':200', name_long='!!Code', indexed='y') # a code unique for the same type / pkg / tbl
-        tbl.column('objtype', size=':24', name_long='!!Object Type', indexed='y')
-        tbl.column('pkg', size=':24', name_long='!!Package') # package code
-        tbl.column('tbl', size=':64', name_long='!!Package') # full table name: package.table
-        tbl.column('userid', size=':32', name_long='!!User ID', indexed='y')
+        tbl.column('code', name_long='!!Code', indexed='y') # a code unique for the same type / pkg / tbl
+        tbl.column('objtype', name_long='!!Object Type', indexed='y')
+        tbl.column('pkg', name_long='!!Package') # package code
+        tbl.column('tbl', name_long='!!Table') # full table name: package.table
+        tbl.column('userid',name_long='!!User ID', indexed='y')
         tbl.column('description', 'T', name_long='!!Description', indexed='y')
         tbl.column('data', 'X', name_long='!!Data')
         tbl.column('authtags', 'T', name_long='!!Auth tags')
@@ -295,7 +295,7 @@ class Table_userobject(TableBase):
             isNew = True
             
         loc = locals()
-        for k in ['code','objtype','pkg','tbl','userid','description','data','authtags','private','inside_shortlist']:
+        for k in ['code','objtype','pkg','tbl','userid','description','data','authtags','private']:
             record[k] = loc[k]
             
         if isNew:

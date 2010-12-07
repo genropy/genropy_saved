@@ -935,6 +935,53 @@ class GnrWebPage(GnrBaseWebPage):
             attributes = self.getService('print').getPrinterAttributes(printer_name)
             return attributes
 
+    def rpc_gridConfigurationMenu(self,gridId=None,table=None):
+        result = Bag()
+        if not hasattr(self.package,'listUserObject'):
+            return
+        objtype ='iv_%s_%s' %(self.pagename,gridId)
+        objectsel = self.package.listUserObject(objtype=objtype,userid=self.user,authtags=self.userTags)
+        result.setItem('baseview',None,
+                        action="""
+                                 var gridNode = genro.nodeById(this.attr.gridId);
+                                 
+                                 gridNode.setRelativeData(gridNode.attr.structpath,gridNode.widget.baseStructBag.deepCopy());
+                                 gridNode.widget.reload();""",
+                        label='Base View',
+                        gridId=gridId)
+        if objectsel:
+            for i,r in enumerate(objectsel.data):
+                attrs = dict([(str(k), v) for k,v in r.items()])
+                result.setItem(r['code'] or 'r_%i' % i, None, label = attrs.get('description'),pkey=attrs['pkey']);
+        result.setItem('_spacer_',None,label='-')
+        if table:
+            result.setItem('fieldstree',None,label='!!Show Fields Tree',action='genro.dev.relationExplorer(this.attr.table)',table=table)
+        result.setItem('save',None,label='!!Save',action='genro.dev.saveGridView(this.attr.gridId);',gridId=gridId)
+        result.setItem('delete',None,label='!!Delete',action='genro.dev.saveGridView(this.attr.gridId);',gridId=gridId)
+        return result
+
+    def rpc_saveGridCustomView(self,gridId=None,save_info=None,data=None):
+        description = save_info['description']
+        code = description.replace('.','_').lower()
+        objtype ='iv_%s_%s' %(self.pagename,gridId)
+        pkey = save_info.get('id')
+        record = self.package.loadUserObject(id=pkey)[1]
+        if record:
+            if record['code'] != code:
+                pkey = None
+        self.package.saveUserObject(data, code=code, 
+                                    description=description,
+                                    id=pkey,
+                                    private=bool(save_info['private']),
+                                    objtype=objtype)
+        self.db.commit()
+        
+    def rpc_loadGridCustomView(self,pkey=None):
+        data, metadata = self.package.loadUserObject(id=pkey)
+        return (data, metadata)
+        
+        
+        
     def rpc_relationExplorer(self, table=None, prevRelation='', prevCaption='', 
                             omit='',**kwargs):
         if not table:
