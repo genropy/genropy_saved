@@ -36,9 +36,12 @@ class GnrCustomWebPage(object):
         
     def test_3_resolver(self,pane):
         """From Resolver"""
+        
         ddm = pane.div(height='50px',width='50px',background='lime')
-        menu = ddm.menu(action='alert($1.code)',modifiers='*',storepath='.menudata',_class='smallmenu')
-        pane.dataRemote('.menudata','connection.connected_users_bag',cacheTime=5)
+        menu = ddm.menu(action='alert($1.code)',modifiers='*',storepath='.menudata',_class='smallmenu',id='test3menu')
+        ddm2 = pane.div(height='50px',width='50px',background='red',connectedMenu='test3menu')
+
+        pane.dataRemote('.menudata','menudata',cacheTime=5)
         
     def rpc_menudata(self):
         menudata = self.menudata()

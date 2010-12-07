@@ -9,6 +9,8 @@
 from gnr.core.gnrbag import Bag
 
 class GnrCustomWebPage(object):
+    auto_polling=0
+    user_polling=0
     py_requires='gnrcomponents/testhandler:TestHandlerFull,foundation/includedview:IncludedView'
 
     def common_data(self):
@@ -35,6 +37,13 @@ class GnrCustomWebPage(object):
         gridEditor.textbox(gridcell='name')
         gridEditor.numbertextbox(gridcell='age')
         gridEditor.textbox(gridcell='work')
+        
+    def test_2_remote_includedview_db(self,pane):
+        bc = pane.borderContainer(height='300px')
+        self.includedViewBox(bc,label='Test',datapath='.test_db',
+                             nodeId='test_db',table='glbl.provincia',autoWidth=True,
+                              _onStart=True,selectionPars=dict(order_by='$nome'))
+
     
     def test_2_remote_includedview_editable_bag(self,pane):
         """Includedview editable datamode bag"""
