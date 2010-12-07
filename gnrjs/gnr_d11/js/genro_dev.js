@@ -188,6 +188,25 @@ dojo.declare("gnr.GnrDevHandler",null,{
                                                       closable:true,gnrId:'inspector_main'});
                                                       
     },
+    
+    gridConfiguratorMenu:function(gridId){
+        genro.src.getNode()._('div', '_confMenuBox_'+gridId);
+        var node = genro.src.getNode('_confMenuBox_'+gridId).clearValue();
+        node.freeze();
+        var menuId = 'confMenu_'+gridId;
+        var gridSourceNode = genro.nodeById(gridId);
+        var controllerPath = gridSourceNode.attr.controllerPath;
+        var content = new gnr.GnrBag();
+        content.setItem('pippo',null,{label:'pippo'})
+        content.setItem('pluto',null,{label:'pluto'})
+        var storepath = gridSourceNode.gridControllerPath+'.confMenu';
+        var domNode = gridSourceNode.widget.domNode;
+        genro.setData(storepath,content);
+        var menu = node._('menu',{storepath:storepath,id:menuId,action:'alert($1.label)'});
+        node.unfreeze();
+        dijit.byId(menuId).bindDomNode(domNode);
+    },
+    
     openInspector:function(){
         var root=genro.src.newRoot();
         this.application.setData('_dev.dbstruct',null,{remote:"app.dbStructure"});

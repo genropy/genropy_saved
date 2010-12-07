@@ -1861,9 +1861,15 @@ dojo.declare("gnr.widgets.Grid",gnr.widgets.baseDojo,{
     },
     
     creating_common: function(attributes, sourceNode){
-        if(sourceNode.attrs.configurable){
-            sourceNode.attrs.selfDragColumns='trashable';
-            sourceNode.onDrop_gnrdbfld="""var grid=this.widget;grid.addColumn(data,dropInfo.column);if(grid.rowCount>0){setTimeout(grid.reload(),1)}""",
+        sourceNode.attr.nodeId = sourceNode.attr.nodeId || 'grid_' + sourceNode.getStringId();
+        sourceNode.gridControllerPath = sourceNode.attr.controllerPath? sourceNode.absDatapath():'grids.' + sourceNode.attr.nodeId;
+        if(sourceNode.attr.configurable){
+            sourceNode.attr.selfDragColumns='trashable';
+            sourceNode.onDrop_gnrdbfld=function(dropInfo,data){
+                var grid=this.widget;
+                grid.addColumn(data,dropInfo.column);
+                if(grid.rowCount>0){setTimeout(grid.reload(),1);}
+            };
         }
         if (sourceNode.attr.selfDragRows){
            this.selfDragRowsPrepare(sourceNode)
@@ -1884,7 +1890,7 @@ dojo.declare("gnr.widgets.Grid",gnr.widgets.baseDojo,{
         objectPopAll(attributes);
         objectUpdate(attributes,gridAttributes);
         attributes._identifier=identifier;
-        sourceNode.attr.nodeId = sourceNode.attr.nodeId || 'grid_' + sourceNode.getStringId();
+        
         return savedAttrs;
     },
     
@@ -1901,8 +1907,12 @@ dojo.declare("gnr.widgets.Grid",gnr.widgets.baseDojo,{
         }
     },
     created_common:function(widget, savedAttrs, sourceNode){
-        if(sourceNode.attrs.configurable){
-            dojo.connect(widget,'doheadercontextmenu',function(e){genro.publish('showFieldsTree',e);});
+        if(sourceNode.attr.configurable && sourceNode.attr.nodeId){
+            var gridId = sourceNode.attr.nodeId;
+            var cb = function(){
+                genro.dev.gridConfiguratorMenu(gridId);
+            }
+            setTimeout(cb,1);
         }
         var gridContent = sourceNode.getValue();
         if (gridContent instanceof gnr.GnrBag) {
@@ -3453,8 +3463,7 @@ dojo.declare("gnr.widgets.IncludedView",gnr.widgets.VirtualStaticGrid,{
             columns = columns+','+sourceNode.attr.hiddencolumns;
         }
         if (columns){
-            var path = sourceNode.attr.controllerPath? '.columns':'grids.' + sourceNode.attr.nodeId +'.columns';
-            sourceNode.setRelativeData(path, columns);
+            sourceNode.setRelativeData(sourceNode.gridControllerPath+'.columns', columns)
         }
         return columns;
     },
