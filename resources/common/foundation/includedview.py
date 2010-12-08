@@ -29,6 +29,7 @@ class IncludedView(BaseComponent):
     """
     css_requires = 'public'
     js_requires = 'public'
+    py_requires ='gnrcomponents/grid_configurator/grid_configurator:GridConfigurator'
     
     def includedViewBox(self,parentBC,nodeId=None,table=None,datapath=None,
                         storepath=None,selectionPars=None,formPars=None,label=None,caption=None,footer=None,
