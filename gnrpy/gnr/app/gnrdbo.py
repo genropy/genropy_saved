@@ -302,6 +302,7 @@ class Table_userobject(TableBase):
             self.insert(record)
         else:
             self.update(record)
+        return record
             
     def loadUserObject(self, id=None, code=None, objtype=None, pkg=None, tbl=None, userid=None):
         if id:

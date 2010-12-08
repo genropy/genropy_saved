@@ -5,69 +5,58 @@
 # Copyright (c) 2010 Softwell. All rights reserved.
 
 from gnr.web.gnrwebpage import BaseComponent
+from gnr.core.gnrbag import Bag
 
 class GridConfigurator(BaseComponent):
     js_requires='gnrcomponents/grid_configurator/grid_configurator'
     css_requires='gnrcomponents/grid_configurator/grid_configurator'
 
-    def onMain_grid_configurator(self):
-        page = self.pageSource()
-        root=page.div(nodeId='grid_configurator_root',datapath='gnr.plugin.grid_configurator')
-        root.dataController(""" 
-                                var grid = grid_configurator[1].grid;
-                                
-                                var attr=grid.sourceNode.attr;
-                                SET .dialog.gridId = attr.nodeId;
-                                SET .dialog.table = attr.table;
-                                SET .dialog.title = 'Grid configuration: '+attr.nodeId;
-                                SET .dialog.data.struct_to_edit = grid_conf.get_struct_to_edit(grid.sourceNode);
-                                FIRE .dialog.open;
-                             """,
-                               subscribe_grid_configurator=True)
-        dlg = self.simpleDialog(root,title='^.title',datapath='.dialog',height='300px',width='600px',
-                         cb_center=self.grid_configurator_dialog_center,dlgId='grid_configurator_dialog')
-        dlg.dataController("""
-                            grid_conf.from_struct_to_edit(genro.nodeById(gridId),currGridStruct);
-                            FIRE .close;
-                            """,_fired="^.save",currGridStruct='=.data.struct_to_edit',gridId='=.gridId')
-                         
-                         
-    def grid_configurator_dialog_center(self,parentBc,**kwargs):
-        bc=parentBc.borderContainer(**kwargs)
-        top = bc.contentPane(region='top').toolbar()
-        top.button('!!Add row',action='SET .data.struct_to_edit.#id = new gnr.GnrBag();')
-        top.button('!!Del row')
-        left = bc.contentPane(region='left',width='150px')
-        left.dataRpc('.fieldstree','relationExplorer',table='^.table', omit='_',_onResult='FIRE .maketree')
-        left.tree(storepath='.fieldstree',persist=False,
-                    inspect='shift', labelAttribute='caption',
-                    _class='fieldsTree',_fired='^.maketree',
-                    hideValues=True,
-                    getIconClass='if(node.attr.dtype){return "icnDtype_"+node.attr.dtype}')
 
-        iv = bc.contentPane(region='center',datapath='.data').includedView(storepath='.struct_to_edit',struct=self.grid_configurator_struct(),datamode='bag',
-                                        nodeId='grid_configurator_grid',editorEnabled=True)
+    def rpc_gridConfigurationMenu(self,gridId=None,table=None,selectedViewPkey=None):
+        result = Bag()
+        if not hasattr(self.package,'listUserObject'):
+            return
+        objtype ='iv_%s_%s' %(self.pagename,gridId)
+        objectsel = self.package.listUserObject(objtype=objtype,userid=self.user,authtags=self.userTags)
+        selectedViewPkey = selectedViewPkey or None
+        result.setItem('baseview',None,
+                        action="genro.grid_configurator.loadGridBaseView(this.attr.gridId)",
+                        label='Base View',checked=selectedViewPkey is None,
+                        gridId=gridId)
+        if objectsel:
+            for i,r in enumerate(objectsel.data):
+                attrs = dict([(str(k), v) for k,v in r.items()])
+                result.setItem(r['code'] or 'r_%i' % i, None, label = attrs.get('description'),pkey=attrs['pkey'],checked=selectedViewPkey==attrs['pkey']);
+        result.setItem('_spacer_',None,label='-')
+        if table:
+            result.setItem('fieldstree',None,label='!!Show Fields Tree',floating_title='!! Fields',
+                       action="""genro.dev.relationExplorer(this.attr.table,this.attr.floating_title,{'left':$3.pageX+'px','top':$3.pageY+'px','height':'270px','width':'180px'})""",table=table)
+        result.setItem('save',None,label='!!Save',action='genro.grid_configurator.saveGridView(this.attr.gridId);',gridId=gridId)
+        result.setItem('delete',None,label='!!Delete',action='genro.grid_configurator.deleteGridView(this.attr.gridId);',gridId=gridId,disabled='==_selectedViewPkey==null;',_selectedViewPkey='=.selectedViewPkey')
+        return result
+        
+    def rpc_deleteViewGrid(self,pkey=None):
+        self.package.deleteUserObject(pkey)
+        self.db.commit()
 
-        gridEditor = iv.gridEditor()
-        gridEditor.numberTextBox(gridcell='order')
-        gridEditor.textBox(gridcell='field')
-        gridEditor.textBox(gridcell='name')
-        gridEditor.textBox(gridcell='width')
-
-
-    
-    def grid_configurator_struct(self):
-        struct = self.newGridStruct()
-        r = struct.view().rows()
-        r.cell('order',dtype='L',name='Order', width='5em')
-        r.cell('field', name='Field', width='15em')
-        r.cell('name', name='Name', width='15em')
-        r.cell('dtype', name='Dtype', width='5em')
-        r.cell('width', name='Width', width='5em')
-        r.cell('classes', name='Classes', width='10em')
-        r.cell('cell_classes', name='cellClasses', width='10em')
-        r.cell('header_classes', name='headerClasses', width='10em')
-        r.cell('view',name='View',width='10em')
-        r.cell('subrow',name='Subrow',width='10em')
-        return struct
+    def rpc_saveGridCustomView(self,gridId=None,save_info=None,data=None):
+        description = save_info['description']
+        code = description.replace('.','_').lower()
+        objtype ='iv_%s_%s' %(self.pagename,gridId)
+        pkey = save_info.get('id')
+        record = self.package.loadUserObject(id=pkey)[1]
+        if record:
+            if record['code'] != code:
+                pkey = None
+        record = self.package.saveUserObject(data, code=code, 
+                                    description=description,
+                                    id=pkey,
+                                    private=bool(save_info['private']),
+                                    objtype=objtype)
+        self.db.commit()
+        return self.package.loadUserObject(id=record.getItem('id'))
+        
+    def rpc_loadGridCustomView(self,pkey=None):
+        data, metadata = self.package.loadUserObject(id=pkey)
+        return (data, metadata)
     

@@ -178,49 +178,7 @@ dojo.declare("gnr.GnrDevHandler",null,{
             genro.wdgById('traceback_main').show();
         }
     },
-    loadGridBaseView:function(gridId){
-        var gridSourceNode = genro.nodeById(gridId);
-        gridSourceNode.setRelativeData(gridSourceNode.attr.structpath,gridSourceNode.widget.baseStructBag.deepCopy());
-        gridSourceNode.setRelativeData(gridSourceNode.gridControllerPath+'.confMenu.selectedViewPkey',null);
-        var node = genro.getDataNode(gridSourceNode.gridControllerPath+'.confMenu.data');
-        node.getResolver().reset();
-        gridSourceNode.selectedView = null;
-        gridSourceNode.widget.reload();
-    },
-    
-    deleteGridView:function(gridId){
-        var gridSourceNode = genro.nodeById(gridId);
-        genro.serverCall('deleteViewGrid',{pkey:gridSourceNode.selectedView['id']},function(){
-            genro.dev.loadGridBaseView(gridId);
-        });
-    },
-    
-    saveGridView:function(gridId){
-        var gridSourceNode = genro.nodeById(gridId);
-        var gridControllerPath = gridSourceNode.gridControllerPath;
-        var selectedView = gridSourceNode.selectedView;
-        var datapath = gridControllerPath+'.confMenu.save_dlg'
-        var dlg = genro.dlg.quickDialog(selectedView?'Save View '+selectedView.description:'Save New View');
-        genro.setData(datapath,new gnr.GnrBag(selectedView));
-        var center = dlg.center;
-        var box = center._('div',{datapath:datapath,padding:'20px'})
-        var fb = this.formbuilder(box,1,{border_spacing:'6px'});
-        fb.addField('textbox',{lbl:"Name",value:'^.description',width:'10em'});
-        fb.addField('checkbox',{label:"Private",value:'^.private'});
-        var bottom = dlg.bottom._('div');
-        var saveattr = {'float':'right',label:'Save'};
-        var data = new gnr.GnrBag();
-
-        saveattr.action = function(){
-            genro.serverCall('saveGridCustomView',{'gridId':gridId,'save_info':genro.getData(datapath),'data':gridSourceNode.widget.structBag},
-                            dlg.close_action);
-        }
-        bottom._('button',saveattr);
-        bottom._('button',{'float':'right',label:'Cancel',action:dlg.close_action});
-        dlg.show_action();
-    },
-    
-    
+        
     formbuilder:function(node,col,tblattr){
         var tbl = node._('table',tblattr||{})._('tbody');
         tbl.col_max = col || 1;
@@ -236,15 +194,15 @@ dojo.declare("gnr.GnrDevHandler",null,{
             tr._('td',lblpars);
             tr._('td')._(tag,kw);
             this.col_count = this.col_count+1;
-        }
+        };
         return tbl;
     },
     
     relationExplorer:function(table,title,rect){
-        var rect=rect || {'top':'10px','right':'10px','height':'300px','width':'200px'}
-        var code = table.replace('.','_')
+        var rect=rect || {'top':'10px','right':'10px','height':'300px','width':'200px'};
+        var code = table.replace('.','_');
         genro.src.getNode()._('div', '_relationExplorer_'+code);
-        var node = genro.src.getNode('_relationExplorer_'+code).clearValue()
+        var node = genro.src.getNode('_relationExplorer_'+code).clearValue();
         node.freeze();
         var path = 'gnr.relation_explorers.'+table;
         genro.setData(path,
@@ -255,8 +213,8 @@ dojo.declare("gnr.GnrDevHandler",null,{
                                                       resizable:true,dockable:false,_class:'shadow_4',
                                                       closable:true});
        var treeattr = {storepath:path,margin:'4px'};
-       treeattr.labelAttribute='caption',
-       treeattr._class='fieldsTree',
+       treeattr.labelAttribute='caption';
+       treeattr._class='fieldsTree';
        treeattr.hideValues=true;
        treeattr.onDrag = function(dragValues,dragInfo,treeItem){
                                 if(!(treeItem.attr.dtype && treeItem.attr.dtype!='RM' && treeItem.attr.dtype!='RO')){
@@ -272,47 +230,7 @@ dojo.declare("gnr.GnrDevHandler",null,{
         fpane._('tree',treeattr);
         node.unfreeze();
     },
-    
-    gridConfiguratorMenu:function(gridId){
-        genro.src.getNode()._('div', '_confMenuBox_'+gridId);
-        var node = genro.src.getNode('_confMenuBox_'+gridId).clearValue();
-        node.freeze();
-        var menuId = 'confMenu_'+gridId;
-        var gridSourceNode = genro.nodeById(gridId);
-        var menu_datapath = gridSourceNode.gridControllerPath+'.confMenu'; 
-        gridSourceNode.setRelativeData(menu_datapath+'.selectedView',null);
-        genro.setData(menu_datapath+'.data',
-                     genro.rpc.remoteResolver('gridConfigurationMenu',
-                                            {'gridId':gridId,'table':gridSourceNode.attr.table,
-                                              'selectedViewPkey':'='+menu_datapath+'.selectedViewPkey',
-                                              '_sourceNode':gridSourceNode},
-                                            {'cacheTime':'5'}));
-        var menu = node._('menu',{storepath:'.data',id:menuId,
-                    action:function(){
-                        genro.dev.loadCustomView(gridId,this.attr.pkey);
-                    },
-                    _class:'smallmenu',datapath:menu_datapath});
-        node.unfreeze();
-        var grid = gridSourceNode.widget;
-        dojo.connect(grid, 'postrender', function(){
-            dijit.byId(menuId).bindDomNode(grid.views.views[0].headerNode);
-        });
-    },
-    
-    loadCustomView:function(gridId,pkey){
-        var gridSourceNode = genro.nodeById(gridId);
-        genro.serverCall('loadGridCustomView',{pkey:pkey},function(result){
-            gridSourceNode.selectedView = result.attr;
-            gridSourceNode.setRelativeData(gridSourceNode.attr.structpath,result.getValue());
-            gridSourceNode.widget.reload();
-            gridSourceNode.setRelativeData(gridSourceNode.gridControllerPath+'.confMenu.selectedViewPkey',result.attr.id);
-            var node = genro.getDataNode(gridSourceNode.gridControllerPath+'.confMenu.data');
-            node.getResolver().reset();
-        });
-    },
-    
-    
-    
+        
     openInspector:function(){
         var root=genro.src.newRoot();
         this.application.setData('_dev.dbstruct',null,{remote:"app.dbStructure"});

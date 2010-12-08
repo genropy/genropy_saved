@@ -66,7 +66,6 @@ dojo.declare('gnr.GenroClient', null, {
         this.baseUrl = kwargs.baseUrl;
         this.lockingElements = {};
         this.debugRpc = false;
-
         setTimeout(dojo.hitch(this, 'genroInit'), 1);
     },
     genroInit:function(){
@@ -78,6 +77,8 @@ dojo.declare('gnr.GenroClient', null, {
         this._serverstore_paths = {};
         this._serverstore_changes = null;
         this.pendingFireAfter={};
+        var plugins = objectExtract(window,'genro_plugin_*');
+        objectUpdate(genro,plugins);
         this.compareDict={'==':function(a,b){return (a==b);},
                           '>':function(a,b){return (a>b);},
                           '>=':function(a,b){return (a>=b);},
