@@ -404,6 +404,7 @@ dojo.declare("gnr.widgets.baseHtml",null,{
     },
     setControllerTitle:function(attributes, sourceNode){
         var iconClass = objectPop(attributes,'iconClass');
+        var title=attributes['title']
         if (iconClass) {
             if (attributes['title']) {
                 attributes['title'] = '<span class="'+iconClass+'"/><span style="padding-left:20px;">'+attributes['title']+'</span>';
@@ -416,7 +417,7 @@ dojo.declare("gnr.widgets.baseHtml",null,{
             }
         };
         if (attributes['title']) {
-            var tip = objectPop(attributes,'tip')||'';
+            var tip = objectPop(attributes,'tip') || title ||'';
             attributes['title'] = '<span title="'+tip+'">'+attributes['title']+'</span>';
         };
     },
