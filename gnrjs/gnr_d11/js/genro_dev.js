@@ -162,8 +162,6 @@ dojo.declare("gnr.GnrDevHandler",null,{
         }
     },
     handleRpcError:function(error, envNode){
-        console.log('handleRpcError');
-
         if (error=='expired'){
             genro.dlg.message('expired session');
             genro.pageReload();
@@ -180,6 +178,23 @@ dojo.declare("gnr.GnrDevHandler",null,{
             genro.wdgById('traceback_main').show();
         }
     },
+    loadGridBaseView:function(gridId){
+        var gridSourceNode = genro.nodeById(gridId);
+        gridSourceNode.setRelativeData(gridSourceNode.attr.structpath,gridSourceNode.widget.baseStructBag.deepCopy());
+        gridSourceNode.setRelativeData(gridSourceNode.gridControllerPath+'.confMenu.selectedViewPkey',null);
+        var node = genro.getDataNode(gridSourceNode.gridControllerPath+'.confMenu.data');
+        node.getResolver().reset();
+        gridSourceNode.selectedView = null;
+        gridSourceNode.widget.reload();
+    },
+    
+    deleteGridView:function(gridId){
+        var gridSourceNode = genro.nodeById(gridId);
+        genro.serverCall('deleteViewGrid',{pkey:gridSourceNode.selectedView['id']},function(){
+            genro.dev.loadGridBaseView(gridId);
+        });
+    },
+    
     saveGridView:function(gridId){
         var gridSourceNode = genro.nodeById(gridId);
         var gridControllerPath = gridSourceNode.gridControllerPath;
@@ -264,9 +279,14 @@ dojo.declare("gnr.GnrDevHandler",null,{
         node.freeze();
         var menuId = 'confMenu_'+gridId;
         var gridSourceNode = genro.nodeById(gridId);
-        var menu_datapath = gridSourceNode.gridControllerPath+'.confMenu';  
+        var menu_datapath = gridSourceNode.gridControllerPath+'.confMenu'; 
+        gridSourceNode.setRelativeData(menu_datapath+'.selectedView',null);
         genro.setData(menu_datapath+'.data',
-                     genro.rpc.remoteResolver('gridConfigurationMenu',{'gridId':gridId,'table':gridSourceNode.attr.table},{'cacheTime':'5'}));
+                     genro.rpc.remoteResolver('gridConfigurationMenu',
+                                            {'gridId':gridId,'table':gridSourceNode.attr.table,
+                                              'selectedViewPkey':'='+menu_datapath+'.selectedViewPkey',
+                                              '_sourceNode':gridSourceNode},
+                                            {'cacheTime':'5'}));
         var menu = node._('menu',{storepath:'.data',id:menuId,
                     action:function(){
                         genro.dev.loadCustomView(gridId,this.attr.pkey);
@@ -285,7 +305,10 @@ dojo.declare("gnr.GnrDevHandler",null,{
             gridSourceNode.selectedView = result.attr;
             gridSourceNode.setRelativeData(gridSourceNode.attr.structpath,result.getValue());
             gridSourceNode.widget.reload();
-        })
+            gridSourceNode.setRelativeData(gridSourceNode.gridControllerPath+'.confMenu.selectedViewPkey',result.attr.id);
+            var node = genro.getDataNode(gridSourceNode.gridControllerPath+'.confMenu.data');
+            node.getResolver().reset();
+        });
     },
     
     

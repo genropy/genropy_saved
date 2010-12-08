@@ -260,8 +260,8 @@ dojo.declare("gnr.GnrRpcHandler",null,{
         this._auto_polling_handler=setTimeout(function(){genro.rpc.ping({reason:'auto'});},genro.auto_polling*1000);
     },
     setPolling:function(auto_polling,user_polling){
-        genro.user_polling = user_polling || genro._('gnr.polling.user_polling');
-        auto_polling = auto_polling || genro._('gnr.polling.auto_polling');
+        genro.user_polling = user_polling==null? genro._('gnr.polling.user_polling'):user_polling;
+        auto_polling = auto_polling==null?genro._('gnr.polling.auto_polling'):auto_polling;
         if (auto_polling!= genro.auto_polling) {
             genro.auto_polling = auto_polling;
             this._call_auto_polling();

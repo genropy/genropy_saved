@@ -17,7 +17,7 @@ class GnrCustomWebPage(object):
         menu = menudiv.menu(action='alert($1.foo)',modifiers='*')
         menu.menuline('abc',foo=35)
         menu.menuline('xyz',foo=60,disabled=True)
-        menu.menuline('alpha',action='alert("I am different")')
+        menu.menuline('alpha',action='alert("I am different")',checked=True)
         menu.menuline('-')
         submenu = menu.menuline('Sub').menu(action='alert("sub "+$1.bar)')
         submenu.menuline('cat',bar=35)
@@ -31,6 +31,7 @@ class GnrCustomWebPage(object):
         menu = menudiv.menu(action='alert($1.code)',modifiers='*',storepath='.menudata')
         menu.data('.menudata',self.menudata())
         pane.checkbox(value='^.disabled',label='aa')
+        pane.checkbox(value='^.checked',label='checked')
         pane.button('add menuline',action='this.setRelativeData(".menudata.r6",12,{"code":"PP","caption":"Palau port"})',
         disabled='^.disabled')
         
@@ -52,7 +53,7 @@ class GnrCustomWebPage(object):
         result=Bag()
         result.setItem('r1',None,code='CA',caption='California')
         result.setItem('r2',None,code='IL',caption='Illinois',disabled=True)
-        result.setItem('r3',None,code='NY',caption='New York')
+        result.setItem('r3',None,code='NY',caption='New York',checked='^.checked')
         result.setItem('r4',None,code='TX',caption='Texas',disabled='^.disabled')
         result.setItem('r5',None,code='AL',caption='Alabama')
         return result

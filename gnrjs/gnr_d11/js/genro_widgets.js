@@ -1138,6 +1138,9 @@ dojo.declare("gnr.widgets.Menuline",gnr.widgets.baseDojo,{
         if (sourceNode.attr.label=='-'){
             this._dojotag = 'MenuSeparator';
         }
+        if (attributes.checked){
+            attributes.iconClass='tick_icon10';
+        }
         else{
             if (sourceNode.getResolver()){
                 this._dojotag = 'PopupMenuItem';
@@ -1152,6 +1155,14 @@ dojo.declare("gnr.widgets.Menuline",gnr.widgets.baseDojo,{
             }
         }
         return savedAttrs;
+    },
+    
+    mixin_setChecked: function(val,kw){
+        if(val){
+            dojo.addClass(this.iconNode,'tick_icon10');
+        }else{
+            dojo.removeClass(this.iconNode,'tick_icon10');
+        }
     },
     mixin_addChild: function(popUpContent){   
         //called for submenu
@@ -1268,6 +1279,13 @@ dojo.declare("gnr.widgets.Menu",gnr.widgets.baseDojo,{
     },
     mixin_setStorepath:function(val,kw){
         this.sourceNode.rebuild();
+    },
+    mixin_setChecked: function(menuline,val){
+        if(this.currentChecked && this.currentChecked!=menuline){
+            this.currentChecked.setChecked(false);
+        }
+        menuline.setChecked(val);
+        this.currentChecked = val?menuline:null;
     },
     patch_destroy: function(){
         if (this._bindings){
