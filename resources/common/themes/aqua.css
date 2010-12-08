@@ -1,5 +1,65 @@
 /* Aqua Theme */
 
+/* @group Floating pane */
+
+._common_d11 .dojoxDockRestoreButton {
+    float: left;
+    height: 13px;
+    margin-top: 1px;
+
+}
+
+._common_d11 .dojoxDockNode {
+    -moz-border-radius: 3px 3px 3px 3px;
+    border: 1px solid #ADADAD;
+    cursor: pointer;
+    float: left;
+    height: 13px;
+    list-style: none outside none;
+    margin-top: 3px;
+    padding: 0 7px 3px 0;
+    width: auto;
+    font-size: .9em;
+    background-color:#E1E9E9 ;
+}
+
+.tundra .dojoxFloatingPane .dijitTabInnerDiv {
+    padding: 2px 9px;
+    }
+
+
+
+._common_d11 .dojoxFloatingPaneContent {
+
+}
+
+._common_d11 .dojoxFloatingPane{
+	-moz-border-radius:6px;
+	-webkit-border-radius:6px;
+	-moz-box-shadow:4px 4px 6px #403b3b;
+	-webkit-box-shadow:4px 4px 6px #403b3b;
+	border:0px
+}
+._common_d11.tundra .dojoxFloatingPaneTitle{
+
+	background:#4D5962 none repeat scroll 0 0;
+	background-image:-webkit-gradient(linear, 0% 0%, 0% 90%, from(rgba(77,89,98,0.99)), to(rgba(101,135,142,0.9)));
+    background-image:-moz-linear-gradient(-90deg,rgba(77,89,98,0.99), rgba(101,135,142,0.9));
+    vertical-align: middle;
+    text-align: center;	
+	color:#F5F5F5;
+	-moz-border-radius-topleft:6px;
+	-moz-border-radius-topright:6px;
+    -webkit-border-top-left-radius:6px;
+	-webkit-border-top-right-radius:6px;
+	padding-top: 2px;
+	padding-bottom: 2px;
+	font-size: .9em;
+}
+
+
+/* @end */
+
 /* @group pbl_elements */
 
 /* @group Root Layout */
@@ -336,6 +396,9 @@
 	-moz-border-radius-topright:6px;
     -webkit-border-top-left-radius:6px;
 	-webkit-border-top-right-radius:6px;
+	margin-right:2px;
+	color: #4D5962;
+	font-weight: bold;
 		/*background-image:-webkit-gradient(linear, 0% 0%, 0% 90%, from(rgba(104,133,142,0.99)), to(rgba(223,223,223,0.99)));
     background-image:-moz-linear-gradient(top, bottom,from(rgba(104,133,142,0.99)), to(rgba(223,223,223,0.99)));*/
 	
@@ -347,6 +410,7 @@
 ._common_d11 .dijitTabInnerDiv{
 	border-left: 0;
 	border-bottom: 0; 
+	
 }
 ._common_d11 .dijitTabCheckedHover{
 	opacity: 1;
@@ -357,8 +421,9 @@
     color: #F5F5F5;
 }
 ._common_d11 .dijitAlignTop .dijitTabChecked, ._common_d11 .dijitAlignTop .dijitTabCloseButtonChecked{
-	border-bottom-color: #68858e;
-    background-color: #68858e;
+	 background: #9E856F;
+    border-bottom-color: #9E856F;
+    color: #F5F5F5;
 }
 
 ._common_d11 .dijitTabPaneWrapper{
