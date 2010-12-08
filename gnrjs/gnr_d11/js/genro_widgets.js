@@ -416,7 +416,7 @@ dojo.declare("gnr.widgets.baseHtml",null,{
             }
         };
         if (attributes['title']) {
-            var tip = objectPop(attributes,'tip');
+            var tip = objectPop(attributes,'tip')||'';
             attributes['title'] = '<span title="'+tip+'">'+attributes['title']+'</span>';
         };
     },
@@ -1161,7 +1161,7 @@ dojo.declare("gnr.widgets.Menuline",gnr.widgets.baseDojo,{
             this.addChild_replaced.call(this,popUpContent);
         }
     },
-    patch_onClick:function(){
+    patch_onClick:function(evt){
         var originalTarget=this.getParent().originalContextTarget;
         var ctxSourceNode;
         var sourceNode=this.sourceNode;
@@ -1185,7 +1185,7 @@ dojo.declare("gnr.widgets.Menuline",gnr.widgets.baseDojo,{
         }
         f=funcCreate(action);
         if (f){
-            f.call(actionScope,sourceNode.getAttr(),ctxSourceNode);
+            f.call(actionScope,sourceNode.getAttr(),ctxSourceNode,evt);
         }
         var selattr=objectExtract(inAttr,'selected_*',true);
         if(ctxSourceNode){

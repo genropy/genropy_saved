@@ -225,7 +225,8 @@ dojo.declare("gnr.GnrDevHandler",null,{
         return tbl;
     },
     
-    relationExplorer:function(table){
+    relationExplorer:function(table,title,rect){
+        var rect=rect || {'top':'10px','right':'10px','height':'300px','width':'200px'}
         var code = table.replace('.','_')
         genro.src.getNode()._('div', '_relationExplorer_'+code);
         var node = genro.src.getNode('_relationExplorer_'+code).clearValue()
@@ -233,7 +234,9 @@ dojo.declare("gnr.GnrDevHandler",null,{
         var path = 'gnr.relation_explorers.'+table;
         genro.setData(path,
                      genro.rpc.remoteResolver('relationExplorer',{'table':table}));
-        var fpane = node._('floatingPane',{title:'Explorer',top:'10px',right:'10px',height:'300px',width:'200px',
+        var fpane = node._('floatingPane',{title:title,top:rect.top,bottom:rect.bottom,
+                                                          left:rect.left,right:rect.right,
+                                                          height:rect.height,width:rect.width,
                                                       resizable:true,dockable:false,_class:'shadow_4',
                                                       closable:true});
        var treeattr = {storepath:path,margin:'4px'};
