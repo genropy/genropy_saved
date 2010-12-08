@@ -955,7 +955,8 @@ class GnrWebPage(GnrBaseWebPage):
                 result.setItem(r['code'] or 'r_%i' % i, None, label = attrs.get('description'),pkey=attrs['pkey']);
         result.setItem('_spacer_',None,label='-')
         if table:
-            result.setItem('fieldstree',None,label='!!Show Fields Tree',action='genro.dev.relationExplorer(this.attr.table)',table=table)
+            result.setItem('fieldstree',None,label='!!Show Fields Tree',floating_title='!! Fields',
+                       action="""genro.dev.relationExplorer(this.attr.table,this.attr.floating_title,{'left':$3.pageX+'px','top':$3.pageY+'px','height':'270px','width':'180px'})""",table=table)
         result.setItem('save',None,label='!!Save',action='genro.dev.saveGridView(this.attr.gridId);',gridId=gridId)
         result.setItem('delete',None,label='!!Delete',action='genro.dev.saveGridView(this.attr.gridId);',gridId=gridId)
         return result
