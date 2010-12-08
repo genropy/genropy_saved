@@ -2348,10 +2348,10 @@ dojo.declare("gnr.widgets.Grid",gnr.widgets.baseDojo,{
         var dragmode=dragInfo.dragmode;
         var event=dragInfo.event;
         var widget=dragInfo.widget;
-        value={};
+        var value={};
         
        if (dragmode=='row'){
-            var cells=widget.structBag.getItem('#0.#0');
+            var cells=widget.structure[0]['rows'][0]
             var sel = widget.selection.getSelected();
             var rowdata=widget.rowByIndex(dragInfo.row);
             if (sel.length==1){
@@ -2361,7 +2361,7 @@ dojo.declare("gnr.widgets.Grid",gnr.widgets.baseDojo,{
                 sel.push(dragInfo.row);
             }
             sel.sort();
-            rowset=[];
+            var rowset=[];
             var valTextPlain=[];
             var valTextXml=[];
             var valTextHtml=[];
@@ -2374,8 +2374,8 @@ dojo.declare("gnr.widgets.Grid",gnr.widgets.baseDojo,{
                 var r_xml=[];
                 var r_html=[];
                 cells.forEach(function(n){
-                    var field=n.attr.field;
-                    var v=convertToText(rdata[field],{'xml':true,'dtype':+n.attr.dtype})[1];
+                    var field=n.field;
+                    var v=convertToText(rdata[field],{'xml':true,'dtype':+n.dtype})[1];
                     r.push(v);
                     r_xml.push('<'+field+'>'+v+'</'+field+'>');
                     r_html.push('<td name="'+field+'">'+v+'</td>');
