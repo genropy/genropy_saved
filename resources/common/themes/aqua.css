@@ -398,7 +398,7 @@
 	-webkit-border-top-right-radius:6px;
 	margin-right:2px;
 	color: #4D5962;
-	font-weight: bold;
+	font-weight: plain;
 		/*background-image:-webkit-gradient(linear, 0% 0%, 0% 90%, from(rgba(104,133,142,0.99)), to(rgba(223,223,223,0.99)));
     background-image:-moz-linear-gradient(top, bottom,from(rgba(104,133,142,0.99)), to(rgba(223,223,223,0.99)));*/
 	
