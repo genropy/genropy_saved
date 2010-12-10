@@ -219,9 +219,32 @@ def readXLS(doc):
     for r in range(1, sheet.nrows):
         row = [sheet.cell_value(r, c) for c in range(ncols)]
         yield GnrNamedList(index, row)
-            
-    
         
+        
+
+class XlsReader(object):
+    def __init__(self,docname):
+        import xlrd
+        import os.path
+        self.docname=docname
+        self.dirname=os.path.dirname(docname)
+        self.basename,self.ext=os.path.splitext(os.path.basename(docname))
+        self.ext=self.ext.replace('.','')
+        self.book = xlrd.open_workbook(filename=self.docname)
+        self.sheet=self.book.sheet_by_index(0)
+        headers = [self.sheet.cell_value(0, c) for c in range(self.sheet.ncols)]
+        self.headers = [h for h in headers if h]
+        
+        self.index = dict([(k,i) for i,k in enumerate(headers)])
+        self.ncols = len(headers)
+        self.nrows=self.sheet.nrows-1
+        
+    def __call__(self):
+        for r in range(1, self.sheet.nrows):
+            row = [self.sheet.cell_value(r, c) for c in range(self.ncols)]
+            yield GnrNamedList(self.index, row)
+    
+    
         
 class GnrNamedList(list):
     """A row object that allow by-column-name access to data, the capacity to add columns and alter data."""
