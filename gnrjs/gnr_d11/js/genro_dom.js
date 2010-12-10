@@ -702,7 +702,7 @@ dojo.declare("gnr.GnrDomHandler",null,{
         var valid_ext=drop_ext?splitStrip(drop_ext):null;
         var files=[];
         dojo.forEach(dataTransfer.files,function(f){
-            if((!valid_ext) || (dojo.indexOf(drop_ext,f['name'].split('.').pop())>=0)){
+            if((!valid_ext) || (dojo.indexOf(valid_ext,f['name'].split('.').pop())>=0)){
                 files.push(f);
             }});
         if(files.length>0){
