@@ -68,7 +68,8 @@ BASE_ENCODE={'/2':'01',
                 }
 
 
-def getUntil(myString, chunk):
+        
+def getUntil(myString, chunk,returnOriginal=False):
     """
     Returns a string until a given chunk.
     @param myString
@@ -79,12 +80,18 @@ def getUntil(myString, chunk):
     ''
     >>> getUntil('teststring', 'co')
     ''
+    >>> getUntil('teststring', 'co',returnOriginal=True)
+    'teststring'
     """
     p = myString.find (chunk)
     if p > -1:
         return myString[0:p]
     else:
-        return ''
+        if returnOriginal:
+            return myString
+        else:
+            return ''
+
     
 def getUntilLast(myString, chunk):
     """
