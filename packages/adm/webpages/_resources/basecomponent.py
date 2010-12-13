@@ -7,7 +7,7 @@
 #  Copyright (c) 2007 Softwell. All rights reserved.
 #
 
-""" Season """
+""" basecomponent """
 
 from gnr.core.gnrbag import Bag
 from gnr.web.gnrbaseclasses import BaseComponent
