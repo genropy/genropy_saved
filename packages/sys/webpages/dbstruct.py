@@ -46,17 +46,17 @@ class GnrCustomWebPage(object):
         pane.css('.tundra .dijitTreeExpando','height:16px;')
     def onDrag(self):
         return """var modifiers=dragInfo.modifiers;
-                  var mode= (modifiers=='Shift') ? 'fieldcell':(modifiers=='Meta') ? 'field':''
+                  var mode= (modifiers=='Shift') ? 'r.fieldcell':(modifiers=='Meta') ? 'fb.field':''
                   var children=treeItem.getValue()
                   if(!children){
                       var fieldpath=treeItem.attr.fieldpath;
-                      dragValues['text/plain']=mode?'r.'+mode+'("'+fieldpath+'");':fieldpath;
+                      dragValues['text/plain']=mode?mode+'("'+fieldpath+'")':fieldpath;
                       return
                   }
                    var cb;
                     cb=function(n){
                         var fieldpath=n.attr.fieldpath
-                        return '        '+(mode?'r.'+mode+'("'+fieldpath+'");':fieldpath);
+                        return '        '+(mode?mode+'("'+fieldpath+'")':fieldpath);
                    };
                    result=[];
                    result.push('')

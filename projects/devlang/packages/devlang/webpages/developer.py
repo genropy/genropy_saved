@@ -29,8 +29,8 @@ class GnrCustomWebPage(object):
         iv = self.includedViewBox(bc,label='!!Languages',table='devlang.dev_lang',nodeId='dev_lang',
                                 storepath='.@devlang_dev_lang_developer_id',
                                  selfDragRows=True,
-                                 afterSelfDropRows="this.widget.updateCounterColumn();",
-                                 struct=self.developer_language_struct,hiddencolumns='$language_id',
+                                 struct=self.developer_language_struct,
+                                 hiddencolumns='$language_id',
                                  autoWidth=True,add_action=True,del_action=True)
                             
         gridEditor = iv.gridEditor()

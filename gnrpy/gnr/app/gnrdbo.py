@@ -288,7 +288,12 @@ class Table_userobject(TableBase):
         if id:
             record = self.record(id, mode='record', for_update=True, ignoreMissing=True)
         else:
-            record = self.record(code=code, objtype=objtype, pkg=pkg, tbl=tbl, mode='record', for_update=True, ignoreMissing=True)
+            record_pars = dict(code=code, objtype=objtype)
+            if tbl:
+                record_pars['tbl'] = tbl
+            if pkg:
+                record_pars['pkg'] = pkg
+            record = self.record( mode='record', for_update=True, ignoreMissing=True,**record_pars)
         isNew = False
         if not record:
             record = Bag()
@@ -304,13 +309,11 @@ class Table_userobject(TableBase):
             self.update(record)
         return record
             
-    def loadUserObject(self, id=None, code=None, objtype=None, pkg=None, tbl=None, userid=None):
+    def loadUserObject(self, id=None,objtype=None,**kwargs):
         if id:
             record = self.record(id, mode='record', ignoreMissing=True)
-        elif userid:
-            record = self.record(code=code, objtype=objtype, pkg=pkg, tbl=tbl, userid=userid, mode='record', ignoreMissing=True)
         else:
-            record = self.record(code=code, objtype=objtype, pkg=pkg, tbl=tbl, mode='record', ignoreMissing=True)
+            record = self.record(objtype=objtype,mode='record', ignoreMissing=True,**kwargs)
         data = record.pop('data')            
         metadata = record.asDict(ascii=True)
         return data, metadata

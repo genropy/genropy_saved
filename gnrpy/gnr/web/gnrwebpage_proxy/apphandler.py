@@ -801,6 +801,7 @@ class GnrWebAppHandler(GnrBaseProxy):
         recInfo['servertime'] = int((time.time() - t)*1000)
         if tblobj.lastTS:
             recInfo['lastTS'] = str(record[tblobj.lastTS])
+        recInfo['table'] = dbtable
         return (record,recInfo)
     
     def setRecordDefaults(self, record, defaults):
