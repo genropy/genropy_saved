@@ -3,8 +3,9 @@
 """Dialogs"""
 
 class GnrCustomWebPage(object):
-
+    dojo_version='11'
     py_requires="gnrcomponents/testhandler:TestHandlerBase"
+    css_theme=' '
     dojo_theme='tundra'
     
     def test_1_basic(self,pane):
