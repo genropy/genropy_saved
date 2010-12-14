@@ -2839,7 +2839,9 @@ dojo.declare("gnr.widgets.VirtualStaticGrid",gnr.widgets.Grid,{
                 var storepath = this.sourceNode.absDatapath(this.sourceNode.attr.storepath);
                 var storenode = genro._data.getNode(storepath);
                 if(storenode instanceof dojo.Deferred){
-                    }
+                    console.log('Deferred!!')
+                }else
+                {this.updateRowCount();}
             }else{
                 this._updatingIncludedView=true;
                 this.currRenderedRowIndex=null;
