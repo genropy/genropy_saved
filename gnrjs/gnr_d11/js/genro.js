@@ -247,12 +247,12 @@ dojo.declare('gnr.GenroClient', null, {
           }   
      
     },
-    dragDropConnect:function(){
-        var mainWindow=genro.domById('mainWindow');
-        dojo.connect(mainWindow,'dragstart',genro.dom,'onDragStart');
-        dojo.connect(mainWindow,'dragend',genro.dom,'onDragEnd');
-        dojo.connect(mainWindow,'dragover',genro.dom,'onDragOver');
-        dojo.connect(mainWindow,'drop',genro.dom,'onDrop');
+    dragDropConnect:function(pane){
+        var pane=pane || genro.domById('mainWindow');
+        dojo.connect(pane,'dragstart',genro.dom,'onDragStart');
+        dojo.connect(pane,'dragend',genro.dom,'onDragEnd');
+        dojo.connect(pane,'dragover',genro.dom,'onDragOver');
+        dojo.connect(pane,'drop',genro.dom,'onDrop');
        
     },
     playSound:function(name,path,ext){
