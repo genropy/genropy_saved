@@ -161,6 +161,7 @@ label.ghostlabel span{
 .loadingForm .dojoxGrid-content{
 	opacity: .3;
 }
+
 .loadingForm textarea{
 	color: transparent;
 }
@@ -1360,6 +1361,10 @@ table.draggedItem{
 .dojoxGrid td.cell_L{
     text-align: right;
 }
+.dojoxGrid-cell.hiddenColumn{
+    display:none;
+}
+
 
 .dtype_L, .dtype_R, .dtype_I, .dtype_N{
     text-align: right;
