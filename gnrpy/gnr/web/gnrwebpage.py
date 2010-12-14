@@ -612,8 +612,9 @@ class GnrWebPage(GnrBaseWebPage):
             return
         if not hasattr(self, '_avatar'):
             connection = self.connection
+            avatar_extra=connection.avatar_extra or dict()
             self._avatar = self.application.getAvatar(self.user,tags=connection.user_tags,page=self,
-                                                     **connection.avatar_extra)
+                                                     **avatar_extra)
         return self._avatar
     avatar = property(_get_avatar,_set_avatar)
     
