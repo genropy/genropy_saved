@@ -774,6 +774,7 @@ dojo.declare("gnr.widgets.Dialog",gnr.widgets.baseDojo,{
                                         genro.dialogStack.slice(-1)[0].show();
                                     }}});
          }
+         genro.dragDropConnect(newobj.domNode);
         
     },
     versionpatch_11__position: function(){
@@ -2275,6 +2276,9 @@ dojo.declare("gnr.widgets.Grid",gnr.widgets.baseDojo,{
                              if(cell.counter){
                                  sourceNode.attr.counterField = cell.field;
                                  dtype = 'L';
+                             }
+                             if(cell.hidden){
+                                 cell.classes = (cell.classes || '') + ' hiddenColumn';
                              }
                              if (dtype){
                                  formats = objectUpdate(objectUpdate({}, localTypes[dtype]), formats);
