@@ -229,6 +229,7 @@ dojo.declare("gnr.GnrFrmHandler",null,{
                     sendBag = (sendback==true) || this.hasChangesAtPath(currpath);
                     if(sendBag){
                         data.setItem(node.label, value, objectUpdate({'_gnrbag':true}, node.attr));
+                        data.__isRealChange=true;
                     }
                 } 
                 else if ((sendback==true) || (isNewRecord && value != null) || ('_loadedValue' in node.attr)) {
