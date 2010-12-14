@@ -250,6 +250,8 @@ class GnrWebAppHandler(GnrBaseProxy):
     def setContextJoinColumns(self, table,contextName='', reason=None, path=None, columns=None):
         tblobj = self.db.table(table)
         relation = tblobj.model.getRelation(path)
+        if not relation:
+            return
         target_fld = relation['many'].replace('.','_')
         from_fld = relation['one'].replace('.','_')
         ctxpath = '_sqlctx.columns.%s.%s_%s'  % (contextName,target_fld,from_fld)

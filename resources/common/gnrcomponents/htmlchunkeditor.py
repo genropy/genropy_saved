@@ -17,10 +17,8 @@ class ChunkEditor(BaseComponent):
                 connect_ondblclick="""console.log('ondblclick')
                                       SET gnr.htmlchunk.editor.path ='gnr.htmlchunk.%s';
                                       var table = GET gnr.htmlchunk.%s.table;
+                                      SET #chunkeditor.table = table;
                                       FIRE #chunkeditor.open;
-                                      if(table){
-                                        genro.dev.relationExplorer(table,'Table');
-                                      }
                                     """ %(nodeId,nodeId),
                 nodeId=nodeId,**kwargs)
                 
@@ -39,9 +37,9 @@ class ChunkEditor(BaseComponent):
             return
         page = self.pageSource()
         dlgBc = self.simpleDialog(page,title='!!Chunk editor',datapath='gnr.htmlchunk.editor',
-                                dlgId='chunkeditor',height='400px',width='700px')
+                                dlgId='chunkeditor',height='400px',width='750px')
         bc = dlgBc.borderContainer(region='center')
-        #self.chunkeditor_tree(bc.contentPane(region='left',margin='5px',splitter=True,width='250px'))
+        self.chunkeditor_tree(bc.contentPane(region='left',margin='5px',splitter=True,width='250px'))
         self.chunkeditor_editor(bc.contentPane(region='center',margin='5px',datapath='^gnr.htmlchunk.editor.path'))
         
        #dlgBc.dataRpc('dummy','loadChunk',pkey='^.opener.chunk_id',_onResult="""SET .table=result.attr.tbl;
@@ -50,7 +48,7 @@ class ChunkEditor(BaseComponent):
 
     def chunkeditor_editor(self,pane):
         self.RichTextEditor(pane, value='^.content',height='100%',
-                            toolbar=self.rte_toolbar_standard(),)
+                            toolbar='simple')
 
     def chunkeditor_tree(self,pane):
         pane.dataRemote('.tree.fields','relationExplorer',

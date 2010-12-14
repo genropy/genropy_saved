@@ -182,3 +182,9 @@ class RichTextEditor(BaseComponent):
                    ['Styles','Format','Font','FontSize'],
                    ['TextColor','BGColor'],['Maximize', 'ShowBlocks']
                    ]"""
+                   
+    def rte_toolbar_simple(self):
+        return """[
+                   ['Source','-','Bold', 'Italic', '-', 'NumberedList', 'BulletedList', '-','Image','Table','HorizontalRule','PageBreak'],
+                   ['JustifyLeft','JustifyCenter','JustifyRight','JustifyBlock'],
+                   ['Styles','Format','Font','FontSize','TextColor','BGColor']]"""

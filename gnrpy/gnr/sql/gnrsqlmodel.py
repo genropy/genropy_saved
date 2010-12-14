@@ -765,8 +765,10 @@ class DbTableObj(DbModelObj):
     relatingColumns=property(_get_relatingColumns)
     
     def getRelation(self, relpath):
-        joiner = self.relations.getAttr(relpath, 'joiner')[0]
-        return {'many':joiner['many_relation'],'one':joiner['one_relation']}
+        joiner = self.relations.getAttr(relpath, 'joiner')
+        if joiner:
+            joiner=joiner[0]
+            return {'many':joiner['many_relation'],'one':joiner['one_relation']}
         
     def getRelationBlock(self, relpath):
         joiner = self.relations.getAttr(relpath, 'joiner')[0]
