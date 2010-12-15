@@ -3307,7 +3307,8 @@ dojo.declare("gnr.widgets.VirtualStaticGrid",gnr.widgets.Grid,{
             };
         }else{
             cb = function(n){
-                var oldk=row.getItem(counterField);
+                var row = n.attr;
+                var oldk=row.counterField;
                 if(k!=oldk){
                     n.setAttribute(counterField,k);
                     changes.push({'node':n,'old':oldk,'new':k});
