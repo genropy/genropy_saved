@@ -612,7 +612,7 @@ dojo.declare("gnr.GnrDomHandler",null,{
             info.drop=true;
             var sourceNode = info.sourceNode;
             var attr=sourceNode.attr;
-            var dropTarget = sourceNode.dropTarget || sourceNode.attr.selfDragRows  || sourceNode.attr.selfDragColumns
+            var dropTarget = sourceNode.dropTarget || attr.selfDragRows  || attr.selfDragColumns;
             var dropTargetCb=sourceNode.dropTargetCb
             if (dropTarget || dropTargetCb){
                 info.dragSourceInfo=genro.dom.getDragSourceInfo(event.dataTransfer);
