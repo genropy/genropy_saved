@@ -41,7 +41,7 @@ class ExplorerManager(BaseComponent):
     
     def expmng_htableExplorer(self,pane,explorer_table=None,rootpath=None):
         tblobj = self.db.table(explorer_table)
-        title=tblobj.name
+        title=tblobj.name_long
         pane.attributes['title'] = title
         related_field = None
         related_table = None
