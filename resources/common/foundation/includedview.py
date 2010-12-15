@@ -161,6 +161,8 @@ class IncludedView(BaseComponent):
                 dropmode = 'dropTarget_%s' %mode
                 viewPars[dropmode] = '%s,%s' %(viewPars[dropmode],explorer) if dropmode in viewPars else explorer
                 viewPars['onDrop_explorer_%s' %explorer] = 'FIRE .dropped_%s = data' %explorer
+                viewPars['onCreated'] = """dojo.connect(widget,'_onFocus',function(){genro.publish("show_explorer","%s")})""" %explorer #provo?si
+                # 
         controllerPath = datapath or 'grids.%s' %gridId
         storepath = storepath or '.selection'
         viewPars['configurable'] = configurable
