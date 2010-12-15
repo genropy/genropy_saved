@@ -774,7 +774,7 @@ class SqlTable(GnrObject):
         except EXCEPTIONS['protect_delete'],e:
             return False
         
-    def columnsFromString(self, columns):
+    def columnsFromString(self, columns=None):
         result = []
         if not columns:
             return result
