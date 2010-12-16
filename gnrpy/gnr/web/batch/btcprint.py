@@ -8,7 +8,6 @@ Copyright (c) 2010 Softwell. All rights reserved.
 """
 from gnr.web.batch.btcbase import BaseResourceBatch
 from gnr.core.gnrbag import Bag
-import os
 class BaseResourcePrint(BaseResourceBatch):
     dialog_height = '300px'
     dialog_width = '460px'
@@ -110,7 +109,7 @@ class BaseResourcePrint(BaseResourceBatch):
         pdfprinter = self.print_handler.getPrinterConnection('PDF', self.print_options)
         save_as = self.print_options['save_as'] or self.batch_title
         filename = pdfprinter.printPdf(self.results.values(), self.batch_title, 
-                                      outputFilePath=self.page.site.getStaticPath('user:output','pdf',save_as,autocreate=True))
+                                      outputFilePath=self.page.site.getStaticPath('user:output','pdf',save_as,autocreate=-1))
         if filename:
             resultAttr['url'] = self.page.site.getStaticUrl('user:output','pdf',filename,nocache=True,download=True)
             resultAttr['document_name'] = save_as
