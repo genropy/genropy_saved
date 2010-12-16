@@ -1,10 +1,9 @@
 import itertools
-
 from gnr.core.gnrbag import Bag
 
 class AnalyzingBag(Bag):
     def analyze(self, data, group_by=None, sum=None, collect=None,
-                keep=None, distinct=None, key=None, captionCb=None):
+                keep=None, distinct=None, key=None, captionCb=None,collectIdx=True):
         """comment analyze"""
         totalize = sum
         def groupLabel(row,group):
@@ -17,19 +16,24 @@ class AnalyzingBag(Bag):
                 label = group(row)
             if not isinstance(label, basestring):
                 label = str(label)
-            return label.replace('.','_')
+            return label
                 
         def updateTotals(bagnode, k, row):
             attr = bagnode.getAttr()
-            idx = attr.setdefault('idx', set())
-            idx.add(k)
-            cnt = len(idx)
+            if collectIdx:
+                idx = attr.setdefault('idx', set())
+                idx.add(k)
+                attr['count'] = len(idx)
+            else:
+                if not 'count' in attr:
+                    attr['count'] = 0
+                attr['count']+=1
             if totalize is not None:
                 for fld in totalize:
                     lbl = 'sum_%s' % fld 
                     tt=attr[lbl] = attr.get(lbl, 0) + (row.get(fld,0) or 0)
                     lbl = 'avg_%s' % fld 
-                    attr[lbl] = float(tt/cnt)
+                    attr[lbl] = float(tt/attr['count'])
             if collect is not None:
                 for fld in collect:
                     lbl = 'collect_%s' % fld
@@ -48,15 +52,13 @@ class AnalyzingBag(Bag):
                     value=attr.get(lbl, None)
                     if not value:
                         attr[lbl]=row[fld]
-            attr['count'] = cnt
-
-
+            
         counter=itertools.count()
         for row in data:
             rowind = counter.next()
             currbag = self
             for gr in group_by:
-                label = groupLabel(row, gr) or '_'
+                label = groupLabel(row, gr).replace('.','_') or '_'
                 bagnode = currbag.getNode(label, autocreate=True)
                 if bagnode.value is None:
                     bagnode.setAttr(_pkey=self.nodeCounter)
@@ -69,6 +71,8 @@ class AnalyzingBag(Bag):
                 updateTotals(bagnode, k, row)
                 if captionCb:
                     bagnode.setAttr(caption = captionCb(gr, row, bagnode))
+                else:
+                    bagnode.setAttr(caption = label)
                 
     def _get_nodeCounter(self):
         if not hasattr(self, '_nodeCounter'):
@@ -76,5 +80,3 @@ class AnalyzingBag(Bag):
         self._nodeCounter += 1
         return self._nodeCounter
     nodeCounter = property(_get_nodeCounter)
-    
-        
