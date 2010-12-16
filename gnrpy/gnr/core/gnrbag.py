@@ -1775,6 +1775,7 @@ class Bag(GnrObject):
         if source and mode=='pickle':
             self[:]=self._unpickle(source,fromFile)
             
+            
     def _unpickle(self,source,fromFile):
         if fromFile:
             source = file(source,mode='r')
@@ -1921,7 +1922,7 @@ class Bag(GnrObject):
                 if os.path.isfile(source):
                     fname,fext = os.path.splitext(source)
                     fext=fext[1:]
-                    if fext in ['pckl','pkl']:
+                    if fext in ['pckl','pkl','pik']:
                         return source, True, 'pickle'
                     elif fext in ['xml','html','xhtml','htm']:
                         return source, True, 'xml'
