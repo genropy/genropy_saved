@@ -48,7 +48,7 @@ from gnr.web.gnrwebpage_proxy.pluginhandler import GnrWebPluginHandler
 from gnr.web.gnrwebpage_proxy.jstools import GnrWebJSTools
 from gnr.web.gnrwebstruct import GnrGridStruct
 from gnr.core.gnrlang import gnrImport, GnrException
-from gnr.core.gnrbag import Bag
+from gnr.core.gnrbag import Bag,BagResolver
 from gnr.core.gnrlang import deprecated
 from gnr.web.gnrbaseclasses import BaseComponent # DO NOT REMOVE, old code relies on BaseComponent being defined in this file
 
@@ -1061,7 +1061,7 @@ class GnrWebPage(GnrBaseWebPage):
         serverpath='_sqlctx.columns.%s'%path
         clientpath ='gnr.sqlctx.columns.%s' %path
         self.addToContext(value=joincolumns,serverpath=serverpath, clientpath =clientpath )
-            
+                    
     ##### BEGIN: DEPRECATED METHODS ###
     @deprecated
     def _get_config(self):
@@ -1073,6 +1073,40 @@ class GnrWebPage(GnrBaseWebPage):
         self.debugger.log(msg)
 
     ##### END: DEPRECATED METHODS #####
+    
+    def lazyBag(self,bag,name=None,location='page:resolvers'):
+        freeze_path = self.site.getStaticPath(location,name,autocreate=-1)
+        bag.makePicklable()
+        bag.pickle('%s.pik' %freeze_path)
+        return LazyBagResolver(resolverName=name,location=location,_page=self,sourceBag=bag)
+        
+class LazyBagResolver(BagResolver):
+    classKwargs={'cacheTime':-1,
+                 'readOnly':False,
+                 'resolverName':None,
+                 '_page':None,
+                 'sourceBag':None,
+                 'location':None,
+                 'path':None}
+    classArgs=['path']
+
+    def load(self):
+        if not self.sourceBag:
+            self.getSource()
+        sourceBag = self.sourceBag[self.path]
+        result = Bag()
+        for n in sourceBag:
+            value = n.value
+            if value and isinstance(value,Bag):
+                path=n.label if not self.path else '%s.%s' %(self.path,n.label)
+                value = LazyBagResolver(path=path,resolverName=self.resolverName,location=self.location)
+            result.setItem(n.label,value,n.attr)
+        return result
+        
+    def getSource(self):
+        filepath = self._page.site.getStaticPath(self.location,self.resolverName)
+        self.sourceBag = Bag('%s.pik' % filepath)
+        
     
 class GnrMakoPage(GnrWebPage):
     
