@@ -81,8 +81,34 @@ class ExplorerManager(BaseComponent):
                             dragValues['text/plain']=treeItem.attr.caption;
                            dragValues['explorer_%s']=treeItem.attr;""" %explorer_code)
                            
-    def explorer_directory(self,pane,path=None,exporer_code=None):
+    def explorer_directory(self,pane,path=None,explorer_code=None):
         path = path or '/'
         pane.attributes['title'] = 'Directory:"%s"'%path
-        self.expmng_make_explorer(pane,DirectoryResolver(path)(),explorer_code=exporer_code)
+        self.expmng_make_explorer(pane,DirectoryResolver(path)(),explorer_code=explorer_code)
+        
+    def tableTreeResolver(self,table=None,where=None,group_by=None,keep=None,caption=None,columns=None,**kwargs):
+        tblobj = self.db.table(table)
+        columns = tblobj.columnsFromString(columns)
+        columns.append(caption)
+        columns.extend([x for x in group_by if not callable(x)])        
+        selection = tblobj.query(where=where,columns=','.join(columns),**kwargs).selection()
+        explorer_id = self.getUuid()
+        freeze_path = self.site.getStaticPath('page:explorers',explorer_id)
+        totalizeBag = selection.totalize(group_by=group_by,keep=keep,collectIdx=False)
+        return self.lazyBag(totalizeBag,name=explorer_id,location='page:explorer')
+    
+    def tableTreeExplorer(self,pane,table=None,where=None,group_by=None,keep=None,caption=None,columns=None,explorer_code=None,**kwargs):
+        data=self.tableTreeResolver(table=table,where=where,group_by=group_by,keep=keep,caption=caption,columns=columns,**kwargs)()
+        explorer_code = explorer_code or table.replace('.','_')
+        self.expmng_make_explorer(pane,data,explorer_code=explorer_code)
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
         
