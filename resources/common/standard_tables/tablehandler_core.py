@@ -251,39 +251,9 @@ class LstQueryHandler(BaseComponent):
                           
     def savedQueryController(self, pane):
         pane.dataRemote('list.query.saved_menu', 'list_query', tbl=self.maintable, cacheTime=3)
-        
         pane.dataRpc('list.query.where', 'load_query', id='^list.query.selectedId', _if='id',
                   _onResult='genro.querybuilder.buildQueryPane();')
-        pane.dataRpc('list.query.where', 'new_query', filldefaults=True, _onStart=True, sync=True)
-        pane.dataRpc('list.query.where', 'new_query', _reason='^list.query.new',
-                        _onResult="""genro.querybuilder.buildQueryPane(); 
-                                    SET list.view.selectedId = null;
-                                    """,
-                        filldefaults=True)
-        
-
-    def rpc_new_query(self, filldefaults=False, **kwargs):
-        result = Bag()
-        if filldefaults:
-            querybase = self.queryBase()
-        else:
-            querybase = {'op':'equal'}
-        op_not = querybase.get('op_not','yes')
-        column = querybase.get('column')
-        column_dtype = None
-        if column:
-            column_dtype = self.tblobj.column(column).getAttr('dtype')
-        not_caption = '&nbsp;' if op_not=='yes' else '!!not'
-        result.setItem('c_0', querybase.get('val'), 
-                        {'op':querybase.get('op'),'column':column,
-                         'op_caption':'!!%s' %self.db.whereTranslator.opCaption(querybase.get('op')),
-                         'not':op_not,'not_caption': not_caption,
-                         'column_dtype': column_dtype,
-                         'column_caption' : self.app._relPathToCaption(self.maintable, column)})
-        
-        resultattr = dict(objtype='query', tbl=self.maintable)
-        return result, resultattr
-
+                  
     def rpc_load_query(self, **kwargs):
         return self.rpc_loadUserObject(**kwargs)
     

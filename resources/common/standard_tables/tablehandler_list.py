@@ -464,10 +464,34 @@ class TableHandlerForm(BaseComponent):
         pane.dataRpc('list.currentQueryCount','app.getRecordCount', condition=condition,fired='^list.updateCurrentQueryCount',
                       table=self.maintable, where='=list.query.where',excludeLogicalDeleted='=list.excludeLogicalDeleted',
                       **condPars)
-    
+        pane.dataController("""genro.setData("list.query.where",baseQuery.deepCopy(),{objtype:"query", tbl:maintable});
+                               genro.querybuilder.buildQueryPane(); 
+                               SET list.view.selectedId = null;
+                               if(!fired&&runOnStart){
+                                    FIRE list.runQuery
+                               }
+                            """,
+                            _onStart=True, baseQuery='=list.baseQuery',maintable=self.maintable,fired='^list.query.new',
+                            runOnStart=self.queryBase().get('runOnStart',False))
+        pane.data('list.baseQuery',self.queryFromQueryBase())
     
 
         #btnpane.button('Add View', iconClass='tb_button db_add', fire='list.view.new',showLabel=False)
         
-
+    def queryFromQueryBase(self):
+        result = Bag()
+        querybase = self.queryBase()
+        op_not = querybase.get('op_not','yes')
+        column = querybase.get('column')
+        column_dtype = None
+        if column:
+            column_dtype = self.tblobj.column(column).getAttr('dtype')
+        not_caption = '&nbsp;' if op_not=='yes' else '!!not'
+        result.setItem('c_0', querybase.get('val'), 
+                        {'op':querybase.get('op'),'column':column,
+                         'op_caption':'!!%s' %self.db.whereTranslator.opCaption(querybase.get('op')),
+                         'not':op_not,'not_caption': not_caption,
+                         'column_dtype': column_dtype,
+                         'column_caption' : self.app._relPathToCaption(self.maintable, column)})
+        return result
 
