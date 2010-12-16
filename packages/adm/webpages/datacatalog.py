@@ -25,7 +25,7 @@ class GnrCustomWebPage(object):
                    gnrcomponents/batch_handler/batch_handler:BatchMonitor,
                    gnrcomponents/explorer_manager:ExplorerManager
                 """
-    explorers='adm.datacatalog'
+    #explorers='adm.datacatalog'
     def windowTitle(self):
          return '!!Categories'
          

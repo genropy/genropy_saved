@@ -116,7 +116,6 @@ class TableScriptToHtml(BagToHtml):
         self.thermo_kwargs = thermo
         record = self.tblobj.recordAs(record)
         html_folder = self.getHtmlPath(autocreate=True)
-        pdf_folder = self.getPdfPath(autocreate=True)
         html = super(TableScriptToHtml, self).__call__(record=record,folder=html_folder,**kwargs)
         if not html:
             return False
@@ -125,7 +124,7 @@ class TableScriptToHtml(BagToHtml):
             
             
         docname = os.path.splitext(os.path.basename(self.filepath))[0]
-        self.pdfpath = self.getPdfPath('%s.pdf' %docname)
+        self.pdfpath = self.getPdfPath('%s.pdf' %docname,autocreate=-1)
         self.print_handler.htmlToPdf(self.filepath, self.pdfpath)
         if downloadAs:
             with open(self.pdfpath,'rb') as f:
@@ -146,16 +145,16 @@ class TableScriptToHtml(BagToHtml):
 
     
     def getHtmlPath(self,*args,**kwargs):
-        return self.page.site.getStaticPath('conn:html',*args,**kwargs)
+        return self.page.site.getStaticPath('page:html',*args,**kwargs)
 
     def getPdfPath(self,*args,**kwargs):
-        return self.page.site.getStaticPath('conn:pdf',*args,**kwargs)
+        return self.page.site.getStaticPath('page:pdf',*args,**kwargs)
         
     def getHtmlUrl(self,*args,**kwargs):
-        return self.page.site.getStaticUrl('conn:html',*args,**kwargs)
+        return self.page.site.getStaticUrl('page:html',*args,**kwargs)
         
     def getPdfUrl(self,*args,**kwargs):
-        return self.page.site.getStaticUrl('conn:pdf',*args,**kwargs)
+        return self.page.site.getStaticUrl('page:pdf',*args,**kwargs)
 
         
     def outputDocName(self, ext=''):

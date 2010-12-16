@@ -156,12 +156,19 @@ class GnrStaticHandler(StaticHandler):
         
 class ConnectionStaticHandler(StaticHandler):
     prefix='conn'
+    def path(self,connection_id,*args):
+        return os.path.join(self.site.site_path,'data','_connections', connection_id, *args)
+        
+    def url(self, connection_id ,*args, **kwargs):
+        return '%s_conn/%s/%s'%(self.home_uri,connection_id,'/'.join(args))
+
+class PageStaticHandler(StaticHandler):
+    prefix='page'
     def path(self,connection_id,page_id,*args):
         return os.path.join(self.site.site_path,'data','_connections', connection_id, page_id, *args)
         
     def url(self, connection_id, page_id ,*args, **kwargs):
-        return '%s_conn/%s/%s/%s'%(self.home_uri,connection_id, page_id,'/'.join(args))
-
+        return '%s_page/%s/%s/%s'%(self.home_uri,connection_id, page_id,'/'.join(args))
 
 class UserStaticHandler(StaticHandler):
     prefix='user'

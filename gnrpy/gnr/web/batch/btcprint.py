@@ -109,9 +109,8 @@ class BaseResourcePrint(BaseResourceBatch):
     def result_handler_pdf(self,resultAttr):
         pdfprinter = self.print_handler.getPrinterConnection('PDF', self.print_options)
         save_as = self.print_options['save_as'] or self.batch_title
-        output = self.page.site.getStaticPath('user:output','pdf',autocreate=True)
         filename = pdfprinter.printPdf(self.results.values(), self.batch_title, 
-                                      outputFilePath=os.path.join(output,save_as))
+                                      outputFilePath=self.page.site.getStaticPath('user:output','pdf',save_as,autocreate=True))
         if filename:
             resultAttr['url'] = self.page.site.getStaticUrl('user:output','pdf',filename,nocache=True,download=True)
             resultAttr['document_name'] = save_as

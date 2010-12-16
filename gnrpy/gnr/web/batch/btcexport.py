@@ -6,7 +6,6 @@ export.py
 Created by Francesco Porcari on 2010-10-16.
 Copyright (c) 2010 Softwell. All rights reserved.
 """
-import os
 from gnr.web.batch.btcbase import BaseResourceBatch
 from gnr.core.gnrxls import XlsWriter
 from gnr.core.gnrstring import toText
@@ -106,7 +105,7 @@ class BaseResourceExport(BaseResourceBatch):
         
     def post_process(self):        
         self.writer.workbookSave()
-        self.fileurl = self.page.site.getStaticUrl('conn:output',self.export_mode,
+        self.fileurl = self.page.site.getStaticUrl('page:output',self.export_mode,
                                                   '%s.%s' %(self.filename,self.export_mode),nocache=True,download=True)
 
     def prepareFilePath(self, filename=None):
@@ -115,8 +114,7 @@ class BaseResourceExport(BaseResourceBatch):
         filename = filename.replace(' ','_').replace('.','_').replace('/','_')[:64]
         filename = filename.encode('ascii', 'ignore')
         self.filename = filename
-        outputdir = self.page.site.getStaticPath('conn:output',self.export_mode,autocreate=True)
-        self.filepath = os.path.join(outputdir,self.filename)
+        self.filepath = self.page.site.getStaticPath('page:output',self.export_mode,self.filename,autocreate=-1) 
         
     def result_handler(self):
         return 'Execution completed',dict(url=self.fileurl,document_name=self.batch_parameters['filename'])
