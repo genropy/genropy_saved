@@ -126,6 +126,16 @@ class BagNode(object):
     
     __slots__ = ['label','locked','_value','attr','_resolver','_parentbag','_node_subscribers','_validators']
     
+    def __getstate__(self):
+        d = dict()
+        for slot in BagNode.__slots__:
+            d[slot] = getattr(self, slot)
+        return d
+    
+    def __setstate__(self, state):
+        for slot, value in state.iteritems():
+            setattr(self, slot, value)
+    
     def __init__(self, parentbag, label, value=None, attr=None, resolver=None,
                 validators=None, _removeNullAttributes=True):
         """
@@ -415,6 +425,19 @@ class Bag(GnrObject):
     
     Nested elements can be accessed with a path of keys joined with dots.
     """
+    
+    __slots__ = ['_nodes','_backref', '_node', '_parent', '_symbols', '_upd_subscribers', '_ins_subscribers', '_del_subscribers', '_modified', '_rootattributes' ]
+
+    def __getstate__(self):
+        d = dict()
+        for slot in Bag.__slots__:
+            d[slot] = getattr(self, slot)
+        return d
+    
+    def __setstate__(self, state):
+        for slot, value in state.iteritems():
+            setattr(self, slot, value)
+
     
     #-------------------- __init__ --------------------------------
     def __init__(self, source=None):
@@ -1192,11 +1215,9 @@ class Bag(GnrObject):
             node = node.getNode(tail_path)
             tail_path = ''
         if node:
-            node._tail_list = []
-            if tail_path:
-                node._tail_list = tail_path.split('.')
-            return node
-        #return None
+            return node, tail_path.split('.') if tail_path else []
+        else:
+            return None, None
         
     def getDeepestNode_(self,path=None):
         """
