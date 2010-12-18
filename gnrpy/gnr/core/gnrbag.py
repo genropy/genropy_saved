@@ -122,6 +122,10 @@ class BagNode(object):
     * value: can be anything even a BagNode. If you have get the xml of the Bag it should be serializable.
     * attributes: dictionary that contains node's metadata
     """
+    
+    
+    __slots__ = ['label','locked','_value','attr','_resolver','_parentbag','_node_subscribers','_validators']
+    
     def __init__(self, parentbag, label, value=None, attr=None, resolver=None,
                 validators=None, _removeNullAttributes=True):
         """
@@ -165,28 +169,27 @@ class BagNode(object):
     def setValidators(self, validators):
         for k,v in validators.items():
             self.addValidator(k,v)
-            
-    def _get_parentbag(self):
+
+    @property
+    def parentbag(self):
         if self._parentbag:
             return self._parentbag
-            #return self._parentbag()
-        
-    def _set_parentbag(self,parentbag):
+
+    @parentbag.setter    
+    def parentbag(self, parentbag):
         self._parentbag=None
         if parentbag != None:
             if parentbag.backref or True:
-                #self._parentbag=weakref.ref(parentbag)
                 self._parentbag=parentbag
                 if isinstance(self._value, Bag) and parentbag.backref:
                     self._value.setBackRef(node=self, parent=parentbag)
-    parentbag = property(_get_parentbag,_set_parentbag)
     
-    def _get_fullpath(self):
+    @property
+    def fullpath(self):
         if not self.parentbag is None:
             fullpath=self.parentbag.fullpath
             if not fullpath is None:
                 return '%s.%s' % (fullpath,self.label)
-    fullpath = property(_get_fullpath)
     
     def getLabel(self):
         """Return the node's label.
@@ -2847,6 +2850,7 @@ class BagResolverNew(object):
 ########################### end experimental features#########################
 
 def testFormule():
+    # TODO: fix -- this test fails. Is it still releavant? If yes, fix the implementation. If no, remove this test.
     b= Bag()
     b.defineFormula(calc_riga_lordo='$riga_qta*$riga_prUnit')
     b.defineSymbol(riga_qta='qta',riga_prUnit='prUnit')
