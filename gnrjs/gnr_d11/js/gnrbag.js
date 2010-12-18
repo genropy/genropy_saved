@@ -1194,30 +1194,32 @@ dojo.declare("gnr.GnrBag",null,{
     * 
     * @param {String} attr
     * @param {Object} value
-    * @param {Array} path
+    * @param {Array} path (optional)
     */
    
     getNodeByAttr: function(attr, value, path){
         var bags=[];
-        if(!path){
-            var path=[];
-        }
-        for (var i=0; i<this._nodes.length; i++){
+
+		var nlen = this._nodes.length;
+        for (var i=0; i<nlen; i++){
             var node=this._nodes[i];
             if(node.hasAttr(attr, value)){
-                path.push(node.label);
+                if(path) { path.push(node.label); }
                 return node;
             }
             if(node.getValue('static') instanceof gnr.GnrBag){
                 bags.push(node);
             }
         }
-        for (var i=0; i<bags.length; i++){
-            var node= bags[i];
-            var nl= [node.label];
+
+		var blen = bags.length;
+        for (var i=0; i<blen; i++){
+            var node = bags[i];
+            var nl;
+            if(path) { nl = [node.label]; }
             n= node.getValue('static').getNodeByAttr(attr, value, nl);
             if(n){
-                path.concat(nl);
+                if(path) { path.concat(nl); }
                 return n;
             }
         }

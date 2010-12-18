@@ -232,12 +232,11 @@ function objectExtract(obj, keys, dontpop) {
     var result = {};
     var key,m;
     if  (keys.slice(-1)=='*'){
-        
-        key='^'+keys.replace('*','(.*)');
+		key = keys.slice(0,-1);
+		var key_len = key.length;
         for (var prop in obj){
-            m=prop.match(key);
-            if (m){
-                result[m[1]] = obj[prop];
+			if(prop.slice(0, key_len) == key) {
+                result[prop.slice(key_len)] = obj[prop];
                 if(!dontpop){
                     delete obj[prop];
                 } else if(dontpop!=true){
