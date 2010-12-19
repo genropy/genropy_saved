@@ -6,14 +6,14 @@
 
 "Test page description"
 class GnrCustomWebPage(object):
-    py_requires="gnrcomponents/testhandler:TestHandlerBase"
+    py_requires="gnrcomponents/testhandler:TestHandlerFull"
     auto_polling=0
     user_polling=0
 
     def windowTitle(self):
         return 'Stack e tab'
          
-    def _test_0_stackcontainer_pos(self,pane):
+    def test_0_stackcontainer_pos(self,pane):
         """Stack number"""
         bc = pane.borderContainer(height='100px')
         top = bc.contentPane(region='top',height='30px',background='red').numberTextbox(value='^.selected')
@@ -23,7 +23,7 @@ class GnrCustomWebPage(object):
         sc.contentPane(background='blue')
 
         
-    def _test_1_stackcontainer_named(self,pane):
+    def test_1_stackcontainer_named(self,pane):
         """Stack page"""
         bc = pane.borderContainer(height='100px')
         top = bc.contentPane(region='top',height='30px',background='red').filteringSelect(value='^.selectedPage',values='lime:lime,pink:pink,blue:blue')
@@ -32,7 +32,7 @@ class GnrCustomWebPage(object):
         sc.contentPane(background='pink',pageName='pink')
         sc.contentPane(background='blue',pageName='blue')
     
-    def _test_2_tabcontainer_pos(self,pane):
+    def test_2_tabcontainer_pos(self,pane):
         """tab number"""
         bc = pane.borderContainer(height='100px')
         top = bc.contentPane(region='top',height='30px',background='red').numberTextbox(value='^.selected')
@@ -41,7 +41,7 @@ class GnrCustomWebPage(object):
         tc.contentPane(background='pink',title='pink')
         tc.contentPane(background='blue',title='blue')
 
-    def _test_3_tabcontainer_named(self,pane):
+    def test_3_tabcontainer_named(self,pane):
         """tab page"""
         bc = pane.borderContainer(height='100px')
         top = bc.contentPane(region='top',height='30px',background='red').filteringSelect(value='^.selectedPage',values='lime:lime,pink:pink,blue:blue')
@@ -61,7 +61,7 @@ class GnrCustomWebPage(object):
         sc.contentPane(background='pink',pageName='pink')
         sc.contentPane(background='blue',pageName='blue')
         
-    def _test_5_tabcontainer_mixed(self,pane):
+    def test_5_tabcontainer_mixed(self,pane):
         """Mixed number"""
         bc = pane.borderContainer(height='100px')
         top = bc.contentPane(region='top',height='30px',background='red').numberTextbox(value='^.selected')
