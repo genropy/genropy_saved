@@ -7,6 +7,7 @@ ct_chat_utils.open_chat = function(user){
                                         margin:'4px',background:'white',border:'1px solid gray',
                                         id:user+'_room'});
         roomsNode.widget.resize();
+        roomsNode.setRelativeData('.selected_room',user);
     }
 
 };
