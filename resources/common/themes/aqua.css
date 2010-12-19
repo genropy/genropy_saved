@@ -64,6 +64,37 @@
 
 /* @group Root Layout */
 
+/* @group main_left */
+
+#gnr_main_left_top{
+	-moz-border-radius-topright:6px;
+	-webkit-border-top-right-radius:6px;
+	color: #F5F5F5;
+	border-color: rgba(77,89,98,0.99) ;
+	background-color: #4D5962;
+    background-image:-webkit-gradient(linear, 0% 0%, 0% 90%, from(rgba(77,89,98,0.99)), to(rgba(101,135,142,0.9)));
+    background-image:-moz-linear-gradient(-90deg,rgba(77,89,98,0.99), rgba(101,135,142,0.9));
+	height: 24px;
+    line-height: 24px;
+    text-align: center;
+}
+#gnr_main_left_bottom{
+	-moz-border-radius-bottomright:6px;
+	-webkit-border-bottom-right-radius:6px;
+	color: #F5F5F5;
+	border-color: rgba(77,89,98,0.99) ;
+	background-color: #4D5962;
+    background-image:-webkit-gradient(linear, 0% 0%, 0% 90%, from(rgba(77,89,98,0.99)), to(rgba(101,135,142,0.9)));
+    background-image:-moz-linear-gradient(-90deg,rgba(77,89,98,0.99), rgba(101,135,142,0.9));
+	height: 24px;
+}
+
+
+
+/* @end */
+
+
+
 /* @group top */
 
 .pbl_username{
@@ -96,6 +127,7 @@
 	margin-left: 6px;
 	margin-top: 5px;
 }
+
 
 	
 .pbl_root_top {
@@ -174,7 +206,7 @@
 
 .pbl_root_bottom {
 	height: 23px;
-	background-color: rgba(77,89,98,0.99);
+	
 	border-color:#4D5962;
 	padding-top: 1px;
 	vertical-align: middle;
@@ -182,6 +214,7 @@
 	-moz-border-radius-bottomright:6px;
     -webkit-border-bottom-left-radius:6px;
 	-webkit-border-bottom-right-radius:6px;
+	background-color: rgba(77,89,98,0.99);
 	background-image:-webkit-gradient(linear, 0% 0%, 0% 90%, from(rgba(101,135,142,0.9)), to(rgba(77,89,98,0.99)));
     background-image:-moz-linear-gradient(-90deg, rgba(101,135,142,0.9), rgba(77,89,98,0.99));
 }
@@ -531,6 +564,10 @@
     border:0px;
 }
 
+.main_left_tab dijitTabLabels-bottom dijitAlignBottom{
+	background: rgba(77,89,98,0.99);
+
+}
 
 /* @group MenuTree */
 
