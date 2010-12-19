@@ -713,8 +713,8 @@ dojo.declare('gnr.GenroClient', null, {
         for (var i=1; i < arguments.length; i++){
             args.push(arguments[i]);
         }
-       //console.log('publishing:'+topic);
-       //console.log(args)
+     //console.log('publishing:'+topic);
+      //  console.log(args)
         dojo.publish(topic, args);
     },
     absoluteUrl: function(url, kwargs, avoidCache){
@@ -757,9 +757,9 @@ dojo.declare('gnr.GenroClient', null, {
         var storage=(sessionType=='local')? localStorage:sessionStorage;
         var value=storage.getItem(key);
         if (value){
-            console.log('Loaded from '+sessionType+'Storage at key:'+key+'  value:'+value);
+            //console.log('Loaded from '+sessionType+'Storage at key:'+key+'  value:'+value);
         }else{
-            console.log('Not existing in '+sessionType+'Storage key:'+key);
+            //console.log('Not existing in '+sessionType+'Storage key:'+key);
         }
         return value;
     },

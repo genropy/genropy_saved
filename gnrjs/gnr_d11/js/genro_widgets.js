@@ -28,6 +28,13 @@ gnr.convertFuncAttribute=function(sourceNode,name,parameters){
         sourceNode.attr[name]=funcCreate(sourceNode.attr[name],parameters,sourceNode);
     }
 };
+gnr.setOrConnectCb = function(widget,name,cb){
+    if (name in widget) {
+        dojo.connect(widget,name,cb);
+    }else{
+        widget[name] = cb;
+    }
+};
 gnr.columnsFromStruct = function(struct, columns){
         if (columns==undefined){
             columns = [];
@@ -891,48 +898,26 @@ dojo.declare("gnr.widgets.StackContainer",gnr.widgets.baseDojo,{
         return {};
     },
     created: function(widget, savedAttrs, sourceNode){
-        var selpath=sourceNode.attr['selected'];
-        var selpage=sourceNode.attr['selectedPage'];
-        var newpage,oldpage,path;
-        widget.gnrPageDict={};
-        if(selpath || selpage){
-            var controller=widget.tablist || widget;
-            var evt = (controller == widget) ? 'selectChild' :'onSelectChild';
-            
-            dojo.connect(controller, evt, dojo.hitch(widget,function(child){
-                            if(child){
-                                if (selpath){
-                                    newpage = this.getChildIndex(child);
-                                    path = selpath;
-                                }
-                                if (selpage){
-                                    newpage = child.sourceNode.attr.pageName;
-                                    path = selpage;
-                                }
-                                
-                                if(sourceNode.attr.nodeId && !widget.sourceNode._isBuilding){
-                                    oldpage =  this.sourceNode.getRelativeData(path);
-                                    genro.publish(sourceNode.attr.nodeId+'_selected',oldpage+'_hide',oldpage,false);
-                                }
-                                this.sourceNode.setRelativeData(path,newpage);
-                                if(sourceNode.attr.nodeId){
-                                    genro.publish(sourceNode.attr.nodeId+'_selected',newpage+'_show',newpage,true);
-                                }
-                            }
-                        }));
-            dojo.connect(widget,'addChild',dojo.hitch(this,'onAddChild',widget));
-            dojo.connect(widget,'removeChild',dojo.hitch(this,'onRemoveChild',widget));
-        }
+        dojo.connect(widget,'addChild',dojo.hitch(this,'onAddChild',widget));
+        dojo.connect(widget,'removeChild',dojo.hitch(this,'onRemoveChild',widget));
+        //dojo.connect(widget,'_transition',widget, 'onChildTransition');
         
     },
+    
     mixin_setSelected:function(p){
         var child=this.getChildren()[p||0];
-        if (this.sourceNode.attr['selectedPage']){
-            this.sourceNode.setAttributeInDatasource('selectedPage',child.sourceNode.attr.pageName);
+        if(this.getSelected()!=child){
+            this.selectChild(child);
         }
-        this.selectChild(child);
        
     },
+    mixin_setSelectedPage:function(pageName){
+        var child=this.gnrPageDict[pageName];
+        if(child && this.getSelected()!=child){
+            this.selectChild(child);
+        }        
+    },
+    
     mixin_getSelected: function(){
         var selected = {n:null};
         dojo.forEach(this.getChildren(),function(n){if(n.selected){selected.n=n;}});
@@ -941,24 +926,41 @@ dojo.declare("gnr.widgets.StackContainer",gnr.widgets.baseDojo,{
     mixin_getSelectedIndex: function(){
         return this.getChildIndex(this.getSelected());
     },
-
-    mixin_setSelectedPage:function(pageName){
-        var child=this.gnrPageDict[pageName];
-        if(child){
-            if (this.sourceNode.attr['selected']){
-                this.sourceNode.setAttributeInDatasource('selected',this.getChildIndex(child));
-            }
-            this.selectChild(child);
-        }        
-    },
         
     mixin_getChildIndex:function(obj){
         return dojo.indexOf(this.getChildren(),obj);
     },
 
+    onShowHideChild:function(widget,child,st){
+        if(widget._duringLayoutCall){
+            return;
+        }
+        var sourceNode = widget.sourceNode;
+        var selpath=sourceNode.attr['selected'];
+        var selpage=sourceNode.attr['selectedPage'];
+        var nodeId= sourceNode.attr.nodeId;
+        var cbUpd = function(path,newpage,st){
+            if(st){
+                sourceNode.setRelativeData(path,newpage,null,null,null,genro.src.building?1:null);
+            }
+            if(nodeId){
+                genro.publish(nodeId+'_selected',{'change':newpage+'_'+(st?'show':'hide'),'page':newpage,'selected':st});
+            }
+        };
+        if(selpath){
+            cbUpd(selpath,widget.getChildIndex(child),st);
+        }
+        if(selpage){
+            cbUpd(selpage,child.sourceNode.attr.pageName,st);
+        }
+    },
+
     onAddChild:function(widget,child){
+        gnr.setOrConnectCb(child,'onShow',dojo.hitch(this,'onShowHideChild',widget,child,true));
+        gnr.setOrConnectCb(child,'onHide',dojo.hitch(this,'onShowHideChild',widget,child,false));
         var pageName=child.sourceNode.attr.pageName;
         if (pageName){
+            widget.gnrPageDict= widget.gnrPageDict || {};
             widget.gnrPageDict[pageName]=child;
         }
     },
@@ -976,7 +978,30 @@ dojo.declare("gnr.widgets.TabContainer",gnr.widgets.StackContainer,{
        // dojo.connect(widget,'addChild',dojo.hitch(this,'onAddChild',widget));
     },
     ___onAddChild:function(widget,child){
-       }
+       },
+  
+    versionpatch_11_layout: function(){
+        // Summary: Configure the content pane to take up all the space except for where the tabs are
+        if(!this.doLayout){ return; }
+            // position and size the titles and the container node
+            var titleAlign = this.tabPosition.replace(/-h/,"");
+            var children = [{ domNode: this.tablist.domNode, layoutAlign: titleAlign },
+                        { domNode: this.containerNode, layoutAlign: "client" }];
+            dijit.layout.layoutChildren(this.domNode, this._contentBox, children);
+
+            // Compute size to make each of my children.
+            // children[1] is the margin-box size of this.containerNode, set by layoutChildren() call above
+            this._containerContentBox = dijit.layout.marginBox2contentBox(this.containerNode, children[1]);
+
+            if(this.selectedChildWidget){
+                this._duringLayoutCall=true;
+                this._showChild(this.selectedChildWidget);
+                this._duringLayoutCall=false;
+            if(this.doLayout && this.selectedChildWidget.resize){
+                this.selectedChildWidget.resize(this._containerContentBox);
+            }
+        }
+    }
 });
 dojo.declare("gnr.widgets.BorderContainer",gnr.widgets.baseDojo,{
     creating: function(attributes, sourceNode){
