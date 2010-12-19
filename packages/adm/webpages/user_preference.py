@@ -58,5 +58,8 @@ class GnrCustomWebPage(object):
     
     def rpc_savePreference(self,data):
         self.db.table('adm.user').setPreference(username=self.user,data=data)
+        self.setInClientData('gnr.serverEvent.refreshNode', value='gnr.user_preference', filters='user:%s' %self.user,
+                        fired=True,public=True)
+    
         return
  

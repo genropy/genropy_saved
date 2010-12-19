@@ -24,12 +24,11 @@ class AppPref(object):
 
     def prefpane_adm(self,parent,**kwargs):
         tc = parent.tabContainer(**kwargs)
-
+        self._pr_instance_data(tc.contentPane(title='!!Instance data',datapath='.instance_data'))
         self._pr_mail(tc.contentPane(title='!!Mail options',datapath='.mail'))
-        self._pr_logo(tc.contentPane(title='!!Logo',datapath='.logo'))
     
     def _pr_mail(self,pane):
-        fb = pane.div(margin='5px').formbuilder(cols=1, border_spacing='6px',width='100%',fld_width='100%')
+        fb = pane.div(margin='5px').formbuilder(cols=1, border_spacing='6px',width='100%',fld_width='100%',tdl_width='10em')
         fb.div(lbl='Mail Settings', colspan=2, lbl_font_style='italic', lbl_margin_top='1em', margin_top='1em',lbl_color='#7e5849')
         fb.textbox(value='^.smtp_host',lbl='SMTP Host',dtype='T', colspan=1)
         fb.textbox(value='^.from_address',lbl='From address',dtype='T', colspan=1)
@@ -38,8 +37,13 @@ class AppPref(object):
         fb.textbox(value='^.port',lbl='Port', dtype='T', colspan=1)
         fb.checkbox(value='^.tls',lbl='TLS',dtype='B', colspan=1)
         
-    def _pr_logo(self,pane):
-        pass
+    def _pr_instance_data(self,pane):
+        fb = pane.div(margin='5px').formbuilder(cols=1, border_spacing='6px',width='100%',fld_width='100%',tdl_width='10em')
+        fb.textbox(value='^.owner_name',lbl='!!Owner name')
+        fb.textbox(value='^.logo_url',lbl='Logo url')
+        fb.img(url='^.logo_url')
+        
+        
 
 class UserPref(object):
     def prefpane_adm(self,parent,**kwargs):

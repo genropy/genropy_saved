@@ -48,7 +48,7 @@ class GnrCustomWebPage(object):
     def bottom(self,bottom):
         #bottom.a('!!Zoom',float='left',href='/adm/app_preference')
         bottom.button('!!Save',baseClass='bottom_btn',float='right',margin='1px',
-                      action='genro.formById("preference").save(true)')
+                      action='genro.formById("preference").save(true);')
         bottom.button('!!Cancel',baseClass='bottom_btn',float='right',margin='1px',
                       fire='frame.close')    
 
@@ -69,3 +69,5 @@ class GnrCustomWebPage(object):
         record = self.tblobj.loadPreference(for_update=True)
         record['data']=data
         self.tblobj.savePreference(record)
+        self.setInClientData('gnr.serverEvent.refreshNode', value='gnr.app_preference', filters='*',
+                        fired=True,public=True)
