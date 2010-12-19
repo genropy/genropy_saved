@@ -32,8 +32,15 @@ class Public(BaseComponent):
             self._userRecord=self.db.table('adm.user').record(username=user).output('bag')
         return self._userRecord[path]
         
-    def onMain_pbl_preference(self):
+    def onMain_pbl(self):
         pane = self.pageSource()
+        userTable=self.pbl_userTable()
+        if not self.isGuest and userTable:
+            pane.dataRecord('gnr.user_record',userTable, username=self.user, _init=True)
+            pane.dataRemote('gnr.user_preference','getUserPreference')
+        pane.dataRemote('gnr.app_preference','getAppPreference')
+        pane.data('gnr.workdate', self.workdate)        
+        self._pbl_dialogs(pane)
         #pane.img(_class='buttonIcon %s' %self.pbl_logoclass())
         if self.db.packages['adm']:
             pane.dataController("""var prefCode = preference_open[0];
@@ -57,6 +64,9 @@ class Public(BaseComponent):
                              cached=False,height='450px',width='800px',centerOn='_pageRoot',datapath='gnr.preference.application')
             self.iframeDialog(pane,title='!!User Preference',dlgId='userpreference',src='/adm/user_preference',
                              cached=False,height='300px',width='400px',centerOn='_pageRoot',datapath='gnr.preference.user')
+        
+            
+
         
     def pbl_userTable(self):
         return 'adm.user'
@@ -99,12 +109,7 @@ class Public(BaseComponent):
         
             
     def _pbl_root(self, rootbc, title=None, height=None, width=None, centered=None,flagsLocale=False):
-        userTable=self.pbl_userTable()
-        self._pbl_dialogs(rootbc)
-        if not self.isGuest and userTable:
-            rootbc.dataRecord('gnr.user_record',userTable, username=self.user, _init=True)
-            rootbc.data('gnr.user_preference',self.getUserPreference('*'))
-        rootbc.data('gnr.workdate', self.workdate)
+        
         if centered:
             margin = 'auto'
         else:
@@ -165,7 +170,13 @@ class Public(BaseComponent):
         if newdate:
             self.workdate = newdate
         return self.workdate
-
+        
+    def mainLeftTop(self,pane):
+        if self.application.checkResourcePermission(self.pbl_preferenceAppTags(), self.userTags):
+            pane.div(_class='icnBasePref buttonIcon',connect_onclick='PUBLISH preference_open="app";',
+                    tip='!!Application Preferences',position='absolute',left='5px',top='5px')  
+        pane.div('^gnr.app_preference.adm.instance_data.owner_name')
+               
     def pbl_topBar(self,top,title=None,flagsLocale=False):
         """docstring for publicTitleBar"""
         left = top.contentPane(region='left',width='250px')
@@ -189,9 +200,9 @@ class Public(BaseComponent):
                     _class='icnIntlIt buttonIcon', content='&nbsp;', float='right',margin_left='5px',margin_top='2px')
         if not self.isGuest:
             right.div(connect_onclick="genro.logout()", title="!!Logout",
-                  _class='pbl_logout buttonIcon', content='&nbsp;', float='right')
+                  _class='pbl_logout buttonIcon', content='&nbsp;', float='right')   
             right.div(content=self.user, float='right', _class='pbl_username buttonIcon',connect_onclick='PUBLISH preference_open="user";')
-
+        
         return center
 
     def pbl_bottomBar(self,pane):
@@ -215,9 +226,12 @@ class Public(BaseComponent):
                                 
                                 """, 
                               msg='^pbl.bottomMsg',_if='msg')
+                              
+    def pbl_preferenceAppTags(self):
+        return 'admin'
         
     def pbl_bottom_default(self,bc):
-        left = bc.contentPane(region='left',overflow='hidden',nodeId='pbl_bottomBarLeft')
+        left = bc.contentPane(region='left',overflow='hidden',nodeId='pbl_bottomBarLeft')    
         right = bc.contentPane(region='right',overflow='hidden',nodeId='pbl_bottomBarRight')
         
         right.dataScript('gnr.localizerClass',"""return 'localizer_'+status""", 
@@ -225,8 +239,10 @@ class Public(BaseComponent):
         if self.isDeveloper():
             right.div(connect_onclick='SET _clientCtx.mainBC.right?show = !GET _clientCtx.mainBC.right?show;', _class='icnBaseEye buttonIcon',float='right',margin_right='5px')
         if self.isLocalizer():
-            right.div(connect_onclick='genro.dev.openLocalizer()', _class='^gnr.localizerClass',float='right') 
-            
+            right.div(connect_onclick='genro.dev.openLocalizer()', _class='^gnr.localizerClass',float='right')
+        
+        
+
         center = bc.contentPane(region='center',nodeId='pbl_bottomBarCenter')        
         
         return dict(left=left,right=right,center=center)        

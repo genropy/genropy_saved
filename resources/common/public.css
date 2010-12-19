@@ -17,6 +17,11 @@
 	background: transparent url(icons/linkto.gif) no-repeat;
 }
 
+.menu_plugin_icon{
+	height: 16px;
+	width: 16px;
+	background: transparent url(icons/menu_plugin.png) no-repeat center center;
+}
 
 /* @end */
 
