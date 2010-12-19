@@ -140,3 +140,10 @@
     -webkit-box-shadow:inset 2px 2px 2px gray;
 }
 
+
+.batch_monitor_icon {
+    background: url(images/batch_monitor.png) no-repeat center center;
+    width: 16px;
+    height: 16px;
+}
+
