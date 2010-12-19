@@ -12,7 +12,7 @@
 
         <%include file="gnr_header.tpl" />
         <style type="text/css" title="localcss">
-            html, body, #mainWindow{width: 100%;height: 100%; overflow:auto;}
+            html, body, #mainWindow{width: 100%;height: 100%; overflow-x:hidden;}
         </style>
     </head>
     <body class="${bodyclasses}" >
