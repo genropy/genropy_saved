@@ -14,9 +14,9 @@ class BatchMonitor(BaseComponent):
     js_requires = 'gnrcomponents/batch_handler/batch_handler'
     css_requires = 'gnrcomponents/batch_handler/batch_handler'
         
-    def mainLeft_batch_monitor(self,tc):
+    def mainLeft_batch_monitor(self,pane):
         """!!Batch"""
-        self.bm_monitor_pane(tc.contentPane(title='!!Batch',pageName='batch_monitor'))
+        self.bm_monitor_pane(pane)
     
     def bm_monitor_pane(self,pane):
         pane.dataController("batch_monitor.on_datachange(_triggerpars.kw);",_fired="^gnr.batch")
