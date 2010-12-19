@@ -74,6 +74,23 @@ label.ghostlabel span{
 
 /* @group SystemCss */
 
+/* @group Plugin */
+.plugin_block{
+	-moz-border-radius:6px;
+    -webkit-border-radius:6px;
+	padding: 2px;    
+	margin-top: 1px;
+	display: inline-block;
+}
+.selected_plugin.plugin_block{
+	-moz-box-shadow:inset 2px 2px 2px gray;
+    -webkit-box-shadow:inset 2px 2px 2px gray;
+}
+
+
+/* @end */
+
+
 .hideSplitter >.dijitSplitter{
 	background: transparent;
 }
@@ -350,6 +367,7 @@ table.formbuilder {
 /* @end */
 
 /* @group Icons */
+
 
 /* @group Base 48 */
 .trash_icon48{
@@ -735,6 +753,7 @@ table.formbuilder {
 
 /* @group Base16 */
 
+
 .icnBaseAdd {
     background: url(icons/base16/add.gif) no-repeat;
     width: 16px;
@@ -782,6 +801,13 @@ table.formbuilder {
     width: 16px;
     height: 16px;
 }
+.icnBasePref {
+    background: url(icons/base16/application_pref.png) no-repeat;
+	width: 16px;
+    height: 16px;
+}
+
+
 
 .icnBaseView {
     background: url(icons/base16/view.gif) no-repeat;
