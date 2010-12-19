@@ -695,6 +695,12 @@ class GnrWebPage(GnrBaseWebPage):
             
     def getUserPreference(self,path, pkg='',dflt='', username=''):
         return self.site.getUserPreference(path,pkg=pkg,dflt=dflt, username=username)
+    
+    def rpc_getUserPreference(self,path='*'):
+        return self.getUserPreference(path)
+    
+    def rpc_getAppPreference(self,path='*'):
+        return self.getPreference(path)
             
     def setUserPreference(self, path, data, pkg='',username=''):
         self.site.setUserPreference(path,data,pkg=pkg,username=username)
@@ -759,6 +765,7 @@ class GnrWebPage(GnrBaseWebPage):
                 page.data('gnr.locale',self.locale)
                 page.data('gnr.pagename',self.pagename)
                 page.dataController('genro.dlg.serverMessage("gnr.servermsg");', _fired='^gnr.servermsg')
+                page.dataController("genro.getDataNode(nodePath).refresh(true);",nodePath="^gnr.serverEvent.refreshNode")
                 
                 page.dataController('if(url){genro.download(url)};', url='^gnr.downloadurl')
                 page.dataController("""if(url){
@@ -841,43 +848,45 @@ class GnrWebPage(GnrBaseWebPage):
     def onMain(self): #You CAN override this !
         pass
         
+    def mainLeftTop(self,pane):
+        pass
+    
+        
     def mainLeftContent(self,parentBC,**kwargs):
         plugin_list = getattr(self,'plugin_list',None)
         if not plugin_list:
-            return            
-        tc = parentBC.tabContainer(selectedPage='^.selected',_class='main_left_tab',
-                                    datapath='gnr.main_container.left',width='200px',
-                                    tabPosition='bottom',**kwargs)    
-        tc.dataController("""
-                            var command;
-                            if(_reason=='gnr_main_left_selected'){
-                                if (leftVisible){
-                                    var pagename = gnr_main_left_selected[1];
-                                    var pagestatus = gnr_main_left_selected[2];
-                                    command = pagestatus?'open':'close';
-                                }
-                            }else{
-                                var leftStatus = main_left_status[0];
-                                var pagename = selectedPage;
-                                command = leftStatus?'open':'close';
-                            }
-                            genro.publish(pagename+'_'+command);
-                            genro.publish(pagename+'_'+(command=='open'?'on':'off'));
+            return          
+        bc = parentBC.borderContainer(_class='main_left_tab',width='200px',datapath='gnr.main_container.left',**kwargs)
+        self.mainLeftTop(bc.contentPane(region='top',nodeId='gnr_main_left_bottom',id='gnr_main_left_top'))
+        bottom = bc.contentPane(region='bottom',nodeId='gnr_main_left_bottom',id='gnr_main_left_bottom')
+
+        sc = bc.stackContainer(selectedPage='^.selected',region='center',nodeId='gnr_main_left_center')    
+        sc.dataController("""
+                            genro.publish(page+'_'+(selected?'on':'off'));
                             """,
-                            subscribe_gnr_main_left_selected=True,
-                            subscribe_main_left_status=True,
-                            leftVisible='=_clientCtx.mainBC.left?show',
-                            selectedPage='=.selected',
-                            plugin_list=self.plugin_list)    
+                            subscribe_gnr_main_left_center_selected=True)    
                             
+        sc.dataController("""
+                            var command= main_left_status[0]?'open':'close';
+                            //genro.publish(page+'_'+command);
+                            genro.publish(page+'_'+(command=='open'?'on':'off'));
+                            """,
+                            subscribe_main_left_status=True,
+                            page='=.selected')                       
+        
         for plugin in self.plugin_list.split(','):
             cb = getattr(self,'mainLeft_%s' %plugin)
             assert cb,'Plugin %s not found' %plugin
-            cb(tc)
-            tc.dataController("""
+            cb(sc.contentPane(pageName=plugin))
+            sc.dataController("""
                             PUBLISH main_left_set_status = true;
                             SET .selected=plugin;
                           """,**{'subscribe_%s_open' %plugin:True,'plugin':plugin})
+                          
+            bottom.div(_class='plugin_block %s_icon buttonIcon' %plugin,
+                      connect_onclick="""SET .selected="%s";""" %plugin,
+                      id='plugin_block_%s' %plugin)
+        bottom.dataController("console.log(gnr_main_left_center_selected)",subscribe_gnr_main_left_center_selected=True)
 
     def onMainCalls(self):
         calls = [m for m in dir(self) if m.startswith('onMain_')]
