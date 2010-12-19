@@ -542,4 +542,16 @@
 
 
 /* @end */
+.hidden_record_checkbox{
+    margin:4px;
+    margin-left:15px;
+}
 
+.hidden_record_checkbox label{
+    line-height:15px;
+    font-size:.9em;
+    color:gray;
+    font-weight:bold;
+    margin-left:0 !important;
+    padding:0 !important;
+}

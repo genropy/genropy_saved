@@ -31,16 +31,15 @@ class TableHandlerForm(BaseComponent):
         self.formController(bc)
         self.formToolbar(bc.contentPane(region='top',_class='sttbl_list_top'))
         self.formBase(bc,datapath='form.record',formId='formPane',disabled='^form.locked',region='center')
-        if self.tblobj.logicalDeletionField:
-            self.setLogicalDeletionCheckBox(bottom['left'])
-    
+        #if self.tblobj.logicalDeletionField:
+        #    self.setLogicalDeletionCheckBox(bottom['left'])
+        #
     def setLogicalDeletionCheckBox(self, elem):
-        box = elem.div(padding_left='5px',
-                 padding_top='2px',width='10em')
-        box.div(hidden='^aux.listpage').checkbox(label='!!Hidden',
-                                                  value='^form.logical_deleted',
-                                                  disabled='^form.locked')
-        elem.dataFormula('aux.listpage', '!selectedpage', selectedpage='^selectedPage', _onStart=True)
+        box = elem.div(_class='hidden_record_checkbox')
+        box.checkbox(label='!!Hidden',
+                    value='^form.logical_deleted',
+                    disabled='^form.locked')
+        #elem.dataFormula('aux.listpage', '!selectedpage', selectedpage='^selectedPage', _onStart=True)
         elem.dataController("""if(logical_deleted){
                                    genro.dom.addClass("formRoot", "logicalDeleted");
                                }else{
@@ -223,7 +222,11 @@ class TableHandlerForm(BaseComponent):
         t_l.button('!!Previous', fire_prev='form.navbutton', iconClass="tb_button icnNavPrev", disabled='^form.atBegin', showLabel=False)
         t_l.button('!!Next', fire_next='form.navbutton', iconClass="tb_button icnNavNext", disabled='^form.atEnd', showLabel=False)
         t_l.button('!!Last', fire_last='form.navbutton', iconClass="tb_button icnNavLast", disabled='^form.atEnd', showLabel=False)
+        if self.tblobj.logicalDeletionField:
+            self.setLogicalDeletionCheckBox(tb.div(float='left'))
+        
         t_r = tb.div(float='right')
+        
         self.formtoolbar_right(t_r)
         #t_c = tb.div(height='25px')
         

@@ -99,6 +99,7 @@ class TableHandler(BaseComponent):
     def main(self, root, **kwargs):
         root.data('selectedPage',0)
         root.data('gnr.maintable',self.maintable)
+        root.dataController("genro.dom.setClass(dojo.body(),'form_edit',selectedPage==1)",selectedPage="^selectedPage")
         self.userObjectDialog()
         self.deleteUserObjectDialog()
         if hasattr(self.tblobj,'hasRecordTags') and self.tblobj.hasRecordTags():
