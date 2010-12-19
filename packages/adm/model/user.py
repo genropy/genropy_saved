@@ -62,7 +62,7 @@ class Table(object):
             record['preferences.%s.%s' %(pkg,path)] = data
             self.update(record)
             self.db.commit()
-    
+        
     def loadRecord(self,username,for_update=False):
         try:
             record = self.record(username=username,for_update=for_update).output('bag')

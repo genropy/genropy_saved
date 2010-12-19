@@ -17,10 +17,15 @@ class Table(object):
     # and <your_package>.setPreference() to get and set preferences.
         
     def getPreference(self, path, pkg='', dflt=None):
-        record = self.loadPreference()
+        result = self.loadPreference()
         # NOTE: due to the way bags work,
         #       'data.%(path)s' will be used if pkg is ''
-        return record['data.%s.%s' %(pkg,path)] or dflt
+        # 
+        result = result['data']
+        if result and path!='*':
+            result = result['%s.%s' %(pkg,path)]           
+        return result or dflt
+            
     
     def setPreference(self, path, value, pkg=''):
         record = self.loadPreference(for_update=True)
