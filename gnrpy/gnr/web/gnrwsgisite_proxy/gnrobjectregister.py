@@ -605,7 +605,7 @@ class PageRegister(BaseRegister):
            if filters return anly pages matching with filters
            filters is a string with the propname and a regex"""
         pages=self.items(index_name=index_name)
-        if not filters:
+        if not filters or filters=='*':
             return pages
             
         fltdict=dict()
