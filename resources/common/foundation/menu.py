@@ -31,16 +31,9 @@ class Menu(BaseComponent):
     css_requires = 'menu'
     
     def mainLeft_menu_plugin(self,tc):
-        bc = tc.borderContainer(title="Menu",pageName='menu_plugin')
-        top = bc.contentPane(region='top',_class='pluginTitle')
-        bottom = bc.contentPane(region='bottom')
-        bottom.button('!!Preferences',
-                     action='PUBLISH preference_open = "app";',
-                     float='left') #'pbl_brandLogo' should be the client logo
-        self.menu_menuPane(bc.contentPane(region='center',padding='2px').div(height='100%',overflow='auto'))
-        
-
-        
+        pane = tc.contentPane(title="Menu",pageName='menu_plugin')
+        self.menu_menuPane(pane.div(position='absolute', top='2px',left='0',right='2px',bottom='2px',overflow='auto'))
+                
     def menu_menuPane(self,pane,**kwargs):
         b=Bag()
         b['root']=MenuResolver(path=None,pagepath=self.pagepath)
