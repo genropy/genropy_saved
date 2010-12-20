@@ -1,6 +1,7 @@
-.logicalDeleted .gnrfield{
+.logicalDeleted .gnrfield *{
 	color: #f00;
 }
+
 .button_placeholder{
     width:25px;
 }
