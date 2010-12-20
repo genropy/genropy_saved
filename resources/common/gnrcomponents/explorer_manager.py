@@ -40,7 +40,7 @@ class ExplorerManager(BaseComponent):
             if ':' in explorer:
                 explorer,explorer_pars=explorer.split(':')
             if not explorer_code:
-                explorer_code = explorer_code.replace('.','_').replace('@','_')
+                explorer_code = explorer.replace('.','_').replace('@','_')
             handler= getattr(self,'explorer_'+explorer,None)
             pane=tc.contentPane(title=explorer,pageName=explorer_code,datapath='.%s' %explorer_code)
             if handler:
