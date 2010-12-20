@@ -555,19 +555,6 @@
 	-webkit-box-shadow:4px 4px 4px #403b3b;
     border-left: 0px;
 }
-.main_left_tab .dijitTabPaneWrapper{
-    -moz-border-radius-bottomright:0px;
-    -webkit-border-bottom-right-radius:0px;
-    -moz-border-radius-bottomleft:0px;
-    -webkit-border-bottom-left-radius:0px;
-    background-color: rgba(168,181,182,0.8);
-    border:0px;
-}
-
-.main_left_tab dijitTabLabels-bottom dijitAlignBottom{
-	background: rgba(77,89,98,0.99);
-
-}
 
 /* @group MenuTree */
 

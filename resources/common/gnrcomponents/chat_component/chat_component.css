@@ -1,15 +1,18 @@
 .ct_chatpane{
-    position:relative;
-    border: 1px solid gray;
-    margin: 4px ;
     background:white;
     -moz-border-radius-bottomleft:6px ;
     -webkit-border-bottom-left-radius: 6px;
     -moz-border-radius-bottomright:6px ;
     -webkit-border-bottom-right-radius: 6px;                
-      -moz-box-shadow: 2px 2px 3px gray;
-     -webkit-box-shadow:2px 2px 3px gray;
+    -moz-box-shadow: 2px 2px 2px gray;
+    -webkit-box-shadow: 2px 2px 2px gray;
+     margin-right:3px;
+     margin-bottom:3px;
     
+}
+._common_d11 .chat_rooms_tab .dijitTabPaneWrapper{
+    background-color: transparent !important;
+    border:0px;
 }
 .ct_chatlabel{
     background: gray;
@@ -23,11 +26,13 @@
 
 .ct_chatbottom{
     background:none repeat scroll 0 0 darkred;
-    padding:2px;
     -moz-border-radius-bottomleft:6px ;
     -webkit-border-bottom-left-radius: 6px;
     -moz-border-radius-bottomright:6px ;
     -webkit-border-bottom-right-radius: 6px; 
+}
+.ct_chat_container{
+    background:white;
 }
 
 .chat_plugin_icon {
@@ -39,4 +44,12 @@
     background: url(images/buddy_chat.png) no-repeat center center;
     width: 16px;
     height: 16px;
+}
+
+.tundra .chat_rooms_tab .dijitTab{
+    float:none;
+    margin-bottom:5px;
+    -moz-border-radius-topleft: 0px;
+    -moz-border-radius-topright: 0px;
+    font-size:.9em;
 }

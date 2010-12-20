@@ -22,7 +22,7 @@ class ChatComponent(BaseComponent):
                                                                      connect_onOpen='genro.wdgById("ct_chat_list_users").resize(); FIRE .listusers;'
                                                                      ).borderContainer(height='300px',width='250px',nodeId='ct_chat_list_users')
         self.ct_chat_grid(ttdialog)
-        self.ct_chat_form(bc.borderContainer(region='center',datapath='gnr.chat'))
+        self.ct_chat_form(bc.borderContainer(region='center',datapath='gnr.chat',margin='3px'))
 
     def ct_controller_main(self,pane):
         pane.dataRpc('dummy','setStoreSubscription',subscribe_chat_plugin_on=True,
@@ -42,55 +42,45 @@ class ChatComponent(BaseComponent):
                                """,user='^#ct_connected_user_grid.selectedId',
                                _if='user',_else='SET gnr.chat.disabled=true;')
         bc.dataController("""
-                            console.log(selected_user)
-                            ct_chat_utils.open_chat(selected_user);
-                            SET .selected_room = selected_user;
-                            """,selected_user="^#ct_connected_user_grid.open_chat")
+                            var grid = genro.wdgById(gridId);
+                            var rows = grid.getSelectedNodes();
+                            var users =new gnr.GnrBag();
+                            dojo.forEach(rows,function(n){users.setItem(n.attr.user,null,{user_name:n.attr.user_name,user:n.attr.user})});
+                            var roomId= new Date().getTime();
+                            ct_chat_utils.open_chat(roomId,users);
+                            """,
+                            _fired="^#ct_connected_user_grid.open_chat",
+                            gridId='ct_connected_user_grid')
         
-        bc.dataController("""
-            ct_chat_utils.read_msg(_node,msgtxt);
-        """,msgtxt="^gnr.chat.msg")
+        bc.dataController("ct_chat_utils.read_msg(msgbag,_node);",msgbag="^gnr.chat.msg")
         
-        bottom = bc.contentPane(region='bottom',onEnter='FIRE .send;',height='30px',overflow='hidden')
-        bottom = bottom.div(position='absolute',top='4px',bottom='4px',left='4px',right='4px',padding_left='1px',
-                        padding_right='8px',padding_bottom='1px',padding_top='1px',visible='^.selected_room',default_visible=False)
-        
-        bottom.textbox(value='^.message',ghost='Write message',width='100%',padding='2px',id='ct_msgtextbox')      
-        bc.tabContainer(region='center',nodeId='ct_chat_rooms',margin='5px',
-                         selectedPage='^.selected_room')        
-        bc.dataRpc('dummy','ct_send_message',user='=.selected_room',
-                    msg='=.message',_fired='^.send',_if='user&&msg',
-                    _onResult='SET .message="";dojo.byId("ct_msgtextbox").focus();')
-        
+        bc.tabContainer(region='center',nodeId='ct_chat_rooms',margin='5px',_class='chat_rooms_tab',
+                         selectedPage='^.selected_room')
+        bc.dataRpc('dummy','ct_send_message',_if='msg',subscribe_ct_send_message=True,
+                    _onResult='dojo.byId("ct_msgtextbox_"+kwargs.roomId).focus();')
+    
     def ct_chat_grid(self,bc):
-        bc.dataRpc('.connected_users','ct_get_connected_users',_fired='^.listusers')
+        bc.data('.grid_users',Bag())
+        bc.dataRpc('.connected_users','connection.connected_users_bag',_fired='^.listusers',exclude='==_users.keys()',_users='=.grid_users')
         def struct(struct):
             r = struct.view().rows()
             r.cell('user_name', dtype='T', name='Fullname', width='16em')
             return struct
+        def footer(pane):
+            pane.button('Confirm',action='FIRE .open_chat;genro.wdgById("ct_chat_list_users_dlg").onCancel();')
         self.includedViewBox(bc,nodeId='ct_connected_user_grid',
+                            identifier='user',
                             datapath='.grid_users',filterOn='!!Search:user_name',
                             storepath='gnr.chat.connected_users',
+                            footer=footer,
                             label='!!Users',
                             connect_onRowDblClick="""
+                                                    FIRE .open_chat;
                                                     genro.wdgById("ct_chat_list_users_dlg").onCancel();
-                                                    FIRE .open_chat = this.widget.rowIdByIndex($1.rowIndex);;
                                                     """ ,
                             struct=struct, autoWidth=True)
-    
-    def rpc_ct_get_connected_users(self):
-        users = self.site.register.users()   
-        result = Bag()
-        for user,arguments in users.items():
-            arguments.pop('connections',None)
-            if user != self.user and not user.startswith('guest_'):
-                arguments['_pkey'] = user
-                arguments.pop('datachanges',None)
-                arguments['user_name'] = arguments['user_name'] or user
-                result.setItem(user,None,**arguments)
-        return result
-    
-    def rpc_ct_send_message(self,user=None,msg=None):
+
+    def rpc_ct_send_message_old(self,user=None,msg=None):
         ts=self.toText(datetime.now(),format='HH:mm:ss')
         path = 'gnr.chat.msg' 
         with self.userStore(self.user) as store:
@@ -103,4 +93,21 @@ class ChatComponent(BaseComponent):
         self.setInClientData(path='gnr.chat.room_alert',value=self.user,
                             filters='user:%s' %user,fired=True,reason='chat_open',
                             public=True, replace=True)
+                            
+    def rpc_ct_send_message(self,msg=None,roomId=None,users=None):
+        ts=self.toText(datetime.now(),format='HH:mm:ss')
+        path = 'gnr.chat.msg' 
+        for userNode in users:
+            user = userNode.label
+            with self.userStore(user) as store:
+                in_out = 'in' if user!=self.user else 'out'
+                store.set_datachange(path,Bag(dict(msg=msg,roomId=roomId,users=users)),fired=True,reason='chat_out',
+                                    attributes=dict(from_user=self.user,roomId=roomId,in_out=in_out,ts=ts))
+            if user!=self.user:
+                self.setInClientData(path='gnr.chat.room_alert',value=Bag(dict(roomId=roomId,users=users)),
+                                filters='user:%s' %user,fired=True,reason='chat_open',
+                                public=True, replace=True)
+    
+    def rpc_ct_remove_chat(self):
+        pass
         
