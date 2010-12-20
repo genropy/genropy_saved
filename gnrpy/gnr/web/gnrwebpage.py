@@ -864,7 +864,8 @@ class GnrWebPage(GnrBaseWebPage):
         sc.dataController("""
                             genro.publish(page+'_'+(selected?'on':'off'));
                             """,
-                            subscribe_gnr_main_left_center_selected=True)    
+                            subscribe_gnr_main_left_center_selected=True)  
+        #sc.dataController("console.log(_node);",_fired="^.selected")  
                             
         sc.dataController("""
                             var command= main_left_status[0]?'open':'close';
