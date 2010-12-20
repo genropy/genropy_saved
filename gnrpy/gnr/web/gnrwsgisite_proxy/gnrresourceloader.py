@@ -97,26 +97,27 @@ class ResourceLoader(object):
     
     def get_page_node(self, path_list):
         # get the deepest node in the sitemap bag associated with the given url
-        page_node, tail_path = self.sitemap.getDeepestNode('.'.join(path_list))
+        page_node = self.sitemap.getDeepestNode('.'.join(path_list))
         if not page_node and self.site.mainpackage : # try in the main package
-            page_node, tail_path = self.sitemap.getDeepestNode('.'.join([self.site.mainpackage]+path_list))
+            page_node = self.sitemap.getDeepestNode('.'.join([self.site.mainpackage]+path_list))
         if page_node:
             page_node_attributes = page_node.getInheritedAttributes()
             if page_node_attributes.get('path'):
-                return page_node, page_node_attributes, tail_path
+                return page_node, page_node_attributes
             else:
-                page_node, tail_path = self.sitemap.getDeepestNode('.'.join(path_list+['index']))
+                page_node = self.sitemap.getDeepestNode('.'.join(path_list+['index']))
                 if page_node:
                     page_node_attributes = page_node.getInheritedAttributes()
                     if page_node_attributes.get('path'):
-                        return page_node, page_node_attributes, tail_path
-        return None,None,None
+                        return page_node, page_node_attributes
+        return None,None
 
     
     def __call__(self, path_list, request, response,environ=None):
-        page_node, page_node_attributes, request_args = self.get_page_node(path_list)
+        page_node, page_node_attributes = self.get_page_node(path_list)
         if not page_node:
             return None
+        request_args = page_node._tail_list
         path = page_node_attributes.get('path')
         pkg = page_node_attributes.get('pkg')
         page_class = self.get_page_class(path = path, pkg = pkg)
