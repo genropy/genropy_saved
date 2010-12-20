@@ -41,27 +41,32 @@ var genro_plugin_grid_configurator = {
     
     
     gridConfiguratorMenu:function(gridId){
-        genro.src.getNode()._('div', '_confMenuBox_'+gridId);
-        var node = genro.src.getNode('_confMenuBox_'+gridId).clearValue();
-        node.freeze();
         var menuId = 'confMenu_'+gridId;
+        var menu_wdg=dijit.byId(menuId);
         var gridSourceNode = genro.nodeById(gridId);
-        var menu_datapath = gridSourceNode.gridControllerPath+'.confMenu'; 
-        genro.setData(menu_datapath+'.data',
+        if(!menu_wdg){
+            genro.src.getNode()._('div', '_confMenuBox_'+gridId);
+            var node = genro.src.getNode('_confMenuBox_'+gridId).clearValue();
+            node.freeze();
+            var menu_datapath = gridSourceNode.gridControllerPath+'.confMenu'; 
+            genro.setData(menu_datapath+'.data',
                      genro.rpc.remoteResolver('gridConfigurationMenu',
                                             {'gridId':gridId,'table':gridSourceNode.attr.table,
                                               'selectedViewPkey':'='+menu_datapath+'.selectedViewPkey',
                                               '_sourceNode':gridSourceNode},
                                             {'cacheTime':'5'}));
-        var menu = node._('menu',{storepath:'.data',id:menuId,
+            var menu = node._('menu',{storepath:'.data',id:menuId,
                     action:function(){
                         genro.grid_configurator.loadCustomView(gridId,this.attr.pkey);
                     },
                     _class:'smallmenu',datapath:menu_datapath});
-        node.unfreeze();
+            node.unfreeze();
+            menu_wdg=dijit.byId(menuId);
+        }
+
         var grid = gridSourceNode.widget;
         dojo.connect(grid, 'postrender', function(){
-            dijit.byId(menuId).bindDomNode(grid.views.views[0].headerNode);
+            menu_wdg.bindDomNode(grid.views.views[0].headerNode);
         });
     },
     
