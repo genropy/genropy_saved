@@ -36,7 +36,7 @@ class TableHandlerForm(BaseComponent):
         #
     def setLogicalDeletionCheckBox(self, elem):
         box = elem.div(_class='hidden_record_checkbox')
-        box.checkbox(label='!!Hidden',
+        box.checkbox(label='!! Hidden',
                     value='^form.logical_deleted',
                     disabled='^form.locked')
         #elem.dataFormula('aux.listpage', '!selectedpage', selectedpage='^selectedPage', _onStart=True)
