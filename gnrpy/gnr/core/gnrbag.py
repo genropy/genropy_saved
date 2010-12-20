@@ -122,20 +122,6 @@ class BagNode(object):
     * value: can be anything even a BagNode. If you have get the xml of the Bag it should be serializable.
     * attributes: dictionary that contains node's metadata
     """
-    
-    
-    __slots__ = ['label','locked','_value','attr','_resolver','_parentbag','_node_subscribers','_validators']
-    
-    def __getstate__(self):
-        d = dict()
-        for slot in BagNode.__slots__:
-            d[slot] = getattr(self, slot)
-        return d
-    
-    def __setstate__(self, state):
-        for slot, value in state.iteritems():
-            setattr(self, slot, value)
-    
     def __init__(self, parentbag, label, value=None, attr=None, resolver=None,
                 validators=None, _removeNullAttributes=True):
         """
@@ -179,27 +165,28 @@ class BagNode(object):
     def setValidators(self, validators):
         for k,v in validators.items():
             self.addValidator(k,v)
-
-    @property
-    def parentbag(self):
+            
+    def _get_parentbag(self):
         if self._parentbag:
             return self._parentbag
-
-    @parentbag.setter    
-    def parentbag(self, parentbag):
+            #return self._parentbag()
+        
+    def _set_parentbag(self,parentbag):
         self._parentbag=None
         if parentbag != None:
             if parentbag.backref or True:
+                #self._parentbag=weakref.ref(parentbag)
                 self._parentbag=parentbag
                 if isinstance(self._value, Bag) and parentbag.backref:
                     self._value.setBackRef(node=self, parent=parentbag)
+    parentbag = property(_get_parentbag,_set_parentbag)
     
-    @property
-    def fullpath(self):
+    def _get_fullpath(self):
         if not self.parentbag is None:
             fullpath=self.parentbag.fullpath
             if not fullpath is None:
                 return '%s.%s' % (fullpath,self.label)
+    fullpath = property(_get_fullpath)
     
     def getLabel(self):
         """Return the node's label.
@@ -425,19 +412,6 @@ class Bag(GnrObject):
     
     Nested elements can be accessed with a path of keys joined with dots.
     """
-    
-    __slots__ = ['_nodes','_backref', '_node', '_parent', '_symbols', '_upd_subscribers', '_ins_subscribers', '_del_subscribers', '_modified', '_rootattributes' ]
-
-    def __getstate__(self):
-        d = dict()
-        for slot in Bag.__slots__:
-            d[slot] = getattr(self, slot)
-        return d
-    
-    def __setstate__(self, state):
-        for slot, value in state.iteritems():
-            setattr(self, slot, value)
-
     
     #-------------------- __init__ --------------------------------
     def __init__(self, source=None):
@@ -1215,9 +1189,11 @@ class Bag(GnrObject):
             node = node.getNode(tail_path)
             tail_path = ''
         if node:
-            return node, tail_path.split('.') if tail_path else []
-        else:
-            return None, None
+            node._tail_list = []
+            if tail_path:
+                node._tail_list = tail_path.split('.')
+            return node
+        #return None
         
     def getDeepestNode_(self,path=None):
         """
@@ -2871,7 +2847,6 @@ class BagResolverNew(object):
 ########################### end experimental features#########################
 
 def testFormule():
-    # TODO: fix -- this test fails. Is it still releavant? If yes, fix the implementation. If no, remove this test.
     b= Bag()
     b.defineFormula(calc_riga_lordo='$riga_qta*$riga_prUnit')
     b.defineSymbol(riga_qta='qta',riga_prUnit='prUnit')
