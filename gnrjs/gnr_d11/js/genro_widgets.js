@@ -941,7 +941,15 @@ dojo.declare("gnr.widgets.StackContainer",gnr.widgets.baseDojo,{
         var nodeId= sourceNode.attr.nodeId;
         var cbUpd = function(path,newpage,st){
             if(st){
-                sourceNode.setRelativeData(path,newpage,null,null,null,genro.src.building?1:null);
+                if(genro.src.building){
+                    setTimeout(function(){
+                        if(!sourceNode.getRelativeData(path)){
+                            sourceNode.setRelativeData(path,newpage);
+                        }
+                    },1);
+                }else{
+                    sourceNode.setRelativeData(path,newpage);
+                }
             }
             if(nodeId){
                 genro.publish(nodeId+'_selected',{'change':newpage+'_'+(st?'show':'hide'),'page':newpage,'selected':st});
