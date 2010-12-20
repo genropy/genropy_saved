@@ -886,7 +886,6 @@ class GnrWebPage(GnrBaseWebPage):
             bottom.div(_class='plugin_block %s_icon buttonIcon' %plugin,
                       connect_onclick="""SET .selected="%s";""" %plugin,
                       id='plugin_block_%s' %plugin)
-        bottom.dataController("console.log(gnr_main_left_center_selected)",subscribe_gnr_main_left_center_selected=True)
 
     def onMainCalls(self):
         calls = [m for m in dir(self) if m.startswith('onMain_')]
