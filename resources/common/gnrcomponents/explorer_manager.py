@@ -5,7 +5,7 @@
 # Copyright (c) 2010 Softwell. All rights reserved.
 
 from gnr.web.gnrbaseclasses import BaseComponent
-from gnr.core.gnrstring import splitAndStrip
+from gnr.core.gnrstring import splitAndStrip,fromJson
 from gnr.core.gnrbag import DirectoryResolver
 
 class ExplorerManager(BaseComponent):
@@ -38,7 +38,7 @@ class ExplorerManager(BaseComponent):
             else:
                 explorer_code = None
             if ':' in explorer:
-                explorer,explorer_pars=explorer.split(':')
+                explorer,explorer_pars=explorer.split(':',1)
             if not explorer_code:
                 explorer_code = explorer.replace('.','_').replace('@','_')
             handler= getattr(self,'explorer_'+explorer,None)
@@ -46,10 +46,17 @@ class ExplorerManager(BaseComponent):
             if handler:
                 handler(pane,explorer_pars,explorer_code=explorer_code)
             else:
-                self.expmng_htableExplorer(pane,explorer_table=explorer,explorer_code=explorer_code,rootpath=explorer_pars)
+                if explorer_pars:
+                    explorer_pars = fromJson(explorer_pars.replace("'",'"'))
+                    kw = dict()
+                    for k,v in explorer_pars.items():
+                        kw[str(k)] = v
+                else:
+                    kw = dict()
+                self.expmng_htableExplorer(pane,explorer_table=explorer,explorer_code=explorer_code,**kw)
         
     
-    def expmng_htableExplorer(self,pane,explorer_table=None,explorer_code=None,rootpath=None):
+    def expmng_htableExplorer(self,pane,explorer_table=None,explorer_code=None,**kwargs):
         tblobj = self.db.table(explorer_table)
         title=tblobj.name_long
         pane.attributes['title'] = title
@@ -61,9 +68,9 @@ class ExplorerManager(BaseComponent):
             related_table_obj = self.db.table(related_table)
             explorer_table = related_table_obj.column(related_field).parent.fullname
         data = self.ht_treeDataStore(table=explorer_table,
-                                                related_table=related_table,
-                                                relation_path=related_field,
-                                                rootpath=rootpath,rootcaption=tblobj.name_plural)
+                                    related_table=related_table,
+                                    relation_path=related_field,
+                                    rootcaption=tblobj.name_plural,**kwargs)
         self.expmng_make_explorer(pane,data,explorer_code=explorer_code)        
                 
     def expmng_make_explorer(self,pane,data,explorer_code=None):
