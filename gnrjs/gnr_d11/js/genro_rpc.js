@@ -200,7 +200,7 @@ dojo.declare("gnr.GnrRpcHandler",null,{
             genro._serverstore_changes = null;
         };
         var delayOnCall = objectPop(callKwargs,'_delayOnCall');
-        callKwargs = this.serializeParameters(this.dynamicParameters(callKwargs, sourceNode));
+        callKwargs = this.serializeParameters(genro.src.dynamicParameters(callKwargs, sourceNode));
         callKwargs._lastUserEventTs= asTypedTxt(genro._lastUserEventTs,'DH');
         if (genro.auto_polling>0){
             this._call_auto_polling();
@@ -473,7 +473,7 @@ dojo.declare("gnr.GnrRpcHandler",null,{
         if(avoidCache!=false){
             currParams['_no_cache_'] = genro.getCounter();
         }
-        return objectUpdate(currParams, this.serializeParameters(this.dynamicParameters(kwargs, sourceNode)));
+        return objectUpdate(currParams, this.serializeParameters(genro.src.dynamicParameters(kwargs, sourceNode)));
     }
     ,
     rpcUrl:function(method, kwargs, sourceNode, avoidCache){
@@ -493,38 +493,7 @@ dojo.declare("gnr.GnrRpcHandler",null,{
         }
         return this.application.absoluteUrl('?'+parameters.join('&'));
     },
-    dynamicParameters: function(source, sourceNode){
-        var obj = {};
-        var path;
-        if ((source != '') & (typeof source == 'string')){
-            source = genro.evaluate(source);
-        } 
-        if (source){
-            for (var prop in source){
-                var val = source[prop];
-                if (typeof(val)=='string'){
-                    var dynval = stringStrip(val);
-                    if (dynval.indexOf('==')==0){
-                        val = genro.evaluate(dynval.slice(2));
-                    } else if((dynval.indexOf('^')==0)||(dynval.indexOf('=')==0)) {
-                        path = dynval.slice(1);
-                        if (sourceNode){
-                            path = sourceNode.absDatapath(path);
-                        } else {
-                            if (path.indexOf('.') == 0){
-                                throw "Unresolved relative path in dynamicParameters: " + path;
-                            }
-                        }
-                        val = genro._data.getItem(path,'');
-                    }
-                } else if(typeof(val)=='function'){
-                    val = val();
-                }
-                obj[prop]=val;
-            }
-        }
-        return obj;
-    },
+
     serializeParameters: function(kwargs){
         var cntrlstr=[];
         var currarg, nodeattrs;
@@ -743,7 +712,7 @@ dojo.declare("gnr.GnrRpcHandler",null,{
         params['uploadPath'] = kw.uploadPath;
         
         var sourceNode = kw.uploaderId? genro.nodeById(kw.uploaderId):null;
-        params = this.serializeParameters(this.dynamicParameters(params, sourceNode));
+        params = this.serializeParameters(genro.src.dynamicParameters(params, sourceNode));
         for (key in params){
             content.push(textParam(key,params[key]));
         }

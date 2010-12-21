@@ -3309,6 +3309,7 @@ dojo.declare("gnr.widgets.VirtualStaticGrid",gnr.widgets.Grid,{
             if(typeof(newRowDefaults)=='string'){
                 newRowDefaults = funcCreate(newRowDefaults)();
             }
+            newRowDefaults = genro.src.dynamicParameters(newRowDefaults);
             objectUpdate(defaultArgs,newRowDefaults);
         }
         var dataproviderNode = this.storebag().getParentNode();
@@ -4574,7 +4575,7 @@ dojo.declare("gnr.widgets.fileInput",gnr.widgets.baseDojo,{
         if(!fname || this._sent){ return; }
         var ext=fname.slice(fname.lastIndexOf('.'));
         this.savedAttrs.remotePars.ext=ext;
-        var remotePars=genro.rpc.serializeParameters(genro.rpc.dynamicParameters(this.savedAttrs.remotePars));
+        var remotePars=genro.rpc.serializeParameters(genro.src.dynamicParameters(this.savedAttrs.remotePars));
         var method=this.savedAttrs.method;
         var url=genro.remoteUrl(method,remotePars);
         var _newForm = document.createElement('form');
@@ -4623,7 +4624,7 @@ dojo.declare("gnr.widgets.fileUploader",gnr.widgets.baseDojo,{
     mixin__sendFile: function(/* Event */e){
         // summary: triggers the chain of events needed to upload a file in the background.
         if(!this.fileInput.value || this._sent){ return; }
-        var uploadPars=genro.rpc.serializeParameters(genro.rpc.dynamicParameters(this.savedAttrs.uploadPars));
+        var uploadPars=genro.rpc.serializeParameters(genro.src.dynamicParameters(this.savedAttrs.uploadPars));
         var method=this.savedAttrs.method;
         var url=genro.remoteUrl(method,uploadPars);         
         dojo.style(this.fakeNodeHolder,"display","none");
