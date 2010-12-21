@@ -3303,6 +3303,14 @@ dojo.declare("gnr.widgets.VirtualStaticGrid",gnr.widgets.Grid,{
         }
     },
     mixin_newBagRow: function(defaultArgs){
+        var defaultArgs = defaultArgs ||{}
+        var newRowDefaults=this.sourceNode.attr.newRowDefaults
+        if (newRowDefaults){
+            if(typeof(newRowDefaults)=='string'){
+                newRowDefaults = funcCreate(newRowDefaults)();
+            }
+            objectUpdate(defaultArgs,newRowDefaults);
+        }
         var dataproviderNode = this.storebag().getParentNode();
         if ('newBagRow' in dataproviderNode){
             if (defaultArgs instanceof Array){
@@ -3313,7 +3321,7 @@ dojo.declare("gnr.widgets.VirtualStaticGrid",gnr.widgets.Grid,{
                 return result;
             }
             else{
-                return dataproviderNode.newBagRow(defaultArgs);
+                newrow= dataproviderNode.newBagRow(defaultArgs);
             }
         } else {
             if (defaultArgs instanceof Array){
@@ -3324,11 +3332,12 @@ dojo.declare("gnr.widgets.VirtualStaticGrid",gnr.widgets.Grid,{
                 return result;
             }
             if (this.datamode == 'bag'){
-                return new gnr.GnrBagNode(null,'label', new gnr.GnrBag(defaultArgs));
+                newrow= new gnr.GnrBagNode(null,'label', new gnr.GnrBag(defaultArgs));
             } else {
-                return new gnr.GnrBagNode(null,'label', null, defaultArgs);
+                newrow= new gnr.GnrBagNode(null,'label', null, defaultArgs);
             }
         }
+        return newrow;
     },
     
     mixin_updateCounterColumn: function(){
