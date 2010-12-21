@@ -854,7 +854,15 @@ function funcCreate(fnc, pars, scope){
         return fnc;
     }
 }
-
+function highlightLinks(text) {
+    	var makeLink=function(href, title) {
+		        return "<a href='"+href+"'>"+title+"</a>"
+		        }
+    	text = text.replace(/(?:\b|\+)(?:mailto:)?([\w\.+#-]+)@([\w\.-]+\.\w{2,4})\b/g, function(address) { return makeLink('mailto:'+address, address) });
+		text = text.replace(/((\w+:\/\/)[-a-zA-Z0-9:@;?&=\/%\+\.\*!'\(\),\$_\{\}\^~\[\]`#|]+)/g, function(link) { return makeLink(link, link) });
+		return text;
+     
+ }
 function funcApply(fnc, parsobj, scope){
     var argNames = [];
     var argValues = [];
