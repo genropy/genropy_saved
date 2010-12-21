@@ -29,13 +29,14 @@ class GnrCustomWebPage(object):
         """Includedview editable datamode bag"""
         bc = pane.borderContainer(height='300px')
         bc.data('.mygrid.rows',self.common_data())
+        bc.data('nome','piero')
         iv = self.includedViewBox(bc,label='!!Products',datapath='.mygrid',
                             storepath='.rows', struct=self.common_struct, 
                             autoWidth=True,datamode='bag',
                             add_action=True,del_action=True,editorEnabled=True,
-                            #newRowDefaults=dict(name='piero')
+                            newRowDefaults=dict(name='^nome')
                             #newRowDefaults = "function(){return {name:'piero'}}"
-                            newRowDefaults = "return {name:'piero'}"
+                            #newRowDefaults = "return {name:'piero'}"
                             )
         gridEditor = iv.gridEditor()
         gridEditor.textbox(gridcell='name')
