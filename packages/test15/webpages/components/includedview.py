@@ -25,14 +25,18 @@ class GnrCustomWebPage(object):
         r.cell('age', name='Age', width='5em',dtype='I')
         r.cell('work', name='Work', width='10em')
 
-    def __test_1_includedview_editable_bag(self,pane):
+    def test_1_includedview_editable_bag(self,pane):
         """Includedview editable datamode bag"""
         bc = pane.borderContainer(height='300px')
         bc.data('.mygrid.rows',self.common_data())
         iv = self.includedViewBox(bc,label='!!Products',datapath='.mygrid',
                             storepath='.rows', struct=self.common_struct, 
                             autoWidth=True,datamode='bag',
-                            add_action=True,del_action=True,editorEnabled=True)
+                            add_action=True,del_action=True,editorEnabled=True,
+                            #newRowDefaults=dict(name='piero')
+                            #newRowDefaults = "function(){return {name:'piero'}}"
+                            newRowDefaults = "return {name:'piero'}"
+                            )
         gridEditor = iv.gridEditor()
         gridEditor.textbox(gridcell='name')
         gridEditor.numbertextbox(gridcell='age')
@@ -45,7 +49,7 @@ class GnrCustomWebPage(object):
                               _onStart=True,selectionPars=dict(order_by='$nome'))
 
     
-    def test_2_remote_includedview_editable_bag(self,pane):
+    def test_3_remote_includedview_editable_bag(self,pane):
         """Includedview editable datamode bag"""
         bc = pane.borderContainer(height='300px')
         bc.data('.mygrid.rows',self.common_data())
