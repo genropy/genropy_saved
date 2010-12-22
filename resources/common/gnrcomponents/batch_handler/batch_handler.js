@@ -192,6 +192,9 @@ batch_monitor.create_thermoline = function(sourceNode,line,attributes){
     //    return line+':'+dojo.number.format(percent, {type: "percent", places: this.places, locale: this.lang});
     //};
     var cb = function(percent){
+        if (!this.domNode){
+            debugger;
+        }
         var msg = this.domNode.parentNode.sourceNode.getRelativeData('.?message');
         return msg;
     };

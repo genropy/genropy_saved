@@ -86,7 +86,8 @@ label.ghostlabel span{
 /* @group Plugin */
 .plugin_block{
 	-moz-border-radius:0px 0px 5px 5px;
-    -webkit-border-radius::0px 0px 5px 5px;
+    -webkit-border-bottom-left-radius:5px;
+	-webkit-border-bottom-right-radius:5px;
 	padding-top: 5px;  
 	padding-bottom:1px;
 	width:27px !important;  
