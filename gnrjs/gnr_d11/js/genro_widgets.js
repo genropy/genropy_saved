@@ -449,6 +449,9 @@ dojo.declare("gnr.widgets.baseHtml",null,{
             }
             
         }
+         if(!sourceNode){
+            return;
+        }
         if (savedAttrs.dropTargetCb){
             sourceNode.dropTargetCb=funcCreate(savedAttrs.dropTargetCb,'dropInfo',sourceNode);
         }
@@ -462,8 +465,10 @@ dojo.declare("gnr.widgets.baseHtml",null,{
         if (savedAttrs.zoomFactor){
             sourceNode.setZoomFactor(savedAttrs.zoomFactor);
         }
-        if(!sourceNode){
-            return;
+       
+        var draggable = sourceNode.getAttributeFromDatasource('draggable') ||sourceNode.getAttributeFromDatasource('detachable')  ;
+        if(draggable && 'setDraggable' in newobj){
+            newobj.setDraggable(draggable)
         }
 
 
