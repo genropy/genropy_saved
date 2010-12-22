@@ -20,12 +20,11 @@ class ExplorerManager(BaseComponent):
        
     def expmng_main(self,explorers):
         explorer_to_create = splitAndStrip(explorers,',')
-        pane = self.pageSource('pbl_bottomBarCenter').value
-        pane.dock(id='explorer_dock',width='100px',background='none',border=0,float='right')
+        pane = self.pageSource()
         floating = pane.floatingPane(title='!!Explorers',height='400px',width='300px',
                         top='100px',right='100px',closable=False,resizable=True,persist=True,
                         nodeId='gnr_explorer_floating',
-                        dockable=True,dockTo='explorer_dock',_class='shadow_4',visibility='hidden',
+                        dockable=True,dockTo='pbl_dock',_class='shadow_4',visibility='hidden',
                         datapath='gnr.explorers')
         tc = floating.tabContainer(margin='2px',selectedPage='^.selected_explorer')
         tc.dataController("SET .selected_explorer=show_explorer[0];",subscribe_show_explorer=True)
@@ -42,7 +41,7 @@ class ExplorerManager(BaseComponent):
             if not explorer_code:
                 explorer_code = explorer.replace('.','_').replace('@','_')
             handler= getattr(self,'explorer_'+explorer,None)
-            pane=tc.contentPane(title=explorer,pageName=explorer_code,datapath='.%s' %explorer_code)
+            pane=tc.contentPane(title=explorer,pageName=explorer_code,datapath='.%s' %explorer_code).contentPane(detachable=True)
             if handler:
                 handler(pane,explorer_pars,explorer_code=explorer_code)
             else:

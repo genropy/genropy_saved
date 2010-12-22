@@ -28,11 +28,10 @@ ct_chat_utils.open_chat = function(roomId,users){
     var roombag = new gnr.GnrBag({'users':users,user_name:user_name,user:user});
     ct_chat_utils.fill_title(roombag);
     genro.setData(roompath,roombag);
-    var newroom = roomsNode._('BorderContainer',{pageName:roomId,_class:'ct_chatpane',nodeId:roomId+'_room',title:'^.title',
-                                                 closable:true,datapath:roompath,
-                                                 onClose:function(){genro.publish("ct_send_message",{"roomId":roomId,msg:null,disconnect:true});
-                                                                    return true;}
-                                                 });
+    var pane = roomsNode._('ContentPane',{title:'^.title',closable:true,closable:true,datapath:roompath,pageName:roomId,_class:'ct_chatpane',
+                                            onClose:function(){genro.publish("ct_send_message",{"roomId":roomId,msg:null,disconnect:true});
+                                                              return true;}});
+    var newroom = pane._('BorderContainer',{nodeId:roomId+'_room',detachable:true,height:'100%'});
     var sourceNode = newroom.getParentNode();
     var label = newroom._('ContentPane',{region:'top',_class:'ct_chatlabel'})
     
