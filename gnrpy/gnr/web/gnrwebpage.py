@@ -858,18 +858,18 @@ class GnrWebPage(GnrBaseWebPage):
             return          
         bc = parentBC.borderContainer(_class='main_left_tab',width='200px',datapath='gnr.main_container.left',**kwargs)
         self.mainLeftTop(bc.contentPane(region='top',nodeId='gnr_main_left_bottom',id='gnr_main_left_top'))
-        bottom = bc.contentPane(region='bottom',nodeId='gnr_main_left_bottom',id='gnr_main_left_bottom')
-
+        bottom = bc.contentPane(region='bottom',nodeId='gnr_main_left_bottom',id='gnr_main_left_bottom',overflow='hidden')
+        plugin_dock = bottom.div(id='gnr_plugin_dock')
+        bottom.dataController("genro.dom.centerOn('gnr_plugin_dock','gnr_main_left_bottom',true)",
+                            _fired="^_clientCtx.mainBC.left",_onStart=True)
         sc = bc.stackContainer(selectedPage='^.selected',region='center',nodeId='gnr_main_left_center')    
-        sc.dataController("""
-                            genro.publish(page+'_'+(selected?'on':'off'));
+        sc.dataController("""genro.publish(page+'_'+(selected?'on':'off'));
+                             genro.dom.setClass(genro.domById('plugin_block_'+page),'selected_plugin',selected);
                             """,
-                            subscribe_gnr_main_left_center_selected=True)  
-        #sc.dataController("console.log(_node);",_fired="^.selected")  
+                          subscribe_gnr_main_left_center_selected=True)  
                             
         sc.dataController("""
                             var command= main_left_status[0]?'open':'close';
-                            //genro.publish(page+'_'+command);
                             genro.publish(page+'_'+(command=='open'?'on':'off'));
                             """,
                             subscribe_main_left_status=True,
@@ -884,7 +884,7 @@ class GnrWebPage(GnrBaseWebPage):
                             SET .selected=plugin;
                           """,**{'subscribe_%s_open' %plugin:True,'plugin':plugin})
                           
-            bottom.div(_class='plugin_block %s_icon buttonIcon' %plugin,
+            plugin_dock.div(_class='plugin_block %s_icon' %plugin,
                       connect_onclick="""SET .selected="%s";""" %plugin,
                       id='plugin_block_%s' %plugin)
 
