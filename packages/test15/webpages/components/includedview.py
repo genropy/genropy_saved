@@ -42,7 +42,7 @@ class GnrCustomWebPage(object):
         gridEditor.textbox(gridcell='name')
         gridEditor.numbertextbox(gridcell='age')
         gridEditor.textbox(gridcell='work')
-        
+
     def test_2_remote_includedview_db(self,pane):
         bc = pane.borderContainer(height='300px')
         self.includedViewBox(bc,label='Test',datapath='.test_db',
