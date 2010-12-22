@@ -556,6 +556,10 @@
     border-left: 0px;
 }
 
+.selected_plugin.plugin_block{
+    -moz-box-shadow: 0 -1px 1px #005555 inset;
+	background-color:  rgba(192,192,192,1);
+}
 /* @group MenuTree */
 
 
