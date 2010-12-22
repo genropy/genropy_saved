@@ -20,7 +20,7 @@
 .menu_plugin_icon{
 	height: 16px;
 	width: 16px;
-	background: transparent url(icons/menu_plugin.png) no-repeat center center;
+	background: transparent url(icons/menu_plugin.png) no-repeat center;
 }
 
 /* @end */
@@ -129,6 +129,29 @@
 
 /* @end */
 
+element.style {
+    bottom: 0;
+    left: 0;
+    overflow: hidden;
+    position: absolute;
+    right: 0;
+}
+
+/* @group MainLeft */
+
+#gnr_main_left_bottom{
+	min-height: 23px;
+	overflow: hidden;
+}
+#gnr_main_left_top{
+	min-height: 23px;
+	overflow: hidden;
+
+}
+
+
+
+/* @end */
 
 /* @group MenuTree */
 
