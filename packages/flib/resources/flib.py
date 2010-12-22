@@ -67,11 +67,15 @@ class FlibPicker(FlibBase):
     py_requires="""gnrcomponents/htablehandler:HTableHandlerBase"""
     
     def flibPicker(self,pane,pickerId=None,datapath=None,title=None,rootpath=None,
-                  centerOn=None,limit_rec_type=None,**kwargs):
+                  centerOn=None,limit_rec_type=None,dockTo=None,**kwargs):
         """"""
+        dockTo = dockTo or 'pbl_dock'
         pane = pane.floatingPane(title=title or "!!File picker",
-                                height='400px',width='600px',nodeId=pickerId, showOnStart=False,
-                                dockable=False,datapath=datapath,resizable=True,_class='shadow_4')
+                                height='400px',width='600px',nodeId=pickerId,
+                                top='100px',left='100px',
+                                dockTo=dockTo,visibility='hidden',
+                                dockable=True,closable=False,datapath=datapath,
+                                resizable=True,_class='shadow_4')
         pane.dataController("genro.wdgById(pickerId).show(); genro.dom.centerOn(pickerId,centerOn)",
                             centerOn=centerOn or "mainWindow",
                             pickerId=pickerId,**{'subscribe_%s_open'%pickerId:True})
