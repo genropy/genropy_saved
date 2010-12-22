@@ -126,6 +126,7 @@ dojo.declare("gnr.GnrDlgHandler",null,{
            dijit.placeOnScreenAroundElement(genro.dlg.messanger.domNode, this.messanger.forcedPos,{'TL': 'BL', 'BL': 'TL'});
         }
     }, 
+
     
     alert:function(msg, title, buttons, resultPath, kw){
         genro.src.getNode()._('div', '_dlg_alert');
@@ -261,6 +262,12 @@ dojo.declare("gnr.GnrDlgHandler",null,{
         }
         node.unfreeze();
         genro.wdgById('_dlg_request').show();
+    },
+    floating: function(kw){
+        var float_id= kw.nodeId;
+        genro.src.getNode()._('div', '_gnr_float_'+float_id);
+        var node = genro.src.getNode('_gnr_float_'+float_id).clearValue();
+        return node._('floatingPane',kw);
     },
     
     quickDialog: function(title){

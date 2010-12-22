@@ -526,7 +526,7 @@ dojo.declare("gnr.GnrDomHandler",null,{
     canBeDropped:function(dataTransfer,sourceNode){
         var dragSourceInfo=genro.dom.getDragSourceInfo(dataTransfer);
         if (dragSourceInfo.detachable){
-            return true
+            return 'detach'
         }
         var inherited=sourceNode.getInheritedAttributes();
         var supportedTypes=sourceNode.getInheritedAttributes().dropTypes
@@ -618,8 +618,10 @@ dojo.declare("gnr.GnrDomHandler",null,{
             var dropTarget = sourceNode.dropTarget || attr.selfDragRows  || attr.selfDragColumns;
             var dropTargetCb=sourceNode.dropTargetCb
             info.dragSourceInfo=genro.dom.getDragSourceInfo(event.dataTransfer);
-            if (dropTarget || dropTargetCb || info.dragSourceInfo.detachable){
-                
+            if(info.dragSourceInfo.detachable){
+                return info;
+            }
+            if (dropTarget || dropTargetCb){
                 info.sourceNodeId=info.dragSourceInfo.nodeId;
                 info.selfdrop=(info.nodeId && (info.nodeId==info.sourceNodeId));
                 info.hasDragType=function(){
@@ -658,7 +660,9 @@ dojo.declare("gnr.GnrDomHandler",null,{
         var canBeDropped=this.canBeDropped(dataTransfer,sourceNode);
         dataTransfer.effectAllowed=canBeDropped?'move':'none';
         dataTransfer.dropEffect=canBeDropped?'move':'none';
-        genro.dom.outlineShape(dropInfo.outline,canBeDropped,event);
+        if (canBeDropped!='detach'){
+            genro.dom.outlineShape(dropInfo.outline,canBeDropped,event);
+        }
     },
     outlineShape:function(shape,canBeDropped){
          if(genro.dom._dragLastOutlined){
@@ -676,7 +680,36 @@ dojo.declare("gnr.GnrDomHandler",null,{
          }
     },
      onDetach:function(sourceNode,dropInfo){
-         alert('dropped')
+         var domnode=sourceNode.getDomNode();
+         var coords =dojo.coords(domnode);
+         var title = sourceNode.getInheritedAttributes().title;
+         var detached_id = 'detached_'+sourceNode._id;         
+         if (sourceNode.isPointerPath(title)){
+             var pointer = title[0];
+             title = sourceNode.absDatapath(title);
+             title = pointer+title;
+         }
+         
+         var floating = genro.dlg.floating({'nodeId':'floating_'+sourceNode._id,
+                                            'title':title,'top':dropInfo.event.pageY+'px',
+                                            'left':dropInfo.event.pageX+'px',resizable:true,
+                                            dockable:true,closable:false,dockTo:detached_id});
+            
+         floating._('div',{height:coords.h+'px',width:coords.w+'px',_class:'detatched_placeholder',id:detached_id});
+         floating = floating.getParentNode().widget;
+         var placeholder = floating.containerNode.firstElementChild;
+         var currentParent = domnode.parentNode;
+         currentParent.replaceChild(placeholder,domnode)
+         floating.containerNode.appendChild(domnode);
+         dojo.connect(floating,'hide',function(){
+             var widget = dijit.getEnclosingWidget(placeholder);
+             widget.setContent(domnode)
+             //currentParent.replaceChild(domnode,placeholder);
+             floating.close();
+         });
+         floating.show();
+         coords.h = coords.h+ dojo.coords(floating.domNode).h;
+         floating.resize(coords);
      },
      onDrop:function(event){
         genro.dom.outlineShape(null);
@@ -687,9 +720,10 @@ dojo.declare("gnr.GnrDomHandler",null,{
         var sourceNode=dropInfo.sourceNode;
         var dataTransfer=event.dataTransfer;
         var dragSourceInfo=genro.dom.getDragSourceInfo(dataTransfer);
-            if (dragSourceInfo.detachable){
-                genro.dom.onDetach( genro.src.nodeBySourceNodeId(dragSourceInfo._id),dropInfo)
-            }
+        if (dragSourceInfo.detachable){
+            genro.dom.onDetach( genro.src.nodeBySourceNodeId(dragSourceInfo._id),dropInfo)
+            return;
+        }
         var canBeDropped=this.canBeDropped(dataTransfer,sourceNode); // dovrei già essere bono
         if(canBeDropped){
             var inherited=sourceNode.getInheritedAttributes();
@@ -753,6 +787,11 @@ dojo.declare("gnr.GnrDomHandler",null,{
             return false;
         }
         var dragInfo=this.getDragDropInfo(event);
+        if(dragInfo.sourceNode.getAttributeFromDatasource('detachable')){
+            if(!event.shiftKey){
+                return;
+            }
+        }
         var dragValues=dragInfo.handler.onDragStart(dragInfo);
         if (dragValues===false){
                 return false;
