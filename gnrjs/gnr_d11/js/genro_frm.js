@@ -93,8 +93,9 @@ dojo.declare("gnr.GnrFrmHandler",null,{
             };
             var continueCb = function(){
                 currForm.doload(kw);
-            };                                
-            var opener= {invalidData:(this.getInvalidFields().len()>0),saveCb:saveCb,continueCb:continueCb,cancelCb:kw.cancelCb};
+            };                
+            var cancelCb = kw.cancelCb || function(){} 
+            var opener= {invalidData:(this.getInvalidFields().len()>0),saveCb:saveCb,continueCb:continueCb,cancelCb:cancelCb};
             this.sourceNode.fireEvent('#pbl_formPendingChangesAsk.open',opener);
         }else{
             this.doload(kw);
