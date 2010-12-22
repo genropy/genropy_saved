@@ -77,8 +77,10 @@ class GnrCustomWebPage(object):
         
         fb.data('.mydiv','aaaabbbbbccc')
         fb.textBox(value='^.name',lbl='my name',draggable='^.cb2')
-        fb.checkbox(value='^.cb2',label='draggable')
         
+        fb.checkbox(value='^.cb2',label='draggable')
+        fb.textBox(value='^.name2',lbl='alwaysdraggable',draggable=True)
+        fb.br()
         # Si può anche usare dragValue="^.valoreDaDraggare" oppure onDrag="... imposta il valore da draggare ..."
         #
         # Vedi tablehandler_core.py e tablehandler_list.py per qualche esempio
