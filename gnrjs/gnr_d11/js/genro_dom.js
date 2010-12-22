@@ -701,9 +701,11 @@ dojo.declare("gnr.GnrDomHandler",null,{
          var currentParent = domnode.parentNode;
          currentParent.replaceChild(placeholder,domnode)
          floating.containerNode.appendChild(domnode);
+         sourceNode.attr.isDetached=true
          dojo.connect(floating,'hide',function(){
              var widget = dijit.getEnclosingWidget(placeholder);
              widget.setContent(domnode)
+             sourceNode.attr.isDetached=false;
              //currentParent.replaceChild(domnode,placeholder);
              floating.close();
          });
@@ -787,8 +789,10 @@ dojo.declare("gnr.GnrDomHandler",null,{
             return false;
         }
         var dragInfo=this.getDragDropInfo(event);
+        var sourceNode=dragInfo.sourceNode;
+        
         if(dragInfo.sourceNode.getAttributeFromDatasource('detachable')){
-            if(!event.shiftKey){
+            if(!event.shiftKey || sourceNode.attr.isDetached){
                 return;
             }
         }
@@ -796,7 +800,6 @@ dojo.declare("gnr.GnrDomHandler",null,{
         if (dragValues===false){
                 return false;
         }
-        var sourceNode=dragInfo.sourceNode;
         var inherited=sourceNode.getInheritedAttributes();
         if ('onDrag' in inherited){
             var doDrag=funcCreate(inherited['onDrag'],'dragValues,dragInfo,treeItem')(dragValues,dragInfo,dragInfo.treeItem);

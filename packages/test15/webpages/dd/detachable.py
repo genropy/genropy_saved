@@ -13,7 +13,7 @@ class GnrCustomWebPage(object):
     py_requires="""gnrcomponents/testhandler:TestHandlerFull"""
     def test_0_tabContainer(self,pane):
         """Drop Boxes"""
-        tc=pane.tabContainer(height='300px',width='200px')
+        tc=pane.tabContainer(height='300px',width='400px')
         one=tc.contentPane(title='One').contentPane(background_color='pink',detachable=True)
         one.div('one')
         one.div('pippo',background='blue')
