@@ -51,7 +51,6 @@ class HTableResolver(BagResolver):
         children = Bag()
         for row in rows:
             caption=tblobj.recordCaption(row)
-            print 'setting related row %s - %s' %(row['pkey'] ,caption)
             children.setItem(row['pkey'], None,
                              caption=caption,
                              pkey=row['pkey'],code=row['code'],
@@ -70,20 +69,16 @@ class HTableResolver(BagResolver):
         if self.related_table:
             self.setRelatedChildren(children)   
         for row in rows:                   
-            child_count= row['child_count']
-            limit_condition = True
-        
+            child_count= row['child_count']        
             if self.limit_rec_type:
-                limit_condition = row['rec_type'] !=self.limit_rec_type
-            if child_count and limit_condition:
-                print 'if child_count and limit_condition'
+                child_count = child_count if row['rec_type'] !=self.limit_rec_type else 0
+            if child_count:
                 value = HTableResolver(table=self.table,rootpath=row['code'],rootpkey=row['pkey'],
                                         relation_path=self.relation_path,
                                         related_table =self.related_table,
                                         limit_rec_type=self.limit_rec_type,
                                         child_count=child_count,_page=self._page)  
             elif self.related_table:
-                print 'elif self.related_tabl'
                 value = HTableResolver(table=self.table,rootpath='*related*:%s' %row['pkey'],
                                         relation_path=self.relation_path,
                                         related_table =self.related_table,
@@ -98,7 +93,6 @@ class HTableResolver(BagResolver):
             else:
                 get_tree_row_caption = _getTreeRowCaption2
             caption=tblobj.recordCaption(row,rowcaption=get_tree_row_caption(tblobj))
-            print 'setting in children %s - %s child_count:%s' %(row['child_code'] ,caption,child_count)
             children.setItem(row['child_code'], value,
                              caption=caption,
                              rec_type=row['rec_type'],pkey=row['pkey'],code=row['code'],child_count=child_count,checked=False,
