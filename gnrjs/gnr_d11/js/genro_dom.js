@@ -925,7 +925,7 @@ dojo.declare("gnr.GnrDomHandler",null,{
         };
         setTimeout(cb,1); 
     },
-    centerOn: function(what,where){
+    centerOn: function(what,where,onlyX,onlyY){
         var whatDomNode = this.getDomNode(what);
         var whereDomNode = where?this.getDomNode(where): whatDomNode.parentNode;
         var viewport=dojo.coords(whereDomNode);
@@ -939,8 +939,13 @@ dojo.declare("gnr.GnrDomHandler",null,{
        //    deltax = deltax +viewport.x;
        //    deltay = deltay + viewport.y;
        //}
-        style.left = Math.floor((deltax + (viewport.w - mb.w)/2)) + "px";
-        style.top = Math.floor((deltay + (viewport.h - mb.h)/2)) + "px";
+        if(!onlyY){
+            style.left = Math.floor((deltax + (viewport.w - mb.w)/2)) + "px";
+        }
+        if(!onlyX){
+            style.top = Math.floor((deltay + (viewport.h - mb.h)/2)) + "px";
+        }
+        
     },
     makeHiderLayer: function(parentId,kw){
         var rootNode = parentId?genro.nodeById(parentId):genro.src.getNode();

@@ -76,17 +76,22 @@ label.ghostlabel span{
 
 /* @group Plugin */
 .plugin_block{
-	-moz-border-radius:6px;
-    -webkit-border-radius:6px;
-	padding: 2px;    
-	margin-top: 1px;
+	-moz-border-radius:0px 0px 5px 5px;
+    -webkit-border-radius::0px 0px 5px 5px;
+	padding-top: 5px;  
+	padding-bottom:1px;
+	width:27px !important;  
 	display: inline-block;
+	cursor:pointer;
 }
 .selected_plugin.plugin_block{
-	-moz-box-shadow:inset 2px 2px 2px gray;
-    -webkit-box-shadow:inset 2px 2px 2px gray;
+    -moz-box-shadow: 0 -1px 1px #005555 inset;
+    background-color: white;
 }
-
+#gnr_plugin_dock{
+    position:absolute;
+    display:inline-block;
+}
 
 /* @end */
 
