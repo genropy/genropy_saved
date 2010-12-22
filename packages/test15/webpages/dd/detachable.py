@@ -14,8 +14,9 @@ class GnrCustomWebPage(object):
     def test_0_tabContainer(self,pane):
         """Drop Boxes"""
         tc=pane.tabContainer(height='300px',width='200px')
-        one=tc.contentPane(title='One',background_color='pink',detachable=True)
+        one=tc.contentPane(title='One').contentPane(background_color='pink',detachable=True)
         one.div('one')
+        one.div('pippo',background='blue')
         two=tc.contentPane(title='Two',background_color='yellow')
         two.div('two',draggable=True)
         three=tc.contentPane(title='Three',background_color='lime')
