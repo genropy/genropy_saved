@@ -39,17 +39,21 @@ class HTableResolver(BagResolver):
                  'limit_rec_type':None,
                  'related_table':None,
                  'relation_path':None,
+                 'rootpkey':None,
                  '_page':None}
     classArgs=['table','rootpath']
     
     def loadRelated(self,pkey):
+        print 'loadRelated'
         db= self._page.db
         tblobj = db.table(self.related_table) 
         rows = tblobj.query(where='%s=:pkey' %self.relation_path[1:],pkey=pkey).fetch()
         children = Bag()
         for row in rows:
+            caption=tblobj.recordCaption(row)
+            print 'setting related row %s - %s' %(row['pkey'] ,caption)
             children.setItem(row['pkey'], None,
-                             caption=tblobj.recordCaption(row),
+                             caption=caption,
                              pkey=row['pkey'],code=row['code'],
                              node_class='tree_related')
         return children
@@ -62,19 +66,24 @@ class HTableResolver(BagResolver):
         tblobj = db.table(self.table) 
         rows = tblobj.query(columns='*,$child_code,$child_count,$description',where="COALESCE($parent_code,'')=:rootpath" ,
                      rootpath=self.rootpath or '',order_by='$child_code').fetch()
-        children = Bag()
-        for row in rows:
+        children = Bag() 
+        if self.related_table:
+            self.setRelatedChildren(children)   
+        for row in rows:                   
             child_count= row['child_count']
             limit_condition = True
+        
             if self.limit_rec_type:
                 limit_condition = row['rec_type'] !=self.limit_rec_type
             if child_count and limit_condition:
-                value = HTableResolver(table=self.table,rootpath=row['code'],
+                print 'if child_count and limit_condition'
+                value = HTableResolver(table=self.table,rootpath=row['code'],rootpkey=row['pkey'],
                                         relation_path=self.relation_path,
                                         related_table =self.related_table,
                                         limit_rec_type=self.limit_rec_type,
                                         child_count=child_count,_page=self._page)  
             elif self.related_table:
+                print 'elif self.related_tabl'
                 value = HTableResolver(table=self.table,rootpath='*related*:%s' %row['pkey'],
                                         relation_path=self.relation_path,
                                         related_table =self.related_table,
@@ -88,12 +97,30 @@ class HTableResolver(BagResolver):
                 get_tree_row_caption = _getTreeRowCaption
             else:
                 get_tree_row_caption = _getTreeRowCaption2
+            caption=tblobj.recordCaption(row,rowcaption=get_tree_row_caption(tblobj))
+            print 'setting in children %s - %s child_count:%s' %(row['child_code'] ,caption,child_count)
             children.setItem(row['child_code'], value,
-                             caption=tblobj.recordCaption(row,rowcaption=get_tree_row_caption(tblobj)),
+                             caption=caption,
                              rec_type=row['rec_type'],pkey=row['pkey'],code=row['code'],child_count=child_count,checked=False,
                              parent_code=row['parent_code'],description=row['description'])#_attributes=dict(row),
-        return children
+                             # 
         
+       
+        children.sort('#a.caption')
+        return children
+    def setRelatedChildren(self,children):
+        db= self._page.db
+        related_tblobj = db.table(self.related_table) 
+        related_rows=[]
+        if self.rootpkey:
+            related_rows = related_tblobj.query(where='%s=:pkey' %self.relation_path[1:],pkey=self.rootpkey).fetch()
+            for related_row in related_rows:
+                caption=related_tblobj.recordCaption(related_row)
+                children.setItem(related_row['pkey'], None,
+                             caption=caption,
+                             pkey=related_row['pkey'],code=related_row['code'],
+                             node_class='tree_related')
+                
     def resolverSerialize(self):
         self._initKwargs.pop('_page')
         return BagResolver.resolverSerialize(self)
@@ -118,7 +145,6 @@ class HTableHandlerBase(BaseComponent):
             caption=tblobj.recordCaption(row,rowcaption=get_tree_row_caption(tblobj))
             rootlabel = row['child_code']
             pkey=row['pkey']
-            _attributes=dict(row)
             rootpath=row['code']
             code=row['code']
             child_count = row['child_count']
@@ -127,7 +153,7 @@ class HTableHandlerBase(BaseComponent):
         else:
             caption=rootcaption
             rootlabel ='_root_'
-            _attributes=dict()
+
             pkey=None
             code=rootcode
             rootpath=None
@@ -183,7 +209,6 @@ class HTableHandler(HTableHandlerBase):
             self.ht_plainView(tc.borderContainer(title='!!Plain',datapath=datapath),table=table,nodeId=nodeId,disabled=disabled,
                     rootpath=rootpath,editMode=editMode,label=label)
 
-        commontop = None
         if editMode=='bc':
             bc = parent.borderContainer(region='center',datapath=datapath,nodeId=nodeId,margin='2px')
             treepane = bc.borderContainer(region='left',width='220px',splitter=True,_class='pbl_roundedGroup')
