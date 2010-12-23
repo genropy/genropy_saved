@@ -601,10 +601,15 @@ dojo.declare("gnr.GnrValidator",null,{
     },
     validate_regex: function(param, value){
         if(value){
-            var r = new RegExp(param);
-            if(!r.test(value)){
-                return false;
+            var not = false;
+            if (param[0]=='!'){
+                not = true;
+                param = param.slice(1);
+                
             }
+            var r = new RegExp(param);
+            var result = r.test(value);
+            return not?!result:result;
         }
     },
     validate_call: function(param, value, sourceNode, parameters){
