@@ -86,9 +86,6 @@ class GnrDomSrc(GnrStructData):
                     return self.fbuilder.br()
                 if not 'disabled' in kwargs:
                     kwargs['disabled']=self.childrenDisabled
-                if 'unmodifiable' in kwargs and not 'readOnly' in kwargs:
-                    kwargs['readOnly'] = '==!_newrecord'
-                    kwargs['_newrecord'] = '^.?_newrecord'
                 return self.fbuilder.place(tag=tag,name=name,**kwargs)
         if envelope:
             obj = GnrStructData.child(self, 'div', name='*_#', **envelope)
