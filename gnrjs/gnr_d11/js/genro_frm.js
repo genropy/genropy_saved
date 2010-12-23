@@ -183,7 +183,7 @@ dojo.declare("gnr.GnrFrmHandler",null,{
         return genro._(this.formDatapath);
     },
     hasChanges: function(){
-        return ;
+        return genro.getData(this.controllerPath+'.changed');
     },
     getFormChanges: function(){
         return this._getRecordCluster(this.getFormData(),true);
