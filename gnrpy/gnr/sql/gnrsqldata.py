@@ -113,7 +113,14 @@ class SqlQueryCompiler(object):
         self.fieldlist = []
         
     def getFieldAlias(self, fieldpath, curr=None, basealias=None):
-        
+        """Internal method: translate fields and related fields path in a valid sql string for the column.
+           It translate '@relname.@rel2name.colname' to 't4.colname'.
+           It has nothing to do with the AS operator, nor the name of the output columns.
+           It automatically adds the join tables as needed.
+           It can be recursive to resolve virtualcolumns.
+           * `fieldpath`: a path to a field, like '$colname' or '@relname.@rel2name.colname'
+        """
+
         def expandEnv(m):
             what = m.group(1)
             par2=None
@@ -133,13 +140,6 @@ class SqlQueryCompiler(object):
             else:
                 return 'Not found %s' % what
             
-        """Internal method: translate fields and related fields path in a valid sql string for the column.
-           It translate '@relname.@rel2name.colname' to 't4.colname'.
-           It has nothing to do with the AS operator, nor the name of the output columns.
-           It automatically adds the join tables as needed.
-           It can be recursive to resolve virtualcolumns.
-           * `fieldpath`: a path to a field, like '$colname' or '@relname.@rel2name.colname'
-        """
         pathlist = fieldpath.split('.')
         fld = pathlist.pop()
         curr = curr or self.relations
