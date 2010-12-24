@@ -323,8 +323,7 @@ class NewServer(object):
         self.siteconfig = self.get_config()
         options = self.options.__dict__
         for option in options.keys():
-            if (options.get(option) == 'false' or options.get(option) == 'False' or options.get(
-                    option) == False or options.get(option) == None):
+            if options.get(option, None) is None: # not specified on the command-line
                 site_option = self.siteconfig['wsgi?%s' % option]
                 self.options.__dict__[option] = site_option or wsgi_options.get(option)
 

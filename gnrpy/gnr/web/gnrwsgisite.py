@@ -223,7 +223,7 @@ class GnrWsgiSite(object):
         
 
         
-    def __init__(self, script_path, site_name=None, _config=None, _gnrconfig=None, counter=None, noclean=None,options=None):
+    def __init__(self, script_path, site_name=None, _config=None, _gnrconfig=None, counter=None, noclean=None, options=None):
         global GNRSITE
         GNRSITE = self
         counter = int(counter or '0')
@@ -259,7 +259,7 @@ class GnrWsgiSite(object):
             self.homepage = '%s%s'%(self.default_uri,self.homepage)
         self.secret = self.config['wsgi?secret'] or 'supersecret'
         self.config['secret'] = self.secret
-        self.debug = boolean(options and getattr(options,'debug',False) or self.config['wsgi?debug'])
+        self.debug = options.debug if options else self.config['wsgi?debug']
         self.cache_max_age = self.config['wsgi?cache_max_age'] or 2592000
         self.statics=StaticHandlerManager(self)
         self.statics.addAllStatics()
