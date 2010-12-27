@@ -28,7 +28,7 @@ from gnr.core.gnrstructures import GnrStructData
 from gnr.core import gnrstring
 
 from copy import copy
-
+    
 class GnrDomSrcError(Exception):
     pass
     
@@ -66,10 +66,15 @@ class GnrDomSrc(GnrStructData):
         fnamelower=fname.lower()
         if (fname != fnamelower) and hasattr(self,fnamelower) :
             return getattr(self,fnamelower)
-        elif fnamelower in self.genroNameSpace:
+        if fnamelower in self.genroNameSpace:
             return GnrDomElem(self,'%s' % (self.genroNameSpace[fnamelower]))
-        else:
-            raise AttributeError("object has no attribute '%s'" % fname)
+            
+        handler=self.page.structMethod(fname)
+        if handler:
+            return lambda *args, **kwargs: handler(self, *args, **kwargs)
+
+            
+        raise AttributeError("object has no attribute '%s'" % fname)
             
     def child(self, tag, name=None, envelope=None, **kwargs):
         if 'fld' in kwargs:
