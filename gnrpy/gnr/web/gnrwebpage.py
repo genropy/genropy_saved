@@ -67,7 +67,6 @@ class GnrWebPageException(GnrException):
 
 class GnrWebPage(GnrBaseWebPage):
     
-    
     def __init__(self, site=None, request=None, response=None, request_kwargs=None, request_args=None, filepath = None, packageId = None, basename = None,environ=None):
         self.site = site
         self.user_agent=request.user_agent
@@ -563,13 +562,13 @@ class GnrWebPage(GnrBaseWebPage):
             return self._parentdirpath
     parentdirpath = property(_get_parentdirpath)
     
-    def _get_subscribedTablesDict(self):
+    @property
+    def subscribedTablesDict(self):
         """return a dict of subscribed tables. any element is a list
            of page_id that subscribe that page"""
         if not hasattr (self, '_subscribedTablesDict'):
             self._subscribedTablesDict=self.db.table('adm.served_page').subscribedTablesDict()
         return self._subscribedTablesDict
-    subscribedTablesDict = property(_get_subscribedTablesDict)
     
     @property
     def application(self):
@@ -1070,7 +1069,13 @@ class GnrWebPage(GnrBaseWebPage):
         serverpath='_sqlctx.columns.%s'%path
         clientpath ='gnr.sqlctx.columns.%s' %path
         self.addToContext(value=joincolumns,serverpath=serverpath, clientpath =clientpath )
-                    
+        
+    def structMethod(self,method):
+        for prefix in self.struct_prefixes:
+            handler = getattr(self,'%s_%s' %(prefix,method),None)
+            if handler:
+                return handler
+    
     ##### BEGIN: DEPRECATED METHODS ###
     @deprecated
     def _get_config(self):
