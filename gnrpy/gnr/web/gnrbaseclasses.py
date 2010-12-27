@@ -58,19 +58,25 @@ class BaseComponent(object):
         if py_requires:
             if site:
                 site.page_pyrequires_mixin(self, py_requires)
-            else:
+            elif hasattr(self,'_pyrequiresMixin'):
                 self._pyrequiresMixin(py_requires)
-    
+   
     @classmethod
     def __on_class_mixin__(cls, _mixintarget, **kwargs):
         js_requires = [x for x in splitAndStrip(getattr(cls, 'js_requires', ''),',') if x]
         css_requires = [x for x in splitAndStrip(getattr(cls, 'css_requires', ''),',') if x]
+        component_prefix = getattr(cls,'component_prefix',None)
+        if component_prefix:
+            if not hasattr(_mixintarget,'struct_prefixes'):
+                _mixintarget.struct_prefixes = set()
+            _mixintarget.struct_prefixes.add(component_prefix)
         for css in css_requires:
             if css and not css in _mixintarget.css_requires:
                 _mixintarget.css_requires.append(css)
         for js in js_requires:
             if js and not js in _mixintarget.js_requires:
                 _mixintarget.js_requires.append(js)
+                
     
     @classmethod
     def __py_requires__(cls, target_class, **kwargs):
