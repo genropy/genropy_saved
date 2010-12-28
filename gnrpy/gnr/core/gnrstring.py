@@ -409,7 +409,7 @@ def split(path,sep='.'):
             gr = res.groups()
             nextPos = res.end()
             if gr[1]=="": #End of string
-                if wch: raise  "wrong level: missing :"+wch.pop()
+                if wch: raise  ValueError("wrong level: missing :"+wch.pop())
                 foundsep=True
                 blockLen=res.end()
                 
@@ -430,7 +430,7 @@ def split(path,sep='.'):
                     elif char=='[' :wch.append(']')
                     elif char in '])' :
                         if char==wch[-1]:wch.pop()
-                        else: raise  "wrong level: missing :"+wch.pop()
+                        else: raise ValueError("wrong level: missing :"+wch.pop())
                 
         result.append(path[startpos:blockLen])
         start = nextPos

@@ -2,6 +2,8 @@
 from gnr.core import gnrstring
 import datetime
 
+import pytest
+
 def test_getUntil():
     """docstring for test_getUntil"""
     assert gnrstring.getUntil('teststring', 'st') == 'te'
@@ -101,6 +103,9 @@ def test_split():
     """docstring for test_split"""
     assert gnrstring.split('here.you.are') == ['here','you','are']
     assert gnrstring.split('here/you/are','/') == ['here','you','are']
+    assert gnrstring.split('here/(you/are)/again','/') == ['here','(you/are)','again']
+    with pytest.raises(ValueError):
+        gnrstring.split('(Something is wrong/here','/')
     
 def test_smartjoin():
     """docstring for test_smartjoin"""
