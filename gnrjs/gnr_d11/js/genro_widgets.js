@@ -3744,8 +3744,10 @@ dojo.declare("gnr.widgets.dbBaseCombo",gnr.widgets.BaseCombo,{
     creating: function(attributes, sourceNode){
         var savedAttrs = {};
         var hasDownArrow;
-        if (!attributes.hasDownArrow){
-            attributes.hasDownArrow=false;
+        if (attributes.hasDownArrow){
+            attributes.limit=attributes.limit || 0;
+        }else{
+            attributes.hasDownArrow=false
         }
         var resolverAttrs = objectExtract(attributes,'method,dbtable,columns,limit,condition,alternatePkey,auxColumns,hiddenColumns,rowcaption,order_by,selectmethod,weakCondition,storename');
         var selectedColumns = objectExtract(attributes,'selected_*');
