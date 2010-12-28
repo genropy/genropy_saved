@@ -69,7 +69,7 @@ class FlibPicker(FlibBase):
     def flibPicker(self,pane,pickerId=None,datapath=None,title=None,rootpath=None,
                   centerOn=None,limit_rec_type=None,dockTo=None,**kwargs):
         """"""
-        dockTo = dockTo or 'pbl_dock'
+        dockTo = dockTo or 'default_dock'
         pane = pane.floatingPane(title=title or "!!File picker",
                                 height='400px',width='600px',nodeId=pickerId,
                                 top='100px',left='100px',
