@@ -1467,6 +1467,15 @@ table.draggedItem{
 }
 /* @end */
 
+/* @group dbselect */
+.tundra .dijitMenuItem{
+    border-bottom: 1px solid #F0F0F7;
+    font: menu;
+    font-size: 0.8em;
+    line-height: 0.9em;
+    margin: 0;
+}
+/* @end */
 
 
 /* @group beautiful buttons */
