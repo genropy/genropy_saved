@@ -9,25 +9,16 @@ from gnr.core.gnrstring import splitAndStrip,fromJson
 from gnr.core.gnrbag import DirectoryResolver
 
 class ExplorerManager(BaseComponent):
-    py_requires ='gnrcomponents/htablehandler:HTableHandlerBase'
+    py_requires ='gnrcomponents/htablehandler:HTableHandlerBase,gnrcomponents/palette_manager:PaletteManager'
     def onMain_explorer_manager(self):
         explorers = getattr(self,'explorers',None)
         if explorers:
             self.expmng_main(explorers)
-    
-    def expmng_draggable_types(self):
-        return ','.join(['%s_item' %n.split('_',1)[1] for n in dir(self) if n.startswith('onDroppedItem_')])
        
     def expmng_main(self,explorers):
         explorer_to_create = splitAndStrip(explorers,',')
         pane = self.pageSource()
-        floating = pane.floatingPane(title='!!Explorers',height='400px',width='300px',
-                        top='100px',right='100px',closable=False,resizable=True,persist=True,
-                        nodeId='gnr_explorer_floating',
-                        dockable=True,dockTo='pbl_dock',_class='shadow_4',visibility='hidden',
-                        datapath='gnr.explorers')
-        tc = floating.tabContainer(margin='2px',selectedPage='^.selected_explorer')
-        tc.dataController("SET .selected_explorer=show_explorer[0];",subscribe_show_explorer=True)
+        pg = pane.paletteGroup('gnr_explorer',title='!!Explorers',dockTo='pbl_dock')
         for explorer in explorer_to_create:
             explorer_pars=None
             if ' AS ' in explorer:
@@ -41,9 +32,8 @@ class ExplorerManager(BaseComponent):
             if not explorer_code:
                 explorer_code = explorer.replace('.','_').replace('@','_')
             handler= getattr(self,'explorer_'+explorer,None)
-            pane=tc.contentPane(title=explorer,pageName=explorer_code,datapath='.%s' %explorer_code).contentPane(detachable=True)
             if handler:
-                handler(pane,explorer_pars,explorer_code=explorer_code)
+                data,metadata = handler(explorer_pars,explorer_code=explorer_code)
             else:
                 if explorer_pars:
                     explorer_pars = fromJson(explorer_pars.replace("'",'"'))
@@ -52,13 +42,13 @@ class ExplorerManager(BaseComponent):
                         kw[str(k)] = v
                 else:
                     kw = dict()
-                self.expmng_htableExplorer(pane,explorer_table=explorer,explorer_code=explorer_code,**kw)
+                data,metadata = self.expmng_htableExplorer(explorer_table=explorer,**kw)
+            pg.paletteTree(explorer_code,title=metadata.pop('title',explorer),data=data,**metadata)
+
         
     
-    def expmng_htableExplorer(self,pane,explorer_table=None,explorer_code=None,**kwargs):
+    def expmng_htableExplorer(self,explorer_table=None,**kwargs):
         tblobj = self.db.table(explorer_table)
-        title=tblobj.name_long
-        pane.attributes['title'] = title
         related_field = None
         related_table = None
         if '@' in explorer_table:
@@ -66,31 +56,14 @@ class ExplorerManager(BaseComponent):
             related_table = '%s.%s' %(pkg,related_table)
             related_table_obj = self.db.table(related_table)
             explorer_table = related_table_obj.column(related_field).parent.fullname
-        data = self.ht_treeDataStore(table=explorer_table,
+        return self.ht_treeDataStore(table=explorer_table,
                                     related_table=related_table,
                                     relation_path=related_field,
-                                    rootcaption=tblobj.name_plural,**kwargs)
-        self.expmng_make_explorer(pane,data,explorer_code=explorer_code)        
+                                    rootcaption=tblobj.name_plural,**kwargs),dict(title=tblobj.name_long)
                 
-    def expmng_make_explorer(self,pane,data,explorer_code=None):
-        pane.data('.data',data)
-        pane.tree(storepath='.data',
-                labelAttribute='caption',
-                 _class='fieldsTree',
-                 hideValues=True,
-                 margin='6px',
-                 font_size='.9em',
-                 draggable=True,
-                 onDrag=""" if(treeItem.attr.child_count && treeItem.attr.child_count>0){
-                                return false;
-                            }
-                            dragValues['text/plain']=treeItem.attr.caption;
-                           dragValues['explorer_%s']=treeItem.attr;""" %explorer_code)
                            
-    def explorer_directory(self,pane,path=None,explorer_code=None):
-        path = path or '/'
-        pane.attributes['title'] = 'Directory:"%s"'%path
-        self.expmng_make_explorer(pane,DirectoryResolver(path)(),explorer_code=explorer_code)
+    def explorer_directory(self,path=None):
+        return DirectoryResolver(path or '/')(),dict(title='Directory: %s' %path)
         
     def tableTreeResolver(self,table=None,where=None,group_by=None,**kwargs):
         tblobj = self.db.table(table)
@@ -104,5 +77,5 @@ class ExplorerManager(BaseComponent):
     def tableTreeExplorer(self,pane,table=None,where=None,group_by=None,explorer_code=None,**kwargs):
         data=self.tableTreeResolver(table=table,where=where,group_by=group_by,**kwargs)()
         explorer_code = explorer_code or table.replace('.','_')
-        self.expmng_make_explorer(pane,data,explorer_code=explorer_code)
+        pane.paletteTree(explorer_code,data=data)
         

@@ -244,7 +244,7 @@ class Public(BaseComponent):
         
 
         center = bc.contentPane(region='center',nodeId='pbl_bottomBarCenter')        
-        center.dock(id='pbl_dock',background='none',border=0,float='left',margin_left='4px')
+        center.dock(id='default_dock',background='none',border=0,float='left',margin_left='4px')
         return dict(left=left,right=right,center=center)        
     
     def pbl_batch_floating(self,pane):

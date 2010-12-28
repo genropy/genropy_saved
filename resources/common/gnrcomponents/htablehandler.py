@@ -120,7 +120,6 @@ class HTableResolver(BagResolver):
         return BagResolver.resolverSerialize(self)
         
 class HTableHandlerBase(BaseComponent):
-    
     def ht_treeDataStore(self,table=None,rootpath=None,
                         related_table=None,
                         relation_path=None,
