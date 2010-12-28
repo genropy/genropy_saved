@@ -1071,8 +1071,8 @@ class GnrWebPage(GnrBaseWebPage):
         self.addToContext(value=joincolumns,serverpath=serverpath, clientpath =clientpath )
         
     def structMethod(self,method):
-        for prefix in self.struct_prefixes:
-            handler = getattr(self,'%s_%s' %(prefix,method),None)
+        for namespace in self.struct_namespaces:
+            handler = getattr(self,'%s_%s' %(namespace,method),None)
             if handler:
                 return handler
     

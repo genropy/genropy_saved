@@ -65,11 +65,11 @@ class BaseComponent(object):
     def __on_class_mixin__(cls, _mixintarget, **kwargs):
         js_requires = [x for x in splitAndStrip(getattr(cls, 'js_requires', ''),',') if x]
         css_requires = [x for x in splitAndStrip(getattr(cls, 'css_requires', ''),',') if x]
-        component_prefix = getattr(cls,'component_prefix',None)
-        if component_prefix:
-            if not hasattr(_mixintarget,'struct_prefixes'):
-                _mixintarget.struct_prefixes = set()
-            _mixintarget.struct_prefixes.add(component_prefix)
+        namespace = getattr(cls,'namespace',None)
+        if namespace:
+            if not hasattr(_mixintarget,'struct_namespaces'):
+                _mixintarget.struct_namespaces = set()
+            _mixintarget.struct_namespaces.add(namespace)
         for css in css_requires:
             if css and not css in _mixintarget.css_requires:
                 _mixintarget.css_requires.append(css)
