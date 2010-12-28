@@ -1126,7 +1126,12 @@ dojo.declare("gnr.widgets.FloatingPane",gnr.widgets.baseDojo,{
         this._dojotag = 'FloatingPane';
         genro.dom.loadCss("/_dojo/11/dojo/dojox/layout/resources/FloatingPane.css");
         genro.dom.loadCss("/_dojo/11/dojo/dojox/layout/resources/ResizeHandle.css");
+    },
+
+    created: function(widget, savedAttrs, sourceNode){
+        widget._startZ = 10000;
     }
+
 });   
 
 
@@ -1141,6 +1146,7 @@ dojo.declare("gnr.widgets.ColorPalette",gnr.widgets.baseDojo,{
             return;
         });
     },
+    
    mixin_setValue:function(value){
        this.value=value;
    },
@@ -2773,7 +2779,10 @@ dojo.declare("gnr.widgets.VirtualStaticGrid",gnr.widgets.Grid,{
         }
         this.filtered.push(index);
     },
-    mixin_applyFilter: function(filtered_value, rendering){
+    mixin_applyFilter: function(filtered_value, rendering,filterColumn){
+        if(filterColumn){
+            this.filterColumn = filterColumn;
+        }
         var cb;
         this.excludeList = null;
         if (this.excludeListCb){
