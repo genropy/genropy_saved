@@ -1249,7 +1249,7 @@ table.formbuilder {
 /* @end */
 
 .tundra .dojoxFloatingPane{
-    z-index:10000 !important;
+    /*z-index:10000 !important;*/
 }
 /* @end */
 
