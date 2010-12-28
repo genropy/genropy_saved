@@ -4,38 +4,67 @@
 # Created by Francesco Porcari on 2010-12-27.
 # Copyright (c) 2010 Softwell. All rights reserved.
     
-
+from gnr.core.gnrbag import Bag
 
 "Palettes"
 class GnrCustomWebPage(object):
     py_requires="gnrcomponents/testhandler:TestHandlerFull,gnrcomponents/palette_manager"
+    css_requires='public'
 
     def windowTitle(self):
         return 'Palette manager'
-         
-    def test_0_common(self,pane):
-        pane.div(height='30px').dock(id='mydock')
-        
-         
-
+    
     def test_1_palette(self,pane):
-        pg = pane.paletteGroup('second',dockTo='mydock')
+        pane.div(height='30px').dock(id='mydock_1')
+        pg = pane.paletteGroup('first',dockTo='mydock_1')
         pg.palettePane('aa',title='aa',background_color='pink').div('aaa')
         pg.palettePane('bb',title='bb',background_color='red').div('bb')
+        pg = pane.paletteGroup('second',dockTo='mydock_1')
+        pg.palettePane('uu',title='uuu',background_color='yellow').div('uuu')
+        pg.palettePane('ee',title='eeee',background_color='cream').div('eeeee')
+        pane.palettePane('xx',title='xx',background_color='orange',dockTo='mydock_1').div('xx')
+        pane.palettePane('zz',title='zz',background_color='lime',dockTo='mydock_1').div('zz')
     
-    def test_2_palette_nogroup(self,pane):
-        pane.palettePane('cc',title='cc',background_color='orange',dockTo='mydock').div('cc')
+    def test_2_treepalette(self,pane):
+        pane.div(height='30px').dock(id='mydock_2')
+        pg = pane.paletteGroup('second',dockTo='mydock_2')
+        pg.paletteTree('mytree',title='State',data=self.treedata())
+        pg.palettePane('blue',title='aa',background_color='blue').div('blu')
 
-       #pg.paletteTree(title='bb').div('bb')
-       #pg.paletteGrid(title='bb').div('bb')
+        
+    def test_3_gridpalette(self,pane):
+        pane.div(height='30px').dock(id='mydock_3')
+        pane.input(type='search',results=10)
 
-       #self.paletteTree(pg,title='bb')
-       #self.paletteGrid(pg,title='bb')
- #    
- # 
- # def _test_2_palette(self,pane):
- #     palette = self.paletteGrid('second',dockTo='mydock')
- #     self.palette.paletteTree(palette,title='aa',background_color='pink').div('aaa')
- #     self.palettePane(palette,title='bb').div('bb')
- # 
+        pg = pane.paletteGroup('third',dockTo='mydock_3')
+        pg.paletteGrid('mygrid',title='States',data=self.treedata(),struct=self.gridstruct,filterOn='Caption:caption')
+        #pg.palettePane('blue',title='aa',background_color='blue').div('blu')
 
+
+    def treedata(self):
+        result=Bag()
+        result.setItem('r1',None,code='CA',caption='California')
+        result.setItem('r1.a1',None,code='SD',caption='San Diego')
+        result.setItem('r1.a2',None,code='SF',caption='San Francisco')
+        result.setItem('r1.a3',None,code='SF',caption='Los Angeles')
+        result.setItem('r2',None,code='IL',caption='Illinois')
+        result.setItem('r4',None,code='TX',caption='Texas')
+        result.setItem('r4.a1',None,code='HU',caption='Huston')
+        result.setItem('r5',None,code='AL',caption='Alabama')
+        return result
+    
+    def griddata(self):
+        result=Bag()
+        result.setItem('r1',None,code='CA',caption='California')
+        result.setItem('r2',None,code='IL',caption='Illinois',disabled=True)
+        result.setItem('r3',None,code='NY',caption='New York',checked='^.checked')
+        result.setItem('r4',None,code='TX',caption='Texas',disabled='^.disabled')
+        result.setItem('r5',None,code='AL',caption='Alabama')
+        return result
+    
+    def gridstruct(self,struct):
+        r = struct.view().rows()
+        r.cell('code', name='Code', width='2em')
+        r.cell('caption', name='Caption', width='15em')
+
+        

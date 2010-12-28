@@ -45,7 +45,7 @@ class GnrCustomWebPage(object):
 
     def test_2_remote_includedview_db(self,pane):
         bc = pane.borderContainer(height='300px')
-        self.includedViewBox(bc,label='Test',datapath='.test_db',
+        self.includedViewBox(bc,label='Test',datapath='.test_db',filterOn='auto:sigla+nome+codice+regione',
                              nodeId='test_db',table='glbl.provincia',autoWidth=True,
                               _onStart=True,selectionPars=dict(order_by='$nome'))
 
