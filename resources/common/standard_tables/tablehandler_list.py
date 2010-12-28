@@ -337,12 +337,17 @@ class TableHandlerForm(BaseComponent):
                                 """,
                                 view_id="^list.view_id",selectionName='=list.selectionName')
         
-        pane.dataController("""    
-                                   SET selectedPage=1;
-                                   SET list.query.pkeys=initialPkey;
-                                  FIRE list.runQuery = true;
+        pane.dataController("""if((!initialPkey )&& (window.location.hash.indexOf('#pk_')==0)){
+                                    initialPkey=window.location.hash.slice(4)
+                                    SET initialPkey=initialPkey;
+                                }
+                                if(initialPkey ){
+                                    SET selectedPage=1;
+                                    SET list.query.pkeys=initialPkey;
+                                    FIRE list.runQuery = true;
+                                }
                                    """,
-                                 _onStart=1, initialPkey='=initialPkey', _if='initialPkey')
+                                 _onStart=.5, initialPkey='=initialPkey')
                                  
         pane.dataController("""var pkeys= genro.getData('list.'+dataset_name);
                                    if(pkeys){
