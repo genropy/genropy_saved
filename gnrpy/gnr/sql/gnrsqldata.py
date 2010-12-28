@@ -1202,7 +1202,7 @@ class SqlSelection(object):
         self.isChangedData = True
         
     def totalize(self, group_by=None, sum=None, collect=None, distinct=None,
-                       keep=None, key=None, captionCb=None, collectIdx=None,**kwargs):
+                       keep=None, key=None, captionCb=None, **kwargs):
         if group_by is None:
             self.analyzeBag = None
         else:
@@ -1217,7 +1217,7 @@ class SqlSelection(object):
                 keep = [x.replace('@','_').replace('.','_').replace('$','') if isinstance(x,basestring) else x for x in keep]
             self.analyzeKey = key
             self.analyzeBag.analyze(self, group_by=group_by, sum=sum, collect=collect,
-                                  distinct=distinct, keep=keep, key=key,captionCb=captionCb, collectIdx=collectIdx,**kwargs)
+                                  distinct=distinct, keep=keep, key=key,captionCb=captionCb, **kwargs)
         return self.analyzeBag
   
     @deprecated
