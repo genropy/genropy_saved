@@ -19,8 +19,6 @@
 #Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 
 from gnr.web.gnrbaseclasses import BaseComponent
-from gnr.core.gnrbag import Bag
-from gnr.core.gnrstring import splitAndStrip
 from gnr.core.gnrdict import dictExtract
 
 class IncludedView(BaseComponent):
@@ -29,7 +27,7 @@ class IncludedView(BaseComponent):
     """
     css_requires = 'public'
     js_requires = 'public'
-    py_requires ='gnrcomponents/grid_configurator/grid_configurator:GridConfigurator'
+    py_requires ='gnrcomponents/grid_configurator/grid_configurator:GridConfigurator,foundation/macrowidgets:FilterBox'
     
     def includedViewBox(self,parentBC,nodeId=None,table=None,datapath=None,
                         storepath=None,selectionPars=None,formPars=None,label=None,caption=None,footer=None,
@@ -161,7 +159,7 @@ class IncludedView(BaseComponent):
                 dropmode = 'dropTarget_%s' %mode
                 viewPars[dropmode] = '%s,%s' %(viewPars[dropmode],explorer) if dropmode in viewPars else explorer
                 viewPars['onDrop_explorer_%s' %explorer] = 'FIRE .dropped_%s = data' %explorer
-                viewPars['onCreated'] = """dojo.connect(widget,'_onFocus',function(){genro.publish("show_explorer","%s")})""" %explorer #provo?si
+                viewPars['onCreated'] = """dojo.connect(widget,'_onFocus',function(){genro.publish("show_palette_%s")})""" %explorer #provo?si
                 # 
         controllerPath = datapath or 'grids.%s' %gridId
         storepath = storepath or '.selection'
@@ -191,8 +189,7 @@ class IncludedView(BaseComponent):
             gridtop_right = gridtop.div(float='right')
             if filterOn:
                 gridtop_filter = gridtop_right.div(float='left',margin_right='5px')
-                self._iv_gridFilter(gridId, gridtop_filter,
-                                    controller, controllerPath, filterOn,table, kwargs)
+                self.gridFilterBox(gridtop_filter,gridId=gridId,filterOn=filterOn,table=table)
             if print_action or export_action or tools_menu or tools_action or pdf_action:
                 gridtop_actions = gridtop_right.div(float='left',margin_right='5px')
                 self._iv_gridAction(gridtop_actions,print_action=print_action,export_action=export_action,
@@ -432,48 +429,7 @@ class IncludedView(BaseComponent):
        #                             PUT .selectedLabel= null;""",
        #                          _fired="^gnr.forms.formPane.saving")
 
-    def _iv_gridFilter(self, gridId, gridtop, controller, controllerPath, filterOn, table,kwargs):
-        colsMenu = Bag()
-        if filterOn is True:
-            fltList = []
-            controller.dataController("""""", struct= '^.')
-        else:
-            fltList = splitAndStrip(filterOn, ',')
-        for col in fltList:
-            caption = None
-            if ':' in col:
-                caption, col = col.split(':')
-            if not caption: # ask the caption to the table: table has to be specified in kwargs and the col has to be a single real db column (not list of columns)
-                caption = self.db.table(table).column(col).name_long
-            colList = splitAndStrip(col, '+')
-            col = '+'.join([self.db.colToAs(c) for c in colList])
-            colsMenu.child('r', col=col, caption=caption,childcontent='')
-        controller.data('.flt.selected.col', colsMenu['#0?col'])
-        controller.data('.flt.selected.caption', colsMenu['#0?caption'])
-        searchbox = gridtop.div(float='right', margin_right='5px')
-        searchlbl = searchbox.div(float='left',margin_top='2px')
-        controller.dataController("""var grid = genro.wdgById(gridId);
-                                        SET .currentFilter = "";
-                                        grid.filterColumn = col;
-                                        grid.applyFilter("");""",
-                                        col='^.flt.selected.col',
-                                        gridId=gridId, _onStart=True)
-
-        controller.dataController("""var grid = genro.wdgById(gridId); 
-                                     SET .currentFilter=''; 
-                                     grid.applyFilter("");""",
-                                     gridId=gridId,_fired='^.resetFilter',
-                                     nodeId='%s_filterReset' %gridId)
-
-        controller.data('.flt.colsMenu', colsMenu, automenu=(filterOn is True))
-        searchlbl.span(value='^.flt.selected.caption',_class='buttonIcon')
-        searchlbl.menu(modifiers='*', _class='smallmenu', storepath='.flt.colsMenu',
-                    selected_col='.flt.selected.col',
-                    selected_caption='.flt.selected.caption')
-
-        searchbox.input(value='^.currentFilter',_class='searchInput searchWidth', font_size='1.0em',
-            connect_onkeyup='genro.wdgById("%s").applyFilter($1.target.value);' % gridId)
-
+        
     def _includedViewForm(self, controller, controllerPath, view, formPars):
         viewPars = view.attributes
         gridId = viewPars['nodeId']

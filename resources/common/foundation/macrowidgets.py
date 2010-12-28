@@ -22,6 +22,8 @@
 Component for thermo:
 """
 from gnr.web.gnrbaseclasses import BaseComponent
+from gnr.core.gnrstring import splitAndStrip
+from gnr.core.gnrbag import Bag
 import datetime
 from gnr.core.gnrlocale import DATEKEYWORDS
 
@@ -188,3 +190,62 @@ class RichTextEditor(BaseComponent):
                    ['Source','-','Bold', 'Italic', '-', 'NumberedList', 'BulletedList', '-','Image','Table','HorizontalRule','PageBreak'],
                    ['JustifyLeft','JustifyCenter','JustifyRight','JustifyBlock'],
                    ['Styles','Format','Font','FontSize','TextColor','BGColor']]"""
+                   
+class FilterBox(BaseComponent):
+    def _prepareFilterMenu(self,filterOn):
+        colsMenu = Bag()
+        fltList = splitAndStrip(filterOn, ',')
+        for col in fltList:
+            caption = col
+            if ':' in col:
+                caption, col = col.split(':')
+            colsMenu.child('r', col=col, caption=caption,childcontent='')
+        print colsMenu
+        return colsMenu
+        
+            
+    def filterBox(self, pane,datapath=None,nodeId=None,filterOn=None):
+        """.filter
+                field
+                caption
+                value
+                current_value
+                types
+                """
+        
+        filterstore = datapath or '.filter'
+        colsMenu = self._prepareFilterMenu(filterOn)
+        searchbox = pane.div(datapath=filterstore,nodeId=nodeId)
+        searchlbl = searchbox.div(float='left',margin_top='2px')
+        searchlbl.data('.field', colsMenu['#0?col'])
+        searchlbl.data('.caption', colsMenu['#0?caption'])
+        searchlbl.data('.types',colsMenu)
+        searchlbl.span(value='^.caption',_class='buttonIcon')
+        searchlbl.menu(modifiers='*', _class='smallmenu', storepath='.types',
+                    selected_col='.field',
+                    selected_caption='.caption')
+
+        searchbox.input(value='^.value',_class='searchInput searchWidth', font_size='1.0em',
+            connect_onkeyup="FIRE .current_value = $1.target.value;" )       
+    
+    def gridFilterBox(self,pane,gridId=None,datapath=None,filterOn=None,table=None,**kwargs):
+        fltList = splitAndStrip(filterOn, ',')
+        cols = []
+        for col in fltList:
+            caption = None
+            if ':' in col:
+                caption, col = col.split(':')
+            if not caption: 
+                caption = self.db.table(table).column(col).name_long
+            colList = splitAndStrip(col, '+')
+            col = '+'.join([self.db.colToAs(c) for c in colList])
+            cols.append('%s:%s' %(caption,col))        
+        self.filterBox(pane.div(float='right', margin_right='5px'),filterOn=','.join(cols),
+                        datapath=datapath or '.filter',**kwargs)
+        filtercontroller = pane.dataController(datapath=".filter")
+        filtercontroller.dataController('genro.wdgById(gridId).applyFilter(value,null,field);', 
+                                       gridId=gridId,value="^.current_value",field='=.field')
+        filtercontroller.dataController('genro.wdgById(gridId).applyFilter('',null,field);', 
+                                       gridId=gridId,field='^.field')
+         
+                       
