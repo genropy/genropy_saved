@@ -28,7 +28,30 @@ from gnr.core.gnrstructures import GnrStructData
 from gnr.core import gnrstring
 
 from copy import copy
-    
+
+def struct_method(*args):
+    def register(func,key=None):
+        fname=func.__name__
+        key = key or fname.split('_',1)[1]
+        if key in GnrDomSrc._external_methods:
+            print 'WARNING: already existing struct_method %s' %fname
+        else:
+            GnrDomSrc._external_methods[key] = fname
+    if len(args)> 0 and not isinstance(args[0],basestring):
+        func = args[0]
+        register(func)
+        def decore(*args,**kwargs):
+            return func (*args,**kwargs)
+        return decore
+    else:
+        key=args[0] if len(args)>0 else None
+        def decore(func):
+            register(func,key or func.__name__)
+            def wrapper(*arg,**kw):
+                return func(*arg,**kw)
+            return wrapper
+        return decore
+
 class GnrDomSrcError(Exception):
     pass
     
@@ -43,6 +66,7 @@ class GnrDomElem(object):
         
 class GnrDomSrc(GnrStructData):
     """GnrDomSrc class"""
+    _external_methods = dict()
     def makeRoot(cls, page, source=None):
         root=GnrStructData.makeRoot(source=source, protocls=cls)
         #root._page=weakref.ref(page)
@@ -68,9 +92,8 @@ class GnrDomSrc(GnrStructData):
             return getattr(self,fnamelower)
         if fnamelower in self.genroNameSpace:
             return GnrDomElem(self,'%s' % (self.genroNameSpace[fnamelower]))
-            
-        handler=self.page.structMethod(fname)
-        if handler:
+        if fname in self._external_methods:
+            handler = getattr(self.page,self._external_methods[fname])
             return lambda *args, **kwargs: handler(self, *args, **kwargs)
 
             
@@ -454,7 +477,7 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
             rows.fields(columns)
         elif callable(struct) and not isinstance(struct,Bag):
             struct_cb = struct
-            struct = self.page.newGridStruct(maintable=table)
+            struct = self.page.newGridStruct(maintable=table or getattr(struct_cb,'table',None))
             struct_cb(struct)
         if struct:
             self.data(structpath,struct)
