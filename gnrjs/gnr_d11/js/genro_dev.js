@@ -229,6 +229,7 @@ dojo.declare("gnr.GnrDevHandler",null,{
         treeattr.getIconClass='if(node.attr.dtype){return "icnDtype_"+node.attr.dtype}';                                       
         fpane._('tree',treeattr);
         node.unfreeze();
+        fpane.getParentNode().widget.bringToTop();
     },
         
     openInspector:function(){
