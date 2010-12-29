@@ -200,7 +200,6 @@ class FilterBox(BaseComponent):
             if ':' in col:
                 caption, col = col.split(':')
             colsMenu.child('r', col=col, caption=caption,childcontent='')
-        print colsMenu
         return colsMenu
         
             
