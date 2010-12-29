@@ -13,7 +13,10 @@ class GnrCustomWebPage(object):
 
     def windowTitle(self):
         return 'Palette manager'
-    
+        
+    def test_0_default_dock(self,pane):
+        pane.div(height='30px').dock(id='default_dock')
+        
     def test_1_palette(self,pane):
         pane.div(height='30px').dock(id='mydock_1')
         pg = pane.paletteGroup('first',dockTo='mydock_1')
@@ -22,7 +25,7 @@ class GnrCustomWebPage(object):
         pg = pane.paletteGroup('second',dockTo='mydock_1')
         pg.palettePane('uu',title='uuu',background_color='yellow').div('uuu')
         pg.palettePane('ee',title='eeee',background_color='cream').div('eeeee')
-        pane.palettePane('xx',title='xx',background_color='orange',dockTo='mydock_1').div('xx')
+        pane.palettePane('xx',title='xx',background_color='orange').div('xx')
         pane.palettePane('zz',title='zz',background_color='lime',dockTo='mydock_1').div('zz')
     
     def test_2_treepalette(self,pane):
@@ -31,7 +34,6 @@ class GnrCustomWebPage(object):
         pg.paletteTree('mytree',title='State',data=self.treedata())
         pg.palettePane('blue',title='aa',background_color='blue').div('blu')
 
-        
     def test_3_gridpalette(self,pane):
         pane.div(height='30px').dock(id='mydock_3')
         pane.input(type='search',results=10)
