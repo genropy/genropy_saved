@@ -66,7 +66,7 @@ var genro_plugin_grid_configurator = {
 
         var grid = gridSourceNode.widget;
         dojo.connect(grid, 'postrender', function(){
-            menu_wdg.bindDomNode(grid.views.views[0].headerNode);
+            dijit.byId(menuId).bindDomNode(grid.views.views[0].headerNode);
         });
     },
     
