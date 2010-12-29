@@ -37,14 +37,13 @@ class PaletteManager(BaseComponent):
 
     def _pm_floatingPalette(self,pane,nodeId=None,title=None,dockTo=None,**kwargs):
         dockTo = dockTo or 'default_dock'
-        print dockTo
         return pane.floatingPane(nodeId=nodeId,dockTo=dockTo,title=title,
                                     dockable=True,closable=False,resizable=True,
                                     **self._pm_floating_kwargs(**kwargs))
                                     
     @struct_method
     def pm_palettePane(self,pane,paletteCode=None,title=None,dockTo=None,**kwargs):
-        groupCode = pane.parentNode.getInheritedAttributes().get('groupCode')
+        groupCode = pane.parentNode.getInheritedAttributes().get('groupCode',None)
         if groupCode:
             pane = pane.contentPane(title=title,pageName=paletteCode) 
             pane.dataController("SET gnr.palettes?%s = paletteCode;" %groupCode,paletteCode=paletteCode, **{'subscribe_show_palette_%s' %paletteCode:True})
