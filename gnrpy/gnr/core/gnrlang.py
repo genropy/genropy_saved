@@ -107,14 +107,19 @@ def timer_call(time_list=None,print_time=True):
             return res
         return wrapper
     return decore
-
+    
+def metadata(**kwargs):
+    def decore(func):
+        for k,v in kwargs.items():
+            setattr(func,k,v)
+        return func
+    return decore
 
 def getUuid():
     return base64.urlsafe_b64encode(uuid.uuid3(uuid.uuid1(),str(thread.get_ident())).bytes)[0:22]
 
 def safe_dict(d):
     return dict([(str(k), v) for k,v in d.items()])
-    
 
 def uniquify(seq):
     def seen_function(seq):
