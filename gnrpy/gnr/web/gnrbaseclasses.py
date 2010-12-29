@@ -103,6 +103,7 @@ class BaseWebtool(object):
     
 class TableScriptToHtml(BagToHtml):
     rows_table = None
+    virtual_columns = None 
     
     def __init__(self,page=None,resource_table=None,**kwargs):
         super(TableScriptToHtml, self).__init__(**kwargs)
@@ -120,7 +121,7 @@ class TableScriptToHtml(BagToHtml):
         if not record:
             return
         self.thermo_kwargs = thermo
-        record = self.tblobj.recordAs(record)
+        record = self.tblobj.recordAs(record,virtual_columns=self.virtual_columns)
         html_folder = self.getHtmlPath(autocreate=True)
         html = super(TableScriptToHtml, self).__call__(record=record,folder=html_folder,**kwargs)
         if not html:
