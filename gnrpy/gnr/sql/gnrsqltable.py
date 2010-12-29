@@ -375,7 +375,7 @@ class SqlTable(GnrObject):
         else:
             return record
         
-    def recordAs(self, record, mode='bag'):
+    def recordAs(self, record, mode='bag',virtual_columns=None):
         """Returns a record in the specified mode.
         
         It accepts and return a record as a bag, dict or primary pkey (as a string).
@@ -388,14 +388,14 @@ class SqlTable(GnrObject):
             if mode == 'pkey':
                 return record
             else:
-                return self.record(pkey = record, mode=mode)
+                return self.record(pkey = record, mode=mode,virtual_columns=virtual_columns)
         if mode=='pkey':
             # The record is either a dict or a bag, so it accepts indexing operations
             return record.get('pkey', None) or record.get(self.pkey)
         if mode=='dict' and not isinstance(record, dict):
             return dict([(k, v) for k,v in record.items() if not k.startswith('@')])
-        if mode=='bag' and not isinstance(record, Bag):
-            return self.record(pkey = record.get('pkey', None) or record.get(self.pkey), mode=mode)
+        if mode=='bag' and (virtual_columns or not isinstance(record, Bag)):
+            return self.record(pkey = record.get('pkey', None) or record.get(self.pkey), mode=mode,virtual_columns=virtual_columns)
         return record
             
         
