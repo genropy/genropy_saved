@@ -1129,7 +1129,7 @@ dojo.declare("gnr.widgets.FloatingPane",gnr.widgets.baseDojo,{
     },
 
     created: function(widget, savedAttrs, sourceNode){
-        widget._startZ = 10000;
+        widget._startZ = 600;
     }
 
 });   
@@ -1922,7 +1922,7 @@ dojo.declare("gnr.widgets.Grid",gnr.widgets.baseDojo,{
     
     creating_common: function(attributes, sourceNode){
         sourceNode.attr.nodeId = sourceNode.attr.nodeId || 'grid_' + sourceNode.getStringId();
-        sourceNode.gridControllerPath = sourceNode.attr.controllerPath? sourceNode.absDatapath():'grids.' + sourceNode.attr.nodeId;
+        sourceNode.gridControllerPath = sourceNode.attr.controllerPath? sourceNode.absDatapath(sourceNode.attr.controllerPath):'grids.' + sourceNode.attr.nodeId;
         if(sourceNode.attr.configurable){
             sourceNode.attr.selfDragColumns='trashable';
             var tablecode = sourceNode.attr.table.replace('.','_');
@@ -2009,6 +2009,7 @@ dojo.declare("gnr.widgets.Grid",gnr.widgets.baseDojo,{
         objectFuncReplace(widget.selection,'clickSelectEvent',function(e){
              this.clickSelect(e.rowIndex, e.ctrlKey || e.metaKey , e.shiftKey);
         });
+        dojo.subscribe(sourceNode.attr.nodeId+'_reload',widget,function(keep_selection){this.reload(keep_selection!==false)});
     },
     created: function(widget, savedAttrs, sourceNode){
         this.created_common(widget, savedAttrs, sourceNode);
