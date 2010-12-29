@@ -1070,12 +1070,6 @@ class GnrWebPage(GnrBaseWebPage):
         clientpath ='gnr.sqlctx.columns.%s' %path
         self.addToContext(value=joincolumns,serverpath=serverpath, clientpath =clientpath )
         
-    def structMethod(self,method):
-        for namespace in self.struct_namespaces:
-            handler = getattr(self,'%s_%s' %(namespace,method),None)
-            if handler:
-                return handler
-    
     ##### BEGIN: DEPRECATED METHODS ###
     @deprecated
     def _get_config(self):
