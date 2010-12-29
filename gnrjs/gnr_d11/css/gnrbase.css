@@ -716,6 +716,7 @@ table.formbuilder {
     width: 7px;
     height: 12px;
 }
+
 .smallmenu .dijitMenuItem {
     font-size: .85em !important;
 }
@@ -1162,6 +1163,12 @@ table.formbuilder {
     font-size:12px;
     padding: 0px;
 }
+.tundra .dijitDialog {
+    z-index:499;
+}
+.tundra .dijitDialogUnderlayWrapper{
+    z-index:498;
+}
 
 /* @group FileInput */
 
@@ -1248,9 +1255,6 @@ table.formbuilder {
 
 /* @end */
 
-.tundra .dojoxFloatingPane{
-    /*z-index:10000 !important;*/
-}
 /* @end */
 
 .waiting {
@@ -1385,7 +1389,7 @@ table.draggedItem{
 	width: 40px;
 	height: 40px;
 	position: absolute;
-	z-index:100;
+	z-index:900;
 	-moz-border-radius:8px;
     -webkit-border-radius:8px;
     border-radius:8px;
