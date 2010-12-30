@@ -242,9 +242,9 @@ class FilterBox(BaseComponent):
         self.filterBox(pane.div(float='right', margin_right='5px'),filterOn=','.join(cols),
                         datapath=datapath or '.filter',**kwargs)
         filtercontroller = pane.dataController(datapath=".filter")
-        filtercontroller.dataController('genro.wdgById(gridId).applyFilter(value,null,field);', 
+        filtercontroller.dataController('console.log("bbb");genro.wdgById(gridId).applyFilter(value,null,field);', 
                                        gridId=gridId,value="^.current_value",field='=.field')
-        filtercontroller.dataController('genro.wdgById(gridId).applyFilter('',null,field);', 
+        filtercontroller.dataController('console.log("aaa"); genro.wdgById(gridId).applyFilter("",null,field);', 
                                        gridId=gridId,field='^.field')
          
                        

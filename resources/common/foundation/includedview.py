@@ -45,7 +45,7 @@ class IncludedView(BaseComponent):
                         filterOn=None,pickerPars=None,centerPaneCb=None,
                         editorEnabled=None,parentLock='^status.locked',reloader=None,externalChanges=None,
                         addOnCb=None,zoom=True,hasToolbar=False,
-                        canSort=True,configurable=None,explorers=None,
+                        canSort=True,configurable=None,dropCodes=None,
                         **kwargs):
         """
         This method returns a grid (includedView) for viewing and selecting rows from a many
@@ -151,15 +151,15 @@ class IncludedView(BaseComponent):
             configurable = True
         gridId = nodeId or self.getUuid()
         viewPars['nodeId'] = gridId
-        if explorers:
-            for explorer in explorers.split(','):
+        if dropCodes:
+            for dropCode in dropCodes.split(','):
                 mode = 'grid'
-                if ':' in explorer:
-                    explorer,mode = explorer.split(':')
+                if ':' in dropCode:
+                    dropCode,mode = dropCode.split(':')
                 dropmode = 'dropTarget_%s' %mode
-                viewPars[dropmode] = '%s,%s' %(viewPars[dropmode],explorer) if dropmode in viewPars else explorer
-                viewPars['onDrop_explorer_%s' %explorer] = 'FIRE .dropped_%s = data' %explorer
-                viewPars['onCreated'] = """dojo.connect(widget,'_onFocus',function(){genro.publish("show_palette_%s")})""" %explorer #provo?si
+                viewPars[dropmode] = '%s,%s' %(viewPars[dropmode],dropCode) if dropmode in viewPars else dropCode
+                viewPars['onDrop_%s' %dropCode] = 'FIRE .dropped_%s = data' %dropCode
+                viewPars['onCreated'] = """dojo.connect(widget,'_onFocus',function(){genro.publish("show_palette_%s")})""" %dropCode #provo?si
                 # 
         controllerPath = datapath or 'grids.%s' %gridId
         storepath = storepath or '.selection'

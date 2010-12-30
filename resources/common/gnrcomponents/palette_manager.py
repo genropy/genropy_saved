@@ -58,7 +58,7 @@ class PaletteManager(BaseComponent):
                                 return false;
                             }
                             dragValues['text/plain']=treeItem.attr.caption;
-                           dragValues['explorer_%s']=treeItem.attr;""" %paletteCode)
+                           dragValues['%s']=treeItem.attr;""" %paletteCode)
         tree_kwargs.update(dictExtract(kwargs,'tree_',pop=True))
         pane = pane.palettePane(paletteCode=paletteCode,title=title,**kwargs)
         if data is not None:
@@ -70,7 +70,7 @@ class PaletteManager(BaseComponent):
     def pm_paletteGrid(self,pane,paletteCode=None,title=None,data=None,struct=None,
                 table=None,datamode=None,filterOn=None,configurable=None,**kwargs):
         grid_kwargs = dict(margin='6px',font_size='.9em',draggable_row=True,
-                            onDrag="""dragValues['explorer_%s']=dragInfo.row;""" %paletteCode)
+                            onDrag="""dragValues['%s']=dragInfo.row;""" %paletteCode)
         grid_kwargs.update(dictExtract(kwargs,'grid_',pop=True))
         pane = pane.palettePane(paletteCode=paletteCode,title=title,**kwargs)
         gridId = 'palette_%s_grid' %paletteCode

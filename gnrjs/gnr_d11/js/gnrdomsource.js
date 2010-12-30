@@ -113,7 +113,7 @@ dojo.declare("gnr.GnrDomSourceNode",gnr.GnrBagNode,{
             trigger_reason ='node';
         }
         var changed_container=(mydpath.indexOf(dpath+'.')==0);
-        if (changed_container){
+        if (changed_container && kw.updvalue){
             trigger_reason = 'container';
         }
         var changed_child=(dpath.indexOf(mydpath+'.')==0);
