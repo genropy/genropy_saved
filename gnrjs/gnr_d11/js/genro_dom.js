@@ -793,6 +793,7 @@ dojo.declare("gnr.GnrDomHandler",null,{
         
         if(dragInfo.sourceNode.getAttributeFromDatasource('detachable')){
             if(!event.shiftKey || sourceNode.attr.isDetached){
+                event.preventDefault();
                 return;
             }
         }
