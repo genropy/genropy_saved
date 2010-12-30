@@ -4480,10 +4480,60 @@ dojo.declare("gnr.widgets.protovis",gnr.widgets.baseHtml,{
         objectPop(attributes,'protovis');
     },
     created: function(newobj, savedAttrs, sourceNode){
-        var protovis=funcCreate(pv.parse(sourceNode.attr.protovis));
-        sourceNode.vis=protovis();
+        dojo.subscribe(sourceNode.attr.nodeId+'_render',this,function(){this.render(newobj)})
+    },
+    xxx:function(){
+        sourceNode.vis=new pv.Panel()
         sourceNode.vis.$dom=newobj;
+        if(sourceNode.attr.protovis){
+            var protovis=pv.parse(sourceNode.attr.protovis);
+            funcApply(protovis, objectUpdate({'vis':sourceNode.vis},sourceNode.currentAttributes()), sourceNode);
+            
+        }else if(sourceNode.attr.storepath){
+            var visbag=sourceNode.getAttributeFromDatasource('storepath')
+            sourceNode.vis=this.bnode(visbag.getNode('#0'))
+        }
+        var span=document.createElement('span')
+        newobj.appendChild(span)
+        
         sourceNode.vis.render();
+    
+    },
+    render:function(domNode){
+        sourceNode=domNode.sourceNode
+        var vis=new pv.Panel()
+        var span=document.createElement('span')
+        var fc=domNode.firstElementChild
+        if (fc){
+            domNode.replaceChild(span,fc)
+        }else{
+            domNode.appendChild(span)
+        }
+        
+        vis.$dom=span
+        var protovis=pv.parse(sourceNode.attr.protovis);
+        funcApply(protovis, objectUpdate({'vis':vis},sourceNode.currentAttributes()), sourceNode);
+        vis.render()            
+    },
+    bnode:function(node,parent){
+        var attr=objectUpdate(node.attr)
+        var tag=objectPop(attr,'tag')
+        if (!parent){
+            obj=new pv[tag]();
+        }else{
+            obj=parent.add(pv[tag])
+        }
+        for (var k in attr){
+            obj[k](attr[k])
+        }
+        var v=node.getValue();
+        _this=this
+        if (v instanceof gnr.GnrBag){
+            v.forEach(function(n){
+                _this.bnode(n,obj)
+            })
+        }
+        return obj
     }
 });
 dojo.declare("gnr.widgets.CkEditor",gnr.widgets.baseHtml,{
