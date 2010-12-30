@@ -36,8 +36,6 @@ class GnrCustomWebPage(object):
 
     def test_3_gridpalette(self,pane):
         pane.div(height='30px').dock(id='mydock_3')
-        pane.input(type='search',results=10)
-
         pg = pane.paletteGroup('third',dockTo='mydock_3')
         pg.paletteGrid('mygrid',title='States',data=self.treedata(),struct=self.gridstruct,filterOn='Caption:caption')
         #pg.palettePane('blue',title='aa',background_color='blue').div('blu')
