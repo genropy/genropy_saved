@@ -29,28 +29,58 @@ from gnr.core import gnrstring
 
 from copy import copy
 
-def struct_method(*args):
-    def register(func,key=None):
-        fname=func.__name__
-        key = key or fname.split('_',1)[1]
-        if key in GnrDomSrc._external_methods:
-            print 'WARNING: already existing struct_method %s' %fname
-        else:
-            GnrDomSrc._external_methods[key] = fname
-    if len(args)> 0 and not isinstance(args[0],basestring):
-        func = args[0]
-        register(func)
-        def decore(*args,**kwargs):
-            return func (*args,**kwargs)
-        return decore
+class StructMethodError(Exception):
+    pass
+
+def struct_method(func_or_name):
+    """A decorator to registers a new method (in a page or component) that will be available in web structs.
+    
+    @struct_method
+    def includedViewBox(self, bc, ...):
+        pass
+        
+    def somewhereElse(self, bc):
+        bc.includedViewBox(...)
+    
+    If your method name includes an underscore, only the part that follows the first underscore will be the struct method's name:
+    
+    @struct_method
+    def iv_foo(self, bc, ...):
+        pass
+        
+    def somewhereElse(self, bc):
+        bc.foo(...)
+        
+    You can also pass a name explicitly:
+    
+    @struct_method('bar')
+    def foo(self, bc, ...):
+        pass
+    
+    def somewhereElse(self, bc):
+        bc.bar(...)
+    
+    """
+    def register(name, func):
+        func_name = func.__name__
+        existing_name = GnrDomSrc._external_methods.get(name, None)
+        if existing_name and (existing_name != func_name):
+            # If you want to override a struct_method, be sure to call its implementation method in the same way as the original.
+            # (Otherwise, the result would NOT  be well defined due to uncertainty in the mixin process at runtime plus the fact that the GnrDomSrc is global)
+            raise StructMethodError("struct_method %s is already tied to implementation method %s" % (repr(name), repr(existing_name)))
+        GnrDomSrc._external_methods[name] = func_name
+    if isinstance(func_or_name, basestring):
+        name = func_or_name
+        def decorate(func):
+            register(name, func)
+            return func
+        return decorate
     else:
-        key=args[0] if len(args)>0 else None
-        def decore(func):
-            register(func,key or func.__name__)
-            def wrapper(*arg,**kw):
-                return func(*arg,**kw)
-            return wrapper
-        return decore
+        name = func_or_name.__name__
+        if '_' in name:
+            name = name.split('_',1)[1]
+        register(name, func_or_name)
+        return func_or_name
 
 class GnrDomSrcError(Exception):
     pass
