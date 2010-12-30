@@ -4472,6 +4472,20 @@ dojo.declare("gnr.widgets.GoogleMap",gnr.widgets.baseHtml,{
          return new GMarker(this.getMapLoc(center));
      }
 });
+dojo.declare("gnr.widgets.protovis",gnr.widgets.baseHtml,{
+    constructor: function(application){
+        this._domtag = 'span';
+    },
+    creating: function(attributes, sourceNode){
+        objectPop(attributes,'protovis')
+    },
+    created: function(newobj, savedAttrs, sourceNode){
+        var protovis=funcCreate(sourceNode.attr.protovis)
+        sourceNode.vis=protovis()
+        sourceNode.vis.$dom=newobj
+        sourceNode.vis.render()
+    }
+});
 dojo.declare("gnr.widgets.CkEditor",gnr.widgets.baseHtml,{
     constructor: function(application){
         this._domtag = 'div';

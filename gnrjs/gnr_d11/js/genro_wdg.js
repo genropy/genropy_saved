@@ -122,7 +122,8 @@ dojo.declare("gnr.GnrWdgHandler",null,{
                              'GoogleMap':'',
                              'GoogleChart':'',
                              'GoogleVisualization':'',
-                             'CkEditor':''
+                             'CkEditor':'',
+                             'protovis':''
                               };
         var tag;
         for(tag in this.widgetcatalog ){
