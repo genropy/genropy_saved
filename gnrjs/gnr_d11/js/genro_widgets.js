@@ -4474,16 +4474,16 @@ dojo.declare("gnr.widgets.GoogleMap",gnr.widgets.baseHtml,{
 });
 dojo.declare("gnr.widgets.protovis",gnr.widgets.baseHtml,{
     constructor: function(application){
-        this._domtag = 'span';
+        this._domtag = 'div';
     },
     creating: function(attributes, sourceNode){
-        objectPop(attributes,'protovis')
+        objectPop(attributes,'protovis');
     },
     created: function(newobj, savedAttrs, sourceNode){
-        var protovis=funcCreate(sourceNode.attr.protovis)
-        sourceNode.vis=protovis()
-        sourceNode.vis.$dom=newobj
-        sourceNode.vis.render()
+        var protovis=funcCreate(pv.parse(sourceNode.attr.protovis));
+        sourceNode.vis=protovis();
+        sourceNode.vis.$dom=newobj;
+        sourceNode.vis.render();
     }
 });
 dojo.declare("gnr.widgets.CkEditor",gnr.widgets.baseHtml,{
