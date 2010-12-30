@@ -6,10 +6,8 @@
 
 from gnr.web.gnrbaseclasses import BaseComponent
 from gnr.web.gnrwebstruct import struct_method
-from gnr.core.gnrstring import splitAndStrip
-from gnr.core.gnrbag import Bag,DirectoryResolver
+from gnr.core.gnrbag import DirectoryResolver
 from gnr.core.gnrdict import dictExtract
-from gnr.core.gnrlang import debug_call
 from time import time
 
 
@@ -43,7 +41,7 @@ class PaletteManager(BaseComponent):
                                     
     @struct_method
     def pm_palettePane(self,pane,paletteCode=None,title=None,dockTo=None,**kwargs):
-        groupCode = pane.parentNode.getInheritedAttributes().get('groupCode',None)
+        groupCode = pane.parentNode and pane.parentNode.getInheritedAttributes().get('groupCode',None)
         if groupCode:
             pane = pane.contentPane(title=title,pageName=paletteCode) 
             pane.dataController("SET gnr.palettes?%s = paletteCode;" %groupCode,paletteCode=paletteCode, **{'subscribe_show_palette_%s' %paletteCode:True})
