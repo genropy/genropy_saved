@@ -1366,6 +1366,9 @@ textarea:disabled {
     padding-bottom:2px!important;
                             
 }
+.draggedItem .dojoxGrid{
+	display:none;
+}
 table.draggedItem{
 	display:table;
 }
