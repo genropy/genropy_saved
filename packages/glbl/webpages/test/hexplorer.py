@@ -28,15 +28,8 @@ class GnrCustomWebPage(object):
                         struct=self.provincia_struct,
                         configurable=True,
                         table='glbl.provincia').selectionStore(_onStart=True)
-        pane = pane.palettePane('provola',title='provolone')
-        menu = pane.div(height='5ex',width='5em',background='red').menu(modifiers='*')
-        menu.menuline('provola',caption='Provola',action='alert("pizza e provolone")')
         
-        
-       #menu = dialog = pane.dialog(title='aaa',height='100px',width='100px',id='aaa').menu(modifiers='*')
-       #menu.menuline('peperone',caption='Peperone',action='alert("pizza e peperone")')
-        
-    def _test_2_analyze(self,pane):
+    def test_2_analyze(self,pane):
         """Test hexplorer"""
         pane.paletteTree('localita',title='!!Localita Geo').tableAnalyzeStore(table='glbl.localita',#where="$nome ILIKE :chunk",chunk='%%u%%',
                         group_by=['@provincia.@regione.zona','@provincia.@regione.nome','@provincia.nome',self.iniziale,'$nome'],
