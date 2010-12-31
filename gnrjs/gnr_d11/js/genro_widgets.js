@@ -4477,60 +4477,69 @@ dojo.declare("gnr.widgets.protovis",gnr.widgets.baseHtml,{
         this._domtag = 'div';
     },
     creating: function(attributes, sourceNode){
-        objectPop(attributes,'protovis');
+        if (sourceNode.attr.storepath){
+            sourceNode.registerDynAttr('storepath');
+        }
     },
     created: function(newobj, savedAttrs, sourceNode){
         dojo.subscribe(sourceNode.attr.nodeId+'_render',this,function(){this.render(newobj)})
     },
-    xxx:function(){
-        sourceNode.vis=new pv.Panel()
-        sourceNode.vis.$dom=newobj;
-        if(sourceNode.attr.protovis){
-            var protovis=pv.parse(sourceNode.attr.protovis);
-            funcApply(protovis, objectUpdate({'vis':sourceNode.vis},sourceNode.currentAttributes()), sourceNode);
-            
-        }else if(sourceNode.attr.storepath){
-            var visbag=sourceNode.getAttributeFromDatasource('storepath')
-            sourceNode.vis=this.bnode(visbag.getNode('#0'))
+    setStorepath:function(obj,value){
+        obj.gnr.render(obj) 
+    },
+    attachToDom:function(domNode,vis){
+        var span=document.createElement('span');
+        var fc=domNode.firstElementChild;
+        if (fc){
+            domNode.replaceChild(span,fc);
+        }else{
+            domNode.appendChild(span);
         }
-        var span=document.createElement('span')
-        newobj.appendChild(span)
-        
-        sourceNode.vis.render();
-    
+        vis.$dom=span;
+        return span
     },
     render:function(domNode){
-        sourceNode=domNode.sourceNode
-        var vis=new pv.Panel()
-        var span=document.createElement('span')
-        var fc=domNode.firstElementChild
-        if (fc){
-            domNode.replaceChild(span,fc)
-        }else{
-            domNode.appendChild(span)
+        var sourceNode=domNode.sourceNode;
+        if(sourceNode.attr.js){
+            var vis=new pv.Panel()
+            var protovis=pv.parse(sourceNode.getAttributeFromDatasource('js'));
+            funcApply(protovis, objectUpdate({'vis':vis},sourceNode.currentAttributes()), sourceNode);
         }
-        
-        vis.$dom=span
-        var protovis=pv.parse(sourceNode.attr.protovis);
-        funcApply(protovis, objectUpdate({'vis':vis},sourceNode.currentAttributes()), sourceNode);
-        vis.render()            
+        else if(sourceNode.attr.storepath){
+            var storepath=sourceNode.attr.storepath
+            var visbag=sourceNode.getRelativeData(storepath)
+            vis=this.bnode(sourceNode,visbag.getNode('source.#0'))  
+        }
+        this.attachToDom(domNode,vis)
+        sourceNode.vis=vis;
+        vis.render()  
     },
-    bnode:function(node,parent){
-        var attr=objectUpdate(node.attr)
-        var tag=objectPop(attr,'tag')
+    bnode:function(sourceNode,node,parent){
+        var storepath=sourceNode.attr.storepath;
+        var attr=objectUpdate({},node.attr);
+        var tag=objectPop(attr,'tag');
+        var obj;
         if (!parent){
             obj=new pv[tag]();
         }else{
             obj=parent.add(pv[tag])
         }
         for (var k in attr){
-            obj[k](attr[k])
+            var v=attr[k];
+            if ((typeof(v)=='string')&&(v[0]=='=')){
+                v=v.slice(1) 
+                if (v[0]=='.'){
+                   v=storepath+v
+               }
+               v=sourceNode.getRelativeData(v)
+            }
+            obj[k](v)
         }
         var v=node.getValue();
         _this=this
         if (v instanceof gnr.GnrBag){
             v.forEach(function(n){
-                _this.bnode(n,obj)
+                _this.bnode(sourceNode,n,obj)
             })
         }
         return obj
