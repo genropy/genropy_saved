@@ -4485,7 +4485,7 @@ dojo.declare("gnr.widgets.protovis",gnr.widgets.baseHtml,{
         dojo.subscribe(sourceNode.attr.nodeId+'_render',this,function(){this.render(newobj)})
     },
     setStorepath:function(obj,value){
-        obj.gnr.render(obj) 
+        obj.gnr.update(obj) 
     },
     attachToDom:function(domNode,vis){
         var span=document.createElement('span');
@@ -4497,6 +4497,13 @@ dojo.declare("gnr.widgets.protovis",gnr.widgets.baseHtml,{
         }
         vis.$dom=span;
         return span
+    },
+    update:function(domNode){
+        var sourceNode=domNode.sourceNode;
+        if(sourceNode.vis){
+            sourceNode.vis.render() 
+        }
+        
     },
     render:function(domNode){
         var sourceNode=domNode.sourceNode;
@@ -4514,7 +4521,15 @@ dojo.declare("gnr.widgets.protovis",gnr.widgets.baseHtml,{
         sourceNode.vis=vis;
         vis.render()  
     },
+    storegetter:function(sourceNode,path){
+        var p=path
+        var s=sourceNode
+        return function(){
+           return s.getRelativeData(p)
+        }
+    },
     bnode:function(sourceNode,node,parent){
+        
         var storepath=sourceNode.attr.storepath;
         var attr=objectUpdate({},node.attr);
         var tag=objectPop(attr,'tag');
@@ -4527,11 +4542,11 @@ dojo.declare("gnr.widgets.protovis",gnr.widgets.baseHtml,{
         for (var k in attr){
             var v=attr[k];
             if ((typeof(v)=='string')&&(v[0]=='=')){
-                v=v.slice(1) 
-                if (v[0]=='.'){
-                   v=storepath+v
+                path=v.slice(1) 
+                if (path[0]=='.'){
+                   path=storepath+path
                }
-               v=sourceNode.getRelativeData(v)
+               v=this.storegetter(sourceNode,path)
             }
             obj[k](v)
         }
