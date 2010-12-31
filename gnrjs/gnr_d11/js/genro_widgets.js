@@ -4525,6 +4525,7 @@ dojo.declare("gnr.widgets.protovis",gnr.widgets.baseHtml,{
         var p=path
         var s=sourceNode
         return function(){
+           console.log('getting: '+p)
            return s.getRelativeData(p)
         }
     },

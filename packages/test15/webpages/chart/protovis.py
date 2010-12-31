@@ -36,8 +36,8 @@ class GnrCustomWebPage(object):
         bc = pane.borderContainer(width="100%", height="100%")
         fb = bc.contentPane(region="top",background_color='pink',height='30px').formbuilder(cols=4, border_spacing='3px')
         fb.button("Update", fire=".update_data")
-        fb.horizontalslider(value="^.myprotovis.width", minimum=200, maximum=500,intermediateChanges=True,width='150px',lbl='Width')
-        fb.horizontalslider(value="^.myprotovis.height", minimum=100, maximum=300,intermediateChanges=True,width='150px',lbl='Height')
+        fb.horizontalslider(value="^.myprotovis.width", minimum=200, maximum=500,intermediateChanges=False,width='150px',lbl='Width')
+        fb.horizontalslider(value="^.myprotovis.height", minimum=100, maximum=300,intermediateChanges=False,width='150px',lbl='Height')
         self.createProtovis(bc.contentPane(region="left", width="50%", 
                                 splitter=True,background_color='lime'),'left_vis2',storepath='.myprotovis')
         self.createProtovis(bc.contentPane(region="center"),'right_vis2',storepath='.myprotovis')
