@@ -5,14 +5,14 @@
 # Copyright (c) 2010 Softwell. All rights reserved.
 
 class GnrCustomWebPage(object):
-    py_requires="gnrcomponents/testhandler:TestHandlerBase"
-    dojo_theme='claro'
+    py_requires = "gnrcomponents/testhandler:TestHandlerBase"
+    dojo_theme = 'claro'
 
 
     def windowTitle(self):
         return ''
-         
-    def test_(self,pane):
+
+    def test_(self, pane):
         pass
 
 class ToFix(object):

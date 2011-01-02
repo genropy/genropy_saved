@@ -1,23 +1,23 @@
- # vim: set sw=4 expandtab :
- #
- # Copyright 2004 Apache Software Foundation 
- # 
- # Licensed under the Apache License, Version 2.0 (the "License"); you
- # may not use this file except in compliance with the License.  You
- # may obtain a copy of the License at
- #
- #      http://www.apache.org/licenses/LICENSE-2.0
- #
- # Unless required by applicable law or agreed to in writing, software
- # distributed under the License is distributed on an "AS IS" BASIS,
- # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
- # implied.  See the License for the specific language governing
- # permissions and limitations under the License.
- #
- # Originally developed by Gregory Trubetskoy.
- #
- # $Id: Cookie.py 472053 2006-11-07 10:11:01Z grahamd $
- # Ported to WebOb
+# vim: set sw=4 expandtab :
+#
+# Copyright 2004 Apache Software Foundation
+#
+# Licensed under the Apache License, Version 2.0 (the "License"); you
+# may not use this file except in compliance with the License.  You
+# may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+# implied.  See the License for the specific language governing
+# permissions and limitations under the License.
+#
+# Originally developed by Gregory Trubetskoy.
+#
+# $Id: Cookie.py 472053 2006-11-07 10:11:01Z grahamd $
+# Ported to WebOb
 
 """
 
@@ -54,16 +54,14 @@ class CookieError(Exception):
     pass
 
 class metaCookie(type):
-
     def __new__(cls, clsname, bases, clsdict):
-
         _valid_attr = (
-            "version", "path", "domain", "secure",
-            "comment", "expires", "max_age",
-            # RFC 2965
-            "commentURL", "discard", "port",
-            # Microsoft Extension
-            "httponly" )
+        "version", "path", "domain", "secure",
+        "comment", "expires", "max_age",
+        # RFC 2965
+        "commentURL", "discard", "port",
+        # Microsoft Extension
+        "httponly" )
 
         # _valid_attr + property values
         # (note __slots__ is a new Python feature, it
@@ -75,7 +73,6 @@ class metaCookie(type):
         clsdict["__slots__"] = __slots__
 
         def set_expires(self, value):
-
             if type(value) == type(""):
                 # if it's a string, it should be
                 # valid format as per Netscape spec
@@ -113,7 +110,7 @@ class Cookie(object):
     IGNORE = 1
     EXCEPTION = 3
 
-    def parse(Class, str,secret=None,**kw):
+    def parse(Class, str, secret=None, **kw):
         """
         Parse a Cookie or Set-Cookie header value, and return
         a dict of Cookies. Note: the string should NOT include the
@@ -126,7 +123,6 @@ class Cookie(object):
     parse = classmethod(parse)
 
     def __init__(self, name, value, **kw):
-
         """
         This constructor takes at least a name and value as the
         arguments, as well as optionally any of allowed cookie attributes
@@ -142,7 +138,6 @@ class Cookie(object):
 
 
     def __str__(self):
-
         """
         Provides the string representation of the Cookie suitable for
         sending to the browser. Note that the actual header name will
@@ -153,7 +148,7 @@ class Cookie(object):
         dictate this. This is because doing so seems to confuse most
         browsers out there.
         """
-        
+
         result = ["%s=%s" % (self.name, self.value)]
         for name in self._valid_attr:
             if hasattr(self, name):
@@ -162,11 +157,11 @@ class Cookie(object):
                 else:
                     result.append("%s=%s" % (name, getattr(self, name)))
         return "; ".join(result)
-    
+
     def __repr__(self):
         return '<%s: %s>' % (self.__class__.__name__,
-                                str(self))
-    
+                             str(self))
+
 
 class SignedCookie(Cookie):
     """
@@ -180,7 +175,6 @@ class SignedCookie(Cookie):
     """
 
     def parse(Class, s, secret, mismatch=Cookie.DOWNGRADE, **kw):
-
         dict = _parse_cookie(s, Class, **kw)
 
         del_list = []
@@ -190,12 +184,12 @@ class SignedCookie(Cookie):
                 c.unsign(secret)
             except CookieError:
                 if mismatch == Cookie.EXCEPTION:
-                     raise
+                    raise
                 elif mismatch == Cookie.IGNORE:
-                     del_list.append(k)
+                    del_list.append(k)
                 else:
-                     # downgrade to Cookie
-                     dict[k] = Cookie.parse(Cookie.__str__(c))[k]
+                    # downgrade to Cookie
+                    dict[k] = Cookie.parse(Cookie.__str__(c))[k]
 
         for k in del_list:
             del dict[k]
@@ -217,7 +211,6 @@ class SignedCookie(Cookie):
         return _hmac.hexdigest()
 
     def __str__(self):
-        
         result = ["%s=%s%s" % (self.name, self.hexdigest(self.value),
                                self.value)]
         for name in self._valid_attr:
@@ -229,7 +222,6 @@ class SignedCookie(Cookie):
         return "; ".join(result)
 
     def unsign(self, secret):
-
         sig, val = self.value[:32], self.value[32:]
 
         mac = hmac.new(secret, self.name)
@@ -243,7 +235,6 @@ class SignedCookie(Cookie):
 
 
 class MarshalCookie(SignedCookie):
-
     """
     This is a variation of SignedCookie that can store more than
     just strings. It will automatically marshal the cookie value,
@@ -260,7 +251,6 @@ class MarshalCookie(SignedCookie):
     """
 
     def parse(Class, s, secret, mismatch=Cookie.DOWNGRADE, **kw):
-
         dict = _parse_cookie(s, Class, **kw)
 
         del_list = []
@@ -270,12 +260,12 @@ class MarshalCookie(SignedCookie):
                 c.unmarshal(secret)
             except CookieError:
                 if mismatch == Cookie.EXCEPTION:
-                     raise
+                    raise
                 elif mismatch == Cookie.IGNORE:
-                     del_list.append(k)
+                    del_list.append(k)
                 else:
-                     # downgrade to Cookie
-                     dict[k] = Cookie.parse(Cookie.__str__(c))[k]
+                    # downgrade to Cookie
+                    dict[k] = Cookie.parse(Cookie.__str__(c))[k]
 
         for k in del_list:
             del dict[k]
@@ -285,7 +275,6 @@ class MarshalCookie(SignedCookie):
     parse = classmethod(parse)
 
     def __str__(self):
-        
         m = base64.encodestring(marshal.dumps(self.value))
         # on long cookies, the base64 encoding can contain multiple lines
         # separated by \n or \r\n
@@ -301,7 +290,6 @@ class MarshalCookie(SignedCookie):
         return "; ".join(result)
 
     def unmarshal(self, secret):
-
         self.unsign(secret)
 
         try:
@@ -319,19 +307,19 @@ class MarshalCookie(SignedCookie):
 # (at least I think it is) pattern from standard lib Cookie.py
 
 _cookiePattern = re.compile(
-    r"(?x)"                       # Verbose pattern
-    r"[,\ ]*"                        # space/comma (RFC2616 4.2) before attr-val is eaten
-    r"(?P<key>"                   # Start of group 'key'
-    r"[^;\ =]+"                     # anything but ';', ' ' or '='
-    r")"                          # End of group 'key'
-    r"\ *(=\ *)?"                 # a space, then may be "=", more space
-    r"(?P<val>"                   # Start of group 'val'
-    r'"(?:[^\\"]|\\.)*"'            # a doublequoted string
-    r"|"                            # or
-    r"[^;]*"                        # any word or empty string
-    r")"                          # End of group 'val'
-    r"\s*;?"                      # probably ending in a semi-colon
-    )
+        r"(?x)"                       # Verbose pattern
+        r"[,\ ]*"                        # space/comma (RFC2616 4.2) before attr-val is eaten
+        r"(?P<key>"                   # Start of group 'key'
+        r"[^;\ =]+"                     # anything but ';', ' ' or '='
+        r")"                          # End of group 'key'
+        r"\ *(=\ *)?"                 # a space, then may be "=", more space
+        r"(?P<val>"                   # Start of group 'val'
+        r'"(?:[^\\"]|\\.)*"'            # a doublequoted string
+        r"|"                            # or
+        r"[^;]*"                        # any word or empty string
+        r")"                          # End of group 'val'
+        r"\s*;?"                      # probably ending in a semi-colon
+        )
 
 def _parse_cookie(str, Class, names=None):
     # XXX problem is we should allow duplicate
@@ -345,9 +333,9 @@ def _parse_cookie(str, Class, names=None):
 
         # We just ditch the cookies names which start with a dollar sign since
         # those are in fact RFC2965 cookies attributes. See bug [#MODPYTHON-3].
-        if key[0]!='$' and names is None or key in names:
+        if key[0] != '$' and names is None or key in names:
             result[key] = Class(key, val)
-            
+
     return result
 
 def add_cookie(res, cookie, value="", **kw):
@@ -358,11 +346,9 @@ def add_cookie(res, cookie, value="", **kw):
 
     # is this a cookie?
     if not isinstance(cookie, Cookie):
-
         # make a cookie
         cookie = Cookie(cookie, value, **kw)
-        
-    
+
     if not res.headers.has_key("Set-Cookie"):
         res.headers.add("Cache-Control", 'no-cache="set-cookie"')
 
@@ -374,7 +360,7 @@ def get_cookies(req, Class=Cookie, **kw):
     a Cookie class. The class must be one of the classes from
     this module.
     """
-    
+
     if not req.headers.has_key("cookie"):
         return {}
 

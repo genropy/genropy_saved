@@ -11,8 +11,8 @@ import sys, imp, __builtin__
 
 
 # Replacement for __import__()
-def import_hook(name, globals=None, locals=None, fromlist=None,level=-1):
-    print 'Importing '+name
+def import_hook(name, globals=None, locals=None, fromlist=None, level=-1):
+    print 'Importing ' + name
     parent = determine_parent(globals)
     q, tail = find_head_package(parent, name)
     m = load_tail(q, tail)
@@ -42,7 +42,7 @@ def find_head_package(parent, name):
     if '.' in name:
         i = name.find('.')
         head = name[:i]
-        tail = name[i+1:]
+        tail = name[i + 1:]
     else:
         head = name
         tail = ""
@@ -64,7 +64,7 @@ def load_tail(q, tail):
     while tail:
         i = tail.find('.')
         if i < 0: i = len(tail)
-        head, tail = tail[:i], tail[i+1:]
+        head, tail = tail[:i], tail[i + 1:]
         mname = "%s.%s" % (m.__name__, head)
         m = import_module(head, mname, m)
         if not m:
@@ -115,7 +115,7 @@ def reload_hook(module):
     i = name.rfind('.')
     pname = name[:i]
     parent = sys.modules[pname]
-    return import_module(name[i+1:], name, parent)
+    return import_module(name[i + 1:], name, parent)
 
 
 # Save the original hooks

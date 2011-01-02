@@ -2,17 +2,15 @@
 # encoding: utf-8
 
 class Table(object):
-   
     def config_db(self, pkg):
-        
-        tbl =  pkg.table('nazione',  pkey='code',name_long='Nazione', rowcaption='code,name')
-        tbl.column('code',size='2',group='_',readOnly='y',name_long='Code')
-        tbl.column('name',size=':48',name_long='Name')
-        tbl.column('code3',size='3',name_long='Code3')
-        tbl.column('nmbr',size='3',name_long='Num.Code')
-    
+        tbl = pkg.table('nazione', pkey='code', name_long='Nazione', rowcaption='code,name')
+        tbl.column('code', size='2', group='_', readOnly='y', name_long='Code')
+        tbl.column('name', size=':48', name_long='Name')
+        tbl.column('code3', size='3', name_long='Code3')
+        tbl.column('nmbr', size='3', name_long='Num.Code')
+
     def populate(self):
-        data="""
+        data = """
 AALAND ISLANDS                                  AX      ALA     248
 AFGHANISTAN                                     AF      AFG     004
 ALBANIA                                         AL      ALB     008
@@ -256,10 +254,10 @@ ZIMBABWE                                        ZW      ZWE     716
 """
         for d in data.split('\n'):
             if d:
-                record={'name':d[0:47].strip(),
-                        'code':d[48:50],
-                        'code3':d[56:59],
-                        'nmbr':d[64:68]}
+                record = {'name': d[0:47].strip(),
+                          'code': d[48:50],
+                          'code3': d[56:59],
+                          'nmbr': d[64:68]}
                 self.insertOrUpdate(record)
 
 

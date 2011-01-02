@@ -58,9 +58,9 @@ class UnterminatedRegularExpression(Exception):
     pass
 
 class JavascriptMinify(object):
-
     def _outA(self):
         self.outstream.write(self.theA)
+
     def _outB(self):
         self.outstream.write(self.theB)
 
@@ -134,7 +134,6 @@ class JavascriptMinify(object):
                     if self.theA == '\\':
                         self._outA()
                         self.theA = self._get()
-
 
         if action <= 3:
             self.theB = self._next()
@@ -214,5 +213,6 @@ class JavascriptMinify(object):
 
 if __name__ == '__main__':
     import sys
+
     jsm = JavascriptMinify()
     jsm.minify(sys.stdin, sys.stdout)

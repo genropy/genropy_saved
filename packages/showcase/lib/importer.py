@@ -10,9 +10,9 @@ Copyright (c) 2008 __MyCompanyName__. All rights reserved.
 from gnr.core.gnrbag import Bag, BagResolver, BagCbResolver, DirectoryResolver
 from gnr.app.gnrapp import GnrApp
 
-def importPeople(db,dataBag):
+def importPeople(db, dataBag):
     tblObj = db.table('showcase.person')
-    
+
     for item in dataBag['people']:
         record = {}
         record['name'] = item.getAttr('name')
@@ -20,8 +20,8 @@ def importPeople(db,dataBag):
         record['nationality'] = item.getAttr('nationality')
         record['number'] = item.getAttr('id')
         tblObj.insert(record)
-        
-def importMovie(db,dataBag):
+
+def importMovie(db, dataBag):
     tblObj = db.table('showcase.movie')
     for item in dataBag['movie']:
         record = {}
@@ -31,8 +31,8 @@ def importMovie(db,dataBag):
         record['number'] = item.getAttr('id')
         record['genre'] = item.getAttr('genre')
         tblObj.insert(record)
-        
-def importCast(db,dataBag):
+
+def importCast(db, dataBag):
     tblObj = db.table('showcase.cast')
     movies = db.table('showcase.movie').query(columns='$id').fetch()
     people = db.table('showcase.person').query(columns='$id').fetch()
@@ -43,11 +43,11 @@ def importCast(db,dataBag):
         record['role'] = item.getAttr('role')
         record['prizes'] = item.getAttr('prizes')
         tblObj.insert(record)
-        
+
 if __name__ == '__main__':
-    db = GnrApp('testgarden').db    
+    db = GnrApp('testgarden').db
     dataBag = Bag('data.xml')
-    importPeople(db,dataBag)
-    importMovie(db,dataBag)
-    importCast(db,dataBag)
+    importPeople(db, dataBag)
+    importMovie(db, dataBag)
+    importCast(db, dataBag)
     db.commit()

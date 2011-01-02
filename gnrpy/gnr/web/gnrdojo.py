@@ -24,70 +24,71 @@ from gnr.core.gnrbag import Bag
 import os.path
 
 class DojoApiReader(object):
-    discard=['provides','resources','mixins']
-    discard=[]
-    def __init__(self,apipath,resultpath=None):
-        self.resultpath=resultpath or os.path.dirname(apipath)
-        self.source=Bag(apipath)['javascript']
-        self.apibag=Bag()
+    discard = ['provides', 'resources', 'mixins']
+    discard = []
+
+    def __init__(self, apipath, resultpath=None):
+        self.resultpath = resultpath or os.path.dirname(apipath)
+        self.source = Bag(apipath)['javascript']
+        self.apibag = Bag()
         for node in self.source:
-            attr=dict(node.attr)
-            value=node.value
-            location=attr.pop('location')
-            if isinstance(value,Bag):
-                value=self.convertObject(value)
+            attr = dict(node.attr)
+            value = node.value
+            location = attr.pop('location')
+            if isinstance(value, Bag):
+                value = self.convertObject(value)
             if location in self.apibag:
-                print 'redefining object:',location
+                print 'redefining object:', location
             else:
-                self.write(location,value,attr)
-                self.apibag.setItem(location,value,attr)
-                
-    def write(self,location,obj,attr):
-        destpath=[self.resultpath,'objects']+location.split('.')+'obj.xml'
+                self.write(location, value, attr)
+                self.apibag.setItem(location, value, attr)
+
+    def write(self, location, obj, attr):
+        destpath = [self.resultpath, 'objects'] + location.split('.') + 'obj.xml'
         if attr:
             print attr
-        destpath=os.path.join(**destpath)
-        obj.toXml(destpath,autocreate=True)
-        
-    def convertObject(self,src):
-        result=Bag()
+        destpath = os.path.join(**destpath)
+        obj.toXml(destpath, autocreate=True)
+
+    def convertObject(self, src):
+        result = Bag()
         for node in src:
-            label=node.label
+            label = node.label
             if label in self.discard:
                 continue
-            attr=dict(node.attr)
-            value=node.value
-            if label=='mixins':
-                label='mixins_%s'% attr.get('scope','undefined_scope')
-            if isinstance(value,Bag):
-                value=self.convertItems(value)
+            attr = dict(node.attr)
+            value = node.value
+            if label == 'mixins':
+                label = 'mixins_%s' % attr.get('scope', 'undefined_scope')
+            if isinstance(value, Bag):
+                value = self.convertItems(value)
             if label in result:
-                print 'redefining:',label
-            result.setItem(label,value,attr)
+                print 'redefining:', label
+            result.setItem(label, value, attr)
         return result
 
-    def convertItems(self,items):
-        result=Bag()
-        for k,node in enumerate(items):
-            label=node.label
-            value=node.value
-            attr=dict(node.attr)
-            if label=='method':
-                label=attr.get('name')
-            if label=='property':
-                label=attr.get('name')
+    def convertItems(self, items):
+        result = Bag()
+        for k, node in enumerate(items):
+            label = node.label
+            value = node.value
+            attr = dict(node.attr)
+            if label == 'method':
+                label = attr.get('name')
+            if label == 'property':
+                label = attr.get('name')
             else:
-                label='r_%i' % k
+                label = 'r_%i' % k
             if label:
-                result.setItem(label,value,attr)
+                result.setItem(label, value, attr)
         return result
-           
-    
-if __name__=='__main__':
-    obj=DojoApiReader("/Users/gpo/sviluppo/genro/dojo_libs/dojo_15/api.xml")    
+
+
+if __name__ == '__main__':
+    obj = DojoApiReader("/Users/gpo/sviluppo/genro/dojo_libs/dojo_15/api.xml")
     #obj.apibag.toXml("/Users/gpo/sviluppo/genro/dojo_libs/dojo_15/api_gnr.xml")
-    for k,v in obj.apibag.items():
-        v.toXml("/Users/gpo/sviluppo/genro/dojo_libs/dojo_15/gnrapi/%s.xml"%k,autocreate=True)
-        
+    for k, v in obj.apibag.items():
+        v.toXml("/Users/gpo/sviluppo/genro/dojo_libs/dojo_15/gnrapi/%s.xml" % k, autocreate=True)
+
     print obj.apibag.keys()
     print x

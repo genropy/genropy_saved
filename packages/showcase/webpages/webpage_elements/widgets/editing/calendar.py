@@ -14,14 +14,15 @@ import datetime
 from gnr.core.gnrbag import Bag, DirectoryResolver
 
 class GnrCustomWebPage(object):
-    py_requires='public:Public'
-    css_requires='calendar'
-    js_requires='Calendar'
+    py_requires = 'public:Public'
+    css_requires = 'calendar'
+    js_requires = 'Calendar'
+
     def main(self, root, **kwargs):
-        cp=root.borderContainer(region='top',**kwargs)
-        root.data('aux.calevents',self.myEvents())
-        root.calendar(width='800px',height='400px',storepath='aux.calevents')
-        dialog= cp.borderContainer(region= 'center')
+        cp = root.borderContainer(region='top', **kwargs)
+        root.data('aux.calevents', self.myEvents())
+        root.calendar(width='800px', height='400px', storepath='aux.calevents')
+        dialog = cp.borderContainer(region='center')
         root.dataRpc('aux.calevents', 'getNewEvent', _fired='^updateEvent', _init=False)
         #cp.button('Update', fire='updateEvent', margin='20px')
         root.button('Update', fire='aux.newCalendarEventDialog.show', margin='20px')
@@ -46,24 +47,25 @@ class GnrCustomWebPage(object):
                         calendar_event.description=record.getItem('description');
                         var calevents=genro.getData('aux.calevents');
                         calevents.setItem(calendar_event.id,null,calendar_event,null);
-                        """,_fired="^aux.newCalendarEventDialog.create")
+                        """, _fired="^aux.newCalendarEventDialog.create")
         newEventDialog = self.hiddenTooltipDialog(dialog, dlgId='newCalendarEventDialog', title="!!New event creation",
-                        width="42em",height="23ex",fired='^aux.newCalendarEventDialog.show', 
-                        datapath='aux.newCalendarEventDialog',
-                        bottom_right='!!Insert',bottom_right_action='FIRE aux.newCalendarEventDialog.create;FIRE aux.newCalendarEventDialog.close')
-        dlgpane = newEventDialog.contentPane(region='center',_class='pbl_dialog_center')
-        dlgformbuilder=dlgpane.formbuilder(cols=4, border_spacing='4px')
-        dlgformbuilder.textbox(lbl='Title',value='^.title',width='5em')
-        dlgformbuilder.textbox(lbl='Description',value='^.description',width='5em')
-        dlgformbuilder.datetextbox(lbl='Date', value='^.date', dtype='D',width='5em')
-        dlgformbuilder.timetextbox(lbl='Start at', value='^.start_time', dtype='DH',width='5em')
-        dlgformbuilder.timetextbox(lbl='End at', value='^.end_time', dtype='DH',width='5em')
+                                                  width="42em", height="23ex", fired='^aux.newCalendarEventDialog.show',
+                                                  datapath='aux.newCalendarEventDialog',
+                                                  bottom_right='!!Insert',
+                                                  bottom_right_action='FIRE aux.newCalendarEventDialog.create;FIRE aux.newCalendarEventDialog.close')
+        dlgpane = newEventDialog.contentPane(region='center', _class='pbl_dialog_center')
+        dlgformbuilder = dlgpane.formbuilder(cols=4, border_spacing='4px')
+        dlgformbuilder.textbox(lbl='Title', value='^.title', width='5em')
+        dlgformbuilder.textbox(lbl='Description', value='^.description', width='5em')
+        dlgformbuilder.datetextbox(lbl='Date', value='^.date', dtype='D', width='5em')
+        dlgformbuilder.timetextbox(lbl='Start at', value='^.start_time', dtype='DH', width='5em')
+        dlgformbuilder.timetextbox(lbl='End at', value='^.end_time', dtype='DH', width='5em')
 
     def myEvents(self):
-        b=Bag()
-        b.setItem('id3',None,{
+        b = Bag()
+        b.setItem('id3', None, {
             'id': 'id3',
-            'date':'2008-12-27::D',
+            'date': '2008-12-27::D',
             'start_time': "2008-12-27 14:00:00::DH",
             'end_time': "2008-12-27 15:00:00::DH",
             'all_day': False,
@@ -74,10 +76,10 @@ class GnrCustomWebPage(object):
         return b
 
     def rpc_getNewEvent(self):
-        b=Bag()
-        b.setItem('id2',None,{
+        b = Bag()
+        b.setItem('id2', None, {
             'id': 'id2',
-            'date':'2008-12-26::D',
+            'date': '2008-12-26::D',
             'start_time': "2008-12-26 13:00:00::DH",
             'end_time': "2008-12-26 15:00:00::DH",
             'all_day': False,
@@ -85,9 +87,9 @@ class GnrCustomWebPage(object):
             'title': "Title 2",
             'description': "This is the body of entry with id: id3 and title: Title 3",
             'event_type': "reminder,meeting"})
-        b.setItem("2008-12-27",None,{
+        b.setItem("2008-12-27", None, {
             'id': 'id4',
-            'date':"2008-12-27::D",
+            'date': "2008-12-27::D",
             'start_time': "2008-12-27 16:00:00::DH",
             'end_time': "2008-12-27 17:00:00::DH",
             'all_day': False,

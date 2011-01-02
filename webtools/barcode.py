@@ -18,20 +18,21 @@ from huBarcode.qrcode import QRCodeEncoder
 from huBarcode.ean13 import EAN13Encoder
 import tempfile
 import mimetypes
+
 encoders = {
     #'code39' : Code39Encoder,
-    'code128' : Code128Encoder,
-    'datamatrix' : DataMatrixEncoder,
+    'code128': Code128Encoder,
+    'datamatrix': DataMatrixEncoder,
     'qrcode': QRCodeEncoder,
-    'ean13' : EAN13Encoder
-    
+    'ean13': EAN13Encoder
+
 }
 class Barcode(BaseWebtool):
     #content_type = 'image/png'
     #headers = [('header_name','header_value')]
-    
 
-    def __call__(self,text=None, mode='code128',height=None,width=None,suffix='.png', **kwargs):
+
+    def __call__(self, text=None, mode='code128', height=None, width=None, suffix='.png', **kwargs):
         encoder = encoders.get(mode)
         if not encoder:
             return

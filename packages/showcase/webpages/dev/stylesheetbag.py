@@ -21,31 +21,33 @@
 from gnr.core.gnrbag import Bag
 
 class GnrCustomWebPage(object):
-    py_requires='foundation/tools:CSSHandler'
-    css_requires='public'
+    py_requires = 'foundation/tools:CSSHandler'
+    css_requires = 'public'
 
     def pageAuthTags(self, method=None, **kwargs):
         return ''
-        
+
     def windowTitle(self):
-         return ''
-         
+        return ''
+
     def main(self, rootBC, **kwargs):
-        rootBC.styleSheet('.myrect {height:100px;width:100px;float:right;margin:5px;background-color:red;border:1px solid green;}',cssTitle='test')
+        rootBC.styleSheet(
+                '.myrect {height:100px;width:100px;float:right;margin:5px;background-color:red;border:1px solid green;}'
+                , cssTitle='test')
         bc = rootBC.borderContainer(region='center')
-        left = bc.contentPane(region='left',width='200px',splitter=True)
+        left = bc.contentPane(region='left', width='200px', splitter=True)
         left.dataController("""var kw = $2.kw;
                             if(kw.reason){
                                 genro.dom.styleSheetBagSetter($1.getValue(),kw.reason.attr);                                   
                             }
-                            """,_fired="^csshandler")
-                            
-        fb=left.formbuilder(cols=1)
-        fb.horizontalSlider(value='^csshandler.rect.size',lbl='Height',minimum=50,width='120px',
-                            maximum=300,intermediateChanges=True,_set_height='.myrect:#+"px"',
+                            """, _fired="^csshandler")
+
+        fb = left.formbuilder(cols=1)
+        fb.horizontalSlider(value='^csshandler.rect.size', lbl='Height', minimum=50, width='120px',
+                            maximum=300, intermediateChanges=True, _set_height='.myrect:#+"px"',
                             _set_font_size='.myrect:#-30+"px"')
         center = bc.contentPane(region='center')
         for k in range(100):
-            x=center.div(_class='myrect')
-            x.span('%i'%k)
+            x = center.div(_class='myrect')
+            x.span('%i' % k)
         

@@ -13,18 +13,18 @@ class AppTesting(unittest.TestCase):
     reuse_app = True
     instance_name = 'gnrtest'
     testing_data = None
-    
+
     def __init__(self, *args, **kwargs):
         super(AppTesting, self).__init__(*args, **kwargs)
         self._app = None
-    
+
     @property
     def app(self):
         if not self._app:
             self._app = GnrApp(self.instance_name,
                                forTesting=self.testing_data or True)
         return self._app
-    
+
     def tearDown(self):
         if not self.reuse_app:
             del self._app

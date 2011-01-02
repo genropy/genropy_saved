@@ -33,37 +33,41 @@ class GnrStructData(Bag):
     is a subclass of Bag that implements functional syntax for adding 
     particular elements to the tree.
     """
-    def makeRoot(cls, source=None,protocls=None):
+
+    def makeRoot(cls, source=None, protocls=None):
         """
         This method builds the root instance for the given class.
         
         * `cls`: structure class
         * `source`: filepath of xml file"""
         if protocls:
-            instance=protocls()
+            instance = protocls()
         else:
-            instance= cls() #create an instance of cls
+            instance = cls() #create an instance of cls
         if source: #load from xml file
-            instance.load(source) 
+            instance.load(source)
         instance.setBackRef()
         return instance
+
     makeRoot = classmethod(makeRoot)
-    
+
     def _get_joiner(self):
         if self.parent == None:
             return self
         else:
             return self.parent
+
     _ = property(_get_joiner)
-    
+
     def _get_root(self):
         if self.parent == None:
             return self
         else:
             return self.parent.root
+
     root = property(_get_root)
-        
-    def child(self, tag, name='*_#', content=None, _parentTag=None,_attributes=None, **kwargs):
+
+    def child(self, tag, name='*_#', content=None, _parentTag=None, _attributes=None, **kwargs):
         """
         
         This method sets a new item of the type tag into the current structure
@@ -74,33 +78,33 @@ class GnrStructData(Bag):
         * `kwargs`: other parameters
         
         Return : the new structure if content is none else the parent"""
-        where=self
-        childname=name
-        childcontent=content
+        where = self
+        childname = name
+        childcontent = content
         if _attributes:
             kwargs.update(_attributes)
         if '_name' in kwargs:
-            kwargs['name']=kwargs.pop('_name')
+            kwargs['name'] = kwargs.pop('_name')
         if '_content' in kwargs:
-            kwargs['content']=kwargs.pop('_content')
+            kwargs['content'] = kwargs.pop('_content')
         if not childname:
-            childname='*_#'
+            childname = '*_#'
         if '.' in childname:
-            namelist=childname.split('.')
-            childname=namelist.pop()
+            namelist = childname.split('.')
+            childname = namelist.pop()
             for label in namelist:
                 if not label in where:
                     item = self.__class__()
                     where[label] = item
                 where = where[label]
         childname = childname.replace('*', tag).replace('#', str(len(where)))
-        
-        if childcontent == None: 
+
+        if childcontent == None:
             childcontent = self.__class__()
             result = childcontent
         else:
-            result=None
-            
+            result = None
+
         if _parentTag:
             if isinstance(_parentTag, basestring):
                 _parentTag = gnrstring.splitAndStrip(_parentTag, ',')
@@ -109,37 +113,40 @@ class GnrStructData(Bag):
                 raise GnrStructureError('%s "%s" cannot be inserted in a %s' % (tag, childname, actualParentTag))
         if childname in where and where[childname] != '' and where[childname] is not None:
             if where.getAttr(childname, 'tag') != tag:
-                raise GnrStructureError('Cannot change %s from %s to %s' % (childname, where.getAttr(childname, 'tag'), tag))
+                raise GnrStructureError(
+                        'Cannot change %s from %s to %s' % (childname, where.getAttr(childname, 'tag'), tag))
             else:
-                kwargs = dict([(k,v) for k,v in kwargs.items() if v != None]) # default kwargs don't clear old attributes
+                kwargs = dict(
+                        [(k, v) for k, v in kwargs.items() if v != None]) # default kwargs don't clear old attributes
                 result = where[childname]
                 result.attributes.update(**kwargs)
         else:
             where.setItem(childname, childcontent, tag=tag, _attributes=kwargs)
         return result
-    
-    def save(self,path):
+
+    def save(self, path):
         """
         This method saves the structure as an xml file
         
         * `path`: destination of the saved file
         """
         self.toXml(path, typeattrs=False)
-        
-    def load(self,path):
+
+    def load(self, path):
         """This method loads the structure from an xml file
         * `path`: path of the file"""
-        cls=self.__class__
+        cls = self.__class__
         b = Bag()
-        b.fromXml(path, bagcls=cls, empty=cls) 
+        b.fromXml(path, bagcls=cls, empty=cls)
         self[''] = self.merge(b)
-    
+
 
 class GnrStructObj(GnrObject):
     """
     It is a tree of GnrObjects that is auto-builded starting from an instance of GnrStructData.
     """
-    def makeRoot(cls, parent , structnode, objclassdict, **kwargs):
+
+    def makeRoot(cls, parent, structnode, objclassdict, **kwargs):
         """
         This class method instatiates the first element (root)
         
@@ -154,46 +161,47 @@ class GnrStructObj(GnrObject):
         tag = structnode.getAttr('tag').lower()
         if tag in objclassdict:
             return objclassdict[tag](structnode=structnode, parent=parent, objclassdict=objclassdict, **kwargs)
+
     makeRoot = classmethod(makeRoot)
-    
-    def __init__(self, tag=None, structnode=None, parent=None, name=None, 
-                attrs=None, children=None, objclassdict=None, **kwargs):
+
+    def __init__(self, tag=None, structnode=None, parent=None, name=None,
+                 attrs=None, children=None, objclassdict=None, **kwargs):
         self.structnode = structnode
         if objclassdict:
-            self.objclassdict=objclassdict
-            self.rootparent=parent
+            self.objclassdict = objclassdict
+            self.rootparent = parent
             self.objdict = {}
-            parent=None
+            parent = None
         self.parent = parent
         self.children = GnrDict()
         self.childalias = {}
-        self.name=name
+        self.name = name
         self.id = None
         if self.structnode:
             if not name:
-                self.name=structnode.getLabel()
+                self.name = structnode.getLabel()
             self.attributes = dict(structnode.getAttr())
             children = structnode.getValue()
             self.id = structnode.getAttr('id')
             if self.id:
-                self.id = self.id.replace('*',self.name)
+                self.id = self.id.replace('*', self.name)
                 self.root.objdict[self.id] = self
         else:
             self.attributes = attrs or {}
-            
+
         self.attributes.update(kwargs)
-        buildChildren=self._captureChildren(children)
+        buildChildren = self._captureChildren(children)
         self.init(**kwargs)
-        if self.parent!=None:
+        if self.parent != None:
             self.parent.newChild(self)
         if children and buildChildren:
             self.buildChildren(children)
         self.afterChildrenCreation()
-        
-    def _captureChildren(self,children):
+
+    def _captureChildren(self, children):
         return True
 
-    def buildChildren(self,children):
+    def buildChildren(self, children):
         objclassdict = self.root.objclassdict
         for child in children:
             tag = child.getAttr('tag')
@@ -208,146 +216,153 @@ class GnrStructObj(GnrObject):
                         self.childalias[alias] = obj
             else:
                 pass
-        
+
     def _get_metadata(self):
         if not hasattr(self, '_metadata'):
             self._metadata = Bag()
         return self._metadata
+
     metadata = property(_get_metadata)
-        
+
     def buildChild(self, childnode, **kwargs):
         objclassdict = self.root.objclassdict
         tag = childnode.getAttr('tag').lower()
         if tag in objclassdict:
             return objclassdict[tag](structnode=childnode, parent=self, **kwargs)
-        
+
     def deleteChild(self, name):
         child = self.children.pop(name)
         child.deleteChildren()
         child.onDelete()
-        
+
     def onDelete(self):
         pass
-    
+
     def deleteChildren(self):
         for k in self.children.keys():
             self.deleteChild(k)
-            
+
     def afterChildrenCreation(self):
         pass
-    
-    def newChild(self,obj):
+
+    def newChild(self, obj):
         pass
-    
+
     def _get_root(self):
-        if self.parent==None:
+        if self.parent == None:
             return self
         else:
             return self.parent.root
+
     root = property(_get_root)
-    
+
     def getById(self, id):
         return self.root.objdict.get(id, None)
-    
+
     def getItem(self, path, default=None, static=False):
         if path.startswith('.'):
             return self.root[path[1:]]
         if path.startswith('!'):
             return self.getById(path[1:])
         obj, label = self._htraverse(path)
-        if hasattr(obj,'get'):
+        if hasattr(obj, 'get'):
             if static:
                 return obj.getResolver(label, default=default)
             return obj.get(label, default)
         else:
             return default
+
     __getitem__ = getItem
-    
+
     def get(self, name, default=None):
-        name = name.lower() 
+        name = name.lower()
         if name in self.children:
             obj = self.children[name]
         elif name in self.childalias:
             obj = self.childalias[name]
         else:
             obj = default
-            
+
         if isinstance(obj, BagResolver):
             return obj()
         else:
             return obj
-        
+
     def getResolver(self, name, default=None):
         return self.children.get(name.lower(), default=default)
-    
-    def _htraverse(self,  pathlist, **kwargs):
+
+    def _htraverse(self, pathlist, **kwargs):
         curr = self
-        if isinstance(pathlist,basestring):
-            pathlist = gnrstring.smartsplit(pathlist.replace('../','#^.'),'.')
+        if isinstance(pathlist, basestring):
+            pathlist = gnrstring.smartsplit(pathlist.replace('../', '#^.'), '.')
             pathlist = [x for x in pathlist if x]
             if not pathlist:
                 return curr, ''
         label = pathlist.pop(0)
-        while label=='#^' and pathlist:
+        while label == '#^' and pathlist:
             curr = curr.parent
             label = pathlist.pop(0)
         if not pathlist:
             return curr, label
-        
+
         newcurr = curr.get(label)
         isbag = hasattr(newcurr, '_htraverse')
         if isbag:
             return newcurr._htraverse(pathlist)
         else:
             return newcurr, '.'.join(pathlist)
-        
+
     def __len__(self):
         return len(self.children)
-    
+
     def __iter__(self):
         return self.children.__iter__()
-    
+
     def __contains__(self, name):
         return (name.lower() in self.children) or (name.lower() in self.childalias)
-    
+
     def items(self):
         return self.children.items()
-        
+
     def keys(self):
         return self.children.keys()
-    
+
     def values(self):
         return self.children.values()
-    
+
     def _set_structnode(self, structnode):
-        if structnode!=None:
+        if structnode != None:
             #self.__structnode=weakref.ref(structnode)
-            self.__structnode=structnode
+            self.__structnode = structnode
         else:
-            self.__structnode=None
+            self.__structnode = None
+
     def _get_structnode(self):
         if self.__structnode:
             return self.__structnode
             #return self.__structnode()
-    structnode = property(_get_structnode, _set_structnode)       
-    
+
+    structnode = property(_get_structnode, _set_structnode)
+
     def _set_parent(self, parent):
         if parent != None:
             #self._parent=weakref.ref(parent)
-            self._parent=parent
+            self._parent = parent
         else:
-            self._parent=None
+            self._parent = None
+
     def _get_parent(self):
-        if hasattr(self,'_parent'):
+        if hasattr(self, '_parent'):
             return self._parent
-    parent = property(_get_parent, _set_parent)  
-    
+
+    parent = property(_get_parent, _set_parent)
+
     def init(self):
         pass
-    
-    def newChild(self,child): 
+
+    def newChild(self, child):
         pass
-    
+
     def afterChildrenCreation(self):
         pass
 
@@ -358,7 +373,7 @@ class GnrStructObj(GnrObject):
 class StructObjResolver(BagResolver):
     def resolverDescription(self):
         return 'tree'
-    
+
     def init(self, obj):
         #self.obj = weakref.ref(obj)
         self.obj = obj
@@ -388,29 +403,30 @@ class StructObjResolver(BagResolver):
         for name, x in obj.items():
             if isinstance(x, GnrStructObj):
                 tag = x.getTag()
-                attr = {'tag':tag}
+                attr = {'tag': tag}
                 attr.update(x.attributes)
                 result.setItem(name, StructObjResolver(x), _attributes=attr)
-            elif isinstance(x, Bag) or isinstance(x, BagResolver):# attributes are lost, we should take from parent node, but it can be a structobj...
-                result.setItem(name, StructObjResolver(x),tag = x.getTag())
+            elif isinstance(x, Bag) or isinstance(x,
+                                                  BagResolver):# attributes are lost, we should take from parent node, but it can be a structobj...
+                result.setItem(name, StructObjResolver(x), tag=x.getTag())
             else:
-                result.setItem(name, x,tag = x.getTag())
+                result.setItem(name, x, tag=x.getTag())
         return result
-    
-    
+
+
 class TestStructModule(object):
     def __init__(self):
         self.struct = GnrStructData.root()
         self.structdict = {}
         self.roots = {}
-        
+
     def buildOne(self, name, path):
         node = self.struct.getNode(path)
-        self.roots[name] = GnrStructObj.root(node,self.structdict)
+        self.roots[name] = GnrStructObj.root(node, self.structdict)
 
 class GnrStructureError(Exception):
     pass
-        
-if __name__=='__main__':
+
+if __name__ == '__main__':
     z = TestStruct()
     

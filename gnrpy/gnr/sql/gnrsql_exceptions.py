@@ -20,11 +20,11 @@
 #License along with this library; if not, write to the Free Software
 #Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 
-__version__='1.0b'
+__version__ = '1.0b'
 
 from gnr.core.gnrlang import GnrException
 
-class GnrSqlException(GnrException): 
+class GnrSqlException(GnrException):
     """Exception raised for sql errors.
 
     Attributes:
@@ -32,25 +32,24 @@ class GnrSqlException(GnrException):
         message -- explanation of the error
     """
 
-    def __init__(self,code,message=None):
+    def __init__(self, code, message=None):
         if not message and ':' in code:
-            code,message=code.split(':',1)
+            code, message = code.split(':', 1)
         self.code = code
         self.message = message
-        
+
 class GnrNonExistingDbException(GnrSqlException):
-    
     def __init__(self, dbname):
         self.dbname = dbname
 
-        
+
 class NotMatchingModelError(GnrSqlException):
     pass
 
 class GnrSqlApplicationException(GnrSqlException):
     pass
-        
-class GnrSqlExecutionException(GnrSqlException): 
+
+class GnrSqlExecutionException(GnrSqlException):
     """Exception raised for sql execution errors.
 
     Attributes:
@@ -58,13 +57,13 @@ class GnrSqlExecutionException(GnrSqlException):
         message -- explanation of the error
     """
 
-    def __init__(self,code,message, sql, params):
+    def __init__(self, code, message, sql, params):
         self.code = code
         self.message = message
         self.sql = sql
         self.params = params
 
-class GnrSqlSaveException(GnrSqlException): 
+class GnrSqlSaveException(GnrSqlException):
     """Exception raised for sql errors.
 
     Attributes:
@@ -73,20 +72,18 @@ class GnrSqlSaveException(GnrSqlException):
     """
     pass
 
-    
-    
-    
-class GnrSqlDeleteException(GnrSqlException): 
+
+class GnrSqlDeleteException(GnrSqlException):
     """Exception raised for sql errors.
         Attributes:code -- error code
                    message -- explanation of the error
     """
     pass
-        
+
 class NotMatchingModelError(GnrSqlException):
     pass
 
-    
+
 class SelectionExecutionError(GnrException):
     pass
 
@@ -101,8 +98,8 @@ class RecordSelectionError(GnrException):
 
 class GnrSqlMissingField(GnrException):
     pass
-    
-class GnrSqlMissingTable(GnrException): 
+
+class GnrSqlMissingTable(GnrException):
     pass
 
 class GnrSqlMissingColumn(GnrException):

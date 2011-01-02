@@ -9,10 +9,10 @@ class GnrCustomWebPage(object):
 
     def pageAuthTags(self, method=None, **kwargs):
         return ''
-        
+
     def windowTitle(self):
         return ''
-         
+
     def main(self, root, **kwargs):
-        root.button('publish',action='genro.publish("testTopic",4,"piero");')
-        root.textbox(value='^pippo',subscribe_testTopic='SET pippo=$1;')
+        root.button('publish', action='genro.publish("testTopic",4,"piero");')
+        root.textbox(value='^pippo', subscribe_testTopic='SET pippo=$1;')

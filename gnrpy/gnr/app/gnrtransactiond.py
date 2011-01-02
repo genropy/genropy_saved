@@ -24,7 +24,7 @@ import os
 from datetime import datetime, timedelta
 import logging
 
-gnrlogger=logging.getLogger('gnr')
+gnrlogger = logging.getLogger('gnr')
 
 from logging.handlers import TimedRotatingFileHandler
 from logging import Formatter
@@ -37,13 +37,13 @@ from gnr.app.gnrapp import GnrApp
 
 from gnr.sql.gnrsql_exceptions import NotMatchingModelError
 from gnr.xtnd.sync4Dtransaction import TransactionManager4D
-    
+
 
 class GnrAppTransactionAgent(GnrApp):
     def onInited(self):
         self._startLog()
-        gnrpkg=self.db.package('gnr')
-        self.listen_timeout = int(gnrpkg.getAttr('listen_timeout_seconds',0)) or 60
+        gnrpkg = self.db.package('gnr')
+        self.listen_timeout = int(gnrpkg.getAttr('listen_timeout_seconds', 0)) or 60
         self.running = False
         self.db.inTransactionDaemon = True
         self.checkModel = False
@@ -62,26 +62,26 @@ class GnrAppTransactionAgent(GnrApp):
                 credentials = (username, password)
             else:
                 credentials = None
-            hdlr=logging.SMTPHandler(mailhost, fromaddr, toaddr, subject,credentials=credentials)
+            hdlr = logging.SMTPHandler(mailhost, fromaddr, toaddr, subject, credentials=credentials)
             gnrlogger.addHandler(hdlr)
 
     def _startLog(self):
         logdir = os.path.join(self.instanceFolder, 'logs')
         if not os.path.isdir(logdir):
             os.makedirs(logdir)
-        logfile = os.path.join(logdir,'gnrtrdaemon.log')
+        logfile = os.path.join(logdir, 'gnrtrdaemon.log')
         loghandler = TimedRotatingFileHandler(logfile, 'MIDNIGHT', 1, 28)
         loghandler.setLevel(logging.DEBUG)
         formatter = Formatter('%(asctime)s - %(name)-12s: %(levelname)-8s %(message)s')
         loghandler.setFormatter(formatter)
-        
+
         rootlogger = logging.getLogger('')
         rootlogger.setLevel(logging.DEBUG)
         rootlogger.addHandler(loghandler)
-        
+
         self.db.package('admin').mailLog(self.processName)
-        
-        
+
+
     def loop(self):
         if self.checkModel:
             changes = self.db.checkDb()
@@ -89,11 +89,12 @@ class GnrAppTransactionAgent(GnrApp):
                 raise NotMatchingModelError('\n'.join(self.db.model.modelChanges))
         self.running = True
         self.checkTransactions()
-        self.db.listen('gnr_transaction_new', timeout=self.listen_timeout, onNotify=self.checkTransactions, onTimeout=self.checkTransactions)
+        self.db.listen('gnr_transaction_new', timeout=self.listen_timeout, onNotify=self.checkTransactions,
+                       onTimeout=self.checkTransactions)
 
     def checkTransactions(self, notify=None):
         try:
-            todo=True
+            todo = True
             while todo:
                 self._doNoQueue()
                 todo = self._doQueue()
@@ -106,43 +107,44 @@ class GnrAppTransactionAgent(GnrApp):
 
     def _get_processName(self):
         return 'transaction daemon: %s' % self.instanceFolder
+
     processName = property(_get_processName)
-        
+
 
     def _doNoQueue(self):
-        l = self.db.table(self.transaction_tname).query(columns='*', 
-                                                     where="$execution_start IS NULL AND $queue_id IS NULL", 
-                                                     order_by="$request", limit=200).fetch()
+        l = self.db.table(self.transaction_tname).query(columns='*',
+                                                        where="$execution_start IS NULL AND $queue_id IS NULL",
+                                                        order_by="$request", limit=200).fetch()
         while l:
             for t in l:
                 self.expandTransaction(t)
-            l = self.db.table(self.transaction_tname).query(columns='*', 
-                                                     where="$execution_start IS NULL AND $queue_id IS NULL", 
-                                                     order_by="$request", limit=200).fetch()
-            
+            l = self.db.table(self.transaction_tname).query(columns='*',
+                                                            where="$execution_start IS NULL AND $queue_id IS NULL",
+                                                            order_by="$request", limit=200).fetch()
+
     def _doQueue(self):
-        stoppedQueues = self.db.table(self.transaction_tname).query(columns='$queue_id', 
-                                                     where="$error_id IS NOT NULL AND $queue_id IS NOT NULL").fetch()
-                                                     
+        stoppedQueues = self.db.table(self.transaction_tname).query(columns='$queue_id',
+                                                                    where="$error_id IS NOT NULL AND $queue_id IS NOT NULL").fetch()
+
         stoppedQueues = [r[0] for r in stoppedQueues]
         stoppedQuery = ""
         if stoppedQueues:
             stoppedQuery = "AND (NOT ($queue_id IN :stoppedQueues ))"
-        l = self.db.table(self.transaction_tname).query(columns='*', 
-                                                     where="""($execution_start IS NULL)
+        l = self.db.table(self.transaction_tname).query(columns='*',
+                                                        where="""($execution_start IS NULL)
                                                               AND ($queue_id IS NOT NULL)
-                                                              %s""" % stoppedQuery, 
-                                                     stoppedQueues=stoppedQueues,
-                                                     order_by="$request", limit=200).fetch()
+                                                              %s""" % stoppedQuery,
+                                                        stoppedQueues=stoppedQueues,
+                                                        order_by="$request", limit=200).fetch()
         for t in l:
             ok = self.expandTransaction(t)
             if not ok:
                 break
-        return (len(l)==200)
-    
+        return (len(l) == 200)
+
 
     def expandTransaction(self, transaction):
-        trargs = {'id':transaction['id'], 'execution_start':datetime.now()}
+        trargs = {'id': transaction['id'], 'execution_start': datetime.now()}
         print transaction['id']
         try:
             tablepath = transaction['maintable']
@@ -151,18 +153,18 @@ class GnrAppTransactionAgent(GnrApp):
             mode = transaction['mode'].strip()
             implementor = transaction['implementor']
             if implementor:
-                implementor=implementor.strip()
+                implementor = implementor.strip()
             gnrlogger.info("%s -> %s" % (action, tablepath))
             if mode == 'import':
                 self.transaction4d.do_import(data, tablepath)
             elif mode == 'sync':
-                pkg, table = tablepath.split('.',1)
+                pkg, table = tablepath.split('.', 1)
                 self.transaction4d.do_sync_trigger(data, pkg, table, action)
             elif implementor:
                 self.executeTransaction(implementor, data)
             else:
                 raise "unknown mode: '%s' %s" % (str(mode), str(mode == 'import'))
-                
+
             trargs['execution_end'] = datetime.now()
             #self.db.execute("UPDATE gnr.gnr_transaction SET execution_start=:ts_start, execution_end=:ts_end WHERE id=:id;", ts_end=datetime.now(), **trargs)
             self.db.table(self.transaction_tname).update(trargs)
@@ -170,19 +172,19 @@ class GnrAppTransactionAgent(GnrApp):
             result = True
         except:
             self.db.rollback()
-            
+
             errtbl = self.db.table(self.error_tname)
             errid = errtbl.newPkeyValue()
             trargs['error_id'] = errid
             trargs['execution_end'] = datetime.now()
-            
+
             #self.db.execute("UPDATE gnr.gnr_transaction SET error_id=:err_id, execution_start=:ts_start, execution_end=:ts_end WHERE id=:id;", err_id=err_id, ts_end=ts_end, **trargs)
             self.db.table(self.transaction_tname).update(trargs)
             tb_text = errorLog(self.processName)
             gnrlogger.error(tb_text)
 
             #self.db.execute("INSERT INTO gnr.gnr_error (id, ts, data) VALUES (:id, :ts, :data);", id=err_id, ts=ts_end, data=tb_text)
-            
+
             errtbl.insert(dict(id=errid, ts=trargs['execution_end'], data=tb_text))
             self.db.commit()
             result = False

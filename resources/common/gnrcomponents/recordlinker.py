@@ -23,13 +23,15 @@ from gnr.web.gnrbaseclasses import BaseComponent
 import warnings
 
 class RecordLinker(BaseComponent):
-    py_requires="foundation/recorddialog"
-    def recordLinker(self,*args,**kwargs):
+    py_requires = "foundation/recorddialog"
+
+    def recordLinker(self, *args, **kwargs):
         warnings.warn("recordLinker is deprecated, use linkerField instead.", DeprecationWarning, stacklevel=2)
-        self.linkerField(*args,**kwargs)        
-    
+        self.linkerField(*args, **kwargs)
+
     def linkerField(self, fb, table=None, field=None, dialogPars=None, record_template=None, record_path=None, lbl=None,
-                    value=None, width=None, height=None, colspan=1,rowspan=1, disabled=False, default_path=None, zoom=False,
+                    value=None, width=None, height=None, colspan=1, rowspan=1, disabled=False, default_path=None,
+                    zoom=False,
                     record_reloader=None, **kwargs):
         """Creates a linker inside a formbuilder.
         
@@ -47,73 +49,74 @@ class RecordLinker(BaseComponent):
         :param default_path:    ???
         :param record_reloader: datapath
         """
-        
+
         # --------------------------------------------------------------------------------------------- Mandatory parameters
-        
+
         assert table is not None, "table parameter is mandatory"
         assert dialogPars is not None, "dialogPars is mandatory (and please remember to specify dlgId in your dialogPars)"
         assert 'dlgId' in dialogPars, "dlgId in dialogPars is mandatory"
-        
+
         assert not 'firedPkey' in dialogPars, "dialogPars must not contain 'firedPkey'. The linker uses it internally."
         assert not 'savedPath' in dialogPars, "dialogPars must not contain 'savedPath'. The linker uses it internally."
-        
+
         # --------------------------------------------------------------------------------------------- Code
-        selectorBox = fb.div(lbl=lbl,lbl_vertical_align='top',
-                            min_height=height,width=width,colspan=colspan,
-                            rowspan=rowspan,position='relative')
+        selectorBox = fb.div(lbl=lbl, lbl_vertical_align='top',
+                             min_height=height, width=width, colspan=colspan,
+                             rowspan=rowspan, position='relative')
         if field:
-            selector = selectorBox.field(field,position='absolute', zoom=zoom,
-                                        left='0px',top='0px',width='100%',disabled=disabled,**kwargs)
+            selector = selectorBox.field(field, position='absolute', zoom=zoom,
+                                         left='0px', top='0px', width='100%', disabled=disabled, **kwargs)
             if zoom:
-                self._zoom_fix(selector,lbl)
-            fieldrelpath = '.%s' %field.split('.')[-1]
+                self._zoom_fix(selector, lbl)
+            fieldrelpath = '.%s' % field.split('.')[-1]
             if not value:
-                value = '^%s' %fieldrelpath
+                value = '^%s' % fieldrelpath
         else:
-            selector = selectorBox.dbSelect(value=value,dbtable=table,position='absolute',
-                                        left='0px',top='0px',width='100%',disabled=disabled,**kwargs)
+            selector = selectorBox.dbSelect(value=value, dbtable=table, position='absolute',
+                                            left='0px', top='0px', width='100%', disabled=disabled, **kwargs)
             fieldrelpath = value[1:]
-        
-        selector.button('!!Add',position='absolute',right='2px',z_index='100',iconClass='icnBaseAdd',
-                        baseClass='no_background', showLabel=False,disabled=disabled,
-                        connect_onclick='FIRE #%s.pkey;' %dialogPars['dlgId'],top='-2px')
-        selectorViewer = selectorBox.div(_class='box_tpl',position='absolute',background_color='white',
-                            top='17px',bottom='0px',
-                            left='1px',width='100%',border='1px solid silver',
-                            border_top='0px',style="""-moz-border-radius-bottomleft:6px;
+
+        selector.button('!!Add', position='absolute', right='2px', z_index='100', iconClass='icnBaseAdd',
+                        baseClass='no_background', showLabel=False, disabled=disabled,
+                        connect_onclick='FIRE #%s.pkey;' % dialogPars['dlgId'], top='-2px')
+        selectorViewer = selectorBox.div(_class='box_tpl', position='absolute', background_color='white',
+                                         top='17px', bottom='0px',
+                                         left='1px', width='100%', border='1px solid silver',
+                                         border_top='0px', style="""-moz-border-radius-bottomleft:6px;
                                                       -moz-border-radius-bottomright:6px;
                                                    """)
-        selectorViewer.div(innerHTML='==dataTemplate(_tpl,_data)',_data='^%s' %record_path, _tpl=record_template)
-        selectorViewer.button('!!Edit',baseClass='no_background',showLabel=False,
-                    right='2px',z_index='100',bottom='2px',position='absolute',
-                    action='FIRE #%s.pkey = GET %s;' %(dialogPars['dlgId'], fieldrelpath),
-                    visible=value,
-                    iconClass='icnBaseEdit')#disabled=disabled)
-          
-        selectorBox.dataRecord(record_path,table,pkey=record_reloader or value, _if='pkey',_else='null',
-            _fired='^#%s.recordSaved' %dialogPars['dlgId'])
-        selectorBox.dataController("console.log(savedId); SET %s = savedId;" %fieldrelpath,
-                                    savedId='=#%s.savedId' %dialogPars['dlgId'],
-                                    _fired='^#%s.recordSaved' %dialogPars['dlgId'])
+        selectorViewer.div(innerHTML='==dataTemplate(_tpl,_data)', _data='^%s' % record_path, _tpl=record_template)
+        selectorViewer.button('!!Edit', baseClass='no_background', showLabel=False,
+                              right='2px', z_index='100', bottom='2px', position='absolute',
+                              action='FIRE #%s.pkey = GET %s;' % (dialogPars['dlgId'], fieldrelpath),
+                              visible=value,
+                              iconClass='icnBaseEdit')#disabled=disabled)
+
+        selectorBox.dataRecord(record_path, table, pkey=record_reloader or value, _if='pkey', _else='null',
+                               _fired='^#%s.recordSaved' % dialogPars['dlgId'])
+        selectorBox.dataController("console.log(savedId); SET %s = savedId;" % fieldrelpath,
+                                   savedId='=#%s.savedId' % dialogPars['dlgId'],
+                                   _fired='^#%s.recordSaved' % dialogPars['dlgId'])
         onSaved = ''
         if 'onSaved' in dialogPars:
             onSaved = dialogPars.pop('onSaved')
-        self.recordDialog(table,firedPkey='^#%s.pkey' %dialogPars['dlgId'],
-                         onSaved='FIRE #%s.recordSaved; %s' %(dialogPars['dlgId'],onSaved),
-                         savePath='#%s.savedId' %dialogPars['dlgId'],**dialogPars)
-        
-    def linkerPane(self,parent,table=None,field=None,dialogPars=None,record_template=None,record_path=None,label=None,
-                    value=None,width=None,height=None,colspan=1,rowspan=1,disabled=False,
-                    default_path=None, record_reloader=None,**kwargs):
+        self.recordDialog(table, firedPkey='^#%s.pkey' % dialogPars['dlgId'],
+                          onSaved='FIRE #%s.recordSaved; %s' % (dialogPars['dlgId'], onSaved),
+                          savePath='#%s.savedId' % dialogPars['dlgId'], **dialogPars)
+
+    def linkerPane(self, parent, table=None, field=None, dialogPars=None, record_template=None, record_path=None,
+                   label=None,
+                   value=None, width=None, height=None, colspan=1, rowspan=1, disabled=False,
+                   default_path=None, record_reloader=None, **kwargs):
         raise NotImplementedError("Not yet implemented.")
 
-    def _zoom_fix(self,fieldcell,lbl):
+    def _zoom_fix(self, fieldcell, lbl):
         attr = fieldcell.parentNode.attr
         lblattr = dict()
-        for k,v in attr.items():
+        for k, v in attr.items():
             if k.startswith('lbl_'):
                 lblattr[k[4:]] = attr.pop(k)
-        lblattr['_class'] = '%s gnrfieldlabel' %lblattr['_class']
+        lblattr['_class'] = '%s gnrfieldlabel' % lblattr['_class']
         row = fieldcell.parent.parent.parent
-        lblcell_path = fieldcell.parent.parent.parentNode.label.replace('f','l')
-        row.setItem('%s.#0' %lblcell_path,lbl,tag='a',**lblattr)
+        lblcell_path = fieldcell.parent.parent.parentNode.label.replace('f', 'l')
+        row.setItem('%s.#0' % lblcell_path, lbl, tag='a', **lblattr)

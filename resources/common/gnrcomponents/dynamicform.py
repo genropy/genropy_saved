@@ -25,8 +25,8 @@ from gnr.web.gnrbaseclasses import BaseComponent
 from gnr.core.gnrbag import Bag
 
 class DynamicForm(BaseComponent):
-    def dynamicForm(self,parent,storepath=None,nodeId=None,row_types=None,type_field=None,label=None,
-                    defaultstore=None,disabled=None,reloader=None,addRemove=True,**kwargs):
+    def dynamicForm(self, parent, storepath=None, nodeId=None, row_types=None, type_field=None, label=None,
+                    defaultstore=None, disabled=None, reloader=None, addRemove=True, **kwargs):
         """params:
            parent:where you append DynamicForm
            storepath:where the DynamicForm set/get the values
@@ -37,17 +37,17 @@ class DynamicForm(BaseComponent):
            reloader: 
            """
         menu = None
-        controllerPath = '_wks.%s' %nodeId
-        if isinstance(row_types,dict):
+        controllerPath = '_wks.%s' % nodeId
+        if isinstance(row_types, dict):
             menu = Bag()
-            for k,v in row_types.items():
-                menu.setItem(k,None,label=v)
-        containerId ='%s_box' %nodeId 
+            for k, v in row_types.items():
+                menu.setItem(k, None, label=v)
+        containerId = '%s_box' % nodeId
         defaultstore = defaultstore or Bag()
-        controller = parent.dataController(datapath=controllerPath,nodeId=nodeId)
-        controller.data('.menu',menu)
-        controller.data('.defaultstore',defaultstore)
-        controller.dataFormula(".locked", "locked",locked=disabled)
+        controller = parent.dataController(datapath=controllerPath, nodeId=nodeId)
+        controller.data('.menu', menu)
+        controller.data('.defaultstore', defaultstore)
+        controller.dataFormula(".locked", "locked", locked=disabled)
         controller.dataController("""
                             var box = genro.nodeById(boxId);
                             box.clearValue();
@@ -66,8 +66,8 @@ class DynamicForm(BaseComponent):
                             box._('div',{remote:{method:'df_initialize',storebag:storebag,dfId:dfId,
                                                type_field:type_field,menu:menu}});
                                                
-                            """,boxId=containerId,_fired=reloader,storepath=storepath,del_row='^.del_row',
-                            dfId=nodeId,defaultstore='=.defaultstore',type_field=type_field,menu='=.menu')
+                            """, boxId=containerId, _fired=reloader, storepath=storepath, del_row='^.del_row',
+                                  dfId=nodeId, defaultstore='=.defaultstore', type_field=type_field, menu='=.menu')
         controller.dataController("""
                                var box = genro.nodeById(boxId);
                                var newRow = new gnr.GnrBagNode(null,'label');
@@ -76,28 +76,29 @@ class DynamicForm(BaseComponent):
                                var remotePars ={'method':'df_row',row_type:add_row,dfId:dfId,menu:menu};
                                box._('div',{datapath:row_datapath,remote:remotePars});
                                 """,
-                                add_row="^.add_row",dfId=nodeId,storepath=storepath,
-                                boxId=containerId,type_field=type_field,menu='=.menu')
-                                
-        bc = parent.borderContainer(_class='pbl_roundedGroup',**kwargs)
+                                  add_row="^.add_row", dfId=nodeId, storepath=storepath,
+                                  boxId=containerId, type_field=type_field, menu='=.menu')
+
+        bc = parent.borderContainer(_class='pbl_roundedGroup', **kwargs)
         top = bc.contentPane(_class='pbl_roundedGroupLabel')
-        top.div(label,float='left')
-        top.dropDownButton('Add',baseClass='no_background',iconClass='buttonIcon icnBaseAdd',float='right',showLabel=False).menu(storepath='.menu',
-                                    action='FIRE .add_row=$1.fullpath;',_class='smallmenu',
-                                    datapath=controllerPath)
-        bc.div(nodeId=containerId,datapath=storepath)
-    
-    def remote_df_initialize(self,pane,storebag=None,dfId=None,type_field=None,menu=None):
-        for i,node in enumerate(storebag):
+        top.div(label, float='left')
+        top.dropDownButton('Add', baseClass='no_background', iconClass='buttonIcon icnBaseAdd', float='right',
+                           showLabel=False).menu(storepath='.menu',
+                                                 action='FIRE .add_row=$1.fullpath;', _class='smallmenu',
+                                                 datapath=controllerPath)
+        bc.div(nodeId=containerId, datapath=storepath)
+
+    def remote_df_initialize(self, pane, storebag=None, dfId=None, type_field=None, menu=None):
+        for i, node in enumerate(storebag):
             row = node.value
-            self.remote_df_row(pane.div(datapath='.%s' %node.label),row_type=row[type_field],dfId=dfId,menu=menu)
-            
-    def remote_df_row(self,pane,row_type=None,dfId=None,menu=None):
+            self.remote_df_row(pane.div(datapath='.%s' % node.label), row_type=row[type_field], dfId=dfId, menu=menu)
+
+    def remote_df_row(self, pane, row_type=None, dfId=None, menu=None):
         fb = pane.formbuilder(cols=2, border_spacing='4px')
-        disabled='^#%s.locked' %dfId
-        if hasattr(self,'%s_%s_row' %(dfId,row_type)):
-            cb = getattr(self,'%s_%s_row' %(dfId,row_type))
+        disabled = '^#%s.locked' % dfId
+        if hasattr(self, '%s_%s_row' % (dfId, row_type)):
+            cb = getattr(self, '%s_%s_row' % (dfId, row_type))
         else:
-            cb = getattr(self,'%s_row' %(dfId))
-        cb(fb.div(lbl=menu['%s?label' %row_type],disabled=disabled))
-        fb.button(baseClass='no_background',_class='icnBaseTrash',action='FIRE #%s.del_row;' %dfId,disabled=None)
+            cb = getattr(self, '%s_row' % (dfId))
+        cb(fb.div(lbl=menu['%s?label' % row_type], disabled=disabled))
+        fb.button(baseClass='no_background', _class='icnBaseTrash', action='FIRE #%s.del_row;' % dfId, disabled=None)

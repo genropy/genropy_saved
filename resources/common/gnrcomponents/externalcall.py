@@ -21,25 +21,24 @@
 from gnr.web.gnrbaseclasses import BaseComponent
 
 class BaseRpc(BaseComponent):
-    def rootPage(self,*args, **kwargs):
-
-            
+    def rootPage(self, *args, **kwargs):
         if 'pagetemplate' in kwargs:
             kwargs.pop('pagetemplate')
         if args:
-            method = getattr(self,'rpc_%s'%args[0],None)
+            method = getattr(self, 'rpc_%s' % args[0], None)
             if not method:
-                return self.rpc_error(*args,**kwargs)
-            args=list(args)
+                return self.rpc_error(*args, **kwargs)
+            args = list(args)
             args.pop(0)
         else:
             method = self.rpc_index
-        return method(*args,**kwargs)
-        
+        return method(*args, **kwargs)
+
     def validIpList(self):
         return None
-    def rpc_index(self,*args,**kwargs):
+
+    def rpc_index(self, *args, **kwargs):
         return 'Dummy rpc'
-        
-    def rpc_error(self,method, *args,**kwargs):
+
+    def rpc_error(self, method, *args, **kwargs):
         return 'Not existing method %s' % method

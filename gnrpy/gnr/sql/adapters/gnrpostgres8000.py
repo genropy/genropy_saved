@@ -30,33 +30,34 @@ from gnr.sql.adapters._gnrbaseadapter import GnrDictRow, GnrWhereTranslator
 from gnr.sql.adapters._gnrbaseadapter import SqlDbAdapter as SqlDbBaseAdapter
 from gnr.core.gnrbag import Bag
 from gnr.core.gnrlist import GnrNamedList
-DBAPI.paramstyle='pyformat'
+
+DBAPI.paramstyle = 'pyformat'
 RE_SQL_PARAMS = re.compile(":(\w*)(\W|$)")
 
 class DictCursorWrapper(CursorWrapper):
-    
-    def __init__(self,*args,**kwargs):
-        super(DictCursorWrapper,self).__init__(*args, **kwargs)
+    def __init__(self, *args, **kwargs):
+        super(DictCursorWrapper, self).__init__(*args, **kwargs)
         self._query_executed = 0
+
     @require_open_cursor
-    def fetchone(self,no_index=False):
+    def fetchone(self, no_index=False):
         if self._query_executed and not no_index:
             self._build_index()
-        return GnrNamedList(self.index,values=self.cursor.read_tuple())
-        
+        return GnrNamedList(self.index, values=self.cursor.read_tuple())
+
     @require_open_cursor
     def fetchall(self):
         if self._query_executed:
             self._build_index()
-        return [GnrNamedList(self.index,values=values) for values in DataIterator(self.cursor,Cursor.read_tuple)]
+        return [GnrNamedList(self.index, values=values) for values in DataIterator(self.cursor, Cursor.read_tuple)]
         #GnrNamedList(obj.index,values=obj.cursor.read_tuple())
-        
+
     @require_open_cursor
     def fetchmany(self, size=None):
-        if size==None:
-            res = super(DictCursorWrapper,self).fetchmany()
+        if size == None:
+            res = super(DictCursorWrapper, self).fetchmany()
         else:
-            res = super(DictCursorWrapper,self).fetchmany(size)
+            res = super(DictCursorWrapper, self).fetchmany(size)
         if self._query_executed:
             self._build_index()
         return res
@@ -65,16 +66,16 @@ class DictCursorWrapper(CursorWrapper):
     def next(self):
         if self._query_executed:
             self._build_index()
-        res = super(DictCursorWrapper,self).fetchone()
+        res = super(DictCursorWrapper, self).fetchone()
         if res is None:
             raise StopIteration()
         return res
-    
+
     @require_open_cursor
     def execute(self, operation, args=()):
         self.index = {}
         self._query_executed = 1
-        return super(DictCursorWrapper,self).execute(operation, args)
+        return super(DictCursorWrapper, self).execute(operation, args)
 
     def _build_index(self):
         if self._query_executed == 1 and self.description:
@@ -88,32 +89,34 @@ class DictConnectionWrapper(ConnectionWrapper):
         return DictCursorWrapper(self.conn, self)
 
 class SqlDbAdapter(SqlDbBaseAdapter):
-    typesDict = {'character varying':'A', 'character':'C', 'text':'T', 
-                 'boolean':'B', 'date':'D', 'time without time zone':'H', 'timestamp without time zone':'DH',
-                 'timestamp with time zone':'DH',
-                 'integer':'I', 'bigint':'L','smallint':'I', 'double precision':'R', 'real':'R', 'bytea':'O'}
-    
-    revTypesDict = {'A':'character varying', 'T':'text', 'C':'character',
-                    'X':'text','P':'text','Z':'text',
-                 'B':'boolean', 'D':'date', 'H':'time without time zone', 'DH':'timestamp without time zone',
-                 'I':'integer', 'L':'bigint', 'R':'real',
-                 'serial':'serial8','O':'bytea'}
-    
-    
+    typesDict = {'character varying': 'A', 'character': 'C', 'text': 'T',
+                 'boolean': 'B', 'date': 'D', 'time without time zone': 'H', 'timestamp without time zone': 'DH',
+                 'timestamp with time zone': 'DH',
+                 'integer': 'I', 'bigint': 'L', 'smallint': 'I', 'double precision': 'R', 'real': 'R', 'bytea': 'O'}
+
+    revTypesDict = {'A': 'character varying', 'T': 'text', 'C': 'character',
+                    'X': 'text', 'P': 'text', 'Z': 'text',
+                    'B': 'boolean', 'D': 'date', 'H': 'time without time zone', 'DH': 'timestamp without time zone',
+                    'I': 'integer', 'L': 'bigint', 'R': 'real',
+                    'serial': 'serial8', 'O': 'bytea'}
+
+
     def defaultMainSchema(self):
         return 'public'
-    
+
     def connect(self):
         """Return a new connection object: provides cursors accessible by col number or col name
         @return: a new connection object"""
         dbroot = self.dbroot
-        kwargs = dict(host=dbroot.host, database=dbroot.dbname, user=dbroot.user, password=dbroot.password, port=dbroot.port )
-        kwargs = dict([(k,v) for k,v in kwargs.items() if v != None]) # remove None parameters, psycopg can't handle them
+        kwargs = dict(host=dbroot.host, database=dbroot.dbname, user=dbroot.user, password=dbroot.password,
+                      port=dbroot.port)
+        kwargs = dict(
+                [(k, v) for k, v in kwargs.items() if v != None]) # remove None parameters, psycopg can't handle them
         #kwargs['charset']='utf8'
         conn = DictConnectionWrapper(**kwargs)
         return conn
-        
-    
+
+
     def prepareSqlText(self, sql, kwargs):
         """Change the format of named arguments in the query from ':argname' to '%(argname)s'.
         Replace the 'REGEXP' operator with '~*'.
@@ -121,32 +124,32 @@ class SqlDbAdapter(SqlDbBaseAdapter):
         @param kwargs: the params dict
         @return: tuple (sql, kwargs)
         """
-        return RE_SQL_PARAMS.sub(r'%(\1)s\2', sql).replace('REGEXP','~*'), kwargs
-    
+        return RE_SQL_PARAMS.sub(r'%(\1)s\2', sql).replace('REGEXP', '~*'), kwargs
+
     def _managerConnection(self):
-        dbroot=self.dbroot
-        kwargs = dict(host=dbroot.host, database='template1', user=dbroot.user, 
-                                 password=dbroot.password, port=dbroot.port)
-        kwargs = dict([(k,v) for k,v in kwargs.items() if v != None])
+        dbroot = self.dbroot
+        kwargs = dict(host=dbroot.host, database='template1', user=dbroot.user,
+                      password=dbroot.password, port=dbroot.port)
+        kwargs = dict([(k, v) for k, v in kwargs.items() if v != None])
         #conn =  psycopg2.connect(**kwargs)
         conn = DictConnectionWrapper(**kwargs)
         #conn.set_isolation_level(ISOLATION_LEVEL_AUTOCOMMIT)
         return conn
-    
+
     def createDb(self, name, encoding='unicode'):
         conn = self._managerConnection()
         curs = conn.cursor()
         curs.execute("CREATE DATABASE %s ENCODING '%s';" % (name, encoding))
         curs.close()
         conn.close()
-        
+
     def dropDb(self, name):
         conn = self._managerConnection()
         curs = conn.cursor()
         curs.execute("DROP DATABASE %s;" % name)
         curs.close()
         conn.close()
-        
+
     def createTableAs(self, sqltable, query, sqlparams):
         self.dbroot.execute("CREATE TABLE %s WITH OIDS AS %s;" % (sqltable, query), sqlparams)
 
@@ -158,7 +161,7 @@ class SqlDbAdapter(SqlDbBaseAdapter):
         else:
             self.dbroot.execute('VACUUM ANALYZE %s;' % table)
         self.dbroot.connection.set_isolation_level(ISOLATION_LEVEL_READ_COMMITTED)
-        
+
     def listen(self, msg, timeout=10, onNotify=None, onTimeout=None):
         """Listen for message 'msg' on the current connection using the Postgres LISTEN - NOTIFY method.
         onTimeout callbacks are executed on every timeout, onNotify on messages.
@@ -172,15 +175,15 @@ class SqlDbAdapter(SqlDbBaseAdapter):
         curs = self.dbroot.execute('LISTEN %s;' % msg)
         listening = True
         while listening:
-            if select.select([curs],[],[],timeout)==([],[],[]):
-                if onTimeout!=None:
+            if select.select([curs], [], [], timeout) == ([], [], []):
+                if onTimeout != None:
                     listening = onTimeout()
             else:
                 if curs.isready():
-                    if onNotify!=None:
+                    if onNotify != None:
                         listening = onNotify(curs.connection.notifies.pop())
         self.dbroot.connection.set_isolation_level(ISOLATION_LEVEL_READ_COMMITTED)
-        
+
     def notify(self, msg, autocommit=False):
         """Notify a message to listener processes using the Postgres LISTEN - NOTIFY method.
         @param msg: name of the message to notify
@@ -193,29 +196,29 @@ class SqlDbAdapter(SqlDbBaseAdapter):
         """Get a list of element names.
         @param elType: one of the following: schemata, tables, columns, views.
         @param kwargs: schema, table
-        @return: list of object names"""        
+        @return: list of object names"""
         query = getattr(self, '_list_%s' % elType)()
         result = self.dbroot.execute(query, kwargs).fetchall()
         return [r[0] for r in result]
-    
+
     def _list_schemata(self):
         return """SELECT schema_name FROM information_schema.schemata 
               WHERE schema_name != 'information_schema' AND schema_name NOT LIKE 'pg_%%'"""
-    
+
     def _list_tables(self):
         return """SELECT table_name FROM information_schema.tables
                                     WHERE table_schema=:schema"""
-    
+
     def _list_views(self):
         return """SELECT table_name FROM information_schema.views WHERE table_schema=:schema"""
-    
+
     def _list_columns(self):
         return """SELECT column_name as col
                                   FROM information_schema.columns 
                                   WHERE table_schema=:schema 
                                   AND table_name=:table 
                                   ORDER BY ordinal_position"""
-    
+
     def relations(self):
         """Get a list of all relations in the db. 
         Each element of the list is a list (or tuple) with this elements:
@@ -266,7 +269,7 @@ class SqlDbAdapter(SqlDbBaseAdapter):
         @param table: table name
         @param schema: schema name
         @return: list of columns which are the primary key for the table"""
-        sql= """SELECT k.column_name        AS col
+        sql = """SELECT k.column_name        AS col
                 FROM   information_schema.key_column_usage      AS k 
                 JOIN   information_schema.table_constraints     AS c
                 ON     c.constraint_catalog = k.constraint_catalog 
@@ -277,7 +280,7 @@ class SqlDbAdapter(SqlDbBaseAdapter):
                 AND    c.constraint_type    ='PRIMARY KEY'
                 ORDER BY k.ordinal_position"""
         return [r['col'] for r in self.dbroot.execute(sql, dict(schema=schema, table=table)).fetchall()]
-    
+
     def getIndexesForTable(self, table, schema):
         """Get a (list of) dict containing details about all the indexes of a table.
         Each dict has this info: name, primary (bool), unique (bool), columns (comma separated string)
@@ -292,7 +295,7 @@ class SqlDbAdapter(SqlDbBaseAdapter):
                    WHERE nspname=:schema AND tblcls.relname=:table;"""
         indexes = self.dbroot.execute(sql, dict(schema=schema, table=table)).fetchall()
         return indexes
-        
+
     def getColInfo(self, table, schema, column=None):
         """Get a (list of) dict containing details about a column or all the columns of a table.
         Each dict has those info: name, position, default, dtype, length, notnull
@@ -312,16 +315,16 @@ class SqlDbAdapter(SqlDbBaseAdapter):
         filtercol = ""
         if column:
             filtercol = "AND column_name=:column"
-        columns = self.dbroot.execute(sql % filtercol, 
-                                            dict(schema=schema,
-                                                 table=table,
-                                                 column=column)).fetchall()
+        columns = self.dbroot.execute(sql % filtercol,
+                                      dict(schema=schema,
+                                           table=table,
+                                           column=column)).fetchall()
         result = []
         for col in columns:
             col = dict(col)
-            col = self._filterColInfo(col,'_pg_')
+            col = self._filterColInfo(col, '_pg_')
             col['dtype'] = self.typesDict.get(col['dtype'], 'T') #for unrecognized types default dtype is T
-            col['notnull'] = (col['notnull']=='NO')
+            col['notnull'] = (col['notnull'] == 'NO')
             result.append(col)
         if column:
             result = result[0]

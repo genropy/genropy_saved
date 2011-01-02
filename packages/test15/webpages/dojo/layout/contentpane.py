@@ -5,12 +5,12 @@
 # Copyright (c) 2010 Softwell. All rights reserved.
 
 class GnrCustomWebPage(object):
-    py_requires="gnrcomponents/testhandler:TestHandlerBase"
+    py_requires = "gnrcomponents/testhandler:TestHandlerBase"
 
     def windowTitle(self):
         return ''
-         
-    def test_(self,pane):
+
+    def test_(self, pane):
         pass
 
 class ToFix(object):
@@ -24,7 +24,7 @@ class FixedToCheck(object):
     Fixed but it suggests that we could have problems in rebulding for many widgets
     as we use magic trick instead of testing specific widget type.
     """
-    
+
 class Fixed(object):
     """docstring for Fixed"""
         

@@ -4,8 +4,8 @@
 from gnr.web.gnrhtmlpage import GnrHtmlDojoPage as page_factory
 
 class GnrCustomWebPage(object):
-    dojo_version='14'
-    theme='soria'
+    dojo_version = '14'
+    theme = 'soria'
 
     def main(self, body, name='World'):
         body.script("""var makeChart=function(){
@@ -16,9 +16,9 @@ class GnrCustomWebPage(object):
                             chart.render();
                             };
                        dojo.addOnLoad(makeChart);""")
-        bc=body.borderContainer(height='500px',width='600px',margin='10px',background_color='red')
-        bc.contentPane(region='top',height='5ex',splitter='true',background_color='lime')
-        bc.contentPane(region='left',width='15em',splitter='true',background_color='gray')
-        pane=bc.contentPane(region='center',padding='5px')
-        pane.div(id="mychart", width='100%' , height='100%')
-        pane.div( id="mychart_legend")
+        bc = body.borderContainer(height='500px', width='600px', margin='10px', background_color='red')
+        bc.contentPane(region='top', height='5ex', splitter='true', background_color='lime')
+        bc.contentPane(region='left', width='15em', splitter='true', background_color='gray')
+        pane = bc.contentPane(region='center', padding='5px')
+        pane.div(id="mychart", width='100%', height='100%')
+        pane.div(id="mychart_legend")

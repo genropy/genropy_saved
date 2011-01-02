@@ -5,7 +5,7 @@ from gnr.core import gnrdate
 import datetime
 
 def test_relativeDay():
-    workdate = datetime.date(2008,4,25)
+    workdate = datetime.date(2008, 4, 25)
     res = gnrdate.decodeDatePeriod("today", workdate=workdate)
     assert res == '2008-04-25'
     res = gnrdate.decodeDatePeriod("yesterday", workdate=workdate)
@@ -13,16 +13,16 @@ def test_relativeDay():
     res = gnrdate.decodeDatePeriod("tomorrow", workdate=workdate)
     assert res == '2008-04-26'
 
-    workdate = datetime.date(2008,4,1)
+    workdate = datetime.date(2008, 4, 1)
     res = gnrdate.decodeDatePeriod("yesterday", workdate=workdate)
     assert res == '2008-03-31'
 
-    workdate = datetime.date(2008,4,30)
+    workdate = datetime.date(2008, 4, 30)
     res = gnrdate.decodeDatePeriod("tomorrow", workdate=workdate)
     assert res == '2008-05-01'
 
 def test_relativeDayLocal():
-    workdate = datetime.date(2008,4,25)
+    workdate = datetime.date(2008, 4, 25)
     res = gnrdate.decodeDatePeriod("oggi", workdate=workdate, locale='it')
     assert res == '2008-04-25'
     res = gnrdate.decodeDatePeriod("ieri", workdate=workdate, locale='it')
@@ -31,7 +31,7 @@ def test_relativeDayLocal():
     assert res == '2008-04-26'
 
 def test_week():
-    workdate = datetime.date(2008,4,25)
+    workdate = datetime.date(2008, 4, 25)
     res = gnrdate.decodeDatePeriod("this week", workdate=workdate)
     assert res == '2008-04-21;2008-04-27'
 
@@ -42,7 +42,7 @@ def test_week():
     assert res == '2008-04-14;2008-04-20'
 
 def test_month():
-    workdate = datetime.date(2008,4,25)
+    workdate = datetime.date(2008, 4, 25)
     res = gnrdate.decodeDatePeriod("this month", workdate=workdate)
     assert res == '2008-04-01;2008-04-30'
 
@@ -56,7 +56,7 @@ def test_month():
     assert res == '2008-03-01;2008-03-31'
 
 def test_monthLocal():
-    workdate = datetime.date(2008,4,25)
+    workdate = datetime.date(2008, 4, 25)
     res = gnrdate.decodeDatePeriod("questo mese", workdate=workdate, locale='it')
     assert res == '2008-04-01;2008-04-30'
 
@@ -64,7 +64,7 @@ def test_monthLocal():
     assert res == '2008-04-01;2008-04-30'
 
 def test_year():
-    workdate = datetime.date(2008,4,25)
+    workdate = datetime.date(2008, 4, 25)
     res = gnrdate.decodeDatePeriod("2007", workdate=workdate)
     assert res == '2007-01-01;2007-12-31'
 
@@ -75,15 +75,15 @@ def test_year():
     assert res == '1996-01-01;1996-12-31'
 
 def test_monthName():
-    workdate = datetime.date(2008,4,25)
+    workdate = datetime.date(2008, 4, 25)
     res = gnrdate.decodeDatePeriod("february", workdate=workdate)
     assert res == '2008-02-01;2008-02-29'
 
 def test_periodTo():
-    workdate = datetime.date(2008,4,25)
+    workdate = datetime.date(2008, 4, 25)
     res = gnrdate.decodeDatePeriod("to tomorrow", workdate=workdate)
     assert res == ';2008-04-26'
-    
+
     res = gnrdate.decodeDatePeriod("to january", workdate=workdate)
     assert res == ';2008-01-31'
 
@@ -95,13 +95,13 @@ def test_periodTo():
 
     res = gnrdate.decodeDatePeriod("to december 2007", workdate=workdate)
     assert res == ';2007-12-31'
-    
+
 
 def test_periodFrom():
-    workdate = datetime.date(2008,4,25)
+    workdate = datetime.date(2008, 4, 25)
     res = gnrdate.decodeDatePeriod("from tomorrow + 2", workdate=workdate)
     assert res == '2008-04-28;'
-    
+
     res = gnrdate.decodeDatePeriod("from december 07", workdate=workdate)
     assert res == '2007-12-01;'
 
@@ -112,7 +112,7 @@ def test_periodFrom():
     assert res == '2008-02-01;'
 
 def test_periodFull():
-    workdate = datetime.date(2008,4,25)
+    workdate = datetime.date(2008, 4, 25)
     res = gnrdate.decodeDatePeriod("from february to today", workdate=workdate)
     assert res == '2008-02-01;2008-04-25'
 
@@ -135,7 +135,7 @@ def test_periodFull():
     assert res == '2008-04-14;2008-05-31'
 
 def test_periodLocal():
-    workdate = datetime.date(2008,4,25)
+    workdate = datetime.date(2008, 4, 25)
     res = gnrdate.decodeDatePeriod("da dicembre a mar 06", workdate=workdate, locale='it')
     assert res == '2005-12-01;2006-03-31'
 
@@ -144,18 +144,18 @@ def test_periodLocal():
 
     res = gnrdate.decodeDatePeriod("da settimana scorsa al mese prossimo", workdate=workdate, locale='it')
     assert res == '2008-04-14;2008-05-31'
-    
+
     res = gnrdate.decodeDatePeriod(u"da dicembre", workdate=workdate, locale='it')
     assert res == '2008-12-01;'
 
     res = gnrdate.decodeDatePeriod(u"a dicembre", workdate=workdate, locale='it')
     assert res == ';2007-12-31'
-    
+
     res = gnrdate.decodeDatePeriod(u"dal 23-12-07 a aprile", workdate=workdate, locale='it')
     assert res == '2007-12-23;2008-04-30'
 
 def test_weekDay():
-    workdate = datetime.date(2008,4,25)
+    workdate = datetime.date(2008, 4, 25)
     res = gnrdate.decodeDatePeriod("monday", workdate=workdate)
     assert res == '2008-04-21'
 
@@ -169,7 +169,7 @@ def test_weekDay():
     assert res == '2008-04-21;2008-04-25'
 
 def test_localDate():
-    workdate = datetime.date(2008,4,25)
+    workdate = datetime.date(2008, 4, 25)
     # res = gnrdate.decodeDatePeriod(u"02 01, 2007", workdate=workdate, locale='en') ### TODO: fails in babel.dates.parse_date
     # assert res == '2007-02-01'
 
@@ -187,26 +187,26 @@ def test_localDate():
 
     res = gnrdate.decodeDatePeriod(u"02 01 2008", workdate=workdate, locale='it')
     assert res == '2008-01-02'
-    
+
 def test_isoDate():
-    workdate = datetime.date(2008,4,25)
+    workdate = datetime.date(2008, 4, 25)
     res = gnrdate.decodeDatePeriod(u"2008-01-02", workdate=workdate, locale='it')
     assert res == '2008-01-02'
 
     res = gnrdate.decodeDatePeriod(u"2008-01-02 to 2008-02-02", workdate=workdate)
     assert res == '2008-01-02;2008-02-02'
-    
+
 
 def test_localDateNoSep():
-    workdate = datetime.date(2008,4,25)
+    workdate = datetime.date(2008, 4, 25)
     res = gnrdate.decodeDatePeriod(u"02012008", workdate=workdate, locale='it')
     assert res == '2008-01-02'
 
     res = gnrdate.decodeDatePeriod(u"020108", workdate=workdate, locale='it')
     assert res == '2008-01-02'
-    
+
 def test_localPeriodNoSep():
-    workdate = datetime.date(2008,4,25)
+    workdate = datetime.date(2008, 4, 25)
     res = gnrdate.decodeDatePeriod(u"01012008 a 31012008", workdate=workdate, locale='it')
     assert res == '2008-01-01;2008-01-31'
 
@@ -214,7 +214,7 @@ def test_localPeriodNoSep():
     assert res == '2008-01-01;2008-01-31'
 
 def test_quarter():
-    workdate = datetime.date(2008,4,25)
+    workdate = datetime.date(2008, 4, 25)
     res = gnrdate.decodeDatePeriod(u"1st quarter", workdate=workdate, locale='en')
     assert res == '2008-01-01;2008-03-31'
 
@@ -240,46 +240,46 @@ def test_quarter():
     assert res == '2008-01-01;2008-06-30'
 
 def test_addToDay():
-    workdate = datetime.date(2008,4,25)
+    workdate = datetime.date(2008, 4, 25)
     res = gnrdate.decodeDatePeriod(u"today + 1", workdate=workdate)
     assert res == '2008-04-26'
-    
+
     res = gnrdate.decodeDatePeriod(u"today + 6", workdate=workdate)
     assert res == '2008-05-01'
-    
+
     res = gnrdate.decodeDatePeriod(u"tomorrow + 6", workdate=workdate)
     assert res == '2008-05-02'
-    
+
     res = gnrdate.decodeDatePeriod(u"yesterday + 6", workdate=workdate)
     assert res == '2008-04-30'
-    
+
     res = gnrdate.decodeDatePeriod(u"today - 6", workdate=workdate)
     assert res == '2008-04-19'
-    
+
     res = gnrdate.decodeDatePeriod(u"from today - 6 to tomorrow + 2", workdate=workdate)
     assert res == '2008-04-19;2008-04-28'
-    
-    
+
+
 def test_addToMonth():
-    workdate = datetime.date(2008,4,25)
+    workdate = datetime.date(2008, 4, 25)
     res = gnrdate.decodeDatePeriod(u"this month + 1", workdate=workdate)
     assert res == '2008-05-01;2008-05-31'
-    
+
     res = gnrdate.decodeDatePeriod(u"this month - 1", workdate=workdate)
     assert res == '2008-03-01;2008-03-31'
-    
+
     res = gnrdate.decodeDatePeriod(u"from this month - 1 to this month + 1", workdate=workdate)
     assert res == '2008-03-01;2008-05-31'
-    
+
     res = gnrdate.decodeDatePeriod(u"from this month - 6 to this month + 6", workdate=workdate)
     assert res == '2007-10-01;2008-10-31'
-    
+
     res = gnrdate.decodeDatePeriod(u"from this month - 12 to this month + 12", workdate=workdate)
     assert res == '2007-04-01;2009-04-30'
 
 def test_toTime():
-    dt = datetime.datetime(2010,4,8,10,30)
-    t = datetime.time(10,30)
+    dt = datetime.datetime(2010, 4, 8, 10, 30)
+    t = datetime.time(10, 30)
     assert isinstance(gnrdate.toTime(dt), datetime.time)
     assert isinstance(gnrdate.toTime(t), datetime.time)
     assert isinstance(gnrdate.toTime('10:30'), datetime.time)
@@ -287,29 +287,29 @@ def test_toTime():
     assert gnrdate.toTime('10:30') == t
 
 def test_toDate():
-    dt = datetime.datetime(2010,4,8,10,30)
-    d = datetime.date(2010,4,8)
+    dt = datetime.datetime(2010, 4, 8, 10, 30)
+    d = datetime.date(2010, 4, 8)
     assert isinstance(gnrdate.toDate(dt), datetime.date)
     assert isinstance(gnrdate.toDate(d), datetime.date)
     assert gnrdate.toDate(dt) == d
 
 def test_dateRange():
-    dtstart = datetime.datetime(2010,4,1)
-    dtstop = datetime.datetime(2010,4,10)
-    expected = [datetime.datetime(2010,4,d) for d in range(1,10)]
-    assert list(gnrdate.dateRange(dtstart,dtstop)) == expected
+    dtstart = datetime.datetime(2010, 4, 1)
+    dtstop = datetime.datetime(2010, 4, 10)
+    expected = [datetime.datetime(2010, 4, d) for d in range(1, 10)]
+    assert list(gnrdate.dateRange(dtstart, dtstop)) == expected
 
 def test_TimeInterval():
     i = gnrdate.TimeInterval('8:30-10:30')
     assert str(i) == '8:30-10:30'
-    assert i.start == datetime.time(8,30)
-    assert i.stop == datetime.time(10,30)
-    assert str(gnrdate.TimeInterval(datetime.time(8,30),datetime.time(10,30))) == str(i)
-    assert str(gnrdate.TimeInterval( (datetime.time(8,30),datetime.time(10,30)) )) == str(i)
+    assert i.start == datetime.time(8, 30)
+    assert i.stop == datetime.time(10, 30)
+    assert str(gnrdate.TimeInterval(datetime.time(8, 30), datetime.time(10, 30))) == str(i)
+    assert str(gnrdate.TimeInterval((datetime.time(8, 30), datetime.time(10, 30)))) == str(i)
 
 def test_TimeInterval_alt_construction():
     i = gnrdate.TimeInterval('8:30-10:30')
-    i2 = gnrdate.TimeInterval(stop='10:30',minutes=120)
+    i2 = gnrdate.TimeInterval(stop='10:30', minutes=120)
     assert i == i2
 
 def test_TimeInterval_operators():
@@ -319,13 +319,13 @@ def test_TimeInterval_operators():
     assert not (ti('8:30-10:30') != ti('8:30-10:30'))
     assert ti('8:30-10:30') < ti('11:00-12:00')
     assert ti('8:30-10:30') <= ti('11:00-12:00')
-    assert not (ti('8:30-10:30') <  ti('10:00-12:00'))
-    assert      ti('8:30-10:30') <=  ti('10:00-12:00')
+    assert not (ti('8:30-10:30') < ti('10:00-12:00'))
+    assert      ti('8:30-10:30') <= ti('10:00-12:00')
     assert ti('11:00-12:00') > ti('8:30-10:30')
     assert ti('11:00-12:00') >= ti('8:30-10:30')
     assert not (ti('10:00-12:00') > ti('8:30-10:30'))
     assert      ti('10:00-12:00') >= ti('8:30-10:30')
-    
+
     assert ti('8:30-10:30') in ti('10:00-12:00')
     assert ti('8:30-10:30') not in ti('11:00-12:00')
     assert ti('8:30-9:30') in ti('8:00-12:00')
@@ -341,10 +341,10 @@ def test_TimeInterval_overlaps():
     ti = gnrdate.TimeInterval
     assert ti('8:00-10:00').overlaps(ti('14:00-16:00')) == ti.NO_OVERLAP
     assert ti('8:30-10:30').overlaps(ti('9:00-9:30')) == ti.FULLY_CONTAINS
-    assert ti('9:00-9:30').overlaps(ti('8:30-10:30')) ==  ti.FULLY_CONTAINED
+    assert ti('9:00-9:30').overlaps(ti('8:30-10:30')) == ti.FULLY_CONTAINED
     assert ti('8:00-10:00').overlaps(ti('9:00-12:00')) == ti.COVER_LEFT
     assert ti('9:00-12:00').overlaps(ti('8:00-10:00')) == ti.COVER_RIGHT
-    
+
     t = ti('8:00-10:00')
     assert t.overlaps(t) == ti.FULLY_CONTAINS
 
@@ -354,7 +354,7 @@ def test_TimeInterval_sorted():
     tp.remove(ti)
     assert tp == gnrdate.TimePeriod('8:00-9:00, 10:00-12:00')
     lst = [ti] + tp.intervals
-    assert gnrdate.TimeInterval.sorted(lst) == ['8:00-9:00', '9:00-10:00', '10:00-12:00']    
+    assert gnrdate.TimeInterval.sorted(lst) == ['8:00-9:00', '9:00-10:00', '10:00-12:00']
 
 def test_TimePeriod():
     p = gnrdate.TimePeriod('8:30-10:30', '9:30-11:00')
@@ -370,10 +370,10 @@ def test_TimePeriod():
     assert str(p) == '8:30-10:30'
 
 def test_TimePeriod_complex():
-    p = gnrdate.TimePeriod('8:00-12:00','16:00-20:00')
-    print "p=",p
-    for i in ('8:00-9:00','9:30-10:00','10:00-11:30','16:00-16:30','17:00-18:00','18:00-19:00','19:00-20:00'):
-        print "removing",i
+    p = gnrdate.TimePeriod('8:00-12:00', '16:00-20:00')
+    print "p=", p
+    for i in ('8:00-9:00', '9:30-10:00', '10:00-11:30', '16:00-16:30', '17:00-18:00', '18:00-19:00', '19:00-20:00'):
+        print "removing", i
         p.remove(i)
         print "p=", p
     assert str(p) == '9:00-9:30, 11:30-12:00, 16:30-17:00'
@@ -383,10 +383,10 @@ def test_TimePeriod_complex_attributes():
     iv1.name = 'morning'
     iv2 = gnrdate.TimeInterval('16:00-20:00')
     iv2.name = 'afternoon'
-    p = gnrdate.TimePeriod(iv1,iv2)
-    print "p=",p
-    for i in ('8:00-9:00','9:30-10:00','10:00-11:30','16:00-16:30','17:00-18:00','18:00-19:00','19:00-20:00'):
-        print "removing",i
+    p = gnrdate.TimePeriod(iv1, iv2)
+    print "p=", p
+    for i in ('8:00-9:00', '9:30-10:00', '10:00-11:30', '16:00-16:30', '17:00-18:00', '18:00-19:00', '19:00-20:00'):
+        print "removing", i
         p.remove(i)
         print "p=", p
     assert str(p) == '9:00-9:30, 11:30-12:00, 16:30-17:00'
@@ -406,7 +406,7 @@ def test_TimePeriod_sequence():
 def test_TimePeriod_TimePeriod():
     tp = gnrdate.TimePeriod
     p = tp('8:30-10:30', '16:00-20:00')
-    p.add(tp('10:00-12:00','13:00-16:00'))
+    p.add(tp('10:00-12:00', '13:00-16:00'))
     assert str(p) == '8:30-12:00, 13:00-20:00'
     p.remove(tp('10:00-16:00'))
     assert str(p) == '8:30-10:00, 16:00-20:00'

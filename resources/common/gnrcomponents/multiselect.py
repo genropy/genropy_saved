@@ -29,25 +29,27 @@ from gnr.core.gnrbag import Bag
 from gnr.web.gnrbaseclasses import BaseComponent
 
 class MultiSelect(BaseComponent):
-    py_requires='foundation/includedview:IncludedView'
-    js_requires='gnrcomponents/multiselect'
-    def multiSelect(self,bc,nodeId=None,table=None,datapath=None,struct=None,label=None,values=None,readColumns=None,
-                             reloader=None,filterOn=None,hiddencolumns=None,selectionPars=None,order_by=None,
-                             showSelected=False, readCol=None,hasToolbar=False,_onStart=False, showFooter=True,**kwargs):
+    py_requires = 'foundation/includedview:IncludedView'
+    js_requires = 'gnrcomponents/multiselect'
+
+    def multiSelect(self, bc, nodeId=None, table=None, datapath=None, struct=None, label=None, values=None,
+                    readColumns=None,
+                    reloader=None, filterOn=None, hiddencolumns=None, selectionPars=None, order_by=None,
+                    showSelected=False, readCol=None, hasToolbar=False, _onStart=False, showFooter=True, **kwargs):
         assert struct, 'struct is mandatory'
         if callable(struct) and not isinstance(struct, Bag):
             struct = struct(self.newGridStruct(table))
-        values= values or '=.checkedList'
-        readCol = readCol or '_pkey' 
+        values = values or '=.checkedList'
+        readCol = readCol or '_pkey'
         if readCol != '_pkey':
-            assert showSelected==False, 'to use this mode readCol must be "_pkey"'
+            assert showSelected == False, 'to use this mode readCol must be "_pkey"'
         r = struct['#0']['#0'] # view.rows
-        r.cell('_checkedrow',name=' ',width='2em',
-                    format_trueclass='checkboxOn',
-                   # styles='background:none!important;border:0;',
-                    format_falseclass='checkboxOff',classes='row_checker',
-                    #format_onclick='MultiSelectComponent.toggle_row(kw.rowIndex, e, this,"%s");' %values, 
-                    format_onclick="""var readCol = '%s';
+        r.cell('_checkedrow', name=' ', width='2em',
+               format_trueclass='checkboxOn',
+               # styles='background:none!important;border:0;',
+               format_falseclass='checkboxOff', classes='row_checker',
+               #format_onclick='MultiSelectComponent.toggle_row(kw.rowIndex, e, this,"%s");' %values,
+               format_onclick="""var readCol = '%s';
                                       var result = [];
                                       var idx = kw.rowIndex;
                                       var nodes = this.widget.storebag().getNodes();
@@ -66,32 +68,32 @@ class MultiSelect(BaseComponent):
                                                      };
                                       dojo.forEach(nodes,cb);
                                       this.setRelativeData('%s',result);
-                                      """ %(readCol,values),
-                    dtype='B',calculated=True,_pos=0)
+                                      """ % (readCol, values),
+               dtype='B', calculated=True, _pos=0)
         if not selectionPars:
             if order_by:
-                selectionPars=dict(order_by=order_by) 
+                selectionPars = dict(order_by=order_by)
             else:
-                selectionPars=dict()
-        viewpars = dict(label=label,struct=struct,filterOn=filterOn,table=table,
-                         hiddencolumns=hiddencolumns,reloader=reloader,autoWidth=True,
-                         hasToolbar=hasToolbar,_onStart=_onStart)
+                selectionPars = dict()
+        viewpars = dict(label=label, struct=struct, filterOn=filterOn, table=table,
+                        hiddencolumns=hiddencolumns, reloader=reloader, autoWidth=True,
+                        hasToolbar=hasToolbar, _onStart=_onStart)
         checkboxGridBC = bc
         checkboxGridDatapath = datapath
         if showSelected and showFooter:
-            footer = bc.contentPane(region='bottom',_class='pbl_roundedGroupBottom')
-            footer.button('Back',action='SET %s.selectedGrid=0;' %datapath)
-            footer.button('Next',action='FIRE #%s_result.reload; SET %s.selectedGrid=1;' %(nodeId,datapath))
-            stack = bc.stackContainer(region='center',datapath=datapath,selected='^.selectedGrid')
+            footer = bc.contentPane(region='bottom', _class='pbl_roundedGroupBottom')
+            footer.button('Back', action='SET %s.selectedGrid=0;' % datapath)
+            footer.button('Next', action='FIRE #%s_result.reload; SET %s.selectedGrid=1;' % (nodeId, datapath))
+            stack = bc.stackContainer(region='center', datapath=datapath, selected='^.selectedGrid')
             checkboxGridBC = stack.borderContainer()
             checkboxGridDatapath = '.gridcheck'
-        
+
         if 'applymethod' in selectionPars:
             selectionPars['apply_callAfter'] = selectionPars['applymethod']
-        selectionPars['apply_checkedRows'] = '=%s' %values
+        selectionPars['apply_checkedRows'] = '=%s' % values
         selectionPars['apply_readCol'] = readCol
         selectionPars['applymethod'] = 'ms_setCheckedOnReload'
-        
+
         checkboxGridBC.dataController("""var nodes = selection.getNodes();
                                          var result = [];
                                          dojo.forEach(nodes,function(row){
@@ -107,33 +109,33 @@ class MultiSelect(BaseComponent):
                                             row.setAttr(attrs);
                                         })
                                         SET %s = result;
-                                          """ %values,
-                                        selectrows="^.selectrows",selection='=.selection',_if='selection',
-                                        readCol=readCol,datapath=checkboxGridDatapath)
+                                          """ % values,
+                                      selectrows="^.selectrows", selection='=.selection', _if='selection',
+                                      readCol=readCol, datapath=checkboxGridDatapath)
         if showFooter:
-            footer=self.ms_footer
+            footer = self.ms_footer
         else:
             footer = None
-        self.includedViewBox(checkboxGridBC,datapath=checkboxGridDatapath,
-                            selectionPars=selectionPars,nodeId=nodeId,footer=footer,**viewpars)
+        self.includedViewBox(checkboxGridBC, datapath=checkboxGridDatapath,
+                             selectionPars=selectionPars, nodeId=nodeId, footer=footer, **viewpars)
         if showSelected:
-            selectionPars_result = dict(where='$%s IN :checked' %self.db.table(table).pkey,
-                                    checked='=%s' %values.strip('^='),_if='checked')
+            selectionPars_result = dict(where='$%s IN :checked' % self.db.table(table).pkey,
+                                        checked='=%s' % values.strip('^='), _if='checked')
 
-            self.includedViewBox(stack.borderContainer(_class='hide_row_checker'),nodeId='%s_result' %nodeId,
-                                    datapath='.resultgrid',selectionPars=selectionPars_result,
-                                    **viewpars)
-                                    
-    def ms_footer(self,pane,**kwargs):
-        pane.button('!!Select All',fire_all='.selectrows')
-        pane.button('!!Unselect All',fire_none='.selectrows')
+            self.includedViewBox(stack.borderContainer(_class='hide_row_checker'), nodeId='%s_result' % nodeId,
+                                 datapath='.resultgrid', selectionPars=selectionPars_result,
+                                 **viewpars)
 
-        
-        
-    def rpc_ms_setCheckedOnReload(self,selection,checkedRows=None,callAfter=None,readCol=None,**kwargs):
+    def ms_footer(self, pane, **kwargs):
+        pane.button('!!Select All', fire_all='.selectrows')
+        pane.button('!!Unselect All', fire_none='.selectrows')
+
+
+    def rpc_ms_setCheckedOnReload(self, selection, checkedRows=None, callAfter=None, readCol=None, **kwargs):
         checkedRows = checkedRows or []
-        if readCol=='_pkey' or readCol=='*':
+        if readCol == '_pkey' or readCol == '*':
             readCol = 'pkey'
+
         def cb(row):
             result = dict(_checkedrow=False)
             if row[readCol] in checkedRows:
@@ -141,9 +143,10 @@ class MultiSelect(BaseComponent):
             else:
                 result['_checkedrow'] = False
             return result
+
         selection.apply(cb)
         if callAfter:
-            callAfter = getattr(self,'rpc_%s' %callAfter,None)
+            callAfter = getattr(self, 'rpc_%s' % callAfter, None)
             if callAfter:
-                callAfter(selection,**kwargs)
+                callAfter(selection, **kwargs)
         

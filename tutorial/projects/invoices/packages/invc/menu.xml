@@ -8,8 +8,8 @@
             <invoice label="!!Invoices" file="invoice"/>
             <singlerecord label="!!Single Record" file="single_record"/>
         </invoices>
-    <admin label='!!db admin' tags="staff" basepath="/adm">
-		<users label='!!users' file='manage_users'/>
-	</admin>
+        <admin label='!!db admin' tags="staff" basepath="/adm">
+            <users label='!!users' file='manage_users'/>
+        </admin>
     </invoice_root>
 </GenRoBag>

@@ -22,24 +22,24 @@
 
 class GnrCustomWebPage(object):
     def windowTitle(self):
-         return 'test remote'
-         
+        return 'test remote'
+
     def main(self, root, **kwargs):
         bc = root.borderContainer()
-        top = bc.contentPane(region='top',height='100px')
-        top.button('Build',fire='build')
+        top = bc.contentPane(region='top', height='100px')
+        top.button('Build', fire='build')
 
-        top.button('Add element',fire='add')
+        top.button('Add element', fire='add')
         top.dataController("""var pane = genro.nodeById('remoteContent')
                               pane._('div',{height:'200px',width:'200px',background:'lightBlue',
                                             border:'1px solid blue','float':'left',
                                             remote:{'method':'test'}});
 
-                            """,_fired="^add")
-                            
-        center = bc.contentPane(region = 'center').div(nodeId='remoteContent')
-        center.div().remote('test',_fired='^build')
-        
-    def remote_test(self,pane,**kwargs):
+                            """, _fired="^add")
+
+        center = bc.contentPane(region='center').div(nodeId='remoteContent')
+        center.div().remote('test', _fired='^build')
+
+    def remote_test(self, pane, **kwargs):
         print 'pippo'
-        pane.div('hello',height='40px',width='80px',background='lime')
+        pane.div('hello', height='40px', width='80px', background='lime')

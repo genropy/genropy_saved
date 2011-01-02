@@ -10,10 +10,11 @@ import os
 
 STANDARD_ENCODING = "UTF-8"
 STANDARD_XML_ENCODING = "iso-8859-15"
-version_info = (0,0,1)
+version_info = (0, 0, 1)
 __version__ = "0.0.1"
 
-__all__ = [x.split('.')[0] for x in os.listdir(os.path.dirname(__file__)) if (x.startswith('gnr') and x.endswith('.py'))]
+__all__ = [x.split('.')[0] for x in os.listdir(os.path.dirname(__file__)) if
+           (x.startswith('gnr') and x.endswith('.py'))]
 
 
 

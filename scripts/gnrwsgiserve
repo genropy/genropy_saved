@@ -4,5 +4,5 @@
 from gnr.web.server import NewServer
 
 if __name__ == '__main__':
-    server=NewServer()
+    server = NewServer()
     server.run()

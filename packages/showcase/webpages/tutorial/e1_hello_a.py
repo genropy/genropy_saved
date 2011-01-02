@@ -8,12 +8,12 @@ import datetime
 
 class GnrCustomWebPage(object):
     def windowTitle(self):
-         return '!!Hello world'
-         
+        return '!!Hello world'
+
     def main(self, root, **kwargs):
-        root.button('What is the time?',action='FIRE get_time;')
-        root.dataRpc('result','giveMeTime',_fired='^get_time')
+        root.button('What is the time?', action='FIRE get_time;')
+        root.dataRpc('result', 'giveMeTime', _fired='^get_time')
         root.div('^result')
-        
+
     def rpc_giveMeTime(self):
         return datetime.datetime.now()

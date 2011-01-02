@@ -7,4 +7,4 @@
 class GnrCustomWebPage(object):
     def main(self, root, **kwargs):
         root.div('hello')
-        root.button('Close Dialog',action='parent.genro.fireEvent("#myframe.close");')
+        root.button('Close Dialog', action='parent.genro.fireEvent("#myframe.close");')

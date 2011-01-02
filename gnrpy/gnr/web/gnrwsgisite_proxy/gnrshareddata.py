@@ -23,6 +23,7 @@
 
 try:
     import memcache
+
     HAS_MEMCACHE = True
 except ImportError:
     HAS_MEMCACHE = False
@@ -35,132 +36,129 @@ import time
 from threading import RLock
 import thread
 
-MAX_RETRY=50
-RETRY_TIME=0.01
-LOCK_TIME=2
+MAX_RETRY = 50
+RETRY_TIME = 0.01
+LOCK_TIME = 2
 
 
 def exp_to_epoch(expiry):
     if not expiry:
         return 0
-    if hasattr(expiry,'timetuple'):
+    if hasattr(expiry, 'timetuple'):
         return int(time.mktime(expiry.timetuple()))
     if isinstance(expiry, timedelta):
-        expiry = expiry.days*86400 + expiry.seconds
-    return int(time.time()+expiry)
-    
+        expiry = expiry.days * 86400 + expiry.seconds
+    return int(time.time() + expiry)
+
 def locked_storage(func):
-    def decore(self,*args,**kwargs):
+    def decore(self, *args, **kwargs):
         with self.storage_lock:
-            result= func(self,*args,**kwargs)
+            result = func(self, *args, **kwargs)
             return result
+
     return decore
-        
-    
+
+
 class SharedLocker(object):
-    def __init__(self, sd, key, max_retry=MAX_RETRY, 
-                                lock_time=LOCK_TIME, 
-                                retry_time=RETRY_TIME):
-        self.sd=sd
-        self.key=key
-        self.max_retry=max_retry
-        self.lock_time=lock_time
-        self.retry_time=retry_time
+    def __init__(self, sd, key, max_retry=MAX_RETRY,
+                 lock_time=LOCK_TIME,
+                 retry_time=RETRY_TIME):
+        self.sd = sd
+        self.key = key
+        self.max_retry = max_retry
+        self.lock_time = lock_time
+        self.retry_time = retry_time
 
     def __enter__(self):
-        self.sd.lock(self.key,lock_time=self.lock_time,
-                               max_retry=self.max_retry,
-                               retry_time=self.retry_time)
+        self.sd.lock(self.key, lock_time=self.lock_time,
+                     max_retry=self.max_retry,
+                     retry_time=self.retry_time)
         return self.sd
-        
+
     def __exit__(self, type, value, traceback):
         return self.sd.unlock(self.key)
-        
- 
-            
+
+
 class GnrSharedData(object):
-    
-    def __init__(self,site):
-        self.site=site
-        self._locks={}
+    def __init__(self, site):
+        self.site = site
+        self._locks = {}
 
     def locked(self, key, max_retry=MAX_RETRY, lock_time=LOCK_TIME, retry_time=RETRY_TIME):
         return SharedLocker(self, key, lock_time=lock_time,
-                                       max_retry=max_retry,
-                                       retry_time=retry_time)                    
-        
-    def lockcount(self,key,delta):                                
-        lockdict=self._locks.setdefault(thread.get_ident(),{})
-        lockdict[key]=lockcount=max(0,lockdict.get(key,0)+delta)
+                            max_retry=max_retry,
+                            retry_time=retry_time)
+
+    def lockcount(self, key, delta):
+        lockdict = self._locks.setdefault(thread.get_ident(), {})
+        lockdict[key] = lockcount = max(0, lockdict.get(key, 0) + delta)
         return lockcount
-        
-    def unlock(self,key): 
-        if self.lockcount(key,-1)==0:
+
+    def unlock(self, key):
+        if self.lockcount(key, -1) == 0:
             return self.delete('%s_lock' % key)
-        
-    def lock(self, key, max_retry=None, 
-                        lock_time=None, 
-                        retry_time=None):
-                        
-        if self.lockcount(key,1)>1:
+
+    def lock(self, key, max_retry=None,
+             lock_time=None,
+             retry_time=None):
+        if self.lockcount(key, 1) > 1:
             return True
-        max_retry=max_retry or MAX_RETRY
-        k = max_retry 
+        max_retry = max_retry or MAX_RETRY
+        k = max_retry
         lock_time = lock_time or LOCK_TIME
         retry_time = retry_time or RETRY_TIME
         while k:
             if self.add('%s_lock' % key, True, expiry=lock_time):
                 return True
-            k-=1
+            k -= 1
             time.sleep(retry_time)
-        print '************UNABLE TO LOCK : %s max_retry:%i***************' % (key,max_retry)
+        print '************UNABLE TO LOCK : %s max_retry:%i***************' % (key, max_retry)
 
     def dump(self):
         pass
-        
+
     def load(self):
         pass
-    
+
     def flush_all(self):
         pass
-        
+
 class GnrSharedData_dict(GnrSharedData):
-    
-    STORAGE_PATH='shared_data.pik'
-    
+    STORAGE_PATH = 'shared_data.pik'
+
     def __init__(self, site):
-        super(GnrSharedData_dict,self).__init__(site)
+        super(GnrSharedData_dict, self).__init__(site)
         self.storage = {}
         self.storage_lock = RLock()
         self.cas_id = 0
-        self.storage_path=os.path.join(self.site.site_path, self.STORAGE_PATH)
+        self.storage_path = os.path.join(self.site.site_path, self.STORAGE_PATH)
         if os.path.exists(self.storage_path):
             self.load()
-        
 
-                    
+
     def dump(self):
         print 'DUMP SHARED DATA'
-        with open(self.storage_path,'w') as shared_data_file:
+        with open(self.storage_path, 'w') as shared_data_file:
             pickle.dump(self.storage, shared_data_file)
-                
+
     def load(self):
         try:
             with open(self.storage_path) as shared_data_file:
-                self.storage=pickle.load(shared_data_file)
+                self.storage = pickle.load(shared_data_file)
                 print 'LOAD SHARED DATA'
         except EOFError:
             print 'UNABLE TO LOAD SHARED DATA'
         os.remove(self.storage_path)
-                    
+
     def key(self, key):
         return key
 
     def _get_next_cas_id(self):
-        self.cas_id +=1
+        self.cas_id += 1
         return self.cas_id
+
     next_cas_id = property(_get_next_cas_id)
-    
+
     @locked_storage
     def set(self, key, value, expiry=0, cas_id=None):
         expiry = exp_to_epoch(expiry)
@@ -169,167 +167,165 @@ class GnrSharedData_dict(GnrSharedData):
             self.storage[key] = (pickled_value, expiry, self.next_cas_id)
             return True
         else:
-            previous_cas_id = self.storage.get(key, (None,None,None))[2]
-            if previous_cas_id!=cas_id:
+            previous_cas_id = self.storage.get(key, (None, None, None))[2]
+            if previous_cas_id != cas_id:
                 result = False
             else:
                 self.storage[key] = (pickled_value, expiry, self.next_cas_id)
                 result = True
             return result
-            
+
     def gets(self, key):
         return self._get(key)
-        
+
     def get(self, key):
         return self._get(key)[0]
-        
+
     @locked_storage
     def _get(self, key):
-        pickled_value, expiry, cas_id = self.storage.get(key, (None,None,None))
-        if expiry and time.time()> expiry:
+        pickled_value, expiry, cas_id = self.storage.get(key, (None, None, None))
+        if expiry and time.time() > expiry:
             self.delete(key)
-            value, cas_id= None, None
+            value, cas_id = None, None
         else:
             value = pickled_value and pickle.loads(pickled_value)
         return value, cas_id
-        
+
     def delete(self, key):
-        self.storage.pop(key,None)
-        
+        self.storage.pop(key, None)
+
     @locked_storage
     def incr(self, key, delta=1):
         value, cas_id = self.gets(key)
-        if cas_id :
-            if not type(value)==int:
-                value=int(value)
-            value=value+delta
-            value,self.set(key, value,cas_id=cas_id)
+        if cas_id:
+            if not type(value) == int:
+                value = int(value)
+            value = value + delta
+            value, self.set(key, value, cas_id=cas_id)
         return value
-        
+
     @locked_storage
     def decr(self, key, delta=1):
         value, cas_id = self.gets(key)
-        if cas_id :
-            if not type(value)==int:
-                value=int(value)
-            value=value+delta
+        if cas_id:
+            if not type(value) == int:
+                value = int(value)
+            value = value + delta
             if value < 0:
-                value=0
-            self.set(self, key, value,cas_id=cas_id)
+                value = 0
+            self.set(self, key, value, cas_id=cas_id)
         return value
-    
+
     @locked_storage
-    def add(self, key, value, expiry = 0):
-        if self.gets(key)==(None,None):
-            self.set(key, value, expiry = expiry)
+    def add(self, key, value, expiry=0):
+        if self.gets(key) == (None, None):
+            self.set(key, value, expiry=expiry)
             result = True
         else:
             result = False
         return result
-        
-    @locked_storage 
-    def replace(self, key, value, expiry = 0):
-        if not self.gets(key)==(None,None):
-            self.set(key, value, expiry = expiry)
+
+    @locked_storage
+    def replace(self, key, value, expiry=0):
+        if not self.gets(key) == (None, None):
+            self.set(key, value, expiry=expiry)
             result = True
         else:
             result = False
-        return result 
-          
-    @locked_storage      
+        return result
+
+    @locked_storage
     def get_multi(self, keys, key_prefix=''):
-        result={}
+        result = {}
         for k in keys:
-            val, cas_id=self.gets('%s%s' % (key_prefix,str(k)))
+            val, cas_id = self.gets('%s%s' % (key_prefix, str(k)))
             if cas_id:
-                result[k]=val
+                result[k] = val
         return result
-        
+
     def flush_all(self):
         self.storage = {}
-    
-class GnrSharedData_memcache(GnrSharedData):
 
-    def __init__(self,site, memcache_config=None, debug=None):
+class GnrSharedData_memcache(GnrSharedData):
+    def __init__(self, site, memcache_config=None, debug=None):
         """
         initialize the shared data store from memcache_config.
         
         """
-        super(GnrSharedData_memcache,self).__init__(site)
+        super(GnrSharedData_memcache, self).__init__(site)
         self._namespace = site.site_name
-        server_list = ['%(host)s:%(port)s'%attr for attr in memcache_config.digest('#a')]
+        server_list = ['%(host)s:%(port)s' % attr for attr in memcache_config.digest('#a')]
         self.storage = memcache.Client(server_list, debug=debug)
-        self.visited_keys={} #MIKI:not used Do we really need it?
+        self.visited_keys = {} #MIKI:not used Do we really need it?
         self._test(False)
-        
-    def _test(self,doraise=True):
+
+    def _test(self, doraise=True):
         if not self.storage.get_stats():
             if doraise:
-                raise self.site.exception( 'memcached not started')
+                raise self.site.exception('memcached not started')
             else:
                 print '****** memcached not started ********'
 
     def key(self, key):
-        prefixed_key=('%s_%s'%(self._namespace, key)).encode('utf8')
-        self.visited_keys[prefixed_key]=key
+        prefixed_key = ('%s_%s' % (self._namespace, key)).encode('utf8')
+        self.visited_keys[prefixed_key] = key
         return prefixed_key  #MIKI: why don't we strip the result?
-        
+
     def debug_keys(self):
         for key in self.visited_keys.values():
             print self.get(key)
-    
+
     def get(self, key):
-        prefixed_key=self.key(key).strip()
+        prefixed_key = self.key(key).strip()
         return self.storage.get(prefixed_key)
-        
+
     def gets(self, key):
         result = self.storage.gets(self.key(key))
         cas_id = self.storage.cas_ids.get(self.key(key))
         return result, cas_id
 
     def set(self, key, value, expiry=0, cas_id=None):
-        prefixed_key=self.key(key).strip()
+        prefixed_key = self.key(key).strip()
         if not cas_id:
             set_ok = self.storage.set(prefixed_key, value, time=exp_to_epoch(expiry))
             if not set_ok:
                 self._test()
         else:
-            self.storage.cas_ids[prefixed_key]=cas_id
+            self.storage.cas_ids[prefixed_key] = cas_id
             self.storage.cas(prefixed_key, value, time=exp_to_epoch(expiry))
             # MIKI:we are not testing the result of this cas
             # what happen if the cas is not respected
             # no clash advice. Don't we need it?
-    
-    def add(self, key, value, expiry = 0):
+
+    def add(self, key, value, expiry=0):
         status = self.storage.add(self.key(key), value, time=exp_to_epoch(expiry))
         if status:
             return value
-    
-    def replace (self, key, value, expiry = 0):
+
+    def replace (self, key, value, expiry=0):
         status = self.storage.replace(self.key(key), value, time=exp_to_epoch(expiry))
         if status:
             return value
-    
+
     def delete(self, key):
-        self.storage.delete(self.key(key),None)
-        
+        self.storage.delete(self.key(key), None)
+
     def incr(self, key, delta=1):
         return self.storage.incr(self.key(key), delta=delta)
-        
+
     def decr(self, key, delta=1):
         return self.storage.decr(self.key(key), delta=delta)
-    
+
     def get_multi(self, keys, key_prefix=''):
-        key_prefix='%s_%s'%(self._namespace,key_prefix)
-        key_prefix=key_prefix.encode('utf8')
+        key_prefix = '%s_%s' % (self._namespace, key_prefix)
+        key_prefix = key_prefix.encode('utf8')
         return self.storage.get_multi(keys, key_prefix)
-    
+
     def flush_all(self):
         self.storage.flush_all()
-        self.visited_keys={}
+        self.visited_keys = {}
 
 class Client(object):
-
     def set_servers(self, servers):
         """
         Set the pool of servers used by this client.
@@ -437,8 +433,7 @@ class Client(object):
         pass
 
 
-
-    def add(self, key, val, time = 0, min_compress_len = 0):
+    def add(self, key, val, time=0, min_compress_len=0):
         '''
         Add new key with value.
 
@@ -586,13 +581,14 @@ class Client(object):
         @return: The value or None.
         '''
         pass
+
     def gets(self, key):
         '''Retrieves a key from the memcache. Used in conjunction with 'cas'.
 
         @return: The value or None.
         '''
         pass
-        
+
     def get_multi(self, keys, key_prefix=''):
         '''
         Retrieves multiple keys from the memcache doing just one query.

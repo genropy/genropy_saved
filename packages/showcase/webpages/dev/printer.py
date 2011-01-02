@@ -9,29 +9,30 @@
 
 import cups
 from gnr.core.gnrbag import Bag
+
 class GnrCustomWebPage(object):
     def pageAuthTags(self, method=None, **kwargs):
         return ''
-        
+
     def windowTitle(self):
-         return '!!'
+        return '!!'
 
     def main(self, root, **kwargs):
         root.data('printers', self.rpc_getPrinters())
         #root.dataRemote('printers', 'getPrinters', _init=True)
-        root.data('selected_print','Select a mfck print')
+        root.data('selected_print', 'Select a mfck print')
         root.div('^selected_print').menu(storepath='printers',
-                                          modifiers='*',
-                                          action='SET selected_print = $1.fullpath;')
+                                         modifiers='*',
+                                         action='SET selected_print = $1.fullpath;')
         #root.tree(storepath='printers')
-        
+
     def rpc_getPrinters(self):
-        printersBag=Bag()
+        printersBag = Bag()
         connection = cups.Connection()
         for printer_name, printer in connection.getPrinters().items():
-            printersBag['%s.%s'%(printer['printer-location'],printer['printer-info'])]=printer_name
+            printersBag['%s.%s' % (printer['printer-location'], printer['printer-info'])] = printer_name
         return printersBag
-        
+
         #pane.dataRemote('invoicablejobs_tree', 'invoicableJobsTree',
         #                 curr_div = '^_clientCtx.pforce.cur_division.code')
         #pane.tree(nodeId= 'modeTree',

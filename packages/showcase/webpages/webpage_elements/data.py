@@ -7,27 +7,27 @@
 """data"""
 
 class GnrCustomWebPage(object):
-    py_requires="gnrcomponents/testhandler:TestHandlerFull"
+    py_requires = "gnrcomponents/testhandler:TestHandlerFull"
     # dojo_theme='claro'    # !! Uncomment this row for Dojo_1.5 usage
-    
-    def test_1_basic(self,pane):
+
+    def test_1_basic(self, pane):
         """data basic example - button attributes"""
         bc = pane.borderContainer(datapath='test1')
-        bc.data('.icon','icnBaseOk')
-        bc.data('.fontType','Courier')
-        bc.data('.widthButton','10em')
-        bc.data('.fontSize','22px')
-        bc.data('.color','green')
-        bc.button('Click me',iconClass='^.icon',width='^.widthButton',color='^.color',
-                   font_size='^.fontSize',font_family='^.fontType',action="alert('Clicked!')")
-                   
-    def test_2_basic2(self,pane):
+        bc.data('.icon', 'icnBaseOk')
+        bc.data('.fontType', 'Courier')
+        bc.data('.widthButton', '10em')
+        bc.data('.fontSize', '22px')
+        bc.data('.color', 'green')
+        bc.button('Click me', iconClass='^.icon', width='^.widthButton', color='^.color',
+                  font_size='^.fontSize', font_family='^.fontType', action="alert('Clicked!')")
+
+    def test_2_basic2(self, pane):
         """data basic example - filling some formbuilder attributes"""
         bc = pane.borderContainer(datapath='test2')
         fb = bc.formbuilder(cols=2)
-        fb.data('.name','Filippo')
-        fb.data('.surname','Astolfi')
-        fb.textbox(value='^.name',lbl='!!Name')
-        fb.textbox(value='^.surname',lbl='!!Surname')
-        fb.numberTextbox(value='^.phone',lbl='!!Phone number')
-        fb.textbox(value='^.address',lbl='!!Address')
+        fb.data('.name', 'Filippo')
+        fb.data('.surname', 'Astolfi')
+        fb.textbox(value='^.name', lbl='!!Name')
+        fb.textbox(value='^.surname', lbl='!!Surname')
+        fb.numberTextbox(value='^.phone', lbl='!!Phone number')
+        fb.textbox(value='^.address', lbl='!!Address')

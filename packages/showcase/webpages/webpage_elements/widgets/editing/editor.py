@@ -12,6 +12,6 @@ import os
 
 
 class GnrCustomWebPage(object):
-    def main(self,root,**kwargs):
+    def main(self, root, **kwargs):
         root.editor()
         

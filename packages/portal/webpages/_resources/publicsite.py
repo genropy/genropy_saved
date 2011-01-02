@@ -24,32 +24,32 @@ Component for thermo:
 from gnr.web.gnrbaseclasses import BaseComponent
 
 class SiteLayout(BaseComponent):
-    css_requires='publicsite'
+    css_requires = 'publicsite'
 
-    def site_header(self,header):
+    def site_header(self, header):
         header.span('menu')
-        loginbox = header.div(float='right',margin_right='10px')
+        loginbox = header.div(float='right', margin_right='10px')
         if self.user:
-            self.site_login_logged(loginbox) 
+            self.site_login_logged(loginbox)
         else:
             self.site_login_unlogged(loginbox)
-            
-    def site_login_logged(self,box):
-        fb = box.formbuilder(cols=3,border_spacing='4px',_class='loginfb')
+
+    def site_login_logged(self, box):
+        fb = box.formbuilder(cols=3, border_spacing='4px', _class='loginfb')
         fb.div(self.user)
-        fb.button('!!Logout',baseClass='loginbutton',fire='.enter')
-        
-    def site_login_unlogged(self,box):
-        fb = box.formbuilder(cols=3,border_spacing='4px',_class='loginfb',
-                            datapath='login',onEnter='FIRE .enter')
-        fb.textbox(value='^.user',ghost='User',_autoselect=True,width='10em')
-        fb.textbox(value='^.password',ghost='Password',lbl_width='1em',type='password',
-                 width='10em',_autoselect=True)
-        fb.button('!!Login',baseClass='loginbutton',fire='.enter')
-        fb.dataRpc('_aux.login', 'doLogin', login='=login', btn='^.enter',_onResult='FIRE afterLogin')
-        fb.dataScript('_aux.dologin',"genro.gotoURL('startpage')" , message='=_aux.login.message',
-                                _if="message==''", _else="FIRE error_msg = badUserMsg; SET _aux.login = null;",
-                             badUserMsg="!!Incorrect Login",_fired='^afterLogin')   
-        fb.div('^error_msg',nodeId='bottomMsg',colspan=2,text_align='center',_class='disclaimer')
-        fb.dataController("genro.dom.effect('bottomMsg','fadeout',{duration:3000,delay:3000});", 
-                          msg='^error_msg',_if='msg')
+        fb.button('!!Logout', baseClass='loginbutton', fire='.enter')
+
+    def site_login_unlogged(self, box):
+        fb = box.formbuilder(cols=3, border_spacing='4px', _class='loginfb',
+                             datapath='login', onEnter='FIRE .enter')
+        fb.textbox(value='^.user', ghost='User', _autoselect=True, width='10em')
+        fb.textbox(value='^.password', ghost='Password', lbl_width='1em', type='password',
+                   width='10em', _autoselect=True)
+        fb.button('!!Login', baseClass='loginbutton', fire='.enter')
+        fb.dataRpc('_aux.login', 'doLogin', login='=login', btn='^.enter', _onResult='FIRE afterLogin')
+        fb.dataScript('_aux.dologin', "genro.gotoURL('startpage')", message='=_aux.login.message',
+                      _if="message==''", _else="FIRE error_msg = badUserMsg; SET _aux.login = null;",
+                      badUserMsg="!!Incorrect Login", _fired='^afterLogin')
+        fb.div('^error_msg', nodeId='bottomMsg', colspan=2, text_align='center', _class='disclaimer')
+        fb.dataController("genro.dom.effect('bottomMsg','fadeout',{duration:3000,delay:3000});",
+                          msg='^error_msg', _if='msg')

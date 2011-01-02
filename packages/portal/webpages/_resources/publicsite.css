@@ -1,50 +1,67 @@
-.site_header{
-    height:35px;
-}
-.site_body{
-    background: #698a98;
-    overflow:hidden;
-}
-.site_pane{
-	-moz-border-radius:15px;
-	-webkit-border-radius:15px;
-	background-color: #ececdd;
-	-webkit-box-shadow: 3px 3px 7px #472828; 
-    -moz-box-shadow:  3px 3px 7px #472828; 
+.site_header {
+    height: 35px;
 }
 
-.site_left{
-	width:200px;
+.site_body {
+    background: #698a98;
+    overflow: hidden;
 }
-.site_right{
-	width:200px;
+
+.site_pane {
+    -moz-border-radius: 15px;
+    -webkit-border-radius: 15px;
+    background-color: #ececdd;
+    -webkit-box-shadow: 3px 3px 7px #472828;
+    -moz-box-shadow: 3px 3px 7px #472828;
 }
-.site_center{
-    margin:30px;
+
+.site_left {
+    width: 200px;
 }
-.loginbutton .dijitButtonNode{
-	background: #ba9b65;
-	color: #f4efdc;
-	border: 1px solid #365fb7;
-	padding: 0;
-	font-size: .7em;
-	-moz-border-radius:4px;
-	-webkit-border-radius:4px;
+
+.site_right {
+    width: 200px;
 }
-.disclaimer{
-    font-size:.8em;
-    line-height:.8em;
+
+.site_center {
+    margin: 30px;
+}
+
+.loginbutton .dijitButtonNode {
+    background: #ba9b65;
+    color: #f4efdc;
+    border: 1px solid #365fb7;
+    padding: 0;
+    font-size: .7em;
+    -moz-border-radius: 4px;
+    -webkit-border-radius: 4px;
+}
+
+.disclaimer {
+    font-size: .8em;
+    line-height: .8em;
 }
 
 /* @group train theme */
-c_0 {background-color: #472828;}
+c_0 {
+    background-color: #472828;
+}
 
-c_1 {background-color: #5a5e76;}
+c_1 {
+    background-color: #5a5e76;
+}
 
-c_2 {background-color: #698a98;}
+c_2 {
+    background-color: #698a98;
+}
 
-c_3 {background-color: #e3cb80;}
+c_3 {
+    background-color: #e3cb80;
+}
 
-c_4 {background-color: #ececdd;}
+c_4 {
+    background-color: #ececdd;
+}
+
 /* @end */
 

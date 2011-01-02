@@ -28,46 +28,48 @@ import time
 class Thermo(BaseComponent):
     def thermoNewDialog(self, pane, thermoId='thermo', title='', thermolines=1, fired=None, pollingFreq=1):
         dlgid = 'dlg_%s' % thermoId
-        d = pane.dialog(nodeId=dlgid, title=title, width='27em', datapath='_thermo.%s' % thermoId, 
-                        closable='ask', close_msg='!!Stop the batch execution ?', close_confirm='Stop', close_cancel='Continue', 
+        d = pane.dialog(nodeId=dlgid, title=title, width='27em', datapath='_thermo.%s' % thermoId,
+                        closable='ask', close_msg='!!Stop the batch execution ?', close_confirm='Stop',
+                        close_cancel='Continue',
                         close_action='genro.setInServer("thermo.%s.stop", true);' % thermoId)
         for x in range(thermolines):
             tl = d.div(datapath='.t.t%i' % (x, ))
-            tl.progressBar(width='25em', indeterminate='^.indeterminate', maximum='^.maximum', 
-                          places='^.places', progress='^.progress', margin_left='auto', margin_right='auto')
+            tl.progressBar(width='25em', indeterminate='^.indeterminate', maximum='^.maximum',
+                           places='^.places', progress='^.progress', margin_left='auto', margin_right='auto')
             tl.div('^.message', height='1em', text_align='center')
-        d.div(width='100%', height='4em').div(margin='auto').button('Stop', 
-                                                    action='genro.wdgById("%s").onAskCancel();' % dlgid)
-        
-        pane.dataController('genro.wdgById(dlgid).show();genro.rpc.setPolling(%s);' % pollingFreq, dlgid=dlgid, fired=fired)
-        pane.dataController('genro.wdgById(dlgid).hide();genro.rpc.setPolling();', dlgid=dlgid, _fired='^_thermo.%s.c.end' % thermoId)
-        
-        
+        d.div(width='100%', height='4em').div(margin='auto').button('Stop',
+                                                                    action='genro.wdgById("%s").onAskCancel();' % dlgid)
+
+        pane.dataController('genro.wdgById(dlgid).show();genro.rpc.setPolling(%s);' % pollingFreq, dlgid=dlgid,
+                            fired=fired)
+        pane.dataController('genro.wdgById(dlgid).hide();genro.rpc.setPolling();', dlgid=dlgid,
+                            _fired='^_thermo.%s.c.end' % thermoId)
+
+
     def setNewThermo(self, thermoId, level, progress, maximum, message='', indeterminate=False, lazy=True):
         #lazy: send to client at most 1 value change per second. 
         #Subsequent calls to setNewThermo in the next second are ignored
-        end = (level==-1 or (level==0 and progress >= maximum))
+        end = (level == -1 or (level == 0 and progress >= maximum))
         if end:
             self.setInClientData('_thermo.%s.c.end' % thermoId, True, fired=True, save=True)
             if self.session.pagedata['thermo.%s.stop' % thermoId]:
                 self.session.modifyPageData('thermo.%s.stop' % thermoId, None)
             return
-            
+
         now = time.time()
-        
+
         if not hasattr(self, 'lastThermoUpdTime'):
             self.lastThermoUpdLevel = None
             self.lastThermoUpdTime = 0
-                        
+
         if lazy and level == self.lastThermoUpdLevel and now - self.lastThermoUpdTime < 1:
             return
         self.lastThermoUpdTime = now
         self.lastThermoUpdLevel = level
-        
-            
+
         tbag = Bag(dict(progress=progress, maximum=maximum, message=message, indeterminate=indeterminate))
         self.setInClientData('_thermo.%s.t.t%s' % (thermoId, level), tbag, save=True)
-        
+
         if self.session.pagedata['thermo.%s.stop' % thermoId]:
             return True
         else:

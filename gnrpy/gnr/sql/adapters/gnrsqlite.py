@@ -38,21 +38,21 @@ import logging
 logger = logging.getLogger('gnrsqlite')
 
 class SqlDbAdapter(SqlDbBaseAdapter):
-    typesDict = {'charactervarying':'A', 'character varying':'A', 'character':'C', 'text':'T', 'blob':'X',
-                 'boolean':'B', 'date':'D', 'time':'H', 'timestamp':'DH', 'numeric':'N',
-                 'integer':'I', 'bigint':'L','smallint':'I', 'double precision':'R', 'real':'R', 'serial8':'L'}
-    
-    revTypesDict = {'A':'character varying', 'T':'text', 'C':'character',
-                    'X':'blob','P':'text','Z':'text',
-                 'B':'boolean', 'D':'date', 'H':'time', 'DH':'timestamp',
-                 'I':'integer', 'L':'bigint', 'R':'real','N':'numeric',
-                 'serial':'serial8'}
-    
+    typesDict = {'charactervarying': 'A', 'character varying': 'A', 'character': 'C', 'text': 'T', 'blob': 'X',
+                 'boolean': 'B', 'date': 'D', 'time': 'H', 'timestamp': 'DH', 'numeric': 'N',
+                 'integer': 'I', 'bigint': 'L', 'smallint': 'I', 'double precision': 'R', 'real': 'R', 'serial8': 'L'}
+
+    revTypesDict = {'A': 'character varying', 'T': 'text', 'C': 'character',
+                    'X': 'blob', 'P': 'text', 'Z': 'text',
+                    'B': 'boolean', 'D': 'date', 'H': 'time', 'DH': 'timestamp',
+                    'I': 'integer', 'L': 'bigint', 'R': 'real', 'N': 'numeric',
+                    'serial': 'serial8'}
+
     support_multiple_connections = False
-    
+
     def defaultMainSchema(self):
         return 'main'
-    
+
     def regexp(self, expr, item):
         r = re.compile(expr, re.U)
         return r.match(item) is not None
@@ -60,8 +60,8 @@ class SqlDbAdapter(SqlDbBaseAdapter):
     def connect(self):
         """Return a new connection object: provides cursors accessible by col number or col name
         @return: a new connection object"""
-        dbpath=self.dbroot.dbname
-        conn = pysqlite.connect(dbpath, detect_types=pysqlite.PARSE_DECLTYPES|pysqlite.PARSE_COLNAMES, timeout=20.0)
+        dbpath = self.dbroot.dbname
+        conn = pysqlite.connect(dbpath, detect_types=pysqlite.PARSE_DECLTYPES | pysqlite.PARSE_COLNAMES, timeout=20.0)
         conn.create_function("regexp", 2, self.regexp)
         #conn.row_factory = pysqlite.Row
         conn.row_factory = GnrDictRow
@@ -76,10 +76,10 @@ class SqlDbAdapter(SqlDbBaseAdapter):
                         self.attach('%s.db' % os.path.join(os.path.dirname(dbpath), sqlschema), sqlschema, cursor=curs)
         curs.close()
         return conn
-    
+
     def cursor(self, connection, cursorname=None):
         return connection.cursor(GnrSqliteCursor)
-    
+
     def attach(self, filepath, name, cursor=None):
         """A special sqlite only method for attach external database file as a schema for the current one
         @param filepath: external sqlite db file
@@ -92,34 +92,34 @@ class SqlDbAdapter(SqlDbBaseAdapter):
             cursor.execute("ATTACH DATABASE '%s' AS %s;" % (filepath, name))
         else:
             self.dbroot.execute("ATTACH DATABASE '%s' AS %s;" % (filepath, name))
-    
+
     def prepareSqlText(self, sql, kwargs):
         """Replace the 'REGEXP' operator with '~*'.
         Replace the ILIKE operator with LIKE: sqlite LIKE is case insensitive"""
-        sql = sql.replace('ILIKE','LIKE').replace('ilike','like').replace('~*',' REGEXP ')
+        sql = sql.replace('ILIKE', 'LIKE').replace('ilike', 'like').replace('~*', ' REGEXP ')
         return sql, kwargs
-    
+
     def _selectForUpdate(self):
         return ''
-    
+
     def listElements(self, elType, **kwargs):
         """Get a list of element names.
         @param elType: one of the following: schemata, tables, columns, views.
         @param kwargs: schema, table
-        @return: list of object names"""        
-        return getattr(self,'_list_%s' % elType)(**kwargs)
-    
+        @return: list of object names"""
+        return getattr(self, '_list_%s' % elType)(**kwargs)
+
     def _list_schemata(self):
         return [r[1] for r in self.dbroot.execute("PRAGMA database_list;").fetchall()]
-    
+
     def _list_tables(self, schema):
         query = "SELECT name FROM %s.sqlite_master WHERE type='table';" % (schema,)
         return [r[0] for r in self.dbroot.execute(query).fetchall()]
-    
+
     def _list_views(self, schema):
         query = "SELECT name FROM %s.sqlite_master WHERE type='view';" % (schema,)
         return [r[0] for r in self.dbroot.execute(query).fetchall()]
-    
+
     def _list_columns(self, schema, table):
         """cid|name|type|notnull|dflt_value|pk"""
         query = "PRAGMA %s.table_info(%s);" % (schema, table)
@@ -133,14 +133,14 @@ class SqlDbAdapter(SqlDbBaseAdapter):
         """
         #result = Bag()
         #for schema in self._list_schemata():
-            #for tbl in self._list_tables(schema=schema):
-                #result['%s.%s' % (schema,tbl)] = Bag()
+        #for tbl in self._list_tables(schema=schema):
+        #result['%s.%s' % (schema,tbl)] = Bag()
         result = []
         for schema in self._list_schemata():
             for tbl in self._list_tables(schema=schema):
-                query = "PRAGMA %s.foreign_key_list(%s);" % (schema,tbl)
+                query = "PRAGMA %s.foreign_key_list(%s);" % (schema, tbl)
                 l = self.dbroot.execute(query).fetchall()
-                
+
                 for r in l:
                     un_tbl = r[2]
                     cols = [r[3]]
@@ -148,10 +148,10 @@ class SqlDbAdapter(SqlDbBaseAdapter):
                     un_schema = schema
                     ref = tbl
                     un_ref = un_tbl
-                    
-                    result.append([ref, schema, tbl, [col], un_ref, un_schema, un_tbl, [un_col]],None,None,None)
+
+                    result.append([ref, schema, tbl, [col], un_ref, un_schema, un_tbl, [un_col]], None, None, None)
         return result
-    
+
     def getPkey(self, table, schema):
         """
         @param table: table name
@@ -159,10 +159,9 @@ class SqlDbAdapter(SqlDbBaseAdapter):
         @return: list of columns wich are the primary key for the table"""
         query = "PRAGMA %s.table_info(%s);" % (schema, table)
         l = self.dbroot.execute(query).fetchall()
-        return [r[1] for r in l if r[5]==1]
-    
-    
-    
+        return [r[1] for r in l if r[5] == 1]
+
+
     def getColInfo(self, table, schema, column=None):
         """Get a (list of) dict containing details about a column or all the columns of a table.
         Each dict has those info: name, position, default, dtype, length, notnull
@@ -171,7 +170,7 @@ class SqlDbAdapter(SqlDbBaseAdapter):
         cursor = self.dbroot.execute(query)
         columns = cursor.fetchall()
         if column:
-            columns = [col for col in columns if col['name']==column]
+            columns = [col for col in columns if col['name'] == column]
         result = []
         for col in columns:
             col = dict([(k[0], col[k[0]]) for k in cursor.description])
@@ -179,16 +178,16 @@ class SqlDbAdapter(SqlDbBaseAdapter):
             col['default'] = col.pop('dflt_value')
             colType = col.pop('type').lower()
             if '(' in colType:
-                col['length'] = colType[colType.find('(')+1:colType.find(')')]
+                col['length'] = colType[colType.find('(') + 1:colType.find(')')]
                 colType = colType[:colType.find('(')]
             col['dtype'] = self.typesDict[colType]
-            col['notnull'] = (col['notnull']=='NO')
-            col = self._filterColInfo(col,'_sl_')
+            col['notnull'] = (col['notnull'] == 'NO')
+            col = self._filterColInfo(col, '_sl_')
             result.append(col)
         if column:
             result = result[0]
         return result
-    
+
     def listen(self, msg, timeout=None, onNotify=None, onTimeout=None):
         """Actually sqlite has no message comunications: so simply sleep and executes onTimeout
         TODO: could be implemented with pyro to notify messages
@@ -202,13 +201,13 @@ class SqlDbAdapter(SqlDbBaseAdapter):
         listening = True
         while listening:
             time.sleep(timeout)
-            if onTimeout!=None:
+            if onTimeout != None:
                 listening = onTimeout()
 
     def notify(self, msg, autocommit=False):
         """Actually sqlite has no message comunications: so simply pass"""
         pass
-        
+
     def createDb(self, name, encoding='unicode'):
         """Create a new database file.
         Not really usefull with sqlite, just connecting will automatically create the database file
@@ -218,13 +217,13 @@ class SqlDbAdapter(SqlDbBaseAdapter):
         """
         conn = pysqlite.connect(name)
         conn.close()
-        
+
     def dropDb(self, name):
         """Drop an existing database file (actually delete the file) 
         @param name: db name
         """
         os.remove(name)
-        
+
     def getIndexesForTable(self, table, schema):
         """Get a (list of) dict containing details about all the indexes of a table.
         Each dict has those info: name, primary (bool), unique (bool), columns (comma separated string)
@@ -240,20 +239,20 @@ class SqlDbAdapter(SqlDbBaseAdapter):
             cols = [c['name'] for c in cols]
             result.append(dict(name=idx['name'], primary=None, unique=idx['unique'], columns=','.join(cols)))
         return result
-    
+
     def addForeignKeySql(self, c_name, o_pkg, o_tbl, o_fld, m_pkg, m_tbl, m_fld, on_up, on_del, init_deferred):
         """Sqlite cannot add foreign keys, only define them in CREATE TABLE. However they are not enforced."""
         return ''
-        
+
     def createSchemaSql(self, sqlschema):
         """Sqlite attached dbs cannot be created with an sql command. But they are automatically created in connect()"""
         return ''
-    
+
     def createSchema(self, sqlschema):
         """Create a new database schema.
         sqlite specific implementation actually attach an external db file."""
-        self.attach(sqlschema+'.db', sqlschema)
-        
+        self.attach(sqlschema + '.db', sqlschema)
+
     def createIndex(self, index_name, columns, table_sql, sqlschema=None, unique=None):
         """create a new index
         sqlite specific implementation fix a naming difference: 
@@ -263,7 +262,7 @@ class SqlDbAdapter(SqlDbBaseAdapter):
         @param table_sql: actual sql name of the table
         @parm sqlschema: actual sql name of the schema
         @unique: boolean for unique indexing"""
-        if sqlschema: 
+        if sqlschema:
             index_name = '%s.%s' % (sqlschema, index_name)
         if unique:
             unique = 'UNIQUE '
@@ -283,8 +282,9 @@ class GnrSqliteCursor(pysqlite.Cursor):
             for i in range(len(self.description)):
                 self._index[self.description[i][0]] = i
         return self._index
+
     index = property(_get_index)
-    
+
     def execute(self, sql, *args, **kwargs):
         global logger
         if not sql.startswith('ATTACH'):
@@ -305,10 +305,10 @@ def adapt_time(val):
     return val.isoformat()
 
 def convert_time(val):
-    return datetime.time(*map(int,val.split(':')))
+    return datetime.time(*map(int, val.split(':')))
 
 pysqlite.register_adapter(datetime.time, adapt_time)
-pysqlite.register_converter("time",convert_time)
+pysqlite.register_converter("time", convert_time)
 
 # ------------------------------------------------------------------------------------------------------- Fix issues with datetimes and dates
 
@@ -316,4 +316,4 @@ def convert_date(val):
     val = val.partition(' ')[0] # take just the date part, if we received a datetime string
     return datetime.date(*map(int, val.split("-")))
 
-pysqlite.register_converter("date",convert_date)
+pysqlite.register_converter("date", convert_date)

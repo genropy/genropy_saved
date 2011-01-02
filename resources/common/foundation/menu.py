@@ -24,128 +24,131 @@
 Component for menu handling:
 """
 from gnr.web.gnrbaseclasses import BaseComponent
-from gnr.core.gnrbag import Bag,BagResolver
+from gnr.core.gnrbag import Bag, BagResolver
 import os
 
 class Menu(BaseComponent):
     css_requires = 'menu'
-    
-    def mainLeft_menu_plugin(self,tc):
-        pane = tc.contentPane(title="Menu",pageName='menu_plugin')
-        self.menu_menuPane(pane.div(position='absolute', top='2px',left='0',right='2px',bottom='2px',overflow='auto'))
-                
-    def menu_menuPane(self,pane,**kwargs):
-        b=Bag()
-        b['root']=MenuResolver(path=None,pagepath=self.pagepath)
-        pane.data('gnr.appmenu',b)
+
+    def mainLeft_menu_plugin(self, tc):
+        pane = tc.contentPane(title="Menu", pageName='menu_plugin')
+        self.menu_menuPane(
+                pane.div(position='absolute', top='2px', left='0', right='2px', bottom='2px', overflow='auto'))
+
+    def menu_menuPane(self, pane, **kwargs):
+        b = Bag()
+        b['root'] = MenuResolver(path=None, pagepath=self.pagepath)
+        pane.data('gnr.appmenu', b)
         #leftPane = parentBC.contentPane(width='20%',_class='menupane',**kwargs)
-        pane.tree(id="_gnr_main_menu_tree",storepath='gnr.appmenu.root',selected_file='gnr.filepath',
-                       labelAttribute='label',
-                       hideValues=True,
-                       _class='menutree',
-                       persist='site',
-                       inspect='shift',
-                       identifier='#p',
-                       getIconClass='return node.attr.iconClass || "treeNoIcon"',
-                       getLabelClass='return node.attr.labelClass',
-                       openOnClick=True,
-                       autoCollapse=True,
-                       getLabel="""if(node.attr.file){ 
+        pane.tree(id="_gnr_main_menu_tree", storepath='gnr.appmenu.root', selected_file='gnr.filepath',
+                  labelAttribute='label',
+                  hideValues=True,
+                  _class='menutree',
+                  persist='site',
+                  inspect='shift',
+                  identifier='#p',
+                  getIconClass='return node.attr.iconClass || "treeNoIcon"',
+                  getLabelClass='return node.attr.labelClass',
+                  openOnClick=True,
+                  autoCollapse=True,
+                  getLabel="""if(node.attr.file){
                                         var url = genro.joinPath(genro.baseUrl, node.attr.file);
                                         return 'innerHTML:<a href="'+url+'"><div style="width:100%;height:100%;">'+node.attr.label+'</div></a>'}
                                         else  
                                         {return node.attr.label};""",
-                       nodeId='_menutree_')
-        pane.dataController("genro.wdgById('_gnrRoot').showHideRegion('left', false);",fired='^gnr.onStart',
-                                appmenu="=gnr.appmenu",_if="appmenu.len()==0")
-        
-        
+                  nodeId='_menutree_')
+        pane.dataController("genro.wdgById('_gnrRoot').showHideRegion('left', false);", fired='^gnr.onStart',
+                            appmenu="=gnr.appmenu", _if="appmenu.len()==0")
+
+
     def getUserMenu(self, fullMenubag):
-        def userMenu(userTags,menubag,level,basepath):
+        def userMenu(userTags, menubag, level, basepath):
             result = Bag()
             #if not userTags:
-                #return result
+            #return result
             for node in menubag.nodes:
-                allowed=True
-                nodetags=node.getAttr('tags')
+                allowed = True
+                nodetags = node.getAttr('tags')
                 if nodetags:
-                    allowed=self.application.checkResourcePermission(nodetags, userTags)
+                    allowed = self.application.checkResourcePermission(nodetags, userTags)
                 if allowed and node.getAttr('file'):
                     allowed = self.checkPermission(node.getAttr('file'))
                 if allowed:
-                    value=node.getStaticValue()
-                    attributes={}
+                    value = node.getStaticValue()
+                    attributes = {}
                     attributes.update(node.getAttr())
-                    currbasepath=basepath
+                    currbasepath = basepath
                     if 'basepath' in attributes:
-                        newbasepath=node.getAttr('basepath')
+                        newbasepath = node.getAttr('basepath')
                         if newbasepath.startswith('/'):
-                            currbasepath=[self.site.home_uri+newbasepath[1:]]
+                            currbasepath = [self.site.home_uri + newbasepath[1:]]
                         else:
-                            currbasepath=basepath+[newbasepath]
-                    if isinstance(value,Bag):
-                        value = userMenu(userTags,value,level+1,currbasepath)
-                        labelClass = 'menu_level_%i' %level 
+                            currbasepath = basepath + [newbasepath]
+                    if isinstance(value, Bag):
+                        value = userMenu(userTags, value, level + 1, currbasepath)
+                        labelClass = 'menu_level_%i' % level
                     else:
-                        value=None
+                        value = None
                         labelClass = 'menu_page'
                     customLabelClass = attributes['customLabelClass'] or ''
-                    attributes['labelClass'] = 'menu_shape %s %s' %(labelClass, customLabelClass)
-                    filepath=attributes.get('file')
-                    if filepath: 
+                    attributes['labelClass'] = 'menu_shape %s %s' % (labelClass, customLabelClass)
+                    filepath = attributes.get('file')
+                    if filepath:
                         if not filepath.startswith('/'):
-                            attributes['file'] = os.path.join(*(currbasepath+[filepath]))
+                            attributes['file'] = os.path.join(*(currbasepath + [filepath]))
                         else:
                             #attributes['file'] = self.site.home_uri + filepath.lstrip('/')
                             attributes['file'] = filepath
-                    result.setItem(node.label,value,attributes)
+                    result.setItem(node.label, value, attributes)
             return result
-        result=userMenu(self.userTags,fullMenubag,0,[])
-        while len(result)==1:
-            result=result['#0']
+
+        result = userMenu(self.userTags, fullMenubag, 0, [])
+        while len(result) == 1:
+            result = result['#0']
         return result
-        
+
 class MenuResolver(BagResolver):
-    classKwargs={'cacheTime':300,
-                 'readOnly':False,
-                 'path':None,
-                 'pagepath':None}
-    classArgs=['path']
+    classKwargs = {'cacheTime': 300,
+                   'readOnly': False,
+                   'path': None,
+                   'pagepath': None}
+    classArgs = ['path']
+
     def load(self):
         sitemenu = self._page.application.siteMenu
-        userTags=self._page.userTags
+        userTags = self._page.userTags
         result = Bag()
         level = 0
         if self.path:
             level = len(self.path.split('.'))
         for node in sitemenu[self.path].nodes:
-            allowed=True
-            nodetags=node.getAttr('tags')
-            filepath=node.getAttr('file')
+            allowed = True
+            nodetags = node.getAttr('tags')
+            filepath = node.getAttr('file')
             if nodetags:
-                allowed=self._page.application.checkResourcePermission(nodetags, userTags)
+                allowed = self._page.application.checkResourcePermission(nodetags, userTags)
             if allowed and filepath:
                 allowed = self._page.checkPermission(filepath)
             if allowed:
-                value=node.getStaticValue()
-                attributes={}
+                value = node.getStaticValue()
+                attributes = {}
                 attributes.update(node.getAttr())
-                if isinstance(value,Bag):
+                if isinstance(value, Bag):
                     newpath = node.label
                     if self.path:
-                        newpath = '%s.%s' %(self.path,node.label)
+                        newpath = '%s.%s' % (self.path, node.label)
                     else:
                         newpath = node.label
-                    value = MenuResolver(path=newpath,pagepath=self.pagepath)
-                    labelClass = 'menu_level_%i' %level 
+                    value = MenuResolver(path=newpath, pagepath=self.pagepath)
+                    labelClass = 'menu_level_%i' % level
                 else:
-                    value=None
-                    labelClass = 'menu_page'   
-                    if 'file' in attributes and  attributes['file'].endswith(self.pagepath.replace('.py','')):
-                        labelClass = 'menu_page menu_current_page'      
-                customLabelClass = attributes.get('customLabelClass','')
-                attributes['labelClass'] = 'menu_shape %s %s' %(labelClass, customLabelClass)
-                result.setItem(node.label,value,attributes)
+                    value = None
+                    labelClass = 'menu_page'
+                    if 'file' in attributes and  attributes['file'].endswith(self.pagepath.replace('.py', '')):
+                        labelClass = 'menu_page menu_current_page'
+                customLabelClass = attributes.get('customLabelClass', '')
+                attributes['labelClass'] = 'menu_shape %s %s' % (labelClass, customLabelClass)
+                result.setItem(node.label, value, attributes)
         return result
             
    

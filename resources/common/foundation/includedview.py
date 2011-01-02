@@ -27,25 +27,25 @@ class IncludedView(BaseComponent):
     """
     css_requires = 'public'
     js_requires = 'public'
-    py_requires ='gnrcomponents/grid_configurator/grid_configurator:GridConfigurator,foundation/macrowidgets:FilterBox'
-    
-    def includedViewBox(self,parentBC,nodeId=None,table=None,datapath=None,
-                        storepath=None,selectionPars=None,formPars=None,label=None,caption=None,footer=None,
-                        add_action=None,add_class='buttonIcon icnBaseAdd',add_enable='^form.canWrite',
-                        del_action=None,del_class='buttonIcon icnBaseDelete',del_enable='^form.canWrite',
-                        upd_action=None,upd_class='buttonIcon icnBaseEdit',upd_enable='^form.canWrite',
-                        
-                        close_action=None,close_class='buttonIcon icnTabClose',
-                        print_action=None,print_class='buttonIcon icnBasePrinter',
-                        pdf_action=None,pdf_class='buttonIcon icnBasePdf',pdf_name=None,
-                        export_action=None,export_class='buttonIcon icnBaseExport',
-                        tools_action=None,tools_class='buttonIcon icnBaseAction',
-                        tools_enable='^form.canWrite',tools_lbl=None,
-                        lock_action=False,tools_menu=None,_onStart=False,
-                        filterOn=None,pickerPars=None,centerPaneCb=None,
-                        editorEnabled=None,parentLock='^status.locked',reloader=None,externalChanges=None,
-                        addOnCb=None,zoom=True,hasToolbar=False,
-                        canSort=True,configurable=None,dropCodes=None,
+    py_requires = 'gnrcomponents/grid_configurator/grid_configurator:GridConfigurator,foundation/macrowidgets:FilterBox'
+
+    def includedViewBox(self, parentBC, nodeId=None, table=None, datapath=None,
+                        storepath=None, selectionPars=None, formPars=None, label=None, caption=None, footer=None,
+                        add_action=None, add_class='buttonIcon icnBaseAdd', add_enable='^form.canWrite',
+                        del_action=None, del_class='buttonIcon icnBaseDelete', del_enable='^form.canWrite',
+                        upd_action=None, upd_class='buttonIcon icnBaseEdit', upd_enable='^form.canWrite',
+
+                        close_action=None, close_class='buttonIcon icnTabClose',
+                        print_action=None, print_class='buttonIcon icnBasePrinter',
+                        pdf_action=None, pdf_class='buttonIcon icnBasePdf', pdf_name=None,
+                        export_action=None, export_class='buttonIcon icnBaseExport',
+                        tools_action=None, tools_class='buttonIcon icnBaseAction',
+                        tools_enable='^form.canWrite', tools_lbl=None,
+                        lock_action=False, tools_menu=None, _onStart=False,
+                        filterOn=None, pickerPars=None, centerPaneCb=None,
+                        editorEnabled=None, parentLock='^status.locked', reloader=None, externalChanges=None,
+                        addOnCb=None, zoom=True, hasToolbar=False,
+                        canSort=True, configurable=None, dropCodes=None,
                         **kwargs):
         """
         This method returns a grid (includedView) for viewing and selecting rows from a many
@@ -138,13 +138,13 @@ class IncludedView(BaseComponent):
         * `**kwargs`: you have to put the includedView params: autowidth, storepath, etc.
         """
         if storepath:
-            assert not storepath.startswith('^') and not storepath.startswith('='), \
-                "storepath should be a plain datapath, no ^ or ="
+            assert not storepath.startswith('^') and not storepath.startswith('='),\
+            "storepath should be a plain datapath, no ^ or ="
         if not datapath:
             if storepath.startswith('.'):
                 inherited_attributes = parentBC.parentNode.getInheritedAttributes()
-                assert inherited_attributes.has_key('sqlContextRoot'), \
-                    'please specify an absolute storepath, if sqlContextRoot is not available'
+                assert inherited_attributes.has_key('sqlContextRoot'),\
+                'please specify an absolute storepath, if sqlContextRoot is not available'
                 storepath = '%s%s' % (inherited_attributes['sqlContextRoot'], storepath)
         viewPars = dict(kwargs)
         if nodeId and table and configurable is not False:
@@ -155,17 +155,18 @@ class IncludedView(BaseComponent):
             for dropCode in dropCodes.split(','):
                 mode = 'grid'
                 if ':' in dropCode:
-                    dropCode,mode = dropCode.split(':')
-                dropmode = 'dropTarget_%s' %mode
-                viewPars[dropmode] = '%s,%s' %(viewPars[dropmode],dropCode) if dropmode in viewPars else dropCode
-                viewPars['onDrop_%s' %dropCode] = 'FIRE .dropped_%s = data' %dropCode
-                viewPars['onCreated'] = """dojo.connect(widget,'_onFocus',function(){genro.publish("show_palette_%s")})""" %dropCode #provo?si
+                    dropCode, mode = dropCode.split(':')
+                dropmode = 'dropTarget_%s' % mode
+                viewPars[dropmode] = '%s,%s' % (viewPars[dropmode], dropCode) if dropmode in viewPars else dropCode
+                viewPars['onDrop_%s' % dropCode] = 'FIRE .dropped_%s = data' % dropCode
+                viewPars[
+                'onCreated'] = """dojo.connect(widget,'_onFocus',function(){genro.publish("show_palette_%s")})""" % dropCode #provo?si
                 # 
-        controllerPath = datapath or 'grids.%s' %gridId
+        controllerPath = datapath or 'grids.%s' % gridId
         storepath = storepath or '.selection'
         viewPars['configurable'] = configurable
         viewPars['storepath'] = storepath
-        viewPars['controllerPath']= controllerPath
+        viewPars['controllerPath'] = controllerPath
         controller = parentBC.dataController(datapath=controllerPath)
         assert not 'selectedIndex' in viewPars
         viewPars['selectedIndex'] = '^.selectedIndex'
@@ -178,103 +179,105 @@ class IncludedView(BaseComponent):
         box_pars = dict([(k[4:], kwargs.pop(k)) for k in kwargs.keys() if k.startswith('box_')])
         box_pars['_class'] = (box_pars.pop('class', None) or 'pbl_viewBox')
         if label is not False:
-            gridtop = parentBC.contentPane(region='top',datapath=controllerPath, overflow='hidden',nodeId='%s_top' %gridId,**label_pars)
+            gridtop = parentBC.contentPane(region='top', datapath=controllerPath, overflow='hidden',
+                                           nodeId='%s_top' % gridId, **label_pars)
             if hasToolbar is True:
                 gridtop = gridtop.toolbar(_class='pbl_viewBoxToolbar')
-            gridtop_left= gridtop.div(float='left')
+            gridtop_left = gridtop.div(float='left')
             if callable(label):
                 label(gridtop_left)
             else:
-                gridtop_left.div(label,margin_top='2px',float='left')
+                gridtop_left.div(label, margin_top='2px', float='left')
             gridtop_right = gridtop.div(float='right')
             if filterOn:
-                gridtop_filter = gridtop_right.div(float='left',margin_right='5px')
-                self.gridFilterBox(gridtop_filter,gridId=gridId,filterOn=filterOn,table=table)
+                gridtop_filter = gridtop_right.div(float='left', margin_right='5px')
+                self.gridFilterBox(gridtop_filter, gridId=gridId, filterOn=filterOn, table=table)
             if print_action or export_action or tools_menu or tools_action or pdf_action:
-                gridtop_actions = gridtop_right.div(float='left',margin_right='5px')
-                self._iv_gridAction(gridtop_actions,print_action=print_action,export_action=export_action,
-                                    export_class=export_class,print_class=print_class,tools_class=tools_class,
-                                    tools_menu=tools_menu,tools_action=tools_action,pdf_action=pdf_action,
-                                    pdf_class=pdf_class,pdf_name=pdf_name,table=table,gridId=gridId,
+                gridtop_actions = gridtop_right.div(float='left', margin_right='5px')
+                self._iv_gridAction(gridtop_actions, print_action=print_action, export_action=export_action,
+                                    export_class=export_class, print_class=print_class, tools_class=tools_class,
+                                    tools_menu=tools_menu, tools_action=tools_action, pdf_action=pdf_action,
+                                    pdf_class=pdf_class, pdf_name=pdf_name, table=table, gridId=gridId,
                                     tools_enable=tools_enable, tools_lbl=tools_lbl)
             if add_action or del_action or upd_action:
-                gridtop_add_del = gridtop_right.div(float='left',margin_right='5px')
-                self._iv_gridAddDel(gridtop_add_del,add_action=add_action,
-                                    del_action=del_action,upd_action=upd_action,
-                                    upd_class=upd_class,upd_enable=upd_enable,
-                                     add_class=add_class,add_enable=add_enable,
-                                     del_class=del_class, del_enable=del_enable,
-                                     pickerPars=pickerPars,
-                                     formPars=formPars,gridId=gridId)
+                gridtop_add_del = gridtop_right.div(float='left', margin_right='5px')
+                self._iv_gridAddDel(gridtop_add_del, add_action=add_action,
+                                    del_action=del_action, upd_action=upd_action,
+                                    upd_class=upd_class, upd_enable=upd_enable,
+                                    add_class=add_class, add_enable=add_enable,
+                                    del_class=del_class, del_enable=del_enable,
+                                    pickerPars=pickerPars,
+                                    formPars=formPars, gridId=gridId)
             if lock_action:
-                gridtop_lock = gridtop_right.div(float='left',margin_right='5px')
-                self._iv_gridLock(gridtop_lock,lock_action=lock_action)
+                gridtop_lock = gridtop_right.div(float='left', margin_right='5px')
+                self._iv_gridLock(gridtop_lock, lock_action=lock_action)
 
         if footer:
-            assert callable(footer),'footer param must be a callable'
-            footerPars = dict( [(k[7:],v) for k,v in kwargs.items() if k.startswith('footer_')] )
+            assert callable(footer), 'footer param must be a callable'
+            footerPars = dict([(k[7:], v) for k, v in kwargs.items() if k.startswith('footer_')])
             if not 'height' in footerPars:
                 footerPars['height'] = '18px'
             if not '_class'in footerPars:
-                footerPars['_class']='pbl_roundedGroupBottom'
+                footerPars['_class'] = 'pbl_roundedGroupBottom'
             gridbottom = parentBC.contentPane(region='bottom',
-                                              datapath=controllerPath,**footerPars)
+                                              datapath=controllerPath, **footerPars)
             footer(gridbottom)
 
-        self._iv_IncludedViewController(controller, gridId,controllerPath,table=table)
+        self._iv_IncludedViewController(controller, gridId, controllerPath, table=table)
         if centerPaneCb:
-            gridcenter = getattr(self,centerPaneCb)(parentBC,region='center', datapath=controllerPath, **box_pars)
+            gridcenter = getattr(self, centerPaneCb)(parentBC, region='center', datapath=controllerPath, **box_pars)
         else:
-            gridcenter = parentBC.contentPane(region='center',datapath=controllerPath, **box_pars)
-        viewPars['structpath'] = viewPars.get('structpath') or '.struct'  or 'grids.%s.struct' %nodeId
+            gridcenter = parentBC.contentPane(region='center', datapath=controllerPath, **box_pars)
+        viewPars['structpath'] = viewPars.get('structpath') or '.struct'  or 'grids.%s.struct' % nodeId
         if filterOn is True:
             gridcenter.dataController("""var colsMenu = new gnr.GnrBag();
                                          struct.forEach(function(n){
                                              colsMenu.setItem(n.label, null, {col:n.attr.field, caption:n.attr.name})
                                           });
-                                          SET .flt.colsMenu = colsMenu;""", struct='^%s.view_0.row_0' % viewPars['structpath'])
+                                          SET .flt.colsMenu = colsMenu;""",
+                                      struct='^%s.view_0.row_0' % viewPars['structpath'])
         if parentLock:
-            gridcenter.dataFormula(".editorEnabled", "parentLock==null?false:!parentLock",parentLock=parentLock)
+            gridcenter.dataFormula(".editorEnabled", "parentLock==null?false:!parentLock", parentLock=parentLock)
         elif parentLock is False:
-            editorEnabled=True
+            editorEnabled = True
         if caption:
             innerbc = gridcenter.borderContainer()
-            caption_pars = dictExtract(viewPars,'caption_',pop=True)
-            innerbc.contentPane(region='top').div(caption,**caption_pars)
-            gridcenter= innerbc.contentPane(region='center')
-        view = gridcenter.includedView(extension='includedViewPicker',table=table,
+            caption_pars = dictExtract(viewPars, 'caption_', pop=True)
+            innerbc.contentPane(region='top').div(caption, **caption_pars)
+            gridcenter = innerbc.contentPane(region='center')
+        view = gridcenter.includedView(extension='includedViewPicker', table=table,
                                        editorEnabled=editorEnabled or '^.editorEnabled',
                                        reloader=reloader, **viewPars)
         if addOnCb:
             addOnCb(gridcenter)
         if _onStart:
-            controller.dataController("FIRE .reload",_onStart=True)
+            controller.dataController("FIRE .reload", _onStart=True)
         if externalChanges:
-            externalChangesTypes=''
-            if isinstance(externalChanges,basestring):
+            externalChangesTypes = ''
+            if isinstance(externalChanges, basestring):
                 if ':' in externalChanges:
-                    externalChanges,externalChangesTypes=externalChanges.split(':')
-                    if externalChanges=='*':
-                        externalChanges=True
-            subscribed_tables = [t for t in getattr(self,'subscribed_tables','').split(',') if t]
-            assert  table in subscribed_tables, "table %s must be subscribed to get externalChanges"%table
-            event_path = 'gnr.dbevent.%s' %table.replace('.','_')
+                    externalChanges, externalChangesTypes = externalChanges.split(':')
+                    if externalChanges == '*':
+                        externalChanges = True
+            subscribed_tables = [t for t in getattr(self, 'subscribed_tables', '').split(',') if t]
+            assert  table in subscribed_tables, "table %s must be subscribed to get externalChanges" % table
+            event_path = 'gnr.dbevent.%s' % table.replace('.', '_')
             pars = dict()
             conditions = list()
-            if isinstance(externalChanges,basestring):
+            if isinstance(externalChanges, basestring):
                 for fld in externalChanges.split(','):
-                    fldname,fldpath=fld.split('=')
-                    conditions.append('genro.isEqual(curr_%s,event_%s)' %(fldname,fldname))
-                    pars['event_%s' %fldname] = '=%s.%s' %(event_path,fldname)
-                    pars['curr_%s' %fldname] = '=%s' %fldpath
+                    fldname, fldpath = fld.split('=')
+                    conditions.append('genro.isEqual(curr_%s,event_%s)' % (fldname, fldname))
+                    pars['event_%s' % fldname] = '=%s.%s' % (event_path, fldname)
+                    pars['curr_%s' % fldname] = '=%s' % fldpath
             if externalChangesTypes:
                 conditions.append('evtypes.indexOf(evtype)>=0')
                 pars['evtypes'] = externalChangesTypes
-                pars['evtype'] = '=%s?dbevent' %event_path
-            gridcenter.dataController("FIRE .reload;" ,_if=' && '.join(conditions),
-                                     _fired='^%s' %event_path,**pars)
+                pars['evtype'] = '=%s?dbevent' % event_path
+            gridcenter.dataController("FIRE .reload;", _if=' && '.join(conditions),
+                                      _fired='^%s' % event_path, **pars)
         if selectionPars:
-            self._iv_includedViewSelection(gridcenter,gridId,table,storepath,selectionPars,controllerPath)
+            self._iv_includedViewSelection(gridcenter, gridId, table, storepath, selectionPars, controllerPath)
 
         if formPars:
             formPars.setdefault('pane', gridcenter)
@@ -285,39 +288,39 @@ class IncludedView(BaseComponent):
             self._iv_Picker(controller, controllerPath, view, pickerPars)
         return view
 
-    def _iv_gridLock(self,pane,lock_action=None):
+    def _iv_gridLock(self, pane, lock_action=None):
         if lock_action is True:
-            spacer = pane.div(float='right',width='30px',height='20px',position='relative')
-            spacer.button(label='^.status.lockLabel', fire='.status.changelock',iconClass="^.status.statusClass",
-                        showLabel=False)
+            spacer = pane.div(float='right', width='30px', height='20px', position='relative')
+            spacer.button(label='^.status.lockLabel', fire='.status.changelock', iconClass="^.status.statusClass",
+                          showLabel=False)
 
-    def _iv_gridAddDel(self,pane,add_action=None,del_action=None,upd_action=None,upd_class=None,upd_enable=None, 
-                        add_class=None,add_enable=None,del_class=None, del_enable=None,pickerPars=None,formPars=None,gridId=None):
+    def _iv_gridAddDel(self, pane, add_action=None, del_action=None, upd_action=None, upd_class=None, upd_enable=None,
+                       add_class=None, add_enable=None, del_class=None, del_enable=None, pickerPars=None, formPars=None,
+                       gridId=None):
         if del_action:
             if del_action is True:
                 del_action = 'FIRE .delSelection'
             pane.div(float='right', _class=del_class, connect_onclick=del_action,
-                        margin_right='2px',visible=del_enable)
+                     margin_right='2px', visible=del_enable)
         if add_action:
             if add_action is True:
                 if pickerPars:
-                    add_action='FIRE .showPicker'
+                    add_action = 'FIRE .showPicker'
                 elif formPars:
                     add_action = 'FIRE .showRecord; FIRE .addRecord =$1;'
                 else:
                     add_action = 'FIRE .addRecord =$1;FIRE .editRow=1000;'
-            pane.div(float='right', _class=add_class,connect_onclick=add_action,
-                        margin_right='2px',visible=add_enable)
+            pane.div(float='right', _class=add_class, connect_onclick=add_action,
+                     margin_right='2px', visible=add_enable)
         if upd_action:
             if upd_action is True:
                 upd_action = 'FIRE .showRecord'
             pane.div(float='right', _class=upd_class, connect_onclick=upd_action,
-                        margin_right='2px',visible=upd_enable)
+                     margin_right='2px', visible=upd_enable)
 
-    def _iv_gridAction(self,pane,print_action=None,export_action=None,tools_menu=None,tools_class=None,
-                       tools_action=None,export_class=None,print_class=None,pdf_action=None,pdf_class=None,
-                       pdf_name=None,table=None,gridId=None,tools_enable=None,tools_lbl=None,**kwargs):
-
+    def _iv_gridAction(self, pane, print_action=None, export_action=None, tools_menu=None, tools_class=None,
+                       tools_action=None, export_class=None, print_class=None, pdf_action=None, pdf_class=None,
+                       pdf_name=None, table=None, gridId=None, tools_enable=None, tools_lbl=None, **kwargs):
         if print_action:
             if print_action is True:
                 print_action = 'FIRE .print;'
@@ -326,23 +329,24 @@ class IncludedView(BaseComponent):
         if export_action:
             if export_action is True:
                 export_action = 'export'
-                export_mode ='xls'
-            export_action = 'FIRE .iv_action={action:"%s",export_mode:"%s"};' %(export_action,export_mode)
+                export_mode = 'xls'
+            export_action = 'FIRE .iv_action={action:"%s",export_mode:"%s"};' % (export_action, export_mode)
             pane.div(float='left', margin_right='7px', _class=export_class, connect_onclick=export_action)
 
         if tools_menu:
             storepath = '.toolsmenu'
-            if isinstance(tools_menu,basestring):
+            if isinstance(tools_menu, basestring):
                 storepath = tools_menu
             else:
-                pane.data('.toolsmenu',tools_menu)
-            btn = pane.dropDownButton('!!Edit',showLabel=False,float='left', 
-                                        iconClass = tools_class,margin_right='7px',baseClass='no_background')
-            btn.menu(storepath=storepath, modifiers='*',_class='smallmenu',action='this.fireEvent(item.attr.fire_path);')
+                pane.data('.toolsmenu', tools_menu)
+            btn = pane.dropDownButton('!!Edit', showLabel=False, float='left',
+                                      iconClass=tools_class, margin_right='7px', baseClass='no_background')
+            btn.menu(storepath=storepath, modifiers='*', _class='smallmenu',
+                     action='this.fireEvent(item.attr.fire_path);')
         elif tools_action:
             if tools_action is True:
                 tools_action = 'FIRE .reload'
-            tool_block=pane.div(margin='0px', border_spacing='0px', visible=tools_enable)
+            tool_block = pane.div(margin='0px', border_spacing='0px', visible=tools_enable)
             tool_block.div(float='left', _class=tools_class, connect_onclick=tools_action)
             if tools_lbl:
                 tool_block.div(tools_lbl, margin_left='5px', width='70px', font_size='0.9em')
@@ -362,50 +366,50 @@ class IncludedView(BaseComponent):
                              //objectUpdate(parameters,moreargs);
                              genro.rpcDownload("callTableScript",parameters);
                              """,
-                    _fired='^.downloadPdf',
-                    #runKwargs = '=%s' % runKwargsPath, #aggiunto
-                    docName ='%s' %pdf_name,
-                    table=table,gridId=gridId,respath=pdf_action,
-                    rebuild=True)
+                                _fired='^.downloadPdf',
+                                #runKwargs = '=%s' % runKwargsPath, #aggiunto
+                                docName='%s' % pdf_name,
+                                table=table, gridId=gridId, respath=pdf_action,
+                                rebuild=True)
             pane.div(float='left', _class=pdf_class, connect_onclick='FIRE .downloadPdf')
 
-    def _iv_includedViewSelection(self, pane, gridId, table, storepath, selectionPars,controllerPath):
+    def _iv_includedViewSelection(self, pane, gridId, table, storepath, selectionPars, controllerPath):
         #assert table
         assert not 'columnsFromView' in selectionPars
         assert not 'nodeId' in selectionPars
         #assert 'where' in selectionPars
-        selectionPars['nodeId'] = "%s_selection" %gridId
+        selectionPars['nodeId'] = "%s_selection" % gridId
         if table:
             selectionPars['table'] = table
             selectionPars['columns'] = selectionPars.get('columns') or '=.columns'
 
-        method = selectionPars.pop('method','app.getSelection')
+        method = selectionPars.pop('method', 'app.getSelection')
         destpath = None
         if 'destpath' not in selectionPars:
             destpath = storepath
-        pane.dataRpc(destpath,method,**selectionPars)
+        pane.dataRpc(destpath, method, **selectionPars)
 
-    def _iv_IncludedViewController(self, controller, gridId ,controllerPath,table=None):
-        loadingParameters=None
+    def _iv_IncludedViewController(self, controller, gridId, controllerPath, table=None):
+        loadingParameters = None
         if table:
-            loadingParameters='=gnr.tables.%s.loadingParameters' %table.replace('.','_')
+            loadingParameters = '=gnr.tables.%s.loadingParameters' % table.replace('.', '_')
         controller.dataController("""var grid = genro.wdgById(gridId);
                                      grid.addBagRow('#id', '*', grid.newBagRow(),event);
-                                     """ ,
-                                     event='^.addRecord',
-                                     gridId=gridId)
-                                     #loadingParameters=loadingParameters)
+                                     """,
+                                  event='^.addRecord',
+                                  gridId=gridId)
+        #loadingParameters=loadingParameters)
         delScript = """PUT .selectedLabel= null;
                        var grid = genro.wdgById(gridId);
                        var nodesToDel = grid.delBagRow('*', delSelection);
                        FIRE .onDeletedRow;"""
 
         controller.dataController(delScript, _fired='^.delRecord', delSelection='^.delSelection',
-                                idx='=.selectedIndex', gridId=gridId)
-        controller.dataController("""genro.wdgById(gridId).editBagRow(null,fired);""",fired='^.editRow',gridId=gridId)
-        controller.dataController("genro.wdgById(gridId).printData();" ,fired='^.print',gridId=gridId)
-       #controller.dataController("genro.wdgById(gridId).exportData(mode, export_method);" ,
-       #                           mode='^.export', export_method='=.export_method', gridId=gridId)
+                                  idx='=.selectedIndex', gridId=gridId)
+        controller.dataController("""genro.wdgById(gridId).editBagRow(null,fired);""", fired='^.editRow', gridId=gridId)
+        controller.dataController("genro.wdgById(gridId).printData();", fired='^.print', gridId=gridId)
+        #controller.dataController("genro.wdgById(gridId).exportData(mode, export_method);" ,
+        #                           mode='^.export', export_method='=.export_method', gridId=gridId)
         controller.dataController("""
                                 var grid = genro.wdgById(gridId);
                                 var method = objectPop(action,"method") || "app.includedViewAction";
@@ -419,17 +423,14 @@ class IncludedView(BaseComponent):
                                 kwargs['meta'] = objectExtract(grid.sourceNode.attr, 'meta_*', true);
                                 genro.rpc.remoteCall(method, kwargs, null, 'POST', null,cb);
                             """,
-                            gridId=gridId,action='^.iv_action')
-        
-                                   
-                                   
-                                   
-        controller.dataController("genro.wdgById(gridId).reload(true);" ,_fired='^.reload',gridId=gridId)
-       #controller.dataController("""SET .selectedIndex = null;
-       #                             PUT .selectedLabel= null;""",
-       #                          _fired="^gnr.forms.formPane.saving")
+                                  gridId=gridId, action='^.iv_action')
 
-        
+        controller.dataController("genro.wdgById(gridId).reload(true);", _fired='^.reload', gridId=gridId)
+        #controller.dataController("""SET .selectedIndex = null;
+        #                             PUT .selectedLabel= null;""",
+        #                          _fired="^gnr.forms.formPane.saving")
+
+
     def _includedViewForm(self, controller, controllerPath, view, formPars):
         viewPars = view.attributes
         gridId = viewPars['nodeId']
@@ -444,18 +445,18 @@ class IncludedView(BaseComponent):
 
         formHandler = getattr(self, '_iv_Form_%s' % formPars.get('mode', 'dialog'))
 
-        toolbarPars = dict([(k, formPars.pop(k, None)) for k in ('add_action', 'add_class', 'add_enable','del_action', 'del_class','del_enable',)])
+        toolbarPars = dict([(k, formPars.pop(k, None)) for k in
+                            ('add_action', 'add_class', 'add_enable', 'del_action', 'del_class', 'del_enable',)])
         toolbarPars['controllerHandler'] = formPars.pop('controllerHandler', '_iv_FormStaticController')
         formHandler(formPars, storepath, controller, controllerPath, gridId, toolbarPars)
 
     def _iv_Form_inline(self, formPars, storepath, controller, controllerPath, gridId, toolbarPars):
-        getattr(self,toolbarPars['controllerHandler'])(controller, gridId)
+        getattr(self, toolbarPars['controllerHandler'])(controller, gridId)
 
     def _iv_FormToolbar(self, parentBC, controller, controllerPath, controllerHandler, gridId,
-                        add_action=None, add_class=None,add_enable=None,
-                        del_action=None, del_class=None,del_enable=None,):
-
-        pane = parentBC.contentPane(region='top', height='28px', datapath=controllerPath,overflow='hidden')
+                        add_action=None, add_class=None, add_enable=None,
+                        del_action=None, del_class=None, del_enable=None, ):
+        pane = parentBC.contentPane(region='top', height='28px', datapath=controllerPath, overflow='hidden')
         getattr(self, controllerHandler)(controller, gridId)
         tb = pane.toolbar()
         if del_action:
@@ -463,23 +464,28 @@ class IncludedView(BaseComponent):
                 del_action = 'FIRE .delRecord=true'
             del_class = del_class or 'buttonIcon icnBaseDelete'
             del_enable = del_enable or '^form.canWrite'
-            tb.button('!!Delete', float='right',action=del_action, iconClass=del_class,
-                                showLabel=False,visible=del_enable)
+            tb.button('!!Delete', float='right', action=del_action, iconClass=del_class,
+                      showLabel=False, visible=del_enable)
         if add_action:
             if add_action is True:
                 add_action = 'FIRE .addRecord=true'
             add_class = add_class or 'buttonIcon icnBaseAdd'
             add_enable = add_enable or '^form.canWrite'
-            tb.button('!!Add', float='right',action=add_action,visible=add_enable,
-                            iconClass=add_class, showLabel=False)
+            tb.button('!!Add', float='right', action=add_action, visible=add_enable,
+                      iconClass=add_class, showLabel=False)
 
-        tb.button('!!First', fire_first='.navbutton', iconClass="tb_button icnNavFirst", disabled='^.atBegin', showLabel=False)
-        tb.button('!!Previous', fire_prev='.navbutton', iconClass="tb_button icnNavPrev", disabled='^.atBegin', showLabel=False)
-        tb.button('!!Next', fire_next='.navbutton', iconClass="tb_button icnNavNext", disabled='^.atEnd', showLabel=False)
-        tb.button('!!Last', fire_last='.navbutton', iconClass="tb_button icnNavLast", disabled='^.atEnd', showLabel=False)
+        tb.button('!!First', fire_first='.navbutton', iconClass="tb_button icnNavFirst", disabled='^.atBegin',
+                  showLabel=False)
+        tb.button('!!Previous', fire_prev='.navbutton', iconClass="tb_button icnNavPrev", disabled='^.atBegin',
+                  showLabel=False)
+        tb.button('!!Next', fire_next='.navbutton', iconClass="tb_button icnNavNext", disabled='^.atEnd',
+                  showLabel=False)
+        tb.button('!!Last', fire_last='.navbutton', iconClass="tb_button icnNavLast", disabled='^.atEnd',
+                  showLabel=False)
 
-        controller.dataFormula('.atBegin','(idx==0)',idx='^.selectedIndex')
-        controller.dataFormula('.atEnd','(idx==genro.wdgById(gridId).rowCount-1)',idx='^.selectedIndex',gridId=gridId)
+        controller.dataFormula('.atBegin', '(idx==0)', idx='^.selectedIndex')
+        controller.dataFormula('.atEnd', '(idx==genro.wdgById(gridId).rowCount-1)', idx='^.selectedIndex',
+                               gridId=gridId)
 
     def _iv_FormStaticController(self, controller, gridId):
         controller.dataController("""var newidx;
@@ -489,28 +495,28 @@ class IncludedView(BaseComponent):
                                  else if ((btn == 'prev') && (idx > 0)){newidx = idx-1;}
                                  else if ((btn == 'next') && (idx < rowcount-1)){newidx = idx+1;}
                                  SET .selectedIndex = newidx;
-                                 """, btn='^.navbutton',idx='=.selectedIndex', gridId=gridId)
+                                 """, btn='^.navbutton', idx='=.selectedIndex', gridId=gridId)
 
-    def _includedViewFormBody(self, recordBC, controller, storepath, gridId,formPars):
+    def _includedViewFormBody(self, recordBC, controller, storepath, gridId, formPars):
         #controller not used
         #recordBC datapath = controllerPath
-        bottom_left = formPars.pop('bottom_left',None)
-        bottom_right = formPars.pop('bottom_right','!!Close')
-        bottom_left_action = formPars.pop('bottom_left_action',None)
-        bottom_right_action = formPars.pop('bottom_right_action','FIRE .close')
-        disabled=formPars.pop('disabled','^form.locked')
+        bottom_left = formPars.pop('bottom_left', None)
+        bottom_right = formPars.pop('bottom_right', '!!Close')
+        bottom_left_action = formPars.pop('bottom_left_action', None)
+        bottom_right_action = formPars.pop('bottom_right_action', 'FIRE .close')
+        disabled = formPars.pop('disabled', '^form.locked')
         if formPars.get('mode', 'dialog') == 'dialog':
-            bottom = recordBC.contentPane(region='bottom',_class='dialog_bottom')
+            bottom = recordBC.contentPane(region='bottom', _class='dialog_bottom')
             if bottom_left:
-                bottom.button(bottom_left,float='left',baseClass='bottom_btn',
-                           connect_onclick=bottom_left_action)
+                bottom.button(bottom_left, float='left', baseClass='bottom_btn',
+                              connect_onclick=bottom_left_action)
             if bottom_right:
-                bottom.button(bottom_right,float='right',baseClass='bottom_btn',
-                           connect_onclick=bottom_right_action)
-        st = recordBC.stackContainer(region='center',selected='^.dlgpage')
+                bottom.button(bottom_right, float='right', baseClass='bottom_btn',
+                              connect_onclick=bottom_right_action)
+        st = recordBC.stackContainer(region='center', selected='^.dlgpage')
         st.dataController("if(idx!=null){SET .dlgpage=0;}else{SET .dlgpage=1;}",
-                                            idx='^.selectedIndex', _onStart=True)
-        _classBC = formPars.pop('_classBC','pbl_dialog_center') #aggiunto da fporcari
+                          idx='^.selectedIndex', _onStart=True)
+        _classBC = formPars.pop('_classBC', 'pbl_dialog_center') #aggiunto da fporcari
         recordBC.dataController("""var currLineDatapath;
                                    if (sel_label){
                                        currLineDatapath = view_storepath+'.'+sel_label;
@@ -518,15 +524,15 @@ class IncludedView(BaseComponent):
                                        currLineDatapath='.emptypath';
                                    }
                                    SET _temp.grids.%s.currLineDatapath=currLineDatapath;
-                                   """%gridId,
-                                   sel_label= '^.selectedLabel',
-                                   view_storepath=storepath)
+                                   """ % gridId,
+                                sel_label='^.selectedLabel',
+                                view_storepath=storepath)
         formBorderCont = st.borderContainer(datapath='^_temp.grids.%s.currLineDatapath' % gridId)
         # #datapath='^.selectedLabel?=if(#v){"."+#v}else{"emptypath"}', _class=_classBC) #aggiunto il _classBC da fporcari
         #--NEW--#formBorderCont = st.borderContainer(datapath='==sel_label?"."+sel_label:"emptypath"',sel_label='^%s.selectedLabel'% controllerPath, _class=_classBC)
         emptypane = st.contentPane()
-        emptypane.div("No record selected",_class='dlg_msgbox')
-        formPars['formCb'](formBorderCont,region='center',disabled=disabled)
+        emptypane.div("No record selected", _class='dlg_msgbox')
+        formPars['formCb'](formBorderCont, region='center', disabled=disabled)
 
     def _iv_Picker(self, controller, controllerPath, view, pickerPars):
         pickerId = pickerPars.setdefault('nodeId', self.getUuid())
@@ -540,12 +546,13 @@ class IncludedView(BaseComponent):
         onOpen = pickerPars.pop('onOpen', None)
         if nodup_field:
             onOpen = onOpen or ''
-            onOpen = 'genro.wdgById("'+pickerId+'").applyFilter();%s' % onOpen
+            onOpen = 'genro.wdgById("' + pickerId + '").applyFilter();%s' % onOpen
         dlgBC = self.hiddenTooltipDialog(mainPane, dlgId=dialogId, title=title,
-                                         width=width,height=height,fired='^%s.showPicker' % controllerPath,
-                                         datapath=controllerPath,close_action="FIRE .close" ,
-                                         bottom_left='!!Add',bottom_left_action='FIRE .pickerAdd;',
-                                         bottom_right='!!Add and Close',bottom_right_action='FIRE .close;FIRE_AFTER .pickerAdd;',
+                                         width=width, height=height, fired='^%s.showPicker' % controllerPath,
+                                         datapath=controllerPath, close_action="FIRE .close",
+                                         bottom_left='!!Add', bottom_left_action='FIRE .pickerAdd;',
+                                         bottom_right='!!Add and Close',
+                                         bottom_right_action='FIRE .close;FIRE_AFTER .pickerAdd;',
                                          onOpen=onOpen, onEnter='FIRE .close;FIRE_AFTER .pickerAdd;')
         gridBC = dlgBC.borderContainer(region='center')
 
@@ -560,10 +567,11 @@ class IncludedView(BaseComponent):
                 selector_cb(dlgBC)
 
         if nodup_field:
-            pickerPars['excludeListCb'] = 'return genro.wdgById("'+gridId+'").getColumnValues("'+nodup_field+'")'
+            pickerPars[
+            'excludeListCb'] = 'return genro.wdgById("' + gridId + '").getColumnValues("' + nodup_field + '")'
             target_fields = view.attributes.get('fromPicker_target_fields').split(',')
             for fld in target_fields:
-                tfld,pfld = fld.split('=')
+                tfld, pfld = fld.split('=')
                 if tfld.strip() == nodup_field:
                     pickerPars['excludeCol'] = pfld.strip()
                     break
@@ -573,26 +581,26 @@ class IncludedView(BaseComponent):
         controller.dataController("""var nodelist = genro.wdgById(pickerId).getSelectedNodes();
                                     genro.nodeById(gridId).includedViewPicker.fromPicker(nodelist);
                                     """,
-                                    pickerId=pickerId,
-                                    gridId=gridId, _fired='^.pickerAdd')
+                                  pickerId=pickerId,
+                                  gridId=gridId, _fired='^.pickerAdd')
 
     def _iv_Form_dialog(self, formPars, storepath, controller, controllerPath, gridId, toolbarPars):
         dialogId = '%s_dialog' % gridId
-        height = formPars.pop('height','40ex')
-        width = formPars.pop('width','40em')
+        height = formPars.pop('height', '40ex')
+        width = formPars.pop('width', '40em')
         mainPane = formPars.pop('pane')
         if 'onOpen' in formPars:
-            formPars['connect_show'] = '%s' %formPars.pop('onOpen')
-        controller.dataController("genro.wdgById('%s').show();" %dialogId, _fired='^.showRecord')
-        controller.dataController("genro.wdgById('%s').onCancel()" %dialogId ,_fired='^.close')
+            formPars['connect_show'] = '%s' % formPars.pop('onOpen')
+        controller.dataController("genro.wdgById('%s').show();" % dialogId, _fired='^.showRecord')
+        controller.dataController("genro.wdgById('%s').onCancel()" % dialogId, _fired='^.close')
 
         toolbarHandler = formPars.pop('toolbarHandler', '_iv_FormToolbar')
         #recordBC = mainPane.dialog(nodeId=dialogId,**formPars).borderContainer(nodeId='%s_bc' %gridId,
         #                                                                       datapath=storepath, #[check]
         #                                                                       height=height, width=width)
-        recordBC = mainPane.dialog(nodeId=dialogId,**formPars).borderContainer(nodeId='%s_bc' %gridId,
-                                                                               datapath=controllerPath,
-                                                                               height=height, width=width)
+        recordBC = mainPane.dialog(nodeId=dialogId, **formPars).borderContainer(nodeId='%s_bc' % gridId,
+                                                                                datapath=controllerPath,
+                                                                                height=height, width=width)
         getattr(self, toolbarHandler)(recordBC, controller, controllerPath=controllerPath, gridId=gridId, **toolbarPars)
         self._includedViewFormBody(recordBC, controller, storepath, gridId, formPars)
 
@@ -601,6 +609,6 @@ class IncludedView(BaseComponent):
         toolbarHandler = formPars.pop('toolbarHandler', '_iv_FormToolbar')
         recordBC = mainPane.borderContainer(datapath=storepath, **formPars) #[check]
         getattr(self, toolbarHandler)(recordBC, controller, controllerPath=controllerPath,
-                                                gridId=gridId, **toolbarPars)
-        self._includedViewFormBody(recordBC, controller, storepath,gridId, formPars)
+                                      gridId=gridId, **toolbarPars)
+        self._includedViewFormBody(recordBC, controller, storepath, gridId, formPars)
         

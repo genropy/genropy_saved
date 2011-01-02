@@ -21,11 +21,11 @@
 from gnr.web.gnrbaseclasses import BaseComponent
 
 class Portal(BaseComponent):
-    pagetemplate='tpl_portal.tpl'
-    css_requires='publicsite'
-    
-    def page_layout(self,sc,pageName):
-        bc = sc.borderContainer(pageName=pageName,regions='^pages.%s.regions' %pageName)
-        for region in ['left','right','top','bottom','center']:
-            if hasattr(self,'%s_%s' %(pageName,region)):
-                getattr(self,'%s_%s' %(pageName,region))(bc.contentPane(region=region))        
+    pagetemplate = 'tpl_portal.tpl'
+    css_requires = 'publicsite'
+
+    def page_layout(self, sc, pageName):
+        bc = sc.borderContainer(pageName=pageName, regions='^pages.%s.regions' % pageName)
+        for region in ['left', 'right', 'top', 'bottom', 'center']:
+            if hasattr(self, '%s_%s' % (pageName, region)):
+                getattr(self, '%s_%s' % (pageName, region))(bc.contentPane(region=region))

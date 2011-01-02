@@ -2,8 +2,8 @@
 <GenRoBag>
     <wsgi debug="true" reload="true" mainpackage='gnrdevel' port='8090'/>
     <gui css_theme='aqua'/>
-    <resources >
-	<common/>
-	<js_libs/>
+    <resources>
+        <common/>
+        <js_libs/>
     </resources>
 </GenRoBag>

@@ -517,7 +517,7 @@ class NewServer(object):
         maxfd = resource.getrlimit(resource.RLIMIT_NOFILE)[1]
         if (maxfd == resource.RLIM_INFINITY):
             maxfd = MAXFD
-        # Iterate through and close all file descriptors.
+            # Iterate through and close all file descriptors.
         for fd in range(0, maxfd):
             try:
                 os.close(fd)
@@ -563,7 +563,7 @@ class NewServer(object):
         for j in range(10):
             if not live_pidfile(pid_file):
                 break
-            #import signal
+                #import signal
             #global DNS_SD_PID
             #if DNS_SD_PID:
             #os.kill(DNS_SD_PID, signal.SIGTERM)
@@ -773,7 +773,7 @@ def _remove_pid_file(written_pid, filename, verbosity):
     except OSError, e:
     # Record, but don't give traceback
         print "Cannot remove PID file: %s" % e
-    # well, at least lets not leave the invalid PID around...
+        # well, at least lets not leave the invalid PID around...
     try:
         f = open(filename, 'w')
         f.write('')

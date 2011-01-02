@@ -1,7 +1,9 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<GenRoBag><wsgi _T="NN"></wsgi>
-<connection_timeout _T="NN"></connection_timeout>
-<connection_refresh _T="NN"></connection_refresh>
-<gui css_theme='aqua'/>
-<wsgi debug="true" mainpackage='warh'></wsgi>
-<dojo _T="NN" version="11"></dojo></GenRoBag>
+<GenRoBag>
+    <wsgi _T="NN"></wsgi>
+    <connection_timeout _T="NN"></connection_timeout>
+    <connection_refresh _T="NN"></connection_refresh>
+    <gui css_theme='aqua'/>
+    <wsgi debug="true" mainpackage='warh'></wsgi>
+    <dojo _T="NN" version="11"></dojo>
+</GenRoBag>

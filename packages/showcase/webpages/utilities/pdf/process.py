@@ -9,28 +9,28 @@ from popen2 import popen2
 
 class GnrCustomWebPage(object):
     py_requires = 'public:Public'
-    
+
     def main(self, root, **kwargs):
         fb = root.formbuilder(cols=1)
         fb.button('DO', fire='^do')
         fb.button('DO TEST', fire='^dotest')
-        
-        fb.dataRpc('result', 'Test',  pdfmode='^dotest', _POST=True)
-        fb.dataRpc('result', 'processTest',  pdfmode='^do', _POST=True)
+
+        fb.dataRpc('result', 'Test', pdfmode='^dotest', _POST=True)
+        fb.dataRpc('result', 'processTest', pdfmode='^do', _POST=True)
         fb.dataController("alert(result);", result='^result')
         self.thermoDialog(root, thermoId='build_pdf', title='Generazione PDF', thermolines=2, fired='^do')
 
     def rpc_processTest(self, **kwargs):
-        self.app.setThermo('build_pdf', 0, 'Preparo elaborazione' , 10, command='init')
+        self.app.setThermo('build_pdf', 0, 'Preparo elaborazione', 10, command='init')
         p = Process(target=self.testOtherProcess, args=(self.pageLocalDocument('testOtherProcess'),), name='pippo')
         p.start()
         #p.join()
         #return p.getExitCode()
-        
+
     def rpc_Test(self, **kwargs):
         self.testOtherProcess(self.pageLocalDocument('testOtherProcess'))
         return 'ok'
-        
+
     def testOtherProcess(self, fpath, **kwargs):
         n = 10
         for x in xrange(n):

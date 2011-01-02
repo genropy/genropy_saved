@@ -11,46 +11,48 @@
 from gnr.core.gnrbag import Bag
 # --------------------------- GnrWebPage subclass ---------------------------
 class GnrCustomWebPage(object):
-    py_requires='publicsite:SiteLayout'
-    css_requires='fonts/Nadia/stylesheet'
-    def main(self, root,**kwargs):
-        self.margin_default='7px'
-        layout = root.borderContainer(_class='site_body',font_family='NadiaSerifNormal')
-        layout.dataRemote('pippo','pippo')
-        self.site_header(layout.contentPane(region='top',_class='site_header'))
-        self.site_footer(layout.contentPane(region='bottom',_class='site_footer',height='15px'))
-        left=self.site_left(layout.borderContainer(region='left',width='25%'))
-        right=self.site_right(layout.borderContainer(region='right',width='25%'))
-        self.site_center(layout.borderContainer(region='center'))
-    def rpc_pippo(self):
-        return Bag(dict(pippo='pluto',paperino=12))
+    py_requires = 'publicsite:SiteLayout'
+    css_requires = 'fonts/Nadia/stylesheet'
 
-    def site_center(self,bc):
-        bc = bc.borderContainer(region='center',_class='site_pane',margin=self.margin_default)
-        tc = bc.tabContainer(region='center',margin='10px')
-        self.page_0(tc.contentPane(title='Page 0',nodeId='tab0'))
-        tc.contentPane(title='Page 1',nodeId='tab1').remote('page_1',lazy=False)
+    def main(self, root, **kwargs):
+        self.margin_default = '7px'
+        layout = root.borderContainer(_class='site_body', font_family='NadiaSerifNormal')
+        layout.dataRemote('pippo', 'pippo')
+        self.site_header(layout.contentPane(region='top', _class='site_header'))
+        self.site_footer(layout.contentPane(region='bottom', _class='site_footer', height='15px'))
+        left = self.site_left(layout.borderContainer(region='left', width='25%'))
+        right = self.site_right(layout.borderContainer(region='right', width='25%'))
+        self.site_center(layout.borderContainer(region='center'))
+
+    def rpc_pippo(self):
+        return Bag(dict(pippo='pluto', paperino=12))
+
+    def site_center(self, bc):
+        bc = bc.borderContainer(region='center', _class='site_pane', margin=self.margin_default)
+        tc = bc.tabContainer(region='center', margin='10px')
+        self.page_0(tc.contentPane(title='Page 0', nodeId='tab0'))
+        tc.contentPane(title='Page 1', nodeId='tab1').remote('page_1', lazy=False)
         tc.contentPane(title='Page 2').remote('page_2')
         self.page_3(tc.contentPane(title='Page 3'))
 
-    def page_0(self,pane):
+    def page_0(self, pane):
         """docstring for page_0"""
-       # self.videoScript(pane)
+        # self.videoScript(pane)
         pane.div('page 0')
-        pane.button('Hero',action='genro.playSound("Hero")')
-        pane.button('Frog',action='genro.playSound("Frog")')
-        pane.button('Glass',action='genro.playSound("Glass")')
-        pane.button('Submarine',action='genro.playSound("Submarine")')
+        pane.button('Hero', action='genro.playSound("Hero")')
+        pane.button('Frog', action='genro.playSound("Frog")')
+        pane.button('Glass', action='genro.playSound("Glass")')
+        pane.button('Submarine', action='genro.playSound("Submarine")')
         #pane.button('initvideo',action='initVideo()')
         #pane.video(src="http://movies.apple.com/movies/us/apple/ipoditunes/2007/touch/ads/apple_ipodtouch_touch_r640-9cie.mov", autoplay=True)
-       #videocontainer= pane.div(id='videocontainer')
-       #videocontainer.video(id='videoelem', poster="/blog-files/touch-poster.png")
-       #videocontainer.div(_class="videobutton videoplay", id="videoplaybutton")
-       #videocontainer.div(id='videozoombutton', _class="videobutton videozoombutton videofadeout")
+        #videocontainer= pane.div(id='videocontainer')
+        #videocontainer.video(id='videoelem', poster="/blog-files/touch-poster.png")
+        #videocontainer.div(_class="videobutton videoplay", id="videoplaybutton")
+        #videocontainer.div(id='videozoombutton', _class="videobutton videozoombutton videofadeout")
 
-    def remote_page_1(self,pane):
+    def remote_page_1(self, pane):
         """docstring for page_1"""
-        pane.data('angle','30::L')
+        pane.data('angle', '30::L')
         pane.dataController(""" var st='-webkit-transform: rotate('+angle+'deg);'+
                                    '-moz-transform: rotate('+angle+'deg);'+
                                    'border:6px dotted red;width:4em;'+
@@ -66,9 +68,10 @@ class GnrCustomWebPage(object):
                                     '-webkit-box-shadow:15px 15px 35px #888;'+
                                     'text-shadow:6px 6px 14px #333;'
                                     SET divstyle=st;
-                                   """,angle='^angle',_onStart=True)
-        pane.div('page 1',style="^divstyle",connect_onclick='SET angle=GET angle+2;')
-    def videoScript(self,pane): 
+                                   """, angle='^angle', _onStart=True)
+        pane.div('page 1', style="^divstyle", connect_onclick='SET angle=GET angle+2;')
+
+    def videoScript(self, pane):
         pane.script("""var videoElem;
                        var playButton;
                        var showProgress = true;
@@ -166,35 +169,34 @@ class GnrCustomWebPage(object):
 }
         """)
 
-                                
-    def remote_page_2(self,pane):
+
+    def remote_page_2(self, pane):
         """docstring for page_2"""
         pane.div('page 2')
 
 
-    def page_3(self,pane):
+    def page_3(self, pane):
         """docstring for page_3"""
         pane.div('page 3')
-        
-    def site_footer(self,bc):
-        pass
-        
-    def site_left(self,bc):
-        
-        bc.borderContainer(region='top',_class='site_pane',margin=self.margin_default,height='60px')
-        bc.borderContainer(region='center',_class='site_pane',margin=self.margin_default)
-        
-    def site_right(self,bc):
-        pane=bc.contentPane(region='top',_class='site_pane',margin=self.margin_default,height='60px')
-        bc.contentPane(region='bottom',_class='site_pane',margin=self.margin_default,height='60px')
-        center=bc.borderContainer(region='center',_class='site_pane',margin=self.margin_default)
-        fb = pane.formbuilder(cols=1,border_spacing='4px',margin=self.margin_default)
-        fb.textbox(value='^tabs',lbl='Tabs',width='16em') 
-        center.tabContainer(region='center',margin='8px').remote('tabContent',tabs='^tabs',lazy=False)       
 
-    def remote_tabContent(self,tc,tabs='pippo,pluto'):
-        tabs=tabs.split(',')
+    def site_footer(self, bc):
+        pass
+
+    def site_left(self, bc):
+        bc.borderContainer(region='top', _class='site_pane', margin=self.margin_default, height='60px')
+        bc.borderContainer(region='center', _class='site_pane', margin=self.margin_default)
+
+    def site_right(self, bc):
+        pane = bc.contentPane(region='top', _class='site_pane', margin=self.margin_default, height='60px')
+        bc.contentPane(region='bottom', _class='site_pane', margin=self.margin_default, height='60px')
+        center = bc.borderContainer(region='center', _class='site_pane', margin=self.margin_default)
+        fb = pane.formbuilder(cols=1, border_spacing='4px', margin=self.margin_default)
+        fb.textbox(value='^tabs', lbl='Tabs', width='16em')
+        center.tabContainer(region='center', margin='8px').remote('tabContent', tabs='^tabs', lazy=False)
+
+    def remote_tabContent(self, tc, tabs='pippo,pluto'):
+        tabs = tabs.split(',')
         for t in tabs:
-            p=tc.contentPane(title=t,height='100%')
+            p = tc.contentPane(title=t, height='100%')
             p.button(t)            
                         

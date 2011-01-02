@@ -2,7 +2,7 @@
 <GenRoBag>
     <packages>
         <devlang/>
-        
+
         <showcase/>
     </packages>
     <db dbname="devlang"/>

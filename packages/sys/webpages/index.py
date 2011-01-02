@@ -9,10 +9,10 @@ class GnrCustomWebPage(object):
 
     def pageAuthTags(self, method=None, **kwargs):
         return ''
-        
+
     def windowTitle(self):
         return ''
-         
+
     def main(self, root, **kwargs):
         print x
         root.div('not existing')

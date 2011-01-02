@@ -1,10 +1,11 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<GenRoBag><wsgi debug="true"></wsgi>
-<connection_timeout _T="NN"></connection_timeout>
-<connection_refresh _T="NN"></connection_refresh>
-   <!-- <memcache>
-        <local host='localhost' port='11211' />
-    </memcache> -->
-<dojo _T="NN" version="15" source="true"></dojo>
-<gui css_theme=''/>
+<GenRoBag>
+    <wsgi debug="true"></wsgi>
+    <connection_timeout _T="NN"></connection_timeout>
+    <connection_refresh _T="NN"></connection_refresh>
+    <!-- <memcache>
+       <local host='localhost' port='11211' />
+   </memcache> -->
+    <dojo _T="NN" version="15" source="true"></dojo>
+    <gui css_theme=''/>
 </GenRoBag>

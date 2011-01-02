@@ -29,7 +29,7 @@ class SendMail(object):
         locale = locale or self.locale
         localelang = locale.split('-')[0]
         mailtpl = self.getMailTemplate(tpl, locale=localelang)
-        
+
         if mailtpl:
             subject = templateReplace(mailtpl['subject'], params)
             body = templateReplace(mailtpl['body'], params)
@@ -43,8 +43,8 @@ class SendMail(object):
             tplfile = self.getResource(os.path.join('mail_templates', tpl))
         if tplfile:
             return Bag(tplfile)
-        
-        
+
+
     def sendMailTemplateMany(self, tpl, mailto_param, locale_param, params_list, **kwargs):
         mailtpldict = {}
         send_errors = []
@@ -54,7 +54,7 @@ class SendMail(object):
             if not mailtpl:
                 mailtpl = self.getMailTemplate(tpl, locale=locale)
                 mailtpldict[locale] = mailtpl
-            try:  
+            try:
                 subject = templateReplace(mailtpl['subject'], params)
                 body = templateReplace(mailtpl['body'], params)
                 self.application.sendmail(mailtpl['from_address'], params[mailto_param], subject, body)

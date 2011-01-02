@@ -19,45 +19,48 @@
 #Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 
 class AppPref(object):
-    def permission_adm(self,**kwargs):
+    def permission_adm(self, **kwargs):
         return 'admin'
 
-    def prefpane_adm(self,parent,**kwargs):
+    def prefpane_adm(self, parent, **kwargs):
         tc = parent.tabContainer(**kwargs)
-        self._pr_instance_data(tc.contentPane(title='!!Instance data',datapath='.instance_data'))
-        self._pr_mail(tc.contentPane(title='!!Mail options',datapath='.mail'))
-    
-    def _pr_mail(self,pane):
-        fb = pane.div(margin='5px').formbuilder(cols=1, border_spacing='6px',width='100%',fld_width='100%',tdl_width='10em')
-        fb.div(lbl='Mail Settings', colspan=2, lbl_font_style='italic', lbl_margin_top='1em', margin_top='1em',lbl_color='#7e5849')
-        fb.textbox(value='^.smtp_host',lbl='SMTP Host',dtype='T', colspan=1)
-        fb.textbox(value='^.from_address',lbl='From address',dtype='T', colspan=1)
-        fb.textbox(value='^.user',lbl='Username',dtype='T', colspan=1)
-        fb.textbox(value='^.password',lbl='Password',dtype='T', colspan=1, type='password')
-        fb.textbox(value='^.port',lbl='Port', dtype='T', colspan=1)
-        fb.checkbox(value='^.tls',lbl='TLS',dtype='B', colspan=1)
-        
-    def _pr_instance_data(self,pane):
-        fb = pane.div(margin='5px').formbuilder(cols=1, border_spacing='6px',width='100%',fld_width='100%',tdl_width='10em')
-        fb.textbox(value='^.owner_name',lbl='!!Owner name')
-        fb.textbox(value='^.logo_url',lbl='Logo url')
+        self._pr_instance_data(tc.contentPane(title='!!Instance data', datapath='.instance_data'))
+        self._pr_mail(tc.contentPane(title='!!Mail options', datapath='.mail'))
+
+    def _pr_mail(self, pane):
+        fb = pane.div(margin='5px').formbuilder(cols=1, border_spacing='6px', width='100%', fld_width='100%',
+                                                tdl_width='10em')
+        fb.div(lbl='Mail Settings', colspan=2, lbl_font_style='italic', lbl_margin_top='1em', margin_top='1em',
+               lbl_color='#7e5849')
+        fb.textbox(value='^.smtp_host', lbl='SMTP Host', dtype='T', colspan=1)
+        fb.textbox(value='^.from_address', lbl='From address', dtype='T', colspan=1)
+        fb.textbox(value='^.user', lbl='Username', dtype='T', colspan=1)
+        fb.textbox(value='^.password', lbl='Password', dtype='T', colspan=1, type='password')
+        fb.textbox(value='^.port', lbl='Port', dtype='T', colspan=1)
+        fb.checkbox(value='^.tls', lbl='TLS', dtype='B', colspan=1)
+
+    def _pr_instance_data(self, pane):
+        fb = pane.div(margin='5px').formbuilder(cols=1, border_spacing='6px', width='100%', fld_width='100%',
+                                                tdl_width='10em')
+        fb.textbox(value='^.owner_name', lbl='!!Owner name')
+        fb.textbox(value='^.logo_url', lbl='Logo url')
         fb.img(url='^.logo_url')
-        
-        
+
 
 class UserPref(object):
-    def prefpane_adm(self,parent,**kwargs):
+    def prefpane_adm(self, parent, **kwargs):
         tc = parent.tabContainer(**kwargs)
-        self._pr_mail(tc.contentPane(title='!!Mail options',datapath='.mail'))
-    
-    def _pr_mail(self,pane):
-        fb = pane.div(margin='5px').formbuilder(cols=1, border_spacing='6px',width='100%',fld_width='100%')
-        fb.div(lbl='Mail Settings', colspan=2, lbl_font_style='italic', lbl_margin_top='1em', margin_top='1em',lbl_color='#7e5849')
-        fb.textbox(value='^.smtp_host',lbl='SMTP Host',dtype='T', colspan=1)
-        fb.textbox(value='^.from_address',lbl='From address',dtype='T', colspan=1)
-        fb.textbox(value='^.user',lbl='Username',dtype='T', colspan=1)
-        fb.textbox(value='^.password',lbl='Password',dtype='T', colspan=1, type='password')
-        fb.textbox(value='^.port',lbl='Port', dtype='T', colspan=1)
-        fb.checkbox(value='^.tls',lbl='TLS',dtype='B', colspan=1)
+        self._pr_mail(tc.contentPane(title='!!Mail options', datapath='.mail'))
+
+    def _pr_mail(self, pane):
+        fb = pane.div(margin='5px').formbuilder(cols=1, border_spacing='6px', width='100%', fld_width='100%')
+        fb.div(lbl='Mail Settings', colspan=2, lbl_font_style='italic', lbl_margin_top='1em', margin_top='1em',
+               lbl_color='#7e5849')
+        fb.textbox(value='^.smtp_host', lbl='SMTP Host', dtype='T', colspan=1)
+        fb.textbox(value='^.from_address', lbl='From address', dtype='T', colspan=1)
+        fb.textbox(value='^.user', lbl='Username', dtype='T', colspan=1)
+        fb.textbox(value='^.password', lbl='Password', dtype='T', colspan=1, type='password')
+        fb.textbox(value='^.port', lbl='Port', dtype='T', colspan=1)
+        fb.checkbox(value='^.tls', lbl='TLS', dtype='B', colspan=1)
         
         

@@ -22,24 +22,24 @@ class Public(BaseComponent):
                      gnrcomponents/batch_handler/batch_handler:BatchMonitor,
                      gnrcomponents/chat_component/chat_component:ChatComponent,
                      gnrcomponents/grid_configurator/grid_configurator:GridConfigurator"""
-    
-        
-    def userRecord(self,path=None):
-        if not hasattr(self,'_userRecord' ):
+
+
+    def userRecord(self, path=None):
+        if not hasattr(self, '_userRecord'):
             user = self.pageArgs.get('_user_')
             if not user or not( 'passpartout' in self.userTags):
-                user =  self.user
-            self._userRecord=self.db.table('adm.user').record(username=user).output('bag')
+                user = self.user
+            self._userRecord = self.db.table('adm.user').record(username=user).output('bag')
         return self._userRecord[path]
-        
+
     def onMain_pbl(self):
         pane = self.pageSource()
-        userTable=self.pbl_userTable()
+        userTable = self.pbl_userTable()
         if not self.isGuest and userTable:
-            pane.dataRecord('gnr.user_record',userTable, username=self.user, _init=True)
-            pane.dataRemote('gnr.user_preference','getUserPreference')
-        pane.dataRemote('gnr.app_preference','getAppPreference')
-        pane.data('gnr.workdate', self.workdate)        
+            pane.dataRecord('gnr.user_record', userTable, username=self.user, _init=True)
+            pane.dataRemote('gnr.user_preference', 'getUserPreference')
+        pane.dataRemote('gnr.app_preference', 'getAppPreference')
+        pane.data('gnr.workdate', self.workdate)
         self._pbl_dialogs(pane)
         #pane.img(_class='buttonIcon %s' %self.pbl_logoclass())
         if self.db.packages['adm']:
@@ -56,165 +56,177 @@ class Public(BaseComponent):
                                         FIRE #userpreference.open;
                                     }
                                     """,
-                                    app='mainpreference',
-                                    user='userpreference',
-                                    subscribe_preference_open=True)
-                                    
-            self.iframeDialog(pane,title='!!Application Preference',dlgId='mainpreference',src='/adm/app_preference',
-                             cached=False,height='450px',width='800px',centerOn='_pageRoot',datapath='gnr.preference.application')
-            self.iframeDialog(pane,title='!!User Preference',dlgId='userpreference',src='/adm/user_preference',
-                             cached=False,height='300px',width='400px',centerOn='_pageRoot',datapath='gnr.preference.user')
-        
-            
+                                app='mainpreference',
+                                user='userpreference',
+                                subscribe_preference_open=True)
 
-        
+            self.iframeDialog(pane, title='!!Application Preference', dlgId='mainpreference', src='/adm/app_preference',
+                              cached=False, height='450px', width='800px', centerOn='_pageRoot',
+                              datapath='gnr.preference.application')
+            self.iframeDialog(pane, title='!!User Preference', dlgId='userpreference', src='/adm/user_preference',
+                              cached=False, height='300px', width='400px', centerOn='_pageRoot',
+                              datapath='gnr.preference.user')
+
+
     def pbl_userTable(self):
         return 'adm.user'
-        
+
     def rootWidget(self, root, **kwargs):
-        return root.borderContainer(_class='pbl_root',**kwargs)
-        
-    def _pbl_dialogs(self,pane):
+        return root.borderContainer(_class='pbl_root', **kwargs)
+
+    def _pbl_dialogs(self, pane):
         self._pbl_dialogs_waiting(pane)
         self._pbl_dialogs_pendingChanges(pane)
 
-    def _pbl_dialogs_waiting(self,pane):
-        def cb_bottom(*args,**kwargs):
+    def _pbl_dialogs_waiting(self, pane):
+        def cb_bottom(*args, **kwargs):
             pass
-            
-        def cb_center(parentBc,**kwargs):
-            parentBc.contentPane(**kwargs).div(_class='waiting')
-            
-        self.simpleDialog(pane,title='!!Waiting',dlgId='pbl_waiting',height='200px',width='300px',cb_center=cb_center,
-                        datapath='gnr.tools.waitingdialog',cb_bottom=cb_bottom)
-        
-    def _pbl_dialogs_pendingChanges(self,pane):
 
-        def cb_bottom(bc,confirm_btn=None,**kwargs):
+        def cb_center(parentBc, **kwargs):
+            parentBc.contentPane(**kwargs).div(_class='waiting')
+
+        self.simpleDialog(pane, title='!!Waiting', dlgId='pbl_waiting', height='200px', width='300px',
+                          cb_center=cb_center,
+                          datapath='gnr.tools.waitingdialog', cb_bottom=cb_bottom)
+
+    def _pbl_dialogs_pendingChanges(self, pane):
+        def cb_bottom(bc, confirm_btn=None, **kwargs):
             bottom = bc.contentPane(**kwargs)
-            bottom.button('!!Save',float='right',margin='1px',
-                        action="FIRE .close; (GET .opener.saveCb)();",
-                        disabled='^.opener.invalidData')
-            bottom.button('!!Cancel',baseClass='bottom_btn',float='right',margin='1px',
-                            action='FIRE .close; (GET .opener.cancelCb)();')
-            bottom.button('!!Discard',float='left',margin='1px',
-                        action="FIRE .close; (GET .opener.continueCb)();")
-            
-        def cb_center(parentBc,**kwargs):
-            parentBc.contentPane(**kwargs).div("!!Current record has been modified.",text_align='center',margin_top='20px')
-            
-        self.simpleDialog(pane,title='!!Warning',dlgId='pbl_formPendingChangesAsk',
-                         height='80px',width='300px',cb_center=cb_center,
-                        datapath='gnr.tools.formPendingChanges',cb_bottom=cb_bottom)
-        
-            
-    def _pbl_root(self, rootbc, title=None, height=None, width=None, centered=None,flagsLocale=False):
-        
+            bottom.button('!!Save', float='right', margin='1px',
+                          action="FIRE .close; (GET .opener.saveCb)();",
+                          disabled='^.opener.invalidData')
+            bottom.button('!!Cancel', baseClass='bottom_btn', float='right', margin='1px',
+                          action='FIRE .close; (GET .opener.cancelCb)();')
+            bottom.button('!!Discard', float='left', margin='1px',
+                          action="FIRE .close; (GET .opener.continueCb)();")
+
+        def cb_center(parentBc, **kwargs):
+            parentBc.contentPane(**kwargs).div("!!Current record has been modified.", text_align='center',
+                                               margin_top='20px')
+
+        self.simpleDialog(pane, title='!!Warning', dlgId='pbl_formPendingChangesAsk',
+                          height='80px', width='300px', cb_center=cb_center,
+                          datapath='gnr.tools.formPendingChanges', cb_bottom=cb_bottom)
+
+
+    def _pbl_root(self, rootbc, title=None, height=None, width=None, centered=None, flagsLocale=False):
         if centered:
             margin = 'auto'
         else:
             margin = None
         self.pageSource('_pageRoot').setAttr(height=height, width=width, margin=margin)
-        top = self.pbl_topBar(rootbc.borderContainer(region='top', _class='pbl_root_top',overflow='hidden'),title,flagsLocale=flagsLocale)
-        bottom = self.pbl_bottomBar(rootbc.contentPane(region='bottom',_class='pbl_root_bottom',overflow='hidden'))
-        bc = rootbc.borderContainer(region='center', _class='pbl_root_center')        
+        top = self.pbl_topBar(rootbc.borderContainer(region='top', _class='pbl_root_top', overflow='hidden'), title,
+                              flagsLocale=flagsLocale)
+        bottom = self.pbl_bottomBar(rootbc.contentPane(region='bottom', _class='pbl_root_bottom', overflow='hidden'))
+        bc = rootbc.borderContainer(region='center', _class='pbl_root_center')
         return bc, top, bottom
-        
-    def pbl_rootContentPane(self, root, title=None, height=None, width=None, centered=False, flagsLocale=False,**kwargs):
-        bc, top, bottom = self._pbl_root(root, title, height=height, width=width, centered=centered,flagsLocale=flagsLocale)
+
+    def pbl_rootContentPane(self, root, title=None, height=None, width=None, centered=False, flagsLocale=False,
+                            **kwargs):
+        bc, top, bottom = self._pbl_root(root, title, height=height, width=width, centered=centered,
+                                         flagsLocale=flagsLocale)
         center = bc.contentPane(region='center', **kwargs)
         return center, top, bottom
-        
-    def pbl_rootStackContainer(self, root, title=None, height=None, width=None, centered=False,flagsLocale=False, **kwargs):
-        bc, top, bottom = self._pbl_root(root, title, height=height, width=width, centered=centered,flagsLocale=flagsLocale)
+
+    def pbl_rootStackContainer(self, root, title=None, height=None, width=None, centered=False, flagsLocale=False,
+                               **kwargs):
+        bc, top, bottom = self._pbl_root(root, title, height=height, width=width, centered=centered,
+                                         flagsLocale=flagsLocale)
         center = bc.stackContainer(region='center', **kwargs)
         return center, top, bottom
 
-    def pbl_rootTabContainer(self, root, title=None, height=None, width=None, centered=False, flagsLocale=False,**kwargs):
-        bc, top, bottom = self._pbl_root(root, title, height=height, width=width, centered=centered,flagsLocale=flagsLocale)
+    def pbl_rootTabContainer(self, root, title=None, height=None, width=None, centered=False, flagsLocale=False,
+                             **kwargs):
+        bc, top, bottom = self._pbl_root(root, title, height=height, width=width, centered=centered,
+                                         flagsLocale=flagsLocale)
         center = bc.tabContainer(region='center', **kwargs)
         return center, top, bottom
 
-    def pbl_rootBorderContainer(self, root, title=None, height=None, width=None, centered=False, flagsLocale=False,**kwargs):
-        bc, top, bottom = self._pbl_root(root, title, height=height, width=width, centered=centered,flagsLocale=flagsLocale)
+    def pbl_rootBorderContainer(self, root, title=None, height=None, width=None, centered=False, flagsLocale=False,
+                                **kwargs):
+        bc, top, bottom = self._pbl_root(root, title, height=height, width=width, centered=centered,
+                                         flagsLocale=flagsLocale)
         center = bc.borderContainer(region='center', **kwargs)
         return center, top, bottom
-        
-    def pbl_topBarLeft(self,pane):
+
+    def pbl_topBarLeft(self, pane):
         self.pbl_workdateManager(pane)
-        
+
     def pbl_canChangeWorkdate(self):
         return
 
     def pbl_workdateManager(self, pane):
         connect_onclick = None
         if self.application.checkResourcePermission(self.pbl_canChangeWorkdate(), self.userTags):
-            connect_onclick='FIRE #changeWorkdate_dlg.open;'
+            connect_onclick = 'FIRE #changeWorkdate_dlg.open;'
         pane.div('^gnr.workdate', float='left', format='short',
-                _class='pbl_workdate buttonIcon',
+                 _class='pbl_workdate buttonIcon',
                  connect_onclick=connect_onclick)
         if connect_onclick:
-            def cb_center(parentBC,**kwargs):
+            def cb_center(parentBC, **kwargs):
                 pane = parentBC.contentPane(**kwargs)
-                fb = pane.formbuilder(cols=1, border_spacing='5px', margin='25px',margin_top='20px')
-                fb.dateTextBox(value='^.current_date',width='8em',lbl='!!Date')
-            
-            dlg = self.formDialog(pane,title='!!Set workdate',datapath='changeWorkdate',
-                                 formId='changeWorkdate', height='100px',width='200px',
-                                 cb_center=cb_center, loadsync=True)
-            dlg.dataController("SET .data.current_date=date;",date="=gnr.workdate",nodeId='changeWorkdate_loader')
-            dlg.dataRpc('gnr.workdate','pbl_changeServerWorkdate', newdate='=.data.current_date', 
-                        _if='newdate', nodeId='changeWorkdate_saver',_onResult='FIRE .saved;')
-                            
+                fb = pane.formbuilder(cols=1, border_spacing='5px', margin='25px', margin_top='20px')
+                fb.dateTextBox(value='^.current_date', width='8em', lbl='!!Date')
+
+            dlg = self.formDialog(pane, title='!!Set workdate', datapath='changeWorkdate',
+                                  formId='changeWorkdate', height='100px', width='200px',
+                                  cb_center=cb_center, loadsync=True)
+            dlg.dataController("SET .data.current_date=date;", date="=gnr.workdate", nodeId='changeWorkdate_loader')
+            dlg.dataRpc('gnr.workdate', 'pbl_changeServerWorkdate', newdate='=.data.current_date',
+                        _if='newdate', nodeId='changeWorkdate_saver', _onResult='FIRE .saved;')
+
     def rpc_pbl_changeServerWorkdate(self, newdate=None):
         if newdate:
             self.workdate = newdate
         return self.workdate
-        
-    def mainLeftTop(self,pane):
+
+    def mainLeftTop(self, pane):
         if self.application.checkResourcePermission(self.pbl_preferenceAppTags(), self.userTags):
-            pane.div(_class='icnBasePref buttonIcon',connect_onclick='PUBLISH preference_open="app";',
-                    tip='!!Application Preferences',position='absolute',left='5px',top='5px')  
+            pane.div(_class='icnBasePref buttonIcon', connect_onclick='PUBLISH preference_open="app";',
+                     tip='!!Application Preferences', position='absolute', left='5px', top='5px')
         pane.div('^gnr.app_preference.adm.instance_data.owner_name')
-               
-    def pbl_topBar(self,top,title=None,flagsLocale=False):
+
+    def pbl_topBar(self, top, title=None, flagsLocale=False):
         """docstring for publicTitleBar"""
-        left = top.contentPane(region='left',width='250px')
-        top.data('_clientCtx.mainBC.left?show',self.pageOptions.get('openMenu',True))
+        left = top.contentPane(region='left', width='250px')
+        top.data('_clientCtx.mainBC.left?show', self.pageOptions.get('openMenu', True))
         menubtn = left.div(_class='pbl_menu_icon buttonIcon', float='left',
-                            connect_onclick="PUBLISH main_left_set_status= 'toggle';")
+                           connect_onclick="PUBLISH main_left_set_status= 'toggle';")
         self.pbl_topBarLeft(left)
         right = top.contentPane(region='right', width='250px', padding_top='5px', padding_right='8px')
-        right.div(connect_onclick='genro.pageBack()', _class='goback',tooltip='!!Torna alla pagina precedente')
-        center = top.contentPane(region='center',margin_top='3px',overflow='hidden')
+        right.div(connect_onclick='genro.pageBack()', _class='goback', tooltip='!!Torna alla pagina precedente')
+        center = top.contentPane(region='center', margin_top='3px', overflow='hidden')
         if title:
-            center.div(title,_class='pbl_title_caption')
-        #right.div(connect_onclick="genro.pageBack()", title="!!Back",
+            center.div(title, _class='pbl_title_caption')
+            #right.div(connect_onclick="genro.pageBack()", title="!!Back",
         #          _class='icnBaseUpYellow buttonIcon', content='&nbsp;', float='right',margin_left='10px')
         if flagsLocale:
             right.dataRpc('aux.locale_ok', 'changeLocale', locale='^aux.locale')
             right.dataController('genro.pageReload()', _fired='^aux.locale_ok')
             right.div(connect_onclick="SET aux.locale = 'EN'", title="!!English",
-                    _class='icnIntlEn buttonIcon', content='&nbsp;', float='right',margin_left='5px',margin_top='2px')
+                      _class='icnIntlEn buttonIcon', content='&nbsp;', float='right', margin_left='5px',
+                      margin_top='2px')
             right.div(connect_onclick="SET aux.locale = 'IT'", title="!!Italian",
-                    _class='icnIntlIt buttonIcon', content='&nbsp;', float='right',margin_left='5px',margin_top='2px')
+                      _class='icnIntlIt buttonIcon', content='&nbsp;', float='right', margin_left='5px',
+                      margin_top='2px')
         if not self.isGuest:
             right.div(connect_onclick="genro.logout()", title="!!Logout",
-                  _class='pbl_logout buttonIcon', content='&nbsp;', float='right')   
-            right.div(content=self.user, float='right', _class='pbl_username buttonIcon',connect_onclick='PUBLISH preference_open="user";')
-        
+                      _class='pbl_logout buttonIcon', content='&nbsp;', float='right')
+            right.div(content=self.user, float='right', _class='pbl_username buttonIcon',
+                      connect_onclick='PUBLISH preference_open="user";')
+
         return center
 
-    def pbl_bottomBar(self,pane):
+    def pbl_bottomBar(self, pane):
         """docstring for publicTitleBar"""
         sc = pane.stackContainer(selectedPage='^pbl.bottom_stack')
-        sc.data('pbl.bottom_stack','default')
-        
+        sc.data('pbl.bottom_stack', 'default')
+
         default_bottom = self.pbl_bottom_default(sc.borderContainer(pageName='default'))
         self.pbl_bottom_message(sc.contentPane(pageName='message'))
         return default_bottom
 
-    def pbl_bottom_message(self,pane):
+    def pbl_bottom_message(self, pane):
         pane.div('^pbl.bottomMsg', _class='pbl_messageBottom', nodeId='bottomMsg')
         pane.dataController("""
                                 SET pbl.bottom_stack='message';
@@ -224,37 +236,35 @@ class Public(BaseComponent):
                                 }
                                 genro.dom.effect('bottomMsg','fadeout',{duration:1000,delay:2000,onEnd:cb});
                                 
-                                """, 
-                              msg='^pbl.bottomMsg',_if='msg')
-                              
+                                """,
+                            msg='^pbl.bottomMsg', _if='msg')
+
     def pbl_preferenceAppTags(self):
         return 'admin'
-        
-    def pbl_bottom_default(self,bc):
-        left = bc.contentPane(region='left',overflow='hidden',nodeId='pbl_bottomBarLeft')    
-        right = bc.contentPane(region='right',overflow='hidden',nodeId='pbl_bottomBarRight')
-        
-        right.dataScript('gnr.localizerClass',"""return 'localizer_'+status""", 
-                              status='^gnr.localizerStatus', _init=True, _else="return 'localizer_hidden'")
-        if self.isDeveloper():
-            right.div(connect_onclick='SET _clientCtx.mainBC.right?show = !GET _clientCtx.mainBC.right?show;', _class='icnBaseEye buttonIcon',float='right',margin_right='5px')
-        if self.isLocalizer():
-            right.div(connect_onclick='genro.dev.openLocalizer()', _class='^gnr.localizerClass',float='right')
-        
-        
 
-        center = bc.contentPane(region='center',nodeId='pbl_bottomBarCenter')        
-        center.dock(id='default_dock',background='none',border=0,float='left',margin_left='4px')
-        return dict(left=left,right=right,center=center)        
-    
-    def pbl_batch_floating(self,pane):
-        
-        pane.floatingPane(title='public floating',_class='shadow_4',
-                                   top='80px',left='20px',width='200px',height='470px',
-                                   visible=False,
-                                   closable=True,resizable=True,resizeAxis='xy',maxable=True,
-                                   dockable=True,dockTo='pbl_floating_dock',duration=400)
-    
+    def pbl_bottom_default(self, bc):
+        left = bc.contentPane(region='left', overflow='hidden', nodeId='pbl_bottomBarLeft')
+        right = bc.contentPane(region='right', overflow='hidden', nodeId='pbl_bottomBarRight')
+
+        right.dataScript('gnr.localizerClass', """return 'localizer_'+status""",
+                         status='^gnr.localizerStatus', _init=True, _else="return 'localizer_hidden'")
+        if self.isDeveloper():
+            right.div(connect_onclick='SET _clientCtx.mainBC.right?show = !GET _clientCtx.mainBC.right?show;',
+                      _class='icnBaseEye buttonIcon', float='right', margin_right='5px')
+        if self.isLocalizer():
+            right.div(connect_onclick='genro.dev.openLocalizer()', _class='^gnr.localizerClass', float='right')
+
+        center = bc.contentPane(region='center', nodeId='pbl_bottomBarCenter')
+        center.dock(id='default_dock', background='none', border=0, float='left', margin_left='4px')
+        return dict(left=left, right=right, center=center)
+
+    def pbl_batch_floating(self, pane):
+        pane.floatingPane(title='public floating', _class='shadow_4',
+                          top='80px', left='20px', width='200px', height='470px',
+                          visible=False,
+                          closable=True, resizable=True, resizeAxis='xy', maxable=True,
+                          dockable=True, dockTo='pbl_floating_dock', duration=400)
+
     def app_logo_url(self):
         logo_url = self.custom_logo_url()
         if not logo_url:
@@ -266,49 +276,49 @@ class Public(BaseComponent):
     def custom_logo_url(self):
         logo_image = self.custom_logo_filename()
         if logo_image:
-            return self.site.site_static_url('_resources','images','logo',logo_image)
-    
+            return self.site.site_static_url('_resources', 'images', 'logo', logo_image)
+
     def custom_logo_path(self):
         logo_image = self.custom_logo_filename()
         if logo_image:
-            return self.site.site_static_path('_resources','images','logo',logo_image)
-        
+            return self.site.site_static_path('_resources', 'images', 'logo', logo_image)
+
     def custom_logo_filename(self):
-        logo_folder = self.site.site_static_path('_resources','images','logo')
-        logo_url=None
+        logo_folder = self.site.site_static_path('_resources', 'images', 'logo')
+        logo_url = None
         if os.path.isdir(logo_folder):
-            files=os.listdir(logo_folder)
-            images=[f for f in files if f.startswith('%s'%'custom_logo')]
+            files = os.listdir(logo_folder)
+            images = [f for f in files if f.startswith('%s' % 'custom_logo')]
             if images:
                 return images[0]
-                
+
 class ThermoDialog(BaseComponent):
-    py_requires='foundation/thermo'
+    py_requires = 'foundation/thermo'
 
 class UserObject(BaseComponent):
-    py_requires='foundation/userobject'
+    py_requires = 'foundation/userobject'
 
 class IncludedView(BaseComponent):
-    py_requires='foundation/includedview'
-        
+    py_requires = 'foundation/includedview'
+
 class RecordHandler(BaseComponent):
-    py_requires='foundation/recorddialog'
+    py_requires = 'foundation/recorddialog'
 
 class Tools(BaseComponent):
-    py_requires='foundation/tools'
+    py_requires = 'foundation/tools'
 
 class SelectionHandler(BaseComponent):
-    py_requires='gnrcomponents/selectionhandler'
+    py_requires = 'gnrcomponents/selectionhandler'
 
 class RecordLinker(BaseComponent):
-    py_requires='gnrcomponents/recordlinker'
+    py_requires = 'gnrcomponents/recordlinker'
 
 class MultiSelect(BaseComponent):
-    py_requires='gnrcomponents/multiselect'
+    py_requires = 'gnrcomponents/multiselect'
 
 class DynamicEditor(BaseComponent):
-    py_requires='foundation/macrowidgets:DynamicEditor'
-                        
+    py_requires = 'foundation/macrowidgets:DynamicEditor'
+
 class RecordToHtmlFrame(BaseComponent):
-    py_requires='foundation/htmltoframe'
+    py_requires = 'foundation/htmltoframe'
     

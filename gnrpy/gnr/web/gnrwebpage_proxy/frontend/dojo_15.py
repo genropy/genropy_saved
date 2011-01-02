@@ -12,23 +12,24 @@ from gnr.web.gnrwebpage_proxy.frontend.dojo_base import GnrBaseDojoFrontend
 from gnr.web.gnrwebstruct import  GnrDomSrc_dojo_15
 
 class GnrWebFrontend(GnrBaseDojoFrontend):
-    
     version = 'd15'
     domSrcFactory = GnrDomSrc_dojo_15
-    def css_frontend(self,theme=None):
-       theme=theme or self.theme
-       return ['dojo/resources/dojo.css',
-               'dijit/themes/dijit.css',
-               'dijit/themes/%s/%s.css' % (theme,theme),
-               'dojox/grid/_grid/Grid.css',
-               'dojox/grid/_grid/%sGrid.css' % theme
-               ]
+
+    def css_frontend(self, theme=None):
+        theme = theme or self.theme
+        return ['dojo/resources/dojo.css',
+                'dijit/themes/dijit.css',
+                'dijit/themes/%s/%s.css' % (theme, theme),
+                'dojox/grid/_grid/Grid.css',
+                'dojox/grid/_grid/%sGrid.css' % theme
+        ]
 
     def gnrjs_frontend(self):
-       return ['gnrbag','genro', 'genro_widgets', 'genro_rpc', 'genro_patch',
-                                          'genro_dev','genro_dlg','genro_frm','genro_dom','gnrdomsource',
-                                          'genro_wdg','genro_src','gnrlang','gnrstores','genro_extra'] 
+        return ['gnrbag', 'genro', 'genro_widgets', 'genro_rpc', 'genro_patch',
+                'genro_dev', 'genro_dlg', 'genro_frm', 'genro_dom', 'gnrdomsource',
+                'genro_wdg', 'genro_src', 'gnrlang', 'gnrstores', 'genro_extra']
+
     def css_genro_frontend(self):
-          return {'all': ['gnrbase'], 'print':['gnrprint']}
+        return {'all': ['gnrbase'], 'print': ['gnrprint']}
 
 

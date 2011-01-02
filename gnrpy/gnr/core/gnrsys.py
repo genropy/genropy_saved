@@ -32,19 +32,21 @@ def mkdir(path, privileges=0777):
         head, tail = os.path.split(path)
         mkdir(head, privileges)
         os.mkdir(path, privileges)
-        
+
 def expandpath(path):
     return os.path.expanduser(os.path.expandvars(path))
-    
+
 def listdirs(path, invisible_files=False):
     """returns a list of all files contained in path and its descendant"""
-    def callb(files,top,names):
+
+    def callb(files, top, names):
         for name in names:
-            file_path = os.path.realpath(os.path.join(top,name))
+            file_path = os.path.realpath(os.path.join(top, name))
             if (invisible_files or not name.startswith('.')) and os.path.isfile(file_path):
                 files.append(file_path)
-    files=[]
-    os.path.walk(path,callb,files)
+
+    files = []
+    os.path.walk(path, callb, files)
     return files
 
 def resolvegenropypath(path):
@@ -59,7 +61,7 @@ def resolvegenropypath(path):
        genropy will be resolve to be valid if possibe and we do not have to edit 
        for example our import files . 
        Of course I expect it to be rejected and / or refactored"""
-       
+
     if path.find('~') == 0:
         path = expandpath(path)
         if os.path.exists(path):
@@ -69,7 +71,7 @@ def resolvegenropypath(path):
         if os.path.exists(path):
             return path
         else: #try making it into a user directory path
-            path = '%s%s' %('~', path)
+            path = '%s%s' % ('~', path)
             path = expandpath(path)
             if os.path.exists(path):
                 return path
@@ -77,7 +79,7 @@ def resolvegenropypath(path):
         if os.path.exists(path):
             return path
         else:
-            path = '%s%s' %('~/', path)
+            path = '%s%s' % ('~/', path)
             path = expandpath(path)
             if os.path.exists(path):
                 return path

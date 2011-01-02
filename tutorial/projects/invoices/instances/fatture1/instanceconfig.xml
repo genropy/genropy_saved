@@ -1,15 +1,16 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<GenRoBag><db dbname="Fatture"/>
-<packages >
-	<adm />
-	<glbl />
-	<invc/>
-</packages>
+<GenRoBag>
+    <db dbname="Fatture"/>
+    <packages>
+        <adm/>
+        <glbl/>
+        <invc/>
+    </packages>
 
-<authentication pkg='adm'>
-	<xml_auth defaultTags="users,xml">
-		<abu pwd="Cucciolo" tags="_DEV_,admin,user,staff,_TRD_"/>
-	</xml_auth>
-	<py_auth defaultTags="user" pkg="adm" method="authenticate"/>
-</authentication>
+    <authentication pkg='adm'>
+        <xml_auth defaultTags="users,xml">
+            <abu pwd="Cucciolo" tags="_DEV_,admin,user,staff,_TRD_"/>
+        </xml_auth>
+        <py_auth defaultTags="user" pkg="adm" method="authenticate"/>
+    </authentication>
 </GenRoBag>

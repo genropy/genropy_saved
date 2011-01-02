@@ -22,19 +22,19 @@
 from gnr.core.gnrbag import Bag
 
 class GnrCustomWebPage(object):
-    py_requires='public:Public'
+    py_requires = 'public:Public'
 
     def pageAuthTags(self, method=None, **kwargs):
-         return 'user'
-        
+        return 'user'
+
     def windowTitle(self):
-         return 'user'
-         
+        return 'user'
+
     def main(self, root, **kwargs):
-        center ,top,bottom = self.pbl_rootContentPane(root,title='!!Mem Stats')
-        center.dataRpc('root','getStats',_timing=45,_init=True)
+        center, top, bottom = self.pbl_rootContentPane(root, title='!!Mem Stats')
+        center.dataRpc('root', 'getStats', _timing=45, _init=True)
         center.tree(storepath='root')
-        
+
     def rpc_getStats(self):
         result = Bag()
         stats = self.site.shared_data.storage.get_stats()

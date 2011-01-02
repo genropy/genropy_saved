@@ -16,13 +16,13 @@ row_max = 100
 sleep_time = 0.05
 
 class GnrCustomWebPage(object):
-    dojo_version='11'
-    py_requires="gnrcomponents/testhandler:TestHandlerFull"
+    dojo_version = '11'
+    py_requires = "gnrcomponents/testhandler:TestHandlerFull"
 
     def windowTitle(self):
         return 'Test warning and ask'
-         
-    def test_1_ask(self,pane):
+
+    def test_1_ask(self, pane):
         "Batch"
         pane.button(action="FIRE .savingCommand='.saveAndClose'", label='Save and close')
         pane.button(action="FIRE .savingCommand='.saveAndAdd'", label='Save and new')

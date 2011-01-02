@@ -21,23 +21,23 @@ from gnr.core.gnrbag import Bag
 
 class Table(object):
     def config_db(self, pkg):
-        tbl =  pkg.table('htmltemplate',  pkey='id',name_long='!!Html Template',
-                      name_plural='!!Html Template',rowcaption='name')
+        tbl = pkg.table('htmltemplate', pkey='id', name_long='!!Html Template',
+                        name_plural='!!Html Template', rowcaption='name')
         self.sysFields(tbl)
-        tbl.column('name',name_long='!!Name',validate_nodup=True,unique=True,
-                    validate_notnull=True,validate_notnull_error='!!Name is mandatory',
-                    validate_nodup_error='!!This name is already taken')
-        tbl.column('username',name_long='!!Username')
-        tbl.column('version',name_long='!!Version')
-        tbl.column('data',dtype='X',name_long='!!Data',_sendback=True)
-    
-    def getTemplate(self,name):
+        tbl.column('name', name_long='!!Name', validate_nodup=True, unique=True,
+                   validate_notnull=True, validate_notnull_error='!!Name is mandatory',
+                   validate_nodup_error='!!This name is already taken')
+        tbl.column('username', name_long='!!Username')
+        tbl.column('version', name_long='!!Version')
+        tbl.column('data', dtype='X', name_long='!!Data', _sendback=True)
+
+    def getTemplate(self, name):
         if not name:
             return Bag()
         templatelist = name.split(',')
-        f = self.query(where='$name IN :names',names=templatelist,columns='name,version,data').fetchAsDict(key='name')
+        f = self.query(where='$name IN :names', names=templatelist, columns='name,version,data').fetchAsDict(key='name')
         templatebase = Bag(f[templatelist[0]]['data'])
-        if len(templatelist)>1:
+        if len(templatelist) > 1:
             pass
         return templatebase            
     

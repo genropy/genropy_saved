@@ -15,11 +15,11 @@ import os
 
 class BatchRunner(BaseComponent):
     def buildBatchRunner(self, pane, resultpath='aux.cmd', datapath=None,
-                         selectionName=None,selectedRowidx=None,recordId=None, 
-                         fired=None, batch_class=None,batch_note=None,batch_forked=False,
-                                selectionFilterCb=None,
-                         _onResult=None,stopOnError=False,forUpdate=False,
-                         onRow=None, commitAfterPrint=None, waitingDlg=None,**kwargs):
+                         selectionName=None, selectedRowidx=None, recordId=None,
+                         fired=None, batch_class=None, batch_note=None, batch_forked=False,
+                         selectionFilterCb=None,
+                         _onResult=None, stopOnError=False, forUpdate=False,
+                         onRow=None, commitAfterPrint=None, waitingDlg=None, **kwargs):
         """Prepare a batch action on the maintable with a thermometer
            @param resultpath: the path into the datastore where the result is stored.
            @param fired: the path where you fire the event that launch the dataRpc of selectionBatchRunner.
@@ -33,49 +33,49 @@ class BatchRunner(BaseComponent):
         if waitingDlg:
             onBatchCalling = 'FIRE #pbl_waiting.open;'
             _onResult = '%s %s' % (_onResult, 'FIRE #pbl_waiting.close;')
-    
-        pane.data('.batch_call','runBatch',datapath=datapath)
+
+        pane.data('.batch_call', 'runBatch', datapath=datapath)
         pane.dataRpc('%s.result' % resultpath, 'runBatch', timeout=0, _POST=True,
                      table=kwargs.pop('table', self.maintable), selectionName=selectionName,
-                     recordId = recordId,datapath=datapath,
+                     recordId=recordId, datapath=datapath,
                      batch_class=batch_class,
                      selectionFilterCb=selectionFilterCb,
-                     selectedRowidx =selectedRowidx,
+                     selectedRowidx=selectedRowidx,
                      _fired=fired, _onResult=_onResult,
                      commitAfterPrint=commitAfterPrint,
-                     batch_note=batch_note,batch_forked=batch_forked,
+                     batch_note=batch_note, batch_forked=batch_forked,
                      forUpdate=forUpdate, _onCalling=onBatchCalling,
                      **kwargs)
-                     
+
         dlgid = self.getUuid()
         pane.dataController('genro.wdgById(dlgid).show()', _if='errors',
                             dlgid=dlgid, errors='^%s.errors' % resultpath)
         d = pane.dialog(nodeId=dlgid, title="!!Errors in batch execution", width='27em', height='27em')
         struct = self.newGridStruct()
         rows = struct.view().rows()
-        rows.cell('caption',width='8em',name='!!Caption')
+        rows.cell('caption', width='8em', name='!!Caption')
         rows.cell('error', name='!!Error')
         d.div(position='absolute', top='28px', right='4px',
-            bottom='4px', left='4px').includedView(storepath='%s.errors' % resultpath, struct=struct)
-            
-            
+              bottom='4px', left='4px').includedView(storepath='%s.errors' % resultpath, struct=struct)
+
+
     def rpc_runBatch_forked(self, *args, **kwargs):
         with self.pageStore() as store:
-            store.setItem('_batch_args',args)
-            store.setItem('_batch_kwargs',kwargs)
-            store.setItem('_batch_user',self.user)
-            store.setItem('_batch_connection_id',self.connection_id)
+            store.setItem('_batch_args', args)
+            store.setItem('_batch_kwargs', kwargs)
+            store.setItem('_batch_user', self.user)
+            store.setItem('_batch_connection_id', self.connection_id)
 
-        request=self.request._request
+        request = self.request._request
         protocol = request.host_url.split('//')[0]
         host = '%s//localhost' % protocol
         if ':' in request.host:
             port = request.host.split(':')[1]
-            host = '%s:%s' %(host,port)
-        url = '%s%s?rpc=curl_runBatch&&page_id=%s' %(host,request.path_info,self.page_id)
+            host = '%s:%s' % (host, port)
+        url = '%s%s?rpc=curl_runBatch&&page_id=%s' % (host, request.path_info, self.page_id)
         print url
-        os.system("""nohup curl "%s" -o "%s" &""" %(url,'/result.txt'))
-        
+        os.system("""nohup curl "%s" -o "%s" &""" % (url, '/result.txt'))
+
     def rpc_curl_runBatch(self):
         print 'inside forked process'
         store = self.pageStore()
@@ -84,13 +84,13 @@ class BatchRunner(BaseComponent):
         external_connection = store.getItem('_batch_connection_id')
         self.connection.getConnection(external_connection=external_connection)
         self.user = self.connection.user
-        result = self.rpc_runBatch(*args,**kwargs)
-        self.setInClientData(path='gnr.downloadurl',value=result,fired=True,public=True)
+        result = self.rpc_runBatch(*args, **kwargs)
+        self.setInClientData(path='gnr.downloadurl', value=result, fired=True, public=True)
 
-                   
-    def rpc_runBatch(self, table, selectionName=None,selectionFilterCb=None,recordId=None ,batch_class=None, 
-                   selectedRowidx=None, forUpdate=False, commitAfterPrint=None, data_method=None,
-                    batch_note=None,batch_forked=None,**kwargs):
+
+    def rpc_runBatch(self, table, selectionName=None, selectionFilterCb=None, recordId=None, batch_class=None,
+                     selectedRowidx=None, forUpdate=False, commitAfterPrint=None, data_method=None,
+                     batch_note=None, batch_forked=None, **kwargs):
         """batchFactory: name of the Class, plugin of table, which executes the batch action
             thermoId:
             thermofield: the field of the main table to use for thermo display or * for record caption
@@ -104,48 +104,50 @@ class BatchRunner(BaseComponent):
             batch_class = 'PrintRecord'
         batch_class = self.batch_loader(batch_class)
         if not batch_class:
-            raise Exception ('Missing or wrong batch_class')
+            raise Exception('Missing or wrong batch_class')
         gnrbatch = batch_class(data=None, table=table, page=self,
-                                commitAfterPrint=commitAfterPrint,batch_note=batch_note,**kwargs)
-        self.btc.batch_create(batch_id='%s_%s' %(gnrbatch.batch_prefix,self.getUuid()),
-                            title=gnrbatch.batch_title,thermo_lines=gnrbatch.batch_thermo_lines,
-                            cancellable=gnrbatch.batch_cancellable,delay=gnrbatch.batch_delay,note=gnrbatch.batch_note) 
-        self.btc.thermo_line_start(line='batch_steps',maximum=5,message='')
-        self.btc.thermo_line_update(line='batch_steps',maximum=5,progress=1,message='!!Getting data')
+                               commitAfterPrint=commitAfterPrint, batch_note=batch_note, **kwargs)
+        self.btc.batch_create(batch_id='%s_%s' % (gnrbatch.batch_prefix, self.getUuid()),
+                              title=gnrbatch.batch_title, thermo_lines=gnrbatch.batch_thermo_lines,
+                              cancellable=gnrbatch.batch_cancellable, delay=gnrbatch.batch_delay,
+                              note=gnrbatch.batch_note)
+        self.btc.thermo_line_start(line='batch_steps', maximum=5, message='')
+        self.btc.thermo_line_update(line='batch_steps', maximum=5, progress=1, message='!!Getting data')
         try:
             if data_method:
-                handler = getattr(self, 'rpc_%s'%data_method)
+                handler = getattr(self, 'rpc_%s' % data_method)
                 runKwargs = kwargs['runKwargs']
-                data = handler(selectionName=selectionName, selectedRowidx=selectedRowidx, selectionFilterCb=selectionFilterCb, pars=runKwargs)
+                data = handler(selectionName=selectionName, selectedRowidx=selectedRowidx,
+                               selectionFilterCb=selectionFilterCb, pars=runKwargs)
             elif recordId:
-                data = self.db.table(table).record(pkey=recordId,ignoreMissing=True).output('bag')
-            elif selectionName:   
+                data = self.db.table(table).record(pkey=recordId, ignoreMissing=True).output('bag')
+            elif selectionName:
                 data = self.getUserSelection(selectionName=selectionName,
-                                         selectedRowidx=selectedRowidx,
-                                         filterCb=selectionFilterCb)
+                                             selectedRowidx=selectedRowidx,
+                                             filterCb=selectionFilterCb)
             else:
-                data=None
-            
+                data = None
+
             gnrbatch.set_data(data)
             batch_result = gnrbatch.run()
             url = None
             result = 'Execution completed'
             result_attr = dict()
-            if isinstance(batch_result,basestring):
+            if isinstance(batch_result, basestring):
                 url = batch_result
             else:
                 url = batch_result['url']
                 result = batch_result['result']
-                result_attr = batch_result['attr'] 
+                result_attr = batch_result['attr']
             if url:
                 result_attr['url'] = url
-            self.btc.batch_complete(result=result,result_attr=result_attr)
+            self.btc.batch_complete(result=result, result_attr=result_attr)
         except self.btc.exception_stopped:
             self.btc.batch_aborted()
         except Exception, e:
             self.btc.batch_error(error=str(e))
 
-                
+
     def batch_loader(self, batch_class):
         if ':' in batch_class:
             module_path, class_name = batch_class.split(':')
@@ -153,5 +155,5 @@ class BatchRunner(BaseComponent):
         else:
             class_name = batch_class
             module = gnr.app.gnrbatch_new
-        return getattr(module,class_name,None)
+        return getattr(module, class_name, None)
         

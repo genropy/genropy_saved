@@ -24,18 +24,18 @@ class GnrBaseFrontend(GnrBaseProxy):
     
     Frontends define the details to load different UI toolkits (e.g. different versions of Dojo).
     """
-    
+
     def init(self, **kwargs):
         """Initialize this frontend."""
         pass
-        
+
     def importer(self):
         """Returns the HTML code used to load any client-side resource (e.g. a specific dojo library) specific to this frontend."""
         return ''
-    
+
     def event_onBegin(self):
         pass
-        
+
     def frontend_arg_dict(self):
         """Parameters to be passed to the page template."""
         pass

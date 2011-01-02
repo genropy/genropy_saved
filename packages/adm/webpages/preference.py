@@ -9,8 +9,8 @@
 
 
 class GnrCustomWebPage(object):
-    maintable ='adm.preference'
-    py_requires="""public:Public"""
+    maintable = 'adm.preference'
+    py_requires = """public:Public"""
 
     def pageAuthTags(self, **kwargs):
         return 'user'

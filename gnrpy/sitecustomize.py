@@ -3,4 +3,5 @@
 # interactive console) work with non-ascii chars.
 
 import sys
+
 sys.setdefaultencoding('utf-8')

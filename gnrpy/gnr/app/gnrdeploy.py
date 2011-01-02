@@ -4,16 +4,15 @@ from gnr.core.gnrbag import Bag
 from gnr.core.gnrsys import expandpath
 
 class PathResolver(object):
-
     entities = dict(
-        instance='instances',
-        site='sites',
-        resource='resources',
-        package='packages',
-        project='projects')
+            instance='instances',
+            site='sites',
+            resource='resources',
+            package='packages',
+            project='projects')
 
     def __init__(self, gnr_config=None):
-        self.gnr_config=gnr_config or self.load_gnr_config()
+        self.gnr_config = gnr_config or self.load_gnr_config()
 
     def load_gnr_config(self):
         home_config_path = expandpath('~/.gnr')
@@ -28,15 +27,15 @@ class PathResolver(object):
         return config
 
     def set_environment(self, config):
-        for var,value in config['gnr.environment_xml'].digest('environment:#k,#a.value'):
-            var=var.upper()
+        for var, value in config['gnr.environment_xml'].digest('environment:#k,#a.value'):
+            var = var.upper()
             if not os.getenv(var):
-                os.environ[var]=str(value)
+                os.environ[var] = str(value)
 
     def js_path(self, lib_type='gnr', version='11'):
-        path = self.gnr_config['gnr.environment_xml.static.js.%s_%s?path'%(lib_type,version)]
+        path = self.gnr_config['gnr.environment_xml.static.js.%s_%s?path' % (lib_type, version)]
         if path:
-            path = os.path.join(expandpath(path),'js')
+            path = os.path.join(expandpath(path), 'js')
         return path
 
 
@@ -45,15 +44,18 @@ class PathResolver(object):
         if not entity:
             raise Exception('Error: entity type %s not known' % entity_type)
         if entity in self.gnr_config['gnr.environment_xml']:
-            for path in [expandpath(path) for path in self.gnr_config['gnr.environment_xml'].digest('%s:#a.path'%entity) if os.path.isdir(expandpath(path))]:
-                entity_path=os.path.join(path,entity_name)
+            for path in [expandpath(path) for path in
+                         self.gnr_config['gnr.environment_xml'].digest('%s:#a.path' % entity) if
+                         os.path.isdir(expandpath(path))]:
+                entity_path = os.path.join(path, entity_name)
                 if os.path.isdir(entity_path):
                     return expandpath(entity_path)
         if look_in_projects and 'projects' in self.gnr_config['gnr.environment_xml']:
-            projects = [expandpath(path) for path in self.gnr_config['gnr.environment_xml'].digest('projects:#a.path') if os.path.isdir(expandpath(path))]
+            projects = [expandpath(path) for path in self.gnr_config['gnr.environment_xml'].digest('projects:#a.path')
+                        if os.path.isdir(expandpath(path))]
             for project_path in projects:
-                for path in glob.glob(os.path.join(project_path,'*/%s'%entity)):
-                    entity_path=os.path.join(path,entity_name)
+                for path in glob.glob(os.path.join(project_path, '*/%s' % entity)):
+                    entity_path = os.path.join(path, entity_name)
                     if os.path.isdir(entity_path):
                         return expandpath(entity_path)
         raise Exception('Error: %s %s not found' % (entity_type, entity_name))
@@ -74,8 +76,8 @@ class PathResolver(object):
         return self.entity_name_to_path(project_name, 'project', look_in_projects=False)
 
     def project_repository_name_to_path(self, project_repository_name, strict=True):
-        if not strict or 'gnr.environment_xml.projects.%s'%project_repository_name in self.gnr_config:
-            path = self.gnr_config['gnr.environment_xml.projects.%s?path'%project_repository_name]
+        if not strict or 'gnr.environment_xml.projects.%s' % project_repository_name in self.gnr_config:
+            path = self.gnr_config['gnr.environment_xml.projects.%s?path' % project_repository_name]
             if path:
                 return expandpath(path)
         else:
@@ -99,7 +101,7 @@ class ProjectMaker(object):
 
 class SiteMaker(object):
     def __init__(self, site_name, base_path=None, resources=None, instance=None, dojo_version='11',
-                wsgi_port=None, wsgi_reload=None, wsgi_mainpackage=None, wsgi_debug=None, config=None):
+                 wsgi_port=None, wsgi_reload=None, wsgi_mainpackage=None, wsgi_debug=None, config=None):
         self.site_name = site_name
         self.base_path = base_path or '.'
         self.resources = resources or []
@@ -109,8 +111,8 @@ class SiteMaker(object):
         self.wsgi_mainpackage = wsgi_mainpackage
         self.wsgi_debug = wsgi_debug
         self.dojo_version = dojo_version
-        self.config=config
-    
+        self.config = config
+
     def do(self):
         self.site_path = os.path.join(self.base_path, self.site_name)
         pages_path = os.path.join(self.site_path, 'pages')
@@ -121,7 +123,7 @@ class SiteMaker(object):
         if not os.path.isdir(pages_path):
             os.mkdir(pages_path)
         if not os.path.isfile(root_py_path):
-            root_py = open(root_py_path,'w')
+            root_py = open(root_py_path, 'w')
             root_py.write("""#!/usr/bin/env python2.6
 import sys
 sys.stdout = sys.stderr
@@ -143,14 +145,14 @@ if __name__ == '__main__':
                 if self.instance:
                     siteconfig.setItem('instances.%s' % self.instance, None)
                 for resource in self.resources:
-                    if isinstance(resource,tuple) or isinstance(resource,list):
+                    if isinstance(resource, tuple) or isinstance(resource, list):
                         resource, resource_path = resource
                         siteconfig.setItem('resources.%s' % resource, None, path=resource_path)
                     else:
                         siteconfig.setItem('resources.%s' % resource, None)
                 wsgi_options = dict()
                 for option in ('reload', 'debug', 'port', 'mainpackage'):
-                    value = getattr(self, 'wsgi_%s'%option, None)
+                    value = getattr(self, 'wsgi_%s' % option, None)
                     if value:
                         wsgi_options[option] = value
                 siteconfig.setItem('wsgi', None, **wsgi_options)
@@ -160,11 +162,11 @@ if __name__ == '__main__':
             else:
                 siteconfig = self.config
             siteconfig.toXml(siteconfig_xml_path)
-        
+
 class InstanceMaker(object):
     def __init__(self, instance_name, base_path=None, packages=None, authentication=True, authentication_pkg=None,
-                db_dbname=None, db_implementation=None, db_host=None, db_port=None, 
-                db_user=None, db_password=None, use_dbstores=False, config=None):
+                 db_dbname=None, db_implementation=None, db_host=None, db_port=None,
+                 db_user=None, db_password=None, use_dbstores=False, config=None):
         self.instance_name = instance_name
         self.base_path = base_path or '.'
         self.packages = packages or []
@@ -173,8 +175,8 @@ class InstanceMaker(object):
         if self.authentication:
             self.authentication_pkg = authentication_pkg
             if not self.authentication_pkg and self.packages:
-                package=self.packages[0]
-                if isinstance(package,tuple) or isinstance(package,list):
+                package = self.packages[0]
+                if isinstance(package, tuple) or isinstance(package, list):
                     package = package[0]
                 self.authentication_pkg = package
             if not self.authentication_pkg:
@@ -185,7 +187,7 @@ class InstanceMaker(object):
         self.db_user = db_user
         self.db_password = db_password
         self.use_dbstores = use_dbstores
-        self.config=config
+        self.config = config
 
     def do(self):
         self.instance_path = os.path.join(self.base_path, self.instance_name)
@@ -204,29 +206,30 @@ class InstanceMaker(object):
                 instanceconfig = Bag()
                 instanceconfig.setItem('packages', None)
                 for package in self.packages:
-                    if isinstance(package,tuple) or isinstance(package,list):
+                    if isinstance(package, tuple) or isinstance(package, list):
                         package, package_path = package
                         instanceconfig.setItem('packages.%s' % package, None, path=package_path)
                     else:
                         instanceconfig.setItem('packages.%s' % package, None)
                 db_options = dict()
                 for option in ('dbname', 'implementation', 'host', 'port', 'username', 'password'):
-                    value = getattr(self, 'db_%s'%option, None)
+                    value = getattr(self, 'db_%s' % option, None)
                     if value:
                         db_options[option] = value
                 instanceconfig.setItem('db', None, **db_options)
                 if self.authentication:
                     instanceconfig.setItem('authentication', None, pkg=self.authentication_pkg)
-                    instanceconfig.setItem('authentication.py_auth', None, defaultTags="user", pkg="adm", method="authenticate")
+                    instanceconfig.setItem('authentication.py_auth', None, defaultTags="user", pkg="adm",
+                                           method="authenticate")
             else:
-                instanceconfig=self.config
+                instanceconfig = self.config
             instanceconfig.toXml(instanceconfig_xml_path)
-        
+
 
 class PackageMaker(object):
-    def __init__(self, package_name, base_path=None, sqlschema=None, 
-                name_short=None, name_long=None, name_full=None, 
-                login_url=None, comment=None):
+    def __init__(self, package_name, base_path=None, sqlschema=None,
+                 name_short=None, name_long=None, name_full=None,
+                 login_url=None, comment=None):
         self.package_name = package_name
         self.base_path = base_path or '.'
         self.name_short = name_short or self.package_name.capitalize()
@@ -235,7 +238,7 @@ class PackageMaker(object):
         self.sqlschema = sqlschema or self.package_name.lower()
         self.comment = comment or '%s package' % self.package_name
         self.login_url = login_url or '%s/login' % self.package_name
-        
+
     def do(self):
         self.package_path = os.path.join(self.base_path, self.package_name)
         self.model_path = os.path.join(self.package_path, 'model')
@@ -258,7 +261,7 @@ class PackageMaker(object):
             menu_xml.close()
         if not os.path.exists(self.main_py_path):
             main_py_options = dict(comment=self.comment, sqlschema=self.sqlschema, name_short=self.name_short,
-                name_long=self.name_long, name_full=self.name_full, login_url=self.login_url)
+                                   name_long=self.name_long, name_full=self.name_full, login_url=self.login_url)
             main_py = open(self.main_py_path, 'w')
             main_py.write("""#!/usr/bin/env python
 # encoding: utf-8
@@ -277,7 +280,7 @@ class Package(GnrDboPackage):
 
 class Table(GnrDboTable):
     pass
-"""%main_py_options)
+""" % main_py_options)
             main_py.close()
         if not os.path.exists(self.examplemodel_py_example_path):
             examplemodel_py_example = open(self.examplemodel_py_example_path, 'w')
@@ -306,7 +309,7 @@ class GnrCustomWebPage(object):
         pass
 """)
             examplewebpage_py_example.close()
-            
+
 class ResourceMaker(object):
     def __init__(self, resource_name, base_path=None):
         self.resource_name = resource_name
@@ -321,7 +324,7 @@ class ResourceMaker(object):
 class ModWsgiMaker(object):
     pass
 
-if __name__=='__main__':
+if __name__ == '__main__':
     pather = PathResolver()
     print pather.package_name_to_path('edicon')
     print pather.project_name_to_path('trasporti')

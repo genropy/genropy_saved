@@ -28,17 +28,18 @@ import logging
 import datetime
 from decimal import Decimal
 
-logger= logging.getLogger('gnr.core.gnrstring')
+logger = logging.getLogger('gnr.core.gnrstring')
 
 try:
     from string import Template
+
     class BagTemplate(Template):
         idpattern = '[_a-z\@][_a-z0-9\.\@]*'
 except:
     pass
 
 try:
-    try :
+    try:
         import json
     except:
         import simplejson as json
@@ -49,27 +50,26 @@ try:
             if isinstance(obj, Decimal):
                 return str(obj)
             return json.JSONEncoder.default(self, obj)
-    
+
     class JsonEncoderJS(json.JSONEncoder):
         def default(self, obj):
             if isinstance(obj, datetime.date):
-                return "new Date(%i, %i, %i)" % (obj.year, obj.month-1, obj.day)
+                return "new Date(%i, %i, %i)" % (obj.year, obj.month - 1, obj.day)
             return json.JSONEncoder.default(self, obj)
 except:
     pass
-    
+
 from gnr.core.gnrlocale import localize, parselocal
 
 REGEX_WRDSPLIT = re.compile(r'\W+')
-BASE_ENCODE={'/2':'01',
-                '/8':'012345678',
-                '/16':'0123456789ABCDEF',
-                '/36':'0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ'
-                }
+BASE_ENCODE = {'/2': '01',
+               '/8': '012345678',
+               '/16': '0123456789ABCDEF',
+               '/36': '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ'
+}
 
 
-        
-def getUntil(myString, chunk,returnOriginal=False):
+def getUntil(myString, chunk, returnOriginal=False):
     """
     Returns a string until a given chunk.
     @param myString
@@ -83,7 +83,7 @@ def getUntil(myString, chunk,returnOriginal=False):
     >>> getUntil('teststring', 'co',returnOriginal=True)
     'teststring'
     """
-    p = myString.find (chunk)
+    p = myString.find(chunk)
     if p > -1:
         return myString[0:p]
     else:
@@ -92,7 +92,7 @@ def getUntil(myString, chunk,returnOriginal=False):
         else:
             return ''
 
-    
+
 def getUntilLast(myString, chunk):
     """
     returns a string until last occurence of a given chunk
@@ -105,12 +105,12 @@ def getUntilLast(myString, chunk):
     >>> getUntilLast('teststring', 'co')
     ''
     """
-    p = myString.rfind (chunk)
+    p = myString.rfind(chunk)
     if p > -1:
         return myString[0:p]
     else:
         return ''
-        
+
 def getFrom(myString, chunk):
     """
     returns a string from a given chunk
@@ -123,12 +123,12 @@ def getFrom(myString, chunk):
     >>> getFrom('teststring', 'co')
     ''
     """
-    p = myString.find (chunk)
+    p = myString.find(chunk)
     if p > -1:
-        return myString[p+len(chunk):]
+        return myString[p + len(chunk):]
     else:
         return ''
-    
+
 def getFromLast(myString, chunk):
     """
     returns a string from last occurence of a given chunk.
@@ -141,11 +141,11 @@ def getFromLast(myString, chunk):
     >>> getFromLast('teststring', 'co')
     ''
     """
-    p = myString.rfind (chunk)
+    p = myString.rfind(chunk)
     if p > -1:
-        return myString[p+len(chunk):]
+        return myString[p + len(chunk):]
     else:
-        return ''  
+        return ''
 
 
 def wordSplit(text):
@@ -157,19 +157,19 @@ def wordSplit(text):
     ['hello', 'my', 'dear', 'friend']
     """
     return REGEX_WRDSPLIT.split(text)
-    
+
 def splitLast(myString, chunk):
     """
     returns a tuple of two strings, splitting the string at the last occurence of a given chunk.
     >>> splitLast('hello my dear friend', 'e')
     ('hello my dear fri', 'nd')
     """
-    p = myString.rfind (chunk)
+    p = myString.rfind(chunk)
     if p > -1:
-        return myString[0:p], myString[p+len(chunk):]
+        return myString[0:p], myString[p + len(chunk):]
     else:
-        return myString,''
-    
+        return myString, ''
+
 def getBetween(myString, startChunk, endChunk):
     """
     returns a string between two given chunks.
@@ -184,15 +184,15 @@ def getBetween(myString, startChunk, endChunk):
     >>> getBetween('teststring', 'te','te')
     ''
     """
-    p1 = myString.find (startChunk)
-    if p1 < 0 :
+    p1 = myString.find(startChunk)
+    if p1 < 0:
         return ''
     else:
-        p2 = myString.find(endChunk,p1+len(startChunk))
-        if p2 < 0 :
+        p2 = myString.find(endChunk, p1 + len(startChunk))
+        if p2 < 0:
             return ''
         else:
-            return myString[p1+len(startChunk):p2]
+            return myString[p1 + len(startChunk):p2]
 
 def like(s1, s2, wildcard='%'):
     """
@@ -208,27 +208,27 @@ def like(s1, s2, wildcard='%'):
     False
     """
     if s1.startswith('^'):
-        s1=s1[1:].upper()
-        s2=s2.upper()
-    if s1==wildcard or s1==s2 : return True
-    elif not wildcard in s1 : return False
+        s1 = s1[1:].upper()
+        s2 = s2.upper()
+    if s1 == wildcard or s1 == s2: return True
+    elif not wildcard in s1: return False
     if s1.startswith(wildcard):
-        if s1.endswith(wildcard):return bool(s1[1:-1] in s2)
+        if s1.endswith(wildcard): return bool(s1[1:-1] in s2)
         return bool(s2.endswith(s1[1:]))
-    if s1.endswith(wildcard):return bool(s2.startswith(s1[:-1]))
+    if s1.endswith(wildcard): return bool(s2.startswith(s1[:-1]))
     return False
-        
-def ilike(s1,s2,wildcard='%'):
+
+def ilike(s1, s2, wildcard='%'):
     """
     Returns the result of like() function ignoring upper-lowercase differencies
     """
     return like(s1.upper(), s2.upper(), wildcard)
-    
+
 def filter(item, include=None, exclude=None, wildcard='%'):
     if include and isinstance(include, basestring):
         include = include.split(',')
     if exclude and isinstance(exclude, basestring):
-        exclude = exclude.split(',')     
+        exclude = exclude.split(',')
     if exclude:
         for excl in exclude:
             if like(excl, item, wildcard):
@@ -240,7 +240,7 @@ def filter(item, include=None, exclude=None, wildcard='%'):
         return False
     return True
 
-def regexDelete(myString,pattern):
+def regexDelete(myString, pattern):
     """
     Returns a string obtained deleting from the given string any occurrency
     of the given pattern.
@@ -250,9 +250,9 @@ def regexDelete(myString,pattern):
     >>> regexDelete('When he turns the steering  wheel', 'he')
     'Wn  turns t steering  wel'
     """
-    return re.sub(pattern,'',myString)
+    return re.sub(pattern, '', myString)
 
-def templateReplace(myString,symbolDict=None,safeMode=False):
+def templateReplace(myString, symbolDict=None, safeMode=False):
     """
     @param myString: template string
     @param symbolDict: dictionary that links symbol and values
@@ -260,10 +260,10 @@ def templateReplace(myString,symbolDict=None,safeMode=False):
     
     >>> templateReplace('$foo loves $bar but she loves $aux and not $foo', {'foo':'John','bar':'Sandra','aux':'Steve'})
     'John loves Sandra but she loves Steve and not John'"""
-    
+
     if not '$' in myString or not symbolDict: return myString
     if hasattr(symbolDict, '_htraverse'):
-        Tpl = BagTemplate 
+        Tpl = BagTemplate
     else:
         Tpl = Template
     if safeMode:
@@ -271,8 +271,8 @@ def templateReplace(myString,symbolDict=None,safeMode=False):
     else:
         return Tpl(myString).substitute(symbolDict)
 
-    
-def asDict(myString,itemSep=',',argSep='=',symbols=None):
+
+def asDict(myString, itemSep=',', argSep='=', symbols=None):
     """
     :param myString: a string that represent a list of key-value pairs
     :param itemSep: the separator char between each key-value pair
@@ -285,24 +285,24 @@ def asDict(myString,itemSep=',',argSep='=',symbols=None):
     >>> asDict('height=$myheight, weight=73', symbols={'myheight':55})
     {'weight': '73', 'height': '55'}
     """
-    if not myString : return {}
-    if myString.startswith('('):myString=myString[1:-1]
-    result={}
-    itemList=split(myString,itemSep)
+    if not myString: return {}
+    if myString.startswith('('): myString = myString[1:-1]
+    result = {}
+    itemList = split(myString, itemSep)
     for item in itemList:
-        item=item.strip().strip(itemSep)
-        key,value=split(item,argSep)
+        item = item.strip().strip(itemSep)
+        key, value = split(item, argSep)
 
-        key=key.encode()
-        if value.startswith("'"):result[key]=value.strip("'")
-        elif value.startswith('"'):result[key]=value.strip('"')
-        if value.startswith('(')and value.endswith(')'):result[key]=value[1:-1]
+        key = key.encode()
+        if value.startswith("'"): result[key] = value.strip("'")
+        elif value.startswith('"'): result[key] = value.strip('"')
+        if value.startswith('(')and value.endswith(')'): result[key] = value[1:-1]
         else:
-            if '$' in value : value=templateReplace(value,symbols)
-            result[key]=value
+            if '$' in value: value = templateReplace(value, symbols)
+            result[key] = value
     return result
 
-def stringDict(myDict,itemSep=',',argSep='='):
+def stringDict(myDict, itemSep=',', argSep='='):
     """returns a string that represents a list of list of key-value pairs
     taken from a dictionary.
     @param myDict: dictionay to transform in string
@@ -313,7 +313,7 @@ def stringDict(myDict,itemSep=',',argSep='='):
      'width=33,height=22'
      
     """
-    return itemSep.join([argSep.join((str(k),str(v))) for k,v in myDict.items()])
+    return itemSep.join([argSep.join((str(k), str(v))) for k, v in myDict.items()])
 
 def updateString(source, s, sep=','):
     """
@@ -329,26 +329,26 @@ def updateString(source, s, sep=','):
     >>> gs.updateString('I drink cola', 'beer', ' and ')           
     'I drink cola and beer'
     """
-    if not source : return s
-    splitted=split(source,sep)
+    if not source: return s
+    splitted = split(source, sep)
     if s in splitted: return source
-    return sep.join(splitted+[s])
-    
-    
+    return sep.join(splitted + [s])
+
+
 def updateStringList(s1, s2, sep=','):
     #what??
     l1 = set(splitAndStrip(s1))
     l2 = set(splitAndStrip(s2))
     s = set()
-        
+
 def makeSet(*args, **kwargs):
     result = set()
     for myString in args:
-        result.update(splitAndStrip(myString, sep=kwargs.get('sep',',')))
+        result.update(splitAndStrip(myString, sep=kwargs.get('sep', ',')))
     if not kwargs.get('keepEmpty', False):
         result.discard('')
     return result
-    
+
 def splitAndStrip(myString, sep=',', n=-1, fixed=0):
     """
     This methods splits a string in a list of n+1 items, striping white spaces.
@@ -366,7 +366,7 @@ def splitAndStrip(myString, sep=',', n=-1, fixed=0):
     myString = myString.strip().strip(sep)
     r = myString.split(sep, n)
     result = [x.strip() for x in r]
-    delta = abs(fixed)-len(result) 
+    delta = abs(fixed) - len(result)
     if not fixed or delta == 0:
         return result
     if delta > 0:
@@ -377,66 +377,63 @@ def splitAndStrip(myString, sep=',', n=-1, fixed=0):
             return dlist + result
     else:
         return result[0:abs(fixed)]
-            
-        
+
 
 def countOf(myString, srcString):
-    return (len(myString) - len(myString.replace(srcString,''))) / len(srcString)
-    
-def split(path,sep='.'):
+    return (len(myString) - len(myString.replace(srcString, ''))) / len(srcString)
+
+def split(path, sep='.'):
     """
     Returns a list splittng a path string at any occurrency of separation character.
     This methods checks brackets
     >>> split('first.second.third')
     ['first', 'second', 'third']
     """
-    
-    if not path : return ['']
-    extendedsep=sep[1:]
-    sep=sep[0]
-    result= []
+
+    if not path: return ['']
+    extendedsep = sep[1:]
+    sep = sep[0]
+    result = []
     start = 0
     end = len(path)
-    myre = re.compile("([^\%s\'\"\(\[\)\]]*)(?:(?P<enditem>\%s|$)|(\')|(\")|(\()|(\[)|(\))|(\]))" % (sep,sep))
-    wch=[]
-    nextPos=start
-    while start<end:
-       
-        startpos=start
-        foundsep=False
+    myre = re.compile("([^\%s\'\"\(\[\)\]]*)(?:(?P<enditem>\%s|$)|(\')|(\")|(\()|(\[)|(\))|(\]))" % (sep, sep))
+    wch = []
+    nextPos = start
+    while start < end:
+        startpos = start
+        foundsep = False
         while not foundsep or wch:
-            res = myre.match(path,nextPos)
+            res = myre.match(path, nextPos)
             gr = res.groups()
             nextPos = res.end()
-            if gr[1]=="": #End of string
-                if wch: raise  ValueError("wrong level: missing :"+wch.pop())
-                foundsep=True
-                blockLen=res.end()
-                
-            elif not wch and gr[1]!=None:
-                foundsep=True
-                blockLen=res.end()-1
-                if extendedsep and res.group('enditem')== sep :
+            if gr[1] == "": #End of string
+                if wch: raise  ValueError("wrong level: missing :" + wch.pop())
+                foundsep = True
+                blockLen = res.end()
+
+            elif not wch and gr[1] != None:
+                foundsep = True
+                blockLen = res.end() - 1
+                if extendedsep and res.group('enditem') == sep:
                     if path[nextPos:].startswith(extendedsep):
-                        nextPos=nextPos+len(extendedsep)
+                        nextPos = nextPos + len(extendedsep)
                     else:
-                        foundsep=False 
+                        foundsep = False
             else:
-                
-                char= gr[2] or gr[3] or gr[4] or gr[5] or gr[6] or gr[7] 
+                char = gr[2] or gr[3] or gr[4] or gr[5] or gr[6] or gr[7]
                 if char:
-                    if char in """\'\"""" : nextPos=path.index(char,nextPos)+1
-                    elif char=='(' :wch.append(')')
-                    elif char=='[' :wch.append(']')
-                    elif char in '])' :
-                        if char==wch[-1]:wch.pop()
-                        else: raise ValueError("wrong level: missing :"+wch.pop())
-                
+                    if char in """\'\"""": nextPos = path.index(char, nextPos) + 1
+                    elif char == '(': wch.append(')')
+                    elif char == '[': wch.append(']')
+                    elif char in '])':
+                        if char == wch[-1]: wch.pop()
+                        else: raise ValueError("wrong level: missing :" + wch.pop())
+
         result.append(path[startpos:blockLen])
         start = nextPos
     return result
 
-def smartjoin(mylist,on):
+def smartjoin(mylist, on):
     """
     Joins the given list with the separator substring on and escape each
     occurrency of on within mylist
@@ -446,22 +443,21 @@ def smartjoin(mylist,on):
     >>> smartjoin(['Hello, dog', 'you', 'are', 'yellow'], ',')
     'Hello\\, dog,you,are,yellow'
     """
-    escape="\\"+on
-    return on.join([x.replace(on,escape) for x in mylist])
-    
-def smartsplit(path,on):
-    
+    escape = "\\" + on
+    return on.join([x.replace(on, escape) for x in mylist])
+
+def smartsplit(path, on):
     """
     Splits the string "path" with the separator substring "on" ignoring the escaped separator chars
     @param path
     @param on: separator substring
     """
-    
-    escape="\\"+on
+
+    escape = "\\" + on
     if escape in path:
-        path=path.replace(escape,chr(1))
+        path = path.replace(escape, chr(1))
         pathList = path.split(on)
-        pathList=[x.replace(chr(1),on) for x in pathList]
+        pathList = [x.replace(chr(1), on) for x in pathList]
     else:
         pathList = path.split(on)
     return pathList
@@ -471,17 +467,17 @@ def concat(s1, s2, sep='.'):
         return '%s%s%s' % (s1, sep, s2)
     else:
         return s2
-    
-    
+
+
 def dotEsc(txt):
     """
     returns a text with all dot char escaped
     """
-    return txt.replace('.','\\.')
-    
+    return txt.replace('.', '\\.')
+
 #encoding and conversion functions    
-    
-def encode(number,base='/16',nChars=None):
+
+def encode(number, base='/16', nChars=None):
     """Returns a string that contains the given number in the specified base
        @param number: number to encode
        @param base: base of encoding
@@ -489,42 +485,43 @@ def encode(number,base='/16',nChars=None):
        return: encoded number as string
     """
     import math
-    if base in BASE_ENCODE : base = BASE_ENCODE[base]
-    b=len(base)
+
+    if base in BASE_ENCODE: base = BASE_ENCODE[base]
+    b = len(base)
     result = []
     while (number >= 1):
-        result.insert(0,base[int(math.fmod(number,b))])
-        number =  math.floor(number/b)
-                
-    if (len(result) > nChars):result = []
+        result.insert(0, base[int(math.fmod(number, b))])
+        number = math.floor(number / b)
+
+    if (len(result) > nChars): result = []
     elif (len(result) < nChars):
-        for x in range(nChars-len(result)):
-            result.insert(0,base[0])
+        for x in range(nChars - len(result)):
+            result.insert(0, base[0])
     return ''.join(result)
-    
-    
+
+
 def fromIsoDate(datestring):
-    if datestring and datestring!='0000-00-00':
+    if datestring and datestring != '0000-00-00':
         return datetime.date(*[int(el) for el in wordSplit(datestring)])
-    
+
 def fromText(mystring, obj, locale=None):
     #what?
     return parselocal(mystring, obj, locale=locale)
 
-def toText(obj, locale=None, format=None, mask=None, encoding=None,currency=None):
+def toText(obj, locale=None, format=None, mask=None, encoding=None, currency=None):
     """Return a unicode string representing an object of any class.
        If there are locale or format parameters Babel is used to format the value 
        according to the given localization or format.
        """
-    if isinstance(obj,list) or isinstance(obj,tuple):
+    if isinstance(obj, list) or isinstance(obj, tuple):
         return ','.join([toText(v) for v in obj])
-       #what?
+        #what?
     if obj is None: return u''
     if not (locale or format):
         result = unicode(obj)
     else:
-        result = localize(obj, locale=locale, format=format,currency=currency)
-        
+        result = localize(obj, locale=locale, format=format, currency=currency)
+
     if mask:
         result = mask % result
     return result
@@ -533,20 +530,21 @@ def toText(obj, locale=None, format=None, mask=None, encoding=None,currency=None
 def guessLen(dtype, locale=None, format=None, mask=None, encoding=None):
     """
     """
-    typeSamples = {'B':'true', 'D':datetime.date(2005,10,10), 'H':datetime.time(4,5), 'DH':datetime.datetime.now(),
-                 'I':1234, 'L':48205294, 'R':34567.67, 'serial':123445566}
-    result=10
+    typeSamples = {'B': 'true', 'D': datetime.date(2005, 10, 10), 'H': datetime.time(4, 5),
+                   'DH': datetime.datetime.now(),
+                   'I': 1234, 'L': 48205294, 'R': 34567.67, 'serial': 123445566}
+    result = 10
     if dtype in typeSamples.keys():
-        result= len(toText(typeSamples[dtype], format=format, mask=mask))
+        result = len(toText(typeSamples[dtype], format=format, mask=mask))
     return result
-                 
+
 
 def boolean(obj):
     if obj and isinstance(obj, basestring):
-        if obj.lower() in ['n','no','f','false','0']:
+        if obj.lower() in ['n', 'no', 'f', 'false', '0']:
             obj = False
     return bool(obj)
-        
+
 
 def pickleObject(obj, zipfilename=None):
     """Return the Pickle string for the given object"""
@@ -570,7 +568,7 @@ def zipString(mystring, filename):
     mystring = zipresult.getvalue()
     zipresult.close()
     return mystring
-    
+
 def unzipString(mystring, filename):
     """Extract a zip compressed string"""
     zipresult = StringIO.StringIO(mystring)
@@ -582,13 +580,13 @@ def unzipString(mystring, filename):
 
 def toJson(obj):
     #non so come testare
-    return json.dumps(obj, cls = JsonEncoder)
+    return json.dumps(obj, cls=JsonEncoder)
 
 def toJsonJS(obj):
-    return json.dumps(obj, cls = JsonEncoderJS)
-    
+    return json.dumps(obj, cls=JsonEncoderJS)
+
 def toSecureJsonJS(obj, key=None):
-    result = json.dumps(obj, cls = JsonEncoderJS)
+    result = json.dumps(obj, cls=JsonEncoderJS)
     if key:
         n = 0
         nmax = len(key)
@@ -599,16 +597,17 @@ def toSecureJsonJS(obj, key=None):
                 n = 0
             t = (t + (t + (ord(k) * ord(key[n]))) % umax)
             n = n + 1
-        return '@%s_%s' % (str(t%10000).zfill(4),result)
+        return '@%s_%s' % (str(t % 10000).zfill(4), result)
     else:
         return result
-        
+
 def slugify(value):
     import unicodedata
+
     value = unicodedata.normalize('NFKD', value).encode('ascii', 'ignore')
     value = unicode(re.sub('[^\w\s-]', '', value).strip().lower())
     return re.sub('[-\s]+', '-', value)
-        
+
 def fromJson(obj):
     #non so come testare
     return json.loads(obj)
@@ -628,11 +627,11 @@ def jsquote(str_or_unicode):
     elif isinstance(str_or_unicode, unicode):
         return repr(str_or_unicode.encode('utf-8'))
 
-if __name__=='__main__':
-    incl='%.py,%.css'
-    excl='_%,.%'
-    lst=['pippo.py','piero.txt','_gino.py','.ugo.css','mario.css','sergio.py']
-    result=[x for x in lst if filter(x,include=incl,exclude=excl)]
-    print toJson([1,2,4])
+if __name__ == '__main__':
+    incl = '%.py,%.css'
+    excl = '_%,.%'
+    lst = ['pippo.py', 'piero.txt', '_gino.py', '.ugo.css', 'mario.css', 'sergio.py']
+    result = [x for x in lst if filter(x, include=incl, exclude=excl)]
+    print toJson([1, 2, 4])
     print result
    

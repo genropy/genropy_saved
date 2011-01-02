@@ -45,43 +45,45 @@ import thread
 
 
 class SqlDbAdapter(SqlDbBaseAdapter):
-    typesDict = {'character varying':'A', 'character':'C', 'text':'T', 
-                 'boolean':'B', 'date':'D', 'time without time zone':'H', 'timestamp without time zone':'DH',
-                 'timestamp with time zone':'DH','numeric':'N','money':'M',
-                 'integer':'I', 'bigint':'L','smallint':'I', 'double precision':'R', 'real':'R', 'bytea':'O'}
-    
-    revTypesDict = {'A':'character varying', 'T':'text', 'C':'character',
-                    'X':'text','P':'text','Z':'text','N':'numeric','M':'money',
-                 'B':'boolean', 'D':'date', 'H':'time without time zone', 'DH':'timestamp without time zone',
-                 'I':'integer', 'L':'bigint', 'R':'real',
-                 'serial':'serial8','O':'bytea'}
-    
-    _lock= threading.Lock()
-    
-    def __init__(self,*args,**kwargs):
+    typesDict = {'character varying': 'A', 'character': 'C', 'text': 'T',
+                 'boolean': 'B', 'date': 'D', 'time without time zone': 'H', 'timestamp without time zone': 'DH',
+                 'timestamp with time zone': 'DH', 'numeric': 'N', 'money': 'M',
+                 'integer': 'I', 'bigint': 'L', 'smallint': 'I', 'double precision': 'R', 'real': 'R', 'bytea': 'O'}
+
+    revTypesDict = {'A': 'character varying', 'T': 'text', 'C': 'character',
+                    'X': 'text', 'P': 'text', 'Z': 'text', 'N': 'numeric', 'M': 'money',
+                    'B': 'boolean', 'D': 'date', 'H': 'time without time zone', 'DH': 'timestamp without time zone',
+                    'I': 'integer', 'L': 'bigint', 'R': 'real',
+                    'serial': 'serial8', 'O': 'bytea'}
+
+    _lock = threading.Lock()
+
+    def __init__(self, *args, **kwargs):
         #self._lock = threading.Lock()
-        
-        super(SqlDbAdapter,self).__init__(*args,**kwargs)
-    
+
+        super(SqlDbAdapter, self).__init__(*args, **kwargs)
+
     def defaultMainSchema(self):
         return 'public'
-    
+
     def connect(self):
         """Return a new connection object: provides cursors accessible by col number or col name
         @return: a new connection object"""
         dbroot = self.dbroot
         kwargs = self.dbroot.get_connection_params()
         #kwargs = dict(host=dbroot.host, database=dbroot.dbname, user=dbroot.user, password=dbroot.password, port=dbroot.port)
-        kwargs = dict([(k,v) for k,v in kwargs.items() if v != None]) # remove None parameters, psycopg can't handle them
-        kwargs['connection_factory'] = GnrDictConnection # build a DictConnection: provides cursors accessible by col number or col name
+        kwargs = dict(
+                [(k, v) for k, v in kwargs.items() if v != None]) # remove None parameters, psycopg can't handle them
+        kwargs[
+        'connection_factory'] = GnrDictConnection # build a DictConnection: provides cursors accessible by col number or col name
         self._lock.acquire()
         try:
             conn = psycopg2.connect(**kwargs)
         finally:
             self._lock.release()
         return conn
-        
-    
+
+
     def prepareSqlText(self, sql, kwargs):
         """Change the format of named arguments in the query from ':argname' to '%(argname)s'.
         Replace the 'REGEXP' operator with '~*'.
@@ -89,18 +91,18 @@ class SqlDbAdapter(SqlDbBaseAdapter):
         @param kwargs: the params dict
         @return: tuple (sql, kwargs)
         """
-        return RE_SQL_PARAMS.sub(r'%(\1)s\2', sql).replace('REGEXP','~*'), kwargs
-    
+        return RE_SQL_PARAMS.sub(r'%(\1)s\2', sql).replace('REGEXP', '~*'), kwargs
+
     def _managerConnection(self):
-        dbroot=self.dbroot
-        kwargs = dict(host=dbroot.host, database='template1', user=dbroot.user, 
-                                 password=dbroot.password, port=dbroot.port)
-        kwargs = dict([(k,v) for k,v in kwargs.items() if v != None])
+        dbroot = self.dbroot
+        kwargs = dict(host=dbroot.host, database='template1', user=dbroot.user,
+                      password=dbroot.password, port=dbroot.port)
+        kwargs = dict([(k, v) for k, v in kwargs.items() if v != None])
         #conn = PersistentDB(psycopg2, 1000, **kwargs).connection()
-        conn =  psycopg2.connect(**kwargs)
+        conn = psycopg2.connect(**kwargs)
         conn.set_isolation_level(ISOLATION_LEVEL_AUTOCOMMIT)
         return conn
-    
+
     def createDb(self, dbname=None, encoding='unicode'):
         if not dbname:
             dbname = self.dbroot.get_dbname()
@@ -116,42 +118,44 @@ class SqlDbAdapter(SqlDbBaseAdapter):
             conn.close()
             curs = None
             conn = None
-        
+
     def lockTable(self, dbtable, mode='ACCESS EXCLUSIVE', nowait=False):
         if nowait:
-            nowait= 'NO WAIT'
+            nowait = 'NO WAIT'
         else:
-            nowait=''
-        sql="LOCK %s IN %s MODE %s;" % (dbtable.model.sqlfullname, mode, nowait)
+            nowait = ''
+        sql = "LOCK %s IN %s MODE %s;" % (dbtable.model.sqlfullname, mode, nowait)
         self.dbroot.execute(sql)
-        
+
     def createDbSql(self, dbname, encoding):
         return "CREATE DATABASE %s ENCODING '%s';" % (dbname, encoding)
-        
+
     def dropDb(self, name):
         conn = self._managerConnection()
         curs = conn.cursor()
         curs.execute("DROP DATABASE %s;" % name)
         curs.close()
         conn.close()
-    
-    def dump(self,filename):
+
+    def dump(self, filename):
         """
         Dump an existing database
         @param name: db name
         """
         from subprocess import call
-        return call(['pg_dump',self.dbroot.dbname,'-U',self.dbroot.user,'-f',filename])
 
-        
-    def restore(self,filename):
+        return call(['pg_dump', self.dbroot.dbname, '-U', self.dbroot.user, '-f', filename])
+
+
+    def restore(self, filename):
         """-- IMPLEMENT THIS --
         Drop an existing database
         @param name: db name
         """
         from subprocess import call
-        return call(['psql',self.dbroot.dbname,'-U',self.dbroot.user,'-f',filename])
-        
+
+        return call(['psql', self.dbroot.dbname, '-U', self.dbroot.user, '-f', filename])
+
     def createTableAs(self, sqltable, query, sqlparams):
         self.dbroot.execute("CREATE TABLE %s WITH OIDS AS %s;" % (sqltable, query), sqlparams)
 
@@ -163,7 +167,7 @@ class SqlDbAdapter(SqlDbBaseAdapter):
         else:
             self.dbroot.execute('VACUUM ANALYZE %s;' % table)
         self.dbroot.connection.set_isolation_level(ISOLATION_LEVEL_READ_COMMITTED)
-        
+
     def listen(self, msg, timeout=10, onNotify=None, onTimeout=None):
         """Listen for message 'msg' on the current connection using the Postgres LISTEN - NOTIFY method.
         onTimeout callbacks are executed on every timeout, onNotify on messages.
@@ -177,15 +181,15 @@ class SqlDbAdapter(SqlDbBaseAdapter):
         curs = self.dbroot.execute('LISTEN %s;' % msg)
         listening = True
         while listening:
-            if select.select([curs],[],[],timeout)==([],[],[]):
-                if onTimeout!=None:
+            if select.select([curs], [], [], timeout) == ([], [], []):
+                if onTimeout != None:
                     listening = onTimeout()
             else:
                 if curs.isready():
-                    if onNotify!=None:
+                    if onNotify != None:
                         listening = onNotify(curs.connection.notifies.pop())
         self.dbroot.connection.set_isolation_level(ISOLATION_LEVEL_READ_COMMITTED)
-        
+
     def notify(self, msg, autocommit=False):
         """Notify a message to listener processes using the Postgres LISTEN - NOTIFY method.
         @param msg: name of the message to notify
@@ -198,39 +202,39 @@ class SqlDbAdapter(SqlDbBaseAdapter):
         """Get a list of element names.
         @param elType: one of the following: schemata, tables, columns, views.
         @param kwargs: schema, table
-        @return: list of object names"""        
+        @return: list of object names"""
         query = getattr(self, '_list_%s' % elType)()
         try:
             result = self.dbroot.execute(query, kwargs).fetchall()
         except psycopg2.OperationalError:
             raise GnrNonExistingDbException(self.dbroot.dbname)
         return [r[0] for r in result]
-    
-    def dbExists(self,dbname):
+
+    def dbExists(self, dbname):
         conn = self._managerConnection()
         curs = conn.cursor()
         curs.execute(self._list_databases())
-        dbnames=[dbn[0] for dbn in curs.fetchall()]
+        dbnames = [dbn[0] for dbn in curs.fetchall()]
         curs.close()
         conn.close()
         curs = None
         conn = None
         return dbname in dbnames
-        
+
     def _list_databases(self):
         return 'SELECT datname FROM pg_catalog.pg_database;'
-    
+
     def _list_schemata(self):
         return """SELECT schema_name FROM information_schema.schemata 
               WHERE schema_name != 'information_schema' AND schema_name NOT LIKE 'pg_%%'"""
-    
+
     def _list_tables(self):
         return """SELECT table_name FROM information_schema.tables
                                     WHERE table_schema=:schema"""
-    
+
     def _list_views(self):
         return """SELECT table_name FROM information_schema.views WHERE table_schema=:schema"""
-    
+
     def _list_columns(self):
         return """SELECT column_name as col
                                   FROM information_schema.columns 
@@ -274,7 +278,8 @@ class SqlDbAdapter(SqlDbBaseAdapter):
                                         """
         ref_constraints = self.dbroot.execute(sql).fetchall()
         ref_dict = {}
-        for (ref, schema, tbl, col, un_ref, un_schema, un_tbl, un_col, upd_rule, del_rule, init_defer) in ref_constraints:
+        for (
+        ref, schema, tbl, col, un_ref, un_schema, un_tbl, un_col, upd_rule, del_rule, init_defer) in ref_constraints:
             r = ref_dict.get(ref, None)
             if r:
                 if not col in r[3]:
@@ -282,7 +287,8 @@ class SqlDbAdapter(SqlDbBaseAdapter):
                 if not un_col in r[7]:
                     r[7].append(un_col)
             else:
-                ref_dict[ref] = [ref, schema, tbl, [col], un_ref, un_schema, un_tbl, [un_col], upd_rule, del_rule, init_defer]
+                ref_dict[ref] = [ref, schema, tbl, [col], un_ref, un_schema, un_tbl, [un_col], upd_rule, del_rule,
+                                 init_defer]
         return ref_dict.values()
 
     def getPkey(self, table, schema):
@@ -290,7 +296,7 @@ class SqlDbAdapter(SqlDbBaseAdapter):
         @param table: table name
         @param schema: schema name
         @return: list of columns wich are the primary key for the table"""
-        sql= """SELECT k.column_name        AS col
+        sql = """SELECT k.column_name        AS col
                 FROM   information_schema.key_column_usage      AS k 
                 JOIN   information_schema.table_constraints     AS c
                 ON     c.constraint_catalog = k.constraint_catalog 
@@ -301,7 +307,7 @@ class SqlDbAdapter(SqlDbBaseAdapter):
                 AND    c.constraint_type    ='PRIMARY KEY'
                 ORDER BY k.ordinal_position"""
         return [r['col'] for r in self.dbroot.execute(sql, dict(schema=schema, table=table)).fetchall()]
-    
+
     def getIndexesForTable(self, table, schema):
         """Get a (list of) dict containing details about all the indexes of a table.
         Each dict has those info: name, primary (bool), unique (bool), columns (comma separated string)
@@ -316,7 +322,7 @@ class SqlDbAdapter(SqlDbBaseAdapter):
                    WHERE nspname=:schema AND tblcls.relname=:table;"""
         indexes = self.dbroot.execute(sql, dict(schema=schema, table=table)).fetchall()
         return indexes
-        
+
     def getColInfo(self, table, schema, column=None):
         """Get a (list of) dict containing details about a column or all the columns of a table.
         Each dict has those info: name, position, default, dtype, length, notnull
@@ -336,37 +342,38 @@ class SqlDbAdapter(SqlDbBaseAdapter):
         filtercol = ""
         if column:
             filtercol = "AND column_name=:column"
-        columns = self.dbroot.execute(sql % filtercol, 
-                                            dict(schema=schema,
-                                                 table=table,
-                                                 column=column)).fetchall()
+        columns = self.dbroot.execute(sql % filtercol,
+                                      dict(schema=schema,
+                                           table=table,
+                                           column=column)).fetchall()
         result = []
         for col in columns:
             col = dict(col)
-            col = self._filterColInfo(col,'_pg_')
+            col = self._filterColInfo(col, '_pg_')
             dtype = col['dtype'] = self.typesDict.get(col['dtype'], 'T') #for unrecognized types default dtype is T
-            col['notnull'] = (col['notnull']=='NO')
+            col['notnull'] = (col['notnull'] == 'NO')
             if dtype == 'N':
-                precision,scale =col.get('_pg_numeric_precision'),col.get('_pg_numeric_scale')
+                precision, scale = col.get('_pg_numeric_precision'), col.get('_pg_numeric_scale')
                 if precision:
-                    col['size'] = '%i,%i' % (precision,scale)
+                    col['size'] = '%i,%i' % (precision, scale)
             elif dtype == 'A':
                 col['size'] = '0:%i' % col.get('length')
-            elif dtype =='C':
+            elif dtype == 'C':
                 col['size'] = str(col.get('length'))
             result.append(col)
         if column:
             result = result[0]
         return result
-        
+
 
 class GnrDictConnection(_connection):
     """A connection that uses DictCursor automatically."""
-    
+
     _lock = threading.Lock()
-    def __init__(self,*args,**kwargs):
-        super(GnrDictConnection,self).__init__(*args,**kwargs)
-        
+
+    def __init__(self, *args, **kwargs):
+        super(GnrDictConnection, self).__init__(*args, **kwargs)
+
     def cursor(self, name=None):
         self._lock.acquire()
         try:
@@ -383,20 +390,20 @@ class GnrDictCursor(_cursor):
 
     def __init__(self, *args, **kwargs):
         row_factory = GnrDictRow
-        super(GnrDictCursor,self).__init__(*args, **kwargs)
+        super(GnrDictCursor, self).__init__(*args, **kwargs)
         self._query_executed = 0
         self.row_factory = row_factory
 
     def fetchone(self):
         if self._query_executed:
             self._build_index()
-        return super(GnrDictCursor,self).fetchone()
+        return super(GnrDictCursor, self).fetchone()
 
     def fetchmany(self, size=None):
-        if size==None:
-            res = super(GnrDictCursor,self).fetchmany()
+        if size == None:
+            res = super(GnrDictCursor, self).fetchmany()
         else:
-            res = super(GnrDictCursor,self).fetchmany(size)
+            res = super(GnrDictCursor, self).fetchmany(size)
         if self._query_executed:
             self._build_index()
         return res
@@ -404,12 +411,12 @@ class GnrDictCursor(_cursor):
     def fetchall(self):
         if self._query_executed:
             self._build_index()
-        return super(GnrDictCursor,self).fetchall()
+        return super(GnrDictCursor, self).fetchall()
 
     def next(self):
         if self._query_executed:
             self._build_index()
-        res = super(GnrDictCursor,self).fetchone()
+        res = super(GnrDictCursor, self).fetchone()
         if res is None:
             raise StopIteration()
         return res
@@ -418,13 +425,13 @@ class GnrDictCursor(_cursor):
         self.index = {}
         self._query_executed = 1
         if psycopg2.__version__.startswith('2.0'):
-            return super(GnrDictCursor,self).execute(query, vars, async)
-        return super(GnrDictCursor,self).execute(query, vars)    
-        
+            return super(GnrDictCursor, self).execute(query, vars, async)
+        return super(GnrDictCursor, self).execute(query, vars)
+
     def callproc(self, procname, vars=None):
         self.index = {}
         self._query_executed = 1
-        return super(GnrDictCursor,self).callproc(procname, vars)   
+        return super(GnrDictCursor, self).callproc(procname, vars)
 
     def _build_index(self):
         if self._query_executed == 1 and self.description:

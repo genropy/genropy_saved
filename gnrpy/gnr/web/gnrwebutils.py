@@ -23,18 +23,18 @@ try:
     from gnr.pdf.gnrrml import GnrPdf
 
     class GnrWebPDF(GnrPdf):
-    
-        def getPdf(self, table, record, filename = None, folder=None):
+        def getPdf(self, table, record, filename=None, folder=None):
             record = self.db.table(table).recordAs(record, mode='bag')
-            self.filename=filename or self.getFilename(record)
-            self.filePath=self.page.temporaryDocument(folder, self.filename)
-            self.fileUrl=self.page.temporaryDocumentUrl(folder, self.filename)
+            self.filename = filename or self.getFilename(record)
+            self.filePath = self.page.temporaryDocument(folder, self.filename)
+            self.fileUrl = self.page.temporaryDocumentUrl(folder, self.filename)
             self.createStory(record)
 except ImportError:
     class GnrWebPDF(object):
-        def getPdf(self,*args,**kwargs):
+        def getPdf(self, *args, **kwargs):
             pass
-def plain_redirect (page,params):
+
+def plain_redirect (page, params):
     return """<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
 "http://www.w3.org/TR/html4/loose.dtd">
     <html lang="en">
@@ -47,5 +47,5 @@ def plain_redirect (page,params):
         <body>
         </body>
         </html>
-"""%(page,params)
+""" % (page, params)
 

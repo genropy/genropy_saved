@@ -32,7 +32,7 @@ from gnr.core.gnrlocale import DEFAULT_LOCALE
 from gnr.core.gnrstring import splitAndStrip, anyWordIn, wordSplit, toText
 from dateutil import rrule
 
-logger= logging.getLogger('gnr.core.gnrdate')
+logger = logging.getLogger('gnr.core.gnrdate')
 
 
 def yearDecode(datestr):
@@ -43,9 +43,9 @@ def yearDecode(datestr):
         year = int(datestr)
         if len(datestr) == 2:
             if year < 70:
-                year = 2000+year
+                year = 2000 + year
             else:
-                year = 1900+year
+                year = 1900 + year
     return year
 
 def decodeOneDate(datestr, workdate=None, months=None, days=None, quarters=None, locale=None, isEndPeriod=False):
@@ -80,6 +80,7 @@ def decodeOneDate(datestr, workdate=None, months=None, days=None, quarters=None,
     - a date formatted according to locale (see babel doc): eg. 4 28, 2008 (en_us) or 28-4-08 (it)
                            various separators are admitted: 28-4-08, 28/4/08, 28 4 08
     """
+
     def addToDay(datestr, date):
         if '+' in datestr:
             days = int(datestr.split('+')[1].strip())
@@ -88,6 +89,7 @@ def decodeOneDate(datestr, workdate=None, months=None, days=None, quarters=None,
             days = int(datestr.split('-')[1].strip())
             return date - datetime.timedelta(days)
         return date
+
     def addToMonth(datestr, date, addmonth=0):
         if '+' in datestr:
             addmonth = int(datestr.split('+')[1].strip())
@@ -102,8 +104,8 @@ def decodeOneDate(datestr, workdate=None, months=None, days=None, quarters=None,
             month = month - 12
             year = year + 1
         return datetime.date(year, month, 1)
-        
-    
+
+
     datestr = datestr or ''
     datestr = datestr.strip()
     if datestr:
@@ -116,33 +118,44 @@ def decodeOneDate(datestr, workdate=None, months=None, days=None, quarters=None,
         dateStart = None
         dateEnd = None
         workdate = workdate or datetime.date.today()
-                    
-        if datestr.isdigit() and len(datestr) in (2,4):                          # a full year
+
+        if datestr.isdigit() and len(datestr) in (2, 4):                          # a full year
             year = yearDecode(datestr)
             dateStart = datetime.date(year, 1, 1)
-            if isEndPeriod: 
+            if isEndPeriod:
                 dateEnd = datetime.date(year, 12, 31)
-        
-        elif anyWordIn(gnrlocale.getDateKeywords('today', locale), datestr) or anyWordIn(gnrlocale.getDateKeywords('today', DEFAULT_LOCALE), datestr):     # today
+
+        elif anyWordIn(gnrlocale.getDateKeywords('today', locale), datestr) or anyWordIn(
+                gnrlocale.getDateKeywords('today', DEFAULT_LOCALE), datestr):     # today
             dateStart = addToDay(datestr, workdate)
-        elif anyWordIn(gnrlocale.getDateKeywords('yesterday', locale), datestr) or anyWordIn(gnrlocale.getDateKeywords('yesterday', DEFAULT_LOCALE), datestr): # yesterday
+        elif anyWordIn(gnrlocale.getDateKeywords('yesterday', locale), datestr) or anyWordIn(
+                gnrlocale.getDateKeywords('yesterday', DEFAULT_LOCALE), datestr): # yesterday
             dateStart = addToDay(datestr, workdate - datetime.timedelta(1))
-        elif anyWordIn(gnrlocale.getDateKeywords('tomorrow', locale), datestr) or anyWordIn(gnrlocale.getDateKeywords('tomorrow', locale), DEFAULT_LOCALE):  # tomorrow
+        elif anyWordIn(gnrlocale.getDateKeywords('tomorrow', locale), datestr) or anyWordIn(
+                gnrlocale.getDateKeywords('tomorrow', locale), DEFAULT_LOCALE):  # tomorrow
             dateStart = addToDay(datestr, workdate + datetime.timedelta(1))
-            
-        elif (datestr in gnrlocale.getDateKeywords(('this week', 'next week', 'last week'), locale)) or  (datestr in gnrlocale.getDateKeywords(('this week', 'next week', 'last week'), DEFAULT_LOCALE)): # relative week
+
+        elif (datestr in gnrlocale.getDateKeywords(('this week', 'next week', 'last week'), locale)) or  (
+        datestr in gnrlocale.getDateKeywords(('this week', 'next week', 'last week'), DEFAULT_LOCALE)): # relative week
             j = workdate.weekday()
             dateStart = workdate - datetime.timedelta(j)
-            if (datestr in gnrlocale.getDateKeywords('last week', locale)) or (datestr in gnrlocale.getDateKeywords('last week', DEFAULT_LOCALE)):
+            if (datestr in gnrlocale.getDateKeywords('last week', locale)) or (
+            datestr in gnrlocale.getDateKeywords('last week', DEFAULT_LOCALE)):
                 dateStart = dateStart - datetime.timedelta(7)
-            elif (datestr in gnrlocale.getDateKeywords('next week', locale)) or (datestr in gnrlocale.getDateKeywords('next week', DEFAULT_LOCALE)):
+            elif (datestr in gnrlocale.getDateKeywords('next week', locale)) or (
+            datestr in gnrlocale.getDateKeywords('next week', DEFAULT_LOCALE)):
                 dateStart = dateStart + datetime.timedelta(7)
             if isEndPeriod:
                 dateEnd = dateStart + datetime.timedelta(6)
-        elif anyWordIn(gnrlocale.getDateKeywords(('this month', 'next month', 'last month'), locale), datestr) or anyWordIn(gnrlocale.getDateKeywords(('this month', 'next month', 'last month'), DEFAULT_LOCALE), datestr): # relative month
-            if (datestr in gnrlocale.getDateKeywords('last month', locale)) or (datestr in gnrlocale.getDateKeywords('last month', DEFAULT_LOCALE)):
+        elif anyWordIn(gnrlocale.getDateKeywords(('this month', 'next month', 'last month'), locale),
+                       datestr) or anyWordIn(
+                gnrlocale.getDateKeywords(('this month', 'next month', 'last month'), DEFAULT_LOCALE),
+                datestr): # relative month
+            if (datestr in gnrlocale.getDateKeywords('last month', locale)) or (
+            datestr in gnrlocale.getDateKeywords('last month', DEFAULT_LOCALE)):
                 dateStart = addToMonth(datestr, workdate, -1)
-            elif (datestr in gnrlocale.getDateKeywords('next month', locale)) or (datestr in gnrlocale.getDateKeywords('next month', DEFAULT_LOCALE)):
+            elif (datestr in gnrlocale.getDateKeywords('next month', locale)) or (
+            datestr in gnrlocale.getDateKeywords('next month', DEFAULT_LOCALE)):
                 dateStart = addToMonth(datestr, workdate, 1)
             else:
                 dateStart = addToMonth(datestr, workdate)
@@ -152,16 +165,16 @@ def decodeOneDate(datestr, workdate=None, months=None, days=None, quarters=None,
             qt, year = splitAndStrip(datestr, sep=' ', n=1, fixed=2)
             year = yearDecode(year)
             qt = quarters[datestr]
-            dateStart = (year, qt*3-2)
+            dateStart = (year, qt * 3 - 2)
             if isEndPeriod:
-                dateEnd = (year, qt*3)
+                dateEnd = (year, qt * 3)
         elif anyWordIn(def_quarters.keys(), datestr): # quarter
             qt, year = splitAndStrip(datestr, sep=' ', n=1, fixed=2)
             year = yearDecode(year)
             qt = def_quarters[datestr]
-            dateStart = (year, qt*3-2)
+            dateStart = (year, qt * 3 - 2)
             if isEndPeriod:
-                dateEnd = (year, qt*3)
+                dateEnd = (year, qt * 3)
         elif anyWordIn(months.keys(), datestr):                                 # month name
             month, year = splitAndStrip(datestr, sep=' ', n=1, fixed=2)
             year = yearDecode(year)
@@ -177,24 +190,24 @@ def decodeOneDate(datestr, workdate=None, months=None, days=None, quarters=None,
         elif datestr in def_days:                                                   # weekday name
             dateStart = workdate + datetime.timedelta(def_days[datestr] - workdate.weekday())
         elif re.match('\d{4}-\d{2}-\d{2}', datestr):                            # ISO date
-            date_items= [int(el) for el in wordSplit(datestr)[0:3]]
+            date_items = [int(el) for el in wordSplit(datestr)[0:3]]
             dateStart = datetime.date(*[int(el) for el in wordSplit(datestr)[0:3]])
         else:                                                                   # a date in local format
             dateStart = gnrlocale.parselocal(datestr, datetime.date, locale)
-        
+
         if isEndPeriod and dateEnd:
             return dateEnd
         else:
             return dateStart
-    
+
 def periodCaption(dateFrom=None, dateTo=None, locale=None):
     """Convert two dates to a string in the specified locale that decodeDatePeriod will understand.
     """
     localNoPeriod = gnrlocale.getDateKeywords('no period', locale)[0]
     localTo = gnrlocale.getDateKeywords('to', locale)[0]
     localFrom = gnrlocale.getDateKeywords('from', locale)[0]
-    textFrom=toText(dateFrom, locale=locale)
-    textTo=toText(dateTo, locale=locale)
+    textFrom = toText(dateFrom, locale=locale)
+    textTo = toText(dateTo, locale=locale)
     if dateFrom and dateTo:
         return '%s %s %s %s' % (localFrom, textFrom, localTo, textTo)
     if dateFrom:
@@ -203,8 +216,8 @@ def periodCaption(dateFrom=None, dateTo=None, locale=None):
         return '%s %s' % (localTo, textTo)
     else:
         return localNoPeriod
-    
-    
+
+
 def decodeDatePeriod(datestr, workdate=None, locale=None, returnDate=False, dtype='D'):
     """Parse a string representing a date or a period and returns a string of one or two dates in iso format separated by ';'
     
@@ -228,22 +241,22 @@ def decodeDatePeriod(datestr, workdate=None, locale=None, returnDate=False, dtyp
     months = gnrlocale.getMonthNames(locale)
     days = gnrlocale.getDayNames(locale)
     datestr = datestr or ''
-    datestr = datestr.lower().strip().replace(',',';').replace(':',';')
+    datestr = datestr.lower().strip().replace(',', ';').replace(':', ';')
     exercise = False  # TODO
-    
+
     dateStart = None
     dateEnd = None
-    
+
     localNoPeriod = gnrlocale.getDateKeywords('no period', locale)
     localTo = gnrlocale.getDateKeywords('to', locale)
     localFrom = gnrlocale.getDateKeywords('from', locale)
-    
+
     # check if the period is given with two separate date infos
     if ';' in datestr:
         # two dates or keywords separated by ";":   today;today+5
         dateStart, dateEnd = datestr.split(';')
     elif [k for k in localNoPeriod if k in datestr]:
-        dateStart= dateEnd = ''
+        dateStart = dateEnd = ''
     elif [k for k in localTo if datestr.startswith('%s ' % k)]:
         # only end date: to december
         dateStart = ''
@@ -257,14 +270,14 @@ def decodeDatePeriod(datestr, workdate=None, locale=None, returnDate=False, dtyp
         # only start date: from december
         dateStart = datestr.split(' ', 1)[1]
         dateEnd = ''
-        
+
     if dateStart is None and dateEnd is None:
         # the period is given as an unique string info
         dateStart = dateEnd = datestr
 
     dateStart = decodeOneDate(dateStart, workdate, months=months, days=days, locale=locale)
     dateEnd = decodeOneDate(dateEnd, workdate, months=months, days=days, locale=locale, isEndPeriod=True)
-                
+
     if isinstance(dateStart, tuple): # is a month
         year, month = dateStart
         if year is None:                      # no year info is given, try to calculate
@@ -281,11 +294,11 @@ def decodeDatePeriod(datestr, workdate=None, locale=None, returnDate=False, dtyp
         if endyear:
             if year > endyear:           # if start year (maybe automatic from workdate) is greater than dateEnd.year 
                 year = endyear
-            if year == endyear: 
+            if year == endyear:
                 if month > endmonth:     # if startmonth is greater than end month in the same year
                     year = year - 1
         dateStart = monthStart(year, month)
-        
+
     if isinstance(dateEnd, tuple): # is a month
         year, month = dateEnd
         if year is None:                      # no year info is given, try to calculate
@@ -299,13 +312,13 @@ def decodeDatePeriod(datestr, workdate=None, locale=None, returnDate=False, dtyp
                 if dateStart.month > month:      # if endmonth is lower than start month
                     year = year + 1              # end is in next year
         dateEnd = monthEnd(year, month)
-    if dtype=='DH':
-        dateStart = datetime.datetime(dateStart.year,dateStart.month,dateStart.day)
-        dateEnd = datetime.datetime(dateEnd.year,dateEnd.month,dateEnd.day)
+    if dtype == 'DH':
+        dateStart = datetime.datetime(dateStart.year, dateStart.month, dateStart.day)
+        dateEnd = datetime.datetime(dateEnd.year, dateEnd.month, dateEnd.day)
 
     if returnDate:
         return (dateStart, dateEnd)
-        
+
     if dateStart == dateEnd:
         return str(dateStart or '')
     else:
@@ -317,7 +330,7 @@ def monthStart(year=None, month=None, date=None):
         year = date.year
         month = date.month
     return datetime.date(year, month, 1)
-        
+
 def monthEnd(year=None, month=None, date=None):
     "returns datetime.date of the first day of the month, if date is given year and month are readed from date."
     if date:
@@ -327,22 +340,22 @@ def monthEnd(year=None, month=None, date=None):
         month = 1
         year = year + 1
     else:
-        month = month + 1 
+        month = month + 1
     return datetime.date(year, month, 1) - datetime.timedelta(1)
-    
+
 def dateLastYear(d):
     if not d: return
-    if d.month == 2 and d.day==29:
-        result = datetime.date(d.year - 1 , 2, 28)
-    elif d.month == 2 and d.day==28 and calendar.isleap(d.year - 1):
-        result = datetime.date(d.year - 1 , 2, 29)
+    if d.month == 2 and d.day == 29:
+        result = datetime.date(d.year - 1, 2, 28)
+    elif d.month == 2 and d.day == 28 and calendar.isleap(d.year - 1):
+        result = datetime.date(d.year - 1, 2, 29)
     else:
-        result = datetime.date(d.year - 1 , d.month, d.day)
+        result = datetime.date(d.year - 1, d.month, d.day)
     return result
 
-def dayIterator(period,wkdlist=None,locale=None,workdate=None,asDate=True):
-    dstart,dstop = decodeDatePeriod(period,returnDate=True,locale=locale,workdate=workdate)
-    itr= rrule.rrule(rrule.DAILY,dtstart=dstart,until=dstop,byweekday=wkdlist)
+def dayIterator(period, wkdlist=None, locale=None, workdate=None, asDate=True):
+    dstart, dstop = decodeDatePeriod(period, returnDate=True, locale=locale, workdate=workdate)
+    itr = rrule.rrule(rrule.DAILY, dtstart=dstart, until=dstop, byweekday=wkdlist)
     for d in itr:
         if asDate:
             yield d.date()
@@ -358,7 +371,7 @@ def toTime(t):
         return t
     elif isinstance(t, basestring):
         try:
-            return datetime.time(*map(int,t.split(':')))
+            return datetime.time(*map(int, t.split(':')))
         except ValueError:
             raise ValueError, "toTime(%s) unrecognized string format" % repr(t)
     else:
@@ -390,7 +403,7 @@ def time_to_minutes(t):
     :param t:   datetime.time
     :returns:   int
     """
-    return t.hour*60+t.minute
+    return t.hour * 60 + t.minute
 
 def minutes_to_time(mins):
     """Returns a datetime.time given the number of minutes since midnight.
@@ -400,7 +413,7 @@ def minutes_to_time(mins):
     """
     hours = mins / 60
     mins = mins % 60
-    return datetime.time(hours,mins)
+    return datetime.time(hours, mins)
 
 class TimeInterval(object):
     """A span of time (start, end).
@@ -457,6 +470,7 @@ class TimeInterval(object):
     >>> a in b
     True
     """
+
     def __init__(self, start=None, stop=None, minutes=None):
         if minutes:
             if not stop:
@@ -471,20 +485,21 @@ class TimeInterval(object):
                 start = other.start
                 stop = other.stop
             elif isinstance(start, basestring):
-                (start,sep,stop) = start.partition('-')
+                (start, sep, stop) = start.partition('-')
             else:
                 start, stop = start
         self.start = toTime(start)
         self.stop = toTime(stop)
         if self.start >= self.stop:
-            raise ValueError, "TimeInterval(start=%s,stop=%s): start must be earlier than stop" % (repr(start),repr(stop))
-    
+            raise ValueError, "TimeInterval(start=%s,stop=%s): start must be earlier than stop" % (
+            repr(start), repr(stop))
+
     def __str__(self):
-        return "%d:%02d-%d:%02d" % (self.start.hour,self.start.minute,self.stop.hour,self.stop.minute)
-    
+        return "%d:%02d-%d:%02d" % (self.start.hour, self.start.minute, self.stop.hour, self.stop.minute)
+
     def __repr__(self):
         return "TimeInterval(%s)" % repr(str(self))
-    
+
     def __eq__(self, other):
         if not isinstance(other, TimeInterval):
             try:
@@ -492,10 +507,10 @@ class TimeInterval(object):
             except ValueError:
                 return NotImplemented
         return (self.start == other.start) and (self.stop == other.stop)
-    
+
     def __ne__(self, other):
-        return not (self == other)    
-    
+        return not (self == other)
+
     def __lt__(self, other):
         """Test if 'self' ends earlier than 'other' starts.
         
@@ -510,7 +525,7 @@ class TimeInterval(object):
             except ValueError:
                 return NotImplemented
         return self.stop < other.start
-    
+
     def __le__(self, other):
         """Test if 'self' starts earlier than or when 'other' starts *and* 'self' ends earlier than or when 'other' ends.
         
@@ -525,7 +540,7 @@ class TimeInterval(object):
             except ValueError:
                 return NotImplemented
         return (self.start <= other.start) and (self.stop <= other.stop)
-    
+
     @staticmethod
     def cmp(one, other):
         """Compare two TimeIntervals.
@@ -536,8 +551,8 @@ class TimeInterval(object):
             one = TimeInterval(one)
         if not isinstance(other, TimeInterval):
             other = TimeInterval(other)
-        return cmp(one.start,other.start) and cmp(one.stop,other.stop)
-    
+        return cmp(one.start, other.start) and cmp(one.stop, other.stop)
+
     @staticmethod
     def sorted(iterable):
         """Sort TimeIntervals.
@@ -553,9 +568,9 @@ class TimeInterval(object):
         >>> TimeInterval.sorted(lst)
         ['8:00-9:00', '9:00-10:00', '10:00-12:00']
         """
-        return sorted(iterable,cmp=TimeInterval.cmp)
-    
-    
+        return sorted(iterable, cmp=TimeInterval.cmp)
+
+
     def __contains__(self, other):
         """Test if 'other' overlaps with us."""
         if not isinstance(other, TimeInterval):
@@ -564,13 +579,13 @@ class TimeInterval(object):
             except ValueError:
                 return NotImplemented
         return (self.start <= other.stop) and (other.start <= self.stop)
-    
+
     NO_OVERLAP = 0
     FULLY_CONTAINS = -1
     FULLY_CONTAINED = 1
     COVER_LEFT = -2
     COVER_RIGHT = 2
-    
+
     def overlaps(self, other):
         """Checks if ``other`` overlaps with this interval.
         
@@ -584,7 +599,7 @@ class TimeInterval(object):
             other = TimeInterval(other)
         if self < other or self > other:
             return TimeInterval.NO_OVERLAP
-        
+
         if (self.start <= other.start):
             if self.stop < other.stop:
                 return TimeInterval.COVER_LEFT
@@ -595,22 +610,22 @@ class TimeInterval(object):
                 return TimeInterval.COVER_RIGHT
             else:
                 return TimeInterval.FULLY_CONTAINED
-    
+
     @property
     def minutes(self):
         """The duration of this TimeInterval in minutes from the start.
         
         :type: int
         """
-        return (self.stop.hour*60+self.stop.minute) - (self.start.hour*60+self.start.minute)
-    
+        return (self.stop.hour * 60 + self.stop.minute) - (self.start.hour * 60 + self.start.minute)
+
     @minutes.setter
     def minutes(self, value):
-        mins = self.start.hour*60+self.start.minute+value
+        mins = self.start.hour * 60 + self.start.minute + value
         hours = mins / 60
         mins = mins % 60
-        self.stop = datetime.time(hours,mins)
-    
+        self.stop = datetime.time(hours, mins)
+
 class TimePeriod(object):
     """A non-overlapping set of TimeIntervals.
     
@@ -643,6 +658,7 @@ class TimePeriod(object):
     TimePeriod also supports ``len()``, ``iter()`` and getitem operations.
     
     """
+
     def __init__(self, *intervals):
         self._intervals = []
         if len(intervals) == 1:
@@ -650,7 +666,7 @@ class TimePeriod(object):
             if isinstance(iv, basestring):
                 intervals = [s.strip() for s in iv.split(',')]
         map(self.add, intervals)
-    
+
     def add(self, item):
         """Add the new TimeInterval or a TimePeriod.
         
@@ -679,7 +695,7 @@ class TimePeriod(object):
                 else:
                     break
             self._intervals[left:right] = [merged]
-    
+
     def remove(self, item):
         """Remove a TimeInterval or a TimePeriod.
         
@@ -714,7 +730,7 @@ class TimePeriod(object):
                         second_half = copy.copy(existing)
                         existing.stop = removed.start
                         second_half.start = removed.stop
-                        self._intervals.insert(right+1,second_half)
+                        self._intervals.insert(right + 1, second_half)
                         right += 2
                 elif o == TimeInterval.COVER_LEFT:
                     existing.start = removed.stop
@@ -724,25 +740,25 @@ class TimePeriod(object):
                     right += 1
                 else:
                     break # NO_OVERLAP, we're done
-                
+
     def __str__(self):
-        return ", ".join(map(str,self._intervals))
-    
+        return ", ".join(map(str, self._intervals))
+
     def __repr__(self):
         return "TimePeriod(%s)" % repr(str(self))
-    
+
     def __len__(self):
         return len(self._intervals)
-        
+
     def __getitem__(self, key):
         return self._intervals[key]
-    
+
     def __eq__(self, other):
         """Check if a TimePeriod is equal to another."""
         if not isinstance(other, TimePeriod):
             other = TimePeriod(other)
         return self._intervals == other.intervals
-    
+
     @property
     def intervals(self):
         """Returns the intervals in this TimePeriod.
@@ -751,6 +767,7 @@ class TimePeriod(object):
         """
         return copy.copy(self._intervals) # make a shallow copy, so they can't mess with the ordering of intervals
 
-if __name__=='__main__':
+if __name__ == '__main__':
     import doctest
+
     doctest.testmod()

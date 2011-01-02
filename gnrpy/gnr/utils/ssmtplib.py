@@ -44,7 +44,7 @@ SSMTP_PORT = 465
 class SMTPSSLException(smtplib.SMTPException):
     """Base class for exceptions resulting from SSL negotiation."""
 
-class SMTP_SSL (smtplib.SMTP):
+class SMTP_SSL(smtplib.SMTP):
     """This class provides SSL access to an SMTP server.
     SMTP over SSL typical listens on port 465. Unlike StartTLS, SMTP over SSL
     makes an SSL connection before doing a helo/ehlo. All transactions, then,
@@ -98,25 +98,25 @@ class SMTP_SSL (smtplib.SMTP):
         if not port and (host.find(':') == host.rfind(':')):
             i = host.rfind(':')
             if i >= 0:
-                host, port = host[:i], host[i+1:]
+                host, port = host[:i], host[i + 1:]
                 try: port = int(port)
                 except ValueError:
                     raise socket.error, "nonnumeric port"
         if not port: port = SSMTP_PORT
-        if self.debuglevel > 0: print>>stderr, 'connect:', (host, port)
+        if self.debuglevel > 0: print>> stderr, 'connect:', (host, port)
         msg = "getaddrinfo returns an empty list"
         self.sock = None
         for res in socket.getaddrinfo(host, port, 0, socket.SOCK_STREAM):
             af, socktype, proto, canonname, sa = res
             try:
                 self.sock = socket.socket(af, socktype, proto)
-                if self.debuglevel > 0: print>>stderr, 'connect:', (host, port)
+                if self.debuglevel > 0: print>> stderr, 'connect:', (host, port)
                 self.sock.connect(sa)
                 # MB: Make the SSL connection.
                 sslobj = socket.ssl(self.sock, self.keyfile, self.certfile)
             except socket.error, msg:
-                if self.debuglevel > 0: 
-                    print>>stderr, 'connect fail:', (host, port)
+                if self.debuglevel > 0:
+                    print>> stderr, 'connect fail:', (host, port)
                 if self.sock:
                     self.sock.close()
                 self.sock = None
@@ -132,7 +132,7 @@ class SMTP_SSL (smtplib.SMTP):
         self.file = smtplib.SSLFakeFile(sslobj);
 
         (code, msg) = self.getreply()
-        if self.debuglevel > 0: print>>stderr, "connect:", msg
+        if self.debuglevel > 0: print>> stderr, "connect:", msg
         return (code, msg)
 
     def setkeyfile(self, keyfile):

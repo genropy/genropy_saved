@@ -15,7 +15,6 @@ class Package(GnrDboPackage):
         pass
 
 
-
 class Table(GnrDboTable):
     pass
 

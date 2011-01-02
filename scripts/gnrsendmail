@@ -8,18 +8,18 @@ from email.MIMEText import MIMEText
 
 def sendmail(host, from_address, to_address, subject, body, user='', password='', ssl=None):
     msg = MIMEText(body)
-    
+
     if isinstance(to_address, basestring):
         to_address = [k.strip() for k in to_address.split(',')]
     msg['Subject'] = subject
     msg['From'] = from_address
     msg['To'] = ','.join(to_address)
-    
+
     if ssl:
         port = 587
     else:
         port = 25
-        
+
     s = smtplib.SMTP(host=host, port=port)
     s.set_debuglevel(1)
     s.ehlo()
@@ -30,16 +30,17 @@ def sendmail(host, from_address, to_address, subject, body, user='', password=''
         s.login(user, password)
     s.sendmail(from_address, to_address, msg.as_string())
     s.quit()
-    
-if __name__=='__main__':
+
+if __name__ == '__main__':
     user = password = ssl = None
-    if len(sys.argv)>5:
+    if len(sys.argv) > 5:
         user = sys.argv[5]
-    if len(sys.argv)>6:
+    if len(sys.argv) > 6:
         password = sys.argv[6]
-    if len(sys.argv)>7:
+    if len(sys.argv) > 7:
         ssl = sys.argv[7]
     import os.path
+
     body = sys.stdin.read()
     body.split('\n')
     body = '\n'.join([f for f in body if not os.path.basename(f).startswith('.')])
@@ -51,4 +52,4 @@ if __name__=='__main__':
              user=user,
              password=password,
              ssl=ssl
-         )
+             )

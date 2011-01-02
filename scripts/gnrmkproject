@@ -31,31 +31,31 @@ if __name__ == '__main__':
                       help="Specify WSGI debug")
 
     (options, args) = parser.parse_args()
-    base_path = getattr(options,'base_path', None)
-    create_all = getattr(options,'create_all', None)
-    create_instance = getattr(options,'create_instance', None) or create_all
-    create_site = getattr(options,'create_site', None) or create_all
+    base_path = getattr(options, 'base_path', None)
+    create_all = getattr(options, 'create_all', None)
+    create_instance = getattr(options, 'create_instance', None) or create_all
+    create_site = getattr(options, 'create_site', None) or create_all
     if not args:
         print 'You should specify a project name'
     else:
         project_name = args[0]
         if '.' in args[0]:
             path_resolver = PathResolver()
-            repo_name,project_name = args[0].split('.')
+            repo_name, project_name = args[0].split('.')
             base_path = base_path or path_resolver.project_repository_name_to_path(repo_name)
-        print 'Creating project %s in %s...'%(project_name,base_path or 'current directory')
+        print 'Creating project %s in %s...' % (project_name, base_path or 'current directory')
         project_maker = ProjectMaker(project_name, base_path=base_path)
-        print 'Project %s created'%project_name
+        print 'Project %s created' % project_name
         project_maker.do()
         if create_site:
-            print 'Creating site %s in %s...'%(project_name,project_maker.sites_path)
+            print 'Creating site %s in %s...' % (project_name, project_maker.sites_path)
             site_maker = SiteMaker(project_name, base_path=project_maker.sites_path)
             site_maker.do()
-            print 'Site %s created'%project_name
+            print 'Site %s created' % project_name
         if create_instance:
-            print 'Creating instance %s in %s...'%(project_name,project_maker.instances_path)
+            print 'Creating instance %s in %s...' % (project_name, project_maker.instances_path)
             instance_maker = InstanceMaker(project_name, base_path=project_maker.instances_path)
             instance_maker.do()
-            print 'Instance %s created'%project_name
+            print 'Instance %s created' % project_name
 
     

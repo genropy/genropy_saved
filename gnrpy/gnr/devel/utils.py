@@ -1,4 +1,3 @@
-
 # #!/usr/bin/env python
 # encoding: utf-8
 """
@@ -14,8 +13,8 @@ from __future__ import with_statement
 import math
 import sys
 from os import environ, getcwd, listdir
-from os.path import normpath, splitext, expanduser, expandvars, \
-                    isdir, isfile, basename
+from os.path import normpath, splitext, expanduser, expandvars,\
+    isdir, isfile, basename
 from os.path import join as path_join
 
 from gnr.core.gnrbag import Bag
@@ -146,23 +145,23 @@ class AutoDiscovery(object):
         self.current_package = None
         self.current_instance = None
         self.current_site = None
-        
+
         self.project_packages = None
         self.project_instances = None
         self.project_sites = None
         self.project_commands = None
-        
+
         self.all_projects = {}
         self.all_packages = {}
         self.all_instances = {}
         self.all_sites = {}
         self.all_commands = {}
-        
-        self.config_file=config_file
-        
+
+        self.config_file = config_file
+
         self._load_configuration()
         self._auto_discovery()
-    
+
     def report(self, all=False):
         """Print a summary of what AutoDiscovery found.
 
@@ -173,7 +172,7 @@ class AutoDiscovery(object):
         print "Current Instance:", repr(self.current_instance)
         print "Current Package:", repr(self.current_package)
         print "Current Site:", repr(self.current_site)
-        
+
         if all:
             print "---- Projects ----"
             for p in self.all_projects.values():
@@ -184,20 +183,20 @@ class AutoDiscovery(object):
             print "---- Command files ----"
             for c in self.all_commands.values():
                 print "  %-20s %s" % (c.name, c.path)
-        
-        
+
+
     def _load_configuration(self):
         """Load GenroPy configuration"""
         cfg = Bag(expanduser(self.config_file))
 
         def get_section(section_name, attr_name='path'):
             if cfg[section_name]:
-                for k,v in cfg[section_name].digest('#k,#a.' + attr_name):
+                for k, v in cfg[section_name].digest('#k,#a.' + attr_name):
                     if v is not None: # XML comments will be returned as ('_', None)
                         yield k, expandpath(v)
-        
+
         # Change os.environ, so expandvars() will expand our vars too
-        for k,v in get_section('environment', attr_name='value'):
+        for k, v in get_section('environment', attr_name='value'):
             environ[k.upper()] = v
 
         for name, path in get_section('projects'):
@@ -207,32 +206,32 @@ class AutoDiscovery(object):
                 self.all_instances.update(p.instances())
                 self.all_sites.update(p.sites())
                 self.all_commands.update(p.commands())
-        
+
         for name, path in get_section('instances'):
             self.all_instances.update(AutoDiscovery.Instance.all(path))
-        
+
         for name, path in get_section('sites'):
             self.all_sites.update(AutoDiscovery.Site.all(path))
-        
+
         for name, path in get_section('commands'):
             self.all_commands.update(AutoDiscovery.Command.all(path))
-        
+
         for name, path in get_section('packages'):
             self.all_packages.update(AutoDiscovery.Package.all(path))
-            
-    
+
+
     def _auto_discovery(self):
         """Guess current project, package, instance and site."""
-        self.current_project = self._guess_current('PROJECT',self.all_projects)
+        self.current_project = self._guess_current('PROJECT', self.all_projects)
         if self.current_project:
             self.project_instances = dict(self.current_project.instances())
             self.project_packages = dict(self.current_project.packages())
             self.project_sites = dict(self.current_project.sites())
             self.project_commands = dict(self.current_project.commands())
-        self.current_instance = self._guess_current('INSTANCE',self.all_instances, self.project_instances)
+        self.current_instance = self._guess_current('INSTANCE', self.all_instances, self.project_instances)
         self.current_package = self._guess_current('PACKAGE', self.all_packages, self.project_packages)
         self.current_site = self._guess_current('SITE', self.all_sites, self.project_sites)
-    
+
     def _guess_current(self, name, all_items, project_items=None):
         """Guess the current PROJECT/INSTANCE/PACKAGE/SITE"""
         current_name = environ.get(name, None)
@@ -253,10 +252,10 @@ class AutoDiscovery(object):
                     return item
         if project_items and len(project_items) == 1:
             return project_items.values()[0]
-    
+
     def warn(self, msg):
-        print >>sys.stderr, msg
-    
+        print >> sys.stderr, msg
+
     class Item(object):
         """
         :class:`AutoDiscovery`'s attributes contain instances of this class and its subclasses.
@@ -271,18 +270,19 @@ class AutoDiscovery(object):
         
             the absolute path to this item
         """
+
         def __init__(self, path):
             self.path = expandpath(path, full=True)
             self.name = basename(path)
-        
+
         def _is_valid(self):
             """Returns if this is a valid item.
             Subclasses override it."""
             return True
-        
+
         def __repr__(self):
             return "<%s %s in %s>" % (self.__class__.__name__, repr(self.name), repr(self.path))
-        
+
         @classmethod
         def all(cls, base_path):
             if isdir(base_path):
@@ -292,54 +292,56 @@ class AutoDiscovery(object):
                     item = cls(path)
                     if item._is_valid():
                         yield item.name, item
-        
+
     class Project(Item):
         """
         Project have these additional methods:
         """
-        
+
         common_project_dirs = 'instances sites packages commands'.split()
+
         def _is_valid(self):
-            return any([isdir(path_join(self.path,d)) for d in self.common_project_dirs])
-    
+            return any([isdir(path_join(self.path, d)) for d in self.common_project_dirs])
+
         def instances(self):
             """all instances in this project"""
-            return AutoDiscovery.Instance.all(path_join(self.path,'instances'))
-        
+            return AutoDiscovery.Instance.all(path_join(self.path, 'instances'))
+
         def sites(self):
             """all sites in this project"""
-            return AutoDiscovery.Site.all(path_join(self.path,'sites'))
-        
+            return AutoDiscovery.Site.all(path_join(self.path, 'sites'))
+
         def commands(self):
             """all commands in this project"""
-            return AutoDiscovery.Command.all(path_join(self.path,'commands'))
-        
+            return AutoDiscovery.Command.all(path_join(self.path, 'commands'))
+
         def packages(self):
             """all packages in this project"""
-            return AutoDiscovery.Package.all(path_join(self.path,'packages'))
-    
+            return AutoDiscovery.Package.all(path_join(self.path, 'packages'))
+
     class Instance(Item):
         def _is_valid(self):
-            return isfile(path_join(self.path,'instanceconfig.xml'))
-    
+            return isfile(path_join(self.path, 'instanceconfig.xml'))
+
     class Site(Item):
         def _is_valid(self):
-            return isfile(path_join(self.path,'siteconfig.xml')) and \
-                   isfile(path_join(self.path,'root.py'))
-    
+            return isfile(path_join(self.path, 'siteconfig.xml')) and\
+                   isfile(path_join(self.path, 'root.py'))
+
     class Command(Item):
         def __init__(self, path):
             AutoDiscovery.Item.__init__(self, path)
             self.name = splitext(self.name)[0] #remove extension
-            
+
         def _is_valid(self):
             p = path_join(self.path)
             return p.endswith('.py') and isfile(p)
-        
+
     class Package(Item):
         common_package_dirs = 'models webpages'.split()
+
         def _is_valid(self):
-            return any([isdir(path_join(self.path,d)) for d in self.common_package_dirs])
+            return any([isdir(path_join(self.path, d)) for d in self.common_package_dirs])
 
 ########################################################################
 class ProgressBar(object):
@@ -372,14 +374,14 @@ class ProgressBar(object):
 
     def __enter__(self):
         return self
-    
+
     def __exit__(self, exc_type, exc_value, traceback):
         if exc_type is None:
             self.update(self.max_value)
             print >> self.fd, "done."
         else:
             print >> self.fd, "ERROR (%s%s)" % (self.progress_label, str(self.progress_value))
-        
+
     def update(self, value, progress_value=None):
         """Draws the progress bar.
 
@@ -392,5 +394,6 @@ class ProgressBar(object):
         occupied_bar_chars = int(math.floor(self.bar_width * progress))
         occupied_bar = "*" * occupied_bar_chars
         free_bar = "-" * (self.bar_width - occupied_bar_chars)
-        print >> self.fd, "\r%*s [%s%s] % 5.2f%%" % (self.label_width, self.label, occupied_bar, free_bar, progress * 100.0),
+        print >> self.fd, "\r%*s [%s%s] % 5.2f%%" % (
+        self.label_width, self.label, occupied_bar, free_bar, progress * 100.0),
         self.fd.flush()

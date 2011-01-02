@@ -19,16 +19,16 @@ if __name__ == '__main__':
                       help="base path where project will be created")
 
     (options, args) = parser.parse_args()
-    base_path = getattr(options,'base_path', None)
+    base_path = getattr(options, 'base_path', None)
     if not args:
         print 'You should specify a package name'
     else:
         instance_name = args[0]
         if '.' in args[0]:
             path_resolver = PathResolver()
-            project_name,instance_name = args[0].split('.')
-            base_path = base_path or os.path.join(path_resolver.project_name_to_path(project_name),'instances')
-        print 'Creating instance %s in %s...'%(instance_name,base_path or 'current directory')
-        instance_maker = InstanceMaker(instance_name, base_path=base_path,packages=args[1:])
-        print 'Instance %s created'%instance_name
+            project_name, instance_name = args[0].split('.')
+            base_path = base_path or os.path.join(path_resolver.project_name_to_path(project_name), 'instances')
+        print 'Creating instance %s in %s...' % (instance_name, base_path or 'current directory')
+        instance_maker = InstanceMaker(instance_name, base_path=base_path, packages=args[1:])
+        print 'Instance %s created' % instance_name
         instance_maker.do()

@@ -29,10 +29,10 @@ from gnr.core.gnrlocale import DATEKEYWORDS
 
 
 class MenuStackContainer(BaseComponent):
-    def menuStackContainer(self,parent,nodeId=None,selectedPage=None,
-                          hasToolbar=False,label_cb=None,**kwargs):
-        capId = '%s_caption' %nodeId
-        menuId = '%s_menu' %nodeId
+    def menuStackContainer(self, parent, nodeId=None, selectedPage=None,
+                           hasToolbar=False, label_cb=None, **kwargs):
+        capId = '%s_caption' % nodeId
+        menuId = '%s_menu' % nodeId
         bc = parent.borderContainer(**kwargs)
         top = bc.contentPane(region='top')
         if hasToolbar:
@@ -54,78 +54,79 @@ class MenuStackContainer(BaseComponent):
             stack.setSelected(0);
             genro.dom.style(genro.domById(capId),{width:maxLength*.7+'em'});
             
-        """,stackId=nodeId,_onStart=True,nodeId='%s_nav' %nodeId,menuId='%s_menu' %nodeId,capId=capId)
-        navigator = top.div(_class='menuStackNavigator',float='left')
-        navigator.button('!!Prev',iconClass='icnNavPrev',action='genro.wdgById("%s").back();' %nodeId,
-                        showLabel=False,baseClass='no_background')
-        navigator.dropDownButton(nodeId=capId,baseClass='no_background',padding_right='1.2em',text_align='center').menu(nodeId='%s_menu' %nodeId,_class='smallmenu',
-                                                          action='genro.wdgById("%s").setSelected($1.idx);' %nodeId)
-        navigator.button('!!Next',baseClass='no_background',iconClass='icnNavNext',
-                         action='genro.wdgById("%s").forward();' %nodeId,showLabel=False)
-        
+        """, stackId=nodeId, _onStart=True, nodeId='%s_nav' % nodeId, menuId='%s_menu' % nodeId, capId=capId)
+        navigator = top.div(_class='menuStackNavigator', float='left')
+        navigator.button('!!Prev', iconClass='icnNavPrev', action='genro.wdgById("%s").back();' % nodeId,
+                         showLabel=False, baseClass='no_background')
+        navigator.dropDownButton(nodeId=capId, baseClass='no_background', padding_right='1.2em',
+                                 text_align='center').menu(nodeId='%s_menu' % nodeId, _class='smallmenu',
+                                                           action='genro.wdgById("%s").setSelected($1.idx);' % nodeId)
+        navigator.button('!!Next', baseClass='no_background', iconClass='icnNavNext',
+                         action='genro.wdgById("%s").forward();' % nodeId, showLabel=False)
+
         if label_cb:
             label_cb(top.div(float='left'))
-        return bc.stackContainer(region='center',nodeId=nodeId,selectedPage=selectedPage,
-                                connect_addChild="""
+        return bc.stackContainer(region='center', nodeId=nodeId, selectedPage=selectedPage,
+                                 connect_addChild="""
                                                     var cb = function(){genro.wdgById('%s').setLabel($1.sourceNode.attr.title);};
                                                     dojo.connect(this.widget,'_showChild',cb);
-                                                    """%(capId))
+                                                    """ % (capId))
 
 class DynamicEditor(BaseComponent):
-    
     css_requires = 'dyn_editor'
-    def dynamicEditor(self, container, value,contentPars=None,disabled=None,
-                      nodeId=None,editorHeight='',**kwargs):
+
+    def dynamicEditor(self, container, value, contentPars=None, disabled=None,
+                      nodeId=None, editorHeight='', **kwargs):
         nodeId = nodeId or self.getUuid()
-        stackId = "%s_stack"%nodeId
-        editorId = "%s_editor"%nodeId
-        st = container.stackContainer(nodeId=stackId,**contentPars)
+        stackId = "%s_stack" % nodeId
+        editorId = "%s_editor" % nodeId
+        st = container.stackContainer(nodeId=stackId, **contentPars)
         viewPane = st.contentPane(_class='pbl_viewBox')
-        viewPane.div(innerHTML=value,_class='formattedBox')
-        editPane = st.contentPane(overflow='hidden',connect_resize="""var editor = genro.wdgById('%s');
+        viewPane.div(innerHTML=value, _class='formattedBox')
+        editPane = st.contentPane(overflow='hidden', connect_resize="""var editor = genro.wdgById('%s');
                                                    var height = this.widget.domNode.clientHeight-30+'px';
-                                                   dojo.style(editor.iframe,{height:height});"""%editorId)
-        editPane.editor(value=value,nodeId=editorId,**kwargs)
-        st.dataController('genro.wdgById("%s").setSelected(disabled?0:1)'%stackId,
-                        disabled=disabled,fired='^gnr.onStart')
-                        
+                                                   dojo.style(editor.iframe,{height:height});""" % editorId)
+        editPane.editor(value=value, nodeId=editorId, **kwargs)
+        st.dataController('genro.wdgById("%s").setSelected(disabled?0:1)' % stackId,
+                          disabled=disabled, fired='^gnr.onStart')
+
 class PeriodCombo(BaseComponent):
     css_requires = 'period_combo'
-    
+
     def _pc_datesHints(self):
         today = datetime.date.today()
         dates = []
         dates.append(str(today.year))
         dates.append(str(today.year - 1))
-        for k,v in DATEKEYWORDS[self.locale[:2]].items():
+        for k, v in DATEKEYWORDS[self.locale[:2]].items():
             if k != 'to':
-                if isinstance(v,tuple):
+                if isinstance(v, tuple):
                     v = v[0]
                 dates.append(v)
         dates = ','.join(dates)
         return dates
-        
-    def periodCombo(self, fb,period_store = None,value=None , lbl=None,**kwargs):
+
+    def periodCombo(self, fb, period_store=None, value=None, lbl=None, **kwargs):
         value = value or '^.period_input'
         period_store = period_store or '.period'
-        fb.dataRpc(period_store, 'decodeDatePeriod', datestr=value, 
-                    _fired='^gnr.onStart',
-                    _onResult="""if (result.getItem("valid")){
+        fb.dataRpc(period_store, 'decodeDatePeriod', datestr=value,
+                   _fired='^gnr.onStart',
+                   _onResult="""if (result.getItem("valid")){
                                  }else{
                                  result.setItem('period_string','Invalid period');
                                  }""")
-        fb.combobox(lbl=lbl or '!!Period',value=value, width='16em',tip='^%s.period_string'%period_store,
-                    values=self._pc_datesHints(), margin_right='5px',padding_top='1px',**kwargs)
+        fb.combobox(lbl=lbl or '!!Period', value=value, width='16em', tip='^%s.period_string' % period_store,
+                    values=self._pc_datesHints(), margin_right='5px', padding_top='1px', **kwargs)
 
 class SelectionBrowser(BaseComponent):
-    def selectionBrowser(self,pane,rowcount,indexPath=None):
-        pane.button('!!First', fire_first='.navbutton', iconClass="tb_button icnNavFirst", 
+    def selectionBrowser(self, pane, rowcount, indexPath=None):
+        pane.button('!!First', fire_first='.navbutton', iconClass="tb_button icnNavFirst",
                     disabled='^.atBegin', showLabel=False)
-        pane.button('!!Previous', fire_prev='.navbutton', iconClass="tb_button icnNavPrev", 
+        pane.button('!!Previous', fire_prev='.navbutton', iconClass="tb_button icnNavPrev",
                     disabled='^.atBegin', showLabel=False)
-        pane.button('!!Next', fire_next='.navbutton', iconClass="tb_button icnNavNext", 
+        pane.button('!!Next', fire_next='.navbutton', iconClass="tb_button icnNavNext",
                     disabled='^.atEnd', showLabel=False)
-        pane.button('!!Last', fire_last='.navbutton', iconClass="tb_button icnNavLast", 
+        pane.button('!!Last', fire_last='.navbutton', iconClass="tb_button icnNavLast",
                     disabled='^.atEnd', showLabel=False)
         pane.dataController("""
                                 var newidx;
@@ -136,9 +137,9 @@ class SelectionBrowser(BaseComponent):
                                 else if ((btn == 'next') && (idx < rowcount-1)){newidx = idx+1;}
                                 this.setRelativeData(indexPath,newidx);
                                 
-                                """,  
-                                   indexPath=indexPath,btn='^.navbutton',
-                                    rowcount=rowcount)
+                                """,
+                            indexPath=indexPath, btn='^.navbutton',
+                            rowcount=rowcount)
 
 class RichTextEditor(BaseComponent):
     """  This is the default toolbar definition used by the editor. It contains all editor features.
@@ -164,15 +165,14 @@ class RichTextEditor(BaseComponent):
                ['Maximize', 'ShowBlocks','-','About']
               ];
     """
-    
-    css_requires = 'rich_edit'
-    js_requires='ckeditor/ckeditor'
-    
-    def RichTextEditor(self, pane, value, disabled=None, nodeId=None,toolbar=None,**kwargs):
 
-        editorId = "%s_editor"%nodeId
-        if isinstance(toolbar,basestring):
-            tb=getattr(self,'rte_toolbar_%s'%toolbar,None)
+    css_requires = 'rich_edit'
+    js_requires = 'ckeditor/ckeditor'
+
+    def RichTextEditor(self, pane, value, disabled=None, nodeId=None, toolbar=None, **kwargs):
+        editorId = "%s_editor" % nodeId
+        if isinstance(toolbar, basestring):
+            tb = getattr(self, 'rte_toolbar_%s' % toolbar, None)
             toolbar = tb() if callable(tb) else tb
         return pane.ckeditor(value=value, nodeId=editorId, readOnly=disabled, toolbar=toolbar, **kwargs)
 
@@ -184,26 +184,26 @@ class RichTextEditor(BaseComponent):
                    ['Styles','Format','Font','FontSize'],
                    ['TextColor','BGColor'],['Maximize', 'ShowBlocks']
                    ]"""
-                   
+
     def rte_toolbar_simple(self):
         return """[
                    ['Source','-','Bold', 'Italic', '-', 'NumberedList', 'BulletedList', '-','Image','Table','HorizontalRule','PageBreak'],
                    ['JustifyLeft','JustifyCenter','JustifyRight','JustifyBlock'],
                    ['Styles','Format','Font','FontSize','TextColor','BGColor']]"""
-                   
+
 class FilterBox(BaseComponent):
-    def _prepareFilterMenu(self,filterOn):
+    def _prepareFilterMenu(self, filterOn):
         colsMenu = Bag()
         fltList = splitAndStrip(filterOn, ',')
         for col in fltList:
             caption = col
             if ':' in col:
                 caption, col = col.split(':')
-            colsMenu.child('r', col=col, caption=caption,childcontent='')
+            colsMenu.child('r', col=col, caption=caption, childcontent='')
         return colsMenu
-        
-            
-    def filterBox(self, pane,datapath=None,nodeId=None,filterOn=None):
+
+
+    def filterBox(self, pane, datapath=None, nodeId=None, filterOn=None):
         """.filter
                 field
                 caption
@@ -211,40 +211,40 @@ class FilterBox(BaseComponent):
                 current_value
                 types
                 """
-        
+
         filterstore = datapath or '.filter'
         colsMenu = self._prepareFilterMenu(filterOn)
-        searchbox = pane.div(datapath=filterstore,nodeId=nodeId)
-        searchlbl = searchbox.div(float='left',margin_top='2px')
+        searchbox = pane.div(datapath=filterstore, nodeId=nodeId)
+        searchlbl = searchbox.div(float='left', margin_top='2px')
         searchlbl.data('.field', colsMenu['#0?col'])
         searchlbl.data('.caption', colsMenu['#0?caption'])
-        searchlbl.data('.types',colsMenu)
-        searchlbl.span(value='^.caption',_class='buttonIcon')
+        searchlbl.data('.types', colsMenu)
+        searchlbl.span(value='^.caption', _class='buttonIcon')
         searchlbl.menu(modifiers='*', _class='smallmenu', storepath='.types',
-                    selected_col='.field',
-                    selected_caption='.caption')
+                       selected_col='.field',
+                       selected_caption='.caption')
 
-        searchbox.input(value='^.value',_class='searchInput searchWidth', font_size='1.0em',
-            connect_onkeyup="FIRE .current_value = $1.target.value;" )       
-    
-    def gridFilterBox(self,pane,gridId=None,datapath=None,filterOn=None,table=None,**kwargs):
+        searchbox.input(value='^.value', _class='searchInput searchWidth', font_size='1.0em',
+                        connect_onkeyup="FIRE .current_value = $1.target.value;")
+
+    def gridFilterBox(self, pane, gridId=None, datapath=None, filterOn=None, table=None, **kwargs):
         fltList = splitAndStrip(filterOn, ',')
         cols = []
         for col in fltList:
             caption = None
             if ':' in col:
                 caption, col = col.split(':')
-            if not caption: 
+            if not caption:
                 caption = self.db.table(table).column(col).name_long
             colList = splitAndStrip(col, '+')
             col = '+'.join([self.db.colToAs(c) for c in colList])
-            cols.append('%s:%s' %(caption,col))        
-        self.filterBox(pane.div(float='right', margin_right='5px'),filterOn=','.join(cols),
-                        datapath=datapath or '.filter',**kwargs)
+            cols.append('%s:%s' % (caption, col))
+        self.filterBox(pane.div(float='right', margin_right='5px'), filterOn=','.join(cols),
+                       datapath=datapath or '.filter', **kwargs)
         filtercontroller = pane.dataController(datapath=".filter")
-        filtercontroller.dataController('genro.wdgById(gridId).applyFilter(value,null,field);', 
-                                       gridId=gridId,value="^.current_value",field='=.field')
-        filtercontroller.dataController('genro.wdgById(gridId).applyFilter("",null,field);', 
-                                       gridId=gridId,field='^.field')
+        filtercontroller.dataController('genro.wdgById(gridId).applyFilter(value,null,field);',
+                                        gridId=gridId, value="^.current_value", field='=.field')
+        filtercontroller.dataController('genro.wdgById(gridId).applyFilter("",null,field);',
+                                        gridId=gridId, field='^.field')
          
                        

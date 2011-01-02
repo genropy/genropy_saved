@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <GenRoBag>
     <packages>
-        <test15 />
+        <test15/>
     </packages>
     <db _T="NN"/>
     <authentication>

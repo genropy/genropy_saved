@@ -28,15 +28,17 @@ class RecordDialog(BaseComponent):
     RecordHandler allows to Load and Save a record without passing through the mainrecord path
     it executes saving and loading in an independent way from the mainrecord of a standard table. 
     """
-    def recordDialog(self,table=None,firedPkey=None,pane=None,height=None,width=None,_class=None,
-                    title=None,formCb=None,onSaved='',saveKwargs=None,loadKwargs=None,
-                    savePath='',bottomCb=None,savingMethod=None,
-                    loadingMethod=None, loadingParameters=None,onClosed='',onShow='',
-                    validation_failed='alert',custom_table_id=None,centerOn=None,
-                    dlgId=None,formId=None,datapath=None,
-                    dlgPars=None, # TODO is dlgPars really supported? it seems to prevent the recordDialog from working properly.
-                    toolbarCb=None,toolbarPars=None,
-                    record_datapath=None,disabled=None,**kwargs):
+
+    def recordDialog(self, table=None, firedPkey=None, pane=None, height=None, width=None, _class=None,
+                     title=None, formCb=None, onSaved='', saveKwargs=None, loadKwargs=None,
+                     savePath='', bottomCb=None, savingMethod=None,
+                     loadingMethod=None, loadingParameters=None, onClosed='', onShow='',
+                     validation_failed='alert', custom_table_id=None, centerOn=None,
+                     dlgId=None, formId=None, datapath=None,
+                     dlgPars=None,
+                     # TODO is dlgPars really supported? it seems to prevent the recordDialog from working properly.
+                     toolbarCb=None, toolbarPars=None,
+                     record_datapath=None, disabled=None, **kwargs):
         """
         Allow to manage a form into a dialog for editing and saving a single RecordHandler.
         * `table`: The table where the record is saved.
@@ -51,55 +53,55 @@ class RecordDialog(BaseComponent):
         """
         saveKwargs = saveKwargs or {}
         loadKwargs = loadKwargs or {}
-        toolbarPars= toolbarPars or {}
+        toolbarPars = toolbarPars or {}
 
-        assert not '_onResult' in saveKwargs,'You cannot put a _onResult here'
-        assert not '_onResult' in loadKwargs,'You cannot put a _onResult here'
-        assert not 'loadingParameters' in loadKwargs,'You cannot put a loadingParameters here'
+        assert not '_onResult' in saveKwargs, 'You cannot put a _onResult here'
+        assert not '_onResult' in loadKwargs, 'You cannot put a _onResult here'
+        assert not 'loadingParameters' in loadKwargs, 'You cannot put a loadingParameters here'
 
-        tableId = custom_table_id or table.replace('.','_')
+        tableId = custom_table_id or table.replace('.', '_')
         dlgId = dlgId or  'dlg_%s' % tableId
         formId = formId or  '%s_form' % tableId
 
         assert dlgId != formId, "formId and dlgId must not be equal"
 
         disabled = disabled or '^form.locked'
-        sqlContextName='sqlcontext_%s' %tableId
+        sqlContextName = 'sqlcontext_%s' % tableId
         mainDatapath = datapath or 'aux_forms.%s' % tableId
-        sqlContextRoot= record_datapath or '#%s.record' %dlgId
+        sqlContextRoot = record_datapath or '#%s.record' % dlgId
         title = title or '^.record?caption'
         page = pane
         if page is None:
             if datapath:
-                assert not datapath.startswith('.'),'pass a pane if you need to use a relative datapath'
+                assert not datapath.startswith('.'), 'pass a pane if you need to use a relative datapath'
             page = self.pageSource()
-        dlgPars=dlgPars or {}
+        dlgPars = dlgPars or {}
         if onShow:
-            dlgPars['connect_show']=onShow 
-        dlgPars['centerOn'] = '_pageRoot'    
+            dlgPars['connect_show'] = onShow
+        dlgPars['centerOn'] = '_pageRoot'
         if centerOn:
-            dlgPars['centerOn']=centerOn             
-        dlg = page.dialog(nodeId=dlgId,title=title,
-                        datapath=mainDatapath,**dlgPars)
-        dlgBC = dlg.borderContainer(height=height, nodeId='%s_layout' %dlgId,
+            dlgPars['centerOn'] = centerOn
+        dlg = page.dialog(nodeId=dlgId, title=title,
+                          datapath=mainDatapath, **dlgPars)
+        dlgBC = dlg.borderContainer(height=height, nodeId='%s_layout' % dlgId,
                                     width=width, _class=_class,
                                     sqlContextName=sqlContextName,
-                                    sqlContextRoot=sqlContextRoot, 
-                                    sqlContextTable= table)
-        self._recordDialogController(dlgBC,dlgId,formId,
-                                    table,saveKwargs,loadKwargs,firedPkey,sqlContextName,
-                                    onSaved,onClosed,savePath,savingMethod,loadingMethod,
-                                    loadingParameters,validation_failed,record_datapath,**kwargs)
-                                    
-        self._recordDialogLayout(dlgBC,dlgId,formId,table,formCb,
-                                 bottomCb,toolbarCb,record_datapath,toolbarPars,disabled)
+                                    sqlContextRoot=sqlContextRoot,
+                                    sqlContextTable=table)
+        self._recordDialogController(dlgBC, dlgId, formId,
+                                     table, saveKwargs, loadKwargs, firedPkey, sqlContextName,
+                                     onSaved, onClosed, savePath, savingMethod, loadingMethod,
+                                     loadingParameters, validation_failed, record_datapath, **kwargs)
 
-    def _recordDialogController(self,pane,dlgId,formId,
-                                table,saveKwargs,loadKwargs,firedPkey,sqlContextName,
-                                onSaved,onClosed,savePath,savingMethod,loadingMethod,
-                                loadingParameters,validation_failed,record_datapath,**kwargs):
+        self._recordDialogLayout(dlgBC, dlgId, formId, table, formCb,
+                                 bottomCb, toolbarCb, record_datapath, toolbarPars, disabled)
+
+    def _recordDialogController(self, pane, dlgId, formId,
+                                table, saveKwargs, loadKwargs, firedPkey, sqlContextName,
+                                onSaved, onClosed, savePath, savingMethod, loadingMethod,
+                                loadingParameters, validation_failed, record_datapath, **kwargs):
         onSaved = onSaved or ''
-        onSaved = 'FIRE #%s.afterSaving = result; %s' %(dlgId,onSaved)
+        onSaved = 'FIRE #%s.afterSaving = result; %s' % (dlgId, onSaved)
         pane.dataController(""" if(saveAndAdd){
                                     SET .closeDlg = false;
                                     SET .addRecord = true;
@@ -118,11 +120,11 @@ class RecordDialog(BaseComponent):
                                     SET .addRecord = false;
                                     SET .changeRecordIn = '*';
                                     FIRE .saveRecord;
-                                }""",saveAndAdd="^.saveAndAdd",
-                                saveAndClose="^.saveAndClose",
-                                saveAndChangeIn='^.saveAndChangeIn',
-                                saveAndReload='^.saveAndReload')
-                                
+                                }""", saveAndAdd="^.saveAndAdd",
+                            saveAndClose="^.saveAndClose",
+                            saveAndChangeIn='^.saveAndChangeIn',
+                            saveAndReload='^.saveAndReload')
+
         pane.dataController(""" if(closeDlg){
                                     FIRE .exitAction='saved';
                                 }else if(addRecord){
@@ -131,83 +133,83 @@ class RecordDialog(BaseComponent):
                                     SET .current_pkey = changeRecordIn=='*'?savedPkey:changeRecordIn;
                                     FIRE .load;
                                 }""",
-                            savedPkey="^.afterSaving",addRecord='=.addRecord',
+                            savedPkey="^.afterSaving", addRecord='=.addRecord',
                             changeRecordIn='=.changeRecordIn',
                             closeDlg='=.closeDlg')
-        
+
         pane.dataController("""SET .current_pkey = "*newrecord*";
-                               FIRE .load""",_fired="^.addNew")
-                            
+                               FIRE .load""", _fired="^.addNew")
+
         pane.dataController("""genro.wdgById("%s").show(); 
                                SET .isOpen = true;
                                SET .current_pkey = (!firedPkey||firedPkey===true) ? "*newrecord*" : firedPkey;
                                FIRE .load;
-                            """ %dlgId,firedPkey=firedPkey)
-        pane.dataController('genro.formById("%s").load();' %formId,_fired="^.load")
-                            
+                            """ % dlgId, firedPkey=firedPkey)
+        pane.dataController('genro.formById("%s").load();' % formId, _fired="^.load")
+
         pane.dataController("""var dlgNode=genro.nodeById("%s");
                                dlgNode.widget.hide();
                                SET .isOpen = false;
                                if (onClosed){
                                    funcCreate(onClosed, 'exitAction').call(dlgNode,exitAction);
                                }
-                            """%dlgId, exitAction ='^.exitAction', onClosed=onClosed)
-        
-        loadingParameters = loadingParameters or '=gnr.tables.%s.loadingParameters' %table.replace('.','_')
+                            """ % dlgId, exitAction='^.exitAction', onClosed=onClosed)
+
+        loadingParameters = loadingParameters or '=gnr.tables.%s.loadingParameters' % table.replace('.', '_')
         loadKwargs = dict(loadKwargs)
         loadKwargs.update(**kwargs)
-        self.formLoader(formId,resultPath=record_datapath or '.record',
-                        table=table,pkey='=.current_pkey',
-                        method=loadingMethod,loadingParameters=loadingParameters,
-                        datapath='#%s' %dlgId,
-                        sqlContextName=sqlContextName,**loadKwargs)
-                       
-        self.formSaver(formId,resultPath= savePath or '.savingResult',
+        self.formLoader(formId, resultPath=record_datapath or '.record',
+                        table=table, pkey='=.current_pkey',
+                        method=loadingMethod, loadingParameters=loadingParameters,
+                        datapath='#%s' % dlgId,
+                        sqlContextName=sqlContextName, **loadKwargs)
+
+        self.formSaver(formId, resultPath=savePath or '.savingResult',
                        table=table, _fired='^.saveRecord',
-                       method=savingMethod,onSaved=onSaved,
-                       datapath='#%s' %dlgId,
+                       method=savingMethod, onSaved=onSaved,
+                       datapath='#%s' % dlgId,
                        **saveKwargs)
         pane.dataController("""if(save_failed == "nochange"){
                                         FIRE .exitAction='nochange';
                                 }else if(save_failed == "invalid"){
                                     FIRE .validation_failed;
-                                }""",save_failed='^gnr.forms.%s.save_failed' %formId)
-        pane.dataController("SET .saveDisabled = saving;",saving="gnr.forms.%s.saving" %formId)
-        
-        pane.dataController("""genro.dom.setClass(dlgId,'warningForm',warning);""",warning="^.warning",dlgId=dlgId)   
-                                                                      
+                                }""", save_failed='^gnr.forms.%s.save_failed' % formId)
+        pane.dataController("SET .saveDisabled = saving;", saving="gnr.forms.%s.saving" % formId)
+
+        pane.dataController("""genro.dom.setClass(dlgId,'warningForm',warning);""", warning="^.warning", dlgId=dlgId)
+
         if validation_failed == "alert":
             pane.dataController("genro.dlg.alert(msg,title)",
-                                  _fired='^.validation_failed',
-                                  msg='!!Not valid data. Please check the form',
-                                  title='!!Warning')
-        
-                        
+                                _fired='^.validation_failed',
+                                msg='!!Not valid data. Please check the form',
+                                title='!!Warning')
+
+
         elif validation_failed == "focus":
-            pane.dataController("genro.formById('%s').focusFirstInvalidField()" %formId,_fired="^.validation_failed")
-        
-    def _recordDialogLayout(self,bc,dlgId,formId,table,
-                            formCb,bottomCb,toolbarCb,record_datapath,toolbarPars,disabled):
+            pane.dataController("genro.formById('%s').focusFirstInvalidField()" % formId, _fired="^.validation_failed")
+
+    def _recordDialogLayout(self, bc, dlgId, formId, table,
+                            formCb, bottomCb, toolbarCb, record_datapath, toolbarPars, disabled):
         if callable(toolbarCb):
-            toolbarCb(bc,region='top',table=table,**toolbarPars)
-        bottom = bc.contentPane(region='bottom',_class='dialog_bottom')
-        bottomCb = bottomCb or getattr(self,'recordDialog_bottom')
+            toolbarCb(bc, region='top', table=table, **toolbarPars)
+        bottom = bc.contentPane(region='bottom', _class='dialog_bottom')
+        bottomCb = bottomCb or getattr(self, 'recordDialog_bottom')
         bottomCb(bottom)
-        stack = bc.stackContainer(region='center',_class='pbl_background' ,formId=formId,
-                                  selected='^#%s.stackPane' %dlgId,datapath=record_datapath or '.record')
+        stack = bc.stackContainer(region='center', _class='pbl_background', formId=formId,
+                                  selected='^#%s.stackPane' % dlgId, datapath=record_datapath or '.record')
         formCb(stack, disabled=disabled, table=table)
 
     #Jeff suggests that the margins be taken out of the code and put into the css
-    def recordDialog_bottom(self,pane):
-        pane.button('!!Save',float='right',baseClass='bottom_btn',
+    def recordDialog_bottom(self, pane):
+        pane.button('!!Save', float='right', baseClass='bottom_btn',
                     fire=".saveAndClose", margin_left='5px', width='5em',
-                    disabled='^.saveDisabled' )
-        pane.button('!!Cancel',float='right',baseClass='bottom_btn',
+                    disabled='^.saveDisabled')
+        pane.button('!!Cancel', float='right', baseClass='bottom_btn',
                     fire_cancel='.exitAction', margin_left='5px', width='5em')
         return pane
-        
-    def rpc_deleteIncludedViewRecord(self, table, rowToDelete,**kwargs):
+
+    def rpc_deleteIncludedViewRecord(self, table, rowToDelete, **kwargs):
         tblobj = self.db.table(table)
-        recordToDelete = tblobj.record(rowToDelete,for_update=True, mode='bag')
+        recordToDelete = tblobj.record(rowToDelete, for_update=True, mode='bag')
         tblobj.delete(recordToDelete)
         self.db.commit()

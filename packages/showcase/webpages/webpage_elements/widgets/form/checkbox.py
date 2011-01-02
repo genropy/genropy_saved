@@ -7,18 +7,18 @@
 """Checkbox"""
 
 class GnrCustomWebPage(object):
-    py_requires="gnrcomponents/testhandler:TestHandlerFull"
+    py_requires = "gnrcomponents/testhandler:TestHandlerFull"
     # dojo_theme='claro'    # !! Uncomment this row for Dojo_1.5 usage
-    
-    def test_1_basic(self,pane):
+
+    def test_1_basic(self, pane):
         """Basic checkbox"""
-        fb = pane.formbuilder(datapath='test1',cols=2)
-        fb.checkbox(value='^.checkbox',lbl='Checkbox')
-        
-    def test_2_checkbox(self,pane):
+        fb = pane.formbuilder(datapath='test1', cols=2)
+        fb.checkbox(value='^.checkbox', lbl='Checkbox')
+
+    def test_2_checkbox(self, pane):
         """Checkbox"""
         labels = 'First,Second,Third'
-        labels=labels.split(',')
-        pane=pane.formbuilder(datapath='test2')
+        labels = labels.split(',')
+        pane = pane.formbuilder(datapath='test2')
         for label in labels:
-            pane.checkbox(value='^.%s_checkbox'%label,label=label)
+            pane.checkbox(value='^.%s_checkbox' % label, label=label)

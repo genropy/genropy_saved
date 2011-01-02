@@ -51,14 +51,17 @@ def command(name=None, description=None, *args, **kwargs):
     """A decorator to define new 'gnr' commands.
     
     See ``ArgumentParser`` constructor in the ``argparse`` module for help on args."""
+
     def decorator(cmd):
         global command_registry
         if command_registry.get(name, None) is not None:
-            raise KeyError, "Command '%(name)s' already defined in %(file)s" % dict(name=name,file=command_registry['name'].__file__)
+            raise KeyError, "Command '%(name)s' already defined in %(file)s" % dict(name=name, file=command_registry[
+                                                                                                    'name'].__file__)
         desc = description if description else cmd.__doc__
         cmd = GnrCommand(main=cmd, name=name or cmd.__name__.lower(), description=desc, *args, **kwargs)
         command_registry[name] = cmd
         return cmd
+
     return decorator
 
 def argument(dest, *args, **kwargs):
@@ -66,6 +69,7 @@ def argument(dest, *args, **kwargs):
     
     See ``add_argument`` in the ``argparse`` module for help on args."""
     args = list(args)
+
     def decorator(cmd):
         argspec = vars(cmd).setdefault(_COMMAND_ARGUMENTS, {})
         func_args, _, _, func_defaults = inspect.getargspec(cmd)
@@ -76,7 +80,7 @@ def argument(dest, *args, **kwargs):
             has_default = True
         except IndexError:
             has_default = False
-            
+
         if not args:
             if has_default:
                 args.append('--%s' % dest)
@@ -89,19 +93,21 @@ def argument(dest, *args, **kwargs):
             if default is True:
                 kwargs['action'] = 'store_false'
                 kwargs['default'] = True
-        
+
             if default is False:
                 kwargs['action'] = 'store_true'
                 kwargs['default'] = False
-            
-            kwargs['help'] = "%s (default: %s)" % (kwargs.get('help',''), repr(default))
-        
+
+            kwargs['help'] = "%s (default: %s)" % (kwargs.get('help', ''), repr(default))
+
         argspec[dest] = (args, kwargs)
         return cmd
+
     return decorator
 
 class GnrCommand(object):
     """A command line utility."""
+
     def __init__(self, main=None, name=None, help=None, *args, **kwargs):
         super(GnrCommand, self).__init__()
         self.name = name
@@ -109,7 +115,7 @@ class GnrCommand(object):
         self.parser_args = args
         self.parser_kwargs = kwargs
         self.main = main
-    
+
     @property
     def filename(self):
         """File where main is implemented"""
@@ -117,7 +123,7 @@ class GnrCommand(object):
             return self.main.func_code.co_filename
         except:
             return "(unknown)"
-    
+
     @property
     def lineno(self):
         """Line where main is implemented"""
@@ -125,12 +131,12 @@ class GnrCommand(object):
             return self.main.func_code.co_firstlineno
         except:
             return "(unknown)"
-    
+
     @property
     def description(self):
         """Returns the command description"""
-        return self.parser_kwargs.get('description','')
-    
+        return self.parser_kwargs.get('description', '')
+
     def run(self, *args, **kwargs):
         """Run this command."""
         parser = self.init_parser()
@@ -138,13 +144,13 @@ class GnrCommand(object):
             parser.set_defaults(**kwargs)
         arguments = parser.parse_args(args or None)
         return self.main(**vars(arguments))
-    
+
     def main(self):
         raise NotImplementedError("Do not use GnrCommand directly, apply @command to a callable.")
-    
+
     def __call__(self, *args, **kwargs):
         return self.main(*args, **kwargs)
-    
+
     def init_parser(self, subparsers=None):
         """Initialize this command's arguments."""
         if not subparsers:
@@ -156,19 +162,19 @@ class GnrCommand(object):
         custom_arguments = getattr(self.main, _COMMAND_ARGUMENTS, {})
         arguments.update(custom_arguments)
         func_args, _, _, _ = inspect.getargspec(self.main)
-        for name in func_args:     
+        for name in func_args:
             args, kwargs = arguments[name]
             parser.add_argument(*args, **kwargs)
         return parser
-    
+
     def auto_arguments(self):
         """Auto-generate a standard argument configuration from __call__'s python arguments"""
         args, _, _, defaults = inspect.getargspec(self.main)
         if not defaults:
             defaults = ()
-        required = args[:len(args)-len(defaults)]
-        optional = args[len(args)-len(defaults):]
-        
+        required = args[:len(args) - len(defaults)]
+        optional = args[len(args) - len(defaults):]
+
         auto = {}
         for name in required:
             auto[name] = ((name,), {}) # arguments for add_argument
@@ -191,16 +197,17 @@ class CmdRunner(object):
     
     This class implements the 'gnr' command.
     """
+
     def __init__(self):
         self._discover_commands()
-    
-    def _discover_commands(self):        
+
+    def _discover_commands(self):
         sys.modules['gnr.commands'] = imp.new_module('gnr.commands')
-        
+
         ad = AutoDiscovery()
         for name, cmd in ad.all_commands.items():
             imp.load_source('gnr.commands.%s' % name, cmd.path)
-    
+
     def main(self):
         """Parse command line and execute 'gnr' commands."""
         parser = self.setup_parser()
@@ -209,7 +216,7 @@ class CmdRunner(object):
         main = args.main
         del args.main
         main(**vars(args))
-    
+
     def setup_parser(self):
         global command_registry
         parser = argparse.ArgumentParser(description="Run Genro commands")
@@ -219,7 +226,7 @@ class CmdRunner(object):
         return parser
 
 @command('commands', help="List commands and where they are implemented")
-@argument('verbose', '-v','--verbose', help="Show command description")
+@argument('verbose', '-v', '--verbose', help="Show command description")
 def commands(verbose=False):
     global command_registry
     for name, cmd in command_registry.items():
@@ -228,13 +235,13 @@ def commands(verbose=False):
             print "%(space)20s %(help)s" % dict(space=" ", help=cmd.help)
 
 @command('adreport', help="Print AutoDiscovery report")
-@argument('full', '-f','--full', help="Show full report")
+@argument('full', '-f', '--full', help="Show full report")
 def info(full=False):
     ad = AutoDiscovery()
     ad.report(full)
 
 @command('adenv', help="Print current project/instance/package/site as environment variables")
-@argument('dirs','-d','--dirs', help="print directories too")
+@argument('dirs', '-d', '--dirs', help="print directories too")
 def info(dirs=False):
     ad = AutoDiscovery()
     print "CURRENT_PROJECT=%s" % (ad.current_project.name if ad.current_project else '')

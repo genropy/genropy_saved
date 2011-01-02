@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <GenRoBag>
-	<db dbname="genropynet"/>
-	<packages _T="NN">
-		<portal/>
-		<adm/>
-		<prj/>
-		<showcase/>
-	</packages>
-	<db _T="NN"/>
-	<authentication pkg="adm">
-		<py_auth _T="NN" defaultTags="user" pkg="adm" method="authenticate"/>
-	</authentication>
+    <db dbname="genropynet"/>
+    <packages _T="NN">
+        <portal/>
+        <adm/>
+        <prj/>
+        <showcase/>
+    </packages>
+    <db _T="NN"/>
+    <authentication pkg="adm">
+        <py_auth _T="NN" defaultTags="user" pkg="adm" method="authenticate"/>
+    </authentication>
 </GenRoBag>

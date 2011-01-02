@@ -9,7 +9,7 @@ RESET_SEQ = "\033[0m"
 COLOR_SEQ = "\033[1;%dm"
 BOLD_SEQ = "\033[1m"
 
-def formatter_message(message, use_color = True):
+def formatter_message(message, use_color=True):
     if use_color:
         message = message.replace("$RESET", RESET_SEQ).replace("$BOLD", BOLD_SEQ)
     else:
@@ -27,7 +27,8 @@ COLORS = {
 class ColoredFormatter(logging.Formatter):
     """A formatter for the python :mod:`logging` module that colorize log messages based on their severity.
     """
-    def __init__(self, msg, use_color = True):
+
+    def __init__(self, msg, use_color=True):
         logging.Formatter.__init__(self, msg)
         self.use_color = use_color
 

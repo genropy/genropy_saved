@@ -24,22 +24,21 @@
 
 from gnr.web.gnrwebpage import GnrWebPage
 from gnr.core.gnrbag import Bag
-        
+
 class GnrHeadlessPage(GnrWebPage):
-    
     def rootPage(self, *args, **kwargs):
         kwargs = kwargs or {}
         args = args or tuple()
-        return Bag({'page_id':self.page_id,
-                 'connection_id':self.connection_id,
-                 'user':self.user}).toXml()
-                 
+        return Bag({'page_id': self.page_id,
+                    'connection_id': self.connection_id,
+                    'user': self.user}).toXml()
+
     def rpc_handle_anwsers(self, answers=None):
-        answers=Bag(answers or '')
-        for page_id,page_answers in answers.items():
+        answers = Bag(answers or '')
+        for page_id, page_answers in answers.items():
             with self.clientPage(page_id) as clientPage:
-                for value,changepath in page_answers.digest('#v,#a.client_path'):
-                    clientPage.set(changepath,value)
+                for value, changepath in page_answers.digest('#v,#a.client_path'):
+                    clientPage.set(changepath, value)
                     print 'HEY SETTO IN CLIENTPAGE'
     
     

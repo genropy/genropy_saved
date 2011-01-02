@@ -26,13 +26,13 @@ from email.MIMEText import MIMEText
 
 def sendmail(host, from_address, to_address, subject, body, user='', password=''):
     msg = MIMEText(body)
-    
+
     if isinstance(to_address, basestring):
         to_address = [k.strip() for k in to_address.split(',')]
     msg['Subject'] = subject
     msg['From'] = from_address
     msg['To'] = ','.join(to_address)
-    
+
     s = smtplib.SMTP(host=host)
     if user:
         s.login(user, password)

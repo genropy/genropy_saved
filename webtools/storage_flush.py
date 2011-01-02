@@ -13,6 +13,6 @@
 from gnr.web.gnrbaseclasses import BaseWebtool
 
 class StorageFlush(BaseWebtool):
-    def __call__(self,*args,**kwargs):
-        if kwargs['environ']['REMOTE_ADDR']=='127.0.0.1':
+    def __call__(self, *args, **kwargs):
+        if kwargs['environ']['REMOTE_ADDR'] == '127.0.0.1':
             self.site.shared_data.flush_all()

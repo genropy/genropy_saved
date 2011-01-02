@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <GenRoBag>
-	<wsgi port="8089" session_type='memory' mainpackage='portal' debug='true' />
-	<connection_timeout _T="NN"/>
-	<connection_refresh _T="NN"/>
-	<dojo _T="NN" version="11"/>
-	
+    <wsgi port="8089" session_type='memory' mainpackage='portal' debug='true'/>
+    <connection_timeout _T="NN"/>
+    <connection_refresh _T="NN"/>
+    <dojo _T="NN" version="11"/>
+
 </GenRoBag>
