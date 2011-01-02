@@ -123,7 +123,8 @@ dojo.declare("gnr.GnrWdgHandler",null,{
                              'GoogleChart':'',
                              'GoogleVisualization':'',
                              'CkEditor':'',
-                             'protovis':''
+                             'protovis':'',
+                             'pGroup':''
                               };
         var tag;
         for(tag in this.widgetcatalog ){
@@ -172,6 +173,12 @@ dojo.declare("gnr.GnrWdgHandler",null,{
         var attributes = attributes || {};
         var newobj, domnode;
         var handler = this.getHandler(tag);
+        if (handler._beforeCreation){
+            var goOn=handler._beforeCreation(sourceNode);
+            if (goOn===false){
+                return false;
+            }
+        }
         var domtag = handler._domtag || tag ;
         if (ind=='replace'){
             domnode=destination;

@@ -37,11 +37,14 @@ dojo.declare("gnr.GnrDomSourceNode",gnr.GnrBagNode,{
         }
         return this;
     },
-    unfreeze:function(){
+    unfreeze:function(noRebuild){
         this._parentbag=this._savedparentbag;
         if (this._value instanceof gnr.GnrDomSource){
             this._value.setBackRef(this,this._parentbag);
-            this.rebuild();
+            if(!noRebuild){
+                this.rebuild();
+            }
+            
         }
     },
     getBuiltObj:function(){
@@ -649,7 +652,10 @@ dojo.declare("gnr.GnrDomSourceNode",gnr.GnrBagNode,{
             funcCreate(bld_attrs.onCreating).call(this, attributes) ;
         }
         var newobj = genro.wdg.create(tag, destination, attributes, ind, this);
-        
+        if (newobj===false){
+            this._buildChildren(destination);
+            return;
+        }
         if (bld_attrs.onCreated){
             funcCreate(bld_attrs.onCreated,'widget,attributes').call(this, newobj, attributes);
         }
