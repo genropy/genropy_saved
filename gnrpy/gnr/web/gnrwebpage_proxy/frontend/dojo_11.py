@@ -28,7 +28,7 @@ class GnrWebFrontend(GnrBaseDojoFrontend):
     def gnrjs_frontend(self):
         return ['gnrbag','genro', 'genro_widgets', 'genro_rpc', 'genro_patch',
                                            'genro_dev','genro_dlg','genro_frm','genro_dom','gnrdomsource',
-                                           'genro_wdg','genro_src','gnrlang','gnrstores'
+                                           'genro_wdg','genro_src','gnrlang','gnrstores','genro_extra'
                                            #,'soundmanager/soundmanager2'
                                            ]
 
