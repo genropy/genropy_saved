@@ -17,25 +17,33 @@ class GnrCustomWebPage(object):
     
     def test_1_SimpleBar(self, pane):
         """Simlple Bar"""
+       
         pane = pane.div()
+        pane.data('.intermediate', False)
+        pane.data('.timing', 0)
         pane.data('.pvstore.source', self.source_SimpleBar())
         pane.data('.pvstore.width', 300)
         pane.data('.pvstore.height', 200)
         pane.data('.pvstore.ys', 80)
         pane.data('.pvstore.xs', 20)
-        pane.dataRpc('.pvstore.data', 'random_data', _fired="^.update_data",_init=True)
+        pane.dataRpc('.pvstore.data', 'random_data', _fired="^.update_data",_init=True,_timing='^.timing')
         fb= pane.formbuilder(cols=2, border_spacing='0px')
         fb_pars= fb.div().formbuilder(cols=1, border_spacing='2px')
-        fb.div(border='1px solid silver',margin='5px').protovis(nodeId='pv_1',storepath='.pvstore')
-        fb_pars.horizontalslider(value="^.pvstore.width", minimum=200, maximum=500, intermediateChanges=False,
+        fb_draw= fb.div().formbuilder(cols=1, border_spacing='2px')
+        fb_draw.div().span('Updatedtata every')._.span('^.timing')
+        fb_draw.div(border='1px solid silver',margin='5px').protovis(nodeId='pv_1',storepath='.pvstore')
+        fb_pars.horizontalslider(value="^.pvstore.width", minimum=200, maximum=500, intermediateChanges='^.intermediate',
                             width='150px', lbl='Width')
-        fb_pars.horizontalslider(value="^.pvstore.height", minimum=100, maximum=300, intermediateChanges=False,
+        fb_pars.horizontalslider(value="^.pvstore.height", minimum=100, maximum=300, intermediateChanges='^.intermediate',
                             width='150px', lbl='Height')
-        fb_pars.horizontalslider(value="^.pvstore.ys", minimum=10, maximum=100, intermediateChanges=False,
+        fb_pars.horizontalslider(value="^.pvstore.ys", minimum=10, maximum=100, intermediateChanges='^.intermediate',
                             width='150px', lbl='Y')
-        fb_pars.horizontalslider(value="^.pvstore.xs", minimum=5, maximum=50, intermediateChanges=False,
+        fb_pars.horizontalslider(value="^.pvstore.xs", minimum=5, maximum=50, intermediateChanges='^.intermediate',
                             width='150px', lbl='X')
         
+        fb_pars.horizontalslider(value="^.timing", minimum=0, maximum=10, intermediateChanges=False,
+                            width='150px', lbl='Timing')
+        fb_pars.checkbox(value='^.intermediate',label='Intermediate changes')
         fb_pars.button("Update", fire=".update_data")
         
     
@@ -70,9 +78,9 @@ class GnrCustomWebPage(object):
         fb_pars= fb.div().formbuilder(cols=1, border_spacing='2px')
         fb.div(border='1px solid silver',margin='5px').protovis(nodeId='pv_1',storepath='.pvstore')
 
-        fb_pars.horizontalslider(value="^.pvstore.width", minimum=200, maximum=500, intermediateChanges=False,
+        fb_pars.horizontalslider(value="^.pvstore.width", minimum=200, maximum=500, intermediateChanges='^.intermediate',
                             width='150px', lbl='Width')
-        fb_pars.horizontalslider(value="^.pvstore.height", minimum=100, maximum=300, intermediateChanges=False,
+        fb_pars.horizontalslider(value="^.pvstore.height", minimum=100, maximum=300, intermediateChanges='^.intermediate',
                             width='150px', lbl='Height')
         fb_pars.button("Update", fire=".update_data")
     
