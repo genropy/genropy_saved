@@ -13,44 +13,7 @@ from time import time
 
 class PaletteManager(BaseComponent):
     py_requires = 'foundation/macrowidgets:FilterBox,gnrcomponents/htablehandler:HTableHandlerBase,gnrcomponents/grid_configurator/grid_configurator:GridConfigurator'
-
-    @struct_method
-    def pm_paletteGroup(self, pane=None, groupCode=None, title=None, dockTo=None, **kwargs):
-        floating = self._pm_floatingPalette(pane, nodeId='paletteGroup_%s_floating' % groupCode,
-                                            title=title or '!!Palette %s' % groupCode, dockTo=dockTo, **kwargs)
-        return floating.tabContainer(selectedPage='^gnr.palettes.?%s' % groupCode, groupCode=groupCode)
-
-    def _pm_floating_kwargs(self, top=None, left=None, right=None, bottom=None, **kwargs):
-        if (left is None) and (top is None) and (right is None) and (bottom is None):
-            if not hasattr(self, '_last_floating'):
-                self._last_floating = dict(top=0, right=0)
-            self._last_floating['top'] = self._last_floating['top'] + 10
-            self._last_floating['right'] = self._last_floating['right'] + 10
-            top = '%ipx' % self._last_floating['top']
-            right = '%ipx' % self._last_floating['right']
-        palette_kwargs = dict(height='400px', width='300px', top=top, right=right, left=left, bottom=bottom,
-                              visibility='hidden')
-        palette_kwargs.update(kwargs)
-        return palette_kwargs
-
-    def _pm_floatingPalette(self, pane, nodeId=None, title=None, dockTo=None, **kwargs):
-        dockTo = dockTo or 'default_dock'
-        return pane.floatingPane(nodeId=nodeId, dockTo=dockTo, title=title,
-                                 dockable=True, closable=False, resizable=True,
-                                 **self._pm_floating_kwargs(**kwargs))
-
-    @struct_method
-    def pm_palettePane(self, pane, paletteCode=None, title=None, dockTo=None, **kwargs):
-        groupCode = pane.parentNode and pane.parentNode.getInheritedAttributes().get('groupCode', None)
-        if groupCode:
-            pane = pane.contentPane(title=title, pageName=paletteCode)
-            pane.dataController("SET gnr.palettes?%s = paletteCode;" % groupCode, paletteCode=paletteCode,
-                                **{'subscribe_show_palette_%s' % paletteCode: True})
-            return pane.contentPane(detachable=True, datapath='gnr.palettes.%s' % paletteCode, **kwargs)
-        else:
-            parent = self._pm_floatingPalette(pane, '%s_floating' % paletteCode, title=title, dockTo=dockTo)
-            return parent.contentPane(datapath='gnr.palettes.%s' % paletteCode, **kwargs)
-
+   
     @struct_method
     def pm_paletteTree(self, pane, paletteCode=None, title=None, data=None, **kwargs):
         tree_kwargs = dict(labelAttribute='caption', _class='fieldsTree', hideValues=True,
