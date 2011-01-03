@@ -25,7 +25,7 @@ from gnr.web.gnrbaseclasses import BaseComponent
 
 class TableHandler(BaseComponent):
     py_requires = """standard_tables/tablehandler_core,
-                    standard_tables/tablehandler_form,
+                     standard_tables/tablehandler_form,
                      standard_tables/tablehandler_list,
                      standard_tables/tablehandler_extra:TagsHandler,
                      standard_tables/tablehandler_extra:QueryHelper,
