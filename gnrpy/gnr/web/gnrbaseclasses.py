@@ -31,7 +31,7 @@ import os
 from gnr.core.gnrbaghtml import BagToHtml
 from gnr.core.gnrstring import  splitAndStrip, slugify
 from gnr.core.gnrlang import GnrObject
-
+from gnr.core.gnrbag import Bag
 
 def page_mixin(func):
     def decore(self, obj, *args, **kwargs):
@@ -133,10 +133,9 @@ class TableScriptToHtml(BagToHtml):
             return False
         if not pdf:
             return html
-
         docname = os.path.splitext(os.path.basename(self.filepath))[0]
         self.pdfpath = self.getPdfPath('%s.pdf' % docname, autocreate=-1)
-        self.print_handler.htmlToPdf(self.filepath, self.pdfpath)
+        self.print_handler.htmlToPdf(self.filepath, self.pdfpath, orientation=self.orientation())
         if downloadAs:
             with open(self.pdfpath, 'rb') as f:
                 result = f.read()

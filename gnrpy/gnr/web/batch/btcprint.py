@@ -128,7 +128,7 @@ class BaseResourcePrint(BaseResourceBatch):
         bottom.contentPane(region='center', overflow='hidden', margin='4px').simpleTextArea(
                 value='^.#parent.batch_note')
         fb = top.formbuilder(cols=4, border_spacing='4px', margin_top='2px', font_size='.9em',
-                             action='SET .print_mode=$1.print_mode', group='print_mode', lbl_width='1.5em')
+                             action='SET .print_mode=$1.print_mode', field_group='print_mode', lbl_width='1.5em')
         fb.data('.print_mode', 'pdf')
         #fb.radiobutton(value='^.client_print',default_value=True,label='!!Client print',print_mode='client_print')
         fb.radiobutton(value='^.pdf', label='!!Pdf download', lbl=' ', print_mode='pdf', default_value=True)
@@ -146,6 +146,13 @@ class BaseResourcePrint(BaseResourceBatch):
             if hasattr(self.current_batch, 'mail_address'):
                 fb.radiobutton(value='^.mail_deliver', label='!!Deliver mails', print_mode='mail_deliver', lbl=' ')
                 self.table_script_options_mail_deliver(center.contentPane(pageName='mail_deliver', datapath='.mail'))
+        #fb_orientation = top.formbuilder(cols=4, border_spacing='4px',margin_top='2px',font_size='.9em',
+        #                action='SET .print_mode_option.orientation=$1.orientation',group='orientation',lbl_width='1.5em')
+        #fb_orientation.data('.orientation', 'Portrait')
+        #fb_orientation.radiobutton(value='^.portrait',label='!!Portrait',lbl=' ',group='orientation',orientation='Portrait',colspan=2,default_value=True)
+        #fb_orientation.radiobutton(value='^.landscape',label='!!Landscape',lbl=' ',group='orientation',orientation='Landscape',colspan=2)
+
+        
 
     def table_script_options_client_print(self, pane):
         fb = self.table_script_fboptions(pane, tdl_width='3em')
