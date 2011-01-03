@@ -135,7 +135,12 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
                     this.widget.focus();
                 }
             } else if (this._dataprovider /*&& (kw.evt!='del')*/) { //VERIFICARE perché erano escusi gli eventi DEL
-                this.setDataNodeValue(kw.node, kw, trigger_reason);
+                if(prop=='_timing'){
+                    this.setTiming(kw.value)
+                }else{
+                    this.setDataNodeValue(kw.node, kw, trigger_reason);
+                }
+                
             }
             else {
                 if (kw.reason != this) {
