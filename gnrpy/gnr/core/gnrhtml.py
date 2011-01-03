@@ -340,11 +340,15 @@ class GnrHtmlBuilder(object):
 
     def toPdf(self, filename):
         from subprocess import call
-
-        if sys.platform.startswith('linux'):
-            res = call(['wkhtmltopdf', '-q', '%s.%s' % (filename, 'html'), filename])
+        if self.page_height<self.page_width:
+            self.orientation='Landscape'
         else:
-            res = call(['wkhtmltopdf', '-q', '%s.%s' % (filename, 'html'), filename])
+            self.orientation='Portrait'
+        if sys.platform.startswith('linux'):
+            res = call(['wkhtmltopdf', '-q', '-O', self.orientation, '%s.%s'%(filename, 'html'), filename])
+        else:
+            print x
+            res = call(['wkhtmltopdf', '-q', '-O', self.orientation, '%s.%s'%(filename, 'html'), filename])
 
     def calculate_style(self, attr, um, **kwargs):
         style = attr.pop('style', '')

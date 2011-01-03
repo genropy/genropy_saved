@@ -61,6 +61,12 @@ class BagToHtml(object):
         """override this"""
         pass
 
+    def orientation(self):
+        if self.page_width>self.page_height:
+            return 'Landscape'
+        else:
+            return 'Portrait'
+    
     def __call__(self, record=None, filepath=None, folder=None, filename=None, hideTemplate=False, rebuild=True,
                  htmlContent=None, **kwargs):
         """This method returns the html corresponding to a given record.
