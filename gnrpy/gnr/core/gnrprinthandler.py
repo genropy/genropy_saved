@@ -23,6 +23,7 @@ import sys
 class PrinterConnection(object):
     def __init__(self, parent, printer_name=None, printerParams=None, **kwargs):
         self.parent = parent
+        self.orientation = printerParams.pop('orientation',None)
         if printer_name == 'PDF':
             self.initPdf(printerParams=printerParams, **kwargs)
         else:
@@ -59,7 +60,7 @@ class PrinterConnection(object):
         self.printAgent = self.printCups
 
     def printFiles(self, file_list, jobname='GenroPrint', storeFolder=None, outputFilePath=None):
-        pdf_list = self.parent.autoConvertFiles(file_list, storeFolder)
+        pdf_list = self.parent.autoConvertFiles(file_list, storeFolder, orientation=self.orientation)
         return self.printAgent(pdf_list, jobname, outputFilePath=outputFilePath)
 
 class PrintHandler(object):
@@ -88,15 +89,16 @@ class PrintHandler(object):
         self.hasCups = HAS_CUPS
         self.hasPyPdf = HAS_PYPDF
         self.parent = parent
-
-    def htmlToPdf(self, srcPath, destPath): #srcPathList per ridurre i processi?
+        
+    def htmlToPdf(self, srcPath, destPath, orientation=None): #srcPathList per ridurre i processi?
+        orientation = orientation or 'Portrait'
         if os.path.isdir(destPath):
             baseName = os.path.splitext(os.path.basename(srcPath))[0]
             destPath = os.path.join(destPath, '%s.pdf' % baseName)
         if sys.platform.startswith('linux'):
-            result = call(['wkhtmltopdf', '-q', srcPath, destPath])
+            result = call(['wkhtmltopdf', '-q', '-O', orientation, srcPath, destPath])
         else:
-            result = call(['wkhtmltopdf', '-q', srcPath, destPath])
+            result = call(['wkhtmltopdf', '-q', '-O', orientation, srcPath, destPath])
         if result < 0:
             raise PrintHandlerError('wkhtmltopdf error')
         return destPath
