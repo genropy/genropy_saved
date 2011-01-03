@@ -3,6 +3,7 @@
     <db dbname="showcase"/>
     <packages>
         <showcase/>
+        <test15/>
         <adm/>
     </packages>
     <authentication pkg='adm'>
