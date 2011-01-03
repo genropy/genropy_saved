@@ -1036,17 +1036,17 @@ class GnrGridStruct(GnrStructData):
                   classes=classes, calculated=calculated, format_onclick="""var idx = kw.rowIndex;
                                                                     var rowpath = '#'+idx;
                                                                     var sep = this.widget.gridEditor? '.':'?';
-                                                                    var valuepath=rowpath+sep+'%s';
+                                                                    var valuepath=rowpath+sep+'%(field)s';
                                                                     var disabledpath = rowpath+'?disabled';
                                                                     var storebag = this.widget.storebag();
                                                                     if (storebag.getItem(disabledpath)){
                                                                         return;
                                                                     }
-                                                                    var currval = storebag.getItem(valuepath);
+                                                                    var checked = !storebag.getItem(valuepath);
                                                                     
-                                                                    storebag.setItem(valuepath,!currval);
-                                                                    
-                                                                    """ % field
+                                                                    storebag.setItem(valuepath, checked);
+                                                                    %(action)s
+                                                                    """ % dict(field=field, action=action or '')
                   , dtype='B', **kwargs)
 
     def defaultArgsForDType(self, dtype):
