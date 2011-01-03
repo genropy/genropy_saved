@@ -30,8 +30,8 @@ class GnrCustomWebPage(object):
         fb= pane.formbuilder(cols=2, border_spacing='0px')
         fb_pars= fb.div().formbuilder(cols=1, border_spacing='2px')
         fb_draw= fb.div().formbuilder(cols=1, border_spacing='2px')
-        fb_draw.div().span('Updatedtata every')._.span('^.timing')
-        fb_draw.div(border='1px solid silver',margin='5px').protovis(nodeId='pv_1',storepath='.pvstore')
+        fb_draw.div().span('Update data every: ')._.span('^.timing')._.span(' seconds')
+        fb_draw.div(border='1px solid silver',margin='5px',background_color='white').protovis(nodeId='pv_1',storepath='.pvstore')
         fb_pars.horizontalslider(value="^.pvstore.width", minimum=200, maximum=500, intermediateChanges='^.intermediate',
                             width='150px', lbl='Width')
         fb_pars.horizontalslider(value="^.pvstore.height", minimum=100, maximum=300, intermediateChanges='^.intermediate',
@@ -76,7 +76,7 @@ class GnrCustomWebPage(object):
         pane.dataRpc('.pvstore.data', 'random_data', _fired="^.update_data",_init=True)
         fb= pane.formbuilder(cols=2, border_spacing='0px')
         fb_pars= fb.div().formbuilder(cols=1, border_spacing='2px')
-        fb.div(border='1px solid silver',margin='5px').protovis(nodeId='pv_1',storepath='.pvstore')
+        fb.div(border='1px solid silver',margin='5px',background_color='white').protovis(nodeId='pv_1',storepath='.pvstore')
 
         fb_pars.horizontalslider(value="^.pvstore.width", minimum=200, maximum=500, intermediateChanges='^.intermediate',
                             width='150px', lbl='Width')

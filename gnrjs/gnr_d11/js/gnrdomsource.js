@@ -1013,7 +1013,7 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
         if (this._timing) {
             clearInterval(this._timing);
         }
-        if (timing >= 0) {
+        if (timing > 0) {
             var timerFunc = dojo.hitch(this, 'setDataNodeValue');
             this._timing = setInterval(timerFunc, timing * 1000);
         }
