@@ -13,22 +13,6 @@ from time import time
 
 class PaletteManager(BaseComponent):
     py_requires = 'foundation/macrowidgets:FilterBox,gnrcomponents/htablehandler:HTableHandlerBase,gnrcomponents/grid_configurator/grid_configurator:GridConfigurator'
-   
-    @struct_method
-    def pm_paletteTree(self, pane, paletteCode=None, title=None, data=None, **kwargs):
-        tree_kwargs = dict(labelAttribute='caption', _class='fieldsTree', hideValues=True,
-                           margin='6px', font_size='.9em', draggable=True,
-                           onDrag=""" if(treeItem.attr.child_count && treeItem.attr.child_count>0){
-                                return false;
-                            }
-                            dragValues['text/plain']=treeItem.attr.caption;
-                           dragValues['%s']=treeItem.attr;""" % paletteCode)
-        tree_kwargs.update(dictExtract(kwargs, 'tree_', pop=True))
-        pane = pane.palettePane(paletteCode=paletteCode, title=title, **kwargs)
-        if data is not None:
-            pane.data('.store', data)
-        pane.tree(storepath='.store', **tree_kwargs)
-        return pane
 
     @struct_method
     def pm_paletteGrid(self, pane, paletteCode=None, title=None, data=None, struct=None,
