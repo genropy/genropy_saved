@@ -162,10 +162,10 @@ class GnrDomSrc(GnrStructData):
         return GnrStructData.child(obj, tag, name=name, **kwargs)
 
     def htmlChild(self, tag, content, value=None, **kwargs):
-        if content and content.startswith('^'):
+        if content :
             kwargs['innerHTML'] = content
             content = None
-        elif value and value.startswith('^'):
+        elif value:
             kwargs['innerHTML'] = value
             value = None
         return self.child(tag, content=content, **kwargs)
