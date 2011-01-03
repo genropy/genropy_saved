@@ -60,8 +60,8 @@ dojo.declare("gnr.widgets.PalettePane", gnr.widgets.dummy, {
         var paletteCode = objectPop(kw,'paletteCode');
         var groupCode = objectPop(kw,'groupCode');
         if (groupCode){
-            kw['detachable'] = true;
-            var pane = sourceNode._('ContentPane',kw);
+            
+            var pane = sourceNode._('ContentPane',objectExtract(kw,'title'))._('ContentPane',objectUpdate({'detachable':true},kw));
             var subscription_code = 'subscribe_show_palette_'+paletteCode;
             pane._('dataController',{'script':"SET gnr.palettes?"+groupCode+" = paletteCode;",
                                  'paletteCode':paletteCode,
