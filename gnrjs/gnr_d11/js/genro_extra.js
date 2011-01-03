@@ -99,6 +99,7 @@ dojo.declare("gnr.widgets.protovis", gnr.widgets.baseHtml, {
         dojo.subscribe(sourceNode.attr.nodeId + '_render', this, function() {
             this.render(newobj)
         })
+      
     },
     setStorepath:function(obj, value) {
         obj.gnr.update(obj)
@@ -116,12 +117,25 @@ dojo.declare("gnr.widgets.protovis", gnr.widgets.baseHtml, {
     },
     update:function(domNode) {
         var sourceNode = domNode.sourceNode;
-        if (sourceNode.vis) {
-            sourceNode.vis.render()
+        if ((sourceNode.vis) && (!sourceNode.visError)){
+            sourceNode.vis.render();
+        }else{
+            this.render(domNode);
         }
 
     },
     render:function(domNode) {
+        var sourceNode = domNode.sourceNode;
+        try {
+             this._doRender(domNode)
+             sourceNode.visError=null
+        } catch(e) {
+            console.log('error in rendering protovis '+sourceNode.attr.nodeId)
+            sourceNode.visError=e
+        }
+        
+    },
+    _doRender:function(domNode) {
         var sourceNode = domNode.sourceNode;
         if (sourceNode.attr.js) {
             var vis = new pv.Panel()
@@ -158,6 +172,22 @@ dojo.declare("gnr.widgets.protovis", gnr.widgets.baseHtml, {
         }
         for (var k in attr) {
             var v = attr[k];
+            if (stringEndsWith(k,'_js')){
+                k=k.slice(0,-3)
+                v=genro.evaluate(v);
+            }
+            else if (stringEndsWith(k,'_fn')){
+                k=k.slice(0,-3)
+                v=genro.evaluate('function(){return '+v+'}');
+            }
+            else if(k.indexOf('_fn_')>0){
+                k=k.split('_fn_')
+                var fn='function('+k[1]+'){return ('+v+')}'
+                console.log(fn)
+                v=genro.evaluate(fn);
+                k=k[0]
+            }
+            
             if ((typeof(v) == 'string') && (v[0] == '=')) {
                 path = v.slice(1)
                 if (path[0] == '.') {
@@ -165,7 +195,13 @@ dojo.declare("gnr.widgets.protovis", gnr.widgets.baseHtml, {
                 }
                 v = this.storegetter(sourceNode, path)
             }
-            obj[k](v)
+            if(k.indexOf('_')>0){
+                k=k.split('_');
+                obj[k[0]](k[1],v);
+            }else{
+                obj[k](v);
+            }
+            
         }
         var v = node.getValue();
         _this = this
