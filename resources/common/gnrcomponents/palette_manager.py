@@ -34,7 +34,7 @@ class PaletteManager(BaseComponent):
     def pm_paletteGrid(self, pane, paletteCode=None, title=None, data=None, struct=None,
                        table=None, datamode=None, filterOn=None, configurable=None, **kwargs):
         grid_kwargs = dict(margin='6px', font_size='.9em', draggable_row=True,
-                           onDrag="""dragValues['%s']=dragInfo.row;""" % paletteCode)
+                           onDrag="""dragValues['%s']=dragValues.gridrow.rowset;""" % paletteCode)
         grid_kwargs.update(dictExtract(kwargs, 'grid_', pop=True))
         pane = pane.palettePane(paletteCode=paletteCode, title=title, **kwargs)
         gridId = 'palette_%s_grid' % paletteCode
