@@ -1192,6 +1192,9 @@ dojo.declare("gnr.GnrDomSource", gnr.GnrStructData, {
         }
 
     },
+    replaceContent:function(b){
+        this._nodes = b.getNodes();
+    },
 
     component: function() {
         if (this.component != null) {

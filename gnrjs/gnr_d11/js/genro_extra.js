@@ -3,33 +3,26 @@ dojo.declare("gnr.widgets.dummy", null, {
         this._domtag = 'div';
     },
     _beforeCreation: function(sourceNode) {
-        sourceNode.freeze()
+        var contentKwargs = this.contentKwargs(sourceNode);
+        sourceNode.freeze();
         var children = sourceNode.getValue();
         sourceNode.clearValue();
-        var content = this.createContent(sourceNode, this.contentKwargs(objectUpdate({}, sourceNode.attr)));
+        var content = this.createContent(sourceNode, contentKwargs);
         if (children) {
-            children.forEach(function(n) {
-                content._(n.attr.tag, objectUpdate({}, n.attr));
-            })
+            content.replaceContent(children);
         }
         sourceNode.unfreeze(true);
         return false;
     },
-    contentKwargs: function(attributes) {
+    contentKwargs: function(sourceNode) {
+        var attributes = objectUpdate({},sourceNode.attr);
         return attributes;
     }
-
-
-});
-dojo.declare("gnr.widgets.pPane", gnr.widgets.dummy, {
-
 });
 
-dojo.declare("gnr.widgets.pGroup", gnr.widgets.dummy, {
-    contentKwargs: function(attributes) {
-        var groupCode = objectPop(attributes, 'groupCode');
-        var dockTo = objectPop(attributes, 'dockTo');
-        var title = objectPop(attributes, 'title') || 'Palette ' + groupCode;
+dojo.declare("gnr.widgets.Palette", gnr.widgets.dummy, {
+    contentKwargs: function(sourceNode) {
+        var attributes = objectUpdate({},sourceNode.attr);
         var left = objectPop(attributes, 'left');
         var right = objectPop(attributes, 'right');
         var top = objectPop(attributes, 'top');
@@ -41,49 +34,61 @@ dojo.declare("gnr.widgets.pGroup", gnr.widgets.dummy, {
             top = this._last_floating['top'] + 'px';
             right = this._last_floating['right'] + 'px';
         }
-        var nodeId = 'paletteGroup_' + groupCode + '_floating';
-        var floating_kwargs = {nodeId:nodeId,dockTo:dockTo,title:title,
-            dockable:true,closable:false,resizable:true};
+        var floating_kwargs = objectUpdate(attributes,{dockable:true,closable:false,resizable:true});
         return objectUpdate({height:'400px',width:'300px',
-            top:top,right:right,left:left,bottom:bottom,
-            visibility:'hidden',groupCode:groupCode},
-                floating_kwargs);
-
-
+            top:top,right:right,left:left,bottom:bottom,dockTo:'default_dock',
+            visibility:'hidden'},floating_kwargs);
     },
     createContent:function(sourceNode, kw) {
+        return sourceNode._('floatingPane', kw);
+    }
+});
+
+
+dojo.declare("gnr.widgets.PalettePane", gnr.widgets.dummy, {
+    contentKwargs: function(sourceNode){
+        var attributes = objectUpdate({},sourceNode.attr);
+        var inattr = sourceNode.getInheritedAttributes();
+        var groupCode = inattr.groupCode;
+        if(groupCode){
+            attributes.groupCode = groupCode;
+            attributes.pageName = attributes.paletteCode;
+        }
+        return attributes;
+    },
+    createContent:function(sourceNode, kw) {
+        var paletteCode = objectPop(kw,'paletteCode');
+        var groupCode = objectPop(kw,'groupCode');
+        if (groupCode){
+            kw['detachable'] = true;
+            var pane = sourceNode._('ContentPane',kw);
+            var subscription_code = 'subscribe_show_palette_'+paletteCode;
+            pane._('dataController',{'script':"SET gnr.palettes?"+groupCode+" = paletteCode;",
+                                 'paletteCode':paletteCode,
+                                 subscription_code: true});
+            return pane;
+        }else{
+            var palette_kwargs = objectExtract(kw,'title,dockTo,top,left,right,bottom');
+            palette_kwargs['nodeId'] = paletteCode+'_floating';
+            palette_kwargs['title'] = palette_kwargs['title'] || 'Palette ' + paletteCode;
+            var floating = sourceNode._('palette', palette_kwargs);
+            return floating._('ContentPane',kw);
+        }
+        
+    }
+
+});
+
+dojo.declare("gnr.widgets.PaletteGroup", gnr.widgets.dummy, {
+    createContent:function(sourceNode, kw) {
         var groupCode = objectPop(kw, 'groupCode');
-        var floating = sourceNode._('floatingPane', kw);
-        var tc = floating._('tabContainer', {selectedPage:'^gnr.palettes.?' + groupCode});
+        var palette_kwargs = objectExtract(kw,'title,dockTo,top,left,right,bottom');
+        palette_kwargs['nodeId'] = 'paletteGroup_'+groupCode+'_floating';
+        palette_kwargs['title'] = palette_kwargs['title'] || 'Palette ' + groupCode;
+        var floating = sourceNode._('palette', palette_kwargs);
+        var tc = floating._('tabContainer', {selectedPage:'^gnr.palettes.?' + groupCode,groupCode:groupCode});
         return tc;
     }
-    /*
-     def pm_paletteGroup(self,pane=None,groupCode=None,title=None,dockTo=None,**kwargs):
-     floating = self._pm_floatingPalette(pane,nodeId='paletteGroup_%s_floating' %groupCode,
-     title=title or '!!Palette %s' %groupCode,dockTo=dockTo,**kwargs)
-     return floating.tabContainer(selectedPage='^gnr.palettes.?%s' %groupCode,groupCode=groupCode)
-
-     def _pm_floating_kwargs(self,top=None,left=None,right=None,bottom=None,**kwargs):
-     if (left is None) and (top is None) and (right is None) and (bottom is None):
-     if not hasattr(self,'_last_floating'):
-     self._last_floating = dict(top=0,right=0)
-     self._last_floating['top']=self._last_floating['top']+10
-     self._last_floating['right'] = self._last_floating['right'] +10
-     top = '%ipx' %self._last_floating['top']
-     right = '%ipx' %self._last_floating['right']
-     palette_kwargs = dict(height='400px',width='300px',top=top,right=right,left=left,bottom=bottom,
-     visibility='hidden')
-     palette_kwargs.update(kwargs)
-     return palette_kwargs
-
-     def _pm_floatingPalette(self,pane,nodeId=None,title=None,dockTo=None,**kwargs):
-     dockTo = dockTo or 'default_dock'
-     return pane.floatingPane(nodeId=nodeId,dockTo=dockTo,title=title,
-     dockable=True,closable=False,resizable=True,
-     **self._pm_floating_kwargs(**kwargs))
-
-     */
-
 });
 
 dojo.declare("gnr.widgets.protovis", gnr.widgets.baseHtml, {
@@ -97,12 +102,12 @@ dojo.declare("gnr.widgets.protovis", gnr.widgets.baseHtml, {
     },
     created: function(newobj, savedAttrs, sourceNode) {
         dojo.subscribe(sourceNode.attr.nodeId + '_render', this, function() {
-            this.render(newobj)
-        })
+            this.render(newobj);
+        });
       
     },
     setStorepath:function(obj, value) {
-        obj.gnr.update(obj)
+        obj.gnr.update(obj);
     },
     attachToDom:function(domNode, vis) {
         var span = document.createElement('span');
@@ -113,7 +118,7 @@ dojo.declare("gnr.widgets.protovis", gnr.widgets.baseHtml, {
             domNode.appendChild(span);
         }
         vis.$dom = span;
-        return span
+        return span;
     },
     update:function(domNode) {
         var sourceNode = domNode.sourceNode;
@@ -127,37 +132,37 @@ dojo.declare("gnr.widgets.protovis", gnr.widgets.baseHtml, {
     render:function(domNode) {
         var sourceNode = domNode.sourceNode;
         try {
-             this._doRender(domNode)
-             sourceNode.visError=null
+             this._doRender(domNode);
+             sourceNode.visError=null;
         } catch(e) {
-            console.log('error in rendering protovis '+sourceNode.attr.nodeId)
-            sourceNode.visError=e
+            console.log('error in rendering protovis '+sourceNode.attr.nodeId);
+            sourceNode.visError=e;
         }
         
     },
     _doRender:function(domNode) {
         var sourceNode = domNode.sourceNode;
         if (sourceNode.attr.js) {
-            var vis = new pv.Panel()
+            var vis = new pv.Panel();
             var protovis = pv.parse(sourceNode.getAttributeFromDatasource('js'));
             funcApply(protovis, objectUpdate({'vis':vis}, sourceNode.currentAttributes()), sourceNode);
         }
         else if (sourceNode.attr.storepath) {
-            var storepath = sourceNode.attr.storepath
-            var visbag = sourceNode.getRelativeData(storepath)
-            vis = this.bnode(sourceNode, visbag.getNode('source.#0'))
+            var storepath = sourceNode.attr.storepath;
+            var visbag = sourceNode.getRelativeData(storepath);
+            vis = this.bnode(sourceNode, visbag.getNode('source.#0'));
         }
-        this.attachToDom(domNode, vis)
+        this.attachToDom(domNode, vis);
         sourceNode.vis = vis;
-        vis.render()
+        vis.render();
     },
     storegetter:function(sourceNode, path) {
-        var p = path
-        var s = sourceNode
+        var p = path;
+        var s = sourceNode;
         return function() {
-            console.log('getting: ' + p)
-            return s.getRelativeData(p)
-        }
+            console.log('getting: ' + p);
+            return s.getRelativeData(p);
+        };
     },
     bnode:function(sourceNode, node, parent) {
 
@@ -168,32 +173,32 @@ dojo.declare("gnr.widgets.protovis", gnr.widgets.baseHtml, {
         if (!parent) {
             obj = new pv[tag]();
         } else {
-            obj = parent.add(pv[tag])
+            obj = parent.add(pv[tag]);
         }
         for (var k in attr) {
             var v = attr[k];
             if (stringEndsWith(k,'_js')){
-                k=k.slice(0,-3)
+                k=k.slice(0,-3);
                 v=genro.evaluate(v);
             }
             else if (stringEndsWith(k,'_fn')){
-                k=k.slice(0,-3)
+                k=k.slice(0,-3);
                 v=genro.evaluate('function(){return '+v+'}');
             }
             else if(k.indexOf('_fn_')>0){
-                k=k.split('_fn_')
-                var fn='function('+k[1]+'){return ('+v+')}'
-                console.log(fn)
+                k=k.split('_fn_');
+                var fn='function('+k[1]+'){return ('+v+')}';
+                console.log(fn);
                 v=genro.evaluate(fn);
-                k=k[0]
+                k=k[0];
             }
             
             if ((typeof(v) == 'string') && (v[0] == '=')) {
-                path = v.slice(1)
+                path = v.slice(1);
                 if (path[0] == '.') {
-                    path = storepath + path
+                    path = storepath + path;
                 }
-                v = this.storegetter(sourceNode, path)
+                v = this.storegetter(sourceNode, path);
             }
             if(k.indexOf('_')>0){
                 k=k.split('_');
@@ -204,13 +209,13 @@ dojo.declare("gnr.widgets.protovis", gnr.widgets.baseHtml, {
             
         }
         var v = node.getValue();
-        _this = this
+        _this = this;
         if (v instanceof gnr.GnrBag) {
             v.forEach(function(n) {
-                _this.bnode(sourceNode, n, obj)
-            })
+                _this.bnode(sourceNode, n, obj);
+            });
         }
-        return obj
+        return obj;
     }
 });
 

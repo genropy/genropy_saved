@@ -125,7 +125,9 @@ dojo.declare("gnr.GnrWdgHandler", null, {
             'GoogleVisualization':'',
             'CkEditor':'',
             'protovis':'',
-            'pGroup':''
+            'PaletteGroup':'',
+            'PalettePane':'',
+            'Palette':''
         };
         var tag;
         for (tag in this.widgetcatalog) {
