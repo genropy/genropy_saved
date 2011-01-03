@@ -8,8 +8,8 @@ dojo.declare("gnr.widgets.dummy", null, {
         var children = sourceNode.getValue();
         sourceNode.clearValue();
         var content = this.createContent(sourceNode, contentKwargs);
-        if (children) {
-            content.replaceContent(children);
+        if (children.len()>0) {
+            children.forEach(function(n){content.addItem(n.label,n.getValue(),n.attr);});
         }
         sourceNode.unfreeze(true);
         return false;
@@ -61,7 +61,7 @@ dojo.declare("gnr.widgets.PalettePane", gnr.widgets.dummy, {
         var groupCode = objectPop(kw,'groupCode');
         if (groupCode){
             
-            var pane = sourceNode._('ContentPane',objectExtract(kw,'title'))._('ContentPane',objectUpdate({'detachable':true},kw));
+            var pane = sourceNode._('ContentPane',objectExtract(kw,'title,pageName'))._('ContentPane',objectUpdate({'detachable':true},kw));
             var subscription_code = 'subscribe_show_palette_'+paletteCode;
             pane._('dataController',{'script':"SET gnr.palettes?"+groupCode+" = paletteCode;",
                                  'paletteCode':paletteCode,
@@ -74,10 +74,46 @@ dojo.declare("gnr.widgets.PalettePane", gnr.widgets.dummy, {
             var floating = sourceNode._('palette', palette_kwargs);
             return floating._('ContentPane',kw);
         }
-        
     }
-
 });
+dojo.declare("gnr.widgets.PaletteTree", gnr.widgets.dummy, {
+    createContent:function(sourceNode, kw) {
+        var tree_kwargs = {labelAttribute:'caption', _class:'fieldsTree', hideValues:true,
+                           margin:'6px', font_size:'.9em', draggable:true,storepath:'.store'};
+        var paletteCode = kw.paletteCode;
+        tree_kwargs.onDrag = function(dragValues,dragInfo,treeItem){
+            if(treeItem.attr.child_count && treeItem.attr.child_count>0){
+                return false;
+            }
+            dragValues['text/plain']=treeItem.attr.caption;
+            dragValues[paletteCode]=treeItem.attr;
+        }
+        objectUpdate(tree_kwargs ,objectExtract(kw,'tree_*'));
+        var pane = sourceNode._('PalettePane',kw);
+        var tree = pane._('tree',tree_kwargs);
+        return pane;
+    }
+});
+
+/*
+    def pm_paletteTree(self, pane, paletteCode=None, title=None, data=None, **kwargs):
+        tree_kwargs = dict(labelAttribute='caption', _class='fieldsTree', hideValues=True,
+                           margin='6px', font_size='.9em', draggable=True,
+                           onDrag=""" if(treeItem.attr.child_count && treeItem.attr.child_count>0){
+                                return false;
+                            }
+                            dragValues['text/plain']=treeItem.attr.caption;
+                           dragValues['%s']=treeItem.attr;""" % paletteCode)
+        tree_kwargs.update(dictExtract(kwargs, 'tree_', pop=True))
+        pane = pane.palettePane(paletteCode=paletteCode, title=title, **kwargs)
+        if data is not None:
+            pane.data('.store', data)
+        pane.tree(storepath='.store', **tree_kwargs)
+        return pane
+
+
+
+*/
 
 dojo.declare("gnr.widgets.PaletteGroup", gnr.widgets.dummy, {
     createContent:function(sourceNode, kw) {

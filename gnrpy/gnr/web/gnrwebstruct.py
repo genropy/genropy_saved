@@ -467,7 +467,7 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
              'dataController',
              'dataRemote', 'gridView', 'viewHeader', 'viewRow', 'script', 'func',
              'staticGrid', 'dynamicGrid', 'fileUploader', 'gridEditor', 'ckEditor', 
-            'tinyMCE', 'protovis', 'PaletteGroup','PalettePane','Palette']
+            'tinyMCE', 'protovis', 'PaletteGroup','PalettePane','Palette','PaletteTree']
     genroNameSpace = dict([(name.lower(), name) for name in htmlNS])
     genroNameSpace.update(dict([(name.lower(), name) for name in dijitNS]))
     genroNameSpace.update(dict([(name.lower(), name) for name in dojoxNS]))
@@ -514,6 +514,13 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
     def palettePane(self,paletteCode,datapath=None,**kwargs):
         datapath = datapath or 'gnr.palettes.%s' %paletteCode
         return self.child('PalettePane',paletteCode=paletteCode,datapath=datapath,**kwargs)
+        
+    def paletteTree(self,paletteCode,datapath=None,data=None,**kwargs):
+        datapath = datapath or 'gnr.palettes.%s' %paletteCode
+        if data is not None:
+            self.data('%s.store' %datapath,data)
+        return self.child('PaletteTree',paletteCode=paletteCode,datapath=datapath,**kwargs)
+
 
     def includedview(self, storepath=None, structpath=None, struct=None, table=None,
                      nodeId=None, columns=None, **kwargs):

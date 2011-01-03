@@ -127,6 +127,7 @@ dojo.declare("gnr.GnrWdgHandler", null, {
             'protovis':'',
             'PaletteGroup':'',
             'PalettePane':'',
+            'PaletteTree':'',
             'Palette':''
         };
         var tag;
