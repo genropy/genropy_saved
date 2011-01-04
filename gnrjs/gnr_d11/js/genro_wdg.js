@@ -128,6 +128,7 @@ dojo.declare("gnr.GnrWdgHandler", null, {
             'PaletteGroup':'',
             'PalettePane':'',
             'PaletteTree':'',
+            'PaletteGrid':'',
             'Palette':''
         };
         var tag;

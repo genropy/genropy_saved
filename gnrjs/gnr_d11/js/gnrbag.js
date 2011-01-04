@@ -481,6 +481,7 @@ dojo.declare("gnr.GnrBag", null, {
         }
 
     },
+    
     /**
      * @id getParent
      */
@@ -1194,6 +1195,9 @@ dojo.declare("gnr.GnrBag", null, {
      * todo
      */
     merge: function() {
+    },
+    concat: function(b){
+        this._nodes = this._nodes.concat(b._nodes);
     },
 
     /**

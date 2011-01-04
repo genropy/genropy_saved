@@ -1175,7 +1175,13 @@ dojo.declare("gnr.widgets.FloatingPane", gnr.widgets.baseDojo, {
 
     created: function(widget, savedAttrs, sourceNode) {
         widget._startZ = 600;
-    }
+        var nodeId = sourceNode.attr.nodeId;
+        if (nodeId){
+            dojo.connect(widget,'show',function(){
+                genro.publish(nodeId+'_show');
+            });
+        }
+    },
 
 });
 
