@@ -8,21 +8,23 @@ dojo.declare("gnr.widgets.dummy", null, {
         var children = sourceNode.getValue();
         sourceNode.clearValue();
         var content = this.createContent(sourceNode, contentKwargs);
-        if (children.len()>0) {
-            children.forEach(function(n){content.addItem(n.label,n.getValue(),n.attr);});
+        if (children.len() > 0) {
+            children.forEach(function(n) {
+                content.addItem(n.label, n.getValue(), n.attr);
+            });
         }
         sourceNode.unfreeze(true);
         return false;
     },
     contentKwargs: function(sourceNode) {
-        var attributes = objectUpdate({},sourceNode.attr);
+        var attributes = objectUpdate({}, sourceNode.attr);
         return attributes;
     }
 });
 
 dojo.declare("gnr.widgets.Palette", gnr.widgets.dummy, {
     contentKwargs: function(sourceNode) {
-        var attributes = objectUpdate({},sourceNode.attr);
+        var attributes = objectUpdate({}, sourceNode.attr);
         var left = objectPop(attributes, 'left');
         var right = objectPop(attributes, 'right');
         var top = objectPop(attributes, 'top');
@@ -34,10 +36,10 @@ dojo.declare("gnr.widgets.Palette", gnr.widgets.dummy, {
             top = this._last_floating['top'] + 'px';
             right = this._last_floating['right'] + 'px';
         }
-        var floating_kwargs = objectUpdate(attributes,{dockable:true,closable:false,resizable:true});
+        var floating_kwargs = objectUpdate(attributes, {dockable:true,closable:false,resizable:true});
         return objectUpdate({height:'400px',width:'300px',
             top:top,right:right,left:left,bottom:bottom,dockTo:'default_dock',
-            visibility:'hidden'},floating_kwargs);
+            visibility:'hidden'}, floating_kwargs);
     },
     createContent:function(sourceNode, kw) {
         return sourceNode._('floatingPane', kw);
@@ -46,80 +48,80 @@ dojo.declare("gnr.widgets.Palette", gnr.widgets.dummy, {
 
 
 dojo.declare("gnr.widgets.PalettePane", gnr.widgets.dummy, {
-    contentKwargs: function(sourceNode){
-        var attributes = objectUpdate({},sourceNode.attr);
+    contentKwargs: function(sourceNode) {
+        var attributes = objectUpdate({}, sourceNode.attr);
         var inattr = sourceNode.getInheritedAttributes();
         var groupCode = inattr.groupCode;
-        if(groupCode){
+        if (groupCode) {
             attributes.groupCode = groupCode;
             attributes.pageName = attributes.paletteCode;
         }
         return attributes;
     },
     createContent:function(sourceNode, kw) {
-        var paletteCode = objectPop(kw,'paletteCode');
-        var groupCode = objectPop(kw,'groupCode');
-        if (groupCode){
-            
-            var pane = sourceNode._('ContentPane',objectExtract(kw,'title,pageName'))._('ContentPane',objectUpdate({'detachable':true},kw));
-            var subscription_code = 'subscribe_show_palette_'+paletteCode;
-            pane._('dataController',{'script':"SET gnr.palettes?"+groupCode+" = paletteCode;",
-                                 'paletteCode':paletteCode,
-                                 subscription_code: true});
+        var paletteCode = objectPop(kw, 'paletteCode');
+        var groupCode = objectPop(kw, 'groupCode');
+        if (groupCode) {
+
+            var pane = sourceNode._('ContentPane', objectExtract(kw, 'title,pageName'))._('ContentPane', objectUpdate({'detachable':true}, kw));
+            var subscription_code = 'subscribe_show_palette_' + paletteCode;
+            pane._('dataController', {'script':"SET gnr.palettes?" + groupCode + " = paletteCode;",
+                'paletteCode':paletteCode,
+                subscription_code: true});
             return pane;
-        }else{
-            var palette_kwargs = objectExtract(kw,'title,dockTo,top,left,right,bottom');
-            palette_kwargs['nodeId'] = paletteCode+'_floating';
+        } else {
+            var palette_kwargs = objectExtract(kw, 'title,dockTo,top,left,right,bottom');
+            palette_kwargs['nodeId'] = paletteCode + '_floating';
             palette_kwargs['title'] = palette_kwargs['title'] || 'Palette ' + paletteCode;
             var floating = sourceNode._('palette', palette_kwargs);
-            return floating._('ContentPane',kw);
+            return floating._('ContentPane', kw);
         }
     }
 });
 dojo.declare("gnr.widgets.PaletteTree", gnr.widgets.dummy, {
     createContent:function(sourceNode, kw) {
         var tree_kwargs = {labelAttribute:'caption', _class:'fieldsTree', hideValues:true,
-                           margin:'6px', font_size:'.9em', draggable:true,storepath:'.store'};
+            margin:'6px', font_size:'.9em', draggable:true,storepath:'.store'};
         var paletteCode = kw.paletteCode;
-        tree_kwargs.onDrag = function(dragValues,dragInfo,treeItem){
-            if(treeItem.attr.child_count && treeItem.attr.child_count>0){
+        tree_kwargs.onDrag = function(dragValues, dragInfo, treeItem) {
+            if (treeItem.attr.child_count && treeItem.attr.child_count > 0) {
                 return false;
             }
-            dragValues['text/plain']=treeItem.attr.caption;
-            dragValues[paletteCode]=treeItem.attr;
+            dragValues['text/plain'] = treeItem.attr.caption;
+            dragValues[paletteCode] = treeItem.attr;
         }
-        objectUpdate(tree_kwargs ,objectExtract(kw,'tree_*'));
-        var pane = sourceNode._('PalettePane',kw);
-        var tree = pane._('tree',tree_kwargs);
+        objectUpdate(tree_kwargs, objectExtract(kw, 'tree_*'));
+        var pane = sourceNode._('PalettePane', kw);
+        var tree = pane._('tree', tree_kwargs);
         return pane;
     }
 });
 
 /*
-    def pm_paletteTree(self, pane, paletteCode=None, title=None, data=None, **kwargs):
-        tree_kwargs = dict(labelAttribute='caption', _class='fieldsTree', hideValues=True,
-                           margin='6px', font_size='.9em', draggable=True,
-                           onDrag=""" if(treeItem.attr.child_count && treeItem.attr.child_count>0){
-                                return false;
-                            }
-                            dragValues['text/plain']=treeItem.attr.caption;
-                           dragValues['%s']=treeItem.attr;""" % paletteCode)
-        tree_kwargs.update(dictExtract(kwargs, 'tree_', pop=True))
-        pane = pane.palettePane(paletteCode=paletteCode, title=title, **kwargs)
-        if data is not None:
-            pane.data('.store', data)
-        pane.tree(storepath='.store', **tree_kwargs)
-        return pane
+ def pm_paletteTree(self, pane, paletteCode=None, title=None, data=None, **kwargs):
+ tree_kwargs = dict(labelAttribute='caption', _class='fieldsTree', hideValues=True,
+ margin='6px', font_size='.9em', draggable=True,
+ onDrag=""" if(treeItem.attr.child_count && treeItem.attr.child_count>0){
+ return false;
+ }
+ dragValues['text/plain']=treeItem.attr.caption;
+ dragValues['%s']=treeItem.attr;""" % paletteCode)
+ tree_kwargs.update(dictExtract(kwargs, 'tree_', pop=True))
+ pane = pane.palettePane(paletteCode=paletteCode, title=title, **kwargs)
+ if data is not None:
+ pane.data('.store', data)
+ pane.tree(storepath='.store', **tree_kwargs)
+ return pane
 
 
 
-*/
+ */
 
 dojo.declare("gnr.widgets.PaletteGroup", gnr.widgets.dummy, {
     createContent:function(sourceNode, kw) {
         var groupCode = objectPop(kw, 'groupCode');
-        var palette_kwargs = objectExtract(kw,'title,dockTo,top,left,right,bottom');
-        palette_kwargs['nodeId'] = 'paletteGroup_'+groupCode+'_floating';
+        var palette_kwargs = objectExtract(kw, 'title,dockTo,top,left,right,bottom');
+        palette_kwargs['nodeId'] = 'paletteGroup_' + groupCode + '_floating';
         palette_kwargs['title'] = palette_kwargs['title'] || 'Palette ' + groupCode;
         var floating = sourceNode._('palette', palette_kwargs);
         var tc = floating._('tabContainer', {selectedPage:'^gnr.palettes.?' + groupCode,groupCode:groupCode});
@@ -140,7 +142,7 @@ dojo.declare("gnr.widgets.protovis", gnr.widgets.baseHtml, {
         dojo.subscribe(sourceNode.attr.nodeId + '_render', this, function() {
             this.render(newobj);
         });
-      
+
     },
     setStorepath:function(obj, value) {
         obj.gnr.update(obj);
@@ -158,9 +160,9 @@ dojo.declare("gnr.widgets.protovis", gnr.widgets.baseHtml, {
     },
     update:function(domNode) {
         var sourceNode = domNode.sourceNode;
-        if ((sourceNode.vis) && (!sourceNode.visError)){
+        if ((sourceNode.vis) && (!sourceNode.visError)) {
             sourceNode.vis.render();
-        }else{
+        } else {
             this.render(domNode);
         }
 
@@ -168,13 +170,13 @@ dojo.declare("gnr.widgets.protovis", gnr.widgets.baseHtml, {
     render:function(domNode) {
         var sourceNode = domNode.sourceNode;
         try {
-             this._doRender(domNode);
-             sourceNode.visError=null;
+            this._doRender(domNode);
+            sourceNode.visError = null;
         } catch(e) {
-            console.log('error in rendering protovis '+sourceNode.attr.nodeId);
-            sourceNode.visError=e;
+            console.log('error in rendering protovis ' + sourceNode.attr.nodeId);
+            sourceNode.visError = e;
         }
-        
+
     },
     _doRender:function(domNode) {
         var sourceNode = domNode.sourceNode;
@@ -213,22 +215,22 @@ dojo.declare("gnr.widgets.protovis", gnr.widgets.baseHtml, {
         }
         for (var k in attr) {
             var v = attr[k];
-            if (stringEndsWith(k,'_js')){
-                k=k.slice(0,-3);
-                v=genro.evaluate(v);
+            if (stringEndsWith(k, '_js')) {
+                k = k.slice(0, -3);
+                v = genro.evaluate(v);
             }
-            else if (stringEndsWith(k,'_fn')){
-                k=k.slice(0,-3);
-                v=genro.evaluate('function(){return '+v+'}');
+            else if (stringEndsWith(k, '_fn')) {
+                k = k.slice(0, -3);
+                v = genro.evaluate('function(){return ' + v + '}');
             }
-            else if(k.indexOf('_fn_')>0){
-                k=k.split('_fn_');
-                var fn='function('+k[1]+'){return ('+v+')}';
+            else if (k.indexOf('_fn_') > 0) {
+                k = k.split('_fn_');
+                var fn = 'function(' + k[1] + '){return (' + v + ')}';
                 console.log(fn);
-                v=genro.evaluate(fn);
-                k=k[0];
+                v = genro.evaluate(fn);
+                k = k[0];
             }
-            
+
             if ((typeof(v) == 'string') && (v[0] == '=')) {
                 path = v.slice(1);
                 if (path[0] == '.') {
@@ -236,13 +238,13 @@ dojo.declare("gnr.widgets.protovis", gnr.widgets.baseHtml, {
                 }
                 v = this.storegetter(sourceNode, path);
             }
-            if(k.indexOf('_')>0){
-                k=k.split('_');
-                obj[k[0]](k[1],v);
-            }else{
+            if (k.indexOf('_') > 0) {
+                k = k.split('_');
+                obj[k[0]](k[1], v);
+            } else {
                 obj[k](v);
             }
-            
+
         }
         var v = node.getValue();
         _this = this;
