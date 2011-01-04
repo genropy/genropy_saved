@@ -87,8 +87,6 @@ class GnrCustomWebPage(object):
     def source_MouseOver(self):
         result = Bag()
         visbag = result.child('Panel', width='=.width', height='=.height')
-       # visbag.child('Rule', data='pv.range(0, 2, .5)::JS',
-       #              bottom='function(d){return d * 80 + .5}::JS').child('Label')
         visbag.child('Bar', data='=.data',def_i=-1,
                      width='20', 
                      height_fn_d='d * 80',
