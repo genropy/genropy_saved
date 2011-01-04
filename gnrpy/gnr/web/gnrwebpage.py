@@ -1106,6 +1106,36 @@ class GnrWebPage(GnrBaseWebPage):
         serverpath = '_sqlctx.columns.%s' % path
         clientpath = 'gnr.sqlctx.columns.%s' % path
         self.addToContext(value=joincolumns, serverpath=serverpath, clientpath=clientpath)
+        
+    def _prepareGridStruct(self,source=None,table=None):
+        if isinstance(source, Bag):
+            return source
+        if isinstance(source,basestring):
+            source = getattr(self, '%s_struct' % source, source)
+        if callable(source): 
+            struct = self.newGridStruct(maintable=table)
+            source(struct)
+            return struct
+        if table:
+            tblobj = self.db.table(table)
+            if source:
+                handler = getattr(tblobj, 'baseView_%s' % source,None)
+                columns = handler() if handler else source
+            else:
+                columns= tblobj.baseViewColumns()
+            struct = self.newGridStruct(maintable=table)
+            rows = struct.view().rows()
+            rows.fields(columns)
+        return struct
+        
+    def rpc_getGridStruct(self,struct,table):
+        return self._prepareGridStruct(struct,table)
+        
+    def lazyBag(self, bag, name=None, location='page:resolvers'):
+        freeze_path = self.site.getStaticPath(location, name, autocreate=-1)
+        bag.makePicklable()
+        bag.pickle('%s.pik' % freeze_path)
+        return LazyBagResolver(resolverName=name, location=location, _page=self, sourceBag=bag)
 
     ##### BEGIN: DEPRECATED METHODS ###
     @deprecated
@@ -1119,12 +1149,6 @@ class GnrWebPage(GnrBaseWebPage):
         self.debugger.log(msg)
 
     ##### END: DEPRECATED METHODS #####
-
-    def lazyBag(self, bag, name=None, location='page:resolvers'):
-        freeze_path = self.site.getStaticPath(location, name, autocreate=-1)
-        bag.makePicklable()
-        bag.pickle('%s.pik' % freeze_path)
-        return LazyBagResolver(resolverName=name, location=location, _page=self, sourceBag=bag)
 
 class LazyBagResolver(BagResolver):
     classKwargs = {'cacheTime': -1,

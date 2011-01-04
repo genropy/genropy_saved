@@ -520,27 +520,34 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
         if data is not None:
             self.data('%s.store' %datapath,data)
         return self.child('PaletteTree',paletteCode=paletteCode,datapath=datapath,**kwargs)
+    
+    def paletteGrid(self,paletteCode,datapath=None,data=None,struct=None,
+                    columns=None,table=None,structpath=None,gridId=None,**kwargs):
+        datapath = datapath or 'gnr.palettes.%s' %paletteCode
+        gridId = gridId or 'palette_%s_grid' %paletteCode
+        structpath = structpath or '%s.grid.struct' %datapath
+        self._setGridStruct(struct=struct,table=table,columns=columns,gridId=gridId,structpath=structpath)
+        if data is not None:
+            self.data('%s.store' %datapath,data)
+        return self.child('PaletteGrid',table=table,gridId=gridId,storepath='.store',
+                           paletteCode=paletteCode,datapath=datapath,
+                           structpath=structpath,**kwargs)
 
 
     def includedview(self, storepath=None, structpath=None, struct=None, table=None,
                      nodeId=None, columns=None, **kwargs):
         nodeId = nodeId or self.page.getUuid()
         structpath = structpath or 'grids.%s.struct' % nodeId
-        if not struct:
-            struct = getattr(self.page, '%s_struct' % nodeId, None)
-        if table and not struct:
-            columns = columns or self.page.db.table(table).baseViewColumns()
-            struct = self.page.newGridStruct(maintable=table)
-            rows = struct.view().rows()
-            rows.fields(columns)
-        elif callable(struct) and not isinstance(struct, Bag):
-            struct_cb = struct
-            struct = self.page.newGridStruct(maintable=table or getattr(struct_cb, 'table', None))
-            struct_cb(struct)
-        if struct:
-            self.data(structpath, struct)
+        self._setGridStruct(struct=struct,table=table,columns=columns,gridId=nodeId,structpath=structpath)
         return self.child('includedView', storepath=storepath, structpath=structpath, nodeId=nodeId, table=table,
                           **kwargs)
+            
+    def _setGridStruct(self,struct=None,table=None,columns=None,gridId=None,structpath=None):
+        source = struct or columns or gridId
+        struct = self.page._prepareGridStruct(source=source,table=table)
+        if struct:
+            self.data(structpath, struct)
+        
 
     def button(self, label=None, **kwargs):
         return self.child('button', label=label, **kwargs)
