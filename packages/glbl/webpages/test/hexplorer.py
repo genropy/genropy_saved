@@ -25,11 +25,10 @@ class GnrCustomWebPage(object):
         
     def test_1_grid(self,pane):
         pane.paletteGrid('province',title='Province',
-                        struct=self.provincia_struct,
-                        configurable=True,
-                        table='glbl.provincia').selectionStore(_onStart=True)
+                        configurable=True,struct='cap',
+                        table='glbl.provincia').selectionStore()
         
-    def test_2_analyze(self,pane):
+    def _test_2_analyze(self,pane):
         """Test hexplorer"""
         pane.paletteTree('localita',title='!!Localita Geo').tableAnalyzeStore(table='glbl.localita',#where="$nome ILIKE :chunk",chunk='%%u%%',
                         group_by=['@provincia.@regione.zona','@provincia.@regione.nome','@provincia.nome',self.iniziale,'$nome'],
