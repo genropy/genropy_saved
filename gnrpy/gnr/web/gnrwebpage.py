@@ -983,7 +983,7 @@ class GnrWebPage(GnrBaseWebPage):
             if not 'name_long' in nodeattr:
                 raise Exception(nodeattr) # FIXME: use a specific exception class
             nodeattr['caption'] = nodeattr.pop('name_long')
-            nodeattr['fullcaption'] = concat(prevCaption, self._(nodeattr['caption']), ':')
+            nodeattr['fullcaption'] = concat(prevCaption, self._(nodeattr['caption']), '/')
             if nodeattr.get('one_relation'):
                 nodeattr['_T'] = 'JS'
                 if nodeattr['mode'] == 'O':
