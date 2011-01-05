@@ -543,8 +543,8 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
                           **kwargs)
             
     def _setGridStruct(self,struct=None,table=None,columns=None,gridId=None,structpath=None):
-        source = struct or columns or gridId
-        struct = self.page._prepareGridStruct(source=source,table=table)
+        source = struct or columns
+        struct = self.page._prepareGridStruct(source=source,table=table,gridId=gridId)
         if struct:
             self.data(structpath, struct)
         
