@@ -1,7 +1,7 @@
 	.. _genro-datastore:
 
 ===========
- Datastore
+ datastore
 ===========
 
 	- :ref:`datastore-description`

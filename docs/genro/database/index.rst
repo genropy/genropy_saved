@@ -14,3 +14,4 @@ Database
 	table
 	relation_table
 	webpage
+	GnrCustomWebPage
