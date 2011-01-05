@@ -30,6 +30,23 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
         return this.getParentBag().getRoot().application;
     },
     freeze:function() {
+        this._isFreezed = true;
+        return this;
+    },
+    unfreeze:function(noRebuild) {
+        this._isFreezed = false;
+        if (!noRebuild) {
+            this.rebuild();
+        }
+    },
+    isFreezed:function(){
+        var parentNode = this.getParentNode();
+        return this._isFreezed?true:parentNode?parentNode.isFreezed():false;
+    },
+    
+    
+    
+    freeze_:function() {
         this._savedparentbag = this._parentbag;
         this._parentbag = null;
         if (this._value instanceof gnr.GnrDomSource) {
@@ -37,7 +54,7 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
         }
         return this;
     },
-    unfreeze:function(noRebuild) {
+    unfreeze_:function(noRebuild) {
         this._parentbag = this._savedparentbag;
         if (this._value instanceof gnr.GnrDomSource) {
             this._value.setBackRef(this, this._parentbag);

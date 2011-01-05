@@ -129,7 +129,8 @@ dojo.declare("gnr.GnrWdgHandler", null, {
             'PalettePane':'',
             'PaletteTree':'',
             'PaletteGrid':'',
-            'Palette':''
+            'Palette':'',
+            'SearchBox':''
         };
         var tag;
         for (tag in this.widgetcatalog) {

@@ -64,6 +64,9 @@ dojo.declare("gnr.GnrSrcHandler", null, {
         }
     },
     nodeTrigger:function(kw) {
+        if (kw.node.isFreezed()){
+            return;
+        }
         this.pendingBuild.push(kw);
         if (!this.building) {
             this.building = true;

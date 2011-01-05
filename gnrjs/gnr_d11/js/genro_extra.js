@@ -3,7 +3,9 @@ dojo.declare("gnr.widgets.dummy", null, {
         this._domtag = 'div';
     },
     _beforeCreation: function(sourceNode) {
-        var contentKwargs = this.contentKwargs(sourceNode);
+        var attributes = objectUpdate({},sourceNode.attr);
+        objectExtract(sourceNode.attr,'nodeId,datapath');
+        var contentKwargs = this.contentKwargs(sourceNode,attributes);
         sourceNode.freeze();
         var children = sourceNode.getValue();
         sourceNode.clearValue();
@@ -13,15 +15,13 @@ dojo.declare("gnr.widgets.dummy", null, {
         return false;
     },
     
-    contentKwargs: function(sourceNode) {
-        var attributes = objectUpdate({},sourceNode.attr);
+    contentKwargs: function(sourceNode,attributes) {
         return attributes;
     }
 });
 
 dojo.declare("gnr.widgets.Palette", gnr.widgets.dummy, {
-    contentKwargs: function(sourceNode) {
-        var attributes = objectUpdate({},sourceNode.attr);
+    contentKwargs: function(sourceNode,attributes) {
         var left = objectPop(attributes, 'left');
         var right = objectPop(attributes, 'right');
         var top = objectPop(attributes, 'top');
@@ -45,8 +45,7 @@ dojo.declare("gnr.widgets.Palette", gnr.widgets.dummy, {
 
 
 dojo.declare("gnr.widgets.PalettePane", gnr.widgets.dummy, {
-    contentKwargs: function(sourceNode){
-        var attributes = objectUpdate({},sourceNode.attr);
+    contentKwargs: function(sourceNode,attributes){
         var inattr = sourceNode.getInheritedAttributes();
         var groupCode = inattr.groupCode;
         if(groupCode){
@@ -96,15 +95,17 @@ dojo.declare("gnr.widgets.PaletteTree", gnr.widgets.dummy, {
 
 dojo.declare("gnr.widgets.PaletteGrid", gnr.widgets.dummy, {
     createContent:function(sourceNode, kw) {
-        var grid_kwargs = {margin:'6px', font_size:'.9em', draggable_row:true,
+        var grid_kwargs = {margin:'6px', font_size:'.9em', draggable_row:true,configurable:true,
                             storepath:(objectPop(kw,'storepath') || '.store'),
                             structpath:(objectPop(kw,'structpath') || '.grid.struct'),
-                            controllerPath:'.grid'};
+                            controllerPath:'.grid',table:kw.table};
         var paletteCode = kw.paletteCode;
         var gridId =objectPop(kw,'gridId') || 'palette_'+paletteCode+'_grid';
         grid_kwargs.nodeId = gridId;
-        grid_kwargs.onDrag = function(dragValues,dragInfo,treeItem){
-            dragValues[paletteCode]=dragValues.gridrow.rowsets;
+        grid_kwargs.onDrag = function(dragValues,dragInfo){
+            if(dragInfo.dragmode=='row'){
+                dragValues[paletteCode]=dragValues.gridrow.rowsets;
+            }
         };
         kw.connect_show = function(widget){
             var grid = genro.wdgById(gridId);
@@ -114,16 +115,154 @@ dojo.declare("gnr.widgets.PaletteGrid", gnr.widgets.dummy, {
         }
         objectUpdate(grid_kwargs ,objectExtract(kw,'grid_*'));
         var pane = sourceNode._('PalettePane',kw);
-        if (kw.filterOn){
+        if (kw.searchOn){
             var bc = pane._('BorderContainer');
             var top = bc._('ContentPane',{region:'top'})._('Toolbar',{height:'20px'});
             pane = bc._('ContentPane',{region:'center'});
-            //top._('GridFilterBox',{gridId:gridId,filterOn:filterOn});
+            top._('SearchBox',{searchOn:kw.searchOn,nodeId:gridId+'_searchbox',datapath:'.searchbox'});
         }
         var grid = pane._('includedview',grid_kwargs);
         return pane;
     }
 });
+
+
+dojo.declare("gnr.widgets.SearchBox", gnr.widgets.dummy, {
+    contentKwargs: function(sourceNode,attributes){
+        var topic = attributes.nodeId+'_keyUp';
+        var delay = 'delay' in attributes? objectPop(attributes,'delay'): 100;
+        attributes.onKeyUp = function(e){
+            var sourceNode = e.target.sourceNode;
+            if(sourceNode._publisher){
+                clearTimeout(sourceNode._publisher);
+            }
+            var v = e.target.value;
+            sourceNode._publisher = setTimeout(function(){
+                genro.publish(topic,v,sourceNode.getRelativeData('.field'));
+                },delay);
+            
+        };
+        return attributes;
+    },
+    
+    createContent:function(sourceNode, kw) {
+        var searchOn = objectPop(kw,'searchOn');
+        var datapath = objectPop(kw,'datapath') || '.searchbox';
+        var nodeId = objectPop(kw,'nodeId');
+        var menubag;
+        var databag = new gnr.GnrBag();
+        this._prepareSearchBoxMenu(searchOn,databag);
+        sourceNode.setRelativeData(datapath,databag);
+        var searchbox = sourceNode._('div',{datapath:datapath, nodeId:nodeId});
+        var searchlbl = searchbox._('div',{'float':'left', margin_top:'2px'});
+        searchlbl._('span',{'innerHTML':'^.caption',_class:'buttonIcon'});
+        searchlbl._('menu',{'modifiers':'*',_class:'smallmenu',storepath:'.menubag',
+                            selected_col:'.field',selected_caption:'.caption'});
+        
+        searchbox._('input',{'value':'^.value',_class:'searchInput searchWidth',font_size:'1.0em',
+                      connect_onkeyup:kw.onKeyUp});
+        dojo.subscribe(nodeId+'_updmenu',this,function(searchOn){
+            menubag = this._prepareSearchBoxMenu(searchOn,databag);
+        });
+        return searchbox;
+    },
+    _prepareSearchBoxMenu: function(searchOn,databag){
+        var menubag = new gnr.GnrBag();
+        var i = 0;
+        if(searchOn!==true){
+            dojo.forEach(searchOn.split(','),function(col){
+                col = dojo.trim(col);
+                var caption = col;
+                if(col.indexOf(':')>=0){
+                    col = col.split(':');
+                    caption= col[0];
+                    col = col[1];
+                }
+                menubag.setItem('r_'+i,null,{col:col,caption:caption,child:''});
+                i++;
+            });
+        }
+        databag.setItem('field',menubag.getItem('#0?col'));
+        databag.setItem('caption',menubag.getItem('#0?caption'));
+        databag.setItem('menubag',menubag);
+        databag.setItem('value','');
+    }
+    
+});
+
+/*dojo.declare("gnr.widgets.GridFilterBox", gnr.widgets.FilterBox, {
+    contentKwargs: function(sourceNode){
+        var attributes = objectUpdate({},sourceNode.attr);
+        attributes.onKeyUp = 'FIRE .current_value = $1.target.value;';
+        var cols = [];
+        var gridId = objectPop(attributes,'gridId');
+        var grid = genro.wdgById(gridId);
+        var filterOn = objectPop(attributes,'filterOn');
+        var currentStruct = grid.structbag();
+        var cellsbag = currentStruct.getItem('#0.#0');
+        var caption,cellattr,cell_cap,cell_field,fltList,colList,col;
+        if (filterOn===true){
+            cellsbag.forEach(function(n){
+                cellattr = n.attr;
+                if(cellattr.dtype=='A'||cellattr.dtype=='T'){
+                    cell_cap = cellattr.name || cellattr.field;
+                    cell_field = cellattr.field;
+                    cols.push(cell_cap+':'cell_field);
+                }
+            });
+            
+        }else if (filterOn){
+            var cols = 
+            fltList = filterOn.split(',');
+            dojo.forEach(fltList,function(col){
+                col = dojo.trim(col);
+                caption = null;
+                if(col.indexOf(':')>=0){
+                    col = col.split(':');
+                    caption= col[0];
+                    col = col[1];
+                }if(!caption){
+                    var n = cellsbag.getNodeByAttr('field',col);
+                    cellattr = n.attr;
+                    caption = cellattr.name || cellattr.field;
+                }
+            });
+              
+            colList = col.split('+');//splitAndStrip(col, '+')
+            dojo.forEach(colList,function(col){
+                
+            })
+            col = '+'.join([self.db.colToAs(c) for c in colList])
+            cols.append('%s:%s' % (caption, col))
+            });
+        }
+        
+        return attributes;
+    }
+
+});*/
+
+/*
+    def gridFilterBox(self, pane, gridId=None, datapath=None, filterOn=None, table=None, **kwargs):
+        fltList = splitAndStrip(filterOn, ',')
+        cols = []
+        for col in fltList:
+            caption = None
+            if ':' in col:
+                caption, col = col.split(':')
+            if not caption:
+                caption = self.db.table(table).column(col).name_long
+            colList = splitAndStrip(col, '+')
+            col = '+'.join([self.db.colToAs(c) for c in colList])
+            cols.append('%s:%s' % (caption, col))
+        self.filterBox(pane.div(float='right', margin_right='5px'), filterOn=','.join(cols),
+                       datapath=datapath or '.filter', **kwargs)
+        filtercontroller = pane.dataController(datapath=".filter")
+        filtercontroller.dataController('genro.wdgById(gridId).applyFilter(value,null,field);',
+                                        gridId=gridId, value="^.current_value", field='=.field')
+        filtercontroller.dataController('genro.wdgById(gridId).applyFilter("",null,field);',
+                                        gridId=gridId, field='^.field')
+*/
 
 
 dojo.declare("gnr.widgets.PaletteGroup", gnr.widgets.dummy, {

@@ -2057,6 +2057,7 @@ dojo.declare("gnr.widgets.Grid", gnr.widgets.baseDojo, {
         }
     },
     created_common:function(widget, savedAttrs, sourceNode) {
+        var nodeId = sourceNode.attr.nodeId;
         if (genro.grid_configurator) {
             genro.grid_configurator.onGridCreated(sourceNode);
         }
@@ -2065,8 +2066,7 @@ dojo.declare("gnr.widgets.Grid", gnr.widgets.baseDojo, {
             var gridEditorNode = gridContent.getNodeByAttr('tag', 'gridEditor');
             if (gridEditorNode) {
                 widget.gridEditor = new gnr.GridEditor(widget, sourceNode, gridEditorNode);
-            }
-            ;
+            };
         }
         ;
         if ('draggable_row' in sourceNode.attr) {
@@ -2089,9 +2089,34 @@ dojo.declare("gnr.widgets.Grid", gnr.widgets.baseDojo, {
         objectFuncReplace(widget.selection, 'clickSelectEvent', function(e) {
             this.clickSelect(e.rowIndex, e.ctrlKey || e.metaKey, e.shiftKey);
         });
-        dojo.subscribe(sourceNode.attr.nodeId + '_reload', widget, function(keep_selection) {
+        dojo.subscribe(nodeId + '_reload', widget, function(keep_selection) {
             this.reload(keep_selection !== false)
         });
+        //dojo.subscribe(gridId+'_searchbox_keyUp',this,function(v){console.log(v)});
+        
+        var searchBoxNode = genro.nodeById(nodeId+'_searchbox');
+        if (searchBoxNode){
+            var menubag = searchBoxNode.getRelativeData('.menubag');
+            if(menubag.len()==0){
+                var cb = function(){
+                    var values = [];
+                    var cellsbag = this.structbag().getItem('#0.#0');
+                    var caption,cellattr,cell_cap,cell_field,fltList,colList,col;
+                    cellsbag.forEach(function(n){
+                        cellattr = n.attr;
+                        cell_cap = cellattr.name || cellattr.field;
+                        cell_field = cellattr.field;
+                        values.push(cell_cap+':'+cell_field);
+                    });
+                    genro.publish(nodeId+'_searchbox_updmenu',values.join(','));
+                }
+                dojo.connect(widget,'onSetStructpath',widget,cb);
+                setTimeout(function(){cb.call(widget)},1);
+            }
+            dojo.subscribe(nodeId+'_searchbox_keyUp',widget,function(v,field){
+                    this.applyFilter(v,null,field);
+            });
+        }
     },
     created: function(widget, savedAttrs, sourceNode) {
         this.created_common(widget, savedAttrs, sourceNode);
