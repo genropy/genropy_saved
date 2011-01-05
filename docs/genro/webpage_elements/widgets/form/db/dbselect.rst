@@ -8,9 +8,9 @@
 
 	- :ref:`dbselect-examples`
 
-	- :ref:`dbselect-attributes`
+	- :ref:`dbselect_attributes`
 
-	We recommend you to read :ref:`genro-dbselect-dbcombobox` first.
+	.. note:: We recommend you to read :ref:`genro-dbselect-dbcombobox` first.
 
 	.. _dbselect-definition-description:
 
@@ -38,11 +38,7 @@ Examples
 				fb.dbSelect(dbtable='showcase.person',rowcaption='$name',
 				            value='^.person_id',lbl='Star')
 
-	Let's see a demo:
-
-	#NISO add online demo!
-
-	.. _dbselect-attributes:
+.. _dbselect_attributes:
 
 dbSelect attributes
 ===================

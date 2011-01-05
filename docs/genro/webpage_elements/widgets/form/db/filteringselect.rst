@@ -4,15 +4,15 @@
  filteringSelect
 =================
 
-	- :ref:`filteringSelect-definition-description`
+	- :ref:`filteringselect-definition-description`
 
-	- :ref:`filteringSelect-examples`: :ref:`bag-example`, :ref:`values-example`
+	- :ref:`filteringselect-examples`: :ref:`bag-example`, :ref:`values-example`
 
-	- :ref:`filteringSelect-attributes`
+	- :ref:`filteringSelect_attributes`
 
-	- :ref:`filteringSelect-other-attributes`
+	- :ref:`filteringselect-other-attributes`
 
-	.. _filteringSelect-definition-description:
+	.. _filteringselect-definition-description:
 
 Definition and Description
 ==========================
@@ -21,9 +21,9 @@ Definition and Description
 
 	FilteringSelect's values are composed by a key and a value (like the Python dictionary's elements): user can chooses from values, while in :ref:`genro-datastore` the user's choice is saved through keys. User can also freely type text and partially matched values will be shown in a pop-up menu below the input text box.
 	
-	If user types a wrong entry, that is a word that doesn't corresponds to any of the filteringSelect values, the key in :ref:`genro-datastore` will be saved as ``undefined``.
+	If user types a wrong entry (that is a word that doesn't corresponds to any of the filteringSelect values) the key in :ref:`genro-datastore` will be saved as ``undefined``.
 
-	.. _filteringSelect-examples:
+	.. _filteringselect-examples:
 
 Examples
 ========
@@ -71,20 +71,15 @@ Filling a filteringSelect through "values" attribute
 
 			class GnrCustomWebPage(object):
 				def main(self,root,**kwargs):
-					fb = root.formbuilder(datapath='test2',cols=2)
-					fb.filteringSelect(value='^sports',
-					                   values="""SC:Soccer,BK:Basket,HK:Hockey,
-					                             TE:Tennis,BB:Baseball,SB:Snowboard""")
+					root.filteringSelect(value='^sport',
+					                     values="""SC:Soccer,BK:Basket,HK:Hockey,
+					                               TE:Tennis,BB:Baseball,SB:Snowboard""")
 	
-	Pay attention not to confuse ``value`` with ``values``: ``value`` is used to allocate user data in a well determined :ref:`genro-datapath`, while ``values`` is used to fill the filteringSelect.
+	.. note:: Pay attention not to confuse ``value`` with ``values``: ``value`` is used to allocate user data in a well determined :ref:`genro-datapath`, while ``values`` is used to fill the filteringSelect.
 	
-	Warning: unlike Dojo, actually filteringSelect doesn't warn user for its wrong insertion. You can add a warning for the user through a "validate" attribute (see :ref:`genro-validations`).
-	
-	Let's see a demo:
-	
-	#NISO add online demo!
-	
-	.. _filteringSelect-attributes:
+	.. warning:: Unlike Dojo, actually filteringSelect doesn't warn user for its wrong insertion. You can add a warning for the user through a "validate" attribute (see :ref:`genro-validations`).
+
+	.. _filteringSelect_attributes:
 
 Attributes
 ==========
@@ -99,21 +94,28 @@ Attributes
 	|                    | have to choose                                  |                          |
 	+--------------------+-------------------------------------------------+--------------------------+
 
-	.. _filteringSelect-other-attributes:
+	.. _filteringselect-other-attributes:
 
 Common attributes
 =================
-
-	+--------------------+-------------------------------------------------+--------------------------+
-	|   Attribute        |          Description                            |   Default                |
-	+====================+=================================================+==========================+
-	| ``disabled``       | If True, user can't act on the filteringSelect. |  ``False``               |
-	|                    | For more details, see :ref:`genro-disabled`     |                          |
-	+--------------------+-------------------------------------------------+--------------------------+
-	| ``hidden``         | Hide the filteringSelect.                       |  ``False``               |
-	|                    | See :ref:`genro-hidden`                         |                          |
-	+--------------------+-------------------------------------------------+--------------------------+
-	| ``value``          | Set a path for filteringSelect's values.        |  ``None``                |
-	|                    | For more details, see :ref:`genro-datapath`     |                          |
-	+--------------------+-------------------------------------------------+--------------------------+
 	
+	Here we list all the attributes that belong both to filteringSelect and to other widgets. Click on them for a complete documentation:
+	
+	* :ref:`genro-disabled`
+	* :ref:`genro-hidden`
+	* value: check the :ref:`genro-datapath` page
+	
+	You can't use the ``label`` attribute; if you want to give a label to your filteringSelect you have to:
+	
+		#. create a form (use the :ref:`genro-formbuilder` form widget)
+		#. append the filteringSelect to the formbuilder
+		#. use the formbuilder's ``lbl`` attribute on your filteringSelect.
+	
+		**Example**::
+			
+			class GnrCustomWebPage(object):
+				def main(self,root,**kwargs):
+					fb = root.formbuilder(cols=2)
+					fb.filteringSelect(value='^sport',lbl='Sport',
+					                   values="""SC:Soccer,BK:Basket,HK:Hockey,
+					                             TE:Tennis,BB:Baseball,SB:Snowboard""")

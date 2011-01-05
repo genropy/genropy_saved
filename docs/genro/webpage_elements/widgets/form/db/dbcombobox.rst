@@ -8,9 +8,9 @@
 
 	- :ref:`dbcombobox-examples`
 
-	- :ref:`dbcombobox-attributes`
+	- :ref:`dbcombobox_attributes`
 
-	We recommend you to read :ref:`genro-dbselect-dbcombobox` first.
+	.. note:: We recommend you to read :ref:`genro-dbselect-dbcombobox` first.
 
 	.. _dbcombobox-definition-description:
 
@@ -43,11 +43,7 @@ Examples
 				fb.div("""After that, check in the datasource your saved records (by clicking
 				          ctrl+shift+D)""",font_size='.9em',text_align='justify')
 
-	Let's see a demo:
-
-	#NISO add online demo! ???
-
-	.. _dbcombobox-attributes:
+.. _dbcombobox_attributes:
 
 dbCombobox attributes
 =====================

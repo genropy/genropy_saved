@@ -8,7 +8,7 @@
 
 	- :ref:`simpletextarea-examples`
 
-	- :ref:`simpletextarea-attributes`
+	- :ref:`simpletextarea_attributes`
 
 	- :ref:`simpletextarea-other-attributes`
 
@@ -32,11 +32,7 @@ Examples
 				                    colspan=2,color='blue',font_size='1.2em',
 				                    default='A simple area to contain text.')
 
-	Let's see a demo:
-
-	#NISO add online demo!
-
-	.. _simpletextarea-attributes:
+.. _simpletextarea_attributes:
 
 Attributes
 ==========

@@ -5,10 +5,12 @@
 ================
 
 	- :ref:`dropdownbutton-definition-description`
+	
+	- :ref:`dropdownbutton-syntax`
 
 	- :ref:`dropdownbutton-examples`
 
-	- :ref:`dropdownbutton-attributes`
+	- :ref:`dropdownbutton_attributes`
 
 	.. _dropdownbutton-definition-description:
 
@@ -23,53 +25,50 @@ Definition and Description
 
 	Constructs a button that opens a ``menu`` or a ``tooltipdialog``.
 
+	.. _dropdownbutton-syntax:
+
+Syntax
+======
+
+	* You can create a menu with one of the following two lines::
+	
+		dropdownbutton(label='NameOfTheMenu')
+		dropdownbutton('NameOfTheMenu')
+
+	* Every menu row is created through the ``menuline`` attribute::
+		
+		menuline('Open...',action="alert('Opening...')")
+	
+	* To create a dividing line use ``-`` in a ``menuline``::
+
+		menuline('-')
+
 	.. _dropdownbutton-examples:
 
 Examples
 ========
 
-	First example::
+	**Example**::
 	
 		def main(self,root,**kwargs):
 			ddb=root.dropdownbutton('Menu')    # Same meaning: ddb=root.dropdownbutton(label='Menu')
 			dmenu=ddb.menu()
-			
-	Every menu row is created through "menuline"::
-			
 			dmenu.menuline('Open...',action="alert('Opening...')")
 			dmenu.menuline('Close',action="alert('Closing...')")
-			
-	For creating a dividing line use the following syntax::
-			
 			dmenu.menuline('-')
-		
-	You can also create a menu inside a menu::
-		
-			submenu=dmenu.menuline('I have submenues').menu()
+			submenu=dmenu.menuline('I have submenues').menu() # With this line you create a submenu
 			submenu.menuline('To do this',action="alert('Doing this...')")
 			submenu.menuline('Or to do that',action="alert('Doing that...')")
 			dmenu.menuline('-')
 			dmenu.menuline('Quit',action="alert('Quitting...')")
 
-	Let's see a demo:
+.. _dropdownbutton_attributes:
 
-	#NISO add online demo!
-	
-	.. _dropdownbutton-attributes:
-
-Common Attributes
+Common attributes
 =================
 
-	+--------------------+-------------------------------------------------+--------------------------+
-	|   Attribute        |          Description                            |   Default                |
-	+====================+=================================================+==========================+
-	| ``disabled``       | If True, user can't act on the dropdownbutton/  |  ``False``               |
-	|                    | menuline/menu.                                  |                          |
-	|                    | For more details, see :ref:`genro-disabled`     |                          |
-	+--------------------+-------------------------------------------------+--------------------------+
-	| ``hidden``         | Hide the dropdownbutton.                        |  ``False``               |
-	|                    | See :ref:`genro-hidden`                         |                          |
-	+--------------------+-------------------------------------------------+--------------------------+
-	| ``label``          | Set dropdownbutton label.                       |  ``None``                |
-	|                    | For more details, see :ref:`genro-label`        |                          |
-	+--------------------+-------------------------------------------------+--------------------------+
+	Here we list all the attributes that belong both to menu and to other widgets. Click on them for a complete documentation:
+	
+	* :ref:`genro-disabled`
+	* :ref:`genro-hidden`
+	* :ref:`genro-label`

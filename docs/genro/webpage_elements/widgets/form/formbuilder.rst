@@ -8,7 +8,7 @@
 
 	- :ref:`formbuilder-examples`
 
-	- :ref:`formbuilder-attributes`
+	- :ref:`formbuilder_attributes`
 	
 	- :ref:`formbuilder-other-attributes`
 	
@@ -57,11 +57,7 @@ Examples
 				fb.textbox(value='^.job.company_name',lbl='Company name')
 				fb.textbox(value='^.job.fiscal_code',lbl='Fiscal code')
 
-	Let's see a demo:
-
-	#NISO add online demo!
-
-	.. _formbuilder-attributes:
+.. _formbuilder_attributes:
 
 Attributes
 ==========

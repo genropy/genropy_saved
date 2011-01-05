@@ -34,10 +34,6 @@ Examples
 			def main(self,root,**kwargs):
 				root.timeTextBox(value='^timeTextbox')
 
-	Let's see a demo:
-
-	#NISO add online demo!
-
 	.. _timeTextbox-attributes:
 
 Attributes

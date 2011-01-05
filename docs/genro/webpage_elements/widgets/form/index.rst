@@ -5,14 +5,12 @@ Form widgets
 ============
 
 .. toctree::
-	:maxdepth: 2
+	:maxdepth: 1
 
 	button
 	checkbox
-	combobox
 	dropdownbutton
 	field
-	filteringselect
 	formbuilder
 	numberspinner
 	radiobutton

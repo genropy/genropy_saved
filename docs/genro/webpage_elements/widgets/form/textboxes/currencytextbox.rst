@@ -8,7 +8,7 @@
 
 	- :ref:`currencyTextbox-examples`
 
-	- :ref:`currencyTextbox-attributes`
+	- :ref:`currencyTextbox_attributes`
 
 	- :ref:`currencyTextbox-other-attributes`
 
@@ -32,12 +32,8 @@ Examples
 			def main(self,root,**kwargs):
 				root.currencyTextBox(value='^amount',default=1123.34,
 				                     currency='EUR',locale='it')
-	
-	Let's see a demo:
 
-	#NISO add online demo!
-
-	.. _currencyTextbox-attributes:
+.. _currencyTextbox_attributes:
 
 Attributes
 ==========

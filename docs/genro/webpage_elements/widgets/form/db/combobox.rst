@@ -1,7 +1,7 @@
 	.. _genro-combobox:
 
 ==========
- combobox
+ comboBox
 ==========
 
 	- :ref:`combobox-definition-description`
@@ -36,17 +36,16 @@ Examples
 	
 	.. _values-attribute:
 
-Fill combobox through "values" attribute
-========================================
+Fill comboBox through ``values`` attribute
+==========================================
 
 	You can add values to combobox using the "values" attribute; check this example for the correct syntax::
 	
 		class GnrCustomWebPage(object):
-			def test_1_values(self,pane):
-				bc = pane.borderContainer(datapath='test1')
-				fb = bc.formbuilder()
-				fb.combobox(value='^.record.values',values='Football,Golf,Karate',
-					        lbl='loaded from values')
+			def main(self,root,**kwargs):
+				root.combobox(value='^.record.values',values='Football,Golf,Karate')
+				
+	.. note:: Pay attention not to confuse ``value`` with ``values``: ``value`` is used to allocate user data in a well determined :ref:`genro-datapath`, while ``values`` is used to fill the comboBox.
 
 	.. _here:
 	
@@ -54,18 +53,18 @@ Fill combobox through "values" attribute
 	
 	.. _Bag-way:
 
-Fill combobox through a Bag
+Fill comboBox through a Bag
 ===========================
 
 	Postponing all info of a ``Bag`` and of a ``data`` on the relative pages of documentation (:ref:`genro-bag-intro` introduction page and :ref:`genro-data` page), we'll show here how you can add values to ``combobox`` using a ``Bag``.
 	
-	Example::
+	**Example**::
 
 		class GnrCustomWebPage(object):
 			def main(self,root,**kwargs):
 				bc = root.borderContainer(datapath='test1')
 				bc.data('.values.sport',self.sports(),id='.pkey',caption='.Description')
-				bc.combobox(value='^.record.Bag',storepath='.values.sport',lbl='loaded from Bag')
+				bc.combobox(value='^.record.Bag',storepath='.values.sport')
 
 			def sports(self,**kwargs):
 				mytable=Bag()
@@ -98,6 +97,7 @@ Combobox attributes
 	| ``ignoreCase``     | If True, user can write ignoring the case       |  ``True``                |
 	+--------------------+-------------------------------------------------+--------------------------+
 	| ``values``         | Set all the possible values for user choice.    |  ``None``                |
+	|                    | Check the :ref:`values-attribute` example       |                          |
 	+--------------------+-------------------------------------------------+--------------------------+
 	
 	.. _`combobox-other-attributes`:
@@ -111,5 +111,18 @@ Common attributes
 	* :ref:`genro-hidden`
 	* value: check the :ref:`genro-datapath` page
 	
-	You can't use the ``label`` attribute; so if you want to give a label to your combobox you have to use a :ref:`genro-formbuilder`, then you have to insert the combobox in the formbuilder using the formbuilder's ``lbl`` attribute on your combobox.
+	You can't use the ``label`` attribute; if you want to give a label to your combobox you have to:
 	
+		#. create a form (use the :ref:`genro-formbuilder` form widget)
+		#. append the combobox to the formbuilder
+		#. use the formbuilder's ``lbl`` attribute on your combobox.
+	
+		**Example**::
+
+			class GnrCustomWebPage(object):
+				def test_1_values(self,pane):
+					bc = pane.borderContainer(datapath='test1')
+					fb = bc.formbuilder()
+					fb.combobox(value='^.record.values',values='Football,Golf,Karate',
+					            lbl='loaded from values')
+					

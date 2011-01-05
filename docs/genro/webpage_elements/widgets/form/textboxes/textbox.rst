@@ -8,7 +8,7 @@
 
 	- :ref:`textbox-examples`
 
-	- :ref:`textbox-attributes`
+	- :ref:`textbox_attributes`
 
 	- :ref:`textbox-other-attributes`
 
@@ -44,13 +44,9 @@ Examples
 				fb.textbox(value='^.address',lbl='Address')
 				fb.textbox(value='^.email',lbl='e-mail')
 
-	Let's see a demo:
+.. _below:
 
-	#NISO add online demo!
-
-	.. _below:
-
-	.. _textbox-attributes:
+.. _textbox_attributes:
 
 Attributes
 ==========

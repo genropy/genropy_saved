@@ -226,7 +226,7 @@ Trigger on a BagNode
 Validators
 ==========
 
-	The basic idea for a Bag validator is to make a control of the data inserted as a node's value. The validation function for a Bag node can be defined with two different sintaxes:
+	The basic idea for a Bag validator is to make a control of the data inserted as a node's value. The validation function for a Bag node can be defined with two different syntaxes:
 	
 	- through some node attributes.
 	

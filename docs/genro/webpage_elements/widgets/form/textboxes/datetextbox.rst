@@ -8,7 +8,7 @@
 
 	- :ref:`dateTextbox-examples`
 
-	- :ref:`dateTextbox-attributes`
+	- :ref:`dateTextbox_attributes`
 
 	- :ref:`dateTextbox-other-attributes`
 
@@ -33,12 +33,8 @@ Examples
 		class GnrCustomWebPage(object):
 			def main(self,root,**kwargs):
 				root.dateTextbox(value='^dateTextbox',popup=True)
-		
-	Let's see a demo:
 
-	#NISO add online demo!
-
-	.. _dateTextbox-attributes:
+.. _dateTextbox_attributes:
 
 Attributes
 ==========

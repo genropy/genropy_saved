@@ -8,7 +8,7 @@
 
 	- :ref:`slider-examples`
 
-	- :ref:`slider-attributes`
+	- :ref:`slider_attributes`
 	
 	- :ref:`slider-other-attributes`
 
@@ -35,11 +35,7 @@ Examples
 				root.horizontalSlider(value='^integer_number',width='200px',
 				                      maximum=50,discreteValues=51)
 
-	Let's see a demo:
-	
-	#NISO add online demo!
-
-	.. _slider-attributes:
+.. _slider_attributes:
 
 Attributes
 ==========

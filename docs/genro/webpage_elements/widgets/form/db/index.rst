@@ -1,12 +1,15 @@
 	.. _genro-db-index:
 
-=========================
- dbSelect and dbCombobox
-=========================
+====================================================
+ filteringSelect, comboBox, dbSelect and dbCombobox
+====================================================
 
 .. toctree::
-	:maxdepth: 2
+	:maxdepth: 1
 
-	db
+	general introduction <db>
+	introduction to dbSelect and dbCombobox <dbsel_dbcombo>
+	filteringselect
+	combobox
 	dbselect
 	dbcombobox

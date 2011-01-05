@@ -8,7 +8,7 @@
 
 	- :ref:`numberTextbox-examples`
 
-	- :ref:`numberTextbox-attributes`
+	- :ref:`numberTextbox_attributes`
 
 	- :ref:`numberTextbox-other-attributes`
 
@@ -31,12 +31,8 @@ Examples
 		class GnrCustomWebPage(object):
 			def main(self,root,**kwargs):
 				root.numberTextbox(value='^numberTextbox',places=2)
-	
-	Let's see a demo:
 
-	#NISO add online demo!
-
-	.. _numberTextbox-attributes:
+.. _numberTextbox_attributes:
 
 Attributes
 ==========

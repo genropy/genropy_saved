@@ -8,7 +8,7 @@
 
 	- :ref:`radiobutton-examples`
 	
-	- :ref:`radiobutton-attributes`
+	- :ref:`radiobutton_attributes`
 
 	.. _radiobutton-definition-description:
 
@@ -40,11 +40,7 @@ Example
 				fb.radiobutton(value='^.sex.male',group='genre2',label='M')
 				fb.radiobutton(value='^.sex.female',group='genre2',label='F')
 
-	Let's see a demo:
-
-	#NISO add online demo!
-
-	.. _radiobutton-attributes:
+.. _radiobutton_attributes:
 
 Attributes
 ==========

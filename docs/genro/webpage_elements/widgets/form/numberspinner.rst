@@ -8,7 +8,7 @@
 	
 	- :ref:`numberspinner-examples`
 
-	- :ref:`numberspinner-attributes`
+	- :ref:`numberspinner_attributes`
 
 	- :ref:`numberspinner-other-attributes`
 
@@ -38,11 +38,7 @@ Examples
 				fb.div("""Try to hold down a button: the spinning accelerates to make coarser
 				          adjustments easier""", font_size='.9em',text_align='justify',margin='5px')
 
-	Let's see a demo:
-
-	#NISO add online demo!
-
-	.. _numberspinner-attributes:
+.. _numberspinner_attributes:
 
 Attributes
 ==========

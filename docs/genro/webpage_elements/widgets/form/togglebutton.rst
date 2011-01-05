@@ -34,10 +34,6 @@ Examples
 				fb.togglebutton(value='^.toggle1',iconClass="dijitRadioIcon",label='label')
 				fb.togglebutton(value='^.toggle2',iconClass="dijitRadioIcon",label='another label')
 
-	Let's see a demo:
-
-	#NISO add online demo!
-
 	.. _togglebutton-attributes:
 
 Attributes
