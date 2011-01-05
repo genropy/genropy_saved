@@ -1107,11 +1107,12 @@ class GnrWebPage(GnrBaseWebPage):
         clientpath = 'gnr.sqlctx.columns.%s' % path
         self.addToContext(value=joincolumns, serverpath=serverpath, clientpath=clientpath)
         
-    def _prepareGridStruct(self,source=None,table=None):
+    def _prepareGridStruct(self,source=None,table=None,gridId=None):
+        struct = None
         if isinstance(source, Bag):
             return source
-        if isinstance(source,basestring):
-            source = getattr(self, '%s_struct' % source, source)
+        if gridId and not source:
+            source = getattr(self, '%s_struct' % gridId,None)
         if callable(source): 
             struct = self.newGridStruct(maintable=table)
             source(struct)
