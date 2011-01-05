@@ -1,7 +1,7 @@
 	.. _genro-hidden:
 
 ========
- Hidden
+ hidden
 ========
 
 	- :ref:`hidden-definition-description`
@@ -15,8 +15,8 @@
 Definition and description
 ==========================
 
-	If ``True``, it allows to hide any object you want.
-
+	If ``True``, allow to hide its object.
+	
 	.. _hidden-validity:
 
 Validity and default value

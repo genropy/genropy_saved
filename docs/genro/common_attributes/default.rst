@@ -1,7 +1,7 @@
 	.. _genro-default:
 	
 =========
- Default
+ default
 =========
 
 	- :ref:`default-definition-description`

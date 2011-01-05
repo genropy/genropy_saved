@@ -1,7 +1,7 @@
 	.. _genro-dbtable:
 
 =========
- Dbtable
+ dbtable
 =========
 
 	- :ref:`dbtable-definition-description`

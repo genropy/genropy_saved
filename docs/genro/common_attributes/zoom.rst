@@ -1,7 +1,7 @@
 .. _genro_zoom:
 
 ======
- Zoom
+ zoom
 ======
 
 	- :ref:`zoom_definition_description`

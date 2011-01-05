@@ -1,7 +1,7 @@
 	.. _genro-datapath:
 
 ==========
- Datapath
+ datapath
 ==========
 
 	- :ref:`datapath-definition-description`

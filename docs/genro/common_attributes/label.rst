@@ -1,7 +1,7 @@
 	.. _genro-label:
 
 =======
- Label
+ label
 =======
 
 	- :ref:`label-definition-description`

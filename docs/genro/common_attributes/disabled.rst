@@ -1,7 +1,7 @@
 	.. _genro-disabled:
 
 ==========
- Disabled
+ disabled
 ==========
 
 	- :ref:`disabled-definition-description`
@@ -22,13 +22,16 @@ Definition and description
 Validity and default value
 ==========================
 
-	**Validity:** it works on every form widget.
+	**validity:** it works on every form widget.
 
-	**default value:** the default value of ``disabled`` is ``False``::
+	**default value:** the default value of ``disabled`` is ``False``.
 
+	**syntax:**
+	::
+	
 		disabled=False
 
-.. _disabled_examples:
+	.. _disabled_examples:
 
 Examples
 ========
