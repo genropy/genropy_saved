@@ -4,43 +4,47 @@
  Introduction to the containers
 ================================
 
-	In Genro you can use layout containers to put panes (or other containers) in specific places of your page (we call this places from now on "regions"). There are five regions: top, left, right, bottom and a mandatory center.
+	In Genro you can use layout containers to put panes (or other containers) in specific regions of your page. There are five regions: top, left, right, bottom and a mandatory center.
 
-	Genro inherit its forms (containers and panes) directly from Dojo_.
-
-	.. _Dojo: http://dojotoolkit.org/
+	As we previously said [#]_, Genro inherit its forms (containers and panes) directly from Dojo.
 
 	The containers are:
 	
-	- :ref:`genro-bordercontainer`;
+	- the :ref:`genro-bordercontainer`;
 	
-	- :ref:`genro-contentpane`;
+	- the :ref:`genro-contentpane`;
 	
-	- :ref:`genro-accordioncontainer`;
+	- the :ref:`genro-accordioncontainer`;
 	
-	- :ref:`genro-stackcontainer`;
+	- the :ref:`genro-stackcontainer`;
 	
-	- :ref:`genro-tabcontainer`.
+	- the :ref:`genro-tabcontainer`.
 	
 	.. _genro-layout-common-attributes:
 
 Common attributes
 =================
 
+	There are some common attributes that you can use with ALL the containers and panes:
+
 	+--------------------+----------------------------------------------------+--------------------------+
 	|   Attribute        |          Description                               |   Default                |
 	+====================+====================================================+==========================+
-	| ``datapath``       | Set path for data.                                 |  ``None``                |
-	|                    | For more details, see :ref:`genro-datapath`        |                          |
+	| ``datapath``       | Set path for data. For more details,               |  ``None``                |
+	|                    | check the :ref:`genro-datapath` page               |                          |
 	+--------------------+----------------------------------------------------+--------------------------+
 	| ``disabled``       | If True, user can't act on the container.          |  ``False``               |
-	|                    | For more details, see :ref:`genro-disabled`        |                          |
+	|                    | For more details, check the :ref:`genro-disabled`  |                          |
+	|                    | page                                               |                          |
 	+--------------------+----------------------------------------------------+--------------------------+
 	| ``height``         | Set the height of the container. You have to       |  ``100%``                |
 	|                    | specify this attribute (example: height='100px')   |                          |
 	|                    | whenever the container is the father container.    |                          |
 	+--------------------+----------------------------------------------------+--------------------------+
-	| ``hidden``         | Hide the container.                                |  ``False``               |
-	|                    | See :ref:`genro-hidden`                            |                          |
+	| ``hidden``         | Hide the container. For more details, check the    |  ``False``               |
+	|                    | :ref:`genro-hidden` page                           |                          |
 	+--------------------+----------------------------------------------------+--------------------------+
-	
+
+**Footnotes**
+
+.. [#] We have introduced the containers in the :ref:`genro-webpage-elements-introduction` page.

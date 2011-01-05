@@ -8,7 +8,7 @@
 	
 	- :ref:`db-genro-attributes`
 	
-	- :ref:`db-examples`: :ref:`db-selected`, :ref:`db-condition`, :ref:`db-columns` and :ref:`db-auxColumns`
+	- :ref:`db-examples`: :ref:`db-selected`, :ref:`db-condition`, :ref:`db-columns` and :ref:`db_auxColumns`
 
 	.. _db-description:
 
@@ -17,9 +17,9 @@ Description
 
 	dbSelect and dbCombobox are form widgets used to handle database user queries.
 
-	- :ref:`genro-dbselect`
+	- :ref:`genro-dbselect`: ??? descrizione!
 
-	- :ref:`genro-dbcombobox`
+	- :ref:`genro-dbcombobox`: ??? descrizione!
 
 	.. _db-genro-attributes:
 
@@ -38,18 +38,19 @@ Common attributes
 	+--------------------+---------------------------------------------------+--------------------------+
 	| ``auxColumns``     | Show in a pop-up menu below the input textbox     |  ``None``                |
 	|                    | query parameters (``columns`` is MANDATORY).      |                          |
-	|                    | Check :ref:`db-auxColumns` example for further    |                          |
+	|                    | Check :ref:`db_auxColumns` example for further    |                          |
 	|                    | details                                           |                          |
 	+--------------------+---------------------------------------------------+--------------------------+
-	| ``columns``        | Check :ref:`db-columns` for further details       |  ``None``                |
+	| ``columns``        | Check :ref:`db-columns` example for further       |  ``None``                |
+	|                    | details                                           |                          |
 	+--------------------+---------------------------------------------------+--------------------------+
 	| ``condition``      | Start a SQL query. Check :ref:`db-condition`      |  ``None``                |
 	|                    | example for further details                       |                          |
 	+--------------------+---------------------------------------------------+--------------------------+
 	| ``dbtable``        | MANDATORY - Select the database                   |  ``None``                |
 	|                    | :ref:`genro-database_table` for database widget   |                          |
-	|                    | query. For further details, see                   |                          |
-	|                    | :ref:`genro-dbtable`                              |                          |
+	|                    | query. For further details, check the             |                          |
+	|                    | :ref:`genro-dbtable` explanation page             |                          |
 	+--------------------+---------------------------------------------------+--------------------------+
 	| ``disabled``       | If True, user can't act on the form widget.       |  ``False``               |
 	|                    | For more details, see :ref:`genro-disabled`       |                          |
@@ -83,23 +84,26 @@ Examples
 Selected
 ========
 
-	With ``selected`` attribute you can draw multiple attributes to the :ref:`genro-datastore` through a single ``dbSelect`` or ``dbCombobox``; the sintax is ``selected_nameOfATableColumn='datapathFolder'``.
+	With the ``selected`` attribute you can draw multiple attributes to the :ref:`genro-datastore` through a single ``dbSelect`` or ``dbCombobox``; the sintax is ``selected_nameOfATableColumn='datapathFolder'``.
 
-	Example: let's consider a database :ref:`genro-database_table` that includes a list of actors::
+	**Example:**
+	
+	let's consider a simple Genro Project [#]_ including a database :ref:`genro-database_table` and a :ref:`genro-GnrCustomWebPage`. 
+	
+	The table includes a list of actors::
 	
 		# encoding: utf-8
 
 		class Table(object):
 			def config_db(self,pkg):
-				tbl = pkg.table('person',pkey='id',rowcaption='$name',
-				                 name_long='!!people',name_plural='!!People')
+				tbl = pkg.table('person',pkey='id',rowcaption='$name')
 				tbl.column('id',size='22',group='_',readOnly=True,name_long='Id')
 				tbl.column('name',name_short='N.',name_long='Name')
 				tbl.column('year','L',name_short='Yr',name_long='Birth Year')
 				tbl.column('nationality',name_short='Ntl',name_long='Nationality')
 				tbl.column('number','L',name_long='!!Number')
 	
-	let's consider also this Genro webpage::
+	here we show the webpage::
 
 		class GnrCustomWebPage(object):
 			def main(self,root,**kwargs):
@@ -107,7 +111,7 @@ Selected
 				fb.dbSelect(dbtable='showcase.person',value='^.person_id',lbl='Star',
 				            selected_name='.name',selected_year='.year')
 	
-	This dbSelect allows user to choose from the ``table`` "person" an actor; after user choice, this dbSelect will do these things:
+	This dbSelect allows user to choose from the ``table`` called "person" an actor; after user choice has been done, the dbSelect will do these operations:
 	
 	- a save of the auctor's ID into the ``Datastore`` at the path: ``/myform/person_id``;
 	
@@ -115,27 +119,35 @@ Selected
 	
 	- through the sintax ``selected_year='.year'``, dbSelect will do a save of the value of the actor's column named "year" into the path: ``/myform/year``;
 	
-	So, for example, if user will choose "Cate Blanchett" from the actors' list, Genro will save the following values in the following folders:
+	So, for example, if user will choose "Cate Blanchett" from the actors' list, Genro will save the following values in the following folders::
 
-	``/myform/person_id/EuSy8OPJP_Kax4yGokSauw``
-	
-	``/myform/name/"Cate Blanchett"``
-	
-	``/myform/year/1969``
+		/myform/person_id/EuSy8OPJP_Kax4yGokSauw
+		/myform/name/"Cate Blanchett"
+		/myform/year/1969
 
 	.. _db-condition:
 	
 Condition
 =========
 
-	With ``condition`` attribute you can write a SQL query; let's make an example starting from the previous example (:ref:`db-selected`), so we have a list of actors into a ``table`` called "person"; let's introduce a "movie" ``table`` that contains a lot of title films on which the actors have participated::
+	With the ``condition`` attribute you can write a SQL query.
+	
+	**syntax:**
+	::
+	
+		condition='$tableColumnName'=:'something'
+		
+	where 'something' is the SQL condition, expressed through::
+		
+		condition_something='=PathOfValue'
+	
+	**Example:** let's start from the previous example (:ref:`db-selected`) where we had a list of actors included into a ``table`` called "person". Let's introduce a ``table`` called "movie" that contains a lot of title films on which the actors have participated::
 	
 		# encoding: utf-8
 		
 		class Table(object):
 			def config_db(self,pkg):
-				tbl = pkg.table('movie',pkey='id',name_long='!!Movie',
-				                 name_plural='!!Movies')#,rowcaption='$title')
+				tbl = pkg.table('movie',pkey='id')
 				tbl.column('id',size='22',group='_',readOnly=True,name_long='Id')
 				tbl.column('title',name_short='Ttl.',name_long='Title',
 				            validate_case='capitalize',validate_len='3,40')
@@ -163,7 +175,7 @@ Condition
 				tbl.column('prizes', name_short='Priz.',name_long='Prizes', size='40')
 				tbl.column('number','L',name_long='!!Number')
 		
-	Finally, let's introduce a Genro webpage made like this one::
+	Finally, let's introduce a Genro webpage::
 	
 		class GnrCustomWebPage(object):
 			def main(self,root,**kwargs):
@@ -174,27 +186,21 @@ Condition
 				            alternatePkey='movie_id')
 	
 	The first dbSelect allows the user to choose an actor from the database. The second dbSelect allows the user to choose from a movie made exclusively by the chosen actor.
-
-	So, ``condition`` has the same meaning of the SQL ``WHERE``. The sintax is:
-	
-		``condition='$tableColumnName'=:'something'``, where 'something' is the SQL condition, expressed through:
-		
-		``condition_something='=PathOfValue'``
 	
 	.. _db-columns:
 
 Columns
 =======
 
-	We explain the ``columns`` attribute for the ``dbSelect``, but the explanation also applies to the ``dbCombobox``.
+	.. note:: The following explanation is also valid for the :ref:`genro-dbcombobox`.
 	
 	When a user begins to type something into the ``dbSelect`` field, he can see visualized the database columns specified into the ``rowcaption`` field.
 	
-	The usual procedure of a ``dbSelect`` query is *to search* through the records owned by the ``rowcaption`` attribute and *to save* the record chosen by the user through record's ID.
+	The usual procedure of a ``dbSelect`` query is *to search* through the records owned by the ``rowcaption`` attribute and *to save* the record chosen by the user through record's ID into the :ref:`genro-datastore`.
 	
 	If you define ``columns``, the ``dbSelect`` will continue to visualize only the records owned by the ``rowcaption`` attribute, but ``dbSelect`` will search ONLY through the record columns defined in the ``columns`` attribute.
 
-	Example::
+	**Example** ??? correggere!::
 	
 		class GnrCustomWebPage(object):
 			def main(self,root,**kwargs):
@@ -202,22 +208,21 @@ Columns
 				fb.dbSelect(dbtable='showcase.person',value='^.person_id',lbl='Star',
 				            selected_name='.name',selected_year='.year')
 		
-	??? Add a demo...
-
-	.. _db-auxColumns:
+.. _db_auxColumns:
 
 auxColumns
 ==========
 
 	The ``auxColumns`` attribute allows to visualize in the menu below the input text box some additional fields.
 
-	Example::
+	**Example** ??? correggere!::
 	
 		class GnrCustomWebPage(object):
 			def main(self,root,**kwargs):
 				fb = root.formbuilder(cols=2,border_spacing='10px',datapath='myform')
 				fb.dbCombobox(dbtable='showcase.person',value='^.person_id',
 				              lbl='Star', auxColumns='$nationality')
-				
-	??? Add a demo...
-	
+
+**Footnotes:**
+
+.. [#] For more information on a creation of a project, check the :ref:`genro-database-introduction` page.

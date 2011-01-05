@@ -1,7 +1,7 @@
 	.. _genro-contentpane:
 
 ==============
- content pane
+ Content pane
 ==============
 
 	- :ref:`cp-definition`
