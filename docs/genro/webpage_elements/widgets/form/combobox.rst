@@ -21,9 +21,9 @@ Definition and Description
 
 	Combobox is a graphical user widget that permits the user to select a value from multiple options.
 	
-	In combobox you have to provide a list of acceptable values (to upload these values, you can use two different ways: the Bag_-way and the values_-way). As the user types, partially matched values will be shown in a pop-up menu below the input text box. Like an input text field, user can also type whatever he wants.
+	In combobox you have to provide a list of acceptable values: to upload them, you can use a Bag_ or you can use the values_ attribute. As the user types, partially matched values will be shown in a pop-up menu below the input text box. Like an input text field, user can also type values that doesn't belong to the list of accetable ones.
 	
-	So, the combobox is like a :ref:`genro-filteringselect`; the difference is that combobox doesn't support keys.
+	The combobox looks like a :ref:`genro-filteringselect`: the only difference is that it doesn't support keys.
 
 	.. _combobox-examples:
 
@@ -31,36 +31,33 @@ Examples
 ========
 
 	.. _explanation:
-
+	
 	.. _values:
-
+	
 	.. _values-attribute:
 
 Fill combobox through "values" attribute
 ========================================
 
 	You can add values to combobox using the "values" attribute; check this example for the correct syntax::
-
+	
 		class GnrCustomWebPage(object):
 			def test_1_values(self,pane):
 				bc = pane.borderContainer(datapath='test1')
-				bc.combobox(value='^.record.values',values='Football,Golf,Karate',
+				fb = bc.formbuilder()
+				fb.combobox(value='^.record.values',values='Football,Golf,Karate',
 					        lbl='loaded from values')
 
 	.. _here:
-
-	Let's see a demo:
-
-	#NISO add online demo!
-
+	
 	.. _Bag:
-
+	
 	.. _Bag-way:
 
 Fill combobox through a Bag
 ===========================
 
-	Postponing all info of a ``Bag`` and of a ``data`` on the relative pages of documentation (:ref:`genro-bag-intro` introduction page and :ref:`datacontroller-data`), we'll show here how you can add values to ``combobox`` using a ``Bag``.
+	Postponing all info of a ``Bag`` and of a ``data`` on the relative pages of documentation (:ref:`genro-bag-intro` introduction page and :ref:`genro-data` page), we'll show here how you can add values to ``combobox`` using a ``Bag``.
 	
 	Example::
 
@@ -86,14 +83,12 @@ Fill combobox through a Bag
 				mytable['r6.Description'] = 'Snowboard'
 				return mytable
 				
-	The advantage of using a Bag is that you can add attributes to your records, while the info onto key values are lost. For get an example, check ???METTERE IL LINK GIUSTO QUANDO C'E' LA PAGINA.
-
-	The graphical result is the same of the values-way (see it here_).
-
+	The advantage of using a Bag is that you can add attributes to your records, but you lose the keys (they aren't supported from combobox).
+	
 	.. _combobox-attributes:
 
-Attributes
-==========
+Combobox attributes
+===================
 
 	+--------------------+-------------------------------------------------+--------------------------+
 	|   Attribute        |          Description                            |   Default                |
@@ -103,7 +98,6 @@ Attributes
 	| ``ignoreCase``     | If True, user can write ignoring the case       |  ``True``                |
 	+--------------------+-------------------------------------------------+--------------------------+
 	| ``values``         | Set all the possible values for user choice.    |  ``None``                |
-	|                    | Check here for explanation_.                    |                          |
 	+--------------------+-------------------------------------------------+--------------------------+
 	
 	.. _`combobox-other-attributes`:
@@ -111,15 +105,11 @@ Attributes
 Common attributes
 =================
 	
-	+--------------------+-------------------------------------------------+--------------------------+
-	|   Attribute        |          Description                            |   Default                |
-	+====================+=================================================+==========================+
-	| ``disabled``       | If True, user can't act on the combobox.        |  ``False``               |
-	|                    | For more details, see :ref:`genro-disabled`     |                          |
-	+--------------------+-------------------------------------------------+--------------------------+
-	| ``hidden``         | Hide the combobox.                              |  ``False``               |
-	|                    | See :ref:`genro-hidden`                         |                          |
-	+--------------------+-------------------------------------------------+--------------------------+
-	| ``value``          | Set a path for combobox's values.               |  ``None``                |
-	|                    | For more details, see :ref:`genro-datapath`     |                          |
-	+--------------------+-------------------------------------------------+--------------------------+
+	Here we list all the attributes that belong both to combobox and to other widgets. Click on them for a complete documentation:
+	
+	* :ref:`genro-disabled`
+	* :ref:`genro-hidden`
+	* value: check the :ref:`genro-datapath` page
+	
+	You can't use the ``label`` attribute; so if you want to give a label to your combobox you have to use a :ref:`genro-formbuilder`, then you have to insert the combobox in the formbuilder using the formbuilder's ``lbl`` attribute on your combobox.
+	
