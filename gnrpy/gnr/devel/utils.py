@@ -391,7 +391,7 @@ class ProgressBar(object):
 
         Here's how it looks::
         
-            Label padded to length     [**********----------------------]  45.12%
+            Label padded to length     [**********----------------------]  45.12%        (3m 28s passed, 4m 54s remaining)
         """
         self.progress_value = progress_value or value
         progress = float(value - self.min_value) / float(self.max_value - self.min_value)
