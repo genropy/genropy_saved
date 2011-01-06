@@ -60,11 +60,8 @@ class TableHandlerForm(BaseComponent):
         self.formTitleBase(pane)
         pane.dataFormula('form.locked', 'statusLocked || recordLocked || false', statusLocked='^status.locked',
                          recordLocked='=form.recordLocked', fired='^gnr.forms.formPane.loaded')
-        pane.dataController("""
-            if(pkey && (pkey != '*newrecord*')) {
-                window.location.hash='pk_'+pkey;
-            }
-        """, fired='^gnr.forms.formPane.loaded', pkey='=form.record?_pkey')
+        pane.dataController("""window.location.hash=(pkey == '*newrecord*')?null:'pk_'+pkey;""",
+                               fired='^gnr.forms.formPane.loaded', pkey='=form.record?_pkey',_if='pkey')
         pane.dataController("genro.dom.setClass(dojo.body(),'form_locked',locked)", locked="^form.locked")
         pane.dataFormula('form.canWrite', '(!locked ) && writePermission', locked='^form.locked',
                          writePermission='=usr.writePermission', _init=True)
