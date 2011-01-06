@@ -356,17 +356,21 @@ class TableHandlerForm(BaseComponent):
                                 """,
                             view_id="^list.view_id", selectionName='=list.selectionName')
 
-        pane.dataController("""if((!initialPkey )&& (window.location.hash.indexOf('#pk_')==0)){
-                                    initialPkey=window.location.hash.slice(4)
+        pane.dataController("""if((!initialPkey) && (window.location.hash.indexOf('#pk_')==0)){
+                                    initialPkey=window.location.hash.slice(4);
+                                    if(initialPkey == '*newrecord*') {
+                                        initialPkey = null;
+                                        window.location.hash = '';
+                                    }
                                     SET initialPkey=initialPkey;
                                 }
-                                if(initialPkey ){
+                                if(initialPkey){
                                     SET selectedPage=1;
                                     SET list.query.pkeys=initialPkey;
                                     FIRE list.runQuery = true;
                                 }
                                    """,
-                            _onStart=.5, initialPkey='=initialPkey')
+                            _onStart=.5, initialPkey='=initialPkey') # pkg/page#pk_*newrecord* disabled because it doesn't work
 
         pane.dataController("""var pkeys= genro.getData('list.'+dataset_name);
                                    if(pkeys){
