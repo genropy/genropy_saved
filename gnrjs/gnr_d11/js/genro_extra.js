@@ -147,10 +147,16 @@ dojo.declare("gnr.widgets.SearchBox", gnr.widgets.dummy, {
     
     createContent:function(sourceNode, kw) {
         var searchOn = objectPop(kw,'searchOn');
+        var searchDtypes;
+        if(searchOn[0]=='*'){
+            searchDtypes = searchOn.slice(1);
+            searchOn=true;
+        }
         var datapath = objectPop(kw,'datapath') || '.searchbox';
         var nodeId = objectPop(kw,'nodeId');
         var menubag;
         var databag = new gnr.GnrBag();
+        databag.setItem('menu_dtypes',searchDtypes);
         this._prepareSearchBoxMenu(searchOn,databag);
         sourceNode.setRelativeData(datapath,databag);
         var searchbox = sourceNode._('div',{datapath:datapath, nodeId:nodeId});
@@ -169,7 +175,10 @@ dojo.declare("gnr.widgets.SearchBox", gnr.widgets.dummy, {
     _prepareSearchBoxMenu: function(searchOn,databag){
         var menubag = new gnr.GnrBag();
         var i = 0;
-        if(searchOn!==true){
+        if(searchOn===true){
+            databag.setItem('menu_auto',menubag);
+        }
+        else{
             dojo.forEach(searchOn.split(','),function(col){
                 col = dojo.trim(col);
                 var caption = col;
@@ -178,6 +187,7 @@ dojo.declare("gnr.widgets.SearchBox", gnr.widgets.dummy, {
                     caption= col[0];
                     col = col[1];
                 }
+                col = col.replace(/[.@]/g,'_');
                 menubag.setItem('r_'+i,null,{col:col,caption:caption,child:''});
                 i++;
             });

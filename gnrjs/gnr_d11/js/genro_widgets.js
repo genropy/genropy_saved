@@ -2096,27 +2096,37 @@ dojo.declare("gnr.widgets.Grid", gnr.widgets.baseDojo, {
         
         var searchBoxNode = genro.nodeById(nodeId+'_searchbox');
         if (searchBoxNode){
-            var menubag = searchBoxNode.getRelativeData('.menubag');
-            if(menubag.len()==0){
+            if(searchBoxNode.getRelativeData('.menu_auto')){
+                _this = this;
                 var cb = function(){
-                    var values = [];
-                    var cellsbag = this.structbag().getItem('#0.#0');
-                    var caption,cellattr,cell_cap,cell_field,fltList,colList,col;
-                    cellsbag.forEach(function(n){
-                        cellattr = n.attr;
-                        cell_cap = cellattr.name || cellattr.field;
-                        cell_field = cellattr.field;
-                        values.push(cell_cap+':'+cell_field);
-                    });
-                    genro.publish(nodeId+'_searchbox_updmenu',values.join(','));
+                    genro.publish(nodeId+'_searchbox_updmenu',
+                                  _this._getFilterAutoValues(widget,searchBoxNode.getRelativeData('.menu_dtypes')));
                 }
                 dojo.connect(widget,'onSetStructpath',widget,cb);
                 setTimeout(function(){cb.call(widget)},1);
             }
             dojo.subscribe(nodeId+'_searchbox_keyUp',widget,function(v,field){
-                    this.applyFilter(v,null,field);
+                this.applyFilter(v,null,field);
             });
         }
+    },
+    _getFilterAutoValues: function(widget,dtypes){
+        var values = [];
+        var auto = [];
+        values.push(null)
+        var cellsbag = widget.structbag().getItem('#0.#0');
+        var caption,cellattr,cell_cap,cell_field,fltList,colList,col;
+        cellsbag.forEach(function(n){
+            cellattr = n.attr;
+            cell_cap = cellattr.name || cellattr.field;
+            cell_field = cellattr.field;
+            if (!dtypes || (dtypes.indexOf(cellattr.dtype) >=0)){
+                values.push(cell_cap+':'+cell_field);
+                auto.push(cell_field);
+            }
+        });
+        values[0]='Auto:'+auto.join('+');
+        return values.join(',')
     },
     created: function(widget, savedAttrs, sourceNode) {
         this.created_common(widget, savedAttrs, sourceNode);

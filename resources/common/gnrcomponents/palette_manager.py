@@ -14,27 +14,6 @@ from time import time
 class PaletteManager(BaseComponent):
     py_requires = 'foundation/macrowidgets:FilterBox,gnrcomponents/htablehandler:HTableHandlerBase,gnrcomponents/grid_configurator/grid_configurator:GridConfigurator'
 
-   #@struct_method
-   #def pm_paletteGrid(self, pane, paletteCode=None, title=None, data=None, struct=None,
-   #                   table=None, datamode=None, filterOn=None, configurable=None, **kwargs):
-   #    grid_kwargs = dict(margin='6px', font_size='.9em', draggable_row=True,
-   #                       onDrag="""dragValues['%s']=dragValues.gridrow.rowset;""" % paletteCode)
-   #    grid_kwargs.update(dictExtract(kwargs, 'grid_', pop=True))
-   #    pane = pane.palettePane(paletteCode=paletteCode, title=title, **kwargs)
-   #    gridId = 'palette_%s_grid' % paletteCode
-   #    if filterOn:
-   #        bc = pane.borderContainer()
-   #        top = bc.contentPane(region='top').toolbar(height='20px')
-   #        self.gridFilterBox(top.div(float='right'), gridId=gridId, filterOn=filterOn)
-   #        pane = bc.contentPane(region='center')
-   #    if data is not None:
-   #        pane.data('.store', data)
-   #    struct = struct or getattr(self, 'palette_%s_struct' % paletteCode, None)
-   #    pane.includedview(nodeId=gridId, storepath='.store', struct=struct, structpath='.grid.struct',
-   #                      table=table, datamode=datamode, controllerPath='.grid', configurable=configurable,
-   #                      **grid_kwargs)
-   #    return pane
-
     @struct_method
     def pm_directoryStore(self, pane, rootpath=None, storepath='.store', **kwargs):
         store = DirectoryResolver(rootpath or '/', **kwargs)()

@@ -26,7 +26,7 @@ class GnrCustomWebPage(object):
     def test_1_grid(self,pane):
         pane.paletteGrid('province',title='Province',
                         configurable=True,struct='cap',
-                        table='glbl.provincia',searchOn=True).selectionStore()
+                        table='glbl.provincia',searchOn='*A,T,D').selectionStore()
         
     def _test_2_analyze(self,pane):
         """Test hexplorer"""
