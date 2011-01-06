@@ -249,7 +249,7 @@ class Public(BaseComponent):
         right.dataScript('gnr.localizerClass', """return 'localizer_'+status""",
                          status='^gnr.localizerStatus', _init=True, _else="return 'localizer_hidden'")
         if self.isDeveloper():
-            right.div(connect_onclick='SET _clientCtx.mainBC.right?show = !GET _clientCtx.mainBC.right?show;',
+            right.div(connect_onclick='genro.dev.showDebugger();',
                       _class='icnBaseEye buttonIcon', float='right', margin_right='5px')
         if self.isLocalizer():
             right.div(connect_onclick='genro.dev.openLocalizer()', _class='^gnr.localizerClass', float='right')
