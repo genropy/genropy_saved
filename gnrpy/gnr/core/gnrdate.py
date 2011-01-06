@@ -566,7 +566,7 @@ class TimeInterval(object):
         TimePeriod('8:00-9:00, 10:00-12:00')
         >>> lst = [ti] + tp.intervals
         >>> TimeInterval.sorted(lst)
-        ['8:00-9:00', '9:00-10:00', '10:00-12:00']
+        [TimeInterval('8:00-9:00'), TimeInterval('9:00-10:00'), TimeInterval('10:00-12:00')]
         """
         return sorted(iterable, cmp=TimeInterval.cmp)
 
@@ -766,6 +766,32 @@ class TimePeriod(object):
         :type: list
         """
         return copy.copy(self._intervals) # make a shallow copy, so they can't mess with the ordering of intervals
+
+def seconds_to_text(seconds):
+    """Convert number of seconds to a string.
+
+    >>> print seconds_to_text(0)
+    0s
+    >>> print seconds_to_text(10)
+    10s
+    >>> print seconds_to_text(60)
+    1m
+    >>> print seconds_to_text(3600)
+    1h
+    >>> print seconds_to_text(3672)
+    1h 1m 12s
+    """
+    seconds = int(seconds)
+    minutes, seconds = divmod(seconds, 60)
+    hours, minutes = divmod(minutes, 60)
+    parts = []
+    for value, unit in ((hours,'h'),(minutes,'m'),(seconds,'s')):
+        if value != 0:
+            parts.append("%d%s" % (value, unit))
+    if parts:
+        return " ".join(parts)
+    else:
+        return "0s"
 
 if __name__ == '__main__':
     import doctest

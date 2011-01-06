@@ -10,6 +10,7 @@ Available functionality:
 
 from __future__ import with_statement
 
+import time
 import math
 import sys
 from os import environ, getcwd, listdir
@@ -17,6 +18,7 @@ from os.path import normpath, splitext, expanduser, expandvars,\
     isdir, isfile, basename
 from os.path import join as path_join
 
+from gnr.core.gnrdate import seconds_to_text
 from gnr.core.gnrbag import Bag
 
 ########################################################################
@@ -369,6 +371,8 @@ class ProgressBar(object):
         self.progress_label = progress_label
         self.progress_value = min_value
         self.fd = fd
+        self.start_time = time.time()
+        
         print >> self.fd, self.label, "...",
         self.update(self.min_value)
 
@@ -394,6 +398,19 @@ class ProgressBar(object):
         occupied_bar_chars = int(math.floor(self.bar_width * progress))
         occupied_bar = "*" * occupied_bar_chars
         free_bar = "-" * (self.bar_width - occupied_bar_chars)
-        print >> self.fd, "\r%*s [%s%s] % 5.2f%%" % (
-        self.label_width, self.label, occupied_bar, free_bar, progress * 100.0),
+        elapsed_seconds = time.time() - self.start_time
+        if elapsed_seconds > 5 and progress > 0:
+            remaining_seconds = (elapsed_seconds / progress)
+            time_msg = "(%s passed, %s remaining)" % (seconds_to_text(elapsed_seconds), seconds_to_text(remaining_seconds))
+        else:
+            time_msg = ""
+        print >> self.fd, "\r%*s [%s%s] % 5.2f%% %40s" % (
+        self.label_width, self.label, occupied_bar, free_bar, progress * 100.0, time_msg),
         self.fd.flush()
+
+    def iterator(self, iterable, update_every=1):
+        it = iter(iterable)
+        for n, x in enumerate(it):
+            yield x
+            if n % update_every == 0:
+                self.update(n)
