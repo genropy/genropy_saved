@@ -4362,6 +4362,15 @@ dojo.declare("gnr.widgets.Tree", gnr.widgets.baseDojo, {
                 });
             });
         }
+        var nodeId = sourceNode.attr.nodeId;
+        if(nodeId){
+            var searchBoxNode = genro.nodeById(nodeId+'_searchbox');
+            if (searchBoxNode){
+                dojo.subscribe(nodeId+'_searchbox_keyUp',widget,function(v,field){
+                    this.applyFilter(v);
+                });
+            }
+        }
     },
     fillDragInfo:function(dragInfo) {
         dragInfo.treenode = dragInfo.widget;
@@ -4402,6 +4411,20 @@ dojo.declare("gnr.widgets.Tree", gnr.widgets.baseDojo, {
         }
         return ck;
     },
+    mixin_applyFilter:function(value){
+        var treeNodes = dojo.query('.dijitTreeLabel',this.domNode);
+        treeNodes.forEach(function(n){
+            var tn = dijit.getEnclosingWidget(n);
+            var label = n.innerHTML;
+            console.log(label);
+            if (label.indexOf(value)>=0){
+                tn.expand();
+            }else{
+                tn.collapse();
+            }
+        });
+    },
+    
     mixin_clickOnCheckbox:function(bagnode, e) {
         var checked = bagnode.attr.checked ? false : true;
         var walkmode = this.sourceNode.attr.eagerCheck ? null : 'static';

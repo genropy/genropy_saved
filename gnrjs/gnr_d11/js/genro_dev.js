@@ -232,7 +232,7 @@ dojo.declare("gnr.GnrDevHandler", null, {
         fpane.getParentNode().widget.bringToTop();
     },
 
-    openInspector:function() {
+    openInspector_old:function() {
         var root = genro.src.newRoot();
         this.application.setData('_dev.dbstruct', null, {remote:"app.dbStructure"});
         var fpane = root._('floatingPane', 'inspector', {title:'Debug',top:'100px',left:'100px',height:'300px',width:'400px',
@@ -252,6 +252,22 @@ dojo.declare("gnr.GnrDevHandler", null, {
         });
         genro.src.setInRootContainer('inspector', root.getNode('inspector'));
     },
+    openInspector:function(){
+        var root = genro.src.newRoot();
+        genro.src.getNode()._('div', '_devInspector_');
+        var node = genro.src.getNode('_devInspector_').clearValue();
+        node.freeze();
+        var pg = node._('paletteGroup',{'groupCode':'devTools','dockTo':'*',title:'Developer tools',style:"font-family:Courier"});
+        pg._('paletteTree',{'paletteCode':'cliDatastore',title:'Data',storepath:'*D',searchOn:true});
+        pg._('paletteTree',{'paletteCode':'cliSourceStore',title:'Source',storepath:'*S'});
+        pg._('paletteTree',{'paletteCode':'dbStruct',title:'Db model'});
+        genro.setDataFromRemote('gnr.palettes.dbStruct.store', "app.dbStructure");
+        node.unfreeze();
+        
+    },
+    
+    
+    
     openLocalizer:function() {
         noValueIndicator = "<span >&nbsp;</span>";
         genro.src.getNode()._('div', '_localizer');
@@ -343,9 +359,12 @@ dojo.declare("gnr.GnrDevHandler", null, {
             return genro.dev.dictToHtml(item.attr, 'bagAttributesTable');
         }
     },
-    showDebugger: function() {
+    showDebugger_old: function() {
         var open = genro._data.getItem('_clientCtx.mainBC.right?show');
         genro._data.setItem('_clientCtx.mainBC.right?show', !open);
+    },
+    showDebugger:function(){
+        genro.dev.openInspector();
     },
     showBottomHelper: function() {
         var open = genro._data.getItem('_clientCtx.mainBC.bottom?show');

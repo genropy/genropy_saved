@@ -33,10 +33,17 @@ dojo.declare("gnr.widgets.Palette", gnr.widgets.dummy, {
             top = this._last_floating['top'] + 'px';
             right = this._last_floating['right'] + 'px';
         }
-        var floating_kwargs = objectUpdate(attributes,{dockable:true,closable:false,resizable:true});
+        var dockTo = objectPop(attributes,'dockTo') || 'default_dock';
+        var floating_kwargs = objectUpdate(attributes,{dockable:true,closable:false,
+                                                       dockTo:dockTo,visibility:'hidden'});
+        if(dockTo=='*'){
+            floating_kwargs.closable = true;
+            floating_kwargs.dockable = false;
+            floating_kwargs.visibility = 'visible';
+        }
         return objectUpdate({height:'400px',width:'300px',
-            top:top,right:right,left:left,bottom:bottom,dockTo:'default_dock',
-            visibility:'hidden'},floating_kwargs);
+                            top:top,right:right,left:left,bottom:bottom,
+                            resizable:true},floating_kwargs);
     },
     createContent:function(sourceNode, kw) {
         return sourceNode._('floatingPane', kw);
@@ -48,6 +55,7 @@ dojo.declare("gnr.widgets.PalettePane", gnr.widgets.dummy, {
     contentKwargs: function(sourceNode,attributes){
         var inattr = sourceNode.getInheritedAttributes();
         var groupCode = inattr.groupCode;
+        attributes.datapath = attributes.datapath || 'gnr.palettes.'+attributes.paletteCode;
         if(groupCode){
             attributes.groupCode = groupCode;
             attributes.pageName = attributes.paletteCode;
@@ -76,8 +84,10 @@ dojo.declare("gnr.widgets.PalettePane", gnr.widgets.dummy, {
 });
 dojo.declare("gnr.widgets.PaletteTree", gnr.widgets.dummy, {
     createContent:function(sourceNode, kw) {
+        var treeId =objectPop(kw,'treeId') || 'palette_'+paletteCode+'_tree';
         var tree_kwargs = {labelAttribute:'caption', _class:'fieldsTree', hideValues:true,
-                           margin:'6px', font_size:'.9em', draggable:true,storepath:'.store'};
+                           margin:'6px', font_size:'.9em', draggable:true,nodeId:treeId,
+                           storepath:objectPop(kw,'storepath') || '.store'};
         var paletteCode = kw.paletteCode;
         tree_kwargs.onDrag = function(dragValues,dragInfo,treeItem){
             if(treeItem.attr.child_count && treeItem.attr.child_count>0){
@@ -87,7 +97,14 @@ dojo.declare("gnr.widgets.PaletteTree", gnr.widgets.dummy, {
             dragValues[paletteCode]=treeItem.attr;
         };
         objectUpdate(tree_kwargs ,objectExtract(kw,'tree_*'));
+        var searchOn = objectPop(kw,'searchOn');
         var pane = sourceNode._('PalettePane',kw);
+        if (searchOn){
+            var bc = pane._('BorderContainer');
+            var top = bc._('ContentPane',{region:'top'})._('Toolbar',{height:'20px'});
+            pane = bc._('ContentPane',{region:'center'});
+            top._('SearchBox',{searchOn:searchOn,nodeId:treeId+'_searchbox',datapath:'.searchbox'});
+        }
         var tree = pane._('tree',tree_kwargs);
         return pane;
     }
@@ -200,80 +217,6 @@ dojo.declare("gnr.widgets.SearchBox", gnr.widgets.dummy, {
     
 });
 
-/*dojo.declare("gnr.widgets.GridFilterBox", gnr.widgets.FilterBox, {
-    contentKwargs: function(sourceNode){
-        var attributes = objectUpdate({},sourceNode.attr);
-        attributes.onKeyUp = 'FIRE .current_value = $1.target.value;';
-        var cols = [];
-        var gridId = objectPop(attributes,'gridId');
-        var grid = genro.wdgById(gridId);
-        var filterOn = objectPop(attributes,'filterOn');
-        var currentStruct = grid.structbag();
-        var cellsbag = currentStruct.getItem('#0.#0');
-        var caption,cellattr,cell_cap,cell_field,fltList,colList,col;
-        if (filterOn===true){
-            cellsbag.forEach(function(n){
-                cellattr = n.attr;
-                if(cellattr.dtype=='A'||cellattr.dtype=='T'){
-                    cell_cap = cellattr.name || cellattr.field;
-                    cell_field = cellattr.field;
-                    cols.push(cell_cap+':'cell_field);
-                }
-            });
-            
-        }else if (filterOn){
-            var cols = 
-            fltList = filterOn.split(',');
-            dojo.forEach(fltList,function(col){
-                col = dojo.trim(col);
-                caption = null;
-                if(col.indexOf(':')>=0){
-                    col = col.split(':');
-                    caption= col[0];
-                    col = col[1];
-                }if(!caption){
-                    var n = cellsbag.getNodeByAttr('field',col);
-                    cellattr = n.attr;
-                    caption = cellattr.name || cellattr.field;
-                }
-            });
-              
-            colList = col.split('+');//splitAndStrip(col, '+')
-            dojo.forEach(colList,function(col){
-                
-            })
-            col = '+'.join([self.db.colToAs(c) for c in colList])
-            cols.append('%s:%s' % (caption, col))
-            });
-        }
-        
-        return attributes;
-    }
-
-});*/
-
-/*
-    def gridFilterBox(self, pane, gridId=None, datapath=None, filterOn=None, table=None, **kwargs):
-        fltList = splitAndStrip(filterOn, ',')
-        cols = []
-        for col in fltList:
-            caption = None
-            if ':' in col:
-                caption, col = col.split(':')
-            if not caption:
-                caption = self.db.table(table).column(col).name_long
-            colList = splitAndStrip(col, '+')
-            col = '+'.join([self.db.colToAs(c) for c in colList])
-            cols.append('%s:%s' % (caption, col))
-        self.filterBox(pane.div(float='right', margin_right='5px'), filterOn=','.join(cols),
-                       datapath=datapath or '.filter', **kwargs)
-        filtercontroller = pane.dataController(datapath=".filter")
-        filtercontroller.dataController('genro.wdgById(gridId).applyFilter(value,null,field);',
-                                        gridId=gridId, value="^.current_value", field='=.field')
-        filtercontroller.dataController('genro.wdgById(gridId).applyFilter("",null,field);',
-                                        gridId=gridId, field='^.field')
-*/
-
 
 dojo.declare("gnr.widgets.PaletteGroup", gnr.widgets.dummy, {
     createContent:function(sourceNode, kw) {
@@ -282,7 +225,7 @@ dojo.declare("gnr.widgets.PaletteGroup", gnr.widgets.dummy, {
         palette_kwargs['nodeId'] = 'paletteGroup_'+groupCode+'_floating';
         palette_kwargs['title'] = palette_kwargs['title'] || 'Palette ' + groupCode;
         var floating = sourceNode._('palette', palette_kwargs);
-        var tc = floating._('tabContainer', {selectedPage:'^gnr.palettes.?' + groupCode,groupCode:groupCode});
+        var tc = floating._('tabContainer', objectUpdate(kw,{selectedPage:'^gnr.palettes.?' + groupCode,groupCode:groupCode}));
         return tc;
     }
 });
