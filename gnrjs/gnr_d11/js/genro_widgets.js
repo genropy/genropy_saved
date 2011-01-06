@@ -4411,18 +4411,33 @@ dojo.declare("gnr.widgets.Tree", gnr.widgets.baseDojo, {
         }
         return ck;
     },
-    mixin_applyFilter:function(value){
-        var treeNodes = dojo.query('.dijitTreeLabel',this.domNode);
-        treeNodes.forEach(function(n){
-            var tn = dijit.getEnclosingWidget(n);
-            var label = n.innerHTML;
-            console.log(label);
-            if (label.indexOf(value)>=0){
-                tn.expand();
-            }else{
-                tn.collapse();
+    mixin_applyFilter:function(search){
+        dojo.query('.dijitTreeNode',this.domNode).removeClass('hidden')
+        if (search){
+            var root=this.model.store.rootData()
+            _this=this;
+            cb=function(n){
+                if (n.label.indexOf(search)>=0){
+                    var fullpath=n.getFullpath(null,root)
+                    _this.showNodeAtPath(fullpath)
+                }
             }
-        });
+            root.walk(cb,'static')
+            dojo.query('.dijitTreeNode',this.domNode).addClass('hidden')
+             dojo.query('.dijitTreeLabel',this.domNode).forEach(function(n){
+                var tn = dijit.getEnclosingWidget(n);
+                var parent=tn.getParent()
+                var label = n.innerHTML;
+                if((!parent) || (label.indexOf(search)>=0)){
+                    dojo.removeClass(tn.domNode,'hidden')
+                    while(parent&&dojo.hasClass(parent.domNode,'hidden')){
+                        dojo.removeClass(parent.domNode,'hidden')
+                        parent=parent.getParent()
+                    }
+                    
+                };
+            })
+        }
     },
     
     mixin_clickOnCheckbox:function(bagnode, e) {
@@ -4605,6 +4620,20 @@ dojo.declare("gnr.widgets.Tree", gnr.widgets.baseDojo, {
             currTree._updateSelect(currNode);
         }, 100);
     },
+     mixin_showNodeAtPath:function(path) {
+         var curr = this.model.store.rootData();
+         var pathList = path.split('.');
+         for (var i = 0; i < pathList.length; i++) {
+            currNode = curr.getNode(pathList[i]);
+            treeNode = this._itemNodeMap[currNode._id];
+            curr = currNode.getValue('static');
+            if (i < pathList.length - 1) {
+                if (!treeNode.isExpanded) {
+                    this._expandNode(treeNode);
+                };
+            }
+        }
+     },
     mixin_setSelected:function(node) {
         var prevSelectedNode = this.currentSelectedNode;
         this.currentSelectedNode = node;

@@ -231,27 +231,6 @@ dojo.declare("gnr.GnrDevHandler", null, {
         node.unfreeze();
         fpane.getParentNode().widget.bringToTop();
     },
-
-    openInspector_old:function() {
-        var root = genro.src.newRoot();
-        this.application.setData('_dev.dbstruct', null, {remote:"app.dbStructure"});
-        var fpane = root._('floatingPane', 'inspector', {title:'Debug',top:'100px',left:'100px',height:'300px',width:'400px',
-            resizable:true,maxable:true,dockable:false,
-            closable:true,gnrId:'inspector_main'});
-
-        var accordion = fpane._('accordionContainer', {height:'100%'});
-        accordion._('accordionPane', {title:'Data'})._('tree', { gnrId:'inspector_data',datasource:'*D'});
-        var structInsp = fpane._('accordionPane', {title:'Structure'});
-        var splitter = structInsp._('SplitContainer', {height:'100%'});
-        splitter._('ContentPane', {sizeShare:30})._('tree', {gnrId:'inspector_struct',datasource:'*S'});
-        splitter._('ContentPane', {sizeShare:70, gnrId:'inspector_struct_pane',background_color:'silver', datasource: 'currentnode'})._('div');
-        accordion._('accordionPane', {title:'Widgets'})._('tree', {gnrId:'inspector_widgets', datasource:'_dev.widgets'});
-        accordion._('accordionPane', {title:'Db Structure'})._('tree', {gnrId:'inspector_db', datasource:'_dev.dbstruct'});
-        dojo.connect(genro.inspector_struct, 'onSelect', function(treenode) {
-            genro.dev.editSourceNode(treenode);
-        });
-        genro.src.setInRootContainer('inspector', root.getNode('inspector'));
-    },
     openInspector:function(){
         var root = genro.src.newRoot();
         genro.src.getNode()._('div', '_devInspector_');
@@ -263,11 +242,7 @@ dojo.declare("gnr.GnrDevHandler", null, {
         pg._('paletteTree',{'paletteCode':'dbStruct',title:'Db model'});
         genro.setDataFromRemote('gnr.palettes.dbStruct.store', "app.dbStructure");
         node.unfreeze();
-        
     },
-    
-    
-    
     openLocalizer:function() {
         noValueIndicator = "<span >&nbsp;</span>";
         genro.src.getNode()._('div', '_localizer');

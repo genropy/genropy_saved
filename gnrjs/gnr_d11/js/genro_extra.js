@@ -129,7 +129,7 @@ dojo.declare("gnr.widgets.PaletteGrid", gnr.widgets.dummy, {
             if(grid.storebag().len()==0){
                 grid.reload();
             }
-        }
+        };
         objectUpdate(grid_kwargs ,objectExtract(kw,'grid_*'));
         var pane = sourceNode._('PalettePane',kw);
         if (kw.searchOn){
@@ -276,7 +276,7 @@ dojo.declare("gnr.widgets.protovis", gnr.widgets.baseHtml, {
              this._doRender(domNode);
              sourceNode.visError=null;
         } catch(e) {
-            console.log('error in rendering protovis '+sourceNode.attr.nodeId);
+            console.log('error in rendering protovis '+sourceNode.attr.nodeId+' : '+e);
             sourceNode.visError=e;
         }
         
@@ -290,8 +290,13 @@ dojo.declare("gnr.widgets.protovis", gnr.widgets.baseHtml, {
         }
         else if (sourceNode.attr.storepath) {
             var storepath = sourceNode.attr.storepath;
-            var visbag = sourceNode.getRelativeData(storepath);
-            vis = this.bnode(sourceNode, visbag.getNode('source.#0'));
+            var visbag = sourceNode.getRelativeData(storepath).getItem('#0');
+            var vis;
+            _this=this;
+            sourceNode.protovisEnv={};
+            visbag.forEach(function(n) {
+                vis=_this.bnode(sourceNode, n) || vis;
+            });
         }
         this.attachToDom(domNode, vis);
         sourceNode.vis = vis;
@@ -306,16 +311,27 @@ dojo.declare("gnr.widgets.protovis", gnr.widgets.baseHtml, {
         };
     },
     bnode:function(sourceNode, node, parent) {
-
+        var env=sourceNode.protovisEnv;
         var storepath = sourceNode.attr.storepath;
         var attr = objectUpdate({}, node.attr);
         var tag = objectPop(attr, 'tag');
-        var obj;
-        if (!parent) {
-            obj = new pv[tag]();
-        } else {
-            obj = parent.add(pv[tag]);
+        if (tag=='env'){
+            env[node.label]=dojo.eval(node.getValue());
+            return;
         }
+        var obj = parent? parent.add(pv[tag]):new pv[tag]();
+        this._convertAttr(sourceNode,obj,attr);
+        var v = node.getValue();
+        _this = this;
+        if (v instanceof gnr.GnrBag) {
+            v.forEach(function(n) {
+                _this.bnode(sourceNode, n, obj);
+            });
+        }
+        return obj;
+    },
+    _convertAttr:function(sourceNode,obj,attr){
+        var env=sourceNode.protovisEnv;
         for (var k in attr) {
             var v = attr[k];
             if (stringEndsWith(k,'_js')){
@@ -329,7 +345,6 @@ dojo.declare("gnr.widgets.protovis", gnr.widgets.baseHtml, {
             else if(k.indexOf('_fn_')>0){
                 k=k.split('_fn_');
                 var fn='function('+k[1]+'){return ('+v+')}';
-                console.log(fn);
                 v=genro.evaluate(fn);
                 k=k[0];
             }
@@ -347,16 +362,7 @@ dojo.declare("gnr.widgets.protovis", gnr.widgets.baseHtml, {
             }else{
                 obj[k](v);
             }
-            
         }
-        var v = node.getValue();
-        _this = this;
-        if (v instanceof gnr.GnrBag) {
-            v.forEach(function(n) {
-                _this.bnode(sourceNode, n, obj);
-            });
-        }
-        return obj;
     }
 });
 
