@@ -1181,7 +1181,7 @@ dojo.declare("gnr.widgets.FloatingPane", gnr.widgets.baseDojo, {
                 genro.publish(nodeId+'_show');
             });
         }
-    },
+    }
 
 });
 
