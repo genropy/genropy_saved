@@ -958,6 +958,12 @@ class GnrFormBuilder(object):
             if colspan > 1:
                 kwargs['colspan'] = str(colspan)
             lbl_kwargs.update(kwargs)
+            lblvalign = lbl_kwargs.pop('vertical_align', lblvalign)
+            lblalign = lbl_kwargs.pop('align', lblalign)
+            if '_class' in lbl_kwargs:
+                lbl_kwargs['_class'] = self.lblclass + ' ' + lbl_kwargs['_class']
+            else:
+                lbl_kwargs['_class'] = self.lblclass
             row[0].td(name='c_%i' % c, content=lbl, align=lblalign, vertical_align=lblvalign, **lbl_kwargs)
             td = row[1].td(name='c_%i' % c, align=fldalign, vertical_align=fldvalign, **kwargs)
             for k, v in row_attributes.items():
