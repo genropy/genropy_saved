@@ -528,8 +528,8 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
         structpath = structpath or '%s.grid.struct' %datapath
         self._setGridStruct(struct=struct,table=table,columns=columns,gridId=gridId,structpath=structpath)
         if data is not None:
-            self.data('%s.store' %datapath,data)
-        return self.child('PaletteGrid',table=table,gridId=gridId,storepath='.store',
+            self.data('%s.grid.store' %datapath,data)
+        return self.child('PaletteGrid',table=table,gridId=gridId,
                            paletteCode=paletteCode,datapath=datapath,
                            structpath=structpath,**kwargs)
 
