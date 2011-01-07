@@ -1222,14 +1222,18 @@ dojo.declare("gnr.GnrBag", null, {
         return result;
     },
     //-------------------- getNode --------------------------------        
-    /**
-     *
-     * @param {String} attr
-     * @param {Object} value
-     * @param {Array} path (optional)
-     */
-
-    getNodeByAttr: function(attr, value, path) {
+    
+    getNodeByAttr: function(attr,value,caseInsensitive) {
+        var value = caseInsensitive?value.toLowerCase():value;
+        var f = function(n) {
+            if((attr in n.attr) && (caseInsensitive?(n.attr[attr].toLowerCase()==value):(n.attr[attr]==value))){
+                return n;
+            }
+        };
+        return this.walk(f, 'static');
+    },
+    /*
+    getNodeByAttr: function(attr, value, path,caseInsensitive) {
         var bags = [];
 
         var nlen = this._nodes.length;
@@ -1262,7 +1266,7 @@ dojo.declare("gnr.GnrBag", null, {
             }
         }
     },
-
+    */
 
     /**
      * @id getNode
@@ -1577,6 +1581,8 @@ dojo.declare("gnr.GnrBag", null, {
         };
         return this.walk(f, 'static');
     },
+
+    
     forEach: function(callback, mode, kw) {
         this.walk(callback, mode, kw, true);
     },

@@ -93,231 +93,6 @@ gnr.menuFromBag = function (bag, appendTo, menuclass, basepath) {
         }
     }
 };
-dojo.declare("gnr.GridEditor", null, {
-    constructor:function(widget, sourceNode, gridEditorNode) {
-        var gridEditorColumns = gridEditorNode.getValue();
-        this.grid = widget;
-        var grid = this.grid;
-        this.viewId = sourceNode.attr.nodeId;
-        this.formId = sourceNode.getInheritedAttributes()['formId'];
-        this.grid.rows.isOver = function(inRowIndex) {
-            return ((this.overRow == inRowIndex) && !grid.gnrediting);
-        };
-        this.grid.selection.isSelected = function(inRowIndex) {
-            return this.selected[inRowIndex] && !grid.gnrediting;
-        };
-        var columns = {};
-        var attr;
-        // dojo.connect(widget,'onCellMouseOver',this,'onCellMouseOver')
-        this.widgetRootNode = gridEditorNode;
-        gridEditorColumns.forEach(function(node) {
-            attr = node.attr;
-            if (!attr.gridcell) {
-                throw "Missing gridcell parameter";
-            }
-            columns[attr.gridcell.replace(/\W/g, '_')] = {'tag':attr.tag,'attr':attr};
-        });
-        this.columns = columns;
-        gridEditorNode.setValue(null, false);
-        gridEditorNode.attr.tag = null;
-        gridEditorNode.attr.datapath = sourceNode.absDatapath(sourceNode.attr.storepath);
-        var editOn = gridEditorNode.attr.editOn || 'onCellDblClick';
-        editOn = stringSplit(editOn, ',', 2);
-        var modifier = editOn[1];
-        var _this = this;
-
-        dojo.connect(widget, editOn[0], function(e) {
-            if (genro.wdg.filterEvent(e, modifier)) {
-                if (grid.editorEnabled && _this.editableCell(e.cellIndex) && !grid.gnrediting) {
-                    dojo.stopEvent(e);
-                    if (_this.grid._delayedEditing) {
-                        clearTimeout(_this.grid._delayedEditing);
-                    }
-                    _this.grid._delayedEditing = setTimeout(function() {
-                        _this.startEdit(e.rowIndex, e.cellIndex);
-                    }, 1);
-                }
-            }
-        });
-    },
-    onEditCell:function(start) {
-        var grid = this.grid;
-        grid.gnrediting = start;
-        dojo.setSelectable(grid.domNode, grid.gnrediting);
-    },
-
-    invalidCell:function(cell, row) {
-        var rowNode = this.grid.dataNodeByIndex(row);
-        if (!rowNode) {
-            console.log('missing rowNode');
-            return;
-        }
-        var rowData = rowNode.getValue('static');
-        if (rowData) {
-            var datanode = rowData.getNode(cell.field);
-            return datanode ? datanode.attr._validationError : false;
-        }
-    },
-
-    startEdit:function(row, col) {
-        var grid = this.grid;
-        var cell = grid.getCell(col);
-        var colname = cell.field;
-        var fldDict = this.columns[colname];
-        var gridcell = fldDict.attr.gridcell;
-        var rowDataNode = grid.dataNodeByIndex(row);
-        var datachanged = false;
-        if (rowDataNode && rowDataNode._resolver && rowDataNode._resolver.expired()) {
-            datachanged = true;
-        }
-        var rowData = rowDataNode.getValue();
-        var cellDataNode = rowData.getNode(gridcell);
-        if (!cellDataNode) {
-            datachanged = true;
-            cellDataNode = rowData.getNode(gridcell, null, true);
-        }
-        else if (cellDataNode._resolver && cellDataNode._resolver.expired()) {
-            datachanged = true;
-            cellDataNode.getValue();
-        }
-        if (datachanged) {
-            setTimeout(dojo.hitch(this, 'startEdit', row, col), 1);
-            return;
-        }
-        var rowLabel = rowDataNode.label;
-        var cellNode = cell.getNode(row);
-
-        var attr = objectUpdate({}, fldDict.attr);
-        attr.datapath = '.' + rowLabel;
-        //attr.preventChangeIfIvalid = true;     
-        if ('value' in attr) {
-            if (attr.tag.toLowerCase() == 'dbselect') {
-                attr.selectedCaption = '.' + gridcell;
-            }
-        }
-        else {
-            attr['value'] = '^.' + gridcell;
-        }
-        if (this.viewId) {
-            if (attr.exclude == true) {
-                attr.exclude = '==genro.wdgById("' + this.viewId + '").getColumnValues("' + attr['value'] + '")';
-            }
-        }
-        ;
-        /*
-         var dflt = attr['default'] || attr['default_value'] || '';
-         node.getAttributeFromDatasource('value', true, dflt);
-         */
-
-
-        var editingInfo = {'cellNode':cellNode,'contentText':cellNode.innerHTML,
-            'row':row,'col':col};
-        cellNode.innerHTML = null;
-        var cbKeys = function(e) {
-            var keyCode = e.keyCode;
-            var keys = genro.PATCHED_KEYS;
-            var widget = this.widget;
-            if ((keyCode == keys.SHIFT) || (keyCode == keys.CTRL) || (keyCode == keys.ALT)) {
-                return;
-            }
-            if (keyCode == keys.TAB) {
-                widget.cellNext = e.shiftKey ? 'LEFT' : 'RIGHT';
-                //console.log('tabkey '+widget.cellNext);
-            }
-            if ((e.shiftKey) && ((keyCode == keys.UP_ARROW) ||
-                    (keyCode == keys.DOWN_ARROW) ||
-                    (keyCode == keys.LEFT_ARROW) ||
-                    (keyCode == keys.RIGHT_ARROW))) {
-
-                if (keyCode == keys.UP_ARROW) {
-                    widget.cellNext = 'UP';
-                } else if (keyCode == keys.DOWN_ARROW) {
-                    widget.cellNext = 'DOWN';
-                } else if (keyCode == keys.LEFT_ARROW) {
-                    widget.cellNext = 'LEFT';
-                } else if (keyCode == keys.RIGHT_ARROW) {
-                    widget.cellNext = 'RIGHT';
-                }
-                dojo.stopEvent(e);
-                widget.focusNode.blur();
-                //widget._onBlur();
-                //setTimeout(dojo.hitch(this.focusNode, 'blur'), 1);
-            }
-
-        };
-        var gridEditor = this;
-
-        var cbBlur = function(e) {
-            var cellNext = this.widget.cellNext; //|| 'RIGHT'; dannoso
-            this.widget.cellNext = null;
-            deltaDict = {'UP': {'r': -1, 'c': 0},
-                'DOWN': {'r': 1, 'c': 0},
-                'LEFT': {'r': 0, 'c': -1},
-                'RIGHT': {'r': 0, 'c': 1},
-                'STAY':{'r': 0, 'c': 0}
-            };
-            setTimeout(dojo.hitch(gridEditor, 'endEdit', this.widget, deltaDict[cellNext], editingInfo), 300);
-        };
-        attr._parentDomNode = cellNode;
-        attr._class = attr._class ? attr._class + ' widgetInCell' : 'widgetInCell';
-        attr.connect_keydown = cbKeys;
-        attr.connect_onBlur = cbBlur;
-        attr._autoselect = true;
-        var editWidgetNode = this.widgetRootNode._(fldDict.tag, attr).getParentNode();
-        editWidgetNode.editedRowIndex = row;
-        this.onEditCell(true);
-        if (cellDataNode.attr._validationError || cellDataNode.attr._validationWarnings) {
-            editWidgetNode._validations = {'error':cellDataNode.attr._validationError,'warnings':cellDataNode.attr._validationWarnings};
-            editWidgetNode.updateValidationStatus();
-        }
-        ;
-        editWidgetNode.widget.focus();
-
-    },
-
-    endEdit:function(editWidget, delta, editingInfo) {
-        var cellNode = editingInfo.cellNode;
-        var contentText = editingInfo.contentText;
-        editWidget.sourceNode._destroy();
-        editingInfo.cellNode.innerHTML = contentText;
-        this.onEditCell(false);
-        if (delta) {
-            var rc = this.findNextEditableCell({row:editingInfo.row, col:editingInfo.col}, delta);
-            if (rc) {
-                this.startEdit(rc.row, rc.col);
-            }
-        }
-
-    },
-    editableCell:function(col) {
-        return (this.grid.getCell(col).field in this.columns);
-    },
-    findNextEditableCell: function(rc, delta) {
-        var row = rc.row;
-        var col = rc.col;
-        var grid = this.grid;
-        do{
-            col = col + delta.c;
-            if (col >= grid.layout.cellCount) {
-                col = 0;
-                row = row + 1;
-            }
-            if (col < 0) {
-                col = grid.layout.cellCount - 1;
-                row = row - 1;
-            }
-
-            row = row + delta.r;
-            if ((row >= grid.rowCount) || (row < 0)) {
-                return;
-            }
-        } while (!this.editableCell(col));
-        rc.col = col;
-        rc.row = row;
-        return rc;
-    }
-
-});
 dojo.declare("gnr.widgets.baseHtml", null, {
     _defaultValue:'',
     _defaultEvent:'onclick',
@@ -1996,7 +1771,7 @@ dojo.declare("gnr.widgets.Grid", gnr.widgets.baseDojo, {
 
     creating_common: function(attributes, sourceNode) {
         sourceNode.attr.nodeId = sourceNode.attr.nodeId || 'grid_' + sourceNode.getStringId();
-        sourceNode.gridControllerPath = sourceNode.attr.controllerPath ? sourceNode.absDatapath(sourceNode.attr.controllerPath) : 'grids.' + sourceNode.attr.nodeId;
+        sourceNode.gridControllerPath = sourceNode.attr.controllerPath ? sourceNode.absDatapath() : 'grids.' + sourceNode.attr.nodeId;
         if (sourceNode.attr.configurable) {
             sourceNode.attr.selfDragColumns = 'trashable';
             var tablecode = sourceNode.attr.table.replace('.', '_');
@@ -2063,7 +1838,7 @@ dojo.declare("gnr.widgets.Grid", gnr.widgets.baseDojo, {
         }
         var gridContent = sourceNode.getValue();
         if (gridContent instanceof gnr.GnrBag) {
-            var gridEditorNode = gridContent.getNodeByAttr('tag', 'gridEditor');
+            var gridEditorNode = gridContent.getNodeByAttr('tag', 'grideditor',true);
             if (gridEditorNode) {
                 widget.gridEditor = new gnr.GridEditor(widget, sourceNode, gridEditorNode);
             };
@@ -2435,8 +2210,9 @@ dojo.declare("gnr.widgets.Grid", gnr.widgets.baseDojo, {
                             cell.field = cell.field.replace(/\W/g, '_');
                             if (dtype) {
                                 cell.cellClasses = (cell.cellClasses || '') + ' cell_' + dtype;
-                            }
-                            cell.cellStyles = objectAsStyle(genro.dom.getStyleDict(cell, [ 'width']));
+                            }                            
+                            cell.cellStyles = objectAsStyle(objectUpdate(objectFromStyle(cell.cellStyles),
+                                                            genro.dom.getStyleDict(cell, [ 'width'])));
                             formats = objectExtract(cell, 'format_*');
                             format = objectExtract(cell, 'format');
                             var zoomPage = objectPop(cell, 'zoomPage');
@@ -4412,32 +4188,56 @@ dojo.declare("gnr.widgets.Tree", gnr.widgets.baseDojo, {
         return ck;
     },
     mixin_applyFilter:function(search){
-        dojo.query('.dijitTreeNode',this.domNode).removeClass('hidden')
-        if (search){
-            var root=this.model.store.rootData()
-            _this=this;
-            cb=function(n){
-                if (n.label.indexOf(search)>=0){
-                    var fullpath=n.getFullpath(null,root)
-                    _this.showNodeAtPath(fullpath)
+        var treeNodes=dojo.query('.dijitTreeNode',this.domNode)
+        treeNodes.removeClass('hidden')
+        if (!search){return}
+        var searchmode=null;
+        if (search.indexOf('#')==0){
+            var k=search.indexOf('=');
+            if ((k<0 )||(k==(search.length-1))){
+                return;
+            }
+            search=search.split('=');
+            searchmode=search[0]
+            search=search[1]
+        }
+        var _this=this;
+        cb_match=function(n){
+            if (!searchmode){
+                var label=_this.getLabel(n)
+                return (label.toLowerCase().indexOf(search)>=0)
+            }else if(searchmode=='#'){
+                console.log('ss')
+            }else {
+                var label=n.attr[searchmode.slice(1)]+'';
+                if (label){
+                    return (label.toLowerCase().indexOf(search)>=0);
                 }
             }
-            root.walk(cb,'static')
-            dojo.query('.dijitTreeNode',this.domNode).addClass('hidden')
-             dojo.query('.dijitTreeLabel',this.domNode).forEach(function(n){
-                var tn = dijit.getEnclosingWidget(n);
-                var parent=tn.getParent()
-                var label = n.innerHTML;
-                if((!parent) || (label.indexOf(search)>=0)){
-                    dojo.removeClass(tn.domNode,'hidden')
-                    while(parent&&dojo.hasClass(parent.domNode,'hidden')){
-                        dojo.removeClass(parent.domNode,'hidden')
-                        parent=parent.getParent()
-                    }
-                    
-                };
-            })
+            
         }
+        var root=this.model.store.rootData()
+        cb=function(n){
+            if (cb_match(n)){
+                var fullpath=n.getFullpath(null,root)
+                _this.showNodeAtPath(fullpath)
+            }
+        }
+        root.walk(cb,'static')
+        treeNodes.addClass('hidden')
+        treeNodes.forEach(function(n){
+            var tn = dijit.getEnclosingWidget(n);
+            var parent=tn.getParent()
+            if((!parent) || cb_match(tn.item)){
+                dojo.removeClass(tn.domNode,'hidden')
+                while(parent&&dojo.hasClass(parent.domNode,'hidden')){
+                    dojo.removeClass(parent.domNode,'hidden')
+                    parent=parent.getParent()
+                }
+                
+            };
+        })
+        
     },
     
     mixin_clickOnCheckbox:function(bagnode, e) {
@@ -4606,7 +4406,6 @@ dojo.declare("gnr.widgets.Tree", gnr.widgets.baseDojo, {
                 if (!treeNode.isExpanded) {
                     this._expandNode(treeNode);
                 }
-                ;
             }
 
         }
@@ -4624,8 +4423,11 @@ dojo.declare("gnr.widgets.Tree", gnr.widgets.baseDojo, {
          var curr = this.model.store.rootData();
          var pathList = path.split('.');
          for (var i = 0; i < pathList.length; i++) {
-            currNode = curr.getNode(pathList[i]);
-            treeNode = this._itemNodeMap[currNode._id];
+            var currNode = curr.getNode(pathList[i]);
+            if (currNode){
+                return;
+            }
+            var treeNode = this._itemNodeMap[currNode._id];
             curr = currNode.getValue('static');
             if (i < pathList.length - 1) {
                 if (!treeNode.isExpanded) {

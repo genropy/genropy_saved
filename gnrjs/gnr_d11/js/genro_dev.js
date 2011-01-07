@@ -236,13 +236,22 @@ dojo.declare("gnr.GnrDevHandler", null, {
         genro.src.getNode()._('div', '_devInspector_');
         var node = genro.src.getNode('_devInspector_').clearValue();
         node.freeze();
-        var pg = node._('paletteGroup',{'groupCode':'devTools','dockTo':'*',title:'Developer tools',style:"font-family:Courier"});
-        pg._('paletteTree',{'paletteCode':'cliDatastore',title:'Data',storepath:'*D',searchOn:true});
-        pg._('paletteTree',{'paletteCode':'cliSourceStore',title:'Source',storepath:'*S'});
-        pg._('paletteTree',{'paletteCode':'dbStruct',title:'Db model'});
+        var pg = node._('paletteGroup',{'groupCode':'devTools','dockTo':'*',title:'Developer tools',style:"font-family:monaco;font-size:.9em"});
+        pg._('paletteTree',{'paletteCode':'cliDatastore',title:'Data',
+                            storepath:'*D',searchOn:true,tree_inspect:'shift',
+                            editable:true});
+        pg._('paletteTree',{'paletteCode':'cliSourceStore',title:'Source',
+                            storepath:'*S',searchOn:true,tree_inspect:'shift',
+                            editable:true,
+                            tree_getLabel:function(n){
+                                return n.attr.tag+':'+(n.attr.nodeId || n._id);
+                            }});
+        pg._('paletteTree',{'paletteCode':'dbStruct',title:'Db model',
+                            searchOn:true,tree_inspect:'shift',editable:true});
         genro.setDataFromRemote('gnr.palettes.dbStruct.store', "app.dbStructure");
         node.unfreeze();
     },
+
     openLocalizer:function() {
         noValueIndicator = "<span >&nbsp;</span>";
         genro.src.getNode()._('div', '_localizer');

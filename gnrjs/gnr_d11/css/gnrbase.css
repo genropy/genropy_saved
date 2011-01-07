@@ -90,6 +90,14 @@ label.ghostlabel span {
 
 /* @group SystemCss */
 
+/* @group FormGrid */
+
+._common_d11 .formgrid .dojoxGrid-header {
+	display: none;
+}
+
+/* @end */
+
 /* @group Plugin */
 .plugin_block {
     -moz-border-radius: 0px 0px 5px 5px;

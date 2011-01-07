@@ -614,6 +614,9 @@ dojo.declare("gnr.GnrDomHandler", null, {
         }
         else {
             widget = dijit.getEnclosingWidget(domnode);
+            if(!widget){
+                return;
+            }
             var rootwidget = widget.sourceNode ? widget : widget.grid || widget.tree;
             info.widget = widget;
             if (!rootwidget) {
