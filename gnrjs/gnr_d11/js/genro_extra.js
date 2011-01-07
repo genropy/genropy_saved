@@ -316,7 +316,8 @@ dojo.declare("gnr.widgets.protovis", gnr.widgets.baseHtml, {
         var attr = objectUpdate({}, node.attr);
         var tag = objectPop(attr, 'tag');
         if (tag=='env'){
-            env[node.label]=dojo.eval(node.getValue());
+            console.log(node.getValue())
+            env[node.label]=eval(node.getValue())
             return;
         }
         var obj = parent? parent.add(pv[tag]):new pv[tag]();
@@ -332,6 +333,7 @@ dojo.declare("gnr.widgets.protovis", gnr.widgets.baseHtml, {
     },
     _convertAttr:function(sourceNode,obj,attr){
         var env=sourceNode.protovisEnv;
+        var storepath = sourceNode.attr.storepath
         for (var k in attr) {
             var v = attr[k];
             if (stringEndsWith(k,'_js')){
