@@ -46,7 +46,7 @@ dojo.declare("gnr.GnrSrcHandler", null, {
     },
     highlightNode:function(sourceNode) {
         if (typeof(sourceNode) == 'string') {
-            sourceNode = this.sourceRoot.getNode(sourceNode);
+            sourceNode = this.sourceRoot.getValue().getNode(sourceNode);
         }
         ;
         if (this.highlightedNode) {
