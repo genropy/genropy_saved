@@ -236,20 +236,56 @@ dojo.declare("gnr.GnrDevHandler", null, {
         genro.src.getNode()._('div', '_devInspector_');
         var node = genro.src.getNode('_devInspector_').clearValue();
         node.freeze();
-        var pg = node._('paletteGroup',{'groupCode':'devTools','dockTo':'*',title:'Developer tools',style:"font-family:monaco;font-size:.9em"});
+        var pg = node._('paletteGroup',{'groupCode':'devTools','dockTo':'*',title:'Developer tools',style:"font-family:monaco;"});
         pg._('paletteTree',{'paletteCode':'cliDatastore',title:'Data',
                             storepath:'*D',searchOn:true,tree_inspect:'shift',
                             editable:true});
-        pg._('paletteTree',{'paletteCode':'cliSourceStore',title:'Source',
+        var sourcePane = pg._('paletteTree',{'paletteCode':'cliSourceStore',title:'Source',
                             storepath:'*S',searchOn:true,tree_inspect:'shift',
                             editable:true,
                             tree_getLabel:function(n){
                                 return n.attr.tag+':'+(n.attr.nodeId || n._id);
-                            }});
-        pg._('paletteTree',{'paletteCode':'dbStruct',title:'Db model',
+                            },
+                            tree_selectedPath:'.tree.selectedPath'});
+        sourcePane._('dataController',{'script':'genro.src.highlightNode(fpath)', 
+                                       'fpath':'^gnr.palettes.cliSourceStore.tree.selectedPath'});
+        pg._('paletteTree',{'paletteCode':'dbmodel',title:'Model',
                             searchOn:true,tree_inspect:'shift',editable:true});
-        genro.setDataFromRemote('gnr.palettes.dbStruct.store', "app.dbStructure");
+        genro.setDataFromRemote('gnr.palettes.dbmodel.store', "app.dbStructure");
+        //this.debuggerPalette(pg);
+        this.devUtilsPalette(pg);
         node.unfreeze();
+    },
+    debuggerPalette:function(parent){
+        var pane = parent._('palettePane',{'paletteCode':'devDebug',title:'Debug'});
+    },
+    devUtilsPalette:function(parent){
+        var pane = parent._('palettePane',{'paletteCode':'devUtils',title:'Utils'});
+        var dbchangelog = function(result,kwargs){
+                               var txt = '';
+                               result.walk(function(n){
+                                   if(n.attr.changes){
+                                       txt= txt +'\n'+n.attr.changes;
+                                   }else{
+                                       txt = txt +'\n----- pkg:' +n.label;
+                                   }
+                               });
+                               genro.log(txt,'Check db');
+                           };
+         pane._('dataRpc',{'path':'.checkDb',method:'checkDb',subscribe_devUtils_checkDb:true,
+                           _onResult:dbchangelog});
+         pane._('dataRpc',{'path':'.applyChangesToDb',method:'applyChangesToDb',
+                            subscribe_devUtils_dbsetup:true,
+                            _onResult:'genro.log("DB Change applied","applyChangesToDb")'});
+
+        var bc = pane._('borderContainer');
+        var top = bc._('contentPane',{'region':'top',font_size:'.9em'})._('toolbar',{'height':'18px'});
+        top._('button',{'label':'CheckDb',publish:'devUtils_checkDb'});
+        top._('button',{'label':'DbSetup',publish:'devUtils_dbsetup'});
+        top._('button',{'label':'Clear log',action:'genro.clearlog()'});
+        var center = bc._('contentPane',{'region':'center',font_size:'.9em',overflow:'hidden'});
+        center._('simpleTextArea',{'value':'^gnr._dev.logger',readOnly:true,height:'100%',
+                                    style:'white-space: pre;'});
     },
 
     openLocalizer:function() {
