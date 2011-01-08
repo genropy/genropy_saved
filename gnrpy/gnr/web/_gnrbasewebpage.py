@@ -561,7 +561,7 @@ class GnrBaseWebPage(GnrObject):
         return self._checkDb(applychanges=False)
 
     def _checkDb(self, applychanges=False, changePath=None, **kwargs):
-        changes = self.application.checkDb()
+        changes = self.db.checkDb()
         if applychanges:
             if changePath:
                 changes = self.db.model.modelBagChanges.getAttr(changePath, 'changes')
@@ -570,7 +570,7 @@ class GnrBaseWebPage(GnrObject):
                 for x in self.db.model.modelChanges:
                     self.db.execute(x)
             self.db.commit()
-            self.application.checkDb()
+            self.db.checkDb()
         return self.db.model.modelBagChanges
 
     def rpc_tableStatus(self, **kwargs):
