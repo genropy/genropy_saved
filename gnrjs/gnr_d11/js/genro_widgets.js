@@ -1342,6 +1342,7 @@ dojo.declare("gnr.widgets.Button", gnr.widgets.baseDojo, {
         savedAttrs['_style'] = genro.dom.getStyleDict(objectExtract(attributes, buttoNodeAttr));
         savedAttrs['action'] = objectPop(attributes, 'action');
         savedAttrs['fire'] = objectPop(attributes, 'fire');
+        savedAttrs['publish'] = objectPop(attributes, 'publish');
         return savedAttrs;
 
 
@@ -1349,7 +1350,7 @@ dojo.declare("gnr.widgets.Button", gnr.widgets.baseDojo, {
     created: function(widget, savedAttrs, sourceNode) {
         dojo.connect(widget, 'onClick', sourceNode, this.onClick);
         objectExtract(sourceNode._dynattr, 'fire_*');
-        objectPop(sourceNode._dynattr, 'fire');
+        objectExtract(sourceNode._dynattr, 'fire,publish');
         if (savedAttrs['_style']) {
             var buttonNode = dojo.query(".dijitButtonNode", widget.domNode)[0];
             dojo.style(buttonNode, savedAttrs['_style']);
@@ -1365,6 +1366,9 @@ dojo.declare("gnr.widgets.Button", gnr.widgets.baseDojo, {
         if (this.attr.fire) {
             var s = eventToString(e) || true;
             this.setRelativeData(this.attr.fire, s, {modifier:modifier}, true);
+        }
+        if(this.attr.publish){
+            genro.publish(this.attr.publish,true);
         }
         var fire_list = objectExtract(this.attr, 'fire_*', true);
         for (var fire in fire_list) {
@@ -1771,7 +1775,8 @@ dojo.declare("gnr.widgets.Grid", gnr.widgets.baseDojo, {
 
     creating_common: function(attributes, sourceNode) {
         sourceNode.attr.nodeId = sourceNode.attr.nodeId || 'grid_' + sourceNode.getStringId();
-        sourceNode.gridControllerPath = sourceNode.attr.controllerPath ? sourceNode.absDatapath() : 'grids.' + sourceNode.attr.nodeId;
+        var relativeWorkspace= sourceNode.attr.controllerPath || sourceNode.attr.relativeWorkspace;
+        sourceNode.gridControllerPath = relativeWorkspace ? sourceNode.absDatapath() : 'grids.' + sourceNode.attr.nodeId;
         if (sourceNode.attr.configurable) {
             sourceNode.attr.selfDragColumns = 'trashable';
             var tablecode = sourceNode.attr.table.replace('.', '_');
@@ -4146,7 +4151,12 @@ dojo.declare("gnr.widgets.Tree", gnr.widgets.baseDojo, {
                     this.applyFilter(v);
                 });
             }
+            var editBagBoxNode = genro.nodeById(nodeId+'_editbagbox');
+            if (editBagBoxNode){
+                dojo.connect(widget,'_updateSelect',function(item){genro.publish(nodeId+'_editbagbox_editnode',item)});
+            }
         }
+
     },
     fillDragInfo:function(dragInfo) {
         dragInfo.treenode = dragInfo.widget;

@@ -234,6 +234,9 @@ function objectKeyByIdx(obj, idx) {
 }
 
 function objectExtract(obj, keys, dontpop) {
+    if(!obj){
+        return {};
+    }
     var result = {};
     var key,m;
     if (keys.slice(-1) == '*') {

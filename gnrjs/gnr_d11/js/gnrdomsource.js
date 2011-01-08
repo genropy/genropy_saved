@@ -189,7 +189,7 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
             return;
         }
         objectExtract(attributes, 'subscribe_*');
-        var tag = objectPop(attributes, 'tag');
+        var tag = objectPop(attributes, 'tag').toLowerCase();
         var path = objectPop(attributes, 'path');
         objectPop(attributes, '_onStart');
         objectPop(attributes, '_fired_onStart');
@@ -204,9 +204,9 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
         var _if = objectPop(attributes, '_if');
         var _else = objectPop(attributes, '_else');
         var expr;
-        if (tag == 'dataFormula') {
+        if (tag == 'dataformula') {
             expr = objectPop(attributes, 'formula');
-        } else if ((tag == 'dataController') || (tag == 'dataScript')) {
+        } else if ((tag == 'datacontroller') || (tag == 'datascript')) {
             expr = objectPop(attributes, 'script');
         } else {
             expr = objectPop(attributes, 'method');
@@ -259,7 +259,7 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
                 console.log("_if=" + if_result);
             }
         }
-        if (tag == 'dataFormula' || tag == 'dataScript' || tag == 'dataController' || tag == 'dataRpc') {
+        if (tag == 'dataformula' || tag == 'datascript' || tag == 'datacontroller' || tag == 'datarpc') {
             var val;
             if (! if_result) {
                 if (!_else) {
@@ -267,7 +267,7 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
                 }
                 expr = _else;
             }
-            if (tag == 'dataRpc' && (expr != _else)) {
+            if (tag == 'datarpc' && (expr != _else)) {
                 var doCall = true;
                 var domsource_id = this.getStringId();
                 var method = expr;
@@ -324,7 +324,7 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
                 if (!expr) {
                     result = new gnr.GnrBag(kwargs);
                 } else {
-                    expr = (tag == 'dataFormula') ? 'return ' + expr : expr;
+                    expr = (tag == 'dataformula') ? 'return ' + expr : expr;
                     result = funcCreate(expr, argNames.join(',')).apply(this, argValues);
                 }
                 if (dataNode) { // if it has a dataNode set it to the returned value
@@ -964,12 +964,13 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
         var attributes = this.registerNodeDynAttr(false);
         //var attributes=this.currentAttributes();
         var tag = objectPop(attributes, 'tag');
-        var path = this.absDatapath(objectPop(attributes, 'path'));
+        var path = objectPop(attributes, 'path');
         if (tag == 'data' && attributes.remote) {
             attributes['method'] = objectPop(attributes, 'remote');
             tag = 'dataRemote';
         }
         if (tag == 'data') {
+            path = this.absDatapath(path);
             var value = this.getValue();
             this._value = null;
             if (value instanceof gnr.GnrBag) {
@@ -995,7 +996,10 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
             if (initialize) {
                 this.setDataNodeValue();
             } else {
-                genro.getDataNode(path, true);
+                
+               // if(path.indexOf('.')!=0){
+               //     genro.getDataNode(path, true);
+               // }
                 //genro.setData(path,null);
             }
             var timing = objectPop(attributes, '_timing');

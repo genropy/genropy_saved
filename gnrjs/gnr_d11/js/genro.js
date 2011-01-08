@@ -456,6 +456,16 @@ dojo.declare('gnr.GenroClient', null, {
             alert(msg);
         }
     },
+    log: function(source,reason){
+        var logpath = 'gnr._dev.logger';
+        reason = reason?'\n-----------------\n'+reason+'\n-----------------':'';
+        var log = genro.getData(logpath)+reason+'\n'+source;
+        genro.setData(logpath,log);
+    },
+    clearlog:function(){
+        genro.setData('gnr._dev.logger','');
+    }
+    ,
     getCounter: function() {
         this._counter = this._counter + 1;
         return this._counter;
