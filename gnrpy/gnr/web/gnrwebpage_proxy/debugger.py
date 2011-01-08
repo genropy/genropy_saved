@@ -18,13 +18,6 @@ class GnrWebDebugger(GnrBaseProxy):
         self.debug = getattr(self.page, 'debug', False)
         self._debug_calls = Bag()
 
-    def right_pane(self, parentBC):
-        parentBC.contentPane(width='20%', region='right', splitter=True, nodeId='gnr_debugger').remote(
-                'debugger.debuggerContent', cacheTime=-1)
-        parentBC.data("_clientCtx.mainBC.right?show", False)
-        parentBC.dataController("if(show){genro.nodeById('gnr_debugger').updateRemoteContent();}",
-                                show='^_clientCtx.mainBC.right?show')
-
     def bottom_pane(self, parentBC):
         parentBC.data("_clientCtx.mainBC.bottom?show", False)
         parentBC.dataController("if(show){genro.nodeById('gnr_bottomHelper').updateRemoteContent();}",
@@ -33,31 +26,6 @@ class GnrWebDebugger(GnrBaseProxy):
                                                  nodeId='gnr_bottomHelper')
         bottomHelperSC.remote('bottomHelperContent', cacheTime=-1)
 
-    def remote_debuggerContent(self, pane, **kwargs):
-        ac = pane.accordionContainer(_class='gnrdebugger', position='absolute', top=0, right=0, left=0, bottom=0)
-        ac.dataRemote('_dev.dbstruct', 'app.dbStructure')
-        ac.accordionPane(title='Datasource').tree(storepath='*D', persist=False, inspect='shift')
-        ac.accordionPane(title='Database').tree(storepath='_dev.dbstruct', persist=False, inspect='shift')
-        ac.accordionPane(title='Page source').tree(storepath='*S', label="Source inspector",
-                                                   inspect='shift', selectedPath='_dev.selectedSourceNode')
-        ac.dataController('genro.src.highlightNode(fpath)', fpath='^_dev.selectedSourceNode')
-        dbmnt = ac.accordionPane(title='Db Maintenance')
-        dbmnt.dataRpc('status', 'tableStatus', _fired='^aux.do_tableStatus')
-        dbmnt.dataRpc('status', 'checkDb', _fired='^aux.do_checkDb')
-        dbmnt.dataRpc('status', 'applyChangesToDb', _fired='^aux.do_applyChangesToDb')
-        dbmnt.dataRpc('status', 'resetApp', _fired='^aux.do_resetApp')
-        bc = dbmnt.borderContainer(height='100%')
-        top = bc.contentPane(region='top', font_size='.9em', height='10ex')
-        center = bc.tabContainer(region='center', font_size='.9em')
-        center.contentPane(title='test')
-        top.button('tableStatus', fire='aux.do_tableStatus', )
-        top.button('CheckDb', fire='aux.do_checkDb')
-        top.button('applyChangesToDb', fire='aux.do_applyChangesToDb')
-        top.button('resetApp', fire='aux.do_resetApp')
-        for k, x in enumerate(self.db.packages.items()):
-            pkgname, pkg = x
-            pane = center.contentPane(title=pkgname, height='100%')
-            pane.button('test')
 
     def output(self, debugtype, **kwargs):
         page = self.page
