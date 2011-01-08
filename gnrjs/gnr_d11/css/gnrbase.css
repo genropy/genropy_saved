@@ -98,6 +98,15 @@ label.ghostlabel span {
 
 /* @end */
 
+/* @group palette */
+
+.basePalette{
+	font-size: 11px;
+}
+
+/* @end */
+
+
 /* @group Plugin */
 .plugin_block {
     -moz-border-radius: 0px 0px 5px 5px;
@@ -1123,7 +1132,7 @@ px
 /* @group Dev */
 
 .gnrhighlight {
-    border: 1px dotted red;
+    border: 2px dotted red;
 }
 
 /* @end */
