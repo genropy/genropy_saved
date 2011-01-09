@@ -7,8 +7,7 @@
 #  Copyright (c) 2007 Softwell. All rights reserved.
 #
 import os
-import hashlib
-import inspect
+import datetime
 from gnr.core.gnrbag import Bag
 from gnr.web.gnrwebpage_proxy.gnrbaseproxy import GnrBaseProxy
 
@@ -18,15 +17,6 @@ class GnrWebDebugger(GnrBaseProxy):
         self.debug = getattr(self.page, 'debug', False)
         self._debug_calls = Bag()
 
-    def bottom_pane(self, parentBC):
-        parentBC.data("_clientCtx.mainBC.bottom?show", False)
-        parentBC.dataController("if(show){genro.nodeById('gnr_bottomHelper').updateRemoteContent();}",
-                                show='^_clientCtx.mainBC.bottom?show', _class='gnrdebugger')
-        bottomHelperSC = parentBC.stackContainer(height='30%', region='bottom', splitter=True,
-                                                 nodeId='gnr_bottomHelper')
-        bottomHelperSC.remote('bottomHelperContent', cacheTime=-1)
-
-
     def output(self, debugtype, **kwargs):
         page = self.page
         debugopt = getattr(page, 'debugopt', '') or ''
@@ -34,32 +24,14 @@ class GnrWebDebugger(GnrBaseProxy):
             getattr(self, 'output_%s' % debugtype)(page, **kwargs)
 
     def output_sql(self, page, sql=None, sqlargs=None, dbtable=None, error=None):
-        b = Bag()
-        dbtable = dbtable or ''
-        b['dbtable'] = dbtable
-        b[
-        'sql'] = "innerHTML:<div style='white-space: pre;font-size: x-small;background-color:#ffede7;padding:2px;'>%s</div>" % sql
-        b['sqlargs'] = Bag(sqlargs)
+        dbtable = dbtable or '-no table-'
+        kwargs=dict(sqlargs)
+        kwargs.update(sqlargs)
+        value = sql
         if error:
-            b['error'] = str(error)
-        self._debug_calls.addItem('%03i SQL:%s' % (len(self._debug_calls), dbtable.replace('.', '_')), b,
-                                  debugtype='sql')
-
-    def output_py(self, page, _frame=None, **kwargs):
-        b = Bag(kwargs)
-        if  _frame:
-            import inspect
-
-            m = inspect.getmodule(_frame)
-            lines, start = inspect.getsourcelines(_frame)
-            code = ''.join(['%05i %s' % (n + start, l)for n, l in enumerate(lines)])
-            b['module'] = m.__name__
-            b['line_number'] = _frame.f_lineno
-            b['locals'] = Bag(_frame.f_locals)
-            b[
-            'code'] = "innerHTML:<div style='white-space: pre;font-size: x-small;background-color:#e0ffec;padding:2px;'>%s</div>" % code
-            label = '%s line:%i' % (m.__name__.replace('.', '_'), _frame.f_lineno)
-        self._debug_calls.addItem('%03i PY:%s' % (len(self._debug_calls), label), b, debugtype='py')
+            kwargs['sqlerror'] = str(error)
+        self._debug_calls.addItem('%03i Table:%s' % (len(self._debug_calls), dbtable.replace('.', '_')), value,
+                                  **kwargs)
 
     def event_onCollectDatachanges(self):
         page = self.page

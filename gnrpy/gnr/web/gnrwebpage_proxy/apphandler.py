@@ -522,7 +522,7 @@ class GnrWebAppHandler(GnrBaseProxy):
                                       order_by=order_by, limit=limit, offset=offset, group_by=group_by, having=having,
                                       relationDict=relationDict, sqlparams=sqlparams, row_start=row_start,
                                       row_count=row_count,
-                                      recordResolver=recordResolver, selectionName=selectionName, structure=structure,
+                                      recordResolver=recordResolver, selectionName=selectionName, 
                                       pkeys=pkeys, fromSelection=fromSelection,
                                       sortedBy=sortedBy, excludeLogicalDeleted=excludeLogicalDeleted, **kwargs)
             if applymethod:
@@ -609,6 +609,7 @@ class GnrWebAppHandler(GnrBaseProxy):
                 pkeys = pkeys.split(',')
             kwargs['pkeys'] = pkeys
         elif isinstance(where, Bag):
+            kwargs.pop('where_attr',None)
             where, kwargs = self._decodeWhereBag(tblobj, where, kwargs)
         if condition and not pkeys:
             where = '( %s ) AND ( %s )' % (where, condition)

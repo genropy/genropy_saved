@@ -516,39 +516,11 @@ class GnrBaseWebPage(GnrObject):
             resolver = globals()[resolverclass](*args, **kwargs)
         else:
             resolver = getattr(sys.modules[resolvermodule], resolverclass)(*args, **kwargs)
-            #elif hasattr(self, 'class_%s' % resolverclass):
-        #    h=getattr(self, 'class_%s' % resolverclass)
-        #    c=h()
-        #    resolver=c(*args,**kwargs)
-        #elif hasattr(self, 'globals') and resolverclass in self.globals:
-        #    resolver = self.globals[resolverclass](*args,**kwargs)
-        #else:
-        #    #raise str(resolverclass)
-        #    #handle this case!
-        #    pass
         if resolver is not None:
             resolver._page = self
             return resolver()
 
-    # ----See gnrwebpage.py
-    #def debugger(self,debugtype='py',**kwargs):
-    #    self.site.debugger(debugtype,_frame=sys._getframe(1),**kwargs)
 
-    def remote_bottomHelperContent(self, parent, **kwargs):
-        #src = self.domSrcFactory.makeRoot(self)
-        #src.data('debugger.main',Bang)
-        sc = parent.stackContainer()
-        bc = sc.borderContainer()
-        left = bc.contentPane(region='left', width='160px', background_color='silver', overflow='hidden').formbuilder(
-                cols=1)
-        left.checkBox(value='^debugger.sqldebug', label='Debug SQL')
-        left.checkBox(value='^debugger.pydebug', label='Debug Python')
-        left.button('Clear Debugger', action='genro.setData("debugger.main",null)')
-        bc.contentPane(region='center').tree(storepath='debugger.main', isTree=False, fired='^debugger.tree_redraw',
-                                             getIconClass="""return 'treeNoIcon';""", persist=False, inspect='shift')
-        parent.dataController("genro.debugopt=sqldebug?(pydebug? 'sql,py' :'sql' ):(pydebug? 'py' :null )",
-                              sqldebug='^debugger.sqldebug', pydebug='^debugger.pydebug')
-        parent.dataController("FIRE debugger.tree_redraw;", sqldebug='^debugger.main', _delay=1)
 
     def rpc_resetApp(self, **kwargs):
         self.siteStatus['resetTime'] = time.time()

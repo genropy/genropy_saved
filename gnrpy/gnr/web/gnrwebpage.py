@@ -810,7 +810,7 @@ class GnrWebPage(GnrBaseWebPage):
                     page.script(src="http://use.typekit.com/%s.js" % typekit_code)
                     page.dataController("try{Typekit.load();}catch(e){}", _onStart=True)
                 #self.debugger.right_pane(root)
-                self.debugger.bottom_pane(root)
+                #self.debugger.bottom_pane(root)
                 self.mainLeftContent(root, region='left', splitter=True, nodeId='gnr_main_left')
                 root.div(_class='trash_drop', dropTarget=True, dropTypes='trashable', id='trash_drop',
                          onDrop_trashable="""var sourceNode=genro.src.nodeBySourceNodeId(dropInfo.dragSourceInfo._id);
