@@ -359,7 +359,7 @@ dojo.declare("gnr.widgets.PaletteTree", gnr.widgets.dummy, {
         var storepath = objectPop(kw,'storepath') || '.store';
         var tree_kwargs = {_class:'fieldsTree', hideValues:true,
                            margin:'6px', draggable:true,nodeId:treeId,
-                           storepath:storepath};
+                           storepath:storepath,labelAttribute:'caption'};
         tree_kwargs.onDrag = function(dragValues,dragInfo,treeItem){
             if(treeItem.attr.child_count && treeItem.attr.child_count>0){
                 return false;
@@ -370,8 +370,8 @@ dojo.declare("gnr.widgets.PaletteTree", gnr.widgets.dummy, {
         objectUpdate(tree_kwargs ,objectExtract(kw,'tree_*'));
         var searchOn = objectPop(kw,'searchOn');
         var pane = sourceNode._('PalettePane',kw);
+        var bc = pane._('BorderContainer');
         if (searchOn || editable){
-            var bc = pane._('BorderContainer');
             if(searchOn){
                 var top = bc._('ContentPane',{region:'top'})._('Toolbar',{height:'18px'});
                 top._('SearchBox',{searchOn:searchOn,nodeId:treeId+'_searchbox',datapath:'.searchbox'});
@@ -379,11 +379,9 @@ dojo.declare("gnr.widgets.PaletteTree", gnr.widgets.dummy, {
                 var bottom = bc._('ContentPane',{'region':'bottom',height:'30%',
                                                  splitter:true}); 
                 bottom._('BagEditor',{nodeId:treeId+'_editbagbox',datapath:'.grid',bagpath:storepath});
-            }
-            
-            pane = bc._('ContentPane',{region:'center'});
-            
+            }    
         }
+        pane = bc._('ContentPane',{region:'center'});
         var tree = pane._('tree',tree_kwargs);
         return pane;
     }
