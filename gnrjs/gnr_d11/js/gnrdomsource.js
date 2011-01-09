@@ -471,7 +471,7 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
         return path;
     },
     isPointerPath: function(path) {
-        return path && (path.indexOf('^') == 0) || (path.indexOf('=') == 0);
+        return path? ((path.indexOf('^') == 0) || (path.indexOf('=') == 0)):false;
     },
     symbolicDatapath:function(path) {
         var pathlist = path.split('.');
