@@ -240,20 +240,11 @@ dojo.declare("gnr.widgets.dummy", null, {
         var attributes = objectUpdate({},sourceNode.attr);
         objectExtract(sourceNode.attr,'nodeId,datapath');
         var contentKwargs = this.contentKwargs(sourceNode,attributes);
-        old_attr=sourceNode.attr
-        if (('datapath' in contentKwargs) && (!('datapath' in sourceNode.attr))){
-            sourceNode.attr.datapath=contentKwargs.datapath
-        }
-        if (('nodeId' in contentKwargs) && (!('nodeId' in sourceNode.attr))){
-            sourceNode.attr.nodeId=contentKwargs.nodeId
-        }
-        sourceNode.attr=
         sourceNode.freeze();
         var children = sourceNode.getValue();
         sourceNode.clearValue();
         var content = this.createContent(sourceNode, contentKwargs);
         content.concat(children);
-        sourceNode.attr=old_attr
         sourceNode.unfreeze(true);
         return false;
     },
@@ -404,7 +395,7 @@ dojo.declare("gnr.widgets.BagEditor", gnr.widgets.dummy, {
         var readOnly = objectPop(kw,'readOnly',false);
         var valuePath = objectPop(kw,'valuePath');
         var showBreadcrumb = objectPop(kw,'showBreadcrumb',true);
-        var bc =sourceNode._('BorderContainer',{'nodeId':nodeId,datapath:datapath,detachable:true});
+        var bc =sourceNode._('BorderContainer',{'nodeId':nodeId,datapath:datapath,detachable:true,_class:'bagEditor'});
         if(showBreadcrumb){
             var top = bc._('ContentPane',{'region':'top',background_color:'navy',color:'white'});
             top._('span',{'innerHTML':'Path : '});
@@ -533,7 +524,8 @@ dojo.declare("gnr.widgets.SearchBox", gnr.widgets.dummy, {
                             selected_col:'.field',selected_caption:'.caption'});
         
         searchbox._('input',{'value':'^.value',_class:'searchInput',
-                      connect_onkeyup:kw.onKeyUp,width:kw.width});
+                      connect_onkeyup:kw.onKeyUp,
+                      width:kw.width});
         dojo.subscribe(nodeId+'_updmenu',this,function(searchOn){
             menubag = this._prepareSearchBoxMenu(searchOn,databag);
         });
@@ -578,7 +570,7 @@ dojo.declare("gnr.widgets.PaletteGroup", gnr.widgets.dummy, {
         palette_kwargs['nodeId'] = 'paletteGroup_'+groupCode+'_floating';
         palette_kwargs['title'] = palette_kwargs['title'] || 'Palette ' + groupCode;
         var floating = sourceNode._('palette', palette_kwargs);
-        var tc = floating._('tabContainer', objectUpdate(kw,{selectedPage:'^gnr.palettes.?' + groupCode,groupCode:groupCode}));
+        var tc = floating._('tabContainer', objectUpdate(kw,{selectedPage:'^gnr.palettes.?' + groupCode,groupCode:groupCode,_class:'smallTabs'}));
         return tc;
     }
 });
