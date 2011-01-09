@@ -236,7 +236,8 @@ dojo.declare("gnr.GnrDevHandler", null, {
         genro.src.getNode()._('div', '_devInspector_');
         var node = genro.src.getNode('_devInspector_').clearValue();
         node.freeze();
-        var pg = node._('paletteGroup',{'groupCode':'devTools','dockTo':'*',title:'Developer tools',style:"font-family:monaco;"});
+        var pg = node._('paletteGroup',{'groupCode':'devTools','dockTo':'*',id:'gnr_devTools',
+                                        title:'Developer tools',style:"font-family:monaco;"});
         pg._('paletteTree',{'paletteCode':'cliDatastore',title:'Data',
                             storepath:'*D',searchOn:true,tree_inspect:'shift',
                             editable:true});
@@ -262,21 +263,21 @@ dojo.declare("gnr.GnrDevHandler", null, {
         var top = bc._('contentPane',{'region':'top'})._('toolbar',{'height':'18px'});
         top._('checkbox',{'value':'^debugger.sqldebug','label':'Debug SQL'});
         top._('button',{'label':'Clear',action:'genro.setData("debugger.main",null)'});
-        var bc = bc._('borderContainer',{'region':'center'});
+        var bc = bc._('borderContainer',{'region':'center',datapath:'gnr.palettes.devSqlDebug'});
         var right = bc._('contentPane',{'region':'right','splitter':true,width:'50%'});
         var treeId='palette_debugger_tree';
         var storepath='debugger.main';
         right._('BagEditor',{'nodeId':treeId+'_editbagbox','datapath':'.grid','bagpath':storepath,
                              'readOnly':true,'valuePath':'.bottomData','showBreadcrumb':false});
         var bottom = bc._('contentPane',{'region':'bottom','splitter':true,height:'50%','overflow':'hidden'});
-        bottom._('simpleTextArea',{'value':'^.bottomData',readOnly:true,height:'100%',
-                                    style:'white-space: pre;'});
+        bottom._('div',{'innerHTML':'^.bottomData',height:'100%',
+                                    style:'white-space: pre;background:white;',overflow:'auto'});
         var center = bc._('contentPane',{'region':'center'});
         center._('tree',{'storepath':storepath,fired:'^debugger.tree_redraw','margin':'6px','nodeId':treeId,
                         'getIconClass':"return 'treeNoIcon'",'_class':'fieldsTree', 'hideValues':true});
 
-        pane._('dataController',{'script':"genro.debugopt=sqldebug?'sql':null",'sqldebug':'^debugger.sqldebug'});
-        pane._('dataController',{'script':"FIRE debugger.tree_redraw;", 'sqldebug':'^debugger.main', '_delay':1});
+        center._('dataController',{'script':"genro.debugopt=sqldebug?'sql':null",'sqldebug':'^debugger.sqldebug'});
+        center._('dataController',{'script':"FIRE debugger.tree_redraw;", 'sqldebug':'^debugger.main', '_delay':1});
 
     },
     devUtilsPalette:function(parent){
@@ -400,7 +401,9 @@ dojo.declare("gnr.GnrDevHandler", null, {
         }
     },
     showDebugger:function(){
-        genro.dev.openInspector();
+        if(!dijit.byId("gnr_devTools")){
+             genro.dev.openInspector();
+        }
     },
     shortcut: function(shortcut, callback, opt) {
         var default_options = {
