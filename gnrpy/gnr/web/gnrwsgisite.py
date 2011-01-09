@@ -494,7 +494,7 @@ class GnrWsgiSite(object):
             result = self.serve_ping(response, environ, start_response, **request_kwargs)
             if not isinstance(result, basestring):
                 return result
-            self.setResultInResponse(result, response, totaltime=time() - t)
+            response = self.setResultInResponse(result, response, totaltime=time() - t)
             return response(environ, start_response)
 
         if path_list and path_list[0].startswith('_tools'):
@@ -528,7 +528,7 @@ class GnrWsgiSite(object):
             result = page()
             self.onServedPage(page)
             self.cleanup()
-            self.setResultInResponse(result, response, totaltime=time() - t)
+            response = self.setResultInResponse(result, response, totaltime=time() - t)
             return response(environ, start_response)
 
     def setResultInResponse(self, result, response, totaltime=None):
@@ -541,6 +541,9 @@ class GnrWsgiSite(object):
             response.body = result
         elif isinstance(result, Response):
             response = result
+        elif callable(result):
+            response = result
+        return response
 
     def onServingPage(self, page):
         pass
@@ -881,4 +884,3 @@ class GnrWsgiSite(object):
         zip_archive.close()
         zipresult.close()
         
-            
