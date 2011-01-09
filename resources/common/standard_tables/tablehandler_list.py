@@ -455,7 +455,7 @@ class TableHandlerForm(BaseComponent):
         pane.data('list.tableRecordCount', self.tableRecordCount())
         pane.dataSelection('list.data_start', self.maintable, columns='=.columns',
                            where='=list.query.where', sortedBy='=list.grid.sorted',
-                           pkeys='=list.query.pkeys', fired='^list.runQueryDo',
+                           pkeys='=list.query.pkeys', _fired='^list.runQueryDo',
                            selectionName='*', recordResolver=False, condition=condition,
                            sqlContextName='standard_list', totalRowCount='=list.tableRecordCount',
                            row_start='0', row_count=self.rowsPerPage(),
