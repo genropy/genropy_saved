@@ -193,7 +193,8 @@ dojo.declare("gnr.GnrSrcHandler", null, {
 
 
     },
-    getNode:function(obj) {
+    getNode:function(obj,autocreate) {
+        var autocreate = autocreate===false?false:true;
         if (!obj) {
             return this._main.getNode('main');
         }
@@ -201,7 +202,7 @@ dojo.declare("gnr.GnrSrcHandler", null, {
             if (obj.indexOf('main.') != 0) {
                 obj = 'main.' + obj;
             }
-            return this._main.getNode(obj, false, true);
+            return this._main.getNode(obj, false, autocreate);
         }
         if (obj.declaredClass == 'gnr.GnrDomSourceNode') {
             return obj;
