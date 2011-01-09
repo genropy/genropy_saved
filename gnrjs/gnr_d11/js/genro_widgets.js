@@ -252,9 +252,33 @@ dojo.declare("gnr.widgets.baseHtml", null, {
             sourceNode.setZoomFactor(savedAttrs.zoomFactor);
         }
 
-        var draggable = sourceNode.getAttributeFromDatasource('draggable') || sourceNode.getAttributeFromDatasource('detachable');
+        var draggable = sourceNode.getAttributeFromDatasource('draggable'); //|| 
         if (draggable && 'setDraggable' in newobj) {
             newobj.setDraggable(draggable)
+        }
+        var detachable = sourceNode.getAttributeFromDatasource('detachable');
+        if(detachable){
+            var domNode = newobj.domNode || newobj;
+            dojo.connect(domNode,'onmousemove',function(e){
+                if(e.shiftKey){
+                    dojo.addClass(domNode,'detachable');
+                }
+            });
+            dojo.connect(domNode,'onmouseout',function(e){
+                dojo.removeClass(domNode,'detachable');
+            });
+            dojo.connect(domNode,'onmousedown',function(e){
+                if(e.shiftKey){
+                    dojo.addClass(domNode,'detachable');
+                    domNode.draggable = true;
+                }else{
+                    domNode.draggable = false;
+                }
+            });
+            dojo.connect(domNode,'onmouseup',function(e){
+                domNode.draggable = false;
+            });
+            
         }
 
 
