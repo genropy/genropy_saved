@@ -92,8 +92,11 @@ label.ghostlabel span {
 
 /* @group FormGrid */
 
-._common_d11 .formgrid .dojoxGrid-header {
+._common_d11 .bagEditor .dojoxGrid-header {
 	display: none;
+}
+._common_d11 .bagEditor .dojoxGrid-cell{
+    height:17px;
 }
 
 /* @end */
@@ -121,7 +124,12 @@ label.ghostlabel span {
 
 .selected_plugin.plugin_block {
     -moz-box-shadow: 0 -1px 1px #005555 inset;
+     -webkit-box-shadow: 0 -1px 1px #005555 inset;
     background-color: white;
+}
+.detachable{
+    -moz-box-shadow: 0px 0px 6px #999 inset;
+    -webkit-box-shadow: 0px 0px 6px #999  inset;
 }
 
 #gnr_plugin_dock {
@@ -749,6 +757,10 @@ px
     background: url(icons/base12/tabClose.gif) no-repeat center center;
     width: 12px;
     height: 12px;
+}
+.tundra .smallTabs .dijitTabInnerDiv {
+    padding: 2px 5px;
+    font-size:11px;
 }
 
 .fakeTabContainer .dijitTabPaneWrapper {
