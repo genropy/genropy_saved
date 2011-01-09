@@ -705,7 +705,7 @@ dojo.declare("gnr.GnrDomHandler", null, {
     onDetach:function(sourceNode, dropInfo) {
         var domnode = sourceNode.getDomNode();
         var coords = dojo.coords(domnode);
-        var title = sourceNode.getInheritedAttributes().title;
+        var title = sourceNode.getInheritedAttributes().title || 'Untitled';
         var detached_id = 'detached_' + sourceNode._id;
         if (sourceNode.isPointerPath(title)) {
             var pointer = title[0];
@@ -714,7 +714,7 @@ dojo.declare("gnr.GnrDomHandler", null, {
         }
 
         var floating = genro.dlg.floating({'nodeId':'floating_' + sourceNode._id,
-            'title':title,'top':dropInfo.event.pageY + 'px',
+            'title':title ,'top':dropInfo.event.pageY + 'px',
             'left':dropInfo.event.pageX + 'px',resizable:true,
             dockable:true,closable:false,dockTo:detached_id});
 
