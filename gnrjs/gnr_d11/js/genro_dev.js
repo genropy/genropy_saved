@@ -252,12 +252,32 @@ dojo.declare("gnr.GnrDevHandler", null, {
         pg._('paletteTree',{'paletteCode':'dbmodel',title:'Model',
                             searchOn:true,tree_inspect:'shift',editable:true});
         genro.setDataFromRemote('gnr.palettes.dbmodel.store', "app.dbStructure");
-        //this.debuggerPalette(pg);
+        this.sqlDebugPalette(pg);
         this.devUtilsPalette(pg);
         node.unfreeze();
     },
-    debuggerPalette:function(parent){
-        var pane = parent._('palettePane',{'paletteCode':'devDebug',title:'Debug'});
+    sqlDebugPalette:function(parent){
+        var pane = parent._('palettePane',{'paletteCode':'devSqlDebug',title:'Sql Debug'});
+        var bc = pane._('borderContainer');
+        var top = bc._('contentPane',{'region':'top'})._('toolbar',{'height':'18px'});
+        top._('checkbox',{'value':'^debugger.sqldebug','label':'Debug SQL'});
+        top._('button',{'label':'Clear',action:'genro.setData("debugger.main",null)'});
+        var bc = bc._('borderContainer',{'region':'center'});
+        var right = bc._('contentPane',{'region':'right','splitter':true,width:'50%'});
+        var treeId='palette_debugger_tree';
+        var storepath='debugger.main';
+        right._('BagEditor',{'nodeId':treeId+'_editbagbox','datapath':'.grid','bagpath':storepath,
+                             'readOnly':true,'valuePath':'.bottomData','showBreadcrumb':false});
+        var bottom = bc._('contentPane',{'region':'bottom','splitter':true,height:'50%','overflow':'hidden'});
+        bottom._('simpleTextArea',{'value':'^.bottomData',readOnly:true,height:'100%',
+                                    style:'white-space: pre;'});
+        var center = bc._('contentPane',{'region':'center'});
+        center._('tree',{'storepath':storepath,fired:'^debugger.tree_redraw','margin':'6px','nodeId':treeId,
+                        'getIconClass':"return 'treeNoIcon'",'_class':'fieldsTree', 'hideValues':true});
+
+        pane._('dataController',{'script':"genro.debugopt=sqldebug?'sql':null",'sqldebug':'^debugger.sqldebug'});
+        pane._('dataController',{'script':"FIRE debugger.tree_redraw;", 'sqldebug':'^debugger.main', '_delay':1});
+
     },
     devUtilsPalette:function(parent){
         var pane = parent._('palettePane',{'paletteCode':'devUtils',title:'Utils'});
@@ -379,16 +399,8 @@ dojo.declare("gnr.GnrDevHandler", null, {
             return genro.dev.dictToHtml(item.attr, 'bagAttributesTable');
         }
     },
-    showDebugger_old: function() {
-        var open = genro._data.getItem('_clientCtx.mainBC.right?show');
-        genro._data.setItem('_clientCtx.mainBC.right?show', !open);
-    },
     showDebugger:function(){
         genro.dev.openInspector();
-    },
-    showBottomHelper: function() {
-        var open = genro._data.getItem('_clientCtx.mainBC.bottom?show');
-        genro._data.setItem('_clientCtx.mainBC.bottom?show', !open);
     },
     shortcut: function(shortcut, callback, opt) {
         var default_options = {

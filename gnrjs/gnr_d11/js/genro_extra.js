@@ -240,11 +240,20 @@ dojo.declare("gnr.widgets.dummy", null, {
         var attributes = objectUpdate({},sourceNode.attr);
         objectExtract(sourceNode.attr,'nodeId,datapath');
         var contentKwargs = this.contentKwargs(sourceNode,attributes);
+        old_attr=sourceNode.attr
+        if (('datapath' in contentKwargs) && (!('datapath' in sourceNode.attr))){
+            sourceNode.attr.datapath=contentKwargs.datapath
+        }
+        if (('nodeId' in contentKwargs) && (!('nodeId' in sourceNode.attr))){
+            sourceNode.attr.nodeId=contentKwargs.nodeId
+        }
+        sourceNode.attr=
         sourceNode.freeze();
         var children = sourceNode.getValue();
         sourceNode.clearValue();
         var content = this.createContent(sourceNode, contentKwargs);
         content.concat(children);
+        sourceNode.attr=old_attr
         sourceNode.unfreeze(true);
         return false;
     },
@@ -392,10 +401,15 @@ dojo.declare("gnr.widgets.BagEditor", gnr.widgets.dummy, {
     createContent:function(sourceNode,kw){
         var nodeId = objectPop(kw,'nodeId');
         var datapath = objectPop(kw,'datapath');
+        var readOnly = objectPop(kw,'readOnly',false);
+        var valuePath = objectPop(kw,'valuePath');
+        var showBreadcrumb = objectPop(kw,'showBreadcrumb',true);
         var bc =sourceNode._('BorderContainer',{'nodeId':nodeId,datapath:datapath,detachable:true});
-        var top = bc._('ContentPane',{'region':'top',background_color:'navy',color:'white'});
-        top._('span',{'innerHTML':'Path : '});
-        top._('span',{'innerHTML':'^.currentEditPath'});
+        if(showBreadcrumb){
+            var top = bc._('ContentPane',{'region':'top',background_color:'navy',color:'white'});
+            top._('span',{'innerHTML':'Path : '});
+            top._('span',{'innerHTML':'^.currentEditPath'});
+        }
         var box = bc._('ContentPane',{'region':'center',_class:'formgrid'});
         var gridId = nodeId+'_grid';
         var topic = nodeId+'_editnode';
@@ -416,44 +430,55 @@ dojo.declare("gnr.widgets.BagEditor", gnr.widgets.dummy, {
                 newstore.setItem('#id',row);
             }
             var itemvalue=item.getValue('static');
-            var editable = true;
-            row = new gnr.GnrBag();
-            row.setItem('attr_name','*value',{_editable:false});
             
-            if(itemvalue instanceof gnr.GnrBag){
-                var editable = false;
-                itemvalue = '*bag*';
+            if(valuePath){
+                sourceNode.setRelativeData(valuePath,itemvalue);
+            }else{
+                var editable = true;
+                row = new gnr.GnrBag();
+                row.setItem('attr_name','*value',{_editable:false});
+                if(itemvalue instanceof gnr.GnrBag){
+                    var editable = false;
+                    itemvalue = '*bag*';
+                }
+                row.setItem('attr_value',itemvalue,{_editable:editable});
+                newstore.setItem('#id',row);
             }
-            row.setItem('attr_value',itemvalue,{_editable:editable});
-            newstore.setItem('#id',row);
+            
             newstore.sort('attr_name');
-            newstore.setItem('#id',new gnr.GnrBag({'attr_name':null,'attr_value':null}));
+            //newstore.forEach(function(n){if(n.label.indexOf('~~')==0){n.label=n.label.slice(2);}});
+            if(!readOnly){
+                newstore.setItem('#id',new gnr.GnrBag({'attr_name':null,'attr_value':null}));
+            }
             grid.sourceNode.setRelativeData('.data',newstore,{'dataNode':item});
         });
         var grid = box._('includedview',{'storepath':'.data','structpath':'gnr._dev.bagEditorStruct',
                                          'datamode':'bag','relativeWorkspace':true,'nodeId':gridId,
                                          autoWidth:false,'editorEnabled':true});
-        var gridEditor = grid._('gridEditor');
-        var cellattr = {'gridcell':'attr_value','autoWdg':true};
-        cellattr.validate_onAccept = function(value,result,validations,rowIndex,userChange){
-            var dataNode = this.grid.storebag().getParentNode().attr.dataNode;
-            var attr_name = this.getRelativeData('.attr_name');
-            if(attr_name=='*'){
-                dataNode.setValue(value);
-            }else{
-                var newattr = !('attr_name' in dataNode.attr);
-                dataNode.setAttribute(attr_name,value);
-                if(!value){
-                    objectPop(dataNode.attr,attr_name);
-                }
-                if(newattr || !value)
-                    setTimeout(function(){
-                        genro.publish(topic,dataNode);
-                    },300);
-            }                    
-        };
-        gridEditor._('textbox',{gridcell:'attr_name'});
-        gridEditor._('textbox',cellattr);
+        if(!readOnly){
+            var gridEditor = grid._('gridEditor');
+            var cellattr = {'gridcell':'attr_value','autoWdg':true};
+            cellattr.validate_onAccept = function(value,result,validations,rowIndex,userChange){
+                var dataNode = this.grid.storebag().getParentNode().attr.dataNode;
+                var attr_name = this.getRelativeData('.attr_name');
+                if(attr_name=='*'){
+                    dataNode.setValue(value);
+                }else{
+                    var newattr = !('attr_name' in dataNode.attr);
+                    dataNode.setAttribute(attr_name,value);
+                    if(!value){
+                        objectPop(dataNode.attr,attr_name);
+                    }
+                    if(newattr || !value)
+                        setTimeout(function(){
+                            genro.publish(topic,dataNode);
+                        },300);
+                }                    
+            };
+            gridEditor._('textbox',{gridcell:'attr_name'});
+            gridEditor._('textbox',cellattr);
+        }
+    
         return box;
     },
     prepareStruct:function(){

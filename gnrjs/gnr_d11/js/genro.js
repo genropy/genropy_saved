@@ -242,9 +242,7 @@ dojo.declare('gnr.GenroClient', null, {
         genro.dev.shortcut("Ctrl+Shift+D", function() {
             genro.dev.showDebugger();
         });
-        genro.dev.shortcut("Ctrl+Shift+B", function() {
-            genro.dev.showBottomHelper();
-        });
+
         genro.callAfter(function() {
             genro.fireEvent('gnr.onStart');
         }, 100);
@@ -264,8 +262,6 @@ dojo.declare('gnr.GenroClient', null, {
         }
         if (this.debugopt) {
             genro.setData('debugger.sqldebug', this.debugopt.indexOf('sql') >= 0);
-            genro.setData('debugger.pydebug', this.debugopt.indexOf('py') >= 0);
-            genro.dev.showBottomHelper();
         }
         this.isMac = dojo.isMac != undefined ? dojo.isMac : navigator.appVersion.indexOf('Macintosh') >= 0;
         this.isTouchDevice = ( (navigator.appVersion.indexOf('iPad') >= 0 ) || (navigator.appVersion.indexOf('iPhone') >= 0));
