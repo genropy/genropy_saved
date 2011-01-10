@@ -496,6 +496,9 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
         var datapath;
         while (currNode && ((!path) || path.indexOf('.') == 0)) {
             datapath = currNode.attr.datapath;
+            if(typeof(datapath)=='function'){
+                datapath = datapath.call(currNode,datapath);
+            }
             if (datapath) {
                 if (this.isPointerPath(datapath)) {
                     datapath = currNode.getAttributeFromDatasource('datapath');
@@ -1213,6 +1216,10 @@ dojo.declare("gnr.GnrDomSource", gnr.GnrStructData, {
                 content = new gnr.GnrDomSource();
             }
             attributes.tag = tag;
+            var handler=genro.wdg.getHandler(tag)
+            if(handler && handler.onStructChild){
+                handler.onStructChild(attributes)
+            }
             this.setItem(name, content, attributes, extrakw);
             return content;
         }

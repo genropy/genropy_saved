@@ -231,23 +231,24 @@ dojo.declare("gnr.GnrDevHandler", null, {
         node.unfreeze();
         fpane.getParentNode().widget.bringToTop();
     },
+    
     openInspector:function(){
         var root = genro.src.newRoot();
         genro.src.getNode()._('div', '_devInspector_');
         var node = genro.src.getNode('_devInspector_').clearValue();
         node.freeze();
-        var pg = node._('paletteGroup',{'groupCode':'devTools','dockTo':'*',id:'gnr_devTools',
+        var pg = node._('paletteGroup',{'groupCode':'devTools','dockTo':true,id:'gnr_devTools',
                                         title:'Developer tools',style:"font-family:monaco;"});
         pg._('paletteTree',{'paletteCode':'cliDatastore',title:'Data',
-                            storepath:'*D',searchOn:true,tree_inspect:'shift',
-                            editable:true,tree_labelAttribute:null});
+                           storepath:'*D',searchOn:true,tree_inspect:'shift',
+                           editable:true,tree_labelAttribute:null});
         var sourcePane = pg._('paletteTree',{'paletteCode':'cliSourceStore',title:'Source',
-                            storepath:'*S',searchOn:true,tree_inspect:'shift',
-                            editable:true,
-                            tree_getLabel:function(n){
-                                return n.attr.tag+':'+(n.attr.nodeId || n._id);
-                            },
-                            tree_selectedPath:'.tree.selectedPath'});
+                           storepath:'*S',searchOn:true,tree_inspect:'shift',
+                           editable:true,
+                           tree_getLabel:function(n){
+                               return n.attr.tag+':'+(n.attr.nodeId || n._id);
+                           },
+                           tree_selectedPath:'.tree.selectedPath'});
         sourcePane._('dataController',{'script':'genro.src.highlightNode(fpath)', 
                                        'fpath':'^gnr.palettes.cliSourceStore.tree.selectedPath'});
         pg._('paletteTree',{'paletteCode':'dbmodel',title:'Model',
@@ -257,27 +258,28 @@ dojo.declare("gnr.GnrDevHandler", null, {
         this.devUtilsPalette(pg);
         node.unfreeze();
     },
+    
     sqlDebugPalette:function(parent){
         var pane = parent._('palettePane',{'paletteCode':'devSqlDebug',title:'Sql Debug'});
         var bc = pane._('borderContainer');
         var top = bc._('contentPane',{'region':'top'})._('toolbar',{'height':'18px'});
-        top._('checkbox',{'value':'^debugger.sqldebug','label':'Debug SQL'});
+        top._('checkbox',{'value':'^gnr.debugger.sqldebug','label':'Debug SQL'});
         top._('button',{'label':'Clear',action:'genro.setData("debugger.main",null)'});
-        var bc = bc._('borderContainer',{'region':'center',datapath:'gnr.palettes.devSqlDebug'});
+        var bc = bc._('borderContainer',{'region':'center'});
         var right = bc._('contentPane',{'region':'right','splitter':true,width:'50%'});
         var treeId='palette_debugger_tree';
-        var storepath='debugger.main';
+        var storepath='gnr.debugger.main';
         right._('BagEditor',{'nodeId':treeId+'_editbagbox','datapath':'.grid','bagpath':storepath,
                              'readOnly':true,'valuePath':'.bottomData','showBreadcrumb':false});
         var bottom = bc._('contentPane',{'region':'bottom','splitter':true,height:'50%','overflow':'hidden'});
         bottom._('div',{'innerHTML':'^.bottomData',height:'100%',
                                     style:'white-space: pre;background:white;',overflow:'auto'});
         var center = bc._('contentPane',{'region':'center'});
-        center._('tree',{'storepath':storepath,fired:'^debugger.tree_redraw','margin':'6px','nodeId':treeId,
+        center._('tree',{'storepath':storepath,fired:'^gnr.debugger.tree_redraw','margin':'6px','nodeId':treeId,
                         'getIconClass':"return 'treeNoIcon'",'_class':'fieldsTree', 'hideValues':true});
 
-        center._('dataController',{'script':"genro.debugopt=sqldebug?'sql':null",'sqldebug':'^debugger.sqldebug'});
-        center._('dataController',{'script':"FIRE debugger.tree_redraw;", 'sqldebug':'^debugger.main', '_delay':1});
+        center._('dataController',{'script':"genro.debugopt=sqldebug?'sql':null",'sqldebug':'^gnr.debugger.sqldebug'});
+        center._('dataController',{'script':"FIRE gnr.debugger.tree_redraw;", 'sqldebug':'^gnr.debugger.main', '_delay':1});
 
     },
     devUtilsPalette:function(parent){

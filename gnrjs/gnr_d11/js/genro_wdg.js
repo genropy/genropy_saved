@@ -130,7 +130,9 @@ dojo.declare("gnr.GnrWdgHandler", null, {
             'PaletteTree':'',
             'PaletteGrid':'',
             'Palette':'',
-            'SearchBox':''
+            'SearchBox':'',
+            'BagEditor':'',
+            'PaletteBagEditor':''
         };
         var tag;
         for (tag in this.widgetcatalog) {
@@ -167,7 +169,11 @@ dojo.declare("gnr.GnrWdgHandler", null, {
         var lowertag = tag.toLowerCase();
         var handler = this.widgets[lowertag];
         if (!handler) {
-            handler = this.widgets [('base' + this.namespace[lowertag][0]).toLowerCase()];
+            var nsItem = this.namespace[lowertag];
+            if (!nsItem){
+                return;
+            }
+            handler = this.widgets [('base' + nsItem[0]).toLowerCase()];
         }
         if (typeof(handler) == 'string') {
             this.widgets[lowertag] = new gnr.widgets[handler]();

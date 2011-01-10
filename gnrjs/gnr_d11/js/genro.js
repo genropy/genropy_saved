@@ -68,6 +68,7 @@ dojo.declare('gnr.GenroClient', null, {
         this.baseUrl = kwargs.baseUrl;
         this.lockingElements = {};
         this.debugRpc = false;
+        this.isDeveloper = this.startArgs.isDeveloper;
         setTimeout(dojo.hitch(this, 'genroInit'), 1);
     },
     genroInit:function() {
@@ -217,7 +218,7 @@ dojo.declare('gnr.GenroClient', null, {
         this._counter = 0;
 
         this.dlg.createStandardMsg(document.body);
-        this.dev.srcInspector(document.body);
+        //this.dev.srcInspector(document.body);
         this.contextIndex = {};
 
 
@@ -237,6 +238,7 @@ dojo.declare('gnr.GenroClient', null, {
         genro.dom.removeClass('_gnrRoot', 'notvisible');
         genro.dom.effect('_gnrRoot', 'fadein', {duration:400});
         genro.dragDropConnect();
+        genro.inspectConnect();
         var _this = this;
         this._dataroot.subscribe('dataTriggers', {'any':dojo.hitch(this, "dataTrigger")});
         genro.dev.shortcut("Ctrl+Shift+D", function() {
@@ -261,7 +263,7 @@ dojo.declare('gnr.GenroClient', null, {
             genro.dom.windowTitle(windowTitle);
         }
         if (this.debugopt) {
-            genro.setData('debugger.sqldebug', this.debugopt.indexOf('sql') >= 0);
+            genro.setData('gnr.debugger.sqldebug', this.debugopt.indexOf('sql') >= 0);
         }
         this.isMac = dojo.isMac != undefined ? dojo.isMac : navigator.appVersion.indexOf('Macintosh') >= 0;
         this.isTouchDevice = ( (navigator.appVersion.indexOf('iPad') >= 0 ) || (navigator.appVersion.indexOf('iPhone') >= 0));
@@ -273,14 +275,34 @@ dojo.declare('gnr.GenroClient', null, {
         }
 
     },
+    
+
     dragDropConnect:function(pane) {
         var pane = pane || genro.domById('mainWindow');
         dojo.connect(pane, 'dragstart', genro.dom, 'onDragStart');
         dojo.connect(pane, 'dragend', genro.dom, 'onDragEnd');
         dojo.connect(pane, 'dragover', genro.dom, 'onDragOver');
         dojo.connect(pane, 'drop', genro.dom, 'onDrop');
-
     },
+    
+    inspectConnect:function(){
+        if(genro.isDeveloper){
+            var pane = genro.domById('mainWindow');
+            dojo.connect(pane,'onmousemove',function(e){
+                if(e.altKey){
+                    var sourceNode = genro.src.enclosingSourceNode(e.target);
+                    genro.publish('devtools_highlight',sourceNode);
+                    genro.src.highlightNode(sourceNode);
+                }else{
+                    genro.src.highlightNode();
+                }
+            });
+            dojo.connect(pane,'onmouseout',function(e){
+                genro.src.highlightNode();
+            });
+        }
+    },
+    
     playSound:function(name, path, ext) {
         if (!(name in genro.sounds)) {
             var path = path || '/_gnr/11/sounds/';
