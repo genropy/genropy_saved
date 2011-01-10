@@ -1,8 +1,13 @@
 var batch_monitor = {};
 
 batch_monitor.owner_page_batch = function(batch_id) {
-    var isOwner = genro.page_id == genro.getData(this.batchpath(batch_id)).getItem('owner_page_id');
-    return genro.nodeById('bm_local_rootnode') && isOwner;
+    if(genro.nodeById('bm_local_rootnode')){
+        var batchBag = genro.getData(this.batchpath(batch_id))
+        if (batchBag){
+            return  (genro.page_id == batchBag.getItem('owner_page_id'))
+        }
+    }
+   
 };
 
 batch_monitor.on_datachange = function(kw) {
