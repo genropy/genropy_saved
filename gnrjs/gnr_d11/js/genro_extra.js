@@ -450,7 +450,7 @@ dojo.declare("gnr.widgets.BagEditor", gnr.widgets.dummy, {
             cellattr.validate_onAccept = function(value,result,validations,rowIndex,userChange){
                 var dataNode = this.grid.storebag().getParentNode().attr.dataNode;
                 var attr_name = this.getRelativeData('.attr_name');
-                if(attr_name=='*'){
+                if(attr_name=='*value'){
                     dataNode.setValue(value);
                 }else{
                     var newattr = !('attr_name' in dataNode.attr);
