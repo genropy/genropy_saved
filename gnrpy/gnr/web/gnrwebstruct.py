@@ -467,7 +467,7 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
              'dataController',
              'dataRemote', 'gridView', 'viewHeader', 'viewRow', 'script', 'func',
              'staticGrid', 'dynamicGrid', 'fileUploader', 'gridEditor', 'ckEditor', 
-            'tinyMCE', 'protovis', 'PaletteGroup','PalettePane','Palette','PaletteTree','SearchBox']
+            'tinyMCE', 'protovis', 'PaletteGroup','PalettePane','BagEditor','PaletteBagEditor','Palette','PaletteTree','SearchBox']
     genroNameSpace = dict([(name.lower(), name) for name in htmlNS])
     genroNameSpace.update(dict([(name.lower(), name) for name in dijitNS]))
     genroNameSpace.update(dict([(name.lower(), name) for name in dojoxNS]))

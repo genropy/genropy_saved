@@ -449,6 +449,8 @@ class GnrWebPage(GnrBaseWebPage):
         arg_dict['baseUrl'] = self.site.home_uri
         if self.debugopt:
             kwargs['debugopt'] = self.debugopt
+        if self.isDeveloper:
+            kwargs['isDeveloper'] = True
         arg_dict['startArgs'] = toJson(kwargs)
         arg_dict['page_id'] = self.page_id or getUuid()
         arg_dict['bodyclasses'] = self.get_bodyclasses()
@@ -818,6 +820,7 @@ class GnrWebPage(GnrBaseWebPage):
                                                 funcCreate(sourceNode.attr.onTrashed,'data,dropInfo',sourceNode)(data,dropInfo);
                                             }""")
                 root.div(id='auxDragImage')
+                root.div(id='srcHighlighter')
                 root.dataController("""
                                        var new_status = main_left_set_status[0];
                                        new_status = new_status=='toggle'? !current_status:new_status;
