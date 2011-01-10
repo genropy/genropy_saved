@@ -794,6 +794,10 @@ px
     padding-bottom: 0px;
     padding-right: .40em;
 }
+div.dojoxDock {
+	background: none;
+	border: none;
+}
 
 .floatingPopup {
     padding-right: 15px;
