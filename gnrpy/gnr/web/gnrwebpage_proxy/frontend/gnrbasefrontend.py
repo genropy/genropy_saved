@@ -38,4 +38,4 @@ class GnrBaseFrontend(GnrBaseProxy):
 
     def frontend_arg_dict(self):
         """Parameters to be passed to the page template."""
-        pass
+        return 
