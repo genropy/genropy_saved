@@ -300,9 +300,7 @@ class HTableHandler(HTableHandlerBase):
 
         bc.dataController("""
                              var rootpath = rootpath || null;
-                             
-                             if (destPkey!='*newrecord*'){
-                                 
+                             if (destPkey!='*newrecord*' && !oldChildCode){
                                  var editNode = treestore.getNode(treepath);
                                  var attr= editNode.attr;
                                  attr.caption = treeCaption;
@@ -312,7 +310,6 @@ class HTableHandler(HTableHandlerBase):
                                 SET .edit.pkey = savedPkey;
                                 var parentPath = rootpath?parent_code.slice(rootpath.length):parent_code?'_root_.'+parent_code:'_root_'
                                 var refreshFromNode = treestore.getNode(parentPath);
-
                                 if(!refreshFromNode.getValue()){
                                     refreshFromNode = refreshFromNode.getParentNode();
                                 }
@@ -322,7 +319,7 @@ class HTableHandler(HTableHandlerBase):
                          """,
                           _fired="^.edit.onSaved", destPkey='=.tree.pkey', parent_code='=.edit.record.parent_code',
                           savedPkey='=.edit.savedPkey', rootpath='=.tree.store?rootpath',
-                          treepath='=.tree.path', treestore='=.tree.store',
+                          treepath='=.tree.path', treestore='=.tree.store',oldChildCode='=.edit.record.child_code?_loadedValue',
                           treeCaption='=.edit.savedPkey?caption')
         bc.dataController("""
                             if (rootpath){
@@ -355,7 +352,7 @@ class HTableHandler(HTableHandlerBase):
                         table=table, pkey='=.pkey', **loadKwargs)
         self.formSaver(formId, datapath='#%s.edit' % nodeId, resultPath='.savedPkey', _fired='^.save',
                        table=table, onSaved='FIRE .onSaved;',
-                       #onSaving='if($1.getItem("child_code").indexOf(".")>=0){}',
+                       #onSaving='console.log($1.getNode("child_code"))',
                        rowcaption=_getTreeRowCaption(self.db.table(table)))
 
     def _ht_add_button(self, pane, childTypes=None, disabled=None):
