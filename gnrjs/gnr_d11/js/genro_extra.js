@@ -339,10 +339,10 @@ dojo.declare("gnr.widgets.PalettePane", gnr.widgets.gnrwdg, {
         var groupCode = objectPop(kw,'groupCode');
         if (groupCode){
             var pane = sourceNode._('ContentPane',objectExtract(kw,'title,pageName'))._('ContentPane',objectUpdate({'detachable':true},kw));
-            var subscription_code = 'subscribe_show_palette_'+paletteCode;
-            pane._('dataController',{'script':"SET gnr.palettes?"+groupCode+" = paletteCode;",
-                                 'paletteCode':paletteCode,
-                                 subscription_code: true});
+            var controller_kw = {'script':"console.log('ammaccabanane');SET gnr.palettes._groups.pagename."+groupCode+" = paletteCode;",
+                                 'paletteCode':paletteCode}
+            controller_kw['subscribe_show_palette_'+paletteCode] = true
+            pane._('dataController',controller_kw);
             return pane;
         }else{
             var palette_kwargs = objectExtract(kw,'title,dockTo,top,left,right,bottom');
@@ -626,13 +626,11 @@ dojo.declare("gnr.widgets.PaletteGroup", gnr.widgets.gnrwdg, {
         var palette_kwargs = objectExtract(kw,'title,dockTo,top,left,right,bottom');
         palette_kwargs['nodeId'] = palette_kwargs['nodeId'] || groupCode+'_floating';
         palette_kwargs.selfsubscribe_showing = function(){
-            genro.publish('palette_'+this.getRelativeData('gnr.palettes.?'+groupCode)+'_showing');
+            genro.publish('palette_'+this.getRelativeData('gnr.palettes._groups.pagename.'+groupCode)+'_showing'); //gnr.palettes?gruppopiero=palettemario
         }
-
         palette_kwargs['title'] = palette_kwargs['title'] || 'Palette ' + groupCode;
         var floating = sourceNode._('palette', palette_kwargs);
-        var tab_kwargs = objectUpdate(kw,{selectedPage:'^gnr.palettes.?' + groupCode,groupCode:groupCode,_class:'smallTabs'});
-        //tab_kwargs['subscribe_'+palette_kwargs['nodeId']+'_showing'] = function()
+        var tab_kwargs = objectUpdate(kw,{selectedPage:'^gnr.palettes._groups.pagename.' + groupCode,groupCode:groupCode,_class:'smallTabs'});
         var tc = floating._('tabContainer', tab_kwargs);
         return tc;
     }
