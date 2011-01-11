@@ -220,7 +220,7 @@ dojo.declare("gnr.GnrDevHandler", null, {
         var bc = pane._('borderContainer');
         var top = bc._('contentPane',{'region':'top'})._('toolbar',{'height':'18px'});
         top._('checkbox',{'value':'^gnr.debugger.sqldebug','label':'Debug SQL'});
-        top._('button',{'label':'Clear',action:'genro.setData("debugger.main",null)'});
+        top._('button',{'label':'Clear',action:'genro.setData("gnr.debugger.main",null)'});
         var bc = bc._('borderContainer',{'region':'center'});
         var right = bc._('contentPane',{'region':'right','splitter':true,width:'50%'});
         var treeId='palette_debugger_tree';
@@ -228,7 +228,7 @@ dojo.declare("gnr.GnrDevHandler", null, {
         right._('BagEditor',{'nodeId':treeId+'_editbagbox','datapath':'.grid','bagpath':storepath,
                              'readOnly':true,'valuePath':'.bottomData','showBreadcrumb':false});
         var bottom = bc._('contentPane',{'region':'bottom','splitter':true,height:'50%','overflow':'hidden'});
-        bottom._('div',{'innerHTML':'^.bottomData',height:'100%',
+        bottom._('div',{'innerHTML':'^.grid.bottomData',height:'100%',
                                     style:'white-space: pre;background:white;',overflow:'auto'});
         var center = bc._('contentPane',{'region':'center'});
         center._('tree',{'storepath':storepath,fired:'^gnr.debugger.tree_redraw','margin':'6px','nodeId':treeId,
