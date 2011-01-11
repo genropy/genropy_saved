@@ -36,7 +36,7 @@ class GnrWebDebugger(GnrBaseProxy):
     def event_onCollectDatachanges(self):
         page = self.page
         if page.debugopt and self._debug_calls:
-            path = 'debugger.main.c_%s' % self.page.callcounter
+            path = 'gnr.debugger.main.c_%s' % self.page.callcounter
             page.setInClientData(path, self._debug_calls)
 
     def log(self, msg):
