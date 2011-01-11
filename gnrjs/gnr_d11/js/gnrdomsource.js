@@ -679,6 +679,12 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
             attributes.subscribe_onPageStart = "this.widget.focus()";
         }
         var subscriptions = objectExtract(attributes, 'subscribe_*');
+        var selfsubscription = objectExtract(attributes, 'selfsubscribe_*');
+        var publisherId = this.attr.nodeId;
+        for (selfsubscribe in selfsubscription){
+            
+            subscriptions[publisherId+'_'+selfsubscribe] = selfsubscription[selfsubscribe];
+        }
 
         var attrname;
         var ind = ind || 0;
