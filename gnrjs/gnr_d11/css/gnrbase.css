@@ -1148,7 +1148,10 @@ div.dojoxDock {
 /* @group Dev */
 
 .gnrhighlight {
-    border: 2px dotted red;
+
+    -moz-box-shadow: inset 0px 0px 6px red;
+    -webkit-box-shadow:inset 0px 0px 6px red;
+}
 }
 
 /* @end */
