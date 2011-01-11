@@ -238,7 +238,10 @@ dojo.declare('gnr.GenroClient', null, {
         genro.dom.removeClass('_gnrRoot', 'notvisible');
         genro.dom.effect('_gnrRoot', 'fadein', {duration:400});
         genro.dragDropConnect();
-        genro.inspectConnect();
+        if(genro.isDeveloper){
+            genro.dev.inspectConnect();
+        }
+        
         var _this = this;
         this._dataroot.subscribe('dataTriggers', {'any':dojo.hitch(this, "dataTrigger")});
         genro.dev.shortcut("Ctrl+Shift+D", function() {
@@ -284,24 +287,7 @@ dojo.declare('gnr.GenroClient', null, {
         dojo.connect(pane, 'dragover', genro.dom, 'onDragOver');
         dojo.connect(pane, 'drop', genro.dom, 'onDrop');
     },
-    
-    inspectConnect:function(){
-        if(genro.isDeveloper){
-            var pane = genro.domById('mainWindow');
-            dojo.connect(pane,'onmousemove',function(e){
-                if(e.altKey){
-                    var sourceNode = genro.src.enclosingSourceNode(e.target);
-                    genro.publish('devtools_highlight',sourceNode);
-                    genro.src.highlightNode(sourceNode);
-                }else{
-                    genro.src.highlightNode();
-                }
-            });
-            dojo.connect(pane,'onmouseout',function(e){
-                genro.src.highlightNode();
-            });
-        }
-    },
+
     
     playSound:function(name, path, ext) {
         if (!(name in genro.sounds)) {

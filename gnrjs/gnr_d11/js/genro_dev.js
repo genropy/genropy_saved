@@ -32,94 +32,50 @@ dojo.declare("gnr.GnrDevHandler", null, {
     constructor: function(application) {
         this.application = application;
     },
-    editSourceNode: function (treenode) {
-        var sourceNode = this.application.getDataNode(treenode);
-        var dest = genro.inspector_struct_pane.sourceNode;
-        var form = dest.getValue();
-        var r,c;
-        var nodeAttr = sourceNode.getAttr();
-        dest.setValue(null, false);
-        form.clear();
-        var tbody = form._('table')._('tbody');
-        var tagParameters = this.application.wdg.tagParameters[nodeAttr.tag.toLowerCase()];
-        var currBag = new gnr.GnrBag();
-
-        if (tagParameters) {
-            for (var par in tagParameters) {
-                var r = tbody._('tr');
-                r._('td', {'content':par});
-                var v = tagParameters[par].split(':');
-                var c = r._('td');
-                if (v[0] == 'input') {
-                    c._('input', {datasource:':' + par});
-                }
-                currBag.setItem(par, null);
+    
+        
+    inspectConnect:function(){
+        var pane = genro.domById('mainWindow');
+        dojo.connect(pane,'onmousemove',function(e){
+            if(e.altKey && e.shiftKey){
+                var sourceNode = genro.src.enclosingSourceNode(e.target);
+                genro.src.highlightNode(sourceNode);
+                genro.publish('srcInspector_editnode',sourceNode)
+            }else{
+                genro.src.highlightNode();
             }
-        }
-        for (var i = 0; i < this.application.dom.styleAttrNames.length; i++) {
-            var stl = this.application.dom.styleAttrNames[i];
-            var r = tbody._('tr');
-            r._('td', {'content':stl});
-            var c = r._('td');
-            c._('input', {datasource:':' + stl});
-            currBag.setItem(stl, null);
-        }
-
-
-        for (attr in nodeAttr) {
-            if (attr != 'tag') {
-                if (currBag.index(attr) < 0) {
-                    var r = tbody._('tr');
-                    r._('td', {'content':attr});
-                    var c = r._('td');
-                    c._('input', {datasource:':' + attr});
-                }
-                currBag.setItem(attr, nodeAttr[attr]);
-            }
-        }
-        currBag['editedNode'] = sourceNode;
-        currBag.subscribe('sourceTriggers', {'any':{obj:this,func:'editSourceNode_trigger'}
         });
-        dest.setValue(form);
-        genro.setData('currentnode', currBag);
-
-    },
-
-    editSourceNode_trigger: function(kw) {
-        var currBagNode = kw.node;
-        var sourceNode = currBagNode.getParentBag().editedNode;
-        var newValue = currBagNode.getValue() || null;
-        var nodeAttrs = objectUpdate({}, sourceNode.getAttr());
-        var attrname = currBagNode.label;
-        if (kw.evt == 'upd_del' || newValue == null) {
-            delete(nodeAttrs[attrname]);
-        } else {
-            nodeAttrs[attrname] = newValue;
-        }
-        sourceNode.setAttr(nodeAttrs);
-    },
-    srcInspector:function(node) {
-        var showInspector = function(domnode) {
-            var sourceNode = domnode.sourceNode;
-            if (!sourceNode) {
-                var wdg = dijit.getEnclosingWidget(domnode);
-                if (wdg) {
-                    sourceNode = wdg.sourceNode;
+        dojo.connect(pane,'onmouseout',function(e){
+            genro.src.highlightNode();
+        });
+        
+        dojo.connect(pane,'onclick',function(e){
+            if(e.altKey && e.shiftKey){
+                if(!dijit.byId("gnr_srcInspector")){
+                    genro.dev.openSrcInspector();
                 }
+                var sourceNode = genro.src.enclosingSourceNode(e.target);
+                genro.publish('srcInspector_editnode',sourceNode)
+                
             }
-            if (sourceNode) {
-                var showDict = objectUpdate({}, sourceNode.attr);
-                showDict.absDatapath = sourceNode.absDatapath();
-                return genro.dev.dictToHtml(showDict, 'bagAttributesTable');
-            } else {
-                return 'No sourceNode';
-            }
-        };
-        genro.wdg.create('tooltip', null, {label:showInspector,
-            modifiers:'alt'
-        }).connectOneNode(node);
+            
+            
+        });
+  
     },
+    openSrcInspector:function(){
+        var root = genro.src.newRoot();
+        genro.src.getNode()._('div', '_devSrcInspector_');
+        var node = genro.src.getNode('_devSrcInspector_').clearValue();
+        node.freeze();
+        node._('PaletteBagEditor',{'paletteCode':'srcInspector',nodeId:'srcInspector',id:'gnr_srcInspector','dockTo':true,
+                                        title:'Source Node Inspector',style:"font-family:monaco;",
+                                        'bagpath':'*S'});
+        
+        node.unfreeze();
+        
 
+    },
     debugMessage: function(msg, level, duration) {
 
         var level = level || 'MESSAGE';

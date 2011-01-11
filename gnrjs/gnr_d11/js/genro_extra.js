@@ -415,10 +415,12 @@ dojo.declare("gnr.widgets.PaletteTree", gnr.widgets.gnrwdg, {
 });
 dojo.declare("gnr.widgets.PaletteBagEditor", gnr.widgets.gnrwdg, {
     createContent:function(sourceNode, kw) {
-        var nodeId = objectPop('nodeId',kw);
+        var nodeId = objectPop(kw,'nodeId');
         var pane = sourceNode._('PalettePane',kw);
-        pane._('BagEditor',{nodeId:kw.nodeId,datapath:'.bageditor',bagpath:kw.bagpath});
+        pane._('BagEditor',{nodeId:nodeId,datapath:'.bageditor',bagpath:kw.bagpath});
+        
         return pane;
+        
     }
 });
 
@@ -470,10 +472,10 @@ dojo.declare("gnr.widgets.BagEditor", gnr.widgets.gnrwdg, {
             gridEditor._('textbox',{gridcell:'attr_name'});
             gridEditor._('textbox',cellattr);
         }
-    
         return box;
     },
     setCurrentNode:function(gnrwdg,item){
+        console.log('aaaaaaaa')
         var bagpath = gnrwdg.bagpath;
         var sourceNode = gnrwdg.sourceNode;
         if(typeof(item)=='string'){
