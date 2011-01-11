@@ -151,6 +151,18 @@ class GnrHTable(TableBase):
         code_list = [k for k in (record_data['parent_code']or '').split('.') + [record_data['child_code']] if k]
         record_data['level'] = len(code_list) - 1
         record_data['code'] = '.'.join(code_list)
+        
+        
+    def trigger_onUpdating(self, record_data, old_record=None):
+        if (record_data['child_code'] != old_record['child_code']) or (record_data['parent_code'] != old_record['parent_code']):
+            old_code = old_record['code']
+            code_list = [k for k in (record_data['parent_code']or '').split('.') + [record_data['child_code']] if k]
+            record_data['level'] = len(code_list) - 1
+            record_data['code'] = '.'.join(code_list)
+            #print '%s ---> %s' % (old_record['code'],record_data['code'])
+            #print 'update children with parent_code =%s' % old_code
+            self.batchUpdate(dict(parent_code=record_data['code']), where='$parent_code=:old_code', old_code=old_code)
+    
 
 
 class GnrDboTable(TableBase):
