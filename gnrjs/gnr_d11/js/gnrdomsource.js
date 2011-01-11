@@ -989,7 +989,10 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
             if (serverpath) {
                 genro._serverstore_paths[this.absDatapath(path)] = serverpath;
             }
-            genro.setData(path, value, attributes);
+            if(!genro.getDataNode(path)||value){
+                genro.setData(path, value, attributes);
+            }
+            
 
 
         } else if (tag == 'dataRemote') {

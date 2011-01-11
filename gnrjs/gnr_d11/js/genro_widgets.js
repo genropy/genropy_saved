@@ -1909,15 +1909,17 @@ dojo.declare("gnr.widgets.Grid", gnr.widgets.baseDojo, {
                 dojo.connect(widget,'onSetStructpath',widget,cb);
                 setTimeout(function(){cb.call(widget)},1);
             }
-            dojo.subscribe(nodeId+'_searchbox_keyUp',widget,function(v,field){
+            dojo.subscribe(nodeId+'_searchbox_changedValue',widget,function(v,field){
                 this.applyFilter(v,null,field);
             });
         }
     },
     _getFilterAutoValues: function(widget,dtypes){
+        var structbag = widget.structbag();
         var values = [];
         var auto = [];
         values.push(null)
+
         var cellsbag = widget.structbag().getItem('#0.#0');
         var caption,cellattr,cell_cap,cell_field,fltList,colList,col;
         cellsbag.forEach(function(n){
@@ -4171,7 +4173,7 @@ dojo.declare("gnr.widgets.Tree", gnr.widgets.baseDojo, {
         if(nodeId){
             var searchBoxNode = genro.nodeById(nodeId+'_searchbox');
             if (searchBoxNode){
-                dojo.subscribe(nodeId+'_searchbox_keyUp',widget,function(v,field){
+                dojo.subscribe(nodeId+'_searchbox_changedValue',widget,function(v,field){
                     this.applyFilter(v);
                 });
             }

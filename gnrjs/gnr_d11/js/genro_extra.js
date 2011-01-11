@@ -248,6 +248,7 @@ dojo.declare("gnr.widgets.gnrwdg", null, {
         sourceNode.clearValue();
         var content = this.createContent(sourceNode, contentKwargs);
         content.concat(children);
+        sourceNode._stripData();
         sourceNode.unfreeze(true);
         return false;
     },
@@ -304,6 +305,14 @@ dojo.declare("gnr.widgets.Palette", gnr.widgets.gnrwdg, {
             sourceNode._('dock',{id:dockId});
             kw.dockTo = dockId;
         }
+        if(kw.nodeId){
+            kw.connect_show= function(){
+                genro.publish(kw.nodeId+'_showing');
+            };
+            kw.connect_hide= function(){
+                genro.publish(kw.nodeId+'_hiding');
+            };
+        }
         return sourceNode._('floatingPane', kw);
     }
 });
@@ -329,7 +338,6 @@ dojo.declare("gnr.widgets.PalettePane", gnr.widgets.gnrwdg, {
         var paletteCode = objectPop(kw,'paletteCode');
         var groupCode = objectPop(kw,'groupCode');
         if (groupCode){
-            
             var pane = sourceNode._('ContentPane',objectExtract(kw,'title,pageName'))._('ContentPane',objectUpdate({'detachable':true},kw));
             var subscription_code = 'subscribe_show_palette_'+paletteCode;
             pane._('dataController',{'script':"SET gnr.palettes?"+groupCode+" = paletteCode;",
@@ -337,9 +345,12 @@ dojo.declare("gnr.widgets.PalettePane", gnr.widgets.gnrwdg, {
                                  subscription_code: true});
             return pane;
         }else{
-            var palette_kwargs = objectExtract(kw,'title,dockTo,top,left,right,bottom,connect_show');
+            var palette_kwargs = objectExtract(kw,'title,dockTo,top,left,right,bottom');
             palette_kwargs['nodeId'] = paletteCode+'_floating';
             palette_kwargs['title'] = palette_kwargs['title'] || 'Palette ' + paletteCode;
+            palette_kwargs.selfsubscribe_showing = function(){
+                genro.publish('palette_'+paletteCode+'_showing');
+            }
             var floating = sourceNode._('palette', palette_kwargs);
             return floating._('ContentPane',kw);
         }
@@ -360,12 +371,12 @@ dojo.declare("gnr.widgets.PaletteGrid", gnr.widgets.gnrwdg, {
                 dragValues[paletteCode]=dragValues.gridrow.rowsets;
             }
         };
-        kw.connect_show = function(widget){
+        kw.selfsubscribe_showing=function(){
             var grid = genro.wdgById(gridId);
             if(grid.storebag().len()==0){
                 grid.reload();
             }
-        };
+        }
         objectUpdate(grid_kwargs ,objectExtract(kw,'grid_*'));
         var pane = sourceNode._('PalettePane',kw);
         if (kw.searchOn){
@@ -475,7 +486,6 @@ dojo.declare("gnr.widgets.BagEditor", gnr.widgets.gnrwdg, {
         return box;
     },
     setCurrentNode:function(gnrwdg,item){
-        console.log('aaaaaaaa')
         var bagpath = gnrwdg.bagpath;
         var sourceNode = gnrwdg.sourceNode;
         if(typeof(item)=='string'){
@@ -527,18 +537,20 @@ dojo.declare("gnr.widgets.BagEditor", gnr.widgets.gnrwdg, {
 
 dojo.declare("gnr.widgets.SearchBox", gnr.widgets.gnrwdg, {
     contentKwargs: function(sourceNode,attributes){
-        var topic = attributes.nodeId+'_keyUp';
+        //var topic = attributes.nodeId+'_keyUp';
         var delay = 'delay' in attributes? objectPop(attributes,'delay'): 100;
         attributes.onKeyUp = function(e){
             var sourceNode = e.target.sourceNode;
-            if(sourceNode._publisher){
-                clearTimeout(sourceNode._publisher);
+            if(sourceNode._onKeyUpCb){
+                clearTimeout(sourceNode._onKeyUpCb);
             }
             var v = e.target.value;
-            sourceNode._publisher = setTimeout(function(){
-                genro.publish(topic,v,sourceNode.getRelativeData('.field'));
+            sourceNode._onKeyUpCb = setTimeout(function(){
+               //console.log(sourceNode);
+               //console.log(sourceNode.absDatapath())
+                sourceNode.setRelativeData('.currentValue',v);
+                //genro.publish(topic,v,sourceNode.getRelativeData('.field'));
                 },delay);
-            
         };
         return attributes;
     },
@@ -559,8 +571,12 @@ dojo.declare("gnr.widgets.SearchBox", gnr.widgets.gnrwdg, {
         databag.setItem('menu_dtypes',searchDtypes);
         databag.setItem('caption',defaultLabel);
         this._prepareSearchBoxMenu(searchOn,databag);
+        
+        //sourceNode._('dataFormula',{'path':'.currentValue','script':'value','value':'^.value'});
         sourceNode.setRelativeData(null,databag);
         var searchbox = sourceNode._('div',{nodeId:nodeId});
+        sourceNode._('dataController',{'script':'genro.publish(searchBoxId+"_changedValue",currentValue,field)',
+                                       'searchBoxId':nodeId,currentValue:'^.currentValue',field:'=.field'});
         var searchlbl = searchbox._('div',{'float':'left', margin_top:'2px'});
         searchlbl._('span',{'innerHTML':'^.caption',_class:'buttonIcon'});
         searchlbl._('menu',{'modifiers':'*',_class:'smallmenu',storepath:'.menubag',
@@ -611,9 +627,15 @@ dojo.declare("gnr.widgets.PaletteGroup", gnr.widgets.gnrwdg, {
         var groupCode = objectPop(kw, 'groupCode');
         var palette_kwargs = objectExtract(kw,'title,dockTo,top,left,right,bottom');
         palette_kwargs['nodeId'] = palette_kwargs['nodeId'] || groupCode+'_floating';
+        palette_kwargs.selfsubscribe_showing = function(){
+            genro.publish('palette_'+this.getRelativeData('gnr.palettes.?'+groupCode)+'_showing');
+        }
+
         palette_kwargs['title'] = palette_kwargs['title'] || 'Palette ' + groupCode;
         var floating = sourceNode._('palette', palette_kwargs);
-        var tc = floating._('tabContainer', objectUpdate(kw,{selectedPage:'^gnr.palettes.?' + groupCode,groupCode:groupCode,_class:'smallTabs'}));
+        var tab_kwargs = objectUpdate(kw,{selectedPage:'^gnr.palettes.?' + groupCode,groupCode:groupCode,_class:'smallTabs'});
+        //tab_kwargs['subscribe_'+palette_kwargs['nodeId']+'_showing'] = function()
+        var tc = floating._('tabContainer', tab_kwargs);
         return tc;
     }
 });
