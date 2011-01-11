@@ -8,4 +8,5 @@ Datastore
 	:maxdepth: 2
 
 	datastore
+	macro
 	examples

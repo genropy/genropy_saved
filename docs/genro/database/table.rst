@@ -1,8 +1,8 @@
 	.. _genro-database_table:
 
-=======
- Table
-=======
+=====
+table
+=====
 
 - :ref:`table-definition`
 

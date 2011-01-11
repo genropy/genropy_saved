@@ -12,6 +12,7 @@ Form widgets
 	dropdownbutton
 	field
 	formbuilder
+	menu
 	numberspinner
 	radiobutton
 	simplearea

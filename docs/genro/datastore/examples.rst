@@ -1,8 +1,8 @@
 	.. _genro-datastore-examples:
 
-====================
- Datastore examples
-====================
+==================
+datastore examples
+==================
 
 	- :ref:`datastore-standardtable-example`
 
@@ -10,7 +10,7 @@
 
 	.. _datastore-standardtable-example:
 
-The Datastore in a standard table
+The datastore in a standard table
 =================================
 
 	Here we show all the details of the datastore of a :ref:`genro-standardtable`.
@@ -19,5 +19,5 @@ The Datastore in a standard table
 
 	.. _datastore-???-example:
 
-The Datastore in a ???
+The datastore in a ???
 ======================

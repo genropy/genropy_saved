@@ -24,7 +24,7 @@ Definition and Description
 Description
 ===========
 
-	Textbox is used to insert a text. Genro textbox is taken from Dojo ValidationTextBox (version 1.5; to show it, click here_.), so it supports all of Dojo ValidationTextBox attributes (explained below_).
+	Textbox is used to insert a text. Genro textbox is taken from Dojo ValidationTextBox (version 1.5; to show it, click here_.), so it supports all of Dojo ValidationTextBox attributes.
 
 	.. _here: http://docs.dojocampus.org/dijit/form/ValidationTextBox
 

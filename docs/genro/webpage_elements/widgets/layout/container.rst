@@ -31,7 +31,7 @@ Common attributes
 	|   Attribute        |          Description                               |   Default                |
 	+====================+====================================================+==========================+
 	| ``datapath``       | Set path for data. For more details,               |  ``None``                |
-	|                    | check the :ref:`genro-datapath` page               |                          |
+	|                    | check the :ref:`genro_datapath` page               |                          |
 	+--------------------+----------------------------------------------------+--------------------------+
 	| ``disabled``       | If True, user can't act on the container.          |  ``False``               |
 	|                    | For more details, check the :ref:`genro-disabled`  |                          |

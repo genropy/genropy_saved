@@ -10,12 +10,12 @@
 
 	- :ref:`dbselect_attributes`
 
-	.. note:: We recommend you to read :ref:`genro-dbselect-dbcombobox` first.
-
 	.. _dbselect-definition-description:
 
 Definition and Description
 ==========================
+
+	.. method:: pane.dbSelect(dbtable=None[, alternatePkey=None[, auxColumns=None[, columns=None[, condition=None[, limit=10[, rowcaption=None[, selected=None]]]]]]])
 
 	dbSelect [#]_ is a :ref:`genro-filteringselect` that takes the values through a query on the database [#]_.
 	
@@ -23,7 +23,7 @@ Definition and Description
 	
 	While user write in the dbSelect, partially matched values will be shown in a pop-up menu below the input text box.
 	
-	The only way to specify the table related to the dbSelect is using the :ref:`genro-dbtable` attribute.
+	To specify the table related to the dbSelect you have to use the mandatory :ref:`genro-dbtable` attribute.
 	
 	.. _dbselect-examples:
 

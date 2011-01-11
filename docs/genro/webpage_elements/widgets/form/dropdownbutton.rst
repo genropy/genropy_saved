@@ -1,74 +1,48 @@
-	.. _genro-dropdownbutton:
+.. _genro_dropdownbutton:
 
-================
- dropdownbutton
-================
+==============
+dropdownbutton
+==============
 
-	- :ref:`dropdownbutton-definition-description`
+	.. note:: it is mandatory to add a :ref:`genro_menu` to the dropdownbutton to make it work.
+
+	- :ref:`ddb_def`
 	
-	- :ref:`dropdownbutton-syntax`
+	- :ref:`ddb_attributes`
+	
+	- :ref:`ddb_examples`
 
-	- :ref:`dropdownbutton-examples`
-
-	- :ref:`dropdownbutton_attributes`
-
-	.. _dropdownbutton-definition-description:
+.. _ddb_def:
 
 Definition and Description
 ==========================
 
-	Same definition of Dojo dropdownbuttons (version 1.5). To show it, click here_.
-
+	.. method:: pane.dropdownbutton(label=None[, **kwargs])
+	
+	Same definition of Dojo dropdownbuttons. To show it, click here_.
+	
 	.. _here: http://docs.dojocampus.org/dijit/form/DropDownButton
-
-	.. _dropdownbutton-where:
-
-	Constructs a button that opens a ``menu`` or a ``tooltipdialog``.
-
-	.. _dropdownbutton-syntax:
-
-Syntax
-======
-
-	* You can create a menu with one of the following two lines::
 	
-		dropdownbutton(label='NameOfTheMenu')
-		dropdownbutton('NameOfTheMenu')
+	Constructs a button that opens a :ref:`genro_menu` or a ``tooltipdialog``.
+	
+.. _ddb_attributes:
 
-	* Every menu row is created through the ``menuline`` attribute::
+Attributes
+==========
+	
+	**combobox attributes**:
+	
+		There aren't particular attributes.
+	
+	**Common attributes**:
 		
-		menuline('Open...',action="alert('Opening...')")
-	
-	* To create a dividing line use ``-`` in a ``menuline``::
+	* *disabled*: if True, allow to disable this widget. Default value is ``None``. For more information, check the :ref:`genro-disabled` documentation page
+	* *hidden*: if True, allow to hide this widget. Default value is ``None``. For more information, check the :ref:`genro-hidden` documentation page
+	* *label*: the dropdownbutton's ``label``.
 
-		menuline('-')
-
-	.. _dropdownbutton-examples:
+.. _ddb_examples:
 
 Examples
 ========
 
-	**Example**::
-	
-		def main(self,root,**kwargs):
-			ddb=root.dropdownbutton('Menu')    # Same meaning: ddb=root.dropdownbutton(label='Menu')
-			dmenu=ddb.menu()
-			dmenu.menuline('Open...',action="alert('Opening...')")
-			dmenu.menuline('Close',action="alert('Closing...')")
-			dmenu.menuline('-')
-			submenu=dmenu.menuline('I have submenues').menu() # With this line you create a submenu
-			submenu.menuline('To do this',action="alert('Doing this...')")
-			submenu.menuline('Or to do that',action="alert('Doing that...')")
-			dmenu.menuline('-')
-			dmenu.menuline('Quit',action="alert('Quitting...')")
-
-.. _dropdownbutton_attributes:
-
-Common attributes
-=================
-
-	Here we list all the attributes that belong both to menu and to other widgets. Click on them for a complete documentation:
-	
-	* :ref:`genro-disabled`
-	* :ref:`genro-hidden`
-	* :ref:`genro-label`
+	For some examples of dropdownbutton, please check the :ref:`genro_menu` page.

@@ -39,10 +39,10 @@ Common attributes
 	|                    | query. For further details, check the             |                          |
 	|                    | :ref:`genro-dbtable` explanation page             |                          |
 	+--------------------+---------------------------------------------------+--------------------------+
-	| ``disabled``       | If True, user can't act on the form widget.       |  ``False``               |
+	| ``disabled``       | If True, user can't act on the widget.            |  ``False``               |
 	|                    | For more details, see :ref:`genro-disabled`       |                          |
 	+--------------------+---------------------------------------------------+--------------------------+
-	| ``hidden``         | Hide the form widget. See :ref:`genro-hidden`     |  ``False``               |
+	| ``hidden``         | Hide the widget. See :ref:`genro-hidden`          |  ``False``               |
 	+--------------------+---------------------------------------------------+--------------------------+
 	| ``limit``          | Set the number of visible choices on the pop-up   |  ``10``                  |
 	|                    | menu below the input textbox during user typing   |                          |
@@ -58,7 +58,7 @@ Common attributes
 	|                    | See :ref:`db-selected` example for further details|                          |
 	+--------------------+---------------------------------------------------+--------------------------+
 	| ``value``          | Set a path for widget's values.                   |  ``None``                |
-	|                    | For more details, see :ref:`genro-datapath`       |                          |
+	|                    | For more details, see :ref:`genro_datapath`       |                          |
 	+--------------------+---------------------------------------------------+--------------------------+
 
 	.. _db-examples:
@@ -75,7 +75,7 @@ Selected
 
 	**Example:**
 
-	let's consider a simple Genro Project [#]_ including a database :ref:`genro-database_table` and a :ref:`genro-GnrCustomWebPage`. 
+	let's consider a simple Genro Project [#]_ including a database :ref:`genro-database_table` and a :ref:`genro_GnrCustomWebPage`. 
 
 	The table includes a list of actors::
 
@@ -162,7 +162,7 @@ Condition
 				tbl.column('prizes', name_short='Priz.',name_long='Prizes', size='40')
 				tbl.column('number','L',name_long='!!Number')
 
-	Finally, let's introduce a Genro webpage::
+	Finally, let's introduce a :ref:`genro_GnrCustomWebPage`::
 
 		class GnrCustomWebPage(object):
 			def main(self,root,**kwargs):

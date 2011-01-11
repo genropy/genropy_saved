@@ -72,9 +72,8 @@ Common attributes
 	|                    | See :ref:`genro-hidden`                         |                          |
 	+--------------------+-------------------------------------------------+--------------------------+
 	| ``label``          | Set numberspinner label.                        |  ``None``                |
-	|                    | For more details, see :ref:`genro-label`        |                          |
 	+--------------------+-------------------------------------------------+--------------------------+
 	| ``value``          | Set a path for numberspinner's values.          |  ``None``                |
-	|                    | For more details, see :ref:`genro-datapath`     |                          |
+	|                    | For more details, see :ref:`genro_datapath`     |                          |
 	+--------------------+-------------------------------------------------+--------------------------+
 

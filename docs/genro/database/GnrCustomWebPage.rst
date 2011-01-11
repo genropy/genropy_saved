@@ -1,4 +1,4 @@
-	.. _genro-GnrCustomWebPage:
+.. _genro_GnrCustomWebPage:
 
 Genro Custom Webpage
 =====================

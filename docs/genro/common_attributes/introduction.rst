@@ -8,7 +8,7 @@
 
 	Nevertheless, we report those attributes even in the single widget, suggesting to take vision of this page for more details.
 
-	- ``datapath``: see :ref:`genro-datapath`
+	- ``datapath``: see :ref:`genro_datapath`
 
 	- ``default``: see :ref:`genro-default`
 
@@ -16,6 +16,4 @@
 
 	- ``hidden``: see :ref:`genro-hidden`
 
-	- ``label``: see :ref:`genro-label`
-
-	- ``value``: see :ref:`genro-datapath`
+	- ``value``: see :ref:`genro_datapath`

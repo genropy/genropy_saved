@@ -40,7 +40,7 @@ Common attributes
 	|   Attribute        |          Description                            |   Default                |
 	+====================+=================================================+==========================+
 	| ``datapath``       | Set path for data.                              |  ``None``                |
-	|                    | For more details, see :ref:`genro-datapath`     |                          |
+	|                    | For more details, see :ref:`genro_datapath`     |                          |
 	+--------------------+-------------------------------------------------+--------------------------+
 	| ``disabled``       | If True, user can't act on the textbox.         |  ``False``               |
 	|                    | For more details, see :ref:`genro-disabled`     |                          |
@@ -49,5 +49,5 @@ Common attributes
 	|                    | See :ref:`genro-hidden`                         |                          |
 	+--------------------+-------------------------------------------------+--------------------------+
 	| ``value``          | Set a path for textbox's value.                 |  ``None``                |
-	|                    | For more details, see :ref:`genro-datapath`     |                          |
+	|                    | For more details, see :ref:`genro_datapath`     |                          |
 	+--------------------+-------------------------------------------------+--------------------------+

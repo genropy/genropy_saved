@@ -17,9 +17,9 @@
 Definition and Description
 ==========================
 
-Same definition of Dojo sliders (version 1.5). To show it, click here_.
+	.. note:: the Genro sliders has been taken from Dojo without adding any modifies. In this page you will find some interesting features that we want to point up. For more information, check the Dojo's slider_ documentation.
 
-.. _here: http://docs.dojocampus.org/dijit/form/Slider
+	.. _slider: http://docs.dojocampus.org/dijit/form/Slider
 
 	Here we introduce the sliders, form widgets inherit from Dojo. It is a scale with a handle you can drag left/right for horizontal slider (or up/down for vertical one) to select a value.
 
@@ -72,5 +72,5 @@ Common attributes
 	|                    | See :ref:`genro-hidden`                         |                          |
 	+--------------------+-------------------------------------------------+--------------------------+
 	| ``value``          | Set a path for slider's values.                 |  ``None``                |
-	|                    | For more details, see :ref:`genro-datapath`     |                          |
+	|                    | For more details, see :ref:`genro_datapath`     |                          |
 	+--------------------+-------------------------------------------------+--------------------------+

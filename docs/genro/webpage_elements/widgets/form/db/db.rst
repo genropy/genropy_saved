@@ -13,7 +13,7 @@
 		
 		Values from a database [#]_:
 	
-			* :ref:`genro-dbselect`: dbSelect [#]_ is a :ref:`genro-filteringselect` that takes the values through a query on the database. User can choose between all the values contained into the linked :ref:`genro-database_table` (you have to specify the table from which user makes his selection), and dbSelect keep track into the :ref:`genro-datastore` of the ID of the record chosen by the user.
+			* :ref:`genro-dbselect`: The Genro dbSelect [#]_ is a :ref:`genro-filteringselect` that takes the values through a query on the database. User can choose between all the values contained into the linked :ref:`genro-database_table` (you have to specify the table from which user makes his selection), and dbSelect keep track into the :ref:`genro-datastore` of the ID of the record chosen by the user.
 			* :ref:`genro-dbcombobox`: The Genro ``dbCombobox`` is a :ref:`genro-combobox` that conducts research on specific columns in a database table.
 
 **Footnotes:**

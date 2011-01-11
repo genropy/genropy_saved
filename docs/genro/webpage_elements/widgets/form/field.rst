@@ -17,11 +17,13 @@
 Definition and Description
 ==========================
 
+	.. method:: pane.field(ColumnName, [lbl='None'[, limit=10[, rowcaption=None[, zoom=True]]]])
+
 	``field`` is used to view and select data included in a database :ref:`genro-database_table` (and, eventually, through the ``zoom`` attribute, is used to modify them).
 
 	Its type is inherited from the type of data contained in the table to which ``field`` refers. For example, if ``field`` catches data from a :ref:`genro-numbertextbox`, its type is actually a ``numberTextbox``.
 
-	``field`` MUST be a child of the form widget called :ref:`genro-formbuilder`, and ``formbuilder`` itself MUST have a :ref:`genro-datapath` for inner relative path gears. So, ``field`` search a form to bind itself to (so don't forget to link every ``field`` to a ``formbuilder``!).
+	``field`` MUST be a child of the form widget called :ref:`genro-formbuilder`, and ``formbuilder`` itself MUST have a :ref:`genro_datapath` for inner relative path gears. So, ``field`` search a form to bind itself to (so don't forget to link every ``field`` to a ``formbuilder``!).
 
 	The last thing is to specify the database table to which the ``field`` refers to. There are three different possibilities for doing this, that are:
 
@@ -101,7 +103,7 @@ Attributes
 	|                    | :ref:`genro-name_long` attribute of the         |                          |
 	|                    | requested data                                  |                          |
 	+--------------------+-------------------------------------------------+--------------------------+
-	|  nameOfTheColumn   | MANDATORY - The first field's parameter; it is  |  ``None``                |
+	|  ColumnName        | MANDATORY - The first field's parameter; it is  |  ``None``                |
 	|                    | field's query path; its complete syntax is      |                          |
 	|                    | ``packageName.tableName.tableAttributeName``.   |                          |
 	|                    | It can be used in a combo with ``dbtable``      |                          |
@@ -134,6 +136,6 @@ Common attributes
 	|                    | See :ref:`genro-hidden`                         |                          |
 	+--------------------+-------------------------------------------------+--------------------------+
 	| ``value``          | Set a path for dbselect's values.               |  ``None``                |
-	|                    | For more details, see :ref:`genro-datapath`     |                          |
+	|                    | For more details, see :ref:`genro_datapath`     |                          |
 	+--------------------+-------------------------------------------------+--------------------------+
 	

@@ -44,18 +44,14 @@ Datastore syntax
 Access to the datastore from javascript
 =======================================
 
-	The possible operations on the datastore include:
-
-	**SET**:
-		sets a value and triggers any associated events (ie any observers or resolver connected by "^")
-	**PUT**:
-		sets a value, but does not trigger the events associated
-	**GET**:
-		reads the contents of a value in the datastore
-	**FIRE**:
-		sets a value in the datastore, and then triggers the events associated, and then resets the value to zero (without triggering events). It is used when you need to trigger events through a temporary parameter to the Observers.
-
-	These operations can be specified in the javascript events associated with an interface, and the framework deals gnrjs to the expansion of these macros. It can be accessed from its datastore javascript code (ie from code written in .JS file and then read without macro-expansion) using simple javascript functions.
+	The possible operations on the datastore include some macros, that are:
+	
+	* :ref:`genro_set`
+	* :ref:`genro_put`
+	* :ref:`genro_get`
+	* :ref:`genro_fire`
+	
+	They can be specified in the javascript events associated with an interface, and the framework deals gnrjs to the expansion of these macros. Check the :ref:`genro_macro` page for further details.
 
 	.. _datastore-debugger:
 

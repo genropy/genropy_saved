@@ -63,6 +63,6 @@ Common attributes
 	|                    | See :ref:`genro-hidden`                         |                          |
 	+--------------------+-------------------------------------------------+--------------------------+
 	| ``value``          | Set a path for simpletextarea's value.          |  ``None``                |
-	|                    | For more details, see :ref:`genro-datapath`     |                          |
+	|                    | For more details, see :ref:`genro_datapath`     |                          |
 	+--------------------+-------------------------------------------------+--------------------------+
 	

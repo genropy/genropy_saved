@@ -68,10 +68,9 @@ Common attributes
 	|                    | See :ref:`genro-hidden`                         |                          |
 	+--------------------+-------------------------------------------------+--------------------------+
 	| ``label``          | Set radiobutton label.                          |  ``None``                |
-	|                    | For more details, see :ref:`genro-label`        |                          |
 	+--------------------+-------------------------------------------------+--------------------------+
 	| ``value``          | Set a path for radiobutton's values.            |  ``None``                |
-	|                    | For more details, see :ref:`genro-datapath`     |                          |
+	|                    | For more details, see :ref:`genro_datapath`     |                          |
 	+--------------------+-------------------------------------------------+--------------------------+
 
 **Footnotes**:

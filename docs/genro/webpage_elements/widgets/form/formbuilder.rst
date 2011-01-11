@@ -99,7 +99,7 @@ Here we describe the formbuilder's field attributes:
 	|                | ``*`` to refer itself at the current row             |                          |
 	+----------------+------------------------------------------------------+--------------------------+
 	| ``value``      | Set a path for formbuilder's values.                 |  ``None``                |
-	|                | For more details, see :ref:`genro-datapath`          |                          |
+	|                | For more details, see :ref:`genro_datapath`          |                          |
 	+----------------+------------------------------------------------------+--------------------------+
 
 	.. _formbuilder-other-attributes:
