@@ -129,7 +129,8 @@ class GnrHTable(TableBase):
             tbl.column('child_code', name_long='!!Child code', validate_notnull=True,
                        validate_notnull_error='!!Required', base_view=True,
                        validate_regex='!\.', validate_regex_error='!!Invalid code:"." char is not allowed',
-                       unmodifiable=True)
+                       #unmodifiable=True
+                       )
         tbl.column('parent_code', name_long='!!Parent code').relation('%s.code' % tbl.parentNode.label)
         tbl.column('level', name_long='!!Level')
         pkgname = tbl.getAttr()['pkg']
@@ -148,17 +149,19 @@ class GnrHTable(TableBase):
 
 
     def trigger_onInserting(self, record_data):
+        self.assignCode(record_data)
+        
+    def assignCode(self,record_data):    
         code_list = [k for k in (record_data['parent_code']or '').split('.') + [record_data['child_code']] if k]
         record_data['level'] = len(code_list) - 1
         record_data['code'] = '.'.join(code_list)
-        
+    
         
     def trigger_onUpdating(self, record_data, old_record=None):
         if (record_data['child_code'] != old_record['child_code']) or (record_data['parent_code'] != old_record['parent_code']):
             old_code = old_record['code']
-            code_list = [k for k in (record_data['parent_code']or '').split('.') + [record_data['child_code']] if k]
-            record_data['level'] = len(code_list) - 1
-            record_data['code'] = '.'.join(code_list)
+            self.assignCode(record_data)
+
             #print '%s ---> %s' % (old_record['code'],record_data['code'])
             #print 'update children with parent_code =%s' % old_code
             self.batchUpdate(dict(parent_code=record_data['code']), where='$parent_code=:old_code', old_code=old_code)
