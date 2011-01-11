@@ -114,12 +114,16 @@ class GnrWebPage(GnrBaseWebPage):
                                            connection_id=request_kwargs.pop('_connection_id', None),
                                            user=request_kwargs.pop('_user', None))
         page_id = request_kwargs.pop('page_id', None)
-        self.onIniting(request_args, request_kwargs)
+        self.onPreIniting(request_args, request_kwargs)
         self._call_handler = self.get_call_handler(request_args, request_kwargs)
         self.page_item = self._check_page_id(page_id, kwargs=request_kwargs)
         self._workdate = self.page_item['data']['workdate'] #or datetime.date.today()
+        self.onIniting(request_args, request_kwargs)
         self._call_args = request_args or tuple()
         self._call_kwargs = request_kwargs or {}
+
+    def onPreIniting(self, *request_args, **request_kwargs):
+        pass
 
     def _check_page_id(self, page_id=None, kwargs=None):
         if page_id:
