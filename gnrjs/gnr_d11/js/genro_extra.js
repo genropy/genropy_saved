@@ -571,12 +571,10 @@ dojo.declare("gnr.widgets.SearchBox", gnr.widgets.gnrwdg, {
         databag.setItem('menu_dtypes',searchDtypes);
         databag.setItem('caption',defaultLabel);
         this._prepareSearchBoxMenu(searchOn,databag);
-        
-        //sourceNode._('dataFormula',{'path':'.currentValue','script':'value','value':'^.value'});
         sourceNode.setRelativeData(null,databag);
         var searchbox = sourceNode._('div',{nodeId:nodeId});
         sourceNode._('dataController',{'script':'genro.publish(searchBoxId+"_changedValue",currentValue,field)',
-                                       'searchBoxId':nodeId,currentValue:'^.currentValue',field:'=.field'});
+                                       'searchBoxId':nodeId,currentValue:'^.currentValue',field:'^.field'});
         var searchlbl = searchbox._('div',{'float':'left', margin_top:'2px'});
         searchlbl._('span',{'innerHTML':'^.caption',_class:'buttonIcon'});
         searchlbl._('menu',{'modifiers':'*',_class:'smallmenu',storepath:'.menubag',
