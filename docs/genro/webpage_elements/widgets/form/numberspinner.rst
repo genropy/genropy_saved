@@ -1,10 +1,10 @@
-	.. _genro-numberspinner:
+.. _genro_numberspinner:
 
-===============
- numberSpinner
-===============
+=============
+numberSpinner
+=============
 
-	- :ref:`numberspinner-definition-description`
+	- :ref:`numberspinner_def`
 	
 	- :ref:`numberspinner-examples`
 
@@ -12,10 +12,12 @@
 
 	- :ref:`numberspinner-other-attributes`
 
-	.. _numberspinner-definition-description:
+.. _numberspinner_def:
 
 Definition and Description
 ==========================
+	
+	.. method:: pane.numberspinner(?????????) --> mi sembra sia importato paro paro da Dojo!!!
 	
 	numberSpinner is similar to :ref:`genro-numbertextbox`, but makes integer entry easier when small adjustments are required.
 

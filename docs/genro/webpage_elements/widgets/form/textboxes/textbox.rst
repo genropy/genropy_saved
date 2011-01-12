@@ -44,8 +44,6 @@ Examples
 				fb.textbox(value='^.address',lbl='Address')
 				fb.textbox(value='^.email',lbl='e-mail')
 
-.. _below:
-
 .. _textbox_attributes:
 
 Attributes

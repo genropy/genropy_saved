@@ -5,6 +5,7 @@ Common attributes
 =================
 
 .. toctree::
+	:maxdepth: 1
 
 	introduction
 	datapath

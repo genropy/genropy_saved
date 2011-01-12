@@ -1,16 +1,14 @@
 	.. _genro-formbuilder:
 
-=============
- formbuilder
-=============
+===========
+formbuilder
+===========
 
 	- :ref:`formbuilder-description`
-
-	- :ref:`formbuilder-examples`
-
+	
 	- :ref:`formbuilder_attributes`
 	
-	- :ref:`formbuilder-other-attributes`
+	- :ref:`formbuilder-examples`
 	
 	- :ref:`formbuilder-other-features`: :ref:`label-and-lbl`
 
@@ -19,24 +17,62 @@
 Description
 ===========
 
-With formbuilder you have an ordered place to put your HTML object; formbuilder is used in place of an HTML table.
+	.. method:: pane.formbuilder(self, cols=1, dbtable=None, tblclass='formbuilder', lblclass='gnrfieldlabel', lblpos='L', _class='', fieldclass='gnrfield', lblalign=None, lblvalign='middle', fldalign=None, fldvalign='middle', disabled=False, rowdatapath=None, head_rows=None, **kwargs)
 
-To let you see how Genro code is simpler and more compact, we report here a comparison between an HTML table and a Genro formbuilder::
+	With formbuilder you have an ordered place to put your HTML object; formbuilder is used in place of an HTML table.
 	
-	<!-- HTML code: -->
-	<table>
-	    <tr>
-	        <td>
-	            <input type='text' value='name'/>
-	        </td>
-	    </tr>
-	</table>
+	To let you see how Genro code is simpler and more compact, we report here a comparison between an HTML table and a Genro formbuilder::
+		
+		<!-- HTML code: -->
+		<table>
+		    <tr>
+		        <td>
+		            <input type='text' value='name'/>
+		        </td>
+		    </tr>
+		</table>
+		
+		# Genro code:
+		fb = root.formbuilder()
+		fb.textbox(value='^name',lbl='Name')
 	
-	# Genro code:
-	fb = root.formbuilder()
-	fb.textbox(value='^name',lbl='Name')
+	In formbuilder you can put dom and widget elements; its most classic usage is to create a form made by fields and layers, and that's because formbuilder can manage automatically fields and their positioning.
+	
+.. _formbuilder_attributes:
 
-In formbuilder you can put dom and widget elements; its most classic usage is to create a form made by fields and layers, and that's because formbuilder can manage automatically fields and their positioning.
+Attributes
+==========
+
+	**formbuilder attributes**:
+
+	For a complete list of formbuilder's attributes, check the :ref:`genro_library_gnrwebstruct` library reference page.
+	
+	.. note:: you can give CSS attributes to the field by using `fld_` followed by a CSS attribute, like:
+	
+		fld_color='red'
+		
+		In the same way (that is `lbl_` plus a CSS attribute) you can modify lbl appearences, like:
+	
+		lbl_width='10em'
+	
+	**formbuilder's field attributes**:
+	
+	* *colspan*: Set the number of columns occupied by a single field. Default value is ``1``
+	* *label*: If possible, set a label for formbuilder right field-part (more details on this example_). Default value is ``None``
+	* *lbl*: If possible, set a label for formbuilder left field-part (more details on this example_). Default value is ``None``
+	* *pos*: Choose element position. The default value is the first free position. The syntax is ``pos(NUMBER,NUMBER)``, whereas the first value represents a row, the second value represents a column. Other feature: "pos" accepts as a number row two special characters::
+				
+		``+`` to refer itself at the following row
+		``*`` to refer itself at the current row
+	
+	* *value*: Set a path for formbuilder's values. For more details, see :ref:`genro_datapath`. Default value is ``None``
+	
+	.. _formbuilder-other-attributes:
+
+	**common attributes**:
+	
+	* *disabled*: if True, allow to disable this widget. Default value is ``None``. For more information, check the :ref:`genro-disabled` documentation page
+	* *hidden*: if True, allow to hide this widget. Default value is ``None``. For more information, check the :ref:`genro-hidden` documentation page
 
 	.. _formbuilder-examples:
 
@@ -56,66 +92,6 @@ Examples
 				fb.textbox(value='^.job.profession',lbl='Job')
 				fb.textbox(value='^.job.company_name',lbl='Company name')
 				fb.textbox(value='^.job.fiscal_code',lbl='Fiscal code')
-
-.. _formbuilder_attributes:
-
-Attributes
-==========
-
-	For a complete list of formbuilder's attributes, check the :ref:`genro_library_gnrwebstruct` library reference page.
-	
-	.. note:: you can give CSS attributes to the field by using `fld_` followed by a CSS attribute, like:
-	
-		fld_color='red'
-		
-		In the same way (that is `lbl_` plus a CSS attribute) you can modify lbl appearences, like:
-	
-		lbl_width='10em'
-	
-Here we describe the formbuilder's field attributes:
-	
-	+----------------+------------------------------------------------------+--------------------------+
-	|   Attribute    |       Description                                    |   default                |
-	+================+======================================================+==========================+
-	| ``colspan``    | Set the number of columns occupied by a single field |  ``None``                |
-	+----------------+------------------------------------------------------+--------------------------+
-	| ``label``      | If possible, set a label for formbuilder right       |  ``None``                |
-	|                | field-part (more details on this example_)           |                          |
-	+----------------+------------------------------------------------------+--------------------------+
-	| ``lbl``        | If possible, set a label for formbuilder left        |  ``None``                |
-	|                | field-part (more details on this example_)           |                          |
-	+----------------+------------------------------------------------------+--------------------------+
-	| ``pos``        | Choose element position                              |  The first free position |
-	|                |                                                      |                          |
-	|                | syntax: pos(NUMBER,NUMBER)                           |                          |
-	|                |     whereas the first value represents a row,        |                          |
-	|                |     the second value represents a column.            |                          |
-	|                |                                                      |                          |
-	|                | Other feature: "pos" accepts as a number row         |                          |
-	|                | two special characters:                              |                          |
-	|                |                                                      |                          |
-	|                | ``+`` to refer itself at the following row           |                          |
-	|                |                                                      |                          |
-	|                | ``*`` to refer itself at the current row             |                          |
-	+----------------+------------------------------------------------------+--------------------------+
-	| ``value``      | Set a path for formbuilder's values.                 |  ``None``                |
-	|                | For more details, see :ref:`genro_datapath`          |                          |
-	+----------------+------------------------------------------------------+--------------------------+
-
-	.. _formbuilder-other-attributes:
-
-Common attributes:
-==================
-	
-	+--------------------+--------------------------------------------------+--------------------------+
-	|   Attribute        |       Description                                |   default                |
-	+====================+==================================================+==========================+
-	| ``disabled``       | If True, user can't act on the object.           |  ``False``               |
-	|                    | For more details, see :ref:`genro-disabled`      |                          |
-	+--------------------+--------------------------------------------------+--------------------------+
-	| ``hidden``         | Hide the formbuilder/formbuilder's field         |  ``False``               |
-	|                    | See :ref:`genro-hidden`                          |                          |
-	+--------------------+--------------------------------------------------+--------------------------+
 
 	.. _formbuilder-other-features:
 
@@ -149,8 +125,6 @@ label and lbl: an explanation
 				fb.checkbox(value='^.tennis',label='Tennis')
 				fb.radiobutton('Google Chrome',value='^.radio3',group='genre1')
 	
-	#NISO add online demo!
-	
 	To help you in discovering of the formbuilder hidden structure we used the "border" attribute (the outcome doesn't follow the standard of beauty, but the example is instructive!).
 	
 	So replacing the line::
@@ -161,6 +135,4 @@ label and lbl: an explanation
 	
 		fb = pane.formbuilder(datapath='test2',border='5px',cols=2)
 	
-	the effect will be:
-	
-	#NISO add online demo!
+	the effect will be: <#NISO ??? add online demo! />

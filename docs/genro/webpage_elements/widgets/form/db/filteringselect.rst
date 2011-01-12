@@ -1,16 +1,16 @@
-	.. _genro-filteringselect:
+.. _genro_filteringselect:
 
-=================
- filteringSelect
-=================
+===============
+filteringSelect
+===============
 
-	- :ref:`filteringselect-definition-description`
+	- :ref:`filteringselect_definition_description`
 	
 	- :ref:`filteringSelect_attributes`
 	
-	- :ref:`filteringselect-examples`: :ref:`bag_example`, :ref:`values_example`, :ref:`filteringselect_label`
+	- :ref:`filteringselect_examples`: :ref:`bag_example`, :ref:`values_example`, :ref:`filteringselect_label`
 	
-	.. _filteringselect-definition-description:
+.. _filteringselect_definition_description:
 
 Definition and Description
 ==========================
@@ -46,7 +46,7 @@ Attributes
 	
 	You can't use the ``label`` attribute; if you want to give a label to your filteringSelect you have to:
 
-	.. _filteringselect-examples:
+.. _filteringselect_examples:
 
 Examples
 ========

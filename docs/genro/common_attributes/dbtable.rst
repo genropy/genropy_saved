@@ -34,9 +34,9 @@ Validity and default value
 		
 		- :ref:`genro-field`
 		
-		- :ref:`genro-dbselect`
+		- :ref:`genro_dbselect`
 		
-		- :ref:`genro-dbcombobox`
+		- :ref:`genro_dbcombobox`
 
 	**default value:** the default value of ``dbtable`` is ``None``::
 
@@ -51,7 +51,7 @@ Examples
 	
 		- If you are working on :ref:`genro-formbuilder` and :ref:`genro-field` form widgets, then check the :ref:`genro-field` page for all the details.
 		
-		- If you are working on :ref:`genro-dbselect` and :ref:`genro-dbcombobox` form widgets, then check the dbSelect and dbCombobox :ref:`db-examples` for all the details.
+		- If you are working on :ref:`genro_dbselect` and :ref:`genro_dbcombobox` form widgets, then check the dbSelect and dbCombobox :ref:`db-examples` for all the details.
 		
 
 **Footnotes:**

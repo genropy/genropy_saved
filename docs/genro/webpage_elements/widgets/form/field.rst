@@ -1,23 +1,21 @@
 	.. _genro-field:
 
-=======
- field
-=======
+=====
+field
+=====
 
 	- :ref:`field-definition-description`
-
-	- :ref:`field-examples`: :ref:`first-one`, :ref:`second-one`, :ref:`third-one`
-
+	
 	- :ref:`field-attributes`
 	
-	- :ref:`field-other-attributes`
-
+	- :ref:`field-examples`: :ref:`first-one`, :ref:`second-one`, :ref:`third-one`
+	
 	.. _field-definition-description:
 
 Definition and Description
 ==========================
 
-	.. method:: pane.field(ColumnName, [lbl='None'[, limit=10[, rowcaption=None[, zoom=True]]]])
+	.. method:: pane.field(field=None, [lbl='None'[, rowcaption=None[, limit=10[, zoom=True]]]])
 
 	``field`` is used to view and select data included in a database :ref:`genro-database_table` (and, eventually, through the ``zoom`` attribute, is used to modify them).
 
@@ -31,6 +29,24 @@ Definition and Description
 	* :ref:`second-one`
 	* :ref:`third-one`
 
+	.. _field-attributes:
+
+Attributes
+==========
+	
+	**field attributes**:
+	
+	* *field*: MANDATORY - The first field's parameter; it is field's query path; its complete syntax is ``packageName.tableName.tableAttributeName``. It can be used in a combo with ``dbtable`` (a ``formbuilder`` attribute) and with the ``maintable``
+	* *limit*: The max number of rows displayed in a field as response to user request. The last line is always a line with no characters, so user can choose it to undo his request
+	* *lbl*: Set the Field label. Properly, "lbl" is a formbuilder's child attribute, so if you don't specify it, then Field will inherit it from the :ref:`genro-name_long` attribute of the requested data
+	* *rowcaption*: Allow user to view records through :ref:`genro-name_long` value. Without ``rowcaption``, user will see value ID. Check for more information on :ref:`genro-database_rowcaption` page
+	* *zoom*: It allows to open the linked record in its :ref:`genro-database_table`. For further details, check :ref:`genro_zoom`
+	
+	**Common attributes**:
+		
+	* *disabled*: if True, allow to disable this widget. Default value is ``None``. For more information, check the :ref:`genro-disabled` documentation page
+	* *hidden*: if True, allow to hide this widget. Default value is ``None``. For more information, check the :ref:`genro-hidden` documentation page
+	
 	.. _field-examples:
 
 Examples
@@ -83,59 +99,3 @@ internal dbtable
 				fb.field('showcase.cast.person_id',rowcaption='$name')
 				
 	In this example, the first ``Field`` attribute (its query-path) has the syntax ``packageName.tableName.tableAttributeName``. Genro trasforms the ``Field`` into a ``dbselect``, splitting the query-path in two: ``packageName.tableName`` will go as the string applied to the ``dbtable`` attribute, while the ``tableAttributeName`` will go as the string applied to the ``value`` attribute. So, the path of field value will be ``/test1/person_id/ID``, where ``test1`` is the name we chose for the datapath, ``person_id`` is the name of the attribute we chose for user query contained in the database model called ``cast`` and the ID is the record ID.
-
-	.. _field-attributes:
-
-Attributes
-==========
-
-	+--------------------+-------------------------------------------------+--------------------------+
-	|   Attribute        |          Description                            |   Default                |
-	+====================+=================================================+==========================+
-	|  ``limit``         | The max number of rows displayed in a field as  |  ``10``                  |
-	|                    | response to user request. The last line is      |                          |
-	|                    | always a line with no characters, so user can   |                          |
-	|                    | choose it to undo his request                   |                          |
-	+--------------------+-------------------------------------------------+--------------------------+
-	|  ``lbl``           | Set the Field label. Properly, "lbl" is a       |  name_long value         |
-	|                    | formbuilder's child attribute, so if you don't  |                          |
-	|                    | specify it, then Field will inherit it from the |                          |
-	|                    | :ref:`genro-name_long` attribute of the         |                          |
-	|                    | requested data                                  |                          |
-	+--------------------+-------------------------------------------------+--------------------------+
-	|  ColumnName        | MANDATORY - The first field's parameter; it is  |  ``None``                |
-	|                    | field's query path; its complete syntax is      |                          |
-	|                    | ``packageName.tableName.tableAttributeName``.   |                          |
-	|                    | It can be used in a combo with ``dbtable``      |                          |
-	|                    | (a ``formbuilder`` attribute) and with the      |                          |
-	|                    | ``maintable``                                   |                          |
-	+--------------------+-------------------------------------------------+--------------------------+
-	| ``rowcaption``     | Allow user to view records through              |  ``None``                |
-	|                    | :ref:`genro-name_long` value.                   |                          |
-	|                    | Without ``rowcaption``, user will see value ID. |                          |
-	|                    | Check for more information on                   |                          |
-	|                    | :ref:`genro-database_rowcaption` page           |                          |
-	+--------------------+-------------------------------------------------+--------------------------+
-	| ``zoom``           | It allows to open the linked record in its      |  ``True``                |
-	|                    | :ref:`genro-database_table`. For further        |                          |
-	|                    | details, check :ref:`genro_zoom`                |                          |
-	+--------------------+-------------------------------------------------+--------------------------+
-	
-	.. _field-other-attributes:
-	
-Common attributes
-=================
-
-	+--------------------+-------------------------------------------------+--------------------------+
-	|   Attribute        |          Description                            |   Default                |
-	+====================+=================================================+==========================+
-	| ``disabled``       | If True, user can't act on the dbselect.        |  ``False``               |
-	|                    | For more details, see :ref:`genro-disabled`     |                          |
-	+--------------------+-------------------------------------------------+--------------------------+
-	| ``hidden``         | Hide the dbselect.                              |  ``False``               |
-	|                    | See :ref:`genro-hidden`                         |                          |
-	+--------------------+-------------------------------------------------+--------------------------+
-	| ``value``          | Set a path for dbselect's values.               |  ``None``                |
-	|                    | For more details, see :ref:`genro_datapath`     |                          |
-	+--------------------+-------------------------------------------------+--------------------------+
-	

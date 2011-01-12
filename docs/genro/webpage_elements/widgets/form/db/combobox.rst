@@ -25,7 +25,7 @@ Definition and Description
 	
 	In combobox you have to provide a list of acceptable values: to upload them, you can use a Bag_ or you can use the values_ attribute. As the user types, partially matched values will be shown in a pop-up menu below the input text box. Like an input text field, user can also type values that doesn't belong to the list of accetable ones.
 	
-	The combobox looks like a :ref:`genro-filteringselect`: the only difference is that it doesn't support keys.
+	The combobox looks like a :ref:`genro_filteringselect`: the only difference is that it doesn't support keys.
 	
 	.. _combobox-attributes:
 	

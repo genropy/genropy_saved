@@ -1,4 +1,4 @@
-	.. _genro-dbselect-dbcombobox:
+	.. _genro_dbselect-dbcombobox:
 	
 ============================================
  dbSelect and dbCombobox: common attributes
@@ -13,7 +13,7 @@
 Common attributes
 =================
 
-	Here we show the attributes that belong both to :ref:`genro-dbselect` than to :ref:`genro-dbCombobox`:
+	Here we show the attributes that belong both to :ref:`genro_dbselect` than to :ref:`genro_dbcombobox`:
 
 	+--------------------+---------------------------------------------------+--------------------------+
 	|   Attribute        |          Description                              |   Default                |

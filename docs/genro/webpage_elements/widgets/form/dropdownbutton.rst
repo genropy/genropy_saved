@@ -19,9 +19,9 @@ Definition and Description
 
 	.. method:: pane.dropdownbutton(label=None[, **kwargs])
 	
-	Same definition of Dojo dropdownbuttons. To show it, click here_.
+	Same definition of Dojo dropdownbutton_.
 	
-	.. _here: http://docs.dojocampus.org/dijit/form/DropDownButton
+	.. _dropdownbutton: http://docs.dojocampus.org/dijit/form/DropDownButton
 	
 	Constructs a button that opens a :ref:`genro_menu` or a ``tooltipdialog``.
 	
@@ -30,11 +30,11 @@ Definition and Description
 Attributes
 ==========
 	
-	**combobox attributes**:
+	**dropdownbutton attributes**:
 	
 		There aren't particular attributes.
 	
-	**Common attributes**:
+	**common attributes**:
 		
 	* *disabled*: if True, allow to disable this widget. Default value is ``None``. For more information, check the :ref:`genro-disabled` documentation page
 	* *hidden*: if True, allow to hide this widget. Default value is ``None``. For more information, check the :ref:`genro-hidden` documentation page

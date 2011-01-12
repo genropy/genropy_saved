@@ -1,4 +1,4 @@
-	.. _genro-button:
+.. _genro_button:
 
 ======
 button

@@ -8,52 +8,50 @@ menu
 	
 	- :ref:`menu_definition_description`
 	
-	- :ref:`menu_syntax`
+	- :ref:`menu_attributes`
 	
 	- :ref:`menu_examples`
-	
-	- :ref:`menu_attributes`
 	
 .. _menu_definition_description:
 	
 Definition and Description
 ==========================
 
+	.. method:: dropdownbutton.menu()
+
 	Constructs a button that opens a :ref:`genro_menu` or a ``tooltipdialog``.
-
-.. _menu_syntax:
-
-Syntax
-======
 
 	* You can create a *menu* with::
 
-		dropdownbutton('NameOfTheMenu')
+		ddb = pane.dropdownbutton('NameOfTheMenu')
+		menu = ddb.menu()
 
 	* Every *menuline* is created through the ``menuline`` attribute:
 
-	.. method:: menuline(label,[params])
+		.. method:: menu.menuline(label, action='JavascriptCode'[,**kwargs])
 
-		ddb=pane.dropdownbutton('Menù')
-		dmenu=ddb.menu()
-		dmenu.menuline('Open...', action="FIRE msg='Opening!';")
-		dmenu.menuline('Close', action="FIRE msg='Closing!';")
-		dmenu.menuline('-')
-		submenu=dmenu.menuline('I have submenues').menu()
-		submenu.menuline('To do this', action="alert('Doing this...')")
-		submenu.menuline('Or to do that', action="alert('Doing that...')")
-		dmenu.menuline('-')
-		dmenu.menuline('Quit',action="alert('Quitting...')")
-
-	 where the first parameter is the label, ::
+	 where the first parameter is the label, whie the second one is the :ref:`button_action` attribute (an attribute of the :ref:`genro_button` widget) ::
 
 		menuline('Open...',action="alert('Opening...')")
-		menuline('')
 
-
-	* To create a dividing line use ``-`` in a ``menuline``::
+	* To create a dividing line use ``-`` in a ``menuline`` in place of its label::
 
 		menuline('-')
+
+.. _menu_attributes:
+
+Attributes
+==========
+	
+	**menu attributes**:
+	
+		There aren't particular attributes.
+	
+	**common attributes**:
+	
+	* *disabled*: if True, allow to disable this widget. Default value is ``None``. For more information, check the :ref:`genro-disabled` documentation page
+	* *hidden*: if True, allow to hide this widget. Default value is ``None``. For more information, check the :ref:`genro-hidden` documentation page
+	* *label*: the label of the widget.
 
 .. _menu_examples:
 
@@ -63,22 +61,14 @@ Examples
 	**Example**::
 
 		def main(self,root,**kwargs):
-			ddb=root.dropdownbutton('Menu')    # Same meaning: ddb=root.dropdownbutton(label='Menu')
-			dmenu=ddb.menu()
+			ddb = pane.dropdownbutton('Menu')    # Same meaning: ddb=pane.dropdownbutton(label='Menu')
+			dmenu = ddb.menu()
 			dmenu.menuline('Open...',action="alert('Opening...')")
 			dmenu.menuline('Close',action="alert('Closing...')")
 			dmenu.menuline('-')
-			submenu=dmenu.menuline('I have submenues').menu() # With this line you create a submenu
+			submenu = dmenu.menuline('I have submenues').menu() # With this line you create a submenu
 			submenu.menuline('To do this',action="alert('Doing this...')")
 			submenu.menuline('Or to do that',action="alert('Doing that...')")
 			dmenu.menuline('-')
-			dmenu.menuline('Quit',action="alert('Quitting...')").
-
-Common attributes
-=================
-
-	Here we list all the attributes that belong both to dropdownbutton, to menu and to other widgets. Click on them for a complete documentation:
+			dmenu.menuline('Quit',action="alert('Quitting...')")
 	
-	* :ref:`genro-disabled`
-	* :ref:`genro-hidden`
-	* :ref:`genro-label`
