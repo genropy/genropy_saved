@@ -68,7 +68,7 @@ dojo.declare("gnr.GnrDevHandler", null, {
         genro.src.getNode()._('div', '_devSrcInspector_');
         var node = genro.src.getNode('_devSrcInspector_').clearValue();
         node.freeze();
-        node._('PaletteBagEditor',{'paletteCode':'srcInspector',nodeId:'srcInspector',id:'gnr_srcInspector','dockTo':true,
+        node._('PaletteBagNodeEditor',{'paletteCode':'srcInspector',nodeId:'srcInspector',id:'gnr_srcInspector','dockTo':true,
                                         title:'Source Node Inspector',style:"font-family:monaco;",
                                         'bagpath':'*S'});
         
@@ -225,7 +225,7 @@ dojo.declare("gnr.GnrDevHandler", null, {
         var right = bc._('contentPane',{'region':'right','splitter':true,width:'50%'});
         var treeId='palette_debugger_tree';
         var storepath='gnr.debugger.main';
-        right._('BagEditor',{'nodeId':treeId+'_editbagbox','datapath':'.grid','bagpath':storepath,
+        right._('BagNodeEditor',{'nodeId':treeId+'_editbagbox','datapath':'.grid','bagpath':storepath,
                              'readOnly':true,'valuePath':'.bottomData','showBreadcrumb':false});
         var bottom = bc._('contentPane',{'region':'bottom','splitter':true,height:'50%','overflow':'hidden'});
         bottom._('div',{'innerHTML':'^.grid.bottomData',height:'100%',
