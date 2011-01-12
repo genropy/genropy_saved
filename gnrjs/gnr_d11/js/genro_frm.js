@@ -36,6 +36,8 @@ dojo.declare("gnr.GnrFrmHandler", null, {
         this.formDatapath = formDatapath;
         this.pkeyPath = pkeyPath;
         this.sourceNode = sourceNode;
+        dojo.subscribe(form_id+'_save',this,this.save);
+        dojo.subscribe(form_id+'_load',this,this.load);
     },
     reset: function() {
         this.resetChanges();
