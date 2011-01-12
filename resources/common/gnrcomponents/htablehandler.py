@@ -332,7 +332,7 @@ class HTableHandler(HTableHandlerBase):
 
         bc.dataRpc('.edit.del_result', 'deleteDbRow', pkey='=.edit.pkey',
                    _POST=True, table=table, _delStatus='^.edit.delete',
-                   _if='_delStatus=="confirm"', _else='genro.dlg.ask(title,msg,null,"#%s.edit.delete")' % nodeId,
+                   _if='_delStatus=="confirm"', _else='if(_delStatus!="cancel"){genro.dlg.ask(title,msg,null,"#%s.edit.delete")}' % nodeId,
                    title='!!Deleting record', msg='!!You cannot undo this operation. Do you want to proceed?',
                    _onResult="""var path = $2.currpath.split('.');
                                  path.pop();
