@@ -1008,11 +1008,8 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
             if (initialize) {
                 this.setDataNodeValue();
             } else {
-                
-               // if(path.indexOf('.')!=0){
-               //     genro.getDataNode(path, true);
-               // }
-                //genro.setData(path,null);
+                path = this.absDatapath(path);
+                genro.getDataNode(path, true);
             }
             var timing = objectPop(attributes, '_timing');
 
