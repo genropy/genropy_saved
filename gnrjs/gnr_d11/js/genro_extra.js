@@ -488,9 +488,6 @@ dojo.declare("gnr.widgets.BagEditor", gnr.widgets.gnrwdg, {
     setCurrentNode:function(gnrwdg,item){
         var bagpath = gnrwdg.bagpath;
         var sourceNode = gnrwdg.sourceNode;
-        if(item===null){
-            return;
-        }
         if(typeof(item)=='string'){
             item = sourceNode.getRelativeData(bagpath).getNode(item);
         }
