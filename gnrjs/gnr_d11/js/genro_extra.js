@@ -416,7 +416,7 @@ dojo.declare("gnr.widgets.PaletteTree", gnr.widgets.gnrwdg, {
             }if(editable){
                 var bottom = bc._('ContentPane',{'region':'bottom',height:'30%',
                                                  splitter:true}); 
-                bottom._('BagEditor',{nodeId:treeId+'_editbagbox',datapath:'.bageditor',bagpath:storepath});
+                bottom._('BagEditor',{nodeId:treeId+'_editbagbox',datapath:'.bageditor',bagpath:pane.getParentNode().absDatapath(storepath)});
             }    
         }
         pane = bc._('ContentPane',{region:'center'});
@@ -488,10 +488,13 @@ dojo.declare("gnr.widgets.BagEditor", gnr.widgets.gnrwdg, {
     setCurrentNode:function(gnrwdg,item){
         var bagpath = gnrwdg.bagpath;
         var sourceNode = gnrwdg.sourceNode;
-        if(typeof(item)=='string'){
-            item = genro.getData(bagpath).getNode(item);
+        if(item===null){
+            return;
         }
-        var itempath = item.getFullpath(null,genro.getData(bagpath));
+        if(typeof(item)=='string'){
+            item = sourceNode.getRelativeData(bagpath).getNode(item);
+        }
+        var itempath = item.getFullpath(null,sourceNode.getRelativeData(bagpath));
         sourceNode.setRelativeData('.currentEditPath',itempath);
         gnrwdg.currentEditPath = itempath;
         var newstore = new gnr.GnrBag();
