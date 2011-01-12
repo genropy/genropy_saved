@@ -4179,7 +4179,15 @@ dojo.declare("gnr.widgets.Tree", gnr.widgets.baseDojo, {
             }
             var editBagBoxNode = genro.nodeById(nodeId+'_editbagbox');
             if (editBagBoxNode){
-                dojo.connect(widget,'_updateSelect',function(item){genro.publish(nodeId+'_editbagbox_editnode',item)});
+                dojo.connect(widget,'_updateSelect',function(item,node){
+                    if(!(item instanceof gnr.GnrBagNode)){
+                        if(item===null){
+                            return;
+                        }
+                        item = node.getParent().item;
+                    }
+                    genro.publish(nodeId+'_editbagbox_editnode',item)
+                });
             }
         }
 
