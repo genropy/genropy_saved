@@ -131,8 +131,8 @@ dojo.declare("gnr.GnrWdgHandler", null, {
             'PaletteGrid':'',
             'Palette':'',
             'SearchBox':'',
-            'BagEditor':'',
-            'PaletteBagEditor':''
+            'BagNodeEditor':'',
+            'PaletteBagNodeEditor':''
         };
         var tag;
         for (tag in this.widgetcatalog) {
