@@ -197,7 +197,7 @@ dojo.declare("gnr.GnrDevHandler", null, {
                                         title:'Developer tools',style:"font-family:monaco;"});
         pg._('paletteTree',{'paletteCode':'cliDatastore',title:'Data',
                            storepath:'*D',searchOn:true,tree_inspect:'shift',
-                           editable:true,tree_labelAttribute:null});
+                           editable:true,tree_labelAttribute:null,tree_hideValues:false});
         var sourcePane = pg._('paletteTree',{'paletteCode':'cliSourceStore',title:'Source',
                            storepath:'*S',searchOn:true,tree_inspect:'shift',
                            editable:true,
