@@ -232,6 +232,9 @@ dojo.declare("gnr.GnrFrmHandler", null, {
                 else if (value instanceof gnr.GnrBag) {
                     sendBag = (sendback == true) || this.hasChangesAtPath(currpath);
                     if (sendBag) {
+                        value.walk(function(n){
+                            objectPop(n.attr,'_loadedValue');
+                        },'static')
                         data.setItem(node.label, value, objectUpdate({'_gnrbag':true}, node.attr));
                         data.__isRealChange = true;
                     }
