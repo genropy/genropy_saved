@@ -1282,8 +1282,8 @@ dojo.declare("gnr.GnrBag", null, {
      */
 
     getNode: function(path, asTuple, autocreate, _default) {
-        if (path == null) {
-            return;
+        if (!path) {
+            return this.getParentNode();
         }
         /*if (path%1==0){ 
          alert('path intero')
