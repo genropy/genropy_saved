@@ -28,7 +28,6 @@ dbCombobox attributes
 
 	For the list of dbCombobox attributes, please check :ref:`db-genro-attributes`.
 
-
 	.. _dbcombobox-examples:
 
 Examples

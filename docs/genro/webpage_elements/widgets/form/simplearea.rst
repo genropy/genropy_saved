@@ -1,25 +1,45 @@
-	.. _genro-simplearea:
+.. _genro_simplearea:
 
 ================
- simpletextarea
+ simpleTextarea
 ================
 
-	- :ref:`simpletextarea-definition-description`
-
-	- :ref:`simpletextarea-examples`
-
+	- :ref:`simplearea_def`
+	
 	- :ref:`simpletextarea_attributes`
+	
+	- :ref:`simpletextarea_examples`
 
-	- :ref:`simpletextarea-other-attributes`
-
-	.. _simpletextarea-definition-description:
+.. _simplearea_def:
 
 Definition and Description
 ==========================
 
+	.. note:: The Genro simpleTextarea has been taken from Dojo without adding any modifies. In this page you will find some interesting features that we want to point up. For more information, check the Dojo's simpleTextarea_ documentation.
+	
+	.. _simpleTextarea: http://docs.dojocampus.org/dijit/form/SimpleTextarea
+
+	.. method:: simpleTextarea([default=None[, **kwargs]])
+
 	With simpletextarea you can add an area for user writing.
 
-	.. _simpletextarea-examples:
+.. _simpletextarea_attributes:
+
+Attributes
+==========
+
+	**simpleTextarea attributes**:
+
+	* *default*: Add a text to the area. Default value is ``None``
+	
+	**common attributes**:
+	
+	* *disabled*: if True, allow to disable this widget. Default value is ``None``. For more information, check the :ref:`genro-disabled` documentation page
+	* *hidden*: if True, allow to hide this widget. Default value is ``None``. For more information, check the :ref:`genro-hidden` documentation page
+	* *label*: You can't use the ``label`` attribute; if you want to give a label to your widget, check the :ref:`lbl_formbuilder` example
+	* *value*: specify the path of the widget's value. For more information, check the :ref:`genro_datapath` documentation page
+	
+.. _simpletextarea_examples:
 
 Examples
 ========
@@ -28,41 +48,6 @@ Examples
 
 		class GnrCustomWebPage(object):
 			def main(self,root,**kwargs):
-				root.simpleTextarea(value='^.simpleTextarea',height='80px',width='30em',
+				root.simpleTextarea(value='^.area',height='80px',width='30em',
 				                    colspan=2,color='blue',font_size='1.2em',
-				                    default='A simple area to contain text.')
-
-.. _simpletextarea_attributes:
-
-Attributes
-==========
-
-	+--------------------+-------------------------------------------------+--------------------------+
-	|   Attribute        |          Description                            |   Default                |
-	+====================+=================================================+==========================+
-	| ``font_size``      | CSS attribute                                   |  ``1em``                 |
-	+--------------------+-------------------------------------------------+--------------------------+
-	| ``text_align``     | CSS attribute                                   |  ``left``                |
-	+--------------------+-------------------------------------------------+--------------------------+
-
-	.. _simpletextarea-other-attributes:
-
-Common attributes
-=================
-
-	+--------------------+-------------------------------------------------+--------------------------+
-	|   Attribute        |          Description                            |   Default                |
-	+====================+=================================================+==========================+
-	| ``default``        | Add a text to the area.                         |  ``None``                |
-	|                    | For more details, see :ref:`genro-default`      |                          |
-	+--------------------+-------------------------------------------------+--------------------------+
-	| ``disabled``       | If True, user can't act on the area.            |  ``False``               |
-	|                    | For more details, see :ref:`genro-disabled`     |                          |
-	+--------------------+-------------------------------------------------+--------------------------+
-	| ``hidden``         | Hide the simpletextarea.                        |  ``False``               |
-	|                    | See :ref:`genro-hidden`                         |                          |
-	+--------------------+-------------------------------------------------+--------------------------+
-	| ``value``          | Set a path for simpletextarea's value.          |  ``None``                |
-	|                    | For more details, see :ref:`genro_datapath`     |                          |
-	+--------------------+-------------------------------------------------+--------------------------+
-	
+				                    default='A simple area to contain text.', lbl='text area')

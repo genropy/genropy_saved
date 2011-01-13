@@ -1,27 +1,46 @@
-	.. _genro-numbertextbox:
+.. _genro_numbertextbox:
 
-===============
- NumberTextbox
-===============
+=============
+numberTextbox
+=============
 
-	- :ref:`numberTextbox-definition-description`
-
-	- :ref:`numberTextbox-examples`
-
+	- :ref:`numberTextbox_def`
+	
 	- :ref:`numberTextbox_attributes`
+	
+	- :ref:`numberTextbox_examples`
 
-	- :ref:`numberTextbox-other-attributes`
+	.. note:: We recommend you to read :ref:`genro-textboxes` first.
 
-	We recommend you to read :ref:`genro-textboxes` first.
-
-	.. _numberTextbox-definition-description:
+.. _numberTextbox_def:
 
 Definition and Description
 ==========================
 
+	.. method:: pane.numberTextbox([default=None[, places=3]])
+	
 	A simple number textbox.
+	
+.. _numberTextbox_attributes:
 
-	.. _numberTextbox-examples:
+Attributes
+==========
+	
+	+-----------------------+---------------------------------------------------------+-------------+
+	|   Attribute           |          Description                                    |   Default   |
+	+=======================+=========================================================+=============+
+	| ``default``           | Add a default number to your numberTextbox              |  ``None``   |
+	+-----------------------+---------------------------------------------------------+-------------+
+	| ``places``            | Numbers of decimals. If it's reached the following      |  ``3``      |
+	|                       | decimal to the last supported one, a tooltip error      |             |
+	|                       | will warn user                                          |             |
+	+-----------------------+---------------------------------------------------------+-------------+
+	
+	**common attributes**:
+
+		For common attributes, see :ref:`textboxes_attributes`
+
+.. _numberTextbox_examples:
 
 Examples
 ========
@@ -31,29 +50,3 @@ Examples
 		class GnrCustomWebPage(object):
 			def main(self,root,**kwargs):
 				root.numberTextbox(value='^numberTextbox',places=2)
-
-.. _numberTextbox_attributes:
-
-Attributes
-==========
-	
-	+-----------------------+---------------------------------------------------------+-------------+
-	|   Attribute           |          Description                                    |   Default   |
-	+=======================+=========================================================+=============+
-	| ``default``           | Add a default number to your text box                   |  ``None``   |
-	+-----------------------+---------------------------------------------------------+-------------+
-	| ``font_size``         | CSS attribute                                           |  ``1em``    |
-	+-----------------------+---------------------------------------------------------+-------------+
-	| ``text_align``        | CSS attribute                                           |  ``left``   |
-	+-----------------------+---------------------------------------------------------+-------------+
-	| ``places``            | Numbers of decimals. If it's reached the following      |  ``3``      |
-	|                       | decimal to the last supported one, a tooltip error      |             |
-	|                       | will warn user                                          |             |
-	+-----------------------+---------------------------------------------------------+-------------+
-	
-	.. _numberTextbox-other-attributes:
-
-Common attributes
-=================
-
-	For common attributes, see :ref:`textboxes-attributes`

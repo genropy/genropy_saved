@@ -19,7 +19,7 @@ Definition and Description
 
 	``field`` is used to view and select data included in a database :ref:`genro-database_table` (and, eventually, through the ``zoom`` attribute, is used to modify them).
 
-	Its type is inherited from the type of data contained in the table to which ``field`` refers. For example, if ``field`` catches data from a :ref:`genro-numbertextbox`, its type is actually a ``numberTextbox``.
+	Its type is inherited from the type of data contained in the table to which ``field`` refers. For example, if ``field`` catches data from a :ref:`genro_numbertextbox`, its type is actually a ``numberTextbox``.
 
 	``field`` MUST be a child of the form widget called :ref:`genro-formbuilder`, and ``formbuilder`` itself MUST have a :ref:`genro_datapath` for inner relative path gears. So, ``field`` search a form to bind itself to (so don't forget to link every ``field`` to a ``formbuilder``!).
 
@@ -46,6 +46,7 @@ Attributes
 		
 	* *disabled*: if True, allow to disable this widget. Default value is ``None``. For more information, check the :ref:`genro-disabled` documentation page
 	* *hidden*: if True, allow to hide this widget. Default value is ``None``. For more information, check the :ref:`genro-hidden` documentation page
+	* *label*: You can't use the ``label`` attribute; if you want to give a label to your widget, check the :ref:`lbl_formbuilder` example
 	
 	.. _field-examples:
 

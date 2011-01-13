@@ -8,7 +8,7 @@ filteringSelect
 	
 	- :ref:`filteringSelect_attributes`
 	
-	- :ref:`filteringselect_examples`: :ref:`bag_example`, :ref:`values_example`, :ref:`filteringselect_label`
+	- :ref:`filteringselect_examples`: :ref:`bag_example`, :ref:`values_example`
 	
 .. _filteringselect_definition_description:
 
@@ -41,7 +41,7 @@ Attributes
 		
 	* *disabled*: if True, allow to disable this widget. Default value is ``None``. For more information, check the :ref:`genro-disabled` documentation page
 	* *hidden*: if True, allow to hide this widget. Default value is ``None``. For more information, check the :ref:`genro-hidden` documentation page
-	* *label*: You can't use the ``label`` attribute; if you want to give a label to your filteringSelect, check the :ref:`filteringselect_label` example
+	* *label*: You can't use the ``label`` attribute; if you want to give a label to your widget, check the :ref:`lbl_formbuilder` example
 	* *value*: specify the path of the widget's value. For more information, check the :ref:`genro_datapath` documentation page
 	
 	You can't use the ``label`` attribute; if you want to give a label to your filteringSelect you have to:
@@ -109,21 +109,3 @@ Filling a filteringSelect through "values" attribute
 	.. note:: Pay attention not to confuse ``value`` with ``values``: ``value`` is used to allocate user data in a well determined :ref:`genro_datapath`, while ``values`` is used to fill the filteringSelect.
 	
 	.. warning:: Unlike Dojo, actually filteringSelect doesn't warn user for its wrong insertion. You can add a warning for the user through a "validate" attribute (see :ref:`genro-validations`).
-
-.. _filteringselect_label:
-
-To label a filteringSelect
-==========================
-
-		#. create a form (use the :ref:`genro-formbuilder` form widget)
-		#. append the filteringSelect to the formbuilder
-		#. use the formbuilder's ``lbl`` attribute on your filteringSelect.
-	
-		**Example**::
-			
-			class GnrCustomWebPage(object):
-				def main(self,root,**kwargs):
-					fb = root.formbuilder(cols=2)
-					fb.filteringSelect(value='^sport',lbl='Sport',
-					                   values="""SC:Soccer,BK:Basket,HK:Hockey,
-					                             TE:Tennis,BB:Baseball,SB:Snowboard""")

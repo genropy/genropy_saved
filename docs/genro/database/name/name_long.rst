@@ -11,8 +11,8 @@
 	+--------------------+-------------------------+
 	|   Attribute        |   Objects               |
 	+====================+=========================+
-	| ``rowcaption``     |  :ref:`genro-dbselect`  |
+	| ``rowcaption``     |  :ref:`genro_dbselect`  |
 	|                    |                         |
-	|                    |  :ref:`genro-dbcombobox`|
+	|                    |  :ref:`genro_dbcombobox`|
 	+--------------------+-------------------------+
 	

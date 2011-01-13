@@ -96,7 +96,7 @@ Examples
 	
 				hour.button('Update',fire='updateTime',margin='20px')
 				
-	Please note that the ``fire`` attribute in :ref:`genro-button` is a shortcut for a script that puts 'true' in the destination path and then put again false. So for a little while we have a true in that location.
+	Please note that the ``fire`` attribute in :ref:`genro_button` is a shortcut for a script that puts 'true' in the destination path and then put again false. So for a little while we have a true in that location.
 
 	Here lies the ``rpc server method`` definition::
 

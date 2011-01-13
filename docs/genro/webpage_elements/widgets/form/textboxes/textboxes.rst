@@ -1,17 +1,19 @@
 	.. _genro-textboxes:
 
 ==================================
- An Introduction to the Textboxes
+ an Introduction to the Textboxes
 ==================================
 
 	- :ref:`textboxes-introduction`
 
-	- :ref:`textboxes-attributes`
+	- :ref:`textboxes_attributes`
 
 	.. _textboxes-introduction:
 
 Definition
 ==========
+
+	.. note:: The Genro textboxes have been taken from Dojo without adding any modifies. In this page and in the next one you will find some interesting features that we want to point up. For more information, check the Dojo's documentation.
 
 	Textbox is a form widget used to insert data.
 
@@ -23,31 +25,21 @@ Definition
 
 	- :ref:`genro-datetextbox`
 
-	- :ref:`genro-numbertextbox`
+	- :ref:`genro_numbertextbox`
 
 	- :ref:`genro-timetextbox`
 
-	The main feature of each of these textboxes is that Genro combines Dojo's textboxes with HTML's textboxes.
-
-	.. _textboxes-attributes:
+.. _textboxes_attributes:
 
 Common attributes
 =================
 
 	Here we show the attributes that belong to every textbox:
 
-	+--------------------+-------------------------------------------------+--------------------------+
-	|   Attribute        |          Description                            |   Default                |
-	+====================+=================================================+==========================+
-	| ``datapath``       | Set path for data.                              |  ``None``                |
-	|                    | For more details, see :ref:`genro_datapath`     |                          |
-	+--------------------+-------------------------------------------------+--------------------------+
-	| ``disabled``       | If True, user can't act on the textbox.         |  ``False``               |
-	|                    | For more details, see :ref:`genro-disabled`     |                          |
-	+--------------------+-------------------------------------------------+--------------------------+
-	| ``hidden``         | Hide the textbox.                               |  ``False``               |
-	|                    | See :ref:`genro-hidden`                         |                          |
-	+--------------------+-------------------------------------------------+--------------------------+
-	| ``value``          | Set a path for textbox's value.                 |  ``None``                |
-	|                    | For more details, see :ref:`genro_datapath`     |                          |
-	+--------------------+-------------------------------------------------+--------------------------+
+	**common attributes**:
+	
+	* *disabled*: if True, allow to disable this widget. Default value is ``None``. For more information, check the :ref:`genro-disabled` documentation page
+	* *hidden*: if True, allow to hide this widget. Default value is ``None``. For more information, check the :ref:`genro-hidden` documentation page
+	* *label*: You can't use the ``label`` attribute; if you want to give a label to your widget, check the :ref:`lbl_formbuilder` example
+	* *value*: specify the path of the widget's value. For more information, check the :ref:`genro_datapath` documentation page
+	

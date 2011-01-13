@@ -1,32 +1,46 @@
 	.. _genro-textbox:
 
-=========
- Textbox
-=========
+=======
+textbox
+=======
 
 	- :ref:`textbox-definition-description`
-
+	
+	- :ref:`textbox_attributes`
+	
 	- :ref:`textbox-examples`
 
-	- :ref:`textbox_attributes`
-
-	- :ref:`textbox-other-attributes`
-
-We recommend you to read :ref:`genro-textboxes` first.
+	.. note:: We recommend you to read :ref:`genro-textboxes` first.
 
 	.. _textbox-definition-description:
 
 Definition and Description
 ==========================
 
-	Textbox is a form widget used to insert data.
-
-Description
-===========
+	.. method:: pane.textbox([required='False'[, constraints[, invalidMessage[, promptMessage=None[, regExp[, regExpGen[, tooltipPosition='right'[, **kwargs]]]]]]]])
 
 	Textbox is used to insert a text. Genro textbox is taken from Dojo ValidationTextBox (version 1.5; to show it, click here_.), so it supports all of Dojo ValidationTextBox attributes.
 
 	.. _here: http://docs.dojocampus.org/dijit/form/ValidationTextBox
+
+.. _textbox_attributes:
+
+Attributes
+==========
+	
+	**textbox attributes**:
+	
+	* *constraints*: TBC ???
+	* *invalidMessage*: tooltip text that appears when the content of the textbox is invalid
+	* *promptMessage*: tooltip text that appears when the textbox is empty and on focus
+	* *required*: define if the field is a required field or not. Default value is ``False``
+	* *regExp*: regular expression pattern to be used for validation. If this is used, don't use regExpGen
+	* *regExpGen*: TBC. If this is used, do not use regExp ???. Default value is ``None``
+	* *tooltipPosition*: define where Tooltip will appear. Default value is ``right``
+
+	**common attributes**:
+
+		For common attributes, see :ref:`textboxes_attributes`
 
 	.. _textbox-examples:
 
@@ -43,41 +57,3 @@ Examples
 				fb.textbox(value='^.surname',lbl='Surname')
 				fb.textbox(value='^.address',lbl='Address')
 				fb.textbox(value='^.email',lbl='e-mail')
-
-.. _textbox_attributes:
-
-Attributes
-==========
-	
-	+---------------------+-------------------------------------------------+--------------------------------------+
-	|   Attribute         |          Description                            |   Default                            |
-	+=====================+=================================================+======================================+
-	| ``constraints``     | TBC #NISO ???                                   |  ``#NISO ???``                       |
-	+---------------------+-------------------------------------------------+--------------------------------------+
-	| ``font_size``       | CSS attribute                                   |  ``1em``                             |
-	+---------------------+-------------------------------------------------+--------------------------------------+
-	| ``invalidMessage``  | Tooltip text that appears when the content of   |  ``Il valore immesso non è valido.`` |
-	|                     | the text box is invalid                         |                                      |
-	+---------------------+-------------------------------------------------+--------------------------------------+
-	| ``promptMessage``   | Tooltip text that appears when the text box is  |  ``None``                            |
-	|                     | empty and on focus                              |                                      |
-	+---------------------+-------------------------------------------------+--------------------------------------+
-	| ``required``        | Whether the field is required or not            |  ``false``                           |
-	+---------------------+-------------------------------------------------+--------------------------------------+
-	| ``regExp``          | Regular expression pattern to be used for       |  ``None``                            |
-	|                     | validation. If this is used, do not use         |                                      |
-	|                     | regExpGen                                       |                                      |
-	+---------------------+-------------------------------------------------+--------------------------------------+
-	| ``regExpGen``       | TBC. If this is used, do not use regExp#NISO??? |  ``None``                            |
-	+---------------------+-------------------------------------------------+--------------------------------------+
-	| ``text_align``      | CSS attribute                                   |  ``left``                            |
-	+---------------------+-------------------------------------------------+--------------------------------------+
-	| ``tooltipPosition`` | Define where Tooltip will appear                |  ``right``                           |
-	+---------------------+-------------------------------------------------+--------------------------------------+
-
-	.. _textbox-other-attributes:
-
-Common attributes
-=================
-
-	For common attributes, see :ref:`textboxes-attributes`

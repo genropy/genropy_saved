@@ -8,7 +8,7 @@
 	
 	- :ref:`combobox-attributes`
 	
-	- :ref:`combobox-examples`: :ref:`Bag-way`, :ref:`values-attribute`, :ref:`combobox_label`
+	- :ref:`combobox-examples`: :ref:`Bag-way`, :ref:`values-attribute`
 	
 	.. _combobox-definition-description:
 
@@ -42,7 +42,7 @@ Attributes
 		
 	* *disabled*: if True, allow to disable this widget. Default value is ``None``. For more information, check the :ref:`genro-disabled` documentation page
 	* *hidden*: if True, allow to hide this widget. Default value is ``None``. For more information, check the :ref:`genro-hidden` documentation page
-	* *label*: You can't use the ``label`` attribute; if you want to give a label to your combobox, check the :ref:`combobox_label` example
+	* *label*: You can't use the ``label`` attribute; if you want to give a label to your widget, check the :ref:`lbl_formbuilder` example
 	* *value*: specify the path of the widget's value. For more information, check the :ref:`genro_datapath` documentation page
 	
 	.. _combobox-examples:
@@ -103,25 +103,3 @@ Fill comboBox through a Bag
 				return mytable
 				
 	The advantage of using a Bag is that you can add attributes to your records, but you lose the keys (they aren't supported from combobox).
-	
-
-.. _combobox_label:
-
-To label a Combobox
-===================
-
-	If you want to give a label to your combobox, you have to:
-	
-		#. create a form (use the :ref:`genro-formbuilder` form widget)
-		#. append the combobox to the formbuilder
-		#. use the formbuilder's ``lbl`` attribute on your combobox.
-	
-	**Example**::
-
-			class GnrCustomWebPage(object):
-				def test_1_values(self,pane):
-					bc = pane.borderContainer(datapath='test1')
-					fb = bc.formbuilder()
-					fb.combobox(value='^.record.values',values='Football,Golf,Karate',
-					            lbl='loaded from values')
-	

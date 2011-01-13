@@ -13,7 +13,7 @@
 Definition
 ==========
 
-	``rowcaption`` is the textual representation of a record, and it is used with all the form widgets that draw their value from a database :ref:`genro-database_table`, that are :ref:`genro-field`, :ref:`genro-dbselect` and :ref:`genro-dbcombobox`.
+	``rowcaption`` is the textual representation of a record, and it is used with all the form widgets that draw their value from a database :ref:`genro-database_table`, that are :ref:`genro-field`, :ref:`genro_dbselect` and :ref:`genro_dbcombobox`.
 
 	.. _database-description-examples:
 

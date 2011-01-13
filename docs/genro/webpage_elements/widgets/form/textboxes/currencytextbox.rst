@@ -1,25 +1,40 @@
 	.. _genro-currencytextbox:
 
 =================
- CurrencyTextbox
+ currencyTextbox
 =================
 
 	- :ref:`currencyTextbox-definition-description`
-
+	
+	- :ref:`currencyTextbox_attributes`
+	
 	- :ref:`currencyTextbox-examples`
 
-	- :ref:`currencyTextbox_attributes`
-
-	- :ref:`currencyTextbox-other-attributes`
-
-	We recommend you to read :ref:`genro-textboxes` first.
+	.. note:: We recommend you to read :ref:`genro-textboxes` first.
 
 	.. _currencyTextbox-definition-description:
 
 Definition and Description
 ==========================
 
+	.. method:: pane.currencyTextbox([currency='EUR'[, default=None[, locale='it'[, **kwargs]]]])
+
     The currencyTextbox inherits all the attributes and behaviors of the numberTextbox widget but are specialized for input monetary values, much like the currency type in spreadsheet programs.
+
+.. _currencyTextbox_attributes:
+
+Attributes
+==========
+
+	**currencyTextbox**:
+	
+	* *currency*: specify used currency. Default value is ``EUR``
+	* *default*: Add a default number to your widget. Default value is ``None``
+	* *locale*: specify currency format type. Default value is ``it``
+
+	**common attributes**:
+
+		For common attributes, see :ref:`textboxes_attributes`
 
 	.. _currencyTextbox-examples:
 
@@ -31,31 +46,4 @@ Examples
 		class GnrCustomWebPage(object):
 			def main(self,root,**kwargs):
 				root.currencyTextBox(value='^amount',default=1123.34,
-				                     currency='EUR',locale='it')
-
-.. _currencyTextbox_attributes:
-
-Attributes
-==========
-
-	+-----------------------+---------------------------------------------------------+-------------+
-	|   Attribute           |          Description                                    |   Default   |
-	+=======================+=========================================================+=============+
-	| ``currency``          | specify used currency                                   |  ``EUR``    |
-	+-----------------------+---------------------------------------------------------+-------------+
-	| ``default``           | Add a default number to your text box                   |  ``None``   |
-	+-----------------------+---------------------------------------------------------+-------------+
-	| ``font_size``         | CSS attribute                                           |  ``1em``    |
-	+-----------------------+---------------------------------------------------------+-------------+
-	| ``locale``            | specify currency format type                            |  ``it``     |
-	+-----------------------+---------------------------------------------------------+-------------+
-	| ``text_align``        | CSS attribute                                           |  ``right``  |
-	+-----------------------+---------------------------------------------------------+-------------+
-
-	.. _currencyTextbox-other-attributes:
-
-Common attributes
-=================
-
-	For common attributes, see :ref:`textboxes-attributes`
-	
+				                     currency='EUR',locale='it')	

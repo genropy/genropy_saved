@@ -44,6 +44,10 @@ Common attributes
 	+--------------------+---------------------------------------------------+--------------------------+
 	| ``hidden``         | Hide the widget. See :ref:`genro-hidden`          |  ``False``               |
 	+--------------------+---------------------------------------------------+--------------------------+
+	| ``label``          | You can't use the ``label`` attribute; if you     |  ``None``                |
+	|                    | want to give a label to your widget, check the    |                          |
+	|                    | :ref:`lbl_formbuilder` example                    |                          |
+	+--------------------+---------------------------------------------------+--------------------------+
 	| ``limit``          | Set the number of visible choices on the pop-up   |  ``10``                  |
 	|                    | menu below the input textbox during user typing   |                          |
 	+--------------------+---------------------------------------------------+--------------------------+

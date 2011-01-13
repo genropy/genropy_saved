@@ -1,18 +1,16 @@
-	.. _genro-slider:
+.. _genro_slider:
 
-========
- slider
-========
+======
+slider
+======
 
-	- :ref:`slider-definition-description`
-
-	- :ref:`slider-examples`
-
+	- :ref:`slider_def`
+	
 	- :ref:`slider_attributes`
 	
-	- :ref:`slider-other-attributes`
+	- :ref:`slider_examples`
 
-	.. _slider-definition-description:
+.. _slider_def:
 
 Definition and Description
 ==========================
@@ -20,10 +18,34 @@ Definition and Description
 	.. note:: the Genro sliders has been taken from Dojo without adding any modifies. In this page you will find some interesting features that we want to point up. For more information, check the Dojo's slider_ documentation.
 
 	.. _slider: http://docs.dojocampus.org/dijit/form/Slider
+	
+	.. method:: pane.horizontalSlider(width, default=100, minimum=0, maximum=100, intermediateChanges=False[, **kwargs])
+	.. method:: pane.verticalSlider(height, default=100, minimum=0, maximum=100, intermediateChanges=False[, **kwargs])
 
-	Here we introduce the sliders, form widgets inherit from Dojo. It is a scale with a handle you can drag left/right for horizontal slider (or up/down for vertical one) to select a value.
+	Slider is a scale with a handle you can move to select a value. You can choose between the horizontalSlider and the verticalSlider.
 
-	.. _slider-examples:
+.. _slider_attributes:
+
+Attributes
+==========
+
+	**slider attributes**:
+	
+	* *width*: (horizontalSlider) MANDATORY - define the width of your horizontalSlider
+	* *height*: (verticalSlider) MANDATORY - define the height of your verticalSlider
+	* *default*: Add a default value in your slider. Default value is 0
+	* *intermediateChanges*: (Boolean) If True, it allows to changes value of slider during slider move
+	* *maximum*: Add the maximum value of the slider. Default value is 100
+	* *minimum*: Add the minimum value of the slider. Default value is 0
+	
+	**common attributes**:
+	
+	* *disabled*: if True, allow to disable this widget. Default value is ``None``. For more information, check the :ref:`genro-disabled` documentation page
+	* *hidden*: if True, allow to hide this widget. Default value is ``None``. For more information, check the :ref:`genro-hidden` documentation page
+	* *label*: You can't use the ``label`` attribute; if you want to give a label to your widget, check the :ref:`lbl_formbuilder` example
+	* *value*: specify the path of the widget's value. For more information, check the :ref:`genro_datapath` documentation page
+
+.. _slider_examples:
 
 Examples
 ========
@@ -32,45 +54,7 @@ Examples
 	
 		class GnrCustomWebPage(object):
 			def main(self,root,**kwargs):
-				root.horizontalSlider(value='^integer_number',width='200px',
-				                      maximum=50,discreteValues=51)
-
-.. _slider_attributes:
-
-Attributes
-==========
-
-	+-------------------------+---------------------------------------------------------+-------------+
-	|   Attribute             |          Description                                    |   Default   |
-	+=========================+=========================================================+=============+
-	| ``default='NUMBER'``    | Add a default value in your slider                      |  ``0``      |
-	+-------------------------+---------------------------------------------------------+-------------+
-	| ``intermediateChanges`` | (Boolean) If True, it allows to changes value of slider |  ``False``  |
-	|                         | during slider move                                      |             |
-	+-------------------------+---------------------------------------------------------+-------------+
-	| ``maximum='NUMBER'``    | Add the maximum value of a slider                       |  ``100``    |
-	+-------------------------+---------------------------------------------------------+-------------+
-	| ``minimum='NUMBER'``    | Add the minimum value of a slider                       |  ``0``      |
-	+-------------------------+---------------------------------------------------------+-------------+
-
-	It is strongly advised to use "width" attribute for horizontal slider and "height" attribute for vertical slider.
-	
-	#NISO: ho visto che per Dojo 1.1 c'è un attributo chiamato showButtons che sembra non funzionare... (e tra l'altro c'è anche in Dojo 1.5...) la domanda è: "ci sono degli attributi che non avete riportato da Dojo, o è un errore?"
-
-	.. _slider-other-attributes:
-
-Common attributes
-=================
-
-	+--------------------+-------------------------------------------------+--------------------------+
-	|   Attribute        |          Description                            |   Default                |
-	+====================+=================================================+==========================+
-	| ``disabled``       | If True, user can't act on the slider.          |  ``False``               |
-	|                    | For more details, see :ref:`genro-disabled`     |                          |
-	+--------------------+-------------------------------------------------+--------------------------+
-	| ``hidden``         | Hide the slider.                                |  ``False``               |
-	|                    | See :ref:`genro-hidden`                         |                          |
-	+--------------------+-------------------------------------------------+--------------------------+
-	| ``value``          | Set a path for slider's values.                 |  ``None``                |
-	|                    | For more details, see :ref:`genro_datapath`     |                          |
-	+--------------------+-------------------------------------------------+--------------------------+
+				root.horizontalSlider(value='^integer_number', width='200px',
+				                      maximum=50, discreteValues=51)
+				root.verticalSlider(value='^integer_number', height='100px',
+				                      default=10, minimum=0)

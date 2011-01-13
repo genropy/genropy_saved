@@ -8,8 +8,8 @@
 	:maxdepth: 1
 
 	textboxes
+	textbox
 	currencytextbox
 	datetextbox
 	numbertextbox
-	textbox
 	timetextbox
