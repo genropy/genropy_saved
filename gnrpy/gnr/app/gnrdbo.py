@@ -161,9 +161,6 @@ class GnrHTable(TableBase):
         if (record_data['child_code'] != old_record['child_code']) or (record_data['parent_code'] != old_record['parent_code']):
             old_code = old_record['code']
             self.assignCode(record_data)
-
-            #print '%s ---> %s' % (old_record['code'],record_data['code'])
-            #print 'update children with parent_code =%s' % old_code
             self.batchUpdate(dict(parent_code=record_data['code']), where='$parent_code=:old_code', old_code=old_code)
     
 
