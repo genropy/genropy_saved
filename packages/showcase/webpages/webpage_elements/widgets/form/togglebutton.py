@@ -15,5 +15,5 @@ class GnrCustomWebPage(object):
         pane.div('We show you here a simple togglebuttons set:',
                  font_size='.9em', text_align='justify')
         fb = pane.formbuilder(border_spacing='10px', datapath='test1')
-        fb.togglebutton(value='^.toggle1', iconClass="dijitRadioIcon", label='label')
-        fb.togglebutton(value='^.toggle2', iconClass="dijitRadioIcon", label='another label')
+        fb.togglebutton(value='^.toggle1', iconClass="dijitRadioIcon", label='a togglebutton')
+        fb.togglebutton(value='^.toggle2', iconClass="dijitRadioIcon", label='another togglebutton')

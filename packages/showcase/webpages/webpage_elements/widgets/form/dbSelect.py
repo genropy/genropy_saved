@@ -27,8 +27,8 @@ class GnrCustomWebPage(object):
                 you have to use the "selected" attribute:""",
                font_size='.9em', text_align='justify')
         fb.div("""check in datasource (ctrl+shift+D) the values added by your choice
-                in the "name" and in the "year" folders."""
-               , font_size='.9em', text_align='justify')
+                in the "name" and in the "year" folders.""",
+               font_size='.9em', text_align='justify')
         fb.div("""Please note that "name" and "year" folders will be created
                 AFTER you made your choice.""",
                font_size='.9em', text_align='justify')
@@ -42,7 +42,7 @@ class GnrCustomWebPage(object):
                 you can allows the user to choose a record for a first "dbSelect"... """,
                font_size='.9em', text_align='justify')
         fb.dbSelect(dbtable='showcase.person', value='^.person_id', lbl='Star',
-                    selected_name='.name', selected_year='.year', auxColumns='$nationality')
+                    selected_name='.selected_name', selected_year='.selected_year')#, auxColumns='$nationality')
         fb.div("""... and then you can make the user choose an attribute relative to the
                 first record selected:""",
                font_size='.9em', text_align='justify')

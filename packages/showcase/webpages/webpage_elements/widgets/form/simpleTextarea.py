@@ -12,7 +12,8 @@ class GnrCustomWebPage(object):
 
     def test_1_simpleTextarea(self, pane):
         """simpleTextarea"""
-        fb = pane.formbuilder(datapath='test1')
+        bc = pane.borderContainer(height='100px')
+        fb = bc.formbuilder(datapath='test1')
         fb.simpleTextarea(value='^.simpleTextarea', height='80px', width='30em',
                           colspan=2, color='blue', font_size='1.2em',
-                          default='A simple area to contain text.')
+                          default='A simple area to contain text.', lbl='Textarea')
