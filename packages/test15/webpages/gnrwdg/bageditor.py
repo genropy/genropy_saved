@@ -1,6 +1,6 @@
 # -*- coding: UTF-8 -*-
 
-# bagEditor.py
+# bagNodeEditor.py
 # Created by Francesco Porcari on 2011-01-10.
 # Copyright (c) 2011 Softwell. All rights reserved.
 
@@ -13,5 +13,7 @@ class GnrCustomWebPage(object):
          
     def test_0_firsttest(self,pane):
         """First test description"""
-        pane.contentPane(height='400px',background='lime').bagEditor(bagpath='gnr',datapath='pippo')
+        bc = pane.borderContainer(height='400px',background='lime')
+        bc.contentPane(region='top').button('load node',action='genro.publish("test_editnode","")')
+        bc.contentPane(region='center').bagNodeEditor(bagpath='gnr',nodeId='test')
         
