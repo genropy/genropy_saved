@@ -570,20 +570,20 @@ class SqlTable(GnrObject):
         self.db.adapter.lockTable(self, mode, nowait)
 
 
-    def insert(self, record):
+    def insert(self, record,**kwargs):
         """This method inserts a single record.
         :param record_data: a dictionary that represent the record that must be inserted
         """
-        self.db.insert(self, record)
+        self.db.insert(self, record,**kwargs)
 
-    def delete(self, record):
+    def delete(self, record,**kwargs):
         """Delete a single record from this table.
         
         :param record: a dictionary, bag or pkey (string)
         """
         if isinstance(record, basestring):
             record = self.recordAs(record, 'dict')
-        self.db.delete(self, record)
+        self.db.delete(self, record,**kwargs)
 
     def deleteRelated(self, record):
         for rel in self.relations_many:
@@ -602,16 +602,18 @@ class SqlTable(GnrObject):
                         for row in sel:
                             relatedTable.delete(relatedTable.record(row['pkey'], mode='bag'))
 
-    def update(self, record, old_record=None, pkey=None):
+    def update(self, record, old_record=None, pkey=None,**kwargs):
         """This method updates a single record.
         :param record_data: a dictionary that represent the record that must be updated
         """
-        self.db.update(self, record, old_record=old_record, pkey=pkey)
+        self.db.update(self, record, old_record=old_record, pkey=pkey,**kwargs)
 
     def writeRecordCluster(self, recordCluster, recordClusterAttr, debugPath=None):
         """This method receives a changeSet and executes insert, delete or update
         :param record_data: a dictionary that represent the record that must be updated
         """
+        def onBagColumns(attributes=None):
+            attributes.pop('__old')
         main_changeSet, relatedOne, relatedMany = self._splitRecordCluster(recordCluster, debugPath=debugPath)
         isNew = recordClusterAttr.get('_newrecord')
         toDelete = recordClusterAttr.get('_deleterecord')
@@ -664,9 +666,9 @@ class SqlTable(GnrObject):
             main_record[from_fld] = rel_record[to_fld]
 
         if isNew:
-            self.insert(main_record)
+            self.insert(main_record,onBagColumns=onBagColumns)
         else:
-            self.update(main_record, old_record=old_record, pkey=pkey)
+            self.update(main_record, old_record=old_record, pkey=pkey,onBagColumns=onBagColumns)
         for rel_name, rel_recordClusterNode in relatedMany.items():
             rel_recordCluster = rel_recordClusterNode.value
             rel_recordClusterAttr = rel_recordClusterNode.getAttr()

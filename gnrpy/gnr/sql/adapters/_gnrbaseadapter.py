@@ -254,7 +254,7 @@ class SqlDbAdapter(object):
     def _selectForUpdate(self):
         return 'FOR UPDATE OF t0'
 
-    def prepareRecordData(self, record_data):
+    def prepareRecordData(self, record_data,onBagColumns=None):
         """Normalize a record_data object before actually execute an sql write command.
         Delete items which name starts with '@': eager loaded relations don't have to be written as fields.
         Convert Bag values to xml, to be stored in text or blob fields.
@@ -266,7 +266,7 @@ class SqlDbAdapter(object):
             if not k.startswith('@'):
                 v = record_data[k]
                 if isinstance(v, Bag):
-                    v = v.toXml()
+                    v = v.toXml(onBuildTag=onBagColumns)
                     #data_out[str(k.lower())] = v
                 data_out[str(k)] = v
         return data_out
@@ -280,13 +280,13 @@ class SqlDbAdapter(object):
         raise NotImplementedException()
 
 
-    def insert(self, dbtable, record_data):
+    def insert(self, dbtable, record_data,**kwargs):
         """Insert a record in the db. 
         All fields in record_data will be added: all keys must correspond to a column in the db.
         @param dbtable: an SqlTable object
         @param record_data: a dict compatible object"""
         tblobj = dbtable.model
-        record_data = self.prepareRecordData(record_data)
+        record_data = self.prepareRecordData(record_data,**kwargs)
         sql_flds = []
         data_keys = []
         for k in record_data.keys():
@@ -296,14 +296,14 @@ class SqlDbAdapter(object):
         sql = 'INSERT INTO %s(%s) VALUES (%s);' % (tblobj.sqlfullname, ','.join(sql_flds), ','.join(data_keys))
         return self.dbroot.execute(sql, record_data, dbtable=dbtable.fullname)
 
-    def update(self, dbtable, record_data, pkey=None):
+    def update(self, dbtable, record_data, pkey=None,**kwargs):
         """Update a record in the db. 
         All fields in record_data will be updated: all keys must correspond to a column in the db.
         @param dbtable: a SqlTable object
         @param record_data: a dict compatible object"""
 
         tblobj = dbtable.model
-        record_data = self.prepareRecordData(record_data)
+        record_data = self.prepareRecordData(record_data,**kwargs)
         sql_flds = []
         for k in record_data.keys():
             sql_flds.append('%s=%s' % (tblobj.sqlnamemapper[k], ':%s' % k))
@@ -315,13 +315,13 @@ class SqlDbAdapter(object):
         tblobj.sqlfullname, ','.join(sql_flds), tblobj.sqlnamemapper[tblobj.pkey], pkeyColumn)
         return self.dbroot.execute(sql, record_data, dbtable=dbtable.fullname)
 
-    def delete(self, dbtable, record_data):
+    def delete(self, dbtable, record_data,**kwargs):
         """Delete a record from the db. 
         All fields in record_data will be added: all keys must correspond to a column in the db.
         @param dbtable: a SqlTable object
         @param record_data: a dict compatible object containing at least one entry for the pkey column of the table."""
         tblobj = dbtable.model
-        record_data = self.prepareRecordData(record_data)
+        record_data = self.prepareRecordData(record_data,**kwargs)
         pkey = tblobj.pkey
         sql = 'DELETE FROM %s WHERE %s=:%s;' % (tblobj.sqlfullname, tblobj.sqlnamemapper[pkey], pkey)
         return self.dbroot.execute(sql, record_data, dbtable=dbtable.fullname)

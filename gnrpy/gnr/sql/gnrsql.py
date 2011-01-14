@@ -292,7 +292,7 @@ class GnrSqlDb(GnrObject):
                 self.commit()
         return cursor
 
-    def insert(self, tblobj, record):
+    def insert(self, tblobj, record,**kwargs):
         """Insert a record in the table.
         @param tblobj: the table object
         @param record: an object implementing dict interface as colname, colvalue
@@ -301,10 +301,10 @@ class GnrSqlDb(GnrObject):
         tblobj.protect_validate(record)
         tblobj._doFieldTriggers('onInserting', record)
         tblobj.trigger_onInserting(record)
-        self.adapter.insert(tblobj, record)
+        self.adapter.insert(tblobj, record,**kwargs)
         tblobj.trigger_onInserted(record)
 
-    def update(self, tblobj, record, old_record=None, pkey=None):
+    def update(self, tblobj, record, old_record=None, pkey=None,**kwargs):
         """Update a record of the table.
         @param tblobj: the table object
         @param record: an object implementing dict interface as colname, colvalue
@@ -313,11 +313,11 @@ class GnrSqlDb(GnrObject):
         tblobj.protect_validate(record, old_record=old_record)
         tblobj._doFieldTriggers('onUpdating', record)
         tblobj.trigger_onUpdating(record, old_record=old_record)
-        self.adapter.update(tblobj, record, pkey=pkey)
+        self.adapter.update(tblobj, record, pkey=pkey,**kwargs)
         tblobj.trigger_onUpdated(record, old_record=old_record)
 
 
-    def delete(self, tblobj, record):
+    def delete(self, tblobj, record,**kwargs):
         """Delete a record from the table.
         @param tblobj: the table object
         @param record: an object implementing dict interface as colname, colvalue
@@ -326,7 +326,7 @@ class GnrSqlDb(GnrObject):
         tblobj._doFieldTriggers('onDeleting', record)
         tblobj.trigger_onDeleting(record)
         tblobj.deleteRelated(record)
-        self.adapter.delete(tblobj, record)
+        self.adapter.delete(tblobj, record,**kwargs)
         tblobj.trigger_onDeleted(record)
 
     def commit(self):
