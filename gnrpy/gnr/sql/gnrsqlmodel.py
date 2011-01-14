@@ -91,7 +91,7 @@ class DbModel(object):
         return (pkg.name, tbl.name, col.name)
 
     def addRelation(self, many_relation_tuple, oneColumn, mode=None, one_one=None, onDelete=None, onDelete_sql=None,
-                    onUpdate=None, onUpdate_sql=None, deferred=None, eager_one=None, eager_many=None, backref=None,
+                    onUpdate=None, onUpdate_sql=None, deferred=None, eager_one=None, eager_many=None, relation_name=None,
                     one_name=None, many_name=None, one_group=None, many_group=None, many_order_by=None):
         """ This method adds a relation in the current model.
             @param many_relation_tuple: the column of the "many table" as tuple. Eg. ('video','movie','director_id')
@@ -114,7 +114,7 @@ class DbModel(object):
                 many_relation, one_relation))
                 return
             link_many_name = many_field
-            link_one_name = '_'.join(many_relation_tuple)
+            relation_name = relation_name or '_'.join(many_relation_tuple)
             #if not  many_name:
             #     many_name = link_one_name
             #if not  one_name:
@@ -129,15 +129,7 @@ class DbModel(object):
                                    onUpdate=onUpdate, onUpdate_sql=onUpdate_sql, deferred=deferred,
                                    case_insensitive=case_insensitive, eager_one=eager_one, eager_many=eager_many,
                                    one_group=one_group, many_group=many_group)
-            self.relations.setItem('%s.%s.@%s' % (one_pkg, one_table, link_one_name), None, mode='M',
-                                   many_relation=many_relation, many_rel_name=many_name, many_order_by=many_order_by,
-                                   one_relation=one_relation, one_rel_name=one_name, one_one=one_one, onDelete=onDelete,
-                                   onDelete_sql=onDelete_sql,
-                                   onUpdate=onUpdate, onUpdate_sql=onUpdate_sql, deferred=deferred,
-                                   case_insensitive=case_insensitive, eager_one=eager_one, eager_many=eager_many,
-                                   one_group=one_group, many_group=many_group)
-            if backref:
-                self.relations.setItem('%s.%s.@%s' % (one_pkg, one_table, backref), None, mode='M',
+            self.relations.setItem('%s.%s.@%s' % (one_pkg, one_table, relation_name), None, mode='M',
                                    many_relation=many_relation, many_rel_name=many_name, many_order_by=many_order_by,
                                    one_relation=one_relation, one_rel_name=one_name, one_one=one_one, onDelete=onDelete,
                                    onDelete_sql=onDelete_sql,
@@ -378,7 +370,7 @@ class DbModelSrc(GnrStructData):
     def relation(self, related_column, mode='relation', one_name=None,
                  many_name=None, eager_one=None, eager_many=None, one_one=None, child=None,
                  one_group=None, many_group=None, onUpdate=None, onUpdate_sql=None, onDelete=None,
-                 onDelete_sql=None, deferred=None, backref=None, **kwargs):
+                 onDelete_sql=None, deferred=None, relation_name=None, **kwargs):
         """ This method adds a relation in the current model.
             @param many_relation_tuple: the column of the "many table" as tuple. Eg. ('video','movie','director_id')
             @param oneColumn: the column of the "one table" as string. Eg. 'video.director.id'
@@ -393,14 +385,14 @@ class DbModelSrc(GnrStructData):
             @param onDelete:
             @param onDelete_sql:
             @param deferred:
-            @param backref:
+            @param relation_name:
         """
         return self.setItem('relation', self.__class__(), related_column=related_column, mode=mode,
                             one_name=one_name, many_name=many_name, one_one=one_one, child=child,
                             one_group=one_group, many_group=many_group, deferred=deferred, onUpdate=onUpdate,
                             onDelete=onDelete,
                             eager_one=eager_one, eager_many=eager_many, onUpdate_sql=onUpdate_sql,
-                            onDelete_sql=onDelete_sql, backref=backref,
+                            onDelete_sql=onDelete_sql, relation_name=relation_name,
                             **kwargs)
 
 class DbModelObj(GnrStructObj):
