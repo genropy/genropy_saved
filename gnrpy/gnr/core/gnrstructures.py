@@ -50,6 +50,22 @@ class GnrStructData(Bag):
         return instance
 
     makeRoot = classmethod(makeRoot)
+    
+    def backwardNodebyAttr(self,attrname,checker=None):
+        if checker is None:
+            checker= lambda v:True
+        if isinstance(checker,basestring):
+            checker = lambda v:v==checker
+        if self._parentNode:
+            if attrname in self._parentNode.attr and checker(self._parentNode.attr[attrname])  :
+                return self._parentNode
+            return self._parent.backwardNodebyAttr(attrname)
+    
+    def _get_attaches(self):
+        if self.parent == None:
+            return self
+        else:
+            return self.parent
 
     def _get_joiner(self):
         if self.parent == None:
