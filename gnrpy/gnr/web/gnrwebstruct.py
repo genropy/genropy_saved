@@ -134,7 +134,17 @@ class GnrDomSrc(GnrStructData):
         if fname in self._external_methods:
             handler = getattr(self.page, self._external_methods[fname])
             return lambda *args, **kwargs: handler(self, *args, **kwargs)
+    
+        handling_node = self.backwardNodebyAttr('_attaches',lambda v: fname in v.split(','))
+        if handling_node:
+            handler = getattr(self.page, fname,None)
+            if handler:
+                return lambda *args, **kwargs: handler(handling_node.value, *args, **kwargs)
+        for n in self._nodes:
+            if n.attr.get('_attachname') == fname:
+                return n._value
 
+            
         raise AttributeError("object has no attribute '%s'" % fname)
 
     def child(self, tag, name=None, envelope=None, **kwargs):
@@ -452,7 +462,7 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
                'SplitContainer', 'StackContainer', 'TabContainer', 'Button', 'ToggleButton', 'ComboButton',
                'DropDownButton', 'FilteringSelect',
                'Menu', 'Menubar', 'MenuItem', 'Toolbar', 'Dialog', 'ProgressBar', 'TooltipDialog',
-               'TitlePane', 'Tooltip', 'ColorPalette', 'Editor', 'Tree', 'SimpleTextarea', 'MultiSelect']
+               'TitlePane', 'Tooltip', 'ColorPalette', 'Editor', 'Tree', 'SimpleTextarea', 'MultiSelect','ToolbarSeparator']
 
     dojoxNS = ['FloatingPane', 'Dock', 'RadioGroup', 'ResizeHandle', 'SizingPane', 'BorderContainer',
                'FisheyeList', 'Loader', 'Toaster', 'FileInput', 'fileInputBlind', 'FileInputAuto', 'ColorPicker',
