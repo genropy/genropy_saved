@@ -173,11 +173,12 @@ dojo.declare("gnr.widgets.baseHtml", null, {
                 alert('formId ' + formId + ' will replace nodeId ' + sourceNode.attr.nodeId);
             }
             //for having form information inside the form datapath
+            
             var controllerPath = objectPop(attributes, 'controllerPath');
             var pkeyPath = objectPop(attributes, 'pkeyPath');
             var formDatapath = objectPop(attributes, 'formDatapath') || sourceNode.absDatapath();
             sourceNode.attr.nodeId = formId;
-            sourceNode.defineForm(formId, formDatapath, controllerPath, pkeyPath);
+            sourceNode.defineForm(formId, formDatapath, controllerPath, pkeyPath,objectExtract(sourceNode.attr,'form_*'));
         }
         //Fix Colspan in Internet explorer
         if (dojo.isIE > 0) {
@@ -1398,7 +1399,12 @@ dojo.declare("gnr.widgets.Button", gnr.widgets.baseDojo, {
         for (var fire in fire_list) {
             this.setRelativeData(fire_list[fire], fire, {modifier:modifier}, true);
         }
-
+    },
+    mixin_setIconClass:function(iconClass){
+        var domNode = this.iconNode;
+        dojo.removeClass(domNode,this.iconClass);
+        this.iconClass = iconClass;
+        dojo.addClass(domNode,this.iconClass);
     }
 });
 

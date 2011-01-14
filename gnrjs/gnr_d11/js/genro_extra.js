@@ -339,15 +339,16 @@ dojo.declare("gnr.widgets.PalettePane", gnr.widgets.gnrwdg, {
         var groupCode = objectPop(kw,'groupCode');
         if (groupCode){
             var pane = sourceNode._('ContentPane',objectExtract(kw,'title,pageName'))._('ContentPane',objectUpdate({'detachable':true},kw));
-            var controller_kw = {'script':"console.log('ammaccabanane');SET gnr.palettes._groups.pagename."+groupCode+" = paletteCode;",
+            var controller_kw = {'script':"SET gnr.palettes._groups.pagename."+groupCode+" = paletteCode;",
                                  'paletteCode':paletteCode}
             controller_kw['subscribe_show_palette_'+paletteCode] = true
             pane._('dataController',controller_kw);
             return pane;
         }else{
-            var palette_kwargs = objectExtract(kw,'title,dockTo,top,left,right,bottom');
+            var palette_kwargs = objectExtract(kw,'title,dockTo,top,left,right,bottom,maxable');
             palette_kwargs['nodeId'] = paletteCode+'_floating';
             palette_kwargs['title'] = palette_kwargs['title'] || 'Palette ' + paletteCode;
+            objectUpdate(palette_kwargs,'palette_');
             palette_kwargs.selfsubscribe_showing = function(){
                 genro.publish('palette_'+paletteCode+'_showing');
             }

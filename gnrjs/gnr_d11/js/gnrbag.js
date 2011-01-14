@@ -1393,6 +1393,10 @@ dojo.declare("gnr.GnrBag", null, {
     /**
      * @id setItem
      */
+    fireItem:function(path,value,attributes,reason){
+        this.setItem(path, value, attributes, {'doTrigger':reason == null ? true : reason});
+        this.setItem(path, null, attributes, {'doTrigger':false});
+    },
     setItem: function(path, value, _attributes, kwargs) {
         if (!kwargs) {
             var kwargs = {};
@@ -1421,6 +1425,9 @@ dojo.declare("gnr.GnrBag", null, {
                     var splittedlabel = label.split('?');
                     label = splittedlabel[0];
                     var attr = splittedlabel[1];
+                    if(kwargs.lazySet && node.attr[attr] === value){
+                        return;
+                    }
                     var auxattr = {};
                     auxattr[attr] = value;
                     var node = obj.getNode(label, false, true);
@@ -1484,6 +1491,9 @@ dojo.declare("gnr.GnrBag", null, {
             var node = this._nodes[i];
             if (resolver) {
                 node.setResolver(resolver);
+            }
+            if(kwargs.lazySet && node._value===value){
+                return;
             }
             node.setValue(value, _doTrigger, _attributes, _updattr);
         }

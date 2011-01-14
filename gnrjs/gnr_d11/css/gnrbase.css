@@ -524,19 +524,19 @@ table.formbuilder {
 }
 
 .greenLight {
-    background: url(icons/base14/greenLight.gif) no-repeat;
+    background: url(icons/base14/greenLight.gif) no-repeat center center;
     width: 14px;
     height: 14px;
 }
 
 .redLight {
-    background: url(icons/base14/redLight.gif) no-repeat;
+    background: url(icons/base14/redLight.gif) no-repeat center center;
     width: 14px;
     height: 14px;
 }
 
 .yellowLight {
-    background: url(icons/base14/yellowLight.gif) no-repeat;
+    background: url(icons/base14/yellowLight.gif) no-repeat center center;
     width: 14px;
     height: 14px;
 }
@@ -1040,7 +1040,7 @@ div.dojoxDock {
 }
 
 .icnBaseReadOnly {
-    background: url(icons/base16/readonly.gif) no-repeat;
+    background: url(icons/base16/readonly.gif) no-repeat center center;
     width: 16px;
     height: 16px;
 }
@@ -1521,6 +1521,24 @@ table.draggedItem {
 }
 
 /* @end */
+
+/* @group SlotToolbar */
+.sltb_row{
+	height: 26px;
+}
+.sltb_slot_td{
+	vertical-align: middle;
+}
+.sltb_table{
+	width:100%;
+	border-spacing:0px;
+	border-collapse:collapse;
+}
+
+
+
+/* @end */
+
 
 /* @group folderIndex */
 

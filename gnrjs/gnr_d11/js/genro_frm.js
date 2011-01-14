@@ -26,39 +26,90 @@
 //######################## genro  #########################
 
 dojo.declare("gnr.GnrFrmHandler", null, {
-    constructor: function(sourceNode, form_id, formDatapath, controllerPath, pkeyPath) {
+    constructor: function(sourceNode, form_id, formDatapath, controllerPath, pkeyPath,kw) {
         this.form_id = form_id;
         this.changed = false;
-        this.status = null;
+        this.op_status = null;
         this.current_field = null;
         this.controllerPath = controllerPath || 'gnr.forms.' + this.form_id;
-        this.invalidFieldsPath = this.controllerPath + '.invalidFields';
         this.formDatapath = formDatapath;
         this.pkeyPath = pkeyPath;
         this.sourceNode = sourceNode;
-        dojo.subscribe(form_id+'_save',this,this.save);
-        dojo.subscribe(form_id+'_load',this,this.load);
+        this.subscribe('save,load,setLocked');
+        this._register = {};
+        this.locked = true;
+        this.autoRegisterTags = {
+            'textbox':null,
+            'simpletextarea':null,
+            'checkbox':null,
+            'numbertextbox':null,
+            'timetextbox':null,
+            'horizzontalslider':null,
+            'radiobutton':null,
+            'verticalslider':null,
+            'combobox':null,
+            'filteringselect':null,
+            'dbselect':null,
+            'dbcombobox':null,
+            'input':null,
+            'textarea':null,
+            'datetextbox':null,
+        }
+        for(var k in kw){
+            this[k] = kw[k];
+        }
     },
+    
     reset: function() {
         this.resetChanges();
-        this.resetInvalids();
+        this.resetInvalidFields();
     },
+    publish: function(command,kw){
+        genro.publish('form_'+this.form_id+'_'+command,kw);
+    },
+    subscribe: function(command,cb,scope){
+        if(command.indexOf(',')>=0){
+            var that = this;
+            dojo.forEach(command.split(','),function(command){
+                that.subscribe(command)
+            })
+            return;
+        }
+        var topic = 'form_'+this.form_id+'_'+command;
+        var scope = scope || this;
+        var cb = cb || this[command];
+        dojo.subscribe(topic,scope,cb);
+    },
+    setDisabled:function(disable){
+        for (var k in this._register){
+            this._register[k].setDisabled(disable);
+        }
+    },
+    setLocked:function(value){
+        if(value=='toggle'){
+            value = !this.locked;
+        }
+        this.locked = value;
+        this.setDisabled(this.locked);
+        this.publish('onLockChange',{'locked':this.locked});
+    },
+    registerChild:function(sourceNode){
+        if (sourceNode.attr.parentForm || (sourceNode.attr.tag.toLowerCase() in this.autoRegisterTags)){
+            this._register[sourceNode._id] = sourceNode;
+            return;
+        }
+    },
+
+    
     resetChanges: function() {
         var sourceNode = genro.nodeById(this.form_id);
-        sourceNode.getRelativeData('', true, new gnr.GnrBag()).subscribe('dataLogger',
-        {'upd':dojo.hitch(this, "triggerUPD"),
-            'ins':dojo.hitch(this, "triggerINS"),
-            'del':dojo.hitch(this, "triggerDEL")
-        });
+        this.getFormData().subscribe('dataLogger',{'upd':dojo.hitch(this, "triggerUPD"),
+                                                   'ins':dojo.hitch(this, "triggerINS"),
+                                                   'del':dojo.hitch(this, "triggerDEL")
+                                                  });
+        this.resetChangesLogger()
+    },
 
-        this.changesLogger = this.controllerPath + '.changesLogger';
-        genro.setData(this.changesLogger, new gnr.GnrBag());
-        this._setChangeStatus(false);
-    },
-    resetInvalids: function() {
-        genro.setData(this.invalidFieldsPath, new gnr.GnrBag());
-        this._setInvalidStatus(false);
-    },
     validateFromDatasource: function(sourceNode, value, trigger_reason) {
         // called when a widget changes its value because of a databag change, not an user action
         if (trigger_reason == 'container') {
@@ -77,7 +128,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
     load: function(kw) {
         var kw = kw || {};
         if ('destPkey' in kw) {
-            var currentPkey = this.pkeyPath ? this.sourceNode.getRelativeData(this.pkeyPath) : null;
+            var currentPkey = this.getCurrentPkey();
             if (kw.destPkey != currentPkey) {
                 this.checkPendingChanges(kw);
                 return;
@@ -88,13 +139,13 @@ dojo.declare("gnr.GnrFrmHandler", null, {
     checkPendingChanges: function(kw) {
         var kw = kw || {};
         if (this.changed) {
-            var currForm = this;
+            var that = this;
             var saveCb = function() {
-                currForm.sourceNode.setRelativeData(currForm.pkeyPath, kw.destPkey);
-                currForm.save();
+                that.setCurrentPkey(kw.destPkey);
+                that.save();
             };
             var continueCb = function() {
-                currForm.doload(kw);
+                that.doload(kw);
             };
             var cancelCb = kw.cancelCb || function() {
             }
@@ -107,11 +158,11 @@ dojo.declare("gnr.GnrFrmHandler", null, {
     doload: function(kw) {
         var kw = kw || {};
         var sync = kw.sync;
-        genro.setData(this.controllerPath + '.loading', true);
-        this.status = 'loading';
+        this.setControllerData('loading',true);
+        this.op_status = 'loading';
         if ('destPkey' in kw) {
             var destPkey = kw.destPkey || '*newrecord*';
-            this.sourceNode.setRelativeData(this.pkeyPath, destPkey);
+            this.setCurrentPkey(destPkey);
         }
         if (!sync) {
             var formDomNode = genro.domById(this.form_id);
@@ -121,7 +172,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
             dojo.addClass(formHider, 'formHider');
             formDomNode.appendChild(formHider);
         }
-        this.resetInvalids(); // reset invalid fields before loading to intercept required fields during loading process
+        this.resetInvalidFields(); // reset invalid fields before loading to intercept required fields during loading process
         genro.setData('_temp.grids', null);
         var loaderNode = genro.nodeById(this.form_id + '_loader');
         if (loaderNode) {
@@ -129,40 +180,54 @@ dojo.declare("gnr.GnrFrmHandler", null, {
             if (sync) {
                 this.loaded();
             }
-        } else {
-            genro._data.setItem(this.formDatapath, new gnr.GnrBag());
-            this.loaded();
+        } else if(this.loadermethod) {
+            this[this.loadermethod].call(this);
         }
     },
-    loaded: function() {
+    
+    loaded: function(data) {
+        if(data){
+            this.setFormData(data);
+        }
         genro.dom.removeClass(this.form_id, 'loadingForm');
         var hider = dojo.byId(this.form_id + "_hider");
         if (hider) {
             genro.domById(this.form_id).removeChild(hider);
         }
         this.resetChanges(); // reset changes after loading to subscribe the triggers to the current new data bag
-        genro.setData(this.controllerPath + '.is_newrecord', genro.getDataNode(this.formDatapath).attr._newrecord);
-        genro.setData(this.controllerPath + '.loading', false);
-        genro.fireEvent(this.controllerPath + '.loaded');
-        this.status = null;
+        var controllerData = this.getControllerData();
+        
+        this.readOnly = this.isReadOnly();
+        this.newRecord = this.isNewRecord();
+        
+        controllerData.setItem('is_newrecord',this.newRecord,null,{lazySet:true});
+        controllerData.setItem('loading',false,null,{lazySet:true});
+        controllerData.fireItem('loaded');
+        this.updateStatus();
+
+        if(this.readOnly){
+            this.setDisabled(true);
+        }
+        this.op_status = null;
     },
+    
     save: function(always, onSavedCb) {
-        if (!this.status) {
-            var always = always || genro._(this.controllerPath + '.is_newrecord');
+        if (!this.op_status) {
+            var always = always || this.getControllerData('is_newrecord');
             if (this.changed || always) {
                 var invalidfields = this.getInvalidFields();
                 //var formChanges = this.getFormChanges(changesOnly);
                 var invalid = (invalidfields.len() > 0);
                 if (invalid) {
-                    genro.fireEvent(this.controllerPath + '.save_failed', 'invalid');
+                    this.fireControllerData('save_failed','invalid')
                     return 'invalid:' + invalid;
                 }
-                this.status = 'saving';
-                genro.fireEvent(this.controllerPath + '.saving');
+                this.op_status = 'saving';
+                this.fireControllerData('saving');
                 this.onSavedCb = onSavedCb;
                 genro.nodeById(this.form_id + '_saver').fireNode();
             } else {
-                genro.fireEvent(this.controllerPath + '.save_failed', 'nochange');
+                this.fireControllerData('save_failed','nochange');
             }
         }
         else {
@@ -171,28 +236,57 @@ dojo.declare("gnr.GnrFrmHandler", null, {
     },
     saved: function() {
         var onSavedCb = objectPop(this, 'onSavedCb');
-        genro.fireEvent(this.controllerPath + '.saved');
+        this.fireControllerData('saved');
         if (onSavedCb) {
             onSavedCb();
         }
-        this.status = 'saved';
+        this.op_status = 'saved';
     },
 
     openForm:function(idx, pkey) {
-        genro.fireEvent(this.controllerPath + '.openFormPkey', pkey);
-        genro.fireEvent(this.controllerPath + '.openFormIdx', idx);
+        this.fireControllerData('openFormPkey',pkey);
+        this.fireControllerData('openFormIdx',idx);
     },
     getFormData: function() {
-        return genro._(this.formDatapath);
+        return this.sourceNode.getRelativeData(this.formDatapath, true, new gnr.GnrBag())
     },
+    getControllerData: function(path) {
+        var cd = this.sourceNode.getRelativeData(this.controllerPath, true, new gnr.GnrBag());
+        return path?cd.getItem('path'):cd;
+    },
+    setControllerData: function(path,value) {
+        this.getControllerData().setItem(path,value,null,{lazySet:true});
+    },
+    fireControllerData: function(path,value,reason) {
+        this.getControllerData().fireItem(path,value,reason);
+    },
+    setFormData:function(data){
+        this.sourceNode.setRelativeData(this.formDatapath,data || new gnr.GnrBag());
+    },
+    getDataNodeAttributes:function(){
+        return this.sourceNode.getRelativeData(this.formDatapath).getParentNode().attr
+    },
+    isNewRecord:function(){
+        return this.getDataNodeAttributes()._newrecord;
+    },
+    isReadOnly:function(){
+        return this.getDataNodeAttributes()._readonly || this.locked;
+    },
+    
     hasChanges: function() {
-        return genro.getData(this.controllerPath + '.changed');
+        return this.getControllerData('changed'); 
     },
     getFormChanges: function() {
         return this._getRecordCluster(this.getFormData(), true);
     },
     getFormCluster: function() {
         return this._getRecordCluster(this.getFormData(), false);
+    },
+    getCurrentPkey:function(){
+        return this.pkeyPath ? this.sourceNode.getRelativeData(this.pkeyPath) : null;
+    },
+    setCurrentPkey:function(pkey){
+        this.sourceNode.setRelativeData(this.pkeyPath,pkey);
     },
     getVirtualColumns:function() {
         var virtual_columns = [];
@@ -203,6 +297,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
         });
         return virtual_columns.join(',');
     },
+
 
     _getRecordCluster: function(record, changesOnly, result, removed, parentpath) {
         if (record) {
@@ -235,7 +330,10 @@ dojo.declare("gnr.GnrFrmHandler", null, {
                     sendBag = (sendback == true) || this.hasChangesAtPath(currpath);
                     if (sendBag) {
                         value.walk(function(n){
-                            objectPop(n.attr,'_loadedValue');
+                            var loadedValue = objectPop(n.attr,'_loadedValue');
+                            if(loadedValue){
+                                n.attr.oldValue = asTypedTxt(loadedValue, n.attr.dtype);
+                            }
                         },'static')
                         data.setItem(node.label, value, objectUpdate({'_gnrbag':true}, node.attr));
                         data.__isRealChange = true;
@@ -244,7 +342,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
                 else if ((sendback == true) || (isNewRecord && value != null) || ('_loadedValue' in node.attr)) {
                     var attr_dict = {'dtype':node.attr.dtype};
                     if ('_loadedValue' in node.attr) {
-                        attr_dict.oldValue = asTypedTxt(node.attr._loadedValue, attr_dict['dtype']);
+                        attr_dict.__old = asTypedTxt(node.attr._loadedValue, attr_dict['dtype']);
                         data.__isRealChange = true;
                     }
                     if (recInfo._alwaysSaveRecord) {
@@ -299,7 +397,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
                 }
                 // if changed == null is a modification of a yet modified value, do nothing
 
-                this._setChangeStatus((changes.len() > 0));
+                this.updateStatus();
                 //this.updateInvalidField(kw.reason, changekey);
             } else {
                 //changed attributes
@@ -319,7 +417,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
         var changes = this.getChangesLogger();
         var changekey = this.getChangeKey(kw.node);
         changes.setItem(changekey, null, {isNewNode: true});
-        this._setChangeStatus((changes.len() > 0));
+        this.updateStatus();
         //this.updateInvalidField(kw.reason, changekey);
     },
     triggerDEL: function(kw) {
@@ -330,7 +428,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
         } else {
             changes.setItem(changekey, null);
         }
-        this._setChangeStatus((changes.len() > 0));
+        this.updateStatus();
     },
     getChangeKey:function(changekey) {
         if (typeof(changekey) != 'string') {//changekey is a data node
@@ -364,11 +462,28 @@ dojo.declare("gnr.GnrFrmHandler", null, {
                 invalidfields.pop(changekey);
             }
         }
-        var invalid = (invalidfields.len() > 0);
-        this._setInvalidStatus(invalid);
+        this.updateStatus();
     },
-    _setInvalidStatus:function(invalid) {
-        genro.setData(this.controllerPath + '.valid', !invalid);
+    updateStatus:function(){
+        var invalidfields = this.getInvalidFields();
+        var invalid = (invalidfields.len() > 0);
+        this.setControllerData('valid',!invalid)
+        var status;
+        if(this.isReadOnly()){
+            status = 'readOnly';
+        }
+        if(invalid){
+            status = 'error'
+        }else{
+            var changes = this.getChangesLogger();
+            var changed = (changes.len() > 0)
+            this.changed = changed;
+            this.setControllerData('changed',changed);
+            status = this.changed ? 'changed':'ok';
+        }
+        
+        this.publish('onStatusChange',{'status':status});
+        
     },
     checkInvalidFields: function() {
         var node, sourceNode, changekey;
@@ -391,9 +506,6 @@ dojo.declare("gnr.GnrFrmHandler", null, {
         }
         ;
     },
-    getInvalidFields: function() {
-        return genro._(this.invalidFieldsPath) || new gnr.GnrBag();
-    },
     focusFirstInvalidField: function() {
         if (dojo.isIE > 0) {
             return;
@@ -403,13 +515,30 @@ dojo.declare("gnr.GnrFrmHandler", null, {
         var key = objectKeyByIdx(first, 0);
         first[key].widget.focus();
     },
+    getInvalidFields: function() {
+        return this.getControllerData().getItem('invalidFields') || new gnr.GnrBag();
+    },
+    resetInvalidFields:function(){
+        this.getControllerData().setItem('invalidFields',new gnr.GnrBag());
+        this.updateStatus();
+    },
     getChangesLogger: function() {
-        return genro._(this.changesLogger);
+        return this.getControllerData().getItem('changesLogger') || new gnr.GnrBag();
     },
-    _setChangeStatus:function(changed) {
-        genro.setData(this.controllerPath + '.changed', changed);
-        this.changed = changed;
+    resetChangesLogger:function(){
+        this.getControllerData().setItem('changesLogger',new gnr.GnrBag());
+        this.updateStatus();
     },
+    remoteClusterLoad:function(table){
+        var that=this;
+        var cb = function(result){
+            that.loaded(result);
+        };
+        genro.rpc.remoteCall('loadRecordCluster',{'pkey':this.getCurrentPkey(),
+                                                  'virtual_columns':this.getVirtualColumns(),
+                                                  'table':this.table},null,'POST',null,cb);
+    },
+
     hasChangesAtPath:function(path) {
         var changesLogger = this.getChangesLogger();
         var chpath = path.replace(/\./g, '_');

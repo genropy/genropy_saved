@@ -88,6 +88,7 @@ dojo.declare("gnr.GnrWdgHandler", null, {
             'MenuSeparator':'dijit.Menu',
             'PopupMenuItem':'dijit.Menu',
             'Toolbar':'dijit.Toolbar',
+            'ToolbarSeparator':'dijit.Toolbar',
             'Dialog':'dijit.Dialog',
             'TooltipDialog':'dijit.Dialog',
             'ProgressBar':'dijit.ProgressBar',
