@@ -260,7 +260,7 @@ class BagToXml(object):
 
     #-------------------- toXml --------------------------------
     def build(self, bag, filename=None, encoding='UTF-8', catalog=None, typeattrs=True, typevalue=True,
-              addBagTypeAttr=True,
+              addBagTypeAttr=True,onBuildTag=None,
               unresolved=False, autocreate=False, docHeader=None, self_closed_tags=None,
               translate_cb=None, omitUnknownTypes=False, omitRoot=False, forcedTagAttr=None):
         """
@@ -288,6 +288,7 @@ class BagToXml(object):
         self.self_closed_tags = self_closed_tags or []
         self.forcedTagAttr = forcedTagAttr
         self.addBagTypeAttr = addBagTypeAttr
+        self.onBuildTag = onBuildTag
         if not typeattrs:
             self.catalog.addSerializer("asText", bool, lambda b: 'y' * int(b))
 
@@ -312,8 +313,9 @@ class BagToXml(object):
     def buildTag(self, tagName, value, attributes=None, cls='', xmlMode=False):
         #if value == None:
         #    value = ''
+        if self.onBuildTag:
+            self.onBuildTag(label=tagName,value=value,attributes=attributes)
         t = cls
-
         if not t:
             if value != '':
                 #if not isinstance(value, basestring):
