@@ -16,9 +16,10 @@ class GnrCustomWebPage(object):
          
     def test_0_formRecordPane(self,pane):
         """First test description"""
-        bc = pane.borderContainer(height='400px')
-        center = bc.contentPane(region='center',margin='2px')
-        form = center.formPane(formId='myform',datapath='.provincia',disabled=False)
+        tc = pane.tabContainer(height='400px')
+        t1 = tc.contentPane(title='empty')
+        t2 = tc.contentPane(title='withform').contentPane(_lazyBuild=True)
+        form = t2.formPane(formId='myform',datapath='.provincia',disabled=False)
         form.recordClusterStore('glbl.provincia')
         
         form.top.slotToolbar('prova','navigation,|,selectrecord,|,*,|,semaphore,|,formcommands,|,locker')
@@ -28,7 +29,18 @@ class GnrCustomWebPage(object):
         fb.textbox(value="^.nome", lbl="Nome", validate_notnull=True)
         fb.button('pippo',parentForm=True)
     
-    def test_2_paletteFormPane(self,pane):
+    def _test_2_paletteFormPane(self,pane):
+        palette = pane.palettePane('province',title='Province',dockTo='*',maxable=True,
+                                    _lazyBuild=True,
+                                    background='red')
+        form = palette.formPane(formId='provincie',datapath='.provincia',disabled=False)
+        form.recordClusterStore('glbl.provincia')
+        form.top.slotToolbar('prova','navigation,|,selectrecord,|,*,|,semaphore,|,formcommands,|,locker')
+        fb = form.content.formbuilder(cols=1, border_spacing='4px', width="100px", fld_width="100%",)
+        fb.textbox(value="^.sigla", lbl="Sigla", validate_notnull=True)
+        fb.textbox(value="^.nome", lbl="Nome", validate_notnull=True)
+        
+    def __test_3_remotePaletteFormPane(self,pane):
         palette = pane.palettePane('province',title='Province',dockTo='*',maxable=True)
         form = palette.formPane(formId='provincie',datapath='.provincia',disabled=False)
         form.recordClusterStore('glbl.provincia')
