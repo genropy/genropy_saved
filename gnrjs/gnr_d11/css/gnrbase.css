@@ -845,25 +845,25 @@ div.dojoxDock {
 /* @group Base16 */
 
 .icnBaseAdd {
-    background: url(icons/base16/add.gif) no-repeat;
+    background: url(icons/base16/add.gif) no-repeat center center;
     width: 16px;
     height: 16px;
 }
 
 .icnBuddy {
-    background: url(icons/base16/buddy.png) no-repeat;
+    background: url(icons/base16/buddy.png) no-repeat center center;
     width: 16px;
     height: 16px;
 }
 
 .icnBuddyChat {
-    background: url(icons/base16/buddy_chat.png) no-repeat;
+    background: url(icons/base16/buddy_chat.png) no-repeat center center;
     width: 16px;
     height: 16px;
 }
 
 .icnBaseCancel {
-    background: url(icons/base16/cancel.gif) no-repeat;
+    background: url(icons/base16/cancel.gif) no-repeat center center;
     width: 16px;
     height: 16px;
 }
@@ -871,83 +871,83 @@ div.dojoxDock {
 .icnRefresh {
     width: 16px;
     height: 16px;
-    background-image: url(icons/base16/refresh.png);
+    background-image: url(icons/base16/refresh.png) center center;
 }
 
 .icnBaseEmail {
-    background: url(icons/base16/email.gif) no-repeat;
+    background: url(icons/base16/email.gif) no-repeat center center;
     width: 16px;
     height: 16px;
 }
 
 .icnBaseExport {
-    background: url(icons/base16/export.gif) no-repeat;
+    background: url(icons/base16/export.gif) no-repeat center center;
     width: 16px;
     height: 16px;
 }
 
 .icnBaseAction {
-    background: url(icons/base16/action.gif) no-repeat;
+    background: url(icons/base16/action.gif) no-repeat center center;
     width: 16px;
     height: 16px;
 }
 
 .icnBasePref {
-    background: url(icons/base16/application_pref.png) no-repeat;
+    background: url(icons/base16/application_pref.png) no-repeat center center;
     width: 16px;
     height: 16px;
 }
 
 .icnBaseView {
-    background: url(icons/base16/view.gif) no-repeat;
+    background: url(icons/base16/view.gif) no-repeat center center;
     width: 16px;
     height: 16px;
 }
 
 .icnBaseDelete {
-    background: url(icons/base16/delete.gif) no-repeat;
+    background: url(icons/base16/delete.gif) no-repeat center center;
     width: 16px;
     height: 16px;
 }
 
 .icnBaseEdit {
-    background: url(icons/base16/edit.gif) no-repeat;
+    background: url(icons/base16/edit.gif) no-repeat center center;
     width: 16px;
     height: 16px;
 }
 
 .icnBaseEditUser {
-    background: url(icons/base16/edituser.gif) no-repeat;
+    background: url(icons/base16/edituser.gif) no-repeat center center;
     width: 16px;
     height: 16px;
 }
 
 .icnBaseLens {
-    background: url(icons/base16/lens.gif) no-repeat;
+    background: url(icons/base16/lens.gif) no-repeat center center;
     width: 16px;
     height: 16px;
 }
 
 .icnBaseEye {
-    background: url(icons/base16/eye.gif) no-repeat;
+    background: url(icons/base16/eye.gif) no-repeat center center;
     width: 16px;
     height: 16px;
 }
 
 .icnBaseLocked {
-    background: url(icons/base16/locked.gif) no-repeat;
+    background: url(icons/base16/locked.gif) no-repeat center center;
     width: 16px;
     height: 16px;
 }
 
 .icnBaseLogout {
-    background: url(icons/base16/logout.gif) no-repeat;
+    background: url(icons/base16/logout.gif) no-repeat center center;
     width: 16px;
     height: 16px;
 }
 
 .icnBaseOk {
-    background: url(icons/base16/ok.gif) no-repeat;
+    background: url(icons/base16/ok.gif) no-repeat center center;
     width: 17px;
     height: 17px;
 }
@@ -957,45 +957,45 @@ div.dojoxDock {
 }
 
 .checkboxOn {
-    background: url(icons/checkMarkOn.png) no-repeat;
+    background: url(icons/checkMarkOn.png) no-repeat center center;
     width: 15px;
     height: 15px;
 }
 
 .checkboxOff {
-    background: url(icons/checkMarkOff.png) no-repeat;
+    background: url(icons/checkMarkOff.png) no-repeat center center;
     width: 15px;
     height: 15px;
 }
 
 .checkboxOnOff {
-    background: url(icons/checkMarkOnOff.png) no-repeat;
+    background: url(icons/checkMarkOnOff.png) no-repeat center center;
     width: 15px;
     height: 15px;
 }
 
 .radioOn {
-    background: url(icons/checkMarkOn.png) no-repeat;
+    background: url(icons/checkMarkOn.png) no-repeat center center;
     width: 15px;
     height: 15px;
 }
 
 .radioOff {
-    background: url(icons/checkMarkOff.png) no-repeat;
+    background: url(icons/checkMarkOff.png) no-repeat center center;
     width: 15px;
     height: 15px;
 }
 
 /* @group boole */
 .icnTrue {
-    background: url(icons/base16/ok.gif) no-repeat;
+    background: url(icons/base16/ok.gif) no-repeat center center;
     width: 16px;
     height: 16px;
     cursor: pointer;
 }
 
 .icnFalse {
-    background: url(icons/base16/cancel.gif) no-repeat;
+    background: url(icons/base16/cancel.gif) no-repeat center center;
     width: 16px;
     height: 16px;
     cursor: pointer;
@@ -1004,37 +1004,37 @@ div.dojoxDock {
 /* @end */
 
 .icnBaseOneWay {
-    background: url(icons/base16/oneway.gif) no-repeat;
+    background: url(icons/base16/oneway.gif) no-repeat center center;
     width: 16px;
     height: 16px;
 }
 
 .icnBaseSave {
-    background: url(icons/base16/save.gif) no-repeat;
+    background: url(icons/base16/save.gif) no-repeat center center;
     width: 16px;
     height: 16px;
 }
 
 .icnBaseFolder {
-    background: url(icons/base16/folder.gif) no-repeat;
+    background: url(icons/base16/folder.gif) no-repeat center center;
     width: 16px;
     height: 16px;
 }
 
 .icnBasePowerOff {
-    background: url(icons/base16/poweroff.gif) no-repeat;
+    background: url(icons/base16/poweroff.gif) no-repeat center center;
     width: 16px;
     height: 16px;
 }
 
 .icnBasePrinter {
-    background: url(icons/base16/printer.gif) no-repeat;
+    background: url(icons/base16/printer.gif) no-repeat center center;
     width: 16px;
     height: 16px;
 }
 
 .icnBasePdf {
-    background: url(icons/base16/pdf_icon.gif) no-repeat;
+    background: url(icons/base16/pdf_icon.gif) no-repeat center center;
     width: 16px;
     height: 16px;
 }
@@ -1046,31 +1046,31 @@ div.dojoxDock {
 }
 
 .icnBaseWrite {
-    background: url(icons/base16/pencil.gif) no-repeat;
+    background: url(icons/base16/pencil.gif) no-repeat center center;
     width: 16px;
     height: 16px;
 }
 
 .icnBaseTrash {
-    background: url(icons/base16/trash.gif) no-repeat;
+    background: url(icons/base16/trash.gif) no-repeat center center;
     width: 16px;
     height: 16px;
 }
 
 .icnBaseUnlocked {
-    background: url(icons/base16/unlocked.gif) no-repeat;
+    background: url(icons/base16/unlocked.gif) no-repeat center center;
     width: 16px;
     height: 16px;
 }
 
 .icnBaseUpBlue {
-    background: url(icons/base16/upblue.gif) no-repeat;
+    background: url(icons/base16/upblue.gif) no-repeat center center;
     width: 16px;
     height: 16px;
 }
 
 .icnBaseUpYellow {
-    background: url(icons/base16/upyellow.gif) no-repeat;
+    background: url(icons/base16/upyellow.gif) no-repeat center center;
     width: 16px;
     height: 16px;
 }
