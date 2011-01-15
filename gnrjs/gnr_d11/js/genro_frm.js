@@ -37,7 +37,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
         this.sourceNode = sourceNode;
         this.subscribe('save,load,setLocked');
         this._register = {};
-        this.locked = true;
+        this.locked = false;
         this.autoRegisterTags = {
             'textbox':null,
             'simpletextarea':null,
