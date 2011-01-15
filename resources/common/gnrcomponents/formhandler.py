@@ -21,7 +21,6 @@
 
 from gnr.web.gnrbaseclasses import BaseComponent
 from gnr.web.gnrwebstruct import struct_method
-from gnr.core.gnrstring import splitAndStrip
 
 class FormHandler(BaseComponent):
     css_requires='public'
@@ -49,17 +48,6 @@ class FormHandler(BaseComponent):
         top = form.contentPane(region='top',overflow='hidden',_attachname='top')
         center = form.contentPane(region='center',datapath='.record',_attachname='content')
         return form
-        
-    #def sqlLoader(pane,table=None,formId=None,recordPath=None):
-    #    attr = pane.attributes
-    #    formId = attr.get('formId',None)
-    #    formId = attr.get('formId',None)
-    #    if formId:
-    #        self.formLoader()
-    
-    #'navigation,selectrecord,formcommands'
-    # 
-
         
     @struct_method
     def fh_sltb_navigation(self,pane):
@@ -89,8 +77,6 @@ class FormHandler(BaseComponent):
         buttons = pane.div(width='100px')
         buttons.button(label='^.status.lockLabel', fire='.status.changelock',
                       iconClass="^.status.statusClass", showLabel=False)
-                      
-        #buttons.semaphore(formId=formId)
         buttons.button('!!Save', action='genro.publish(_formId+"_save")', float='right',
                        iconClass="tb_button db_save", showLabel=False)
         buttons.button('!!Revert', action='genro.publish(_formId+"_save")',
@@ -101,28 +87,14 @@ class FormHandler(BaseComponent):
                        showLabel=False,float='right')
     @struct_method 
     def fh_sltb_locker(self,pane):
+        pane.dataController("""
+                            //genro.bp('abcd');
+                            console.log(this.form);
+                            """,
+                            _onStart=1000)
         pane.button('!!Locker',width='20px',iconClass='icnBaseLocked',showLabel=False,
                     action='this.form.publish("setLocked","toggle");',
                     formsubscribe_onLockChange="""var locked= $1.locked;
                                                   this.widget.setIconClass(locked?'icnBaseLocked':'icnBaseUnlocked');""")
-    
-    def xxx(self,toolbar):
-        toolbar = pane.toolbar(_class='standard_toolbar')
-        toolbar.dataFormula('.status.locked', True, _onStart=True)
-        toolbar.dataController("""
-                            if(isLocked){
-                            //if not unlockable return
-                                isLocked = isLocked //if unlocable 
-                            }
-                            SET .status.locked=!isLocked
-                            """,
-                               _fired='^.status.changelock',
-                               isLocked='=.status.locked')
-        toolbar.dataController("""
-                             SET .status.statusClass = isLocked?'tb_button icnBaseLocked':'tb_button icnBaseUnlocked';
-                             SET .status.lockLabel = isLocked?unlockLabel:lockLabel;
-                               """, isLocked="^.status.locked", lockLabel='!!Lock',
-                               unlockLabel='!!Unlock')
-
         
         
