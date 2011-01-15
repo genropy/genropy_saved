@@ -163,8 +163,10 @@ dojo.declare('gnr.GenroClient', null, {
         genro.rpc.ping();
     },
     bp:function(aux) {
-        debugger;
         console.log('bp ' + aux);
+        if (aux===true){
+            debugger;
+        }
     },
     onWindowUnload:function(e) {
         this.rpc.remoteCall('onClosePage', {sync:true});
