@@ -633,6 +633,7 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
         if (!tag) {
             this._buildChildren(destination);
         } else {
+            this._registerInForm();
             this._doBuildNode(tag, attributes, destination, ind);
             this._setDynAttributes();
         }
@@ -652,11 +653,22 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
                 if (node.attr.tag) { // ignore nodes without tag: eg. grid structure
                     var aux = '_bld_' + node.attr.tag.toLowerCase();
                     if (aux in node) {
+                        node._registerInForm();
                         node[aux].call(node);
                     } else {
                         node.build(destination, -1); // append to parent
                     }
+                    
                 }
+            }
+        }
+    },
+    _registerInForm:function(){
+        var formHandler = this.getFormHandler();
+        if(formHandler){
+            this.form = formHandler;
+            if(this.attr.parentForm!==false){
+                formHandler.registerChild(this)
             }
         }
     },
@@ -677,11 +689,19 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
         }
         var subscriptions = objectExtract(attributes, 'subscribe_*');
         var selfsubscription = objectExtract(attributes, 'selfsubscribe_*');
-        var formsubscription = objectExtract(attributes, 'formsubscribe_*');
+        
         var publisherId = this.attr.nodeId;
         for (var selfsubscribe in selfsubscription){
             subscriptions[publisherId+'_'+selfsubscribe] = selfsubscription[selfsubscribe];
         }
+        if(this.form){
+            var formsubscription = objectExtract(attributes, 'formsubscribe_*');
+            var topic_pref = 'form_'+this.form.form_id+'_';
+            for (var formsubscribe in formsubscription){
+                subscriptions[topic_pref+formsubscribe] = formsubscription[formsubscribe];
+            }
+        }
+
         var attrname;
         var ind = ind || 0;
         if (bld_attrs.onCreating) {
@@ -696,17 +716,6 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
             funcCreate(bld_attrs.onCreated, 'widget,attributes').call(this, newobj, attributes);
         }
         this._registerNodeId(bld_attrs.nodeId);
-        var formHandler = this.getFormHandler();
-        if(formHandler){
-            this.form = formHandler;
-            if(this.attr.parentForm!==false){
-                formHandler.registerChild(this)
-            }
-            var topic_pref = 'form_'+this.form.form_id+'_';
-            for (var formsubscribe in formsubscription){
-                subscriptions[topic_pref+formsubscribe] = formsubscription[formsubscribe];
-            }
-        }
         if (bld_attrs.gnrId) {
             this.setGnrId(bld_attrs.gnrId, newobj);
         }
@@ -720,7 +729,15 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
             dojo.subscribe(subscription, this, handler);
         }
         //dojo.hitch(this,'_buildChildren',newobj)
-        this._buildChildren(newobj);
+        if(newobj.onShow){
+            dojo.connect(newobj,'onShow',this,'finalizeLazyBuildChildren');
+        }
+        if(newobj.show){
+            dojo.connect(newobj,'show',this,'finalizeLazyBuildChildren');
+        }
+        if (!this.attr._lazyBuild){
+            this._buildChildren(newobj);
+        }
         if ('startup' in newobj) {
             newobj.startup();
         }
@@ -776,6 +793,27 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
             curr = curr[id];
         }
         curr[idLst[idLst.length - 1]] = obj;
+    },
+    finalizeLazyBuildChildren:function(){
+        this.getValue('static').walk(function(n){
+            if(n.attr._lazyBuild){
+                n.lazyBuildFinalize();
+            }
+        });
+    },
+    lazyBuildFinalize:function(){
+        if(this.attr._lazyBuild){
+            objectPop(this.attr,'_lazyBuild');
+            //var value = this._value;
+            var parent = this.getParentBag();
+            var content = this._value;
+            parent.delItem(this.label);
+            parent.setItem(this.label,content,this.attr);
+            var parentWidget = parent.getParentNode().widget;
+            parentWidget.resize(dojo.coords(parentWidget.domNode));
+        }
+        
+        
     },
     getFormHandler:function(){
         if (this.formHandler){
