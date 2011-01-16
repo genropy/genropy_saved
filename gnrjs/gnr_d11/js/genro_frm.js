@@ -55,6 +55,9 @@ dojo.declare("gnr.GnrFrmHandler", null, {
             'textarea':null,
             'datetextbox':null,
         }
+        this.loadKw = objectExtract(kw,'load_*');
+        this.saveKw = objectExtract(kw,'save_*');
+        
         for(var k in kw){
             this[k] = kw[k];
         }
@@ -180,8 +183,13 @@ dojo.declare("gnr.GnrFrmHandler", null, {
             if (sync) {
                 this.loaded();
             }
-        } else if(this.loadermethod) {
-            this[this.loadermethod].call(this);
+        } else if(this.loadmethod) {
+            var method = this.loadmethod;
+            if(typeof(method)=='function'){
+                method.call(this);
+            }else{
+                this[method].call(this);
+            }
         }
     },
     
@@ -225,7 +233,17 @@ dojo.declare("gnr.GnrFrmHandler", null, {
                 this.op_status = 'saving';
                 this.fireControllerData('saving');
                 this.onSavedCb = onSavedCb;
-                genro.nodeById(this.form_id + '_saver').fireNode();
+                var saverNode = genro.nodeById(this.form_id + '_saver')
+                if(saverNode){
+                    saverNode.fireNode();
+                }else if(this.savemethod) {
+                    var method = this.savemethod;
+                    if(typeof(method)=='function'){
+                        method.call(this);
+                    }else{
+                        this[method].call(this);
+                    }
+                }
             } else {
                 this.fireControllerData('save_failed','nochange');
             }
@@ -529,14 +547,24 @@ dojo.declare("gnr.GnrFrmHandler", null, {
         this.getControllerData().setItem('changesLogger',new gnr.GnrBag());
         this.updateStatus();
     },
-    remoteClusterLoad:function(table){
+    loader_recordCluster:function(table){
         var that=this;
         var cb = function(result){
             that.loaded(result);
         };
-        genro.rpc.remoteCall('loadRecordCluster',{'pkey':this.getCurrentPkey(),
+        var kw =this.sourceNode.evaluateOnNode(this.loadKw);
+        genro.rpc.remoteCall('loadRecordCluster',objectUpdate({'pkey':this.getCurrentPkey(),
                                                   'virtual_columns':this.getVirtualColumns(),
-                                                  'table':this.table},null,'POST',null,cb);
+                                                  'table':this.table},kw),null,'POST',null,cb);
+    },
+    saver_recordCluster:function(table){
+        var that=this;
+        var cb = function(result){
+            that.saved(result);
+        };
+        var kw =this.sourceNode.evaluateOnNode(this.saveKw);
+        genro.rpc.remoteCall('saveRecordCluster',objectUpdate({'data':this.getFormChanges(),
+                                                               'table':this.table},kw),null,'POST',null,cb);
     },
 
     hasChangesAtPath:function(path) {
