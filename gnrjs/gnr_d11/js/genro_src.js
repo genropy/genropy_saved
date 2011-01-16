@@ -78,6 +78,9 @@ dojo.declare("gnr.GnrSrcHandler", null, {
         }
     },
     _trigger_ins:function(kw) {//da rivedere
+        if(kw.reason=='autocreate'){
+            return;
+        }
         var node = kw.node;
         var where = objectPop(node.attr, '_parentDomNode');
         if (!where) {
@@ -317,6 +320,12 @@ dojo.declare("gnr.GnrSrcHandler", null, {
             }
         }
         return obj;
+    },
+    create: function(widget,pars,path) {
+        var path = path || '_temp.'+this.getNode()._id;
+        var source = genro.src.getNode(path).getParentBag();
+        source.delItem('#0');
+        return source._(widget,pars);        
     },
 
 });
