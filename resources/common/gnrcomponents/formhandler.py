@@ -76,15 +76,13 @@ class FormHandler(BaseComponent):
     @struct_method          
     def fh_sltb_formcommands(self,pane):
         buttons = pane.div(width='100px')
-        buttons.button(label='^.status.lockLabel', fire='.status.changelock',
-                      iconClass="^.status.statusClass", showLabel=False)
-        buttons.button('!!Save', action='genro.publish(_formId+"_save")', float='right',
+        buttons.button('!!Save', action='this.form.publish("save");', float='right',
                        iconClass="tb_button db_save", showLabel=False)
-        buttons.button('!!Revert', action='genro.publish(_formId+"_save")',
+        buttons.button('!!Revert', action='this.form.publish("load");',
                         iconClass="tb_button db_revert",
                        float='right',
                        showLabel=False)
-        buttons.button('!!Delete', fire=".edit.delete", iconClass='db_del tb_button',
+        buttons.button('!!Delete', action='this.form.publish("delete");', iconClass='db_del tb_button',
                        showLabel=False,float='right')
     @struct_method 
     def fh_sltb_locker(self,pane):
