@@ -39,12 +39,13 @@ class FormHandler(BaseComponent):
                                      disabled=disabled)
         
     @struct_method
-    def fh_formPane(self,pane,formId=None,table=None,datapath=None,disabled=None,loadKwargs=None):
+    def fh_formPane(self,pane,formId=None,datapath=None,**kwargs):
         sqlContextName = 'sqlcontext_%s' % formId
         sqlContextRoot = '#%s.record' % formId    
-        loadKwargs = loadKwargs or dict()    
+        height= kwargs.get('height') or '100%'
         form = pane.borderContainer(datapath=datapath,formDatapath='.record',controllerPath='.form',pkeyPath='.pkey',
-                                    formId=formId,sqlContextName=sqlContextName,sqlContextRoot=sqlContextRoot)
+                                    formId=formId,sqlContextName=sqlContextName,sqlContextRoot=sqlContextRoot,
+                                    height=height,**kwargs)
         top = form.contentPane(region='top',overflow='hidden',_attachname='top')
         center = form.contentPane(region='center',datapath='.record',_attachname='content')
         return form
@@ -87,11 +88,6 @@ class FormHandler(BaseComponent):
                        showLabel=False,float='right')
     @struct_method 
     def fh_sltb_locker(self,pane):
-        pane.dataController("""
-                            //genro.bp('abcd');
-                            console.log(this.form);
-                            """,
-                            _onStart=1000)
         pane.button('!!Locker',width='20px',iconClass='icnBaseLocked',showLabel=False,
                     action='this.form.publish("setLocked","toggle");',
                     formsubscribe_onLockChange="""var locked= $1.locked;

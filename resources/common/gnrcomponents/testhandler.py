@@ -47,7 +47,7 @@ class TestHandler(BaseComponent):
                 margin_right='5px', margin_top='3px', style='cursor:pointer')
             h.div(test_handler.__doc__ or test_name, background_color='gray', color='white', padding='3px')
 
-            element = element.div(padding='15px')
+            element = element.div(padding='5px')
             test_handler(element)
 
 class TestHandlerBase(TestHandler):
