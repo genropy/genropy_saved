@@ -283,17 +283,30 @@ dojo.declare("gnr.widgets.Palette", gnr.widgets.gnrwdg, {
             top = this._last_floating['top'] + 'px';
             right = this._last_floating['right'] + 'px';
         }
-        var dockTo = objectPop(attributes,'dockTo') || 'default_dock';
-        var floating_kwargs = objectUpdate(attributes,{dockable:true,closable:false,
-                                                       dockTo:dockTo,visibility:'hidden'});
-        if(dockTo===true){
+        var dockTo = objectPop(attributes,'dockTo');
+        var floating_kwargs = objectUpdate(attributes,{dockable:true,closable:false,visibility:'hidden'});
+        var showOnStart = false;
+        if(dockTo===false){
             floating_kwargs.closable = true;
             floating_kwargs.dockable = false;
-            objectPop(floating_kwargs,'dockTo');
+            showOnStart = true;
+        }else if(dockTo.indexOf(':open')>=0){
+            dockTo = dockTo.split(':')[0];
+            objectPop(floating_kwargs,'visibility');
+            showOnStart = true;
+        }
+        if(showOnStart){
             floating_kwargs.onCreated = function(widget){
-                widget.show();
-                widget.bringToTop();
-            }
+                setTimeout(function(){
+                    widget.show();
+                    widget.bringToTop();
+                },1);};
+        }
+        if(!dockTo){
+            dockTo = dockTo===false?dockTo:'default_dock';
+        }
+        if(dockTo){
+            floating_kwargs.dockTo=dockTo;
         }
         return objectUpdate({height:'400px',width:'300px',
                             top:top,right:right,left:left,bottom:bottom,
