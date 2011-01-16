@@ -68,7 +68,7 @@ dojo.declare("gnr.GnrDevHandler", null, {
         genro.src.getNode()._('div', '_devSrcInspector_');
         var node = genro.src.getNode('_devSrcInspector_').clearValue();
         node.freeze();
-        node._('PaletteBagNodeEditor',{'paletteCode':'srcInspector',nodeId:'srcInspector',id:'gnr_srcInspector','dockTo':true,
+        node._('PaletteBagNodeEditor',{'paletteCode':'srcInspector',nodeId:'srcInspector',id:'gnr_srcInspector','dockTo':false,
                                         title:'Source Node Inspector',style:"font-family:monaco;",
                                         'bagpath':'*S'});
         
@@ -193,7 +193,7 @@ dojo.declare("gnr.GnrDevHandler", null, {
         genro.src.getNode()._('div', '_devInspector_');
         var node = genro.src.getNode('_devInspector_').clearValue();
         node.freeze();
-        var pg = node._('paletteGroup',{'groupCode':'devTools','dockTo':true,id:'gnr_devTools',
+        var pg = node._('paletteGroup',{'groupCode':'devTools','dockTo':false,id:'gnr_devTools',
                                         title:'Developer tools',style:"font-family:monaco;"});
         pg._('paletteTree',{'paletteCode':'cliDatastore',title:'Data',
                            storepath:'*D',searchOn:true,tree_inspect:'shift',
