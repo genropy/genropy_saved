@@ -65,19 +65,19 @@ class GnrSqlAppDb(GnrSqlDb):
         if not self.inTransactionDaemon and tblobj._usesTransaction:
             raise GnrWriteInReservedTableError('%s.%s' % (tblobj.pkg.name, tblobj.name))
 
-    def delete(self, tblobj, record):
+    def delete(self, tblobj, record,**kwargs):
         self.checkTransactionWritable(tblobj)
-        GnrSqlDb.delete(self, tblobj, record)
+        GnrSqlDb.delete(self, tblobj, record,**kwargs)
         self.application.notifyDbEvent(tblobj, record, 'D')
 
-    def update(self, tblobj, record, old_record=None, pkey=None):
+    def update(self, tblobj, record, old_record=None, pkey=None,**kwargs):
         self.checkTransactionWritable(tblobj)
-        GnrSqlDb.update(self, tblobj, record, old_record=old_record, pkey=pkey)
+        GnrSqlDb.update(self, tblobj, record, old_record=old_record, pkey=pkey,**kwargs)
         self.application.notifyDbEvent(tblobj, record, 'U', old_record)
 
-    def insert(self, tblobj, record):
+    def insert(self, tblobj, record,**kwargs):
         self.checkTransactionWritable(tblobj)
-        GnrSqlDb.insert(self, tblobj, record)
+        GnrSqlDb.insert(self, tblobj, record,**kwargs)
         self.application.notifyDbEvent(tblobj, record, 'I')
 
     def getResource(self, tblobj, path):
