@@ -807,7 +807,6 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
     lazyBuildFinalize:function(){
         if(this.attr._lazyBuild){
             var lazyBuild = objectPop(this.attr,'_lazyBuild');
-            //var value = this._value;
             var parent = this.getParentBag();
             var content;
             if(lazyBuild!==true){
@@ -820,6 +819,7 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
             parent.setItem(this.label,content,this.attr);
             var parentWidget = parent.getParentNode().widget;
             parentWidget.resize(dojo.coords(parentWidget.domNode));
+            parentWidget.sourceNode.publish('built');
         }        
     },
     getFormHandler:function(){
