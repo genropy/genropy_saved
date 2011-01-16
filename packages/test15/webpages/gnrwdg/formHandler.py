@@ -28,7 +28,7 @@ class GnrCustomWebPage(object):
         pane.dock(id='test_3_dock')
         pane.palettePane('province',title='Province',dockTo='test_3_dock',_lazyBuild=True).formTester('form_palette')
         pane.palettePane('province_remote',title='Province Remote',dockTo='test_3_dock',
-                         _lazyBuild='testPalette',remote_pkey='foo')
+                         _lazyBuild='testPalette')
 
     
     def test_5_formPane_palette_remote(self,pane):
@@ -45,7 +45,7 @@ class GnrCustomWebPage(object):
                     pkey='=.provincia')
         
     def remote_testPalette(self,pane,pkey=None,**kwargs):
-        pane.formTester('form_remote_%s' %pkey)
+        pane.formTester('form_remote_%s' %pkey,hasSelector=False)
         pane.dataController("console.log('hei')",selfsubscribe_built=True)
             
     def test_4_formPane_dialog(self,pane):
@@ -59,10 +59,16 @@ class GnrCustomWebPage(object):
         form.recordClusterStore('glbl.provincia')
         left = 'navigation,|,selectrecord,|,' if hasSelector else ''
         form.top.slotToolbar('prova','%s *,|,semaphore,|,formcommands,|,locker' %left)
-        fb = form.content.formbuilder(cols=1, border_spacing='4px', width="100px", fld_width="100%",)
-        fb.textbox(value="^.sigla", lbl="Sigla", validate_notnull=True)
-        fb.textbox(value="^.nome", lbl="Nome", validate_notnull=True)
-        form.recordClusterStore('glbl.provincia')
+        fb = form.content.formbuilder(cols=1, border_spacing='4px', width="300px", fld_width="100%")
+        fb.field('sigla')
+        fb.field('regione')
+        fb.field('nome')
+        fb.field('codice_istat')
+        fb.field('ordine')
+        fb.field('ordine_tot')
+        fb.field('cap_valido')
+        
+        
                    
     @struct_method('prova_selectrecord')
     def prova_selectrecord(self,pane):
@@ -74,9 +80,11 @@ class GnrCustomWebPage(object):
         print dati
     
     @struct_method
-    def recordClusterStore(self,pane,table=None):
-       #pane.dataRpc('dummy', 'saveRecordCluster', nodeId="myform_saver", dati="=.record",
-       #           _onResult="genro.formById('myform').saved(); genro.formById('myform').load();")
-        pane.attributes['form_table']=table or self.maintable
-        pane.attributes['form_loadermethod'] = 'remoteClusterLoad'
+    def recordClusterStore(self,pane,table=None,**kwargs):
+        formAttr = pane.attributes
+        for k,v in kwargs.items():
+             formAttr['form_%s' %k] = v
+        formAttr['form_table'] = table or self.maintable
+        formAttr['form_loadmethod'] = 'loader_recordCluster'
+        formAttr['form_savemethod'] = 'saver_recordCluster'
 
