@@ -302,8 +302,8 @@ dojo.declare("gnr.widgets.Palette", gnr.widgets.gnrwdg, {
                     widget.bringToTop();
                 },1);};
         }
-        if(!dockTo){
-            dockTo = dockTo===false?dockTo:'default_dock';
+        if(!dockTo && dockTo!==false){
+            dockTo = 'default_dock';
         }
         if(dockTo){
             floating_kwargs.dockTo=dockTo;
