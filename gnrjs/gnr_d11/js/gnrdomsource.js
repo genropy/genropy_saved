@@ -679,9 +679,6 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
         }
     },
     _doBuildNode: function(tag, attributes, destination, ind) {
-        //if (('nodeId' in attributes) && !('id' in attributes)){
-        //    attributes.id = attributes.nodeId;
-        //}
         var bld_attrs = objectExtract(attributes, 'onCreating,onCreated,gnrId,tooltip,nodeId');
         var connections = objectExtract(attributes, 'connect_*');
         if (objectPop(attributes, 'autofocus')) {
@@ -689,10 +686,8 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
         }
         var subscriptions = objectExtract(attributes, 'subscribe_*');
         var selfsubscription = objectExtract(attributes, 'selfsubscribe_*');
-        
-        var publisherId = this.attr.nodeId;
         for (var selfsubscribe in selfsubscription){
-            subscriptions[publisherId+'_'+selfsubscribe] = selfsubscription[selfsubscribe];
+            this.subscribe(selfsubscribe,selfsubscription[selfsubscribe]);
         }
         if(this.form){
             var formsubscription = objectExtract(attributes, 'formsubscribe_*');
@@ -724,7 +719,6 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
             this.connect(newobj, eventname, connections[eventname]);
         }
         for (var subscription in subscriptions) {
-            console.log('subscribing '+subscription);
             var handler = funcCreate(subscriptions[subscription]);
             dojo.subscribe(subscription, this, handler);
         }
@@ -801,19 +795,32 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
             }
         });
     },
+    publish:function(msg,kw){
+        var topic = (this.attr.nodeId || this.getStringId()) +'_'+msg;
+        console.log(msg)
+        genro.publish(topic,kw);
+    },
+    subscribe:function(command,handler){
+        var topic = (this.attr.nodeId || this.getStringId()) +'_'+command;
+        dojo.subscribe(topic, this, funcCreate(handler));
+    },
     lazyBuildFinalize:function(){
         if(this.attr._lazyBuild){
-            objectPop(this.attr,'_lazyBuild');
+            var lazyBuild = objectPop(this.attr,'_lazyBuild');
             //var value = this._value;
             var parent = this.getParentBag();
-            var content = this._value;
+            var content;
+            if(lazyBuild!==true){
+                content = genro.serverCall('remoteBuilder',objectUpdate({handler:lazyBuild},objectExtract(this.attr,'remote_*')));
+            }
+            else{
+                content = this._value;
+            }
             parent.delItem(this.label);
             parent.setItem(this.label,content,this.attr);
             var parentWidget = parent.getParentNode().widget;
             parentWidget.resize(dojo.coords(parentWidget.domNode));
-        }
-        
-        
+        }        
     },
     getFormHandler:function(){
         if (this.formHandler){
