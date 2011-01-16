@@ -18,6 +18,12 @@ class GnrCustomWebPage(object):
 
     def test_0_default_dock(self, pane):
         pane.div(height='30px').dock(id='default_dock')
+    def test_one(self, pane):
+        bc = pane.borderContainer(height='300px')
+        bc.contentPane(region='top',height='50px').contentPane(detachable=True,background='red')
+        bc.contentPane(region='center')
+
+    
 
     #def test_1_palette(self, pane):
     #    pane.div(height='30px').dock(id='mydock_1')
@@ -36,13 +42,13 @@ class GnrCustomWebPage(object):
    #    pg.paletteTree('mytree', title='State', data=self.treedata())
    #    pg.palettePane('blue', title='aa', background_color='blue').div('blu')
 
-    def test_3_gridpalette(self, pane):
-        pane.div(height='30px').dock(id='mydock_3')
-        pg = pane.paletteGroup('third', dockTo='mydock_3')
-        pg.paletteGrid('mygrid', title='States', data=self.griddata(), struct=self.gridstruct
-                       #filterOn='Caption:caption'
-                       )
-        #pg.palettePane('blue',title='aa',background_color='blue').div('blu')
+    #def test_3_gridpalette(self, pane):
+    #    pane.div(height='30px').dock(id='mydock_3')
+    #    pg = pane.paletteGroup('third', dockTo='mydock_3')
+    #    pg.paletteGrid('mygrid', title='States', data=self.griddata(), struct=self.gridstruct
+    #                   #filterOn='Caption:caption'
+    #                   )
+    #    #pg.palettePane('blue',title='aa',background_color='blue').div('blu')
 
 
     def treedata(self):

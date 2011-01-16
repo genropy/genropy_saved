@@ -5,7 +5,8 @@
 class GnrCustomWebPage(object):
     dojo_version = '11'
     py_requires = "gnrcomponents/testhandler:TestHandlerBase"
-    css_theme = ' '
+    css_theme = 'aqua'
+    css_requires='public'
     dojo_theme = 'tundra'
 
     def test_1_basic(self, pane):
@@ -13,6 +14,7 @@ class GnrCustomWebPage(object):
         dlg = pane.dialog(nodeId='mydialog', style='width:300px;', title='Very simple dialog')
         dlg.div('This is a very simple dialog')
         pane.button('Open a dialog', action="genro.wdgById('mydialog').show()")
+        pane.div(height='40px').palettePane('pippo',title='pippo',dockTo='*')
 
     def test_2_nested(self, pane):
         """Nested Dialogs"""
@@ -25,7 +27,6 @@ class GnrCustomWebPage(object):
 
     def test_3_variable_title(self, pane):
         """Dialog with variable title"""
-
         dlg = pane.dialog(nodeId='mydialog_variable_title', duration=1000,
                           style='width:300px;top:20px;', title='^dialogTitle')
         dlg.div('This is dialog with a variable title')
