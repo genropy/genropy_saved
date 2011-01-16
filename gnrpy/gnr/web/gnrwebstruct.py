@@ -378,6 +378,7 @@ class GnrDomSrc(GnrStructData):
         commonPrefix = ('lbl_', 'fld_', 'row_', 'tdf_', 'tdl_')
         commonKwargs = dict([(k, kwargs.pop(k)) for k in kwargs.keys() if len(k) > 4 and k[0:4] in commonPrefix])
         tbl = self.child('table', _class='%s %s' % (tblclass, _class), **kwargs).child('tbody')
+        dbtable = dbtable or self.parentNode.getInheritedAttributes().get('form_table') or self.page.maintable
         tbl.fbuilder = GnrFormBuilder(tbl, cols=int(cols), dbtable=dbtable,
                                       lblclass=lblclass, lblpos=lblpos, lblalign=lblalign, fldalign=fldalign,
                                       fieldclass=fieldclass,
@@ -739,7 +740,7 @@ class GnrFormBuilder(object):
         self.rowlast = -1
         #self._tbl=weakref.ref(tbl)
         self._tbl = tbl
-        self.maintable = dbtable or self.page.maintable
+        self.maintable = dbtable
         if self.maintable:
             self.tblobj = self.page.db.table(self.maintable)
         self.rowcurr = -1
