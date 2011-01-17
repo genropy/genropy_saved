@@ -32,7 +32,7 @@ from gnr.web._gnrbasewebpage import GnrBaseWebPage
 import os
 import shutil
 
-from gnr.core.gnrstring import toText, toJson, concat, jsquote
+from gnr.core.gnrstring import toText, toJson, concat, jsquote,splitAndStrip
 
 from gnr.core.gnrlang import getUuid
 from mako.lookup import TemplateLookup
@@ -1165,13 +1165,22 @@ class LazyBagResolver(BagResolver):
                    '_page': None,
                    'sourceBag': None,
                    'location': None,
-                   'path': None}
+                   'path': None,
+                   'filter':None}
     classArgs = ['path']
 
     def load(self):
         if not self.sourceBag:
             self.getSource()
         sourceBag = self.sourceBag[self.path]
+        if self.filter:
+
+            flt,v=splitAndStrip(self.filter,'=',fixed=2)
+            if  v:
+                cb=lambda n: flt in n.attr and v in n.attr[flt]
+            else:
+                cb=lambda n: flt in n.label
+            return sourceBag.filter(cb)
         result = Bag()
         for n in sourceBag:
             value = n.value
@@ -1180,12 +1189,12 @@ class LazyBagResolver(BagResolver):
                 value = LazyBagResolver(path=path, resolverName=self.resolverName, location=self.location)
             result.setItem(n.label, value, n.attr)
         return result
-
+     
     def getSource(self):
         filepath = self._page.site.getStaticPath(self.location, self.resolverName)
         self.sourceBag = Bag('%s.pik' % filepath)
 
-
+        
 class GnrMakoPage(GnrWebPage):
     def onPreIniting(self, request_args, request_kwargs):
         request_kwargs['_plugin'] = 'mako'
