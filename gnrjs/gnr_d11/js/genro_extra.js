@@ -290,7 +290,7 @@ dojo.declare("gnr.widgets.Palette", gnr.widgets.gnrwdg, {
             floating_kwargs.closable = true;
             floating_kwargs.dockable = false;
             showOnStart = true;
-        }else if(dockTo.indexOf(':open')>=0){
+        }else if(dockTo && dockTo.indexOf(':open')>=0){
             dockTo = dockTo.split(':')[0];
             objectPop(floating_kwargs,'visibility');
             showOnStart = true;
