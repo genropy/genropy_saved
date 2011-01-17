@@ -116,14 +116,15 @@ dojo.declare("gnr.GnrSrcHandler", null, {
             dojo._destroyElement(domNode);
         }
         this.refreshSourceIndexAndSubscribers();
+        var node = kw.node;
     },
     _trigger_upd:function(kw) {//da rivedere
         var destination = kw.node.getParentBuiltObj();
         if (!destination) {
-            console.log('sono cazzi');
+            console.log('missing destination in rebuild');
         }
         ;
-        var domNode = kw.node.getDomNode();
+        var domNode = kw.node.getDomNode();//get the domnode
         var newNode = document.createElement('div');
         var widget = kw.node.widget;
         var ind = -1;
@@ -142,7 +143,11 @@ dojo.declare("gnr.GnrSrcHandler", null, {
                     destination.removeChild(widget);
                 }
                 widget.destroyRecursive();
-            } else {
+            } else if(destination._singleChild){
+                destination.destroyDescendants();
+                
+            }
+            else {
                 if (domNode.parentNode) {
                     domNode.parentNode.replaceChild(newNode, domNode);
                 }
@@ -168,8 +173,14 @@ dojo.declare("gnr.GnrSrcHandler", null, {
         }
         this.refreshSourceIndexAndSubscribers();
         this.buildNode(kw.node, destination, ind);
+        if(destination._checkIfSingleChild){
+            destination._checkIfSingleChild();
+        }
         if (selectedIndex) {
             destination.setSelected(selectedIndex);
+        }
+        if(destination.resize){
+            destination.resize(dojo.coords(destination.domNode));
         }
 
     },
