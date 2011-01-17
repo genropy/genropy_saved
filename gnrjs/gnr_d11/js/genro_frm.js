@@ -57,7 +57,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
         }
         this.loadKw = objectExtract(kw,'load_*');
         this.saveKw = objectExtract(kw,'save_*');
-        
+        this.msg_saved = 'Saved';
         for(var k in kw){
             this[k] = kw[k];
         }
@@ -259,6 +259,8 @@ dojo.declare("gnr.GnrFrmHandler", null, {
             onSavedCb();
         }
         this.op_status = 'saved';
+        this.publish('message',{message:this.msg_saved,sound:'$onsaved'});
+
     },
 
     openForm:function(idx, pkey) {
