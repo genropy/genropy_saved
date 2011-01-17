@@ -449,7 +449,7 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
               'select', 'small', 'span', 'strong', 'style', 'sub', 'sup', 'table', 'tbody', 'td',
               'textarea', 'tfoot', 'th', 'thead', 'title', 'tr', 'tt', 'ul', 'audio', 'video', 'var', 'embed']
 
-    dijitNS = ['CheckBox', 'RadioButton', 'ComboBox', 'CurrencyTextBox', 'DateTextBox', 'FilteringSelect',
+    dijitNS = ['CheckBox', 'RadioButton', 'ComboBox', 'CurrencyTextBox', 'DateTextBox',
                'InlineEditBox', 'NumberSpinner', 'NumberTextBox', 'HorizontalSlider', 'VerticalSlider', 'Textarea',
                'TextBox', 'TimeTextBox',
                'ValidationTextBox', 'AccordionContainer', 'AccordionPane', 'ContentPane', 'LayoutContainer',
