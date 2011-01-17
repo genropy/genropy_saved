@@ -37,8 +37,6 @@ class Public(BaseComponent):
         userTable = self.pbl_userTable()
         if not self.isGuest and userTable:
             pane.dataRecord('gnr.user_record', userTable, username=self.user, _init=True)
-            pane.dataRemote('gnr.user_preference', 'getUserPreference')
-        pane.dataRemote('gnr.app_preference', 'getAppPreference')
         pane.data('gnr.workdate', self.workdate)
         self._pbl_dialogs(pane)
         #pane.img(_class='buttonIcon %s' %self.pbl_logoclass())
