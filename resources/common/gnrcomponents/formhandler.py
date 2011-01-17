@@ -46,9 +46,24 @@ class FormHandler(BaseComponent):
         form = pane.borderContainer(datapath=datapath,formDatapath='.record',controllerPath='.form',pkeyPath='.pkey',
                                     formId=formId,sqlContextName=sqlContextName,sqlContextRoot=sqlContextRoot,
                                     height=height,**kwargs)
-        top = form.contentPane(region='top',overflow='hidden',_attachname='top')
-        center = form.contentPane(region='center',datapath='.record',_attachname='content')
+        form.contentPane(region='top',overflow='hidden',_attachname='top')
+        bottom = form.contentPane(region='bottom',overflow='hidden',_attachname='bottom')
+        form.contentPane(region='center',datapath='.record',_attachname='content')
+        bottom.div(_class='fh_bottom_message').span(formsubscribe_message="""var domNode = this.domNode;
+                                                 var sound = objectPop($1,'sound');
+                                                 if(sound){
+                                                    genro.playSound(sound);
+                                                 }
+                                                 var message = objectPop($1,'message');
+                                                 var msgnode = document.createElement('span');
+                                                 msgnode.innerHTML = message;
+                                                 genro.dom.style(msgnode,$1);
+                                                 domNode.appendChild(msgnode);
+                                                 genro.dom.effect(domNode,'fadeout',{duration:1000,delay:2000,
+                                                                                     onEnd:function(){domNode.innerHTML=null;}});
+                                                """)
         return form
+
         
     @struct_method
     def fh_sltb_navigation(self,pane):
