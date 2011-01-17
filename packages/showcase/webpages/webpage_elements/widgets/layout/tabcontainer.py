@@ -15,13 +15,13 @@ class GnrCustomWebPage(object):
     def test_1_basic(self, pane):
         """Basic tabs - horizontal tabs"""
         tc = pane.tabContainer(height='200px', selected='^selected.tab')
-        cp = tc.contentPane(title='first tab', iconClass='icnBaseAction')
+        cp = tc.contentPane(title='first tab')
         cp.div("""In this example we show to you a standard tabContainer with some children
                   (contentPanes). The "title" attribute will appear on tab.
                   With the ``selected`` attribute Genro create a folder path (in this case ``/selected/tab``) in the
                   datastore where lies a number indicating the tab selected (for the first tab you'll find 0,
                   for the second one you'll find 1).""",
-               font_size='.9em', text_align='justify', margin='10px')
+                  font_size='.9em', text_align='justify', margin='10px')
         tc.contentPane(title='Second tab').div('I\'m the second tab!', font_size='.9em',
                                                text_align='justify', margin='10px')
 
