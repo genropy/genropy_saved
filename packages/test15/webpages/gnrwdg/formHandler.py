@@ -9,19 +9,20 @@
 from gnr.web.gnrwebstruct import struct_method
 
 class GnrCustomWebPage(object):
+    dojo_source=True
     py_requires="gnrcomponents/testhandler:TestHandlerFull,gnrcomponents/formhandler:FormHandler"
          
     def _test_1_formPane_cp(self,pane):
         """Test form in contentPane form"""
         pane = pane.contentPane(height='150px')
-        form = pane.formTester('form_cp')
+        pane.formTester('form_cp')
     
-    def _test_2_formPane_tc(self,pane):
+    def test_2_formPane_tc(self,pane):
         """First test description"""
-        tc = pane.tabContainer(height='150px')
-        t1 = tc.contentPane(title='empty')
-        t2 = tc.contentPane(title='withform')
-        form = t2.formTester('form_tc')
+        tc = pane.tabContainer(height='250px',width='600px')
+        t1 = tc.contentPane(title='Dummy')
+        t2 = tc.contentPane(title='My Form').contentPane(_lazyBuild=True,detachable=True,height='100%',width='100%')
+        t2.formTester('form_tc')
     
     def test_3_formPane_palette(self,pane):
         pane = pane.div(height='30px')
@@ -31,7 +32,7 @@ class GnrCustomWebPage(object):
                          _lazyBuild='testPalette')
 
     
-    def test_5_formPane_palette_remote(self,pane):
+    def _test_5_formPane_palette_remote(self,pane):
         fb = pane.formbuilder(cols=4, border_spacing='2px')
         fb.dbselect(value="^.provincia",dbtable="glbl.provincia")
         fb.button('open',action="""var paletteCode='palette_'+pkey;
@@ -48,7 +49,7 @@ class GnrCustomWebPage(object):
         pane.formTester('form_remote_%s' %pkey,hasSelector=False)
         pane.dataController("console.log('hei')",selfsubscribe_built=True)
             
-    def test_4_formPane_dialog(self,pane):
+    def _test_4_formPane_dialog(self,pane):
         pane.button('Show dialog',action='genro.wdgById("province_dlg").show()')
         dialog = pane.dialog(title='Province',nodeId='province_dlg',closable=True).contentPane(height='300px',width='400px',background_color='red',_lazyBuild=True)
         dialog.formTester('form_dialog')
