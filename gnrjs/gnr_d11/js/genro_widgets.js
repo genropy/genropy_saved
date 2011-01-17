@@ -4474,7 +4474,7 @@ dojo.declare("gnr.widgets.Tree", gnr.widgets.baseDojo, {
          var pathList = path.split('.');
          for (var i = 0; i < pathList.length; i++) {
             var currNode = curr.getNode(pathList[i]);
-            if (currNode){
+            if (!currNode){
                 return;
             }
             var treeNode = this._itemNodeMap[currNode._id];
