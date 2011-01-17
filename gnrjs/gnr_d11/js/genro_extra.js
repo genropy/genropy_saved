@@ -421,12 +421,13 @@ dojo.declare("gnr.widgets.PaletteTree", gnr.widgets.gnrwdg, {
         };
         objectUpdate(tree_kwargs ,objectExtract(kw,'tree_*'));
         var searchOn = objectPop(kw,'searchOn');
+        
         var pane = sourceNode._('PalettePane',kw);
         var bc = pane._('BorderContainer');
         if (searchOn || editable){
             if(searchOn){
                 var top = bc._('ContentPane',{region:'top'})._('Toolbar',{height:'18px'});
-                top._('SearchBox',{searchOn:searchOn,nodeId:treeId+'_searchbox',datapath:'.searchbox'});
+                top._('SearchBox',objectUpdate({searchOn:searchOn,nodeId:treeId+'_searchbox',datapath:'.searchbox'},objectExtract(kw,'searchOn_*')));
             }if(editable){
                 var bottom = bc._('ContentPane',{'region':'bottom',height:'30%',
                                                  splitter:true}); 
