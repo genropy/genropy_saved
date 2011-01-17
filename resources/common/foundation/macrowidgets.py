@@ -268,7 +268,6 @@ class SlotToolbar(object):
             elif size.isdigit():
                 size = '%spx' %size
             if slotname=='|':
-                print size
                 r.td(width=size,_class='sltb_slot_td').toolbarSeparator() #.div(_class='sltb_spacer')
                 continue
             s= r.td(width=size,_attachname='slot_%s' %slotname,_class='sltb_slot_td')
