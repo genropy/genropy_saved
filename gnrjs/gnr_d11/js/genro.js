@@ -292,6 +292,12 @@ dojo.declare('gnr.GenroClient', null, {
 
     
     playSound:function(name, path, ext) {
+        if(name.indexOf('$')==0){
+            var name = genro.userPreference('sys.sounds.'+name.slice(1));
+            if(!name){
+                return;
+            }
+        }
         if (!(name in genro.sounds)) {
             var path = path || '/_gnr/11/sounds/';
             var ext = ext || 'wav';
@@ -367,6 +373,9 @@ dojo.declare('gnr.GenroClient', null, {
         } else {
             return genro.prefs[prefname];
         }
+    },
+    userPreference:function(pref){
+        return genro._('gnr.user_preference.'+pref);
     },
     format: function (v, f, m) {
         if (v instanceof Date) {

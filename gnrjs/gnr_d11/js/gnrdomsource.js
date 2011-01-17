@@ -44,26 +44,6 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
         return this._isFreezed?true:parentNode?parentNode.isFreezed():false;
     },
     
-    
-    
-    freeze_:function() {
-        this._savedparentbag = this._parentbag;
-        this._parentbag = null;
-        if (this._value instanceof gnr.GnrDomSource) {
-            this._value.clearBackRef();
-        }
-        return this;
-    },
-    unfreeze_:function(noRebuild) {
-        this._parentbag = this._savedparentbag;
-        if (this._value instanceof gnr.GnrDomSource) {
-            this._value.setBackRef(this, this._parentbag);
-            if (!noRebuild) {
-                this.rebuild();
-            }
-
-        }
-    },
     getBuiltObj:function() {
         return this.widget || this.domNode;
     },
@@ -720,7 +700,7 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
         }
         for (var subscription in subscriptions) {
             var handler = funcCreate(subscriptions[subscription]);
-            dojo.subscribe(subscription, this, handler);
+            this.registerSubscription(subscription, this, handler);
         }
         //dojo.hitch(this,'_buildChildren',newobj)
         if(newobj.onShow){
@@ -789,20 +769,39 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
         curr[idLst[idLst.length - 1]] = obj;
     },
     finalizeLazyBuildChildren:function(){
-        this.getValue('static').walk(function(n){
-            if(n.attr._lazyBuild){
-                n.lazyBuildFinalize();
-            }
-        });
+        if(this.attr._lazyBuild){
+            this.lazyBuildFinalize();
+        }else{
+            this.getValue('static').walk(function(n){
+                if(n.attr._lazyBuild){
+                    n.lazyBuildFinalize();
+                }
+            });
+        }
+        
     },
     publish:function(msg,kw){
         var topic = (this.attr.nodeId || this.getStringId()) +'_'+msg;
-        console.log(msg)
+        console.log(topic)
         genro.publish(topic,kw);
+    },
+    registerSubscription:function(topic,scope,handler){
+        var stringId = this.getStringId();
+        var subDict=genro.src._subscribedNodes[stringId];
+        if(!subDict){
+            subDict = {};
+            genro.src._subscribedNodes[stringId] = subDict;
+        }else{
+            if(subDict[topic]){
+                console.warn('existing subscription for topic '+topic);
+                return;
+            }
+        }
+        subDict[topic] = dojo.subscribe(topic, scope, handler);
     },
     subscribe:function(command,handler){
         var topic = (this.attr.nodeId || this.getStringId()) +'_'+command;
-        dojo.subscribe(topic, this, funcCreate(handler));
+        this.registerSubscription(topic,this,funcCreate(handler))
     },
     lazyBuildFinalize:function(){
         if(this.attr._lazyBuild){
@@ -815,13 +814,11 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
             else{
                 content = this._value;
             }
-            parent.delItem(this.label);
-            parent.setItem(this.label,content,this.attr);
-            var parentWidget = parent.getParentNode().widget;
-            parentWidget.resize(dojo.coords(parentWidget.domNode));
-            parentWidget.sourceNode.publish('built');
+            this.setValue(content);
+            this.publish('built');
         }        
     },
+
     getFormHandler:function(){
         if (this.formHandler){
             return this.formHandler;
@@ -1068,7 +1065,7 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
             for (var subscription in subscriptions) {
                 var cb = function(node, trigger_reason) {
                     var reason = trigger_reason;
-                    dojo.subscribe(subscription, this, function() {
+                    node.registerSubscription(subscription, node, function() {
                         node.setDataNodeValue(null, {}, reason, arguments);
                     });
                 };
@@ -1081,7 +1078,6 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
                 if (typeof(onStart) == "number" && !this.attr._delay) {
                     this.attr._delay = onStart;
                 }
-                ;
             }
         }
         this._setDynAttributes();
