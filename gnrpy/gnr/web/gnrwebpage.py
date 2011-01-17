@@ -797,6 +797,9 @@ class GnrWebPage(GnrBaseWebPage):
                 #page.data('gnr.userTags', self.userTags)
                 page.data('gnr.locale', self.locale)
                 page.data('gnr.pagename', self.pagename)
+                if not self.isGuest:
+                    page.dataRemote('gnr.user_preference', 'getUserPreference')
+                page.dataRemote('gnr.app_preference', 'getAppPreference')
                 page.dataController('genro.dlg.serverMessage("gnr.servermsg");', _fired='^gnr.servermsg')
                 page.dataController("genro.getDataNode(nodePath).refresh(true);",
                                     nodePath="^gnr.serverEvent.refreshNode")
