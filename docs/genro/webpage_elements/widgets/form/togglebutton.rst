@@ -32,8 +32,8 @@ Attributes
 			
 	**common attributes**:
 	
-	* *disabled*: if True, allow to disable this widget. Default value is ``None``. For more information, check the :ref:`genro-disabled` documentation page
-	* *hidden*: if True, allow to hide this widget. Default value is ``None``. For more information, check the :ref:`genro-hidden` documentation page
+	* *disabled*: if True, allow to disable this widget. Default value is ``False``. For more information, check the :ref:`genro-disabled` documentation page
+	* *hidden*: if True, allow to hide this widget. Default value is ``False``. For more information, check the :ref:`genro-hidden` documentation page
 	* *label*: the togglebutton label
 	* *value*: specify the path of the widget's value. For more information, check the :ref:`genro_datapath` documentation page
 

@@ -1,17 +1,15 @@
 	.. _genro-tabcontainer:
 
-===============
- Tab container
-===============
+============
+tabContainer
+============
 
 	- :ref:`tab-definition`
 
-	- :ref:`tab-examples`: :ref:`tab-simple`
-
 	- :ref:`tab_attributes`
 
-	- :ref:`tab-common-attributes`
-	
+	- :ref:`tab-examples`: :ref:`tab-simple`
+
 	- attributes explanation: :ref:`tab-selected`, :ref:`tab-tabposition`
 
 	.. _tab-definition:
@@ -20,6 +18,23 @@ Definition
 ==========
 
 	A TabContainer is a container that has multiple panes, but shows only one pane at a time. There are a set of tabs corresponding to each pane, where each tab has the title of the pane.
+
+.. _tab_attributes:
+
+Attributes
+==========
+
+	**tabContainer's attributes**:
+
+	* *selected*: Allow to visualize in the :ref:`genro-datastore` the current selected tab as a type-number into a specific folder. Default value is ``None``. Check the :ref:`tab-selected` example for more informations.                                     
+	
+	**attributes of the tabContainer's children (paneContainers)**:
+
+	* *tabPosition*: define the place of the paneContainer's labels. Default value is ``top-h``. For all supported possibilities, check the :ref:`tab-tabposition` example
+
+	**common attributes**:
+	
+		For common attributes, see :ref:`genro-layout-common-attributes`
 
 	.. _tab-examples:
 
@@ -38,34 +53,6 @@ Here we show you a simple example of a ``tab container``::
 			tc = pane.tabContainer(height='200px')
 			cp = tc.contentPane(title='title place',iconClass='icnBaseAction')
 			tc.contentPane(title='Second tab').button('Dummy button (no action)',margin='10px')
-
-.. #NISO ??? Add a demo!
-
-.. _tab_attributes:
-
-Attributes
-==========
-
-	+--------------------+----------------------------------------------------+--------------------------+
-	|   Attribute        |          Description                               |   Default                |
-	+====================+====================================================+==========================+
-	| ``selected``       | tabContainer's attribute. Allow to visualize in    |  ``None``                |
-	|                    | the :ref:`genro-datastore` the current selected    |                          |
-	|                    | tab as a type-number into a specific folder. Check |                          |
-	|                    | the :ref:`tab-selected` example for more           |                          |
-	|                    | informations.                                      |                          |
-	+--------------------+----------------------------------------------------+--------------------------+
-	| ``tabPosition``    | tabContainer's children attribute.                 |  ``top-h``               |
-	|                    | For all supported possibilities, check the         |                          |
-	|                    | :ref:`tab-tabposition` example                     |                          |
-	+--------------------+----------------------------------------------------+--------------------------+
-
-	.. _tab-common-attributes:
-
-Common attributes
-=================
-
-	For common attributes, see :ref:`genro-layout-common-attributes`
 
 	.. _tab-selected:
 

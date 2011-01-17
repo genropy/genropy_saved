@@ -1,27 +1,55 @@
-	.. _genro-bordercontainer:
+.. _genro_bordercontainer:
 
-==================
- Border container
-==================
+===============
+borderContainer
+===============
 
-	- :ref:`border-definition`
-
-	- :ref:`border-examples`: :ref:`border-simple`
+	- :ref:`border_def`
 
 	- :ref:`border_attributes`
 
-	- :ref:`border-common-attributes`
+	- :ref:`border-examples`: :ref:`border-simple`
 	
-	- attributes explanation: :ref:`border-regions`, :ref:`border_splitter`
+	- :ref:`border_attr_exp`: :ref:`border_regions`, :ref:`border_splitter`
 
-	.. _border-definition:
+.. _border_def:
 
 Definition
 ==========
 
-	The border container inherit its properties from Dojo BorderContainer_. It is a container partitioned into up to five regions: left (or leading), right (or trailing), top, and bottom with a mandatory center to fill in any remaining space. Each edge region may have an optional splitter user interface for manual resizing.
+	.. note:: The Genro borderContainer has been taken from Dojo without adding any modifies. In this page you will find some interesting features that we want to point up. For more information, check the Dojo's borderContainer_ documentation.
 
-	.. _BorderContainer: http://docs.dojocampus.org/dijit/layout/BorderContainer
+	.. _borderContainer: http://docs.dojocampus.org/dijit/layout/BorderContainer
+
+	.. method:: pane.borderContainer(height[, regions[, **kwargs]])
+
+	The borderContainer is a container partitioned into up to five regions: left (or leading), right (or trailing), top, and bottom with a mandatory center to fill in any remaining space. Each edge region may have an optional splitter user interface for manual resizing.
+
+	In order to define a borderContainer you have to define at least one :ref:`genro-contentpane` as a borderContainer child. This contentPane must include the ``region='center'`` attribute::
+
+		bc = root.borderContainer(height='200px')
+		bc.contentPane(region='center')
+		
+	Optionally, you can add other contentPanes with the other regions: left, right, top, bottom. For more information, check the :ref:`border-simple` below.
+
+.. _border_attributes:
+
+Attributes
+==========
+
+	**borderContainer's attributes**:
+	
+	* *regions*: Allow to act on regions. Check the :ref:`border_regions` example
+	
+	**attributes of the borderContainer's children (paneContainers)**:
+	
+	* *splitter*: If true, user can modify the width of the paneContainer. For more information, check :ref:`border_splitter` page
+
+	.. _border-common-attributes:
+
+	**Common attributes**:
+
+		For common attributes, see :ref:`genro-layout-common-attributes`
 
 	.. _border-examples:
 
@@ -33,44 +61,23 @@ Examples
 Simple example
 ==============
 
-	Here we show you a simple code containing a ``border container``::
+	Here we show you a simple code containing a ``borderContainer``::
 
 		class GnrCustomWebPage(object):
 			def main(self,root,**kwargs):
-				bc = pane.borderContainer(height='400px')
+				bc = root.borderContainer(height='400px')
 				top = bc.contentPane(region='top',height='5em',background_color='#f2c922')
 				left = bc.contentPane(region='left',width='100px',background_color='red',splitter=True)
 				right = bc.contentPane(region='right',width='80px',background_color='yellow')
 				bottom = bc.contentPane(region='bottom',height='80px',background_color='grey')
 				center = bc.contentPane(region='center',background_color='silver',padding='10px')
 
-.. #NISO ??? Add a demo!
+.. _border_attr_exp:
 
-.. _border_attributes:
+Attributes' explanation
+=======================
 
-Attributes
-==========
-
-	+--------------------+----------------------------------------------------+--------------------------+
-	|   Attribute        |          Description                               |   Default                |
-	+====================+====================================================+==========================+
-	| ``regions``        | borderContainer's attribute. Allow to act on       |  ``None``                |
-	|                    | regions. Check the :ref:`border-regions` example   |                          |
-	+--------------------+----------------------------------------------------+--------------------------+
-	| ``splitter``       | borderContainer's children attribute.              |  ``False``               |
-	|                    | If true, it allows to modify the region width.     |                          |
-	|                    | For more information, check :ref:`border_splitter` |                          |
-	|                    | page                                               |                          |
-	+--------------------+----------------------------------------------------+--------------------------+
-
-	.. _border-common-attributes:
-
-Common attributes
-=================
-
-	For common attributes, see :ref:`genro-layout-common-attributes`
-
-	.. _border-regions:
+.. _border_regions:
 
 Regions attribute
 =================
@@ -88,8 +95,8 @@ Regions attribute
 	
 	::
 		
-		root.data('regions.left?show',False)
-		root.data('regions.top',show=False)
+		root.data('regions.left?show',False) # these two lines have the same meaning
+		root.data('regions.left',show=False)
 		
 	or you can modify their dimensions with a Javascript line code::
 
@@ -122,8 +129,6 @@ Regions attribute
 				               (in pixel) of the left pane (you can see its dimension only after the first move
 				               you made on it).""")
 
-.. ??? Add online demo! #NISO
-
 .. _border_splitter:
 
 Splitter attribute
@@ -140,6 +145,4 @@ Splitter attribute
 				bottom = bc.contentPane(region='bottom',height='80px',background_color='grey',splitter=True)
 				center = bc.contentPane(region='center',background_color='silver',padding='10px')
 
-	The ``splitter`` attribute is NOT supported by the center region (that is, you cannot apply ``splitter=True`` on a contentPane including ``region='center'``).
-
-.. #NISO ??? Add a demo!
+	.. note:: The ``splitter`` attribute is NOT supported by the center region (that is, you cannot apply ``splitter=True`` on a contentPane including ``region='center'``).

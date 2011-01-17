@@ -1,30 +1,47 @@
 	.. _genro-contentpane:
 
-==============
- Content pane
-==============
+===========
+contentPane
+===========
 
 	- :ref:`cp-definition`
-
-	- :ref:`cp-examples`: :ref:`cp-simple`
-
-	- :ref:`cp_common_attributes`
+	
+	- :ref:`cp_attributes`
+	
+	- :ref:`cp_examples`: :ref:`cp_simple`
 
 	.. _cp-definition:
 
 Definition
 ==========
 
-	A contentPane_ is a Dojo widget that can be used as a standalone widget or as a baseclass for other widgets. Don’t confuse it with an iframe, it only needs/wants document fragments.
-	
+	.. note:: The Genro contentPane has been taken from Dojo without adding any modifies. In this page you will find some interesting features that we want to point up. For more information, check the Dojo's contentPane_ documentation.
+
 	.. _contentPane: http://api.dojotoolkit.org/jsdoc/1.2/dijit.layout.ContentPane
 
-	.. _cp-examples:
+	.. method:: pane.contentPane([**kwargs])
+
+	A contentPane_ is a Dojo widget that can be used as a standalone widget or as a baseclass for other widgets. Don’t confuse it with an iframe, it only needs/wants document fragments.
+
+.. _cp_attributes:
+
+Attributes
+==========
+
+	**contentPanes attributes**:
+
+		There aren't particular attributes.
+
+	**common attributes**:
+
+		For common attributes, see :ref:`genro-layout-common-attributes`.
+
+.. _cp_examples:
 
 Examples
 ========
 
-	.. _cp-simple:
+.. _cp_simple:
 
 Simple example
 ==============
@@ -54,13 +71,3 @@ Here we show you a simple example of a ``contentPane``::
 			right.div('Specify my width!',font_size='.9em',text_align='justify',margin='10px')
 			bottom = bc.contentPane(region='bottom',height='80px',background_color='grey')
 			bottom.div('Specify my height!',font_size='.9em',text_align='justify',margin='10px')
-
-.. #NISO ??? Add a demo!
-
-.. _cp_common_attributes:
-
-Common attributes
-=================
-
-	For common attributes, see :ref:`genro-layout-common-attributes`.
-	

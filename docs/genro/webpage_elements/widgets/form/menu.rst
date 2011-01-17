@@ -49,8 +49,8 @@ Attributes
 	
 	**common attributes**:
 	
-	* *disabled*: if True, allow to disable this widget. Default value is ``None``. For more information, check the :ref:`genro-disabled` documentation page
-	* *hidden*: if True, allow to hide this widget. Default value is ``None``. For more information, check the :ref:`genro-hidden` documentation page
+	* *disabled*: if True, allow to disable this widget. Default value is ``False``. For more information, check the :ref:`genro-disabled` documentation page
+	* *hidden*: if True, allow to hide this widget. Default value is ``False``. For more information, check the :ref:`genro-hidden` documentation page
 	* *label*: You can't use the ``label`` attribute; if you want to give a label to your widget, you have to give it to the dropdownbutton. Check the following_ example.
 
 .. _menu_examples:

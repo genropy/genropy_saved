@@ -26,15 +26,10 @@ Definition and Description
 Attributes
 ==========
 	
-	+-----------------------+---------------------------------------------------------+-------------+
-	|   Attribute           |          Description                                    |   Default   |
-	+=======================+=========================================================+=============+
-	| ``default``           | Add a default number to your numberTextbox              |  ``None``   |
-	+-----------------------+---------------------------------------------------------+-------------+
-	| ``places``            | Numbers of decimals. If it's reached the following      |  ``3``      |
-	|                       | decimal to the last supported one, a tooltip error      |             |
-	|                       | will warn user                                          |             |
-	+-----------------------+---------------------------------------------------------+-------------+
+	**numberTextbox**:
+	
+	* *default*: Add a default number to your numberTextbox. Default value is ``None``
+	* *places*: Numbers of decimals. If it's reached the following decimal to the last supported one, a tooltip error will warn user. Default value is ``3``
 	
 	**common attributes**:
 

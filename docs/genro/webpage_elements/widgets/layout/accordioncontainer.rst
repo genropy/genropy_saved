@@ -1,67 +1,62 @@
 	.. _genro-accordioncontainer:
 
-=====================
- Accordion container
-=====================
+==================
+accordionContainer
+==================
 
 	- :ref:`accordion-definition`
-
-	- :ref:`accordion-examples`: :ref:`accordion-simple`, :ref:`accordion_datastore`
-
+	
 	- :ref:`accordion-attributes`
 	
-	- :ref:`accordion-common-attributes`
-
+	- :ref:`accordion_examples`: :ref:`accordion_simple`
+	
 	.. _accordion-definition:
 
 Definition
 ==========
 	
-	Like :ref:`genro-stackcontainer` and :ref:`genro-tabcontainer`, an ``accordion container`` holds a set of panes whose titles are all visible, but only one pane's content is visible at a time. Clicking on a pane title slides the currently-displayed one away, similar to a garage door.
+	.. note:: The Genro accordionContainer has been taken from Dojo without adding any modifies. In this page you will find some interesting features that we want to point up. For more information, check the Dojo's accordionContainer_ documentation.
 
-	.. _accordion-examples:
+	.. _accordionContainer: http://docs.dojocampus.org/dijit/layout/AccordionContainer
+	
+	.. method:: pane.accordionContainer([**kwargs])
+	
+	Like :ref:`genro-stackcontainer` and :ref:`genro-tabcontainer`, an ``accordion container`` holds a set of accordionPanes whose titles are all visible, but only one pane's content is visible at a time. Clicking on a pane title slides the currently-displayed one away, similar to a garage door.
 
-Examples
-========
-
-	.. _accordion-simple:
-
-Simple example
-==============
-
-	Here we show you a simple code containing an ``accordion container``::
-
-		class GnrCustomWebPage(object):
-			def main(self,root,**kwargs):
-				ac = root.accordionContainer()
-				ac.accordionPane(title='Pane one')
-				ac.accordionPane(title='Pane two')
-				ac.accordionPane(title='Pane three')
-
-.. #NISO ??? Add a demo!
-
-.. _accordion_datastore:
-
-Datastore example
-=================
-
-	If you open the dataStore (by pressing ``ctrl+shift+D``) in a Genro webpage, you will see that it's contained into an ``accordion container`` (check the example in the :ref:`genro-datastore-examples` page).
+	.. method:: pane.accordionPane(title=None[, **kwargs])
 
 	.. _accordion-attributes:
 
 Attributes
 ==========
 
-	+--------------------+----------------------------------------------------+--------------------------+
-	|   Attribute        |          Description                               |   Default                |
-	+====================+====================================================+==========================+
-	| ``title``          | accordionContainer's children attribute.           |  ``None``                |
-	|                    | Set the title of an accordionPane.                 |                          |
-	+--------------------+----------------------------------------------------+--------------------------+
+	**accordionContainer attributes**:
+	
+		There aren't particular attributes.
+	
+	**attributes of the accordionContainer's children (accordionPanes)**:
+	
+	* *title*: MANDATORY - Set the accordionPane's title. Default value is ``None``
 
-	.. _accordion-common-attributes:
+	**common attributes**:
+	
+		For common attributes, see :ref:`genro-layout-common-attributes`
 
-Common attributes
-=================
+.. _accordion_examples:
 
-	For common attributes, see :ref:`genro-layout-common-attributes`
+Examples
+========
+
+.. _accordion_simple:
+
+Simple example
+==============
+
+Here we show you a simple code containing an ``accordion container``::
+
+	class GnrCustomWebPage(object):
+		def main(self,root,**kwargs):
+			ac = root.accordionContainer()
+			ac.accordionPane(title='Pane one')
+			ac.accordionPane(title='Pane two')
+			ac.accordionPane(title='Pane three')
