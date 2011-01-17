@@ -134,12 +134,6 @@ class GnrDomSrc(GnrStructData):
         if fname in self._external_methods:
             handler = getattr(self.page, self._external_methods[fname])
             return lambda *args, **kwargs: handler(self, *args, **kwargs)
-    
-        handling_node = self.backwardNodebyAttr('_attaches',lambda v: fname in v.split(','))
-        if handling_node:
-            handler = getattr(self.page, fname,None)
-            if handler:
-                return lambda *args, **kwargs: handler(handling_node.value, *args, **kwargs)
         for n in self._nodes:
             if n.attr.get('_attachname') == fname:
                 return n._value
