@@ -1416,6 +1416,38 @@ textarea:disabled {
 
 /* @end */
 
+/* @group SlotToolbar */
+
+
+.sltb_row{
+	height: 26px;
+}
+.sltb_slot_td{
+	vertical-align: middle;
+}
+.sltb_table{
+	width:100%;
+	border-spacing:0px;
+	border-collapse:collapse;
+}
+
+
+/* @end */
+
+/* @group Formhandler */
+
+.fh_bottom_message{
+	height: 16px;
+	line-height: 16px;
+	border-top: 1px solid silver;
+	background-color: lightblue;
+	color: navy;
+	text-align: center;
+	font-weight: bold;
+}
+
+/* @end */
+
 /* @group drag drop */
 .canBeDropped {
     background-color: #8fff9d !important;
@@ -1519,23 +1551,6 @@ table.draggedItem {
 .highlight_negative .negative_number {
     color: red !important;
 }
-
-/* @end */
-
-/* @group SlotToolbar */
-.sltb_row{
-	height: 26px;
-}
-.sltb_slot_td{
-	vertical-align: middle;
-}
-.sltb_table{
-	width:100%;
-	border-spacing:0px;
-	border-collapse:collapse;
-}
-
-
 
 /* @end */
 
