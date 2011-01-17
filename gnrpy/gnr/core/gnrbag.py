@@ -2153,6 +2153,18 @@ class Bag(GnrObject):
                 return node
 
         return self.walk(f)
+        
+    def filter(self,cb,_mode='static',**kwargs):
+        result=Bag()
+        for node in self.nodes:
+            value = node.getValue(mode=_mode)
+            if value and isinstance(value, Bag):
+                value=value.filter(cb,_mode=_mode,**kwargs)
+                if value:
+                    result.setItem(node.label,value,node.attr)
+            elif cb(node):
+                result.setItem(node.label,value,node.attr)
+        return result
 
     def walk(self, callback, _mode='static', **kwargs):
         """
