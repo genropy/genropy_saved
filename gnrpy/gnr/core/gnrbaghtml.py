@@ -170,6 +170,8 @@ class BagToHtml(object):
             if datanode:
                 value = datanode.value
                 attr = datanode.attr
+            else:
+                value = default
         else:
             value = root.get(path)
         if value is None:
