@@ -372,7 +372,7 @@ class GnrDomSrc(GnrStructData):
         commonPrefix = ('lbl_', 'fld_', 'row_', 'tdf_', 'tdl_')
         commonKwargs = dict([(k, kwargs.pop(k)) for k in kwargs.keys() if len(k) > 4 and k[0:4] in commonPrefix])
         tbl = self.child('table', _class='%s %s' % (tblclass, _class), **kwargs).child('tbody')
-        dbtable = dbtable or self.parentNode.getInheritedAttributes().get('form_table') or self.page.maintable
+        dbtable = dbtable or self.getInheritedAttributes().get('form_table') or self.page.maintable
         tbl.fbuilder = GnrFormBuilder(tbl, cols=int(cols), dbtable=dbtable,
                                       lblclass=lblclass, lblpos=lblpos, lblalign=lblalign, fldalign=fldalign,
                                       fieldclass=fieldclass,
@@ -472,7 +472,8 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
              'dataController',
              'dataRemote', 'gridView', 'viewHeader', 'viewRow', 'script', 'func',
              'staticGrid', 'dynamicGrid', 'fileUploader', 'gridEditor', 'ckEditor', 
-            'tinyMCE', 'protovis', 'PaletteGroup','PalettePane','BagNodeEditor','PaletteBagNodeEditor','Palette','PaletteTree','SearchBox']
+            'tinyMCE', 'protovis', 'PaletteGroup','PalettePane','BagNodeEditor',
+            'PaletteBagNodeEditor','Palette','PaletteTree','SearchBox','FormStore']
     genroNameSpace = dict([(name.lower(), name) for name in htmlNS])
     genroNameSpace.update(dict([(name.lower(), name) for name in dijitNS]))
     genroNameSpace.update(dict([(name.lower(), name) for name in dojoxNS]))
