@@ -1341,6 +1341,12 @@ class Bag(GnrObject):
 
     def delAttr(self, path=None, attr=None):
         return self.getNode(path).delAttr(attr)
+    
+    def getInheritedAttributes(self):
+        if self.parentNode:
+            return self.parentNode.getInheritedAttributes()
+        else:
+            return dict()
 
     def _pathSplit(self, path):
         """
