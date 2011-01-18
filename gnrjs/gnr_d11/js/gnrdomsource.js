@@ -666,6 +666,12 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
         }
         var subscriptions = objectExtract(attributes, 'subscribe_*');
         var selfsubscription = objectExtract(attributes, 'selfsubscribe_*');
+        var attrname;
+        var ind = ind || 0;
+        if (bld_attrs.onCreating) {
+            funcCreate(bld_attrs.onCreating).call(this, attributes);
+        }
+        var newobj = genro.wdg.create(tag, destination, attributes, ind, this);
         for (var selfsubscribe in selfsubscription){
             this.subscribe(selfsubscribe,selfsubscription[selfsubscribe]);
         }
@@ -676,13 +682,6 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
                 subscriptions[topic_pref+formsubscribe] = formsubscription[formsubscribe];
             }
         }
-
-        var attrname;
-        var ind = ind || 0;
-        if (bld_attrs.onCreating) {
-            funcCreate(bld_attrs.onCreating).call(this, attributes);
-        }
-        var newobj = genro.wdg.create(tag, destination, attributes, ind, this);
         if (newobj === false) {
             this._buildChildren(destination);
             return;
@@ -780,10 +779,17 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
         }
         
     },
-    publish:function(msg,kw){
+    publish:function(msg,kw,recursive){
         var topic = (this.attr.nodeId || this.getStringId()) +'_'+msg;
-        console.log(topic)
         genro.publish(topic,kw);
+        if (recursive){
+            var children =this.getValue('static');
+            if (children instanceof gnr.GnrDomSource){
+                children.walk(function(n){
+                    n.publish(msg,kw);
+                });
+            }
+        }
     },
     registerSubscription:function(topic,scope,handler){
         var stringId = this.getStringId();
@@ -815,7 +821,8 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
                 content = this._value;
             }
             this.setValue(content);
-            this.publish('built');
+            var that = this;
+            setTimeout(function(){that.publish('built',{},true)},1);
         }        
     },
 
