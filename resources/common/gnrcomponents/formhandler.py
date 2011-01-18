@@ -106,4 +106,11 @@ class FormHandler(BaseComponent):
                     formsubscribe_onLockChange="""var locked= $1.locked;
                                                   this.widget.setIconClass(locked?'icnBaseLocked':'icnBaseUnlocked');""")
         
-        
+    @struct_method
+    def recordClusterStore(self,pane,table=None,storeType=None,**kwargs):
+        form_table = table or self.maintable
+        pane.attributes['form_table'] = form_table
+        pane.formStore('recordCluster',storeType=storeType,loadMethod='loader_recordCluster',
+                        saveMethod='saver_recordCluster',deleteMethod='deleter_recordCluster',
+                        **kwargs)
+               
