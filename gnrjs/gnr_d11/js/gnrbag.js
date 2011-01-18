@@ -1425,12 +1425,12 @@ dojo.declare("gnr.GnrBag", null, {
                     var splittedlabel = label.split('?');
                     label = splittedlabel[0];
                     var attr = splittedlabel[1];
+                    var node = obj.getNode(label, false, true);
                     if(kwargs.lazySet && node.attr[attr] === value){
                         return;
                     }
                     var auxattr = {};
                     auxattr[attr] = value;
-                    var node = obj.getNode(label, false, true);
                     var _doTrigger = true;
                     if ('doTrigger' in kwargs) {
                         _doTrigger = kwargs.doTrigger;
