@@ -1069,6 +1069,19 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
             }
             var onStart = objectPop(attributes, '_onStart');
             var subscriptions = objectExtract(attributes, 'subscribe_*');
+            var selfsubscriptions = objectExtract(attributes, 'selfsubscribe_*');
+            var formsubscriptions = objectExtract(attributes, 'formsubscribe_*');
+            var nid = this.attr.nodeId || this.getStringId();
+            var form = this.getFormHandler();
+            for (var selfsubcription in selfsubscriptions){
+                subscriptions[nid+'_'+selfsubcription] = selfsubscriptions[selfsubcription];
+            }
+            if(form){
+                var fid = form.form_id;
+                for (var formsubcription in formsubscriptions){
+                    subscriptions['form_'+fid+'_'+formsubcription] = formsubscriptions[formsubcription];
+                }
+            }
             for (var subscription in subscriptions) {
                 var cb = function(node, trigger_reason) {
                     var reason = trigger_reason;
