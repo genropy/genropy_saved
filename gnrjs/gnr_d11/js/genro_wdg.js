@@ -125,15 +125,7 @@ dojo.declare("gnr.GnrWdgHandler", null, {
             'GoogleChart':'',
             'GoogleVisualization':'',
             'CkEditor':'',
-            'protovis':'',
-            'PaletteGroup':'',
-            'PalettePane':'',
-            'PaletteTree':'',
-            'PaletteGrid':'',
-            'Palette':'',
-            'SearchBox':'',
-            'BagNodeEditor':'',
-            'PaletteBagNodeEditor':''
+            'protovis':''
         };
         var tag;
         for (tag in this.widgetcatalog) {
