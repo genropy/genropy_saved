@@ -612,7 +612,7 @@ class SqlTable(GnrObject):
         """This method receives a changeSet and executes insert, delete or update
         :param record_data: a dictionary that represent the record that must be updated
         """
-        def onBagColumns(attributes=None):
+        def onBagColumns(attributes=None,**kwargs):
             attributes.pop('__old')
         main_changeSet, relatedOne, relatedMany = self._splitRecordCluster(recordCluster, debugPath=debugPath)
         isNew = recordClusterAttr.get('_newrecord')
