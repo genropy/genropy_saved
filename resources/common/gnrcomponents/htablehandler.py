@@ -289,12 +289,17 @@ class HTableHandler(HTableHandlerBase):
                             """, pkey="^.tree.pkey")
         bc.dataController("""
                             var destPkey = selPkey;
+                            var that = this;
                             var cancelCb = function(){
-                                genro.setData('#%s.tree.pkey',currPkey);
-                                genro.setData('#%s.tree.path',rootpath?currPkey.slice(rootpath.length-1):currPkey);
-                                };
+                                var treeData =that.getRelativeData('.tree.store');
+                                var oldCode = treeData.getNodeByAttr('pkey',currPkey).attr.code;
+                                var oldPath = rootpath?oldCode.slice(rootpath.length-1):'_root_.'+oldCode;
+                                that.setRelativeData('.tree.pkey',currPkey);
+                                that.setRelativeData('.tree.path',oldPath);
+                            };
+                            
                             genro.formById(formId).load({destPkey:destPkey,cancelCb:cancelCb});
-                                """ % (nodeId, nodeId), rootpath='=.tree.store?rootpath',
+                                """, rootpath='=.tree.store?rootpath',
                           selPkey='^.tree.pkey', currPkey='=.edit.pkey', _if='selPkey && (selPkey!=currPkey)',
                           formId=formId)
 
