@@ -164,13 +164,14 @@ class BagToHtml(object):
               format=None, mask=None, root=None, **kwargs):
         if root is None:
             root = self._data['record']
+        attr = {}
         if isinstance(root, Bag):
             datanode = root.getNode(path)
-            value = datanode.value
-            attr = datanode.attr
+            if datanode:
+                value = datanode.value
+                attr = datanode.attr
         else:
             value = root.get(path)
-            attr = {}
         if value is None:
             value = default
         elif isinstance(value, Bag):
