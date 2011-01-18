@@ -613,7 +613,8 @@ class SqlTable(GnrObject):
         :param record_data: a dictionary that represent the record that must be updated
         """
         def onBagColumns(attributes=None,**kwargs):
-            attributes.pop('__old',None)
+            if attributes and '__old' in attributes:
+                attributes.pop('__old')
         main_changeSet, relatedOne, relatedMany = self._splitRecordCluster(recordCluster, debugPath=debugPath)
         isNew = recordClusterAttr.get('_newrecord')
         toDelete = recordClusterAttr.get('_deleterecord')
