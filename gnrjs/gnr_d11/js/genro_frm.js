@@ -38,6 +38,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
         this.subscribe('save,load,setLocked');
         this._register = {};
         this.locked = false;
+        //this.store=new.....
         this.autoRegisterTags = {
             'textbox':null,
             'simpletextarea':null,
@@ -55,9 +56,8 @@ dojo.declare("gnr.GnrFrmHandler", null, {
             'textarea':null,
             'datetextbox':null,
         }
-        this.loadKw = objectExtract(kw,'load_*');
-        this.saveKw = objectExtract(kw,'save_*');
         this.msg_saved = 'Saved';
+        this.msg_unsaved_changes ="Current record has been modified.";
         for(var k in kw){
             this[k] = kw[k];
         }
@@ -130,15 +130,20 @@ dojo.declare("gnr.GnrFrmHandler", null, {
     },
     load: function(kw) {
         var kw = kw || {};
-        if ('destPkey' in kw) {
-            var currentPkey = this.getCurrentPkey();
-            if (kw.destPkey != currentPkey) {
-                this.checkPendingChanges(kw);
-                return;
+        if (this.store){
+            
+        }else{
+            if ('destPkey' in kw) {
+                var currentPkey = this.getCurrentPkey();
+                if (kw.destPkey != currentPkey) {
+                    this.checkPendingChanges(kw);
+                    return;
+                }
             }
-        }
+        }        
         this.doload(kw);
     },
+
     checkPendingChanges: function(kw) {
         var kw = kw || {};
         if (this.changed) {
@@ -153,11 +158,32 @@ dojo.declare("gnr.GnrFrmHandler", null, {
             var cancelCb = kw.cancelCb || function() {
             }
             var opener = {invalidData:(this.getInvalidFields().len() > 0),saveCb:saveCb,continueCb:continueCb,cancelCb:cancelCb};
-            this.sourceNode.fireEvent('#pbl_formPendingChangesAsk.open', opener);
+            this.sourceNode.fireEvent('#pbl_formPendingChangesAsk.open', opener);            
         } else {
             this.doload(kw);
         }
     },
+    //openPendingChangesDlg:function(opener){
+    //    var dlg = genro.dlg.quickDialog('Pending changes');
+    //    dlg.center._('div',{innerHTML:this.msg_unsaved_changes, text_align:'center',height:'100px',width:'200px'})
+    //    dlg.bottom._('button',{label:'Save',action:function(){
+    //                                        dlg.close_action();
+    //                                        opener.saveCb();
+    //                                   },'float':'right'
+    //                            });
+    //    dlg.bottom._('button',{label:'Cancel',action:function(){
+    //                                        dlg.close_action();
+    //                                        opener.cancelCb()
+    //                                   },'float':'right'
+    //                            });
+    //    dlg.bottom._('button',{label:'Discard',action:function(){
+    //                                        dlg.close_action();
+    //                                        opener.continueCb()
+    //                                   },'float':'left'
+    //                            });
+    //    dlg.show_action();
+    //},
+    
     doload: function(kw) {
         var kw = kw || {};
         var sync = kw.sync;
@@ -183,13 +209,8 @@ dojo.declare("gnr.GnrFrmHandler", null, {
             if (sync) {
                 this.loaded();
             }
-        } else if(this.loadmethod) {
-            var method = this.loadmethod;
-            if(typeof(method)=='function'){
-                method.call(this);
-            }else{
-                this[method].call(this);
-            }
+        } else if(this.store) {
+            this.store.load();
         }
     },
     
@@ -236,13 +257,8 @@ dojo.declare("gnr.GnrFrmHandler", null, {
                 var saverNode = genro.nodeById(this.form_id + '_saver')
                 if(saverNode){
                     saverNode.fireNode();
-                }else if(this.savemethod) {
-                    var method = this.savemethod;
-                    if(typeof(method)=='function'){
-                        method.call(this);
-                    }else{
-                        this[method].call(this);
-                    }
+                }else if(this.store) {
+                    this.store.save();
                 }
             } else {
                 this.fireControllerData('save_failed','nochange');
@@ -261,6 +277,9 @@ dojo.declare("gnr.GnrFrmHandler", null, {
         this.op_status = 'saved';
         this.publish('message',{message:this.msg_saved,sound:'$onsaved'});
 
+    },
+    setStore:function(storeType,kw){
+        this.store = new gnr.formstores[storeType](this,kw);
     },
 
     openForm:function(idx, pkey) {
@@ -549,25 +568,6 @@ dojo.declare("gnr.GnrFrmHandler", null, {
         this.getControllerData().setItem('changesLogger',new gnr.GnrBag());
         this.updateStatus();
     },
-    loader_recordCluster:function(table){
-        var that=this;
-        var cb = function(result){
-            that.loaded(result);
-        };
-        var kw =this.sourceNode.evaluateOnNode(this.loadKw);
-        genro.rpc.remoteCall('loadRecordCluster',objectUpdate({'pkey':this.getCurrentPkey(),
-                                                  'virtual_columns':this.getVirtualColumns(),
-                                                  'table':this.table},kw),null,'POST',null,cb);
-    },
-    saver_recordCluster:function(table){
-        var that=this;
-        var cb = function(result){
-            that.saved(result);
-        };
-        var kw =this.sourceNode.evaluateOnNode(this.saveKw);
-        genro.rpc.remoteCall('saveRecordCluster',objectUpdate({'data':this.getFormChanges(),
-                                                               'table':this.table},kw),null,'POST',null,cb);
-    },
 
     hasChangesAtPath:function(path) {
         var changesLogger = this.getChangesLogger();
@@ -838,3 +838,64 @@ dojo.declare("gnr.GnrValidator", null, {
         }
     }
 });
+
+//formstores
+dojo.declare("gnr.formstores.Base", null, {
+    constructor:function(form,kw){
+        this.form = form;
+        this.loadKw = objectExtract(kw,'load_*');
+        this.saveKw = objectExtract(kw,'save_*');
+        this.table = this.form.table;
+        var callables = {'loadMethod':null,'saveMethod':null,'deleteMethod':null};
+        for(var k in kw){
+            var v = kw[k];
+            if(typeof(v)=='string'){
+                if(v in this){
+                    v =  this[v];
+                }else if(k in callables){
+                    v = funcCreate(v);
+                }
+            }
+            this[k] = v;
+        }
+    },
+    loader_recordCluster:function(table){
+        var form=this.form;
+        var cb = function(result){
+            form.loaded(result);
+        };
+        var kw =form.sourceNode.evaluateOnNode(this.loadKw);
+        genro.rpc.remoteCall('loadRecordCluster',objectUpdate({'pkey':form.getCurrentPkey(),
+                                                  'virtual_columns':form.getVirtualColumns(),
+                                                  'table':this.table},kw),null,'POST',null,cb);
+    },
+    saver_recordCluster:function(table){
+        var form=this.form;
+        var cb = function(result){
+            form.saved(result);
+        };
+        var kw =form.sourceNode.evaluateOnNode(this.saveKw);
+        genro.rpc.remoteCall('saveRecordCluster',objectUpdate({'data':form.getFormChanges(),
+                                                               'table':this.table},kw),null,'POST',null,cb);
+    },
+    save:function(){
+        this.saveMethod();
+    },
+    load:function(){
+        this.loadMethod();
+    }
+});
+
+dojo.declare("gnr.formstores.Item", gnr.formstores.Base, {
+
+});
+
+dojo.declare("gnr.formstores.Collection", gnr.formstores.Base, {
+
+});
+
+dojo.declare("gnr.formstores.Hierarchical", gnr.formstores.Base, {
+
+});
+
+
