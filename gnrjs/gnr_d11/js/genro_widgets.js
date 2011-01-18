@@ -964,6 +964,32 @@ dojo.declare("gnr.widgets.BorderContainer", gnr.widgets.baseDojo, {
     }
 });
 
+dojo.declare("gnr.widgets.TitlePane", gnr.widgets.baseDojo, {
+    constructor: function(application) {
+        this._domtag = 'div';
+        this._dojotag = 'TitlePane';
+    },
+
+    created: function(widget, savedAttrs, sourceNode) {
+        if (sourceNode.hasDynamicAttr('open')) {
+            var isOpen = sourceNode.getAttributeFromDatasource('open');
+
+            if (widget.open != isOpen) {
+                widget.toggle();
+            }
+
+            dojo.connect(widget, 'toggle', function(e) {
+                sourceNode.setAttributeInDatasource('open', widget.open);
+            });
+        }
+    },
+    mixin_setOpen: function(isOpen, pc) {
+        if (this.open != isOpen) {
+            this.toggle();
+        }
+    }
+});
+
 dojo.declare("gnr.widgets.FloatingPane", gnr.widgets.baseDojo, {
     constructor: function(application) {
         this._domtag = 'div';
