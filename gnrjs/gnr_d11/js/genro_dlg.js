@@ -280,11 +280,12 @@ dojo.declare("gnr.GnrDlgHandler", null, {
         return node._('floatingPane', kw);
     },
 
-    quickDialog: function(title) {
+    quickDialog: function(title,kw) {
+        var kw = kw || {};
         genro.src.getNode()._('div', '_dlg_quick');
         var node = genro.src.getNode('_dlg_quick').clearValue();
         node.freeze();
-        var dlg = node._('dialog', {nodeId:'_dlg_quick',title:title})
+        var dlg = node._('dialog', objectUpdate({nodeId:'_dlg_quick',title:title},kw));
         var center = dlg._('div', {_class:'pbl_dialog_center'});
         var bottom = dlg._('div', {_class:'dialog_bottom'});
         dlg.center = center;
