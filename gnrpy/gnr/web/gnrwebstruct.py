@@ -541,12 +541,13 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
 
 
     def includedview(self, storepath=None, structpath=None, struct=None, table=None,
-                     nodeId=None, columns=None, **kwargs):
+                     nodeId=None, columns=None, relativeWorkspace=None,**kwargs):
         nodeId = nodeId or self.page.getUuid()
-        structpath = structpath or 'grids.%s.struct' % nodeId
+        prefix = 'grids.%s' %nodeId if not relativeWorkspace else ''
+        structpath = structpath or '%s.struct' % prefix
         self._setGridStruct(struct=struct,table=table,columns=columns,gridId=nodeId,structpath=structpath)
         return self.child('includedView', storepath=storepath, structpath=structpath, nodeId=nodeId, table=table,
-                          **kwargs)
+                          relativeWorkspace=relativeWorkspace,**kwargs)
             
     def _setGridStruct(self,struct=None,table=None,columns=None,gridId=None,structpath=None):
         source = struct or columns
