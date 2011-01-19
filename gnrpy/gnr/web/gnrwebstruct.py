@@ -1066,7 +1066,7 @@ class GnrGridStruct(GnrStructData):
                                                                     var valuepath=rowpath+sep+'%(field)s';
                                                                     var disabledpath = rowpath+'?disabled';
                                                                     var storebag = this.widget.storebag();
-                                                                    if (storebag.getItem(disabledpath)){
+                                                                    if (!this.widget.editorEnabled){
                                                                         return;
                                                                     }
                                                                     var checked = !storebag.getItem(valuepath);
