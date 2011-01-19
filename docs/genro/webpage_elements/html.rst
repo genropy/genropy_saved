@@ -1,8 +1,8 @@
 	.. _genro-html-introduction:
 
-=============================
-Introduction to HTML elements
-=============================
+=============
+HTML elements
+=============
 
 	You can use an HTML element following the device of the Genro HTML syntax: in Genro, every HTML element is defined as a function.
 	

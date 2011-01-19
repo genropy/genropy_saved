@@ -15,7 +15,7 @@ field
 Definition and Description
 ==========================
 
-	.. method:: pane.field(field=None, [lbl='None'[, rowcaption=None[, limit=10[, zoom=True]]]])
+	.. method:: pane.field(field=None[, **kwargs])
 
 	``field`` is used to view and select data included in a database :ref:`genro-database_table` (and, eventually, through the ``zoom`` attribute, is used to modify them).
 
@@ -36,17 +36,17 @@ Attributes
 	
 	**field attributes**:
 	
-	* *field*: MANDATORY - The first field's parameter; it is field's query path; its complete syntax is ``packageName.tableName.tableAttributeName``. It can be used in a combo with ``dbtable`` (a ``formbuilder`` attribute) and with the ``maintable``
-	* *limit*: The max number of rows displayed in a field as response to user request. The last line is always a line with no characters, so user can choose it to undo his request
-	* *lbl*: Set the Field label. Properly, "lbl" is a formbuilder's child attribute, so if you don't specify it, then Field will inherit it from the :ref:`genro-name_long` attribute of the requested data
-	* *rowcaption*: Allow user to view records through :ref:`genro-name_long` value. Without ``rowcaption``, user will see value ID. Check for more information on :ref:`genro-database_rowcaption` page
-	* *zoom*: It allows to open the linked record in its :ref:`genro-database_table`. For further details, check :ref:`genro_zoom`
+	* ``field``: MANDATORY - it is field's query path; its complete syntax is ``packageName.tableName.tableAttributeName``. It can be used in a combo with ``dbtable`` (a ``formbuilder`` attribute) and with the ``maintable``
+	* ``limit``: The max number of rows displayed in a field as response to user request. The last line is always a line with no characters, so user can choose it to undo his request
+	* ``lbl``: Set the Field label. Properly, "lbl" is a formbuilder's child attribute, so if you don't specify it, then ``field`` will inherit it from the :ref:`genro-name_long` attribute of the requested data
+	* ``rowcaption``: Allow user to view records through :ref:`genro-name_long` value. Without ``rowcaption``, user will see value ID. Check for more information on :ref:`genro-database_rowcaption` page
+	* ``zoom``: It allows to open the linked record in its :ref:`genro-database_table`. For further details, check :ref:`genro_zoom`
 	
 	**Common attributes**:
 		
-	* *disabled*: if True, allow to disable this widget. Default value is ``False``. For more information, check the :ref:`genro-disabled` documentation page
-	* *hidden*: if True, allow to hide this widget. Default value is ``False``. For more information, check the :ref:`genro-hidden` documentation page
-	* *label*: You can't use the ``label`` attribute; if you want to give a label to your widget, check the :ref:`lbl_formbuilder` example
+	* ``disabled``: if True, allow to disable this widget. Default value is ``False``. For more information, check the :ref:`genro-disabled` documentation page
+	* ``hidden``: if True, allow to hide this widget. Default value is ``False``. For more information, check the :ref:`genro-hidden` documentation page
+	* ``label``: You can't use the ``label`` attribute; if you want to give a label to your widget, check the :ref:`lbl_formbuilder` example
 	
 	.. _field-examples:
 

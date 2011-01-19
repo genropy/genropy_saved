@@ -1,36 +1,44 @@
 	.. _genro-data:
 
-======
- data
-======
+====
+data
+====
 
-	- :ref:`data-description`
+	- :ref:`data_def`
+	
+	- :ref:`data_attr`
+	
+	- :ref:`data_examples`
 
-	- :ref:`data-syntax`
+.. _data_def:
 
-	- :ref:`data-examples`
+Definition
+==========
 
-	.. _data-description:
+	The ``data`` is a server-side Genro controller that allows to define variables from server to client.
 
-Description
-===========
+	.. method:: pane.data([*args[, **kwargs]])
 
-	The ``data`` is a server-side Genro object that allows to define variables from server to client.
+	*Where*:
 
-	.. _data-syntax:
+		* ``args[0]`` includes the path of the value.
+		* ``args[1]`` includes the value.
+		* in the ``**kwargs`` you can insert the ``_serverpath`` attribute
 
-Syntax
-======
+.. _data_attr:
 
-	``object``.data('folderPath','value')
+Attributes
+==========
 
-	Where:
+	**data attributes**:
 
-	- first parameter: it contains the variable folder path.
+	* ``_serverpath``: allow to keep updated data both on the server and in the client. For more information, check ???
+	
+	**common attributes**:
+	
+		For common attributes (``_init``, ``_onStart``, ``_timing``) see controllers' :ref:`controllers_attributes`
 
-	- second parameter: it contains the value of the variable.
-
-	.. _data-examples:
+.. _data_examples:
 
 Examples
 ========
@@ -47,17 +55,3 @@ Examples
 				bc = root.borderContainer()
 				bc.button('Click me',iconClass='^icon',width='^widthButton',color='^color',
 				           font_size='^fontSize',font_family='^fontType',action="alert('Clicked!')")
-	
-	Example::
-		
-		def test_2_basic2(self,pane):
-			"""data basic example - formbuilder attributes"""
-			bc = pane.borderContainer(datapath='test2')
-			fb = bc.formbuilder(cols=2)
-			fb.data('.name','Filippo')
-			fb.data('.surname','Astolfi')
-			fb.textbox(value='^.name',lbl='!!Name')
-			fb.textbox(value='^.surname',lbl='!!Surname')
-			fb.numberTextbox(value='^.phone',lbl='!!Phone number')
-			fb.textbox(value='^.address',lbl='!!Address')
-			

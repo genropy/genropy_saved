@@ -19,7 +19,7 @@ Definition and Description
 	
 	.. _filteringSelect: http://docs.dojocampus.org/dijit/form/FilteringSelect
 
-	.. method:: pane.filteringSelect([values='key:value'[, storepath=path[, ignoreCase=True]]])
+	.. method:: pane.filteringSelect([**kwargs])
 
 	The filteringSelect is a Dojo widget who suggests to user the possible (and unique!) entries of his selection.
 
@@ -34,16 +34,20 @@ Attributes
 
 	**filteringSelect attributes**:
 	
-	* *ignoreCase*: If True, user can write in filteringSelect ignoring the case. Default value is ``True``.
-	* *values*: Set all the possible values for user choice. Default value is ``None``. For more information, check the example below_.
+	* ``ignoreCase``: If True, user can write in filteringSelect ignoring the case. Default value is ``True``.
+	
+	To fill a filteringSelect, you can use one of these two attributes:
+	
+	* ``storepath``: specify a path from which the filteringSelect will get values. For more information, check the :ref:`bag_example` example.
+	* ``values``: Set all the possible values for user choice. For more information, check the example below_.
 	
 	**Common attributes**:
 		
-	* *disabled*: if True, allow to disable this widget. Default value is ``False``. For more information, check the :ref:`genro-disabled` documentation page
-	* *hidden*: if True, allow to hide this widget. Default value is ``False``. For more information, check the :ref:`genro-hidden` documentation page
-	* *label*: You can't use the ``label`` attribute; if you want to give a label to your widget, check the :ref:`lbl_formbuilder` example
-	* *value*: specify the path of the widget's value. For more information, check the :ref:`genro_datapath` documentation page
-	
+	* ``disabled``: if True, allow to disable this widget. Default value is ``False``. For more information, check the :ref:`genro-disabled` documentation page
+	* ``hidden``: if True, allow to hide this widget. Default value is ``False``. For more information, check the :ref:`genro-hidden` documentation page
+	* ``label``: You can't use the ``label`` attribute; if you want to give a label to your widget, check the :ref:`lbl_formbuilder` example
+	* ``value``: specify the path of the widget's value. For more information, check the :ref:`genro_datapath` documentation page
+
 	You can't use the ``label`` attribute; if you want to give a label to your filteringSelect you have to:
 
 .. _filteringselect_examples:

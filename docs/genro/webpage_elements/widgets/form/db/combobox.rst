@@ -1,8 +1,8 @@
 	.. _genro-combobox:
 
-==========
- comboBox
-==========
+========
+comboBox
+========
 
 	- :ref:`combobox-definition-description`
 	
@@ -19,7 +19,7 @@ Definition and Description
 
 	.. _combobox: http://docs.dojocampus.org/dijit/form/ComboBox
 	
-	.. method:: pane.combobox(label[, hasDownArrow=True[, ignoreCase=True[, values=None]]])
+	.. method:: pane.combobox([**kwargs])
 	
 	Combobox is a graphical user widget that permits the user to select a value from multiple options.
 	
@@ -34,16 +34,16 @@ Attributes
 	
 	**combobox attributes**:
 	
-	* *hasDownArrow*: If True, create the selection arrow. Default value is ``True``.
-	* *ignoreCase*: If True, user can write ignoring the case. Default value is ``True``.
-	* *values*: Set all the possible values for user choice. Default value is ``None``. For more information, check the :ref:`values-attribute` example
+	* ``hasDownArrow``: If True, create the selection arrow. Default value is ``True``.
+	* ``ignoreCase``: If True, user can write ignoring the case. Default value is ``True``.
+	* ``values``: Set all the possible values for user choice. Default value is ``None``. For more information, check the :ref:`values-attribute` example
 	
 	**Common attributes**:
 		
-	* *disabled*: if True, allow to disable this widget. Default value is ``False``. For more information, check the :ref:`genro-disabled` documentation page
-	* *hidden*: if True, allow to hide this widget. Default value is ``False``. For more information, check the :ref:`genro-hidden` documentation page
-	* *label*: You can't use the ``label`` attribute; if you want to give a label to your widget, check the :ref:`lbl_formbuilder` example
-	* *value*: specify the path of the widget's value. For more information, check the :ref:`genro_datapath` documentation page
+	* ``disabled``: if True, allow to disable this widget. Default value is ``False``. For more information, check the :ref:`genro-disabled` documentation page
+	* ``hidden``: if True, allow to hide this widget. Default value is ``False``. For more information, check the :ref:`genro-hidden` documentation page
+	* ``label``: You can't use the ``label`` attribute; if you want to give a label to your widget, check the :ref:`lbl_formbuilder` example
+	* ``value``: specify the path of the widget's value. For more information, check the :ref:`genro_datapath` documentation page
 	
 	.. _combobox-examples:
 

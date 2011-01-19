@@ -19,8 +19,8 @@ Definition and Description
 
 	.. _slider: http://docs.dojocampus.org/dijit/form/Slider
 	
-	.. method:: pane.horizontalSlider(width, default=100, minimum=0, maximum=100, intermediateChanges=False[, **kwargs])
-	.. method:: pane.verticalSlider(height, default=100, minimum=0, maximum=100, intermediateChanges=False[, **kwargs])
+	.. method:: pane.horizontalSlider([**kwargs])
+	.. method:: pane.verticalSlider([**kwargs])
 
 	Slider is a scale with a handle you can move to select a value. You can choose between the horizontalSlider and the verticalSlider.
 
@@ -31,19 +31,19 @@ Attributes
 
 	**slider attributes**:
 	
-	* *width*: (horizontalSlider) MANDATORY - define the width of your horizontalSlider
-	* *height*: (verticalSlider) MANDATORY - define the height of your verticalSlider
-	* *default*: Add a default value in your slider. Default value is 0
-	* *intermediateChanges*: (Boolean) If True, it allows to changes value of slider during slider move
-	* *maximum*: Add the maximum value of the slider. Default value is 100
-	* *minimum*: Add the minimum value of the slider. Default value is 0
+	* ``width``: (horizontalSlider) MANDATORY - define the width of your horizontalSlider
+	* ``height``: (verticalSlider) MANDATORY - define the height of your verticalSlider
+	* ``default``: Add a default value in your slider. Default value is 0
+	* ``intermediateChanges``: (Boolean) If True, it allows to changes value of slider during slider move
+	* ``maximum``: Add the maximum value of the slider. Default value is 100
+	* ``minimum``: Add the minimum value of the slider. Default value is 0
 	
 	**common attributes**:
 	
-	* *disabled*: if True, allow to disable this widget. Default value is ``False``. For more information, check the :ref:`genro-disabled` documentation page
-	* *hidden*: if True, allow to hide this widget. Default value is ``False``. For more information, check the :ref:`genro-hidden` documentation page
-	* *label*: You can't use the ``label`` attribute; if you want to give a label to your widget, check the :ref:`lbl_formbuilder` example
-	* *value*: specify the path of the widget's value. For more information, check the :ref:`genro_datapath` documentation page
+	* ``disabled``: if True, allow to disable this widget. Default value is ``False``. For more information, check the :ref:`genro-disabled` documentation page
+	* ``hidden``: if True, allow to hide this widget. Default value is ``False``. For more information, check the :ref:`genro-hidden` documentation page
+	* ``label``: You can't use the ``label`` attribute; if you want to give a label to your widget, check the :ref:`lbl_formbuilder` example
+	* ``value``: specify the path of the widget's value. For more information, check the :ref:`genro_datapath` documentation page
 
 .. _slider_examples:
 

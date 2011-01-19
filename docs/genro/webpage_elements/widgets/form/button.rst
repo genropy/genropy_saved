@@ -15,7 +15,7 @@ button
 Definition and Description
 ==========================
 
-	.. method:: pane.button(label=None[, action='JavascriptCode'[,**kwargs]])
+	.. method:: pane.button(label=None[,**kwargs])
 
 	The Genro button takes its basic structure from the Dojo button [#]_.
 	
@@ -28,14 +28,14 @@ Attributes
 
 	**button attributes**:
 
-	* *action*: allow to execute a javascript callback. Default value is ``None``. For more information, check the :ref:`button_action` section below
+	* ``action``: allow to execute a javascript callback. For more information, check the :ref:`button_action` section below
 	
 	**common attributes**:
 	
-	* *disabled*: if True, allow to disable this widget. Default value is ``False``. For more information, check the :ref:`genro-disabled` documentation page
-	* *hidden*: if True, allow to hide this widget. Default value is ``False``. For more information, check the :ref:`genro-hidden` documentation page
-	* *label*: the label of the widget.
-	* *value*: specify the path of the widget's value. For more information, check the :ref:`genro_datapath` documentation page
+	* ``disabled``: if True, allow to disable this widget. Default value is ``False``. For more information, check the :ref:`genro-disabled` documentation page
+	* ``hidden``: if True, allow to hide this widget. Default value is ``False``. For more information, check the :ref:`genro-hidden` documentation page
+	* ``label``: the label of the widget.
+	* ``value``: specify the path of the widget's value. For more information, check the :ref:`genro_datapath` documentation page
 
 	.. _button-examples:
 

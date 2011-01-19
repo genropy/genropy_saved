@@ -15,7 +15,7 @@
 Definition and Description
 ==========================
 
-	.. method:: pane.dbcombobox(dbtable=None[, alternatePkey=None[, auxColumns=None[, columns=None[, condition=None[, limit=10[, rowcaption=None[, selected=None]]]]]]])
+	.. method:: pane.dbcombobox([**kwargs])
 	
 	The Genro ``dbCombobox`` is a :ref:`genro-combobox` that conducts research on specific columns in a database table. While user write in the dbCombobox, partially matched values will be shown in a pop-up menu below the input text box. ``dbCombobox`` has got the same parameters of the :ref:`genro_dbselect`, and allows to choose from values situated in the database AND from values that aren't in the database. These "new" values aren't added in the database but they have being placed in the :ref:`genro-datastore`, so they can be handled from Genropy. [#]_
 

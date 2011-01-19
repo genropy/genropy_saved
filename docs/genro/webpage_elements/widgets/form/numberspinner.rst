@@ -19,7 +19,7 @@ Definition and Description
 	
 	.. _numberspinner: http://docs.dojocampus.org/dijit/form/NumberSpinner
 	
-	.. method:: pane.numberspinner([default=None[, min=None[, max=None]]])
+	.. method:: pane.numberspinner([**kwargs])
 	
 	numberSpinner is similar to :ref:`genro_numbertextbox`, but makes integer entry easier when small adjustments are required.
 
@@ -35,16 +35,16 @@ Attributes
 
 	**numberspinner attributes**:
 	
-	* *default*: add a default number to the numberSpinner. Default value is ``None``.
-	* *min*: set the minimum value of the numberSpinner. Default value is ``None``.
-	* *max*: set the maximum value of the numberSpinner. Default value is ``None``.
+	* ``default``: add a default number to the numberSpinner. Default value is ``None``.
+	* ``min``: set the minimum value of the numberSpinner. Default value is ``None``.
+	* ``max``: set the maximum value of the numberSpinner. Default value is ``None``.
 	
 	**common attributes**:
 		
-	* *disabled*: if True, allow to disable this widget. Default value is ``False``. For more information, check the :ref:`genro-disabled` documentation page
-	* *hidden*: if True, allow to hide this widget. Default value is ``False``. For more information, check the :ref:`genro-hidden` documentation page
-	* *label*: You can't use the ``label`` attribute; if you want to give a label to your widget, check the :ref:`lbl_formbuilder` example
-	* *value*: specify the path of the widget's value. For more information, check the :ref:`genro_datapath` documentation page
+	* ``disabled``: if True, allow to disable this widget. Default value is ``False``. For more information, check the :ref:`genro-disabled` documentation page
+	* ``hidden``: if True, allow to hide this widget. Default value is ``False``. For more information, check the :ref:`genro-hidden` documentation page
+	* ``label``: You can't use the ``label`` attribute; if you want to give a label to your widget, check the :ref:`lbl_formbuilder` example
+	* ``value``: specify the path of the widget's value. For more information, check the :ref:`genro_datapath` documentation page
 
 	.. _numberspinner-examples:
 

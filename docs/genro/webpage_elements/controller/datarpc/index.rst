@@ -1,10 +1,11 @@
-	.. _genro-datarpc-index:
+.. _genro_datarpc_index:
 
-=========
- dataRpc
-=========
+=======
+dataRpc
+=======
 
 .. toctree::
+	:maxdepth: 1
 
 	introduction
 	datarpc

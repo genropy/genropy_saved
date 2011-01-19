@@ -57,22 +57,20 @@ Attributes
 	
 	**formbuilder's field attributes**:
 	
-	* *colspan*: Set the number of columns occupied by a single field. Default value is ``1``
-	* *label*: If possible, set a label for formbuilder right field-part (more details on this example_). Default value is ``None``
-	* *lbl*: If possible, set a label for formbuilder left field-part (more details on this example_). Default value is ``None``
-	* *pos*: Choose element position. The default value is the first free position. The syntax is ``pos(NUMBER,NUMBER)``, whereas the first value represents a row, the second value represents a column. Other feature: "pos" accepts as a number row two special characters::
+	* ``colspan``: Set the number of columns occupied by a single field. Default value is ``1``
+	* ``label``: If possible, set a label for formbuilder right field-part (more details on this example_). Default value is ``None``
+	* ``lbl``: If possible, set a label for formbuilder left field-part (more details on this example_). Default value is ``None``
+	* ``pos``: Choose element position. The default value is the first free position. The syntax is ``pos(NUMBER,NUMBER)``, whereas the first value represents a row, the second value represents a column. Other feature: "pos" accepts as a number row two special characters::
 				
 		``+`` to refer itself at the following row
 		``*`` to refer itself at the current row
 	
-	* *value*: Set a path for formbuilder's values. For more details, see :ref:`genro_datapath`. Default value is ``None``
+	* ``value``: Set a path for formbuilder's values. For more details, see :ref:`genro_datapath`. Default value is ``None``
 	
-	.. _formbuilder-other-attributes:
-
 	**common attributes**:
 	
-	* *disabled*: if True, allow to disable this widget. Default value is ``False``. For more information, check the :ref:`genro-disabled` documentation page
-	* *hidden*: if True, allow to hide this widget. Default value is ``False``. For more information, check the :ref:`genro-hidden` documentation page
+	* ``disabled``: if True, allow to disable this widget. Default value is ``False``. For more information, check the :ref:`genro-disabled` documentation page
+	* ``hidden``: if True, allow to hide this widget. Default value is ``False``. For more information, check the :ref:`genro-hidden` documentation page
 
 	.. _formbuilder-examples:
 
@@ -135,4 +133,4 @@ label and lbl: an explanation
 	
 		fb = pane.formbuilder(datapath='test2',border='5px',cols=2)
 	
-	the effect will be: <#NISO ??? add online demo! />
+	the effect will be: ??? add online demo...

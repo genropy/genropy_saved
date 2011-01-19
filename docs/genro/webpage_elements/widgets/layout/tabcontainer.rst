@@ -1,4 +1,4 @@
-	.. _genro-tabcontainer:
+.. _genro_tabcontainer:
 
 ============
 tabContainer
@@ -10,12 +10,14 @@ tabContainer
 
 	- :ref:`tab-examples`: :ref:`tab-simple`
 
-	- attributes explanation: :ref:`tab-selected`, :ref:`tab-tabposition`
+	- attributes explanation: :ref:`tab_selected`, :ref:`tab_tabposition`
 
 	.. _tab-definition:
 
 Definition
 ==========
+
+	.. method:: pane.tabContainer([**kwargs])
 
 	A TabContainer is a container that has multiple panes, but shows only one pane at a time. There are a set of tabs corresponding to each pane, where each tab has the title of the pane.
 
@@ -25,12 +27,14 @@ Attributes
 ==========
 
 	**tabContainer's attributes**:
-
-	* *selected*: Allow to visualize in the :ref:`genro-datastore` the current selected tab as a type-number into a specific folder. Default value is ``None``. Check the :ref:`tab-selected` example for more informations.                                     
 	
-	**attributes of the tabContainer's children (paneContainers)**:
+	* ``tabPosition``: define the place of the paneContainer's labels. Default value is ``top-h``. For all supported possibilities, check the :ref:`tab_tabposition` example
 
-	* *tabPosition*: define the place of the paneContainer's labels. Default value is ``top-h``. For all supported possibilities, check the :ref:`tab-tabposition` example
+	* ``selected``: Allow to visualize in the :ref:`genro-datastore` the current selected tab as a type-number into a specific folder. Default value is ``None``. Check the :ref:`tab_selected` example for more informations.
+
+	**attributes of the tabContainer's children (paneContainers)**:
+	
+		There aren't particular attributes.
 
 	**common attributes**:
 	
@@ -54,7 +58,7 @@ Here we show you a simple example of a ``tab container``::
 			cp = tc.contentPane(title='title place',iconClass='icnBaseAction')
 			tc.contentPane(title='Second tab').button('Dummy button (no action)',margin='10px')
 
-	.. _tab-selected:
+.. _tab_selected:
 
 "selected" attribute
 ====================
@@ -69,7 +73,7 @@ Here we show you a simple example of a ``tab container``::
 	
 	The ``selected`` of this example will create the following path folder: ``/selected/tab``
 
-	.. _tab-tabposition:
+.. _tab_tabposition:
 
 "tabPosition" attribute
 =======================
@@ -92,13 +96,4 @@ Here we show you a simple example of a ``tab container``::
 				tc = bc.tabContainer(height='100px',tabPosition='bottom')
 				tc.contentPane(title='One').div('tabPosition=\'bottom\'',margin='1em')
 				tc.contentPane(title='Two')
-
-.. ??? Add online demo! #NISO
-
-
-
-
-
-
-
-
+				

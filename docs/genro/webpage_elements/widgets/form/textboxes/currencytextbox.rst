@@ -17,7 +17,7 @@
 Definition and Description
 ==========================
 
-	.. method:: pane.currencyTextbox([currency='EUR'[, default=None[, locale='it'[, **kwargs]]]])
+	.. method:: pane.currencyTextbox([**kwargs])
 
     The currencyTextbox inherits all the attributes and behaviors of the numberTextbox widget but are specialized for input monetary values, much like the currency type in spreadsheet programs.
 
@@ -28,9 +28,9 @@ Attributes
 
 	**currencyTextbox**:
 	
-	* *currency*: specify used currency. Default value is ``EUR``
-	* *default*: Add a default number to your widget. Default value is ``None``
-	* *locale*: specify currency format type. Default value is ``it``
+	* ``currency``: specify used currency. Default value is ``EUR``
+	* ``default``: Add a default number to your widget. Default value is ``None``
+	* ``locale``: specify currency format type. Default value is ``it``
 
 	**common attributes**:
 

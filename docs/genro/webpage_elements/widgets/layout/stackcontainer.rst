@@ -15,14 +15,13 @@ stackContainer
 Definition
 ==========
 
-	.. warning:: This page has to be written!!
+	.. warning:: This page has to be completed!!
 	
 	.. note:: The Genro stackContainer has been taken from Dojo without adding any modifies. In this page you will find some interesting features that we want to point up. For more information, check the Dojo's stackContainer_ documentation.
 
 	.. _stackContainer: http://docs.dojocampus.org/dijit/layout/StackContainer
 
-	???
-	pane.stackContainer(...)
+	.. method:: pane.stackContainer([**kwargs])
 	
 	A container that has multiple children, but shows only one child at a time (like looking at the pages in a book one by one).
 

@@ -15,7 +15,7 @@
 Definition and Description
 ==========================
 
-	.. method:: pane.dbSelect(dbtable=None[, alternatePkey=None[, auxColumns=None[, columns=None[, condition=None[, limit=10[, rowcaption=None[, selected=None]]]]]]])
+	.. method:: pane.dbSelect([**kwargs])
 
 	dbSelect [#]_ is a :ref:`genro_filteringselect` that takes the values through a query on the database [#]_.
 	

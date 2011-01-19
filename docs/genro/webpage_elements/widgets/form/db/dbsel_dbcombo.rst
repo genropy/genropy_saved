@@ -18,6 +18,11 @@ Common attributes
 	+--------------------+---------------------------------------------------+--------------------------+
 	|   Attribute        |          Description                              |   Default                |
 	+====================+===================================================+==========================+
+	| ``dbtable``        | MANDATORY - Select the database                   |  ``None``                |
+	|                    | :ref:`genro-database_table` for database widget   |                          |
+	|                    | query. For further details, check the             |                          |
+	|                    | :ref:`genro-dbtable` explanation page             |                          |
+	+--------------------+---------------------------------------------------+--------------------------+
 	| ``alternatePkey``  | Alternate primary key: allow to save user choice  |  ``None``                |
 	|                    | through a different parameter respect to the      |                          |
 	|                    | default ID. You can set any other field's         |                          |
@@ -33,11 +38,6 @@ Common attributes
 	+--------------------+---------------------------------------------------+--------------------------+
 	| ``condition``      | Start a SQL query. Check :ref:`db-condition`      |  ``None``                |
 	|                    | example for further details                       |                          |
-	+--------------------+---------------------------------------------------+--------------------------+
-	| ``dbtable``        | MANDATORY - Select the database                   |  ``None``                |
-	|                    | :ref:`genro-database_table` for database widget   |                          |
-	|                    | query. For further details, check the             |                          |
-	|                    | :ref:`genro-dbtable` explanation page             |                          |
 	+--------------------+---------------------------------------------------+--------------------------+
 	| ``disabled``       | If True, user can't act on the widget.            |  ``False``               |
 	|                    | For more details, see :ref:`genro-disabled`       |                          |

@@ -17,7 +17,7 @@ numberTextbox
 Definition and Description
 ==========================
 
-	.. method:: pane.numberTextbox([default=None[, places=3]])
+	.. method:: pane.numberTextbox([**kwargs])
 	
 	A simple number textbox.
 	
@@ -28,8 +28,8 @@ Attributes
 	
 	**numberTextbox**:
 	
-	* *default*: Add a default number to your numberTextbox. Default value is ``None``
-	* *places*: Numbers of decimals. If it's reached the following decimal to the last supported one, a tooltip error will warn user. Default value is ``3``
+	* ``default``: Add a default number to your numberTextbox. Default value is ``None``
+	* ``places``: Numbers of decimals. If it's reached the following decimal to the last supported one, a tooltip error will warn user. Default value is ``3``
 	
 	**common attributes**:
 

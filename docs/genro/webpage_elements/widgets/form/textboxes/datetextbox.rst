@@ -17,7 +17,7 @@
 Definition and Description
 ==========================
 
-	.. method:: pane.dateTextbox([popup=True[, **kwargs]])
+	.. method:: pane.dateTextbox([**kwargs])
 
     A dateTextbox is a easy-to-use date entry controls that allow either typing or choosing a date from any calendar widget.
     
@@ -30,7 +30,7 @@ Attributes
 	
 	**dateTextbox attributes**:
 	
-	* *popup*: allow to show a calendar dialog. Default value is ``True``
+	* ``popup``: allow to show a calendar dialog. Default value is ``True``
 	
 	**common attributes**:
 

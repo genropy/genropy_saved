@@ -1,11 +1,11 @@
-	.. _genro-webpage-elements-index:
+.. _genro_webpage_elements_index:
 
 ================
 Webpage elements
 ================
 
 .. toctree::
-	:maxdepth: 2
+	:maxdepth: 1
 
 	introduction
 	widgets/index

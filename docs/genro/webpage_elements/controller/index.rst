@@ -1,8 +1,8 @@
-	.. _genro-datacontroller-index:
+.. _genro_datacontroller_index:
 
-==================
- Data controllers
-==================
+================
+Data controllers
+================
 
 .. toctree::
 	:maxdepth: 1

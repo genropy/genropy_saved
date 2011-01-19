@@ -1,95 +1,63 @@
-	.. _genro-datacontroller:
+.. _genro_datacontroller:
 
-================
- dataController
-================
+==============
+dataController
+==============
 
-	- :ref:`datacontroller-description`
+	The ``dataController`` belongs to :ref:`controllers_client` family.
 
-	- :ref:`datacontroller-syntax`
-
-	- :ref:`datacontroller-examples`
-
-	.. _datacontroller-description:
-
-Description
-===========
-
-	- The ``dataController`` belongs to :ref:`genro-client-side-controllers` family.
-
-	The ``dataController`` is just a javascript code that is executed when a parameter value changes.
-
-	.. _datacontroller-syntax:
-
-Syntax
-======
-
-	``object.dataController('action',shooter='^folderPlace','otherParams')``
-
-	Where:
-
-	- first parameter: here lies the code that ``datacontroller`` has to execute.
-
-	- second parameter: here lies the "shooter", that is the way through wich the action is fired.
+	- :ref:`datacontroller_def`
 	
-	- next parameters: here lie all the variables used in the 'action' (the first parameter): check for the following :ref:`datacontroller-examples` for further information.
+	- :ref:`datacontroller_attr`
+	
+	- :ref:`datacontroller_examples`
 
-	.. _datacontroller-examples:
+.. _datacontroller_def:
+
+Definition
+==========
+	
+	.. method:: pane.dataController(script=None[, **kwargs])
+	
+	The ``dataController`` allow to execute a Javascript code
+
+.. _datacontroller_attr:
+
+Attributes
+==========
+
+	**dataController attributes**:
+
+	* ``script``: the Javascript code that ``datacontroller`` has to execute.
+	
+	The following parameters allow the dataController to be executed: check for the following :ref:`datacontroller-examples` for further information.
+	
+	**common attributes**:
+	
+		For common attributes (``_init``, ``_onStart``, ``_timing``) see controllers' :ref:`controllers_attributes`
+
+.. _datacontroller_examples:
 
 Examples
 ========
 
-	In the following example you find a ``dataController`` in which the first parameter is a javascript action, while the second parameter is a folder path with a circumflex accent [#]_.
-	
-	Example::
-		
-		class GnrCustomWebPage(object):
-			def main(self,root,**kwargs):
-				bc = root.borderContainer()
-				top = bc.contentPane(region='top',height='100px')
-				top.button('Build',fire='build')
-    
-				top.button('Add element',fire='add')
-				top.dataController("""var pane = genro.nodeById('remoteContent')
-				                      pane._('div',{height:'200px',width:'200px',background:'lightBlue',
-				                                    border:'1px solid blue','float':'left',
-				                                    remote:{'method':'test'}});
-				                   """,_fired="^add")
-
-				center = bc.contentPane(region = 'center').div(nodeId='remoteContent')
-				center.div().remote('test',_fired='^build')
-
-			def remote_test(self,pane,**kwargs):
-			    print 'pippo'
-			    pane.div('hello',height='40px',width='80px',background='lime')
-	
-	Example::
+	We show you two different syntaxes for the ``dataController``::
 		
 		class GnrCustomWebPage(object):
 			def main(self,root,**kwargs):
 				bc = pane.borderContainer(height='200px')
+				fb = bc.formbuilder(cols=2,datapath='test1')
 				
-				bc.div('In this basic example we want to show you two equivalent syntax to write the dataController:',
-				        font_size='.9em',text_align='justify')
-				bc.div("""1) The first syntax is fb.dataController(\"SET .aaa=\'positive number\'\" ,_if='shooter>=0',
-				             _else=\"SET .aaa=\'negative number\'\",shooter=\'^.x\') """,
-				             font_size='.9em',text_align='justify')
-				bc.div("""2) The second syntax is fb.dataController(\"\"\"if(shooter>=0){SET .bbb=\'positive number\';}
-				             else{SET .bbb=\'negative number\';}\"\"\",shooter=\'^.y\');""",
-				             font_size='.9em',text_align='justify')
-				
-				fb = bc.formbuilder(cols=3,datapath='test1')
-				
+				# First syntax
 				fb.dataController("SET .aaa='positive number'" ,_if='shooter>=0',
 				                    _else="SET .aaa='negative number'",shooter='^.x')
-				fb.div('1)',font_size='.9em',text_align='justify')
 				fb.numberTextbox(value='^.x',lbl='x')
 				fb.textbox(value='^.aaa',margin='10px',lbl='aaa')
 				
+				# Second syntax
 				fb.dataController("""if(shooter>=0){SET .bbb='positive number';}
 				                       else{SET .bbb='negative number';}""",
 				                       shooter='^.y')
-				fb.div('2)',font_size='.9em',text_align='justify')
 				fb.numberTextbox(value='^.y',lbl='y')
 				fb.textbox(value='^.bbb',margin='10px',lbl='bbb')
 

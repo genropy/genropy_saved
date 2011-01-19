@@ -1,40 +1,38 @@
 	.. _genro-dataformula:
 
-=============
- dataFormula
-=============
-
-	- :ref:`dataformula-description`
-
-	- :ref:`dataformula-syntax`
-
-	- :ref:`dataformula-examples`
-
-	.. _dataformula-description:
-
-Description
+===========
+dataFormula
 ===========
 
-	- The ``dataFormula`` belongs to :ref:`genro-client-side-controllers` family.
+	The ``dataFormula`` belongs to :ref:`controllers_client` family.
 
-	``dataFormula`` allows to insert a value into a specific address of the :ref:`genro-datastore`.
+	- :ref:`dataformula_def`
 
-	.. _dataformula-syntax:
+	- :ref:`dataformula_attributes`
 
-Syntax
-======
+	- :ref:`dataformula_examples`
 
-	``object.dataFormula('folderPlaceOfYourValue','formula','param','param',...)``
+.. _dataformula_def:
+
+Definition
+===========
+
+	.. method:: pane.dataFormula(path, formula[, **kwargs])
+
+	``dataFormula`` allows to insert a value into a specific address of the :ref:`genro-datastore` calculated through a formula
 	
-	Where:
+	.. note:: dataFormula does not have to be necessarily a mathematical formula!
 
-	- first parameter: here lies the path folder in the :ref:`genro-datastore` of your value.
+.. _dataformula_attributes:
 
-	- second parameter: here lies the "formula" [#]_.
+Attributes
+==========
+
+	* path: here lies the path folder in the :ref:`genro-datastore` of your value.
+	* formula: here lies the "formula"
+	* next parameters: variables contained into the formula (and ``**kwargs``)
 	
-	- next parameters: variables contained into the formula.
-
-	.. _dataformula-examples:
+.. _dataformula_examples:
 
 Examples
 ========
@@ -50,7 +48,3 @@ Examples
 				fb.numberTextBox(value='^height',places=2)
 				fb.dataFormula('area','base * height', base='^base', height='^height')
 				fb.numberTextBox(lbl='!!Area',value='^area',places=2,border='2px solid grey',padding='2px')
-	
-**Footnotes**
-
-.. [#] dataFormula does not have to be necessarily a mathematical formula!

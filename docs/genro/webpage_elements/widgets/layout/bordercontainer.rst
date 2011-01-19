@@ -21,7 +21,7 @@ Definition
 
 	.. _borderContainer: http://docs.dojocampus.org/dijit/layout/BorderContainer
 
-	.. method:: pane.borderContainer(height[, regions[, **kwargs]])
+	.. method:: pane.borderContainer([**kwargs])
 
 	The borderContainer is a container partitioned into up to five regions: left (or leading), right (or trailing), top, and bottom with a mandatory center to fill in any remaining space. Each edge region may have an optional splitter user interface for manual resizing.
 
@@ -39,11 +39,11 @@ Attributes
 
 	**borderContainer's attributes**:
 	
-	* *regions*: Allow to act on regions. Check the :ref:`border_regions` example
+	* ``regions``: Allow to act on regions. Check the :ref:`border_regions` example
 	
 	**attributes of the borderContainer's children (paneContainers)**:
 	
-	* *splitter*: If true, user can modify the width of the paneContainer. For more information, check :ref:`border_splitter` page
+	* ``splitter``: If true, user can modify the width of the paneContainer. For more information, check :ref:`border_splitter` page
 
 	.. _border-common-attributes:
 

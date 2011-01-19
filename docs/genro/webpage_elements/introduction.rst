@@ -1,4 +1,4 @@
-	.. _genro-webpage-elements-introduction:
+.. _genro_webpage_elements_introduction:
 
 ========================================
  Introduction to Genro webpage elements
@@ -21,6 +21,8 @@
 	
 	* Widgets elements:
 	
+		Used to create the webpage's layout and to introduce the input elements (button, checkbox, etc).
+	
 		* Check the :ref:`genro-widgets-introduction`;
 		* description and list of all the :ref:`genro-widgets-index`.
 	
@@ -30,19 +32,26 @@
 	
 	* CSS elements:
 	
-		* Check the :ref:`genro-css` [#]_;
+		* Check the :ref:`genro-css`.
 	
 	* data elements:
 	
+		Used to define variables from server to client.
+	
 		* Check the :ref:`genro-data` page.
+		
+	* dataRemote elements:
+		
+		synchronous rpc.
+		
+		* Check the :ref:`genro-dataremote` page.
 	
 	* controller elements:
+		
+		They receive input and initiate a response by making calls on model objects.
 	
-		* Check the :ref:`genro-controllers-introduction`;
-		* list of :ref:`genro-datacontroller-index`.
+		* Check the :ref:`genro_controllers_intro`;
+		* list of :ref:`genro_datacontroller-index`.
 	
-	For further details on a creation of a webpage, please check :ref:`genro-webpage`.
+	For further details on a creation of a webpage, please check :ref:`genro_webpage`.
 	
-**Footnotes**
-
-.. [#] Click here for a direct link to the `W3C site <http://www.w3.org/Style/CSS/>`_.

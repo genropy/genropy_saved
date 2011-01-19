@@ -1,27 +1,31 @@
-	.. _genro-datarecord:
+.. _genro_datarecord:
 	
-============
- dataRecord
-============
+==========
+dataRecord
+==========
 
-	- :ref:`datarecord-description`
+	.. warning:: to be written!
 
-	- :ref:`datarecord-syntax`
+	The ``dataRecord`` belongs to :ref:`genro_datarpc` family, so it is a :ref:`controllers_server`.
 
-	- :ref:`datarecord-examples`
+	- :ref:`datarecord_description`
 	
-	- :ref:`datarecord-common-attributes`
+	- :ref:`datarecord_syntax`
+	
+	- :ref:`datarecord_examples`
+	
+	- :ref:`datarecord_common_attributes`
 
-	.. _datarecord-description:
+.. _datarecord_description:
 
-Description
-===========
+Definition
+==========
 
-	- The ``dataRecord`` belongs to :ref:`genro-datarpc` family, so it is a server-side controller.
+	.. method:: pane.dataRecord(path, table, pkey=None, method='app.getRecord'[, **kwargs])
 
 	``dataRecord`` allows to ... ???
 
-	.. _datarecord-syntax:
+.. _datarecord_syntax:
 
 Syntax
 ======
@@ -32,14 +36,14 @@ Syntax
 
 	- first parameter: ???
 
-	.. _datarecord-examples:
+.. _datarecord_examples:
 
 Examples
 ========
 
-	..datarecord-common-attributes:
+	..datarecord_common_attributes:
 
 Common attributes
 =================
 
-	For a complete reference of ``dataRecord`` common attributes, please check :ref:`rpc-common-attributes`.
+	For a complete reference of ``dataRecord`` common attributes, please check :ref:`rpc_attributes`.

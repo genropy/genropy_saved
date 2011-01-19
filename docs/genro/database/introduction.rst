@@ -83,7 +83,7 @@ Packages
 
 	???
 	Model --> containing database :ref:`genro-database_table`
-	Webpages --> containing all the webpages of your project --> :ref:`genro-webpage`
+	Webpages --> containing all the webpages of your project --> :ref:`genro_webpage`
 
 	.. _genro-resources:
 

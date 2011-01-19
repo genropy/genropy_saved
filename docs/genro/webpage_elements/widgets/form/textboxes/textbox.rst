@@ -17,7 +17,7 @@ textbox
 Definition and Description
 ==========================
 
-	.. method:: pane.textbox([required='False'[, constraints[, invalidMessage[, promptMessage=None[, regExp[, regExpGen[, tooltipPosition='right'[, **kwargs]]]]]]]])
+	.. method:: pane.textbox([**kwargs])
 
 	Textbox is used to insert a text. Genro textbox is taken from Dojo ValidationTextBox (version 1.5; to show it, click here_.), so it supports all of Dojo ValidationTextBox attributes.
 
@@ -30,13 +30,13 @@ Attributes
 	
 	**textbox attributes**:
 	
-	* *constraints*: TBC ???
-	* *invalidMessage*: tooltip text that appears when the content of the textbox is invalid
-	* *promptMessage*: tooltip text that appears when the textbox is empty and on focus
-	* *required*: define if the field is a required field or not. Default value is ``False``
-	* *regExp*: regular expression pattern to be used for validation. If this is used, don't use regExpGen
-	* *regExpGen*: TBC. If this is used, do not use regExp ???. Default value is ``None``
-	* *tooltipPosition*: define where Tooltip will appear. Default value is ``right``
+	* ``constraints``: TBC ???
+	* ``invalidMessage``: tooltip text that appears when the content of the textbox is invalid
+	* ``promptMessage``: tooltip text that appears when the textbox is empty and on focus
+	* ``required``: define if the field is a required field or not. Default value is ``False``
+	* ``regExp``: regular expression pattern to be used for validation. If this is used, don't use regExpGen
+	* ``regExpGen``: TBC. If this is used, do not use regExp ???. Default value is ``None``
+	* ``tooltipPosition``: define where Tooltip will appear. Default value is ``right``
 
 	**common attributes**:
 
