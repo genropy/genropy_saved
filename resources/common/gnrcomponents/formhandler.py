@@ -48,7 +48,7 @@ class FormHandler(BaseComponent):
                                     height=height,**kwargs)
         form.contentPane(region='top',overflow='hidden',_attachname='top')
         bottom = form.contentPane(region='bottom',overflow='hidden',_attachname='bottom')
-        form.contentPane(region='center',datapath='.record',_attachname='content')
+        form.contentPane(region='center',datapath='.record',_attachname='content',_class='fh_content',nodeId='%s_content' %formId)
         bottom.div(_class='fh_bottom_message').span(formsubscribe_message="""var domNode = this.domNode;
                                                  var sound = objectPop($1,'sound');
                                                  if(sound){
@@ -67,26 +67,20 @@ class FormHandler(BaseComponent):
         
     @struct_method
     def fh_sltb_navigation(self,pane):
-        pane = pane.div(width='120px')
-        pane.button('!!First', fire_first='.navbutton', iconClass="tb_button icnNavFirst",
-                  disabled='^.atBegin', showLabel=False)
-        pane.button('!!Previous', fire_prev='.navbutton', iconClass="tb_button icnNavPrev",
-                  disabled='^.atBegin', showLabel=False)
-        pane.button('!!Next', fire_next='.navbutton', iconClass="tb_button icnNavNext",
-                  disabled='^.atEnd', showLabel=False)
-        pane.button('!!Last', fire_last='.navbutton', iconClass="tb_button icnNavLast",
-                  disabled='^.atEnd', showLabel=False)
+        pane = pane.div(width='120px',action='this.form.publish("navigationEvent",command);')
+        pane.button('!!First', command='first', iconClass="tb_button icnNavFirst",
+                    formsubscribe_navigationStatus="this.widget.setAttribute('disabled',$1.first || false);",
+                    showLabel=False)
+        pane.button('!!Previous', command='prev', iconClass="tb_button icnNavPrev",
+                    showLabel=False,formsubscribe_navigationStatus="this.widget.setAttribute('disabled',$1.first || false);")
+        pane.button('!!Next', command='next', iconClass="tb_button icnNavNext",showLabel=False,
+                  formsubscribe_navigationStatus="this.widget.setAttribute('disabled',$1.last || false);")
+        pane.button('!!Last', command='last', iconClass="tb_button icnNavLast",
+                   formsubscribe_navigationStatus="this.widget.setAttribute('disabled',$1.last || false);",showLabel=False)
     
     @struct_method               
     def fh_sltb_semaphore(self,pane):
-        pane.div(width='20px',_class='greenLight',
-                 formsubscribe_onStatusChange="""
-                                    var status = $1.status;
-                                    genro.dom.setClass(this.domNode,"redLight",status=='error');
-                                    genro.dom.setClass(this.domNode,"yellowLight",status=='changed');
-                                    genro.dom.setClass(this.domNode,"greenLight",status=='ok');
-                                    genro.dom.setClass(this.domNode,"icnBaseReadOnly",status=='readOnly');
-                                    """)
+        pane.div(_class='fh_semaphore')
     
     @struct_method          
     def fh_sltb_formcommands(self,pane):
@@ -101,7 +95,7 @@ class FormHandler(BaseComponent):
                        showLabel=False,float='right')
     @struct_method 
     def fh_sltb_locker(self,pane):
-        pane.button('!!Locker',width='20px',iconClass='icnBaseLocked',showLabel=False,
+        pane.button('!!Locker',width='20px',iconClass='icnBaseUnlocked',showLabel=False,
                     action='this.form.publish("setLocked","toggle");',
                     formsubscribe_onLockChange="""var locked= $1.locked;
                                                   this.widget.setIconClass(locked?'icnBaseLocked':'icnBaseUnlocked');""")
