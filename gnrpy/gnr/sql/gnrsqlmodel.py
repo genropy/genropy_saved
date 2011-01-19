@@ -114,7 +114,8 @@ class DbModel(object):
                 many_relation, one_relation))
                 return
             link_many_name = many_field
-            relation_name = relation_name or '_'.join(many_relation_tuple)
+            default_relation_name = many_table if one_one else '_'.join(many_relation_tuple)
+            relation_name = relation_name or default_relation_name
             #if not  many_name:
             #     many_name = link_one_name
             #if not  one_name:
@@ -387,21 +388,7 @@ class DbModelSrc(GnrStructData):
             @param deferred:
             @param relation_name:
         """
-        if one_one and isinstance(one_one,basestring):
-            rc = related_column.split('.')
-            fromTableNode = self.parent.parent.parentNode
-            fromTableName = fromTableNode.label
-            fromPkg = fromTableNode.getAttr('pkg')
-            if len(rc)==2:
-                table,externalKey = rc
-                pkg = fromPkg
-            else:
-                pkg,table,externalKey = rc
-            fromColumn = self.parentNode.label
-            fromColumnNameLong = self.parentNode.attr.get('name_long')
-            relation_path='@%s_%s_%s.%s' %(fromPkg,fromTableName,fromColumn,externalKey)
-            self.externalPackage(pkg).table(table).aliasColumn(one_one,relation_path=relation_path,name_long=fromColumnNameLong)
-            one_one=True
+
         return self.setItem('relation', self.__class__(), related_column=related_column, mode=mode,
                             one_name=one_name, many_name=many_name, one_one=one_one, child=child,
                             one_group=one_group, many_group=many_group, deferred=deferred, onUpdate=onUpdate,
@@ -409,7 +396,8 @@ class DbModelSrc(GnrStructData):
                             eager_one=eager_one, eager_many=eager_many, onUpdate_sql=onUpdate_sql,
                             onDelete_sql=onDelete_sql, relation_name=relation_name,
                             **kwargs)
-
+                            
+  
 class DbModelObj(GnrStructObj):
     """Base class for all the StructObj in this module"""
 
