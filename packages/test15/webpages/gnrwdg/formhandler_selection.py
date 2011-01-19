@@ -31,14 +31,22 @@ class GnrCustomWebPage(object):
         bc = pane.borderContainer(height='250px')
         left = bc.borderContainer(region='left',width='300px',datapath='.grid')
         center = bc.contentPane(region='center',border='1px solid blue').formTester(formId='provincia')
+        left.dataController("""
+            genro.wdgById('province_grid').selectByRowAttr('_pkey',pkey);
+        """,parentForm="provincia",formsubscribe_onLoaded=True)
+        #left.contentPane(region='bottom',height='10px',background='gray').div('ciao',parentForm="provincia",formsubscribe_onLoaded='console.log("div"+$1.pkey);')
         toolbar = left.contentPane(region='top').slotToolbar('gridtoolbar','*,searchOn')
         toolbar.slot_searchOn.dbselect(value='^.regione',dbtable='glbl.regione',
                                        validate_onAccept='genro.wdgById("province_grid").reload();')
         gridpane = left.contentPane(region='center')
         
         gridpane.includedview(storepath='.store',struct='regione',nodeId='province_grid',
+                             autoSelect=True,
                              relativeWorkspace=True,table='glbl.provincia',
-                             connect_onRowDblClick='genro.formById("provincia").publish("load",{destPkey:this.widget.rowIdByIndex($1.rowIndex)});')
+                             selectedId='.selectedPkey')
+        gridpane.dataController("""
+            this.form.publish("load",{destPkey:selPkey});
+        """,selPkey="^.selectedPkey",parentForm='provincia')
         bc.selectionStore(storepath='.grid.store',table='glbl.provincia',where='$regione=:r',
                                 r='=.grid.regione',gridId='province_grid')
 

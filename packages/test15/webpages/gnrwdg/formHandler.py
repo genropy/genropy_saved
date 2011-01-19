@@ -18,9 +18,9 @@ class GnrCustomWebPage(object):
     def formTester(self,pane,formId=None,hasSelector=True,**kwargs):
         form = pane.formPane(formId=formId,datapath='.provincia',**kwargs)
         form.recordClusterStore('glbl.provincia',storeType='Item')
-        left = 'navigation,|,selectrecord,|,' if hasSelector else ''
+        left = '|,selectrecord,|,' if hasSelector else ''
         form.top.slotToolbar('prova','%s *,|,semaphore,|,formcommands,|,locker' %left)
-        fb = form.content.formbuilder(cols=1, border_spacing='4px', width="300px", fld_width="100%")
+        fb = form.content.formbuilder(cols=2, border_spacing='4px', width="400px", fld_width="100%")
         fb.field('sigla')
         fb.field('regione')
         fb.field('nome')
@@ -30,10 +30,20 @@ class GnrCustomWebPage(object):
         fb.field('cap_valido')
         return form
         
+    def onLoading_glbl_provincia(self,record,newrecord,loadingParameters,recInfo):
+        if record['sigla'] == 'AO':
+            recInfo['_readonly'] = True
+        
+    def test_k_formPane_cp(self,pane):
+        bc = pane.borderContainer(height='200px')
+        formA = bc.contentPane(region='left',width='50%',datapath='.pane1').formTester('form_a')
+        formB = bc.contentPane(region='center',datapath='.pane2').formTester('form_b')
+
     def _test_1_formPane_cp(self,pane):
         """Test form in contentPane form"""
         pane = pane.contentPane(height='150px')
-        pane.formTester('form_cp')
+        form = pane.formTester('form_cp')
+        form.dataController("this.form.onStartForm()",_onStart=True)
     
     def _test_2_formPane_tc(self,pane):
         """First test description"""
