@@ -114,7 +114,7 @@ class DbModel(object):
                 many_relation, one_relation))
                 return
             link_many_name = many_field
-            default_relation_name = many_table if one_one else '_'.join(many_relation_tuple)
+            default_relation_name = many_table if one_one=='*' else '_'.join(many_relation_tuple)
             relation_name = relation_name or default_relation_name
             #if not  many_name:
             #     many_name = link_one_name
