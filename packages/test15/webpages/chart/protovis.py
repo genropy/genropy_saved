@@ -6,6 +6,7 @@
 
 from gnr.core.gnrbag import Bag
 import random
+from gnr.web.gnrwebstruct import struct_method
 
 "Protovis"
 class GnrCustomWebPage(object):
@@ -47,6 +48,36 @@ class GnrCustomWebPage(object):
                             storepath='.myprotovis')
         self.createProtovis(bc.contentPane(region="center"), 'right_vis2', storepath='.myprotovis')
 
+
+    def test_3_fromFile(self, pane):
+        pane = pane.div(height="300px")
+        b = Bag()
+        for n in xrange(10):
+            b['r_%d' % n] = n % 5
+        pane.data('.myprotovis.width', 300)
+        pane.data('.myprotovis.height', 200)
+        pane.dataRpc('.myprotovis.data', 'random_data', _fired="^.update_data", _onResult="FIRE .update_graph")
+
+        bc = pane.borderContainer(width="100%", height="100%")
+        fb = bc.contentPane(region="top", background_color='pink', height='30px').formbuilder(cols=4,
+                                                                                              border_spacing='3px')
+        fb.button("Update", fire=".update_data")
+        fb.horizontalslider(value="^.myprotovis.width", minimum=200, maximum=500, intermediateChanges=False,
+                            width='150px', lbl='Width')
+        fb.horizontalslider(value="^.myprotovis.height", minimum=100, maximum=300, intermediateChanges=False,
+                            width='150px', lbl='Height')
+
+        bc.contentPane(region="left", splitter=True).protovisJS(nodeId="left_vis3", height="200", width="300",
+                                                              data="=.data", src="protovis-sample3.js")
+
+
+    @struct_method
+    def protovisJS(self, parent, js=None, src=None, **kwargs):
+        if js and src:
+            raise ValueError("protovisJS: please specify only 'js' or 'src', but not both parameters.")
+        if src:
+            js = open(self.getResource(src),'rT').read()
+        parent.protovis(js=js, **kwargs)
 
     def scriptTest(self):
         return """if(!data){return}
