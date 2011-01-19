@@ -1072,26 +1072,28 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
             var selfsubscriptions = objectExtract(attributes, 'selfsubscribe_*');
             var formsubscriptions = objectExtract(attributes, 'formsubscribe_*');
             var nid = this.attr.nodeId || this.getStringId();
-            var form = this.getFormHandler();
             for (var selfsubcription in selfsubscriptions){
                 subscriptions[nid+'_'+selfsubcription] = selfsubscriptions[selfsubcription];
             }
-            if(form){
-                var fid = form.form_id;
-                for (var formsubcription in formsubscriptions){
-                    subscriptions['form_'+fid+'_'+formsubcription] = formsubscriptions[formsubcription];
+            if(objectNotEmpty(formsubscriptions) || this.attr.parentForm){
+                var that = this;
+                var cb = function(){
+                    var form = that.getFormHandler();
+                    if(form){
+                        that.form = form;
+                        var fid = form.form_id;
+                        var subscriptions = {};
+                        for (var formsubcription in formsubscriptions){
+                            subscriptions['form_'+fid+'_'+formsubcription] = formsubscriptions[formsubcription];
+                        }
+                        that._dataControllerSubscription(subscriptions);
+                    }
                 }
+                genro.src.afterBuildCalls.push(cb);
             }
-            for (var subscription in subscriptions) {
-                var cb = function(node, trigger_reason) {
-                    var reason = trigger_reason;
-                    node.registerSubscription(subscription, node, function() {
-                        node.setDataNodeValue(null, {}, reason, arguments);
-                    });
-                };
-                cb(this, subscription);
-            }
-            ;
+            
+            this._dataControllerSubscription(subscriptions);
+            
             if (onStart) {
                 this.attr._fired_onStart = '^gnr.onStart';
                 this.registerDynAttr('_fired_onStart');
@@ -1101,6 +1103,17 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
             }
         }
         this._setDynAttributes();
+    },
+    _dataControllerSubscription:function(subscriptions){
+        for (var subscription in subscriptions) {
+            var cb = function(node, trigger_reason) {
+                    var reason = trigger_reason;
+                    node.registerSubscription(subscription, node, function() {
+                        node.setDataNodeValue(null, {}, reason, arguments);
+                    });
+                };
+            cb(this, subscription);
+        }
     },
     setTiming:function(timing) {
         if (this._timing) {

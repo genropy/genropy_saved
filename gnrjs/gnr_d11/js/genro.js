@@ -252,6 +252,7 @@ dojo.declare('gnr.GenroClient', null, {
 
         genro.callAfter(function() {
             genro.fireEvent('gnr.onStart');
+            genro.publish('onPageStart');
         }, 100);
         genro.dev.shortcut('f1', function(e) {
             genro.publish('SAVERECORD', e)

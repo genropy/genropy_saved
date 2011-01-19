@@ -3597,21 +3597,22 @@ dojo.declare("gnr.widgets.IncludedView", gnr.widgets.VirtualStaticGrid, {
         this.gnr.addCheckBoxColumn(kw, this.sourceNode);
     },
     addCheckBoxColumn:function(kw, sourceNode) {
-        var position = position || 'left';
+        var kw = kw || {};
+        var position = kw.position || 0;
         var structbag = sourceNode.getRelativeData(sourceNode.attr.structpath);
         var celldata = {};
-        var kw = kw || {};
-        celldata['field'] = '_checked';
+        var fieldname =  kw.field || '_checked';
+        celldata['field'] = fieldname;
         celldata['name'] = kw.name || ' ';
         celldata['dtype'] = 'B';
         celldata['width'] = '20px';
-
+         
         celldata['format_trueclass'] = kw.format_trueclass || 'checkboxOn';
         celldata['classes'] = kw.classes || 'row_checker';
         celldata['format_falseclass'] = kw.format_falseclass || 'checkboxOff';
         celldata['calculated'] = true;
-        celldata['format_onclick'] = 'this.widget.onCheckedColumn(kw.rowIndex);';
-        structbag.setItem('view_0.rows_0.cell_checked', null, celldata, {_position:kw.position || 0});
+        celldata['format_onclick'] = 'this.widget.onCheckedColumn(kw.rowIndex,fieldname);';
+        structbag.setItem('view_0.rows_0.cell_checked', null, celldata, {_position:position});
     },
     created: function(widget, savedAttrs, sourceNode) {
         this.created_common(widget, savedAttrs, sourceNode);
