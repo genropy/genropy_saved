@@ -387,6 +387,21 @@ class DbModelSrc(GnrStructData):
             @param deferred:
             @param relation_name:
         """
+        if one_one and isinstance(one_one,basestring):
+            rc = related_column.split('.')
+            fromTableNode = self.parent.parent.parentNode
+            fromTableName = fromTableNode.label
+            fromPkg = fromTableNode.getAttr('pkg')
+            if len(rc)==2:
+                table,externalKey = rc
+                pkg = fromPkg
+            else:
+                pkg,table,externalKey = rc
+            fromColumn = self.parentNode.label
+            fromColumnNameLong = self.parentNode.attr.get('name_long')
+            relation_path='@%s_%s_%s.%s' %(fromPkg,fromTableName,fromColumn,externalKey)
+            self.externalPackage(pkg).table(table).aliasColumn(one_one,relation_path=relation_path,name_long=fromColumnNameLong)
+            one_one=True
         return self.setItem('relation', self.__class__(), related_column=related_column, mode=mode,
                             one_name=one_name, many_name=many_name, one_one=one_one, child=child,
                             one_group=one_group, many_group=many_group, deferred=deferred, onUpdate=onUpdate,
