@@ -254,12 +254,21 @@ class GnrApp(object):
 
 
     def set_environment(self):
-        for var, value in self.gnr_config['gnr.environment_xml'].digest('environment:#k,#a.value'):
-            var = var.upper()
-            if not os.getenv(var):
-                os.environ[var] = str(value)
+        environment_xml = self.gnr_config['gnr.environment_xml']
+        if environment_xml:
+            for var, value in environment_xml.digest('environment:#k,#a.value'):
+                var = var.upper()
+                if not os.getenv(var):
+                    os.environ[var] = str(value)
 
     def load_gnr_config(self):
+        if os.environ.has_key('VIRTUAL_ENV'):
+            config_path = expandpath(os.path.join(os.environ['VIRTUAL_ENV'],'etc'))
+            if os.path.isdir(config_path):
+                return Bag(config_path)
+            else:
+                log.warn('Missing genro configuration in %s', config_path)
+                return Bag()
         if sys.platform == 'win32':
             config_path = '~\gnr'
         else:
@@ -267,9 +276,10 @@ class GnrApp(object):
         config_path = expandpath(config_path)
         if os.path.isdir(config_path):
             return Bag(config_path)
-        config_path = expandpath(os.path.join('/etc/gnr'))
+        config_path = expandpath('/etc/gnr')
         if os.path.isdir(config_path):
             return Bag(config_path)
+        log.warn('Missing genro configuration')
         return Bag()
 
     def load_instance_config(self):
