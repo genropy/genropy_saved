@@ -862,7 +862,7 @@ dojo.declare('gnr.GenroClient', null, {
     formById:function(formId) {
         var node = genro.nodeById(formId);
         if (node) {
-            return node.formHandler;
+            return node.form;
         }
     },
     nodeById:function(nodeId) {

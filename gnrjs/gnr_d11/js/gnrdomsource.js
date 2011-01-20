@@ -337,7 +337,7 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
         }
     },
     defineForm: function(form_id, formDatapath, controllerPath, pkeyPath,kw) {
-        this.formHandler = new gnr.GnrFrmHandler(this, form_id, formDatapath, controllerPath, pkeyPath,kw);
+        this.form = new gnr.GnrFrmHandler(this, form_id, formDatapath, controllerPath, pkeyPath,kw);
     },
     hasDynamicAttr: function(attr) {
         return (this._dynattr && (attr in this._dynattr));
@@ -827,10 +827,9 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
     },
 
     getFormHandler:function(){
-        if (this.formHandler){
-            return this.formHandler;
+        if (this.form){
+            return this.form;
         } else if (this.attr.parentForm){
-            console.log('parentForm  '+this.attr.parentForm);
             if(typeof(this.attr.parentForm)=='string'){
                 return genro.formById(this.attr.parentForm)
             }

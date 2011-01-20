@@ -28,10 +28,9 @@
 dojo.declare("gnr.GnrFrmHandler", null, {
     constructor: function(sourceNode, form_id, formDatapath, controllerPath, pkeyPath,kw) {
         dojo.subscribe('onPageStart',this,'onStartForm');
-        sourceNode.subscribe('built',function(){
-            this.formHandler.onStartForm();
-        });
-        //dojo.subscribe(form_id+'_built',this,'onStartForm');
+        //sourceNode.subscribe('built',function(){
+        //    this.form.onStartForm();
+        //});
         this.form_id = form_id;
         this.changed = false;
         this.opStatus = null;
@@ -286,18 +285,19 @@ dojo.declare("gnr.GnrFrmHandler", null, {
         controllerData.setItem('is_newrecord',this.newRecord,null,{lazySet:true});
         controllerData.setItem('loading',false,null,{lazySet:true});
         controllerData.fireItem('loaded');
-        this.setDisabled(false)
         this.updateStatus();
-        this.setOpStatus();
-        this.focus();
+        if(this.store){
+            this.setDisabled(false)
+            this.setOpStatus();
+            this.focus();
+        }
     },
+    
     focus:function(node){
         if(!this.isProtected()){
-            var formContentNode = this.formContentNode;
-            if(formContentNode){
-                var node = node || dijit.getFirstInTabbingOrder(formContentNode);
-                node.focus();
-            }
+            var formContentNode = this.formContentNode || this.sourceNode.widget.domNode;
+            var node = node || dijit.getFirstInTabbingOrder(formContentNode);
+            node.focus();
         }
     },
     focusCurrentField:function(e){
