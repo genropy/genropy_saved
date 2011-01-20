@@ -293,9 +293,11 @@ dojo.declare("gnr.GnrFrmHandler", null, {
     },
     focus:function(node){
         if(!this.isProtected()){
-            var formContentNode = this.formContentNode || this.sourceNode.widget.domNode;
-            var node = node || dijit.getFirstInTabbingOrder(formContentNode);
-            node.focus();
+            var formContentNode = this.formContentNode;
+            if(formContentNode){
+                var node = node || dijit.getFirstInTabbingOrder(formContentNode);
+                node.focus();
+            }
         }
     },
     focusCurrentField:function(e){
