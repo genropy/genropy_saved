@@ -13,6 +13,8 @@ logging.basicConfig()
 class TestError(Exception):
     pass
 
+APP_CACHE = {}
+
 class TestCase(unittest.TestCase):
 
     # Subclasses should redefine these variables
@@ -21,20 +23,21 @@ class TestCase(unittest.TestCase):
     load_preferences=None
     preferences=None
 
-    def setUp(self):
+    # Set to False to rebuild the app for each test, set to True to have one app for each TestCase subclass.
+    persistent_app = True
+
+    def loadApp(self):
         if not self.instance:
             raise TestError("Please specify an instance name")
         self.app = GnrApp(self.instance, forTesting=True)
-
         base_dir = os.path.dirname(sys.modules[self.__class__.__module__].__file__)
-
-
+        # Load preferences
         if self.load_preferences:
             fullname = os.path.join(base_dir, self.load_preferences)
             if not os.path.isfile(fullname):
                 raise TestError("Missing preferences file: %s" % fullname)
             self.loadPreferences(fullname)
-
+        # Load data files
         for datafile in self.load_data:
             fullname = os.path.join(base_dir, datafile)
             if not os.path.isfile(fullname):
@@ -53,8 +56,17 @@ class TestCase(unittest.TestCase):
     def db(self):
         return self.app.db
 
+    def setUp(self):
+        global APP_CACHE
+        if self.persistent_app:
+            self.app = APP_CACHE.get(self.__class__, None)
+        if not self.app:
+            self.loadApp()
+        if self.persistent_app:
+            APP_CACHE[self.__class__] = self.app
+
     def tearDown(self):
-        self.app = None
+        del self.app
 
     def loadPreferences(self, filename):
         basename, ext = os.path.splitext(filename)
