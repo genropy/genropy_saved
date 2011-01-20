@@ -9,6 +9,7 @@ from gnr.app.gnrapp import GnrApp
 import logging
 
 logging.basicConfig()
+logging.getLogger().setLevel(logging.NOTSET)
 
 class TestError(Exception):
     pass
@@ -75,8 +76,9 @@ class TestCase(unittest.TestCase):
         else:
             preferences = Bag(filename)
         for package, prefs in preferences.items():
-            self.db.packages[package].getPreference = lambda path, default=None: prefs.get(path, default)
-            self.db.packages[package].setPreference = lambda path, value: prefs.setItem(path, value)
+            self.db.packages[package].setPreference('', prefs)
+#            self.db.packages[package].getPreference = lambda path, default=None: prefs.get(path, default)
+#            self.db.packages[package].setPreference = lambda path, value: prefs.setItem(path, value)
 
     def loadYamlDataFile(self, fullname):
         data = yaml.load(open(fullname,'rt'))

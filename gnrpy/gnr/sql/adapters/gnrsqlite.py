@@ -23,6 +23,7 @@
 import os, re, time
 
 import datetime
+import pprint
 
 try:
     import sqlite3 as pysqlite
@@ -285,18 +286,29 @@ class GnrSqliteCursor(pysqlite.Cursor):
 
     index = property(_get_index)
 
-    def execute(self, sql, *args, **kwargs):
+    def execute(self, sql, params=None, *args, **kwargs):
         global logger
+        if params:
+            if isinstance(params, str):
+                params = unicode(params)
+            elif isinstance(params, list):
+                params = map(lambda s: unicode(s) if isinstance(s, str) else s, params)
+            elif isinstance(params,dict):
+                for k,v in params.items():
+                    if isinstance(v, str):
+                        params[k] = unicode(v)
+            args = (params, ) + args
+
         if not sql.startswith('ATTACH'):
-            logger.debug("%s" % sql)
-            if args: logger.debug("-- args  : %s", args)
-            if kwargs: logger.debug("-- kwargs: %s", kwargs)
-            logger.debug("\n")
+            logger.debug(u"gnrsqlite.execute()\n" + sql)
+            if params:
+                logger.debug(u"Parameters:\n" + pprint.pformat(params)+"\n")
+
         self._index = None
         try:
             return pysqlite.Cursor.execute(self, sql, *args, **kwargs)
-        except:
-            logger.exception("Error from sqlite")
+        except Exception, e:
+            logger.exception(e)
             raise
 
 # ------------------------------------------------------------------------------------------------------- Add support for time fields to sqlite3 module
