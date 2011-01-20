@@ -28,6 +28,10 @@
 dojo.declare("gnr.GnrFrmHandler", null, {
     constructor: function(sourceNode, form_id, formDatapath, controllerPath, pkeyPath,kw) {
         dojo.subscribe('onPageStart',this,'onStartForm');
+       //sourceNode.subscribe('built',null,function(){
+       //    console.log('piero')
+       //});
+        dojo.subscribe(form_id+'_built',this,'onStartForm');
         this.form_id = form_id;
         this.changed = false;
         this.opStatus = null;
@@ -64,13 +68,15 @@ dojo.declare("gnr.GnrFrmHandler", null, {
             this[k] = kw[k];
         }
     },
-    onStartForm:function(startKey){
+    onStartForm:function(kw){
         this.formDomNode =  genro.domById(this.form_id);
         this.formContentNode = genro.domById(this.form_id+'_content');
         if(this.store){
-            var kw = startKey?{destPkey:startKey}:{}
+            var startKey = kw.startKey || this.store.startKey;
+            var kw = startKey?{destPkey:startKey}:{};
             this.load(kw);
         }
+        dojo.connect(this.formContentNode,'onclick',this,'focusCurrentField');
     },
     reset: function() {
         this.resetChanges();
@@ -236,7 +242,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
         var kw = kw || {};
         var sync = kw.sync;
         this.setControllerData('loading',true);
-        var pkey= ('destPkey' in kw)? kw.destPkey || '*newrecord*':this.store.getStartPkey();
+        var pkey= ('destPkey' in kw)? kw.destPkey : this.store.getStartPkey();
         this.setCurrentPkey(pkey);
         if(pkey){
             if (!sync) {
@@ -288,6 +294,13 @@ dojo.declare("gnr.GnrFrmHandler", null, {
         if(!this.isProtected()){
             var node = node || dijit.getFirstInTabbingOrder(this.formContentNode);
             node.focus();
+        }
+    },
+    focusCurrentField:function(e){
+        if(!this.isProtected()){
+            if(this.currentFocused){
+                this.currentFocused.focus();
+            }
         }
     },
     
