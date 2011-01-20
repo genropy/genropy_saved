@@ -286,11 +286,12 @@ dojo.declare("gnr.GnrFrmHandler", null, {
         controllerData.setItem('loading',false,null,{lazySet:true});
         controllerData.fireItem('loaded');
         this.updateStatus();
+        this.setOpStatus();
         if(this.store){
             this.setDisabled(false)
-            this.setOpStatus();
             this.focus();
         }
+        
     },
     
     focus:function(node){
