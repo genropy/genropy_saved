@@ -18,8 +18,8 @@ class GnrCustomWebPage(object):
     def formTester(self,pane,formId=None,hasSelector=True,**kwargs):
         form = pane.formPane(formId=formId,datapath='.provincia',**kwargs)
         form.recordClusterStore('glbl.provincia',storeType='Item')
-        left = '|,selectrecord,|,' if hasSelector else ''
-        form.top.slotToolbar('prova','%s *,|,semaphore,|,formcommands,|,locker' %left)
+        left = 'selectrecord,|,' if hasSelector else ''
+        form.top.slotToolbar('prova','%s *,|,semaphore,|,formcommands,|,locker' %left,height='20px')
         fb = form.content.formbuilder(cols=2, border_spacing='4px', width="400px", fld_width="100%")
         fb.field('sigla')
         fb.field('regione')
@@ -33,19 +33,21 @@ class GnrCustomWebPage(object):
     def onLoading_glbl_provincia(self,record,newrecord,loadingParameters,recInfo):
         if record['sigla'] == 'AO':
             recInfo['_readonly'] = True
-        
-    def test_k_formPane_cp(self,pane):
-        bc = pane.borderContainer(height='200px')
-        formA = bc.contentPane(region='left',width='50%',datapath='.pane1').formTester('form_a')
-        formB = bc.contentPane(region='center',datapath='.pane2').formTester('form_b')
-
-    def _test_1_formPane_cp(self,pane):
+            
+    def test_1_formPane_cp(self,pane):
         """Test form in contentPane form"""
-        pane = pane.contentPane(height='150px')
+        pane = pane.contentPane(height='400px',background='white')
         form = pane.formTester('form_cp')
         form.dataController("this.form.onStartForm()",_onStart=True)
+        
+    def test_2_formPane_dbl_cp(self,pane):
+        bc = pane.borderContainer(height='400px',background='white')
+        formA = bc.contentPane(region='left',width='50%',datapath='.pane1',padding='5px').formTester('form_a',border='1px solid silver')
+        formB = bc.contentPane(region='center',datapath='.pane2',padding='5px').formTester('form_b',border='1px solid silver')
+
+
     
-    def _test_2_formPane_tc(self,pane):
+    def test_2_formPane_tc(self,pane):
         """First test description"""
         bc = pane.borderContainer(height='300px')
         topbc = bc.borderContainer(height='250px',region='top',splitter=True)
@@ -56,7 +58,7 @@ class GnrCustomWebPage(object):
         t2 = tc.contentPane(title='My Form').contentPane(detachable=True,_lazyBuild=True)
         t2.formTester('form_tc')
     
-    def _test_3_formPane_palette(self,pane):
+    def test_3_formPane_palette(self,pane):
         pane = pane.div(height='30px')
         pane.dock(id='test_3_dock')
         pane.palettePane('province',title='Province',dockTo='test_3_dock',
@@ -65,7 +67,7 @@ class GnrCustomWebPage(object):
                          _lazyBuild='testPalette')
 
     
-    def _test_5_formPane_palette_remote(self,pane):
+    def test_5_formPane_palette_remote(self,pane):
         fb = pane.formbuilder(cols=4, border_spacing='2px')
         fb.dbselect(value="^.provincia",dbtable="glbl.provincia")
         fb.button('open',action="""var paletteCode='prov_'+pkey;
@@ -82,15 +84,16 @@ class GnrCustomWebPage(object):
         form = pane.formTester('formRemote_%s' %pkey,hasSelector=False,selfsubscribe_built="""console.log('aaaa')""",_pippo='kkk')
         form.dataController("this.form.publish('load',{destPkey:pkey});",pkey=pkey,selfsubscribe_built=True)
             
-    def _test_4_formPane_dialog(self,pane):
+    def test_4_formPane_dialog(self,pane):
         pane.button('Show dialog',action='genro.wdgById("province_dlg").show()')
         dialog = pane.dialog(title='Province',nodeId='province_dlg',closable=True).contentPane(height='300px',width='400px',background_color='red',_lazyBuild=True)
         dialog.formTester('form_dialog')
                    
     @struct_method('prova_selectrecord')
     def prova_selectrecord(self,pane):
-        pane.dbselect(value="^.prov",dbtable="glbl.provincia",parentForm=False,
-                    validate_onAccept="this.form.publish('load',{destPkey:value});")
+        fb=pane.formbuilder(cols=1, border_spacing='0px')
+        fb.dbselect(value="^.prov",dbtable="glbl.provincia",parentForm=False,
+                    validate_onAccept="this.form.publish('load',{destPkey:value});",lbl='Provincia')
                     
     def rpc_salvaDati(self, dati, **kwargs):
         print "Dati salvati:"
