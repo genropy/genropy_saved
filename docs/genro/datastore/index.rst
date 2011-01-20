@@ -1,7 +1,7 @@
 	.. _genro-datastore-index:
 
 =========
-Datastore
+datastore
 =========
 
 .. toctree::

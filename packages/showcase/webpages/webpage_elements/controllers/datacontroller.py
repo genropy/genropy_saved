@@ -9,11 +9,11 @@
 class GnrCustomWebPage(object):
     py_requires = "gnrcomponents/testhandler:TestHandlerFull"
     # dojo_theme='claro'    # !! Uncomment this row for Dojo_1.5 usage
-
+    
     def test_1_basic(self, pane):
         """dataController"""
         bc = pane.borderContainer(height='200px')
-
+        
         bc.div('In this basic example we want to show you two equivalent syntax to write the dataController:',
                font_size='.9em', text_align='justify')
         bc.div("""1) The first syntax is fb.dataController(\"SET .aaa=\'positive number\'\" ,_if='shooter>=0',
@@ -22,22 +22,22 @@ class GnrCustomWebPage(object):
         bc.div("""2) The second syntax is fb.dataController(\"\"\"if(shooter>=0){SET .bbb=\'positive number\';}
                      else{SET .bbb=\'negative number\';}\"\"\",shooter=\'^.y\');""",
                font_size='.9em', text_align='justify')
-
+               
         fb = bc.formbuilder(cols=3, datapath='test1')
-
+        # First syntax
         fb.dataController("SET .aaa='positive number'", _if='shooter>=0',
                           _else="SET .aaa='negative number'", shooter='^.x')
         fb.div('1)', font_size='.9em', text_align='justify')
         fb.numberTextbox(value='^.x', lbl='x')
         fb.textbox(value='^.aaa', margin='10px', lbl='aaa')
-
+        # Second syntax
         fb.dataController("""if(shooter>=0){SET .bbb='positive number';}
                                else{SET .bbb='negative number';}""",
                           shooter='^.y')
         fb.div('2)', font_size='.9em', text_align='justify')
         fb.numberTextbox(value='^.y', lbl='y')
         fb.textbox(value='^.bbb', margin='10px', lbl='bbb')
-
+        
     def test_2_advanced(self, pane):
         """dataController - remote control"""
         bc = pane.borderContainer(height='350px', datapath='test2')
@@ -56,5 +56,4 @@ class GnrCustomWebPage(object):
 
     def remote_test(self, pane, **kwargs):
         print 'remote test executed!'
-        pane.div('hello', height='40px', width='80px', background='lime')
-        
+        pane.div('hello', height='40px', width='80px', background='lime')        

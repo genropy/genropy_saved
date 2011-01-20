@@ -99,9 +99,6 @@ class GnrCustomWebPage(object):
     #       formbuilder         --> formbuilder.py
     #       textbox             --> textbox.py
 
-    #       ??? aggiungere quelli del test_3!!
-
-
     def test_1_basicForm(self, pane):
         """Basic Form"""
         bc = pane.borderContainer(height='250px', datapath='test1')

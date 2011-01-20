@@ -1,29 +1,47 @@
 #!/usr/bin/env pythonw
 # -*- coding: UTF-8 -*-
 
-#  Created by Giovanni Porcari on 2007-03-24.
-#  Copyright (c) 2007 Softwell. All rights reserved.
+# menu.py
+# Created by Giovanni Porcari on 2007-03-24.
+# Copyright (c) 2007 Softwell. All rights reserved.
 
-from gnr.core.gnrbag import Bag, DirectoryResolver
+from gnr.core.gnrbag import Bag
 
 class GnrCustomWebPage(object):
-    def main(self, root, **kwargs):
-        root.data('values.states', self.tableData_states())
-        root.data('values.sex', self.tableData_sex(), id='#k', caption='#v')
-        root.data('records', self.myRecords())
-        fb = root.formbuilder(cols='4', datapath='records', cellspacing='10', background_color='silver', margin='30px')
+    py_requires = "gnrcomponents/testhandler:TestHandlerFull"
+    # dojo_theme='claro'    # !! Uncomment this row for Dojo_1.5 usage
+
+    def test_1_basic(self, pane):
+        """A basic menu example"""
+        ddb=pane.dropdownbutton('Menu')    # Same meaning: ddb=root.dropdownbutton(label='Menu')
+        dmenu=ddb.menu()
+        dmenu.menuline('Open...',action="alert('Opening...')")
+        dmenu.menuline('Close',action="alert('Closing...')")
+        dmenu.menuline('-')
+        submenu=dmenu.menuline('I have submenues').menu() # With this line you create a submenu
+        submenu.menuline('To do this',action="alert('Doing this...')")
+        submenu.menuline('Or to do that',action="alert('Doing that...')")
+        dmenu.menuline('-')
+        dmenu.menuline('Quit',action="alert('Quitting...')")
+
+    def test_2_bag(self, pane):
+        """Menu with Bag"""
+        pane.data('values.states', self.tableData_states())
+        pane.data('values.sex', self.tableData_sex(), id='#k', caption='#v')
+        pane.data('records', self.myRecords())
+        fb = pane.formbuilder(cols='4', datapath='records', cellspacing='10', background_color='silver', margin='30px')
         for r in range(4):
             self.makeRow(fb, r)
 
-        self.pageCtrlMenu(root.menu('pagemenu'))
-        self.pageShiftMenu(root.menu('shiftmenu', modifiers='shift'))
+        self.pageCtrlMenu(pane.menu('pagemenu'))
+        self.pageShiftMenu(pane.menu('shiftmenu', modifiers='shift'))
 
         self.dropDownContent(fb.dropdownbutton('Open me'))
         self.connectionDialog(fb.dropdownbutton('Connection mode'))
-        self.savingDialog(root, 'savedlg')
+        self.savingDialog(pane, 'savedlg')
         fb.button('Save as...', action='genro.savedlg.show()')
 
-        dlg = root.dialog(title='Saving all', datapath='saving', gnrId='savedlg').formbuilder(cols='2',
+        dlg = pane.dialog(title='Saving all', datapath='saving', gnrId='savedlg').formbuilder(cols='2',
                                                                                               border_spacing='8px')
         dlg.textbox(lbl='Filename', value='^.filename')
         dlg.checkbox('Make a copy', value='^.docopy')
@@ -38,8 +56,8 @@ class GnrCustomWebPage(object):
         mytable.setItem('r5', None, id='AL', caption='Alabama')
         return mytable
 
-    def savingDialog(self, root, gnrId):
-        dlg = root.dialog(title='Saving all', datapath='saving', gnrId=gnrId).formbuilder(cols='2', cellspacing='8')
+    def savingDialog(self, pane, gnrId):
+        dlg = pane.dialog(title='Saving all', datapath='saving', gnrId=gnrId).formbuilder(cols='2', cellspacing='8')
         dlg.textbox(lbl='Filename', value='^.filename')
         dlg.checkbox('Make a copy', value='^.docopy')
         dlg.button('Ok', action='genro.%s.hide()' % gnrId)

@@ -4,10 +4,10 @@
 # Created by Filippo Astolfi on 2010-10-28.
 # Copyright (c) 2010 Softwell. All rights reserved.
 
+"""dataRpc"""
+
 from time import sleep
 import datetime
-
-"""dataRpc"""
 
 class GnrCustomWebPage(object):
     py_requires = "gnrcomponents/testhandler:TestHandlerFull"
@@ -20,7 +20,6 @@ class GnrCustomWebPage(object):
 
         hour = pane.div(font_size='20pt', border='3px solid yellow', padding='10px', margin_top='5px')
         hour.span('^demo.hour')
-
         pane.dataRpc('demo.hour', 'getTime', _fired='^updateTime', _init=True)
         hour.button('Update', fire='updateTime', margin='20px')
 
@@ -28,6 +27,7 @@ class GnrCustomWebPage(object):
         return self.toText(datetime.datetime.now(), format='HH:mm:ss')
 
     def test_2_basic(self, root, **kwargs):
+        """Area"""
         fb = root.formbuilder(cols=2)
         fb.data('base', 0)
         fb.data('height', 0)

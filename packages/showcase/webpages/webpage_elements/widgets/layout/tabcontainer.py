@@ -22,7 +22,7 @@ class GnrCustomWebPage(object):
                   datastore where lies a number indicating the tab selected (for the first tab you'll find 0,
                   for the second one you'll find 1).""",
                   font_size='.9em', text_align='justify', margin='10px')
-        tc.contentPane(title='Second tab').div('I\'m the second tab!', font_size='.9em',
+        tc.contentPane(title='Second tab').div('I\'m the second tab', font_size='.9em',
                                                text_align='justify', margin='10px')
 
     def test_2_tabPosition(self, pane):

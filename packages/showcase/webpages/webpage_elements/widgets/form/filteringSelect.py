@@ -4,7 +4,7 @@
 # Created by Filippo Astolfi on 2010-09-13.
 # Copyright (c) 2010 Softwell. All rights reserved.
 
-""" Filtering select """
+"""filteringSelect"""
 
 from gnr.core.gnrbag import Bag
 

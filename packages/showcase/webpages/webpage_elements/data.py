@@ -25,8 +25,8 @@ class GnrCustomWebPage(object):
         """data basic example - filling some formbuilder attributes"""
         bc = pane.borderContainer(datapath='test2')
         fb = bc.formbuilder(cols=2)
-        fb.data('.name', 'Filippo')
-        fb.data('.surname', 'Astolfi')
+        fb.data('.name', 'Philip')
+        fb.data('.surname', 'Smith')
         fb.textbox(value='^.name', lbl='!!Name')
         fb.textbox(value='^.surname', lbl='!!Surname')
         fb.numberTextbox(value='^.phone', lbl='!!Phone number')

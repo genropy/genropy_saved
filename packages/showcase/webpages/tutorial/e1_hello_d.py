@@ -10,12 +10,12 @@ class GnrCustomWebPage(object):
         root.data('demo.today', self.toText(datetime.datetime.today()))
         root.div('^demo.today', font_size='20pt', border='3px solid yellow',
                  padding='20px', margin_top='5px')
-        root.dataRpc('demo.hour', 'getTime', _fired='^updateTime', _init=True)
+        root.dataRpc('demo.hour', 'getTime', _fired='^updateTime', _onStart=True)
         hour = root.div(font_size='20pt', border='3px solid yellow',
                         padding='20px', margin_top='5px')
         hour.span('^demo.hour')
         hour.button('Update', fire='updateTime', margin='20px')
-        root.dataRpc('demo.autoHour', 'getTime', _timing='1')
+        root.dataRpc('demo.autoHour', 'getTime', _timing='1', _onStart=True)
         hour = root.div('^demo.autoHour', font_size='20pt', border='3px solid yellow',
                         padding='20px', margin_top='5px')
 

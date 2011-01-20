@@ -6,7 +6,15 @@
  Introduction to Genro
 =======================
 
+	.. warning:: this section is (until now!) only a sketch.
+
 	Genro is a powerful software created to handle a database project ... (??? continue!)
+	
+Genro values
+============
+
+	??? Explain how Genro handle folder, subfolder... (the '.' syntax)
+
 	
 It is better for you to know
 ============================
@@ -23,3 +31,4 @@ The datastore: a short introduction
 ===================================
 
 	Another powerful tool of Genro is the datastore. The datastore is ... ??? (add documentation linking this part to the :ref:`genro-datastore` page)
+	

@@ -15,9 +15,11 @@ class GnrCustomWebPage(object):
         bc = pane.borderContainer(height='300px')
         top = bc.contentPane(region='top', height='33px', background_color='#f2c922')
         top.button('page 1', action='SET stack_selected=0')
-        top.button('page 2', action='SET stack_selected=1', disabled=False)
-        top.button('page 3', action='SET stack_selected=2', disabled=False)
+        top.button('page 2', action='SET stack_selected=1')
+        top.button('page 3', action='SET stack_selected=2')
         sc = bc.stackContainer(region='center', selected='^stack_selected')
-        sc.contentPane(???)
-        sc.contentPane(???)
-        sc.contentPane(???)
+        
+        # ... to be finished!!
+        #sc.contentPane('Hello 1', src=???)
+        #sc.contentPane('Hello 2', src=???)
+        #sc.contentPane('Hello 3', src=???)
