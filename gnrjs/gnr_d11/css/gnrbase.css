@@ -205,6 +205,7 @@ label.ghostlabel span {
     text-align: right;
     padding-bottom: .5px;
     color: #1c004e;
+    margin-right:2px;
 }
 
 .floatRight {
@@ -1424,12 +1425,18 @@ textarea:disabled {
 
 /* @group SlotToolbar */
 
+.tundra .sltb_toolbar.dijitToolbar {
+	padding: 1px 5px;
+}
 
 .sltb_row{
 	height: 26px;
 }
 .sltb_slot_td{
 	vertical-align: middle;
+	height: 100%;	
+	padding-left: 2px;
+	padding-right:2px ;
 }
 .sltb_table{
 	width:100%;
@@ -1437,6 +1444,13 @@ textarea:disabled {
 	border-collapse:collapse;
 }
 
+.sltb_spacer{
+	border-right: 1px solid gray;
+	position	:absolute;
+	top: 2px;
+	bottom: 2px;
+	width: 1px;
+}
 
 /* @end */
 
