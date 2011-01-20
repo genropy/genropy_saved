@@ -388,7 +388,7 @@ class SqlDbAdapter(object):
         """
         returns the statement string for creating a table's column
         """
-        sql = '%s %s' % (sqlname, self.columnSqlType(dtype, size))
+        sql = '"%s" %s' % (sqlname, self.columnSqlType(dtype, size))
         if notnull:
             sql = sql + ' NOT NULL'
         if pkey:
