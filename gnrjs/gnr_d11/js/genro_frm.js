@@ -577,7 +577,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
         var invalid = (invalidfields.len() > 0);
         this.setControllerData('valid',!invalid);
         var status;
-        if(!this.getCurrentPkey()){
+        if(this.pkeyPath && !this.getCurrentPkey()){
             status = 'noItem';
         }
         else if(this.isReadOnly()){
