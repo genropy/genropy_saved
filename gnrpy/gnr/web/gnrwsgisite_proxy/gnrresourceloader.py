@@ -17,6 +17,9 @@ from gnr.web._gnrbasewebpage import GnrWebServerError
 from gnr.web.gnrbaseclasses import BaseResource
 from gnr.web.gnrbaseclasses import BaseWebtool
 
+import logging
+
+log = logging.getLogger('gnrresourceloader')
 
 class GnrMixinError(Exception):
     pass
@@ -87,7 +90,8 @@ class ResourceLoader(object):
             self.automap.setItem(package.id, packagemap, name=package.attributes.get('name_long') or package.id)
         self.automap.toXml(os.path.join(self.site_path, 'automap.xml'))
 
-    def _get_sitemap(self):
+    @property
+    def sitemap(self):
         if not hasattr(self, '_sitemap'):
             sitemap_path = os.path.join(self.site_path, 'sitemap.xml')
             if not os.path.isfile(sitemap_path):
@@ -96,8 +100,6 @@ class ResourceLoader(object):
             _sitemap.setBackRef()
             self._sitemap = _sitemap
         return self._sitemap
-
-    sitemap = property(_get_sitemap)
 
     def get_page_node(self, path_list):
         # get the deepest node in the sitemap bag associated with the given url
@@ -278,14 +280,17 @@ class ResourceLoader(object):
         return resources
 
     def resource_name_to_path(self, res_id, safe=True):
-        project_resource_path = os.path.join(self.site_path, '..', '..', 'resources', res_id)
+        project_resource_path = os.path.normpath(os.path.join(self.site_path, '..', '..', 'resources', res_id))
         if os.path.isdir(project_resource_path):
+            log.debug('resource_name_to_path(%s) -> %s (project)' % (repr(res_id),repr(project_resource_path)))
             return project_resource_path
         if 'resources' in self.gnr_config['gnr.environment_xml']:
             for path in self.gnr_config['gnr.environment_xml'].digest('resources:#a.path'):
                 res_path = expandpath(os.path.join(path, res_id))
                 if os.path.isdir(res_path):
+                    log.debug('resource_name_to_path(%s) -> %s (gnr config)' % (repr(res_id), repr(res_path)))
                     return res_path
+        log.debug('resource_name_to_path(%s) not found.' % repr(res_id))
         if safe:
             raise Exception('Error: resource %s not found' % res_id)
 
