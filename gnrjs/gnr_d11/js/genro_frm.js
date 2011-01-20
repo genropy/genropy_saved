@@ -28,10 +28,10 @@
 dojo.declare("gnr.GnrFrmHandler", null, {
     constructor: function(sourceNode, form_id, formDatapath, controllerPath, pkeyPath,kw) {
         dojo.subscribe('onPageStart',this,'onStartForm');
-       //sourceNode.subscribe('built',null,function(){
-       //    console.log('piero')
-       //});
-        dojo.subscribe(form_id+'_built',this,'onStartForm');
+        sourceNode.subscribe('built',function(){
+            this.form.onStartForm();
+        });
+        //dojo.subscribe(form_id+'_built',this,'onStartForm');
         this.form_id = form_id;
         this.changed = false;
         this.opStatus = null;
@@ -69,6 +69,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
         }
     },
     onStartForm:function(kw){
+        var kw = kw || {};
         this.formDomNode =  genro.domById(this.form_id);
         this.formContentNode = genro.domById(this.form_id+'_content');
         if(this.store){
@@ -292,7 +293,8 @@ dojo.declare("gnr.GnrFrmHandler", null, {
     },
     focus:function(node){
         if(!this.isProtected()){
-            var node = node || dijit.getFirstInTabbingOrder(this.formContentNode);
+            var formContentNode = this.formContentNode || this.sourceNode.widget.domNode;
+            var node = node || dijit.getFirstInTabbingOrder(formContentNode);
             node.focus();
         }
     },
