@@ -473,7 +473,7 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
              'dataRemote', 'gridView', 'viewHeader', 'viewRow', 'script', 'func',
              'staticGrid', 'dynamicGrid', 'fileUploader', 'gridEditor', 'ckEditor', 
             'tinyMCE', 'protovis', 'PaletteGroup','PalettePane','BagNodeEditor',
-            'PaletteBagNodeEditor','Palette','PaletteTree','SearchBox','FormStore']
+            'PaletteBagNodeEditor','Palette','PaletteTree','SearchBox','FormStore','PaneGrid']
     genroNameSpace = dict([(name.lower(), name) for name in htmlNS])
     genroNameSpace.update(dict([(name.lower(), name) for name in dijitNS]))
     genroNameSpace.update(dict([(name.lower(), name) for name in dojoxNS]))
@@ -518,27 +518,36 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
         return self.child('PaletteGroup',groupCode=groupCode,**kwargs)
     
     def palettePane(self,paletteCode,datapath=None,**kwargs):
-        datapath = datapath or 'gnr.palettes.%s' %paletteCode
         return self.child('PalettePane',paletteCode=paletteCode,datapath=datapath,**kwargs)
         
-    def paletteTree(self,paletteCode,datapath=None,data=None,**kwargs):
-        datapath = datapath or 'gnr.palettes.%s' %paletteCode
+    def paletteTree(self,paletteCode,datapath=None,data=None,**kwargs):        
+        palette = self.child('PaletteTree',paletteCode=paletteCode,datapath=datapath,**kwargs)
         if data is not None:
-            self.data('%s.store' %datapath,data)
-        return self.child('PaletteTree',paletteCode=paletteCode,datapath=datapath,**kwargs)
+            palette.data('.store',data)
+        return palette
+        
+    def paneGrid(self,paneCode,**kwargs):
+        return self._palette_or_pane_grid(paneCode=paneCode,childTag='PaneGrid',**kwargs)
+        
+    def paletteGrid(self,paletteCode,datapath=None,**kwargs):
+        datapath= datapath or 'gnr.palettes.%s' %paletteCode
+        return self._palette_or_pane_grid(paletteCode=paletteCode,childTag='PaletteGrid',datapath=datapath,**kwargs)
     
-    def paletteGrid(self,paletteCode,datapath=None,data=None,struct=None,
+    def __paletteGrid(self,paletteCode,datapath=None,data=None,struct=None,
                     columns=None,table=None,structpath=None,gridId=None,**kwargs):
         datapath = datapath or 'gnr.palettes.%s' %paletteCode
-        gridId = gridId or 'palette_%s_grid' %paletteCode
-        structpath = structpath or '%s.grid.struct' %datapath
-        self._setGridStruct(struct=struct,table=table,columns=columns,gridId=gridId,structpath=structpath)
+        #gridId = gridId or 'palette_%s_grid' %paletteCode
+        #structpath = structpath or '%s.grid.struct' %datapath
+        
+    
+    def _palette_or_pane_grid(self,childTag=None,data=None,struct=None,
+                                columns=None,table=None,structpath=None,gridId=None,**kwargs):
+        structpath = structpath or '.grid.struct'
+        pane = self.child(childTag,table=table,structpath=structpath,gridId=gridId,**kwargs)
+        pane._setGridStruct(struct=struct,table=table,columns=columns,gridId=gridId,structpath=structpath)   
         if data is not None:
-            self.data('%s.grid.store' %datapath,data)
-        return self.child('PaletteGrid',table=table,gridId=gridId,
-                           paletteCode=paletteCode,datapath=datapath,
-                           structpath=structpath,**kwargs)
-
+            pane.data('.grid.store',data)
+        return pane
 
     def includedview(self, storepath=None, structpath=None, struct=None, table=None,
                      nodeId=None, columns=None, relativeWorkspace=None,**kwargs):
@@ -555,7 +564,20 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
         if struct:
             self.data(structpath, struct)
         
-
+    def slotToolbar(self,toolbarCode=None,slots=None,**kwargs):
+        tb = self.child('slotToolbar',toolbarCode=toolbarCode,slots=slots,**kwargs)
+        slots = gnrstring.splitAndStrip(slots)
+        for slot in slots:
+            if slot!='*' and slot!='|':
+                s=tb.child('slot',name=slot)
+                slothandle = getattr(s,'%s_%s' %(toolbarCode,slot),None)
+                if not slothandle:
+                    slothandle = getattr(s,'%s_%s' %('sltb',slot),None)
+                if slothandle:
+                   slothandle()
+        
+        #se ritorni la toolbar hai una toolbar vuota 
+    
     def button(self, label=None, **kwargs):
         return self.child('button', label=label, **kwargs)
 

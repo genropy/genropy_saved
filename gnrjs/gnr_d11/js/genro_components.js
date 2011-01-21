@@ -140,38 +140,59 @@ dojo.declare("gnr.widgets.PalettePane", gnr.widgets.gnrwdg, {
 });
 
 dojo.declare("gnr.widgets.PaletteGrid", gnr.widgets.gnrwdg, {
-    createContent:function(sourceNode, kw) {
-        var grid_kwargs = {margin:'6px', draggable_row:true,configurable:true,
-            storepath:(objectPop(kw, 'storepath') || '.#parent.store'),
-            structpath:(objectPop(kw, 'structpath') || '.struct'),
-            relativeWorkspace:true,datapath:'.grid',
-            table:kw.table};
+    createContent:function(sourceNode, kw,children) {
         var paletteCode = kw.paletteCode;
-        var gridId = objectPop(kw, 'gridId') || 'palette_' + paletteCode + '_grid';
-        grid_kwargs.nodeId = gridId;
-        grid_kwargs.onDrag = function(dragValues, dragInfo) {
+        var gridPaneKw = objectExtract(kw,'gridId,searchOn,table,storepath,structpath');
+        var paneCode = 'palette_'+paletteCode;
+        var gridId = gridPaneKw.gridId || paneCode+'_grid';
+        gridPaneKw.paneCode = paneCode;
+        gridPaneKw.grid_onDrag = function(dragValues, dragInfo) {
             if (dragInfo.dragmode == 'row') {
                 dragValues[paletteCode] = dragValues.gridrow.rowsets;
             }
         };
+        gridPaneKw._useParentPane = true;
         kw.selfsubscribe_showing = function() {
             var grid = genro.wdgById(gridId);
             if (grid.storebag().len() == 0) {
                 grid.reload();
             }
         }
-        objectUpdate(grid_kwargs, objectExtract(kw, 'grid_*'));
         var pane = sourceNode._('PalettePane', kw);
+        var paneGrid = pane._('PaneGrid',gridPaneKw);
+        return paneGrid;
+    }
+});
+
+dojo.declare("gnr.widgets.PaneGrid", gnr.widgets.gnrwdg, {    
+    createContent:function(sourceNode, kw) {
+        var paneCode = objectPop(kw, 'paneCode');
+        var gridId = objectPop(kw, 'gridId') || paneCode+'_grid';
+        var useParentPane = objectPop(kw,'_useParentPane');
+        var storepath = objectPop(kw, 'storepath');
+        var structpath = objectPop(kw, 'structpath');
+        storepath = storepath? sourceNode.absDatapath(storepath):'.store';
+        structpath = structpath? sourceNode.absDatapath(structpath):'.struct';
+        var gridKwargs = {'nodeId':gridId,'datapath':'.grid','table':objectPop(kw,'table'),
+                           'margin':'6px','configurable':true,
+                           'storepath': storepath,
+                           'structpath': structpath,
+                           'relativeWorkspace':true};
+            
+        objectUpdate(gridKwargs, objectExtract(kw, 'grid_*'));
+        var pane = sourceNode._('ContentPane', kw);
         if (kw.searchOn) {
             var bc = pane._('BorderContainer');
             var top = bc._('ContentPane', {region:'top'})._('Toolbar', {height:'18px'});
             pane = bc._('ContentPane', {region:'center'});
             top._('SearchBox', {searchOn:kw.searchOn,nodeId:gridId + '_searchbox',datapath:'.searchbox'});
         }
-        var grid = pane._('includedview', grid_kwargs);
+        
+        var grid = pane._('includedview', gridKwargs);
         return pane;
     }
 });
+
 dojo.declare("gnr.widgets.PaletteTree", gnr.widgets.gnrwdg, {
     createContent:function(sourceNode, kw) {
         var paletteCode = kw.paletteCode;
