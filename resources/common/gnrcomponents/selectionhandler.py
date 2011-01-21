@@ -68,7 +68,6 @@ class SelectionHandler(BaseComponent):
             assert not 'toolbarCb' in dialogPars, 'toolbarCb calculated'
         assert not 'toolbarPars' in kwargs, 'remove toolbarPars par'
         assert 'order_by' in selectionPars, 'add order_by to selectionPars'
-        assert not 'del_action' in kwargs, 'remove del_action par'
         assert not 'connect_onRowDblClick' in kwargs, 'remove connect_onRowDblClick par'
 
         # --------------------------------------------------------------------------------------------- Suggested param checks
