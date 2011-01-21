@@ -8,7 +8,7 @@
 	:maxdepth: 2
 
 	installation
-	introduction_to_Genro/index
+	introduction/index
 	webpage_elements/index
 	datastore/index
 	common_attributes/index
