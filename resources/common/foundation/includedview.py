@@ -179,7 +179,7 @@ class IncludedView(BaseComponent):
         box_pars = dict([(k[4:], kwargs.pop(k)) for k in kwargs.keys() if k.startswith('box_')])
         box_pars['_class'] = (box_pars.pop('class', None) or 'pbl_viewBox')
         if label is not False:
-            gridtop = parentBC.contentPane(region='top', datapath=controllerPath, overflow='hidden',
+            gridtop = parentBC.contentPane(region='top', datapath=controllerPath, overflow='hidden',_attachname='top',
                                            nodeId='%s_top' % gridId, **label_pars)
             if hasToolbar is True:
                 gridtop = gridtop.toolbar(_class='pbl_viewBoxToolbar')
@@ -188,7 +188,7 @@ class IncludedView(BaseComponent):
                 label(gridtop_left)
             else:
                 gridtop_left.div(label, margin_top='2px', float='left')
-            gridtop_right = gridtop.div(float='right')
+            gridtop_right = gridtop.div(float='right',_attachname='right')
             if filterOn:
                 gridtop_filter = gridtop_right.div(float='left', margin_right='5px')
                 self.gridFilterBox(gridtop_filter, gridId=gridId, filterOn=filterOn, table=table)
@@ -200,7 +200,7 @@ class IncludedView(BaseComponent):
                                     pdf_class=pdf_class, pdf_name=pdf_name, table=table, gridId=gridId,
                                     tools_enable=tools_enable, tools_lbl=tools_lbl)
             if add_action or del_action or upd_action:
-                gridtop_add_del = gridtop_right.div(float='left', margin_right='5px')
+                gridtop_add_del = gridtop_right.div(float='left', margin_right='5px',_attachname='add_del')
                 self._iv_gridAddDel(gridtop_add_del, add_action=add_action,
                                     del_action=del_action, upd_action=upd_action,
                                     upd_class=upd_class, upd_enable=upd_enable,
@@ -310,7 +310,7 @@ class IncludedView(BaseComponent):
                     add_action = 'FIRE .showRecord; FIRE .addRecord =$1;'
                 else:
                     add_action = 'FIRE .addRecord =$1;FIRE .editRow=1000;'
-            pane.div(float='right', _class=add_class, connect_onclick=add_action,
+            pane.div(float='right', _class=add_class, connect_onclick=add_action,_attachname='addButton',
                      margin_right='2px', visible=add_enable)
         if upd_action:
             if upd_action is True:
