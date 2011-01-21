@@ -86,13 +86,13 @@ class FormHandler(BaseComponent):
     def fh_sltb_formcommands(self,pane):
         buttons = pane.div(width='100px')
         buttons.button('!!Save', action='this.form.publish("save");', float='right',
-                       iconClass="tb_button db_save", showLabel=False)
+                       iconClass="tb_button db_save", showLabel=False,parentForm=True)
         buttons.button('!!Revert', action='this.form.publish("load");',
                         iconClass="tb_button db_revert",
                        float='right',
-                       showLabel=False)
+                       showLabel=False,parentForm=True)
         buttons.button('!!Delete', action='this.form.publish("delete");', iconClass='db_del tb_button',
-                       showLabel=False,float='right')
+                       showLabel=False,float='right',parentForm=True)
     @struct_method 
     def fh_sltb_locker(self,pane):
         pane.button('!!Locker',width='20px',iconClass='icnBaseUnlocked',showLabel=False,

@@ -249,8 +249,8 @@ class FilterBox(BaseComponent):
                                         gridId=gridId, field='^.field')
          
 class SlotToolbar(object):
-    @struct_method
-    def sltb_slotToolbar(self,pane,toolbarCode=None,slots=None,**kwargs):
+    #@struct_method
+    def ____sltb_slotToolbar(self,pane,toolbarCode=None,slots=None,**kwargs):
         table = pane.toolbar(_class='sltb_toolbar').table(_class='sltb_table').tbody()
         kwargs['_class'] = '%s sltb_row' %(kwargs.get('_class') or '') 
         r = table.tr(**kwargs)
