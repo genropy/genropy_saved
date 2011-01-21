@@ -1435,6 +1435,7 @@ textarea:disabled {
 .sltb_slot_td{
 	vertical-align: middle;
 	height: 100%;	
+	width:1px;
 	padding-left: 2px;
 	padding-right:2px ;
 }
