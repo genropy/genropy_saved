@@ -26,11 +26,10 @@ class GnrWebFrontend(GnrBaseDojoFrontend):
         ]
 
     def gnrjs_frontend(self):
-        return ['gnrbag', 'genro', 'genro_widgets', 'genro_rpc', 'genro_patch',
-                'genro_dev', 'genro_dlg', 'genro_frm', 'genro_dom', 'gnrdomsource',
-                'genro_wdg', 'genro_src', 'gnrlang', 'gnrstores', 'genro_extra'
-                #,'soundmanager/soundmanager2'
-        ]
+        return ['gnrbag','gnrdomsource','gnrlang', 'gnrstores', 
+                'genro','genro_patch','genro_rpc','genro_wdg', 'genro_src',
+                'genro_widgets','genro_components','genro_frm',
+                'genro_dev', 'genro_dlg', 'genro_dom','genro_extra']
 
     def css_genro_frontend(self):
         return {'all': ['gnrbase'], 'print': ['gnrprint']}
