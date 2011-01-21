@@ -44,12 +44,7 @@ class GnrCustomWebPage(object):
                                    grid_struct=struct,
                                    condition='$rec_type IN :rec_types',
                                    condition_pars=dict(rec_types=['I', 'P', 'L']),
-                                   nodeId='picker_2', datapath='.struct_picker',
-                                   grid_applymethod='rec_type_differences')
-
-    def rpc_rec_type_differences(self, selection):
-        print x
-
+                                   nodeId='picker_2', datapath='.struct_picker')
 
     def __test_3_testpicker_bc(self, pane):
         """Picker on bc"""

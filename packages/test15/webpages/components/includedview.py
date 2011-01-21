@@ -53,11 +53,11 @@ class GnrCustomWebPage(object):
         bc = pane.borderContainer(height='300px')        
         iv = self.includedViewBox(bc, label='Test', datapath='.test_db', filterOn='auto:sigla+nome+codice+regione',
                              nodeId='test_db', table='glbl.provincia', autoWidth=True,
-                             add_action='menu:mymenu',
+                             add_action='menu',
                              _onStart=True, selectionPars=dict(order_by='$nome'))
                              
         menu = bc.top.right.add_del.addButton.menu(id='mymenu',modifiers='*')
-        menu.menuline('Open...',action="alert('Opening...')")
+        menu.menuline('Open...',action="FIRE .reload;")
         menu.menuline('Close',action="alert('Closing...')")
 
 
