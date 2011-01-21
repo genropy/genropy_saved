@@ -1,4 +1,4 @@
-	.. _genro-genro_database_management:
+.. _genro_genro_database_management:
 
 ===========================
  Genro database management

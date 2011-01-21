@@ -1,8 +1,8 @@
-	.. _genro-relation_table:
+.. _genro_relation_table:
 
-================
- Relation table
-================
+==============
+Relation table
+==============
 
 ..??? Explain of the possibility to create a Table with the relation attribute; make an example of:
 	
@@ -10,7 +10,7 @@
 	
 ..(use OmniGraffle!!)
 	
-	Suppose to create a database of directors and films. In this database you have created a :ref:`genro-database_table` for the directors (called ``person.py``), a ``table`` for the films (called ``movie.py``) and a :ref:`genro-relation_table` between directors and films (called ``cast.py``).
+	Suppose to create a database of directors and films. In this database you have created a :ref:`genro_database_table` for the directors (called ``person.py``), a ``table`` for the films (called ``movie.py``) and a :ref:`genro_relation_table` between directors and films (called ``cast.py``).
 	
 ..add a figure...
 

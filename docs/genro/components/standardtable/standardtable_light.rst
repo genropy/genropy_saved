@@ -1,4 +1,4 @@
-	.. _genro-standardtable_light:
+.. _genro_standardtable_light:
 
 ======================
  Standard table light

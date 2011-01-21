@@ -1,14 +1,12 @@
-	.. _genro-includedview:
+.. _genro_includedview:
 
 =============
 included view
 =============
 
-	- :ref:`iv_description`
-
-	- :ref:`iv_example`
-	
-	- :ref:`iv_library_reference`
+	* :ref:`iv_description`
+	* :ref:`iv_example`
+	* :ref:`iv_library_reference`
 
 .. _iv_description:
 

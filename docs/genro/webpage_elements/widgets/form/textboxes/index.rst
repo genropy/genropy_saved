@@ -1,4 +1,4 @@
-	.. _genro-textboxes-index:
+.. _genro_textboxes_index:
 
 ===========
  Textboxes

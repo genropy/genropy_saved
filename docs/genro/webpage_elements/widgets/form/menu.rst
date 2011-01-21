@@ -6,11 +6,9 @@ menu
 
 	.. note:: To create a menu, you have to use the ``dropdownbutton`` widget. Go the :ref:`genro_dropdownbutton` page for further details on it.
 	
-	- :ref:`menu_definition_description`
-	
-	- :ref:`menu_attributes`
-	
-	- :ref:`menu_examples`
+	* :ref:`menu_definition_description`
+	* :ref:`menu_attributes`
+	* :ref:`menu_examples`
 	
 .. _menu_definition_description:
 	
@@ -49,8 +47,8 @@ Attributes
 	
 	**common attributes**:
 	
-	* ``disabled``: if True, allow to disable this widget. Default value is ``False``. For more information, check the :ref:`genro-disabled` documentation page
-	* ``hidden``: if True, allow to hide this widget. Default value is ``False``. For more information, check the :ref:`genro-hidden` documentation page
+	* ``disabled``: if True, allow to disable this widget. Default value is ``False``. For more information, check the :ref:`genro_disabled` documentation page
+	* ``hidden``: if True, allow to hide this widget. Default value is ``False``. For more information, check the :ref:`genro_hidden` documentation page
 	* ``label``: You can't use the ``label`` attribute; if you want to give a label to your widget, you have to give it to the dropdownbutton. Check the following_ example.
 
 .. _menu_examples:

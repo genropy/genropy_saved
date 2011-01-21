@@ -1,18 +1,16 @@
-	.. _genro-timetextbox:
+	.. _genro_timetextbox:
 
 =============
  timeTextbox
 =============
 
-	- :ref:`timeTextbox-definition-description`
-	
-	- :ref:`timeTextbox-attributes`
-	
-	- :ref:`timeTextbox_examples`
+	* :ref:`timeTextbox_def`
+	* :ref:`timeTextbox_attributes`
+	* :ref:`timeTextbox_examples`
 
-	.. note:: We recommend you to read :ref:`genro-textboxes` first.
+	.. note:: We recommend you to read :ref:`genro_textboxes` first.
 	
-	.. _timeTextbox-definition-description:
+.. _timeTextbox_def:
 
 Definition and Description
 ==========================
@@ -23,7 +21,7 @@ Definition and Description
 	
 	..note:: The timeTextbox syntax is: hh:mm
 	
-	.. _timeTextbox-attributes:
+.. _timeTextbox_attributes:
 
 Attributes
 ==========

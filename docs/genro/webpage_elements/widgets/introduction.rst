@@ -1,4 +1,4 @@
-	.. _genro-widgets-introduction:
+.. _genro_widgets_introduction:
 
 =================================
  Introduction to widget elements
@@ -12,5 +12,5 @@
 	
 	The widget elements are divided in two categories, that are:
 	
-		* The :ref:`genro-form-index`
-		* The :ref:`genro-layout-index`
+		* The :ref:`genro_form_index`
+		* The :ref:`genro_layout_index`

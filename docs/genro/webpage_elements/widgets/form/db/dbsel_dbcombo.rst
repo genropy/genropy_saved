@@ -1,14 +1,13 @@
-	.. _genro_dbselect-dbcombobox:
+.. _genro_dbselect_dbcombobox:
 	
-============================================
- dbSelect and dbCombobox: common attributes
-============================================
+==========================================
+dbSelect and dbCombobox: common attributes
+==========================================
 
-	- :ref:`db-genro-attributes`
+	* :ref:`db_genro_attributes`
+	* :ref:`db_examples`: :ref:`db_selected`, :ref:`db_condition`, :ref:`db_columns` and :ref:`db_auxColumns`
 
-	- :ref:`db-examples`: :ref:`db-selected`, :ref:`db-condition`, :ref:`db-columns` and :ref:`db_auxColumns`
-
-	.. _db-genro-attributes:
+.. _db_genro_attributes:
 
 Common attributes
 =================
@@ -19,9 +18,9 @@ Common attributes
 	|   Attribute        |          Description                              |   Default                |
 	+====================+===================================================+==========================+
 	| ``dbtable``        | MANDATORY - Select the database                   |  ``None``                |
-	|                    | :ref:`genro-database_table` for database widget   |                          |
+	|                    | :ref:`genro_database_table` for database widget   |                          |
 	|                    | query. For further details, check the             |                          |
-	|                    | :ref:`genro-dbtable` explanation page             |                          |
+	|                    | :ref:`genro_dbtable` explanation page             |                          |
 	+--------------------+---------------------------------------------------+--------------------------+
 	| ``alternatePkey``  | Alternate primary key: allow to save user choice  |  ``None``                |
 	|                    | through a different parameter respect to the      |                          |
@@ -33,16 +32,16 @@ Common attributes
 	|                    | Check :ref:`db_auxColumns` explanation for        |                          |
 	|                    | further details                                   |                          |
 	+--------------------+---------------------------------------------------+--------------------------+
-	| ``columns``        | Check :ref:`db-columns` explanation for           |  ``None``                |
+	| ``columns``        | Check :ref:`db_columns` explanation for           |  ``None``                |
 	|                    | further details                                   |                          |
 	+--------------------+---------------------------------------------------+--------------------------+
-	| ``condition``      | Start a SQL query. Check :ref:`db-condition`      |  ``None``                |
+	| ``condition``      | Start a SQL query. Check :ref:`db_condition`      |  ``None``                |
 	|                    | example for further details                       |                          |
 	+--------------------+---------------------------------------------------+--------------------------+
 	| ``disabled``       | If True, user can't act on the widget.            |  ``False``               |
-	|                    | For more details, see :ref:`genro-disabled`       |                          |
+	|                    | For more details, see :ref:`genro_disabled`       |                          |
 	+--------------------+---------------------------------------------------+--------------------------+
-	| ``hidden``         | Hide the widget. See :ref:`genro-hidden`          |  ``False``               |
+	| ``hidden``         | Hide the widget. See :ref:`genro_hidden`          |  ``False``               |
 	+--------------------+---------------------------------------------------+--------------------------+
 	| ``label``          | You can't use the ``label`` attribute; if you     |  ``None``                |
 	|                    | want to give a label to your widget, check the    |                          |
@@ -52,34 +51,34 @@ Common attributes
 	|                    | menu below the input textbox during user typing   |                          |
 	+--------------------+---------------------------------------------------+--------------------------+
 	| ``rowcaption``     | Allow user to view records through                |  ``None``                |
-	|                    | :ref:`genro-name_long` value.                     |                          |
+	|                    | :ref:`genro_name_long` value.                     |                          |
 	|                    | Without ``rowcaption``, user will see value ID.   |                          |
 	|                    | Check for more information the                    |                          |
-	|                    | :ref:`genro-database_rowcaption` page             |                          |
+	|                    | :ref:`genro_database_rowcaption` page             |                          |
 	+--------------------+---------------------------------------------------+--------------------------+
 	| ``selected``       | You can add different parameters with the sintax: |  ``None``                |
 	|                    | ``selected_nameOfATableColumn='datapathFolder'``. |                          |
-	|                    | See :ref:`db-selected` example for further details|                          |
+	|                    | See :ref:`db_selected` example for further details|                          |
 	+--------------------+---------------------------------------------------+--------------------------+
 	| ``value``          | Set a path for widget's values.                   |  ``None``                |
 	|                    | For more details, see :ref:`genro_datapath`       |                          |
 	+--------------------+---------------------------------------------------+--------------------------+
 
-	.. _db-examples:
+.. _db_examples:
 
 Examples
 ========
 
-	.. _db-selected:
+.. _db_selected:
 
 Selected
 ========
 
-	With the ``selected`` attribute you can draw multiple attributes to the :ref:`genro-datastore` through a single ``dbSelect`` or ``dbCombobox``; the sintax is ``selected_nameOfATableColumn='datapathFolder'``.
+	With the ``selected`` attribute you can draw multiple attributes to the :ref:`genro_datastore` through a single ``dbSelect`` or ``dbCombobox``; the sintax is ``selected_nameOfATableColumn='datapathFolder'``.
 
 	**Example:**
 
-	let's consider a simple Genro Project [#]_ including a database :ref:`genro-database_table` and a :ref:`genro_GnrCustomWebPage`. 
+	let's consider a simple Genro Project [#]_ including a database :ref:`genro_database_table` and a :ref:`genro_GnrCustomWebPage`. 
 
 	The table includes a list of actors::
 
@@ -116,7 +115,7 @@ Selected
 		/myform/name/"Cate Blanchett"
 		/myform/year/1969
 
-	.. _db-condition:
+.. _db_condition:
 
 Condition
 =========
@@ -132,7 +131,7 @@ Condition
 
 		condition_something='=PathOfValue'
 
-	**Example:** let's start from the previous example (:ref:`db-selected`) where we had a list of actors included into a ``table`` called "person". Let's introduce a ``table`` called "movie" that contains a lot of title films on which the actors have participated::
+	**Example:** let's start from the previous example (:ref:`db_selected`) where we had a list of actors included into a ``table`` called "person". Let's introduce a ``table`` called "movie" that contains a lot of title films on which the actors have participated::
 
 		# encoding: utf-8
 
@@ -149,7 +148,7 @@ Condition
 				tbl.column('description', name_short='Dsc', name_long='Movie description')
 				tbl.column('number','L',name_long='!!Number')
 
-	The two tables ("movie" and "person") will be linked through a :ref:`genro-relation_table` called "cast"::
+	The two tables ("movie" and "person") will be linked through a :ref:`genro_relation_table` called "cast"::
 
 		# encoding: utf-8
 
@@ -178,14 +177,14 @@ Condition
 
 	The first dbSelect allows the user to choose an actor from the database. The second dbSelect allows the user to choose from a movie made exclusively by the chosen actor.
 
-	.. _db-columns:
+.. _db_columns:
 
 Columns
 =======
 
 	When a user begins to type something into the ``dbSelect`` (or ``dbCombobox``) field, he will see visualized the database columns specified into the ``rowcaption`` field.
 
-	The usual procedure of a ``dbSelect`` query is *to search* through the records owned by the ``rowcaption`` attribute and *to save* the record chosen by the user through record's ID into the :ref:`genro-datastore`.
+	The usual procedure of a ``dbSelect`` query is *to search* through the records owned by the ``rowcaption`` attribute and *to save* the record chosen by the user through record's ID into the :ref:`genro_datastore`.
 
 	If you define ``columns``, the ``dbSelect`` will continue to visualize only the records owned by the ``rowcaption`` attribute, but ``dbSelect`` will search ONLY through the record columns defined in the ``columns`` attribute.
 
@@ -205,4 +204,4 @@ auxColumns
 
 **Footnotes:**
 
-.. [#] For more information on a creation of a project, check the :ref:`genro-database-introduction` page.
+.. [#] For more information on a creation of a project, check the :ref:`genro_database_introduction` page.

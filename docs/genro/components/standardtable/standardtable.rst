@@ -1,4 +1,4 @@
-	.. _genro-standardtable:
+.. _genro_standardtable:
 
 ================
  Standard table

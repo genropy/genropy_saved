@@ -1,4 +1,4 @@
-	.. _genro-introduction_to_Genro-index:
+.. _genro_introduction_to_genro_index:
 
 =======================
  Introduction to Genro

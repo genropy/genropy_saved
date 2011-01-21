@@ -1,22 +1,19 @@
-	.. _genro-bag-two:
+.. _genro_bag_two:
 
-============================
- Basic functions (part two)
-============================
+.. module:: gnr.core.gnrbag.Bag
 
-	- :ref:`bag-hierarchical`
-	
-	- :ref:`bag-path`
-	
-	- :ref:`bag_setting_hierchical`
-	
-	- :ref:`bag-printing-advanced`
-	
-	- :ref:`bag_getting_values_advanced`
-	
-	- :ref:`bag_digest`
+==========================
+Basic functions (part two)
+==========================
 
-	.. _bag-hierarchical:
+	* :ref:`bag_hierarchical`
+	* :ref:`bag_path`
+	* :ref:`bag_setting_hierchical`
+	* :ref:`bag_printing_advanced`
+	* :ref:`bag_getting_values_advanced`
+	* :ref:`bag_digest`
+
+.. _bag_hierarchical:
 
 Bag as a hierarchical container
 ===============================
@@ -25,7 +22,7 @@ Bag as a hierarchical container
 
 	Bags aren't just another traversable tree structure. Infact a Bag supports a direct access to any value contained in any of its nested bags, using a complex path. So every Bag contains all the information to get every other value in every other related "Hierarchical Bag".
 
-	.. _bag-path:
+.. _bag_path:
 
 Bag's path
 ==========
@@ -48,7 +45,7 @@ Bag's path
 	
 	A hierarchical bag ("new_card") can be nested within a larger one ("address_book"). In the following line we set the "new_card" Bag into the  "friends" Bag that is included into the "address_book" Bag.
 	
-	Now you might be thinking that the "friends" Bag was not instantiated and that it wasn't set into the "address_book". But, when :meth:`gnr.core.gnrbag.Bag.setItem` method receives a path, creates every Bag included in the path, even if you haven't create them:
+	Now you might be thinking that the "friends" Bag was not instantiated and that it wasn't set into the "address_book". But, when :meth:`setItem` method receives a path, creates every Bag included in the path, even if you haven't create them:
 
 		>>> address_book=Bag()
 	
@@ -56,7 +53,7 @@ Bag's path
 	
 		>>> address_book.setItem('friends.johnny',new_card)
 	
-	If we want to take Johnny's mobile we have to call the :meth:`gnr.core.gnrbag.Bag.getItem` method on the ``friends.johnny.phone.mobile`` path:
+	If we want to take Johnny's mobile we have to call the :meth:`getItem` method on the ``friends.johnny.phone.mobile`` path:
 	
 		>>> john_mobile= address_book.getItem('friends.johnny.phone.mobile')
 		>>> print john_mobile
@@ -87,9 +84,9 @@ Setting item on a hierarchical Bag
 		>>> new_card['phone'].setItem('office',555450210)
 		>>> new_card.setItem('phone.office',555450210)
 
-	So you can create a nested path with the square-brackets syntax or with the :meth:`gnr.core.gnrbag.Bag.setItem` method, just remember that every folder of Bag path is introduced by a dot (``.``).
+	So you can create a nested path with the square-brackets syntax or with the :meth:`setItem` method, just remember that every folder of Bag path is introduced by a dot (``.``).
 
-	.. _bag-printing-advanced:
+.. _bag_printing_advanced:
 
 Printing Bag (advanced)
 =======================
@@ -116,7 +113,7 @@ Getting Values (advanced)
 		>>> print address_book['friends.johnny.#2.office']
 		555450210
 		
-	Or, with the :meth:`gnr.core.gnrbag.Bag.getItem` method:
+	Or, with the :meth:`getItem` method:
 		
 		>>> officenumber = address_book.getItem('friends.johnny.#2.office')
 		>>> print officenumber
@@ -124,11 +121,11 @@ Getting Values (advanced)
 	
 	We show now other properties:
 	
-	- If a path ends with ``.?``, the :meth:`gnr.core.gnrbag.Bag.getItem` method return the item's keys.
+	- If a path ends with ``.?``, the :meth:`getItem` method return the item's keys.
 	
 	- If the last path-level contains ``#``, what follows the '#' is considered the key of an item's attribute and the function will return that attribute's value.
 	
-	- If a path starts with ``?`` then the path is interpreted as a call to the :meth:`gnr.core.gnrbag.Bag.digest` method.
+	- If a path starts with ``?`` then the path is interpreted as a call to the :meth:`digest` method.
 	
 	- A path can also ba a list of keys.
 
@@ -137,7 +134,7 @@ Getting Values (advanced)
 The digest method
 =================
 
-	Let's introduce a very useful method: the :meth:`gnr.core.gnrbag.Bag.digest` method. It returns a list of ``n`` tuples including keys and/or values and/or attributes of all the Bag's elements.
+	Let's introduce a very useful method: the :meth:`digest` method. It returns a list of ``n`` tuples including keys and/or values and/or attributes of all the Bag's elements.
 
 	``n`` is the number of expressions called in the method.
 
@@ -175,6 +172,6 @@ The digest method
 
 **Footnotes**
 
-.. [#] Check the :ref:`genro-bag-one` page.
+.. [#] Check the :ref:`genro_bag_one` page.
 
 .. [#] If you need to use the dot (``.``) in the name of the instance (label), but you didn't want them to be interpreted as part of a complex path, you have to add a backslash (``\``) before the dot.

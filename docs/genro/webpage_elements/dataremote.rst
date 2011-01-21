@@ -1,14 +1,12 @@
-	.. _genro-dataremote:
+.. _genro_dataremote:
 
 ==========
 dataRemote
 ==========
 	
-	- :ref:`dataremote_def`
-	
-	- :ref:`dataremote_attr`
-	
-	- :ref:`dataremote_examples`
+	* :ref:`dataremote_def`
+	* :ref:`dataremote_attr`
+	* :ref:`dataremote_examples`
 
 .. _dataremote_def:
 

@@ -1,8 +1,8 @@
-	.. _genro-maturity_matrix:
+.. _genro_maturity_matrix:
 
-===========================
- Component Maturity Matrix
-===========================
+=========================
+Component Maturity Matrix
+=========================
 
 .. Note to developers
 
@@ -12,11 +12,11 @@
 ============================================================= =========================== =============================
 Component                                                     Maturity [#]_               Stability [#]_
 ============================================================= =========================== =============================
-:ref:`genro-standardtable`                                    Mature                      Documentation needed
-:ref:`genro-standardtable_light`                              Mature                      Documentation needed
+:ref:`genro_standardtable`                                    Mature                      Documentation needed
+:ref:`genro_standardtable_light`                              Mature                      Documentation needed
 ------------------------------------------------------------- --------------------------- -----------------------------
-:ref:`genro-includedview`
-:ref:`genro-selectionhandler`
+:ref:`genro_includedview`
+:ref:`genro_selectionhandler`
 multiselect
 ------------------------------------------------------------- --------------------------- -----------------------------
 iframedialog

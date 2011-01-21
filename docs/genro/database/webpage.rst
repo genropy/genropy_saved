@@ -1,19 +1,19 @@
-	.. _genro-webpage:
+.. _genro_webpage:
 
 =======================
  Creation of a webpage
 =======================
 
-	.. _webpage-build-phase:
+.. _webpage_build_phase:
 
 The build phase
 ===============
 
-	In the construction of the pages, first GenroPy loads the browser (client) with its JavaScript engine (the Genro engine). Then the Javascript engine immediately requests the server to build the recipe for the DOM. This recipe is returned to the client in a :ref:`genro-bag-intro`.   This is the page description and content of the original datastore form of bags. At this point, the JS can make calls to the python code to further buildings on the page.
+	In the construction of the pages, first GenroPy loads the browser (client) with its JavaScript engine (the Genro engine). Then the Javascript engine immediately requests the server to build the recipe for the DOM. This recipe is returned to the client in a :ref:`genro_bag_intro`.   This is the page description and content of the original datastore form of bags. At this point, the JS can make calls to the python code to further buildings on the page.
 
 	In practice, GenroPy behaves in this way:
 
-	1. The client makes the HTTP request page ``foo`` through WSGI site [#]_::
+	1. The client makes the HTTP request page ``foo`` through :ref:`genro_wsgi` site::
 
 		client ----------- HTTP ----------> server (wsgisite)
 
@@ -25,7 +25,7 @@ The build phase
 
 	    js engine ------- ready ----------> server (page ``main.py``)
 
-	4. The server sends a description of the page content in high level in terms of widgets, and content of the datastore [#]_ in the form of bags::
+	4. The server sends a description of the page content in high level in terms of widgets, and content of the :ref:`genro_datastore` in the form of bags::
 
 	    page js <-------- bags ------------ page python
 
@@ -33,7 +33,7 @@ The build phase
 
 	    page js <- dataRpc() or remote() -> page python
 
-	Genro creates a :ref:`genro-bag-intro` using genropy syntax and this ``Bag`` is sent as XML to the client. In the client, widgets and html elements will be stored in the struct bag (??? find a name for the struct Bag!), while data elements will be placed in the :ref:`genro-datastore`.
+	Genro creates a :ref:`genro_bag_intro` using genropy syntax and this ``Bag`` is sent as XML to the client. In the client, widgets and html elements [#]_ will be stored in the struct bag (??? find a name for the struct Bag!), while data elements will be placed in the :ref:`genro_datastore`.
 
 	When the XML arrives and the two bags are created a builder is started that will use the struct bag to create html and dojo elements. The builder will also 'link' data bag with the related widgets using the '^' syntax [#]_.
 
@@ -53,24 +53,15 @@ The build phase
 	
 	- python (server) scripts
 	
-	In Genro, to use a script you have to use data and controllers [#]_:
+	In Genro, to use a script you have to use data and controllers:
 
-	- client-side controllers: :ref:`genro-datacontroller`, :ref:`genro-dataformula`, :ref:`genro-datascript` (deprecated).
+	* client-side controllers: :ref:`genro_datacontroller`, :ref:`genro_dataformula`, :ref:`genro_datascript` (deprecated).
+	* server-side controllers: :ref:`genro_datarecord`, :ref:`genro_datarpc`, :ref:`genro_dataselection`, :ref:`genro_data`.
 	
-	- server-side controllers: :ref:`genro-datarecord`, :ref:`genro-datarpc`, :ref:`genro-dataselection`, :ref:`genro-data`.
+	For an introduction to the controllers, please check :ref:`genro_controllers_intro`
 
 **Footnotes**:
 
-.. [#] For further details on WSGI, please check :ref:`genro-wsgi`.
+.. [#] For further details on the Genro HTML elements and widgets, please check :ref:`genro_html-introduction` and :ref:`genro_widgets-introduction`.
 
-.. [#] For further details on the Datastore, please check :ref:`genro-datastore`.
-
-.. [#] For further details on the Genro HTML elements, please check :ref:`genro-html-introduction`.
-
-.. [#] For further details on the Genro element widgets, please check :ref:`genro-widgets-introduction`.
-
-.. [#] For further details on the Genro Bag, please check :ref:`genro-bag-intro` introduction page.
-
-.. [#] For more information on the circumflex accent, please check :ref:`datastore-syntax`.
-
-.. [#] For an introduction to the controllers, please check :ref:`genro-controllers-introduction`
+.. [#] For more information on the circumflex accent, please check :ref:`datastore_syntax`.

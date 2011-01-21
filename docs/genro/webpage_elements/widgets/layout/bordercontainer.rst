@@ -4,13 +4,10 @@
 borderContainer
 ===============
 
-	- :ref:`border_def`
-
-	- :ref:`border_attributes`
-
-	- :ref:`border-examples`: :ref:`border-simple`
-	
-	- :ref:`border_attr_exp`: :ref:`border_regions`, :ref:`border_splitter`
+	* :ref:`border_def`
+	* :ref:`border_attributes`
+	* :ref:`border_examples`: :ref:`border_simple`
+	* :ref:`border_attr_exp`: :ref:`border_regions`, :ref:`border_splitter`
 
 .. _border_def:
 
@@ -25,7 +22,7 @@ Definition
 
 	The borderContainer is a container partitioned into up to five regions: left (or leading), right (or trailing), top, and bottom with a mandatory center to fill in any remaining space. Each edge region may have an optional splitter user interface for manual resizing.
 
-	In order to define a borderContainer you have to define at least one :ref:`genro-contentpane` as a borderContainer child. This contentPane must include the ``region='center'`` attribute::
+	In order to define a borderContainer you have to define at least one :ref:`genro_contentpane` as a borderContainer child. This contentPane must include the ``region='center'`` attribute::
 
 		bc = root.borderContainer(height='200px')
 		bc.contentPane(region='center')
@@ -49,14 +46,14 @@ Attributes
 
 	**Common attributes**:
 
-		For common attributes, see :ref:`genro-layout-common-attributes`
+		For common attributes, see :ref:`genro_layout-common-attributes`
 
-	.. _border-examples:
+.. _border_examples:
 
 Examples
 ========
 
-	.. _border-simple:
+.. _border_simple:
 
 Simple example
 ==============
@@ -82,7 +79,7 @@ Attributes' explanation
 Regions attribute
 =================
 
-	With the "regions" attribute you can act on the regions of the borderContainer's children. You can modify their dimensions, and see them in the :ref:`genro-datastore`.
+	With the "regions" attribute you can act on the regions of the borderContainer's children. You can modify their dimensions, and see them in the :ref:`genro_datastore`.
 	
 	The syntax is: ``regions='folderName'``.
 	If you have to interact with the regions, the syntax is: ``folderName.regionName``; so, if you have to interact with the "left" region, you have to write: ``folderName.left``.
@@ -91,7 +88,7 @@ Regions attribute
 	
 		bc = borderContainer(regions='^regions')
 	
-	You can modify their dimensions for example with :ref:`genro-data`,
+	You can modify their dimensions for example with :ref:`genro_data`,
 	
 	::
 		

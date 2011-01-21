@@ -1,26 +1,21 @@
-	.. _genro-bag-four:
+.. _genro_bag_four:
+
+.. module:: gnr.core.gnrbag.Bag
 
 =========================
 Resolver and dynamic bags
 =========================
 
-	- :ref:`bag-four-introduction`
-	
-	- :ref:`bag_resolver`
-	
-	- :ref:`bag_resolver_example1`
-	
-	- :ref:`bag_resolver_example2`
-	
-	- :ref:`bag_resolver_example3`
-	
-	- :ref:`bag_shortcuts`
-	
-	- :ref:`bag_formula`
-	
-	- :ref:`bag_symbol_formula`
+	* :ref:`bag_four_introduction`
+	* :ref:`bag_resolver`
+	* :ref:`bag_resolver_example1`
+	* :ref:`bag_resolver_example2`
+	* :ref:`bag_resolver_example3`
+	* :ref:`bag_shortcuts`
+	* :ref:`bag_formula`
+	* :ref:`bag_symbol_formula`
 
-	.. _bag-four-introduction:
+.. _bag_four_introduction:
 
 Introduction
 ============
@@ -33,13 +28,10 @@ Introduction
 	
 	Some possible usages for a dynamic Bag are:
 	
-	- get values from a database server.
-	
-	- get values from webservices.
-	
-	- calculate values in real-time.
-	
-	- etc.
+	* get values from a database server.
+	* get values from webservices.
+	* calculate values in real-time.
+	* etc.
 	
 	.. image:: ../images/bag/bag-resolver.png
 
@@ -50,7 +42,7 @@ resolver
 
 	The basic idea of a dynamic Bag is to hide all the function calls treating their results as they were Bag static items (so, a likely-static value can be the result of a realtime elaboration or a remote call). The BagResolver class (:class:`gnr.core.gnrbag.BagResolver`) is an interface that allow to define objects that implement this process.
 
-	A resolver overrides the primitive ``__call__``, which is the one that intercepts any round-brackets call and implements the load() method. When a resolver is called my_resolver(), it calls its load() method. A resolver may have a cache, if the cacheTime is specified in the args, else it's considered 0. The cache stores the retrieved value and keeps it for a lapse of time called cacheTime. Each resolver implements the load() method that reads the result from cache, if cacheTime isn't elapsed, or takes it from its remote source. The my_resolver call can receive some kwargs. A resolver is set in a node by the :meth:`gnr.core.gnrbag.Bag.setResolver` method.
+	A resolver overrides the primitive ``__call__``, which is the one that intercepts any round-brackets call and implements the load() method. When a resolver is called my_resolver(), it calls its load() method. A resolver may have a cache, if the cacheTime is specified in the args, else it's considered 0. The cache stores the retrieved value and keeps it for a lapse of time called cacheTime. Each resolver implements the load() method that reads the result from cache, if cacheTime isn't elapsed, or takes it from its remote source. The my_resolver call can receive some kwargs. A resolver is set in a node by the :meth:`setResolver` method.
 
 .. _bag_resolver_example1:
 
@@ -75,7 +67,7 @@ Resolver Example 1: the TimeResolver
 	>>> print mybag['now']
 	2010-11-18 11:47:13.237443
 	
-	If we want to automate the call we ahve to introduce a cacheTime value:
+	If we want to automate the call we have to introduce a cacheTime value:
 	
 	The mybag['now'] value will be updated every 100 ms:
 	
@@ -210,7 +202,7 @@ Shortcuts: the BagCbResolver
 		>>> print mybag['hello']
 		Hello World!
 	
-	As alternative syntax you can use the :meth:`gnr.core.gnrbag.Bag.setCallBackItem` method:
+	As alternative syntax you can use the :meth:`setCallBackItem` method:
 
 		>>> mybag.setCallBackItem('hello', sayHello)
 
@@ -237,9 +229,9 @@ Bag Formula: ``the defineSymbol()`` and the ``defineFormula()`` methods
 	
 	Bag has a register for every defined formula and symbols. So if you plan to use them in several situations, it is better using the following two methods:
 	
-	- :meth:`gnr.core.gnrbag.Bag.defineSymbol`: define a variable and link it to a BagFormula Resolver at the specified path.
+	* :meth:`defineSymbol`: define a variable and link it to a BagFormula Resolver at the specified path.
 	
-	- :meth:`gnr.core.gnrbag.Bag.defineFormula`: define a formula that uses defined symbols.
+	* :meth:`defineFormula`: define a formula that uses defined symbols.
 	
 	>>> mybag.defineFormula(calculate_perimeter='2*($base + $height)' )
 	>>> mybag.defineSymbol(base ='params.base',  height='params.height')

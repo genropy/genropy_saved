@@ -1,16 +1,14 @@
-	.. _genro-combobox:
+	.. _genro_combobox:
 
 ========
 comboBox
 ========
 
-	- :ref:`combobox-definition-description`
+	* :ref:`combobox_def`
+	* :ref:`combobox_attributes`
+	* :ref:`combobox_examples`: :ref:`bag_way`, :ref:`values-attribute`
 	
-	- :ref:`combobox-attributes`
-	
-	- :ref:`combobox-examples`: :ref:`Bag-way`, :ref:`values-attribute`
-	
-	.. _combobox-definition-description:
+.. _combobox_def:
 
 Definition and Description
 ==========================
@@ -27,7 +25,7 @@ Definition and Description
 	
 	The combobox looks like a :ref:`genro_filteringselect`: the only difference is that it doesn't support keys.
 	
-	.. _combobox-attributes:
+.. _combobox_attributes:
 	
 Attributes
 ==========
@@ -40,12 +38,12 @@ Attributes
 	
 	**Common attributes**:
 		
-	* ``disabled``: if True, allow to disable this widget. Default value is ``False``. For more information, check the :ref:`genro-disabled` documentation page
-	* ``hidden``: if True, allow to hide this widget. Default value is ``False``. For more information, check the :ref:`genro-hidden` documentation page
+	* ``disabled``: if True, allow to disable this widget. Default value is ``False``. For more information, check the :ref:`genro_disabled` documentation page
+	* ``hidden``: if True, allow to hide this widget. Default value is ``False``. For more information, check the :ref:`genro_hidden` documentation page
 	* ``label``: You can't use the ``label`` attribute; if you want to give a label to your widget, check the :ref:`lbl_formbuilder` example
 	* ``value``: specify the path of the widget's value. For more information, check the :ref:`genro_datapath` documentation page
 	
-	.. _combobox-examples:
+.. _combobox_examples:
 
 Examples
 ========
@@ -71,12 +69,12 @@ Fill comboBox through ``values`` attribute
 	
 	.. _Bag:
 	
-	.. _Bag-way:
+	.. _bag_way:
 
 Fill comboBox through a Bag
 ===========================
 
-	Postponing all info of a ``Bag`` and of a ``data`` on the relative pages of documentation (:ref:`genro-bag-intro` introduction page and :ref:`genro-data` page), we'll show here how you can add values to ``combobox`` using a ``Bag``.
+	Postponing all info of a ``Bag`` and of a ``data`` on the relative pages of documentation (:ref:`genro_bag_intro` introduction page and :ref:`genro_data` page), we'll show here how you can add values to ``combobox`` using a ``Bag``.
 	
 	**Example**::
 

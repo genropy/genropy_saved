@@ -4,13 +4,11 @@
 numberTextbox
 =============
 
-	- :ref:`numberTextbox_def`
-	
-	- :ref:`numberTextbox_attributes`
-	
-	- :ref:`numberTextbox_examples`
+	* :ref:`numberTextbox_def`
+	* :ref:`numberTextbox_attributes`
+	* :ref:`numberTextbox_examples`
 
-	.. note:: We recommend you to read :ref:`genro-textboxes` first.
+	.. note:: We recommend you to read :ref:`genro_textboxes` first.
 
 .. _numberTextbox_def:
 

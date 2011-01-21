@@ -1,23 +1,21 @@
-	.. _genro-hidden:
+.. _genro_hidden:
 
 ========
  hidden
 ========
 
-	- :ref:`hidden-definition-description`
+	* :ref:`hidden_def`
+	* :ref:`hidden_validity`
+	* :ref:`hidden_examples`
 
-	- :ref:`hidden-validity`
+.. _hidden_def:
 
-	- :ref:`hidden-examples`
-
-	.. _hidden-definition-description:
-
-Definition and description
-==========================
+Definition
+==========
 
 	If ``True``, allow to hide its object.
 	
-	.. _hidden-validity:
+.. _hidden_validity:
 
 Validity and default value
 ==========================
@@ -28,7 +26,7 @@ Validity and default value
 
 		hidden = False
 
-	.. _hidden-examples:
+.. _hidden_examples:
 
 Examples
 ========
@@ -45,4 +43,3 @@ Examples
 				fb.button('Hide the div!',fire='^.invisibility')
 				fb.button('Show the div!',fire='^.show')
 				fb.div('You can hide me!',hidden='^.hidden',colspan=2,border='4px solid red')
-

@@ -1,14 +1,13 @@
-	.. _genro-textboxes:
+	.. _genro_textboxes:
 
 ==================================
  an Introduction to the Textboxes
 ==================================
 
-	- :ref:`textboxes-introduction`
+	* :ref:`textboxes_introduction`
+	* :ref:`textboxes_attributes`
 
-	- :ref:`textboxes_attributes`
-
-	.. _textboxes-introduction:
+.. _textboxes_introduction:
 
 Definition
 ==========
@@ -19,15 +18,15 @@ Definition
 
 	There are different textbox types:
 
-	- :ref:`genro-textbox`
+	* :ref:`genro_textbox`
 
-	- :ref:`genro-currencytextbox`
+	* :ref:`genro_currencytextbox`
 
-	- :ref:`genro-datetextbox`
+	* :ref:`genro_datetextbox`
 
-	- :ref:`genro_numbertextbox`
+	* :ref:`genro_numbertextbox`
 
-	- :ref:`genro-timetextbox`
+	* :ref:`genro_timetextbox`
 
 .. _textboxes_attributes:
 
@@ -38,8 +37,8 @@ Common attributes
 
 	**common attributes**:
 	
-	* ``disabled``: if True, allow to disable this widget. Default value is ``False``. For more information, check the :ref:`genro-disabled` documentation page
-	* ``hidden``: if True, allow to hide this widget. Default value is ``False``. For more information, check the :ref:`genro-hidden` documentation page
+	* ``disabled``: if True, allow to disable this widget. Default value is ``False``. For more information, check the :ref:`genro_disabled` documentation page
+	* ``hidden``: if True, allow to hide this widget. Default value is ``False``. For more information, check the :ref:`genro_hidden` documentation page
 	* ``label``: You can't use the ``label`` attribute; if you want to give a label to your widget, check the :ref:`lbl_formbuilder` example
 	* ``value``: specify the path of the widget's value. For more information, check the :ref:`genro_datapath` documentation page
 	

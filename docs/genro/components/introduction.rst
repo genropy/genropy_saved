@@ -1,4 +1,4 @@
-	.. _genro-components-introduction:
+.. _genro_components_introduction:
 
 ================================
  Introduction to the components

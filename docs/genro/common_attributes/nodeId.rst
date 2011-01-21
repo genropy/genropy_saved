@@ -4,20 +4,18 @@
  nodeId
 ========
 
-	- :ref:`nodeId-definition-description`
+	* :ref:`nodeId_def`
+	* :ref:`nodeId_validity`
+	* :ref:`nodeId_examples`
 
-	- :ref:`nodeId-validity`
-
-	- :ref:`nodeId-examples`
-
-	.. _nodeId-definition-description:
+.. _nodeId_def:
 
 Definition and description
 ==========================
 
 	``nodeId`` is an attribute used to ... ???
 
-	.. _nodeId-validity:
+.. _nodeId_validity:
 
 Validity and nodeId value
 =========================
@@ -28,7 +26,9 @@ Validity and nodeId value
 
 	**nodeId value:** the nodeId value of ``nodeId`` is ... ???
 
-	.. _nodeId-examples:
+.. _nodeId_examples:
 
 Examples
 ========
+
+	???

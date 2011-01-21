@@ -1,4 +1,4 @@
-	.. _genro-standardtable-index:
+.. _genro_standardtable_index:
 
 ==============
 Standard table

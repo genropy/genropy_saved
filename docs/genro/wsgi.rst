@@ -1,4 +1,4 @@
-	.. _genro-wsgi:
+.. _genro_wsgi:
 
 ======
  WSGI

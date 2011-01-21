@@ -1,16 +1,17 @@
-	.. _genro-bag-index:
+.. _genro_bag_index:
 
 ===
 Bag
 ===
 
 .. toctree::
+	:maxdepth: 1
 
-	introduction
+	introduction to the Bag <introduction>
 	bagOne
 	bagTwo
-	attributes
-	nodes
+	Attributes <attributes>
+	Nodes <nodes>
 	bagThree
 	bagFromTo
 	bagFour

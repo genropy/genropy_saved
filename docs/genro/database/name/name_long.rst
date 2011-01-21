@@ -1,4 +1,4 @@
-	.. _genro-name_long:
+.. _genro_name_long:
 
 ===========
  Name_long

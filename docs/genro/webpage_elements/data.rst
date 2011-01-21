@@ -1,14 +1,12 @@
-	.. _genro-data:
+.. _genro_data:
 
 ====
 data
 ====
 
-	- :ref:`data_def`
-	
-	- :ref:`data_attr`
-	
-	- :ref:`data_examples`
+	* :ref:`data_def`
+	* :ref:`data_attr`
+	* :ref:`data_examples`
 
 .. _data_def:
 

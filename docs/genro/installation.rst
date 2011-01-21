@@ -1,18 +1,14 @@
-	.. _genro-installation:
+.. _genro_installation:
 
 ==============
  Installation
 ==============
 
-	- :ref:`installationRequirements`
-
-	- :ref:`obtainingGenropy`
-
-	- :ref:`installingGenropy`
-
-	- :ref:`configuringGenropy`
-
-	- :ref:`projectsExamples`
+	* :ref:`installationRequirements`
+	* :ref:`obtainingGenropy`
+	* :ref:`installingGenropy`
+	* :ref:`configuringGenropy`
+	* :ref:`projectsExamples`
 
 .. _installationRequirements:
 

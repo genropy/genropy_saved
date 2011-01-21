@@ -1,14 +1,12 @@
 .. _genro_zoom:
 
-======
- zoom
-======
+====
+zoom
+====
 
-	- :ref:`zoom_definition_description`
-
-	- :ref:`zoom_validity`
-
-	- :ref:`zoom_examples`
+	* :ref:`zoom_definition_description`
+	* :ref:`zoom_validity`
+	* :ref:`zoom_examples`
 
 .. _zoom_definition_description:
 
@@ -28,9 +26,9 @@ Validity and zoom value
 
 	**Default value:** the default value of ``zoom`` changes ... ???
 
-	.. _zoom-examples:
+.. _zoom_examples:
 
 Examples
 ========
 
-	??? Link the zoom to the :ref:`genro-standardtable`
+	??? Link the zoom to the :ref:`genro_standardtable`

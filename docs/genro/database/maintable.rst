@@ -1,4 +1,4 @@
-	.. _genro-maintable:
+.. _genro_maintable:
 
 ===========
  Maintable

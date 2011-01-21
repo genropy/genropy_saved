@@ -1,16 +1,14 @@
-	.. _genro-stackcontainer:
+.. _genro_stackcontainer:
 
 ==============
 stackContainer
 ==============
 
-	- :ref:`stack-definition`
+	* :ref:`stack_def`
+	* :ref:`stack_attributes`
+	* :ref:`stack_examples`: :ref:`stack_simple`
 
-	- :ref:`stack_attributes`
-
-	- :ref:`stack-examples`: :ref:`stack-simple`
-
-	.. _stack-definition:
+.. _stack_def:
 
 Definition
 ==========
@@ -40,14 +38,14 @@ Attributes
 
 	**common attributes**:
 
-		For common attributes, see :ref:`genro-layout-common-attributes`
+		For common attributes, see :ref:`genro_layout-common-attributes`
 		
-	.. _stack-examples:
+.. _stack_examples:
 
 Examples
 ========
 
-	.. _stack-simple:
+.. _stack_simple:
 
 Simple example
 ==============

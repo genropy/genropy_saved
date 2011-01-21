@@ -4,13 +4,11 @@
 button
 ======
 
-	- :ref:`button-definition-description`
+	* :ref:`button_def`
+	* :ref:`button_attributes`
+	* :ref:`button_examples`: :ref:`button_action`, :ref:`button_example_macro`
 	
-	- :ref:`button-attributes`
-	
-	- :ref:`button-examples`: :ref:`button_action`, :ref:`button_example_macro`
-	
-	.. _button-definition-description:
+.. _button_def:
 
 Definition and Description
 ==========================
@@ -21,7 +19,7 @@ Definition and Description
 	
 	Button is a Dojo widget used as a representation of an html button. You may define its purpose through the "action" attribute (explained below), a javascript command executed by clicking on the button itself.
 
-	.. _button-attributes:
+.. _button_attributes:
 
 Attributes
 ==========
@@ -32,12 +30,12 @@ Attributes
 	
 	**common attributes**:
 	
-	* ``disabled``: if True, allow to disable this widget. Default value is ``False``. For more information, check the :ref:`genro-disabled` documentation page
-	* ``hidden``: if True, allow to hide this widget. Default value is ``False``. For more information, check the :ref:`genro-hidden` documentation page
+	* ``disabled``: if True, allow to disable this widget. Default value is ``False``. For more information, check the :ref:`genro_disabled` documentation page
+	* ``hidden``: if True, allow to hide this widget. Default value is ``False``. For more information, check the :ref:`genro_hidden` documentation page
 	* ``label``: the label of the widget.
 	* ``value``: specify the path of the widget's value. For more information, check the :ref:`genro_datapath` documentation page
 
-	.. _button-examples:
+.. _button_examples:
 
 Examples
 ========

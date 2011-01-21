@@ -1,16 +1,14 @@
-	.. _genro-accordioncontainer:
+.. _genro_accordioncontainer:
 
 ==================
 accordionContainer
 ==================
 
-	- :ref:`accordion-definition`
+	* :ref:`accordion_def`
+	* :ref:`accordion_attributes`
+	* :ref:`accordion_examples`: :ref:`accordion_simple`
 	
-	- :ref:`accordion-attributes`
-	
-	- :ref:`accordion_examples`: :ref:`accordion_simple`
-	
-	.. _accordion-definition:
+.. _accordion_def:
 
 Definition
 ==========
@@ -21,11 +19,11 @@ Definition
 	
 	.. method:: pane.accordionContainer([**kwargs])
 	
-	Like :ref:`genro-stackcontainer` and :ref:`genro_tabcontainer`, an ``accordion container`` holds a set of accordionPanes whose titles are all visible, but only one pane's content is visible at a time. Clicking on a pane title slides the currently-displayed one away, similar to a garage door.
+	Like :ref:`genro_stackcontainer` and :ref:`genro_tabcontainer`, an ``accordion container`` holds a set of accordionPanes whose titles are all visible, but only one pane's content is visible at a time. Clicking on a pane title slides the currently-displayed one away, similar to a garage door.
 
 	.. method:: pane.accordionPane([**kwargs])
 
-	.. _accordion-attributes:
+.. _accordion_attributes:
 
 Attributes
 ==========
@@ -40,7 +38,7 @@ Attributes
 
 	**common attributes**:
 	
-		For common attributes, see :ref:`genro-layout-common-attributes`
+		For common attributes, see :ref:`genro_layout-common-attributes`
 
 .. _accordion_examples:
 

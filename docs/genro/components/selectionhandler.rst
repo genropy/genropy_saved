@@ -4,11 +4,11 @@
 selection handler
 =================
 
-- :ref:`selhandler_description`
+* :ref:`selhandler_description`
 
-- :ref:`selhandler_example`
+* :ref:`selhandler_example`
 
-- :ref:`selhandler_library_reference`
+* :ref:`selhandler_library_reference`
 
 .. _selhandler_description:
 

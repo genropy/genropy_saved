@@ -1,16 +1,14 @@
-	.. _genro-checkbox:
+	.. _genro_checkbox:
 
 ==========
  checkbox
 ==========
 
-	- :ref:`checkbox-definition-description`
+	* :ref:`checkbox_def`
+	* :ref:`checkbox_attributes`
+	* :ref:`checkbox_examples`
 	
-	- :ref:`checkbox-attributes`
-	
-	- :ref:`checkbox-examples`
-	
-	.. _checkbox-definition-description:
+.. _checkbox_def:
 
 Definition and Description
 ==========================
@@ -21,7 +19,7 @@ Definition and Description
 	
 	.. _checkbox: http://docs.dojocampus.org/dijit/form/CheckBox
 
-	.. _`checkbox-attributes`:
+.. _checkbox_attributes:
 	
 Attributes
 ==========
@@ -32,12 +30,12 @@ Attributes
 	
 	**common attributes**:
 	
-	* ``disabled``: if True, allow to disable this widget. Default value is ``False``. For more information, check the :ref:`genro-disabled` documentation page
-	* ``hidden``: if True, allow to hide this widget. Default value is ``False``. For more information, check the :ref:`genro-hidden` documentation page
+	* ``disabled``: if True, allow to disable this widget. Default value is ``False``. For more information, check the :ref:`genro_disabled` documentation page
+	* ``hidden``: if True, allow to hide this widget. Default value is ``False``. For more information, check the :ref:`genro_hidden` documentation page
 	* ``label``: You can't use the ``label`` attribute; if you want to give a label to your widget, check the :ref:`lbl_formbuilder` example
 	* ``value``: specify the path of the widget's value. For more information, check the :ref:`genro_datapath` documentation page
 
-	.. _checkbox-examples:
+.. _checkbox_examples:
 
 Examples
 ========

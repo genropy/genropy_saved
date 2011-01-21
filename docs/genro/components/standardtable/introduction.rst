@@ -1,4 +1,4 @@
-	.. _genro-standardtable_introduction:
+.. _genro_standardtable_introduction:
 
 =======================================
  An introduction to the standard table
@@ -8,6 +8,6 @@
 
 	There are two standard table types:
 	
-		* the :ref:`genro-standardtable`.
+		* the :ref:`genro_standardtable`.
 		
-		* a light version of the standard table: the :ref:`genro-standardtable_light`.
+		* a light version of the standard table: the :ref:`genro_standardtable_light`.

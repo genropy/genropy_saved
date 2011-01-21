@@ -1,4 +1,4 @@
-	.. _genro-how_to:
+.. _genro_how_to:
 
 ========
  How to

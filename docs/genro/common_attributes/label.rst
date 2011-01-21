@@ -4,9 +4,8 @@
 label
 =====
 
-	- :ref:`label_def`
-	
-	- :ref:`lbl_formbuilder`
+	* :ref:`label_def`
+	* :ref:`lbl_formbuilder`
 	
 
 .. _label_def:
@@ -26,7 +25,7 @@ Usage of a label through the formbuilder widget
 
 	If your widget doesn't support the ``label`` attribute but you want to give to it a label, you have to:
 	
-		#. create a form (use the :ref:`genro-formbuilder` form widget)
+		#. create a form (use the :ref:`genro_formbuilder` form widget)
 		#. append your widget to the formbuilder
 		#. use the formbuilder's ``lbl`` attribute on your widget.
 	

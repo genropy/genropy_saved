@@ -1,4 +1,4 @@
-	.. _genro-getting_started:
+.. _genro_getting_started:
 
 =================
  Getting started
@@ -14,4 +14,3 @@
 	common_attributes/index
 	bag/index
 	ui/index
-	validations/index

@@ -1,18 +1,16 @@
-	.. _genro-currencytextbox:
+.. _genro_currencytextbox:
 
 =================
  currencyTextbox
 =================
 
-	- :ref:`currencyTextbox-definition-description`
-	
-	- :ref:`currencyTextbox_attributes`
-	
-	- :ref:`currencyTextbox-examples`
+	* :ref:`currencyTextbox_def`
+	* :ref:`currencyTextbox_attributes`
+	* :ref:`currencyTextbox_examples`
 
-	.. note:: We recommend you to read :ref:`genro-textboxes` first.
+	.. note:: We recommend you to read :ref:`genro_textboxes` first.
 
-	.. _currencyTextbox-definition-description:
+.. _currencyTextbox_def:
 
 Definition and Description
 ==========================
@@ -36,7 +34,7 @@ Attributes
 
 		For common attributes, see :ref:`textboxes_attributes`
 
-	.. _currencyTextbox-examples:
+.. _currencyTextbox_examples:
 
 Examples
 ========

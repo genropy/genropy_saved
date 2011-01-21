@@ -4,15 +4,13 @@
 tabContainer
 ============
 
-	- :ref:`tab-definition`
-
-	- :ref:`tab_attributes`
-
-	- :ref:`tab-examples`: :ref:`tab-simple`
+	* :ref:`tab_definition`
+	* :ref:`tab_attributes`
+	* :ref:`tab_examples`: :ref:`tab_simple`
 
 	- attributes explanation: :ref:`tab_selected`, :ref:`tab_tabposition`
 
-	.. _tab-definition:
+.. _tab_definition:
 
 Definition
 ==========
@@ -30,7 +28,7 @@ Attributes
 	
 	* ``tabPosition``: define the place of the paneContainer's labels. Default value is ``top-h``. For all supported possibilities, check the :ref:`tab_tabposition` example
 
-	* ``selected``: Allow to visualize in the :ref:`genro-datastore` the current selected tab as a type-number into a specific folder. Default value is ``None``. Check the :ref:`tab_selected` example for more informations.
+	* ``selected``: Allow to visualize in the :ref:`genro_datastore` the current selected tab as a type-number into a specific folder. Default value is ``None``. Check the :ref:`tab_selected` example for more informations.
 
 	**attributes of the tabContainer's children (paneContainers)**:
 	
@@ -38,14 +36,14 @@ Attributes
 
 	**common attributes**:
 	
-		For common attributes, see :ref:`genro-layout-common-attributes`
+		For common attributes, see :ref:`genro_layout-common-attributes`
 
-	.. _tab-examples:
+.. _tab_examples:
 
 Examples
 ========
 
-	.. _tab-simple:
+.. _tab_simple:
 
 Simple example
 ==============
@@ -63,7 +61,7 @@ Here we show you a simple example of a ``tab container``::
 "selected" attribute
 ====================
 
-	With the ``selected`` attribute Genro create a folder path in the :ref:`genro-datastore` where lies a number indicating the tab selected (for the first tab you'll find 0, for the second one 1 and so on).
+	With the ``selected`` attribute Genro create a folder path in the :ref:`genro_datastore` where lies a number indicating the tab selected (for the first tab you'll find 0, for the second one 1 and so on).
 	
 	The syntax is ``selected='folderPathName'``
 	

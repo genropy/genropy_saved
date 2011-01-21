@@ -1,4 +1,4 @@
-	.. _genro-css:
+.. _genro_css:
 
 ============
 CSS elements

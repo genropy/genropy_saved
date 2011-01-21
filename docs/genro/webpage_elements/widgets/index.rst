@@ -1,8 +1,8 @@
-	.. _genro-widgets-index:
+	.. _genro_widgets_index:
 
-=========
- Widgets
-=========
+=======
+Widgets
+=======
 
 .. module:: ui
     :synopsis: (the packages is not yet existing and this is a stub to gather the information for the ui)

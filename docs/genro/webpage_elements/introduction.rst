@@ -23,28 +23,28 @@
 	
 		Used to create the webpage's layout and to introduce the input elements (button, checkbox, etc).
 	
-		* Check the :ref:`genro-widgets-introduction`;
-		* description and list of all the :ref:`genro-widgets-index`.
+		* Check the :ref:`genro_widgets_introduction`;
+		* description and list of all the :ref:`genro_widgets_index`.
 	
 	* HTML elements:
 	
-		* Check the :ref:`genro-html-introduction`.
+		* Check the :ref:`genro_html_introduction`.
 	
 	* CSS elements:
 	
-		* Check the :ref:`genro-css`.
+		* Check the :ref:`genro_css`.
 	
 	* data elements:
 	
 		Used to define variables from server to client.
 	
-		* Check the :ref:`genro-data` page.
+		* Check the :ref:`genro_data` page.
 		
 	* dataRemote elements:
 		
 		synchronous rpc.
 		
-		* Check the :ref:`genro-dataremote` page.
+		* Check the :ref:`genro_dataremote` page.
 	
 	* controller elements:
 		

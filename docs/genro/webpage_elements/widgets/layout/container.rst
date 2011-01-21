@@ -14,17 +14,17 @@
 	
 	- the :ref:`genro_bordercontainer`;
 	
-	- the :ref:`genro-contentpane`;
+	- the :ref:`genro_contentpane`;
 	
-	- the :ref:`genro-accordioncontainer`;
+	- the :ref:`genro_accordioncontainer`;
 	
-	- the :ref:`genro-stackcontainer`;
+	- the :ref:`genro_stackcontainer`;
 	
 	- the :ref:`genro_tabcontainer`.
 	
 	Every container has its children (that are contentPanes). For example, in the accordionContainer you have the accordionPanes.
 	
-	.. _genro-layout-common-attributes:
+	.. _genro_layout-common-attributes:
 
 Common attributes
 =================
@@ -32,9 +32,9 @@ Common attributes
 	There are some common attributes that you can use with all the containers and panes:
 	
 	* ``datapath``: set the root's path of data. Default value is ``None``. For more details, check the :ref:`genro_datapath` page
-	* ``disabled``: if True, disable the container/pane. Default value is ``False``. For more information, check the :ref:`genro-disabled` documentation page
+	* ``disabled``: if True, disable the container/pane. Default value is ``False``. For more information, check the :ref:`genro_disabled` documentation page
 	* ``height``: Set the height of the container. MANDATORY if the container is the father container (example: height='100px')
-	* ``hidden``: if True, allow to hide this widget. Default value is ``False``. For more information, check the :ref:`genro-hidden` documentation page
+	* ``hidden``: if True, allow to hide this widget. Default value is ``False``. For more information, check the :ref:`genro_hidden` documentation page
 
 **Footnotes**
 

@@ -6,11 +6,9 @@ dropdownbutton
 
 	.. note:: it is mandatory to add a :ref:`genro_menu` to the dropdownbutton to make it work.
 
-	- :ref:`ddb_def`
-	
-	- :ref:`ddb_attributes`
-	
-	- :ref:`ddb_examples`
+	* :ref:`ddb_def`
+	* :ref:`ddb_attributes`
+	* :ref:`ddb_examples`
 
 .. _ddb_def:
 
@@ -36,8 +34,8 @@ Attributes
 	
 	**common attributes**:
 		
-	* ``disabled``: if True, allow to disable this widget. Default value is ``False``. For more information, check the :ref:`genro-disabled` documentation page
-	* ``hidden``: if True, allow to hide this widget. Default value is ``False``. For more information, check the :ref:`genro-hidden` documentation page
+	* ``disabled``: if True, allow to disable this widget. Default value is ``False``. For more information, check the :ref:`genro_disabled` documentation page
+	* ``hidden``: if True, allow to hide this widget. Default value is ``False``. For more information, check the :ref:`genro_hidden` documentation page
 	* ``label``: the dropdownbutton's ``label``.
 
 .. _ddb_examples:

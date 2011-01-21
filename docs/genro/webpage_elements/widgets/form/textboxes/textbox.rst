@@ -1,18 +1,16 @@
-	.. _genro-textbox:
+.. _genro_textbox:
 
 =======
 textbox
 =======
 
-	- :ref:`textbox-definition-description`
-	
-	- :ref:`textbox_attributes`
-	
-	- :ref:`textbox-examples`
+	* :ref:`textbox_def`
+	* :ref:`textbox_attributes`
+	* :ref:`textbox_examples`
 
-	.. note:: We recommend you to read :ref:`genro-textboxes` first.
+	.. note:: We recommend you to read :ref:`genro_textboxes` first.
 
-	.. _textbox-definition-description:
+.. _textbox_def:
 
 Definition and Description
 ==========================
@@ -42,7 +40,7 @@ Attributes
 
 		For common attributes, see :ref:`textboxes_attributes`
 
-	.. _textbox-examples:
+.. _textbox_examples:
 
 Examples
 ========

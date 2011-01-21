@@ -1,4 +1,4 @@
-	.. _genro-dataformula:
+.. _genro_dataformula:
 
 ===========
 dataFormula
@@ -19,7 +19,7 @@ Definition
 
 	.. method:: pane.dataFormula(path, formula[, **kwargs])
 
-	``dataFormula`` allows to insert a value into a specific address of the :ref:`genro-datastore` calculated through a formula
+	``dataFormula`` allows to insert a value into a specific address of the :ref:`genro_datastore` calculated through a formula
 	
 	.. note:: dataFormula does not have to be necessarily a mathematical formula!
 
@@ -28,7 +28,7 @@ Definition
 Attributes
 ==========
 
-	* path: here lies the path folder in the :ref:`genro-datastore` of your value.
+	* path: here lies the path folder in the :ref:`genro_datastore` of your value.
 	* formula: here lies the "formula"
 	* next parameters: variables contained into the formula (and ``**kwargs``)
 	

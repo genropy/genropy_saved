@@ -27,7 +27,7 @@ Definition
 	* ``method``: the name of your ``dataRpc``
 	* in the ``**kwargs`` you have to define a parameter who allows the ``dataRpc`` to be triggered
 		
-	To do this, you can use ``_fired='^anotherFolderPath'``; in this case the dataRpc is triggered whenever the value contained in ``anotherFolderPath`` changes; the "_" is used to hide the trigger parameter in the :ref:`genro-datastore`.
+	To do this, you can use ``_fired='^anotherFolderPath'``; in this case the dataRpc is triggered whenever the value contained in ``anotherFolderPath`` changes; the "_" is used to hide the trigger parameter in the :ref:`genro_datastore`.
 		
 	2. create a class method called the ``rpc server method``. In the ``rpc server method`` there will be executed a server action; you can optionally return a value. The relative syntax is::
 		
@@ -58,7 +58,7 @@ Examples
 			def main(self, root, **kwargs):
 				root.div('Hello assopy',font_size='40pt',border='3px solid yellow',padding='20px')
 	
-	Now we define a :ref:`genro-data` that describes the current date and it is calculated through Python code and it is served in the main page as a static data::
+	Now we define a :ref:`genro_data` that describes the current date and it is calculated through Python code and it is served in the main page as a static data::
 	
 				root.data('demo.today', self.toText(datetime.datetime.today()))
 

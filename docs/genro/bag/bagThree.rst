@@ -1,39 +1,36 @@
-	.. _genro-bag-three:
+.. _genro_bag_three:
 
-====================
- Advanced functions
-====================
+.. module:: gnr.core.gnrbag.Bag
 
-	- :ref:`bag-backward-path`
+==================
+Advanced functions
+==================
+
+	* :ref:`bag_backward_path`
+	* :ref:`bag_trigger`
+	* :ref:`bag_trigger_on_a_bag`
+	* :ref:`bag_unsubscribe`
+	* :ref:`trigger_on_BagNode`:
 	
-	- :ref:`bag-trigger`
+		* :ref:`bag_validators`
+		* :ref:`bag_validator_attributes` (with a :ref:`validator_list_parameter`)
+		* :ref:`bag_validator_methods`
 	
-	- :ref:`bag_trigger_on_a_bag`
-	
-	- :ref:`bag_unsubscribe`
-	
-	- :ref:`trigger-on-BagNode`: 
-	
-		- :ref:`bag-validator-attributes` (with a :ref:`validator-list-parameter`)
-		
-		- :ref:`bag-validator-methods`
-	
-	.. _bag-backward-path:
+.. _bag_backward_path:
 
 Backward path
 =============
 
 	We remember you that:
 	
-	- each item is enveloped into a BagNode.
-	
-	- each item can be included in other Bags.
+	* each item is enveloped into a BagNode.
+	* each item can be included in other Bags.
 	
 	This means that a Bag knows its children but not its father (infact a Bag may have more than one father). We could set some stricter hypotesis about a Bag's structure, making it more similar to a tree-leaf model: this would happen if a Bag had a back reference to its Bag father.
 	
 	.. image:: ../images/bag/bag-backward-path.png
 
-	This feature is implemented by the :meth:`gnr.core.gnrbag.Bag.setBackRef()` method. If we call it on a Bag instance, that Bag becomes the root of a tree structure in which each leaf (BagNode) knows its father. This means that we can traverse a Bag backward using the ``parent`` property of Bag's nodes:
+	This feature is implemented by the :meth:`setBackRef()` method. If we call it on a Bag instance, that Bag becomes the root of a tree structure in which each leaf (BagNode) knows its father. This means that we can traverse a Bag backward using the ``parent`` property of Bag's nodes:
 
 		>>> family = Bag()
 		>>> family['grandpa'] = Bag() 
@@ -54,7 +51,7 @@ Backward path
 		>>> nephew['../../'] == father
 		True
 		
-	.. _bag-trigger:
+.. _bag_trigger:
 	
 Trigger
 =======
@@ -71,7 +68,6 @@ Trigger
 	Where:
 	
 	* "update", "insert", "delete" and "any" are the parameters for the Bag's subscribe method that allow to trigger their relative callback.
-	
 	* "updval" and "updattr" are the parameters for the BagNode's subscribe method that allow to trigger their relative callback.
 
 .. _bag_trigger_on_a_bag:
@@ -123,7 +119,7 @@ Trigger on a Bag: the subscribe method
 	|   `evt`            | ``string``       |  Event type: insert, delete, upd_value, upd_attrs               |
 	+--------------------+------------------+-----------------------------------------------------------------+
 		
-	To allow the "family" Bag to trigger on an insert, on an update and on a delete events, we have to add the :meth:`gnr.core.gnrbag.Bag.subscribe` method to the "family" Bag:
+	To allow the "family" Bag to trigger on an insert, on an update and on a delete events, we have to add the :meth:`subscribe` method to the "family" Bag:
 	
 	>>> family.subscribe(update=onUpdate, insert=onInsert, delete=onDelete)
 	>>> walt['children.Mickey.weight']=36
@@ -175,7 +171,7 @@ Trigger on a Bag: the subscribe method
 Unsubscribe a Bag
 =================
 
-	It is possible to unsubscribe a bag from a previously subscribed trigger with the :meth:`gnr.core.gnrbag.Bag.unsubscribe` method.
+	It is possible to unsubscribe a bag from a previously subscribed trigger with the :meth:`unsubscribe` method.
 	
 	Let's unsubscribe some of the triggers of our example:
 
@@ -184,12 +180,12 @@ Unsubscribe a Bag
 	
 	we have unsubscribed all the events for the insertion.
 
-	.. _trigger-on-BagNode:
+.. _trigger_on_BagNode:
 
 Trigger on a BagNode
 ====================
 
-	??? BRUTTO! Sometimes triggering updates of a generic node is not enought, a node may need a specific event handling. Trigger on bags assumes that each node is similar to others, that's why we provide a more accurate way to manage update triggers. A BagNode may define its own triggers, by the method subscribe. Since by node's update, we mean either value change or attributes change, subscribe method allows two kinds of trigger: upd_value and upd_attrs::
+	Sometimes triggering updates of a generic node is not enought: infact a node may need a specific event handling. Trigger on bags assumes that each node is similar to others, that's why we provide a more accurate way to manage update triggers. A BagNode may define its own triggers, by the method subscribe. Since by node's update, we mean either value change or attributes change, subscribe method allows two kinds of trigger: upd_value and upd_attrs::
 
 		def onValueChange(node, info=None, evt=None):
 			if evt == 'upd_value':
@@ -223,6 +219,8 @@ Trigger on a BagNode
 
 	.. image:: ../images/bag/bag-trigger4.png
 
+.. _bag_validators:
+
 Validators
 ==========
 
@@ -232,7 +230,7 @@ Validators
 	
 	- using some validator methods.
 
-	.. _bag-validator-attributes:
+.. _bag_validator_attributes:
 
 Setting a validator through a node attribute
 ============================================
@@ -249,7 +247,7 @@ Setting a validator through a node attribute
 
 	As you can see, the validator have capitalized the first word, that is "john".
 
-	.. _validator-list-parameter:
+.. _validator_list_parameter:
 
 Values' list for the ``validate_`` parameter
 ============================================
@@ -264,17 +262,15 @@ Values' list for the ``validate_`` parameter
 	
 	- validate_hostaddr: no parameters.
 
-	.. _bag-validator-methods:
+.. _bag_validator_methods:
 
 Setting a validator using Bag's methods
 =======================================
 
-	To set a validator through the :meth:`gnr.core.gnrbag.Bag.addValidator` method you have to give a path, a validator and a parameterString, where:
+	To set a validator through the :meth:`addValidator` method you have to give a path, a validator and a parameterString, where:
 	
 	* `path`: node's path.
-	
 	* `validator`: validation's type.
-	
 	* `parameterString`: a string which contains the validation parameters.
 	
 	>>> myform = Bag()
@@ -285,7 +281,7 @@ Setting a validator using Bag's methods
 	    0 - (Bag) user: 
 	        0 - (str) name: Abcd efgh ij klm
 
-	The :meth:`gnr.core.gnrbag.Bag.removeValidator` method allow to remove a validator (parameters: `path` and `validator`).
+	The :meth:`removeValidator` method allow to remove a validator (parameters: `path` and `validator`).
 
 **Footnotes:**
 

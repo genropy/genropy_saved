@@ -1,4 +1,4 @@
-	.. _genro-components_writing:
+.. _genro_components_writing:
 
 =====================
  Writing a component
@@ -17,7 +17,7 @@ How to create a good component
 		
 		- The Bags or other complex objects used in your component.
 		
-		- The :ref:`genro-datastore` elements and their functionality.
+		- The :ref:`genro_datastore` elements and their functionality.
 		
 		- Its life cicle - that is, if your component changes its behavior over time, if it suggests an event (like a window dialog).
 	

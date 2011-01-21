@@ -1,14 +1,15 @@
-	.. _genro-bag-intro:
+.. _genro_bag_intro:
+
+.. module:: gnr.core.gnrbag.Bag
 
 =====
  Bag
 =====
 
-	- :ref:`bag-what`
+	* :ref:`bag_what`
+	* :ref:`bag_intro_hierarchical`
 	
-	- :ref:`bag-intro-hierarchical`
-	
-	.. _bag-what:
+.. _bag_what:
 
 Overview
 ========
@@ -54,12 +55,12 @@ Overview
 	| Keys must be unique.                                              | You can have different values with the same key.                     |
 	+-------------------------------------------------------------------+----------------------------------------------------------------------+
 	
-	.. _bag-intro-hierarchical:
+.. _bag_intro_hierarchical:
 
 Definitions
 ===========
 
-	**Bag definition:** A Bag is a collection of :ref:`bag-nodes`. You can use a Bag as a `flat Bag`_ or as a `hierarchical Bag`_.
+	**Bag definition:** A Bag is a collection of :ref:`bag_nodes`. You can use a Bag as a `flat Bag`_ or as a `hierarchical Bag`_.
 	
 	**BagNode definition:** a :class:`BagNode` (or "node") is a Genro class composed by three metadata:
 	
@@ -67,15 +68,15 @@ Definitions
 	
 	- a single value (or *item*).
 	
-	- one or more :ref:`bag-attributes`.
+	- one or more :ref:`bag_attributes`.
 
 	Where:
 	
 	- The "value" contains the value of the Bagnode.
 	
-	- The "attributes" allow to insert other metadata (for more information, check the :ref:`bag-attributes` page).
+	- The "attributes" allow to insert other metadata (for more information, check the :ref:`bag_attributes` page).
 	
-		.. note:: The couple ``label:value`` carries many analogies with the ``key:value`` couple Dictionary [#]_, so you can think to the Bag label as a transposition of the Dictionary key (for example, with the :meth:`gnr.core.gnrbag.Bag.keys` method you will get all the Bag labels) but for its nature a key is unique, while Bag label can be unique or not. <???> approfondire! spiegare che la vera chiave di una Bag è il *path*, ma che c'è un'analogia con i metodi del Python dict() (ad esempio keys()...)</???>
+		.. note:: The couple ``label:value`` carries many analogies with the ``key:value`` couple Dictionary [#]_, so you can think to the Bag label as a transposition of the Dictionary key (for example, with the :meth:`keys` method you will get all the Bag labels) but for its nature a key is unique, while Bag label can be unique or not. <???> approfondire! spiegare che la vera chiave di una Bag è il *path*, ma che c'è un'analogia con i metodi del Python dict() (ad esempio keys()...)</???>
 	
 	Let's see a scheme of a BagNode:
 
@@ -91,13 +92,13 @@ Definitions
 	
 	.. _hierarchical Bag:
 	
-	**hierarchical Bag:** it is a nested Bag with complex path, including Bags as a value of some BagNodes (check :ref:`bag-path` paragraph for more explanation).
+	**hierarchical Bag:** it is a nested Bag with complex path, including Bags as a value of some BagNodes (check :ref:`bag_path` paragraph for more explanation).
 	
-		.. note:: there is no syntax difference in the two definitions, as you can see in the :ref:`bag-instance` paragraph.
+		.. note:: there is no syntax difference in the two definitions, as you can see in the :ref:`bag_instance` paragraph.
 	
 	Each Bag may access directly to its inner elements using a *path*.
 	
-	**path:** a *path* is a concatenation of traversed Bag labels separated by a dot (``.``) (For more information, check :ref:`bag-path` paragraph).
+	**path:** a *path* is a concatenation of traversed Bag labels separated by a dot (``.``) (For more information, check :ref:`bag_path` paragraph).
 
 **Footnotes:**
 

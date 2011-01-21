@@ -1,18 +1,16 @@
-	.. _genro-datetextbox:
+.. _genro_datetextbox:
 
 =============
  dateTextbox
 =============
 
-	- :ref:`dateTextbox-definition-description`
-	
-	- :ref:`dateTextbox_attributes`
-	
-	- :ref:`dateTextbox-examples`
+	* :ref:`dateTextbox_def`
+	* :ref:`dateTextbox_attributes`
+	* :ref:`dateTextbox_examples`
 
-	.. note:: We recommend you to read :ref:`genro-textboxes` first.
+	.. note:: We recommend you to read :ref:`genro_textboxes` first.
 
-	.. _dateTextbox-definition-description:
+.. _dateTextbox_def:
 
 Definition and Description
 ==========================
@@ -36,7 +34,7 @@ Attributes
 
 		For common attributes, see :ref:`textboxes_attributes`
 	
-	.. _dateTextbox-examples:
+.. _dateTextbox_examples:
 
 Examples
 ========

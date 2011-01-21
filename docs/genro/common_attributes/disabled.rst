@@ -1,23 +1,21 @@
-	.. _genro-disabled:
+.. _genro_disabled:
 
 ==========
  disabled
 ==========
 
-	- :ref:`disabled-definition-description`
+	* :ref:`disabled_def`
+	* :ref:`disabled_validity`
+	* :ref:`disabled_examples`: :ref:`disabled_examples_formbuilder`, :ref:`disabled_examples_standardTable`
 
-	- :ref:`disabled-validity`
-
-	- :ref:`disabled_examples`: :ref:`disabled_examples-formbuilder`, :ref:`disabled_examples_standardTable`
-
-	.. _disabled-definition-description:
+.. _disabled_def:
 
 Definition and description
 ==========================
 
 	If ``True``, user can't act on the object (write, drag...).
 
-	.. _disabled-validity:
+.. _disabled_validity:
 
 Validity and default value
 ==========================
@@ -36,7 +34,7 @@ Validity and default value
 Examples
 ========
 
-	.. _disabled_examples-formbuilder:
+.. _disabled_examples_formbuilder:
 
 Disabled on a formbuilder
 =========================
@@ -60,5 +58,5 @@ Disabled on a formbuilder
 Disabled on a standard table
 ============================
 
-	In a :ref:`genro-standardtable` the ``disabled`` ??? continue!! (explain the lock properties...)
+	In a :ref:`genro_standardtable` the ``disabled`` ??? continue!! (explain the lock properties...)
 	

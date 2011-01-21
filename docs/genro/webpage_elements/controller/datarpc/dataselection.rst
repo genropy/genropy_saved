@@ -8,13 +8,13 @@ dataSelection
 
 	The ``dataSelection`` belongs to :ref:`genro_datarpc` family, so it is a :ref:`controllers_server`.
 	
-	- :ref:`dataselection-description`
+	- :ref:`dataselection_def`
 	
-	- :ref:`dataselection-common-attributes`
+	- :ref:`dataselection_attributes`
 	
-	- :ref:`dataselection-examples`
+	- :ref:`dataselection_examples`
 
-	.. _dataselection-description:
+.. _dataselection_def:
 
 Definition
 ==========
@@ -23,14 +23,16 @@ Definition
 
 	``dataSelection`` allows to ... ???
 
-..dataselection-common-attributes:
+.. _dataselection_attributes:
 
 Common attributes
 =================
 
 For a complete reference of ``dataSelection`` common attributes, please check :ref:`rpc_attributes`.
 
-	.. _dataselection-examples:
+.. _dataselection_examples:
 
 Examples
 ========
+
+	???

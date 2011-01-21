@@ -1,23 +1,23 @@
-	.. _genro-database-introduction:
+.. _genro_database_introduction:
 
-=================================
- Make a project: an introduction
-=================================
+===============================
+Make a project: an introduction
+===============================
 
-	- :ref:`genro-project-introduction`
+	- :ref:`genro_project_introduction`
 	
-	- :ref:`genro-project-creation`
+	- :ref:`genro_project_creation`
 
-	- :ref:`genro-project-structure`: :ref:`genro-instances`, :ref:`genro-packages`, :ref:`genro-resources` and :ref:`genro-sites`
+	- :ref:`genro_project_structure`: :ref:`genro_instances`, :ref:`genro_packages`, :ref:`genro_resources` and :ref:`genro_sites`
 
-	.. _genro-project-introduction:
+	.. _genro_project_introduction:
 
 Introduction
 ============
 
 	Genro is a Data Base Management System (DBMS), so it is a software that is able to manage small and great database ensuring to follow great reliability and security standards.
 
-	.. _genro-project-creation:
+.. _genro_project_creation:
 
 Create a Genro project
 ======================
@@ -26,13 +26,23 @@ Create a Genro project
 
 	To create a ``package``, just type in your command window the command::
 
-		gnrmkproject ProjectName
+		gnrmkproject projectname
 	
-	This will create a folder with the project name you have chosen, and 4 subfolders called ``Instances``, ``Packages``, ``Resources``, ``Sites``, as you can see in this image (in this case the name of the project is "myproject") [#]_:
+	This will create a folder with the project name you have chosen, and 4 empties subfolders called ``Instances``, ``Packages``, ``Resources``, ``Sites``, as you can see in this image (in this case the name of the project is "myproject") [#]_:
 
 	.. image:: ../images/myproject.png
+	
+	However, if you want to create a project with both site and instance default features (that we will explain later in this page), you have to write::
 
-	You can call an help that explains all the possibilities on creating a project, typing::
+		gnrmkproject ProjectName -a
+
+	You can see the result in this image:
+
+	.. image:: ../images/myproject2.png
+	
+	In the next sections we'll begin to explain all the details of the project's subfolders.
+
+	However, you can call an help that explains all the possibilities on creating a project, typing::
 	
 		gnrmkproject -h
 		Usage: gnrmkproject [options]
@@ -52,47 +62,37 @@ Create a Genro project
 		  -d WSGI_DEBUG, --wsgi-debug=WSGI_DEBUG
 		                        Specify WSGI debug
 	
-	As you can see in the previous snapshot, you can use ``-p``, ``-r`` and ``-d`` to specify some :ref:`genro-wsgi` features.
-	
-	However, if you want to create a project with both site and instance default features (that we will explain later in this page), you have to write::
+	As you can see in the previous snapshot, you can use ``-p``, ``-r`` and ``-d`` to specify some :ref:`genro_wsgi` features.
 
-		gnrmkproject ProjectName -a
-
-	You can see the result in this image:
-
-	.. image:: ../images/myproject2.png
-
-	In the next section we'll see all the details of the project's subfolders.
-
-	.. _genro-project-structure:
+.. _genro_project_structure:
 
 Structure of a project
 ======================
 
 	???
 
-	.. _genro-instances:
+.. _genro_instances:
 
 Instances
 =========
 
-	.. _genro-packages:
+.. _genro_packages:
 
 Packages
 ========
 
 	???
-	Model --> containing database :ref:`genro-database_table`
+	Model --> containing database :ref:`genro_database_table`
 	Webpages --> containing all the webpages of your project --> :ref:`genro_webpage`
 
-	.. _genro-resources:
+.. _genro_resources:
 
 Resources
 =========
 
 	???
 
-	.. _genro-sites:
+.. _genro_sites:
 
 Sites
 =====

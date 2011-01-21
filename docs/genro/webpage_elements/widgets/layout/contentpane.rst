@@ -1,16 +1,14 @@
-	.. _genro-contentpane:
+.. _genro_contentpane:
 
 ===========
 contentPane
 ===========
 
-	- :ref:`cp-definition`
-	
-	- :ref:`cp_attributes`
-	
-	- :ref:`cp_examples`: :ref:`cp_simple`
+	* :ref:`cp_definition`
+	* :ref:`cp_attributes`
+	* :ref:`cp_examples`: :ref:`cp_simple`
 
-	.. _cp-definition:
+.. _cp_definition:
 
 Definition
 ==========
@@ -34,7 +32,7 @@ Attributes
 
 	**common attributes**:
 
-		For common attributes, see :ref:`genro-layout-common-attributes`.
+		For common attributes, see :ref:`genro_layout-common-attributes`.
 
 .. _cp_examples:
 

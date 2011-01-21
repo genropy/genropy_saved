@@ -1,4 +1,4 @@
-	.. _genro-controllers:
+.. _genro_controllers:
 
 ===================
  Genro controllers

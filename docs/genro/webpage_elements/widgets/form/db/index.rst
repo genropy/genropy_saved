@@ -1,8 +1,8 @@
-	.. _genro-db-index:
+.. _genro_db_index:
 
-====================================================
- filteringSelect, comboBox, dbSelect and dbCombobox
-====================================================
+==================================================
+filteringSelect, comboBox, dbSelect and dbCombobox
+==================================================
 
 .. toctree::
 	:maxdepth: 1

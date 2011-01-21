@@ -1,4 +1,4 @@
-	.. _genro-datastore-index:
+.. _genro_datastore_index:
 
 =========
 datastore

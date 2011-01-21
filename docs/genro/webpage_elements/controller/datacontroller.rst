@@ -63,4 +63,4 @@ Examples
 
 **Footnotes**:
 	
-.. [#] For further details on the circumflex accent, check :ref:`datastore-syntax`.
+.. [#] For further details on the circumflex accent, check :ref:`datastore_syntax`.

@@ -1,4 +1,4 @@
-	.. _genro-common-index:
+.. _genro_common_index:
 
 =================
 Common attributes
@@ -7,7 +7,7 @@ Common attributes
 .. toctree::
 	:maxdepth: 1
 
-	introduction
+	introduction to common attributes <introduction>
 	datapath
 	dbtable
 	default

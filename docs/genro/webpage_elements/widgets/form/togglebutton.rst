@@ -1,16 +1,14 @@
-	.. _genro-togglebutton:
+.. _genro_togglebutton:
 
 ==============
  togglebutton
 ==============
 
-	- :ref:`togglebutton-definition-description`
-	
-	- :ref:`togglebutton-attributes`
-	
-	- :ref:`togglebutton-examples`
+	* :ref:`togglebutton_def`
+	* :ref:`togglebutton_attributes`
+	* :ref:`togglebutton_examples`
 
-	.. _togglebutton-definition-description:
+.. _togglebutton_def:
 
 Definition and Description
 ==========================
@@ -19,7 +17,7 @@ Definition and Description
 	
 	A toggle button is a button that represents a setting with a ``True`` or ``False`` state. Togglebuttons look similar to command buttons and display a graphic or text (or both) to identify themselves.
 
-	.. _togglebutton-attributes:
+.. _togglebutton_attributes:
 
 Attributes
 ==========
@@ -32,12 +30,12 @@ Attributes
 			
 	**common attributes**:
 	
-	* ``disabled``: if True, allow to disable this widget. Default value is ``False``. For more information, check the :ref:`genro-disabled` documentation page
-	* ``hidden``: if True, allow to hide this widget. Default value is ``False``. For more information, check the :ref:`genro-hidden` documentation page
+	* ``disabled``: if True, allow to disable this widget. Default value is ``False``. For more information, check the :ref:`genro_disabled` documentation page
+	* ``hidden``: if True, allow to hide this widget. Default value is ``False``. For more information, check the :ref:`genro_hidden` documentation page
 	* ``label``: the togglebutton label
 	* ``value``: specify the path of the widget's value. For more information, check the :ref:`genro_datapath` documentation page
 
-	.. _togglebutton-examples:
+.. _togglebutton_examples:
 
 Examples
 ========
@@ -55,6 +53,3 @@ Examples
 **Footnotes**:
 
 .. [#] This allow the user to check the actual state of the button (``True`` or ``False``).
-
-
-	

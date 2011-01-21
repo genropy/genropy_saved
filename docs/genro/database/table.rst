@@ -1,31 +1,31 @@
-	.. _genro-database_table:
+	.. _genro_database_table:
 
 =====
 table
 =====
 
-- :ref:`table-definition`
+- :ref:`table_definition`
 
-- :ref:`table-description`
+- :ref:`table_description`
 
-- :ref:`table-examples`
+- :ref:`table_examples`
 
-	.. _table-definition:
+.. _table_definition:
 
 Definition
 ==========
 
 	A table is ... ???
 
-	.. _table-description:
+.. _table_description:
 
 Description
 ===========
 
-	??? Introduce the rowcaption attribute and put the link to the relative page for further details (:ref:`genro-database_rowcaption`).
+	??? Introduce the rowcaption attribute and put the link to the relative page for further details (:ref:`genro_database_rowcaption`).
 	
 
-	.. _table-examples:
+.. _table_examples:
 
 Examples
 ========

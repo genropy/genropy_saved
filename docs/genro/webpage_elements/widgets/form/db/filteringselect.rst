@@ -4,11 +4,9 @@
 filteringSelect
 ===============
 
-	- :ref:`filteringselect_definition_description`
-	
-	- :ref:`filteringSelect_attributes`
-	
-	- :ref:`filteringselect_examples`: :ref:`bag_example`, :ref:`values_example`
+	* :ref:`filteringselect_definition_description`
+	* :ref:`filteringSelect_attributes`
+	* :ref:`filteringselect_examples`: :ref:`bag_example`, :ref:`values_example`
 	
 .. _filteringselect_definition_description:
 
@@ -23,9 +21,9 @@ Definition and Description
 
 	The filteringSelect is a Dojo widget who suggests to user the possible (and unique!) entries of his selection.
 
-	FilteringSelect's values are composed by a key and a value (like the Python dictionary's elements): user can chooses from values, while in :ref:`genro-datastore` the user's choice is saved through keys. User can also freely type text and partially matched values will be shown in a pop-up menu below the input text box.
+	FilteringSelect's values are composed by a key and a value (like the Python dictionary's elements): user can chooses from values, while in :ref:`genro_datastore` the user's choice is saved through keys. User can also freely type text and partially matched values will be shown in a pop-up menu below the input text box.
 	
-	If user types a wrong entry (that is a word that doesn't corresponds to any of the filteringSelect values) the key in :ref:`genro-datastore` will be saved as ``undefined``.
+	If user types a wrong entry (that is a word that doesn't corresponds to any of the filteringSelect values) the key in :ref:`genro_datastore` will be saved as ``undefined``.
 
 .. _filteringSelect_attributes:
 
@@ -43,8 +41,8 @@ Attributes
 	
 	**Common attributes**:
 		
-	* ``disabled``: if True, allow to disable this widget. Default value is ``False``. For more information, check the :ref:`genro-disabled` documentation page
-	* ``hidden``: if True, allow to hide this widget. Default value is ``False``. For more information, check the :ref:`genro-hidden` documentation page
+	* ``disabled``: if True, allow to disable this widget. Default value is ``False``. For more information, check the :ref:`genro_disabled` documentation page
+	* ``hidden``: if True, allow to hide this widget. Default value is ``False``. For more information, check the :ref:`genro_hidden` documentation page
 	* ``label``: You can't use the ``label`` attribute; if you want to give a label to your widget, check the :ref:`lbl_formbuilder` example
 	* ``value``: specify the path of the widget's value. For more information, check the :ref:`genro_datapath` documentation page
 
@@ -65,7 +63,7 @@ Examples
 Filling a filteringSelect through a Bag
 =======================================
 
-	In this example we show you how to fill a filteringSelect through a :ref:`genro-bag-intro`:
+	In this example we show you how to fill a filteringSelect through a :ref:`genro_bag_intro`:
 		::
 
 			class GnrCustomWebPage(object):
@@ -112,4 +110,4 @@ Filling a filteringSelect through "values" attribute
 	
 	.. note:: Pay attention not to confuse ``value`` with ``values``: ``value`` is used to allocate user data in a well determined :ref:`genro_datapath`, while ``values`` is used to fill the filteringSelect.
 	
-	.. warning:: Unlike Dojo, actually filteringSelect doesn't warn user for its wrong insertion. You can add a warning for the user through a "validate" attribute (see :ref:`genro-validations`).
+	.. warning:: Unlike Dojo, actually filteringSelect doesn't warn user for its wrong insertion. You can add a warning for the user through a "validate" attribute (see :ref:`genro_validations`).

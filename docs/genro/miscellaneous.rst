@@ -1,8 +1,8 @@
-	.. _genro-miscellaneous:
+.. _genro_miscellaneous:
 
-===============
- Miscellaneous
-===============
+=============
+Miscellaneous
+=============
 
 .. toctree::
 

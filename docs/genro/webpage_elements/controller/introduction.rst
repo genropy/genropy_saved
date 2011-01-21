@@ -36,8 +36,8 @@ client-side controllers
 	The client-side controllers work on the client through Javascript; they are:
 
 	- :ref:`genro_datacontroller`
-	- :ref:`genro-dataformula`
-	- :ref:`genro-datascript` (*deprecated*)
+	- :ref:`genro_dataformula`
+	- :ref:`genro_datascript` (*deprecated*)
 
 .. _controllers_server:
 
