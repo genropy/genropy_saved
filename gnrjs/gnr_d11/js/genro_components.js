@@ -14,7 +14,7 @@ dojo.declare("gnr.widgets.gnrwdg", null, {
         sourceNode.freeze();
         var children = sourceNode.getValue();
         sourceNode.clearValue();
-        var content = this.createContent(sourceNode, contentKwargs);
+        var content = this.createContent(sourceNode, contentKwargs,children);
         content.concat(children);
         sourceNode._stripData();
         sourceNode.unfreeze(true);
@@ -420,6 +420,49 @@ dojo.declare("gnr.widgets.PaletteGroup", gnr.widgets.gnrwdg, {
         var tc = floating._('tabContainer', tab_kwargs);
         return tc;
     }
+});
+
+
+dojo.declare("gnr.widgets.SlotToolbar", gnr.widgets.gnrwdg, {
+    createContent:function(sourceNode, kw,children) {
+        kw.orientation = (kw.orientation || 'H').toUpperCase();
+        
+        var table = sourceNode._('toolbar',{'_class':'sltb_toolbar sltb_'+kw.orientation})._('table',{'_class':'sltb_table'})._('tbody');
+        return this['createContent_'+kw.orientation](table,kw,children);
+    },
+
+    createContent_H:function(table,kw,children){
+        kw['_class'] = (kw['_class'] || '')+' sltb_row';
+        var slots = objectPop(kw,'slots');
+        var toolbarCode = objectPop(kw,'toolbarCode');
+        var r = table._('tr',kw);
+        var attr,cell,slotNode,slotValue;
+        dojo.forEach(splitStrip(slots),function(slot){
+            if(slot=='*'){
+                r._('td',{'_class':'sltb_elastic_spacer'});
+                return;
+            }
+            if(slot=='|'){
+                r._('td',{'_class':'sltb_slot_td'})._('div',{'_class':'sltb_spacer'});
+                return;
+            }
+            cell = r._('td',{_slotname:slot,'_class':'sltb_slot_td'});
+            slotNode = children.popNode(slot);
+            slotValue = slotNode.getValue();
+            if(slotValue instanceof gnr.GnrBag){
+                slotValue.forEach(function(n){
+                    cell.setItem(n.label,n._value,n.attr);
+                })
+            }
+        });
+        
+        return r;
+    },
+    createContent_V:function(table,kw){
+        return table;
+    },
+
+    
 });
 
 

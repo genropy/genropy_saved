@@ -28,9 +28,9 @@
 dojo.declare("gnr.GnrFrmHandler", null, {
     constructor: function(sourceNode, form_id, formDatapath, controllerPath, pkeyPath,kw) {
         dojo.subscribe('onPageStart',this,'onStartForm');
-        //sourceNode.subscribe('built',function(){
-        //    this.form.onStartForm();
-        //});
+        sourceNode.subscribe('built',function(){
+            this.form.onStartForm();
+        });
         this.form_id = form_id;
         this.changed = false;
         this.opStatus = null;
