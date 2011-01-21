@@ -318,7 +318,9 @@ dojo.declare("gnr.widgets.baseHtml", null, {
         if(newobj.domNode && newobj.isFocusable()){
             dojo.connect(newobj, 'onFocus', function(e) {
                 if(sourceNode.form){
-                    sourceNode.form.currentFocused=newobj;
+                    if(typeof(newobj.focus)=='function'){
+                        sourceNode.form.currentFocused=newobj;
+                    }
                 }
                 genro.currentFocusedElement = newobj;
             });
