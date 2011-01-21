@@ -288,6 +288,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
         this.updateStatus();
         this.setOpStatus();
         if(this.store){
+            //modalita nuova
             this.setDisabled(false)
             this.focus();
         }
