@@ -55,7 +55,7 @@ class SelectionHandler(BaseComponent):
                          selectionPars=None, dialogPars=None, reloader=None, externalChanges=None,
                          hiddencolumns=None, custom_addCondition=None, custom_delCondition=None,
                          askBeforeDelete=True, checkMainRecord=True, onDeleting=None, dialogAddRecord=True,
-                         onDeleted=None, add_enable=True, del_enable=True,
+                         onDeleted=None, add_enable=True, del_enable=True,add_action=True,del_action=True,
                          parentSave=False, parentId=None, parentLock='^status.locked', reload_onSaved=True,
                          **kwargs):
         # --------------------------------------------------------------------------------------------- Mandatory param checks
@@ -112,7 +112,8 @@ class SelectionHandler(BaseComponent):
 
 
 
-        add_action = 'FIRE .dlg.pkey="*newrecord*";'
+        add_action = 'FIRE .dlg.pkey="*newrecord*";' if add_action is True else add_action
+        del_action = 'FIRE .delete_record;' if del_action is True else del_action
         if parentSave:
             add_action = 'FIRE .checkForAdd;'
             bc.dataController("""
@@ -149,7 +150,7 @@ class SelectionHandler(BaseComponent):
         self.includedViewBox(bc, label=label, datapath=datapath,
                              add_action=add_action,
                              add_enable='^.can_add', del_enable='^.can_del',
-                             del_action='FIRE .delete_record;',
+                             del_action=del_action,
                              nodeId=nodeId, table=table, struct=struct, hiddencolumns=hiddencolumns,
                              reloader=reloader, externalChanges=externalChanges,
                              #connect_onRowDblClick='this.widget.editCurrentRow($1.rowIndex);',
