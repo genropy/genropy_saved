@@ -4,11 +4,11 @@
 Make a project: an introduction
 ===============================
 
-	- :ref:`genro_project_introduction`
+	* :ref:`genro_project_introduction`
 	
-	- :ref:`genro_project_creation`
+	* :ref:`genro_project_creation`
 
-	- :ref:`genro_project_structure`: :ref:`genro_instances`, :ref:`genro_packages`, :ref:`genro_resources` and :ref:`genro_sites`
+	* :ref:`genro_project_structure`: :ref:`genro_instances`, :ref:`genro_packages`, :ref:`genro_resources` and :ref:`genro_sites`
 
 	.. _genro_project_introduction:
 

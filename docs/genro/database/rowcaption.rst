@@ -4,9 +4,9 @@
  Rowcaption
 ============
 
-	- :ref:`database_definition`
+	* :ref:`database_definition`
 	
-	- :ref:`database_description_examples`: :ref:`rowcaption_genro_database_table`, :ref:`rowcaption_webpage`
+	* :ref:`database_description_examples`: :ref:`rowcaption_genro_database_table`, :ref:`rowcaption_webpage`
 
 .. _database_definition:
 

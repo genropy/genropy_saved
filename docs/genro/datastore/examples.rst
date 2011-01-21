@@ -4,7 +4,7 @@
 datastore examples
 ==================
 
-	- :ref:`datastore_standardtable_example`
+	* :ref:`datastore_standardtable_example`
 
 .. _datastore_standardtable_example:
 

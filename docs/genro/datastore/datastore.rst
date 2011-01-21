@@ -4,13 +4,13 @@
  datastore
 ===========
 
-	- :ref:`datastore_description`
+	* :ref:`datastore_description`
 
-	- :ref:`datastore_syntax`
+	* :ref:`datastore_syntax`
 
-	- :ref:`datastore_access`
+	* :ref:`datastore_access`
 
-	- :ref:`datastore_debugger`
+	* :ref:`datastore_debugger`
 
 .. _datastore_description:
 

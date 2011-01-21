@@ -6,9 +6,9 @@ dataRpc
 
 	The ``dataRpc`` belongs to :ref:`genro_datarpc` family, so it is a :ref:`controllers_server`.
 
-	- :ref:`datarpc_def`
+	* :ref:`datarpc_def`
 	
-	- :ref:`datarpc-examples`
+	* :ref:`datarpc_examples`
 	
 .. _datarpc_def:
 
@@ -43,7 +43,7 @@ Definition
 
 		For a complete reference of ``dataRpc`` common attributes, please check :ref:`rpc_attributes`.
 	
-	.. _datarpc-examples:
+	.. _datarpc_examples:
 
 Examples
 ========

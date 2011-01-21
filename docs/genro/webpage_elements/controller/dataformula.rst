@@ -6,11 +6,11 @@ dataFormula
 
 	The ``dataFormula`` belongs to :ref:`controllers_client` family.
 
-	- :ref:`dataformula_def`
+	* :ref:`dataformula_def`
 
-	- :ref:`dataformula_attributes`
+	* :ref:`dataformula_attributes`
 
-	- :ref:`dataformula_examples`
+	* :ref:`dataformula_examples`
 
 .. _dataformula_def:
 

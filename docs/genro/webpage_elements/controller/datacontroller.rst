@@ -6,11 +6,11 @@ dataController
 
 	The ``dataController`` belongs to :ref:`controllers_client` family.
 
-	- :ref:`datacontroller_def`
+	* :ref:`datacontroller_def`
 	
-	- :ref:`datacontroller_attr`
+	* :ref:`datacontroller_attr`
 	
-	- :ref:`datacontroller_examples`
+	* :ref:`datacontroller_examples`
 
 .. _datacontroller_def:
 
@@ -30,7 +30,7 @@ Attributes
 
 	* ``script``: the Javascript code that ``datacontroller`` has to execute.
 	
-	The following parameters allow the dataController to be executed: check for the following :ref:`datacontroller-examples` for further information.
+	The following parameters allow the dataController to be executed: check for the following :ref:`datacontroller_examples` for further information.
 	
 	**common attributes**:
 	

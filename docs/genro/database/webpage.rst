@@ -62,6 +62,6 @@ The build phase
 
 **Footnotes**:
 
-.. [#] For further details on the Genro HTML elements and widgets, please check :ref:`genro_html-introduction` and :ref:`genro_widgets-introduction`.
+.. [#] For further details on the Genro HTML elements and widgets, please check :ref:`genro_html_introduction` and :ref:`genro_widgets_introduction`.
 
 .. [#] For more information on the circumflex accent, please check :ref:`datastore_syntax`.

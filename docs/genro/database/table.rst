@@ -4,11 +4,11 @@
 table
 =====
 
-- :ref:`table_definition`
+* :ref:`table_definition`
 
-- :ref:`table_description`
+* :ref:`table_description`
 
-- :ref:`table_examples`
+* :ref:`table_examples`
 
 .. _table_definition:
 

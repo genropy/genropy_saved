@@ -6,9 +6,9 @@ Introduction to the Rpc
 
 	The ``dataRpc`` belongs to :ref:`controllers_server` family.
 
-	- :ref:`rpc_def`
+	* :ref:`rpc_def`
 
-	- :ref:`rpc_attributes`
+	* :ref:`rpc_attributes`
 
 .. _rpc_def:
 

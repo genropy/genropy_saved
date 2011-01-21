@@ -4,13 +4,13 @@
  Introduction to the controllers
 =================================
 
-	- :ref:`controllers_def`
+	* :ref:`controllers_def`
 	
-	- :ref:`controllers_client`, :ref:`controllers_server`
+	* :ref:`controllers_client`, :ref:`controllers_server`
 	
-	- :ref:`controllers_attributes`
+	* :ref:`controllers_attributes`
 	
-	- :ref:`controllers_examples`
+	* :ref:`controllers_examples`
 	
 .. _controllers_def:
 
@@ -35,9 +35,9 @@ client-side controllers
 
 	The client-side controllers work on the client through Javascript; they are:
 
-	- :ref:`genro_datacontroller`
-	- :ref:`genro_dataformula`
-	- :ref:`genro_datascript` (*deprecated*)
+	* :ref:`genro_datacontroller`
+	* :ref:`genro_dataformula`
+	* :ref:`genro_datascript` (*deprecated*)
 
 .. _controllers_server:
 
@@ -46,9 +46,9 @@ server-side controllers
 
 	The server-side controllers work on the server thorugh Python; they are:
 
-	- :ref:`genro_datarecord`
-	- :ref:`genro_datarpc`
-	- :ref:`genro_dataselection`
+	* :ref:`genro_datarecord`
+	* :ref:`genro_datarpc`
+	* :ref:`genro_dataselection`
 
 .. _controllers_attributes:
 

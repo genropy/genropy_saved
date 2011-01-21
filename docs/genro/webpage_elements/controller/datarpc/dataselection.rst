@@ -8,11 +8,11 @@ dataSelection
 
 	The ``dataSelection`` belongs to :ref:`genro_datarpc` family, so it is a :ref:`controllers_server`.
 	
-	- :ref:`dataselection_def`
+	* :ref:`dataselection_def`
 	
-	- :ref:`dataselection_attributes`
+	* :ref:`dataselection_attributes`
 	
-	- :ref:`dataselection_examples`
+	* :ref:`dataselection_examples`
 
 .. _dataselection_def:
 
