@@ -25,7 +25,7 @@ class GnrCustomWebPage(object):
         r.cell('age', name='Age', width='5em', dtype='I')
         r.cell('work', name='Work', width='10em')
 
-    def test_1_includedview_editable_bag(self, pane):
+    def _test_1_includedview_editable_bag(self, pane):
         """Includedview editable datamode bag"""
         bc = pane.borderContainer(height='300px')
         bc.data('.mygrid.rows', self.common_data())
@@ -43,14 +43,25 @@ class GnrCustomWebPage(object):
         gridEditor.numbertextbox(gridcell='age')
         gridEditor.textbox(gridcell='work')
 
-    def test_2_remote_includedview_db(self, pane):
+    def _test_2_remote_includedview_db(self, pane):
         bc = pane.borderContainer(height='300px')
         self.includedViewBox(bc, label='Test', datapath='.test_db', filterOn='auto:sigla+nome+codice+regione',
                              nodeId='test_db', table='glbl.provincia', autoWidth=True,
                              _onStart=True, selectionPars=dict(order_by='$nome'))
+    
+    def test_5_selectiohandler(self, pane):
+        bc = pane.borderContainer(height='300px')        
+        iv = self.includedViewBox(bc, label='Test', datapath='.test_db', filterOn='auto:sigla+nome+codice+regione',
+                             nodeId='test_db', table='glbl.provincia', autoWidth=True,
+                             add_action='menu:mymenu',
+                             _onStart=True, selectionPars=dict(order_by='$nome'))
+                             
+        menu = bc.top.right.add_del.addButton.menu(id='mymenu',modifiers='*')
+        menu.menuline('Open...',action="alert('Opening...')")
+        menu.menuline('Close',action="alert('Closing...')")
 
 
-    def test_3_remote_includedview_editable_bag(self, pane):
+    def _test_3_remote_includedview_editable_bag(self, pane):
         """Includedview editable datamode bag"""
         bc = pane.borderContainer(height='300px')
         bc.data('.mygrid.rows', self.common_data())
