@@ -310,6 +310,8 @@ class IncludedView(BaseComponent):
                     add_action = 'FIRE .showRecord; FIRE .addRecord =$1;'
                 else:
                     add_action = 'FIRE .addRecord =$1;FIRE .editRow=1000;'
+            elif add_action=='menu':
+                add_action=None
             pane.div(float='right', _class=add_class, connect_onclick=add_action,_attachname='addButton',
                      margin_right='2px', visible=add_enable)
         if upd_action:
