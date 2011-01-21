@@ -22,13 +22,13 @@ from gnr.web.gnrbaseclasses import BaseComponent
 from gnr.core.gnrbag import Bag, BagResolver
 
 def _getTreeRowCaption(tblobj):
-    if hasattr(tblobj, 'treeRowCaption'):
-        return tblobj.treeRowCaption()
+    if  tblobj.attributes.has_key('treeRowCaption'):
+        return tblobj.attributes['treeRowCaption']
     return  '$child_code,$description:%s - %s'
 
 def _getTreeRowCaption2(tblobj):
-    if hasattr(tblobj, 'treeRowCaption'):
-        return tblobj.treeRowCaption()
+    if  tblobj.attributes.has_key('treeRowCaption'):
+        return tblobj.attributes['treeRowCaption']
     return  '$child_code'
 
 class HTableResolver(BagResolver):
@@ -289,17 +289,12 @@ class HTableHandler(HTableHandlerBase):
                             """, pkey="^.tree.pkey")
         bc.dataController("""
                             var destPkey = selPkey;
-                            var that = this;
                             var cancelCb = function(){
-                                var treeData =that.getRelativeData('.tree.store');
-                                var oldCode = treeData.getNodeByAttr('pkey',currPkey).attr.code;
-                                var oldPath = rootpath?oldCode.slice(rootpath.length-1):'_root_.'+oldCode;
-                                that.setRelativeData('.tree.pkey',currPkey);
-                                that.setRelativeData('.tree.path',oldPath);
-                            };
-                            
+                                genro.setData('#%s.tree.pkey',currPkey);
+                                genro.setData('#%s.tree.path',rootpath?currPkey.slice(rootpath.length-1):currPkey);
+                                };
                             genro.formById(formId).load({destPkey:destPkey,cancelCb:cancelCb});
-                                """, rootpath='=.tree.store?rootpath',
+                                """ % (nodeId, nodeId), rootpath='=.tree.store?rootpath',
                           selPkey='^.tree.pkey', currPkey='=.edit.pkey', _if='selPkey && (selPkey!=currPkey)',
                           formId=formId)
 
@@ -337,7 +332,7 @@ class HTableHandler(HTableHandlerBase):
 
         bc.dataRpc('.edit.del_result', 'deleteDbRow', pkey='=.edit.pkey',
                    _POST=True, table=table, _delStatus='^.edit.delete',
-                   _if='_delStatus=="confirm"', _else='if(_delStatus!="cancel"){genro.dlg.ask(title,msg,null,"#%s.edit.delete")}' % nodeId,
+                   _if='_delStatus=="confirm"', _else='genro.dlg.ask(title,msg,null,"#%s.edit.delete")' % nodeId,
                    title='!!Deleting record', msg='!!You cannot undo this operation. Do you want to proceed?',
                    _onResult="""var path = $2.currpath.split('.');
                                  path.pop();
