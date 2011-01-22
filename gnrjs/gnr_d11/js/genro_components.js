@@ -152,7 +152,16 @@ dojo.declare("gnr.widgets.FramePane", gnr.widgets.gnrwdg, {
                                                                 objectUpdate({'parentKw':kw},node.attr));
              }
         });
-        return bc._('ContentPane',{'region':'center'});
+        var centerNode = children.popNode('#side=center');
+        var center;
+        if(centerNode){
+            centerNode.attr['region'] = objectPop(centerNode.attr,'side');
+            bc.setItem(centerNode.label,centerNode._value,centerNode.attr);
+            center = centerNode._value;
+        }else{
+            center = bc._('ContentPane',{'region':'center'});
+        }
+        return center;
     }
 });
 
@@ -228,7 +237,7 @@ dojo.declare("gnr.widgets.PaneTree", gnr.widgets.gnrwdg, {
             pane._('SlotToolbar',{'side':'top',slots:'*,searchOn',wdgNodeId:treeId,searchOn:true});
         }
         if (editable) {
-            var bc = pane._('BorderContainer');
+            var bc = pane._('BorderContainer',{'side':'center'});
             var bottom = bc._('ContentPane', {'region':'bottom',height:'30%',
                 splitter:true});
             bottom._('BagNodeEditor', {nodeId:treeId + '_editbagbox',datapath:'.bagNodeEditor',bagpath:pane.getParentNode().absDatapath(storepath)});
