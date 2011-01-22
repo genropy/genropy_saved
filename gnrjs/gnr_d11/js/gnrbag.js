@@ -1197,6 +1197,9 @@ dojo.declare("gnr.GnrBag", null, {
     merge: function() {
     },
     concat: function(b){
+        if(!b){
+            return;
+        }
         var that = this;
         dojo.forEach(b._nodes,function(n){
             n._parentbag = that;
