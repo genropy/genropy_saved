@@ -473,7 +473,7 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
              'dataRemote', 'gridView', 'viewHeader', 'viewRow', 'script', 'func',
              'staticGrid', 'dynamicGrid', 'fileUploader', 'gridEditor', 'ckEditor', 
             'tinyMCE', 'protovis', 'PaletteGroup','PalettePane','BagNodeEditor',
-            'PaletteBagNodeEditor','Palette','PaletteTree','SearchBox','FormStore','PaneGrid']
+            'PaletteBagNodeEditor','Palette','PaletteTree','SearchBox','FormStore','PaneGrid','SlotPane']
     genroNameSpace = dict([(name.lower(), name) for name in htmlNS])
     genroNameSpace.update(dict([(name.lower(), name) for name in dijitNS]))
     genroNameSpace.update(dict([(name.lower(), name) for name in dojoxNS]))
@@ -518,31 +518,30 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
         return self.child('PaletteGroup',groupCode=groupCode,**kwargs)
     
     def palettePane(self,paletteCode,datapath=None,**kwargs):
+        datapath= datapath or 'gnr.palettes.%s' %paletteCode
         return self.child('PalettePane',paletteCode=paletteCode,datapath=datapath,**kwargs)
         
-    def paletteTree(self,paletteCode,datapath=None,data=None,**kwargs):        
+    def paletteTree(self,paletteCode,datapath=None,data=None,**kwargs): 
+        datapath= datapath or 'gnr.palettes.%s' %paletteCode       
         palette = self.child('PaletteTree',paletteCode=paletteCode,datapath=datapath,**kwargs)
         if data is not None:
             palette.data('.store',data)
         return palette
         
     def paneGrid(self,paneCode,**kwargs):
+        kwargs['gridId'] = kwargs.get('gridId') or '%s_grid' %paneCode
         return self._palette_or_pane_grid(paneCode=paneCode,childTag='PaneGrid',**kwargs)
         
     def paletteGrid(self,paletteCode,datapath=None,**kwargs):
         datapath= datapath or 'gnr.palettes.%s' %paletteCode
         return self._palette_or_pane_grid(paletteCode=paletteCode,childTag='PaletteGrid',datapath=datapath,**kwargs)
-    
-    def __paletteGrid(self,paletteCode,datapath=None,data=None,struct=None,
-                    columns=None,table=None,structpath=None,gridId=None,**kwargs):
-        datapath = datapath or 'gnr.palettes.%s' %paletteCode
-        #gridId = gridId or 'palette_%s_grid' %paletteCode
-        #structpath = structpath or '%s.grid.struct' %datapath
         
     
     def _palette_or_pane_grid(self,childTag=None,data=None,struct=None,
                                 columns=None,table=None,structpath=None,gridId=None,**kwargs):
         structpath = structpath or '.grid.struct'
+        gridId = kwargs.get('gridId') or '%s_grid' %(kwargs.get('paletteCode') or kwargs.get('paneCode'))
+        kwargs['wdgNodeId'] = gridId
         pane = self.child(childTag,table=table,structpath=structpath,gridId=gridId,**kwargs)
         pane._setGridStruct(struct=struct,table=table,columns=columns,gridId=gridId,structpath=structpath)   
         if data is not None:
@@ -567,6 +566,7 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
     def slotToolbar(self,toolbarCode=None,slots=None,**kwargs):
         tb = self.child('slotToolbar',toolbarCode=toolbarCode,slots=slots,**kwargs)
         slots = gnrstring.splitAndStrip(slots)
+        wdgNodeId = self.getInheritedAttributes().get('wdgNodeId')
         for slot in slots:
             if slot!='*' and slot!='|':
                 s=tb.child('slot',name=slot)
@@ -574,7 +574,10 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
                 if not slothandle:
                     slothandle = getattr(s,'%s_%s' %('sltb',slot),None)
                 if slothandle:
-                   slothandle()
+                    kw = dict()
+                    kw[slot] = kwargs.get(slot,None)
+                    kw['wdgNodeId'] = wdgNodeId
+                    slothandle(**kw)
         
         #se ritorni la toolbar hai una toolbar vuota 
     
