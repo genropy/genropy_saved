@@ -75,8 +75,9 @@ dojo.declare("gnr.GnrFrmHandler", null, {
             var startKey = kw.startKey || this.store.startKey;
             var kw = startKey?{destPkey:startKey}:{};
             this.load(kw);
+            dojo.connect(this.formContentNode,'onclick',this,'focusCurrentField');
         }
-        dojo.connect(this.formContentNode,'onclick',this,'focusCurrentField');
+        
     },
     reset: function() {
         this.resetChanges();
@@ -296,6 +297,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
     },
     
     focus:function(node){
+        console.log('focus frm')
         if(!this.isProtected()){
             var formContentNode = this.formContentNode || this.sourceNode.widget.domNode;
             var node = node || dijit.getFirstInTabbingOrder(formContentNode);
