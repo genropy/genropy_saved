@@ -55,7 +55,7 @@ class PaletteManager(BaseComponent):
             table = table or attr.get('table')
             gridId = gridId or attr.get('gridId')
             storepath = storepath or attr.get('storepath')
-        storepath = storepath or '.store'
+        storepath = storepath or '.grid.store'
         pane.dataSelection(storepath, table, nodeId='%s_selection' % gridId,
                             columns='=.grid.columns', **kwargs)
         
