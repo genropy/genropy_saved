@@ -23,19 +23,19 @@ class GnrCustomWebPage(object):
         r.fieldcell('@regione.nome',width='15em')
         
         
-    def test_1_grid(self,pane):
+    def test_0_grid(self,pane):
         pane.paletteGrid('province',title='Province',
                         configurable=True,struct='regione',
-                        table='glbl.provincia',searchOn='*A,T,D').selectionStore()
+                        table='glbl.provincia',searchOn='*A,T,D').selectionStore(gridId='province_grid')
 
         
-    def test_2_analyze(self,pane):
-        """Test hexplorer"""
-        pane.paletteTree('localita',title='!!Localita Geo',searchOn=True).tableAnalyzeStore(table='glbl.localita',#where="$nome ILIKE :chunk",chunk='%%u%%',
-                        group_by=['@provincia.@regione.zona','@provincia.@regione.nome','@provincia.nome',self.iniziale,'$nome'],
-                        order_by='@provincia.@regione.ordine,$nome')
-
-
+   #def test_2_analyze(self,pane):
+   #    """Test hexplorer"""
+   #    pane.paletteTree('localita',title='!!Localita Geo',searchOn=True).tableAnalyzeStore(table='glbl.localita',#where="$nome ILIKE :chunk",chunk='%%u%%',
+   #                    group_by=['@provincia.@regione.zona','@provincia.@regione.nome','@provincia.nome',self.iniziale,'$nome'],
+   #                    order_by='@provincia.@regione.ordine,$nome')
+   #
+   #
     
         
     def iniziale(self,value):
