@@ -516,7 +516,7 @@ dojo.declare("gnr.widgets.SlotToolbar", gnr.widgets.gnrwdg, {
     },
     
     slot_searchOn:function(pane,kw){
-        var div = pane._('div',{'width':'205px'});
+        var div = pane._('div',{'width':'225px'});
         div._('SearchBox', {searchOn:kw.searchOn,nodeId:kw.wdgNodeId+'_searchbox',datapath:'.searchbox'});
     }
 
