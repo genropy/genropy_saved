@@ -1,5 +1,6 @@
 #!/usr/bin/python
 # -*- coding: UTF-8 -*-
+import codecs
 import os.path
 import sys
 import unittest
@@ -72,7 +73,7 @@ class TestCase(unittest.TestCase):
     def loadPreferences(self, filename):
         basename, ext = os.path.splitext(filename)
         if ext == '.yaml':
-            preferences = Bag(yaml.load(open(filename,'rt')))
+            preferences = Bag(yaml.load(codecs.open(filename,'rt','utf-8')))
         else:
             preferences = Bag(filename)
         for package, prefs in preferences.items():
@@ -82,10 +83,11 @@ class TestCase(unittest.TestCase):
 
     def loadYamlDataFile(self, fullname):
         data = yaml.load(open(fullname,'rt'))
-        for tablename, records in data.items():
-            tbl = self.db.table(tablename)
-            for label, rec in records.items():
-                tbl.insert(rec)
+        for pkgname, tables in data.items():
+            for tablename, records in tables.items():
+                tbl = self.db.table(tablename, pkgname)
+                for label, rec in records.items():
+                    tbl.insert(rec)
 
     def loadXmlDataFile(self, fullname):
         raise NotImplementedError("XML data files: Not yet implemented")

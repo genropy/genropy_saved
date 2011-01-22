@@ -56,7 +56,7 @@ def command(name=None, description=None, *args, **kwargs):
         global command_registry
         if command_registry.get(name, None) is not None:
             raise KeyError, "Command '%(name)s' already defined in %(file)s" % dict(name=name, file=command_registry[
-                                                                                                    'name'].__file__)
+                                                                                                    name].filename)
         desc = description if description else cmd.__doc__
         cmd = GnrCommand(main=cmd, name=name or cmd.__name__.lower(), description=desc, *args, **kwargs)
         command_registry[name] = cmd
@@ -75,16 +75,19 @@ def argument(dest, *args, **kwargs):
         func_args, _, _, func_defaults = inspect.getargspec(cmd)
         if not func_defaults:
             func_defaults = ()
-        try:
-            default = func_defaults[func_args.index(dest) - (len(func_args) - len(func_defaults))]
+
+        idx = func_args.index(dest) - (len(func_args) - len(func_defaults))
+        if 0 <= idx < len(func_defaults):
+            default = func_defaults[idx]
             has_default = True
-        except IndexError:
+        else:
             has_default = False
 
         if not args:
             if has_default:
                 args.append('--%s' % dest)
                 kwargs['dest'] = dest
+                kwargs['default'] = default
             else:
                 args.append(dest)
 
@@ -93,8 +96,7 @@ def argument(dest, *args, **kwargs):
             if default is True:
                 kwargs['action'] = 'store_false'
                 kwargs['default'] = True
-
-            if default is False:
+            elif default is False:
                 kwargs['action'] = 'store_true'
                 kwargs['default'] = False
 
@@ -180,7 +182,7 @@ class GnrCommand(object):
             auto[name] = ((name,), {}) # arguments for add_argument
 
         for name, default in zip(optional, defaults):
-            arg_type = type(default)
+            arg_type = type(default) if default is not None else str
             kwargs = dict(dest=name, type=arg_type, default=default, help="(default: %s)" % repr(default))
             if arg_type is bool:
                 kwargs['action'] = 'store_false' if (default == True) else 'store_true'
