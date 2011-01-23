@@ -49,14 +49,38 @@ class PaletteManager(BaseComponent):
         pane.data(storepath, data)
 
     @struct_method
-    def pm_selectionStore(self, pane, table=None, storepath=None, gridId=None,**kwargs):
+    def pm_selectionStore(self, pane, storeCode=None,table=None, storepath=None,columns=None,**kwargs):
         attr = pane.attributes
-        if attr:
-            table = table or attr.get('table')
-            gridId = gridId or attr.get('gridId')
-            storepath = storepath or attr.get('storepath')
-        storepath = storepath or '.grid.store'
-        pane.dataSelection(storepath, table, nodeId='%s_selection' % gridId,
-                            columns='=.grid.columns', **kwargs)
+        parentTag = attr.get('tag')
+        #storepath = storepath or attr.get('storepath') or '.grid.store'
+        
+        if storeCode:
+            nodeId = '%s_store' %storeCode
+            storepath = storepath or 'gnr.stores.%s.data' %storeCode
+            columns = columns or '==gnr.mergeGridColumns(this);'
+            
+            
+        
+        elif parentTag =='includedView':
+            gridId = attr.get('nodeId')
+            nodeId = '%s_selection' %gridId
+            attr['table'] = table
+            storepath = storepath or attr.get('storepath') or '.store'
+            attr['storepath'] = storepath
+            #attr['structpath'] = attr.get('structpath') or '.struct'
+            columns=columns or '=.columns'
+            attr['storeNodeId'] = nodeId
+                        
+        elif parentTag == 'paneGrid' or parentTag == 'paletteGrid':
+            gridId = attr.get('gridId')
+            if not gridId:
+                code = attr.get('paneCode') or attr.get('paletteCode')
+                gridId = '%s_grid' %code
+            nodeId = '%s_store' %gridId
+            attr['table'] = table
+            attr['storeNodeId'] = nodeId
+                        
+        
+        pane.dataSelection(storepath, table, nodeId=nodeId,columns=columns,_storeCode=storeCode,**kwargs)
         
     
