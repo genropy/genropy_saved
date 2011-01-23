@@ -504,7 +504,7 @@ dojo.declare("gnr.widgets.SlotToolbar", gnr.widgets.gnrwdg, {
                     })
                 }
             }
-            else if(that['slot_'+slot]){
+            if(cell.len()==0 && (that['slot_'+slot])){
                 that['slot_'+slot](cell,kw)
             }            
         });
@@ -516,6 +516,7 @@ dojo.declare("gnr.widgets.SlotToolbar", gnr.widgets.gnrwdg, {
     },
     
     slot_searchOn:function(pane,kw){
+        console.log(kw)
         var div = pane._('div',{'width':'225px'});
         div._('SearchBox', {searchOn:kw.searchOn,nodeId:kw.wdgNodeId+'_searchbox',datapath:'.searchbox'});
     }
