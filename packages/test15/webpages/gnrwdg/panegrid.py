@@ -23,9 +23,9 @@ class GnrCustomWebPage(object):
         """Pane grid """
         bc = pane.borderContainer(height='200px')
         bc.contentPane(region='left',width='200px',background_color='red')
-        gridPane = bc.paneGrid('province_1',struct='regione',table='glbl.provincia',region='center')
-        gridPane.slotToolbar('province',slots='*,piero',piero='*A,T,D',side='top')
-        gridPane.selectionStore(storepath='.grid.store',table='glbl.provincia',
+        paneGrid = bc.paneGrid('province_1',struct='regione',table='glbl.provincia',region='center')
+        paneGrid.slotToolbar('province',slots='*,piero',piero='*A,T,D',side='top')
+        paneGrid.selectionStore(storepath='.grid.store',table='glbl.provincia',
                                 where="$regione='LOM'",gridId='province_1_grid',_onStart=True)   
     
     @struct_method('province_piero')
@@ -33,8 +33,8 @@ class GnrCustomWebPage(object):
         return pane.div(width='205px').searchBox(nodeId='%s_searchbox' %wdgNodeId,searchOn=piero,datapath='.searchbox')
         
     def _test_1_palettegrid(self,pane):
-        gridPane = pane.paletteGrid('province_2',title='Province',
+        paneGrid = pane.paletteGrid('province_2',title='Province',
                                     struct='regione',dockTo='*',
                                     table='glbl.provincia',searchOn='*A,T,D')
-        gridPane.selectionStore(storepath='.grid.store',table='glbl.provincia',
+        paneGrid.selectionStore(storepath='.grid.store',table='glbl.provincia',
                                 where="$regione='LOM'",gridId='province_2_grid') 
