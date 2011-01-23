@@ -32,28 +32,37 @@ class GnrCustomWebPage(object):
         bc = pane.borderContainer(height='250px')
         left = bc.borderContainer(region='left',width='300px',datapath='.grid')
         center = bc.contentPane(region='center',border='1px solid blue').formTester(formId='provincia')
-        #left.contentPane(region='bottom',height='10px',background='gray').button('ciao',parentForm="provincia",formsubscribe_onLoaded='console.log("div"+$1.pkey);')
-        toolbar = left.contentPane(region='top').slotToolbar('gridtoolbar','*,searchOn')
-        #toolbar.slot_searchOn.dbselect(value='^.regione',dbtable='glbl.regione',
-        #                               validate_onAccept='genro.wdgById("province_grid").reload();')
-        gridpane = left.contentPane(region='center')
         
-        grid = gridpane.includedview(storepath='.store',struct='regione',nodeId='province_grid',
-                             autoSelect=True,
-                             relativeWorkspace=True,table='glbl.provincia',
-                             selectedId='.selectedPkey',
-                             selfsubscribe_onSelectedRow='genro.formById("provincia").publish("load",{destPkey:$1.selectedId});',
-                             subscribe_form_provincia_onLoaded="this.widget.selectByRowAttr('_pkey',$1.pkey)")
-        grid.selectionStore(storepath='.store',table='glbl.provincia',where='$regione=:r',
-                                r='=.regione',gridId='province_grid')        
-        #gridpane.selectionStore(table='glbl.provincia',gridId='province_grid',)
-        # 
+       # bc.selectionStore('province_in_regione',table='glbl.provincia',where='$regione=:r',r='=.regione')        
+
+        paneGrid = bc.paneGrid('province',region='left',struct='regione',#store='province_in_regione',
+                                autoSelect=True,selectedId='.selectedPkey',
+                                selfsubscribe_onSelectedRow='genro.formById("provincia").publish("load",{destPkey:$1.selectedId});',
+                                subscribe_form_provincia_onLoaded="this.widget.selectByRowAttr('_pkey',$1.pkey)")
+                                
+        paneGrid.selectionStore(table='glbl.provincia',where='$regione=:r',r='=.regione')        
+
+        paneGrid.slotToolbar('gridtoolbar','*,selector')
+                
+    def _test_0_includedview_store(self,pane):
+        pane = pane.framePane(height='200px')
+        pane.slotToolbar('gridtoolbar','selector,*,searchOn',searchOn=True,wdgNodeId='mygrid',side='top')
+        pane.includedView(nodeId='mygrid',struct='regione',relativeWorkspace=True,datapath='.tblprovince'
+                          ).selectionStore(table='glbl.provincia',where='$regione=:r',r='=#selector.regione')
         
-    @struct_method('gridtoolbar_searchOn')
-    def gridtoolbar_searchOn(self,pane):
+    def test_1_includedview_store(self,pane):
+        pane.selectionStore(storeCode='provinceRegione',table='glbl.provincia',where='$regione=:r',r='=#selector.regione')
+        pane = pane.framePane(height='200px')
+        pane.slotToolbar('gridtoolbar','selector,*,searchOn',searchOn=True,wdgNodeId='mygrid',side='top')
+        pane.includedView(nodeId='mygrid',struct='regione',relativeWorkspace=True,datapath='.tblprovince',
+                         storepath='gnr.stores.provinceRegione.data',store='provinceRegione')
+
+        
+    @struct_method('gridtoolbar_selector')
+    def gridtoolbar_selector(self,pane,wdgNodeId=None,**kwargs):
         fb = pane.formbuilder(cols=1, border_spacing='2px')
-        fb.dbselect(value='^.regione',dbtable='glbl.regione',lbl='Regione',
-                     validate_onAccept='genro.wdgById("province_grid").reload();')
+        fb.dbselect(value='^.regione',dbtable='glbl.regione',lbl='Regione',nodeId='selector',
+                     validate_onAccept='genro.wdgById("mygrid").reload();')
 
 
     
