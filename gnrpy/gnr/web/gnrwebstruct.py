@@ -23,7 +23,7 @@
 #Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 
 #import weakref
-from gnr.core.gnrbag import Bag
+from gnr.core.gnrbag import Bag,BagCbResolver
 from gnr.core.gnrstructures import GnrStructData
 from gnr.core import gnrstring
 
@@ -553,15 +553,29 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
         nodeId = nodeId or self.page.getUuid()
         prefix = 'grids.%s' %nodeId if not relativeWorkspace else ''
         structpath = structpath or '%s.struct' % prefix
-        self._setGridStruct(struct=struct,table=table,columns=columns,gridId=nodeId,structpath=structpath)
-        return self.child('includedView', storepath=storepath, structpath=structpath, nodeId=nodeId, table=table,
+        iv =self.child('includedView', storepath=storepath, structpath=structpath, nodeId=nodeId, table=table,
                           relativeWorkspace=relativeWorkspace,**kwargs)
+        iv._setGridStruct(struct=struct,gridattr=iv.attributes)
+        return iv
             
-    def _setGridStruct(self,struct=None,table=None,columns=None,gridId=None,structpath=None):
+    def _setGridStruct(self,struct=None,gridattr=None):
+        structpath = gridattr.get('structpath')
+        table = gridattr.get('table')
+        columns= gridattr.get('columns')
+        gridId= gridattr.get('nodeId') 
         source = struct or columns
-        struct = self.page._prepareGridStruct(source=source,table=table,gridId=gridId)
-        if struct:
-            self.data(structpath, struct)
+        page = self.page
+        struct = page._prepareGridStruct(source=source,table=table,gridId=gridId)
+        if not struct and not table:
+            def getStruct(source=None,gridattr=None,gridId=None):
+                storeNodeId = gridattr.get('storeNodeId') or '%s_store' %gridattr.get('store')
+                storeNode = page.pageSource(storeNodeId)                
+                if storeNode:
+                    table = storeNode.attr.get('table')
+                return page._prepareGridStruct(source=source,table=table,gridId=gridId)
+            struct = BagCbResolver(getStruct, source=source,gridattr=gridattr,gridId=gridId)
+            struct._xmlEager=True
+        self.data(structpath, struct)
         
     def slotToolbar(self,toolbarCode=None,slots=None,**kwargs):
         tb = self.child('slotToolbar',toolbarCode=toolbarCode,slots=slots,**kwargs)
