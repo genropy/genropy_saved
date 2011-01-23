@@ -35,6 +35,23 @@ gnr.setOrConnectCb = function(widget, name, cb) {
         widget[name] = cb;
     }
 };
+gnr.mergeGridColumns = function(storeNode) {
+    var columns= {};
+    genro.src._main.walk(function(n){
+        if(n.attr.store==storeNode.attr._storeCode){
+            var cols = n.getRelativeData('.columns').split(',');
+            dojo.forEach(cols,function(c){
+                columns[c] = c;
+            });
+        }
+    },'static')
+    console.log(columns);
+    var result = '';
+    for(var k in columns){
+        result+=k+',';
+    }
+    return result;
+};
 gnr.columnsFromStruct = function(struct, columns) {
     if (columns == undefined) {
         columns = [];
@@ -3177,7 +3194,7 @@ dojo.declare("gnr.widgets.VirtualStaticGrid", gnr.widgets.Grid, {
             storeParent.refresh(true);
         }
         else {
-            var selectionNode = genro.nodeById(nodeId + '_selection');
+            var selectionNode = genro.nodeById(nodeId + '_selection') || this.sourceNode.attr.store? genro.nodeById(this.sourceNode.attr.store + '_store'):null;
             if (selectionNode) {
                 if (this.filtered) {
                     this.filterToRebuild = true;
