@@ -40,7 +40,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
         this.formDatapath = formDatapath;
         this.pkeyPath = pkeyPath;
         this.sourceNode = sourceNode;
-        this.subscribe('save,load,loaded,setLocked,navigationEvent');
+        this.subscribe('save,load,loaded,setLocked,navigationEvent,newrecord,deleteItem');
         this._register = {};
         this._status_list = ['ok','error','changed','readOnly','noItem'];
         //this.store=new.....
@@ -164,7 +164,12 @@ dojo.declare("gnr.GnrFrmHandler", null, {
         }
         this.doload(kw);
     },
-
+    newrecord:function(){
+        this.load({destPkey:'*newrecord*'});
+    },
+    deleteItem:function(){
+        this.store.deleteItem();
+    },
     checkPendingChanges: function(kw) {
         var kw = kw || {};
         if (this.changed) {

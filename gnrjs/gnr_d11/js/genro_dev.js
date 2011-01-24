@@ -55,6 +55,8 @@ dojo.declare("gnr.GnrDevHandler", null, {
                     genro.dev.openSrcInspector();
                 }
                 var sourceNode = genro.src.enclosingSourceNode(e.target);
+                console.log('------current edit node:-------');
+                console.log(sourceNode);
                 genro.publish('srcInspector_editnode',sourceNode)
                 
             }
