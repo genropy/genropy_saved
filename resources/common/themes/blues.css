@@ -289,9 +289,7 @@
     padding-left: 10px;
     font-size: 0.9em;
     padding-bottom: 5px;
-    background-color: rgba(122,142,159,0.9);
-    background-image: -webkit-gradient(linear, left top, right bottom, from(rgba(131,176,189,0.9)), to(rgba(206,214,222,0.9)));
-    background-image: -moz-linear-gradient(180deg, rgba(206,214,222,0.9), rgba(131,176,189,0.9));
+    background-color: #B2BDC7
 }
 
 /* @end */
