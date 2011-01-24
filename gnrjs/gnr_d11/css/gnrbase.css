@@ -1470,21 +1470,27 @@ textarea:disabled {
 	height: 16px;
 	width: 16px;
 }
-.form_error .fh_semaphore{
-	background: url(icons/base14/redLight.gif) no-repeat center center;
-}
-.form_changed .fh_semaphore{
-	background: url(icons/base14/yellowLight.gif) no-repeat center center;
-}
-.form_noItem .fh_semaphore{
-	background: url(icons/base14/grayLight.gif) no-repeat center center;
-}
+
 .form_ok .fh_semaphore{
 	background: url(icons/base14/greenLight.gif) no-repeat center center;
 }
+
+.form_error .fh_semaphore{
+	background: url(icons/base14/redLight.gif) no-repeat center center;
+}
+
+.form_changed .fh_semaphore{
+	background: url(icons/base14/yellowLight.gif) no-repeat center center;
+}
+
 .form_readOnly .fh_semaphore{
     background: url(icons/base16/readonly.gif) no-repeat center center;
 }
+
+.form_noItem .fh_semaphore{
+	background: url(icons/base14/grayLight.gif) no-repeat center center;
+}
+
 .fh_content{
 	overflow: auto;
 }
