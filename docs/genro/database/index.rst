@@ -1,13 +1,13 @@
 .. _genro_database_index:
 
-========
-Database
-========
+=========================
+Genro database management
+=========================
 
 .. toctree::
 	:maxdepth: 2
 
-	introduction
+	simpleproject/index
 	maintable
 	name/index
 	rowcaption
