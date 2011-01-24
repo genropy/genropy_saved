@@ -543,7 +543,7 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
         gridId = kwargs.get('gridId') or '%s_grid' %(kwargs.get('paletteCode') or kwargs.get('paneCode'))
         kwargs['wdgNodeId'] = gridId
         pane = self.child(childTag,table=table,structpath=structpath,gridId=gridId,**kwargs)
-        pane._setGridStruct(struct=struct,table=table,columns=columns,gridId=gridId,structpath=structpath)   
+        pane._setGridStruct(struct=struct)   
         if data is not None:
             pane.data('.grid.store',data)
         return pane
@@ -555,10 +555,11 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
         structpath = structpath or '%s.struct' % prefix
         iv =self.child('includedView', storepath=storepath, structpath=structpath, nodeId=nodeId, table=table,
                           relativeWorkspace=relativeWorkspace,**kwargs)
-        iv._setGridStruct(struct=struct,gridattr=iv.attributes)
+        iv._setGridStruct(struct=struct)
         return iv
             
-    def _setGridStruct(self,struct=None,gridattr=None):
+    def _setGridStruct(self,struct=None):
+        gridattr=self.attributes
         structpath = gridattr.get('structpath')
         table = gridattr.get('table')
         columns= gridattr.get('columns')
@@ -1190,6 +1191,9 @@ class GnrGridStruct(GnrStructData):
                 field, tableobj.fullname)) # FIXME: use a specific exception class
             fields.append(field)
             names.append(name or fldobj.name_long)
+            if r'%' in width:
+                unit='%'
+                width = width.replace('%','')
             width = int(width  or fldobj.print_width)
             widths.append(width)
             wtot = wtot + width
