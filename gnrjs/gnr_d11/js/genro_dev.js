@@ -193,14 +193,22 @@ dojo.declare("gnr.GnrDevHandler", null, {
         genro.src.getNode()._('div', '_devInspector_');
         var node = genro.src.getNode('_devInspector_').clearValue();
         node.freeze();
+        var cbLog = function(e){
+            if(e.altKey){
+                var wdg = dijit.getEnclosingWidget(e.target);
+                console.log(wdg.item);
+            }
+        };
         var pg = node._('paletteGroup',{'groupCode':'devTools','dockTo':false,id:'gnr_devTools',
                                         title:'Developer tools',style:"font-family:monaco;"});
         pg._('paletteTree',{'paletteCode':'cliDatastore',title:'Data',
                            storepath:'*D',searchOn:true,tree_inspect:'shift',
+                           'tree_connect_onclick':cbLog,
                            editable:true,tree_labelAttribute:null,tree_hideValues:false});
         var sourcePane = pg._('paletteTree',{'paletteCode':'cliSourceStore',title:'Source',
                            storepath:'*S',searchOn:true,tree_inspect:'shift',
                            editable:true,
+                           'tree_connect_onclick':cbLog,
                            tree_getLabel:function(n){
                                return n.attr.tag+':'+(n.attr.nodeId || n._id);
                            },
