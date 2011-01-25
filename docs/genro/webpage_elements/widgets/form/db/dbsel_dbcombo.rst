@@ -204,4 +204,4 @@ auxColumns
 
 **Footnotes:**
 
-.. [#] For more information on a creation of a project, check the :ref:`genro_database_introduction` page.
+.. [#] For more information on a creation of a project, check the :ref:`genro_simple_introduction` page.

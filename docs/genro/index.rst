@@ -20,7 +20,7 @@ Genropy
 	miscellaneous
 	library_reference/index
 	components/index
-	genro_database_management
+	database/index
 	wsgi
 
 Indices and Tables

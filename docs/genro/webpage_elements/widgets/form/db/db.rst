@@ -19,4 +19,4 @@ filteringSelect, comboBox, dbSelect and dbCombobox
 **Footnotes:**
 
 .. [#] It should have been called "dbFilteringSelect", but it has been shortened in "dbSelect".
-.. [#] To use dbSelect there must exist a database. For having information on a database creation, please check :ref:`genro_database_introduction`.
+.. [#] To use dbSelect there must exist a database. For having information on a database creation, please check :ref:`genro_simple_introduction`.

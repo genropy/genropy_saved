@@ -1,17 +1,17 @@
-.. _genro_database_introduction:
+.. _genro_simple_introduction:
 
-=========================================
-Introduction on the creation of a project
-=========================================
+=======================================
+Introduction: the creation of a project
+=======================================
 
 	* :ref:`genro_project_introduction`
-	
 	* :ref:`genro_project_creation`
+	* :ref:`genro_project_help`
 
-	.. _genro_project_introduction:
+.. _genro_project_introduction:
 
-Introduction
-============
+DBMS
+====
 
 	Genro is a Data Base Management System (DBMS), so it is a software that is able to manage small and great database ensuring to follow great reliability and security standards.
 
@@ -22,7 +22,7 @@ Create a Genro project
 
 	We want now help you on a creation of a simple project for a management of a database.
 
-	To create a project is very simple; just type in your command window the following line (don't do it for now!!) [#]_::
+	To create a project you have to type in your command window the following line (but please don't do it for now!) [#]_::
 
 		gnrmkproject projectname
 	
@@ -30,7 +30,7 @@ Create a Genro project
 	
 	In the following image you can see the project folder with its relative subfolders (we choose ``myproject`` as project name):
 
-	.. image:: ../images/myproject.png
+	.. image:: ../../images/myproject.png
 	
 	.. note:: the Genro team prefer to call their projects using only lowercase letters.
 	
@@ -40,9 +40,14 @@ Create a Genro project
 
 	You can see the result in this image:
 
-	.. image:: ../images/myproject2.png
+	.. image:: ../../images/myproject2.png
 	
 	Now type the command line ``gnrmkproject projectname -a`` and check the tree structure you have created (the 4 subfolders and the contents of the ``instances`` and ``sites`` folders). In the next sections we'll begin to explain all the details of the project's subfolders.
+
+.. _genro_project_help:
+
+terminal help
+=============
 
 	You can create a project setting many options. Type::
 	

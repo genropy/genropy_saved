@@ -1,4 +1,4 @@
-	.. _genro_database_table:
+.. _genro_database_table:
 
 =====
 table

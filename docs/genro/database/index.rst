@@ -15,3 +15,4 @@ Genro database management
 	relation_table
 	webpage
 	GnrCustomWebPage
+	structure/index

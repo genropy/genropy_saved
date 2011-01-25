@@ -41,18 +41,18 @@ Example
 			iv = self.includedViewBox(bc,
 			                          add_action=True,del_action=True,nodeId='WoundsGrid',
 			                          editorEnabled=True,storepath='.wounds_base',
-			                          struct=self.ferite_struct,datamode='bag',label='!!Wounds')
+			                          struct=self.wounds_struct,datamode='bag',label='!!Wounds')
 			
 			gridEditor = iv.gridEditor()
 			gridEditor.numberTextbox(gridcell='from')
 			gridEditor.numberTextbox(gridcell='to')
 			gridEditor.numberTextbox(gridcell='value')
 			
-		def ferite_struct(self, struct):
+		def wounds_struct(self, struct):
 			r = struct.view().rows()
-			r.cell('da',name='Tiro da',dtype='L',width='3em')
-			r.cell('a',name='Tiro a',dtype='L',width='3em')
-			r.cell('valore',name='Valore',dtype='L',width='7em')
+			r.cell('from',name='From',dtype='L',width='3em')
+			r.cell('to',name='To',dtype='L',width='3em')
+			r.cell('value',name='Value',dtype='L',width='7em')
 
 .. _iv_library_reference:
 
