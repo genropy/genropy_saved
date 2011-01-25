@@ -20,7 +20,7 @@
     padding: 0 7px 3px 0;
     width: auto;
     font-size: .9em;
-    background-color: #E1E9E9;
+    background-color: rgba(170, 190, 201, 0.2);
 }
 
 .tundra .dojoxFloatingPane .dijitTabInnerDiv {
@@ -235,6 +235,7 @@
     -moz-border-radius-bottomright: 6px;
     -webkit-border-bottom-left-radius: 6px;
     -webkit-border-bottom-right-radius: 6px;
+    background-color: rgba(170, 190, 201, 0.2);
 }
 
 .pbl_viewBoxLabel {
@@ -247,9 +248,9 @@
     font-size: 0.9em;
     padding-top: 3px;
     padding-bottom: 2px;
-    background-color: rgba(122,142,159,0.9);
-    background-image: -webkit-gradient(linear, left top, right bottom, from(rgba(122,142,159,0.9)), to(rgba(254,255,255,0.9)));
-    background-image: -moz-linear-gradient(180deg, rgba(254,255,255,0.9), rgba(122,142,159,0.9));
+    background-color: rgba(177,191,206,0.9);
+    background-image: -webkit-gradient(linear, left top, right bottom, from(rgba(177,191,206,0.9)), to(rgba(254,255,255,0.9)));
+    background-image: -moz-linear-gradient(180deg, rgba(254,255,255,0.9), rgba(177,191,206,0.9));
     color: #000;
 }
 
@@ -309,7 +310,7 @@
     bottom: 5px;
     right: 5px;
     border: 0px;
-    background-color: #E1E9E9;
+    background-color: rgba(170, 190, 201, 0.2);
     text-align: center;
     vertical-align: middle;
     font-size: 1em;
@@ -350,13 +351,13 @@
     -moz-border-radius-bottomright: 6px;
     -webkit-border-bottom-left-radius: 6px;
     -webkit-border-bottom-right-radius: 6px;
-    background-color: #E1E9E9;
+    background-color: rgba(170, 190, 201, 0.2);
     border: 0px;
 
 }
 
 .dialog_bottom {
-    background-color: #E1E9E9;
+    background-color: #eef2fb;
     height: 26px;
     padding-top: 3px;
     padding-left: 5px;
@@ -418,7 +419,7 @@
     -webkit-border-top-left-radius: 6px;
     -webkit-border-top-right-radius: 6px;
     margin-right: 2px;
-    color: #4D5962;
+    color: #f5f7fe;
     font-weight: plain;
     /*background-image:-webkit-gradient(linear, 0% 0%, 0% 90%, from(rgba(104,133,142,0.99)), to(rgba(223,223,223,0.99)));
   background-image:-moz-linear-gradient(top, bottom,from(rgba(104,133,142,0.99)), to(rgba(223,223,223,0.99)));*/
@@ -718,7 +719,7 @@
 /* @end */
 
 #mainWindow {
-    background-color: #E1E9E9;
+    background-color: rgba(170, 190, 201, 0.2);
     font-size: 12px;
 }
 
@@ -741,7 +742,7 @@
 }
 
 .color_bright {
-    color: #E1E9E9;
+    color: #eef2fb;
 }
 
 .color_brightest {
@@ -765,7 +766,7 @@
 }
 
 .bgcolor_bright {
-    background-color: #E1E9E9;
+    background-color: #eef2fb;
 }
 
 .bgcolor_brightest {
