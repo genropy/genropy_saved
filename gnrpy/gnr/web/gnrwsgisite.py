@@ -19,6 +19,7 @@ import mimetypes
 from gnr.core.gnrsys import expandpath
 import cPickle
 import inspect
+from gnr.core.gnrstring import boolean
 from gnr.core.gnrprinthandler import PrintHandler
 from gnr.core.gnrmailhandler import MailHandler
 from gnr.web.gnrwsgisite_proxy.gnrservicehandler import ServiceHandlerManager
@@ -265,7 +266,7 @@ class GnrWsgiSite(object):
             self.homepage = '%s%s' % (self.default_uri, self.homepage)
         self.secret = self.config['wsgi?secret'] or 'supersecret'
         self.config['secret'] = self.secret
-        self.debug = options.debug if options else self.config['wsgi?debug']
+        self.debug = options.debug if options else boolean(self.config['wsgi?debug'])
         self.cache_max_age = self.config['wsgi?cache_max_age'] or 2592000
         self.statics = StaticHandlerManager(self)
         self.statics.addAllStatics()
