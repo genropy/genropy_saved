@@ -18,9 +18,12 @@ try:
 except ImportError:
     HAS_PYPDF = False
 from gnr.core.gnrbag import Bag, DirectoryResolver
+from gnr.core.gnrbaseservice import GnrBaseService
 import sys
 
-class PrinterConnection(object):
+class PrinterConnection(GnrBaseService):
+    service_name='print'
+
     def __init__(self, parent, printer_name=None, printerParams=None, **kwargs):
         self.parent = parent
         self.orientation = printerParams.pop('orientation',None)

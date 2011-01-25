@@ -21,6 +21,7 @@ import cPickle
 import inspect
 from gnr.core.gnrprinthandler import PrintHandler
 from gnr.core.gnrmailhandler import MailHandler
+from gnr.web.gnrwsgisite_proxy.gnrservicehandler import ServiceHandlerManager
 from gnr.app.gnrdeploy import PathResolver
 from gnr.web.gnrwsgisite_proxy.gnrresourceloader import ResourceLoader
 from gnr.web.gnrwsgisite_proxy.gnrstatichandler import StaticHandlerManager
@@ -281,20 +282,27 @@ class GnrWsgiSite(object):
         self.find_gnrjs_and_dojo()
         self.page_factory_lock = RLock()
         self.webtools = self.resource_loader.find_webtools()
-
-        self.services = Bag()
-        self.print_handler = self.addService('print', PrintHandler(self))
-        self.mail_handler = self.addService('mail', MailHandler(self))
+        self.services = ServiceHandlerManager(self)
+        self.print_handler = self.addService(PrintHandler, service_name='print')
+        self.mail_handler = self.addService(MailHandler, service_name='mail')
+        self.addSiteServices()
         self.register = SiteRegister(self)
         if counter == 0 and self.debug:
             self.onInited(clean=not noclean)
 
-    def addService(self, service_name, service_handler, **kwargs):
-        self.services.setItem(service_name, service_handler, **kwargs)
-        return service_handler
+    def addSiteServices(self):
+        service_names=[]
+        if 'preferences.services' in self.config:
+            service_names=self.config['preferences.services'].digest('#k')
+        if service_names:
+            self.services.addSiteServices(service_names=service_names)
+
+
+    def addService(self, service_handler, service_name=None, **kwargs):
+        return self.services.add(service_handler, service_name=service_name, **kwargs)
 
     def getService(self, service_name):
-        return self.services[service_name]
+        return self.services.get(service_name)
 
     def addStatic(self, static_handler_factory, **kwargs):
         return self.statics.add(static_handler_factory, **kwargs)

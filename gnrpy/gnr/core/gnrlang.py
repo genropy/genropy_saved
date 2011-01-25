@@ -196,7 +196,7 @@ def gnrImport(source, importAs=None, avoidDup=False):
             if imp.lock_held():
                 imp.release_lock()
             if error:
-                raise error
+                raise
     return module
 
 class GnrException(Exception):

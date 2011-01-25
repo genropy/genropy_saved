@@ -27,6 +27,7 @@ from email.mime.image import MIMEImage
 from email.mime.application import MIMEApplication
 import re, htmlentitydefs
 import mimetypes
+from gnr.core.gnrbaseservice import GnrBaseService
 from gnr.core.gnrstring import templateReplace
 import thread
 import os
@@ -68,7 +69,9 @@ def clean_and_unescape(text):
     text = re.sub(TAG_SELECTOR, '', text)
     return re.sub("&#?\w+;", fixup, text)
 
-class MailHandler(object):
+class MailHandler(GnrBaseService):
+    service_name = 'mail'
+    
     def __init__(self, parent=None):
         self.parent = parent
         self.smtp_accounts = {}

@@ -16,7 +16,7 @@ from gnr.web.gnrwebpage import GnrWebPage
 from gnr.web._gnrbasewebpage import GnrWebServerError
 from gnr.web.gnrbaseclasses import BaseResource
 from gnr.web.gnrbaseclasses import BaseWebtool
-
+import glob
 import logging
 
 log = logging.getLogger('gnrresourceloader')
@@ -334,14 +334,25 @@ class ResourceLoader(object):
     def getResourceList(self, resourceDirs, path, ext=None):
         """Find a resource in current _resources folder or in parent folders one"""
         result = []
-        locations = resourceDirs[:]
         if ext == 'css' or ext == 'js':
+            locations = resourceDirs[:]
             locations.reverse()
+        else:
+            locations = resourceDirs
         if ext and not path.endswith('.%s' % ext): path = '%s.%s' % (path, ext)
+        if '*' in path:
+            searchpath=os.path.split(path.split('*')[0])[0]
+            use_glob=True
+        else:
+            searchpath=path
+            use_glob=False
         for dpath in locations:
-            fpath = os.path.join(dpath, path)
+            fpath = os.path.join(dpath, searchpath)
             if os.path.exists(fpath):
-                result.append(fpath)
+                if use_glob:
+                    result.extend(glob.glob(os.path.join(dpath,path)))
+                else:
+                    result.append(fpath)
         return result
 
     def loadResource(self, pkg, *path):
