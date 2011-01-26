@@ -530,17 +530,17 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
         
     def paneGrid(self,paneCode,**kwargs):
         kwargs['gridId'] = kwargs.get('gridId') or '%s_grid' %paneCode
-        return self._palette_or_pane_grid(paneCode=paneCode,childTag='PaneGrid',**kwargs)
+        return self._palette_or_pane_grid(paneCode=paneCode,frameCode=paneCode,childTag='PaneGrid',**kwargs)
         
     def paletteGrid(self,paletteCode,datapath=None,**kwargs):
         datapath= datapath or 'gnr.palettes.%s' %paletteCode
-        return self._palette_or_pane_grid(paletteCode=paletteCode,childTag='PaletteGrid',datapath=datapath,**kwargs)
+        return self._palette_or_pane_grid(paletteCode=paletteCode,frameCode=paletteCode,childTag='PaletteGrid',datapath=datapath,**kwargs)
         
     
     def _palette_or_pane_grid(self,childTag=None,data=None,struct=None,
                                 columns=None,table=None,structpath=None,gridId=None,**kwargs):
         structpath = structpath or '.grid.struct'
-        gridId = kwargs.get('gridId') or '%s_grid' %(kwargs.get('paletteCode') or kwargs.get('paneCode'))
+        gridId = kwargs.get('gridId') or '%s_grid' %kwargs.get('frameCode')
         kwargs['wdgNodeId'] = gridId
         pane = self.child(childTag,table=table,structpath=structpath,gridId=gridId,**kwargs)
         pane._setGridStruct(struct=struct)   
@@ -582,6 +582,7 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
         tb = self.child('slotBar',slotbarCode=slotbarCode,slots=slots,**kwargs)
         slots = gnrstring.splitAndStrip(slots)
         wdgNodeId = self.getInheritedAttributes().get('wdgNodeId')
+        frameCode = self.getInheritedAttributes().get('frameCode')
         for slot in slots:
             if slot!='*' and slot!='|':
                 s=tb.child('slot',name=slot)
@@ -592,6 +593,7 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
                     kw = dict()
                     kw[slot] = kwargs.get(slot,None)
                     kw['wdgNodeId'] = wdgNodeId
+                    kw['frameCode'] = frameCode
                     slothandle(**kw)
         
         #se ritorni la toolbar hai una toolbar vuota 
