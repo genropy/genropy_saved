@@ -22,14 +22,15 @@ from gnr.web.gnrbaseclasses import BaseComponent
 from gnr.core.gnrbag import Bag, BagResolver
 
 def _getTreeRowCaption(tblobj):
-    if  tblobj.attributes.has_key('treeRowCaption'):
-        return tblobj.attributes['treeRowCaption']
+    if hasattr(tblobj, 'treeRowCaption'):
+        return tblobj.treeRowCaption()
     return  '$child_code,$description:%s - %s'
 
 def _getTreeRowCaption2(tblobj):
-    if  tblobj.attributes.has_key('treeRowCaption'):
-        return tblobj.attributes['treeRowCaption']
+    if hasattr(tblobj, 'treeRowCaption'):
+        return tblobj.treeRowCaption()
     return  '$child_code'
+
 
 class HTableResolver(BagResolver):
     classKwargs = {'cacheTime': 300,
@@ -40,6 +41,7 @@ class HTableResolver(BagResolver):
                    'related_table': None,
                    'relation_path': None,
                    'rootpkey': None,
+                   'extra_columns':None,
                    '_page': None}
     classArgs = ['table', 'rootpath']
 
@@ -63,8 +65,11 @@ class HTableResolver(BagResolver):
 
         db = self._page.db
         tblobj = db.table(self.table)
-        rows = tblobj.query(columns='*,$child_code,$child_count,$description',
-                            where="COALESCE($parent_code,'')=:rootpath",
+        columns = '$code,$parent_code,$description,$child_code,$child_count,$rec_type'
+        if self.extra_columns:
+            columns = '%s,%s' %(columns,self.extra_columns) 
+        
+        rows = tblobj.query(columns,where="COALESCE($parent_code,'')=:rootpath",
                             rootpath=self.rootpath or '', order_by='$child_code').fetch()
         children = Bag()
         if self.related_table:
@@ -78,6 +83,7 @@ class HTableResolver(BagResolver):
                                        relation_path=self.relation_path,
                                        related_table=self.related_table,
                                        limit_rec_type=self.limit_rec_type,
+                                       extra_columns=self.extra_columns,
                                        child_count=child_count, _page=self._page)
             elif self.related_table:
                 value = HTableResolver(table=self.table, rootpath='*related*:%s' % row['pkey'],
@@ -98,7 +104,8 @@ class HTableResolver(BagResolver):
                              caption=caption,
                              rec_type=row['rec_type'], pkey=row['pkey'], code=row['code'], child_count=child_count,
                              checked=False,
-                             parent_code=row['parent_code'], description=row['description'])#_attributes=dict(row),
+                             parent_code=row['parent_code'], description=row['description'],
+                             _record=dict(row))#_attributes=dict(row),
             #
 
         children.sort('#a.caption')
@@ -127,11 +134,15 @@ class HTableHandlerBase(BaseComponent):
                          relation_path=None,
                          limit_rec_type=None,
                          rootcaption=None,
-                         rootcode=None):
+                         rootcode=None,
+                         extra_columns=None):
         tblobj = self.db.table(table)
+        columns = '$code,$parent_code,$description,$child_code,$child_count,$rec_type'
+        if extra_columns:
+            columns = '%s,%s' %(columns,extra_columns) 
         result = Bag()
         if rootpath:
-            row = tblobj.query(columns='*', where='$code=:code', code=rootpath).fetch()[0]
+            row = tblobj.query(columns=columns, where='$code=:code', code=rootpath).fetch()[0]
             description = row['description']
             if description:
                 get_tree_row_caption = _getTreeRowCaption
@@ -153,11 +164,12 @@ class HTableHandlerBase(BaseComponent):
             code = rootcode
             rootpath = None
             rec_type = None
+            row = dict()
             child_count = tblobj.query().count()
         value = HTableResolver(table=table, rootpath=rootpath, limit_rec_type=limit_rec_type, _page=self,
-                               related_table=related_table, relation_path=relation_path) #if child_count else None
+                               related_table=related_table, relation_path=relation_path,extra_columns=extra_columns) #if child_count else None
         result.setItem(rootlabel, value, child_count=child_count, caption=caption, pkey=pkey, code=code,
-                       rec_type=rec_type, checked=False)#,_attributes=_attributes)
+                       rec_type=rec_type, checked=False,_record=dict(row))
         return result
 
 class HTableHandler(HTableHandlerBase):
