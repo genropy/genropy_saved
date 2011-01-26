@@ -473,7 +473,7 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
              'dataRemote', 'gridView', 'viewHeader', 'viewRow', 'script', 'func',
              'staticGrid', 'dynamicGrid', 'fileUploader', 'gridEditor', 'ckEditor', 
             'tinyMCE', 'protovis', 'PaletteGroup','PalettePane','BagNodeEditor',
-            'PaletteBagNodeEditor','Palette','PaletteTree','SearchBox','FormStore','PaneGrid','FramePane']
+            'PaletteBagNodeEditor','Palette','PaletteTree','SearchBox','FormStore','PaneGrid','FramePane','PaneForm']
     genroNameSpace = dict([(name.lower(), name) for name in htmlNS])
     genroNameSpace.update(dict([(name.lower(), name) for name in dijitNS]))
     genroNameSpace.update(dict([(name.lower(), name) for name in dojoxNS]))
@@ -578,14 +578,14 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
             struct._xmlEager=True
         self.data(structpath, struct)
         
-    def slotToolbar(self,toolbarCode=None,slots=None,**kwargs):
-        tb = self.child('slotToolbar',toolbarCode=toolbarCode,slots=slots,**kwargs)
+    def slotBar(self,slotbarCode=None,slots=None,**kwargs):
+        tb = self.child('slotBar',slotbarCode=slotbarCode,slots=slots,**kwargs)
         slots = gnrstring.splitAndStrip(slots)
         wdgNodeId = self.getInheritedAttributes().get('wdgNodeId')
         for slot in slots:
             if slot!='*' and slot!='|':
                 s=tb.child('slot',name=slot)
-                slothandle = getattr(s,'%s_%s' %(toolbarCode,slot),None)
+                slothandle = getattr(s,'%s_%s' %(slotbarCode,slot),None)
                 if not slothandle:
                     slothandle = getattr(s,'%s_%s' %('sltb',slot),None)
                 if slothandle:
