@@ -26,79 +26,10 @@ from gnr.core.gnrdict import dictExtract
 
 class FormHandler(BaseComponent):
     css_requires='public'
-    py_requires='foundation/macrowidgets:SlotToolbar'
-    
-    @struct_method
-    def fh_paletteFormPane(self,pane,paletteCode=None,table=None,title=None,
-                        formId=None,nodeId=None,datapath=None,height=None,width=None,saveKwargs=None,
-                        loadKwargs=None,disabled=None,**kwargs):
-        nodeId = nodeId or '%s_palette' %paletteCode
-        formId = formId or '%s_form' %paletteCode
-        title = title or '^.record?caption'
-        palette = pane.palettePane(paletteCode,datapath=datapath,
-                                        height=height,width=width,title=title)
-        return palette.formPane(formId=formId,table=table,datapath=datapath,
-                                     disabled=disabled)
+    py_requires='foundation/macrowidgets:SlotBar'
 
     @struct_method
-    def fh_formPaneFrame(self,pane,formId=None,datapath=None,toolbar=None,**kwargs):
-        sqlContextName = 'sqlcontext_%s' % formId
-        sqlContextRoot = '#%s.record' % formId    
-        height= kwargs.get('height') or '100%'
-        formPane = pane.framePane(datapath=datapath,formDatapath='.record',controllerPath='.form',pkeyPath='.pkey',
-                                    formId=formId,wdgNodeId=formId,sqlContextName=sqlContextName,sqlContextRoot=sqlContextRoot,
-                                    height=height,**kwargs)
-        if toolbar:
-            tbkwargs = dictExtract(kwargs, 'toolbar_', pop=True)
-            tbkwargs['height'] = tbkwargs.get('height') or '20px'
-            tbkwargs['side'] = tbkwargs.get('side') or 'top'
-            formPane.slotToolbar(formId,toolbar,**tbkwargs)
-        bottom = formPane.contentPane(region='bottom',overflow='hidden',side='bottom')
-        bottom.div(_class='fh_bottom_message').span(formsubscribe_message="""var domNode = this.domNode;
-                                                 var sound = objectPop($1,'sound');
-                                                 if(sound){
-                                                    genro.playSound(sound);
-                                                 }
-                                                 var message = objectPop($1,'message');
-                                                 var msgnode = document.createElement('span');
-                                                 msgnode.innerHTML = message;
-                                                 genro.dom.style(msgnode,$1);
-                                                 domNode.appendChild(msgnode);
-                                                 genro.dom.effect(domNode,'fadeout',{duration:1000,delay:2000,
-                                                                                     onEnd:function(){domNode.innerHTML=null;}});
-                                                """)
-        formPane.contentPane(side='center',datapath='.record',_class='fh_content',nodeId='%s_content' %formId,_attachname='content')
-        return formPane
-        
-    @struct_method
-    def fh_formPane(self,pane,formId=None,datapath=None,**kwargs):
-        sqlContextName = 'sqlcontext_%s' % formId
-        sqlContextRoot = '#%s.record' % formId    
-        height= kwargs.get('height') or '100%'
-        form = pane.borderContainer(datapath=datapath,formDatapath='.record',controllerPath='.form',pkeyPath='.pkey',
-                                    formId=formId,wdgNodeId=formId,sqlContextName=sqlContextName,sqlContextRoot=sqlContextRoot,
-                                    height=height,**kwargs)
-        form.contentPane(region='top',overflow='hidden',_attachname='top')
-        bottom = form.contentPane(region='bottom',overflow='hidden',_attachname='bottom')
-        form.contentPane(region='center',datapath='.record',_attachname='content',_class='fh_content',nodeId='%s_content' %formId)
-        bottom.div(_class='fh_bottom_message').span(formsubscribe_message="""var domNode = this.domNode;
-                                                 var sound = objectPop($1,'sound');
-                                                 if(sound){
-                                                    genro.playSound(sound);
-                                                 }
-                                                 var message = objectPop($1,'message');
-                                                 var msgnode = document.createElement('span');
-                                                 msgnode.innerHTML = message;
-                                                 genro.dom.style(msgnode,$1);
-                                                 domNode.appendChild(msgnode);
-                                                 genro.dom.effect(domNode,'fadeout',{duration:1000,delay:2000,
-                                                                                     onEnd:function(){domNode.innerHTML=null;}});
-                                                """)
-        return form
-
-        
-    @struct_method
-    def fh_sltb_navigation(self,pane):
+    def fh_sltb_navigation(self,pane,**kwargs):
         pane = pane.div(width='120px',action='this.form.publish("navigationEvent",command);')
         pane.button('!!First', command='first', iconClass="tb_button icnNavFirst",
                     formsubscribe_navigationStatus="this.widget.setAttribute('disabled',$1.first || false);",
