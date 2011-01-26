@@ -248,9 +248,9 @@ class FilterBox(BaseComponent):
         filtercontroller.dataController('genro.wdgById(gridId).applyFilter("",null,field);',
                                         gridId=gridId, field='^.field')
          
-class SlotToolbar(object):
+class SlotBar(object):
     #@struct_method
-    def ____sltb_slotToolbar(self,pane,toolbarCode=None,slots=None,**kwargs):
+    def ____sltb_slotBar(self,pane,slotbarCode=None,slots=None,**kwargs):
         table = pane.toolbar(_class='sltb_toolbar').table(_class='sltb_table').tbody()
         kwargs['_class'] = '%s sltb_row' %(kwargs.get('_class') or '') 
         r = table.tr(**kwargs)
@@ -271,7 +271,7 @@ class SlotToolbar(object):
                 r.td(width=size,_class='sltb_slot_td').div(_class='sltb_spacer')
                 continue
             s= r.td(width=size,_attachname='slot_%s' %slotname,_class='sltb_slot_td')
-            slothandle = getattr(s,'%s_%s' %(toolbarCode,slotname),None)
+            slothandle = getattr(s,'%s_%s' %(slotbarCode,slotname),None)
             if not slothandle:
                 slothandle = getattr(s,'%s_%s' %('sltb',slotname),None)
             if slothandle:
