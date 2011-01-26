@@ -75,7 +75,12 @@ dojo.declare("gnr.GnrFrmHandler", null, {
             var startKey = kw.startKey || this.store.startKey;
             var kw = startKey?{destPkey:startKey}:{};
             this.load(kw);
-            dojo.connect(this.formContentNode,'onclick',this,'focusCurrentField');
+            var that = this;
+            dojo.connect(this.formContentNode,'onclick',function(e){
+                if(genro.activeForm!=that){
+                    that.focusCurrentField();
+                }
+            });
         }
         
     },
@@ -84,6 +89,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
         this.resetInvalidFields();
     },
     publish: function(command,kw){
+        console.log('form_'+this.form_id+'_'+command)
         genro.publish('form_'+this.form_id+'_'+command,kw);
     },
     subscribe: function(command,cb,scope){
