@@ -122,7 +122,7 @@ dojo.declare("gnr.widgets.PalettePane", gnr.widgets.gnrwdg, {
         var paletteCode = objectPop(kw, 'paletteCode');
         var groupCode = objectPop(kw, 'groupCode');
         if (groupCode) {
-            var pane = sourceNode._('ContentPane', objectExtract(kw, 'title,pageName'))._('ContentPane', objectUpdate({'detachable':true}, kw));
+            var pane = sourceNode._('ContentPane', objectExtract(kw, 'title,pageName'))._('FramePane', objectUpdate({'detachable':true}, kw));
             var controller_kw = {'script':"SET gnr.palettes._groups.pagename." + groupCode + " = paletteCode;",
                 'paletteCode':paletteCode}
             controller_kw['subscribe_show_palette_' + paletteCode] = true;
@@ -137,12 +137,10 @@ dojo.declare("gnr.widgets.PalettePane", gnr.widgets.gnrwdg, {
                 genro.publish('palette_' + paletteCode + '_showing');
             }
             var floating = sourceNode._('palette', palette_kwargs);
-            return floating._('ContentPane', kw);
+            return floating._('FramePane', kw);
         }
     }
 });
-
-
 
 dojo.declare("gnr.widgets.FramePane", gnr.widgets.gnrwdg, {
     createContent:function(sourceNode, kw,children) {
@@ -179,11 +177,20 @@ dojo.declare("gnr.widgets.PaneForm", gnr.widgets.gnrwdg, {
         return frame;
     }
 });
-
-
-dojo.declare("gnr.widgets.PaneGrid", gnr.widgets.gnrwdg, {    
+/*
+dojo.declare("gnr.widgets.PaletteForm", gnr.widgets.gnrwdg, {
     createContent:function(sourceNode, kw,children) {
-        objectPop(kw,'datapath');
+        var paletteCode = objectPop(kw,'paletteCode') || kw['formId'];
+        kw['formId'] = kw['formId'] || paletteCode+'_frm';
+        var paletteKw = objectExtract(kw, 'title,dockTo,top,left,right,bottom,maxable,height,width');
+        paletteKw['paletteCode'] = paletteCode;
+        kw['paneCode'] = paletteCode;
+        return sourceNode._('PalettePane', paletteKw)._('PaneForm',kw);
+    }
+});*/
+
+dojo.declare("gnr.widgets._FrameGrid", gnr.widgets.gnrwdg, {
+    createContent:function(sourceNode, kw,children) {
         var paneCode = objectPop(kw, 'paneCode');
         var gridId = objectPop(kw, 'gridId') || paneCode+'_grid';
         var storepath = objectPop(kw, 'storepath');
@@ -195,6 +202,7 @@ dojo.declare("gnr.widgets.PaneGrid", gnr.widgets.gnrwdg, {
                            'storepath': storepath,
                            'structpath': structpath,
                            'draggable_row':true,
+                           'frameCode':paneCode,
                            'relativeWorkspace':true};             
         gridKwargs.grid_onDrag = function(dragValues, dragInfo) {
             if (dragInfo.dragmode == 'row') {
@@ -203,34 +211,38 @@ dojo.declare("gnr.widgets.PaneGrid", gnr.widgets.gnrwdg, {
         };
         objectUpdate(gridKwargs, objectExtract(kw, 'grid_*'));
         kw['wdgNodeId'] = gridId;
-        var pane = sourceNode._('FramePane', kw);
+        var pane = sourceNode._(this._containerWidget, kw);
         if(kw.searchOn){
-            pane._('SlotBar',{'side':'top',slots:'*,searchOn',wdgNodeId:gridId,searchOn:objectPop(kw,'searchOn')});
+            pane._('SlotBar',{'side':'top',slots:'*,searchOn',frameCode:paneCode,searchOn:objectPop(kw,'searchOn'),toolbar:true});
         }
         var grid = pane._('includedview', gridKwargs);
         return pane;
-    }
+    }    
 });
 
-dojo.declare("gnr.widgets.PaletteGrid", gnr.widgets.gnrwdg, {
-    createContent:function(sourceNode, kw,children) {
-        var paletteCode = objectPop(kw,'paletteCode');
-        var paletteKw = objectExtract(kw, 'title,dockTo,top,left,right,bottom,maxable,height,width');
-        paletteKw['paletteCode'] = paletteCode;
-        kw['paneCode'] = paletteCode;
-        var gridId = kw.gridId || paletteCode+'_grid';
-        kw['gridId'] = gridId;
-        paletteKw.selfsubscribe_showing = function() {
+
+
+dojo.declare("gnr.widgets.PaneGrid", gnr.widgets._FrameGrid, {
+    _containerWidget:'FramePane'
+});
+
+dojo.declare("gnr.widgets.PaletteGrid", gnr.widgets._FrameGrid, {
+    _containerWidget:'PalettePane',
+    contentKwargs:function(sourceNode, attributes){
+        var gridId = attributes.gridId || attributes.paletteCode+'_grid';
+        attributes['paneCode'] = attributes.paletteCode;
+        attributes.selfsubscribe_showing = function() {
             var grid = genro.wdgById(gridId);
             if (grid.storebag().len() == 0) {
                 grid.reload();
             }
         }
-        return sourceNode._('PalettePane', paletteKw)._('PaneGrid',kw);
+        return attributes;
     }
 });
 
-dojo.declare("gnr.widgets.PaneTree", gnr.widgets.gnrwdg, {
+
+dojo.declare("gnr.widgets._FrameTree", gnr.widgets.gnrwdg, {
     createContent:function(sourceNode, kw) {
         var paneCode = kw.paneCode;
         var editable = objectPop(kw, 'editable');
@@ -238,6 +250,7 @@ dojo.declare("gnr.widgets.PaneTree", gnr.widgets.gnrwdg, {
         var storepath = objectPop(kw, 'storepath') || '.store';
         var tree_kwargs = {_class:'fieldsTree', hideValues:true,
             margin:'6px', draggable:true,nodeId:treeId,
+            'frameCode':paneCode,
             storepath:storepath,labelAttribute:'caption'};
         tree_kwargs.onDrag = function(dragValues, dragInfo, treeItem) {
             if (treeItem.attr.child_count && treeItem.attr.child_count > 0) {
@@ -248,10 +261,9 @@ dojo.declare("gnr.widgets.PaneTree", gnr.widgets.gnrwdg, {
         };
         objectUpdate(tree_kwargs, objectExtract(kw, 'tree_*'));
         var searchOn = objectPop(kw, 'searchOn');
-
-        var pane = sourceNode._('FramePane', kw);
+        var pane = sourceNode._(this._containerWidget, kw);
         if (searchOn) {
-            pane._('SlotBar',{'side':'top',slots:'*,searchOn',wdgNodeId:treeId,searchOn:true});
+            pane._('SlotBar',{'side':'top',slots:'*,searchOn',wdgNodeId:treeId,searchOn:true,toolbar:true});
         }
         if (editable) {
             var bc = pane._('BorderContainer',{'side':'center'});
@@ -264,14 +276,15 @@ dojo.declare("gnr.widgets.PaneTree", gnr.widgets.gnrwdg, {
         return pane;
     }
 });
+dojo.declare("gnr.widgets.PaneTree", gnr.widgets._FrameTree, {
+    _containerWidget:'FramePane'
+});
 
-dojo.declare("gnr.widgets.PaletteTree", gnr.widgets.gnrwdg, {
-    createContent:function(sourceNode, kw,children) {
-        var paletteCode = objectPop(kw,'paletteCode');
-        var paletteKw = objectExtract(kw, 'title,dockTo,top,left,right,bottom,maxable,height,width');
-        paletteKw['paletteCode'] = paletteCode;
-        kw['paneCode'] = paletteCode;
-        return sourceNode._('PalettePane', paletteKw)._('PaneTree',kw);
+dojo.declare("gnr.widgets.PaletteTree", gnr.widgets._FrameTree, {
+    _containerWidget:'PalettePane',
+    contentKwargs:function(sourceNode, attributes){
+        attributes['paneCode'] = attributes.paletteCode;
+        return attributes;
     }
 });
 
@@ -537,13 +550,12 @@ dojo.declare("gnr.widgets.SlotBar", gnr.widgets.gnrwdg, {
     
     slot_searchOn:function(pane,kw){
         var div = pane._('div',{'width':kw.searchOn_width || '15em'});
-        div._('SearchBox', {searchOn:kw.searchOn,nodeId:kw.wdgNodeId+'_searchbox',datapath:'.searchbox'});
+        div._('SearchBox', {searchOn:kw.searchOn,nodeId:kw.frameCode+'_searchbox',datapath:'.searchbox'});
     },
     slot_messageBox:function(pane,kw){        
         var mbKw = objectUpdate({duration:1000,delay:2000},objectExtract(kw,'messageBox_*'));
 
         var subscriber = objectPop(mbKw,'subscribeTo');
-        console.log('subscribe_'+subscriber);
         mbKw['subscribe_'+subscriber] = function(){
              var kwargs = arguments[0];
              var domNode = this.domNode;
