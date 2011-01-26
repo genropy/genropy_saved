@@ -12,27 +12,27 @@ class GnrCustomWebPage(object):
     def windowTitle(self):
         return ''
         
-    def test_0_panegrid(self,pane):
+    def _test_0_panegrid(self,pane):
         """Pane grid """
         pane = pane.framePane(height='200px')
         pane.contentPane(height='30px',side='top',background='blue')
         pane.contentPane(margin='10px',background='red')
         
          
-    def _test_0_panegrid(self,pane):
+    def test_0_panegrid(self,pane):
         """Pane grid """
         bc = pane.borderContainer(height='200px')
         bc.contentPane(region='left',width='200px',background_color='red')
         paneGrid = bc.paneGrid('province_1',struct='regione',table='glbl.provincia',region='center')
-        paneGrid.slotBar('province',slots='*,piero',piero='*A,T,D',side='top')
+        paneGrid.slotBar('province',slots='*,piero',piero='*A,T,D',side='top',toolbar=True)
         paneGrid.selectionStore(storepath='.grid.store',table='glbl.provincia',
                                 where="$regione='LOM'",gridId='province_1_grid',_onStart=True)   
     
     @struct_method('province_piero')
-    def province_piero(self,pane,piero=None,wdgNodeId=None,**kwargs):
-        return pane.div(width='205px').searchBox(nodeId='%s_searchbox' %wdgNodeId,searchOn=piero,datapath='.searchbox')
+    def province_piero(self,pane,piero=None,frameCode=None,**kwargs):
+        return pane.div(width='205px').searchBox(nodeId='%s_searchbox' %frameCode,searchOn=piero,datapath='.searchbox')
         
-    def _test_1_palettegrid(self,pane):
+    def test_1_palettegrid(self,pane):
         paneGrid = pane.paletteGrid('province_2',title='Province',
                                     struct='regione',dockTo='*',
                                     table='glbl.provincia',searchOn='*A,T,D')
