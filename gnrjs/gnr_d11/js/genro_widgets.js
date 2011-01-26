@@ -1960,19 +1960,19 @@ dojo.declare("gnr.widgets.Grid", gnr.widgets.baseDojo, {
             this.reload(keep_selection !== false)
         });
         //dojo.subscribe(gridId+'_searchbox_keyUp',this,function(v){console.log(v)});
-        
-        var searchBoxNode = genro.nodeById(nodeId+'_searchbox');
+        var searchBoxCode =(sourceNode.attr.frameCode || nodeId)+'_searchbox';
+        var searchBoxNode = genro.nodeById(searchBoxCode);
         if (searchBoxNode){
             if(searchBoxNode.getRelativeData('.menu_auto')){
                 _this = this;
                 var cb = function(){
-                    genro.publish(nodeId+'_searchbox_updmenu',
+                    genro.publish(searchBoxCode+'_updmenu',
                                   _this._getFilterAutoValues(widget,searchBoxNode.getRelativeData('.menu_dtypes')));
                 }
                 dojo.connect(widget,'onSetStructpath',widget,cb);
                 setTimeout(function(){cb.call(widget)},1);
             }
-            dojo.subscribe(nodeId+'_searchbox_changedValue',widget,function(v,field){
+            dojo.subscribe(searchBoxCode+'_changedValue',widget,function(v,field){
                 this.applyFilter(v,null,field);
             });
         }
@@ -4237,9 +4237,10 @@ dojo.declare("gnr.widgets.Tree", gnr.widgets.baseDojo, {
         }
         var nodeId = sourceNode.attr.nodeId;
         if(nodeId){
-            var searchBoxNode = genro.nodeById(nodeId+'_searchbox');
+            var searchBoxCode = (sourceNode.attr.frameCode || nodeId)+'_searchbox';
+            var searchBoxNode = genro.nodeById(searchBoxCode);
             if (searchBoxNode){
-                dojo.subscribe(nodeId+'_searchbox_changedValue',widget,function(v,field){
+                dojo.subscribe(searchBoxCode+'_changedValue',widget,function(v,field){
                     this.applyFilter(v);
                 });
             }
