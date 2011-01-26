@@ -35,10 +35,14 @@ gnr.setOrConnectCb = function(widget, name, cb) {
         widget[name] = cb;
     }
 };
-gnr.mergeGridColumns = function(storeNode) {
+gnr.getGridColumns = function(storeNode) {
     var columns= {};
+    var storeCode;
+    var nodeId=storeNode.attr.nodeId
     genro.src._main.walk(function(n){
-        if(n.attr.store==storeNode.attr._storeCode){
+        storeCode = n.attr.store || n.attr.nodeId;
+        if(storeCode+'_store'==nodeId){
+            n.widget.selectionKeeper('save');
             var cols = n.getRelativeData('.columns').split(',');
             dojo.forEach(cols,function(c){
                 columns[c] = c;
@@ -3194,7 +3198,7 @@ dojo.declare("gnr.widgets.VirtualStaticGrid", gnr.widgets.Grid, {
             storeParent.refresh(true);
         }
         else {
-            var selectionNode = genro.nodeById(nodeId + '_selection') || genro.nodeById(this.sourceNode.attr.store + '_store');
+            var selectionNode = genro.nodeById(nodeId + '_store') || genro.nodeById(this.sourceNode.attr.store + '_store'); 
             if (selectionNode) {
                 if (this.filtered) {
                     this.filterToRebuild = true;
@@ -3642,7 +3646,7 @@ dojo.declare("gnr.widgets.IncludedView", gnr.widgets.VirtualStaticGrid, {
     },
     created: function(widget, savedAttrs, sourceNode) {
         this.created_common(widget, savedAttrs, sourceNode);
-        var selectionId = sourceNode.attr['selectionId'] || sourceNode.attr.nodeId + '_selection';
+        var selectionId = sourceNode.attr['selectionId'] || sourceNode.attr.nodeId + '_store';
         widget.autoSelect = sourceNode.attr['autoSelect'];
         if (typeof(widget.autoSelect) == 'string') {
             widget.autoSelect = funcCreate(widget.autoSelect, null, widget);
