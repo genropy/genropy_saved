@@ -5,8 +5,11 @@ dojo.declare("gnr.widgets.gnrwdg", null, {
     },
     _beforeCreation: function(sourceNode) {
         sourceNode.gnrwdg = {'gnr':this,'sourceNode':sourceNode};
-        var attributes = objectUpdate({}, sourceNode.attr);
-        objectExtract(sourceNode.attr, 'nodeId');
+        var attributes = sourceNode.attr;
+        sourceNode.attr = {};
+        sourceNode.attr.tag=objectPop(attributes,'tag')
+        var datapath=objectPop(attributes,'datapath')
+        if(datapath){sourceNode.attr.datapath=datapath;}
         var contentKwargs = this.contentKwargs(sourceNode, attributes);
         if (!this.createContent) {
             return false;
@@ -144,6 +147,7 @@ dojo.declare("gnr.widgets.PalettePane", gnr.widgets.gnrwdg, {
 dojo.declare("gnr.widgets.FramePane", gnr.widgets.gnrwdg, {
     createContent:function(sourceNode, kw,children) {
         var node;
+        objectPop(kw,'datapath');
         var bc = sourceNode._('BorderContainer', kw);
         dojo.forEach(['top','bottom','left','right'],function(side){
              node = children.popNode('#side='+side);
@@ -167,6 +171,7 @@ dojo.declare("gnr.widgets.FramePane", gnr.widgets.gnrwdg, {
 
 dojo.declare("gnr.widgets.PaneGrid", gnr.widgets.gnrwdg, {    
     createContent:function(sourceNode, kw,children) {
+        objectPop(kw,'datapath');
         var paneCode = objectPop(kw, 'paneCode');
         var gridId = objectPop(kw, 'gridId') || paneCode+'_grid';
         var storepath = objectPop(kw, 'storepath');
@@ -405,17 +410,15 @@ dojo.declare("gnr.widgets.SearchBox", gnr.widgets.gnrwdg, {
         databag.setItem('caption', defaultLabel);
         this._prepareSearchBoxMenu(searchOn, databag);
         sourceNode.setRelativeData(null, databag);
-        var searchbox = sourceNode._('div', {nodeId:nodeId});
+        var searchbox = sourceNode._('table', {nodeId:nodeId,width:'100%'})._('tbody')._('tr');
         sourceNode._('dataController', {'script':'genro.publish(searchBoxId+"_changedValue",currentValue,field)',
             'searchBoxId':nodeId,currentValue:'^.currentValue',field:'^.field'});
-        var searchlbl = searchbox._('div', {'float':'left', margin_top:'2px'});
-        searchlbl._('span', {'innerHTML':'^.caption',_class:'buttonIcon'});
+        var searchlbl = searchbox._('td');
+        searchlbl._('div', {'innerHTML':'^.caption',_class:'buttonIcon'});
         searchlbl._('menu', {'modifiers':'*',_class:'smallmenu',storepath:'.menubag',
             selected_col:'.field',selected_caption:'.caption'});
-
-        searchbox._('input', {'value':'^.value',_class:'searchInput',
-            connect_onkeyup:kw.onKeyUp,
-            width:kw.width});
+        
+        searchbox._('td')._('div',{_class:'searchInputBox'})._('input', {'value':'^.value',connect_onkeyup:kw.onKeyUp});
         dojo.subscribe(nodeId + '_updmenu', this, function(searchOn) {
             menubag = this._prepareSearchBoxMenu(searchOn, databag);
         });
@@ -516,8 +519,7 @@ dojo.declare("gnr.widgets.SlotToolbar", gnr.widgets.gnrwdg, {
     },
     
     slot_searchOn:function(pane,kw){
-        console.log(kw)
-        var div = pane._('div',{'width':'225px'});
+        var div = pane._('div',{'width':kw.searchOn_width || '15em'});
         div._('SearchBox', {searchOn:kw.searchOn,nodeId:kw.wdgNodeId+'_searchbox',datapath:'.searchbox'});
     }
 
