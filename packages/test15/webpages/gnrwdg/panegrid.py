@@ -24,7 +24,7 @@ class GnrCustomWebPage(object):
         bc = pane.borderContainer(height='200px')
         bc.contentPane(region='left',width='200px',background_color='red')
         paneGrid = bc.paneGrid('province_1',struct='regione',table='glbl.provincia',region='center')
-        paneGrid.slotToolbar('province',slots='*,piero',piero='*A,T,D',side='top')
+        paneGrid.slotBar('province',slots='*,piero',piero='*A,T,D',side='top')
         paneGrid.selectionStore(storepath='.grid.store',table='glbl.provincia',
                                 where="$regione='LOM'",gridId='province_1_grid',_onStart=True)   
     

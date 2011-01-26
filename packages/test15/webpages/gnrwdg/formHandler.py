@@ -16,11 +16,11 @@ class GnrCustomWebPage(object):
     
     @struct_method
     def formTester(self,pane,formId=None,startKey=None,**kwargs):
-        form = pane.formPane(formId=formId,datapath='.provincia',**kwargs)
+        form = pane.paneForm(formId=formId,datapath='.provincia',**kwargs)
         form.recordClusterStore('glbl.provincia',storeType='Item',startKey=startKey)
         left = 'selectrecord,|,' if not startKey else ''
-        form.top.slotToolbar('mytoolbar','%s *,|,semaphore,|,formcommands,|,locker' %left,height='20px')
-        fb = form.content.formbuilder(cols=2, border_spacing='4px', width="400px", fld_width="100%")
+        form.slotBar('mytoolbar','%s *,|,semaphore,|,formcommands,|,locker' %left,side='top',toolbar=True)
+        fb = form.formbuilder(cols=2, border_spacing='4px', width="400px", fld_width="100%")
         fb.formContent()
         return form
         
