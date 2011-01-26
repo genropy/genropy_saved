@@ -341,7 +341,10 @@ dojo.declare("gnr.widgets.baseHtml", null, {
                 if(sourceNode.form){
                     if(typeof(newobj.focus)=='function'){
                         sourceNode.form.currentFocused=newobj;
+                        genro.activeForm = sourceNode.form;
                     }
+                }else{
+                    genro.activeForm = null;
                 }
                 genro.currentFocusedElement = newobj;
             });
