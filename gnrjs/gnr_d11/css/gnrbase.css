@@ -1437,14 +1437,14 @@ textarea:disabled {
 
 /* @end */
 
-/* @group SlotToolbar */
+/* @group SlotBar */
 
 .tundra .sltb_toolbar.dijitToolbar {
 	padding: 1px 5px;
 }
 
 .sltb_row{
-	height: 26px;
+	height: 20px;
 }
 .sltb_slot_td{
 	vertical-align: middle;
