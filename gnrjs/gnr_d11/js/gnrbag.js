@@ -100,6 +100,13 @@ dojo.declare("gnr.GnrBagNode", null, {
             return this._parentbag;
         }
     },
+    orphaned:function(){
+        this._parentbag = null;
+        if(this._value instanceof gnr.GnrBag){
+            this._value.clearBackRef();
+        }
+        return this;
+    },
 
     /**
      * @id setParentBag
@@ -1144,7 +1151,10 @@ dojo.declare("gnr.GnrBag", null, {
         var obj = node.value;
         var label = node.label;
         if (obj) {
-            return obj._pop(label, doTrigger);
+            var n = obj._pop(label, doTrigger);
+            if(n){
+                return n.orphaned();
+            }
         }
 
     },
