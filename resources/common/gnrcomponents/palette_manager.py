@@ -52,35 +52,30 @@ class PaletteManager(BaseComponent):
     def pm_selectionStore(self, pane, storeCode=None,table=None, storepath=None,columns=None,**kwargs):
         attr = pane.attributes
         parentTag = attr.get('tag')
+        columns = columns or '==gnr.getGridColumns(this);'
+        if parentTag:
+            parentTag = parentTag.lower()
         #storepath = storepath or attr.get('storepath') or '.grid.store'
-        
         if storeCode:
-            nodeId = '%s_store' %storeCode
-            storepath = storepath or 'gnr.stores.%s.data' %storeCode
-            columns = columns or '==gnr.mergeGridColumns(this);'
-            
-            
+            storepath = storepath or 'gnr.stores.%s.data' %storeCode            
         
-        elif parentTag =='includedView':
+        elif parentTag =='includedview':
             gridId = attr.get('nodeId')
-            nodeId = '%s_selection' %gridId
             attr['table'] = table
             storepath = storepath or attr.get('storepath') or '.store'
             attr['storepath'] = storepath
-            #attr['structpath'] = attr.get('structpath') or '.struct'
-            columns=columns or '=.columns'
-            attr['storeNodeId'] = nodeId
-                        
-        elif parentTag == 'paneGrid' or parentTag == 'paletteGrid':
+            storeCode=gridId
+              
+        elif parentTag == 'panegrid' or parentTag == 'palettegrid':
             gridId = attr.get('gridId')
             if not gridId:
                 code = attr.get('paneCode') or attr.get('paletteCode')
                 gridId = '%s_grid' %code
-            nodeId = '%s_store' %gridId
+            storeCode=gridId
             attr['table'] = table
-            attr['storeNodeId'] = nodeId
-                        
-        
-        pane.dataSelection(storepath, table, nodeId=nodeId,columns=columns,_storeCode=storeCode,**kwargs)
+            storepath = storepath or attr.get('storepath') or '.grid.store'
+            
+        nodeId = '%s_store' %storeCode
+        pane.dataSelection(storepath, table, nodeId=nodeId,columns=columns,**kwargs)
         
     
