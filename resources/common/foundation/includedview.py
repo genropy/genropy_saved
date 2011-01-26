@@ -380,7 +380,7 @@ class IncludedView(BaseComponent):
         assert not 'columnsFromView' in selectionPars
         assert not 'nodeId' in selectionPars
         #assert 'where' in selectionPars
-        selectionPars['nodeId'] = "%s_selection" % gridId
+        selectionPars['nodeId'] = "%s_store" % gridId
         if table:
             selectionPars['table'] = table
             selectionPars['columns'] = selectionPars.get('columns') or '=.columns'
