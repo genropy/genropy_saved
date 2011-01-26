@@ -569,8 +569,8 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
         struct = page._prepareGridStruct(source=source,table=table,gridId=gridId)
         if not struct and not table:
             def getStruct(source=None,gridattr=None,gridId=None):
-                storeNodeId = gridattr.get('storeNodeId') or '%s_store' %gridattr.get('store')
-                storeNode = page.pageSource(storeNodeId)                
+                storeCode = gridattr.get('store') or gridattr.get('nodeId') or gridattr.get('gridId')
+                storeNode = page.pageSource('%s_store' %storeCode)
                 if storeNode:
                     table = storeNode.attr.get('table')
                 return page._prepareGridStruct(source=source,table=table,gridId=gridId)
