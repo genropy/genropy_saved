@@ -473,7 +473,8 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
              'dataRemote', 'gridView', 'viewHeader', 'viewRow', 'script', 'func',
              'staticGrid', 'dynamicGrid', 'fileUploader', 'gridEditor', 'ckEditor', 
             'tinyMCE', 'protovis', 'PaletteGroup','PalettePane','BagNodeEditor',
-            'PaletteBagNodeEditor','Palette','PaletteTree','SearchBox','FormStore','PaneGrid','FramePane','PaneForm']
+            'PaletteBagNodeEditor','Palette','PaletteTree','PaneTree',
+            'SearchBox','FormStore','FrameGrid','FramePane','FrameForm']
     genroNameSpace = dict([(name.lower(), name) for name in htmlNS])
     genroNameSpace.update(dict([(name.lower(), name) for name in dijitNS]))
     genroNameSpace.update(dict([(name.lower(), name) for name in dojoxNS]))
@@ -528,9 +529,9 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
             palette.data('.store',data)
         return palette
         
-    def paneGrid(self,paneCode,**kwargs):
-        kwargs['gridId'] = kwargs.get('gridId') or '%s_grid' %paneCode
-        return self._palette_or_pane_grid(paneCode=paneCode,frameCode=paneCode,childTag='PaneGrid',**kwargs)
+    def frameGrid(self,frameCode=None,**kwargs):
+        kwargs['gridId'] = kwargs.get('gridId') or '%s_grid' %frameCode
+        return self._palette_or_pane_grid(frameCode=frameCode,childTag='FrameGrid',**kwargs)
         
     def paletteGrid(self,paletteCode,datapath=None,**kwargs):
         datapath= datapath or 'gnr.palettes.%s' %paletteCode
@@ -541,7 +542,6 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
                                 columns=None,table=None,structpath=None,gridId=None,**kwargs):
         structpath = structpath or '.grid.struct'
         gridId = kwargs.get('gridId') or '%s_grid' %kwargs.get('frameCode')
-        kwargs['wdgNodeId'] = gridId
         pane = self.child(childTag,table=table,structpath=structpath,gridId=gridId,**kwargs)
         pane._setGridStruct(struct=struct)   
         if data is not None:
@@ -581,7 +581,6 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
     def slotBar(self,slotbarCode=None,slots=None,**kwargs):
         tb = self.child('slotBar',slotbarCode=slotbarCode,slots=slots,**kwargs)
         slots = gnrstring.splitAndStrip(slots)
-        wdgNodeId = self.getInheritedAttributes().get('wdgNodeId')
         frameCode = self.getInheritedAttributes().get('frameCode')
         for slot in slots:
             if slot!='*' and slot!='|':
@@ -592,7 +591,6 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
                 if slothandle:
                     kw = dict()
                     kw[slot] = kwargs.get(slot,None)
-                    kw['wdgNodeId'] = wdgNodeId
                     kw['frameCode'] = frameCode
                     slothandle(**kw)
         
