@@ -185,44 +185,8 @@ dojo.declare("gnr.widgets.FrameForm", gnr.widgets.gnrwdg, {
     }
 });
 
-dojo.declare("gnr.widgets._FrameGrid", gnr.widgets.gnrwdg, {
-    createContent:function(sourceNode, kw,children) {
-        var frameCode = kw.frameCode;
-        var gridId = objectPop(kw, 'gridId') || frameCode+'_grid';
-        var storepath = objectPop(kw, 'storepath');
-        var structpath = objectPop(kw, 'structpath');
-        storepath = storepath? sourceNode.absDatapath(storepath):'.store';
-        structpath = structpath? sourceNode.absDatapath(structpath):'.struct';
-        var gridKwargs = {'nodeId':gridId,'datapath':'.grid',
-                           'table':objectPop(kw,'table'),
-                           'margin':'6px','configurable':true,
-                           'storepath': storepath,
-                           'structpath': structpath,
-                           'frameCode':frameCode,
-                           'autoWidth':false,
-                           'relativeWorkspace':true};             
-        objectUpdate(gridKwargs, objectExtract(kw, 'grid_*'));
-        var pane = this.getFrame(sourceNode,kw);
-        if(kw.searchOn){
-            pane._('SlotBar',{'side':'top',slots:'*,searchOn',searchOn:objectPop(kw,'searchOn'),toolbar:true});
-        }
-        var grid = pane._('includedview', gridKwargs);
-        return pane;
-    }    
-});
 
-dojo.declare("gnr.widgets.FrameGrid", gnr.widgets._FrameGrid, {
-    getFrame:function(sourceNode,kw){
-        return sourceNode._('framePane',kw);
-    }
-});
-
-dojo.declare("gnr.widgets.PaletteGrid", gnr.widgets._FrameGrid, {
-    getFrame:function(sourceNode,kw){
-        kw['contentWidget'] = 'FramePane';
-        return sourceNode._('PalettePane',kw);
-    },
-    
+dojo.declare("gnr.widgets.PaletteGrid", gnr.widgets.gnrwdg, {
     contentKwargs:function(sourceNode, attributes){
         var gridId = attributes.gridId || attributes.paletteCode+'_grid';
         attributes['frameCode'] = attributes.paletteCode;
@@ -232,53 +196,43 @@ dojo.declare("gnr.widgets.PaletteGrid", gnr.widgets._FrameGrid, {
                 grid.reload();
             }
         }
-        attributes.grid_onDrag = function(dragValues, dragInfo) {
+        return attributes;
+    },
+    createContent:function(sourceNode, kw,children) {
+        var frameCode = kw.frameCode;
+        var gridId = objectPop(kw, 'gridId') || frameCode+'_grid';
+        var storepath = objectPop(kw, 'storepath');
+        var structpath = objectPop(kw, 'structpath');
+        var store = objectPop(kw, 'store');
+        storepath = storepath? sourceNode.absDatapath(storepath):'.store';
+        structpath = structpath? sourceNode.absDatapath(structpath):'.struct';
+        var gridKwargs = {'nodeId':gridId,'datapath':'.grid',
+                           'table':objectPop(kw,'table'),
+                           'margin':'6px','configurable':true,
+                           'storepath': storepath,
+                           'structpath': structpath,
+                           'frameCode':frameCode,
+                           'autoWidth':false,
+                           'store':store,
+                           'relativeWorkspace':true};   
+        gridKwargs.onDrag = function(dragValues, dragInfo) {
             if (dragInfo.dragmode == 'row') {
-                console.log(dragValues.gridrow.rowset)
                 dragValues[attributes.paletteCode] = dragValues.gridrow.rowset;
             }
-        };
-        attributes.grid_draggable_row=true;
-        return attributes;
-    }
-});
-
-dojo.declare("gnr.widgets._FrameTree", gnr.widgets.gnrwdg, {
-    createContent:function(sourceNode, kw) {
-        var frameCode = kw.frameCode;
-        var editable = objectPop(kw, 'editable');
-        var treeId = objectPop(kw, 'treeId') || frameCode + '_tree';
-        var storepath = objectPop(kw, 'storepath') || '.store';
-        var tree_kwargs = {_class:'fieldsTree', hideValues:true,
-                            margin:'6px',nodeId:treeId,
-                            'frameCode':frameCode,
-                            storepath:storepath,labelAttribute:'caption'};
-        objectUpdate(tree_kwargs, objectExtract(kw, 'tree_*'));
-        var searchOn = objectPop(kw, 'searchOn');
-        var pane = this.getFrame(sourceNode,kw);
-        if (searchOn) {
-            pane._('SlotBar',{'side':'top',slots:'*,searchOn',searchOn:true,toolbar:true});
+        };     
+        gridKwargs.draggable_row=true;
+        objectUpdate(gridKwargs, objectExtract(kw, 'grid_*'));
+        kw['contentWidget'] = 'FramePane';
+        var pane = sourceNode._('PalettePane',kw)
+        if(kw.searchOn){
+            pane._('SlotBar',{'side':'top',slots:'*,searchOn',searchOn:objectPop(kw,'searchOn'),toolbar:true});
         }
-        if (editable) {
-            var bc = pane._('BorderContainer',{'side':'center'});
-            var bottom = bc._('ContentPane', {'region':'bottom',height:'30%',
-                splitter:true});
-            bottom._('BagNodeEditor', {nodeId:treeId + '_editbagbox',datapath:'.bagNodeEditor',bagpath:pane.getParentNode().absDatapath(storepath)});
-            pane = bc._('ContentPane',{'region':'center'});
-        }
-        pane._('tree', tree_kwargs);
+        var grid = pane._('includedview', gridKwargs);
         return pane;
-    }
+    }    
 });
 
-dojo.declare("gnr.widgets.FrameTree", gnr.widgets._FrameTree, {
-    getFrame:function(sourceNode,kw){
-        return sourceNode._('framePane',kw);
-    }
-});
-
-dojo.declare("gnr.widgets.PaletteTree", gnr.widgets._FrameTree, {
-    _containerWidget:'PalettePane',
+dojo.declare("gnr.widgets.PaletteTree", gnr.widgets.gnrwdg, {
     contentKwargs:function(sourceNode, attributes){
         attributes['frameCode'] = attributes.paletteCode;
         attributes.tree_onDrag = function(dragValues, dragInfo, treeItem) {
@@ -291,9 +245,32 @@ dojo.declare("gnr.widgets.PaletteTree", gnr.widgets._FrameTree, {
         attributes.tree_draggable=true;
         return attributes;
     },
-    getFrame:function(sourceNode,kw){
+
+    createContent:function(sourceNode, kw) {
+        var frameCode = kw.frameCode;
+        var editable = objectPop(kw, 'editable');
+        var treeId = objectPop(kw, 'treeId') || frameCode + '_tree';
+        var storepath = objectPop(kw, 'storepath') || '.store';
+        var tree_kwargs = {_class:'fieldsTree', hideValues:true,
+                            margin:'6px',nodeId:treeId,
+                            'frameCode':frameCode,
+                            storepath:storepath,labelAttribute:'caption'};
+        objectUpdate(tree_kwargs, objectExtract(kw, 'tree_*'));
+        var searchOn = objectPop(kw, 'searchOn');
         kw['contentWidget'] = 'FramePane';
-        return sourceNode._('PalettePane',kw);
+        var pane = sourceNode._('PalettePane',kw);
+        if (searchOn) {
+            pane._('SlotBar',{'side':'top',slots:'*,searchOn',searchOn:true,toolbar:true});
+        }
+        if (editable) {
+            var bc = pane._('BorderContainer',{'side':'center'});
+            var bottom = bc._('ContentPane', {'region':'bottom',height:'30%',
+                splitter:true});
+            bottom._('BagNodeEditor', {nodeId:treeId + '_editbagbox',datapath:'.bagNodeEditor',bagpath:pane.getParentNode().absDatapath(storepath)});
+            pane = bc._('ContentPane',{'region':'center'});
+        }
+        pane._('tree', tree_kwargs);
+        return pane;
     }
 });
 
@@ -430,7 +407,7 @@ dojo.declare("gnr.widgets.SearchBox", gnr.widgets.gnrwdg, {
         return '.searchbox';
     },
     createContent:function(sourceNode, kw) {
-        var searchOn = objectPop(kw, 'searchOn');
+        var searchOn = objectPop(kw, 'searchOn') || true;
         var searchDtypes;
         if (searchOn[0] == '*') {
             searchDtypes = searchOn.slice(1);
@@ -505,7 +482,6 @@ dojo.declare("gnr.widgets.PaletteGroup", gnr.widgets.gnrwdg, {
         return tc;
     }
 });
-
 
 dojo.declare("gnr.widgets.SlotBar", gnr.widgets.gnrwdg, {
     createContent:function(sourceNode, kw,children) {
