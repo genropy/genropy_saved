@@ -41,6 +41,7 @@ class CsvWriter(object):
         f.close()
 
 class BaseResourceExport(BaseResourceBatch):
+    batch_immediate = True
     def __init__(self, *args, **kwargs):
         super(BaseResourceExport, self).__init__(*args, **kwargs)
         self.locale = self.page.locale
@@ -120,6 +121,8 @@ class BaseResourceExport(BaseResourceBatch):
         self.filepath = self.page.site.getStaticPath('page:output', self.export_mode, self.filename, autocreate=-1)
 
     def result_handler(self):
+        if self.batch_immediate:
+            self.page.setInClientData(path='gnr.downloadurl',value=self.fileurl,fired=True)
         return 'Execution completed', dict(url=self.fileurl, document_name=self.batch_parameters['filename'])
 
     def get_record_caption(self, item, progress, maximum, **kwargs):

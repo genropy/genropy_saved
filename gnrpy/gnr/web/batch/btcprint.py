@@ -15,6 +15,7 @@ class BaseResourcePrint(BaseResourceBatch):
     dialog_height_no_par = '245px'
     templates = '' #CONTROLLARE
     mail_tags = 'admin'
+    batch_immediate = False
 
     def __init__(self, *args, **kwargs):
         super(BaseResourcePrint, self).__init__(**kwargs)
@@ -117,8 +118,11 @@ class BaseResourcePrint(BaseResourceBatch):
                                        outputFilePath=self.page.site.getStaticPath('user:output', 'pdf', save_as,
                                                                                    autocreate=-1))
         if filename:
-            resultAttr['url'] = self.page.site.getStaticUrl('user:output', 'pdf', filename, nocache=True, download=True)
+            self.fileurl = self.page.site.getStaticUrl('user:output', 'pdf', filename, nocache=True, download=True)
+            resultAttr['url'] = self.fileurl
             resultAttr['document_name'] = save_as
+            if self.batch_immediate:
+                self.page.setInClientData(path='gnr.downloadurl',value=self.fileurl,fired=True)
 
     def table_script_option_pane(self, pane, resource=None):
         bc = pane.borderContainer(height='220px')
