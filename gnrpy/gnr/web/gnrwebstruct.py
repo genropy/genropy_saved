@@ -767,7 +767,7 @@ class GnrFormBuilder(object):
                  lblclass='gnrfieldlabel', lblpos='L', lblalign=None, fldalign=None,
                  lblvalign='middle', fldvalign='middle', rowdatapath=None, head_rows=None, commonKwargs=None):
         self.commonKwargs = commonKwargs or {}
-        self.lblalign = lblalign or {'L': 'right', 'T': 'center'}[lblpos] # jbe?  why is this right and not left?
+        self.lblalign = lblalign or {'L': 'right', 'T': 'left'}[lblpos] # jbe?  why is this right and not left?
         self.fldalign = fldalign or {'L': 'left', 'T': 'center'}[lblpos]
         self.lblvalign = lblvalign
         self.fldvalign = fldvalign
