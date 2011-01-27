@@ -204,6 +204,7 @@ dojo.declare("gnr.widgets.PaletteGrid", gnr.widgets.gnrwdg, {
         var storepath = objectPop(kw, 'storepath');
         var structpath = objectPop(kw, 'structpath');
         var store = objectPop(kw, 'store');
+        var paletteCode=kw.paletteCode
         storepath = storepath? sourceNode.absDatapath(storepath):'.store';
         structpath = structpath? sourceNode.absDatapath(structpath):'.struct';
         var gridKwargs = {'nodeId':gridId,'datapath':'.grid',
@@ -217,7 +218,7 @@ dojo.declare("gnr.widgets.PaletteGrid", gnr.widgets.gnrwdg, {
                            'relativeWorkspace':true};   
         gridKwargs.onDrag = function(dragValues, dragInfo) {
             if (dragInfo.dragmode == 'row') {
-                dragValues[attributes.paletteCode] = dragValues.gridrow.rowset;
+                dragValues[paletteCode] = dragValues.gridrow.rowset;
             }
         };     
         gridKwargs.draggable_row=true;
