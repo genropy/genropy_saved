@@ -101,7 +101,6 @@ dojo.declare("gnr.widgets.Palette", gnr.widgets.gnrwdg, {
     }
 });
 
-
 dojo.declare("gnr.widgets.PalettePane", gnr.widgets.gnrwdg, {
     contentKwargs: function(sourceNode, attributes) {
         var inattr = sourceNode.getInheritedAttributes();
@@ -120,9 +119,10 @@ dojo.declare("gnr.widgets.PalettePane", gnr.widgets.gnrwdg, {
     },
     createContent:function(sourceNode, kw) {
         var paletteCode = objectPop(kw, 'paletteCode');
+        var contentWidget = objectPop(kw,'contentWidget') || 'ContentPane';
         var groupCode = objectPop(kw, 'groupCode');
         if (groupCode) {
-            var pane = sourceNode._('ContentPane', objectExtract(kw, 'title,pageName'))._('FramePane', objectUpdate({'detachable':true}, kw));
+            var pane = sourceNode._('ContentPane', objectExtract(kw, 'title,pageName'))._(contentWidget, objectUpdate({'detachable':true}, kw));
             var controller_kw = {'script':"SET gnr.palettes._groups.pagename." + groupCode + " = paletteCode;",
                 'paletteCode':paletteCode}
             controller_kw['subscribe_show_palette_' + paletteCode] = true;
@@ -137,7 +137,7 @@ dojo.declare("gnr.widgets.PalettePane", gnr.widgets.gnrwdg, {
                 genro.publish('palette_' + paletteCode + '_showing');
             }
             var floating = sourceNode._('palette', palette_kwargs);
-            return floating._('FramePane', kw);
+            return floating._(contentWidget, kw);
         }
     }
 });
@@ -145,12 +145,14 @@ dojo.declare("gnr.widgets.PalettePane", gnr.widgets.gnrwdg, {
 dojo.declare("gnr.widgets.FramePane", gnr.widgets.gnrwdg, {
     createContent:function(sourceNode, kw,children) {
         var node;
+        var frameCode = kw.frameCode;
         objectPop(kw,'datapath');
         kw['height'] = kw['height'] || '100%';
         var bc = sourceNode._('BorderContainer', kw);
         dojo.forEach(['top','bottom','left','right'],function(side){
              node = children.popNode('#side='+side);
              if(node){
+                 node.attr['frameCode'] = frameCode;
                  bc._('ContentPane',{'region':side}).setItem('#id',node._value,node.attr);
              }
         });
@@ -167,103 +169,90 @@ dojo.declare("gnr.widgets.FramePane", gnr.widgets.gnrwdg, {
     }
 });
 
-dojo.declare("gnr.widgets.PaneForm", gnr.widgets.gnrwdg, {
+dojo.declare("gnr.widgets.FrameForm", gnr.widgets.gnrwdg, {
     createContent:function(sourceNode, kw,children) {
         var formId = objectPop(kw,'formId');
+        var frameCode = kw.frameCode;
         var frame = sourceNode._('FramePane',objectUpdate({formDatapath:'.record',controllerPath:'.form',pkeyPath:'.pkey',
-                                                      formId:formId,wdgNodeId:formId},kw));
+                                                      formId:formId,frameCode:frameCode},kw));
         frame._('SlotBar',{'side':'bottom',slots:'*,messageBox,*',_class:'fh_bottom_message',messageBox_subscribeTo:'form_'+formId+'_message'});
         frame._('ContentPane',{side:'center','datapath':'.record','_class':'fh_content','nodeId':formId+'_content'});
         return frame;
     }
 });
-/*
-dojo.declare("gnr.widgets.PaletteForm", gnr.widgets.gnrwdg, {
-    createContent:function(sourceNode, kw,children) {
-        var paletteCode = objectPop(kw,'paletteCode') || kw['formId'];
-        kw['formId'] = kw['formId'] || paletteCode+'_frm';
-        var paletteKw = objectExtract(kw, 'title,dockTo,top,left,right,bottom,maxable,height,width');
-        paletteKw['paletteCode'] = paletteCode;
-        kw['paneCode'] = paletteCode;
-        return sourceNode._('PalettePane', paletteKw)._('PaneForm',kw);
-    }
-});*/
 
 dojo.declare("gnr.widgets._FrameGrid", gnr.widgets.gnrwdg, {
     createContent:function(sourceNode, kw,children) {
-        var paneCode = objectPop(kw, 'paneCode');
-        var gridId = objectPop(kw, 'gridId') || paneCode+'_grid';
+        var frameCode = kw.frameCode;
+        var gridId = objectPop(kw, 'gridId') || frameCode+'_grid';
         var storepath = objectPop(kw, 'storepath');
         var structpath = objectPop(kw, 'structpath');
         storepath = storepath? sourceNode.absDatapath(storepath):'.store';
         structpath = structpath? sourceNode.absDatapath(structpath):'.struct';
-        var gridKwargs = {'nodeId':gridId,'datapath':'.grid','table':objectPop(kw,'table'),
+        var gridKwargs = {'nodeId':gridId,'datapath':'.grid',
+                           'table':objectPop(kw,'table'),
                            'margin':'6px','configurable':true,
                            'storepath': storepath,
                            'structpath': structpath,
-                           'draggable_row':true,
-                           'frameCode':paneCode,
+                           'frameCode':frameCode,
+                           'autoWidth':false,
                            'relativeWorkspace':true};             
-        gridKwargs.grid_onDrag = function(dragValues, dragInfo) {
-            if (dragInfo.dragmode == 'row') {
-                dragValues[paneCode] = dragValues.gridrow.rowsets;
-            }
-        };
         objectUpdate(gridKwargs, objectExtract(kw, 'grid_*'));
-        kw['wdgNodeId'] = gridId;
-        var pane = sourceNode._(this._containerWidget, kw);
+        var pane = this.getFrame(sourceNode,kw);
         if(kw.searchOn){
-            pane._('SlotBar',{'side':'top',slots:'*,searchOn',frameCode:paneCode,searchOn:objectPop(kw,'searchOn'),toolbar:true});
+            pane._('SlotBar',{'side':'top',slots:'*,searchOn',searchOn:objectPop(kw,'searchOn'),toolbar:true});
         }
         var grid = pane._('includedview', gridKwargs);
         return pane;
     }    
 });
 
-
-
-dojo.declare("gnr.widgets.PaneGrid", gnr.widgets._FrameGrid, {
-    _containerWidget:'FramePane'
+dojo.declare("gnr.widgets.FrameGrid", gnr.widgets._FrameGrid, {
+    getFrame:function(sourceNode,kw){
+        return sourceNode._('framePane',kw);
+    }
 });
 
 dojo.declare("gnr.widgets.PaletteGrid", gnr.widgets._FrameGrid, {
-    _containerWidget:'PalettePane',
+    getFrame:function(sourceNode,kw){
+        kw['contentWidget'] = 'FramePane';
+        return sourceNode._('PalettePane',kw);
+    },
+    
     contentKwargs:function(sourceNode, attributes){
         var gridId = attributes.gridId || attributes.paletteCode+'_grid';
-        attributes['paneCode'] = attributes.paletteCode;
+        attributes['frameCode'] = attributes.paletteCode;
         attributes.selfsubscribe_showing = function() {
             var grid = genro.wdgById(gridId);
             if (grid.storebag().len() == 0) {
                 grid.reload();
             }
         }
+        attributes.grid_grid_onDrag = function(dragValues, dragInfo) {
+            if (dragInfo.dragmode == 'row') {
+                dragValues[attributes.paletteCode] = dragValues.gridrow.rowsets;
+            }
+        };
+        attributes.grid_draggable_row=true;
         return attributes;
     }
 });
 
-
 dojo.declare("gnr.widgets._FrameTree", gnr.widgets.gnrwdg, {
     createContent:function(sourceNode, kw) {
-        var paneCode = kw.paneCode;
+        var frameCode = kw.frameCode;
         var editable = objectPop(kw, 'editable');
-        var treeId = objectPop(kw, 'treeId') || paneCode + '_tree';
+        var treeId = objectPop(kw, 'treeId') || frameCode + '_tree';
         var storepath = objectPop(kw, 'storepath') || '.store';
         var tree_kwargs = {_class:'fieldsTree', hideValues:true,
-            margin:'6px', draggable:true,nodeId:treeId,
-            'frameCode':paneCode,
-            storepath:storepath,labelAttribute:'caption'};
-        tree_kwargs.onDrag = function(dragValues, dragInfo, treeItem) {
-            if (treeItem.attr.child_count && treeItem.attr.child_count > 0) {
-                return false;
-            }
-            dragValues['text/plain'] = treeItem.attr.caption;
-            dragValues[paneCode] = treeItem.attr;
-        };
+                            margin:'6px',nodeId:treeId,
+                            'frameCode':frameCode,
+                            storepath:storepath,labelAttribute:'caption'};
         objectUpdate(tree_kwargs, objectExtract(kw, 'tree_*'));
         var searchOn = objectPop(kw, 'searchOn');
-        var pane = sourceNode._(this._containerWidget, kw);
+        var pane = this.getFrame(sourceNode,kw);
         if (searchOn) {
-            pane._('SlotBar',{'side':'top',slots:'*,searchOn',wdgNodeId:treeId,searchOn:true,toolbar:true});
+            pane._('SlotBar',{'side':'top',slots:'*,searchOn',searchOn:true,toolbar:true});
         }
         if (editable) {
             var bc = pane._('BorderContainer',{'side':'center'});
@@ -276,15 +265,30 @@ dojo.declare("gnr.widgets._FrameTree", gnr.widgets.gnrwdg, {
         return pane;
     }
 });
-dojo.declare("gnr.widgets.PaneTree", gnr.widgets._FrameTree, {
-    _containerWidget:'FramePane'
+
+dojo.declare("gnr.widgets.FrameTree", gnr.widgets._FrameTree, {
+    getFrame:function(sourceNode,kw){
+        return sourceNode._('framePane',kw);
+    }
 });
 
 dojo.declare("gnr.widgets.PaletteTree", gnr.widgets._FrameTree, {
     _containerWidget:'PalettePane',
     contentKwargs:function(sourceNode, attributes){
-        attributes['paneCode'] = attributes.paletteCode;
+        attributes['frameCode'] = attributes.paletteCode;
+        attributes.tree_onDrag = function(dragValues, dragInfo, treeItem) {
+            if (treeItem.attr.child_count && treeItem.attr.child_count > 0) {
+                return false;
+            }
+            dragValues['text/plain'] = treeItem.attr.caption;
+            dragValues[attributes.paletteCode] = treeItem.attr;
+        };
+        attributes.tree_draggable=true;
         return attributes;
+    },
+    getFrame:function(sourceNode,kw){
+        kw['contentWidget'] = 'FramePane';
+        return sourceNode._('PalettePane',kw);
     }
 });
 
