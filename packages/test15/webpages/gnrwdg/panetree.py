@@ -1,6 +1,6 @@
 # -*- coding: UTF-8 -*-
 
-# panetree.py
+# frametree.py
 # Created by Francesco Porcari on 2011-01-21.
 # Copyright (c) 2011 Softwell. All rights reserved.
 

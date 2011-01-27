@@ -15,7 +15,7 @@ class GnrCustomWebPage(object):
     
     @struct_method
     def formTester(self,pane,formId=None,**kwargs):
-        form = pane.paneForm(formId=formId,datapath='.provincia',store='provinceRegione',**kwargs)
+        form = pane.frameForm(formId=formId,datapath='.provincia',store='provinceRegione',**kwargs)
         form.loader('recordCluster')
         form.saver('recordCluster')
         form.deleter('recordCluster')
@@ -37,13 +37,13 @@ class GnrCustomWebPage(object):
         bc.selectionStore('provinceRegione',table='glbl.provincia',where='$regione=:r',
                           r='^#selector.regione',_fired='^#selector.reload')
     
-        paneGrid = bc.paneGrid('province',region='left',struct='regione',width='300px',
+        frameGrid = bc.frameGrid('province',region='left',struct='regione',width='300px',
                                 store='provinceRegione',
                                 autoSelect=True,selectedId='.selectedPkey',
                                 selfsubscribe_onSelectedRow='genro.formById("provincia").publish("load",{destPkey:$1.selectedId});',
                                 subscribe_form_provincia_onLoaded="this.widget.selectByRowAttr('_pkey',$1.pkey)")
                                 
-        paneGrid.slotBar('gridtoolbar','*,selector',side='top')
+        frameGrid.slotBar('gridtoolbar','*,selector',side='top')
         
         center = bc.contentPane(region='center',border='1px solid blue').formTester(formId='provincia')
 

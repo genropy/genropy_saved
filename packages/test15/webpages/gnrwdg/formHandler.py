@@ -16,7 +16,7 @@ class GnrCustomWebPage(object):
     
     @struct_method
     def formTester(self,pane,formId=None,startKey=None,**kwargs):
-        form = pane.paneForm(formId=formId,datapath='.provincia',**kwargs)
+        form = pane.frameForm(formId=formId,datapath='.provincia',**kwargs)
         form.recordClusterStore('glbl.provincia',storeType='Item',startKey=startKey)
         left = 'selectrecord,|,' if not startKey else ''
         form.slotBar('mytoolbar','%s *,|,semaphore,|,formcommands,|,locker' %left,side='top',toolbar=True)
@@ -76,8 +76,8 @@ class GnrCustomWebPage(object):
                                  var palette = genro.src.create('palettePane',{'paletteCode':paletteCode,
                                                                     title:'Palette:'+pkey,
                                                                     _lazyBuild:'testPalette',
-                                                                    palette_width:'600px',
-                                                                    palette_height:'300px',
+                                                                    width:'600px',
+                                                                    height:'300px',
                                                                     dockTo:false, //'test_3_dock:open',
                                                                     remote_pkey:pkey},
                                                                     paletteCode);

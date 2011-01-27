@@ -1,6 +1,6 @@
 # -*- coding: UTF-8 -*-
 
-# panegrid.py
+# framegrid.py
 # Created by Francesco Porcari on 2011-01-21.
 # Copyright (c) 2011 Softwell. All rights reserved.
 
@@ -12,20 +12,28 @@ class GnrCustomWebPage(object):
     def windowTitle(self):
         return ''
         
-    def _test_0_panegrid(self,pane):
+    def _test_0_framegrid(self,pane):
         """Pane grid """
         pane = pane.framePane(height='200px')
         pane.contentPane(height='30px',side='top',background='blue')
         pane.contentPane(margin='10px',background='red')
+    
+    def test_0_frame_includedview(self,pane):
+        """Pane grid """
+        pane = pane.framePane(frameCode='province',height='200px')
+        pane.slotBar('gridtoolbar','*,searchOn',searchOn=True,side='top')
+        pane.includedView(frameCode='province',struct='regione',
+                        relativeWorkspace=True,datapath='.mygrid'
+                        ).selectionStore(table='glbl.provincia',where="$regione='LOM'",_onStart=True)
         
          
-    def test_0_panegrid(self,pane):
+    def test_0_framegrid(self,pane):
         """Pane grid """
         bc = pane.borderContainer(height='200px')
         bc.contentPane(region='left',width='200px',background_color='red')
-        paneGrid = bc.paneGrid('province_1',struct='regione',table='glbl.provincia',region='center')
-        paneGrid.slotBar('province',slots='*,piero',piero='*A,T,D',side='top',toolbar=True)
-        paneGrid.selectionStore(storepath='.grid.store',table='glbl.provincia',
+        frameGrid = bc.frameGrid('province_1',struct='regione',table='glbl.provincia',region='center')
+        frameGrid.slotBar('province',slots='*,piero',piero='*A,T,D',side='top',toolbar=True)
+        frameGrid.selectionStore(storepath='.grid.store',table='glbl.provincia',
                                 where="$regione='LOM'",gridId='province_1_grid',_onStart=True)   
     
     @struct_method('province_piero')
@@ -33,8 +41,8 @@ class GnrCustomWebPage(object):
         return pane.div(width='205px').searchBox(nodeId='%s_searchbox' %frameCode,searchOn=piero,datapath='.searchbox')
         
     def test_1_palettegrid(self,pane):
-        paneGrid = pane.paletteGrid('province_2',title='Province',
+        frameGrid = pane.paletteGrid('province_2',title='Province',
                                     struct='regione',dockTo='*',
                                     table='glbl.provincia',searchOn='*A,T,D')
-        paneGrid.selectionStore(storepath='.grid.store',table='glbl.provincia',
+        frameGrid.selectionStore(storepath='.grid.store',table='glbl.provincia',
                                 where="$regione='LOM'",gridId='province_2_grid') 
