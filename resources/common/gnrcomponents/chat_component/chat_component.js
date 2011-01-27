@@ -49,7 +49,7 @@ ct_chat_utils.open_chat = function(roomId, users) {
         }
     });
 
-    bottombox._('button', {label:'Condividi la pagina corrente',width:"100%",id:'ct_msgbtn_'+roomId,
+    bottombox._('button', {label:'!!Share the current page',width:"100%",id:'ct_msgbtn_'+roomId,
                            roomId:roomId, msg_path: roompath + '.current_msg',
                            action:'genro.setData(msg_path,window.location.href);' +
                                    'genro.publish("ct_send_message", {roomId: roomId});'});
