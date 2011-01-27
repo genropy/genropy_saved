@@ -473,8 +473,8 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
              'dataRemote', 'gridView', 'viewHeader', 'viewRow', 'script', 'func',
              'staticGrid', 'dynamicGrid', 'fileUploader', 'gridEditor', 'ckEditor', 
             'tinyMCE', 'protovis', 'PaletteGroup','PalettePane','BagNodeEditor',
-            'PaletteBagNodeEditor','Palette','PaletteTree','PaneTree',
-            'SearchBox','FormStore','FrameGrid','FramePane','FrameForm']
+            'PaletteBagNodeEditor','Palette','PaletteTree','SearchBox','FormStore',
+            'FramePane','FrameForm']
     genroNameSpace = dict([(name.lower(), name) for name in htmlNS])
     genroNameSpace.update(dict([(name.lower(), name) for name in dijitNS]))
     genroNameSpace.update(dict([(name.lower(), name) for name in dojoxNS]))
@@ -522,43 +522,50 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
         datapath= datapath or 'gnr.palettes.%s' %paletteCode
         return self.child('PalettePane',paletteCode=paletteCode,datapath=datapath,**kwargs)
         
-    def paletteTree(self,paletteCode,datapath=None,data=None,**kwargs): 
+    def paletteTree(self,paletteCode,datapath=None,**kwargs): 
         datapath= datapath or 'gnr.palettes.%s' %paletteCode       
         palette = self.child('PaletteTree',paletteCode=paletteCode,datapath=datapath,**kwargs)
-        if data is not None:
-            palette.data('.store',data)
         return palette
-        
-    def frameGrid(self,frameCode=None,**kwargs):
-        kwargs['gridId'] = kwargs.get('gridId') or '%s_grid' %frameCode
-        return self._palette_or_pane_grid(frameCode=frameCode,childTag='FrameGrid',**kwargs)
-        
-    def paletteGrid(self,paletteCode,datapath=None,**kwargs):
-        datapath= datapath or 'gnr.palettes.%s' %paletteCode
-        return self._palette_or_pane_grid(paletteCode=paletteCode,frameCode=paletteCode,childTag='PaletteGrid',datapath=datapath,**kwargs)
-        
-    
-    def _palette_or_pane_grid(self,childTag=None,data=None,struct=None,
-                                columns=None,table=None,structpath=None,gridId=None,**kwargs):
-        structpath = structpath or '.grid.struct'
-        gridId = kwargs.get('gridId') or '%s_grid' %kwargs.get('frameCode')
-        pane = self.child(childTag,table=table,structpath=structpath,gridId=gridId,**kwargs)
-        pane._setGridStruct(struct=struct)   
-        if data is not None:
-            pane.data('.grid.store',data)
-        return pane
 
-    def includedview(self, storepath=None, structpath=None, struct=None, table=None,
-                     nodeId=None, columns=None, relativeWorkspace=None,**kwargs):
+    def paletteGrid(self,paletteCode=None,struct=None,structpath=None,datapath=None,**kwargs):
+        datapath= datapath or 'gnr.palettes.%s' %paletteCode
+        structpath = structpath or '.grid.struct'
+        kwargs['gridId'] = kwargs.get('gridId') or '%s_grid' %paletteCode
+        paletteGrid = self.child('paletteGrid',paletteCode=paletteCode,structpath=structpath,datapath=datapath,**kwargs)
+        if struct:
+            paletteGrid.gridStruct(struct=struct)   
+        return paletteGrid
+    
+    def includedview(self,*args,**kwargs):
+        frameCode = self.attributes.get('frameCode')
+        if frameCode:
+            kwargs['frameCode'] = frameCode
+            return self.includedview_inframe(*args,**kwargs)
+        else:
+            return self.includedview_legacy(*args,**kwargs)
+            
+    def includedview_inframe(self,frameCode=None,struct=None,storepath=None,structpath=None,datapath=None,nodeId=None,**kwargs):
+        datapath = datapath or '.grid'
+        structpath = structpath or '.struct'
+        nodeId = nodeId or '%s_grid' %frameCode
+        iv =self.child('includedView',frameCode=frameCode, structpath=structpath, nodeId=nodeId,
+                          relativeWorkspace=True,editable=True,**kwargs)
+        if struct:
+            iv.gridStruct(struct=struct)
+        return iv
+
+    def includedview_legacy(self, storepath=None, structpath=None, struct=None, table=None,
+                      nodeId=None, columns=None, relativeWorkspace=None,**kwargs):
         nodeId = nodeId or self.page.getUuid()
         prefix = 'grids.%s' %nodeId if not relativeWorkspace else ''
         structpath = structpath or '%s.struct' % prefix
         iv =self.child('includedView', storepath=storepath, structpath=structpath, nodeId=nodeId, table=table,
                           relativeWorkspace=relativeWorkspace,**kwargs)
-        iv._setGridStruct(struct=struct)
+        if struct:
+            iv.gridStruct(struct=struct)
         return iv
             
-    def _setGridStruct(self,struct=None):
+    def gridStruct(self,struct=None):
         gridattr=self.attributes
         structpath = gridattr.get('structpath')
         table = gridattr.get('table')
@@ -577,11 +584,24 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
             struct = BagCbResolver(getStruct, source=source,gridattr=gridattr,gridId=gridId)
             struct._xmlEager=True
         self.data(structpath, struct)
+        return struct
         
-    def slotBar(self,slotbarCode=None,slots=None,**kwargs):
+    
+    def slotToolbar(self,*args,**kwargs):
+        kwargs['side'] = 'top'
+        kwargs['toolbar'] = True
+        return self.slotBar(*args,**kwargs)
+    
+    def slotFooter(self,*args,**kwargs):
+        kwargs['side'] = 'bottom'
+        kwargs['_class'] = 'frame_footer'
+        return self.slotBar(*args,**kwargs)
+        
+    def slotBar(self,slots=None,slotbarCode=None,**kwargs):
         tb = self.child('slotBar',slotbarCode=slotbarCode,slots=slots,**kwargs)
         slots = gnrstring.splitAndStrip(slots)
-        frameCode = self.getInheritedAttributes().get('frameCode')
+        frameCode = self.attributes.get('frameCode')
+        slotbarCode = slotbarCode or frameCode
         for slot in slots:
             if slot!='*' and slot!='|':
                 s=tb.child('slot',name=slot)
@@ -593,6 +613,9 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
                     kw[slot] = kwargs.get(slot,None)
                     kw['frameCode'] = frameCode
                     slothandle(**kw)
+                else:
+                    s.attributes['_attachname'] = slot
+        return tb
         
         #se ritorni la toolbar hai una toolbar vuota 
     
