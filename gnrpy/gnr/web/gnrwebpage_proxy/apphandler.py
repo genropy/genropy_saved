@@ -754,7 +754,8 @@ class GnrWebAppHandler(GnrBaseProxy):
         return structure
 
         #@timer_call()
-    # 
+
+    #
     def _getRecord_locked(self, tblobj, record, recInfo):
         #locked,aux=self.page.site.lockRecord(self.page,tblobj.fullname,record[tblobj.pkey])
         locked = False
@@ -844,7 +845,7 @@ class GnrWebAppHandler(GnrBaseProxy):
 
     def rpc_dbSelect(self, dbtable=None, columns=None, auxColumns=None, hiddenColumns=None, rowcaption=None,
                      _id=None, _querystring='', querystring=None, ignoreCase=True, exclude=None,
-                     condition=None, limit=10, alternatePkey=None, order_by=None, selectmethod=None,
+                     condition=None, limit=None, alternatePkey=None, order_by=None, selectmethod=None,
                      notnull=None, weakCondition=False, **kwargs):
         """
         * dbtable: table source for the query
@@ -864,6 +865,8 @@ class GnrWebAppHandler(GnrBaseProxy):
             weakCondition = False
         t0 = time.time()
         querystring = _querystring or querystring # da cambiare nella gnrstores.js invece?
+        if limit is None:
+            limit = self.gnrapp.config.get('dbselect?limit', 10)
         limit = int(limit)
         result = Bag()
         tblobj = self.db.table(dbtable)
