@@ -90,6 +90,7 @@ dojo.declare("gnr.widgets.Palette", gnr.widgets.gnrwdg, {
             kw.dockTo = dockId;
         }
         if (kw.nodeId) {
+            var that=this;
             kw.connect_show = function() {
                 genro.publish(kw.nodeId + '_showing');
             };
@@ -135,6 +136,9 @@ dojo.declare("gnr.widgets.PalettePane", gnr.widgets.gnrwdg, {
             objectUpdate(palette_kwargs, objectExtract(kw, 'palette_*'));
             palette_kwargs.selfsubscribe_showing = function() {
                 genro.publish('palette_' + paletteCode + '_showing');
+            }
+            palette_kwargs.selfsubscribe_hiding = function() {
+                genro.publish('palette_' + paletteCode + '_hiding');
             }
             var floating = sourceNode._('palette', palette_kwargs);
             return floating._(contentWidget, kw);
