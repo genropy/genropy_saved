@@ -57,4 +57,5 @@ def enable_colored_logging(stream=sys.stderr, level=None):
             root_logger.addHandler(hdlr)
     if level is not None:
         root_logger.setLevel(level)
+    logging.getLogger('paste.httpserver').setLevel(logging.WARNING)
 
