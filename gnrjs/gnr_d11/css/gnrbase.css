@@ -204,7 +204,6 @@ label.ghostlabel span {
     vertical-align: middle;
     padding-bottom: .5px;
     color: #1c004e;
-    margin-right:2px;
 }
 
 .floatRight {
@@ -1447,7 +1446,7 @@ textarea:disabled {
 }
 .sltb_slot_td{
 	vertical-align: middle;
-	height: 100%;	
+	height: 100%;
 	width:1px;
 	padding-left: 2px;
 	padding-right:2px ;
