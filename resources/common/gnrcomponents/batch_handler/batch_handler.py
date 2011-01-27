@@ -114,10 +114,10 @@ class TableScriptRunner(BaseComponent):
         bottom.button('!!Close', float='right', margin='1px',
                       action='PUBLISH batch_monitor_off; FIRE .close')
         center = bc.contentPane(region='center', nodeId='table_script_waitingpane', _class='pbl_viewbox')
-        center.dataController("""if(page=='waiting'){
-                                    batch_monitor.create_local_root('table_script_waitingpane');
-                                 }
-                                    """, page="^.selected_stack_page")
+        #center.dataController("""if(page=='waiting'){
+        #                            batch_monitor.create_local_root('table_script_waitingpane');
+        #                         }
+        #                            """, page="^.selected_stack_page")
 
 
     def remote_table_script_parameters(self, pane, table=None, res_type=None, resource='', title=None, **kwargs):
@@ -147,21 +147,20 @@ class TableScriptRunner(BaseComponent):
                                 resource=resource)
         dlg.dataController("""
                             var modifier = _node.attr.modifier;
-                            if (modifier=='Shift'){
+                            if (modifier=='Shift' || immediate){
                                 FIRE .close;
-                                //PUBLISH batch_monitor_open;
                                 SET #table_script_runner.parameters=pars;
                                 FIRE #table_script_runner.run;
                             }else{
-                                //FIRE .close;
-                                PUBLISH table_script_dlg_parameters_page = 'waiting';
-                                //batch_monitor.create_local_root('_pageRoot');
+                                FIRE .close;
+                                //PUBLISH table_script_dlg_parameters_page = 'waiting';
+                                batch_monitor.create_local_root('_pageRoot');
                                 SET #table_script_runner.parameters=pars;
                                 PUBLISH batch_monitor_on;
                                 FIRE #table_script_runner.run;
                             }
                             """,
-                           _fired="^.save", pars='=.data')
+                           _fired="^.save", pars='=.data',immediate=batch_dict.get('immediate'))
 
     def rpc_table_script_run(self, table=None, resource=None, res_type=None, selectionName=None, selectionFilterCb=None,
                              selectedRowidx=None,

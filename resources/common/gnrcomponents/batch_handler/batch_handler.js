@@ -34,10 +34,35 @@ batch_monitor.on_datachange = function(kw) {
     }
 };
 
-batch_monitor.create_local_root = function(parentId) {
+batch_monitor.create_local_root__ = function(parentId) {
     var hiderLayer = genro.dom.makeHiderLayer(parentId);
     hiderLayer.clearValue();
     hiderLayer._('div', {width:'200px',position:'absolute',nodeId:'bm_local_rootnode'});
+};
+
+batch_monitor.create_local_root = function(parentId) {
+    var paletteBtc = genro.wdgById('palette_localBatches')
+    if(!paletteBtc){
+        genro.src.getNode()._('div', '_devBtcRoot_');
+        var node = genro.src.getNode('_devBtcRoot_').clearValue();
+        node.freeze();
+        var paletteBtc = node._('palettePane',{'paletteCode':'localBatches',
+                                                    title:'Local batches',
+                                                    dockTo:'default_dock:open',
+                                                    width:'200px',
+                                                    height:'250px',
+                                                    selfsubscribe_showing:function(){
+                                                        genro.publish('batch_monitor_on');
+                                                    },
+                                                    selfsubscribe_hiding:function(){
+                                                        genro.publish('batch_monitor_off');
+                                                    }});
+    
+        paletteBtc._('div',{nodeId:'bm_local_rootnode',height:'100%',overflow_x:'hidden'});
+        node.unfreeze();
+    }else{
+        paletteBtc.show();
+    }
 };
 
 batch_monitor.get_batch_sourceNode = function(batch_id, local) {
@@ -52,11 +77,6 @@ batch_monitor.get_batch_sourceNode = function(batch_id, local) {
         var container_node = genro.nodeById(container_id);
         if (container_node) {
             sourceNode = this.batch_sourceNode_create(container_node, batch_id, batch_sourceNode_id);
-            // sourceNode= genro.nodeById(batch_sourceNode_id);
-            if (local) {
-                genro.dom.centerOn('bm_local_rootnode');
-            } //FORSE
-
         }
     }
     if (sourceNode) {
@@ -139,15 +159,9 @@ batch_monitor.on_th_cleanup = function(node, sourceNode) {
 };
 batch_monitor.on_tl_add = function(node, sourceNode) {
     this.create_thermoline(sourceNode, node.label, node.attr);
-    if (sourceNode.attr.nodeId == 'bm_local_rootnode') {
-        genro.dom.centerOn('bm_local_rootnode'); //FORSE
-    }
 };
 batch_monitor.on_tl_del = function(node, sourceNode) {
     this.delete_thermoline(sourceNode, node.label);
-    if (sourceNode.attr.nodeId == 'bm_local_rootnode') {
-        genro.dom.centerOn('bm_local_rootnode'); //FORSE
-    }
 };
 
 batch_monitor.on_tl_upd = function(node, sourceNode) {
