@@ -8,7 +8,7 @@ from logging.handlers import TimedRotatingFileHandler
 from logging import Formatter
 import logging
 
-gnrlogger = logging.getLogger('gnr.xtnd.sync4Dapp')
+gnrlogger = logging.getLogger(__name__)
 
 from gnr.core.gnrlang import errorLog
 from gnr.core.gnrbag import Bag, DirectoryResolver

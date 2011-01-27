@@ -34,7 +34,7 @@ from gnr.sql.gnrsql_exceptions import GnrSqlMissingField, GnrSqlMissingTable,\
 
 import threading
 
-logger = logging.getLogger('gnr.sql.gnrsql')
+logger = logging.getLogger(__name__)
 
 class NotExistingTableError(Exception):
     pass

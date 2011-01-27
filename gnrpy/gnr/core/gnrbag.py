@@ -68,7 +68,7 @@ import logging
 import time
 import sys
 
-gnrlogger = logging.getLogger('gnr.core.gnrbag')
+gnrlogger = logging.getLogger(__name__)
 
 def timer_call(time_list=[], print_time=True):
     def decore(func):

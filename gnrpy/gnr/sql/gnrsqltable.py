@@ -34,7 +34,7 @@ from gnr.sql.gnrsql import GnrSqlException
 from gnr.core.gnrlang import getUuid
 import logging
 
-gnrlogger = logging.getLogger('gnr.sql.gnrsqltable')
+gnrlogger = logging.getLogger(__name__)
 
 class GnrSqlSaveException(GnrSqlException):
     code = 'GNRSQL-03'

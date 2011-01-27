@@ -48,7 +48,7 @@ from gnr.core.gnrsys import expandpath
 from gnr.sql.gnrsql import GnrSqlDb
 from gnr.sql.gnrsqltable import SqlTablePlugin
 
-log = logging.getLogger('gnrapp')
+log = logging.getLogger(__name__)
 
 class GnrImportException(GnrException):
     pass

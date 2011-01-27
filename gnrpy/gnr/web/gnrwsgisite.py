@@ -37,7 +37,7 @@ site_cache = {}
 
 OP_TO_LOG = {'x': 'y'}
 
-log = logging.getLogger('gnrwsgisite')
+log = logging.getLogger(__name__)
 
 global GNRSITE
 

@@ -29,7 +29,7 @@ from gnr.core.gnrstring import boolean
 #from gnr.core.gnrlog import logging
 import logging
 
-gnrlogger = logging.getLogger('gnr.xtnd.sync4Dtransaction')
+gnrlogger = logging.getLogger(__name__)
 
 class TransactionManager4D(object):
     def __init__(self, app, pkgid):

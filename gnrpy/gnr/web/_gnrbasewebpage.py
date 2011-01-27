@@ -35,7 +35,7 @@ import urllib
 
 import logging
 
-gnrlogger = logging.getLogger('gnr.web.gnrwebcore')
+gnrlogger = logging.getLogger(__name__)
 
 try:
     import json

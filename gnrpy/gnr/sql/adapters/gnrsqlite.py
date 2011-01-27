@@ -36,7 +36,7 @@ from gnr.core.gnrbag import Bag
 
 import logging
 
-logger = logging.getLogger('gnrsqlite')
+logger = logging.getLogger(__name__)
 
 class SqlDbAdapter(SqlDbBaseAdapter):
     typesDict = {'charactervarying': 'A', 'character varying': 'A', 'character': 'C', 'text': 'T', 'blob': 'X',

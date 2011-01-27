@@ -29,7 +29,7 @@ BAG_INSTANCE = Bag()
 import logging
 import re
 
-logger = logging.getLogger('gnr.web.gnrobjectregister')
+logger = logging.getLogger(__name__)
 from gnr.core.gnrlang import timer_call, debug_call
 
 from time import time

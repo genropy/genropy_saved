@@ -28,7 +28,7 @@ import logging
 import datetime
 from decimal import Decimal
 
-logger = logging.getLogger('gnr.core.gnrstring')
+logger = logging.getLogger(__name__)
 
 try:
     from string import Template

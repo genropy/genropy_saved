@@ -7,7 +7,7 @@ from gnr.core.gnrbaseservice import GnrBaseService
 from gnr.core.gnrlang import  gnrImport
 import logging
 
-log = logging.getLogger('gnrservicehandler')
+log = logging.getLogger(__name__)
 
 
 

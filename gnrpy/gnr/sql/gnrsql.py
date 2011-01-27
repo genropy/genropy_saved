@@ -26,7 +26,7 @@ __version__ = '1.0b'
 
 import logging
 
-gnrlogger = logging.getLogger('gnr.sql.gnrsql')
+gnrlogger = logging.getLogger(__name__)
 import cPickle
 import os
 import shutil

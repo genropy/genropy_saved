@@ -35,7 +35,7 @@ from gnr.core.gnrlang import gnrImport
 
 import logging
 
-gnrlogger = logging.getLogger('gnr.web.gnrwebcore')
+gnrlogger = logging.getLogger(__name__)
 
 from gnr.core.gnrbag import Bag
 from gnr.core import gnrlist

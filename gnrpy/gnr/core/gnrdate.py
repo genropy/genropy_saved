@@ -32,7 +32,7 @@ from gnr.core.gnrlocale import DEFAULT_LOCALE
 from gnr.core.gnrstring import splitAndStrip, anyWordIn, wordSplit, toText
 from dateutil import rrule
 
-logger = logging.getLogger('gnr.core.gnrdate')
+logger = logging.getLogger(__name__)
 
 
 def yearDecode(datestr):

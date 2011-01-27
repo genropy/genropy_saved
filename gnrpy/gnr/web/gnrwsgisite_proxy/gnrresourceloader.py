@@ -19,7 +19,7 @@ from gnr.web.gnrbaseclasses import BaseWebtool
 import glob
 import logging
 
-log = logging.getLogger('gnrresourceloader')
+log = logging.getLogger(__name__)
 
 class GnrMixinError(Exception):
     pass
