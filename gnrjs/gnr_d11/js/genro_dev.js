@@ -226,7 +226,7 @@ dojo.declare("gnr.GnrDevHandler", null, {
     },
     
     sqlDebugPalette:function(parent){
-        var pane = parent._('palettePane',{'paletteCode':'devSqlDebug',title:'Sql Debug'});
+        var pane = parent._('palettePane',{'paletteCode':'devSqlDebug',title:'Sql'});
         var bc = pane._('borderContainer');
         var top = bc._('contentPane',{'region':'top'})._('toolbar',{'height':'18px'});
         top._('checkbox',{'value':'^gnr.debugger.sqldebug','label':'Debug SQL'});
