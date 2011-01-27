@@ -61,15 +61,16 @@ class PaletteManager(BaseComponent):
         
         elif parentTag =='includedview':
             gridId = attr.get('nodeId')
+            code = attr.get('frameCode')
             attr['table'] = table
             storepath = storepath or attr.get('storepath') or '.store'
             attr['storepath'] = storepath
-            storeCode=gridId
+            storeCode=gridId or code
               
-        elif parentTag == 'panegrid' or parentTag == 'palettegrid':
+        elif parentTag == 'framegrid' or parentTag == 'palettegrid':
             gridId = attr.get('gridId')
             if not gridId:
-                code = attr.get('paneCode') or attr.get('paletteCode')
+                code = attr.get('frameCode') or attr.get('paletteCode')
                 gridId = '%s_grid' %code
             storeCode=gridId
             attr['table'] = table
