@@ -60,23 +60,19 @@ class PaletteManager(BaseComponent):
             storepath = storepath or 'gnr.stores.%s.data' %storeCode            
         
         elif parentTag =='includedview':
-            gridId = attr.get('nodeId')
-            code = attr.get('frameCode')
             attr['table'] = table
             storepath = storepath or attr.get('storepath') or '.store'
             attr['storepath'] = storepath
-            storeCode=gridId or code
+            storeCode = attr.get('frameCode') or attr.get('nodeId')
+            attr['store'] = storeCode
               
-        elif parentTag == 'framegrid' or parentTag == 'palettegrid':
-            gridId = attr.get('gridId')
-            if not gridId:
-                code = attr.get('frameCode') or attr.get('paletteCode')
-                gridId = '%s_grid' %code
-            storeCode=gridId
+        elif parentTag == 'palettegrid':            
+            storeCode=attr.get('paletteCode')
+            attr['store'] = storeCode
             attr['table'] = table
             storepath = storepath or attr.get('storepath') or '.grid.store'
-            
         nodeId = '%s_store' %storeCode
+        print storepath
         pane.dataSelection(storepath, table, nodeId=nodeId,columns=columns,**kwargs)
         
     
