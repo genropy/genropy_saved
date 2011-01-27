@@ -232,7 +232,7 @@ dojo.declare("gnr.widgets.PaletteGrid", gnr.widgets._FrameGrid, {
                 grid.reload();
             }
         }
-        attributes.grid_grid_onDrag = function(dragValues, dragInfo) {
+        attributes.grid_onDrag = function(dragValues, dragInfo) {
             if (dragInfo.dragmode == 'row') {
                 dragValues[attributes.paletteCode] = dragValues.gridrow.rowsets;
             }
