@@ -47,7 +47,13 @@ ct_chat_utils.open_chat = function(roomId, users) {
         onEnter:function() {
             genro.publish("ct_send_message", {roomId:roomId})
         }
-    })
+    });
+
+    bottombox._('button', {label:'Condividi la pagina corrente',width:"100%",id:'ct_msgbtn_'+roomId,
+                           roomId:roomId, msg_path: roompath + '.current_msg',
+                           action:'genro.setData(msg_path,window.location.href);' +
+                                   'genro.publish("ct_send_message", {roomId: roomId});'});
+
     bottombox._('textbox', {value:'^.current_msg',width:'100%',id:'ct_msgtextbox_' + roomId});
     label._('div', {'float':'left',innerHTML:'^.title'});
     var chatbox = newroom._('ContentPane', {region:'center'})._('div', {height:'100%',overflow:'auto'});
