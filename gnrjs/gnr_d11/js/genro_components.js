@@ -234,7 +234,8 @@ dojo.declare("gnr.widgets.PaletteGrid", gnr.widgets._FrameGrid, {
         }
         attributes.grid_onDrag = function(dragValues, dragInfo) {
             if (dragInfo.dragmode == 'row') {
-                dragValues[attributes.paletteCode] = dragValues.gridrow.rowsets;
+                console.log(dragValues.gridrow.rowset)
+                dragValues[attributes.paletteCode] = dragValues.gridrow.rowset;
             }
         };
         attributes.grid_draggable_row=true;
