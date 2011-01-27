@@ -41,7 +41,7 @@ batch_monitor.create_local_root__ = function(parentId) {
 };
 
 batch_monitor.create_local_root = function(parentId) {
-    var paletteBtc = genro.wdgById('palette_localBatches')
+    var paletteBtc = genro.wdgById('localBatches_floating');
     if(!paletteBtc){
         genro.src.getNode()._('div', '_devBtcRoot_');
         var node = genro.src.getNode('_devBtcRoot_').clearValue();
