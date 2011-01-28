@@ -895,9 +895,7 @@ class GnrWebPage(GnrBaseWebPage):
         self.mainLeftTop(bc.contentPane(region='top', nodeId='gnr_main_left_bottom', id='gnr_main_left_top'))
         bottom = bc.contentPane(region='bottom', nodeId='gnr_main_left_bottom', id='gnr_main_left_bottom',
                                 overflow='hidden')
-        plugin_dock = bottom.div(id='gnr_plugin_dock')
-        bottom.dataController("genro.dom.centerOn('gnr_plugin_dock','gnr_main_left_bottom',true)",
-                              _fired="^_clientCtx.mainBC.left", _onStart=True)
+        plugin_dock = bottom.slotBar(slots='*,%s,*' %self.plugin_list)
         sc = bc.stackContainer(selectedPage='^.selected', region='center', nodeId='gnr_main_left_center')
         sc.dataController("""genro.publish(page+'_'+(selected?'on':'off'));
                              genro.dom.setClass(genro.domById('plugin_block_'+page),'selected_plugin',selected);
@@ -920,9 +918,9 @@ class GnrWebPage(GnrBaseWebPage):
                             SET .selected=plugin;
                           """, **{'subscribe_%s_open' % plugin: True, 'plugin': plugin})
 
-            plugin_dock.div(_class='plugin_block %s_icon' % plugin,
-                            connect_onclick="""SET .selected="%s";""" % plugin,
-                            id='plugin_block_%s' % plugin)
+            getattr(plugin_dock,plugin).div(_class='plugin_block %s_icon' % plugin,
+                                            connect_onclick="""SET .selected="%s";""" % plugin,
+                                            id='plugin_block_%s' % plugin)
 
     def onMainCalls(self):
         calls = [m for m in dir(self) if m.startswith('onMain_')]
