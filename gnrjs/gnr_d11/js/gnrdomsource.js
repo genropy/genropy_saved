@@ -977,7 +977,7 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
                 domnode.innerHTML = value;
             }
             else if (genro.dom.isStyleAttr(attr)) {
-                genro.dom.style(domnode, attr, value);
+                domnode.setAttribute('style',objectAsStyle(genro.dom.getStyleDict(this.currentAttributes())));
             }
             else if (setter in domnode.gnr) {
                 dojo.hitch(domnode.gnr, setter)(domnode, value, kw);

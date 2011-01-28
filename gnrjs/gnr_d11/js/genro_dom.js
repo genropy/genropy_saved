@@ -28,10 +28,12 @@ dojo.declare("gnr.GnrDomHandler", null, {
 
     constructor: function(application) {
         this.application = application;
+        this.css3AttrNames = ['rounded','gradient','shadow'];
         this.styleAttrNames = ['height', 'width','top','left', 'right', 'bottom',
             'visibility', 'overflow', 'float', 'clear', 'display',
             'z_index', 'border','position','padding','margin',
-            'color','white_space','vertical_align','background'];
+            'color','white_space','vertical_align','background'].concat(this.css3AttrNames);
+        
     },
     isStyleAttr:function(name) {
         for (var i = 0; i < this.styleAttrNames.length; i++) {
@@ -329,6 +331,11 @@ dojo.declare("gnr.GnrDomHandler", null, {
         var noConvertStyle = noConvertStyle || [];
         var styledict = objectFromStyle(objectPop(attributes, 'style'));
         var attrname;
+        dojo.forEach(this.css3AttrNames,function(name){
+            genro.dom['css3style_'+name](objectPop(attributes,name),
+                                         objectExtract(attributes,name+'_*'),
+                                         styledict,noConvertStyle);
+        });
         for (var i = 0; i < this.styleAttrNames.length; i++) {
             attrname = this.styleAttrNames[i];
             if (attrname in attributes && arrayIndexOf(noConvertStyle, attrname) == -1) {
@@ -346,6 +353,80 @@ dojo.declare("gnr.GnrDomHandler", null, {
         this.style_setall('overflow', styledict, attributes, noConvertStyle);
         return styledict;
     },
+    css3style_shadow:function(value,valuedict, styledict,noConvertStyle){
+        if(!value && !objectNotEmpty(valuedict)){
+            return;
+        }
+        var inset = false;
+        var value = value || '0px 0px 0px gray';
+        if(value.indexOf('inset')>=0){
+            inset = true;
+            value = value.replace('inset','');
+        }
+        var shadow = splitStrip(value,' ');
+        var x = (valuedict['x']+'' || shadow[0]).replace('px','');
+        var y = (valuedict['y']+'' || shadow[1]).replace('px','');
+        var blur = (valuedict['blur']+'' || shadow[2]).replace('px','');;
+        var color = valuedict['color'] || shadow[3];
+        var inset = 'inset' in valuedict? valuedict['inset'] : inset;
+        var result = x+'px '+y+'px '+blur+'px '+color;
+        if(inset){
+            result+= ' inset';
+        }
+        var key = dojo.isSafari? '-webkit-box-shadow':'-moz-box-shadow'
+        styledict[key] = result;
+    },
+    css3style_gradient:function(value,valuedict,styledict, noConvertStyle){
+        if(value){
+            styledict['background-image'] = value;
+        }
+        if(objectNotEmpty(valuedict)){
+            if(dojo.isSafari){
+                styledict['background-image']= conCss((valuedict['degrees'] || 0));
+            }else{
+                var result = '-moz-'+(valuedict['type'] || 'linear');
+                result += '-gradient('
+                result += (valuedict['degrees'] || 0)+'deg,';
+                result += valuedict['from']+',';
+                result += valuedict['to']+')';
+                console.log(result)
+                console.log(conCss((valuedict['degrees'] || 0)))
+                styledict['background-image']= result
+            }
+        }
+        
+    },
+    
+    css3style_rounded:function(value,valuedict,styledict, noConvertStyle){
+        var v;
+        var cb=dojo.isSafari? function(y,x){return '-webkit-border-'+y+'-'+x+'-radius'}: 
+                                function(y,x){
+                                    return '-moz-border-radius-'+y+x};
+        if(value){
+            valuedict['all'] = value
+        }
+        var converter = [['all','tr','tl','br','bl'],
+                         ['top','tr','tl'],
+                         ['bottom','br','bl'],
+                         ['right','tr','br'],
+                         ['left','tl','bl'],
+                         ['top_left','tl'],['left_top','tl'],
+                         ['top_right','tr'],['right_top','tr'],
+                         ['bottom_left','bl'],['left_bottom','bl'],
+                         ['bottom_right','br'],['right_bottom','br']]
+        if(objectNotEmpty(valuedict)){
+            dojo.forEach(converter,function(k){
+                if(k[0] in valuedict){
+                    v = valuedict[k[0]];
+                    for(var i=1; i<k.length; i++){
+                        var m = k[i]
+                        styledict[cb(m[0]=='t'? 'top':'bottom',m[1]=='l'? 'left':'right')] = v +'px';
+                    }
+                }
+            })
+        }
+    },
+    
     style_setall:  function(label, styledict/*{}*/, attributes/*{}*/, noConvertStyle) {
         for (var attrname in attributes) {
             if (stringStartsWith(attrname, label + '_') && arrayIndexOf(noConvertStyle, attrname) == -1) {
