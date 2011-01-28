@@ -15,17 +15,13 @@ class GnrCustomWebPage(object):
     def test_0_frame_includedview(self,pane):
         """Pane grid """
         pane = pane.framePane(frameCode='province',height='200px')
-        tbar = pane.slotToolbar('prova,*,searchOn')
+        tbar = pane.slotToolbar('*,fooslot,|,*,prova,*,searchOn')
         tbar.prova.div('prova',width='100px',background='red')
+        tbar.fooslot.button('Clickme',action="alert('ss')")
         view = pane.includedView()
         struct = view.gridStruct('regione')
         view.selectionStore(table='glbl.provincia',where="$regione='LOM'",_onStart=True)
 
-    
-    @struct_method('province_piero')
-    def province_piero(self,pane,piero=None,frameCode=None,**kwargs):
-        return pane.div(width='205px').searchBox(nodeId='%s_searchbox' %frameCode,searchOn=piero,datapath='.searchbox')
-        
     def test_1_palettegrid(self,pane):
         paletteGrid = pane.paletteGrid(paletteCode='province_2',title='Province',
                                     struct='regione',dockTo='*',searchOn='*A,T,D')
