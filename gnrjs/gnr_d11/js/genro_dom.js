@@ -28,7 +28,7 @@ dojo.declare("gnr.GnrDomHandler", null, {
 
     constructor: function(application) {
         this.application = application;
-        this.css3AttrNames = ['rounded','gradient','shadow'];
+        this.css3AttrNames = ['rounded','gradient','shadow','transform'];
         this.styleAttrNames = ['height', 'width','top','left', 'right', 'bottom',
             'visibility', 'overflow', 'float', 'clear', 'display',
             'z_index', 'border','position','padding','margin',
@@ -353,6 +353,25 @@ dojo.declare("gnr.GnrDomHandler", null, {
         this.style_setall('overflow', styledict, attributes, noConvertStyle);
         return styledict;
     },
+    css3style_transform:function(value,valuedict, styledict,noConvertStyle){
+         if(!value && !objectNotEmpty(valuedict)){
+            return;
+        }
+        var key= dojo.isSafari?'-webkit-transform':'-moz-transform';
+        var result='';
+        if('rotate' in valuedict){result+='rotate('+(valuedict['rotate']||'0')+'deg ) ';}
+        if('translate' in valuedict){result+='translate('+valuedict['translate']+') ';}
+        if('translate_x' in valuedict){result+='translatex('+(valuedict['translate_x']||'0')+'px) ';}
+        if('translate_y' in valuedict){result+='translatey('+(valuedict['translate_y']||'0')+'px) ';}
+        if('scale' in valuedict){result+='scale('+(valuedict['scale']||0)+') ';}
+        if('scale_x' in valuedict){result+='scalex('+(valuedict['scale_x']||1)+') ';}
+        if('scale_y' in valuedict){result+='scaley('+(valuedict['scale_y']||1)+') ';}
+        if('skew' in valuedict){result+='skew('+valuedict['skew']+') ';}
+        if('skew_x' in valuedict){result+='skewx('+(valuedict['skew_x']||0)+'deg) ';}
+        if('skew_y' in valuedict){result+='skewy('+(valuedict['skew_y']||0)+'deg) ';}
+        styledict[key] = result;
+    },
+
     css3style_shadow:function(value,valuedict, styledict,noConvertStyle){
         if(!value && !objectNotEmpty(valuedict)){
             return;
@@ -373,7 +392,7 @@ dojo.declare("gnr.GnrDomHandler", null, {
         if(inset){
             result+= ' inset';
         }
-        var key = dojo.isSafari? '-webkit-box-shadow':'-moz-box-shadow'
+        var key = dojo.isSafari? '-webkit-box-shadow':'-moz-box-shadow';
         styledict[key] = result;
     },
     css3style_gradient:function(value,valuedict,styledict, noConvertStyle){
@@ -381,29 +400,58 @@ dojo.declare("gnr.GnrDomHandler", null, {
             styledict['background-image'] = value;
         }
         if(objectNotEmpty(valuedict)){
+            var colordict=objectExtract(valuedict,'color_*');
+            colors=[];
+            for(var col in colordict){colors.push(col);}
+            colors.sort();
+            var color_from=valuedict['from'];
+            var color_to=valuedict['to'];
             if(dojo.isSafari){
-                styledict['background-image']= conCss((valuedict['degrees'] || 0));
+                var d=valuedict['degrees'] || 0;
+                d=(d+360)%360;
+                if((d>=0) && (d<45)){x1=0;x2=100;y1=50+(d/45)*50;y2=100-y1;}
+                else if((d>=45) && (d<135)){y2=0;y1=100;x2=((135-d)/90)*100;x1=100-x2;}
+                else if((d>=135) && (d<225)){x1=100;x2=0;y1=((225-d)/90)*100;y2=100-y1;}
+                else if((d>=225) && (d<315)){y2=100;y1=0;x1=((315-d)/90)*100;x2=100-x1;}
+                else if((d>=315) &&( d<360)){x1=0;x2=100;y1=50-(((360-d)/45)*50);y2=100-y1;}
+                var r= [Math.round(x1,2),Math.round(y1,2),Math.round(x2,2),Math.round(y2,2)];
+                var result = "-webkit-gradient(linear, ";
+                result += r[0]+"% "+r[1]+"%,"+ r[2]+"% "+r[3]+"% ";
+                if (colors.length>0){
+                    dojo.forEach(colors,function(col){
+                        var c=(colordict[col]+',0').split(',');
+                        result +=", color-stop("+c[1]+"%, "+c[0]+")";
+                    });
+                }else{
+                    result+=", from("+valuedict['from']+"), to("+valuedict['to']+")";
+                }
+               
             }else{
                 var result = '-moz-'+(valuedict['type'] || 'linear');
-                result += '-gradient('
-                result += (valuedict['degrees'] || 0)+'deg,';
-                result += valuedict['from']+',';
-                result += valuedict['to']+')';
-                console.log(result)
-                console.log(conCss((valuedict['degrees'] || 0)))
-                styledict['background-image']= result
+                result += '-gradient(';
+                result += (valuedict['degrees'] || 0)+'deg ';
+                if (colors.length>0){
+                       dojo.forEach(colors,function(col){
+                        var c=(colordict[col]+',0').split(',');
+                        result +=", "+c[0]+" "+c[01]+"%";
+                    });
+                }else{
+                    result += ','+color_from+','+color_to;
+                }
+                
             }
+            styledict['background-image']= result+')';
         }
         
     },
     
     css3style_rounded:function(value,valuedict,styledict, noConvertStyle){
         var v;
-        var cb=dojo.isSafari? function(y,x){return '-webkit-border-'+y+'-'+x+'-radius'}: 
+        var cb=dojo.isSafari? function(y,x){return '-webkit-border-'+y+'-'+x+'-radius';}: 
                                 function(y,x){
-                                    return '-moz-border-radius-'+y+x};
+                                    return '-moz-border-radius-'+y+x;};
         if(value){
-            valuedict['all'] = value
+            valuedict['all'] = value;
         }
         var converter = [['all','tr','tl','br','bl'],
                          ['top','tr','tl'],
@@ -413,17 +461,17 @@ dojo.declare("gnr.GnrDomHandler", null, {
                          ['top_left','tl'],['left_top','tl'],
                          ['top_right','tr'],['right_top','tr'],
                          ['bottom_left','bl'],['left_bottom','bl'],
-                         ['bottom_right','br'],['right_bottom','br']]
+                         ['bottom_right','br'],['right_bottom','br']];
         if(objectNotEmpty(valuedict)){
             dojo.forEach(converter,function(k){
                 if(k[0] in valuedict){
                     v = valuedict[k[0]];
                     for(var i=1; i<k.length; i++){
-                        var m = k[i]
+                        var m = k[i];
                         styledict[cb(m[0]=='t'? 'top':'bottom',m[1]=='l'? 'left':'right')] = v +'px';
                     }
                 }
-            })
+            });
         }
     },
     
@@ -616,22 +664,21 @@ dojo.declare("gnr.GnrDomHandler", null, {
     canBeDropped:function(dataTransfer, sourceNode) {
         var dragSourceInfo = genro.dom.getDragSourceInfo(dataTransfer);
         if (dragSourceInfo.detachable) {
-            return 'detach'
+            return 'detach';
         }
         var inherited = sourceNode.getInheritedAttributes();
-        var supportedTypes = sourceNode.getInheritedAttributes().dropTypes
+        var supportedTypes = sourceNode.getInheritedAttributes().dropTypes;
         var supportedTypes = supportedTypes ? splitStrip(supportedTypes) : [];
         for (var k in objectExtract(inherited, 'onDrop_*', true)) {
             supportedTypes.push(k);
         }
         var draggedTypes = genro.dom.dataTransferTypes(dataTransfer);
-        if (dojo.filter(supportedTypes,
-                       function(supportedType) {
-                           return arrayMatch(draggedTypes, supportedType).length > 0
-                       }).length == 0) {
-            return false;
+        var matchCb=function(supportedType) {
+                return arrayMatch(draggedTypes, supportedType).length > 0;
+        };
+        if (dojo.filter(supportedTypes, matchCb).length == 0) {
+                return false;
         }
-        ;
         var dropTags = sourceNode.getInheritedAttributes().dropTags;
         if (!dropTags) {
             return true;
@@ -717,7 +764,7 @@ dojo.declare("gnr.GnrDomHandler", null, {
             var sourceNode = info.sourceNode;
             var attr = sourceNode.attr;
             var dropTarget = sourceNode.dropTarget || attr.selfDragRows || attr.selfDragColumns;
-            var dropTargetCb = sourceNode.dropTargetCb
+            var dropTargetCb = sourceNode.dropTargetCb;
             info.dragSourceInfo = genro.dom.getDragSourceInfo(event.dataTransfer);
             if (info.dragSourceInfo.detachable) {
                 return info;
@@ -803,12 +850,12 @@ dojo.declare("gnr.GnrDomHandler", null, {
         floating = floating.getParentNode().widget;
         var placeholder = floating.containerNode.firstElementChild;
         var currentParent = domnode.parentNode;
-        currentParent.replaceChild(placeholder, domnode)
+        currentParent.replaceChild(placeholder, domnode);
         floating.containerNode.appendChild(domnode);
-        sourceNode.attr.isDetached = true
+        sourceNode.attr.isDetached = true;
         dojo.connect(floating, 'hide', function() {
             var widget = dijit.getEnclosingWidget(placeholder);
-            widget.setContent(domnode)
+            widget.setContent(domnode);
             sourceNode.attr.isDetached = false;
             //currentParent.replaceChild(domnode,placeholder);
             floating.close();
@@ -829,7 +876,7 @@ dojo.declare("gnr.GnrDomHandler", null, {
         var dataTransfer = event.dataTransfer;
         var dragSourceInfo = genro.dom.getDragSourceInfo(dataTransfer);
         if (dragSourceInfo.detachable) {
-            genro.dom.onDetach(genro.src.nodeBySourceNodeId(dragSourceInfo._id), dropInfo)
+            genro.dom.onDetach(genro.src.nodeBySourceNodeId(dragSourceInfo._id), dropInfo);
             return;
         }
         var canBeDropped = this.canBeDropped(dataTransfer, sourceNode); // dovrei già essere bono
@@ -876,7 +923,7 @@ dojo.declare("gnr.GnrDomHandler", null, {
             var datatype_code = datatype.replace(/\W/g, '_');
             var inDropTypes = (dojo.filter(dropTypes,
                                           function(dropType) {
-                                              return datatype.match(dropType.replace('*', '(.*)'))
+                                              return datatype.match(dropType.replace('*', '(.*)'));
                                           }).length > 0);
             //var inDropTypes = dataTransferTypes[i].match()//(arrayMatch(dropTypes,dataTransferTypes[i]).length>0);
             if (inherited['onDrop_' + datatype_code] || inDropTypes) {
