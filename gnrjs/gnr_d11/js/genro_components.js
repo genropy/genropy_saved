@@ -487,60 +487,110 @@ dojo.declare("gnr.widgets.PaletteGroup", gnr.widgets.gnrwdg, {
 dojo.declare("gnr.widgets.SlotBar", gnr.widgets.gnrwdg, {
     createContent:function(sourceNode, kw,children) {
         kw.orientation = (kw.orientation || 'H').toUpperCase();
-        var toolbarKw = {};
-        toolbarKw['_class'] = 'sltb_toolbar sltb_'+kw.orientation;
-        if(objectPop(kw,'toolbar')){
-            toolbarKw['_class'] = 'dijitToolbar '+toolbarKw['class'];
-        }
-        var table = sourceNode._('div',toolbarKw)._('table',{'_class':'sltb_table'})._('tbody');
-        return this['createContent_'+kw.orientation](table,kw,children);
+        var slots = objectPop(kw,'slots');
+        var slotbarCode = objectPop(kw,'slotbarCode');        
+        return this['createContent_'+objectPop(kw,'orientation')](sourceNode,kw,slotbarCode,slots,children);
     },
 
-    createContent_H:function(table,kw,children){
-        kw['_class'] = (kw['_class'] || '')+' sltb_row';
-        var slots = objectPop(kw,'slots');
-        var slotbarCode = objectPop(kw,'slotbarCode');
-        var r = table._('tr',kw);
-        var attr,cell,slotNode,slotValue;
+    createContent_H:function(sourceNode,kw,slotbarCode,slots,children){
+        var kwRow = objectExtract(kw,'row_*');
+        if('height' in kw){
+            kwRow['height'] = objectPop(kw,'height');
+        }
+        kwRow['_class'] = (kwRow['_class'] || '')+' sltb_row';
+        kw['_class'] = (kw['_class'] || '') +'sltb_toolbar sltb_H';
+        if(objectPop(kw,'toolbar')){
+            kw['_class'] = 'dijitToolbar '+kw['class'];
+        }
+        var kwTable = objectExtract(kw,'table_*'); ;
+        kwTable['_class'] = (kwTable['_class'] || '') + 'sltb_table';
+        
+        var kwCell = objectExtract(kw,'cell_*'); ;
+        kwCell['_class'] = (kwCell['_class'] || '') + 'sltb_slot_td';
+        
+        var baseKwLbl = objectExtract(kw,'lbl_*');
+        var cellKwLbl = objectExtract(baseKwLbl,'cell_*');
+        var lblPos = objectPop(baseKwLbl,'position') || 'N';
+        var table = sourceNode._('div',objectUpdate({position:'relative'},kw))._('table',kwTable)._('tbody');
+        var rlabel;
+        if(lblPos=='T'){
+            rlabel=  table._('tr');
+        }
+        var r = table._('tr',kwRow);
+        if(lblPos=='B'){
+            rlabel=  table._('tr');
+        }
+        var attr,cell,slotNode,slotValue,slotKw,slotValue;
         var children = children || new gnr.GnrBag();
         var that = this;
-        dojo.forEach(splitStrip(slots),function(slot){
+        var attr,kwLbl,lbl,labelCell,k;
+        var slotArray = splitStrip(slots);
+        var counterSpacer = dojo.filter(slotArray,function(s){return s=='*'}).length;
+        var spacerWidth = counterSpacer? 100/counterSpacer:100;
+        dojo.forEach(slotArray,function(slot){
+            if(rlabel){
+                labelCell = rlabel._('td',cellKwLbl);
+            }else if(lblPos=='L'){
+                cellKwLbl['width'] = cellKwLbl['width'] || '1px'
+                labelCell = r._('td',cellKwLbl)
+            }
             if(slot=='*'){
-                r._('td',{'_class':'sltb_elastic_spacer'});
+                r._('td',{'_class':'sltb_elastic_spacer',width:spacerWidth+'%'});
                 return;
             }
             if(slot=='|'){
-                r._('td',{'_class':'sltb_slot_td'})._('div',{'_class':'sltb_spacer'});
+                r._('td',{'_class':'sltb_slot_td'})._('div',{_class:'sltb_spacer'});
                 return;
             }
-            cell = r._('td',{_slotname:slot,'_class':'sltb_slot_td'});
+            cell = r._('td',objectUpdate({_slotname:slot},kwCell));
+            if(lblPos=='R'){
+                cellKwLbl['width'] = cellKwLbl['width'] || '1px';
+                labelCell = r._('td',cellKwLbl)
+            }
             slotNode = children.popNode(slot);
             if (slotNode){
                 slotValue = slotNode.getValue();
                 if(slotValue instanceof gnr.GnrBag){
+                    k=0;
                     slotValue.forEach(function(n){
+                        attr = n.attr;
+                        kwLbl = objectExtract(attr,'lbl_*');
+                        lbl = objectPop(attr,'lbl');
                         cell.setItem(n.label,n._value,n.attr);
+                        if((k==0)&&labelCell){
+                            kwLbl = objectUpdate(objectUpdate({},baseKwLbl),kwLbl);
+                            labelCell._('div',objectUpdate({'innerHTML':lbl,'text_align':'center'},kwLbl));
+                        }
+                        k++;
                     })
                 }
             }
             if(cell.len()==0 && (that['slot_'+slot])){
-                that['slot_'+slot](cell,kw)
+                slotKw = objectExtract(kw,slot+'_*');
+                slotValue = objectPop(kw,slot);
+                lbl = objectPop(slotKw,'lbl');
+                kwLbl = objectExtract(slotKw,'lbl_*');
+                kwLbl = objectUpdate(objectUpdate({},baseKwLbl),kwLbl);
+                that['slot_'+slot](cell,slotValue,slotKw,kw.frameCode)
+                if(labelCell){
+                    labelCell._('div',objectUpdate({'innerHTML':lbl,'text_align':'center'},kwLbl));
+                }
             }            
         });
         
         return r;
     },
-    createContent_V:function(table,kw){
+    createContent_V:function(table,kw,slotbarCode,slots,children){
         return table;
     },
     
-    slot_searchOn:function(pane,kw){
-        var div = pane._('div',{'width':kw.searchOn_width || '15em'});
-        div._('SearchBox', {searchOn:kw.searchOn,nodeId:kw.frameCode+'_searchbox',datapath:'.searchbox'});
-    },
-    slot_messageBox:function(pane,kw){        
-        var mbKw = objectUpdate({duration:1000,delay:2000},objectExtract(kw,'messageBox_*'));
+    slot_searchOn:function(pane,slotValue,slotKw,frameCode){
+        var div = pane._('div',{'width':slotKw.width || '15em'});
+        div._('SearchBox', {searchOn:slotValue,nodeId:frameCode+'_searchbox',datapath:'.searchbox'});
 
+    },
+    slot_messageBox:function(pane,slotValue,slotKw,frameCode){        
+        var mbKw = objectUpdate({duration:1000,delay:2000},slotKw);
         var subscriber = objectPop(mbKw,'subscribeTo');
         mbKw['subscribe_'+subscriber] = function(){
              var kwargs = arguments[0];

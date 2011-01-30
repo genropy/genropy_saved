@@ -1441,6 +1441,9 @@ textarea:disabled {
 	padding: 1px 5px;
 }
 
+.__sltb_elastic_spacer{
+    width:100%;
+}
 .sltb_row{
 	height: 20px;
 }
@@ -1458,10 +1461,10 @@ textarea:disabled {
 }
 
 .sltb_spacer{
-	border-right: 1px solid gray;
 	position	:absolute;
 	top: 2px;
 	bottom: 2px;
+    background:gray;
 	width: 1px;
 }
 

@@ -383,9 +383,9 @@ dojo.declare("gnr.GnrDomHandler", null, {
             value = value.replace('inset','');
         }
         var shadow = splitStrip(value,' ');
-        var x = (valuedict['x']+'' || shadow[0]).replace('px','');
-        var y = (valuedict['y']+'' || shadow[1]).replace('px','');
-        var blur = (valuedict['blur']+'' || shadow[2]).replace('px','');;
+        var x = ((valuedict['x'] || shadow[0])+'').replace('px','');
+        var y = ((valuedict['y'] || shadow[1])+'').replace('px','');
+        var blur = ((valuedict['blur'] || shadow[2])+'').replace('px','');
         var color = valuedict['color'] || shadow[3];
         var inset = 'inset' in valuedict? valuedict['inset'] : inset;
         var result = x+'px '+y+'px '+blur+'px '+color;
@@ -407,7 +407,7 @@ dojo.declare("gnr.GnrDomHandler", null, {
             var color_from=valuedict['from'];
             var color_to=valuedict['to'];
             if(dojo.isSafari){
-                var d=valuedict['degrees'] || 0;
+                var d=valuedict['deg'] || 0;
                 d=(d+360)%360;
                 if((d>=0) && (d<45)){x1=0;x2=100;y1=50+(d/45)*50;y2=100-y1;}
                 else if((d>=45) && (d<135)){y2=0;y1=100;x2=((135-d)/90)*100;x1=100-x2;}
@@ -429,7 +429,7 @@ dojo.declare("gnr.GnrDomHandler", null, {
             }else{
                 var result = '-moz-'+(valuedict['type'] || 'linear');
                 result += '-gradient(';
-                result += (valuedict['degrees'] || 0)+'deg ';
+                result += (valuedict['deg'] || 0)+'deg ';
                 if (colors.length>0){
                        dojo.forEach(colors,function(col){
                         var c=(colordict[col]+',0').split(',');
