@@ -19,29 +19,34 @@ class GnrCustomWebPage(object):
                  rounded_left_top='12',rounded_bottom_right='^.k')
     
     def test_2_shadow(self, pane):
-        sl = pane.slotBar('x,y,blur,inset,*,test,*')
-        sl.x.verticalSlider(value='^.x',minimum=-30,maximum=30,intermediateChanges=True,height='100px')
-        sl.y.verticalSlider(value='^.y',minimum=-30,maximum=30,intermediateChanges=True,height='100px')
-        sl.blur.verticalSlider(value='^.blur',minimum=-30,maximum=30,intermediateChanges=True,height='100px')
+        sl = pane.slotBar('x,y,blur,inset,*,test1,test2,*',lbl_font_size='8px',
+                        lbl_position='L',lbl_transform_rotate='-90',cell_border='1px dotted gray',
+                        lbl_width='10px'
+                        )
+        sl.x.verticalSlider(value='^.x',minimum=-30,maximum=30,intermediateChanges=True,height='100px',lbl='X')
+        sl.y.verticalSlider(value='^.y',minimum=-30,maximum=30,intermediateChanges=True,height='100px',lbl='Y')
+        sl.blur.verticalSlider(value='^.blur',minimum=-30,maximum=30,intermediateChanges=True,height='100px',lbl='Blurrone')
         sl.inset.checkbox(value='^.inset',label='Inset')
-        sl.test.div(margin='5px', display='inline-block', border='1px solid gray', width='100px', height='80px',
+        sl.test1.div(margin='5px', display='inline-block', border='1px solid gray', width='100px', height='80px',
+                 shadow='3px 3px 5px gray inset')
+        sl.test2.div(margin='5px', display='inline-block', border='1px solid gray', width='100px', height='80px',
                  shadow='3px 3px 5px gray inset',
                  shadow_x='^.x',shadow_y='^.y',
                  shadow_blur='^.blur',shadow_inset='^.inset')
       
     def test_3_gradient_fixed(self, pane):
-        sl = pane.slotBar('deg,fld,tan,*,test,*,test1,*')
+        sl = pane.slotBar('deg,fld,tan,*,test,*,test1,*',lbl_position='B',lbl_font_size='8px')
         
-        sl.deg.verticalSlider(value='^.deg',minimum=0,maximum=360,intermediateChanges=True,height='100px')
+        sl.deg.verticalSlider(value='^.deg',minimum=0,maximum=360,intermediateChanges=True,height='100px',lbl='Deg')
         fb = sl.fld.formbuilder(cols=6, border_spacing='2px')
         fb.numbertextbox(value='^.deg',lbl='deg')
         sl.test.div(margin='5px', display='inline-block',
                  border='1px solid gray', width='100px', height='80px',
-                 gradient_from='white',gradient_to='navy',gradient_degrees='^.deg')
+                 gradient_from='white',gradient_to='navy',gradient_deg='^.deg')
                  
         sl.test1.div(margin='5px', display='inline-block',
                 border='1px solid gray', width='100px', height='80px',
-                gradient_color_0='pink,15',gradient_color_1='yellow,50' ,gradient_color_2='red,100',gradient_degrees='^.deg')
+                gradient_color_0='pink,15',gradient_color_1='yellow,50' ,gradient_color_2='red,100',gradient_deg='^.deg')
        
     def test_4_transform(self, pane):
         sl = pane.slotBar('rotate,translatex,translatey,scalex,scaley,skewx,skewy,*,test,*')

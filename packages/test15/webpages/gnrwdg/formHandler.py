@@ -19,7 +19,7 @@ class GnrCustomWebPage(object):
         form = pane.frameForm(formId=formId,datapath='.provincia',**kwargs)
         form.recordClusterStore('glbl.provincia',storeType='Item',startKey=startKey)
         left = 'selectrecord,|,' if not startKey else ''
-        form.slotBar('mytoolbar','%s *,|,semaphore,|,formcommands,|,locker' %left,side='top',toolbar=True)
+        form.slotBar('%s *,|,semaphore,|,formcommands,|,locker' %left,slotbarCode='mytoolbar',side='top',toolbar=True)
         fb = form.formbuilder(cols=2, border_spacing='4px', width="400px", fld_width="100%")
         fb.formContent()
         return form
@@ -46,8 +46,8 @@ class GnrCustomWebPage(object):
         
     def test_2_formPane_dbl_cp(self,pane):
         bc = pane.borderContainer(height='180px',background='white')
-        formA = bc.contentPane(region='left',width='50%',datapath='.pane1',padding='5px').formTester('form_a',border='1px solid silver')
-        formB = bc.contentPane(region='center',datapath='.pane2',padding='5px').formTester('form_b',border='1px solid silver')
+        formA = bc.contentPane(region='left',width='50%',datapath='.pane1',border='1px solid gray',margin='3px').formTester('form_a')
+        formB = bc.contentPane(region='center',datapath='.pane2',border='1px solid gray',margin='3px').formTester('form_b')
     
     def test_2_formPane_tc(self,pane):
         """First test description"""
