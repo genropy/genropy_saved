@@ -58,12 +58,3 @@ class GnrCustomWebPage(object):
                  ,transform_scale_x='^.scale_x',transform_scale_y='^.scale_y'
                  ,transform_skew_x='^.skew_x',transform_skew_y='^.skew_y'
                  )
-                  
-
-   #def test_3_gradient_fixed(self, pane):
-   #    "firefox"
-   #    sl = pane.slotBar('degrees,*,test,*')
-   #    sl.degrees.verticalSlider(value='^.degrees',minimum=-90,maximum=90,intermediateChanges=True,height='100px')
-   #    sl.test.div(margin='5px', display='inline-block', border='1px solid gray', width='100px', height='80px',
-   #             gradient_from='gray',gradient_to='white',
-   #             gradient_degrees='30')
