@@ -95,9 +95,9 @@ class GnrCustomWebPage(object):
                    
     @struct_method('mytoolbar_selectrecord')
     def mytoolbar_selectrecord(self,pane,**kwargs):
-        fb=pane.formbuilder(cols=1, border_spacing='0px',width='200px')
+        fb=pane.formbuilder(cols=1, border_spacing='1px')
         fb.dbselect(value="^.prov",dbtable="glbl.provincia",parentForm=False,
-                    validate_onAccept="this.form.publish('load',{destPkey:value});",lbl='Provincia',width='100%')
+                    validate_onAccept="this.form.publish('load',{destPkey:value});",lbl='Provincia')
                     
     def rpc_salvaDati(self, dati, **kwargs):
         print "Dati salvati:"

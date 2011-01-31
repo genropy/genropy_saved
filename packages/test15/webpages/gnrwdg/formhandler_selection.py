@@ -15,7 +15,7 @@ class GnrCustomWebPage(object):
     
     @struct_method
     def formTester(self,pane,formId=None,**kwargs):
-        form = pane.frameForm(formId=formId,datapath='.provincia',store='provinceRegione',**kwargs)
+        form = pane.frameForm(formId=formId,datapath='.provincia',**kwargs)
        #form.loader('recordCluster')
        #form.saver('recordCluster')
        #form.deleter('recordCluster')
@@ -34,17 +34,18 @@ class GnrCustomWebPage(object):
          
     def test_0_base(self,pane):
         bc = pane.borderContainer(height='250px')
-        bc.selectionStore('provinceRegione',table='glbl.provincia',where='$regione=:r',
-                          r='^.regione',_fired='^.reload')
         frame = bc.framePane('province',region='left',width='300px')
+        frame.selectionStore('provinceRegione',table='glbl.provincia',where='$regione=:r',
+                          r='^.regione',_fired='^.reload')
+        tb = frame.slotToolbar('*,selector,20,reloader',side='top')
+        tb.selector.dbselect(value='^.regione',dbtable='glbl.regione',lbl='Regione')
+        tb.reloader.button('reload',fire='.reload')
         frame.includedView(struct='regione',
                             store='provinceRegione',
                             autoSelect=True,selectedId='.selectedPkey',
                            selfsubscribe_onSelectedRow='genro.formById("provincia").publish("load",{destPkey:$1.selectedId});',
                            subscribe_form_provincia_onLoaded="this.widget.selectByRowAttr('_pkey',$1.pkey)")
-        tb = frame.top.slotToolbar('*,selector,20,reloader')
-        tb.selector.dbselect(value='^.regione',dbtable='glbl.regione',lbl='Regione')
-        tb.reloader.button('reload',fire='.reload')
+        
         center = bc.contentPane(region='center',border='1px solid blue').formTester(formId='provincia')
 
          
