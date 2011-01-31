@@ -72,7 +72,6 @@ class PaletteManager(BaseComponent):
             attr['table'] = table
             storepath = storepath or attr.get('storepath') or '.grid.store'
         nodeId = '%s_store' %storeCode
-        print storepath
         pane.dataSelection(storepath, table, nodeId=nodeId,columns=columns,**kwargs)
         
     
