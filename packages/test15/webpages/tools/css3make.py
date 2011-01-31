@@ -49,7 +49,7 @@ class GnrCustomWebPage(object):
                 gradient_color_0='pink,15',gradient_color_1='yellow,50' ,gradient_color_2='red,100',gradient_deg='^.deg')
        
     def test_4_transform(self, pane):
-        sl = pane.slotBar('rotate,translatex,translatey,scalex,scaley,skewx,skewy,*,test,*')
+        sl = pane.slotBar('rotate,translatex,translatey,scalex,scaley,skewx,skewy,*,test')
         sl.rotate.verticalSlider(value='^.rotate',minimum=0,maximum=360,intermediateChanges=True,height='100px',default_value=0)
         sl.translatex.verticalSlider(value='^.translate_x',minimum=-100,maximum=100,intermediateChanges=True,height='100px',default_value=0)
         sl.translatey.verticalSlider(value='^.translate_y',minimum=-100,maximum=100,intermediateChanges=True,height='100px',default_value=0)
@@ -63,3 +63,24 @@ class GnrCustomWebPage(object):
                  ,transform_scale_x='^.scale_x',transform_scale_y='^.scale_y'
                  ,transform_skew_x='^.skew_x',transform_skew_y='^.skew_y'
                  )
+
+        
+        
+    def test_5_transition(self, pane):
+        sl = pane.slotBar('w,color,*,test',lbl_position='T')
+        sl.w.textbox(value='^.w',lbl='width',default_value='3px')
+        sl.color.textbox(value='^.color',lbl='color',default_value='red')
+        sl.test.div(width='^.w',background='^.color',height='50px',transition='all 1s ease-in',border='1px solid gray')
+      
+
+
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
