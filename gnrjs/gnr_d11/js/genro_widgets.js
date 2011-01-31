@@ -3623,15 +3623,18 @@ dojo.declare("gnr.widgets.IncludedView", gnr.widgets.VirtualStaticGrid, {
         }
         return columns;
     },
-    mixin_onCheckedColumn:function(idx) {
+    mixin_onCheckedColumn:function(idx,fieldname) {
+        var fieldname = fieldname || '_checked';
         var rowpath = '#' + idx;
         var storebag = this.storebag();
         var currNode = storebag.getNode(rowpath);
         if (currNode.attr.disabled) {
             return;
         }
-        var newval = !currNode.attr._checked;
-        currNode.setAttr({'_checked':newval}, true, true);
+        var newval = !currNode.attr[fieldname];
+        var kwset = {};
+        kwset[fieldname] = newval;
+        currNode.setAttr(kwset, true, true);
         var gridId = this.sourceNode.attr.nodeId;
         if (gridId) {
             genro.publish(gridId + '_row_checked', currNode.label, newval, currNode.attr);
@@ -3651,11 +3654,11 @@ dojo.declare("gnr.widgets.IncludedView", gnr.widgets.VirtualStaticGrid, {
         celldata['dtype'] = 'B';
         celldata['width'] = '20px';
          
-        celldata['format_trueclass'] = kw.format_trueclass || 'checkboxOn';
+        celldata['format_trueclass'] = 'checkboxOn'; //kw.format_trueclass || 
         celldata['classes'] = kw.classes || 'row_checker';
-        celldata['format_falseclass'] = kw.format_falseclass || 'checkboxOff';
+        celldata['format_falseclass'] = 'checkboxOff'; //kw.format_falseclass || 
         celldata['calculated'] = true;
-        celldata['format_onclick'] = 'this.widget.onCheckedColumn(kw.rowIndex,fieldname);';
+        celldata['format_onclick'] = 'this.widget.onCheckedColumn(kw.rowIndex,kw.fieldname);';
         structbag.setItem('view_0.rows_0.cell_checked', null, celldata, {_position:position});
     },
     created: function(widget, savedAttrs, sourceNode) {
