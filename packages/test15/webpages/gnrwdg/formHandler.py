@@ -19,7 +19,7 @@ class GnrCustomWebPage(object):
         form = pane.frameForm(formId=formId,datapath='.provincia',**kwargs)
         form.recordClusterStore('glbl.provincia',storeType='Item',startKey=startKey)
         left = 'selectrecord,|,' if not startKey else ''
-        form.slotBar('%s *,|,semaphore,|,formcommands,|,locker' %left,slotbarCode='mytoolbar',side='top',toolbar=True)
+        form.top.slotToolbar('%s *,|,semaphore,|,formcommands,|,locker' %left,slotbarCode='mytoolbar')
         fb = form.formbuilder(cols=2, border_spacing='4px', width="400px", fld_width="100%")
         fb.formContent()
         return form

@@ -14,6 +14,7 @@ class GnrCustomWebPage(object):
     def test_0_framePane(self,pane):
         """First test description"""
         frame = pane.framePane(height='300px')
-        top = frame.slotFooter(slots='*,|,piero,|,*',_class='frame_footer')
+        top = frame.top.slotToolbar(slots='*,|,piero,|,*',_class='frame_footer')
+        top.piero.div('piero')
         frame.div('HEI I AM CENTER')
         
