@@ -417,7 +417,7 @@ dojo.declare("gnr.GnrDomHandler", null, {
             var color_from=valuedict['from'];
             var color_to=valuedict['to'];
             if(dojo.isSafari){
-                var d=valuedict['deg'] || 0;
+                var d=parseInt(valuedict['deg'] || 0);
                 d=(d+360)%360;
                 if((d>=0) && (d<45)){x1=0;x2=100;y1=50+(d/45)*50;y2=100-y1;}
                 else if((d>=45) && (d<135)){y2=0;y1=100;x2=((135-d)/90)*100;x1=100-x2;}

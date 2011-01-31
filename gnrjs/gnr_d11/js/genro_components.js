@@ -153,8 +153,10 @@ dojo.declare("gnr.widgets.FramePane", gnr.widgets.gnrwdg, {
         objectPop(kw,'datapath');
         kw['height'] = kw['height'] || '100%';
         var bc = sourceNode._('BorderContainer', kw);
+        var slot;
         dojo.forEach(['top','bottom','left','right'],function(side){
-             node = children.popNode('#side='+side);
+             slot = children.popNode(side);
+             node = slot? slot.getValue().getNode('#0') : children.popNode('#side='+side);
              if(node){
                  node.attr['frameCode'] = frameCode;
                  bc._('ContentPane',{'region':side}).setItem('#id',node._value,node.attr);
@@ -486,30 +488,46 @@ dojo.declare("gnr.widgets.PaletteGroup", gnr.widgets.gnrwdg, {
 
 dojo.declare("gnr.widgets.SlotBar", gnr.widgets.gnrwdg, {
     createContent:function(sourceNode, kw,children) {
-        kw.orientation = (kw.orientation || 'H').toUpperCase();
         var slots = objectPop(kw,'slots');
         var slotbarCode = objectPop(kw,'slotbarCode');        
         return this['createContent_'+objectPop(kw,'orientation')](sourceNode,kw,slotbarCode,slots,children);
     },
-
+    
+    contentKwargs: function(sourceNode, attributes) {
+        var orientation = attributes.orientation = (attributes.orientation || 'H').toUpperCase();
+        var kwRow = attributes.kwRow = objectExtract(attributes,'row_*');
+        if('height' in attributes){
+            kwRow['height'] = objectPop(attributes,'height');
+        }
+        kwRow['_class'] = (kwRow['_class'] || '')+ (orientation=='H'? ' sltb_row':' sltb_v_row');
+        var baseClass = orientation=='H'? 'sltb_toolbar sltb_horizontal':'sltb_toolbar sltb_vertical';
+        attributes['_class'] = (attributes['_class'] || '') +baseClass;
+        if(objectPop(attributes,'toolbar')){
+            if(orientation=='H'){
+                attributes['_class'] = 'horizontalToolbar dijitToolbar '+attributes['class'];
+            }else{
+                attributes['_class'] = 'verticalToolbar dijitToolbar '+attributes['class'];
+            }
+            
+        }
+        var kwTable = attributes.kwTable = objectExtract(attributes,'table_*');
+        var tableBaseClass = orientation=='H'?'sltb_table':'sltb_v_table';
+        kwTable['_class'] = (kwTable['_class'] || '') + tableBaseClass;
+        
+        var kwCell = attributes.kwCell = objectExtract(attributes,'cell_*'); 
+        var cellBaseClass = orientation=='H'? 'sltb_slot_td':'sltb_v_slot_td';
+        kwCell['_class'] = (kwCell['_class'] || '') + cellBaseClass;
+        var baseKwLbl = attributes.baseKwLbl = objectExtract(attributes,'lbl_*');
+        baseKwLbl['_class'] = baseKwLbl['_class'] || 'sltb_lbl'
+        var cellKwLbl = attributes.cellKwLbl = objectExtract(baseKwLbl,'cell_*');
+        return attributes;
+    },
     createContent_H:function(sourceNode,kw,slotbarCode,slots,children){
-        var kwRow = objectExtract(kw,'row_*');
-        if('height' in kw){
-            kwRow['height'] = objectPop(kw,'height');
-        }
-        kwRow['_class'] = (kwRow['_class'] || '')+' sltb_row';
-        kw['_class'] = (kw['_class'] || '') +'sltb_toolbar sltb_H';
-        if(objectPop(kw,'toolbar')){
-            kw['_class'] = 'dijitToolbar '+kw['class'];
-        }
-        var kwTable = objectExtract(kw,'table_*'); ;
-        kwTable['_class'] = (kwTable['_class'] || '') + 'sltb_table';
-        
-        var kwCell = objectExtract(kw,'cell_*'); ;
-        kwCell['_class'] = (kwCell['_class'] || '') + 'sltb_slot_td';
-        
-        var baseKwLbl = objectExtract(kw,'lbl_*');
-        var cellKwLbl = objectExtract(baseKwLbl,'cell_*');
+        var kwRow = objectPop(kw,'kwRow');
+        var kwTable = objectPop(kw,'kwTable'); 
+        var kwCell = objectPop(kw,'kwCell') ;
+        var baseKwLbl = objectPop(kw,'baseKwLbl');
+        var cellKwLbl = objectPop(kw,'cellKwLbl');
         var lblPos = objectPop(baseKwLbl,'position') || 'N';
         var table = sourceNode._('div',objectUpdate({position:'relative'},kw))._('table',kwTable)._('tbody');
         var rlabel;
@@ -536,6 +554,10 @@ dojo.declare("gnr.widgets.SlotBar", gnr.widgets.gnrwdg, {
             }
             if(slot=='*'){
                 r._('td',{'_class':'sltb_elastic_spacer',width:spacerWidth+'%'});
+                return;
+            }
+            if(slot==parseInt(slot)){
+                r._('td',{'_class':'sltb_slot_td'})._('div',{width:slot+'px'});
                 return;
             }
             if(slot=='|'){
@@ -580,8 +602,82 @@ dojo.declare("gnr.widgets.SlotBar", gnr.widgets.gnrwdg, {
         
         return r;
     },
-    createContent_V:function(table,kw,slotbarCode,slots,children){
+    createContent_V:function(sourceNode,kw,slotbarCode,slots,children){
+        var kwRow = objectPop(kw,'kwRow');
+        var kwTable = objectPop(kw,'kwTable'); 
+        var kwCell = objectPop(kw,'kwCell') ;
+        var baseKwLbl = objectPop(kw,'baseKwLbl');
+        var cellKwLbl = objectPop(kw,'cellKwLbl');
+        var lblPos = objectPop(baseKwLbl,'position') || 'N';
+        var table = sourceNode._('div',objectUpdate({position:'relative'},kw))._('table',kwTable)._('tbody');
+
+        var attr,cell,slotNode,slotValue,slotKw,slotValue;
+        var children = children || new gnr.GnrBag();
+        var that = this;
+        var attr,kwLbl,lbl,labelCell,k;
+        var slotArray = splitStrip(slots);
+        dojo.forEach(slotArray,function(slot){
+            /*if(rlabel){
+                labelCell = rlabel._('td',cellKwLbl);
+            }else if(lblPos=='L'){
+                cellKwLbl['width'] = cellKwLbl['width'] || '1px'
+                labelCell = r._('td',cellKwLbl)
+            }*/
+            if(slot=='*'){
+                table._('tr');
+                return;
+            }
+            if(slot=='|'){
+                table._('tr',{'height':'1px'})._('td')._('div',{_class:'sltb_v_spacer'});
+                return;
+            }
+            if(slot==parseInt(slot)){
+                table._('tr',{height:slot+'px'});
+                return;
+            }
+            
+            cell = table._('tr',kwRow)._('td',objectUpdate({_slotname:slot},kwCell));
+            /*if(lblPos=='R'){
+                cellKwLbl['width'] = cellKwLbl['width'] || '1px';
+                labelCell = r._('td',cellKwLbl)
+            }*/
+            slotNode = children.popNode(slot);
+            if (slotNode){
+                slotValue = slotNode.getValue();
+                if(slotValue instanceof gnr.GnrBag){
+                    k=0;
+                    slotValue.forEach(function(n){
+                        attr = n.attr;
+                        kwLbl = objectExtract(attr,'lbl_*');
+                        lbl = objectPop(attr,'lbl');
+                        cell.setItem(n.label,n._value,n.attr);
+                        /*if((k==0)&&labelCell){
+                            kwLbl = objectUpdate(objectUpdate({},baseKwLbl),kwLbl);
+                            labelCell._('div',objectUpdate({'innerHTML':lbl,'text_align':'center'},kwLbl));
+                        }*/
+                        k++;
+                    });
+                }
+            }
+            if(cell.len()==0 && (that['slot_'+slot])){
+                slotKw = objectExtract(kw,slot+'_*');
+                slotValue = objectPop(kw,slot);
+                lbl = objectPop(slotKw,'lbl');
+                kwLbl = objectExtract(slotKw,'lbl_*');
+                kwLbl = objectUpdate(objectUpdate({},baseKwLbl),kwLbl);
+                that['slot_'+slot](cell,slotValue,slotKw,kw.frameCode)
+                if(labelCell){
+                    labelCell._('div',objectUpdate({'innerHTML':lbl,'text_align':'center'},kwLbl));
+                }
+            }            
+        });
+        
         return table;
+        
+        
+        
+        
+
     },
     
     slot_searchOn:function(pane,slotValue,slotKw,frameCode){
