@@ -137,7 +137,11 @@ class GnrDomSrc(GnrStructData):
         for n in self._nodes:
             if n.attr.get('_attachname') == fname:
                 return n._value
-
+        autoslots = self._parentNode.attr.get('autoslots')
+        if autoslots:
+            autoslots = autoslots.split(',')
+            if fname in autoslots:
+                return self.child('slot',name=fname,_attachname=fname)
             
         raise AttributeError("object has no attribute '%s'" % fname)
 
@@ -177,6 +181,20 @@ class GnrDomSrc(GnrStructData):
     def nodeById(self, id):
         """docstring for findNode"""
         return self.findNodeByAttr('nodeId', id)
+
+    def framepane(self,frameCode=None,slots=None,**kwargs):
+        return self.child('FramePane',frameCode=frameCode,autoslots=self._prepareAutoslot(slots=slots),**kwargs)
+    
+    def frameform(self,formId=None,frameCode=None,slots=None,**kwargs):
+        return self.child('FrameForm',formId=formId,frameCode=frameCode,
+                        autoslots=self._prepareAutoslot(slots=slots),**kwargs)
+    
+    def _prepareAutoslot(self,slots=None):
+        autoslots = ['top','left','bottom','right']
+        if slots:
+            autoslots.extend(slots.split(','))
+            autoslots = set(autoslots)
+        return ','.join(autoslots)
 
     def h1(self, content=None, **kwargs):
         return self.htmlChild('h1', content=content, **kwargs)
@@ -479,6 +497,9 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
     genroNameSpace.update(dict([(name.lower(), name) for name in dijitNS]))
     genroNameSpace.update(dict([(name.lower(), name) for name in dojoxNS]))
     genroNameSpace.update(dict([(name.lower(), name) for name in gnrNS]))
+    
+    #def framePane(self,slots=None,**kwargs):
+    #    self.child('FramePane',slots='top,left,bottom,right',**kwargs)
 
     def dataFormula(self, path, formula, **kwargs):
         return self.child('dataFormula', path=path, formula=formula, **kwargs)
@@ -548,7 +569,7 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
         datapath = datapath or '.grid'
         structpath = structpath or '.struct'
         nodeId = nodeId or '%s_grid' %frameCode
-        iv =self.child('includedView',frameCode=frameCode, structpath=structpath, nodeId=nodeId,
+        iv =self.child('includedView',frameCode=frameCode, datapath=datapath,structpath=structpath, nodeId=nodeId,
                           relativeWorkspace=True,editable=True,**kwargs)
         if struct:
             iv.gridStruct(struct=struct)
@@ -588,12 +609,10 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
         
     
     def slotToolbar(self,*args,**kwargs):
-        kwargs['side'] = 'top'
         kwargs['toolbar'] = True
         return self.slotBar(*args,**kwargs)
     
     def slotFooter(self,*args,**kwargs):
-        kwargs['side'] = 'bottom'
         kwargs['_class'] = 'frame_footer'
         return self.slotBar(*args,**kwargs)
         
@@ -603,7 +622,7 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
         frameCode = self.attributes.get('frameCode')
         slotbarCode = slotbarCode or frameCode
         for slot in slots:
-            if slot!='*' and slot!='|':
+            if slot!='*' and slot!='|' and not slot.isdigit():
                 s=tb.child('slot',name=slot)
                 slothandle = getattr(s,'%s_%s' %(slotbarCode,slot),None)
                 if not slothandle:
