@@ -332,9 +332,11 @@ dojo.declare("gnr.GnrDomHandler", null, {
         var styledict = objectFromStyle(objectPop(attributes, 'style'));
         var attrname;
         dojo.forEach(this.css3AttrNames,function(name){
-            genro.dom['css3style_'+name](objectPop(attributes,name),
-                                         objectExtract(attributes,name+'_*'),
-                                         styledict,noConvertStyle);
+            var value=objectPop(attributes,name);
+            var valuedict=objectExtract(attributes,name+'_*');
+            if(value || objectNotEmpty(valuedict)){
+                genro.dom['css3style_'+name](value,valuedict,styledict,noConvertStyle);
+            }
         });
         for (var i = 0; i < this.styleAttrNames.length; i++) {
             attrname = this.styleAttrNames[i];
@@ -354,9 +356,6 @@ dojo.declare("gnr.GnrDomHandler", null, {
         return styledict;
     },
     css3style_transform:function(value,valuedict, styledict,noConvertStyle){
-         if(!value && !objectNotEmpty(valuedict)){
-            return;
-        }
         var key= dojo.isSafari?'-webkit-transform':'-moz-transform';
         var result='';
         if('rotate' in valuedict){result+='rotate('+(valuedict['rotate']||'0')+'deg ) ';}
@@ -372,20 +371,22 @@ dojo.declare("gnr.GnrDomHandler", null, {
         styledict[key] = result;
     },
      css3style_transition:function(value,valuedict, styledict,noConvertStyle){
-        if(!value && !objectNotEmpty(valuedict)){
-            return;
-        }
         var key= dojo.isSafari?'-webkit-transition':'-moz-transition';
-
+         
+        transition_property='width,height'
         if(value){
             styledict[key] = value;
         }
+        for (var prop in valuedict){
+            value=valuedict[prop]
+            if (prop=='function'){prop='timing-function'}
+            if (((prop=='duration') ||(prop=='delay')) && ((value+'').indexOf('s')<0)){value=value+'s'}
+            styledict[key+'-'+prop] = value;
+        }
+        
         
     },
     css3style_shadow:function(value,valuedict, styledict,noConvertStyle){
-        if(!value && !objectNotEmpty(valuedict)){
-            return;
-        }
         var inset = false;
         var value = value || '0px 0px 0px gray';
         if(value.indexOf('inset')>=0){
