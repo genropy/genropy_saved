@@ -589,7 +589,6 @@ class HTablePicker(HTableHandlerBase):
             column??
             resultpath
             """
-        default_checked_row = False if default_checked_row is False else True
 
         editMode = editMode or 'dlg'
         grid_where = '$code IN :codes'
@@ -774,6 +773,7 @@ class HTablePicker(HTableHandlerBase):
         if grid_filter:
             label = ' '
             hasToolbar = True
+        default_checked_row = False if default_checked_row is False else True
         self.includedViewBox(bc, label=label, datapath='.preview_grid',
                              nodeId=gridId, columns=grid_columns,
                              table=related_table or table, filterOn=grid_filter,
@@ -787,11 +787,12 @@ class HTablePicker(HTableHandlerBase):
                                                     var initial_pkeys = GET .initial_checked_pkeys;
                                                     var default_check = kwargs.checked_row_default;
                                                     var cb_initial = function(n){
-                                                        n.attr._checked = dojo.indexOf(initial_pkeys,n.attr._pkey)>=0?default_check:false;
+                                                        var check = dojo.indexOf(initial_pkeys,n.attr._pkey)>=0?true:default_check;
+                                                        n.setAttribute('_checked',check);
                                                     };
                                                     var cb = function(n){
                                                         var old_n = old.getNodeByAttr('_pkey',n.attr._pkey);
-                                                        n.attr._checked=(old_n && old_n.attr._checked==false)?false:default_check;
+                                                        n.setAttribute('_checked',(old_n && old_n.attr._checked==false)?false:default_check);
                                                     }
                                                     bag.forEach(initial_pkeys?cb_initial:cb,'static');   
                                                     SET .initial_checked_pkeys = null;
