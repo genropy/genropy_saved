@@ -1439,13 +1439,35 @@ textarea:disabled {
 
 .tundra .sltb_toolbar.dijitToolbar {
 	padding: 1px 5px;
+	
+}
+.tundra .verticalToolbar.dijitToolbar {
+	padding:0px;
+	height:100%;
+	background:transparent;
+	overflow:hidden;
+	border-bottom:0;
+	background-image: -moz-linear-gradient(0deg, #FFFFFF, #BBBBBB);
+    background-image: -webkit-gradient(linear, 0% 50%, 100% 50%, from(white), to(#BBB));
 }
 
-.__sltb_elastic_spacer{
-    width:100%;
+.tundra .horizontalToolbar.dijitToolbar {
+	padding:0px;
+	height:100%;
+    background: transparent;	
+	background-image: -moz-linear-gradient(90deg, #FFFFFF, #BBBBBB);
+    background-image: -webkit-gradient(linear, 50% 100%, 50% 0%, from(white), to(#BBB));
+    overflow:hidden;
+	border:1px solid silver;
+}
+.sltd_group{
+    white-space:nowrap;
 }
 .sltb_row{
 	height: 20px;
+}
+.sltb_lbl{
+    font-size:8px;
 }
 .sltb_slot_td{
 	vertical-align: middle;
@@ -1459,14 +1481,37 @@ textarea:disabled {
 	border-spacing:0px;
 	border-collapse:collapse;
 }
+.sltb_v_table{
+	height:100% ;
+	border-spacing:0px;
+	border-collapse:collapse;
+}
 
 .sltb_spacer{
-	position	:absolute;
+	position:absolute;
 	top: 2px;
 	bottom: 2px;
     background:gray;
 	width: 1px;
 }
+.sltb_v_spacer{
+    height:100%;
+    background:gray;
+}
+.sltb_v_row{
+    height:1px;
+    padding-top: 2px;
+	padding-bottom:2px ;
+}
+.sltb_vertical{
+    height:100%;
+}
+.sltb_v_table{
+    height:100%;
+    width:100%;
+}
+
+
 
 /* @end */
 
