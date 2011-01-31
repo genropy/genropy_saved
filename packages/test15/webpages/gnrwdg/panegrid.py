@@ -12,7 +12,7 @@ class GnrCustomWebPage(object):
     def windowTitle(self):
         return ''
     
-    def test_0_frame_includedview(self,pane):
+    def _test_0_frame_includedview(self,pane):
         """Pane grid """
         pane = pane.framePane(frameCode='province',height='200px')
         tbar = pane.top.slotToolbar('*,searchOn')

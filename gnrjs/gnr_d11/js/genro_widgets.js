@@ -1861,6 +1861,17 @@ dojo.declare("gnr.widgets.Grid", gnr.widgets.baseDojo, {
     },
 
     creating_common: function(attributes, sourceNode) {
+        if(!sourceNode.attr.storepath){
+            if(sourceNode.attr.store){
+                var storeNode = genro.nodeById(sourceNode.attr.store+'_store');
+                if(!storeNode){
+                    console.log('missing storepath');
+                }else{
+                    sourceNode.attr.storepath = storeNode.absDatapath(storeNode.attr.path);
+                }
+            }
+            
+        }
         sourceNode.attr.nodeId = sourceNode.attr.nodeId || 'grid_' + sourceNode.getStringId();
         var relativeWorkspace= sourceNode.attr.controllerPath || sourceNode.attr.relativeWorkspace;
         sourceNode.gridControllerPath = relativeWorkspace ? sourceNode.absDatapath() : 'grids.' + sourceNode.attr.nodeId;

@@ -570,7 +570,7 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
         structpath = structpath or '.struct'
         nodeId = nodeId or '%s_grid' %frameCode
         iv =self.child('includedView',frameCode=frameCode, datapath=datapath,structpath=structpath, nodeId=nodeId,
-                          relativeWorkspace=True,editable=True,**kwargs)
+                          relativeWorkspace=True,editable=True,storepath=storepath,**kwargs)
         if struct:
             iv.gridStruct(struct=struct)
         return iv
