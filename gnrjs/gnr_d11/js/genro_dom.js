@@ -28,7 +28,7 @@ dojo.declare("gnr.GnrDomHandler", null, {
 
     constructor: function(application) {
         this.application = application;
-        this.css3AttrNames = ['rounded','gradient','shadow','transform'];
+        this.css3AttrNames = ['rounded','gradient','shadow','transform','transition'];
         this.styleAttrNames = ['height', 'width','top','left', 'right', 'bottom',
             'visibility', 'overflow', 'float', 'clear', 'display',
             'z_index', 'border','position','padding','margin',
@@ -371,7 +371,17 @@ dojo.declare("gnr.GnrDomHandler", null, {
         if('skew_y' in valuedict){result+='skewy('+(valuedict['skew_y']||0)+'deg) ';}
         styledict[key] = result;
     },
+     css3style_transition:function(value,valuedict, styledict,noConvertStyle){
+        if(!value && !objectNotEmpty(valuedict)){
+            return;
+        }
+        var key= dojo.isSafari?'-webkit-transition':'-moz-transition';
 
+        if(value){
+            styledict[key] = value;
+        }
+        
+    },
     css3style_shadow:function(value,valuedict, styledict,noConvertStyle){
         if(!value && !objectNotEmpty(valuedict)){
             return;
