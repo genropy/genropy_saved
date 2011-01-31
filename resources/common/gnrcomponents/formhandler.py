@@ -30,16 +30,11 @@ class FormHandler(BaseComponent):
 
     @struct_method
     def fh_sltb_navigation(self,pane,**kwargs):
-        pane = pane.div(width='120px',action='this.form.publish("navigationEvent",command);')
-        pane.button('!!First', command='first', iconClass="tb_button icnNavFirst",
-                    formsubscribe_navigationStatus="this.widget.setAttribute('disabled',$1.first || false);",
-                    showLabel=False)
-        pane.button('!!Previous', command='prev', iconClass="tb_button icnNavPrev",
-                    showLabel=False,formsubscribe_navigationStatus="this.widget.setAttribute('disabled',$1.first || false);")
-        pane.button('!!Next', command='next', iconClass="tb_button icnNavNext",showLabel=False,
-                  formsubscribe_navigationStatus="this.widget.setAttribute('disabled',$1.last || false);")
-        pane.button('!!Last', command='last', iconClass="tb_button icnNavLast",
-                   formsubscribe_navigationStatus="this.widget.setAttribute('disabled',$1.last || false);",showLabel=False)
+        pane = pane.div(lbl='!!Navigation',_class='sltd_group')
+        pane.sltb_first()
+        pane.sltb_prev()
+        pane.sltb_next()
+        pane.sltb_last()
     
     @struct_method               
     def fh_sltb_semaphore(self,pane,**kwargs):
@@ -47,15 +42,54 @@ class FormHandler(BaseComponent):
     
     @struct_method          
     def fh_sltb_formcommands(self,pane,**kwargs):
-        buttons = pane.div(width='100px')
-        buttons.button('!!Save', action='this.form.publish("save");', float='right',
-                       iconClass="tb_button db_save", showLabel=False,parentForm=True)
-        buttons.button('!!Revert', action='this.form.publish("load");',
-                        iconClass="tb_button db_revert",
-                       float='right',
-                       showLabel=False,parentForm=True)
-        buttons.button('!!Delete', action='this.form.publish("delete");', iconClass='db_del tb_button',
-                       showLabel=False,float='right',parentForm=True)
+        pane = pane.div(lbl='!!Form Commands',_class='sltd_group')
+        pane.sltb_save()
+        pane.sltb_revert()
+        pane.sltb_delete()
+
+    
+    @struct_method          
+    def fh_sltb_save(self,pane,**kwargs):
+        pane.formButton('!!Save',topic='save',iconClass="tb_button db_save", parentForm=True)
+
+    @struct_method          
+    def fh_sltb_revert(self,pane,**kwargs):
+        pane.formButton('!!Revert',topic='load',iconClass="tb_button db_revert", parentForm=True)
+    
+    @struct_method          
+    def fh_sltb_delete(self,pane,**kwargs):
+        pane.formButton('!!Delete',topic='delete',iconClass="tb_button db_del",parentForm=True)
+
+    @struct_method          
+    def fh_sltb_first(self,pane,**kwargs):
+        pane.formButton('!!First',iconClass="tb_button icnNavFirst",
+                    topic='navigationEvent',command='first',
+                    formsubscribe_navigationStatus="this.widget.setAttribute('disabled',$1.first || false);")
+    
+    @struct_method          
+    def fh_sltb_prev(self,pane,**kwargs):
+        pane.formButton('!!Prev',iconClass="tb_button icnNavPrev",
+                    topic='navigationEvent',command='prev',
+                    formsubscribe_navigationStatus="this.widget.setAttribute('disabled',$1.first || false);")
+    
+    @struct_method          
+    def fh_sltb_next(self,pane,**kwargs):
+        pane.formButton('!!Next',iconClass="tb_button icnNavNext",
+                    topic='navigationEvent',command='next',
+                    formsubscribe_navigationStatus="this.widget.setAttribute('disabled',$1.last || false);")
+    
+    @struct_method          
+    def fh_sltb_last(self,pane,**kwargs):
+        pane.formButton('!!Last',iconClass="tb_button icnNavLast",
+                    topic='navigationEvent',command='last',
+                    formsubscribe_navigationStatus="this.widget.setAttribute('disabled',$1.last || false);")
+
+    @struct_method           
+    def fh_formButton(self,pane,label=None,iconClass=None,topic=None,command=None,**kwargs):
+        pane.button(label, lbl=label,iconClass=iconClass,topic=topic,
+                    action='this.form.publish(topic,command);',
+                    showLabel=False,**kwargs)
+    
     @struct_method 
     def fh_sltb_locker(self,pane,**kwargs):
         pane.button('!!Locker',width='20px',iconClass='icnBaseUnlocked',showLabel=False,
