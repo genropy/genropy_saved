@@ -67,10 +67,14 @@ class GnrCustomWebPage(object):
         
         
     def test_5_transition(self, pane):
-        sl = pane.slotBar('w,color,*,test',lbl_position='T')
+        sl = pane.slotBar('w,color,mode,duration,*,test',lbl_position='T')
         sl.w.textbox(value='^.w',lbl='width',default_value='3px')
         sl.color.textbox(value='^.color',lbl='color',default_value='red')
-        sl.test.div(width='^.w',background='^.color',height='50px',transition='all 1s ease-in',border='1px solid gray')
+        sl.mode.comboBox(value='^.function',default_value='linear',values='linear,ease,ease-in,ease-out,ease-in-out')
+        sl.duration.verticalSlider(value='^.duration',minimum=0,maximum=10,intermediateChanges=True,height='100px',default_value=1)
+
+        sl.test.div(width='^.w',background='^.color',height='50px',transition='all 3s',border='1px solid gray',transition_function='.^function',
+                                transition_duration='.^duration')
       
 
 
