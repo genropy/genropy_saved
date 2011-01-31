@@ -571,8 +571,7 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
         nodeId = nodeId or '%s_grid' %frameCode
         iv =self.child('includedView',frameCode=frameCode, datapath=datapath,structpath=structpath, nodeId=nodeId,
                           relativeWorkspace=True,editable=True,storepath=storepath,**kwargs)
-        if struct:
-            iv.gridStruct(struct=struct)
+        iv.gridStruct(struct=struct)
         return iv
 
     def includedview_legacy(self, storepath=None, structpath=None, struct=None, table=None,
@@ -582,8 +581,7 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
         structpath = structpath or '%s.struct' % prefix
         iv =self.child('includedView', storepath=storepath, structpath=structpath, nodeId=nodeId, table=table,
                           relativeWorkspace=relativeWorkspace,**kwargs)
-        if struct:
-            iv.gridStruct(struct=struct)
+        iv.gridStruct(struct=struct)
         return iv
             
     def gridStruct(self,struct=None):
@@ -595,18 +593,20 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
         source = struct or columns
         page = self.page
         struct = page._prepareGridStruct(source=source,table=table,gridId=gridId)
-        if not struct and not table:
+        if struct:
+            self.data(structpath, struct)
+            return struct
+        elif source and not table:
             def getStruct(source=None,gridattr=None,gridId=None):
                 storeCode = gridattr.get('store') or gridattr.get('nodeId') or gridattr.get('gridId')
                 storeNode = page.pageSource('%s_store' %storeCode)
+                table = gridattr.get('table')
                 if storeNode:
                     table = storeNode.attr.get('table')
                 return page._prepareGridStruct(source=source,table=table,gridId=gridId)
             struct = BagCbResolver(getStruct, source=source,gridattr=gridattr,gridId=gridId)
             struct._xmlEager=True
-        self.data(structpath, struct)
-        return struct
-        
+            self.data(structpath, struct)
     
     def slotToolbar(self,*args,**kwargs):
         kwargs['toolbar'] = True
