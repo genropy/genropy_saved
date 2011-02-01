@@ -162,10 +162,12 @@ dojo.declare("gnr.widgets.FramePane", gnr.widgets.gnrwdg, {
                  bc._('ContentPane',{'region':side}).setItem('#id',node._value,node.attr);
              }
         });
-        var centerNode = children.popNode('#side=center');
+        slot = children.popNode('center');
+        var centerNode = slot? slot.getValue().getNode('#0'):children.popNode('#side=center');
         var center;
         if(centerNode){
-            centerNode.attr['region'] = objectPop(centerNode.attr,'side');
+            objectPop(centerNode.attr,'side');
+            centerNode.attr['region'] = 'center';
             bc.setItem('#id',centerNode._value,centerNode.attr);
             center = centerNode._value;
         }else{
@@ -494,7 +496,8 @@ dojo.declare("gnr.widgets.SlotBar", gnr.widgets.gnrwdg, {
     },
     
     contentKwargs: function(sourceNode, attributes) {
-        var side=sourceNode.getParentNode().attr.region
+        var side=sourceNode.getParentNode().attr.region;
+        var framePars = sourceNode.getParentNode().getParentNode().attr;
         var orientation = ((side=='top')||(side=='bottom'))?'horizontal':'vertical'
         attributes.orientation=orientation
         var buildKw={}
@@ -513,7 +516,23 @@ dojo.declare("gnr.widgets.SlotBar", gnr.widgets.gnrwdg, {
         }
         attributes['_class'] = (attributes['_class'] || '')+' slotbar  slotbar_'+orientation+' slotbar_'+side
         if(objectPop(attributes,'toolbar')){
-            attributes['_class'] += ' dijitToolbar'
+            var rounded = framePars.rounded;
+            var roundedPars = objectExtract(framePars,'rounded_*',true);
+            attributes['_class'] += ' slotbar_toolbar'
+            attributes['gradient_from'] = 'silver';
+            attributes['gradient_to'] = 'whitesmoke';
+            if(side=='left'){
+                attributes['gradient_deg'] = 0;
+            }
+            if(side=='top'){
+                attributes['gradient_deg'] = 90;
+            }
+            if(side=='right'){
+                attributes['gradient_deg'] = 180;
+            }
+            if(side=='bottom'){
+                attributes['gradient_deg'] = -90;
+            }
         }
         buildKw.lbl['_class'] = buildKw.lbl['_class'] || 'slotbar_lbl'
         buildKw.lbl_cell = objectExtract(buildKw.lbl,'cell_*');
@@ -665,11 +684,6 @@ dojo.declare("gnr.widgets.SlotBar", gnr.widgets.gnrwdg, {
         });
         
         return table;
-        
-        
-        
-        
-
     },
     
     slot_searchOn:function(pane,slotValue,slotKw,frameCode){

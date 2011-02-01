@@ -1436,31 +1436,6 @@ textarea:disabled {
 /* @end */
 
 /* @group SlotBar */
-
-.tundra .slotbar_toolbar.dijitToolbar {
-	padding: 1px 5px;
-	
-}
-.tundra .verticalToolbar.dijitToolbar {
-	padding:0px;
-	height:100%;
-	background:transparent;
-	overflow:hidden;
-	border-bottom:0;
-	background-image: -moz-linear-gradient(0deg, #FFFFFF, #BBBBBB);
-    background-image: -webkit-gradient(linear, 0% 50%, 100% 50%, from(white), to(#BBB));
-}
-
-.tundra .horizontalToolbar.dijitToolbar {
-    background: transparent;
-    padding:0px;
-	
-	background-image: -moz-linear-gradient(90deg, #FFFFFF, #BBBBBB);
-    background-image: -webkit-gradient(linear, 50% 100%, 50% 0%, from(white), to(#BBB));
-    overflow:hidden;
-	border:1px solid silver;
-	z-index:1;
-}
 .slotbar_group{
     white-space:nowrap;
 }
@@ -1473,6 +1448,62 @@ textarea:disabled {
 .slotbar_horizontal{
     position:relative;
 }
+
+/* @group Toolbar Selector */
+.slotbar_toolbar {
+}
+.slotbar_toolbar .dijitButtonNode {
+	background: none;
+	margin: 0px !important;
+	padding: 0px !important;	
+	border: none;
+	font-size: 12px;
+}
+.slotbar_toolbar .dijitButton,
+.slotbar_toolbar .dijitToggleButton,
+.slotbar_toolbar .dijitDropDownButton {
+	background: none;
+	margin: 1px;
+	padding: 0px;	
+	border: 1px solid transparent;
+}
+.slotbar_toolbar .dijitButtonChecked,
+.slotbar_toolbar.dijitToggleButtonChecked {
+	background-color:#d4dff2;
+	border:1px solid #316ac5;
+	margin: 1px !important;
+	padding: 0px !important;
+}
+.slotbar_toolbar .dijitButtonCheckedHover,
+.slotbar_toolbar .dijitToggleButtonCheckedHover
+ {
+	background-color:#abc1e5;
+	border:1px solid #316ac5;
+	margin: 1px !important;
+	padding: 0px !important;
+}
+.slotbar_toolbar .dijitButtonHover,
+.slotbar_toolbar .dijitToggleButtonHover,
+.slotbar_toolbar .dijitDropDownButtonHover {
+	
+	border: 1px solid #316ac5;
+	background-color:#abc1e5;
+}
+.slotbar_toolbar label {	
+	padding: 3px 3px 0 6px;
+}
+
+.slotbar_vertical.slotbar_toolbar{
+	
+}
+
+.slotbar_horizontal.slotbar_toolbar {
+
+	/*z-index:1;*/
+}
+/* @end */
+
+
 
 .slotbar_horizontal tr{
 	height: 20px;
