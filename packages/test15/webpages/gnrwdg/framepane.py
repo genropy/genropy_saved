@@ -22,7 +22,7 @@ class GnrCustomWebPage(object):
     
     def test_2_slotbar_sidebar(self,pane):
         """Change gradients"""
-        pane.makeDemoFrame(design='sidebar',gradient_from='blue',gradient_to='navy')
+        pane.makeDemoFrame(design='sidebar',gradient_from='navy',gradient_to='lightblue')
         
     
     @struct_method
