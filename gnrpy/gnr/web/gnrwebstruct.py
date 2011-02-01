@@ -492,7 +492,7 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
              'staticGrid', 'dynamicGrid', 'fileUploader', 'gridEditor', 'ckEditor', 
             'tinyMCE', 'protovis', 'PaletteGroup','PalettePane','BagNodeEditor',
             'PaletteBagNodeEditor','Palette','PaletteTree','SearchBox','FormStore',
-            'FramePane','FrameForm']
+            'FramePane','FrameForm','SlotButton']
     genroNameSpace = dict([(name.lower(), name) for name in htmlNS])
     genroNameSpace.update(dict([(name.lower(), name) for name in dijitNS]))
     genroNameSpace.update(dict([(name.lower(), name) for name in dojoxNS]))
@@ -620,11 +620,11 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
         tb = self.child('slotBar',slotbarCode=slotbarCode,slots=slots,**kwargs)
         slots = gnrstring.splitAndStrip(slots)
         frameCode = self.attributes.get('frameCode')
-        slotbarCode = slotbarCode or frameCode
+        prefix = slotbarCode or frameCode
         for slot in slots:
             if slot!='*' and slot!='|' and not slot.isdigit():
                 s=tb.child('slot',name=slot)
-                slothandle = getattr(s,'%s_%s' %(slotbarCode,slot),None)
+                slothandle = getattr(s,'%s_%s' %(prefix,slot),None)
                 if not slothandle:
                     slothandle = getattr(s,'%s_%s' %('sltb',slot),None)
                 if slothandle:
