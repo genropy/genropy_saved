@@ -992,7 +992,7 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
         }
     },
 
-    _stripData: function() {
+    _stripData: function(shallow) {
         var content = this.getValue('static');
         var dflt;
         if (content instanceof gnr.GnrBag) {
@@ -1013,7 +1013,9 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
                             }
                         }
                     }
-                    node._stripData();
+                    if(!shallow){
+                        node._stripData();
+                    }
                 }
             }
         }

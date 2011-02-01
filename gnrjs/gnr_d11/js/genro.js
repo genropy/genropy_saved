@@ -783,7 +783,7 @@ dojo.declare('gnr.GenroClient', null, {
             args.push(arguments[i]);
         }
         //console.log('publishing:'+topic);
-        //  console.log(args)
+        //console.log(args)
         dojo.publish(topic, args);
     },
     absoluteUrl: function(url, kwargs, avoidCache) {

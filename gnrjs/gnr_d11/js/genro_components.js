@@ -4,6 +4,7 @@ dojo.declare("gnr.widgets.gnrwdg", null, {
         this._domtag = 'div';
     },
     _beforeCreation: function(sourceNode) {
+        console.log('_beforeCreation '+sourceNode.attr.tag);
         sourceNode.gnrwdg = {'gnr':this,'sourceNode':sourceNode};
         var attributes = sourceNode.attr;
         sourceNode.attr = {};
@@ -19,7 +20,7 @@ dojo.declare("gnr.widgets.gnrwdg", null, {
         sourceNode.clearValue();
         var content = this.createContent(sourceNode, contentKwargs,children);
         content.concat(children);
-        sourceNode._stripData();
+        sourceNode._stripData(true);
         sourceNode.unfreeze(true);
         return false;
     },
@@ -490,18 +491,27 @@ dojo.declare("gnr.widgets.PaletteGroup", gnr.widgets.gnrwdg, {
     }
 });
 
-dojo.declare("gnr.widgets.SlotBar", gnr.widgets.gnrwdg, {
+dojo.declare("gnr.widgets.SlotButton", gnr.widgets.gnrwdg, {
     createContent:function(sourceNode, kw,children) {
-        var slots = objectPop(kw,'slots');
-        var slotbarCode = objectPop(kw,'slotbarCode');        
-        return this['createContent_'+objectPop(kw,'orientation')](sourceNode,kw,slotbarCode,slots,children);
-    },
-    
+        var slotbarCode = sourceNode.getInheritedAttributes().slotbarCode;
+        kw['showLabel'] = kw['showLabel'] || false;        
+        var topic = slotbarCode+'_'+objectPop(kw,'publish');
+        if(!kw.action){
+            kw.topic = topic;
+            kw.command = kw.command || null;
+            kw['action'] = "genro.publish(topic,{'command':command})";
+        }
+        return sourceNode._('button',kw);
+    }
+
+});
+
+
+dojo.declare("gnr.widgets.SlotBar", gnr.widgets.gnrwdg, {
     contentKwargs: function(sourceNode, attributes) {
-        var side=sourceNode.getParentNode().attr.region;
         var frameNode = sourceNode.getParentNode().getParentNode();
-        var framePars = sourceNode.getParentNode().getParentNode().attr;
-        
+        var side=sourceNode.getParentNode().attr.region;
+        var framePars = frameNode.attr;
         var orientation = ((side=='top')||(side=='bottom'))?'horizontal':'vertical'
         attributes.orientation=orientation
         var buildKw={}
@@ -511,7 +521,7 @@ dojo.declare("gnr.widgets.SlotBar", gnr.widgets.gnrwdg, {
         
         if(orientation=='horizontal'){
             if('height' in attributes){
-                buildKw.row['height'] = objectPop(attributes,'height');
+                buildKw.cell['height']= objectPop(attributes,'height');
             }
         }else{
             if('width' in attributes){
@@ -522,6 +532,8 @@ dojo.declare("gnr.widgets.SlotBar", gnr.widgets.gnrwdg, {
         if(objectPop(attributes,'toolbar')){
             attributes['_class'] += ' slotbar_toolbar';
             if(frameNode && side){
+                attributes['side'] = side;
+                attributes['slotbarCode'] = attributes['slotbarCode'] || attributes['frameCode'] +'_'+ side; 
                 var sidePars = objectExtract(framePars,'side_*',true);
                 attributes['gradient_from'] = attributes['gradient_from'] || sidePars['gradient_from'] || genro.dom.themeAttribute('toolbar','gradient_from','silver');
                 attributes['gradient_to'] = attributes['gradient_to'] || sidePars['gradient_to'] || genro.dom.themeAttribute('toolbar','gradient_to','whitesmoke');
@@ -533,7 +545,10 @@ dojo.declare("gnr.widgets.SlotBar", gnr.widgets.gnrwdg, {
                 }
                 if(sideDict[side]){
                     attributes.rounded = framePars.rounded;
-                    objectUpdate(attributes,objectExtract(framePars,'rounded_*',true));
+                    var roundedPars = objectExtract(framePars,'rounded_*',true);
+                    for(var r in roundedPars){
+                        attributes['rounded_'+r] = roundedPars[r];
+                    }
                     attributes['rounded_'+css3Kw[side][1]] = 0;
                 }
                 attributes['gradient_deg'] = css3Kw[side][0];
@@ -543,6 +558,11 @@ dojo.declare("gnr.widgets.SlotBar", gnr.widgets.gnrwdg, {
         buildKw.lbl_cell = objectExtract(buildKw.lbl,'cell_*');
         attributes['buildKw'] = buildKw;
         return attributes;
+    },
+    
+    createContent:function(sourceNode, kw,children) {
+        var slots = objectPop(kw,'slots');
+        return this['createContent_'+objectPop(kw,'orientation')](sourceNode,kw,kw.slotbarCode,slots,children);
     },
     createContent_horizontal:function(sourceNode,kw,slotbarCode,slots,children){
         var buildKw = objectPop(kw,'buildKw');

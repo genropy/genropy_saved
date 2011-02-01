@@ -1439,8 +1439,10 @@ textarea:disabled {
 .slotbar_group{
     white-space:nowrap;
 }
-.slotbar{
+.slotbar td{
     overflow:hidden;
+    text-align:center;
+    vertical-align:middle;
 }
 .slotbar_vertical{
     height:100%;
