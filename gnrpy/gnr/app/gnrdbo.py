@@ -158,7 +158,8 @@ class GnrHTable(TableBase):
     
         
     def trigger_onUpdating(self, record_data, old_record=None):
-        if (record_data['child_code'] != old_record['child_code']) or (record_data['parent_code'] != old_record['parent_code']):
+        
+        if old_record and ((record_data['child_code'] != old_record['child_code']) or (record_data['parent_code'] != old_record['parent_code'])):
             old_code = old_record['code']
             self.assignCode(record_data)
             self.batchUpdate(dict(parent_code=record_data['code']), where='$parent_code=:old_code', old_code=old_code)
