@@ -1437,7 +1437,7 @@ textarea:disabled {
 
 /* @group SlotBar */
 
-.tundra .sltb_toolbar.dijitToolbar {
+.tundra .slotbar_toolbar.dijitToolbar {
 	padding: 1px 5px;
 	
 }
@@ -1461,56 +1461,61 @@ textarea:disabled {
 	border:1px solid silver;
 	z-index:1;
 }
-.sltd_group{
+.slotbar_group{
     white-space:nowrap;
 }
-.sltb_row{
+.slotbar{
+    overflow:hidden;
+}
+.slotbar_vertical{
+    height:100%;
+}
+.slotbar_horizontal{
+    position:relative;
+}
+
+.slotbar_horizontal tr{
 	height: 20px;
 }
-.sltb_lbl{
+.slotbar_lbl{
     font-size:8px;
 }
-.sltb_slot_td{
+.slotbar_horizontal td{
 	vertical-align: middle;
 	height: 100%;
 	width:1px;
 	padding-left: 2px;
 	padding-right:2px ;
 }
-.sltb_table{
-	width:100%;
+.slotbar table{
 	border-spacing:0px;
 	border-collapse:collapse;
 }
-.sltb_v_table{
+.slotbar_horizontal table{
+	width:100%;
+}
+.slotbar_vertical table{
 	height:100% ;
-	border-spacing:0px;
-	border-collapse:collapse;
+	width:100%;
 }
 
-.sltb_spacer{
+.slotbar_horizontal .slotbar_spacer{
 	position:absolute;
 	top: 2px;
 	bottom: 2px;
     background:gray;
 	width: 1px;
 }
-.sltb_v_spacer{
+.slotbar_vertical .slotbar_spacer{
     height:100%;
     background:gray;
 }
-.sltb_v_row{
+.slotbar_vertical tr{
     height:1px;
     padding-top: 2px;
 	padding-bottom:2px ;
 }
-.sltb_vertical{
-    height:100%;
-}
-.sltb_v_table{
-    height:100%;
-    width:100%;
-}
+
 
 
 
