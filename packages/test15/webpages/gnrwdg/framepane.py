@@ -12,38 +12,45 @@ class GnrCustomWebPage(object):
     def windowTitle(self):
         return 'SlotBar test'
          
-    def test_0_slotbar_base(self,pane):
+    def _test_0_slotbar_base(self,pane):
         """Design headline"""
-        pane.makeDemoFrame()
-    
-    def test_1_slotbar_sidebar(self,pane):
-        """Design sidebar"""
-        pane.makeDemoFrame(design='sidebar')
-    
-    def test_2_slotbar_sidebar(self,pane):
-        """Change gradients"""
-        pane.makeDemoFrame(design='sidebar',gradient_from='navy',gradient_to='lightblue')
-        
-    
-    @struct_method
-    def makeDemoFrame(self,pane,design=None,gradient_from=None,gradient_to=None):
-        frame = pane.framePane(frameCode='frameOne',height='200px',width='300px',shadow='3px 3px 5px gray',
+        frame = pane.framePane(frameCode='frame1',height='200px',width='300px',shadow='3px 3px 5px gray',
                                 border='1px solid #bbb',margin='10px',center_border='1px solid #bbb',
-                                center_background='gray',
-                                side_gradient_from=gradient_from,
-                                side_gradient_to=gradient_to,
-                                rounded=10,design=design)
+                                center_background='gray',rounded_top=10)
         top = frame.top.slotToolbar(slots='30,foo,*,bar,30',height='20px')
-        bottom = frame.bottom.slotToolbar(slots='30,foo,*,bar,30',height='20px')
-        left = frame.left.slotToolbar(slots='30,foo,*,bar,30',width='20px')
+    
+    def _test_1_slotbar_sidebar(self,pane):
+        """Design sidebar"""
+        frame = pane.framePane(frameCode='frame2',height='200px',width='300px',shadow='3px 3px 5px gray',
+                                border='1px solid #bbb',margin='10px',center_border='1px solid #bbb',
+                                center_background='gray',rounded_top=10,design='sidebar')
+        top = frame.top.slotToolbar(slots='30,foo,*,bar,30',height='20px') 
+        left = frame.left.slotToolbar(slots='30,foo,*,bar,30',width='40px')
+           
+    def _test_2_slotbar_sidebar(self,pane):
+        """Change gradients"""
+        frame = pane.framePane(frameCode='frame3',height='200px',width='300px',shadow='3px 3px 5px gray',
+                                border='1px solid #bbb',margin='10px',center_border='1px solid #bbb',
+                                center_background='gray',rounded_top=10,
+                                side_gradient_from='darkblue',
+                                side_gradient_to='blue')
+        top = frame.top.slotToolbar(slots='30,foo,*,bar,30',height='20px') 
+        left = frame.left.slotToolbar(slots='30,foo,*,bar,30',width='20px',gradient_to='red')  
+        bottom = frame.bottom.slotToolbar(slots='30,foo,*,bar,30',height='20px',gradient_from='darkgreen')
         right = frame.right.slotToolbar(slots='30,foo,*,bar,30',width='20px')
-        top.foo.button(label='Add',iconClass='icnBaseAdd',showLabel=False)
-        top.bar.button(label='Del',iconClass='icnBaseOk',showLabel=False)
-        bottom.foo.button(label='Add',iconClass='icnBaseAdd',showLabel=False)
-        bottom.bar.button(label='Del',iconClass='icnBaseOk',showLabel=False)
-        left.foo.button(label='Add',iconClass='icnBaseAdd',showLabel=False)
-        left.bar.button(label='Del',iconClass='icnBaseOk',showLabel=False)
-        right.foo.button(label='Add',iconClass='icnBaseAdd',showLabel=False)
-        right.bar.button(label='Del',iconClass='icnBaseOk',showLabel=False)
+        
+    def test_3_slotbar_commands(self,pane):
+        """Change gradients"""
+        frame = pane.framePane(frameCode='frame4',height='200px',width='300px',shadow='3px 3px 5px gray',
+                                border='1px solid #bbb',margin='10px',center_border='1px solid #bbb',
+                                center_background='gray',rounded_top=10)
+        top = frame.top.slotToolbar(slotbarCode='myslotbar',slots='*,foo,bar,10',height='20px') 
+        top.foo.slotButton(label='Add',iconClass='icnBaseAdd',publish='add')
+        top.bar.slotButton(label='remove',iconClass='icnBaseDelete',publish='remove')
+
+        frame.numberTextbox(value='^.value',default_value=1,width='5em',
+                            subscribe_myslotbar_add="""SET .value=(GET .value)+1;""",
+                            subscribe_myslotbar_remove='SET .value= (GET .value) -1;')
+     
         
         
