@@ -10,9 +10,9 @@ Common attributes
 	introduction to common attributes <introduction>
 	datapath
 	dbtable
-	default
 	disabled
 	hidden
 	label
 	nodeId
+	visible
 	zoom

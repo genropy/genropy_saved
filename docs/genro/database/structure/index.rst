@@ -6,7 +6,7 @@ project structure help
 
 	In this section you can find a tree structure that represents a Genro project common structure: if you need some help with a single file or folder, this is the right place for you.
 	
-	* `projectname`
+	* :ref:`genro_structure_mainproject`
 		* :ref:`genro_structure_instances`
 			* `instance_name`
 				* :ref:`instances_custom`
@@ -43,5 +43,6 @@ alphabetically help
 	model
 	menu
 	packages
+	mainproject
 	resources
 	sites

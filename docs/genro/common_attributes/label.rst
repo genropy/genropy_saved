@@ -7,7 +7,6 @@ label
 	* :ref:`label_def`
 	* :ref:`lbl_formbuilder`
 	
-
 .. _label_def:
 
 Definition and description
@@ -17,7 +16,6 @@ Definition and description
 	
 	.. note:: Not all the widgets support it. In every widget page is specified if the attribute is supported or not. In the next section, we describe you the way to turn around the problem.
 	
-
 .. _lbl_formbuilder:
 
 Usage of a label through the formbuilder widget

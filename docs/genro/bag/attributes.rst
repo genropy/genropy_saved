@@ -1,7 +1,5 @@
 .. _bag_attributes:
 
-.. module:: gnr.core.gnrbag.Bag
-
 ============
  attributes
 ============
@@ -10,6 +8,8 @@
 	* :ref:`bag_attributes_setAttr`
 	* :ref:`bag_getting_attributes`
 	* :ref:`bag_conditions`
+
+	.. module:: gnr.core.gnrbag.Bag
 
 	You can attach metadatas to any node of a Bag. Let's introduce the attributes: each attribute has a name and a value and they are stored in a dictionary.
 

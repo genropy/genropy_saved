@@ -5,7 +5,6 @@
 ==========
 
 	* :ref:`disabled_def`
-	* :ref:`disabled_validity`
 	* :ref:`disabled_examples`: :ref:`disabled_examples_formbuilder`, :ref:`disabled_examples_standardTable`
 
 .. _disabled_def:
@@ -13,21 +12,13 @@
 Definition and description
 ==========================
 
-	If ``True``, user can't act on the object (write, drag...).
-
-.. _disabled_validity:
-
-Validity and default value
-==========================
-
-	**validity:** it works on every form widget.
-
-	**default value:** the default value of ``disabled`` is ``False``.
-
-	**syntax:**
 	::
 	
-		disabled=False
+		disabled = False
+
+	If ``True``, user can't act on the object (write, drag...).
+
+	**validity:** it works on every form widget.
 
 	.. _disabled_examples:
 

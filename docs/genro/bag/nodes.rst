@@ -1,14 +1,14 @@
 .. _bag_nodes:
 
-	.. module:: gnr.core.gnrbag.Bag
-
 =====
 nodes
 =====
 
+	.. module:: gnr.core.gnrbag.Bag
+
 	We discovered in the previous paragraph that we can associate a set of :ref:`bag_attributes` to each item, and we know that each item is a BagNode.
 	
-	We remeber you that a :class:`BagNode` is a class composed by:
+	We remember you that a :class:`BagNode` is a class composed by:
 
 	- a single label.
 	
@@ -20,7 +20,7 @@ nodes
 
 	* :meth:`getNode`: return a node.
 	* :meth:`getNodes`: return a list of nodes.
-	* :meth:`getNodeByAttr`: return the node who has the passed value-attribute couple. ???#NISO
+	* :meth:`getNodeByAttr`: return the node who has the passed value-attribute couple. ???
 	
 	>>> mybag = Bag({'paper':1,'scissors':2})
 	>>> papernode = mybag.getNode('paper')

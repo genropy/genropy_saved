@@ -1,7 +1,5 @@
 .. _genro_bag_four:
 
-.. module:: gnr.core.gnrbag.Bag
-
 =========================
 Resolver and dynamic bags
 =========================
@@ -14,6 +12,8 @@ Resolver and dynamic bags
 	* :ref:`bag_shortcuts`
 	* :ref:`bag_formula`
 	* :ref:`bag_symbol_formula`
+
+.. module:: gnr.core.gnrbag.Bag
 
 .. _bag_four_introduction:
 
@@ -141,7 +141,7 @@ Resolver Example 3: RssFeedResolver
 	Here is how the resolver works:
 
 	>>> mybag['feeds.washingtonpost']= RssFeedResolver('http://www.washingtonpost.com/wp-dyn/rss/world/index.xml')
-	#NISO ??? There's an unknown error:
+	??? There's an unknown error:
 	Traceback (most recent call last):
 	  File "<stdin>", line 1, in <module>
 	  File "/Users/niso/sviluppo/genro/gnrpy/gnr/core/gnrbag.py", line 2357, in __init__
@@ -276,7 +276,7 @@ Bag Formula: ``the defineSymbol()`` and the ``defineFormula()`` methods
 	>>> print mybag['polygon.calculated.perimeter']
 	50
 
-	<#NISO ??? Explain better!!! Now it's necessary to specify with more accuracy how does BagFormula work. The Bag who calls the ``defineFormula()``, ``defineSymbols()`` and ``formula()`` methods becomes a sort of namespace for our spreadsheet like system. It is the origin of the absolute paths and has two important properties that are the dictionary of the formulas and the one of the symbols. />
+	<??? Explain better!!! Now it's necessary to specify with more accuracy how does BagFormula work. The Bag who calls the ``defineFormula()``, ``defineSymbols()`` and ``formula()`` methods becomes a sort of namespace for our spreadsheet like system. It is the origin of the absolute paths and has two important properties that are the dictionary of the formulas and the one of the symbols. />
 
 	.. image:: ../images/bag/bag-resolver2.png
 	

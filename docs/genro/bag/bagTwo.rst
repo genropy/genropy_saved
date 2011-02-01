@@ -1,7 +1,5 @@
 .. _genro_bag_two:
 
-.. module:: gnr.core.gnrbag.Bag
-
 ==========================
 Basic functions (part two)
 ==========================
@@ -12,6 +10,8 @@ Basic functions (part two)
 	* :ref:`bag_printing_advanced`
 	* :ref:`bag_getting_values_advanced`
 	* :ref:`bag_digest`
+	
+.. module:: gnr.core.gnrbag.Bag
 
 .. _bag_hierarchical:
 

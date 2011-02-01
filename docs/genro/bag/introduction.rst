@@ -1,13 +1,13 @@
 .. _genro_bag_intro:
 
-.. module:: gnr.core.gnrbag.Bag
-
-=====
- Bag
-=====
+===
+Bag
+===
 
 	* :ref:`bag_what`
 	* :ref:`bag_intro_hierarchical`
+
+.. module:: gnr.core.gnrbag.Bag
 	
 .. _bag_what:
 

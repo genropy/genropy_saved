@@ -5,13 +5,16 @@
 =========
 
 	* :ref:`dbtable_def`
-	* :ref:`dbtable_validity`
 	* :ref:`dbtable_examples`
 
 .. _dbtable_def:
 
 Definition and description
 ==========================
+
+	::
+	
+		dbtable = None
 	
 	The ``dbtable`` attribute is used to specify a path for a database :ref:`genro_database_table` during a user query.
 	
@@ -20,11 +23,6 @@ Definition and description
 		- ``packageName`` is the name of the package on which you're working [#]_ ;
 		
 		- ``tableName`` is the name of the :ref:`genro_database_table` on which is executed the user query.
-
-.. _dbtable_validity:
-
-Validity and default value
-==========================
 
 	**Validity:** the ``dbtable`` attribute works on the following form widgets:
 	
@@ -35,10 +33,6 @@ Validity and default value
 		* :ref:`genro_dbselect`
 		
 		* :ref:`genro_dbcombobox`
-
-	**default value:** the default value of ``dbtable`` is ``None``::
-
-		dbtable=None
 
 .. _dbtable_examples:
 

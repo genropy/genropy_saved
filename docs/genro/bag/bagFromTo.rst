@@ -1,7 +1,5 @@
 .. _bag_from_to:
 
-.. module:: gnr.core.gnrbag.Bag
-
 ==================
 Bag from/to source
 ==================
@@ -10,6 +8,8 @@ Bag from/to source
 	* :ref:`bag_to_xml`
 	* :ref:`from_XML`
 	* :ref:`from_bag_to_dict`
+
+	.. module:: gnr.core.gnrbag.Bag
 
 	As we have seen in the previous chapter, a Bag is a completely dynamic structure. A Bag has a polymorphic interaction with many complex data sources, so it's possible to fill it passing:
 
@@ -94,7 +94,7 @@ toXml
 	+--------------------+---------------------+
 	|   `D`              | `datetime`          |
 	+--------------------+---------------------+
-	|   `DT`             | `datetime` ???      |
+	|   `DT`             | `datetime ???`      |
 	+--------------------+---------------------+
 	|   `H`              | `datetime.time`     |
 	+--------------------+---------------------+

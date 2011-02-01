@@ -5,13 +5,16 @@ zoom
 ====
 
 	* :ref:`zoom_definition_description`
-	* :ref:`zoom_validity`
 	* :ref:`zoom_examples`
 
 .. _zoom_definition_description:
 
 Definition and description
 ==========================
+
+	::
+	
+		zoom = False
 
 	``zoom`` is an attribute used to ... ???
 
@@ -23,9 +26,7 @@ Validity and zoom value
 	**Validity:** you can give ``zoom`` attribute to the following objects:
 
 		- ???
-
-	**Default value:** the default value of ``zoom`` changes ... ???
-
+		
 .. _zoom_examples:
 
 Examples

@@ -5,7 +5,6 @@
 ========
 
 	* :ref:`hidden_def`
-	* :ref:`hidden_validity`
 	* :ref:`hidden_examples`
 
 .. _hidden_def:
@@ -13,18 +12,13 @@
 Definition
 ==========
 
-	If ``True``, allow to hide its object.
-	
-.. _hidden_validity:
-
-Validity and default value
-==========================
-
-	**Validity:** the ``hidden`` attribute works on every object.
-
-	**default value:** the default value of ``hidden`` is ``False``::
-
+	::
+		
 		hidden = False
+
+	If ``True``, allow to hide its object.
+
+	**Validity:** it works on every object.
 
 .. _hidden_examples:
 

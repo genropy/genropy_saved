@@ -1,7 +1,5 @@
 .. _genro_bag_three:
 
-.. module:: gnr.core.gnrbag.Bag
-
 ==================
 Advanced functions
 ==================
@@ -15,7 +13,9 @@ Advanced functions
 		* :ref:`bag_validators`
 		* :ref:`bag_validator_attributes` (with a :ref:`validator_list_parameter`)
 		* :ref:`bag_validator_methods`
-	
+
+.. module:: gnr.core.gnrbag.Bag
+
 .. _bag_backward_path:
 
 Backward path

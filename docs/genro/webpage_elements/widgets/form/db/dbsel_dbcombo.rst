@@ -63,7 +63,12 @@ Common attributes
 	| ``value``          | Set a path for widget's values.                   |  ``None``                |
 	|                    | For more details, see :ref:`genro_datapath`       |                          |
 	+--------------------+---------------------------------------------------+--------------------------+
-
+	| ``visible``        | if False, hide the widget (but keep a place in the|  ``True``                |
+	|                    | :ref:`genro_datastore` for it). For more          |                          |
+	|                    | information, check the :ref:`genro_visible`       |                          |
+	|                    | documentation page                                |                          |
+	+--------------------+---------------------------------------------------+--------------------------+
+	
 .. _db_examples:
 
 Examples

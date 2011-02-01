@@ -4,11 +4,11 @@
  datapath
 ==========
 
-	* :ref:`datapath_definition_description`
+	* :ref:`datapath_def`
 	* :ref:`datapath_validity`
 	* :ref:`datapath_examples`: :ref:`datapath_bc_example`, :ref:`datapath_absolute_example`
 
-.. _datapath_definition_description:
+.. _datapath_def:
 
 Definition and description
 ==========================

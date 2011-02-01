@@ -3,3 +3,7 @@
 ======================
  Standard table light
 ======================
+
+	.. warning:: to be written!
+	
+	???

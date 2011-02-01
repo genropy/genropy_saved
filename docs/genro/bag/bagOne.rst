@@ -1,7 +1,5 @@
 .. _genro_bag_one:
 
-	.. module:: gnr.core.gnrbag.Bag
-
 =================
  Basic functions
 =================
@@ -14,6 +12,8 @@
 	* :ref:`bag_access_to_value`
 	* :ref:`bag_setting_value_position`
 	* :ref:`bag_dictionary_methods`
+
+.. module:: gnr.core.gnrbag.Bag
 
 .. _bag_instance:
 
