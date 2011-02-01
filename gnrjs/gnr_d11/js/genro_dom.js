@@ -120,6 +120,11 @@ dojo.declare("gnr.GnrDomHandler", null, {
             }
         }
     },
+    themeAttribute:function(topic,property,dflt){
+        var topic = genro.theme[topic];
+        return topic? topic[property]:dflt;
+    },
+    
     style:function(where, attr, value) {
         var domnode = this.getDomNode(where);
         if (domnode) {

@@ -154,6 +154,7 @@ dojo.declare("gnr.widgets.FramePane", gnr.widgets.gnrwdg, {
         kw['height'] = kw['height'] || '100%';
         var bc = sourceNode._('BorderContainer', kw);
         var slot;
+        var centerPars = objectExtract(kw,'center_*')
         dojo.forEach(['top','bottom','left','right'],function(side){
              slot = children.popNode(side);
              node = slot? slot.getValue().getNode('#0') : children.popNode('#side='+side);
@@ -171,7 +172,8 @@ dojo.declare("gnr.widgets.FramePane", gnr.widgets.gnrwdg, {
             bc.setItem('#id',centerNode._value,centerNode.attr);
             center = centerNode._value;
         }else{
-            center = bc._('ContentPane',{'region':'center'});
+            centerPars['region'] = 'center';
+            center = bc._('ContentPane',centerPars);
         }
         return center;
     }
@@ -497,7 +499,9 @@ dojo.declare("gnr.widgets.SlotBar", gnr.widgets.gnrwdg, {
     
     contentKwargs: function(sourceNode, attributes) {
         var side=sourceNode.getParentNode().attr.region;
+        var frameNode = sourceNode.getParentNode().getParentNode();
         var framePars = sourceNode.getParentNode().getParentNode().attr;
+        
         var orientation = ((side=='top')||(side=='bottom'))?'horizontal':'vertical'
         attributes.orientation=orientation
         var buildKw={}
@@ -516,22 +520,23 @@ dojo.declare("gnr.widgets.SlotBar", gnr.widgets.gnrwdg, {
         }
         attributes['_class'] = (attributes['_class'] || '')+' slotbar  slotbar_'+orientation+' slotbar_'+side
         if(objectPop(attributes,'toolbar')){
-            var rounded = framePars.rounded;
-            var roundedPars = objectExtract(framePars,'rounded_*',true);
-            attributes['_class'] += ' slotbar_toolbar'
-            attributes['gradient_from'] = 'silver';
-            attributes['gradient_to'] = 'whitesmoke';
-            if(side=='left'){
-                attributes['gradient_deg'] = 0;
-            }
-            if(side=='top'){
-                attributes['gradient_deg'] = 90;
-            }
-            if(side=='right'){
-                attributes['gradient_deg'] = 180;
-            }
-            if(side=='bottom'){
-                attributes['gradient_deg'] = -90;
+            attributes['_class'] += ' slotbar_toolbar';
+            if(frameNode && side){
+                var sidePars = objectExtract(framePars,'side_*',true);
+                attributes['gradient_from'] = attributes['gradient_from'] || sidePars['gradient_from'] || genro.dom.themeAttribute('toolbar','gradient_from','silver');
+                attributes['gradient_to'] = attributes['gradient_to'] || sidePars['gradient_to'] || genro.dom.themeAttribute('toolbar','gradient_to','whitesmoke');
+                var sideDict = {'top':true,'bottom':true};
+                var css3Kw = {'left':[0,'right'],'top':[-90,'bottom'],
+                            'right':[180,'left'],'bottom':[90,'top']}
+                if (frameNode.widget.design=='sidebar'){
+                    sideDict = {'left':true,'right':true}
+                }
+                if(sideDict[side]){
+                    attributes.rounded = framePars.rounded;
+                    objectUpdate(attributes,objectExtract(framePars,'rounded_*',true));
+                    attributes['rounded_'+css3Kw[side][1]] = 0;
+                }
+                attributes['gradient_deg'] = css3Kw[side][0];
             }
         }
         buildKw.lbl['_class'] = buildKw.lbl['_class'] || 'slotbar_lbl'

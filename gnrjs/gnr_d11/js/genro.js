@@ -69,6 +69,7 @@ dojo.declare('gnr.GenroClient', null, {
         this.lockingElements = {};
         this.debugRpc = false;
         this.isDeveloper = this.startArgs.isDeveloper;
+        this.theme = {};
         setTimeout(dojo.hitch(this, 'genroInit'), 1);
     },
     genroInit:function() {
