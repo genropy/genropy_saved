@@ -190,7 +190,7 @@ class GnrDomSrc(GnrStructData):
                         autoslots=self._prepareAutoslot(slots=slots),**kwargs)
     
     def _prepareAutoslot(self,slots=None):
-        autoslots = ['top','left','bottom','right']
+        autoslots = ['top','left','bottom','right','center']
         if slots:
             autoslots.extend(slots.split(','))
             autoslots = set(autoslots)
