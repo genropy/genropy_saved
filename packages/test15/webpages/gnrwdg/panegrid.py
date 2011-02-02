@@ -12,7 +12,29 @@ class GnrCustomWebPage(object):
     def windowTitle(self):
         return ''
     
-    def test_0_frame_includedview(self,pane):
+    def _test_0_frame_includedview(self,pane):
+        """Pane grid """
+        pane = pane.framePane(frameCode='province',height='200px')
+        tbar = pane.top.slotToolbar('*,searchOn')
+        view = pane.includedView()
+        struct = view.gridStruct('regione')
+        view.selectionStore(table='glbl.provincia',where="$regione='LOM'",_onStart=True)
+        
+    def regione_struct(self,struct):
+        r = struct.view().rows()
+        r.fieldcell('nome',width='40%')
+        r.fieldcell('regione',width='20%')
+        r.fieldcell('@regione.nome',width='40%')
+
+        
+    def test_1_frame_includedview_struct(self,pane):
+        """Pane grid """
+        pane = pane.framePane(frameCode='province',height='200px')
+        tbar = pane.top.slotToolbar('*,searchOn')
+        view = pane.includedView(struct=self.regione_struct)
+        view.selectionStore(table='glbl.provincia',where="$regione='LOM'",_onStart=True)
+        
+    def _test_1_frame_includedview(self,pane):
         """Pane grid """
         pane = pane.framePane(frameCode='province',height='200px')
         tbar = pane.top.slotToolbar('*,searchOn')
@@ -20,7 +42,7 @@ class GnrCustomWebPage(object):
         struct = view.gridStruct('regione')
         view.selectionStore(table='glbl.provincia',where="$regione='LOM'",_onStart=True)
     
-    def test_1_frame_includedview(self,pane):
+    def _test_2_frame_includedview(self,pane):
         """Pane grid """
         pane = pane.framePane(frameCode='province',height='200px')
         pane.selectionStore(storeCode='provinceMie',table='glbl.provincia',where="$regione='LOM'",_onStart=True)
@@ -29,7 +51,8 @@ class GnrCustomWebPage(object):
         struct = view.gridStruct('regione')
         
 
-    def test_1_palettegrid(self,pane):
+    def _test_3_palettegrid(self,pane):
         paletteGrid = pane.paletteGrid(paletteCode='province_2',title='Province',
                                     struct='regione',dockTo='*',searchOn='*A,T,D')
         paletteGrid.selectionStore(table='glbl.provincia',where="$regione='LOM'") 
+
