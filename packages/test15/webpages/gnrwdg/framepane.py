@@ -16,7 +16,7 @@ class GnrCustomWebPage(object):
         """Design headline"""
         frame = pane.framePane(frameCode='frame1',height='200px',width='300px',shadow='3px 3px 5px gray',
                                 border='1px solid #bbb',margin='10px',center_border='1px solid #bbb',
-                                center_background='gray',rounded_top_left=15,rounded_bottom_right=30)
+                                center_background='gray')
         top = frame.top.slotToolbar(slots='30,foo,*,bar,30',height='20px')
         bottom = frame.bottom.slotBar(slots='btoh,*,|,bt2,30',height='30px')
         bottom.btoh.slotButton(label='Ok')
@@ -24,27 +24,35 @@ class GnrCustomWebPage(object):
 
 
     
-    def test_1_slotbar_sidebar(self,pane):
+    def _test_1_slotbar_sidebar(self,pane):
         """Design sidebar"""
         frame = pane.framePane(frameCode='frame2',height='200px',width='300px',shadow='3px 3px 5px gray',
                                 border='1px solid #bbb',margin='10px',center_border='1px solid #bbb',
                                 center_background='gray',rounded_top=10,design='sidebar')
         top = frame.top.slotToolbar(slots='30,foo,*,bar,30',height='20px') 
         left = frame.left.slotToolbar(slots='30,foo,*,bar,30',width='40px')
+    
+    def test_2_slotbar_headline(self,pane):
+        """Change gradients"""
+        frame = pane.framePane(frameCode='frame3',height='200px',width='300px',shadow='3px 3px 5px gray',
+                                border='1px solid #bbb',margin='10px',center_border='1px solid #bbb',
+                                center_background='gray',rounded=10,rounded_bottom=0)
+        top = frame.top.slotToolbar(slots='30,foo,*,bar,30',height='20px') 
+        left = frame.left.slotToolbar(slots='30,foo,*,bar,30',width='20px')  
+        bottom = frame.bottom.slotToolbar(slots='30,foo,*,bar,30',height='20px')
+        right = frame.right.slotToolbar(slots='30,foo,*,bar,30',width='20px')
            
     def test_2_slotbar_sidebar(self,pane):
         """Change gradients"""
         frame = pane.framePane(frameCode='frame3',height='200px',width='300px',shadow='3px 3px 5px gray',
                                 border='1px solid #bbb',margin='10px',center_border='1px solid #bbb',
-                                center_background='gray',rounded_top=10,
-                                side_gradient_from='darkblue',
-                                side_gradient_to='blue')
+                                center_background='gray',design='sidebar')
         top = frame.top.slotToolbar(slots='30,foo,*,bar,30',height='20px') 
-        left = frame.left.slotToolbar(slots='30,foo,*,bar,30',width='20px',gradient_to='red')  
-        bottom = frame.bottom.slotToolbar(slots='30,foo,*,bar,30',height='20px',gradient_from='darkgreen')
+        left = frame.left.slotToolbar(slots='30,foo,*,bar,30',width='20px')  
+        bottom = frame.bottom.slotToolbar(slots='30,foo,*,bar,30',height='20px')
         right = frame.right.slotToolbar(slots='30,foo,*,bar,30',width='20px')
         
-    def test_3_slotbar_commands(self,pane):
+    def _test_3_slotbar_commands(self,pane):
         """Change gradients"""
         frame = pane.framePane(frameCode='frame4',height='200px',width='300px',shadow='3px 3px 5px gray',
                                 border='1px solid #bbb',margin='10px',center_border='1px solid #bbb',
