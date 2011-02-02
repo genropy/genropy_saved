@@ -427,6 +427,9 @@ class GnrDictCursor(_cursor):
         if psycopg2.__version__.startswith('2.0'):
             return super(GnrDictCursor, self).execute(query, vars, async)
         return super(GnrDictCursor, self).execute(query, vars)
+    
+    def setConstraintsDeferred(self):
+        self.execute("SET CONSTRAINTS all DEFERRED;")
 
     def callproc(self, procname, vars=None):
         self.index = {}
