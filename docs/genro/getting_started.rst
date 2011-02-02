@@ -13,4 +13,3 @@
 	datastore/index
 	common_attributes/index
 	bag/index
-	ui/index
