@@ -709,7 +709,9 @@ class GnrApp(object):
     def notifyDbEvent(self, tblobj, record, event, old_record=None):
         pass
 
-    def getAuxInstance(self, name):
+    def getAuxInstance(self, name=None):
+        if not name:
+            return self
         if not name in self.aux_instances:
             instance_name = self.config['aux_instances.%s?name' % name] or name
             self.aux_instances[name] = GnrApp(instance_name)
