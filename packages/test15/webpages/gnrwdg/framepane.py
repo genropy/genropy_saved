@@ -12,7 +12,7 @@ class GnrCustomWebPage(object):
     def windowTitle(self):
         return 'SlotBar test'
          
-    def test_0_slotbar_base(self,pane):
+    def _test_0_slotbar_base(self,pane):
         """Design headline"""
         frame = pane.framePane(frameCode='frame1',height='200px',width='300px',shadow='3px 3px 5px gray',
                                 border='1px solid #bbb',margin='10px',center_border='1px solid #bbb',
@@ -24,7 +24,7 @@ class GnrCustomWebPage(object):
 
 
     
-    def _test_1_slotbar_sidebar(self,pane):
+    def test_1_slotbar_sidebar(self,pane):
         """Design sidebar"""
         frame = pane.framePane(frameCode='frame2',height='200px',width='300px',shadow='3px 3px 5px gray',
                                 border='1px solid #bbb',margin='10px',center_border='1px solid #bbb',

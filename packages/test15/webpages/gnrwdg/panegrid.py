@@ -55,4 +55,16 @@ class GnrCustomWebPage(object):
         paletteGrid = pane.paletteGrid(paletteCode='province_2',title='Province',
                                     struct='regione',dockTo='*',searchOn='*A,T,D')
         paletteGrid.selectionStore(table='glbl.provincia',where="$regione='LOM'") 
-
+    
+    def test_picker(self,pane):
+        pane.localitaPicker()
+    
+    @struct_method
+    def localitaPicker(self,pane):
+        palette = pane.palettePane('tablepicker',title='Picker',dockTo='*')
+        frame = palette.framePane(frameCode='tablepicker')
+        toolbar = frame.top.slotToolbar('*,selector,10',lbl_position='L')
+        toolbar.selector.textbox(value='^.seed',lbl='!!Search')
+        frame.includedview(struct='regione').selectionStore(table='glbl.provincia',
+                                            where='$nome ILIKE %%:seed%%', 
+                                            seed='^.seed')
