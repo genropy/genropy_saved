@@ -494,7 +494,7 @@ dojo.declare("gnr.widgets.PaletteGroup", gnr.widgets.gnrwdg, {
 dojo.declare("gnr.widgets.SlotButton", gnr.widgets.gnrwdg, {
     createContent:function(sourceNode, kw,children) {
         var slotbarCode = sourceNode.getInheritedAttributes().slotbarCode;
-        kw['showLabel'] = kw['showLabel'] || false;        
+        kw['showLabel'] = kw.iconClass? (kw['showLabel'] || false):true;        
         var topic = slotbarCode+'_'+objectPop(kw,'publish');
         if(!kw.action){
             kw.topic = topic;
@@ -537,12 +537,9 @@ dojo.declare("gnr.widgets.SlotBar", gnr.widgets.gnrwdg, {
                 var sidePars = objectExtract(framePars,'side_*',true);
                 attributes['gradient_from'] = attributes['gradient_from'] || sidePars['gradient_from'] || genro.dom.themeAttribute('toolbar','gradient_from','silver');
                 attributes['gradient_to'] = attributes['gradient_to'] || sidePars['gradient_to'] || genro.dom.themeAttribute('toolbar','gradient_to','whitesmoke');
-                var sideDict = {'top':true,'bottom':true};
+                var sideDict =frameNode.widget.design=='sidebar'? {'left':true,'right':true}:{'top':true,'bottom':true};
                 var css3Kw = {'left':[0,'right'],'top':[-90,'bottom'],
                             'right':[180,'left'],'bottom':[90,'top']}
-                if (frameNode.widget.design=='sidebar'){
-                    sideDict = {'left':true,'right':true}
-                }
                 if(sideDict[side]){
                     attributes.rounded = framePars.rounded;
                     var roundedPars = objectExtract(framePars,'rounded_*',true);
