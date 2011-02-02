@@ -333,6 +333,11 @@ class GnrSqlDb(GnrObject):
         """Commit a transaction"""
         self.connection.commit()
 
+    def setConstraintsDeferred(self):
+        cursor = self.adapter.cursor(self.connection)
+        if hasattr(cursor,'setConstraintsDeferred'):
+            cursor.setConstraintsDeferred()
+        
     def rollback(self):
         """Rollback a transaction """
         self.connection.rollback()
