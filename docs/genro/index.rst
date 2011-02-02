@@ -16,12 +16,11 @@ Genropy
 	:numbered:
 
 	getting_started
-	how_to
-	miscellaneous
 	library_reference/index
 	components/index
 	database/index
 	wsgi
+	miscellaneous/index
 
 Indices and Tables
 ==================
