@@ -512,11 +512,15 @@ dojo.declare("gnr.widgets.SlotBar", gnr.widgets.gnrwdg, {
         var frameNode = sourceNode.getParentNode().getParentNode();
         var side=sourceNode.getParentNode().attr.region;
         var framePars = frameNode.attr;
-        var orientation = ((side=='top')||(side=='bottom'))?'horizontal':'vertical'
+        var orientation = attributes.orientation || 'horizontal';
+        if (side){
+            orientation = ((side=='top')||(side=='bottom'))?'horizontal':'vertical';
+        }
         attributes.orientation=orientation
         var buildKw={}
         dojo.forEach(['table','row','cell','lbl'],function(k){
             buildKw[k] = objectExtract(attributes,k+'_*');
+            buildKw[k]['_class'] = (buildKw[k]['_class'] || '') + ' slotbar_'+k;
         });
         
         if(orientation=='horizontal'){

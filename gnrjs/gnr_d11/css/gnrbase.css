@@ -1439,7 +1439,7 @@ textarea:disabled {
 .slotbar_group{
     white-space:nowrap;
 }
-.slotbar td{
+.slotbar .slotbar_cell{
     overflow:hidden;
     text-align:center;
     vertical-align:middle;
@@ -1507,27 +1507,27 @@ textarea:disabled {
 
 
 
-.slotbar_horizontal tr{
+.slotbar_horizontal .slotbar_row{
 	height: 20px;
 }
 .slotbar_lbl{
     font-size:8px;
 }
-.slotbar_horizontal td{
+.slotbar_horizontal .slotbar_cell{
 	vertical-align: middle;
 	height: 100%;
 	width:1px;
 	padding-left: 2px;
 	padding-right:2px ;
 }
-.slotbar table{
+.slotbar .slotbar_table{
 	border-spacing:0px;
 	border-collapse:collapse;
 }
-.slotbar_horizontal table{
+.slotbar_horizontal .slotbar_table{
 	width:100%;
 }
-.slotbar_vertical table{
+.slotbar_vertical .slotbar_table{
 	height:100% ;
 	width:100%;
 }
@@ -1543,7 +1543,7 @@ textarea:disabled {
     height:100%;
     background:gray;
 }
-.slotbar_vertical tr{
+.slotbar_vertical .slotbar_row{
     height:1px;
     padding-top: 2px;
 	padding-bottom:2px ;
