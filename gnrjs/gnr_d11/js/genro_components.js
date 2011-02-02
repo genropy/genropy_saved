@@ -152,15 +152,21 @@ dojo.declare("gnr.widgets.FramePane", gnr.widgets.gnrwdg, {
         var node;
         var frameCode = kw.frameCode;
         objectPop(kw,'datapath');
+        var rounded_corners = genro.dom.normalizedRoundedCorner(kw.rounded,objectExtract(kw,'rounded_*',true))
         kw['height'] = kw['height'] || '100%';
         var bc = sourceNode._('BorderContainer', kw);
         var slot;
-        var centerPars = objectExtract(kw,'center_*')
+        var centerPars = objectExtract(kw,'center_*');
         dojo.forEach(['top','bottom','left','right'],function(side){
              slot = children.popNode(side);
              node = slot? slot.getValue().getNode('#0') : children.popNode('#side='+side);
-             if(node){
+             if(node){                 
                  node.attr['frameCode'] = frameCode;
+                 dojo.forEach(rounded_corners,function(k){
+                     if((side==k[0])||(side==[1])){
+                         node.attr['rounded_'+k[0]+'_'+k[1]] = k[2];
+                     }
+                 });                 
                  bc._('ContentPane',{'region':side}).setItem('#id',node._value,node.attr);
              }
         });
@@ -170,7 +176,7 @@ dojo.declare("gnr.widgets.FramePane", gnr.widgets.gnrwdg, {
         if(centerNode){
             objectPop(centerNode.attr,'side');
             centerNode.attr['region'] = 'center';
-            bc.setItem('#id',centerNode._value,centerNode.attr);
+            bc.setItem('#id',centerNode._value,objectUpdate({},centerNode.attr));
             center = centerNode._value;
         }else{
             centerPars['region'] = 'center';
@@ -541,17 +547,8 @@ dojo.declare("gnr.widgets.SlotBar", gnr.widgets.gnrwdg, {
                 var sidePars = objectExtract(framePars,'side_*',true);
                 attributes['gradient_from'] = attributes['gradient_from'] || sidePars['gradient_from'] || genro.dom.themeAttribute('toolbar','gradient_from','silver');
                 attributes['gradient_to'] = attributes['gradient_to'] || sidePars['gradient_to'] || genro.dom.themeAttribute('toolbar','gradient_to','whitesmoke');
-                var sideDict =frameNode.widget.design=='sidebar'? {'left':true,'right':true}:{'top':true,'bottom':true};
                 var css3Kw = {'left':[0,'right'],'top':[-90,'bottom'],
                             'right':[180,'left'],'bottom':[90,'top']}
-                if(sideDict[side]){
-                    attributes.rounded = framePars.rounded;
-                    var roundedPars = objectExtract(framePars,'rounded_*',true);
-                    for(var r in roundedPars){
-                        attributes['rounded_'+r] = roundedPars[r];
-                    }
-                    attributes['rounded_'+css3Kw[side][1]] = 0;
-                }
                 attributes['gradient_deg'] = css3Kw[side][0];
             }
         }

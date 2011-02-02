@@ -233,7 +233,7 @@ function objectKeyByIdx(obj, idx) {
     }
 }
 
-function objectExtract(obj, keys, dontpop) {
+function objectExtract(obj, keys, dontpop,dontslice) {
     if(!obj){
         return {};
     }
@@ -244,7 +244,7 @@ function objectExtract(obj, keys, dontpop) {
         var key_len = key.length;
         for (var prop in obj) {
             if (prop.slice(0, key_len) == key) {
-                result[prop.slice(key_len)] = obj[prop];
+                result[dontslice?prop:prop.slice(key_len)] = obj[prop];
                 if (!dontpop) {
                     delete obj[prop];
                 } else if (dontpop != true) {

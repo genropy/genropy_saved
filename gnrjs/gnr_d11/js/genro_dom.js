@@ -466,8 +466,17 @@ dojo.declare("gnr.GnrDomHandler", null, {
         var cb=dojo.isSafari? function(y,x){return '-webkit-border-'+y+'-'+x+'-radius';}: 
                                 function(y,x){
                                     return '-moz-border-radius-'+y+x;};
-        if(value){
-            valuedict['all'] = value;
+        var rounded_corner = this.normalizedRoundedCorner(value,valuedict);
+        dojo.forEach(rounded_corner,function(k){
+            styledict[cb(k[0],k[1])] = k[2];
+        });
+    },
+    
+    normalizedRoundedCorner : function(rounded,rounded_dict){
+        var result = [];
+        var v,m;
+        if(rounded){
+            rounded_dict['all'] = rounded;
         }
         var converter = [['all','tr','tl','br','bl'],
                          ['top','tr','tl'],
@@ -478,17 +487,18 @@ dojo.declare("gnr.GnrDomHandler", null, {
                          ['top_right','tr'],['right_top','tr'],
                          ['bottom_left','bl'],['left_bottom','bl'],
                          ['bottom_right','br'],['right_bottom','br']];
-        if(objectNotEmpty(valuedict)){
+        if(objectNotEmpty(rounded_dict)){
             dojo.forEach(converter,function(k){
-                if(k[0] in valuedict){
-                    v = valuedict[k[0]];
+                if(k[0] in rounded_dict){
+                    v = rounded_dict[k[0]];
                     for(var i=1; i<k.length; i++){
-                        var m = k[i];
-                        styledict[cb(m[0]=='t'? 'top':'bottom',m[1]=='l'? 'left':'right')] = v +'px';
+                        m = k[i];
+                        result.push([(m[0]=='t'? 'top':'bottom'),(m[1]=='l'? 'left':'right'),v])
                     }
                 }
             });
         }
+        return result
     },
     
     style_setall:  function(label, styledict/*{}*/, attributes/*{}*/, noConvertStyle) {
