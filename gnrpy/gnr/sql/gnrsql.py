@@ -303,6 +303,8 @@ class GnrSqlDb(GnrObject):
         tblobj.trigger_onInserting(record)
         self.adapter.insert(tblobj, record,**kwargs)
         tblobj.trigger_onInserted(record)
+       #if 'audit' in tblobj.attributes:
+       #    tblobj.pkg.addChangeset(mode='insert',record=record)
 
     def update(self, tblobj, record, old_record=None, pkey=None,**kwargs):
         """Update a record of the table.
