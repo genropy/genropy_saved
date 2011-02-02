@@ -8,6 +8,11 @@ from gnr.core.gnrstring import splitAndStrip
 class GnrDboPackage(object):
     """Base class for packages.
     """
+    def updateFromExternalDb(self,externaldb,empty_before=None):
+        tables = self.attributes.get('export_order') or ''
+        self.db.setConstraintsDeferred()
+        for tbl in splitAndStrip(tables):
+            self.db.table(tbl).copyToDb(externaldb,self.db,empty_before=empty_before)    
 
     def getCounter(self, name, code, codekey, output, date=None, phyear=False, lastAssigned=0):
         """Generate a new number from the specified counter.
