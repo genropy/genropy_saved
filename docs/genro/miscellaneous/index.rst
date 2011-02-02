@@ -5,7 +5,7 @@ Documents to revise or adjust
 =============================
 
 .. toctree::
-	maxdepth: 2
+	:maxdepth: 2
 	
 	clipboard
 	logging

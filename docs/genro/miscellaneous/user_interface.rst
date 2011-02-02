@@ -3,19 +3,17 @@ User interface
 ==============
 
 Building Server-side pages
-**************************
+==========================
 
 For building server-side pages, please see :mod:`gnr.core.gnrhtml`.
 
-==========================
 Building Client-side pages
 ==========================
 
-Events
-======
+	???
 
-Load record
-===========
+Events: Load record
+===================
 
 .. method:: page.onLoading(self, record, newrecord, loadingParameters, recInfo)
 .. method:: page.onLoading_package_table(self, record, newrecord, loadingParameters, recInfo)
