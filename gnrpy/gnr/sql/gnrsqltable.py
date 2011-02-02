@@ -607,7 +607,7 @@ class SqlTable(GnrObject):
         :param record_data: a dictionary that represent the record that must be updated
         """
         self.db.update(self, record, old_record=old_record, pkey=pkey,**kwargs)
-
+        
     def writeRecordCluster(self, recordCluster, recordClusterAttr, debugPath=None):
         """This method receives a changeSet and executes insert, delete or update
         :param record_data: a dictionary that represent the record that must be updated
@@ -875,19 +875,36 @@ class SqlTable(GnrObject):
             for record in data['records'].values():
                 record.pop('_isdeleted')
                 self.insert(record)
-
-    def importFromAuxInstance(self, instance_name, tbl_name=None, empty_before=False, excludeLogicalDeleted=True):
-        aux_db = self.db.application.getAuxInstance(instance_name).db
-        source_tbl = aux_db.table(tbl_name or self.fullname)
-        source_records = source_tbl.query(addPkeyColumn=False, excludeLogicalDeleted=excludeLogicalDeleted).fetch()
+                    
+    def copyToDb(self, dbsource,dbdest, empty_before=False, excludeLogicalDeleted=True,source_records=None,**querykwargs):
+        tbl_name = self.fullname
+        source_tbl = dbsource.table(tbl_name)
+        dest_tbl = dbdest.table(tbl_name)
+        querykwargs['addPkeyColumn'] = False
+        querykwargs['excludeLogicalDeleted'] = excludeLogicalDeleted
+        source_records = source_records or source_tbl.query(**querykwargs).fetch()
         if empty_before:
-            self.empty()
+            dest_tbl.empty()
         for record in source_records:
             if empty_before:
-                self.insert(record)
+                dest_tbl.insert(record)
             else:
-                self.insertOrUpdate(record)
+                dest_tbl.insertOrUpdate(record)
+    
+    def exportToAuxInstance(self, instance, empty_before=False, excludeLogicalDeleted=True,source_records=None,**querykwargs):
+        if isinstance(instance,basestring):
+            instance = self.db.application.getAuxInstance(instance)
+        dest_db = instance.db
+        self.copyToDb(self.db,dest_db,empty_before=empty_before,excludeLogicalDeleted=excludeLogicalDeleted,
+                        source_records=source_records,**querykwargs)
 
+    def importFromAuxInstance(self, instance, tbl_name=None, empty_before=False, 
+                                excludeLogicalDeleted=True,source_records=None,**querykwargs):
+        if isinstance(instance,basestring):
+            instance = self.db.application.getAuxInstance(instance)
+        source_db = instance.db
+        self.copyToDb(source_db,self.db,empty_before=empty_before,excludeLogicalDeleted=excludeLogicalDeleted,
+                      source_records=source_records,**querykwargs)
 
     def relationExplorer(self, omit='', prevRelation='', dosort=True, pyresolver=False, **kwargs):
         def xvalue(attributes):
