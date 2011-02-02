@@ -1124,6 +1124,8 @@ class GnrWebPage(GnrBaseWebPage):
         if callable(source): 
             struct = self.newGridStruct(maintable=table)
             source(struct)
+            if hasattr(struct,'_missing_table'):
+                struct = None
             return struct
         if table:
             tblobj = self.db.table(table)

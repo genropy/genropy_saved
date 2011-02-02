@@ -1166,6 +1166,9 @@ class GnrGridStruct(GnrStructData):
 
     def fieldcell(self, field, _as=None, name=None, width=None, dtype=None,
                   classes=None, cellClasses=None, headerClasses=None, zoom=False, **user_kwargs):
+        if not self.tblobj:
+            self.root._missing_table = True
+            return
         tableobj = self.tblobj
         fldobj = tableobj.column(field)
 
