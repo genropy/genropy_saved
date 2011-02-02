@@ -107,16 +107,8 @@ class Table(object):
     def prepopulate_instance(self, hosted_app):
         hosted_db = hosted_app.db
         for pkg in hosted_db.packages.values():
-            for tbl in pkg.tables.values():
-                if not tbl.attributes.get('hosting_prepopulate'):
-                    continue
-                tbl_name = "%s.%s" % (pkg.name, tbl.name)
-                hosting_table = self.db.table(tbl_name)
-                hosted_table = hosted_db.table(tbl_name)
-                records = hosting_table.query().fetch()
-                for record in records:
-                    hosted_table.insert(record)
-
+            pkg.updateFromExternalDb()
+                
     def trigger_onInserting(self, *args, **kwargs):
         self.common_inserting_trigger(*args, **kwargs)
 
