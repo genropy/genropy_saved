@@ -7,42 +7,36 @@ project structure help
 	In this section you can find a tree structure that represents a Genro project common structure: if you need some help with a single file or folder, this is the right place for you.
 	
 	* :ref:`genro_structure_mainproject`
-		* :ref:`genro_structure_instances`
-			* `instance_name`
+		* :ref:`genro_instances_index`
+			* :ref:`instances_instance_name`
 				* :ref:`instances_custom`
 				* :ref:`instances_data`
 				* :ref:`instances_instanceconfig`
-		* :ref:`genro_structure_packages`
-			* `package_name`
-				* `lib`
-				* `main.py`
-				* :ref:`genro_structure_menu`
-				* :ref:`genro_structure_model`
-					* :ref:`genro_structure_exampletable`
-				* `webpages`
-					* `_resources`
-					* :ref:`genro_structure_example_webpage`
-		* :ref:`genro_structure_resources`
-		* :ref:`genro_structure_sites`
-			* `sites_name`
-				* `pages`
-				* `root.py`
-				* `siteconfig.xml`
+		* :ref:`genro_packages_index`
+			* :ref:`packages_package_name`
+				* :ref:`packages_lib`
+				* :ref:`packages_main`
+				* :ref:`packages_menu`
+				* :ref:`packages_model`
+					* :ref:`model_example_table`
+				* :ref:`packages_webpages`
+					* :ref:`packages_resources`
+					* :ref:`packages_example_webpages`
+		* :ref:`genro_resources_index`
+		* :ref:`genro_sites_index`
+			* :ref:`sites_sites_name`
+				* :ref:`sites_pages`
+				* :ref:`sites_root`
+				* :ref:`sites_siteconfig`
 
-alphabetically help
-===================
-
-	We list here all the :ref:`genro_structure_projectstructure` pages in an alphabetical order:
+index of project structure help
+===============================
 
 .. toctree::
-	:maxdepth: 1
+	:maxdepth: 2
 	
-	exampletable
-	examplewebpage
-	instances
-	model
-	menu
-	packages
 	mainproject
-	resources
-	sites
+	instances/index
+	packages/index
+	resources/index
+	sites/index

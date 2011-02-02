@@ -1,5 +1,7 @@
-.. _genro_structure_resources:
+.. _genro_resources_index:
 
 =========
 resources
 =========
+
+	In the ``resources`` folder .. ???

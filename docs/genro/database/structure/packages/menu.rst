@@ -1,7 +1,7 @@
-.. _genro_structure_menu:
+.. _packages_menu:
 
 =======
 menu.py
 =======
 
-	Allow to define a menu (only in the stndardtable???)
+	Allow to define a menu (only in the standardtable???)
