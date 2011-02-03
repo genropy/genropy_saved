@@ -93,11 +93,19 @@ class TableBase(object):
         if md5:
             tbl.column('__rec_md5', name_long='!!Update date', onUpdating='setRecordMd5', onInserting='setRecordMd5',
                        group='_')
-
+        audit = tbl.attributes.get('audit')
+        if audit:
+            tbl.column('__version','L',name_long='Audit version',onUpdating='setAuditVersionUpd', onInserting='setAuditVersionIns')
 
     def trigger_setTSNow(self, record, fldname):
         if not getattr(record, '_notUserChange', None):
             record[fldname] = datetime.datetime.today()
+    
+    def trigger_setAuditVersionIns(self,record,fldname):
+        record[fldname] = 0
+    
+    def trigger_setAuditVersionUpd(self,record,fldname):
+        record[fldname] = (record.get(fldname) or 0)+ 1
 
     def trigger_setRecordMd5(self, record, fldname):
         pass
