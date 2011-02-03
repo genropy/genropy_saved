@@ -182,20 +182,13 @@ class GnrDomSrc(GnrStructData):
         """docstring for findNode"""
         return self.findNodeByAttr('nodeId', id)
 
-    def framepane(self,frameCode=None,slots=None,**kwargs):
-        return self.child('FramePane',frameCode=frameCode,autoslots=self._prepareAutoslot(slots=slots),**kwargs)
+    def framepane(self,frameCode=None,**kwargs):
+        return self.child('FramePane',frameCode=frameCode,autoslots='top,bottom,left,right',**kwargs)
     
     def frameform(self,formId=None,frameCode=None,slots=None,**kwargs):
         return self.child('FrameForm',formId=formId,frameCode=frameCode,
-                        autoslots=self._prepareAutoslot(slots=slots),**kwargs)
+                          autoslots='top,bottom,left,right',**kwargs)
     
-    def _prepareAutoslot(self,slots=None):
-        autoslots = ['top','left','bottom','right','center']
-        if slots:
-            autoslots.extend(slots.split(','))
-            autoslots = set(autoslots)
-        return ','.join(autoslots)
-
     def h1(self, content=None, **kwargs):
         return self.htmlChild('h1', content=content, **kwargs)
 
@@ -545,14 +538,17 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
         
     def paletteTree(self,paletteCode,datapath=None,**kwargs): 
         datapath= datapath or 'gnr.palettes.%s' %paletteCode       
-        palette = self.child('PaletteTree',paletteCode=paletteCode,datapath=datapath,**kwargs)
+        palette = self.child('PaletteTree',paletteCode=paletteCode,datapath=datapath,
+                             autoslots='top,left,right,bottom',**kwargs)
         return palette
 
     def paletteGrid(self,paletteCode=None,struct=None,structpath=None,datapath=None,**kwargs):
         datapath= datapath or 'gnr.palettes.%s' %paletteCode
         structpath = structpath or '.grid.struct'
         kwargs['gridId'] = kwargs.get('gridId') or '%s_grid' %paletteCode
-        paletteGrid = self.child('paletteGrid',paletteCode=paletteCode,structpath=structpath,datapath=datapath,**kwargs)
+        paletteGrid = self.child('paletteGrid',paletteCode=paletteCode,
+                                structpath=structpath,datapath=datapath,
+                                autoslots='top,left,right,bottom',**kwargs)
         if struct:
             paletteGrid.gridStruct(struct=struct)   
         return paletteGrid
