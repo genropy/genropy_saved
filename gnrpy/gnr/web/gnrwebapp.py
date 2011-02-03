@@ -15,6 +15,7 @@ class GnrWsgiWebApp(GnrApp):
         super(GnrWsgiWebApp, self).__init__(*args, **kwargs)
 
     def notifyDbEvent(self, tblobj, record, event, old_record=None):
+        super(GnrWsgiWebApp, self).notifyDbEvent(tblobj, record, event, old_record=old_record)
         self.site.notifyDbEvent(tblobj, record, event, old_record=old_record)
 
     def _get_pagePackageId(self, filename):

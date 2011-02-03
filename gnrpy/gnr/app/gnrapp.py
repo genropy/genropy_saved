@@ -64,6 +64,7 @@ class GnrSqlAppDb(GnrSqlDb):
                     tblobj.attributes.get('transaction', tblobj.pkg.attributes.get('transaction', '')))
         if not self.inTransactionDaemon and tblobj._usesTransaction:
             raise GnrWriteInReservedTableError('%s.%s' % (tblobj.pkg.name, tblobj.name))
+        
 
     def delete(self, tblobj, record,**kwargs):
         self.checkTransactionWritable(tblobj)
@@ -715,7 +716,9 @@ class GnrApp(object):
         raise e
 
     def notifyDbEvent(self, tblobj, record, event, old_record=None):
-        pass
+        if 'audit' in tblobj.attributes:
+            self.db.table('adm.audit').audit(tblobj,event, record, old_record=old_record)
+            
 
     def getAuxInstance(self, name=None):
         if not name:

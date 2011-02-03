@@ -174,13 +174,6 @@ class GnrHTable(TableBase):
 class GnrDboTable(TableBase):
     def use_dbstores(self):
         return True
-        
-#class Table_audit_changeset(TableBase):
-#    def config_db(self, pkg):
-#        tbl =  pkg.table('audit_changeset',pkey='id',name_long='!!Changeset',name_plural='!!Changeset')
-#        self.sysFields(tbl)
-        
-
     
 
 class Table_counter(TableBase):
