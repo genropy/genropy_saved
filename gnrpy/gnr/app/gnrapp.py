@@ -139,6 +139,7 @@ class GnrPackage(object):
             self.loadTableMixinDict(self.custom_module, self.customFolder, 'custom_')
         self.configure()
 
+
     def loadTableMixinDict(self, module, folder, model_prefix=''):
         tbldict = {}
         if module:
@@ -158,6 +159,7 @@ class GnrPackage(object):
                                        '%smodel_of_%s_%s' % (model_prefix, self.id, tbl))
                 instanceMixin(self.tableMixinDict[tbl], getattr(tbl_module, 'Table', None))
                 self.tableMixinDict[tbl]._plugins = dict()
+                
                 for cname in dir(tbl_module):
                     member = getattr(tbl_module, cname, None)
                     if type(member) == type and issubclass(member, SqlTablePlugin):
@@ -348,6 +350,12 @@ class GnrApp(object):
                 self.db.tableMixin('%s.%s' % (pkgid, tblname), mixobj)
             sys.path.append(apppkg.libPath)
         self.db.inTransactionDaemon = False
+        for pkg,pkgval in self.config['packages'].items():
+            if pkgval:
+                tables = self.db.model.src['packages'][pkg]['tables']
+                for tablenode in pkgval:
+                    tables.getNode(tablenode.label).attr.update(tablenode.attr)
+                    
         self.db.startup()
         if len(self.config['menu']) == 1:
             self.config['menu'] = self.config['menu']['#0']
