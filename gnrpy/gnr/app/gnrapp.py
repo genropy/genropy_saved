@@ -353,9 +353,10 @@ class GnrApp(object):
         self.db.inTransactionDaemon = False
         for pkg,pkgval in self.config['packages'].items():
             if pkgval:
-                tables = self.db.model.src['packages'][pkg]['tables']
-                for tablenode in pkgval:
-                    tables.getNode(tablenode.label).attr.update(tablenode.attr)
+                tables = self.db.model.src['packages.%s.tables' %pkg] 
+                if tables:
+                    for tablenode in pkgval:
+                        tables.getNode(tablenode.label).attr.update(tablenode.attr)
                     
         self.db.startup()
         if len(self.config['menu']) == 1:
@@ -716,8 +717,9 @@ class GnrApp(object):
         raise e
 
     def notifyDbEvent(self, tblobj, record, event, old_record=None):
-        if 'audit' in tblobj.attributes:
-            self.db.table('adm.audit').audit(tblobj,event, record, old_record=old_record)
+        audit_mode = tblobj.attributes.get('audit')
+        if audit_mode:
+            self.db.table('adm.audit').audit(tblobj,event,audit_mode=audit_mode,record=record, old_record=old_record)
             
 
     def getAuxInstance(self, name=None):
