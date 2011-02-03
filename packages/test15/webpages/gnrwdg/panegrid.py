@@ -27,7 +27,7 @@ class GnrCustomWebPage(object):
         r.fieldcell('@regione.nome',width='40%')
 
         
-    def test_1_frame_includedview_struct(self,pane):
+    def _test_1_frame_includedview_struct(self,pane):
         """Pane grid """
         pane = pane.framePane(frameCode='province',height='200px')
         tbar = pane.top.slotToolbar('*,searchOn')
@@ -51,20 +51,24 @@ class GnrCustomWebPage(object):
         struct = view.gridStruct('regione')
         
 
-    def _test_3_palettegrid(self,pane):
+    def test_3_palettegrid(self,pane):
         paletteGrid = pane.paletteGrid(paletteCode='province_2',title='Province',
-                                    struct='regione',dockTo='*',searchOn='*A,T,D')
+                                    struct='regione',dockTo='*')
         paletteGrid.selectionStore(table='glbl.provincia',where="$regione='LOM'") 
+        footer = paletteGrid.bottom.slotToolbar('prova,*')
+        paletteGrid.top.slotToolbar('searchOn')
+        footer.prova.div('prova')
     
-    def test_picker(self,pane):
-        pane.localitaPicker()
+   #def test_picker(self,pane):
+       #    pane.localitaPicker()
     
-    @struct_method
-    def localitaPicker(self,pane):
-        palette = pane.palettePane('tablepicker',title='Picker',dockTo='*')
-        frame = palette.framePane(frameCode='tablepicker')
-        toolbar = frame.top.slotToolbar('*,selector,10',lbl_position='L')
-        toolbar.selector.textbox(value='^.seed',lbl='!!Search')
-        frame.includedview(struct='regione').selectionStore(table='glbl.provincia',
-                                            where='$nome ILIKE %%:seed%%', 
-                                            seed='^.seed')
+   #@struct_method
+   #def localitaPicker(self,pane):
+   #    palette = pane.palettePane('tablepicker',title='Picker',dockTo='*')
+   #    frame = palette.framePane(frameCode='tablepicker')
+   #    toolbar = frame.top.slotToolbar('*,selector,10',lbl_position='L')
+   #    toolbar.selector.textbox(value='^.seed',lbl='!!Search')
+   #    frame.includedview(struct='regione').selectionStore(table='glbl.provincia',
+   #                                        where='$nome ILIKE %%:seed%%', 
+   #                                        seed='^.seed')
+   #
