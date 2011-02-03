@@ -152,35 +152,42 @@ dojo.declare("gnr.widgets.FramePane", gnr.widgets.gnrwdg, {
         var node;
         var frameCode = kw.frameCode;
         objectPop(kw,'datapath');
-        var rounded_corners = genro.dom.normalizedRoundedCorner(kw.rounded,objectExtract(kw,'rounded_*',true))
+        var rounded_corners = genro.dom.normalizedRoundedCorners(kw.rounded,objectExtract(kw,'rounded_*',true))
         kw['height'] = kw['height'] || '100%';
         var bc = sourceNode._('BorderContainer', kw);
-        var slot;
+        var slot,v;
         var centerPars = objectExtract(kw,'center_*');
-        dojo.forEach(['top','bottom','left','right'],function(side){
+        var sides= kw.design=='sidebar'? ['left','right','top','bottom']:['top','bottom','left','right']
+        var corners={'left':['top_left','bottom_left'],'right':['top_right','bottom_right'],'top':['top_left','top_right'],'bottom':['bottom_left','bottom_right']}
+        dojo.forEach(sides,function(side){
              slot = children.popNode(side);
              node = slot? slot.getValue().getNode('#0') : children.popNode('#side='+side);
              if(node){                 
                  node.attr['frameCode'] = frameCode;
-                 dojo.forEach(rounded_corners,function(k){
-                     if((side==k[0])||(side==[1])){
-                         node.attr['rounded_'+k[0]+'_'+k[1]] = k[2];
+                 dojo.forEach(corners[side],function(c){
+                     v=objectPop(rounded_corners,c)
+                     if(v){
+                         node.attr['rounded_'+c] = v;
                      }
-                 });                 
+                 })             
                  bc._('ContentPane',{'region':side}).setItem('#id',node._value,node.attr);
              }
         });
         slot = children.popNode('center');
         var centerNode = slot? slot.getValue().getNode('#0'):children.popNode('#side=center');
         var center;
+        var rounded={};
+        for(var k in rounded_corners){
+            rounded['rounded_'+k]=rounded_corners[k]
+        }
         if(centerNode){
             objectPop(centerNode.attr,'side');
             centerNode.attr['region'] = 'center';
-            bc.setItem('#id',centerNode._value,objectUpdate({},centerNode.attr));
+            bc.setItem('#id',centerNode._value,objectUpdate(rounded,centerNode.attr));
             center = centerNode._value;
         }else{
             centerPars['region'] = 'center';
-            center = bc._('ContentPane',centerPars);
+            center = bc._('ContentPane',objectUpdate(rounded,centerPars));
         }
         return center;
     }

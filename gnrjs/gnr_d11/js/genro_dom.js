@@ -466,14 +466,17 @@ dojo.declare("gnr.GnrDomHandler", null, {
         var cb=dojo.isSafari? function(y,x){return '-webkit-border-'+y+'-'+x+'-radius';}: 
                                 function(y,x){
                                     return '-moz-border-radius-'+y+x;};
-        var rounded_corner = this.normalizedRoundedCorner(value,valuedict);
-        dojo.forEach(rounded_corner,function(k){
-            styledict[cb(k[0],k[1])] = k[2];
-        });
+        var rounded_corners = this.normalizedRoundedCorners(value,valuedict);
+        for(var k in rounded_corners){
+            var v = rounded_corners[k]
+            k=k.split('_')
+            styledict[cb(k[0],k[1])] = v+'px';
+        }
+
     },
     
-    normalizedRoundedCorner : function(rounded,rounded_dict){
-        var result = [];
+    normalizedRoundedCorners : function(rounded,rounded_dict){
+        var result = {};
         var v,m;
         if(rounded){
             rounded_dict['all'] = rounded;
@@ -493,7 +496,7 @@ dojo.declare("gnr.GnrDomHandler", null, {
                     v = rounded_dict[k[0]];
                     for(var i=1; i<k.length; i++){
                         m = k[i];
-                        result.push([(m[0]=='t'? 'top':'bottom'),(m[1]=='l'? 'left':'right'),v])
+                        result[(m[0]=='t'? 'top':'bottom')+'_'+(m[1]=='l'? 'left':'right')]=v
                     }
                 }
             });
