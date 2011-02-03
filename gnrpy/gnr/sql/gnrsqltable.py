@@ -615,6 +615,7 @@ class SqlTable(GnrObject):
         def onBagColumns(attributes=None,**kwargs):
             if attributes and '__old' in attributes:
                 attributes.pop('__old')
+       
         main_changeSet, relatedOne, relatedMany = self._splitRecordCluster(recordCluster, debugPath=debugPath)
         isNew = recordClusterAttr.get('_newrecord')
         toDelete = recordClusterAttr.get('_deleterecord')
@@ -622,39 +623,39 @@ class SqlTable(GnrObject):
         noTestForMerge = self.pkg.attributes.get('noTestForMerge')
         if isNew and toDelete:
             return # the record doesn't exists in DB, there's no need to delete it
-
         if isNew:
             main_record = main_changeSet
         else:
-            old_record = self.record(pkey, for_update=True, mode='bag')
+            old_record = self.record(pkey, for_update=True).output('bag', resolver_one=False, resolver_many=False)
             main_record = old_record.deepcopy()
-            lastTs = recordClusterAttr.get('lastTS')
-            changed_TS = lastTs and (lastTs != str(main_record[self.lastTS]))
-            if changed_TS and (self.noChangeMerge or toDelete):
-                raise self.exception("save", record=main_record,
-                                     msg="Another user modified the record.Operation aborted")
-            if toDelete:
-                self.delete(old_record)
-                return
-            testForMerge = (not noTestForMerge ) and (changed_TS or (
-            not lastTs) )# the record is modified by another user OR there's no lastTS field to check for modifications
-            for fnode in main_changeSet:
-                fname = fnode.label
-                if testForMerge:
-                    incompatible = False
-                    if fnode.getAttr('_gnrbag'):
-                        incompatible = (fnode.getAttr('_bag_md5') != main_record.getAttr(fname, '_bag_md5'))
-                    elif fnode.value != main_record[fname]:  # new value is different from value in db
-                        incompatible = (fnode.getAttr('oldValue') != main_record[
-                                                                     fname]) # value in db is different from oldvalue --> other user changed it
-                    if incompatible:
-                        raise self.exception("save", record=main_record,
-                                             msg="Incompatible changes: another user modified field %(fldname)s from %(oldValue)s to %(newValue)s"
-                                             ,
-                                             fldname=fname,
-                                             oldValue=fnode.getAttr('oldValue'),
-                                             newValue=main_record[fname])
-                main_record[fname] = fnode.value
+            if main_changeSet or toDelete:
+                lastTs = recordClusterAttr.get('lastTS')
+                changed_TS = lastTs and (lastTs != str(main_record[self.lastTS]))
+                if changed_TS and (self.noChangeMerge or toDelete):
+                    raise self.exception("save", record=main_record,
+                                         msg="Another user modified the record.Operation aborted")
+                if toDelete:
+                    self.delete(old_record)
+                    return
+                testForMerge = (not noTestForMerge ) and (changed_TS or (
+                not lastTs) )# the record is modified by another user OR there's no lastTS field to check for modifications
+                for fnode in main_changeSet:
+                    fname = fnode.label
+                    if testForMerge:
+                        incompatible = False
+                        if fnode.getAttr('_gnrbag'):
+                            incompatible = (fnode.getAttr('_bag_md5') != main_record.getAttr(fname, '_bag_md5'))
+                        elif fnode.value != main_record[fname]:  # new value is different from value in db
+                            incompatible = (fnode.getAttr('oldValue') != main_record[
+                                                                         fname]) # value in db is different from oldvalue --> other user changed it
+                        if incompatible:
+                            raise self.exception("save", record=main_record,
+                                                 msg="Incompatible changes: another user modified field %(fldname)s from %(oldValue)s to %(newValue)s"
+                                                 ,
+                                                 fldname=fname,
+                                                 oldValue=fnode.getAttr('oldValue'),
+                                                 newValue=main_record[fname])
+                    main_record[fname] = fnode.value
         for rel_name, rel_recordClusterNode in relatedOne.items():
             rel_recordCluster = rel_recordClusterNode.value
             rel_recordClusterAttr = rel_recordClusterNode.getAttr()
@@ -665,10 +666,9 @@ class SqlTable(GnrObject):
             from_fld = joiner['many_relation'].split('.')[2]
             to_fld = joiner['one_relation'].split('.')[2]
             main_record[from_fld] = rel_record[to_fld]
-
         if isNew:
             self.insert(main_record,onBagColumns=onBagColumns)
-        else:
+        elif main_changeSet:
             self.update(main_record, old_record=old_record, pkey=pkey,onBagColumns=onBagColumns)
         for rel_name, rel_recordClusterNode in relatedMany.items():
             rel_recordCluster = rel_recordClusterNode.value
