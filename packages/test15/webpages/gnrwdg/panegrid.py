@@ -42,7 +42,7 @@ class GnrCustomWebPage(object):
         struct = view.gridStruct('regione')
         view.selectionStore(table='glbl.provincia',where="$regione='LOM'",_onStart=True)
     
-    def _test_2_frame_includedview(self,pane):
+    def test_2_frame_includedview(self,pane):
         """Pane grid """
         pane = pane.framePane(frameCode='province',height='200px')
         pane.selectionStore(storeCode='provinceMie',table='glbl.provincia',where="$regione='LOM'",_onStart=True)
