@@ -351,25 +351,16 @@ class GnrApp(object):
                 self.db.tableMixin('%s.%s' % (pkgid, tblname), mixobj)
             sys.path.append(apppkg.libPath)
         self.db.inTransactionDaemon = False
-        for pkg,pkgval in self.config['packages'].items():
-            if pkgval:
-                tables = self.db.model.src['packages.%s.tables' %pkg] 
-                if tables:
-                    for tablenode in pkgval:
-                        tables.getNode(tablenode.label).attr.update(tablenode.attr)
-                    
         self.db.startup()
         if len(self.config['menu']) == 1:
             self.config['menu'] = self.config['menu']['#0']
         self.buildLocalization()
-
         if forTesting:
             # Create tables in temporary database
             self.db.model.check(applyChanges=True)
 
             if isinstance(forTesting, Bag):
                 self.loadTestingData(forTesting)
-
         self.onInited()
 
     def loadTestingData(self, bag):
