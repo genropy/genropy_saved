@@ -27,10 +27,22 @@ class GnrCustomWebPage(object):
     def _test_1_slotbar_sidebar(self,pane):
         """Design sidebar"""
         frame = pane.framePane(frameCode='frame2',height='200px',width='300px',shadow='3px 3px 5px gray',
+                                border='1px solid #bbb',margin='10px',
+                                center_background='gray',rounded=20,design='sidebar')
+        #top = frame.top.slotToolbar(slots='30,foo,*,bar,30',height='20px') 
+        #left = frame.left.slotToolbar(slots='30,foo,*,bar,30',width='20px')
+        right = frame.right.slotToolbar(slots='30,foo,*,bar,30',width='20px') 
+        bottom = frame.bottom.slotToolbar(slots='30,foo,*,bar,30',height='20px')
+    def test_1_slotbar_headline(self,pane):
+        """Design headline"""
+        frame = pane.framePane(frameCode='frame2',height='200px',width='300px',shadow='3px 3px 5px gray',
                                 border='1px solid #bbb',margin='10px',center_border='1px solid #bbb',
-                                center_background='gray',rounded_top=10,design='sidebar')
-        top = frame.top.slotToolbar(slots='30,foo,*,bar,30',height='20px') 
-        left = frame.left.slotToolbar(slots='30,foo,*,bar,30',width='40px')
+                                center_background='gray',rounded=20)
+        #top = frame.top.slotToolbar(slots='30,foo,*,bar,30',height='20px') 
+        #left = frame.left.slotToolbar(slots='30,foo,*,bar,30',width='20px')
+        right = frame.right.slotToolbar(slots='30,foo,*,bar,30',width='20px') 
+        bottom = frame.bottom.slotToolbar(slots='30,foo,*,bar,30',height='20px')
+        
     
     def test_2_slotbar_headline(self,pane):
         """Change gradients"""
