@@ -15,4 +15,5 @@ Genro database management
 	relation_table
 	webpage
 	GnrCustomWebPage
+	the ``.gnr`` folder <gnr/index>
 	structure/index

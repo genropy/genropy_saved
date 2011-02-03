@@ -8,4 +8,5 @@
 	:maxdepth: 3
 
 	genro/gnrpy/index
+	genro/packages/index
 	genro/resources/index

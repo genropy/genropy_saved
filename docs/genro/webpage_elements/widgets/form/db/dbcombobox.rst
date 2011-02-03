@@ -46,4 +46,4 @@ Examples
 
 **Footnotes**
 
-.. [#] We remeber to you that ``dbCombobox`` supports only the values (not the keys!); so the main ``dbCombobox`` feature is that it permits to enter values in the :ref:`genro_datastore`, but they won't be stored in the database.
+.. [#] We remember to you that ``dbCombobox`` supports only the values (not the keys!); so the main ``dbCombobox`` feature is that it permits to enter values in the :ref:`genro_datastore`, but they won't be stored in the database.
