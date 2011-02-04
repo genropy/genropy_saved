@@ -427,6 +427,12 @@ element.style {
     -khtml-border-radius: 0px;
 }
 
+._common_d11 .slotbar_toolbar .dijitButtonNode,
+.bottom_btn .slotbar_toolbar .dijitButtonNode {
+    border:0;
+    background:transparent;
+    padding: 0px 0px;
+}
 ._common_d11 .dijitButtonNode,
 .bottom_btn .dijitButtonNode {
     -moz-border-radius: 4px;
