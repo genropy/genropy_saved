@@ -30,7 +30,7 @@ class FormHandler(BaseComponent):
 
     @struct_method
     def fh_sltb_navigation(self,pane,**kwargs):
-        pane = pane.div(lbl='!!Navigation',_class='sltd_group')
+        pane = pane.div(lbl='!!Navigation',_class='slotbar_group')
         pane.sltb_first()
         pane.sltb_prev()
         pane.sltb_next()
@@ -42,7 +42,7 @@ class FormHandler(BaseComponent):
     
     @struct_method          
     def fh_sltb_formcommands(self,pane,**kwargs):
-        pane = pane.div(lbl='!!Form Commands',_class='sltd_group')
+        pane = pane.div(lbl='!!Form Commands',_class='slotbar_group')
         pane.sltb_save()
         pane.sltb_revert()
         pane.sltb_delete()
