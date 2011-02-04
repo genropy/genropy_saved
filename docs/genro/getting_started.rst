@@ -11,5 +11,5 @@
 	introduction/index
 	webpage_elements/index
 	datastore/index
-	common_attributes/index
+	commons/index
 	bag/index
