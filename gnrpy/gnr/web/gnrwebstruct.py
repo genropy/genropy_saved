@@ -189,11 +189,11 @@ class GnrDomSrc(GnrStructData):
         return self.findNodeByAttr('nodeId', id)
 
     def framepane(self,frameCode=None,**kwargs):
-        return self.child('FramePane',frameCode=frameCode,autoslots='top,bottom,left,right',**kwargs)
+        return self.child('FramePane',frameCode=frameCode,autoslots='top,bottom,left,right,center',**kwargs)
     
     def frameform(self,formId=None,frameCode=None,slots=None,**kwargs):
         return self.child('FrameForm',formId=formId,frameCode=frameCode,
-                          autoslots='top,bottom,left,right',**kwargs)
+                          autoslots='top,bottom,left,right,center',**kwargs)
     
     def h1(self, content=None, **kwargs):
         return self.htmlChild('h1', content=content, **kwargs)
