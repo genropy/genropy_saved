@@ -323,20 +323,46 @@ class SqlDbAdapter(SqlDbBaseAdapter):
         indexes = self.dbroot.execute(sql, dict(schema=schema, table=table)).fetchall()
         return indexes
 
+    def getTableContraints(self, table=None, schema=None):
+        """Get a (list of) dict containing details about a column or all the columns of a table.
+        Each dict has those info: name, position, default, dtype, length, notnull
+        Every other info stored in information_schema.columns is available with the prefix '_pg_'"""
+        sql = """SELECT constraint_type,column_name,tc.table_name,tc.table_schema,tc.constraint_name
+            FROM information_schema.table_constraints AS tc 
+            JOIN information_schema.constraint_column_usage AS cu 
+                ON cu.constraint_name=tc.constraint_name  
+                WHERE constraint_type='UNIQUE'
+                %s%s;"""
+        filtertable = ""
+        if table:
+            filtertable = " AND tc.table_name=:table"
+        filterschema = ""
+        if schema:
+            filterschema = " AND tc.table_schema=:schema"
+        result = self.dbroot.execute(sql % (filtertable,filterschema),
+                                      dict(schema=schema,
+                                           table=table)).fetchall()
+        
+        res_bag = Bag()
+        for row in result:
+            row=dict(row)
+            res_bag.setItem('%(table_schema)s.%(table_name)s.%(column_name)s'%row,row['constraint_name'])
+        return res_bag
+
     def getColInfo(self, table, schema, column=None):
         """Get a (list of) dict containing details about a column or all the columns of a table.
         Each dict has those info: name, position, default, dtype, length, notnull
         Every other info stored in information_schema.columns is available with the prefix '_pg_'"""
-        sql = """SELECT column_name as name,
-                        ordinal_position as position, 
-                        column_default as default, 
-                        is_nullable as notnull, 
-                        data_type as dtype, 
-                        character_maximum_length as length,
+        sql = """SELECT c1.column_name as name,
+                        c1.ordinal_position as position, 
+                        c1.column_default as default, 
+                        c1.is_nullable as notnull, 
+                        c1.data_type as dtype, 
+                        c1.character_maximum_length as length,
                         *
-                      FROM information_schema.columns 
-                      WHERE table_schema=:schema 
-                      AND table_name=:table 
+                      FROM information_schema.columns AS c1
+                      WHERE c1.table_schema=:schema 
+                      AND c1.table_name=:table 
                       %s
                       ORDER BY position"""
         filtercol = ""

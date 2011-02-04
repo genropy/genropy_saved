@@ -380,11 +380,11 @@ class SqlDbAdapter(object):
     def createTableAs(self, sqltable, query, sqlparams):
         self.dbroot.execute("CREATE TABLE %s AS %s;" % (sqltable, query), sqlparams)
 
-    def addColumn(self, sqltable, sqlname, dtype='T', size=None, notnull=None, pkey=None):
-        sqlcol = self.columnSqlDefinition(sqlname, dtype=dtype, size=size, notnull=notnull, pkey=pkey)
+    def addColumn(self, sqltable, sqlname, dtype='T', size=None, notnull=None, pkey=None, unique=None):
+        sqlcol = self.columnSqlDefinition(sqlname, dtype=dtype, size=size, notnull=notnull, pkey=pkey, unique=unique)
         self.dbroot.execute('ALTER TABLE %s ADD COLUMN %s' % (sqltable, sqlcol))
 
-    def columnSqlDefinition(self, sqlname, dtype, size, notnull, pkey):
+    def columnSqlDefinition(self, sqlname, dtype, size, notnull, pkey, unique):
         """
         returns the statement string for creating a table's column
         """
@@ -393,6 +393,8 @@ class SqlDbAdapter(object):
             sql = sql + ' NOT NULL'
         if pkey:
             sql = sql + ' PRIMARY KEY'
+        if unique:
+            sql = sql + ' UNIQUE'
         return sql
 
     def columnSqlType(self, dtype, size=None):
