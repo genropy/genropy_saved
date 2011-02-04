@@ -42,7 +42,7 @@ class GnrCustomWebPage(object):
         struct = view.gridStruct('regione')
         view.selectionStore(table='glbl.provincia',where="$regione='LOM'",_onStart=True)
     
-    def test_2_frame_includedview(self,pane):
+    def _test_2_frame_includedview(self,pane):
         """Pane grid """
         pane = pane.framePane(frameCode='province',height='200px')
         pane.selectionStore(storeCode='provinceMie',table='glbl.provincia',where="$regione='LOM'",_onStart=True)
@@ -54,21 +54,10 @@ class GnrCustomWebPage(object):
     def test_3_palettegrid(self,pane):
         paletteGrid = pane.paletteGrid(paletteCode='province_2',title='Province',
                                     struct='regione',dockTo='*')
-        paletteGrid.selectionStore(table='glbl.provincia',where="$regione='LOM'") 
+        paletteGrid.selectionStore(table='glbl.provincia',where="$regione=:reg",reg='^.regione') 
         footer = paletteGrid.bottom.slotToolbar('prova,*')
         paletteGrid.top.slotToolbar('searchOn')
-        footer.prova.div('prova')
+        footer.prova.dbSelect(dbtable='glbl.regione',value='^.regione')
     
-   #def test_picker(self,pane):
-       #    pane.localitaPicker()
-    
-   #@struct_method
-   #def localitaPicker(self,pane):
-   #    palette = pane.palettePane('tablepicker',title='Picker',dockTo='*')
-   #    frame = palette.framePane(frameCode='tablepicker')
-   #    toolbar = frame.top.slotToolbar('*,selector,10',lbl_position='L')
-   #    toolbar.selector.textbox(value='^.seed',lbl='!!Search')
-   #    frame.includedview(struct='regione').selectionStore(table='glbl.provincia',
-   #                                        where='$nome ILIKE %%:seed%%', 
-   #                                        seed='^.seed')
-   #
+
+   

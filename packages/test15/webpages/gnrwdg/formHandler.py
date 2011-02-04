@@ -16,7 +16,7 @@ class GnrCustomWebPage(object):
     
     @struct_method
     def formTester(self,pane,formId=None,startKey=None,**kwargs):
-        form = pane.frameForm(formId=formId,datapath='.provincia',**kwargs)
+        form = pane.frameForm(formId=formId,datapath='.provincia',border='1px solid silver',rounded_bottom=10,**kwargs)
         form.recordClusterStore('glbl.provincia',storeType='Item',startKey=startKey)
         left = 'selectrecord,|,' if not startKey else ''
         form.top.slotToolbar('%s *,|,semaphore,|,formcommands,|,locker' %left,slotbarCode='mytoolbar')
@@ -41,15 +41,14 @@ class GnrCustomWebPage(object):
             
     def test_1_formPane_cp(self,pane):
         """Test form in contentPane form"""
-        pane = pane.contentPane(height='180px',background='white')
-        form = pane.formTester('form_cp')
+        form = pane.formTester('form_cp',height='180px')
         
     def test_2_formPane_dbl_cp(self,pane):
         bc = pane.borderContainer(height='180px',background='white')
         formA = bc.contentPane(region='left',width='50%',datapath='.pane1',border='1px solid gray',margin='3px').formTester('form_a')
         formB = bc.contentPane(region='center',datapath='.pane2',border='1px solid gray',margin='3px').formTester('form_b')
     
-    def test_2_formPane_tc(self,pane):
+    def _test_2_formPane_tc(self,pane):
         """First test description"""
         bc = pane.borderContainer(height='300px')
         topbc = bc.borderContainer(height='250px',region='top',splitter=True)
@@ -60,7 +59,7 @@ class GnrCustomWebPage(object):
         t2 = tc.contentPane(title='My Form').contentPane(detachable=True,_lazyBuild=True)
         t2.formTester('form_tc')
     
-    def test_3_formPane_palette(self,pane):
+    def _test_3_formPane_palette(self,pane):
         pane = pane.div(height='30px')
         pane.dock(id='test_3_dock')
         pane.palettePane('province',title='Province',dockTo='test_3_dock',
@@ -69,7 +68,7 @@ class GnrCustomWebPage(object):
                          _lazyBuild='testPalette',palette_width='600px',palette_height='300px')
 
     
-    def test_5_formPane_palette_remote(self,pane):
+    def _test_5_formPane_palette_remote(self,pane):
         fb = pane.formbuilder(cols=4, border_spacing='2px')
         fb.dbselect(value="^.provincia",dbtable="glbl.provincia")
         fb.button('open',action="""var paletteCode='prov_'+pkey;
@@ -88,7 +87,7 @@ class GnrCustomWebPage(object):
         form = pane.formTester('formRemote_%s' %pkey,startKey=pkey)
         #form.dataController("this.form.publish('load',{destPkey:pkey});",pkey=pkey,selfsubscribe_built=True)
             
-    def test_4_formPane_dialog(self,pane):
+    def _test_4_formPane_dialog(self,pane):
         pane.button('Show dialog',action='genro.wdgById("province_dlg").show()')
         dialog = pane.dialog(title='Province',nodeId='province_dlg',closable=True).contentPane(height='300px',width='400px',background_color='red',_lazyBuild=True)
         dialog.formTester('form_dialog')
