@@ -92,12 +92,16 @@ toXml
 	+--------------------+---------------------+
 	|   `B`              | `bool`              |
 	+--------------------+---------------------+
-	|   `D`              | `datetime`          |
+	|   `BAG`            | `Bag`               |
 	+--------------------+---------------------+
-	|   `DT`             | `datetime ???`      |
+	|   `DT`             | `datetimehour`      |
+	+--------------------+---------------------+
+	|   `D`              | `datetime`          |
 	+--------------------+---------------------+
 	|   `H`              | `datetime.time`     |
 	+--------------------+---------------------+
+
+	The ``DT`` type is a Genro type [#]_.
 
 	The :meth:`toXml` method allow to keep record of the attribute types. In the value of each attribute is added a substring composed by '::type' (the method doesn't add the '::type' attribute for the ``string`` types).
 
@@ -111,11 +115,10 @@ toXml
 	
 	The :meth:`toXml` method may receive some optional parameters:
 
-	- `filename`: the path of the output file. If filename is passed, the method returns None, and creates the file at the correct position.
-
-	- `encoding`: set the XML encoding (default value is UTF-8).
+	* `filename`: the path of the output file. If filename is passed, the method returns None, and creates the file at the correct position.
+	* `encoding`: set the XML encoding (default value is UTF-8).
 	
-	For the complete parameter list, check the method definition (:meth:`toXml`).
+	For the complete parameter list, check the :meth:`toXml` method definition.
 	
 .. _from_XML:
 
@@ -149,3 +152,7 @@ Trasform a Bag into a dict
 		>>> d = mybag.asDict()
 		>>> print d
 		{'a': 1, 'c': 3, 'b': 2, 'd': 4}
+
+**Footnotes**:
+
+.. [#] For more information on this type, please check the :ref:`types_dt` paragraph.
