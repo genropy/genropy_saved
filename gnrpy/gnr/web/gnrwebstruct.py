@@ -145,6 +145,12 @@ class GnrDomSrc(GnrStructData):
             
         raise AttributeError("object has no attribute '%s'" % fname)
 
+    def getAttach(self, attachname):
+        for n in self._nodes:
+            if n.attr.get('_attachname') == attachname:
+                return n._value
+        return None
+
     def child(self, tag, name=None, envelope=None, **kwargs):
         if 'fld' in kwargs:
             fld_dict = self.getField(kwargs.pop('fld'))
