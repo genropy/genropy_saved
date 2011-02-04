@@ -14,12 +14,12 @@ instances
 autocreation of the ``instance`` folder
 =======================================
 
-	You can create an ``instance`` folder typing::
+	You can create an ``instances`` folder typing::
 	
 		gnrmkinstance instancename -i
 	
-	where ``instancename`` is the name of your instance.
-		
+	where ``instancename`` is the name of your instance (we suggest you to call your instance with the same name of your :ref:`genro_structure_mainproject`).
+	
 	Your ``instances`` folder will look like this one:
 	
 	.. image:: ../../../images/structure/structure-instances.png

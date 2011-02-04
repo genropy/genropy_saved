@@ -38,7 +38,7 @@ Tags
 
 	Let's see its content:
 
-	* The file begins and ends with the ``<GenRoBag>`` tag: that's because during the execution of the project, this file is being converted in a :ref:`genro_bag_intro`.
+	* The file begins and ends with a ``<GenRoBag>`` tag: that's because during the execution of the project, this file is being converted in a :ref:`genro_bag_intro`.
 	* The ``<packages>`` tag allow to include any other package from other projects; Genro will search it through its mixin tecnique. For more information, check the :ref:`instanceconfig_packages` paragraph.
 	* The ``<db>`` tag includes the name of your database. For more information, check the :ref:`instances_db` paragraph.
 	* The ``<authentication>`` tag allow to handle all the access authorization to your project. Check the :ref:`instances_authentication` paragraph for more information.
@@ -78,7 +78,7 @@ Tags
 	
 	There are many options you can add:
 	
-	* ``dbname``: MANDATORY - the name of the database
+	* ``dbname``: specify the name of the database
 	* ``implementation``: you can choose the SQL database engine. By default Genro will be use postgreSQL_ (implementation="postgres")
 	* ``host``: specify the host. Default value is ???
 	* ``password``: the password of the SQL database engine.
@@ -90,9 +90,9 @@ Tags
 	.. _MySQL: http://www.mysql.it/
 	.. _SQLite: http://www.sqlite.org/
 	
-	This is an example of ``<db>`` with many attributes defined::
+	This is an example of ``<db>``::
 	
-		<db implementation="postgres" host="localhost" password="rotring" user="postgres" dbname="dlf2008" />
+		<db implementation="postgres" host="localhost" password="superSecurePwd" user="postgres" dbname="mypersonaldatabase" />
 	
 .. _instanceconfig_authentication:
 
@@ -107,7 +107,7 @@ Tags
 	
 	The ``<adm>`` package allow to manage the authenitcations. For more information, check the :ref:`genro_library_adm` paragraph.
 	
-	Inside the ``<authentication>`` tag we have to define two different tags: the ``<py_auth>`` and the ``<xml_auth>``
+	Inside the ``<authentication>`` tag we have to define two different tags: the ``<py_auth>`` and the ``<xml_auth>``.
 
 .. _instanceconfig_xml_auth:
 
