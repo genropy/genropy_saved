@@ -4,7 +4,6 @@ dojo.declare("gnr.widgets.gnrwdg", null, {
         this._domtag = 'div';
     },
     _beforeCreation: function(sourceNode) {
-        console.log('_beforeCreation '+sourceNode.attr.tag);
         sourceNode.gnrwdg = {'gnr':this,'sourceNode':sourceNode};
         var attributes = sourceNode.attr;
         sourceNode.attr = {};
