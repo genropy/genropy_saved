@@ -20,10 +20,6 @@
 #License along with this library; if not, write to the Free Software
 #Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 
-"""
-gnrapp
-"""
-
 import tempfile
 import atexit
 import logging
@@ -65,22 +61,21 @@ class GnrSqlAppDb(GnrSqlDb):
         if not self.inTransactionDaemon and tblobj._usesTransaction:
             raise GnrWriteInReservedTableError('%s.%s' % (tblobj.pkg.name, tblobj.name))
         
-
     def delete(self, tblobj, record,**kwargs):
         self.checkTransactionWritable(tblobj)
         GnrSqlDb.delete(self, tblobj, record,**kwargs)
         self.application.notifyDbEvent(tblobj, record, 'D')
-
+        
     def update(self, tblobj, record, old_record=None, pkey=None,**kwargs):
         self.checkTransactionWritable(tblobj)
         GnrSqlDb.update(self, tblobj, record, old_record=old_record, pkey=pkey,**kwargs)
         self.application.notifyDbEvent(tblobj, record, 'U', old_record)
-
+        
     def insert(self, tblobj, record,**kwargs):
         self.checkTransactionWritable(tblobj)
         GnrSqlDb.insert(self, tblobj, record,**kwargs)
         self.application.notifyDbEvent(tblobj, record, 'I')
-
+        
     def getResource(self, tblobj, path):
         app = self.application
         resource = app.site.loadResource(tblobj.pkg.name, 'tables', tblobj.name, path)
@@ -88,7 +83,7 @@ class GnrSqlAppDb(GnrSqlDb):
         resource.table = tblobj
         resource.db = self
         return resource
-
+        
 class GnrPackage(object):
     def __init__(self, pkg_id, application, path=None, filename=None, **pkgattrs):
         self.id = pkg_id
@@ -110,37 +105,36 @@ class GnrPackage(object):
             self.pkgMenu = Bag(os.path.join(self.packageFolder, 'menu.xml'))
         except:
             self.pkgMenu = Bag()
-
+        
         self.pkgMixin = GnrMixinObj()
         instanceMixin(self.pkgMixin, getattr(self.main_module, 'Package', None))
-
+        
         self.baseTableMixinCls = getattr(self.main_module, 'Table', None)
         self.baseTableMixinClsCustom = None
-
+        
         self.webPageMixin = getattr(self.main_module, 'WebPage', None)
         self.webPageMixinCustom = None
-
+        
         self.attributes.update(self.pkgMixin.config_attributes())
         custom_mixin = os.path.join(self.customFolder, 'custom.py')
         self.custom_module = None
         if os.path.isfile(custom_mixin):
             self.custom_module = gnrImport(custom_mixin, 'custom_package_%s' % pkg_id)
             instanceMixin(self.pkgMixin, getattr(self.custom_module, 'Package', None))
-
+        
             self.attributes.update(self.pkgMixin.config_attributes())
             self.webPageMixinCustom = getattr(self.custom_module, 'WebPage', None)
             self.baseTableMixinClsCustom = getattr(self.custom_module, 'Table', None)
-
+        
         instanceMixin(self, self.pkgMixin)
         self.attributes.update(pkgattrs)
-
+        
         self.tableMixinDict = {}
         self.loadTableMixinDict(self.main_module, self.packageFolder)
         if os.path.isdir(self.customFolder):
             self.loadTableMixinDict(self.custom_module, self.customFolder, 'custom_')
         self.configure()
-
-
+        
     def loadTableMixinDict(self, module, folder, model_prefix=''):
         tbldict = {}
         if module:
@@ -168,14 +162,14 @@ class GnrPackage(object):
                         self.tablePlugins.setdefault(tbl, {})[cname] = member # TODO get plugins also from custom
             else:
                 instanceMixin(self.tableMixinDict[tbl], cls)
-
+                
     def config_attributes(self):
         return {}
-
+        
     def onAuthentication(self, avatar):
         """Hook after authentication: receive the avatar and can add information to it"""
         pass
-
+        
     def configure(self):
         """Build db structure in this order:
         - package config_db.xml
@@ -187,26 +181,24 @@ class GnrPackage(object):
         """
         struct = self.application.db.model.src
         struct.package(self.id, **self.attributes)
-
+        
         config_db_xml = os.path.join(self.packageFolder, 'model', 'config_db.xml')
         if os.path.isfile(config_db_xml):
             if hasattr(self, '_structFix4D'):
                 config_db_xml = self._structFix4D(struct, config_db_xml)
             struct.update(config_db_xml)
-
+        
         config_db_xml = os.path.join(self.customFolder, 'model', 'config_db.xml')
         if os.path.isfile(config_db_xml):
             if hasattr(self, '_structFix4D'):
                 config_db_xml = self._structFix4D(struct, config_db_xml)
             struct.update(config_db_xml)
-
+        
     def onApplicationInited(self):
         pass
-
+        
 class GnrApp(object):
     """Opens a GenroPy application instance.
-
-    Constructor parameters:
         
     :param instanceFolder: instance folder or name
     :param custom_config:  a bag or dictionary that will override configuration value
@@ -524,13 +516,14 @@ class GnrApp(object):
         
         In file instanceconfig.xml insert a tag like::
         
-               <py_auth  defaultTags='myusers' pkg='mypkg' method='myauthmethod' />
-           
-           ``mypkg.myauthmethod`` will be called with a single parameter, the username. It should return:
-           -  ``None``, if the user doesn't exists
-           - a dict containing every attribute to add to the avatar, if the user is valid.
-           - Mandatory attributes: username, pwd
-
+            <py_auth  defaultTags='myusers' pkg='mypkg' method='myauthmethod' />
+        
+        ``mypkg.myauthmethod`` will be called with a single parameter, the username. It should return:
+        
+            -  ``None``, if the user doesn't exists
+            - a dict containing every attribute to add to the avatar, if the user is valid.
+            - Mandatory attributes: username, pwd
+        
         **TODO:** it seems odd that we don't pass the password to the authentication method. It limits the appicability
                   of this authentication method soo much!
         """
