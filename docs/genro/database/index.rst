@@ -12,7 +12,6 @@ Genro database management
 	name/index
 	rowcaption
 	table
-	relation_table
 	webpage
 	GnrCustomWebPage
 	the ``.gnr`` folder <gnr/index>

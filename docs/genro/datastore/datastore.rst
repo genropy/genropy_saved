@@ -56,12 +56,11 @@ Access to the datastore from javascript
 The datastore graphical interface
 =================================
 
+..The Genro Team is going to change the GI developer tools: until it won't be stable, there is no interest to document this part
+
 	You can access to its graphic interface from any Genro webpage by clicking ``ctrl+shift+D`` [#]_:
 	
-	.. image:: ../images/datastore.png
-
-	For more information, ???
-.. ??? The Genro Team is going to change the GI developer tools: until it won't be stable, I stop my work of documentation... (Filippo Astolfi)
+		.. image:: ../images/datastore.png
 
 **Footnotes**
 

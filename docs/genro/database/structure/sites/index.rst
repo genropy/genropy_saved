@@ -7,6 +7,8 @@ sites
 	* :ref:`sites_map`
 	* :ref:`sites_autofill`
 	
+	.. module:: gnr.app.gnrdeploy
+	
 	The ``sites`` folder is... DEFINITION ???
 	
 .. _sites_map:
@@ -40,3 +42,5 @@ autocreation of the ``sites`` folder
 	Your ``sites`` folder will look like this one:
 	
 	.. image:: ../../../images/structure/structure-sites.png
+	
+	.. note:: The autocreation of this folder is handled by the :class:`SiteMaker` class.

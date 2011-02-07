@@ -7,6 +7,8 @@ instances
 	* :ref:`instances_map`
 	* :ref:`instances_autofill`
 	
+	.. module:: gnr.app.gnrdeploy
+	
 	The ``instances`` folder is... DEFINITION ???
 	
 .. _instances_map:
@@ -33,7 +35,7 @@ autocreation of the ``instances`` folder
 
 	You can create an ``instances`` folder typing::
 	
-		gnrmkinstance instancename -i
+		gnrmkinstance instancename
 	
 	where ``instancename`` is the name of your instance (we suggest you to call your instance with the name you gave to your :ref:`genro_structure_mainproject`).
 	
@@ -42,3 +44,6 @@ autocreation of the ``instances`` folder
 	.. image:: ../../../images/structure/structure-instances.png
 	
 	where ``myproject`` is the name of your instance.
+	
+	.. note:: The autocreation of this folder is handled by the :class:`InstanceMaker` class.
+	

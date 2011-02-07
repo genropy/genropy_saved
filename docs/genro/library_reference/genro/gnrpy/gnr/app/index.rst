@@ -4,5 +4,6 @@
 
 .. toctree::
 
-	app
-	dbo
+	gnrapp
+	gnrdbo
+	gnrdeploy

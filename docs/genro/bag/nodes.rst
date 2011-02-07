@@ -4,7 +4,7 @@
 nodes
 =====
 
-	.. module:: gnr.core.gnrbag.Bag
+	.. module:: gnr.core.gnrbag
 
 	We discovered in the previous paragraph that we can associate a set of :ref:`bag_attributes` to each item, and we know that each item is a BagNode.
 	
@@ -18,9 +18,9 @@ nodes
 	
 	If you need to work with nodes, you may get them with the following methods:
 
-	* :meth:`getNode`: return a node.
-	* :meth:`getNodes`: return a list of nodes.
-	* :meth:`getNodeByAttr`: return the node who has the passed value-attribute couple. ???
+	* :meth:`Bag.getNode`: return a node.
+	* :meth:`Bag.getNodes`: return a list of nodes.
+	* :meth:`Bag.getNodeByAttr`: return the node who has the passed value-attribute couple. ???
 	
 	>>> mybag = Bag({'paper':1,'scissors':2})
 	>>> papernode = mybag.getNode('paper')
@@ -28,23 +28,21 @@ nodes
 	>>> rocknode=mybag.getNodeByAttr('color','grey')
 	>>> nodes=mybag.getNodes()
 	
-	The :meth:`getNodes` method implements the Bag's property nodes:
+	The :meth:`Bag.getNodes` method implements the Bag's property nodes:
 
 	>>> mybag.getNodes() == mybag.nodes
 	True
 
-	.. module:: gnr.core.gnrbag.BagNode
-
 	If you have a node instance you may use one of the following methods:
 
-	* :meth:`hasAttr`: check if a node has the given pair label-value in its attributes' dictionary.
-	* :meth:`setAttr`: receive one or more key-value couple, passed as a dict or as named parameters, and sets them as attributes of the node.
-	* :meth:`getAttr`: return the value of an attribute. You have to specify the attribute's label. If it doesn't exist then it returns a default value.
-	* :meth:`delAttr`: delete the attribute with the passed names.
-	* :meth:`getLabel`: return the node's label.
-	* :meth:`setLabel`: sets the node's label.
-	* :meth:`getValue`: return the node's value.
-	* :meth:`setValue`: set the node's value.
+	* :meth:`BagNode.hasAttr`: check if a node has the given pair label-value in its attributes' dictionary.
+	* :meth:`BagNode.setAttr`: receive one or more key-value couple, passed as a dict or as named parameters, and sets them as attributes of the node.
+	* :meth:`BagNode.getAttr`: return the value of an attribute. You have to specify the attribute's label. If it doesn't exist then it returns a default value.
+	* :meth:`BagNode.delAttr`: delete the attribute with the passed names.
+	* :meth:`BagNode.getLabel`: return the node's label.
+	* :meth:`BagNode.setLabel`: sets the node's label.
+	* :meth:`BagNode.getValue`: return the node's value.
+	* :meth:`BagNode.setValue`: set the node's value.
 	
 	>>> print papernode.hasAttr('color')
 	False

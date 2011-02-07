@@ -9,6 +9,8 @@
 	* :ref:`instanceconfig_description`
 	* :ref:`instanceconfig_tags`: :ref:`instanceconfig_packages`, :ref:`instanceconfig_db`, :ref:`instanceconfig_authentication`, :ref:`instanceconfig_xml_auth`, :ref:`instanceconfig_py_auth`
 	
+	.. module:: gnr.app.gnrapp.GnrApp
+	
 .. _instanceconfig_description:
 	
 Description of the file
@@ -115,7 +117,9 @@ Tags
 
 ``<xml_auth>``
 ==============
-
+	
+	.. note:: the ``<xml_auth>`` tag uses the :meth:`auth_xml` method of the ``GnrApp`` class.
+	
 	The ``<xml_auth>`` tag is a support tag that comes in handy to the :ref:`instanceconfig_py_auth` tag; it allows to you (i.e. the programmer) to enter the first time into the webpage called :ref:`genro_packages_adm_webpages_manage_users` (of the :ref:`genro_library_adm` package), so that you can give to your customers (and to you!) a user and a password to access to your project.
 	
 	The ``<xml_auth>`` attributes are:
@@ -136,12 +140,14 @@ Tags
 		</xml_auth>
 	
 	where ``myName`` is the name, ``superSecurePwd`` is the password.
-
+	
 .. _instanceconfig_py_auth:
 
 ``<py_auth>``
 =============
 
+	.. note:: the ``<py_auth>`` tag uses the :meth:`auth_py` method of the ``GnrApp`` class.
+	
 	Once you have your temporary user [#]_, you can create the users for your customers.
 	
 	For doing this, you have to go the following webpage::
@@ -162,7 +168,6 @@ Tags
 				<myName pwd="superSecurePwd" tags="_DEV_,admin,user,staff"/>
 			</xml_auth>
 		</authentication>
-	
 
 **Footnotes**:
 

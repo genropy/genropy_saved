@@ -4,18 +4,16 @@
 selection handler
 =================
 
-* :ref:`selhandler_description`
-
-* :ref:`selhandler_example`
-
-* :ref:`selhandler_library_reference`
+	* :ref:`selhandler_description`
+	* :ref:`selhandler_example`
+	* :ref:`selhandler_library_reference`
 
 .. _selhandler_description:
 
 Description
 ===========
 
-<CLIPBOARD>
+	<CLIPBOARD>
 	
 	A component that displays records in a grid and allows for modification via a dialog.
 	
@@ -85,7 +83,7 @@ Names
 	    * ``foo_frm`` for the form
 	    * ``foo_dlg`` nodeId of the dialog box
 	
-</CLIPBOARD>
+	</CLIPBOARD>
 
 .. _selhandler_example:
 

@@ -7,6 +7,8 @@ packages
 	* :ref:`packages_map`
 	* :ref:`packages_autofill`
 	
+	.. module:: gnr.app.gnrdeploy
+	
 	The ``packages`` folder is... DEFINITION ???
 	
 .. _packages_map:
@@ -44,3 +46,6 @@ autocreation of the ``packages`` folder
 	.. image:: ../../../images/structure/structure-packages.png
 	
 	where ``myproject`` is the name of your package.
+	
+	.. note:: The autocreation of this folder is handled by the :class:`InstanceMaker` class.
+	

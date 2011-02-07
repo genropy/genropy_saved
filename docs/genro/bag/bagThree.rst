@@ -14,7 +14,7 @@ Advanced functions
 		* :ref:`bag_validator_attributes` (with a :ref:`validator_list_parameter`)
 		* :ref:`bag_validator_methods`
 
-.. module:: gnr.core.gnrbag.Bag
+.. module:: gnr.core.gnrbag
 
 .. _bag_backward_path:
 
@@ -30,7 +30,7 @@ Backward path
 	
 	.. image:: ../images/bag/bag-backward-path.png
 
-	This feature is implemented by the :meth:`setBackRef()` method. If we call it on a Bag instance, that Bag becomes the root of a tree structure in which each leaf (BagNode) knows its father. This means that we can traverse a Bag backward using the ``parent`` property of Bag's nodes:
+	This feature is implemented by the :meth:`Bag.setBackRef()` method. If we call it on a Bag instance, that Bag becomes the root of a tree structure in which each leaf (BagNode) knows its father. This means that we can traverse a Bag backward using the ``parent`` property of Bag's nodes:
 
 		>>> family = Bag()
 		>>> family['grandpa'] = Bag() 
@@ -60,7 +60,7 @@ Trigger
 	
 	This means that a Bag may be notified when its data changes. Bag triggers are based on the concept of *subscription*, that is a link between an event (update, insert, delete) with its eventhandler callback functions. The subscribe method defines new subscriptions for update, insert and delete events.
 
-	Triggers may be defined either on Bags or BagNodes; to do so, you have to use the :meth:`gnr.core.gnrbag.Bag.subscribe` method and the :meth:`gnr.core.gnrbag.BagNode.subscribe`::
+	Triggers may be defined either on Bags or BagNodes; to do so, you have to use the :meth:`Bag.subscribe` method and the :meth:`BagNode.subscribe`::
 
 		Bag.subscribe(update=callback1, insert=callback2, delete=callback3, any=callback4)
 		BagNode.subscribe(updval=callback1, updattr=callback2)
@@ -119,7 +119,7 @@ Trigger on a Bag: the subscribe method
 	|   `evt`            | ``string``       |  Event type: insert, delete, upd_value, upd_attrs               |
 	+--------------------+------------------+-----------------------------------------------------------------+
 		
-	To allow the "family" Bag to trigger on an insert, on an update and on a delete events, we have to add the :meth:`subscribe` method to the "family" Bag:
+	To allow the "family" Bag to trigger on an insert, on an update and on a delete events, we have to add the :meth:`Bag.subscribe` method to the "family" Bag:
 	
 	>>> family.subscribe(update=onUpdate, insert=onInsert, delete=onDelete)
 	>>> walt['children.Mickey.weight']=36
@@ -171,7 +171,7 @@ Trigger on a Bag: the subscribe method
 Unsubscribe a Bag
 =================
 
-	It is possible to unsubscribe a bag from a previously subscribed trigger with the :meth:`unsubscribe` method.
+	It is possible to unsubscribe a bag from a previously subscribed trigger with the :meth:`Bag.unsubscribe` method.
 	
 	Let's unsubscribe some of the triggers of our example:
 
@@ -267,7 +267,7 @@ Values' list for the ``validate_`` parameter
 Setting a validator using Bag's methods
 =======================================
 
-	To set a validator through the :meth:`addValidator` method you have to give a path, a validator and a parameterString, where:
+	To set a validator through the :meth:`Bag.addValidator` method you have to give a path, a validator and a parameterString, where:
 	
 	* `path`: node's path.
 	* `validator`: validation's type.
@@ -281,7 +281,7 @@ Setting a validator using Bag's methods
 	    0 - (Bag) user: 
 	        0 - (str) name: Abcd efgh ij klm
 
-	The :meth:`removeValidator` method allow to remove a validator (parameters: `path` and `validator`).
+	The :meth:`Bag.removeValidator` method allow to remove a validator (parameters: `path` and `validator`).
 
 **Footnotes:**
 
