@@ -20,7 +20,6 @@ project structure help
 				* :ref:`packages_model`
 					* :ref:`model_example_table`
 				* :ref:`packages_webpages`
-					* :ref:`packages_resources`
 					* :ref:`packages_example_webpages`
 		* :ref:`genro_resources_index`
 		* :ref:`genro_sites_index`

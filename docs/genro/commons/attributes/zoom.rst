@@ -16,7 +16,7 @@ Definition and description
 	
 		zoom = False
 
-	``zoom`` is an attribute used to open in a secondary webpage
+	``zoom`` is an attribute used to ???
 
 .. _zoom_validity:
 

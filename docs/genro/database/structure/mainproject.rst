@@ -10,4 +10,4 @@ project
 	
 	where ``projectname`` is the name you want for your project.
 	
-	You can find more information about the autocreation of this folder in the :ref:`genro_simple_introduction` section.
+	You can find more information on a project (and its creation) in the :ref:`genro_simple_introduction` section.

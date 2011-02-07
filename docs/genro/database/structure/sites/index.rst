@@ -4,15 +4,32 @@
 sites
 =====
 
-	* :ref:`sites_autofill`
 	* :ref:`sites_map`
-
+	* :ref:`sites_autofill`
+	
 	The ``sites`` folder is... DEFINITION ???
+	
+.. _sites_map:
 
+``sites`` folder content list
+=============================
+
+	Inside every sites folder you will find a ``pages`` folder, a ``root`` file and a ``siteconfig`` file.
+	
+	Click on the following links for more information on them:
+	
+.. toctree::
+	:maxdepth: 1
+	
+	sites_name
+	pages
+	root
+	siteconfig
+	
 .. _sites_autofill:
 
 autocreation of the ``sites`` folder
-=======================================
+====================================
 
 	You can create a ``sites`` folder typing::
 	
@@ -23,20 +40,3 @@ autocreation of the ``sites`` folder
 	Your ``sites`` folder will look like this one:
 	
 	.. image:: ../../../images/structure/structure-sites.png
-	
-.. _sites_map:
-
-``instance`` folder content list
-================================
-
-	Inside every instance folder you will find a ``custom`` folder, a ``data`` folder and the ``instanceconfig`` file.
-	
-	Click on the following links for more information on them:
-	
-.. toctree::
-	:maxdepth: 2
-	
-	sites_name
-	pages
-	root
-	siteconfig

@@ -4,6 +4,8 @@
 ``sitesconfig.xml``
 ===================
 
+	.. note:: We recommend you to read the introduction to the :ref:`genro_gnr_index` folder before reading this section.
+	
 	* :ref:`sitesconfig_description`
 	* :ref:`sitesconfig_tags`: :ref:`siteconfig_wsgi`, :ref:`siteconfig_jslib`, :ref:`siteconfig_gui`, :ref:`siteconfig_dojo`
 	

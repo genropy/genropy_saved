@@ -6,7 +6,7 @@
 
 	???
 
-	We report you the ::
+	We report you the ???::
 
 		#!/usr/bin/env python2.6
 		import sys

@@ -1,6 +1,6 @@
-==============
-Genro packages
-==============
+===============
+:mod:`packages`
+===============
 
 .. toctree::
 	:maxdepth: 2

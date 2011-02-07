@@ -4,8 +4,10 @@
 ``instanceconfig.xml``
 ======================
 
+	.. note:: We recommend you to read the :ref:`gnr_introduction` to the ``genro_gnr_index`` folder before reading this section.
+	
 	* :ref:`instanceconfig_description`
-	* :ref:`instanceconfig_tags`: :ref:`instanceconfig_packages`, :ref:`instanceconfig_db`, :ref:`instanceconfig_authentication` (:ref:`instanceconfig_py_auth`, :ref:`instanceconfig_xml_auth`)
+	* :ref:`instanceconfig_tags`: :ref:`instanceconfig_packages`, :ref:`instanceconfig_db`, :ref:`instanceconfig_authentication`, :ref:`instanceconfig_xml_auth`, :ref:`instanceconfig_py_auth`
 	
 .. _instanceconfig_description:
 	
