@@ -70,13 +70,25 @@ dojo.declare("gnr.GnrFrmHandler", null, {
     onStartForm:function(kw){
         var kw = kw || {};
         this.formDomNode =  genro.domById(this.form_id);
-        this.formContentNode = genro.domById(this.form_id+'_content');
-        if(this.store){
-            var startKey = kw.startKey || this.store.startKey;
-            var kw = startKey?{destPkey:startKey}:{};
+        var storeCode = this.sourceNode.attr.store;
+        if(storeCode){
+            var contentSourceNode = genro.nodeById(this.form_id+'_content');
+            this.formContentDomNode = contentSourceNode.widget.domNode;
+            var storeId = storeCode+'_store';
+            this.storeNode = genro.nodeById(storeId);
+            var storepath = this.storeNode.attr.storepath;
+            this.formDatapath = this.formDatapath || storepath[0]=='.'?'#'+storeId+this.storeNode.attr.storepath:storepath;
+            contentSourceNode.attr.datapath = this.formDatapath;
+            contentSourceNode.finalizeLazyBuildChildren();
+            var kw = objectUpdate({}, this.storeNode.attr);
+            var storeType = objectPop(kw, 'storeType')
+            objectPop(kw, 'tag');
+            this.setStore(storeType, kw);
+            var startKey = kw.startKey || this.store.startKey || this.getCurrentPkey();
+            var kw = {destPkey:startKey};
             this.load(kw);
             var that = this;
-            dojo.connect(this.formContentNode,'onclick',function(e){
+            dojo.connect(this.formContentDomNode,'onclick',function(e){
                 if(genro.activeForm!=that){
                     that.focusCurrentField();
                 }
@@ -89,7 +101,6 @@ dojo.declare("gnr.GnrFrmHandler", null, {
         this.resetInvalidFields();
     },
     publish: function(command,kw){
-        console.log('form_'+this.form_id+'_'+command)
         genro.publish('form_'+this.form_id+'_'+command,kw);
     },
     subscribe: function(command,cb,scope){
@@ -308,11 +319,21 @@ dojo.declare("gnr.GnrFrmHandler", null, {
     },
     
     focus:function(node){
-        console.log('focus frm')
         if(!this.isProtected()){
-            var formContentNode = this.formContentNode || this.sourceNode.widget.domNode;
-            var node = node || dijit.getFirstInTabbingOrder(formContentNode);
+            var formContentDomNode = this.formContentDomNode || this.sourceNode.widget.domNode;
+            var node = node || dijit.getFirstInTabbingOrder(formContentDomNode);
             node.focus();
+        }
+    },
+    onFocusForm:function(){
+        genro.dom.addClass(this.sourceNode,'form_activeForm');
+    },
+    onBlurForm:function(){
+        genro.dom.removeClass(this.sourceNode,'form_activeForm');
+    },
+    onFocusElement:function(wdg){
+        if(typeof(wdg.focus)=='function'){
+            this.currentFocused=wdg;
         }
     },
     focusCurrentField:function(e){
@@ -452,9 +473,9 @@ dojo.declare("gnr.GnrFrmHandler", null, {
                     sendBag = (sendback == true) || this.hasChangesAtPath(currpath);
                     if (sendBag) {
                         value.walk(function(n){
-                            var loadedValue = objectPop(n.attr,'_loadedValue');
-                            if(loadedValue){
-                                n.attr.oldValue = asTypedTxt(loadedValue, n.attr.dtype);
+                            if('_loadedValue' in n.attr){
+                                var loadedValue = objectPop(n.attr,'_loadedValue');
+                                n.attr.__old = asTypedTxt(loadedValue, n.attr.dtype);
                             }
                         },'static')
                         data.setItem(node.label, value, objectUpdate({'_gnrbag':true}, node.attr));
@@ -464,7 +485,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
                 else if ((sendback == true) || (isNewRecord && value != null) || ('_loadedValue' in node.attr)) {
                     var attr_dict = {'dtype':node.attr.dtype};
                     if ('_loadedValue' in node.attr) {
-                        attr_dict.__old = asTypedTxt(node.attr._loadedValue, attr_dict['dtype']);
+                        attr_dict.oldValue = asTypedTxt(node.attr._loadedValue, attr_dict['dtype']);
                         data.__isRealChange = true;
                     }
                     if (recInfo._alwaysSaveRecord) {
@@ -939,21 +960,25 @@ dojo.declare("gnr.GnrValidator", null, {
 dojo.declare("gnr.formstores.Base", null, {
     constructor:function(form,kw){
         this.form = form;
-        this.loadKw = objectExtract(kw,'load_*');
-        this.saveKw = objectExtract(kw,'save_*');
-        this.table = this.form.table;
-        var callables = {'loadMethod':null,'saveMethod':null,'deleteMethod':null};
-        for(var k in kw){
-            var v = kw[k];
-            if(typeof(v)=='string'){
-                if(v in this){
-                    v =  this[v];
-                }else if(k in callables){
-                    v = funcCreate(v);
-                }
+        this.handlers = objectPop(kw,'handlers') || {};
+        this.table = kw.table;
+        var base_handler_type = objectPop(kw,'handler');
+        var handlerKw = objectExtract(kw,'handler_*');
+        var handler,handler_type,method,actionKw;
+        var that = this;
+        dojo.forEach(['save','load','delete'],function(action){
+            actionKw = objectExtract(handlerKw,action+'_*');
+            handler = objectUpdate({},that.handlers[action]);
+            handler_type = objectPop(handler,'handler_type') || objectPop(handlerKw,action)||base_handler_type;
+            if(typeof(handler_type)=='function'){
+                method = handler_type;
+            }else if(that[action+'_'+handler_type]){
+                method = that[action+'_'+handler_type];
+            }else{
+                method = funcCreate(handler_type);
             }
-            this[k] = v;
-        }
+            that.handlers[action]= {'kw':objectUpdate(actionKw,handler),'method':method};
+        });
     },
     getStartPkey:function(){
         return;
@@ -964,27 +989,30 @@ dojo.declare("gnr.formstores.Base", null, {
     getRelativeData:function(path){
         return this.form.sourceNode.getRelativeData(path);
     },
-    loader_recordCluster:function(table){
+    load_recordCluster:function(table){
         var form=this.form;
         var that = this;
         var currPkey = this.form.getCurrentPkey();
         var cb = function(result){
             that.loaded(currPkey,result);
         };
-        var kw =form.sourceNode.evaluateOnNode(this.loadKw);
+        var kw =form.sourceNode.evaluateOnNode(this.handlers.load.kw)['kw'];
         genro.rpc.remoteCall('loadRecordCluster',objectUpdate({'pkey':currPkey,
                                                   'virtual_columns':form.getVirtualColumns(),
                                                   'table':this.table},kw),null,'POST',null,cb);
     },
-    saver_recordCluster:function(table){
+    save_recordCluster:function(table){
         var form=this.form;
         var that = this;
         var cb = function(result){
             that.saved(result);
         };
-        var kw =form.sourceNode.evaluateOnNode(this.saveKw);
+        var kw =form.sourceNode.evaluateOnNode(this.handlers.save.kw);
         genro.rpc.remoteCall('saveRecordCluster',objectUpdate({'data':form.getFormChanges(),
                                                                'table':this.table},kw),null,'POST',null,cb);
+    },
+    delete_recordCluster:function(){
+        
     },
     loaded:function(pkey,result){
         this.setNavigationStatus(pkey)
@@ -994,10 +1022,10 @@ dojo.declare("gnr.formstores.Base", null, {
         this.form.saved(result);
     },
     save:function(){
-        this.saveMethod();
+        this.handlers.save.method.call(this);
     },
     load:function(){
-        this.loadMethod();
+        this.handlers.load.method.call(this);
     },
     setNavigationStatus:function(){
         return;

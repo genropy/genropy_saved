@@ -186,7 +186,7 @@ dojo.declare("gnr.GnrSrcHandler", null, {
     },
     buildNode: function(sourceNode, where, ind) {
         this.afterBuildCalls = [];
-        sourceNode._stripData();
+        //sourceNode._stripData();
         sourceNode.build(where, ind);
         var cb;
         while (this.afterBuildCalls.length > 0) {

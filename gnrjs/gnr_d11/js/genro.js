@@ -241,6 +241,7 @@ dojo.declare('gnr.GenroClient', null, {
         genro.dom.removeClass('_gnrRoot', 'notvisible');
         genro.dom.effect('_gnrRoot', 'fadein', {duration:400});
         genro.dragDropConnect();
+        genro.standardEventConnection();
         if(genro.isDeveloper){
             genro.dev.inspectConnect();
         }
@@ -291,7 +292,51 @@ dojo.declare('gnr.GenroClient', null, {
         dojo.connect(pane, 'dragover', genro.dom, 'onDragOver');
         dojo.connect(pane, 'drop', genro.dom, 'onDrop');
     },
+    setActiveForm:function(destform){
+        if(destform!=genro.activeForm){
+            if(genro.activeForm){
+                genro.activeForm.onBlurForm();
+            }
+            if(destform){
+                destform.onFocusForm();
+            }
+            genro.activeForm = destform;
+        }
+    },
+    
+    setCurrentFocused:function(wdg){
+        var sourceNode = wdg.sourceNode;
+        var destform = sourceNode.form;
+        this.setActiveForm(sourceNode.form);
+        if(genro.activeForm){
+            genro.activeForm.onFocusElement(wdg);
+        }
+        //genro.currentFocusedElement = wdg;
+    },
+    
+    standardEventConnection:function(pane){
+        var pane = pane || genro.domById('mainWindow');
+        dojo.connect(pane,'onclick',function(e){
+            var wdg = dijit.getEnclosingWidget(e.target);
+            if(wdg){
+                if(wdg.isFocusable()){
+                    return
+                }
+                var sourceNode = wdg.sourceNode;
+                if(sourceNode){
+                    genro.setActiveForm(sourceNode.form);
+                }else{
+                    //|| (wdg.tree? wdg.tree.sourceNode: wdg.grid?wdg.grid.sourceNode:null);
+                    console.log(wdg);
+                }
 
+            }else{
+               // console.log('not widget:')
+                //console.log(e.target)
+            }
+            
+        });
+    },
     
     playSound:function(name, path, ext) {
         if(name.indexOf('$')==0){
@@ -486,11 +531,6 @@ dojo.declare('gnr.GenroClient', null, {
     getCounter: function() {
         this._counter = this._counter + 1;
         return this._counter;
-    },
-    blurCurrent:function(a, b, c) {
-        if (genro.currentFocusedElement) {
-            genro.currentFocusedElement.blur();
-        }
     },
     bagToTable:function(kwargs/*path,columns,key*/) {
         /*

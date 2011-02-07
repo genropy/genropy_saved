@@ -1505,8 +1505,10 @@ dojo.declare("gnr.GnrBag", null, {
             if (resolver) {
                 node.setResolver(resolver);
             }
-            if(kwargs.lazySet && node._value===value){
-                return;
+            if(kwargs.lazySet){
+                if(node._value===value){
+                    return;
+                }
             }
             node.setValue(value, _doTrigger, _attributes, _updattr);
         }
@@ -1568,7 +1570,7 @@ dojo.declare("gnr.GnrBag", null, {
                 if (label.indexOf('=') != -1) {
                     var myarr = label.slice(1).split('=');
                     var k = myarr[0];
-                    var v = myarr[1];
+                    var v = convertFromText(myarr[1]);
                     if (!k) k = 'id';
                     for (idx = 0; idx < this._nodes.length; idx++) {
                         if (this._nodes[idx].attr[k] == v) {

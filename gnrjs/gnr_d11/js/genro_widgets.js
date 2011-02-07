@@ -337,17 +337,9 @@ dojo.declare("gnr.widgets.baseHtml", null, {
         };
         
         if(newobj.domNode && newobj.isFocusable()){
-            dojo.connect(newobj, 'onFocus', function(e) {
-                if(sourceNode.form){
-                    if(typeof(newobj.focus)=='function'){
-                        sourceNode.form.currentFocused=newobj;
-                        genro.activeForm = sourceNode.form;
-                    }
-                }else{
-                    genro.activeForm = null;
-                }
-                genro.currentFocusedElement = newobj;
-            });
+           dojo.connect(newobj, 'onFocus', function(e) {
+               genro.setCurrentFocused(newobj);
+           });
         }
         if (sourceNode.attr['hasGhost']) {
             var _textbox = newobj.textbox;

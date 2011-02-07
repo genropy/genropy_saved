@@ -150,6 +150,9 @@ dojo.declare("gnr.widgets.FramePane", gnr.widgets.gnrwdg, {
     createContent:function(sourceNode, kw,children) {
         var node;
         var frameCode = kw.frameCode;
+        if(frameCode && !kw.nodeId && !kw.formId){
+            kw.nodeId = frameCode+'_frame';
+        }
         objectPop(kw,'datapath');
         var rounded_corners = genro.dom.normalizedRoundedCorners(kw.rounded,objectExtract(kw,'rounded_*',true))
         kw['height'] = kw['height'] || '100%';
@@ -163,6 +166,7 @@ dojo.declare("gnr.widgets.FramePane", gnr.widgets.gnrwdg, {
              node = slot? slot.getValue().getNode('#0') : children.popNode('#side='+side);
              if(node){                 
                  node.attr['frameCode'] = frameCode;
+                 objectPop(node.attr,'side');
                  dojo.forEach(corners[side],function(c){
                      v=objectPop(rounded_corners,c)
                      if(v){
@@ -176,6 +180,14 @@ dojo.declare("gnr.widgets.FramePane", gnr.widgets.gnrwdg, {
         var centerNode = slot? slot.getValue().getNode('#0'):children.popNode('#side=center');
         var center;
         var rounded={};
+        var frameChild;
+        frameChild = children.popNode('#_frame=true::B');
+        while(frameChild){
+            objectPop(frameChild.attr,'_frame');
+            bc.setItem(frameChild.label,frameChild._value,frameChild.attr);
+            frameChild = children.popNode('#_frame=true::B');
+        }
+        
         for(var k in rounded_corners){
             rounded['rounded_'+k]=rounded_corners[k]
         }
@@ -195,11 +207,17 @@ dojo.declare("gnr.widgets.FramePane", gnr.widgets.gnrwdg, {
 dojo.declare("gnr.widgets.FrameForm", gnr.widgets.gnrwdg, {
     createContent:function(sourceNode, kw,children) {
         var formId = objectPop(kw,'formId');
+        var storeNode = children.getNode('formStore');
+        if(storeNode){
+            storeNode.attr['_frame'] = true;
+        }
         var frameCode = kw.frameCode;
+        formId = formId || frameCode+'_form';
         var frame = sourceNode._('FramePane',objectUpdate({formDatapath:'.record',controllerPath:'.form',pkeyPath:'.pkey',
-                                                      formId:formId,frameCode:frameCode},kw));
+                                                          formId:formId},kw));
         frame._('SlotBar',{'side':'bottom',slots:'*,messageBox,*',_class:'fh_bottom_message',messageBox_subscribeTo:'form_'+formId+'_message'});
-        frame._('ContentPane',{side:'center','datapath':'.record','_class':'fh_content','nodeId':formId+'_content'});
+        var storeId = kw.store+'_store';
+        frame._('ContentPane',{side:'center','_class':'fh_content','nodeId':formId+'_content',_lazyBuild:true});
         return frame;
     }
 });
@@ -739,17 +757,39 @@ dojo.declare("gnr.widgets.SlotBar", gnr.widgets.gnrwdg, {
         }
         pane._('span',mbKw);
     }
-
-    
 });
 
 
 dojo.declare("gnr.widgets.FormStore", gnr.widgets.gnrwdg, {
     _beforeCreation: function(sourceNode) {
-        var kw = objectUpdate({}, sourceNode.attr);
-        var storeType = objectPop(kw, 'storeType')
-        objectPop(kw, 'tag');
-        sourceNode.form.setStore(storeType, kw);
+        var storeCode = sourceNode.attr.storeCode;
+        var formId = sourceNode.getParentNode().getParentNode().attr.formId;
+        if(!sourceNode.attr.storepath){
+            if(formId){
+                sourceNode.attr.storepath='.record';
+            }else{
+                console.error('missing storepath')
+            }
+        }
+        if(!storeCode){
+            if(formId){
+                storeCode = formId+'_store';
+            }else{
+                console.error("missing storeCode in formStore not attached to a form")
+            }
+        }
+        var handlers = sourceNode.getValue();
+        var action;
+        sourceNode._value = null;
+        sourceNode.attr.handlers = {};
+        handlers.forEach(function(n){
+            action = objectPop(n.attr,'action');
+            if(action){
+                sourceNode.attr.handlers[action] = n.attr;
+            }
+        })
+        sourceNode.attr.nodeId = sourceNode.attr.nodeId || storeCode+'_store';
+        sourceNode._registerNodeId();
         return false;
     }
 });

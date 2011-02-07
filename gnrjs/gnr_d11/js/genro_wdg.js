@@ -197,9 +197,8 @@ dojo.declare("gnr.GnrWdgHandler", null, {
             ind = -1; // should be index of domnode in destination ???
         }
         var tip = objectPop(attributes, 'tip');
-        var visible = objectPop(attributes, 'visible');
-        if (visible == false) {
-            attributes.visibility = 'hidden';
+        if('visible' in attributes){
+            attributes.visibility = objectPop(attributes, 'visible')?'visible':'hidden';
         }
         var hidden = objectPop(attributes, 'hidden');
         if (hidden == true) {

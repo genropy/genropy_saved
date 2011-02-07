@@ -606,6 +606,7 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
         this.setValue(this._value);
     },
     build: function(destination, ind) {
+        this._stripData(true);
         this._isBuilding = true;
         var attributes = this.registerNodeDynAttr(true);
         //var attributes = this.currentAttributes();
@@ -633,6 +634,7 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
                 if (node.attr.tag) { // ignore nodes without tag: eg. grid structure
                     var aux = '_bld_' + node.attr.tag.toLowerCase();
                     if (aux in node) {
+                        node._stripData(true);
                         node._registerInForm();
                         node[aux].call(node);
                     } else {
@@ -826,6 +828,16 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
         }        
     },
 
+    getFrameNode:function(){
+        if(this.attr.tag.toLowerCase()=='framepane'){
+            return this;
+        }
+        var parent = this.getParentNode();
+        if(parent){
+            return parent.getFrameNode();
+        }
+    },
+    
     getFormHandler:function(){
         if (this.form){
             return this.form;
@@ -1041,7 +1053,7 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
             if (serverpath) {
                 genro._serverstore_paths[this.absDatapath(path)] = serverpath;
             }
-            if(!genro.getDataNode(path)||value){
+            if(!genro.getDataNode(path)||(value!==null)){
                 genro.setData(path, value, attributes);
             }
             
