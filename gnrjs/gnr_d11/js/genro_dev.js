@@ -34,8 +34,8 @@ dojo.declare("gnr.GnrDevHandler", null, {
     },
     
         
-    inspectConnect:function(){
-        var pane = genro.domById('mainWindow');
+    inspectConnect:function(pane){
+        var pane = pane || genro.domById('mainWindow');
         dojo.connect(pane,'onmousemove',function(e){
             if(e.altKey && e.shiftKey){
                 var sourceNode = genro.src.enclosingSourceNode(e.target);

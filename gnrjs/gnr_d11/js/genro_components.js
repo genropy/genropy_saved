@@ -155,7 +155,6 @@ dojo.declare("gnr.widgets.FramePane", gnr.widgets.gnrwdg, {
         }
         objectPop(kw,'datapath');
         var rounded_corners = genro.dom.normalizedRoundedCorners(kw.rounded,objectExtract(kw,'rounded_*',true))
-        kw['height'] = kw['height'] || '100%';
         var bc = sourceNode._('BorderContainer', kw);
         var slot,v;
         var centerPars = objectExtract(kw,'center_*');

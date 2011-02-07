@@ -776,6 +776,7 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
             this.getValue('static').walk(function(n){
                 if(n.attr._lazyBuild){
                     n.lazyBuildFinalize();
+                    return true;
                 }
             });
         }

@@ -637,6 +637,9 @@ dojo.declare("gnr.widgets.Dialog", gnr.widgets.baseDojo, {
                         });
         }
         genro.dragDropConnect(newobj.domNode);
+        if (genro.isDeveloper){
+            genro.dev.inspectConnect(newobj.domNode);
+        }
 
     },
     versionpatch_11__position: function() {

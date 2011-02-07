@@ -73,13 +73,13 @@ dojo.declare("gnr.GnrFrmHandler", null, {
         var storeCode = this.sourceNode.attr.store;
         if(storeCode){
             var contentSourceNode = genro.nodeById(this.form_id+'_content');
-            this.formContentDomNode = contentSourceNode.widget.domNode;
             var storeId = storeCode+'_store';
             this.storeNode = genro.nodeById(storeId);
             var storepath = this.storeNode.attr.storepath;
             this.formDatapath = this.formDatapath || storepath[0]=='.'?'#'+storeId+this.storeNode.attr.storepath:storepath;
             contentSourceNode.attr.datapath = this.formDatapath;
-            contentSourceNode.finalizeLazyBuildChildren();
+            contentSourceNode.lazyBuildFinalize();
+            this.formContentDomNode = contentSourceNode.widget.domNode;
             var kw = objectUpdate({}, this.storeNode.attr);
             var storeType = objectPop(kw, 'storeType')
             objectPop(kw, 'tag');
