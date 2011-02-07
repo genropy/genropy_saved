@@ -9,7 +9,6 @@
 	gnrcmd
 	gnrdate
 	gnrdict
-	gnrenv
 	gnrhtml
 	gnrlang
 	gnrlist
