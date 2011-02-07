@@ -15,11 +15,11 @@ class GnrCustomWebPage(object):
     auto_polling=0
     
     @struct_method
-    def formTester(self,pane,formCode=None,startKey=None,**kwargs):                
-        form = pane.frameForm(formCode=formCode,rounded_bottom=10,**kwargs)
-        form.testToolbar()
+    def formTester(self,pane,frameCode=None,startKey=None,**kwargs):                
+        form = pane.frameForm(frameCode=frameCode,rounded_bottom=10,**kwargs)
+        form.testToolbar(startKey=startKey)
         store = form.formStore(storepath='.record',table='glbl.provincia',storeType='Item',
-                               handler='recordCluster')  
+                               handler='recordCluster',startKey=startKey)  
         fb = form.formbuilder(cols=2, border_spacing='4px', width="400px",fld_width="100%")
         fb.formContent()
         return form
@@ -74,11 +74,11 @@ class GnrCustomWebPage(object):
         
         
     def test_2_formPane_dbl_cp(self,pane):
-        bc = pane.borderContainer(height='180px',background='white')
-        formA =bc.formTester(formCode='form_a',region='left',datapath='.pane1',width='50%',border='1px solid gray',margin='3px')
-        formB = bc.formTester(formCode='form_b',region='center',datapath='.pane2',border='1px solid gray',margin='3px')
+        bc = pane.borderContainer(height='180px')
+        bc.formTester(frameCode='form_a',region='left',datapath='.pane1',width='50%',border='1px solid gray',margin_right='5px')
+        bc.formTester(frameCode='form_b',region='center',datapath='.pane2',border='1px solid gray')
     
-    def _test_2_formPane_tc(self,pane):
+    def test_2_formPane_tc(self,pane):
         """First test description"""
         bc = pane.borderContainer(height='300px')
         topbc = bc.borderContainer(height='250px',region='top',splitter=True)
@@ -89,16 +89,17 @@ class GnrCustomWebPage(object):
         t2 = tc.contentPane(title='My Form').contentPane(detachable=True,_lazyBuild=True)
         t2.formTester('form_tc')
     
-    def _test_3_formPane_palette(self,pane):
+    def test_3_formPane_palette(self,pane):
         pane = pane.div(height='30px')
         pane.dock(id='test_3_dock')
         pane.palettePane('province',title='Province',dockTo='test_3_dock',
-                        _lazyBuild=True,palette_width='600px',palette_height='300px').formTester('form_palette')
+                        _lazyBuild=True,
+                        palette_width='600px',palette_height='300px').formTester('form_palette')
         pane.palettePane('province_remote',title='Province Remote',dockTo='test_3_dock',
-                         _lazyBuild='testPalette',palette_width='600px',palette_height='300px')
+                        _lazyBuild='testPalette',palette_width='600px',palette_height='300px')
 
     
-    def _test_5_formPane_palette_remote(self,pane):
+    def test_5_formPane_palette_remote(self,pane):
         fb = pane.formbuilder(cols=4, border_spacing='2px')
         fb.dbselect(value="^.provincia",dbtable="glbl.provincia")
         fb.button('open',action="""var paletteCode='prov_'+pkey;
@@ -115,12 +116,11 @@ class GnrCustomWebPage(object):
         
     def remote_testPalette(self,pane,pkey=None,**kwargs):
         form = pane.formTester('formRemote_%s' %pkey,startKey=pkey)
-        #form.dataController("this.form.publish('load',{destPkey:pkey});",pkey=pkey,selfsubscribe_built=True)
             
-    def _test_4_formPane_dialog(self,pane):
+    def test_4_formPane_dialog(self,pane):
         pane.button('Show dialog',action='genro.wdgById("province_dlg").show()')
-        dialog = pane.dialog(title='Province',nodeId='province_dlg',closable=True).contentPane(height='300px',width='400px',background_color='red',_lazyBuild=True)
-        dialog.formTester('form_dialog')
+        dialog = pane.dialog(title='Province',nodeId='province_dlg',closable=True).contentPane(_lazyBuild=True)
+        dialog.formTester('form_dialog',height='300px',width='500px')
                    
     @struct_method('mytoolbar_selectrecord')
     def mytoolbar_selectrecord(self,pane,**kwargs):
