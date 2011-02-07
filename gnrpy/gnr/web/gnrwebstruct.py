@@ -133,7 +133,7 @@ class GnrDomSrc(GnrStructData):
             return GnrDomElem(self, '%s' % (self.genroNameSpace[fnamelower]))
         if fname in self._external_methods:
             handler = getattr(self.page, self._external_methods[fname])
-            return lambda *args, **kwargs: handler(self, *args, **kwargs)
+            return lambda *args, **kwargs: handler(self, *args,**kwargs)
         for n in self._nodes:
             if n.attr.get('_attachname') == fname:
                 return n._value
@@ -141,8 +141,12 @@ class GnrDomSrc(GnrStructData):
         if autoslots:
             autoslots = autoslots.split(',')
             if fname in autoslots:
-                return self.child('slot',name=fname,_attachname=fname)
-            
+                return self.child('autoslot',name=fname,_attachname=fname)
+        parentTag = self._parentNode.attr.get('tag','').lower()
+        if parentTag and not fnamelower.startswith(parentTag):
+            subtag = ('%s_%s' %(parentTag,fname)).lower()
+            if hasattr(self,subtag):
+                return getattr(self,subtag)
         raise AttributeError("object has no attribute '%s'" % fname)
 
     def getAttach(self, attachname):
@@ -159,7 +163,6 @@ class GnrDomSrc(GnrStructData):
             t = kwargs.pop('tag', tag)
             if tag == 'input':
                 tag = t
-
         if hasattr(self, 'fbuilder'):
             if not tag in (
             'tr', 'data', 'script', 'func', 'connect', 'dataFormula', 'dataScript', 'dataRpc', 'dataRemote',
@@ -191,10 +194,32 @@ class GnrDomSrc(GnrStructData):
     def framepane(self,frameCode=None,**kwargs):
         return self.child('FramePane',frameCode=frameCode,autoslots='top,bottom,left,right,center',**kwargs)
     
-    def frameform(self,formId=None,frameCode=None,slots=None,**kwargs):
-        return self.child('FrameForm',formId=formId,frameCode=frameCode,
+    def frameform(self,formId=None,frameCode=None,store=None,slots=None,table=None,**kwargs):
+        formId = formId or '%s_form' %frameCode
+        if not store:
+            store = formId
+        if not table:
+            storeNode = self.root.nodeById('%s_store' %store)
+            if storeNode:
+                table = storeNode.attr['table']
+        return self.child('FrameForm',formId=formId,frameCode=frameCode,store=store,table=table,
                           autoslots='top,bottom,left,right,center',**kwargs)
     
+    def formstore(self,storeCode=None,nodeId=None,table=None,**kwargs):
+        if self.attributes.get('tag','').lower()=='frameform':
+            self.attributes['table'] = table
+            if not storeCode:
+                storeCode = self.attributes['store']
+            else:
+                self.attributes['store'] = storeCode
+        assert storeCode,'storeCode mandatory for stores not attached to a form'
+        return self.child('formStore',childname='formStore',storeCode=storeCode,table=table,
+                            nodeId = nodeId or '%s_store' %storeCode,
+                            **kwargs)
+                            
+    def formstore_handler(self,action,handler_type=None,**kwargs):
+        return self.child('handler',action=action,handler_type=handler_type,**kwargs)
+            
     def h1(self, content=None, **kwargs):
         return self.htmlChild('h1', content=content, **kwargs)
 
@@ -351,7 +376,7 @@ class GnrDomSrc(GnrStructData):
     def macro(self, name='', source='', **kwargs):
         return self.child('macro', name=name, content=source, **kwargs)
 
-    def formbuilder(self, cols=1, dbtable=None, tblclass='formbuilder',
+    def formbuilder(self, cols=1, table=None, tblclass='formbuilder',
                     lblclass='gnrfieldlabel', lblpos='L', _class='', fieldclass='gnrfield',
                     lblalign=None, lblvalign='middle',
                     fldalign=None, fldvalign='middle', disabled=False,
@@ -389,7 +414,7 @@ class GnrDomSrc(GnrStructData):
         commonPrefix = ('lbl_', 'fld_', 'row_', 'tdf_', 'tdl_')
         commonKwargs = dict([(k, kwargs.pop(k)) for k in kwargs.keys() if len(k) > 4 and k[0:4] in commonPrefix])
         tbl = self.child('table', _class='%s %s' % (tblclass, _class), **kwargs).child('tbody')
-        dbtable = dbtable or self.getInheritedAttributes().get('form_table') or self.page.maintable
+        dbtable = table or kwargs.get('dbtable') or self.getInheritedAttributes().get('table') or self.page.maintable
         tbl.fbuilder = GnrFormBuilder(tbl, cols=int(cols), dbtable=dbtable,
                                       lblclass=lblclass, lblpos=lblpos, lblalign=lblalign, fldalign=fldalign,
                                       fieldclass=fieldclass,
@@ -699,6 +724,7 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
             tblobj = self.page.db.table(maintable)
             fld = x[2]
         elif parentfb:
+            assert hasattr(parentfb,'tblobj'),'missing default table. HINT: are you using a formStore in a bad place?'
             tblobj = parentfb.tblobj
         else:
             raise GnrDomSrcError('No table')
