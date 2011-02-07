@@ -50,10 +50,10 @@ class GnrClassCatalog(object):
         self.align = {}
         self.empty = {}
         self.standardClasses()
-
+        
     def addClass(self, cls, key, aliases=None, altcls=None, align='L', empty=None):
         """Add a python class to the list of objects known by the Catalog.
-        
+            
         :param cls: the class itself by reference
         :param key: a string, is a short name of the class, as found in textual values to parse or write
         :param altcls: other classes to write in the same way. All values will be parsed with the main class.
@@ -65,13 +65,13 @@ class GnrClassCatalog(object):
         if aliases:
             for n in aliases:
                 self.classes[n] = cls
-
+                
         self.names[cls] = key
         if altcls:
             for c in altcls:
                 self.names[c] = key
         self.aliases[key] = aliases
-
+        
     def getEmpty(self, key):
         if isinstance(key, basestring):
             key = self.classes.get(key.upper())
@@ -82,7 +82,7 @@ class GnrClassCatalog(object):
         if type(v) == type:
             v = v()
         return v
-
+        
     def getAlign(self, key):
         if isinstance(key, basestring):
             key = self.classes.get(key.upper())
@@ -90,20 +90,22 @@ class GnrClassCatalog(object):
             return self.align.get(self.names[key])
         elif key.__class__ in self.names:
             return self.align.get(self.names[key.__class__])
-
-
+            
     def addSerializer(self, mode, cls, funct):
         """Given a mode and a class to convert, specifies the function to use for the actual conversion:
-        funct: is a function by reference or lambda, 
-               will receive an instance and return an appropriate value for the conversion mode"""
+        
+        :param mode: add???
+        :param cls: the class to be converted
+        :param funct: is a function by reference or lambda, will receive an instance and return an appropriate value for the conversion mode"""
         m = self.serializers.get(mode, {})
         m[cls] = funct
         self.serializers[mode] = m
 
     def addParser(self, cls, funct):
         """Given a class to convert, specifies the function to use for the actual conversion from text:
-        funct: is a function by reference or lambda, 
-               will receive a text and return an instance"""
+        
+        :param cls: the class to be converted
+        :param funct: is a function by reference or lambda, will receive a text and return an instance"""
         self.parsers[cls] = funct
         clsname = self.names[cls]
         self.parsers[clsname] = funct
@@ -311,6 +313,3 @@ if __name__ == '__main__':
     print converter.fromText('24', 'I')
     print converter.fromTypedText('2004-12-2::D')
     print converter.fromTypedText('2006-07-03 14:09:00.662801::DH')
-    
-    
-    

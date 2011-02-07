@@ -2713,9 +2713,9 @@ class BagFormula(BagResolver):
 
     def init(self):
         """
-        :param root: ???
+        :param root: add???
         :param expr: expression with symbolic terms
-        :param symbols: ???
+        :param symbols: add???
         """
         parameters = {}
         for key, value in self.parameters.items():

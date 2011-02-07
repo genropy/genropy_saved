@@ -25,10 +25,11 @@ import gnrclasses
 def dictExtract(mydict, prefix, pop=False, slice_prefix=True):
     """
     return a dict of the items with keys starting with prefix.
-    * `mydict`: sourcedict 
-    * `prefix`: the prefix of the items you need to extract
-    * `pop` : removes the items from the sourcedict
-    * `slice_prefix` : shortens the keys of the output dict removing the prefix
+    
+    :param mydict: sourcedict 
+    :param prefix: the prefix of the items you need to extract
+    :param pop: removes the items from the sourcedict
+    :param slice_prefix: shortens the keys of the output dict removing the prefix
     """
     lprefix = len(prefix) if slice_prefix else 0
     cb = mydict.pop if pop else mydict.get
@@ -89,7 +90,6 @@ class GnrDict(dict):
         if value in self._list:
             return self._list.index(value)
         return -1
-
 
     def values(self):
         return [self[k] for k in self._list]
@@ -179,10 +179,7 @@ class GnrNumericDict(GnrDict):
         for k in self._list:
             yield self[k]
 
-
 if __name__ == '__main__':
     a = GnrDict([('pino', 55), ('gionni', 88)], ugo=56, mario=False)
     print a.get('#1')
     print a['gvhjf hvj']
-    
-  
