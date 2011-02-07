@@ -16,12 +16,12 @@ Definition and description
 	
 		zoom = False
 
-	``zoom`` is an attribute used to ... ???
+	``zoom`` is an attribute used to open in a secondary webpage
 
 .. _zoom_validity:
 
-Validity and zoom value
-==========================
+Validity
+========
 
 	**Validity:** you can give ``zoom`` attribute to the following objects:
 
@@ -32,4 +32,4 @@ Validity and zoom value
 Examples
 ========
 
-	??? Link the zoom to the :ref:`genro_standardtable`
+	

@@ -153,7 +153,7 @@ Condition
 				tbl.column('description', name_short='Dsc', name_long='Movie description')
 				tbl.column('number','L',name_long='!!Number')
 
-	The two tables ("movie" and "person") will be linked through a :ref:`genro_relation_table` called "cast"::
+	The two tables ("movie" and "person") will be linked through a :ref:`table_relation` table called "cast"::
 
 		# encoding: utf-8
 
