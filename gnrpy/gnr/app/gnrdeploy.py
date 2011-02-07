@@ -10,10 +10,10 @@ class PathResolver(object):
             resource='resources',
             package='packages',
             project='projects')
-
+            
     def __init__(self, gnr_config=None):
         self.gnr_config = gnr_config or self.load_gnr_config()
-
+        
     def load_gnr_config(self):
         home_config_path = expandpath('~/.gnr')
         global_config_path = expandpath(os.path.join('/etc/gnr'))
@@ -25,20 +25,19 @@ class PathResolver(object):
             config = Bag()
         self.set_environment(config)
         return config
-
+        
     def set_environment(self, config):
         for var, value in config['gnr.environment_xml'].digest('environment:#k,#a.value'):
             var = var.upper()
             if not os.getenv(var):
                 os.environ[var] = str(value)
-
+                
     def js_path(self, lib_type='gnr', version='11'):
         path = self.gnr_config['gnr.environment_xml.static.js.%s_%s?path' % (lib_type, version)]
         if path:
             path = os.path.join(expandpath(path), 'js')
         return path
-
-
+        
     def entity_name_to_path(self, entity_name, entity_type, look_in_projects=True):
         entity = self.entities.get(entity_type)
         if not entity:
@@ -59,22 +58,22 @@ class PathResolver(object):
                     if os.path.isdir(entity_path):
                         return expandpath(entity_path)
         raise Exception('Error: %s %s not found' % (entity_type, entity_name))
-
+        
     def site_name_to_path(self, site_name):
         return self.entity_name_to_path(site_name, 'site')
-
+        
     def instance_name_to_path(self, instance_name):
         return self.entity_name_to_path(instance_name, 'instance')
-
+        
     def package_name_to_path(self, package_name):
         return self.entity_name_to_path(package_name, 'package')
-
+        
     def resource_name_to_path(self, resource_name):
         return self.entity_name_to_path(resource_name, 'resource')
-
+        
     def project_name_to_path(self, project_name):
         return self.entity_name_to_path(project_name, 'project', look_in_projects=False)
-
+        
     def project_repository_name_to_path(self, project_repository_name, strict=True):
         if not strict or 'gnr.environment_xml.projects.%s' % project_repository_name in self.gnr_config:
             path = self.gnr_config['gnr.environment_xml.projects.%s?path' % project_repository_name]
@@ -82,13 +81,12 @@ class PathResolver(object):
                 return expandpath(path)
         else:
             raise Exception('Error: Project Repository %s not found' % project_repository_name)
-
+            
 class ProjectMaker(object):
     def __init__(self, project_name, base_path=None):
         self.project_name = project_name
         self.base_path = base_path or '.'
-
-
+        
     def do(self):
         self.project_path = os.path.join(self.base_path, self.project_name)
         self.packages_path = os.path.join(self.project_path, 'packages')
@@ -98,8 +96,14 @@ class ProjectMaker(object):
         for path in (self.project_path, self.packages_path, self.sites_path, self.instances_path, self.resources_path):
             if not os.path.isdir(path):
                 os.mkdir(path)
-
+                
 class SiteMaker(object):
+    """Handle the autocreation of the ``sites`` folder. To autocreate the ``sites`` folder, please type in your console::
+    
+        gnrmksite sitesname
+    
+    where ``sitesname`` is the name of your ``sites`` folder.
+    """
     def __init__(self, site_name, base_path=None, resources=None, instance=None, dojo_version='11',
                  wsgi_port=None, wsgi_reload=None, wsgi_mainpackage=None, wsgi_debug=None, config=None):
         self.site_name = site_name
@@ -112,7 +116,7 @@ class SiteMaker(object):
         self.wsgi_debug = wsgi_debug
         self.dojo_version = dojo_version
         self.config = config
-
+        
     def do(self):
         self.site_path = os.path.join(self.base_path, self.site_name)
         pages_path = os.path.join(self.site_path, 'pages')
@@ -164,6 +168,12 @@ if __name__ == '__main__':
             siteconfig.toXml(siteconfig_xml_path)
 
 class InstanceMaker(object):
+    """Handle the autocreation of the ``instances`` folder. To autocreate the ``instances`` folder, please type in your console::
+    
+        gnrmkinstance instancesname
+    
+    where ``instancesname`` is the name of your ``instances`` folder.
+    """
     def __init__(self, instance_name, base_path=None, packages=None, authentication=True, authentication_pkg=None,
                  db_dbname=None, db_implementation=None, db_host=None, db_port=None,
                  db_user=None, db_password=None, use_dbstores=False, config=None):
@@ -188,7 +198,7 @@ class InstanceMaker(object):
         self.db_password = db_password
         self.use_dbstores = use_dbstores
         self.config = config
-
+        
     def do(self):
         self.instance_path = os.path.join(self.base_path, self.instance_name)
         custom_path = os.path.join(self.instance_path, 'custom')
@@ -224,9 +234,14 @@ class InstanceMaker(object):
             else:
                 instanceconfig = self.config
             instanceconfig.toXml(instanceconfig_xml_path)
-
-
+            
 class PackageMaker(object):
+    """Handle the autocreation of the ``packages`` folder. To autocreate the ``packages`` folder, please type in your console::
+    
+        gnrmkpackage packagesname
+    
+    where ``packagesname`` is the name of your ``packages`` folder.
+    """
     def __init__(self, package_name, base_path=None, sqlschema=None,
                  name_short=None, name_long=None, name_full=None,
                  login_url=None, comment=None):
@@ -238,7 +253,7 @@ class PackageMaker(object):
         self.sqlschema = sqlschema or self.package_name.lower()
         self.comment = comment or '%s package' % self.package_name
         self.login_url = login_url or '%s/login' % self.package_name
-
+        
     def do(self):
         self.package_path = os.path.join(self.base_path, self.package_name)
         self.model_path = os.path.join(self.package_path, 'model')
@@ -291,12 +306,13 @@ class Table(object):
     def config_db(self, pkg):
         tbl =  pkg.table('example', rowcaption='hello_code')
         tbl.column('hello_code',size='4',name_long='!!Hello code') # char(4)
-        tbl.column('hello_value',size=':4',name_long='!!Hello value') # varchar(40)
+        tbl.column('hello_value',size=':40',name_long='!!Hello value') # varchar(40)
         tbl.column('hello_date', dtype='D',name_long='!!Hello date') # date
         # dtype -> sql
         #   I       int
         #   R       float
         #   DH      datetime
+        #   D       date
         #   H       time
 """)
             examplemodel_py_example.close()

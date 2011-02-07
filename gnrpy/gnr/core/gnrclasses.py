@@ -30,6 +30,8 @@ from decimal import Decimal
 ISO_MATCH = re.compile(r'\d{4}\W\d{1,2}\W\d{1,2}')
 
 class GnrClassCatalog(object):
+    """??? Add description!
+    """
     __standard = None
 
     def convert(cls):
@@ -51,11 +53,12 @@ class GnrClassCatalog(object):
 
     def addClass(self, cls, key, aliases=None, altcls=None, align='L', empty=None):
         """Add a python class to the list of objects known by the Catalog.
-        cls: the class itself by reference
-        key: a string, is a short name of the class, as found in textual values to parse or write
-        altcls: other classes to write in the same way. All values will be parsed with the main class.
-        aliases: other keys to parse using this class
-        empty: the class or value to be used for empty parsed values, defualt None, example '' for strings"""
+        
+        :param cls: the class itself by reference
+        :param key: a string, is a short name of the class, as found in textual values to parse or write
+        :param altcls: other classes to write in the same way. All values will be parsed with the main class.
+        :param aliases: other keys to parse using this class
+        :param empty: the class or value to be used for empty parsed values, defualt None, example '' for strings"""
         self.classes[key] = cls
         self.align[key] = align
         self.empty[key] = empty

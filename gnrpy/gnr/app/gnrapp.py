@@ -520,9 +520,9 @@ class GnrApp(object):
         
         ``mypkg.myauthmethod`` will be called with a single parameter, the username. It should return:
         
-            -  ``None``, if the user doesn't exists
-            - a dict containing every attribute to add to the avatar, if the user is valid.
-            - Mandatory attributes: username, pwd
+        - ``None``, if the user doesn't exists
+        - a dict containing every attribute to add to the avatar, if the user is valid.
+        - Mandatory attributes: username, pwd
         
         **TODO:** it seems odd that we don't pass the password to the authentication method. It limits the appicability
                   of this authentication method soo much!
@@ -552,9 +552,9 @@ class GnrApp(object):
            <sql_auth  defaultTags='myusers' dbtable='mypkg.users' 
                       username='username_fld' pwd='pwd_fld' userid='optional_id_fld' />
         
-       - Mandatory attributes: dbtable, username, pwd
-       - Optional attributes: defaultTags, userid (the primary key of the db table if it is not the username field)
-         Other attributes are aliases of dbfield names: myavatarfield='mydbfield'
+        - Mandatory attributes: dbtable, username, pwd
+        - Optional attributes: defaultTags, userid (the primary key of the db table if it is not the username field)
+        Other attributes are aliases of dbfield names: myavatarfield='mydbfield'
         """
         attrs = dict(node.getAttr())
         defaultTags = attrs.pop('defaultTags', None)

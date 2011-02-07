@@ -210,7 +210,8 @@ class BagToXml(object):
     def nodeToXmlBlock(self, node):
         """
         This method handles all the different node types, calls the method build tag and returns its result.
-        @return: the XML tag that represent self BagNode.
+        
+        :returns: the XML tag that represent self BagNode.
         """
         if self.unresolved and node.resolver != None and not getattr(node.resolver,'_xmlEager',None):
             newattr = dict(node.attr)
@@ -248,7 +249,7 @@ class BagToXml(object):
         If the element-leaf is a simple string, there are no type attributes in the corresponding XML nodes 
         otherwise a 'T' attribute is set to the node and the value of 'T' changes in function of the type 
         (value of 'T' is 'B' for boolean, 'L' for integer, 'R' for float, 'D' for date, 'H' for time).
-        @return: the Bag represented as XML block in a List.
+        :returns: the Bag represented as XML block in a List.
         
             >>> mybag=Bag()
             >>> mybag['aa.bb']=4567
@@ -268,9 +269,11 @@ class BagToXml(object):
         <?xml version=\'1.0\' encoding=\'UTF-8\'?> ; the content of the Bag is hierarchically represented 
         as an XML block sub-element of the node <GenRoBag> (see the toXmlBlock() documentation for more details about type representation).
         Is also possible to write the result on a file, passing the path of the file as the 'filename' parameter.
-        @param filename: an optional parameter, it is the path of the output file; default value is 'None'
-        @param encoding: an optional parameter, is used to set the XML encoding; default value is UTF-8.
-        @return: an XML version of the bag.
+        
+        :param filename: an optional parameter, it is the path of the output file; default value is 'None'
+        :param encoding: an optional parameter, is used to set the XML encoding; default value is UTF-8.
+        
+        :returns: an XML version of the bag.
         
             >>> mybag=Bag()
             >>> mybag['aa.bb']=4567

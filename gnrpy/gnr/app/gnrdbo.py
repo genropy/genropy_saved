@@ -221,7 +221,7 @@ class Table_counter(TableBase):
         :param codekey: formatting string for the key.
         :param output: formatting output for the key.
         :param date: the date of counter attribution.
-        :param phyear: phiscal year.
+        :param phyear: fiscal year.
         :returns: string
         """
         ymd = self.getYmd(date, phyear=phyear)
