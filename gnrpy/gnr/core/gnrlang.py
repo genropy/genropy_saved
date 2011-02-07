@@ -36,8 +36,7 @@ import time
 thread_ws = dict()
 
 class FilterList(list):
-    """FilterList"""
-
+    
     def __contains__(self, item):
         return len([k for k in self if k == item or k.endswith('*') and item.startswith(k[0:-1])]) > 0
 
@@ -341,7 +340,8 @@ class GnrAddOn(object):
 
     def superdo(self, *args, **kwargs):
         """like calling super() with the right arguments
-        **** verificare se funziona a piu livelli"""
+        ??? check if it works on multiple levels
+         """
         frame = sys._getframe(1)
         superObj = super(self.__class__, self)
         selector = frame.f_code.co_name
@@ -369,9 +369,9 @@ class GnrAddOn(object):
 
     def setCallable(self, src, importAs=None, bound=True):
         """
-        @param src: is a string of a python function or an imported function
-        @param importAs: a name for identify the function in error messages
-        @param bound: if true the function will be bounded to this instance
+        :param src: is a string of a python function or an imported function
+        :param importAs: a name for identify the function in error messages
+        :param bound: if true the function will be bounded to this instance
         """
         if isinstance(src, basestring):
             if not importAs: importAs = 'abcd'

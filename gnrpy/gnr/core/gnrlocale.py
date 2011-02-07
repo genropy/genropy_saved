@@ -101,8 +101,11 @@ def parselocal_time(txt, locale):
     return dates.parse_time(txt, locale)
 
 def parselocal(txt, cls, locale=None):
-    """return an object of class cls
-       """
+    """:param cls: ???add
+    :param locale: ???add
+    
+    :returns: an object of class cls
+    """
     locale = (locale or DEFAULT_LOCALE).replace('-', '_')
     if locale and '_' in locale:
         loc, country = locale.split('_')

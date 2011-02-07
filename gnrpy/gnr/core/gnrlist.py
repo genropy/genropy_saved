@@ -27,7 +27,7 @@ Some useful operations on lists.
 
 def findByAttr(l, **kwargs):
     """
-    Find elements in list "l" having attributes with names and values as kwargs items
+    Find elements in list ``l`` having attributes with names and values as kwargs items
     """
     result = list(l)
     for k, v in kwargs.items():
@@ -35,9 +35,10 @@ def findByAttr(l, **kwargs):
     return result
 
 def sortByItem(l, *args, **kwargs):
-    """Sort the list "l", filled of objects with dict interface by items with key in *args.
-       @param *args: a list of keys to sort for. Each key can be reverse sorted by adding ':d' to the key.
-       @param hkeys: if True and a key contains '.' it is interpreted as a hierarchical path and sub dict are looked for
+    """Sort the list ``l``, filled of objects with dict interface by items with key in ``*args``.
+       
+       :param args: a list of keys to sort for. Each key can be reverse sorted by adding ``:d`` to the key.
+       :param hkeys: if True and a key contains ``.`` it is interpreted as a hierarchical path and sub dict are looked for
        """
 
     def safeCmp(a, b):
@@ -365,7 +366,3 @@ class GnrNamedList(list):
             return [self[k] for k in columns]
         else:
             return self.values()
-        
-
-
-    
