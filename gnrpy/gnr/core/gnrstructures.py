@@ -83,7 +83,7 @@ class GnrStructData(Bag):
 
     root = property(_get_root)
 
-    def child(self, tag, name='*_#', content=None, _parentTag=None, _attributes=None, **kwargs):
+    def child(self, tag, name='*_#', content=None, _parentTag=None, _attributes=None, childname=None,**kwargs):
         """
         
         This method sets a new item of the type tag into the current structure
@@ -95,7 +95,7 @@ class GnrStructData(Bag):
         
         Return : the new structure if content is none else the parent"""
         where = self
-        childname = name
+        childname = childname or name
         childcontent = content
         if _attributes:
             kwargs.update(_attributes)

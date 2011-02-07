@@ -497,7 +497,7 @@ class Bag(GnrObject):
     parentNode = property(_get_parentNode, _set_parentNode)
 
     def _get_attributes(self):
-        return self.parentNode.getAttr()
+        return self.parentNode.getAttr() if self.parentNode else dict()
 
     attributes = property(_get_attributes)
 
