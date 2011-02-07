@@ -15,14 +15,25 @@ class GnrCustomWebPage(object):
     auto_polling=0
     
     @struct_method
-    def formTester(self,pane,formId=None,startKey=None,**kwargs):
-        form = pane.frameForm(formId=formId,datapath='.provincia',border='1px solid silver',rounded_bottom=10,**kwargs)
-        form.recordClusterStore('glbl.provincia',storeType='Item',startKey=startKey)
-        left = 'selectrecord,|,' if not startKey else ''
-        form.top.slotToolbar('%s *,|,semaphore,|,formcommands,|,locker' %left,slotbarCode='mytoolbar')
-        fb = form.formbuilder(cols=2, border_spacing='4px', width="400px", fld_width="100%")
+    def formTester(self,pane,formCode=None,startKey=None,**kwargs):                
+        form = pane.frameForm(formCode=formCode,rounded_bottom=10,**kwargs)
+        form.testToolbar()
+        store = form.formStore(storepath='.record',table='glbl.provincia',storeType='Item',
+                               handler='recordCluster')  
+        fb = form.formbuilder(cols=2, border_spacing='4px', width="400px",fld_width="100%")
         fb.formContent()
         return form
+        
+    @struct_method
+    def testToolbar(self,form,startKey=None):
+        left = 'selectrecord,|,' if not startKey else ''
+        tb = form.top.slotToolbar('%s *,|,semaphore,|,formcommands,|,locker' %left,border_bottom='1px solid silver')
+        if not startKey:
+            fb = tb.selectrecord.formbuilder(cols=1, border_spacing='1px')
+            fb.dbselect(value="^.prov",dbtable="glbl.provincia",parentForm=False,#default_value='MI',
+                                        validate_onAccept="console.log('onAccept');console.log(value);this.form.publish('load',{destPkey:value});",
+                                        lbl='Provincia')
+        return tb
         
     @struct_method
     def formContent(self,fb):
@@ -38,15 +49,34 @@ class GnrCustomWebPage(object):
     def onLoading_glbl_provincia(self,record,newrecord,loadingParameters,recInfo):
         if record['sigla'] == 'AO':
             recInfo['_readonly'] = True
-            
-    def test_1_formPane_cp(self,pane):
-        """Test form in contentPane form"""
-        form = pane.formTester('form_cp',height='180px')
+    
+
+    def test_0_frameform(self,pane):
+        "Test FrameForm"
+        form = pane.frameForm(frameCode='provincia_1',border='1px solid silver',datapath='.form',
+                            rounded_bottom=10,height='180px',width='600px',
+                            pkeyPath='.prov')
+        form.testToolbar()
+        store = form.formStore(storepath='.record',table='glbl.provincia',storeType='Item',
+                               handler='recordCluster')
+        store.handler('load',_onCalling='console.log("xxxx")',default_ordine_tot='100')    
+        form.formbuilder(cols=2, border_spacing='3px').formContent()            
+        
+    def test_1_frameform_external_store(self,pane):
+        "Test FrameForm External store"
+        store = pane.formStore(storeCode='provincia',storepath='.stores.provincia.record',
+                      table='glbl.provincia',storeType='Item',
+                      handler='recordCluster')
+        form = pane.frameForm(frameCode='provincia_2',store='provincia',border='1px solid silver',datapath='.form',
+                            pkeyPath='.prov',rounded_bottom=10,height='180px',width='600px')
+        tb = form.testToolbar()  
+        form.formbuilder(cols=2, border_spacing='3px').formContent()         
+        
         
     def test_2_formPane_dbl_cp(self,pane):
         bc = pane.borderContainer(height='180px',background='white')
-        formA = bc.contentPane(region='left',width='50%',datapath='.pane1',border='1px solid gray',margin='3px').formTester('form_a')
-        formB = bc.contentPane(region='center',datapath='.pane2',border='1px solid gray',margin='3px').formTester('form_b')
+        formA =bc.formTester(formCode='form_a',region='left',datapath='.pane1',width='50%',border='1px solid gray',margin='3px')
+        formB = bc.formTester(formCode='form_b',region='center',datapath='.pane2',border='1px solid gray',margin='3px')
     
     def _test_2_formPane_tc(self,pane):
         """First test description"""

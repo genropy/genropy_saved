@@ -85,9 +85,9 @@ class FormHandler(BaseComponent):
                     formsubscribe_navigationStatus="this.widget.setAttribute('disabled',$1.last || false);")
 
     @struct_method           
-    def fh_formButton(self,pane,label=None,iconClass=None,topic=None,command=None,**kwargs):
+    def fh_formButton(self,pane,label=None,iconClass=None,topic=None,command=True,**kwargs):
         pane.button(label, lbl=label,iconClass=iconClass,topic=topic,
-                    action='this.form.publish(topic,command);',
+                    action='this.form.publish(topic,command);',command=command,
                     showLabel=False,**kwargs)
     
     @struct_method 

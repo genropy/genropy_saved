@@ -36,11 +36,10 @@ class GnrCustomWebPage(object):
         
     def _test_1_frame_includedview(self,pane):
         """Pane grid """
-        pane = pane.framePane(frameCode='province',height='200px')
+        pane = pane.framePane(frameCode='province',height='200px',datapath='piero')
         tbar = pane.top.slotToolbar('*,searchOn')
         view = pane.includedView()
-        struct = view.gridStruct('regione')
-        view.selectionStore(table='glbl.provincia',where="$regione='LOM'",_onStart=True)
+        view.selectionStore(storepath='guido',table='glbl.provincia',where="$regione='LOM'",_onStart=True)
     
     def _test_2_frame_includedview(self,pane):
         """Pane grid """
