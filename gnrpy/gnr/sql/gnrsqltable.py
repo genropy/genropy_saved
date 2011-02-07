@@ -615,7 +615,6 @@ class SqlTable(GnrObject):
         def onBagColumns(attributes=None,**kwargs):
             if attributes and '__old' in attributes:
                 attributes.pop('__old')
-       
         main_changeSet, relatedOne, relatedMany = self._splitRecordCluster(recordCluster, debugPath=debugPath)
         isNew = recordClusterAttr.get('_newrecord')
         toDelete = recordClusterAttr.get('_deleterecord')
@@ -637,8 +636,7 @@ class SqlTable(GnrObject):
                 if toDelete:
                     self.delete(old_record)
                     return
-                testForMerge = (not noTestForMerge ) and (changed_TS or (
-                not lastTs) )# the record is modified by another user OR there's no lastTS field to check for modifications
+                testForMerge = not noTestForMerge and (changed_TS or (not lastTs) )# the record is modified by another user OR there's no lastTS field to check for modifications
                 for fnode in main_changeSet:
                     fname = fnode.label
                     if testForMerge:
