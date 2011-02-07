@@ -1568,6 +1568,10 @@ textarea:disabled {
 	height: 16px;
 	width: 16px;
 }
+.form_activeForm{
+    -moz-box-shadow: 2px 2px 4px #403b3b;
+    -webkit-box-shadow: 2px 2px 4px #403b3b;
+}
 
 .form_ok .fh_semaphore{
 	background: url(icons/base14/greenLight.gif) no-repeat center center;
