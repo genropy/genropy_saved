@@ -64,10 +64,3 @@ The :mod:`gnr.core.gnrbag` classes
 .. automodule:: gnr.core.gnrbag
 	:members:
 	:synopsis: the foundamental data structure in GenroPy.
-
-The :mod:`gnr.core.gnrstructures` classes
-=========================================
-
-.. automodule:: gnr.core.gnrstructures
-	:members:
-	:synopsis: Structs -- an alternative attribute-oriented way to build Bags.

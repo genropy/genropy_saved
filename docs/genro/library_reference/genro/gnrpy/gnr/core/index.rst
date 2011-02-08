@@ -12,6 +12,9 @@
 	gnrlang
 	gnrlist
 	gnrlocale
+	gnrlog
+	gnrmailhandler
+	gnrprinthandler
 	gnrstring
+	gnrstructures
 	gnrsys
-	miscellaneous
