@@ -224,8 +224,14 @@ class PageTableBuilder(TableBuilder):
         cssname = self.page.getResourceUri('html_tables/html_tables_print', 'css')
         all_css.append('@import url("%s") %s;' % (cssname, 'print'))
 
-        for cssname in self.page.get_css_path():
+        css_path, css_media_path = self.page.get_css_path()
+        
+        for cssname in css_path:
             all_css.append('@import url("%s");' % cssname)
+        
+        for cssmedia, cssnames  in css_media_path.items():
+            for cssname in cssnames:
+                all_css.append('@import url("%s") %s;' % (cssname, cssmedia))
 
         html = gnrstring.templateReplace(html, dict(all_css='\n'.join(all_css),
                                                     bodyclasses=self.page.get_bodyclasses(),
