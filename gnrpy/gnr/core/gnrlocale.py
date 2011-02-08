@@ -103,7 +103,6 @@ def parselocal_time(txt, locale):
 def parselocal(txt, cls, locale=None):
     """:param cls: ???add
     :param locale: ???add
-    
     :returns: an object of class cls
     """
     locale = (locale or DEFAULT_LOCALE).replace('-', '_')

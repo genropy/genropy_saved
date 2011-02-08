@@ -68,19 +68,23 @@ BASE_ENCODE = {'/2': '01',
                '/36': '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ'
 }
 
-
 def getUntil(myString, chunk, returnOriginal=False):
-    """
-    Returns a string until a given chunk.
-    @param myString
-    @param chunk: substring that bounds the result string
+    """Search in a string a chunk: if it is present, return all the characters before this chunk.
+    If not, return an empty string (or the original one, if returnOriginal is ``True``).
+    
+    :param myString: the string to be checked
+    :param chunk: substring that bounds the result string
+    :param returnOriginal: if ``True``, return the entire string if the chunk is not present in the string.
+                           Default value is ``False``.
+    :returns: a string until a given chunk
+    
     >>> getUntil('teststring', 'st')
     'te'
     >>> getUntil('teststring', 'te')
     ''
     >>> getUntil('teststring', 'co')
     ''
-    >>> getUntil('teststring', 'co',returnOriginal=True)
+    >>> getUntil('teststring', 'co', returnOriginal=True)
     'teststring'
     """
     p = myString.find(chunk)
@@ -91,13 +95,14 @@ def getUntil(myString, chunk, returnOriginal=False):
             return myString
         else:
             return ''
-
-
+            
 def getUntilLast(myString, chunk):
-    """
-    returns a string until last occurence of a given chunk
-    @param myString
-    @param chunk: substring that bounds the result string
+    """Return a string until last occurence of a given chunk
+    
+    :param myString: the string to be checked
+    :param chunk: substring that bounds the result string
+    :returns: a string until last occurence of a given chunk
+    
     >>> getUntilLast('teststring', 'st')
     'test'
     >>> getUntilLast('teststring', 'te')
@@ -112,10 +117,12 @@ def getUntilLast(myString, chunk):
         return ''
 
 def getFrom(myString, chunk):
-    """
-    returns a string from a given chunk
-    @param myString
-    @param chunk: substring that bounds the result string
+    """Return a string after a given chunk
+    
+    :param myString: the string to be checked
+    :param chunk: substring that bounds the result string
+    :returns: a string after a given chunk
+    
     >>> getFrom('teststring', 'st')
     'string'
     >>> getFrom('teststring', 'te')
@@ -130,10 +137,12 @@ def getFrom(myString, chunk):
         return ''
 
 def getFromLast(myString, chunk):
-    """
-    returns a string from last occurence of a given chunk.
-    @param myString
-    @param chunk: substring that bounds the result string
+    """Return a string after the last occurence of a given chunk.
+    
+    :param myString: the string to be checked
+    :param chunk: substring that bounds the result string
+    :returns: a string after the last occurence of a given chunk
+    
     >>> getFromLast('teststring', 'st')
     'ring'
     >>> getFromLast('teststring', 'ng')
@@ -146,12 +155,12 @@ def getFromLast(myString, chunk):
         return myString[p + len(chunk):]
     else:
         return ''
-
-
+            
 def wordSplit(text):
-    """
-    Returns a list that contains the words of the given text
-    @param text: text to split
+    """Return a list that contains the words of the given text
+    
+    :param text: text to be splitted
+    :returns: a list that contains the words of the given text
     
     >>> wordSplit('hello, my dear friend')
     ['hello', 'my', 'dear', 'friend']
@@ -159,8 +168,12 @@ def wordSplit(text):
     return REGEX_WRDSPLIT.split(text)
 
 def splitLast(myString, chunk):
-    """
-    returns a tuple of two strings, splitting the string at the last occurence of a given chunk.
+    """Return a tuple of two strings, splitting the string at the last occurence of a given chunk.
+    
+    :param myString: string to be splitted
+    :param chunk: substring that bounds the result string
+    :returns: a tuple of two strings
+    
     >>> splitLast('hello my dear friend', 'e')
     ('hello my dear fri', 'nd')
     """
@@ -171,11 +184,13 @@ def splitLast(myString, chunk):
         return myString, ''
 
 def getBetween(myString, startChunk, endChunk):
-    """
-    returns a string between two given chunks.
-    @param myString
-    @param startChunk: substring that bounds the result string from left
-    @param startChunk: substring that bounds the result string from right
+    """Return a string between two given chunks.
+    
+    :param myString: the string to be checked
+    :param startChunk: substring that bounds the result string from left
+    :param endChunk: substring that bounds the result string from right
+    
+    :returns: a string between two given chunks
     
     >>> getBetween('teststring', 'st','in')
     'str'
@@ -196,15 +211,15 @@ def getBetween(myString, startChunk, endChunk):
 
 def like(s1, s2, wildcard='%'):
     """
-    @param s1: first string
-    @param s2: second string
-    @wildcard: a special symbol that stands for one or more characters.
+    :param s1: first string
+    :param s2: second string
+    :wildcard: a special symbol that stands for one or more characters.
     
-    >>> like('*dog*', 'adogert','*')
+    >>> like('*dog*', 'adogert', '*')
     True
-    >>> like('dog*', 'adogert','*')
+    >>> like('dog*', 'adogert', '*')
     False
-    >>> like('*dog', '*adogert','*')
+    >>> like('*dog', '*adogert', '*')
     False
     """
     if s1.startswith('^'):
@@ -244,19 +259,21 @@ def regexDelete(myString, pattern):
     """
     Returns a string obtained deleting from the given string any occurrency
     of the given pattern.
-    @param myString
-    @param pattern: pattern of chars that must be deleted from myString
     
-    >>> regexDelete('When he turns the steering  wheel', 'he')
-    'Wn  turns t steering  wel'
+    :param myString: the string to be shortened
+    :param pattern: pattern of chars that must be deleted from myString
+    
+    >>> regexDelete('When he turns the steering wheel', 'he')
+    'Wn  turns t steering wel'
     """
     return re.sub(pattern, '', myString)
 
 def templateReplace(myString, symbolDict=None, safeMode=False):
-    """
-    @param myString: template string
-    @param symbolDict: dictionary that links symbol and values
-    @param safeMode: flag that implies the use of substitute() or safe_substitute()
+    """Allow to replace string's chunks.
+    
+    :param myString: template string
+    :param symbolDict: dictionary that links symbol and values. Default value is ``None``.
+    :param safeMode: flag that implies the use of :mod:`substitute()` :mod:`or safe_substitute()`. Default value is ``False``.
     
     >>> templateReplace('$foo loves $bar but she loves $aux and not $foo', {'foo':'John','bar':'Sandra','aux':'Steve'})
     'John loves Sandra but she loves Steve and not John'"""
@@ -274,10 +291,10 @@ def templateReplace(myString, symbolDict=None, safeMode=False):
 
 def asDict(myString, itemSep=',', argSep='=', symbols=None):
     """
-    :param myString: a string that represent a list of key-value pairs
-    :param itemSep: the separator char between each key-value pair
-    :param argSep: the separator key and value
-    :param symbols: a dictionary that eventually contains value for templates in myString
+    :param myString: a string that represent a list of key-value pairs.
+    :param itemSep: the separator char between each key-value pair. Default value is ``,``
+    :param argSep: the separator key and value. Default value is ``=``
+    :param symbols: a dictionary that eventually contains value for templates in myString, Default value is ``False``
     
     >>> asDict('height=22, weight=73')
     {'weight': '73', 'height': '22'}
@@ -303,30 +320,28 @@ def asDict(myString, itemSep=',', argSep='=', symbols=None):
     return result
 
 def stringDict(myDict, itemSep=',', argSep='='):
-    """returns a string that represents a list of list of key-value pairs
-    taken from a dictionary.
-    @param myDict: dictionay to transform in string
-    @param itemSep: the separator char between each key-value pair
-    @param argSep: the separator key and value
+    """return a string that represents a list of list of key-value pairs taken from a dictionary.
+    
+    :param myDict: dictionary to be transformed in a string
+    :param itemSep: the separator char between each key-value pair. Default value is ``,``
+    :param argSep: the separator key and value. Default value is ``=``
     
     >>> stringDict({'height':22,'width':33})
      'width=33,height=22'
-     
     """
     return itemSep.join([argSep.join((str(k), str(v))) for k, v in myDict.items()])
 
 def updateString(source, s, sep=','):
-    """
-    This method appends to a string that represents a set of elements separated by a separation cha
-    a new element.
-    @param source: first string
-    @param s: string that must be added
-    @param separator string
+    """Append a new element to a string that represents a set of elements separated by a separation char.
+    
+    :param source: initial string
+    :param s: string to be added
+    :param sep: separator string. Default value is ``,``
     
     >>> updateString('I drink cola', 'beer')
     'I drink cola,beer'
     
-    >>> gs.updateString('I drink cola', 'beer', ' and ')           
+    >>> gs.updateString('I drink cola', 'beer', ' and ')
     'I drink cola and beer'
     """
     if not source: return s
@@ -350,13 +365,12 @@ def makeSet(*args, **kwargs):
     return result
 
 def splitAndStrip(myString, sep=',', n=-1, fixed=0):
-    """
-    This methods splits a string in a list of n+1 items, striping white spaces.
-    @param myString
-    @param sep: separation character
-    @param n: how many split operations must be done on myString
-    @param fixed: use fixed if the resulting list must be always 
-                  with a fixed length. 
+    """Split a string in a list of n+1 items, striping white spaces.
+    
+    :param myString: the string to be splitted
+    :param sep: separation character. Default value is ``,``
+    :param n: how many split operations must be done on myString. Default value is ``-1``
+    :param fixed: use ``fixed`` if the resulting list must have a fixed length. Default value is ``0``
     
     >>> splitAndStrip('cola, beer, milk')
     ['cola', 'beer', 'milk']
@@ -377,15 +391,16 @@ def splitAndStrip(myString, sep=',', n=-1, fixed=0):
             return dlist + result
     else:
         return result[0:abs(fixed)]
-
-
+            
 def countOf(myString, srcString):
     return (len(myString) - len(myString.replace(srcString, ''))) / len(srcString)
 
 def split(path, sep='.'):
-    """
-    Returns a list splittng a path string at any occurrency of separation character.
-    This methods checks brackets
+    """Return a list splitting a path string at any occurrency of separation character.
+    
+    :param path: the path string to be splitted
+    :param sep: separation character. Default value is ``.``
+    
     >>> split('first.second.third')
     ['first', 'second', 'third']
     """
@@ -434,11 +449,10 @@ def split(path, sep='.'):
     return result
 
 def smartjoin(mylist, on):
-    """
-    Joins the given list with the separator substring on and escape each
-    occurrency of on within mylist
-    @param mylist
-    @param on: separator substring
+    """Join the given list with the separator substring on and escape each occurrency of on within mylist
+    
+    :param mylist: the list to be joined
+    :param on: separator substring
     
     >>> smartjoin(['Hello, dog', 'you', 'are', 'yellow'], ',')
     'Hello\\, dog,you,are,yellow'
@@ -447,10 +461,10 @@ def smartjoin(mylist, on):
     return on.join([x.replace(on, escape) for x in mylist])
 
 def smartsplit(path, on):
-    """
-    Splits the string "path" with the separator substring "on" ignoring the escaped separator chars
-    @param path
-    @param on: separator substring
+    """Split the string ``path`` with the separator substring ``on`` ignoring the escaped separator chars
+    
+    :param path: the path to be splitted
+    :param on: separator substring
     """
 
     escape = "\\" + on
@@ -470,15 +484,15 @@ def concat(s1, s2, sep='.'):
 
 
 def dotEsc(txt):
-    """
-    returns a text with all dot char escaped
+    """Return a text with all dot char escaped
     """
     return txt.replace('.', '\\.')
 
 #encoding and conversion functions    
 
 def encode(number, base='/16', nChars=None):
-    """Returns a string that contains the given number in the specified base
+    """Return a string that contains the given number in the specified base
+       
        @param number: number to encode
        @param base: base of encoding
        @param nChar: number of characters of the result

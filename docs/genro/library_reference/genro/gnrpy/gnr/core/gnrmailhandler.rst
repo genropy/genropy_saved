@@ -3,3 +3,4 @@
 ==============================
 
 .. automodule:: gnr.core.gnrmailhandler
+	:members:

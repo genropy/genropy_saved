@@ -4,6 +4,7 @@ try:
     HAS_CUPS = True
 except ImportError:
     HAS_CUPS = False
+    
 import os.path
 from subprocess import call
 
@@ -17,13 +18,14 @@ try:
     HAS_PYPDF = True
 except ImportError:
     HAS_PYPDF = False
+
 from gnr.core.gnrbag import Bag, DirectoryResolver
 from gnr.core.gnrbaseservice import GnrBaseService
 import sys
 
 class PrinterConnection(GnrBaseService):
     service_name='print'
-
+    
     def __init__(self, parent, printer_name=None, printerParams=None, **kwargs):
         self.parent = parent
         self.orientation = printerParams.pop('orientation',None)
@@ -31,11 +33,11 @@ class PrinterConnection(GnrBaseService):
             self.initPdf(printerParams=printerParams, **kwargs)
         else:
             self.initPrinter(printer_name, printerParams, **kwargs)
-
+            
     def initPdf(self, printerParams=None, **kwargs):
         self.zipped = printerParams.pop('zipped')
         self.printAgent = self.printPdf
-
+        
     def printPdf(self, pdf_list, jobname, outputFilePath=None):
         if self.zipped:
             outputFilePath += '.zip'
@@ -44,10 +46,10 @@ class PrinterConnection(GnrBaseService):
             outputFilePath += '.pdf'
             self.parent.joinPdf(pdf_list, outputFilePath)
         return os.path.basename(outputFilePath)
-
+        
     def printCups(self, pdf_list, jobname, **kwargs):
         self.cups_connection.printFiles(self.printer_name, pdf_list, jobname, self.printer_options)
-
+        
     def initPrinter(self, printer_name=None, printerParams=None, **kwargs):
         printerParams = printerParams or Bag()
         self.cups_connection = cups.Connection()
@@ -61,11 +63,11 @@ class PrinterConnection(GnrBaseService):
         if printer_media:
             self.printer_options['media'] = str(','.join(printer_media))
         self.printAgent = self.printCups
-
+        
     def printFiles(self, file_list, jobname='GenroPrint', storeFolder=None, outputFilePath=None):
         pdf_list = self.parent.autoConvertFiles(file_list, storeFolder, orientation=self.orientation)
         return self.printAgent(pdf_list, jobname, outputFilePath=outputFilePath)
-
+        
 class PrintHandler(object):
     paper_size = {
         'A4': '!!A4',
@@ -86,7 +88,7 @@ class PrintHandler(object):
         'Lower': '!!Lower',
         'LargeCapacity': '!!LargeCapacity'
     }
-
+    
     def __init__(self, parent=None):
         global HAS_CUPS, HAS_PYPDF
         self.hasCups = HAS_CUPS
@@ -105,16 +107,16 @@ class PrintHandler(object):
         if result < 0:
             raise PrintHandlerError('wkhtmltopdf error')
         return destPath
-
+        
     def autoConvertFiles(self, files, storeFolder):
         resultList = []
         for filename in files:
             baseName, ext = os.path.splitext(os.path.basename(filename))
             if ext.lower() == '.html':
                 resultList.append(self.htmlToPdf(filename, storeFolder))
-
+                
                 #destPath=os.path.join(storeFolder, '%s.pdf' % baseName)
-
+                
                 #if sys.platform.startswith('linux'):
                 #    result = call(['wkhtmltopdf','-q',filename,destPath])
                 #else:
@@ -127,7 +129,7 @@ class PrintHandler(object):
             else:
                 raise
         return resultList
-
+        
     def getPrinters(self):
         printersBag = Bag()
         if self.hasCups:
@@ -138,7 +140,7 @@ class PrintHandler(object):
         else:
             print 'pyCups is not installed'
         return printersBag
-
+        
     def getPrinterAttributes(self, printer_name):
         cups_connection = cups.Connection()
         printer_attributes = cups_connection.getPrinterAttributes(printer_name)
@@ -150,10 +152,10 @@ class PrintHandler(object):
             if tray in printer_attributes['media-supported']:
                 attributesBag.setItem('tray_supported.%i' % i, None, id=tray, caption=description)
         return attributesBag
-
+        
     def getPrinterConnection(self, printer_name=None, printerParams=None, **kwargs):
         return PrinterConnection(self, printer_name=printer_name, printerParams=printerParams, **kwargs)
-
+        
     def joinPdf(self, pdf_list, output_filepath):
         output_pdf = PdfFileWriter()
         open_files = []
@@ -170,8 +172,7 @@ class PrintHandler(object):
         output_file.close()
         for input_file in open_files:
             input_file.close()
-
-
+            
     def zipPdf(self, file_list=None, zipPath=None):
         self.parent.zipFiles(file_list=file_list, zipPath=zipPath)
-    
+        

@@ -39,12 +39,10 @@ mime_mapping = dict(application=MIMEApplication,
                     image=MIMEImage, text=MIMEText)
 
 def clean_and_unescape(text):
-    """
-    Removes HTML or XML character references and entities from a text string.
+    """Removes HTML or XML character references and entities from a text string.
     
-    @param text The HTML (or XML) source text.
-    @return The plain text, as a Unicode string, if necessary.
-    
+    :param text: The HTML (or XML) source text.
+    :returns: The plain text, as a Unicode string, if necessary.
     """
 
     def fixup(m):
@@ -70,9 +68,14 @@ def clean_and_unescape(text):
     return re.sub("&#?\w+;", fixup, text)
 
 class MailHandler(GnrBaseService):
+    """A class for mail management."""
     service_name = 'mail'
     
     def __init__(self, parent=None):
+        """The MailHandler init method
+        
+        :param parent: ???add
+        """
         self.parent = parent
         self.smtp_accounts = {}
         self.default_smtp_account = None
@@ -142,7 +145,8 @@ class MailHandler(GnrBaseService):
         return to, cc, bcc
 
     def build_base_message(self, subject, body, attachments=None, html=None, charset=None):
-        charset = charset or 'us-ascii' # us-ascii is the email default gnr default is utf-8 this is used to prevent explicit charset = None to be passed
+        charset = charset or 'us-ascii' # us-ascii is the email default, gnr default is utf-8.
+                                        # This is used to prevent explicit "charset = None" to be passed
         attachments = attachments or []
         if not html and not attachments:
             msg = MIMEText(body, 'text', charset)
@@ -194,30 +198,36 @@ class MailHandler(GnrBaseService):
                  account=None,
                  from_address=None, smtp_host=None, port=None, user=None, password=None,
                  ssl=False, tls=False, html=False, charset='utf-8', async=False, **kwargs):
-        """
-            send mail is a function called from the postoffice object to send an email.
-            parameters:
-            @to_address  address where the email will be sent
-            @subject     subject of the email
-            @body        body of the email.  If you pass html=true, you can pass html tags
-            @cc_address  can be a comma deliminated str of email addresses or a list or tuple - default=None
-            @bcc_address can be a comma deliminated str of email addresses or a list or tuple - default=None
-            @attachments path of the attachment to be sent with the email - default=None
-            @account     if an account has been defined previously with set_smtp_account then this account can be used
-                         instead of having to repeat all the mail parameters is contains
-            @from_address  the address that will appear in the recipients from field - default=None
-            @smtp_host        the smtp host to send this email
-            @port        If a non standard port is used then it can be overridden. default=None
-            @user        If a username is required for authentication - default-None
-            @password    If a username is required for authentication - default-None
-            @ssl         If True then will attempt to use the ssl port else standard smtp port is used - default=False
-            @tls         to communicate with an smtp server you may choose three ways. 1. no encryption  2. ssl -> all data is encrypted on a ssl layer
-                         3. tls -> server and client begin communitation in a unsecure way and after a starttls command they start to encrypt data
-                         this is the way you use to connect to gmail smtp
-                         - default=False
-            @html        if True then html tas can be used in the body of the email. Appropriate headers are attached - default=False
-            @charset     a different charser may be defined by its standard name. - default = 'utf-8'
-            @async       if set to true, then a separate process is spawned to send the email and control is returned immediately to the calling function - default=False
+        """Send mail is a function called from the postoffice object to send an email.
+        
+        :param to_address: address where the email will be sent
+        :param subject: subject of the email
+        :param body: body of the email.  If you pass html=true, you can pass html tags
+        :param cc_address: can be a comma deliminated str of email addresses or a list or tuple - default=None
+        :param bcc_address: can be a comma deliminated str of email addresses or a list or tuple - default=None
+        :param attachments: path of the attachment to be sent with the email - default=None
+        :param account: if an account has been defined previously with set_smtp_account then this account can
+                        be used instead of having to repeat all the mail parameters is contains
+        :param from_address: the address that will appear in the recipients from field - default=None
+        :param smtp_host: the smtp host to send this email
+        :param port: If a non standard port is used then it can be overridden. default=None
+        :param user: If a username is required for authentication - default-None
+        :param password: If a username is required for authentication - default-None
+        :param ssl: If True then will attempt to use the ssl port else standard smtp port is used - default=False
+        :param tls: allow to communicate with an smtp server (the default value is ``False``). You may choose three ways:
+                    
+                    1. no encryption
+                    
+                    2. ssl -> all data is encrypted on a ssl layer
+                    
+                    3. tls -> server and client begin communitation in a unsecure way and after
+                               a starttls command they start to encrypt data (this is the way you use to connect to gmail smtp)
+                    
+        :param html: if True then html tags can be used in the body of the email. Appropriate headers are attached.
+                     The default value is ``False``.
+        :param charset: a different charser may be defined by its standard name. The default value is ``utf-8``.
+        :param async: if set to true, then a separate process is spawned to send the email and control
+                      is returned immediately to the calling function. The default value is ``False``.
         """
 
         account_params = self.get_account_params(account=account, from_address=from_address,
@@ -252,10 +262,15 @@ class MailHandler(GnrBaseService):
                       ssl=False, tls=False, html=False, multiple_mode=False, progress_cb=None, charset='utf-8',
                       async=False):
         """
-        multiple_mode can be:
-                False - single mail for recipient
-                to, To, TO - a mail sent to all recipient in to field
-                bcc, Bcc, BCC - a mail sent to ourself with all recipient in bcc address
+        :param multiple_mode: allow to send a mail to many addresses. Its parameters are:
+                              
+                              ``False`` - single mail for recipient
+                              
+                              ``to, To, TO`` - a mail sent to all recipient in to field
+                              
+                              ``bcc, Bcc, BCC`` - a mail sent to ourself with all recipient in bcc address
+                              
+                              Default value is ``False``.
         """
         account_params = self.get_account_params(account=account, from_address=from_address,
                                                  smtp_host=smtp_host, port=port, user=user, password=password, ssl=ssl,

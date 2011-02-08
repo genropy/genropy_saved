@@ -552,7 +552,9 @@ def classMixin(target_class, source_class, methods=None, only_callables=True,
                exclude='js_requires,css_requires,py_requires', **kwargs):
     """
     Add to the class methods from 'source'.
+    
     Source isclass
+    
     If not 'methods' all methods are added.  
     """
     if isinstance(methods, basestring):
@@ -615,7 +617,9 @@ def instanceMixin(obj, source, methods=None, attributes=None, only_callables=Tru
                   exclude='js_requires,css_requires,py_requires', prefix=None, **kwargs):
     """
     Add to the instance obj methods from 'source'.
+    
     Source can be an instance or a class
+    
     If not 'methods' all methods are added.  
     """
     if isinstance(methods, basestring):

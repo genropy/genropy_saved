@@ -249,6 +249,7 @@ class BagToXml(object):
         If the element-leaf is a simple string, there are no type attributes in the corresponding XML nodes 
         otherwise a 'T' attribute is set to the node and the value of 'T' changes in function of the type 
         (value of 'T' is 'B' for boolean, 'L' for integer, 'R' for float, 'D' for date, 'H' for time).
+        
         :returns: the Bag represented as XML block in a List.
         
             >>> mybag=Bag()
@@ -272,7 +273,6 @@ class BagToXml(object):
         
         :param filename: an optional parameter, it is the path of the output file; default value is 'None'
         :param encoding: an optional parameter, is used to set the XML encoding; default value is UTF-8.
-        
         :returns: an XML version of the bag.
         
             >>> mybag=Bag()

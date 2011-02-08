@@ -533,7 +533,6 @@ class Bag(GnrObject):
         bag. Also nested keys are allowed.
         
         :param what: the key path to test.
-        
         :returns: a boolean value, True if the key exists in the bag, False otherwise.
         """
         if isinstance(what, basestring):
@@ -885,7 +884,7 @@ class Bag(GnrObject):
             +------------------------+----------------------------------------------------------------------+
             | ``'#v.path'``          | Show inner values of each item                                       |
             +------------------------+----------------------------------------------------------------------+
-            | ``'#__v'``             | Show the values of each node in 'static' mode  ???              |
+            | ``'#__v'``             | Show the values of each node in 'static' mode  ???                   |
             +------------------------+----------------------------------------------------------------------+
             | ``'#a'``               | Show attributes of each item                                         |
             +------------------------+----------------------------------------------------------------------+
@@ -1930,7 +1929,7 @@ class Bag(GnrObject):
         Generate a Bag from a generic xml
         
         :param source: an xml string or a path to an xml document.
-        @type source: basestring
+        :type source: basestring
         :returns: source, fromFile, mode.
         
         "source" parameter can be either a URI (file path or URL) or a string.
